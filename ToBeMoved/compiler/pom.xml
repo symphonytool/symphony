@@ -1,0 +1,50 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> 
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>eu.compassresearch.compiler</groupId>
+  <artifactId>CMLCompiler</artifactId>
+  <version>1</version>
+
+  <build>
+    <defaultGoal>install</defaultGoal>
+    <finalName>CML Compiler</finalName>
+
+    <!-- Plug-in to invoke Ant -->
+    <plugins>
+      <plugin>
+	<artifactId>maven-antrun-plugin</artifactId>
+	<version>1.7</version>
+	
+	<!-- Maven set JAVA_HOME to the jre not the sdk for the Ant process,
+	     hence for Ant to be able to see javac we need to add this 
+	     dependency.
+	-->
+	<dependencies>
+	  <dependency>
+	    <groupId>com.sun</groupId>
+	    <artifactId>tools</artifactId>
+	    <version>1.5.0</version>
+	    <scope>system</scope>
+	    <systemPath>${java.home}/../lib/tools.jar</systemPath>
+	  </dependency>
+	</dependencies>
+	
+	<!-- Run the JLex target -->
+	<executions>
+	  <execution>
+	    <phase> compile </phase>
+	    <configuration>
+	      <target>
+		<ant antfile="build.xml" target="compile-lexer-parser"/>
+	      </target>
+	    </configuration>
+	    <goals>
+	      <goal>run</goal>
+	    </goals>
+	  </execution>
+	</executions>
+      </plugin>
+    </plugins> 
+  </build>
+</project>
+

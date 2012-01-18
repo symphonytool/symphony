@@ -1,25 +1,69 @@
+package eu.compassresearch.cml.compiler;
 import java.util.LinkedList;
 import java.util.List;
-class Yytoken {
-  public static class LexicographicalRuntimeException extends RuntimeException
-  {
-    private int pos,line;
-    private  String value;
-    public LexicographicalRuntimeException(String chars)
+import eu.compassresearch.cml.compiler.CmlParser.Lexer;
+import eu.compassresearch.cml.compiler.CmlParser.Location;
+
+class CmlContext {
+  
+}
+
+class ParserInterface implements Lexer {
+    /**
+     * Method to retrieve the beginning position of the last scanned token.
+     * @return the position at which the last scanned token starts.  */
+  public Position getStartPos () { return null; }
+
+    /**
+     * Method to retrieve the ending position of the last scanned token.
+     * @return the first position beyond the last scanned token.  */
+  public Position getEndPos () { return null; }
+
+    /**
+     * Method to retrieve the semantic value of the last scanned token.
+     * @return the semantic value of the last scanned token.  */
+  public Object getLVal () { return null; }
+
+    /**
+     * Entry point for the scanner.  Returns the token identifier corresponding
+     * to the next token and prepares to return the semantic value
+     * and beginning/ending positions of the token. 
+     * @return the token identifier corresponding to the next token. */
+  public int yylex () throws java.io.IOException { return 0; }
+
+    /**
+     * Entry point for error reporting.  Emits an error
+     * referring to the given location in a user-defined way.
+     *
+     * @param loc The location of the element to which the
+     *                error message is related
+     * @param s The string for the error message.  */
+  public void yyerror (Location loc, String s) { return ; }
+
+}
+
+class LexicographicalRuntimeException extends RuntimeException
+{
+  private int pos,line;
+  private  String value;
+  public LexicographicalRuntimeException(String chars)
     {
       this.pos = Yytoken.curPos;
       this.line = Yytoken.curLine;
       this.value = chars;
     }
+  
+  @Override
+    public String toString()
+    {
+      return "Offending syntax "+(value != null ? "starting with \""+value+"\" ":"")+"found at line "+(line+1)+" position "+(pos+1);
+    }
+}
 
-    @Override
-      public String toString()
-      {
-	return "Offending syntax "+(value != null ? "starting with \""+value+"\" ":"")+"found at line "+(line+1)+" position "+(pos+1);
-      }
-  }
+class Yytoken {
   public static int curLine;
   public static int curPos; 
+
   private int line;
   private int pos;
   protected  String value;
@@ -38,41 +82,11 @@ class Yytoken {
   public static void main(String[] args) throws Exception
   {
     try{
-    new Yylex(System.in).yylex();
-    } catch (Yytoken.LexicographicalRuntimeException e)
+    new CmlLexer(System.in).yylex();
+    } catch (LexicographicalRuntimeException e)
 	{
 	  System.out.println(e);
 	}
-  }
-}
-
-class DigitToken extends Yytoken {
-  
-  protected long semanticValue;
-
-  public DigitToken(String value)
-  {
-    super(value);
-    semanticValue = Long.parseLong(value);
-  }
-
-}
-
-class DecimalDigitToken extends DigitToken {
-  
-  public DecimalDigitToken(String value)
-  {
-    super(value);
-    semanticValue  = Long.parseLong(value);
-  }
-}
-
-class OctalDecimalToken extends DigitToken {
-  
-  public OctalDecimalToken(String value)
-  {
-    super(value);
-    semanticValue = Long.parseLong(value.substring(1),8);
   }
 }
 
@@ -144,7 +158,13 @@ class CommentBlock extends Yytoken {
   }
 }
 
+
 %%
+%class CmlLexer
+%unicode
+%line
+%char
+
 newline=\n
 ws=[\t ]
 digit=[0-9]
@@ -185,17 +205,19 @@ KW_externalChoice=\[\]
 KW_assign=:=
 %state STRING, STRINGESCAPE, COMMENT
 %%
-<YYINITIAL>`               { yybegin(COMMENT); new CommentBlock(); Yytoken.curPos+=yylength();}
+<YYINITIAL>--               { yybegin(COMMENT);  Yytoken.curPos+=yylength();}
 <COMMENT>`                 { CommentBlock.current.increaseLevel();Yytoken.curPos+=yylength(); }
 <COMMENT>\'                { if (CommentBlock.current.decreaseLevel()) { yybegin(YYINITIAL);} Yytoken.curPos += yylength(); System.out.println("Leaving block"); }
 <COMMENT>[a-zA-Z]*         { CommentBlock.current.appendLine(yytext()); Yytoken.curPos+=yylength(); }
 <COMMENT>{newline}         { CommentBlock.current.appendLine("\n");Yytoken.curLine++;Yytoken.curPos= 0; }
+
 <YYINITIAL>{quote}         { yybegin(STRING); StringToken.currentString = new StringToken(Yytoken.curLine,Yytoken.curPos);Yytoken.curPos += yylength(); }
 <STRING>{newline}          { Yytoken.curLine++;Yytoken.curPos=0;StringToken.currentString.newLine();}
 <STRING>{string}           { Yytoken.curPos += yylength(); StringToken.currentString.append(yytext()); }
 <STRING>{backslash}        { Yytoken.curPos++; yybegin(STRINGESCAPE);}
 <STRINGESCAPE>{quote}      { Yytoken.curPos++; yybegin(STRING);StringToken.currentString.append("\""); }
 <STRING>{quote}            { yybegin(YYINITIAL); Yytoken.curPos += yylength() ; StringToken.currentString.endString(Yytoken.curLine, Yytoken.curPos);System.out.println(StringToken.currentString.getValue()); }
+
 <YYINITIAL>{newline}       { Yytoken.curLine++; Yytoken.curPos = 0; }
 <YYINITIAL>{ws}            { Yytoken.curPos += yylength() ; }
 <YYINITIAL>{decdigits}     { Yytoken.curPos += yylength() ; }         
@@ -217,4 +239,4 @@ KW_assign=:=
 <YYINITIAL>{colon}         { Yytoken.curPos += yylength() ; }
 <YYINITIAL>{semicolon}     { Yytoken.curPos += yylength() ; }
 <YYINITIAL>{at}            { Yytoken.curPos += yylength() ; }
-<YYINITIAL,STRING>.        { throw new Yytoken.LexicographicalRuntimeException(yytext());}
+<YYINITIAL,STRING>.        { throw new LexicographicalRuntimeException(yytext());}
