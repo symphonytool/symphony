@@ -18,7 +18,7 @@
   <property name="build.package"             value="eu/compassresearch/cml/compiler/"/>
   <property name="build.package.dir"         location="${build.generated.dir}/${build.package}"/>
 
-  <property name="build.lexer.cmd.jlex" value="/usr/bin/jlex"/>
+  <property name="build.lexer.cmd.jlex" value="/usr/bin/jflex"/>
   <property name="build.lexer.dir"      value="./Lexer/"/>
   <property name="build.lexer.file"     value="cml.lex"/>
   <property name="build.lexer.output.file"    value="${build.package.dir}/CmlLexer.java"/>
