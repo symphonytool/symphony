@@ -176,7 +176,7 @@ equalsign==
 minus=-
 plus=\+
 times=\*
-divide=/
+divide=\/
 backslash=\\
 lbrace=\{
 rbrace=\}
@@ -200,43 +200,42 @@ KW_else=else
 KW_define=define
 KW_begin=begin
 KW_end=end
-KW_internalChoice=|~|
 KW_externalChoice=\[\]
 KW_assign=:=
 %state STRING, STRINGESCAPE, COMMENT
 %%
-<YYINITIAL>--               { yybegin(COMMENT);  Yytoken.curPos+=yylength();}
-<COMMENT>`                 { CommentBlock.current.increaseLevel();Yytoken.curPos+=yylength(); }
-<COMMENT>\'                { if (CommentBlock.current.decreaseLevel()) { yybegin(YYINITIAL);} Yytoken.curPos += yylength(); System.out.println("Leaving block"); }
-<COMMENT>[a-zA-Z]*         { CommentBlock.current.appendLine(yytext()); Yytoken.curPos+=yylength(); }
-<COMMENT>{newline}         { CommentBlock.current.appendLine("\n");Yytoken.curLine++;Yytoken.curPos= 0; }
+<YYINITIAL>--               { yybegin(COMMENT);  }
+<COMMENT>--                 { /* Todo pick up the comment */  }
+<COMMENT>\/\*               { yybegin(COMMENT); }
+<COMMENT>.*                 { /* We have read one line of comment add it */ }
+<COMMENT>{newline}          { /* Handle newlines in block if it is a '--' block the return the token */  }
 
-<YYINITIAL>{quote}         { yybegin(STRING); StringToken.currentString = new StringToken(Yytoken.curLine,Yytoken.curPos);Yytoken.curPos += yylength(); }
-<STRING>{newline}          { Yytoken.curLine++;Yytoken.curPos=0;StringToken.currentString.newLine();}
-<STRING>{string}           { Yytoken.curPos += yylength(); StringToken.currentString.append(yytext()); }
-<STRING>{backslash}        { Yytoken.curPos++; yybegin(STRINGESCAPE);}
-<STRINGESCAPE>{quote}      { Yytoken.curPos++; yybegin(STRING);StringToken.currentString.append("\""); }
-<STRING>{quote}            { yybegin(YYINITIAL); Yytoken.curPos += yylength() ; StringToken.currentString.endString(Yytoken.curLine, Yytoken.curPos);System.out.println(StringToken.currentString.getValue()); }
+<YYINITIAL>{quote}         { yybegin(STRING);}
+<STRING>{newline}          { /*Handle new line in a string */}
+<STRING>{backslash}        { yybegin(STRINGESCAPE);}
+<STRING>{string}           { /*Handle every character not being a double quote or newline */}
+<STRINGESCAPE>{quote}      { yybegin(STRING); /*Only quote needs to be escaped everything else 
+						can be in a string so far */ }
+<STRING>{quote}            { yybegin(YYINITIAL); /* Return string token */ }
 
-<YYINITIAL>{newline}       { Yytoken.curLine++; Yytoken.curPos = 0; }
-<YYINITIAL>{ws}            { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{decdigits}     { Yytoken.curPos += yylength() ; }         
-<YYINITIAL>{octdigits}     { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{digits}        { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{identifier}    { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{equalsign}     { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{minus}         { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{plus}          { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{times}         { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{divide}        { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{backslash}     { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{lbrace}        { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{rbrace}        { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{lparen}        { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{rparen}        { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{lbrack}        { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{rbrack}        { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{colon}         { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{semicolon}     { Yytoken.curPos += yylength() ; }
-<YYINITIAL>{at}            { Yytoken.curPos += yylength() ; }
+<YYINITIAL>{newline}       { /* Nothing to do really */ }
+<YYINITIAL>{ws}            { /* Eat white space */ }
+<YYINITIAL>{decdigits}     { /* TODO */ }
+<YYINITIAL>{octdigits}     { /* TODO */ }
+<YYINITIAL>{identifier}    { /* TODO */ }
+<YYINITIAL>{equalsign}     { /* TODO */ }
+<YYINITIAL>{minus}         { /* TODO */ }
+<YYINITIAL>{plus}          { /* TODO */ }
+<YYINITIAL>{times}         { /* TODO */ }
+<YYINITIAL>{divide}        { /* TODO */ }
+<YYINITIAL>{backslash}     { /* TODO */ }
+<YYINITIAL>{lbrace}        { /* TODO */ }
+<YYINITIAL>{rbrace}        { /* TODO */ }
+<YYINITIAL>{lparen}        { /* TODO */ }
+<YYINITIAL>{rparen}        { /* TODO */ }
+<YYINITIAL>{lbrack}        { /* TODO */ }
+<YYINITIAL>{rbrack}        { /* TODO */ }
+<YYINITIAL>{colon}         { /* TODO */ }
+<YYINITIAL>{semicolon}     { /* TODO */ }
+<YYINITIAL>{at}            { /* TODO */ }
 <YYINITIAL,STRING>.        { throw new LexicographicalRuntimeException(yytext());}
