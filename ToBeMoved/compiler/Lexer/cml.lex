@@ -1,45 +1,11 @@
-package eu.compassresearch.cml.compiler;
+//package eu.compassresearch.cml.compiler;
 import java.util.LinkedList;
 import java.util.List;
-import eu.compassresearch.cml.compiler.CmlParser.Lexer;
-import eu.compassresearch.cml.compiler.CmlParser.Location;
+//import eu.compassresearch.cml.compiler.CmlParser.Lexer;
+//import eu.compassresearch.cml.compiler.CmlParser.Location;
 
 class CmlContext {
   
-}
-
-class ParserInterface implements Lexer {
-    /**
-     * Method to retrieve the beginning position of the last scanned token.
-     * @return the position at which the last scanned token starts.  */
-  public Position getStartPos () { return null; }
-
-    /**
-     * Method to retrieve the ending position of the last scanned token.
-     * @return the first position beyond the last scanned token.  */
-  public Position getEndPos () { return null; }
-
-    /**
-     * Method to retrieve the semantic value of the last scanned token.
-     * @return the semantic value of the last scanned token.  */
-  public Object getLVal () { return null; }
-
-    /**
-     * Entry point for the scanner.  Returns the token identifier corresponding
-     * to the next token and prepares to return the semantic value
-     * and beginning/ending positions of the token. 
-     * @return the token identifier corresponding to the next token. */
-  public int yylex () throws java.io.IOException { return 0; }
-
-    /**
-     * Entry point for error reporting.  Emits an error
-     * referring to the given location in a user-defined way.
-     *
-     * @param loc The location of the element to which the
-     *                error message is related
-     * @param s The string for the error message.  */
-  public void yyerror (Location loc, String s) { return ; }
-
 }
 
 class LexicographicalRuntimeException extends RuntimeException
@@ -161,9 +127,42 @@ class CommentBlock extends Yytoken {
 
 %%
 %class CmlLexer
+%implements CmlParser.Lexer
 %unicode
+%byaccj
 %line
+%column
 %char
+
+%{
+  private Object yylvalue;
+    /**
+     * Method to retrieve the beginning position of the last scanned token.
+     * @return the position at which the last scanned token starts.  */
+  public Position getStartPos () { return new Position(yyline,yycolumn); }
+
+    /**
+     * Method to retrieve the ending position of the last scanned token.
+     * @return the first position beyond the last scanned token.  */
+  public Position getEndPos () { return null; }
+
+    /**
+     * Method to retrieve the semantic value of the last scanned token.
+     * @return the semantic value of the last scanned token.  */
+  public Object getLVal () { return yylvalue; }
+  
+    /**
+     * Entry point for error reporting.  Emits an error
+     * referring to the given location in a user-defined way.
+     *
+     * @param loc The location of the element to which the
+     *                error message is related
+     * @param s The string for the error message.  */
+  public void yyerror (CmlParser.Location loc, String s) { return ; }
+
+
+%}
+
 
 newline=\n
 ws=[\t ]
@@ -222,20 +221,64 @@ KW_assign=:=
 <YYINITIAL>{ws}            { /* Eat white space */ }
 <YYINITIAL>{decdigits}     { /* TODO */ }
 <YYINITIAL>{octdigits}     { /* TODO */ }
-<YYINITIAL>{identifier}    { /* TODO */ }
-<YYINITIAL>{equalsign}     { /* TODO */ }
-<YYINITIAL>{minus}         { /* TODO */ }
-<YYINITIAL>{plus}          { /* TODO */ }
+<YYINITIAL>{identifier}    { 
+                             yylvalue = yytext();
+                             return CmlParser.IDENTIFIER;
+			   }
+<YYINITIAL>{equalsign}     { 
+                             yylvalue = yytext();
+                             return CmlParser.EQUALS; 
+			   }
+<YYINITIAL>{minus}         { 
+                             yylvalue = yytext();
+                             return CmlParser.MINUS;
+			   }
+<YYINITIAL>{plus}          { 
+                             yylvalue = yytext();
+                             return CmlParser.PLUS;
+			   }
 <YYINITIAL>{times}         { /* TODO */ }
-<YYINITIAL>{divide}        { /* TODO */ }
+
+<YYINITIAL>{divide}        { 
+                             yylvalue = yytext();
+                             return CmlParser.DIV;
+			   }
 <YYINITIAL>{backslash}     { /* TODO */ }
-<YYINITIAL>{lbrace}        { /* TODO */ }
-<YYINITIAL>{rbrace}        { /* TODO */ }
-<YYINITIAL>{lparen}        { /* TODO */ }
-<YYINITIAL>{rparen}        { /* TODO */ }
-<YYINITIAL>{lbrack}        { /* TODO */ }
-<YYINITIAL>{rbrack}        { /* TODO */ }
-<YYINITIAL>{colon}         { /* TODO */ }
-<YYINITIAL>{semicolon}     { /* TODO */ }
-<YYINITIAL>{at}            { /* TODO */ }
+
+<YYINITIAL>{lbrace}        { 
+                             yylvalue = yytext();
+                             return CmlParser.LCURLY;
+			   }
+<YYINITIAL>{rbrace}        { 
+                             yylvalue = yytext();
+                             return CmlParser.RCURLY;
+			   }
+<YYINITIAL>{lparen}        { 
+                             yylvalue = yytext();
+                             return CmlParser.LPAREN;
+			   }
+<YYINITIAL>{rparen}        { 
+                             yylvalue = yytext();
+                             return CmlParser.RPAREN;
+			   }
+<YYINITIAL>{lbrack}        { 
+                             yylvalue = yytext();
+                             return CmlParser.LSQUARE;
+			   }
+<YYINITIAL>{rbrack}        { 
+                             yylvalue = yytext();
+                             return CmlParser.RSQUARE;
+			   }
+<YYINITIAL>{colon}         { 
+                             yylvalue = yytext();
+                             return CmlParser.COLON;
+			   }
+<YYINITIAL>{semicolon}     { 
+                             yylvalue = yytext();
+                             return CmlParser.SEMI;
+			   }
+<YYINITIAL>{at}            { 
+                             yylvalue = yytext();
+                             return CmlParser.AT;
+			   }
 <YYINITIAL,STRING>.        { throw new LexicographicalRuntimeException(yytext());}
