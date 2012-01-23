@@ -1,8 +1,9 @@
-//package eu.compassresearch.cml.compiler;
+package eu.compassresearch.cml.compiler;
 import java.util.LinkedList;
 import java.util.List;
-//import eu.compassresearch.cml.compiler.CmlParser.Lexer;
-//import eu.compassresearch.cml.compiler.CmlParser.Location;
+import eu.compassresearch.cml.compiler.CmlParser.Lexer;
+import eu.compassresearch.cml.compiler.CmlParser.Location;
+
 
 class CmlContext {
   
@@ -127,7 +128,7 @@ class CommentBlock extends Yytoken {
 
 %%
 %class CmlLexer
-%implements CmlParser.Lexer
+%implements Lexer
 %unicode
 %byaccj
 %line

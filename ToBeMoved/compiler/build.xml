@@ -47,7 +47,7 @@
     <exec executable="${build.lexer.cmd.jlex}" dir="${build.lexer.dir}">
       <arg value="${build.lexer.file}"/>
     </exec>
-    <move file="${build.lexer.dir}/${build.lexer.file}.java" tofile="${build.lexer.output.file}"/>
+    <move file="${build.lexer.dir}/CmlLexer.java" tofile="${build.lexer.output.file}"/>
     <copy file="${build.lexer.dir}/Position.java" tofile="${build.package.dir}/Position.java"/>
   </target>
   
@@ -56,6 +56,8 @@
       <arg value="${build.parser.dir}/${build.parser.file}"/>
       <arg value="-o"/>
       <arg value="${build.parser.output.file}"/>
+      <arg value="-S"/>
+      <arg value="${build.parser.dir}/cmlskeleton.java.m4"/>
     </exec>
   </target>
   
