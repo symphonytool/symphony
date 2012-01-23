@@ -15,9 +15,9 @@
 	<artifactId>maven-antrun-plugin</artifactId>
 	<version>1.7</version>
 	
-	<!-- Maven set JAVA_HOME to the jre not the sdk for the Ant process,
-	     hence for Ant to be able to see javac we need to add this 
-	     dependency.
+	<!-- Maven sets JAVA_HOME to point at the jre by default not
+	     the sdk for the Ant process, hence for Ant to be able to
+	     compile with javac we need to add this dependency.
 	-->
 	<dependencies>
 	  <dependency>

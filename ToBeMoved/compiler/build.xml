@@ -18,7 +18,7 @@
   <property name="build.package"             value="eu/compassresearch/cml/compiler/"/>
   <property name="build.package.dir"         location="${build.generated.dir}/${build.package}"/>
 
-  <property name="build.lexer.cmd.jlex" value="/usr/bin/jlex"/>
+  <property name="build.lexer.cmd.jlex" value="/usr/bin/jflex"/>
   <property name="build.lexer.dir"      value="./Lexer/"/>
   <property name="build.lexer.file"     value="cml.lex"/>
   <property name="build.lexer.output.file"    value="${build.package.dir}/CmlLexer.java"/>
@@ -47,7 +47,7 @@
     <exec executable="${build.lexer.cmd.jlex}" dir="${build.lexer.dir}">
       <arg value="${build.lexer.file}"/>
     </exec>
-    <move file="${build.lexer.dir}/${build.lexer.file}.java" tofile="${build.lexer.output.file}"/>
+    <move file="${build.lexer.dir}/CmlLexer.java" tofile="${build.lexer.output.file}"/>
     <copy file="${build.lexer.dir}/Position.java" tofile="${build.package.dir}/Position.java"/>
   </target>
   
@@ -56,6 +56,8 @@
       <arg value="${build.parser.dir}/${build.parser.file}"/>
       <arg value="-o"/>
       <arg value="${build.parser.output.file}"/>
+      <arg value="-S"/>
+      <arg value="${build.parser.dir}/cmlskeleton.java.m4"/>
     </exec>
   </target>
   

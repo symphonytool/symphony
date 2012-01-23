@@ -2,10 +2,8 @@
 //%define api.pure
 %language "java"
 %locations
-//%output "eu/compassresearch/cml/compiler/CmlParser.java"
-%output "CmlParser.java"
 %define parser_class_name "CmlParser"
- //%define package "eu.compassresearch.cml.compiler"
+%define package "eu.compassresearch.cml.compiler"
 
 /* General notes/FIXMEs:
  *
