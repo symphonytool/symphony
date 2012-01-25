@@ -5,11 +5,11 @@ import java.util.HashMap;
 import eu.compassresearch.cml.compiler.CmlParser.Lexer;
 import eu.compassresearch.cml.compiler.CmlParser.Location;
 
-
+/*
 class CmlContext {
   
 }
-
+*/
 class LexicographicalRuntimeException extends RuntimeException
 {
   private int pos,line;
@@ -25,6 +25,32 @@ class LexicographicalRuntimeException extends RuntimeException
     public String toString()
     {
       return "Offending syntax "+(value != null ? "starting with \""+value+"\" ":"")+"found at line "+(line+1)+" position "+(pos+1);
+    }
+}
+
+class CmlLexeme {
+  
+    private int line;
+    private int pos;
+    protected  String value;
+    private int lex;
+
+    public CmlLexeme(int line, int pos, int lex, String value)
+    {
+	this.value = value;
+	this.line = line;
+	this.pos = pos;
+	this.lex = lex;
+    }
+
+    public int getLexValue()
+    {
+	return lex;
+    }
+    
+    public String getValue()
+    {
+	return this.value;
     }
 }
 
@@ -138,7 +164,10 @@ class CommentBlock extends CMLToken {
 %unicode
  //used when interfacing with bison  
 %byaccj
- //%type return type of yylex 
+// yylex return CmlLexeme
+//%type CmlLexeme 
+// all JFLEX internal operations, including yylex, are defined as private
+//%apiprivate
 %line
 %column
 %char
@@ -153,6 +182,7 @@ class CommentBlock extends CMLToken {
   static {
     keywords = new HashMap<String,Integer>();
     keywords.put("class", CmlParser.CLASS);
+    keywords.put("process", CmlParser.PROCESS);
     /*
     //keywords.put("#act", LEX_ACT);
     //keywords.put("#active", LEX_ACTIVE);
@@ -187,7 +217,9 @@ class CommentBlock extends CMLToken {
     keywords.put("elems", CmlParser.ELEMS);
     keywords.put("else", CmlParser.ELSE);
     keywords.put("elseif", CmlParser.ELSEIF);
+    */
     keywords.put("end", CmlParser.END);
+    /*
     keywords.put("error", CmlParser.ERROR);
     keywords.put("errs", CmlParser.ERRS);
     keywords.put("exists", CmlParser.EXISTS);
@@ -315,6 +347,7 @@ class CommentBlock extends CMLToken {
      *                error message is related
      * @param s The string for the error message.  */
   public void yyerror (CmlParser.Location loc, String s) { return ; }
+   
 
   // ************************************
   // *** AUXILIARY PRIVATE OPERATIONS ***
@@ -322,26 +355,30 @@ class CommentBlock extends CMLToken {
 
   // helper function for checking reserved words and identifiers
   private int checkIdentifier(String id) {
-    yylvalue = yytext();
-    //Long line = new Long(yyline+1);
-    //Long column = new Long(yycolumn+1);
-    try {
-      if (keywords.containsKey(id)) {
-	//return new OmlLexem(line, column, new Long(keywords.get(id)), id, IOmlLexem.ILEXEMKEYWORD);
-	return CmlParser.IDENTIFIER;
-      } else {
-	//DEBUG String theText = yytext();
-	//DEBUG System.out.print(theText + " = ");
-	//DEBUG for (int idx=0; idx< theText.length(); idx++) System.out.format("%04x ", (int) theText.charAt(idx));
-	//DEBUG System.out.println();
-	//return new OmlLexem(line, column, new Long(LEX_identifier), id, IOmlLexem.ILEXEMIDENTIFIER);
-	return CmlParser.IDENTIFIER;
+      
+      int line = yyline+1;
+      int column = yycolumn+1;
+
+      yylvalue = new CmlLexeme(line,column,CmlParser.IDENTIFIER, yytext());
+      try {
+	  if (keywords.containsKey(id)) {
+	      //return new OmlLexem(line, column, new Long(keywords.get(id)), id, IOmlLexem.ILEXEMKEYWORD);
+	      //return new CmlLexeme(line, column,IDENTIFIER, id);
+	      return CmlParser.IDENTIFIER;
+	  } else {
+	      //DEBUG String theText = yytext();
+	      //DEBUG System.out.print(theText + " = ");
+	      //DEBUG for (int idx=0; idx< theText.length(); idx++) System.out.format("%04x ", (int) theText.charAt(idx));
+	      //DEBUG System.out.println();
+	      //return new OmlLexem(line, column, new Long(LEX_identifier), id, IOmlLexem.ILEXEMIDENTIFIER);
+	      //return new CmlLexeme(line, column, IDENTIFIER, id);
+	      return CmlParser.IDENTIFIER;
+	  }
       }
-    }
-    catch (Exception cge) {
-      cge.printStackTrace();
-      return -1;
-    }
+      catch (Exception cge) {
+	  cge.printStackTrace();
+	  return 0;
+      }
   }
   
   // helper function for default token creation
@@ -352,12 +389,11 @@ class CommentBlock extends CMLToken {
   
   private int createToken(int lex)
   {
-    //Long line = new Long(yyline+1);
-    //Long column = new Long(yycolumn+1);
-    //Long lexem = new Long(lex);
+    int line = yyline+1;
+    int column = yycolumn+1;
     try {
-      yylvalue = yytext();
-      //return new OmlLexem(line, column, lexem, yytext(), tp);
+	yylvalue = new CmlLexeme(line, column,lex,yytext());
+      //return new CmlLexeme(line, column, lex, yytext());
       return lex;
     }
     catch (Exception cge) {
@@ -496,124 +532,4 @@ range					= ","({separator}*)"..."({separator}*)","
 .								{ return defaultToken(); }
 
 // production rule to handle end-of-file
-<<EOF>>									{ return -1; }
-/*
-newline=\n
-ws=[\t ]
-digit=[0-9]
-digits={digit}*
-decdigits=[1-9][0-9]*
-octdigits=0[1-7][0-7]*
-identifier=[a-zA-Z$_][0-9a-zA-Z$_]*
-equalsign==
-minus=-
-plus=\+
-times=\*
-divide=\/
-backslash=\\
-lbrace=\{
-rbrace=\}
-lparen=\(
-rparen=\)
-lbrack=\[
-rbrack=\]
-quote=\"
-colon=:
-semicolon=;
-string=[^\"]*
-gt=>
-lt=<
-at=@
-comma=,
-KW_Class=class
-KW_for=for
-KW_if=if
-KW_then=then
-KW_else=else
-KW_define=define
-KW_begin=begin
-KW_end=end
-KW_externalChoice=\[\]
-KW_assign=:=
-%state STRING, STRINGESCAPE, COMMENT
-%%
-<YYINITIAL>--               { yybegin(COMMENT);  }
-<COMMENT>--                 { /* Todo pick up the comment */  }
-<COMMENT>\/\*               { yybegin(COMMENT); }
-<COMMENT>.*                 { /* We have read one line of comment add it */ }
-<COMMENT>{newline}          { /* Handle newlines in block if it is a '--' block the return the token */  }
-
-<YYINITIAL>{quote}         { yybegin(STRING);}
-<STRING>{newline}          { /*Handle new line in a string */}
-<STRING>{backslash}        { yybegin(STRINGESCAPE);}
-<STRING>{string}           { /*Handle every character not being a double quote or newline */}
-<STRINGESCAPE>{quote}      { yybegin(STRING); /*Only quote needs to be escaped everything else 
-						can be in a string so far */ }
-<STRING>{quote}            { yybegin(YYINITIAL); /* Return string token */ }
-
-<YYINITIAL>{newline       { /* Nothing to do really */ }
-<YYINITIAL>{ws}            { /* Eat white space */ }
-<YYINITIAL>{decdigits}     { /* TODO */ }
-<YYINITIAL>{octdigits}     { /* TODO */ }
-<YYINITIAL>{identifier}    { 
-                             yylvalue = yytext();
-                             return CmlParser.IDENTIFIER;
-			   }
-<YYINITIAL>{equalsign}     { 
-                             yylvalue = yytext();
-                             return CmlParser.EQUALS; 
-			   }
-<YYINITIAL>{minus}         { 
-                             yylvalue = yytext();
-                             return CmlParser.MINUS;
-			   }
-<YYINITIAL>{plus}          { 
-                             yylvalue = yytext();
-                             return CmlParser.PLUS;
-			   }
-<YYINITIAL>{times}         { /* TODO */ }
-
-<YYINITIAL>{divide}        { 
-                             yylvalue = yytext();
-                             return CmlParser.DIV;
-			   }
-<YYINITIAL>{backslash}     { /* TODO */ }
-
-<YYINITIAL>{lbrace}        { 
-                             yylvalue = yytext();
-                             return CmlParser.LCURLY;
-			   }
-<YYINITIAL>{rbrace}        { 
-                             yylvalue = yytext();
-                             return CmlParser.RCURLY;
-			   }
-<YYINITIAL>{lparen}        { 
-                             yylvalue = yytext();
-                             return CmlParser.LPAREN;
-			   }
-<YYINITIAL>{rparen}        { 
-                             yylvalue = yytext();
-                             return CmlParser.RPAREN;
-			   }
-<YYINITIAL>{lbrack}        { 
-                             yylvalue = yytext();
-                             return CmlParser.LSQUARE;
-			   }
-<YYINITIAL>{rbrack}        { 
-                             yylvalue = yytext();
-                             return CmlParser.RSQUARE;
-			   }
-<YYINITIAL>{colon}         { 
-                             yylvalue = yytext();
-                             return CmlParser.COLON;
-			   }
-<YYINITIAL>{semicolon}     { 
-                             yylvalue = yytext();
-                             return CmlParser.SEMI;
-			   }
-<YYINITIAL>{at}            { 
-                             yylvalue = yytext();
-                             return CmlParser.AT;
-			   }
-<YYINITIAL,STRING>.        { throw new LexicographicalRuntimeException(yytext());}
-*/
+<<EOF>>									{ return 0; }

@@ -5,6 +5,71 @@
 %define parser_class_name "CmlParser"
 %define package "eu.compassresearch.cml.compiler"
 
+%code imports{
+
+// ******************************
+// *** required local imports ***
+// ******************************
+
+// required standard Java definitions
+//import java.util.*;
+//import eu.compassresearch.cml.compiler.;
+
+}
+
+%code{
+
+  public static void main(String[] args)
+  {
+    System.out.println("hje");
+
+  }
+
+  // ************************
+  // *** MEMBER VARIABLES ***
+  // ************************
+
+  // maintain a link to the scanner we're using
+  //private CmlLexer lexer = null;
+
+  // maintain a counter for all errors
+  // note: MUST be incremented by yyerror (when overloaded)
+  //public int errors = 0;
+
+  // the abstract syntax element
+  //public OmlDocument astDocument = null;
+
+  // *************************
+  // *** PUBLIC OPERATIONS ***
+  // *************************
+
+  /* public CmlParser (String in) */
+  /* { */
+  /*   lexer = new CmlLexer(in); */
+  /* } */
+
+  /* public CmlParser (java.io.Reader in) */
+  /* { */
+  /*   lexer = new CmlLexer(in); */
+  /* } */
+
+  /* public CmlParser (java.io.InputStream in) */
+  /* { */
+  /*   lexer = new CmlLexer(in); */
+  /* } */
+
+  /* public void parseDocument() //throws CGException */
+  /* { */
+  /*   // create the top-level AST element */
+  /*   //astDocument = new OmlDocument(); */
+  /*   // link the scanner to the document (for the tokens) */
+  /*   //theScanner.setLexems(astDocument.getLexems()); */
+  /*   // go parse the file */
+  /*   yyparse(); */
+  /* } */
+ }
+
+
 /* General notes/FIXMEs:
  *
  * 1) At the moment there are a lot of shift/reduce conflicts "hidden"
@@ -15,7 +80,6 @@
  * CMLLanguageDef.pdf document and double-check their semantics.
  *
  */
-
 
 %token CLASS END PROCESS EQUALS AT BEGIN CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNEL CHANSET TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION VDMTYPEPRODUCT TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS INV VALUES FUNCTIONS PRE POST MEASURE VDMSUBCLASSRESP VDMNOTYETSPEC VDMNOTYETDEF OPERATIONS EXT VDMRD VDMWR INSTANCEVARS LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN SKIP VDMWHATEVER IDENTIFIER
 %token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PSUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES DOMSUB RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1
@@ -63,7 +127,7 @@ paragraph :
 /* 2.1 Classes */
 
 classDef :
-  CLASS IDENTIFIER classBody END IDENTIFIER
+CLASS IDENTIFIER classBody END IDENTIFIER { /*new CMLClassDef($3);*/ }
   ;
 
 /* 2.2 Processes */
@@ -106,9 +170,9 @@ paragraphAction :
 | declaration AT paragraphAction
   ;
 
-action :
-  VDMcommand
-| IDENTIFIER
+action
+: VDMcommand
+| IDENTIFIER { /*new CMLIdentifier($1);*/ }
 | cspAction
 | action LSQUARE identifierList CSPRENAME identifierList RSQUARE
   ;
@@ -856,3 +920,7 @@ identifierList :
   IDENTIFIER
 | IDENTIFIER COMMA identifierList
   ;
+
+// **********************
+// *** END OF GRAMMAR ***
+// **********************
