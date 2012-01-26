@@ -13,6 +13,7 @@
 // required standard Java definitions
     import java.util.*;
     import org.overture.ast.definitions.*;
+    import org.overture.ast.types.*;
     import org.overturetool.vdmj.lex.*;
 }
 
@@ -35,6 +36,25 @@
 			       lexeme.getEndPos().line, lexeme.getEndPos().column);
     }
 
+    private LexLocation extractLexLocation(CmlLexeme start, CmlLexeme end)
+    {
+	return new LexLocation(null/*File file*/, "Default",
+			       start.getStartPos().line, start.getStartPos().column, 
+			       end.getEndPos().line, end.getEndPos().column);
+    }
+
+    private LexLocation extractLexLocation(CmlLexeme start, LexLocation end)
+    {
+	return new LexLocation(null/*File file*/, "Default",
+			       start.getStartPos().line, start.getStartPos().column, 
+			       end.endLine, end.endPos);
+    }
+
+    
+    private LexNameToken extractLexNameToken(CmlLexeme lexeme)
+    {
+	return new LexNameToken("Default",lexeme.getValue(), extractLexLocation(lexeme),false, true);
+    }
 
     // *************************
     // *** PUBLIC OPERATIONS ***
@@ -113,7 +133,7 @@
  *
  */
 
-%token CLASS END PROCESS EQUALS AT BEGIN CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNEL CHANSET TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION VDMTYPEPRODUCT TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS INV VALUES FUNCTIONS PRE POST MEASURE VDMSUBCLASSRESP VDMNOTYETSPEC VDMNOTYETDEF OPERATIONS EXT VDMRD VDMWR INSTANCEVARS LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN SKIP VDMWHATEVER IDENTIFIER
+%token CLASS END PROCESS EQUALS AT BEGIN CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNEL CHANSET TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS INV VALUES FUNCTIONS PRE POST MEASURE VDMSUBCLASSRESP VDMNOTYETSPEC VDMNOTYETDEF OPERATIONS EXT VDMRD VDMWR INSTANCEVARS LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN SKIP VDMWHATEVER IDENTIFIER
 %token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PSUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES DOMSUB RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1
 
 %token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON
@@ -122,7 +142,7 @@
 %token globalDef chansetExpr declaration VDMcommand nameset namesetExpr communication predicate chanset typeVarIdentifier quoteLiteral functionType localDef symbolicLiteral implicitOperationBody
 
 /* CSP ops and more */
-%right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION VDMTYPEPRODUCT VDMSETOF VDMSEQOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN
+%right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN
 %right ELSE ELSEIF
 
 /* unary ops */
@@ -159,15 +179,20 @@ paragraph
   ;
 
 /* 2.1 Classes */
-
-classDef :
-CLASS IDENTIFIER classBody END IDENTIFIER       { 
-                                                  Position classStartPos =  ((CmlLexeme)$1).getStartPos();
-                                                  Position classEndPos = ((CmlLexeme)$4).getEndPos();
-                                                  LexLocation loc = new LexLocation(null, "Default", classStartPos.line,classStartPos.column,classEndPos.line,classEndPos.column);
-						  LexNameToken lexName = new LexNameToken("Default",((CmlLexeme)$2).getValue(), extractLexLocation((CmlLexeme)$2),false, true);
-						  $$ = new AClassClassDefinition(loc, lexName , /*NameScope nameScope_*/ null, /*Boolean used_*/ null, /*AAccessSpecifierAccessSpecifier*/ null,/* List<? extends LexNameToken> supernames_*/ new Vector<LexNameToken>(), null /*hasContructors_*/, /*ClassDefinitionSettings settingHierarchy_*/null, null/*Boolean gettingInheritable_*/, null/*Boolean gettingInvDefs_*/, /*Boolean isAbstract_*/null, /*Boolean isUndefined_*/null); }
-  ;
+classDef 
+: CLASS IDENTIFIER classBody END IDENTIFIER       
+{ 
+    Position classStartPos =  ((CmlLexeme)$1).getStartPos();
+    Position classEndPos = ((CmlLexeme)$4).getEndPos();
+    LexLocation loc = new LexLocation(null, "Default", classStartPos.line,classStartPos.column,classEndPos.line,classEndPos.column);
+    LexNameToken lexName = extractLexNameToken((CmlLexeme)$2); 
+    $$ = new AClassClassDefinition(loc, lexName , /*NameScope nameScope_*/ null, /*Boolean used_*/ null, 
+				   /*AAccessSpecifierAccessSpecifier*/ null,/* List<? extends LexNameToken> supernames_*/ new Vector<LexNameToken>(), 
+				   null /*hasContructors_*/, /*ClassDefinitionSettings settingHierarchy_*/null, 
+				   null/*Boolean gettingInheritable_*/, null/*Boolean gettingInvDefs_*/, 
+				   /*Boolean isAbstract_*/null, /*Boolean isUndefined_*/null); 
+}
+;
 
 /* 2.2 Processes */
 
@@ -270,71 +295,137 @@ chansetDef :
 /* 3 Definitions */
 
 classBody 
-: definitionBlockList                       { $$ = $1; }
-;
-
-definitionBlockList 
-: definitionBlock                           {
-					      List<PDefinition> defList = new Vector<PDefinition>();
-    					      PDefinition def = (PDefinition)$1;
-					      defList.add(def);
-					      $$ = defList;
-                                            }
-| definitionBlockList definitionBlock       { 
-    					      List<PDefinition> defList = (List<PDefinition>)$1;
-    					      PDefinition def = (PDefinition)$2;
-                                              if (def != null) defList.add(def);
-					      $$ = defList;
-  					    }
+: definitionBlock                       { $$ = $1; }
 ;
 
 definitionBlock 
-: typeDefs             {$$ = ;}
+: definitionBlockAlternative
+{
+    List<PDefinition> defBlockList = new Vector<PDefinition>();
+    List<PDefinition> defBlock = (List<PDefinition>)$1;
+    if (defBlockList != null) defBlockList.addAll(defBlock);
+    $$ = defBlockList;
+}
+
+| definitionBlock definitionBlockAlternative        
+{ 
+    List<PDefinition> defBlockList = (List<PDefinition>)$1;
+    List<PDefinition> defBlock = (List<PDefinition>)$2;
+    if (defBlockList != null) defBlockList.addAll(defBlock);
+    $$ = defBlockList;
+}
+;
+
+definitionBlockAlternative
+: typeDefs             
+{
+    $$ = $1;
+}
 | valueDefs
+{
+    $$ = $1;
+}
 | functionDefs
+{
+    $$ = $1;
+}
 | operationDefs
+{
+    $$ = $1;
+}
 | instanceVarDefs
+{
+    $$ = $1;
+}
 ;
 
 /* 3.1 Type Definitions */
 
 typeDefs 
-: TYPES typeDef SEMI typeDefList             {
-                                               List<PDefinition> list = new Vector<ATypeDefinition>();
-					       list.addAll((List<PDefinition>)$4);
-					       list.add((PDefinition)$2);
-					       $$ = list;
-                                             }
+: TYPES
+{ 
+    $$ = null; 
+}
+| TYPES typeDefList SEMI                          
+{
+    $$ = (List<PDefinition>)$2;
+}
+| TYPES typeDefList                          
+{
+    $$ = (List<PDefinition>)$2;
+}
 ;
 
 typeDefList
-: typeDef SEMI typeDefList                   {
-                                                
-                                             }
-| /* empty */
-  ;
+: typeDefList SEMI typeDef                   
+{
+    List<PDefinition> list = (List<PDefinition>)$1;
+    list.add((PDefinition)$3);
+    $$ = list;
+}
+| typeDef                                    
+{
+    List<PDefinition> list = new Vector<PDefinition>(); 
+    list.add((PDefinition)$1);
+    $$ = list;
+} 
+;
 
-/* FIXME the optional trailing semicolon in the type definitions is presently not optional */
-
-typeDef :
-  IDENTIFIER EQUALS type invariant
+typeDef 
+: IDENTIFIER EQUALS type invariant
+| IDENTIFIER EQUALS type                        
+{ 
+    LexLocation location = extractLexLocation((CmlLexeme)$1,((PTypeBase)$3).getLocation());
+    LexNameToken name = extractLexNameToken((CmlLexeme)$1);
+    $$ = new ATypeDefinition(location,null /*NameScope nameScope_*/, false, 
+			     null/*SClassDefinition classDefinition_*/,null/*AAccessSpecifierAccessSpecifier access_*/, 
+			     (PType)$3, null, null, null, 
+			     null, true, name); 
+}
 | IDENTIFIER VDMRECORDDEF fieldList invariant
   ;
 
-type : 
-  LPAREN type RPAREN
+type 
+: LPAREN type RPAREN
+{ 
+    $$ = $2;
+}
 | TBOOL
-| TNAT
+{ 
+    $$ = new ABooleanBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}
+| TNAT                                                
+{ 
+    $$ = new ANatNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}                                         
 | TNAT1
+{ 
+    $$ = new ANatOneNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}
 | TINT
-| TRAT
+{ 
+    $$ = new AIntNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}
+| TRAT 
+{ 
+    $$ = new ARationalNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}
 | TREAL
+{ 
+    $$ = new ARealNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}
 | TCHAR
+{ 
+    $$ = new ACharBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}
 | TTOKEN
+{ 
+    $$ = new ATokenBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}
 | quoteLiteral /* replace me! */
 | VDMCOMPOSE IDENTIFIER OF fieldList END
 | type VDMTYPEUNION type
-| type VDMTYPEPRODUCT type
+| type STAR type
 | LSQUARE type RSQUARE
 | VDMSETOF type
 | VDMSEQOF type

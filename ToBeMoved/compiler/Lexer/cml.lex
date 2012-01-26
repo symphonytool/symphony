@@ -204,14 +204,16 @@ class CommentBlock extends CMLToken {
     //keywords.put("#fin", LEX_FIN);
     //keywords.put("#req", LEX_REQ);
     //keywords.put("#waiting", LEX_WAITING);
+    */
     keywords.put("abs", CmlParser.ABS);
-    keywords.put("all", CmlParser.ALL);
-    keywords.put("always", CmlParser.ALWAYS);
+    //keywords.put("all", CmlParser.ALL);
+    //keywords.put("always", CmlParser.ALWAYS);
     keywords.put("and", CmlParser.AND);
     keywords.put("atomic", CmlParser.ATOMIC);
-    keywords.put("async", CmlParser.ASYNC);
-    keywords.put("be", CmlParser.BE);
-    keywords.put("bool", CmlParser.BOOL);
+    //keywords.put("async", CmlParser.ASYNC);
+    //keywords.put("be", CmlParser.BE);
+    keywords.put("bool", CmlParser.TBOOL);
+    /*
     keywords.put("by", CmlParser.BY);
     keywords.put("card", CmlParser.CARD);
     keywords.put("cases", CmlParser.CASES);
@@ -274,8 +276,8 @@ class CommentBlock extends CMLToken {
     keywords.put("mutex", CmlParser.MUTEX);
     */
     keywords.put("nat", CmlParser.TNAT);
+    keywords.put("nat1", CmlParser.TNAT1);
     /*
-    keywords.put("nat1", CmlParser.NATONE);
     keywords.put("new", CmlParser.NEW);
     keywords.put("nil", CmlParser.NIL);
     keywords.put("not", CmlParser.NOT);
@@ -293,9 +295,11 @@ class CommentBlock extends CMLToken {
     keywords.put("protected", CmlParser.PROTECTED);
     keywords.put("psubset", CmlParser.PROPER_SUBSET);
     keywords.put("public", CmlParser.PUBLIC);
-    keywords.put("rat", CmlParser.RAT);
-    keywords.put("rd", CmlParser.RD);
-    keywords.put("real", CmlParser.REAL);
+    */
+    keywords.put("rat", CmlParser.TRAT);
+    keywords.put("rd", CmlParser.VDMRD);
+    keywords.put("real", CmlParser.TREAL);
+    /*
     keywords.put("rem", CmlParser.REM);
     keywords.put("responsibility", CmlParser.RESPONSIBILITY);
     keywords.put("return", CmlParser.RETURN);
@@ -324,21 +328,22 @@ class CommentBlock extends CMLToken {
     keywords.put("tixe", CmlParser.TIXE);
     keywords.put("tl", CmlParser.TL);
     keywords.put("to", CmlParser.TO);
-    keywords.put("token", CmlParser.TOKEN);
+    */
+    keywords.put("token", CmlParser.TTOKEN);
+    /*
     keywords.put("trap", CmlParser.TRAP);
     keywords.put("true", CmlParser.bool_true);
     */
     keywords.put("types", CmlParser.TYPES);
-    /*
-    keywords.put("undefined", CmlParser.UNDEFINED);
-    keywords.put("union", CmlParser.SET_UNION);
+    //keywords.put("undefined", CmlParser.UNDEFINED);
+    keywords.put("union", CmlParser.UNION);
     keywords.put("values", CmlParser.VALUES);
-    keywords.put("variables", CmlParser.VARIABLES);
-    keywords.put("while", CmlParser.WHILE);
-    keywords.put("with", CmlParser.WITH);
-    keywords.put("wr", CmlParser.WR);
-    keywords.put("yet", CmlParser.YET);
-    */
+    keywords.put("variables", CmlParser.INSTANCEVARS);
+    //keywords.put("while", CmlParser.WHILE);
+    //keywords.put("with", CmlParser.WITH);
+    keywords.put("wr", CmlParser.VDMWR);
+    //keywords.put("yet", CmlParser.YET);
+    
   }
 
 
@@ -378,7 +383,7 @@ class CommentBlock extends CMLToken {
   // helper function for checking reserved words and identifiers
   private int checkIdentifier(String id) {
       
-      int line = yyline;
+      int line = yyline + 1;
       int column = yycolumn;
       String value = yytext();
       
@@ -414,7 +419,7 @@ class CommentBlock extends CMLToken {
   
   private int createToken(int lex)
   {
-    int line = yyline;
+    int line = yyline + 1;
     int column = yycolumn;
     String value = yytext();
     try {
@@ -528,26 +533,26 @@ range					= ","({separator}*)"..."({separator}*)","
 // single character tokens
 {hook}								{ return createToken(CmlParser.TILDE /*HOOK*/); }
 {prime}								{ return createToken(CmlParser.BACKTICK); }
-","								{ return defaultToken(); }
-"!"								{ return defaultToken(); }
-":"								{ return defaultToken(); }
-";"								{ return defaultToken(); }
+","								{ return createToken(CmlParser.COMMA); }
+"!"								{  }
+":"								{ return createToken(CmlParser.COLON); }
+";"								{ return createToken(CmlParser.SEMI); }
 "="								{ return createToken(CmlParser.EQUALS); }
-")"								{ return defaultToken(); }
-"("								{ return defaultToken(); }
-"|"								{ return defaultToken(); }
-"-"								{ return defaultToken(); }
-"["								{ return defaultToken(); }
-"]"								{ return defaultToken(); }
-"{"								{ return defaultToken(); }
-"}"								{ return defaultToken(); }
-"+"								{ return defaultToken(); }
-"/"								{ return defaultToken(); }
+")"								{ return createToken(CmlParser.RPAREN); }
+"("								{ return createToken(CmlParser.LPAREN); }
+"|"								{ return createToken(CmlParser.BAR); }
+"-"								{ return createToken(CmlParser.MINUS); }
+"["								{ return createToken(CmlParser.LSQUARE); }
+"]"								{ return createToken(CmlParser.RSQUARE); }
+"{"								{ return createToken(CmlParser.LCURLY); }
+"}"								{ return createToken(CmlParser.RCURLY); }
+"+"								{ return createToken(CmlParser.PLUS); }
+"/"								{ return createToken(CmlParser.DIV);  }
 "<"								{ return createToken(CmlParser.LT); }
 ">"								{ return createToken(CmlParser.GT); }
-"."								{ return defaultToken(); }
-"&"								{ return createToken(CmlParser.DOT); }
-"*"								{ return defaultToken(); }
+"."								{ return createToken(CmlParser.DOT); }
+"&"								{  }
+"*"								{ return createToken(CmlParser.STAR); }
 "^"								{ return createToken(CmlParser.CONC); }
 "\\"								{ return createToken(CmlParser.SETDIFF); }
 
