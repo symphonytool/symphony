@@ -12,4 +12,10 @@ public class Position {
 	this.line = line;
 	this.column = column;
     }
+
+    @Override
+    public String toString()
+    {
+	return line + ":" + column; 
+    }
 }

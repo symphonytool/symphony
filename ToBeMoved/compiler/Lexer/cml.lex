@@ -30,17 +30,27 @@ class LexicographicalRuntimeException extends RuntimeException
 
 class CmlLexeme {
   
-    private int line;
-    private int pos;
+    private Position startPos;
+    private Position endPos;
     protected  String value;
     private int lex;
 
-    public CmlLexeme(int line, int pos, int lex, String value)
+    public CmlLexeme(Position startPos, Position endPos, int lex, String value)
     {
 	this.value = value;
-	this.line = line;
-	this.pos = pos;
+	this.startPos = startPos;
+	this.endPos = endPos;
 	this.lex = lex;
+    }
+
+    public Position getStartPos()
+    {
+	return startPos;
+    }
+
+    public Position getEndPos()
+    {
+	return endPos;
     }
 
     public int getLexValue()
@@ -51,6 +61,11 @@ class CmlLexeme {
     public String getValue()
     {
 	return this.value;
+    }
+
+    public String toString()
+    {
+	return value + " " + startPos;
     }
 }
 
@@ -257,7 +272,9 @@ class CommentBlock extends CMLToken {
     keywords.put("mu", CmlParser.MU);
     keywords.put("munion", CmlParser.MAP_MERGE);
     keywords.put("mutex", CmlParser.MUTEX);
-    keywords.put("nat", CmlParser.NAT);
+    */
+    keywords.put("nat", CmlParser.TNAT);
+    /*
     keywords.put("nat1", CmlParser.NATONE);
     keywords.put("new", CmlParser.NEW);
     keywords.put("nil", CmlParser.NIL);
@@ -310,7 +327,9 @@ class CommentBlock extends CMLToken {
     keywords.put("token", CmlParser.TOKEN);
     keywords.put("trap", CmlParser.TRAP);
     keywords.put("true", CmlParser.bool_true);
+    */
     keywords.put("types", CmlParser.TYPES);
+    /*
     keywords.put("undefined", CmlParser.UNDEFINED);
     keywords.put("union", CmlParser.SET_UNION);
     keywords.put("values", CmlParser.VALUES);
@@ -323,16 +342,16 @@ class CommentBlock extends CMLToken {
   }
 
 
-  private Object yylvalue;
+  private CmlLexeme yylvalue;
     /**
      * Method to retrieve the beginning position of the last scanned token.
      * @return the position at which the last scanned token starts.  */
-  public Position getStartPos () { return new Position(yyline,yycolumn); }
+  public Position getStartPos () { return yylvalue.getStartPos(); }
 
     /**
      * Method to retrieve the ending position of the last scanned token.
      * @return the first position beyond the last scanned token.  */
-  public Position getEndPos () { return null; }
+  public Position getEndPos () { return yylvalue.getEndPos(); }
 
     /**
      * Method to retrieve the semantic value of the last scanned token.
@@ -346,7 +365,10 @@ class CommentBlock extends CMLToken {
      * @param loc The location of the element to which the
      *                error message is related
      * @param s The string for the error message.  */
-  public void yyerror (CmlParser.Location loc, String s) { return ; }
+  public void yyerror (Location loc, String s) { 
+    
+    System.err.println("Error : " + s + " at " + loc.begin.toString()); 
+  }
    
 
   // ************************************
@@ -356,15 +378,17 @@ class CommentBlock extends CMLToken {
   // helper function for checking reserved words and identifiers
   private int checkIdentifier(String id) {
       
-      int line = yyline+1;
-      int column = yycolumn+1;
-
-      yylvalue = new CmlLexeme(line,column,CmlParser.IDENTIFIER, yytext());
+      int line = yyline;
+      int column = yycolumn;
+      String value = yytext();
+      
       try {
 	  if (keywords.containsKey(id)) {
 	      //return new OmlLexem(line, column, new Long(keywords.get(id)), id, IOmlLexem.ILEXEMKEYWORD);
 	      //return new CmlLexeme(line, column,IDENTIFIER, id);
-	      return CmlParser.IDENTIFIER;
+	      yylvalue = new CmlLexeme(new Position(line,column),new Position(line,column + value.length()),keywords.get(id),value);
+	      return keywords.get(id);
+	      
 	  } else {
 	      //DEBUG String theText = yytext();
 	      //DEBUG System.out.print(theText + " = ");
@@ -372,12 +396,13 @@ class CommentBlock extends CMLToken {
 	      //DEBUG System.out.println();
 	      //return new OmlLexem(line, column, new Long(LEX_identifier), id, IOmlLexem.ILEXEMIDENTIFIER);
 	      //return new CmlLexeme(line, column, IDENTIFIER, id);
+	      yylvalue = new CmlLexeme(new Position(line,column),new Position(line,column + value.length()),CmlParser.IDENTIFIER,value);
 	      return CmlParser.IDENTIFIER;
 	  }
       }
       catch (Exception cge) {
 	  cge.printStackTrace();
-	  return 0;
+	  return -1;
       }
   }
   
@@ -389,10 +414,11 @@ class CommentBlock extends CMLToken {
   
   private int createToken(int lex)
   {
-    int line = yyline+1;
-    int column = yycolumn+1;
+    int line = yyline;
+    int column = yycolumn;
+    String value = yytext();
     try {
-	yylvalue = new CmlLexeme(line, column,lex,yytext());
+      yylvalue = new CmlLexeme(new Position(line,column),new Position(line,column + value.length()),lex,value);
       //return new CmlLexeme(line, column, lex, yytext());
       return lex;
     }

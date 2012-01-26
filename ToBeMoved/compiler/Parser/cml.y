@@ -4,7 +4,6 @@
 %locations
 %define parser_class_name "CmlParser"
 %define package "eu.compassresearch.cml.compiler"
-
 %code imports{
 
 // ******************************
@@ -12,52 +11,85 @@
 // ******************************
 
 // required standard Java definitions
-//import java.util.*;
-//import eu.compassresearch.cml.compiler.;
-
+    import java.util.*;
+    import org.overture.ast.definitions.*;
+    import org.overturetool.vdmj.lex.*;
 }
 
 %code{
+    // ************************
+    // *** MEMBER VARIABLES ***
+    // ************************
 
-  public static void main(String[] args)
-  {
-    System.out.println("hje");
+    private List<PDefinition> documentDefs = new Vector<PDefinition>();
 
+
+    // *************************
+    // *** PRIVATE OPERATIONS ***
+    // *************************
+     
+    private LexLocation extractLexLocation(CmlLexeme lexeme)
+    {
+	return new LexLocation(null/*File file*/, "Default",
+			       lexeme.getStartPos().line, lexeme.getStartPos().column, 
+			       lexeme.getEndPos().line, lexeme.getEndPos().column);
+    }
+
+
+    // *************************
+    // *** PUBLIC OPERATIONS ***
+    // *************************
+     
+    public List<PDefinition> getDocument()
+    {
+	return documentDefs;
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+	if (args.length == 0) {
+	    System.out.println("Usage : java CmlParser <inputfile>");
+	}
+	else {
+      
+	    CmlLexer scanner = null;
+	    try {
+		scanner = new CmlLexer( new java.io.FileReader(args[0]) );
+		CmlParser cmlParser = new CmlParser(scanner);
+		//cmlParser.setDebugLevel(1);
+	  
+		//do {
+		//System.out.println(scanner.yylex());
+		boolean result = cmlParser.parse();
+		if (result){
+		    System.out.println("parsed!");
+		    System.out.println(cmlParser.getDocument());
+		}
+		else
+		    System.out.println("Not parsed!");
+		
+		//} while (!scanner.zzAtEOF);
+
+	    }
+	    catch (java.io.FileNotFoundException e) {
+		System.out.println("File not found : \""+args[0]+"\"");
+	    }
+	    catch (java.io.IOException e) {
+		System.out.println("IO error scanning file \""+args[0]+"\"");
+		System.out.println(e);
+	    }
+	    catch (Exception e) {
+		System.out.println("Unexpected exception:");
+		e.printStackTrace();
+	    }
+      
+	}
+    
   }
-
-  // ************************
-  // *** MEMBER VARIABLES ***
-  // ************************
-
-  // maintain a link to the scanner we're using
-  //private CmlLexer lexer = null;
-
-  // maintain a counter for all errors
-  // note: MUST be incremented by yyerror (when overloaded)
-  //public int errors = 0;
 
   // the abstract syntax element
   //public OmlDocument astDocument = null;
-
-  // *************************
-  // *** PUBLIC OPERATIONS ***
-  // *************************
-
-  /* public CmlParser (String in) */
-  /* { */
-  /*   lexer = new CmlLexer(in); */
-  /* } */
-
-  /* public CmlParser (java.io.Reader in) */
-  /* { */
-  /*   lexer = new CmlLexer(in); */
-  /* } */
-
-  /* public CmlParser (java.io.InputStream in) */
-  /* { */
-  /*   lexer = new CmlLexer(in); */
-  /* } */
-
+  
   /* public void parseDocument() //throws CGException */
   /* { */
   /*   // create the top-level AST element */
@@ -107,18 +139,20 @@
 
 /* 2 CML Grammar */
 
-document : 
-  paragraphList
+document 
+: paragraphList               {
+                                $$ = $1;  
+			      }
 | globalDef paragraphList
 ;
 
-paragraphList :
-  paragraph
+paragraphList 
+    : paragraph                   {  documentDefs.add((PDefinition)$1); }
 | paragraph paragraphList
-  ;
+;
 
-paragraph :
-  classDef
+paragraph 
+: classDef                    { $$ = $1; }
 | processDef
 | channelDef
 | chansetDef
@@ -127,7 +161,12 @@ paragraph :
 /* 2.1 Classes */
 
 classDef :
-CLASS IDENTIFIER classBody END IDENTIFIER { /*new CMLClassDef($3);*/ }
+CLASS IDENTIFIER classBody END IDENTIFIER       { 
+                                                  Position classStartPos =  ((CmlLexeme)$1).getStartPos();
+                                                  Position classEndPos = ((CmlLexeme)$4).getEndPos();
+                                                  LexLocation loc = new LexLocation(null, "Default", classStartPos.line,classStartPos.column,classEndPos.line,classEndPos.column);
+						  LexNameToken lexName = new LexNameToken("Default",((CmlLexeme)$2).getValue(), extractLexLocation((CmlLexeme)$2),false, true);
+						  $$ = new AClassClassDefinition(loc, lexName , /*NameScope nameScope_*/ null, /*Boolean used_*/ null, /*AAccessSpecifierAccessSpecifier*/ null,/* List<? extends LexNameToken> supernames_*/ new Vector<LexNameToken>(), null /*hasContructors_*/, /*ClassDefinitionSettings settingHierarchy_*/null, null/*Boolean gettingInheritable_*/, null/*Boolean gettingInvDefs_*/, /*Boolean isAbstract_*/null, /*Boolean isUndefined_*/null); }
   ;
 
 /* 2.2 Processes */
@@ -230,31 +269,48 @@ chansetDef :
 
 /* 3 Definitions */
 
-classBody :
-  definitionBlockList
-  ;
+classBody 
+: definitionBlockList                       { $$ = $1; }
+;
 
-definitionBlockList :
-  definitionBlock
-| definitionBlockList definitionBlock
-  ;
+definitionBlockList 
+: definitionBlock                           {
+					      List<PDefinition> defList = new Vector<PDefinition>();
+    					      PDefinition def = (PDefinition)$1;
+					      defList.add(def);
+					      $$ = defList;
+                                            }
+| definitionBlockList definitionBlock       { 
+    					      List<PDefinition> defList = (List<PDefinition>)$1;
+    					      PDefinition def = (PDefinition)$2;
+                                              if (def != null) defList.add(def);
+					      $$ = defList;
+  					    }
+;
 
-definitionBlock :
-  typeDefs
+definitionBlock 
+: typeDefs             {$$ = ;}
 | valueDefs
 | functionDefs
 | operationDefs
 | instanceVarDefs
-  ;
+;
 
 /* 3.1 Type Definitions */
 
-typeDefs :
-  TYPES typeDef SEMI typeDefList
-  ;
+typeDefs 
+: TYPES typeDef SEMI typeDefList             {
+                                               List<PDefinition> list = new Vector<ATypeDefinition>();
+					       list.addAll((List<PDefinition>)$4);
+					       list.add((PDefinition)$2);
+					       $$ = list;
+                                             }
+;
 
-typeDefList:
-  typeDef SEMI typeDefList
+typeDefList
+: typeDef SEMI typeDefList                   {
+                                                
+                                             }
 | /* empty */
   ;
 
