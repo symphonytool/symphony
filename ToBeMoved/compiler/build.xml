@@ -1,4 +1,4 @@
-<project name="COMPASS CML Compiler" default="dist" basedir=".">
+<project name="COMPASS CML Compiler" default="compile-lexer-parser" basedir=".">
     <description>
       The COMPASS CML Compiler build script.
     </description>
@@ -12,10 +12,10 @@
        E.g. properties in this file are named as build.src, build.dist
        etc.
   -->
-  <property name="build.build.dir"          location="build"/>
+  <property name="build.build.dir"          location="target/ant/build"/>
   <property name="ast.dir"                  location="../../../core/ast/target"/>
   <property name="build.dist.dir"           location="dist"/>
-  <property name="build.generated.dir"      location="generated"/>
+  <property name="build.generated.dir"      location="src/main/java"/>
   <property name="build.package"             value="eu/compassresearch/cml/compiler/"/>
   <property name="build.package.dir"         location="${build.generated.dir}/${build.package}"/>
 
@@ -56,6 +56,7 @@
     </exec>
     <move file="${build.lexer.dir}/CmlLexer.java" tofile="${build.lexer.output.file}"/>
     <copy file="${build.lexer.dir}/Position.java" tofile="${build.package.dir}/Position.java"/>
+  	<copy file="${build.lexer.dir}/ParserError.java" tofile="${build.package.dir}/ParserError.java"/>
   </target>
   
   <target name="generate-parser" depends="-init">

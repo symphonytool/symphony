@@ -2,6 +2,7 @@ package eu.compassresearch.cml.compiler;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Vector;
 import eu.compassresearch.cml.compiler.CmlParser.Lexer;
 import eu.compassresearch.cml.compiler.CmlParser.Location;
 
@@ -186,7 +187,8 @@ class CommentBlock extends CMLToken {
 %line
 %column
 %char
-%debug
+ //%debug
+%public
 
 %{
   
@@ -196,15 +198,7 @@ class CommentBlock extends CMLToken {
   // initialize the reserved word table as a static constructor
   static {
     keywords = new HashMap<String,Integer>();
-    keywords.put("class", CmlParser.CLASS);
-    keywords.put("process", CmlParser.PROCESS);
-    /*
-    //keywords.put("#act", LEX_ACT);
-    //keywords.put("#active", LEX_ACTIVE);
-    //keywords.put("#fin", LEX_FIN);
-    //keywords.put("#req", LEX_REQ);
-    //keywords.put("#waiting", LEX_WAITING);
-    */
+    
     keywords.put("abs", CmlParser.ABS);
     //keywords.put("all", CmlParser.ALL);
     //keywords.put("always", CmlParser.ALWAYS);
@@ -213,12 +207,12 @@ class CommentBlock extends CMLToken {
     //keywords.put("async", CmlParser.ASYNC);
     //keywords.put("be", CmlParser.BE);
     keywords.put("bool", CmlParser.TBOOL);
-    /*
-    keywords.put("by", CmlParser.BY);
+    //keywords.put("by", CmlParser.BY);
     keywords.put("card", CmlParser.CARD);
     keywords.put("cases", CmlParser.CASES);
-    keywords.put("char", CmlParser.CHAR);
+    keywords.put("char", CmlParser.TCHAR);
     keywords.put("class", CmlParser.CLASS);
+    /*
     keywords.put("comp", CmlParser.COMP);
     keywords.put("compose", CmlParser.COMPOSE);
     keywords.put("conc", CmlParser.CONC);
@@ -291,11 +285,12 @@ class CommentBlock extends CMLToken {
     keywords.put("power", CmlParser.POWER);
     keywords.put("pre", CmlParser.PRE);
     keywords.put("pre_", CmlParser.PRECONDAPPLY);
-    keywords.put("private", CmlParser.PRIVATE);
-    keywords.put("protected", CmlParser.PROTECTED);
-    keywords.put("psubset", CmlParser.PROPER_SUBSET);
-    keywords.put("public", CmlParser.PUBLIC);
     */
+    //keywords.put("private", CmlParser.PRIVATE);
+    keywords.put("process", CmlParser.PROCESS);
+    //keywords.put("protected", CmlParser.PROTECTED);
+    keywords.put("psubset", CmlParser.PROPER_SUBSET);
+    //keywords.put("public", CmlParser.PUBLIC);
     keywords.put("rat", CmlParser.TRAT);
     keywords.put("rd", CmlParser.VDMRD);
     keywords.put("real", CmlParser.TREAL);
@@ -348,6 +343,10 @@ class CommentBlock extends CMLToken {
 
 
   private CmlLexeme yylvalue;
+  
+  public int errors = 0;
+public List<ParserError> parseErrors = new Vector<ParserError>();
+  
     /**
      * Method to retrieve the beginning position of the last scanned token.
      * @return the position at which the last scanned token starts.  */
@@ -370,9 +369,25 @@ class CommentBlock extends CMLToken {
      * @param loc The location of the element to which the
      *                error message is related
      * @param s The string for the error message.  */
-  public void yyerror (Location loc, String s) { 
+  public void yyerror (Location loc, String err) { 
     
-    System.err.println("Error : " + s + " at " + loc.begin.toString()); 
+    System.err.println("Error : " + err + " at " + loc.begin.toString()); 
+    
+      String msg = new String(err);
+	    if (yylvalue != null) {
+	    	CmlLexeme currentToken = (CmlLexeme) yylvalue;
+	    	if (currentToken.getValue().length() > 0) {
+	    		// add position info iff the scanner found a lexem
+	    	    msg += " at (" + currentToken.getStartPos().line + ", " + currentToken.getStartPos().column + ")";
+	    		msg += " after reading token \"" + currentToken.getValue() + "\"";
+	    		
+	    		parseErrors.add(new ParserError(err+" after reading token \"" + currentToken.getValue() + "\"", 
+	    		currentToken.getStartPos().line, currentToken.getStartPos().column));
+	    	}
+	    }
+		System.out.println(msg);
+		errors++;
+    
   }
    
 

@@ -3,6 +3,7 @@
 %language "java"
 %locations
 %define parser_class_name "CmlParser"
+%define access "public"
 %define package "eu.compassresearch.cml.compiler"
 %code imports{
 
@@ -15,7 +16,10 @@
     import org.overture.ast.definitions.*;
     import org.overture.ast.types.*;
     import org.overturetool.vdmj.lex.*;
+
+    public
 }
+
 
 %code{
     // ************************
@@ -33,21 +37,21 @@
     {
 	return new LexLocation(null/*File file*/, "Default",
 			       lexeme.getStartPos().line, lexeme.getStartPos().column, 
-			       lexeme.getEndPos().line, lexeme.getEndPos().column);
+			       lexeme.getEndPos().line, lexeme.getEndPos().column,0,0);
     }
 
     private LexLocation extractLexLocation(CmlLexeme start, CmlLexeme end)
     {
 	return new LexLocation(null/*File file*/, "Default",
 			       start.getStartPos().line, start.getStartPos().column, 
-			       end.getEndPos().line, end.getEndPos().column);
+			       end.getEndPos().line, end.getEndPos().column,0,0);
     }
 
     private LexLocation extractLexLocation(CmlLexeme start, LexLocation end)
     {
 	return new LexLocation(null/*File file*/, "Default",
 			       start.getStartPos().line, start.getStartPos().column, 
-			       end.endLine, end.endPos);
+			       end.endLine, end.endPos,0,0);
     }
 
     
@@ -134,7 +138,7 @@
  */
 
 %token CLASS END PROCESS EQUALS AT BEGIN CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNEL CHANSET TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS INV VALUES FUNCTIONS PRE POST MEASURE VDMSUBCLASSRESP VDMNOTYETSPEC VDMNOTYETDEF OPERATIONS EXT VDMRD VDMWR INSTANCEVARS LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN SKIP VDMWHATEVER IDENTIFIER
-%token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PSUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES DOMSUB RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1
+%token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES DOMSUB RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1
 
 %token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN
@@ -148,7 +152,7 @@
 /* unary ops */
 %right UPLUS UMINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE 
 /* binary ops */
-%left PLUS MINUS DIVIDE DIV REM MOD LT LTE GT GTE EQUALS NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PSUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES DOMSUB RNGRES RNGSUB COMP ITERATE IN DOT DOTHASH
+%left PLUS MINUS DIVIDE DIV REM MOD LT LTE GT GTE EQUALS NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES DOMSUB RNGRES RNGSUB COMP ITERATE IN DOT DOTHASH
 
  /* other hacks */
 %right LPAREN
@@ -184,13 +188,19 @@ classDef
 { 
     Position classStartPos =  ((CmlLexeme)$1).getStartPos();
     Position classEndPos = ((CmlLexeme)$4).getEndPos();
-    LexLocation loc = new LexLocation(null, "Default", classStartPos.line,classStartPos.column,classEndPos.line,classEndPos.column);
+    LexLocation loc = new LexLocation(null, "Default", classStartPos.line,classStartPos.column,classEndPos.line,classEndPos.column,0,0);
     LexNameToken lexName = extractLexNameToken((CmlLexeme)$2); 
-    $$ = new AClassClassDefinition(loc, lexName , /*NameScope nameScope_*/ null, /*Boolean used_*/ null, 
-				   /*AAccessSpecifierAccessSpecifier*/ null,/* List<? extends LexNameToken> supernames_*/ new Vector<LexNameToken>(), 
-				   null /*hasContructors_*/, /*ClassDefinitionSettings settingHierarchy_*/null, 
-				   null/*Boolean gettingInheritable_*/, null/*Boolean gettingInvDefs_*/, 
-				   /*Boolean isAbstract_*/null, /*Boolean isUndefined_*/null); 
+    // $$ = new AClassClassDefinition(loc, lexName , /*NameScope nameScope_*/ null, /*Boolean used_*/ null, 
+    // 				   /*AAccessSpecifierAccessSpecifier*/ null,/* List<? extends LexNameToken> supernames_*/ new Vector<LexNameToken>(), 
+    // 				   null /*hasContructors_*/, /*ClassDefinitionSettings settingHierarchy_*/null, 
+    // 				   null/*Boolean gettingInheritable_*/, null/*Boolean gettingInvDefs_*/, 
+    // 				   /*Boolean isAbstract_*/null, /*Boolean isUndefined_*/null); 
+    AClassClassDefinition c = new AClassClassDefinition();
+    c.setLocation(loc);
+    c.setName(lexName);
+    c.setIsAbstract(false);
+    c.setDefinitions((List)$3);
+    $$ = c;
 }
 ;
 
@@ -295,7 +305,14 @@ chansetDef :
 /* 3 Definitions */
 
 classBody 
-: definitionBlock                       { $$ = $1; }
+: definitionBlock                       
+{ 
+  $$ = (List)$1; 
+}
+|
+{
+  $$ = new Vector<PDefinition>();
+}
 ;
 
 definitionBlock 
@@ -303,7 +320,7 @@ definitionBlock
 {
     List<PDefinition> defBlockList = new Vector<PDefinition>();
     List<PDefinition> defBlock = (List<PDefinition>)$1;
-    if (defBlockList != null) defBlockList.addAll(defBlock);
+    if (defBlockList != null) if (defBlock != null) defBlockList.addAll(defBlock);
     $$ = defBlockList;
 }
 
@@ -311,7 +328,7 @@ definitionBlock
 { 
     List<PDefinition> defBlockList = (List<PDefinition>)$1;
     List<PDefinition> defBlock = (List<PDefinition>)$2;
-    if (defBlockList != null) defBlockList.addAll(defBlock);
+    if (defBlockList != null) if (defBlock != null) defBlockList.addAll(defBlock);
     $$ = defBlockList;
 }
 ;
@@ -377,8 +394,9 @@ typeDef
 { 
     LexLocation location = extractLexLocation((CmlLexeme)$1,((PTypeBase)$3).getLocation());
     LexNameToken name = extractLexNameToken((CmlLexeme)$1);
+    AAccessSpecifierAccessSpecifier access = new AAccessSpecifierAccessSpecifier(new APublicAccess(),null,null);
     $$ = new ATypeDefinition(location,null /*NameScope nameScope_*/, false, 
-			     null/*SClassDefinition classDefinition_*/,null/*AAccessSpecifierAccessSpecifier access_*/, 
+			     null/*SClassDefinition classDefinition_*/,access, 
 			     (PType)$3, null, null, null, 
 			     null, true, name); 
 }
@@ -700,7 +718,7 @@ binaryExpr :
 | expression INSET expression
 | expression NOTINSET expression
 | expression SUBSET expression
-| expression PSUBSET expression
+| expression PROPER_SUBSET expression
 | expression UNION expression
 | expression SETDIFF expression
 | expression INTER expression
