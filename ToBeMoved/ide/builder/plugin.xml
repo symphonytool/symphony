@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+<!-- Builder for VDM PP -->
+   <extension
+         point="org.overture.ide.core.buildParticipant">
+      <builder
+            class="eu.compassresearch.ide.builders.cml.BuilderCml"
+            nature="eu.compassresearch.ide.cml.core.nature">
+      </builder>
+   </extension>
+   
+   <!-- Builder for VDM RT -->
+   
+  <!-- Builder for VDM SL --> 
+</plugin>

@@ -45,7 +45,7 @@ public class  CmlKeywords implements IVdmKeywords {
 	      "then", "thread", "threadid",
 	      "tixe", "tl", "to", "token", "traces", "trap", "true",
 	      "types", "undefined", "union", "values", "variables",
-	      "while", "with", "wr", /*"yet",*/ "RESULT",
+	      "while", "with", "wr", /*"yet",*/ "RESULT", "process"
 		  };
 	  
 	  public static final String[] multipleKeywords = {
