@@ -31,5 +31,7 @@ public class CmlEditor extends VdmEditor {
 	public VdmSourceViewerConfiguration getVdmSourceViewerConfiguration() {
 		return new CmlSourceViewerConfiguration();
 	}
+	
+	
 
 }

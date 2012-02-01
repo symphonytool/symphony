@@ -4,6 +4,8 @@ import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
 
+
+
 public class Activator extends Plugin
 {
 	// The plug-in ID

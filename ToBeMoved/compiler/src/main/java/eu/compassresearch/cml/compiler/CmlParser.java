@@ -44,7 +44,7 @@ import static eu.compassresearch.cml.compiler.CmlParser.YyPactClass.yypact_;
 /* "%code imports" blocks.  */
 
 /* Line 40 of cmlskeleton.java.m4  */
-/* Line 8 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 8 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
 
 
 // ******************************
@@ -62,10 +62,10 @@ import static eu.compassresearch.cml.compiler.CmlParser.YyPactClass.yypact_;
 
 
 /* Line 40 of cmlskeleton.java.m4  */
-/* Line 66 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/src/main/java/eu/compassresearch/cml/compiler/CmlParser.java"  */
+/* Line 66 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/src/main/java/eu/compassresearch/cml/compiler/CmlParser.java"  */
 
 /**
- * A Bison parser, automatically generated from <tt>/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y</tt>.
+ * A Bison parser, automatically generated from <tt>/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y</tt>.
  *
  * @author LALR (1) parser skeleton written by Paolo Bonzini.
  */
@@ -75,7 +75,7 @@ class CmlParser
   public static final String bisonVersion = "2.4.1";
 
   /** Name of the skeleton that generated this parser.  */
-  public static final String bisonSkeleton = "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cmlskeleton.java.m4";
+  public static final String bisonSkeleton = "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cmlskeleton.java.m4";
 
 
   /** True if verbose error messages are enabled.  */
@@ -741,7 +741,7 @@ class CmlParser
   if (yyn == 2)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 167 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 167 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     {
                                 yyval = ((yystack.valueAt (1-(1))));  
 			      };
@@ -752,7 +752,7 @@ class CmlParser
   if (yyn == 4)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 174 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 174 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     {  documentDefs.add((PDefinition)((yystack.valueAt (1-(1))))); };
   break;
     
@@ -761,7 +761,7 @@ class CmlParser
   if (yyn == 6)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 179 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 179 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { yyval = ((yystack.valueAt (1-(1)))); };
   break;
     
@@ -770,7 +770,7 @@ class CmlParser
   if (yyn == 10)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 188 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 188 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     Position classStartPos =  ((CmlLexeme)((yystack.valueAt (5-(1))))).getStartPos();
     Position classEndPos = ((CmlLexeme)((yystack.valueAt (5-(4))))).getEndPos();
@@ -795,7 +795,7 @@ class CmlParser
   if (yyn == 35)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 249 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 249 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { /*new CMLIdentifier($1);*/ };
   break;
     
@@ -804,7 +804,7 @@ class CmlParser
   if (yyn == 67)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 309 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 309 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { 
   yyval = (List)((yystack.valueAt (1-(1)))); 
 };
@@ -815,7 +815,7 @@ class CmlParser
   if (yyn == 68)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 313 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 313 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     {
   yyval = new Vector<PDefinition>();
 };
@@ -826,7 +826,7 @@ class CmlParser
   if (yyn == 69)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 320 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 320 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     {
     List<PDefinition> defBlockList = new Vector<PDefinition>();
     List<PDefinition> defBlock = (List<PDefinition>)((yystack.valueAt (1-(1))));
@@ -840,7 +840,7 @@ class CmlParser
   if (yyn == 70)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 328 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 328 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     List<PDefinition> defBlockList = (List<PDefinition>)((yystack.valueAt (2-(1))));
     List<PDefinition> defBlock = (List<PDefinition>)((yystack.valueAt (2-(2))));
@@ -854,7 +854,7 @@ class CmlParser
   if (yyn == 71)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 338 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 338 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     {
     yyval = ((yystack.valueAt (1-(1))));
 };
@@ -865,7 +865,7 @@ class CmlParser
   if (yyn == 72)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 342 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 342 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     {
     yyval = ((yystack.valueAt (1-(1))));
 };
@@ -876,7 +876,7 @@ class CmlParser
   if (yyn == 73)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 346 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 346 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     {
     yyval = ((yystack.valueAt (1-(1))));
 };
@@ -887,7 +887,7 @@ class CmlParser
   if (yyn == 74)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 350 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 350 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     {
     yyval = ((yystack.valueAt (1-(1))));
 };
@@ -898,7 +898,7 @@ class CmlParser
   if (yyn == 75)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 354 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 354 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     {
     yyval = ((yystack.valueAt (1-(1))));
 };
@@ -909,7 +909,7 @@ class CmlParser
   if (yyn == 76)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 363 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 363 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = null; 
 };
@@ -920,7 +920,7 @@ class CmlParser
   if (yyn == 77)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 367 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 367 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     {
     yyval = (List<PDefinition>)((yystack.valueAt (3-(2))));
 };
@@ -931,7 +931,7 @@ class CmlParser
   if (yyn == 78)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 371 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 371 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     {
     yyval = (List<PDefinition>)((yystack.valueAt (2-(2))));
 };
@@ -942,7 +942,7 @@ class CmlParser
   if (yyn == 79)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 378 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 378 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     {
     List<PDefinition> list = (List<PDefinition>)((yystack.valueAt (3-(1))));
     list.add((PDefinition)((yystack.valueAt (3-(3)))));
@@ -955,7 +955,7 @@ class CmlParser
   if (yyn == 80)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 384 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 384 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     {
     List<PDefinition> list = new Vector<PDefinition>(); 
     list.add((PDefinition)((yystack.valueAt (1-(1)))));
@@ -968,7 +968,7 @@ class CmlParser
   if (yyn == 82)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 394 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 394 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))),((PTypeBase)((yystack.valueAt (3-(3))))).getLocation());
     LexNameToken name = extractLexNameToken((CmlLexeme)((yystack.valueAt (3-(1)))));
@@ -985,7 +985,7 @@ class CmlParser
   if (yyn == 84)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 408 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 408 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = ((yystack.valueAt (3-(2))));
 };
@@ -996,7 +996,7 @@ class CmlParser
   if (yyn == 85)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 412 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 412 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new ABooleanBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1007,7 +1007,7 @@ class CmlParser
   if (yyn == 86)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 416 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 416 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new ANatNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1018,7 +1018,7 @@ class CmlParser
   if (yyn == 87)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 420 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 420 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new ANatOneNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1029,7 +1029,7 @@ class CmlParser
   if (yyn == 88)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 424 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 424 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new AIntNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1040,7 +1040,7 @@ class CmlParser
   if (yyn == 89)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 428 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 428 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new ARationalNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1051,7 +1051,7 @@ class CmlParser
   if (yyn == 90)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 432 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 432 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new ARealNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1062,7 +1062,7 @@ class CmlParser
   if (yyn == 91)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 436 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 436 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new ACharBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1073,7 +1073,7 @@ class CmlParser
   if (yyn == 92)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 440 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 440 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new ATokenBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1083,7 +1083,7 @@ class CmlParser
 
 
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1087 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/src/main/java/eu/compassresearch/cml/compiler/CmlParser.java"  */
+/* Line 1087 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/src/main/java/eu/compassresearch/cml/compiler/CmlParser.java"  */
 	default: break;
       }
 
@@ -3031,7 +3031,7 @@ class CmlParser
 /* Unqualified %code blocks.  */
 
 /* Line 898 of cmlskeleton.java.m4  */
-/* Line 24 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 24 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/Parser/cml.y"  */
 
     // ************************
     // *** MEMBER VARIABLES ***
@@ -3138,7 +3138,7 @@ class CmlParser
 
 
 /* Line 898 of cmlskeleton.java.m4  */
-/* Line 3142 of "/media/C/sandbox/overture-workspace/overture/branches/astV2/CML/ToBeMoved/compiler/src/main/java/eu/compassresearch/cml/compiler/CmlParser.java"  */
+/* Line 3142 of "/home/rwl/fresh/overture/branches/astV2/compassresearch-code/ToBeMoved/compiler/src/main/java/eu/compassresearch/cml/compiler/CmlParser.java"  */
 
 }
 
