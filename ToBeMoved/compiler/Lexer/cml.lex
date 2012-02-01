@@ -543,7 +543,6 @@ range					= ","({separator}*)"..."({separator}*)","
 "++"								{ return createToken(CmlParser.OVERWRITE /*MODIFY_BY*/); }
 "<:"								{ return createToken(CmlParser.DOMRES/*MAP_DOMAIN_RESTRICT_TO*/); }
 ":>"								{ return createToken(CmlParser.RNGRES/*MAP_RANGE_RESTRICT_TO*/); }
-"@"                                                             { return createToken(CmlParser.AT); }
 //"$$"								{ return createToken(CmlParser.LAST_RESULT); }
 
 // single character tokens

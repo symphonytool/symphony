@@ -208,10 +208,6 @@ classDef
 
 processDef :
   PROCESS IDENTIFIER EQUALS processDecl
-  {
-    
-
-  }
   ;
 
 processDecl :
