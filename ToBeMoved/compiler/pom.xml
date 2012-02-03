@@ -42,7 +42,7 @@
 		    <!-- Run the JLex target -->
 		    <executions>
 		      <execution>
-			<!-- phase>install</phase-->
+			<phase>compile</phase>
 			<configuration>
 			  <target>
 			    <!-- property name="JAVA_HOME" value="$JAVA_HOME" /-->
