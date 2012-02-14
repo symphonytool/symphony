@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.overture.ide.core.parsePaticipant">
+      <parser
+            class="eu.compassresearch.ide.parsers.cml.SourceParserVdmCml"
+            nature="eu.compassresearch.ide.cml.core.nature">
+      </parser>
+   </extension>
+
+</plugin>
