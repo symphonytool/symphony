@@ -191,6 +191,7 @@ class CommentBlock extends CMLToken {
 %public
 
 %{
+  static private Stack<int> stateStack = new Stack<int>();
   
   // placeholder for the reserved word (keyword) table
   static private HashMap<String,Integer> keywords = null;
@@ -432,6 +433,8 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
     return createToken(yytext().charAt(0));
   }
   
+  
+  /* Helper function to return the correct integer for the parser and create the correct Lexeme (semantic) values for the parser and beyond */
   private int createToken(int lex)
   {
     int line = yyline + 1;
@@ -454,128 +457,90 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
 // *** SHORTHAND DEFINITIONS ***
 // *****************************
 
-ucode					= [\u0100-\ufff0]
-hexdigit 				= [0-9ABCDEF]|[0-9abcdef]
-hexquad 				= {hexdigit}{hexdigit}{hexdigit}{hexdigit}
-universalcharactername  = (\\u{hexquad})|(\\U{hexquad})
-letter 					= [A-Za-z]|#[A-Za-z]|{universalcharactername}|{ucode}
-digit 					= [0-9]
-prime 					= \`
-hook 					= \~
-rtfuniversalcharacter	= \\u{hexquad}[A-Za-z]
-identifierorkeyword		= {letter}([0-9\'_]|{letter})*
+/* ucode					= [\u0100-\ufff0] */
+/* hexdigit 				= [0-9ABCDEF]|[0-9abcdef] */
+/* hexquad 				= {hexdigit}{hexdigit}{hexdigit}{hexdigit} */
+/* universalcharactername  = (\\u{hexquad})|(\\U{hexquad}) */
+/* letter 					= [A-Za-z]|#[A-Za-z]|{universalcharactername}|{ucode} */
+/* digit 					= [0-9] */
+/* prime 					= \` */
+/* hook 					= \~ */
+/* rtfuniversalcharacter	= \\u{hexquad}[A-Za-z] */
+/* identifierorkeyword		= {letter}([0-9\'_]|{letter})* */
 
-numericliteral 			= {digit}+
-realliteral				= [0-9]+(("."[0-9]+)|([Ee]("+"|"-")?[0-9]+)|("."[0-9]+[Ee]("+"|"-")?[0-9]+))
+/* numericliteral 			= {digit}+ */
+/* realliteral				= [0-9]+(("."[0-9]+)|([Ee]("+"|"-")?[0-9]+)|("."[0-9]+[Ee]("+"|"-")?[0-9]+)) */
 
-embeddedctrlchar 		= [\000-\037]
-backslashed				= \\c.|\\x..|\\[\\nrabtvef\'\"]|\\[0-3][0-7][0-7]
-highbitchar				= [\200-\377]
-deletechar				= \177
-characterliteral		= "'"([\040-\133\135-\176]|{embeddedctrlchar}|{backslashed}|{deletechar}|{highbitchar}|{universalcharactername}|{rtfuniversalcharacter}|{ucode})"'"
+/* embeddedctrlchar 		= [\000-\037] */
+/* backslashed				= \\c.|\\x..|\\[\\nrabtvef\'\"]|\\[0-3][0-7][0-7] */
+/* highbitchar				= [\200-\377] */
+/* deletechar				= \177 */
+/* characterliteral		= "'"([\040-\133\135-\176]|{embeddedctrlchar}|{backslashed}|{deletechar}|{highbitchar}|{universalcharactername}|{rtfuniversalcharacter}|{ucode})"'" */
 
-textliteral				= \"([\040-\041\043-\133\135-\176]|{embeddedctrlchar}|{backslashed}|{deletechar}|{highbitchar}|{universalcharactername}|{ucode})*\"
+/* textliteral				= \"([\040-\041\043-\133\135-\176]|{embeddedctrlchar}|{backslashed}|{deletechar}|{highbitchar}|{universalcharactername}|{ucode})*\" */
 
-quoteliteral 			= \<{identifierorkeyword}\>
+/* quoteliteral 			= \<{identifierorkeyword}\> */
 
-eolc1					= --[^\r\n]*
-eolc2					= \/\/[^\r\n]*
-eolcomment				= {eolc1}|{eolc2}
-comment					= "/*" [^*] ~"*/" | "/*" "*"+ "/"
+/* range					= ","({separator}*)"..."({separator}*)"," */
 
-separator 				= [ \t\r\n]
-separators				= {separator}+
+identifier      = [A-Za-z0-9]*
+process         = [Pp][Rr][Oo][Cc][Ee][Ss][Ss]
+begin           = [Bb][Ee][Gg][Ii][Nn]
+end             = [Ee][Nn][Dd]
+types           = [Tt][Yy][Pp][Ee][Ss]
 
-range					= ","({separator}*)"..."({separator}*)","
+%states PROCESS TYPES STATE
+%xstates COMMENT
 
 %%
-
+									  
 // ********************************
 // *** SCANNER PRODUCTION RULES ***
 // ********************************
 
-// in-line and multi-line comments
-{eolcomment}							{ /*return createToken(CmlParser.COMMENT, OmlLexem.ILEXEMLINECOMMENT);*/ }
-{comment}								{ 
-  									  /*if (yytext().indexOf('\n') != -1) {
-			     					            return createToken(CmlParser.COMMENT, OmlLexem.ILEXEMBLOCKCOMMENT);
-  								          } else {
-								           return createToken(CmlParser.COMMENT, OmlLexem.ILEXEMLINECOMMENT);
-									   }*/
-								}					  
-								
-// production rules for literals
-{characterliteral}						{ return createToken(CmlParser.symbolicLiteral);/*char_lit);*/ }
-{quoteliteral}						        { return createToken(CmlParser.symbolicLiteral);/*quote_lit);*/ }
-{textliteral}							{ return createToken(CmlParser.symbolicLiteral);/*text_lit);*/ }
-{realliteral}							{ return createToken(CmlParser.symbolicLiteral);/*real_lit);*/ }
-{numericliteral}						{ return createToken(CmlParser.symbolicLiteral);/*num_lit);*/ }
+<YYINITIAL> {
+  {process}                             { yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
+}
 
-// keywords and identifiers
-"not"{separators}"in"{separators}"set"				{ return createToken(CmlParser.NOTINSET); }
-"in"{separators}"set"						{ return createToken(CmlParser.INSET); }
+<PROCESS> {
+  begin                                 { return createToken(CmlParser.BEGIN); }
+}
 
-"is_"/{identifierorkeyword} 					{ return createToken(CmlParser.ISUNDER); }
-"mk_"/{identifierorkeyword} 					{ return createToken(CmlParser.MKUNDER); }
-{identifierorkeyword}						{ return checkIdentifier(yytext()); }
-//\${identifierorkeyword} 					{ return createToken(CmlParser.dollar_identifier); }
+<TYPES> {
+  ";"                                   { return createToken(CmlParser.SEMI); }
+  ":-"                                  { return createToken(CmlParser.VDMTYPENCMP); }
+  "::"                                  { return createToken(CmlParser.VDMRECORDDEF); }
+}
 
-// multi character tokens
-//{range}								{ return createToken(CmlParser.RANGE_OVER); }
-"==>"								{ return createToken(CmlParser.OPERATIONARROW); }
-"<=>"								{ return createToken(CmlParser.BIMPLY); }
-//"|->"								{ return createToken(CmlParser.BAR_ARROW); }
-"<-:"								{ return createToken(CmlParser.DOMSUB /*MAP_DOMAIN_RESTRICT_BY*/); }
-":->"								{ return createToken(CmlParser.RNGSUB /*MAP_RANGE_RESTRICT_BY*/); }
-":-"								{ return createToken(CmlParser.VDMWHATEVER /*DONTCARE*/); }
-".#"								{ return createToken(CmlParser.DOTHASH); }
-"<="								{ return createToken(CmlParser.LTE); }
-">="								{ return createToken(CmlParser.GTE); }
-"<>"								{ return createToken(CmlParser.NEQ); }
-"->"								{ return createToken(CmlParser.VDMPFUNCARROW); }
-"+>"								{ return createToken(CmlParser.VDMTFUNCARROW); }
-"=>"								{ return createToken(CmlParser.IMPLY); }
-"=="								{ return createToken(CmlParser.DEQUALS /*IS_DEFINED_AS*/); }
-//"||"								{ return createToken(CmlParser.NONDET); }
-":="								{ return createToken(CmlParser.ASSIGN); }
-"::"								{ return createToken(CmlParser.VDMRECORDDEF); }
-//"**"								{ return createToken(CmlParser.EXP_OR_ITERATE); }
-"++"								{ return createToken(CmlParser.OVERWRITE /*MODIFY_BY*/); }
-"<:"								{ return createToken(CmlParser.DOMRES/*MAP_DOMAIN_RESTRICT_TO*/); }
-":>"								{ return createToken(CmlParser.RNGRES/*MAP_RANGE_RESTRICT_TO*/); }
-//"$$"								{ return createToken(CmlParser.LAST_RESULT); }
+<STATE> {
+  "of"                                  { return createToken(CmlParser.VDMOF); }
+}
 
-// single character tokens
-{hook}								{ return createToken(CmlParser.TILDE /*HOOK*/); }
-{prime}								{ return createToken(CmlParser.BACKTICK); }
-","								{ return createToken(CmlParser.COMMA); }
-"!"								{  }
-":"								{ return createToken(CmlParser.COLON); }
-";"								{ return createToken(CmlParser.SEMI); }
-"="								{ return createToken(CmlParser.EQUALS); }
-")"								{ return createToken(CmlParser.RPAREN); }
-"("								{ return createToken(CmlParser.LPAREN); }
-"|"								{ return createToken(CmlParser.BAR); }
-"-"								{ return createToken(CmlParser.MINUS); }
-"["								{ return createToken(CmlParser.LSQUARE); }
-"]"								{ return createToken(CmlParser.RSQUARE); }
-"{"								{ return createToken(CmlParser.LCURLY); }
-"}"								{ return createToken(CmlParser.RCURLY); }
-"+"								{ return createToken(CmlParser.PLUS); }
-"/"								{ return createToken(CmlParser.DIV);  }
-"<"								{ return createToken(CmlParser.LT); }
-">"								{ return createToken(CmlParser.GT); }
-"."								{ return createToken(CmlParser.DOT); }
-"&"								{  }
-"*"								{ return createToken(CmlParser.STAR); }
-"^"								{ return createToken(CmlParser.CONC); }
-"\\"								{ return createToken(CmlParser.SETDIFF); }
+<PROCESS,STATE> {
+  end                                   { return createToken(CmlParser.END); }
+}
 
-// handle white space and new-lines
-{separator}								{ /* IGNORE */ }
+<TYPES,STATE> {
+  ":"[^:-]                              { return createToken(CmlParser.VDMTYPE); }
+}
+
+<PROCESS,TYPES,STATE> {
+  {types}                               { yybegin(TYPES); return createToken(CmlParser.TYPES); }
+  "="                                   { return createToken(CmlParser.EQUALS); }
+  {identifier}                          { return createToken(CmlParser.IDENTIFER); }
+}
+
+
+"//".*                                  { /* match comment; do nothing */ }
+"/*"                                    { stateStack.push(yystate); yybegin(COMMENT); }
+<COMMENT>"*/"                           { yybegin(stateStack.pop()); }
+<COMMENT>[^*]                           { /* match comment text; do nothing */ }
+<COMMENT>\**[^/]                        { /* match comment text; do nothing */ }
+
+[:whitespace:]                          { /* match whitespace; do nothing */ }
 
 // default catch-all production rule is to return the current character
-.								{ return defaultToken(); }
+/* .								{ return defaultToken(); } */
 
 // production rule to handle end-of-file
-<<EOF>>									{ return 0; }
+/* <<EOF>>									{ return 0; } */
