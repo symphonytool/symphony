@@ -1,4 +1,4 @@
-/* CML_{-1}, example from Jim Woodcock of a simple register + arith operations; given in his slides for the 1st tool workshop at newcastle */
+/* CML_{-1}, example from Jim Woodcock of a simple register + arith operations; given in his slides for the 1st tool workshop at Århus */
 
 process RegisterProc =
   begin
