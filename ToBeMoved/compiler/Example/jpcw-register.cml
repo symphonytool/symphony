@@ -1,0 +1,63 @@
+/* CML_{-1}, example from Jim Woodcock of a simple register + arith operations; given in his slides for the 1st tool workshop at newcastle */
+
+process RegisterProc =
+  begin
+    types
+      Byte = 0 .. 127
+
+    state
+      Register of
+        reg: Byte
+      end
+
+    functions
+      oflow: (Byte,Byte) -> Bool
+      post oflow(i,j) = (i+j > 127)
+
+      uflow: (Byte, Byte) -> Bool
+      post uflow(i,j) = (i-j <0)
+
+    operations
+      INIT()
+      ext wr reg: Byte
+      post reg = 0
+
+      READ() j: Byte
+      ext rd reg: Byte
+      post j = reg
+
+      LOAD (i:Byte)
+      ext wr reg:Byte
+      post reg = i
+
+      ADD(i : Byte)
+      ext wr reg: Byte
+      pre reg + i in set Byte
+      post reg = reg~ + i
+
+      SUB (i:Byte)
+      ext wr reg:Byte
+      pre reg = i in set Byte
+      post reg = reg~ - i
+
+    channels
+      init, overflow, underflow
+      read,load ,add , sub : Byte
+
+    chansets
+      I = {| init, overflow, underflow,
+             read,load ,add , sub |}
+
+    actions
+      MAIN = init -> INIT(); REG
+
+      REG = 
+           var j: Byte @ j := READ(); read!j -> reg
+ 	[] load? i -> LOAD(i); REG
+	[] add?i => (  oflow(reg, i)    & overflow -> MAIN
+	   	    [] not oflow(reg,i) & ADD(i); REG)
+	[] sub?i => (  uflow(reg ,i)    & underflow -> MAIN
+	   	    [] not uflow(reg,i) & ADD(i); REG)
+
+
+  end
