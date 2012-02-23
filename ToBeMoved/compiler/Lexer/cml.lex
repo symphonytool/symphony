@@ -3,6 +3,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.Stack;
 import eu.compassresearch.cml.compiler.CmlParser.Lexer;
 import eu.compassresearch.cml.compiler.CmlParser.Location;
 
@@ -187,11 +188,11 @@ class CommentBlock extends CMLToken {
 %line
 %column
 %char
- //%debug
+%debug
 %public
 
 %{
-  static private Stack<int> stateStack = new Stack<int>();
+  static private Stack<Integer> stateStack = new Stack<Integer>();
   
   // placeholder for the reserved word (keyword) table
   static private HashMap<String,Integer> keywords = null;
@@ -457,18 +458,16 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
 // *** SHORTHAND DEFINITIONS ***
 // *****************************
 
-/* ucode					= [\u0100-\ufff0] */
-/* hexdigit 				= [0-9ABCDEF]|[0-9abcdef] */
-/* hexquad 				= {hexdigit}{hexdigit}{hexdigit}{hexdigit} */
-/* universalcharactername  = (\\u{hexquad})|(\\U{hexquad}) */
-/* letter 					= [A-Za-z]|#[A-Za-z]|{universalcharactername}|{ucode} */
-/* digit 					= [0-9] */
-/* prime 					= \` */
-/* hook 					= \~ */
+ucode					= [\u0100-\ufff0] 
+hexdigit 				= [0-9ABCDEF]|[0-9abcdef] 
+hexquad 				= {hexdigit}{hexdigit}{hexdigit}{hexdigit} 
+universalcharactername  = (\\u{hexquad})|(\\U{hexquad}) 
+letter 					= [A-Za-z]|#[A-Za-z]|{universalcharactername}|{ucode} 
+digit 					= [0-9] 
 /* rtfuniversalcharacter	= \\u{hexquad}[A-Za-z] */
 /* identifierorkeyword		= {letter}([0-9\'_]|{letter})* */
 
-/* numericliteral 			= {digit}+ */
+numericliteral 			= {digit}+ 
 /* realliteral				= [0-9]+(("."[0-9]+)|([Ee]("+"|"-")?[0-9]+)|("."[0-9]+[Ee]("+"|"-")?[0-9]+)) */
 
 /* embeddedctrlchar 		= [\000-\037] */
@@ -483,13 +482,23 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
 
 /* range					= ","({separator}*)"..."({separator}*)"," */
 
-identifier      = [A-Za-z0-9]*
+prime		= \` 
+hook 		= \~ 
+
+
+//identifier      = [A-Za-z0-9]
+identifier      = {letter}([0-9\'_]|{letter})*
 process         = [Pp][Rr][Oo][Cc][Ee][Ss][Ss]
 begin           = [Bb][Ee][Gg][Ii][Nn]
 end             = [Ee][Nn][Dd]
 types           = [Tt][Yy][Pp][Ee][Ss]
+functions       = [Ff][Uu][Nn][Cc][Tt][Ii][Oo][Nn][Ss]
 
-%states PROCESS TYPES STATE
+LineTerminator = \r|\n|\r\n
+InputCharacter = [^\r\n]
+WhiteSpace     = {LineTerminator} | [ \t\f]
+
+%states PROCESS TYPES STATE FUNCTIONS VDMEXPRESSION VDMPATTERN
 %xstates COMMENT
 
 %%
@@ -499,48 +508,124 @@ types           = [Tt][Yy][Pp][Ee][Ss]
 // ********************************
 
 <YYINITIAL> {
-  {process}                             { yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
+  {process}                             { stateStack.push(yystate());yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
 }
 
 <PROCESS> {
-  begin                                 { return createToken(CmlParser.BEGIN); }
+  {begin}                               { return createToken(CmlParser.BEGIN); }
 }
 
 <TYPES> {
   ";"                                   { return createToken(CmlParser.SEMI); }
   ":-"                                  { return createToken(CmlParser.VDMTYPENCMP); }
   "::"                                  { return createToken(CmlParser.VDMRECORDDEF); }
-}
+  "=="                                  { return createToken(CmlParser.DEQUALS); }
+
+  //basic types
+  "bool"                                { return createToken(CmlParser.TBOOL); }
+  "nat"                                 { return createToken(CmlParser.TNAT); }
+  "nat1"                                { return createToken(CmlParser.TNAT1); }
+  "int"                                 { return createToken(CmlParser.TINT); }
+  "rat"                                 { return createToken(CmlParser.TRAT); }
+  "real"                                { return createToken(CmlParser.TREAL); }
+  "char"                                { return createToken(CmlParser.TCHAR); }
+  "token"                               { return createToken(CmlParser.TTOKEN); }
+  //set type
+  "set of"                              { return createToken(CmlParser.VDMSETOF); }
+
+  "inv"                                 { return createToken(CmlParser.VDMINV); }
+ }
 
 <STATE> {
-  "of"                                  { return createToken(CmlParser.VDMOF); }
+  "of"                                  { /*return createToken(CmlParser.VDMOF); */}
 }
 
-<PROCESS,STATE> {
-  end                                   { return createToken(CmlParser.END); }
+<FUNCTIONS> {
+  "->"								{ return createToken(CmlParser.VDMPFUNCARROW); }
+  "+>"								{ return createToken(CmlParser.VDMTFUNCARROW); }
 }
 
-<TYPES,STATE> {
+<VDMPATTERN> {
+  "-"                                                           { return createToken(CmlParser.VDMDONTCARE); }
+  "mk_"                                                         { return createToken(CmlParser.MKUNDER); }
+}
+
+<VDMEXPRESSION> {
+  "<=>"								{ return createToken(CmlParser.BIMPLY); }
+  //"|->"							{ return createToken(CmlParser.BAR_ARROW); }
+  "<-:"								{ return createToken(CmlParser.DOMSUB /*MAP_DOMAIN_RESTRICT_BY*/); }
+  ":->"								{ return createToken(CmlParser.RNGSUB /*MAP_RANGE_RESTRICT_BY*/); }
+  ":-"								{ return createToken(CmlParser.VDMDONTCARE /*DONTCARE*/); }
+  ".#"								{ return createToken(CmlParser.DOTHASH); }
+  "<="								{ return createToken(CmlParser.LTE); }
+  ">="								{ return createToken(CmlParser.GTE); }
+  "<>"								{ return createToken(CmlParser.NEQ); }
+  "=>"								{ return createToken(CmlParser.IMPLY); }
+  "=="								{ return createToken(CmlParser.DEQUALS /*IS_DEFINED_AS*/); }
+  //"||"							{ return createToken(CmlParser.NONDET); }
+  ":="								{ return createToken(CmlParser.ASSIGN); }
+  "::"								{ return createToken(CmlParser.VDMRECORDDEF); }
+  //"**"							{ return createToken(CmlParser.EXP_OR_ITERATE); }
+  "++"								{ return createToken(CmlParser.OVERWRITE /*MODIFY_BY*/); }
+  "<:"								{ return createToken(CmlParser.DOMRES/*MAP_DOMAIN_RESTRICT_TO*/); }
+  ":>"								{ return createToken(CmlParser.RNGRES/*MAP_RANGE_RESTRICT_TO*/); }
+  {hook}								{ return createToken(CmlParser.TILDE /*HOOK*/); }
+  {prime}								{ return createToken(CmlParser.BACKTICK); }
+  ","								{ return createToken(CmlParser.COMMA); }
+  "!"								{  }
+  ":"								{ return createToken(CmlParser.COLON); }
+  ";"								{ return createToken(CmlParser.SEMI); }
+  "="								{ return createToken(CmlParser.EQUALS); }
+  ")"								{ return createToken(CmlParser.RPAREN); }
+  "("								{ return createToken(CmlParser.LPAREN); }
+  "|"								{ return createToken(CmlParser.BAR); }
+  "-"								{ return createToken(CmlParser.MINUS); }
+  "["								{ return createToken(CmlParser.LSQUARE); }
+  "]"								{ return createToken(CmlParser.RSQUARE); }
+  "{"								{ return createToken(CmlParser.LCURLY); }
+  "}"								{ return createToken(CmlParser.RCURLY); }
+  "+"								{ return createToken(CmlParser.PLUS); }
+  "/"								{ return createToken(CmlParser.DIV);  }
+  "<"								{ return createToken(CmlParser.LT); }
+  ">"								{ return createToken(CmlParser.GT); }
+  "."								{ return createToken(CmlParser.DOT); }
+  "&"								{  }
+  "*"								{ return createToken(CmlParser.STAR); }
+  "^"								{ return createToken(CmlParser.CONC); }
+  "\\"								{ return createToken(CmlParser.SETDIFF); }
+}
+
+<PROCESS,STATE, TYPES> {
+    {end}                               {yybegin(stateStack.pop()); return createToken(CmlParser.END); }
+}
+
+<TYPES,STATE, FUNCTIONS, VDMPATTERN, VDMEXPRESSION> {
   ":"[^:-]                              { return createToken(CmlParser.VDMTYPE); }
+  {identifier}                          { return createToken(CmlParser.IDENTIFIER); }
+  {numericliteral}                      { return createToken(CmlParser.symbolicLiteral); }
 }
 
-<PROCESS,TYPES,STATE> {
+<PROCESS,TYPES,STATE,FUNCTIONS > {
   {types}                               { yybegin(TYPES); return createToken(CmlParser.TYPES); }
+  {functions}                           { yybegin(FUNCTIONS); return createToken(CmlParser.FUNCTIONS); }
   "="                                   { return createToken(CmlParser.EQUALS); }
-  {identifier}                          { return createToken(CmlParser.IDENTIFER); }
+  {identifier}                          { return createToken(CmlParser.IDENTIFIER); }
 }
 
 
 "//".*                                  { /* match comment; do nothing */ }
-"/*"                                    { stateStack.push(yystate); yybegin(COMMENT); }
+"/*"                                    { stateStack.push(yystate()); yybegin(COMMENT); }
 <COMMENT>"*/"                           { yybegin(stateStack.pop()); }
 <COMMENT>[^*]                           { /* match comment text; do nothing */ }
 <COMMENT>\**[^/]                        { /* match comment text; do nothing */ }
 
-[:whitespace:]                          { /* match whitespace; do nothing */ }
+//[:whitespace:]                        { /* match whitespace; do nothing */ }
+{WhiteSpace}                            { /* match whitespace; do nothing */ }
+
+
 
 // default catch-all production rule is to return the current character
 /* .								{ return defaultToken(); } */
 
 // production rule to handle end-of-file
-/* <<EOF>>									{ return 0; } */
+<<EOF>>		  		        { return 0; } 
