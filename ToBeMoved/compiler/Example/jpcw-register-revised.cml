@@ -1,0 +1,64 @@
+process RegisterProc = 
+ begin
+  types 
+    Byte = set of nat
+    inv t == t <=   127
+
+
+
+  functions
+    oflow : (Byte , Byte) -> bool
+    oflow(i,j) == (i+j > 127);
+
+    uflow : (Byte , Byte) -> bool
+   
+    uflow(i ,j) == (i-j < 0);
+ 
+  operatioNs  
+   INIT : () ==> ()
+   INIT() == reg := 0
+   ext wr reg : Byte
+   post reg = 0;
+
+   READ : () ==> Byte
+   INIT() == return reg
+   ext rd reg : Byte;
+   
+   //post 
+
+   LOAD : (Byte) ==> ()
+   LOAD(i) == reg := i
+   ext wr reg : Byte
+   post reg = i;
+
+   ADD : (Byte) ==> ()
+   ADD(i) == reg := reg + i
+   ext wr reg : Byte
+   pre reg + i in set Byte
+   post reg = reg~ + i;
+
+   SUB : (Byte) ==> ()
+   SUB(i) == reg := reg - i
+   ext wr reg : Byte
+   pre reg - i in set Byte
+   post reg = reg~ - i;
+
+  channels
+   init, overflow, underflow
+   read, load, add, sub : Byte
+
+  Chansets
+   I = {| init, overflow, underflow,
+          read,load,add,sub |}
+  
+  aCtions
+   MAIN = init -> INIT(); REG
+
+   REG = 
+    var j: Byte @ j := READ(); read!j -> reg
+    [] load? i -> LOAD(reg,i) & overflow -> MAIN
+    [] add?i => ( oflow(reg,i) & overflow -> MAIN
+       	     	  [] not oflow(reg,i) & ADD(i);REG)
+    [] sub?i => ( uflow(reg,i) & underflow -> MAIN
+       	     	  [] not uflow(reg,i) & SUB(i); REG)
+ end
