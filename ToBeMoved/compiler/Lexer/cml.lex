@@ -294,7 +294,9 @@ class CommentBlock extends CMLToken {
     keywords.put("psubset", CmlParser.PROPER_SUBSET);
     //keywords.put("public", CmlParser.PUBLIC);
     keywords.put("rat", CmlParser.TRAT);
+    /*
     keywords.put("rd", CmlParser.VDMRD);
+    */
     keywords.put("real", CmlParser.TREAL);
     /*
     keywords.put("rem", CmlParser.REM);
@@ -336,10 +338,12 @@ class CommentBlock extends CMLToken {
     keywords.put("union", CmlParser.UNION);
     keywords.put("values", CmlParser.VALUES);
     keywords.put("variables", CmlParser.INSTANCEVARS);
-    //keywords.put("while", CmlParser.WHILE);
-    //keywords.put("with", CmlParser.WITH);
+    /*
+    keywords.put("while", CmlParser.WHILE);
+    keywords.put("with", CmlParser.WITH);
     keywords.put("wr", CmlParser.VDMWR);
-    //keywords.put("yet", CmlParser.YET);
+    keywords.put("yet", CmlParser.YET);
+    */
     
   }
 
@@ -493,12 +497,16 @@ begin           = [Bb][Ee][Gg][Ii][Nn]
 end             = [Ee][Nn][Dd]
 types           = [Tt][Yy][Pp][Ee][Ss]
 functions       = [Ff][Uu][Nn][Cc][Tt][Ii][Oo][Nn][Ss]
+operations      = [Oo][Pp][Ee][Rr][Aa][Tt][Ii][Oo][Nn][Ss]
+channels        = [Cc][Hh][Aa][Nn][Nn][Ee][Ll][Ss]
+chansets        = [Cc][Hh][Aa][Nn][Ss][Ee][Tt][Ss]
+actions         = [Aa][Cc][Tt][Ii][Oo][Nn][Ss]
 
 LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
 WhiteSpace     = {LineTerminator} | [ \t\f]
 
-%states PROCESS TYPES STATE FUNCTIONS VDMEXPRESSION VDMPATTERN
+%states PROCESS TYPES STATE FUNCTIONS OPERATIONS CHANNELS CHANSETS ACTIONS
 %xstates COMMENT
 
 %%
@@ -507,125 +515,174 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 // *** SCANNER PRODUCTION RULES ***
 // ********************************
 
+"//".*                                { /* match comment; do nothing */ }
+"/*"                                  { stateStack.push(yystate()); yybegin(COMMENT); }
+<COMMENT>"*/"                         { yybegin(stateStack.pop()); }
+<COMMENT>[^*]                         { /* match comment text; do nothing */ }
+<COMMENT>\**[^/]                      { /* match comment text; do nothing */ }
+
+
 <YYINITIAL> {
-  {process}                             { stateStack.push(yystate());yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
+  {process}                           { stateStack.push(yystate());yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
+}
+
+<PROCESS,TYPES,STATE,FUNCTIONS,OPERATIONS,CHANNELS,CHANSETS,ACTIONS> {
+  {types}                             { yybegin(TYPES); return createToken(CmlParser.TYPES); }
+  {functions}                         { yybegin(FUNCTIONS); return createToken(CmlParser.FUNCTIONS); }
+  {operations}                        { yybegin(OPERATIONS); return createToken(CmlParser.OPERATIONS); }
+  {channels}                          { yybegin(CHANNELS); return createToken(CmlParser.CHANNELS); }
+  {chansets}                          { yybegin(CHANSETS); return createToken(CmlParser.CHANSETS); }
+  {actions}                           { yybegin(ACTIONS); return createToken(CmlParser.CSP_ACTIONS); }
+  {end}                               { yybegin(stateStack.pop()); return createToken(CmlParser.END); }
 }
 
 <PROCESS> {
-  {begin}                               { return createToken(CmlParser.BEGIN); }
+  "="                                 { return createToken(CmlParser.EQUALS); }
+  {begin}                             { return createToken(CmlParser.BEGIN); }
 }
 
 <TYPES> {
-  ";"                                   { return createToken(CmlParser.SEMI); }
-  ":-"                                  { return createToken(CmlParser.VDMTYPENCMP); }
-  "::"                                  { return createToken(CmlParser.VDMRECORDDEF); }
-  "=="                                  { return createToken(CmlParser.DEQUALS); }
-
-  //basic types
-  "bool"                                { return createToken(CmlParser.TBOOL); }
-  "nat"                                 { return createToken(CmlParser.TNAT); }
-  "nat1"                                { return createToken(CmlParser.TNAT1); }
-  "int"                                 { return createToken(CmlParser.TINT); }
-  "rat"                                 { return createToken(CmlParser.TRAT); }
-  "real"                                { return createToken(CmlParser.TREAL); }
-  "char"                                { return createToken(CmlParser.TCHAR); }
-  "token"                               { return createToken(CmlParser.TTOKEN); }
-  //set type
-  "set of"                              { return createToken(CmlParser.VDMSETOF); }
-
-  "inv"                                 { return createToken(CmlParser.VDMINV); }
+  ";"                                 { return createToken(CmlParser.SEMI); }
+  ":-"                                { return createToken(CmlParser.VDMTYPENCMP); }
+  "::"                                { return createToken(CmlParser.VDMRECORDDEF); }
+  "=="                                { return createToken(CmlParser.DEQUALS); }
  }
 
 <STATE> {
-  "of"                                  { /*return createToken(CmlParser.VDMOF); */}
+  "of"                                { /*return createToken(CmlParser.VDMOF); */}
 }
 
 <FUNCTIONS> {
-  "->"								{ return createToken(CmlParser.VDMPFUNCARROW); }
-  "+>"								{ return createToken(CmlParser.VDMTFUNCARROW); }
+  "->"				      { return createToken(CmlParser.VDMPFUNCARROW); }
+  "+>"				      { return createToken(CmlParser.VDMTFUNCARROW); }
 }
 
-<VDMPATTERN> {
-  "-"                                                           { return createToken(CmlParser.VDMDONTCARE); }
-  "mk_"                                                         { return createToken(CmlParser.MKUNDER); }
+<OPERATIONS> {
+  "==>"				      { return createToken(CmlParser.OPERATIONARROW); }
+  "rd"				      { return createToken(CmlParser.VDM_RD); }
+  "wr"				      { return createToken(CmlParser.VDM_WR); }
+  "ext"				      { return createToken(CmlParser.VDM_EXT); }
+  "return"			      { return createToken(CmlParser.RETURN); }
 }
 
-<VDMEXPRESSION> {
-  "<=>"								{ return createToken(CmlParser.BIMPLY); }
-  //"|->"							{ return createToken(CmlParser.BAR_ARROW); }
-  "<-:"								{ return createToken(CmlParser.DOMSUB /*MAP_DOMAIN_RESTRICT_BY*/); }
-  ":->"								{ return createToken(CmlParser.RNGSUB /*MAP_RANGE_RESTRICT_BY*/); }
-  ":-"								{ return createToken(CmlParser.VDMDONTCARE /*DONTCARE*/); }
-  ".#"								{ return createToken(CmlParser.DOTHASH); }
-  "<="								{ return createToken(CmlParser.LTE); }
-  ">="								{ return createToken(CmlParser.GTE); }
-  "<>"								{ return createToken(CmlParser.NEQ); }
-  "=>"								{ return createToken(CmlParser.IMPLY); }
-  "=="								{ return createToken(CmlParser.DEQUALS /*IS_DEFINED_AS*/); }
-  //"||"							{ return createToken(CmlParser.NONDET); }
-  ":="								{ return createToken(CmlParser.ASSIGN); }
-  "::"								{ return createToken(CmlParser.VDMRECORDDEF); }
-  //"**"							{ return createToken(CmlParser.EXP_OR_ITERATE); }
-  "++"								{ return createToken(CmlParser.OVERWRITE /*MODIFY_BY*/); }
-  "<:"								{ return createToken(CmlParser.DOMRES/*MAP_DOMAIN_RESTRICT_TO*/); }
-  ":>"								{ return createToken(CmlParser.RNGRES/*MAP_RANGE_RESTRICT_TO*/); }
-  {hook}								{ return createToken(CmlParser.TILDE /*HOOK*/); }
-  {prime}								{ return createToken(CmlParser.BACKTICK); }
-  ","								{ return createToken(CmlParser.COMMA); }
-  "!"								{  }
-  ":"								{ return createToken(CmlParser.COLON); }
-  ";"								{ return createToken(CmlParser.SEMI); }
-  "="								{ return createToken(CmlParser.EQUALS); }
-  ")"								{ return createToken(CmlParser.RPAREN); }
-  "("								{ return createToken(CmlParser.LPAREN); }
-  "|"								{ return createToken(CmlParser.BAR); }
-  "-"								{ return createToken(CmlParser.MINUS); }
-  "["								{ return createToken(CmlParser.LSQUARE); }
-  "]"								{ return createToken(CmlParser.RSQUARE); }
-  "{"								{ return createToken(CmlParser.LCURLY); }
-  "}"								{ return createToken(CmlParser.RCURLY); }
-  "+"								{ return createToken(CmlParser.PLUS); }
-  "/"								{ return createToken(CmlParser.DIV);  }
-  "<"								{ return createToken(CmlParser.LT); }
-  ">"								{ return createToken(CmlParser.GT); }
-  "."								{ return createToken(CmlParser.DOT); }
-  "&"								{  }
-  "*"								{ return createToken(CmlParser.STAR); }
-  "^"								{ return createToken(CmlParser.CONC); }
-  "\\"								{ return createToken(CmlParser.SETDIFF); }
+<FUNCTIONS, OPERATIONS> {
+  "post"                              { return createToken(CmlParser.POST); }
+  "pre"                               { return createToken(CmlParser.PRE); }
+  "measure"                           { return createToken(CmlParser.MEASURE); }
+  "is subclass responsibility"        { return createToken(CmlParser.VDM_SUBCLASSRESP); }
+  "is not yet specified"              { return createToken(CmlParser.VDM_NOTYETSPEC); }
 }
 
-<PROCESS,STATE, TYPES> {
-    {end}                               {yybegin(stateStack.pop()); return createToken(CmlParser.END); }
+// <CHANNELS> {
+
+// }
+
+<CHANSETS> {
+  "{|"				      { return createToken(CmlParser.CSP_CHANSET_BEGIN); } //TODO: CHANGE this into something else
+  "|}"				      { return createToken(CmlParser.CSP_CHANSET_END); } //TODO: CHANGE this into something else
+  "="                                 { return createToken(CmlParser.EQUALS); }
 }
 
-<TYPES,STATE, FUNCTIONS, VDMPATTERN, VDMEXPRESSION> {
-  ":"[^:-]                              { return createToken(CmlParser.VDMTYPE); }
-  {identifier}                          { return createToken(CmlParser.IDENTIFIER); }
-  {numericliteral}                      { return createToken(CmlParser.symbolicLiteral); }
+<ACTIONS> {
+    //  "="                                 { return createToken(CmlParser.EQUALS); }
+  ";"                                 { return createToken(CmlParser.CSPSEQ); }
+  "->"                                { return createToken(CmlParser.RARROW); }
+  //   ")"				      { return createToken(CmlParser.RPAREN); }
+  //  "("				      { return createToken(CmlParser.LPAREN); }
+  "&"				      { return createToken(CmlParser.AMP); }
+  "?"				      { return createToken(CmlParser.CSP_CHANNEL_WRITE); }
+  "!"				      { return createToken(CmlParser.CSP_CHANNEL_READ); }
+  "var"                               { return createToken(CmlParser.CSP_VARDECL); }
+  "@"                                 { return createToken(CmlParser.AT); }
+  "[]"                                { return createToken(CmlParser.CSPINTCH); }
+  "=>"                                { return createToken(CmlParser.CSP_OPS_COM); }
 }
 
-<PROCESS,TYPES,STATE,FUNCTIONS > {
-  {types}                               { yybegin(TYPES); return createToken(CmlParser.TYPES); }
-  {functions}                           { yybegin(FUNCTIONS); return createToken(CmlParser.FUNCTIONS); }
-  "="                                   { return createToken(CmlParser.EQUALS); }
-  {identifier}                          { return createToken(CmlParser.IDENTIFIER); }
+<CHANNELS,CHANSETS,ACTIONS> {
+  ","				      { return createToken(CmlParser.COMMA); }
+  ":"				      { return createToken(CmlParser.VDMTYPE); } //TODO: CHANGE this into something else
 }
 
 
-"//".*                                  { /* match comment; do nothing */ }
-"/*"                                    { stateStack.push(yystate()); yybegin(COMMENT); }
-<COMMENT>"*/"                           { yybegin(stateStack.pop()); }
-<COMMENT>[^*]                           { /* match comment text; do nothing */ }
-<COMMENT>\**[^/]                        { /* match comment text; do nothing */ }
+<TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS> {
+  ":"[^:-=]                           { return createToken(CmlParser.VDMTYPE); }
+  
+  //vdm expressions
+  "<=>"				      { return createToken(CmlParser.BIMPLY); }
+  //"|->"			      { return createToken(CmlParser.BAR_ARROW); }
+  "<-:"				      { return createToken(CmlParser.VDM_MAP_DOMAIN_RESTRICT_BY); }
+  ":->"				      { return createToken(CmlParser.RNGSUB /*MAP_RANGE_RESTRICT_BY*/); }
+  ":-"				      { return createToken(CmlParser.VDMDONTCARE /*DONTCARE*/); }
+  ".#"				      { return createToken(CmlParser.DOTHASH); }
+  "<="				      { return createToken(CmlParser.LTE); }
+  ">="				      { return createToken(CmlParser.GTE); }
+  "<>"				      { return createToken(CmlParser.NEQ); }
+  "=>"				      { return createToken(CmlParser.IMPLY); }
+  "=="				      { return createToken(CmlParser.DEQUALS /*IS_DEFINED_AS*/); }
+  //"||"			      { return createToken(CmlParser.NONDET); }
+  ":="				      { return createToken(CmlParser.ASSIGN); }
+  "::"				      { return createToken(CmlParser.VDMRECORDDEF); }
+  //"**"			      { return createToken(CmlParser.EXP_OR_ITERATE); }
+  "++"				      { return createToken(CmlParser.OVERWRITE /*MODIFY_BY*/); }
+  "<:"				      { return createToken(CmlParser.DOMRES/*MAP_DOMAIN_RESTRICT_TO*/); }
+  ":>"				      { return createToken(CmlParser.RNGRES/*MAP_RANGE_RESTRICT_TO*/); }
+  {hook}			      { return createToken(CmlParser.TILDE /*HOOK*/); }
+  {prime}			      { return createToken(CmlParser.BACKTICK); }
+  ","				      { return createToken(CmlParser.COMMA); }
+  "!"				      {  }
+  ":"				      { return createToken(CmlParser.COLON); }
+  ";"				      { return createToken(CmlParser.SEMI); }
+  "="				      { return createToken(CmlParser.EQUALS); }
+  ")"				      { return createToken(CmlParser.RPAREN); }
+  "("				      { return createToken(CmlParser.LPAREN); }
+  "|"				      { return createToken(CmlParser.BAR); }
+  "-"				      { return createToken(CmlParser.MINUS); }
+  "["				      { return createToken(CmlParser.LSQUARE); }
+  "]"				      { return createToken(CmlParser.RSQUARE); }
+  "{"				      { return createToken(CmlParser.LCURLY); }
+  "}"				      { return createToken(CmlParser.RCURLY); }
+  "+"				      { return createToken(CmlParser.PLUS); }
+  "/"				      { return createToken(CmlParser.DIV);  }
+  "<"				      { return createToken(CmlParser.LT); }
+  ">"				      { return createToken(CmlParser.GT); }
+  "."				      { return createToken(CmlParser.DOT); }
+  "&"				      {  }
+  "*"				      { return createToken(CmlParser.STAR); }
+  "^"				      { return createToken(CmlParser.CONC); }
+  "\\"				      { return createToken(CmlParser.SETDIFF); }
+
+  "and"				      { return createToken(CmlParser.AND); }
+  "or"				      { return createToken(CmlParser.OR); }
+  "not"				      { return createToken(CmlParser.NOT); }
+
+  "in set"			      { return createToken(CmlParser.INSET); }
+
+  //vdm patterns
+  "-"                                 { return createToken(CmlParser.VDMDONTCARE); }
+  "mk_"                               { return createToken(CmlParser.MKUNDER); }
+
+  //basic types
+  "bool"                              { return createToken(CmlParser.TBOOL); }
+  "nat"                               { return createToken(CmlParser.TNAT); }
+  "nat1"                              { return createToken(CmlParser.TNAT1); }
+  "int"                               { return createToken(CmlParser.TINT); }
+  "rat"                               { return createToken(CmlParser.TRAT); }
+  "real"                              { return createToken(CmlParser.TREAL); }
+  "char"                              { return createToken(CmlParser.TCHAR); }
+  "token"                             { return createToken(CmlParser.TTOKEN); }
+  //set type
+  "set of"                            { return createToken(CmlParser.VDMSETOF); }
+
+  "inv"                               { return createToken(CmlParser.VDMINV); }
+}
 
 //[:whitespace:]                        { /* match whitespace; do nothing */ }
 {WhiteSpace}                            { /* match whitespace; do nothing */ }
-
-
+{identifier}                          { return createToken(CmlParser.IDENTIFIER); }
+{numericliteral}                      { return createToken(CmlParser.symbolicLiteral); }
 
 // default catch-all production rule is to return the current character
 /* .								{ return defaultToken(); } */
 
 // production rule to handle end-of-file
-<<EOF>>		  		        { return 0; } 
+<<EOF>>		  		      { return 0; } 
