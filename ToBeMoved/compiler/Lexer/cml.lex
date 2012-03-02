@@ -337,7 +337,7 @@ class CommentBlock extends CMLToken {
     //keywords.put("undefined", CmlParser.UNDEFINED);
     keywords.put("union", CmlParser.UNION);
     keywords.put("values", CmlParser.VALUES);
-    keywords.put("variables", CmlParser.INSTANCEVARS);
+    //keywords.put("variables", CmlParser.INSTANCEVARS);
     /*
     keywords.put("while", CmlParser.WHILE);
     keywords.put("with", CmlParser.WITH);
@@ -489,24 +489,27 @@ numericliteral 			= {digit}+
 prime		= \` 
 hook 		= \~ 
 
-
 //identifier      = [A-Za-z0-9]
-identifier      = {letter}([0-9\'_]|{letter})*
-process         = [Pp][Rr][Oo][Cc][Ee][Ss][Ss]
+actions         = [Aa][Cc][Tt][Ii][Oo][Nn][Ss]
 begin           = [Bb][Ee][Gg][Ii][Nn]
-end             = [Ee][Nn][Dd]
-types           = [Tt][Yy][Pp][Ee][Ss]
-functions       = [Ff][Uu][Nn][Cc][Tt][Ii][Oo][Nn][Ss]
-operations      = [Oo][Pp][Ee][Rr][Aa][Tt][Ii][Oo][Nn][Ss]
 channels        = [Cc][Hh][Aa][Nn][Nn][Ee][Ll][Ss]
 chansets        = [Cc][Hh][Aa][Nn][Ss][Ee][Tt][Ss]
-actions         = [Aa][Cc][Tt][Ii][Oo][Nn][Ss]
+class           = [Cc][Ll][Aa][Ss][Ss]
+end             = [Ee][Nn][Dd]
+functions       = [Ff][Uu][Nn][Cc][Tt][Ii][Oo][Nn][Ss]
+global          = [Gg][Ll][Oo][Bb][Aa][Ll]
+identifier      = {letter}([0-9\'_]|{letter})*
+initial         = [Ii][Nn][Ii][Tt][Ii][Aa][Ll]
+operations      = [Oo][Pp][Ee][Rr][Aa][Tt][Ii][Oo][Nn][Ss]
+process         = [Pp][Rr][Oo][Cc][Ee][Ss][Ss]
+state           = [Ss][Tt][Aa][Tt][Ee]
+types           = [Tt][Yy][Pp][Ee][Ss]
 
 LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
 WhiteSpace     = {LineTerminator} | [ \t\f]
 
-%states PROCESS TYPES STATE FUNCTIONS OPERATIONS CHANNELS CHANSETS ACTIONS
+%states CLASS PROCESS STATE TYPES STATE FUNCTIONS GLOBAL OPERATIONS CHANNELS CHANSETS ACTIONS 
 %xstates COMMENT
 
 %%
@@ -524,21 +527,34 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 
 <YYINITIAL> {
   {process}                           { stateStack.push(yystate());yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
+  {class}                             { stateStack.push(yystate());yybegin(CLASS); return createToken(CmlParser.CLASS); }
+  {global}                            { stateStack.push(yystate());yybegin(GLOBAL); return createToken(CmlParser.GLOBAL); }
 }
 
-<PROCESS,TYPES,STATE,FUNCTIONS,OPERATIONS,CHANNELS,CHANSETS,ACTIONS> {
-  {types}                             { yybegin(TYPES); return createToken(CmlParser.TYPES); }
-  {functions}                         { yybegin(FUNCTIONS); return createToken(CmlParser.FUNCTIONS); }
-  {operations}                        { yybegin(OPERATIONS); return createToken(CmlParser.OPERATIONS); }
+<PROCESS,TYPES,STATE,FUNCTIONS,OPERATIONS,CHANNELS,CHANSETS,ACTIONS, GLOBAL> {
+  {actions}                           { yybegin(ACTIONS); return createToken(CmlParser.CSP_ACTIONS); }
   {channels}                          { yybegin(CHANNELS); return createToken(CmlParser.CHANNELS); }
   {chansets}                          { yybegin(CHANSETS); return createToken(CmlParser.CHANSETS); }
-  {actions}                           { yybegin(ACTIONS); return createToken(CmlParser.CSP_ACTIONS); }
+  {types}                             { yybegin(TYPES); return createToken(CmlParser.TYPES); }
+  {state}                             { yybegin(STATE); return createToken(CmlParser.STATE); }
+  {functions}                         { yybegin(FUNCTIONS); return createToken(CmlParser.FUNCTIONS); }
+  {operations}                        { yybegin(OPERATIONS); return createToken(CmlParser.OPERATIONS); }
   {end}                               { yybegin(stateStack.pop()); return createToken(CmlParser.END); }
 }
+
+/* //common state for CLASS PROCESS and GLOBAL definitions */
+/* <CLASS,PROCESS,GLOBAL,TYPES,STATE,FUNCTIONS,OPERATIONS,> { */
+/*   {types}                             { yybegin(TYPES); return createToken(CmlParser.TYPES); } */
+/*   {state}                             { yybegin(STATE); return createToken(CmlParser.STATE); } */
+/*   {functions}                         { yybegin(FUNCTIONS); return createToken(CmlParser.FUNCTIONS); } */
+/*   {operations}                        { yybegin(OPERATIONS); return createToken(CmlParser.OPERATIONS); } */
+/* } */
+
 
 <PROCESS> {
   "="                                 { return createToken(CmlParser.EQUALS); }
   {begin}                             { return createToken(CmlParser.BEGIN); }
+  {end}                               { yybegin(stateStack.pop()); return createToken(CmlParser.END); }
 }
 
 <TYPES> {
@@ -548,9 +564,9 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "=="                                { return createToken(CmlParser.DEQUALS); }
  }
 
-<STATE> {
-  "of"                                { /*return createToken(CmlParser.VDMOF); */}
-}
+/* <STATE> { */
+/*   //"of"                                { /\*return createToken(CmlParser.VDMOF); *\/} */
+/* } */
 
 <FUNCTIONS> {
   "->"				      { return createToken(CmlParser.VDMPFUNCARROW); }

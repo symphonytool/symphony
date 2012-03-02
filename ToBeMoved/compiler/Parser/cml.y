@@ -1,9 +1,9 @@
-%require "2.4.1"
+%require "2.5"
 //%define api.pure
 %language "java"
 %locations
 %define parser_class_name "CmlParser"
-%define access "public"
+//%define access "public"
 %define package "eu.compassresearch.cml.compiler"
 %code imports{
 
@@ -137,13 +137,13 @@
  *
  */
 
-%token CLASS END PROCESS EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_EXT VDM_RD VDM_WR INSTANCEVARS LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN SKIP VDMDONTCARE IDENTIFIER
+%token CLASS END PROCESS INITIAL GLOBAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_EXT VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN SKIP VDMDONTCARE IDENTIFIER
 %token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1
 
 %token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CSP_CHANSET_BEGIN CSP_CHANSET_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_VARDECL CSP_OPS_COM
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN
 
-%token globalDef declaration VDMcommand nameset namesetExpr communication predicate chanset typeVarIdentifier quoteLiteral functionType localDef symbolicLiteral implicitOperationBody
+%token declaration VDMcommand nameset namesetExpr communication predicate chanset typeVarIdentifier quoteLiteral functionType localDef symbolicLiteral implicitOperationBody
 
 /* CSP ops and more */
 %right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN
@@ -157,13 +157,13 @@
  /* other hacks */
 %right LPAREN
 
-%start document
+%start program
 
 %%
 
 /* 2 CML Grammar */
 
-document 
+program
 : paragraphList               {
                                 $$ = $1;  
 			      }
@@ -177,9 +177,9 @@ paragraphList
 
 paragraph 
 : classDef                    { $$ = $1; }
-| processDef
-| channelDef
-| chansetDef
+| processDef                  { $$ = $1; }
+//| channelDef                  { $$ = $1; }
+//| chansetDef                  { $$ = $1; }
   ;
 
 /* 2.1 Classes */
@@ -306,10 +306,60 @@ chansetExpr :
 
 /* 2.5 Global Definitions */
 
+globalDef :
+  GLOBAL globalDefinitionBlock
+  ;
+
+globalDefinitionBlock 
+: globalDefinitionBlockAlternative
+{
+    List<PDefinition> defBlockList = new Vector<PDefinition>();
+    List<PDefinition> defBlock = (List<PDefinition>)$1;
+    if (defBlockList != null) if (defBlock != null) defBlockList.addAll(defBlock);
+    $$ = defBlockList;
+}
+
+| globalDefinitionBlock globalDefinitionBlockAlternative        
+ { 
+    List<PDefinition> defBlockList = (List<PDefinition>)$1;
+    List<PDefinition> defBlock = (List<PDefinition>)$2;
+    if (defBlockList != null) if (defBlock != null) defBlockList.addAll(defBlock);
+    $$ = defBlockList;
+}
+;
+
+globalDefinitionBlockAlternative
+: typeDefs             
+{
+  $$ = $1;
+}
+| valueDefs
+{
+  $$ = $1;
+}
+| functionDefs
+{
+  $$ = $1;
+}
+| operationDefs
+{
+  $$ = $1;
+}
+
+| channelDef
+{
+  $$ = $1;
+}
+| chansetDef
+{
+  $$ = $1;
+}
+;
+
 /* 3 Definitions */
 
 classBody 
-: definitionBlock                       
+: classDefinitionBlock                       
 { 
   $$ = (List)$1; 
 }
@@ -319,8 +369,8 @@ classBody
 }
 ;
 
-definitionBlock 
-: definitionBlockAlternative
+classDefinitionBlock 
+: classDefinitionBlockAlternative
 {
     List<PDefinition> defBlockList = new Vector<PDefinition>();
     List<PDefinition> defBlock = (List<PDefinition>)$1;
@@ -328,7 +378,7 @@ definitionBlock
     $$ = defBlockList;
 }
 
-| definitionBlock definitionBlockAlternative        
+| classDefinitionBlock classDefinitionBlockAlternative        
 { 
     List<PDefinition> defBlockList = (List<PDefinition>)$1;
     List<PDefinition> defBlock = (List<PDefinition>)$2;
@@ -337,28 +387,28 @@ definitionBlock
 }
 ;
 
-definitionBlockAlternative
+classDefinitionBlockAlternative
 : typeDefs             
 {
-    $$ = $1;
+  $$ = $1;
 }
 | valueDefs
 {
-    $$ = $1;
+  $$ = $1;
 }
 | functionDefs
 {
-    $$ = $1;
+  $$ = $1;
 }
 | operationDefs
 {
-    $$ = $1;
+  $$ = $1;
 }
-| instanceVarDefs
+| stateDefs
 {
-    $$ = $1;
+  $$ = $1;
 }
-| channelDef
+| initialDef
 {
   $$ = $1;
 }
@@ -578,17 +628,19 @@ mode :
 | VDM_WR
   ;
 
+initialDef : 
+INITIAL operationDef
 
 /* 3.5 Instance Variable Definitions */
 
-instanceVarDefs :
-  INSTANCEVARS instanceVarDefList
+stateDefs :
+  STATE stateDefList
   ;
 
 /* FIXME this needs to be non-empty */
-instanceVarDefList :
-  assignmentDef instanceVarDefList
-| invariantDef instanceVarDefList
+stateDefList :
+  assignmentDef stateDefList
+| invariantDef stateDefList
 | /* empty */
   ;
 

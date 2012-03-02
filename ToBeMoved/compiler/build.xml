@@ -13,7 +13,7 @@
        etc.
   -->
   <property name="build.build.dir"          location="target/ant/build"/>
-  <property name="ast.dir"                  location="../../../core/ast/target"/>
+  <property name="ast.dir"                  location="../../../astV2/core/ast/target"/>
   <property name="build.dist.dir"           location="dist"/>
   <property name="build.generated.dir"      location="src/main/java"/>
   <property name="build.package"             value="eu/compassresearch/cml/compiler/"/>
@@ -24,7 +24,7 @@
   <property name="build.lexer.file"     value="cml.lex"/>
   <property name="build.lexer.output.file"    value="${build.package.dir}/CmlLexer.java"/>
 
-  <property name="build.parser.cmd.bison"      value="/usr/bin/bison"/>
+  <property name="build.parser.cmd.bison"      value="/usr/local/bin/bison"/>
   <property name="build.parser.dir"            location="Parser"/>
   <property name="build.parser.file"           value="cml.y"/>
   <property name="build.parser.classpath"      value="${build.build.dir}:${ast.dir}"/>
@@ -66,6 +66,9 @@
       <arg value="${build.parser.output.file}"/>
       <arg value="-S"/>
       <arg value="${build.parser.dir}/cmlskeleton.java.m4"/>
+      <arg value="-v"/>
+      <arg value="--report-file"/>
+      <arg value="${build.parser.dir}/cml.output"/>
     </exec>
   </target>
   
