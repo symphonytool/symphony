@@ -1,62 +1,69 @@
-/* CML_{-1}, example from Jim Woodcock of a simple register + arith operations; given in his slides for the 1st tool workshop at Århus */
+/*  CML_{0}, example from Jim Woodcock of a simple register + arith operations; */
+  types
+    public Byte = nat
+    inv n == (0 <= n) and (n <= 127)
 
-process RegisterProc =
-  begin
-    types
-      Byte = 0 .. 127
+  functions
+    oflow : (i,j : Byte) b : bool
+    post b = ( i+j = 127)
 
-    state
-      Register of
-        reg: Byte
-      end
+    uflow : (i,j : Byte) b : bool
+    post b = (i-j < 0);
+ 
 
-    functions
-      oflow: (Byte,Byte) -> Bool
-      post oflow(i,j) = (i+j > 127)
+  channels
+   channel init, overflow, underflow
+   channel read, load, add, sub : Byte
 
-      uflow: (Byte, Byte) -> Bool
-      post uflow(i,j) = (i-j <0)
+  Chansets
+   chanset I = {| init, overflow, underflow,
+          read,load,add,sub |}
 
-    operations
-      INIT()
-      ext wr reg: Byte
-      post reg = 0
 
-      READ() j: Byte
-      ext rd reg: Byte
-      post j = reg
+process RegisterProc = 
+ begin
+	
+  state 
+  reg : Byte	
+     
+  operatioNs  
 
-      LOAD (i:Byte)
-      ext wr reg:Byte
-      post reg = i
+   INIT()
+   ext wr reg : Byte
+   post reg = 0;
 
-      ADD(i : Byte)
-      ext wr reg: Byte
-      pre reg + i in set Byte
-      post reg = reg~ + i
+   LOAD(i : Byte)
+   ext wr reg : Byte
+   post reg = i;
 
-      SUB (i:Byte)
-      ext wr reg:Byte
-      pre reg = i in set Byte
-      post reg = reg~ - i
+   READ() j : Byte
+   ext rd reg : Byte;
+   post j = reg 
 
-    channels
-      init, overflow, underflow
-      read,load ,add , sub : Byte
+   ADD(i:Byte)
+   ext wr reg : Byte
+   pre not oflow(reg, i)
+   post reg = reg~ + i;
 
-    chansets
-      I = {| init, overflow, underflow,
-             read,load ,add , sub |}
-
-    actions
-      MAIN = init -> INIT(); REG
-
-      REG = 
-           var j: Byte @ j := READ(); read!j -> reg
- 	[] load? i -> LOAD(i); REG
-	[] add?i => (  oflow(reg, i)    & overflow -> MAIN
-	   	    [] not oflow(reg,i) & ADD(i); REG)
-	[] sub?i => (  uflow(reg ,i)    & underflow -> MAIN
-	   	    [] not uflow(reg,i) & ADD(i); REG)
-
-  end
+   SUB(i : Byte)
+   ext wr reg : Byte
+   pre is_Byte(reg - i)
+   post reg = reg~ - i;
+  
+   aCtions
+   
+   REG = 
+     load?i -> LOAD(i) -> REG
+     []
+     var j: Byte @ j := READ(); read!j -> reg
+     [] 
+     add?i -> ( oflow(reg,i) & overflow -> INIT(); REG
+       	     	 [] 
+		 not oflow(reg,i) & ADD(i);REG)
+     [] 
+     sub?i => ( uflow(reg,i) & underflow -> INIT(); REG
+       	     	 [] 
+		 not uflow(reg,i) & SUB(i); REG)
+   @
+     init -> INIT(); REG
+ end

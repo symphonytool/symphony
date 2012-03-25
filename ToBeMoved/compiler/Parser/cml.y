@@ -137,11 +137,11 @@
  *
  */
 
-%token CLASS END PROCESS INITIAL GLOBAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_EXT VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN SKIP VDMDONTCARE IDENTIFIER
+%token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_EXT VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN SKIP VDMDONTCARE IDENTIFIER
 %token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1
 
 %token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CSP_CHANSET_BEGIN CSP_CHANSET_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_VARDECL CSP_OPS_COM
-%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN
+%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
 %token declaration VDMcommand nameset namesetExpr communication predicate chanset typeVarIdentifier quoteLiteral functionType localDef symbolicLiteral implicitOperationBody
 
@@ -307,7 +307,7 @@ chansetExpr :
 /* 2.5 Global Definitions */
 
 globalDef :
-  GLOBAL globalDefinitionBlock
+  globalDefinitionBlock
   ;
 
 globalDefinitionBlock 
@@ -447,8 +447,8 @@ typeDefList
 ;
 
 typeDef 
-: IDENTIFIER EQUALS type invariant
-| IDENTIFIER EQUALS type                        
+: qualifier IDENTIFIER EQUALS type invariant
+| qualifier IDENTIFIER EQUALS type                        
 { 
     LexLocation location = extractLexLocation((CmlLexeme)$1,((PTypeBase)$3).getLocation());
     LexNameToken name = extractLexNameToken((CmlLexeme)$1);
@@ -458,8 +458,19 @@ typeDef
 			     (PType)$3, null, null, null, 
 			     null, true, name); 
 }
-| IDENTIFIER VDMRECORDDEF fieldList invariant
+| qualifier IDENTIFIER VDMRECORDDEF fieldList invariant
   ;
+
+qualifier
+: PRIVATE 
+{}
+| PROTECTED 
+{}
+| PUBLIC  
+{}
+| LOGICAL 
+{}
+| /* empty */
 
 type 
 : LPAREN type RPAREN
@@ -552,7 +563,7 @@ functionDefs :
   ;
 
 functionDefList :
-  IDENTIFIER VDMTYPE functionType IDENTIFIER parameterList DEQUALS functionBody preExpr postExpr measureExpr
+  qualifier IDENTIFIER VDMTYPE functionType IDENTIFIER parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
   ;
 
 /* really? this is what a VDM function definition list looks like? */
@@ -567,15 +578,38 @@ functionBody :
 | VDM_NOTYETSPEC
   ;
 
+parameterTypes : 
+LPAREN patternList COLON type RPAREN
+| LPAREN patternList COLON type RPAREN COMMA parameterTypes
+; 
+
+identifierTypePairList_opt 
+: /* empty */
+| identifierTypePairList
+;
+
+identifierTypePairList :
+IDENTIFIER COLON type
+| IDENTIFIER COLON type COMMA identifierTypePairList
+;
+
+preExpr_opt :
+  preExpr
+| /* empty */
+  ;
+
 preExpr :
   PRE expression
+
+
+postExpr_opt :
+  postExpr
 | /* empty */
   ;
 
 postExpr :
-  POST expression
-| /* empty */
-  ;
+POST expression
+;
 
 measureExpr :
   MEASURE expression
@@ -595,9 +629,18 @@ operationDefList :
 
 /* FIXME the optional trailing semicolon in the operations definitions is presently not optional */
 
-operationDef :
-  IDENTIFIER VDMTYPE operationType IDENTIFIER parameterList DEQUALS operationBody externals preExpr postExpr
-  ;
+operationDef 
+: implicitOperationDef
+| explicitOperationDef
+;
+
+ explicitOperationDef
+: qualifier IDENTIFIER VDMTYPE operationType IDENTIFIER parameterList DEQUALS operationBody externals preExpr_opt postExpr_opt
+;
+
+implicitOperationDef
+: qualifier IDENTIFIER parameterTypes identifierTypePairList_opt externals_opt preExpr_opt postExpr
+;
 
 operationType :
   type OPERATIONARROW type
@@ -611,6 +654,11 @@ operationBody :
 | VDM_SUBCLASSRESP
 | VDM_NOTYETSPEC
   ;
+
+externals_opt:
+externals
+| /* empty */
+;
 
 externals :
   VDM_EXT varInformationList

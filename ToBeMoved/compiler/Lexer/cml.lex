@@ -497,7 +497,7 @@ chansets        = [Cc][Hh][Aa][Nn][Ss][Ee][Tt][Ss]
 class           = [Cc][Ll][Aa][Ss][Ss]
 end             = [Ee][Nn][Dd]
 functions       = [Ff][Uu][Nn][Cc][Tt][Ii][Oo][Nn][Ss]
-global          = [Gg][Ll][Oo][Bb][Aa][Ll]
+//global          = [Gg][Ll][Oo][Bb][Aa][Ll]
 identifier      = {letter}([0-9\'_]|{letter})*
 initial         = [Ii][Nn][Ii][Tt][Ii][Aa][Ll]
 operations      = [Oo][Pp][Ee][Rr][Aa][Tt][Ii][Oo][Nn][Ss]
@@ -509,7 +509,7 @@ LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
 WhiteSpace     = {LineTerminator} | [ \t\f]
 
-%states CLASS PROCESS STATE TYPES STATE FUNCTIONS GLOBAL OPERATIONS CHANNELS CHANSETS ACTIONS 
+%states CLASS PROCESS STATE TYPES STATE FUNCTIONS OPERATIONS CHANNELS CHANSETS ACTIONS 
 %xstates COMMENT
 
 %%
@@ -528,10 +528,10 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 <YYINITIAL> {
   {process}                           { stateStack.push(yystate());yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
   {class}                             { stateStack.push(yystate());yybegin(CLASS); return createToken(CmlParser.CLASS); }
-  {global}                            { stateStack.push(yystate());yybegin(GLOBAL); return createToken(CmlParser.GLOBAL); }
+  //  {global}                            { stateStack.push(yystate());yybegin(GLOBAL); return createToken(CmlParser.GLOBAL); }
 }
 
-<PROCESS,TYPES,STATE,FUNCTIONS,OPERATIONS,CHANNELS,CHANSETS,ACTIONS, GLOBAL> {
+<PROCESS,TYPES,STATE,FUNCTIONS,OPERATIONS,CHANNELS,CHANSETS,ACTIONS,YYINITIAL> {
   {actions}                           { yybegin(ACTIONS); return createToken(CmlParser.CSP_ACTIONS); }
   {channels}                          { yybegin(CHANNELS); return createToken(CmlParser.CHANNELS); }
   {chansets}                          { yybegin(CHANSETS); return createToken(CmlParser.CHANSETS); }
@@ -569,8 +569,8 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 /* } */
 
 <FUNCTIONS> {
-  "->"				      { return createToken(CmlParser.VDMPFUNCARROW); }
-  "+>"				      { return createToken(CmlParser.VDMTFUNCARROW); }
+  "+>"				      { return createToken(CmlParser.VDMPFUNCARROW); }
+  "->"				      { return createToken(CmlParser.VDMTFUNCARROW); }
 }
 
 <OPERATIONS> {
@@ -616,7 +616,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 
 <CHANNELS,CHANSETS,ACTIONS> {
   ","				      { return createToken(CmlParser.COMMA); }
-  ":"				      { return createToken(CmlParser.VDMTYPE); } //TODO: CHANGE this into something else
+  ":"				      { return createToken(CmlParser.COLON); } //TODO: CHANGE this into something else
 }
 
 
@@ -690,6 +690,10 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "set of"                            { return createToken(CmlParser.VDMSETOF); }
 
   "inv"                               { return createToken(CmlParser.VDMINV); }
+  "private"                           { return createToken(CmlParser.PRIVATE); }
+  "protected"                         { return createToken(CmlParser.PROTECTED); }
+  "public"                            { return createToken(CmlParser.PUBLIC); }
+  "logical"                           { return createToken(CmlParser.LOGICAL); }
 }
 
 //[:whitespace:]                        { /* match whitespace; do nothing */ }
