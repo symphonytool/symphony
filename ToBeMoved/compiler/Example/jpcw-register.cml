@@ -1,23 +1,22 @@
-/*  CML_{0}, example from Jim Woodcock of a simple register + arith operations; */
+/*  CML_{0} example from CML Definition 0 document v. 1.0 */
   types
     public Byte = nat
-    inv n == (0 <= n) and (n <= 127)
+    inv n == (n <= 255);
 
   functions
     oflow : (i,j : Byte) b : bool
-    post b = ( i+j = 127)
+    post b = ( i+j > 255)
 
     uflow : (i,j : Byte) b : bool
     post b = (i-j < 0);
  
 
   channels
-   channel init, overflow, underflow
-   channel read, load, add, sub : Byte
+   init, overflow, underflow
+   read, load, add, sub : Byte
 
   Chansets
-   chanset I = {| init, overflow, underflow,
-          read,load,add,sub |}
+   I = {| init, overflow, underflow, read, load, add, sub |}
 
 
 process RegisterProc = 
@@ -25,29 +24,29 @@ process RegisterProc =
 	
   state 
   reg : Byte	
-     
-  operatioNs  
 
+  initial
    INIT()
-   ext wr reg : Byte
+   frame wr reg : Byte
    post reg = 0;
-
+  
+  operatioNs  
    LOAD(i : Byte)
-   ext wr reg : Byte
+   frame wr reg : Byte
    post reg = i;
 
    READ() j : Byte
-   ext rd reg : Byte;
+   frame rd reg : Byte;
    post j = reg 
 
    ADD(i:Byte)
-   ext wr reg : Byte
+   frame wr reg : Byte
    pre not oflow(reg, i)
    post reg = reg~ + i;
 
    SUB(i : Byte)
-   ext wr reg : Byte
-   pre is_Byte(reg - i)
+   frame wr reg : Byte
+   pre not uflow(reg,i)
    post reg = reg~ - i;
   
    aCtions
@@ -55,7 +54,7 @@ process RegisterProc =
    REG = 
      load?i -> LOAD(i) -> REG
      []
-     var j: Byte @ j := READ(); read!j -> reg
+     dcl j: Byte @ j := READ(); read!j -> REG
      [] 
      add?i -> ( oflow(reg,i) & overflow -> INIT(); REG
        	     	 [] 
