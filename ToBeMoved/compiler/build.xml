@@ -51,7 +51,7 @@
       Public targets
   -->
   <target name="generate-lexer" depends="-init">
-    <exec executable="${build.lexer.cmd.jlex}" dir="${build.lexer.dir}">
+    <exec executable="${build.lexer.cmd.jlex}" dir="${build.lexer.dir}" failonerror="true">
       <arg value="${build.lexer.file}"/>
     </exec>
     <move file="${build.lexer.dir}/CmlLexer.java" tofile="${build.lexer.output.file}"/>
@@ -60,7 +60,7 @@
   </target>
   
   <target name="generate-parser" depends="-init">
-     <exec executable="${build.parser.cmd.bison}">
+     <exec executable="${build.parser.cmd.bison}" failonerror="true">
       <arg value="${build.parser.dir}/${build.parser.file}"/>
       <arg value="-o"/>
       <arg value="${build.parser.output.file}"/>

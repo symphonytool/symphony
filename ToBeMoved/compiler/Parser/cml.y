@@ -164,27 +164,29 @@
 /* 2 CML Grammar */
 
 program
-: paragraphList               {
-                                $$ = $1;  
-			      }
-| globalDef paragraphList
+: programParagraphList                            {
+                                                    $$ = $1;  
+			                          }
+| globalDef programParagraphList
 ;
 
-paragraphList 
-    : paragraph                   {  documentDefs.add((PDefinition)$1); }
-| paragraph paragraphList
+programParagraphList 
+: programParagraph                                {  
+                                                    documentDefs.add((PDefinition)$1); 
+                                                  }
+| programParagraph programParagraphList
 ;
 
-paragraph 
-: classDef                    { $$ = $1; }
-| processDef                  { $$ = $1; }
+programParagraph 
+: classDecl                                       { $$ = $1; }
+| processDecl                                     { $$ = $1; }
 //| channelDef                  { $$ = $1; }
 //| chansetDef                  { $$ = $1; }
   ;
 
 /* 2.1 Classes */
-classDef 
-: CLASS IDENTIFIER classBody END IDENTIFIER       
+classDecl 
+: CLASS IDENTIFIER EQUALS classBody        
 { 
     Position classStartPos =  ((CmlLexeme)$1).getStartPos();
     Position classEndPos = ((CmlLexeme)$4).getEndPos();
@@ -206,11 +208,11 @@ classDef
 
 /* 2.2 Processes */
 
-processDef :
-  PROCESS IDENTIFIER EQUALS processDecl
+processDecl :
+  PROCESS IDENTIFIER EQUALS processDef
   ;
 
-processDecl :
+processDef :
   declaration AT process
 | process
   ;
@@ -222,7 +224,7 @@ process :
 | process CSPEXTCH process
 | process CSPLCHSYNC chansetExpr CSPRCHSYNC process
 | process CSPINTERLEAVE process
-| LPAREN declaration AT processDecl RPAREN LPAREN expression RPAREN
+| LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
 | IDENTIFIER LPAREN expression RPAREN
 | IDENTIFIER
 | LPAREN process RPAREN LSQUARE identifierList CSPRENAME identifierList RSQUARE
@@ -234,7 +236,7 @@ process :
   ;
 
 processPara :
-  paragraph
+  programParagraph
 | IDENTIFIER EQUALS paragraphAction
 | nameset IDENTIFIER EQUALS namesetExpr
   ;
