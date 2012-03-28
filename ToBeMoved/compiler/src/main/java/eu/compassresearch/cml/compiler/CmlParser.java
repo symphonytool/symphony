@@ -44,7 +44,7 @@ import static eu.compassresearch.cml.compiler.CmlParser.YyPactClass.yypact_;
 /* "%code imports" blocks.  */
 
 /* Line 40 of cmlskeleton.java.m4  */
-/* Line 8 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 8 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
 
 
 // ******************************
@@ -62,10 +62,10 @@ import static eu.compassresearch.cml.compiler.CmlParser.YyPactClass.yypact_;
 
 
 /* Line 40 of cmlskeleton.java.m4  */
-/* Line 66 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/src/main/java/eu/compassresearch/cml/compiler/CmlParser.java"  */
+/* Line 66 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/src/main/java/eu/compassresearch/cml/compiler/CmlParser.java"  */
 
 /**
- * A Bison parser, automatically generated from <tt>/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y</tt>.
+ * A Bison parser, automatically generated from <tt>/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y</tt>.
  *
  * @author LALR (1) parser skeleton written by Paolo Bonzini.
  */
@@ -75,7 +75,7 @@ class CmlParser
   public static final String bisonVersion = "2.5";
 
   /** Name of the skeleton that generated this parser.  */
-  public static final String bisonSkeleton = "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cmlskeleton.java.m4";
+  public static final String bisonSkeleton = "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cmlskeleton.java.m4";
 
 
   /** True if verbose error messages are enabled.  */
@@ -759,7 +759,7 @@ class CmlParser
   if (yyn == 2)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 167 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 167 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
                                 yyval = ((yystack.valueAt (1-(1))));  
 			      };
@@ -770,7 +770,7 @@ class CmlParser
   if (yyn == 4)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 174 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 174 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {  documentDefs.add((PDefinition)((yystack.valueAt (1-(1))))); };
   break;
     
@@ -779,7 +779,7 @@ class CmlParser
   if (yyn == 6)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 179 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 179 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { yyval = ((yystack.valueAt (1-(1)))); };
   break;
     
@@ -788,7 +788,7 @@ class CmlParser
   if (yyn == 7)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 180 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 180 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { yyval = ((yystack.valueAt (1-(1)))); };
   break;
     
@@ -797,7 +797,7 @@ class CmlParser
   if (yyn == 8)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 188 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 188 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     Position classStartPos =  ((CmlLexeme)((yystack.valueAt (5-(1))))).getStartPos();
     Position classEndPos = ((CmlLexeme)((yystack.valueAt (5-(4))))).getEndPos();
@@ -822,7 +822,7 @@ class CmlParser
   if (yyn == 33)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 249 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 249 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { /*new CMLIdentifier($1);*/ };
   break;
     
@@ -831,7 +831,7 @@ class CmlParser
   if (yyn == 67)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 315 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 315 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
     List<PDefinition> defBlockList = new Vector<PDefinition>();
     List<PDefinition> defBlock = (List<PDefinition>)((yystack.valueAt (1-(1))));
@@ -845,7 +845,7 @@ class CmlParser
   if (yyn == 68)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 323 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 323 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     List<PDefinition> defBlockList = (List<PDefinition>)((yystack.valueAt (2-(1))));
     List<PDefinition> defBlock = (List<PDefinition>)((yystack.valueAt (2-(2))));
@@ -859,7 +859,7 @@ class CmlParser
   if (yyn == 69)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 333 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 333 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -870,7 +870,7 @@ class CmlParser
   if (yyn == 70)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 337 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 337 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -881,7 +881,7 @@ class CmlParser
   if (yyn == 71)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 341 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 341 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -892,7 +892,7 @@ class CmlParser
   if (yyn == 72)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 345 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 345 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -903,7 +903,7 @@ class CmlParser
   if (yyn == 73)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 350 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 350 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -914,7 +914,7 @@ class CmlParser
   if (yyn == 74)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 354 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 354 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -925,7 +925,7 @@ class CmlParser
   if (yyn == 75)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 363 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 363 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
   yyval = (List)((yystack.valueAt (1-(1)))); 
 };
@@ -936,7 +936,7 @@ class CmlParser
   if (yyn == 76)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 367 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 367 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
   yyval = new Vector<PDefinition>();
 };
@@ -947,7 +947,7 @@ class CmlParser
   if (yyn == 77)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 374 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 374 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
     List<PDefinition> defBlockList = new Vector<PDefinition>();
     List<PDefinition> defBlock = (List<PDefinition>)((yystack.valueAt (1-(1))));
@@ -961,7 +961,7 @@ class CmlParser
   if (yyn == 78)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 382 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 382 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     List<PDefinition> defBlockList = (List<PDefinition>)((yystack.valueAt (2-(1))));
     List<PDefinition> defBlock = (List<PDefinition>)((yystack.valueAt (2-(2))));
@@ -975,7 +975,7 @@ class CmlParser
   if (yyn == 79)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 392 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 392 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -986,7 +986,7 @@ class CmlParser
   if (yyn == 80)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 396 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 396 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -997,7 +997,7 @@ class CmlParser
   if (yyn == 81)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 400 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 400 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -1008,7 +1008,7 @@ class CmlParser
   if (yyn == 82)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 404 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 404 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -1019,7 +1019,7 @@ class CmlParser
   if (yyn == 83)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 408 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 408 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -1030,7 +1030,7 @@ class CmlParser
   if (yyn == 84)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 412 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 412 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -1041,7 +1041,7 @@ class CmlParser
   if (yyn == 85)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 421 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 421 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = null; 
 };
@@ -1052,7 +1052,7 @@ class CmlParser
   if (yyn == 86)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 425 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 425 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
     yyval = (List<PDefinition>)((yystack.valueAt (3-(2))));
 };
@@ -1063,7 +1063,7 @@ class CmlParser
   if (yyn == 87)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 429 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 429 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
     yyval = (List<PDefinition>)((yystack.valueAt (2-(2))));
 };
@@ -1074,7 +1074,7 @@ class CmlParser
   if (yyn == 88)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 436 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 436 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
     List<PDefinition> list = (List<PDefinition>)((yystack.valueAt (3-(1))));
     list.add((PDefinition)((yystack.valueAt (3-(3)))));
@@ -1087,7 +1087,7 @@ class CmlParser
   if (yyn == 89)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 442 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 442 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {
     List<PDefinition> list = new Vector<PDefinition>(); 
     list.add((PDefinition)((yystack.valueAt (1-(1)))));
@@ -1100,7 +1100,7 @@ class CmlParser
   if (yyn == 91)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 452 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 452 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (4-(1)))),((PTypeBase)((yystack.valueAt (4-(3))))).getLocation());
     LexNameToken name = extractLexNameToken((CmlLexeme)((yystack.valueAt (4-(1)))));
@@ -1117,7 +1117,7 @@ class CmlParser
   if (yyn == 93)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 466 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 466 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {};
   break;
     
@@ -1126,7 +1126,7 @@ class CmlParser
   if (yyn == 94)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 468 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 468 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {};
   break;
     
@@ -1135,7 +1135,7 @@ class CmlParser
   if (yyn == 95)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 470 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 470 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {};
   break;
     
@@ -1144,7 +1144,7 @@ class CmlParser
   if (yyn == 96)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 472 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 472 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     {};
   break;
     
@@ -1153,7 +1153,7 @@ class CmlParser
   if (yyn == 98)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 477 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 477 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = ((yystack.valueAt (3-(2))));
 };
@@ -1164,7 +1164,7 @@ class CmlParser
   if (yyn == 99)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 481 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 481 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new ABooleanBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1175,7 +1175,7 @@ class CmlParser
   if (yyn == 100)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 485 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 485 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new ANatNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1186,7 +1186,7 @@ class CmlParser
   if (yyn == 101)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 489 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 489 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new ANatOneNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1197,7 +1197,7 @@ class CmlParser
   if (yyn == 102)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 493 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 493 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new AIntNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1208,7 +1208,7 @@ class CmlParser
   if (yyn == 103)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 497 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 497 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new ARationalNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1219,7 +1219,7 @@ class CmlParser
   if (yyn == 104)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 501 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 501 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new ARealNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1230,7 +1230,7 @@ class CmlParser
   if (yyn == 105)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 505 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 505 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new ACharBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1241,7 +1241,7 @@ class CmlParser
   if (yyn == 106)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 509 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 509 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
     { 
     yyval = new ATokenBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1251,7 +1251,7 @@ class CmlParser
 
 
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1255 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/src/main/java/eu/compassresearch/cml/compiler/CmlParser.java"  */
+/* Line 1255 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/src/main/java/eu/compassresearch/cml/compiler/CmlParser.java"  */
 	default: break;
       }
 
@@ -3241,7 +3241,7 @@ class CmlParser
 /* Unqualified %code blocks.  */
 
 /* Line 898 of cmlskeleton.java.m4  */
-/* Line 24 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
+/* Line 24 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/Parser/cml.y"  */
 
     // ************************
     // *** MEMBER VARIABLES ***
@@ -3348,7 +3348,7 @@ class CmlParser
 
 
 /* Line 898 of cmlskeleton.java.m4  */
-/* Line 3352 of "/host/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/src/main/java/eu/compassresearch/cml/compiler/CmlParser.java"  */
+/* Line 3352 of "/mnt/win7/sandbox/overture_cml/redoLexParser/ToBeMoved/compiler/src/main/java/eu/compassresearch/cml/compiler/CmlParser.java"  */
 
 }
 

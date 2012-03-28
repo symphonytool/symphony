@@ -8,8 +8,8 @@
 	</parent>
 	
 	
-	<groupId>eu.compassresearch.compiler</groupId>
-	<artifactId>CMLCompiler</artifactId>
+	<groupId>eu.compassresearch.cml</groupId>
+	<artifactId>compiler</artifactId>
 	<version>1.0.0</version>
 
 	<build>
@@ -59,10 +59,15 @@
 	</build>
 	<dependencies>
 	  <dependency>
-	    <groupId>org.overturetool.core</groupId>
+	    <groupId>eu.compassresearch.cml</groupId>
 	    <artifactId>ast</artifactId>
-	    <version>2.2.0</version>
+	    <version>0.0.1</version>
 	  </dependency>
+	  <!-- <dependency> -->
+	  <!--   <groupId>org.overturetool.core</groupId> -->
+	  <!--   <artifactId>ast</artifactId> -->
+	  <!--   <version>2.2.0</version> -->
+	  <!-- </dependency> -->
 	</dependencies>
 </project>
 
