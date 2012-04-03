@@ -617,6 +617,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 <CHANNELS,CHANSETS,ACTIONS> {
   ","				      { return createToken(CmlParser.COMMA); }
   ":"				      { return createToken(CmlParser.COLON); } //TODO: CHANGE this into something else
+  ";"				      { return createToken(CmlParser.SEMI); }
 }
 
 

@@ -14,6 +14,8 @@
 // required standard Java definitions
     import java.util.*;
     import org.overture.ast.definitions.*;
+    import org.overture.ast.declarations.*;
+    import org.overture.ast.program.*;
     import org.overture.ast.types.*;
     import org.overturetool.vdmj.lex.*;
 
@@ -26,8 +28,8 @@
     // *** MEMBER VARIABLES ***
     // ************************
 
-    private List<PDefinition> documentDefs = new Vector<PDefinition>();
-
+    //private List<PDefinition> documentDefs = new Vector<PDefinition>();
+    private ASourcefileSourcefile currentSourceFile = new ASourcefileSourcefile();
 
     // *************************
     // *** PRIVATE OPERATIONS ***
@@ -54,19 +56,31 @@
 			       end.endLine, end.endPos,0,0);
     }
 
+    private LexLocation combineLexLocation(LexLocation start, LexLocation end)
+    {
+	return new LexLocation(null/*File file*/, "Default",
+			       start.startLine, start.startPos, 
+			       end.endLine, end.endPos,0,0);
+    }
+
     
     private LexNameToken extractLexNameToken(CmlLexeme lexeme)
     {
 	return new LexNameToken("Default",lexeme.getValue(), extractLexLocation(lexeme),false, true);
     }
 
+    private LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme)
+    {
+	return new LexIdentifierToken(lexeme.getValue(), false, extractLexLocation(lexeme));
+    }
+
     // *************************
     // *** PUBLIC OPERATIONS ***
     // *************************
      
-    public List<PDefinition> getDocument()
+    public ASourcefileSourcefile getDocument()
     {
-	return documentDefs;
+	return currentSourceFile;
     }
 
     public static void main(String[] args) throws Exception
@@ -143,7 +157,7 @@
 %token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CSP_CHANSET_BEGIN CSP_CHANSET_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_VARDECL CSP_OPS_COM
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
-%token declaration VDMcommand nameset namesetExpr communication predicate chanset typeVarIdentifier quoteLiteral functionType localDef symbolicLiteral implicitOperationBody
+%token VDMcommand nameset namesetExpr communication predicate chanset typeVarIdentifier quoteLiteral functionType localDef symbolicLiteral implicitOperationBody
 
 /* CSP ops and more */
 %right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN
@@ -157,32 +171,56 @@
  /* other hacks */
 %right LPAREN
 
-%start program
+%start sourceFile
 
 %%
 
 /* 2 CML Grammar */
 
-program
-: programParagraphList                            {
-                                                    $$ = $1;  
-			                          }
-| globalDef programParagraphList
+sourceFile
+: programParagraphList                            
+{
+    List<PDeclaration> decls = (List<PDeclaration>) $1;  
+    currentSourceFile.setDecls(decls);
+}
+
+| globalDef programParagraphList                  
+{
+    List<PDeclaration> globalDecls = (List<PDeclaration>)$1;
+    List<PDeclaration> decls = (List<PDeclaration>) $2;  
+    decls.addAll(globalDecls);
+    currentSourceFile.setDecls(decls);
+}
 ;
 
-programParagraphList 
-: programParagraph                                {  
-                                                    documentDefs.add((PDefinition)$1); 
-                                                  }
-| programParagraph programParagraphList
+programParagraphList: 
+  programParagraph                                
+  {  
+      List<PDeclaration> programParagraphList = 
+	  new Vector<PDeclaration>();
+      programParagraphList.add((PDeclaration)$1);
+      $$ = programParagraphList;   
+  }
+
+| programParagraphList programParagraph           
+{
+    List<PDeclaration> programParagraphList = (List<PDeclaration>)$1;
+
+    if (programParagraphList == null) 
+	programParagraphList = new Vector<PDeclaration>();
+	    
+    programParagraphList.add((PDeclaration)$2);
+    $$ = programParagraphList;
+ }
 ;
 
 programParagraph 
 : classDecl                                       { $$ = $1; }
 | processDecl                                     { $$ = $1; }
-//| channelDef                  { $$ = $1; }
-//| chansetDef                  { $$ = $1; }
-  ;
+| channelDecl                                     { $$ = $1; }
+| chansetDef                                      { $$ = $1; }
+//| globalDef                                     { $$ = $1; }
+ ;
 
 /* 2.1 Classes */
 classDecl 
@@ -287,14 +325,95 @@ renameList :
 
 /* 2.3 Channel Definitions */
 
-channelDef :
-  CHANNELS channelDefList
-  ;
+channelDecl :
+ CHANNELS channelDef                              
+ {
+     List<AChannelNameDeclaration> decls = (List<AChannelNameDeclaration>)$2;
+     LexLocation start = decls.get(0).getLocation();
+     LexLocation end = decls.get(decls.size()-1).getLocation();
+     LexLocation location = combineLexLocation(start,end);
 
-channelDefList :
+     AChannelDefinition channelDefinition = 
+	 new AChannelDefinition(location,null,null,null,decls);
+     AChannelDeclaration channelDecl = new AChannelDeclaration(location,channelDefinition);
+     $$ = channelDecl;
+ }
+;
+
+channelDef: 
+  channelNameDecl
+  {
+      List<AChannelNameDeclaration> decls = new Vector<AChannelNameDeclaration>();
+      decls.add((AChannelNameDeclaration)$1);
+      AChannelDefinition channelDefinition = new AChannelDefinition();
+      $$ = decls;
+  }                                 
+ |channelNameDecl SEMI channelDef
+ {
+     List<AChannelNameDeclaration> decls = (List<AChannelNameDeclaration>)$3;
+     decls.add((AChannelNameDeclaration)$1);
+     $$ = decls;
+ }
+;
+
+channelNameDecl: 
   identifierList
-| declaration
-  ;
+  {
+      List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$1;
+
+      LexLocation start = ids.get(0).getLocation();
+      LexLocation end = ids.get(ids.size()-1).getLocation();
+      LexLocation location = combineLexLocation(start,end);
+
+      ASingleTypeDeclaration singleTypeDeclaration = new ASingleTypeDeclaration(location,ids,null);
+            
+      AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location,singleTypeDeclaration);
+      
+      $$ = channelNameDecl;
+  }
+ |singleTypeDecl
+ {
+     ASingleTypeDeclaration singleTypeDeclaration = (ASingleTypeDeclaration)$1;
+
+     AChannelNameDeclaration channelNameDecl = 
+	 new AChannelNameDeclaration(singleTypeDeclaration.getLocation(),singleTypeDeclaration);
+      
+      $$ = channelNameDecl; 
+ }
+;
+
+declaration : 
+singleTypeDecl
+{
+
+
+}
+
+| singleTypeDecl SEMI declaration
+{
+
+}
+;
+
+singleTypeDecl :
+IDENTIFIER COLON type
+{
+    LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
+    List<LexIdentifierToken> ids = new Vector<LexIdentifierToken>();
+    ids.add(id);
+    ASingleTypeDeclaration singleTypeDeclaration = 
+	new ASingleTypeDeclaration(id.getLocation(),ids,(PType)$3);
+    $$ = singleTypeDeclaration;
+}
+| IDENTIFIER COMMA singleTypeDecl
+{
+    LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
+    ASingleTypeDeclaration singleTypeDeclaration = (ASingleTypeDeclaration)$3;
+    
+    singleTypeDeclaration.getIdentifiers().add(id);
+    $$ = singleTypeDeclaration;
+}
+;
 
 /* 2.4 Chanset Definitions */
 
@@ -340,19 +459,6 @@ globalDefinitionBlockAlternative
   $$ = $1;
 }
 | functionDefs
-{
-  $$ = $1;
-}
-| operationDefs
-{
-  $$ = $1;
-}
-
-| channelDef
-{
-  $$ = $1;
-}
-| chansetDef
 {
   $$ = $1;
 }
@@ -971,6 +1077,10 @@ preconditionExpr :
 
 name :
   IDENTIFIER
+  {
+      LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
+      $$ = new AUnresolvedType(id.getLocation(),false);
+  }
 | IDENTIFIER BACKTICK IDENTIFIER
   ;
 
@@ -1193,7 +1303,30 @@ typeBindList :
 
 identifierList :
   IDENTIFIER
+  {
+      CmlLexeme cmlLex = (CmlLexeme) $1;
+      LexLocation location = extractLexLocation(cmlLex);
+      LexIdentifierToken lexIdToken = new LexIdentifierToken(cmlLex.getValue(),false,location);
+      List<LexIdentifierToken> ids = new Vector<LexIdentifierToken>();
+      ids.add(lexIdToken);
+      $$ = ids;
+  }
+
 | IDENTIFIER COMMA identifierList
+{
+
+    List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$3;
+
+    if (ids == null)
+	ids = new Vector<LexIdentifierToken>();
+
+    CmlLexeme cmlLex = (CmlLexeme) $1;
+    LexLocation location = extractLexLocation(cmlLex);
+    LexIdentifierToken lexIdToken = 
+	new LexIdentifierToken(cmlLex.getValue(),false,location);
+    ids.add(lexIdToken);
+    $$ = ids;
+}
   ;
 
 // **********************

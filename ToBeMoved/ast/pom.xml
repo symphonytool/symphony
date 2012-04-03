@@ -29,7 +29,7 @@
 	  </execution>
 	</executions>
 	<configuration>
-	  <folderToDeletePreGenerate>eu/compassresearch/compiler/ast</folderToDeletePreGenerate>
+	  <folderToDeletePreGenerate>org/overture/ast</folderToDeletePreGenerate>
 	  <ast>cml.ast</ast>
 	  <names>
 	    <param>VDM</param>

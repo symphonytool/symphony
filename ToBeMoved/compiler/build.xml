@@ -13,7 +13,7 @@
        etc.
   -->
   <property name="build.build.dir"          location="target/ant/build"/>
-  <property name="ast.dir"                  location="../../../astV2/core/ast/target"/>
+  <property name="ast.dir"                  location="../ast/target"/>
   <property name="build.dist.dir"           location="dist"/>
   <property name="build.generated.dir"      location="src/main/java"/>
   <property name="build.package"             value="eu/compassresearch/cml/compiler/"/>

@@ -223,10 +223,10 @@ public class ToStringUtil
 							: getVariableNames(((AMultiBindListDefinition) d).getDefs());
 				}
 				break;
-			case MUTEXSYNC:
-			case NAMEDTRACE:
-			case PERSYNC:
-				return new LexNameList();
+			// case MUTEXSYNC:
+			//     //			case NAMEDTRACE:
+			// case PERSYNC:
+			// 	return new LexNameList();
 			case RENAMED:
 				if (d instanceof ARenamedDefinition)
 				{
