@@ -1,0 +1,96 @@
+5+6dasdasd
+asd
+as
+da
+sd
+asd{
+as
+
+\RuleDef{program}{%
+  \RuleRef{program paragraph}, \Sequence{\RuleRef{program paragraph}}%
+}%
+
+\RuleDef{program paragraph}{%
+  \RuleRef{class declaration} \\%
+  \Alt\ \RuleRef{process declaration} \\%
+  \Alt\ \RuleRef{channel declaration} \\%
+  \Alt\ \RuleRef{chanset declaration} \\%
+  \Alt\ \RuleRef{global declaration}%
+}%
+
+
+\RuleDef{process declaration}{%
+  \Literal{process}, %
+  \RuleRef{identifier}, %
+  \Literal{=}, %
+  \\%
+  \qquad \RuleRef{process definition}%
+}%
+
+\RuleDef{class declaration}{%
+  \Literal{class}, %
+  \RuleRef{identifier}, %
+  \Literal{=}, %
+  \RuleRef{class body}%
+}%
+
+\RuleDef{channel declaration}{%
+%  \Literal{channel}, %
+  \RuleRef{channel definition}%
+}%
+
+\RuleDef{chanset declaration}{%
+%  \Literal{chanset}, %
+  \RuleRef{identifier}, %
+  \Literal{=}, %
+  \RuleRef{chanset expression} %
+}%
+
+\RuleDef{global declaration}{%
+    \RuleRef{type declaration} \\%
+    \Alt \RuleRef{function declaration} \\%
+    \Alt \RuleRef{value declaration}%
+}%
+
+\RuleDef{class body}{%
+  \Optional{%
+    \Literal{extends}, %
+    \RuleRef{identifier}
+  }, %
+  \\%
+  \Literal{begin}, %
+  \\%
+  \qquad%
+  \begin{tabular}[t]{@{}l}
+    \Sequence{\RuleRef{class paragraph}}, \\%
+    \Optional{%
+        \Literal{state}, %
+        \RuleRef{instance variable declaration} %
+    }, \\%
+    \Sequence{\RuleRef{class paragraph}}, \\%
+    \Optional{%
+        \Literal{initial}, %
+        \RuleRef{operation declaration}%
+    }, \\%
+    \Sequence{\RuleRef{class paragraph}}, %
+  \end{tabular}
+  \\%
+  \Literal{end}%
+}%
+
+\RuleDef{process definition}{%
+  \Optional{%
+    \RuleRef{declaration}, %
+    \Literal{@}%
+  }, %
+  \RuleRef{process}%
+}%
+
+\RuleDef{declaration}{%
+    \RuleRef{single type declaration},%
+    \Sequence{\Literal{;}, \RuleRef{single type declaration}}%
+}%
+
+\RuleDef{single type declaration}{%
+    \CommaSepList{\RuleRef{identifier}}, \Literal{:}, \RuleRef{type}%
+    }%
