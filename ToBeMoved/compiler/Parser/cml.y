@@ -13,11 +13,14 @@
 
 // required standard Java definitions
     import java.util.*;
+    import java.io.File;
     import org.overture.ast.definitions.*;
     import org.overture.ast.declarations.*;
     import org.overture.ast.program.*;
     import org.overture.ast.types.*;
     import org.overturetool.vdmj.lex.*;
+    import org.overture.ast.node.*;
+    import org.overture.transforms.*;
 
     public
 }
@@ -29,8 +32,8 @@
     // ************************
 
     //private List<PDefinition> documentDefs = new Vector<PDefinition>();
-    private ASourcefileSourcefile currentSourceFile = new ASourcefileSourcefile();
-
+    private ASourcefileSourcefile currentSourceFile = null;
+  
     // *************************
     // *** PRIVATE OPERATIONS ***
     // *************************
@@ -58,31 +61,36 @@
 
     private LexLocation combineLexLocation(LexLocation start, LexLocation end)
     {
-	return new LexLocation(null/*File file*/, "Default",
-			       start.startLine, start.startPos, 
-			       end.endLine, end.endPos,0,0);
+      return new LexLocation(null/*File file*/, "Default",
+			     start.startLine, start.startPos, 
+			     end.endLine, end.endPos,0,0);
     }
 
     
     private LexNameToken extractLexNameToken(CmlLexeme lexeme)
     {
-	return new LexNameToken("Default",lexeme.getValue(), extractLexLocation(lexeme),false, true);
+      return new LexNameToken("Default",lexeme.getValue(), extractLexLocation(lexeme),false, true);
     }
 
     private LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme)
     {
-	return new LexIdentifierToken(lexeme.getValue(), false, extractLexLocation(lexeme));
+      return new LexIdentifierToken(lexeme.getValue(), false, extractLexLocation(lexeme));
     }
 
     // *************************
     // *** PUBLIC OPERATIONS ***
     // *************************
+
+    public void setDocument(ASourcefileSourcefile doc)
+    {
+      currentSourceFile = doc;
+    }
      
     public ASourcefileSourcefile getDocument()
     {
-	return currentSourceFile;
+      return currentSourceFile;
     }
-
+    
     public static void main(String[] args) throws Exception
     {
 	if (args.length == 0) {
@@ -92,21 +100,44 @@
       
 	    CmlLexer scanner = null;
 	    try {
-		scanner = new CmlLexer( new java.io.FileReader(args[0]) );
-		CmlParser cmlParser = new CmlParser(scanner);
-		//cmlParser.setDebugLevel(1);
+	      String filePath = args[0];
+	      File file = new File(filePath); 
+	      ASourcefileSourcefile currentSourceFile = new ASourcefileSourcefile();
+	      currentSourceFile.setName(file.getName());
+	      scanner = new CmlLexer( new java.io.FileReader(file) );
+	      CmlParser cmlParser = new CmlParser(scanner);
+	      cmlParser.setDocument(currentSourceFile);
+	      //cmlParser.setDebugLevel(1);
 	  
-		//do {
-		//System.out.println(scanner.yylex());
-		boolean result = cmlParser.parse();
-		if (result){
-		    System.out.println("parsed!");
-		    System.out.println(cmlParser.getDocument());
-		}
-		else
-		    System.out.println("Not parsed!");
+	      //do {
+	      //System.out.println(scanner.yylex());
+	      boolean result = cmlParser.parse();
+	      if (result){
+		System.out.println("parsed!");
+		//System.out.println(cmlParser.getDocument());
+		XmlPrinterVisitor xpv = new XmlPrinterVisitor();
+
+		DotGraphVisitor dgv = new DotGraphVisitor();
+
+		INode node = cmlParser.getDocument();
+
+		node.apply(dgv,"");
+		node.apply(xpv);
+
+		xpv.printAstXmlString();
+
+		File dotFile = new File("generatedAST.gv");
+		java.io.FileWriter fw = new java.io.FileWriter(dotFile);
+		fw.write(dgv.getResultString());
+		fw.close();
+
+		System.out.println(dgv.getResultString());
+	    
+	      }
+	      else
+		System.out.println("Not parsed!");
 		
-		//} while (!scanner.zzAtEOF);
+	      //} while (!scanner.zzAtEOF);
 
 	    }
 	    catch (java.io.FileNotFoundException e) {

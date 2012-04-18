@@ -57,7 +57,7 @@ program {-> package='org.overture.ast.program'}
 sourcefile {-> package='org.overture.ast.program'}
     = {sourcefile} 
       [file] : clonableFile 
-      [name]:LexIdentifierToken 
+      [name]:java_String 
       [decls]:declaration*
       ;
 
