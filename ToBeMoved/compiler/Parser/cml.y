@@ -215,12 +215,17 @@ sourceFile
     currentSourceFile.setDecls(decls);
 }
 
-| globalDef programParagraphList                  
+| globalDecl programParagraphList                  
 {
     List<PDeclaration> globalDecls = (List<PDeclaration>)$1;
     List<PDeclaration> decls = (List<PDeclaration>) $2;  
     decls.addAll(globalDecls);
     currentSourceFile.setDecls(decls);
+}
+| globalDecl                   
+{
+    List<PDeclaration> globalDecls = (List<PDeclaration>)$1;
+    currentSourceFile.setDecls(globalDecls);
 }
 ;
 
@@ -249,8 +254,8 @@ programParagraph
 : classDecl                                       { $$ = $1; }
 | processDecl                                     { $$ = $1; }
 | channelDecl                                     { $$ = $1; }
-| chansetDef                                      { $$ = $1; }
-//| globalDef                                     { $$ = $1; }
+| chansetDecl                                     { $$ = $1; }
+//| globalDecl                                     { $$ = $1; }
  ;
 
 /* 2.1 Classes */
@@ -448,8 +453,12 @@ IDENTIFIER COLON type
 
 /* 2.4 Chanset Definitions */
 
-chansetDef :
+chansetDecl:
   CHANSETS IDENTIFIER EQUALS chansetExpr
+  {
+      //LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
+      //AChansetDeclaration ChansetDeclaration = new AChansetDeclaration();
+  }
   ;
 
 chansetExpr : 
@@ -458,40 +467,45 @@ chansetExpr :
 
 /* 2.5 Global Definitions */
 
-globalDef :
+globalDecl :
   globalDefinitionBlock
   ;
 
 globalDefinitionBlock 
 : globalDefinitionBlockAlternative
 {
-    List<PDefinition> defBlockList = new Vector<PDefinition>();
-    List<PDefinition> defBlock = (List<PDefinition>)$1;
-    if (defBlockList != null) if (defBlock != null) defBlockList.addAll(defBlock);
-    $$ = defBlockList;
+    List<SGlobalDeclaration> declBlockList = new Vector<SGlobalDeclaration>();
+    SGlobalDeclaration globalDecl = (SGlobalDeclaration)$1;
+    if (globalDecl != null) declBlockList.add(globalDecl);
+    $$ = declBlockList;
 }
 
 | globalDefinitionBlock globalDefinitionBlockAlternative        
  { 
-    List<PDefinition> defBlockList = (List<PDefinition>)$1;
-    List<PDefinition> defBlock = (List<PDefinition>)$2;
-    if (defBlockList != null) if (defBlock != null) defBlockList.addAll(defBlock);
-    $$ = defBlockList;
+    List<SGlobalDeclaration> declBlockList = (List<SGlobalDeclaration>)$1;
+    SGlobalDeclaration globalDecl = (SGlobalDeclaration)$2;
+    if (declBlockList != null) if (globalDecl != null) declBlockList.add(globalDecl);
+    $$ = declBlockList;
 }
 ;
 
 globalDefinitionBlockAlternative
 : typeDefs             
 {
-  $$ = $1;
+    ATypeGlobalDeclaration typeGlobalDeclaration = new ATypeGlobalDeclaration();
+    typeGlobalDeclaration.setTypeDefinitions((List<ATypeDefinition>) $1);
+    $$ = typeGlobalDeclaration;
 }
 | valueDefs
 {
-  $$ = $1;
+    AValueGlobalDeclaration valueGlobalDeclaration = new AValueGlobalDeclaration();
+    $$ = valueGlobalDeclaration;
 }
 | functionDefs
 {
-  $$ = $1;
+    AFunctionGlobalDeclaration functionGlobalDeclaration = new AFunctionGlobalDeclaration();
+    $$ = functionGlobalDeclaration;
+
 }
 ;
 
@@ -558,7 +572,7 @@ classDefinitionBlockAlternative
 typeDefs 
 : TYPES
 { 
-    $$ = null; 
+    $$ = new Vector<PDefinition>(); 
 }
 | TYPES typeDefList SEMI                          
 {
@@ -589,12 +603,19 @@ typeDef
 : qualifier IDENTIFIER EQUALS type invariant
 | qualifier IDENTIFIER EQUALS type                        
 { 
-    LexLocation location = extractLexLocation((CmlLexeme)$1,((PTypeBase)$3).getLocation());
-    LexNameToken name = extractLexNameToken((CmlLexeme)$1);
-    AAccessSpecifierAccessSpecifier access = new AAccessSpecifierAccessSpecifier(new APublicAccess(),null,null);
+    AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
+    LexNameToken name = extractLexNameToken((CmlLexeme)$2);
+    LexLocation location = null;
+    if (access.getLocation() != null)
+	location = combineLexLocation(access.getLocation(),((PTypeBase)$4).getLocation());
+    else
+    {
+	location = combineLexLocation(name.getLocation(),((PTypeBase)$4).getLocation());
+    }
+        
     $$ = new ATypeDefinition(location,null /*NameScope nameScope_*/, false, 
 			     null/*SClassDefinition classDefinition_*/,access, 
-			     (PType)$3, null, null, null, 
+			     (PType)$4, null, null, null, 
 			     null, true, name); 
 }
 | qualifier IDENTIFIER VDMRECORDDEF fieldList invariant
@@ -602,14 +623,31 @@ typeDef
 
 qualifier
 : PRIVATE 
-{}
+{ 
+    LexLocation location = extractLexLocation((CmlLexeme)$1);
+    $$ = new AAccessSpecifierAccessSpecifier(new APrivateAccess(),null,null,location);
+}
 | PROTECTED 
-{}
+{ 
+    LexLocation location = extractLexLocation((CmlLexeme)$1);
+    $$ = new AAccessSpecifierAccessSpecifier(new AProtectedAccess(),null,null,location);
+}
 | PUBLIC  
-{}
+{ 
+    LexLocation location = extractLexLocation((CmlLexeme)$1);
+    $$ = new AAccessSpecifierAccessSpecifier(new APublicAccess(),null,null,location);
+}
 | LOGICAL 
-{}
+{ 
+    LexLocation location = extractLexLocation((CmlLexeme)$1);
+    $$ = new AAccessSpecifierAccessSpecifier(new ALogicalAccess(),null,null,location);
+}
 | /* empty */
+{
+    /*Default public?????*/
+    $$ = new AAccessSpecifierAccessSpecifier(new APublicAccess(),null,null,null);
+}
+;
 
 type 
 : LPAREN type RPAREN

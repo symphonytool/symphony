@@ -1,0 +1,5 @@
+ types
+    /*public Byte = nat
+    inv n == (n <= 255);*/
+
+    test = rat

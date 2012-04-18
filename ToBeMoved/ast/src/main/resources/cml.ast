@@ -70,18 +70,26 @@ declaration {-> package='org.overture.ast.declarations'}
     | {process}
     | {channel} [channelDefinition]:definition.channel
     | {channelName} [declaration]:singleType
-    | {chanset}
-    | {global}	[definition]:definition
+    | {chanset} [identifier]:LexIdentifierToken
+    | #global	
     | {singleType} [identifiers]:LexIdentifierToken* (type):type    	    	
 
 ;
+
+#global {-> package='org.overture.ast.declarations'}
+    = {type} [typeDefinitions]:definition.type*
+    | {function}
+    | {value}
+    ;
+
+
 
 definition {-> package='org.overture.ast.definitions'}
     =   {assignment} [expression]:exp (expType):type
     |   {instanceVariable} [expression]:exp (expType):type [initialized]:java_Boolean [oldname]:LexNameToken //this actually inherits assignment in Nicks tree
     |   #class 
     |	{process}
-    |   {chanset} 
+    |   {chanset}
     | 	{channel} [channelNameDecls]: declaration.channelName*
     |   {classInvariant}  [expression]:exp
     |   {equals} [pattern]:pattern [typebind]:bind.type [setbind]:bind.set [test]:exp 
@@ -195,6 +203,7 @@ exp {-> package='org.overture.ast.expressions'}
     |   #Binary
     |   {booleanConst} [value]:LexBooleanToken
     |   {cases} [expression]:exp [cases]:alternative.case* [others]:exp
+    |   #Chanset
     |   {charLiteral} [value]:LexCharacterToken
     |   {elseIf} [elseIf]:exp [then]:exp  
     |   {exists1}  [bind]:bind [predicate]:exp [def]:definition
@@ -241,6 +250,11 @@ exp {-> package='org.overture.ast.expressions'}
     |   {tuple} [args]:exp* (types):type*
     |   {undefined}
     |   {variable} [name]:LexNameToken [original]:java_String (vardef):definition        
+    ;
+    
+#Chanset {-> package='org.overture.ast.expressions'}
+	= {identifier}
+	| {set}    
     ;
     
 #Unary {-> package='org.overture.ast.expressions'}
@@ -404,12 +418,13 @@ field {-> package='org.overture.ast.types'}
                 [tag]:java_String (type):type [equalityAbstraction]:java_Boolean
     ;
 accessSpecifier  {-> package='org.overture.ast.types'}
-  = {accessSpecifier} [access]:access [static]:static [async]:async 
+  = {accessSpecifier} [access]:access [static]:static [async]:async [location]:location 
   ;
 access  {-> package='org.overture.ast.definitions'}
     =   {public}
     |   {protected}
     |   {private}
+    | 	{logical}
     ;
 
 pattern {-> package='org.overture.ast.patterns'}
