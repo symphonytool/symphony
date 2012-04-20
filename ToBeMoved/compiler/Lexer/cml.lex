@@ -465,13 +465,14 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
 ucode					= [\u0100-\ufff0] 
 hexdigit 				= [0-9ABCDEF]|[0-9abcdef] 
 hexquad 				= {hexdigit}{hexdigit}{hexdigit}{hexdigit} 
+hexliteral                              = 0[x X]{hexdigit}+ 
 universalcharactername  = (\\u{hexquad})|(\\U{hexquad}) 
 letter 					= [A-Za-z]|#[A-Za-z]|{universalcharactername}|{ucode} 
 digit 					= [0-9] 
 /* rtfuniversalcharacter	= \\u{hexquad}[A-Za-z] */
 /* identifierorkeyword		= {letter}([0-9\'_]|{letter})* */
 
-numericliteral 			= {digit}+ 
+numeral 			= {digit}+ 
 /* realliteral				= [0-9]+(("."[0-9]+)|([Ee]("+"|"-")?[0-9]+)|("."[0-9]+[Ee]("+"|"-")?[0-9]+)) */
 
 /* embeddedctrlchar 		= [\000-\037] */
@@ -700,8 +701,8 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 //[:whitespace:]                        { /* match whitespace; do nothing */ }
 {WhiteSpace}                            { /* match whitespace; do nothing */ }
 {identifier}                          { return createToken(CmlParser.IDENTIFIER); }
-{numericliteral}                      { return createToken(CmlParser.symbolicLiteral); }
-
+{numeral}                             { return createToken(CmlParser.NUMERAL); }
+{hexliteral}                          { return createToken(CmlParser.HEX_LITERAL); }
 // default catch-all production rule is to return the current character
 /* .								{ return defaultToken(); } */
 

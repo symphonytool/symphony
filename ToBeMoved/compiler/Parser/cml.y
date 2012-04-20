@@ -16,11 +16,14 @@
     import java.io.File;
     import org.overture.ast.definitions.*;
     import org.overture.ast.declarations.*;
+    import org.overture.ast.expressions.*;
+    import org.overture.ast.patterns.*;
     import org.overture.ast.program.*;
     import org.overture.ast.types.*;
     import org.overturetool.vdmj.lex.*;
     import org.overture.ast.node.*;
     import org.overture.transforms.*;
+    import org.overturetool.util.*;
 
     public
 }
@@ -33,35 +36,35 @@
 
     //private List<PDefinition> documentDefs = new Vector<PDefinition>();
     private ASourcefileSourcefile currentSourceFile = null;
-  
+
     // *************************
     // *** PRIVATE OPERATIONS ***
     // *************************
      
     private LexLocation extractLexLocation(CmlLexeme lexeme)
     {
-	return new LexLocation(null/*File file*/, "Default",
+	return new LexLocation(currentSourceFile.getFile(), "Default",
 			       lexeme.getStartPos().line, lexeme.getStartPos().column, 
 			       lexeme.getEndPos().line, lexeme.getEndPos().column,0,0);
     }
 
     private LexLocation extractLexLocation(CmlLexeme start, CmlLexeme end)
     {
-	return new LexLocation(null/*File file*/, "Default",
+	return new LexLocation(currentSourceFile.getFile(), "Default",
 			       start.getStartPos().line, start.getStartPos().column, 
 			       end.getEndPos().line, end.getEndPos().column,0,0);
     }
 
     private LexLocation extractLexLocation(CmlLexeme start, LexLocation end)
     {
-	return new LexLocation(null/*File file*/, "Default",
+	return new LexLocation(currentSourceFile.getFile(), "Default",
 			       start.getStartPos().line, start.getStartPos().column, 
 			       end.endLine, end.endPos,0,0);
     }
 
     private LexLocation combineLexLocation(LexLocation start, LexLocation end)
     {
-      return new LexLocation(null/*File file*/, "Default",
+      return new LexLocation(currentSourceFile.getFile(), "Default",
 			     start.startLine, start.startPos, 
 			     end.endLine, end.endPos,0,0);
     }
@@ -101,9 +104,10 @@
 	    CmlLexer scanner = null;
 	    try {
 	      String filePath = args[0];
-	      File file = new File(filePath); 
+	      ClonableFile file = new ClonableFile(filePath); 
 	      ASourcefileSourcefile currentSourceFile = new ASourcefileSourcefile();
 	      currentSourceFile.setName(file.getName());
+	      currentSourceFile.setFile(file);
 	      scanner = new CmlLexer( new java.io.FileReader(file) );
 	      CmlParser cmlParser = new CmlParser(scanner);
 	      cmlParser.setDocument(currentSourceFile);
@@ -114,18 +118,12 @@
 	      boolean result = cmlParser.parse();
 	      if (result){
 		System.out.println("parsed!");
-		//System.out.println(cmlParser.getDocument());
-		XmlPrinterVisitor xpv = new XmlPrinterVisitor();
-
+				
 		DotGraphVisitor dgv = new DotGraphVisitor();
-
 		INode node = cmlParser.getDocument();
 
 		node.apply(dgv,"");
-		node.apply(xpv);
-
-		xpv.printAstXmlString();
-
+				
 		File dotFile = new File("generatedAST.gv");
 		java.io.FileWriter fw = new java.io.FileWriter(dotFile);
 		fw.write(dgv.getResultString());
@@ -151,23 +149,10 @@
 		System.out.println("Unexpected exception:");
 		e.printStackTrace();
 	    }
-      
+	    
 	}
+    }
     
-  }
-
-  // the abstract syntax element
-  //public OmlDocument astDocument = null;
-  
-  /* public void parseDocument() //throws CGException */
-  /* { */
-  /*   // create the top-level AST element */
-  /*   //astDocument = new OmlDocument(); */
-  /*   // link the scanner to the document (for the tokens) */
-  /*   //theScanner.setLexems(astDocument.getLexems()); */
-  /*   // go parse the file */
-  /*   yyparse(); */
-  /* } */
  }
 
 
@@ -183,12 +168,14 @@
  */
 
 %token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_EXT VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN SKIP VDMDONTCARE IDENTIFIER
-%token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1
+%token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1 
+
+%token NUMERAL HEX_LITERAL
 
 %token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CSP_CHANSET_BEGIN CSP_CHANSET_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_VARDECL CSP_OPS_COM
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
-%token VDMcommand nameset namesetExpr communication predicate chanset typeVarIdentifier quoteLiteral functionType localDef symbolicLiteral implicitOperationBody
+%token VDMcommand nameset namesetExpr communication predicate chanset typeVarIdentifier quoteLiteral functionType localDef  implicitOperationBody
 
 /* CSP ops and more */
 %right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN
@@ -601,6 +588,23 @@ typeDefList
 
 typeDef 
 : qualifier IDENTIFIER EQUALS type invariant
+{
+    AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
+    LexNameToken name = extractLexNameToken((CmlLexeme)$2);
+    LexLocation location = null;
+    if (access.getLocation() != null)
+	location = combineLexLocation(access.getLocation(),((PTypeBase)$4).getLocation());
+    else
+    {
+	location = combineLexLocation(name.getLocation(),((PTypeBase)$4).getLocation());
+    }
+    
+    $$ = new ATypeDefinition(location,null /*NameScope nameScope_*/, false, 
+			     null/*SClassDefinition classDefinition_*/,access, 
+			     (PType)$4, null, null, null, 
+			     null, true, name); 
+    
+}
 | qualifier IDENTIFIER EQUALS type                        
 { 
     AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
@@ -717,6 +721,9 @@ field :
 
 invariant :
  VDMINV pattern DEQUALS expression
+ {
+
+ }
   ;
 
 /* 3.2 Value Definitions */
@@ -884,11 +891,18 @@ expressionList :
 
 expression :
   LPAREN expression RPAREN
+  {
+      LexLocation loc = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3);
+      $$ = new ABracketedExp(loc,(PExp)$2);
+  }
 | LET localDefList IN expression
 | ifExpr
 | casesExpr
 | unaryExpr
 | binaryExpr
+{
+    $$ = $1;
+}
 | quantifiedExpr
 | setEnumeration
 | setComprehension
@@ -910,9 +924,41 @@ expression :
 | preconditionExpr
 | ISOFCLASS LPAREN name COMMA expression RPAREN
 | name
+{
+    LexNameToken lnt = (LexNameToken)$1;
+    $$ = new ANameExp(lnt.location,lnt);
+}
 | oldName
 | symbolicLiteral
   ;
+
+symbolicLiteral:
+numericLiteral
+{
+    LexIntegerToken lit = (LexIntegerToken)$1;
+    $$ = new AIntLiteralSymbolicLiteralExp(lit.location,lit);
+}
+/*| booleanLiteral
+| nilLiteral
+| characterLiteral
+| textLiteral
+| quoteLiteral*/
+;
+
+numericLiteral:
+ NUMERAL 
+ {
+    CmlLexeme lexeme = (CmlLexeme)$1;
+    LexLocation loc = extractLexLocation(lexeme);
+    $$ = new LexIntegerToken(Long.decode(lexeme.getValue()),loc);   
+ }
+| HEX_LITERAL
+{
+    CmlLexeme lexeme = (CmlLexeme)$1;
+    LexLocation loc = extractLexLocation(lexeme);
+    $$ = new LexIntegerToken(Long.decode(lexeme.getValue()),loc);   
+}
+;
 
 localDefList :
   localDef
@@ -991,7 +1037,11 @@ binaryExpr :
 | expression REM expression
 | expression MOD expression
 | expression LT expression
-| expression LTE expression
+| expression LTE expression 
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new ALessEqualNumericBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression GT expression
 | expression GTE expression
 | expression EQUALS expression
@@ -1147,8 +1197,8 @@ preconditionExpr :
 name :
   IDENTIFIER
   {
-      LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
-      $$ = new AUnresolvedType(id.getLocation(),false);
+      LexNameToken name = extractLexNameToken((CmlLexeme)$1);
+      $$ = name;
   }
 | IDENTIFIER BACKTICK IDENTIFIER
   ;
@@ -1303,6 +1353,11 @@ patternList :
 
 patternIdentifier :
   IDENTIFIER
+  {
+      CmlLexeme lexeme = (CmlLexeme)$1;
+      LexNameToken lnt = extractLexNameToken(lexeme);
+      $$ = new AIdentifierPattern(lnt.location,null,false,lnt);
+  }
 | VDMDONTCARE
   ;
 

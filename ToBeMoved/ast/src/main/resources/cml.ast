@@ -198,14 +198,13 @@ definition {-> package='org.overture.ast.definitions'}
     Expressions
 */    
 exp {-> package='org.overture.ast.expressions'}
-    =   {apply} [root]:exp [args]:exp* (argtypes):type* (recursive):definition
-    |   #Unary
-    |   #Binary
-    |   {booleanConst} [value]:LexBooleanToken
-    |   {cases} [expression]:exp [cases]:alternative.case* [others]:exp
-    |   #Chanset
-    |   {charLiteral} [value]:LexCharacterToken
-    |   {elseIf} [elseIf]:exp [then]:exp  
+    =   {apply} [root]:exp [args]:exp* (argtypes):type* (recursive):definition /*cml*/
+    |   #Unary /*cml*/
+    |   #Binary /*cml*/
+    |   {bracketed} [expression]:exp /*cml*/
+    |   {cases} [expression]:exp [cases]:alternative.case* [others]:exp /*cml*/
+    |   #Chanset /*cml*/
+    |   {elseIf} [elseIf]:exp [then]:exp  /*cml*/
     |   {exists1}  [bind]:bind [predicate]:exp [def]:definition
     |   {exists} [bindList]:multipleBind* [predicate]:exp
     |   {field} [object]:exp [memberName]:LexNameToken [field]:LexIdentifierToken
@@ -213,8 +212,7 @@ exp {-> package='org.overture.ast.expressions'}
     |   {forAll} [bindList]:multipleBind* [predicate]:exp
     |   {funcInstatiation} [function]:exp (actualTypes):type* [expdef]:definition.explicitFunction (impdef):definition.implicitFunction
     |   {history} [hop]:LexToken [opnames]:LexNameToken*
-    |   {if} [test]:exp [then]:exp [elseList]:elseIf* [else]:exp
-    |   {intLiteral} [value]:LexIntegerToken
+    |   {if} [test]:exp [then]:exp [elseList]:elseIf* [else]:exp /*cml*/
     |   {iota} [bind]:bind [predicate]:exp
     |   {is} [typeName]:LexNameToken (basicType):type [test]:exp [typedef]:definition
     |   {isOfBaseClass} [baseClass]:LexNameToken [exp]:exp
@@ -234,23 +232,29 @@ exp {-> package='org.overture.ast.expressions'}
     |   {postOp} [opname]:LexNameToken (preexpression):exp (postexpression):exp (errors):case.error* (state):definition.state [errorLocation]:location
     |   {pre} [function]:exp [args]:exp*
     |   {preOp} [opname]:LexNameToken (expression):exp  (errors):case.error* (state):definition.state
-    |   {quoteLiteral} [value]:LexQuoteToken
-    |   {realLiteral} [value]:LexRealToken
     |   {sameBaseClass} [left]:exp [right]:exp
     |   {sameClass} [left]:exp [right]:exp
     |   {self} [name]:LexNameToken
     |   #Seq
     |   #Set
-    |   {stateInit} (state):definition.state 
-    |   {stringLiteral} [value]:LexStringToken
+    |   #SymbolicLiteral
+    |   {stateInit} (state):definition.state  
     |   {subclassResponsibility} 
     |   {subseq} [seq]:exp [from]:exp [to]:exp (ftype):type (ttype):type
-    |   {threadId} 
-    |   {time} 
     |   {tuple} [args]:exp* (types):type*
     |   {undefined}
-    |   {variable} [name]:LexNameToken [original]:java_String (vardef):definition        
+    |   {variable} [name]:LexNameToken [original]:java_String (vardef):definition
+    |   {name} [name]:LexNameToken        
     ;
+    
+#SymbolicLiteral {-> package='org.overture.ast.expressions'}
+	= {textLiteral} [value]:LexStringToken
+	| {quoteLiteral} [value]:LexQuoteToken   
+	| {charLiteral} [value]:LexCharacterToken
+	| {booleanLiteral} [value]:LexBooleanToken 
+	| {intLiteral} [value]:LexIntegerToken
+	| {realLiteral} [value]:LexRealToken
+    ; 
     
 #Chanset {-> package='org.overture.ast.expressions'}
 	= {identifier}
