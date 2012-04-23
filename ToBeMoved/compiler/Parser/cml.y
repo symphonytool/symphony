@@ -601,7 +601,7 @@ typeDef
     
     $$ = new ATypeDefinition(location,null /*NameScope nameScope_*/, false, 
 			     null/*SClassDefinition classDefinition_*/,access, 
-			     (PType)$4, null, null, null, 
+			     (PType)$4,null,(PPattern)((Object[])$5)[0],(PExp)((Object[])$5)[1], 
 			     null, true, name); 
     
 }
@@ -705,6 +705,10 @@ type
 | type VDMTFUNCARROW type
 | VDMUNITTYPE VDMTFUNCARROW type
 | name
+{
+  LexNameToken lnt = (LexNameToken)$1; 
+  $$ = new AUnresolvedType(lnt.location,false /*resolved*/, null/*defs*/,lnt);
+}
 | typeVarIdentifier
   ;
 
@@ -722,7 +726,7 @@ field :
 invariant :
  VDMINV pattern DEQUALS expression
  {
-
+   $$ = new Object[]{$2,$4};
  }
   ;
 

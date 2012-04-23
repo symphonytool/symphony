@@ -1,5 +1,8 @@
 package org.overture.transforms;
 
+import java.lang.reflect.Field;
+import java.util.*;
+
 import org.overture.ast.analysis.QuestionAdaptor;
 import org.overture.ast.declarations.AChannelDeclaration;
 import org.overture.ast.declarations.AChannelNameDeclaration;
@@ -9,11 +12,12 @@ import org.overture.ast.declarations.ATypeGlobalDeclaration;
 import org.overture.ast.declarations.PDeclaration;
 import org.overture.ast.definitions.AChannelDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
-import org.overture.ast.node.INode;
+import org.overture.ast.node.*;
 import org.overture.ast.program.ASourcefileSourcefile;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.SBasicType;
 import org.overturetool.vdmj.lex.LexIdentifierToken;
+import org.overturetool.vdmj.lex.LexLocation;
 import org.overturetool.vdmj.lex.LexNameToken;
 
 public class DotGraphVisitor extends QuestionAdaptor<String> {
@@ -22,6 +26,16 @@ public class DotGraphVisitor extends QuestionAdaptor<String> {
 	 * 
 	 */
 	private static final long serialVersionUID = 637147601437624885L;
+	
+	public static Field[] getAllFields(Class klass) {
+        List<Field> fields = new ArrayList<Field>();
+        fields.addAll(Arrays.asList(klass.getDeclaredFields()));
+                        
+        if (klass.getSuperclass() != null ) {
+            fields.addAll(Arrays.asList(getAllFields(klass.getSuperclass())));
+        }
+        return fields.toArray(new Field[] {});
+    }
 	
 	private StringBuilder resultString;
 	private int nodeCount = 0;
@@ -48,7 +62,8 @@ public class DotGraphVisitor extends QuestionAdaptor<String> {
 	{
 		String nodeName = makeNewNodeName();
 		resultString.append("\t" + nodeName + " [label=\"{<f0>"+nodeLabel+"}\"];\n");
-		resultString.append("\t" + parentName + " -> " + nodeName +"\n");
+		if (!parentName.equals(""))
+			resultString.append("\t" + parentName + " -> " + nodeName +"\n");
 		
 		return nodeName;
 	}
@@ -65,7 +80,8 @@ public class DotGraphVisitor extends QuestionAdaptor<String> {
 		}
 		
 		resultString.append("\t" + nodeName + tmp +"}\"];\n");
-		resultString.append("\t" + parentName + " -> " + nodeName +"\n");
+		if (!parentName.equals(""))
+			resultString.append("\t" + parentName + " -> " + nodeName +"\n");
 		
 		return nodeName;
 	}
@@ -78,136 +94,172 @@ public class DotGraphVisitor extends QuestionAdaptor<String> {
 	
 	@Override
 	public void defaultINode(INode node, String question) {
-		
-		createDefaultNode(question,node.getClass().getSimpleName());
-	}
-	
-	@Override
-	public void defaultSBasicType(SBasicType node, String question) {
-		
-		createDefaultNode(question,node.getClass().getSimpleName(), 
-				new String[]{"<f1>Location:" + node.getLocation().toShortString()});
-				
-	}
 
-	@Override
-	public void caseLexNameToken(LexNameToken node, String question) {
-		
-		createDefaultNode(question,node.getClass().getSimpleName(), 
-				new String[]{"<f1>Name:" + node.getName() ,"<f2>Location:" + node.getLocation().toShortString()});
-		
-	}
-
-	@Override
-	public void caseLexIdentifierToken(LexIdentifierToken node, String question) {
-				
-		createDefaultNode(question,node.getClass().getSimpleName(), 
-				new String[]{"<f1>Name:" + node.getName() ,"<f2>Location:" + node.getLocation().toShortString()});
-	}
-
-	@Override
-	public void caseASourcefileSourcefile(ASourcefileSourcefile node,
-			String question) {
-		
-		
-		String nodeName = createDefaultNode(question,node.getClass().getSimpleName(), 
-				new String[]{"<f1>Name:" + node.getName() });
-				
-		for(PDeclaration decl : node.getDecls())
-		{
-			decl.apply(this,nodeName);
-		}
-	
-	}
-
-	@Override
-	public void caseAChannelDeclaration(AChannelDeclaration node,
-			String question) {
-				
-		String nodeName = createDefaultNode(question,node.getClass().getSimpleName(), 
-				new String[]{"<f1>Name:channels","<f2>Location:" + node.getLocation().toShortString()});
-				
-		node.getChannelDefinition().apply(this,nodeName);
-	}
-
-
-	@Override
-	public void caseAChannelNameDeclaration(AChannelNameDeclaration node,
-			String question) {
-		
-		String nodeName = createDefaultNode(question,node.getClass().getSimpleName());
-		node.getDeclaration().apply(this, nodeName);
-		
-	}
-
-
-	@Override
-	public void caseAChansetDeclaration(AChansetDeclaration node,
-			String question) {
-		// TODO Auto-generated method stub
-		super.caseAChansetDeclaration(node, question);
-	}
-
-	@Override
-	public void caseASingleTypeDeclaration(ASingleTypeDeclaration node,
-			String question) {
-						
-		String typeName = "null";
-		
-		if (node.getType() != null)
-			typeName = node.getType().toString(); 
-		
-		String nodeName = createDefaultNode(question,node.getClass().getSimpleName(), 
-				new String[]{"<f1>Type:" + typeName ,"<f2>Location:" + node.getLocation().toShortString()});
-						
-		for(LexIdentifierToken id : node.getIdentifiers())
-		{
-			id.apply(this, nodeName);
-		}
-		
-	}
-
-	@Override
-	public void caseAChannelDefinition(AChannelDefinition node, String question) {
-		
-		String nodeName = createDefaultNode(question,node.getClass().getSimpleName());
-						
-		for(AChannelNameDeclaration cnd : node.getChannelNameDecls())
-		{
-			cnd.apply(this,nodeName);
-		}
-	}
-
-	@Override
-	public void caseATypeGlobalDeclaration(ATypeGlobalDeclaration node,
-			String question) {
-		
 		String nodeName = createDefaultNode(question,node.getClass().getSimpleName());
 		
-		for(ATypeDefinition tdecl : node.getTypeDefinitions())
+		for(Field field : getAllFields(node.getClass()))
 		{
-			tdecl.apply(this,nodeName);
+			if (!field.getName().equals("parent"))
+			{
+				try
+				{
+					field.setAccessible(true);
+					Object fieldObject = field.get(node);
+					if (fieldObject instanceof INode)
+					{
+						INode childNode = (INode)fieldObject;
+						childNode.apply(this,nodeName);
+					}
+					else if (fieldObject instanceof NodeList)
+					{
+						NodeList<INode> childNodes = (NodeList<INode>)fieldObject;
+						for(INode childNode : childNodes)
+						{
+							childNode.apply(this,nodeName);
+						}
+					}
+					else if (fieldObject instanceof ExternalNode)
+					{
+						ExternalNode extNode = (ExternalNode)fieldObject;
+						createDefaultNode(nodeName,extNode.getClass().getSimpleName(), 
+								new String[]{"<f1>Value:" + extNode.toString()}); 
+					}
+				}
+				catch(IllegalAccessException ex){}
+			}
 		}
 	}
+		
+//	@Override
+//	public void defaultSBasicType(SBasicType node, String question) {
+//		
+//		createDefaultNode(question,node.getClass().getSimpleName(), 
+//				new String[]{"<f1>Location:" + node.getLocation().toShortString()});
+//				
+//	}
+//
+//	@Override
+//	public void caseLexNameToken(LexNameToken node, String question) {
+//		
+//		createDefaultNode(question,node.getClass().getSimpleName(), 
+//				new String[]{"<f1>Name:" + node.getName() ,"<f2>Location:" + node.getLocation().toShortString()});
+//		
+//	}
+//
+//	@Override
+//	public void caseLexIdentifierToken(LexIdentifierToken node, String question) {
+//				
+//		createDefaultNode(question,node.getClass().getSimpleName(), 
+//				new String[]{"<f1>Name:" + node.getName() ,"<f2>Location:" + node.getLocation().toShortString()});
+//	}
+//
+//	@Override
+//	public void caseASourcefileSourcefile(ASourcefileSourcefile node,
+//			String question) {
+//		
+//		
+//		String nodeName = createDefaultNode(question,node.getClass().getSimpleName(), 
+//				new String[]{"<f1>Name:" + node.getName() });
+//				
+//		for(PDeclaration decl : node.getDecls())
+//		{
+//			decl.apply(this,nodeName);
+//		}
+//	
+//	}
+//
+//	@Override
+//	public void caseAChannelDeclaration(AChannelDeclaration node,
+//			String question) {
+//				
+//		String nodeName = createDefaultNode(question,node.getClass().getSimpleName(), 
+//				new String[]{"<f1>Name:channels","<f2>Location:" + node.getLocation().toShortString()});
+//				
+//		node.getChannelDefinition().apply(this,nodeName);
+//	}
+//
+//
+//	@Override
+//	public void caseAChannelNameDeclaration(AChannelNameDeclaration node,
+//			String question) {
+//		
+//		String nodeName = createDefaultNode(question,node.getClass().getSimpleName());
+//		node.getDeclaration().apply(this, nodeName);
+//		
+//	}
+//
+//
+//	@Override
+//	public void caseAChansetDeclaration(AChansetDeclaration node,
+//			String question) {
+//		// TODO Auto-generated method stub
+//		super.caseAChansetDeclaration(node, question);
+//	}
+//
+//	@Override
+//	public void caseASingleTypeDeclaration(ASingleTypeDeclaration node,
+//			String question) {
+//						
+//		String typeName = "null";
+//		
+//		if (node.getType() != null)
+//			typeName = node.getType().toString(); 
+//		
+//		String nodeName = createDefaultNode(question,node.getClass().getSimpleName(), 
+//				new String[]{"<f1>Type:" + typeName ,"<f2>Location:" + node.getLocation().toShortString()});
+//						
+//		for(LexIdentifierToken id : node.getIdentifiers())
+//		{
+//			id.apply(this, nodeName);
+//		}
+//		
+//	}
+//
+//	@Override
+//	public void caseAChannelDefinition(AChannelDefinition node, String question) {
+//		
+//		String nodeName = createDefaultNode(question,node.getClass().getSimpleName());
+//						
+//		for(AChannelNameDeclaration cnd : node.getChannelNameDecls())
+//		{
+//			cnd.apply(this,nodeName);
+//		}
+//	}
+//
+//	@Override
+//	public void caseATypeGlobalDeclaration(ATypeGlobalDeclaration node,
+//			String question) {
+//		
+//		String nodeName = createDefaultNode(question,node.getClass().getSimpleName());
+//		
+//		for(ATypeDefinition tdecl : node.getTypeDefinitions())
+//		{
+//			tdecl.apply(this,nodeName);
+//		}
+//	}
 
-	@Override
-	public void caseATypeDefinition(ATypeDefinition node, String question) {
+//	@Override
+//	public void caseATypeDefinition(ATypeDefinition node, String question) {
+//		
+//		String nodeName = createDefaultNode(question,node.getClass().getSimpleName());
+//		
+//		node.getAccess().apply(this,nodeName);
+//		node.getName().apply(this, nodeName);
+//		node.getType().apply(this,nodeName);
+//		
+//		//node.getInvExpression().apply(this,nodeName);
+//		//node.getInvPattern().apply(this,nodeName);
+//		
+//	}
 		
-		String nodeName = createDefaultNode(question,node.getClass().getSimpleName());
-		
-		node.getAccess().apply(this,nodeName);
-		node.getName().apply(this, nodeName);
-		node.getType().apply(this,nodeName);
-	}
-		
-	@Override
-	public void caseAAccessSpecifierAccessSpecifier(
-			AAccessSpecifierAccessSpecifier node, String question) {
-		
-		String nodeName = makeNewNodeName();
-		resultString.append("\t" + nodeName + " [label=\"{<f0>AAccessSpecifierAccessSpecifier|<f1>Access:"+ node.getAccess().toString() +"}\"];\n");
-		resultString.append("\t" + question + " -> " + nodeName +"\n");
-		
-	}
+//	@Override
+//	public void caseAAccessSpecifierAccessSpecifier(
+//			AAccessSpecifierAccessSpecifier node, String question) {
+//		
+//		String nodeName = makeNewNodeName();
+//		resultString.append("\t" + nodeName + " [label=\"{<f0>AAccessSpecifierAccessSpecifier|<f1>Access:"+ node.getAccess().toString() +"}\"];\n");
+//		resultString.append("\t" + question + " -> " + nodeName +"\n");
+//		
+//	}
 	
 }
