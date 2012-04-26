@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Vector;
 
 import org.overture.ast.definitions.AEqualsDefinition;
-import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AExplicitFunctionFunctionDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
-import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionFunctionDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AImportedDefinition;
 import org.overture.ast.definitions.AInheritedDefinition;
@@ -35,7 +35,7 @@ import org.overturetool.vdmj.util.Utils;
 
 public class ToStringUtil
 {
-	public static String getExplicitFunctionString(AExplicitFunctionDefinition d)
+	public static String getExplicitFunctionString(AExplicitFunctionFunctionDefinition d)
 	{
 		StringBuilder params = new StringBuilder();
 
@@ -64,7 +64,7 @@ public class ToStringUtil
 						+ d.getPostcondition());
 	}
 
-	public static String getImplicitFunctionString(AImplicitFunctionDefinition d)
+	public static String getImplicitFunctionString(AImplicitFunctionFunctionDefinition d)
 	{
 		return d.getAccess()
 				+ " "
@@ -73,7 +73,7 @@ public class ToStringUtil
 						+ getTypeListString(d.getTypeParams()) + "]")
 				+ Utils.listToString("(", getString(d.getParamPatterns()), ", ", ")")
 				+ d.getResult()
-				+ (d.getBody() == null ? "" : " ==\n\t" + d.getBody())
+				
 				+ (d.getPrecondition() == null ? "" : "\n\tpre "
 						+ d.getPrecondition())
 				+ (d.getPostcondition() == null ? "" : "\n\tpost "

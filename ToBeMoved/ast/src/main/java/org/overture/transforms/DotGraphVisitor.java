@@ -8,10 +8,10 @@ import org.overture.ast.declarations.AChannelDeclaration;
 import org.overture.ast.declarations.AChannelNameDeclaration;
 import org.overture.ast.declarations.AChansetDeclaration;
 import org.overture.ast.declarations.ASingleTypeDeclaration;
-import org.overture.ast.declarations.ATypeGlobalDeclaration;
 import org.overture.ast.declarations.PDeclaration;
 import org.overture.ast.definitions.AChannelDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.expressions.AIntLiteralSymbolicLiteralExp;
 import org.overture.ast.node.*;
 import org.overture.ast.program.ASourcefileSourcefile;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
@@ -95,7 +95,8 @@ public class DotGraphVisitor extends QuestionAdaptor<String> {
 	@Override
 	public void defaultINode(INode node, String question) {
 
-		String nodeName = createDefaultNode(question,node.getClass().getSimpleName());
+		String nodeName = createDefaultNode(question,node.getClass().getSimpleName()); 
+				//new String[]{"<f1>Value: "+ node.toString() });
 		
 		for(Field field : getAllFields(node.getClass()))
 		{
@@ -112,11 +113,20 @@ public class DotGraphVisitor extends QuestionAdaptor<String> {
 					}
 					else if (fieldObject instanceof NodeList)
 					{
+						
 						NodeList<INode> childNodes = (NodeList<INode>)fieldObject;
 						for(INode childNode : childNodes)
 						{
 							childNode.apply(this,nodeName);
 						}
+					}
+					else if (fieldObject instanceof LexLocation)
+					{
+						LexLocation locNode = (LexLocation)fieldObject;
+						createDefaultNode(nodeName,locNode.getClass().getSimpleName(), 
+								new String[]{"<f1>Value: In "+ locNode.file + 
+								" from "+ locNode.startLine +":" + locNode.startPos +" to "+
+								locNode.endLine +":" + locNode.endPos }); 
 					}
 					else if (fieldObject instanceof ExternalNode)
 					{
@@ -124,11 +134,20 @@ public class DotGraphVisitor extends QuestionAdaptor<String> {
 						createDefaultNode(nodeName,extNode.getClass().getSimpleName(), 
 								new String[]{"<f1>Value:" + extNode.toString()}); 
 					}
+					
 				}
 				catch(IllegalAccessException ex){}
 			}
 		}
 	}
+
+//	@Override
+//	public void caseAIntLiteralSymbolicLiteralExp(
+//			AIntLiteralSymbolicLiteralExp node, String question) {
+//		
+//		createDefaultNode(question,node.getClass().getSimpleName(), 
+//				new String[]{"<f1>Location: "+ node.getLocation(),"<f2>Value: " + node.getValue().value }); 
+//	}
 		
 //	@Override
 //	public void defaultSBasicType(SBasicType node, String question) {
@@ -237,6 +256,7 @@ public class DotGraphVisitor extends QuestionAdaptor<String> {
 //			tdecl.apply(this,nodeName);
 //		}
 //	}
+	
 
 //	@Override
 //	public void caseATypeDefinition(ATypeDefinition node, String question) {

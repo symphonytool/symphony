@@ -21,6 +21,7 @@
     import org.overture.ast.program.*;
     import org.overture.ast.types.*;
     import org.overturetool.vdmj.lex.*;
+    import org.overturetool.vdmj.typechecker.*;
     import org.overture.ast.node.*;
     import org.overture.transforms.*;
     import org.overturetool.util.*;
@@ -78,6 +79,15 @@
     private LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme)
     {
       return new LexIdentifierToken(lexeme.getValue(), false, extractLexLocation(lexeme));
+    }
+
+    private APatternTypePair createPatternTypePair(CmlLexeme idLexeme, PType type)
+    {
+	LexNameToken name = extractLexNameToken(idLexeme);
+	LexLocation location = extractLexLocation(idLexeme);
+	AIdentifierPattern id = new AIdentifierPattern(location, null/*definitions_*/, 
+						   false /*resolved_*/, name);
+	return new APatternTypePair(false /* resolved_*/, id, type);
     }
 
     // *************************
@@ -358,7 +368,9 @@ channelDecl :
 
      AChannelDefinition channelDefinition = 
 	 new AChannelDefinition(location,null,null,null,decls);
-     AChannelDeclaration channelDecl = new AChannelDeclaration(location,channelDefinition);
+     AChannelDeclaration channelDecl = new AChannelDeclaration(location,
+							       NameScope.GLOBAL,
+							       channelDefinition);
      $$ = channelDecl;
  }
 ;
@@ -388,9 +400,9 @@ channelNameDecl:
       LexLocation end = ids.get(ids.size()-1).getLocation();
       LexLocation location = combineLexLocation(start,end);
 
-      ASingleTypeDeclaration singleTypeDeclaration = new ASingleTypeDeclaration(location,ids,null);
+      ASingleTypeDeclaration singleTypeDeclaration = new ASingleTypeDeclaration(location,NameScope.GLOBAL,ids,null);
             
-      AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location,singleTypeDeclaration);
+      AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location,NameScope.GLOBAL,singleTypeDeclaration);
       
       $$ = channelNameDecl;
   }
@@ -399,7 +411,7 @@ channelNameDecl:
      ASingleTypeDeclaration singleTypeDeclaration = (ASingleTypeDeclaration)$1;
 
      AChannelNameDeclaration channelNameDecl = 
-	 new AChannelNameDeclaration(singleTypeDeclaration.getLocation(),singleTypeDeclaration);
+       new AChannelNameDeclaration(singleTypeDeclaration.getLocation(),NameScope.GLOBAL,singleTypeDeclaration);
       
       $$ = channelNameDecl; 
  }
@@ -425,7 +437,7 @@ IDENTIFIER COLON type
     List<LexIdentifierToken> ids = new Vector<LexIdentifierToken>();
     ids.add(id);
     ASingleTypeDeclaration singleTypeDeclaration = 
-	new ASingleTypeDeclaration(id.getLocation(),ids,(PType)$3);
+      new ASingleTypeDeclaration(id.getLocation(),NameScope.GLOBAL,ids,(PType)$3);
     $$ = singleTypeDeclaration;
 }
 | IDENTIFIER COMMA singleTypeDecl
@@ -461,16 +473,16 @@ globalDecl :
 globalDefinitionBlock 
 : globalDefinitionBlockAlternative
 {
-    List<SGlobalDeclaration> declBlockList = new Vector<SGlobalDeclaration>();
-    SGlobalDeclaration globalDecl = (SGlobalDeclaration)$1;
+    List<PDeclaration> declBlockList = new Vector<PDeclaration>();
+    PDeclaration globalDecl = (PDeclaration)$1;
     if (globalDecl != null) declBlockList.add(globalDecl);
     $$ = declBlockList;
 }
 
 | globalDefinitionBlock globalDefinitionBlockAlternative        
  { 
-    List<SGlobalDeclaration> declBlockList = (List<SGlobalDeclaration>)$1;
-    SGlobalDeclaration globalDecl = (SGlobalDeclaration)$2;
+    List<PDeclaration> declBlockList = (List<PDeclaration>)$1;
+    PDeclaration globalDecl = (PDeclaration)$2;
     if (declBlockList != null) if (globalDecl != null) declBlockList.add(globalDecl);
     $$ = declBlockList;
 }
@@ -479,20 +491,20 @@ globalDefinitionBlock
 globalDefinitionBlockAlternative
 : typeDefs             
 {
-    ATypeGlobalDeclaration typeGlobalDeclaration = new ATypeGlobalDeclaration();
-    typeGlobalDeclaration.setTypeDefinitions((List<ATypeDefinition>) $1);
-    $$ = typeGlobalDeclaration;
+  ATypeDeclaration typeDeclaration = (ATypeDeclaration)$1;
+  typeDeclaration.setNameScope(NameScope.GLOBAL);
+  $$ = typeDeclaration;
 }
 | valueDefs
 {
-    AValueGlobalDeclaration valueGlobalDeclaration = new AValueGlobalDeclaration();
+    AValueDeclaration valueGlobalDeclaration = new AValueDeclaration();
     $$ = valueGlobalDeclaration;
 }
 | functionDefs
 {
-    AFunctionGlobalDeclaration functionGlobalDeclaration = new AFunctionGlobalDeclaration();
+    AFunctionDeclaration functionGlobalDeclaration = (AFunctionDeclaration)$1;
+    functionGlobalDeclaration.setNameScope(NameScope.GLOBAL);
     $$ = functionGlobalDeclaration;
-
 }
 ;
 
@@ -530,27 +542,27 @@ classDefinitionBlock
 classDefinitionBlockAlternative
 : typeDefs             
 {
-  $$ = $1;
+  
 }
 | valueDefs
 {
-  $$ = $1;
+  
 }
 | functionDefs
 {
-  $$ = $1;
+  
 }
 | operationDefs
 {
-  $$ = $1;
+  
 }
 | stateDefs
 {
-  $$ = $1;
+  
 }
 | initialDef
 {
-  $$ = $1;
+  
 }
 ;
 
@@ -559,29 +571,46 @@ classDefinitionBlockAlternative
 typeDefs 
 : TYPES
 { 
-    $$ = new Vector<PDefinition>(); 
+  CmlLexeme typesLexeme = (CmlLexeme)$1;
+  LexLocation loc = extractLexLocation(typesLexeme);
+  ATypeDeclaration td = new ATypeDeclaration();
+  td.setTypeDefinitions(new Vector<ATypeDefinition>());
+  td.setLocation(loc);
+  $$ = td;
 }
 | TYPES typeDefList SEMI                          
 {
-    $$ = (List<PDefinition>)$2;
+  CmlLexeme typesLexeme = (CmlLexeme)$1;
+  CmlLexeme semiLexeme = (CmlLexeme)$3;
+  LexLocation loc = extractLexLocation(typesLexeme,semiLexeme);
+  ATypeDeclaration td = new ATypeDeclaration();
+  td.setTypeDefinitions((List<ATypeDefinition>)$2);
+  td.setLocation(loc);
+  $$ = td;
 }
 | TYPES typeDefList                          
 {
-    $$ = (List<PDefinition>)$2;
+  CmlLexeme typesLexeme = (CmlLexeme)$1;
+  List<ATypeDefinition> tdefs = (List<ATypeDefinition>)$2;
+  LexLocation loc = extractLexLocation(typesLexeme,tdefs.get(tdefs.size()-1).getLocation());
+  ATypeDeclaration td = new ATypeDeclaration();
+  td.setTypeDefinitions(tdefs);
+  td.setLocation(loc);
+  $$ = td;
 }
 ;
 
 typeDefList
 : typeDefList SEMI typeDef                   
 {
-    List<PDefinition> list = (List<PDefinition>)$1;
-    list.add((PDefinition)$3);
+    List<ATypeDefinition> list = (List<ATypeDefinition>)$1;
+    list.add((ATypeDefinition)$3);
     $$ = list;
 }
 | typeDef                                    
 {
-    List<PDefinition> list = new Vector<PDefinition>(); 
-    list.add((PDefinition)$1);
+    List<ATypeDefinition> list = new Vector<ATypeDefinition>(); 
+    list.add((ATypeDefinition)$1);
     $$ = list;
 } 
 ;
@@ -599,9 +628,11 @@ typeDef
 	location = combineLexLocation(name.getLocation(),((PTypeBase)$4).getLocation());
     }
     
+    AInvariantInvariant inv = (AInvariantInvariant)$5;
+
     $$ = new ATypeDefinition(location,null /*NameScope nameScope_*/, false, 
 			     null/*SClassDefinition classDefinition_*/,access, 
-			     (PType)$4,null,(PPattern)((Object[])$5)[0],(PExp)((Object[])$5)[1], 
+			     (PType)$4,null,inv.getInvPattern(),inv.getInvExpression(), 
 			     null, true, name); 
     
 }
@@ -726,7 +757,10 @@ field :
 invariant :
  VDMINV pattern DEQUALS expression
  {
-   $$ = new Object[]{$2,$4};
+   CmlLexeme vdmInvLexeme = (CmlLexeme)$1;
+   PExp exp = (PExp)$4;
+   LexLocation loc = extractLexLocation(vdmInvLexeme,exp.getLocation());
+   $$ = new AInvariantInvariant(loc,(PPattern)$2,exp);
  }
   ;
 
@@ -747,12 +781,81 @@ valueDefList :
 /* 3.3 Function Definitions */
 
 functionDefs :
-  FUNCTIONS functionDefList
-  ;
+FUNCTIONS 
+{
+  CmlLexeme functionsLexeme = (CmlLexeme)$1;
+  AFunctionDeclaration fdecl = new AFunctionDeclaration();
+  fdecl.setLocation(extractLexLocation(functionsLexeme));
+  $$ = fdecl;
+}
+| FUNCTIONS functionDefList
+{
+  CmlLexeme functionsLexeme = (CmlLexeme)$1;
+  List<SFunctionDefinition> functionDefs = (List<SFunctionDefinition>) $2;
+  AFunctionDeclaration fdecl = new AFunctionDeclaration();
+  fdecl.setLocation(extractLexLocation(functionsLexeme,
+				       functionDefs.get(functionDefs.size()-1).getLocation()));
+  fdecl.setFunctionDefinitions(functionDefs);
+  $$ = fdecl;
+}
+;
 
 functionDefList :
-  qualifier IDENTIFIER VDMTYPE functionType IDENTIFIER parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
-  ;
+functionDef
+{
+    List<SFunctionDefinition> functionList = new Vector<SFunctionDefinition>();
+    functionList.add((SFunctionDefinition)$1);
+    $$ = functionList;
+}
+| functionDefList SEMI functionDef
+{
+    List<SFunctionDefinition> functionList = (List<SFunctionDefinition>)$1;
+    functionList.add((SFunctionDefinition)$3);
+    $$ = functionList;
+}
+;
+
+functionDef:
+ implicitFunctionDef
+| explicitFunctionDef
+ ;
+
+
+implicitFunctionDef:
+qualifier IDENTIFIER parameterTypes identifierTypePairList preExpr_opt postExpr
+{
+  
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
+  LexNameToken name = extractLexNameToken((CmlLexeme)$2);
+
+  List<APatternListTypePair> paramPatterns = (List<APatternListTypePair>)$3;
+  List<APatternTypePair> result = (List<APatternTypePair>)$4;  
+  PExp preExp = (PExp)$5;
+  PExp postExp = (PExp)$6;
+
+  LexLocation location = null;
+  if (access.getLocation() != null){
+      location = combineLexLocation(access.getLocation(),postExp.getLocation());
+  }
+  else{
+      location = combineLexLocation(name.getLocation(),postExp.getLocation());
+  }
+  AImplicitFunctionFunctionDefinition impFunc = 
+      new AImplicitFunctionFunctionDefinition(location, null/*nameScope */, false/*used_*/, 
+					      access, null /* typeParams*/, 
+					      paramPatterns, result, preExp, postExp);
+  impFunc.setName(name);
+  $$ = impFunc;
+}
+;
+
+explicitFunctionDef:
+qualifier IDENTIFIER VDMTYPE functionType IDENTIFIER parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
+  {
+    $$ = new AExplicitFunctionFunctionDefinition();
+  }
+;
+
 
 /* really? this is what a VDM function definition list looks like? */
 parameterList :
@@ -767,36 +870,88 @@ functionBody :
   ;
 
 parameterTypes : 
-LPAREN patternList COLON type RPAREN
-| LPAREN patternList COLON type RPAREN COMMA parameterTypes
+LPAREN RPAREN
+{
+    $$ = new Vector<APatternListTypePair>();
+}
+|LPAREN patternList VDMTYPE type RPAREN
+{
+    List<PPattern> patternList = (List<PPattern>)$2;
+    List<APatternListTypePair> pltpl = new Vector<APatternListTypePair>();
+    pltpl.add(new APatternListTypePair(false /*resolved*/, patternList, (PType)$4));
+    $$ = pltpl;
+}
+| LPAREN patternList VDMTYPE type COMMA parameterTypes RPAREN
+{
+    List<PPattern> patternList = (List<PPattern>)$2;
+    List<APatternListTypePair> pltpl = (List<APatternListTypePair>)$6;
+    pltpl.add(new APatternListTypePair(false /*resolved*/, patternList, (PType)$4));
+    $$ = pltpl;
+}
 ; 
 
 identifierTypePairList_opt 
 : /* empty */
+{
+    $$ = null;
+}
 | identifierTypePairList
+{
+    $$ = $1;
+}
 ;
 
 identifierTypePairList :
-IDENTIFIER COLON type
-| IDENTIFIER COLON type COMMA identifierTypePairList
+IDENTIFIER VDMTYPE type
+{
+    APatternTypePair typePair = createPatternTypePair((CmlLexeme)$1,(PType)$3);
+    List<APatternTypePair> typePairs = new Vector<APatternTypePair>();
+    typePairs.add(typePair);
+    $$ = typePairs;
+}
+| IDENTIFIER VDMTYPE type COMMA identifierTypePairList
+{
+    APatternTypePair typePair = createPatternTypePair((CmlLexeme)$1,(PType)$3);
+    List<APatternTypePair> typePairs = (List<APatternTypePair>)$5;
+    typePairs.add(typePair);
+    $$ = typePairs;
+}
 ;
 
 preExpr_opt :
-  preExpr
+preExpr
+{
+    $$ = $1;
+}
 | /* empty */
-  ;
+{
+    $$ = null;
+}
+;
 
 preExpr :
-  PRE expression
-
+PRE expression
+{
+    $$ = $2;
+}
+;
 
 postExpr_opt :
-  postExpr
+postExpr
+{
+    $$ = $1;
+}
 | /* empty */
-  ;
+{
+    $$ = null;
+}
+;
 
 postExpr :
 POST expression
+{
+    $$ = $2;
+}
 ;
 
 measureExpr :
@@ -1035,34 +1190,110 @@ unaryExpr :
 
 binaryExpr :
   expression PLUS expression
+  {
+      LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+      $$ = new APlusNumericBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+  }
 | expression MINUS expression
 | expression DIVIDE expression
 | expression DIV expression
 | expression REM expression
 | expression MOD expression
 | expression LT expression
+{
+      LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+      $$ = new ALessNumericBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression LTE expression 
 {
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new ALessEqualNumericBinaryExp(loc,(PExp)$1,null,(PExp)$3);
 }
 | expression GT expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new AGreaterNumericBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression GTE expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new AGreaterEqualNumericBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression EQUALS expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new AEqualsBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression NEQ expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new ANotEqualBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression OR expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new AOrBooleanBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression AND expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new AAndBooleanBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression IMPLY expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new AImpliesBooleanBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression BIMPLY expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new AEquivalentBooleanBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression INSET expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new AInSetBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression NOTINSET expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new ANotInSetBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression SUBSET expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new ASubsetBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression PROPER_SUBSET expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new AProperSubsetBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression UNION expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new ASetUnionBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression SETDIFF expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new ASetDifferenceBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression INTER expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new ASetIntersectBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression CONC expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new ASeqConcatBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression OVERWRITE expression
+{
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new AModifyBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+}
 | expression MAPMERGE expression
 | expression DOMRES expression
 | expression VDM_MAP_DOMAIN_RESTRICT_BY expression
@@ -1352,7 +1583,17 @@ pattern :
 
 patternList :
   pattern
+  {
+      List<PPattern> patterns = new Vector<PPattern>();
+      patterns.add((PPattern)$1);
+      $$ = patterns;
+  }
 | pattern COMMA patternList
+{
+    List<PPattern> patterns = (Vector<PPattern>)$3;
+    patterns.add((PPattern)$1);
+    $$ = patterns;
+}
   ;
 
 patternIdentifier :
