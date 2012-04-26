@@ -420,8 +420,7 @@ channelNameDecl:
 declaration : 
 singleTypeDecl
 {
-
-
+    
 }
 
 | singleTypeDecl SEMI declaration

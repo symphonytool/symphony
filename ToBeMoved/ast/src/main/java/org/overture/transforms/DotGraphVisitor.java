@@ -17,6 +17,7 @@ import org.overture.ast.program.ASourcefileSourcefile;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.SBasicType;
 import org.overturetool.vdmj.lex.LexIdentifierToken;
+import org.overturetool.vdmj.lex.LexIntegerToken;
 import org.overturetool.vdmj.lex.LexLocation;
 import org.overturetool.vdmj.lex.LexNameToken;
 
@@ -91,10 +92,10 @@ public class DotGraphVisitor extends QuestionAdaptor<String> {
 		// TODO Auto-generated method stub
 		return super.equals(o);
 	}
-	
+		
 	@Override
 	public void defaultINode(INode node, String question) {
-
+		System.out.println("Processing : " + node.getClass().getSimpleName());
 		String nodeName = createDefaultNode(question,node.getClass().getSimpleName()); 
 				//new String[]{"<f1>Value: "+ node.toString() });
 		
@@ -106,17 +107,21 @@ public class DotGraphVisitor extends QuestionAdaptor<String> {
 				{
 					field.setAccessible(true);
 					Object fieldObject = field.get(node);
+					System.out.println();
+					System.out.print( node.getClass().getSimpleName() +"." + field.getName());
 					if (fieldObject instanceof INode)
 					{
+						System.out.println(" IS instance of INode");
 						INode childNode = (INode)fieldObject;
 						childNode.apply(this,nodeName);
 					}
 					else if (fieldObject instanceof NodeList)
 					{
-						
+						System.out.println(" IS instance of NodeList");
 						NodeList<INode> childNodes = (NodeList<INode>)fieldObject;
 						for(INode childNode : childNodes)
 						{
+							System.out.println("\t with child " + childNode.getClass().getSimpleName());
 							childNode.apply(this,nodeName);
 						}
 					}
@@ -157,20 +162,28 @@ public class DotGraphVisitor extends QuestionAdaptor<String> {
 //				
 //	}
 //
-//	@Override
-//	public void caseLexNameToken(LexNameToken node, String question) {
-//		
-//		createDefaultNode(question,node.getClass().getSimpleName(), 
-//				new String[]{"<f1>Name:" + node.getName() ,"<f2>Location:" + node.getLocation().toShortString()});
-//		
-//	}
-//
-//	@Override
-//	public void caseLexIdentifierToken(LexIdentifierToken node, String question) {
-//				
-//		createDefaultNode(question,node.getClass().getSimpleName(), 
-//				new String[]{"<f1>Name:" + node.getName() ,"<f2>Location:" + node.getLocation().toShortString()});
-//	}
+	@Override
+	public void caseLexNameToken(LexNameToken node, String question) {
+		
+		createDefaultNode(question,node.getClass().getSimpleName(), 
+				new String[]{"<f1>Name:" + node.getName() ,"<f2>Location:" + node.getLocation().toShortString()});
+		
+	}
+
+	@Override
+	public void caseLexIdentifierToken(LexIdentifierToken node, String question) {
+				
+		createDefaultNode(question,node.getClass().getSimpleName(), 
+				new String[]{"<f1>Name:" + node.getName() ,"<f2>Location:" + node.getLocation().toShortString()});
+	}
+	
+	@Override
+	public void caseLexIntegerToken(LexIntegerToken node, String question) {
+				
+		createDefaultNode(question,node.getClass().getSimpleName(), 
+				new String[]{"<f1>Value:" + node.value ,"<f2>Location:" + node.location.toShortString()});
+	}
+	
 //
 //	@Override
 //	public void caseASourcefileSourcefile(ASourcefileSourcefile node,
