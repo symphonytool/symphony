@@ -17,6 +17,8 @@
     import org.overture.ast.definitions.*;
     import org.overture.ast.declarations.*;
     import org.overture.ast.expressions.*;
+    import org.overture.ast.actions.*;
+    import org.overture.ast.process.*;
     import org.overture.ast.patterns.*;
     import org.overture.ast.program.*;
     import org.overture.ast.types.*;
@@ -70,6 +72,7 @@
 			     end.endLine, end.endPos,0,0);
     }
 
+    //    private LexToken makeLexToken()
     
     private LexNameToken extractLexNameToken(CmlLexeme lexeme)
     {
@@ -182,7 +185,7 @@
 
 %token NUMERAL HEX_LITERAL
 
-%token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CSP_CHANSET_BEGIN CSP_CHANSET_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_VARDECL CSP_OPS_COM
+%token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_VARDECL CSP_OPS_COM
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
 %token VDMcommand nameset namesetExpr communication predicate chanset typeVarIdentifier quoteLiteral functionType localDef  implicitOperationBody
@@ -281,15 +284,34 @@ classDecl
 
 processDecl :
   PROCESS IDENTIFIER EQUALS processDef
+  {
+      LexLocation processLoc = extractLexLocation((CmlLexeme)$1);
+      AProcessDefinition processDef = (AProcessDefinition)$4;
+      LexIdentifierToken id = (LexIdentifierToken)$2;
+      LexLocation location = combineLexLocation(processLoc,processDef.getLocation());
+      $$ = new AProcessDeclaration(location, NameScope.GLOBAL, id, processDef);
+  }
   ;
 
 processDef :
-  declaration AT process
+declaration AT process
+{
+    //$$ = new 
+}
 | process
-  ;
+{
+    //$$ = 
+}
+;
 
 process :
   BEGIN processPara AT action END
+  {
+      LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
+      List<PDeclaration> processDeclarations = (List<PDeclaration>)$2;
+      PAction action = (PAction)$4;
+      $$ = new AActionProcess(location,processDeclarations,action);
+  }
 | process CSPSEQ process
 | process CSPINTCH process
 | process CSPEXTCH process
@@ -304,7 +326,7 @@ process :
 | CSPEXTCH LCURLY declaration AT process RCURLY
 | LSQUARE LCURLY chansetExpr RSQUARE declaration AT process RCURLY
 | CSPINTERLEAVE LCURLY declaration AT process RCURLY
-  ;
+      ;
 
 processPara :
   programParagraph
@@ -326,6 +348,9 @@ action
 
 cspAction :
   CSPSKIP
+  {
+       
+  }
 | CSPSTOP
 | CSPCHAOS
 | communication RARROW cspAction
@@ -420,12 +445,15 @@ channelNameDecl:
 declaration : 
 singleTypeDecl
 {
-    
+  List<ASingleTypeDeclaration> decls = new Vector<ASingleTypeDeclaration>();
+  decls.add((ASingleTypeDeclaration)$1);
+  $$ = decls;
 }
-
 | singleTypeDecl SEMI declaration
 {
-
+  List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)$3;
+  decls.add((ASingleTypeDeclaration)$1);
+  $$ = decls;
 }
 ;
 
@@ -452,15 +480,94 @@ IDENTIFIER COLON type
 /* 2.4 Chanset Definitions */
 
 chansetDecl:
-  CHANSETS IDENTIFIER EQUALS chansetExpr
-  {
-      //LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
-      //AChansetDeclaration ChansetDeclaration = new AChansetDeclaration();
-  }
-  ;
+CHANSETS
+{
+    LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
+    $$ = new AChansetDeclaration(id.getLocation(), NameScope.GLOBAL, null, null);
+}
+| CHANSETS IDENTIFIER EQUALS chansetExpr
+{
+    LexIdentifierToken channelsToken = extractLexIdentifierToken((CmlLexeme)$1);
+    LexIdentifierToken idToken = extractLexIdentifierToken((CmlLexeme)$2);
+    SChansetSetBase chansetExp = (SChansetSetBase)$4;
+    LexLocation location = combineLexLocation(channelsToken.getLocation(),
+					      chansetExp.getLocation());
+    $$ = new AChansetDeclaration(location, NameScope.GLOBAL, idToken, chansetExp);
+}
+;
 
 chansetExpr : 
-  CSP_CHANSET_BEGIN identifierList CSP_CHANSET_END
+ IDENTIFIER
+ {
+   LexIdentifierToken idToken = extractLexIdentifierToken((CmlLexeme)$1);
+   $$ = new AIdentifierChansetSetExp(idToken.getLocation(),idToken);
+ }
+| LCURLY identifierList RCURLY
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3);
+    List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2;
+    $$ = new AEnumChansetSetExp(location,identifiers);
+}
+| CHANSET_SETEXP_BEGIN identifierList CHANSET_SETEXP_END
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3);
+    List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2;
+    $$ = new AEnumChansetSetExp(location,identifiers);
+}
+| chansetExpr UNION chansetExpr
+{
+    PExp left = (PExp)$1;
+    PExp right = (PExp)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+    $$ = new ASetUnionBinaryExp(location,left, null, right);
+}
+| chansetExpr INTER chansetExpr
+{
+    PExp left = (PExp)$1;
+    PExp right = (PExp)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+    $$ = new ASetIntersectBinaryExp(location,left, null, right);
+}
+| chansetExpr SETDIFF chansetExpr
+{
+    PExp left = (PExp)$1;
+    PExp right = (PExp)$3;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$2);
+    LexToken lexToken = new LexToken(opLocation,VDMToken.SETDIFF);
+    LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+    $$ = new ASetDifferenceBinaryExp(location, left, lexToken, right);
+}
+| CHANSET_SETEXP_BEGIN IDENTIFIER dotted_expression BAR bindList CHANSET_SETEXP_END
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$6);
+    LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2);
+    List<PExp> dotted_expression = (List<PExp>)$3;
+    List<PMultipleBind> bindings = (List<PMultipleBind>)$5;
+    $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings,null);
+}
+| CHANSET_SETEXP_BEGIN IDENTIFIER dotted_expression BAR bindList AT expression CHANSET_SETEXP_END
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$8);
+    LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2);
+    List<PExp> dotted_expression = (List<PExp>)$3;
+    List<PMultipleBind> bindings = (List<PMultipleBind>)$5;
+    PExp pred = (PExp)$7;
+    $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings,pred);
+} 
+;
+
+dotted_expression:
+/*empty*/
+{
+    $$ = new Vector<PExp>();
+}
+| dotted_expression DOT expression
+{
+    List<PExp> expTokens = (List<PExp>)$1;
+    PExp exp = (PExp)$3;
+    expTokens.add(exp);
+    $$ = expTokens;
+}
 ;
 
 /* 2.5 Global Definitions */
@@ -1043,9 +1150,19 @@ invariantDef :
 /* 4 Expressions */
 
 expressionList :
-  expression
+expression
+{
+    List<PExp> exps = new Vector<PExp>();
+    exps.add((PExp)$1);
+    $$ = exps;    
+}
 | expression COMMA expressionList
-  ;
+{
+    List<PExp> exps = (List<PExp>)$3;
+    exps.add((PExp)$1);
+    $$ = exps;    
+}
+;
 
 expression :
   LPAREN expression RPAREN
@@ -1200,8 +1317,9 @@ binaryExpr :
 | expression MOD expression
 | expression LT expression
 {
-      LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
-      $$ = new ALessNumericBinaryExp(loc,(PExp)$1,null,(PExp)$3);
+  //CmlLexeme ltLexeme = 
+    LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
+    $$ = new ALessNumericBinaryExp(loc,(PExp)$1,null,(PExp)$3);
 }
 | expression LTE expression 
 {
@@ -1313,9 +1431,17 @@ quantifiedExpr :
 /* 4.7 Set Expressions */
 
 setEnumeration :
-  LCURLY RCURLY
+LCURLY RCURLY
+{
+    $$ = new ASetEnumSetExp();   
+}
 | LCURLY expressionList RCURLY
-  ;
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3);
+    List<PExp> members = (List<PExp>)$2;
+    $$ = new ASetEnumSetExp(location,members);
+}
+;
 
 setComprehension :
   LCURLY expression BAR bindList RCURLY
@@ -1637,17 +1763,39 @@ bind :
   ;
 
 setBind :
-  pattern INSET expression
-  ;
+pattern INSET expression
+{
+    PPattern pattern = (PPattern)$1;
+    PExp exp = (PExp)$3;
+    LexLocation location = extractLexLocation((CmlLexeme)$2);
+    $$ = new ASetBind(location, pattern, exp);
+}
+;
 
 typeBind :
-  pattern VDMTYPE type
-  ;
+pattern VDMTYPE type
+{
+    PPattern pattern = (PPattern)$1;
+    PType type = (PType)$3;
+    LexLocation location = extractLexLocation((CmlLexeme)$2);
+    $$ = new ATypeBind(location, pattern, type);
+}
+;
 
 bindList :
-  multipleBind
-  | multipleBind COMMA multipleBind
-  ;
+multipleBind
+{
+    List<PMultipleBind> binds = new Vector<PMultipleBind>();
+    binds.add((PMultipleBind)$1);
+    $$ = binds;
+}
+| bindList COMMA multipleBind
+{
+    List<PMultipleBind> binds = (List<PMultipleBind>)$1;
+    binds.add((PMultipleBind)$3);
+    $$ = binds;
+}
+;
 
 multipleBind :
   multipleSetBind
@@ -1655,12 +1803,24 @@ multipleBind :
   ; 
 
 multipleSetBind :
-  patternList INSET expression 
-  ; 
+patternList INSET expression 
+{
+    List<PPattern> patterns = (List<PPattern>)$1;
+    PExp exp = (PExp)$3;
+    LexLocation location = extractLexLocation((CmlLexeme)$2);;
+    $$ = new ASetMultipleBind(location, patterns, exp);
+}
+; 
 
 multipleTypeBind :
-  patternList VDMTYPE type 
-  ; 
+patternList VDMTYPE type 
+{
+    List<PPattern> patterns = (List<PPattern>)$1;
+    PType type = (PType)$3;
+    LexLocation location = extractLexLocation((CmlLexeme)$2);;
+    $$ = new ATypeMultipleBind(location, patterns, type);
+}
+; 
 
 typeBindList :
   typeBind

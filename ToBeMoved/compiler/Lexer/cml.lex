@@ -6,7 +6,7 @@ import java.util.Vector;
 import java.util.Stack;
 import eu.compassresearch.cml.compiler.CmlParser.Lexer;
 import eu.compassresearch.cml.compiler.CmlParser.Location;
-
+import org.overturetool.vdmj.lex.*;
 /*
 class CmlContext {
   
@@ -36,6 +36,7 @@ class CmlLexeme {
     private Position endPos;
     protected  String value;
     private int lex;
+    private VDMToken vdmToken = null;
 
     public CmlLexeme(Position startPos, Position endPos, int lex, String value)
     {
@@ -58,6 +59,11 @@ class CmlLexeme {
     public int getLexValue()
     {
 	return lex;
+    }
+
+    public VDMToken getVDMToken()
+    {
+	return null;
     }
     
     public String getValue()
@@ -98,44 +104,6 @@ class CMLToken {
 	{
 	  System.out.println(e);
 	}
-  }
-}
-
-class StringToken extends CMLToken {
-  static StringToken currentString;
-  private StringBuilder currentLine;
-  private List<String> lines = new LinkedList<String>();
-
-  private int endLine;
-  private int endPos;
-
-  public StringToken(int startLine, int startPos)
-  {
-    super("\"");
-    currentLine = new StringBuilder();
-  }
-
-  public void append(String chars)
-  {
-    currentLine.append(chars);
-  }
-
-  public void newLine()
-  {
-    lines.add(currentLine.toString());
-    currentLine = new StringBuilder();
-  }
-
-  public void endString(int line, int pos)
-  {
-    lines.add(currentLine.toString());
-    this.endLine = line;
-    this.endPos = pos;
-    StringBuilder sb = new StringBuilder();
-    for(String s : lines)
-      sb.append(s);
-    super.value = sb.toString();
-    lines=null;
   }
 }
 
@@ -455,6 +423,14 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
       return -1;
     }
   }
+
+  private int createToken(int lex, VDMToken vdmToken)
+  {
+      int r = createToken(lex);
+      CmlLexeme cmlLexeme = (CmlLexeme)yylvalue;
+      
+      return r;
+  }
   
 %}
 
@@ -595,8 +571,8 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 // }
 
 <CHANSETS> {
-  "{|"				      { return createToken(CmlParser.CSP_CHANSET_BEGIN); } //TODO: CHANGE this into something else
-  "|}"				      { return createToken(CmlParser.CSP_CHANSET_END); } //TODO: CHANGE this into something else
+  "{|"				      { return createToken(CmlParser.CHANSET_SETEXP_BEGIN); } //TODO: CHANGE this into something else
+  "|}"				      { return createToken(CmlParser.CHANSET_SETEXP_END); } //TODO: CHANGE this into something else
   "="                                 { return createToken(CmlParser.EQUALS); }
 }
 
@@ -622,7 +598,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 }
 
 
-<TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS> {
+<TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS> {
   ":"[^:-=]                           { return createToken(CmlParser.VDMTYPE); }
   
   //vdm expressions
@@ -667,18 +643,20 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "&"				      {  }
   "*"				      { return createToken(CmlParser.STAR); }
   "^"				      { return createToken(CmlParser.CONC); }
-  "\\"				      { return createToken(CmlParser.SETDIFF); }
-
+  //logical operators
   "and"				      { return createToken(CmlParser.AND); }
   "or"				      { return createToken(CmlParser.OR); }
   "not"				      { return createToken(CmlParser.NOT); }
-
+  //set operators
+  "\\"				      { return createToken(CmlParser.SETDIFF); }
   "in set"			      { return createToken(CmlParser.INSET); }
+  "union"			      { return createToken(CmlParser.UNION); }
+  "inter"			      { return createToken(CmlParser.INTER); }
 
-  //vdm patterns
+  //patterns
   "-"                                 { return createToken(CmlParser.VDMDONTCARE); }
   "mk_"                               { return createToken(CmlParser.MKUNDER); }
-
+  
   //basic types
   "bool"                              { return createToken(CmlParser.TBOOL); }
   "nat"                               { return createToken(CmlParser.TNAT); }

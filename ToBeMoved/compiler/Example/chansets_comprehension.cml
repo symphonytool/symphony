@@ -1,0 +1,2 @@
+Chansets
+   I = {| test.hey.loo | a in set {1,2} |}

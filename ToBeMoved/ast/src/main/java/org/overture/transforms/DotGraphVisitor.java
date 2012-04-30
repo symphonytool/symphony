@@ -95,7 +95,6 @@ public class DotGraphVisitor extends QuestionAdaptor<String> {
 		
 	@Override
 	public void defaultINode(INode node, String question) {
-		System.out.println("Processing : " + node.getClass().getSimpleName());
 		String nodeName = createDefaultNode(question,node.getClass().getSimpleName()); 
 				//new String[]{"<f1>Value: "+ node.toString() });
 		
@@ -107,21 +106,16 @@ public class DotGraphVisitor extends QuestionAdaptor<String> {
 				{
 					field.setAccessible(true);
 					Object fieldObject = field.get(node);
-					System.out.println();
-					System.out.print( node.getClass().getSimpleName() +"." + field.getName());
 					if (fieldObject instanceof INode)
 					{
-						System.out.println(" IS instance of INode");
 						INode childNode = (INode)fieldObject;
 						childNode.apply(this,nodeName);
 					}
 					else if (fieldObject instanceof NodeList)
 					{
-						System.out.println(" IS instance of NodeList");
 						NodeList<INode> childNodes = (NodeList<INode>)fieldObject;
 						for(INode childNode : childNodes)
 						{
-							System.out.println("\t with child " + childNode.getClass().getSimpleName());
 							childNode.apply(this,nodeName);
 						}
 					}

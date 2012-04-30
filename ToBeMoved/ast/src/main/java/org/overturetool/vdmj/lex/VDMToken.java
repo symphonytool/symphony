@@ -32,6 +32,7 @@ import java.util.Map;
 import static org.overturetool.vdmj.lex.Dialect.VDM_SL;
 import static org.overturetool.vdmj.lex.Dialect.VDM_PP;
 import static org.overturetool.vdmj.lex.Dialect.VDM_RT;
+import static org.overturetool.vdmj.lex.Dialect.CML;
 
 /**
  * An enumeration for the basic token types recognised by the lexical analyser.
@@ -40,49 +41,49 @@ import static org.overturetool.vdmj.lex.Dialect.VDM_RT;
 public enum VDMToken implements Serializable
 {
 	// Variables
-	IDENTIFIER(null, "id", VDM_SL, VDM_PP, VDM_RT),
-	NAME(null, "name", VDM_SL, VDM_PP, VDM_RT),
+	IDENTIFIER(null, "id", VDM_SL, VDM_PP, VDM_RT, CML),
+	NAME(null, "name", VDM_SL, VDM_PP, VDM_RT, CML),
 
 	// Literals
-	NUMBER(null, "number", VDM_SL, VDM_PP, VDM_RT),
-	REALNUMBER(null, "real", VDM_SL, VDM_PP, VDM_RT),
-	CHARACTER(null, "char", VDM_SL, VDM_PP, VDM_RT),
-	STRING(null, "string", VDM_SL, VDM_PP, VDM_RT),
-	QUOTE(null, "<quote>", VDM_SL, VDM_PP, VDM_RT),
+	NUMBER(null, "number", VDM_SL, VDM_PP, VDM_RT, CML),
+	REALNUMBER(null, "real", VDM_SL, VDM_PP, VDM_RT, CML),
+	CHARACTER(null, "char", VDM_SL, VDM_PP, VDM_RT, CML),
+	STRING(null, "string", VDM_SL, VDM_PP, VDM_RT, CML),
+	QUOTE(null, "<quote>", VDM_SL, VDM_PP, VDM_RT, CML),
 
 	// Basic types
-	BOOL("bool", "bool", VDM_SL, VDM_PP, VDM_RT),
-	NAT("nat", "nat", VDM_SL, VDM_PP, VDM_RT),
-	NAT1("nat1", "nat1", VDM_SL, VDM_PP, VDM_RT),
-	INT("int", "int", VDM_SL, VDM_PP, VDM_RT),
-	RAT("rat", "rat", VDM_SL, VDM_PP, VDM_RT),
-	REAL("real", "real", VDM_SL, VDM_PP, VDM_RT),
-	CHAR("char", "char", VDM_SL, VDM_PP, VDM_RT),
-	TOKEN("token", "token", VDM_SL, VDM_PP, VDM_RT),
+	BOOL("bool", "bool", VDM_SL, VDM_PP, VDM_RT, CML),
+	NAT("nat", "nat", VDM_SL, VDM_PP, VDM_RT, CML),
+	NAT1("nat1", "nat1", VDM_SL, VDM_PP, VDM_RT, CML),
+	INT("int", "int", VDM_SL, VDM_PP, VDM_RT, CML),
+	RAT("rat", "rat", VDM_SL, VDM_PP, VDM_RT, CML),
+	REAL("real", "real", VDM_SL, VDM_PP, VDM_RT, CML),
+	CHAR("char", "char", VDM_SL, VDM_PP, VDM_RT, CML),
+	TOKEN("token", "token", VDM_SL, VDM_PP, VDM_RT, CML),
 
 	// Operators
-	PLUS(null, "+", VDM_SL, VDM_PP, VDM_RT),
-	MINUS(null, "-", VDM_SL, VDM_PP, VDM_RT),
-	TIMES(null, "*", VDM_SL, VDM_PP, VDM_RT),
-	DIVIDE(null, "/", VDM_SL, VDM_PP, VDM_RT),
-	REM("rem", "rem", VDM_SL, VDM_PP, VDM_RT),
-	MOD("mod", "mod", VDM_SL, VDM_PP, VDM_RT),
-	DIV("div", "div", VDM_SL, VDM_PP, VDM_RT),
-	LT(null, "<", VDM_SL, VDM_PP, VDM_RT),
-	LE(null, "<=", VDM_SL, VDM_PP, VDM_RT),
-	GT(null, ">", VDM_SL, VDM_PP, VDM_RT),
-	GE(null, ">=", VDM_SL, VDM_PP, VDM_RT),
-	NE(null, "<>", VDM_SL, VDM_PP, VDM_RT),
-	EQUALS(null, "=", VDM_SL, VDM_PP, VDM_RT),
-	EQUALSEQUALS(null, "==", VDM_SL, VDM_PP, VDM_RT),
-	EQUIVALENT(null, "<=>", VDM_SL, VDM_PP, VDM_RT),
-	IMPLIES(null, "=>", VDM_SL, VDM_PP, VDM_RT),
-	SUBSET("subset", "subset", VDM_SL, VDM_PP, VDM_RT),
-	PSUBSET("psubset", "psubset", VDM_SL, VDM_PP, VDM_RT),
-	INSET("in set", "in set", VDM_SL, VDM_PP, VDM_RT),
-	NOTINSET("not in set", "not in set", VDM_SL, VDM_PP, VDM_RT),
-	SETDIFF(null, "\\", VDM_SL, VDM_PP, VDM_RT),
-	MUNION("munion", "munion", VDM_SL, VDM_PP, VDM_RT),
+	PLUS(null, "+", VDM_SL, VDM_PP, VDM_RT, CML),
+	MINUS(null, "-", VDM_SL, VDM_PP, VDM_RT, CML),
+	TIMES(null, "*", VDM_SL, VDM_PP, VDM_RT, CML),
+	DIVIDE(null, "/", VDM_SL, VDM_PP, VDM_RT, CML),
+	REM("rem", "rem", VDM_SL, VDM_PP, VDM_RT, CML),
+	MOD("mod", "mod", VDM_SL, VDM_PP, VDM_RT, CML),
+	DIV("div", "div", VDM_SL, VDM_PP, VDM_RT, CML),
+	LT(null, "<", VDM_SL, VDM_PP, VDM_RT, CML),
+	LE(null, "<=", VDM_SL, VDM_PP, VDM_RT, CML),
+	GT(null, ">", VDM_SL, VDM_PP, VDM_RT, CML),
+	GE(null, ">=", VDM_SL, VDM_PP, VDM_RT, CML),
+	NE(null, "<>", VDM_SL, VDM_PP, VDM_RT, CML),
+	EQUALS(null, "=", VDM_SL, VDM_PP, VDM_RT, CML),
+	EQUALSEQUALS(null, "==", VDM_SL, VDM_PP, VDM_RT, CML),
+	EQUIVALENT(null, "<=>", VDM_SL, VDM_PP, VDM_RT, CML),
+	IMPLIES(null, "=>", VDM_SL, VDM_PP, VDM_RT, CML),
+	SUBSET("subset", "subset", VDM_SL, VDM_PP, VDM_RT, CML),
+	PSUBSET("psubset", "psubset", VDM_SL, VDM_PP, VDM_RT, CML),
+	INSET("in set", "in set", VDM_SL, VDM_PP, VDM_RT, CML),
+	NOTINSET("not in set", "not in set", VDM_SL, VDM_PP, VDM_RT, CML),
+	SETDIFF(null, "\\", VDM_SL, VDM_PP, VDM_RT, CML),
+	MUNION("munion", "munion", VDM_SL, VDM_PP, VDM_RT, CML),
 	PLUSPLUS(null, "++", VDM_SL, VDM_PP, VDM_RT),
 	STARSTAR(null, "**", VDM_SL, VDM_PP, VDM_RT),
 	UNION("union", "union", VDM_SL, VDM_PP, VDM_RT),
@@ -229,7 +230,7 @@ public enum VDMToken implements Serializable
 	STATE("state", "state", VDM_SL),
 
 	// VDM++ extra tokens
-	CLASS("class", "class", VDM_PP, VDM_RT),
+	CLASS("class", "class", VDM_PP, VDM_RT, CML),
 	SUBCLASS("subclass", "subclass", VDM_PP, VDM_RT),
 	STATIC("static", "static", VDM_PP, VDM_RT),
 	PUBLIC("public", "public", VDM_PP, VDM_RT),
@@ -278,6 +279,7 @@ public enum VDMToken implements Serializable
 	private static Map<String, VDMToken> sltokens;
 	private static Map<String, VDMToken> pptokens;
 	private static Map<String, VDMToken> rttokens;
+	private static Map<String, VDMToken> cmltokens;
 
 	static
 	{
@@ -288,6 +290,7 @@ public enum VDMToken implements Serializable
 		sltokens = new HashMap<String, VDMToken>(256);
 		pptokens = new HashMap<String, VDMToken>(256);
 		rttokens = new HashMap<String, VDMToken>(256);
+		cmltokens = new HashMap<String, VDMToken>(256);
 
 		for (VDMToken token: values())
 		{
@@ -307,6 +310,10 @@ public enum VDMToken implements Serializable
 
 						case VDM_RT:
 							rttokens.put(token.keyword, token);
+							break;
+							
+						case CML:
+							cmltokens.put(token.keyword, token);
 							break;
 					}
 				}
@@ -341,6 +348,9 @@ public enum VDMToken implements Serializable
 
 			case VDM_RT:
 				return rttokens.get(word);
+				
+			case CML:
+				return cmltokens.get(word);
 		}
 
 		return null;

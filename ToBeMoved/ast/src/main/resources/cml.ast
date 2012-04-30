@@ -67,15 +67,16 @@ sourcefile {-> package='org.overture.ast.program'}
 
 declaration {-> package='org.overture.ast.declarations'}
     = {class}
-    | {process}
+    | {process} [identifier]:LexIdentifierToken [processDefinition]:definition.process
     | {channel} [channelDefinition]:definition.channel
     | {channelName} [declaration]:singleType
-    | {chanset} [identifier]:LexIdentifierToken
+    | {chanset} [identifier]:LexIdentifierToken [chansetExpression]:exp.#Set.#Chanset
+    // --- Maybe they should be grouped together in a sub declaration
     | {type} [typeDefinitions]:definition.type*
     | {function} [functionDefinitions]:definition.#function*
-    | {value}	
+    | {value}
+    // ---	
     | {singleType} [identifiers]:LexIdentifierToken* (type):type    	    	
-
 ;
 
 /*
@@ -86,7 +87,7 @@ definition {-> package='org.overture.ast.definitions'}
     =   {assignment} [expression]:exp (expType):type
     |   {instanceVariable} [expression]:exp (expType):type [initialized]:java_Boolean [oldname]:LexNameToken //this actually inherits assignment in Nicks tree
     |   #class 
-    |	{process}
+    |	{process} [declaration]:declaration.singleType [process]:process
     |   {chanset}
     | 	{channel} [channelNameDecls]: declaration.channelName*
     |   {classInvariant}  [expression]:exp
@@ -195,6 +196,36 @@ invariant {-> package='org.overture.ast.definitions'}
 ;
 
 /*
+	Process
+*/
+
+process {-> package='org.overture.ast.process'}
+	= {action} [processDeclarations]:declaration* [action]:action
+	| {sequentialCombosition}
+	| {externalChoice}
+	| {internalChoice}
+	| {generalisedParallelism}
+	| {alphabetisedParallelism}
+	| {synchronousParallelism}
+	| {interleaving}
+	| {interrupt}
+	| {timedInterrupt}
+	| {untimedInterrupt}
+	| {timeout}
+	| {hiding} 
+;
+
+/* Actions */
+
+action {-> package='org.overture.ast.actions'}
+	= {skip}
+	| {stop}
+	| {chaos}
+	| {div}
+	| {controlStatement} [statement]:stm
+	;
+
+/*
     Expressions
 */    
 exp {-> package='org.overture.ast.expressions'}
@@ -203,7 +234,6 @@ exp {-> package='org.overture.ast.expressions'}
     |   #Binary /*cml*/
     |   {bracketed} [expression]:exp /*cml*/
     |   {cases} [expression]:exp [cases]:alternative.case* [others]:exp /*cml*/
-    |   #Chanset /*cml*/
     |   {elseIf} [elseIf]:exp [then]:exp  /*cml*/
     |   {exists1}  [bind]:bind [predicate]:exp [def]:definition
     |   {exists} [bindList]:multipleBind* [predicate]:exp
@@ -255,12 +285,7 @@ exp {-> package='org.overture.ast.expressions'}
 	| {intLiteral} [value]:LexIntegerToken
 	| {realLiteral} [value]:LexRealToken
     ; 
-    
-#Chanset {-> package='org.overture.ast.expressions'}
-	= {identifier}
-	| {set}    
-    ;
-    
+   
 #Unary {-> package='org.overture.ast.expressions'}
     =   {absolute} 
     |   {cardinality}  
@@ -345,6 +370,13 @@ exp {-> package='org.overture.ast.expressions'}
     =   {setComp} [first]:exp [bindings]:multipleBind* [predicate]:exp
     |   {setEnum} [members]:exp* (types):type*
     |   {setRange} [first]:exp [last]:exp (ftype):type (ltype):type
+    |   #Chanset
+    ;
+    
+#Chanset {-> package='org.overture.ast.expressions'}
+	= {identifier} [identifier]:LexIdentifierToken
+	| {enum} [identifiers]:LexIdentifierToken*
+	| {comp}  [identifier]:LexIdentifierToken [dotExpressions]:exp* [bindings]:multipleBind* [predicate]:exp 
     ;
     
 modifier {-> package='org.overture.ast.expressions'}
@@ -359,6 +391,7 @@ alternative {-> package='org.overture.ast.expressions'}
 type {-> package='org.overture.ast.types'}
     =   #basic
     |   {bracket} (type):type
+    |   {channel}
     |   {class} [name]:LexNameToken (classdef):definition.#class //change classdef to graf - is this correct dont see how it could have worked before
     |   {function} [partial]:java_Boolean (parameters):type* (result):type 
     |   #invariant
@@ -592,8 +625,17 @@ Aspect Declaration
 /* This section allows fields of root types to be declared e.g. exp*/
 
 %declaration =  [location]:location [nameScope]:nameScope
-;
+	;
 
+%process =  [location]:location 
+	;
+
+%action =  [location]:location 
+	;
+	
+//%exp->#Chanset = [channelIdentifiers]:LexIdentifierToken*
+//	;
+	
 %exp->#Unary =  [exp]:exp
     ;
 
