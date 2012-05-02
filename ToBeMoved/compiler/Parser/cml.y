@@ -1276,26 +1276,166 @@ casesExprAlt :
 /*     ; */
 
 unaryExpr :
-  PLUS expression %prec UPLUS
+PLUS expression %prec UPLUS
+{
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+	combineLexLocation(opLocation,exp.getLocation());
+    $$ = new AUnaryPlusUnaryExp(location,exp);
+}
 | MINUS expression %prec UMINUS
+  {
+      PExp exp = (PExp)$2;
+      LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+      LexLocation location = 
+	  combineLexLocation(opLocation,exp.getLocation());
+      $$ = new AUnaryMinusUnaryExp(location,exp);
+  }
 | ABS expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new AAbsoluteUnaryExp(location,exp);
+  }
 | FLOOR expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new AFloorUnaryExp(location,exp);
+  }
 | NOT expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new ANotUnaryExp(location,exp);
+  }
 | CARD expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new ACardinalityUnaryExp(location,exp);
+  }
 | POWER expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new APowerSetUnaryExp(location,exp);
+  }
 | DUNION expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new ADistUnionUnaryExp(location,exp);
+  }
 | DINTER expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new ADistIntersectUnaryExp(location,exp);
+  }
 | HD expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new AHeadUnaryExp(location,exp);
+  }
 | TL expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new ATailUnaryExp(location,exp);
+  }
 | LEN expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new ALenUnaryExp(location,exp);
+  }
 | ELEMS expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new AElementsUnaryExp(location,exp);
+  }
 | INDS expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new AIndicesUnaryExp(location,exp);
+  }
 | REVERSE expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new AReverseUnaryExp(location,exp);
+  }
 | DCONC expression
+{
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+	combineLexLocation(opLocation,exp.getLocation());
+    $$ = new ADistConcatUnaryExp(location,exp);
+}
 | DOM expression
+{
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+	combineLexLocation(opLocation,exp.getLocation());
+    $$ = new AMapDomainUnaryExp(location,exp);
+}
 | RNG expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new AMapRangeUnaryExp(location,exp);
+  }
 | MERGE expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new ADistMergeUnaryExp(location,exp);
+  }
 | INVERSE expression
+  {
+    PExp exp = (PExp)$2;
+    LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
+    LexLocation location = 
+      combineLexLocation(opLocation,exp.getLocation());
+    $$ = new AMapInverseUnaryExp(location,exp);
+  }
   ;
 
 /* 4.5 Binary Expressions */

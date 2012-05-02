@@ -606,6 +606,24 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   //"|->"			      { return createToken(CmlParser.BAR_ARROW); }
   "<-:"				      { return createToken(CmlParser.VDM_MAP_DOMAIN_RESTRICT_BY); }
   ":->"				      { return createToken(CmlParser.RNGSUB /*MAP_RANGE_RESTRICT_BY*/); }
+  "abs"                               { return createToken(CmlParser.ABS); } 
+  "floor"                             { return createToken(CmlParser.FLOOR); } 
+  "not"                               { return createToken(CmlParser.NOT); }
+  "card"                              { return createToken(CmlParser.CARD); }  
+  "power"                             { return createToken(CmlParser.POWER); } 
+  "dunion"                            { return createToken(CmlParser.DUNION); } 
+  "dinter"                            { return createToken(CmlParser.DINTER); } 
+  "hd"                                { return createToken(CmlParser.HD); } 
+  "tl"                                { return createToken(CmlParser.TL); } 
+  "len"                               { return createToken(CmlParser.LEN); } 
+  "elems"                             { return createToken(CmlParser.ELEMS); } 
+  "inds"                              { return createToken(CmlParser.INDS); } 
+  "reverse"                           { return createToken(CmlParser.REVERSE); } 
+  "conc"                              { return createToken(CmlParser.DCONC); } /*should this be dconc*/
+  "dom"                               { return createToken(CmlParser.DOM); } 
+  "rng"                               { return createToken(CmlParser.RNG); } 
+  "merge"                             { return createToken(CmlParser.MERGE); } 
+  "inverse"                           { return createToken(CmlParser.INVERSE); } 
   ":-"				      { return createToken(CmlParser.VDMDONTCARE /*DONTCARE*/); }
   ".#"				      { return createToken(CmlParser.DOTHASH); }
   "<="				      { return createToken(CmlParser.LTE); }
