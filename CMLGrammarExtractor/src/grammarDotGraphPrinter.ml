@@ -1,19 +1,20 @@
-let rec to_dotty_string (defs : Ast.grammarDef list) (out : string) : string =
+let rec to_dotty_string (defs : Ast.grammarDef list) (nodeCounter : int) (out : string) : string =
    match defs with
      | [] -> out
-     | hd::tl -> to_dotty_string tl (out ^ (process_elems ("\""^hd.Ast.name^"\"") hd.Ast.defs false ""))
- and process_elems rulename elems optional out =
+     | hd::tl -> to_dotty_string tl nodeCounter (out ^ (process_elems ("\""^hd.Ast.name^"\"") hd.Ast.defs false nodeCounter ""))
+ and process_elems rulename elems optional nodeCounter out =
    match elems with
      | [] -> out
      | hd::tl -> 
        ( match hd.Ast.rule_desc with
 	 | Ast.Ref s -> 
-	   process_elems rulename tl optional (out ^ "\n" ^ 
+	   let s = Str.global_replace (Str.regexp "['\n''\r']") "" s in
+	   process_elems rulename tl optional nodeCounter (out ^ "\n" ^ 
 						 (rulename ^ "-> \"" ^ s ^ "\"" ^
 						    if optional then " [style=dotted]" else "" 
 						    ^ ";")) 
 	 | Ast.Lit s -> 
-	   process_elems rulename tl optional (out ^ "\n" ^ (rulename ^ "-> \"'" ^ s ^ "'\"" ^
+	   process_elems rulename tl optional nodeCounter (out ^ "\n" ^ (rulename ^ "-> \"'" ^ s ^ "'\"" ^
 							       if optional then " [style=dotted]" else "" 
 								 ^ ";"))
 	     
@@ -39,12 +40,12 @@ let rec to_dotty_string (defs : Ast.grammarDef list) (out : string) : string =
 	     out
 	     els 
 	   in
-	   process_elems rulename tl optional out'
+	   process_elems rulename tl optional nodeCounter out'
 	 | Ast.Opt els ->
 	   let out' = process_elems rulename els true "" in
-	   process_elems rulename tl false out ^ out'
+	   process_elems rulename tl false nodeCounter (out ^ out')
 	   
        )
 
 let makeParse ast = 
-  let () = print_endline ("digraph CMLGrammar {\n" ^ (to_dotty_string ast "") ^ "\n\n}") in ()
+  let () = print_endline ("digraph CMLGrammar {\n" ^ (to_dotty_string ast 0 "") ^ "\n\n}") in ()

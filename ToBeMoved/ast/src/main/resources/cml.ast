@@ -87,7 +87,7 @@ definition {-> package='org.overture.ast.definitions'}
     =   {assignment} [expression]:exp (expType):type
     |   {instanceVariable} [expression]:exp (expType):type [initialized]:java_Boolean [oldname]:LexNameToken //this actually inherits assignment in Nicks tree
     |   #class 
-    |	{process} [declaration]:declaration.singleType [process]:process
+    |	{process} [declarations]:declaration.singleType* [process]:process
     |   {chanset}
     | 	{channel} [channelNameDecls]: declaration.channelName*
     |   {classInvariant}  [expression]:exp
@@ -200,7 +200,7 @@ invariant {-> package='org.overture.ast.definitions'}
 */
 
 process {-> package='org.overture.ast.process'}
-	= {action} [processDeclarations]:declaration* [action]:action
+	= {state} [processDeclarations]:declaration* [action]:action
 	| {sequentialCombosition}
 	| {externalChoice}
 	| {internalChoice}
@@ -213,6 +213,7 @@ process {-> package='org.overture.ast.process'}
 	| {untimedInterrupt}
 	| {timeout}
 	| {hiding} 
+	 
 ;
 
 /* Actions */

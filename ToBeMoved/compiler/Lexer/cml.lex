@@ -585,10 +585,13 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "&"				      { return createToken(CmlParser.AMP); }
   "?"				      { return createToken(CmlParser.CSP_CHANNEL_WRITE); }
   "!"				      { return createToken(CmlParser.CSP_CHANNEL_READ); }
+  "."				      { return createToken(CmlParser.CSP_CHANNEL_DOT); }
   "var"                               { return createToken(CmlParser.CSP_VARDECL); }
   "@"                                 { return createToken(CmlParser.AT); }
   "[]"                                { return createToken(CmlParser.CSPINTCH); }
   "=>"                                { return createToken(CmlParser.CSP_OPS_COM); }
+  "Skip"                                { return createToken(CmlParser.CSPSKIP); }
+  "Stop"                                { return createToken(CmlParser.CSPSTOP); }
 }
 
 <CHANNELS,CHANSETS,ACTIONS> {

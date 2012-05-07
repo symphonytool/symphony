@@ -180,15 +180,15 @@
  *
  */
 
-%token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_EXT VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN SKIP VDMDONTCARE IDENTIFIER
+%token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_EXT VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN VDMDONTCARE IDENTIFIER
 %token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1 
 
 %token NUMERAL HEX_LITERAL
 
-%token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_VARDECL CSP_OPS_COM
+%token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_VARDECL CSP_OPS_COM CSP_CHANNEL_DOT
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
-%token VDMcommand nameset namesetExpr communication predicate chanset typeVarIdentifier quoteLiteral functionType localDef  implicitOperationBody
+%token nameset namesetExpr typeVarIdentifier quoteLiteral functionType localDef  implicitOperationBody
 
 /* CSP ops and more */
 %right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN
@@ -305,12 +305,12 @@ declaration AT process
 ;
 
 process :
-  BEGIN processPara AT action END
+  BEGIN processParagraph AT action END
   {
       LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
       List<PDeclaration> processDeclarations = (List<PDeclaration>)$2;
       PAction action = (PAction)$4;
-      $$ = new AActionProcess(location,processDeclarations,action);
+      $$ = new AStateProcess(location,processDeclarations,action);
   }
 | process CSPSEQ process
 | process CSPINTCH process
@@ -328,10 +328,15 @@ process :
 | CSPINTERLEAVE LCURLY declaration AT process RCURLY
       ;
 
-processPara :
-  programParagraph
-| IDENTIFIER EQUALS paragraphAction
-| nameset IDENTIFIER EQUALS namesetExpr
+processParagraph :
+//  programParagraph
+  classDefinitionBlock
+| CSP_ACTIONS IDENTIFIER EQUALS paragraphAction
+  {
+      //   LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
+  }
+| CSP_ACTIONS nameset IDENTIFIER EQUALS namesetExpr
+| stateDefs  
   ;
 
 paragraphAction :
@@ -340,46 +345,90 @@ paragraphAction :
   ;
 
 action
-: VDMcommand
-| IDENTIFIER { /*new CMLIdentifier($1);*/ }
-| cspAction
-| action LSQUARE identifierList CSPRENAME identifierList RSQUARE
-  ;
-
-cspAction :
-  CSPSKIP
-  {
-       
-  }
+: CSPSKIP { }
 | CSPSTOP
 | CSPCHAOS
-| communication RARROW cspAction
-| cspAction CSPSEQ cspAction
-| cspAction CSPAND cspAction
-| cspAction CSPHIDE cspAction
-| cspAction DLSQUARE renameList DRSQUARE
-| cspAction CSPINTCH cspAction
-| cspAction CSPEXTCH cspAction
-| cspAction CSPLSQUAREGT cspAction
-| cspAction CSPLSQUAREBAR IDENTIFIER CSPBARGT cspAction
-| predicate AMP cspAction
-| predicate THREEBAR cspAction
-| cspAction CSPLSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr CSPBARRSQUARE cspAction
-| cspAction CSPLSQUAREBAR namesetExpr BAR chansetExpr DBAR chansetExpr BAR namesetExpr CSPBARRSQUARE cspAction
-/* | cspAction LSQUARE renameList RSQUARE cspAction /\* FIXME shift/reduce because of rule 'action' case 4 *\/ */
-| CSPSEQ LCURLY declaration AT cspAction RCURLY
-| CSPINTCH LCURLY declaration AT cspAction RCURLY
-| CSPEXTCH LCURLY declaration AT cspAction RCURLY
-| CSPLSQUAREDBAR nameset CSPDBARRSQUARE LPAREN declaration AT cspAction RPAREN
-| CSPLSQUAREBAR nameset BAR chanset CSPBARRSQUARE LPAREN declaration AT cspAction RPAREN
-| CSPDBAR declaration AT LSQUARE nameset BAR chanset RSQUARE cspAction
-| LSQUARE renameList RSQUARE LPAREN declaration AT cspAction RPAREN
+| CSPDIV 
+| CSPWAIT
+| action LSQUARE identifierList CSPRENAME identifierList RSQUARE
+| communication RARROW action
+| action CSPAND action
+| action CSPSEQ action
+
+| action DLSQUARE renameList DRSQUARE
+| action CSPHIDE action
+
+| action CSPINTCH action
+| action CSPEXTCH action
+| action CSPLSQUAREGT action
+| action CSPLSQUAREBAR IDENTIFIER CSPBARGT action
+/*statements*/
+| blockStatement
+| controlStatements
+  /*-----*/
+| expression AMP action
+| expression THREEBAR action
+| action CSPLSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr CSPBARRSQUARE action
+| action CSPLSQUAREBAR namesetExpr BAR chansetExpr DBAR chansetExpr BAR namesetExpr CSPBARRSQUARE action
+/* | action LSQUARE renameList RSQUARE action /\* FIXME shift/reduce because of rule 'action' case 4 *\/ */
+| replicatedAction
+  //| IDENTIFIER { /*new CMLIdentifier($1);*/ }
   ;
+
+parallelAction:
+;
+
+parametrisedAction:
+;
+
+instantiatedAction:
+;
+
+
+replicatedAction :
+ CSPSEQ LCURLY declaration AT action RCURLY
+| CSPINTCH LCURLY declaration AT action RCURLY
+| CSPEXTCH LCURLY declaration AT action RCURLY
+| CSPLSQUAREDBAR nameset CSPDBARRSQUARE LPAREN declaration AT action RPAREN
+| CSPLSQUAREBAR nameset BAR chansetExpr CSPBARRSQUARE LPAREN declaration AT action RPAREN
+| CSPDBAR declaration AT LSQUARE nameset BAR chansetExpr RSQUARE action
+| LSQUARE renameList RSQUARE LPAREN declaration AT action RPAREN
+    ;
 
 renameList :
   IDENTIFIER CSPSAMEAS IDENTIFIER
 | IDENTIFIER CSPSAMEAS IDENTIFIER COMMA renameList
   ;
+
+communication :
+  IDENTIFIER
+| IDENTIFIER communicationParameterUseList
+  ;
+
+communicationParameterUseList :
+  communicationParameterUse
+| communicationParameterUse communicationParameterUseList
+  ;
+
+communicationParameterUse :
+  CSP_CHANNEL_WRITE communicationParameter
+| CSP_CHANNEL_WRITE communicationParameter COLON expression 
+| CSP_CHANNEL_READ expression
+| CSP_CHANNEL_DOT expression  
+  ;
+
+communicationParameter :
+ IDENTIFIER
+| MKUNDER LPAREN communicationParameterList RPAREN
+| MKUNDER name LPAREN communicationParameterList RPAREN
+| MKUNDER LPAREN RPAREN
+| MKUNDER name LPAREN RPAREN
+  ;
+
+communicationParameterList :
+communicationParameter
+| communicationParameter COMMA communicationParameterList
+;
 
 /* 2.3 Channel Definitions */
 
@@ -662,14 +711,14 @@ classDefinitionBlockAlternative
 {
   
 }
-| stateDefs
+/*| stateDefs
 {
   
 }
 | initialDef
 {
   
-}
+}*/
 ;
 
 /* 3.1 Type Definitions */
@@ -1099,7 +1148,7 @@ operationType :
   ;
 
 operationBody :
-  statement
+  action
 | VDM_SUBCLASSRESP
 | VDM_NOTYETSPEC
   ;
@@ -1714,7 +1763,6 @@ oldName :
 
 
 /* 5 State Designators */
-
 stateDesignator :
   name
 | stateDesignator DOT IDENTIFIER
@@ -1723,21 +1771,22 @@ stateDesignator :
 
 /* 6 Statements */
 
-statement :
-  SKIP
-| LET localDefList IN statement
-| blockStatement
-| generalAssignStatement
-| ifStatement
+controlStatements :
+/* non-deterministicIfStatement*/
+  ifStatement
 | casesStatement
+ /*|generalCasesIfStatement*/
 | callStatement
-| RETURN expression
 | specificationStatement
-  ;
+| returnStatement
+  /*| newStatement*/
+ /*| non-deterministicDoStatement */
+ /*| SequenceForLoop */
+ /*| setForLoop */
+ /*| indexForLoop*/
+ /*| whileLoop */
+;
 
-statementList :
-  statement
-| statement SEMI statementList
   ;
 
 /* 6.2 Block and Assignment Statements
@@ -1746,12 +1795,12 @@ statementList :
 
 /* FIXME trailing semicolon not optional */
 blockStatement :
-  LPAREN statementList RPAREN
-| LPAREN dclStatement statementList RPAREN
+  LPAREN action RPAREN
+| LPAREN dclStatement action RPAREN
   ;
 
 dclStatement :
-  DCL assignmentDefList
+  DCL assignmentDefList AT
   ;
 
 assignmentDefList :
@@ -1762,6 +1811,7 @@ assignmentDefList :
 assignmentDef :
   IDENTIFIER VDMTYPE type
 | IDENTIFIER VDMTYPE type ASSIGN expression
+| IDENTIFIER VDMTYPE type IN  expression
   ;
 
 generalAssignStatement :
@@ -1771,6 +1821,7 @@ generalAssignStatement :
 
 assignStatement :
   stateDesignator ASSIGN expression
+  /*| stateDesignator ASSIGN callStatement*/
   ;
 
 assignStatementList :
@@ -1783,14 +1834,13 @@ multiAssignStatement :
   ;
 
 /* 6.3 Conditional Statements */
-
 ifStatement :
-  IF expression THEN statement elseStatements
+  IF expression THEN action elseStatements
   ;
 
 elseStatements :
-  ELSE statement
-| ELSEIF expression THEN statement elseStatements
+  ELSE action
+| ELSEIF expression THEN action elseStatements
   ;
 
 casesStatement :
@@ -1799,32 +1849,38 @@ casesStatement :
 
 casesStatementAltList :
   casesStatementAlt
-| casesStatementAlt OTHERS RARROW statement
+| casesStatementAlt OTHERS RARROW action
 | casesStatementAlt casesExprAltList
   ;
 
 casesStatementAlt :
-  patternList RARROW statement
+  patternList RARROW action
   ;
-
 
 /* 6.4 Call and Return Statements */
 
 /* FIXME the CURLYs are there there to avoid several whatever/reduce conflicts with the assignment statement */
 
 callStatement :
-  LCURLY name RCURLY LPAREN expressionList RPAREN /* FIXME */
-| LCURLY objectDesignator DOT name RCURLY LPAREN expressionList RPAREN /* FIXME */
-  ;
-
+name LPAREN RPAREN
+//| name LPAREN expressionList RPAREN
+;
+/*
 objectDesignator :
   SELF
 | name
-| newExpr
-| objectDesignator DOT IDENTIFIER
-| objectDesignator LPAREN expressionList RPAREN
+| objectFieldReference
+| callStatement
   ;
 
+objectFieldReference :
+objectDesignator DOT IDENTIFIER
+    ;
+*/
+returnStatement :
+/* RETURN*/
+ RETURN expression
+     ;
 /* return inline above */
 
 
