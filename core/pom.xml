@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>core</artifactId>
-  <name>COMPASS Core</name>
+  <name>COMPASS Core Top-Level</name>
 
   <modules>
     <!-- <module>lexer</module> -->

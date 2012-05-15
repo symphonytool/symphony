@@ -5,7 +5,7 @@
 
   <groupId>eu.compassresearch</groupId>
   <artifactId>root</artifactId>
-  <name>The COMPASS Tool</name>
+  <name>The COMPASS Tool Top-Level</name>
   <version>0.0.1<!--Replaceable: Main Version--></version>
   
   <organization>
@@ -14,9 +14,9 @@
   </organization>
 
   <modules>
+    <module>tools</module>
     <module>core</module>
-    <!-- <module>tools</module> -->
-    <!-- <module>ide</module> -->
+    <module>ide</module>
   </modules>
 
   <properties>
@@ -106,7 +106,14 @@
     </extensions> 
   </build>
 
-  <!-- Reconfigure this later -->
+  <scm>
+    <connection>scm:git:https://git.code.sf.net/p/compassresearch/code</connection>
+    <developerConnection>scm:git:https://git.code.sf.net/p/compassresearch/code</developerConnection>
+    <url>https://sourceforge.net/p/compassresearch/code/</url>
+  </scm>
+
+  <!-- Reconfigure this later -jwc -->
+  <!-- mvn deploy won't work until we set this up -->
   <!-- <distributionManagement>  -->
   <!--   <repository>  -->
   <!--     <id>sourceforge.net</id>  -->
@@ -123,11 +130,4 @@
   <!--     <url>scp://shell.sourceforge.net/home/groups/o/ov/overture/htdocs/maven/doc</url> -->
   <!--   </site>  -->
   <!-- </distributionManagement>  -->
-
-  <!-- Reconfigure this later -->
-  <!-- <scm> -->
-  <!--   <connection>scm:git:ssh://overture.git.sourceforge.net/gitroot/overture/overture</connection> -->
-  <!--   <developerConnection>scm:git:ssh://overture.git.sourceforge.net/gitroot/overture/overture</developerConnection> -->
-  <!--   <url>http://overture.git.sourceforge.net/git/gitweb.cgi?p=overture/overture</url> -->
-  <!-- </scm> -->
 </project>
