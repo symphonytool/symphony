@@ -6,11 +6,11 @@
   <parent>
     <groupId>eu.compassresearch</groupId>
     <artifactId>root</artifactId>
-    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <version>0.0.1</version>
   </parent>
 
-  <artifactId>core</artifactId>
-  <name>COMPASS Core</name>
+  <artifactId>tools</artifactId>
+  <name>COMPASS Tools</name>
 
   <modules>
     <!-- <module>lexer</module> -->
