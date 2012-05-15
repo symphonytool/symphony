@@ -10,13 +10,13 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <groupId>eu.compassresearch.core</groupId>
   <artifactId>core</artifactId>
   <name>COMPASS Core Top-Level</name>
 
   <modules>
-    <module>lexer</module>
+    <module>ast</module>
     <module>parser</module>
-    <!-- <module>ast</module> -->
   </modules>
 </project>
 

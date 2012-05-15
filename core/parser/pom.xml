@@ -4,7 +4,7 @@
   <packaging>jar</packaging>  
 
   <parent>
-    <groupId>eu.compassresearch</groupId>
+    <groupId>eu.compassresearch.core</groupId>
     <artifactId>core</artifactId>
     <version>0.0.1<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
@@ -14,6 +14,11 @@
   <name>COMPASS CML Parser</name>
 
   <dependencies>
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>ast</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.overturetool.core</groupId>
       <artifactId>vdmj</artifactId>
@@ -25,5 +30,22 @@
       <version>${overture.version}</version>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+	<groupId>de.jflex</groupId>
+        <artifactId>maven-jflex-plugin</artifactId>
+        <version>1.4.3</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
 
