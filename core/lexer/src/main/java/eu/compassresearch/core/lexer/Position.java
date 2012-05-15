@@ -1,4 +1,4 @@
-package eu.compassresearch.cml.compiler;
+package eu.compassresearch.core.lexer;
 
 public class Position {
     public int offset;

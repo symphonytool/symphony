@@ -1,0 +1,29 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> 
+  <modelVersion>4.0.0</modelVersion>
+  <packaging>jar</packaging>  
+
+  <parent>
+    <groupId>eu.compassresearch</groupId>
+    <artifactId>core</artifactId>
+    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>parser</artifactId>
+  <name>COMPASS CML Parser</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.overturetool.core</groupId>
+      <artifactId>vdmj</artifactId>
+      <version>${overture.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.overturetool.core</groupId>
+      <artifactId>ast</artifactId>
+      <version>${overture.version}</version>
+    </dependency>
+  </dependencies>
+</project>
+

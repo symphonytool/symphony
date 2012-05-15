@@ -29,14 +29,14 @@ b4_copyright([Skeleton implementation for Bison LALR(1) parsers in Java],
 b4_percent_define_ifdef([package], [package b4_percent_define_get([package]);
 ])[/* First part of user declarations.  */
 ]b4_pre_prologue
-import static eu.compassresearch.cml.compiler.CmlParser.YyGotoClass.yypgoto_;
-import static eu.compassresearch.cml.compiler.CmlParser.YyDefGotoClass.yydefgoto_;
-import static eu.compassresearch.cml.compiler.CmlParser.YyTableClass.yytable_;
-import static eu.compassresearch.cml.compiler.CmlParser.YyCheckClass.yycheck_;
-import static eu.compassresearch.cml.compiler.CmlParser.YyTableClass.yytable_ninf_;
-import static eu.compassresearch.cml.compiler.CmlParser.YyTokenClass.yystos_;
-import static eu.compassresearch.cml.compiler.CmlParser.YyPactClass.yypact_ninf_;
-import static eu.compassresearch.cml.compiler.CmlParser.YyPactClass.yypact_;
+import static eu.compassresearch.core.parser.CmlParser.YyGotoClass.yypgoto_;
+import static eu.compassresearch.core.parser.CmlParser.YyDefGotoClass.yydefgoto_;
+import static eu.compassresearch.core.parser.CmlParser.YyTableClass.yytable_;
+import static eu.compassresearch.core.parser.CmlParser.YyCheckClass.yycheck_;
+import static eu.compassresearch.core.parser.CmlParser.YyTableClass.yytable_ninf_;
+import static eu.compassresearch.core.parser.CmlParser.YyTokenClass.yystos_;
+import static eu.compassresearch.core.parser.CmlParser.YyPactClass.yypact_ninf_;
+import static eu.compassresearch.core.parser.CmlParser.YyPactClass.yypact_;
 b4_percent_code_get([[imports]])
 [/**
  * A Bison parser, automatically generated from <tt>]m4_bpatsubst(b4_file_name, [^"\(.*\)"$], [\1])[</tt>.

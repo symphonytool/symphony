@@ -7,14 +7,15 @@
     <groupId>eu.compassresearch</groupId>
     <artifactId>root</artifactId>
     <version>0.0.1<!--Replaceable: Main Version--></version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>core</artifactId>
   <name>COMPASS Core Top-Level</name>
 
   <modules>
-    <!-- <module>lexer</module> -->
-    <!-- <module>parser</module>     -->
+    <module>lexer</module>
+    <module>parser</module>
     <!-- <module>ast</module> -->
   </modules>
 </project>

@@ -4,7 +4,7 @@
 %locations
 %define parser_class_name "CmlParser"
 //%define access "public"
-%define package "eu.compassresearch.cml.compiler"
+%define package "eu.compassresearch.core.parser"
 %code imports{
 
 // ******************************

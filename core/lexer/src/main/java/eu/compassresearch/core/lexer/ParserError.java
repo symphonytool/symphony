@@ -1,4 +1,4 @@
-package eu.compassresearch.cml.compiler;
+package eu.compassresearch.core.lexer;
 
 import java.io.File;
 

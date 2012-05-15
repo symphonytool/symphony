@@ -1,11 +1,11 @@
-package eu.compassresearch.cml.compiler;
+package eu.compassresearch.core.lexer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.Stack;
-import eu.compassresearch.cml.compiler.CmlParser.Lexer;
-import eu.compassresearch.cml.compiler.CmlParser.Location;
+import eu.compassresearch.core.lexer.CmlParser.Lexer;
+import eu.compassresearch.core.lexer.CmlParser.Location;
 import org.overturetool.vdmj.lex.*;
 /*
 class CmlContext {
