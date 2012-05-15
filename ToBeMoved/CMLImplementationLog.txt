@@ -1,4 +1,6 @@
-Log:
+-------------Log-------------
+
+-------------questions-------------
 
 - Is channels and chanset global to the entire model?
 
@@ -8,7 +10,8 @@ Log:
 
 - Why not put "asignment call" in assignment rule???
 
-modifications:
+-------------modifications-------------
+
 - the implicit function grammar does not match with the example( I corrected the example)
 	-Missing ';' between the functions
 
@@ -22,9 +25,11 @@ modifications:
 	Changes:
 	- changed "declaration" to "single type declaration" on  page 27
 
-- the action rule should have IDENTIFIER as alternative. This is in the fixing process now!
+action rule:
+	- the action rule should have IDENTIFIER as alternative. This is in the fixing process now!
+	- '(', action , ')' is already in blockstatement rule and is removed
 
-Errors/Missing in latex grammar:
+-------------Errors/Missing in latex grammar-------------
 
 - missing "," concat symbol on line 795 col 68 in latex file
 	- Actually, I can find all the missing concat symbols in the latex grammar. Would that be of any help?
