@@ -27,6 +27,9 @@
     import org.overture.ast.node.*;
     import org.overture.transforms.*;
     import org.overturetool.util.*;
+    import eu.compassresearch.core.lexer.CmlLexeme;
+    import eu.compassresearch.core.lexer.CmlLexer;
+    import eu.compassresearch.core.lexer.Position;
 
     public
 }

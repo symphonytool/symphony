@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.Stack;
+import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.parser.CmlParser.Lexer;
 import eu.compassresearch.core.parser.CmlParser.Location;
 import org.overturetool.vdmj.lex.*;
@@ -12,100 +13,6 @@ class CmlContext {
   
 }
 */
-class LexicographicalRuntimeException extends RuntimeException
-{
-  private int pos,line;
-  private  String value;
-  public LexicographicalRuntimeException(String chars)
-    {
-      this.pos = CMLToken.curPos;
-      this.line = CMLToken.curLine;
-      this.value = chars;
-    }
-  
-  @Override
-    public String toString()
-    {
-      return "Offending syntax "+(value != null ? "starting with \""+value+"\" ":"")+"found at line "+(line+1)+" position "+(pos+1);
-    }
-}
-
-class CmlLexeme {
-  
-    private Position startPos;
-    private Position endPos;
-    protected  String value;
-    private int lex;
-    private VDMToken vdmToken = null;
-
-    public CmlLexeme(Position startPos, Position endPos, int lex, String value)
-    {
-	this.value = value;
-	this.startPos = startPos;
-	this.endPos = endPos;
-	this.lex = lex;
-    }
-
-    public Position getStartPos()
-    {
-	return startPos;
-    }
-
-    public Position getEndPos()
-    {
-	return endPos;
-    }
-
-    public int getLexValue()
-    {
-	return lex;
-    }
-
-    public VDMToken getVDMToken()
-    {
-	return null;
-    }
-    
-    public String getValue()
-    {
-	return this.value;
-    }
-
-    public String toString()
-    {
-	return value + " " + startPos;
-    }
-}
-
-class CMLToken {
-  public static int curLine;
-  public static int curPos; 
-
-  private int line;
-  private int pos;
-  protected  String value;
-  public CMLToken(String value)
-  {
-    this.value = value;
-    this.line = line;
-    this.pos = pos;
-  }
-
-  public String getValue()
-  {
-    return this.value;
-  }
-
-  public static void main(String[] args) throws Exception
-  {
-    try{
-    new CmlLexer(System.in).yylex();
-    } catch (LexicographicalRuntimeException e)
-	{
-	  System.out.println(e);
-	}
-  }
-}
 
 class CommentBlock extends CMLToken {
   static CommentBlock current;
