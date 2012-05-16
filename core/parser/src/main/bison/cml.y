@@ -191,7 +191,7 @@
 %token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_VARDECL CSP_OPS_COM CSP_CHANNEL_DOT
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
-%token nameset namesetExpr typeVarIdentifier quoteLiteral functionType localDef  implicitOperationBody
+%token nameset namesetExpr typeVarIdentifier quoteLiteral functionType localDef
 
 /* CSP ops and more */
 %right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN
@@ -303,7 +303,8 @@ declaration AT process
 }
 | process
 {
-    //$$ = 
+    PProcess process = (PProcess)$1;
+    $$ = new AProcessDefinition(process.getLocation(), NameScope.GLOBAL, false, null , null,process);
 }
 ;
 
@@ -348,35 +349,83 @@ paragraphAction :
   ;
 
 action
-: CSPSKIP { }
+: CSPSKIP 
+{ 
+    LexLocation location = extractLexLocation((CmlLexeme)$1);
+    $$ = new ASkipAction(location);
+}
 | CSPSTOP
 | CSPCHAOS
 | CSPDIV 
-| CSPWAIT
-| action LSQUARE identifierList CSPRENAME identifierList RSQUARE
-| communication RARROW action
-| action CSPAND action
-| action CSPSEQ action
+| CSPWAIT expression 
+  /* Communication rule start*/
+| IDENTIFIER RARROW action
+{
+    LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
+    PAction action = (PAction)$3;
+    LexLocation location = combineLexLocation(id.getLocation(),action.getLocation());
+    $$ = new ACommunicationAction(location, id, null,action);
+}
+| IDENTIFIER communicationParameterUseList RARROW action
+{
 
+}
+  /* Communication rule end*/
+| AMP expression AMP action
+| action CSPSEQ action
+| action CSPEXTCH action
+| action CSPINTCH action
+| action LSQUARE identifierList CSPRENAME identifierList RSQUARE
+| action CSPAND action
 | action DLSQUARE renameList DRSQUARE
 | action CSPHIDE action
-
-| action CSPINTCH action
-| action CSPEXTCH action
 | action CSPLSQUAREGT action
 | action CSPLSQUAREBAR IDENTIFIER CSPBARGT action
-/*statements*/
+  /*statements*/
 | blockStatement
 | controlStatements
-  /*-----*/
-| expression AMP action
-| expression THREEBAR action
+/*-----*/
+/* | expression THREEBAR action */
 | action CSPLSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr CSPBARRSQUARE action
 | action CSPLSQUAREBAR namesetExpr BAR chansetExpr DBAR chansetExpr BAR namesetExpr CSPBARRSQUARE action
 /* | action LSQUARE renameList RSQUARE action /\* FIXME shift/reduce because of rule 'action' case 4 *\/ */
 | replicatedAction
-  //| IDENTIFIER { /*new CMLIdentifier($1);*/ }
+| IDENTIFIER 
+{ 
+    LexLocation location = extractLexLocation((CmlLexeme)$1);
+    $$ = new AIdentifierAction(location);  
+} 
   ;
+/*
+communication :
+  IDENTIFIER 
+| IDENTIFIER communicationParameterUseList 
+  ;
+*/
+communicationParameterUseList :
+  communicationParameterUse
+| communicationParameterUse communicationParameterUseList
+  ;
+
+communicationParameterUse :
+  CSP_CHANNEL_WRITE communicationParameter
+| CSP_CHANNEL_WRITE communicationParameter COLON expression 
+| CSP_CHANNEL_READ expression
+| CSP_CHANNEL_DOT expression  
+  ;
+
+communicationParameter :
+ IDENTIFIER
+| MKUNDER LPAREN communicationParameterList RPAREN
+| MKUNDER name LPAREN communicationParameterList RPAREN
+| MKUNDER LPAREN RPAREN
+| MKUNDER name LPAREN RPAREN
+  ;
+
+communicationParameterList :
+communicationParameter
+| communicationParameter COMMA communicationParameterList
+;
 
 parallelAction:
 ;
@@ -402,36 +451,6 @@ renameList :
   IDENTIFIER CSPSAMEAS IDENTIFIER
 | IDENTIFIER CSPSAMEAS IDENTIFIER COMMA renameList
   ;
-
-communication :
-  IDENTIFIER
-| IDENTIFIER communicationParameterUseList
-  ;
-
-communicationParameterUseList :
-  communicationParameterUse
-| communicationParameterUse communicationParameterUseList
-  ;
-
-communicationParameterUse :
-  CSP_CHANNEL_WRITE communicationParameter
-| CSP_CHANNEL_WRITE communicationParameter COLON expression 
-| CSP_CHANNEL_READ expression
-| CSP_CHANNEL_DOT expression  
-  ;
-
-communicationParameter :
- IDENTIFIER
-| MKUNDER LPAREN communicationParameterList RPAREN
-| MKUNDER name LPAREN communicationParameterList RPAREN
-| MKUNDER LPAREN RPAREN
-| MKUNDER name LPAREN RPAREN
-  ;
-
-communicationParameterList :
-communicationParameter
-| communicationParameter COMMA communicationParameterList
-;
 
 /* 2.3 Channel Definitions */
 
@@ -1752,7 +1771,7 @@ name :
       LexNameToken name = extractLexNameToken((CmlLexeme)$1);
       $$ = name;
   }
-| IDENTIFIER BACKTICK IDENTIFIER
+| name DOT IDENTIFIER
   ;
 
 nameList :
@@ -1865,27 +1884,38 @@ casesStatementAlt :
 /* FIXME the CURLYs are there there to avoid several whatever/reduce conflicts with the assignment statement */
 
 callStatement :
-name LPAREN RPAREN
-//| name LPAREN expressionList RPAREN
+call
 ;
-/*
+
+call :
+  STAR name LPAREN expressionList RPAREN
+| STAR name LPAREN RPAREN
+| objectDesignator DOT name LPAREN expressionList RPAREN
+| objectDesignator DOT name LPAREN RPAREN
+
 objectDesignator :
-  SELF
-| name
+  STAR SELF
+| STAR name
 | objectFieldReference
-| callStatement
+| objectApply
   ;
 
 objectFieldReference :
 objectDesignator DOT IDENTIFIER
     ;
-*/
+
+
+objectApply:
+  objectDesignator LPAREN RPAREN
+| objectDesignator LPAREN expressionList RPAREN
+    ;
+
+
 returnStatement :
-/* RETURN*/
+ RETURN
  RETURN expression
      ;
 /* return inline above */
-
 
 /* 6.5 The Specification Statement */
 
@@ -1893,6 +1923,9 @@ specificationStatement :
   LSQUARE implicitOperationBody RSQUARE
   ;
 
+implicitOperationBody :
+externals_opt preExpr_opt  postExpr
+;
 
 /* 7 Patterns and Bindings */
 
