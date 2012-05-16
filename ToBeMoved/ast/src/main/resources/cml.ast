@@ -215,17 +215,7 @@ process {-> package='org.overture.ast.process'}
 	| {hiding} 
 	 
 ;
-
-/* Actions */
-
-action {-> package='org.overture.ast.actions'}
-	= {skip}
-	| {stop}
-	| {chaos}
-	| {div}
-	| {controlStatement} [statement]:stm
-	;
-
+	
 /*
     Expressions
 */    
@@ -389,6 +379,10 @@ alternative {-> package='org.overture.ast.expressions'}
              [result]:exp [defs]:definition*  (type):type (expType):type
     ;
     
+/* 
+	Types 
+*/
+   
 type {-> package='org.overture.ast.types'}
     =   #basic
     |   {bracket} (type):type
@@ -465,6 +459,10 @@ access  {-> package='org.overture.ast.definitions'}
     | 	{logical}
     ;
 
+/* 
+	Patterns 
+*/
+
 pattern {-> package='org.overture.ast.patterns'}
     =   {boolean} [value]:LexBooleanToken
     |   {character} [value]:LexCharacterToken
@@ -503,6 +501,10 @@ multipleBind {-> package='org.overture.ast.patterns'}
 patternBind {-> package='org.overture.ast.patterns'}
     = {def} [location]:location [pattern]:pattern [bind]:bind (defs):definition* (type):type
     ;
+
+/* 
+	Modules -- this might get kicked out 
+*/
 
 modules {-> package='org.overture.ast.modules'}
     = {module}  [name]:LexIdentifierToken 
@@ -548,9 +550,33 @@ export {-> package='org.overture.ast.modules'}
     |   {type} [name]:LexNameToken [struct]:java_Boolean
     |   {value} [nameList]:LexNameToken* (exportType):type
     ;
+
+/* 
+	Actions 
+*/
+action {-> package='org.overture.ast.actions'}
+	= {skip}
+	| {stop}
+	| {chaos}
+	| {div}
+	| {wait}
+	| {communication} [identifier]:LexIdentifierToken [communicationParamters]:communicationParameter* [action]:action
+	| #ControlStatement
+	| {identifier}
+	;
+	
+#ControlStatement {-> package='org.overture.ast.actions'}
+	= {call} [designator]:objectDesignator [fieldname]:LexIdentifierToken [args]:exp*	
+	;
+	
+communicationParameter {-> package='org.overture.ast.actions'}
+	= {read}
+	| {write}
+	| {reference}	
+	;
     
 /*
-    Statements
+    Statements --these should be converted into actions
 */
 
 stm {-> package='org.overture.ast.statements'}
@@ -560,7 +586,7 @@ stm {-> package='org.overture.ast.statements'}
     |   {atomic} [assignments]:stm.assignment* (statedef):definition.state 
     |   {callObject} [designator]:objectDesignator [classname]:LexNameToken [fieldname]:LexIdentifierToken 
                      [field]:LexNameToken [args]:exp* [explicit]:java_Boolean
-    |   {call} [name]:LexNameToken [args]:exp*
+    //|   {call} [name]:LexNameToken [args]:exp*
     |   {cases} [exp]:exp [cases]:alternativeStm.case* [others]:stm
     |   {classInvariant} [name]:LexNameToken [invDefs]:definition*
     |   {elseIf} [elseIf]:exp [thenStm]:stm
@@ -575,7 +601,6 @@ stm {-> package='org.overture.ast.statements'}
     |   {notYetSpecified} [opname]:LexNameToken [args]:exp*
     |   {return} [expression]:exp
     |   #SimpleBlock
-    |   {skip}
     |   {specification} [externals]:clause.external* [precondition]:exp [postcondition]:exp [errors]:case.error*
     |   {start} [obj]:exp
     |   {subclassResponsibility}
@@ -601,8 +626,7 @@ stateDesignator {-> package='org.overture.ast.statements'}
 objectDesignator {-> package='org.overture.ast.statements'}
     =   {apply} [object]:objectDesignator [args]:exp*
     |   {field} [object]:objectDesignator [className]:LexNameToken [fieldName]:LexIdentifierToken (field):LexNameToken
-    |   {identifier} [name]:LexNameToken [expression]:exp.variable
-    |   {new} [expression]:exp.new
+    |   {name} [name]:LexNameToken [expression]:exp.variable
     |   {self} [self]:LexNameToken
     ;
 
