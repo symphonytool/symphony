@@ -25,9 +25,14 @@
 	Changes:
 	- changed "declaration" to "single type declaration" on  page 27
 
+objectDesignator:
+	- this might need to be changed into a simpler rule and let the typechecker figure it out. The current fix is put a star in front 
+
 action rule:
 	- the action rule should have IDENTIFIER as alternative. This is in the fixing process now!
 	- '(', action , ')' is already in blockstatement rule and is removed
+paragraph action (page 34):
+	  -Whats the purpose of being able to apply the declaration rule multiple times before a action when the declaration rule in itself is a list of declarations??
 
 -------------Errors/Missing in latex grammar-------------
 
