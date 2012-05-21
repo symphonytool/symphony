@@ -188,7 +188,7 @@
 
 %token HEX_LITERAL
 
-%token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_VARDECL CSP_OPS_COM CSP_CHANNEL_DOT
+%token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_OPS_COM CSP_CHANNEL_DOT
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
 %token nameset namesetExpr typeVarIdentifier quoteLiteral functionType localDef
@@ -434,7 +434,19 @@ action
   /* Communication rule end*/
 | AMP expression AMP action
 | action CSPSEQ action
+{
+    PAction left = (PAction)$1;
+    PAction right = (PAction)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+    $$ = new ASequentialCompositionAction(location, left, right);
+}
 | action CSPEXTCH action
+{
+    PAction left = (PAction)$1;
+    PAction right = (PAction)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+    $$ = new AExternalChoiceAction(location, left, right);
+}
 | action CSPINTCH action
 | action LSQUARE identifierList CSPRENAME identifierList RSQUARE
 | action CSPAND action
@@ -1382,9 +1394,9 @@ expression :
 | generalIsExpr
 | preconditionExpr
 | ISOFCLASS LPAREN name COMMA expression RPAREN
- name
+| name
 {
-    LexNameToken lnt = (LexNameToken)$1;
+     LexNameToken lnt = (LexNameToken)$1;
     $$ = new ANameExp(lnt.location,lnt);
 }
 | oldName
@@ -1881,8 +1893,7 @@ preconditionExpr :
 name :
   IDENTIFIER
   {
-      LexNameToken name = extractLexNameToken((CmlLexeme)$1);
-      $$ = name;
+      $$ = extractLexNameToken((CmlLexeme)$1);
   }
 | IDENTIFIER BACKTICK IDENTIFIER
   ;
@@ -1930,22 +1941,71 @@ controlStatements :
 /* FIXME trailing semicolon not optional */
 blockStatement :
   LPAREN action RPAREN
+  {
+      LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3);
+      PAction action = (PAction)$2;
+      $$ = new ABlockAction(location, 
+			    null, 
+			    action);
+  }
 | LPAREN dclStatement action RPAREN
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$4);
+    ADeclareStatementDeclareStatement dclStm = (ADeclareStatementDeclareStatement)$2;
+    PAction action = (PAction)$3;
+    $$ = new ABlockAction(location, 
+			  dclStm, 
+			  action);
+}
   ;
 
 dclStatement :
-  DCL assignmentDefList AT
-  ;
-
+DCL assignmentDefList AT
+{
+    $$ = new ADeclareStatementDeclareStatement(extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3), 
+					       (List<? extends PDefinition>) $2);
+}
+;
+  
 assignmentDefList :
-  assignmentDef
+assignmentDef
+{
+    List<AAssignmentDefinition> assignmentDefs = 
+	new Vector<AAssignmentDefinition>();
+    assignmentDefs.add((AAssignmentDefinition)$1);
+    $$ = assignmentDefs; 
+}
 | assignmentDef COMMA assignmentDefList
+{
+    List<AAssignmentDefinition> assignmentDefs = (List<AAssignmentDefinition>)$3;
+    
+    if (assignmentDefs == null) 
+	assignmentDefs = new Vector<AAssignmentDefinition>();
+    
+    assignmentDefs.add((AAssignmentDefinition)$1);
+    $$ = assignmentDefs;
+}
   ;
 
 assignmentDef :
   IDENTIFIER VDMTYPE type
+  {
+      LexNameToken name = extractLexNameToken((CmlLexeme)$1);
+      PType type = (PType)$3;
+      LexLocation location = combineLexLocation(name.location,type.getLocation());
+      AAccessSpecifierAccessSpecifier access = null;
+      $$ = new AAssignmentDefinition(location, 
+				     name, 
+				     NameScope.LOCAL, 
+				     false /*Boolean used_*/, 
+				     null /*PDeclaration declaration_*/, 
+				     access, 
+				     type, 
+				     null /*PExp expression_*/, 
+				     null /*PType expType_*/);
+  }
 | IDENTIFIER VDMTYPE type ASSIGN expression
-| IDENTIFIER VDMTYPE type IN  expression
+| IDENTIFIER VDMTYPE type IN expression
   ;
 
 generalAssignStatement :
@@ -1955,7 +2015,7 @@ generalAssignStatement :
 
 assignStatement :
   stateDesignator ASSIGN expression
-  /*| stateDesignator ASSIGN callStatement*/
+  | stateDesignator ASSIGN callStatement
   ;
 
 assignStatementList :
@@ -1996,29 +2056,56 @@ casesStatementAlt :
 /* FIXME the CURLYs are there there to avoid several whatever/reduce conflicts with the assignment statement */
 
 callStatement :
-call
+  call
+| objectDesignator ASSIGN call
+  {
+      ACallCallStatementControlStatementAction call = 
+	  (ACallCallStatementControlStatementAction)$3;
+      PObjectDesignator designator = (PObjectDesignator)$1;
+      LexLocation location = combineLexLocation(designator.getLocation(),call.getLocation());
+      $$ = new AAssignmentCallCallStatementControlStatementAction(location,
+								  designator, 
+								  call);
+  }
 ;
 
 call :
   STAR IDENTIFIER LPAREN expressionList RPAREN
-| STAR IDENTIFIER LPAREN RPAREN
   {
-    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$4);
-    //PObjectDesignator designator = null;
-    LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$2);
-    List<PExp> args = null;
-    $$ = new ACallControlStatementAction(location, 
-					 null, 
+      LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
+      //PObjectDesignator designator = null;
+      LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$2);
+      List<PExp> args = (List<PExp>)$4;
+      $$ = new ACallCallStatementControlStatementAction(location, 
+					   null, 
 					 name,  
 					 args);
-
+  }
+| STAR IDENTIFIER LPAREN RPAREN
+  {
+      LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$4);
+      //PObjectDesignator designator = null;
+      LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$2);
+      List<PExp> args = null;
+      $$ = new ACallCallStatementControlStatementAction(location, 
+					   null, 
+					 name,  
+					 args);
   }
 | objectDesignator DOT STAR IDENTIFIER LPAREN expressionList RPAREN
 | objectDesignator DOT STAR IDENTIFIER LPAREN RPAREN
 
 objectDesignator :
   SELF
+  {
+      LexNameToken self = extractLexNameToken((CmlLexeme)$1);
+      $$ = new ASelfObjectDesignator(self.location, self);
+  }
 | name
+{
+    LexNameToken name = (LexNameToken)$1;
+    $$ = new ANameObjectDesignator(name.location, name, null);
+}
 | objectFieldReference
 | objectApply
   ;
@@ -2030,6 +2117,9 @@ objectDesignator DOT IDENTIFIER
 objectApply:
   objectDesignator LPAREN RPAREN
 | objectDesignator LPAREN expressionList RPAREN
+  {
+      System.out.println("objectApply : objectDesignator LPAREN expressionList RPAREN");
+  }
     ;
 
 

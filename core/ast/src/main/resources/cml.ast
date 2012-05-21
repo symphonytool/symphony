@@ -563,12 +563,24 @@ action {-> package='org.overture.ast.actions'}
 	| {div}
 	| {wait}
 	| {communication} [identifier]:LexIdentifierToken [communicationParamters]:communicationParameter* [action]:action
+	| {sequentialComposition} [left]:action [right]:action
+	| {externalChoice} [left]:action [right]:action
 	| #ControlStatement
+	| {block} [declareStatement]:declareStatement [action]:action
 	| {identifier}
+	;
+
+declareStatement {-> package='org.overture.ast.actions'}
+	= {declareStatement}  [location]:location [assignmentDefs]:definition* 
 	;
 	
 #ControlStatement {-> package='org.overture.ast.actions'}
-	= {call} [designator]:objectDesignator [name]:LexIdentifierToken [args]:exp*	
+	= #CallStatement
+	;
+	
+#CallStatement {-> package='org.overture.ast.actions'}
+	= {call} [designator]:objectDesignator [name]:LexIdentifierToken [args]:exp*
+	| {assignmentCall} [designator]:objectDesignator [call]:call 	
 	;
 	
 communicationParameter {-> package='org.overture.ast.actions'}
@@ -632,7 +644,7 @@ stateDesignator {-> package='org.overture.ast.statements'}
     |   {mapSeq} [mapseq]:stateDesignator [exp]:exp (mapType):type.#Map (seqType):type.#seq
     ;
     
-objectDesignator {-> package='org.overture.ast.statements'}
+objectDesignator {-> package='org.overture.ast.actions'}
     =   {apply} [object]:objectDesignator [args]:exp*
     |   {field} [object]:objectDesignator [className]:LexNameToken [fieldName]:LexIdentifierToken (field):LexNameToken
     |   {name} [name]:LexNameToken [expression]:exp.variable
