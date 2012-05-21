@@ -572,10 +572,17 @@ action {-> package='org.overture.ast.actions'}
 	;
 	
 communicationParameter {-> package='org.overture.ast.actions'}
-	= {read}
-	| {write}
-	| {reference}	
+	= {read} [expression]:exp
+	| {write} [parameter]:parameter [expression]:exp 
+	| {reference} [expression]:exp	
 	;
+
+parameter {-> package='org.overture.ast.actions'}
+	= {identifier} [identifier]:LexIdentifierToken
+	| {tuple} [parameters]:parameter*
+	| {record}	[name]:LexNameToken [parameters]:parameter* 
+	;
+    
     
 /*
     Statements --these should be converted into actions
@@ -660,6 +667,13 @@ Aspect Declaration
 %action =  [location]:location
 	;
 	
+%communicationParameter = [location]:location
+	; 
+
+%parameter = [location]:location
+	; 
+
+
 //%exp->#Chanset = [channelIdentifiers]:LexIdentifierToken*
 //	;
 	

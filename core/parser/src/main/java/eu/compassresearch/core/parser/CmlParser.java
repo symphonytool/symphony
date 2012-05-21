@@ -984,15 +984,17 @@ class CmlParser
       List<ASingleTypeDeclaration> declarations = 
 	  (List<ASingleTypeDeclaration>)pa[0];
       PAction action = (PAction)pa[1];
-      LexLocation defLocation = null;
-      //   LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
+      LexLocation defLocation = combineLexLocation(extractLexLocation((CmlLexeme)((yystack.valueAt (4-(1))))),
+						   action.getLocation());
       AActionDefinition actionDefinition = new AActionDefinition(defLocation, 
 								 NameScope.GLOBAL, 
 								 false, 
 								 null, 
 								 declarations, 
 								 action);
-      LexLocation declLoc = null;
+      
+      LexLocation declLoc = combineLexLocation(extractLexLocation((CmlLexeme)((yystack.valueAt (4-(1))))),
+					       action.getLocation());;
       yyval = new AActionDeclaration(declLoc, 
 				  NameScope.GLOBAL, 
 				  actionDefinition);
@@ -1004,7 +1006,7 @@ class CmlParser
   if (yyn == 35)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 383 of "src/main/bison/cml.y"  */
+/* Line 385 of "src/main/bison/cml.y"  */
     {
     yyval = new Object[]{new Vector<ASingleTypeDeclaration>(),((yystack.valueAt (1-(1))))};
 };
@@ -1015,9 +1017,8 @@ class CmlParser
   if (yyn == 36)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 387 of "src/main/bison/cml.y"  */
+/* Line 389 of "src/main/bison/cml.y"  */
     {
-    //List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)$1;
     yyval = new Object[]{((yystack.valueAt (3-(1)))),((yystack.valueAt (3-(2))))};
 };
   break;
@@ -1027,7 +1028,7 @@ class CmlParser
   if (yyn == 37)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 395 of "src/main/bison/cml.y"  */
+/* Line 396 of "src/main/bison/cml.y"  */
     { 
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
     yyval = new ASkipAction(location);
@@ -1039,7 +1040,7 @@ class CmlParser
   if (yyn == 42)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 405 of "src/main/bison/cml.y"  */
+/* Line 406 of "src/main/bison/cml.y"  */
     {
     LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (3-(1)))));
     PAction action = (PAction)((yystack.valueAt (3-(3))));
@@ -1053,9 +1054,15 @@ class CmlParser
   if (yyn == 43)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 412 of "src/main/bison/cml.y"  */
+/* Line 413 of "src/main/bison/cml.y"  */
     {
-
+    LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (4-(1)))));
+    PAction action = (PAction)((yystack.valueAt (4-(4))));
+    LexLocation location = combineLexLocation(id.getLocation(),action.getLocation());
+    List<PCommunicationParameter> communicationParamters = (List<PCommunicationParameter>)((yystack.valueAt (4-(2))));
+    yyval = new ACommunicationAction(location, id, 
+				  communicationParamters,
+				  action);
 };
   break;
     
@@ -1064,10 +1071,79 @@ class CmlParser
   if (yyn == 59)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 436 of "src/main/bison/cml.y"  */
+/* Line 443 of "src/main/bison/cml.y"  */
     { 
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
     yyval = new AIdentifierAction(location);  
+};
+  break;
+    
+
+  case 60:
+  if (yyn == 60)
+    
+/* Line 360 of cmlskeleton.java.m4  */
+/* Line 456 of "src/main/bison/cml.y"  */
+    {
+      List<PCommunicationParameter> comParamList = 
+	  new Vector<PCommunicationParameter>();
+      comParamList.add((PCommunicationParameter)((yystack.valueAt (1-(1)))));
+      yyval = comParamList;
+  };
+  break;
+    
+
+  case 61:
+  if (yyn == 61)
+    
+/* Line 360 of cmlskeleton.java.m4  */
+/* Line 463 of "src/main/bison/cml.y"  */
+    {
+    List<PCommunicationParameter> comParamList = 
+	(List<PCommunicationParameter>)((yystack.valueAt (2-(1))));
+
+    if (comParamList == null) 
+	comParamList = new Vector<PCommunicationParameter>();
+    
+    comParamList.add((PCommunicationParameter)((yystack.valueAt (2-(2)))));
+    yyval = comParamList;
+};
+  break;
+    
+
+  case 62:
+  if (yyn == 62)
+    
+/* Line 360 of cmlskeleton.java.m4  */
+/* Line 477 of "src/main/bison/cml.y"  */
+    {
+      PParameter parameter = (PParameter)((yystack.valueAt (2-(2))));
+      LexLocation location = null;
+      yyval = new AWriteCommunicationParameter(location, parameter, null);
+  };
+  break;
+    
+
+  case 66:
+  if (yyn == 66)
+    
+/* Line 360 of cmlskeleton.java.m4  */
+/* Line 489 of "src/main/bison/cml.y"  */
+    {
+     LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (1-(1)))));
+     yyval = new AIdentifierParameter(id.getLocation(),id);
+ };
+  break;
+    
+
+  case 67:
+  if (yyn == 67)
+    
+/* Line 360 of cmlskeleton.java.m4  */
+/* Line 494 of "src/main/bison/cml.y"  */
+    {
+    //ATupleParameter(
+     
 };
   break;
     
@@ -1076,7 +1152,7 @@ class CmlParser
   if (yyn == 82)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 501 of "src/main/bison/cml.y"  */
+/* Line 537 of "src/main/bison/cml.y"  */
     {
      List<AChannelNameDeclaration> decls = (List<AChannelNameDeclaration>)((yystack.valueAt (2-(2))));
      LexLocation start = decls.get(0).getLocation();
@@ -1097,7 +1173,7 @@ class CmlParser
   if (yyn == 83)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 518 of "src/main/bison/cml.y"  */
+/* Line 554 of "src/main/bison/cml.y"  */
     {
       List<AChannelNameDeclaration> decls = new Vector<AChannelNameDeclaration>();
       decls.add((AChannelNameDeclaration)((yystack.valueAt (1-(1)))));
@@ -1111,7 +1187,7 @@ class CmlParser
   if (yyn == 84)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 525 of "src/main/bison/cml.y"  */
+/* Line 561 of "src/main/bison/cml.y"  */
     {
      List<AChannelNameDeclaration> decls = (List<AChannelNameDeclaration>)((yystack.valueAt (3-(3))));
      decls.add((AChannelNameDeclaration)((yystack.valueAt (3-(1)))));
@@ -1124,7 +1200,7 @@ class CmlParser
   if (yyn == 85)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 534 of "src/main/bison/cml.y"  */
+/* Line 570 of "src/main/bison/cml.y"  */
     {
       List<LexIdentifierToken> ids = (List<LexIdentifierToken>)((yystack.valueAt (1-(1))));
 
@@ -1145,7 +1221,7 @@ class CmlParser
   if (yyn == 86)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 548 of "src/main/bison/cml.y"  */
+/* Line 584 of "src/main/bison/cml.y"  */
     {
      ASingleTypeDeclaration singleTypeDeclaration = (ASingleTypeDeclaration)((yystack.valueAt (1-(1))));
 
@@ -1161,7 +1237,7 @@ class CmlParser
   if (yyn == 87)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 560 of "src/main/bison/cml.y"  */
+/* Line 596 of "src/main/bison/cml.y"  */
     {
   List<ASingleTypeDeclaration> decls = new Vector<ASingleTypeDeclaration>();
   decls.add((ASingleTypeDeclaration)((yystack.valueAt (1-(1)))));
@@ -1174,7 +1250,7 @@ class CmlParser
   if (yyn == 88)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 566 of "src/main/bison/cml.y"  */
+/* Line 602 of "src/main/bison/cml.y"  */
     {
   List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)((yystack.valueAt (3-(3))));
   decls.add((ASingleTypeDeclaration)((yystack.valueAt (3-(1)))));
@@ -1187,7 +1263,7 @@ class CmlParser
   if (yyn == 89)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 575 of "src/main/bison/cml.y"  */
+/* Line 611 of "src/main/bison/cml.y"  */
     {
     LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (3-(1)))));
     List<LexIdentifierToken> ids = new Vector<LexIdentifierToken>();
@@ -1203,7 +1279,7 @@ class CmlParser
   if (yyn == 90)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 584 of "src/main/bison/cml.y"  */
+/* Line 620 of "src/main/bison/cml.y"  */
     {
     LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (3-(1)))));
     ASingleTypeDeclaration singleTypeDeclaration = (ASingleTypeDeclaration)((yystack.valueAt (3-(3))));
@@ -1218,7 +1294,7 @@ class CmlParser
   if (yyn == 91)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 597 of "src/main/bison/cml.y"  */
+/* Line 633 of "src/main/bison/cml.y"  */
     {
     LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (1-(1)))));
     yyval = new AChansetDeclaration(id.getLocation(), NameScope.GLOBAL, null, null);
@@ -1230,7 +1306,7 @@ class CmlParser
   if (yyn == 92)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 602 of "src/main/bison/cml.y"  */
+/* Line 638 of "src/main/bison/cml.y"  */
     {
     LexIdentifierToken channelsToken = extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (4-(1)))));
     LexIdentifierToken idToken = extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (4-(2)))));
@@ -1246,7 +1322,7 @@ class CmlParser
   if (yyn == 93)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 614 of "src/main/bison/cml.y"  */
+/* Line 650 of "src/main/bison/cml.y"  */
     {
    LexIdentifierToken idToken = extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (1-(1)))));
    yyval = new AIdentifierChansetSetExp(idToken.getLocation(),idToken);
@@ -1258,7 +1334,7 @@ class CmlParser
   if (yyn == 94)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 619 of "src/main/bison/cml.y"  */
+/* Line 655 of "src/main/bison/cml.y"  */
     {
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))),(CmlLexeme)((yystack.valueAt (3-(3)))));
     List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)((yystack.valueAt (3-(2))));
@@ -1271,7 +1347,7 @@ class CmlParser
   if (yyn == 95)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 625 of "src/main/bison/cml.y"  */
+/* Line 661 of "src/main/bison/cml.y"  */
     {
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))),(CmlLexeme)((yystack.valueAt (3-(3)))));
     List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)((yystack.valueAt (3-(2))));
@@ -1284,7 +1360,7 @@ class CmlParser
   if (yyn == 96)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 631 of "src/main/bison/cml.y"  */
+/* Line 667 of "src/main/bison/cml.y"  */
     {
     PExp left = (PExp)((yystack.valueAt (3-(1))));
     PExp right = (PExp)((yystack.valueAt (3-(3))));
@@ -1298,7 +1374,7 @@ class CmlParser
   if (yyn == 97)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 638 of "src/main/bison/cml.y"  */
+/* Line 674 of "src/main/bison/cml.y"  */
     {
     PExp left = (PExp)((yystack.valueAt (3-(1))));
     PExp right = (PExp)((yystack.valueAt (3-(3))));
@@ -1312,7 +1388,7 @@ class CmlParser
   if (yyn == 98)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 645 of "src/main/bison/cml.y"  */
+/* Line 681 of "src/main/bison/cml.y"  */
     {
     PExp left = (PExp)((yystack.valueAt (3-(1))));
     PExp right = (PExp)((yystack.valueAt (3-(3))));
@@ -1328,7 +1404,7 @@ class CmlParser
   if (yyn == 99)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 655 of "src/main/bison/cml.y"  */
+/* Line 691 of "src/main/bison/cml.y"  */
     {
     //LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$6);
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (5-(1)))),(CmlLexeme)((yystack.valueAt (5-(5)))));
@@ -1344,7 +1420,7 @@ class CmlParser
   if (yyn == 100)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 664 of "src/main/bison/cml.y"  */
+/* Line 700 of "src/main/bison/cml.y"  */
     {
     //LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$8);
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (7-(1)))),(CmlLexeme)((yystack.valueAt (7-(7)))));
@@ -1361,7 +1437,7 @@ class CmlParser
   if (yyn == 102)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 697 of "src/main/bison/cml.y"  */
+/* Line 733 of "src/main/bison/cml.y"  */
     {
     List<PDeclaration> declBlockList = new Vector<PDeclaration>();
     PDeclaration globalDecl = (PDeclaration)((yystack.valueAt (1-(1))));
@@ -1375,7 +1451,7 @@ class CmlParser
   if (yyn == 103)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 705 of "src/main/bison/cml.y"  */
+/* Line 741 of "src/main/bison/cml.y"  */
     { 
     List<PDeclaration> declBlockList = (List<PDeclaration>)((yystack.valueAt (2-(1))));
     PDeclaration globalDecl = (PDeclaration)((yystack.valueAt (2-(2))));
@@ -1389,7 +1465,7 @@ class CmlParser
   if (yyn == 104)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 715 of "src/main/bison/cml.y"  */
+/* Line 751 of "src/main/bison/cml.y"  */
     {
   ATypeDeclaration typeDeclaration = (ATypeDeclaration)((yystack.valueAt (1-(1))));
   typeDeclaration.setNameScope(NameScope.GLOBAL);
@@ -1402,7 +1478,7 @@ class CmlParser
   if (yyn == 105)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 721 of "src/main/bison/cml.y"  */
+/* Line 757 of "src/main/bison/cml.y"  */
     {
     AValueDeclaration valueGlobalDeclaration = new AValueDeclaration();
     yyval = valueGlobalDeclaration;
@@ -1414,7 +1490,7 @@ class CmlParser
   if (yyn == 106)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 726 of "src/main/bison/cml.y"  */
+/* Line 762 of "src/main/bison/cml.y"  */
     {
     AFunctionDeclaration functionGlobalDeclaration = (AFunctionDeclaration)((yystack.valueAt (1-(1))));
     functionGlobalDeclaration.setNameScope(NameScope.GLOBAL);
@@ -1427,7 +1503,7 @@ class CmlParser
   if (yyn == 107)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 737 of "src/main/bison/cml.y"  */
+/* Line 773 of "src/main/bison/cml.y"  */
     { 
   yyval = (List)((yystack.valueAt (1-(1)))); 
 };
@@ -1438,7 +1514,7 @@ class CmlParser
   if (yyn == 108)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 741 of "src/main/bison/cml.y"  */
+/* Line 777 of "src/main/bison/cml.y"  */
     {
   yyval = new Vector<PDefinition>();
 };
@@ -1449,7 +1525,7 @@ class CmlParser
   if (yyn == 109)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 748 of "src/main/bison/cml.y"  */
+/* Line 784 of "src/main/bison/cml.y"  */
     {
     List<PDefinition> defBlockList = new Vector<PDefinition>();
     List<PDefinition> defBlock = (List<PDefinition>)((yystack.valueAt (1-(1))));
@@ -1463,7 +1539,7 @@ class CmlParser
   if (yyn == 110)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 756 of "src/main/bison/cml.y"  */
+/* Line 792 of "src/main/bison/cml.y"  */
     { 
     List<PDefinition> defBlockList = (List<PDefinition>)((yystack.valueAt (2-(1))));
     List<PDefinition> defBlock = (List<PDefinition>)((yystack.valueAt (2-(2))));
@@ -1477,7 +1553,7 @@ class CmlParser
   if (yyn == 111)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 766 of "src/main/bison/cml.y"  */
+/* Line 802 of "src/main/bison/cml.y"  */
     {
   
 };
@@ -1488,7 +1564,7 @@ class CmlParser
   if (yyn == 112)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 770 of "src/main/bison/cml.y"  */
+/* Line 806 of "src/main/bison/cml.y"  */
     {
   
 };
@@ -1499,7 +1575,7 @@ class CmlParser
   if (yyn == 113)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 774 of "src/main/bison/cml.y"  */
+/* Line 810 of "src/main/bison/cml.y"  */
     {
   
 };
@@ -1510,7 +1586,7 @@ class CmlParser
   if (yyn == 114)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 778 of "src/main/bison/cml.y"  */
+/* Line 814 of "src/main/bison/cml.y"  */
     {
   
 };
@@ -1521,7 +1597,7 @@ class CmlParser
   if (yyn == 115)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 795 of "src/main/bison/cml.y"  */
+/* Line 831 of "src/main/bison/cml.y"  */
     { 
   CmlLexeme typesLexeme = (CmlLexeme)((yystack.valueAt (1-(1))));
   LexLocation loc = extractLexLocation(typesLexeme);
@@ -1537,7 +1613,7 @@ class CmlParser
   if (yyn == 116)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 804 of "src/main/bison/cml.y"  */
+/* Line 840 of "src/main/bison/cml.y"  */
     {
   CmlLexeme typesLexeme = (CmlLexeme)((yystack.valueAt (3-(1))));
   CmlLexeme semiLexeme = (CmlLexeme)((yystack.valueAt (3-(3))));
@@ -1554,7 +1630,7 @@ class CmlParser
   if (yyn == 117)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 814 of "src/main/bison/cml.y"  */
+/* Line 850 of "src/main/bison/cml.y"  */
     {
   CmlLexeme typesLexeme = (CmlLexeme)((yystack.valueAt (2-(1))));
   List<ATypeDefinition> tdefs = (List<ATypeDefinition>)((yystack.valueAt (2-(2))));
@@ -1571,7 +1647,7 @@ class CmlParser
   if (yyn == 118)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 827 of "src/main/bison/cml.y"  */
+/* Line 863 of "src/main/bison/cml.y"  */
     {
     List<ATypeDefinition> list = (List<ATypeDefinition>)((yystack.valueAt (3-(1))));
     list.add((ATypeDefinition)((yystack.valueAt (3-(3)))));
@@ -1584,7 +1660,7 @@ class CmlParser
   if (yyn == 119)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 833 of "src/main/bison/cml.y"  */
+/* Line 869 of "src/main/bison/cml.y"  */
     {
     List<ATypeDefinition> list = new Vector<ATypeDefinition>(); 
     list.add((ATypeDefinition)((yystack.valueAt (1-(1)))));
@@ -1597,7 +1673,7 @@ class CmlParser
   if (yyn == 120)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 842 of "src/main/bison/cml.y"  */
+/* Line 878 of "src/main/bison/cml.y"  */
     {
     AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)((yystack.valueAt (5-(1))));
     LexNameToken name = extractLexNameToken((CmlLexeme)((yystack.valueAt (5-(2)))));
@@ -1624,7 +1700,7 @@ class CmlParser
   if (yyn == 121)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 862 of "src/main/bison/cml.y"  */
+/* Line 898 of "src/main/bison/cml.y"  */
     { 
     AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)((yystack.valueAt (4-(1))));
     LexNameToken name = extractLexNameToken((CmlLexeme)((yystack.valueAt (4-(2)))));
@@ -1648,7 +1724,7 @@ class CmlParser
   if (yyn == 123)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 883 of "src/main/bison/cml.y"  */
+/* Line 919 of "src/main/bison/cml.y"  */
     { 
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
     yyval = new AAccessSpecifierAccessSpecifier(new APrivateAccess(),null,null,location);
@@ -1660,7 +1736,7 @@ class CmlParser
   if (yyn == 124)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 888 of "src/main/bison/cml.y"  */
+/* Line 924 of "src/main/bison/cml.y"  */
     { 
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
     yyval = new AAccessSpecifierAccessSpecifier(new AProtectedAccess(),null,null,location);
@@ -1672,7 +1748,7 @@ class CmlParser
   if (yyn == 125)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 893 of "src/main/bison/cml.y"  */
+/* Line 929 of "src/main/bison/cml.y"  */
     { 
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
     yyval = new AAccessSpecifierAccessSpecifier(new APublicAccess(),null,null,location);
@@ -1684,7 +1760,7 @@ class CmlParser
   if (yyn == 126)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 898 of "src/main/bison/cml.y"  */
+/* Line 934 of "src/main/bison/cml.y"  */
     { 
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
     yyval = new AAccessSpecifierAccessSpecifier(new ALogicalAccess(),null,null,location);
@@ -1696,7 +1772,7 @@ class CmlParser
   if (yyn == 127)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 903 of "src/main/bison/cml.y"  */
+/* Line 939 of "src/main/bison/cml.y"  */
     {
     /*Default public?????*/
     yyval = new AAccessSpecifierAccessSpecifier(new APublicAccess(),null,null,null);
@@ -1708,7 +1784,7 @@ class CmlParser
   if (yyn == 128)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 911 of "src/main/bison/cml.y"  */
+/* Line 947 of "src/main/bison/cml.y"  */
     { 
     yyval = ((yystack.valueAt (3-(2))));
 };
@@ -1719,7 +1795,7 @@ class CmlParser
   if (yyn == 129)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 915 of "src/main/bison/cml.y"  */
+/* Line 951 of "src/main/bison/cml.y"  */
     { 
     yyval = new ABooleanBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1730,7 +1806,7 @@ class CmlParser
   if (yyn == 130)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 919 of "src/main/bison/cml.y"  */
+/* Line 955 of "src/main/bison/cml.y"  */
     { 
     yyval = new ANatNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1741,7 +1817,7 @@ class CmlParser
   if (yyn == 131)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 923 of "src/main/bison/cml.y"  */
+/* Line 959 of "src/main/bison/cml.y"  */
     { 
     yyval = new ANatOneNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1752,7 +1828,7 @@ class CmlParser
   if (yyn == 132)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 927 of "src/main/bison/cml.y"  */
+/* Line 963 of "src/main/bison/cml.y"  */
     { 
     yyval = new AIntNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1763,7 +1839,7 @@ class CmlParser
   if (yyn == 133)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 931 of "src/main/bison/cml.y"  */
+/* Line 967 of "src/main/bison/cml.y"  */
     { 
     yyval = new ARationalNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1774,7 +1850,7 @@ class CmlParser
   if (yyn == 134)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 935 of "src/main/bison/cml.y"  */
+/* Line 971 of "src/main/bison/cml.y"  */
     { 
     yyval = new ARealNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1785,7 +1861,7 @@ class CmlParser
   if (yyn == 135)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 939 of "src/main/bison/cml.y"  */
+/* Line 975 of "src/main/bison/cml.y"  */
     { 
     yyval = new ACharBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1796,7 +1872,7 @@ class CmlParser
   if (yyn == 136)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 943 of "src/main/bison/cml.y"  */
+/* Line 979 of "src/main/bison/cml.y"  */
     { 
     yyval = new ATokenBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))) , false);
 };
@@ -1807,7 +1883,7 @@ class CmlParser
   if (yyn == 151)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 961 of "src/main/bison/cml.y"  */
+/* Line 997 of "src/main/bison/cml.y"  */
     {
   LexNameToken lnt = (LexNameToken)((yystack.valueAt (1-(1)))); 
   yyval = new AUnresolvedType(lnt.location,false /*resolved*/, null/*defs*/,lnt);
@@ -1819,7 +1895,7 @@ class CmlParser
   if (yyn == 158)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 981 of "src/main/bison/cml.y"  */
+/* Line 1017 of "src/main/bison/cml.y"  */
     {
    CmlLexeme vdmInvLexeme = (CmlLexeme)((yystack.valueAt (4-(1))));
    PExp exp = (PExp)((yystack.valueAt (4-(4))));
@@ -1833,7 +1909,7 @@ class CmlParser
   if (yyn == 163)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1007 of "src/main/bison/cml.y"  */
+/* Line 1043 of "src/main/bison/cml.y"  */
     {
   CmlLexeme functionsLexeme = (CmlLexeme)((yystack.valueAt (1-(1))));
   AFunctionDeclaration fdecl = new AFunctionDeclaration();
@@ -1847,7 +1923,7 @@ class CmlParser
   if (yyn == 164)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1014 of "src/main/bison/cml.y"  */
+/* Line 1050 of "src/main/bison/cml.y"  */
     {
   CmlLexeme functionsLexeme = (CmlLexeme)((yystack.valueAt (2-(1))));
   List<SFunctionDefinition> functionDefs = (List<SFunctionDefinition>) ((yystack.valueAt (2-(2))));
@@ -1864,7 +1940,7 @@ class CmlParser
   if (yyn == 165)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1027 of "src/main/bison/cml.y"  */
+/* Line 1063 of "src/main/bison/cml.y"  */
     {
     List<SFunctionDefinition> functionList = new Vector<SFunctionDefinition>();
     functionList.add((SFunctionDefinition)((yystack.valueAt (1-(1)))));
@@ -1877,7 +1953,7 @@ class CmlParser
   if (yyn == 166)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1033 of "src/main/bison/cml.y"  */
+/* Line 1069 of "src/main/bison/cml.y"  */
     {
     List<SFunctionDefinition> functionList = (List<SFunctionDefinition>)((yystack.valueAt (3-(1))));
     functionList.add((SFunctionDefinition)((yystack.valueAt (3-(3)))));
@@ -1890,7 +1966,7 @@ class CmlParser
   if (yyn == 169)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1048 of "src/main/bison/cml.y"  */
+/* Line 1084 of "src/main/bison/cml.y"  */
     {
   
   AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)((yystack.valueAt (6-(1))));
@@ -1922,7 +1998,7 @@ class CmlParser
   if (yyn == 170)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1076 of "src/main/bison/cml.y"  */
+/* Line 1112 of "src/main/bison/cml.y"  */
     {
     yyval = new AExplicitFunctionFunctionDefinition();
   };
@@ -1933,7 +2009,7 @@ class CmlParser
   if (yyn == 176)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1096 of "src/main/bison/cml.y"  */
+/* Line 1132 of "src/main/bison/cml.y"  */
     {
     yyval = new Vector<APatternListTypePair>();
 };
@@ -1944,7 +2020,7 @@ class CmlParser
   if (yyn == 177)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1100 of "src/main/bison/cml.y"  */
+/* Line 1136 of "src/main/bison/cml.y"  */
     {
     List<PPattern> patternList = (List<PPattern>)((yystack.valueAt (5-(2))));
     List<APatternListTypePair> pltpl = new Vector<APatternListTypePair>();
@@ -1958,7 +2034,7 @@ class CmlParser
   if (yyn == 178)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1107 of "src/main/bison/cml.y"  */
+/* Line 1143 of "src/main/bison/cml.y"  */
     {
     List<PPattern> patternList = (List<PPattern>)((yystack.valueAt (7-(2))));
     List<APatternListTypePair> pltpl = (List<APatternListTypePair>)((yystack.valueAt (7-(6))));
@@ -1972,7 +2048,7 @@ class CmlParser
   if (yyn == 179)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1117 of "src/main/bison/cml.y"  */
+/* Line 1153 of "src/main/bison/cml.y"  */
     {
     yyval = null;
 };
@@ -1983,7 +2059,7 @@ class CmlParser
   if (yyn == 180)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1121 of "src/main/bison/cml.y"  */
+/* Line 1157 of "src/main/bison/cml.y"  */
     {
     yyval = ((yystack.valueAt (1-(1))));
 };
@@ -1994,7 +2070,7 @@ class CmlParser
   if (yyn == 181)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1128 of "src/main/bison/cml.y"  */
+/* Line 1164 of "src/main/bison/cml.y"  */
     {
     APatternTypePair typePair = createPatternTypePair((CmlLexeme)((yystack.valueAt (3-(1)))),(PType)((yystack.valueAt (3-(3)))));
     List<APatternTypePair> typePairs = new Vector<APatternTypePair>();
@@ -2008,7 +2084,7 @@ class CmlParser
   if (yyn == 182)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1135 of "src/main/bison/cml.y"  */
+/* Line 1171 of "src/main/bison/cml.y"  */
     {
     APatternTypePair typePair = createPatternTypePair((CmlLexeme)((yystack.valueAt (5-(1)))),(PType)((yystack.valueAt (5-(3)))));
     List<APatternTypePair> typePairs = (List<APatternTypePair>)((yystack.valueAt (5-(5))));
@@ -2022,7 +2098,7 @@ class CmlParser
   if (yyn == 183)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1145 of "src/main/bison/cml.y"  */
+/* Line 1181 of "src/main/bison/cml.y"  */
     {
     yyval = ((yystack.valueAt (1-(1))));
 };
@@ -2033,7 +2109,7 @@ class CmlParser
   if (yyn == 184)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1149 of "src/main/bison/cml.y"  */
+/* Line 1185 of "src/main/bison/cml.y"  */
     {
     yyval = null;
 };
@@ -2044,7 +2120,7 @@ class CmlParser
   if (yyn == 185)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1156 of "src/main/bison/cml.y"  */
+/* Line 1192 of "src/main/bison/cml.y"  */
     {
     yyval = ((yystack.valueAt (2-(2))));
 };
@@ -2055,7 +2131,7 @@ class CmlParser
   if (yyn == 186)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1163 of "src/main/bison/cml.y"  */
+/* Line 1199 of "src/main/bison/cml.y"  */
     {
     yyval = ((yystack.valueAt (1-(1))));
 };
@@ -2066,7 +2142,7 @@ class CmlParser
   if (yyn == 187)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1167 of "src/main/bison/cml.y"  */
+/* Line 1203 of "src/main/bison/cml.y"  */
     {
     yyval = null;
 };
@@ -2077,7 +2153,7 @@ class CmlParser
   if (yyn == 188)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1174 of "src/main/bison/cml.y"  */
+/* Line 1210 of "src/main/bison/cml.y"  */
     {
     yyval = ((yystack.valueAt (2-(2))));
 };
@@ -2088,7 +2164,7 @@ class CmlParser
   if (yyn == 218)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1270 of "src/main/bison/cml.y"  */
+/* Line 1306 of "src/main/bison/cml.y"  */
     {
     List<PExp> exps = new Vector<PExp>();
     exps.add((PExp)((yystack.valueAt (1-(1)))));
@@ -2101,7 +2177,7 @@ class CmlParser
   if (yyn == 219)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1276 of "src/main/bison/cml.y"  */
+/* Line 1312 of "src/main/bison/cml.y"  */
     {
     List<PExp> exps = (List<PExp>)((yystack.valueAt (3-(3))));
     exps.add((PExp)((yystack.valueAt (3-(1)))));
@@ -2114,7 +2190,7 @@ class CmlParser
   if (yyn == 220)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1285 of "src/main/bison/cml.y"  */
+/* Line 1321 of "src/main/bison/cml.y"  */
     {
       LexLocation loc = extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))),(CmlLexeme)((yystack.valueAt (3-(3)))));
       yyval = new ABracketedExp(loc,(PExp)((yystack.valueAt (3-(2)))));
@@ -2126,7 +2202,7 @@ class CmlParser
   if (yyn == 225)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1294 of "src/main/bison/cml.y"  */
+/* Line 1330 of "src/main/bison/cml.y"  */
     {
     yyval = ((yystack.valueAt (1-(1))));
 };
@@ -2137,7 +2213,7 @@ class CmlParser
   if (yyn == 245)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1318 of "src/main/bison/cml.y"  */
+/* Line 1354 of "src/main/bison/cml.y"  */
     {
     LexNameToken lnt = (LexNameToken)((yystack.valueAt (7-(1))));
     yyval = new ANameExp(lnt.location,lnt);
@@ -2149,7 +2225,7 @@ class CmlParser
   if (yyn == 248)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1328 of "src/main/bison/cml.y"  */
+/* Line 1364 of "src/main/bison/cml.y"  */
     {
     LexIntegerToken lit = (LexIntegerToken)((yystack.valueAt (1-(1))));
     yyval = new AIntLiteralSymbolicLiteralExp(lit.location,lit);
@@ -2161,7 +2237,7 @@ class CmlParser
   if (yyn == 249)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1341 of "src/main/bison/cml.y"  */
+/* Line 1377 of "src/main/bison/cml.y"  */
     {
     CmlLexeme lexeme = (CmlLexeme)((yystack.valueAt (1-(1))));
     LexLocation loc = extractLexLocation(lexeme);
@@ -2174,7 +2250,7 @@ class CmlParser
   if (yyn == 250)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1347 of "src/main/bison/cml.y"  */
+/* Line 1383 of "src/main/bison/cml.y"  */
     {
     CmlLexeme lexeme = (CmlLexeme)((yystack.valueAt (1-(1))));
     LexLocation loc = extractLexLocation(lexeme);
@@ -2187,7 +2263,7 @@ class CmlParser
   if (yyn == 261)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1396 of "src/main/bison/cml.y"  */
+/* Line 1432 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2202,7 +2278,7 @@ class CmlParser
   if (yyn == 262)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1404 of "src/main/bison/cml.y"  */
+/* Line 1440 of "src/main/bison/cml.y"  */
     {
       PExp exp = (PExp)((yystack.valueAt (2-(2))));
       LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2217,7 +2293,7 @@ class CmlParser
   if (yyn == 263)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1412 of "src/main/bison/cml.y"  */
+/* Line 1448 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2232,7 +2308,7 @@ class CmlParser
   if (yyn == 264)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1420 of "src/main/bison/cml.y"  */
+/* Line 1456 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2247,7 +2323,7 @@ class CmlParser
   if (yyn == 265)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1428 of "src/main/bison/cml.y"  */
+/* Line 1464 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2262,7 +2338,7 @@ class CmlParser
   if (yyn == 266)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1436 of "src/main/bison/cml.y"  */
+/* Line 1472 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2277,7 +2353,7 @@ class CmlParser
   if (yyn == 267)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1444 of "src/main/bison/cml.y"  */
+/* Line 1480 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2292,7 +2368,7 @@ class CmlParser
   if (yyn == 268)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1452 of "src/main/bison/cml.y"  */
+/* Line 1488 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2307,7 +2383,7 @@ class CmlParser
   if (yyn == 269)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1460 of "src/main/bison/cml.y"  */
+/* Line 1496 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2322,7 +2398,7 @@ class CmlParser
   if (yyn == 270)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1468 of "src/main/bison/cml.y"  */
+/* Line 1504 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2337,7 +2413,7 @@ class CmlParser
   if (yyn == 271)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1476 of "src/main/bison/cml.y"  */
+/* Line 1512 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2352,7 +2428,7 @@ class CmlParser
   if (yyn == 272)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1484 of "src/main/bison/cml.y"  */
+/* Line 1520 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2367,7 +2443,7 @@ class CmlParser
   if (yyn == 273)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1492 of "src/main/bison/cml.y"  */
+/* Line 1528 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2382,7 +2458,7 @@ class CmlParser
   if (yyn == 274)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1500 of "src/main/bison/cml.y"  */
+/* Line 1536 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2397,7 +2473,7 @@ class CmlParser
   if (yyn == 275)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1508 of "src/main/bison/cml.y"  */
+/* Line 1544 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2412,7 +2488,7 @@ class CmlParser
   if (yyn == 276)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1516 of "src/main/bison/cml.y"  */
+/* Line 1552 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2427,7 +2503,7 @@ class CmlParser
   if (yyn == 277)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1524 of "src/main/bison/cml.y"  */
+/* Line 1560 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2442,7 +2518,7 @@ class CmlParser
   if (yyn == 278)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1532 of "src/main/bison/cml.y"  */
+/* Line 1568 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2457,7 +2533,7 @@ class CmlParser
   if (yyn == 279)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1540 of "src/main/bison/cml.y"  */
+/* Line 1576 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2472,7 +2548,7 @@ class CmlParser
   if (yyn == 280)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1548 of "src/main/bison/cml.y"  */
+/* Line 1584 of "src/main/bison/cml.y"  */
     {
     PExp exp = (PExp)((yystack.valueAt (2-(2))));
     LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -2487,7 +2563,7 @@ class CmlParser
   if (yyn == 281)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1565 of "src/main/bison/cml.y"  */
+/* Line 1601 of "src/main/bison/cml.y"  */
     {
       LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
       yyval = new APlusNumericBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2499,7 +2575,7 @@ class CmlParser
   if (yyn == 287)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1575 of "src/main/bison/cml.y"  */
+/* Line 1611 of "src/main/bison/cml.y"  */
     {
   //CmlLexeme ltLexeme = 
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
@@ -2512,7 +2588,7 @@ class CmlParser
   if (yyn == 288)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1581 of "src/main/bison/cml.y"  */
+/* Line 1617 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new ALessEqualNumericBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2524,7 +2600,7 @@ class CmlParser
   if (yyn == 289)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1586 of "src/main/bison/cml.y"  */
+/* Line 1622 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new AGreaterNumericBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2536,7 +2612,7 @@ class CmlParser
   if (yyn == 290)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1591 of "src/main/bison/cml.y"  */
+/* Line 1627 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new AGreaterEqualNumericBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2548,7 +2624,7 @@ class CmlParser
   if (yyn == 291)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1596 of "src/main/bison/cml.y"  */
+/* Line 1632 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new AEqualsBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2560,7 +2636,7 @@ class CmlParser
   if (yyn == 292)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1601 of "src/main/bison/cml.y"  */
+/* Line 1637 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new ANotEqualBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2572,7 +2648,7 @@ class CmlParser
   if (yyn == 293)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1606 of "src/main/bison/cml.y"  */
+/* Line 1642 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new AOrBooleanBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2584,7 +2660,7 @@ class CmlParser
   if (yyn == 294)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1611 of "src/main/bison/cml.y"  */
+/* Line 1647 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new AAndBooleanBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2596,7 +2672,7 @@ class CmlParser
   if (yyn == 295)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1616 of "src/main/bison/cml.y"  */
+/* Line 1652 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new AImpliesBooleanBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2608,7 +2684,7 @@ class CmlParser
   if (yyn == 296)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1621 of "src/main/bison/cml.y"  */
+/* Line 1657 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new AEquivalentBooleanBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2620,7 +2696,7 @@ class CmlParser
   if (yyn == 297)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1626 of "src/main/bison/cml.y"  */
+/* Line 1662 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new AInSetBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2632,7 +2708,7 @@ class CmlParser
   if (yyn == 298)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1631 of "src/main/bison/cml.y"  */
+/* Line 1667 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new ANotInSetBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2644,7 +2720,7 @@ class CmlParser
   if (yyn == 299)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1636 of "src/main/bison/cml.y"  */
+/* Line 1672 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new ASubsetBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2656,7 +2732,7 @@ class CmlParser
   if (yyn == 300)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1641 of "src/main/bison/cml.y"  */
+/* Line 1677 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new AProperSubsetBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2668,7 +2744,7 @@ class CmlParser
   if (yyn == 301)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1646 of "src/main/bison/cml.y"  */
+/* Line 1682 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new ASetUnionBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2680,7 +2756,7 @@ class CmlParser
   if (yyn == 302)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1651 of "src/main/bison/cml.y"  */
+/* Line 1687 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new ASetDifferenceBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2692,7 +2768,7 @@ class CmlParser
   if (yyn == 303)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1656 of "src/main/bison/cml.y"  */
+/* Line 1692 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new ASetIntersectBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2704,7 +2780,7 @@ class CmlParser
   if (yyn == 304)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1661 of "src/main/bison/cml.y"  */
+/* Line 1697 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new ASeqConcatBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2716,7 +2792,7 @@ class CmlParser
   if (yyn == 305)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1666 of "src/main/bison/cml.y"  */
+/* Line 1702 of "src/main/bison/cml.y"  */
     {
     LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(),((PExp)((yystack.valueAt (3-(3))))).getLocation());
     yyval = new AModifyBinaryExp(loc,(PExp)((yystack.valueAt (3-(1)))),null,(PExp)((yystack.valueAt (3-(3)))));
@@ -2728,7 +2804,7 @@ class CmlParser
   if (yyn == 316)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1691 of "src/main/bison/cml.y"  */
+/* Line 1727 of "src/main/bison/cml.y"  */
     {
     yyval = new ASetEnumSetExp();   
 };
@@ -2739,7 +2815,7 @@ class CmlParser
   if (yyn == 317)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1695 of "src/main/bison/cml.y"  */
+/* Line 1731 of "src/main/bison/cml.y"  */
     {
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))), (CmlLexeme)((yystack.valueAt (3-(3)))));
     List<PExp> members = (List<PExp>)((yystack.valueAt (3-(2))));
@@ -2752,7 +2828,7 @@ class CmlParser
   if (yyn == 351)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1815 of "src/main/bison/cml.y"  */
+/* Line 1851 of "src/main/bison/cml.y"  */
     {
       LexNameToken name = extractLexNameToken((CmlLexeme)((yystack.valueAt (1-(1)))));
       yyval = name;
@@ -2764,7 +2840,7 @@ class CmlParser
   if (yyn == 379)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1937 of "src/main/bison/cml.y"  */
+/* Line 1973 of "src/main/bison/cml.y"  */
     {
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (4-(1)))),(CmlLexeme)((yystack.valueAt (4-(4)))));
     //PObjectDesignator designator = null;
@@ -2783,7 +2859,7 @@ class CmlParser
   if (yyn == 396)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 1997 of "src/main/bison/cml.y"  */
+/* Line 2033 of "src/main/bison/cml.y"  */
     {
       List<PPattern> patterns = new Vector<PPattern>();
       patterns.add((PPattern)((yystack.valueAt (1-(1)))));
@@ -2796,7 +2872,7 @@ class CmlParser
   if (yyn == 397)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 2003 of "src/main/bison/cml.y"  */
+/* Line 2039 of "src/main/bison/cml.y"  */
     {
     List<PPattern> patterns = (Vector<PPattern>)((yystack.valueAt (3-(3))));
     patterns.add((PPattern)((yystack.valueAt (3-(1)))));
@@ -2809,7 +2885,7 @@ class CmlParser
   if (yyn == 398)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 2012 of "src/main/bison/cml.y"  */
+/* Line 2048 of "src/main/bison/cml.y"  */
     {
       CmlLexeme lexeme = (CmlLexeme)((yystack.valueAt (1-(1))));
       LexNameToken lnt = extractLexNameToken(lexeme);
@@ -2822,7 +2898,7 @@ class CmlParser
   if (yyn == 406)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 2053 of "src/main/bison/cml.y"  */
+/* Line 2089 of "src/main/bison/cml.y"  */
     {
     PPattern pattern = (PPattern)((yystack.valueAt (3-(1))));
     PExp exp = (PExp)((yystack.valueAt (3-(3))));
@@ -2836,7 +2912,7 @@ class CmlParser
   if (yyn == 407)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 2063 of "src/main/bison/cml.y"  */
+/* Line 2099 of "src/main/bison/cml.y"  */
     {
     PPattern pattern = (PPattern)((yystack.valueAt (3-(1))));
     PType type = (PType)((yystack.valueAt (3-(3))));
@@ -2850,7 +2926,7 @@ class CmlParser
   if (yyn == 408)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 2073 of "src/main/bison/cml.y"  */
+/* Line 2109 of "src/main/bison/cml.y"  */
     {
     List<PMultipleBind> binds = new Vector<PMultipleBind>();
     binds.add((PMultipleBind)((yystack.valueAt (1-(1)))));
@@ -2863,7 +2939,7 @@ class CmlParser
   if (yyn == 409)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 2079 of "src/main/bison/cml.y"  */
+/* Line 2115 of "src/main/bison/cml.y"  */
     {
     List<PMultipleBind> binds = (List<PMultipleBind>)((yystack.valueAt (3-(1))));
     binds.add((PMultipleBind)((yystack.valueAt (3-(3)))));
@@ -2876,7 +2952,7 @@ class CmlParser
   if (yyn == 412)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 2093 of "src/main/bison/cml.y"  */
+/* Line 2129 of "src/main/bison/cml.y"  */
     {
     List<PPattern> patterns = (List<PPattern>)((yystack.valueAt (3-(1))));
     PExp exp = (PExp)((yystack.valueAt (3-(3))));
@@ -2890,7 +2966,7 @@ class CmlParser
   if (yyn == 413)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 2103 of "src/main/bison/cml.y"  */
+/* Line 2139 of "src/main/bison/cml.y"  */
     {
     List<PPattern> patterns = (List<PPattern>)((yystack.valueAt (3-(1))));
     PType type = (PType)((yystack.valueAt (3-(3))));
@@ -2904,7 +2980,7 @@ class CmlParser
   if (yyn == 416)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 2120 of "src/main/bison/cml.y"  */
+/* Line 2156 of "src/main/bison/cml.y"  */
     {
       CmlLexeme cmlLex = (CmlLexeme) ((yystack.valueAt (1-(1))));
       LexLocation location = extractLexLocation(cmlLex);
@@ -2920,7 +2996,7 @@ class CmlParser
   if (yyn == 417)
     
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 2130 of "src/main/bison/cml.y"  */
+/* Line 2166 of "src/main/bison/cml.y"  */
     {
 
     List<LexIdentifierToken> ids = (List<LexIdentifierToken>)((yystack.valueAt (3-(3))));
@@ -2941,7 +3017,7 @@ class CmlParser
 
 
 /* Line 360 of cmlskeleton.java.m4  */
-/* Line 2945 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
+/* Line 3021 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
 	default: break;
       }
 
@@ -3310,102 +3386,102 @@ class CmlParser
   static class YyPactClass {
   /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
      STATE-NUM.  */
-  public static final short yypact_ninf_ = -751;
+  public static final short yypact_ninf_ = -764;
   public static final short yypact_[] =
   {
-       573,   -16,    32,    76,    86,   270,   320,   270,   109,   468,
-    -751,  -751,  -751,  -751,  -751,   468,   323,  -751,  -751,  -751,
-    -751,   137,   248,   116,  -751,   244,  -751,  -751,   256,  -751,
-    -751,  -751,  -751,   246,  -751,   185,    14,  -751,  -751,  -751,
-    -751,  -751,  -751,  -751,    79,  -751,  -751,  -751,  -751,   192,
-     308,  -751,  -751,  -751,  -751,  -751,   468,  -751,   326,   648,
-      76,   307,    76,     1,   270,   258,   320,   204,   332,  4548,
-     307,   195,   364,   270,  -751,   326,  -751,  -751,  -751,  -751,
-    -751,    49,   298,   327,   334,   337,   648,   339,    28,  -751,
-     925,   353,   335,  -751,  -751,   307,   307,   261,   307,   307,
-     307,   307,   307,   344,  -751,  -751,  -751,  -751,  -751,  -751,
-    -751,  -751,  -751,  -751,   815,  -751,  -751,   280,  -751,   285,
-     271,  -751,   307,   600,   216,   385,   295,   126,  4548,  4008,
-    3828,   234,  4548,  4548,  4548,  4548,  4548,  4548,  4548,  4548,
+       573,   -57,   -30,    -9,     5,   270,   320,   270,   148,   250,
+    -764,  -764,  -764,  -764,  -764,   250,   323,  -764,  -764,  -764,
+    -764,   261,   276,   139,  -764,   191,  -764,  -764,   301,  -764,
+    -764,  -764,  -764,   237,  -764,   185,    14,  -764,  -764,  -764,
+    -764,  -764,  -764,  -764,    64,  -764,  -764,  -764,  -764,   198,
+     313,  -764,  -764,  -764,  -764,  -764,   250,  -764,   326,   648,
+      -9,   307,    -9,     1,   270,   206,   320,   219,   338,  4548,
+     307,    88,   690,   270,  -764,   326,  -764,  -764,  -764,  -764,
+    -764,    45,   332,   334,   339,   343,   648,   348,    28,  -764,
+     921,   359,   347,  -764,  -764,   307,   307,   278,   307,   307,
+     307,   307,   307,   101,  -764,  -764,  -764,  -764,  -764,  -764,
+    -764,  -764,  -764,  -764,   422,  -764,  -764,   280,  -764,   288,
+     271,  -764,   307,   600,   253,   395,   306,   126,  4548,  4008,
+    3828,   239,  4548,  4548,  4548,  4548,  4548,  4548,  4548,  4548,
     4548,  4548,  4548,  4548,  4548,  4548,  4548,  4548,  4548,  4548,
-    4548,  4548,  4548,  4548,    16,   320,   396,  -751,     7,   409,
-     413,   330,   320,   320,   320,  2241,  -751,  -751,  -751,  -751,
-    -751,  -751,  -751,  -751,  -751,  -751,  -751,  -751,  -751,  -751,
-    -751,  -751,  -751,  -751,  -751,  -751,  -751,  -751,  -751,  -751,
-      64,   275,   255,   342,  -751,   351,  -751,   411,  -751,  -751,
-    -751,   -62,    24,   290,  -751,  -751,   354,   354,   354,   354,
-     778,   452,     1,  4548,   354,   742,   742,   742,     1,   742,
-     742,   354,   470,   541,   432,   696,   885,   815,   815,   815,
-     307,   307,   307,   307,   307,   307,   316,   423,    -4,   345,
-       1,     1,     1,   707,   207,   815,   454,   600,   320,  -751,
-    -751,  -751,   496,  2312,  -751,   494,  1609,  -751,   491,   493,
-    1538,   495,    19,   371,   461,  2387,  1394,  3677,  3677,  3677,
+    4548,  4548,  4548,  4548,    16,   320,   413,  -764,     7,   421,
+     424,   344,   320,   320,   320,  2241,  -764,  -764,  -764,  -764,
+    -764,  -764,  -764,  -764,  -764,  -764,  -764,  -764,  -764,  -764,
+    -764,  -764,  -764,  -764,  -764,  -764,  -764,  -764,  -764,  -764,
+     586,   275,   273,   342,  -764,   351,  -764,   411,  -764,  -764,
+    -764,   -37,    76,   290,  -764,  -764,   354,   354,   354,   354,
+     778,   488,     1,  4548,   354,   742,   742,   742,     1,   742,
+     742,   354,   470,   541,   457,   686,   696,   422,   422,   422,
+     307,   307,   307,   307,   307,   307,   345,   472,    -4,   350,
+       1,     1,     1,   707,   207,   422,   454,   600,   320,  -764,
+    -764,  -764,   491,  2312,  -764,   494,  1609,  -764,   493,   495,
+    1538,   499,    19,   363,   461,  2387,  1394,  3677,  3677,  3677,
     3677,  3677,  3677,  3677,  3677,  3677,  3677,  3677,  3677,  3677,
     3677,  3677,  3677,  3677,  3677,  3677,  3677,  4548,   518,   489,
-     389,   403,  4548,  4548,  -751,  -751,  -751,  -751,  -751,  -751,
-    -751,  -751,   539,   546,  4548,   439,  -751,   -15,    -7,  -751,
-    -751,  -751,   103,    12,   416,  -751,  -751,  4548,  4548,   320,
+     388,   397,  4548,  4548,  -764,  -764,  -764,  -764,  -764,  -764,
+    -764,  -764,   535,   539,  4548,   439,  -764,    12,   216,  -764,
+    -764,  -764,   243,    13,   414,  -764,  -764,  4548,  4548,   320,
     4548,  4548,   456,   469,  4548,  4548,  4548,  4548,  4548,  4548,
     4548,  4548,  4548,  4548,  4548,  4548,  4548,  4548,  4548,  4548,
     4548,  4548,  4548,  4548,  4548,  4548,  4548,  4548,  4548,  4548,
-    4548,  4548,  4548,  4548,  -751,   525,   457,   528,   530,   226,
-     270,   585,   477,  4548,   542,  -751,    24,    24,  2029,  -751,
-     163,   588,   596,   603,   606,   594,   648,    85,  2458,   598,
-     925,   925,   925,    65,   925,   925,  -751,  -751,  -751,   600,
-     307,   307,   815,   815,   815,   815,   815,   815,   280,  -751,
-     320,  -751,  -751,  -751,  -751,   320,  -751,   307,   307,  -751,
-    -751,  -751,  -751,  -751,  -751,   320,  4548,  -751,  -751,   320,
-    4548,  4098,  -751,   320,  4548,   234,  4548,  4548,   320,  1680,
-    4548,   307,   320,  4548,  3748,  1751,  4548,  4548,   604,  1822,
-     459,   307,  4548,  4548,   320,  4548,  4548,  4548,   617,   618,
-    1893,  -751,   617,   617,  -751,  -751,   617,   617,   617,   617,
-     617,   617,   617,   617,   617,   617,   617,   617,   617,   617,
-     617,   617,   617,   617,   617,   617,   617,   617,   617,   617,
-     617,   617,   617,   617,   617,  2529,   307,   625,   307,  4548,
-     563,  -751,   858,   342,  -751,  2049,   631,  3677,   307,  -751,
-    -751,   626,   627,   629,  1119,    21,  -751,  -751,  -751,  -751,
-    4548,   533,  4548,  4548,  -751,   540,    56,  4548,   479,   482,
-     354,    77,  -751,  -751,  -751,  -751,  -751,  -751,  -751,  -751,
-      13,  -751,  -751,  -751,  -751,   742,   742,   742,   742,   280,
-     649,   354,  -751,   742,   666,   815,   815,    39,   623,   815,
-     815,   551,   661,  -751,    -1,  3677,   527,    37,  2600,  -751,
-     529,  -751,   617,  2170,   684,   294,   669,  4548,   675,   815,
-    -751,  3677,  4548,   307,  2671,  2742,  -751,  4548,   815,  3677,
-    3677,  -751,  3677,  3677,  3677,  -751,  4188,   320,     8,   320,
-     659,    11,  3677,  4548,  -751,     6,    54,   599,   653,  -751,
-      48,  -751,   548,   712,   543,   445,   354,   354,   354,   605,
-      80,  2029,   398,   564,   709,   530,  -751,   714,  3677,   711,
-    2817,  1467,  4548,  2029,  4548,   -33,  4548,   722,   267,  2095,
-     703,   607,   751,  -751,  2029,  2029,  2029,  2029,   280,  2029,
-     -34,  2029,   645,  4278,    60,   620,   698,   768,   817,   745,
-     749,   761,   925,  -751,  4548,  -751,  4548,   762,  -751,  4548,
-    4548,  -751,  4548,  4548,  4548,  -751,  -751,   767,  -751,  4548,
-    2888,  -751,   777,   578,  -751,  -751,  2959,   641,  -751,  -751,
-     814,   816,  3918,   342,  3677,   874,  1035,   625,   530,  2029,
-    -751,  4548,  4548,   826,   829,   830,   840,   692,  -751,   245,
-    -751,  -751,  -751,   439,   736,   841,   563,  -751,  4368,  2029,
-     320,  3677,   548,  3677,    30,  -751,   699,  3677,  2029,  -751,
-    2029,     1,   843,   848,   548,   548,   548,   548,   850,   548,
-     719,   842,   548,   716,  -751,   854,   770,  -751,  -751,  -751,
-    -751,  -751,   280,  4548,   742,  1250,  3677,  4548,  3030,  3101,
-    3172,  3247,  3677,  4548,  3677,  -751,   865,  -751,   439,  4548,
-     871,   625,  -751,  -751,   530,  3677,  -751,   344,   815,   344,
-     815,   834,   563,   548,  3677,  3677,  2029,  2029,  2029,  -751,
-     605,  -751,   733,   241,   735,   354,  -751,  -751,   875,   292,
-     892,   390,   870,    91,   882,  4548,   548,   548,   154,   354,
-     718,   280,  2029,     1,  -751,  -751,   889,   886,  3318,   869,
-    -751,  3389,  -751,  -751,  -751,  4548,  3677,  -751,  -751,  3460,
-    -751,  -751,   563,   225,  -751,   487,   521,   537,  -751,   439,
-     307,  -751,   645,   902,  -751,  4548,  2029,  -751,  -751,   883,
-    -751,  2029,  -751,   754,   895,   186,  3677,   897,   908,   891,
-     907,   548,   184,  4458,  -751,  -751,  -751,   320,  2170,  -751,
-     857,  -751,  -751,  -751,   548,   653,  -751,  -751,  -751,  -751,
-     630,  -751,  2029,  3535,  -751,  2029,   548,   -33,  -751,  -751,
-     905,   354,  2029,     1,  -751,   746,     1,  -751,   912,   782,
-    -751,  4548,  -751,   530,  -751,   687,  2029,   548,  -751,  -751,
-     932,   713,   136,   776,   208,  -751,  4548,  3677,   563,  -751,
-     292,  2029,  -751,  2029,  2029,   758,  3606,  -751,  -751,   832,
-     548,   548,   786,  -751,  -751,  2029,   548
+    4548,  4548,  4548,  4548,  -764,   525,   464,   536,   515,    92,
+     270,   585,   478,  4548,   544,  -764,    76,    76,  2029,  -764,
+     163,   589,   596,   612,   614,   590,   648,   136,  2458,   605,
+     921,   921,   921,    85,   921,   921,  -764,  -764,  -764,   600,
+     307,   307,   422,   422,   422,   422,   422,   422,   280,  -764,
+     320,  -764,  -764,  -764,  -764,   320,  -764,   307,   307,  -764,
+    -764,  -764,  -764,  -764,  -764,   320,  4548,  -764,  -764,   320,
+    4548,  4098,  -764,   320,  4548,   239,  4548,  4548,   320,  1680,
+    4548,   307,   320,  4548,  3748,  1751,  4548,  4548,   613,  1822,
+     473,   307,  4548,  4548,   320,  4548,  4548,  4548,   616,   618,
+    1893,  -764,   616,   616,  -764,  -764,   616,   616,   616,   616,
+     616,   616,   616,   616,   616,   616,   616,   616,   616,   616,
+     616,   616,   616,   616,   616,   616,   616,   616,   616,   616,
+     616,   616,   616,   616,   616,  2529,   307,   620,   307,  4548,
+     584,  -764,   858,   342,  -764,  2049,   643,  3677,   307,  -764,
+    -764,   625,   626,   627,  1119,     3,  -764,  -764,  -764,  -764,
+    4548,   542,  4548,  4548,  -764,   551,    56,  4548,   479,   485,
+     354,    77,  -764,  -764,  -764,  -764,  -764,  -764,  -764,  -764,
+      38,  -764,  -764,  -764,  -764,   742,   742,   742,   742,   280,
+     651,   354,  -764,   742,   673,   422,   422,    39,   629,   422,
+     422,   555,   659,  -764,    -1,  3677,   552,    50,  2600,  -764,
+     556,  -764,   616,  2170,   693,   294,   666,  4548,   694,   422,
+    -764,  3677,  4548,   307,  2671,  2742,  -764,  4548,   422,  3677,
+    3677,  -764,  3677,  3677,  3677,  -764,  4188,   320,     8,   320,
+     655,    11,  3677,  4548,  -764,   232,    54,   599,   653,  -764,
+      48,  -764,   548,   712,   547,   445,   354,   354,   354,   607,
+      80,  2029,   246,   562,   728,   515,  -764,   737,  3677,   743,
+    2817,  1467,  4548,  2029,  4548,   149,  4548,   739,   267,  2095,
+     733,   608,   760,  -764,  2029,  2029,  2029,  2029,   280,  2029,
+     -79,  2029,   667,  4278,    71,   603,   768,   817,   869,   775,
+     781,   788,   921,  -764,  4548,  -764,  4548,   811,  -764,  4548,
+    4548,  -764,  4548,  4548,  4548,  -764,  -764,   806,  -764,  4548,
+    2888,  -764,   816,   630,  -764,  -764,  2959,   679,  -764,  -764,
+     820,   829,  3918,   342,  3677,   874,  1035,   620,   515,  2029,
+    -764,  4548,  4548,   842,   844,   848,   849,   701,  -764,   245,
+    -764,  -764,  -764,   439,   745,   846,   584,  -764,  4368,  2029,
+     320,  3677,   548,  3677,    91,  -764,   699,  3677,  2029,  -764,
+    2029,     1,   847,   852,   548,   548,   548,   548,   854,   548,
+     732,   856,   548,   730,  -764,   871,   777,  -764,  -764,  -764,
+    -764,  -764,   280,  4548,   742,  1250,  3677,  4548,  3030,  3101,
+    3172,  3247,  3677,  4548,  3677,  -764,   872,  -764,   439,  4548,
+     875,   620,  -764,  -764,   515,  3677,  -764,   101,   422,   101,
+     422,   853,   584,   548,  3677,  3677,  2029,  2029,  2029,  -764,
+     607,  -764,   738,   241,   740,   354,  -764,  -764,   881,   292,
+     897,   390,   880,    29,   892,  4548,   548,   548,   409,   354,
+     729,   280,  2029,     1,  -764,  -764,   893,   894,  3318,   915,
+    -764,  3389,  -764,  -764,  -764,  4548,  3677,  -764,  -764,  3460,
+    -764,  -764,   584,   225,  -764,   487,   521,   537,  -764,   439,
+     307,  -764,   667,   906,  -764,  4548,  2029,  -764,  -764,   887,
+    -764,  2029,  -764,   759,   904,    35,  3677,   912,   916,   907,
+     914,   548,   184,  4458,  -764,  -764,  -764,   320,  2170,  -764,
+     878,  -764,  -764,  -764,   548,   653,  -764,  -764,  -764,  -764,
+     646,  -764,  2029,  3535,  -764,  2029,   548,   267,  -764,  -764,
+     922,   354,  2029,     1,  -764,   756,     1,  -764,   923,   793,
+    -764,  4548,  -764,   515,  -764,   687,  2029,   548,  -764,  -764,
+     936,   713,   154,   789,   208,  -764,  4548,  3677,   584,  -764,
+     292,  2029,  -764,  2029,  2029,   763,  3606,  -764,  -764,   832,
+     548,   548,   791,  -764,  -764,  2029,   548
   };
  }
 
@@ -3513,20 +3589,20 @@ class CmlParser
   static class YyGotoClass {
   public static final short yypgoto_[] =
   {
-      -751,  -751,   929,    69,  -751,  -751,   569,   -81,  -751,   743,
-    -751,  -301,   319,  -751,   324,  -649,  -751,  -623,  -751,   888,
-    -751,   -80,    15,  -751,  -197,  -751,  -751,   935,  -751,  -751,
-     873,   210,  -751,   890,     0,   -60,  -221,  -751,   706,   239,
-    -307,   309,  -751,   881,  -751,  -751,  -479,  -751,  -343,  -751,
-    -473,  -601,  -751,    47,  -481,  -751,  -751,   597,  -751,  -751,
-    -751,  -751,  -751,   358,    93,  -750,  -751,  -751,   130,  -751,
-    -106,   674,    -3,  -751,   534,  -751,   102,  -751,  -552,  -751,
-    -751,  -751,  -751,  -751,  -751,  -751,  -751,  -751,  -751,  -751,
-     538,   544,  -751,  -751,  -751,  -751,  -751,  -751,  -751,  -751,
-    -751,  -751,  -751,   -36,   134,  -751,  -751,  -751,  -751,   189,
-    -587,  -751,    55,  -751,  -751,  -751,  -751,  -751,  -751,  -751,
-    -751,  -751,  -751,  -751,    -2,   -58,  -751,  -751,  -751,  -751,
-    -751,  -413,   800,  -146,   526,  -751,  -751,   545,   -49
+      -764,  -764,   934,    69,  -764,  -764,   574,   -81,  -764,   748,
+    -764,  -301,   324,  -762,  -764,  -763,  -764,  -623,  -764,   891,
+    -764,   -80,    15,  -764,  -197,  -764,  -764,   938,  -764,  -764,
+     882,    27,  -764,   895,     0,   -60,  -221,  -764,   709,   203,
+    -307,   221,  -764,   884,  -764,  -764,  -498,  -764,  -343,  -764,
+    -473,  -601,  -764,    52,  -481,  -764,  -764,   598,  -764,  -764,
+    -764,  -764,  -764,   364,    98,  -750,  -764,  -764,   107,  -764,
+    -106,   674,    -3,  -764,   540,  -764,   106,  -764,  -552,  -764,
+    -764,  -764,  -764,  -764,  -764,  -764,  -764,  -764,  -764,  -764,
+     545,   546,  -764,  -764,  -764,  -764,  -764,  -764,  -764,  -764,
+    -764,  -764,  -764,   -36,   142,  -764,  -764,  -764,  -764,   188,
+    -587,  -764,    62,  -764,  -764,  -764,  -764,  -764,  -764,  -764,
+    -764,  -764,  -764,  -764,    -2,   -58,  -764,  -764,  -764,  -764,
+    -764,  -413,   809,  -146,   531,  -764,  -764,   549,   -49
   };
   }
 
@@ -3536,7 +3612,7 @@ class CmlParser
   yydefgoto_[] =
   {
         -1,     8,     9,    10,    11,    12,    89,    90,   203,   204,
-     601,   521,   627,   628,   843,   844,   522,   614,    13,    24,
+     601,   521,   627,   628,   716,   844,   522,   614,    13,    24,
       25,    91,    92,    14,   120,    15,    16,    17,    74,    75,
       76,    18,    33,    34,    35,   245,   246,   247,   406,    19,
       41,    20,    50,    51,    52,    53,   590,   764,   193,   598,
@@ -3563,102 +3639,102 @@ class CmlParser
         68,   114,   552,    42,    44,   210,   211,    49,   125,   594,
      190,    94,   451,   668,   706,   377,   493,   312,    26,   733,
      599,   383,   697,   255,   259,   293,   410,   679,   400,   658,
-     117,   643,    66,   831,   287,   222,   223,   441,   225,   226,
-     227,   228,   229,   402,   403,   404,   213,   654,   793,   232,
-     233,   423,   232,   233,   361,   230,   231,   234,   235,   201,
-     234,   235,   243,    42,   431,   714,  -351,   661,   237,   252,
-     239,   353,    49,   195,  -351,    93,   623,    26,    55,   363,
-     543,   633,   730,   715,   623,   612,    69,   772,   634,   635,
+     117,   843,    66,   831,   287,   222,   223,   730,   225,   226,
+     227,   228,   229,   402,   403,   404,   213,   654,   842,   232,
+     233,   423,   232,   233,   879,   201,   643,   234,   235,    21,
+     234,   235,   243,    42,   441,   431,  -351,   612,   237,   252,
+     239,    69,    49,   195,  -351,    93,   623,    26,    55,   361,
+     661,   633,   880,   843,   623,    77,    22,   772,   634,   635,
      636,   634,   635,   636,   637,   232,   233,   637,   638,   698,
-      21,   638,   736,   234,   235,   232,   233,   541,   639,    54,
-     842,   639,   644,   234,   235,   442,   202,   118,   288,   685,
-     894,   362,   303,    67,    42,    55,   371,   372,   373,   374,
-      67,    70,    67,   355,   380,   381,   382,   613,   384,   385,
-     364,   386,   446,   443,    58,   251,    67,  -351,    22,   659,
-     731,   444,    42,   289,   398,  -351,   126,   444,   913,    42,
+     543,   638,    77,   234,   235,   731,   191,    23,   639,   793,
+     191,   639,   202,   736,   898,   843,    70,   118,   288,   613,
+     894,    28,   303,    67,    42,    55,   371,   372,   373,   374,
+      67,   363,    67,   355,   380,   381,   382,   644,   384,   385,
+     192,   386,   442,   446,   492,   251,   362,  -351,    54,   659,
+     230,   231,    42,   289,   398,  -351,   126,   444,   541,    42,
       42,    42,   313,   822,   126,   119,   680,   686,   544,   683,
-     392,   393,   394,   395,   396,   397,   737,   424,   294,   295,
-     296,   297,   298,   299,   300,   301,   214,   662,    42,   714,
-     411,    61,    23,   697,   602,   444,   880,   444,   438,   240,
-     241,   242,    28,   610,   655,   879,   214,   715,   771,   871,
-     766,    61,   449,   191,   624,   625,   885,   886,   626,   240,
-     241,   242,   624,   625,    36,   786,   626,    37,   898,    93,
+     392,   393,   394,   395,   396,   397,   913,   424,   294,   295,
+     296,   297,   298,   299,   300,   301,   214,   737,    42,   771,
+     411,    61,   364,   697,   602,   624,   625,   444,   438,   626,
+     662,   624,   625,   610,   655,   626,   214,    67,   444,   871,
+     766,    61,   449,   122,   624,   625,   885,   886,   626,   240,
+     241,   242,   624,   625,    36,   786,   626,    37,    62,    93,
      640,   641,   642,   640,   641,   642,   501,   502,   503,   840,
-     915,    38,    39,   504,   191,    42,   505,   192,   506,   507,
-     508,   509,   510,   445,   547,    59,   634,   635,   636,   407,
-     408,   444,   637,    63,   781,   122,   638,   511,    77,   440,
-     240,   241,   242,   554,    60,    40,   639,   557,   492,    61,
-     678,    62,   821,    64,   714,    77,   862,   863,   240,   241,
-     242,   824,   908,   830,   354,   512,   123,    78,   368,   513,
-     201,    65,   715,   634,   635,   636,   700,   701,    71,   637,
-     699,   847,   126,   638,    78,   126,    42,    44,   240,   241,
-     242,   214,   712,   639,   568,    95,    61,   206,    96,   514,
+     915,    38,    39,   504,   123,    42,   505,   714,   506,   507,
+     508,   509,   510,     1,   547,     2,   634,   635,   636,   407,
+     408,    78,   637,   821,   781,   715,   638,   511,    58,   440,
+     240,   241,   242,   554,    64,    40,   639,   557,    78,    79,
+     678,   230,   231,    59,     3,     4,   862,   863,   240,   241,
+     242,   824,   908,   830,   354,   512,    79,    60,   368,   513,
+     201,    65,    61,   634,   635,   636,   700,   701,    63,   637,
+     699,   700,   701,   638,    71,   126,    42,    44,   240,   241,
+     242,   214,   712,   639,   568,    95,    61,   126,    96,   514,
      545,   546,   523,   724,   725,   726,   727,   760,   729,   515,
-     732,   516,   240,   241,   242,    72,    97,   549,   550,    94,
-     127,    98,    99,   100,   101,   102,   207,   202,   103,     5,
-     195,   220,     5,   208,   835,   836,   209,    79,   212,   667,
-     566,   569,   221,    36,   248,   517,    37,   224,   518,     6,
-       7,   578,     6,     7,    79,   519,  -127,   520,   773,    73,
-      38,    39,    36,   230,   231,    37,   236,    42,   640,   641,
-     642,   238,    42,   548,   249,   240,   241,   242,   789,    38,
-      39,   250,    42,   551,   292,   603,    42,   796,    36,   797,
-      42,    37,   263,    67,    40,    42,   588,   304,   591,    42,
-     289,   305,   596,   624,   625,    38,    39,   626,   605,   306,
-     632,    42,   356,    40,   889,   640,   641,   642,   360,    29,
-      30,    31,    32,   399,   645,   646,   647,   648,   357,   523,
-     376,   651,   652,   700,   701,   839,   672,   359,   523,    40,
-     370,     1,   389,     2,   398,   825,   826,   827,   104,   105,
+     732,   516,   240,   241,   242,   685,    97,   549,   550,    94,
+      72,    98,    99,   100,   101,   102,   127,   202,   103,     5,
+     195,   206,     5,   207,   835,   836,   443,   220,   208,   667,
+     566,   569,   209,    36,   444,   517,    37,   212,   518,     6,
+       7,   578,     6,     7,   221,   519,  -127,   520,   773,    73,
+      38,    39,    36,   445,   224,    37,   236,    42,   640,   641,
+     642,   444,    42,   548,   238,   240,   241,   242,   789,    38,
+      39,   248,    42,   551,   249,   603,    42,   796,    36,   797,
+      42,    37,   250,    67,    40,    42,   588,   263,   591,    42,
+     289,   292,   596,   624,   625,    38,    39,   626,   605,   304,
+     632,    42,   305,    40,   889,   640,   641,   642,   360,    29,
+      30,    31,    32,   306,   645,   646,   647,   648,   357,   523,
+     356,   651,   652,   232,   233,   839,   672,   359,   523,    40,
+     370,   234,   235,   499,   500,   825,   826,   827,   104,   105,
      106,   107,   108,   109,   110,   111,   232,   233,    36,   387,
-     649,    37,   112,   113,   234,   235,   499,   500,   634,   635,
-     636,   851,     3,     4,   637,    38,    39,   566,   638,   405,
-     401,   232,   233,   673,   691,   412,   414,   866,   639,   234,
-     235,   417,   864,   418,   798,   422,   693,   694,   695,   425,
+     649,    37,   112,   113,   234,   235,   376,   389,   634,   635,
+     636,   851,   399,   398,   637,    38,    39,   566,   638,   405,
+     412,   232,   233,   673,   691,   401,   414,   866,   639,   234,
+     235,   425,   864,   417,   798,   418,   693,   694,   695,   422,
      426,   681,   634,   635,   636,   874,   430,   735,   637,    40,
-     876,   431,   638,    29,    30,    31,    32,   432,   634,   635,
-     636,   867,   639,   433,   637,    67,   692,   436,   638,   634,
-     635,   636,    42,   388,   437,   637,   447,   868,   639,   638,
-     455,   895,   454,   487,   897,   523,     1,   486,     2,   639,
-     488,   901,   232,   233,    42,    44,    42,   523,   489,   728,
-     234,   235,   495,   496,   498,   910,   535,   757,   523,   523,
+     876,   431,   638,   240,   241,   242,   432,   433,   634,   635,
+     636,   867,   639,   436,   637,    67,   692,   437,   638,   634,
+     635,   636,    42,   388,   447,   637,   847,   868,   639,   638,
+     455,   895,   454,   489,   897,   523,     1,   486,     2,   639,
+     487,   901,   232,   233,    42,    44,    42,   523,   488,   728,
+     234,   235,   495,   353,   496,   910,   498,   535,   523,   523,
      523,   523,   788,   523,   536,   523,   852,     3,     4,     5,
-     919,   537,   920,   921,   538,   539,   213,   577,    95,   232,
-     233,    96,   593,   576,   926,   768,   770,   234,   235,     6,
-       7,   215,   216,   217,   218,   318,   219,   585,   604,    97,
-     640,   641,   642,   589,    98,    99,   100,   101,   102,   619,
-     738,   103,   792,   523,   622,   606,   607,    81,   608,    82,
-      83,    84,   630,   809,    85,   631,    86,   782,   650,    87,
-     653,   232,   233,   523,   640,   641,   642,   656,   794,   234,
-     235,   446,   523,   657,   523,   660,   902,   424,   666,   904,
-     640,   641,   642,   807,   671,   700,   701,   669,   634,   635,
-     636,   640,   641,   642,   637,   833,   909,    42,   638,   215,
-     216,   217,   218,   682,   219,   687,   244,   612,   639,   848,
-     689,   364,   818,   704,   634,   635,   636,   690,   739,   708,
-     637,   705,   912,   566,   638,   721,   707,   232,   233,   390,
+     919,   539,   920,   921,   215,   216,   217,   218,    95,   219,
+     537,    96,   538,   213,   926,   768,   770,   232,   233,     6,
+       7,   577,   576,   738,   318,   234,   235,   585,   589,    97,
+     640,   641,   642,   593,    98,    99,   100,   101,   102,   757,
+     604,   103,   792,   523,   606,   607,   608,    81,   619,    82,
+      83,    84,   630,   809,    85,   622,    86,   782,   631,    87,
+     650,   232,   233,   523,   640,   641,   642,   653,   794,   234,
+     235,   657,   523,   656,   523,   446,   902,   232,   233,   904,
+     640,   641,   642,   807,   669,   234,   235,   666,   634,   635,
+     636,   640,   641,   642,   637,   833,   909,    42,   638,   682,
+     660,   700,   701,   671,   424,   687,   244,   612,   639,   848,
+     689,   704,   818,   364,   634,   635,   636,   232,   233,   390,
+     637,   690,   912,   566,   638,   234,   235,   232,   233,   391,
      523,   523,   523,   165,   639,   234,   235,   888,   232,   233,
-     718,    81,   850,    82,    83,    84,   234,   235,    85,   723,
-      86,   613,   405,    87,    88,   742,   523,   743,   722,   744,
+     705,    81,   850,    82,    83,    84,   234,   235,    85,   707,
+      86,   708,   405,    87,    88,   721,   523,   718,   723,   722,
      870,   104,   105,   106,   107,   108,   109,   110,   111,   215,
-     216,   217,   218,   747,   219,   112,   113,   523,    42,   215,
-     216,   217,   218,   782,   219,   753,   756,   375,   740,   759,
+     216,   217,   218,   613,   219,   112,   113,   523,    42,   215,
+     216,   217,   218,   782,   219,   742,   744,   375,   739,   743,
      523,   900,   253,   256,   260,   523,   265,   266,   267,   268,
      269,   270,   271,   272,   273,   274,   275,   276,   277,   278,
      279,   280,   281,   282,   283,   284,   285,   286,   215,   216,
-     217,   218,   191,   219,   776,   761,   523,   777,   778,   523,
-     640,   641,   642,   634,   635,   636,   523,   741,   779,   637,
-     780,   924,   784,   638,    42,   551,   232,   233,   379,   785,
-     523,   799,   795,   639,   234,   235,   640,   641,   642,   800,
-     801,   802,   804,   805,   803,   523,    95,   523,   523,    96,
-     215,   216,   217,   218,   817,   219,   806,   378,   823,   523,
-     820,   829,    95,   832,   834,    96,   838,    97,   841,   856,
-     845,   849,    98,    99,   100,   101,   102,   853,   854,   595,
-     872,   875,   877,    97,   878,   881,   882,   891,    98,    99,
-     100,   101,   102,   883,   899,   767,   232,   233,   391,   884,
-     903,   905,   906,   914,   234,   235,   215,   216,   217,   218,
-     911,   219,   922,   925,    56,   540,   369,   719,   200,   716,
-     116,    57,   409,   194,   121,   917,   688,   494,   893,   561,
-     890,   429,   559,   869,   316,   918,   434,   435,   560,   828,
-     581,     0,     0,     0,    67,     0,     0,   570,     0,     0,
-       0,     0,     0,     0,     0,   640,   641,   642,     0,     0,
+     217,   218,   747,   219,   753,   756,   523,   759,   191,   523,
+     640,   641,   642,   634,   635,   636,   523,   740,   761,   637,
+     776,   924,   777,   638,    42,   551,   778,   779,   379,   780,
+     523,   784,   795,   639,   785,   799,   640,   641,   642,    29,
+      30,    31,    32,   800,   801,   523,    95,   523,   523,    96,
+     215,   216,   217,   218,   802,   219,   804,   378,   803,   523,
+     805,   817,    95,   806,   820,    96,   829,    97,   832,   741,
+     834,   838,    98,    99,   100,   101,   102,   823,   841,   595,
+     845,   853,   849,    97,   872,   875,   854,   877,    98,    99,
+     100,   101,   102,   878,   882,   767,   215,   216,   217,   218,
+     881,   219,   215,   216,   217,   218,   884,   219,   891,   883,
+     903,   899,   905,   906,   911,   856,   914,   922,   925,    56,
+     540,   369,   719,   116,    57,   409,   194,   200,   494,   121,
+     917,   429,   688,   893,   890,   561,   434,   435,   828,   559,
+     560,   869,   918,   316,    67,   581,     0,     0,     0,     0,
+       0,   570,     0,     0,     0,   640,   641,   642,     0,     0,
       67,   448,   450,     0,   452,   453,     0,     0,   456,   457,
      458,   459,   460,   461,   462,   463,   464,   465,   466,   467,
      468,   469,   470,   471,   472,   473,   474,   475,   476,   477,
@@ -4041,102 +4117,102 @@ class CmlParser
         36,    61,   415,     6,     6,    86,    86,     7,    66,   490,
       70,    60,   319,   565,   615,   212,   359,   163,     3,   642,
      493,   218,   609,   129,   130,    18,   247,    19,    32,    30,
-      29,    18,    18,   783,    18,    95,    96,    52,    98,    99,
-     100,   101,   102,   240,   241,   242,    18,     8,    18,    41,
-      42,    32,    41,    42,   116,    49,    50,    49,    50,    10,
-      49,    50,   122,    66,    52,    98,    18,    30,   117,   127,
-     119,     7,    72,    73,    18,    60,    28,    62,     9,    55,
-      15,     4,   116,   116,    28,    64,     7,   688,    11,    12,
+      29,   793,    18,   783,    18,    95,    96,   116,    98,    99,
+     100,   101,   102,   240,   241,   242,    18,     8,    19,    41,
+      42,    32,    41,    42,    19,    10,    18,    49,    50,   116,
+      49,    50,   122,    66,    52,    52,    18,    64,   117,   127,
+     119,     7,    72,    73,    18,    60,    28,    62,     9,   116,
+      30,     4,   845,   845,    28,    58,   116,   688,    11,    12,
       13,    11,    12,    13,    17,    41,    42,    17,    21,    19,
-     116,    21,    42,    49,    50,    41,    42,    22,    31,     0,
-      19,    31,    99,    49,    50,   130,    67,   116,   154,   113,
-     870,   183,   158,   116,   127,    56,   206,   207,   208,   209,
-     116,    52,   116,   191,   215,   216,   217,   116,   219,   220,
-     116,   221,   130,   150,     7,    19,   116,    99,   116,   150,
-     184,   158,   155,   155,   158,    99,   108,   158,    22,   162,
+      15,    21,    75,    49,    50,   184,    18,   116,    31,    18,
+      18,    31,    67,    42,   877,   877,    52,   116,   154,   116,
+     870,   116,   158,   116,   127,    56,   206,   207,   208,   209,
+     116,    55,   116,   191,   215,   216,   217,    99,   219,   220,
+      52,   221,   130,   130,    52,    19,   183,    99,     0,   150,
+      49,    50,   155,   155,   158,    99,   108,   158,    22,   162,
      163,   164,   164,   764,   108,   164,   158,   113,   389,   158,
-     230,   231,   232,   233,   234,   235,   116,   158,   171,   172,
-     173,   174,   175,   176,   177,   178,   158,   150,   191,    98,
-     248,   163,   116,   780,   495,   158,   845,   158,   304,   134,
-     135,   136,   116,   504,   165,    19,   158,   116,   687,   832,
-     683,   163,   318,    18,   166,   167,    32,    33,   170,   134,
-     135,   136,   166,   167,    98,   706,   170,   101,   877,   214,
+     230,   231,   232,   233,   234,   235,    22,   158,   171,   172,
+     173,   174,   175,   176,   177,   178,   158,   116,   191,   687,
+     248,   163,   116,   780,   495,   166,   167,   158,   304,   170,
+     150,   166,   167,   504,   165,   170,   158,   116,   158,   832,
+     683,   163,   318,     7,   166,   167,    32,    33,   170,   134,
+     135,   136,   166,   167,    98,   706,   170,   101,    37,   214,
      153,   154,   155,   153,   154,   155,    11,    12,    13,   791,
-      32,   115,   116,    18,    18,   248,    21,    52,    23,    24,
-      25,    26,    27,   150,   400,     7,    11,    12,    13,    52,
-      53,   158,    17,     7,    19,     7,    21,    42,    58,   305,
-     134,   135,   136,   419,   158,   149,    31,   423,    52,   163,
-     587,    37,   761,    37,    98,    75,    61,    62,   134,   135,
-     136,   772,   893,    52,    19,    70,    38,    58,     8,    74,
-      10,   116,   116,    11,    12,    13,    65,    66,   116,    17,
-     611,   157,   108,    21,    75,   108,   319,   319,   134,   135,
-     136,   158,   623,    31,   430,    18,   163,    29,    21,   104,
+      32,   115,   116,    18,    38,   248,    21,    98,    23,    24,
+      25,    26,    27,     3,   400,     5,    11,    12,    13,    52,
+      53,    58,    17,   761,    19,   116,    21,    42,     7,   305,
+     134,   135,   136,   419,    37,   149,    31,   423,    75,    58,
+     587,    49,    50,     7,    34,    35,    61,    62,   134,   135,
+     136,   772,   893,    52,    19,    70,    75,   158,     8,    74,
+      10,   116,   163,    11,    12,    13,    65,    66,     7,    17,
+     611,    65,    66,    21,   116,   108,   319,   319,   134,   135,
+     136,   158,   623,    31,   430,    18,   163,   108,    21,   104,
      390,   391,   368,   634,   635,   636,   637,   680,   639,   114,
-     641,   116,   134,   135,   136,    37,    39,   407,   408,   398,
-      18,    44,    45,    46,    47,    48,    29,    67,    51,    36,
-     360,     8,    36,    29,    72,    73,    29,    58,    29,    75,
-     428,   431,    37,    98,   158,   150,   101,   116,   153,    56,
-      57,   441,    56,    57,    75,   160,   116,   162,   689,    63,
-     115,   116,    98,    49,    50,   101,   116,   400,   153,   154,
-     155,   116,   405,   405,    19,   134,   135,   136,   709,   115,
-     116,   116,   415,   415,    18,   495,   419,   718,    98,   720,
-     423,   101,   188,   116,   149,   428,   486,    18,   488,   432,
-     432,    18,   492,   166,   167,   115,   116,   170,   498,   109,
-     520,   444,   187,   149,   857,   153,   154,   155,    37,   179,
-     180,   181,   182,    30,   535,   536,   537,   538,   116,   495,
-       8,   541,   543,    65,    66,    75,   572,   116,   504,   149,
-     116,     3,    40,     5,   158,   776,   777,   778,   171,   172,
+     641,   116,   134,   135,   136,   113,    39,   407,   408,   398,
+      37,    44,    45,    46,    47,    48,    18,    67,    51,    36,
+     360,    29,    36,    29,    72,    73,   150,     8,    29,    75,
+     428,   431,    29,    98,   158,   150,   101,    29,   153,    56,
+      57,   441,    56,    57,    37,   160,   116,   162,   689,    63,
+     115,   116,    98,   150,   116,   101,   116,   400,   153,   154,
+     155,   158,   405,   405,   116,   134,   135,   136,   709,   115,
+     116,   158,   415,   415,    19,   495,   419,   718,    98,   720,
+     423,   101,   116,   116,   149,   428,   486,   188,   488,   432,
+     432,    18,   492,   166,   167,   115,   116,   170,   498,    18,
+     520,   444,    18,   149,   857,   153,   154,   155,    37,   179,
+     180,   181,   182,   109,   535,   536,   537,   538,   116,   495,
+     187,   541,   543,    41,    42,    75,   572,   116,   504,   149,
+     116,    49,    50,   366,   367,   776,   777,   778,   171,   172,
      173,   174,   175,   176,   177,   178,    41,    42,    98,    19,
-     539,   101,   185,   186,    49,    50,   366,   367,    11,    12,
-      13,   802,    34,    35,    17,   115,   116,   565,    21,    55,
-     165,    41,    42,   573,    69,    19,    22,    30,    31,    49,
-      50,    30,   823,    30,   721,    30,   606,   607,   608,   158,
+     539,   101,   185,   186,    49,    50,     8,    40,    11,    12,
+      13,   802,    30,   158,    17,   115,   116,   565,    21,    55,
+      19,    41,    42,   573,    69,   165,    22,    30,    31,    49,
+      50,   158,   823,    30,   721,    30,   606,   607,   608,    30,
       69,   589,    11,    12,    13,   836,    18,   643,    17,   149,
-     841,    52,    21,   179,   180,   181,   182,   158,    11,    12,
-      13,    30,    31,   150,    17,   116,   111,    18,    21,    11,
-      12,    13,   565,    22,    18,    17,   150,    30,    31,    21,
-     101,   872,   116,   116,   875,   611,     3,    52,     5,    31,
-      52,   882,    41,    42,   587,   587,   589,   623,    58,   638,
-      49,    50,     7,   116,    52,   896,     8,    19,   634,   635,
+     841,    52,    21,   134,   135,   136,   158,   150,    11,    12,
+      13,    30,    31,    18,    17,   116,   111,    18,    21,    11,
+      12,    13,   565,    22,   150,    17,   157,    30,    31,    21,
+     101,   872,   116,    58,   875,   611,     3,    52,     5,    31,
+     116,   882,    41,    42,   587,   587,   589,   623,    52,   638,
+      49,    50,     7,     7,   116,   896,    52,     8,   634,   635,
      636,   637,   708,   639,     8,   641,   803,    34,    35,    36,
-     911,     8,   913,   914,     8,    21,    18,   158,    18,    41,
-      42,    21,    59,    19,   925,   685,   686,    49,    50,    56,
-      57,    11,    12,    13,    14,    18,    16,    19,     7,    39,
-     153,   154,   155,    18,    44,    45,    46,    47,    48,   116,
-      30,    51,   710,   689,   114,    29,    29,     9,    29,    11,
-      12,    13,   183,   744,    16,   183,    18,   703,    19,    21,
-       4,    41,    42,   709,   153,   154,   155,    54,   714,    49,
-      50,   130,   718,    22,   720,   158,   883,   158,     4,   886,
-     153,   154,   155,   742,    19,    65,    66,    28,    11,    12,
-      13,   153,   154,   155,    17,   785,    19,   710,    21,    11,
-      12,    13,    14,    54,    16,   116,   116,    64,    31,   799,
-       8,   116,   758,   159,    11,    12,    13,   184,    30,    18,
-      17,    22,    19,   791,    21,    32,    22,    41,    42,    43,
+     911,    21,   913,   914,    11,    12,    13,    14,    18,    16,
+       8,    21,     8,    18,   925,   685,   686,    41,    42,    56,
+      57,   158,    19,    30,    18,    49,    50,    19,    18,    39,
+     153,   154,   155,    59,    44,    45,    46,    47,    48,    19,
+       7,    51,   710,   689,    29,    29,    29,     9,   116,    11,
+      12,    13,   183,   744,    16,   114,    18,   703,   183,    21,
+      19,    41,    42,   709,   153,   154,   155,     4,   714,    49,
+      50,    22,   718,    54,   720,   130,   883,    41,    42,   886,
+     153,   154,   155,   742,    28,    49,    50,     4,    11,    12,
+      13,   153,   154,   155,    17,   785,    19,   710,    21,    54,
+     158,    65,    66,    19,   158,   116,   116,    64,    31,   799,
+       8,   159,   758,   116,    11,    12,    13,    41,    42,    43,
+      17,   184,    19,   791,    21,    49,    50,    41,    42,    43,
      776,   777,   778,    69,    31,    49,    50,   853,    41,    42,
-      28,     9,   801,    11,    12,    13,    49,    50,    16,     8,
-      18,   116,    55,    21,   116,    20,   802,    18,   161,     8,
+      22,     9,   801,    11,    12,    13,    49,    50,    16,    22,
+      18,    18,    55,    21,   116,    32,   802,    28,     8,   161,
      830,   171,   172,   173,   174,   175,   176,   177,   178,    11,
-      12,    13,    14,    21,    16,   185,   186,   823,   791,    11,
-      12,    13,    14,   829,    16,    28,    19,    19,    30,   158,
+      12,    13,    14,   116,    16,   185,   186,   823,   791,    11,
+      12,    13,    14,   829,    16,    20,     8,    19,    30,    18,
      836,   881,   128,   129,   130,   841,   132,   133,   134,   135,
      136,   137,   138,   139,   140,   141,   142,   143,   144,   145,
      146,   147,   148,   149,   150,   151,   152,   153,    11,    12,
-      13,    14,    18,    16,     8,    19,   872,     8,     8,   875,
-     153,   154,   155,    11,    12,    13,   882,    30,     8,    17,
-     158,    19,   116,    21,   857,   857,    41,    42,   116,    18,
-     896,    18,   163,    31,    49,    50,   153,   154,   155,    21,
-      20,   152,   156,    19,    32,   911,    18,   913,   914,    21,
-      11,    12,    13,    14,    19,    16,   116,   213,    54,   925,
-      19,   158,    18,   158,    19,    21,     4,    39,    28,    30,
-      18,   183,    44,    45,    46,    47,    48,    18,    22,    51,
-       8,    28,   158,    39,    19,    18,     8,    60,    44,    45,
-      46,    47,    48,    32,    19,    51,    41,    42,    43,    22,
-     184,    19,   150,   157,    49,    50,    11,    12,    13,    14,
-       8,    16,   184,   157,    15,   376,   203,   628,    75,   625,
-      62,    16,   246,    72,    64,   908,   598,   360,   865,   425,
-     858,   287,   424,   829,   164,   910,   292,   293,   424,   780,
-     444,    -1,    -1,    -1,   116,    -1,    -1,   432,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,   153,   154,   155,    -1,    -1,
+      13,    14,    21,    16,    28,    19,   872,   158,    18,   875,
+     153,   154,   155,    11,    12,    13,   882,    30,    19,    17,
+       8,    19,     8,    21,   857,   857,     8,     8,   116,   158,
+     896,   116,   163,    31,    18,    18,   153,   154,   155,   179,
+     180,   181,   182,    21,    20,   911,    18,   913,   914,    21,
+      11,    12,    13,    14,   152,    16,   156,   213,    32,   925,
+      19,    19,    18,   116,    19,    21,   158,    39,   158,    30,
+      19,     4,    44,    45,    46,    47,    48,    54,    28,    51,
+      18,    18,   183,    39,     8,    28,    22,   158,    44,    45,
+      46,    47,    48,    19,     8,    51,    11,    12,    13,    14,
+      18,    16,    11,    12,    13,    14,    22,    16,    60,    32,
+     184,    19,    19,   150,     8,    30,   157,   184,   157,    15,
+     376,   203,   628,    62,    16,   246,    72,    75,   360,    64,
+     908,   287,   598,   865,   858,   425,   292,   293,   780,   424,
+     424,   829,   910,   164,   116,   444,    -1,    -1,    -1,    -1,
+      -1,   432,    -1,    -1,    -1,   153,   154,   155,    -1,    -1,
      116,   317,   318,    -1,   320,   321,    -1,    -1,   324,   325,
      326,   327,   328,   329,   330,   331,   332,   333,   334,   335,
      336,   337,   338,   339,   340,   341,   342,   343,   344,   345,
@@ -4602,7 +4678,7 @@ class CmlParser
      165,   262,    30,    30,    30,    71,   262,    19,   294,   262,
       19,   237,   242,    54,   245,   202,   202,   202,   300,   158,
       52,   256,   158,   212,    19,    72,    73,   303,     4,    75,
-     269,    28,    19,   205,   206,    18,   262,   157,   212,   183,
+     269,    28,    19,   204,   206,    18,   262,   157,   212,   183,
      329,   202,   215,    18,    22,    19,    30,    32,   262,    19,
      244,   245,    61,    62,   202,   253,    30,    30,    30,   295,
      226,   208,     8,   262,   202,    28,   202,   158,    19,    19,
@@ -4778,40 +4854,39 @@ class CmlParser
   "UMINUS", "UPLUS", "$accept", "sourceFile", "programParagraphList",
   "programParagraph", "classDecl", "processDecl", "processDef", "process",
   "processParagraphList", "processParagraph", "paragraphAction", "action",
-  "communicationParameterUseList", "communicationParameterUse",
-  "communicationParameter", "communicationParameterList",
-  "replicatedAction", "renameList", "channelDecl", "channelDef",
-  "channelNameDecl", "declaration", "singleTypeDecl", "chansetDecl",
-  "chansetExpr", "globalDecl", "globalDefinitionBlock",
-  "globalDefinitionBlockAlternative", "classBody", "classDefinitionBlock",
-  "classDefinitionBlockAlternative", "typeDefs", "typeDefList", "typeDef",
-  "qualifier", "type", "fieldList", "field", "invariant", "valueDefs",
-  "valueDefList", "functionDefs", "functionDefList", "functionDef",
-  "implicitFunctionDef", "explicitFunctionDef", "parameterList",
-  "functionBody", "parameterTypes", "identifierTypePairList_opt",
-  "identifierTypePairList", "preExpr_opt", "preExpr", "postExpr_opt",
-  "postExpr", "measureExpr", "operationDefs", "operationDefList",
-  "operationDef", "explicitOperationDef", "implicitOperationDef",
-  "operationType", "operationBody", "externals_opt", "externals",
-  "varInformationList", "mode", "stateDefs", "stateDefList",
-  "invariantDef", "expressionList", "expression", "symbolicLiteral",
-  "numericLiteral", "localDefList", "ifExpr", "elseExprs", "casesExpr",
-  "casesExprAltList", "casesExprAlt", "unaryExpr", "binaryExpr",
-  "quantifiedExpr", "setEnumeration", "setComprehension", "setRangeExpr",
-  "sequenceEnumeration", "sequenceComprehension", "subsequence",
-  "mapEnumeration", "mapletList", "maplet", "mapComprehension",
-  "tupleConstructor", "recordConstructor", "apply", "fieldSelect",
-  "tupleSelect", "lambdaExpr", "newExpr", "generalIsExpr", "basicType",
-  "preconditionExpr", "name", "nameList", "oldName", "controlStatements",
-  "blockStatement", "dclStatement", "assignmentDefList", "assignmentDef",
-  "ifStatement", "elseStatements", "casesStatement",
-  "casesStatementAltList", "casesStatementAlt", "callStatement", "call",
-  "objectDesignator", "objectFieldReference", "objectApply",
-  "returnStatement", "specificationStatement", "implicitOperationBody",
-  "pattern", "patternList", "patternIdentifier", "matchValue",
-  "tuplePattern", "recordPattern", "bind", "setBind", "typeBind",
-  "bindList", "multipleBind", "multipleSetBind", "multipleTypeBind",
-  "typeBindList", "identifierList", null
+  "communicationParameterUseList", "communicationParameter", "parameter",
+  "communicationParameterList", "replicatedAction", "renameList",
+  "channelDecl", "channelDef", "channelNameDecl", "declaration",
+  "singleTypeDecl", "chansetDecl", "chansetExpr", "globalDecl",
+  "globalDefinitionBlock", "globalDefinitionBlockAlternative", "classBody",
+  "classDefinitionBlock", "classDefinitionBlockAlternative", "typeDefs",
+  "typeDefList", "typeDef", "qualifier", "type", "fieldList", "field",
+  "invariant", "valueDefs", "valueDefList", "functionDefs",
+  "functionDefList", "functionDef", "implicitFunctionDef",
+  "explicitFunctionDef", "parameterList", "functionBody", "parameterTypes",
+  "identifierTypePairList_opt", "identifierTypePairList", "preExpr_opt",
+  "preExpr", "postExpr_opt", "postExpr", "measureExpr", "operationDefs",
+  "operationDefList", "operationDef", "explicitOperationDef",
+  "implicitOperationDef", "operationType", "operationBody",
+  "externals_opt", "externals", "varInformationList", "mode", "stateDefs",
+  "stateDefList", "invariantDef", "expressionList", "expression",
+  "symbolicLiteral", "numericLiteral", "localDefList", "ifExpr",
+  "elseExprs", "casesExpr", "casesExprAltList", "casesExprAlt",
+  "unaryExpr", "binaryExpr", "quantifiedExpr", "setEnumeration",
+  "setComprehension", "setRangeExpr", "sequenceEnumeration",
+  "sequenceComprehension", "subsequence", "mapEnumeration", "mapletList",
+  "maplet", "mapComprehension", "tupleConstructor", "recordConstructor",
+  "apply", "fieldSelect", "tupleSelect", "lambdaExpr", "newExpr",
+  "generalIsExpr", "basicType", "preconditionExpr", "name", "nameList",
+  "oldName", "controlStatements", "blockStatement", "dclStatement",
+  "assignmentDefList", "assignmentDef", "ifStatement", "elseStatements",
+  "casesStatement", "casesStatementAltList", "casesStatementAlt",
+  "callStatement", "call", "objectDesignator", "objectFieldReference",
+  "objectApply", "returnStatement", "specificationStatement",
+  "implicitOperationBody", "pattern", "patternList", "patternIdentifier",
+  "matchValue", "tuplePattern", "recordPattern", "bind", "setBind",
+  "typeBind", "bindList", "multipleBind", "multipleSetBind",
+  "multipleTypeBind", "typeBindList", "identifierList", null
   };
 
   /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -4846,7 +4921,7 @@ class CmlParser
      163,   262,    -1,   166,   262,    -1,   170,   262,    -1,   116,
       -1,    98,    18,   206,    19,    -1,    98,   294,    18,   206,
       19,    -1,    98,    18,    19,    -1,    98,   294,    18,    19,
-      -1,   205,    -1,   205,   158,   206,    -1,    11,    29,   212,
+      -1,   204,    -1,   204,   158,   206,    -1,    11,    29,   212,
        8,   202,    30,    -1,    12,    29,   212,     8,   202,    30,
       -1,    13,    29,   212,     8,   202,    30,    -1,   160,   183,
      161,    18,   212,     8,   202,    19,    -1,   153,   183,    32,
@@ -5027,45 +5102,45 @@ class CmlParser
          0,   215,   215,   221,   228,   236,   244,   257,   258,   259,
      260,   266,   289,   300,   304,   312,   319,   320,   321,   322,
      323,   324,   325,   326,   327,   328,   329,   330,   331,   332,
-     336,   343,   358,   377,   378,   382,   386,   394,   399,   400,
-     401,   402,   404,   411,   416,   417,   418,   419,   420,   421,
-     422,   423,   424,   425,   427,   428,   431,   432,   434,   435,
-     448,   449,   453,   454,   455,   456,   460,   461,   462,   463,
-     464,   468,   469,   483,   484,   485,   486,   487,   488,   489,
-     493,   494,   500,   517,   524,   533,   547,   559,   565,   574,
-     583,   596,   601,   613,   618,   624,   630,   637,   644,   654,
-     663,   692,   696,   704,   714,   720,   725,   736,   741,   747,
-     755,   765,   769,   773,   777,   794,   803,   813,   826,   832,
-     841,   861,   878,   882,   887,   892,   897,   903,   910,   914,
-     918,   922,   926,   930,   934,   938,   942,   946,   947,   948,
-     949,   950,   951,   952,   953,   954,   955,   956,   957,   958,
-     959,   960,   965,   969,   970,   974,   975,   976,   980,   992,
-     996,   997,   998,  1006,  1013,  1026,  1032,  1041,  1042,  1047,
-    1075,  1084,  1085,  1089,  1090,  1091,  1095,  1099,  1106,  1117,
-    1120,  1127,  1134,  1144,  1149,  1155,  1162,  1167,  1173,  1180,
-    1181,  1187,  1191,  1192,  1198,  1199,  1203,  1207,  1211,  1212,
-    1213,  1214,  1218,  1219,  1220,  1224,  1225,  1229,  1234,  1235,
-    1236,  1240,  1241,  1250,  1255,  1256,  1257,  1261,  1269,  1275,
-    1284,  1289,  1290,  1291,  1292,  1293,  1297,  1298,  1299,  1300,
-    1301,  1302,  1303,  1304,  1305,  1306,  1307,  1308,  1309,  1310,
-    1311,  1312,  1313,  1314,  1315,  1316,  1322,  1323,  1327,  1340,
-    1346,  1355,  1356,  1362,  1366,  1367,  1371,  1375,  1376,  1377,
-    1381,  1395,  1403,  1411,  1419,  1427,  1435,  1443,  1451,  1459,
-    1467,  1475,  1483,  1491,  1499,  1507,  1515,  1523,  1531,  1539,
-    1547,  1564,  1569,  1570,  1571,  1572,  1573,  1574,  1580,  1585,
-    1590,  1595,  1600,  1605,  1610,  1615,  1620,  1625,  1630,  1635,
-    1640,  1645,  1650,  1655,  1660,  1665,  1670,  1671,  1672,  1673,
-    1674,  1675,  1676,  1682,  1683,  1684,  1690,  1694,  1703,  1704,
-    1708,  1714,  1715,  1719,  1724,  1728,  1729,  1733,  1734,  1738,
-    1742,  1743,  1749,  1755,  1761,  1765,  1769,  1775,  1783,  1789,
-    1790,  1791,  1795,  1796,  1797,  1798,  1799,  1800,  1801,  1802,
-    1808,  1814,  1819,  1823,  1824,  1828,  1842,  1843,  1845,  1846,
-    1847,  1864,  1865,  1869,  1873,  1874,  1878,  1879,  1880,  1904,
-    1908,  1909,  1913,  1917,  1918,  1919,  1923,  1931,  1935,  1936,
-    1948,  1949,  1952,  1953,  1954,  1955,  1959,  1963,  1964,  1969,
-    1977,  1981,  1989,  1990,  1991,  1992,  1996,  2002,  2011,  2017,
-    2022,  2028,  2033,  2034,  2047,  2048,  2052,  2062,  2072,  2078,
-    2087,  2088,  2092,  2102,  2112,  2113,  2119,  2129
+     336,   343,   358,   379,   380,   384,   388,   395,   400,   401,
+     402,   403,   405,   412,   423,   424,   425,   426,   427,   428,
+     429,   430,   431,   432,   434,   435,   438,   439,   441,   442,
+     455,   462,   476,   482,   483,   484,   488,   493,   498,   499,
+     500,   504,   505,   519,   520,   521,   522,   523,   524,   525,
+     529,   530,   536,   553,   560,   569,   583,   595,   601,   610,
+     619,   632,   637,   649,   654,   660,   666,   673,   680,   690,
+     699,   728,   732,   740,   750,   756,   761,   772,   777,   783,
+     791,   801,   805,   809,   813,   830,   839,   849,   862,   868,
+     877,   897,   914,   918,   923,   928,   933,   939,   946,   950,
+     954,   958,   962,   966,   970,   974,   978,   982,   983,   984,
+     985,   986,   987,   988,   989,   990,   991,   992,   993,   994,
+     995,   996,  1001,  1005,  1006,  1010,  1011,  1012,  1016,  1028,
+    1032,  1033,  1034,  1042,  1049,  1062,  1068,  1077,  1078,  1083,
+    1111,  1120,  1121,  1125,  1126,  1127,  1131,  1135,  1142,  1153,
+    1156,  1163,  1170,  1180,  1185,  1191,  1198,  1203,  1209,  1216,
+    1217,  1223,  1227,  1228,  1234,  1235,  1239,  1243,  1247,  1248,
+    1249,  1250,  1254,  1255,  1256,  1260,  1261,  1265,  1270,  1271,
+    1272,  1276,  1277,  1286,  1291,  1292,  1293,  1297,  1305,  1311,
+    1320,  1325,  1326,  1327,  1328,  1329,  1333,  1334,  1335,  1336,
+    1337,  1338,  1339,  1340,  1341,  1342,  1343,  1344,  1345,  1346,
+    1347,  1348,  1349,  1350,  1351,  1352,  1358,  1359,  1363,  1376,
+    1382,  1391,  1392,  1398,  1402,  1403,  1407,  1411,  1412,  1413,
+    1417,  1431,  1439,  1447,  1455,  1463,  1471,  1479,  1487,  1495,
+    1503,  1511,  1519,  1527,  1535,  1543,  1551,  1559,  1567,  1575,
+    1583,  1600,  1605,  1606,  1607,  1608,  1609,  1610,  1616,  1621,
+    1626,  1631,  1636,  1641,  1646,  1651,  1656,  1661,  1666,  1671,
+    1676,  1681,  1686,  1691,  1696,  1701,  1706,  1707,  1708,  1709,
+    1710,  1711,  1712,  1718,  1719,  1720,  1726,  1730,  1739,  1740,
+    1744,  1750,  1751,  1755,  1760,  1764,  1765,  1769,  1770,  1774,
+    1778,  1779,  1785,  1791,  1797,  1801,  1805,  1811,  1819,  1825,
+    1826,  1827,  1831,  1832,  1833,  1834,  1835,  1836,  1837,  1838,
+    1844,  1850,  1855,  1859,  1860,  1864,  1878,  1879,  1881,  1882,
+    1883,  1900,  1901,  1905,  1909,  1910,  1914,  1915,  1916,  1940,
+    1944,  1945,  1949,  1953,  1954,  1955,  1959,  1967,  1971,  1972,
+    1984,  1985,  1988,  1989,  1990,  1991,  1995,  1999,  2000,  2005,
+    2013,  2017,  2025,  2026,  2027,  2028,  2032,  2038,  2047,  2053,
+    2058,  2064,  2069,  2070,  2083,  2084,  2088,  2098,  2108,  2114,
+    2123,  2124,  2128,  2138,  2148,  2149,  2155,  2165
   };
 
   // Report on the debug stream that the rule yyrule is going to be reduced.
@@ -5300,7 +5375,7 @@ class CmlParser
 
 
 /* Line 898 of cmlskeleton.java.m4  */
-/* Line 5304 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
+/* Line 5379 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
 
 }
 

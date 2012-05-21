@@ -361,15 +361,17 @@ processParagraph :
       List<ASingleTypeDeclaration> declarations = 
 	  (List<ASingleTypeDeclaration>)pa[0];
       PAction action = (PAction)pa[1];
-      LexLocation defLocation = null;
-      //   LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
+      LexLocation defLocation = combineLexLocation(extractLexLocation((CmlLexeme)$1),
+						   action.getLocation());
       AActionDefinition actionDefinition = new AActionDefinition(defLocation, 
 								 NameScope.GLOBAL, 
 								 false, 
 								 null, 
 								 declarations, 
 								 action);
-      LexLocation declLoc = null;
+      
+      LexLocation declLoc = combineLexLocation(extractLexLocation((CmlLexeme)$1),
+					       action.getLocation());;
       $$ = new AActionDeclaration(declLoc, 
 				  NameScope.GLOBAL, 
 				  actionDefinition);
@@ -385,7 +387,6 @@ action
 }
 | declaration AT action
 {
-    //List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)$1;
     $$ = new Object[]{$1,$2};
 } 
 ;
@@ -410,7 +411,13 @@ action
 }
 | IDENTIFIER communicationParameterUseList RARROW action
 {
-
+    LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
+    PAction action = (PAction)$4;
+    LexLocation location = combineLexLocation(id.getLocation(),action.getLocation());
+    List<PCommunicationParameter> communicationParamters = (List<PCommunicationParameter>)$2;
+    $$ = new ACommunicationAction(location, id, 
+				  communicationParamters,
+				  action);
 }
   /* Communication rule end*/
 | AMP expression AMP action
@@ -445,20 +452,49 @@ communication :
   ;
 */
 communicationParameterUseList :
-  communicationParameterUse
-| communicationParameterUse communicationParameterUseList
+  communicationParameter
+  {
+      List<PCommunicationParameter> comParamList = 
+	  new Vector<PCommunicationParameter>();
+      comParamList.add((PCommunicationParameter)$1);
+      $$ = comParamList;
+  }
+| communicationParameter communicationParameterUseList
+{
+    List<PCommunicationParameter> comParamList = 
+	(List<PCommunicationParameter>)$1;
+
+    if (comParamList == null) 
+	comParamList = new Vector<PCommunicationParameter>();
+    
+    comParamList.add((PCommunicationParameter)$2);
+    $$ = comParamList;
+}
   ;
 
-communicationParameterUse :
-  CSP_CHANNEL_WRITE communicationParameter
-| CSP_CHANNEL_WRITE communicationParameter COLON expression 
+communicationParameter :
+  CSP_CHANNEL_WRITE parameter
+  {
+      PParameter parameter = (PParameter)$2;
+      LexLocation location = null;
+      $$ = new AWriteCommunicationParameter(location, parameter, null);
+  }
+| CSP_CHANNEL_WRITE parameter COLON expression 
 | CSP_CHANNEL_READ expression
 | CSP_CHANNEL_DOT expression  
   ;
 
-communicationParameter :
+parameter :
  IDENTIFIER
+ {
+     LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
+     $$ = new AIdentifierParameter(id.getLocation(),id);
+ }
 | MKUNDER LPAREN communicationParameterList RPAREN
+{
+    //ATupleParameter(
+     
+}
 | MKUNDER name LPAREN communicationParameterList RPAREN
 | MKUNDER LPAREN RPAREN
 | MKUNDER name LPAREN RPAREN

@@ -1,0 +1,8 @@
+process RegisterProc = 
+ begin
+ aCtions
+   REG = 
+     load?i -> *LOAD() ; REG
+   @
+     init -> *INIT(); REG
+ end

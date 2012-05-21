@@ -490,8 +490,8 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   //   ")"				      { return createToken(CmlParser.RPAREN); }
   //  "("				      { return createToken(CmlParser.LPAREN); }
   "&"				      { return createToken(CmlParser.AMP); }
-  "?"				      { return createToken(CmlParser.CSP_CHANNEL_WRITE); }
-  "!"				      { return createToken(CmlParser.CSP_CHANNEL_READ); }
+  "?"				      { return createToken(CmlParser.CSP_CHANNEL_READ); }
+  "!"				      { return createToken(CmlParser.CSP_CHANNEL_WRITE); }
   "."				      { return createToken(CmlParser.CSP_CHANNEL_DOT); }
   "var"                               { return createToken(CmlParser.CSP_VARDECL); }
   "@"                                 { return createToken(CmlParser.AT); }
