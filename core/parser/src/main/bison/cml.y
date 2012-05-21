@@ -398,8 +398,20 @@ action
     $$ = new ASkipAction(location);
 }
 | CSPSTOP
+{ 
+    LexLocation location = extractLexLocation((CmlLexeme)$1);
+    $$ = new AStopAction(location);
+}
 | CSPCHAOS
+{ 
+    LexLocation location = extractLexLocation((CmlLexeme)$1);
+    $$ = new AChaosAction(location);
+}
 | CSPDIV 
+{ 
+    LexLocation location = extractLexLocation((CmlLexeme)$1);
+    $$ = new ADivAction(location);
+}
 | CSPWAIT expression 
   /* Communication rule start*/
 | IDENTIFIER RARROW action
@@ -473,15 +485,35 @@ communicationParameterUseList :
   ;
 
 communicationParameter :
-  CSP_CHANNEL_WRITE parameter
+  CSP_CHANNEL_READ parameter
   {
       PParameter parameter = (PParameter)$2;
-      LexLocation location = null;
-      $$ = new AWriteCommunicationParameter(location, parameter, null);
+      LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1),
+								   parameter.getLocation());
+      $$ = new AReadCommunicationParameter(location, parameter, null);
   }
-| CSP_CHANNEL_WRITE parameter COLON expression 
-| CSP_CHANNEL_READ expression
+| CSP_CHANNEL_READ parameter COLON expression 
+{
+    PParameter parameter = (PParameter)$2;
+    PExp exp = (PExp)$4;
+    LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1),
+								 exp.getLocation());
+    $$ = new AReadCommunicationParameter(location, parameter, exp);
+}
+| CSP_CHANNEL_WRITE expression
+{
+    PExp exp = (PExp)$2;
+    LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1),
+								 exp.getLocation());
+    $$ = new AWriteCommunicationParameter(location, exp);
+}
 | CSP_CHANNEL_DOT expression  
+{
+    PExp exp = (PExp)$2;
+    LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1),
+								 exp.getLocation());
+    $$ = new AReferenceCommunicationParameter(location, exp);
+}
   ;
 
 parameter :

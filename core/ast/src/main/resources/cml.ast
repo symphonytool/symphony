@@ -572,8 +572,8 @@ action {-> package='org.overture.ast.actions'}
 	;
 	
 communicationParameter {-> package='org.overture.ast.actions'}
-	= {read} [expression]:exp
-	| {write} [parameter]:parameter [expression]:exp 
+	= {read} [parameter]:parameter [expression]:exp
+	| {write} [expression]:exp 
 	| {reference} [expression]:exp	
 	;
 
