@@ -563,6 +563,7 @@ action {-> package='org.overture.ast.actions'}
 	| {div}
 	| {wait}
 	| {communication} [identifier]:LexIdentifierToken [communicationParamters]:communicationParameter* [action]:action
+	| {guarded} [expression]:exp [action]:action
 	| {sequentialComposition} [left]:action [right]:action
 	| {externalChoice} [left]:action [right]:action
 	| #ControlStatement

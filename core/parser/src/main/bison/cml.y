@@ -439,6 +439,11 @@ action
 }
   /* Communication rule end*/
 | AMP expression AMP action
+{
+    PAction action = (PAction)$4;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,action.getLocation());
+    $$ = new AGuardedAction(location, (PExp)$2, action);
+}
 | action CSPSEQ action
 {
     PAction left = (PAction)$1;
@@ -1846,6 +1851,14 @@ recordConstructor :
 
 apply :
   expression LPAREN expressionList RPAREN
+  {
+      PExp root = (PExp)$1;
+      List<? extends PExp> args = (List<? extends PExp>)$3;
+      
+      LexLocation location = combineLexLocation(root.getLocation(),
+						extractLexLocation((CmlLexeme)$4));
+      $$ = new AApplyExp(location, root, args);
+  }
   ;
 
 fieldSelect :

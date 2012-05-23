@@ -1,0 +1,15 @@
+process RegisterProc = 
+ begin
+ aCtions
+   REG = 
+     (load?i -> *LOAD(i) ; REG)
+     []
+     (dcl j: Byte @ j := *READ(); read!j -> REG)
+     [] 
+     (add?i -> ( (& oflow(reg,i) & overflow -> *INIT(); REG)
+       	     	 [] 
+		 (& not oflow(reg,i) & *ADD(i);REG)))
+     
+   @
+     init -> *INIT(); REG
+ end
