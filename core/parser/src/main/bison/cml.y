@@ -149,21 +149,27 @@
 	    
 	      }
 	      else
-		System.out.println("Not parsed!");
+		{
+		  System.out.println("Not parsed!");
+		  System.exit(-1);
+		}
 		
 	      //} while (!scanner.zzAtEOF);
 
 	    }
 	    catch (java.io.FileNotFoundException e) {
 		System.out.println("File not found : \""+args[0]+"\"");
+		System.exit(-2);
 	    }
 	    catch (java.io.IOException e) {
 		System.out.println("IO error scanning file \""+args[0]+"\"");
 		System.out.println(e);
+		System.exit(-3);
 	    }
 	    catch (Exception e) {
 		System.out.println("Unexpected exception:");
 		e.printStackTrace();
+		System.exit(-4);
 	    }
 	    
 	}
