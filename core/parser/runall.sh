@@ -1,5 +1,6 @@
 #!/bin/bash
 #Who am I ?
+#I am Who.
 `cat README.bison`
 mvn install
  for test in $(ls -1 ../../docs/cml-examples/); do 
