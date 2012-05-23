@@ -1373,6 +1373,12 @@ expression :
       $$ = new ABracketedExp(loc,(PExp)$2);
   }
 | LET localDefList IN expression
+{
+  List<ADef> l = (List<ADef>)$2;
+  PExp e = (PExp)$4;
+  extractLexLocation( (CmlLexeme) $1, e.getLocation());
+  $$ = new LetSomething( with the stuff );
+}
 | ifExpr
 | casesExpr
 | unaryExpr
