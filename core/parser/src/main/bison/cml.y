@@ -292,7 +292,7 @@ classDecl
 				      endPos.column, 
 				      startPos.offset, endPos.offset);
     
-    c.setLocation(loc);
+    c.setLocation(loc); 
     c.setName(lexName);
     //  c.setDefinitions((List)$4);
     AClassDeclaration res = new AClassDeclaration();
