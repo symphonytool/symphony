@@ -928,15 +928,16 @@ typeDef
 {
     AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
     LexNameToken name = extractLexNameToken((CmlLexeme)$2);
+    AInvariantInvariant inv = (AInvariantInvariant)$5;
     LexLocation location = null;
     if (access.getLocation() != null)
-	location = combineLexLocation(access.getLocation(),((PTypeBase)$4).getLocation());
+	location = combineLexLocation(access.getLocation(),inv.getLocation());
     else
     {
-	location = combineLexLocation(name.getLocation(),((PTypeBase)$4).getLocation());
+	location = combineLexLocation(name.getLocation(),inv.getLocation());
     }
     
-    AInvariantInvariant inv = (AInvariantInvariant)$5;
+    
 
     $$ = new ATypeDefinition(location,null /*NameScope nameScope_*/, false, 
 			     null/*SClassDefinition classDefinition_*/,access, 
