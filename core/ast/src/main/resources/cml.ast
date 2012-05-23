@@ -66,7 +66,7 @@ sourcefile {-> package='org.overture.ast.program'}
 */
 
 declaration {-> package='org.overture.ast.declarations'}
-    = {class}
+    = {class} [identifier]:LexIdentifierToken [classBody]: definition.classbody
     | {process} [identifier]:LexIdentifierToken [processDefinition]:definition.process
     | {channel} [channelDefinition]:definition.channel
     | {channelName} [declaration]:singleType
@@ -75,9 +75,9 @@ declaration {-> package='org.overture.ast.declarations'}
     // --- Maybe they should be grouped together in a sub declaration
     | {type} [typeDefinitions]:definition.type*
     | {function} [functionDefinitions]:definition.#function*
-    | {value}
+    | {value} definition.value*
     // ---	
-    | {singleType} [identifiers]:LexIdentifierToken* (type):type    	    	
+    | {singleType} [identifiers]:LexIdentifierToken* (type):type
 ;
 
 /*
@@ -88,6 +88,7 @@ definition {-> package='org.overture.ast.definitions'}
     =   {assignment} [expression]:exp (expType):type
     |   {instanceVariable} [expression]:exp (expType):type [initialized]:java_Boolean [oldname]:LexNameToken //this actually inherits assignment in Nicks tree
     |   #class 
+    |   {classbody} [declarations]:declaration.singleType* 
     |	{process} [declarations]:declaration.singleType* [process]:process
     |   {action} [declarations]:declaration.singleType* [action]:action
     |   {chanset}

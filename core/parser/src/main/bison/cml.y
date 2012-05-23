@@ -75,6 +75,15 @@
 			     end.endLine, end.endPos,0,0);
     }
 
+    private LexLocation extractLexLast( List<PDefinition> defs )
+    {
+      LexLocation candidate = defs.get(0).getLocation();
+      for(PDefinition p : defs)
+	if (p.getLocation().endOffset > candidate.endOffset)
+	  candidate = p.getLocation();
+      return candidate;
+    }
+
     //    private LexToken makeLexToken()
     
     private LexNameToken extractLexNameToken(CmlLexeme lexeme)
@@ -190,14 +199,15 @@
  */
 
 %token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_EXT VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN VDMDONTCARE IDENTIFIER
-%token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1 
+%token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1 EXTENDS
 
 %token HEX_LITERAL
 
 %token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_OPS_COM CSP_CHANNEL_DOT
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
-%token nameset namesetExpr typeVarIdentifier quoteLiteral functionType localDef
+%token nameset namesetExpr typeVarIdentifier quoteLiteral functionType 
+ //localDef
 
 /* CSP ops and more */
 %right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN
@@ -269,23 +279,25 @@ programParagraph
 
 /* 2.1 Classes */
 classDecl 
-: CLASS IDENTIFIER EQUALS classBody        
+: CLASS IDENTIFIER EQUALS classBody
 { 
-    Position classStartPos =  ((CmlLexeme)$1).getStartPos();
-    Position classEndPos = ((CmlLexeme)$4).getEndPos();
-    LexLocation loc = new LexLocation(null, "Default", classStartPos.line,classStartPos.column,classEndPos.line,classEndPos.column,0,0);
+  AClassbodyDefinition c = new AClassbodyDefinition();
+    Position startPos =  ((CmlLexeme)$1).getStartPos();
+    Position endPos = ((CmlLexeme)$3).getEndPos(); // TODO Fix me, the ending position is the 
     LexNameToken lexName = extractLexNameToken((CmlLexeme)$2); 
-    // $$ = new AClassClassDefinition(loc, lexName , /*NameScope nameScope_*/ null, /*Boolean used_*/ null, 
-    // 				   /*AAccessSpecifierAccessSpecifier*/ null,/* List<? extends LexNameToken> supernames_*/ new Vector<LexNameToken>(), 
-    // 				   null /*hasContructors_*/, /*ClassDefinitionSettings settingHierarchy_*/null, 
-    // 				   null/*Boolean gettingInheritable_*/, null/*Boolean gettingInvDefs_*/, 
-    // 				   /*Boolean isAbstract_*/null, /*Boolean isUndefined_*/null); 
-    AClassClassDefinition c = new AClassClassDefinition();
+    LexLocation loc = new LexLocation(null,"DEFAULT", 
+				      startPos.line, 
+				      startPos.column, 
+				      endPos.line, 
+				      endPos.column, 
+				      startPos.offset, endPos.offset);
+    
     c.setLocation(loc);
     c.setName(lexName);
-    c.setIsAbstract(false);
-    c.setDefinitions((List)$3);
-    $$ = c;
+    //  c.setDefinitions((List)$4);
+    AClassDeclaration res = new AClassDeclaration();
+    res.setClassBody( c );
+    $$ = res;
 }
 ;
 
@@ -818,7 +830,14 @@ globalDefinitionBlockAlternative
 
 /* 3 Definitions */
 
-classBody 
+classBody: 
+BEGIN classDefinitionBlock END
+{
+  $$ = new LinkedList<PDefinition>();
+}
+;
+
+/*classBody 
 : classDefinitionBlock                       
 { 
   $$ = (List)$1; 
@@ -828,7 +847,7 @@ classBody
   $$ = new Vector<PDefinition>();
 }
 ;
-
+*/
 classDefinitionBlock 
 : classDefinitionBlockAlternative
 {
@@ -850,19 +869,19 @@ classDefinitionBlock
 classDefinitionBlockAlternative
 : typeDefs             
 {
-  
+
 }
 | valueDefs
 {
-  
+  $$ = $1;
 }
 | functionDefs
 {
-  
+
 }
 | operationDefs
 {
-  
+
 }
 /*| stateDefs
 {
@@ -928,15 +947,16 @@ typeDef
 {
     AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
     LexNameToken name = extractLexNameToken((CmlLexeme)$2);
+    AInvariantInvariant inv = (AInvariantInvariant)$5;
     LexLocation location = null;
     if (access.getLocation() != null)
-	location = combineLexLocation(access.getLocation(),((PTypeBase)$4).getLocation());
+	location = combineLexLocation(access.getLocation(),inv.getLocation());
     else
     {
-	location = combineLexLocation(name.getLocation(),((PTypeBase)$4).getLocation());
+	location = combineLexLocation(name.getLocation(),inv.getLocation());
     }
     
-    AInvariantInvariant inv = (AInvariantInvariant)$5;
+    
 
     $$ = new ATypeDefinition(location,null /*NameScope nameScope_*/, false, 
 			     null/*SClassDefinition classDefinition_*/,access, 
@@ -1076,11 +1096,48 @@ invariant :
 
 valueDefs :
   VALUES valueDefList
+  {
+    $$ = $2;
+  }
   ;
 
 valueDefList :
-  pattern EQUALS expression SEMI valueDefList
-| pattern VDMTYPE type EQUALS expression SEMI valueDefList
+qualifier pattern VDMTYPE type EQUALS expression
+{
+   // Get constituent elements
+    PPattern pattern = (PPattern)$2;
+    PExp expression = (PExp)$6;
+ 
+    // Build the resulting AValueDefinition
+    AValueDefinition vdef = new AValueDefinition();
+    vdef.setPattern(pattern);
+    vdef.setExpression(expression);
+    vdef.setDefs(new LinkedList<PDefinition>());
+    vdef.setLocation( combineLexLocation( pattern.getLocation(), 
+					 extractLexLocation( (CmlLexeme)$5 )) ); // todo fix me
+    List<PDefinition> res = new LinkedList<PDefinition>();
+    res.add(vdef);
+    $$ = res;
+}
+|
+  qualifier pattern VDMTYPE type EQUALS expression SEMI valueDefList
+  {
+    // Get constituent elements
+    PPattern pattern = (PPattern)$1;
+    PExp expression = (PExp)$3;
+    List<PDefinition> defs = (List<PDefinition>)$5;  
+
+    // Build the resulting AValueDefinition
+    AValueDefinition vdef = new AValueDefinition();
+    vdef.setPattern(pattern);
+    vdef.setExpression(expression);
+    vdef.setDefs(defs);
+    vdef.setLocation( combineLexLocation( pattern.getLocation(), 
+					 extractLexLocation( (CmlLexeme)$4 )) ); // todo fix me
+    defs.add(vdef);
+    $$ = defs;
+  }
+/*| pattern VDMTYPE type EQUALS expression SEMI valueDefList
 | /* empty */
   ;
 
@@ -1374,10 +1431,10 @@ expression :
   }
 | LET localDefList IN expression
 {
-  List<ADef> l = (List<ADef>)$2;
+  List<PDefinition> l = (List<PDefinition>)$2;
   PExp e = (PExp)$4;
-  extractLexLocation( (CmlLexeme) $1, e.getLocation());
-  $$ = new LetSomething( with the stuff );
+  LexLocation loc = extractLexLocation( (CmlLexeme) $1, e.getLocation());
+  $$ = new ALetDefExp( loc, l, e );
 }
 | ifExpr
 | casesExpr
@@ -1445,8 +1502,41 @@ numericLiteral:
 
 localDefList :
   localDef
+  {
+    List<PDefinition> res = new LinkedList<PDefinition>();
+    res.add((PDefinition)$1);
+    $$ = res;
+  }
 | localDef COMMA localDefList
-  ;
+{
+  PDefinition def = (PDefinition)$1;
+  List<PDefinition> defs = (List<PDefinition>)$3;
+  defs.add(def);
+  $$ = defs;
+}
+;
+
+localDef :
+pattern VDMTYPE type EQUALS expression {
+  PPattern ptrn = (PPattern)$1;
+  PType type = (PType)$3;
+  PExp exp = (PExp)$5;
+  LexLocation loc = new LexLocation(null, 
+				    "DEFAULT", 
+				    ptrn.getLocation().startLine, 
+				    ptrn.getLocation().startPos,
+				    exp.getLocation().endLine,
+				    exp.getLocation().endPos,
+				    ptrn.getLocation().startOffset,
+				    exp.getLocation().endOffset);
+  AValueDefinition res = new AValueDefinition();
+  res.setLocation(loc);
+  res.setPattern(ptrn);
+  res.setExpression(exp);
+  res.setDefs(new LinkedList<PDefinition>());
+  $$ = res;
+}
+;
 
 /* 4.3 Conditional Expressions */
 
