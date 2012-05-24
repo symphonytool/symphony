@@ -36,6 +36,14 @@
 
 
 %code{
+  // **************************
+  // *** PARSER INTERNAL DS ***
+  // **************************
+  class PatternWithVDMType {
+    public PType type;
+    public PPattern pattern;
+  };
+
     // ************************
     // *** MEMBER VARIABLES ***
     // ************************
@@ -1102,44 +1110,68 @@ valueDefs :
   ;
 
 valueDefList :
-qualifier pattern VDMTYPE type EQUALS expression
+qualifiedValueDef
+ {
+   // Build resulting list 
+   List<PDefinition> defs = new LinkedList<PDefinition>();
+   defs.add((PDefinition)$1);
+   $$ = defs;
+ }
+|
+qualifiedValueDef SEMI valueDefList
+{
+  // Get constituents
+  PDefinition def = (PDefinition)$1;
+  List<PDefinition> defs = (List<PDefinition>)$3;
+  
+  // add hd to tl
+  defs.add(def);
+  $$ = defs;
+}
+ ;
+
+qualifiedValueDef:
+qualifier valueDef {
+  // Get constituents
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
+  PDefinition def = (PDefinition)$2;
+  
+  // set qualifier
+  def.setAccess(access);
+  $$ = def;
+}
+;
+
+valueDef :
+patternWithVDMType EQUALS expression
 {
    // Get constituent elements
-    PPattern pattern = (PPattern)$2;
-    PExp expression = (PExp)$6;
+  PatternWithVDMType typedPattern = (PatternWithVDMType)$1;
+  // $2 EQUALS
+  PExp expression = (PExp)$3;
+  
  
-    // Build the resulting AValueDefinition
-    AValueDefinition vdef = new AValueDefinition();
-    vdef.setPattern(pattern);
-    vdef.setExpression(expression);
-    vdef.setDefs(new LinkedList<PDefinition>());
-    vdef.setLocation( combineLexLocation( pattern.getLocation(), 
-					 extractLexLocation( (CmlLexeme)$5 )) ); // todo fix me
-    List<PDefinition> res = new LinkedList<PDefinition>();
-    res.add(vdef);
-    $$ = res;
+  // Build the resulting AValueDefinition
+  AValueDefinition vdef = new AValueDefinition();
+  vdef.setPattern(typedPattern.pattern);
+  vdef.setType(typedPattern.type);
+  vdef.setExpression(expression);
+  vdef.setDefs(null);
+  vdef.setLocation(combineLexLocation( typedPattern.pattern.getLocation(), 
+				       expression.getLocation() ) );
+  $$ = vdef;
 }
-|
-  qualifier pattern VDMTYPE type EQUALS expression SEMI valueDefList
-  {
-    // Get constituent elements
-    PPattern pattern = (PPattern)$1;
-    PExp expression = (PExp)$3;
-    List<PDefinition> defs = (List<PDefinition>)$5;  
+;
 
-    // Build the resulting AValueDefinition
-    AValueDefinition vdef = new AValueDefinition();
-    vdef.setPattern(pattern);
-    vdef.setExpression(expression);
-    vdef.setDefs(defs);
-    vdef.setLocation( combineLexLocation( pattern.getLocation(), 
-					 extractLexLocation( (CmlLexeme)$4 )) ); // todo fix me
-    defs.add(vdef);
-    $$ = defs;
-  }
-/*| pattern VDMTYPE type EQUALS expression SEMI valueDefList
-| /* empty */
-  ;
+patternWithVDMType :
+pattern VDMTYPE type 
+{
+  PatternWithVDMType res = new PatternWithVDMType();
+  res.pattern   = (PPattern)$1;
+  res.type = (PType) $3;
+  $$ = res;
+}
+;
 
 /* FIXME the optional trailing semicolon in the values definitions is presently not optional */
 
@@ -1182,9 +1214,8 @@ functionDef
 
 functionDef:
  implicitFunctionDef
-| explicitFunctionDef
+| qualifiedExplicitFunctionDef
  ;
-
 
 implicitFunctionDef:
 qualifier IDENTIFIER parameterTypes identifierTypePairList preExpr_opt postExpr
@@ -1214,13 +1245,19 @@ qualifier IDENTIFIER parameterTypes identifierTypePairList preExpr_opt postExpr
 }
 ;
 
-explicitFunctionDef:
-qualifier IDENTIFIER VDMTYPE functionType IDENTIFIER parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
+qualifiedExplicitFunctionDef:
+qualifier explicitFunctionDef
   {
     $$ = new AExplicitFunctionFunctionDefinition();
   }
 ;
 
+explicitFunctionDef:
+patternWithVDMType IDENTIFIER parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
+  {
+    $$ = new AExplicitFunctionFunctionDefinition();
+  }
+;
 
 /* really? this is what a VDM function definition list looks like? */
 parameterList :
@@ -1437,8 +1474,17 @@ expression :
   $$ = new ALetDefExp( loc, l, e );
 }
 | ifExpr
+{
+  $$ = $1;
+}
 | casesExpr
+{
+  $$ = $1;
+}
 | unaryExpr
+{
+  $$ = $1;
+}
 | binaryExpr
 {
     $$ = $1;
@@ -1517,24 +1563,14 @@ localDefList :
 ;
 
 localDef :
-pattern VDMTYPE type EQUALS expression {
-  PPattern ptrn = (PPattern)$1;
-  PType type = (PType)$3;
-  PExp exp = (PExp)$5;
-  LexLocation loc = new LexLocation(null, 
-				    "DEFAULT", 
-				    ptrn.getLocation().startLine, 
-				    ptrn.getLocation().startPos,
-				    exp.getLocation().endLine,
-				    exp.getLocation().endPos,
-				    ptrn.getLocation().startOffset,
-				    exp.getLocation().endOffset);
-  AValueDefinition res = new AValueDefinition();
-  res.setLocation(loc);
-  res.setPattern(ptrn);
-  res.setExpression(exp);
-  res.setDefs(new LinkedList<PDefinition>());
-  $$ = res;
+valueDef
+{
+  $$ = $1;
+}
+|
+explicitFunctionDef
+{
+  $$ = $1;
 }
 ;
 
@@ -2246,7 +2282,7 @@ externals_opt preExpr_opt  postExpr
 /* 7.1  */
 
 pattern :
-  patternIdentifier
+patternIdentifier
 | matchValue
 | tuplePattern
 | recordPattern
