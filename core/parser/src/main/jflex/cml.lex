@@ -122,7 +122,9 @@ class CommentBlock extends CMLToken {
     keywords.put("functions", CmlParser.FUNCTIONS);
     keywords.put("hd", CmlParser.HD);
     keywords.put("if", CmlParser.IF);
+    */
     keywords.put("in", CmlParser.IN);
+    /*
     keywords.put("inds", CmlParser.INDS);
     keywords.put("inmap", CmlParser.INMAP);
     keywords.put("instance", CmlParser.INSTANCE);
@@ -137,7 +139,9 @@ class CommentBlock extends CMLToken {
     keywords.put("isofclass", CmlParser.ISOFCLASS);
     keywords.put("lambda", CmlParser.LAMBDA);
     keywords.put("len", CmlParser.LEN);
+    */
     keywords.put("let", CmlParser.LET);
+    /*
     keywords.put("map", CmlParser.MAP);
     keywords.put("merge", CmlParser.DMERGE);
     keywords.put("mk_", CmlParser.MK_);
@@ -284,11 +288,12 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
       String value = yytext();
       
       try {
-	  if (keywords.containsKey(id)) {
+	  if (keywords.containsKey(value)) {
 	      //return new OmlLexem(line, column, new Long(keywords.get(id)), id, IOmlLexem.ILEXEMKEYWORD);
 	      //return new CmlLexeme(line, column,IDENTIFIER, id);
-	      yylvalue = new CmlLexeme(new Position(line,column),new Position(line,column + value.length()),keywords.get(id),value);
-	      return keywords.get(id);
+	      yylvalue = new CmlLexeme(new Position(line,column),new Position(line,column + value.length()),keywords.get(value),value);
+	      int v = keywords.get(value);				   
+	      return v;
 	      
 	  } else {
 	      //DEBUG String theText = yytext();
@@ -415,7 +420,8 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   //  {global}                            { stateStack.push(yystate());yybegin(GLOBAL); return createToken(CmlParser.GLOBAL); }
 }
 
-<PROCESS,TYPES,STATE,FUNCTIONS,OPERATIONS,CHANNELS,CHANSETS,ACTIONS,YYINITIAL> {
+
+<CLASS,PROCESS,TYPES,STATE,FUNCTIONS,OPERATIONS,CHANNELS,CHANSETS,ACTIONS,YYINITIAL> {
   {actions}                           { yybegin(ACTIONS); return createToken(CmlParser.CSP_ACTIONS); }
   {channels}                          { yybegin(CHANNELS); return createToken(CmlParser.CHANNELS); }
   {chansets}                          { yybegin(CHANSETS); return createToken(CmlParser.CHANSETS); }
@@ -435,7 +441,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 /* } */
 
 
-<PROCESS> {
+<CLASS,PROCESS> {
   "="                                 { return createToken(CmlParser.EQUALS); }
   {begin}                             { return createToken(CmlParser.BEGIN); }
   {end}                               { yybegin(stateStack.pop()); return createToken(CmlParser.END); }
@@ -508,7 +514,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 }
 
 
-<TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS> {
+<CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS> {
   ":"[^:-=]                           { return createToken(CmlParser.VDMTYPE); }
   
   //vdm expressions
@@ -606,7 +612,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 
 //[:whitespace:]                        { /* match whitespace; do nothing */ }
 {WhiteSpace}                            { /* match whitespace; do nothing */ }
-{identifier}                          { return createToken(CmlParser.IDENTIFIER); }
+{identifier}                          {  return checkIdentifier(""); /* return createToken(CmlParser.IDENTIFIER); */}
 {numeral}                             { return createToken(CmlParser.NUMERAL); }
 {hexliteral}                          { return createToken(CmlParser.HEX_LITERAL); }
 // default catch-all production rule is to return the current character
