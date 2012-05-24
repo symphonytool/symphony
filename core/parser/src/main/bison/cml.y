@@ -1143,33 +1143,49 @@ qualifier valueDef {
 ;
 
 valueDef :
-patternWithVDMType EQUALS expression
+IDENTIFIER VDMTYPE type EQUALS expression
 {
    // Get constituent elements
-  PatternWithVDMType typedPattern = (PatternWithVDMType)$1;
-  // $2 EQUALS
-  PExp expression = (PExp)$3;
+  CmlLexeme id = (CmlLexeme)$1;
+  // $2 VDMTYPE
+  PType type = (PType)$3;
+  // $4 EQUALS
+  PExp expression = (PExp)$5;
   
- 
+  // Make pattern
+  CmlLexeme lexeme = (CmlLexeme)$1;
+  LexNameToken lnt = extractLexNameToken(lexeme);
+  AIdentifierPattern idp = new AIdentifierPattern(lnt.location,null,false,lnt);
+  
   // Build the resulting AValueDefinition
   AValueDefinition vdef = new AValueDefinition();
-  vdef.setPattern(typedPattern.pattern);
-  vdef.setType(typedPattern.type);
+  vdef.setPattern(idp);
+  vdef.setType(type);
   vdef.setExpression(expression);
   vdef.setDefs(null);
   vdef.setLocation(combineLexLocation( typedPattern.pattern.getLocation(), 
 				       expression.getLocation() ) );
   $$ = vdef;
 }
-;
-
-patternWithVDMType :
-pattern VDMTYPE type 
+|
+patternLessID VDMTYPE type EQUALS expression 
 {
-  PatternWithVDMType res = new PatternWithVDMType();
-  res.pattern   = (PPattern)$1;
-  res.type = (PType) $3;
-  $$ = res;
+  // Get constituent elements
+  PPattern pattern = (PPattern)$1;
+  // $2 VDMTYPE
+  PType type = (PType)$3;
+  // $4 EQUALS
+  PExp expression = (PExp)$5;
+
+  // Build resulting AValueDefinition
+  AValueDefinition vdef = new AValueDefinition();
+  vdef.setPattern(pattern);
+  vdef.setType(type);
+  vdef.setExpression(expression);
+  vdef.setDefs(null);
+  vdef.setLocation(combineLexLocation( pattern.getLocation(), 
+				       expression.getLocation() ) );
+  $$ = vdef;
 }
 ;
 
@@ -1253,7 +1269,7 @@ qualifier explicitFunctionDef
 ;
 
 explicitFunctionDef:
-patternWithVDMType IDENTIFIER parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
+IDENTIFIER VDMTYPE type IDENTIFIER parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
   {
     $$ = new AExplicitFunctionFunctionDefinition();
   }
@@ -2283,10 +2299,15 @@ externals_opt preExpr_opt  postExpr
 
 pattern :
 patternIdentifier
-| matchValue
+| patternLessID
+;
+
+patternLessID 
+:
+matchValue
 | tuplePattern
 | recordPattern
-  ;
+;
 
 patternList :
   pattern
