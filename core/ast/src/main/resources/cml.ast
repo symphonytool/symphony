@@ -76,6 +76,7 @@ declaration {-> package='org.overture.ast.declarations'}
     | {type} [typeDefinitions]:definition.type*
     | {function} [functionDefinitions]:definition.#function*
     | {value} definition.value*
+    | {operation} [operationDefinitions]:definition.#operation*	
     // ---	
     | {singleType} [identifiers]:LexIdentifierToken* (type):type
 ;
@@ -98,7 +99,28 @@ definition {-> package='org.overture.ast.definitions'}
                  (expType):type (defType):type [defs]:definition*
     |   #function
     |   {external} (state):definition [readOnly]:java_Boolean (oldname):LexNameToken
-    |   {explicitOperation} [parameterPatterns]:pattern* 
+	|   #operation    
+    |   {imported} (def):definition (name):LexNameToken
+    |   {inherited} (superdef):definition [oldname]:LexNameToken //is access missing here
+    |   {local} [valueDefinition]:java_Boolean (name):LexNameToken
+    |   {multiBindList} (bindings):multipleBind* (defs):definition*
+    |   {renamed}  (def):definition 
+    |   {state} [fields]:field.field* 
+                [invPattern]:pattern [invExpression]:exp (invdef):definition.#function.explicitFunction
+                [initPattern]:pattern [initExpression]:exp (initdef):definition.#function.explicitFunction
+                (stateDefs):definition* [recordDefinition]:definition.local (recordType):type
+                (canBeExecuted):java_Boolean //This should properly not be here, this is interpreter stuff else it should be added for all other nodes as well
+                 
+//    |   {thread} [statement]:stm [operationName]:LexNameToken [operationDef]:definition.explicitOperation
+    |   {type} (invType):type.#invariant [invPattern]:pattern [invExpression]:exp 
+               [invdef]:definition.#function.explicitFunction [infinite]:java_Boolean (name):LexNameToken//is access missing here
+    |   {untyped}
+    |   {value} [pattern]:pattern [expression]:exp [defs]:definition* (expType):type //is access missing here
+    ;
+    
+    
+#operation {-> package='org.overture.ast.definitions'}
+	=   {explicitOperation} [parameterPatterns]:pattern* 
                             [body]:stm
                             [precondition]:exp 
                             [postcondition]:exp 
@@ -114,8 +136,8 @@ definition {-> package='org.overture.ast.definitions'}
                             [isConstructor]:java_Boolean
                             
     |   {implicitOperation} [parameterPatterns]:pair.patternListType*
-                            [result]:pair.patternType
-                            [body]:stm
+                            [result]:pair.identifierType*
+                            //[body]:stm
                             [externals]:clause.external*
                             [precondition]:exp 
                             [postcondition]:exp
@@ -127,24 +149,7 @@ definition {-> package='org.overture.ast.definitions'}
                             (state):definition.state
                             (actualResult):type
                             (stateDefinition):definition
-                            [isConstructor]:java_Boolean
-                                                        
-    |   {imported} (def):definition (name):LexNameToken
-    |   {inherited} (superdef):definition [oldname]:LexNameToken //is access missing here
-    |   {local} [valueDefinition]:java_Boolean (name):LexNameToken
-    |   {multiBindList} (bindings):multipleBind* (defs):definition*
-    |   {renamed}  (def):definition 
-    |   {state} [fields]:field.field* 
-                [invPattern]:pattern [invExpression]:exp (invdef):definition.#function.explicitFunction
-                [initPattern]:pattern [initExpression]:exp (initdef):definition.#function.explicitFunction
-                (stateDefs):definition* [recordDefinition]:definition.local (recordType):type
-                (canBeExecuted):java_Boolean //This should properly not be here, this is interpreter stuff else it should be added for all other nodes as well
-                 
-    |   {thread} [statement]:stm [operationName]:LexNameToken [operationDef]:definition.explicitOperation
-    |   {type} (invType):type.#invariant [invPattern]:pattern [invExpression]:exp 
-               [invdef]:definition.#function.explicitFunction [infinite]:java_Boolean (name):LexNameToken//is access missing here
-    |   {untyped}
-    |   {value} [pattern]:pattern [expression]:exp [defs]:definition* (expType):type //is access missing here
+                            [isConstructor]:java_Boolean    
     ;
     
 #function {-> package='org.overture.ast.definitions'}
@@ -488,6 +493,7 @@ pattern {-> package='org.overture.ast.patterns'}
 pair {-> package='org.overture.ast.patterns'}
     = {patternType} [pattern]:pattern (type):type
     | {patternListType} [patterns]:pattern* (type):type
+    | {identifierType} [identifier]:LexIdentifierToken (type):type
     ; 
     
 bind {-> package='org.overture.ast.patterns'}
@@ -564,6 +570,7 @@ action {-> package='org.overture.ast.actions'}
 	| {div}
 	| {wait}
 	| {communication} [identifier]:LexIdentifierToken [communicationParamters]:communicationParameter* [action]:action
+	| {guarded} [expression]:exp [action]:action
 	| {sequentialComposition} [left]:action [right]:action
 	| {externalChoice} [left]:action [right]:action
 	| #ControlStatement
@@ -743,7 +750,7 @@ Aspect Declaration
         [isUndefined]:java_Boolean
         (classtype):type
         (isTypeChecked):java_Boolean
-        (invariant):definition.explicitOperation
+        (invariant):definition.#operation.explicitOperation
     ;
     
 %stm

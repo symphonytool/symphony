@@ -5,14 +5,13 @@ import java.util.Vector;
 
 import org.overture.ast.definitions.AEqualsDefinition;
 import org.overture.ast.definitions.AExplicitFunctionFunctionDefinition;
-import org.overture.ast.definitions.AExplicitOperationDefinition;
+import org.overture.ast.definitions.AExplicitOperationOperationDefinition;
 import org.overture.ast.definitions.AImplicitFunctionFunctionDefinition;
-import org.overture.ast.definitions.AImplicitOperationDefinition;
+import org.overture.ast.definitions.AImplicitOperationOperationDefinition;
 import org.overture.ast.definitions.AImportedDefinition;
 import org.overture.ast.definitions.AInheritedDefinition;
 import org.overture.ast.definitions.AMultiBindListDefinition;
 import org.overture.ast.definitions.ARenamedDefinition;
-import org.overture.ast.definitions.AThreadDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
@@ -102,7 +101,7 @@ public class ToStringUtil
 	}
 
 	public static String getExplicitOperationString(
-			AExplicitOperationDefinition d)
+			AExplicitOperationOperationDefinition d)
 	{
 		return d.getName()
 				+ " "
@@ -120,7 +119,7 @@ public class ToStringUtil
 	}
 
 	public static String getImplicitOperationString(
-			AImplicitOperationDefinition d)
+			AImplicitOperationOperationDefinition d)
 	{
 		return d.getName()
 				+ Utils.listToString("(", d.getParameterPatterns(), ", ", ")")
@@ -240,19 +239,19 @@ public class ToStringUtil
 				// return statedefs.getVariableNames();
 				// TODO
 				return new LexNameList(new LexNameToken("Not implemented", "Not implemented", new LexLocation()));
-			case THREAD:
-				if (d instanceof AThreadDefinition)
-				{
-					if (((AThreadDefinition) d).getOperationDef() != null)// Differnt from VDMJ
-					{
-						return new LexNameList(((AThreadDefinition) d).getOperationDef().getName());
-					} else
-					{
-						return null;
-					}
-				}
-				assert false : "Error in thread getVariableNames";
-				break;
+//			case THREAD:
+//				if (d instanceof AThreadDefinition)
+//				{
+//					if (((AThreadDefinition) d).getOperationDef() != null)// Differnt from VDMJ
+//					{
+//						return new LexNameList(((AThreadDefinition) d).getOperationDef().getName());
+//					} else
+//					{
+//						return null;
+//					}
+//				}
+//				assert false : "Error in thread getVariableNames";
+//				break;
 			case TYPE:
 				return new LexNameList(d.getName());
 			case UNTYPED:

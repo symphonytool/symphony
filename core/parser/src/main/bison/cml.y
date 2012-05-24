@@ -17,6 +17,7 @@
     import org.overture.ast.definitions.*;
     import org.overture.ast.declarations.*;
     import org.overture.ast.expressions.*;
+    import org.overture.ast.statements.*;
     import org.overture.ast.actions.*;
     import org.overture.ast.process.*;
     import org.overture.ast.patterns.*;
@@ -102,15 +103,6 @@
     private LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme)
     {
       return new LexIdentifierToken(lexeme.getValue(), false, extractLexLocation(lexeme));
-    }
-
-    private APatternTypePair createPatternTypePair(CmlLexeme idLexeme, PType type)
-    {
-	LexNameToken name = extractLexNameToken(idLexeme);
-	LexLocation location = extractLexLocation(idLexeme);
-	AIdentifierPattern id = new AIdentifierPattern(location, null/*definitions_*/, 
-						   false /*resolved_*/, name);
-	return new APatternTypePair(false /* resolved_*/, id, type);
     }
 
     // *************************
@@ -206,8 +198,9 @@
  *
  */
 
-%token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_EXT VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN VDMDONTCARE IDENTIFIER
-%token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1 EXTENDS
+%token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_FRAME VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN VDMDONTCARE IDENTIFIER
+%token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1 
+
 
 %token HEX_LITERAL
 
@@ -380,8 +373,8 @@ processParagraph
 
 processParagraph :
 //  programParagraph
-//  classDefinitionBlock
- CSP_ACTIONS IDENTIFIER EQUALS paragraphAction
+ classDefinitionBlockAlternative
+| CSP_ACTIONS IDENTIFIER EQUALS paragraphAction
   {
       Object[] pa = (Object[])$4;
       List<ASingleTypeDeclaration> declarations = 
@@ -459,6 +452,11 @@ action
 }
   /* Communication rule end*/
 | AMP expression AMP action
+{
+    PAction action = (PAction)$4;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,action.getLocation());
+    $$ = new AGuardedAction(location, (PExp)$2, action);
+}
 | action CSPSEQ action
 {
     PAction left = (PAction)$1;
@@ -759,8 +757,15 @@ chansetExpr :
 /*TODO: when defining the optional  DOT expression a conflict occurs*/
 | CHANSET_SETEXP_BEGIN IDENTIFIER BAR bindList CHANSET_SETEXP_END
 {
-    //LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$6);
     LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
+    LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2);
+    List<PExp> dotted_expression = new Vector<PExp>();
+    List<PMultipleBind> bindings = (List<PMultipleBind>)$4;
+    $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings,null);
+}
+| CHANSET_SETEXP_BEGIN IDENTIFIER dotted_expression BAR bindList CHANSET_SETEXP_END
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$6);
     LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2);
     List<PExp> dotted_expression = (List<PExp>)$3;
     List<PMultipleBind> bindings = (List<PMultipleBind>)$5;
@@ -768,8 +773,16 @@ chansetExpr :
 }
 | CHANSET_SETEXP_BEGIN IDENTIFIER BAR bindList AT expression CHANSET_SETEXP_END
 {
-    //LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$8);
     LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$7);
+    LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2);
+    List<PExp> dotted_expression = new Vector<PExp>();
+    List<PMultipleBind> bindings = (List<PMultipleBind>)$4;
+    PExp pred = (PExp)$6;
+    $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings,pred);
+}
+| CHANSET_SETEXP_BEGIN IDENTIFIER dotted_expression BAR bindList AT expression CHANSET_SETEXP_END
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$8);
     LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2);
     List<PExp> dotted_expression = (List<PExp>)$3;
     List<PMultipleBind> bindings = (List<PMultipleBind>)$5;
@@ -778,19 +791,19 @@ chansetExpr :
 }
 ;
 
-// dotted_expression:
-// DOT expression
-// {
-//     $$ = new Vector<PExp>();
-// }
-// | dotted_expression DOT expression
-// {
-//     List<PExp> expTokens = (List<PExp>)$1;
-//     PExp exp = (PExp)$3;
-//     expTokens.add(exp);
-//     $$ = expTokens;
-// }
-// ;
+dotted_expression:
+DOT expression
+{
+    $$ = new Vector<PExp>();
+}
+| dotted_expression DOT expression
+{
+    List<PExp> expTokens = (List<PExp>)$1;
+    PExp exp = (PExp)$3;
+    expTokens.add(exp);
+    $$ = expTokens;
+}
+;
 
 /* 2.5 Global Definitions */
 
@@ -885,11 +898,15 @@ classDefinitionBlockAlternative
 }
 | functionDefs
 {
-
+  AFunctionDeclaration functionDeclaration = (AFunctionDeclaration)$1;
+  functionDeclaration.setNameScope(NameScope.GLOBAL);
+  $$ = functionDeclaration;
 }
 | operationDefs
 {
-
+  AOperationDeclaration operationDeclaration = (AOperationDeclaration)$1;
+  operationDeclaration.setNameScope(NameScope.GLOBAL);
+  $$ = operationDeclaration;
 }
 /*| stateDefs
 {
@@ -904,7 +921,7 @@ classDefinitionBlockAlternative
 /* 3.1 Type Definitions */
 
 typeDefs 
-: TYPES
+: TYPES 
 { 
   CmlLexeme typesLexeme = (CmlLexeme)$1;
   LexLocation loc = extractLexLocation(typesLexeme);
@@ -1322,15 +1339,23 @@ identifierTypePairList_opt
 identifierTypePairList :
 IDENTIFIER VDMTYPE type
 {
-    APatternTypePair typePair = createPatternTypePair((CmlLexeme)$1,(PType)$3);
-    List<APatternTypePair> typePairs = new Vector<APatternTypePair>();
+    AIdentifierTypePair typePair = 
+	new AIdentifierTypePair(null /*resolved*/, 
+				extractLexIdentifierToken((CmlLexeme)$1), 
+				(PType)$3
+				);
+    List<AIdentifierTypePair> typePairs = new Vector<AIdentifierTypePair>();
     typePairs.add(typePair);
     $$ = typePairs;
 }
 | IDENTIFIER VDMTYPE type COMMA identifierTypePairList
 {
-    APatternTypePair typePair = createPatternTypePair((CmlLexeme)$1,(PType)$3);
-    List<APatternTypePair> typePairs = (List<APatternTypePair>)$5;
+    AIdentifierTypePair typePair = 
+	new AIdentifierTypePair(null /*resolved*/, 
+				extractLexIdentifierToken((CmlLexeme)$1), 
+				(PType)$3
+				);
+    List<AIdentifierTypePair> typePairs = (List<AIdentifierTypePair>)$5;
     typePairs.add(typePair);
     $$ = typePairs;
 }
@@ -1381,12 +1406,35 @@ measureExpr :
 
 operationDefs :
   OPERATIONS operationDefList
+  {
+      List<? extends SOperationDefinition> opDefinitions = 
+	  (List<? extends SOperationDefinition>)$2;
+      LexLocation lastInListLoc = 
+	  opDefinitions.get(opDefinitions.size()-1).getLocation();
+      LexLocation location = extractLexLocation((CmlLexeme)$1,
+						lastInListLoc);
+      $$ = new AOperationDeclaration(location, 
+				     NameScope.GLOBAL,
+				     opDefinitions);
+  }
   ;
   
 operationDefList :
-  operationDef SEMI operationDefList
-| /* empty */
-  ;
+  operationDef
+{
+    List<SOperationDefinition> opDefinitions = 
+	new Vector<SOperationDefinition>();
+    opDefinitions.add((SOperationDefinition)$1);
+    $$ = opDefinitions;
+}
+| operationDef SEMI operationDefList
+{
+    List<SOperationDefinition> opDefinitions = 
+	  (List<SOperationDefinition>)$3;
+    opDefinitions.add((SOperationDefinition)$1);
+    $$ = opDefinitions;
+}
+;
 
 /* FIXME the optional trailing semicolon in the operations definitions is presently not optional */
 
@@ -1401,6 +1449,40 @@ operationDef
 
 implicitOperationDef
 : qualifier IDENTIFIER parameterTypes identifierTypePairList_opt externals_opt preExpr_opt postExpr
+{
+    AAccessSpecifierAccessSpecifier access = 
+	(AAccessSpecifierAccessSpecifier)$1;
+    LexNameToken name = extractLexNameToken((CmlLexeme)$2);
+    List<? extends APatternListTypePair> parameterPatterns = 
+	(List<? extends APatternListTypePair>)$3; 
+    List<? extends AIdentifierTypePair> result = 
+	(List<? extends AIdentifierTypePair>)$4;
+    List<? extends AExternalClause> externals = 
+	(List<? extends AExternalClause>)$5;
+    PExp precondition = (PExp)$6;
+    PExp postcondition = (PExp)$7;
+    LexLocation location = null;
+    if (access != null)
+	location = combineLexLocation(name.location,
+				      postcondition.getLocation());
+    else
+	location = combineLexLocation(access.getLocation(),
+				      postcondition.getLocation());
+					      
+    AImplicitOperationOperationDefinition ifunc = 
+	new AImplicitOperationOperationDefinition(location, 
+						  NameScope.GLOBAL, 
+						  null /*used*/, 
+						  access, 
+						  parameterPatterns, 
+						  result, 
+						  externals, 
+						  precondition, 
+						  postcondition, 
+						  null/*errors*/, 
+						  null/*isConstructor_*/);
+    $$ = ifunc;
+}
 ;
 
 operationType :
@@ -1418,24 +1500,65 @@ operationBody :
 
 externals_opt:
 externals
+{
+    $$ = $1;
+}
 | /* empty */
+{
+    $$ = null;
+}
 ;
 
 externals :
-  VDM_EXT varInformationList
+  VDM_FRAME varInformationList
+  {
+      $$ = $2;
+  }
   ;
 
-/* FIXME this needs to be non-empty */
 varInformationList :
-  mode nameList varInformationList
-| mode nameList VDMTYPE type varInformationList
-| /* empty */
+  varInformation
+  {
+      List<AExternalClause> infoList = 
+	  new Vector<AExternalClause>();
+      infoList.add((AExternalClause)$1);
+      $$ = infoList;
+  }
+| varInformation varInformationList
+{
+    List<AExternalClause> infoList = 
+	(List<AExternalClause>)$2;
+    infoList.add((AExternalClause)$1);
+    $$ = infoList;
+}
   ;
+
+varInformation:
+  mode nameList
+  {
+      $$ = new AExternalClause((LexToken)$1, 
+       			       (List<? extends LexNameToken>)$2);
+  }
+| mode nameList VDMTYPE type
+{
+    $$ = new AExternalClause((LexToken)$1, 
+     			     (List<? extends LexNameToken>)$2,
+     			     (PType)$4);
+}
+;
 
 mode :
-  VDM_RD
+VDM_RD
+{
+    $$ = new LexToken(extractLexLocation((CmlLexeme)$1),
+    					 VDMToken.READ); 
+}
 | VDM_WR
-  ;
+{
+    $$ = new LexToken(extractLexLocation((CmlLexeme)$1),
+    					 VDMToken.WRITE); 
+}
+;
 
 initialDef : 
 INITIAL operationDef
@@ -1531,6 +1654,11 @@ expression :
     $$ = new ANameExp(lnt.location,lnt);
 }
 | oldName
+{
+    LexNameToken lnt = (LexNameToken)$1;
+    //FIXME: this is not correct!
+    $$ = new ANameExp(lnt.location,lnt);
+}
 | symbolicLiteral
   ;
 
@@ -1993,6 +2121,14 @@ recordConstructor :
 
 apply :
   expression LPAREN expressionList RPAREN
+  {
+      PExp root = (PExp)$1;
+      List<? extends PExp> args = (List<? extends PExp>)$3;
+      
+      LexLocation location = combineLexLocation(root.getLocation(),
+						extractLexLocation((CmlLexeme)$4));
+      $$ = new AApplyExp(location, root, args);
+  }
   ;
 
 fieldSelect :
@@ -2053,12 +2189,27 @@ name :
   ;
 
 nameList :
-  name
+name
+{
+    List<LexNameToken> identifiers = 
+	new Vector<LexNameToken>();
+    identifiers.add((LexNameToken)$1);
+    $$ = identifiers;
+}
 | name COMMA nameList
+{
+    List<LexNameToken> identifiers = 
+	(List<LexNameToken>)$3;
+    identifiers.add((LexNameToken)$1);
+    $$ = identifiers;
+}
   ;
 
 oldName :
   IDENTIFIER TILDE
+  {
+      $$ = extractLexNameToken($1);
+  }
   ;
 
 /* 5 State Designators */
