@@ -423,8 +423,14 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   {state}                             { yybegin(STATE); return createToken(CmlParser.STATE); }
   {functions}                         { yybegin(FUNCTIONS); return createToken(CmlParser.FUNCTIONS); }
   {operations}                        { yybegin(OPERATIONS); return createToken(CmlParser.OPERATIONS); }
-  {end}                               { yybegin(stateStack.pop()); return createToken(CmlParser.END); }
+  {end}                               { return createToken(CmlParser.END); }
 }
+
+//Jump to the action state if "@" occurs
+<TYPES,STATE,FUNCTIONS,OPERATIONS> {
+  "@"                                 { yybegin(ACTIONS); return createToken(CmlParser.AT); }
+ }
+
 
 /* //common state for CLASS PROCESS and GLOBAL definitions */
 /* <CLASS,PROCESS,GLOBAL,TYPES,STATE,FUNCTIONS,OPERATIONS,> { */
@@ -461,7 +467,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "==>"				      { return createToken(CmlParser.OPERATIONARROW); }
   "rd"				      { return createToken(CmlParser.VDM_RD); }
   "wr"				      { return createToken(CmlParser.VDM_WR); }
-  "ext"				      { return createToken(CmlParser.VDM_EXT); }
+  "frame"			      { return createToken(CmlParser.VDM_FRAME); }
   "return"			      { return createToken(CmlParser.RETURN); }
 }
 
@@ -499,6 +505,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "=>"                                { return createToken(CmlParser.CSP_OPS_COM); }
   "Skip"                              { return createToken(CmlParser.CSPSKIP); }
   "Stop"                              { return createToken(CmlParser.CSPSTOP); }
+  "Chaos"                              { return createToken(CmlParser.CSPSTOP); }
 }
 
 <CHANNELS,CHANSETS,ACTIONS> {
@@ -506,7 +513,6 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   ":"				      { return createToken(CmlParser.COLON); } //TODO: CHANGE this into something else
   ";"				      { return createToken(CmlParser.SEMI); }
 }
-
 
 <TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS> {
   ":"[^:-=]                           { return createToken(CmlParser.VDMTYPE); }
