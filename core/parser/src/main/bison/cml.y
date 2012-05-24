@@ -84,7 +84,7 @@
 			     end.endLine, end.endPos,0,0);
     }
 
-    private LexLocation extractLexLast( List<PDefinition> defs )
+    private LexLocation extractLexLastFromDeps( List<PDefinition> defs )
     {
       LexLocation candidate = defs.get(0).getLocation();
       for(PDefinition p : defs)
@@ -92,6 +92,16 @@
 	  candidate = p.getLocation();
       return candidate;
     }
+
+    private<T extends PExp> LexLocation extractLexLastFromExps( List<T> exps )
+    {
+      LexLocation candidate = exps.get(0).getLocation();
+      for(PExp p : exps)
+	if (p.getLocation().endOffset > candidate.endOffset)
+	  candidate = p.getLocation();
+      return candidate;
+    }
+
 
     //    private LexToken makeLexToken()
     
@@ -1180,7 +1190,7 @@ IDENTIFIER VDMTYPE type EQUALS expression
   vdef.setType(type);
   vdef.setExpression(expression);
   vdef.setDefs(null);
-  vdef.setLocation(combineLexLocation( typedPattern.pattern.getLocation(), 
+  vdef.setLocation(combineLexLocation( idp.getLocation(), 
 				       expression.getLocation() ) );
   $$ = vdef;
 }
@@ -1629,6 +1639,9 @@ expression :
     $$ = $1;
 }
 | quantifiedExpr
+{
+  $$ = $1;
+}
 | setEnumeration
 | setComprehension
 | setRangeExpr
@@ -1722,11 +1735,75 @@ explicitFunctionDef
 
 ifExpr :
   IF expression THEN expression elseExprs
+  {
+    // Get constituents 
+    // $1 IF
+    CmlLexeme _if = (CmlLexeme)$1;
+
+    Position sif = _if.getStartPos();
+    Position eif = _if.getEndPos();
+
+    PExp test = (PExp)$2;
+    // $3 THEN
+    PExp then = (PExp)$4;
+    List<AElseIfExp> elses = (List<AElseIfExp>)$5;
+    
+    // Build an AIfExp ast node
+    AIfExp ifexp = new AIfExp();
+    ifexp.setTest(test);
+    ifexp.setThen(then);
+    ifexp.setElseList(elses);
+    ifexp.setLocation( 
+		      combineLexLocation( new LexLocation(null, 
+							  "DEFAULT", 
+							  sif.line, 
+							  sif.column, 
+							  sif.line, 
+							  eif.column, 
+							  sif.offset, 
+							  eif.offset ),  
+					  extractLexLastFromExps( elses ) ));
+    $$ = ifexp;
+    
+  }
   ;
 
 elseExprs :
   ELSE expression
+  {
+
+    CmlLexeme elsetok = (CmlLexeme)$1;
+    PExp exp = (PExp)$2;
+
+    AElseIfExp eie = new AElseIfExp();
+    eie.setLocation( 
+		    combineLexLocation(  extractLexLocation( elsetok ), 
+					 exp.getLocation() )
+		     );
+    List<AElseIfExp> res = new LinkedList<AElseIfExp>();
+    res.add(eie);
+    $$ =res;
+  }
 | ELSEIF expression THEN expression elseExprs
+{
+  // Get constituents
+  CmlLexeme elseif = (CmlLexeme)$1;
+  PExp elseIf = (PExp)$2;
+  // $3 THEN
+  PExp then = (PExp)$4;
+  List<AElseIfExp> tail = (List<AElseIfExp>)$5;
+  
+  LexLocation loc = combineLexLocation( extractLexLocation( elseif ),
+					then.getLocation() );
+
+  // Build result
+  AElseIfExp eie = new AElseIfExp();
+  eie.setElseIf(elseIf);
+  eie.setThen(then);
+  eie.setLocation( loc );
+  tail.add(eie);
+  $$ = tail;
+}
   ;
 
 casesExpr :
@@ -1935,7 +2012,6 @@ binaryExpr :
 | expression MOD expression
 | expression LT expression
 {
-  //CmlLexeme ltLexeme = 
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new ALessNumericBinaryExp(loc,(PExp)$1,null,(PExp)$3);
 }
@@ -2208,7 +2284,7 @@ name
 oldName :
   IDENTIFIER TILDE
   {
-      $$ = extractLexNameToken($1);
+    $$ = extractLexNameToken((CmlLexeme)$1);
   }
   ;
 
@@ -2335,6 +2411,8 @@ multiAssignStatement :
 /* 6.3 Conditional Statements */
 ifStatement :
   IF expression THEN action elseStatements
+  {
+  }
   ;
 
 elseStatements :

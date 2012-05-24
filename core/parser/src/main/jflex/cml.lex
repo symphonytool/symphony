@@ -103,9 +103,9 @@ class CommentBlock extends CMLToken {
     keywords.put("dunion", CmlParser.DUNION);
     keywords.put("duration", CmlParser.DURATION);
     keywords.put("elems", CmlParser.ELEMS);
+    */
     keywords.put("else", CmlParser.ELSE);
     keywords.put("elseif", CmlParser.ELSEIF);
-    */
     keywords.put("end", CmlParser.END);
     /*
     keywords.put("error", CmlParser.ERROR);
@@ -114,15 +114,18 @@ class CommentBlock extends CMLToken {
     keywords.put("exists1", CmlParser.EXISTS1);
     keywords.put("exit", CmlParser.EXIT);
     keywords.put("ext", CmlParser.EXT);
-    keywords.put("false", CmlParser.bool_false);
+    */
+    //    keywords.put("false", CmlParser.bool_false);
+    /*
     keywords.put("floor", CmlParser.FLOOR);
     keywords.put("for", CmlParser.FOR);
     keywords.put("forall", CmlParser.FORALL);
     keywords.put("from", CmlParser.FROM);
     keywords.put("functions", CmlParser.FUNCTIONS);
     keywords.put("hd", CmlParser.HD);
+    */   
     keywords.put("if", CmlParser.IF);
-    */
+   
     keywords.put("in", CmlParser.IN);
     /*
     keywords.put("inds", CmlParser.INDS);
@@ -199,7 +202,9 @@ class CommentBlock extends CMLToken {
     keywords.put("subset", CmlParser.SUBSET);
     keywords.put("sync", CmlParser.SYNC);
     keywords.put("system", CmlParser.SYSTEM);
+    */
     keywords.put("then", CmlParser.THEN);
+    /*
     keywords.put("thread", CmlParser.THREAD);
     keywords.put("threadid", CmlParser.THREADID);
     keywords.put("time", CmlParser.TIME);
@@ -210,8 +215,8 @@ class CommentBlock extends CMLToken {
     keywords.put("token", CmlParser.TTOKEN);
     /*
     keywords.put("trap", CmlParser.TRAP);
-    keywords.put("true", CmlParser.bool_true);
     */
+    //    keywords.put("true", CmlParser.bool_true);
     keywords.put("types", CmlParser.TYPES);
     //keywords.put("undefined", CmlParser.UNDEFINED);
     keywords.put("union", CmlParser.UNION);
@@ -289,6 +294,7 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
       
       try {
 	  if (keywords.containsKey(value)) {
+	    System.out.println("#################### KeyWord ####################");
 	      //return new OmlLexem(line, column, new Long(keywords.get(id)), id, IOmlLexem.ILEXEMKEYWORD);
 	      //return new CmlLexeme(line, column,IDENTIFIER, id);
 	      yylvalue = new CmlLexeme(new Position(line,column),new Position(line,column + value.length()),keywords.get(value),value);
