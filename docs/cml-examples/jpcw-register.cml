@@ -21,10 +21,10 @@
 
 process RegisterProc = 
  begin
-/*	
+	
   state 
   reg : Byte	
-  */
+
   operatioNs  
    INIT()
    frame wr reg : Byte
@@ -55,13 +55,13 @@ process RegisterProc =
      []
      (dcl j: Byte @ j := *READ(); read!j -> REG)
      [] 
-     (add?i -> ( (&oflow(reg,i) & overflow -> *INIT(); REG)
+     (add?i -> ( (:oflow(reg,i) & overflow -> *INIT(); REG)
        	     	 [] 
-		 (&not oflow(reg,i) & *ADD(i);REG)))
+		 (:not oflow(reg,i) & *ADD(i);REG)))
      [] 
-     (sub?i -> ( (&uflow(reg,i) & underflow -> *INIT(); REG)
+     (sub?i -> ( (:uflow(reg,i) & underflow -> *INIT(); REG)
        	     	 [] 
-		 (&not uflow(reg,i) & *SUB(i); REG)))
+		 (:not uflow(reg,i) & *SUB(i); REG)))
    @
      init -> *INIT(); REG
  end

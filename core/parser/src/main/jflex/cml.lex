@@ -404,7 +404,7 @@ LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
 WhiteSpace     = {LineTerminator} | [ \t\f]
 
-%states CLASS PROCESS STATE TYPES STATE FUNCTIONS OPERATIONS CHANNELS CHANSETS ACTIONS 
+%states CLASS PROCESS STATE TYPES STATE FUNCTIONS OPERATIONS CHANNELS CHANSETS ACTIONS DCL
 %xstates COMMENT
 
 %%
@@ -506,7 +506,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "?"				      { return createToken(CmlParser.CSP_CHANNEL_READ); }
   "!"				      { return createToken(CmlParser.CSP_CHANNEL_WRITE); }
   "."				      { return createToken(CmlParser.CSP_CHANNEL_DOT); }
-  "dcl"                               { return createToken(CmlParser.DCL); }
+  "dcl"                               { yybegin(TYPES);return createToken(CmlParser.DCL); }
   "@"                                 { return createToken(CmlParser.AT); }
   "=>"                                { return createToken(CmlParser.CSP_OPS_COM); }
   "Skip"                              { return createToken(CmlParser.CSPSKIP); }
@@ -521,9 +521,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 }
 
 <CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS> {
-
-  ":"[^:-=]                           { return createToken(CmlParser.VDMTYPE); }
-  
+    
   //vdm expressions
   "<=>"				      { return createToken(CmlParser.BIMPLY); }
   //"|->"			      { return createToken(CmlParser.BAR_ARROW); }
@@ -565,7 +563,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   {prime}			      { return createToken(CmlParser.BACKTICK); }
   ","				      { return createToken(CmlParser.COMMA); }
   "!"				      {  }
-  ":"				      { return createToken(CmlParser.COLON); }
+  ":"				      { return createToken(CmlParser.VDMTYPE); }
   ";"				      { return createToken(CmlParser.SEMI); }
   "="				      { return createToken(CmlParser.EQUALS); }
   ")"				      { return createToken(CmlParser.RPAREN); }

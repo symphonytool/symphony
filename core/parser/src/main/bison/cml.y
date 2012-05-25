@@ -462,7 +462,7 @@ action
 				  action);
 }
   /* Communication rule end*/
-| AMP expression AMP action
+| COLON expression AMP action
 {
     PAction action = (PAction)$4;
     LexLocation location = extractLexLocation((CmlLexeme)$1,action.getLocation());
@@ -1603,11 +1603,13 @@ stateDefList :
      List<PDefinition> defs = new Vector<PDefinition>();
      defs.add((PDefinition)$1);
      stateDef.setStateDefs(defs);
+     $$ = stateDef;
  }
 | stateDef stateDefList
 {
     AStateDefinition stateDef = (AStateDefinition)$2;
     stateDef.getStateDefs().add((PDefinition)$1);
+    $$ = stateDef;
 }
 ;
 
