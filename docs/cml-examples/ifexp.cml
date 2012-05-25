@@ -1,0 +1,5 @@
+class IfExpName =
+begin
+	values
+	public boring_truth : nat = if (32 > 0) then 42 else 42
+end

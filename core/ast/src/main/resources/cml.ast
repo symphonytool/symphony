@@ -75,7 +75,7 @@ declaration {-> package='org.overture.ast.declarations'}
     // --- Maybe they should be grouped together in a sub declaration
     | {type} [typeDefinitions]:definition.type*
     | {function} [functionDefinitions]:definition.#function*
-    | {value} definition.value*
+    | {value} [definitions]: definition*
     | {operation} [operationDefinitions]:definition.#operation*	
     // ---	
     | {singleType} [identifiers]:LexIdentifierToken* (type):type
@@ -89,7 +89,7 @@ definition {-> package='org.overture.ast.definitions'}
     =   {assignment} [expression]:exp (expType):type
     |   {instanceVariable} [expression]:exp (expType):type [initialized]:java_Boolean [oldname]:LexNameToken //this actually inherits assignment in Nicks tree
     |   #class 
-    |   {classbody} [declarations]:declaration.singleType* 
+    |   {classbody} [declarations]:declaration* 
     |	{process} [declarations]:declaration.singleType* [process]:process
     |   {action} [declarations]:declaration.singleType* [action]:action
     |   {chanset}
@@ -383,7 +383,7 @@ modifier {-> package='org.overture.ast.expressions'}
     ;
     
 alternative {-> package='org.overture.ast.expressions'}
-    = {case} [location]:location [cexp]:exp [pattern]:pattern 
+    = {case} [location]:location [cexp]:exp [pattern]:pattern* 
              [result]:exp [defs]:definition*  (type):type (expType):type
     ;
     

@@ -103,6 +103,14 @@
     }
 
 
+    private< T extends PPattern> LexLocation extractLexLeftMostFromPatterns(List<T> ptrns )
+    {
+      LexLocation candidate = ptrns.get(0).getLocation();
+      for(PPattern p : ptrns)
+	if (p.getLocation().endOffset > candidate.endOffset)
+	  candidate = p.getLocation();
+      return candidate;
+    }
     //    private LexToken makeLexToken()
     
     private LexNameToken extractLexNameToken(CmlLexeme lexeme)
@@ -293,22 +301,23 @@ classDecl
 : CLASS IDENTIFIER EQUALS classBody
 { 
   AClassbodyDefinition c = new AClassbodyDefinition();
-    Position startPos =  ((CmlLexeme)$1).getStartPos();
-    Position endPos = ((CmlLexeme)$3).getEndPos(); // TODO Fix me, the ending position is the 
-    LexNameToken lexName = extractLexNameToken((CmlLexeme)$2); 
-    LexLocation loc = new LexLocation(null,"DEFAULT", 
+  Position startPos =  ((CmlLexeme)$1).getStartPos();
+  Position endPos = ((CmlLexeme)$3).getEndPos(); // TODO Fix me, the ending position is the 
+  LexNameToken lexName = extractLexNameToken((CmlLexeme)$2); 
+  LexLocation loc = new LexLocation(null,"DEFAULT", 
 				      startPos.line, 
 				      startPos.column, 
 				      endPos.line, 
 				      endPos.column, 
 				      startPos.offset, endPos.offset);
-    
-    c.setLocation(loc); 
-    c.setName(lexName);
-    //  c.setDefinitions((List)$4);
-    AClassDeclaration res = new AClassDeclaration();
-    res.setClassBody( c );
-    $$ = res;
+  
+  c.setLocation(loc); 
+  c.setName(lexName);
+  c.setDeclarations( (List<PDeclaration>)$4 );
+  //  c.setDefinitions((List)$4);
+  AClassDeclaration res = new AClassDeclaration();
+  res.setClassBody( c );
+  $$ = res;
 }
 ;
 
@@ -864,7 +873,7 @@ globalDefinitionBlockAlternative
 classBody: 
 BEGIN classDefinitionBlock END
 {
-  $$ = new LinkedList<PDefinition>();
+  $$ = $2;
 }
 ;
 
@@ -882,18 +891,19 @@ BEGIN classDefinitionBlock END
 classDefinitionBlock 
 : classDefinitionBlockAlternative
 {
-    List<PDefinition> defBlockList = new Vector<PDefinition>();
-    List<PDefinition> defBlock = (List<PDefinition>)$1;
-    if (defBlockList != null) if (defBlock != null) defBlockList.addAll(defBlock);
-    $$ = defBlockList;
+  
+  List<PDeclaration> decls = new LinkedList<PDeclaration>();
+  PDeclaration decl = (PDeclaration)$1;
+  decls.add(decl);
+  $$ = decls;
 }
 
 | classDefinitionBlock classDefinitionBlockAlternative        
 { 
-    List<PDefinition> defBlockList = (List<PDefinition>)$1;
-    List<PDefinition> defBlock = (List<PDefinition>)$2;
-    if (defBlockList != null) if (defBlock != null) defBlockList.addAll(defBlock);
-    $$ = defBlockList;
+  List<PDeclaration> decls = (List<PDeclaration>)$1;
+  PDeclaration decl = (PDeclaration)$2;
+  decls.add(decl);
+  $$ = decls;
 }
 ;
 
@@ -1132,7 +1142,10 @@ invariant :
 valueDefs :
   VALUES valueDefList
   {
-    $$ = $2;
+    List<PDefinition> defs = (List<PDefinition>)$2;
+    AValueDeclaration valueDecl = new AValueDeclaration();
+    valueDecl.setDefinitions( defs );
+    $$ = valueDecl;
   }
   ;
 
@@ -1808,16 +1821,86 @@ elseExprs :
 
 casesExpr :
   CASES expression COLON casesExprAltList END
+  {
+    // Get Constituents
+    CmlLexeme cases = (CmlLexeme)$1;
+    PExp exp = (PExp)$2;
+    // $3 COLON
+    ACasesExp bubbleUp = (ACasesExp)$4; // Others and Cases are taken care of
+    CmlLexeme end = (CmlLexeme)$5;
+    LexLocation lexLoc = combineLexLocation( extractLexLocation( cases ),
+					     extractLexLocation( end ) );
+					     
+    // Set expression and location
+    bubbleUp.setExpression(exp);
+    bubbleUp.setLocation(lexLoc);
+   
+    $$ = bubbleUp;
+  }
   ;
 
 casesExprAltList :
   casesExprAlt
+  {
+    // Get Constituent
+    ACasesExp casesExp = new ACasesExp();
+
+    // Set up a CasesExp and add this alternative to its list
+    ACaseAlternative caseAlt = (ACaseAlternative)$1;
+    casesExp.getCases().add(caseAlt);
+    $$ = casesExp;
+  }
 | casesExprAlt OTHERS RARROW expression
+{
+  // Get constituents
+  ACaseAlternative altExp = (ACaseAlternative)$1;
+  // $2 OTHERS
+  // $3 RARROW
+  PExp othExp = (PExp)$4;
+
+  // Build ACasesExp
+  List<ACaseAlternative> altList = new LinkedList<ACaseAlternative>();
+  altList.add(altExp);
+  ACasesExp casesExp = new ACasesExp();
+  casesExp.setCases(altList);
+  casesExp.setOthers(othExp);
+
+  $$ = casesExp;
+}
 | casesExprAlt casesExprAltList
+{
+  
+  // Get constituents
+  ACaseAlternative altExp = (ACaseAlternative)$1;
+  ACasesExp casesExp = (ACasesExp)$2;
+
+  // Add altExp to tail
+  casesExp.getCases().add(altExp);
+  $$ = casesExp;
+}
   ;
 
 casesExprAlt :
-  patternList RARROW expression
+  patternList RARROW expression SEMI
+  {
+    List<PPattern> patList = (List<PPattern>)$1;
+    // $2 RARROW
+    PExp exp = (PExp)$3;
+    CmlLexeme semi = (CmlLexeme)$4;
+
+    LexLocation leftMost = extractLexLeftMostFromPatterns( patList );
+    LexLocation loc = combineLexLocation ( leftMost, 
+					   extractLexLocation( semi )
+					   );
+    
+    // Build res
+    ACaseAlternative res = new ACaseAlternative();
+    res.setPattern(patList);
+    res.setLocation(loc);
+    res.setCexp( exp );
+
+    $$ = res;
+  }
   ;
 
 /* 4.4 Unary Expressions */
@@ -2432,6 +2515,7 @@ casesStatementAltList :
 
 casesStatementAlt :
   patternList RARROW action
+  
   ;
 
 /* 6.4 Call and Return Statements */
@@ -2566,6 +2650,19 @@ patternIdentifier :
 /* FIXME shift/reduce conflict from a bracketed expression */
 matchValue :
   symbolicLiteral
+  {
+    PExp exp = (PExp)$1;
+    if (exp instanceof AIntLiteralSymbolicLiteralExp)
+      {
+	AIntLiteralSymbolicLiteralExp intExp = (AIntLiteralSymbolicLiteralExp)exp;
+	AIntegerPattern res = new AIntegerPattern();
+	res.setLocation(intExp.getLocation());
+	res.setValue(intExp.getValue());
+	$$ = res;
+      }
+    else
+      throw new RuntimeException("Unhandled expression type in pattern. ("+exp.getClass()+")"); // TODO RWL
+  }
 /* | LPAREN expression RPAREN */
   ;
 

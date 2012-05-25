@@ -86,7 +86,7 @@ class CommentBlock extends CMLToken {
     keywords.put("bool", CmlParser.TBOOL);
     //keywords.put("by", CmlParser.BY);
     keywords.put("card", CmlParser.CARD);
-    keywords.put("cases", CmlParser.CASES);
+    //    keywords.put("cases", CmlParser.CASES);
     keywords.put("char", CmlParser.TCHAR);
     keywords.put("class", CmlParser.CLASS);
     /*
@@ -404,7 +404,7 @@ LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
 WhiteSpace     = {LineTerminator} | [ \t\f]
 
-%states CLASS PROCESS STATE TYPES STATE FUNCTIONS OPERATIONS CHANNELS CHANSETS ACTIONS 
+%states CLASS PROCESS STATE TYPES STATE FUNCTIONS OPERATIONS CHANNELS CHANSETS ACTIONS VDM_CASES
 %xstates COMMENT
 
 %%
@@ -507,7 +507,6 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "[]"                                { return createToken(CmlParser.CSPEXTCH); }
   "|~|"                               { return createToken(CmlParser.CSPINTCH); }
   //  "/\\"                               { return createToken(CmlParser.CPS); }
-  "->"                                { return createToken(CmlParser.RARROW); }
   "&"				      { return createToken(CmlParser.AMP); }
   "?"				      { return createToken(CmlParser.CSP_CHANNEL_READ); }
   "!"				      { return createToken(CmlParser.CSP_CHANNEL_WRITE); }
@@ -526,14 +525,20 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   ";"				      { return createToken(CmlParser.SEMI); }
 }
 
+<VDM_CASES> {
+  ":"                            { yybegin(CLASS); return createToken(CmlParser.COLON); }
+ }
+
 <CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS> {
   ":"[^:-=]                           { return createToken(CmlParser.VDMTYPE); }
-  
+  "->"                                { return createToken(CmlParser.RARROW); }  
   //vdm expressions
   "<=>"				      { return createToken(CmlParser.BIMPLY); }
   //"|->"			      { return createToken(CmlParser.BAR_ARROW); }
   "<-:"				      { return createToken(CmlParser.VDM_MAP_DOMAIN_RESTRICT_BY); }
   ":->"				      { return createToken(CmlParser.RNGSUB /*MAP_RANGE_RESTRICT_BY*/); }
+  "cases"                             { yybegin(VDM_CASES); return createToken(CmlParser.CASES); }
+  "others"                            { return createToken(CmlParser.OTHERS); }
   "abs"                               { return createToken(CmlParser.ABS); } 
   "floor"                             { return createToken(CmlParser.FLOOR); } 
   "not"                               { return createToken(CmlParser.NOT); }
