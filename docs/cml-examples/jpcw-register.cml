@@ -4,15 +4,15 @@
     inv n == (n <= 255);
 
   functions
-    oflow : (i,j : Byte) b : bool
+    oflow (i,j : Byte) b : bool
     post b = ( i+j > 255);
 
-    uflow : (i,j : Byte) b : bool
+    uflow (i,j : Byte) b : bool
     post b = (i-j < 0)
  
 
   channels
-   init, overflow, underflow
+   init, overflow, underflow;
    read, load, add, sub : Byte
 
   Chansets
@@ -21,23 +21,22 @@
 
 process RegisterProc = 
  begin
-	
+/*	
   state 
   reg : Byte	
-
-  initial
+  */
+  operatioNs  
    INIT()
    frame wr reg : Byte
    post reg = 0;
-  
-  operatioNs  
+
    LOAD(i : Byte)
    frame wr reg : Byte
    post reg = i;
 
    READ() j : Byte
-   frame rd reg : Byte;
-   post j = reg 
+   frame rd reg : Byte
+   post j = reg;
 
    ADD(i:Byte)
    frame wr reg : Byte
@@ -47,22 +46,22 @@ process RegisterProc =
    SUB(i : Byte)
    frame wr reg : Byte
    pre not uflow(reg,i)
-   post reg = reg~ - i;
+   post reg = reg~ - i
   
    aCtions
    
    REG = 
-     load?i -> LOAD(i) -> REG
+     (load?i -> *LOAD(i) ; REG)
      []
-     dcl j: Byte @ j := READ(); read!j -> REG
+     (dcl j: Byte @ j := *READ(); read!j -> REG)
      [] 
-     add?i -> ( oflow(reg,i) & overflow -> INIT(); REG
+     (add?i -> ( (&oflow(reg,i) & overflow -> *INIT(); REG)
        	     	 [] 
-		 not oflow(reg,i) & ADD(i);REG)
+		 (&not oflow(reg,i) & *ADD(i);REG)))
      [] 
-     sub?i => ( uflow(reg,i) & underflow -> INIT(); REG
+     (sub?i -> ( (&uflow(reg,i) & underflow -> *INIT(); REG)
        	     	 [] 
-		 not uflow(reg,i) & SUB(i); REG)
+		 (&not uflow(reg,i) & *SUB(i); REG)))
    @
-     init -> INIT(); REG
+     init -> *INIT(); REG
  end

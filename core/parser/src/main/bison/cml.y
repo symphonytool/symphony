@@ -164,7 +164,7 @@
 		fw.write(dgv.getResultString());
 		fw.close();
 
-		System.out.println(dgv.getResultString());
+		//System.out.println(dgv.getResultString());
 	    
 	      }
 	      else
@@ -340,6 +340,7 @@ declaration AT process
 process :
   BEGIN processParagraphList AT action END
   {
+      System.out.println("heeeej");
       LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
       List<PDeclaration> processDeclarations = (List<PDeclaration>)$2;
       PAction action = (PAction)$4;
@@ -406,7 +407,7 @@ processParagraph :
 				  actionDefinition);
   }
 | CSP_ACTIONS nameset IDENTIFIER EQUALS namesetExpr
-| stateDefs  
+  //| stateDefs  
   ;
 
 paragraphAction :
@@ -918,10 +919,11 @@ classDefinitionBlockAlternative
   operationDeclaration.setNameScope(NameScope.GLOBAL);
   $$ = operationDeclaration;
 }
-/*| stateDefs
+| stateDefs
 {
   
 }
+/*
 | initialDef
 {
   
@@ -1576,15 +1578,49 @@ INITIAL operationDef
 /* 3.5 Instance Variable Definitions */
 
 stateDefs :
-  STATE stateDefList
+ STATE stateDefList
+  {
+      
+      // LexLocation lastInListLoc = 
+      AStateDefinition stateDef = (AStateDefinition)$2;
+      // LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$1),
+      // 					   stateDef.getLocation());
+      $$  = new AStateDeclaration(null,
+				  NameScope.GLOBAL,
+				  stateDef);
+  }
+| STATE 
+  {
+      $$  = new AStateDeclaration(extractLexLocation((CmlLexeme)$1),NameScope.GLOBAL,null);
+  }
   ;
 
 /* FIXME this needs to be non-empty */
 stateDefList :
-  assignmentDef stateDefList
-| invariantDef stateDefList
-| /* empty */
-  ;
+ stateDef
+ {
+     AStateDefinition stateDef = new AStateDefinition();
+     List<PDefinition> defs = new Vector<PDefinition>();
+     defs.add((PDefinition)$1);
+     stateDef.setStateDefs(defs);
+ }
+| stateDef stateDefList
+{
+    AStateDefinition stateDef = (AStateDefinition)$2;
+    stateDef.getStateDefs().add((PDefinition)$1);
+}
+;
+
+stateDef:
+assignmentDef
+{
+    $$ = $1;
+}
+| invariantDef
+{
+    
+}
+    ;
 
 invariantDef :
  VDMINV expression

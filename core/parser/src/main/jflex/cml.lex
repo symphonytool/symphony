@@ -419,14 +419,6 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 <COMMENT>[^*]                         { /* match comment text; do nothing */ }
 <COMMENT>\**[^/]                      { /* match comment text; do nothing */ }
 
-
-<YYINITIAL> {
-  {process}                           { stateStack.push(yystate());yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
-  {class}                             { stateStack.push(yystate());yybegin(CLASS); return createToken(CmlParser.CLASS); }
-  //  {global}                            { stateStack.push(yystate());yybegin(GLOBAL); return createToken(CmlParser.GLOBAL); }
-}
-
-
 <CLASS,PROCESS,TYPES,STATE,FUNCTIONS,OPERATIONS,CHANNELS,CHANSETS,ACTIONS,YYINITIAL> {
   {actions}                           { yybegin(ACTIONS); return createToken(CmlParser.CSP_ACTIONS); }
   {channels}                          { yybegin(CHANNELS); return createToken(CmlParser.CHANNELS); }
@@ -435,6 +427,8 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   {state}                             { yybegin(STATE); return createToken(CmlParser.STATE); }
   {functions}                         { yybegin(FUNCTIONS); return createToken(CmlParser.FUNCTIONS); }
   {operations}                        { yybegin(OPERATIONS); return createToken(CmlParser.OPERATIONS); }
+  {class}                             { stateStack.push(yystate());yybegin(CLASS); return createToken(CmlParser.CLASS); }
+  {process}                           { stateStack.push(yystate());yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
   {end}                               { return createToken(CmlParser.END); }
 }
 
