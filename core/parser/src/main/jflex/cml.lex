@@ -526,18 +526,18 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 }
 
 <VDM_CASES> {
-  ":"                            { yybegin(CLASS); return createToken(CmlParser.COLON); }
+  ":"                            { yybegin(stateStack.pop()); return createToken(CmlParser.COLON); }
  }
 
-<CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS> {
-  ":"[^:-=]                           { return createToken(CmlParser.VDMTYPE); }
+<VDM_CASES,CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS> {
+  ":"[^!-=]                           { return createToken(CmlParser.VDMTYPE); }
   "->"                                { return createToken(CmlParser.RARROW); }  
   //vdm expressions
   "<=>"				      { return createToken(CmlParser.BIMPLY); }
   //"|->"			      { return createToken(CmlParser.BAR_ARROW); }
   "<-:"				      { return createToken(CmlParser.VDM_MAP_DOMAIN_RESTRICT_BY); }
   ":->"				      { return createToken(CmlParser.RNGSUB /*MAP_RANGE_RESTRICT_BY*/); }
-  "cases"                             { yybegin(VDM_CASES); return createToken(CmlParser.CASES); }
+  "cases"                             { stateStack.push(yystate());yybegin(VDM_CASES); return createToken(CmlParser.CASES); }
   "others"                            { return createToken(CmlParser.OTHERS); }
   "abs"                               { return createToken(CmlParser.ABS); } 
   "floor"                             { return createToken(CmlParser.FLOOR); } 

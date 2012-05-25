@@ -5,15 +5,18 @@ red=31
 green=32
 yellow=33
 blue=34
-width=70
+width=$(expr $(tput cols) - 25 )
 function colortxt()
 {
     color=$1
     txt=$2
     echo -e "\e[1;${color}m${txt}\e[0m"
 };
-#`cat README.bison`
-#mvn install
+
+if [[ "build" == "$1" ]]; then
+`cat README.bison`
+mvn install
+fi
  for test in $(ls -1 ../../docs/cml-examples/); do 
      txt=$(echo -n ${test});
      notabs=$(expr ${width} - ${#txt} );
