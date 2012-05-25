@@ -1,0 +1,4 @@
+class test =
+begin
+values public mogens : int = let b : int = 42 in b + 42
+end

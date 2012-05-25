@@ -2,6 +2,12 @@
 
 -------------questions-------------
 
+- Let exp has a localDef which can go into a ValueDef which starts
+  with a qualifier allowing: let public b : int = 42 in b; Is it
+  really the case that local definition can have qualitifiers 
+  (private, public, protected, logical)?
+
+
 - Is channels and chanset global to the entire model?
 
 - what is the default qualifier if left out?
