@@ -103,6 +103,7 @@
     }
 
 
+
     private< T extends PPattern> LexLocation extractLexLeftMostFromPatterns(List<T> ptrns )
     {
       LexLocation candidate = ptrns.get(0).getLocation();
@@ -172,7 +173,7 @@
 		fw.write(dgv.getResultString());
 		fw.close();
 
-		System.out.println(dgv.getResultString());
+		//System.out.println(dgv.getResultString());
 	    
 	      }
 	      else
@@ -305,11 +306,11 @@ classDecl
   Position endPos = ((CmlLexeme)$3).getEndPos(); // TODO Fix me, the ending position is the 
   LexNameToken lexName = extractLexNameToken((CmlLexeme)$2); 
   LexLocation loc = new LexLocation(null,"DEFAULT", 
-				      startPos.line, 
-				      startPos.column, 
-				      endPos.line, 
-				      endPos.column, 
-				      startPos.offset, endPos.offset);
+				    startPos.line, 
+				    startPos.column, 
+				    endPos.line, 
+				    endPos.column, 
+				    startPos.offset, endPos.offset);
   
   c.setLocation(loc); 
   c.setName(lexName);
@@ -349,6 +350,7 @@ declaration AT process
 process :
   BEGIN processParagraphList AT action END
   {
+      System.out.println("heeeej");
       LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
       List<PDeclaration> processDeclarations = (List<PDeclaration>)$2;
       PAction action = (PAction)$4;
@@ -415,7 +417,7 @@ processParagraph :
 				  actionDefinition);
   }
 | CSP_ACTIONS nameset IDENTIFIER EQUALS namesetExpr
-| stateDefs  
+  //| stateDefs  
   ;
 
 paragraphAction :
@@ -470,7 +472,7 @@ action
 				  action);
 }
   /* Communication rule end*/
-| AMP expression AMP action
+| COLON expression AMP action
 {
     PAction action = (PAction)$4;
     LexLocation location = extractLexLocation((CmlLexeme)$1,action.getLocation());
@@ -928,10 +930,11 @@ classDefinitionBlockAlternative
   operationDeclaration.setNameScope(NameScope.GLOBAL);
   $$ = operationDeclaration;
 }
-/*| stateDefs
+| stateDefs
 {
   
 }
+/*
 | initialDef
 {
   
@@ -1589,15 +1592,51 @@ INITIAL operationDef
 /* 3.5 Instance Variable Definitions */
 
 stateDefs :
-  STATE stateDefList
+ STATE stateDefList
+  {
+      
+      // LexLocation lastInListLoc = 
+      AStateDefinition stateDef = (AStateDefinition)$2;
+      // LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$1),
+      // 					   stateDef.getLocation());
+      $$  = new AStateDeclaration(null,
+				  NameScope.GLOBAL,
+				  stateDef);
+  }
+| STATE 
+  {
+      $$  = new AStateDeclaration(extractLexLocation((CmlLexeme)$1),NameScope.GLOBAL,null);
+  }
   ;
 
 /* FIXME this needs to be non-empty */
 stateDefList :
-  assignmentDef stateDefList
-| invariantDef stateDefList
-| /* empty */
-  ;
+ stateDef
+ {
+     AStateDefinition stateDef = new AStateDefinition();
+     List<PDefinition> defs = new Vector<PDefinition>();
+     defs.add((PDefinition)$1);
+     stateDef.setStateDefs(defs);
+     $$ = stateDef;
+ }
+| stateDef stateDefList
+{
+    AStateDefinition stateDef = (AStateDefinition)$2;
+    stateDef.getStateDefs().add((PDefinition)$1);
+    $$ = stateDef;
+}
+;
+
+stateDef:
+assignmentDef
+{
+    $$ = $1;
+}
+| invariantDef
+{
+    
+}
+    ;
 
 invariantDef :
  VDMINV expression

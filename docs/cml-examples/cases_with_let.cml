@@ -1,0 +1,9 @@
+class my_cases = 
+begin
+	values	
+	public sel : int = 42;
+	public val : int = cases let b : int = 42 in sel + b :
+	       	     	   42 	  -> 2; 
+	       	     	   others -> 2
+			   end
+end
