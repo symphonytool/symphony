@@ -273,6 +273,8 @@ exp {-> package='org.overture.ast.expressions'}
     |   {undefined}
     |   {variable} [name]:LexNameToken [original]:java_String (vardef):definition
     |   {name} [name]:LexNameToken        
+    |   {record} [name]:LexNameToken [exprs]: exp*
+    |   {tupleSelect} [tuple]:exp [entry]:java_Integer
     ;
     
 #SymbolicLiteral {-> package='org.overture.ast.expressions'}

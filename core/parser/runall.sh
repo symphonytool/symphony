@@ -5,7 +5,7 @@ red=31
 green=32
 yellow=33
 blue=34
-width=$(expr $(tput cols) - 25 )
+width=$(expr $(tput cols) - 27 )
 function colortxt()
 {
     color=$1
@@ -14,9 +14,31 @@ function colortxt()
 };
 
 if [[ "build" == "$1" ]]; then
+
+#
+# Perform bison generation
+#
 `cat README.bison`
-mvn install
+if [[ ! "$?" == "0" ]]; then
+echo -n -e "$(colortxt ${red} 'Bison Failed to build the parser')";
+echo "";
+exit -1;
 fi
+
+#
+# Build with Maven
+#
+mvn install
+if [[ ! "$?" == "0" ]]; then
+echo -n -e "$(colortxt  ${red} 'Maven build failed')";
+echo "";
+exit -1;
+fi
+fi
+
+#
+# Okay lets run the tests
+#
  for test in $(ls -1 ../../docs/cml-examples/); do 
      txt=$(echo -n ${test});
      notabs=$(expr ${width} - ${#txt} );
@@ -35,14 +57,14 @@ fi
 	 echo -n -e "$(colortxt ${yellow} ${txt}) ${tabstr}";
 	 echo $(colortxt ${blue} "[file not found]");
      elif [ "${retcode}" == "253" ]; then
-	 echo -n -e "$(colortxt ${yellow} ${txt}) ${tabstr}";
+	 echo -n -e "$(colortxt ${red} ${txt}) ${tabstr}";
 	 echo $(colortxt ${red} "[IO Error]");
      elif [ "${retcode}" == "252" ]; then
-	 echo -n -e "$(colortxt ${yellow} ${txt}) ${tabstr}";
+	 echo -n -e "$(colortxt ${red} ${txt}) ${tabstr}";
 	 echo $(colortxt ${red} "[Unexpected error]"); 
      else
 	 echo -n -e "$(colortxt ${red} ${txt}) ${tabstr}";
-	 echo -e "[What Bitches] ${retcode}";
+	 echo -e "[Unknown return code ${retcode}]";
      fi
      
 done

@@ -429,7 +429,6 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   {operations}                        { yybegin(OPERATIONS); return createToken(CmlParser.OPERATIONS); }
   {class}                             { stateStack.push(yystate());yybegin(CLASS); return createToken(CmlParser.CLASS); }
   {process}                           { stateStack.push(yystate());yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
-  {end}                               { return createToken(CmlParser.END); }
 }
 
 //Jump to the action state if "@" occurs
@@ -531,6 +530,13 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "<-:"				      { return createToken(CmlParser.VDM_MAP_DOMAIN_RESTRICT_BY); }
   ":->"				      { return createToken(CmlParser.RNGSUB /*MAP_RANGE_RESTRICT_BY*/); }
   "cases"                             { stateStack.push(yystate());yybegin(VDM_CASES); return createToken(CmlParser.CASES); }
+  "@"                                 { return createToken(CmlParser.AT); }
+  "..."                               { return createToken(CmlParser.ELLIPSIS); }
+  "forall"                            { return createToken(CmlParser.FORALL); }
+  "exists"                            { return createToken(CmlParser.EXISTS); }
+  "exists1"                           { return createToken(CmlParser.EXISTS1); }
+  "div"                               { return createToken(CmlParser.DIVIDE); }
+  "mod"                               { return createToken(CmlParser.MOD); }
   "others"                            { return createToken(CmlParser.OTHERS); }
   "abs"                               { return createToken(CmlParser.ABS); } 
   "floor"                             { return createToken(CmlParser.FLOOR); } 
@@ -568,7 +574,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   {prime}			      { return createToken(CmlParser.BACKTICK); }
   ","				      { return createToken(CmlParser.COMMA); }
   "!"				      {  }
-  ":"				      { return createToken(CmlParser.VDMTYPE); }
+  ":"				      { return createToken(CmlParser.COLON); }
   ";"				      { return createToken(CmlParser.SEMI); }
   "="				      { return createToken(CmlParser.EQUALS); }
   ")"				      { return createToken(CmlParser.RPAREN); }
@@ -584,7 +590,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "<"				      { return createToken(CmlParser.LT); }
   ">"				      { return createToken(CmlParser.GT); }
   "."				      { return createToken(CmlParser.DOT); }
-  "&"				      {  }
+  "&"				      { return createToken(CmlParser.AMP); }
   "*"				      { return createToken(CmlParser.STAR); }
   "^"				      { return createToken(CmlParser.CONC); }
   //logical operators
@@ -613,6 +619,9 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   //set type
   "set of"                            { return createToken(CmlParser.VDMSETOF); }
 
+  // seq type
+  "seq of"                            { return createToken(CmlParser.VDMSEQOF); }
+
   "inv"                               { return createToken(CmlParser.VDMINV); }
   "private"                           { return createToken(CmlParser.PRIVATE); }
   "protected"                         { return createToken(CmlParser.PROTECTED); }
@@ -627,6 +636,6 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 {hexliteral}                          { return createToken(CmlParser.HEX_LITERAL); }
 // default catch-all production rule is to return the current character
 /* .								{ return defaultToken(); } */
-
 // production rule to handle end-of-file
 <<EOF>>		  		      { return 0; } 
+.                                     { throw new IllegalArgumentException("Syntax at line "+yyline+" position "+yycolumn+" \"" + yytext() + "\" was unexpected at this time."); }
