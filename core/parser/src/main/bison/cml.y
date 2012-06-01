@@ -1029,7 +1029,11 @@ typeDef
 			     (PType)$4, null, null, null, 
 			     null, true, name); 
 }
-| qualifier IDENTIFIER VDMRECORDDEF fieldList invariant
+| qualifier IDENTIFIER VDMRECORDDEF fieldList
+{
+
+}
+| qualifier IDENTIFIER VDMRECORDDEF fieldList invariant 
   ;
 
 qualifier
@@ -2700,7 +2704,6 @@ mapComprehension :
     $$ = res;
 
   }
-
 | LCURLY maplet BAR bindList AMP expression RCURLY
 {
 
@@ -2852,28 +2855,142 @@ NEW IDENTIFIER LPAREN expressionList RPAREN
 generalIsExpr :
   ISUNDER name LPAREN expression RPAREN
   {
-    
+    CmlLexeme isUnder = (CmlLexeme)$1;
+    LexNameToken typeName = (LexNameToken)$2;
+    // $3 LPAREN
+    PExp test = (PExp)$4;
+    CmlLexeme rparen = (CmlLexeme)$5;
+
+    LexLocation loc = combineLexLocation ( extractLexLocation ( isUnder ),
+					   extractLexLocation ( rparen  ) );
+
+    AIsExp res = new AIsExp( loc,typeName, test, null );
+    $$ = res;
 
   }
 | ISUNDER basicType LPAREN expression RPAREN
+{
+   CmlLexeme isUnder = (CmlLexeme)$1;
+   PType type = (PType)$2;
+   // LPAREN $3
+   PExp test = (PExp)$4;
+   CmlLexeme rparen = (CmlLexeme)$5;
+
+   LexLocation loc = combineLexLocation ( extractLexLocation ( isUnder ),
+					  extractLexLocation ( rparen ) );
+
+   AIsExp res = new AIsExp( loc, null, test, null );
+   res.setBasicType( type );
+   $$ = res;
+
+}
 | ISUNDER LPAREN expression COMMA type RPAREN
+{
+   CmlLexeme isUnder = (CmlLexeme)$1;
+   // LPAREN $2
+   PExp test = (PExp)$3;
+   // COMMA $4
+   PType type = (PType)$5;
+   CmlLexeme rparen = (CmlLexeme)$6;
+
+   LexLocation loc = combineLexLocation ( extractLexLocation ( isUnder ),
+					  extractLexLocation ( rparen ) );
+
+
+   AIsExp res = new AIsExp( loc, null, test, null);
+   res.setBasicType( type );
+   $$ = res;
+
+}
   ;
 
 basicType :
   TBOOL
+  {
+    CmlLexeme bool = (CmlLexeme)$1;
+    LexLocation loc = extractLexLocation( bool );
+
+    ABooleanBasicType res = new ABooleanBasicType( loc, false, null );
+    $$ = res;
+  }
 | TNAT
+  {
+    CmlLexeme bool = (CmlLexeme)$1;
+    LexLocation loc = extractLexLocation( bool );
+    ANatNumericBasicType res = new ANatNumericBasicType( loc, false, null );
+    $$ = res;
+  }
 | TNAT1
+  {
+    CmlLexeme bool = (CmlLexeme)$1;
+    LexLocation loc = extractLexLocation( bool );
+    ANatOneNumericBasicType res = new ANatOneNumericBasicType( loc, false, null );
+    $$ = res;
+  }
 | TINT
+  {
+    CmlLexeme bool = (CmlLexeme)$1;
+    LexLocation loc = extractLexLocation( bool );
+    AIntNumericBasicType res = new AIntNumericBasicType( loc, false, null );
+    $$ = res;
+  }
+
 | TRAT
+  {
+    CmlLexeme bool = (CmlLexeme)$1;
+    LexLocation loc = extractLexLocation( bool );
+    ARationalNumericBasicType res = new ARationalNumericBasicType( loc, false );
+    $$ = res;
+  }
+
 | TREAL
+  {
+    CmlLexeme bool = (CmlLexeme)$1;
+    LexLocation loc = extractLexLocation( bool );
+    ARealNumericBasicType res = new ARealNumericBasicType( loc, false, null );
+    $$ = res;
+  }
+
 | TCHAR
+  {
+    CmlLexeme bool = (CmlLexeme)$1;
+    LexLocation loc = extractLexLocation( bool );
+    ACharBasicType res = new ACharBasicType( loc, false, null );
+    $$ = res;
+  }
+
 | TTOKEN
+  {
+    CmlLexeme bool = (CmlLexeme)$1;
+    LexLocation loc = extractLexLocation( bool );
+    ATokenBasicType res = new ATokenBasicType( loc, false );
+    $$ = res;
+  }
+
   ;
 
 /* 4.17 The Precondition Expression */
 
 preconditionExpr :
   PREUNDER LPAREN expressionList RPAREN
+  {
+    CmlLexeme preu = (CmlLexeme)$1;
+    // LPAREN $2
+    List<PExp> exprs = (List<PExp>)$3;
+    CmlLexeme rparen = (CmlLexeme)$4;
+
+    // RWL FIXME: Either this is right because we dedeuce the
+    // function in a later phase where we know more or
+    // the production above should be PREUNDER exp LPAREN expList RPAREN
+    // however that introduces 36 reduce/reduce conflicts at this time.
+
+    PExp function = null;
+    LexLocation loc = combineLexLocation( extractLexLocation ( preu ),
+					 extractLexLocation ( rparen ) );
+
+    APreExp res = new APreExp( loc, function, exprs );
+    $$ = res;
+  }
   ;
 
 /* 4.19 Names */

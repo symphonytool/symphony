@@ -622,6 +622,11 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   // seq type
   "seq of"                            { return createToken(CmlParser.VDMSEQOF); }
 
+  // map type
+  "map of"                            { return createToken(CmlParser.VDMMAPOF); }
+  "to"                                { return createToken(CmlParser.TO); }
+  "|->"                               { return createToken(CmlParser.MAPLETARROW); }
+
   "inv"                               { return createToken(CmlParser.VDMINV); }
   "private"                           { return createToken(CmlParser.PRIVATE); }
   "protected"                         { return createToken(CmlParser.PROTECTED); }
