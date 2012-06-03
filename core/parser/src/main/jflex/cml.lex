@@ -616,6 +616,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "real"                              { return createToken(CmlParser.TREAL); }
   "char"                              { return createToken(CmlParser.TCHAR); }
   "token"                             { return createToken(CmlParser.TTOKEN); }
+  "lambda"                            { return createToken(CmlParser.LAMBDA); }
   //set type
   "set of"                            { return createToken(CmlParser.VDMSETOF); }
 
@@ -626,6 +627,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "map of"                            { return createToken(CmlParser.VDMMAPOF); }
   "to"                                { return createToken(CmlParser.TO); }
   "|->"                               { return createToken(CmlParser.MAPLETARROW); }
+  "->"                                { return createToken(CmlParser.VDMFUNCARROW); }
 
   "inv"                               { return createToken(CmlParser.VDMINV); }
   "private"                           { return createToken(CmlParser.PRIVATE); }

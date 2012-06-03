@@ -14,6 +14,7 @@
 // required standard Java definitions
     import java.util.*;
     import java.io.File;
+    import java.lang.reflect.*;
     import org.overture.ast.definitions.*;
     import org.overture.ast.declarations.*;
     import org.overture.ast.expressions.*;
@@ -84,24 +85,29 @@
 			     end.endLine, end.endPos,0,0);
     }
 
-    private LexLocation extractLexLastFromDeps( List<PDefinition> defs )
-    {
-      LexLocation candidate = defs.get(0).getLocation();
-      for(PDefinition p : defs)
-	if (p.getLocation().endOffset > candidate.endOffset)
-	  candidate = p.getLocation();
-      return candidate;
-    }
 
-    private<T extends PExp> LexLocation extractLexLastFromExps( List<T> exps )
+    private LexLocation extractLastLexLocation ( List<?> fields )
     {
-      LexLocation candidate = exps.get(0).getLocation();
-      for(PExp p : exps)
-	if (p.getLocation().endOffset > candidate.endOffset)
-	  candidate = p.getLocation();
-      return candidate;
+      try 
+	{
+	  Object o = fields.get(0);
+	  Class<?> clz = o.getClass();
+	  
+	  Method locMethod = clz.getMethod("getLocation", new Class<?>[] {} );
+	  
+	  LexLocation candidate = (LexLocation)locMethod.invoke( o, null );
+	  for(Object p : fields)
+	    {
+	      LexLocation pLoc = (LexLocation)locMethod.invoke( o, null );
+	      if (pLoc.endOffset > candidate.endOffset)
+		candidate = pLoc;
+	    }
+	  return candidate;
+	} catch (Exception e)
+	    {
+	      throw new RuntimeException(e);
+	    }
     }
-
 
 
     private< T extends PPattern> LexLocation extractLexLeftMostFromPatterns(List<T> ptrns )
@@ -912,7 +918,7 @@ classDefinitionBlock
 classDefinitionBlockAlternative
 : typeDefs             
 {
-
+  $$ = $1;
 }
 | valueDefs
 {
@@ -932,7 +938,7 @@ classDefinitionBlockAlternative
 }
 | stateDefs
 {
-  
+  $$ = $1;
 }
 /*
 | initialDef
@@ -1031,10 +1037,51 @@ typeDef
 }
 | qualifier IDENTIFIER VDMRECORDDEF fieldList
 {
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
+  LexNameToken name = extractLexNameToken( (CmlLexeme)$2 );
+  CmlLexeme vdmrec = (CmlLexeme)$3;
+  List<AFieldField> fields = (List<AFieldField>)$4;
 
+  LexLocation loc = combineLexLocation( access.getLocation(),
+					extractLexLocation( vdmrec ) );
+					
+
+  //
+  ARecordInvariantType recType = new ARecordInvariantType( loc, false, null, false, null, name, fields, true );
+							   
+
+  ATypeDefinition res = new ATypeDefinition( loc, NameScope.GLOBAL, 
+					     false, null, access,
+					     recType, null, null, null,
+					     null, true, name );
+
+  $$ = res;
 }
 | qualifier IDENTIFIER VDMRECORDDEF fieldList invariant 
-  ;
+{
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
+  LexNameToken name = extractLexNameToken( (CmlLexeme)$2 );
+  CmlLexeme vdmrec = (CmlLexeme)$3;
+  List<AFieldField> fields = (List<AFieldField>)$4;
+  // FIXME: Added AInvariantInvariant to the ARecordInvariantType replacing
+  // the current AExplicitFunctionFunctionDefinition for inv.
+
+
+  LexLocation loc = combineLexLocation( access.getLocation(),
+					extractLexLocation( vdmrec ));
+					
+
+  //
+  ARecordInvariantType recType = new ARecordInvariantType( loc, false, null, false, null, name, fields, true );
+							   
+
+  ATypeDefinition res = new ATypeDefinition( loc, NameScope.GLOBAL, 
+					     false, null, access,
+					     recType, null, null, null,
+					     null, true, name );
+
+  $$ = res;
+}
 
 qualifier
 : PRIVATE 
@@ -1170,6 +1217,21 @@ type
   AMapMapType res = new AMapMapType( loc, false, null, from, to, false );
   $$ = res;
 }
+| type RARROW type
+{
+  PType domType = (PType)$1;
+  PType rngType = (PType)$3;
+  
+  LexLocation loc = combineLexLocation ( domType.getLocation(),
+					 rngType.getLocation() ) ;
+
+  // [CONSIDER,RWL] The domain type of a function is not a list, 
+  // I think the AST is wrong taking a list of types for params
+  List<PType> params = new LinkedList<PType>();
+  params.add(domType);
+  AFunctionType res = new AFunctionType(loc, false, null, false, params, rngType );
+  $$ = res;
+}
 | type VDMPFUNCARROW type
 | VDMUNITTYPE VDMPFUNCARROW type
 | type VDMTFUNCARROW type
@@ -1184,13 +1246,35 @@ type
 
 fieldList : 
   field
+  {
+    List<AFieldField> res = new LinkedList<AFieldField>();
+    res.add ( (AFieldField) $1 );
+    $$ = res;
+  }
 | field fieldList
-  ;
+{
+  List<AFieldField> tail = (List<AFieldField>)$2;
+  tail.add( (AFieldField) $1 );
+  $$ = tail;
+}
+;
 
 field :
   type
+  {
+    $$ = new AFieldField( null, null, null, (PType) $1, null );
+  }
 | IDENTIFIER COLON type
+{
+  LexNameToken name = extractLexNameToken( (CmlLexeme) $1 );
+  PType type = (PType) $3;
+
+  $$ = new AFieldField( null, name, null, type, null );
+}
 | IDENTIFIER VDMTYPENCMP type
+{
+  throw new RuntimeException("No way");
+}
   ;
 
 invariant :
@@ -1215,16 +1299,56 @@ valueDefs :
   }
   ;
 
+/* RWL. On tailing SEMI:
+ *
+ * Lists definition like valueDefs below has an element and a
+ * separater. Ofter it is convenient for the language that the
+ * separater can be added to the end of the list optionally. Like:
+ *
+ * class valuelist =
+ * begin
+ *    values
+ *       a : int = 1;
+ *       b : int = 2;
+ *       c : int = 3
+ * end
+ *
+ * The list "c : int = 3" could be followed by a SEMI (;) as in:
+ *
+ *
+ * class valuelist =
+ * begin
+ *     values 
+ *       a : int = 1;
+ *       b : int = 2;
+ *       c : int = 3;
+ * end
+ *
+ * To relax the parser to accept both cases we add two "base-cases"
+ * for the list, one without SEMI and one with SEMI.
+ *
+ * This production-rule-pattern should work for any list where there
+ * is no conflict between element definition and the separator.
+ */
 valueDefList :
 qualifiedValueDef
+{
+   // Build resulting list 
+   List<PDefinition> defs = new LinkedList<PDefinition>();
+   defs.add((PDefinition)$1);
+   $$ = defs;
+}
+| qualifiedValueDef SEMI 
  {
+   // This case allows tailing SEMI in value def. list, comment out to
+   // enforce no tailing SEMI.
+
    // Build resulting list 
    List<PDefinition> defs = new LinkedList<PDefinition>();
    defs.add((PDefinition)$1);
    $$ = defs;
  }
-|
-qualifiedValueDef SEMI valueDefList
+| qualifiedValueDef SEMI valueDefList
 {
   // Get constituents
   PDefinition def = (PDefinition)$1;
@@ -1935,7 +2059,7 @@ ifExpr :
 							  eif.column, 
 							  sif.offset, 
 							  eif.offset ),  
-					  extractLexLastFromExps( elses ) ));
+					  extractLastLexLocation( elses ) ));
     $$ = ifexp;
     
   }
@@ -3412,7 +3536,19 @@ patternList COLON type
 
 typeBindList :
   typeBind
+  {
+    ATypeBind tb = (ATypeBind)$1;
+    List<ATypeBind> res = new LinkedList<ATypeBind>();
+    res.add(tb);
+    $$ = res;
+  }
 | typeBind COMMA typeBindList
+    {
+      ATypeBind hd = (ATypeBind)$1;
+      List<ATypeBind> tl = (List<ATypeBind>)$3;
+      tl.add(hd);
+      $$ = tl;
+    }
   ;
 
 /* Things not in the CML(-1) spec */
