@@ -1,0 +1,11 @@
+class mkrecord =
+begin
+	types
+	public rec ::
+	       a : int
+	       b : int
+	       ;
+
+	values
+	public r : rec = mk_rec(1,2)
+end

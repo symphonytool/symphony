@@ -1,0 +1,13 @@
+class fieldselect =
+begin
+	types
+		public person ::
+		       name : string
+		       age  : int
+		       ;
+
+	values
+		public rasmus : person = mk_person("Rasmus", 30);
+		public age : int = rasmus.age
+		
+end
