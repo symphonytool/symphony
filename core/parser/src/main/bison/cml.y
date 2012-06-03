@@ -224,7 +224,7 @@
  */
 
 %token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_FRAME VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN VDMDONTCARE IDENTIFIER
-%token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1 
+%token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1 STRING
 
 
 %token HEX_LITERAL
@@ -1849,6 +1849,43 @@ expression
 ;
 
 expression :
+/* RWL On strings:
+ *
+ * In the lexer whole strings are matched up because it is easy given
+ * its state machine functionality. At the same time string handling
+ * is captured within a few lines of gammar (in the lexers STRING
+ * states). However, building a string as a "seq of char" would
+ * otherwise have been done by the parser and therefore the expected
+ * result is a sequence of char. In this rule we take the lexer STRING
+ * a part and creates the corresponding character expressions.
+ * 
+ */
+STRING 
+{
+  // Get a whole STRING from the lexer  
+  CmlLexeme s = (CmlLexeme)$1;
+
+  LexLocation sl = extractLexLocation ( s );
+  
+  // extract the string and convert it to a char array
+  String str = s.getValue();
+  char[] chrs = str.toCharArray();
+
+  // build a list of ACharLiteralSymbolicLiteralExp from the lexer String
+  List<PExp> members = new LinkedList<PExp>();
+  for(int i = 0; i < chrs.length;i++)
+    {
+      LexLocation cl = new LexLocation(currentSourceFile.getFile(), "Default",
+				       sl.startLine, sl.startPos + i,
+				       sl.startLine, sl.startPos + (i + 1),0,0);
+      members.add(new ACharLiteralSymbolicLiteralExp(cl, new LexCharacterToken( chrs[i], cl )) ); 
+    }
+
+  // Build the ASeqEnumSeqExp as usual
+  ASeqEnumSeqExp res = new ASeqEnumSeqExp( sl, members );
+  $$ = res;
+}
+|
   LPAREN expression RPAREN
   {
       LexLocation loc = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3);

@@ -14,6 +14,10 @@ class CmlContext {
 }
 */
 
+class S {
+  public static StringBuilder b;
+}
+
 class CommentBlock extends CMLToken {
   static CommentBlock current;
   private int level;
@@ -324,13 +328,11 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
     return createToken(yytext().charAt(0));
   }
   
-  
-  /* Helper function to return the correct integer for the parser and create the correct Lexeme (semantic) values for the parser and beyond */
-  private int createToken(int lex)
+  private int createToken(int lex, String value)
   {
     int line = yyline + 1;
     int column = yycolumn;
-    String value = yytext();
+
     try {
       yylvalue = new CmlLexeme(new Position(line,column),new Position(line,column + value.length()),lex,value);
       //return new CmlLexeme(line, column, lex, yytext());
@@ -340,6 +342,13 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
       cge.printStackTrace();
       return -1;
     }
+  }
+
+  /* Helper function to return the correct integer for the parser and create the correct Lexeme (semantic) values for the parser and beyond */
+  private int createToken(int lex)
+  {
+    String value = yytext();
+    return createToken(lex, value);
   }
 
   private int createToken(int lex, VDMToken vdmToken)
@@ -404,8 +413,8 @@ LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
 WhiteSpace     = {LineTerminator} | [ \t\f]
 
-%states CLASS PROCESS STATE TYPES STATE FUNCTIONS OPERATIONS CHANNELS CHANSETS ACTIONS VDM_CASES
-%xstates COMMENT
+%states CLASS PROCESS STATE TYPES STATE FUNCTIONS OPERATIONS CHANNELS CHANSETS ACTIONS VDM_CASES 
+%xstates COMMENT STRING
 
 %%
 									  
@@ -635,6 +644,10 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "public"                            { return createToken(CmlParser.PUBLIC); }
   "logical"                           { return createToken(CmlParser.LOGICAL); }
 }
+
+"\""                                  { stateStack.push(yystate());yybegin(STRING); S.b = new StringBuilder(); }
+<STRING>"\""                          { yybegin( stateStack.pop() ); return createToken(CmlParser.STRING, S.b.toString()); }
+<STRING>[^\"]                         { S.b.append(yytext()); }
 
 //[:whitespace:]                        { /* match whitespace; do nothing */ }
 {WhiteSpace}                            { /* match whitespace; do nothing */ }
