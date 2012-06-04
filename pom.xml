@@ -52,13 +52,12 @@
       <url>http://overture.sourceforge.net/maven/repo</url>
       <layout>default</layout>
     </repository>
-    <!-- commented out until needed -jwc -->
-    <!-- <repository> -->
-    <!--   <id>OvertureMT4Em2Repo</id> -->
-    <!--   <name>Overture Project's MT4E-generated Maven Repository of Eclipse 3.7.2 files</name> -->
-    <!--   <url>http://build.overturetool.org/builds/mt4e-m2repo-eclipse3.7.2/</url> -->
-    <!--   <layout>default</layout> -->
-    <!-- </repository> -->
+    <repository>
+      <id>OvertureMT4Em2Repo</id>
+      <name>Overture Project's MT4E-generated Maven Repository of Eclipse 3.7.2 files</name>
+      <url>http://build.overturetool.org/builds/mt4e-m2repo-eclipse3.7.2/</url>
+      <layout>default</layout>
+    </repository>
   </repositories>
 
   <build>
