@@ -1,5 +1,5 @@
 process RegisterProc = 
- begin
+ BeGiN
 
   operatioNs  
    LOAD(i : Byte)

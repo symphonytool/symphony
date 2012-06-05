@@ -414,7 +414,7 @@ InputCharacter = [^\r\n]
 WhiteSpace     = {LineTerminator} | [ \t\f]
 
 %states CLASS PROCESS STATE TYPES STATE FUNCTIONS OPERATIONS CHANNELS CHANSETS ACTIONS VDM_CASES 
-%xstates COMMENT STRING
+%xstates COMMENT STRING LCOMMENT
 
 %%
 									  
@@ -427,6 +427,9 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 <COMMENT>"*/"                         { yybegin(stateStack.pop()); }
 <COMMENT>[^*]                         { /* match comment text; do nothing */ }
 <COMMENT>\**[^/]                      { /* match comment text; do nothing */ }
+"--"                                  { stateStack.push(yystate()); yybegin(LCOMMENT); }
+<LCOMMENT>.*                          { }
+<LCOMMENT>\n                          { yybegin(stateStack.pop()); }
 
 <CLASS,PROCESS,TYPES,STATE,FUNCTIONS,OPERATIONS,CHANNELS,CHANSETS,ACTIONS,YYINITIAL> {
   {actions}                           { yybegin(ACTIONS); return createToken(CmlParser.CSP_ACTIONS); }
@@ -628,12 +631,15 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "lambda"                            { return createToken(CmlParser.LAMBDA); }
   //set type
   "set of"                            { return createToken(CmlParser.VDMSETOF); }
+  "subset"                            { return createToken(CmlParser.SUBSET); }
 
   // seq type
   "seq of"                            { return createToken(CmlParser.VDMSEQOF); }
 
   // map type
   "map of"                            { return createToken(CmlParser.VDMMAPOF); }
+  "inmap of"                             { return createToken(CmlParser.VDMINMAPOF); }
+
   "to"                                { return createToken(CmlParser.TO); }
   "|->"                               { return createToken(CmlParser.MAPLETARROW); }
   "->"                                { return createToken(CmlParser.VDMFUNCARROW); }

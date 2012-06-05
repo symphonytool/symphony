@@ -24,7 +24,7 @@ functions
 	post
 		forall j in set LOC & s inter home(j) = {};
 	
-	callers: (map SUBS to STATUS) +>  set of SUBS
+	callers: (map of SUBS to STATUS) +>  set of SUBS
 	callers(status) == dom(status :> Connected);
 		
 	connected: (map SUBS to STATUS) * (map SUBS to SUBS) +> (inmap SUBS to SUBS)
@@ -55,42 +55,43 @@ channels
 	connectfree,connnectbusy: SUBS	
 */
 
-class Exchange
-	
-	instance variables
+class Exchange =
+begin
+
+	state
 		public lSUBS: set of Node`SUBS; 	-- this is actually the parameter of the process. 
 									-- because I need the name to be in scope,
 									-- I've put it in the state of the class.
-		public status: map Node`SUBS to Node`STATUS;
-		public number: map Node`SUBS to Node`SUBS;
+		public status: map of Node`SUBS to Node`STATUS;
+		public number: map of Node`SUBS to Node`SUBS;
 		public subs: set of Node`SUBS;
 		inv
 			exists n: nat & card(subs) = n and -- is card a partial or total function?
 			dom(status) = dom(number) and
 			dom(number) subset subs and
-			is_(dom(dom(status:>Node`Connected)<:number),inmap Node`SUBS to Node`SUBS)
+			is_(dom(dom(status:>Node`Connected)<:number)) --,inmap of Node`SUBS to Node`SUBS)
 			; 
 			
 	functions
-		callers: (map Node`SUBS to Node`STATUS) +>  set of Node`SUBS
+		callers: (map of Node`SUBS to Node`STATUS) +>  set of Node`SUBS
 		callers(status) == dom(status :> Node`Connected);
 		
-		connected: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> (inmap Node`SUBS to Node`SUBS)
+		connected: (map of Node`SUBS to Node`STATUS) * (map of Node`SUBS to Node`SUBS) +> (inmap of Node`SUBS to Node`SUBS)
 		connected(status,number) == callers(status) <: number;
 		
-		free: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) * (set of Node`SUBS) +> set of Node`SUBS
+		free: (map of Node`SUBS to Node`STATUS) * (map of Node`SUBS to Node`SUBS) * (set of Node`SUBS) +> set of Node`SUBS
 		free(status,number,subs) == subs \ dom(status) \ rng(connected(status,number));
 		
-		connectable: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		connectable: (map of Node`SUBS to Node`STATUS) * (map of Node`SUBS to Node`SUBS) +> set of Node`SUBS
 		connectable(status,number) == rng((dom(status:>{<connecting>}))<:number);
 		
-		suspendable: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		suspendable: (map of Node`SUBS to Node`STATUS) * (map of Node`SUBS to Node`SUBS) +> set of Node`SUBS
 		suspendable(status,number) == rng((dom(status:>{<speech>}))<:connected(status,number));
 		
-		ringing: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		ringing: (map of Node`SUBS to Node`STATUS) * (map of Node`SUBS to Node`SUBS) +> set of Node`SUBS
 		ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number));
 		
-		suspended: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		suspended: (map of Node`SUBS to Node`STATUS) * (map of Node`SUBS to Node`SUBS) +> set of Node`SUBS
 		suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number));
 		
 	operations
@@ -262,8 +263,8 @@ class Node
 	
 	instance variables
 		i: nat; -- process parameter
-		away: map SUBS to nat;
-		origin: map SUBS to nat;
+		away: map of SUBS to nat;
+		origin: map of SUBS to nat;
 		inv
 			i in set LOC and
 			rng(away) subset LOC and
