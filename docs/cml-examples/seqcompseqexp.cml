@@ -1,0 +1,5 @@
+class seqcompseqexp =
+begin
+	values
+	public a : seq of int = [ a | a in set {1,2,3,4} & a > 2 ]
+end

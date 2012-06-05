@@ -14,6 +14,10 @@ class CmlContext {
 }
 */
 
+class S {
+  public static StringBuilder b;
+}
+
 class CommentBlock extends CMLToken {
   static CommentBlock current;
   private int level;
@@ -324,13 +328,11 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
     return createToken(yytext().charAt(0));
   }
   
-  
-  /* Helper function to return the correct integer for the parser and create the correct Lexeme (semantic) values for the parser and beyond */
-  private int createToken(int lex)
+  private int createToken(int lex, String value)
   {
     int line = yyline + 1;
     int column = yycolumn;
-    String value = yytext();
+
     try {
       yylvalue = new CmlLexeme(new Position(line,column),new Position(line,column + value.length()),lex,value);
       //return new CmlLexeme(line, column, lex, yytext());
@@ -340,6 +342,13 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
       cge.printStackTrace();
       return -1;
     }
+  }
+
+  /* Helper function to return the correct integer for the parser and create the correct Lexeme (semantic) values for the parser and beyond */
+  private int createToken(int lex)
+  {
+    String value = yytext();
+    return createToken(lex, value);
   }
 
   private int createToken(int lex, VDMToken vdmToken)
@@ -404,8 +413,8 @@ LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
 WhiteSpace     = {LineTerminator} | [ \t\f]
 
-%states CLASS PROCESS STATE TYPES STATE FUNCTIONS OPERATIONS CHANNELS CHANSETS ACTIONS VDM_CASES
-%xstates COMMENT
+%states CLASS PROCESS STATE TYPES STATE FUNCTIONS OPERATIONS CHANNELS CHANSETS ACTIONS VDM_CASES 
+%xstates COMMENT STRING LCOMMENT
 
 %%
 									  
@@ -418,14 +427,9 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 <COMMENT>"*/"                         { yybegin(stateStack.pop()); }
 <COMMENT>[^*]                         { /* match comment text; do nothing */ }
 <COMMENT>\**[^/]                      { /* match comment text; do nothing */ }
-
-
-<YYINITIAL> {
-  {process}                           { stateStack.push(yystate());yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
-  {class}                             { stateStack.push(yystate());yybegin(CLASS); return createToken(CmlParser.CLASS); }
-  //  {global}                            { stateStack.push(yystate());yybegin(GLOBAL); return createToken(CmlParser.GLOBAL); }
-}
-
+"--"                                  { stateStack.push(yystate()); yybegin(LCOMMENT); }
+<LCOMMENT>.*                          { }
+<LCOMMENT>\n                          { yybegin(stateStack.pop()); }
 
 <CLASS,PROCESS,TYPES,STATE,FUNCTIONS,OPERATIONS,CHANNELS,CHANSETS,ACTIONS,YYINITIAL> {
   {actions}                           { yybegin(ACTIONS); return createToken(CmlParser.CSP_ACTIONS); }
@@ -435,7 +439,8 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   {state}                             { yybegin(STATE); return createToken(CmlParser.STATE); }
   {functions}                         { yybegin(FUNCTIONS); return createToken(CmlParser.FUNCTIONS); }
   {operations}                        { yybegin(OPERATIONS); return createToken(CmlParser.OPERATIONS); }
-  {end}                               { return createToken(CmlParser.END); }
+  {class}                             { stateStack.push(yystate());yybegin(CLASS); return createToken(CmlParser.CLASS); }
+  {process}                           { stateStack.push(yystate());yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
 }
 
 //Jump to the action state if "@" occurs
@@ -511,7 +516,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "?"				      { return createToken(CmlParser.CSP_CHANNEL_READ); }
   "!"				      { return createToken(CmlParser.CSP_CHANNEL_WRITE); }
   "."				      { return createToken(CmlParser.CSP_CHANNEL_DOT); }
-  "dcl"                               { return createToken(CmlParser.DCL); }
+  "dcl"                               { yybegin(TYPES);return createToken(CmlParser.DCL); }
   "@"                                 { return createToken(CmlParser.AT); }
   "=>"                                { return createToken(CmlParser.CSP_OPS_COM); }
   "Skip"                              { return createToken(CmlParser.CSPSKIP); }
@@ -526,18 +531,24 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 }
 
 <VDM_CASES> {
-  ":"                            { yybegin(CLASS); return createToken(CmlParser.COLON); }
+  ":"                            { yybegin(stateStack.pop()); return createToken(CmlParser.COLON); }
  }
 
-<CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS> {
-  ":"[^:-=]                           { return createToken(CmlParser.VDMTYPE); }
-  "->"                                { return createToken(CmlParser.RARROW); }  
+<VDM_CASES,CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS> {
+  "->"                                { return createToken(CmlParser.RARROW); } 
   //vdm expressions
   "<=>"				      { return createToken(CmlParser.BIMPLY); }
   //"|->"			      { return createToken(CmlParser.BAR_ARROW); }
   "<-:"				      { return createToken(CmlParser.VDM_MAP_DOMAIN_RESTRICT_BY); }
   ":->"				      { return createToken(CmlParser.RNGSUB /*MAP_RANGE_RESTRICT_BY*/); }
-  "cases"                             { yybegin(VDM_CASES); return createToken(CmlParser.CASES); }
+  "cases"                             { stateStack.push(yystate());yybegin(VDM_CASES); return createToken(CmlParser.CASES); }
+  "@"                                 { return createToken(CmlParser.AT); }
+  "..."                               { return createToken(CmlParser.ELLIPSIS); }
+  "forall"                            { return createToken(CmlParser.FORALL); }
+  "exists"                            { return createToken(CmlParser.EXISTS); }
+  "exists1"                           { return createToken(CmlParser.EXISTS1); }
+  "div"                               { return createToken(CmlParser.DIVIDE); }
+  "mod"                               { return createToken(CmlParser.MOD); }
   "others"                            { return createToken(CmlParser.OTHERS); }
   "abs"                               { return createToken(CmlParser.ABS); } 
   "floor"                             { return createToken(CmlParser.FLOOR); } 
@@ -591,7 +602,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "<"				      { return createToken(CmlParser.LT); }
   ">"				      { return createToken(CmlParser.GT); }
   "."				      { return createToken(CmlParser.DOT); }
-  "&"				      {  }
+  "&"				      { return createToken(CmlParser.AMP); }
   "*"				      { return createToken(CmlParser.STAR); }
   "^"				      { return createToken(CmlParser.CONC); }
   //logical operators
@@ -617,8 +628,21 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "real"                              { return createToken(CmlParser.TREAL); }
   "char"                              { return createToken(CmlParser.TCHAR); }
   "token"                             { return createToken(CmlParser.TTOKEN); }
+  "lambda"                            { return createToken(CmlParser.LAMBDA); }
   //set type
   "set of"                            { return createToken(CmlParser.VDMSETOF); }
+  "subset"                            { return createToken(CmlParser.SUBSET); }
+
+  // seq type
+  "seq of"                            { return createToken(CmlParser.VDMSEQOF); }
+
+  // map type
+  "map of"                            { return createToken(CmlParser.VDMMAPOF); }
+  "inmap of"                             { return createToken(CmlParser.VDMINMAPOF); }
+
+  "to"                                { return createToken(CmlParser.TO); }
+  "|->"                               { return createToken(CmlParser.MAPLETARROW); }
+  "->"                                { return createToken(CmlParser.VDMFUNCARROW); }
 
   "inv"                               { return createToken(CmlParser.VDMINV); }
   "private"                           { return createToken(CmlParser.PRIVATE); }
@@ -627,6 +651,10 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "logical"                           { return createToken(CmlParser.LOGICAL); }
 }
 
+"\""                                  { stateStack.push(yystate());yybegin(STRING); S.b = new StringBuilder(); }
+<STRING>"\""                          { yybegin( stateStack.pop() ); return createToken(CmlParser.STRING, S.b.toString()); }
+<STRING>[^\"]                         { S.b.append(yytext()); }
+
 //[:whitespace:]                        { /* match whitespace; do nothing */ }
 {WhiteSpace}                            { /* match whitespace; do nothing */ }
 {identifier}                          {  return checkIdentifier(""); /* return createToken(CmlParser.IDENTIFIER); */}
@@ -634,6 +662,6 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 {hexliteral}                          { return createToken(CmlParser.HEX_LITERAL); }
 // default catch-all production rule is to return the current character
 /* .								{ return defaultToken(); } */
-
 // production rule to handle end-of-file
 <<EOF>>		  		      { return 0; } 
+.                                     { throw new IllegalArgumentException("Syntax at line "+yyline+" position "+yycolumn+" \"" + yytext() + "\" was unexpected at this time."); }

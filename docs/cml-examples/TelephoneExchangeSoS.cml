@@ -1,0 +1,391 @@
+/*
+this definitions should be global, but I had to put them in the class to type check the VDM++ specification
+
+types
+	public SUBS = token;
+	public STATUS = <connecting> | <engaged> | <ringing> | <speech> | <suspended>;
+	public MSG = <vcallmsg> | <vclearmsg> | <callokmsg> | <callerrormsg>;
+		
+values
+	Connected = {<ringing>,<speech>,<suspended>};
+	n: nat = undefined;
+	LOC = {1,...,n-1};
+	
+functions
+	next(i: nat) j: nat
+	pre
+		i in set LOC
+	post
+		j = (i+1) mod n;
+
+	home(i: nat) s: set of SUBS
+	pre
+		i in set LOC
+	post
+		forall j in set LOC & s inter home(j) = {};
+	
+	callers: (map of SUBS to STATUS) +>  set of SUBS
+	callers(status) == dom(status :> Connected);
+		
+	connected: (map SUBS to STATUS) * (map SUBS to SUBS) +> (inmap SUBS to SUBS)
+	connected(status,number) == callers(status) <: number;
+		
+	free: (map SUBS to STATUS) * (map SUBS to SUBS) * (set of SUBS) +> set of SUBS
+	free(status,number,subs) == subs \ dom(status) \ rng(connected(status,number));
+		
+	connectable: (map SUBS to STATUS) * (map SUBS to SUBS) +> set of SUBS
+	connectable(status,number) == rng((dom(status:>{<connecting>}))<:number);
+		
+	suspendable: (map SUBS to STATUS) * (map SUBS to SUBS) +> set of SUBS
+	suspendable(status,number) == rng((dom(status:>{<speech>}))<:connected(status,number));
+		
+	ringing: (map SUBS to STATUS) * (map SUBS to SUBS) +> set of SUBS
+	ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number));
+		
+	suspended: (map SUBS to STATUS) * (map SUBS to SUBS) +> set of SUBS
+	suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number));
+	
+channels
+	init
+	call: SUBS*SUBS
+	clear, suspend: SUBS
+	answer, unsuspend: SUBS
+	callok,clearok,suspendok,answerok,unsuspendok
+	callerror,clearerror,suspenderror,answererror,unsuspenderror
+	connectfree,connnectbusy: SUBS	
+*/
+
+class Exchange =
+begin
+
+	state
+		public lSUBS: set of Node`SUBS; 	-- this is actually the parameter of the process. 
+									-- because I need the name to be in scope,
+									-- I've put it in the state of the class.
+		public status: map of Node`SUBS to Node`STATUS;
+		public number: map of Node`SUBS to Node`SUBS;
+		public subs: set of Node`SUBS;
+		inv
+			exists n: nat & card(subs) = n and -- is card a partial or total function?
+			dom(status) = dom(number) and
+			dom(number) subset subs and
+			is_(dom(dom(status:>Node`Connected)<:number)) --,inmap of Node`SUBS to Node`SUBS)
+			; 
+			
+	functions
+		callers: (map of Node`SUBS to Node`STATUS) +>  set of Node`SUBS
+		callers(status) == dom(status :> Node`Connected);
+		
+		connected: (map of Node`SUBS to Node`STATUS) * (map of Node`SUBS to Node`SUBS) +> (inmap of Node`SUBS to Node`SUBS)
+		connected(status,number) == callers(status) <: number;
+		
+		free: (map of Node`SUBS to Node`STATUS) * (map of Node`SUBS to Node`SUBS) * (set of Node`SUBS) +> set of Node`SUBS
+		free(status,number,subs) == subs \ dom(status) \ rng(connected(status,number));
+		
+		connectable: (map of Node`SUBS to Node`STATUS) * (map of Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		connectable(status,number) == rng((dom(status:>{<connecting>}))<:number);
+		
+		suspendable: (map of Node`SUBS to Node`STATUS) * (map of Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		suspendable(status,number) == rng((dom(status:>{<speech>}))<:connected(status,number));
+		
+		ringing: (map of Node`SUBS to Node`STATUS) * (map of Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number));
+		
+		suspended: (map of Node`SUBS to Node`STATUS) * (map of Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number));
+		
+	operations
+		InitExchange ()
+		ext wr status, number, subs
+			rd lSUBS
+		post 
+			status = {|->} and 
+			number = {|->} and 
+			subs = lSUBS;
+		
+		Add (s: Node`SUBS)
+		ext wr subs
+		post 
+			subs = subs~ union {s};
+		
+		Del (s: Node`SUBS)
+		ext wr subs
+		post 
+			subs = subs~ \ {s};
+		
+		Call (s,t: Node`SUBS)
+		ext wr status, number
+			rd subs
+		pre 
+			s in set subs and 
+			t in set subs and 
+			s in set free(status,number,subs)
+		post 
+			status = status~ ++ {s |-> <connecting>} and 
+			number = number~ ++ {s |-> t};
+		
+		Clear (s,t: Node`SUBS)
+		ext wr status, number
+			rd subs
+		pre 
+			s in set subs and 
+			t in set subs and 
+			s in set dom(status) and 
+			t = number(s)
+		post 
+			status = {s}<-: status~ and number = {s}<-: number~;
+		
+		Suspend(s,t: Node`SUBS)
+		ext wr status
+			rd subs, number
+		pre 
+			s in set subs and
+			t in set subs and
+			s in set dom(status) and
+			status(s) = <speech> and
+			t = number(s)
+		post
+			status = status~ ++ {s |-> <suspended>};
+			
+		ConnectFree(s,t: Node`SUBS)
+		ext wr status
+			rd subs, number
+		pre 
+			s in set subs and 
+			t in set subs and
+			s in set dom(status) and
+			status(s) = <connecting> and
+			t = number(s) and
+			t not in set rng(connected(status,number))
+		post
+			status = status~ ++ {s |-> <ringing>};
+			
+		ConnectBusy(s,t: Node`SUBS)
+		ext wr status
+			rd subs, number
+		pre 
+			s in set subs and 
+			t in set subs and
+			s in set dom(status) and
+			status(s) = <connecting> and
+			t = number(s) and
+			t in set rng(connected(status,number))
+		post
+			status = status~ ++ {s |-> <engaged>};
+			
+		Answer(s,t: Node`SUBS)
+		ext wr status
+			rd subs, number
+		pre 
+			s in set subs and 
+			t in set subs and
+			s in set dom(status) and
+			status(s) = <ringing> and
+			t = number(s)
+		post
+			status = status~ ++ {s |-> <speech>};
+				
+		Unsuspend(s,t: Node`SUBS)
+		ext wr status
+			rd subs, number
+		pre 
+			s in set subs and 
+			t in set subs and
+			s in set dom(status) and
+			status(s) = <suspended> and
+			t = number(s)
+		post
+			status = status~ ++ {s |-> <speech>};			
+end Exchange
+
+/*
+process ExchangeProc = lSUBS: set of SUBS @ begin -- there's not type "finite set of", and there's not way of putting an invariant at this point
+	state Exchange 
+	actions
+		Exch = 
+				call?s:(s in set subs)?t:(t in set subs) ->
+					(if s in set free(status,number,subs) then callok -> Call(s,t)
+					else callerror -> SKIP); Exch
+				[]
+				clear?s(s in set subs) ->
+					(if s in set dom(status) -> clearok -> 
+						(dcl t: SUBS @ t := number(s); Clear(s,t))
+					else clearerror -> SKIP); Exch
+				[]
+				suspend?t:(t in set subs)->
+					(if t in set suspendable(status,number) -> suspendok ->
+						(dcl s: SUBS @ s := number(t); Suspend(s,t))
+					else suspenderror -> SKIP); Exch
+				[]
+				connectfree?s:(s in set (connectable(status,number) union free(status,number,subs))) ->
+					(dcl t: SUBS @ t:=number(s); ConnectFree(s,t)); Exch
+				[]
+				connectbusy?s:(s in set (connectable(status,number) \ free(status,number,subs))) ->
+					(dcl t: SUBS @ t:=number(s); ConnectBusy(s,t)); Exch
+				[]
+				answer?t:(t in set subs) ->
+					(if t in ringing(status,number) then answerok ->
+						(dcl s: SUBS @ s:=number(t); Answer(s,t))
+					else answererror -> SKIP); Exch
+				[]
+				unsuspend?t:(t in set subs) ->
+					(if t in set suspended(status,number) -> unsuspendok ->
+						(dcl s: SUBS @ s:=number(t); Unsuspend(s,t))
+					else unsuspenderror -> SKIP); Exch
+		
+		@ init -> InitExchange; Exch
+end		
+*/
+
+class Node
+	types
+		public SUBS = token;
+		public STATUS = <connecting> | <engaged> | <ringing> | <speech> | <suspended>;
+		public MSG = <vcallmsg> | <vclearmsg> | <callokmsg> | <callerrormsg>;
+		
+	values
+		public Connected = {<ringing>,<speech>,<suspended>};
+		n: nat = undefined;
+		LOC = {1,...,n-1};
+	
+	functions
+		next(i: nat) j: nat
+		pre
+			i in set LOC
+		post
+			j = (i+1) mod n;
+
+		home(i: nat) s: set of SUBS
+		pre
+			i in set LOC
+		post
+			forall j in set LOC & s inter home(j) = {};
+	
+	instance variables
+		i: nat; -- process parameter
+		away: map of SUBS to nat;
+		origin: map of SUBS to nat;
+		inv
+			i in set LOC and
+			rng(away) subset LOC and
+			rng(origin) subset LOC and
+			dom(away) subset home(i) and
+			dom(origin) inter home(i) = {}
+			
+	operations
+		InitNode ()
+		ext wr away, origin
+		post
+			away = {|->} and
+			origin = {|->};
+			
+end Node
+
+/*
+channels
+	my.init
+	my.call: SUBS*SUBS
+	my.clear,my.suspend,my.connectfree,my.connectbusy: SUBS
+	my.answer,my.unsuspend: SUBS
+	my.callok,my.clearok,my.suspendok,my.answerok,my.unsuspendok
+	my.callerror,myclearerror,.mysuspenderror,my.answererror,my.unsuspenderror
+	
+process NodeProc = i: nat @ begin -- no way of putting an invariant here. we could define LOC as a type instead of a constant.
+	state Node
+	actions
+		Node = 
+			call?s:(s in set home(i)\(dom(away)))?t:(t in set home(i)\(dom(away))) ->
+				my.call!s!t -> (my.callok -> callok -> SKIP [] my.callerror -> callerror -> SKIP); Node
+			[]
+			call?s:(s in set dom(away))?t -> callerror -> Node
+			[]
+			call?s:(s in set home(i))?t:(t not in set home(i)) ->
+				(dcl m: nat @ m:[true,t in set home(m)];
+							  away := away ++ {s |-> m};
+							  mid!vcallmsg!i!m!s!t -> SKIP); Node
+			[]
+			clear?s:(s in set home(i)\(dom(away)))?t:(t in set home(i)\(dom(away))) ->
+				my.clear!s!t -> (my.clearok -> clearok -> SKIP [] my.clearerror -> clearerror -> SKIP); Node
+			[]
+			clear?s:(s in set dom(away))?t:(t no in set home(i)) ->
+				mid!vclearmsg!i!away(s)!s!t -> away:={s}<-:away; Node
+			[]
+			suspend?s:(s in set home(i)) -> my.suspend!s ->
+				(my.suspendok -> suspend.ok -> SKIP [] my.suspenderror -> suspenderror -> SKIP); Node
+			[]
+			answer?t:(t in set home(i)) -> my.answer!s ->
+				(my.answerok -> answerok -> SKIP [] my.answererror -> answererror -> SKIP); Node
+			[]
+			suspedn?t:(t in set home(i)) -> my.unsuspend!s ->
+				(my.unsuspendok -> unsuspendok -> SKIP
+				[]
+				my.unsuspenderror -> unsuspenderror -> SKIP); Node
+			[]
+			link.i.vcallmsg?j?k?s?t ->
+				(if k = i then my.add!s ->
+					(my.addok -> my.call!s!t -> 
+						(my.callok -> mid!callokmsg!j!j!s!t -> SKIP
+						[]
+						mu.callerror -> mid!callerrormsg!j!j!s!t -> SKIP)
+					[]
+					mu.adderror -> mid!callerrormsg!j!j!s!t -> SKIP)
+				else mid!vcallmsg!j!k!s!t -> SKIP); Node
+			[]
+			link.i.vclearmsg?j?k?s?t ->
+				(if k = i then my.clear!s ->
+					(my.clearok -> my.del!s ->
+						(my.delok -> clearok -> SKIP
+						[]
+						my.delerror -> clearerror -> SKIP)
+					[]
+					my.clearerror -> clearerror -> SKIP)
+				else mid!vclearmsg!j!k!s!t -> SKIP); Node
+			[]
+			link.i.callokmsg?j?k?s?t ->
+				(if k = i then callok -> SKIP
+				else mid.callokmsg!j!k!s!t -> SKIP); Node
+			[]
+			link.i.callerrormsg?j?k?s?t -
+				(if k = i then callerror -> SKIP
+				else mid.callerrormsg!j!K!s!t -> SKIP); Node
+				
+				
+		@ init -> my.init -> InitNode; Node
+end
+
+process LinkProc = i: nat @ begin
+	@ mu X @ mid.i?msg?l?m?s?t -> link.next(i)!msg!l!m!s!t -> X
+end
+
+process NodeLinkProc = i: nat @ (NodeProc(i) [|{|mid.i|}|]LinkProc(i))\{|mid.i|}
+
+process SlaveExchangeProc = i: LOC @
+	ExchangeProc(home(i))[[
+		call <- my.call, clear <- my.clear, suspend <- my.suspend,
+		connectfree <- my.connectfree, connectbusy <- my.connectbusy,
+		answer <- my.answer, unsuspend <- my.unsuspend,
+		callok <- my.callok, clearok <- my.clearok,
+		suspendok <- my.suspendok, answerok <- my.answerok,
+		unsuspendok <- my.unsuspendok,
+		callerror <- my.callerror, clearerror <- my.clearerror,
+		suspenderror <- my.suspenderror, answererror <- my.answererror, 
+		unsuspenderror <- my.unsuspenderror]]
+		
+channelsets
+	SlaveChannels = {| my.call, my.clear, my.suspend, my.connectfree,
+					   my.connectbusy, my.answer, my.unsuspend,
+					   my.callok, my.clearok,mu.suspendok,my.answerok,
+					   my.unsuspendok,my.callerror,my.clearerror,my.suspenderror,
+					   my.answererror,my.unsuspenderror |}
+	RingChannels(i: nat) = {| left.i, right.i |}
+					   
+process NodeLinkExchange = i: nat @
+	(NodeLink(i) [| {| SlaveChannels |} |] SlaveExchangeProc(i))\SlaveChannels
+
+
+-- in this case i can range over LOC because we made it possible in the syntax, perhaps we should change to "i in set"
+-- for all iterated except for sequential composition which should be someting like "i in seq".
+ 
+process ExchangeSoS = || i: LOC @ [RingChannels(i)] NodeLinkExchange(i)
+
+*/

@@ -1,0 +1,6 @@
+class seqenumseqexp =
+begin
+	values
+	public a : seq of int = [];
+	public b : seq of int = [1,2,3,4]
+end

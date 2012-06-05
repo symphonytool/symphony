@@ -1,0 +1,7 @@
+class mapenum =
+begin
+	values
+	public none : map of int to int = { |-> };
+	public some : map of int to int = { 1 |-> 42, 2 |-> 42, 3 |-> 42 }
+	
+end
