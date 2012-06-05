@@ -355,10 +355,16 @@ declaration AT process
 process :
   BEGIN processParagraphList AT action END
   {
-      System.out.println("heeeej");
       LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
       List<PDeclaration> processDeclarations = (List<PDeclaration>)$2;
       PAction action = (PAction)$4;
+      $$ = new AStateProcess(location,processDeclarations,action);
+  }
+| BEGIN AT action END
+  {
+      LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$4);
+      List<PDeclaration> processDeclarations = null;
+      PAction action = (PAction)$3;
       $$ = new AStateProcess(location,processDeclarations,action);
   }
 | process CSPSEQ process
