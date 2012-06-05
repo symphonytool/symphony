@@ -1,0 +1,5 @@
+class tokentype =
+begin
+	values
+	public a : States = <connecting>;
+end

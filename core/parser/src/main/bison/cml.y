@@ -32,7 +32,6 @@
     import eu.compassresearch.core.lexer.CmlLexeme;
     import eu.compassresearch.core.lexer.CmlLexer;
     import eu.compassresearch.core.lexer.Position;
-
     public
 }
 
@@ -906,7 +905,7 @@ classDefinitionBlock
   $$ = decls;
 }
 
-| classDefinitionBlock classDefinitionBlockAlternative        
+| classDefinitionBlockAlternative classDefinitionBlock
 { 
   List<PDeclaration> decls = (List<PDeclaration>)$1;
   PDeclaration decl = (PDeclaration)$2;
@@ -1242,6 +1241,9 @@ type
   $$ = new AUnresolvedType(lnt.location,false /*resolved*/, null/*defs*/,lnt);
 }
 | typeVarIdentifier
+{
+  
+}
   ;
 
 fieldList : 
@@ -1778,8 +1780,20 @@ INITIAL operationDef
 
 /* 3.5 Instance Variable Definitions */
 
+/* RWL, invariantDef
+ *
+ * In the AST PDefinition and PInvariant does not have a common
+ * ancestor below Object ! Hence having a list containing both is
+ * troublesome.
+ *
+ * Therefore, the stateDefs and stateDefList has been changed such
+ * that invariantDef is separate from the stateDefList. 
+ *
+ * FIXME: The invariantDef needs to be glued onto the tree.
+ *
+ */
 stateDefs :
- STATE stateDefList
+ STATE stateDefList invariantDef
   {
       
       // LexLocation lastInListLoc = 
@@ -1806,27 +1820,42 @@ stateDefList :
      stateDef.setStateDefs(defs);
      $$ = stateDef;
  }
-| stateDef stateDefList
+|  stateDef SEMI
+ {
+     AStateDefinition stateDef = new AStateDefinition();
+     List<PDefinition> defs = new Vector<PDefinition>();
+     defs.add((PDefinition)$1);
+     stateDef.setStateDefs(defs);
+     $$ = stateDef;
+ }
+| stateDef SEMI stateDefList
 {
-    AStateDefinition stateDef = (AStateDefinition)$2;
+    AStateDefinition stateDef = (AStateDefinition)$3;
     stateDef.getStateDefs().add((PDefinition)$1);
     $$ = stateDef;
 }
 ;
 
 stateDef:
-assignmentDef
+qualifier assignmentDef
 {
-    $$ = $1;
+    $$ = $2;
 }
-| invariantDef
-{
-    
-}
-    ;
+;
 
 invariantDef :
- VDMINV expression
+ VDMINV expression SEMI
+ {
+   //  if (42 > 2) throw new RuntimeException("In expression");
+  $$ = $2;
+ }
+|
+ VDMINV expression 
+ {
+   //  if (42 > 2) throw new RuntimeException("In expression");
+  $$ = $2;
+ }
+
   ;
 
 
@@ -1849,6 +1878,21 @@ expression
 ;
 
 expression :
+/* RWL, tokens? 
+ * 
+ *  Ohh, Tokens as in <connecting> are not in the gramma?
+ *
+ */
+LT IDENTIFIER GT 
+{
+  
+  LexLocation loc = combineLexLocation( extractLexLocation ( (CmlLexeme)$1 ),
+				    extractLexLocation ( (CmlLexeme)$3 ) );
+
+  // TODO construct a LexQuoteToken
+  AQuoteLiteralSymbolicLiteralExp res = new AQuoteLiteralSymbolicLiteralExp( loc, null );
+  $$ = res;
+}
 /* RWL On strings:
  *
  * In the lexer whole strings are matched up because it is easy given
@@ -1860,7 +1904,7 @@ expression :
  * a part and creates the corresponding character expressions.
  * 
  */
-STRING 
+| STRING 
 {
   // Get a whole STRING from the lexer  
   CmlLexeme s = (CmlLexeme)$1;
@@ -2932,6 +2976,7 @@ apply :
       
       LexLocation location = combineLexLocation(root.getLocation(),
 						extractLexLocation((CmlLexeme)$4));
+      System.out.println("I am here in apply\n");
       $$ = new AApplyExp(location, root, args);
   }
   ;
@@ -3061,7 +3106,6 @@ generalIsExpr :
    AIsExp res = new AIsExp( loc, null, test, null);
    res.setBasicType( type );
    $$ = res;
-
 }
   ;
 
@@ -3162,6 +3206,9 @@ name :
       $$ = extractLexNameToken((CmlLexeme)$1);
   }
 | IDENTIFIER BACKTICK IDENTIFIER
+{
+  $$ = extractLexNameToken((CmlLexeme)$3);
+}
   ;
 
 nameList :
@@ -3205,7 +3252,7 @@ controlStatements :
 | callStatement
 | specificationStatement
 | returnStatement
-  /*| newStatement*/
+/*| newStatement*/
  /*| non-deterministicDoStatement */
  /*| SequenceForLoop */
  /*| setForLoop */
@@ -3269,7 +3316,7 @@ assignmentDef
   ;
 
 assignmentDef :
-  IDENTIFIER COLON type
+ IDENTIFIER COLON type
   {
       LexNameToken name = extractLexNameToken((CmlLexeme)$1);
       PType type = (PType)$3;
@@ -3377,7 +3424,13 @@ call :
 					 args);
   }
 | objectDesignator DOT STAR IDENTIFIER LPAREN expressionList RPAREN
+{
+
+}
 | objectDesignator DOT STAR IDENTIFIER LPAREN RPAREN
+{
+
+}
 
 objectDesignator :
   SELF
