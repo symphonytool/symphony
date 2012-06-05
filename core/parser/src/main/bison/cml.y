@@ -1791,9 +1791,15 @@ INITIAL operationDef
  *
  * FIXME: The invariantDef needs to be glued onto the tree.
  *
+ * AKM, proposed fix:
+ * The invariant in the state declaration would correspond to the old
+ * "classInvariant" definition which is in the AST allready. 
+ * So maybe we should just find a more suitable name for it. For now
+ * I have changed the grammar back and used the AClassInvariantDefinition 
+ * class witout a rename.
  */
 stateDefs :
- STATE stateDefList invariantDef
+ STATE stateDefList
   {
       
       // LexLocation lastInListLoc = 
@@ -1810,7 +1816,6 @@ stateDefs :
   }
   ;
 
-/* FIXME this needs to be non-empty */
 stateDefList :
  stateDef
  {
@@ -1841,24 +1846,25 @@ qualifier assignmentDef
 {
     $$ = $2;
 }
+| invariantDef
+{
+    $$ = $1;
+}
 ;
 
 invariantDef :
- VDMINV expression SEMI
+VDMINV expression 
  {
-   //  if (42 > 2) throw new RuntimeException("In expression");
-  $$ = $2;
+     //  if (42 > 2) throw new RuntimeException("In expression");
+     PExp exp = (PExp) $2;
+     LexLocation location = extractLexLocation((CmlLexeme)$1,exp.getLocation());
+     $$ = new AClassInvariantDefinition(location, 
+					NameScope.GLOBAL, 
+					true, 
+					null/*AAccessSpecifierAccessSpecifier access_*/,
+					exp);
  }
-|
- VDMINV expression 
- {
-   //  if (42 > 2) throw new RuntimeException("In expression");
-  $$ = $2;
- }
-
-  ;
-
-
+;
 
 /* 4 Expressions */
 
