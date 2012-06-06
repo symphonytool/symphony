@@ -1686,6 +1686,13 @@ operationDef
 
  explicitOperationDef
  : qualifier IDENTIFIER COLON operationType IDENTIFIER parameterList DEQUALS operationBody externals_opt preExpr_opt postExpr_opt
+ {
+   LexLocation loc = extractLexLocation ( (CmlLexeme)$2 );
+   AExplicitOperationOperationDefinition res = new AExplicitOperationOperationDefinition();
+   res.setLocation( loc );
+   $$ = res;
+ }
+
 ;
 
 implicitOperationDef

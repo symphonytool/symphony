@@ -197,8 +197,8 @@ begin
 			status(s) = <suspended> and
 			t = number(s)
 		post
-			status = status~ ++ {s |-> <speech>};			
-end Exchange
+			status = status~ ++ {s |-> <speech>}
+end
 
 /*
 process ExchangeProc = lSUBS: set of SUBS @ begin -- there's not type "finite set of", and there's not way of putting an invariant at this point
@@ -239,7 +239,8 @@ process ExchangeProc = lSUBS: set of SUBS @ begin -- there's not type "finite se
 end		
 */
 
-class Node
+class Node =
+begin
 	types
 		public SUBS = token;
 		public STATUS = <connecting> | <engaged> | <ringing> | <speech> | <suspended>;
@@ -281,7 +282,7 @@ class Node
 			away = {|->} and
 			origin = {|->};
 			
-end Node
+end 
 
 /*
 channels
