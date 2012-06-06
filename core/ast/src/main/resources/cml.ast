@@ -577,6 +577,8 @@ action {-> package='org.overture.ast.actions'}
 	| {internalChoice} [left]:action [right]:action
 	| {interrupt} [left]:action [right]:action
 	| {timedInterrupt} [left]:action [right]:action [timeExpression]:exp
+	| {untimedTimeout} [left]:action [right]:action
+	| {timeout} [left]:action [right]:action [timeoutExpression]:exp
 	| #ControlStatement
 	| {block} [declareStatement]:declareStatement [action]:action
 	| {identifier}

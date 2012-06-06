@@ -509,10 +509,13 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 <ACTIONS,PROCESS> {
     //  "="                                 { return createToken(CmlParser.EQUALS); }
   ";"                                 { return createToken(CmlParser.CSPSEQ); }
+  "["                                 { return createToken(CmlParser.CSP_LSQUARE); }
+  ">"                                 { return createToken(CmlParser.CSP_GT); }
   "[]"                                { return createToken(CmlParser.CSPEXTCH); }
   "|~|"                               { return createToken(CmlParser.CSPINTCH); }
-  "/"                                 { return createToken(CmlParser.CSP_LEFT_INT); }
-  "\\"                                { return createToken(CmlParser.CSP_RIGHT_INT); }
+  "[>"                                { return createToken(CmlParser.CSPLSQUAREGT); }
+  "/"                                 { return createToken(CmlParser.CSP_SLASH); }
+  "\\"                                { return createToken(CmlParser.CSP_BACKSLASH); }
   "&"				      { return createToken(CmlParser.AMP); }
   "?"				      { return createToken(CmlParser.CSP_CHANNEL_READ); }
   "!"				      { return createToken(CmlParser.CSP_CHANNEL_WRITE); }
@@ -522,7 +525,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "=>"                                { return createToken(CmlParser.CSP_OPS_COM); }
   "Skip"                              { return createToken(CmlParser.CSPSKIP); }
   "Stop"                              { return createToken(CmlParser.CSPSTOP); }
-  "Chaos"                              { return createToken(CmlParser.CSPSTOP); }
+  "Chaos"                              { return createToken(CmlParser.CSPCHAOS); }
 }
 
 <CHANNELS,CHANSETS,ACTIONS> {
