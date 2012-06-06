@@ -507,6 +507,9 @@ action
   /*statements*/
 | blockStatement
 | controlStatements
+{
+  $$ = $1;
+}
 /*-----*/
 /* | expression THREEBAR action */
 | action CSPLSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr CSPBARRSQUARE action
@@ -517,7 +520,7 @@ action
 { 
     LexLocation location = extractLexLocation((CmlLexeme)$1);
     $$ = new AIdentifierAction(location);  
-} 
+}
   ;
 /*
 communication :
@@ -907,8 +910,8 @@ classDefinitionBlock
 
 | classDefinitionBlockAlternative classDefinitionBlock
 { 
-  List<PDeclaration> decls = (List<PDeclaration>)$1;
-  PDeclaration decl = (PDeclaration)$2;
+  List<PDeclaration> decls = (List<PDeclaration>)$2;
+  PDeclaration decl = (PDeclaration)$1;
   decls.add(decl);
   $$ = decls;
 }
@@ -1496,14 +1499,22 @@ qualifier IDENTIFIER parameterTypes identifierTypePairList preExpr_opt postExpr
 qualifiedExplicitFunctionDef:
 qualifier explicitFunctionDef
   {
-    $$ = new AExplicitFunctionFunctionDefinition();
+    AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
+    AExplicitFunctionFunctionDefinition f = (AExplicitFunctionFunctionDefinition)$2;
+    f.setAccess(access);
+    $$ = f;
   }
 ;
 
 explicitFunctionDef:
 IDENTIFIER COLON type IDENTIFIER parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
   {
-    $$ = new AExplicitFunctionFunctionDefinition();
+    LexNameToken name = extractLexNameToken( (CmlLexeme) $1 );
+    PType type = (PType)$3;
+    LexLocation loc = extractLexLocation ( (CmlLexeme) $1 );
+    AExplicitFunctionFunctionDefinition res = new AExplicitFunctionFunctionDefinition();
+    res.setLocation(loc);
+    $$ = res; 
   }
 ;
 
@@ -1659,7 +1670,7 @@ operationDef
 ;
 
  explicitOperationDef
-: qualifier IDENTIFIER COLON operationType IDENTIFIER parameterList DEQUALS operationBody externals preExpr_opt postExpr_opt
+ : qualifier IDENTIFIER COLON operationType IDENTIFIER parameterList DEQUALS operationBody externals_opt preExpr_opt postExpr_opt
 ;
 
 implicitOperationDef
@@ -3459,10 +3470,25 @@ objectApply:
   }
     ;
 
-
+/* RWL, so the returnStatement production rule turned out to be:
+ * RETURN RETURN expression, rathern than RETURN | RETURN
+ * expression. Chaning the returnStatement into the latter introduces
+ * 5 shift/reduce conflicts.
+ *
+ * These conflicts were caused by the parser not being able to
+ * distinguish whether to reduce using the empty-RETURN (the first)
+ * return or shifting using the second return rule for five kinds of
+ * expressions, namely those clashing in syntax with actions.
+ *
+ * As an example consider: 
+ *
+ * 1) return [ 1,2,3 ]; // returning a statement meaning shift after parsing the return keyword
+ * 2) 
+ *
+ */
 returnStatement :
- RETURN
- RETURN expression
+ RETURN 
+| RETURN expression 
      ;
 /* return inline above */
 

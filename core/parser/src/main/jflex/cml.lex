@@ -298,7 +298,6 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
       
       try {
 	  if (keywords.containsKey(value)) {
-	    System.out.println("#################### KeyWord ####################");
 	      //return new OmlLexem(line, column, new Long(keywords.get(id)), id, IOmlLexem.ILEXEMKEYWORD);
 	      //return new CmlLexeme(line, column,IDENTIFIER, id);
 	      yylvalue = new CmlLexeme(new Position(line,column),new Position(line,column + value.length()),keywords.get(value),value);
@@ -649,6 +648,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "protected"                         { return createToken(CmlParser.PROTECTED); }
   "public"                            { return createToken(CmlParser.PUBLIC); }
   "logical"                           { return createToken(CmlParser.LOGICAL); }
+
 }
 
 "\""                                  { stateStack.push(yystate());yybegin(STRING); S.b = new StringBuilder(); }

@@ -92,11 +92,13 @@ begin
 		ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number));
 		
 		suspended: (map of Node`SUBS to Node`STATUS) * (map of Node`SUBS to Node`SUBS) +> set of Node`SUBS
-		suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number));
+		suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number))
 		
 	operations
-		InitExchange ()
-		ext wr status, number, subs
+		private InitExchange: int ==> int
+		InitExchange(a) == 
+		skip
+		frame wr status, number, subs
 			rd lSUBS
 		post 
 			status = {|->} and 
@@ -104,17 +106,17 @@ begin
 			subs = lSUBS;
 		
 		Add (s: Node`SUBS)
-		ext wr subs
+		frame wr subs
 		post 
 			subs = subs~ union {s};
 		
 		Del (s: Node`SUBS)
-		ext wr subs
+		frame wr subs
 		post 
 			subs = subs~ \ {s};
 		
 		Call (s,t: Node`SUBS)
-		ext wr status, number
+		frame wr status, number
 			rd subs
 		pre 
 			s in set subs and 
@@ -125,7 +127,7 @@ begin
 			number = number~ ++ {s |-> t};
 		
 		Clear (s,t: Node`SUBS)
-		ext wr status, number
+		frame wr status, number
 			rd subs
 		pre 
 			s in set subs and 
@@ -136,7 +138,7 @@ begin
 			status = {s}<-: status~ and number = {s}<-: number~;
 		
 		Suspend(s,t: Node`SUBS)
-		ext wr status
+		frame wr status
 			rd subs, number
 		pre 
 			s in set subs and
@@ -148,7 +150,7 @@ begin
 			status = status~ ++ {s |-> <suspended>};
 			
 		ConnectFree(s,t: Node`SUBS)
-		ext wr status
+		frame wr status
 			rd subs, number
 		pre 
 			s in set subs and 
@@ -161,7 +163,7 @@ begin
 			status = status~ ++ {s |-> <ringing>};
 			
 		ConnectBusy(s,t: Node`SUBS)
-		ext wr status
+		frame wr status
 			rd subs, number
 		pre 
 			s in set subs and 
@@ -174,7 +176,7 @@ begin
 			status = status~ ++ {s |-> <engaged>};
 			
 		Answer(s,t: Node`SUBS)
-		ext wr status
+		frame wr status
 			rd subs, number
 		pre 
 			s in set subs and 
@@ -186,7 +188,7 @@ begin
 			status = status~ ++ {s |-> <speech>};
 				
 		Unsuspend(s,t: Node`SUBS)
-		ext wr status
+		frame wr status
 			rd subs, number
 		pre 
 			s in set subs and 
