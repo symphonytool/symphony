@@ -1,25 +1,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
- <parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
     <groupId>eu.compassresearch</groupId>
     <artifactId>ide</artifactId>
-    <version>1.0.0</version>
+    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
+
   <groupId>eu.compassresearch.ide.builders</groupId>
   <artifactId>eu.compassresearch.ide.builders.cml</artifactId>
-  <name>eu.compassresearch.ide.builders.cml</name>
-  <version>2.2.0</version>
+  <name>COMPASS IDE Builder - CML</name>
+
   <dependencies>
-  	<dependency>
-  		<groupId>org.overture.ide</groupId>
-  		<artifactId>org.overture.ide.core</artifactId>
-  		<version>2.2.0</version>
-  		<type>jar</type>
-  		<scope>compile</scope>
-  	</dependency>
-  
+    <dependency>
+      <groupId>org.overture.ide</groupId>
+      <artifactId>org.overture.ide.core</artifactId>
+      <version>2.2.0</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
-  
-
-
 </project>

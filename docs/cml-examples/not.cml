@@ -1,0 +1,9 @@
+class thenot =
+begin
+	values
+	a : bool = not 5 > 6
+
+	operations
+		public OP1: int ==> bool
+		OP1(a) == return true;
+end

@@ -618,6 +618,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "in set"			      { return createToken(CmlParser.INSET); }
   "union"			      { return createToken(CmlParser.UNION); }
   "inter"			      { return createToken(CmlParser.INTER); }
+  "not in set"                        { return createToken(CmlParser.NOTINSET); }
 
   //patterns
   "-"                                 { return createToken(CmlParser.VDMDONTCARE); }
@@ -633,9 +634,11 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "char"                              { return createToken(CmlParser.TCHAR); }
   "token"                             { return createToken(CmlParser.TTOKEN); }
   "lambda"                            { return createToken(CmlParser.LAMBDA); }
+
   //set type
   "set of"                            { return createToken(CmlParser.VDMSETOF); }
   "subset"                            { return createToken(CmlParser.SUBSET); }
+
 
   // seq type
   "seq of"                            { return createToken(CmlParser.VDMSEQOF); }
