@@ -3102,7 +3102,6 @@ apply :
       
       LexLocation location = combineLexLocation(root.getLocation(),
 						extractLexLocation((CmlLexeme)$4));
-      System.out.println("I am here in apply\n");
       $$ = new AApplyExp(location, root, args);
   }
   ;
