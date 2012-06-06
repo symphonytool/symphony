@@ -506,7 +506,6 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 }
 
 <ACTIONS,PROCESS> {
-    //  "="                                 { return createToken(CmlParser.EQUALS); }
   ";"                                 { return createToken(CmlParser.CSPSEQ); }
   "["                                 { return createToken(CmlParser.CSP_LSQUARE); }
   ">"                                 { return createToken(CmlParser.CSP_GT); }
@@ -524,7 +523,9 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "=>"                                { return createToken(CmlParser.CSP_OPS_COM); }
   "Skip"                              { return createToken(CmlParser.CSPSKIP); }
   "Stop"                              { return createToken(CmlParser.CSPSTOP); }
-  "Chaos"                              { return createToken(CmlParser.CSPCHAOS); }
+  "Chaos"                             { return createToken(CmlParser.CSPCHAOS); }
+  "startby"                           { return createToken(CmlParser.CSP_STARTBY); }
+  "endsby"                            { return createToken(CmlParser.CSP_ENDBY); }
 }
 
 <CHANNELS,CHANSETS,ACTIONS> {
