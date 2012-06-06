@@ -10,6 +10,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <groupId>eu.compassresearch.ide</groupId>
   <artifactId>ide</artifactId>
   <name>Compass IDE Top-level</name>
   <description>Super POM for all IDE (Eclipse) artifacts.</description>
