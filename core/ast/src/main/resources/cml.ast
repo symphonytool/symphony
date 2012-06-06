@@ -574,6 +574,9 @@ action {-> package='org.overture.ast.actions'}
 	| {guarded} [expression]:exp [action]:action
 	| {sequentialComposition} [left]:action [right]:action
 	| {externalChoice} [left]:action [right]:action
+	| {internalChoice} [left]:action [right]:action
+	| {interrupt} [left]:action [right]:action
+	| {timedInterrupt} [left]:action [right]:action [timeExpression]:exp
 	| #ControlStatement
 	| {block} [declareStatement]:declareStatement [action]:action
 	| {identifier}

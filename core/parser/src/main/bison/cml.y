@@ -228,14 +228,14 @@
 
 %token HEX_LITERAL
 
-%token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_OPS_COM CSP_CHANNEL_DOT
+%token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_OPS_COM CSP_CHANNEL_DOT CSP_LEFT_INT CSP_RIGHT_INT
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
 %token nameset namesetExpr typeVarIdentifier quoteLiteral functionType 
  //localDef
 
 /* CSP ops and more */
-%right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN
+%right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN CSP_LEFT_INT CSP_RIGHT_INT
 %right ELSE ELSEIF
 
 /* unary ops */
@@ -355,10 +355,16 @@ declaration AT process
 process :
   BEGIN processParagraphList AT action END
   {
-      System.out.println("heeeej");
       LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
       List<PDeclaration> processDeclarations = (List<PDeclaration>)$2;
       PAction action = (PAction)$4;
+      $$ = new AStateProcess(location,processDeclarations,action);
+  }
+| BEGIN AT action END
+  {
+      LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$4);
+      List<PDeclaration> processDeclarations = null;
+      PAction action = (PAction)$3;
       $$ = new AStateProcess(location,processDeclarations,action);
   }
 | process CSPSEQ process
@@ -498,6 +504,19 @@ action
     $$ = new AExternalChoiceAction(location, left, right);
 }
 | action CSPINTCH action
+{
+    PAction left = (PAction)$1;
+    PAction right = (PAction)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+    $$ = new AInternalChoiceAction(location, left, right);
+}
+| action CSP_LEFT_INT CSP_RIGHT_INT action
+{
+    PAction left = (PAction)$1;
+    PAction right = (PAction)$4;
+    LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+    $$ = new AInterruptAction(location, left, right);
+}
 | action LSQUARE identifierList CSPRENAME identifierList RSQUARE
 | action CSPAND action
 | action DLSQUARE renameList DRSQUARE
@@ -522,12 +541,8 @@ action
     $$ = new AIdentifierAction(location);  
 }
   ;
-/*
-communication :
-  IDENTIFIER 
-| IDENTIFIER communicationParameterUseList 
-  ;
-*/
+
+
 communicationParameterUseList :
   communicationParameter
   {
@@ -1802,9 +1817,15 @@ INITIAL operationDef
  *
  * FIXME: The invariantDef needs to be glued onto the tree.
  *
+ * AKM, proposed fix:
+ * The invariant in the state declaration would correspond to the old
+ * "classInvariant" definition which is in the AST allready. 
+ * So maybe we should just find a more suitable name for it. For now
+ * I have changed the grammar back and used the AClassInvariantDefinition 
+ * class witout a rename.
  */
 stateDefs :
- STATE stateDefList invariantDef
+ STATE stateDefList
   {
       
       // LexLocation lastInListLoc = 
@@ -1821,7 +1842,6 @@ stateDefs :
   }
   ;
 
-/* FIXME this needs to be non-empty */
 stateDefList :
  stateDef
  {
@@ -1852,24 +1872,25 @@ qualifier assignmentDef
 {
     $$ = $2;
 }
+| invariantDef
+{
+    $$ = $1;
+}
 ;
 
 invariantDef :
- VDMINV expression SEMI
+VDMINV expression 
  {
-   //  if (42 > 2) throw new RuntimeException("In expression");
-  $$ = $2;
+     //  if (42 > 2) throw new RuntimeException("In expression");
+     PExp exp = (PExp) $2;
+     LexLocation location = extractLexLocation((CmlLexeme)$1,exp.getLocation());
+     $$ = new AClassInvariantDefinition(location, 
+					NameScope.GLOBAL, 
+					true, 
+					null/*AAccessSpecifierAccessSpecifier access_*/,
+					exp);
  }
-|
- VDMINV expression 
- {
-   //  if (42 > 2) throw new RuntimeException("In expression");
-  $$ = $2;
- }
-
-  ;
-
-
+;
 
 /* 4 Expressions */
 
@@ -3475,20 +3496,11 @@ objectApply:
  * expression. Chaning the returnStatement into the latter introduces
  * 5 shift/reduce conflicts.
  *
- * These conflicts were caused by the parser not being able to
- * distinguish whether to reduce using the empty-RETURN (the first)
- * return or shifting using the second return rule for five kinds of
- * expressions, namely those clashing in syntax with actions.
- *
- * As an example consider: 
- *
- * 1) return [ 1,2,3 ]; // returning a statement meaning shift after parsing the return keyword
- * 2) 
  *
  */
 returnStatement :
- RETURN 
-| RETURN expression 
+ RETURN  SEMI
+| RETURN  expression SEMI
      ;
 /* return inline above */
 

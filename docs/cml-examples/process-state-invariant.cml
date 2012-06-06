@@ -1,0 +1,8 @@
+process RegisterProc = 
+ begin
+  state 
+   reg : Byte;	
+   inv reg <= 127
+   @
+     Skip
+ end
