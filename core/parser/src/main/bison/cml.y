@@ -228,14 +228,14 @@
 
 %token HEX_LITERAL
 
-%token AMP THREEBAR CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_OPS_COM CSP_CHANNEL_DOT CSP_LEFT_INT CSP_RIGHT_INT
+%token AMP THREEBAR CSPBARGT CSPLSQUAREBAR DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_OPS_COM CSP_CHANNEL_DOT CSP_SLASH CSP_BACKSLASH CSPLSQUAREGT CSP_LSQUARE CSP_GT
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
 %token nameset namesetExpr typeVarIdentifier quoteLiteral functionType 
  //localDef
 
 /* CSP ops and more */
-%right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN CSP_LEFT_INT CSP_RIGHT_INT
+%right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN CSP_SLASH CSP_BACKSLASH CSP_LSQUARE CSP_GT
 %right ELSE ELSEIF
 
 /* unary ops */
@@ -510,18 +510,39 @@ action
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new AInternalChoiceAction(location, left, right);
 }
-| action CSP_LEFT_INT CSP_RIGHT_INT action
+| action CSP_SLASH CSP_BACKSLASH action
 {
     PAction left = (PAction)$1;
     PAction right = (PAction)$4;
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new AInterruptAction(location, left, right);
 }
+| action CSP_SLASH expression CSP_BACKSLASH action
+{
+    PAction left = (PAction)$1;
+    PAction right = (PAction)$5;
+    LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+    $$ = new ATimedInterruptAction(location, left, right,(PExp)$3);
+}
+| action CSPLSQUAREGT action
+{
+    PAction left = (PAction)$1;
+    PAction right = (PAction)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+    $$ = new AUntimedTimeoutAction(location, left, right);
+}
+| action CSP_LSQUARE expression CSP_GT action
+{
+    PAction left = (PAction)$1;
+    PAction right = (PAction)$5;
+    LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+    $$ = new ATimeoutAction(location, left, right, (PExp)$3);
+}
 | action LSQUARE identifierList CSPRENAME identifierList RSQUARE
 | action CSPAND action
 | action DLSQUARE renameList DRSQUARE
 | action CSPHIDE action
-| action CSPLSQUAREGT action
+
 | action CSPLSQUAREBAR IDENTIFIER CSPBARGT action
   /*statements*/
 | blockStatement
