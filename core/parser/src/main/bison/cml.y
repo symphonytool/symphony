@@ -538,10 +538,17 @@ action
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new ATimeoutAction(location, left, right, (PExp)$3);
 }
+| action CSP_BACKSLASH chansetExpr 
+{
+    PAction left = (PAction)$1;
+    SChansetSetExp chansetExp = (SChansetSetExp)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),chansetExp.getLocation());
+    $$ = new AHidingAction(location, left, chansetExp);
+}
 | action LSQUARE identifierList CSPRENAME identifierList RSQUARE
 | action CSPAND action
 | action DLSQUARE renameList DRSQUARE
-| action CSPHIDE action
+
 
 | action CSPLSQUAREBAR IDENTIFIER CSPBARGT action
   /*statements*/

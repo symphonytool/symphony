@@ -579,6 +579,7 @@ action {-> package='org.overture.ast.actions'}
 	| {timedInterrupt} [left]:action [right]:action [timeExpression]:exp
 	| {untimedTimeout} [left]:action [right]:action
 	| {timeout} [left]:action [right]:action [timeoutExpression]:exp
+	| {hiding} [left]:action [chansetExpression]:exp.#Set.#Chanset
 	| #ControlStatement
 	| {block} [declareStatement]:declareStatement [action]:action
 	| {identifier}

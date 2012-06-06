@@ -537,7 +537,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   ":"                            { yybegin(stateStack.pop()); return createToken(CmlParser.COLON); }
  }
 
-<VDM_CASES,CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS> {
+<VDM_CASES,CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS,PROCESS> {
   "->"                                { return createToken(CmlParser.RARROW); } 
   //vdm expressions
   "<=>"				      { return createToken(CmlParser.BIMPLY); }

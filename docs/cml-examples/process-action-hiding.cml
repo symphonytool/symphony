@@ -1,0 +1,5 @@
+process RegisterProc = 
+ begin
+   @
+     Skip \ {id1,id2}
+ end
