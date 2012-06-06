@@ -10,6 +10,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <groupId>eu.compassresearch.tools</groupId>
   <artifactId>tools</artifactId>
   <name>COMPASS Tools Top-Level</name>
 
