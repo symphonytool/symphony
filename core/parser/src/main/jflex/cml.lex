@@ -508,8 +508,12 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 <ACTIONS,PROCESS> {
   ";"                                 { return createToken(CmlParser.CSPSEQ); }
   "["                                 { return createToken(CmlParser.CSP_LSQUARE); }
+  "]"                                 { return createToken(CmlParser.CSP_RSQUARE); }
   ">"                                 { return createToken(CmlParser.CSP_GT); }
   "[]"                                { return createToken(CmlParser.CSPEXTCH); }
+  "[["                                { return createToken(CmlParser.DLSQUARE); }
+  "]]"                                { return createToken(CmlParser.DRSQUARE); }
+  "<-"                                { return createToken(CmlParser.CSPSAMEAS); }
   "|~|"                               { return createToken(CmlParser.CSPINTCH); }
   "[>"                                { return createToken(CmlParser.CSPLSQUAREGT); }
   "/"                                 { return createToken(CmlParser.CSP_SLASH); }
