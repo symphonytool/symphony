@@ -514,8 +514,12 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "[]"                                { return createToken(CmlParser.CSPEXTCH); }
   "[["                                { return createToken(CmlParser.DLSQUARE); }
   "]]"                                { return createToken(CmlParser.DRSQUARE); }
+  "[|"                                { return createToken(CmlParser.CSPLSQUAREBAR); }
+  "|]"                                { return createToken(CmlParser.CSPBARRSQUARE); }
   "<-"                                { return createToken(CmlParser.CSPSAMEAS); }
   "|~|"                               { return createToken(CmlParser.CSPINTCH); }
+  "|||"                               { return createToken(CmlParser.CSPINTERLEAVE); }
+  "||"                               { return createToken(CmlParser.CSPDBAR); }
   "[>"                                { return createToken(CmlParser.CSPLSQUAREGT); }
   "/"                                 { return createToken(CmlParser.CSP_SLASH); }
   "\\"                                { return createToken(CmlParser.CSP_BACKSLASH); }

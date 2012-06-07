@@ -210,10 +210,10 @@ process {-> package='org.overture.ast.process'}
 	| {sequentialComposition} [left]:process [right]:process
 	| {externalChoice} [left]:process [right]:process
 	| {internalChoice} [left]:process [right]:process
-	| {generalisedParallelism}
-	| {alphabetisedParallelism}
+	| {generalisedParallelism} [left]:process [chansetExpression]:exp.#Set.#Chanset [right]:process
+	| {alphabetisedParallelism} [left]:process [leftChansetExpression]:exp.#Set.#Chanset [rightChansetExpression]:exp.#Set.#Chanset [right]:process
 	| {synchronousParallelism}
-	| {interleaving}
+	| {interleaving} [left]:process [right]:process
 	| {interrupt}
 	| {timedInterrupt}
 	| {untimedInterrupt}
