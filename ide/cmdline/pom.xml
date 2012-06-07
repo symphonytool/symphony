@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>eu.compassresearch.ide</groupId>
+    <groupId>eu.compassresearch</groupId>
     <artifactId>ide</artifactId>
     <version>0.0.1<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
@@ -54,6 +54,13 @@
       <version>${project.version}</version>
     </dependency>
 
+
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>typechecker</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -70,7 +77,7 @@
 	    <manifest>
 	      <addClasspath>true</addClasspath>
 	      <!-- The main class -->
-	      <mainClass>CompileCml</mainClass>
+	      <mainClass>CheckCml</mainClass>
 	      <!-- The package for the main class -->
 	      <packageName>eu.compassresearch.ide</packageName>
 	    </manifest>

@@ -37,7 +37,14 @@
 
 
 %code{
+ // **************************
+  // *** PARSER PUBLIC INFO ***
   // **************************
+  public static class Info {
+    public static final String CML_LANG_VERSION = "CML 0";
+  };
+
+   // **************************
   // *** PARSER INTERNAL DS ***
   // **************************
   class PatternWithVDMType {
@@ -303,7 +310,7 @@ programParagraph
 | processDecl                                     { $$ = $1; }
 | channelDecl                                     { $$ = $1; }
 | chansetDecl                                     { $$ = $1; }
-//| globalDecl                                     { $$ = $1; }
+//| globalDecl                                     { $$ = $1; } //TODO
  ;
 
 /* 2.1 Classes */
@@ -346,7 +353,7 @@ processDecl :
 
 processDef :
 declaration AT process
-{
+{ //TODO
     //$$ = new 
 }
 | process
@@ -371,20 +378,20 @@ process :
       PAction action = (PAction)$3;
       $$ = new AStateProcess(location,processDeclarations,action);
   }
-| process CSPSEQ process
-| process CSPINTCH process
-| process CSPEXTCH process
-| process CSPLCHSYNC chansetExpr CSPRCHSYNC process
-| process CSPINTERLEAVE process
-| LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
-| IDENTIFIER LPAREN expression RPAREN
-| IDENTIFIER
-| LPAREN process RPAREN LSQUARE identifierList CSPRENAME identifierList RSQUARE
-| CSPSEQ LCURLY declaration AT process RCURLY
-| CSPINTCH LCURLY declaration AT process RCURLY
-| CSPEXTCH LCURLY declaration AT process RCURLY
-| LSQUARE LCURLY chansetExpr RSQUARE declaration AT process RCURLY
-| CSPINTERLEAVE LCURLY declaration AT process RCURLY
+| process CSPSEQ process  //TODO
+| process CSPINTCH process //TODO
+| process CSPEXTCH process //TODO
+| process CSPLCHSYNC chansetExpr CSPRCHSYNC process //TODO
+| process CSPINTERLEAVE process //TODO
+| LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN //TODO
+| IDENTIFIER LPAREN expression RPAREN //TODO
+| IDENTIFIER //TODO
+| LPAREN process RPAREN LSQUARE identifierList CSPRENAME identifierList RSQUARE //TODO
+| CSPSEQ LCURLY declaration AT process RCURLY //TODO
+| CSPINTCH LCURLY declaration AT process RCURLY //TODO
+| CSPEXTCH LCURLY declaration AT process RCURLY //TODO
+| LSQUARE LCURLY chansetExpr RSQUARE declaration AT process RCURLY //TODO
+| CSPINTERLEAVE LCURLY declaration AT process RCURLY //TODO
       ;
 
 processParagraphList:
@@ -431,7 +438,7 @@ processParagraph :
 				  NameScope.GLOBAL, 
 				  actionDefinition);
   }
-| CSP_ACTIONS nameset IDENTIFIER EQUALS namesetExpr
+| CSP_ACTIONS nameset IDENTIFIER EQUALS namesetExpr //TODO
   //| stateDefs  
   ;
 
@@ -467,7 +474,7 @@ action
     LexLocation location = extractLexLocation((CmlLexeme)$1);
     $$ = new ADivAction(location);
 }
-| CSPWAIT expression 
+| CSPWAIT expression  //TODO
   /* Communication rule start*/
 | IDENTIFIER RARROW action
 {
@@ -542,24 +549,24 @@ action
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new ATimeoutAction(location, left, right, (PExp)$3);
 }
-| action LSQUARE identifierList CSPRENAME identifierList RSQUARE
-| action CSPAND action
-| action DLSQUARE renameList DRSQUARE
-| action CSPHIDE action
+| action LSQUARE identifierList CSPRENAME identifierList RSQUARE //TODO
+| action CSPAND action //TODO
+| action DLSQUARE renameList DRSQUARE //TODO
+| action CSPHIDE action //TODO
 
-| action CSPLSQUAREBAR IDENTIFIER CSPBARGT action
+| action CSPLSQUAREBAR IDENTIFIER CSPBARGT action //TODO
   /*statements*/
-| blockStatement
+| blockStatement //TODO
 | controlStatements
 {
   $$ = $1;
 }
 /*-----*/
 /* | expression THREEBAR action */
-| action CSPLSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr CSPBARRSQUARE action
-| action CSPLSQUAREBAR namesetExpr BAR chansetExpr DBAR chansetExpr BAR namesetExpr CSPBARRSQUARE action
+| action CSPLSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr CSPBARRSQUARE action //TODO
+| action CSPLSQUAREBAR namesetExpr BAR chansetExpr DBAR chansetExpr BAR namesetExpr CSPBARRSQUARE action //TODO
 /* | action LSQUARE renameList RSQUARE action /\* FIXME shift/reduce because of rule 'action' case 4 *\/ */
-| replicatedAction
+| replicatedAction //TODO
 | IDENTIFIER 
 { 
     LexLocation location = extractLexLocation((CmlLexeme)$1);
@@ -632,39 +639,39 @@ parameter :
     //ATupleParameter(
      
 }
-| MKUNDER name LPAREN communicationParameterList RPAREN
-| MKUNDER LPAREN RPAREN
-| MKUNDER name LPAREN RPAREN
+| MKUNDER name LPAREN communicationParameterList RPAREN //TODO
+| MKUNDER LPAREN RPAREN //TODO
+| MKUNDER name LPAREN RPAREN //TODO
   ;
 
 communicationParameterList :
-communicationParameter
-| communicationParameter COMMA communicationParameterList
+communicationParameter //TODO
+| communicationParameter COMMA communicationParameterList //TODO
 ;
 
-parallelAction:
-;
+//parallelAction:
+//;
 
-parametrisedAction:
-;
+//parametrisedAction:
+//;
 
-instantiatedAction:
-;
+//instantiatedAction:
+//;
 
 
 replicatedAction :
- CSPSEQ LCURLY declaration AT action RCURLY
-| CSPINTCH LCURLY declaration AT action RCURLY
-| CSPEXTCH LCURLY declaration AT action RCURLY
-| CSPLSQUAREDBAR nameset CSPDBARRSQUARE LPAREN declaration AT action RPAREN
-| CSPLSQUAREBAR nameset BAR chansetExpr CSPBARRSQUARE LPAREN declaration AT action RPAREN
-| CSPDBAR declaration AT LSQUARE nameset BAR chansetExpr RSQUARE action
-| LSQUARE renameList RSQUARE LPAREN declaration AT action RPAREN
+ CSPSEQ LCURLY declaration AT action RCURLY //TODO
+| CSPINTCH LCURLY declaration AT action RCURLY //TODO
+| CSPEXTCH LCURLY declaration AT action RCURLY //TODO
+| CSPLSQUAREDBAR nameset CSPDBARRSQUARE LPAREN declaration AT action RPAREN //TODO
+| CSPLSQUAREBAR nameset BAR chansetExpr CSPBARRSQUARE LPAREN declaration AT action RPAREN //TODO
+| CSPDBAR declaration AT LSQUARE nameset BAR chansetExpr RSQUARE action //TODO
+| LSQUARE renameList RSQUARE LPAREN declaration AT action RPAREN //TODO
     ;
 
 renameList :
-  IDENTIFIER CSPSAMEAS IDENTIFIER
-| IDENTIFIER CSPSAMEAS IDENTIFIER COMMA renameList
+  IDENTIFIER CSPSAMEAS IDENTIFIER //TODO
+| IDENTIFIER CSPSAMEAS IDENTIFIER COMMA renameList //TODO
   ;
 
 /* 2.3 Channel Definitions */
@@ -877,7 +884,7 @@ DOT expression
 /* 2.5 Global Definitions */
 
 globalDecl :
-  globalDefinitionBlock
+globalDefinitionBlock // TODO
   ;
 
 globalDefinitionBlock 
@@ -983,7 +990,7 @@ classDefinitionBlockAlternative
   $$ = $1;
 }
 /*
-| initialDef
+| initialDef // TODO is this a thing?
 {
   
 }*/
@@ -1190,8 +1197,8 @@ type
 { 
     $$ = new ATokenBasicType(extractLexLocation((CmlLexeme)$1) , false);
 }
-| quoteLiteral
-| VDMCOMPOSE IDENTIFIER OF fieldList END
+| quoteLiteral // TODO
+| VDMCOMPOSE IDENTIFIER OF fieldList END // TODO
 | LPAREN type BAR type RPAREN
 {
   CmlLexeme lp = (CmlLexeme)$1;
@@ -1205,8 +1212,8 @@ type
   AUnionType utype = new AUnionType(loc, false, false, false );
   $$ = utype;
 }
-| type STAR type
-| LSQUARE type RSQUARE
+| type STAR type // TODO
+| LSQUARE type RSQUARE // TODO
 | VDMSETOF type
 {
   // Get Constituents
@@ -1286,16 +1293,16 @@ type
   AFunctionType res = new AFunctionType(loc, false, null, false, params, rngType );
   $$ = res;
 }
-| type VDMPFUNCARROW type
-| VDMUNITTYPE VDMPFUNCARROW type
-| type VDMTFUNCARROW type
-| VDMUNITTYPE VDMTFUNCARROW type
+| type VDMPFUNCARROW type // TODO
+| VDMUNITTYPE VDMPFUNCARROW type // TODO
+| type VDMTFUNCARROW type // TODO
+| VDMUNITTYPE VDMTFUNCARROW type // TODO
 | name
 {
   LexNameToken lnt = (LexNameToken)$1; 
   $$ = new AUnresolvedType(lnt.location,false /*resolved*/, null/*defs*/,lnt);
 }
-| typeVarIdentifier
+| typeVarIdentifier // TODO ?
 {
   
 }
@@ -1560,8 +1567,8 @@ functionDef
 ;
 
 functionDef:
- implicitFunctionDef
-| qualifiedExplicitFunctionDef
+ implicitFunctionDef // TODO
+| qualifiedExplicitFunctionDef // TODO
  ;
 
 implicitFunctionDef:
@@ -1621,9 +1628,9 @@ parameterList :
   ;
 
 functionBody :
-  expression
-| VDM_SUBCLASSRESP
-| VDM_NOTYETSPEC
+  expression // TODO
+| VDM_SUBCLASSRESP // TODO
+| VDM_NOTYETSPEC // TODO
   ;
 
 parameterTypes : 
@@ -1761,8 +1768,8 @@ operationDefList :
 /* FIXME the optional trailing semicolon in the operations definitions is presently not optional */
 
 operationDef 
-: implicitOperationDef
-| explicitOperationDef
+: implicitOperationDef // TODO
+| explicitOperationDef // TODO
 ;
 
  explicitOperationDef
@@ -1815,16 +1822,16 @@ implicitOperationDef
 ;
 
 operationType :
-  type OPERATIONARROW type
-| VDMUNITTYPE OPERATIONARROW type
-| type OPERATIONARROW VDMUNITTYPE
-| VDMUNITTYPE OPERATIONARROW VDMUNITTYPE
+  type OPERATIONARROW type // TODO
+| VDMUNITTYPE OPERATIONARROW type // TODO
+| type OPERATIONARROW VDMUNITTYPE // TODO
+| VDMUNITTYPE OPERATIONARROW VDMUNITTYPE // TODO
   ;
 
 operationBody :
-  action
-| VDM_SUBCLASSRESP
-| VDM_NOTYETSPEC
+  action // TODO
+| VDM_SUBCLASSRESP // TODO
+| VDM_NOTYETSPEC // TODO
   ;
 
 externals_opt:
@@ -1890,7 +1897,8 @@ VDM_RD
 ;
 
 initialDef : 
-INITIAL operationDef
+INITIAL operationDef // TODO where's the semi?
+;
 
 /* 3.5 Instance Variable Definitions */
 
@@ -2179,6 +2187,7 @@ numericLiteral
     LexIntegerToken lit = (LexIntegerToken)$1;
     $$ = new AIntLiteralSymbolicLiteralExp(lit.location,lit);
 }
+ // TODO
 /*| booleanLiteral
 | nilLiteral
 | characterLiteral
@@ -3362,9 +3371,9 @@ oldName :
 
 /* 5 State Designators */
 stateDesignator :
-  name
-| stateDesignator DOT IDENTIFIER
-| stateDesignator LPAREN expression RPAREN
+  name // TODO
+| stateDesignator DOT IDENTIFIER // TODO
+| stateDesignator LPAREN expression RPAREN // TODO
   ;
 
 /* 6 Statements */
@@ -3462,48 +3471,48 @@ assignmentDef :
   ;
 
 generalAssignStatement :
-  assignStatement
-| multiAssignStatement
+  assignStatement // TODO
+| multiAssignStatement // TODO
   ;
 
 assignStatement :
-  stateDesignator ASSIGN expression
-  | stateDesignator ASSIGN callStatement
+  stateDesignator ASSIGN expression // TODO
+  | stateDesignator ASSIGN callStatement // TODO
   ;
 
 assignStatementList :
-  assignStatement
-| assignStatement SEMI assignStatementList
+  assignStatement // TODO
+| assignStatement SEMI assignStatementList // TODO
   ;
 
 multiAssignStatement :
-  ATOMIC LPAREN assignStatement SEMI assignStatementList RPAREN
+  ATOMIC LPAREN assignStatement SEMI assignStatementList RPAREN // TODO
   ;
 
 /* 6.3 Conditional Statements */
 ifStatement :
-  IF expression THEN action elseStatements
+  IF expression THEN action elseStatements // TODO
   {
   }
   ;
 
 elseStatements :
-  ELSE action
-| ELSEIF expression THEN action elseStatements
+  ELSE action // TODO
+| ELSEIF expression THEN action elseStatements // TODO
   ;
 
 casesStatement :
-  CASES expression COLON casesStatementAltList END
+  CASES expression COLON casesStatementAltList END // TODO
   ;
 
 casesStatementAltList :
-  casesStatementAlt
-| casesStatementAlt OTHERS RARROW action
-| casesStatementAlt casesExprAltList
+  casesStatementAlt // TODO
+| casesStatementAlt OTHERS RARROW action // TODO
+| casesStatementAlt casesExprAltList // TODO
   ;
 
 casesStatementAlt :
-  patternList RARROW action
+  patternList RARROW action // TODO
   
   ;
 
@@ -3512,7 +3521,7 @@ casesStatementAlt :
 /* FIXME the CURLYs are there there to avoid several whatever/reduce conflicts with the assignment statement */
 
 callStatement :
-  call
+  call // TODO
 | objectDesignator ASSIGN call
   {
       ACallCallStatementControlStatementAction call = 
@@ -3548,11 +3557,11 @@ call :
 					 name,  
 					 args);
   }
-| objectDesignator DOT STAR IDENTIFIER LPAREN expressionList RPAREN
+| objectDesignator DOT STAR IDENTIFIER LPAREN expressionList RPAREN // TODO
 {
 
 }
-| objectDesignator DOT STAR IDENTIFIER LPAREN RPAREN
+| objectDesignator DOT STAR IDENTIFIER LPAREN RPAREN // TODO
 {
 
 }
@@ -3568,16 +3577,16 @@ objectDesignator :
     LexNameToken name = (LexNameToken)$1;
     $$ = new ANameObjectDesignator(name.location, name, null);
 }
-| objectFieldReference
-| objectApply
+| objectFieldReference // TODO
+| objectApply // TODO
   ;
 
 objectFieldReference :
-objectDesignator DOT IDENTIFIER 
+objectDesignator DOT IDENTIFIER  // TODO
     ;
 
 objectApply:
-  objectDesignator LPAREN RPAREN
+  objectDesignator LPAREN RPAREN // TODO
 | objectDesignator LPAREN expressionList RPAREN
   {
       System.out.println("objectApply : objectDesignator LPAREN expressionList RPAREN");
@@ -3592,19 +3601,19 @@ objectApply:
  *
  */
 returnStatement :
- RETURN  SEMI
-| RETURN  expression SEMI
+ RETURN  SEMI // TODO
+| RETURN  expression SEMI // TODO
      ;
 /* return inline above */
 
 /* 6.5 The Specification Statement */
 
 specificationStatement :
-  LSQUARE implicitOperationBody RSQUARE
+  LSQUARE implicitOperationBody RSQUARE // TODO
   ;
 
 implicitOperationBody :
-externals_opt preExpr_opt  postExpr
+externals_opt preExpr_opt  postExpr // TODO
 ;
 
 /* 7 Patterns and Bindings */
@@ -3612,15 +3621,15 @@ externals_opt preExpr_opt  postExpr
 /* 7.1  */
 
 pattern :
-patternIdentifier
-| patternLessID
+patternIdentifier // TODO
+| patternLessID // TODO
 ;
 
 patternLessID 
 :
-matchValue
-| tuplePattern
-| recordPattern
+matchValue // TODO
+| tuplePattern // TODO
+| recordPattern // TODO
 ;
 
 patternList :
@@ -3645,7 +3654,7 @@ patternIdentifier :
       LexNameToken lnt = extractLexNameToken(lexeme);
       $$ = new AIdentifierPattern(lnt.location,null,false,lnt);
   }
-| VDMDONTCARE
+| VDMDONTCARE // TODO
   ;
 
 /* FIXME shift/reduce conflict from a bracketed expression */
@@ -3669,13 +3678,13 @@ matchValue :
 
 /* FIXME not sure if if this is a minimum of one pattern or two; if the latter */
 tuplePattern :
-  MKUNDER LPAREN patternList RPAREN
+  MKUNDER LPAREN patternList RPAREN // TODO
   /* MKUNDER LPAREN pattern COMMA patternList RPAREN */
   ;
 
 recordPattern :
-  MKUNDER name LPAREN RPAREN
-| MKUNDER name LPAREN patternList RPAREN
+  MKUNDER name LPAREN RPAREN // TODO
+| MKUNDER name LPAREN patternList RPAREN // TODO
   ;
 
 
@@ -3689,7 +3698,13 @@ recordPattern :
 
 bind :
   setBind
+  {
+    $$ = $1;
+  }
 | typeBind
+  {
+    $$ = $1;
+  }
   ;
 
 setBind :
