@@ -420,6 +420,15 @@ process :
 					    (SChansetSetExp)$5,
 					    right);
 }
+| process CSPDBAR process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$3;
+    $$ = new ASynchronousParallelismProcess(combineLexLocation(left.getLocation(),
+							       right.getLocation()), 
+					    left, 
+					    right);
+}
 | process CSPINTERLEAVE process
 {
     PProcess left = (PProcess)$1;
@@ -429,7 +438,52 @@ process :
 				    left, 
 				    right);
 }
-| LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
+| process CSP_SLASH CSP_BACKSLASH process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$4;
+    LexLocation location = combineLexLocation(left.getLocation(),
+					      right.getLocation());
+    $$ = new AInterruptProcess(location, 
+			      left, 
+			      right);
+}
+| process CSP_SLASH expression CSP_BACKSLASH process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$5;
+    LexLocation location = combineLexLocation(left.getLocation(),
+					      right.getLocation());
+    $$ = new ATimedInterruptProcess(location, 
+				    left, 
+				    (PExp)$3,
+				    right);
+}
+| process CSPLSQUAREGT process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),
+					      right.getLocation());
+    $$ = new AUntimedTimeoutProcess(location, 
+				   left, 
+				   right);
+}
+// | process CSP_LSQUARE expression CSP_GT process
+// {
+//     PProcess left = (PProcess)$1;
+//     PProcess right = (PProcess)$5;
+//     LexLocation location = combineLexLocation(left.getLocation(),
+// 					      right.getLocation());
+//     $$ = new ATimeoutProcess(location, 
+// 			     left,
+// 			     (PExp)$3,
+// 			     right);
+// }
+
+
+
+//| LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
 | IDENTIFIER LPAREN expression RPAREN
 | IDENTIFIER
 {
@@ -466,7 +520,6 @@ processParagraph
 ; 
 
 processParagraph :
-//  programParagraph
  classDefinitionBlockAlternative
 | CSP_ACTIONS IDENTIFIER EQUALS paragraphAction
   {

@@ -212,13 +212,13 @@ process {-> package='org.overture.ast.process'}
 	| {internalChoice} [left]:process [right]:process
 	| {generalisedParallelism} [left]:process [chansetExpression]:exp.#Set.#Chanset [right]:process
 	| {alphabetisedParallelism} [left]:process [leftChansetExpression]:exp.#Set.#Chanset [rightChansetExpression]:exp.#Set.#Chanset [right]:process
-	| {synchronousParallelism}
+	| {synchronousParallelism} [left]:process [right]:process
 	| {interleaving} [left]:process [right]:process
-	| {interrupt}
-	| {timedInterrupt}
-	| {untimedInterrupt}
-	| {timeout}
-	| {hiding}
+	| {interrupt} [left]:process [right]:process
+	| {timedInterrupt} [left]:process [timeExpression]:exp [right]:process
+	| {untimedTimeout} [left]:process [right]:process
+	| {timeout} [left]:process [timeoutExpression]:exp [right]:process
+	| {hiding} [left]:process [chansetExpression]:exp.#Set.#Chanset
 	| {identifier} [identifer]:LexNameToken 
 	 
 ;
