@@ -373,13 +373,43 @@ process :
       $$ = new AStateProcess(location,processDeclarations,action);
   }
 | process CSPSEQ process
-| process CSPINTCH process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$3;
+    $$ = new ASequentialCompositionProcess(combineLexLocation(left.getLocation(),
+							      right.getLocation()), 
+					   left, 
+					   right);
+}
 | process CSPEXTCH process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$3;
+    $$ = new AExternalChoiceProcess(combineLexLocation(left.getLocation(),
+						       right.getLocation()), 
+				    left, 
+				    right);
+}
+| process CSPINTCH process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$3;
+    $$ = new AInternalChoiceProcess(combineLexLocation(left.getLocation(),
+						       right.getLocation()), 
+				    left, 
+				    right);
+}
+
 | process CSPLCHSYNC chansetExpr CSPRCHSYNC process
 | process CSPINTERLEAVE process
 | LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
 | IDENTIFIER LPAREN expression RPAREN
 | IDENTIFIER
+{
+    LexNameToken identifier = extractLexNameToken((CmlLexeme)$1);
+    $$ = new AIdentifierProcess(identifier.getLocation(), 
+				identifier);
+}
 | LPAREN process RPAREN LSQUARE identifierList CSPRENAME identifierList RSQUARE
 | CSPSEQ LCURLY declaration AT process RCURLY
 | CSPINTCH LCURLY declaration AT process RCURLY

@@ -207,9 +207,9 @@ invariant {-> package='org.overture.ast.definitions'}
 
 process {-> package='org.overture.ast.process'}
 	= {state} [processDeclarations]:declaration* [action]:action
-	| {sequentialCombosition}
-	| {externalChoice}
-	| {internalChoice}
+	| {sequentialComposition} [left]:process [right]:process
+	| {externalChoice} [left]:process [right]:process
+	| {internalChoice} [left]:process [right]:process
 	| {generalisedParallelism}
 	| {alphabetisedParallelism}
 	| {synchronousParallelism}
@@ -218,7 +218,8 @@ process {-> package='org.overture.ast.process'}
 	| {timedInterrupt}
 	| {untimedInterrupt}
 	| {timeout}
-	| {hiding} 
+	| {hiding}
+	| {identifier} [identifer]:LexNameToken 
 	 
 ;
 	
