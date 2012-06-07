@@ -72,8 +72,6 @@ public class CheckCml {
      *************************************************************/
     // Register switches the program accepts
     private enum Switch {
-	// Swich Symbol, Switch Description and boolean whether or not
-	// the switch requires an argument.
 	PARSE_ONLY("po", "Parse Only, stop analysis after the parse phase.", false),
 	    TYPE_CHECK_ONLY("tco","Type Check Only, stop checking after the type checking phase.", false),
 	    NOTC("notc", "No type checking, the type checking phase is omitted.", false),
@@ -87,7 +85,12 @@ public class CheckCml {
 	private String value;
 	private boolean expectsValue;
 
-	// constructor 
+	/** constructor 
+	 * @param sw - Switch Symbol 
+	 * @param description - Switch Description
+	 * @param expectsValue - boolean whether or not the switch requires an argument.
+	 *
+	 */
 	Switch(String sw, String description, boolean expectsValue)
 	    {
 		this.sw = sw;
@@ -96,8 +99,9 @@ public class CheckCml {
 	    }
 
 	public String getSw() { return sw; }
+
 	public String getValue() { return value; }
-	
+
 	public  String toString() {
 	    return "-"+sw + " \t - \t " + description;
 	}
@@ -113,7 +117,7 @@ public class CheckCml {
 			// The switch exists, requies an argument and there is an arguemtn for it
 			if (swval.length > 1 && sw.expectsValue)
 			    {
-				sw.value = swval[1];
+				sw.value += swval[1];
 				return sw;
 			    }
 			else
