@@ -21,6 +21,7 @@ import org.overture.ast.program.ASourcefileSourcefile;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Collections;
+import java.lang.reflect.*;
 
 public class CheckCml {
 
@@ -43,8 +44,9 @@ public class CheckCml {
 	    // build the forest
 	    for(File source : inp.sourceFiles)
 		{
-		    System.out.println("Checking file: "+source);
+		    System.out.println("Parsing file: "+source);
 		    ASourcefileSourcefile currentTree = new ASourcefileSourcefile();
+		    currentTree.setName(source.getName());
 		    FileReader input = new FileReader(source);
 		    CmlLexer lexer = new CmlLexer(input);
 		    CmlParser parser = new CmlParser(lexer);
@@ -77,6 +79,7 @@ public class CheckCml {
 	    NOTC("notc", "No type checking, the type checking phase is omitted.", false),
 	    COE("coe", "Continue on Exception, analysis continues even if an exception occurs.", false),
 	    SOE("soe", "Silence on Exception, supress exceptions in analysis.", false),
+	    EMPTY("empty", "Empty Analysis, run the empty analysis (good for debugging).", false),
 	    ;
 
 	// Switch state
@@ -222,10 +225,35 @@ public class CheckCml {
 
     /*************************************************************
      *
-     * runAnalysis
+     * Analysis
+     *
      *
      ************************************************************/
 
+    private static String getAnalysisName(IAnalysis a)
+    {
+	String res = "";
+	if (a == null) return res;
+
+	res = a.getClass().getCanonicalName();
+	try 
+	    {
+		Class<?> clz = a.getClass();
+		Method getAnalysisName = clz.getMethod("getAnalysisName", new Class<?>[] {});
+		res = (String)getAnalysisName.invoke(a, new Object[] {});
+		
+	    } catch (Exception e)
+	    {
+		return res;
+	    }
+	return res;
+    }
+
+    /**
+     *
+     * Helper methods run analysis controlling propergation of exceptions
+     *
+     */
     private static boolean runAnalysis(Input input, IAnalysis analysis, List<ASourcefileSourcefile> sources)
     {
 	boolean continueOnException = input.isSwitchOn(Switch.COE);
@@ -234,6 +262,7 @@ public class CheckCml {
 	for(ASourcefileSourcefile source : sources)
 	    {
 		try {
+		    System.out.println(" Running "+getAnalysisName(analysis)+" on "+source.getName());
 		    source.apply(analysis);
 		}
 		catch (Exception e)
@@ -252,17 +281,67 @@ public class CheckCml {
 	return true;
     }
 
+    /**
+     * EXTENSION POINT: This is where you want to add more analys
+     * phases. That is, add a bit of code to the end this
+     * method. First we see what inputs you have can work with then
+     * follows an example.
+     *
+     * @param input - input contains the command line switches and the
+     * source files.
+     *
+     * @param sources - result from parsing the source files in
+     * input. Aka. a forest of ASTs.
+     *
+     * <b>An Example: </b><br></br>
+     * Supposed you have something called MyAnalysis implementing
+     * IAnalysis we can extend this method with:
+     *
+     * <code>
+     * if (runAnalysis(input, new MyAnalysis(), sources))
+     *    System.out.println("MyAnalysis did not throw any exceptions.");
+     * else
+     *    System.out.println("MyAnalysis threw exceptions.");
+     * </code>
+     *
+     * Then an instance of MyAnalysis will be applied to all source
+     * files parsed from command line arguments.
+     *
+     * Notice it should be possible to disable any phase with a
+     * switch, except the parse phase. To add a switch for disabling
+     * MyAnalysis we can do:
+     *
+     * <code>
+     * ....
+     * private enum Switch {
+     *    .... ,
+     *    DMYA("dmya", "Disable My Anaylsis, do not run My Analysis", false);
+     *    ....
+     *  }
+     * ... 
+     *
+     * if (!input.isSwitchOn(DMYA)) 
+     *    if (runAnalysis(input, new MyAnalysis(), sources))
+     *       System.out.println("MyAnalysis did not throw any exceptions.");
+     *    else
+     *       System.out.println("MyAnalysis threw exceptions.");
+     *
+     * Have fun :)
+     */
     private static void runAllAnalysis(Input input, List<ASourcefileSourcefile> sources)
     {
-	// Inform parsing went well and analysis has begon
-	System.out.println(sources.size()+" file(s) successfully parsed, starting analysis.");
-
 	// Check The Parse Only Switch
 	if (input.isSwitchOn(Switch.PARSE_ONLY)) return;
 
-	// Run an empty analysis
-	IAnalysis empty = new DepthFirstAnalysisAdaptor();
-	runAnalysis(input, empty, sources);
+	// Inform parsing went well and analysis has begon
+	System.out.println(sources.size()+" file(s) successfully parsed. Starting analysis:");
+
+	// Run the empty analysis
+	if (input.isSwitchOn(Switch.EMPTY))
+	    {
+		IAnalysis empty = new DepthFirstAnalysisAdaptor();
+		runAnalysis(input, empty, sources);
+	    }
 	
 	// Type checking
 	if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch

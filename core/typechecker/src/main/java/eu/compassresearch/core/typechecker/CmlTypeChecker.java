@@ -22,12 +22,13 @@ public class CmlTypeChecker extends DepthFirstAnalysisAdaptor {
 	
 	@Override
 	public void caseASourcefileSourcefile(ASourcefileSourcefile arg0) {
-		System.out.println("The beginning.");
 		super.caseASourcefileSourcefile(arg0);
 		
 		
 	}
 
+	public String getAnalysisName() { return "The CML Type Checker"; }
+	
 	public CmlTypeChecker()
 	{
 		exp = new TCExpressionVisitor();
