@@ -20,10 +20,8 @@
 	<version>1.0.2</version>
 	<executions>
 	  <execution>
-	    <id>java</id>
-	    <phase>generate-sources</phase>
 	    <goals>
-	      <goal>astcreate</goal>
+	      <goal>generate</goal>
 	    </goals>
 	  </execution>
 	</executions>
@@ -32,6 +30,7 @@
 	  <deletePackageOnGenerate>
 	    <param>org.overture.ast</param>
 	  </deletePackageOnGenerate>
+	  <useSrcOutput>false</useSrcOutput>
 	</configuration>
       </plugin>
     </plugins>
