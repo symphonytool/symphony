@@ -5,7 +5,7 @@
  * Org: Aarhus University
  *
  *
- * This file is part of the CML compiler created for the FP7 EU
+ * This file is part of the CML checker created for the FP7 EU
  * COMPASS project.
  *
  */
@@ -13,17 +13,19 @@
 import java.io.File;
 import java.io.FileReader;
 import org.overture.ast.analysis.DepthFirstAnalysisAdaptor;
+import org.overture.ast.analysis.intf.IAnalysis; 
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.typechecker.CmlTypeChecker;
 import org.overture.ast.program.ASourcefileSourcefile;
 import java.util.LinkedList;
 import java.util.List;
 
 
-public class CompileCml {
+public class CheckCml {
 
     private static final String CML_VERSION = "CMLv0.0";
-    private static final String HELLO   = "COMPASS Cml Compiler";
+    private static final String HELLO   = "COMPASS CML Checker";
 
 
     public static void main(String[] args)
@@ -33,7 +35,7 @@ public class CompileCml {
 	     List<ASourcefileSourcefile> sourceForest = new LinkedList<ASourcefileSourcefile>();
 	
 	    // Say hello
-	    System.out.println("COMPASS Cml Compiler " + CML_VERSION);
+	    System.out.println(HELLO + CML_VERSION);
 	
 	    // inputs
 	    if ( (sources = checkInput(args)) == null) return;
@@ -41,7 +43,7 @@ public class CompileCml {
 	    // build the forest
 	    for(File source : sources)
 		{
-		    System.out.println("Compiling file: "+source);
+		    System.out.println("Checking file: "+source);
 		    ASourcefileSourcefile currentTree = new ASourcefileSourcefile();
 		    FileReader input = new FileReader(source);
 		    CmlLexer lexer = new CmlLexer(input);
@@ -61,7 +63,7 @@ public class CompileCml {
 	    return;
 	} catch (Exception e)
 	    {
-
+		System.out.println("Error: "+e.getMessage());
 	    }
     }
 
@@ -70,6 +72,7 @@ public class CompileCml {
     {
 	System.out.println("\nUsage: cmlc <file1>, ..., <fileN>\n");
     }
+
     private static List<File> checkInput(String[] args)
     {
 	List<File> result = new LinkedList<File>();
@@ -108,10 +111,12 @@ public class CompileCml {
 	System.out.println(sources.size()+" file(s) successfully parsed, starting analysis.");
 
 	// Run an empty analysis
-	DepthFirstAnalysisAdaptor analysis = new DepthFirstAnalysisAdaptor();
-	for(ASourcefileSourcefile source : sources) source.apply(analysis);
+	IAnalysis empty = new DepthFirstAnalysisAdaptor();
+	for(ASourcefileSourcefile source : sources) source.apply(empty);
 	
 	// Type checking
+	IAnalysis typeChecker = new CmlTypeChecker();
+	for(ASourcefileSourcefile source : sources) source.apply(empty);
 	
 	
 	
