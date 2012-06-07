@@ -3,8 +3,8 @@
 BASE=`dirname $0`
 REPO=$BASE/../..
 
-JAR=$BASE/target/commandlinetool-0.0.1-jar-with-dependencies.jar
-CLASSPATH=.:$REPO/core/parser/target/parser-0.0.1.jar:$REPO/core/ast/target/ast-0.0.1.jar
+JAR=$BASE/target/commandlinetool-*-jar-with-dependencies.jar
+CLASSPATH=.:$REPO/core/parser/target/parser-*.jar:$REPO/core/ast/target/ast-*.jar
 
 if [ ! -f ${JAR} ]; then
 echo -e "Executable jar: \n\n${JAR}\n\ndoes not exists, type mvn package to build it."
