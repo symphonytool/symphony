@@ -10,7 +10,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <groupId>eu.compassresearch.ide</groupId>
+  <groupId>eu.compassresearch</groupId>
   <artifactId>ide</artifactId>
   <name>Compass IDE Top-level</name>
   <description>Super POM for all IDE (Eclipse) artifacts.</description>
@@ -20,6 +20,7 @@
   </properties>
 
   <modules>
+    <module>cmdline</module>
     <module>builder</module>
     <!-- <module>parsers</module> -->
     <module>cml</module>
