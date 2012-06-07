@@ -20,8 +20,7 @@ import eu.compassresearch.core.typechecker.CmlTypeChecker;
 import org.overture.ast.program.ASourcefileSourcefile;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.Collections;
 
 public class CheckCml {
 
@@ -75,11 +74,11 @@ public class CheckCml {
     private enum Switch {
 	// Swich Symbol, Switch Description and boolean whether or not
 	// the switch requires an argument.
-	PARSE_ONLY("po", "Parse Only, stop analysis after the parse phace.", false),
+	PARSE_ONLY("po", "Parse Only, stop analysis after the parse phase.", false),
 	    TYPE_CHECK_ONLY("tco","Type Check Only, stop checking after the type checking phase.", false),
 	    NOTC("notc", "No type checking, the type checking phase is omitted.", false),
-	    COE("coe", "Continue on Exception, even if an exception is thrown we continue", false),
-	    SOE("soe", "Silence on Exception, if an exception occurs in an analysis supress its output.", false),
+	    COE("coe", "Continue on Exception, analysis continues even if an exception occurs.", false),
+	    SOE("soe", "Silence on Exception, supress exceptions in analysis.", false),
 	    ;
 
 	// Switch state
@@ -137,9 +136,15 @@ public class CheckCml {
 
 	public static String listSwitches()
 	{
-	    StringBuilder sb = new StringBuilder();
+	    List<String> toStrs = new LinkedList<String>();
 	    for(Switch sw : Switch.values())
-		sb.append("\t"+sw.toString()+"\n");
+		toStrs.add(sw.toString());
+
+	    Collections.sort(toStrs);
+
+	    StringBuilder sb = new StringBuilder();
+	    for(String sw : toStrs)
+		sb.append("\t"+sw+"\n");
 	    return sb.toString();
 	}
     };
@@ -162,7 +167,7 @@ public class CheckCml {
 
     private static void printUsage()
     {
-	System.out.println("\nUsage: cmlc [Switches] <file1>, ..., <fileN>\n[Switches]:");
+	System.out.println("\nUsage: cmlc [switches] <file1>, ...,<fileN>\nSwitches:");
 	System.out.println(Switch.listSwitches());
     }
 
