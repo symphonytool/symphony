@@ -283,7 +283,7 @@ exp {-> package='org.overture.ast.expressions'}
 	;
 	
 #Rename   {-> package='org.overture.ast.expressions'}
- 	= {comprehension}
+ 	= {comprehension} [renamePairs]:pair.rename* [bindings]:multipleBind* [predicate]:exp
  	| {enumeration} [renamePairs]:pair.rename*
     ;
     

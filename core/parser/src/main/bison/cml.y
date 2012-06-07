@@ -671,7 +671,7 @@ communicationParameter
 ;
 
 parallelAction:
-  action CSPLSQUAREDBAR chansetExpr BAR chansetExpr CSPDBARRSQUARE action
+  action CSPLSQUAREDBAR namesetExpr BAR namesetExpr CSPDBARRSQUARE action
  | action THREEBAR action
  | action CSPLSQUAREBAR namesetExpr BAR namesetExpr CSPBARRSQUARE action
  | action CSPDBAR action
@@ -716,8 +716,21 @@ DLSQUARE renameList DRSQUARE
 ;
 
 renameComprehension:
-DLSQUARE channelEvent BAR bindList DRSQUARE
-| DLSQUARE channelEvent BAR bindList AT expression DRSQUARE
+DLSQUARE renameList BAR bindList DRSQUARE
+{
+    $$ = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5), 
+					    (List<? extends ARenamePair>)$2, 
+					    (List<? extends PMultipleBind>)$4, 
+					    null);
+}
+| DLSQUARE renameList BAR bindList AT expression DRSQUARE
+{
+    $$ = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)$1,(CmlLexeme)$7), 
+					    (List<? extends ARenamePair>)$2, 
+					    (List<? extends PMultipleBind>)$4, 
+					    (PExp)$6);
+}
+;
 
 renameList :
 renamePair
@@ -762,6 +775,23 @@ IDENTIFIER
 			      dotExpression);
 }
 ;
+
+dotted_expression:
+CSP_CHANNEL_DOT expression
+{
+    List<PExp> expTokens = new Vector<PExp>();
+    expTokens.add((PExp)$2);
+    $$ = expTokens;
+}
+| dotted_expression CSP_CHANNEL_DOT expression
+{
+    List<PExp> expTokens = (List<PExp>)$1;
+    PExp exp = (PExp)$3;
+    expTokens.add(exp);
+    $$ = expTokens;
+}
+;
+
 /* 2.3 Channel Definitions */
 
 channelDecl :
@@ -952,20 +982,6 @@ chansetExpr :
     List<PMultipleBind> bindings = (List<PMultipleBind>)$5;
     PExp pred = (PExp)$7;
     $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings,pred);
-}
-;
-
-dotted_expression:
-DOT expression
-{
-    $$ = new Vector<PExp>();
-}
-| dotted_expression DOT expression
-{
-    List<PExp> expTokens = (List<PExp>)$1;
-    PExp exp = (PExp)$3;
-    expTokens.add(exp);
-    $$ = expTokens;
 }
 ;
 

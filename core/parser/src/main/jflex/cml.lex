@@ -505,8 +505,9 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "="                                 { return createToken(CmlParser.EQUALS); }
 }
 
-<ACTIONS,PROCESS> {
+<ACTIONS,PROCESS,CHANSETS> {
   ";"                                 { return createToken(CmlParser.CSPSEQ); }
+  //  "|"                                 { return createToken(CmlParser.BAR); }
   "["                                 { return createToken(CmlParser.CSP_LSQUARE); }
   "]"                                 { return createToken(CmlParser.CSP_RSQUARE); }
   ">"                                 { return createToken(CmlParser.CSP_GT); }
