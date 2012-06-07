@@ -17,7 +17,7 @@
       <plugin>
 	<groupId>org.overturetool.tools</groupId>
 	<artifactId>astcreatorplugin</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<executions>
 	  <execution>
 	    <id>java</id>
@@ -28,11 +28,10 @@
 	  </execution>
 	</executions>
 	<configuration>
-	  <folderToDeletePreGenerate>org/overture/ast</folderToDeletePreGenerate>
 	  <ast>cml.ast</ast>
-	  <names>
-	    <param>VDM</param>
-	  </names>
+	  <deletePackageOnGenerate>
+	    <param>org.overture.ast</param>
+	  </deletePackageOnGenerate>
 	</configuration>
       </plugin>
     </plugins>

@@ -49,5 +49,5 @@ target/
 
 # temporary excludes #
 ######################
-core/ast/src/main/java
+#core/ast/src/main/java
 
