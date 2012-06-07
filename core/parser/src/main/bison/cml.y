@@ -231,11 +231,16 @@
 %token AMP THREEBAR CSPBARGT CSPLSQUAREBAR DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_OPS_COM CSP_CHANNEL_DOT CSP_SLASH CSP_BACKSLASH CSPLSQUAREGT CSP_LSQUARE CSP_GT CSP_ENDBY CSP_STARTBY
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
-%token nameset namesetExpr typeVarIdentifier quoteLiteral functionType 
+%token nameset namesetExpr typeVarIdentifier functionType 
  //localDef
+ //quoteLiteral
+
+ /* type op precidence */
+%left VDMSEQOF
 
 /* CSP ops and more */
-%right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN CSP_SLASH CSP_BACKSLASH CSP_LSQUARE CSP_GT CSP_ENDBY CSP_STARTBY
+%right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN CSP_SLASH CSP_BACKSLASH CSP_LSQUARE CSP_GT CSP_ENDBY CSP_STARTBY
+
 %right ELSE ELSEIF
 
 /* unary ops */
@@ -1083,10 +1088,10 @@ typeDef
     LexNameToken name = extractLexNameToken((CmlLexeme)$2);
     LexLocation location = null;
     if (access.getLocation() != null)
-	location = combineLexLocation(access.getLocation(),((PTypeBase)$4).getLocation());
+	location = combineLexLocation(access.getLocation(),((PType)$4).getLocation());
     else
     {
-	location = combineLexLocation(name.getLocation(),((PTypeBase)$4).getLocation());
+	location = combineLexLocation(name.getLocation(),((PType)$4).getLocation());
     }
         
     $$ = new ATypeDefinition(location,null /*NameScope nameScope_*/, false, 
@@ -1207,9 +1212,21 @@ type
 { 
     $$ = new ATokenBasicType(extractLexLocation((CmlLexeme)$1) , false);
 }
-| quoteLiteral /* replace me! */
+| quoteLiteral
 | VDMCOMPOSE IDENTIFIER OF fieldList END
-| type VDMTYPEUNION type
+| LPAREN type BAR type RPAREN
+{
+  CmlLexeme lp = (CmlLexeme)$1;
+  CmlLexeme rp = (CmlLexeme)$5;
+  PType fst = (PType)$2;
+  PType snd = (PType)$4;
+
+  LexLocation loc = combineLexLocation ( extractLexLocation ( lp ),
+					 extractLexLocation ( rp ) );
+
+  AUnionType utype = new AUnionType(loc, false, false, false );
+  $$ = utype;
+}
 | type STAR type
 | LSQUARE type RSQUARE
 | VDMSETOF type
@@ -1225,7 +1242,7 @@ type
   ASetType res = new ASetType( loc, false, null, type, false, false );
   $$ = res;
 }
-| VDMSEQOF type
+| VDMSEQOF type  
 {
   CmlLexeme seqof = (CmlLexeme)$1;
   PType type = (PType)$2;
@@ -1306,6 +1323,42 @@ type
 }
   ;
 
+typeUnionList :
+type SEMI
+{
+  PType type = (PType)$1;
+  LexLocation loc = type.getLocation();
+  AUnionType res = new AUnionType(loc,false,false,false);
+  $$ = res;
+}
+|
+type BAR typeUnionList
+{
+
+  PType type = (PType)$1;
+  AUnionType tl = (AUnionType)$3;
+  LexLocation updatedLocation  =combineLexLocation( tl.getLocation(),
+						     type.getLocation() );
+  tl.getTypes().add(type);
+  tl.setLocation(updatedLocation);
+  $$ = tl;
+}
+
+quoteLiteral:
+LT IDENTIFIER GT
+{
+  CmlLexeme lt = (CmlLexeme)$1;
+  CmlLexeme id = (CmlLexeme)$2;
+  CmlLexeme gt = (CmlLexeme)$3;
+
+  LexLocation loc = extractLexLocation ( lt );
+
+  LexQuoteToken value = new LexQuoteToken( id.getValue(), loc );
+  AQuoteType qt = new AQuoteType( loc, false, null, value );
+  $$ = qt;
+}
+
+
 fieldList : 
   field
   {
@@ -1360,6 +1413,8 @@ valueDefs :
     $$ = valueDecl;
   }
   ;
+
+
 
 /* RWL. On tailing SEMI:
  *
@@ -1512,10 +1567,16 @@ functionDef
     functionList.add((SFunctionDefinition)$1);
     $$ = functionList;
 }
-| functionDefList SEMI functionDef
+| functionDef SEMI
 {
-    List<SFunctionDefinition> functionList = (List<SFunctionDefinition>)$1;
-    functionList.add((SFunctionDefinition)$3);
+    List<SFunctionDefinition> functionList = new Vector<SFunctionDefinition>();
+    functionList.add((SFunctionDefinition)$1);
+    $$ = functionList;
+}
+| functionDef SEMI functionDefList
+{
+    List<SFunctionDefinition> functionList = (List<SFunctionDefinition>)$3;
+    functionList.add((SFunctionDefinition)$1);
     $$ = functionList;
 }
 ;
@@ -2759,7 +2820,13 @@ quantifiedExpr :
 setEnumeration :
 LCURLY RCURLY
 {
-    $$ = new ASetEnumSetExp();   
+  CmlLexeme lc = (CmlLexeme)$1;
+  CmlLexeme rc = (CmlLexeme)$2;
+  LexLocation loc = combineLexLocation ( extractLexLocation ( lc ),
+					 extractLexLocation ( rc ) );
+  ASetEnumSetExp res = new ASetEnumSetExp();
+  res.setLocation( loc );
+  $$ = res;
 }
 | LCURLY expressionList RCURLY
 {
@@ -3057,7 +3124,6 @@ apply :
       
       LexLocation location = combineLexLocation(root.getLocation(),
 						extractLexLocation((CmlLexeme)$4));
-      System.out.println("I am here in apply\n");
       $$ = new AApplyExp(location, root, args);
   }
   ;

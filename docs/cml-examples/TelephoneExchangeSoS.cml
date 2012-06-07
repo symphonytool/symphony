@@ -243,13 +243,13 @@ class Node =
 begin
 	types
 		public SUBS = token;
-		public STATUS = <connecting> | <engaged> | <ringing> | <speech> | <suspended>;
-		public MSG = <vcallmsg> | <vclearmsg> | <callokmsg> | <callerrormsg>;
+		public STATUS = ( <connecting> | ( <engaged> | ( <ringing> | ( <speech> | ( <suspended> )))));
+		public MSG = ( <vcallmsg> | ( <vclearmsg> | ( <callokmsg> | ( <callerrormsg> ))));
 		
 	values
-		public Connected = {<ringing>,<speech>,<suspended>};
+		public Connected: STATUS = {<ringing>,<speech>,<suspended>};
 		n: nat = undefined;
-		LOC = {1,...,n-1};
+		LOC: set of int = {1,...,n-1};
 	
 	functions
 		next(i: nat) j: nat
@@ -264,7 +264,7 @@ begin
 		post
 			forall j in set LOC & s inter home(j) = {};
 	
-	instance variables
+	state
 		i: nat; -- process parameter
 		away: map of SUBS to nat;
 		origin: map of SUBS to nat;
@@ -277,10 +277,10 @@ begin
 			
 	operations
 		InitNode ()
-		ext wr away, origin
+		frame wr away, origin
 		post
 			away = {|->} and
-			origin = {|->};
+			origin = {|->}
 			
 end 
 

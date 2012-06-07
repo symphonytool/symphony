@@ -67,7 +67,7 @@ class CommentBlock extends CMLToken {
 %line
 %column
 %char
-%debug
+ //%debug
 %public
 
 %{
@@ -265,7 +265,7 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
      * @param s The string for the error message.  */
   public void yyerror (Location loc, String err) { 
     
-    System.err.println("Error : " + err + " at " + loc.begin.toString()); 
+    //    System.err.println("Error : " + err + " at " + loc.begin.toString()); 
     
       String msg = new String(err);
 	    if (yylvalue != null) {
@@ -671,5 +671,5 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 // default catch-all production rule is to return the current character
 /* .								{ return defaultToken(); } */
 // production rule to handle end-of-file
-<<EOF>>		  		      { return 0; } 
+<<EOF>>		  		      { stateStack.clear(); return 0; } 
 .                                     { throw new IllegalArgumentException("Syntax at line "+yyline+" position "+yycolumn+" \"" + yytext() + "\" was unexpected at this time."); }
