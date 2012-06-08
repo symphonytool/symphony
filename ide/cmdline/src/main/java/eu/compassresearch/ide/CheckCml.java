@@ -20,6 +20,7 @@ import org.overture.transforms.DotGraphVisitor;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.CmlTypeChecker;
+import eu.compassresearch.examples.DivWarnAnalysis;
 import org.overture.ast.program.ASourcefileSourcefile;
 import java.util.LinkedList;
 import java.util.List;
@@ -84,6 +85,7 @@ public class CheckCml {
 	    SOE("soe", "Silence on Exception, supress exceptions in analysis.", false),
 	    EMPTY("empty", "Empty Analysis, run the empty analysis (good for debugging).", false),
 	    DOTG("dotg", "Dot Graph, -dotg=<out> write ast dot graph to file <out>.", true),
+	    DWA("dwa", "Example, the Div Warn Analysis example", false),
 	    ;
 
 	// Switch state
@@ -374,6 +376,17 @@ public class CheckCml {
 		DotGraphVisitor dga = new DotGraphVisitor();
 		runAnalysis(input, dga, sources);
 		writeGraphResult(dga, Switch.DOTG.getValue());
+	    }
+
+	// Example Analysis DivWarnAnalysis
+	if (input.isSwitchOn(Switch.DWA))
+	    {
+		DivWarnAnalysis dwa = new DivWarnAnalysis();
+		runAnalysis(input, dwa, sources);
+		for(String s : dwa.getWarnings())
+		    {
+			System.out.println("\t"+s);
+		    }
 	    }
 
 	// Type checking

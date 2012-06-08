@@ -53,12 +53,27 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- 
+	 ************************************************************
+	 Analysis that the command line tool can run and thus depend
+	 on.
+	 ************************************************************
+    -->
 
+    <!-- Type Checker Analysis -->
     <dependency>
       <groupId>eu.compassresearch.core</groupId>
       <artifactId>typechecker</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <!-- Div Warn Exp Analysis -->
+    <dependency>
+      <groupId>eu.compassresearch.examples</groupId>
+      <artifactId>divwarnanalysis</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
 
   </dependencies>
 
