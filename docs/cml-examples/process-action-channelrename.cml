@@ -1,0 +1,5 @@
+process RegisterProc = 
+ begin
+   @
+     A[[c <- nc]]
+ end

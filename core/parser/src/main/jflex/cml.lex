@@ -505,13 +505,21 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "="                                 { return createToken(CmlParser.EQUALS); }
 }
 
-<ACTIONS,PROCESS> {
-    //  "="                                 { return createToken(CmlParser.EQUALS); }
+<ACTIONS,PROCESS,CHANSETS> {
   ";"                                 { return createToken(CmlParser.CSPSEQ); }
+  //  "|"                                 { return createToken(CmlParser.BAR); }
   "["                                 { return createToken(CmlParser.CSP_LSQUARE); }
+  "]"                                 { return createToken(CmlParser.CSP_RSQUARE); }
   ">"                                 { return createToken(CmlParser.CSP_GT); }
   "[]"                                { return createToken(CmlParser.CSPEXTCH); }
+  "[["                                { return createToken(CmlParser.DLSQUARE); }
+  "]]"                                { return createToken(CmlParser.DRSQUARE); }
+  "[|"                                { return createToken(CmlParser.CSPLSQUAREBAR); }
+  "|]"                                { return createToken(CmlParser.CSPBARRSQUARE); }
+  "<-"                                { return createToken(CmlParser.CSPSAMEAS); }
   "|~|"                               { return createToken(CmlParser.CSPINTCH); }
+  "|||"                               { return createToken(CmlParser.CSPINTERLEAVE); }
+  "||"                               { return createToken(CmlParser.CSPDBAR); }
   "[>"                                { return createToken(CmlParser.CSPLSQUAREGT); }
   "/"                                 { return createToken(CmlParser.CSP_SLASH); }
   "\\"                                { return createToken(CmlParser.CSP_BACKSLASH); }
@@ -524,7 +532,9 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "=>"                                { return createToken(CmlParser.CSP_OPS_COM); }
   "Skip"                              { return createToken(CmlParser.CSPSKIP); }
   "Stop"                              { return createToken(CmlParser.CSPSTOP); }
-  "Chaos"                              { return createToken(CmlParser.CSPCHAOS); }
+  "Chaos"                             { return createToken(CmlParser.CSPCHAOS); }
+  "startby"                           { return createToken(CmlParser.CSP_STARTBY); }
+  "endsby"                            { return createToken(CmlParser.CSP_ENDBY); }
 }
 
 <CHANNELS,CHANSETS,ACTIONS> {
@@ -537,7 +547,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   ":"                            { yybegin(stateStack.pop()); return createToken(CmlParser.COLON); }
  }
 
-<VDM_CASES,CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS> {
+<VDM_CASES,CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS,PROCESS> {
   "->"                                { return createToken(CmlParser.RARROW); } 
   //vdm expressions
   "<=>"				      { return createToken(CmlParser.BIMPLY); }

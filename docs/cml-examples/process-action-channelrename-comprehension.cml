@@ -1,0 +1,5 @@
+process RegisterProc = 
+ begin
+   @
+     A[[e <- x.e | e in set I]]
+ end

@@ -91,7 +91,7 @@ definition {-> package='org.overture.ast.definitions'}
     |   {instanceVariable} [expression]:exp (expType):type [initialized]:java_Boolean [oldname]:LexNameToken //this actually inherits assignment in Nicks tree
     |   #class 
     |   {classbody} [declarations]:declaration* 
-  |	{process} [declarations]:declaration.singleType* [process]:process
+    |	{process} [declarations]:declaration.singleType* [process]:process
     |   {action} [declarations]:declaration.singleType* [action]:action
     |   {chanset}
     | 	{channel} [channelNameDecls]: declaration.channelName*
@@ -110,7 +110,6 @@ definition {-> package='org.overture.ast.definitions'}
                 [invPattern]:pattern [invExpression]:exp (invdef):definition.#function.explicitFunction
                 [initPattern]:pattern [initExpression]:exp (initdef):definition.#function.explicitFunction
                 (stateDefs):definition* 
-//    |   {thread} [statement]:stm [operationName]:LexNameToken [operationDef]:definition.explicitOperation
     |   {type} (invType):type.#invariant [invPattern]:pattern [invExpression]:exp 
                [invdef]:definition.#function.explicitFunction [infinite]:java_Boolean (name):LexNameToken//is access missing here
     |   {untyped}
@@ -208,18 +207,19 @@ invariant {-> package='org.overture.ast.definitions'}
 
 process {-> package='org.overture.ast.process'}
 	= {state} [processDeclarations]:declaration* [action]:action
-	| {sequentialCombosition}
-	| {externalChoice}
-	| {internalChoice}
-	| {generalisedParallelism}
-	| {alphabetisedParallelism}
-	| {synchronousParallelism}
-	| {interleaving}
-	| {interrupt}
-	| {timedInterrupt}
-	| {untimedInterrupt}
-	| {timeout}
-	| {hiding} 
+	| {sequentialComposition} [left]:process [right]:process
+	| {externalChoice} [left]:process [right]:process
+	| {internalChoice} [left]:process [right]:process
+	| {generalisedParallelism} [left]:process [chansetExpression]:exp.#Set.#Chanset [right]:process
+	| {alphabetisedParallelism} [left]:process [leftChansetExpression]:exp.#Set.#Chanset [rightChansetExpression]:exp.#Set.#Chanset [right]:process
+	| {synchronousParallelism} [left]:process [right]:process
+	| {interleaving} [left]:process [right]:process
+	| {interrupt} [left]:process [right]:process
+	| {timedInterrupt} [left]:process [timeExpression]:exp [right]:process
+	| {untimedTimeout} [left]:process [right]:process
+	| {timeout} [left]:process [timeoutExpression]:exp [right]:process
+	| {hiding} [left]:process [chansetExpression]:exp.#Set.#Chanset
+	| {identifier} [identifer]:LexNameToken 
 	 
 ;
 	
@@ -275,6 +275,17 @@ exp {-> package='org.overture.ast.expressions'}
     |   {name} [name]:LexNameToken        
     |   {record} [name]:LexNameToken [exprs]: exp*
     |   {tupleSelect} [tuple]:exp [entry]:java_Integer
+    |   #Channel
+    ;
+    
+#Channel  {-> package='org.overture.ast.expressions'}
+	= #Rename
+	| {event} [identifier]:LexNameToken [dotExpressions]:exp*
+	;
+	
+#Rename   {-> package='org.overture.ast.expressions'}
+ 	= {comprehension} [renamePairs]:pair.rename* [bindings]:multipleBind* [predicate]:exp
+ 	| {enumeration} [renamePairs]:pair.rename*
     ;
     
 #SymbolicLiteral {-> package='org.overture.ast.expressions'}
@@ -495,6 +506,7 @@ pair {-> package='org.overture.ast.patterns'}
     = {patternType} [pattern]:pattern (type):type
     | {patternListType} [patterns]:pattern* (type):type
     | {identifierType} [identifier]:LexIdentifierToken (type):type
+    | {rename} [from]:exp.#Channel.event [to]:exp.#Channel.event
     ; 
     
 bind {-> package='org.overture.ast.patterns'}
@@ -579,6 +591,10 @@ action {-> package='org.overture.ast.actions'}
 	| {timedInterrupt} [left]:action [right]:action [timeExpression]:exp
 	| {untimedTimeout} [left]:action [right]:action
 	| {timeout} [left]:action [right]:action [timeoutExpression]:exp
+	| {hiding} [left]:action [chansetExpression]:exp.#Set.#Chanset
+	| {startDeadline} [left]:action [expression]:exp
+	| {endDeadline} [left]:action [expression]:exp
+	| {channelRenaming} [action]:action [renameExpression]:exp.#Channel.#Rename
 	| #ControlStatement
 	| {block} [declareStatement]:declareStatement [action]:action
 	| {identifier}

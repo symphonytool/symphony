@@ -229,16 +229,16 @@
  *
  */
 
-%token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_FRAME VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN VDMDONTCARE IDENTIFIER
+%token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_FRAME VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN VDMDONTCARE IDENTIFIER
 %token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1 STRING
 
 
 %token HEX_LITERAL
 
-%token AMP THREEBAR CSPBARGT CSPLSQUAREBAR DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_OPS_COM CSP_CHANNEL_DOT CSP_SLASH CSP_BACKSLASH CSPLSQUAREGT CSP_LSQUARE CSP_GT
+%token AMP CSPBARGT CSPLSQUAREBAR DLSQUARE DRSQUARE CSPBARRSQUARE COMMA CSPSAMEAS CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_OPS_COM CSP_CHANNEL_DOT CSP_SLASH CSP_BACKSLASH CSPLSQUAREGT CSP_LSQUARE CSP_RSQUARE CSP_GT CSP_ENDBY CSP_STARTBY
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
-%token nameset namesetExpr typeVarIdentifier functionType 
+%token nameset namesetExpr typeVarIdentifier  
  //localDef
  //quoteLiteral
 
@@ -246,7 +246,8 @@
 %left VDMSEQOF
 
 /* CSP ops and more */
-%right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP THREEBAR RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF  VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN CSP_SLASH CSP_BACKSLASH CSP_LSQUARE CSP_GT
+%right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN CSP_SLASH CSP_BACKSLASH CSP_LSQUARE CSP_RSQUARE CSP_GT CSP_ENDBY CSP_STARTBY CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR
+
 %right ELSE ELSEIF
 
 /* unary ops */
@@ -378,21 +379,132 @@ process :
       PAction action = (PAction)$3;
       $$ = new AStateProcess(location,processDeclarations,action);
   }
-| process CSPSEQ process  //TODO
-| process CSPINTCH process //TODO
-| process CSPEXTCH process //TODO
-| process CSPLCHSYNC chansetExpr CSPRCHSYNC process //TODO
-| process CSPINTERLEAVE process //TODO
-| LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN //TODO
-| IDENTIFIER LPAREN expression RPAREN //TODO
-| IDENTIFIER //TODO
+| process CSPSEQ process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$3;
+    $$ = new ASequentialCompositionProcess(combineLexLocation(left.getLocation(),
+							      right.getLocation()), 
+					   left, 
+					   right);
+}
+| process CSPEXTCH process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$3;
+    $$ = new AExternalChoiceProcess(combineLexLocation(left.getLocation(),
+						       right.getLocation()), 
+				    left, 
+				    right);
+}
+| process CSPINTCH process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$3;
+    $$ = new AInternalChoiceProcess(combineLexLocation(left.getLocation(),
+						       right.getLocation()), 
+				    left, 
+				    right);
+}
+| process CSPLSQUAREBAR chansetExpr CSPBARRSQUARE process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$5;
+    $$ = new AGeneralisedParallelismProcess(combineLexLocation(left.getLocation(),
+							       right.getLocation()), 
+					    left,
+					    (SChansetSetExp)$3,
+					    right);
+}
+| process CSP_LSQUARE chansetExpr CSPDBAR chansetExpr CSP_RSQUARE process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$7;
+    $$ = new AAlphabetisedParallelismProcess(combineLexLocation(left.getLocation(),
+							       right.getLocation()), 
+					    left,
+					    (SChansetSetExp)$3,
+					    (SChansetSetExp)$5,
+					    right);
+}
+| process CSPDBAR process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$3;
+    $$ = new ASynchronousParallelismProcess(combineLexLocation(left.getLocation(),
+							       right.getLocation()), 
+					    left, 
+					    right);
+}
+| process CSPINTERLEAVE process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$3;
+    $$ = new AInterleavingProcess(combineLexLocation(left.getLocation(),
+						       right.getLocation()), 
+				    left, 
+				    right);
+}
+| process CSP_SLASH CSP_BACKSLASH process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$4;
+    LexLocation location = combineLexLocation(left.getLocation(),
+					      right.getLocation());
+    $$ = new AInterruptProcess(location, 
+			      left, 
+			      right);
+}
+| process CSP_SLASH expression CSP_BACKSLASH process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$5;
+    LexLocation location = combineLexLocation(left.getLocation(),
+					      right.getLocation());
+    $$ = new ATimedInterruptProcess(location, 
+				    left, 
+				    (PExp)$3,
+				    right);
+}
+| process CSPLSQUAREGT process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),
+					      right.getLocation());
+    $$ = new AUntimedTimeoutProcess(location, 
+				   left, 
+				   right);
+}
+// | process CSP_LSQUARE expression CSP_GT process
+// {
+//     PProcess left = (PProcess)$1;
+//     PProcess right = (PProcess)$5;
+//     LexLocation location = combineLexLocation(left.getLocation(),
+// 					      right.getLocation());
+//     $$ = new ATimeoutProcess(location, 
+// 			     left,
+// 			     (PExp)$3,
+// 			     right);
+// }
+
+
+
+//| LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
+| IDENTIFIER LPAREN expression RPAREN
+| IDENTIFIER
+{
+    LexNameToken identifier = extractLexNameToken((CmlLexeme)$1);
+    $$ = new AIdentifierProcess(identifier.getLocation(), 
+				identifier);
+}
 | LPAREN process RPAREN LSQUARE identifierList CSPRENAME identifierList RSQUARE //TODO
 | CSPSEQ LCURLY declaration AT process RCURLY //TODO
 | CSPINTCH LCURLY declaration AT process RCURLY //TODO
 | CSPEXTCH LCURLY declaration AT process RCURLY //TODO
 | LSQUARE LCURLY chansetExpr RSQUARE declaration AT process RCURLY //TODO
 | CSPINTERLEAVE LCURLY declaration AT process RCURLY //TODO
-      ;
+;
 
 processParagraphList:
 processParagraph
@@ -415,7 +527,6 @@ processParagraph
 ; 
 
 processParagraph :
-//  programParagraph
  classDefinitionBlockAlternative
 | CSP_ACTIONS IDENTIFIER EQUALS paragraphAction
   {
@@ -549,31 +660,58 @@ action
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new ATimeoutAction(location, left, right, (PExp)$3);
 }
-| action LSQUARE identifierList CSPRENAME identifierList RSQUARE //TODO
-| action CSPAND action //TODO
-| action DLSQUARE renameList DRSQUARE //TODO
-| action CSPHIDE action //TODO
+| action CSP_BACKSLASH chansetExpr 
+{
+    PAction left = (PAction)$1;
+    SChansetSetExp chansetExp = (SChansetSetExp)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),chansetExp.getLocation());
+    $$ = new AHidingAction(location, left, chansetExp);
+}
+| action CSP_STARTBY expression 
+{
+    PAction left = (PAction)$1;
+    PExp exp = (PExp)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),exp.getLocation());
+    $$ = new AStartDeadlineAction(location, left, exp);
+}
+| action CSP_ENDBY expression 
+{
+    PAction left = (PAction)$1;
+    PExp exp = (PExp)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),exp.getLocation());
+    $$ = new AEndDeadlineAction(location, left, exp);
+}
+| action renameExpression
+{
+    SRenameChannelExp renameExpression = (SRenameChannelExp)$2;
+    PAction action = (PAction)$1;
+    
+    $$ = new AChannelRenamingAction(combineLexLocation(action.getLocation(),
+						       renameExpression.getLocation()), 
+				    action, 
+				    renameExpression);
+}
+  //| put u action here
+| parallelAction
+  //| parametrisedAction
+  //| instantiatedAction
+  //| replicatedAction
 
-| action CSPLSQUAREBAR IDENTIFIER CSPBARGT action //TODO
-  /*statements*/
-| blockStatement //TODO
+  //| action LSQUARE identifierList CSPRENAME identifierList RSQUARE
+  
+/*statements*/
+  //| letStatement
+| blockStatement
 | controlStatements
 {
   $$ = $1;
 }
-/*-----*/
-/* | expression THREEBAR action */
-| action CSPLSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr CSPBARRSQUARE action //TODO
-| action CSPLSQUAREBAR namesetExpr BAR chansetExpr DBAR chansetExpr BAR namesetExpr CSPBARRSQUARE action //TODO
-/* | action LSQUARE renameList RSQUARE action /\* FIXME shift/reduce because of rule 'action' case 4 *\/ */
-| replicatedAction //TODO
 | IDENTIFIER 
 { 
     LexLocation location = extractLexLocation((CmlLexeme)$1);
     $$ = new AIdentifierAction(location);  
 }
-  ;
-
+;
 
 communicationParameterUseList :
   communicationParameter
@@ -649,8 +787,16 @@ communicationParameter //TODO
 | communicationParameter COMMA communicationParameterList //TODO
 ;
 
-//parallelAction:
-//;
+parallelAction:
+action CSPLSQUAREDBAR namesetExpr BAR namesetExpr CSPDBARRSQUARE action //TODO
+ | action CSPINTERLEAVE action //TODO
+ | action CSPLSQUAREBAR namesetExpr BAR namesetExpr CSPBARRSQUARE action //TODO
+ | action CSPDBAR action //TODO
+  //| action CSP_LSQUARE namesetExpr BAR chansetExpr CSPDBAR chansetExpr BAR namesetExpr CSP_RSQUARE action //TODO
+  //| action CSP_LSQUARE chansetExpr CSPDBAR chansetExpr CSP_RSQUARE action //TODO
+ | action CSPLSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr CSPBARRSQUARE action //TODO
+ | action CSPLSQUAREBAR chansetExpr CSPBARRSQUARE action //TODO
+;
 
 //parametrisedAction:
 //;
@@ -669,10 +815,99 @@ replicatedAction :
 | LSQUARE renameList RSQUARE LPAREN declaration AT action RPAREN //TODO
     ;
 
+renameExpression:
+ renameEnumeration
+ {
+     $$ = $1;
+ }
+ | renameComprehension
+;
+
+renameEnumeration:
+DLSQUARE renameList DRSQUARE
+{
+    $$ = new AEnumerationRenameChannelExp(null, 
+					  extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3), 
+					  (List<? extends ARenamePair>)$2); 
+}
+;
+
+renameComprehension:
+DLSQUARE renameList BAR bindList DRSQUARE
+{
+    $$ = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5), 
+					    (List<? extends ARenamePair>)$2, 
+					    (List<? extends PMultipleBind>)$4, 
+					    null);
+}
+| DLSQUARE renameList BAR bindList AT expression DRSQUARE
+{
+    $$ = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)$1,(CmlLexeme)$7), 
+					    (List<? extends ARenamePair>)$2, 
+					    (List<? extends PMultipleBind>)$4, 
+					    (PExp)$6);
+}
+;
+
 renameList :
-  IDENTIFIER CSPSAMEAS IDENTIFIER //TODO
-| IDENTIFIER CSPSAMEAS IDENTIFIER COMMA renameList //TODO
-  ;
+renamePair
+{
+    List<ARenamePair> renamePairs = 
+	new Vector<ARenamePair>();
+    renamePairs.add((ARenamePair)$1);
+    $$ = renamePairs;
+}
+| renamePair COMMA renameList
+{
+    List<ARenamePair> renamePairs = (List<ARenamePair>)$3;
+    renamePairs.add((ARenamePair)$1);
+    $$ = renamePairs;
+}
+;
+
+renamePair:
+channelEvent CSPSAMEAS channelEvent
+{
+    $$ = new ARenamePair(false, 
+			 (AEventChannelExp)$1, 
+			 (AEventChannelExp)$3);
+}
+;
+
+channelEvent:
+IDENTIFIER
+{
+    LexNameToken id = extractLexNameToken((CmlLexeme)$1);
+    List<? extends PExp> dotExpression = null;
+    $$ = new AEventChannelExp(id.getLocation(), 
+			      id, 
+			      dotExpression);
+}
+| IDENTIFIER dotted_expression
+{
+    LexNameToken id = extractLexNameToken((CmlLexeme)$1);
+    List<? extends PExp> dotExpression = (List<? extends PExp>)$2 ;
+    $$ = new AEventChannelExp(id.getLocation(), 
+			      id, 
+			      dotExpression);
+}
+;
+
+dotted_expression:
+CSP_CHANNEL_DOT expression
+{
+    List<PExp> expTokens = new Vector<PExp>();
+    expTokens.add((PExp)$2);
+    $$ = expTokens;
+}
+| dotted_expression CSP_CHANNEL_DOT expression
+{
+    List<PExp> expTokens = (List<PExp>)$1;
+    PExp exp = (PExp)$3;
+    expTokens.add(exp);
+    $$ = expTokens;
+}
+;
 
 /* 2.3 Channel Definitions */
 
@@ -864,20 +1099,6 @@ chansetExpr :
     List<PMultipleBind> bindings = (List<PMultipleBind>)$5;
     PExp pred = (PExp)$7;
     $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings,pred);
-}
-;
-
-dotted_expression:
-DOT expression
-{
-    $$ = new Vector<PExp>();
-}
-| dotted_expression DOT expression
-{
-    List<PExp> expTokens = (List<PExp>)$1;
-    PExp exp = (PExp)$3;
-    expTokens.add(exp);
-    $$ = expTokens;
 }
 ;
 
