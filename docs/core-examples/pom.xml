@@ -1,0 +1,184 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <packaging>pom</packaging>
+
+  <parent>
+    <groupId>eu.compassresearch</groupId>
+    <artifactId>root</artifactId>
+    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+
+
+  <groupId>eu.compassresearch.examples</groupId>
+  <artifactId>examples</artifactId>
+  <name>The COMPASS Analysis Examples</name>
+  <version>0.0.1<!--Replaceable: Main Version--></version>
+  
+  <organization>
+    <name>COMPASS Analysis Examples</name>
+    <url>http://www.compass-research.eu</url>
+  </organization>
+
+  <modules>
+    <module>divwarnanalysis</module>
+  </modules>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <overture.version>2.1.1</overture.version>
+  </properties>
+
+  <dependencies>
+    <!-- Add JUnit for testing -->
+    <!-- commented out until needed -jwc -->
+    <!-- <dependency> -->
+    <!--   <groupId>junit</groupId> -->
+    <!--   <artifactId>junit</artifactId> -->
+    <!--   <version>3.8.1</version> -->
+    <!--   <scope>test</scope> -->
+    <!-- </dependency> -->
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>overture.sf.net</id>
+      <name>Overture Project at SF.net</name>
+      <releases>
+	<enabled>true</enabled>
+	<updatePolicy>daily</updatePolicy>
+	<checksumPolicy>warn</checksumPolicy>
+      </releases>
+      <snapshots>
+	<enabled>false</enabled>
+	<updatePolicy>daily</updatePolicy>
+	<checksumPolicy>warn</checksumPolicy>
+      </snapshots>
+      <url>http://overture.sourceforge.net/maven/repo</url>
+      <layout>default</layout>
+    </repository>
+    <repository>
+      <id>OvertureMT4Em2Repo</id>
+      <name>Overture Project's MT4E-generated Maven Repository of Eclipse 3.7.2 files</name>
+      <url>http://build.overturetool.org/builds/mt4e-m2repo-eclipse3.7.2/</url>
+      <layout>default</layout>
+      <releases>
+	<enabled>true</enabled>
+	<updatePolicy>daily</updatePolicy>
+	<checksumPolicy>ignore</checksumPolicy>
+      </releases>
+      <snapshots>
+	<enabled>true</enabled>
+	<updatePolicy>daily</updatePolicy>
+	<checksumPolicy>ignore</checksumPolicy>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>overture.sf.net</id>
+      <name>Overture Project at SF.net</name>
+      <releases>
+	<enabled>true</enabled>
+	<updatePolicy>daily</updatePolicy>
+	<checksumPolicy>warn</checksumPolicy>
+      </releases>
+      <snapshots>
+	<enabled>false</enabled>
+	<updatePolicy>daily</updatePolicy>
+	<checksumPolicy>warn</checksumPolicy>
+      </snapshots>
+      <url>http://overture.sourceforge.net/maven/repo</url>
+      <layout>default</layout>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <build>
+    <plugins>
+      <!-- Configure the compiler for all sub-poms -->
+      <plugin>
+      	<groupId>org.apache.maven.plugins</groupId>
+      	<artifactId>maven-compiler-plugin</artifactId>
+      	<version>2.4</version>
+      	<configuration>
+      	  <source>1.6</source>
+      	  <target>1.6</target>
+      	</configuration>
+      </plugin>
+
+      <!-- commented out until needed -jwc -->
+      <!-- Attatch sources to all installed jars -->
+      <!-- <plugin> -->
+      <!-- 	<groupId>org.apache.maven.plugins</groupId> -->
+      <!-- 	<artifactId>maven-source-plugin</artifactId> -->
+      <!-- 	<version>2.1.2</version> -->
+      <!-- 	<executions> -->
+      <!-- 	  <execution> -->
+      <!-- 	    <id>attach-sources</id> -->
+      <!-- 	    <goals> -->
+      <!-- 	      <goal>jar</goal> -->
+      <!-- 	    </goals> -->
+      <!-- 	  </execution> -->
+      <!-- 	</executions> -->
+      <!-- 	<configuration> -->
+      <!-- 	  <attach>true</attach> -->
+      <!-- 	</configuration> -->
+      <!-- </plugin> -->
+      
+      <!-- commented out until needed -jwc -->
+      <!-- Enable JavaDoc but dont fail on error. This must be disabled for 
+	   the Eclipse project in the IDE -->
+      <!-- <plugin> -->
+      <!-- 	<groupId>org.apache.maven.plugins</groupId> -->
+      <!-- 	<artifactId>maven-javadoc-plugin</artifactId> -->
+      <!-- 	<version>2.8.1</version> -->
+      <!-- 	<executions> -->
+      <!-- 	  <execution> -->
+      <!-- 	    <id>attach-javadocs</id> -->
+      <!-- 	    <goals> -->
+      <!-- 	      <goal>jar</goal> -->
+      <!-- 	    </goals> -->
+      <!-- 	  </execution> -->
+      <!-- 	</executions> -->
+      <!-- 	<configuration> -->
+      <!-- 	  <failOnError>false</failOnError> -->
+      <!-- 	</configuration> -->
+      <!-- </plugin>       -->
+    </plugins>
+    
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+      	<artifactId>wagon-ssh</artifactId>
+      	<version>2.2</version>
+      </extension>
+    </extensions> 
+  </build>
+
+  <scm>
+    <connection>scm:git:https://git.code.sf.net/p/compassresearch/code</connection>
+    <developerConnection>scm:git:https://git.code.sf.net/p/compassresearch/code</developerConnection>
+    <url>https://sourceforge.net/p/compassresearch/code/</url>
+  </scm>
+
+  <!-- Reconfigure this later -jwc -->
+  <!-- mvn deploy won't work until we set this up -->
+  <!-- <distributionManagement>  -->
+  <!--   <repository>  -->
+  <!--     <id>sourceforge.net</id>  -->
+  <!--     <name>Overture Repo af SF.Net</name>  -->
+  <!--     <url>sftp://web.sourceforge.net/home/groups/o/ov/overture/htdocs/maven/repo</url>  -->
+  <!--   </repository>  -->
+  <!--   <snapshotRepository> -->
+  <!--     <id>sourceforge.net</id>  -->
+  <!--     <name>Overture Snapshot Repo af SF.Net</name>  -->
+  <!--     <url>sftp://web.sourceforge.net/home/groups/o/ov/overture/htdocs/maven/snapshotrepo</url>  -->
+  <!--   </snapshotRepository>  -->
+  <!--   <site>  -->
+  <!--     <id>sourceforge.net</id> -->
+  <!--     <url>scp://shell.sourceforge.net/home/groups/o/ov/overture/htdocs/maven/doc</url> -->
+  <!--   </site>  -->
+  <!-- </distributionManagement>  -->
+</project>
