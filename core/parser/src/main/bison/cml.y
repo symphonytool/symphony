@@ -488,7 +488,36 @@ process :
 // 			     right);
 // }
 
-
+| process CSP_BACKSLASH chansetExpr
+{
+    PProcess left = (PProcess)$1;
+    SChansetSetExp cse = (SChansetSetExp)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),
+					      cse.getLocation());
+    $$ = new AHidingProcess(location, 
+			    left, 
+			    cse);
+}
+| process CSP_STARTBY expression
+{
+    PProcess left = (PProcess)$1;
+    PExp exp = (PExp)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),
+					      exp.getLocation());
+    $$ = new AStartDeadlineProcess(location, 
+			     left, 
+			     exp);
+}
+| process CSP_ENDBY expression
+{
+    PProcess left = (PProcess)$1;
+    PExp exp = (PExp)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),
+					      exp.getLocation());
+    $$ = new AEndDeadlineProcess(location, 
+			   left, 
+			   exp);
+}
 
 //| LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
 | IDENTIFIER LPAREN expression RPAREN

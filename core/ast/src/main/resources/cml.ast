@@ -219,6 +219,8 @@ process {-> package='org.overture.ast.process'}
 	| {untimedTimeout} [left]:process [right]:process
 	| {timeout} [left]:process [timeoutExpression]:exp [right]:process
 	| {hiding} [left]:process [chansetExpression]:exp.#Set.#Chanset
+	| {startDeadline} [left]:process [expression]:exp
+	| {endDeadline} [left]:process [expression]:exp
 	| {identifier} [identifer]:LexNameToken 
 	 
 ;
