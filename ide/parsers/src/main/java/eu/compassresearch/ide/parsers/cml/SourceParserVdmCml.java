@@ -34,9 +34,9 @@ import org.overturetool.vdmj.lex.LexLocation;
 import org.overturetool.vdmj.messages.InternalException;
 import org.overturetool.vdmj.messages.VDMError;
 
-import eu.compassresearch.cml.compiler.CmlLexer;
-import eu.compassresearch.cml.compiler.CmlParser;
-import eu.compassresearch.cml.compiler.ParserError;
+import eu.compassresearch.core.lexer.CmlLexer;
+import eu.compassresearch.core.lexer.ParserError;
+import eu.compassresearch.core.parser.CmlParser;
 
 public class SourceParserVdmCml extends AbstractParserParticipant {
 

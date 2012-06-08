@@ -17,22 +17,20 @@
       <plugin>
 	<groupId>org.overturetool.tools</groupId>
 	<artifactId>astcreatorplugin</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<executions>
 	  <execution>
-	    <id>java</id>
-	    <phase>generate-sources</phase>
 	    <goals>
-	      <goal>astcreate</goal>
+	      <goal>generate</goal>
 	    </goals>
 	  </execution>
 	</executions>
 	<configuration>
-	  <folderToDeletePreGenerate>org/overture/ast</folderToDeletePreGenerate>
 	  <ast>cml.ast</ast>
-	  <names>
-	    <param>VDM</param>
-	  </names>
+	  <deletePackageOnGenerate>
+	    <param>org.overture.ast</param>
+	  </deletePackageOnGenerate>
+	  <useSrcOutput>false</useSrcOutput>
 	</configuration>
       </plugin>
     </plugins>
