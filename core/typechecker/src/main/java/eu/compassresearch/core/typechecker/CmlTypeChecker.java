@@ -13,10 +13,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
 
-class A implements IAnalysis
-{
-	
-}
 
 @SuppressWarnings("serial")
 public class CmlTypeChecker extends DepthFirstAnalysisAdaptor {
