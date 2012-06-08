@@ -115,6 +115,28 @@
 	    }
     }
 
+    private LexLocation extractFirstLexLocation ( List<?> fields )
+    {
+      try 
+	{
+	  Object o = fields.get(0);
+	  Class<?> clz = o.getClass();
+	  
+	  Method locMethod = clz.getMethod("getLocation", new Class<?>[] {} );
+	  
+	  LexLocation candidate = (LexLocation)locMethod.invoke( o, null );
+	  for(Object p : fields)
+	    {
+	      LexLocation pLoc = (LexLocation)locMethod.invoke( o, null );
+	      if (pLoc.startOffset < candidate.startOffset)
+		candidate = pLoc;
+	    }
+	  return candidate;
+	} catch (Exception e)
+	    {
+	      throw new RuntimeException(e);
+	    }
+    }
 
     private< T extends PPattern> LexLocation extractLexLeftMostFromPatterns(List<T> ptrns )
     {
@@ -354,13 +376,27 @@ processDecl :
 
 processDef :
 declaration AT process
-{ //TODO
-    //$$ = new 
+{ 
+    PProcess process = (PProcess)$3;
+    List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)$1;
+    LexLocation loc = combineLexLocation(extractFirstLexLocation(decls),
+					 process.getLocation());
+    $$ = new AProcessDefinition(loc, 
+				NameScope.GLOBAL, 
+				false, 
+				null, 
+				decls,
+				process); 
 }
 | process
 {
     PProcess process = (PProcess)$1;
-    $$ = new AProcessDefinition(process.getLocation(), NameScope.GLOBAL, false, null , null,process);
+    $$ = new AProcessDefinition(process.getLocation(), 
+				NameScope.GLOBAL, 
+				false, 
+				null, 
+				null,
+				process);
 }
 ;
 
@@ -520,7 +556,26 @@ process :
 }
 
 //| LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
+| LPAREN declaration AT IDENTIFIER RPAREN LPAREN expression RPAREN
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$8); 
+    List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)$2;
+    LexNameToken identifier = extractLexNameToken((CmlLexeme)$4);
+    $$ = new AInstantiationProcess(location, 
+				   decls,
+				   identifier,
+				   (PExp)$7);
+}
 | IDENTIFIER LPAREN expression RPAREN
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$4); 
+    List<ASingleTypeDeclaration> decls = null;
+    LexNameToken identifier = extractLexNameToken((CmlLexeme)$1);
+    $$ = new AInstantiationProcess(location, 
+				   decls,
+				   identifier,
+				   (PExp)$3);
+}
 | IDENTIFIER
 {
     LexNameToken identifier = extractLexNameToken((CmlLexeme)$1);
