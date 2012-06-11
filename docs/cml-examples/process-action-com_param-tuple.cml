@@ -1,0 +1,6 @@
+process RegisterProc = 
+begin 
+   
+   @
+   init?mk_()-> REG
+end

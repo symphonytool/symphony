@@ -251,7 +251,7 @@
  *
  */
 
-%token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_FRAME VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN VDMDONTCARE IDENTIFIER
+%token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_FRAME VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN VDMDONTCARE IDENTIFIER
 %token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1 STRING
 
 
@@ -512,7 +512,7 @@ process :
 				   left, 
 				   right);
 }
-// | process CSP_LSQUARE expression CSP_GT process
+// | process CSP_LSQUARE expression CSP_GT process //TODO this gives conflicts!
 // {
 //     PProcess left = (PProcess)$1;
 //     PProcess right = (PProcess)$5;
@@ -554,9 +554,11 @@ process :
 			   left, 
 			   exp);
 }
-
-//| LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
-| LPAREN declaration AT IDENTIFIER RPAREN LPAREN expression RPAREN
+/*
+ * This does not follow the grammar from the document. processDef 
+ * has been replaced by IDENTIFIER.
+ */
+| LPAREN declaration AT IDENTIFIER RPAREN LPAREN expression RPAREN 
 {
     LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$8); 
     List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)$2;
@@ -576,19 +578,64 @@ process :
 				   identifier,
 				   (PExp)$3);
 }
+//this rule is added, hence it it not in the grammar document.
 | IDENTIFIER
 {
     LexNameToken identifier = extractLexNameToken((CmlLexeme)$1);
     $$ = new AIdentifierProcess(identifier.getLocation(), 
 				identifier);
 }
-| LPAREN process RPAREN LSQUARE identifierList CSPRENAME identifierList RSQUARE //TODO
+| process renameExpression
+{
+    SRenameChannelExp renameExpression = (SRenameChannelExp)$2;
+    PProcess process = (PProcess)$1;
+    
+    $$ = new AChannelRenamingProcess(combineLexLocation(process.getLocation(),
+						       renameExpression.getLocation()), 
+				    process, 
+				    renameExpression);
+}
+//| LPAREN process RPAREN LSQUARE identifierList CSPRENAME identifierList RSQUARE //TODO
 | CSPSEQ LCURLY declaration AT process RCURLY //TODO
 | CSPINTCH LCURLY declaration AT process RCURLY //TODO
 | CSPEXTCH LCURLY declaration AT process RCURLY //TODO
 | LSQUARE LCURLY chansetExpr RSQUARE declaration AT process RCURLY //TODO
 | CSPINTERLEAVE LCURLY declaration AT process RCURLY //TODO
 ;
+
+//This is how it is defined in the grammar but this gives reduce/reduce conflict
+//Since expression and type both can be a name.
+// replicationDeclaration:
+//   replicationDeclarationAlt
+// | replicationDeclarationAlt SEMI replicationDeclaration
+// ;
+
+// replicationDeclarationAlt:
+//   singleTypeDecl
+// | singleExpressionDeclaration
+// ;
+
+// singleExpressionDeclaration:
+// IDENTIFIER COLON expression
+// {
+//     // LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
+//     // List<LexIdentifierToken> ids = new Vector<LexIdentifierToken>();
+//     // ids.add(id);
+//     // ASingleTypeDeclaration singleTypeDeclaration = 
+//     //   new ASingleTypeDeclaration(id.getLocation(),NameScope.GLOBAL,ids,(PType)$3);
+//     // $$ = singleTypeDeclaration;
+// }
+// | IDENTIFIER COMMA singleExpressionDeclaration
+// {
+//     // LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
+//     // ASingleTypeDeclaration singleTypeDeclaration = (ASingleTypeDeclaration)$3;
+    
+//     // singleTypeDeclaration.getIdentifiers().add(id);
+//     // $$ = singleTypeDeclaration;
+// }
+// ;
+
+
 
 processParagraphList:
 processParagraph
@@ -612,30 +659,45 @@ processParagraph
 
 processParagraph :
  classDefinitionBlockAlternative
-| CSP_ACTIONS IDENTIFIER EQUALS paragraphAction
+ {
+     $$ = $1;
+ }
+| actionParagraph
+{
+    $$ = $1;
+}
+;
+
+actionDefinition:
+IDENTIFIER EQUALS paragraphAction
+{
+    Object[] pa = (Object[])$3;
+    List<ASingleTypeDeclaration> declarations = 
+	(List<ASingleTypeDeclaration>)pa[0];
+    PAction action = (PAction)pa[1];
+    LexLocation defLocation = combineLexLocation(extractLexLocation((CmlLexeme)$1),
+						 action.getLocation());
+    AActionDefinition actionDefinition = new AActionDefinition(defLocation, 
+							       NameScope.GLOBAL, 
+							       false, 
+							       null, 
+							       declarations, 
+							       action);
+    $$ = actionDefinition;
+}
+;
+actionParagraph:
+ CSP_ACTIONS actionDefinition
   {
-      Object[] pa = (Object[])$4;
-      List<ASingleTypeDeclaration> declarations = 
-	  (List<ASingleTypeDeclaration>)pa[0];
-      PAction action = (PAction)pa[1];
-      LexLocation defLocation = combineLexLocation(extractLexLocation((CmlLexeme)$1),
-						   action.getLocation());
-      AActionDefinition actionDefinition = new AActionDefinition(defLocation, 
-								 NameScope.GLOBAL, 
-								 false, 
-								 null, 
-								 declarations, 
-								 action);
-      
+      AActionDefinition actionDefinition = (AActionDefinition)$2;
       LexLocation declLoc = combineLexLocation(extractLexLocation((CmlLexeme)$1),
-					       action.getLocation());;
+					       actionDefinition.getLocation());;
       $$ = new AActionDeclaration(declLoc, 
 				  NameScope.GLOBAL, 
 				  actionDefinition);
   }
 | CSP_ACTIONS nameset IDENTIFIER EQUALS namesetExpr //TODO
-  //| stateDefs  
-  ;
+;
 
 paragraphAction :
 action
@@ -851,24 +913,66 @@ communicationParameter :
   ;
 
 parameter :
- IDENTIFIER
- {
-     LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
-     $$ = new AIdentifierParameter(id.getLocation(),id);
- }
-| MKUNDER LPAREN communicationParameterList RPAREN
+IDENTIFIER
 {
-    //ATupleParameter(
-     
+    LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
+    $$ = new AIdentifierParameter(id.getLocation(),id);
 }
-| MKUNDER name LPAREN communicationParameterList RPAREN //TODO
-| MKUNDER LPAREN RPAREN //TODO
-| MKUNDER name LPAREN RPAREN //TODO
-  ;
+| MKUNDER LPAREN paramList RPAREN
+{
+    $$ = new ATupleParameter(extractLexLocation((CmlLexeme)$1,
+						(CmlLexeme)$4), 
+			     (List<? extends PParameter>)$3);
+}
+| MKUNDER LPAREN RPAREN 
+{
+    $$ = new ATupleParameter(extractLexLocation((CmlLexeme)$1,
+						(CmlLexeme)$3), 
+			     null);
+}
+| MKUNDERNAME LPAREN paramList RPAREN 
+{
+    CmlLexeme mkUnderName = (CmlLexeme)$1;
+    LexNameToken name = new LexNameToken("Default",
+    					 mkUnderName.getValue().split("_")[1], 
+    					 extractLexLocation(mkUnderName),
+    					 false, 
+    					 true);
+    
+    $$ = new ARecordParameter(extractLexLocation((CmlLexeme)$1,
+    						 (CmlLexeme)$4), 
+    			      name, 
+    			      (List<? extends PParameter>)$3);
+}
+| MKUNDERNAME LPAREN RPAREN
+{
+    CmlLexeme mkUnderName = (CmlLexeme)$1;
+    LexNameToken name = new LexNameToken("Default",
+    					 mkUnderName.getValue().split("_")[1], 
+    					 extractLexLocation(mkUnderName),
+    					 false, 
+    					 true);
+    
+    $$ = new ARecordParameter(extractLexLocation((CmlLexeme)$1,
+    						 (CmlLexeme)$3), 
+    			      name, 
+    			      null);
+}
+;
 
-communicationParameterList :
-communicationParameter //TODO
-| communicationParameter COMMA communicationParameterList //TODO
+paramList :
+parameter 
+{
+    List<PParameter> parameters = new Vector<PParameter>();
+    parameters.add((PParameter)$1);
+    $$ = parameters;
+}
+| parameter COMMA paramList 
+{
+    List<PParameter> parameters = (List<PParameter>)$3;
+    parameters.add((PParameter)$1);
+    $$ = parameters;
+}
 ;
 
 parallelAction:
@@ -1149,7 +1253,6 @@ chansetExpr :
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new ASetDifferenceBinaryExp(location, left, lexToken, right);
 }
-/*TODO: when defining the optional  DOT expression a conflict occurs*/
 | CHANSET_SETEXP_BEGIN IDENTIFIER BAR bindList CHANSET_SETEXP_END
 {
     LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
@@ -1872,9 +1975,15 @@ functionDef
 ;
 
 functionDef:
- implicitFunctionDef // TODO
-| qualifiedExplicitFunctionDef // TODO
- ;
+implicitFunctionDef 
+{
+    $$ = $1;
+}
+| qualifiedExplicitFunctionDef
+{
+    $$ = $1;
+}
+;
 
 implicitFunctionDef:
 qualifier IDENTIFIER parameterTypes identifierTypePairList preExpr_opt postExpr
@@ -2073,7 +2182,10 @@ operationDefList :
 /* FIXME the optional trailing semicolon in the operations definitions is presently not optional */
 
 operationDef 
-: implicitOperationDef // TODO
+: implicitOperationDef 
+{
+    $$ = $1;
+}
 | explicitOperationDef // TODO
 ;
 
@@ -2085,7 +2197,6 @@ operationDef
    res.setLocation( loc );
    $$ = res;
  }
-
 ;
 
 implicitOperationDef
@@ -3640,15 +3751,15 @@ preconditionExpr :
 /* 4.19 Names */
 
 name :
-  IDENTIFIER
-  {
-      $$ = extractLexNameToken((CmlLexeme)$1);
-  }
-| IDENTIFIER BACKTICK IDENTIFIER
+IDENTIFIER
 {
-  $$ = extractLexNameToken((CmlLexeme)$3);
+    $$ = extractLexNameToken((CmlLexeme)$1);
 }
-  ;
+|IDENTIFIER BACKTICK IDENTIFIER
+{
+    $$ = extractLexNameToken((CmlLexeme)$3);
+}
+;
 
 nameList :
 name
@@ -3988,8 +4099,8 @@ tuplePattern :
   ;
 
 recordPattern :
-  MKUNDER name LPAREN RPAREN // TODO
-| MKUNDER name LPAREN patternList RPAREN // TODO
+  MKUNDERNAME LPAREN RPAREN // TODO
+| MKUNDERNAME LPAREN patternList RPAREN // TODO
   ;
 
 

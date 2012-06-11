@@ -1,0 +1,6 @@
+process RegisterProc = 
+begin 
+   
+   @
+   init?mk_(id1,id2)-> REG
+end

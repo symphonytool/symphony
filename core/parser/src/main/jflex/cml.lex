@@ -407,7 +407,7 @@ operations      = [Oo][Pp][Ee][Rr][Aa][Tt][Ii][Oo][Nn][Ss]
 process         = [Pp][Rr][Oo][Cc][Ee][Ss][Ss]
 state           = [Ss][Tt][Aa][Tt][Ee]
 types           = [Tt][Yy][Pp][Ee][Ss]
-
+mk_name         = "mk_"{identifier}
 LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
 WhiteSpace     = {LineTerminator} | [ \t\f]
@@ -535,6 +535,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "Chaos"                             { return createToken(CmlParser.CSPCHAOS); }
   "startby"                           { return createToken(CmlParser.CSP_STARTBY); }
   "endsby"                            { return createToken(CmlParser.CSP_ENDBY); }
+  {mk_name}                           { return createToken(CmlParser.MKUNDERNAME); }
 }
 
 <CHANNELS,CHANSETS,ACTIONS> {
@@ -632,7 +633,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   //patterns
   "-"                                 { return createToken(CmlParser.VDMDONTCARE); }
   "mk_"                               { return createToken(CmlParser.MKUNDER); }
-  
+    
   //basic types
   "bool"                              { return createToken(CmlParser.TBOOL); }
   "nat"                               { return createToken(CmlParser.TNAT); }

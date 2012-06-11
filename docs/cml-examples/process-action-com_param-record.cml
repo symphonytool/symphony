@@ -1,0 +1,6 @@
+process RegisterProc = 
+begin 
+   
+   @
+   init?mk_hej()-> REG
+end
