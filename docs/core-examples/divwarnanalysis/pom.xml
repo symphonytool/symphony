@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> 
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>eu.compassresearch.examples</groupId>
+    <artifactId>examples</artifactId>
+    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>divwarnanalysis</artifactId>
+  <name>COMPASS CML No Div expression analysis</name>
+
+  <dependencies>
+
+    <!-- CML Specific part of the AST -->
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>ast</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Overture VDMJ Reuse -->
+    <dependency>
+      <groupId>org.overturetool.core</groupId>
+      <artifactId>vdmj</artifactId>
+      <version>${overture.version}</version>
+    </dependency>
+
+    <!-- Overture AST Root reuse -->
+    <dependency>
+      <groupId>org.overturetool.core</groupId>
+      <artifactId>ast</artifactId>
+      <version>${overture.version}</version>
+    </dependency>
+
+    <!-- CML Parser -->
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>parser</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- CML Type Checker -->
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>typechecker</artifactId>
+      <version>${project.version}</version>     
+    </dependency>
+    
+  </dependencies>
+
+  <!-- 
+       Maven automatically looks for sources in src/main/java. Code in
+       this directory will be compiled into the target directory and
+       bundled in a jar. The dependencies above are provided during
+       compilation of java code.
+  -->
+
+</project>
+

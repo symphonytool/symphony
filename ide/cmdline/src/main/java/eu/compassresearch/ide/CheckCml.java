@@ -12,11 +12,15 @@
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import org.overture.ast.analysis.DepthFirstAnalysisAdaptor;
+import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.analysis.intf.IAnalysis; 
+import org.overture.transforms.DotGraphVisitor;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.CmlTypeChecker;
+import eu.compassresearch.examples.DivWarnAnalysis;
 import org.overture.ast.program.ASourcefileSourcefile;
 import java.util.LinkedList;
 import java.util.List;
@@ -80,6 +84,8 @@ public class CheckCml {
 	    COE("coe", "Continue on Exception, analysis continues even if an exception occurs.", false),
 	    SOE("soe", "Silence on Exception, supress exceptions in analysis.", false),
 	    EMPTY("empty", "Empty Analysis, run the empty analysis (good for debugging).", false),
+	    DOTG("dotg", "Dot Graph, -dotg=<out> write ast dot graph to file <out>.", true),
+	    DWA("dwa", "Example, the Div Warn Analysis example", false),
 	    ;
 
 	// Switch state
@@ -120,7 +126,10 @@ public class CheckCml {
 			// The switch exists, requies an argument and there is an arguemtn for it
 			if (swval.length > 1 && sw.expectsValue)
 			    {
-				sw.value += swval[1];
+				if (sw.value == null)
+				    sw.value = swval[1];
+				else
+				    sw.value += swval[1];
 				return sw;
 			    }
 			else
@@ -230,7 +239,7 @@ public class CheckCml {
      *
      ************************************************************/
 
-    private static String getAnalysisName(IAnalysis a)
+    private static String getAnalysisName(Object a)
     {
 	String res = "";
 	if (a == null) return res;
@@ -254,7 +263,7 @@ public class CheckCml {
      * Helper methods run analysis controlling propergation of exceptions
      *
      */
-    private static boolean runAnalysis(Input input, IAnalysis analysis, List<ASourcefileSourcefile> sources)
+    private static boolean runAnalysis(Input input, Object analysis, List<ASourcefileSourcefile> sources)
     {
 	boolean continueOnException = input.isSwitchOn(Switch.COE);
 	boolean silentOnException = input.isSwitchOn(Switch.SOE);
@@ -263,7 +272,11 @@ public class CheckCml {
 	    {
 		try {
 		    System.out.println(" Running "+getAnalysisName(analysis)+" on "+source.getName());
-		    source.apply(analysis);
+		    if (analysis instanceof IQuestionAnswer)
+			source.apply( (IQuestionAnswer)analysis, "");
+		    else
+			if (analysis instanceof IAnalysis)
+			    source.apply( (IAnalysis)analysis);
 		}
 		catch (Exception e)
 		    {
@@ -279,6 +292,20 @@ public class CheckCml {
 		    }
 	    }
 	return true;
+    }
+
+    private static void writeGraphResult(DotGraphVisitor dga, String fileName)
+    {
+
+	try{
+	    File outFile = new File(fileName);
+	    FileWriter fw = new FileWriter(outFile);
+	    fw.write(dga.getResultString());
+	    fw.close();
+	} catch (Exception e)
+	    {
+
+	    }
     }
 
     /**
@@ -343,6 +370,25 @@ public class CheckCml {
 		runAnalysis(input, empty, sources);
 	    }
 	
+	// Dot Graph Analysis
+	if (input.isSwitchOn(Switch.DOTG))
+	    {
+		DotGraphVisitor dga = new DotGraphVisitor();
+		runAnalysis(input, dga, sources);
+		writeGraphResult(dga, Switch.DOTG.getValue());
+	    }
+
+	// Example Analysis DivWarnAnalysis
+	if (input.isSwitchOn(Switch.DWA))
+	    {
+		DivWarnAnalysis dwa = new DivWarnAnalysis();
+		runAnalysis(input, dwa, sources);
+		for(String s : dwa.getWarnings())
+		    {
+			System.out.println("\t"+s);
+		    }
+	    }
+
 	// Type checking
 	if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
 	    {

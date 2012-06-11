@@ -1,6 +1,9 @@
 package eu.compassresearch.core.typechecker;
 import org.overture.ast.analysis.DepthFirstAnalysisAdaptor;
+import org.overture.ast.analysis.QuestionAdaptor;
 import org.overture.ast.analysis.intf.IAnalysis;
+import org.overture.ast.expressions.AAbsoluteUnaryExp;
+
 import org.overture.ast.program.ASourcefileSourcefile;
 
 import eu.compassresearch.core.lexer.CmlLexer;
@@ -23,9 +26,22 @@ public class CmlTypeChecker extends DepthFirstAnalysisAdaptor {
 	@Override
 	public void caseASourcefileSourcefile(ASourcefileSourcefile arg0) {
 		super.caseASourcefileSourcefile(arg0);
-		
+				
+	}
+
+
+
+	@Override
+	public void caseAAbsoluteUnaryExp(AAbsoluteUnaryExp node) {
+		// TODO Auto-generated method stub
+		super.caseAAbsoluteUnaryExp(node);
 		
 	}
+
+
+
+
+
 
 	public String getAnalysisName() { return "The CML Type Checker"; }
 	
