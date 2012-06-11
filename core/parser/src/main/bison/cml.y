@@ -2052,21 +2052,32 @@ LPAREN RPAREN
 {
     $$ = new Vector<APatternListTypePair>();
 }
-|LPAREN patternList COLON type RPAREN
+| LPAREN patternListTypeList RPAREN
 {
-    List<PPattern> patternList = (List<PPattern>)$2;
-    List<APatternListTypePair> pltpl = new Vector<APatternListTypePair>();
-    pltpl.add(new APatternListTypePair(false /*resolved*/, patternList, (PType)$4));
-    $$ = pltpl;
-}
-| LPAREN patternList COLON type COMMA parameterTypes RPAREN
-{
-    List<PPattern> patternList = (List<PPattern>)$2;
-    List<APatternListTypePair> pltpl = (List<APatternListTypePair>)$6;
-    pltpl.add(new APatternListTypePair(false /*resolved*/, patternList, (PType)$4));
-    $$ = pltpl;
+    $$ = $2;
 }
 ; 
+
+patternListTypeList:
+patternList COLON type COMMA patternListTypeList
+{
+    List<APatternListTypePair> pltpl = (List<APatternListTypePair>)$5;
+    List<PPattern> patternList = (List<PPattern>)$1;
+    pltpl.add(new APatternListTypePair(false /*resolved*/, 
+				       patternList, 
+				       (PType)$3));
+    $$ = pltpl;
+}
+| patternList COLON type
+{
+    List<PPattern> patternList = (List<PPattern>)$1;
+    List<APatternListTypePair> pltpl = new Vector<APatternListTypePair>();
+    pltpl.add(new APatternListTypePair(false /*resolved*/, 
+				       patternList, 
+				       (PType)$3));
+    $$ = pltpl;
+}
+
 
 identifierTypePairList_opt 
 : /* empty */
