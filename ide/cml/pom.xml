@@ -4,13 +4,12 @@
   <packaging>pom</packaging>
 
   <parent>
-    <groupId>eu.compassresearch</groupId>
+    <groupId>eu.compassresearch.ide</groupId>
     <artifactId>ide</artifactId>
     <version>0.0.1<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <groupId>eu.compassresearch.ide</groupId>
   <artifactId>eu.compassresearch.ide.cml</artifactId>
   <name>COMPASS IDE CML Top-level</name>
   <description>Top level of the COMPASS IDE for CML</description>
