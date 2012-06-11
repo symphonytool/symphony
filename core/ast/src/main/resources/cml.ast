@@ -612,6 +612,7 @@ declareStatement {-> package='org.overture.ast.actions'}
 	= #CallStatement
 	| {if} [ifExp]:exp [thenStm]:action [elseIf]:action.#ControlStatement.elseIf* [elseStm]:action
 	| {elseIf} [elseIf]:exp [thenStm]:action
+	| {cases} [exp]:exp [cases]:alternativeAction.case* [others]:action
 	;
 	
 #CallStatement {-> package='org.overture.ast.actions'}
@@ -685,6 +686,10 @@ objectDesignator {-> package='org.overture.ast.actions'}
     |   {field} [object]:objectDesignator [className]:LexNameToken [fieldName]:LexIdentifierToken (field):LexNameToken
     |   {name} [name]:LexNameToken [expression]:exp.variable
     |   {self} [self]:LexNameToken
+    ;
+
+alternativeAction {-> package='org.overture.ast.actions'}
+    = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition* 
     ;
 
 alternativeStm {-> package='org.overture.ast.statements'}

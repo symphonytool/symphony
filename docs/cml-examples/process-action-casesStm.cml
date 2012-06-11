@@ -1,0 +1,8 @@
+process RegisterProc = 
+begin 
+   
+   @
+   cases 4:
+    4 -> REG
+   end 
+end

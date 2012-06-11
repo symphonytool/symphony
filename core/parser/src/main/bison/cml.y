@@ -3962,19 +3962,70 @@ ELSEIF expression THEN action elseStatements
 ;
 
 casesStatement :
-  CASES expression COLON casesStatementAltList END // TODO
-  ;
+// CASES expression COLON casesStatementAltList COMMA OTHERS RARROW action END 
+// {
+//     $$ = new ACasesControlStatementAction(extractLexLocation((CmlLexeme)$1,(CmlLexeme)$9), 
+// 					    (PExp)$2, 
+// 					    (List<? extends ACaseAlternativeAction>)$4, 
+// 					  (PAction)$8);
+    
+// }
+ CASES expression COLON casesStatementAltList END
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
+    ACasesControlStatementAction cases = (ACasesControlStatementAction)$4;
+    cases.setLocation(location);
+    cases.setExp((PExp)$2);
+    $$ = cases;
+}
+;
 
 casesStatementAltList :
-  casesStatementAlt // TODO
-| casesStatementAlt OTHERS RARROW action // TODO
-| casesStatementAlt casesExprAltList // TODO
-  ;
+casesStatementAlt 
+{
+    List<ACaseAlternativeAction> casesList = new Vector<ACaseAlternativeAction>();
+    casesList.add((ACaseAlternativeAction)$1);
+    
+    ACasesControlStatementAction cases = 
+	new ACasesControlStatementAction(null, 
+					 null, 
+					 casesList, 
+					 null);
+    $$ = cases;
+    
+}
+| casesStatementAlt COMMA OTHERS RARROW action
+{
+    List<ACaseAlternativeAction> casesList = new Vector<ACaseAlternativeAction>();
+    casesList.add((ACaseAlternativeAction)$1);
+    
+    ACasesControlStatementAction cases = 
+	new ACasesControlStatementAction(null, 
+					 null, 
+					 casesList, 
+					 (PAction)$5);
+    $$ = cases;
+}
+| casesStatementAlt COMMA casesStatementAltList
+{
+    ACasesControlStatementAction cases = (ACasesControlStatementAction)$3;
+    cases.getCases().add((ACaseAlternativeAction)$1);
+    $$ = cases;
+}
+;
 
 casesStatementAlt :
-  patternList RARROW action // TODO
-  
-  ;
+patternList RARROW action
+{
+    PAction action = (PAction)$3;
+    List<PPattern> patterns = (List<PPattern>)$1;
+    
+    $$ = new ACaseAlternativeAction(combineLexLocation(extractFirstLexLocation(patterns),
+									       action.getLocation()), 
+					patterns, 
+						       (PAction)$3);
+}
+;
 
 /* 6.4 Call and Return Statements */
 
