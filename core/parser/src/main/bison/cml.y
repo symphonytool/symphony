@@ -1398,7 +1398,7 @@ classDefinitionBlockAlternative
   $$ = $1;
 }
 /*
-| initialDef // TODO is this a thing?
+| initialDef // TODO is this a thing? it is used in the example but does not exist in the grammar
 {
   
 }*/
@@ -3797,6 +3797,9 @@ stateDesignator :
 controlStatements :
 /* non-deterministicIfStatement*/
   ifStatement
+  {
+    $$ = $1;
+  }
 | casesStatement
  /*|generalCasesIfStatement*/
 | callStatement
@@ -3907,15 +3910,56 @@ multiAssignStatement :
 
 /* 6.3 Conditional Statements */
 ifStatement :
-  IF expression THEN action elseStatements // TODO
-  {
-  }
-  ;
+IF expression THEN action elseStatements ELSE action
+{
+    PAction action = (PAction)$7;
+    $$ = new AIfControlStatementAction(extractLexLocation((CmlLexeme)$1,
+							  action.getLocation()),
+				       (PExp)$2, 
+				       (PAction)$4, 
+				       (List<? extends AElseIfControlStatementAction>)$5, 
+				       action);
+}
+| IF expression THEN action ELSE action
+{
+    PAction action = (PAction)$6;
+    $$ = new AIfControlStatementAction(extractLexLocation((CmlLexeme)$1,
+							  action.getLocation()),
+				       (PExp)$2, 
+				       (PAction)$4, 
+				       null,
+				       action);
+}
+;
 
 elseStatements :
-  ELSE action // TODO
-| ELSEIF expression THEN action elseStatements // TODO
-  ;
+ELSEIF expression THEN action elseStatements
+{
+    PAction action = (PAction)$4;
+    List<AElseIfControlStatementAction> elseStms = 
+	(List<AElseIfControlStatementAction>)$5;
+        
+    LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1),
+					      extractLastLexLocation(elseStms));
+    elseStms.add(new AElseIfControlStatementAction(location, 
+						   (PExp)$2, 
+						   action));
+    $$ = elseStms;
+}
+| ELSEIF expression THEN action
+{
+    List<AElseIfControlStatementAction> elseStms = 
+	new Vector<AElseIfControlStatementAction>();
+
+    PAction thenStm = (PAction)$4;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,thenStm.getLocation());
+    elseStms.add(new AElseIfControlStatementAction(location, 
+						   (PExp)$2, 
+						   thenStm));
+    $$ = elseStms;
+}
+
+;
 
 casesStatement :
   CASES expression COLON casesStatementAltList END // TODO

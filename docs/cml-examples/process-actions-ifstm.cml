@@ -1,0 +1,6 @@
+process RegisterProc = 
+begin 
+   
+   @
+   if 4<3 then REG1 else REG2
+end

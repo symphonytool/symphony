@@ -610,6 +610,8 @@ declareStatement {-> package='org.overture.ast.actions'}
 	
 #ControlStatement {-> package='org.overture.ast.actions'}
 	= #CallStatement
+	| {if} [ifExp]:exp [thenStm]:action [elseIf]:action.#ControlStatement.elseIf* [elseStm]:action
+	| {elseIf} [elseIf]:exp [thenStm]:action
 	;
 	
 #CallStatement {-> package='org.overture.ast.actions'}

@@ -1,0 +1,9 @@
+process RegisterProc = 
+begin 
+   
+   @
+   if 4<3 then REG1 
+   elseif 5=5 then REG4
+   elseif 5=5 then REG6
+   else REG2
+end
