@@ -2050,6 +2050,47 @@ patternLessID COLON type EQUALS expression
 				       expression.getLocation() ) );
   $$ = vdef;
 }
+| 
+IDENTIFIER EQUALS expression
+{
+   // Get constituent elements
+  CmlLexeme id = (CmlLexeme)$1;
+  // $4 EQUALS
+  PExp expression = (PExp)$3;
+  
+  // Make pattern
+  CmlLexeme lexeme = (CmlLexeme)$1;
+  LexNameToken lnt = extractLexNameToken(lexeme);
+  AIdentifierPattern idp = new AIdentifierPattern(lnt.location,null,false,lnt);
+  
+  // Build the resulting AValueDefinition
+  AValueDefinition vdef = new AValueDefinition();
+  vdef.setPattern(idp);
+  vdef.setType(null);
+  vdef.setExpression(expression);
+  vdef.setDefs(null);
+  vdef.setLocation(combineLexLocation( idp.getLocation(), 
+				       expression.getLocation() ) );
+  $$ = vdef;
+}
+|
+patternLessID EQUALS expression 
+{
+  // Get constituent elements
+  PPattern pattern = (PPattern)$1;
+  // $2 EQUALS
+  PExp expression = (PExp)$3;
+
+  // Build resulting AValueDefinition
+  AValueDefinition vdef = new AValueDefinition();
+  vdef.setPattern(pattern);
+  vdef.setType(null);
+  vdef.setExpression(expression);
+  vdef.setDefs(null);
+  vdef.setLocation(combineLexLocation( pattern.getLocation(), 
+				       expression.getLocation() ) );
+  $$ = vdef;
+}
 ;
 
 /* FIXME the optional trailing semicolon in the values definitions is presently not optional */
@@ -4221,7 +4262,10 @@ objectDesignator :
     $$ = new ANameObjectDesignator(name.location, name, null);
 }
 | objectFieldReference // TODO
-| objectApply // TODO
+| objectApply
+{
+    $$ = $1;
+}
   ;
 
 objectFieldReference :
@@ -4229,7 +4273,15 @@ objectDesignator DOT IDENTIFIER  // TODO
     ;
 
 objectApply:
-  objectDesignator LPAREN RPAREN // TODO
+objectDesignator LPAREN RPAREN
+{
+    PObjectDesignator object = (PObjectDesignator)$1;
+    LexLocation location = combineLexLocation(object.getLocation(),
+					      extractLexLocation((CmlLexeme)$3));
+    $$ = new AApplyObjectDesignator(location, 
+    				    object, 
+    				    new Vector<PExp>());
+}
 | objectDesignator LPAREN expressionList RPAREN
   {
       System.out.println("objectApply : objectDesignator LPAREN expressionList RPAREN");
