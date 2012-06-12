@@ -1,0 +1,10 @@
+class Exchange =
+begin 
+      
+functions
+		callers: (map of Node`SUBS to Node`STATUS) +>  set of Node`SUBS
+		callers(status) == dom(status :> Node`Connected);
+		
+		connected: (map of Node`SUBS to Node`STATUS) * (map of Node`SUBS to Node`SUBS) +> (inmap of Node`SUBS to Node`SUBS)
+		connected(status,number) == callers(status) <: number;
+end

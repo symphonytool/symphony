@@ -585,7 +585,7 @@ action {-> package='org.overture.ast.actions'}
 	| {stop}
 	| {chaos}
 	| {div}
-	| {wait}
+	| {wait} [expression]:exp
 	| {communication} [identifier]:LexIdentifierToken [communicationParameters]:communicationParameter* [action]:action
 	| {guarded} [expression]:exp [action]:action
 	| {sequentialComposition} [left]:action [right]:action
@@ -602,6 +602,8 @@ action {-> package='org.overture.ast.actions'}
 	| #ControlStatement
 	| {block} [declareStatement]:declareStatement [action]:action
 	| {identifier}
+	| {subclassResponsibility}
+	| {notYetSpecified} [opname]:LexNameToken [args]:exp*
 	;
 
 declareStatement {-> package='org.overture.ast.actions'}

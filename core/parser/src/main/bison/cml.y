@@ -268,14 +268,14 @@
 %left VDMSEQOF
 
 /* CSP ops and more */
-%right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION STAR VDMSETOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN CSP_SLASH CSP_BACKSLASH CSP_LSQUARE CSP_RSQUARE CSP_GT CSP_ENDBY CSP_STARTBY CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR
+%right CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION VDMSETOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN CSP_SLASH CSP_BACKSLASH CSP_LSQUARE CSP_RSQUARE CSP_GT CSP_ENDBY CSP_STARTBY CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR
 
 %right ELSE ELSEIF
 
 /* unary ops */
 %right UPLUS UMINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE 
 /* binary ops */
-%left PLUS MINUS DIVIDE DIV REM MOD LT LTE GT GTE EQUALS NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE IN DOT DOTHASH
+%left PLUS MINUS DIVIDE DIV REM MOD LT LTE GT GTE EQUALS NEQ OR AND IMPLY BIMPLY INSET STAR NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE IN DOT DOTHASH
 
  /* other hacks */
 %right LPAREN
@@ -333,8 +333,7 @@ programParagraph
 | processDecl                                     { $$ = $1; }
 | channelDecl                                     { $$ = $1; }
 | chansetDecl                                     { $$ = $1; }
-//| globalDecl                                     { $$ = $1; } //TODO
- ;
+;
 
 /* 2.1 Classes */
 classDecl 
@@ -731,7 +730,14 @@ action
     LexLocation location = extractLexLocation((CmlLexeme)$1);
     $$ = new ADivAction(location);
 }
-| CSPWAIT expression  //TODO
+| CSPWAIT expression
+{
+    PExp exp = (PExp)$2;
+    
+    LexLocation location = extractLexLocation((CmlLexeme)$1,
+					      exp.getLocation());
+    $$ = new AWaitAction(location,exp);
+}
   /* Communication rule start*/
 | IDENTIFIER RARROW action
 {
@@ -1292,7 +1298,10 @@ chansetExpr :
 /* 2.5 Global Definitions */
 
 globalDecl :
-globalDefinitionBlock // TODO
+globalDefinitionBlock 
+{
+    $$ = $1;
+}
   ;
 
 globalDefinitionBlock 
@@ -1563,49 +1572,24 @@ qualifier
 }
 | /* empty */
 {
-    /*Default public?????*/
-    $$ = new AAccessSpecifierAccessSpecifier(new APublicAccess(),null,null,null);
+    /*Default private*/
+    $$ = new AAccessSpecifierAccessSpecifier(new APrivateAccess(),null,null,null);
 }
 ;
 
-type 
-: LPAREN type RPAREN
+type :
+bracketedType
 { 
-    $$ = $2;
+    $$ = $1;
 }
-| TBOOL
-{ 
-    $$ = new ABooleanBasicType(extractLexLocation((CmlLexeme)$1) , false);
+| basicType
+{
+    $$ = $1;
 }
-| TNAT                                                
-{ 
-    $$ = new ANatNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
-}                                         
-| TNAT1
-{ 
-    $$ = new ANatOneNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
+| quoteType 
+{
+    $$ = $1;
 }
-| TINT
-{ 
-    $$ = new AIntNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
-}
-| TRAT 
-{ 
-    $$ = new ARationalNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
-}
-| TREAL
-{ 
-     $$ = new ARealNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
-}
-| TCHAR
-{ 
-    $$ = new ACharBasicType(extractLexLocation((CmlLexeme)$1) , false);
-}
-| TTOKEN
-{ 
-    $$ = new ATokenBasicType(extractLexLocation((CmlLexeme)$1) , false);
-}
-| quoteLiteral // TODO
 | VDMCOMPOSE IDENTIFIER OF fieldList END // TODO
 | LPAREN type BAR type RPAREN
 {
@@ -1620,7 +1604,10 @@ type
   AUnionType utype = new AUnionType(loc, false, false, false );
   $$ = utype;
 }
-| type STAR type // TODO
+| productType
+{
+    $$ = $1;
+}
 | LSQUARE type RSQUARE // TODO
 | VDMSETOF type
 {
@@ -1686,25 +1673,11 @@ type
   AMapMapType res = new AMapMapType( loc, false, null, from, to, false );
   $$ = res;
 }
-| type RARROW type
+//| type RARROW type
+| functionType 
 {
-  PType domType = (PType)$1;
-  PType rngType = (PType)$3;
-  
-  LexLocation loc = combineLexLocation ( domType.getLocation(),
-					 rngType.getLocation() ) ;
-
-  // [CONSIDER,RWL] The domain type of a function is not a list, 
-  // I think the AST is wrong taking a list of types for params
-  List<PType> params = new LinkedList<PType>();
-  params.add(domType);
-  AFunctionType res = new AFunctionType(loc, false, null, false, params, rngType );
-  $$ = res;
+    $$ = $1;
 }
-| type VDMPFUNCARROW type // TODO
-| VDMUNITTYPE VDMPFUNCARROW type // TODO
-| type VDMTFUNCARROW type // TODO
-| VDMUNITTYPE VDMTFUNCARROW type // TODO
 | name
 {
   LexNameToken lnt = (LexNameToken)$1; 
@@ -1714,7 +1687,157 @@ type
 {
   
 }
-  ;
+;
+
+bracketedType:
+LPAREN type RPAREN
+{ 
+    $$ = $2;
+}
+;
+
+basicType :
+TBOOL
+{ 
+    $$ = new ABooleanBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}
+| TNAT                                                
+{ 
+    $$ = new ANatNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}                                         
+| TNAT1
+{ 
+    $$ = new ANatOneNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}
+| TINT
+{ 
+    $$ = new AIntNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}
+| TRAT 
+{ 
+    $$ = new ARationalNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}
+| TREAL
+{ 
+     $$ = new ARealNumericBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}
+| TCHAR
+{ 
+    $$ = new ACharBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}
+| TTOKEN
+{ 
+    $$ = new ATokenBasicType(extractLexLocation((CmlLexeme)$1) , false);
+}
+;
+
+quoteType:
+quoteLiteral
+{
+    $$ = $1;
+}
+;
+
+productType:
+type STAR type
+{
+    List<PType> types = new Vector<PType>();
+    PType left = (PType)$1;
+    PType right = (PType)$3;
+    types.add(left);
+    types.add(right);
+    LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+    $$ = new AProductType(location, 
+			  false /*resolved_*/, 
+			  null/*List<? extends PDefinition> definitions_*/, 
+			  types);
+}
+// | productType STAR type //TODO
+// {
+
+// }
+;
+
+ 
+
+functionType:
+partialFunctionType
+{
+    $$ = $1;
+}
+| totalFunctionType
+{
+    $$ = $1; 
+}
+;
+
+partialFunctionType:
+type VDMPFUNCARROW type
+{
+    PType domType = (PType)$1;
+    PType rngType = (PType)$3;
+    
+    LexLocation loc = combineLexLocation ( domType.getLocation(),
+					   rngType.getLocation() ) ;
+    
+    // [CONSIDER,RWL] The domain type of a function is not a list, 
+    // I think the AST is wrong taking a list of types for params
+    // AKM: Your right that is strange, but when it is changed the AstCreator is failing??
+    List<PType> params = new LinkedList<PType>();
+    params.add(domType);
+    $$ = new AFunctionType(loc, false, null, true, params, rngType );
+}
+| VDMUNITTYPE VDMPFUNCARROW type
+{
+    PType domType = new AVoidType(extractLexLocation((CmlLexeme)$1), 
+				  true);
+    PType rngType = (PType)$3;
+    
+    LexLocation loc = combineLexLocation ( domType.getLocation(),
+					   rngType.getLocation() ) ;
+    
+    // [CONSIDER,RWL] The domain type of a function is not a list, 
+    // I think the AST is wrong taking a list of types for params
+    // AKM: Your right that is strange, but when it is changed the AstCreator is failing??
+    List<PType> params = new LinkedList<PType>();
+    params.add(domType);
+    $$ = new AFunctionType(loc, false, null, true, params, rngType );
+}
+;
+
+totalFunctionType:
+type RARROW type
+{
+    PType domType = (PType)$1;
+    PType rngType = (PType)$3;
+    
+    LexLocation loc = combineLexLocation ( domType.getLocation(),
+					   rngType.getLocation() ) ;
+    
+    // [CONSIDER,RWL] The domain type of a function is not a list, 
+    // I think the AST is wrong taking a list of types for params
+    // AKM: Your right that is strange, but when it is changed the AstCreator is failing??
+    List<PType> params = new LinkedList<PType>();
+    params.add(domType);
+    $$ = new AFunctionType(loc, false, null, false, params, rngType );
+}
+| VDMUNITTYPE RARROW type
+{
+    PType domType = new AVoidType(extractLexLocation((CmlLexeme)$1), 
+				  true);
+    PType rngType = (PType)$3;
+    
+    LexLocation loc = combineLexLocation ( domType.getLocation(),
+					   rngType.getLocation() ) ;
+    
+    // [CONSIDER,RWL] The domain type of a function is not a list, 
+    // I think the AST is wrong taking a list of types for params
+    // AKM: Your right that is strange, but when it is changed the AstCreator is failing??
+    List<PType> params = new LinkedList<PType>();
+    params.add(domType);
+    $$ = new AFunctionType(loc, false, null, false, params, rngType );
+}
+;
 
 typeUnionList :
 type SEMI
@@ -2024,28 +2147,71 @@ qualifier explicitFunctionDef
 ;
 
 explicitFunctionDef:
-IDENTIFIER COLON type IDENTIFIER parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
+IDENTIFIER COLON functionType IDENTIFIER parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
   {
     LexNameToken name = extractLexNameToken( (CmlLexeme) $1 );
-    PType type = (PType)$3;
     LexLocation loc = extractLexLocation ( (CmlLexeme) $1 );
-    AExplicitFunctionFunctionDefinition res = new AExplicitFunctionFunctionDefinition();
-    res.setLocation(loc);
-    $$ = res; 
+    AFunctionType ftype = (AFunctionType)$3;
+    $$ = new AExplicitFunctionFunctionDefinition(loc, 
+    						 name, 
+    						 NameScope.GLOBAL, 
+    						 false /* used_*/, 
+    						 null /*declaration_*/, 
+    						 null/* access_*/, 
+    						 null/*List<? extends LexNameToken> typeParams_*/, 
+    						 (Collection<? extends List<PPattern>>)$5, 
+    						 ftype, 
+    						 (PExp)$7 /*body_*/, 
+    						 (PExp)$8 /*precondition_*/, 
+    						 (PExp)$9 /*postcondition_*/, 
+    						 (LexNameToken)$10 /*measure_*/, 
+    						 null/*AExplicitFunctionFunctionDefinition predef_*/, 
+    						 null/*AExplicitFunctionFunctionDefinition postdef_*/, 
+    						 null/*PDefinition measureDef_*/, 
+    						 null/*List<? extends PDefinition> paramDefinitionList_*/, 
+    						 false /*Boolean recursive_*/, 
+    						 false /*isUndefined_*/, 
+    						 null/*measureLexical_*/, 
+    						 ftype.getResult(), 
+    						 null /* actualResult_*/, 
+    						 false /*isTypeInvariant_*/, 
+    						 false /*isCurried_*/, 
+    						 false /*typeInvariant_*/);
   }
 ;
 
 /* really? this is what a VDM function definition list looks like? */
 parameterList :
-  LPAREN patternList RPAREN
+LPAREN patternList RPAREN
+{
+    List<PPattern> patternList = (List<PPattern>)$2;
+    List<List<PPattern>> patternListList = new Vector<List<PPattern>>();
+    patternListList.add(patternList);
+    $$ = patternListList;
+}
 | LPAREN patternList RPAREN parameterList
-  ;
+{
+    List<PPattern> patternList = (List<PPattern>)$2;
+    List<List<PPattern>> patternListList = (List<List<PPattern>>)$4;
+    patternListList.add(patternList);
+    $$ = patternListList;
+}
+;
 
 functionBody :
-  expression // TODO
-| VDM_SUBCLASSRESP // TODO
-| VDM_NOTYETSPEC // TODO
-  ;
+expression 
+{
+    $$ = $1;
+}
+| VDM_SUBCLASSRESP
+{
+    $$ = new ASubclassResponsibilityExp(extractLexLocation((CmlLexeme)$1));
+}
+| VDM_NOTYETSPEC 
+{
+    $$ = new ANotYetSpecifiedExp(extractLexLocation((CmlLexeme)$1));
+}
+;
 
 parameterTypes : 
 LPAREN RPAREN
@@ -2152,7 +2318,10 @@ POST expression
 ;
 
 measureExpr :
-  MEASURE expression
+MEASURE name
+{
+    $$ = $2;
+}
 | /* empty */
   ;
 
@@ -2197,7 +2366,10 @@ operationDef
 {
     $$ = $1;
 }
-| explicitOperationDef // TODO
+| explicitOperationDef
+{
+    $$ = $1;
+}
 ;
 
  explicitOperationDef
@@ -2256,10 +2428,21 @@ operationType :
   ;
 
 operationBody :
-  action // TODO
-| VDM_SUBCLASSRESP // TODO
-| VDM_NOTYETSPEC // TODO
-  ;
+action 
+{
+    $$ = $1;
+}
+| VDM_SUBCLASSRESP 
+{
+    $$ = new ASubclassResponsibilityAction(extractLexLocation((CmlLexeme)$1));
+}
+| VDM_NOTYETSPEC 
+{
+    $$ = new ANotYetSpecifiedAction(extractLexLocation((CmlLexeme)$1), 
+				    null, 
+				    null);
+}
+;
 
 externals_opt:
 externals
@@ -3670,73 +3853,7 @@ generalIsExpr :
 }
   ;
 
-basicType :
-  TBOOL
-  {
-    CmlLexeme bool = (CmlLexeme)$1;
-    LexLocation loc = extractLexLocation( bool );
-
-    ABooleanBasicType res = new ABooleanBasicType( loc, false, null );
-    $$ = res;
-  }
-| TNAT
-  {
-    CmlLexeme bool = (CmlLexeme)$1;
-    LexLocation loc = extractLexLocation( bool );
-    ANatNumericBasicType res = new ANatNumericBasicType( loc, false, null );
-    $$ = res;
-  }
-| TNAT1
-  {
-    CmlLexeme bool = (CmlLexeme)$1;
-    LexLocation loc = extractLexLocation( bool );
-    ANatOneNumericBasicType res = new ANatOneNumericBasicType( loc, false, null );
-    $$ = res;
-  }
-| TINT
-  {
-    CmlLexeme bool = (CmlLexeme)$1;
-    LexLocation loc = extractLexLocation( bool );
-    AIntNumericBasicType res = new AIntNumericBasicType( loc, false, null );
-    $$ = res;
-  }
-
-| TRAT
-  {
-    CmlLexeme bool = (CmlLexeme)$1;
-    LexLocation loc = extractLexLocation( bool );
-    ARationalNumericBasicType res = new ARationalNumericBasicType( loc, false );
-    $$ = res;
-  }
-
-| TREAL
-  {
-    CmlLexeme bool = (CmlLexeme)$1;
-    LexLocation loc = extractLexLocation( bool );
-    ARealNumericBasicType res = new ARealNumericBasicType( loc, false, null );
-    $$ = res;
-  }
-
-| TCHAR
-  {
-    CmlLexeme bool = (CmlLexeme)$1;
-    LexLocation loc = extractLexLocation( bool );
-    ACharBasicType res = new ACharBasicType( loc, false, null );
-    $$ = res;
-  }
-
-| TTOKEN
-  {
-    CmlLexeme bool = (CmlLexeme)$1;
-    LexLocation loc = extractLexLocation( bool );
-    ATokenBasicType res = new ATokenBasicType( loc, false );
-    $$ = res;
-  }
-
-  ;
-
 /* 4.17 The Precondition Expression */
-
 preconditionExpr :
   PREUNDER LPAREN expressionList RPAREN
   {
@@ -3768,7 +3885,11 @@ IDENTIFIER
 }
 |IDENTIFIER BACKTICK IDENTIFIER
 {
-    $$ = extractLexNameToken((CmlLexeme)$3);
+    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3);
+    
+    $$ = new LexNameToken(((CmlLexeme)$1).getValue(),
+			  ((CmlLexeme)$3).getValue(),
+			  location);
 }
 ;
 

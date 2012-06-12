@@ -1,0 +1,3 @@
+functions
+    public test : int -> int
+    test (a) == 5

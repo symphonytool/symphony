@@ -476,7 +476,8 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 
 <FUNCTIONS> {
   "+>"				      { return createToken(CmlParser.VDMPFUNCARROW); }
-  "->"				      { return createToken(CmlParser.VDMTFUNCARROW); }
+  /*"->"				      { return createToken(CmlParser.VDMTFUNCARROW); }*/
+  "->"				      { return createToken(CmlParser.RARROW); }
 }
 
 <OPERATIONS> {
@@ -535,6 +536,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "Chaos"                             { return createToken(CmlParser.CSPCHAOS); }
   "startby"                           { return createToken(CmlParser.CSP_STARTBY); }
   "endsby"                            { return createToken(CmlParser.CSP_ENDBY); }
+  "Wait"                              { return createToken(CmlParser.CSPWAIT); }
   {mk_name}                           { return createToken(CmlParser.MKUNDERNAME); }
 }
 
@@ -546,9 +548,11 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 
 <VDM_CASES> {
   ":"                            { yybegin(stateStack.pop()); return createToken(CmlParser.COLON); }
+
  }
 
-<VDM_CASES,CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS,PROCESS> {
+<VDM_CASES,CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS,PROCESS> 
+{
   "->"                                { return createToken(CmlParser.RARROW); } 
   //vdm expressions
   "<=>"				      { return createToken(CmlParser.BIMPLY); }
@@ -659,9 +663,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 
   "to"                                { return createToken(CmlParser.TO); }
   "|->"                               { return createToken(CmlParser.MAPLETARROW); }
-  "->"                                { return createToken(CmlParser.VDMFUNCARROW); }
-
-  "inv"                               { return createToken(CmlParser.VDMINV); }
+   "inv"                               { return createToken(CmlParser.VDMINV); }
   "private"                           { return createToken(CmlParser.PRIVATE); }
   "protected"                         { return createToken(CmlParser.PROTECTED); }
   "public"                            { return createToken(CmlParser.PUBLIC); }
