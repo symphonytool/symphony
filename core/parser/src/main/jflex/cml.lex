@@ -658,8 +658,8 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "seq of"                            { return createToken(CmlParser.VDMSEQOF); }
 
   // map type
-  "map of"                            { return createToken(CmlParser.VDMMAPOF); }
-  "inmap of"                             { return createToken(CmlParser.VDMINMAPOF); }
+  "map"                            { return createToken(CmlParser.VDMMAPOF); }
+  "inmap"                             { return createToken(CmlParser.VDMINMAPOF); }
 
   "to"                                { return createToken(CmlParser.TO); }
   "|->"                               { return createToken(CmlParser.MAPLETARROW); }
