@@ -178,7 +178,7 @@ definition {-> package='org.overture.ast.definitions'}
                             //[poluFuncs]:???Map<TypeList, FunctionValue>
 	|   {implicitFunction}  [typeParams]:LexNameToken* 
                             [paramPatterns]:pair.patternListType*
-                            [result]:pair.patternType*
+                            [result]:pair*
                             [precondition]:exp 
                             [postcondition]:exp 
                             (predef):explicitFunction 
