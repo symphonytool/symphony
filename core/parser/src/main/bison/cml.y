@@ -3501,6 +3501,7 @@ setComprehension :
     List<PMultipleBind> binds = (List<PMultipleBind>)$4;
     // $5 AMP
     PExp pred = (PExp)$6;
+    System.out.println(pred.toString());
     CmlLexeme rcurle = (CmlLexeme)$7;
 
     LexLocation loc = combineLexLocation( extractLexLocation( lcurly ), 
@@ -4283,10 +4284,15 @@ objectDesignator LPAREN RPAREN
     				    new Vector<PExp>());
 }
 | objectDesignator LPAREN expressionList RPAREN
-  {
-      System.out.println("objectApply : objectDesignator LPAREN expressionList RPAREN");
-  }
-    ;
+{
+    PObjectDesignator object = (PObjectDesignator)$1;
+    LexLocation location = combineLexLocation(object.getLocation(),
+					      extractLexLocation((CmlLexeme)$4));
+    $$ = new AApplyObjectDesignator(location, 
+    				    object, 
+    				    (List<PExp>)$3);
+}
+;
 
 /* RWL, so the returnStatement production rule turned out to be:
  * RETURN RETURN expression, rathern than RETURN | RETURN
