@@ -400,7 +400,6 @@ chansets        = [Cc][Hh][Aa][Nn][Ss][Ee][Tt][Ss]
 class           = [Cc][Ll][Aa][Ss][Ss]
 end             = [Ee][Nn][Dd]
 functions       = [Ff][Uu][Nn][Cc][Tt][Ii][Oo][Nn][Ss]
-//global          = [Gg][Ll][Oo][Bb][Aa][Ll]
 identifier      = {letter}([0-9\'_]|{letter})*
 initial         = [Ii][Nn][Ii][Tt][Ii][Aa][Ll]
 operations      = [Oo][Pp][Ee][Rr][Aa][Tt][Ii][Oo][Nn][Ss]
@@ -447,17 +446,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "@"                                 { yybegin(ACTIONS); return createToken(CmlParser.AT); }
  }
 
-
-/* //common state for CLASS PROCESS and GLOBAL definitions */
-/* <CLASS,PROCESS,GLOBAL,TYPES,STATE,FUNCTIONS,OPERATIONS,> { */
-/*   {types}                             { yybegin(TYPES); return createToken(CmlParser.TYPES); } */
-/*   {state}                             { yybegin(STATE); return createToken(CmlParser.STATE); } */
-/*   {functions}                         { yybegin(FUNCTIONS); return createToken(CmlParser.FUNCTIONS); } */
-/*   {operations}                        { yybegin(OPERATIONS); return createToken(CmlParser.OPERATIONS); } */
-/* } */
-
-
-<CLASS,PROCESS> {
+<CLASS,PROCESS,VDM_CASES> {
   "="                                 { return createToken(CmlParser.EQUALS); }
   {begin}                             { return createToken(CmlParser.BEGIN); }
   {end}                               { yybegin(stateStack.pop()); return createToken(CmlParser.END); }
@@ -469,10 +458,6 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "::"                                { return createToken(CmlParser.VDMRECORDDEF); }
   "=="                                { return createToken(CmlParser.DEQUALS); }
  }
-
-/* <STATE> { */
-/*   //"of"                                { /\*return createToken(CmlParser.VDMOF); *\/} */
-/* } */
 
 <FUNCTIONS> {
   "+>"				      { return createToken(CmlParser.VDMPFUNCARROW); }
@@ -551,7 +536,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 
  }
 
-<VDM_CASES,CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS,PROCESS> 
+<VDM_CASES,CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS,PROCESS, CHANNELS> 
 {
   "->"                                { return createToken(CmlParser.RARROW); } 
   //vdm expressions
@@ -684,4 +669,4 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 /* .								{ return defaultToken(); } */
 // production rule to handle end-of-file
 <<EOF>>		  		      { stateStack.clear(); return 0; } 
-.                                     { throw new IllegalArgumentException("Syntax at line "+yyline+" position "+yycolumn+" \"" + yytext() + "\" was unexpected at this time."); }
+.                                     { throw new IllegalArgumentException("Syntax at line "+(yyline+1)+" position "+yycolumn+" \"" + yytext() + "\" was unexpected at this time."); }

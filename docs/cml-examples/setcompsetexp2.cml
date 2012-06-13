@@ -1,0 +1,8 @@
+
+class setcompsetexp =
+begin
+	values
+	f = {ss|ss:fnRoomId & fncap(ss) >= c};
+end 
+
+
