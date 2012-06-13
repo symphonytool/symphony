@@ -83,6 +83,13 @@
 			       start.getStartPos().line, start.getStartPos().column, 
 			       end.endLine, end.endPos,0,0);
     }
+    
+    private LexLocation extractLexLocation(LexLocation start, CmlLexeme end)
+    {
+	return new LexLocation(currentSourceFile.getFile(), "Default",
+			       start.endLine, start.endPos, 
+			       end.getStartPos().line, end.getStartPos().column,0,0);
+    }
 
     private LexLocation combineLexLocation(LexLocation start, LexLocation end)
     {
@@ -4240,57 +4247,76 @@ patternList RARROW action
 /* FIXME the CURLYs are there there to avoid several whatever/reduce conflicts with the assignment statement */
 
 callStatement :
-  call // TODO
+call 
+{
+    $$ = $1;
+}
 | objectDesignator ASSIGN call
-  {
-      ACallCallStatementControlStatementAction call = 
-	  (ACallCallStatementControlStatementAction)$3;
-      PObjectDesignator designator = (PObjectDesignator)$1;
-      LexLocation location = combineLexLocation(designator.getLocation(),call.getLocation());
-      $$ = new AAssignmentCallCallStatementControlStatementAction(location,
-								  designator, 
-								  call);
-  }
+{
+    ACallCallStatementControlStatementAction call = 
+	(ACallCallStatementControlStatementAction)$3;
+    PObjectDesignator designator = (PObjectDesignator)$1;
+    LexLocation location = combineLexLocation(designator.getLocation(),call.getLocation());
+    $$ = new AAssignmentCallCallStatementControlStatementAction(location,
+								designator, 
+								call);
+}
 ;
 
 call :
-  STAR IDENTIFIER LPAREN expressionList RPAREN
-  {
-      LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
-      //PObjectDesignator designator = null;
-      LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$2);
-      List<PExp> args = (List<PExp>)$4;
-      $$ = new ACallCallStatementControlStatementAction(location, 
-					   null, 
-					 name,  
-					 args);
-  }
-| STAR IDENTIFIER LPAREN RPAREN
-  {
-      LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$4);
-      //PObjectDesignator designator = null;
-      LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$2);
-      List<PExp> args = null;
-      $$ = new ACallCallStatementControlStatementAction(location, 
-					   null, 
-					 name,  
-					 args);
-  }
-| objectDesignator DOT STAR IDENTIFIER LPAREN expressionList RPAREN // TODO
+STAR IDENTIFIER LPAREN expressionList RPAREN
 {
-
+    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
+    //PObjectDesignator designator = null;
+    LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$2);
+    List<PExp> args = (List<PExp>)$4;
+    $$ = new ACallCallStatementControlStatementAction(location, 
+						      null, 
+						      name,  
+						      args);
 }
-| objectDesignator DOT STAR IDENTIFIER LPAREN RPAREN // TODO
+| STAR IDENTIFIER LPAREN RPAREN
 {
-
+    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$4);
+    //PObjectDesignator designator = null;
+    LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$2);
+    List<PExp> args = null;
+    $$ = new ACallCallStatementControlStatementAction(location, 
+						      null, 
+						      name,  
+						      args);
+}
+| objectDesignator DOT STAR IDENTIFIER LPAREN expressionList RPAREN 
+{
+    PObjectDesignator designator = (PObjectDesignator)$1;
+    LexLocation location = extractLexLocation(designator.getLocation(),
+					      (CmlLexeme)$7);
+    LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$4);
+    List<PExp> args = (List<PExp>)$6;
+    $$ = new ACallCallStatementControlStatementAction(location, 
+						      designator, 
+						      name,  
+						      args);
+}
+| objectDesignator DOT STAR IDENTIFIER LPAREN RPAREN 
+{
+    PObjectDesignator designator = (PObjectDesignator)$1;
+    LexLocation location = extractLexLocation(designator.getLocation(),
+					      (CmlLexeme)$6);
+    LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$4);
+    List<PExp> args = null;
+    $$ = new ACallCallStatementControlStatementAction(location, 
+						      designator, 
+						      name,  
+						      args);
 }
 
 objectDesignator :
-  SELF
-  {
-      LexNameToken self = extractLexNameToken((CmlLexeme)$1);
-      $$ = new ASelfObjectDesignator(self.location, self);
-  }
+SELF
+{
+    LexNameToken self = extractLexNameToken((CmlLexeme)$1);
+    $$ = new ASelfObjectDesignator(self.location, self);
+}
 | name
 {
     LexNameToken name = (LexNameToken)$1;
