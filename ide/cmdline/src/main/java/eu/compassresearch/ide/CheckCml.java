@@ -20,12 +20,15 @@ import org.overture.transforms.DotGraphVisitor;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.TypeCheckInfo;
 import eu.compassresearch.examples.DivWarnAnalysis;
 import org.overture.ast.program.ASourcefileSourcefile;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Collections;
 import java.lang.reflect.*;
+import org.overture.ast.node.INode;
+import org.overturetool.util.ClonableFile;
 
 public class CheckCml {
 
@@ -51,6 +54,7 @@ public class CheckCml {
 		    System.out.println("Parsing file: "+source);
 		    ASourcefileSourcefile currentTree = new ASourcefileSourcefile();
 		    currentTree.setName(source.getName());
+		    currentTree.setFile(new ClonableFile(source));
 		    FileReader input = new FileReader(source);
 		    CmlLexer lexer = new CmlLexer(input);
 		    CmlParser parser = new CmlParser(lexer);
@@ -263,7 +267,7 @@ public class CheckCml {
      * Helper methods run analysis controlling propergation of exceptions
      *
      */
-    private static boolean runAnalysis(Input input, Object analysis, List<ASourcefileSourcefile> sources)
+    private static boolean runAnalysis(Input input, AnalysisRunAdaptor analysis, List<ASourcefileSourcefile> sources)
     {
 	boolean continueOnException = input.isSwitchOn(Switch.COE);
 	boolean silentOnException = input.isSwitchOn(Switch.SOE);
@@ -272,11 +276,7 @@ public class CheckCml {
 	    {
 		try {
 		    System.out.println(" Running "+getAnalysisName(analysis)+" on "+source.getName());
-		    if (analysis instanceof IQuestionAnswer)
-			source.apply( (IQuestionAnswer)analysis, "");
-		    else
-			if (analysis instanceof IAnalysis)
-			    source.apply( (IAnalysis)analysis);
+		    analysis.apply(source);
 		}
 		catch (Exception e)
 		    {
@@ -293,6 +293,22 @@ public class CheckCml {
 	    }
 	return true;
     }
+    
+    private static abstract class AnalysisRunAdaptor  {
+	
+	private Object analysis;
+	public AnalysisRunAdaptor(Object o)
+	{
+	    this.analysis = o;
+	}
+
+	public String getAnalysisName()
+	{
+	    return  CheckCml.getAnalysisName(analysis);
+	}
+
+	public abstract void apply(INode node);
+    };
 
     private static void writeGraphResult(DotGraphVisitor dga, String fileName)
     {
@@ -304,7 +320,7 @@ public class CheckCml {
 	    fw.close();
 	} catch (Exception e)
 	    {
-
+		System.out.println("\tAnalysis failed to write file: "+e.getMessage());
 	    }
     }
 
@@ -366,23 +382,35 @@ public class CheckCml {
 	// Run the empty analysis
 	if (input.isSwitchOn(Switch.EMPTY))
 	    {
-		IAnalysis empty = new DepthFirstAnalysisAdaptor();
-		runAnalysis(input, empty, sources);
+		final IAnalysis empty = new DepthFirstAnalysisAdaptor();
+		AnalysisRunAdaptor r = new AnalysisRunAdaptor(empty) {
+			public void apply(INode root) { root.apply(empty); }
+		    };
+		runAnalysis(input, r, sources);
 	    }
 	
 	// Dot Graph Analysis
 	if (input.isSwitchOn(Switch.DOTG))
 	    {
-		DotGraphVisitor dga = new DotGraphVisitor();
-		runAnalysis(input, dga, sources);
+		final DotGraphVisitor dga = new DotGraphVisitor();
+		AnalysisRunAdaptor r = new AnalysisRunAdaptor(dga) {
+			public void apply(INode root)
+			{
+			    root.apply(dga, "");
+			}
+		    };
+		runAnalysis(input, r, sources);
 		writeGraphResult(dga, Switch.DOTG.getValue());
 	    }
 
 	// Example Analysis DivWarnAnalysis
 	if (input.isSwitchOn(Switch.DWA))
 	    {
-		DivWarnAnalysis dwa = new DivWarnAnalysis();
-		runAnalysis(input, dwa, sources);
+		final DivWarnAnalysis dwa = new DivWarnAnalysis();
+		AnalysisRunAdaptor r = new AnalysisRunAdaptor(dwa) {
+			public void apply(INode root) { root.apply( dwa ); }
+		    };
+		runAnalysis(input, r, sources);
 		for(String s : dwa.getWarnings())
 		    {
 			System.out.println("\t"+s);
@@ -392,8 +420,15 @@ public class CheckCml {
 	// Type checking
 	if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
 	    {
-		IAnalysis typeChecker = new CmlTypeChecker();
-		runAnalysis(input, typeChecker, sources);
+		final CmlTypeChecker typeChecker = new CmlTypeChecker();
+
+		AnalysisRunAdaptor r = new AnalysisRunAdaptor(typeChecker) {
+			public void apply(INode root)
+			{
+			    root.apply(typeChecker, new TypeCheckInfo());
+			}
+		    };
+		runAnalysis(input, r , sources);
 	    }
 	
 	// Check The Type Check Only Switch
