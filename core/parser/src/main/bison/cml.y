@@ -880,7 +880,7 @@ action
 {
     $$ = $1;
 }
-// | parametrisedAction
+| parametrisedAction
 // {
 //     $$ = $1;
 // }
@@ -1037,7 +1037,7 @@ action CSPLSQUAREDBAR namesetExpr BAR namesetExpr CSPDBARRSQUARE action //TODO
 ;
 
 parametrisedAction:
-parametrisationList AT action
+LPAREN parametrisationList AT action RPAREN
 ;
 
 parametrisationList:
@@ -1060,9 +1060,8 @@ LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
 					    (PAction)$4, 
 					    (List<PExp>)$7);
 }
-| LPAREN parametrisedAction RPAREN LPAREN expressionList RPAREN
-{
-}
+| parametrisedAction LPAREN expressionList RPAREN //TODO
+
 ;
 
 
