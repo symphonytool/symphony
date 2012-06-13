@@ -3,7 +3,7 @@ class setcompsetexp =
 begin
 	values
 	public b : set of int = { 1,2,3,4,5 };
-	logical a : set of int = { c | c in set S @ c div 2 = 0 }
+	logical a : set of int = { c | c in set S & c div 2 = 0 }
 end 
 
 

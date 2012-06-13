@@ -70,7 +70,7 @@ declaration {-> package='org.overture.ast.declarations'}
     | {process} [identifier]:LexIdentifierToken [processDefinition]:definition.process
     | {channel} [channelDefinition]:definition.channel
     | {channelName} [declaration]:singleType
-    | {chanset} [identifier]:LexIdentifierToken [chansetExpression]:exp.#Set.#Chanset
+    | {chanset} [chansetDefinitions]:definition.chanset*
     | {action} [actionDefinition]:definition.action
     // --- Maybe they should be grouped together in a sub declaration
     | {type} [typeDefinitions]:definition.type*
@@ -93,7 +93,7 @@ definition {-> package='org.overture.ast.definitions'}
     |   {classbody} [declarations]:declaration* 
     |	{process} [declarations]:declaration.singleType* [process]:process
     |   {action} [declarations]:declaration.singleType* [action]:action
-    |   {chanset}
+    |   {chanset} [identifier]:LexIdentifierToken [chansetExpression]:exp.#Set.#Chanset
     | 	{channel} [channelNameDecls]: declaration.channelName*
     |   {classInvariant}  [expression]:exp
     |   {equals} [pattern]:pattern [typebind]:bind.type [setbind]:bind.set [test]:exp 
