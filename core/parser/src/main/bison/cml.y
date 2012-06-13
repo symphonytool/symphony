@@ -340,10 +340,13 @@ classDecl
 : CLASS IDENTIFIER EQUALS classBody
 { 
   AClassbodyDefinition c = new AClassbodyDefinition();
+  CmlLexeme id = (CmlLexeme)$2;
   Position startPos =  ((CmlLexeme)$1).getStartPos();
   Position endPos = ((CmlLexeme)$3).getEndPos(); // TODO Fix me, the ending position is the 
-  LexNameToken lexName = extractLexNameToken((CmlLexeme)$2); 
-  LexLocation loc = new LexLocation(null,"DEFAULT", 
+  LexNameToken lexName = extractLexNameToken( id ); 
+  LexIdentifierToken classIdent = extractLexIdentifierToken( id );
+  LexLocation loc = new LexLocation(currentSourceFile.getFile(),
+				    id.getValue(),
 				    startPos.line, 
 				    startPos.column, 
 				    endPos.line, 
@@ -356,6 +359,9 @@ classDecl
   //  c.setDefinitions((List)$4);
   AClassDeclaration res = new AClassDeclaration();
   res.setClassBody( c );
+  res.setLocation ( loc );
+  res.setIdentifier( classIdent );
+  res.setNameScope( NameScope.CLASSNAME );
   $$ = res;
 }
 ;
