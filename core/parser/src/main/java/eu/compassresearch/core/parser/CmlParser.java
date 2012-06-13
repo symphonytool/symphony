@@ -9553,7 +9553,7 @@ class CmlParser
 		DotGraphVisitor dgv = new DotGraphVisitor();
 		INode node = cmlParser.getDocument();
 
-		node.apply(dgv,"");
+		node.apply(dgv,null);
 				
 		File dotFile = new File("generatedAST.gv");
 		java.io.FileWriter fw = new java.io.FileWriter(dotFile);
