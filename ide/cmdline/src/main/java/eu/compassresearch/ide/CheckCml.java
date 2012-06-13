@@ -396,7 +396,7 @@ public class CheckCml {
 		AnalysisRunAdaptor r = new AnalysisRunAdaptor(dga) {
 			public void apply(INode root)
 			{
-			    root.apply(dga, "");
+			    root.apply(dga, null);
 			}
 		    };
 		runAnalysis(input, r, sources);

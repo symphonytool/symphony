@@ -11,6 +11,9 @@ import org.overture.ast.types.PType;
 import org.overturetool.util.Utils;
 import org.overturetool.vdmj.messages.InternalException;
 
+import java.util.Map;
+import java.util.HashMap;
+
 public class LexNameToken extends LexToken implements Serializable
 {
 	private static final long serialVersionUID = 1L;
@@ -266,5 +269,25 @@ public class LexNameToken extends LexToken implements Serializable
 	public <Q, A> A apply(IQuestionAnswer<Q, A> caller, Q question)
 	{
 		return caller.caseLexNameToken(this, question);
+	}
+
+	/**
+	 * Creates a map of all field names and their value
+	 * @param includeInheritedFields if true all inherited fields are included
+	 * @return a a map of names to values of all fields
+	 */
+	@Override
+	public Map<String,Object> getChildren(Boolean includeInheritedFields)
+	{
+		Map<String,Object> fields = new HashMap<String,Object>();
+		if(includeInheritedFields)
+		{
+			fields.putAll(super.getChildren(includeInheritedFields));
+		}
+		fields.put("module",this.module);
+		fields.put("name",this.name);
+		fields.put("old",this.old);
+		fields.put("explicit",this.explicit);
+		return fields;
 	}
 }
