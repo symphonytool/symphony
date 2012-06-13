@@ -1638,7 +1638,7 @@ bracketedType
     $$ = $1;
 }
 | VDMCOMPOSE IDENTIFIER OF fieldList END // TODO
-| LPAREN type BAR type RPAREN
+| LPAREN type BAR type RPAREN  
 {
   CmlLexeme lp = (CmlLexeme)$1;
   CmlLexeme rp = (CmlLexeme)$5;
@@ -1646,7 +1646,7 @@ bracketedType
   PType snd = (PType)$4;
 
   LexLocation loc = combineLexLocation ( extractLexLocation ( lp ),
-					 extractLexLocation ( rp ) );
+  					 extractLexLocation ( rp ) );
 
   AUnionType utype = new AUnionType(loc, false, false, false );
   $$ = utype;
@@ -4328,7 +4328,10 @@ SELF
     LexNameToken name = (LexNameToken)$1;
     $$ = new ANameObjectDesignator(name.location, name, null);
 }
-| objectFieldReference // TODO
+| objectFieldReference 
+{
+    $$ = $1;
+}
 | objectApply
 {
     $$ = $1;
