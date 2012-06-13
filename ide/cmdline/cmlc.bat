@@ -5,7 +5,7 @@ REM Created: 2012-06-12
 REM 
 REM Run the CML Checker tool
 REM
-set BASE=%0\..
+set BASE=%~dp0
 set REPO=%BASE%\..\..
 set JAR=%BASE%\target\commandlinetool-*-jar-with-dependencies.jar
 set CLASSPATH=.;%REPO%\core\parser\target\parser-*.jar;%REPO%\core\ast\target\ast-*.jar
