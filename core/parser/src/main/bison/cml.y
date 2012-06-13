@@ -876,12 +876,12 @@ communicationParameterUseList :
 | communicationParameter communicationParameterUseList
 {
     List<PCommunicationParameter> comParamList = 
-	(List<PCommunicationParameter>)$1;
+	(List<PCommunicationParameter>)$2;
 
     if (comParamList == null) 
 	comParamList = new Vector<PCommunicationParameter>();
     
-    comParamList.add((PCommunicationParameter)$2);
+    comParamList.add((PCommunicationParameter)$1);
     $$ = comParamList;
 }
   ;
@@ -1205,18 +1205,52 @@ chansetDecl:
 CHANSETS
 {
     LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
-    $$ = new AChansetDeclaration(id.getLocation(), NameScope.GLOBAL, null, null);
+    $$ = new AChansetDeclaration(id.getLocation(), NameScope.GLOBAL, null);
 }
-| CHANSETS IDENTIFIER EQUALS chansetExpr
+| CHANSETS chansetDefinitionList
 {
-    LexIdentifierToken channelsToken = extractLexIdentifierToken((CmlLexeme)$1);
-    LexIdentifierToken idToken = extractLexIdentifierToken((CmlLexeme)$2);
-    SChansetSetBase chansetExp = (SChansetSetBase)$4;
-    LexLocation location = combineLexLocation(channelsToken.getLocation(),
-					      chansetExp.getLocation());
-    $$ = new AChansetDeclaration(location, NameScope.GLOBAL, idToken, chansetExp);
+    List<AChansetDefinition> defs = (List<AChansetDefinition>)$2;
+    
+    $$ = new AChansetDeclaration(combineLexLocation(extractLexLocation((CmlLexeme)$1),
+						    extractLastLexLocation(defs)), 
+				 NameScope.GLOBAL, 
+				 defs);
 }
 ;
+
+chansetDefinitionList:
+chansetDefinition
+{
+    List<AChansetDefinition> defs = new Vector<AChansetDefinition>();
+    defs.add((AChansetDefinition)$1);
+    $$ = defs;
+}
+| chansetDefinition chansetDefinitionList
+{
+    List<AChansetDefinition> defs = 
+	(List<AChansetDefinition>)$2;
+    defs.add((AChansetDefinition)$1);
+    $$ = defs;
+}
+;
+
+
+chansetDefinition:
+IDENTIFIER EQUALS chansetExpr
+{
+    LexIdentifierToken idToken = extractLexIdentifierToken((CmlLexeme)$1);
+    SChansetSetBase chansetExp = (SChansetSetBase)$3;
+    LexLocation location = combineLexLocation(idToken.getLocation(),
+					      chansetExp.getLocation());
+    $$ = new AChansetDefinition(location, 
+				NameScope.GLOBAL, 
+				false/*used_*/, 
+				null,/*AAccessSpecifierAccessSpecifier access_*/
+				idToken, 
+				chansetExp);
+}
+;
+
 
 chansetExpr : 
  IDENTIFIER
@@ -3492,7 +3526,7 @@ setComprehension :
     $$ = setComp;
     
   }
-| LCURLY expression BAR bindList AT expression RCURLY
+| LCURLY expression BAR bindList AMP expression RCURLY
 {
     // Get Constituents
     CmlLexeme lcurly = (CmlLexeme)$1;
@@ -3501,7 +3535,7 @@ setComprehension :
     List<PMultipleBind> binds = (List<PMultipleBind>)$4;
     // $5 AMP
     PExp pred = (PExp)$6;
-    System.out.println(pred.toString());
+    
     CmlLexeme rcurle = (CmlLexeme)$7;
 
     LexLocation loc = combineLexLocation( extractLexLocation( lcurly ), 

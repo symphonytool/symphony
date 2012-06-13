@@ -536,7 +536,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 
  }
 
-<VDM_CASES,CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS,PROCESS> 
+<VDM_CASES,CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS,PROCESS, CHANNELS> 
 {
   "->"                                { return createToken(CmlParser.RARROW); } 
   //vdm expressions
@@ -669,4 +669,4 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 /* .								{ return defaultToken(); } */
 // production rule to handle end-of-file
 <<EOF>>		  		      { stateStack.clear(); return 0; } 
-.                                     { throw new IllegalArgumentException("Syntax at line "+yyline+" position "+yycolumn+" \"" + yytext() + "\" was unexpected at this time."); }
+.                                     { throw new IllegalArgumentException("Syntax at line "+(yyline+1)+" position "+yycolumn+" \"" + yytext() + "\" was unexpected at this time."); }
