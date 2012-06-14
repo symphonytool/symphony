@@ -4,15 +4,21 @@ channels
 	init;
 -- channels that execute single operations
 	borrow: Borrow;
-	renew: Renew;
 	return: Return;
 	find: Find;
+-- channels that execute multiple operations
+	renew: Renew;	
 -- channels that do not execute operations
 	loans: UserId*nat;
 
 
 process LibraryProcess
 	state library: Library
+		inv dom(library.borrowed) = dom(users)
+		    and rng(library.borrowed) subseq dom(library.books)
+	operations
+		Init: (map BookId to Book)*(map UserId to User) -> Library
+		Init(bs,us) == library := mk_Library(bs,us,{|->})
 	actions
 		Act = (
 			borrow?b:pre_ExeBorrow(b,library) -> library := ExeBorrow(b,library)
@@ -25,12 +31,14 @@ process LibraryProcess
 			[]
 			find?f:pre_ExeFind(f,library) -> library := ExeFind(f,library)
 			[]
-			loans?u:(u in set dom(borrowed))!() -> SKIP 
+			loans?u:(u in set dom(library.borrowed))!(card(library.borrowed(u))) -> SKIP 
 		); Act
 	@ init -> Init(); Act
 end
 
-channels initUser: UserId
+channels
+	initUser: UserId
+	success, error
 
 process User
 	state
@@ -40,7 +48,17 @@ process User
 	
 	operations
 		Init: UserId -> ()
-		Init(i) = id := i; books = {}; 
+		Init(i) == id := i; books = {}; 
 	
 	actions
-		Scenario1 = borrow!mk_Borrow(bq,
+		Scenario1 = borrow!mk_Borrow(book1,id) -> books := books union {book1};
+			borrow!mk_Borrow(book2,id) -> books := books union {book2};
+			return!mk_Return(book1) -> books := books \ {book1};
+			loans!id?s -> if s = books then success -> SKIP else error -> SKIP
+			
+		Scenario2 = borrow!mk_Borrow(book1,id) -> books := books union {book1}
+			return!mk_Return(book2) -> books := books \ {book2};
+			
+	@ initUser?u -> Init(u); (
+		Scenario1 |~| Scenario2
+	)
