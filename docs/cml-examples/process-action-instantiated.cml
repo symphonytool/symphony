@@ -1,0 +1,4 @@
+process Test = 
+begin
+@ (n:nat@OW)(n+1)
+end

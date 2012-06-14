@@ -71,7 +71,7 @@ declaration {-> package='org.overture.ast.declarations'}
     | {channel} [channelDefinition]:definition.channel
     | {channelName} [declaration]:singleType
     | {chanset} [chansetDefinitions]:definition.chanset*
-    | {action} [actionDefinition]:definition.action
+    | {action} [actionDefinition]:definition.action*
     // --- Maybe they should be grouped together in a sub declaration
     | {type} [typeDefinitions]:definition.type*
     | {function} [functionDefinitions]:definition.#function*
@@ -599,6 +599,8 @@ action {-> package='org.overture.ast.actions'}
 	| {startDeadline} [left]:action [expression]:exp
 	| {endDeadline} [left]:action [expression]:exp
 	| {channelRenaming} [action]:action [renameExpression]:exp.#Channel.#Rename
+	| {parametrised} [parametrisations]:parametrisation [action]:action 
+	| #Instantiated
 	| #ControlStatement
 	| {block} [declareStatement]:declareStatement [action]:action
 	| {identifier}
@@ -608,6 +610,17 @@ action {-> package='org.overture.ast.actions'}
 
 declareStatement {-> package='org.overture.ast.actions'}
 	= {declareStatement}  [location]:location [assignmentDefs]:definition* 
+	;
+	
+parametrisation {-> package='org.overture.ast.actions'}
+	= {val}	[location]:location [declaration]:declaration.singleType
+	| {res} [location]:location [declaration]:declaration.singleType
+	| {vres} [location]:location [declaration]:declaration.singleType
+	;
+	
+#Instantiated {-> package='org.overture.ast.actions'}
+	= {declaration} [declaration]:declaration.singleType* [action]:action [args]:exp*
+	| {parametrisation} [action]:action.parametrised  [args]:exp*
 	;
 	
 #ControlStatement {-> package='org.overture.ast.actions'}
