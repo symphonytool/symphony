@@ -26,6 +26,8 @@
 *.sql
 *.sqlite
 
+generatedAST.gv
+
 # Backup files #
 ################
 *~

@@ -1,0 +1,46 @@
+
+channels
+-- initialisation channel
+	init;
+-- channels that execute single operations
+	borrow: Borrow;
+	renew: Renew;
+	return: Return;
+	find: Find;
+-- channels that do not execute operations
+	loans: UserId*nat;
+
+
+process LibraryProcess
+	state library: Library
+	actions
+		Act = (
+			borrow?b:pre_ExeBorrow(b,library) -> library := ExeBorrow(b,library)
+			[]
+			renew?r:pre_ExeReturn(mk_Return(r.book),library) -> 
+				library := ExeReturn(mk_Return(r.book),library);
+				library := ExeBorrow(r,library)
+			[]
+			return?r:pre_ExeReturn(r,library) -> library := ExeReturn(r,library)
+			[]
+			find?f:pre_ExeFind(f,library) -> library := ExeFind(f,library)
+			[]
+			loans?u:(u in set dom(borrowed))!() -> SKIP 
+		); Act
+	@ init -> Init(); Act
+end
+
+channels initUser: UserId
+
+process User
+	state
+		books: set of BookId;
+		id: UserId;
+		inv card(books) < 5
+	
+	operations
+		Init: UserId -> ()
+		Init(i) = id := i; books = {}; 
+	
+	actions
+		Scenario1 = borrow!mk_Borrow(bq,
