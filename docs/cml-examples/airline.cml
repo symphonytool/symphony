@@ -1,0 +1,123 @@
+-- Airline booking system constituent system example
+
+-- Authors: John Fitzgerald and Richard Payne
+
+types
+
+	public FlightId = token;
+	public BookingId = token;
+
+	public FlightData :: origin : Airport
+						 dest : Airport
+				  		 dep : DateTime
+				  		 arr : DateTime
+				  		 max_seats : nat;
+			  
+	public BookingData :: ps : set of PDetails
+						  f : FlightId
+  						  status : (<Reserved> | <Confirmed>);
+
+	public Airport = token;			
+			   
+	public DateTime :: date : Date
+					   time : token;
+	public Date = token;
+
+	public PDetails = token;
+
+	public BookingDb = map BookingId to BookingData;
+
+	public FlightDb = map FlightId to FlightData;
+
+functions
+
+	
+    public test : int -> int
+    test (a) == 5;
+    
+    
+	-- **** Parsing errors with expression in set comprehension. Commented out to move on.****
+	public total_booked : FlightId * BookingDb -> nat
+	total_booked(fd, bDb) == 
+--	 let bookings : set of BookingData = {bDb(b) | b in set dom bDb @ (bDb(b).f = fd)} in
+	 let bookings : set of BookingData = {bDb(b) | b in set dom bDb} in 
+	     sum_bookings(bookings);
+
+
+	-- ****Parsing error on cases statement - is not happy with matching the set bd to the empty set****
+	-- ****Parsing/syntax error - let x in set X is not valid?****
+	public sum_bookings : (set of BookingData) -> nat
+	sum_bookings (bd) ==
+--	  cases bd :
+--	    {}  	-> 0,
+--	    others	-> let b in set bd in
+		let b : set of BookingData = {b | b in set bd} in
+				     card b.ps + sum_bookings(bd\{b});
+--	  end
+
+available_seats : FlightId * FlightDb * BookingDb -> nat
+	available_seats(fId, fd, bd) == 
+		fd(fId).max_seats - total_booked(fId, bd);
+
+
+channels
+
+	failReserve, failPreConfirm;
+	query : (Airport * Airport * Date * nat);
+	queryResult : FlightDb;
+	reserve: (FlightId * nat); 
+	reserveResult : BookingId;
+	confirm : (FlightId * BookingId * token);
+	confirmResult : Boolean
+chansets
+
+	I = {|  failPreReserve, failPreConfirm, query, queryResult, reserve, reserveResult, confirm, confirmResult|}
+
+process Airline =
+  begin
+  
+    state 
+      fDb : FlightDb;
+      bDb : BookingDb;
+ 		  inv forall bd in set rng bDb & bd.f in set dom fDb and
+		     	 forall fId in set dom fDb & total_booked(fId, bDb) <= fDb(fId).max_seats
+
+	operations
+		-- ****Parsing error for set comprehension expressions. ****
+		public Query(qorigin:Airport, qdest:Airport, qdate:Date, qseats:nat) r : FlightDb
+		frame rd fDb, bDb
+		post r = ({fd | fd in set dom fDb} <: fDb);
+--		post r = ({fd | fd in set dom fDb @ fDb(fd).origin = qorigin and fDb(fd).dest = qdest
+--		           and fDb(fd).dep.date = qdate and available_seats(fd, fDb, bDb) >= qseats} <: fDb);
+
+		public Reserve(fId:FlightId , qseats:nat) r: BookingId
+		frame wr bDb rd fDb
+		pre fId in set dom fDb and available_seats(fId, fDb, bDb) >= qseats
+		post r not in set bDb~ and exists b in set dom bDb & b = r and card bDb(b).ps = qseats and 
+		                                                     bDb(b).f = fId and bDb(b).status = <Reserved>;
+
+		public Confirm(fId:FlightId, bId:BookingId, payment: token) r :bool
+		frame wr bDb
+		pre bId in set dom bDb and bDb(bId).status = <Reserved>
+		post forall b in set dom bDb & b = bId and bDb(b).f = fId and bDb(b).status = <Confirmed>;
+		
+		public Init() 
+		frame wr fDb, bDb
+		post true
+		
+	actions
+		AIRLINE = 
+			(query?mk_(qo, qd, qda, qs) ->  (dcl r : FlightDb @ r := *Query(qo, qd, qda, qs); queryResult!r -> AIRLINE))
+			[]
+			(reserve?mk_(fId, qs) -> (: pre-Reserve(fId, qs, fDb) & (dcl r : BookingId @ r:= *Reserve(fId, qs); reserveResult!r -> AIRLINE)))
+						    [] 
+						    (: not pre-Reserve(fId,qs,fDb) & (failPreReserve -> AIRLINE))
+			[]
+			(confirm?mk_(fId, bId, p) -> (: pre-Confirm(fId,bId,p,bDb) & (dcl r : Bool @ r := *Confirm(fId, bId, p);confirmResult!r -> AIRLINE)))
+									 []
+									 (: not pre-Confirm(fId,bId,p,bDb) & (failPreConfirm -> AIRLINE))
+   @
+		init -> *Init()
+		
+end 
+
