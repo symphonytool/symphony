@@ -10,7 +10,9 @@ Renew :: copy : BookId
          
 Return :: copy : BookId;
 
-Find :: string : seq of char;
+Find :: string : String;
+
+String = seq of char;
 
 BookId = token;
 
@@ -21,14 +23,18 @@ BorrowMap = map UserId to set of BookId;
 Library ::
   books : map BookId to Book
   users : map UserId to User
-  borrowed : BorrowMap;
+  borrowed : BorrowMap
+inv mk_Library(bs,us,bor) ==
+  dom bor subset dom us and
+  dunion rng bor subset dom bs and
+  forall u1, u2 in set dom bor & u1 <> u2 => bor(u1) inter bor(u2) = {};
 
 Book ::
-  title : seq of char
-  author : seq of char;
+  title : String
+  author : String;
   
 User ::
-  name : seq of char;
+  name : String;
   
 functions
 
@@ -45,10 +51,15 @@ BorrowCopy(u,c,bor) ==
   then bor(u) union {c}
   else {c};
 
-ExeRenew: Renew * Library -> Library
-ExeRenew(mk_Renew(c,u), mk_Library(bs,us,bor)) ==
-  mk_Library(bs,us,bor ++ {u |-> BorrowCopy(u,c,bor)})
-pre c in set dom bs and
-    u in set dom us and
-    c not in set dunion rng bor;
+ExeReturn: Return * Library -> Library
+ExeReturn(mk_Return(c), mk_Library(bs,us,bor)) ==
+  mk_Library(bs,us,RemoveCopy(c,bor))
+pre c in set dom bs;
+
+RemoveCopy: BookId * BorrowMap -> BorrowMap
+RemoveCopy(c,bor) ==
+  {u |-> bor(u)\{c} | u in set dom bor};
   
+ ExeFind: String * Library -> set of BookId
+ ExeFind(s,mk_Library(bs,-,-)) ==
+   {bid | bid in set dom bs & s in set {bs(bid).title, bs(bid).author}}

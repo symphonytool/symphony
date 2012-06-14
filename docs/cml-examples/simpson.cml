@@ -17,12 +17,12 @@ process Observer =
     actions
     
       -- produce a sequence of increasing numbers on the input
-      OW =
-        inc!n -> OW(n+1)
+      OW = n:nat@
+        inc!n -> (n:nat@OW)(n+1)
         
       -- read the numbers from the input and check whether it's an increasing sequence
-      OR =
-        out?n -> n>=m -> OR(n) 
+      OR = n:nat@
+        out?n -> n>=m -> (n:nat@OR)(n) 
         
       -- the system composed with its property specification
       OP =

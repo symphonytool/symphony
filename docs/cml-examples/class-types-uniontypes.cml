@@ -1,0 +1,8 @@
+
+class Union =
+begin
+	types
+	public status = (<Reserved> | <Confirmed>);
+end 
+
+
