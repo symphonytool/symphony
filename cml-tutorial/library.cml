@@ -1,24 +1,101 @@
+types
 
+Command = (Borrow | (Renew | (Return | Find)));
+
+String = seq of char;
+
+BookId = token;
+
+UserId = token;        
+
+BorrowMap = map UserId to set of BookId;
+
+-- the parser forces record declarations to have access modifiers
+
+public Borrow :: copy : BookId
+          user : UserId;
+          
+public Renew :: copy : BookId
+         user : UserId;
+         
+public Return :: copy : BookId;
+
+public Find :: string : String;
+
+public Library ::
+  books : map BookId to Book
+  users : map UserId to User
+  borrowed : BorrowMap
+--inv mk_Library(bs,us,bor) ==
+--  dom bor subset dom us and
+--  dunion rng bor subset dom bs and
+-- forall u1, u2 in set dom bor & u1 <> u2 => bor(u1) inter bor(u2) = {}
+;
+
+public Book ::
+  title : String
+  author : String;
+  
+public User ::
+  name : String;
+ 
+functions
+
+ExeBorrow: Borrow * Library -> Library
+ExeBorrow(b,l) ==
+	mk_Library(l.books,l.users,l.borrowed++{u |-> BorrowCopy(b.user,b.copy,b.borrowed)})
+pre b.copy in set dom b.books and
+	b.user in set dom b.users and
+	b.copy not in set dunion rng l.borrowed
+--ExeBorrow(mk_Borrow(c,u), mk_Library(bs,us,bor)) ==
+--  mk_Library(bs,us,bor ++ {u |-> BorrowCopy(u,c,bor)})
+--pre c in set dom bs and
+--    u in set dom us and
+--    c not in set dunion rng bor
+;
+
+    
+BorrowCopy: UserId * BookId * BorrowMap -> set of BookId
+BorrowCopy(u,c,bor) ==
+  if u in set dom bor
+  then bor(u) union {c}
+  else {c};	
+  
+  
+ExeReturn: Return * Library -> Library
+ExeReturn(r, l) ==
+  mk_Library(l.books,l.users,RemoveCopy(r.copy,l.borrowed))
+pre r.copy in set dom l.books
+--ExeReturn(mk_Return(c), mk_Library(bs,us,bor)) ==
+--  mk_Library(bs,us,RemoveCopy(c,bor))
+--pre c in set dom bs
+;
+
+RemoveCopy: BookId * BorrowMap -> BorrowMap
+RemoveCopy(c,bor) ==
+  {u |-> bor(u)\{c} | u in set dom bor};
+  
+ExeFind: String * Library -> set of BookId
+ExeFind(s,l) ==
+   {bid | bid in set dom l.books & s in set {l.books(bid).title, l.books(bid).author}} 
   
 channels
--- initialisation channel
 	init;
--- channels that execute single operations
 	borrow: Borrow;
 	return: Return;
 	find: Find;
--- channels that execute multiple operations
 	renew: Renew;	
--- channels that do not execute operations
-	loans: UserId*nat;
-
-process LibraryProcess
-	state library: Library
-		inv dom(library.borrowed) = dom(users)
-		    and rng(library.borrowed) subseq dom(library.books)
+	loans: UserId*nat
+	
+process LibraryProcess = begin
+	state library: Library;
+		inv dom(library.borrowed) = dom(users) 
+		and rng(library.borrowed) subset dom(library.books)
+	
 	operations
-		Init: (map BookId to Book)*(map UserId to User) -> Library
-		Init(bs,us) == library := mk_Library(bs,us,{|->})
+		Init(bs: map BookId to Book, us: map UserId to User)
+		post library = mk_Library(bs,us,{|->})
+		
 	actions
 		Act = (
 			borrow?b:pre_ExeBorrow(b,library) -> library := ExeBorrow(b,library)
@@ -33,43 +110,6 @@ process LibraryProcess
 			[]
 			loans?u:(u in set dom(library.borrowed))!(card(library.borrowed(u))) -> SKIP 
 		); Act
-	@ init -> Init(); Act
+	
+	@ SKIP --init -> Init(); Act
 end
-
-channels
-	initUser: UserId
-	success, error
-
-process Scenario1 = i: UserId
-	state
-		books: set of BookId;
-		id: UserId;
-		inv card(books) < 5
-	
-	operations
-		Init: () -> ()
-		Init == id := i; books = {}; 
-	
-	@ initUser?u -> Init(u); borrow!mk_Borrow(book1,id) -> books := books union {book1};
-			borrow!mk_Borrow(book2,id) -> books := books union {book2};
-			return!mk_Return(book1) -> books := books \ {book1};
-			loans!id?s -> if s = books then success -> SKIP else error -> SKIP
-	
-process Scenario2 = i: UserId
-	state
-		books: set of BookId;
-		id: UserId;
-		inv card(books) < 5
-	
-	operations
-		Init: () -> ()
-		Init == id := i; books = {}; 
-			
-	@ initUser?u -> Init(u); borrow!mk_Borrow(book1,id) -> books := books union {book1}
-			return!mk_Return(book2) -> books := books \ {book2}
-	
-chansets
-	Interface = {|init, initUser, borrow, renew, return ,find, loans|}
-	
-process Test1 = (LibraryProcess [| Interface |] Scenario1(user1))
-process Test2 = (LibraryProcess [| Interface |] Scenario2(user1))
