@@ -62,3 +62,8 @@ process User
 	@ initUser?u -> Init(u); (
 		Scenario1 |~| Scenario2
 	)
+	
+chansets
+	Interface = {|init, initUser, borrow, renew, return ,find, loans|}
+	
+process Test = (LibraryProcess [| Interface |] User)
