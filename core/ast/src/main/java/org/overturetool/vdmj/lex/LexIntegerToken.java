@@ -27,6 +27,9 @@ import org.overture.ast.analysis.intf.IAnalysis;
 import org.overture.ast.analysis.intf.IAnswer;
 import org.overture.ast.analysis.intf.IQuestion;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
+import org.overture.ast.node.INode;
+import java.util.Map;
+import java.util.HashMap;
 
 public class LexIntegerToken extends LexToken
 {
@@ -75,4 +78,23 @@ public class LexIntegerToken extends LexToken
 	public <Q, A> A apply(IQuestionAnswer<Q, A> caller, Q question) {
 		return caller.caseLexIntegerToken(this, question);
 	}
+
+
+	/**
+	 * Creates a map of all field names and their value
+	 * @param includeInheritedFields if true all inherited fields are included
+	 * @return a a map of names to values of all fields
+	 */
+	@Override
+	public Map<String,Object> getChildren(Boolean includeInheritedFields)
+	{
+		Map<String,Object> fields = new HashMap<String,Object>();
+		if(includeInheritedFields)
+		{
+			fields.putAll(super.getChildren(includeInheritedFields));
+		}
+		fields.put("value", value);
+		return fields;
+	}
+
 }
