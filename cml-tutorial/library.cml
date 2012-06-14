@@ -1,4 +1,5 @@
 
+  
 channels
 -- initialisation channel
 	init;
@@ -10,7 +11,6 @@ channels
 	renew: Renew;	
 -- channels that do not execute operations
 	loans: UserId*nat;
-
 
 process LibraryProcess
 	state library: Library
@@ -40,30 +40,36 @@ channels
 	initUser: UserId
 	success, error
 
-process User
+process Scenario1 = i: UserId
 	state
 		books: set of BookId;
 		id: UserId;
 		inv card(books) < 5
 	
 	operations
-		Init: UserId -> ()
-		Init(i) == id := i; books = {}; 
+		Init: () -> ()
+		Init == id := i; books = {}; 
 	
-	actions
-		Scenario1 = borrow!mk_Borrow(book1,id) -> books := books union {book1};
+	@ initUser?u -> Init(u); borrow!mk_Borrow(book1,id) -> books := books union {book1};
 			borrow!mk_Borrow(book2,id) -> books := books union {book2};
 			return!mk_Return(book1) -> books := books \ {book1};
 			loans!id?s -> if s = books then success -> SKIP else error -> SKIP
+	
+process Scenario2 = i: UserId
+	state
+		books: set of BookId;
+		id: UserId;
+		inv card(books) < 5
+	
+	operations
+		Init: () -> ()
+		Init == id := i; books = {}; 
 			
-		Scenario2 = borrow!mk_Borrow(book1,id) -> books := books union {book1}
-			return!mk_Return(book2) -> books := books \ {book2};
-			
-	@ initUser?u -> Init(u); (
-		Scenario1 |~| Scenario2
-	)
+	@ initUser?u -> Init(u); borrow!mk_Borrow(book1,id) -> books := books union {book1}
+			return!mk_Return(book2) -> books := books \ {book2}
 	
 chansets
 	Interface = {|init, initUser, borrow, renew, return ,find, loans|}
 	
-process Test = (LibraryProcess [| Interface |] User)
+process Test1 = (LibraryProcess [| Interface |] Scenario1(user1))
+process Test2 = (LibraryProcess [| Interface |] Scenario2(user1))
