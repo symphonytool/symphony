@@ -259,7 +259,7 @@
  */
 
 %token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_FRAME VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN VDMDONTCARE IDENTIFIER
-%token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1 STRING
+%token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1 STRING PARAM_VRES PARAM_RES PARAM_VAL
 
 
 %token HEX_LITERAL
@@ -680,6 +680,37 @@ processParagraph :
 }
 ;
 
+actionParagraph:
+CSP_ACTIONS actionDefinitionList
+{
+    List<AActionDefinition> actionDefinitions = 
+	(List<AActionDefinition>)$2;
+    LexLocation declLoc = combineLexLocation(extractLexLocation((CmlLexeme)$1),
+					     extractLastLexLocation(actionDefinitions));
+    $$ = new AActionDeclaration(declLoc, 
+				NameScope.GLOBAL, 
+				actionDefinitions);
+  }
+| CSP_ACTIONS nameset IDENTIFIER EQUALS namesetExpr //TODO
+;
+
+actionDefinitionList:
+actionDefinition
+{
+    List<AActionDefinition> actionDefs = 
+	new Vector<AActionDefinition>();
+    actionDefs.add((AActionDefinition)$1);
+    $$ = actionDefs;
+}
+| actionDefinitionList actionDefinition
+{
+    List<AActionDefinition> actionDefs = 
+	(List<AActionDefinition>)$1;
+    actionDefs.add((AActionDefinition)$2);
+    $$ = actionDefs;
+}
+;
+
 actionDefinition:
 IDENTIFIER EQUALS paragraphAction
 {
@@ -698,18 +729,6 @@ IDENTIFIER EQUALS paragraphAction
     $$ = actionDefinition;
 }
 ;
-actionParagraph:
- CSP_ACTIONS actionDefinition
-  {
-      AActionDefinition actionDefinition = (AActionDefinition)$2;
-      LexLocation declLoc = combineLexLocation(extractLexLocation((CmlLexeme)$1),
-					       actionDefinition.getLocation());;
-      $$ = new AActionDeclaration(declLoc, 
-				  NameScope.GLOBAL, 
-				  actionDefinition);
-  }
-| CSP_ACTIONS nameset IDENTIFIER EQUALS namesetExpr //TODO
-;
 
 paragraphAction :
 action
@@ -718,7 +737,7 @@ action
 }
 | declaration AT action
 {
-    $$ = new Object[]{$1,$2};
+    $$ = new Object[]{$1,$3};
 } 
 ;
 
@@ -858,8 +877,17 @@ action
 }
   //| put u action here
 | parallelAction
-  //| parametrisedAction
-  //| instantiatedAction
+{
+    $$ = $1;
+}
+| parametrisedAction
+// {
+//     $$ = $1;
+// }
+| instantiatedAction
+{
+    $$ = $1;
+}
   //| replicatedAction
 
   //| action LSQUARE identifierList CSPRENAME identifierList RSQUARE
@@ -867,6 +895,9 @@ action
 /*statements*/
   //| letStatement
 | blockStatement
+{
+    $$ = $1;
+}
 | controlStatements
 {
   $$ = $1;
@@ -1005,11 +1036,33 @@ action CSPLSQUAREDBAR namesetExpr BAR namesetExpr CSPDBARRSQUARE action //TODO
  | action CSPLSQUAREBAR chansetExpr CSPBARRSQUARE action //TODO
 ;
 
-//parametrisedAction:
-//;
+parametrisedAction:
+LPAREN parametrisationList AT action RPAREN
+;
 
-//instantiatedAction:
-//;
+parametrisationList:
+  parametrisation
+| parametrisation SEMI parametrisationList 
+;
+
+parametrisation:
+  PARAM_VAL singleTypeDecl
+| PARAM_RES singleTypeDecl
+| PARAM_VRES singleTypeDecl
+;
+
+instantiatedAction:
+LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
+{
+    $$ = new ADeclarationInstantiatedAction(extractLexLocation((CmlLexeme)$1,
+							       (CmlLexeme)$8), 
+					    (List<? extends ASingleTypeDeclaration>)$2, 
+					    (PAction)$4, 
+					    (List<PExp>)$7);
+}
+| parametrisedAction LPAREN expressionList RPAREN //TODO
+
+;
 
 
 replicatedAction :
@@ -1638,7 +1691,7 @@ bracketedType
     $$ = $1;
 }
 | VDMCOMPOSE IDENTIFIER OF fieldList END // TODO
-| LPAREN type BAR type RPAREN
+| LPAREN type BAR type RPAREN  
 {
   CmlLexeme lp = (CmlLexeme)$1;
   CmlLexeme rp = (CmlLexeme)$5;
@@ -1646,7 +1699,7 @@ bracketedType
   PType snd = (PType)$4;
 
   LexLocation loc = combineLexLocation ( extractLexLocation ( lp ),
-					 extractLexLocation ( rp ) );
+  					 extractLexLocation ( rp ) );
 
   AUnionType utype = new AUnionType(loc, false, false, false );
   $$ = utype;
@@ -4328,7 +4381,10 @@ SELF
     LexNameToken name = (LexNameToken)$1;
     $$ = new ANameObjectDesignator(name.location, name, null);
 }
-| objectFieldReference // TODO
+| objectFieldReference 
+{
+    $$ = $1;
+}
 | objectApply
 {
     $$ = $1;
