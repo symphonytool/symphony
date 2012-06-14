@@ -1708,7 +1708,10 @@ bracketedType
 {
     $$ = $1;
 }
-| LSQUARE type RSQUARE // TODO
+| optionalType
+{
+    $$ = $1;
+}
 | VDMSETOF type
 {
   // Get Constituents
@@ -1835,6 +1838,17 @@ quoteType:
 quoteLiteral
 {
     $$ = $1;
+}
+;
+
+optionalType:
+LSQUARE type RSQUARE
+{
+  $$ = new  AOptionalType(extractLexLocation((CmlLexeme)$1,
+					     (CmlLexeme)$3), 
+			  false,/* resolved_*/ 
+			  null,/* definitions_*/ 
+			  (PType)$2);
 }
 ;
 

@@ -1,0 +1,5 @@
+class Test =
+begin
+	types
+	hello = [nat]
+end
