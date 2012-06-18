@@ -45,6 +45,14 @@ Abstract Syntax Tree
  */
 
 /*
+	Name Resolving helpers
+*/
+name {-> package='org.overture.ast.program'}
+	= {simple} [identifiers]:LexIdentifierToken*
+	| {designator} [name]:name.simple [args]:exp*
+	;
+
+/*
 	Programs
 */
 

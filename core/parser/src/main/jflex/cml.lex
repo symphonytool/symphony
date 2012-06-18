@@ -486,12 +486,13 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 // }
 
 <CHANSETS> {
-  "{|"				      { return createToken(CmlParser.CHANSET_SETEXP_BEGIN); } //TODO: CHANGE this into something else
-  "|}"				      { return createToken(CmlParser.CHANSET_SETEXP_END); } //TODO: CHANGE this into something else
+  
   "="                                 { return createToken(CmlParser.EQUALS); }
 }
 
 <ACTIONS,PROCESS,CHANSETS> {
+  "{|"				      { return createToken(CmlParser.CHANSET_SETEXP_BEGIN); } //TODO: CHANGE this into something else
+  "|}"				      { return createToken(CmlParser.CHANSET_SETEXP_END); } //TODO: CHANGE this into something else
   ";"                                 { return createToken(CmlParser.CSPSEQ); }
   //  "|"                                 { return createToken(CmlParser.BAR); }
   "["                                 { return createToken(CmlParser.CSP_LSQUARE); }

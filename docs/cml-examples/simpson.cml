@@ -18,11 +18,11 @@ process Observer =
     
       -- produce a sequence of increasing numbers on the input
       OW = n:nat@
-        inc!n -> (n:nat@OW)(n+1)
+        inc!n -> OW(n+1)
         
       -- read the numbers from the input and check whether it's an increasing sequence
       OR = n:nat@
-        out?n -> n>=m -> (n:nat@OR)(n) 
+        out?n -> :n>=m & OR(n) 
         
       -- the system composed with its property specification
       OP =
@@ -32,75 +32,81 @@ process Observer =
             |||
             Writer
           )
-          [| alpha(SharedState) |]
+          [| SharedStateChannels |]
           SharedState
         )
-        [| {in.x | x in set Context`Data} union {out.x | x in set Context`Data} |]
+        [| inout |]
         ( -- this is the observation process that specifies the correctness property
           -- of order preservation; on in and out channels are observed here.
           OW(0)
           |||
           OR(1)
         )
+	@ OP
+
   end
 process Reader =
   -- the reader process
   -- it modifies the shared state and produces output from the shared state
   -- on channel out
   begin
-    imports from Context all, from SharedState all
-    exports all
+    
     state
-      rpair : Context`PI
+      rpair : Context`PI;
       rindex : Context`SI
     operations 
-      choose_pair : Context`PI ==> ()
+     /* choose_pair : Context`PI ==> void
       choose_pair(k) == (
-        rpair := k;
+        rpair := k
       );
       signal_pair : () ==> Context`PI
       signal_pair() == (
         return rpair;
       );
-      choose_index : Context`SI ==> ()
+      choose_index : Context`SI ==> void
       choose_index(i) == (
         rindex := i;
       );
       
       -- unused; covered by CSP
-      read_output : () ==> Context`Data
+      read_output : void ==> Context`Data
       read_output() == (
         return Shared`slot (mk_(rpair, rindex));
-      )
+      )*/
     actions
       RP = 
-        getLatest?k -> choose_pair(k) ->
-        dcl r : Context`PI @ r := signal_pair(); setReading!r ->
-        getIndex!rpair?i -> choose_index(i) ->
-        getSlot!rpair!rindex?s -> out!s -> RP
+        getLatest?k -> choose_pair(k) ;
+        (dcl r : Context`PI @ r := signal_pair(); setReading!r ->
+        getIndex!rpair?i -> choose_index(i);
+        getSlot!rpair!rindex?s -> out!s -> RP)
   @ RP
   end
+
+chansets
+
+SharedStateChannels ={| getSlot,setSlot,getIndex,setIndex,
+getLatest,setLatest,getReading,setReading|}
+
 process SharedState =
   -- the shared state of processes Reader and Writer
   -- the shared state is modified by means of channel communications
   -- the modifications (getting and setting) are modelled atomically
   begin
-  	imports from Context all
-	exports all
+  	
     state 
-      slot : map Context`PI * Context`SI to Context`Data
-      index : map Context`PI to Context`SI
-      latest : Context`PI
+      slot : map Context`PI * Context`SI to Context`Data;
+      index : map Context`PI to Context`SI;
+      latest : Context`PI;
       reading : Context`PI
     actions
       IO =
-           setSlot?pi?si?i -> (slot(mk_(pi,si)) := i) -> IO
-        [] getSlot?pi?si!(slot(mk_(pi,si)) -> IO
-        [] setIndex?pi?si -> (index(pi) := si) -> IO
+           setSlot?pi?si?i -> /*(slot(mk_(pi,si)) := i)*/ removeme ; IO
+        [] getSlot?pi?si!(slot(mk_(pi,si))) -> IO
+        [] setIndex?pi?si -> /*(index(pi) := si)*/ removeme ; IO
         [] getIndex?pi!(index(pi)) -> IO
-        [] setLatest?k -> (latest := k) -> IO
-        [] getLatest!latest ->
-        [] setReading?r -> (reading := r) -> IO
+        [] setLatest?k -> /*(latest := k)*/removeme ; IO
+        [] getLatest!latest -> IO
+        [] setReading?r -> /*(reading := r)*/ removeme ; IO
         [] getReading!reading -> IO
   @ IO
   end
@@ -108,16 +114,16 @@ process Writer =
   -- the writer process
   -- it modifies the shared state and reads input on channel in
   begin
-    imports from Context all, from SharedState all
-    exports all
+    
     state
-      wpair : Context`PI
+      wpair : Context`PI;
       windex : Context`SI
     operations 
       choose_pair : Context`PI ==> ()
       choose_pair(r) == (
         wpair := not r;
       );
+      /*
       choose_index : () ==> ()
       choose_index() == (
         windex := not Shared`index(wpair);
@@ -135,13 +141,13 @@ process Writer =
       signal_pair : () ==> Context`PI
       signal_pair() == (
         return wpair
-      )
+      )*/
     actions
       WP =
-        getReading?r -> choose_pair(r) ->
-        getIndex!wpair?i -> choose_index(i) ->
-        in?x -> setSlot!wpair!windex!x ->
-        dcl k : Context`SI @ k := signal_index(); setIndex!wpair!k ->
-        dcl k : Context`PI @ k := signal_pair(); setLatest!k -> WP
+        getReading?r -> *choose_pair(r) ;
+        getIndex!wpair?i -> *choose_index(i) ;
+        imp?x -> setSlot!wpair!windex!x ->
+        (dcl k : Context`SI, j : Context`PI @ k := *signal_index(); setIndex!wpair!k) ->
+         j := *signal_pair(); setLatest!j -> WP)
   @ WP
   end
