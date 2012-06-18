@@ -42,7 +42,7 @@ let rec to_dotty_string (defs : Ast.grammarDef list) (nodeCounter : int) (out : 
 	   in
 	   process_elems rulename tl optional nodeCounter out'
 	 | Ast.Opt els ->
-	   let out' = process_elems rulename els true "" in
+	   let out' = process_elems rulename els true nodeCounter "" in
 	   process_elems rulename tl false nodeCounter (out ^ out')
 	   
        )

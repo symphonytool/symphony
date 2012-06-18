@@ -8,9 +8,10 @@ let parse_file file_name =
     let lcp = lexbuf.Lexing.lex_curr_p in
     let () = lexbuf.Lexing.lex_curr_p <- { lcp with Lexing.pos_fname = file_name } in
     let ast = Parser.main (Lexer.token false) lexbuf in
-    let () = GrammarDotGraphPrinter.makeParse ast in
-    let csvResult = GrammarCSVPrinter.makeParse ast in
-    let () = print_endline csvResult in
+    (* let () = GrammarDotGraphPrinter.makeParse ast in *)
+    (* let csvResult = GrammarCSVPrinter.makeParse ast in *)
+    (* let () = print_endline csvResult in *)
+    let () = GrammarWikiCreator.makeParse ast in
     (*let () = print_endline result in*)
     print_newline();
     close_in inch;

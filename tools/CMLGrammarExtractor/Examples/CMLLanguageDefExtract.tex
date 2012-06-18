@@ -1,0 +1,1932 @@
+\RuleDef{program}{%
+  \RuleRef{program paragraph}, \Sequence{\RuleRef{program paragraph}}%
+}%
+
+\RuleDef{program paragraph}{%
+  \RuleRef{class declaration} \\%
+  \Alt\ \RuleRef{process declaration} \\%
+  \Alt\ \RuleRef{channel declaration} \\%
+  \Alt\ \RuleRef{chanset declaration} \\%
+  \Alt\ \RuleRef{global declaration}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Class declaration}
+\label{sec:class-declaration}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{class declaration}{%
+  \Literal{class}, %
+  \RuleRef{identifier}, %
+  \Literal{=}, %
+  \RuleRef{class body}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Process declaration}
+\label{sec:process-declaration}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{process declaration}{%
+  \Literal{process}, %
+  \RuleRef{identifier}, %
+  \Literal{=}, %
+  \\%
+  \qquad \RuleRef{process definition}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Channel declaration}
+\label{sec:channel-declaration}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{channel declaration}{%
+%  \Literal{channel}, %
+  \RuleRef{channel definition}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Chanset declaration}
+\label{sec:chanset-declaration}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{chanset declaration}{%
+%  \Literal{chanset}, %
+  \RuleRef{identifier}, %
+  \Literal{=}, %
+  \RuleRef{chanset expression} %
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Global declaration}
+\label{sec:global-declaration}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{global declaration}{%
+    \RuleRef{type declaration} \\%
+    \Alt \RuleRef{function declaration} \\%
+    \Alt \RuleRef{value declaration}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Class body}
+\label{sec:class-body}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{class body}{%
+  \Optional{%
+    \Literal{extends}, %
+    \RuleRef{identifier}
+  }, %
+  \\%
+  \Literal{begin}, %
+  \\%
+  \qquad%
+  \begin{tabular}[t]{@{}l}
+    \Sequence{\RuleRef{class paragraph}}, \\%
+    \Optional{%
+        \Literal{state}, %
+        \RuleRef{instance variable declaration} %
+    }, \\%
+    \Sequence{\RuleRef{class paragraph}}, \\%
+    \Optional{%
+        \Literal{initial}, %
+        \RuleRef{operation declaration}%
+    }, \\%
+    \Sequence{\RuleRef{class paragraph}}, %
+  \end{tabular}
+  \\%
+  \Literal{end}%
+}%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Process definition}
+\label{sec:process-definition}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{process definition}{%
+  \Optional{%
+    \RuleRef{declaration}, %
+    \Literal{@}%
+  }, %
+  \RuleRef{process}%
+}%
+
+\RuleDef{declaration}{%
+    \RuleRef{single type declaration},%
+    \Sequence{\Literal{;}, \RuleRef{single type declaration}}%
+}%
+
+\RuleDef{single type declaration}{%
+    \CommaSepList{\RuleRef{identifier}}, \Literal{:}, \RuleRef{type}%
+    }%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Channel definition}
+\label{sec:channel-definition}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{channel definition}{%
+  \SemicolonSepList{\RuleRef{channel name declaration}} %
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Chanset expression}
+\label{sec:chanset-expression}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Currently, \verb"{|...|}" is used for chanset comprehension to avoid
+confusion with general set comprehensions.
+
+\RuleDef{chanset expression}{%
+  \RuleRef{identifier} \\%
+  \Alt\ %
+  \Literal{\mylcurly}, \Optional{\CommaSepList{\RuleRef{identifier}}},
+  \Literal{\myrcurly} \\%
+  \Alt\ %
+  \Literal{\mylcurly|},
+  \Optional{\CommaSepList{\RuleRef{identifier}}}, \Literal{|\myrcurly}
+  \\%
+  \Alt\ %
+  \RuleRef{chanset expression}, \Literal{union}, \RuleRef{chanset
+    expression} \\%
+  \Alt\ %
+  \RuleRef{chanset expression}, \Literal{inter}, \RuleRef{chanset
+    expression} \\%
+  \Alt\ %
+  \RuleRef{chanset expression}, \Literal{\mybackslash},
+  \RuleRef{chanset expression} %
+  \\%
+  \Alt\ %
+  \Literal{\mylcurly |}, \RuleRef{identifier}, \Sequence{\Literal{.},
+    \RuleRef{expression}}, \Literal{|}, \RuleRef{bind list},
+  \Optional{\Literal{@}, \RuleRef{expression}}, \Literal{|\myrcurly}
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Class paragraph}
+\label{sec:class-paragraph}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{class paragraph}{%
+  \RuleRef{paragraph}%
+}%
+
+\RuleDef{paragraph}{%
+  \RuleRef{type declaration} \\%
+  \Alt\ %
+  \RuleRef{value declaration} \\%
+  \Alt\ %
+  \RuleRef{function declaration} \\%
+  \Alt\ %
+  \RuleRef{operation declaration}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Process}
+\label{sec:process}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{process}{%
+  \Literal{begin}, \\%
+  \qquad%
+  \begin{tabular}{@{}l}
+    \Sequence{\RuleRef{process paragraph}}, \\%
+    \Optional{\Literal{state}, \RuleRef{instance variable declaration}}, \\%
+    \Sequence{\RuleRef{process paragraph}},
+  \end{tabular}
+  \\%
+  \Literal{@}, \\%
+  \qquad \RuleRef{action}, \\%
+  \Literal{end} \\%
+  \Alt\ %
+  \RuleRef{process}, \Literal{;}, \RuleRef{process} \\ %
+  \Alt\ %
+  \RuleRef{process}, \Literal{[]}, \RuleRef{process} \\ %
+  \Alt\ %
+  \RuleRef{process}, \Literal{|\mytilde|}, \RuleRef{process} \\ %
+  % generalised parallelism
+  \Alt\ %
+  \RuleRef{process}, \Literal{[|}, \RuleRef{chanset expression},
+  \Literal{|]}, \RuleRef{process} \\ %
+  % alphabetised parallelism
+  \Alt\ %
+  \RuleRef{process}, \Literal{[}, \RuleRef{chanset expression},
+  \Literal{||}, \RuleRef{chanset expression}, \Literal{]},
+  \RuleRef{process} \\ %
+  % synchronous parallelism
+  \Alt\ %
+  \RuleRef{process}, \Literal{||}, \RuleRef{process} \\ %
+  % interleaving
+  \Alt\ %
+  \RuleRef{process}, \Literal{|||}, \RuleRef{process} \\ %
+  \Alt\ %
+  \RuleRef{process}, \Literal{/}, \Optional{\RuleRef{expression}},
+  \Literal{\mybackslash}, \RuleRef{process} \\ %
+  \Alt\ %
+  \RuleRef{process}, \Literal{[}, \Optional{\RuleRef{expression}},
+  \Literal{>}, \RuleRef{process} \\ %
+  \Alt\ %
+  \RuleRef{process}, \Literal{\mybackslash}, \RuleRef{chanset
+    expression} \\ %
+  \Alt\ %
+  \RuleRef{process}, \Literal{startsby}, \RuleRef{expression} \\ %
+  \Alt\ %
+  \RuleRef{process}, \Literal{endsby}, \RuleRef{expression} \\ %
+  \Alt\ %
+  \Literal{(}, \RuleRef{declaration}, \Literal{@}, \RuleRef{process
+    definition}, \Literal{)}, \Literal{(},
+  \Sequence{\RuleRef{expression}}, \Literal{)} \\ %
+  \Alt\ %
+  \RuleRef{identifier}, \Optional{\Literal{(},
+    \Sequence{\RuleRef{expression}}, \Literal{)}} \\ %
+  \Alt\ %
+  \RuleRef{process}, \RuleRef{renaming expression} \\ %
+  \Alt\ %
+  \Literal{;}, \RuleRef{replication declaration}, \Literal{@},
+  \RuleRef{process} \\ %
+  \Alt\ %
+  \Literal{[]}, \RuleRef{replication declaration}, \Literal{@},
+  \RuleRef{process} \\ %
+  \Alt\ %
+  \Literal{|\mytilde|}, \RuleRef{replication declaration},
+  \Literal{@}, \RuleRef{process} \\ %
+  % iterated generalised parallelism
+  \Alt\ %
+  \Literal{[|}, \RuleRef{chanset expression}, \Literal{|]},
+  \RuleRef{replication declaration}, \Literal{@}, \RuleRef{process}
+  \\ %
+  % iterated alphabetised parallelism
+  \Alt\ %
+  \Literal{||}, \RuleRef{replication declaration}, \Literal{@},
+  \Literal{[}, \RuleRef{chanset expression}, \Literal{]},
+  \RuleRef{process} \\%
+  % iterated synchronous parallelism
+  \Alt\ %
+  \Literal{||}, \RuleRef{replication declaration}, \Literal{@},
+  \RuleRef{process} \\%
+  \Alt\ %
+  \Literal{|||}, \RuleRef{replication declaration}, \Literal{@},
+  \RuleRef{process} \\%
+  % parenthesised process
+  \Alt\ %
+  \Literal{(}, \RuleRef{process},\Literal{)}%
+}%
+
+\RuleDef{renaming expression}{%
+    \RuleRef{renaming enumeration} \\ %
+    \Alt\ \RuleRef{renaming comprehension} %
+} %
+
+\RuleDef{renaming enumeration}{%
+    \Literal{[[}, \CommaSepList{\RuleRef{renaming pair}}, \Literal{]]} %
+} %
+
+\RuleDef{renaming pair}{%
+    \RuleRef{identifier}, \Sequence{\Literal{.}, \RuleRef{expression}}, \\ %
+    \Literal{<-}, \\ %
+    \RuleRef{identifier}, \Sequence{\Literal{.}, \RuleRef{expression}} %
+} %
+
+\RuleDef{renaming comprehension}{%
+  \Literal{[[}, \RuleRef{renaming
+    pair}, \Literal{|} \RuleRef{bind list}, \Optional{\Literal{@},
+    \RuleRef{expression}}, \Literal{]]}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Channel name declaration}
+\label{sec:chann-name-decl}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{channel name declaration}{%
+  \RuleRef{declaration} \\%
+  \Alt\ \CommaSepList{\RuleRef{identifier}} %
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Type declaration}
+\label{sec:type-declaration}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{type declaration}{%
+  \Literal{types}, %
+  \SemicolonSepList{\RuleRef{type definition}}%
+}%
+
+\RuleDef{type definition}{%
+  \Optional{\RuleRef{qualifier}}, \RuleRef{identifier}, \Literal{=}, \RuleRef{type}, \Optional{\RuleRef{invariant}} \\%
+  \Alt\ %
+  \Optional{\RuleRef{qualifier}}, \RuleRef{identifier}, \Literal{::}, \RuleRef{field list}, \Optional{\RuleRef{invariant}}%
+}%
+
+\RuleDef{qualifier}{%
+  \Literal{private} \\%
+  \Alt\ %
+  \Literal{protected} \\%
+  \Alt\ %
+  \Literal{public} \\%
+  \Alt\ %
+  \Literal{logical}%
+}%
+
+\RuleDef{type}{%
+  \RuleRef{bracketed type} \\%
+  \Alt\ %
+  \RuleRef{basic type} \\%
+  \Alt\ %
+  \RuleRef{quote type} \\%
+  \Alt\ %
+  \RuleRef{composite type} \\%
+  \Alt\ %
+  \RuleRef{union type} \\%
+  \Alt\ %
+  \RuleRef{product type} \\%
+  \Alt\ %
+  \RuleRef{optional type} \\%
+  \Alt\ %
+  \RuleRef{set type} \\%
+  \Alt\ %
+  \RuleRef{seq type} \\%
+  \Alt\ %
+  \RuleRef{map type} \\%
+  \Alt\ %
+  \RuleRef{function type} \\%
+  \Alt\ %
+  \RuleRef{type name} %
+%  \Alt\ %
+%  \RuleRef{type variable}%
+}%
+
+\RuleDef{bracketed type}{%
+  \Literal{(}, \RuleRef{type}, \Literal{)}%
+}%
+%
+
+\RuleDef{basic type}{%
+  \Literal{bool} %
+  \Alt\ \Literal{nat} %
+  \Alt\ \Literal{nat1} %
+  \Alt\ \Literal{int} %
+  \Alt\ \Literal{rat} %
+  \Alt\ \Literal{real} %
+  \Alt\ \Literal{char} %
+  \Alt\ \Literal{token}%
+}%
+
+\RuleDef{quote type}{%
+  \RuleRef{quote literal}%
+}%
+
+\RuleDef{composite type}{%
+  \Literal{compose}, \RuleRef{identifier}, \Literal{of}, \RuleRef{field list}, \Literal{end}%
+}%
+
+\RuleDef{field list}{%
+  \Sequence{\RuleRef{field}}%
+}%
+
+\RuleDef{field}{%
+  \Optional{\RuleRef{identifier}, \Literal{:}}, \RuleRef{type} \\%
+  \Alt\ %
+  \Optional{\RuleRef{identifier}, \Literal{:-}}, \RuleRef{type}%
+}%
+
+\RuleDef{union type}{%
+  \RuleRef{type}, \Literal{|}, \RuleRef{type}, \Sequence{\Literal{|}, \RuleRef{type}}%
+}%
+
+\RuleDef{product type}{%
+  \RuleRef{type}, \Literal{*}, \RuleRef{type}, \Sequence{\Literal{*}, \RuleRef{type}}%
+}%
+
+\RuleDef{optional type}{%
+  \Literal{[}, \RuleRef{type}, \Literal{]}%
+}%
+
+\RuleDef{set type}{%
+  \Literal{set of}, \RuleRef{type}%
+}%
+
+\RuleDef{seq type}{%
+  \RuleRef{seq0 type} \\%
+  \Alt\ %
+  \RuleRef{seq1 type}%
+}%
+
+\RuleDef{seq0 type}{%
+  \Literal{seq of}, \RuleRef{type}%
+}%
+
+\RuleDef{seq1 type}{%
+  \Literal{seq1 of}, \RuleRef{type}%
+}%
+
+\RuleDef{map type}{%
+  \RuleRef{general map type} \\%
+  \Alt\ %
+  \RuleRef{injective map type}%
+}%
+
+\RuleDef{general map type}{%
+  \Literal{map}, \RuleRef{type}, \Literal{to}, \RuleRef{type}%
+}%
+
+\RuleDef{injective map type}{%
+  \Literal{inmap}, \RuleRef{type}, \Literal{to}, \RuleRef{type}%
+}%
+
+\RuleDef{function type}{%
+  \RuleRef{partial function type} \\%
+  \Alt\ %
+  \RuleRef{total function type}%
+}%
+
+\RuleDef{partial function type}{%
+  \RuleRef{discretionary type}, \Literal{+>}, \RuleRef{type}%
+}%
+
+\RuleDef{total function type}{%
+  \RuleRef{discretionary type}, \Literal{->}, \RuleRef{type}%
+}%
+
+\RuleDef{discretionary type}{%
+  \RuleRef{type} \\%
+  \Alt\ %
+  \Literal{(}, \Literal{)}%
+}%
+
+\RuleDef{type name}{%
+  \RuleRef{name}%
+}%
+
+\RuleDef{invariant}{%
+  \Literal{inv}, \RuleRef{invariant initial function}%
+}%
+
+\RuleDef{invariant initial function}{%
+  \RuleRef{pattern}, \Literal{==}, \RuleRef{expression}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Value declaration}
+\label{sec:value-declaration}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{value declaration}{%
+  \Literal{values}, %
+  \SemicolonSepList{\RuleRef{value definition}}%
+}%
+
+\RuleDef{value definition}{%
+  \Optional{\RuleRef{qualifier}}, \RuleRef{pattern},
+  \Optional{\Literal{:}, \RuleRef{type}}, \Literal{=},
+  \RuleRef{expression} \\ %
+  \Alt \Optional{\RuleRef{qualifier}}, \RuleRef{pattern},
+  \Optional{\Literal{:}, \RuleRef{type}}, \Literal{in},
+  \RuleRef{expression}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Function declaration}
+\label{sec:function-declaration}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{function declaration}{%
+  \Literal{functions},%
+  \Optional{\RuleRef{function definition}}, %
+  \Sequence{%
+    \Literal{;}, %
+    \RuleRef{function definition}%
+  }%
+}%
+
+\RuleDef{function definition}{%
+    \RuleRef{explicit function definition} \\%
+    \Alt \RuleRef{implicit function definition}%
+}%
+
+\RuleDef{explicit function definition}{%
+  \Optional{\RuleRef{qualifier}}, %
+  \RuleRef{identifier}, \Literal{:}, \RuleRef{function type}, \\%
+  \RuleRef{identifier}, \RuleRef{parameters list}, \Literal{==}, \RuleRef{function body}, \\%
+  \Optional{\Literal{pre}, \RuleRef{expression}}, \\%
+  \Optional{\Literal{post}, \RuleRef{expression}}, \\%
+  \Optional{\Literal{measure}, \RuleRef{name}}%
+}%
+
+\RuleDef{implicit function definition}{%
+    \Optional{\RuleRef{qualifier}}, %
+    \RuleRef{identifier}, \RuleRef{parameter types}, \RuleRef{identifier type pair list}, \\ %
+    \Optional{\Literal{pre}, \RuleRef{expression}}, %
+    \Literal{post}, \RuleRef{expression} %
+}%
+
+\RuleDef{parameters list}{%
+  \RuleRef{parameters}, \Sequence{\RuleRef{parameters}}%
+}%
+
+\RuleDef{parameters}{%
+  \Literal{(}, \Optional{\RuleRef{pattern list}}, \Literal{)}%
+}%
+
+\RuleDef{function body}{%
+  \RuleRef{expression} \\%
+  \Alt\ %
+  \Literal{is subclass responsibility} \\%
+  \Alt\ %
+  \Literal{is not yet specified}%
+}%
+
+\RuleDef{parameter types}{%
+    \Literal{(}, \Optional{\CommaSepList{\RuleRef{pattern list}, \Literal{:}, \RuleRef{type}}}, \Literal{)}%
+}%
+
+\RuleDef{identifier type pair list}{%
+    \CommaSepList{\RuleRef{identifier},\Literal{:},\RuleRef{type}}
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Operation declaration}
+\label{sec:oper-decl}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Operations do not include reactive constructs.
+
+\RuleDef{operation declaration}{%
+  \Literal{operations}, %
+  \RuleRef{operation definition}, %
+  \Sequence{\Literal{;}, %
+    \RuleRef{operation definition}%
+  }%
+}%
+
+\RuleDef{operation definition}{%
+    \RuleRef{explicit operation definition} \\%
+    \Alt \RuleRef{implicit operation definition}
+}
+
+\RuleDef{explicit operation definition}{%
+  \Optional{\RuleRef{qualifier}},
+  \RuleRef{identifier}, \Literal{:}, \RuleRef{operation type}, \\%
+    \RuleRef{identifier}, \RuleRef{parameters}, \Literal{==}, \RuleRef{operation body}, \\%
+  \Optional{\Literal{pre}, \RuleRef{expression}}, \\%
+  \Optional{\Literal{post}, \RuleRef{expression}}%
+}%
+
+\RuleDef{operation type}{%
+  \RuleRef{discretionary type}, \Literal{==>}, \RuleRef{discretionary type}%
+}%
+
+\RuleDef{operation body}{%
+  \RuleRef{action} \\%
+  \Alt\ %
+  \Literal{is subclass responsibility} \\%
+  \Alt\ %
+  \Literal{is not yet specified}%
+}%
+
+\RuleDef{externals}{%
+  \Literal{frame}, \RuleRef{var information}, \Sequence{\RuleRef{var information}}%
+}%
+
+\RuleDef{var information}{%
+  \RuleRef{mode}, \RuleRef{name list}, \Optional{\Literal{:}, \RuleRef{type}}%
+}%
+
+\RuleDef{mode}{%
+  \Literal{rd} \Alt\ \Literal{wr}%
+}%
+
+\RuleDef{implicit operation definition}{%
+    \Optional{\RuleRef{qualifier}},
+    \RuleRef{identifier}, \RuleRef{parameter types}, \\%
+    \Optional{\RuleRef{identifier type pair list}}, \\%
+    \Optional{\RuleRef{externals}}, \\%
+    \Optional{\Literal{pre}, \RuleRef{expression}}, \\%
+    \Literal{post}, \RuleRef{expression}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Process paragraph}
+\label{sec:process-paragraph}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{process paragraph}{%
+  \RuleRef{paragraph} \\ %
+  \Alt\ \RuleRef{identifier}, \Literal{=}, \RuleRef{paragraph action} \\ %
+  \Alt\ \RuleRef{nameset}, \RuleRef{identifier}, \Literal{=}, \RuleRef{nameset expression} %
+}%
+
+\RuleDef{paragraph action}{%
+  \RuleRef{action} \\ %
+  \Alt\ \RuleRef{declaration}, \Literal{@}, \RuleRef{paragraph action} %
+}%
+
+\newpage%
+
+\RuleDef{action}{%
+  % successful termination
+  \Literal{Skip} % \\ %
+  % inaction
+  \Alt\ \Literal{Stop} % \\ %
+  % chaotic process
+  \Alt\ \Literal{Chaos} % \\ %
+  \Alt\ \Literal{Div} \\ %
+  \Alt\ \Literal{Wait}, \RuleRef{expression} \\ %
+  % communication
+  \Alt\ \RuleRef{communication}, \Literal{->}, \RuleRef{action} \\ %
+  % boolean guard
+  \Alt\ \RuleRef{expression}, \Literal{\&}, \RuleRef{action} \\ %
+  % sequential composition
+  \Alt\ \RuleRef{action}, \Literal{;}, \RuleRef{action} \\ %
+  % external choice
+  \Alt\ \RuleRef{action}, \Literal{[]}, \RuleRef{action} \\ %
+  % internal choice
+  \Alt\ \RuleRef{action}, \Literal{|\mytilde|}, \RuleRef{action} \\ %
+  % interrupt
+  %  \Alt\ \RuleRef{action}, \Literal{/\mybackslash}, \RuleRef{action} \\ %
+  \Alt\ \RuleRef{action}, \Literal{/}, \Optional{\RuleRef{expression}}, \Literal{\mybackslash}, \RuleRef{action} \\ %
+  % untimed timeout
+  %\Alt\ \RuleRef{action}, \Literal{[>}, \RuleRef{action} \\ %
+  % exception
+  \Alt\ \RuleRef{action}, \Literal{[}, \Optional{\RuleRef{expression}}, \Literal{>}, \RuleRef{action} \\ %
+  % hiding
+  \Alt\ \RuleRef{action}, \Literal{\mybackslash}, \RuleRef{chanset expression} \\ %
+  \Alt\ \RuleRef{action}, \Literal{startby}, \RuleRef{expression} \\%
+  \Alt\ \RuleRef{action}, \Literal{endby}, \RuleRef{expression} \\%
+  % variable renaming --- confirm!!!!
+  %\Alt\ \RuleRef{action}, \Literal{[}, \RuleRef{identifier list},
+  %      \Literal{:=}, \RuleRef{identifier list}, \Literal{]} \\ %
+  % channel renaming
+  \Alt\ \RuleRef{action}, \RuleRef{renaming expression} \\ %
+  %
+  \Alt\ \Literal{mu}, \CommaSepList{\RuleRef{identifier}}, \Literal{@}, \CommaSepList{\RuleRef{action}} \\%
+  % parallelism
+  \Alt\ \RuleRef{parallel actions} \\%
+  %
+  \Alt\ \RuleRef{parametrised actions} \\%
+  \Alt\ \RuleRef{instantiated actions} \\%
+  \Alt\ \RuleRef{replicated actions} \\%
+  \Alt\ \RuleRef{let statement} \\%
+  \Alt\ \RuleRef{block statement} \\%
+  \Alt\ \RuleRef{control statements} \\ %
+  \Alt\ \Literal{(}, \RuleRef{action}, \Literal{)} %
+}%
+
+\RuleDef{communication}{%
+    \RuleRef{identifier}, \Sequence{\RuleRef{communication parameter}} %
+}%
+
+\RuleDef{communication parameter}{%
+    \Literal{?}, \RuleRef{parameter} \\ %
+    \Alt \Literal{?}, \RuleRef{parameter}, \Literal{:},
+        \RuleRef{expression} \\%
+    \Alt \Literal{!}, \RuleRef{expression} \\%
+    \Alt \Literal{.}, \RuleRef{expression}
+}
+
+\RuleDef{parameter}{%
+    \RuleRef{identifier} \\%
+    \Alt \Literal{mk\_}, \Literal{(}, \CommaSepList{\RuleRef{parameter}},
+        \Literal{)} \\%
+    \Alt \Literal{mk\_}, \RuleRef{name}, \Literal{(}, \Sequence{\RuleRef{parameter}},
+        \Literal{)}}
+
+\RuleDef{parallel actions}{%
+  % interleaving
+    \RuleRef{action}, \Literal{[||}, \RuleRef{chanset expression},
+        \Literal{|}, \RuleRef{chanset expression}, \Literal{||]}, \RuleRef{action} \\ %
+    %
+    \Alt\ \RuleRef{action}, \Literal{|||}, \RuleRef{action} \\ %
+    % synchronous parallelism
+    \Alt\ \RuleRef{action} %
+            \Literal{[|}, %
+                \RuleRef{nameset expression}, %
+                \Literal{|}, %
+                \RuleRef{nameset expression}, %
+            \Literal{|]}, %
+        \RuleRef{action} \\%
+    %
+    \Alt\ \RuleRef{action} \Literal{||} \RuleRef{action} \\%
+    % alphabetised parallelism
+    \Alt\ \RuleRef{action} ,
+            \Literal{[}, %
+                \RuleRef{nameset expression}, %
+                \Literal{|}, %
+                \RuleRef{chanset expression}, %
+                \Literal{||}, \ \\ \quad\quad%
+                \RuleRef{chanset expression}, %
+                \Literal{|}, %
+                \RuleRef{nameset expression}, %
+            \Literal{]}, %
+        \RuleRef{action} \\%
+    %
+    \Alt\ \RuleRef{action}
+        \Literal{[},
+        \RuleRef{chanset expression}, %
+        \Literal{||}, %
+        \RuleRef{chanset expression}, %
+        \Literal{]}, %
+    \RuleRef{action} \\%
+    % generalised parallelism
+    \Alt\ \RuleRef{action}
+            \Literal{[|}, %
+                \RuleRef{nameset expression}, %
+                \Literal{|}, %
+                \RuleRef{chanset expression}, %
+                \Literal{|}, \ \\ \quad\quad%
+                \RuleRef{nameset expression}, %
+            \Literal{|]}, %
+        \RuleRef{action} \\
+    %
+    \Alt\ \RuleRef{action}
+        \Literal{[|},
+        \RuleRef{chanset expression}, %
+        \Literal{|]}, %
+    \RuleRef{action}%
+}%
+
+\RuleDef{parametrised actions}{%
+\RuleRef{parametrisation}, %
+        \Sequence{\Literal{;}, \RuleRef{parametrisation}}, %
+        \Literal{@}, \RuleRef{action}%
+}%
+
+\RuleDef{parametrisation}{%
+    (\Literal{val} \Alt \Literal{res} \Alt \Literal{vres}), %
+    \RuleRef{single type declaration}%
+}%
+
+\RuleDef{instantiated actions}{%
+    \Literal{(}, \RuleRef{declaration}, \Literal{@}, \RuleRef{action}, %
+    \Literal{)}, \Literal{(}, \CommaSepList{\RuleRef{expression}}, %
+    \Literal{)} \\%
+    \Alt\ \Literal{(}, \RuleRef{parametrised actions}, \Literal{)}, \Literal{(}, %
+    \CommaSepList{\RuleRef{expression}}, \Literal{)}%
+}%
+
+\newpage
+\RuleDef{replicated actions}{%
+  % replicated sequential composition
+  \Literal{;}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{action} \\ %
+  % replicated external choice
+  \Alt\ \Literal{[]}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{action} \\ %
+  % replicated internal choice
+  \Alt\ \Literal{|\mytilde|}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{action} \\ %
+  %
+  % replicated interleave -- the first one looks weird!
+  \Alt\ \Literal{[||}, \RuleRef{nameset expression}, \Literal{||]}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{action} \\ %
+  %
+  \Alt\ \Literal{|||}, \RuleRef{replication declaration}, \Literal{@}, \Literal{[}, \RuleRef{nameset expression}, \Literal{]}, \RuleRef{action} \\ %
+  % replicated generalised parallelism
+  \Alt\ \Literal{[|}, \RuleRef{chanset expression} \Literal{|]}, \RuleRef{replication declaration}, \Literal{@}, \\\quad\ %
+    \Literal{[} , \RuleRef{nameset expression}, \Literal{]}, \RuleRef{action} \\ %
+  % replicated alphabetised parallelism
+  \Alt\ \Literal{||}, \RuleRef{replication declaration}, \Literal{@}, \\\quad\ %
+    \Literal{[}, \RuleRef{nameset expression}, \Literal{|}, \RuleRef{chanset expression}, \Literal{]}, \RuleRef{action} \\ %
+  % replicated synchronous parallelism
+  \Alt\ \Literal{||}, \RuleRef{replication declaration}, \Literal{@}, \Literal{[}, \RuleRef{nameset expression}, \Literal{]}, \RuleRef{action} \\ %
+}
+
+\RuleDef{replication declaration}{%
+    (\RuleRef{single type declaration} \Alt\ %
+    \RuleRef{single expression declaration}), %
+    \Literal{;}, \\\quad%
+    \Sequence{(\RuleRef{single type declaration} \Alt\ %
+    \RuleRef{single expression declaration})}
+}
+
+\RuleDef{single expression declaration}{%
+    \CommaSepList{\RuleRef{identifier}}, \Literal{:}, \RuleRef{expression}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Local Binding Statements}
+\label{sec:local-bind-stat}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{let statement}{%
+  \Literal{let}, \RuleRef{local definition}, \Sequence{\Literal{,}, \RuleRef{local definition}}, \\%
+  \Literal{in}, \RuleRef{action}%
+}%
+
+\RuleDef{local definition}{%
+  \RuleRef{value definition} \\%
+  \Alt\ \RuleRef{function definition}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Block and Assignment Statements}
+\label{sec:block-assignm-stat}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+To be clarified
+
+\RuleDef{block statement}{%
+  \Literal{(}, \Optional{\RuleRef{dcl statement}},  \RuleRef{action}, %
+  \Literal{)}%
+}%
+
+\RuleDef{dcl statement}{%
+  \Literal{dcl}, \RuleRef{assignment definition}, \Sequence{\Literal{,}, \RuleRef{assignment definition}}, \Literal{@}%
+}%
+
+\RuleDef{assignment definition}{%
+  \RuleRef{identifier}, \Literal{:}, \RuleRef{type}, \Optional{\Literal{:=}, %
+    \RuleRef{expression} } \\%
+  \Alt \RuleRef{identifier}, \Literal{:}, \RuleRef{type},
+  \Optional{\Literal{in}, %
+    \RuleRef{expression} }%
+}%
+
+\RuleDef{general assign statement}{%
+  \RuleRef{assign statement} \\%
+  \Alt\ \RuleRef{multiple assign statement}%
+}%
+
+\RuleDef{assign statement}{%
+  \RuleRef{state designator}, \Literal{:=}, %
+    \RuleRef{expression}%
+}%
+
+  \RuleDef{multiple assign statement}{%
+    \Literal{atomic}, \Literal{(}, \\%
+    \quad \RuleRef{assign statement}, \Literal{;}, \RuleRef{assign statement}, \Optional{\Sequence{\Literal{;},\RuleRef{assign statement}}}, \\%
+    \Literal{)}%
+    }%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Call and Return Statements}
+\label{sec:call-return-stat}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{call statement}{%
+  \RuleRef{call} \\%
+  \Alt\ \RuleRef{state designator}, \Literal{:=}, \RuleRef{call}%
+}%
+
+\RuleDef{call}{%
+    \Optional{\RuleRef{object designator}, \Literal{.}}, \RuleRef{name}, \Literal{(}, \Optional{\RuleRef{expression list}}, \Literal{)}%
+}
+
+\RuleDef{object designator}{%
+  \RuleRef{name} \\%
+  \Alt\ \RuleRef{self expression} \\%
+  \Alt\ \RuleRef{object field reference} \\%
+  \Alt\ \RuleRef{object apply}%
+}%
+
+\RuleDef{object field reference}{%
+  \RuleRef{object designator}, \Literal{.}, \RuleRef{identifier}%
+}%
+
+\RuleDef{object apply}{%
+  \RuleRef{object designator}, \Literal{(}, \Optional{\RuleRef{expression list}}, \Literal{)}%
+}%
+
+\RuleDef{return statement}{%
+  \Literal{return}, \Optional{\RuleRef{expression}}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The Specification Statement}
+\label{sec:spec-stat}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{specification statement}{%
+  \Literal{[}, \RuleRef{implicit operation body}, \Literal{]}%
+}%
+
+\RuleDef{implicit operation body}{%
+    \Optional{\RuleRef{externals}}, \\%
+    \Optional{\Literal{pre}, \RuleRef{expression}}, \\%
+    \Literal{post}, \RuleRef{expression}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The New Statement}
+\label{sec:new-statement}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \RuleDef{new statement}{%
+    \RuleRef{state designator}, \Literal{:=}, \Literal{new}, \RuleRef{name}, \Literal{(}, \Optional{\RuleRef{expression list}}, \Literal{)}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Control Statements}
+\label{sec:control-statements}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \RuleDef{control statements}{%
+    \RuleRef{non-deterministic if statement} \\%
+    \Alt\ \RuleRef{if statement} \\%
+    \Alt\ \RuleRef{cases statement} \\%
+    \Alt\ \RuleRef{general assign statement} \\%
+    \Alt\ \RuleRef{call statement} \\%
+    \Alt\ \RuleRef{specification statement} \\%
+    \Alt\ \RuleRef{return statement} \\%
+    % \Alt\ \RuleRef{identity statement} \\%
+    \Alt\ \RuleRef{new statement} \\ %
+    \Alt\ \RuleRef{non-deterministic do statement} \\ %
+    \Alt\ \RuleRef{sequence for loop} \\ %
+    \Alt\ \RuleRef{set for loop} \\ %
+    \Alt\ \RuleRef{index for loop} \\ %
+    \Alt\ \RuleRef{while loop}
+  }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Dijkstra's guarded commands}
+\label{sec:dijkstr-guard-comm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+  \RuleDef{non-deterministic if statement}{%
+    \Literal{if} \RuleRef{expression}, \Literal{->}, \RuleRef{action}, %
+    \Optional{\Sequence{\Literal{|}, \RuleRef{expression}, \Literal{->}, %
+    \RuleRef{action}}}, \Literal{end}%
+  }%
+
+  \RuleDef{non-deterministic do statement}{%
+    \Literal{do} \RuleRef{expression}, \Literal{->}, \RuleRef{action}, %
+    \Optional{\Sequence{\Literal{|}, \RuleRef{expression}, \Literal{->}, %
+    \RuleRef{action}}}, \Literal{end}%
+  }%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Conditional Statements}%\label{condstmt2}
+\label{sec:cond-stat}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{if statement}{%
+  \Literal{if}, \RuleRef{expression}, \Literal{then}, \\%
+  \quad \RuleRef{action}, \\%
+  \Sequence{\RuleRef{elseif statement}}, \\%
+  \Optional{%
+    \Literal{else}, \\%
+    \quad\quad \RuleRef{action}%
+  }%
+}%
+
+\RuleDef{elseif statement}{%
+  \Literal{elseif}, \RuleRef{expression}, \Literal{then}, \\%
+  \quad \RuleRef{action}%
+}%
+
+
+\RuleDef{cases statement}{%
+  \Literal{cases}, \RuleRef{expression}, \Literal{:}, \\%
+  \quad \RuleRef{cases statement alternatives}, \\%
+  \quad \Optional{\Literal{,}, \RuleRef{others statement}}, \\%
+  \Literal{end}%
+}%
+
+\RuleDef{cases statement alternatives}{%
+  \RuleRef{cases statement alternative}, \\%
+  \Sequence{\Literal{,}, \RuleRef{cases statement alternative}}%
+}%
+
+\RuleDef{cases statement alternative}{%
+  \RuleRef{pattern list}, \Literal{->}, \RuleRef{action}%
+}%
+
+\RuleDef{others statement}{%
+  \Literal{others}, \Literal{->}, \RuleRef{action}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Loop Statements}
+\label{sec:loop-statements}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{sequence for loop}{%
+    \Literal{for}, \RuleRef{pattern bind}, \Literal{in}, %
+    \Optional{\Literal{reverse}}, \RuleRef{expression}, \Literal{do}, %
+    \RuleRef{action}%
+}%
+
+\RuleDef{set for loop}{%
+    \Literal{for}, \Literal{all}, \RuleRef{pattern}, \Literal{in set}, %
+    \RuleRef{expression}, \Literal{do}, \RuleRef{action}%
+}%
+
+\RuleDef{index for loop}{%
+    \Literal{for}, \RuleRef{identifier}, \Literal{=}, \RuleRef{expression}, %
+    \Literal{to}, \RuleRef{expression}, %
+    \Optional{\Literal{by}, \RuleRef{expression}}, %
+    \Literal{do}, \RuleRef{action} %
+}%
+
+\RuleDef{while loop}{%
+    \Literal{while}, \RuleRef{expression}, \Literal{do}, \RuleRef{action}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Instance variable declaration}
+\label{sec:inst-vari-decl}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{instance variable declaration}{%
+    \RuleRef{instance variable definition}, %
+    \Sequence{%
+      \Literal{;}, \RuleRef{instance variable definition}%
+    }%
+}%
+
+\RuleDef{instance variable definition}{%
+  \Optional{\RuleRef{qualifier}}, \RuleRef{assignment definition} \\%
+  \Alt\ \RuleRef{invariant definition}%
+}%
+
+\RuleDef{invariant definition}{%
+  \Literal{inv}, \RuleRef{expression}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Expressions}
+\label{sec:expressions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{expression list}{%
+  \RuleRef{expression}, \Sequence{\Literal{,}, \RuleRef{expression}}%
+}%
+
+\RuleDef{expression}{%
+  \RuleRef{bracketed expression} \\%
+  \Alt\ \RuleRef{let expression} \\%
+  \Alt\ \RuleRef{if expression} \\%
+  \Alt\ \RuleRef{cases expression} \\%
+  \Alt\ \RuleRef{unary expression} \\%
+  \Alt\ \RuleRef{binary expression} \\%
+  \Alt\ \RuleRef{quantified expression} \\%
+  \Alt\ \RuleRef{set enumeration} \\%
+  \Alt\ \RuleRef{set comprehension} \\%
+  \Alt\ \RuleRef{set range expression} \\%
+  \Alt\ \RuleRef{sequence enumeration} \\%
+  \Alt\ \RuleRef{sequence comprehension} \\%
+  \Alt\ \RuleRef{subsequence} \\%
+  \Alt\ \RuleRef{map enumeration} \\%
+  \Alt\ \RuleRef{map comprehension} \\%
+  \Alt\ \RuleRef{tuple constructor} \\%
+  \Alt\ \RuleRef{record constructor} \\%
+  \Alt\ \RuleRef{apply} \\%
+  \Alt\ \RuleRef{field select} \\%
+  \Alt\ \RuleRef{tuple select} \\%
+  \Alt\ \RuleRef{lambda expression} \\%
+  \Alt\ \RuleRef{self expression} \\%
+  \Alt\ \RuleRef{general is expression} \\%
+  \Alt\ \RuleRef{precondition expression} \\%
+  \Alt\ \RuleRef{isofclass expression} \\%
+  \Alt\ \RuleRef{name} \\%
+  \Alt\ \RuleRef{old name}  \\%
+  \Alt\ \RuleRef{symbolic literal}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Bracketed Expressions}
+\label{sec:brack-expr}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{bracketed expression}{%
+  \Literal{(}, \RuleRef{expression}, \Literal{)}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Local Binding Expressions}
+\label{sec:local-bind-expr}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{let expression}{%
+  \Literal{let}, \RuleRef{local definition}, \Sequence{\Literal{,}, \RuleRef{local definition}}, \\%
+  \Literal{in}, \RuleRef{expression}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Conditional Expressions}
+\label{sec:cond-expr}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{if expression}{%
+  \Literal{if}, \RuleRef{expression}, \Literal{then}, \\%
+  \quad \RuleRef{expression}, \\
+  \Sequence{\RuleRef{elseif expression}}, \\
+  \Literal{else}, \\%
+  \quad \RuleRef{expression}
+}
+
+\RuleDef{elseif expression}{%
+  \Literal{elseif}, \RuleRef{expression}, \Literal{then}, \\%
+  \quad \RuleRef{expression}%
+}%
+
+\RuleDef{cases expression}{%
+  \Literal{cases}, \RuleRef{expression}, \Literal{:}, \\%
+  \quad \RuleRef{cases expression alternatives}, \\%
+  \quad \Optional{\Literal{,}, \RuleRef{others expression}}, \\%
+  \Literal{end}%
+}%
+
+\RuleDef{cases expression alternatives}{%
+  \CommaSepList{\RuleRef{cases expression alternative}}%
+}%
+
+\RuleDef{cases expression alternative}{%
+  \RuleRef{pattern list}, \Literal{->}, \RuleRef{expression}%
+}%
+
+\RuleDef{others expression}{%
+  \Literal{others}, \Literal{->}, \RuleRef{expression}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Unary Expressions}
+\label{sec:unary-expressions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{unary expression}{%
+  \RuleRef{prefix expression} \\%
+  \Alt\ \RuleRef{map inverse}%
+}%
+
+\RuleDef{prefix expression}{%
+  \RuleRef{unary operator}, \RuleRef{expression}%
+}%
+
+\RuleDef{unary operator}{%
+  \RuleRef{unary plus} \\%
+  \Alt\ \RuleRef{unary minus} \\%
+  \Alt\ \RuleRef{arithmetic abs} \\%
+  \Alt\ \RuleRef{floor} \\%
+  \Alt\ \RuleRef{not} \\%
+  \Alt\ \RuleRef{set cardinality} \\%
+  \Alt\ \RuleRef{finite power set} \\%
+  \Alt\ \RuleRef{distributed set union} \\%
+  \Alt\ \RuleRef{distributed set intersection} \\%
+  \Alt\ \RuleRef{sequence head} \\%
+  \Alt\ \RuleRef{sequence tail} \\%
+  \Alt\ \RuleRef{sequence length} \\%
+  \Alt\ \RuleRef{sequence elements} \\%
+  \Alt\ \RuleRef{sequence indices} \\%
+  \Alt\ \RuleRef{sequence reverse} \\%
+  \Alt\ \RuleRef{distributed sequence concatenation} \\%
+  \Alt\ \RuleRef{map domain} \\%
+  \Alt\ \RuleRef{map range} \\%
+  \Alt\ \RuleRef{distributed map merge}%
+}%
+
+\RuleDef{unary plus}{%
+  \Literal{+}%
+}%
+
+\RuleDef{unary minus}{%
+  \Literal{-}%
+}%
+
+\RuleDef{arithmetic abs}{%
+  \Literal{abs}%
+}%
+
+\RuleDef{floor}{%
+  \Literal{floor}%
+}%
+
+\RuleDef{not}{%
+  \Literal{not}%
+}%
+
+\RuleDef{set cardinality}{%
+  \Literal{card}%
+}%
+
+\RuleDef{finite power set}{%
+  \Literal{power}%
+}%
+
+\RuleDef{distributed set union}{%
+  \Literal{dunion}%
+}%
+
+\RuleDef{distributed set intersection}{%
+  \Literal{dinter}%
+}%
+
+\RuleDef{sequence head}{%
+  \Literal{hd}%
+}%
+
+\RuleDef{sequence tail}{%
+  \Literal{tl}%
+}%
+
+\RuleDef{sequence length}{%
+  \Literal{len}%
+}%
+
+\RuleDef{sequence elements}{%
+  \Literal{elems}%
+}%
+
+\RuleDef{sequence indices}{%
+  \Literal{inds}%
+}%
+
+\RuleDef{sequence reverse}{%
+  \Literal{reverse}%
+}%
+
+\RuleDef{distributed sequence concatenation}{%
+  \Literal{conc}%
+}%
+
+\RuleDef{map domain}{%
+  \Literal{dom}%
+}%
+
+\RuleDef{map range}{%
+  \Literal{rng}%
+}%
+
+\RuleDef{distributed map merge}{%
+  \Literal{merge}%
+}%
+
+\RuleDef{map inverse}{%
+  \Literal{inverse}, \RuleRef{expression}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Binary Expressions}
+\label{sec:binary-expressions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{binary expression}{%
+  \RuleRef{expression}, \RuleRef{binary operator}, \RuleRef{expression}%
+}%
+
+\RuleDef{binary operator}{%
+  \RuleRef{arithmetic plus} \\%
+  \Alt\ \RuleRef{arithmetic minus} \\%
+  \Alt\ \RuleRef{arithmetic multiplication} \\%
+  \Alt\ \RuleRef{arithmetic divide} \\%
+  \Alt\ \RuleRef{arithmetic integer division} \\%
+  \Alt\ \RuleRef{arithmetic rem} \\%
+  \Alt\ \RuleRef{arithmetic mod} \\%
+  \Alt\ \RuleRef{less than} \\%
+  \Alt\ \RuleRef{less than or equal} \\%
+  \Alt\ \RuleRef{greater than} \\%
+  \Alt\ \RuleRef{greater than or equal} \\%
+  \Alt\ \RuleRef{equal} \\%
+  \Alt\ \RuleRef{not equal} \\%
+  \Alt\ \RuleRef{or} \\%
+  \Alt\ \RuleRef{and} \\%
+  \Alt\ \RuleRef{imply} \\%
+  \Alt\ \RuleRef{logical equivalence} \\%
+  \Alt\ \RuleRef{in set} \\%
+  \Alt\ \RuleRef{not in set} \\%
+  \Alt\ \RuleRef{subset} \\%
+  \Alt\ \RuleRef{proper subset} \\%
+  \Alt\ \RuleRef{set union} \\%
+  \Alt\ \RuleRef{set difference} \\%
+  \Alt\ \RuleRef{set intersection} \\%
+  \Alt\ \RuleRef{sequence concatenate} \\%
+  \Alt\ \RuleRef{map or sequence modify} \\%
+  \Alt\ \RuleRef{map merge} \\%
+  \Alt\ \RuleRef{map domain restrict to} \\%
+  \Alt\ \RuleRef{map domain restrict by} \\%
+  \Alt\ \RuleRef{map range restrict to} \\%
+  \Alt\ \RuleRef{map range restrict by} \\%
+  \Alt\ \RuleRef{composition} \\%
+  \Alt\ \RuleRef{iterate}%
+}%
+
+\RuleDef{arithmetic plus}{%
+  \Literal{+}%
+}%
+
+\RuleDef{arithmetic minus}{%
+  \Literal{-}%
+}%
+
+\RuleDef{arithmetic multiplication}{%
+  \Literal{*}%
+}%
+
+\RuleDef{arithmetic divide}{%
+  \Literal{/}%
+}%
+
+\RuleDef{arithmetic integer division}{%
+  \Literal{div}%
+}%
+
+\RuleDef{arithmetic rem}{%
+  \Literal{rem}%
+}%
+
+\RuleDef{arithmetic mod}{%
+  \Literal{mod}%
+}%
+
+\RuleDef{less than}{%
+  \Literal{<}%
+}%
+
+\RuleDef{less than or equal}{%
+  \Literal{<=}%
+}%
+
+\RuleDef{greater than}{%
+  \Literal{>}%
+}%
+
+\RuleDef{greater than or equal}{%
+  \Literal{>=}%
+}%
+
+\RuleDef{equal}{%
+  \Literal{=}%
+}%
+
+\RuleDef{not equal}{%
+  \Literal{<>}%
+}%
+
+\RuleDef{or}{%
+  \Literal{or}%
+}%
+
+\RuleDef{and}{%
+  \Literal{and}%
+}%
+
+\RuleDef{imply}{%
+  \Literal{=>}%
+}%
+
+\RuleDef{logical equivalence}{%
+  \Literal{<=>}%
+}%
+
+\RuleDef{in set}{%
+  \Literal{in set}%
+}%
+
+\RuleDef{not in set}{%
+  \Literal{not in set}%
+}%
+
+\RuleDef{subset}{%
+  \Literal{subset}%
+}%
+
+\RuleDef{proper subset}{%
+  \Literal{psubset}%
+}%
+
+\RuleDef{set union}{%
+  \Literal{union}%
+}%
+
+\RuleDef{set difference}{%
+  \Literal{\mybackslash}%
+}%
+
+\RuleDef{set intersection}{%
+  \Literal{inter}%
+}%
+
+\RuleDef{sequence concatenate}{%
+  \Literal{\mycaret}%
+}%
+
+\RuleDef{map or sequence modify}{%
+  \Literal{++}%
+}%
+
+\RuleDef{map merge}{%
+  \Literal{munion}%
+}%
+
+\RuleDef{map domain restrict to}{%
+  \Literal{<:}%
+}%
+
+\RuleDef{map domain restrict by}{%
+  \Literal{<-:}%
+}%
+
+\RuleDef{map range restrict to}{%
+  \Literal{:>}%
+}%
+
+\RuleDef{map range restrict by}{%
+  \Literal{:->}%
+}%
+
+\RuleDef{composition}{%
+  \Literal{comp}%
+}%
+
+\RuleDef{iterate}{%
+  \Literal{**}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Quantified Expressions}
+\label{sec:quant-expr}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{quantified expression}{%
+  \RuleRef{all expression} \\%
+  \Alt\ \RuleRef{exists expression} \\%
+  \Alt\ \RuleRef{exists unique expression} \\%
+  \Alt\ \RuleRef{iota expression}%
+}%
+
+\RuleDef{all expression}{%
+  \Literal{forall}, \RuleRef{bind list}, \Literal{@}, \RuleRef{expression}%
+}%
+
+\RuleDef{exists expression}{%
+  \Literal{exists}, \RuleRef{bind list}, \Literal{@}, \RuleRef{expression}%
+}%
+
+\RuleDef{exists unique expression}{%
+  \Literal{exists1}, \RuleRef{bind}, \Literal{@}, \RuleRef{expression}%
+}%
+
+\RuleDef{iota expression}{%
+  \Literal{iota}, \RuleRef{bind}, \Literal{@}, \RuleRef{expression}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Set Expressions}
+\label{sec:set-expressions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{set enumeration}{%
+  \Literal{\mylcurly}, \Optional{\RuleRef{expression list}}, \Literal{\myrcurly}%
+}%
+
+\RuleDef{set comprehension}{%
+  \Literal{\mylcurly}, \RuleRef{expression}, \Literal{|}, \RuleRef{bind list}, \Optional{\Literal{@}, \RuleRef{expression}}, \Literal{\myrcurly}%
+}%
+
+\RuleDef{set range expression}{%
+  \Literal{\mylcurly}, \RuleRef{expression}, \Literal{,}, \Literal{\Range}, \Literal{,}, \RuleRef{expression}, \Literal{\myrcurly}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Sequence Expressions}
+\label{sec:sequence-expressions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{sequence enumeration}{%
+  \Literal{[}, \Optional{\RuleRef{expression list}}, \Literal{]}%
+}%
+
+\RuleDef{sequence comprehension}{%
+  \Literal{[}, \RuleRef{expression}, \Literal{|}, \RuleRef{set bind}, \Optional{\Literal{@}, \RuleRef{expression}}, \Literal{]}%
+}%
+
+\RuleDef{subsequence}{%
+  \RuleRef{expression}, \Literal{(}, \RuleRef{expression}, \Literal{,}, \Literal{\Range}, \Literal{,}, \RuleRef{expression}, \Literal{)}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Map Expressions}
+\label{sec:map-expressions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{map enumeration}{%
+  \Literal{\mylcurly}, \RuleRef{maplet}, \Sequence{\Literal{,}, \RuleRef{maplet}}, \Literal{\myrcurly} \\%
+  \Alt\ \Literal{\mylcurly}, \Literal{|->}, \Literal{\myrcurly}%
+}%
+
+\RuleDef{maplet}{%
+  \RuleRef{expression}, \Literal{|->}, \RuleRef{expression}%
+}%
+
+\RuleDef{map comprehension}{%
+  \Literal{\mylcurly}, \RuleRef{maplet}, \Literal{|}, \RuleRef{bind list}, \Optional{\Literal{@}, \RuleRef{expression}}, \Literal{\myrcurly}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The Tuple Constructor Expression}
+\label{sec:tuple-constr-expr}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{tuple constructor}{%
+  \Literal{mk\myunderscore}, \Literal{(}, \RuleRef{expression}, \Literal{,}, \RuleRef{expression list}, \Literal{)}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Record Expressions}
+\label{sec:record-expressions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{record constructor}{%
+  \Literal{mk\myunderscore},\nmk \RuleRef{name}, \Literal{(}, \Optional{\RuleRef{expression list}}, \Literal{)}%
+}%
+
+\ntext{no delimiter is allowed}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Apply Expressions}
+\label{sec:apply-expressions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{apply}{%
+  \RuleRef{expression}, \Literal{(}, \Optional{\RuleRef{expression list}}, \Literal{)}%
+}%
+
+\RuleDef{field select}{%
+  \RuleRef{expression}, \Literal{.}, \RuleRef{identifier}%
+}%
+
+\RuleDef{tuple select}{%
+  \RuleRef{expression}, \Literal{.\#}, \RuleRef{numeral}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The Lambda Expression}
+\label{sec:lambda-expression}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{lambda expression}{%
+  \Literal{lambda}, \RuleRef{type bind list}, \Literal{@}, \RuleRef{expression}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The Self Expression}
+\label{sec:self-expr}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{self expression}{%
+  \Literal{self}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The Is Expression}
+\label{sec:expression}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{general is expression}{%
+  \RuleRef{is expression} \\%
+  \Alt\ \RuleRef{type judgement}%
+}%
+
+\RuleDef{is expression}{%
+  \Literal{is\myunderscore},\nmk \RuleRef{name}, \Literal{(}, \RuleRef{expression}, \Literal{)} \\%
+  \Alt\ \RuleRef{is basic type}, \Literal{(}, \RuleRef{expression}, \Literal{)}%
+}%
+
+\RuleDef{type judgement}{%
+  \Literal{is\myunderscore}, \Literal{(}, \RuleRef{expression}, \Literal{,}, \RuleRef{type}, \Literal{)}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The Precondition Expression}
+\label{sec:prec-expr}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{pre-condition expression}{%
+  \Literal{pre\myunderscore}, \Literal{(}, \RuleRef{expression}, \Optional{\Sequence{\Literal{,}, \RuleRef{expression}}}, \Literal{)}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Class Membership}
+\label{sec:class-memb}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{isofclass expression}{%
+  \Literal{isofclass}, \Literal{(}, \RuleRef{name}, \RuleRef{expression}, \Literal{)}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Names}
+\label{sec:names}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{name}{%
+  \RuleRef{identifier}, \Optional{\Literal{.}, \RuleRef{identifier}}%
+}%
+
+\RuleDef{name list}{%
+  \RuleRef{name}, \Sequence{\Literal{,}, \RuleRef{name}}%
+}%
+
+\RuleDef{old name}{%
+  \RuleRef{identifier}, \Literal{\mytilde}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{State Designators}
+\label{sec:state-designators}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{state designator}{%
+  \RuleRef{name} \\%
+  \Alt\ \RuleRef{field reference} \\%
+  \Alt\ \RuleRef{map or sequence reference}%
+}%
+
+\RuleDef{field reference}{%
+  \RuleRef{state designator}, \Literal{.}, \RuleRef{identifier}%
+}%
+
+\RuleDef{map or sequence reference}{%
+  \RuleRef{state designator}, \Literal{(}, \RuleRef{expression}, \Literal{)}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage%
+\section{Patterns and Bindings}
+\label{sec:patterns-bindings}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Patterns}%\label{patterns2}
+\label{sec:patterns}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{pattern}{%
+  \RuleRef{pattern identifier} \\%
+  \Alt\ \RuleRef{match value} \\%
+  \Alt\ \RuleRef{tuple pattern} \\%
+  \Alt\ \RuleRef{record pattern}%
+}%
+
+\RuleDef{pattern identifier}{%
+  \RuleRef{identifier} \Alt\ \Literal{-}%
+}%
+
+\RuleDef{match value}{%
+  \Literal{(}, \RuleRef{expression}, \Literal{)} \\%
+  \Alt\ \RuleRef{symbolic literal}%
+}%
+
+\RuleDef{tuple pattern}{%
+  \Literal{mk\myunderscore}, \Literal{(}, \RuleRef{pattern}, \Literal{,}, \RuleRef{pattern list}, \Literal{)}%
+}%
+
+\RuleDef{record pattern}{%
+  \Literal{mk\myunderscore},\nmk \RuleRef{name}, \Literal{(}, \Optional{\RuleRef{pattern list}}, \Literal{)}%
+}%
+\ntext{no delimiter is allowed}%
+
+\RuleDef{pattern list}{%
+  \RuleRef{pattern}, \Sequence{\Literal{,}, \RuleRef{pattern}}%
+}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Bindings}
+\label{sec:bindings}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RuleDef{pattern bind}{%
+  \RuleRef{pattern} \Alt\ \RuleRef{bind}%
+}%
+
+\RuleDef{bind}{%
+  \RuleRef{set bind} \Alt\ \RuleRef{type bind}%
+}%
+
+\RuleDef{set bind}{%
+  \RuleRef{pattern}, \Literal{in set}, \RuleRef{expression}%
+}%
+
+\RuleDef{type bind}{%
+  \RuleRef{pattern}, \Literal{:}, \RuleRef{type}%
+}%
+
+\RuleDef{bind list}{%
+  \RuleRef{multiple bind}, \Sequence{\Literal{,}, \RuleRef{multiple bind}}%
+}%
+
+\RuleDef{multiple bind}{%
+  \RuleRef{multiple set bind} \\%
+  \Alt\ \RuleRef{multiple type bind}%
+}%
+
+\RuleDef{multiple set bind}{%
+  \RuleRef{pattern list}, \Literal{in set}, \RuleRef{expression}%
+}%
+
+\RuleDef{multiple type bind}{%
+  \RuleRef{pattern list}, \Literal{:}, \RuleRef{type}%
+}%
+
+\RuleDef{type bind list}{%
+  \RuleRef{type bind}, \Sequence{\Literal{,}, \RuleRef{type bind}}%
+}%
+
+\RuleDef{keyword}{%
+\Literal{abs} %
+\Alt\ \Literal{all} %
+\Alt\ \Literal{and} %
+\Alt\ \Literal{atomic} %
+\Alt\ \Literal{begin} %
+\Alt\ \Literal{bool} %
+\Alt\ \Literal{by} %
+\Alt\ \Literal{card} \\ %
+\Alt\ \Literal{cases}  %
+%\Alt\ \Literal{channel} %
+\Alt\ \Literal{chanset} %
+\Alt\ \Literal{Chaos} %
+\Alt\ \Literal{char} %
+\Alt\ \Literal{class} \\%
+\Alt\ \Literal{comp} %
+\Alt\ \Literal{compose} %
+\Alt\ \Literal{conc} %
+\Alt\ \Literal{dcl} %
+\Alt\ \Literal{dinter} %
+\Alt\ \Literal{div} %
+\Alt\ \Literal{Div} \\%
+\Alt\ \Literal{do} %
+\Alt\ \Literal{dom} %
+\Alt\ \Literal{dunion} %
+\Alt\ \Literal{elems} %
+\Alt\ \Literal{else} %
+\Alt\ \Literal{elseif} %
+\Alt\ \Literal{end} \\%
+\Alt\ \Literal{endsby} %
+\Alt\ \Literal{exists} %
+\Alt\ \Literal{exists1} %
+\Alt\ \Literal{extends} %
+\Alt\ \Literal{false} \\%
+\Alt\ \Literal{floor} %
+\Alt\ \Literal{for} %
+\Alt\ \Literal{forall} %
+\Alt\ \Literal{frame} %
+\Alt\ \Literal{functions} %
+\Alt\ \Literal{hd} %
+\Alt\ \Literal{if} %
+\Alt\ \Literal{in} \\%
+\Alt\ \Literal{inds} %
+\Alt\ \Literal{inmap} %
+\Alt\ \Literal{instance} %
+\Alt\ \Literal{int} %
+\Alt\ \Literal{inter} %
+\Alt\ \Literal{initial} \\%
+\Alt\ \Literal{inv} %
+\Alt\ \Literal{inverse} %
+\Alt\ \Literal{iota} %
+\Alt\ \Literal{is} %
+\Alt\ \Literal{isofbaseclass} %
+\Alt\ \Literal{isofclass} \\%
+\Alt\ \Literal{lambda} %
+\Alt\ \Literal{len} %
+\Alt\ \Literal{let} %
+\Alt\ \Literal{logical} %
+\Alt\ \Literal{map} %
+\Alt\ \Literal{measure} %
+\Alt\ \Literal{merge} \\%
+\Alt\ \Literal{mod} %
+\Alt\ \Literal{mu} %
+\Alt\ \Literal{munion} %
+\Alt\ \Literal{nat} %
+\Alt\ \Literal{nat1} %
+\Alt\ \Literal{new} %
+\Alt\ \Literal{nil} %
+\Alt\ \Literal{not} %
+\Alt\ \Literal{of} \\%
+\Alt\ \Literal{operations} %
+\Alt\ \Literal{or} %
+\Alt\ \Literal{others} %
+\Alt\ \Literal{post} %
+\Alt\ \Literal{power} %
+\Alt\ \Literal{pre} %
+\Alt\ \Literal{private} \\%
+\Alt\ \Literal{process} %
+\Alt\ \Literal{protected} %
+\Alt\ \Literal{psubset} %
+\Alt\ \Literal{public} %
+\Alt\ \Literal{rat} %
+\Alt\ \Literal{rd} \\%
+\Alt\ \Literal{real} %
+\Alt\ \Literal{rem} %
+\Alt\ \Literal{res} %
+\Alt\ \Literal{responsibility} %
+\Alt\ \Literal{return} %
+\Alt\ \Literal{reverse} \\%
+\Alt\ \Literal{rng} %
+\Alt\ \Literal{samebaseclass} %
+\Alt\ \Literal{sameclass} %
+\Alt\ \Literal{self} %
+\Alt\ \Literal{seq} %
+\Alt\ \Literal{seq1} \\%
+\Alt\ \Literal{set} %
+\Alt\ \Literal{Skip} %
+\Alt\ \Literal{specified} %
+\Alt\ \Literal{startsby} %
+\Alt\ \Literal{state} %
+\Alt\ \Literal{Stop} \\%
+\Alt\ \Literal{subclass} %
+\Alt\ \Literal{subset} %
+\Alt\ \Literal{then} %
+\Alt\ \Literal{tl} %
+\Alt\ \Literal{to} %
+\Alt\ \Literal{token} %
+\Alt\ \Literal{true} \\%
+\Alt\ \Literal{types} %
+\Alt\ \Literal{undefined} %
+\Alt\ \Literal{union} %
+\Alt\ \Literal{val} %
+\Alt\ \Literal{values} %
+\Alt\ \Literal{vres} \\%
+\Alt\ \Literal{Wait} %
+\Alt\ \Literal{while} %
+\Alt\ \Literal{wr} \\%
+\Alt\ \Literal{mk\myunderscore} \\%
+\Alt\ \Literal{pre\myunderscore} \\%
+\Alt\ \Literal{post\myunderscore} \\%
+\Alt\ \Literal{init\myunderscore} \\%
+\Alt\ \Literal{is\myunderscore} %
+}
+
+\RuleDef{identifier}{%
+\RuleRef{initial letter}, \Sequence{\RuleRef{following letter}}
+}
+
+\RuleDef{is basic type}{%
+\Literal{is\_},(\Literal{bool} \Alt\ \Literal{nat} %
+\Alt\ \Literal{nat1} \Alt\ \Literal{int} \Alt\ \Literal{rat} %
+\Alt\ \Literal{real} \Alt\ \Literal{char} \Alt\ \Literal{token})
+}
+
+\RuleDef{symbolic literal}{%
+\RuleRef{numeric literal} \Alt\ \RuleRef{boolean literal} \\
+\Alt\ \RuleRef{nil literal} \Alt\ \RuleRef{character literal} \\
+\Alt\ \RuleRef{text literal} \Alt\ \RuleRef{quote literal}
+}
+
+\RuleDef{numeral}{\RuleRef{digit}, \Sequence{\RuleRef{digit}}}
+
+\RuleDef{numeric literal}{\RuleRef{decimal literal} \Alt\ \RuleRef{hexadecimal literal}}
+
+\RuleDef{exponent}{(\Literal{E} \Alt \Literal{e}), \Optional{\Literal{+} \Alt\ \Literal{-}}, \RuleRef{numeral}}
+
+\RuleDef{decimal literal}{\RuleRef{numeral}, \Optional{\Literal{.}, \RuleRef{digit}, \Sequence{\RuleRef{digit}}}, \Optional{\RuleRef{exponent}}}
+
+\RuleDef{hexadecimal literal}{%
+(\Literal{0x} \Alt\ \Literal{0X}), \RuleRef{hexadecimal digit}, \Sequence{\RuleRef{hexadecimal digit}}}
+
+\RuleDef{boolean literal}{\Literal{true} \Alt\ \Literal{false}}
+
+\RuleDef{nil}{\Literal{nil}}
+
+\RuleDef{character literal}{\Literal{'}, (\RuleRef{character} \Alt\ \RuleRef{escape sequence}), \Literal{'}}
+
+\RuleDef{escape sequence}{%
+\Literal{\mybackslash\mybackslash} %
+\Alt\ \Literal{\mybackslash r} %
+\Alt\ \Literal{\mybackslash n} %
+\Alt\ \Literal{\mybackslash t} %
+\Alt\ \Literal{\mybackslash f} %
+\Alt\ \Literal{\mybackslash e} %
+\Alt\ \Literal{\mybackslash a} \\ %
+\Alt\ \Literal{\mybackslash x}, \RuleRef{hexadecimal digit},
+    \RuleRef{hexadecimal digit} \\ %
+\Alt\ \Literal{\mybackslash u}, \RuleRef{hexadecimal digit},
+    \RuleRef{hexadecimal digit}, \RuleRef{hexadecimal digit},
+    \RuleRef{hexadecimal digit} \\ %
+\Alt\ \Literal{\mybackslash c}, \RuleRef{character} \\%
+\Alt\ \Literal{\mybackslash }, \RuleRef{octal digit},
+    \RuleRef{octal digit}, \RuleRef{octal digit} \\%
+\Alt\ \Literal{\mybackslash "} \Alt \Literal{\mybackslash '}}
+
+\RuleDef{text literal}{%
+\Literal{"}, \Sequence{\Literal{\mybackslash "} \Alt\ \RuleRef{character} \Alt\ \RuleRef{escape sequence}}, \Literal{"}
+}
+
+\RuleDef{quote literal}{%
+\Literal{<}, \RuleRef{identifier}, \Literal{>}
+}
+
+\RuleDef{Single-line comment}{%
+\Literal{-}\Literal{-}, \Sequence{\RuleRef{character}  --  \RuleRef{newline}}, \RuleRef{newline}
+}
+
+\RuleDef{Multiple-line comment}{%
+\Literal{/*}, \Sequence{\RuleRef{character}}, \Literal{*/}}
+
+\RuleDef{newline}{%
+\Literal{\mybackslash r} \Alt\ \Literal{\mybackslash n} \Alt\ \Literal{\mybackslash r\mybackslash n}
+}
+
