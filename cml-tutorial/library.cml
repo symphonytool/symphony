@@ -123,7 +123,7 @@ process LibraryProcess = begin
 			loans?u:(u in set dom(GetBorrowed(library)))!(card(ApplyBorrowed(library,u))) -> SKIP 
 		); Act
 	
-	@ SKIP --init -> Init(); Act
+	@ init -> *Init(); Act
 end
 
 channels
