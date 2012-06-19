@@ -1,0 +1,11 @@
+== renaming pair ==
+[[renaming pair]] := 
+[[identifier]] , {'''.''' , [[expression]]} , '''<-''' , [[identifier]] , {'''.''' , [[expression]]}
+
+<pre>
+\RuleDef{renaming pair}{
+\RuleRef{identifier}, \Sequence{\Literal{.}, \RuleRef{expression}}, \Literal{<-}, \RuleRef{identifier}, \Sequence{\Literal{.}, \RuleRef{expression}}
+}
+</pre>
+
+[[Category:Rule]]

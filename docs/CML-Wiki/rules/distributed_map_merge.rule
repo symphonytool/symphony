@@ -1,0 +1,11 @@
+== distributed map merge ==
+[[distributed map merge]] := 
+'''merge'''
+
+<pre>
+\RuleDef{distributed map merge}{
+\Literal{merge}
+}
+</pre>
+
+[[Category:Rule]]

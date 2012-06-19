@@ -1,0 +1,19 @@
+== assignment definition ==
+[[assignment definition]] := 
+[[identifier]] , ''':''' , [[type]] , [''':=''' , [[expression]]]
+| [[identifier]] , ''':''' , [[type]] , ['''in''' , [[expression]]]
+
+<pre>
+\RuleDef{assignment definition}{
+\RuleRef{identifier}, \Literal{:}, \RuleRef{type}, 
+\Optional{
+\Literal{:=}, \RuleRef{expression}
+}
+\Alt\ \RuleRef{identifier}, \Literal{:}, \RuleRef{type}, 
+\Optional{
+\Literal{in}, \RuleRef{expression}
+}
+}
+</pre>
+
+[[Category:Rule]]

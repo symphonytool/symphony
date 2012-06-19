@@ -1,0 +1,35 @@
+== escape sequence ==
+[[escape sequence]] := 
+'''\mybackslash\mybackslash'''
+| '''\mybackslash r'''
+| '''\mybackslash n'''
+| '''\mybackslash t'''
+| '''\mybackslash f'''
+| '''\mybackslash e'''
+| '''\mybackslash a'''
+| '''\mybackslash x''' , [[hexadecimal digit]] , [[hexadecimal digit]]
+| '''\mybackslash u''' , [[hexadecimal digit]] , [[hexadecimal digit]] , [[hexadecimal digit]] , [[hexadecimal digit]]
+| '''\mybackslash c''' , [[character]]
+| '''\mybackslash ''' , [[octal digit]] , [[octal digit]] , [[octal digit]]
+| '''\mybackslash "'''
+| '''\mybackslash ''''
+
+<pre>
+\RuleDef{escape sequence}{
+\Literal{\mybackslash\mybackslash}
+\Alt\ \Literal{\mybackslash r}
+\Alt\ \Literal{\mybackslash n}
+\Alt\ \Literal{\mybackslash t}
+\Alt\ \Literal{\mybackslash f}
+\Alt\ \Literal{\mybackslash e}
+\Alt\ \Literal{\mybackslash a}
+\Alt\ \Literal{\mybackslash x}, \RuleRef{hexadecimal digit}, \RuleRef{hexadecimal digit}
+\Alt\ \Literal{\mybackslash u}, \RuleRef{hexadecimal digit}, \RuleRef{hexadecimal digit}, \RuleRef{hexadecimal digit}, \RuleRef{hexadecimal digit}
+\Alt\ \Literal{\mybackslash c}, \RuleRef{character}
+\Alt\ \Literal{\mybackslash }, \RuleRef{octal digit}, \RuleRef{octal digit}, \RuleRef{octal digit}
+\Alt\ \Literal{\mybackslash "}
+\Alt\ \Literal{\mybackslash '}
+}
+</pre>
+
+[[Category:Rule]]

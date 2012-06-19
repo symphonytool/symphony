@@ -1,0 +1,17 @@
+== implicit function definition ==
+[[implicit function definition]] := 
+[[[qualifier]]] , [[identifier]] , [[parameter types]] , [[identifier type pair list]] , ['''pre''' , [[expression]]] , '''post''' , [[expression]]
+
+<pre>
+\RuleDef{implicit function definition}{
+
+\Optional{
+\RuleRef{qualifier}
+}, \RuleRef{identifier}, \RuleRef{parameter types}, \RuleRef{identifier type pair list}, 
+\Optional{
+\Literal{pre}, \RuleRef{expression}
+}, \Literal{post}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

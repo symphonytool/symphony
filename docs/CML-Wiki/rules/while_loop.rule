@@ -1,0 +1,11 @@
+== while loop ==
+[[while loop]] := 
+'''while''' , [[expression]] , '''do''' , [[action]]
+
+<pre>
+\RuleDef{while loop}{
+\Literal{while}, \RuleRef{expression}, \Literal{do}, \RuleRef{action}
+}
+</pre>
+
+[[Category:Rule]]

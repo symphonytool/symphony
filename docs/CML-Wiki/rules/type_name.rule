@@ -1,0 +1,11 @@
+== type name ==
+[[type name]] := 
+[[name]]
+
+<pre>
+\RuleDef{type name}{
+\RuleRef{name}
+}
+</pre>
+
+[[Category:Rule]]

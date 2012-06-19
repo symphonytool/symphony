@@ -1,0 +1,11 @@
+== distributed set union ==
+[[distributed set union]] := 
+'''dunion'''
+
+<pre>
+\RuleDef{distributed set union}{
+\Literal{dunion}
+}
+</pre>
+
+[[Category:Rule]]

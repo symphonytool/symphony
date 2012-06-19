@@ -1,0 +1,11 @@
+== sequence concatenate ==
+[[sequence concatenate]] := 
+'''\mycaret'''
+
+<pre>
+\RuleDef{sequence concatenate}{
+\Literal{\mycaret}
+}
+</pre>
+
+[[Category:Rule]]

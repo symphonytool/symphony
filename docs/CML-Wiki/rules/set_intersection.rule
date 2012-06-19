@@ -1,0 +1,11 @@
+== set intersection ==
+[[set intersection]] := 
+'''inter'''
+
+<pre>
+\RuleDef{set intersection}{
+\Literal{inter}
+}
+</pre>
+
+[[Category:Rule]]

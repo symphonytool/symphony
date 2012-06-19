@@ -1,0 +1,17 @@
+== qualifier ==
+[[qualifier]] := 
+'''private'''
+| '''protected'''
+| '''public'''
+| '''logical'''
+
+<pre>
+\RuleDef{qualifier}{
+\Literal{private}
+\Alt\ \Literal{protected}
+\Alt\ \Literal{public}
+\Alt\ \Literal{logical}
+}
+</pre>
+
+[[Category:Rule]]

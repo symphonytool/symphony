@@ -1,0 +1,11 @@
+== map merge ==
+[[map merge]] := 
+'''munion'''
+
+<pre>
+\RuleDef{map merge}{
+\Literal{munion}
+}
+</pre>
+
+[[Category:Rule]]

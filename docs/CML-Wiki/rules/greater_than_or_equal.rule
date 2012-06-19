@@ -1,0 +1,11 @@
+== greater than or equal ==
+[[greater than or equal]] := 
+'''>='''
+
+<pre>
+\RuleDef{greater than or equal}{
+\Literal{>=}
+}
+</pre>
+
+[[Category:Rule]]

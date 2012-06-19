@@ -1,0 +1,13 @@
+== call statement ==
+[[call statement]] := 
+[[call]]
+| [[state designator]] , ''':=''' , [[call]]
+
+<pre>
+\RuleDef{call statement}{
+\RuleRef{call}
+\Alt\ \RuleRef{state designator}, \Literal{:=}, \RuleRef{call}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== parameters list ==
+[[parameters list]] := 
+[[parameters]] , {[[parameters]]}
+
+<pre>
+\RuleDef{parameters list}{
+\RuleRef{parameters}, \Sequence{\RuleRef{parameters}}
+}
+</pre>
+
+[[Category:Rule]]

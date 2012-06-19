@@ -1,0 +1,13 @@
+== paragraph action ==
+[[paragraph action]] := 
+[[action]]
+| [[declaration]] , '''@''' , [[paragraph action]]
+
+<pre>
+\RuleDef{paragraph action}{
+\RuleRef{action}
+\Alt\ \RuleRef{declaration}, \Literal{@}, \RuleRef{paragraph action}
+}
+</pre>
+
+[[Category:Rule]]

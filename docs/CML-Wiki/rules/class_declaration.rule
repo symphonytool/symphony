@@ -1,0 +1,11 @@
+== class declaration ==
+[[class declaration]] := 
+'''class''' , [[identifier]] , '''=''' , [[class body]]
+
+<pre>
+\RuleDef{class declaration}{
+\Literal{class}, \RuleRef{identifier}, \Literal{=}, \RuleRef{class body}
+}
+</pre>
+
+[[Category:Rule]]

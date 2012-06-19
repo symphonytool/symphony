@@ -1,0 +1,13 @@
+== channel name declaration ==
+[[channel name declaration]] := 
+[[declaration]]
+| {[[identifier]]}
+
+<pre>
+\RuleDef{channel name declaration}{
+\RuleRef{declaration}
+\Alt\ \Sequence{\RuleRef{identifier}}
+}
+</pre>
+
+[[Category:Rule]]

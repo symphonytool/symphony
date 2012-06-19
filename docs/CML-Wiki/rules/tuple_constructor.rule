@@ -1,0 +1,11 @@
+== tuple constructor ==
+[[tuple constructor]] := 
+'''mk\myunderscore''' , '''(''' , [[expression]] , ''',''' , [[expression list]] , ''')'''
+
+<pre>
+\RuleDef{tuple constructor}{
+\Literal{mk\myunderscore}, \Literal{(}, \RuleRef{expression}, \Literal{,}, \RuleRef{expression list}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

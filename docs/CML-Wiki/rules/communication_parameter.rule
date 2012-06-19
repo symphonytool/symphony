@@ -1,0 +1,17 @@
+== communication parameter ==
+[[communication parameter]] := 
+'''?''' , [[parameter]]
+| '''?''' , [[parameter]] , ''':''' , [[expression]]
+| '''!''' , [[expression]]
+| '''.''' , [[expression]]
+
+<pre>
+\RuleDef{communication parameter}{
+\Literal{?}, \RuleRef{parameter}
+\Alt\ \Literal{?}, \RuleRef{parameter}, \Literal{:}, \RuleRef{expression}
+\Alt\ \Literal{!}, \RuleRef{expression}
+\Alt\ \Literal{.}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

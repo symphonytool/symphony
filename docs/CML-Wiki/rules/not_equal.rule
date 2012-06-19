@@ -1,0 +1,11 @@
+== not equal ==
+[[not equal]] := 
+'''<>'''
+
+<pre>
+\RuleDef{not equal}{
+\Literal{<>}
+}
+</pre>
+
+[[Category:Rule]]

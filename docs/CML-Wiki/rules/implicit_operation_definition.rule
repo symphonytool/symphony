@@ -1,0 +1,23 @@
+== implicit operation definition ==
+[[implicit operation definition]] := 
+[[[qualifier]]] , [[identifier]] , [[parameter types]] , [[[identifier type pair list]]] , [[[externals]]] , ['''pre''' , [[expression]]] , '''post''' , [[expression]]
+
+<pre>
+\RuleDef{implicit operation definition}{
+
+\Optional{
+\RuleRef{qualifier}
+}, \RuleRef{identifier}, \RuleRef{parameter types}, 
+\Optional{
+\RuleRef{identifier type pair list}
+}, 
+\Optional{
+\RuleRef{externals}
+}, 
+\Optional{
+\Literal{pre}, \RuleRef{expression}
+}, \Literal{post}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

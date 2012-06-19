@@ -1,0 +1,11 @@
+== or ==
+[[or]] := 
+'''or'''
+
+<pre>
+\RuleDef{or}{
+\Literal{or}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,16 @@
+== renaming comprehension ==
+[[renaming comprehension]] := 
+'''[[''' , [[renaming
+    pair]] , '''|''' , [[bind list]] , ['''@''' , [[expression]]] , ''']]'''
+
+<pre>
+\RuleDef{renaming comprehension}{
+\Literal{[[}, \RuleRef{renaming
+    pair}, \Literal{|}, \RuleRef{bind list}, 
+\Optional{
+\Literal{@}, \RuleRef{expression}
+}, \Literal{]]}
+}
+</pre>
+
+[[Category:Rule]]

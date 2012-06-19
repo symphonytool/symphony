@@ -1,0 +1,11 @@
+== declaration ==
+[[declaration]] := 
+[[single type declaration]] , {''';''' , [[single type declaration]]}
+
+<pre>
+\RuleDef{declaration}{
+\RuleRef{single type declaration}, \Sequence{\Literal{;}, \RuleRef{single type declaration}}
+}
+</pre>
+
+[[Category:Rule]]

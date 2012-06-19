@@ -1,0 +1,11 @@
+== name list ==
+[[name list]] := 
+[[name]] , {''',''' , [[name]]}
+
+<pre>
+\RuleDef{name list}{
+\RuleRef{name}, \Sequence{\Literal{,}, \RuleRef{name}}
+}
+</pre>
+
+[[Category:Rule]]

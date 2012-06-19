@@ -1,0 +1,13 @@
+== map type ==
+[[map type]] := 
+[[general map type]]
+| [[injective map type]]
+
+<pre>
+\RuleDef{map type}{
+\RuleRef{general map type}
+\Alt\ \RuleRef{injective map type}
+}
+</pre>
+
+[[Category:Rule]]

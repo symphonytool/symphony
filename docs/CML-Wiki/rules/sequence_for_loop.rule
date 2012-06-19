@@ -1,0 +1,14 @@
+== sequence for loop ==
+[[sequence for loop]] := 
+'''for''' , [[pattern bind]] , '''in''' , ['''reverse'''] , [[expression]] , '''do''' , [[action]]
+
+<pre>
+\RuleDef{sequence for loop}{
+\Literal{for}, \RuleRef{pattern bind}, \Literal{in}, 
+\Optional{
+\Literal{reverse}
+}, \RuleRef{expression}, \Literal{do}, \RuleRef{action}
+}
+</pre>
+
+[[Category:Rule]]

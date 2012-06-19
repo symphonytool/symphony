@@ -1,0 +1,11 @@
+== subsequence ==
+[[subsequence]] := 
+[[expression]] , '''(''' , [[expression]] , ''',''' , '''\Range''' , ''',''' , [[expression]] , ''')'''
+
+<pre>
+\RuleDef{subsequence}{
+\RuleRef{expression}, \Literal{(}, \RuleRef{expression}, \Literal{,}, \Literal{\Range}, \Literal{,}, \RuleRef{expression}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

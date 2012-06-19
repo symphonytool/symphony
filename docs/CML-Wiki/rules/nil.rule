@@ -1,0 +1,11 @@
+== nil ==
+[[nil]] := 
+'''nil'''
+
+<pre>
+\RuleDef{nil}{
+\Literal{nil}
+}
+</pre>
+
+[[Category:Rule]]

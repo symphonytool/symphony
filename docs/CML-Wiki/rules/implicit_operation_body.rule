@@ -1,0 +1,17 @@
+== implicit operation body ==
+[[implicit operation body]] := 
+[[[externals]]] , ['''pre''' , [[expression]]] , '''post''' , [[expression]]
+
+<pre>
+\RuleDef{implicit operation body}{
+
+\Optional{
+\RuleRef{externals}
+}, 
+\Optional{
+\Literal{pre}, \RuleRef{expression}
+}, \Literal{post}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

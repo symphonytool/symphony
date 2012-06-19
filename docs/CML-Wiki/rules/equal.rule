@@ -1,0 +1,11 @@
+== equal ==
+[[equal]] := 
+'''='''
+
+<pre>
+\RuleDef{equal}{
+\Literal{=}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,13 @@
+== is expression ==
+[[is expression]] := 
+'''is\myunderscore''' , [[name]] , '''(''' , [[expression]] , ''')'''
+| [[is basic type]] , '''(''' , [[expression]] , ''')'''
+
+<pre>
+\RuleDef{is expression}{
+\Literal{is\myunderscore}, \RuleRef{name}, \Literal{(}, \RuleRef{expression}, \Literal{)}
+\Alt\ \RuleRef{is basic type}, \Literal{(}, \RuleRef{expression}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== map domain restrict by ==
+[[map domain restrict by]] := 
+'''<-:'''
+
+<pre>
+\RuleDef{map domain restrict by}{
+\Literal{<-:}
+}
+</pre>
+
+[[Category:Rule]]

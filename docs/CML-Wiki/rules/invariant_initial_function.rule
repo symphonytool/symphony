@@ -1,0 +1,11 @@
+== invariant initial function ==
+[[invariant initial function]] := 
+[[pattern]] , '''==''' , [[expression]]
+
+<pre>
+\RuleDef{invariant initial function}{
+\RuleRef{pattern}, \Literal{==}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

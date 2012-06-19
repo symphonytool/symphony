@@ -1,0 +1,11 @@
+== optional type ==
+[[optional type]] := 
+'''[''' , [[type]] , ''']'''
+
+<pre>
+\RuleDef{optional type}{
+\Literal{[}, \RuleRef{type}, \Literal{]}
+}
+</pre>
+
+[[Category:Rule]]

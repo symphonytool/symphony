@@ -1,0 +1,11 @@
+== map or sequence reference ==
+[[map or sequence reference]] := 
+[[state designator]] , '''(''' , [[expression]] , ''')'''
+
+<pre>
+\RuleDef{map or sequence reference}{
+\RuleRef{state designator}, \Literal{(}, \RuleRef{expression}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

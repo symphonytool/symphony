@@ -1,0 +1,15 @@
+== global declaration ==
+[[global declaration]] := 
+[[type declaration]]
+| [[function declaration]]
+| [[value declaration]]
+
+<pre>
+\RuleDef{global declaration}{
+\RuleRef{type declaration}
+\Alt\ \RuleRef{function declaration}
+\Alt\ \RuleRef{value declaration}
+}
+</pre>
+
+[[Category:Rule]]

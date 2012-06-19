@@ -1,0 +1,11 @@
+== self expression ==
+[[self expression]] := 
+'''self'''
+
+<pre>
+\RuleDef{self expression}{
+\Literal{self}
+}
+</pre>
+
+[[Category:Rule]]

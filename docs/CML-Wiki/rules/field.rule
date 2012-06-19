@@ -1,0 +1,19 @@
+== field ==
+[[field]] := 
+[[[identifier]] , ''':'''] , [[type]]
+| [[[identifier]] , ''':-'''] , [[type]]
+
+<pre>
+\RuleDef{field}{
+
+\Optional{
+\RuleRef{identifier}, \Literal{:}
+}, \RuleRef{type}
+\Alt\ 
+\Optional{
+\RuleRef{identifier}, \Literal{:-}
+}, \RuleRef{type}
+}
+</pre>
+
+[[Category:Rule]]

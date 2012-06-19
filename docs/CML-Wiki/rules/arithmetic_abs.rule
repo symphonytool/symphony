@@ -1,0 +1,11 @@
+== arithmetic abs ==
+[[arithmetic abs]] := 
+'''abs'''
+
+<pre>
+\RuleDef{arithmetic abs}{
+\Literal{abs}
+}
+</pre>
+
+[[Category:Rule]]

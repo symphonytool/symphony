@@ -1,0 +1,11 @@
+== field select ==
+[[field select]] := 
+[[expression]] , '''.''' , [[identifier]]
+
+<pre>
+\RuleDef{field select}{
+\RuleRef{expression}, \Literal{.}, \RuleRef{identifier}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== sequence elements ==
+[[sequence elements]] := 
+'''elems'''
+
+<pre>
+\RuleDef{sequence elements}{
+\Literal{elems}
+}
+</pre>
+
+[[Category:Rule]]

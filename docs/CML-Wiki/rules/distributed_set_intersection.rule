@@ -1,0 +1,11 @@
+== distributed set intersection ==
+[[distributed set intersection]] := 
+'''dinter'''
+
+<pre>
+\RuleDef{distributed set intersection}{
+\Literal{dinter}
+}
+</pre>
+
+[[Category:Rule]]

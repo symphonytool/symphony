@@ -1,0 +1,17 @@
+== call ==
+[[call]] := 
+[[[object designator]] , '''.'''] , [[name]] , '''(''' , [[[expression list]]] , ''')'''
+
+<pre>
+\RuleDef{call}{
+
+\Optional{
+\RuleRef{object designator}, \Literal{.}
+}, \RuleRef{name}, \Literal{(}, 
+\Optional{
+\RuleRef{expression list}
+}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

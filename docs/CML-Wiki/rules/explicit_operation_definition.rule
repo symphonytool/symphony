@@ -1,0 +1,20 @@
+== explicit operation definition ==
+[[explicit operation definition]] := 
+[[[qualifier]]] , [[identifier]] , ''':''' , [[operation type]] , [[identifier]] , [[parameters]] , '''==''' , [[operation body]] , ['''pre''' , [[expression]]] , ['''post''' , [[expression]]]
+
+<pre>
+\RuleDef{explicit operation definition}{
+
+\Optional{
+\RuleRef{qualifier}
+}, \RuleRef{identifier}, \Literal{:}, \RuleRef{operation type}, \RuleRef{identifier}, \RuleRef{parameters}, \Literal{==}, \RuleRef{operation body}, 
+\Optional{
+\Literal{pre}, \RuleRef{expression}
+}, 
+\Optional{
+\Literal{post}, \RuleRef{expression}
+}
+}
+</pre>
+
+[[Category:Rule]]

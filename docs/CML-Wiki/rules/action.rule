@@ -1,0 +1,65 @@
+== action ==
+[[action]] := 
+'''Skip'''
+| '''Stop'''
+| '''Chaos'''
+| '''Div'''
+| '''Wait''' , [[expression]]
+| [[communication]] , '''->''' , [[action]]
+| [[expression]] , '''\&''' , [[action]]
+| [[action]] , ''';''' , [[action]]
+| [[action]] , '''[]''' , [[action]]
+| [[action]] , '''|\mytilde|''' , [[action]]
+| [[action]] , '''/''' , [[[expression]]] , '''\mybackslash''' , [[action]]
+| [[action]] , '''[''' , [[[expression]]] , '''>''' , [[action]]
+| [[action]] , '''\mybackslash''' , [[chanset expression]]
+| [[action]] , '''startby''' , [[expression]]
+| [[action]] , '''endby''' , [[expression]]
+| [[action]] , [[renaming expression]]
+| '''mu''' , {[[identifier]]} , '''@''' , {[[action]]}
+| [[parallel actions]]
+| [[parametrised actions]]
+| [[instantiated actions]]
+| [[replicated actions]]
+| [[let statement]]
+| [[block statement]]
+| [[control statements]]
+| '''(''' , [[action]] , ''')'''
+
+<pre>
+\RuleDef{action}{
+\Literal{Skip}
+\Alt\ \Literal{Stop}
+\Alt\ \Literal{Chaos}
+\Alt\ \Literal{Div}
+\Alt\ \Literal{Wait}, \RuleRef{expression}
+\Alt\ \RuleRef{communication}, \Literal{->}, \RuleRef{action}
+\Alt\ \RuleRef{expression}, \Literal{\&}, \RuleRef{action}
+\Alt\ \RuleRef{action}, \Literal{;}, \RuleRef{action}
+\Alt\ \RuleRef{action}, \Literal{[]}, \RuleRef{action}
+\Alt\ \RuleRef{action}, \Literal{|\mytilde|}, \RuleRef{action}
+\Alt\ \RuleRef{action}, \Literal{/}, 
+\Optional{
+\RuleRef{expression}
+}, \Literal{\mybackslash}, \RuleRef{action}
+\Alt\ \RuleRef{action}, \Literal{[}, 
+\Optional{
+\RuleRef{expression}
+}, \Literal{>}, \RuleRef{action}
+\Alt\ \RuleRef{action}, \Literal{\mybackslash}, \RuleRef{chanset expression}
+\Alt\ \RuleRef{action}, \Literal{startby}, \RuleRef{expression}
+\Alt\ \RuleRef{action}, \Literal{endby}, \RuleRef{expression}
+\Alt\ \RuleRef{action}, \RuleRef{renaming expression}
+\Alt\ \Literal{mu}, \Sequence{\RuleRef{identifier}}, \Literal{@}, \Sequence{\RuleRef{action}}
+\Alt\ \RuleRef{parallel actions}
+\Alt\ \RuleRef{parametrised actions}
+\Alt\ \RuleRef{instantiated actions}
+\Alt\ \RuleRef{replicated actions}
+\Alt\ \RuleRef{let statement}
+\Alt\ \RuleRef{block statement}
+\Alt\ \RuleRef{control statements}
+\Alt\ \Literal{(}, \RuleRef{action}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== isofclass expression ==
+[[isofclass expression]] := 
+'''isofclass''' , '''(''' , [[name]] , [[expression]] , ''')'''
+
+<pre>
+\RuleDef{isofclass expression}{
+\Literal{isofclass}, \Literal{(}, \RuleRef{name}, \RuleRef{expression}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

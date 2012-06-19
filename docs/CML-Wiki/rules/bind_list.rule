@@ -1,0 +1,11 @@
+== bind list ==
+[[bind list]] := 
+[[multiple bind]] , {''',''' , [[multiple bind]]}
+
+<pre>
+\RuleDef{bind list}{
+\RuleRef{multiple bind}, \Sequence{\Literal{,}, \RuleRef{multiple bind}}
+}
+</pre>
+
+[[Category:Rule]]

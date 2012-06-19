@@ -1,0 +1,13 @@
+== local definition ==
+[[local definition]] := 
+[[value definition]]
+| [[function definition]]
+
+<pre>
+\RuleDef{local definition}{
+\RuleRef{value definition}
+\Alt\ \RuleRef{function definition}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,14 @@
+== parameters ==
+[[parameters]] := 
+'''(''' , [[[pattern list]]] , ''')'''
+
+<pre>
+\RuleDef{parameters}{
+\Literal{(}, 
+\Optional{
+\RuleRef{pattern list}
+}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

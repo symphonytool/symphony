@@ -1,0 +1,11 @@
+== invariant ==
+[[invariant]] := 
+'''inv''' , [[invariant initial function]]
+
+<pre>
+\RuleDef{invariant}{
+\Literal{inv}, \RuleRef{invariant initial function}
+}
+</pre>
+
+[[Category:Rule]]

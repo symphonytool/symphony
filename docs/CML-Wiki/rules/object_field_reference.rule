@@ -1,0 +1,11 @@
+== object field reference ==
+[[object field reference]] := 
+[[object designator]] , '''.''' , [[identifier]]
+
+<pre>
+\RuleDef{object field reference}{
+\RuleRef{object designator}, \Literal{.}, \RuleRef{identifier}
+}
+</pre>
+
+[[Category:Rule]]

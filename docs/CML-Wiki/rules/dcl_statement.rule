@@ -1,0 +1,11 @@
+== dcl statement ==
+[[dcl statement]] := 
+'''dcl''' , [[assignment definition]] , {''',''' , [[assignment definition]]} , '''@'''
+
+<pre>
+\RuleDef{dcl statement}{
+\Literal{dcl}, \RuleRef{assignment definition}, \Sequence{\Literal{,}, \RuleRef{assignment definition}}, \Literal{@}
+}
+</pre>
+
+[[Category:Rule]]

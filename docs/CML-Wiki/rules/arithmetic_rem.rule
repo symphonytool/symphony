@@ -1,0 +1,11 @@
+== arithmetic rem ==
+[[arithmetic rem]] := 
+'''rem'''
+
+<pre>
+\RuleDef{arithmetic rem}{
+\Literal{rem}
+}
+</pre>
+
+[[Category:Rule]]

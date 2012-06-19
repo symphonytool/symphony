@@ -1,0 +1,25 @@
+== replicated actions ==
+[[replicated actions]] := 
+''';''' , [[replication declaration]] , '''@''' , [[action]]
+| '''[]''' , [[replication declaration]] , '''@''' , [[action]]
+| '''|\mytilde|''' , [[replication declaration]] , '''@''' , [[action]]
+| '''[||''' , [[nameset expression]] , '''||]''' , [[replication declaration]] , '''@''' , [[action]]
+| '''|||''' , [[replication declaration]] , '''@''' , '''[''' , [[nameset expression]] , ''']''' , [[action]]
+| '''[|''' , [[chanset expression]] , '''|]''' , [[replication declaration]] , '''@''' , '''[''' , [[nameset expression]] , ''']''' , [[action]]
+| '''||''' , [[replication declaration]] , '''@''' , '''[''' , [[nameset expression]] , '''|''' , [[chanset expression]] , ''']''' , [[action]]
+| '''||''' , [[replication declaration]] , '''@''' , '''[''' , [[nameset expression]] , ''']''' , [[action]]
+
+<pre>
+\RuleDef{replicated actions}{
+\Literal{;}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{action}
+\Alt\ \Literal{[]}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{action}
+\Alt\ \Literal{|\mytilde|}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{action}
+\Alt\ \Literal{[||}, \RuleRef{nameset expression}, \Literal{||]}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{action}
+\Alt\ \Literal{|||}, \RuleRef{replication declaration}, \Literal{@}, \Literal{[}, \RuleRef{nameset expression}, \Literal{]}, \RuleRef{action}
+\Alt\ \Literal{[|}, \RuleRef{chanset expression}, \Literal{|]}, \RuleRef{replication declaration}, \Literal{@}, \Literal{[}, \RuleRef{nameset expression}, \Literal{]}, \RuleRef{action}
+\Alt\ \Literal{||}, \RuleRef{replication declaration}, \Literal{@}, \Literal{[}, \RuleRef{nameset expression}, \Literal{|}, \RuleRef{chanset expression}, \Literal{]}, \RuleRef{action}
+\Alt\ \Literal{||}, \RuleRef{replication declaration}, \Literal{@}, \Literal{[}, \RuleRef{nameset expression}, \Literal{]}, \RuleRef{action}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== partial function type ==
+[[partial function type]] := 
+[[discretionary type]] , '''+>''' , [[type]]
+
+<pre>
+\RuleDef{partial function type}{
+\RuleRef{discretionary type}, \Literal{+>}, \RuleRef{type}
+}
+</pre>
+
+[[Category:Rule]]

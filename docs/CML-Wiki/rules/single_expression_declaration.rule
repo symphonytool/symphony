@@ -1,0 +1,11 @@
+== single expression declaration ==
+[[single expression declaration]] := 
+{[[identifier]]} , ''':''' , [[expression]]
+
+<pre>
+\RuleDef{single expression declaration}{
+\Sequence{\RuleRef{identifier}}, \Literal{:}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

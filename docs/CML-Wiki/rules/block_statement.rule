@@ -1,0 +1,14 @@
+== block statement ==
+[[block statement]] := 
+'''(''' , [[[dcl statement]]] , [[action]] , ''')'''
+
+<pre>
+\RuleDef{block statement}{
+\Literal{(}, 
+\Optional{
+\RuleRef{dcl statement}
+}, \RuleRef{action}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,15 @@
+== parameter ==
+[[parameter]] := 
+[[identifier]]
+| '''mk\_''' , '''(''' , {[[parameter]]} , ''')'''
+| '''mk\_''' , [[name]] , '''(''' , {[[parameter]]} , ''')'''
+
+<pre>
+\RuleDef{parameter}{
+\RuleRef{identifier}
+\Alt\ \Literal{mk\_}, \Literal{(}, \Sequence{\RuleRef{parameter}}, \Literal{)}
+\Alt\ \Literal{mk\_}, \RuleRef{name}, \Literal{(}, \Sequence{\RuleRef{parameter}}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

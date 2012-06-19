@@ -1,0 +1,13 @@
+== hexadecimal literal ==
+[[hexadecimal literal]] := 
+'''0x'''
+| '''0X''' , [[hexadecimal digit]] , {[[hexadecimal digit]]}
+
+<pre>
+\RuleDef{hexadecimal literal}{
+\Literal{0x}
+\Alt\ \Literal{0X}, \RuleRef{hexadecimal digit}, \Sequence{\RuleRef{hexadecimal digit}}
+}
+</pre>
+
+[[Category:Rule]]

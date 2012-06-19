@@ -1,0 +1,14 @@
+== map comprehension ==
+[[map comprehension]] := 
+'''\mylcurly''' , [[maplet]] , '''|''' , [[bind list]] , ['''@''' , [[expression]]] , '''\myrcurly'''
+
+<pre>
+\RuleDef{map comprehension}{
+\Literal{\mylcurly}, \RuleRef{maplet}, \Literal{|}, \RuleRef{bind list}, 
+\Optional{
+\Literal{@}, \RuleRef{expression}
+}, \Literal{\myrcurly}
+}
+</pre>
+
+[[Category:Rule]]

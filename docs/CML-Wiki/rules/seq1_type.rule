@@ -1,0 +1,11 @@
+== seq1 type ==
+[[seq1 type]] := 
+'''seq1 of''' , [[type]]
+
+<pre>
+\RuleDef{seq1 type}{
+\Literal{seq1 of}, \RuleRef{type}
+}
+</pre>
+
+[[Category:Rule]]

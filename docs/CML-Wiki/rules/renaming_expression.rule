@@ -1,0 +1,13 @@
+== renaming expression ==
+[[renaming expression]] := 
+[[renaming enumeration]]
+| [[renaming comprehension]]
+
+<pre>
+\RuleDef{renaming expression}{
+\RuleRef{renaming enumeration}
+\Alt\ \RuleRef{renaming comprehension}
+}
+</pre>
+
+[[Category:Rule]]

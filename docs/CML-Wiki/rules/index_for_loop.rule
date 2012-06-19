@@ -1,0 +1,14 @@
+== index for loop ==
+[[index for loop]] := 
+'''for''' , [[identifier]] , '''=''' , [[expression]] , '''to''' , [[expression]] , ['''by''' , [[expression]]] , '''do''' , [[action]]
+
+<pre>
+\RuleDef{index for loop}{
+\Literal{for}, \RuleRef{identifier}, \Literal{=}, \RuleRef{expression}, \Literal{to}, \RuleRef{expression}, 
+\Optional{
+\Literal{by}, \RuleRef{expression}
+}, \Literal{do}, \RuleRef{action}
+}
+</pre>
+
+[[Category:Rule]]

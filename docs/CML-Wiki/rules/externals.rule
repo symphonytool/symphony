@@ -1,0 +1,11 @@
+== externals ==
+[[externals]] := 
+'''frame''' , [[var information]] , {[[var information]]}
+
+<pre>
+\RuleDef{externals}{
+\Literal{frame}, \RuleRef{var information}, \Sequence{\RuleRef{var information}}
+}
+</pre>
+
+[[Category:Rule]]

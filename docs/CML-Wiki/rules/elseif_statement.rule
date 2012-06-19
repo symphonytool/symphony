@@ -1,0 +1,11 @@
+== elseif statement ==
+[[elseif statement]] := 
+'''elseif''' , [[expression]] , '''then''' , [[action]]
+
+<pre>
+\RuleDef{elseif statement}{
+\Literal{elseif}, \RuleRef{expression}, \Literal{then}, \RuleRef{action}
+}
+</pre>
+
+[[Category:Rule]]

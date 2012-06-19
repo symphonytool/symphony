@@ -1,0 +1,11 @@
+== sequence head ==
+[[sequence head]] := 
+'''hd'''
+
+<pre>
+\RuleDef{sequence head}{
+\Literal{hd}
+}
+</pre>
+
+[[Category:Rule]]

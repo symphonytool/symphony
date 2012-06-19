@@ -1,0 +1,11 @@
+== set range expression ==
+[[set range expression]] := 
+'''\mylcurly''' , [[expression]] , ''',''' , '''\Range''' , ''',''' , [[expression]] , '''\myrcurly'''
+
+<pre>
+\RuleDef{set range expression}{
+\Literal{\mylcurly}, \RuleRef{expression}, \Literal{,}, \Literal{\Range}, \Literal{,}, \RuleRef{expression}, \Literal{\myrcurly}
+}
+</pre>
+
+[[Category:Rule]]

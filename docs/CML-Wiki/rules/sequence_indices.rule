@@ -1,0 +1,11 @@
+== sequence indices ==
+[[sequence indices]] := 
+'''inds'''
+
+<pre>
+\RuleDef{sequence indices}{
+\Literal{inds}
+}
+</pre>
+
+[[Category:Rule]]

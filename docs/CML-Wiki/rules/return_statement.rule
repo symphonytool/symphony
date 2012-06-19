@@ -1,0 +1,14 @@
+== return statement ==
+[[return statement]] := 
+'''return''' , [[[expression]]]
+
+<pre>
+\RuleDef{return statement}{
+\Literal{return}, 
+\Optional{
+\RuleRef{expression}
+}
+}
+</pre>
+
+[[Category:Rule]]

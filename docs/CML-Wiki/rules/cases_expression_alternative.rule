@@ -1,0 +1,11 @@
+== cases expression alternative ==
+[[cases expression alternative]] := 
+[[pattern list]] , '''->''' , [[expression]]
+
+<pre>
+\RuleDef{cases expression alternative}{
+\RuleRef{pattern list}, \Literal{->}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

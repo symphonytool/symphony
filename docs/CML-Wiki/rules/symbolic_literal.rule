@@ -1,0 +1,21 @@
+== symbolic literal ==
+[[symbolic literal]] := 
+[[numeric literal]]
+| [[boolean literal]]
+| [[nil literal]]
+| [[character literal]]
+| [[text literal]]
+| [[quote literal]]
+
+<pre>
+\RuleDef{symbolic literal}{
+\RuleRef{numeric literal}
+\Alt\ \RuleRef{boolean literal}
+\Alt\ \RuleRef{nil literal}
+\Alt\ \RuleRef{character literal}
+\Alt\ \RuleRef{text literal}
+\Alt\ \RuleRef{quote literal}
+}
+</pre>
+
+[[Category:Rule]]

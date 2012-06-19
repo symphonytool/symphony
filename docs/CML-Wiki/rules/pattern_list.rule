@@ -1,0 +1,11 @@
+== pattern list ==
+[[pattern list]] := 
+[[pattern]] , {''',''' , [[pattern]]}
+
+<pre>
+\RuleDef{pattern list}{
+\RuleRef{pattern}, \Sequence{\Literal{,}, \RuleRef{pattern}}
+}
+</pre>
+
+[[Category:Rule]]

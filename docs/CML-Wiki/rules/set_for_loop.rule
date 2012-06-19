@@ -1,0 +1,11 @@
+== set for loop ==
+[[set for loop]] := 
+'''for''' , '''all''' , [[pattern]] , '''in set''' , [[expression]] , '''do''' , [[action]]
+
+<pre>
+\RuleDef{set for loop}{
+\Literal{for}, \Literal{all}, \RuleRef{pattern}, \Literal{in set}, \RuleRef{expression}, \Literal{do}, \RuleRef{action}
+}
+</pre>
+
+[[Category:Rule]]

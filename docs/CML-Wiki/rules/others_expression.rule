@@ -1,0 +1,11 @@
+== others expression ==
+[[others expression]] := 
+'''others''' , '''->''' , [[expression]]
+
+<pre>
+\RuleDef{others expression}{
+\Literal{others}, \Literal{->}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

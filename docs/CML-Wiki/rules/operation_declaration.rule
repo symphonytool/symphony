@@ -1,0 +1,11 @@
+== operation declaration ==
+[[operation declaration]] := 
+'''operations''' , [[operation definition]] , {''';''' , [[operation definition]]}
+
+<pre>
+\RuleDef{operation declaration}{
+\Literal{operations}, \RuleRef{operation definition}, \Sequence{\Literal{;}, \RuleRef{operation definition}}
+}
+</pre>
+
+[[Category:Rule]]

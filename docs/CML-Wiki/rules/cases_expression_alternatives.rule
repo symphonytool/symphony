@@ -1,0 +1,11 @@
+== cases expression alternatives ==
+[[cases expression alternatives]] := 
+{[[cases expression alternative]]}
+
+<pre>
+\RuleDef{cases expression alternatives}{
+\Sequence{\RuleRef{cases expression alternative}}
+}
+</pre>
+
+[[Category:Rule]]

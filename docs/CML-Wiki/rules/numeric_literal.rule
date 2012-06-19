@@ -1,0 +1,13 @@
+== numeric literal ==
+[[numeric literal]] := 
+[[decimal literal]]
+| [[hexadecimal literal]]
+
+<pre>
+\RuleDef{numeric literal}{
+\RuleRef{decimal literal}
+\Alt\ \RuleRef{hexadecimal literal}
+}
+</pre>
+
+[[Category:Rule]]

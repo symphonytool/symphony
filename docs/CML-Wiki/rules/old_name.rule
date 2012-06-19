@@ -1,0 +1,11 @@
+== old name ==
+[[old name]] := 
+[[identifier]] , '''\mytilde'''
+
+<pre>
+\RuleDef{old name}{
+\RuleRef{identifier}, \Literal{\mytilde}
+}
+</pre>
+
+[[Category:Rule]]

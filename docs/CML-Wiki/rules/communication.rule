@@ -1,0 +1,11 @@
+== communication ==
+[[communication]] := 
+[[identifier]] , {[[communication parameter]]}
+
+<pre>
+\RuleDef{communication}{
+\RuleRef{identifier}, \Sequence{\RuleRef{communication parameter}}
+}
+</pre>
+
+[[Category:Rule]]

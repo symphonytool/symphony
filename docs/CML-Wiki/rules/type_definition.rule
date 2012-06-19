@@ -1,0 +1,25 @@
+== type definition ==
+[[type definition]] := 
+[[[qualifier]]] , [[identifier]] , '''=''' , [[type]] , [[[invariant]]]
+| [[[qualifier]]] , [[identifier]] , '''::''' , [[field list]] , [[[invariant]]]
+
+<pre>
+\RuleDef{type definition}{
+
+\Optional{
+\RuleRef{qualifier}
+}, \RuleRef{identifier}, \Literal{=}, \RuleRef{type}, 
+\Optional{
+\RuleRef{invariant}
+}
+\Alt\ 
+\Optional{
+\RuleRef{qualifier}
+}, \RuleRef{identifier}, \Literal{::}, \RuleRef{field list}, 
+\Optional{
+\RuleRef{invariant}
+}
+}
+</pre>
+
+[[Category:Rule]]

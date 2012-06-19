@@ -1,0 +1,11 @@
+== unary minus ==
+[[unary minus]] := 
+'''-'''
+
+<pre>
+\RuleDef{unary minus}{
+\Literal{-}
+}
+</pre>
+
+[[Category:Rule]]

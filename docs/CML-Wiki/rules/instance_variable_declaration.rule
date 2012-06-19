@@ -1,0 +1,11 @@
+== instance variable declaration ==
+[[instance variable declaration]] := 
+[[instance variable definition]] , {''';''' , [[instance variable definition]]}
+
+<pre>
+\RuleDef{instance variable declaration}{
+\RuleRef{instance variable definition}, \Sequence{\Literal{;}, \RuleRef{instance variable definition}}
+}
+</pre>
+
+[[Category:Rule]]

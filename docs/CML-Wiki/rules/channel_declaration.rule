@@ -1,0 +1,11 @@
+== channel declaration ==
+[[channel declaration]] := 
+[[channel definition]]
+
+<pre>
+\RuleDef{channel declaration}{
+\RuleRef{channel definition}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== all expression ==
+[[all expression]] := 
+'''forall''' , [[bind list]] , '''@''' , [[expression]]
+
+<pre>
+\RuleDef{all expression}{
+\Literal{forall}, \RuleRef{bind list}, \Literal{@}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

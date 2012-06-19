@@ -1,0 +1,11 @@
+== Single-line comment ==
+[[Single-line comment]] := 
+'''-''' , '''-''' , {[[character]] , [[newline]]} , [[newline]]
+
+<pre>
+\RuleDef{Single-line comment}{
+\Literal{-}, \Literal{-}, \Sequence{\RuleRef{character}, \RuleRef{newline}}, \RuleRef{newline}
+}
+</pre>
+
+[[Category:Rule]]

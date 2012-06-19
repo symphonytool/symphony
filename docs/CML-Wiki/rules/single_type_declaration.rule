@@ -1,0 +1,11 @@
+== single type declaration ==
+[[single type declaration]] := 
+{[[identifier]]} , ''':''' , [[type]]
+
+<pre>
+\RuleDef{single type declaration}{
+\Sequence{\RuleRef{identifier}}, \Literal{:}, \RuleRef{type}
+}
+</pre>
+
+[[Category:Rule]]

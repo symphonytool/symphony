@@ -1,0 +1,11 @@
+== set bind ==
+[[set bind]] := 
+[[pattern]] , '''in set''' , [[expression]]
+
+<pre>
+\RuleDef{set bind}{
+\RuleRef{pattern}, \Literal{in set}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== subset ==
+[[subset]] := 
+'''subset'''
+
+<pre>
+\RuleDef{subset}{
+\Literal{subset}
+}
+</pre>
+
+[[Category:Rule]]

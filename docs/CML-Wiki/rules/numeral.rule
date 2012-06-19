@@ -1,0 +1,11 @@
+== numeral ==
+[[numeral]] := 
+[[digit]] , {[[digit]]}
+
+<pre>
+\RuleDef{numeral}{
+\RuleRef{digit}, \Sequence{\RuleRef{digit}}
+}
+</pre>
+
+[[Category:Rule]]

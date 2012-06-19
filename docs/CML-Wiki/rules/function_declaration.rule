@@ -1,0 +1,14 @@
+== function declaration ==
+[[function declaration]] := 
+'''functions''' , [[[function definition]]] , {''';''' , [[function definition]]}
+
+<pre>
+\RuleDef{function declaration}{
+\Literal{functions}, 
+\Optional{
+\RuleRef{function definition}
+}, \Sequence{\Literal{;}, \RuleRef{function definition}}
+}
+</pre>
+
+[[Category:Rule]]

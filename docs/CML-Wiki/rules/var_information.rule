@@ -1,0 +1,14 @@
+== var information ==
+[[var information]] := 
+[[mode]] , [[name list]] , [''':''' , [[type]]]
+
+<pre>
+\RuleDef{var information}{
+\RuleRef{mode}, \RuleRef{name list}, 
+\Optional{
+\Literal{:}, \RuleRef{type}
+}
+}
+</pre>
+
+[[Category:Rule]]

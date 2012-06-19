@@ -1,0 +1,11 @@
+== general map type ==
+[[general map type]] := 
+'''map''' , [[type]] , '''to''' , [[type]]
+
+<pre>
+\RuleDef{general map type}{
+\Literal{map}, \RuleRef{type}, \Literal{to}, \RuleRef{type}
+}
+</pre>
+
+[[Category:Rule]]

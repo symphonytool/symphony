@@ -1,0 +1,13 @@
+== function type ==
+[[function type]] := 
+[[partial function type]]
+| [[total function type]]
+
+<pre>
+\RuleDef{function type}{
+\RuleRef{partial function type}
+\Alt\ \RuleRef{total function type}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== arithmetic multiplication ==
+[[arithmetic multiplication]] := 
+'''*'''
+
+<pre>
+\RuleDef{arithmetic multiplication}{
+\Literal{*}
+}
+</pre>
+
+[[Category:Rule]]

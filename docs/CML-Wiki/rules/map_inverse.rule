@@ -1,0 +1,11 @@
+== map inverse ==
+[[map inverse]] := 
+'''inverse''' , [[expression]]
+
+<pre>
+\RuleDef{map inverse}{
+\Literal{inverse}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

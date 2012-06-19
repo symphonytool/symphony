@@ -1,0 +1,14 @@
+== pre-condition expression ==
+[[pre-condition expression]] := 
+'''pre\myunderscore''' , '''(''' , [[expression]] , [{''',''' , [[expression]]}] , ''')'''
+
+<pre>
+\RuleDef{pre-condition expression}{
+\Literal{pre\myunderscore}, \Literal{(}, \RuleRef{expression}, 
+\Optional{
+\Sequence{\Literal{,}, \RuleRef{expression}}
+}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,14 @@
+== cases statement ==
+[[cases statement]] := 
+'''cases''' , [[expression]] , ''':''' , [[cases statement alternatives]] , [''',''' , [[others statement]]] , '''end'''
+
+<pre>
+\RuleDef{cases statement}{
+\Literal{cases}, \RuleRef{expression}, \Literal{:}, \RuleRef{cases statement alternatives}, 
+\Optional{
+\Literal{,}, \RuleRef{others statement}
+}, \Literal{end}
+}
+</pre>
+
+[[Category:Rule]]

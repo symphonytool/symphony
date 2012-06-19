@@ -1,0 +1,13 @@
+== match value ==
+[[match value]] := 
+'''(''' , [[expression]] , ''')'''
+| [[symbolic literal]]
+
+<pre>
+\RuleDef{match value}{
+\Literal{(}, \RuleRef{expression}, \Literal{)}
+\Alt\ \RuleRef{symbolic literal}
+}
+</pre>
+
+[[Category:Rule]]

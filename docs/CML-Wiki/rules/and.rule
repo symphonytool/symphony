@@ -1,0 +1,11 @@
+== and ==
+[[and]] := 
+'''and'''
+
+<pre>
+\RuleDef{and}{
+\Literal{and}
+}
+</pre>
+
+[[Category:Rule]]

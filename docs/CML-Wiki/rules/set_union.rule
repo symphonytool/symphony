@@ -1,0 +1,11 @@
+== set union ==
+[[set union]] := 
+'''union'''
+
+<pre>
+\RuleDef{set union}{
+\Literal{union}
+}
+</pre>
+
+[[Category:Rule]]

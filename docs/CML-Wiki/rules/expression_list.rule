@@ -1,0 +1,11 @@
+== expression list ==
+[[expression list]] := 
+[[expression]] , {''',''' , [[expression]]}
+
+<pre>
+\RuleDef{expression list}{
+\RuleRef{expression}, \Sequence{\Literal{,}, \RuleRef{expression}}
+}
+</pre>
+
+[[Category:Rule]]

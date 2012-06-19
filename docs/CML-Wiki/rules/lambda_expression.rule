@@ -1,0 +1,11 @@
+== lambda expression ==
+[[lambda expression]] := 
+'''lambda''' , [[type bind list]] , '''@''' , [[expression]]
+
+<pre>
+\RuleDef{lambda expression}{
+\Literal{lambda}, \RuleRef{type bind list}, \Literal{@}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

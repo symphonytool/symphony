@@ -1,0 +1,13 @@
+== discretionary type ==
+[[discretionary type]] := 
+[[type]]
+| '''(''' , ''')'''
+
+<pre>
+\RuleDef{discretionary type}{
+\RuleRef{type}
+\Alt\ \Literal{(}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

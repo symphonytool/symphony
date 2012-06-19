@@ -1,0 +1,11 @@
+== product type ==
+[[product type]] := 
+[[type]] , '''*''' , [[type]] , {'''*''' , [[type]]}
+
+<pre>
+\RuleDef{product type}{
+\RuleRef{type}, \Literal{*}, \RuleRef{type}, \Sequence{\Literal{*}, \RuleRef{type}}
+}
+</pre>
+
+[[Category:Rule]]

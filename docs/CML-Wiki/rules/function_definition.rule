@@ -1,0 +1,13 @@
+== function definition ==
+[[function definition]] := 
+[[explicit function definition]]
+| [[implicit function definition]]
+
+<pre>
+\RuleDef{function definition}{
+\RuleRef{explicit function definition}
+\Alt\ \RuleRef{implicit function definition}
+}
+</pre>
+
+[[Category:Rule]]

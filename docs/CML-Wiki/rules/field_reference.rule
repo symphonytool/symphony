@@ -1,0 +1,11 @@
+== field reference ==
+[[field reference]] := 
+[[state designator]] , '''.''' , [[identifier]]
+
+<pre>
+\RuleDef{field reference}{
+\RuleRef{state designator}, \Literal{.}, \RuleRef{identifier}
+}
+</pre>
+
+[[Category:Rule]]

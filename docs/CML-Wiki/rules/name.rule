@@ -1,0 +1,14 @@
+== name ==
+[[name]] := 
+[[identifier]] , ['''.''' , [[identifier]]]
+
+<pre>
+\RuleDef{name}{
+\RuleRef{identifier}, 
+\Optional{
+\Literal{.}, \RuleRef{identifier}
+}
+}
+</pre>
+
+[[Category:Rule]]

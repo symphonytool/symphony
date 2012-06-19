@@ -1,0 +1,11 @@
+== field list ==
+[[field list]] := 
+{[[field]]}
+
+<pre>
+\RuleDef{field list}{
+\Sequence{\RuleRef{field}}
+}
+</pre>
+
+[[Category:Rule]]

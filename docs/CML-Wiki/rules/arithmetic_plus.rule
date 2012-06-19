@@ -1,0 +1,11 @@
+== arithmetic plus ==
+[[arithmetic plus]] := 
+'''+'''
+
+<pre>
+\RuleDef{arithmetic plus}{
+\Literal{+}
+}
+</pre>
+
+[[Category:Rule]]

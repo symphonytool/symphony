@@ -1,0 +1,11 @@
+== composition ==
+[[composition]] := 
+'''comp'''
+
+<pre>
+\RuleDef{composition}{
+\Literal{comp}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== bracketed type ==
+[[bracketed type]] := 
+'''(''' , [[type]] , ''')'''
+
+<pre>
+\RuleDef{bracketed type}{
+\Literal{(}, \RuleRef{type}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

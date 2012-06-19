@@ -1,0 +1,17 @@
+== paragraph ==
+[[paragraph]] := 
+[[type declaration]]
+| [[value declaration]]
+| [[function declaration]]
+| [[operation declaration]]
+
+<pre>
+\RuleDef{paragraph}{
+\RuleRef{type declaration}
+\Alt\ \RuleRef{value declaration}
+\Alt\ \RuleRef{function declaration}
+\Alt\ \RuleRef{operation declaration}
+}
+</pre>
+
+[[Category:Rule]]

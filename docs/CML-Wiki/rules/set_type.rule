@@ -1,0 +1,11 @@
+== set type ==
+[[set type]] := 
+'''set of''' , [[type]]
+
+<pre>
+\RuleDef{set type}{
+\Literal{set of}, \RuleRef{type}
+}
+</pre>
+
+[[Category:Rule]]

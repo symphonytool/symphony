@@ -1,0 +1,11 @@
+== exists expression ==
+[[exists expression]] := 
+'''exists''' , [[bind list]] , '''@''' , [[expression]]
+
+<pre>
+\RuleDef{exists expression}{
+\Literal{exists}, \RuleRef{bind list}, \Literal{@}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

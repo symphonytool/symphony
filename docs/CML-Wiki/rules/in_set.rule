@@ -1,0 +1,11 @@
+== in set ==
+[[in set]] := 
+'''in set'''
+
+<pre>
+\RuleDef{in set}{
+\Literal{in set}
+}
+</pre>
+
+[[Category:Rule]]

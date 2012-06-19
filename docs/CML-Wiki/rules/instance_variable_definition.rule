@@ -1,0 +1,16 @@
+== instance variable definition ==
+[[instance variable definition]] := 
+[[[qualifier]]] , [[assignment definition]]
+| [[invariant definition]]
+
+<pre>
+\RuleDef{instance variable definition}{
+
+\Optional{
+\RuleRef{qualifier}
+}, \RuleRef{assignment definition}
+\Alt\ \RuleRef{invariant definition}
+}
+</pre>
+
+[[Category:Rule]]

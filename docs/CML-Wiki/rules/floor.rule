@@ -1,0 +1,11 @@
+== floor ==
+[[floor]] := 
+'''floor'''
+
+<pre>
+\RuleDef{floor}{
+\Literal{floor}
+}
+</pre>
+
+[[Category:Rule]]

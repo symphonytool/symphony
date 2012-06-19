@@ -1,0 +1,11 @@
+== iterate ==
+[[iterate]] := 
+'''**'''
+
+<pre>
+\RuleDef{iterate}{
+\Literal{**}
+}
+</pre>
+
+[[Category:Rule]]

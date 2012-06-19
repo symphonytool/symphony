@@ -1,0 +1,11 @@
+== injective map type ==
+[[injective map type]] := 
+'''inmap''' , [[type]] , '''to''' , [[type]]
+
+<pre>
+\RuleDef{injective map type}{
+\Literal{inmap}, \RuleRef{type}, \Literal{to}, \RuleRef{type}
+}
+</pre>
+
+[[Category:Rule]]

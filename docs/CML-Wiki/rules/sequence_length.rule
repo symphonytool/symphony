@@ -1,0 +1,11 @@
+== sequence length ==
+[[sequence length]] := 
+'''len'''
+
+<pre>
+\RuleDef{sequence length}{
+\Literal{len}
+}
+</pre>
+
+[[Category:Rule]]

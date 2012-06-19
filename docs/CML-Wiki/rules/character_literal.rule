@@ -1,0 +1,13 @@
+== character literal ==
+[[character literal]] := 
+''''''' , [[character]]
+| [[escape sequence]] , '''''''
+
+<pre>
+\RuleDef{character literal}{
+\Literal{'}, \RuleRef{character}
+\Alt\ \RuleRef{escape sequence}, \Literal{'}
+}
+</pre>
+
+[[Category:Rule]]

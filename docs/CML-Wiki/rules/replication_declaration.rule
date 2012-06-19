@@ -1,0 +1,15 @@
+== replication declaration ==
+[[replication declaration]] := 
+[[single type declaration]]
+| [[single expression declaration]] , ''';''' , {[[single type declaration]]
+| [[single expression declaration]]}
+
+<pre>
+\RuleDef{replication declaration}{
+\RuleRef{single type declaration}
+\Alt\ \RuleRef{single expression declaration}, \Literal{;}, \Sequence{\RuleRef{single type declaration}
+\Alt\ \RuleRef{single expression declaration}}
+}
+</pre>
+
+[[Category:Rule]]

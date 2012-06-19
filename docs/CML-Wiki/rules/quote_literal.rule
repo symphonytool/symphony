@@ -1,0 +1,11 @@
+== quote literal ==
+[[quote literal]] := 
+'''<''' , [[identifier]] , '''>'''
+
+<pre>
+\RuleDef{quote literal}{
+\Literal{<}, \RuleRef{identifier}, \Literal{>}
+}
+</pre>
+
+[[Category:Rule]]

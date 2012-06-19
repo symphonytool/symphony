@@ -1,0 +1,25 @@
+== value definition ==
+[[value definition]] := 
+[[[qualifier]]] , [[pattern]] , [''':''' , [[type]]] , '''=''' , [[expression]]
+| [[[qualifier]]] , [[pattern]] , [''':''' , [[type]]] , '''in''' , [[expression]]
+
+<pre>
+\RuleDef{value definition}{
+
+\Optional{
+\RuleRef{qualifier}
+}, \RuleRef{pattern}, 
+\Optional{
+\Literal{:}, \RuleRef{type}
+}, \Literal{=}, \RuleRef{expression}
+\Alt\ 
+\Optional{
+\RuleRef{qualifier}
+}, \RuleRef{pattern}, 
+\Optional{
+\Literal{:}, \RuleRef{type}
+}, \Literal{in}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

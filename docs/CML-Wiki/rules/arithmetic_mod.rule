@@ -1,0 +1,11 @@
+== arithmetic mod ==
+[[arithmetic mod]] := 
+'''mod'''
+
+<pre>
+\RuleDef{arithmetic mod}{
+\Literal{mod}
+}
+</pre>
+
+[[Category:Rule]]

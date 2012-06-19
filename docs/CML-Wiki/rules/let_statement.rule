@@ -1,0 +1,11 @@
+== let statement ==
+[[let statement]] := 
+'''let''' , [[local definition]] , {''',''' , [[local definition]]} , '''in''' , [[action]]
+
+<pre>
+\RuleDef{let statement}{
+\Literal{let}, \RuleRef{local definition}, \Sequence{\Literal{,}, \RuleRef{local definition}}, \Literal{in}, \RuleRef{action}
+}
+</pre>
+
+[[Category:Rule]]

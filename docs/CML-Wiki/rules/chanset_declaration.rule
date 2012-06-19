@@ -1,0 +1,11 @@
+== chanset declaration ==
+[[chanset declaration]] := 
+[[identifier]] , '''=''' , [[chanset expression]]
+
+<pre>
+\RuleDef{chanset declaration}{
+\RuleRef{identifier}, \Literal{=}, \RuleRef{chanset expression}
+}
+</pre>
+
+[[Category:Rule]]

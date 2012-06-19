@@ -1,0 +1,14 @@
+== apply ==
+[[apply]] := 
+[[expression]] , '''(''' , [[[expression list]]] , ''')'''
+
+<pre>
+\RuleDef{apply}{
+\RuleRef{expression}, \Literal{(}, 
+\Optional{
+\RuleRef{expression list}
+}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

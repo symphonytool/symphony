@@ -1,0 +1,13 @@
+== map enumeration ==
+[[map enumeration]] := 
+'''\mylcurly''' , [[maplet]] , {''',''' , [[maplet]]} , '''\myrcurly'''
+| '''\mylcurly''' , '''|->''' , '''\myrcurly'''
+
+<pre>
+\RuleDef{map enumeration}{
+\Literal{\mylcurly}, \RuleRef{maplet}, \Sequence{\Literal{,}, \RuleRef{maplet}}, \Literal{\myrcurly}
+\Alt\ \Literal{\mylcurly}, \Literal{|->}, \Literal{\myrcurly}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,13 @@
+== boolean literal ==
+[[boolean literal]] := 
+'''true'''
+| '''false'''
+
+<pre>
+\RuleDef{boolean literal}{
+\Literal{true}
+\Alt\ \Literal{false}
+}
+</pre>
+
+[[Category:Rule]]

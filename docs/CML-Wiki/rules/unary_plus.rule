@@ -1,0 +1,11 @@
+== unary plus ==
+[[unary plus]] := 
+'''+'''
+
+<pre>
+\RuleDef{unary plus}{
+\Literal{+}
+}
+</pre>
+
+[[Category:Rule]]

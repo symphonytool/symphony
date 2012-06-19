@@ -1,0 +1,14 @@
+== sequence comprehension ==
+[[sequence comprehension]] := 
+'''[''' , [[expression]] , '''|''' , [[set bind]] , ['''@''' , [[expression]]] , ''']'''
+
+<pre>
+\RuleDef{sequence comprehension}{
+\Literal{[}, \RuleRef{expression}, \Literal{|}, \RuleRef{set bind}, 
+\Optional{
+\Literal{@}, \RuleRef{expression}
+}, \Literal{]}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== type bind list ==
+[[type bind list]] := 
+[[type bind]] , {''',''' , [[type bind]]}
+
+<pre>
+\RuleDef{type bind list}{
+\RuleRef{type bind}, \Sequence{\Literal{,}, \RuleRef{type bind}}
+}
+</pre>
+
+[[Category:Rule]]

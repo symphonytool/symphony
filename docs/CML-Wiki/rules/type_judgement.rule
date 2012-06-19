@@ -1,0 +1,11 @@
+== type judgement ==
+[[type judgement]] := 
+'''is\myunderscore''' , '''(''' , [[expression]] , ''',''' , [[type]] , ''')'''
+
+<pre>
+\RuleDef{type judgement}{
+\Literal{is\myunderscore}, \Literal{(}, \RuleRef{expression}, \Literal{,}, \RuleRef{type}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

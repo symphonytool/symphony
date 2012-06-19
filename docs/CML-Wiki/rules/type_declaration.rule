@@ -1,0 +1,11 @@
+== type declaration ==
+[[type declaration]] := 
+'''types''' , {[[type definition]]}
+
+<pre>
+\RuleDef{type declaration}{
+\Literal{types}, \Sequence{\RuleRef{type definition}}
+}
+</pre>
+
+[[Category:Rule]]

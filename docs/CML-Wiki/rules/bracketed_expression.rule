@@ -1,0 +1,11 @@
+== bracketed expression ==
+[[bracketed expression]] := 
+'''(''' , [[expression]] , ''')'''
+
+<pre>
+\RuleDef{bracketed expression}{
+\Literal{(}, \RuleRef{expression}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

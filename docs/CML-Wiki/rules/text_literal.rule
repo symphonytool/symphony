@@ -1,0 +1,15 @@
+== text literal ==
+[[text literal]] := 
+'''"''' , {'''\mybackslash "'''
+| [[character]]
+| [[escape sequence]]} , '''"'''
+
+<pre>
+\RuleDef{text literal}{
+\Literal{"}, \Sequence{\Literal{\mybackslash "}
+\Alt\ \RuleRef{character}
+\Alt\ \RuleRef{escape sequence}}, \Literal{"}
+}
+</pre>
+
+[[Category:Rule]]

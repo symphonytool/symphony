@@ -1,0 +1,23 @@
+== explicit function definition ==
+[[explicit function definition]] := 
+[[[qualifier]]] , [[identifier]] , ''':''' , [[function type]] , [[identifier]] , [[parameters list]] , '''==''' , [[function body]] , ['''pre''' , [[expression]]] , ['''post''' , [[expression]]] , ['''measure''' , [[name]]]
+
+<pre>
+\RuleDef{explicit function definition}{
+
+\Optional{
+\RuleRef{qualifier}
+}, \RuleRef{identifier}, \Literal{:}, \RuleRef{function type}, \RuleRef{identifier}, \RuleRef{parameters list}, \Literal{==}, \RuleRef{function body}, 
+\Optional{
+\Literal{pre}, \RuleRef{expression}
+}, 
+\Optional{
+\Literal{post}, \RuleRef{expression}
+}, 
+\Optional{
+\Literal{measure}, \RuleRef{name}
+}
+}
+</pre>
+
+[[Category:Rule]]

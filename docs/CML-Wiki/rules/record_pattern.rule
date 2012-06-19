@@ -1,0 +1,14 @@
+== record pattern ==
+[[record pattern]] := 
+'''mk\myunderscore''' , [[name]] , '''(''' , [[[pattern list]]] , ''')'''
+
+<pre>
+\RuleDef{record pattern}{
+\Literal{mk\myunderscore}, \RuleRef{name}, \Literal{(}, 
+\Optional{
+\RuleRef{pattern list}
+}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

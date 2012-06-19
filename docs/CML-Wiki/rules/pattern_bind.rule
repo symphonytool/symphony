@@ -1,0 +1,13 @@
+== pattern bind ==
+[[pattern bind]] := 
+[[pattern]]
+| [[bind]]
+
+<pre>
+\RuleDef{pattern bind}{
+\RuleRef{pattern}
+\Alt\ \RuleRef{bind}
+}
+</pre>
+
+[[Category:Rule]]

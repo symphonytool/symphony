@@ -1,0 +1,11 @@
+== tuple select ==
+[[tuple select]] := 
+[[expression]] , '''.\#''' , [[numeral]]
+
+<pre>
+\RuleDef{tuple select}{
+\RuleRef{expression}, \Literal{.\#}, \RuleRef{numeral}
+}
+</pre>
+
+[[Category:Rule]]

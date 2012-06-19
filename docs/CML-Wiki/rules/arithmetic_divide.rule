@@ -1,0 +1,11 @@
+== arithmetic divide ==
+[[arithmetic divide]] := 
+'''/'''
+
+<pre>
+\RuleDef{arithmetic divide}{
+\Literal{/}
+}
+</pre>
+
+[[Category:Rule]]

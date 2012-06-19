@@ -1,0 +1,14 @@
+== multiple assign statement ==
+[[multiple assign statement]] := 
+'''atomic''' , '''(''' , [[assign statement]] , ''';''' , [[assign statement]] , [{''';''' , [[assign statement]]}] , ''')'''
+
+<pre>
+\RuleDef{multiple assign statement}{
+\Literal{atomic}, \Literal{(}, \RuleRef{assign statement}, \Literal{;}, \RuleRef{assign statement}, 
+\Optional{
+\Sequence{\Literal{;}, \RuleRef{assign statement}}
+}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== map range restrict to ==
+[[map range restrict to]] := 
+''':>'''
+
+<pre>
+\RuleDef{map range restrict to}{
+\Literal{:>}
+}
+</pre>
+
+[[Category:Rule]]

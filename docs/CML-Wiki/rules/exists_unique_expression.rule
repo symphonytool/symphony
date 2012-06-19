@@ -1,0 +1,11 @@
+== exists unique expression ==
+[[exists unique expression]] := 
+'''exists1''' , [[bind]] , '''@''' , [[expression]]
+
+<pre>
+\RuleDef{exists unique expression}{
+\Literal{exists1}, \RuleRef{bind}, \Literal{@}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

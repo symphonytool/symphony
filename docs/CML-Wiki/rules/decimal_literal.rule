@@ -1,0 +1,17 @@
+== decimal literal ==
+[[decimal literal]] := 
+[[numeral]] , ['''.''' , [[digit]] , {[[digit]]}] , [[[exponent]]]
+
+<pre>
+\RuleDef{decimal literal}{
+\RuleRef{numeral}, 
+\Optional{
+\Literal{.}, \RuleRef{digit}, \Sequence{\RuleRef{digit}}
+}, 
+\Optional{
+\RuleRef{exponent}
+}
+}
+</pre>
+
+[[Category:Rule]]

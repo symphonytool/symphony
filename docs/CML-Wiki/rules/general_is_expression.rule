@@ -1,0 +1,13 @@
+== general is expression ==
+[[general is expression]] := 
+[[is expression]]
+| [[type judgement]]
+
+<pre>
+\RuleDef{general is expression}{
+\RuleRef{is expression}
+\Alt\ \RuleRef{type judgement}
+}
+</pre>
+
+[[Category:Rule]]

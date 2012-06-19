@@ -1,0 +1,15 @@
+== function body ==
+[[function body]] := 
+[[expression]]
+| '''is subclass responsibility'''
+| '''is not yet specified'''
+
+<pre>
+\RuleDef{function body}{
+\RuleRef{expression}
+\Alt\ \Literal{is subclass responsibility}
+\Alt\ \Literal{is not yet specified}
+}
+</pre>
+
+[[Category:Rule]]

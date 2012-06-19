@@ -1,0 +1,11 @@
+== sequence tail ==
+[[sequence tail]] := 
+'''tl'''
+
+<pre>
+\RuleDef{sequence tail}{
+\Literal{tl}
+}
+</pre>
+
+[[Category:Rule]]

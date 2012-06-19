@@ -1,0 +1,25 @@
+== is basic type ==
+[[is basic type]] := 
+'''is\_''' , '''bool'''
+| '''nat'''
+| '''nat1'''
+| '''int'''
+| '''rat'''
+| '''real'''
+| '''char'''
+| '''token'''
+
+<pre>
+\RuleDef{is basic type}{
+\Literal{is\_}, \Literal{bool}
+\Alt\ \Literal{nat}
+\Alt\ \Literal{nat1}
+\Alt\ \Literal{int}
+\Alt\ \Literal{rat}
+\Alt\ \Literal{real}
+\Alt\ \Literal{char}
+\Alt\ \Literal{token}
+}
+</pre>
+
+[[Category:Rule]]

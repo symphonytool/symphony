@@ -1,0 +1,20 @@
+== class body ==
+[[class body]] := 
+['''extends''' , [[identifier]]] , '''begin''' , {[[class paragraph]]} , ['''state''' , [[instance variable declaration]]] , {[[class paragraph]]} , ['''initial''' , [[operation declaration]]] , {[[class paragraph]]} , '''end'''
+
+<pre>
+\RuleDef{class body}{
+
+\Optional{
+\Literal{extends}, \RuleRef{identifier}
+}, \Literal{begin}, \Sequence{\RuleRef{class paragraph}}, 
+\Optional{
+\Literal{state}, \RuleRef{instance variable declaration}
+}, \Sequence{\RuleRef{class paragraph}}, 
+\Optional{
+\Literal{initial}, \RuleRef{operation declaration}
+}, \Sequence{\RuleRef{class paragraph}}, \Literal{end}
+}
+</pre>
+
+[[Category:Rule]]

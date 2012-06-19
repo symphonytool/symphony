@@ -1,0 +1,11 @@
+== multiple set bind ==
+[[multiple set bind]] := 
+[[pattern list]] , '''in set''' , [[expression]]
+
+<pre>
+\RuleDef{multiple set bind}{
+\RuleRef{pattern list}, \Literal{in set}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

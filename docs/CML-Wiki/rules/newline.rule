@@ -1,0 +1,15 @@
+== newline ==
+[[newline]] := 
+'''\mybackslash r'''
+| '''\mybackslash n'''
+| '''\mybackslash r\mybackslash n'''
+
+<pre>
+\RuleDef{newline}{
+\Literal{\mybackslash r}
+\Alt\ \Literal{\mybackslash n}
+\Alt\ \Literal{\mybackslash r\mybackslash n}
+}
+</pre>
+
+[[Category:Rule]]

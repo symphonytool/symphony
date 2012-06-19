@@ -1,0 +1,11 @@
+== maplet ==
+[[maplet]] := 
+[[expression]] , '''|->''' , [[expression]]
+
+<pre>
+\RuleDef{maplet}{
+\RuleRef{expression}, \Literal{|->}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

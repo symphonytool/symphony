@@ -1,0 +1,33 @@
+== type ==
+[[type]] := 
+[[bracketed type]]
+| [[basic type]]
+| [[quote type]]
+| [[composite type]]
+| [[union type]]
+| [[product type]]
+| [[optional type]]
+| [[set type]]
+| [[seq type]]
+| [[map type]]
+| [[function type]]
+| [[type name]]
+
+<pre>
+\RuleDef{type}{
+\RuleRef{bracketed type}
+\Alt\ \RuleRef{basic type}
+\Alt\ \RuleRef{quote type}
+\Alt\ \RuleRef{composite type}
+\Alt\ \RuleRef{union type}
+\Alt\ \RuleRef{product type}
+\Alt\ \RuleRef{optional type}
+\Alt\ \RuleRef{set type}
+\Alt\ \RuleRef{seq type}
+\Alt\ \RuleRef{map type}
+\Alt\ \RuleRef{function type}
+\Alt\ \RuleRef{type name}
+}
+</pre>
+
+[[Category:Rule]]
