@@ -38,7 +38,18 @@ public Book ::
   
 public User ::
   name : String;
- 
+  
+values
+
+jim = mk_User("Jim");
+peter = mk_User("Peter");
+
+vdmbook = mk_Book("Modelling Systems: Practical Tools and Techniques for Software Development","John Fitzgerald and Peter Gorm Larsen");
+cspbook = mk_Book("Communicating Sequential Processes", "C.A.R. Hoare");
+
+users = {mk_token(jim) |-> jim, mk_token(peter) |-> peter};
+books = {mk_token(vdmbook) |-> vdmbook, mk_token(cspbook) |-> cspbook};
+
 functions
 
 ExeBorrow: Borrow * Library -> Library
@@ -77,7 +88,7 @@ RemoveCopy(c,bor) ==
   
 ExeFind: String * Library -> set of BookId
 ExeFind(s,l) ==
-   {bid | bid in set dom l.books & s in set {l.books(bid).title, l.books(bid).author}} 
+   {bid | bid in set dom l.books & s in set {l.books(bid).title, l.books(bid).author}};
   
 channels
 	init;
@@ -87,6 +98,10 @@ channels
 	renew: Renew;	
 	loans: UserId*nat
 	
+chansets
+	libraryEvents = {|init, borrow, retBoo, find, renew, loans|}
+	
+-- declaration of multiple parameters (e.g., a: nat; b: bool @) is not working.
 process LibraryProcess = begin
 	state library: Library;
 		inv dom(library.borrowed) = dom(users) 
@@ -116,14 +131,14 @@ process LibraryProcess = begin
 				*Assign(ExeReturn(r,library));
 				*Assign(ExeBorrow(r,library))
 			[]
-			return?r:pre_ExeReturn(r,library) -> *Assign(ExeReturn(r,library))
+			retBook?r:pre_ExeReturn(r,library) -> *Assign(ExeReturn(r,library))
 			[]
 			find?f:pre_ExeFind(f,library) -> *Assign(ExeFind(f,library))
 			[]
 			loans?u:(u in set dom(GetBorrowed(library)))!(card(ApplyBorrowed(library,u))) -> SKIP 
 		); Act
 	
-	@ init -> *Init(); Act
+	@ init -> *Init(books,users); Act
 end
 
 channels
@@ -158,8 +173,8 @@ process Scenario1 = i: UserId @ begin
 	@ initUser?u -> *Init(u); borrow!MkBorrow(book1,id) -> SKIP;
 			*Assign(books union {book1});
 			borrow!MkBorrow(book2,id) -> *Assign(books union {book2});
-			return!MkReturn(book1) -> *Assign(diff(books, {book1}));
-			loans!id?s -> if s = books then success -> SKIP else error -> SKIP
+			retBook!MkReturn(book1) -> *Assign(diff(books, {book1}));
+			loans!id?s -> if s = books then success -> STOP else error -> STOP
 end
 
 process Scenario2 = i: UserId @ begin
@@ -188,5 +203,16 @@ process Scenario2 = i: UserId @ begin
 		post books = b
 			
 	@ initUser?u -> *Init(u); borrow!MkBorrow(book1,id) -> *Assign(books union {book1});
-			return!MkReturn(book2) -> *Assign(diff(books,{book2}))
+			retBook!MkReturn(book2) -> *Assign(diff(books,{book2})); STOP
 end
+
+-- empty chanset is not working ({||})
+process TestScenario1 = LibraryProcess [| LibraryEvents |] Scenario1
+process TestScenario2 = LibraryProcess [| LibraryEvents |] Scenario2
+
+-- I think we also need syntax for specifying assertions and refinement laws
+-- Do these assertions verifyi some consistency between the scenarios and the library process?
+-- assert TestScenario1 [= Scenario1
+-- assert TestScenario2 [= Scenario2
+-- The idea in these assertions is that if the scenarion is valid, than the model restricted by
+-- that scenario is refined by the scenario itself. Does this make sense?
