@@ -7,15 +7,26 @@ public class Position {
     
     public Position(){}
     
-    public Position(int line, int column)
+    public Position(int line, int column, int offset)
     {
 	this.line = line;
 	this.column = column;
+	this.offset = offset;
     }
 
     @Override
     public String toString()
     {
 	return line + ":" + column; 
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+	Position other = (obj instanceof Position) ? (Position)obj : null;
+	if(other != null)
+	    return this.offset == other.offset; 
+	else
+	    return false;
     }
 }

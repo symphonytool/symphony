@@ -72,7 +72,7 @@ class CommentBlock extends CMLToken {
 
 %{
   static private Stack<Integer> stateStack = new Stack<Integer>();
-  
+    
   // placeholder for the reserved word (keyword) table
   static private HashMap<String,Integer> keywords = null;
   
@@ -237,9 +237,10 @@ class CommentBlock extends CMLToken {
 
 
   private CmlLexeme yylvalue;
+  private int offset = 0;
   
   public int errors = 0;
-public List<ParserError> parseErrors = new Vector<ParserError>();
+  public List<ParserError> parseErrors = new Vector<ParserError>();
   
     /**
      * Method to retrieve the beginning position of the last scanned token.
@@ -295,12 +296,15 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
       int line = yyline + 1;
       int column = yycolumn;
       String value = yytext();
-      
+      int startOffset = offset;
+      offset += value.length();
       try {
 	  if (keywords.containsKey(value)) {
 	      //return new OmlLexem(line, column, new Long(keywords.get(id)), id, IOmlLexem.ILEXEMKEYWORD);
 	      //return new CmlLexeme(line, column,IDENTIFIER, id);
-	      yylvalue = new CmlLexeme(new Position(line,column),new Position(line,column + value.length()),keywords.get(value),value);
+	    yylvalue = new CmlLexeme(new Position(line,column,startOffset),
+				     new Position(line,column + value.length(),offset),
+				     keywords.get(value),value);
 	      int v = keywords.get(value);				   
 	      return v;
 	      
@@ -311,7 +315,9 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
 	      //DEBUG System.out.println();
 	      //return new OmlLexem(line, column, new Long(LEX_identifier), id, IOmlLexem.ILEXEMIDENTIFIER);
 	      //return new CmlLexeme(line, column, IDENTIFIER, id);
-	      yylvalue = new CmlLexeme(new Position(line,column),new Position(line,column + value.length()),CmlParser.IDENTIFIER,value);
+	    yylvalue = new CmlLexeme(new Position(line,column,startOffset),
+				     new Position(line,column + value.length(),offset),
+				       CmlParser.IDENTIFIER,value);
 	      return CmlParser.IDENTIFIER;
 	  }
       }
@@ -331,10 +337,14 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
   {
     int line = yyline + 1;
     int column = yycolumn;
+    int startOffset = offset;
+    offset += value.length();
 
     try {
-      yylvalue = new CmlLexeme(new Position(line,column),new Position(line,column + value.length()),lex,value);
-      //return new CmlLexeme(line, column, lex, yytext());
+      yylvalue = new CmlLexeme(new Position(line,column,startOffset),
+			       new Position(line,column + value.length(),offset),
+			       lex,
+			       value);
       return lex;
     }
     catch (Exception cge) {
@@ -350,14 +360,6 @@ public List<ParserError> parseErrors = new Vector<ParserError>();
     return createToken(lex, value);
   }
 
-  private int createToken(int lex, VDMToken vdmToken)
-  {
-      int r = createToken(lex);
-      CmlLexeme cmlLexeme = (CmlLexeme)yylvalue;
-      
-      return r;
-  }
-  
 %}
 
 // *****************************
@@ -420,14 +422,14 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 // *** SCANNER PRODUCTION RULES ***
 // ********************************
 
-"//".*                                { /* match comment; do nothing */ }
+"//".*                                { offset += yytext().length(); }
 "/*"                                  { stateStack.push(yystate()); yybegin(COMMENT); }
-<COMMENT>"*/"                         { yybegin(stateStack.pop()); }
-<COMMENT>[^*]                         { /* match comment text; do nothing */ }
-<COMMENT>\**[^/]                      { /* match comment text; do nothing */ }
-"--"                                  { stateStack.push(yystate()); yybegin(LCOMMENT); }
-<LCOMMENT>.*                          { }
-<LCOMMENT>\n                          { yybegin(stateStack.pop()); }
+<COMMENT>"*/"                         { offset += yytext().length();yybegin(stateStack.pop()); }
+<COMMENT>[^*]                         { offset += yytext().length(); }
+<COMMENT>\**[^/]                      { offset += yytext().length();/* match comment text; */ }
+"--"                                  { offset += yytext().length();;stateStack.push(yystate()); yybegin(LCOMMENT); }
+<LCOMMENT>.*                          { offset += yytext().length();}
+<LCOMMENT>\n                          { offset += yytext().length();yybegin(stateStack.pop()); }
 
 <CLASS,PROCESS,TYPES,STATE,FUNCTIONS,OPERATIONS,CHANNELS,CHANSETS,ACTIONS,YYINITIAL> {
   {actions}                           { yybegin(ACTIONS); return createToken(CmlParser.CSP_ACTIONS); }
@@ -486,12 +488,13 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 // }
 
 <CHANSETS> {
-  "{|"				      { return createToken(CmlParser.CHANSET_SETEXP_BEGIN); } //TODO: CHANGE this into something else
-  "|}"				      { return createToken(CmlParser.CHANSET_SETEXP_END); } //TODO: CHANGE this into something else
+  
   "="                                 { return createToken(CmlParser.EQUALS); }
 }
 
 <ACTIONS,PROCESS,CHANSETS> {
+  "{|"				      { return createToken(CmlParser.CHANSET_SETEXP_BEGIN); } //TODO: CHANGE this into something else
+  "|}"				      { return createToken(CmlParser.CHANSET_SETEXP_END); } //TODO: CHANGE this into something else
   ";"                                 { return createToken(CmlParser.CSPSEQ); }
   //  "|"                                 { return createToken(CmlParser.BAR); }
   "["                                 { return createToken(CmlParser.CSP_LSQUARE); }
@@ -502,7 +505,6 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "]]"                                { return createToken(CmlParser.DRSQUARE); }
   "[|"                                { return createToken(CmlParser.CSPLSQUAREBAR); }
   "|]"                                { return createToken(CmlParser.CSPBARRSQUARE); }
-  "<-"                                { return createToken(CmlParser.CSPSAMEAS); }
   "|~|"                               { return createToken(CmlParser.CSPINTCH); }
   "|||"                               { return createToken(CmlParser.CSPINTERLEAVE); }
   "||"                               { return createToken(CmlParser.CSPDBAR); }
@@ -539,6 +541,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 <VDM_CASES,CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS,PROCESS, CHANNELS> 
 {
   "->"                                { return createToken(CmlParser.RARROW); } 
+  "<-"                                { return createToken(CmlParser.LARROW); } 
   //vdm expressions
   "<=>"				      { return createToken(CmlParser.BIMPLY); }
   //"|->"			      { return createToken(CmlParser.BAR_ARROW); }
@@ -656,12 +659,12 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 
 }
 
-"\""                                  { stateStack.push(yystate());yybegin(STRING); S.b = new StringBuilder(); }
-<STRING>"\""                          { yybegin( stateStack.pop() ); return createToken(CmlParser.STRING, S.b.toString()); }
+"\""                                  { offset += yytext().length();stateStack.push(yystate());yybegin(STRING); S.b = new StringBuilder(); }
+<STRING>"\""                          { offset += yytext().length();yybegin( stateStack.pop() ); return createToken(CmlParser.STRING, S.b.toString()); }
 <STRING>[^\"]                         { S.b.append(yytext()); }
 
 //[:whitespace:]                        { /* match whitespace; do nothing */ }
-{WhiteSpace}                            { /* match whitespace; do nothing */ }
+{WhiteSpace}                            { offset += yytext().length(); }
 {identifier}                          {  return checkIdentifier(""); /* return createToken(CmlParser.IDENTIFIER); */}
 {numeral}                             { return createToken(CmlParser.NUMERAL); }
 {hexliteral}                          { return createToken(CmlParser.HEX_LITERAL); }
