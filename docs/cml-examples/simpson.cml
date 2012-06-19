@@ -52,31 +52,32 @@ process Reader =
   begin
     
     state
-      rpair : Context`PI;
-      rindex : Context`SI
+      rpair : Context.PI;
+      rindex : Context.SI
     operations 
-     /* choose_pair : Context`PI ==> void
+     choose_pair : Context.PI ==> void
       choose_pair(k) == (
         rpair := k
       );
-      signal_pair : () ==> Context`PI
+      signal_pair : () ==> Context.PI
       signal_pair() == (
-        return rpair;
+        return rpair
       );
-      choose_index : Context`SI ==> void
+
+      choose_index : Context.SI ==> void
       choose_index(i) == (
-        rindex := i;
+        rindex := i
       );
       
       -- unused; covered by CSP
-      read_output : void ==> Context`Data
+      read_output : void ==> Context.Data
       read_output() == (
-        return Shared`slot (mk_(rpair, rindex));
-      )*/
+        return Shared.slot (mk_(rpair, rindex))
+      )
     actions
       RP = 
         getLatest?k -> choose_pair(k) ;
-        (dcl r : Context`PI @ r := signal_pair(); setReading!r ->
+        (dcl r : Context.PI @ r <- signal_pair(); setReading!r ->
         getIndex!rpair?i -> choose_index(i);
         getSlot!rpair!rindex?s -> out!s -> RP)
   @ RP
@@ -94,19 +95,19 @@ process SharedState =
   begin
   	
     state 
-      slot : map Context`PI * Context`SI to Context`Data;
-      index : map Context`PI to Context`SI;
-      latest : Context`PI;
-      reading : Context`PI
+      slot : map Context.PI * Context.SI to Context.Data;
+      index : map Context.PI to Context.SI;
+      latest : Context.PI;
+      reading : Context.PI
     actions
       IO =
-           setSlot?pi?si?i -> /*(slot(mk_(pi,si)) := i)*/ removeme ; IO
+           setSlot?pi?si?i -> (slot(mk_(pi,si)) := i); IO
         [] getSlot?pi?si!(slot(mk_(pi,si))) -> IO
-        [] setIndex?pi?si -> /*(index(pi) := si)*/ removeme ; IO
+        [] setIndex?pi?si -> (index(pi) := si) ; IO
         [] getIndex?pi!(index(pi)) -> IO
-        [] setLatest?k -> /*(latest := k)*/removeme ; IO
+        [] setLatest?k -> (latest := k) ; IO
         [] getLatest!latest -> IO
-        [] setReading?r -> /*(reading := r)*/ removeme ; IO
+        [] setReading?r -> (reading := r) ; IO
         [] getReading!reading -> IO
   @ IO
   end
@@ -116,38 +117,39 @@ process Writer =
   begin
     
     state
-      wpair : Context`PI;
-      windex : Context`SI
+      wpair : Context.PI;
+      windex : Context.SI
     operations 
-      choose_pair : Context`PI ==> ()
+      
+      choose_pair : Context.PI ==> ()
       choose_pair(r) == (
-        wpair := not r;
+        wpair := not r
       );
-      /*
+      
       choose_index : () ==> ()
       choose_index() == (
-        windex := not Shared`index(wpair);
+        windex := not Shared.index(wpair)
       );
       
       -- unused; modelled by CSP
-      write_input : Context`Data ==> ()
+      write_input : Context.Data ==> ()
       write_input(input) == (
-        Shared`slot(mk_(wpair, windex)) := input;
+        Shared.slot(mk_(wpair, windex)) := input
       );
-      signal_index : () ==> Context`SI
+      signal_index : () ==> Context.SI
       signal_index() == (
-        return windex;
+        return windex
       );
-      signal_pair : () ==> Context`PI
+      signal_pair : () ==> Context.PI
       signal_pair() == (
         return wpair
-      )*/
+      )
     actions
       WP =
-        getReading?r -> *choose_pair(r) ;
-        getIndex!wpair?i -> *choose_index(i) ;
+        getReading?r -> choose_pair(r) ;
+        getIndex!wpair?i -> choose_index(i) ;
         imp?x -> setSlot!wpair!windex!x ->
-        (dcl k : Context`SI, j : Context`PI @ k := *signal_index(); setIndex!wpair!k) ->
-         j := *signal_pair(); setLatest!j -> WP)
+        (dcl k : Context.SI, j : Context.PI @ k <- signal_index(); setIndex!wpair!k ->
+         j <- signal_pair(); setLatest!j -> WP)
   @ WP
   end

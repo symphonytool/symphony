@@ -53,7 +53,7 @@ process RegisterProc =
    REG = 
      (load?i -> LOAD(i) ; REG)
      []
-     (dcl j: Byte @ j := READ(); read!j -> REG)
+     (dcl j: Byte @ j <- READ(); read!j -> REG)
      [] 
      (add?i -> ( (:oflow(reg,i) & overflow -> INIT(); REG)
        	     	 [] 

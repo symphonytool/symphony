@@ -49,7 +49,11 @@ Abstract Syntax Tree
 */
 name {-> package='org.overture.ast.program'}
 	= {simple} [identifiers]:LexIdentifierToken*
-	| {designator} [name]:name.simple [args]:exp*
+	;
+
+
+designator {-> package='org.overture.ast.program'}
+	= {name} [name]:name.simple 
 	;
 
 /*
@@ -636,11 +640,18 @@ parametrisation {-> package='org.overture.ast.actions'}
 	| {if} [ifExp]:exp [thenStm]:action [elseIf]:action.#ControlStatement.elseIf* [elseStm]:action
 	| {elseIf} [elseIf]:exp [thenStm]:action
 	| {cases} [exp]:exp [cases]:alternativeAction.case* [others]:action
+	| #GeneralAssignment
+	| {return} [exp]:exp
 	;
 	
 #CallStatement {-> package='org.overture.ast.actions'}
-	= {call} [designator]:objectDesignator [name]:LexIdentifierToken [args]:exp*
-	| {assignmentCall} [designator]:objectDesignator [call]:call 	
+	= {call} [objectDesignator]:objectDesignator [name]:LexNameToken [args]:exp*
+	| {assignmentCall} [designator]:stateDesignator [call]:call 	
+	;
+	
+#GeneralAssignment {-> package='org.overture.ast.actions'}
+    = {single} [stateDesignator]:stateDesignator [expression]:exp
+    | {multi} [assignments]:action.#ControlStatement.#GeneralAssignment.single*
 	;
 	
 communicationParameter {-> package='org.overture.ast.actions'}

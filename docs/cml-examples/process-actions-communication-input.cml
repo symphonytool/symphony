@@ -2,7 +2,7 @@ process RegisterProc =
  begin
  aCtions
    REG = 
-     load?i -> *LOAD(i) ; REG
+     load?i -> LOAD(i) ; REG
    @
-     init -> *INIT(); REG
+     init -> INIT(); REG
  end
