@@ -91,9 +91,10 @@
 	    <manifest>
 	      <addClasspath>true</addClasspath>
 	      <!-- The main class -->
+	      <!-- eu.compassresearch.ide.CheckCml.java -->
 	      <mainClass>CheckCml</mainClass>
 	      <!-- The package for the main class -->
-	      <packageName>eu.compassresearch.ide</packageName>
+	      <packageName>eu.compassresear</packageName>
 	    </manifest>
 	    <manifestEntries>
 	      <mode>development</mode>
@@ -126,7 +127,7 @@
 	    <manifest>
 	      <addClasspath>true</addClasspath>
 	      <!-- The main class -->
-	      <mainClass>CompileCml</mainClass>
+	      <mainClass>CheckCml</mainClass>
 	      <!-- The package for the main class -->
 	      <packageName>eu.compassresearch.ide</packageName>
 	    </manifest>

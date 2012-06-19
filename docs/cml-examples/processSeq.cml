@@ -1,7 +1,7 @@
 process RegisterProc = 
  begin
  aCtions
-   REG = init -> *INIT(); REG
+   REG = init -> INIT(); REG
  @
    Skip  
  end

@@ -59,39 +59,39 @@ class Exchange =
 begin
 
 	state
-		public lSUBS: set of Node`SUBS; 	-- this is actually the parameter of the process. 
+		public lSUBS: set of Node.SUBS; 	-- this is actually the parameter of the process. 
 									-- because I need the name to be in scope,
 									-- I've put it in the state of the class.
-		public status: map Node`SUBS to Node`STATUS;
-		public number: map Node`SUBS to Node`SUBS;
-		public subs: set of Node`SUBS;
+		public status: map Node.SUBS to Node.STATUS;
+		public number: map Node.SUBS to Node.SUBS;
+		public subs: set of Node.SUBS;
 		inv
 			exists n: nat & card(subs) = n and -- is card a partial or total function?
 			dom(status) = dom(number) and
 			dom(number) subset subs and
-			is_(dom(dom(status:>Node`Connected)<:number)) --,inmap Node`SUBS to Node`SUBS)
+			is_(dom(dom(status:>Node.Connected)<:number)) --,inmap Node.SUBS to Node.SUBS)
 			; 
 			
 	functions
-		callers: (map Node`SUBS to Node`STATUS) +>  set of Node`SUBS
-		callers(status) == dom(status :> Node`Connected);
+		callers: (map Node.SUBS to Node.STATUS) +>  set of Node.SUBS
+		callers(status) == dom(status :> Node.Connected);
 		
-		connected: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> (inmap Node`SUBS to Node`SUBS)
+		connected: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> (inmap Node.SUBS to Node.SUBS)
 		connected(status,number) == callers(status) <: number;
 		
-		free: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) * (set of Node`SUBS) +> set of Node`SUBS
+		free: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) * (set of Node.SUBS) +> set of Node.SUBS
 		free(status,number,subs) == subs \ dom(status) \ rng(connected(status,number));
 		
-		connectable: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		connectable: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> set of Node.SUBS
 		connectable(status,number) == rng((dom(status:>{<connecting>}))<:number);
 		
-		suspendable: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		suspendable: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> set of Node.SUBS
 		suspendable(status,number) == rng((dom(status:>{<speech>}))<:connected(status,number));
 		
-		ringing: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		ringing: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> set of Node.SUBS
 		ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number));
 		
-		suspended: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		suspended: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> set of Node.SUBS
 		suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number))
 		
 	operations
@@ -105,17 +105,17 @@ begin
 			number = {|->} and 
 			subs = lSUBS;
 		
-		Add (s: Node`SUBS)
+		Add (s: Node.SUBS)
 		frame wr subs
 		post 
 			subs = subs~ union {s};
 		
-		Del (s: Node`SUBS)
+		Del (s: Node.SUBS)
 		frame wr subs
 		post 
 			subs = subs~ \ {s};
 		
-		Call (s,t: Node`SUBS)
+		Call (s,t: Node.SUBS)
 		frame wr status, number
 			rd subs
 		pre 
@@ -126,7 +126,7 @@ begin
 			status = status~ ++ {s |-> <connecting>} and 
 			number = number~ ++ {s |-> t};
 		
-		Clear (s,t: Node`SUBS)
+		Clear (s,t: Node.SUBS)
 		frame wr status, number
 			rd subs
 		pre 
@@ -137,7 +137,7 @@ begin
 		post 
 			status = {s}<-: status~ and number = {s}<-: number~;
 		
-		Suspend(s,t: Node`SUBS)
+		Suspend(s,t: Node.SUBS)
 		frame wr status
 			rd subs, number
 		pre 
@@ -149,7 +149,7 @@ begin
 		post
 			status = status~ ++ {s |-> <suspended>};
 			
-		ConnectFree(s,t: Node`SUBS)
+		ConnectFree(s,t: Node.SUBS)
 		frame wr status
 			rd subs, number
 		pre 
@@ -162,7 +162,7 @@ begin
 		post
 			status = status~ ++ {s |-> <ringing>};
 			
-		ConnectBusy(s,t: Node`SUBS)
+		ConnectBusy(s,t: Node.SUBS)
 		frame wr status
 			rd subs, number
 		pre 
@@ -175,7 +175,7 @@ begin
 		post
 			status = status~ ++ {s |-> <engaged>};
 			
-		Answer(s,t: Node`SUBS)
+		Answer(s,t: Node.SUBS)
 		frame wr status
 			rd subs, number
 		pre 
@@ -187,7 +187,7 @@ begin
 		post
 			status = status~ ++ {s |-> <speech>};
 				
-		Unsuspend(s,t: Node`SUBS)
+		Unsuspend(s,t: Node.SUBS)
 		frame wr status
 			rd subs, number
 		pre 

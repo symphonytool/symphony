@@ -14,6 +14,9 @@ package eu.compassresearch.ide;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import org.overture.ast.analysis.DepthFirstAnalysisAdaptor;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.analysis.intf.IAnalysis; 
@@ -48,7 +51,22 @@ public class CheckCml {
 	
 	    // inputs
 	    if ( (inp = checkInput(args)) == null) return;
-	
+
+	    if (inp.isSwitchOn(Switch.INTER))
+		{
+		    ASourcefileSourcefile currentTree = new ASourcefileSourcefile();
+		    Reader input = new BufferedReader( new InputStreamReader( System.in ) );
+		    currentTree.setName("standard input");
+		    currentTree.setFile(new ClonableFile(new File("-")));
+		    CmlLexer lexer = new CmlLexer(input);
+		    CmlParser parser = new CmlParser(lexer);
+		    parser.setDocument(currentTree);
+		    if (!parser.parse())
+			{ handleError(parser, new File("-")); return; }
+		    else
+			sourceForest.add(currentTree);	    
+		}
+	    else
 	    // build the forest
 	    for(File source : inp.sourceFiles)
 		{
@@ -91,6 +109,7 @@ public class CheckCml {
 	    EMPTY("empty", "Empty Analysis, run the empty analysis (good for debugging).", false),
 	    DOTG("dotg", "Dot Graph, -dotg=<out> write ast dot graph to file <out>.", true),
 	    DWA("dwa", "Example, the Div Warn Analysis example", false),
+	    INTER("i", "Interactive mode", false)
 	    ;
 
 	// Switch state
