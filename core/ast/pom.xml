@@ -17,7 +17,7 @@
       <plugin>
 	<groupId>org.overturetool.tools</groupId>
 	<artifactId>astcreatorplugin</artifactId>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<executions>
 	  <execution>
 	    <id>generate-ast</id>

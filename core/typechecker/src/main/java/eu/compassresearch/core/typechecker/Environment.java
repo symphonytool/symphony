@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.overture.ast.declarations.PDeclaration;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.types.PType;
 
 public class Environment {
@@ -15,7 +16,7 @@ public class Environment {
 
 	// private state
 	private Map<PDeclaration,PType> map;
-	
+	private PDefinition enclosingDefinition;
 
 	/**
 	 * Create an Empty top level Environment. 
@@ -32,6 +33,18 @@ public class Environment {
 	{
 		this.outer = outer;
 		this.map = new HashMap<PDeclaration, PType>();
+	}
+	
+	/**
+	 * Create an enclosed environment linking to the enclosing definition.
+	 * 
+	 * @param outer - The surrounding environment
+	 * @param decl  - The enclosing definition (class, function or operation)
+	 */
+	public Environment(Environment outer, PDefinition decl)
+	{
+		this(outer);
+		enclosingDefinition = decl;
 	}
 	
 	/**

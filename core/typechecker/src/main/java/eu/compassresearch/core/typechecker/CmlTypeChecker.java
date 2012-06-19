@@ -1,12 +1,16 @@
 package eu.compassresearch.core.typechecker;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.analysis.intf.IAnalysis;
+import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.declarations.AClassDeclaration;
 import org.overture.ast.declarations.PDeclaration;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AClassbodyDefinition;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
 
 import org.overture.ast.program.ASourcefileSourcefile;
+import org.overture.ast.statements.PStm;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.PType;
 import org.overturetool.vdmj.lex.LexLocation;
@@ -15,9 +19,12 @@ import org.overturetool.vdmj.typechecker.NameScope;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,7 +32,7 @@ import java.util.List;
 @SuppressWarnings("serial")
 public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType> {
 
-	// ---------------------------------------------
+	// --------------------------------------------- 
 	// To be refactored, issues, warnings and errors
 	// ---------------------------------------------
 	static abstract class CMLIssue
@@ -56,6 +63,12 @@ public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType> 
 		public void setCanBeIgnored(boolean canBeIgnored) {
 			this.canBeIgnored = canBeIgnored;
 		}
+		
+		@Override
+		public String toString()
+		{
+			return "ERROR: "+location+" : "+description;
+		}
 	}
 
 
@@ -67,12 +80,34 @@ public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType> 
 	private final List<CMLTypeWarning> warnings;
 
 	// subcheckers
-	private final IAnalysis exp;
-	private final IAnalysis stm;
-	private final IAnalysis dad;
+	private final IQuestionAnswer<TypeCheckInfo, PType> exp;
+	private final IQuestionAnswer<TypeCheckInfo, PType> stm;
+	private final IQuestionAnswer<TypeCheckInfo, PType> dad;
 
 
-	
+	// ---------------------------------------------
+	// -- Dispatch to sub-checkers
+	// ---------------------------------------------
+	@Override
+	public PType defaultPDeclaration(PDeclaration node, TypeCheckInfo question) {
+		return node.apply(this.dad, question);
+	}
+
+	@Override
+	public PType defaultPDefinition(PDefinition node, TypeCheckInfo question) {
+		return node.apply(this.dad, question);
+	}
+
+	@Override
+	public PType defaultPExp(PExp node, TypeCheckInfo question) {
+		return node.apply(exp, question);
+	}
+
+	@Override
+	public PType defaultPStm(PStm node, TypeCheckInfo question) {
+		return node.apply(stm,question);
+	}
+
 	// ---------------------------------------------
 	// -- Top Level Rule dispatching to sub checkers
 	// ---------------------------------------------
@@ -84,6 +119,7 @@ public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType> 
 		for(PDeclaration decl : node.getDecls())
 			decl.apply(this, question);
 		
+		// Source file has no type
 		return null;
 	}
 
@@ -91,60 +127,7 @@ public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType> 
 
 
 
-	@Override
-	public PType caseAClassDeclaration(AClassDeclaration node,
-			TypeCheckInfo question) {
 
-		question.currentScope = NameScope.CLASSNAME;
-
-		AClassbodyDefinition def = node.getClassBody();
-		PType type = new AClassType(def.getLocation(), true, node.getIdentifier().getClassName());
-		def.setType(type);
-		question.env.put(node, type);
-		// Build local environment
-		for( PDeclaration decl : def.getDeclarations())
-		{
-
-			PType t = decl.apply(this,question);
-			question.env.put(decl, t);
-		}
-
-		return type;
-	}
-
-
-
-
-
-	@Override
-	public PType caseAClassbodyDefinition(AClassbodyDefinition node,
-			TypeCheckInfo question) {
-
-		for ( PDeclaration decl : node.getDeclarations())
-		{
-			PType type = decl.apply(this,question);
-			question.env.put(decl, type);
-		}
-
-		
-		return super.caseAClassbodyDefinition(node, question);
-	}
-
-
-
-
-
-	@Override
-	public PType caseAClassClassDefinition(AClassClassDefinition node,
-			TypeCheckInfo question) {
-		
-		
-		PType res = null;
-		
-		
-		
-		return res;
-	}
 
 
 
@@ -154,9 +137,9 @@ public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType> 
 
 	public CmlTypeChecker()
 	{
-		exp = new TCExpressionVisitor();
+		exp = new TCExpressionVisitor(this);
 		stm = new TCStatementVisitor();
-		dad = new TCDeclAndDefVisitor();
+		dad = new TCDeclAndDefVisitor(this);
 		this.sourceForest = new LinkedList<ASourcefileSourcefile>();
 		this.errors = new LinkedList<CMLTypeError>();
 		this.warnings = new LinkedList<CMLTypeWarning>();
@@ -166,15 +149,31 @@ public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType> 
 
 	private static void runOnFile(File f) throws IOException
 	{
-		CmlLexer lexer = new CmlLexer(new FileReader(f));
+		
+		Reader r = null;
+		if (f == null)
+		{
+			r = new BufferedReader(new InputStreamReader(System.in));
+		}
+		else
+		{
+			r = new FileReader(f);
+		}
+		CmlLexer lexer = new CmlLexer(r);
 		CmlParser parser = new CmlParser(lexer);
 		ASourcefileSourcefile tree = new ASourcefileSourcefile();
 		parser.setDocument(tree);
 		if (parser.parse())
-		{
+		{	
 			TypeCheckInfo tci = new TypeCheckInfo();
-			QuestionAnswerAdaptor<TypeCheckInfo, PType> analysis = new CmlTypeChecker();
+			CmlTypeChecker analysis = new CmlTypeChecker();
 			tree.apply(analysis, tci);
+			if (analysis.getErrors().size() > 0)
+			{
+				System.out.println("\n\nTYPE ERRORS EXIST:\n ");
+				for(CMLTypeError e : analysis.getErrors())
+					System.out.println(e);
+			}
 		}
 	}
 
@@ -184,6 +183,8 @@ public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType> 
 		File cml_examples = new File("../../docs/cml-examples");
 		int failures = 0;
 		int successes = 0;
+		// runOnFile(null);
+		
 		if (cml_examples.isDirectory())
 		{
 			for(File example : cml_examples.listFiles())
@@ -196,10 +197,9 @@ public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType> 
 				{
 					System.out.println("exception");failures++;
 				}
-
-
 			}
 		}
+		
 		System.out.println(successes+" was successful, "+failures+" was failures.");
 
 	}
