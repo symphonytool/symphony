@@ -103,10 +103,39 @@
 						null, 
 						name); 
 	}
+	else if (designator instanceof APrimaryDesignator){
+	    APrimaryDesignator primary = (APrimaryDesignator)designator;
+	    
+	    if(primary.getPrimary() instanceof ACallPrimary){
+		ACallCallStatementControlStatementAction call = 
+		    (ACallCallStatementControlStatementAction) ((ACallPrimary)primary.getPrimary()).getCall();
+		if(call.getArgs().size() != 1)
+		    throw new RuntimeException("Missing implementation in convertToStateDesignator method. Throw nice error about map ot sequence apply only takes one arg");
+
+		sd = new AMapSeqStateDesignator(call.getLocation(), 
+						null, 
+						call.getArgs().get(0));
+	    }
+	    else
+		throw new RuntimeException("Missing implementation in convertToStateDesignator method. Currently only ACallPrimary is implemented");
+	}
+	else
+	    throw new RuntimeException("Missing implementation in convertToStateDesignator method. sd was null");
+		    
       
 	return sd;
     }
-     
+    
+    private LexNameToken getNameTokenFromMKUNDERNAME(CmlLexeme mkUnderName)
+    {
+	LexNameToken name = new LexNameToken("Default",
+					     mkUnderName.getValue().split("_")[1], 
+					     extractLexLocation(mkUnderName),
+					     false, 
+					     true);
+	return name;
+    }
+ 
     private LexNameToken extractLexNameToken(ASimpleName sn)
     {
 	LexNameToken lnt = null;
@@ -331,7 +360,6 @@
 
 %token nameset namesetExpr typeVarIdentifier  
  //localDef
- //quoteLiteral
 
  /* type op precidence */
 %left VDMSEQOF
@@ -899,7 +927,7 @@ action
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new AUntimedTimeoutAction(location, left, right);
 }
-| action CSP_LSQUARE expression CSP_GT action
+| action CSP_LSQUARE expression BAR GT action
 {
     PAction left = (PAction)$1;
     PAction right = (PAction)$5;
@@ -943,9 +971,9 @@ action
     $$ = $1;
 }
 | parametrisedAction
-// {
-//     $$ = $1;
-// }
+{
+    $$ = $1;
+}
 | instantiatedAction
 {
     $$ = $1;
@@ -1044,12 +1072,7 @@ IDENTIFIER
 }
 | MKUNDERNAME LPAREN paramList RPAREN 
 {
-    CmlLexeme mkUnderName = (CmlLexeme)$1;
-    LexNameToken name = new LexNameToken("Default",
-    					 mkUnderName.getValue().split("_")[1], 
-    					 extractLexLocation(mkUnderName),
-    					 false, 
-    					 true);
+    LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)$1);
     
     $$ = new ARecordParameter(extractLexLocation((CmlLexeme)$1,
     						 (CmlLexeme)$4), 
@@ -1058,12 +1081,7 @@ IDENTIFIER
 }
 | MKUNDERNAME LPAREN RPAREN
 {
-    CmlLexeme mkUnderName = (CmlLexeme)$1;
-    LexNameToken name = new LexNameToken("Default",
-    					 mkUnderName.getValue().split("_")[1], 
-    					 extractLexLocation(mkUnderName),
-    					 false, 
-    					 true);
+    LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)$1);
     
     $$ = new ARecordParameter(extractLexLocation((CmlLexeme)$1,
     						 (CmlLexeme)$3), 
@@ -1691,7 +1709,7 @@ typeDef
   LexNameToken name = extractLexNameToken( (CmlLexeme)$2 );
   CmlLexeme vdmrec = (CmlLexeme)$3;
   List<AFieldField> fields = (List<AFieldField>)$4;
-  // FIXME: Added AInvariantInvariant to the ARecordInvariantType replacing
+  // TODO: Added AInvariantInvariant to the ARecordInvariantType replacing
   // the current AExplicitFunctionFunctionDefinition for inv.
 
 
@@ -1753,18 +1771,9 @@ bracketedType
     $$ = $1;
 }
 | VDMCOMPOSE IDENTIFIER OF fieldList END // TODO
-| LPAREN type BAR type RPAREN   
+| LPAREN unionType RPAREN 
 {
-  CmlLexeme lp = (CmlLexeme)$1;
-  CmlLexeme rp = (CmlLexeme)$5;
-  PType fst = (PType)$2;
-  PType snd = (PType)$4;
-
-  LexLocation loc = combineLexLocation ( fst.getLocation(),
-  					 snd.getLocation() );
-
-  AUnionType utype = new AUnionType(loc, false, false, false );
-  $$ = utype;
+    $$ = $2;
 }
 | productType
 {
@@ -1898,7 +1907,8 @@ TBOOL
 quoteType:
 quoteLiteral
 {
-    $$ = $1;
+    LexQuoteToken value = (LexQuoteToken)$1;
+    $$ = new AQuoteType( value.location, false, null, value );
 }
 ;
 
@@ -1910,6 +1920,32 @@ LSQUARE type RSQUARE
 			  false,/* resolved_*/ 
 			  null,/* definitions_*/ 
 			  (PType)$2);
+}
+;
+
+unionType:
+type BAR type    
+{
+  // CmlLexeme lp = (CmlLexeme)$1;
+  // CmlLexeme rp = (CmlLexeme)$5;
+  PType fst = (PType)$1;
+  PType snd = (PType)$3;
+
+  LexLocation loc = combineLexLocation ( fst.getLocation(),
+  					 snd.getLocation() );
+
+  AUnionType utype = new AUnionType(loc, false, false, false );
+  List<PType> types = new Vector<PType>();
+  types.add(fst);
+  types.add(snd);
+  utype.setTypes(types);
+  $$ = utype;
+}
+| unionType BAR type
+{
+    AUnionType utype = (AUnionType)$1;
+    utype.getTypes().add((PType)$3);
+    $$ = utype;
 }
 ;
 
@@ -2038,17 +2074,12 @@ type BAR typeUnionList
 quoteLiteral:
 LT IDENTIFIER GT
 {
-  CmlLexeme lt = (CmlLexeme)$1;
   CmlLexeme id = (CmlLexeme)$2;
-  CmlLexeme gt = (CmlLexeme)$3;
-
-  LexLocation loc = extractLexLocation ( lt );
-
-  LexQuoteToken value = new LexQuoteToken( id.getValue(), loc );
-  AQuoteType qt = new AQuoteType( loc, false, null, value );
-  $$ = qt;
+  LexLocation loc = extractLexLocation ((CmlLexeme)$1,
+					(CmlLexeme)$3);
+  $$ = new LexQuoteToken(id.getValue(),loc);
 }
-
+;
 
 fieldList : 
   field
@@ -2844,21 +2875,6 @@ expression
 ;
 
 expression :
-/* RWL, tokens? 
- * 
- *  Ohh, Tokens as in <connecting> are not in the gramma?
- *
- */
-LT IDENTIFIER GT 
-{
-  
-  LexLocation loc = combineLexLocation( extractLexLocation ( (CmlLexeme)$1 ),
-				    extractLexLocation ( (CmlLexeme)$3 ) );
-
-  // TODO construct a LexQuoteToken
-  AQuoteLiteralSymbolicLiteralExp res = new AQuoteLiteralSymbolicLiteralExp( loc, null );
-  $$ = res;
-}
 /* RWL On strings:
  *
  * In the lexer whole strings are matched up because it is easy given
@@ -2870,7 +2886,7 @@ LT IDENTIFIER GT
  * a part and creates the corresponding character expressions.
  * 
  */
-| STRING 
+ STRING 
 {
   // Get a whole STRING from the lexer  
   CmlLexeme s = (CmlLexeme)$1;
@@ -3029,7 +3045,13 @@ numericLiteral
 | nilLiteral
 | characterLiteral
 | textLiteral
-| quoteLiteral*/
+*/
+| quoteLiteral
+{
+    LexQuoteToken value = (LexQuoteToken)$1;
+    $$ = new AQuoteLiteralSymbolicLiteralExp(value.location, 
+					 value);
+}
 ;
 
 numericLiteral:
@@ -3923,16 +3945,16 @@ tupleConstructor :
 /* 4.11 Record Expressions */
 
 recordConstructor :
-  MKUNDER name LPAREN expressionList RPAREN
+  MKUNDERNAME LPAREN expressionList RPAREN
   {
+      
     CmlLexeme mku = (CmlLexeme)$1;
-    LexNameToken name = (LexNameToken)$2;
-    // $3 LPAREN
-    List<PExp> exprs = (List<PExp>)$4;
-    CmlLexeme rparen = (CmlLexeme)$5;
+    LexNameToken name = getNameTokenFromMKUNDERNAME(mku);
+    // // $3 LPAREN
+    List<PExp> exprs = (List<PExp>)$3;
 
     LexLocation loc = combineLexLocation( extractLexLocation ( mku ) ,
-					  extractLexLocation ( rparen ) );
+     					  extractLexLocation ( (CmlLexeme)$4 ) );
 
     ARecordExp res = new ARecordExp(loc, name, exprs );
     $$ = res;
@@ -4159,12 +4181,25 @@ name
     $$ = new ANameDesignator((ASimpleName)$1);
 }
 | primary 
+{
+    $$ = new APrimaryDesignator((PPrimary)$1);
+}
 ;
 
 primary:  
 SELF
+{
+    $$ = new ASelfPrimary();
+}
 | call
+{
+    $$ = new ACallPrimary((ACallCallStatementControlStatementAction)$1);
+}
 | primary DOT IDENTIFIER
+{
+    $$ = new APrimaryPrimary((PPrimary)$1, 
+			     extractLexIdentifierToken((CmlLexeme)$3));
+}
 ;
 
 // designator_not_name:  
@@ -4221,20 +4256,29 @@ oldName :
 /* 6 Statements */
 
 controlStatements :
-/* non-deterministicIfStatement*/
-  ifStatement
-  {
+nonDeterministicIfStatement
+{
     $$ = $1;
-  }
+}
+| ifStatement
+{
+    $$ = $1;
+}
 | casesStatement
  /*|generalCasesIfStatement*/
 | callStatement
+{
+    $$ = $1;
+}
 | generalAssignStatement
-// {
-//     $$ = $1;
-// }
+{
+    $$ = $1;
+}
 | specificationStatement
 | returnStatement
+{
+    $$ = $1;
+}
 /*| newStatement*/
  /*| non-deterministicDoStatement */
  /*| SequenceForLoop */
@@ -4243,7 +4287,53 @@ controlStatements :
  /*| whileLoop */
 ;
 
-  ;
+nonDeterministicIfStatement:
+ IF expression RARROW action END
+ {
+     $$ = new ANonDeterministicIfControlStatementAction(extractLexLocation((CmlLexeme)$1,
+									   (CmlLexeme)$5), 
+							(PExp)$2, 
+							(PAction)$4, 
+							null);
+ }
+| IF expression RARROW action nonDeterministicIfAltList END 
+{
+     $$ = new ANonDeterministicIfControlStatementAction(extractLexLocation((CmlLexeme)$1,
+									   (CmlLexeme)$5), 
+							(PExp)$2, 
+							(PAction)$4, 
+							(List<ANonDeterministicElseIfControlStatementAction>)$5);
+ }
+;
+
+nonDeterministicIfAlt:
+BAR expression RARROW action
+{
+    PAction thenStm = (PAction)$4;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,
+					      thenStm.getLocation());
+    $$ = new ANonDeterministicElseIfControlStatementAction(location, 
+							   (PExp)$2, 
+							   thenStm);
+}
+;
+
+nonDeterministicIfAltList:
+nonDeterministicIfAlt
+{
+    List<ANonDeterministicElseIfControlStatementAction> alts =
+	new Vector<ANonDeterministicElseIfControlStatementAction>();
+    alts.add((ANonDeterministicElseIfControlStatementAction)$1);
+    $$ = alts;
+}
+| nonDeterministicIfAltList nonDeterministicIfAlt
+{
+    List<ANonDeterministicElseIfControlStatementAction> alts =
+	(List<ANonDeterministicElseIfControlStatementAction>)$1;
+    alts.add((ANonDeterministicElseIfControlStatementAction)$2);
+    $$ = alts;
+}
+; 
 
 /* 6.2 Block and Assignment Statements
  * to be clarified
@@ -4330,12 +4420,13 @@ assignStatement
 assignStatement :
 designator ASSIGN expression 
 {
-    LexLocation location = null;
-    PStateDesignator stateDesignator = null;
+    PStateDesignator stateDesignator = convertToStateDesignator((PDesignator)$1);
+    PExp exp = (PExp)$3;
+    LexLocation location = combineLexLocation(stateDesignator.getLocation(),
+					      exp.getLocation());
     $$ = new ASingleGeneralAssignmentControlStatementAction(location, 
 							    stateDesignator, 
 							    (PExp)$3);
-        	
 }
 ;
 
@@ -4712,8 +4803,28 @@ tuplePattern :
   ;
 
 recordPattern :
-  MKUNDERNAME LPAREN RPAREN // TODO
-| MKUNDERNAME LPAREN patternList RPAREN // TODO
+  MKUNDERNAME LPAREN RPAREN 
+  {
+      List<? extends PPattern> plist = null;
+      LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)$1);
+      $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$1,
+						 (CmlLexeme)$3), 
+			      null, 
+			      false, 
+			      name, 
+			      plist);
+  }
+| MKUNDERNAME LPAREN patternList RPAREN
+{
+    List<? extends PPattern> plist = (List<? extends PPattern>)$3;
+    LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)$1);
+    $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$1,(CmlLexeme)$4), 
+			    null, 
+			    false, 
+			    name, 
+			    plist);
+
+}
   ;
 
 
