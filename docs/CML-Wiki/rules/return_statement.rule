@@ -1,6 +1,6 @@
 == return statement ==
 ;[[return statement]] <nowiki>:=</nowiki> 
-:'''return''' <nowiki>,</nowiki> ''[''[[expression]]'']''
+:'''return''' <nowiki>,</nowiki> <nowiki>[</nowiki>[[expression]]<nowiki>]</nowiki>
 
 <pre>
 \RuleDef{return statement}{

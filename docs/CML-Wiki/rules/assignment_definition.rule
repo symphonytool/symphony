@@ -1,7 +1,7 @@
 == assignment definition ==
 ;[[assignment definition]] <nowiki>:=</nowiki> 
-:[[identifier]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> ''[''''':=''' <nowiki>,</nowiki> [[expression]]'']''
-:| [[identifier]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> ''['''''in''' <nowiki>,</nowiki> [[expression]]'']''
+:[[identifier]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> <nowiki>[</nowiki>''':=''' <nowiki>,</nowiki> [[expression]]<nowiki>]</nowiki>
+:| [[identifier]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> <nowiki>[</nowiki>'''in''' <nowiki>,</nowiki> [[expression]]<nowiki>]</nowiki>
 
 <pre>
 \RuleDef{assignment definition}{

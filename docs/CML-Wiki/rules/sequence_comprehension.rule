@@ -1,6 +1,6 @@
 == sequence comprehension ==
 ;[[sequence comprehension]] <nowiki>:=</nowiki> 
-:'''[''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[set bind]] <nowiki>,</nowiki> ''['''''@''' <nowiki>,</nowiki> [[expression]]'']'' <nowiki>,</nowiki> ''']'''
+:'''[''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[set bind]] <nowiki>,</nowiki> <nowiki>[</nowiki>'''@''' <nowiki>,</nowiki> [[expression]]<nowiki>]</nowiki> <nowiki>,</nowiki> ''']'''
 
 <pre>
 \RuleDef{sequence comprehension}{

@@ -1,6 +1,6 @@
 == record pattern ==
 ;[[record pattern]] <nowiki>:=</nowiki> 
-:'''mk\myunderscore''' <nowiki>,</nowiki> [[name]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> ''[''[[pattern list]]'']'' <nowiki>,</nowiki> ''')'''
+:'''mk\myunderscore''' <nowiki>,</nowiki> [[name]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> <nowiki>[</nowiki>[[pattern list]]<nowiki>]</nowiki> <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{record pattern}{

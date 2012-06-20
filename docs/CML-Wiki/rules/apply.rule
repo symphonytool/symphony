@@ -1,6 +1,6 @@
 == apply ==
 ;[[apply]] <nowiki>:=</nowiki> 
-:[[expression]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> ''[''[[expression list]]'']'' <nowiki>,</nowiki> ''')'''
+:[[expression]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> <nowiki>[</nowiki>[[expression list]]<nowiki>]</nowiki> <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{apply}{

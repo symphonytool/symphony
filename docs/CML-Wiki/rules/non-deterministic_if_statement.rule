@@ -1,6 +1,6 @@
 == non-deterministic if statement ==
 ;[[non-deterministic if statement]] <nowiki>:=</nowiki> 
-:'''if''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]] <nowiki>,</nowiki> ''[''{'''|''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]]}'']'' <nowiki>,</nowiki> '''end'''
+:'''if''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]] <nowiki>,</nowiki> <nowiki>[</nowiki>{'''|''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]]}<nowiki>]</nowiki> <nowiki>,</nowiki> '''end'''
 
 <pre>
 \RuleDef{non-deterministic if statement}{

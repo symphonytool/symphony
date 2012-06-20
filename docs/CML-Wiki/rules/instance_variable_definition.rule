@@ -1,6 +1,6 @@
 == instance variable definition ==
 ;[[instance variable definition]] <nowiki>:=</nowiki> 
-:''[''[[qualifier]]'']'' <nowiki>,</nowiki> [[assignment definition]]
+:<nowiki>[</nowiki>[[qualifier]]<nowiki>]</nowiki> <nowiki>,</nowiki> [[assignment definition]]
 :| [[invariant definition]]
 
 <pre>

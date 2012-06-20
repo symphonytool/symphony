@@ -1,6 +1,6 @@
 == renaming comprehension ==
 ;[[renaming comprehension]] <nowiki>:=</nowiki> 
-:'''[[''' <nowiki>,</nowiki> [[renaming    pair]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[bind list]] <nowiki>,</nowiki> ''['''''@''' <nowiki>,</nowiki> [[expression]]'']'' <nowiki>,</nowiki> ''']]'''
+:'''[[''' <nowiki>,</nowiki> [[renaming    pair]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[bind list]] <nowiki>,</nowiki> <nowiki>[</nowiki>'''@''' <nowiki>,</nowiki> [[expression]]<nowiki>]</nowiki> <nowiki>,</nowiki> ''']]'''
 
 <pre>
 \RuleDef{renaming comprehension}{

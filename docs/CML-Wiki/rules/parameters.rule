@@ -1,6 +1,6 @@
 == parameters ==
 ;[[parameters]] <nowiki>:=</nowiki> 
-:'''(''' <nowiki>,</nowiki> ''[''[[pattern list]]'']'' <nowiki>,</nowiki> ''')'''
+:'''(''' <nowiki>,</nowiki> <nowiki>[</nowiki>[[pattern list]]<nowiki>]</nowiki> <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{parameters}{

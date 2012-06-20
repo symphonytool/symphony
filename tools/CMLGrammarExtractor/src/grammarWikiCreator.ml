@@ -41,7 +41,7 @@ and elems_to_wiki_string elems =
 	  | Ast.Seq (elems',_) ->
 	    "{" ^ (elems_to_wiki_string elems') ^ "}"
 	  | Ast.Opt elems' -> 
-	    "''[''" ^ (elems_to_wiki_string elems') ^ "'']''"
+	    "<nowiki>[</nowiki>" ^ (elems_to_wiki_string elems') ^ "<nowiki>]</nowiki>"
 	  | Ast.Ref s ->
 	    let s = Str.global_replace (Str.regexp "['\n''\r']") "" s in
 	    "[[" ^ s ^ "]]"

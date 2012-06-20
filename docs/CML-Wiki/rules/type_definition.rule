@@ -1,7 +1,7 @@
 == type definition ==
 ;[[type definition]] <nowiki>:=</nowiki> 
-:''[''[[qualifier]]'']'' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> ''[''[[invariant]]'']''
-:| ''[''[[qualifier]]'']'' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''::''' <nowiki>,</nowiki> [[field list]] <nowiki>,</nowiki> ''[''[[invariant]]'']''
+:<nowiki>[</nowiki>[[qualifier]]<nowiki>]</nowiki> <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> <nowiki>[</nowiki>[[invariant]]<nowiki>]</nowiki>
+:| <nowiki>[</nowiki>[[qualifier]]<nowiki>]</nowiki> <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''::''' <nowiki>,</nowiki> [[field list]] <nowiki>,</nowiki> <nowiki>[</nowiki>[[invariant]]<nowiki>]</nowiki>
 
 <pre>
 \RuleDef{type definition}{

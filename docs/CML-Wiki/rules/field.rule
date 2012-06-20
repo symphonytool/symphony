@@ -1,7 +1,7 @@
 == field ==
 ;[[field]] <nowiki>:=</nowiki> 
-:''[''[[identifier]] <nowiki>,</nowiki> ''':''''']'' <nowiki>,</nowiki> [[type]]
-:| ''[''[[identifier]] <nowiki>,</nowiki> ''':-''''']'' <nowiki>,</nowiki> [[type]]
+:<nowiki>[</nowiki>[[identifier]] <nowiki>,</nowiki> ''':'''<nowiki>]</nowiki> <nowiki>,</nowiki> [[type]]
+:| <nowiki>[</nowiki>[[identifier]] <nowiki>,</nowiki> ''':-'''<nowiki>]</nowiki> <nowiki>,</nowiki> [[type]]
 
 <pre>
 \RuleDef{field}{

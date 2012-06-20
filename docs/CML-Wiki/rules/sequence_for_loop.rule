@@ -1,6 +1,6 @@
 == sequence for loop ==
 ;[[sequence for loop]] <nowiki>:=</nowiki> 
-:'''for''' <nowiki>,</nowiki> [[pattern bind]] <nowiki>,</nowiki> '''in''' <nowiki>,</nowiki> ''['''''reverse''''']'' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''do''' <nowiki>,</nowiki> [[action]]
+:'''for''' <nowiki>,</nowiki> [[pattern bind]] <nowiki>,</nowiki> '''in''' <nowiki>,</nowiki> <nowiki>[</nowiki>'''reverse'''<nowiki>]</nowiki> <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''do''' <nowiki>,</nowiki> [[action]]
 
 <pre>
 \RuleDef{sequence for loop}{
