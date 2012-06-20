@@ -1,6 +1,9 @@
+-- Travel Agency case study
 -- Airline booking system constituent system example
-
+--
 -- Authors: John Fitzgerald and Richard Payne
+-- Newcastle University
+------------------------
 
 types
 
