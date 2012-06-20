@@ -1,0 +1,168 @@
+-- Zotel booking system constituent system example
+-- Initial version - VDM elements syntax and type checked using Overture
+
+-- Authors: Zoe Andrews and Richard Payne
+-- Newcastle University
+------------------------
+
+types
+
+	public Date :: 	day : nat1
+					month : nat1
+					year : nat
+	inv d == d.day <= 31 and d.month <= 12; 
+	-- plus some more fiddly month/year number of day restrictions
+		
+	public Stay ::	hotId : HotelID	
+					noRooms : nat1
+					startDate : Date
+					noNights : nat1;
+			
+	public Price ::	pounds : nat
+					pence : nat
+	inv p == p.pence < 100;
+				
+	public Facility = (<Bar> | (<Restaurant> | (<Pool> | <Spa>))); 
+	-- etc.
+	
+	public Reference = token;
+	public Location  = token;
+	public HotelID = token;
+	
+	public BookingDetails :: 	stay: Stay
+					ppn : Price; -- room price per night (stores what this was at the time of booking)
+	
+	public HotelDetails ::	location : Location
+				facilities : set of Facility
+				avail : map Date to nat -- maps the Date to the number of rooms available on that Date
+				price : Price; -- room price per night (assume this is constant)
+					
+	-- maps a hotel ID to its details
+	public Zotels = map HotelID to HotelDetails;
+
+	-- maps a booking reference to booking details
+	public Bookings = map Reference to BookingDetails; 
+
+functions
+
+	-- returns the set of dates included in a given stay
+	public getDates : Stay ->  set of Date
+	getDates(s) == is not yet specified;
+
+	-- multiplies price whilst keeping a pounds and pence format
+	multiplyPrice : Price * nat -> Price
+	multiplyPrice(p, no) == mk_Price(no * p.pounds + (no * p.pence)/100, (no * p.pence) mod 100);
+
+
+channels
+	
+	init, invalidRef, unavailable, error;
+	avail : bool;
+	book, check, reqPriceAvail, reqPrice : Stay;
+	reference, cancel, chDate, chRooms : Reference;
+	outPrice, setPrice : Price;
+	reqFac : HotelID;
+	outFac : set of Facility;
+	setAvail : map Date to nat
+
+chansets
+
+	-- Define two chansets: one for a travel agents interface, the other for manager interface
+	TA = {| init, avail, book, check, reqPriceAvail, reqPrice, outPrice, reqFac, outFac, reference, cancel, chDate, chRooms, invalidRef, unavailable, error |}
+	Manager = {| init, setPrice, setAvail, error |}
+
+process Zotel_Booking =
+begin
+  state
+	
+	zotels : Zotels; -- maps a hotel ID to its details
+	bookings : Bookings; -- maps a booking reference to stay details
+	
+	-- All booked stays have valid hotels and each booked stay has valid dates for that hotel
+	inv forall b in set rng bookings & b.stay.hotId in set dom zotels 
+			and getDates(b.stay) subset dom zotels(b.stay.hotId).avail;
+
+  operations
+
+	-- initialisation
+	public Init() 
+	frame wr zotels, bookings
+	post true;
+	
+
+--	public checkAvailability : Stay ==> bool
+--	checkAvailability(s) == return (forall d in set getDates(s) & zotels(s.hotId).avail(d) >= s.noRooms)
+	-- guard mapping look-ups 
+--	pre s.hotId in set dom zotels and getDates(s) subset dom zotels(s.hotId).avail; 
+	
+	-- Assume pay on arrival for simplicity
+	public makeBooking (s:Stay) r:Reference
+	frame wr zotels, bookings
+	pre checkAvailability(s)  -- also need to guard mapping look-ups
+	-- main functionality
+	post forall d in set getDates(s) & zotels(s.hotId).avail(d) = zotels~(s.hotId).avail(d) - s.noRooms 
+	and r not in set dom bookings~ and bookings(r) = mk_BookingDetails(s, zotels(s.hotId).price)
+	-- and nothing else changes (not formalised)!
+	;
+	
+--	-- Assumes hotel exists, returns null if unavailable on these dates
+--	public getQuote : Stay ==> [Price]
+--	getQuote(s) == 	if checkAvailability(s) 
+--				then return multiplyPrice(zotels(s.hotId).price, s.noNights * card getDates(s))
+--				else return nil
+--	pre s.hotId in set dom zotels; 
+	
+	-- Assumes hotel exists and is available for these dates
+	public getQuoteAvail (s:Stay) p: Price
+	frame rd zotels
+	pre s.hotId in set dom zotels and checkAvailability(s)
+	post p = multiplyPrice(zotels(s.hotId).price, s.noNights * card getDates(s))
+	
+--	public searchByLocation : Location ==> set of HotelID
+--	searchByLocation(loc) == is not yet specified;
+	
+	-- Could include more advanced search operations, e.g. by location, price and facilities etc
+	
+--	public getFacilities : HotelID ==> set of Facility
+--	getFacilities(hotID) == is not yet specified;
+--	
+--	public cancelBooking: Reference ==> ()
+--	cancelBooking(ref) == is not yet specified;
+--	
+--	public changeDate : Reference * Date * nat ==> ()
+--	changeDate(ref, newDate, newNights) == is not yet specified;
+--	
+--	public changeNoRooms : Reference * nat ==> ()
+--	changeNoRooms(ref, newRooms) == is not yet specified;
+--	
+--	-- Manager interface to update availability and prices
+--	public setPrice: Price ==> ()
+--	setPrice(p) == is not yet specified;
+--	
+--	public setAvailability : map Date to nat ==> ()
+--	setAvailability(avail) == is not yet specified;
+
+	actions
+	ZOTEL = 
+	check?s -> 	(: pre-checkAvailability(s) & (dcl a:bool @ a := *checkAvailability(s); avail!a -> ZOTEL))
+				[]
+				(: not pre-checkAvailability(s) & (error -> ZOTEL))
+	[]
+	book?s -> 	(: pre-makeBooking(s) & (dcl r:Reference @ r := *makeBooking(s); reference!r -> ZOTEL))
+			[]
+			(: not pre-makeBooking(s) & (unavailable -> ZOTEL))
+	[]
+	reqPriceAvail?s -> 	(: pre-getQuoteAvail(s) & (dcl p:Price @ p := *getQuoteAvail(s); outPrice!p -> ZOTEL))
+					[]
+					(: not pre-getQuoteAvail(s) & (unavailable -> ZOTEL))
+--	[]
+--	reqPrice?s -> 	(: pre-getQuote(s) &  (dcl p:Price @ p := getQuote(s); (:not p = nil & (outPrice!p -> ZOTEL))
+--																		   []
+--																		   (:p = nil & (unavailable -> ZOTEL)))    -- detect/do something if nil
+--				    []
+--				    (: not pre-getQuote(s) & (error -> ZOTEL))		
+	
+	-- include other operations when specified...				
+	@				
+	  init -> *init(); ZOTEL	
+end

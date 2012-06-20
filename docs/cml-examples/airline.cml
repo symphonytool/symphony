@@ -39,26 +39,22 @@ functions
     test (a) == 5;
     
     
-	-- **** Parsing errors with expression in set comprehension. Commented out to move on.****
 	public total_booked : FlightId * BookingDb -> nat
 	total_booked(fd, bDb) == 
---	 let bookings : set of BookingData = {bDb(b) | b in set dom bDb @ (bDb(b).f = fd)} in
-	 let bookings : set of BookingData = {bDb(b) | b in set dom bDb} in 
+	 let bookings : set of BookingData = {bDb(b) | b in set dom bDb & (bDb(b).f = fd)} in
 	     sum_bookings(bookings);
 
 
 	-- ****Parsing error on cases statement - is not happy with matching the set bd to the empty set****
-	-- ****Parsing/syntax error - let x in set X is not valid?****
 	public sum_bookings : (set of BookingData) -> nat
 	sum_bookings (bd) ==
 --	  cases bd :
 --	    {}  	-> 0,
---	    others	-> let b in set bd in
-		let b : set of BookingData = {b | b in set bd} in
+--	    others	-> let b : set of BookingData = {b | b in set bd} in
 				     card b.ps + sum_bookings(bd\{b});
 --	  end
 
-available_seats : FlightId * FlightDb * BookingDb -> nat
+	available_seats : FlightId * FlightDb * BookingDb -> nat
 	available_seats(fId, fd, bd) == 
 		fd(fId).max_seats - total_booked(fId, bd);
 
@@ -86,12 +82,10 @@ process Airline =
 		     	 forall fId in set dom fDb & total_booked(fId, bDb) <= fDb(fId).max_seats
 
 	operations
-		-- ****Parsing error for set comprehension expressions. ****
 		public Query(qorigin:Airport, qdest:Airport, qdate:Date, qseats:nat) r : FlightDb
 		frame rd fDb, bDb
-		post r = ({fd | fd in set dom fDb} <: fDb);
---		post r = ({fd | fd in set dom fDb @ fDb(fd).origin = qorigin and fDb(fd).dest = qdest
---		           and fDb(fd).dep.date = qdate and available_seats(fd, fDb, bDb) >= qseats} <: fDb);
+		post r = ({fd | fd in set dom fDb & fDb(fd).origin = qorigin and fDb(fd).dest = qdest
+				           and fDb(fd).dep.date = qdate and available_seats(fd, fDb, bDb) >= qseats} <: fDb);
 
 		public Reserve(fId:FlightId , qseats:nat) r: BookingId
 		frame wr bDb rd fDb
@@ -120,7 +114,7 @@ process Airline =
 									 []
 									 (: not pre-Confirm(fId,bId,p,bDb) & (failPreConfirm -> AIRLINE))
    @
-		init -> *Init()
+		init -> *Init(); AIRLINE
 		
 end 
 
