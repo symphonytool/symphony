@@ -45,7 +45,10 @@ Abstract Syntax Tree
  */
 
 /*
-	Name Resolving helpers
+	Name Resolving helpers 
+	
+	These are only temporary nodes to help the parser and will not
+	end up in the AST.
 */
 name {-> package='org.overture.ast.program'}
 	= {simple} [identifiers]:LexIdentifierToken*
@@ -54,8 +57,14 @@ name {-> package='org.overture.ast.program'}
 
 designator {-> package='org.overture.ast.program'}
 	= {name} [name]:name.simple 
+	| {primary} [primary]:primary
 	;
 
+primary {-> package='org.overture.ast.program'}
+	= {self}
+	| {call} [call]:action.#ControlStatement.#CallStatement.call
+	| {primary} [primary]:primary [identifier]:LexIdentifierToken
+	;
 /*
 	Programs
 */
@@ -636,17 +645,19 @@ parametrisation {-> package='org.overture.ast.actions'}
 	;
 	
 #ControlStatement {-> package='org.overture.ast.actions'}
-	= #CallStatement
+	= {nonDeterministicIf} [ifExp]:exp [thenStm]:action [elseIf]:action.#ControlStatement.nonDeterministicElseIf*
+	| {nonDeterministicElseIf} [elseIf]:exp [thenStm]:action
 	| {if} [ifExp]:exp [thenStm]:action [elseIf]:action.#ControlStatement.elseIf* [elseStm]:action
 	| {elseIf} [elseIf]:exp [thenStm]:action
 	| {cases} [exp]:exp [cases]:alternativeAction.case* [others]:action
 	| #GeneralAssignment
+	| #CallStatement
 	| {return} [exp]:exp
 	;
 	
 #CallStatement {-> package='org.overture.ast.actions'}
 	= {call} [objectDesignator]:objectDesignator [name]:LexNameToken [args]:exp*
-	| {assignmentCall} [designator]:stateDesignator [call]:call 	
+	| {assignmentCall} [designator]:stateDesignator [call]:action.#ControlStatement.#CallStatement.call 	
 	;
 	
 #GeneralAssignment {-> package='org.overture.ast.actions'}

@@ -1,0 +1,6 @@
+process Test =
+begin
+	
+   @
+     if 5 > x -> REG end  
+end
