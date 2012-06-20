@@ -1,6 +1,6 @@
 == field select ==
-[[field select]] := 
-[[expression]] , '''.''' , [[identifier]]
+;[[field select]] <nowiki>:=</nowiki> 
+[[expression]] <nowiki>,</nowiki> '''.''' <nowiki>,</nowiki> [[identifier]]
 
 <pre>
 \RuleDef{field select}{

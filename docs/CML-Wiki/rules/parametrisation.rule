@@ -1,8 +1,8 @@
 == parametrisation ==
-[[parametrisation]] := 
+;[[parametrisation]] <nowiki>:=</nowiki> 
 '''val'''
-| '''res'''
-| '''vres''' , [[single type declaration]]
+;| '''res'''
+;| '''vres''' <nowiki>,</nowiki> [[single type declaration]]
 
 <pre>
 \RuleDef{parametrisation}{

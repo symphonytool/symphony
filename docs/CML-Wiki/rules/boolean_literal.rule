@@ -1,7 +1,7 @@
 == boolean literal ==
-[[boolean literal]] := 
+;[[boolean literal]] <nowiki>:=</nowiki> 
 '''true'''
-| '''false'''
+;| '''false'''
 
 <pre>
 \RuleDef{boolean literal}{

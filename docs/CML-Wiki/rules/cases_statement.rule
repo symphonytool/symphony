@@ -1,6 +1,6 @@
 == cases statement ==
-[[cases statement]] := 
-'''cases''' , [[expression]] , ''':''' , [[cases statement alternatives]] , [''',''' , [[others statement]]] , '''end'''
+;[[cases statement]] <nowiki>:=</nowiki> 
+'''cases''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[cases statement alternatives]] <nowiki>,</nowiki> ''[''''',''' <nowiki>,</nowiki> [[others statement]]'']'' <nowiki>,</nowiki> '''end'''
 
 <pre>
 \RuleDef{cases statement}{

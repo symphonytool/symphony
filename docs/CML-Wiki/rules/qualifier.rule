@@ -1,9 +1,9 @@
 == qualifier ==
-[[qualifier]] := 
+;[[qualifier]] <nowiki>:=</nowiki> 
 '''private'''
-| '''protected'''
-| '''public'''
-| '''logical'''
+;| '''protected'''
+;| '''public'''
+;| '''logical'''
 
 <pre>
 \RuleDef{qualifier}{

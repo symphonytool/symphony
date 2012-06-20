@@ -1,6 +1,6 @@
 == product type ==
-[[product type]] := 
-[[type]] , '''*''' , [[type]] , {'''*''' , [[type]]}
+;[[product type]] <nowiki>:=</nowiki> 
+[[type]] <nowiki>,</nowiki> '''*''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> {'''*''' <nowiki>,</nowiki> [[type]]}
 
 <pre>
 \RuleDef{product type}{

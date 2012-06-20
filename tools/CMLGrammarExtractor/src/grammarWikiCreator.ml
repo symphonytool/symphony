@@ -13,7 +13,7 @@ and to_wiki_page def =
     let fileName = Str.global_replace (Str.regexp " ") "_" def.Ast.name in
     let outChan = open_out (fileName ^".rule") in
     output_string outChan ("== " ^def.Ast.name ^ " ==");
-    output_string outChan ("\n[[" ^ def.Ast.name ^ "]] := \n" ^ (elems_to_wiki_string def.Ast.defs)); 
+    output_string outChan ("\n;[[" ^ def.Ast.name ^ "]] <nowiki>:=</nowiki> \n" ^ (elems_to_wiki_string def.Ast.defs)); 
     output_string outChan "\n\n<pre>";
     output_string outChan (to_latex_string def);
     output_string outChan "\n</pre>";
@@ -28,9 +28,9 @@ and elems_to_wiki_string elems =
 	  | None -> ""
 	  | Some comb ->
 	    (match comb with
-	      | Ast.Concat -> " , " 
-	      | Ast.Alt -> "\n| "
-	      | Ast.NA -> " , "
+	      | Ast.Concat -> " <nowiki>,</nowiki> " 
+	      | Ast.Alt -> "\n;| "
+	      | Ast.NA -> " <nowiki>,</nowiki> "
 	    )
 	)
       in
@@ -41,8 +41,9 @@ and elems_to_wiki_string elems =
 	  | Ast.Seq (elems',_) ->
 	    "{" ^ (elems_to_wiki_string elems') ^ "}"
 	  | Ast.Opt elems' -> 
-	    "[" ^ (elems_to_wiki_string elems') ^ "]"
+	    "''[''" ^ (elems_to_wiki_string elems') ^ "'']''"
 	  | Ast.Ref s ->
+	    let s = Str.global_replace (Str.regexp "['\n''\r']") "" s in
 	    "[[" ^ s ^ "]]"
 	) ^ combString
     )

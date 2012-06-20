@@ -1,6 +1,6 @@
 == declaration ==
-[[declaration]] := 
-[[single type declaration]] , {''';''' , [[single type declaration]]}
+;[[declaration]] <nowiki>:=</nowiki> 
+[[single type declaration]] <nowiki>,</nowiki> {''';''' <nowiki>,</nowiki> [[single type declaration]]}
 
 <pre>
 \RuleDef{declaration}{

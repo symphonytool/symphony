@@ -1,6 +1,6 @@
 == multiple assign statement ==
-[[multiple assign statement]] := 
-'''atomic''' , '''(''' , [[assign statement]] , ''';''' , [[assign statement]] , [{''';''' , [[assign statement]]}] , ''')'''
+;[[multiple assign statement]] <nowiki>:=</nowiki> 
+'''atomic''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[assign statement]] <nowiki>,</nowiki> ''';''' <nowiki>,</nowiki> [[assign statement]] <nowiki>,</nowiki> ''[''{''';''' <nowiki>,</nowiki> [[assign statement]]}'']'' <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{multiple assign statement}{

@@ -1,6 +1,6 @@
 == identifier type pair list ==
-[[identifier type pair list]] := 
-{[[identifier]] , ''':''' , [[type]]}
+;[[identifier type pair list]] <nowiki>:=</nowiki> 
+{[[identifier]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]]}
 
 <pre>
 \RuleDef{identifier type pair list}{

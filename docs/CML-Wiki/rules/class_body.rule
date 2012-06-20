@@ -1,6 +1,6 @@
 == class body ==
-[[class body]] := 
-['''extends''' , [[identifier]]] , '''begin''' , {[[class paragraph]]} , ['''state''' , [[instance variable declaration]]] , {[[class paragraph]]} , ['''initial''' , [[operation declaration]]] , {[[class paragraph]]} , '''end'''
+;[[class body]] <nowiki>:=</nowiki> 
+''['''''extends''' <nowiki>,</nowiki> [[identifier]]'']'' <nowiki>,</nowiki> '''begin''' <nowiki>,</nowiki> {[[class paragraph]]} <nowiki>,</nowiki> ''['''''state''' <nowiki>,</nowiki> [[instance variable declaration]]'']'' <nowiki>,</nowiki> {[[class paragraph]]} <nowiki>,</nowiki> ''['''''initial''' <nowiki>,</nowiki> [[operation declaration]]'']'' <nowiki>,</nowiki> {[[class paragraph]]} <nowiki>,</nowiki> '''end'''
 
 <pre>
 \RuleDef{class body}{

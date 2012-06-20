@@ -1,13 +1,13 @@
 == basic type ==
-[[basic type]] := 
+;[[basic type]] <nowiki>:=</nowiki> 
 '''bool'''
-| '''nat'''
-| '''nat1'''
-| '''int'''
-| '''rat'''
-| '''real'''
-| '''char'''
-| '''token'''
+;| '''nat'''
+;| '''nat1'''
+;| '''int'''
+;| '''rat'''
+;| '''real'''
+;| '''char'''
+;| '''token'''
 
 <pre>
 \RuleDef{basic type}{

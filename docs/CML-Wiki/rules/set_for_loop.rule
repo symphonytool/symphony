@@ -1,6 +1,6 @@
 == set for loop ==
-[[set for loop]] := 
-'''for''' , '''all''' , [[pattern]] , '''in set''' , [[expression]] , '''do''' , [[action]]
+;[[set for loop]] <nowiki>:=</nowiki> 
+'''for''' <nowiki>,</nowiki> '''all''' <nowiki>,</nowiki> [[pattern]] <nowiki>,</nowiki> '''in set''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''do''' <nowiki>,</nowiki> [[action]]
 
 <pre>
 \RuleDef{set for loop}{

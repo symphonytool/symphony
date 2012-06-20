@@ -1,7 +1,7 @@
 == character literal ==
-[[character literal]] := 
-''''''' , [[character]]
-| [[escape sequence]] , '''''''
+;[[character literal]] <nowiki>:=</nowiki> 
+''''''' <nowiki>,</nowiki> [[character]]
+;| [[escape sequence]] <nowiki>,</nowiki> '''''''
 
 <pre>
 \RuleDef{character literal}{

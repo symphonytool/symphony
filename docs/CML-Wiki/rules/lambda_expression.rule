@@ -1,6 +1,6 @@
 == lambda expression ==
-[[lambda expression]] := 
-'''lambda''' , [[type bind list]] , '''@''' , [[expression]]
+;[[lambda expression]] <nowiki>:=</nowiki> 
+'''lambda''' <nowiki>,</nowiki> [[type bind list]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{lambda expression}{

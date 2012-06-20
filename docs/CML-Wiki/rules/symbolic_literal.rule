@@ -1,11 +1,11 @@
 == symbolic literal ==
-[[symbolic literal]] := 
+;[[symbolic literal]] <nowiki>:=</nowiki> 
 [[numeric literal]]
-| [[boolean literal]]
-| [[nil literal]]
-| [[character literal]]
-| [[text literal]]
-| [[quote literal]]
+;| [[boolean literal]]
+;| [[nil literal]]
+;| [[character literal]]
+;| [[text literal]]
+;| [[quote literal]]
 
 <pre>
 \RuleDef{symbolic literal}{

@@ -1,6 +1,6 @@
 == set enumeration ==
-[[set enumeration]] := 
-'''\mylcurly''' , [[[expression list]]] , '''\myrcurly'''
+;[[set enumeration]] <nowiki>:=</nowiki> 
+'''\mylcurly''' <nowiki>,</nowiki> ''[''[[expression list]]'']'' <nowiki>,</nowiki> '''\myrcurly'''
 
 <pre>
 \RuleDef{set enumeration}{

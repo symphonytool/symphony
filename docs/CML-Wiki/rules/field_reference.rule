@@ -1,6 +1,6 @@
 == field reference ==
-[[field reference]] := 
-[[state designator]] , '''.''' , [[identifier]]
+;[[field reference]] <nowiki>:=</nowiki> 
+[[state designator]] <nowiki>,</nowiki> '''.''' <nowiki>,</nowiki> [[identifier]]
 
 <pre>
 \RuleDef{field reference}{

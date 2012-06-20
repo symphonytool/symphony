@@ -1,6 +1,6 @@
 == renaming enumeration ==
-[[renaming enumeration]] := 
-'''[[''' , {[[renaming pair]]} , ''']]'''
+;[[renaming enumeration]] <nowiki>:=</nowiki> 
+'''[[''' <nowiki>,</nowiki> {[[renaming pair]]} <nowiki>,</nowiki> ''']]'''
 
 <pre>
 \RuleDef{renaming enumeration}{

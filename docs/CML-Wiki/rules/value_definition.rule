@@ -1,7 +1,7 @@
 == value definition ==
-[[value definition]] := 
-[[[qualifier]]] , [[pattern]] , [''':''' , [[type]]] , '''=''' , [[expression]]
-| [[[qualifier]]] , [[pattern]] , [''':''' , [[type]]] , '''in''' , [[expression]]
+;[[value definition]] <nowiki>:=</nowiki> 
+''[''[[qualifier]]'']'' <nowiki>,</nowiki> [[pattern]] <nowiki>,</nowiki> ''[''''':''' <nowiki>,</nowiki> [[type]]'']'' <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[expression]]
+;| ''[''[[qualifier]]'']'' <nowiki>,</nowiki> [[pattern]] <nowiki>,</nowiki> ''[''''':''' <nowiki>,</nowiki> [[type]]'']'' <nowiki>,</nowiki> '''in''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{value definition}{

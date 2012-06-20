@@ -1,6 +1,6 @@
 == specification statement ==
-[[specification statement]] := 
-'''[''' , [[implicit operation body]] , ''']'''
+;[[specification statement]] <nowiki>:=</nowiki> 
+'''[''' <nowiki>,</nowiki> [[implicit operation body]] <nowiki>,</nowiki> ''']'''
 
 <pre>
 \RuleDef{specification statement}{

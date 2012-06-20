@@ -1,6 +1,6 @@
 == union type ==
-[[union type]] := 
-[[type]] , '''|''' , [[type]] , {'''|''' , [[type]]}
+;[[union type]] <nowiki>:=</nowiki> 
+[[type]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> {'''|''' <nowiki>,</nowiki> [[type]]}
 
 <pre>
 \RuleDef{union type}{

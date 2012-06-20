@@ -1,6 +1,6 @@
 == quote literal ==
-[[quote literal]] := 
-'''<''' , [[identifier]] , '''>'''
+;[[quote literal]] <nowiki>:=</nowiki> 
+'''<''' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''>'''
 
 <pre>
 \RuleDef{quote literal}{

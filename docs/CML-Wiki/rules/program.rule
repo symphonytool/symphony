@@ -1,6 +1,6 @@
 == program ==
-[[program]] := 
-[[program paragraph]] , {[[program paragraph]]}
+;[[program]] <nowiki>:=</nowiki> 
+[[program paragraph]] <nowiki>,</nowiki> {[[program paragraph]]}
 
 <pre>
 \RuleDef{program}{

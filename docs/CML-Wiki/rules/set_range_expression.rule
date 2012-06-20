@@ -1,6 +1,6 @@
 == set range expression ==
-[[set range expression]] := 
-'''\mylcurly''' , [[expression]] , ''',''' , '''\Range''' , ''',''' , [[expression]] , '''\myrcurly'''
+;[[set range expression]] <nowiki>:=</nowiki> 
+'''\mylcurly''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''',''' <nowiki>,</nowiki> '''\Range''' <nowiki>,</nowiki> ''',''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''\myrcurly'''
 
 <pre>
 \RuleDef{set range expression}{

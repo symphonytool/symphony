@@ -1,6 +1,6 @@
 == new statement ==
-[[new statement]] := 
-[[state designator]] , ''':=''' , '''new''' , [[name]] , '''(''' , [[[expression list]]] , ''')'''
+;[[new statement]] <nowiki>:=</nowiki> 
+[[state designator]] <nowiki>,</nowiki> ''':=''' <nowiki>,</nowiki> '''new''' <nowiki>,</nowiki> [[name]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> ''[''[[expression list]]'']'' <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{new statement}{

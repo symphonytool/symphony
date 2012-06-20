@@ -1,6 +1,6 @@
 == type declaration ==
-[[type declaration]] := 
-'''types''' , {[[type definition]]}
+;[[type declaration]] <nowiki>:=</nowiki> 
+'''types''' <nowiki>,</nowiki> {[[type definition]]}
 
 <pre>
 \RuleDef{type declaration}{

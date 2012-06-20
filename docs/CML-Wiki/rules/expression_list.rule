@@ -1,6 +1,6 @@
 == expression list ==
-[[expression list]] := 
-[[expression]] , {''',''' , [[expression]]}
+;[[expression list]] <nowiki>:=</nowiki> 
+[[expression]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[expression]]}
 
 <pre>
 \RuleDef{expression list}{

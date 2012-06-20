@@ -1,6 +1,6 @@
 == invariant definition ==
-[[invariant definition]] := 
-'''inv''' , [[expression]]
+;[[invariant definition]] <nowiki>:=</nowiki> 
+'''inv''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{invariant definition}{

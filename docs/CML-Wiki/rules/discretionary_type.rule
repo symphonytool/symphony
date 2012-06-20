@@ -1,7 +1,7 @@
 == discretionary type ==
-[[discretionary type]] := 
+;[[discretionary type]] <nowiki>:=</nowiki> 
 [[type]]
-| '''(''' , ''')'''
+;| '''(''' <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{discretionary type}{

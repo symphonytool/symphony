@@ -1,6 +1,6 @@
 == pattern list ==
-[[pattern list]] := 
-[[pattern]] , {''',''' , [[pattern]]}
+;[[pattern list]] <nowiki>:=</nowiki> 
+[[pattern]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[pattern]]}
 
 <pre>
 \RuleDef{pattern list}{

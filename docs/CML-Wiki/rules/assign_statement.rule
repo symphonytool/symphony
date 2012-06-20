@@ -1,6 +1,6 @@
 == assign statement ==
-[[assign statement]] := 
-[[state designator]] , ''':=''' , [[expression]]
+;[[assign statement]] <nowiki>:=</nowiki> 
+[[state designator]] <nowiki>,</nowiki> ''':=''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{assign statement}{

@@ -1,6 +1,6 @@
 == record constructor ==
-[[record constructor]] := 
-'''mk\myunderscore''' , [[name]] , '''(''' , [[[expression list]]] , ''')'''
+;[[record constructor]] <nowiki>:=</nowiki> 
+'''mk\myunderscore''' <nowiki>,</nowiki> [[name]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> ''[''[[expression list]]'']'' <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{record constructor}{

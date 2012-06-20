@@ -1,6 +1,6 @@
 == bracketed type ==
-[[bracketed type]] := 
-'''(''' , [[type]] , ''')'''
+;[[bracketed type]] <nowiki>:=</nowiki> 
+'''(''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{bracketed type}{

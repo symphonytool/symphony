@@ -1,6 +1,6 @@
 == process definition ==
-[[process definition]] := 
-[[[declaration]] , '''@'''] , [[process]]
+;[[process definition]] <nowiki>:=</nowiki> 
+''[''[[declaration]] <nowiki>,</nowiki> '''@''''']'' <nowiki>,</nowiki> [[process]]
 
 <pre>
 \RuleDef{process definition}{

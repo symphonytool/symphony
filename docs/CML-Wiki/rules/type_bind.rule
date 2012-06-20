@@ -1,6 +1,6 @@
 == type bind ==
-[[type bind]] := 
-[[pattern]] , ''':''' , [[type]]
+;[[type bind]] <nowiki>:=</nowiki> 
+[[pattern]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]]
 
 <pre>
 \RuleDef{type bind}{

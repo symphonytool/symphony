@@ -1,6 +1,6 @@
 == dcl statement ==
-[[dcl statement]] := 
-'''dcl''' , [[assignment definition]] , {''',''' , [[assignment definition]]} , '''@'''
+;[[dcl statement]] <nowiki>:=</nowiki> 
+'''dcl''' <nowiki>,</nowiki> [[assignment definition]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[assignment definition]]} <nowiki>,</nowiki> '''@'''
 
 <pre>
 \RuleDef{dcl statement}{

@@ -1,6 +1,6 @@
 == single expression declaration ==
-[[single expression declaration]] := 
-{[[identifier]]} , ''':''' , [[expression]]
+;[[single expression declaration]] <nowiki>:=</nowiki> 
+{[[identifier]]} <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{single expression declaration}{

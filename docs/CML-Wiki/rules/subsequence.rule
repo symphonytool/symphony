@@ -1,6 +1,6 @@
 == subsequence ==
-[[subsequence]] := 
-[[expression]] , '''(''' , [[expression]] , ''',''' , '''\Range''' , ''',''' , [[expression]] , ''')'''
+;[[subsequence]] <nowiki>:=</nowiki> 
+[[expression]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''',''' <nowiki>,</nowiki> '''\Range''' <nowiki>,</nowiki> ''',''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{subsequence}{

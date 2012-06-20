@@ -1,6 +1,6 @@
 == call ==
-[[call]] := 
-[[[object designator]] , '''.'''] , [[name]] , '''(''' , [[[expression list]]] , ''')'''
+;[[call]] <nowiki>:=</nowiki> 
+''[''[[object designator]] <nowiki>,</nowiki> '''.''''']'' <nowiki>,</nowiki> [[name]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> ''[''[[expression list]]'']'' <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{call}{

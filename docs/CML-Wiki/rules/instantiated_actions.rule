@@ -1,7 +1,7 @@
 == instantiated actions ==
-[[instantiated actions]] := 
-'''(''' , [[declaration]] , '''@''' , [[action]] , ''')''' , '''(''' , {[[expression]]} , ''')'''
-| '''(''' , [[parametrised actions]] , ''')''' , '''(''' , {[[expression]]} , ''')'''
+;[[instantiated actions]] <nowiki>:=</nowiki> 
+'''(''' <nowiki>,</nowiki> [[declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[action]] <nowiki>,</nowiki> ''')''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> {[[expression]]} <nowiki>,</nowiki> ''')'''
+;| '''(''' <nowiki>,</nowiki> [[parametrised actions]] <nowiki>,</nowiki> ''')''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> {[[expression]]} <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{instantiated actions}{

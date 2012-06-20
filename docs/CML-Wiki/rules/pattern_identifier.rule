@@ -1,7 +1,7 @@
 == pattern identifier ==
-[[pattern identifier]] := 
+;[[pattern identifier]] <nowiki>:=</nowiki> 
 [[identifier]]
-| '''-'''
+;| '''-'''
 
 <pre>
 \RuleDef{pattern identifier}{

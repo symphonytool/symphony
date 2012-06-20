@@ -1,8 +1,8 @@
 == parameter ==
-[[parameter]] := 
+;[[parameter]] <nowiki>:=</nowiki> 
 [[identifier]]
-| '''mk\_''' , '''(''' , {[[parameter]]} , ''')'''
-| '''mk\_''' , [[name]] , '''(''' , {[[parameter]]} , ''')'''
+;| '''mk\_''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> {[[parameter]]} <nowiki>,</nowiki> ''')'''
+;| '''mk\_''' <nowiki>,</nowiki> [[name]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> {[[parameter]]} <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{parameter}{

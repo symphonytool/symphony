@@ -1,6 +1,6 @@
 == exists expression ==
-[[exists expression]] := 
-'''exists''' , [[bind list]] , '''@''' , [[expression]]
+;[[exists expression]] <nowiki>:=</nowiki> 
+'''exists''' <nowiki>,</nowiki> [[bind list]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{exists expression}{

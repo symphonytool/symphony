@@ -1,6 +1,6 @@
 == tuple constructor ==
-[[tuple constructor]] := 
-'''mk\myunderscore''' , '''(''' , [[expression]] , ''',''' , [[expression list]] , ''')'''
+;[[tuple constructor]] <nowiki>:=</nowiki> 
+'''mk\myunderscore''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''',''' <nowiki>,</nowiki> [[expression list]] <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{tuple constructor}{

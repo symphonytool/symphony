@@ -1,7 +1,7 @@
 == numeric literal ==
-[[numeric literal]] := 
+;[[numeric literal]] <nowiki>:=</nowiki> 
 [[decimal literal]]
-| [[hexadecimal literal]]
+;| [[hexadecimal literal]]
 
 <pre>
 \RuleDef{numeric literal}{

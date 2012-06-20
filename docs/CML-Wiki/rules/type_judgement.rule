@@ -1,6 +1,6 @@
 == type judgement ==
-[[type judgement]] := 
-'''is\myunderscore''' , '''(''' , [[expression]] , ''',''' , [[type]] , ''')'''
+;[[type judgement]] <nowiki>:=</nowiki> 
+'''is\myunderscore''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''',''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{type judgement}{

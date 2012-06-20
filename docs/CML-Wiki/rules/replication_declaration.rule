@@ -1,8 +1,8 @@
 == replication declaration ==
-[[replication declaration]] := 
+;[[replication declaration]] <nowiki>:=</nowiki> 
 [[single type declaration]]
-| [[single expression declaration]] , ''';''' , {[[single type declaration]]
-| [[single expression declaration]]}
+;| [[single expression declaration]] <nowiki>,</nowiki> ''';''' <nowiki>,</nowiki> {[[single type declaration]]
+;| [[single expression declaration]]}
 
 <pre>
 \RuleDef{replication declaration}{

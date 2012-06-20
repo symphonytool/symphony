@@ -1,6 +1,6 @@
 == parametrised actions ==
-[[parametrised actions]] := 
-[[parametrisation]] , {''';''' , [[parametrisation]]} , '''@''' , [[action]]
+;[[parametrised actions]] <nowiki>:=</nowiki> 
+[[parametrisation]] <nowiki>,</nowiki> {''';''' <nowiki>,</nowiki> [[parametrisation]]} <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[action]]
 
 <pre>
 \RuleDef{parametrised actions}{

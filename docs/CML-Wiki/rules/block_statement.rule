@@ -1,6 +1,6 @@
 == block statement ==
-[[block statement]] := 
-'''(''' , [[[dcl statement]]] , [[action]] , ''')'''
+;[[block statement]] <nowiki>:=</nowiki> 
+'''(''' <nowiki>,</nowiki> ''[''[[dcl statement]]'']'' <nowiki>,</nowiki> [[action]] <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{block statement}{

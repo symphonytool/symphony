@@ -1,7 +1,7 @@
 == call statement ==
-[[call statement]] := 
+;[[call statement]] <nowiki>:=</nowiki> 
 [[call]]
-| [[state designator]] , ''':=''' , [[call]]
+;| [[state designator]] <nowiki>,</nowiki> ''':=''' <nowiki>,</nowiki> [[call]]
 
 <pre>
 \RuleDef{call statement}{

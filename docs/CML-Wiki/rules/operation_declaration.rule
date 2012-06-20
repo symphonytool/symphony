@@ -1,6 +1,6 @@
 == operation declaration ==
-[[operation declaration]] := 
-'''operations''' , [[operation definition]] , {''';''' , [[operation definition]]}
+;[[operation declaration]] <nowiki>:=</nowiki> 
+'''operations''' <nowiki>,</nowiki> [[operation definition]] <nowiki>,</nowiki> {''';''' <nowiki>,</nowiki> [[operation definition]]}
 
 <pre>
 \RuleDef{operation declaration}{

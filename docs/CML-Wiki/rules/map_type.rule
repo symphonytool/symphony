@@ -1,7 +1,7 @@
 == map type ==
-[[map type]] := 
+;[[map type]] <nowiki>:=</nowiki> 
 [[general map type]]
-| [[injective map type]]
+;| [[injective map type]]
 
 <pre>
 \RuleDef{map type}{

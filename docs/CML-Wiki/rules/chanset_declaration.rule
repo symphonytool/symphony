@@ -1,6 +1,6 @@
 == chanset declaration ==
-[[chanset declaration]] := 
-[[identifier]] , '''=''' , [[chanset expression]]
+;[[chanset declaration]] <nowiki>:=</nowiki> 
+[[identifier]] <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[chanset expression]]
 
 <pre>
 \RuleDef{chanset declaration}{

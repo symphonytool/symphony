@@ -1,7 +1,7 @@
 == function type ==
-[[function type]] := 
+;[[function type]] <nowiki>:=</nowiki> 
 [[partial function type]]
-| [[total function type]]
+;| [[total function type]]
 
 <pre>
 \RuleDef{function type}{

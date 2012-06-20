@@ -1,7 +1,7 @@
 == unary expression ==
-[[unary expression]] := 
+;[[unary expression]] <nowiki>:=</nowiki> 
 [[prefix expression]]
-| [[map inverse]]
+;| [[map inverse]]
 
 <pre>
 \RuleDef{unary expression}{

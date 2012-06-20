@@ -1,6 +1,6 @@
 == non-deterministic do statement ==
-[[non-deterministic do statement]] := 
-'''do''' , [[expression]] , '''->''' , [[action]] , [{'''|''' , [[expression]] , '''->''' , [[action]]}] , '''end'''
+;[[non-deterministic do statement]] <nowiki>:=</nowiki> 
+'''do''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]] <nowiki>,</nowiki> ''[''{'''|''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]]}'']'' <nowiki>,</nowiki> '''end'''
 
 <pre>
 \RuleDef{non-deterministic do statement}{

@@ -1,6 +1,6 @@
 == set type ==
-[[set type]] := 
-'''set of''' , [[type]]
+;[[set type]] <nowiki>:=</nowiki> 
+'''set of''' <nowiki>,</nowiki> [[type]]
 
 <pre>
 \RuleDef{set type}{

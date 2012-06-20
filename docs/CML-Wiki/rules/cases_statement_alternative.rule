@@ -1,6 +1,6 @@
 == cases statement alternative ==
-[[cases statement alternative]] := 
-[[pattern list]] , '''->''' , [[action]]
+;[[cases statement alternative]] <nowiki>:=</nowiki> 
+[[pattern list]] <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]]
 
 <pre>
 \RuleDef{cases statement alternative}{

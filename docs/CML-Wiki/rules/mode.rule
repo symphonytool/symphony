@@ -1,7 +1,7 @@
 == mode ==
-[[mode]] := 
+;[[mode]] <nowiki>:=</nowiki> 
 '''rd'''
-| '''wr'''
+;| '''wr'''
 
 <pre>
 \RuleDef{mode}{

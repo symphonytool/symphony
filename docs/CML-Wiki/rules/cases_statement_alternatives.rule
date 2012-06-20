@@ -1,6 +1,6 @@
 == cases statement alternatives ==
-[[cases statement alternatives]] := 
-[[cases statement alternative]] , {''',''' , [[cases statement alternative]]}
+;[[cases statement alternatives]] <nowiki>:=</nowiki> 
+[[cases statement alternative]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[cases statement alternative]]}
 
 <pre>
 \RuleDef{cases statement alternatives}{

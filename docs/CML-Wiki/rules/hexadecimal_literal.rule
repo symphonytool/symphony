@@ -1,7 +1,7 @@
 == hexadecimal literal ==
-[[hexadecimal literal]] := 
+;[[hexadecimal literal]] <nowiki>:=</nowiki> 
 '''0x'''
-| '''0X''' , [[hexadecimal digit]] , {[[hexadecimal digit]]}
+;| '''0X''' <nowiki>,</nowiki> [[hexadecimal digit]] <nowiki>,</nowiki> {[[hexadecimal digit]]}
 
 <pre>
 \RuleDef{hexadecimal literal}{

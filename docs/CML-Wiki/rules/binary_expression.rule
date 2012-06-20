@@ -1,6 +1,6 @@
 == binary expression ==
-[[binary expression]] := 
-[[expression]] , [[binary operator]] , [[expression]]
+;[[binary expression]] <nowiki>:=</nowiki> 
+[[expression]] <nowiki>,</nowiki> [[binary operator]] <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{binary expression}{

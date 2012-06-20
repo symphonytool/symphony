@@ -1,8 +1,8 @@
 == exponent ==
-[[exponent]] := 
+;[[exponent]] <nowiki>:=</nowiki> 
 '''E'''
-| '''e''' , ['''+'''
-| '''-'''] , [[numeral]]
+;| '''e''' <nowiki>,</nowiki> ''['''''+'''
+;| '''-''''']'' <nowiki>,</nowiki> [[numeral]]
 
 <pre>
 \RuleDef{exponent}{

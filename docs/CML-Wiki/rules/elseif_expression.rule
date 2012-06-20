@@ -1,6 +1,6 @@
 == elseif expression ==
-[[elseif expression]] := 
-'''elseif''' , [[expression]] , '''then''' , [[expression]]
+;[[elseif expression]] <nowiki>:=</nowiki> 
+'''elseif''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''then''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{elseif expression}{

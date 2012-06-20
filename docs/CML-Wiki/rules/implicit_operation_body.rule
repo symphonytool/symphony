@@ -1,6 +1,6 @@
 == implicit operation body ==
-[[implicit operation body]] := 
-[[[externals]]] , ['''pre''' , [[expression]]] , '''post''' , [[expression]]
+;[[implicit operation body]] <nowiki>:=</nowiki> 
+''[''[[externals]]'']'' <nowiki>,</nowiki> ''['''''pre''' <nowiki>,</nowiki> [[expression]]'']'' <nowiki>,</nowiki> '''post''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{implicit operation body}{

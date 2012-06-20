@@ -1,6 +1,6 @@
 == var information ==
-[[var information]] := 
-[[mode]] , [[name list]] , [''':''' , [[type]]]
+;[[var information]] <nowiki>:=</nowiki> 
+[[mode]] <nowiki>,</nowiki> [[name list]] <nowiki>,</nowiki> ''[''''':''' <nowiki>,</nowiki> [[type]]'']''
 
 <pre>
 \RuleDef{var information}{

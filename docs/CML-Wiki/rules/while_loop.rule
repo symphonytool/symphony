@@ -1,6 +1,6 @@
 == while loop ==
-[[while loop]] := 
-'''while''' , [[expression]] , '''do''' , [[action]]
+;[[while loop]] <nowiki>:=</nowiki> 
+'''while''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''do''' <nowiki>,</nowiki> [[action]]
 
 <pre>
 \RuleDef{while loop}{

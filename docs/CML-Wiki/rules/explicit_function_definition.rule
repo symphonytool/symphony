@@ -1,6 +1,6 @@
 == explicit function definition ==
-[[explicit function definition]] := 
-[[[qualifier]]] , [[identifier]] , ''':''' , [[function type]] , [[identifier]] , [[parameters list]] , '''==''' , [[function body]] , ['''pre''' , [[expression]]] , ['''post''' , [[expression]]] , ['''measure''' , [[name]]]
+;[[explicit function definition]] <nowiki>:=</nowiki> 
+''[''[[qualifier]]'']'' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[function type]] <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> [[parameters list]] <nowiki>,</nowiki> '''==''' <nowiki>,</nowiki> [[function body]] <nowiki>,</nowiki> ''['''''pre''' <nowiki>,</nowiki> [[expression]]'']'' <nowiki>,</nowiki> ''['''''post''' <nowiki>,</nowiki> [[expression]]'']'' <nowiki>,</nowiki> ''['''''measure''' <nowiki>,</nowiki> [[name]]'']''
 
 <pre>
 \RuleDef{explicit function definition}{

@@ -1,6 +1,6 @@
 == process declaration ==
-[[process declaration]] := 
-'''process''' , [[identifier]] , '''=''' , [[process definition]]
+;[[process declaration]] <nowiki>:=</nowiki> 
+'''process''' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[process definition]]
 
 <pre>
 \RuleDef{process declaration}{
