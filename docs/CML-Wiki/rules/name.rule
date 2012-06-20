@@ -1,6 +1,6 @@
 == name ==
 ;[[name]] <nowiki>:=</nowiki> 
-[[identifier]] <nowiki>,</nowiki> ''['''''.''' <nowiki>,</nowiki> [[identifier]]'']''
+:[[identifier]] <nowiki>,</nowiki> ''['''''.''' <nowiki>,</nowiki> [[identifier]]'']''
 
 <pre>
 \RuleDef{name}{

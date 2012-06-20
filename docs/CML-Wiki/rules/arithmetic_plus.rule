@@ -1,6 +1,6 @@
 == arithmetic plus ==
 ;[[arithmetic plus]] <nowiki>:=</nowiki> 
-'''+'''
+:'''+'''
 
 <pre>
 \RuleDef{arithmetic plus}{

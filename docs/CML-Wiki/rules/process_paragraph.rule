@@ -1,8 +1,8 @@
 == process paragraph ==
 ;[[process paragraph]] <nowiki>:=</nowiki> 
-[[paragraph]]
-;| [[identifier]] <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[paragraph action]]
-;| [[nameset]] <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[nameset expression]]
+:[[paragraph]]
+:| [[identifier]] <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[paragraph action]]
+:| [[nameset]] <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[nameset expression]]
 
 <pre>
 \RuleDef{process paragraph}{

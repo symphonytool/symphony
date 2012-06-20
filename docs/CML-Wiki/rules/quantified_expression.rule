@@ -1,9 +1,9 @@
 == quantified expression ==
 ;[[quantified expression]] <nowiki>:=</nowiki> 
-[[all expression]]
-;| [[exists expression]]
-;| [[exists unique expression]]
-;| [[iota expression]]
+:[[all expression]]
+:| [[exists expression]]
+:| [[exists unique expression]]
+:| [[iota expression]]
 
 <pre>
 \RuleDef{quantified expression}{

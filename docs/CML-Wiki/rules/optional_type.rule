@@ -1,6 +1,6 @@
 == optional type ==
 ;[[optional type]] <nowiki>:=</nowiki> 
-'''[''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> ''']'''
+:'''[''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> ''']'''
 
 <pre>
 \RuleDef{optional type}{

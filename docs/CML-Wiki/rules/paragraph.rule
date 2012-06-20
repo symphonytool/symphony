@@ -1,9 +1,9 @@
 == paragraph ==
 ;[[paragraph]] <nowiki>:=</nowiki> 
-[[type declaration]]
-;| [[value declaration]]
-;| [[function declaration]]
-;| [[operation declaration]]
+:[[type declaration]]
+:| [[value declaration]]
+:| [[function declaration]]
+:| [[operation declaration]]
 
 <pre>
 \RuleDef{paragraph}{

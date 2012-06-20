@@ -1,6 +1,6 @@
 == sequence concatenate ==
 ;[[sequence concatenate]] <nowiki>:=</nowiki> 
-'''\mycaret'''
+:'''\mycaret'''
 
 <pre>
 \RuleDef{sequence concatenate}{

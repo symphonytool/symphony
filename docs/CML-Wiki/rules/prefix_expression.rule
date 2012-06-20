@@ -1,6 +1,6 @@
 == prefix expression ==
 ;[[prefix expression]] <nowiki>:=</nowiki> 
-[[unary operator]] <nowiki>,</nowiki> [[expression]]
+:[[unary operator]] <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{prefix expression}{

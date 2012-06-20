@@ -1,6 +1,6 @@
 == map range ==
 ;[[map range]] <nowiki>:=</nowiki> 
-'''rng'''
+:'''rng'''
 
 <pre>
 \RuleDef{map range}{

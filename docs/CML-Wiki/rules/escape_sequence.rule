@@ -1,18 +1,18 @@
 == escape sequence ==
 ;[[escape sequence]] <nowiki>:=</nowiki> 
-'''\mybackslash\mybackslash'''
-;| '''\mybackslash r'''
-;| '''\mybackslash n'''
-;| '''\mybackslash t'''
-;| '''\mybackslash f'''
-;| '''\mybackslash e'''
-;| '''\mybackslash a'''
-;| '''\mybackslash x''' <nowiki>,</nowiki> [[hexadecimal digit]] <nowiki>,</nowiki> [[hexadecimal digit]]
-;| '''\mybackslash u''' <nowiki>,</nowiki> [[hexadecimal digit]] <nowiki>,</nowiki> [[hexadecimal digit]] <nowiki>,</nowiki> [[hexadecimal digit]] <nowiki>,</nowiki> [[hexadecimal digit]]
-;| '''\mybackslash c''' <nowiki>,</nowiki> [[character]]
-;| '''\mybackslash ''' <nowiki>,</nowiki> [[octal digit]] <nowiki>,</nowiki> [[octal digit]] <nowiki>,</nowiki> [[octal digit]]
-;| '''\mybackslash "'''
-;| '''\mybackslash ''''
+:'''\mybackslash\mybackslash'''
+:| '''\mybackslash r'''
+:| '''\mybackslash n'''
+:| '''\mybackslash t'''
+:| '''\mybackslash f'''
+:| '''\mybackslash e'''
+:| '''\mybackslash a'''
+:| '''\mybackslash x''' <nowiki>,</nowiki> [[hexadecimal digit]] <nowiki>,</nowiki> [[hexadecimal digit]]
+:| '''\mybackslash u''' <nowiki>,</nowiki> [[hexadecimal digit]] <nowiki>,</nowiki> [[hexadecimal digit]] <nowiki>,</nowiki> [[hexadecimal digit]] <nowiki>,</nowiki> [[hexadecimal digit]]
+:| '''\mybackslash c''' <nowiki>,</nowiki> [[character]]
+:| '''\mybackslash ''' <nowiki>,</nowiki> [[octal digit]] <nowiki>,</nowiki> [[octal digit]] <nowiki>,</nowiki> [[octal digit]]
+:| '''\mybackslash "'''
+:| '''\mybackslash ''''
 
 <pre>
 \RuleDef{escape sequence}{

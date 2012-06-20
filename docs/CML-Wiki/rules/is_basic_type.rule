@@ -1,13 +1,13 @@
 == is basic type ==
 ;[[is basic type]] <nowiki>:=</nowiki> 
-'''is\_''' <nowiki>,</nowiki> '''bool'''
-;| '''nat'''
-;| '''nat1'''
-;| '''int'''
-;| '''rat'''
-;| '''real'''
-;| '''char'''
-;| '''token'''
+:'''is\_''' <nowiki>,</nowiki> '''bool'''
+:| '''nat'''
+:| '''nat1'''
+:| '''int'''
+:| '''rat'''
+:| '''real'''
+:| '''char'''
+:| '''token'''
 
 <pre>
 \RuleDef{is basic type}{

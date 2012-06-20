@@ -1,6 +1,6 @@
 == finite power set ==
 ;[[finite power set]] <nowiki>:=</nowiki> 
-'''power'''
+:'''power'''
 
 <pre>
 \RuleDef{finite power set}{

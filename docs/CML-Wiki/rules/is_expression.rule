@@ -1,7 +1,7 @@
 == is expression ==
 ;[[is expression]] <nowiki>:=</nowiki> 
-'''is\myunderscore''' <nowiki>,</nowiki> [[name]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''')'''
-;| [[is basic type]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''')'''
+:'''is\myunderscore''' <nowiki>,</nowiki> [[name]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''')'''
+:| [[is basic type]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{is expression}{

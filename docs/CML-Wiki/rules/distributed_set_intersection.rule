@@ -1,6 +1,6 @@
 == distributed set intersection ==
 ;[[distributed set intersection]] <nowiki>:=</nowiki> 
-'''dinter'''
+:'''dinter'''
 
 <pre>
 \RuleDef{distributed set intersection}{

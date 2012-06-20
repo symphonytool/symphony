@@ -1,8 +1,8 @@
 == global declaration ==
 ;[[global declaration]] <nowiki>:=</nowiki> 
-[[type declaration]]
-;| [[function declaration]]
-;| [[value declaration]]
+:[[type declaration]]
+:| [[function declaration]]
+:| [[value declaration]]
 
 <pre>
 \RuleDef{global declaration}{

@@ -1,6 +1,6 @@
 == single type declaration ==
 ;[[single type declaration]] <nowiki>:=</nowiki> 
-{[[identifier]]} <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]]
+:{[[identifier]]} <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]]
 
 <pre>
 \RuleDef{single type declaration}{

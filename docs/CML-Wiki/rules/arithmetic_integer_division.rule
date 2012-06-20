@@ -1,6 +1,6 @@
 == arithmetic integer division ==
 ;[[arithmetic integer division]] <nowiki>:=</nowiki> 
-'''div'''
+:'''div'''
 
 <pre>
 \RuleDef{arithmetic integer division}{

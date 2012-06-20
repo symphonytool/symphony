@@ -1,6 +1,6 @@
 == tuple select ==
 ;[[tuple select]] <nowiki>:=</nowiki> 
-[[expression]] <nowiki>,</nowiki> '''.\#''' <nowiki>,</nowiki> [[numeral]]
+:[[expression]] <nowiki>,</nowiki> '''.\#''' <nowiki>,</nowiki> [[numeral]]
 
 <pre>
 \RuleDef{tuple select}{

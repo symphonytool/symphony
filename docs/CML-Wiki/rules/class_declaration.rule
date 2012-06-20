@@ -1,6 +1,6 @@
 == class declaration ==
 ;[[class declaration]] <nowiki>:=</nowiki> 
-'''class''' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[class body]]
+:'''class''' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[class body]]
 
 <pre>
 \RuleDef{class declaration}{

@@ -1,18 +1,18 @@
 == control statements ==
 ;[[control statements]] <nowiki>:=</nowiki> 
-[[non-deterministic if statement]]
-;| [[if statement]]
-;| [[cases statement]]
-;| [[general assign statement]]
-;| [[call statement]]
-;| [[specification statement]]
-;| [[return statement]]
-;| [[new statement]]
-;| [[non-deterministic do statement]]
-;| [[sequence for loop]]
-;| [[set for loop]]
-;| [[index for loop]]
-;| [[while loop]]
+:[[non-deterministic if statement]]
+:| [[if statement]]
+:| [[cases statement]]
+:| [[general assign statement]]
+:| [[call statement]]
+:| [[specification statement]]
+:| [[return statement]]
+:| [[new statement]]
+:| [[non-deterministic do statement]]
+:| [[sequence for loop]]
+:| [[set for loop]]
+:| [[index for loop]]
+:| [[while loop]]
 
 <pre>
 \RuleDef{control statements}{

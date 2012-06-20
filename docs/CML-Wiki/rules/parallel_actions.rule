@@ -1,13 +1,13 @@
 == parallel actions ==
 ;[[parallel actions]] <nowiki>:=</nowiki> 
-[[action]] <nowiki>,</nowiki> '''[||''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''||]''' <nowiki>,</nowiki> [[action]]
-;| [[action]] <nowiki>,</nowiki> '''|||''' <nowiki>,</nowiki> [[action]]
-;| [[action]] <nowiki>,</nowiki> '''[|''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> '''|]''' <nowiki>,</nowiki> [[action]]
-;| [[action]] <nowiki>,</nowiki> '''||''' <nowiki>,</nowiki> [[action]]
-;| [[action]] <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''||''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> ''']''' <nowiki>,</nowiki> [[action]]
-;| [[action]] <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''||''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> ''']''' <nowiki>,</nowiki> [[action]]
-;| [[action]] <nowiki>,</nowiki> '''[|''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> '''|]''' <nowiki>,</nowiki> [[action]]
-;| [[action]] <nowiki>,</nowiki> '''[|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|]''' <nowiki>,</nowiki> [[action]]
+:[[action]] <nowiki>,</nowiki> '''[||''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''||]''' <nowiki>,</nowiki> [[action]]
+:| [[action]] <nowiki>,</nowiki> '''|||''' <nowiki>,</nowiki> [[action]]
+:| [[action]] <nowiki>,</nowiki> '''[|''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> '''|]''' <nowiki>,</nowiki> [[action]]
+:| [[action]] <nowiki>,</nowiki> '''||''' <nowiki>,</nowiki> [[action]]
+:| [[action]] <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''||''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> ''']''' <nowiki>,</nowiki> [[action]]
+:| [[action]] <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''||''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> ''']''' <nowiki>,</nowiki> [[action]]
+:| [[action]] <nowiki>,</nowiki> '''[|''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> '''|]''' <nowiki>,</nowiki> [[action]]
+:| [[action]] <nowiki>,</nowiki> '''[|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|]''' <nowiki>,</nowiki> [[action]]
 
 <pre>
 \RuleDef{parallel actions}{

@@ -1,6 +1,6 @@
 == cases expression alternatives ==
 ;[[cases expression alternatives]] <nowiki>:=</nowiki> 
-{[[cases expression alternative]]}
+:{[[cases expression alternative]]}
 
 <pre>
 \RuleDef{cases expression alternatives}{

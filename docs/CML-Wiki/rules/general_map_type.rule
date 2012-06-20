@@ -1,6 +1,6 @@
 == general map type ==
 ;[[general map type]] <nowiki>:=</nowiki> 
-'''map''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> '''to''' <nowiki>,</nowiki> [[type]]
+:'''map''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> '''to''' <nowiki>,</nowiki> [[type]]
 
 <pre>
 \RuleDef{general map type}{

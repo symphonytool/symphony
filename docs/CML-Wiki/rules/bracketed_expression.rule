@@ -1,6 +1,6 @@
 == bracketed expression ==
 ;[[bracketed expression]] <nowiki>:=</nowiki> 
-'''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''')'''
+:'''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{bracketed expression}{

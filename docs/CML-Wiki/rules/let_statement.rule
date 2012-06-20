@@ -1,6 +1,6 @@
 == let statement ==
 ;[[let statement]] <nowiki>:=</nowiki> 
-'''let''' <nowiki>,</nowiki> [[local definition]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[local definition]]} <nowiki>,</nowiki> '''in''' <nowiki>,</nowiki> [[action]]
+:'''let''' <nowiki>,</nowiki> [[local definition]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[local definition]]} <nowiki>,</nowiki> '''in''' <nowiki>,</nowiki> [[action]]
 
 <pre>
 \RuleDef{let statement}{

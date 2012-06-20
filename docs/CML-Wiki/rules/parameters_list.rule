@@ -1,6 +1,6 @@
 == parameters list ==
 ;[[parameters list]] <nowiki>:=</nowiki> 
-[[parameters]] <nowiki>,</nowiki> {[[parameters]]}
+:[[parameters]] <nowiki>,</nowiki> {[[parameters]]}
 
 <pre>
 \RuleDef{parameters list}{

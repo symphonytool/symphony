@@ -1,6 +1,6 @@
 == injective map type ==
 ;[[injective map type]] <nowiki>:=</nowiki> 
-'''inmap''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> '''to''' <nowiki>,</nowiki> [[type]]
+:'''inmap''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> '''to''' <nowiki>,</nowiki> [[type]]
 
 <pre>
 \RuleDef{injective map type}{

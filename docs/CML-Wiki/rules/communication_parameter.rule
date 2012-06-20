@@ -1,9 +1,9 @@
 == communication parameter ==
 ;[[communication parameter]] <nowiki>:=</nowiki> 
-'''?''' <nowiki>,</nowiki> [[parameter]]
-;| '''?''' <nowiki>,</nowiki> [[parameter]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[expression]]
-;| '''!''' <nowiki>,</nowiki> [[expression]]
-;| '''.''' <nowiki>,</nowiki> [[expression]]
+:'''?''' <nowiki>,</nowiki> [[parameter]]
+:| '''?''' <nowiki>,</nowiki> [[parameter]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[expression]]
+:| '''!''' <nowiki>,</nowiki> [[expression]]
+:| '''.''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{communication parameter}{

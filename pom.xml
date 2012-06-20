@@ -73,6 +73,22 @@
 
   <pluginRepositories>
     <pluginRepository>
+      <id>overture.iha.dk</id>
+      <name>Overture Project Build Repository at AU/IHA</name>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>warn</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+        <updatePolicy>daily</updatePolicy>
+        <checksumPolicy>warn</checksumPolicy>
+      </snapshots>
+      <url>http://build.overturetool.org/builds/overture-m2repo/</url>
+      <layout>default</layout>
+    </pluginRepository>
+    <pluginRepository>
       <id>overture.sf.net</id>
       <name>Overture Project at SF.net</name>
       <releases>

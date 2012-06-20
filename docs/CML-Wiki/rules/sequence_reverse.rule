@@ -1,6 +1,6 @@
 == sequence reverse ==
 ;[[sequence reverse]] <nowiki>:=</nowiki> 
-'''reverse'''
+:'''reverse'''
 
 <pre>
 \RuleDef{sequence reverse}{

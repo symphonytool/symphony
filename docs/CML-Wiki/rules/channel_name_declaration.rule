@@ -1,7 +1,7 @@
 == channel name declaration ==
 ;[[channel name declaration]] <nowiki>:=</nowiki> 
-[[declaration]]
-;| {[[identifier]]}
+:[[declaration]]
+:| {[[identifier]]}
 
 <pre>
 \RuleDef{channel name declaration}{

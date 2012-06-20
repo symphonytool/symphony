@@ -1,6 +1,6 @@
 == identifier ==
 ;[[identifier]] <nowiki>:=</nowiki> 
-[[initial letter]] <nowiki>,</nowiki> {[[following letter]]}
+:[[initial letter]] <nowiki>,</nowiki> {[[following letter]]}
 
 <pre>
 \RuleDef{identifier}{

@@ -1,6 +1,6 @@
 == value declaration ==
 ;[[value declaration]] <nowiki>:=</nowiki> 
-'''values''' <nowiki>,</nowiki> {[[value definition]]}
+:'''values''' <nowiki>,</nowiki> {[[value definition]]}
 
 <pre>
 \RuleDef{value declaration}{

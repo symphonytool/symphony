@@ -1,6 +1,6 @@
 == composite type ==
 ;[[composite type]] <nowiki>:=</nowiki> 
-'''compose''' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''of''' <nowiki>,</nowiki> [[field list]] <nowiki>,</nowiki> '''end'''
+:'''compose''' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''of''' <nowiki>,</nowiki> [[field list]] <nowiki>,</nowiki> '''end'''
 
 <pre>
 \RuleDef{composite type}{

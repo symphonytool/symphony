@@ -1,6 +1,6 @@
 == field list ==
 ;[[field list]] <nowiki>:=</nowiki> 
-{[[field]]}
+:{[[field]]}
 
 <pre>
 \RuleDef{field list}{

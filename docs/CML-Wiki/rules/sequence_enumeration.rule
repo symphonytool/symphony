@@ -1,6 +1,6 @@
 == sequence enumeration ==
 ;[[sequence enumeration]] <nowiki>:=</nowiki> 
-'''[''' <nowiki>,</nowiki> ''[''[[expression list]]'']'' <nowiki>,</nowiki> ''']'''
+:'''[''' <nowiki>,</nowiki> ''[''[[expression list]]'']'' <nowiki>,</nowiki> ''']'''
 
 <pre>
 \RuleDef{sequence enumeration}{

@@ -1,6 +1,6 @@
 == object field reference ==
 ;[[object field reference]] <nowiki>:=</nowiki> 
-[[object designator]] <nowiki>,</nowiki> '''.''' <nowiki>,</nowiki> [[identifier]]
+:[[object designator]] <nowiki>,</nowiki> '''.''' <nowiki>,</nowiki> [[identifier]]
 
 <pre>
 \RuleDef{object field reference}{

@@ -1,7 +1,7 @@
 == instance variable definition ==
 ;[[instance variable definition]] <nowiki>:=</nowiki> 
-''[''[[qualifier]]'']'' <nowiki>,</nowiki> [[assignment definition]]
-;| [[invariant definition]]
+:''[''[[qualifier]]'']'' <nowiki>,</nowiki> [[assignment definition]]
+:| [[invariant definition]]
 
 <pre>
 \RuleDef{instance variable definition}{

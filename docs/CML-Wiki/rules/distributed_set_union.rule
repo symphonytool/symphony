@@ -1,6 +1,6 @@
 == distributed set union ==
 ;[[distributed set union]] <nowiki>:=</nowiki> 
-'''dunion'''
+:'''dunion'''
 
 <pre>
 \RuleDef{distributed set union}{

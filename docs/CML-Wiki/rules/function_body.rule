@@ -1,8 +1,8 @@
 == function body ==
 ;[[function body]] <nowiki>:=</nowiki> 
-[[expression]]
-;| '''is subclass responsibility'''
-;| '''is not yet specified'''
+:[[expression]]
+:| '''is subclass responsibility'''
+:| '''is not yet specified'''
 
 <pre>
 \RuleDef{function body}{

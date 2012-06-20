@@ -1,6 +1,6 @@
 == seq0 type ==
 ;[[seq0 type]] <nowiki>:=</nowiki> 
-'''seq of''' <nowiki>,</nowiki> [[type]]
+:'''seq of''' <nowiki>,</nowiki> [[type]]
 
 <pre>
 \RuleDef{seq0 type}{

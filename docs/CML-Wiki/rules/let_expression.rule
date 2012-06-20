@@ -1,6 +1,6 @@
 == let expression ==
 ;[[let expression]] <nowiki>:=</nowiki> 
-'''let''' <nowiki>,</nowiki> [[local definition]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[local definition]]} <nowiki>,</nowiki> '''in''' <nowiki>,</nowiki> [[expression]]
+:'''let''' <nowiki>,</nowiki> [[local definition]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[local definition]]} <nowiki>,</nowiki> '''in''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{let expression}{

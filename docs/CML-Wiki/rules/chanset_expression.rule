@@ -1,12 +1,12 @@
 == chanset expression ==
 ;[[chanset expression]] <nowiki>:=</nowiki> 
-[[identifier]]
-;| '''\mylcurly''' <nowiki>,</nowiki> ''[''{[[identifier]]}'']'' <nowiki>,</nowiki> '''\myrcurly'''
-;| '''\mylcurly|''' <nowiki>,</nowiki> ''[''{[[identifier]]}'']'' <nowiki>,</nowiki> '''|\myrcurly'''
-;| [[chanset expression]] <nowiki>,</nowiki> '''union''' <nowiki>,</nowiki> [[chanset    expression]]
-;| [[chanset expression]] <nowiki>,</nowiki> '''inter''' <nowiki>,</nowiki> [[chanset    expression]]
-;| [[chanset expression]] <nowiki>,</nowiki> '''\mybackslash''' <nowiki>,</nowiki> [[chanset expression]]
-;| '''\mylcurly |''' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> {'''.''' <nowiki>,</nowiki> [[expression]]} <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[bind list]] <nowiki>,</nowiki> ''['''''@''' <nowiki>,</nowiki> [[expression]]'']'' <nowiki>,</nowiki> '''|\myrcurly'''
+:[[identifier]]
+:| '''\mylcurly''' <nowiki>,</nowiki> ''[''{[[identifier]]}'']'' <nowiki>,</nowiki> '''\myrcurly'''
+:| '''\mylcurly|''' <nowiki>,</nowiki> ''[''{[[identifier]]}'']'' <nowiki>,</nowiki> '''|\myrcurly'''
+:| [[chanset expression]] <nowiki>,</nowiki> '''union''' <nowiki>,</nowiki> [[chanset    expression]]
+:| [[chanset expression]] <nowiki>,</nowiki> '''inter''' <nowiki>,</nowiki> [[chanset    expression]]
+:| [[chanset expression]] <nowiki>,</nowiki> '''\mybackslash''' <nowiki>,</nowiki> [[chanset expression]]
+:| '''\mylcurly |''' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> {'''.''' <nowiki>,</nowiki> [[expression]]} <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[bind list]] <nowiki>,</nowiki> ''['''''@''' <nowiki>,</nowiki> [[expression]]'']'' <nowiki>,</nowiki> '''|\myrcurly'''
 
 <pre>
 \RuleDef{chanset expression}{

@@ -1,6 +1,6 @@
 == explicit operation definition ==
 ;[[explicit operation definition]] <nowiki>:=</nowiki> 
-''[''[[qualifier]]'']'' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[operation type]] <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> [[parameters]] <nowiki>,</nowiki> '''==''' <nowiki>,</nowiki> [[operation body]] <nowiki>,</nowiki> ''['''''pre''' <nowiki>,</nowiki> [[expression]]'']'' <nowiki>,</nowiki> ''['''''post''' <nowiki>,</nowiki> [[expression]]'']''
+:''[''[[qualifier]]'']'' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[operation type]] <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> [[parameters]] <nowiki>,</nowiki> '''==''' <nowiki>,</nowiki> [[operation body]] <nowiki>,</nowiki> ''['''''pre''' <nowiki>,</nowiki> [[expression]]'']'' <nowiki>,</nowiki> ''['''''post''' <nowiki>,</nowiki> [[expression]]'']''
 
 <pre>
 \RuleDef{explicit operation definition}{

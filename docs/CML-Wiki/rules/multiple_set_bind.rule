@@ -1,6 +1,6 @@
 == multiple set bind ==
 ;[[multiple set bind]] <nowiki>:=</nowiki> 
-[[pattern list]] <nowiki>,</nowiki> '''in set''' <nowiki>,</nowiki> [[expression]]
+:[[pattern list]] <nowiki>,</nowiki> '''in set''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{multiple set bind}{

@@ -1,7 +1,7 @@
 == bind ==
 ;[[bind]] <nowiki>:=</nowiki> 
-[[set bind]]
-;| [[type bind]]
+:[[set bind]]
+:| [[type bind]]
 
 <pre>
 \RuleDef{bind}{

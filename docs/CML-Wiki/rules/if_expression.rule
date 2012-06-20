@@ -1,6 +1,6 @@
 == if expression ==
 ;[[if expression]] <nowiki>:=</nowiki> 
-'''if''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''then''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> {[[elseif expression]]} <nowiki>,</nowiki> '''else''' <nowiki>,</nowiki> [[expression]]
+:'''if''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''then''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> {[[elseif expression]]} <nowiki>,</nowiki> '''else''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{if expression}{

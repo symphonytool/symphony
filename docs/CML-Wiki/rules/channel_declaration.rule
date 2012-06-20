@@ -1,6 +1,6 @@
 == channel declaration ==
 ;[[channel declaration]] <nowiki>:=</nowiki> 
-[[channel definition]]
+:[[channel definition]]
 
 <pre>
 \RuleDef{channel declaration}{

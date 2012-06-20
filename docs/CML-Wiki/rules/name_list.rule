@@ -1,6 +1,6 @@
 == name list ==
 ;[[name list]] <nowiki>:=</nowiki> 
-[[name]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[name]]}
+:[[name]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[name]]}
 
 <pre>
 \RuleDef{name list}{

@@ -1,6 +1,6 @@
 == invariant ==
 ;[[invariant]] <nowiki>:=</nowiki> 
-'''inv''' <nowiki>,</nowiki> [[invariant initial function]]
+:'''inv''' <nowiki>,</nowiki> [[invariant initial function]]
 
 <pre>
 \RuleDef{invariant}{

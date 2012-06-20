@@ -1,6 +1,6 @@
 == sequence elements ==
 ;[[sequence elements]] <nowiki>:=</nowiki> 
-'''elems'''
+:'''elems'''
 
 <pre>
 \RuleDef{sequence elements}{

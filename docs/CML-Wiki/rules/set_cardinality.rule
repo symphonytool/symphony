@@ -1,6 +1,6 @@
 == set cardinality ==
 ;[[set cardinality]] <nowiki>:=</nowiki> 
-'''card'''
+:'''card'''
 
 <pre>
 \RuleDef{set cardinality}{

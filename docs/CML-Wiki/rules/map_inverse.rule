@@ -1,6 +1,6 @@
 == map inverse ==
 ;[[map inverse]] <nowiki>:=</nowiki> 
-'''inverse''' <nowiki>,</nowiki> [[expression]]
+:'''inverse''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{map inverse}{

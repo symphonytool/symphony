@@ -1,6 +1,6 @@
 == externals ==
 ;[[externals]] <nowiki>:=</nowiki> 
-'''frame''' <nowiki>,</nowiki> [[var information]] <nowiki>,</nowiki> {[[var information]]}
+:'''frame''' <nowiki>,</nowiki> [[var information]] <nowiki>,</nowiki> {[[var information]]}
 
 <pre>
 \RuleDef{externals}{

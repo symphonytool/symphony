@@ -1,6 +1,6 @@
 == Single-line comment ==
 ;[[Single-line comment]] <nowiki>:=</nowiki> 
-'''-''' <nowiki>,</nowiki> '''-''' <nowiki>,</nowiki> {[[character]] <nowiki>,</nowiki> [[newline]]} <nowiki>,</nowiki> [[newline]]
+:'''-''' <nowiki>,</nowiki> '''-''' <nowiki>,</nowiki> {[[character]] <nowiki>,</nowiki> [[newline]]} <nowiki>,</nowiki> [[newline]]
 
 <pre>
 \RuleDef{Single-line comment}{

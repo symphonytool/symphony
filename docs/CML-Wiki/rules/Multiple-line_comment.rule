@@ -1,6 +1,6 @@
 == Multiple-line comment ==
 ;[[Multiple-line comment]] <nowiki>:=</nowiki> 
-'''/*''' <nowiki>,</nowiki> {[[character]]} <nowiki>,</nowiki> '''*/'''
+:'''/*''' <nowiki>,</nowiki> {[[character]]} <nowiki>,</nowiki> '''*/'''
 
 <pre>
 \RuleDef{Multiple-line comment}{

@@ -1,7 +1,7 @@
 == renaming expression ==
 ;[[renaming expression]] <nowiki>:=</nowiki> 
-[[renaming enumeration]]
-;| [[renaming comprehension]]
+:[[renaming enumeration]]
+:| [[renaming comprehension]]
 
 <pre>
 \RuleDef{renaming expression}{

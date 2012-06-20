@@ -1,6 +1,6 @@
 == sequence indices ==
 ;[[sequence indices]] <nowiki>:=</nowiki> 
-'''inds'''
+:'''inds'''
 
 <pre>
 \RuleDef{sequence indices}{

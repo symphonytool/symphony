@@ -1,6 +1,6 @@
 == sequence head ==
 ;[[sequence head]] <nowiki>:=</nowiki> 
-'''hd'''
+:'''hd'''
 
 <pre>
 \RuleDef{sequence head}{

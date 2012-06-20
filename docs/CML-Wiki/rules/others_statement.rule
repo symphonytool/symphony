@@ -1,6 +1,6 @@
 == others statement ==
 ;[[others statement]] <nowiki>:=</nowiki> 
-'''others''' <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]]
+:'''others''' <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]]
 
 <pre>
 \RuleDef{others statement}{

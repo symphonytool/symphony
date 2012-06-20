@@ -1,6 +1,6 @@
 == function declaration ==
 ;[[function declaration]] <nowiki>:=</nowiki> 
-'''functions''' <nowiki>,</nowiki> ''[''[[function definition]]'']'' <nowiki>,</nowiki> {''';''' <nowiki>,</nowiki> [[function definition]]}
+:'''functions''' <nowiki>,</nowiki> ''[''[[function definition]]'']'' <nowiki>,</nowiki> {''';''' <nowiki>,</nowiki> [[function definition]]}
 
 <pre>
 \RuleDef{function declaration}{

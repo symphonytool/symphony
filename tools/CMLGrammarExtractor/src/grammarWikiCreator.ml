@@ -13,7 +13,7 @@ and to_wiki_page def =
     let fileName = Str.global_replace (Str.regexp " ") "_" def.Ast.name in
     let outChan = open_out (fileName ^".rule") in
     output_string outChan ("== " ^def.Ast.name ^ " ==");
-    output_string outChan ("\n;[[" ^ def.Ast.name ^ "]] <nowiki>:=</nowiki> \n" ^ (elems_to_wiki_string def.Ast.defs)); 
+    output_string outChan ("\n;[[" ^ def.Ast.name ^ "]] <nowiki>:=</nowiki> \n:" ^ (elems_to_wiki_string def.Ast.defs)); 
     output_string outChan "\n\n<pre>";
     output_string outChan (to_latex_string def);
     output_string outChan "\n</pre>";
@@ -29,7 +29,7 @@ and elems_to_wiki_string elems =
 	  | Some comb ->
 	    (match comb with
 	      | Ast.Concat -> " <nowiki>,</nowiki> " 
-	      | Ast.Alt -> "\n;| "
+	      | Ast.Alt -> "\n:| "
 	      | Ast.NA -> " <nowiki>,</nowiki> "
 	    )
 	)

@@ -1,6 +1,6 @@
 == numeral ==
 ;[[numeral]] <nowiki>:=</nowiki> 
-[[digit]] <nowiki>,</nowiki> {[[digit]]}
+:[[digit]] <nowiki>,</nowiki> {[[digit]]}
 
 <pre>
 \RuleDef{numeral}{

@@ -1,6 +1,6 @@
 == partial function type ==
 ;[[partial function type]] <nowiki>:=</nowiki> 
-[[discretionary type]] <nowiki>,</nowiki> '''+>''' <nowiki>,</nowiki> [[type]]
+:[[discretionary type]] <nowiki>,</nowiki> '''+>''' <nowiki>,</nowiki> [[type]]
 
 <pre>
 \RuleDef{partial function type}{

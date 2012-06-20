@@ -1,6 +1,6 @@
 == distributed map merge ==
 ;[[distributed map merge]] <nowiki>:=</nowiki> 
-'''merge'''
+:'''merge'''
 
 <pre>
 \RuleDef{distributed map merge}{

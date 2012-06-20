@@ -1,6 +1,6 @@
 == arithmetic mod ==
 ;[[arithmetic mod]] <nowiki>:=</nowiki> 
-'''mod'''
+:'''mod'''
 
 <pre>
 \RuleDef{arithmetic mod}{

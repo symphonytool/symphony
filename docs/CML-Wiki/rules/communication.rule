@@ -1,6 +1,6 @@
 == communication ==
 ;[[communication]] <nowiki>:=</nowiki> 
-[[identifier]] <nowiki>,</nowiki> {[[communication parameter]]}
+:[[identifier]] <nowiki>,</nowiki> {[[communication parameter]]}
 
 <pre>
 \RuleDef{communication}{

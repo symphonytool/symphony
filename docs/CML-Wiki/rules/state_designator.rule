@@ -1,8 +1,8 @@
 == state designator ==
 ;[[state designator]] <nowiki>:=</nowiki> 
-[[name]]
-;| [[field reference]]
-;| [[map or sequence reference]]
+:[[name]]
+:| [[field reference]]
+:| [[map or sequence reference]]
 
 <pre>
 \RuleDef{state designator}{

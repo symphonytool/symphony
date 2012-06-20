@@ -1,6 +1,6 @@
 == index for loop ==
 ;[[index for loop]] <nowiki>:=</nowiki> 
-'''for''' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''to''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''['''''by''' <nowiki>,</nowiki> [[expression]]'']'' <nowiki>,</nowiki> '''do''' <nowiki>,</nowiki> [[action]]
+:'''for''' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''to''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''['''''by''' <nowiki>,</nowiki> [[expression]]'']'' <nowiki>,</nowiki> '''do''' <nowiki>,</nowiki> [[action]]
 
 <pre>
 \RuleDef{index for loop}{

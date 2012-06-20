@@ -1,6 +1,6 @@
 == old name ==
 ;[[old name]] <nowiki>:=</nowiki> 
-[[identifier]] <nowiki>,</nowiki> '''\mytilde'''
+:[[identifier]] <nowiki>,</nowiki> '''\mytilde'''
 
 <pre>
 \RuleDef{old name}{

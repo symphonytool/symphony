@@ -1,6 +1,6 @@
 == decimal literal ==
 ;[[decimal literal]] <nowiki>:=</nowiki> 
-[[numeral]] <nowiki>,</nowiki> ''['''''.''' <nowiki>,</nowiki> [[digit]] <nowiki>,</nowiki> {[[digit]]}'']'' <nowiki>,</nowiki> ''[''[[exponent]]'']''
+:[[numeral]] <nowiki>,</nowiki> ''['''''.''' <nowiki>,</nowiki> [[digit]] <nowiki>,</nowiki> {[[digit]]}'']'' <nowiki>,</nowiki> ''[''[[exponent]]'']''
 
 <pre>
 \RuleDef{decimal literal}{

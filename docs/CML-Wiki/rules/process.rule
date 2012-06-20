@@ -1,29 +1,29 @@
 == process ==
 ;[[process]] <nowiki>:=</nowiki> 
-'''begin''' <nowiki>,</nowiki> {[[process paragraph]]} <nowiki>,</nowiki> ''['''''state''' <nowiki>,</nowiki> [[instance variable declaration]]'']'' <nowiki>,</nowiki> {[[process paragraph]]} <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[action]] <nowiki>,</nowiki> '''end'''
-;| [[process]] <nowiki>,</nowiki> ''';''' <nowiki>,</nowiki> [[process]]
-;| [[process]] <nowiki>,</nowiki> '''[]''' <nowiki>,</nowiki> [[process]]
-;| [[process]] <nowiki>,</nowiki> '''|\mytilde|''' <nowiki>,</nowiki> [[process]]
-;| [[process]] <nowiki>,</nowiki> '''[|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|]''' <nowiki>,</nowiki> [[process]]
-;| [[process]] <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''||''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> ''']''' <nowiki>,</nowiki> [[process]]
-;| [[process]] <nowiki>,</nowiki> '''||''' <nowiki>,</nowiki> [[process]]
-;| [[process]] <nowiki>,</nowiki> '''|||''' <nowiki>,</nowiki> [[process]]
-;| [[process]] <nowiki>,</nowiki> '''/''' <nowiki>,</nowiki> ''[''[[expression]]'']'' <nowiki>,</nowiki> '''\mybackslash''' <nowiki>,</nowiki> [[process]]
-;| [[process]] <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> ''[''[[expression]]'']'' <nowiki>,</nowiki> '''>''' <nowiki>,</nowiki> [[process]]
-;| [[process]] <nowiki>,</nowiki> '''\mybackslash''' <nowiki>,</nowiki> [[chanset    expression]]
-;| [[process]] <nowiki>,</nowiki> '''startsby''' <nowiki>,</nowiki> [[expression]]
-;| [[process]] <nowiki>,</nowiki> '''endsby''' <nowiki>,</nowiki> [[expression]]
-;| '''(''' <nowiki>,</nowiki> [[declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process    definition]] <nowiki>,</nowiki> ''')''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> {[[expression]]} <nowiki>,</nowiki> ''')'''
-;| [[identifier]] <nowiki>,</nowiki> ''['''''(''' <nowiki>,</nowiki> {[[expression]]} <nowiki>,</nowiki> ''')''''']''
-;| [[process]] <nowiki>,</nowiki> [[renaming expression]]
-;| ''';''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
-;| '''[]''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
-;| '''|\mytilde|''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
-;| '''[|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|]''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
-;| '''||''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> ''']''' <nowiki>,</nowiki> [[process]]
-;| '''||''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
-;| '''|||''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
-;| '''(''' <nowiki>,</nowiki> [[process]] <nowiki>,</nowiki> ''')'''
+:'''begin''' <nowiki>,</nowiki> {[[process paragraph]]} <nowiki>,</nowiki> ''['''''state''' <nowiki>,</nowiki> [[instance variable declaration]]'']'' <nowiki>,</nowiki> {[[process paragraph]]} <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[action]] <nowiki>,</nowiki> '''end'''
+:| [[process]] <nowiki>,</nowiki> ''';''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''[]''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''|\mytilde|''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''[|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|]''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''||''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> ''']''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''||''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''|||''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''/''' <nowiki>,</nowiki> ''[''[[expression]]'']'' <nowiki>,</nowiki> '''\mybackslash''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> ''[''[[expression]]'']'' <nowiki>,</nowiki> '''>''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''\mybackslash''' <nowiki>,</nowiki> [[chanset    expression]]
+:| [[process]] <nowiki>,</nowiki> '''startsby''' <nowiki>,</nowiki> [[expression]]
+:| [[process]] <nowiki>,</nowiki> '''endsby''' <nowiki>,</nowiki> [[expression]]
+:| '''(''' <nowiki>,</nowiki> [[declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process    definition]] <nowiki>,</nowiki> ''')''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> {[[expression]]} <nowiki>,</nowiki> ''')'''
+:| [[identifier]] <nowiki>,</nowiki> ''['''''(''' <nowiki>,</nowiki> {[[expression]]} <nowiki>,</nowiki> ''')''''']''
+:| [[process]] <nowiki>,</nowiki> [[renaming expression]]
+:| ''';''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
+:| '''[]''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
+:| '''|\mytilde|''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
+:| '''[|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|]''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
+:| '''||''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> ''']''' <nowiki>,</nowiki> [[process]]
+:| '''||''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
+:| '''|||''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
+:| '''(''' <nowiki>,</nowiki> [[process]] <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{process}{

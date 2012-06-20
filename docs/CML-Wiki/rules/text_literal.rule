@@ -1,8 +1,8 @@
 == text literal ==
 ;[[text literal]] <nowiki>:=</nowiki> 
-'''"''' <nowiki>,</nowiki> {'''\mybackslash "'''
-;| [[character]]
-;| [[escape sequence]]} <nowiki>,</nowiki> '''"'''
+:'''"''' <nowiki>,</nowiki> {'''\mybackslash "'''
+:| [[character]]
+:| [[escape sequence]]} <nowiki>,</nowiki> '''"'''
 
 <pre>
 \RuleDef{text literal}{

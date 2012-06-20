@@ -1,7 +1,7 @@
 == paragraph action ==
 ;[[paragraph action]] <nowiki>:=</nowiki> 
-[[action]]
-;| [[declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[paragraph action]]
+:[[action]]
+:| [[declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[paragraph action]]
 
 <pre>
 \RuleDef{paragraph action}{

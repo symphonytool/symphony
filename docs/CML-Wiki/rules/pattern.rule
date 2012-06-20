@@ -1,9 +1,9 @@
 == pattern ==
 ;[[pattern]] <nowiki>:=</nowiki> 
-[[pattern identifier]]
-;| [[match value]]
-;| [[tuple pattern]]
-;| [[record pattern]]
+:[[pattern identifier]]
+:| [[match value]]
+:| [[tuple pattern]]
+:| [[record pattern]]
 
 <pre>
 \RuleDef{pattern}{

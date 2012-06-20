@@ -1,6 +1,6 @@
 == class paragraph ==
 ;[[class paragraph]] <nowiki>:=</nowiki> 
-[[paragraph]]
+:[[paragraph]]
 
 <pre>
 \RuleDef{class paragraph}{

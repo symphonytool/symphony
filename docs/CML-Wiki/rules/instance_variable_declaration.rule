@@ -1,6 +1,6 @@
 == instance variable declaration ==
 ;[[instance variable declaration]] <nowiki>:=</nowiki> 
-[[instance variable definition]] <nowiki>,</nowiki> {''';''' <nowiki>,</nowiki> [[instance variable definition]]}
+:[[instance variable definition]] <nowiki>,</nowiki> {''';''' <nowiki>,</nowiki> [[instance variable definition]]}
 
 <pre>
 \RuleDef{instance variable declaration}{

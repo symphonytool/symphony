@@ -1,7 +1,7 @@
 == local definition ==
 ;[[local definition]] <nowiki>:=</nowiki> 
-[[value definition]]
-;| [[function definition]]
+:[[value definition]]
+:| [[function definition]]
 
 <pre>
 \RuleDef{local definition}{

@@ -1,6 +1,6 @@
 == arithmetic rem ==
 ;[[arithmetic rem]] <nowiki>:=</nowiki> 
-'''rem'''
+:'''rem'''
 
 <pre>
 \RuleDef{arithmetic rem}{

@@ -1,6 +1,6 @@
 == bind list ==
 ;[[bind list]] <nowiki>:=</nowiki> 
-[[multiple bind]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[multiple bind]]}
+:[[multiple bind]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[multiple bind]]}
 
 <pre>
 \RuleDef{bind list}{

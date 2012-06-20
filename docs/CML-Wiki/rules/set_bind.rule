@@ -1,6 +1,6 @@
 == set bind ==
 ;[[set bind]] <nowiki>:=</nowiki> 
-[[pattern]] <nowiki>,</nowiki> '''in set''' <nowiki>,</nowiki> [[expression]]
+:[[pattern]] <nowiki>,</nowiki> '''in set''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{set bind}{

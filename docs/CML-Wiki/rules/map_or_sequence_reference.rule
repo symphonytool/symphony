@@ -1,6 +1,6 @@
 == map or sequence reference ==
 ;[[map or sequence reference]] <nowiki>:=</nowiki> 
-[[state designator]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''')'''
+:[[state designator]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{map or sequence reference}{

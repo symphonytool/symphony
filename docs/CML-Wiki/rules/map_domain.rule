@@ -1,6 +1,6 @@
 == map domain ==
 ;[[map domain]] <nowiki>:=</nowiki> 
-'''dom'''
+:'''dom'''
 
 <pre>
 \RuleDef{map domain}{

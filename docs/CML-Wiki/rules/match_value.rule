@@ -1,7 +1,7 @@
 == match value ==
 ;[[match value]] <nowiki>:=</nowiki> 
-'''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''')'''
-;| [[symbolic literal]]
+:'''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''')'''
+:| [[symbolic literal]]
 
 <pre>
 \RuleDef{match value}{

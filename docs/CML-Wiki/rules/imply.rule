@@ -1,6 +1,6 @@
 == imply ==
 ;[[imply]] <nowiki>:=</nowiki> 
-'''=>'''
+:'''=>'''
 
 <pre>
 \RuleDef{imply}{

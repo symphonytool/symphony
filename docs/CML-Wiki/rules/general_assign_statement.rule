@@ -1,7 +1,7 @@
 == general assign statement ==
 ;[[general assign statement]] <nowiki>:=</nowiki> 
-[[assign statement]]
-;| [[multiple assign statement]]
+:[[assign statement]]
+:| [[multiple assign statement]]
 
 <pre>
 \RuleDef{general assign statement}{

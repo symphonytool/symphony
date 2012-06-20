@@ -1,6 +1,6 @@
 == invariant initial function ==
 ;[[invariant initial function]] <nowiki>:=</nowiki> 
-[[pattern]] <nowiki>,</nowiki> '''==''' <nowiki>,</nowiki> [[expression]]
+:[[pattern]] <nowiki>,</nowiki> '''==''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{invariant initial function}{

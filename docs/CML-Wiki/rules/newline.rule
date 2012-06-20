@@ -1,8 +1,8 @@
 == newline ==
 ;[[newline]] <nowiki>:=</nowiki> 
-'''\mybackslash r'''
-;| '''\mybackslash n'''
-;| '''\mybackslash r\mybackslash n'''
+:'''\mybackslash r'''
+:| '''\mybackslash n'''
+:| '''\mybackslash r\mybackslash n'''
 
 <pre>
 \RuleDef{newline}{

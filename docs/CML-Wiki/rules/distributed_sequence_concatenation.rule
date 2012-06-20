@@ -1,6 +1,6 @@
 == distributed sequence concatenation ==
 ;[[distributed sequence concatenation]] <nowiki>:=</nowiki> 
-'''conc'''
+:'''conc'''
 
 <pre>
 \RuleDef{distributed sequence concatenation}{

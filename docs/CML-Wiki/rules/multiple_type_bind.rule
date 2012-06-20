@@ -1,6 +1,6 @@
 == multiple type bind ==
 ;[[multiple type bind]] <nowiki>:=</nowiki> 
-[[pattern list]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]]
+:[[pattern list]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]]
 
 <pre>
 \RuleDef{multiple type bind}{

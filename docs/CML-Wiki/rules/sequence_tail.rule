@@ -1,6 +1,6 @@
 == sequence tail ==
 ;[[sequence tail]] <nowiki>:=</nowiki> 
-'''tl'''
+:'''tl'''
 
 <pre>
 \RuleDef{sequence tail}{

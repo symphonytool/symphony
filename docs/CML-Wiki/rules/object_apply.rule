@@ -1,6 +1,6 @@
 == object apply ==
 ;[[object apply]] <nowiki>:=</nowiki> 
-[[object designator]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> ''[''[[expression list]]'']'' <nowiki>,</nowiki> ''')'''
+:[[object designator]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> ''[''[[expression list]]'']'' <nowiki>,</nowiki> ''')'''
 
 <pre>
 \RuleDef{object apply}{

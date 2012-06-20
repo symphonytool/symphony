@@ -1,7 +1,7 @@
 == general is expression ==
 ;[[general is expression]] <nowiki>:=</nowiki> 
-[[is expression]]
-;| [[type judgement]]
+:[[is expression]]
+:| [[type judgement]]
 
 <pre>
 \RuleDef{general is expression}{

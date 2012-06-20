@@ -1,6 +1,6 @@
 == exists unique expression ==
 ;[[exists unique expression]] <nowiki>:=</nowiki> 
-'''exists1''' <nowiki>,</nowiki> [[bind]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[expression]]
+:'''exists1''' <nowiki>,</nowiki> [[bind]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{exists unique expression}{

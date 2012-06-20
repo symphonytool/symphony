@@ -1,6 +1,6 @@
 == sequence length ==
 ;[[sequence length]] <nowiki>:=</nowiki> 
-'''len'''
+:'''len'''
 
 <pre>
 \RuleDef{sequence length}{

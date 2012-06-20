@@ -1,6 +1,6 @@
 == quote type ==
 ;[[quote type]] <nowiki>:=</nowiki> 
-[[quote literal]]
+:[[quote literal]]
 
 <pre>
 \RuleDef{quote type}{

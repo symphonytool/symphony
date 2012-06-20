@@ -1,6 +1,6 @@
 == type name ==
 ;[[type name]] <nowiki>:=</nowiki> 
-[[name]]
+:[[name]]
 
 <pre>
 \RuleDef{type name}{

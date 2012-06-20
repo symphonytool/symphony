@@ -1,6 +1,6 @@
 == type bind list ==
 ;[[type bind list]] <nowiki>:=</nowiki> 
-[[type bind]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[type bind]]}
+:[[type bind]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[type bind]]}
 
 <pre>
 \RuleDef{type bind list}{

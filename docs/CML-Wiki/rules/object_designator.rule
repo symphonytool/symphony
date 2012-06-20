@@ -1,9 +1,9 @@
 == object designator ==
 ;[[object designator]] <nowiki>:=</nowiki> 
-[[name]]
-;| [[self expression]]
-;| [[object field reference]]
-;| [[object apply]]
+:[[name]]
+:| [[self expression]]
+:| [[object field reference]]
+:| [[object apply]]
 
 <pre>
 \RuleDef{object designator}{

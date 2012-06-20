@@ -1,6 +1,6 @@
 == implicit function definition ==
 ;[[implicit function definition]] <nowiki>:=</nowiki> 
-''[''[[qualifier]]'']'' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> [[parameter types]] <nowiki>,</nowiki> [[identifier type pair list]] <nowiki>,</nowiki> ''['''''pre''' <nowiki>,</nowiki> [[expression]]'']'' <nowiki>,</nowiki> '''post''' <nowiki>,</nowiki> [[expression]]
+:''[''[[qualifier]]'']'' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> [[parameter types]] <nowiki>,</nowiki> [[identifier type pair list]] <nowiki>,</nowiki> ''['''''pre''' <nowiki>,</nowiki> [[expression]]'']'' <nowiki>,</nowiki> '''post''' <nowiki>,</nowiki> [[expression]]
 
 <pre>
 \RuleDef{implicit function definition}{

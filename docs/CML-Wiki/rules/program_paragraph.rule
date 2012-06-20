@@ -1,10 +1,10 @@
 == program paragraph ==
 ;[[program paragraph]] <nowiki>:=</nowiki> 
-[[class declaration]]
-;| [[process declaration]]
-;| [[channel declaration]]
-;| [[chanset declaration]]
-;| [[global declaration]]
+:[[class declaration]]
+:| [[process declaration]]
+:| [[channel declaration]]
+:| [[chanset declaration]]
+:| [[global declaration]]
 
 <pre>
 \RuleDef{program paragraph}{
