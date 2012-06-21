@@ -52,6 +52,7 @@ public class CheckCml {
 	    // inputs
 	    if ( (inp = checkInput(args)) == null) return;
 
+	    // Two modes of operation, Interactive or Batch mode on files.
 	    if (inp.isSwitchOn(Switch.INTER))
 		{
 		    ASourcefileSourcefile currentTree = new ASourcefileSourcefile();
@@ -82,7 +83,6 @@ public class CheckCml {
 			{ handleError(parser, source); return; }
 		    else
 			sourceForest.add(currentTree);
-		
 		}
 
 	    // Run the analysis phase

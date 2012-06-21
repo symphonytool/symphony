@@ -28,14 +28,12 @@ public class CmlProjectNature extends VdmProjectNature
 
 	@Override
 	public void configure() throws CoreException {
-		// TODO Auto-generated method stub
-		
+		// FIXME: Configuration should go here
 	}
 
 	@Override
 	public void deconfigure() throws CoreException {
-		// TODO Auto-generated method stub
-		
+		// FIXME: DeConfiguration should go here		
 	}
 	
 }

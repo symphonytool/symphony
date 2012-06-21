@@ -3,29 +3,37 @@
 
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
-    <artifactId>ide</artifactId>
+    <artifactId>eu.compassresearch.ide.cml</artifactId>
     <version>0.0.1<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <groupId>eu.compassresearch.ide.builders</groupId>
-  <artifactId>eu.compassresearch.ide.builders.cml</artifactId>
-  <name>COMPASS IDE Builder - CML</name>
+  <groupId>eu.compassresearch.ide.cml.core</groupId>
+  <artifactId>product</artifactId>
+  <name>COMPASS IDE CML Product</name>
 
   <dependencies>
     <dependency>
       <groupId>org.overture.ide</groupId>
       <artifactId>org.overture.ide.core</artifactId>
-      <version>${overture.version}</version>
+      <version>2.2.0</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
 
-  <dependency>
-    <groupId>org.overturetool.core</groupId>
-    <artifactId>ast</artifactId>
-    <version>2.2.0</version>
-  </dependency>
-  </dependencies>
 
+
+    <dependency>
+      <groupId>eu.compassresearch.ide.cml</groupId>
+      <artifactId>eu.compassresearch.ide.cml.ui</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>eu.compassresearch.ide.cml</groupId>
+      <artifactId>eu.compassresearch.ide.cml.core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+  </dependencies>
 </project>

@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: CmlProduct
+Bundle-SymbolicName: CmlProduct;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: COMPASS
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: eu.compassresearch.ide.builders.cml;bundle-version="1.0.0",
+ eu.compassresearch.ide.cml.core;bundle-version="2.2.0",
+ eu.compassresearch.ide.cml.ui;bundle-version="1.0.0",
+ eu.compassresearch.ide.parsers.cml;bundle-version="1.0.0"

@@ -36,7 +36,7 @@ public class TCExpressionVisitor extends QuestionAnswerAdaptor<TypeCheckInfo, PT
 		if (node.getBind() instanceof ATypeBind)
 		{
 			ATypeBind tb = (ATypeBind)node.getBind();
-			ATypeBindAssistantTC.typeResolve(tb, parent, question);
+			//ATypeBindAssistantTC.typeResolve(tb, parent, question);
 		}
 		
 		return super.caseAExists1Exp(node, question);

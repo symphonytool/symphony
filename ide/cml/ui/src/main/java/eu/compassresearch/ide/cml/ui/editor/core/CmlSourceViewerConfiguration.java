@@ -31,6 +31,8 @@ import eu.compassresearch.ide.cml.ui.editor.syntax.CmlCodeScanner;
 public class CmlSourceViewerConfiguration extends
 		VdmSourceViewerConfiguration {
 
+	
+	
 	@Override
 	protected ITokenScanner getVdmCodeScanner() {
 		return new CmlCodeScanner(new VdmColorProvider());
@@ -43,5 +45,7 @@ public class CmlSourceViewerConfiguration extends
 //		return assistant;
 		return null;
 	}
+	
+	
 
 }

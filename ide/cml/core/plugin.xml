@@ -22,5 +22,15 @@
          </ContentType>
       </Language>
    </extension>
+   <extension
+         id="nature"
+         name="CML Project Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="eu.compassresearch.ide.cml.core.CmlProjectNature">
+         </run>
+      </runtime>
+   </extension>
 
 </plugin>
