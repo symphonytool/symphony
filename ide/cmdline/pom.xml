@@ -94,7 +94,7 @@
 	      <!-- eu.compassresearch.ide.CheckCml.java -->
 	      <mainClass>CheckCml</mainClass>
 	      <!-- The package for the main class -->
-	      <packageName>eu.compassresear</packageName>
+	      <packageName>eu.compassresearch.ide</packageName>
 	    </manifest>
 	    <manifestEntries>
 	      <mode>development</mode>

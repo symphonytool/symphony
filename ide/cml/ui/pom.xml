@@ -45,6 +45,11 @@
       <scope>compile</scope>
     </dependency>
 
+    <dependency>
+      <groupId>eu.compassresearch.ide.cml</groupId>
+      <artifactId>eu.compassresearch.ide.cml.core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.eclipse.ui</groupId>

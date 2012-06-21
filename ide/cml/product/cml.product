@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="CML Compass Project" uid="COMPASS.CML" id="eu.compassresearch.platform.compass" application="org.eclipse.ui.ide.workbench" version="1.0.0" useFeatures="false" includeLaunchers="true">
+<product name="CML Compass Project" uid="COMPASS.CML" id="eu.compassresearch.platform.compass" version="1.0.0" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -22,6 +22,7 @@
    <vm>
       <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/OSGi%Minimum-1.2</linux>
    </vm>
+
 
    <plugins>
       <plugin id="CmlProduct"/>
