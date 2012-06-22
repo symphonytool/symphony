@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.eclipse.ui.ide.workbench"
+            name="CML Compass Project">
+         <property
+               name="appName"
+               value="CML Compass Project">
+         </property>
+         
+          <property
+             name="startupProgressRect"
+             value="75,235,300,20">
+       </property>
+       <property
+             name="startupMessageRect"
+             value="75,250,300,15">
+       </property>
+       <property
+             name="appName"
+             value="Overture Tools">
+       </property>
+       <property
+             name="preferenceCustomization"
+             value="plugin_customization.ini">
+       </property>
+      </product>
+   </extension>
+ 
+ 
+
+   
+  
+ <extension
+         point="org.eclipse.ui.splashHandlers">
+      <splashHandler
+            class="eu.compassresearch.ide.platform.splash.SplashHandler"
+            id="eu.compassresearch.ide.platform.splash">
+      </splashHandler>
+      <splashHandlerProductBinding
+            productId="eu.compassresearch.ide.platform.splash"
+            splashId="eu.compassresearch.ide.platform.splash">
+      </splashHandlerProductBinding>
+   </extension>
+
+ 
+</plugin>

@@ -9,16 +9,18 @@
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="true"
             icon="icons/cview16/cml_file_tsk.png"
-            extensions="cml"
             id="eu.compassresearch.ide.cml.ui.editor"
             name="CML Editor">
+         <contentTypeBinding
+               contentTypeId="eu.compassresearch.ide.cml.core.content-type1">
+         </contentTypeBinding>
       </editor>
    </extension>
    
    <extension
          point="org.eclipse.ui.newWizards">
       <wizard
-            category="org.overture.ide.ui.wizard"
+            category="compass_eu.compassresearch.ide.cml.ui.category"
             class="eu.compassresearch.ide.cml.core.NewCmlProjectWizard"
             finalPerspective="org.overture.ide.ui.perspective"
             icon="icons/cview16/cml_file_tsk.png"
@@ -35,17 +37,22 @@
 
       </primaryWizard>
       <wizard
+            category="compass_eu.compassresearch.ide.cml.ui.category"
             class="eu.compassresearch.ide.cml.core.NewCmlFileWizard"
             icon="icons/cview16/cml_file_tsk.png"
             id="eu.compassresearch.ide.cml.ui.newcmlfilewizard"
             name="CML File">
       </wizard>
+      <category
+            id="compass_eu.compassresearch.ide.cml.ui.category"
+            name="COMPASS">
+      </category>
 
    </extension>
    <extension
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
-            icon="icons/ovr16/yellow.gif"
+            icon="icons/ovr16/cml_ovr.gif"
             id="eu.compassresearch.ide.cml.core.nature.image"
             natureId="eu.compassresearch.ide.cml.core.nature">
       </image>
