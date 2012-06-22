@@ -21,7 +21,7 @@
          point="org.eclipse.ui.newWizards">
       <wizard
             category="compass_eu.compassresearch.ide.cml.ui.category"
-            class="eu.compassresearch.ide.cml.core.NewCmlProjectWizard"
+            class="eu.compassresearch.ide.cml.ui.wizard.NewCmlProjectWizard"
             finalPerspective="org.overture.ide.ui.perspective"
             icon="icons/cview16/cml_file_tsk.png"
             id="eu.compassresearch.ide.CmlProjectWizard"
@@ -38,11 +38,30 @@
       </primaryWizard>
       <wizard
             category="compass_eu.compassresearch.ide.cml.ui.category"
-            class="eu.compassresearch.ide.cml.core.NewCmlFileWizard"
+            class="eu.compassresearch.ide.cml.ui.wizard.NewCmlFileWizard"
             icon="icons/cview16/cml_file_tsk.png"
             id="eu.compassresearch.ide.cml.ui.newcmlfilewizard"
             name="CML File">
       </wizard>
+      
+       <wizard
+            category="compass_eu.compassresearch.ide.cml.ui.category"
+            class="eu.compassresearch.ide.cml.ui.wizard.NewCmlClassWizard"
+            icon="icons/cview16/cml_file_tsk.png"
+            id="eu.compassresearch.ide.cml.ui.newcmlclasswizard"
+            name="CML Class">
+      </wizard>
+      
+      
+       <wizard
+            category="compass_eu.compassresearch.ide.cml.ui.category"
+            class="eu.compassresearch.ide.cml.ui.wizard.NewCmlProcessWizard"
+            icon="icons/cview16/cml_file_tsk.png"
+            id="eu.compassresearch.ide.cml.ui.newcmlprocesswizard"
+            name="CML Process">
+      </wizard>
+      
+      
       <category
             id="compass_eu.compassresearch.ide.cml.ui.category"
             name="COMPASS">

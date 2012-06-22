@@ -18,13 +18,6 @@
  *******************************************************************************/
 package eu.compassresearch.ide.cml.ui.editor.core;
 
-import java.io.File;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.ui.editors.text.FileDocumentProvider;
-import org.eclipse.ui.part.FileEditorInput;
 import org.overture.ide.ui.editor.core.VdmEditor;
 import org.overture.ide.ui.editor.core.VdmSourceViewerConfiguration;
 

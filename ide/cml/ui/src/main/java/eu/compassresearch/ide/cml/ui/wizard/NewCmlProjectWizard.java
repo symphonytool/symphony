@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.core;
+package eu.compassresearch.ide.cml.ui.wizard;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,12 +7,12 @@ import java.util.Vector;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
-import org.overture.ide.core.resources.IVdmProject;
+
+import eu.compassresearch.ide.cml.core.ICmlCoreConstants;
 
 public class NewCmlProjectWizard extends BasicNewProjectResourceWizard
 		implements INewWizard {
@@ -72,6 +72,7 @@ public class NewCmlProjectWizard extends BasicNewProjectResourceWizard
 	}
 
 	
+	@SuppressWarnings("unchecked")
 	public static void addBuilder(IProject project, String name,
 			String argumentKey, String argumentValue) throws CoreException
 	{
