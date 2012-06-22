@@ -106,9 +106,9 @@
       <plugin>
         <artifactId>maven-eclipse-plugin</artifactId>
         <version>2.9</version>
-        <configuration>
-          <pde>true</pde>
-        </configuration>
+        <!-- <configuration> -->
+        <!--   <pde>true</pde> -->
+        <!-- </configuration> -->
       </plugin>
 
       <!-- commented out until needed -jwc -->

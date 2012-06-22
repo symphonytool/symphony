@@ -1,3 +1,4 @@
+package eu.compassresearch.ide;
 /**
  *
  * Author: Rasmus Lauritsen
