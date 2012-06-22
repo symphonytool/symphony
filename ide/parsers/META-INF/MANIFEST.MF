@@ -1,18 +1,19 @@
 Manifest-Version: 1.0
-Bundle-Vendor: COMPASS
-Bundle-ActivationPolicy: lazy
-Bundle-Version: 1.0.0
-Eclipse-BuddyPolicy: registered
-Bundle-Localization: plugin
-Bundle-Name: eu.compassresearch.ide.parsers.cml
 Bundle-ManifestVersion: 2
+Bundle-Name: eu.compassresearch.ide.parsers.cml
 Bundle-SymbolicName: eu.compassresearch.ide.parsers.cml;singleton:=true
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Require-Bundle: org.overture.ide.core;bundle-version="2.2.0"
-Bundle-Activator: eu.compassresearch.ide.parsers.cml.Activator
+Bundle-Version: 1.0.0
 Bundle-ClassPath: .,
  CMLCompiler-1.0.0.jar,
  org.overture.ide.core-2.2.0.jar,
  ast-2.2.0.jar,
  ast_assistance-2.2.0.jar,
  parser-2.2.0.jar
+Bundle-Activator: eu.compassresearch.ide.parsers.cml.Activator
+Bundle-Vendor: COMPASS
+Bundle-Localization: plugin
+Require-Bundle: org.overture.ide.core;bundle-version="2.2.0"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
+Eclipse-BuddyPolicy: registered
+Export-Package: eu.compassresearch.ide.parsers.cml

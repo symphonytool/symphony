@@ -20,16 +20,22 @@ package eu.compassresearch.ide.parsers.cml;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import org.overture.ast.declarations.AClassDeclaration;
+import org.overture.ast.declarations.PDeclaration;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.node.INode;
+import org.overture.ast.program.ASourcefileSourcefile;
 import org.overture.ide.core.parser.AbstractParserParticipant;
 import org.overture.ide.core.resources.IVdmSourceUnit;
 import org.overturetool.util.definitions.ClassList;
+import org.overturetool.vdmj.ast.IAstNode;
 import org.overturetool.vdmj.lex.LexLocation;
 import org.overturetool.vdmj.messages.InternalException;
 import org.overturetool.vdmj.messages.VDMError;
@@ -50,10 +56,8 @@ public class SourceParserVdmCml extends AbstractParserParticipant {
 			String charset) {
 		file.setType(IVdmSourceUnit.VDM_CLASS_SPEC);
 
-		ClassList classes = new ClassList();
-		classes.clear();
-
 		ParseResult result = new ParseResult();
+		List<PDeclaration> declarations = new LinkedList<PDeclaration>();
 		CmlLexer scanner = null;
 		CmlParser cmlParser = null;
 		try {
@@ -69,23 +73,22 @@ public class SourceParserVdmCml extends AbstractParserParticipant {
 			// System.out.println(scanner.yylex());
 			if (cmlParser.parse()) {
 				System.out.println("parsed!");
-				System.out.println(cmlParser.getDocument());
+				ASourcefileSourcefile document = cmlParser.getDocument();
 				
-				for (PDefinition def : cmlParser.getDocument()) {
-					if(def instanceof SClassDefinition)
-					{
-						classes.add((SClassDefinition) def);
-					}
+				
+				for (PDeclaration decl : document.getDecls()) {
+					declarations.add(decl);
 				}
 				
-				List<INode> nodes = new Vector<INode>();
-				for (SClassDefinition classDefinition : classes) {
-					nodes.add(classDefinition);
-				}
+				List<IAstNode> nodes = new Vector<IAstNode>();
+				for(PDeclaration d : declarations)
+					if (d instanceof IAstNode)
+						nodes.add((IAstNode)d);
+
 				if (nodes.size() > 0) {
 					result.setAst(nodes);
 				} else {
-					result.setFatalError(new Exception("No VDM source in file"));
+					result.setFatalError(new Exception("No CML source in file"));
 				}
 				
 				
@@ -117,7 +120,7 @@ public class SourceParserVdmCml extends AbstractParserParticipant {
 		{
 			List<VDMError> errors = new Vector<VDMError>();
 			for (ParserError error : scanner.parseErrors) {
-				errors.add(new VDMError(error.line, error.message, new LexLocation(error.file, "", error.line+1, error.col, error.line, error.col, 1, 1)));
+				errors.add(new VDMError(error.line, error.message, new LexLocation(error.file, "", error.line+1, error.col, error.line, error.col)));
 			}
 			result.setErrors(errors);
 		}
@@ -131,12 +134,9 @@ public class SourceParserVdmCml extends AbstractParserParticipant {
 		// result.setWarnings(reader.getWarnings());
 		// }
 		//
-		for (SClassDefinition classDefinition : classes) {
-			classDefinition.getDefinitions();
-		}
 
 		result.setAllLocation(new Vector<LexLocation>());
-		 result.setLocationToAstNodeMap(new Hashtable<LexLocation, INode>());
+		 result.setLocationToAstNodeMap(new HashMap<LexLocation, IAstNode>());
 
 		return result;
 	}

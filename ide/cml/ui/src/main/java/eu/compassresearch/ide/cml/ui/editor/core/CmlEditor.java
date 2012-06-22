@@ -30,19 +30,19 @@ import org.overture.ide.ui.editor.core.VdmSourceViewerConfiguration;
 
 public class CmlEditor extends VdmEditor {
 
+	
+	
 	public CmlEditor() {
 		
 		super();
+		setDocumentProvider(new CmlDocumentProvider());
 	}
 	
-	
-
 	
 	@Override
 	public VdmSourceViewerConfiguration getVdmSourceViewerConfiguration() {
 		return new CmlSourceViewerConfiguration();
 	}
-	
 	
 
 }

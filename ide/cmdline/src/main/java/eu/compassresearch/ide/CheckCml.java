@@ -23,7 +23,7 @@ import org.overture.ast.analysis.intf.IAnalysis;
 import org.overture.transforms.DotGraphVisitor;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.typechecker.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.CmlTypeChecker; 
 import eu.compassresearch.core.typechecker.TypeCheckInfo;
 import eu.compassresearch.examples.DivWarnAnalysis;
 import org.overture.ast.program.ASourcefileSourcefile;
@@ -52,6 +52,7 @@ public class CheckCml {
 	    // inputs
 	    if ( (inp = checkInput(args)) == null) return;
 
+	    // Two modes of operation, Interactive or Batch mode on files.
 	    if (inp.isSwitchOn(Switch.INTER))
 		{
 		    ASourcefileSourcefile currentTree = new ASourcefileSourcefile();
@@ -82,7 +83,6 @@ public class CheckCml {
 			{ handleError(parser, source); return; }
 		    else
 			sourceForest.add(currentTree);
-		
 		}
 
 	    // Run the analysis phase

@@ -35,6 +35,7 @@ import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AUntypedDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.program.ASourcefileSourcefile;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.PType;
 import org.overturetool.vdmj.typechecker.NameScope;
@@ -72,7 +73,9 @@ public class TCDeclAndDefVisitor extends QuestionAnswerAdaptor<TypeCheckInfo, PT
 	public PType caseAClassDeclaration(AClassDeclaration node,
 			TypeCheckInfo question) {
 
+		
 		question.currentScope = NameScope.CLASSNAME;
+		ASourcefileSourcefile s;
 
 		AClassbodyDefinition def = node.getClassBody();
 		PType type = new AClassType(def.getLocation(), true, node.getIdentifier().getClassName());
