@@ -30,6 +30,8 @@ import org.overture.ide.ui.editor.core.VdmSourceViewerConfiguration;
 
 public class CmlEditor extends VdmEditor {
 
+	
+	
 	public CmlEditor() {
 		
 		super();

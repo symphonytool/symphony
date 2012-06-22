@@ -4,12 +4,13 @@
  
  
 
- <extension
+ <!-- extension
        id="product"
        point="org.eclipse.core.runtime.products">
     <product
           application="org.eclipse.ui.ide.workbench"
-          name="Overture Tools">
+          name="CML Compass Project"
+          >
        <property
              name="windowImages"
              value="icons/ctool16/overture_misc.png,icons/ctool32/overture_misc.png,icons/ctool48/overture_misc.png,icons/ctool64/overture_misc.png,icons/ctool128/overture_misc.png">
@@ -43,33 +44,25 @@
              value="plugin_customization.ini">
        </property>
     </product>
- </extension> 
-  <extension
-         point="org.eclipse.ui.intro">
-      <intro
-            class="org.eclipse.ui.intro.config.CustomizableIntroPart"
-            id="org.overture.ide.platform.intro">
-      </intro>
-      <introProductBinding
-            introId="org.overture.ide.platform.intro"
-            productId="eu.compassresearch.platform.compass">
-      </introProductBinding>
-   </extension>
+ </extension --> 
+ 
+  
    <extension
-         point="org.eclipse.ui.intro.config">
-      <config
-            content="introContent.xml"
-            id="org.overture.ide.platform.introConfigId"
-            introId="org.overture.ide.platform.intro">
-         <presentation
-               home-page-id="root">
-            <implementation
-                  kind="html"
-                  os="win32,linux,macosx"
-                  >
-            </implementation>
-         </presentation>
-      </config>
+         id="CmlProduct.product"
+         name="COMPASS Tool"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.eclipse.ui.ide.workbench"
+            name="CML Compass Project">
+         <property
+               name="windowImages"
+               value="platform:/plugin/eu.compassresearch.ide.cml.ui/icons/cview16/cml_file_tsk.png">
+         </property>
+         <property
+               name="appName"
+               value="CML Compass Project">
+         </property>
+      </product>
    </extension>
   
 

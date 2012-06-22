@@ -34,6 +34,12 @@
             id="eu.compassresearch.ide.CmlProjectWizard">
 
       </primaryWizard>
+      <wizard
+            class="eu.compassresearch.ide.cml.core.NewCmlFileWizard"
+            icon="icons/cview16/cml_file_tsk.png"
+            id="eu.compassresearch.ide.cml.ui.newcmlfilewizard"
+            name="CML File">
+      </wizard>
 
    </extension>
    <extension

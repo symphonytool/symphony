@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.overture.ide.core.resources.IVdmProject;
-import org.overture.ide.ui.wizard.pages.LibraryUtil;
 
 public class NewCmlProjectWizard extends BasicNewProjectResourceWizard
 		implements INewWizard {

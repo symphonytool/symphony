@@ -23,7 +23,7 @@ import org.overture.ast.analysis.intf.IAnalysis;
 import org.overture.transforms.DotGraphVisitor;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.typechecker.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.CmlTypeChecker; 
 import eu.compassresearch.core.typechecker.TypeCheckInfo;
 import eu.compassresearch.examples.DivWarnAnalysis;
 import org.overture.ast.program.ASourcefileSourcefile;
