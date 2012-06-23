@@ -24,11 +24,11 @@
     import org.overture.ast.patterns.*;
     import org.overture.ast.program.*;
     import org.overture.ast.types.*;
-    import org.overturetool.vdmj.lex.*;
-    import org.overturetool.vdmj.typechecker.*;
+    import org.overture.ast.lex.*;
+  //  import org.overturetool.vdmj.typechecker.*;
     import org.overture.ast.node.*;
     import org.overture.transforms.*;
-    import org.overturetool.util.*;
+    import org.overture.ast.util.*;
     import eu.compassresearch.core.lexer.CmlLexeme;
     import eu.compassresearch.core.lexer.CmlLexer;
     import eu.compassresearch.core.lexer.Position;
@@ -4512,27 +4512,29 @@ name LPAREN expressionList RPAREN
 }
 | primary DOT IDENTIFIER LPAREN expressionList RPAREN 
 {
-    PObjectDesignator designator = null;//(PObjectDesignator)$1;
-    LexLocation location = extractLexLocation(designator.getLocation(),
-    					      (CmlLexeme)$6);
-    LexNameToken name = extractLexNameToken((CmlLexeme)$3);
-    List<PExp> args = (List<PExp>)$5;
-    $$ = new ACallCallStatementControlStatementAction(location, 
-    						      designator, 
-    						      name,  
-    						      args);
+//    PObjectDesignator designator = null;//(PObjectDesignator)$1;
+ //   LexLocation location = extractLexLocation(designator.getLocation(),
+//    					      (CmlLexeme)$6);
+//    LexNameToken name = extractLexNameToken((CmlLexeme)$3);
+//    List<PExp> args = (List<PExp>)$5;
+ //   $$ = new ACallCallStatementControlStatementAction(location, 
+   // 						      designator, 
+    //						      name,  
+    	//					      args);
+    						      $$ = null;
 }
 | primary DOT IDENTIFIER LPAREN RPAREN 
 {
-    PObjectDesignator designator = null;//(PObjectDesignator)$1;
-    LexLocation location = extractLexLocation(designator.getLocation(),
-    					      (CmlLexeme)$5);
-    LexNameToken name = extractLexNameToken((CmlLexeme)$3);
-    List<PExp> args = null;
-    $$ = new ACallCallStatementControlStatementAction(location, 
-    						      designator, 
-    						      name,  
-    						      args);
+ //   PObjectDesignator designator = null;//(PObjectDesignator)$1;
+ //   LexLocation location = extractLexLocation(designator.getLocation(),
+  //  					      (CmlLexeme)$5);
+   // LexNameToken name = extractLexNameToken((CmlLexeme)$3);
+   // List<PExp> args = null;
+   // $$ = new ACallCallStatementControlStatementAction(location, 
+    //						      designator, 
+    	//					      name,  
+    		//				      args);
+    		$$ = null;
 }
 ; 
 // | objectDesignator DOT name LPAREN expressionList RPAREN 
