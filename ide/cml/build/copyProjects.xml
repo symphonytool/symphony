@@ -17,6 +17,11 @@
 	</fileset-->
 </copy>
 	
+<copy todir="${buildDirectory}/plugins">
+	<fileset dir="../../">
+		<exclude name="parsers/**" />
+	</fileset>
+</copy>
 
 
 	<!-- Platform plugin, manage version number -->
