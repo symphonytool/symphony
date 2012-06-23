@@ -25,7 +25,7 @@
     import org.overture.ast.program.*;
     import org.overture.ast.types.*;
     import org.overture.ast.lex.*;
-  //  import org.overturetool.vdmj.typechecker.*;
+  import org.overture.ast.typechecker.NameScope;
     import org.overture.ast.node.*;
     import org.overture.transforms.*;
     import org.overture.ast.util.*;

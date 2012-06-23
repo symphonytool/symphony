@@ -63,6 +63,7 @@ import static eu.compassresearch.core.parser.CmlParser.YyPactClass.yypact_;
     import org.overture.ast.process.*;
     import org.overture.ast.patterns.*;
     import org.overture.ast.program.*;
+import org.overture.ast.typechecker.NameScope;
     import org.overture.ast.types.*;
     import org.overture.ast.lex.*;
   //  import org.overturetool.vdmj.typechecker.*;
@@ -71,7 +72,7 @@ import static eu.compassresearch.core.parser.CmlParser.YyPactClass.yypact_;
     import org.overture.ast.util.*;
     import eu.compassresearch.core.lexer.CmlLexeme;
     import eu.compassresearch.core.lexer.CmlLexer;
-    import eu.compassresearch.core.lexer.Position;
+import eu.compassresearch.core.lexer.Position;
     public
 
 

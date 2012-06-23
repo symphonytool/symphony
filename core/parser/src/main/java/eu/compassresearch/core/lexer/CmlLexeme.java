@@ -1,6 +1,7 @@
 package eu.compassresearch.core.lexer;
 
-import org.overturetool.vdmj.lex.*;
+import org.overture.ast.lex.VDMToken;
+
 
 public class CmlLexeme {
   
