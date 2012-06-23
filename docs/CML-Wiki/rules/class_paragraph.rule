@@ -1,0 +1,11 @@
+== class paragraph ==
+;[[class paragraph]] <nowiki>:=</nowiki> 
+:[[paragraph]]
+
+<pre>
+\RuleDef{class paragraph}{
+\RuleRef{paragraph}
+}
+</pre>
+
+[[Category:Rule]]

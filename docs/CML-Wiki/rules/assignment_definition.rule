@@ -1,0 +1,19 @@
+== assignment definition ==
+;[[assignment definition]] <nowiki>:=</nowiki> 
+:[[identifier]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> <nowiki>[</nowiki>''':=''' <nowiki>,</nowiki> [[expression]]<nowiki>]</nowiki>
+:| [[identifier]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> <nowiki>[</nowiki>'''in''' <nowiki>,</nowiki> [[expression]]<nowiki>]</nowiki>
+
+<pre>
+\RuleDef{assignment definition}{
+\RuleRef{identifier}, \Literal{:}, \RuleRef{type}, 
+\Optional{
+\Literal{:=}, \RuleRef{expression}
+}
+\Alt\ \RuleRef{identifier}, \Literal{:}, \RuleRef{type}, 
+\Optional{
+\Literal{in}, \RuleRef{expression}
+}
+}
+</pre>
+
+[[Category:Rule]]

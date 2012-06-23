@@ -1,0 +1,11 @@
+== parametrised actions ==
+;[[parametrised actions]] <nowiki>:=</nowiki> 
+:[[parametrisation]] <nowiki>,</nowiki> {''';''' <nowiki>,</nowiki> [[parametrisation]]} <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[action]]
+
+<pre>
+\RuleDef{parametrised actions}{
+\RuleRef{parametrisation}, \Sequence{\Literal{;}, \RuleRef{parametrisation}}, \Literal{@}, \RuleRef{action}
+}
+</pre>
+
+[[Category:Rule]]

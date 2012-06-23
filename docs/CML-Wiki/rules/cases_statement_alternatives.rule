@@ -1,0 +1,11 @@
+== cases statement alternatives ==
+;[[cases statement alternatives]] <nowiki>:=</nowiki> 
+:[[cases statement alternative]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[cases statement alternative]]}
+
+<pre>
+\RuleDef{cases statement alternatives}{
+\RuleRef{cases statement alternative}, \Sequence{\Literal{,}, \RuleRef{cases statement alternative}}
+}
+</pre>
+
+[[Category:Rule]]

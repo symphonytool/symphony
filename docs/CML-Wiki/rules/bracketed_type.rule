@@ -1,0 +1,11 @@
+== bracketed type ==
+;[[bracketed type]] <nowiki>:=</nowiki> 
+:'''(''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> ''')'''
+
+<pre>
+\RuleDef{bracketed type}{
+\Literal{(}, \RuleRef{type}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

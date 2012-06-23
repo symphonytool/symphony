@@ -1,0 +1,11 @@
+== value declaration ==
+;[[value declaration]] <nowiki>:=</nowiki> 
+:'''values''' <nowiki>,</nowiki> {[[value definition]]}
+
+<pre>
+\RuleDef{value declaration}{
+\Literal{values}, \Sequence{\RuleRef{value definition}}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== name list ==
+;[[name list]] <nowiki>:=</nowiki> 
+:[[name]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[name]]}
+
+<pre>
+\RuleDef{name list}{
+\RuleRef{name}, \Sequence{\Literal{,}, \RuleRef{name}}
+}
+</pre>
+
+[[Category:Rule]]

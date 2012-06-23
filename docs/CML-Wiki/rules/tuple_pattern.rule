@@ -1,0 +1,11 @@
+== tuple pattern ==
+;[[tuple pattern]] <nowiki>:=</nowiki> 
+:'''mk\myunderscore''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[pattern]] <nowiki>,</nowiki> ''',''' <nowiki>,</nowiki> [[pattern list]] <nowiki>,</nowiki> ''')'''
+
+<pre>
+\RuleDef{tuple pattern}{
+\Literal{mk\myunderscore}, \Literal{(}, \RuleRef{pattern}, \Literal{,}, \RuleRef{pattern list}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

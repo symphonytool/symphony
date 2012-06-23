@@ -1,0 +1,13 @@
+== pattern identifier ==
+;[[pattern identifier]] <nowiki>:=</nowiki> 
+:[[identifier]]
+:| '''-'''
+
+<pre>
+\RuleDef{pattern identifier}{
+\RuleRef{identifier}
+\Alt\ \Literal{-}
+}
+</pre>
+
+[[Category:Rule]]

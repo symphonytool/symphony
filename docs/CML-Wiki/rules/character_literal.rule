@@ -1,0 +1,13 @@
+== character literal ==
+;[[character literal]] <nowiki>:=</nowiki> 
+:''''''' <nowiki>,</nowiki> [[character]]
+:| [[escape sequence]] <nowiki>,</nowiki> '''''''
+
+<pre>
+\RuleDef{character literal}{
+\Literal{'}, \RuleRef{character}
+\Alt\ \RuleRef{escape sequence}, \Literal{'}
+}
+</pre>
+
+[[Category:Rule]]

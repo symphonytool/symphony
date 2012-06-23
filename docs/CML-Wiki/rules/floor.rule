@@ -1,0 +1,11 @@
+== floor ==
+;[[floor]] <nowiki>:=</nowiki> 
+:'''floor'''
+
+<pre>
+\RuleDef{floor}{
+\Literal{floor}
+}
+</pre>
+
+[[Category:Rule]]

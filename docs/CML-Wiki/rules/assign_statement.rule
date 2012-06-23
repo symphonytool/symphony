@@ -1,0 +1,11 @@
+== assign statement ==
+;[[assign statement]] <nowiki>:=</nowiki> 
+:[[state designator]] <nowiki>,</nowiki> ''':=''' <nowiki>,</nowiki> [[expression]]
+
+<pre>
+\RuleDef{assign statement}{
+\RuleRef{state designator}, \Literal{:=}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

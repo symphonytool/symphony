@@ -17,7 +17,7 @@
   <modules>
     <module>ast</module>
     <module>parser</module>
-    <module>typechecker</module>
+    <!--module>typechecker</module-->
   </modules>
 </project>
 

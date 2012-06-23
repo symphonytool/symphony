@@ -1,0 +1,11 @@
+== all expression ==
+;[[all expression]] <nowiki>:=</nowiki> 
+:'''forall''' <nowiki>,</nowiki> [[bind list]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[expression]]
+
+<pre>
+\RuleDef{all expression}{
+\Literal{forall}, \RuleRef{bind list}, \Literal{@}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

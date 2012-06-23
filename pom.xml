@@ -14,7 +14,7 @@
   </organization>
 
   <modules>
-    <module>docs/core-examples</module>
+    <!--module>docs/core-examples</module-->
     <module>tools</module>
     <module>core</module>
     <module>ide</module>
@@ -22,7 +22,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <overture.version>2.1.2</overture.version>
+    <overture.version>2.2.0</overture.version>
   </properties>
 
   <dependencies>

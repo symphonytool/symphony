@@ -1,0 +1,15 @@
+== process paragraph ==
+;[[process paragraph]] <nowiki>:=</nowiki> 
+:[[paragraph]]
+:| [[identifier]] <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[paragraph action]]
+:| [[nameset]] <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> '''=''' <nowiki>,</nowiki> [[nameset expression]]
+
+<pre>
+\RuleDef{process paragraph}{
+\RuleRef{paragraph}
+\Alt\ \RuleRef{identifier}, \Literal{=}, \RuleRef{paragraph action}
+\Alt\ \RuleRef{nameset}, \RuleRef{identifier}, \Literal{=}, \RuleRef{nameset expression}
+}
+</pre>
+
+[[Category:Rule]]

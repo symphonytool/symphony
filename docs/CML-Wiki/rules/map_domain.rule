@@ -1,0 +1,11 @@
+== map domain ==
+;[[map domain]] <nowiki>:=</nowiki> 
+:'''dom'''
+
+<pre>
+\RuleDef{map domain}{
+\Literal{dom}
+}
+</pre>
+
+[[Category:Rule]]

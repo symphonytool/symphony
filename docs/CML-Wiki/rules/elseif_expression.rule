@@ -1,0 +1,11 @@
+== elseif expression ==
+;[[elseif expression]] <nowiki>:=</nowiki> 
+:'''elseif''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''then''' <nowiki>,</nowiki> [[expression]]
+
+<pre>
+\RuleDef{elseif expression}{
+\Literal{elseif}, \RuleRef{expression}, \Literal{then}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

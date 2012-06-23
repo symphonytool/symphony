@@ -1,0 +1,11 @@
+== seq1 type ==
+;[[seq1 type]] <nowiki>:=</nowiki> 
+:'''seq1 of''' <nowiki>,</nowiki> [[type]]
+
+<pre>
+\RuleDef{seq1 type}{
+\Literal{seq1 of}, \RuleRef{type}
+}
+</pre>
+
+[[Category:Rule]]

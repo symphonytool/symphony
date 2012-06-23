@@ -1,0 +1,11 @@
+== arithmetic rem ==
+;[[arithmetic rem]] <nowiki>:=</nowiki> 
+:'''rem'''
+
+<pre>
+\RuleDef{arithmetic rem}{
+\Literal{rem}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== map domain restrict to ==
+;[[map domain restrict to]] <nowiki>:=</nowiki> 
+:'''<:'''
+
+<pre>
+\RuleDef{map domain restrict to}{
+\Literal{<:}
+}
+</pre>
+
+[[Category:Rule]]

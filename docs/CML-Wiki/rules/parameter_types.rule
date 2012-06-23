@@ -1,0 +1,14 @@
+== parameter types ==
+;[[parameter types]] <nowiki>:=</nowiki> 
+:'''(''' <nowiki>,</nowiki> <nowiki>[</nowiki>{[[pattern list]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]]}<nowiki>]</nowiki> <nowiki>,</nowiki> ''')'''
+
+<pre>
+\RuleDef{parameter types}{
+\Literal{(}, 
+\Optional{
+\Sequence{\RuleRef{pattern list}, \Literal{:}, \RuleRef{type}}
+}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

@@ -23,16 +23,16 @@ import org.overture.ast.analysis.intf.IAnalysis;
 import org.overture.transforms.DotGraphVisitor;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.typechecker.CmlTypeChecker; 
-import eu.compassresearch.core.typechecker.TypeCheckInfo;
-import eu.compassresearch.examples.DivWarnAnalysis;
+// import eu.compassresearch.core.typechecker.CmlTypeChecker; 
+// import eu.compassresearch.core.typechecker.TypeCheckInfo;
+// import eu.compassresearch.examples.DivWarnAnalysis;
 import org.overture.ast.program.ASourcefileSourcefile;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Collections;
 import java.lang.reflect.*;
 import org.overture.ast.node.INode;
-import org.overturetool.util.ClonableFile;
+import org.overture.ast.util.ClonableFile;
 
 public class CheckCml {
 
@@ -425,32 +425,32 @@ public class CheckCml {
 	    }
 
 	// Example Analysis DivWarnAnalysis
-	if (input.isSwitchOn(Switch.DWA))
-	    {
-		final DivWarnAnalysis dwa = new DivWarnAnalysis();
-		AnalysisRunAdaptor r = new AnalysisRunAdaptor(dwa) {
-			public void apply(INode root) { root.apply( dwa ); }
-		    };
-		runAnalysis(input, r, sources);
-		for(String s : dwa.getWarnings())
-		    {
-			System.out.println("\t"+s);
-		    }
-	    }
+	// if (input.isSwitchOn(Switch.DWA))
+	//     {
+	// 	final DivWarnAnalysis dwa = new DivWarnAnalysis();
+	// 	AnalysisRunAdaptor r = new AnalysisRunAdaptor(dwa) {
+	// 		public void apply(INode root) { root.apply( dwa ); }
+	// 	    };
+	// 	runAnalysis(input, r, sources);
+	// 	for(String s : dwa.getWarnings())
+	// 	    {
+	// 		System.out.println("\t"+s);
+	// 	    }
+	//     }
 
 	// Type checking
-	if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
-	    {
-		final CmlTypeChecker typeChecker = new CmlTypeChecker();
+	// if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
+	//     {
+	// 	final CmlTypeChecker typeChecker = new CmlTypeChecker();
 
-		AnalysisRunAdaptor r = new AnalysisRunAdaptor(typeChecker) {
-			public void apply(INode root)
-			{
-			    root.apply(typeChecker, new TypeCheckInfo());
-			}
-		    };
-		runAnalysis(input, r , sources);
-	    }
+	// 	AnalysisRunAdaptor r = new AnalysisRunAdaptor(typeChecker) {
+	// 		public void apply(INode root)
+	// 		{
+	// 		    root.apply(typeChecker, new TypeCheckInfo());
+	// 		}
+	// 	    };
+	// 	runAnalysis(input, r , sources);
+	//     }
 	
 	// Check The Type Check Only Switch
 	if (input.isSwitchOn(Switch.TYPE_CHECK_ONLY)) return;	

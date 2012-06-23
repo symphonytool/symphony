@@ -1,0 +1,20 @@
+== class body ==
+;[[class body]] <nowiki>:=</nowiki> 
+:<nowiki>[</nowiki>'''extends''' <nowiki>,</nowiki> [[identifier]]<nowiki>]</nowiki> <nowiki>,</nowiki> '''begin''' <nowiki>,</nowiki> {[[class paragraph]]} <nowiki>,</nowiki> <nowiki>[</nowiki>'''state''' <nowiki>,</nowiki> [[instance variable declaration]]<nowiki>]</nowiki> <nowiki>,</nowiki> {[[class paragraph]]} <nowiki>,</nowiki> <nowiki>[</nowiki>'''initial''' <nowiki>,</nowiki> [[operation declaration]]<nowiki>]</nowiki> <nowiki>,</nowiki> {[[class paragraph]]} <nowiki>,</nowiki> '''end'''
+
+<pre>
+\RuleDef{class body}{
+
+\Optional{
+\Literal{extends}, \RuleRef{identifier}
+}, \Literal{begin}, \Sequence{\RuleRef{class paragraph}}, 
+\Optional{
+\Literal{state}, \RuleRef{instance variable declaration}
+}, \Sequence{\RuleRef{class paragraph}}, 
+\Optional{
+\Literal{initial}, \RuleRef{operation declaration}
+}, \Sequence{\RuleRef{class paragraph}}, \Literal{end}
+}
+</pre>
+
+[[Category:Rule]]

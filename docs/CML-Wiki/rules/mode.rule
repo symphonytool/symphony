@@ -1,0 +1,13 @@
+== mode ==
+;[[mode]] <nowiki>:=</nowiki> 
+:'''rd'''
+:| '''wr'''
+
+<pre>
+\RuleDef{mode}{
+\Literal{rd}
+\Alt\ \Literal{wr}
+}
+</pre>
+
+[[Category:Rule]]

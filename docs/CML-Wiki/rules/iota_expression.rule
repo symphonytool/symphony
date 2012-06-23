@@ -1,0 +1,11 @@
+== iota expression ==
+;[[iota expression]] <nowiki>:=</nowiki> 
+:'''iota''' <nowiki>,</nowiki> [[bind]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[expression]]
+
+<pre>
+\RuleDef{iota expression}{
+\Literal{iota}, \RuleRef{bind}, \Literal{@}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

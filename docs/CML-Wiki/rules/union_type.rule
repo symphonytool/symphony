@@ -1,0 +1,11 @@
+== union type ==
+;[[union type]] <nowiki>:=</nowiki> 
+:[[type]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> {'''|''' <nowiki>,</nowiki> [[type]]}
+
+<pre>
+\RuleDef{union type}{
+\RuleRef{type}, \Literal{|}, \RuleRef{type}, \Sequence{\Literal{|}, \RuleRef{type}}
+}
+</pre>
+
+[[Category:Rule]]

@@ -7,45 +7,10 @@ import java.util.Stack;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.parser.CmlParser.Lexer;
 import eu.compassresearch.core.parser.CmlParser.Location;
-import org.overturetool.vdmj.lex.*;
-/*
-class CmlContext {
-  
-}
-*/
+import org.overture.ast.lex.*;
 
 class S {
   public static StringBuilder b;
-}
-
-class CommentBlock extends CMLToken {
-  static CommentBlock current;
-  private int level;
-  StringBuilder content;
-
-  public CommentBlock()
-  {
-    super("--");
-    current=this;
-    content=new StringBuilder();
-    level = 1;
-  }
-
-  public void appendLine(String line)
-  {
-    this.content.append(line);
-  }
-
-  public void increaseLevel()
-  {
-    level ++;
-  }
-
-  public boolean decreaseLevel()
-  {
-    level--;
-    return level == 0;
-  }
 }
 
 %%
@@ -499,7 +464,6 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   //  "|"                                 { return createToken(CmlParser.BAR); }
   "["                                 { return createToken(CmlParser.CSP_LSQUARE); }
   "]"                                 { return createToken(CmlParser.CSP_RSQUARE); }
-  ">"                                 { return createToken(CmlParser.CSP_GT); }
   "[]"                                { return createToken(CmlParser.CSPEXTCH); }
   "[["                                { return createToken(CmlParser.DLSQUARE); }
   "]]"                                { return createToken(CmlParser.DRSQUARE); }
@@ -524,8 +488,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "startby"                           { return createToken(CmlParser.CSP_STARTBY); }
   "endsby"                            { return createToken(CmlParser.CSP_ENDBY); }
   "Wait"                              { return createToken(CmlParser.CSPWAIT); }
-  {mk_name}                           { return createToken(CmlParser.MKUNDERNAME); }
-}
+ }
 
 <CHANNELS,CHANSETS,ACTIONS> {
   ","				      { return createToken(CmlParser.COMMA); }
@@ -624,6 +587,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 
   //patterns
   "-"                                 { return createToken(CmlParser.VDMDONTCARE); }
+  {mk_name}                           { return createToken(CmlParser.MKUNDERNAME); }
   "mk_"                               { return createToken(CmlParser.MKUNDER); }
     
   //basic types

@@ -1,0 +1,14 @@
+== multiple assign statement ==
+;[[multiple assign statement]] <nowiki>:=</nowiki> 
+:'''atomic''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[assign statement]] <nowiki>,</nowiki> ''';''' <nowiki>,</nowiki> [[assign statement]] <nowiki>,</nowiki> <nowiki>[</nowiki>{''';''' <nowiki>,</nowiki> [[assign statement]]}<nowiki>]</nowiki> <nowiki>,</nowiki> ''')'''
+
+<pre>
+\RuleDef{multiple assign statement}{
+\Literal{atomic}, \Literal{(}, \RuleRef{assign statement}, \Literal{;}, \RuleRef{assign statement}, 
+\Optional{
+\Sequence{\Literal{;}, \RuleRef{assign statement}}
+}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

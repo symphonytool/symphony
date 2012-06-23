@@ -1,0 +1,14 @@
+== block statement ==
+;[[block statement]] <nowiki>:=</nowiki> 
+:'''(''' <nowiki>,</nowiki> <nowiki>[</nowiki>[[dcl statement]]<nowiki>]</nowiki> <nowiki>,</nowiki> [[action]] <nowiki>,</nowiki> ''')'''
+
+<pre>
+\RuleDef{block statement}{
+\Literal{(}, 
+\Optional{
+\RuleRef{dcl statement}
+}, \RuleRef{action}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== set type ==
+;[[set type]] <nowiki>:=</nowiki> 
+:'''set of''' <nowiki>,</nowiki> [[type]]
+
+<pre>
+\RuleDef{set type}{
+\Literal{set of}, \RuleRef{type}
+}
+</pre>
+
+[[Category:Rule]]

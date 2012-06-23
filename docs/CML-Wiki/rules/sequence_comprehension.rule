@@ -1,0 +1,14 @@
+== sequence comprehension ==
+;[[sequence comprehension]] <nowiki>:=</nowiki> 
+:'''[''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[set bind]] <nowiki>,</nowiki> <nowiki>[</nowiki>'''@''' <nowiki>,</nowiki> [[expression]]<nowiki>]</nowiki> <nowiki>,</nowiki> ''']'''
+
+<pre>
+\RuleDef{sequence comprehension}{
+\Literal{[}, \RuleRef{expression}, \Literal{|}, \RuleRef{set bind}, 
+\Optional{
+\Literal{@}, \RuleRef{expression}
+}, \Literal{]}
+}
+</pre>
+
+[[Category:Rule]]

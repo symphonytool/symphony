@@ -1,0 +1,11 @@
+== isofclass expression ==
+;[[isofclass expression]] <nowiki>:=</nowiki> 
+:'''isofclass''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[name]] <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''')'''
+
+<pre>
+\RuleDef{isofclass expression}{
+\Literal{isofclass}, \Literal{(}, \RuleRef{name}, \RuleRef{expression}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

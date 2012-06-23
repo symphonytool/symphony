@@ -1,0 +1,17 @@
+== quantified expression ==
+;[[quantified expression]] <nowiki>:=</nowiki> 
+:[[all expression]]
+:| [[exists expression]]
+:| [[exists unique expression]]
+:| [[iota expression]]
+
+<pre>
+\RuleDef{quantified expression}{
+\RuleRef{all expression}
+\Alt\ \RuleRef{exists expression}
+\Alt\ \RuleRef{exists unique expression}
+\Alt\ \RuleRef{iota expression}
+}
+</pre>
+
+[[Category:Rule]]

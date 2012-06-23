@@ -1,0 +1,14 @@
+== cases expression ==
+;[[cases expression]] <nowiki>:=</nowiki> 
+:'''cases''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[cases expression alternatives]] <nowiki>,</nowiki> <nowiki>[</nowiki>''',''' <nowiki>,</nowiki> [[others expression]]<nowiki>]</nowiki> <nowiki>,</nowiki> '''end'''
+
+<pre>
+\RuleDef{cases expression}{
+\Literal{cases}, \RuleRef{expression}, \Literal{:}, \RuleRef{cases expression alternatives}, 
+\Optional{
+\Literal{,}, \RuleRef{others expression}
+}, \Literal{end}
+}
+</pre>
+
+[[Category:Rule]]

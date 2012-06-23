@@ -1,0 +1,11 @@
+== prefix expression ==
+;[[prefix expression]] <nowiki>:=</nowiki> 
+:[[unary operator]] <nowiki>,</nowiki> [[expression]]
+
+<pre>
+\RuleDef{prefix expression}{
+\RuleRef{unary operator}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

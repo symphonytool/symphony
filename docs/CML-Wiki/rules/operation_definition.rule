@@ -1,0 +1,13 @@
+== operation definition ==
+;[[operation definition]] <nowiki>:=</nowiki> 
+:[[explicit operation definition]]
+:| [[implicit operation definition]]
+
+<pre>
+\RuleDef{operation definition}{
+\RuleRef{explicit operation definition}
+\Alt\ \RuleRef{implicit operation definition}
+}
+</pre>
+
+[[Category:Rule]]

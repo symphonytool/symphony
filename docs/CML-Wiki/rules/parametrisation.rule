@@ -1,0 +1,15 @@
+== parametrisation ==
+;[[parametrisation]] <nowiki>:=</nowiki> 
+:'''val'''
+:| '''res'''
+:| '''vres''' <nowiki>,</nowiki> [[single type declaration]]
+
+<pre>
+\RuleDef{parametrisation}{
+\Literal{val}
+\Alt\ \Literal{res}
+\Alt\ \Literal{vres}, \RuleRef{single type declaration}
+}
+</pre>
+
+[[Category:Rule]]

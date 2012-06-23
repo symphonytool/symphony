@@ -1,0 +1,14 @@
+== set enumeration ==
+;[[set enumeration]] <nowiki>:=</nowiki> 
+:'''\mylcurly''' <nowiki>,</nowiki> <nowiki>[</nowiki>[[expression list]]<nowiki>]</nowiki> <nowiki>,</nowiki> '''\myrcurly'''
+
+<pre>
+\RuleDef{set enumeration}{
+\Literal{\mylcurly}, 
+\Optional{
+\RuleRef{expression list}
+}, \Literal{\myrcurly}
+}
+</pre>
+
+[[Category:Rule]]

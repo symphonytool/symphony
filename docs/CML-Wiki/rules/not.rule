@@ -1,0 +1,11 @@
+== not ==
+;[[not]] <nowiki>:=</nowiki> 
+:'''not'''
+
+<pre>
+\RuleDef{not}{
+\Literal{not}
+}
+</pre>
+
+[[Category:Rule]]

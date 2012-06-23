@@ -1,0 +1,11 @@
+== arithmetic plus ==
+;[[arithmetic plus]] <nowiki>:=</nowiki> 
+:'''+'''
+
+<pre>
+\RuleDef{arithmetic plus}{
+\Literal{+}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== old name ==
+;[[old name]] <nowiki>:=</nowiki> 
+:[[identifier]] <nowiki>,</nowiki> '''\mytilde'''
+
+<pre>
+\RuleDef{old name}{
+\RuleRef{identifier}, \Literal{\mytilde}
+}
+</pre>
+
+[[Category:Rule]]

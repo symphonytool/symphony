@@ -4,7 +4,7 @@ public Library ::
   books : set of nat
   users : set of nat
 inv mk_Library(bs,us) ==
-  dom subset us
+  dom bs subset us
 
 functions
 

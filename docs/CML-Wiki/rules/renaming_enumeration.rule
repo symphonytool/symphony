@@ -1,0 +1,11 @@
+== renaming enumeration ==
+;[[renaming enumeration]] <nowiki>:=</nowiki> 
+:'''[[''' <nowiki>,</nowiki> {[[renaming pair]]} <nowiki>,</nowiki> ''']]'''
+
+<pre>
+\RuleDef{renaming enumeration}{
+\Literal{[[}, \Sequence{\RuleRef{renaming pair}}, \Literal{]]}
+}
+</pre>
+
+[[Category:Rule]]

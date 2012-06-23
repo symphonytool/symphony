@@ -1,0 +1,11 @@
+== program ==
+;[[program]] <nowiki>:=</nowiki> 
+:[[program paragraph]] <nowiki>,</nowiki> {[[program paragraph]]}
+
+<pre>
+\RuleDef{program}{
+\RuleRef{program paragraph}, \Sequence{\RuleRef{program paragraph}}
+}
+</pre>
+
+[[Category:Rule]]

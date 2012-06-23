@@ -4,6 +4,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.reconciler.DirtyRegion;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
+import org.overture.ide.core.parser.SourceParserManager;
 
 
 public class CmlReconcilingStrategy implements IReconcilingStrategy {
@@ -22,6 +23,7 @@ public class CmlReconcilingStrategy implements IReconcilingStrategy {
 	public void reconcile(IRegion partition) {
 		System.out.println("File changed.");
 		
+//		SourceParserManager.getInstance().getSourceParser(project)
 		
 	}
 

@@ -1,0 +1,11 @@
+== specification statement ==
+;[[specification statement]] <nowiki>:=</nowiki> 
+:'''[''' <nowiki>,</nowiki> [[implicit operation body]] <nowiki>,</nowiki> ''']'''
+
+<pre>
+\RuleDef{specification statement}{
+\Literal{[}, \RuleRef{implicit operation body}, \Literal{]}
+}
+</pre>
+
+[[Category:Rule]]

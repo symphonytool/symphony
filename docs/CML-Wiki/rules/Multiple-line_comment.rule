@@ -1,0 +1,11 @@
+== Multiple-line comment ==
+;[[Multiple-line comment]] <nowiki>:=</nowiki> 
+:'''/*''' <nowiki>,</nowiki> {[[character]]} <nowiki>,</nowiki> '''*/'''
+
+<pre>
+\RuleDef{Multiple-line comment}{
+\Literal{/*}, \Sequence{\RuleRef{character}}, \Literal{*/}
+}
+</pre>
+
+[[Category:Rule]]

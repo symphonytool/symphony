@@ -1,0 +1,11 @@
+== type bind ==
+;[[type bind]] <nowiki>:=</nowiki> 
+:[[pattern]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]]
+
+<pre>
+\RuleDef{type bind}{
+\RuleRef{pattern}, \Literal{:}, \RuleRef{type}
+}
+</pre>
+
+[[Category:Rule]]

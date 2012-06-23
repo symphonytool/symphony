@@ -7,11 +7,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.overture.ast.analysis.QuestionAdaptor;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.ExternalNode;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.IToken;
 import org.overture.ast.node.NodeList;
-import org.overturetool.vdmj.lex.LexNameToken;
 
 public class DotGraphVisitor extends QuestionAdaptor<DotGraphVisitor.DotPair>
 {

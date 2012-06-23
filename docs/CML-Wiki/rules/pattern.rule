@@ -1,0 +1,17 @@
+== pattern ==
+;[[pattern]] <nowiki>:=</nowiki> 
+:[[pattern identifier]]
+:| [[match value]]
+:| [[tuple pattern]]
+:| [[record pattern]]
+
+<pre>
+\RuleDef{pattern}{
+\RuleRef{pattern identifier}
+\Alt\ \RuleRef{match value}
+\Alt\ \RuleRef{tuple pattern}
+\Alt\ \RuleRef{record pattern}
+}
+</pre>
+
+[[Category:Rule]]

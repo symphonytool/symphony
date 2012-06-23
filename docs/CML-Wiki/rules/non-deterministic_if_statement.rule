@@ -1,0 +1,14 @@
+== non-deterministic if statement ==
+;[[non-deterministic if statement]] <nowiki>:=</nowiki> 
+:'''if''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]] <nowiki>,</nowiki> <nowiki>[</nowiki>{'''|''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]]}<nowiki>]</nowiki> <nowiki>,</nowiki> '''end'''
+
+<pre>
+\RuleDef{non-deterministic if statement}{
+\Literal{if}, \RuleRef{expression}, \Literal{->}, \RuleRef{action}, 
+\Optional{
+\Sequence{\Literal{|}, \RuleRef{expression}, \Literal{->}, \RuleRef{action}}
+}, \Literal{end}
+}
+</pre>
+
+[[Category:Rule]]

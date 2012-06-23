@@ -1,0 +1,14 @@
+== var information ==
+;[[var information]] <nowiki>:=</nowiki> 
+:[[mode]] <nowiki>,</nowiki> [[name list]] <nowiki>,</nowiki> <nowiki>[</nowiki>''':''' <nowiki>,</nowiki> [[type]]<nowiki>]</nowiki>
+
+<pre>
+\RuleDef{var information}{
+\RuleRef{mode}, \RuleRef{name list}, 
+\Optional{
+\Literal{:}, \RuleRef{type}
+}
+}
+</pre>
+
+[[Category:Rule]]

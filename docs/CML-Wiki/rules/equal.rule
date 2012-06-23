@@ -1,0 +1,11 @@
+== equal ==
+;[[equal]] <nowiki>:=</nowiki> 
+:'''='''
+
+<pre>
+\RuleDef{equal}{
+\Literal{=}
+}
+</pre>
+
+[[Category:Rule]]

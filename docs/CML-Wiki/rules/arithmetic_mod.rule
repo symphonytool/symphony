@@ -1,0 +1,11 @@
+== arithmetic mod ==
+;[[arithmetic mod]] <nowiki>:=</nowiki> 
+:'''mod'''
+
+<pre>
+\RuleDef{arithmetic mod}{
+\Literal{mod}
+}
+</pre>
+
+[[Category:Rule]]

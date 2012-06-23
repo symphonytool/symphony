@@ -1,0 +1,14 @@
+== pre-condition expression ==
+;[[pre-condition expression]] <nowiki>:=</nowiki> 
+:'''pre\myunderscore''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> <nowiki>[</nowiki>{''',''' <nowiki>,</nowiki> [[expression]]}<nowiki>]</nowiki> <nowiki>,</nowiki> ''')'''
+
+<pre>
+\RuleDef{pre-condition expression}{
+\Literal{pre\myunderscore}, \Literal{(}, \RuleRef{expression}, 
+\Optional{
+\Sequence{\Literal{,}, \RuleRef{expression}}
+}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

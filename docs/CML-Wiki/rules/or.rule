@@ -1,0 +1,11 @@
+== or ==
+;[[or]] <nowiki>:=</nowiki> 
+:'''or'''
+
+<pre>
+\RuleDef{or}{
+\Literal{or}
+}
+</pre>
+
+[[Category:Rule]]
