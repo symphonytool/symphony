@@ -92,7 +92,7 @@
 	      <addClasspath>true</addClasspath>
 	      <!-- The main class -->
 	      <!-- eu.compassresearch.ide.CheckCml.java -->
-	      <mainClass>CheckCml</mainClass>
+	      <mainClass>eu.compassresearch.ide.CheckCml</mainClass>
 	      <!-- The package for the main class -->
 	      <packageName>eu.compassresearch.ide</packageName>
 	    </manifest>
