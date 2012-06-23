@@ -1,8 +1,8 @@
 package eu.compassresearch.ide.cml.ui.editor.core;
 
-import org.eclipse.jface.text.Document;
+import org.overture.ide.ui.editor.core.VdmDocument;
 
-public class CmlDocument extends Document {
+public class CmlDocument extends VdmDocument {
 
 	
 	

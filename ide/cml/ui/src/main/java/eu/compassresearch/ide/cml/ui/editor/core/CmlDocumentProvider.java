@@ -1,7 +1,6 @@
 package eu.compassresearch.ide.cml.ui.editor.core;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.overture.ide.ui.editor.core.VdmDocumentProvider;
 
