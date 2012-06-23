@@ -9,6 +9,10 @@ import eu.compassresearch.core.parser.CmlParser.Lexer;
 import eu.compassresearch.core.parser.CmlParser.Location;
 import org.overture.ast.lex.*;
 
+class S {
+  public static StringBuilder b;
+}
+
 %%
 // ******************************************
 // *** JFLEX SCANNER GENERATOR DIRECTIVES ***
