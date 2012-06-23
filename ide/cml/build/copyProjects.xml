@@ -19,7 +19,7 @@
 	
 <copy todir="${buildDirectory}/plugins">
 	<fileset dir="../../">
-		<exclude name="parsers/**" />
+		<include name="parsers/**" />
 	</fileset>
 </copy>
 
