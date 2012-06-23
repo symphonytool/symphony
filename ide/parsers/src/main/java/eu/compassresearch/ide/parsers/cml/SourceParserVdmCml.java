@@ -21,24 +21,18 @@ package eu.compassresearch.ide.parsers.cml;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
-import org.overture.ast.declarations.AClassDeclaration;
 import org.overture.ast.declarations.PDeclaration;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.messages.InternalException;
 import org.overture.ast.node.INode;
 import org.overture.ast.program.ASourcefileSourcefile;
 import org.overture.ide.core.parser.AbstractParserParticipant;
 import org.overture.ide.core.resources.IVdmSourceUnit;
-import org.overturetool.util.definitions.ClassList;
-import org.overturetool.vdmj.ast.IAstNode;
-import org.overturetool.vdmj.lex.LexLocation;
-import org.overturetool.vdmj.messages.InternalException;
-import org.overturetool.vdmj.messages.VDMError;
+import org.overture.parser.messages.VDMError;
 
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.lexer.ParserError;
@@ -80,16 +74,16 @@ public class SourceParserVdmCml extends AbstractParserParticipant {
 					declarations.add(decl);
 				}
 				
-				List<IAstNode> nodes = new Vector<IAstNode>();
+				List<INode> nodes = new Vector<INode>();
 				for(PDeclaration d : declarations)
-					if (d instanceof IAstNode)
-						nodes.add((IAstNode)d);
+					if (d instanceof INode)
+						nodes.add((INode)d);
 
-				if (nodes.size() > 0) {
-					result.setAst(nodes);
-				} else {
-					result.setFatalError(new Exception("No CML source in file"));
-				}
+//				if (nodes.size() > 0) {
+//					result.setAst(nodes);
+//				} else {
+//					result.setFatalError(new Exception("No CML source in file"));
+//				}
 				
 				
 			} else {
@@ -120,9 +114,9 @@ public class SourceParserVdmCml extends AbstractParserParticipant {
 		{
 			List<VDMError> errors = new Vector<VDMError>();
 			for (ParserError error : scanner.parseErrors) {
-				errors.add(new VDMError(error.line, error.message, new LexLocation(error.file, "", error.line+1, error.col, error.line, error.col)));
+				errors.add(new VDMError(error.line, error.message, new LexLocation(error.file, "", error.line+1, error.col, error.line, error.col,0,0)));
 			}
-			result.setErrors(errors);
+//			result.setErrors(errors);
 		}
 
 		// if (reader != null && reader.getErrorCount() > 0) {
@@ -135,8 +129,8 @@ public class SourceParserVdmCml extends AbstractParserParticipant {
 		// }
 		//
 
-		result.setAllLocation(new Vector<LexLocation>());
-		 result.setLocationToAstNodeMap(new HashMap<LexLocation, IAstNode>());
+//		result.setAllLocation(new Vector<LexLocation>());
+//		 result.setLocationToAstNodeMap(new HashMap<LexLocation, INode>());
 
 		return result;
 	}

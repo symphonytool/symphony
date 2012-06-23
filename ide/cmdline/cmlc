@@ -3,12 +3,15 @@
 BASE=`dirname $0`
 REPO=$BASE/../..
 
-JAR=$BASE/target/commandlinetool-*-jar-with-dependencies.jar
-CLASSPATH=.:$REPO/core/parser/target/parser-*.jar:$REPO/core/ast/target/ast-*.jar
+VERSION=0.0.1
+
+JAR=$BASE/target/commandlinetool-$VERSION-jar-with-dependencies.jar
+CLASSPATH=.:$REPO/core/parser/target/parser-$VERSION.jar:$REPO/core/ast/target/ast-$VERSION.jar:$JAR
 
 if [ ! -f ${JAR} ]; then
 echo -e "Executable jar: \n\n${JAR}\n\ndoes not exists, type mvn package to build it."
 exit -1;
 fi
 
-java -cp ${CLASSPATH} -jar ${JAR} $@
+#java -cp ${CLASSPATH} -jar ${JAR} $@
+java -cp ${CLASSPATH} eu.compassresearch.ide.CheckCml $@

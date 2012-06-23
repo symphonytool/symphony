@@ -7,45 +7,10 @@ import java.util.Stack;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.parser.CmlParser.Lexer;
 import eu.compassresearch.core.parser.CmlParser.Location;
-import org.overturetool.vdmj.lex.*;
-/*
-class CmlContext {
-  
-}
-*/
+import org.overture.ast.lex.*;
 
 class S {
   public static StringBuilder b;
-}
-
-class CommentBlock extends CMLToken {
-  static CommentBlock current;
-  private int level;
-  StringBuilder content;
-
-  public CommentBlock()
-  {
-    super("--");
-    current=this;
-    content=new StringBuilder();
-    level = 1;
-  }
-
-  public void appendLine(String line)
-  {
-    this.content.append(line);
-  }
-
-  public void increaseLevel()
-  {
-    level ++;
-  }
-
-  public boolean decreaseLevel()
-  {
-    level--;
-    return level == 0;
-  }
 }
 
 %%

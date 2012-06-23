@@ -1,18 +1,17 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: eu.compassresearch.ide.builders.cml
+Bundle-Name: COMPASS IDE Builder - CML
 Bundle-SymbolicName: eu.compassresearch.ide.builders.cml;singleton:=true
-Bundle-Version: 1.0.0
-Bundle-ClassPath: .,
- org.overture.ide.core-2.2.0.jar,
- ast-2.2.0.jar,
- ast_assistance-2.2.0.jar,
- parser-2.2.0.jar
+Bundle-Version: 0.0.1
 Bundle-Activator: eu.compassresearch.ide.builders.cml.Activator
-Bundle-Vendor: COMPASS
+Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
 Export-Package: eu.compassresearch.ide.builders.cml
 Require-Bundle: org.overture.ide.core;bundle-version="0.3.0"
 Eclipse-BuddyPolicy: registered
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ClassPath: .,
+ org.overture.ide.core-2.1.2.jar,
+ ast-2.2.0.jar,
+ vdmj-2.1.2.jar

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="CML Compass Project" uid="eu.compassresearch.ide.platform.product" id="eu.compassresearch.ide.cml.platform.product" application="org.eclipse.ui.ide.workbench" version="1.0.0" useFeatures="true" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <splash
+      location="eu.compassresearch.ide.cml.platform"
+      startupProgressRect="75,135,300,20"
+      startupMessageRect="75,250,300,15"
+      startupForegroundColor="FFFFFF" />
+   <launcher name="COMPASS">
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+      <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/OSGi%Minimum-1.2</linux>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="eu.compassresearch.features.rcp" version="0.3.0.qualifier"/>
+   </features>
+
+
+</product>

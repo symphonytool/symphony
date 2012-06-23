@@ -1,0 +1,1 @@
+mvn deploy -Duser.rcp.build.base=C:\Users\kela\Desktop\eclipse -Duser.rcp.build.equinox.launcher.plugin.version=1.2.0.v20110502 -Duser.rcp.build.pde.build.plugin.version=3.7.0.v20111116-2009 -Duser.rcp.pluginpath=C:/overture/overture_git/ide/build/target/RCP/buildRepo/;C:/Users/kela/Desktop/eclipse/featuresOverture/
