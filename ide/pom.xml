@@ -20,8 +20,8 @@
   </properties>
 
   <modules>
-    <module>cmdline</module>
-    <module>builder</module>
+    <!--module>cmdline</module-->
+    <!--module>builder</module-->
     <module>parsers</module>
     <module>cml</module>
   </modules>
