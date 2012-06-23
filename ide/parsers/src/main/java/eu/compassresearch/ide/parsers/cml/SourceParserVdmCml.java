@@ -79,11 +79,11 @@ public class SourceParserVdmCml extends AbstractParserParticipant {
 					if (d instanceof INode)
 						nodes.add((INode)d);
 
-				if (nodes.size() > 0) {
-					result.setAst(nodes);
-				} else {
-					result.setFatalError(new Exception("No CML source in file"));
-				}
+//				if (nodes.size() > 0) {
+//					result.setAst(nodes);
+//				} else {
+//					result.setFatalError(new Exception("No CML source in file"));
+//				}
 				
 				
 			} else {
@@ -116,7 +116,7 @@ public class SourceParserVdmCml extends AbstractParserParticipant {
 			for (ParserError error : scanner.parseErrors) {
 				errors.add(new VDMError(error.line, error.message, new LexLocation(error.file, "", error.line+1, error.col, error.line, error.col,0,0)));
 			}
-			result.setErrors(errors);
+//			result.setErrors(errors);
 		}
 
 		// if (reader != null && reader.getErrorCount() > 0) {
@@ -129,8 +129,8 @@ public class SourceParserVdmCml extends AbstractParserParticipant {
 		// }
 		//
 
-		result.setAllLocation(new Vector<LexLocation>());
-		 result.setLocationToAstNodeMap(new HashMap<LexLocation, INode>());
+//		result.setAllLocation(new Vector<LexLocation>());
+//		 result.setLocationToAstNodeMap(new HashMap<LexLocation, INode>());
 
 		return result;
 	}
