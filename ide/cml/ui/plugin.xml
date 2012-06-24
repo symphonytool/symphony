@@ -76,6 +76,28 @@
             natureId="eu.compassresearch.ide.cml.core.nature">
       </image>
    </extension>
+   <extension
+         id="cmlbuilder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            callOnEmptyDelta="true"
+            hasNature="false"
+            isConfigurable="false"
+            supportsConfigurations="false">
+         <run
+               class="eu.compassresearch.ide.cml.ui.builder.CmlIncrementalBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="id1"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="eu.compassresearch.ide.cml.core.CmlProjectNature">
+         </run>
+      </runtime>
+   </extension>
 
  
 
