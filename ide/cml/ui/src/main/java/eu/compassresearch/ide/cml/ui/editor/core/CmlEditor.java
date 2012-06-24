@@ -28,7 +28,7 @@ public class CmlEditor extends VdmEditor {
 	public CmlEditor() {
 		
 		super();
-		setDocumentProvider(new CmlDocumentProvider());
+//		setDocumentProvider(new CmlDocumentProvider());
 	}
 	
 	

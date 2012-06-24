@@ -28,21 +28,10 @@
   <!-- </reporting> -->
 
   <dependencies>
-
     <dependency>
       <groupId>org.overture.ide</groupId>
       <artifactId>org.overture.ide.ui</artifactId>
       <version>${overture.version}</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.overture.ide</groupId>
-      <artifactId>org.overture.ide.ui</artifactId>
-      <version>${overture.version}</version>
-      <type>jar</type>
-      <scope>compile</scope>
     </dependency>
 
     <dependency>
