@@ -66,6 +66,7 @@ public class CmlEditor extends VdmEditor{
 
 				@Override
 				public void sourceChanged(CmlSourceUnit csu) {
+					cmlOutliner.refresh();
 				}
 				
 				

@@ -16,13 +16,14 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements IConte
 
 	public void refresh()
 	{
-		Display.getCurrent().asyncExec(new Runnable() {
-			public void run()
-			{
-				getTreeViewer().refresh();		
-			}
-		});
-		
+		final Display curDisp = Display.getDefault();
+		if (curDisp != null)
+			curDisp.syncExec(new Runnable() {
+				public void run()
+				{
+					getTreeViewer().refresh();		
+				}
+			});
 	}
 	
 	public CmlContentPageOutliner() {

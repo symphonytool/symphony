@@ -1,12 +1,15 @@
 package eu.compassresearch.ide.cml.ui.editor.syntax;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.overture.ast.declarations.AClassDeclaration;
+import org.overture.ast.declarations.AValueDeclaration;
 import org.overture.ast.declarations.PDeclaration;
 import org.overture.ast.definitions.AClassbodyDefinition;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 import org.overture.ast.program.ASourcefileSourcefile;
 
@@ -15,12 +18,12 @@ import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 public class CmlTreeContentProvider implements ITreeContentProvider {
 
 	public CmlTreeContentProvider(){
-		
+
 	}
-	
+
 	@Override
 	public void dispose() {
-		
+
 	}
 
 	@Override
@@ -35,7 +38,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			// Get current source tree
 			current = ((CmlSourceUnit)inputElement).getSourceAst();
 			if (current == null) return new Object[0];
-			
+
 			// If there are any declarations lets see them
 			LinkedList<PDeclaration> decls = current.getDecls();
 			if (decls != null)
@@ -57,8 +60,20 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 				AClassbodyDefinition cd = clzdecl.getClassBody();
 				return cd.getDeclarations().toArray();
 			}
+
+			if (n instanceof AValueDeclaration)
+			{
+				List<String> res = new LinkedList<String>();
+				AValueDeclaration valDecl = (AValueDeclaration)n;
+				if (valDecl != null)
+					for (PDefinition def : valDecl.getDefinitions())
+					{
+						res.add(def.getName().name+" : "+def.getType());
+					}
+				return res.toArray();
+			}
 		}
-		return new String[] {"--"};
+		return new String[0];
 	}
 
 	@Override
