@@ -25,7 +25,6 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		System.out.println("Change");
 	}
 
 	private ASourcefileSourcefile current;

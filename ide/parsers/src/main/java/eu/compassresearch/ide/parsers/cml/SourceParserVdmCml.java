@@ -34,7 +34,7 @@ import org.overture.ide.core.parser.AbstractParserParticipant;
 import org.overture.ide.core.resources.IVdmSourceUnit;
 import org.overture.parser.messages.VDMError;
 
-import eu.compassresearch.core.lexer.CmlLexer;
+//import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.core.parser.CmlParser;
 
@@ -48,19 +48,20 @@ public class SourceParserVdmCml extends AbstractParserParticipant {
 
 	protected ParseResult startParseFile(IVdmSourceUnit file, String source,
 			String charset) {
+		/*
 		file.setType(IVdmSourceUnit.VDM_CLASS_SPEC);
 
 		ParseResult result = new ParseResult();
 		List<PDeclaration> declarations = new LinkedList<PDeclaration>();
-		CmlLexer scanner = null;
+	//	CmlLexer scanner = null;
 		CmlParser cmlParser = null;
 		try {
 			
 			
 			InputStream is = new ByteArrayInputStream( source.getBytes(  ) ); 
 			
-			scanner = new CmlLexer(is);
-			 cmlParser = new CmlParser(scanner);
+		//	scanner = new CmlLexer(is);
+			// cmlParser = new CmlParser(scanner);
 			// cmlParser.setDebugLevel(1);
 
 			// do {
@@ -109,7 +110,7 @@ public class SourceParserVdmCml extends AbstractParserParticipant {
 			e.printStackTrace();
 			result.setFatalError(e);
 		}
-		
+		/*
 		if(scanner != null && scanner.errors>0)
 		{
 			List<VDMError> errors = new Vector<VDMError>();
@@ -118,7 +119,7 @@ public class SourceParserVdmCml extends AbstractParserParticipant {
 			}
 //			result.setErrors(errors);
 		}
-
+*/
 		// if (reader != null && reader.getErrorCount() > 0) {
 		//
 		// result.setErrors(reader.getErrors());
@@ -132,6 +133,6 @@ public class SourceParserVdmCml extends AbstractParserParticipant {
 //		result.setAllLocation(new Vector<LexLocation>());
 //		 result.setLocationToAstNodeMap(new HashMap<LexLocation, INode>());
 
-		return result;
+		return new ParseResult();
 	}
 }

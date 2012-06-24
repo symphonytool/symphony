@@ -18,15 +18,23 @@
  *******************************************************************************/
 package eu.compassresearch.ide.cml.ui.editor.core;
 
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.text.source.IAnnotationHover;
+import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.overture.ide.ui.editor.core.VdmEditor;
 import org.overture.ide.ui.editor.core.VdmSourceViewerConfiguration;
 
+import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
+import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit.CmlSourceChangedListener;
 import eu.compassresearch.ide.cml.ui.editor.syntax.CmlContentPageOutliner;
 
-public class CmlEditor extends VdmEditor {
+public class CmlEditor extends VdmEditor{
 
 	private IContentOutlinePage cmlOutLiner;
 	
@@ -54,6 +62,33 @@ public class CmlEditor extends VdmEditor {
 			FileEditorInput fei = (FileEditorInput)getEditorInput();
 			CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
 			cmlOutliner.setInput(csu);
+			csu.addChangeListener(new CmlSourceChangedListener() {
+				
+				public void sourceChanged(CmlSourceUnit csu) {
+					for(final ParserError pe : csu.getErrors())
+					{
+						 Display.getDefault().asyncExec(new Runnable() {
+				               public void run() {
+				            	   CmlEditor.this.setHighlightRange(pe.offset, pe.otext.length(),true);
+				            	   CmlEditor.this.getSourceViewer().setSelectedRange(pe.offset, pe.otext.length());
+				            	   CmlEditor.this.getSourceViewer().showAnnotations(true);
+				            	   StringBuilder msg = new StringBuilder();
+				            	   
+				            	   msg.append("An syntax error occurred near line "+pe.line+" position "+pe.col+" offending token: "+pe.otext);
+				            	   
+				            	   MessageDialog.open(MessageDialog.ERROR, new Shell(), "Error",msg.toString(), 0); 
+				            	   CmlEditor.this.getSourceViewer().setAnnotationHover(new IAnnotationHover() {
+									
+									@Override
+									public String getHoverInfo(ISourceViewer sourceViewer, int lineNumber) {
+										return "Error: "+pe.message;
+									}
+								});
+				               }
+						 });
+					}
+				}
+			});
 		}
 		return cmlOutliner;
 	}
@@ -61,14 +96,16 @@ public class CmlEditor extends VdmEditor {
 
 	public CmlEditor() {
 		super();
-//		setDocumentProvider(new CmlDocumentProvider());
 	}
-	
-	
+
+
+
 	@Override
 	public VdmSourceViewerConfiguration getVdmSourceViewerConfiguration() {
 		return new CmlSourceViewerConfiguration();
 	}
+	
+	
 	
 
 }

@@ -8,11 +8,16 @@ public class ParserError
 	public int col;
 	public String message;
 	public File file;
+    public int offset;
+    // offending text
+    public String otext;
 
-	public ParserError(String message, int line, int col) {
+    public ParserError(String message, int line, int col, int offset,String otext) {
 		this.message = message;
 		this.line = line;
 		this.col = col;
+		this.offset = offset;
+		this.otext = otext;
 	}
 	
 	@Override
