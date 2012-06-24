@@ -13,5 +13,5 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ClassPath: .,
  org.overture.ide.core-2.1.2.jar,
- ast-2.2.0.jar,
+ ast-stripped-2.2.0.jar,
  vdmj-2.1.2.jar
