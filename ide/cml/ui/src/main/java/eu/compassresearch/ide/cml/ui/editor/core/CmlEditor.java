@@ -56,12 +56,20 @@ public class CmlEditor extends VdmEditor{
 	
 	private IContentOutlinePage createCmlOutliner() {
 		
-		CmlContentPageOutliner cmlOutliner = new CmlContentPageOutliner();
+		final CmlContentPageOutliner cmlOutliner = new CmlContentPageOutliner();
 		if (getEditorInput() instanceof FileEditorInput)
 		{
 			FileEditorInput fei = (FileEditorInput)getEditorInput();
 			CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
 			cmlOutliner.setInput(csu);
+			csu.addChangeListener( new CmlSourceChangedListener() {
+
+				@Override
+				public void sourceChanged(CmlSourceUnit csu) {
+				}
+				
+				
+			});
 			csu.addChangeListener(new CmlSourceChangedListener() {
 				
 				public void sourceChanged(CmlSourceUnit csu) {
@@ -77,14 +85,7 @@ public class CmlEditor extends VdmEditor{
 				            	   msg.append("An syntax error occurred near line "+pe.line+" position "+pe.col+" offending token: "+pe.otext);
 				            	   
 				            	   MessageDialog.open(MessageDialog.ERROR, new Shell(), "Error",msg.toString(), 0); 
-				            	   CmlEditor.this.getSourceViewer().setAnnotationHover(new IAnnotationHover() {
-									
-									@Override
-									public String getHoverInfo(ISourceViewer sourceViewer, int lineNumber) {
-										return "Error: "+pe.message;
-									}
-								});
-				               }
+				              }
 						 });
 					}
 				}
