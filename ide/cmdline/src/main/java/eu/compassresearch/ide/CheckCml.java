@@ -50,7 +50,8 @@ public class CheckCml {
 	    System.out.println(HELLO + " - " + CmlParser.Info.CML_LANG_VERSION);
 	
 	    // inputs
-	    if ( (inp = checkInput(args)) == null) return;
+	    if ( (inp = checkInput(args)) == null) 
+		    return;
 
 	    // Two modes of operation, Interactive or Batch mode on files.
 	    if (inp.isSwitchOn(Switch.INTER))
@@ -242,7 +243,7 @@ public class CheckCml {
 	    }
 	
 	// No files provided
-	if (r.sourceFiles.size() == 0)
+	if (r.sourceFiles.size() == 0 && !r.isSwitchOn(Switch.INTER))
 	    { printUsage(); return null; }
 
 

@@ -18,15 +18,48 @@
  *******************************************************************************/
 package eu.compassresearch.ide.cml.ui.editor.core;
 
+import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.overture.ide.ui.editor.core.VdmEditor;
 import org.overture.ide.ui.editor.core.VdmSourceViewerConfiguration;
 
+import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
+import eu.compassresearch.ide.cml.ui.editor.syntax.CmlContentPageOutliner;
+
 public class CmlEditor extends VdmEditor {
 
+	private IContentOutlinePage cmlOutLiner;
 	
-	
-	public CmlEditor() {
+	@Override
+	public Object getAdapter(Class required) {
 		
+		if (IContentOutlinePage.class.equals(required))
+		{
+			if (cmlOutLiner == null)
+				cmlOutLiner = createCmlOutliner();
+			return cmlOutLiner;
+		}
+
+		return super.getAdapter(required);
+
+	}
+
+
+	
+	private IContentOutlinePage createCmlOutliner() {
+		
+		CmlContentPageOutliner cmlOutliner = new CmlContentPageOutliner();
+		if (getEditorInput() instanceof FileEditorInput)
+		{
+			FileEditorInput fei = (FileEditorInput)getEditorInput();
+			CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
+			cmlOutliner.setInput(csu);
+		}
+		return cmlOutliner;
+	}
+
+
+	public CmlEditor() {
 		super();
 //		setDocumentProvider(new CmlDocumentProvider());
 	}

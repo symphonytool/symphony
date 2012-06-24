@@ -31,7 +31,7 @@
     <!-- Overture AST Root reuse -->
     <dependency>
       <groupId>org.overturetool.core</groupId>
-      <artifactId>ast</artifactId>
+      <artifactId>ast-stripped</artifactId>
       <version>${overture.version}</version>
     </dependency>
 

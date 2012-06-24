@@ -25,7 +25,7 @@
 
 		<dependency>
 			<groupId>org.overturetool.core</groupId>
-			<artifactId>ast</artifactId>
+			<artifactId>ast-stripped</artifactId>
 			<version>${overture.version}</version>
 		</dependency>
 
@@ -51,7 +51,7 @@
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>2.1</version>
 				<executions>
-					<execution>
+					<!-- execution>
 						<id>copy-dependencies</id>
 						<phase>process-sources</phase>
 						<goals>
@@ -63,7 +63,7 @@
 							<overWriteSnapshots>false</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
 						</configuration>
-					</execution>
+					</execution -->
 				</executions>
 			</plugin>
 			<plugin>

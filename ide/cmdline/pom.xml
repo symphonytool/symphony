@@ -40,7 +40,7 @@
     -->
     <dependency>
       <groupId>org.overturetool.core</groupId>
-      <artifactId>ast</artifactId>
+      <artifactId>ast-stripped</artifactId>
       <version>${overture.version}</version>
     </dependency>
 
@@ -92,7 +92,7 @@
 	      <addClasspath>true</addClasspath>
 	      <!-- The main class -->
 	      <!-- eu.compassresearch.ide.CheckCml.java -->
-	      <mainClass>CheckCml</mainClass>
+	      <mainClass>eu.compassresearch.ide.CheckCml</mainClass>
 	      <!-- The package for the main class -->
 	      <packageName>eu.compassresearch.ide</packageName>
 	    </manifest>
