@@ -119,7 +119,7 @@ class S {
     keywords.put("mk_", CmlParser.MK_);
     keywords.put("mod", CmlParser.MOD);
     keywords.put("mu", CmlParser.MU);
-    keywords.put("munion", CmlParser.MAP_MERGE);
+    keywords.put("munion", CmlParser.MAPUNION);
     keywords.put("mutex", CmlParser.MUTEX);
     */
     keywords.put("nat", CmlParser.TNAT);
@@ -551,6 +551,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "++"				      { return createToken(CmlParser.OVERWRITE /*MODIFY_BY*/); }
   "<:"				      { return createToken(CmlParser.DOMRES/*MAP_DOMAIN_RESTRICT_TO*/); }
   ":>"				      { return createToken(CmlParser.RNGRES/*MAP_RANGE_RESTRICT_TO*/); }
+  "munion"			      { return createToken(CmlParser.MAPMERGE); }
   {hook}			      { return createToken(CmlParser.TILDE /*HOOK*/); }
   {prime}			      { return createToken(CmlParser.BACKTICK); }
   ","				      { return createToken(CmlParser.COMMA); }
