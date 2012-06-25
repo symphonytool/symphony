@@ -44,13 +44,18 @@ public class CmlBuildVisitor implements IResourceVisitor {
 					parser.setDocument(source);
 					
 					
-					
+					try {
 					// Parse the document
 					if (!parser.parse())
 					{
 						System.out.println(lexer.parseErrors.size()+" errors occurred.");
 						ParserError e = lexer.parseErrors.get(0);
 						
+					}
+					}catch (NoSuchMethodError e)
+					{
+						System.out.println("Sorry, the parser gave up with a hard error.");
+						e.printStackTrace();
 					}
 					
 					// Set the build source on the dom object

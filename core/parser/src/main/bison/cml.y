@@ -1733,17 +1733,26 @@ qualifier
 : PRIVATE 
 { 
     LexLocation location = extractLexLocation((CmlLexeme)$1);
-    $$ = new AAccessSpecifierAccessSpecifier(new APrivateAccess(),null,null,location);
+    AAccessSpecifierAccessSpecifier res = new AAccessSpecifierAccessSpecifier();
+    res.setAccess(new APrivateAccess());
+    res.setLocation(location);
+    $$ = res;
 }
 | PROTECTED 
 { 
     LexLocation location = extractLexLocation((CmlLexeme)$1);
-    $$ = new AAccessSpecifierAccessSpecifier(new AProtectedAccess(),null,null,location);
+    AAccessSpecifierAccessSpecifier res = new AAccessSpecifierAccessSpecifier();
+    res.setLocation(location);
+    res.setAccess(new AProtectedAccess());
+    $$ = res;
 }
 | PUBLIC  
 { 
     LexLocation location = extractLexLocation((CmlLexeme)$1);
-    $$ = new AAccessSpecifierAccessSpecifier(new APublicAccess(),null,null,location);
+    AAccessSpecifierAccessSpecifier res = new AAccessSpecifierAccessSpecifier();
+    res.setLocation(location);
+    res.setAccess(new APublicAccess());
+    $$ = res; 
 }
 | LOGICAL 
 { 
@@ -2402,32 +2411,39 @@ IDENTIFIER COLON functionType IDENTIFIER parameterList DEQUALS functionBody preE
     LexNameToken name = extractLexNameToken( (CmlLexeme) $1 );
     LexLocation loc = extractLexLocation ( (CmlLexeme) $1 );
     AFunctionType ftype = (AFunctionType)$3;
-    $$ = new AExplicitFunctionFunctionDefinition(loc, 
-    						 name, 
-    						 NameScope.GLOBAL, 
-    						 false /* used_*/, 
-    						 null /*declaration_*/, 
-    						 null/* access_*/, 
-    						 null/*List<? extends LexNameToken> typeParams_*/, 
-    						 (Collection<? extends List<PPattern>>)$5, 
-    						 ftype, 
-    						 (PExp)$7 /*body_*/, 
-    						 (PExp)$8 /*precondition_*/, 
-    						 (PExp)$9 /*postcondition_*/, 
-    						 (LexNameToken)$10 /*measure_*/, 
-    						 null/*AExplicitFunctionFunctionDefinition predef_*/, 
-    						 null/*AExplicitFunctionFunctionDefinition postdef_*/, 
-    						 null/*PDefinition measureDef_*/, 
-    						 null/*List<? extends PDefinition> paramDefinitionList_*/, 
-    						 false /*Boolean recursive_*/, 
-    						 false /*isUndefined_*/, 
-    						 null/*measureLexical_*/, 
-    						 ftype.getResult(), 
-    						 null /* actualResult_*/, 
-    						 false /*isTypeInvariant_*/, 
-    						 false /*isCurried_*/, 
-    						 false /*typeInvariant_*/);
+    AExplicitFunctionFunctionDefinition res = new AExplicitFunctionFunctionDefinition();
+    res.setName(name);
+    res.setLocation(loc);
+    res.setType(ftype);
+
+/* loc,  */
+    						 /* name,  */
+    						 /* NameScope.GLOBAL,  */
+    						 /* false /\* used_*\/,  */
+    						 /* null /\*declaration_*\/,  */
+    						 /* null/\* access_*\/,  */
+    						 /* null/\*List<? extends LexNameToken> typeParams_*\/,  */
+    						 /* (Collection<? extends List<PPattern>>)$5,  */
+    						 /* ftype,  */
+    						 /* (PExp)$7 /\*body_*\/,  */
+    						 /* (PExp)$8 /\*precondition_*\/,  */
+    						 /* (PExp)$9 /\*postcondition_*\/,  */
+    						 /* (LexNameToken)$10 /\*measure_*\/,  */
+    						 /* null/\*AExplicitFunctionFunctionDefinition predef_*\/,  */
+    						 /* null/\*AExplicitFunctionFunctionDefinition postdef_*\/,  */
+    						 /* null/\*PDefinition measureDef_*\/,  */
+    						 /* null/\*List<? extends PDefinition> paramDefinitionList_*\/,  */
+    						 /* false /\*Boolean recursive_*\/,  */
+    						 /* false /\*isUndefined_*\/,  */
+    						 /* null/\*measureLexical_*\/,  */
+    						 /* ftype.getResult(),  */
+    						 /* null /\* actualResult_*\/,  */
+    						 /* false /\*isTypeInvariant_*\/,  */
+    						 /* false /\*isCurried_*\/,  */
+    						 /* false /\*typeInvariant_*\/); */
+    $$ = res;
   }
+
 ;
 
 /* really? this is what a VDM function definition list looks like? */
@@ -4777,7 +4793,10 @@ patternIdentifier :
   {
       CmlLexeme lexeme = (CmlLexeme)$1;
       LexNameToken lnt = extractLexNameToken(lexeme);
-      $$ = new AIdentifierPattern(lnt.location,null,false,lnt);
+      AIdentifierPattern res = new AIdentifierPattern();
+      res.setName(lnt);
+      res.setLocation(lnt.getLocation());
+      $$ = res;
   }
 | VDMDONTCARE // TODO
   ;
