@@ -14,7 +14,7 @@
   </organization>
 
   <modules>
-    <module>docs/core-examples</module>
+    <!--module>docs/core-examples</module-->
     <module>tools</module>
     <module>core</module>
     <module>ide</module>
@@ -22,7 +22,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <overture.version>2.1.2</overture.version>
+    <overture.version>2.2.0</overture.version>
   </properties>
 
   <dependencies>
@@ -42,7 +42,7 @@
       <name>Overture Project Build Repository at AU/IHA</name>
       <releases>
 	<enabled>true</enabled>
-	<updatePolicy>daily</updatePolicy>
+	<updatePolicy>always</updatePolicy>
 	<checksumPolicy>warn</checksumPolicy>
       </releases>
       <snapshots>
@@ -72,6 +72,22 @@
   </repositories>
 
   <pluginRepositories>
+    <pluginRepository>
+      <id>overture.iha.dk</id>
+      <name>Overture Project Build Repository at AU/IHA</name>
+      <releases>
+	<enabled>true</enabled>
+	<updatePolicy>always</updatePolicy>
+	<checksumPolicy>warn</checksumPolicy>
+      </releases>
+      <snapshots>
+	<enabled>false</enabled>
+	<updatePolicy>daily</updatePolicy>
+	<checksumPolicy>warn</checksumPolicy>
+      </snapshots>
+      <url>http://build.overturetool.org/builds/overture-m2repo/</url>
+      <layout>default</layout>
+    </pluginRepository>
     <pluginRepository>
       <id>overture.sf.net</id>
       <name>Overture Project at SF.net</name>

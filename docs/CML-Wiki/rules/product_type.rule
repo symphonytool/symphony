@@ -1,0 +1,11 @@
+== product type ==
+;[[product type]] <nowiki>:=</nowiki> 
+:[[type]] <nowiki>,</nowiki> '''*''' <nowiki>,</nowiki> [[type]] <nowiki>,</nowiki> {'''*''' <nowiki>,</nowiki> [[type]]}
+
+<pre>
+\RuleDef{product type}{
+\RuleRef{type}, \Literal{*}, \RuleRef{type}, \Sequence{\Literal{*}, \RuleRef{type}}
+}
+</pre>
+
+[[Category:Rule]]

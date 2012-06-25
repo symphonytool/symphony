@@ -1,0 +1,14 @@
+== if statement ==
+;[[if statement]] <nowiki>:=</nowiki> 
+:'''if''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''then''' <nowiki>,</nowiki> [[action]] <nowiki>,</nowiki> {[[elseif statement]]} <nowiki>,</nowiki> <nowiki>[</nowiki>'''else''' <nowiki>,</nowiki> [[action]]<nowiki>]</nowiki>
+
+<pre>
+\RuleDef{if statement}{
+\Literal{if}, \RuleRef{expression}, \Literal{then}, \RuleRef{action}, \Sequence{\RuleRef{elseif statement}}, 
+\Optional{
+\Literal{else}, \RuleRef{action}
+}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== sequence reverse ==
+;[[sequence reverse]] <nowiki>:=</nowiki> 
+:'''reverse'''
+
+<pre>
+\RuleDef{sequence reverse}{
+\Literal{reverse}
+}
+</pre>
+
+[[Category:Rule]]

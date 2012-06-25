@@ -1,0 +1,11 @@
+== proper subset ==
+;[[proper subset]] <nowiki>:=</nowiki> 
+:'''psubset'''
+
+<pre>
+\RuleDef{proper subset}{
+\Literal{psubset}
+}
+</pre>
+
+[[Category:Rule]]

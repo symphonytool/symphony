@@ -7,7 +7,7 @@
             base-type="org.eclipse.core.runtime.text"
             file-extensions="cml"
             id="eu.compassresearch.ide.cml.core.content-type1"
-            name="eu.compassresearch.ide.cml.content-type"
+            name="CML Content Type"
             priority="high">
       </content-type>
    </extension>
@@ -21,6 +21,16 @@
                id="eu.compassresearch.ide.cml.core.content-type1">
          </ContentType>
       </Language>
+   </extension>
+   <extension
+         id="nature"
+         name="CML Project Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="eu.compassresearch.ide.cml.core.CmlProjectNature">
+         </run>
+      </runtime>
    </extension>
 
 </plugin>

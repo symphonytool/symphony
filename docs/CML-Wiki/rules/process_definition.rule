@@ -1,0 +1,14 @@
+== process definition ==
+;[[process definition]] <nowiki>:=</nowiki> 
+:<nowiki>[</nowiki>[[declaration]] <nowiki>,</nowiki> '''@'''<nowiki>]</nowiki> <nowiki>,</nowiki> [[process]]
+
+<pre>
+\RuleDef{process definition}{
+
+\Optional{
+\RuleRef{declaration}, \Literal{@}
+}, \RuleRef{process}
+}
+</pre>
+
+[[Category:Rule]]

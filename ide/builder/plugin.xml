@@ -2,10 +2,16 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="org.overture.ide.core.buildParticipant">
+         id="eu.compassresearch.ide.builders.cml.IncrementalCmlProjectBuilder"
+         name="CML Builder"
+         point="org.eclipse.core.resources.builders">
       <builder
-            class="eu.compassresearch.ide.builders.cml.BuilderCml"
-            nature="eu.compassresearch.ide.core.nature">
+            callOnEmptyDelta="false"
+            hasNature="false"
+            isConfigurable="true">
+         <run
+               class="eu.compassresearch.ide.builders.cml.IncrementalCmlProjectBuilder">
+         </run>
       </builder>
    </extension>
 

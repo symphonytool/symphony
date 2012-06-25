@@ -1,0 +1,11 @@
+== others statement ==
+;[[others statement]] <nowiki>:=</nowiki> 
+:'''others''' <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]]
+
+<pre>
+\RuleDef{others statement}{
+\Literal{others}, \Literal{->}, \RuleRef{action}
+}
+</pre>
+
+[[Category:Rule]]

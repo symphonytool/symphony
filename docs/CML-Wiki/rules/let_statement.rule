@@ -1,0 +1,11 @@
+== let statement ==
+;[[let statement]] <nowiki>:=</nowiki> 
+:'''let''' <nowiki>,</nowiki> [[local definition]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[local definition]]} <nowiki>,</nowiki> '''in''' <nowiki>,</nowiki> [[action]]
+
+<pre>
+\RuleDef{let statement}{
+\Literal{let}, \RuleRef{local definition}, \Sequence{\Literal{,}, \RuleRef{local definition}}, \Literal{in}, \RuleRef{action}
+}
+</pre>
+
+[[Category:Rule]]

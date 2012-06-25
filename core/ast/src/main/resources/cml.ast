@@ -11,20 +11,20 @@ Tokens
  * external
  *  location = 'java:org.overturetool.vdmj.lex.LexLocation';
  */
-  LexToken = 'java:node:org.overturetool.vdmj.lex.LexToken';
-  LexNameToken = 'java:node:org.overturetool.vdmj.lex.LexNameToken';
-  LexIdentifierToken = 'java:node:org.overturetool.vdmj.lex.LexIdentifierToken';
-  LexBooleanToken = 'java:node:org.overturetool.vdmj.lex.LexBooleanToken';
-  LexCharacterToken = 'java:node:org.overturetool.vdmj.lex.LexCharacterToken';
-  LexIntegerToken = 'java:node:org.overturetool.vdmj.lex.LexIntegerToken';
-  LexQuoteToken = 'java:node:org.overturetool.vdmj.lex.LexQuoteToken';
-  LexRealToken = 'java:node:org.overturetool.vdmj.lex.LexRealToken';
-  LexStringToken = 'java:node:org.overturetool.vdmj.lex.LexStringToken';
-  clonableFile ='java:org.overturetool.util.ClonableFile';
-  clonableString ='java:org.overturetool.util.ClonableString';
-  ClassDefinitionSettings = 'java:enum:org.overturetool.vdmj.typechecker.ClassDefinitionSettings';
-  location = 'java:org.overturetool.vdmj.lex.LexLocation';
-  nameScope = 'java:enum:org.overturetool.vdmj.typechecker.NameScope';
+  LexToken = 'java:node:org.overture.ast.lex.LexToken';
+  LexNameToken = 'java:node:org.overture.ast.lex.LexNameToken';
+  LexIdentifierToken = 'java:node:org.overture.ast.lex.LexIdentifierToken';
+  LexBooleanToken = 'java:node:org.overture.ast.lex.LexBooleanToken';
+  LexCharacterToken = 'java:node:org.overture.ast.lex.LexCharacterToken';
+  LexIntegerToken = 'java:node:org.overture.ast.lex.LexIntegerToken';
+  LexQuoteToken = 'java:node:org.overture.ast.lex.LexQuoteToken';
+  LexRealToken = 'java:node:org.overture.ast.lex.LexRealToken';
+  LexStringToken = 'java:node:org.overture.ast.lex.LexStringToken';
+  clonableFile ='java:org.overture.ast.util.ClonableFile';
+  clonableString ='java:org.overture.ast.util.ClonableString';
+  ClassDefinitionSettings = 'java:enum:org.overture.ast.typechecker.ClassDefinitionSettings';
+  location = 'java:org.overture.ast.lex.LexLocation';
+  nameScope = 'java:enum:org.overture.ast.typechecker.NameScope';
   
   //Java
   java_Boolean = 'java:java.lang.Boolean';
@@ -44,6 +44,27 @@ Abstract Syntax Tree
  *
  */
 
+/*
+	Name Resolving helpers 
+	
+	These are only temporary nodes to help the parser and will not
+	end up in the AST.
+*/
+name {-> package='org.overture.ast.program'}
+	= {simple} [identifiers]:LexIdentifierToken*
+	;
+
+
+designator {-> package='org.overture.ast.program'}
+	= {name} [name]:name.simple 
+	| {primary} [primary]:primary
+	;
+
+primary {-> package='org.overture.ast.program'}
+	= {self}
+	| {call} [call]:action.#ControlStatement.#CallStatement.call
+	| {primary} [primary]:primary [identifier]:LexIdentifierToken
+	;
 /*
 	Programs
 */
@@ -624,15 +645,24 @@ parametrisation {-> package='org.overture.ast.actions'}
 	;
 	
 #ControlStatement {-> package='org.overture.ast.actions'}
-	= #CallStatement
+	= {nonDeterministicIf} [ifExp]:exp [thenStm]:action [elseIf]:action.#ControlStatement.nonDeterministicElseIf*
+	| {nonDeterministicElseIf} [elseIf]:exp [thenStm]:action
 	| {if} [ifExp]:exp [thenStm]:action [elseIf]:action.#ControlStatement.elseIf* [elseStm]:action
 	| {elseIf} [elseIf]:exp [thenStm]:action
 	| {cases} [exp]:exp [cases]:alternativeAction.case* [others]:action
+	| #GeneralAssignment
+	| #CallStatement
+	| {return} [exp]:exp
 	;
 	
 #CallStatement {-> package='org.overture.ast.actions'}
-	= {call} [designator]:objectDesignator [name]:LexIdentifierToken [args]:exp*
-	| {assignmentCall} [designator]:objectDesignator [call]:call 	
+	= {call} [objectDesignator]:objectDesignator [name]:LexNameToken [args]:exp*
+	| {assignmentCall} [designator]:stateDesignator [call]:action.#ControlStatement.#CallStatement.call 	
+	;
+	
+#GeneralAssignment {-> package='org.overture.ast.actions'}
+    = {single} [stateDesignator]:stateDesignator [expression]:exp
+    | {multi} [assignments]:action.#ControlStatement.#GeneralAssignment.single*
 	;
 	
 communicationParameter {-> package='org.overture.ast.actions'}

@@ -28,8 +28,8 @@ public class  CmlKeywords implements IVdmKeywords {
 	      /*"be",*/ "bool", "by", "card", "cases", "char",
 	      "class", "comp", "compose", "conc",
 	      "dcl", "def", "dinter", "div", "do", "dom", "dunion",
-	      "elems", "else", "elseif", "end", "error", "errs",
-	      "exists", "exists1", "exit", "ext", "false", "floor",
+	      "elems", "else", "elseif", /*"error",*/ "errs",
+	      "exists", "exists1", "exit", /* "ext", */ "false", "floor",
 	      "for", "forall", "from", "functions", "hd", "if",
 	      "in", "inds", "inmap", "instance", "int", "inter",
 	      "inv", "inverse", "iota", /*"is",*/ "isofbaseclass",
@@ -45,8 +45,14 @@ public class  CmlKeywords implements IVdmKeywords {
 	      "then", "thread", "threadid",
 	      "tixe", "tl", "to", "token", "traces", "trap", "true",
 	      "types", "undefined", "union", "values", "variables",
-	      "while", "with", "wr", /*"yet",*/ "RESULT",
-		  };
+	      "while", "with", "wr", /*"yet",*/ "RESULT", 
+	      // CML Specific
+	      "actions", "begin", "chansets", "channels", "end", "frame", "process", "state",    
+	      
+	      
+	
+	
+	};
 	  
 	  public static final String[] multipleKeywords = {
 		  "is not yet specified", "for all", 

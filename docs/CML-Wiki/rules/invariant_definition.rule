@@ -1,0 +1,11 @@
+== invariant definition ==
+;[[invariant definition]] <nowiki>:=</nowiki> 
+:'''inv''' <nowiki>,</nowiki> [[expression]]
+
+<pre>
+\RuleDef{invariant definition}{
+\Literal{inv}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

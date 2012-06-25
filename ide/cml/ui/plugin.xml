@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
+
 <plugin>
    <extension
          point="org.eclipse.ui.editors">
@@ -15,5 +16,89 @@
          </contentTypeBinding>
       </editor>
    </extension>
+   
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            category="compass_eu.compassresearch.ide.cml.ui.category"
+            class="eu.compassresearch.ide.cml.ui.wizard.NewCmlProjectWizard"
+            finalPerspective="org.overture.ide.ui.perspective"
+            icon="icons/cview16/cml_file_tsk.png"
+            id="eu.compassresearch.ide.CmlProjectWizard"
+            name="%newProjectWizardName"
+            preferredPerspectives="org.overture.ide.ui.perspective"
+            project="true">
+
+      </wizard>
+
+      <primaryWizard
+
+            id="eu.compassresearch.ide.CmlProjectWizard">
+
+      </primaryWizard>
+      <wizard
+            category="compass_eu.compassresearch.ide.cml.ui.category"
+            class="eu.compassresearch.ide.cml.ui.wizard.NewCmlFileWizard"
+            icon="icons/cview16/cml_file_tsk.png"
+            id="eu.compassresearch.ide.cml.ui.newcmlfilewizard"
+            name="CML File">
+      </wizard>
+      
+       <wizard
+            category="compass_eu.compassresearch.ide.cml.ui.category"
+            class="eu.compassresearch.ide.cml.ui.wizard.NewCmlClassWizard"
+            icon="icons/cview16/cml_file_tsk.png"
+            id="eu.compassresearch.ide.cml.ui.newcmlclasswizard"
+            name="CML Class">
+      </wizard>
+      
+      
+       <wizard
+            category="compass_eu.compassresearch.ide.cml.ui.category"
+            class="eu.compassresearch.ide.cml.ui.wizard.NewCmlProcessWizard"
+            icon="icons/cview16/cml_file_tsk.png"
+            id="eu.compassresearch.ide.cml.ui.newcmlprocesswizard"
+            name="CML Process">
+      </wizard>
+      
+      
+      <category
+            id="compass_eu.compassresearch.ide.cml.ui.category"
+            name="COMPASS">
+      </category>
+
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+      <image
+            icon="icons/ovr16/cml_ovr.gif"
+            id="eu.compassresearch.ide.cml.core.nature.image"
+            natureId="eu.compassresearch.ide.cml.core.nature">
+      </image>
+   </extension>
+   <extension
+         id="cmlbuilder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            callOnEmptyDelta="true"
+            hasNature="false"
+            isConfigurable="false"
+            supportsConfigurations="false">
+         <run
+               class="eu.compassresearch.ide.cml.ui.builder.CmlIncrementalBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="id1"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="eu.compassresearch.ide.cml.core.CmlProjectNature">
+         </run>
+      </runtime>
+   </extension>
+
+ 
 
 </plugin>

@@ -1,0 +1,11 @@
+== logical equivalence ==
+;[[logical equivalence]] <nowiki>:=</nowiki> 
+:'''<=>'''
+
+<pre>
+\RuleDef{logical equivalence}{
+\Literal{<=>}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== map or sequence modify ==
+;[[map or sequence modify]] <nowiki>:=</nowiki> 
+:'''++'''
+
+<pre>
+\RuleDef{map or sequence modify}{
+\Literal{++}
+}
+</pre>
+
+[[Category:Rule]]

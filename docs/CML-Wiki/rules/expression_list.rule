@@ -1,0 +1,11 @@
+== expression list ==
+;[[expression list]] <nowiki>:=</nowiki> 
+:[[expression]] <nowiki>,</nowiki> {''',''' <nowiki>,</nowiki> [[expression]]}
+
+<pre>
+\RuleDef{expression list}{
+\RuleRef{expression}, \Sequence{\Literal{,}, \RuleRef{expression}}
+}
+</pre>
+
+[[Category:Rule]]

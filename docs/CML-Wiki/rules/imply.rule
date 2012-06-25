@@ -1,0 +1,11 @@
+== imply ==
+;[[imply]] <nowiki>:=</nowiki> 
+:'''=>'''
+
+<pre>
+\RuleDef{imply}{
+\Literal{=>}
+}
+</pre>
+
+[[Category:Rule]]

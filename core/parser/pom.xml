@@ -18,14 +18,10 @@
       <artifactId>ast</artifactId>
       <version>${project.version}</version>
     </dependency>
+   
     <dependency>
       <groupId>org.overturetool.core</groupId>
-      <artifactId>vdmj</artifactId>
-      <version>${overture.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.overturetool.core</groupId>
-      <artifactId>ast</artifactId>
+      <artifactId>ast-stripped</artifactId>
       <version>${overture.version}</version>
     </dependency>
   </dependencies>

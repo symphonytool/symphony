@@ -1,0 +1,11 @@
+== set range expression ==
+;[[set range expression]] <nowiki>:=</nowiki> 
+:'''\mylcurly''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''',''' <nowiki>,</nowiki> '''\Range''' <nowiki>,</nowiki> ''',''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''\myrcurly'''
+
+<pre>
+\RuleDef{set range expression}{
+\Literal{\mylcurly}, \RuleRef{expression}, \Literal{,}, \Literal{\Range}, \Literal{,}, \RuleRef{expression}, \Literal{\myrcurly}
+}
+</pre>
+
+[[Category:Rule]]

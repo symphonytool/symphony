@@ -1,0 +1,11 @@
+== arithmetic integer division ==
+;[[arithmetic integer division]] <nowiki>:=</nowiki> 
+:'''div'''
+
+<pre>
+\RuleDef{arithmetic integer division}{
+\Literal{div}
+}
+</pre>
+
+[[Category:Rule]]

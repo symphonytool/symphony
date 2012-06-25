@@ -1,0 +1,11 @@
+== set intersection ==
+;[[set intersection]] <nowiki>:=</nowiki> 
+:'''inter'''
+
+<pre>
+\RuleDef{set intersection}{
+\Literal{inter}
+}
+</pre>
+
+[[Category:Rule]]

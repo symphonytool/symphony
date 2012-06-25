@@ -1,0 +1,13 @@
+== seq type ==
+;[[seq type]] <nowiki>:=</nowiki> 
+:[[seq0 type]]
+:| [[seq1 type]]
+
+<pre>
+\RuleDef{seq type}{
+\RuleRef{seq0 type}
+\Alt\ \RuleRef{seq1 type}
+}
+</pre>
+
+[[Category:Rule]]

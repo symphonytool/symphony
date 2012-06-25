@@ -1,0 +1,23 @@
+== implicit operation definition ==
+;[[implicit operation definition]] <nowiki>:=</nowiki> 
+:<nowiki>[</nowiki>[[qualifier]]<nowiki>]</nowiki> <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> [[parameter types]] <nowiki>,</nowiki> <nowiki>[</nowiki>[[identifier type pair list]]<nowiki>]</nowiki> <nowiki>,</nowiki> <nowiki>[</nowiki>[[externals]]<nowiki>]</nowiki> <nowiki>,</nowiki> <nowiki>[</nowiki>'''pre''' <nowiki>,</nowiki> [[expression]]<nowiki>]</nowiki> <nowiki>,</nowiki> '''post''' <nowiki>,</nowiki> [[expression]]
+
+<pre>
+\RuleDef{implicit operation definition}{
+
+\Optional{
+\RuleRef{qualifier}
+}, \RuleRef{identifier}, \RuleRef{parameter types}, 
+\Optional{
+\RuleRef{identifier type pair list}
+}, 
+\Optional{
+\RuleRef{externals}
+}, 
+\Optional{
+\Literal{pre}, \RuleRef{expression}
+}, \Literal{post}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== and ==
+;[[and]] <nowiki>:=</nowiki> 
+:'''and'''
+
+<pre>
+\RuleDef{and}{
+\Literal{and}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,14 @@
+== set comprehension ==
+;[[set comprehension]] <nowiki>:=</nowiki> 
+:'''\mylcurly''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[bind list]] <nowiki>,</nowiki> <nowiki>[</nowiki>'''@''' <nowiki>,</nowiki> [[expression]]<nowiki>]</nowiki> <nowiki>,</nowiki> '''\myrcurly'''
+
+<pre>
+\RuleDef{set comprehension}{
+\Literal{\mylcurly}, \RuleRef{expression}, \Literal{|}, \RuleRef{bind list}, 
+\Optional{
+\Literal{@}, \RuleRef{expression}
+}, \Literal{\myrcurly}
+}
+</pre>
+
+[[Category:Rule]]

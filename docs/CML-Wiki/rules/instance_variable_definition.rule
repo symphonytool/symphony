@@ -1,0 +1,16 @@
+== instance variable definition ==
+;[[instance variable definition]] <nowiki>:=</nowiki> 
+:<nowiki>[</nowiki>[[qualifier]]<nowiki>]</nowiki> <nowiki>,</nowiki> [[assignment definition]]
+:| [[invariant definition]]
+
+<pre>
+\RuleDef{instance variable definition}{
+
+\Optional{
+\RuleRef{qualifier}
+}, \RuleRef{assignment definition}
+\Alt\ \RuleRef{invariant definition}
+}
+</pre>
+
+[[Category:Rule]]

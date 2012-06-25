@@ -1,0 +1,11 @@
+== distributed sequence concatenation ==
+;[[distributed sequence concatenation]] <nowiki>:=</nowiki> 
+:'''conc'''
+
+<pre>
+\RuleDef{distributed sequence concatenation}{
+\Literal{conc}
+}
+</pre>
+
+[[Category:Rule]]

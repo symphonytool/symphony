@@ -1,0 +1,11 @@
+== numeral ==
+;[[numeral]] <nowiki>:=</nowiki> 
+:[[digit]] <nowiki>,</nowiki> {[[digit]]}
+
+<pre>
+\RuleDef{numeral}{
+\RuleRef{digit}, \Sequence{\RuleRef{digit}}
+}
+</pre>
+
+[[Category:Rule]]

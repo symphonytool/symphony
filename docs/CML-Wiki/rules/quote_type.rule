@@ -1,0 +1,11 @@
+== quote type ==
+;[[quote type]] <nowiki>:=</nowiki> 
+:[[quote literal]]
+
+<pre>
+\RuleDef{quote type}{
+\RuleRef{quote literal}
+}
+</pre>
+
+[[Category:Rule]]

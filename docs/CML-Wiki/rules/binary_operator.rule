@@ -1,0 +1,75 @@
+== binary operator ==
+;[[binary operator]] <nowiki>:=</nowiki> 
+:[[arithmetic plus]]
+:| [[arithmetic minus]]
+:| [[arithmetic multiplication]]
+:| [[arithmetic divide]]
+:| [[arithmetic integer division]]
+:| [[arithmetic rem]]
+:| [[arithmetic mod]]
+:| [[less than]]
+:| [[less than or equal]]
+:| [[greater than]]
+:| [[greater than or equal]]
+:| [[equal]]
+:| [[not equal]]
+:| [[or]]
+:| [[and]]
+:| [[imply]]
+:| [[logical equivalence]]
+:| [[in set]]
+:| [[not in set]]
+:| [[subset]]
+:| [[proper subset]]
+:| [[set union]]
+:| [[set difference]]
+:| [[set intersection]]
+:| [[sequence concatenate]]
+:| [[map or sequence modify]]
+:| [[map merge]]
+:| [[map domain restrict to]]
+:| [[map domain restrict by]]
+:| [[map range restrict to]]
+:| [[map range restrict by]]
+:| [[composition]]
+:| [[iterate]]
+
+<pre>
+\RuleDef{binary operator}{
+\RuleRef{arithmetic plus}
+\Alt\ \RuleRef{arithmetic minus}
+\Alt\ \RuleRef{arithmetic multiplication}
+\Alt\ \RuleRef{arithmetic divide}
+\Alt\ \RuleRef{arithmetic integer division}
+\Alt\ \RuleRef{arithmetic rem}
+\Alt\ \RuleRef{arithmetic mod}
+\Alt\ \RuleRef{less than}
+\Alt\ \RuleRef{less than or equal}
+\Alt\ \RuleRef{greater than}
+\Alt\ \RuleRef{greater than or equal}
+\Alt\ \RuleRef{equal}
+\Alt\ \RuleRef{not equal}
+\Alt\ \RuleRef{or}
+\Alt\ \RuleRef{and}
+\Alt\ \RuleRef{imply}
+\Alt\ \RuleRef{logical equivalence}
+\Alt\ \RuleRef{in set}
+\Alt\ \RuleRef{not in set}
+\Alt\ \RuleRef{subset}
+\Alt\ \RuleRef{proper subset}
+\Alt\ \RuleRef{set union}
+\Alt\ \RuleRef{set difference}
+\Alt\ \RuleRef{set intersection}
+\Alt\ \RuleRef{sequence concatenate}
+\Alt\ \RuleRef{map or sequence modify}
+\Alt\ \RuleRef{map merge}
+\Alt\ \RuleRef{map domain restrict to}
+\Alt\ \RuleRef{map domain restrict by}
+\Alt\ \RuleRef{map range restrict to}
+\Alt\ \RuleRef{map range restrict by}
+\Alt\ \RuleRef{composition}
+\Alt\ \RuleRef{iterate}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,14 @@
+== name ==
+;[[name]] <nowiki>:=</nowiki> 
+:[[identifier]] <nowiki>,</nowiki> <nowiki>[</nowiki>'''.''' <nowiki>,</nowiki> [[identifier]]<nowiki>]</nowiki>
+
+<pre>
+\RuleDef{name}{
+\RuleRef{identifier}, 
+\Optional{
+\Literal{.}, \RuleRef{identifier}
+}
+}
+</pre>
+
+[[Category:Rule]]

@@ -7,12 +7,14 @@ REM Run the CML Checker tool
 REM
 set BASE=%~dp0
 set REPO=%BASE%\..\..
-set JAR=%BASE%\target\commandlinetool-*-jar-with-dependencies.jar
-set CLASSPATH=.;%REPO%\core\parser\target\parser-*.jar;%REPO%\core\ast\target\ast-*.jar
+set VERSION=0.0.1
+set JAR=%BASE%\target\commandlinetool-%VERSION%-jar-with-dependencies.jar
+set CLASSPATH=.;%REPO%\core\parser\target\parser-%VERSION%.jar;%REPO%\core\ast\target\ast-%VERSION%.jar
 
 IF NOT EXIST %JAR% GOTO ERR_NOJAR
 
-java -cp %CLASSPATH% -jar %JAR% %*
+REM java -cp %CLASSPATH% -jar %JAR% %*
+java -cp %CLASSPATH% eu.compassresearch.ide.CheckCml %*
 GOTO END
 
 

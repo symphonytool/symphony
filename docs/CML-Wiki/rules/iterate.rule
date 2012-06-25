@@ -1,0 +1,11 @@
+== iterate ==
+;[[iterate]] <nowiki>:=</nowiki> 
+:'''**'''
+
+<pre>
+\RuleDef{iterate}{
+\Literal{**}
+}
+</pre>
+
+[[Category:Rule]]

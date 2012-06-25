@@ -1,0 +1,11 @@
+== finite power set ==
+;[[finite power set]] <nowiki>:=</nowiki> 
+:'''power'''
+
+<pre>
+\RuleDef{finite power set}{
+\Literal{power}
+}
+</pre>
+
+[[Category:Rule]]

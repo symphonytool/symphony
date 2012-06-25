@@ -1,0 +1,11 @@
+== bracketed expression ==
+;[[bracketed expression]] <nowiki>:=</nowiki> 
+:'''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''')'''
+
+<pre>
+\RuleDef{bracketed expression}{
+\Literal{(}, \RuleRef{expression}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

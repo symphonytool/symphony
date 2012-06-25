@@ -1,0 +1,13 @@
+== boolean literal ==
+;[[boolean literal]] <nowiki>:=</nowiki> 
+:'''true'''
+:| '''false'''
+
+<pre>
+\RuleDef{boolean literal}{
+\Literal{true}
+\Alt\ \Literal{false}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== cases statement alternative ==
+;[[cases statement alternative]] <nowiki>:=</nowiki> 
+:[[pattern list]] <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]]
+
+<pre>
+\RuleDef{cases statement alternative}{
+\RuleRef{pattern list}, \Literal{->}, \RuleRef{action}
+}
+</pre>
+
+[[Category:Rule]]

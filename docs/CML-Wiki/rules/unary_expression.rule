@@ -1,0 +1,13 @@
+== unary expression ==
+;[[unary expression]] <nowiki>:=</nowiki> 
+:[[prefix expression]]
+:| [[map inverse]]
+
+<pre>
+\RuleDef{unary expression}{
+\RuleRef{prefix expression}
+\Alt\ \RuleRef{map inverse}
+}
+</pre>
+
+[[Category:Rule]]

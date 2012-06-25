@@ -1,0 +1,11 @@
+== set cardinality ==
+;[[set cardinality]] <nowiki>:=</nowiki> 
+:'''card'''
+
+<pre>
+\RuleDef{set cardinality}{
+\Literal{card}
+}
+</pre>
+
+[[Category:Rule]]

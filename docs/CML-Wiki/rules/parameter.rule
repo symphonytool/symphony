@@ -1,0 +1,15 @@
+== parameter ==
+;[[parameter]] <nowiki>:=</nowiki> 
+:[[identifier]]
+:| '''mk\_''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> {[[parameter]]} <nowiki>,</nowiki> ''')'''
+:| '''mk\_''' <nowiki>,</nowiki> [[name]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> {[[parameter]]} <nowiki>,</nowiki> ''')'''
+
+<pre>
+\RuleDef{parameter}{
+\RuleRef{identifier}
+\Alt\ \Literal{mk\_}, \Literal{(}, \Sequence{\RuleRef{parameter}}, \Literal{)}
+\Alt\ \Literal{mk\_}, \RuleRef{name}, \Literal{(}, \Sequence{\RuleRef{parameter}}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

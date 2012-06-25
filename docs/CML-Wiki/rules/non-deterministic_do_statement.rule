@@ -1,0 +1,14 @@
+== non-deterministic do statement ==
+;[[non-deterministic do statement]] <nowiki>:=</nowiki> 
+:'''do''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]] <nowiki>,</nowiki> <nowiki>[</nowiki>{'''|''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> '''->''' <nowiki>,</nowiki> [[action]]}<nowiki>]</nowiki> <nowiki>,</nowiki> '''end'''
+
+<pre>
+\RuleDef{non-deterministic do statement}{
+\Literal{do}, \RuleRef{expression}, \Literal{->}, \RuleRef{action}, 
+\Optional{
+\Sequence{\Literal{|}, \RuleRef{expression}, \Literal{->}, \RuleRef{action}}
+}, \Literal{end}
+}
+</pre>
+
+[[Category:Rule]]

@@ -1,0 +1,11 @@
+== subsequence ==
+;[[subsequence]] <nowiki>:=</nowiki> 
+:[[expression]] <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''',''' <nowiki>,</nowiki> '''\Range''' <nowiki>,</nowiki> ''',''' <nowiki>,</nowiki> [[expression]] <nowiki>,</nowiki> ''')'''
+
+<pre>
+\RuleDef{subsequence}{
+\RuleRef{expression}, \Literal{(}, \RuleRef{expression}, \Literal{,}, \Literal{\Range}, \Literal{,}, \RuleRef{expression}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

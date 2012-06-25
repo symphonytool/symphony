@@ -1,0 +1,11 @@
+== composition ==
+;[[composition]] <nowiki>:=</nowiki> 
+:'''comp'''
+
+<pre>
+\RuleDef{composition}{
+\Literal{comp}
+}
+</pre>
+
+[[Category:Rule]]

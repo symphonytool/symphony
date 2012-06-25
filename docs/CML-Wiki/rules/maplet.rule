@@ -1,0 +1,11 @@
+== maplet ==
+;[[maplet]] <nowiki>:=</nowiki> 
+:[[expression]] <nowiki>,</nowiki> '''|->''' <nowiki>,</nowiki> [[expression]]
+
+<pre>
+\RuleDef{maplet}{
+\RuleRef{expression}, \Literal{|->}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

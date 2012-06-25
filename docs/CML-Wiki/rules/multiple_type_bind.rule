@@ -1,0 +1,11 @@
+== multiple type bind ==
+;[[multiple type bind]] <nowiki>:=</nowiki> 
+:[[pattern list]] <nowiki>,</nowiki> ''':''' <nowiki>,</nowiki> [[type]]
+
+<pre>
+\RuleDef{multiple type bind}{
+\RuleRef{pattern list}, \Literal{:}, \RuleRef{type}
+}
+</pre>
+
+[[Category:Rule]]

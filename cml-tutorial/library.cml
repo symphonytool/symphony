@@ -26,10 +26,10 @@ public Library ::
   books : map BookId to Book
   users : map UserId to User
   borrowed : BorrowMap
---inv mk_Library(bs,us,bor) ==
---  dom bor subset dom us and
---  dunion rng bor subset dom bs and
--- forall u1, u2 in set dom bor & u1 <> u2 => bor(u1) inter bor(u2) = {}
+inv mk_Library(bs,us,bor) ==
+  dom bor subset dom us and
+  dunion rng bor subset dom bs and
+ forall u1, u2 in set dom bor & u1 <> u2 => bor(u1) inter bor(u2) = {}
 ;
 
 public Book ::
@@ -125,20 +125,20 @@ process LibraryProcess = begin
 		
 	actions
 		Act = (
-			borrow?b:pre_ExeBorrow(b,library) -> *Assign(ExeBorrow(b,library))
+			borrow?b:pre_ExeBorrow(b,library) -> Assign(ExeBorrow(b,library))
 			[]
 			renew?r:pre_ExeReturn(r,library) -> 
-				*Assign(ExeReturn(r,library));
-				*Assign(ExeBorrow(r,library))
+				Assign(ExeReturn(r,library));
+				Assign(ExeBorrow(r,library))
 			[]
-			retBook?r:pre_ExeReturn(r,library) -> *Assign(ExeReturn(r,library))
+			retBook?r:pre_ExeReturn(r,library) -> Assign(ExeReturn(r,library))
 			[]
-			find?f:pre_ExeFind(f,library) -> *Assign(ExeFind(f,library))
+			find?f:pre_ExeFind(f,library) -> Assign(ExeFind(f,library))
 			[]
 			loans?u:(u in set dom(GetBorrowed(library)))!(card(ApplyBorrowed(library,u))) -> SKIP 
 		); Act
 	
-	@ init -> *Init(books,users); Act
+	@ init -> Init(books,users); Act
 end
 
 channels
@@ -170,10 +170,10 @@ process Scenario1 = i: UserId @ begin
 		frame wr books
 		post books = b
 	
-	@ initUser?u -> *Init(u); borrow!MkBorrow(book1,id) -> SKIP;
-			*Assign(books union {book1});
-			borrow!MkBorrow(book2,id) -> *Assign(books union {book2});
-			retBook!MkReturn(book1) -> *Assign(diff(books, {book1}));
+	@ initUser?u -> Init(u); borrow!MkBorrow(book1,id) -> SKIP;
+			Assign(books union {book1});
+			borrow!MkBorrow(book2,id) -> Assign(books union {book2});
+			retBook!MkReturn(book1) -> Assign(diff(books, {book1}));
 			loans!id?s -> if s = books then success -> STOP else error -> STOP
 end
 
@@ -202,8 +202,8 @@ process Scenario2 = i: UserId @ begin
 		frame wr books
 		post books = b
 			
-	@ initUser?u -> *Init(u); borrow!MkBorrow(book1,id) -> *Assign(books union {book1});
-			retBook!MkReturn(book2) -> *Assign(diff(books,{book2})); STOP
+	@ initUser?u -> Init(u); borrow!MkBorrow(book1,id) -> Assign(books union {book1});
+			retBook!MkReturn(book2) -> Assign(diff(books,{book2})); STOP
 end
 
 -- empty chanset is not working ({||})

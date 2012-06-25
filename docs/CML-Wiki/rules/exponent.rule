@@ -1,0 +1,18 @@
+== exponent ==
+;[[exponent]] <nowiki>:=</nowiki> 
+:'''E'''
+:| '''e''' <nowiki>,</nowiki> <nowiki>[</nowiki>'''+'''
+:| '''-'''<nowiki>]</nowiki> <nowiki>,</nowiki> [[numeral]]
+
+<pre>
+\RuleDef{exponent}{
+\Literal{E}
+\Alt\ \Literal{e}, 
+\Optional{
+\Literal{+}
+\Alt\ \Literal{-}
+}, \RuleRef{numeral}
+}
+</pre>
+
+[[Category:Rule]]

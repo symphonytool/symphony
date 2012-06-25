@@ -1,0 +1,71 @@
+== process ==
+;[[process]] <nowiki>:=</nowiki> 
+:'''begin''' <nowiki>,</nowiki> {[[process paragraph]]} <nowiki>,</nowiki> <nowiki>[</nowiki>'''state''' <nowiki>,</nowiki> [[instance variable declaration]]<nowiki>]</nowiki> <nowiki>,</nowiki> {[[process paragraph]]} <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[action]] <nowiki>,</nowiki> '''end'''
+:| [[process]] <nowiki>,</nowiki> ''';''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''[]''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''|\mytilde|''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''[|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|]''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''||''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> ''']''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''||''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''|||''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''/''' <nowiki>,</nowiki> <nowiki>[</nowiki>[[expression]]<nowiki>]</nowiki> <nowiki>,</nowiki> '''\mybackslash''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> <nowiki>[</nowiki>[[expression]]<nowiki>]</nowiki> <nowiki>,</nowiki> '''>''' <nowiki>,</nowiki> [[process]]
+:| [[process]] <nowiki>,</nowiki> '''\mybackslash''' <nowiki>,</nowiki> [[chanset    expression]]
+:| [[process]] <nowiki>,</nowiki> '''startsby''' <nowiki>,</nowiki> [[expression]]
+:| [[process]] <nowiki>,</nowiki> '''endsby''' <nowiki>,</nowiki> [[expression]]
+:| '''(''' <nowiki>,</nowiki> [[declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process    definition]] <nowiki>,</nowiki> ''')''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> {[[expression]]} <nowiki>,</nowiki> ''')'''
+:| [[identifier]] <nowiki>,</nowiki> <nowiki>[</nowiki>'''(''' <nowiki>,</nowiki> {[[expression]]} <nowiki>,</nowiki> ''')'''<nowiki>]</nowiki>
+:| [[process]] <nowiki>,</nowiki> [[renaming expression]]
+:| ''';''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
+:| '''[]''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
+:| '''|\mytilde|''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
+:| '''[|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|]''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
+:| '''||''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> ''']''' <nowiki>,</nowiki> [[process]]
+:| '''||''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
+:| '''|||''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[process]]
+:| '''(''' <nowiki>,</nowiki> [[process]] <nowiki>,</nowiki> ''')'''
+
+<pre>
+\RuleDef{process}{
+\Literal{begin}, \Sequence{\RuleRef{process paragraph}}, 
+\Optional{
+\Literal{state}, \RuleRef{instance variable declaration}
+}, \Sequence{\RuleRef{process paragraph}}, \Literal{@}, \RuleRef{action}, \Literal{end}
+\Alt\ \RuleRef{process}, \Literal{;}, \RuleRef{process}
+\Alt\ \RuleRef{process}, \Literal{[]}, \RuleRef{process}
+\Alt\ \RuleRef{process}, \Literal{|\mytilde|}, \RuleRef{process}
+\Alt\ \RuleRef{process}, \Literal{[|}, \RuleRef{chanset expression}, \Literal{|]}, \RuleRef{process}
+\Alt\ \RuleRef{process}, \Literal{[}, \RuleRef{chanset expression}, \Literal{||}, \RuleRef{chanset expression}, \Literal{]}, \RuleRef{process}
+\Alt\ \RuleRef{process}, \Literal{||}, \RuleRef{process}
+\Alt\ \RuleRef{process}, \Literal{|||}, \RuleRef{process}
+\Alt\ \RuleRef{process}, \Literal{/}, 
+\Optional{
+\RuleRef{expression}
+}, \Literal{\mybackslash}, \RuleRef{process}
+\Alt\ \RuleRef{process}, \Literal{[}, 
+\Optional{
+\RuleRef{expression}
+}, \Literal{>}, \RuleRef{process}
+\Alt\ \RuleRef{process}, \Literal{\mybackslash}, \RuleRef{chanset
+    expression}
+\Alt\ \RuleRef{process}, \Literal{startsby}, \RuleRef{expression}
+\Alt\ \RuleRef{process}, \Literal{endsby}, \RuleRef{expression}
+\Alt\ \Literal{(}, \RuleRef{declaration}, \Literal{@}, \RuleRef{process
+    definition}, \Literal{)}, \Literal{(}, \Sequence{\RuleRef{expression}}, \Literal{)}
+\Alt\ \RuleRef{identifier}, 
+\Optional{
+\Literal{(}, \Sequence{\RuleRef{expression}}, \Literal{)}
+}
+\Alt\ \RuleRef{process}, \RuleRef{renaming expression}
+\Alt\ \Literal{;}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{process}
+\Alt\ \Literal{[]}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{process}
+\Alt\ \Literal{|\mytilde|}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{process}
+\Alt\ \Literal{[|}, \RuleRef{chanset expression}, \Literal{|]}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{process}
+\Alt\ \Literal{||}, \RuleRef{replication declaration}, \Literal{@}, \Literal{[}, \RuleRef{chanset expression}, \Literal{]}, \RuleRef{process}
+\Alt\ \Literal{||}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{process}
+\Alt\ \Literal{|||}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{process}
+\Alt\ \Literal{(}, \RuleRef{process}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

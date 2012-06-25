@@ -1,0 +1,11 @@
+== channel definition ==
+;[[channel definition]] <nowiki>:=</nowiki> 
+:{[[channel name declaration]]}
+
+<pre>
+\RuleDef{channel definition}{
+\Sequence{\RuleRef{channel name declaration}}
+}
+</pre>
+
+[[Category:Rule]]

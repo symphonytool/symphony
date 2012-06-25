@@ -1,0 +1,14 @@
+== return statement ==
+;[[return statement]] <nowiki>:=</nowiki> 
+:'''return''' <nowiki>,</nowiki> <nowiki>[</nowiki>[[expression]]<nowiki>]</nowiki>
+
+<pre>
+\RuleDef{return statement}{
+\Literal{return}, 
+\Optional{
+\RuleRef{expression}
+}
+}
+</pre>
+
+[[Category:Rule]]

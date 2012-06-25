@@ -1,0 +1,11 @@
+== binary expression ==
+;[[binary expression]] <nowiki>:=</nowiki> 
+:[[expression]] <nowiki>,</nowiki> [[binary operator]] <nowiki>,</nowiki> [[expression]]
+
+<pre>
+\RuleDef{binary expression}{
+\RuleRef{expression}, \RuleRef{binary operator}, \RuleRef{expression}
+}
+</pre>
+
+[[Category:Rule]]

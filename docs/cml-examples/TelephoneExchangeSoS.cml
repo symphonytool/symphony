@@ -1,10 +1,10 @@
-/*
-this definitions should be global, but I had to put them in the class to type check the VDM++ specification
+
+--this definitions should be global, but I had to put them in the class to type check the VDM++ specification
 
 types
 	public SUBS = token;
-	public STATUS = <connecting> | <engaged> | <ringing> | <speech> | <suspended>;
-	public MSG = <vcallmsg> | <vclearmsg> | <callokmsg> | <callerrormsg>;
+	public STATUS = (<connecting> | <engaged> | <ringing> | <speech> | <suspended>);
+	public MSG = (<vcallmsg> | <vclearmsg> | <callokmsg> | <callerrormsg>);
 		
 values
 	Connected = {<ringing>,<speech>,<suspended>};
@@ -46,52 +46,52 @@ functions
 	suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number));
 	
 channels
-	init
-	call: SUBS*SUBS
-	clear, suspend: SUBS
-	answer, unsuspend: SUBS
-	callok,clearok,suspendok,answerok,unsuspendok
-	callerror,clearerror,suspenderror,answererror,unsuspenderror
-	connectfree,connnectbusy: SUBS	
-*/
+	init;
+	call: SUBS*SUBS;
+	clear, suspend: SUBS;
+	answer, unsuspend: SUBS;
+	callok,clearok,suspendok,answerok,unsuspendok;
+	callerror,clearerror,suspenderror,answererror,unsuspenderror;
+	connectfree,connnectbusy: SUBS
+
 
 class Exchange =
 begin
 
 	state
-		public lSUBS: set of Node`SUBS; 	-- this is actually the parameter of the process. 
+		public lSUBS: set of Node.SUBS; 	-- this is actually the parameter of the process. 
 									-- because I need the name to be in scope,
 									-- I've put it in the state of the class.
-		public status: map Node`SUBS to Node`STATUS;
-		public number: map Node`SUBS to Node`SUBS;
-		public subs: set of Node`SUBS;
+		public status: map Node.SUBS to Node.STATUS;
+		public number: map Node.SUBS to Node.SUBS;
+		public subs: set of Node.SUBS;
 		inv
 			exists n: nat & card(subs) = n and -- is card a partial or total function?
 			dom(status) = dom(number) and
 			dom(number) subset subs and
-			is_(dom(dom(status:>Node`Connected)<:number)) --,inmap Node`SUBS to Node`SUBS)
+			is_(dom(dom(status:>Node.Connected)<:number)) --,inmap Node.SUBS to Node.SUBS)
 			; 
 			
 	functions
-		callers: (map Node`SUBS to Node`STATUS) +>  set of Node`SUBS
-		callers(status) == dom(status :> Node`Connected);
+		callers: (map Node.SUBS to Node.STATUS) +>  set of Node.SUBS
+		callers(status) == dom(status :> Node.Connected);
 		
-		connected: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> (inmap Node`SUBS to Node`SUBS)
+		connected: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> (inmap Node.SUBS to Node.SUBS)
 		connected(status,number) == callers(status) <: number;
 		
-		free: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) * (set of Node`SUBS) +> set of Node`SUBS
+		free: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) * (set of Node.SUBS) +> set of Node.SUBS
 		free(status,number,subs) == subs \ dom(status) \ rng(connected(status,number));
 		
-		connectable: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		connectable: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> set of Node.SUBS
 		connectable(status,number) == rng((dom(status:>{<connecting>}))<:number);
 		
-		suspendable: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		suspendable: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> set of Node.SUBS
 		suspendable(status,number) == rng((dom(status:>{<speech>}))<:connected(status,number));
 		
-		ringing: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		ringing: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> set of Node.SUBS
 		ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number));
 		
-		suspended: (map Node`SUBS to Node`STATUS) * (map Node`SUBS to Node`SUBS) +> set of Node`SUBS
+		suspended: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> set of Node.SUBS
 		suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number))
 		
 	operations
@@ -105,17 +105,17 @@ begin
 			number = {|->} and 
 			subs = lSUBS;
 		
-		Add (s: Node`SUBS)
+		Add (s: Node.SUBS)
 		frame wr subs
 		post 
 			subs = subs~ union {s};
 		
-		Del (s: Node`SUBS)
+		Del (s: Node.SUBS)
 		frame wr subs
 		post 
 			subs = subs~ \ {s};
 		
-		Call (s,t: Node`SUBS)
+		Call (s,t: Node.SUBS)
 		frame wr status, number
 			rd subs
 		pre 
@@ -126,7 +126,7 @@ begin
 			status = status~ ++ {s |-> <connecting>} and 
 			number = number~ ++ {s |-> t};
 		
-		Clear (s,t: Node`SUBS)
+		Clear (s,t: Node.SUBS)
 		frame wr status, number
 			rd subs
 		pre 
@@ -137,7 +137,7 @@ begin
 		post 
 			status = {s}<-: status~ and number = {s}<-: number~;
 		
-		Suspend(s,t: Node`SUBS)
+		Suspend(s,t: Node.SUBS)
 		frame wr status
 			rd subs, number
 		pre 
@@ -149,7 +149,7 @@ begin
 		post
 			status = status~ ++ {s |-> <suspended>};
 			
-		ConnectFree(s,t: Node`SUBS)
+		ConnectFree(s,t: Node.SUBS)
 		frame wr status
 			rd subs, number
 		pre 
@@ -162,7 +162,7 @@ begin
 		post
 			status = status~ ++ {s |-> <ringing>};
 			
-		ConnectBusy(s,t: Node`SUBS)
+		ConnectBusy(s,t: Node.SUBS)
 		frame wr status
 			rd subs, number
 		pre 
@@ -175,7 +175,7 @@ begin
 		post
 			status = status~ ++ {s |-> <engaged>};
 			
-		Answer(s,t: Node`SUBS)
+		Answer(s,t: Node.SUBS)
 		frame wr status
 			rd subs, number
 		pre 
@@ -187,7 +187,7 @@ begin
 		post
 			status = status~ ++ {s |-> <speech>};
 				
-		Unsuspend(s,t: Node`SUBS)
+		Unsuspend(s,t: Node.SUBS)
 		frame wr status
 			rd subs, number
 		pre 
@@ -200,44 +200,49 @@ begin
 			status = status~ ++ {s |-> <speech>}
 end
 
-/*
+
 process ExchangeProc = lSUBS: set of SUBS @ begin -- there's not type "finite set of", and there's not way of putting an invariant at this point
-	state Exchange 
+	state ex : Exchange 
+	
 	actions
 		Exch = 
 				call?s:(s in set subs)?t:(t in set subs) ->
 					(if s in set free(status,number,subs) then callok -> Call(s,t)
-					else callerror -> SKIP); Exch
+					else callerror -> Skip); Exch
+	
 				[]
-				clear?s(s in set subs) ->
-					(if s in set dom(status) -> clearok -> 
+				clear?s:(s in set subs) ->
+					(if s in set dom(status) then clearok -> 
 						(dcl t: SUBS @ t := number(s); Clear(s,t))
-					else clearerror -> SKIP); Exch
+					else clearerror -> Skip); Exch
+		
 				[]
 				suspend?t:(t in set subs)->
-					(if t in set suspendable(status,number) -> suspendok ->
+					(if t in set suspendable(status,number) then suspendok ->
 						(dcl s: SUBS @ s := number(t); Suspend(s,t))
-					else suspenderror -> SKIP); Exch
+					else suspenderror -> Skip); Exch
 				[]
 				connectfree?s:(s in set (connectable(status,number) union free(status,number,subs))) ->
 					(dcl t: SUBS @ t:=number(s); ConnectFree(s,t)); Exch
 				[]
+/*
 				connectbusy?s:(s in set (connectable(status,number) \ free(status,number,subs))) ->
 					(dcl t: SUBS @ t:=number(s); ConnectBusy(s,t)); Exch
 				[]
+*/
 				answer?t:(t in set subs) ->
-					(if t in ringing(status,number) then answerok ->
+					(if t in set ringing(status,number) then answerok ->
 						(dcl s: SUBS @ s:=number(t); Answer(s,t))
-					else answererror -> SKIP); Exch
+					else answererror -> Skip); Exch
 				[]
 				unsuspend?t:(t in set subs) ->
-					(if t in set suspended(status,number) -> unsuspendok ->
+					(if t in set suspended(status,number) then unsuspendok ->
 						(dcl s: SUBS @ s:=number(t); Unsuspend(s,t))
-					else unsuspenderror -> SKIP); Exch
+					else unsuspenderror -> Skip); Exch
 		
 		@ init -> InitExchange; Exch
 end		
-*/
+
 
 class Node =
 begin

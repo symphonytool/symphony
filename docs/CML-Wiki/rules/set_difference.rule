@@ -1,0 +1,11 @@
+== set difference ==
+;[[set difference]] <nowiki>:=</nowiki> 
+:'''\mybackslash'''
+
+<pre>
+\RuleDef{set difference}{
+\Literal{\mybackslash}
+}
+</pre>
+
+[[Category:Rule]]

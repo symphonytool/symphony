@@ -1,0 +1,34 @@
+== chanset expression ==
+;[[chanset expression]] <nowiki>:=</nowiki> 
+:[[identifier]]
+:| '''\mylcurly''' <nowiki>,</nowiki> <nowiki>[</nowiki>{[[identifier]]}<nowiki>]</nowiki> <nowiki>,</nowiki> '''\myrcurly'''
+:| '''\mylcurly|''' <nowiki>,</nowiki> <nowiki>[</nowiki>{[[identifier]]}<nowiki>]</nowiki> <nowiki>,</nowiki> '''|\myrcurly'''
+:| [[chanset expression]] <nowiki>,</nowiki> '''union''' <nowiki>,</nowiki> [[chanset    expression]]
+:| [[chanset expression]] <nowiki>,</nowiki> '''inter''' <nowiki>,</nowiki> [[chanset    expression]]
+:| [[chanset expression]] <nowiki>,</nowiki> '''\mybackslash''' <nowiki>,</nowiki> [[chanset expression]]
+:| '''\mylcurly |''' <nowiki>,</nowiki> [[identifier]] <nowiki>,</nowiki> {'''.''' <nowiki>,</nowiki> [[expression]]} <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[bind list]] <nowiki>,</nowiki> <nowiki>[</nowiki>'''@''' <nowiki>,</nowiki> [[expression]]<nowiki>]</nowiki> <nowiki>,</nowiki> '''|\myrcurly'''
+
+<pre>
+\RuleDef{chanset expression}{
+\RuleRef{identifier}
+\Alt\ \Literal{\mylcurly}, 
+\Optional{
+\Sequence{\RuleRef{identifier}}
+}, \Literal{\myrcurly}
+\Alt\ \Literal{\mylcurly|}, 
+\Optional{
+\Sequence{\RuleRef{identifier}}
+}, \Literal{|\myrcurly}
+\Alt\ \RuleRef{chanset expression}, \Literal{union}, \RuleRef{chanset
+    expression}
+\Alt\ \RuleRef{chanset expression}, \Literal{inter}, \RuleRef{chanset
+    expression}
+\Alt\ \RuleRef{chanset expression}, \Literal{\mybackslash}, \RuleRef{chanset expression}
+\Alt\ \Literal{\mylcurly |}, \RuleRef{identifier}, \Sequence{\Literal{.}, \RuleRef{expression}}, \Literal{|}, \RuleRef{bind list}, 
+\Optional{
+\Literal{@}, \RuleRef{expression}
+}, \Literal{|\myrcurly}
+}
+</pre>
+
+[[Category:Rule]]

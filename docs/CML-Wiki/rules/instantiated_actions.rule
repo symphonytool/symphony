@@ -1,0 +1,13 @@
+== instantiated actions ==
+;[[instantiated actions]] <nowiki>:=</nowiki> 
+:'''(''' <nowiki>,</nowiki> [[declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[action]] <nowiki>,</nowiki> ''')''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> {[[expression]]} <nowiki>,</nowiki> ''')'''
+:| '''(''' <nowiki>,</nowiki> [[parametrised actions]] <nowiki>,</nowiki> ''')''' <nowiki>,</nowiki> '''(''' <nowiki>,</nowiki> {[[expression]]} <nowiki>,</nowiki> ''')'''
+
+<pre>
+\RuleDef{instantiated actions}{
+\Literal{(}, \RuleRef{declaration}, \Literal{@}, \RuleRef{action}, \Literal{)}, \Literal{(}, \Sequence{\RuleRef{expression}}, \Literal{)}
+\Alt\ \Literal{(}, \RuleRef{parametrised actions}, \Literal{)}, \Literal{(}, \Sequence{\RuleRef{expression}}, \Literal{)}
+}
+</pre>
+
+[[Category:Rule]]

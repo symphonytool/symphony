@@ -1,0 +1,13 @@
+== multiple bind ==
+;[[multiple bind]] <nowiki>:=</nowiki> 
+:[[multiple set bind]]
+:| [[multiple type bind]]
+
+<pre>
+\RuleDef{multiple bind}{
+\RuleRef{multiple set bind}
+\Alt\ \RuleRef{multiple type bind}
+}
+</pre>
+
+[[Category:Rule]]

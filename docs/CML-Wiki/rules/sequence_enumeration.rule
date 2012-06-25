@@ -1,0 +1,14 @@
+== sequence enumeration ==
+;[[sequence enumeration]] <nowiki>:=</nowiki> 
+:'''[''' <nowiki>,</nowiki> <nowiki>[</nowiki>[[expression list]]<nowiki>]</nowiki> <nowiki>,</nowiki> ''']'''
+
+<pre>
+\RuleDef{sequence enumeration}{
+\Literal{[}, 
+\Optional{
+\RuleRef{expression list}
+}, \Literal{]}
+}
+</pre>
+
+[[Category:Rule]]

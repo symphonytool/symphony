@@ -1,0 +1,35 @@
+== control statements ==
+;[[control statements]] <nowiki>:=</nowiki> 
+:[[non-deterministic if statement]]
+:| [[if statement]]
+:| [[cases statement]]
+:| [[general assign statement]]
+:| [[call statement]]
+:| [[specification statement]]
+:| [[return statement]]
+:| [[new statement]]
+:| [[non-deterministic do statement]]
+:| [[sequence for loop]]
+:| [[set for loop]]
+:| [[index for loop]]
+:| [[while loop]]
+
+<pre>
+\RuleDef{control statements}{
+\RuleRef{non-deterministic if statement}
+\Alt\ \RuleRef{if statement}
+\Alt\ \RuleRef{cases statement}
+\Alt\ \RuleRef{general assign statement}
+\Alt\ \RuleRef{call statement}
+\Alt\ \RuleRef{specification statement}
+\Alt\ \RuleRef{return statement}
+\Alt\ \RuleRef{new statement}
+\Alt\ \RuleRef{non-deterministic do statement}
+\Alt\ \RuleRef{sequence for loop}
+\Alt\ \RuleRef{set for loop}
+\Alt\ \RuleRef{index for loop}
+\Alt\ \RuleRef{while loop}
+}
+</pre>
+
+[[Category:Rule]]

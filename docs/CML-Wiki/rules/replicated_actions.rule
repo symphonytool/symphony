@@ -1,0 +1,25 @@
+== replicated actions ==
+;[[replicated actions]] <nowiki>:=</nowiki> 
+:''';''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[action]]
+:| '''[]''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[action]]
+:| '''|\mytilde|''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[action]]
+:| '''[||''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> '''||]''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> [[action]]
+:| '''|||''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> ''']''' <nowiki>,</nowiki> [[action]]
+:| '''[|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> '''|]''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> ''']''' <nowiki>,</nowiki> [[action]]
+:| '''||''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> '''|''' <nowiki>,</nowiki> [[chanset expression]] <nowiki>,</nowiki> ''']''' <nowiki>,</nowiki> [[action]]
+:| '''||''' <nowiki>,</nowiki> [[replication declaration]] <nowiki>,</nowiki> '''@''' <nowiki>,</nowiki> '''[''' <nowiki>,</nowiki> [[nameset expression]] <nowiki>,</nowiki> ''']''' <nowiki>,</nowiki> [[action]]
+
+<pre>
+\RuleDef{replicated actions}{
+\Literal{;}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{action}
+\Alt\ \Literal{[]}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{action}
+\Alt\ \Literal{|\mytilde|}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{action}
+\Alt\ \Literal{[||}, \RuleRef{nameset expression}, \Literal{||]}, \RuleRef{replication declaration}, \Literal{@}, \RuleRef{action}
+\Alt\ \Literal{|||}, \RuleRef{replication declaration}, \Literal{@}, \Literal{[}, \RuleRef{nameset expression}, \Literal{]}, \RuleRef{action}
+\Alt\ \Literal{[|}, \RuleRef{chanset expression}, \Literal{|]}, \RuleRef{replication declaration}, \Literal{@}, \Literal{[}, \RuleRef{nameset expression}, \Literal{]}, \RuleRef{action}
+\Alt\ \Literal{||}, \RuleRef{replication declaration}, \Literal{@}, \Literal{[}, \RuleRef{nameset expression}, \Literal{|}, \RuleRef{chanset expression}, \Literal{]}, \RuleRef{action}
+\Alt\ \Literal{||}, \RuleRef{replication declaration}, \Literal{@}, \Literal{[}, \RuleRef{nameset expression}, \Literal{]}, \RuleRef{action}
+}
+</pre>
+
+[[Category:Rule]]
