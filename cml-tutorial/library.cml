@@ -53,34 +53,22 @@ books = {mk_token(vdmbook) |-> vdmbook, mk_token(cspbook) |-> cspbook};
 functions
 
 ExeBorrow: Borrow * Library -> Library
-ExeBorrow(b,l) ==
-	mk_Library(l.books,l.users,l.borrowed++{u |-> BorrowCopy(b.user,b.copy,b.borrowed)})
-pre b.copy in set dom b.books and
-	b.user in set dom b.users and
-	b.copy not in set dunion rng l.borrowed
---ExeBorrow(mk_Borrow(c,u), mk_Library(bs,us,bor)) ==
---  mk_Library(bs,us,bor ++ {u |-> BorrowCopy(u,c,bor)})
---pre c in set dom bs and
---    u in set dom us and
---    c not in set dunion rng bor
-;
-
+ExeBorrow(mk_Borrow(c,u), mk_Library(bs,us,bor)) ==
+  mk_Library(bs,us,bor ++ {u |-> BorrowCopy(u,c,bor)})
+pre c in set dom bs and
+    u in set dom us and
+    c not in set dunion rng bor;
     
 BorrowCopy: UserId * BookId * BorrowMap -> set of BookId
 BorrowCopy(u,c,bor) ==
   if u in set dom bor
   then bor(u) union {c}
   else {c};	
-  
-  
+   
 ExeReturn: Return * Library -> Library
-ExeReturn(r, l) ==
-  mk_Library(l.books,l.users,RemoveCopy(r.copy,l.borrowed))
-pre r.copy in set dom l.books
---ExeReturn(mk_Return(c), mk_Library(bs,us,bor)) ==
---  mk_Library(bs,us,RemoveCopy(c,bor))
---pre c in set dom bs
-;
+ExeReturn(mk_Return(c), mk_Library(bs,us,bor)) ==
+  mk_Library(bs,us,RemoveCopy(c,bor))
+pre c in set dom bs;
 
 RemoveCopy: BookId * BorrowMap -> BorrowMap
 RemoveCopy(c,bor) ==
@@ -117,23 +105,19 @@ process LibraryProcess = begin
 	
 	operations
 		Init(bs: map BookId to Book, us: map UserId to User)
-		post library = mk_Library(bs,us,{|->});
-		
-		Assign(l: Library)
-		frame wr library
-		post library = l
+		post library = mk_Library(bs,us,{|->})
 		
 	actions
 		Act = (
-			borrow?b:pre_ExeBorrow(b,library) -> Assign(ExeBorrow(b,library))
+			borrow?b:pre_ExeBorrow(b,library) -> library := ExeBorrow(b,library)
 			[]
 			renew?r:pre_ExeReturn(r,library) -> 
-				Assign(ExeReturn(r,library));
-				Assign(ExeBorrow(r,library))
+				library := ExeReturn(r,library);
+				library := ExeBorrow(r,library)
 			[]
-			retBook?r:pre_ExeReturn(r,library) -> Assign(ExeReturn(r,library))
+			retBook?r:pre_ExeReturn(r,library) -> library := ExeReturn(r,library)
 			[]
-			find?f:pre_ExeFind(f,library) -> Assign(ExeFind(f,library))
+			find?f:pre_ExeFind(f,library) -> library := ExeFind(f,library)
 			[]
 			loans?u:(u in set dom(GetBorrowed(library)))!(card(ApplyBorrowed(library,u))) -> SKIP 
 		); Act
@@ -150,30 +134,16 @@ process Scenario1 = i: UserId @ begin
 		books: set of BookId;
 		id: UserId;
 		inv card(books) < 5
-	
-	functions
-		MkBorrow: BookId*UserId -> Borrow
-		MkBorrow(b,u) == mk_Borrow(b,u);
-		
-		MkReturn: BookId -> Return
-		MkReturn(b) == mk_Return(b);
-		
-		diff: (set of BookId) * BookId -> set of BookId
-		diff(bs,b) == bd\{b}
 
 	operations
 		Init()
 		frame wr id, books
-		post id = i and books = {};
-		
-		Assign(b: set of BookId)
-		frame wr books
-		post books = b
+		post id = i and books = {}
 	
-	@ initUser?u -> Init(u); borrow!MkBorrow(book1,id) -> SKIP;
-			Assign(books union {book1});
-			borrow!MkBorrow(book2,id) -> Assign(books union {book2});
-			retBook!MkReturn(book1) -> Assign(diff(books, {book1}));
+	@ initUser?u -> Init(u); borrow!mk_Borrow(book1,id) -> SKIP;
+			books := books union {book1};
+			borrow!mk_Borrow(book2,id) -> books := books union {book2};
+			retBook!mk_Return(book1) -> books := books \ {book1};
 			loans!id?s -> if s = books then success -> STOP else error -> STOP
 end
 
@@ -183,27 +153,13 @@ process Scenario2 = i: UserId @ begin
 		id: UserId;
 		inv card(books) < 5
 		
-	functions
-		MkBorrow: BookId*UserId -> Borrow
-		MkBorrow(b,u) == mk_Borrow(b,u);
-		
-		MkReturn: BookId -> Return
-		MkReturn(b) == mk_Return(b);
-		
-		diff: (set of BookId) * BookId -> set of BookId
-		diff(bs,b) == bd\{b}
-
 	operations
 		Init()
 		frame wr id, books
-		post id = i and books = {};
-		
-		Assign(b: set of BookId)
-		frame wr books
-		post books = b
+		post id = i and books = {}
 			
-	@ initUser?u -> Init(u); borrow!MkBorrow(book1,id) -> Assign(books union {book1});
-			retBook!MkReturn(book2) -> Assign(diff(books,{book2})); STOP
+	@ initUser?u -> Init(u); borrow!mk_Borrow(book1,id) -> books := books union {book1};
+			retBook!mk_Return(book2) -> books := books \ {book2}; STOP
 end
 
 -- empty chanset is not working ({||})
