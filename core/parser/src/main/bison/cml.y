@@ -4817,7 +4817,10 @@ matchValue :
     else
       throw new RuntimeException("Unhandled expression type in pattern. ("+exp.getClass()+")"); // TODO RWL
   }
-/* | LPAREN expression RPAREN */
+| LPAREN expression RPAREN //TODO
+{
+    
+}
   ;
 
 /* FIXME not sure if if this is a minimum of one pattern or two; if the latter */
