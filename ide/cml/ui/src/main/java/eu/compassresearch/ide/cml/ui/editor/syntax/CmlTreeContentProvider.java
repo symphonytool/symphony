@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.cml.ui.editor.syntax;
 
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,13 +16,10 @@ import org.overture.ast.declarations.AValueDeclaration;
 import org.overture.ast.declarations.PDeclaration;
 import org.overture.ast.definitions.AActionDefinition;
 import org.overture.ast.definitions.AClassbodyDefinition;
-import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SFunctionDefinition;
 import org.overture.ast.definitions.SOperationDefinition;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.node.INode;
-import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.program.ASourcefileSourcefile;
 
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
