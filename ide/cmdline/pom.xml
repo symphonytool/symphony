@@ -68,11 +68,11 @@
     <!-- </dependency> -->
 
     <!-- Div Warn Exp Analysis -->
-    <!-- <dependency> -->
-    <!--   <groupId>eu.compassresearch.examples</groupId> -->
-    <!--   <artifactId>divwarnanalysis</artifactId> -->
-    <!--   <version>${project.version}</version> -->
-    <!-- </dependency> -->
+    <dependency>
+      <groupId>eu.compassresearch.examples</groupId>
+      <artifactId>divwarnanalysis</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     
 
   </dependencies>

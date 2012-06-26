@@ -25,7 +25,7 @@ import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 // import eu.compassresearch.core.typechecker.CmlTypeChecker; 
 // import eu.compassresearch.core.typechecker.TypeCheckInfo;
-// import eu.compassresearch.examples.DivWarnAnalysis;
+ import eu.compassresearch.examples.DivWarnAnalysis;
 import org.overture.ast.program.ASourcefileSourcefile;
 import java.util.LinkedList;
 import java.util.List;
@@ -424,19 +424,19 @@ public class CheckCml {
 		writeGraphResult(dga, Switch.DOTG.getValue());
 	    }
 
-	// Example Analysis DivWarnAnalysis
-	// if (input.isSwitchOn(Switch.DWA))
-	//     {
-	// 	final DivWarnAnalysis dwa = new DivWarnAnalysis();
-	// 	AnalysisRunAdaptor r = new AnalysisRunAdaptor(dwa) {
-	// 		public void apply(INode root) { root.apply( dwa ); }
-	// 	    };
-	// 	runAnalysis(input, r, sources);
-	// 	for(String s : dwa.getWarnings())
-	// 	    {
-	// 		System.out.println("\t"+s);
-	// 	    }
-	//     }
+	//Example Analysis DivWarnAnalysis
+	if (input.isSwitchOn(Switch.DWA))
+	    {
+		final DivWarnAnalysis dwa = new DivWarnAnalysis();
+		AnalysisRunAdaptor r = new AnalysisRunAdaptor(dwa) {
+			public void apply(INode root) { root.apply( dwa ); }
+		    };
+		runAnalysis(input, r, sources);
+		for(String s : dwa.getWarnings())
+		    {
+			System.out.println("\t"+s);
+		    }
+	    }
 
 	// Type checking
 	// if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch

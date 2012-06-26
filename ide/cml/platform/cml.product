@@ -29,9 +29,5 @@
    <plugins>
    </plugins>
 
-   <features>
-      <feature id="eu.compassresearch.features.rcp" version="0.3.0.qualifier"/>
-   </features>
-
 
 </product>

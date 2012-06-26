@@ -32,7 +32,7 @@ import org.overture.ast.node.INode;
 import org.overture.ast.program.ASourcefileSourcefile;
 import org.overture.ide.core.parser.AbstractParserParticipant;
 import org.overture.ide.core.resources.IVdmSourceUnit;
-import org.overture.parser.messages.VDMError;
+//import org.overture.parser.messages.VDMError;
 
 //import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.lexer.ParserError;

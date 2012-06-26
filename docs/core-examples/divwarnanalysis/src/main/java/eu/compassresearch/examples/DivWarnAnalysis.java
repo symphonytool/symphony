@@ -17,8 +17,7 @@ package eu.compassresearch.examples;
  */
 import org.overture.ast.analysis.DepthFirstAnalysisAdaptor;
 import org.overture.ast.expressions.ADivideNumericBinaryExp;
-import org.overturetool.vdmj.lex.LexLocation;
-
+import org.overture.ast.lex.LexLocation;
 /**
  * A bit of java 
  */

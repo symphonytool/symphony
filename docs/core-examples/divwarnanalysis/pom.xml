@@ -22,11 +22,11 @@
     </dependency>
 
     <!-- Overture VDMJ Reuse -->
-    <dependency>
-      <groupId>org.overturetool.core</groupId>
-      <artifactId>vdmj</artifactId>
-      <version>${overture.version}</version>
-    </dependency>
+    <!-- <dependency> -->
+    <!--   <groupId>org.overturetool.core</groupId> -->
+    <!--   <artifactId>vdmj</artifactId> -->
+    <!--   <version>${overture.version}</version> -->
+    <!-- </dependency> -->
 
     <!-- Overture AST Root reuse -->
     <dependency>
@@ -43,11 +43,11 @@
     </dependency>
 
     <!-- CML Type Checker -->
-    <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>typechecker</artifactId>
-      <version>${project.version}</version>     
-    </dependency>
+    <!-- <dependency> -->
+    <!--   <groupId>eu.compassresearch.core</groupId> -->
+    <!--   <artifactId>typechecker</artifactId> -->
+    <!--   <version>${project.version}</version>      -->
+    <!-- </dependency> -->
     
   </dependencies>
 
