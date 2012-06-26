@@ -18,6 +18,7 @@
     <module>tools</module>
     <module>core</module>
     <module>ide</module>
+    <module>docs/core-examples</module>
   </modules>
 
   <properties>
