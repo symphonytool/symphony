@@ -27,18 +27,6 @@
     </dependency>
 
     <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>parser</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>typechecker</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>eu.compassresearch.core.analysis</groupId>
       <artifactId>theoremprover</artifactId>
       <version>${project.version}</version>
