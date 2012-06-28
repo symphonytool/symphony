@@ -3,14 +3,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>eu.compassresearch.core</groupId>
-    <artifactId>core</artifactId>
+    <groupId>eu.compassresearch.core.analysis</groupId>
+    <artifactId>analysis</artifactId>
     <version>0.0.1<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>refinementtool</artifactId>
-  <name>COMPASS CML Refinement Tool</name>
+  <artifactId>pog</artifactId>
+  <name>COMPASS CML Proof Obligation Generator</name>
 
   <dependencies>
 
@@ -18,12 +18,6 @@
       <groupId>eu.compassresearch.core</groupId>
       <artifactId>ast</artifactId>
       <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.overturetool.core</groupId>
-      <artifactId>vdmj</artifactId>
-      <version>${overture.version}</version>
     </dependency>
 
     <dependency>
@@ -43,33 +37,8 @@
       <artifactId>typechecker</artifactId>
       <version>${project.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>theoremprover</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
     
   </dependencies>
 
-  <build>
-    <plugins>
-      <!-- 
-	   Maving automatically looks in src/main/java and compiles
-	   java file in the sub-directory. Below source and target
-	   versions for the project are set.
-      -->
-      <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.5.1</version>
-        <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
 
