@@ -25,6 +25,7 @@ import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 // import eu.compassresearch.core.typechecker.CmlTypeChecker; 
 // import eu.compassresearch.core.typechecker.TypeCheckInfo;
+import eu.compassresearch.core.analysis.pog.ProofObligationGenerator;
  import eu.compassresearch.examples.DivWarnAnalysis;
 import org.overture.ast.program.ASourcefileSourcefile;
 import java.util.LinkedList;
@@ -110,6 +111,7 @@ public class CheckCml {
 	    EMPTY("empty", "Empty Analysis, run the empty analysis (good for debugging).", false),
 	    DOTG("dotg", "Dot Graph, -dotg=<out> write ast dot graph to file <out>.", true),
 	    DWA("dwa", "Example, the Div Warn Analysis example", false),
+	    POG("pog", "Proof Obligation Generator, the proof obligation generator", false),
 	    INTER("i", "Interactive mode", false)
 	    ;
 
@@ -257,7 +259,7 @@ public class CheckCml {
     }
 
 
-    /*************************************************************
+/*************************************************************
      *
      * Analysis
      *
@@ -437,6 +439,30 @@ public class CheckCml {
 			System.out.println("\t"+s);
 		    }
 	    }
+	        
+	//POG Analysis 
+	if (input.isSwitchOn(Switch.POG))
+	{
+		//define pog object
+		final ProofObligationGenerator pog = new ProofObligationGenerator();
+		
+		//create analysis run adaptor object of type AnalysisRunAdaptor, supplying pog
+		//object.
+		AnalysisRunAdaptor r = new AnalysisRunAdaptor(pog) {
+				public void apply(INode root) 
+				{ 
+					root.apply( pog ); 
+				}
+		    };
+		    
+		//invoke runAnalysis method, giving switch input, run adaptor, and source files
+		runAnalysis(input, r, sources);
+		//output analysis results
+		for(String s : pog.getWarnings())
+		{
+			System.out.println("\t"+s);
+		}
+	}
 
 	// Type checking
 	// if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
