@@ -104,17 +104,17 @@ process Airline =
 		
 	actions
 		AIRLINE = 
-			(query?mk_(qo, qd, qda, qs) ->  (dcl r : FlightDb @ r := *Query(qo, qd, qda, qs); queryResult!r -> AIRLINE))
+			(query?mk_(qo, qd, qda, qs) ->  (dcl r : FlightDb @ r := Query(qo, qd, qda, qs); queryResult!r -> AIRLINE))
 			[]
-			(reserve?mk_(fId, qs) -> (: pre-Reserve(fId, qs, fDb) & (dcl r : BookingId @ r:= *Reserve(fId, qs); reserveResult!r -> AIRLINE)))
+			(reserve?mk_(fId, qs) -> (: pre-Reserve(fId, qs, fDb) & (dcl r : BookingId @ r:= Reserve(fId, qs); reserveResult!r -> AIRLINE)))
 						    [] 
 						    (: not pre-Reserve(fId,qs,fDb) & (failPreReserve -> AIRLINE))
 			[]
-			(confirm?mk_(fId, bId, p) -> (: pre-Confirm(fId,bId,p,bDb) & (dcl r : Bool @ r := *Confirm(fId, bId, p);confirmResult!r -> AIRLINE)))
+			(confirm?mk_(fId, bId, p) -> (: pre-Confirm(fId,bId,p,bDb) & (dcl r : Bool @ r := Confirm(fId, bId, p);confirmResult!r -> AIRLINE)))
 									 []
 									 (: not pre-Confirm(fId,bId,p,bDb) & (failPreConfirm -> AIRLINE))
    @
-		init -> *Init(); AIRLINE
+		init -> Init(); AIRLINE
 		
 end 
 

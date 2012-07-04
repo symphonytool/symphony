@@ -614,18 +614,17 @@ process :
 				   left, 
 				   right);
 }
-// | process CSP_LSQUARE expression CSP_GT process //TODO this gives conflicts!
-// {
-//     PProcess left = (PProcess)$1;
-//     PProcess right = (PProcess)$5;
-//     LexLocation location = combineLexLocation(left.getLocation(),
-// 					      right.getLocation());
-//     $$ = new ATimeoutProcess(location, 
-// 			     left,
-// 			     (PExp)$3,
-// 			     right);
-// }
-
+/* | process CSP_LSQUARE expression BAR GT process //TODO this gives conflicts! */
+/* { */
+/*     PProcess left = (PProcess)$1; */
+/*     PProcess right = (PProcess)$5; */
+/*     LexLocation location = combineLexLocation(left.getLocation(), */
+/* 					      right.getLocation()); */
+/*     $$ = new ATimeoutProcess(location,  */
+/* 			     left, */
+/* 			     (PExp)$3, */
+/* 			     right); */
+/* } */
 | process CSP_BACKSLASH chansetExpr
 {
     PProcess left = (PProcess)$1;
@@ -927,10 +926,11 @@ action
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new AUntimedTimeoutAction(location, left, right);
 }
+//TODO the BAR is not the correct syntax, its there to fix shift/reduce
 | action CSP_LSQUARE expression BAR GT action
 {
     PAction left = (PAction)$1;
-    PAction right = (PAction)$5;
+    PAction right = (PAction)$6;
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new ATimeoutAction(location, left, right, (PExp)$3);
 }
