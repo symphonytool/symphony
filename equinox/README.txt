@@ -38,6 +38,7 @@ LET GET STARTED:
 All right, to start getting this going with "mvn install" the Eclipse
 Equinox OSGi jar must be installed, currently we do that with 
 
+Download: http://www.eclipse.org/downloads/download.php?file=/equinox/drops/R-3.7-201106131736/org.eclipse.osgi_3.7.0.v20110613.jar
 
 mvn install:install-file \
     -Dfile=org.eclipse.osgi_3.7.0.v20110613.jar \
