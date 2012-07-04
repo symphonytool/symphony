@@ -42,163 +42,163 @@ class S {
   static private HashMap<String,Integer> keywords = null;
   
   // initialize the reserved word table as a static constructor
-  static {
-    keywords = new HashMap<String,Integer>();
+  // static {
+  //   keywords = new HashMap<String,Integer>();
     
-    keywords.put("abs", CmlParser.ABS);
-    //keywords.put("all", CmlParser.ALL);
-    //keywords.put("always", CmlParser.ALWAYS);
-    keywords.put("and", CmlParser.AND);
-    keywords.put("atomic", CmlParser.ATOMIC);
-    //keywords.put("async", CmlParser.ASYNC);
-    //keywords.put("be", CmlParser.BE);
-    keywords.put("bool", CmlParser.TBOOL);
-    //keywords.put("by", CmlParser.BY);
-    keywords.put("card", CmlParser.CARD);
-    //    keywords.put("cases", CmlParser.CASES);
-    keywords.put("char", CmlParser.TCHAR);
-    keywords.put("class", CmlParser.CLASS);
-    /*
-    keywords.put("comp", CmlParser.COMP);
-    keywords.put("compose", CmlParser.COMPOSE);
-    keywords.put("conc", CmlParser.CONC);
-    keywords.put("cycles", CmlParser.CYCLES);
-    keywords.put("dcl", CmlParser.DCL);
-    keywords.put("def", CmlParser.DEF);
-    keywords.put("dinter", CmlParser.DINTER);
-    keywords.put("div", CmlParser.ARITHMETIC_INTEGER_DIVISION);
-    keywords.put("do", CmlParser.DO);
-    keywords.put("dom", CmlParser.DOM);
-    keywords.put("dunion", CmlParser.DUNION);
-    keywords.put("duration", CmlParser.DURATION);
-    keywords.put("elems", CmlParser.ELEMS);
-    */
-    keywords.put("else", CmlParser.ELSE);
-    keywords.put("elseif", CmlParser.ELSEIF);
-    keywords.put("end", CmlParser.END);
-    /*
-    keywords.put("error", CmlParser.ERROR);
-    keywords.put("errs", CmlParser.ERRS);
-    keywords.put("exists", CmlParser.EXISTS);
-    keywords.put("exists1", CmlParser.EXISTS1);
-    keywords.put("exit", CmlParser.EXIT);
-    keywords.put("ext", CmlParser.EXT);
-    */
-    //    keywords.put("false", CmlParser.bool_false);
-    /*
-    keywords.put("floor", CmlParser.FLOOR);
-    keywords.put("for", CmlParser.FOR);
-    keywords.put("forall", CmlParser.FORALL);
-    keywords.put("from", CmlParser.FROM);
-    keywords.put("functions", CmlParser.FUNCTIONS);
-    keywords.put("hd", CmlParser.HD);
-    */   
-    keywords.put("if", CmlParser.IF);
+  //   keywords.put("abs", CmlParser.ABS);
+  //   //keywords.put("all", CmlParser.ALL);
+  //   //keywords.put("always", CmlParser.ALWAYS);
+  //   keywords.put("and", CmlParser.AND);
+  //   keywords.put("atomic", CmlParser.ATOMIC);
+  //   //keywords.put("async", CmlParser.ASYNC);
+  //   //keywords.put("be", CmlParser.BE);
+  //   keywords.put("bool", CmlParser.TBOOL);
+  //   //keywords.put("by", CmlParser.BY);
+  //   keywords.put("card", CmlParser.CARD);
+  //   //    keywords.put("cases", CmlParser.CASES);
+  //   keywords.put("char", CmlParser.TCHAR);
+  //   keywords.put("class", CmlParser.CLASS);
+  //   /*
+  //   keywords.put("comp", CmlParser.COMP);
+  //   keywords.put("compose", CmlParser.COMPOSE);
+  //   keywords.put("conc", CmlParser.CONC);
+  //   keywords.put("cycles", CmlParser.CYCLES);
+  //   keywords.put("dcl", CmlParser.DCL);
+  //   keywords.put("def", CmlParser.DEF);
+  //   keywords.put("dinter", CmlParser.DINTER);
+  //   keywords.put("div", CmlParser.ARITHMETIC_INTEGER_DIVISION);
+  //   keywords.put("do", CmlParser.DO);
+  //   keywords.put("dom", CmlParser.DOM);
+  //   keywords.put("dunion", CmlParser.DUNION);
+  //   keywords.put("duration", CmlParser.DURATION);
+  //   keywords.put("elems", CmlParser.ELEMS);
+  //   */
+  //   keywords.put("else", CmlParser.ELSE);
+  //   keywords.put("elseif", CmlParser.ELSEIF);
+  //   keywords.put("end", CmlParser.END);
+  //   /*
+  //   keywords.put("error", CmlParser.ERROR);
+  //   keywords.put("errs", CmlParser.ERRS);
+  //   keywords.put("exists", CmlParser.EXISTS);
+  //   keywords.put("exists1", CmlParser.EXISTS1);
+  //   keywords.put("exit", CmlParser.EXIT);
+  //   keywords.put("ext", CmlParser.EXT);
+  //   */
+  //   //    keywords.put("false", CmlParser.bool_false);
+  //   /*
+  //   keywords.put("floor", CmlParser.FLOOR);
+  //   keywords.put("for", CmlParser.FOR);
+  //   keywords.put("forall", CmlParser.FORALL);
+  //   keywords.put("from", CmlParser.FROM);
+  //   keywords.put("functions", CmlParser.FUNCTIONS);
+  //   keywords.put("hd", CmlParser.HD);
+  //   */   
+  //   keywords.put("if", CmlParser.IF);
    
-    keywords.put("in", CmlParser.IN);
-    /*
-    keywords.put("inds", CmlParser.INDS);
-    keywords.put("inmap", CmlParser.INMAP);
-    keywords.put("instance", CmlParser.INSTANCE);
-    keywords.put("int", CmlParser.INT);
-    keywords.put("inter", CmlParser.SET_INTERSECTION);
-    keywords.put("inv", CmlParser.INV);
-    keywords.put("inverse", CmlParser.INVERSE);
-    keywords.put("iota", CmlParser.IOTA);
-    keywords.put("is", CmlParser.IS);
-    keywords.put("is_", CmlParser.IS_);
-    keywords.put("isofbaseclass", CmlParser.ISOFBASECLASS);
-    keywords.put("isofclass", CmlParser.ISOFCLASS);
-    keywords.put("lambda", CmlParser.LAMBDA);
-    keywords.put("len", CmlParser.LEN);
-    */
-    keywords.put("let", CmlParser.LET);
-    /*
-    keywords.put("map", CmlParser.MAP);
-    keywords.put("merge", CmlParser.DMERGE);
-    keywords.put("mk_", CmlParser.MK_);
-    keywords.put("mod", CmlParser.MOD);
-    keywords.put("mu", CmlParser.MU);
-    keywords.put("munion", CmlParser.MAPUNION);
-    keywords.put("mutex", CmlParser.MUTEX);
-    */
-    keywords.put("nat", CmlParser.TNAT);
-    keywords.put("nat1", CmlParser.TNAT1);
-    /*
-    keywords.put("new", CmlParser.NEW);
-    keywords.put("nil", CmlParser.NIL);
-    keywords.put("not", CmlParser.NOT);
-    keywords.put("of", CmlParser.OF);
-    keywords.put("operations", CmlParser.OPERATIONS);
-    keywords.put("or", CmlParser.OR);
-    keywords.put("others", CmlParser.OTHERS);
-    keywords.put("per", CmlParser.PER);
-    keywords.put("periodic", CmlParser.PERIODIC);
-    keywords.put("post", CmlParser.POST);
-    keywords.put("power", CmlParser.POWER);
-    keywords.put("pre", CmlParser.PRE);
-    keywords.put("pre_", CmlParser.PRECONDAPPLY);
-    */
-    //keywords.put("private", CmlParser.PRIVATE);
-    keywords.put("process", CmlParser.PROCESS);
-    //keywords.put("protected", CmlParser.PROTECTED);
-    keywords.put("psubset", CmlParser.PROPER_SUBSET);
-    //keywords.put("public", CmlParser.PUBLIC);
-    keywords.put("rat", CmlParser.TRAT);
-    /*
-    keywords.put("rd", CmlParser.VDMRD);
-    */
-    keywords.put("real", CmlParser.TREAL);
-    /*
-    keywords.put("rem", CmlParser.REM);
-    keywords.put("responsibility", CmlParser.RESPONSIBILITY);
-    keywords.put("return", CmlParser.RETURN);
-    keywords.put("reverse", CmlParser.REVERSE);
-    keywords.put("rng", CmlParser.RNG);
-    keywords.put("samebaseclass", CmlParser.SAMEBASECLASS);
-    keywords.put("sameclass", CmlParser.SAMECLASS);
-    keywords.put("self", CmlParser.SELF);
-    keywords.put("seq", CmlParser.SEQ);
-    keywords.put("seq1", CmlParser.SEQ1);
-    keywords.put("set", CmlParser.SET);
-    keywords.put("skip", CmlParser.SKIP);
-    keywords.put("specified", CmlParser.SPECIFIED);
-    keywords.put("st", CmlParser.ST);
-    keywords.put("start", CmlParser.START);
-    keywords.put("startlist", CmlParser.STARTLIST);
-    keywords.put("static", CmlParser.STATIC);
-    keywords.put("subclass", CmlParser.SUBCLASS);
-    keywords.put("subset", CmlParser.SUBSET);
-    keywords.put("sync", CmlParser.SYNC);
-    keywords.put("system", CmlParser.SYSTEM);
-    */
-    keywords.put("then", CmlParser.THEN);
-    /*
-    keywords.put("thread", CmlParser.THREAD);
-    keywords.put("threadid", CmlParser.THREADID);
-    keywords.put("time", CmlParser.TIME);
-    keywords.put("tixe", CmlParser.TIXE);
-    keywords.put("tl", CmlParser.TL);
-    keywords.put("to", CmlParser.TO);
-    */
-    keywords.put("token", CmlParser.TTOKEN);
-    /*
-    keywords.put("trap", CmlParser.TRAP);
-    */
-    //    keywords.put("true", CmlParser.bool_true);
-    keywords.put("types", CmlParser.TYPES);
-    //keywords.put("undefined", CmlParser.UNDEFINED);
-    keywords.put("union", CmlParser.UNION);
-    keywords.put("values", CmlParser.VALUES);
-    //keywords.put("variables", CmlParser.INSTANCEVARS);
-    /*
-    keywords.put("while", CmlParser.WHILE);
-    keywords.put("with", CmlParser.WITH);
-    keywords.put("wr", CmlParser.VDMWR);
-    keywords.put("yet", CmlParser.YET);
-    */
+  //   keywords.put("in", CmlParser.IN);
+  //   /*
+  //   keywords.put("inds", CmlParser.INDS);
+  //   keywords.put("inmap", CmlParser.INMAP);
+  //   keywords.put("instance", CmlParser.INSTANCE);
+  //   keywords.put("int", CmlParser.INT);
+  //   keywords.put("inter", CmlParser.SET_INTERSECTION);
+  //   keywords.put("inv", CmlParser.INV);
+  //   keywords.put("inverse", CmlParser.INVERSE);
+  //   keywords.put("iota", CmlParser.IOTA);
+  //   keywords.put("is", CmlParser.IS);
+  //   keywords.put("is_", CmlParser.IS_);
+  //   keywords.put("isofbaseclass", CmlParser.ISOFBASECLASS);
+  //   keywords.put("isofclass", CmlParser.ISOFCLASS);
+  //   keywords.put("lambda", CmlParser.LAMBDA);
+  //   keywords.put("len", CmlParser.LEN);
+  //   */
+  //   keywords.put("let", CmlParser.LET);
+  //   /*
+  //   keywords.put("map", CmlParser.MAP);
+  //   keywords.put("merge", CmlParser.DMERGE);
+  //   keywords.put("mk_", CmlParser.MK_);
+  //   keywords.put("mod", CmlParser.MOD);
+  //   keywords.put("mu", CmlParser.MU);
+  //   keywords.put("munion", CmlParser.MAPUNION);
+  //   keywords.put("mutex", CmlParser.MUTEX);
+  //   */
+  //   keywords.put("nat", CmlParser.TNAT);
+  //   keywords.put("nat1", CmlParser.TNAT1);
+  //   /*
+  //   keywords.put("new", CmlParser.NEW);
+  //   keywords.put("nil", CmlParser.NIL);
+  //   keywords.put("not", CmlParser.NOT);
+  //   keywords.put("of", CmlParser.OF);
+  //   keywords.put("operations", CmlParser.OPERATIONS);
+  //   keywords.put("or", CmlParser.OR);
+  //   keywords.put("others", CmlParser.OTHERS);
+  //   keywords.put("per", CmlParser.PER);
+  //   keywords.put("periodic", CmlParser.PERIODIC);
+  //   keywords.put("post", CmlParser.POST);
+  //   keywords.put("power", CmlParser.POWER);
+  //   keywords.put("pre", CmlParser.PRE);
+  //   keywords.put("pre_", CmlParser.PRECONDAPPLY);
+  //   */
+  //   //keywords.put("private", CmlParser.PRIVATE);
+  //   keywords.put("process", CmlParser.PROCESS);
+  //   //keywords.put("protected", CmlParser.PROTECTED);
+  //   keywords.put("psubset", CmlParser.PROPER_SUBSET);
+  //   //keywords.put("public", CmlParser.PUBLIC);
+  //   keywords.put("rat", CmlParser.TRAT);
+  //   /*
+  //   keywords.put("rd", CmlParser.VDMRD);
+  //   */
+  //   keywords.put("real", CmlParser.TREAL);
+  //   /*
+  //   keywords.put("rem", CmlParser.REM);
+  //   keywords.put("responsibility", CmlParser.RESPONSIBILITY);
+  //   keywords.put("return", CmlParser.RETURN);
+  //   keywords.put("reverse", CmlParser.REVERSE);
+  //   keywords.put("rng", CmlParser.RNG);
+  //   keywords.put("samebaseclass", CmlParser.SAMEBASECLASS);
+  //   keywords.put("sameclass", CmlParser.SAMECLASS);
+  //   keywords.put("self", CmlParser.SELF);
+  //   keywords.put("seq", CmlParser.SEQ);
+  //   keywords.put("seq1", CmlParser.SEQ1);
+  //   keywords.put("set", CmlParser.SET);
+  //   keywords.put("skip", CmlParser.SKIP);
+  //   keywords.put("specified", CmlParser.SPECIFIED);
+  //   keywords.put("st", CmlParser.ST);
+  //   keywords.put("start", CmlParser.START);
+  //   keywords.put("startlist", CmlParser.STARTLIST);
+  //   keywords.put("static", CmlParser.STATIC);
+  //   keywords.put("subclass", CmlParser.SUBCLASS);
+  //   keywords.put("subset", CmlParser.SUBSET);
+  //   keywords.put("sync", CmlParser.SYNC);
+  //   keywords.put("system", CmlParser.SYSTEM);
+  //   */
+  //   keywords.put("then", CmlParser.THEN);
+  //   /*
+  //   keywords.put("thread", CmlParser.THREAD);
+  //   keywords.put("threadid", CmlParser.THREADID);
+  //   keywords.put("time", CmlParser.TIME);
+  //   keywords.put("tixe", CmlParser.TIXE);
+  //   keywords.put("tl", CmlParser.TL);
+  //   keywords.put("to", CmlParser.TO);
+  //   */
+  //   keywords.put("token", CmlParser.TTOKEN);
+  //   /*
+  //   keywords.put("trap", CmlParser.TRAP);
+  //   */
+  //   //    keywords.put("true", CmlParser.bool_true);
+  //   keywords.put("types", CmlParser.TYPES);
+  //   //keywords.put("undefined", CmlParser.UNDEFINED);
+  //   keywords.put("union", CmlParser.UNION);
+  //   keywords.put("values", CmlParser.VALUES);
+  //   //keywords.put("variables", CmlParser.INSTANCEVARS);
+  //   /*
+  //   keywords.put("while", CmlParser.WHILE);
+  //   keywords.put("with", CmlParser.WITH);
+  //   keywords.put("wr", CmlParser.VDMWR);
+  //   keywords.put("yet", CmlParser.YET);
+  //   */
     
-  }
+  // }
 
 
   private CmlLexeme yylvalue;
@@ -222,31 +222,34 @@ class S {
      * @return the semantic value of the last scanned token.  */
   public Object getLVal () { return yylvalue; }
   
-    /**
-     * Entry point for error reporting.  Emits an error
-     * referring to the given location in a user-defined way.
-     *
-     * @param loc The location of the element to which the
-     *                error message is related
-     * @param s The string for the error message.  */
+  /**
+   * Entry point for error reporting.  Emits an error
+   * referring to the given location in a user-defined way.
+   *
+   * @param loc The location of the element to which the
+   *                error message is related
+   * @param s The string for the error message.  */
   public void yyerror (Location loc, String err) { 
-    
-    //    System.err.println("Error : " + err + " at " + loc.begin.toString()); 
-    
+        
       String msg = new String(err);
-	    if (yylvalue != null) {
-	    	CmlLexeme currentToken = (CmlLexeme) yylvalue;
-	    	if (currentToken.getValue().length() > 0) {
-	    		// add position info iff the scanner found a lexem
-	    	    msg += " at (" + currentToken.getStartPos().line + ", " + currentToken.getStartPos().column + ")";
-	    		msg += " after reading token \"" + currentToken.getValue() + "\"";
+      if (yylvalue != null) {
+	  CmlLexeme currentToken = (CmlLexeme) yylvalue;
+	  if (currentToken.getValue().length() > 0) {
+	      // add position info iff the scanner found a lexem
+	      msg += " at (" + currentToken.getStartPos().line + ", " + 
+		  currentToken.getStartPos().column + ")";
+	      msg += " after reading token \"" + currentToken.getValue() + "\"";
 	    		
-	    		parseErrors.add(new ParserError(err+" after reading token \"" + currentToken.getValue() + "\"", 
-							currentToken.getStartPos().line, currentToken.getStartPos().column, yychar,currentToken.getValue().toString()));
-	    	}
-	    }
-		System.out.println(msg);
-		errors++;
+	      parseErrors.add(new ParserError(err+" after reading token \"" + 
+					      currentToken.getValue() + "\"", 
+					      currentToken.getStartPos().line, 
+					      currentToken.getStartPos().column, 
+					      yychar,
+					      currentToken.getValue().toString()));
+	  }
+      }
+      System.out.println(msg);
+      errors++;
     
   }
    
@@ -255,42 +258,34 @@ class S {
   // *** AUXILIARY PRIVATE OPERATIONS ***
   // ************************************
 
-  // helper function for checking reserved words and identifiers
-  private int checkIdentifier(String id) {
+  // // helper function for checking reserved words and identifiers
+  // private int checkIdentifier(String id) {
       
-      int line = yyline + 1;
-      int column = yycolumn;
-      String value = yytext();
-      int startOffset = offset;
-      offset += value.length();
-      try {
-	  if (keywords.containsKey(value)) {
-	      //return new OmlLexem(line, column, new Long(keywords.get(id)), id, IOmlLexem.ILEXEMKEYWORD);
-	      //return new CmlLexeme(line, column,IDENTIFIER, id);
-	    yylvalue = new CmlLexeme(new Position(line,column,startOffset),
-				     new Position(line,column + value.length(),offset),
-				     keywords.get(value),value);
-	      int v = keywords.get(value);				   
-	      return v;
+  //     int line = yyline + 1;
+  //     int column = yycolumn;
+  //     String value = yytext();
+  //     int startOffset = offset;
+  //     offset += value.length();
+  //     try {
+  // 	  if (keywords.containsKey(value)) {
+  // 	      yylvalue = new CmlLexeme(new Position(line,column,startOffset),
+  // 				       new Position(line,column + value.length(),offset),
+  // 				     keywords.get(value),value);
+  // 	      int v = keywords.get(value);				   
+  // 	      return v;
 	      
-	  } else {
-	      //DEBUG String theText = yytext();
-	      //DEBUG System.out.print(theText + " = ");
-	      //DEBUG for (int idx=0; idx< theText.length(); idx++) System.out.format("%04x ", (int) theText.charAt(idx));
-	      //DEBUG System.out.println();
-	      //return new OmlLexem(line, column, new Long(LEX_identifier), id, IOmlLexem.ILEXEMIDENTIFIER);
-	      //return new CmlLexeme(line, column, IDENTIFIER, id);
-	    yylvalue = new CmlLexeme(new Position(line,column,startOffset),
-				     new Position(line,column + value.length(),offset),
-				       CmlParser.IDENTIFIER,value);
-	      return CmlParser.IDENTIFIER;
-	  }
-      }
-      catch (Exception cge) {
-	  cge.printStackTrace();
-	  return -1;
-      }
-  }
+  // 	  } else {
+  // 	    yylvalue = new CmlLexeme(new Position(line,column,startOffset),
+  // 				     new Position(line,column + value.length(),offset),
+  // 				       CmlParser.IDENTIFIER,value);
+  // 	    return CmlParser.IDENTIFIER;
+  // 	  }
+  //     }
+  //     catch (Exception cge) {
+  // 	  cge.printStackTrace();
+  // 	  return -1;
+  //     }
+  // }
   
   // helper function for default token creation
   private int defaultToken()
@@ -318,7 +313,10 @@ class S {
     }
   }
 
-  /* Helper function to return the correct integer for the parser and create the correct Lexeme (semantic) values for the parser and beyond */
+  /* 
+     Helper function to return the correct integer for the parser 
+     and create the correct Lexeme (semantic) values for the parser and beyond 
+  */
   private int createToken(int lex)
   {
     String value = yytext();
@@ -335,14 +333,14 @@ ucode					= [\u0100-\ufff0]
 hexdigit 				= [0-9ABCDEF]|[0-9abcdef] 
 hexquad 				= {hexdigit}{hexdigit}{hexdigit}{hexdigit} 
 hexliteral                              = 0[x X]{hexdigit}+ 
-universalcharactername  = (\\u{hexquad})|(\\U{hexquad}) 
+universalcharactername                  = (\\u{hexquad})|(\\U{hexquad}) 
 letter 					= [A-Za-z]|#[A-Za-z]|{universalcharactername}|{ucode} 
 digit 					= [0-9] 
 /* rtfuniversalcharacter	= \\u{hexquad}[A-Za-z] */
 /* identifierorkeyword		= {letter}([0-9\'_]|{letter})* */
 
-numeral 			= {digit}+ 
-/* realliteral				= [0-9]+(("."[0-9]+)|([Ee]("+"|"-")?[0-9]+)|("."[0-9]+[Ee]("+"|"-")?[0-9]+)) */
+numeral 			        = {digit}+ 
+realliteral				= [0-9]+(("."[0-9]+)|([Ee]("+"|"-")?[0-9]+)|("."[0-9]+[Ee]("+"|"-")?[0-9]+)) 
 
 /* embeddedctrlchar 		= [\000-\037] */
 /* backslashed				= \\c.|\\x..|\\[\\nrabtvef\'\"]|\\[0-3][0-7][0-7] */
@@ -359,7 +357,6 @@ numeral 			= {digit}+
 prime		= \` 
 hook 		= \~ 
 
-//identifier      = [A-Za-z0-9]
 actions         = [Aa][Cc][Tt][Ii][Oo][Nn][Ss]
 begin           = [Bb][Ee][Gg][Ii][Nn]
 channels        = [Cc][Hh][Aa][Nn][Nn][Ee][Ll][Ss]
@@ -374,11 +371,12 @@ process         = [Pp][Rr][Oo][Cc][Ee][Ss][Ss]
 state           = [Ss][Tt][Aa][Tt][Ee]
 types           = [Tt][Yy][Pp][Ee][Ss]
 mk_name         = "mk_"{identifier}
-LineTerminator = \r|\n|\r\n
-InputCharacter = [^\r\n]
-WhiteSpace     = {LineTerminator} | [ \t\f]
+LineTerminator  = \r|\n|\r\n
+InputCharacter  = [^\r\n]
+WhiteSpace      = {LineTerminator} | [ \t\f]
 
-%states CLASS PROCESS STATE TYPES STATE FUNCTIONS OPERATIONS CHANNELS CHANSETS ACTIONS VDM_CASES 
+%states PROCESS STATE STATE CHANNELS CHANSETS VDM_CASES 
+%states VDM CSP
 %xstates COMMENT STRING LCOMMENT
 
 %%
@@ -396,51 +394,43 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 <LCOMMENT>.*                          { offset += yytext().length();}
 <LCOMMENT>\n                          { offset += yytext().length();yybegin(stateStack.pop()); }
 
-<CLASS,PROCESS,TYPES,STATE,FUNCTIONS,OPERATIONS,CHANNELS,CHANSETS,ACTIONS,YYINITIAL> {
-  {actions}                           { yybegin(ACTIONS); return createToken(CmlParser.CSP_ACTIONS); }
+<VDM,CSP,PROCESS,STATE,CHANNELS,CHANSETS,YYINITIAL> {
+  {actions}                           { yybegin(CSP); return createToken(CmlParser.CSP_ACTIONS); }
+  "values"                            { yybegin(VDM); return createToken(CmlParser.VALUES); }
   {channels}                          { yybegin(CHANNELS); return createToken(CmlParser.CHANNELS); }
   {chansets}                          { yybegin(CHANSETS); return createToken(CmlParser.CHANSETS); }
-  {types}                             { yybegin(TYPES); return createToken(CmlParser.TYPES); }
+  {types}                             { yybegin(VDM); return createToken(CmlParser.TYPES); }
   {state}                             { yybegin(STATE); return createToken(CmlParser.STATE); }
-  {functions}                         { yybegin(FUNCTIONS); return createToken(CmlParser.FUNCTIONS); }
-  {operations}                        { yybegin(OPERATIONS); return createToken(CmlParser.OPERATIONS); }
-  {class}                             { stateStack.push(yystate());yybegin(CLASS); return createToken(CmlParser.CLASS); }
-  {process}                           { stateStack.push(yystate());yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
+  {functions}                         { yybegin(VDM); return createToken(CmlParser.FUNCTIONS); }
+  {operations}                        { yybegin(VDM); return createToken(CmlParser.OPERATIONS); }
+  {class}                             { yybegin(VDM); return createToken(CmlParser.CLASS); }
+  {process}                           { yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
 }
 
 //Jump to the action state if "@" occurs
-<TYPES,STATE,FUNCTIONS,OPERATIONS> {
-  "@"                                 { yybegin(ACTIONS); return createToken(CmlParser.AT); }
+<STATE,VDM> {
+  "@"                                 { yybegin(CSP); return createToken(CmlParser.AT); }
  }
 
-<CLASS,PROCESS,VDM_CASES> {
+<PROCESS,VDM_CASES,VDM,CSP> {
   "="                                 { return createToken(CmlParser.EQUALS); }
   {begin}                             { return createToken(CmlParser.BEGIN); }
-  {end}                               { yybegin(stateStack.pop()); return createToken(CmlParser.END); }
+  {end}                               { return createToken(CmlParser.END); }
 }
 
-<TYPES> {
+<VDM> {
   ";"                                 { return createToken(CmlParser.SEMI); }
   ":-"                                { return createToken(CmlParser.VDMTYPENCMP); }
   "::"                                { return createToken(CmlParser.VDMRECORDDEF); }
   "=="                                { return createToken(CmlParser.DEQUALS); }
- }
-
-<FUNCTIONS> {
   "+>"				      { return createToken(CmlParser.VDMPFUNCARROW); }
-  /*"->"				      { return createToken(CmlParser.VDMTFUNCARROW); }*/
+  /*"->"			      { return createToken(CmlParser.VDMTFUNCARROW); }*/
   "->"				      { return createToken(CmlParser.RARROW); }
-}
-
-<OPERATIONS> {
   "==>"				      { return createToken(CmlParser.OPERATIONARROW); }
   "rd"				      { return createToken(CmlParser.VDM_RD); }
   "wr"				      { return createToken(CmlParser.VDM_WR); }
   "frame"			      { return createToken(CmlParser.VDM_FRAME); }
   "return"			      { return createToken(CmlParser.RETURN); }
-}
-
-<FUNCTIONS, OPERATIONS> {
   "post"                              { return createToken(CmlParser.POST); }
   "pre"                               { return createToken(CmlParser.PRE); }
   "measure"                           { return createToken(CmlParser.MEASURE); }
@@ -448,16 +438,12 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "is not yet specified"              { return createToken(CmlParser.VDM_NOTYETSPEC); }
 }
 
-// <CHANNELS> {
-
-// }
-
 <CHANSETS> {
   
   "="                                 { return createToken(CmlParser.EQUALS); }
 }
 
-<ACTIONS,PROCESS,CHANSETS> {
+<CSP,PROCESS,CHANSETS> {
   "{|"				      { return createToken(CmlParser.CHANSET_SETEXP_BEGIN); } //TODO: CHANGE this into something else
   "|}"				      { return createToken(CmlParser.CHANSET_SETEXP_END); } //TODO: CHANGE this into something else
   ";"                                 { return createToken(CmlParser.CSPSEQ); }
@@ -479,7 +465,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "?"				      { return createToken(CmlParser.CSP_CHANNEL_READ); }
   "!"				      { return createToken(CmlParser.CSP_CHANNEL_WRITE); }
   "."				      { return createToken(CmlParser.CSP_CHANNEL_DOT); }
-  "dcl"                               { yybegin(TYPES);return createToken(CmlParser.DCL); }
+  "dcl"                               { yybegin(VDM);return createToken(CmlParser.DCL); }
   "@"                                 { return createToken(CmlParser.AT); }
   "=>"                                { return createToken(CmlParser.CSP_OPS_COM); }
   "Skip"                              { return createToken(CmlParser.CSPSKIP); }
@@ -490,7 +476,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
   "Wait"                              { return createToken(CmlParser.CSPWAIT); }
  }
 
-<CHANNELS,CHANSETS,ACTIONS> {
+<CHANNELS,CHANSETS,CSP> {
   ","				      { return createToken(CmlParser.COMMA); }
   ":"				      { return createToken(CmlParser.COLON); } //TODO: CHANGE this into something else
   ";"				      { return createToken(CmlParser.SEMI); }
@@ -501,11 +487,17 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 
  }
 
-<VDM_CASES,CLASS,TYPES,STATE,FUNCTIONS,OPERATIONS, ACTIONS, CHANSETS,PROCESS, CHANNELS> 
+<VDM_CASES,STATE, CSP, CHANSETS,PROCESS, CHANNELS, VDM> 
 {
   "->"                                { return createToken(CmlParser.RARROW); } 
   "<-"                                { return createToken(CmlParser.LARROW); } 
   //vdm expressions
+  "if"                                { return createToken(CmlParser.IF); } 
+  "else"                                { return createToken(CmlParser.ELSE); } 
+  "elseif"                            { return createToken(CmlParser.ELSEIF); } 
+  "then"                              { return createToken(CmlParser.THEN); } 
+  "let"                               { return createToken(CmlParser.LET); } 
+  "in"                                { return createToken(CmlParser.IN); } 
   "<=>"				      { return createToken(CmlParser.BIMPLY); }
   //"|->"			      { return createToken(CmlParser.BAR_ARROW); }
   "<-:"				      { return createToken(CmlParser.VDM_MAP_DOMAIN_RESTRICT_BY); }
@@ -628,9 +620,8 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 <STRING>"\""                          { offset += yytext().length();yybegin( stateStack.pop() ); return createToken(CmlParser.STRING, S.b.toString()); }
 <STRING>[^\"]                         { S.b.append(yytext()); }
 
-//[:whitespace:]                        { /* match whitespace; do nothing */ }
 {WhiteSpace}                            { offset += yytext().length(); }
-{identifier}                          {  return checkIdentifier(""); /* return createToken(CmlParser.IDENTIFIER); */}
+{identifier}                          { return createToken(CmlParser.IDENTIFIER); }
 {numeral}                             { return createToken(CmlParser.NUMERAL); }
 {hexliteral}                          { return createToken(CmlParser.HEX_LITERAL); }
 // default catch-all production rule is to return the current character
