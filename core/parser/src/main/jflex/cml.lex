@@ -350,13 +350,10 @@ realliteral				= [0-9]+(("."[0-9]+)|([Ee]("+"|"-")?[0-9]+)|("."[0-9]+[Ee]("+"|"-
 
 /* textliteral				= \"([\040-\041\043-\133\135-\176]|{embeddedctrlchar}|{backslashed}|{deletechar}|{highbitchar}|{universalcharactername}|{ucode})*\" */
 
-/* quoteliteral 			= \<{identifierorkeyword}\> */
 
 /* range					= ","({separator}*)"..."({separator}*)"," */
 
-prime		= \` 
 hook 		= \~ 
-
 actions         = [Aa][Cc][Tt][Ii][Oo][Nn][Ss]
 begin           = [Bb][Ee][Gg][Ii][Nn]
 channels        = [Cc][Hh][Aa][Nn][Nn][Ee][Ll][Ss]
@@ -371,11 +368,12 @@ process         = [Pp][Rr][Oo][Cc][Ee][Ss][Ss]
 state           = [Ss][Tt][Aa][Tt][Ee]
 types           = [Tt][Yy][Pp][Ee][Ss]
 mk_name         = "mk_"{identifier}
+quoteliteral 	= \<{identifier}\> 
 LineTerminator  = \r|\n|\r\n
 InputCharacter  = [^\r\n]
 WhiteSpace      = {LineTerminator} | [ \t\f]
 
-%states PROCESS STATE STATE CHANNELS CHANSETS VDM_CASES 
+%states CHANNELS CHANSETS VDM_CASES 
 %states VDM CSP
 %xstates COMMENT STRING LCOMMENT
 
@@ -394,37 +392,33 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 <LCOMMENT>.*                          { offset += yytext().length();}
 <LCOMMENT>\n                          { offset += yytext().length();yybegin(stateStack.pop()); }
 
-<VDM,CSP,PROCESS,STATE,CHANNELS,CHANSETS,YYINITIAL> {
+<VDM,CSP,CHANNELS,CHANSETS,YYINITIAL> {
   {actions}                           { yybegin(CSP); return createToken(CmlParser.CSP_ACTIONS); }
   "values"                            { yybegin(VDM); return createToken(CmlParser.VALUES); }
   {channels}                          { yybegin(CHANNELS); return createToken(CmlParser.CHANNELS); }
   {chansets}                          { yybegin(CHANSETS); return createToken(CmlParser.CHANSETS); }
   {types}                             { yybegin(VDM); return createToken(CmlParser.TYPES); }
-  {state}                             { yybegin(STATE); return createToken(CmlParser.STATE); }
+  {state}                             { yybegin(VDM); return createToken(CmlParser.STATE); }
   {functions}                         { yybegin(VDM); return createToken(CmlParser.FUNCTIONS); }
   {operations}                        { yybegin(VDM); return createToken(CmlParser.OPERATIONS); }
   {class}                             { yybegin(VDM); return createToken(CmlParser.CLASS); }
-  {process}                           { yybegin(PROCESS); return createToken(CmlParser.PROCESS); }
+  {process}                           { yybegin(CSP); return createToken(CmlParser.PROCESS); }
 }
 
-//Jump to the action state if "@" occurs
-<STATE,VDM> {
-  "@"                                 { yybegin(CSP); return createToken(CmlParser.AT); }
- }
-
-<PROCESS,VDM_CASES,VDM,CSP> {
+<VDM_CASES,VDM,CSP> {
   "="                                 { return createToken(CmlParser.EQUALS); }
   {begin}                             { return createToken(CmlParser.BEGIN); }
   {end}                               { return createToken(CmlParser.END); }
 }
 
 <VDM> {
+  //Jump to the action state if "@" occurs
+  "@"                                 { yybegin(CSP); return createToken(CmlParser.AT); }
   ";"                                 { return createToken(CmlParser.SEMI); }
   ":-"                                { return createToken(CmlParser.VDMTYPENCMP); }
   "::"                                { return createToken(CmlParser.VDMRECORDDEF); }
   "=="                                { return createToken(CmlParser.DEQUALS); }
   "+>"				      { return createToken(CmlParser.VDMPFUNCARROW); }
-  /*"->"			      { return createToken(CmlParser.VDMTFUNCARROW); }*/
   "->"				      { return createToken(CmlParser.RARROW); }
   "==>"				      { return createToken(CmlParser.OPERATIONARROW); }
   "rd"				      { return createToken(CmlParser.VDM_RD); }
@@ -438,12 +432,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
   "is not yet specified"              { return createToken(CmlParser.VDM_NOTYETSPEC); }
 }
 
-<CHANSETS> {
-  
-  "="                                 { return createToken(CmlParser.EQUALS); }
-}
-
-<CSP,PROCESS,CHANSETS> {
+<CSP,CHANSETS> {
   "{|"				      { return createToken(CmlParser.CHANSET_SETEXP_BEGIN); } //TODO: CHANGE this into something else
   "|}"				      { return createToken(CmlParser.CHANSET_SETEXP_END); } //TODO: CHANGE this into something else
   ";"                                 { return createToken(CmlParser.CSPSEQ); }
@@ -467,6 +456,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
   "."				      { return createToken(CmlParser.CSP_CHANNEL_DOT); }
   "dcl"                               { yybegin(VDM);return createToken(CmlParser.DCL); }
   "@"                                 { return createToken(CmlParser.AT); }
+  "="                                 { return createToken(CmlParser.EQUALS); }
   "=>"                                { return createToken(CmlParser.CSP_OPS_COM); }
   "Skip"                              { return createToken(CmlParser.CSPSKIP); }
   "Stop"                              { return createToken(CmlParser.CSPSTOP); }
@@ -476,22 +466,17 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
   "Wait"                              { return createToken(CmlParser.CSPWAIT); }
  }
 
-<CHANNELS,CHANSETS,CSP> {
-  ","				      { return createToken(CmlParser.COMMA); }
-  ":"				      { return createToken(CmlParser.COLON); } //TODO: CHANGE this into something else
-  ";"				      { return createToken(CmlParser.SEMI); }
-}
-
 <VDM_CASES> {
   ":"                            { yybegin(stateStack.pop()); return createToken(CmlParser.COLON); }
 
  }
 
-<VDM_CASES,STATE, CSP, CHANSETS,PROCESS, CHANNELS, VDM> 
+<VDM_CASES, CSP, CHANSETS, CHANNELS, VDM> 
 {
   "->"                                { return createToken(CmlParser.RARROW); } 
   "<-"                                { return createToken(CmlParser.LARROW); } 
   //vdm expressions
+  {quoteliteral}                      { return createToken(CmlParser.QUOTE_LITERAL); }
   "if"                                { return createToken(CmlParser.IF); } 
   "else"                                { return createToken(CmlParser.ELSE); } 
   "elseif"                            { return createToken(CmlParser.ELSEIF); } 
@@ -545,9 +530,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
   ":>"				      { return createToken(CmlParser.RNGRES/*MAP_RANGE_RESTRICT_TO*/); }
   "munion"			      { return createToken(CmlParser.MAPMERGE); }
   {hook}			      { return createToken(CmlParser.TILDE /*HOOK*/); }
-  {prime}			      { return createToken(CmlParser.BACKTICK); }
   ","				      { return createToken(CmlParser.COMMA); }
-  "!"				      {  }
   ":"				      { return createToken(CmlParser.COLON); }
   ";"				      { return createToken(CmlParser.SEMI); }
   "="				      { return createToken(CmlParser.EQUALS); }

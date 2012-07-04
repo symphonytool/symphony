@@ -67,31 +67,6 @@
     // *** PRIVATE OPERATIONS ***
     // *************************
 
-    // private ACallCallStatementControlStatementAction convertToAssignCall(PExp exp){
-	
-    // 	ACallCallStatementControlStatementAction retVal = null;
-
-    // 	AApplyExp applyExp = (exp instanceof AApplyExp) ? (AApplyExp) exp : null;
-    // 	if (applyExp != null){
-    // 	    ANameExp nameExp = (applyExp.getRoot()  instanceof ANameExp) ? (ANameExp) applyExp.getRoot() : null;
-    // 	    if (nameExp != null ){
-	    
-    // 		PObjectDesignator designator = null; //TODO
-
-    // 		ACallCallStatementControlStatementAction call = 
-    // 		    new ACallCallStatementControlStatementAction(applyExp.getLocation(), 
-    // 								 designator, 
-    // 								 nameExp.getName().getIdentifier(), 
-    // 								 applyExp.getArgs());
-    // 		// PStateDesignator stateDesignator = null;
-    // 		// retVal = new AAssignmentCallCallStatementControlStatementAction(exp.getLocation(), 
-    // 		// 								    stateDesignator, 
-    // 		// 								    call);
-    // 	    }
-    // 	}
-    // 	return retVal;
-    // }
-
     PStateDesignator convertToStateDesignator(PDesignator designator)
     {
 	PStateDesignator sd = null;
@@ -349,11 +324,11 @@
  *
  */
 
-%token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_FRAME VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS BACKTICK TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN VDMDONTCARE IDENTIFIER
+%token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_FRAME VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN VDMDONTCARE IDENTIFIER
 %token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1 STRING PARAM_VRES PARAM_RES PARAM_VAL
 
 
-%token HEX_LITERAL
+%token HEX_LITERAL QUOTE_LITERAL
 
 %token AMP CSPBARGT CSPLSQUAREBAR DLSQUARE DRSQUARE CSPBARRSQUARE COMMA LARROW CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_OPS_COM CSP_CHANNEL_DOT CSP_SLASH CSP_BACKSLASH CSPLSQUAREGT CSP_LSQUARE CSP_RSQUARE CSP_GT CSP_ENDBY CSP_STARTBY
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
@@ -830,6 +805,18 @@ action
 } 
 ;
 
+statements
+   //| letStatement
+: blockStatement
+{
+    $$ = $1;
+}
+| controlStatements
+{
+  $$ = $1;
+}
+;
+
 action
 : CSPSKIP 
 { 
@@ -981,16 +968,9 @@ action
   //| replicatedAction
 
   //| action LSQUARE identifierList CSPRENAME identifierList RSQUARE
-  
-/*statements*/
-  //| letStatement
-| blockStatement
+| statements
 {
     $$ = $1;
-}
-| controlStatements
-{
-  $$ = $1;
 }
 | IDENTIFIER 
 { 
@@ -1531,17 +1511,6 @@ BEGIN classDefinitionBlock END
 }
 ;
 
-/*classBody 
-: classDefinitionBlock                       
-{ 
-  $$ = (List)$1; 
-}
-|
-{
-  $$ = new Vector<PDefinition>();
-}
-;
-*/
 classDefinitionBlock 
 : classDefinitionBlockAlternative
 {
@@ -2083,12 +2052,12 @@ type BAR typeUnionList
 }
 
 quoteLiteral:
-LT IDENTIFIER GT
+QUOTE_LITERAL
 {
-  CmlLexeme id = (CmlLexeme)$2;
-  LexLocation loc = extractLexLocation ((CmlLexeme)$1,
-					(CmlLexeme)$3);
-  $$ = new LexQuoteToken(id.getValue(),loc);
+    CmlLexeme id = (CmlLexeme)$1;
+    LexLocation loc = extractLexLocation((CmlLexeme)$1);
+    String value = id.getValue();
+    $$ = new LexQuoteToken(value.substring(1,value.length()-2),loc);
 }
 ;
 
@@ -2651,7 +2620,7 @@ operationDef
 ;
 
  explicitOperationDef
- : qualifier IDENTIFIER COLON operationType IDENTIFIER parameterList DEQUALS operationBody externals_opt preExpr_opt postExpr_opt
+ : qualifier IDENTIFIER COLON operationType IDENTIFIER parameterList DEQUALS operationBody preExpr_opt postExpr_opt
  {
    LexLocation loc = extractLexLocation ( (CmlLexeme)$2 );
    AExplicitOperationOperationDefinition res = new AExplicitOperationOperationDefinition();
@@ -2706,7 +2675,7 @@ operationType :
   ;
 
 operationBody :
-action 
+statements 
 {
     $$ = $1;
 }
