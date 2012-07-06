@@ -25,7 +25,7 @@ import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 // import eu.compassresearch.core.typechecker.CmlTypeChecker; 
 // import eu.compassresearch.core.typechecker.TypeCheckInfo;
-import eu.compassresearch.core.analysis.pog.ProofObligationGenerator;
+import eu.compassresearch.core.analysis.proofobligationgenerator.ProofObligationGenerator;
  import eu.compassresearch.examples.DivWarnAnalysis;
 import org.overture.ast.program.ASourcefileSourcefile;
 import java.util.LinkedList;
@@ -446,22 +446,20 @@ public class CheckCml {
 		//define pog object
 		final ProofObligationGenerator pog = new ProofObligationGenerator();
 		
+		System.out.println(pog.getAnalysisName());
+		
 		//create analysis run adaptor object of type AnalysisRunAdaptor, supplying pog
-		//object.
-		AnalysisRunAdaptor r = new AnalysisRunAdaptor(pog) {
-				public void apply(INode root) 
-				{ 
-					root.apply( pog ); 
-				}
-		    };
-		    
-		//invoke runAnalysis method, giving switch input, run adaptor, and source files
-		runAnalysis(input, r, sources);
-		//output analysis results
-		for(String s : pog.getWarnings())
-		{
-			System.out.println("\t"+s);
-		}
+ 		//object.
+ 		AnalysisRunAdaptor r = new AnalysisRunAdaptor(pog) {
+ 				public void apply(INode root) 
+ 				{ 
+ 					root.apply( pog ); 
+ 				}
+ 		    };
+ 		    
+ 		//invoke runAnalysis method, giving switch input, run adaptor, and source files
+ 		runAnalysis(input, r, sources);
+ 		pog.getResults();
 	}
 
 	// Type checking

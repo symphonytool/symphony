@@ -8,14 +8,15 @@
  *
  */
 
-package eu.compassresearch.core.analysis.pog;
+package eu.compassresearch.core.analysis.proofobligationgenerator;
 
 /**
  * Core stuff needed in this simple analysis.
  *
  */
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.analysis.DepthFirstAnalysisAdaptor;
 import org.overture.ast.expressions.ADivideNumericBinaryExp;
+import org.overture.ast.declarations.ATypeDeclaration;
 import org.overture.ast.lex.LexLocation;
 /**
  * Java libraries 
@@ -23,13 +24,12 @@ import org.overture.ast.lex.LexLocation;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ProofObligationGenerator extends QuestionAnswerAdaptor {
-
+public class ProofObligationGenerator extends DepthFirstAnalysisAdaptor
+{
     // Constants
     private final static String ANALYSIS_NAME = "Proof Obligation Generator";
     private final static String ANALYSIS_STRING = "Tree location: ";
 
- 
     // Analysis Result
     private List<String> pos; //should change to ProofObligation type?
 
@@ -39,16 +39,28 @@ public class ProofObligationGenerator extends QuestionAnswerAdaptor {
 		pos = new LinkedList<String>(); //change inline with pos type
     }
 
-// *
-// 	 * When the DepthFirstAnalysisAdaptor reaches a Divide binary
-// 	 * expression this method is invoke. Here this analysis wants to
-// 	 * create a warning and add it to its output.
-// 	
-// 	@Override
-// 	public void caseADivideNumericBinaryExp(ADivideNumericBinaryExp node) {
-// 		super.caseADivideNumericBinaryExp(node);
-// 		pos.add(prettyPrintLocation(node.getLocation()));
-// 	}
+    /*
+ 	 * When the DepthFirstAnalysisAdaptor reaches a Divide binary
+ 	 * expression this method is invoke. Here this analysis wants to
+ 	 * create a warning and add it to its output.
+ 	 */
+ 	@Override
+ 	public void caseADivideNumericBinaryExp(ADivideNumericBinaryExp node) {
+ 		super.caseADivideNumericBinaryExp(node);
+ 		pos.add(prettyPrintLocation(node.getLocation()));
+ 	}
+
+
+    /*
+ 	 * When the DepthFirstAnalysisAdaptor reaches a Type declaration
+ 	 * this method is invoked. Here this analysis wants to
+ 	 * create a warning and add it to its output.
+ 	 */ 	 
+ 	@Override
+ 	public void caseATypeDeclaration(ATypeDeclaration node) {
+ 		super.caseATypeDeclaration(node);
+ 		pos.add(prettyPrintLocation(node.getLocation()));
+ 	}
 
     // Pretty warning for the result
     private static String prettyPrintLocation(LexLocation loc)
@@ -60,14 +72,20 @@ public class ProofObligationGenerator extends QuestionAnswerAdaptor {
 		sb.append(" to " + loc.endLine + ":"+loc.endPos);
 		return sb.toString();
     }
+    
+    //output analysis results
+ 		
 
     /**
      * Test Method to acquire the result produced by this analysis.
-     *
      */
-    public List<String> getPos()
+    public void getResults()
     {
-	return pos;
+    	System.out.println("   Generation complete. Results:");
+    	for(String s :pos)
+ 		{
+ 			System.out.println("\t"+s);
+ 		}
     }
     
     /**
@@ -79,7 +97,7 @@ public class ProofObligationGenerator extends QuestionAnswerAdaptor {
      */
     public String getAnalysisName() 
     {
-	return ANALYSIS_NAME;
+		return ANALYSIS_NAME;
     }
     
     
