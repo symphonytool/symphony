@@ -50,7 +50,6 @@ public class ProofObligationGenerator extends DepthFirstAnalysisAdaptor
  		pos.add(prettyPrintLocation(node.getLocation()));
  	}
 
-
     /*
  	 * When the DepthFirstAnalysisAdaptor reaches a Type declaration
  	 * this method is invoked. Here this analysis wants to
