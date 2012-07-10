@@ -67,7 +67,7 @@ import static eu.compassresearch.core.parser.CmlParser.YyPactClass.yypact_;
     import eu.compassresearch.ast.lex.*;
     import eu.compassresearch.ast.typechecker.NameScope;
     import eu.compassresearch.ast.node.*;
-    //    import org.overture.transforms.*;
+    //    import eu.compassresearch.transforms.*;
     import eu.compassresearch.ast.util.*;
     import eu.compassresearch.core.lexer.CmlLexeme;
     import eu.compassresearch.core.lexer.CmlLexer;
