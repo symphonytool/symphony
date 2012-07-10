@@ -19,11 +19,6 @@
       <version>${project.version}</version>
     </dependency>
    
-    <dependency>
-      <groupId>org.overturetool.core</groupId>
-      <artifactId>ast-stripped</artifactId>
-      <version>${overture.version}</version>
-    </dependency>
   </dependencies>
 
   <build>

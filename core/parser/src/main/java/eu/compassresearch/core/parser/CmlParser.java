@@ -55,20 +55,20 @@ import static eu.compassresearch.core.parser.CmlParser.YyPactClass.yypact_;
     import java.util.*;
     import java.io.File;
     import java.lang.reflect.*;
-    import org.overture.ast.definitions.*;
-    import org.overture.ast.declarations.*;
-    import org.overture.ast.expressions.*;
-    import org.overture.ast.statements.*;
-    import org.overture.ast.actions.*;
-    import org.overture.ast.process.*;
-    import org.overture.ast.patterns.*;
-    import org.overture.ast.program.*;
-    import org.overture.ast.types.*;
-    import org.overture.ast.lex.*;
-  import org.overture.ast.typechecker.NameScope;
-    import org.overture.ast.node.*;
-    import org.overture.transforms.*;
-    import org.overture.ast.util.*;
+    import eu.compassresearch.ast.definitions.*;
+    import eu.compassresearch.ast.declarations.*;
+    import eu.compassresearch.ast.expressions.*;
+    import eu.compassresearch.ast.statements.*;
+    import eu.compassresearch.ast.actions.*;
+    import eu.compassresearch.ast.process.*;
+    import eu.compassresearch.ast.patterns.*;
+    import eu.compassresearch.ast.program.*;
+    import eu.compassresearch.ast.types.*;
+    import eu.compassresearch.ast.lex.*;
+    import eu.compassresearch.ast.typechecker.NameScope;
+    import eu.compassresearch.ast.node.*;
+    //    import org.overture.transforms.*;
+    import eu.compassresearch.ast.util.*;
     import eu.compassresearch.core.lexer.CmlLexeme;
     import eu.compassresearch.core.lexer.CmlLexer;
     import eu.compassresearch.core.lexer.Position;
@@ -10299,14 +10299,14 @@ class CmlParser
 	      if (result){
 		System.out.println("parsed!");
 				
-		DotGraphVisitor dgv = new DotGraphVisitor();
+		//DotGraphVisitor dgv = new DotGraphVisitor();
 		INode node = cmlParser.getDocument();
 
-		node.apply(dgv,null);
+		//node.apply(dgv,null);
 				
 		File dotFile = new File("generatedAST.gv");
 		java.io.FileWriter fw = new java.io.FileWriter(dotFile);
-		fw.write(dgv.getResultString());
+		//fw.write(dgv.getResultString());
 		fw.close();
 
 		//System.out.println(dgv.getResultString());

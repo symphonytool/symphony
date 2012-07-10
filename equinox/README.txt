@@ -91,3 +91,12 @@ FUTURE WORK:
 (*) Start incrementally adding CML plugins and their dependencies to
     make the CML-Eclipse Tool build with Maven alone. That is, without
     PDE support !
+
+phd/jointpub/phds/RasmusLauritsen/papers/DRM_Overture_2012/paper/
+
+bin.includes = plugin.xml,\
+               META-INF/,\
+               .,\
+               icons/,\
+               splash.bmp
+

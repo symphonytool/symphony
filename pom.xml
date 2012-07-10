@@ -19,7 +19,7 @@
     <module>core</module>
     <module>ide</module>
     <module>docs/core-examples</module>
-    <module>equinox</module>
+    <!-- module>equinox</module -->
   </modules>
 
   <properties>

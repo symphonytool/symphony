@@ -1,5 +1,6 @@
 package eu.compassresearch.producer;
-import org.osgi.framework.*;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 
 public class CompassActivator implements BundleActivator {
     
@@ -44,16 +45,16 @@ public class CompassActivator implements BundleActivator {
 	}
     }
 
-        @Override
+    @Override
 	public void start(BundleContext bundle)  { 
 	    synchronized(this.getClass()) { instance = this; }
 	    synchronized(run) { run = true; }
 	    t = new Thread(new DoStuff());
-	    t.start();
+	    t.start(); 
 	    System.out.println("Producer Online");
 	};
     
-        @Override
+    @Override
 	public void stop(BundleContext bundle) { 
 	    synchronized(this.getClass()) {instance = null;};
 	    synchronized(run) { run = false; }
