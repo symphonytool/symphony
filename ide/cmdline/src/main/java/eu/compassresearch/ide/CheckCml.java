@@ -17,10 +17,11 @@ import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
-//import eu.compassresearch.ast.analysis.DepthFirstAnalysisAdaptor;
+import eu.compassresearch.ast.analysis.DepthFirstAnalysisAdaptor;
+import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
 import eu.compassresearch.ast.analysis.intf.IAnalysis; 
-//import eu.compassresearch.transforms.DotGraphVisitor;
+import eu.compassresearch.ast.preview.DotGraphVisitor;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 // import eu.compassresearch.core.typechecker.CmlTypeChecker; 
@@ -328,9 +329,9 @@ public class CheckCml {
 	    return  CheckCml.getAnalysisName(analysis);
 	}
 
-	public abstract void apply(INode node);
+	public abstract void apply(INode node) throws AnalysisException;
     };
-    /*
+
     private static void writeGraphResult(DotGraphVisitor dga, String fileName)
     {
 
@@ -344,7 +345,7 @@ public class CheckCml {
 		System.out.println("\tAnalysis failed to write file: "+e.getMessage());
 	    }
     }
-    */
+
     /**
      * EXTENSION POINT: This is where you want to add more analys
      * phases. That is, add a bit of code to the end this
@@ -400,22 +401,23 @@ public class CheckCml {
 	// Inform parsing went well and analysis has begon
 	System.out.println(sources.size()+" file(s) successfully parsed. Starting analysis:");
 
-	/* @FIXME Fix / Run the empty analysis
+
 	if (input.isSwitchOn(Switch.EMPTY))
 	    {
 		final IAnalysis empty = new DepthFirstAnalysisAdaptor();
 		AnalysisRunAdaptor r = new AnalysisRunAdaptor(empty) {
-			public void apply(INode root) { root.apply(empty); }
+			public void apply(INode root) throws AnalysisException
+			{ root.apply(empty); }
 		    };
 		runAnalysis(input, r, sources);
 	    }
-	*/
-	/* @TODO @FIXME Fix the / Dot Graph Analysis
+
+
 	if (input.isSwitchOn(Switch.DOTG))
 	    {
 		final DotGraphVisitor dga = new DotGraphVisitor();
 		AnalysisRunAdaptor r = new AnalysisRunAdaptor(dga) {
-			public void apply(INode root)
+			public void apply(INode root) throws AnalysisException
 			{
 			    root.apply(dga, null);
 			}
@@ -423,18 +425,15 @@ public class CheckCml {
 		runAnalysis(input, r, sources);
 		writeGraphResult(dga, Switch.DOTG.getValue());
 	    }
-	*/
+
 
 	//Example Analysis DivWarnAnalysis
 	if (input.isSwitchOn(Switch.DWA))
 	    {
 		final DivWarnAnalysis dwa = new DivWarnAnalysis();
 		AnalysisRunAdaptor r = new AnalysisRunAdaptor(dwa) {
-			public void apply(INode root) { 
-			    try {
-				root.apply( dwa ); 
-			    } catch (Exception e) { e.printStackTrace(); }
-			}
+			public void apply(INode root) throws AnalysisException
+			{ root.apply( dwa );}
 		    };
 		runAnalysis(input, r, sources);
 		for(String s : dwa.getWarnings())
