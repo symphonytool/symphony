@@ -14,10 +14,11 @@ package eu.compassresearch.core.analysis.proofobligationgenerator;
  * Core stuff needed in this simple analysis.
  *
  */
-import org.overture.ast.analysis.DepthFirstAnalysisAdaptor;
-import org.overture.ast.expressions.ADivideNumericBinaryExp;
-import org.overture.ast.declarations.ATypeDeclaration;
-import org.overture.ast.lex.LexLocation;
+import eu.compassresearch.ast.analysis.DepthFirstAnalysisAdaptor;
+import eu.compassresearch.ast.expressions.ADivideNumericBinaryExp;
+import eu.compassresearch.ast.declarations.ATypeDeclaration;
+import eu.compassresearch.ast.lex.LexLocation;
+import eu.compassresearch.ast.analysis.AnalysisException;
 /**
  * Java libraries 
  */
@@ -45,7 +46,7 @@ public class ProofObligationGenerator extends DepthFirstAnalysisAdaptor
  	 * create a warning and add it to its output.
  	 */
  	@Override
- 	public void caseADivideNumericBinaryExp(ADivideNumericBinaryExp node) {
+ 	public void caseADivideNumericBinaryExp(ADivideNumericBinaryExp node) throws AnalysisException {
  		super.caseADivideNumericBinaryExp(node);
  		pos.add(prettyPrintLocation(node.getLocation()));
  	}
@@ -56,7 +57,7 @@ public class ProofObligationGenerator extends DepthFirstAnalysisAdaptor
  	 * create a warning and add it to its output.
  	 */ 	 
  	@Override
- 	public void caseATypeDeclaration(ATypeDeclaration node) {
+ 	public void caseATypeDeclaration(ATypeDeclaration node)  throws AnalysisException {
  		super.caseATypeDeclaration(node);
  		pos.add(prettyPrintLocation(node.getLocation()));
  	}

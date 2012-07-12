@@ -455,7 +455,7 @@ public class CheckCml {
 		//create analysis run adaptor object of type AnalysisRunAdaptor, supplying pog
  		//object.
  		AnalysisRunAdaptor r = new AnalysisRunAdaptor(pog) {
- 				public void apply(INode root) 
+ 				public void apply(INode root) throws AnalysisException
  				{ 
  					root.apply( pog ); 
  				}
