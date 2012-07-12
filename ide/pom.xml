@@ -21,8 +21,8 @@
 
   <modules>
     <!--module>builder</module-->
-    <module>parsers</module>
-    <module>cml</module>
+    <!-- <module>parsers</module> -->
+    <!-- <module>cml</module> -->
     <module>cmdline</module>
   </modules>
 

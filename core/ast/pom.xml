@@ -17,7 +17,7 @@
       <plugin>
 	<groupId>org.overturetool.tools</groupId>
 	<artifactId>astcreatorplugin</artifactId>
-	<version>1.0.3</version>
+	<version>1.0.6</version>
 	<executions>
 	  <execution>
 	    <id>generate-ast</id>
@@ -31,6 +31,7 @@
 	  <ast>cml.ast</ast>
 	  <deletePackageOnGenerate>
 	    <param>org.overture.ast</param>
+	    <param>eu.compassresearch</param>
 	  </deletePackageOnGenerate>
 	  <useSrcOutput>false</useSrcOutput>
 	</configuration>
@@ -88,11 +89,4 @@
       </plugins>
     </pluginManagement>
   </build>
-  <dependencies>
-  	<dependency>
-  		<groupId>org.overturetool.core</groupId>
-  		<artifactId>ast-stripped</artifactId>
-  		<version>2.2.0</version>
-  	</dependency>
-  </dependencies>
 </project>
