@@ -324,30 +324,30 @@
  *
  */
 
-%token CLASS END PROCESS INITIAL EQUALS AT BEGIN CSP_ACTIONS CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI VDMRECORDDEF VDMCOMPOSE OF VDMTYPEUNION STAR TO VDMINMAPOF VDMMAPOF VDMSEQOF VDMSEQ1OF VDMSETOF VDMPFUNCARROW VDMTFUNCARROW VDMUNITTYPE VDMTYPENCMP DEQUALS VDMINV VALUES FUNCTIONS PRE POST MEASURE VDM_SUBCLASSRESP VDM_NOTYETSPEC OPERATIONS VDM_FRAME VDM_RD VDM_WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE ELLIPSIS MAPLETARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS TILDE DCL ASSIGN ATOMIC OPERATIONARROW RETURN VDMDONTCARE IDENTIFIER
-%token DIVIDE DIV REM MOD LT LTE GT GTE NEQ OR AND IMPLY BIMPLY INSET NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE FORALL EXISTS EXISTS1 STRING PARAM_VRES PARAM_RES PARAM_VAL
+%token CLASS END PROCESS INITIAL EQUALS AT BEGIN ACTIONS CSPSEQ BARTILDEBAR LRSQUARE CSPLCHSYNC CSPRCHSYNC TBAR CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI DCOLON VDMCOMPOSE OF VDMTYPEUNION STAR TO INMAPOF MAPOF SEQOF VDMSEQ1OF VDMSETOF PLUSGT VDMTFUNCARROW VDMUNITTYPE COLONDASH DEQUALS INV VALUES FUNCTIONS PRE POST MEASURE SUBCLASSRESP NOTYETSPEC OPERATIONS FRAME RD WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE ELLIPSIS BARRARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS TILDE DCL COLONEQUALS ATOMIC DEQRARROW RETURN IDENTIFIER
+%token DIVIDE REM MOD LT LTE GT GTE NEQ OR AND EQRARROW LTEQUALSGT INSET NOTINSET SUBSET PROPER_SUBSET UNION BACKSLASH INTER CARET DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR FORALL EXISTS EXISTS1 STRING PARAM_VRES PARAM_RES PARAM_VAL
 
 
 %token HEX_LITERAL QUOTE_LITERAL
 
-%token AMP CSPBARGT CSPLSQUAREBAR DLSQUARE DRSQUARE CSPBARRSQUARE COMMA LARROW CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR COLON CHANSET_SETEXP_BEGIN CHANSET_SETEXP_END CSP_CHANNEL_READ CSP_CHANNEL_WRITE CSP_OPS_COM CSP_CHANNEL_DOT CSP_SLASH CSP_BACKSLASH CSPLSQUAREGT CSP_LSQUARE CSP_RSQUARE CSP_GT CSP_ENDBY CSP_STARTBY
+%token AMP CSPBARGT LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA CSPLSQUAREDBAR CSPDBARRSQUARE COLON RCURLYBAR BARRCURLY QUESTION BANG SLASH SLASHBACKSLASH LSQUAREGT CSP_GT ENDBY STARTBY
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
 %token nameset namesetExpr typeVarIdentifier  
  //localDef
 
  /* type op precidence */
-%left VDMSEQOF
+%left SEQOF
 
 /* CSP ops and more */
-%left CSPSEQ CSPINTCH CSPEXTCH CSPLCHSYNC CSPRCHSYNC CSPINTERLEAVE CSPHIDE CSPAND AMP RARROW DLSQUARE CSPBARGT CSPLSQUAREBAR CSPLSQUAREGT CSPBARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION VDMSETOF VDMSEQ1OF VDMMAPOF VDMINMAPOF VDMPFUNCARROW VDMTFUNCARROW TO OF NEW ASSIGN CSP_SLASH CSP_BACKSLASH CSP_LSQUARE CSP_RSQUARE CSP_GT CSP_ENDBY CSP_STARTBY CSPLSQUAREDBAR CSPDBARRSQUARE CSPDBAR
+%left CSPSEQ BARTILDEBAR LRSQUARE CSPLCHSYNC CSPRCHSYNC TBAR CSPHIDE CSPAND AMP RARROW DLSQUARE CSPBARGT LSQUAREBAR LSQUAREGT BARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION VDMSETOF VDMSEQ1OF MAPOF INMAPOF PLUSGT VDMTFUNCARROW TO OF NEW COLONEQUALS SLASH BACKSLASH CSP_GT ENDBY STARTBY CSPLSQUAREDBAR CSPDBARRSQUARE DBAR SLASHBACKSLASH
 
 %right ELSE ELSEIF
 
 /* unary ops */
-%right UPLUS UMINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE DCONC DOM RNG MERGE INVERSE 
+%right UPLUS UMINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE 
 /* binary ops */
-%left PLUS MINUS DIVIDE DIV REM MOD LT LTE GT GTE EQUALS NEQ OR AND IMPLY BIMPLY INSET STAR NOTINSET SUBSET PROPER_SUBSET UNION SETDIFF INTER CONC OVERWRITE MAPMERGE DOMRES VDM_MAP_DOMAIN_RESTRICT_BY RNGRES RNGSUB COMP ITERATE IN DOT DOTHASH
+%left PLUS MINUS DIVIDE REM MOD LT LTE GT GTE EQUALS NEQ OR AND EQRARROW LTEQUALSGT INSET STAR NOTINSET SUBSET PROPER_SUBSET UNION INTER CARET DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR IN DOT DOTHASH
 
  /* other hacks */
 %right LPAREN
@@ -501,7 +501,7 @@ process :
 					   left, 
 					   right);
 }
-| process CSPEXTCH process
+| process LRSQUARE process
 {
     PProcess left = (PProcess)$1;
     PProcess right = (PProcess)$3;
@@ -510,7 +510,7 @@ process :
 				    left, 
 				    right);
 }
-| process CSPINTCH process
+| process BARTILDEBAR process
 {
     PProcess left = (PProcess)$1;
     PProcess right = (PProcess)$3;
@@ -519,7 +519,7 @@ process :
 				    left, 
 				    right);
 }
-| process CSPLSQUAREBAR chansetExpr CSPBARRSQUARE process
+| process LSQUAREBAR chansetExpr BARRSQUARE process
 {
     PProcess left = (PProcess)$1;
     PProcess right = (PProcess)$5;
@@ -529,7 +529,7 @@ process :
 					    (SChansetSetExp)$3,
 					    right);
 }
-| process CSP_LSQUARE chansetExpr CSPDBAR chansetExpr CSP_RSQUARE process
+| process LSQUARE chansetExpr DBAR chansetExpr RSQUARE process
 {
     PProcess left = (PProcess)$1;
     PProcess right = (PProcess)$7;
@@ -540,7 +540,7 @@ process :
 					    (SChansetSetExp)$5,
 					    right);
 }
-| process CSPDBAR process
+| process DBAR process
 {
     PProcess left = (PProcess)$1;
     PProcess right = (PProcess)$3;
@@ -549,7 +549,7 @@ process :
 					    left, 
 					    right);
 }
-| process CSPINTERLEAVE process
+| process TBAR process
 {
     PProcess left = (PProcess)$1;
     PProcess right = (PProcess)$3;
@@ -558,17 +558,17 @@ process :
 				    left, 
 				    right);
 }
-| process CSP_SLASH CSP_BACKSLASH process
+| process SLASHBACKSLASH process
 {
     PProcess left = (PProcess)$1;
-    PProcess right = (PProcess)$4;
+    PProcess right = (PProcess)$3;
     LexLocation location = combineLexLocation(left.getLocation(),
 					      right.getLocation());
     $$ = new AInterruptProcess(location, 
 			      left, 
 			      right);
 }
-| process CSP_SLASH expression CSP_BACKSLASH process
+| process SLASH expression BACKSLASH process
 {
     PProcess left = (PProcess)$1;
     PProcess right = (PProcess)$5;
@@ -579,7 +579,7 @@ process :
 				    (PExp)$3,
 				    right);
 }
-| process CSPLSQUAREGT process
+| process LSQUAREGT process
 {
     PProcess left = (PProcess)$1;
     PProcess right = (PProcess)$3;
@@ -589,7 +589,7 @@ process :
 				   left, 
 				   right);
 }
-/* | process CSP_LSQUARE expression BAR GT process //TODO this gives conflicts! */
+/* | process LSQUARE expression BAR GT process //TODO this gives conflicts! */
 /* { */
 /*     PProcess left = (PProcess)$1; */
 /*     PProcess right = (PProcess)$5; */
@@ -600,7 +600,7 @@ process :
 /* 			     (PExp)$3, */
 /* 			     right); */
 /* } */
-| process CSP_BACKSLASH chansetExpr
+| process BACKSLASH chansetExpr
 {
     PProcess left = (PProcess)$1;
     SChansetSetExp cse = (SChansetSetExp)$3;
@@ -610,7 +610,7 @@ process :
 			    left, 
 			    cse);
 }
-| process CSP_STARTBY expression
+| process STARTBY expression
 {
     PProcess left = (PProcess)$1;
     PExp exp = (PExp)$3;
@@ -620,7 +620,7 @@ process :
 			     left, 
 			     exp);
 }
-| process CSP_ENDBY expression
+| process ENDBY expression
 {
     PProcess left = (PProcess)$1;
     PExp exp = (PExp)$3;
@@ -673,10 +673,10 @@ process :
 }
 //| LPAREN process RPAREN LSQUARE identifierList CSPRENAME identifierList RSQUARE //TODO
 | CSPSEQ LCURLY declaration AT process RCURLY //TODO
-| CSPINTCH LCURLY declaration AT process RCURLY //TODO
-| CSPEXTCH LCURLY declaration AT process RCURLY //TODO
+| BARTILDEBAR LCURLY declaration AT process RCURLY //TODO
+| LRSQUARE LCURLY declaration AT process RCURLY //TODO
 | LSQUARE LCURLY chansetExpr RSQUARE declaration AT process RCURLY //TODO
-| CSPINTERLEAVE LCURLY declaration AT process RCURLY //TODO
+| TBAR LCURLY declaration AT process RCURLY //TODO
 ;
 
 //This is how it is defined in the grammar but this gives reduce/reduce conflict
@@ -745,7 +745,7 @@ processParagraph :
 ;
 
 actionParagraph:
-CSP_ACTIONS actionDefinitionList
+ACTIONS actionDefinitionList
 {
     List<AActionDefinition> actionDefinitions = 
 	(List<AActionDefinition>)$2;
@@ -755,7 +755,7 @@ CSP_ACTIONS actionDefinitionList
 				NameScope.GLOBAL, 
 				actionDefinitions);
   }
-| CSP_ACTIONS nameset IDENTIFIER EQUALS namesetExpr //TODO
+| ACTIONS nameset IDENTIFIER EQUALS namesetExpr //TODO
 ;
 
 actionDefinitionList:
@@ -878,35 +878,35 @@ action
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new ASequentialCompositionAction(location, left, right);
 }
-| action CSPEXTCH action
+| action LRSQUARE action
 {
     PAction left = (PAction)$1;
     PAction right = (PAction)$3;
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new AExternalChoiceAction(location, left, right);
 }
-| action CSPINTCH action
+| action BARTILDEBAR action
 {
     PAction left = (PAction)$1;
     PAction right = (PAction)$3;
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new AInternalChoiceAction(location, left, right);
 }
-| action CSP_SLASH CSP_BACKSLASH action
+| action SLASHBACKSLASH action
 {
     PAction left = (PAction)$1;
-    PAction right = (PAction)$4;
+    PAction right = (PAction)$3;
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new AInterruptAction(location, left, right);
 }
-| action CSP_SLASH expression CSP_BACKSLASH action
+| action SLASH expression BACKSLASH action
 {
     PAction left = (PAction)$1;
     PAction right = (PAction)$5;
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new ATimedInterruptAction(location, left, right,(PExp)$3);
 }
-| action CSPLSQUAREGT action
+| action LSQUAREGT action
 {
     PAction left = (PAction)$1;
     PAction right = (PAction)$3;
@@ -914,28 +914,28 @@ action
     $$ = new AUntimedTimeoutAction(location, left, right);
 }
 //TODO the BAR is not the correct syntax, its there to fix shift/reduce
-| action CSP_LSQUARE expression BAR GT action
+| action LSQUARE expression BAR GT action
 {
     PAction left = (PAction)$1;
     PAction right = (PAction)$6;
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new ATimeoutAction(location, left, right, (PExp)$3);
 }
-| action CSP_BACKSLASH chansetExpr 
+| action BACKSLASH chansetExpr 
 {
     PAction left = (PAction)$1;
     SChansetSetExp chansetExp = (SChansetSetExp)$3;
     LexLocation location = combineLexLocation(left.getLocation(),chansetExp.getLocation());
     $$ = new AHidingAction(location, left, chansetExp);
 }
-| action CSP_STARTBY expression 
+| action STARTBY expression 
 {
     PAction left = (PAction)$1;
     PExp exp = (PExp)$3;
     LexLocation location = combineLexLocation(left.getLocation(),exp.getLocation());
     $$ = new AStartDeadlineAction(location, left, exp);
 }
-| action CSP_ENDBY expression 
+| action ENDBY expression 
 {
     PAction left = (PAction)$1;
     PExp exp = (PExp)$3;
@@ -1001,14 +1001,14 @@ communicationParameterUseList :
   ;
 
 communicationParameter :
-  CSP_CHANNEL_READ parameter
+  QUESTION parameter
   {
       PParameter parameter = (PParameter)$2;
       LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1),
 								   parameter.getLocation());
       $$ = new AReadCommunicationParameter(location, parameter, null);
   }
-| CSP_CHANNEL_READ parameter COLON expression 
+| QUESTION parameter COLON expression 
 {
     PParameter parameter = (PParameter)$2;
     PExp exp = (PExp)$4;
@@ -1016,14 +1016,14 @@ communicationParameter :
 								 exp.getLocation());
     $$ = new AReadCommunicationParameter(location, parameter, exp);
 }
-| CSP_CHANNEL_WRITE expression
+| BANG expression
 {
     PExp exp = (PExp)$2;
     LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1),
 								 exp.getLocation());
     $$ = new AWriteCommunicationParameter(location, exp);
 }
-| CSP_CHANNEL_DOT expression  
+| DOT expression  
 {
     PExp exp = (PExp)$2;
     LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1),
@@ -1087,13 +1087,13 @@ parameter
 
 parallelAction:
 action CSPLSQUAREDBAR namesetExpr BAR namesetExpr CSPDBARRSQUARE action //TODO
- | action CSPINTERLEAVE action //TODO
- | action CSPLSQUAREBAR namesetExpr BAR namesetExpr CSPBARRSQUARE action //TODO
- | action CSPDBAR action //TODO
-  //| action CSP_LSQUARE namesetExpr BAR chansetExpr CSPDBAR chansetExpr BAR namesetExpr CSP_RSQUARE action //TODO
-  //| action CSP_LSQUARE chansetExpr CSPDBAR chansetExpr CSP_RSQUARE action //TODO
- | action CSPLSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr CSPBARRSQUARE action //TODO
- | action CSPLSQUAREBAR chansetExpr CSPBARRSQUARE action //TODO
+ | action TBAR action //TODO
+ | action LSQUAREBAR namesetExpr BAR namesetExpr BARRSQUARE action //TODO
+ | action DBAR action //TODO
+  //| action LSQUARE namesetExpr BAR chansetExpr DBAR chansetExpr BAR namesetExpr RSQUARE action //TODO
+  //| action LSQUARE chansetExpr DBAR chansetExpr RSQUARE action //TODO
+ | action LSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr BARRSQUARE action //TODO
+ | action LSQUAREBAR chansetExpr BARRSQUARE action //TODO
 ;
 
 parametrisedAction:
@@ -1127,11 +1127,11 @@ LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
 
 replicatedAction :
  CSPSEQ LCURLY declaration AT action RCURLY //TODO
-| CSPINTCH LCURLY declaration AT action RCURLY //TODO
-| CSPEXTCH LCURLY declaration AT action RCURLY //TODO
+| BARTILDEBAR LCURLY declaration AT action RCURLY //TODO
+| LRSQUARE LCURLY declaration AT action RCURLY //TODO
 | CSPLSQUAREDBAR nameset CSPDBARRSQUARE LPAREN declaration AT action RPAREN //TODO
-| CSPLSQUAREBAR nameset BAR chansetExpr CSPBARRSQUARE LPAREN declaration AT action RPAREN //TODO
-| CSPDBAR declaration AT LSQUARE nameset BAR chansetExpr RSQUARE action //TODO
+| LSQUAREBAR nameset BAR chansetExpr BARRSQUARE LPAREN declaration AT action RPAREN //TODO
+| DBAR declaration AT LSQUARE nameset BAR chansetExpr RSQUARE action //TODO
 | LSQUARE renameList RSQUARE LPAREN declaration AT action RPAREN //TODO
     ;
 
@@ -1214,13 +1214,13 @@ IDENTIFIER
 ;
 
 dotted_expression:
-CSP_CHANNEL_DOT expression
+DOT expression
 {
     List<PExp> expTokens = new Vector<PExp>();
     expTokens.add((PExp)$2);
     $$ = expTokens;
 }
-| dotted_expression CSP_CHANNEL_DOT expression
+| dotted_expression DOT expression
 {
     List<PExp> expTokens = (List<PExp>)$1;
     PExp exp = (PExp)$3;
@@ -1390,7 +1390,7 @@ chansetExpr :
     List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2;
     $$ = new AEnumChansetSetExp(location,identifiers);
 }
-| CHANSET_SETEXP_BEGIN identifierList CHANSET_SETEXP_END
+| RCURLYBAR identifierList BARRCURLY
 {
     LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3);
     List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2;
@@ -1410,16 +1410,16 @@ chansetExpr :
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new ASetIntersectBinaryExp(location,left, null, right);
 }
-| chansetExpr SETDIFF chansetExpr
+| chansetExpr BACKSLASH chansetExpr
 {
     PExp left = (PExp)$1;
     PExp right = (PExp)$3;
     LexLocation opLocation = extractLexLocation((CmlLexeme)$2);
-    LexToken lexToken = new LexToken(opLocation,VDMToken.SETDIFF);
+    /* LexToken lexToken = new LexToken(opLocation,VDMToken.BACKSLASH); */
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
-    $$ = new ASetDifferenceBinaryExp(location, left, lexToken, right);
+    $$ = new ASetDifferenceBinaryExp(location, left, /*lexToken*/null, right);
 }
-| CHANSET_SETEXP_BEGIN IDENTIFIER BAR bindList CHANSET_SETEXP_END
+| RCURLYBAR IDENTIFIER BAR bindList BARRCURLY
 {
     LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
     LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2);
@@ -1427,7 +1427,7 @@ chansetExpr :
     List<PMultipleBind> bindings = (List<PMultipleBind>)$4;
     $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings,null);
 }
-| CHANSET_SETEXP_BEGIN IDENTIFIER dotted_expression BAR bindList CHANSET_SETEXP_END
+| RCURLYBAR IDENTIFIER dotted_expression BAR bindList BARRCURLY
 {
     LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$6);
     LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2);
@@ -1435,7 +1435,7 @@ chansetExpr :
     List<PMultipleBind> bindings = (List<PMultipleBind>)$5;
     $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings,null);
 }
-| CHANSET_SETEXP_BEGIN IDENTIFIER BAR bindList AT expression CHANSET_SETEXP_END
+| RCURLYBAR IDENTIFIER BAR bindList AT expression BARRCURLY
 {
     LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$7);
     LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2);
@@ -1444,7 +1444,7 @@ chansetExpr :
     PExp pred = (PExp)$6;
     $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings,pred);
 }
-| CHANSET_SETEXP_BEGIN IDENTIFIER dotted_expression BAR bindList AT expression CHANSET_SETEXP_END
+| RCURLYBAR IDENTIFIER dotted_expression BAR bindList AT expression BARRCURLY
 {
     LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$8);
     LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2);
@@ -1650,7 +1650,7 @@ typeDef
 			     (PType)$4, null, null, null, 
 			     null, true, name); 
 }
-| qualifier IDENTIFIER VDMRECORDDEF fieldList
+| qualifier IDENTIFIER DCOLON fieldList
 {
   AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
   LexNameToken name = extractLexNameToken( (CmlLexeme)$2 );
@@ -1672,7 +1672,7 @@ typeDef
 
   $$ = res;
 }
-| qualifier IDENTIFIER VDMRECORDDEF fieldList invariant 
+| qualifier IDENTIFIER DCOLON fieldList invariant 
 {
   AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
   LexNameToken name = extractLexNameToken( (CmlLexeme)$2 );
@@ -1776,7 +1776,7 @@ bracketedType
   ASetType res = new ASetType( loc, false, null, type, false, false );
   $$ = res;
 }
-| VDMSEQOF type  
+| SEQOF type  
 {
   CmlLexeme seqof = (CmlLexeme)$1;
   PType type = (PType)$2;
@@ -1798,7 +1798,7 @@ bracketedType
   ASeq1SeqType res = new ASeq1SeqType( loc, false, null, type, false );
   $$ = res;
 }
-| VDMMAPOF type TO type
+| MAPOF type TO type
 {
   CmlLexeme mapof = (CmlLexeme)$1;
   PType from = (PType)$2;
@@ -1812,7 +1812,7 @@ bracketedType
   AMapMapType res = new AMapMapType( loc, false, null, from, to, false );
   $$ = res;
 }
-| VDMINMAPOF type TO type
+| INMAPOF type TO type
 {
   CmlLexeme mapof = (CmlLexeme)$1;
   PType from = (PType)$2;
@@ -1963,7 +1963,7 @@ partialFunctionType
 ;
 
 partialFunctionType:
-type VDMPFUNCARROW type
+type PLUSGT type
 {
     PType domType = (PType)$1;
     PType rngType = (PType)$3;
@@ -1978,7 +1978,7 @@ type VDMPFUNCARROW type
     params.add(domType);
     $$ = new AFunctionType(loc, false, null, true, params, rngType );
 }
-| VDMUNITTYPE VDMPFUNCARROW type
+| VDMUNITTYPE PLUSGT type
 {
     PType domType = new AVoidType(extractLexLocation((CmlLexeme)$1), 
 				  true);
@@ -2088,14 +2088,14 @@ field :
 
   $$ = new AFieldField( null, name, null, type, null );
 }
-| IDENTIFIER VDMTYPENCMP type
+| IDENTIFIER COLONDASH type
 {
   throw new RuntimeException("No way");
 }
   ;
 
 invariant :
- VDMINV pattern DEQUALS expression
+INV pattern DEQUALS expression
  {
    CmlLexeme vdmInvLexeme = (CmlLexeme)$1;
    PExp exp = (PExp)$4;
@@ -2443,11 +2443,11 @@ expression
 {
     $$ = $1;
 }
-| VDM_SUBCLASSRESP
+| SUBCLASSRESP
 {
     $$ = new ASubclassResponsibilityExp(extractLexLocation((CmlLexeme)$1));
 }
-| VDM_NOTYETSPEC 
+| NOTYETSPEC 
 {
     $$ = new ANotYetSpecifiedExp(extractLexLocation((CmlLexeme)$1));
 }
@@ -2668,10 +2668,10 @@ implicitOperationDef
 ;
 
 operationType :
-  type OPERATIONARROW type // TODO
-| LPAREN RPAREN OPERATIONARROW type // TODO
-| type OPERATIONARROW LPAREN RPAREN // TODO
-| LPAREN RPAREN OPERATIONARROW LPAREN RPAREN // TODO
+  type DEQRARROW type // TODO
+| LPAREN RPAREN DEQRARROW type // TODO
+| type DEQRARROW LPAREN RPAREN // TODO
+| LPAREN RPAREN DEQRARROW LPAREN RPAREN // TODO
   ;
 
 operationBody :
@@ -2679,11 +2679,11 @@ statements
 {
     $$ = $1;
 }
-| VDM_SUBCLASSRESP 
+| SUBCLASSRESP 
 {
     $$ = new ASubclassResponsibilityAction(extractLexLocation((CmlLexeme)$1));
 }
-| VDM_NOTYETSPEC 
+| NOTYETSPEC 
 {
     $$ = new ANotYetSpecifiedAction(extractLexLocation((CmlLexeme)$1), 
 				    null, 
@@ -2703,7 +2703,7 @@ externals
 ;
 
 externals :
-  VDM_FRAME varInformationList
+  FRAME varInformationList
   {
       $$ = $2;
   }
@@ -2741,12 +2741,12 @@ varInformation:
 ;
 
 mode :
-VDM_RD
+RD
 {
     $$ = new LexToken(extractLexLocation((CmlLexeme)$1),
     					 VDMToken.READ); 
 }
-| VDM_WR
+| WR
 {
     $$ = new LexToken(extractLexLocation((CmlLexeme)$1),
     					 VDMToken.WRITE); 
@@ -2832,7 +2832,7 @@ qualifier assignmentDef
 ;
 
 invariantDef :
-VDMINV expression 
+INV expression 
  {
      //  if (42 > 2) throw new RuntimeException("In expression");
      PExp exp = (PExp) $2;
@@ -3375,7 +3375,7 @@ PLUS expression %prec UPLUS
       combineLexLocation(opLocation,exp.getLocation());
     $$ = new AReverseUnaryExp(location,exp);
   }
-| DCONC expression
+| CONC expression
 {
     PExp exp = (PExp)$2;
     LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
@@ -3444,7 +3444,7 @@ binaryExpr :
       LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
       $$ = new ADivideNumericBinaryExp(loc,(PExp)$1,null,(PExp)$3);
   }
-| expression DIV expression
+| expression SLASH expression
   {
       LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
       $$ = new ADivNumericBinaryExp(loc,(PExp)$1,null,(PExp)$3);
@@ -3499,12 +3499,12 @@ binaryExpr :
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new AAndBooleanBinaryExp(loc,(PExp)$1,null,(PExp)$3);
 }
-| expression IMPLY expression
+| expression EQRARROW expression
 {
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new AImpliesBooleanBinaryExp(loc,(PExp)$1,null,(PExp)$3);
 }
-| expression BIMPLY expression
+| expression LTEQUALSGT expression
 {
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new AEquivalentBooleanBinaryExp(loc,(PExp)$1,null,(PExp)$3);
@@ -3534,7 +3534,7 @@ binaryExpr :
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new ASetUnionBinaryExp(loc,(PExp)$1,null,(PExp)$3);
 }
-| expression SETDIFF expression
+| expression BACKSLASH expression
 {
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new ASetDifferenceBinaryExp(loc,(PExp)$1,null,(PExp)$3);
@@ -3544,12 +3544,12 @@ binaryExpr :
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new ASetIntersectBinaryExp(loc,(PExp)$1,null,(PExp)$3);
 }
-| expression CONC expression
+| expression CARET expression
 {
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new ASeqConcatBinaryExp(loc,(PExp)$1,null,(PExp)$3);
 }
-| expression OVERWRITE expression
+| expression DPLUS expression
 {
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new AModifyBinaryExp(loc,(PExp)$1,null,(PExp)$3);
@@ -3560,25 +3560,25 @@ binaryExpr :
     $$ = new AMapUnionBinaryExp(loc,(PExp)$1,null,(PExp)$3);
 }
 
-| expression DOMRES expression
+| expression LTCOLON expression
 {
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new ADomainResToBinaryExp(loc,(PExp)$1,null,(PExp)$3);
 }
 
-| expression VDM_MAP_DOMAIN_RESTRICT_BY expression
+| expression LTDASHCOLON expression
 {
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new AModifyBinaryExp(loc,(PExp)$1,null,(PExp)$3);
 }
 
-| expression RNGRES expression
+| expression COLONGT expression
 {
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new AModifyBinaryExp(loc,(PExp)$1,null,(PExp)$3);
 }
 
-| expression RNGSUB expression
+| expression COLONDASHGT expression
 {
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new AModifyBinaryExp(loc,(PExp)$1,null,(PExp)$3);
@@ -3590,7 +3590,7 @@ binaryExpr :
     $$ = new AModifyBinaryExp(loc,(PExp)$1,null,(PExp)$3);
 }
 
-| expression ITERATE expression
+| expression DSTAR expression
 {
     LexLocation loc = combineLexLocation(((PExp)$1).getLocation(),((PExp)$3).getLocation());
     $$ = new AModifyBinaryExp(loc,(PExp)$1,null,(PExp)$3);
@@ -3818,7 +3818,7 @@ subsequence :
   ;
 
 mapEnumeration :
-  LCURLY MAPLETARROW RCURLY
+  LCURLY BARRARROW RCURLY
   {
     CmlLexeme lcurly = (CmlLexeme)$1;
     CmlLexeme rcurly = (CmlLexeme)$2;
@@ -3862,10 +3862,10 @@ mapletList :
   ;
 
 maplet :
-  expression MAPLETARROW expression
+  expression BARRARROW expression
   {
     PExp domValue = (PExp)$1;
-    // MAPLETARROW
+    // BARRARROW
     PExp rngValue = (PExp)$3;
 
     LexLocation loc = combineLexLocation( domValue.getLocation(),
@@ -4393,7 +4393,7 @@ assignmentDef :
 				     null /*PExp expression_*/, 
 				     null /*PType expType_*/);
   }
-| IDENTIFIER COLON type ASSIGN expression
+| IDENTIFIER COLON type COLONEQUALS expression
 | IDENTIFIER COLON type IN expression
   ;
 
@@ -4406,7 +4406,7 @@ assignStatement
   ;
 
 assignStatement :
-designator ASSIGN expression 
+designator COLONEQUALS expression 
 {
     PStateDesignator stateDesignator = convertToStateDesignator((PDesignator)$1);
     PExp exp = (PExp)$3;
@@ -4767,7 +4767,7 @@ patternIdentifier :
       res.setLocation(lnt.getLocation());
       $$ = res;
   }
-| VDMDONTCARE // TODO
+| MINUS // TODO: Implement "don't care" pattern
   ;
 
 /* FIXME shift/reduce conflict from a bracketed expression */
