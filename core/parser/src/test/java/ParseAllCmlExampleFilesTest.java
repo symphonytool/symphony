@@ -7,11 +7,11 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import java.util.*;
 import java.io.*;
-import org.overture.ast.node.*;
-import org.overture.ast.util.*;
+import eu.compassresearch.ast.node.*;
+import eu.compassresearch.ast.util.*;
+import eu.compassresearch.ast.program.*;
 import eu.compassresearch.core.lexer.*;
 import eu.compassresearch.core.parser.*;
-import org.overture.ast.program.*;
 
 @RunWith(Parameterized.class)
 public class ParseAllCmlExampleFilesTest {

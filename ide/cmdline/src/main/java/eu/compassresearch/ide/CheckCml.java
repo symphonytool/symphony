@@ -17,22 +17,24 @@ import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import org.overture.ast.analysis.DepthFirstAnalysisAdaptor;
-import org.overture.ast.analysis.intf.IQuestionAnswer;
-import org.overture.ast.analysis.intf.IAnalysis; 
-import org.overture.transforms.DotGraphVisitor;
+import eu.compassresearch.ast.analysis.DepthFirstAnalysisAdaptor;
+import eu.compassresearch.ast.analysis.AnalysisException;
+import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
+import eu.compassresearch.ast.analysis.intf.IAnalysis; 
+import eu.compassresearch.ast.preview.DotGraphVisitor;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 // import eu.compassresearch.core.typechecker.CmlTypeChecker; 
 // import eu.compassresearch.core.typechecker.TypeCheckInfo;
+import eu.compassresearch.core.analysis.proofobligationgenerator.ProofObligationGenerator;
  import eu.compassresearch.examples.DivWarnAnalysis;
-import org.overture.ast.program.ASourcefileSourcefile;
+import eu.compassresearch.ast.program.ASourcefileSourcefile;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Collections;
 import java.lang.reflect.*;
-import org.overture.ast.node.INode;
-import org.overture.ast.util.ClonableFile;
+import eu.compassresearch.ast.node.INode;
+import eu.compassresearch.ast.util.ClonableFile;
 
 public class CheckCml {
 
@@ -110,6 +112,7 @@ public class CheckCml {
 	    EMPTY("empty", "Empty Analysis, run the empty analysis (good for debugging).", false),
 	    DOTG("dotg", "Dot Graph, -dotg=<out> write ast dot graph to file <out>.", true),
 	    DWA("dwa", "Example, the Div Warn Analysis example", false),
+	    POG("pog", "Proof Obligation Generator, the proof obligation generator", false),
 	    INTER("i", "Interactive mode", false)
 	    ;
 
@@ -257,7 +260,7 @@ public class CheckCml {
     }
 
 
-    /*************************************************************
+/*************************************************************
      *
      * Analysis
      *
@@ -328,7 +331,7 @@ public class CheckCml {
 	    return  CheckCml.getAnalysisName(analysis);
 	}
 
-	public abstract void apply(INode node);
+	public abstract void apply(INode node) throws AnalysisException;
     };
 
     private static void writeGraphResult(DotGraphVisitor dga, String fileName)
@@ -400,22 +403,23 @@ public class CheckCml {
 	// Inform parsing went well and analysis has begon
 	System.out.println(sources.size()+" file(s) successfully parsed. Starting analysis:");
 
-	// Run the empty analysis
+
 	if (input.isSwitchOn(Switch.EMPTY))
 	    {
 		final IAnalysis empty = new DepthFirstAnalysisAdaptor();
 		AnalysisRunAdaptor r = new AnalysisRunAdaptor(empty) {
-			public void apply(INode root) { root.apply(empty); }
+			public void apply(INode root) throws AnalysisException
+			{ root.apply(empty); }
 		    };
 		runAnalysis(input, r, sources);
 	    }
-	
-	// Dot Graph Analysis
+
+
 	if (input.isSwitchOn(Switch.DOTG))
 	    {
 		final DotGraphVisitor dga = new DotGraphVisitor();
 		AnalysisRunAdaptor r = new AnalysisRunAdaptor(dga) {
-			public void apply(INode root)
+			public void apply(INode root) throws AnalysisException
 			{
 			    root.apply(dga, null);
 			}
@@ -424,12 +428,14 @@ public class CheckCml {
 		writeGraphResult(dga, Switch.DOTG.getValue());
 	    }
 
+
 	//Example Analysis DivWarnAnalysis
 	if (input.isSwitchOn(Switch.DWA))
 	    {
 		final DivWarnAnalysis dwa = new DivWarnAnalysis();
 		AnalysisRunAdaptor r = new AnalysisRunAdaptor(dwa) {
-			public void apply(INode root) { root.apply( dwa ); }
+			public void apply(INode root) throws AnalysisException
+			{ root.apply( dwa );}
 		    };
 		runAnalysis(input, r, sources);
 		for(String s : dwa.getWarnings())
@@ -437,6 +443,28 @@ public class CheckCml {
 			System.out.println("\t"+s);
 		    }
 	    }
+	        
+	//POG Analysis 
+	if (input.isSwitchOn(Switch.POG))
+	{
+		//define pog object
+		final ProofObligationGenerator pog = new ProofObligationGenerator();
+		
+		System.out.println(pog.getAnalysisName());
+		
+		//create analysis run adaptor object of type AnalysisRunAdaptor, supplying pog
+ 		//object.
+ 		AnalysisRunAdaptor r = new AnalysisRunAdaptor(pog) {
+ 				public void apply(INode root) throws AnalysisException
+ 				{ 
+ 					root.apply( pog ); 
+ 				}
+ 		    };
+ 		    
+ 		//invoke runAnalysis method, giving switch input, run adaptor, and source files
+ 		runAnalysis(input, r, sources);
+ 		pog.getResults();
+	}
 
 	// Type checking
 	// if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch

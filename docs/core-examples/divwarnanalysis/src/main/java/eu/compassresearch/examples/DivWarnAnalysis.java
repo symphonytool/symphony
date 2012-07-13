@@ -15,9 +15,9 @@ package eu.compassresearch.examples;
  * Core stuff needed in this simple analysis.
  *
  */
-import org.overture.ast.analysis.DepthFirstAnalysisAdaptor;
-import org.overture.ast.expressions.ADivideNumericBinaryExp;
-import org.overture.ast.lex.LexLocation;
+import eu.compassresearch.ast.analysis.DepthFirstAnalysisAdaptor;
+import eu.compassresearch.ast.expressions.ADivideNumericBinaryExp;
+import eu.compassresearch.ast.lex.LexLocation;
 /**
  * A bit of java 
  */
@@ -57,9 +57,14 @@ public class DivWarnAnalysis extends DepthFirstAnalysisAdaptor {
      * create a warning and add it to its output.
      */
     @Override
-    public void caseADivideNumericBinaryExp(ADivideNumericBinaryExp node) {
-	super.caseADivideNumericBinaryExp(node);
-	warnings.add(prettyPrintLocation(node.getLocation()));
+    public void caseADivideNumericBinaryExp(ADivideNumericBinaryExp node)  {
+	try {
+	    super.caseADivideNumericBinaryExp(node);
+	    warnings.add(prettyPrintLocation(node.getLocation()));
+	} catch (Exception e)
+	    {
+		e.printStackTrace();
+	    }
     }
 
     /**

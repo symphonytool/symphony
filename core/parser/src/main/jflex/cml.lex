@@ -7,7 +7,7 @@ import java.util.Stack;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.parser.CmlParser.Lexer;
 import eu.compassresearch.core.parser.CmlParser.Location;
-import org.overture.ast.lex.*;
+import eu.compassresearch.ast.lex.*;
 
 class S {
   public static StringBuilder b;

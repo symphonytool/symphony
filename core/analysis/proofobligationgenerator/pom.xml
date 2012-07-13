@@ -9,7 +9,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>pog</artifactId>
+  <artifactId>proofobligationgenerator</artifactId>
   <name>COMPASS CML Proof Obligation Generator</name>
 
   <dependencies>
