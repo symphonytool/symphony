@@ -220,6 +220,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "chansets"                              { return createToken(CmlParser.CHANSETS); }
 "char"                                  { return createToken(CmlParser.TCHAR); }
 "class"                                 { return createToken(CmlParser.CLASS); }
+"compose"                               { return createToken(CmlParser.COMPOSE); }
 "conc"                                  { return createToken(CmlParser.CONC); }
 "dcl"                                   { return createToken(CmlParser.DCL); }
 "dinter"                                { return createToken(CmlParser.DINTER); } 
@@ -280,7 +281,8 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "reverse"                               { return createToken(CmlParser.REVERSE); } 
 "rng"                                   { return createToken(CmlParser.RNG); } 
 "seq of"                                { return createToken(CmlParser.SEQOF); }
-"set of"                                { return createToken(CmlParser.VDMSETOF); }
+"seq1 of"                               { return createToken(CmlParser.SEQ1OF); }
+"set of"                                { return createToken(CmlParser.SETOF); }
 "startby"                               { return createToken(CmlParser.STARTBY); }
 "state"                                 { return createToken(CmlParser.STATE); }
 "subset"                                { return createToken(CmlParser.SUBSET); }
@@ -314,6 +316,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 ":>"                                    { return createToken(CmlParser.COLONGT); }
 ","                                     { return createToken(CmlParser.COMMA); }
 "||"                                    { return createToken(CmlParser.DBAR); }
+"||]"                                   { return createToken(CmlParser.DBARRSQUARE); }
 "::"                                    { return createToken(CmlParser.DCOLON); }
 "==>"                                   { return createToken(CmlParser.DEQRARROW); }
 "=="                                    { return createToken(CmlParser.DEQUALS); }
@@ -334,6 +337,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "[]"                                    { return createToken(CmlParser.LRSQUARE); }
 "["                                     { return createToken(CmlParser.LSQUARE); }
 "[|"                                    { return createToken(CmlParser.LSQUAREBAR); }
+"[||"                                   { return createToken(CmlParser.LSQUAREDBAR); }
 "[>"                                    { return createToken(CmlParser.LSQUAREGT); }
 "<"                                     { return createToken(CmlParser.LT); }
 "<:"                                    { return createToken(CmlParser.LTCOLON); }
@@ -356,6 +360,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "*"                                     { return createToken(CmlParser.STAR); }
 "|||"                                   { return createToken(CmlParser.TBAR); }
 "~"                                     { return createToken(CmlParser.TILDE); }
+"`"                                     { return createToken(CmlParser.BACKTICK); }
 
 /* ---- flattened above; to be dealt with below ---- */
 

@@ -324,13 +324,13 @@
  *
  */
 
-%token CLASS END PROCESS INITIAL EQUALS AT BEGIN ACTIONS CSPSEQ BARTILDEBAR LRSQUARE CSPLCHSYNC CSPRCHSYNC TBAR CSPHIDE LPAREN RPAREN CSPRENAME LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LARROW LCURLY RCURLY CSPAND BAR DBAR CHANNELS CHANSETS TYPES SEMI DCOLON VDMCOMPOSE OF VDMTYPEUNION STAR TO INMAPOF MAPOF SEQOF VDMSEQ1OF VDMSETOF PLUSGT VDMTFUNCARROW VDMUNITTYPE COLONDASH DEQUALS INV VALUES FUNCTIONS PRE POST MEASURE SUBCLASSRESP NOTYETSPEC OPERATIONS FRAME RD WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE ELLIPSIS BARRARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS TILDE DCL COLONEQUALS ATOMIC DEQRARROW RETURN IDENTIFIER
+%token CLASS END PROCESS INITIAL EQUALS AT BEGIN ACTIONS BARTILDEBAR LRSQUARE TBAR LPAREN RPAREN LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LARROW LCURLY RCURLY BAR DBAR CHANNELS CHANSETS TYPES SEMI DCOLON COMPOSE OF STAR TO INMAPOF MAPOF SEQOF SEQ1OF SETOF PLUSGT VDMUNITTYPE COLONDASH DEQUALS INV VALUES FUNCTIONS PRE POST MEASURE SUBCLASSRESP NOTYETSPEC OPERATIONS FRAME RD WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE ELLIPSIS BARRARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS TILDE DCL COLONEQUALS ATOMIC DEQRARROW RETURN IDENTIFIER BACKTICK CSPRENAME
 %token DIVIDE REM MOD LT LTE GT GTE NEQ OR AND EQRARROW LTEQUALSGT INSET NOTINSET SUBSET PROPER_SUBSET UNION BACKSLASH INTER CARET DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR FORALL EXISTS EXISTS1 STRING PARAM_VRES PARAM_RES PARAM_VAL
 
 
 %token HEX_LITERAL QUOTE_LITERAL
 
-%token AMP CSPBARGT LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA CSPLSQUAREDBAR CSPDBARRSQUARE COLON RCURLYBAR BARRCURLY QUESTION BANG SLASH SLASHBACKSLASH LSQUAREGT CSP_GT ENDBY STARTBY
+%token AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA LSQUAREDBAR DBARRSQUARE COLON RCURLYBAR BARRCURLY QUESTION BANG SLASH SLASHBACKSLASH LSQUAREGT ENDBY STARTBY
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
 %token nameset namesetExpr typeVarIdentifier  
@@ -340,7 +340,7 @@
 %left SEQOF
 
 /* CSP ops and more */
-%left CSPSEQ BARTILDEBAR LRSQUARE CSPLCHSYNC CSPRCHSYNC TBAR CSPHIDE CSPAND AMP RARROW DLSQUARE CSPBARGT LSQUAREBAR LSQUAREGT BARRSQUARE LSQUARE RSQUARE CSPRENAME VDMTYPEUNION VDMSETOF VDMSEQ1OF MAPOF INMAPOF PLUSGT VDMTFUNCARROW TO OF NEW COLONEQUALS SLASH BACKSLASH CSP_GT ENDBY STARTBY CSPLSQUAREDBAR CSPDBARRSQUARE DBAR SLASHBACKSLASH
+%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF NEW COLONEQUALS SLASH BACKSLASH ENDBY STARTBY LSQUAREDBAR DBARRSQUARE DBAR SLASHBACKSLASH CSPRENAME
 
 %right ELSE ELSEIF
 
@@ -492,7 +492,7 @@ process :
       PAction action = (PAction)$3;
       $$ = new AStateProcess(location,processDeclarations,action);
   }
-| process CSPSEQ process
+| process SEMI process
 {
     PProcess left = (PProcess)$1;
     PProcess right = (PProcess)$3;
@@ -672,7 +672,7 @@ process :
 				    renameExpression);
 }
 //| LPAREN process RPAREN LSQUARE identifierList CSPRENAME identifierList RSQUARE //TODO
-| CSPSEQ LCURLY declaration AT process RCURLY //TODO
+| SEMI LCURLY declaration AT process RCURLY //TODO
 | BARTILDEBAR LCURLY declaration AT process RCURLY //TODO
 | LRSQUARE LCURLY declaration AT process RCURLY //TODO
 | LSQUARE LCURLY chansetExpr RSQUARE declaration AT process RCURLY //TODO
@@ -838,7 +838,7 @@ action
     LexLocation location = extractLexLocation((CmlLexeme)$1);
     $$ = new ADivAction(location);
 }
-| CSPWAIT expression
+| CSPWAIT LPAREN expression RPAREN
 {
     PExp exp = (PExp)$2;
     
@@ -854,13 +854,13 @@ action
     LexLocation location = combineLexLocation(id.getLocation(),action.getLocation());
     $$ = new ACommunicationAction(location, id, null,action);
 }
-| IDENTIFIER communicationParameterUseList RARROW action
+| IDENTIFIER communicationParameterList RARROW action
 {
     LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
     PAction action = (PAction)$4;
     LexLocation location = combineLexLocation(id.getLocation(),action.getLocation());
     List<PCommunicationParameter> communicationParamters = (List<PCommunicationParameter>)$2;
-    $$ = new ACommunicationAction(location, id, 
+    $$ = new ACommunicationAction(location, id,
 				  communicationParamters,
 				  action);
 }
@@ -871,7 +871,7 @@ action
     LexLocation location = extractLexLocation((CmlLexeme)$1,action.getLocation());
     $$ = new AGuardedAction(location, (PExp)$2, action);
 }
-| action CSPSEQ action
+| action SEMI action
 {
     PAction left = (PAction)$1;
     PAction right = (PAction)$3;
@@ -979,7 +979,7 @@ action
 }
 ;
 
-communicationParameterUseList :
+communicationParameterList :
   communicationParameter
   {
       List<PCommunicationParameter> comParamList = 
@@ -987,7 +987,7 @@ communicationParameterUseList :
       comParamList.add((PCommunicationParameter)$1);
       $$ = comParamList;
   }
-| communicationParameter communicationParameterUseList
+| communicationParameter communicationParameterList
 {
     List<PCommunicationParameter> comParamList = 
 	(List<PCommunicationParameter>)$2;
@@ -1023,13 +1023,14 @@ communicationParameter :
 								 exp.getLocation());
     $$ = new AWriteCommunicationParameter(location, exp);
 }
-| DOT expression  
-{
-    PExp exp = (PExp)$2;
-    LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1),
-								 exp.getLocation());
-    $$ = new AReferenceCommunicationParameter(location, exp);
-}
+// TODO -- this causes problems with general expressions
+/* | DOT expression */
+/* { */
+/*     PExp exp = (PExp)$2; */
+/*     LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1), */
+/* 								 exp.getLocation()); */
+/*     $$ = new AReferenceCommunicationParameter(location, exp); */
+/* } */
   ;
 
 parameter :
@@ -1086,7 +1087,7 @@ parameter
 ;
 
 parallelAction:
-action CSPLSQUAREDBAR namesetExpr BAR namesetExpr CSPDBARRSQUARE action //TODO
+action LSQUAREDBAR namesetExpr BAR namesetExpr DBARRSQUARE action //TODO
  | action TBAR action //TODO
  | action LSQUAREBAR namesetExpr BAR namesetExpr BARRSQUARE action //TODO
  | action DBAR action //TODO
@@ -1126,10 +1127,10 @@ LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
 
 
 replicatedAction :
- CSPSEQ LCURLY declaration AT action RCURLY //TODO
+ SEMI LCURLY declaration AT action RCURLY //TODO
 | BARTILDEBAR LCURLY declaration AT action RCURLY //TODO
 | LRSQUARE LCURLY declaration AT action RCURLY //TODO
-| CSPLSQUAREDBAR nameset CSPDBARRSQUARE LPAREN declaration AT action RPAREN //TODO
+| LSQUAREDBAR nameset DBARRSQUARE LPAREN declaration AT action RPAREN //TODO
 | LSQUAREBAR nameset BAR chansetExpr BARRSQUARE LPAREN declaration AT action RPAREN //TODO
 | DBAR declaration AT LSQUARE nameset BAR chansetExpr RSQUARE action //TODO
 | LSQUARE renameList RSQUARE LPAREN declaration AT action RPAREN //TODO
@@ -1750,7 +1751,7 @@ bracketedType
 {
     $$ = $1;
 }
-| VDMCOMPOSE IDENTIFIER OF fieldList END // TODO
+| COMPOSE IDENTIFIER OF fieldList END // TODO
 | LPAREN unionType RPAREN 
 {
     $$ = $2;
@@ -1763,7 +1764,7 @@ bracketedType
 {
     $$ = $1;
 }
-| VDMSETOF type
+| SETOF type
 {
   // Get Constituents
   CmlLexeme setof = (CmlLexeme)$1;
@@ -1787,7 +1788,7 @@ bracketedType
   ASeqSeqType res = new ASeqSeqType( loc, false, null, type, false );
   $$ = res;
 }
-| VDMSEQ1OF type
+| SEQ1OF type
 {
   CmlLexeme seqof = (CmlLexeme)$1;
   PType type = (PType)$2;
@@ -1978,7 +1979,7 @@ type PLUSGT type
     params.add(domType);
     $$ = new AFunctionType(loc, false, null, true, params, rngType );
 }
-| VDMUNITTYPE PLUSGT type
+| LPAREN RPAREN PLUSGT type /* VDMUNITTYPE */
 {
     PType domType = new AVoidType(extractLexLocation((CmlLexeme)$1), 
 				  true);
@@ -2012,7 +2013,7 @@ type RARROW type
     params.add(domType);
     $$ = new AFunctionType(loc, false, null, false, params, rngType );
 }
-| VDMUNITTYPE RARROW type
+| LPAREN RPAREN RARROW type /* VDMUNITTYPE */
 {
     PType domType = new AVoidType(extractLexLocation((CmlLexeme)$1), 
 				  true);
@@ -2669,9 +2670,9 @@ implicitOperationDef
 
 operationType :
   type DEQRARROW type // TODO
-| LPAREN RPAREN DEQRARROW type // TODO
+| LPAREN RPAREN DEQRARROW type /* VDMUNIT TYPE */ // TODO
 | type DEQRARROW LPAREN RPAREN // TODO
-| LPAREN RPAREN DEQRARROW LPAREN RPAREN // TODO
+| LPAREN RPAREN DEQRARROW LPAREN RPAREN /* VDMUNIT TYPE */ // TODO
   ;
 
 operationBody :
@@ -3019,7 +3020,7 @@ expression :
     LexNameToken lnt = ((LexNameToken)$1).getOldName();
     $$ = new ANameExp(lnt.location,lnt);
 }
-| symbolicLiteral
+| symbolicLiteral // TODO
   ;
 
 symbolicLiteral:
@@ -4154,7 +4155,7 @@ IDENTIFIER
     ids.add(extractLexIdentifierToken((CmlLexeme)$1));
     $$ = new ASimpleName(ids);
 }
-| name DOT IDENTIFIER
+| name BACKTICK IDENTIFIER
 {
     ASimpleName sname = (ASimpleName)$1;
     
@@ -4704,7 +4705,7 @@ name LPAREN expressionList RPAREN
  */
 returnStatement :
    RETURN SEMI  // TODO
- | RETURN expression 
+ | RETURN LPAREN expression RPAREN
    {
        PExp exp = (PExp)$2;
        $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1,
