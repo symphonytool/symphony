@@ -1311,7 +1311,7 @@ singleTypeDecl :
   {
     List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$1;
     ASingleTypeDeclaration singleTypeDeclaration =
-      new ASingleTypeDeclaration(id.getLocation(),NameScope.GLOBAL,ids,(PType)$3);
+      new ASingleTypeDeclaration(ids.get(0).getLocation(),NameScope.GLOBAL,ids,(PType)$3);
     $$ = singleTypeDeclaration;
   }
 ;
@@ -2930,10 +2930,25 @@ expression :
 {
   $$ = $1;
 }
-| setRangeExpr
-{
-  $$ = $1;
-}
+/* | setRangeExpr */
+/* { */
+/*   $$ = $1; */
+/* } */
+  LCURLY expression ELLIPSIS expression RCURLY
+  {
+    // Get constituents
+    CmlLexeme lcurly = (CmlLexeme)$1;
+    PExp start = (PExp)$2;
+    PExp end = (PExp)$4;
+    CmlLexeme rcurly = (CmlLexeme)$5;
+
+    LexLocation loc = combineLexLocation( extractLexLocation( lcurly ),
+					  extractLexLocation( rcurly ) );
+
+    // Build ASetRangeSetExpr
+    ASetRangeSetExp res = new ASetRangeSetExp( loc, start, end );
+    $$ = res;
+  }
 | sequenceEnumeration
 {
   $$ = $1;
@@ -2942,10 +2957,24 @@ expression :
 {
   $$ = $1;
 }
-| subsequence
-{
-  $$ = $1;
-}
+/* | subsequence */
+/* { */
+/*   $$ = $1; */
+/* } */
+  expression LPAREN expression ELLIPSIS expression RPAREN
+  {
+    PExp seq = (PExp)$1;
+    PExp from = (PExp)$3;
+    PExp to   = (PExp)$5;
+    CmlLexeme rparen = (CmlLexeme)$6;
+
+    LexLocation loc = combineLexLocation(seq.getLocation(),
+					 extractLexLocation( rparen ) );
+    
+    // Build result
+    ASubseqExp res = new ASubseqExp( loc, seq, from , to );
+    $$ = res;
+  }
 | mapEnumeration
 {
   $$ = $1;
@@ -3698,26 +3727,25 @@ setComprehension :
 }
   ;
 
-setRangeExpr : 
-  LCURLY expression COMMA ELLIPSIS COMMA expression RCURLY
-  {
-    // Get constituents
-    CmlLexeme lcurly = (CmlLexeme)$1;
-    PExp start = (PExp)$2;
-    // COMMA $3
-    // ELLIPSIS $4
-    // COMMA $5
-    PExp end = (PExp)$6;
-    CmlLexeme rcurly = (CmlLexeme)$7;
-
-    LexLocation loc = combineLexLocation( extractLexLocation( lcurly ),
-					  extractLexLocation( rcurly ) );
-
-    // Build ASetRangeSetExpr
-    ASetRangeSetExp res = new ASetRangeSetExp( loc, start, end );
-    $$ = res;
-  }
-  ;
+// Now inline
+/* setRangeExpr :  */
+/*   LCURLY expression COMMA ELLIPSIS COMMA expression RCURLY */
+/*   { */
+/*     // Get constituents */
+/*     CmlLexeme lcurly = (CmlLexeme)$1; */
+/*     PExp start = (PExp)$2; */
+/*     // COMMA $3 */
+/*     // ELLIPSIS $4 */
+/*     // COMMA $5 */
+/*     PExp end = (PExp)$6; */
+/*     CmlLexeme rcurly = (CmlLexeme)$7; */
+/*     LexLocation loc = combineLexLocation( extractLexLocation( lcurly ), */
+/* 					  extractLexLocation( rcurly ) ); */
+/*     // Build ASetRangeSetExpr */
+/*     ASetRangeSetExp res = new ASetRangeSetExp( loc, start, end ); */
+/*     $$ = res; */
+/*   } */
+/*   ; */
 
 /* 4.8 Sequence Expression */
 
@@ -3785,26 +3813,25 @@ sequenceComprehension :
 }
   ;
 
-subsequence :
-  expression LPAREN expression COMMA ELLIPSIS COMMA expression RPAREN
-  {
-    PExp seq = (PExp)$1;
-    // $2 LPAREN
-    PExp from = (PExp)$3;
-    // $4 COMMA
-    // $5 ELLIPSIS
-    // $6 COMMA
-    PExp to   = (PExp)$7;
-    CmlLexeme rparen = (CmlLexeme)$8;
-
-    LexLocation loc = combineLexLocation(seq.getLocation(),
-					 extractLexLocation( rparen ) );
-    
-    // Build result
-    ASubseqExp res = new ASubseqExp( loc, seq, from , to );
-    $$ = res;
-  }
-  ;
+// Now inline
+/* subsequence : */
+/*   expression LPAREN expression COMMA ELLIPSIS COMMA expression RPAREN */
+/*   { */
+/*     PExp seq = (PExp)$1; */
+/*     // $2 LPAREN */
+/*     PExp from = (PExp)$3; */
+/*     // $4 COMMA */
+/*     // $5 ELLIPSIS */
+/*     // $6 COMMA */
+/*     PExp to   = (PExp)$7; */
+/*     CmlLexeme rparen = (CmlLexeme)$8; */
+/*     LexLocation loc = combineLexLocation(seq.getLocation(), */
+/* 					 extractLexLocation( rparen ) ); */    
+/*     // Build result */
+/*     ASubseqExp res = new ASubseqExp( loc, seq, from , to ); */
+/*     $$ = res; */
+/*   } */
+/*   ; */
 
 mapEnumeration :
   LCURLY BARRARROW RCURLY
@@ -4906,7 +4933,7 @@ typeBindList :
       ATypeBind hd = (ATypeBind)$3;
       List<ATypeBind> tbl = (List<ATypeBind>)$1;
       tbl.add(hd);
-      $$ = tl;
+      $$ = tbl;
     }
   ;
 

@@ -326,7 +326,8 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "++"                                    { return createToken(CmlParser.DPLUS); }
 "]]"                                    { return createToken(CmlParser.DRSQUARE); }
 "**"                                    { return createToken(CmlParser.DSTAR); }
-"..."                                   { return createToken(CmlParser.ELLIPSIS); }
+// yes, the ellipsis includes the commas all as a single token
+","[ \t]*"..."[ \t]*","                 { return createToken(CmlParser.ELLIPSIS); }
 "=>"                                    { return createToken(CmlParser.EQRARROW); }
 "="                                     { return createToken(CmlParser.EQUALS); }
 ">"                                     { return createToken(CmlParser.GT); }
