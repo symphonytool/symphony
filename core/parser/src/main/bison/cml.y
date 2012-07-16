@@ -1342,11 +1342,10 @@ chansetDefinition
     defs.add((AChansetDefinition)$1);
     $$ = defs;
 }
-| chansetDefinition chansetDefinitionList
+| chansetDefinitionList chansetDefinition
 {
-    List<AChansetDefinition> defs = 
-	(List<AChansetDefinition>)$2;
-    defs.add((AChansetDefinition)$1);
+    List<AChansetDefinition> defs = (List<AChansetDefinition>)$1;
+    defs.add((AChansetDefinition)$2);
     $$ = defs;
 }
 ;
@@ -1588,18 +1587,18 @@ typeDefs :
 ;
 
 typeDefList :
-  typeDefList SEMI typeDef                   
-{
-    List<ATypeDefinition> list = (List<ATypeDefinition>)$1;
-    list.add((ATypeDefinition)$3);
-    $$ = list;
-}
-| typeDef                                    
+  typeDef                                    
 {
     List<ATypeDefinition> list = new Vector<ATypeDefinition>(); 
     list.add((ATypeDefinition)$1);
     $$ = list;
 } 
+| typeDefList SEMI typeDef                   
+{
+    List<ATypeDefinition> list = (List<ATypeDefinition>)$1;
+    list.add((ATypeDefinition)$3);
+    $$ = list;
+}
 ;
 
 typeDef :
@@ -2021,26 +2020,25 @@ type RARROW type
 }
 ;
 
-typeUnionList :
-type SEMI
-{
-  PType type = (PType)$1;
-  LexLocation loc = type.getLocation();
-  AUnionType res = new AUnionType(loc,false,false,false);
-  $$ = res;
-}
-|
-type BAR typeUnionList
-{
-
-  PType type = (PType)$1;
-  AUnionType tl = (AUnionType)$3;
-  LexLocation updatedLocation  =combineLexLocation( tl.getLocation(),
-						     type.getLocation() );
-  tl.getTypes().add(type);
-  tl.setLocation(updatedLocation);
-  $$ = tl;
-}
+/* typeUnionList : */
+/* type SEMI */
+/* { */
+/*   PType type = (PType)$1; */
+/*   LexLocation loc = type.getLocation(); */
+/*   AUnionType res = new AUnionType(loc,false,false,false); */
+/*   $$ = res; */
+/* } */
+/* | */
+/* type BAR typeUnionList */
+/* { */
+/*   PType type = (PType)$1; */
+/*   AUnionType tl = (AUnionType)$3; */
+/*   LexLocation updatedLocation  =combineLexLocation( tl.getLocation(), */
+/* 						     type.getLocation() ); */
+/*   tl.getTypes().add(type); */
+/*   tl.setLocation(updatedLocation); */
+/*   $$ = tl; */
+/* } */
 
 quoteLiteral :
 QUOTE_LITERAL
@@ -2456,16 +2454,7 @@ LPAREN RPAREN
 ; 
 
 patternListTypeList :
-patternList COLON type COMMA patternListTypeList
-{
-    List<APatternListTypePair> pltpl = (List<APatternListTypePair>)$5;
-    List<PPattern> patternList = (List<PPattern>)$1;
-    pltpl.add(new APatternListTypePair(false /*resolved*/, 
-				       patternList, 
-				       (PType)$3));
-    $$ = pltpl;
-}
-| patternList COLON type
+  patternList COLON type
 {
     List<PPattern> patternList = (List<PPattern>)$1;
     List<APatternListTypePair> pltpl = new Vector<APatternListTypePair>();
@@ -2474,7 +2463,16 @@ patternList COLON type COMMA patternListTypeList
 				       (PType)$3));
     $$ = pltpl;
 }
-
+| patternListTypeList COMMA patternList COLON type
+{
+    List<APatternListTypePair> pltpl = (List<APatternListTypePair>)$1;
+    List<PPattern> patternList = (List<PPattern>)$3;
+    pltpl.add(new APatternListTypePair(false /*resolved*/, 
+				       patternList, 
+				       (PType)$5));
+    $$ = pltpl;
+}
+;
 
 identifierTypePairList_opt :
   /* empty */
