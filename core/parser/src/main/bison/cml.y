@@ -1307,23 +1307,13 @@ singleTypeDecl
 ;
 
 singleTypeDecl :
-IDENTIFIER COLON type
-{
-    LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
-    List<LexIdentifierToken> ids = new Vector<LexIdentifierToken>();
-    ids.add(id);
-    ASingleTypeDeclaration singleTypeDeclaration = 
+  identifierList COLON type
+  {
+    List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$1;
+    ASingleTypeDeclaration singleTypeDeclaration =
       new ASingleTypeDeclaration(id.getLocation(),NameScope.GLOBAL,ids,(PType)$3);
     $$ = singleTypeDeclaration;
-}
-| IDENTIFIER COMMA singleTypeDecl
-{
-    LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
-    ASingleTypeDeclaration singleTypeDeclaration = (ASingleTypeDeclaration)$3;
-    
-    singleTypeDeclaration.getIdentifiers().add(id);
-    $$ = singleTypeDeclaration;
-}
+  }
 ;
 
 /* 2.4 Chanset Definitions */
@@ -4937,19 +4927,18 @@ identifierList :
       $$ = ids;
   }
 
-| IDENTIFIER COMMA identifierList
+| identifierList COMMA IDENTIFIER
 {
-
-    List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$3;
+    List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$1;
 
     if (ids == null)
 	ids = new Vector<LexIdentifierToken>();
 
-    CmlLexeme cmlLex = (CmlLexeme) $1;
+    CmlLexeme cmlLex = (CmlLexeme) $3;
     LexLocation location = extractLexLocation(cmlLex);
-    LexIdentifierToken lexIdToken = 
+    LexIdentifierToken lexIdToken =
 	new LexIdentifierToken(cmlLex.getValue(),false,location);
-    ids.add(lexIdToken);
+    ids.add(0, lexIdToken);
     $$ = ids;
 }
   ;
