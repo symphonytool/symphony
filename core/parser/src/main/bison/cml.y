@@ -987,15 +987,15 @@ communicationParameterList :
       comParamList.add((PCommunicationParameter)$1);
       $$ = comParamList;
   }
-| communicationParameter communicationParameterList
+| communicationParameterList communicationParameter
 {
     List<PCommunicationParameter> comParamList = 
-	(List<PCommunicationParameter>)$2;
+	(List<PCommunicationParameter>)$1;
 
     if (comParamList == null) 
 	comParamList = new Vector<PCommunicationParameter>();
     
-    comParamList.add((PCommunicationParameter)$1);
+    comParamList.add((PCommunicationParameter)$2);
     $$ = comParamList;
 }
   ;
@@ -1078,10 +1078,10 @@ parameter
     parameters.add((PParameter)$1);
     $$ = parameters;
 }
-| parameter COMMA paramList 
+| paramList COMMA parameter 
 {
-    List<PParameter> parameters = (List<PParameter>)$3;
-    parameters.add((PParameter)$1);
+    List<PParameter> parameters = (List<PParameter>)$1;
+    parameters.add((PParameter)$3);
     $$ = parameters;
 }
 ;
@@ -1178,10 +1178,10 @@ renamePair
     renamePairs.add((ARenamePair)$1);
     $$ = renamePairs;
 }
-| renamePair COMMA renameList
+| renameList COMMA renamePair
 {
-    List<ARenamePair> renamePairs = (List<ARenamePair>)$3;
-    renamePairs.add((ARenamePair)$1);
+    List<ARenamePair> renamePairs = (List<ARenamePair>)$1;
+    renamePairs.add((ARenamePair)$3);
     $$ = renamePairs;
 }
 ;
@@ -2059,10 +2059,10 @@ fieldList :
     res.add ( (AFieldField) $1 );
     $$ = res;
   }
-| field fieldList
+| fieldList field
 {
-  List<AFieldField> tail = (List<AFieldField>)$2;
-  tail.add( (AFieldField) $1 );
+  List<AFieldField> tail = (List<AFieldField>)$1;
+  tail.add( (AFieldField) $2 );
   $$ = tail;
 }
 ;
@@ -2420,10 +2420,10 @@ LPAREN RPAREN
     patternListList.add(patternList);
     $$ = patternListList;
 }
-| LPAREN patternList RPAREN parameterList
+| parameterList LPAREN patternList RPAREN
 {
-    List<PPattern> patternList = (List<PPattern>)$2;
-    List<List<PPattern>> patternListList = (List<List<PPattern>>)$4;
+    List<PPattern> patternList = (List<PPattern>)$3;
+    List<List<PPattern>> patternListList = (List<List<PPattern>>)$1;
     patternListList.add(patternList);
     $$ = patternListList;
 }
@@ -2499,14 +2499,14 @@ IDENTIFIER COLON type
     typePairs.add(typePair);
     $$ = typePairs;
 }
-| IDENTIFIER COLON type COMMA identifierTypePairList
+| identifierTypePairList COMMA IDENTIFIER COLON type 
 {
     AIdentifierTypePair typePair = 
 	new AIdentifierTypePair(null /*resolved*/, 
-				extractLexIdentifierToken((CmlLexeme)$1), 
-				(PType)$3
+				extractLexIdentifierToken((CmlLexeme)$3), 
+				(PType)$5
 				);
-    List<AIdentifierTypePair> typePairs = (List<AIdentifierTypePair>)$5;
+    List<AIdentifierTypePair> typePairs = (List<AIdentifierTypePair>)$1;
     typePairs.add(typePair);
     $$ = typePairs;
 }
@@ -2588,11 +2588,11 @@ operationDefList :
     opDefinitions.add((SOperationDefinition)$1);
     $$ = opDefinitions;
 }
-| operationDef SEMI operationDefList
+| operationDefList SEMI operationDef
 {
     List<SOperationDefinition> opDefinitions = 
-	  (List<SOperationDefinition>)$3;
-    opDefinitions.add((SOperationDefinition)$1);
+	  (List<SOperationDefinition>)$1;
+    opDefinitions.add((SOperationDefinition)$3);
     $$ = opDefinitions;
 }
 ;
@@ -2708,11 +2708,10 @@ varInformationList :
       infoList.add((AExternalClause)$1);
       $$ = infoList;
   }
-| varInformation varInformationList
+| varInformationList varInformation
 {
-    List<AExternalClause> infoList = 
-	(List<AExternalClause>)$2;
-    infoList.add((AExternalClause)$1);
+    List<AExternalClause> infoList = (List<AExternalClause>)$1;
+    infoList.add((AExternalClause)$2);
     $$ = infoList;
 }
   ;
@@ -2845,10 +2844,10 @@ expression
     exps.add((PExp)$1);
     $$ = exps;    
 }
-| expression COMMA expressionList
+| expressionList COMMA expression
 {
-    List<PExp> exps = (List<PExp>)$3;
-    exps.add((PExp)$1);
+    List<PExp> exps = (List<PExp>)$1;
+    exps.add((PExp)$3);
     $$ = exps;    
 }
 ;
@@ -3055,10 +3054,10 @@ localDefList :
     res.add((PDefinition)$1);
     $$ = res;
   }
-| localDef COMMA localDefList
+| localDefList COMMA localDef
 {
-  PDefinition def = (PDefinition)$1;
-  List<PDefinition> defs = (List<PDefinition>)$3;
+  PDefinition def = (PDefinition)$3;
+  List<PDefinition> defs = (List<PDefinition>)$1;
   defs.add(def);
   $$ = defs;
 }
@@ -3199,12 +3198,11 @@ casesExprAltList :
 
   $$ = casesExp;
 }
-| casesExprAlt casesExprAltList
+| casesExprAltList casesExprAlt
 {
-  
   // Get constituents
-  ACaseAlternative altExp = (ACaseAlternative)$1;
-  ACasesExp casesExp = (ACasesExp)$2;
+  ACasesExp casesExp = (ACasesExp)$1;
+  ACaseAlternative altExp = (ACaseAlternative)$2;
 
   // Add altExp to tail
   casesExp.getCases().add(altExp);
@@ -3841,14 +3839,13 @@ mapletList :
     res.add( (AMapletExp) $1 );
     $$ = res;
   }
-| maplet COMMA mapletList
+| mapletList COMMA maplet
   {
-    AMapletExp hd = (AMapletExp)$1;
-    // $2 COMMA
-    List<AMapletExp> tail = (List<AMapletExp>)$3;
+    List<AMapletExp> maplets = (List<AMapletExp>)$1;
+    AMapletExp hd = (AMapletExp)$3;
     
-    tail.add(hd);
-    $$ = tail;
+    maplets.add(hd);
+    $$ = maplets;
   }
   ;
 
@@ -4215,11 +4212,10 @@ name
     identifiers.add(lnt);
     $$ = identifiers;
 }
-| name COMMA nameList
+| nameList COMMA name
 {
-    LexNameToken lnt = extractLexNameToken((ASimpleName)$1);
-    List<LexNameToken> identifiers = 
-	(List<LexNameToken>)$3;
+    LexNameToken lnt = extractLexNameToken((ASimpleName)$3);
+    List<LexNameToken> identifiers = (List<LexNameToken>)$1;
     identifiers.add(lnt);
     $$ = identifiers;
 }
@@ -4355,14 +4351,14 @@ assignmentDef
     assignmentDefs.add((AAssignmentDefinition)$1);
     $$ = assignmentDefs; 
 }
-| assignmentDef COMMA assignmentDefList
+| assignmentDefList COMMA assignmentDef
 {
-    List<AAssignmentDefinition> assignmentDefs = (List<AAssignmentDefinition>)$3;
+    List<AAssignmentDefinition> assignmentDefs = (List<AAssignmentDefinition>)$1;
     
     if (assignmentDefs == null) 
 	assignmentDefs = new Vector<AAssignmentDefinition>();
     
-    assignmentDefs.add((AAssignmentDefinition)$1);
+    assignmentDefs.add((AAssignmentDefinition)$3);
     $$ = assignmentDefs;
 }
   ;
@@ -4411,7 +4407,7 @@ designator COLONEQUALS expression
 
 assignStatementList :
   assignStatement // TODO
-| assignStatement SEMI assignStatementList // TODO
+| assignStatementList SEMI assignStatement // TODO
   ;
 
 multiAssignStatement :
@@ -4740,10 +4736,10 @@ patternList :
       patterns.add((PPattern)$1);
       $$ = patterns;
   }
-| pattern COMMA patternList
+| patternList COMMA pattern
 {
-    List<PPattern> patterns = (Vector<PPattern>)$3;
-    patterns.add((PPattern)$1);
+    List<PPattern> patterns = (Vector<PPattern>)$1;
+    patterns.add((PPattern)$3);
     $$ = patterns;
 }
   ;
@@ -4905,11 +4901,11 @@ typeBindList :
     res.add(tb);
     $$ = res;
   }
-| typeBind COMMA typeBindList
+| typeBindList COMMA typeBind
     {
-      ATypeBind hd = (ATypeBind)$1;
-      List<ATypeBind> tl = (List<ATypeBind>)$3;
-      tl.add(hd);
+      ATypeBind hd = (ATypeBind)$3;
+      List<ATypeBind> tbl = (List<ATypeBind>)$1;
+      tbl.add(hd);
       $$ = tl;
     }
   ;
