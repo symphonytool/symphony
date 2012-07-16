@@ -9,10 +9,6 @@ import eu.compassresearch.core.parser.CmlParser.Lexer;
 import eu.compassresearch.core.parser.CmlParser.Location;
 import eu.compassresearch.ast.lex.*;
 
-class S {
-  public static StringBuilder b;
-}
-
 %%
 // ******************************************
 // *** JFLEX SCANNER GENERATOR DIRECTIVES ***
@@ -23,7 +19,7 @@ class S {
 %implements Lexer
 //input files will be in unicode
 %unicode
- //used when interfacing with bison  
+//used when interfacing with bison  
 %byaccj
 // yylex return CmlLexeme
 //%type CmlLexeme 
@@ -36,7 +32,10 @@ class S {
 %public
 
 %{
-  static private Stack<Integer> stateStack = new Stack<Integer>();
+  /* used to concatenate strings together */
+  private static StringBuilder stringBuilder;
+
+  private static Stack<Integer> stateStack = new Stack<Integer>();
 
   private CmlLexeme yylvalue;
   private int offset = 0;
@@ -363,9 +362,9 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 
 /* ---- complex terminals below ---- */
 
-"\""                                    { offset += yytext().length();stateStack.push(yystate());yybegin(STRING); S.b = new StringBuilder(); }
-<STRING>"\""                            { offset += yytext().length();yybegin(stateStack.pop()); return createToken(CmlParser.STRING, S.b.toString()); }
-<STRING>[^\"]                           { S.b.append(yytext()); }
+"\""                                    { offset += yytext().length();stateStack.push(yystate());yybegin(STRING); stringBuilder = new StringBuilder(); }
+<STRING>"\""                            { offset += yytext().length();yybegin(stateStack.pop()); return createToken(CmlParser.STRING, stringBuilder.toString()); }
+<STRING>[^\"]                           { stringBuilder.append(yytext()); }
 
 {WhiteSpace}                            { offset += yytext().length(); }
 {identifier}                            { return createToken(CmlParser.IDENTIFIER); }
