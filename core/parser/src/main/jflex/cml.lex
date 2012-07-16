@@ -277,6 +277,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "rat"                                   { return createToken(CmlParser.TRAT); }
 "rd"                                    { return createToken(CmlParser.RD); }
 "real"                                  { return createToken(CmlParser.TREAL); }
+"res"                                   { return createToken(CmlParser.RES); }
 "return"                                { return createToken(CmlParser.RETURN); }
 "reverse"                               { return createToken(CmlParser.REVERSE); } 
 "rng"                                   { return createToken(CmlParser.RNG); } 
@@ -292,7 +293,9 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "token"                                 { return createToken(CmlParser.TTOKEN); }
 "types"                                 { return createToken(CmlParser.TYPES); }
 "union"                                 { return createToken(CmlParser.UNION); }
+"val"                                   { return createToken(CmlParser.VAL); }
 "values"                                { return createToken(CmlParser.VALUES); }
+"vres"                                  { return createToken(CmlParser.VRES); }
 "wr"                                    { return createToken(CmlParser.WR); }
 
 {quoteliteral}                          { return createToken(CmlParser.QUOTE_LITERAL); }
