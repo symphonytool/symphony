@@ -358,8 +358,8 @@
 
 /* 2 CML Grammar */
 
-sourceFile
-: programParagraphList                            
+sourceFile :
+  programParagraphList                            
 {
     List<PDeclaration> decls = (List<PDeclaration>) $1;  
     currentSourceFile.setDecls(decls);
@@ -379,7 +379,7 @@ sourceFile
 }
 ;
 
-programParagraphList: 
+programParagraphList : 
   programParagraph                                
   {  
       List<PDeclaration> programParagraphList = 
@@ -400,16 +400,16 @@ programParagraphList:
  }
 ;
 
-programParagraph 
-: classDecl                                       { $$ = $1; }
+programParagraph :
+  classDecl                                       { $$ = $1; }
 | processDecl                                     { $$ = $1; }
 | channelDecl                                     { $$ = $1; }
 | chansetDecl                                     { $$ = $1; }
 ;
 
 /* 2.1 Classes */
-classDecl 
-: CLASS IDENTIFIER EQUALS classBody
+classDecl :
+  CLASS IDENTIFIER EQUALS classBody
 { 
   AClassbodyDefinition c = new AClassbodyDefinition();
   CmlLexeme id = (CmlLexeme)$2;
@@ -681,17 +681,17 @@ process :
 
 //This is how it is defined in the grammar but this gives reduce/reduce conflict
 //Since expression and type both can be a name.
-// replicationDeclaration:
+// replicationDeclaration :
 //   replicationDeclarationAlt
 // | replicationDeclarationAlt SEMI replicationDeclaration
 // ;
 
-// replicationDeclarationAlt:
+// replicationDeclarationAlt :
 //   singleTypeDecl
 // | singleExpressionDeclaration
 // ;
 
-// singleExpressionDeclaration:
+// singleExpressionDeclaration :
 // IDENTIFIER COLON expression
 // {
 //     // LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
@@ -713,7 +713,7 @@ process :
 
 
 
-processParagraphList:
+processParagraphList :
 processParagraph
 {
     List<PDeclaration> processParagraphList = 
@@ -744,7 +744,7 @@ processParagraph :
 }
 ;
 
-actionParagraph:
+actionParagraph :
 ACTIONS actionDefinitionList
 {
     List<AActionDefinition> actionDefinitions = 
@@ -758,7 +758,7 @@ ACTIONS actionDefinitionList
 | ACTIONS nameset IDENTIFIER EQUALS namesetExpr //TODO
 ;
 
-actionDefinitionList:
+actionDefinitionList :
 actionDefinition
 {
     List<AActionDefinition> actionDefs = 
@@ -775,7 +775,7 @@ actionDefinition
 }
 ;
 
-actionDefinition:
+actionDefinition :
 IDENTIFIER EQUALS paragraphAction
 {
     Object[] pa = (Object[])$3;
@@ -805,9 +805,9 @@ action
 } 
 ;
 
-statements
-   //| letStatement
-: blockStatement
+statements :
+   // TODO | letStatement
+  blockStatement
 {
     $$ = $1;
 }
@@ -817,8 +817,8 @@ statements
 }
 ;
 
-action
-: CSPSKIP 
+action :
+  CSPSKIP 
 { 
     LexLocation location = extractLexLocation((CmlLexeme)$1);
     $$ = new ASkipAction(location);
@@ -1086,7 +1086,7 @@ parameter
 }
 ;
 
-parallelAction:
+parallelAction :
 action LSQUAREDBAR namesetExpr BAR namesetExpr DBARRSQUARE action //TODO
  | action TBAR action //TODO
  | action LSQUAREBAR namesetExpr BAR namesetExpr BARRSQUARE action //TODO
@@ -1097,22 +1097,22 @@ action LSQUAREDBAR namesetExpr BAR namesetExpr DBARRSQUARE action //TODO
  | action LSQUAREBAR chansetExpr BARRSQUARE action //TODO
 ;
 
-parametrisedAction:
+parametrisedAction :
 LPAREN parametrisationList AT action RPAREN
 ;
 
-parametrisationList:
+parametrisationList :
   parametrisation
 | parametrisation SEMI parametrisationList 
 ;
 
-parametrisation:
+parametrisation :
   PARAM_VAL singleTypeDecl
 | PARAM_RES singleTypeDecl
 | PARAM_VRES singleTypeDecl
 ;
 
-instantiatedAction:
+instantiatedAction :
 LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
 {
     $$ = new ADeclarationInstantiatedAction(extractLexLocation((CmlLexeme)$1,
@@ -1136,7 +1136,7 @@ replicatedAction :
 | LSQUARE renameList RSQUARE LPAREN declaration AT action RPAREN //TODO
     ;
 
-renameExpression:
+renameExpression :
  renameEnumeration
  {
      $$ = $1;
@@ -1144,7 +1144,7 @@ renameExpression:
  | renameComprehension
 ;
 
-renameEnumeration:
+renameEnumeration :
 DLSQUARE renameList DRSQUARE
 {
     $$ = new AEnumerationRenameChannelExp(null, 
@@ -1153,7 +1153,7 @@ DLSQUARE renameList DRSQUARE
 }
 ;
 
-renameComprehension:
+renameComprehension :
 DLSQUARE renameList BAR bindList DRSQUARE
 {
     $$ = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5), 
@@ -1186,7 +1186,7 @@ renamePair
 }
 ;
 
-renamePair:
+renamePair :
 channelEvent LARROW channelEvent
 {
     $$ = new ARenamePair(false, 
@@ -1195,7 +1195,7 @@ channelEvent LARROW channelEvent
 }
 ;
 
-channelEvent:
+channelEvent :
 IDENTIFIER
 {
     LexNameToken id = extractLexNameToken((CmlLexeme)$1);
@@ -1214,7 +1214,7 @@ IDENTIFIER
 }
 ;
 
-dotted_expression:
+dotted_expression :
 DOT expression
 {
     List<PExp> expTokens = new Vector<PExp>();
@@ -1249,7 +1249,7 @@ channelDecl :
  }
 ;
 
-channelDef: 
+channelDef : 
   channelNameDecl
   {
       List<AChannelNameDeclaration> decls = new Vector<AChannelNameDeclaration>();
@@ -1265,7 +1265,7 @@ channelDef:
  }
 ;
 
-channelNameDecl: 
+channelNameDecl : 
   identifierList
   {
       List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$1;
@@ -1318,7 +1318,7 @@ singleTypeDecl :
 
 /* 2.4 Chanset Definitions */
 
-chansetDecl:
+chansetDecl :
 CHANSETS
 {
     LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
@@ -1335,7 +1335,7 @@ CHANSETS
 }
 ;
 
-chansetDefinitionList:
+chansetDefinitionList :
 chansetDefinition
 {
     List<AChansetDefinition> defs = new Vector<AChansetDefinition>();
@@ -1352,7 +1352,7 @@ chansetDefinition
 ;
 
 
-chansetDefinition:
+chansetDefinition :
 IDENTIFIER EQUALS chansetExpr
 {
     LexIdentifierToken idToken = extractLexIdentifierToken((CmlLexeme)$1);
@@ -1455,8 +1455,8 @@ globalDefinitionBlock
 }
   ;
 
-globalDefinitionBlock 
-: globalDefinitionBlockAlternative
+globalDefinitionBlock :
+  globalDefinitionBlockAlternative
 {
     List<PDeclaration> declBlockList = new Vector<PDeclaration>();
     PDeclaration globalDecl = (PDeclaration)$1;
@@ -1473,8 +1473,8 @@ globalDefinitionBlock
 }
 ;
 
-globalDefinitionBlockAlternative
-: typeDefs             
+globalDefinitionBlockAlternative :
+  typeDefs             
 {
   ATypeDeclaration typeDeclaration = (ATypeDeclaration)$1;
   typeDeclaration.setNameScope(NameScope.GLOBAL);
@@ -1495,15 +1495,15 @@ globalDefinitionBlockAlternative
 
 /* 3 Definitions */
 
-classBody: 
+classBody : 
 BEGIN classDefinitionBlock END
 {
   $$ = $2;
 }
 ;
 
-classDefinitionBlock 
-: classDefinitionBlockAlternative
+classDefinitionBlock :
+  classDefinitionBlockAlternative
 {
   
   List<PDeclaration> decls = new LinkedList<PDeclaration>();
@@ -1521,8 +1521,8 @@ classDefinitionBlock
 }
 ;
 
-classDefinitionBlockAlternative
-: typeDefs             
+classDefinitionBlockAlternative :
+  typeDefs             
 {
   $$ = $1;
 }
@@ -1555,8 +1555,8 @@ classDefinitionBlockAlternative
 
 /* 3.1 Type Definitions */
 
-typeDefs 
-: TYPES 
+typeDefs :
+  TYPES 
 { 
   CmlLexeme typesLexeme = (CmlLexeme)$1;
   LexLocation loc = extractLexLocation(typesLexeme);
@@ -1587,8 +1587,8 @@ typeDefs
 }
 ;
 
-typeDefList
-: typeDefList SEMI typeDef                   
+typeDefList :
+  typeDefList SEMI typeDef                   
 {
     List<ATypeDefinition> list = (List<ATypeDefinition>)$1;
     list.add((ATypeDefinition)$3);
@@ -1602,8 +1602,8 @@ typeDefList
 } 
 ;
 
-typeDef 
-: qualifier IDENTIFIER EQUALS type invariant
+typeDef :
+  qualifier IDENTIFIER EQUALS type invariant
 {
     AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
     LexNameToken name = extractLexNameToken((CmlLexeme)$2);
@@ -1689,8 +1689,8 @@ typeDef
   $$ = res;
 }
 
-qualifier
-: PRIVATE 
+qualifier :
+  PRIVATE 
 { 
     LexLocation location = extractLexLocation((CmlLexeme)$1);
     AAccessSpecifierAccessSpecifier res = new AAccessSpecifierAccessSpecifier();
@@ -1833,7 +1833,7 @@ bracketedType
 }
 ;
 
-bracketedType:
+bracketedType :
 LPAREN type RPAREN
 { 
     $$ = $2;
@@ -1875,7 +1875,7 @@ TBOOL
 }
 ;
 
-quoteType:
+quoteType :
 quoteLiteral
 {
     LexQuoteToken value = (LexQuoteToken)$1;
@@ -1883,7 +1883,7 @@ quoteLiteral
 }
 ;
 
-optionalType:
+optionalType :
 LSQUARE type RSQUARE
 {
   $$ = new  AOptionalType(extractLexLocation((CmlLexeme)$1,
@@ -1894,7 +1894,7 @@ LSQUARE type RSQUARE
 }
 ;
 
-unionType:
+unionType :
 type BAR type    
 {
   // CmlLexeme lp = (CmlLexeme)$1;
@@ -1920,7 +1920,7 @@ type BAR type
 }
 ;
 
-productType:
+productType :
 type STAR type
 {
     List<PType> types = new Vector<PType>();
@@ -1942,7 +1942,7 @@ type STAR type
 
  
 
-functionType:
+functionType :
 partialFunctionType
 {
     $$ = $1;
@@ -1953,7 +1953,7 @@ partialFunctionType
 }
 ;
 
-partialFunctionType:
+partialFunctionType :
 type PLUSGT type
 {
     PType domType = (PType)$1;
@@ -1987,7 +1987,7 @@ type PLUSGT type
 }
 ;
 
-totalFunctionType:
+totalFunctionType :
 type RARROW type
 {
     PType domType = (PType)$1;
@@ -2042,7 +2042,7 @@ type BAR typeUnionList
   $$ = tl;
 }
 
-quoteLiteral:
+quoteLiteral :
 QUOTE_LITERAL
 {
     CmlLexeme id = (CmlLexeme)$1;
@@ -2170,7 +2170,7 @@ qualifiedValueDef
 }
  ;
 
-qualifiedValueDef:
+qualifiedValueDef :
 qualifier valueDef {
   // Get constituents
   AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
@@ -2316,7 +2316,7 @@ functionDef
 }
 ;
 
-functionDef:
+functionDef :
 implicitFunctionDef 
 {
     $$ = $1;
@@ -2327,7 +2327,7 @@ implicitFunctionDef
 }
 ;
 
-implicitFunctionDef:
+implicitFunctionDef :
 qualifier IDENTIFIER parameterTypes identifierTypePairList preExpr_opt postExpr
 {
   
@@ -2355,7 +2355,7 @@ qualifier IDENTIFIER parameterTypes identifierTypePairList preExpr_opt postExpr
 }
 ;
 
-qualifiedExplicitFunctionDef:
+qualifiedExplicitFunctionDef :
 qualifier explicitFunctionDef
   {
     AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
@@ -2365,7 +2365,7 @@ qualifier explicitFunctionDef
   }
 ;
 
-explicitFunctionDef:
+explicitFunctionDef :
 IDENTIFIER COLON functionType IDENTIFIER parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
   {
     LexNameToken name = extractLexNameToken( (CmlLexeme) $1 );
@@ -2455,7 +2455,7 @@ LPAREN RPAREN
 }
 ; 
 
-patternListTypeList:
+patternListTypeList :
 patternList COLON type COMMA patternListTypeList
 {
     List<APatternListTypePair> pltpl = (List<APatternListTypePair>)$5;
@@ -2476,8 +2476,8 @@ patternList COLON type COMMA patternListTypeList
 }
 
 
-identifierTypePairList_opt 
-: /* empty */
+identifierTypePairList_opt :
+  /* empty */
 {
     $$ = null;
 }
@@ -2599,8 +2599,8 @@ operationDefList :
 
 /* FIXME the optional trailing semicolon in the operations definitions is presently not optional */
 
-operationDef 
-: implicitOperationDef 
+operationDef :
+  implicitOperationDef 
 {
     $$ = $1;
 }
@@ -2610,8 +2610,8 @@ operationDef
 }
 ;
 
- explicitOperationDef
- : qualifier IDENTIFIER COLON operationType IDENTIFIER parameterList DEQUALS operationBody preExpr_opt postExpr_opt
+explicitOperationDef :
+  qualifier IDENTIFIER COLON operationType IDENTIFIER parameterList DEQUALS operationBody preExpr_opt postExpr_opt
  {
    LexLocation loc = extractLexLocation ( (CmlLexeme)$2 );
    AExplicitOperationOperationDefinition res = new AExplicitOperationOperationDefinition();
@@ -2620,8 +2620,8 @@ operationDef
  }
 ;
 
-implicitOperationDef
-: qualifier IDENTIFIER parameterTypes identifierTypePairList_opt externals_opt preExpr_opt postExpr
+implicitOperationDef :
+  qualifier IDENTIFIER parameterTypes identifierTypePairList_opt externals_opt preExpr_opt postExpr
 {
     AAccessSpecifierAccessSpecifier access = 
 	(AAccessSpecifierAccessSpecifier)$1;
@@ -2682,7 +2682,7 @@ statements
 }
 ;
 
-externals_opt:
+externals_opt :
 externals
 {
     $$ = $1;
@@ -2716,7 +2716,7 @@ varInformationList :
 }
   ;
 
-varInformation:
+varInformation :
   mode nameList
   {
       $$ = new AExternalClause((LexToken)$1, 
@@ -2810,7 +2810,7 @@ stateDefList :
 }
 ;
 
-stateDef:
+stateDef :
 qualifier assignmentDef
 {
     $$ = $2;
@@ -3041,7 +3041,7 @@ expression :
 | symbolicLiteral // TODO
   ;
 
-symbolicLiteral:
+symbolicLiteral :
 numericLiteral
 {
     LexIntegerToken lit = (LexIntegerToken)$1;
@@ -3061,7 +3061,7 @@ numericLiteral
 }
 ;
 
-numericLiteral:
+numericLiteral :
  NUMERAL 
  {
     CmlLexeme lexeme = (CmlLexeme)$1;
@@ -4160,7 +4160,7 @@ preconditionExpr :
 //     $$ = new ASimpleName(ids);
 // }
 // ;
-name:
+name :
 IDENTIFIER
 {
     List<LexIdentifierToken> ids = 
@@ -4178,7 +4178,7 @@ IDENTIFIER
 }
 ;
 
-designator:
+designator :
 name
 {
     $$ = new ANameDesignator((ASimpleName)$1);
@@ -4189,7 +4189,7 @@ name
 }
 ;
 
-primary:  
+primary :  
 SELF
 {
     $$ = new ASelfPrimary();
@@ -4289,7 +4289,7 @@ nonDeterministicIfStatement
  /*| whileLoop */
 ;
 
-nonDeterministicIfStatement:
+nonDeterministicIfStatement :
  IF expression RARROW action END
  {
      $$ = new ANonDeterministicIfControlStatementAction(extractLexLocation((CmlLexeme)$1,
@@ -4308,7 +4308,7 @@ nonDeterministicIfStatement:
  }
 ;
 
-nonDeterministicIfAlt:
+nonDeterministicIfAlt :
 BAR expression RARROW action
 {
     PAction thenStm = (PAction)$4;
@@ -4320,7 +4320,7 @@ BAR expression RARROW action
 }
 ;
 
-nonDeterministicIfAltList:
+nonDeterministicIfAltList :
 nonDeterministicIfAlt
 {
     List<ANonDeterministicElseIfControlStatementAction> alts =
@@ -4749,9 +4749,8 @@ patternIdentifier // TODO
 | patternLessID // TODO
 ;
 
-patternLessID 
-:
-matchValue // TODO
+patternLessID :
+  matchValue // TODO
 | tuplePattern // TODO
 | recordPattern // TODO
 ;
