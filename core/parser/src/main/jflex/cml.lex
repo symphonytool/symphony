@@ -323,6 +323,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 ":="                                    { return createToken(CmlParser.COLONEQUALS); }
 ":>"                                    { return createToken(CmlParser.COLONGT); }
 ":}"                                    { return createToken(CmlParser.COLONRCURLY); }
+":]"                                    { return createToken(CmlParser.COLONRSQUARE); }
 ","                                     { return createToken(CmlParser.COMMA); }
 "||"                                    { return createToken(CmlParser.DBAR); }
 "||]"                                   { return createToken(CmlParser.DBARRSQUARE); }
@@ -350,6 +351,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "["                                     { return createToken(CmlParser.LSQUARE); }
 "[|"                                    { return createToken(CmlParser.LSQUAREBAR); }
 "[||"                                   { return createToken(CmlParser.LSQUAREDBAR); }
+"[:"                                    { return createToken(CmlParser.LSQUARECOLON); }
 "[>"                                    { return createToken(CmlParser.LSQUAREGT); }
 "<"                                     { return createToken(CmlParser.LT); }
 "<:"                                    { return createToken(CmlParser.LTCOLON); }
