@@ -36,7 +36,7 @@
 
 
 %code{
- // **************************
+  // **************************
   // *** PARSER PUBLIC INFO ***
   // **************************
   public static class Info {
@@ -324,11 +324,11 @@
  */
 
 %token CLASS END PROCESS INITIAL EQUALS AT BEGIN ACTIONS BARTILDEBAR LRSQUARE TBAR LPAREN RPAREN LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LARROW LCURLY RCURLY BAR DBAR CHANNELS CHANSETS TYPES SEMI DCOLON COMPOSE OF STAR TO INMAPOF MAPOF SEQOF SEQ1OF SETOF PLUSGT COLONDASH DEQUALS INV VALUES FUNCTIONS PRE POST MEASURE SUBCLASSRESP NOTYETSPEC OPERATIONS FRAME RD WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE ELLIPSIS BARRARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS TILDE DCL COLONEQUALS ATOMIC DEQRARROW RETURN IDENTIFIER BACKTICK
-%token DIVIDE REM MOD LT LTE GT GTE NEQ OR AND EQRARROW LTEQUALSGT INSET NOTINSET SUBSET PROPER_SUBSET UNION BACKSLASH INTER CARET DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL
+%token SLASH DIVIDE REM MOD LT LTE GT GTE NEQ OR AND EQRARROW LTEQUALSGT INSET NOTINSET SUBSET PROPER_SUBSET UNION BACKSLASH INTER CARET DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL
 
 %token HEX_LITERAL QUOTE_LITERAL
 
-%token AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG SLASH SLASHBACKSLASH LSQUAREGT ENDBY STARTBY
+%token AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDBY STARTBY
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
 %token nameset namesetExpr typeVarIdentifier  
@@ -338,7 +338,7 @@
 %left SEQOF
 
 /* CSP ops and more */
-%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF NEW COLONEQUALS SLASH BACKSLASH ENDBY STARTBY LSQUAREDBAR DBARRSQUARE DBAR SLASHBACKSLASH SEMI
+%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF NEW COLONEQUALS SLASH BACKSLASH ENDBY STARTBY LSQUAREDBAR DBARRSQUARE DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI
 
 %right ELSE ELSEIF
 
@@ -567,18 +567,23 @@ process :
 			      left, 
 			      right);
 }
-// FIXME
-/* | process SLASH expression BACKSLASH process */
-/* { */
-/*     PProcess left = (PProcess)$1; */
-/*     PProcess right = (PProcess)$5; */
-/*     LexLocation location = combineLexLocation(left.getLocation(), */
-/* 					      right.getLocation()); */
-/*     $$ = new ATimedInterruptProcess(location,  */
-/* 				    left,  */
-/* 				    (PExp)$3, */
-/* 				    right); */
-/* } */
+/* DEVIATION
+ * grammar:
+ *   process '/' expression '\' process
+ * this conflicts all over, so
+ *   process '/:' expression ':\' process
+ */
+| process SLASHCOLON expression COLONBACKSLASH process
+{
+    PProcess left = (PProcess)$1;
+    PProcess right = (PProcess)$5;
+    LexLocation location = combineLexLocation(left.getLocation(),
+					      right.getLocation());
+    $$ = new ATimedInterruptProcess(location,
+				    left,
+				    (PExp)$3,
+				    right);
+}
 | process LSQUAREGT process
 {
     PProcess left = (PProcess)$1;
@@ -600,17 +605,22 @@ process :
 			     (PExp)$3,
 			     right);
 }
-// FIXME
-/* | process BACKSLASH chansetExpr */
-/* { */
-/*     PProcess left = (PProcess)$1; */
-/*     SChansetSetExp cse = (SChansetSetExp)$3; */
-/*     LexLocation location = combineLexLocation(left.getLocation(), */
-/* 					      cse.getLocation()); */
-/*     $$ = new AHidingProcess(location,  */
-/* 			    left,  */
-/* 			    cse); */
-/* } */
+/* DEVIATION 
+ * grammar:
+ *   process '\' chansetExpr
+ * here:
+ *   process ':\' chansetExpr
+ */
+| process COLONBACKSLASH chansetExpr
+{
+    PProcess left = (PProcess)$1;
+    SChansetSetExp cse = (SChansetSetExp)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),
+					      cse.getLocation());
+    $$ = new AHidingProcess(location,
+			    left,
+			    cse);
+}
 | process STARTBY expression
 {
     PProcess left = (PProcess)$1;
@@ -889,14 +899,19 @@ action :
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new AInterruptAction(location, left, right);
 }
-// FIXME
-/* | action SLASH expression BACKSLASH action */
-/* { */
-/*     PAction left = (PAction)$1; */
-/*     PAction right = (PAction)$5; */
-/*     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation()); */
-/*     $$ = new ATimedInterruptAction(location, left, right,(PExp)$3); */
-/* } */
+/* DEVIATION
+ * grammar:
+ *   process '/' expression '\' process
+ * this conflicts all over, so
+ *   process '/:' expression ':\' process
+ */
+| action SLASHCOLON expression COLONBACKSLASH action
+{
+    PAction left = (PAction)$1;
+    PAction right = (PAction)$5;
+    LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+    $$ = new ATimedInterruptAction(location, left, right,(PExp)$3);
+}
 | action LSQUAREGT action
 {
     PAction left = (PAction)$1;
@@ -904,7 +919,12 @@ action :
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new AUntimedTimeoutAction(location, left, right);
 }
-// FIXME the BAR is not the correct syntax, its there to fix shift/reduce
+/* DEVIATION
+ * grammar:
+ *   action '[' expression '>' action
+ * here:
+ *   action '[' expression '|' '>' action
+ */
 | action LSQUARE expression BAR GT action
 {
     PAction left = (PAction)$1;
@@ -912,14 +932,19 @@ action :
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new ATimeoutAction(location, left, right, (PExp)$3);
 }
-// FIXME
-/* | action BACKSLASH chansetExpr  */
-/* { */
-/*     PAction left = (PAction)$1; */
-/*     SChansetSetExp chansetExp = (SChansetSetExp)$3; */
-/*     LexLocation location = combineLexLocation(left.getLocation(),chansetExp.getLocation()); */
-/*     $$ = new AHidingAction(location, left, chansetExp); */
-/* } */
+/* DEVIATION 
+ * grammar:
+ *   process '\' chansetExpr
+ * here:
+ *   process ':\' chansetExpr
+ */
+| action COLONBACKSLASH chansetExpr
+{
+    PAction left = (PAction)$1;
+    SChansetSetExp chansetExp = (SChansetSetExp)$3;
+    LexLocation location = combineLexLocation(left.getLocation(),chansetExp.getLocation());
+    $$ = new AHidingAction(location, left, chansetExp);
+}
 | action STARTBY expression 
 {
     PAction left = (PAction)$1;

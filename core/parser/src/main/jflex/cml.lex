@@ -310,10 +310,12 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "|"                                     { return createToken(CmlParser.BAR); }
 "|->"                                   { return createToken(CmlParser.BARRARROW); }
 "|}"                                    { return createToken(CmlParser.BARRCURLY); }
+"|>"                                    { return createToken(CmlParser.BARGT); }
 "|]"                                    { return createToken(CmlParser.BARRSQUARE); }
 "|~|"                                   { return createToken(CmlParser.BARTILDEBAR); }
 "^"                                     { return createToken(CmlParser.CARET); }
 ":"                                     { return createToken(CmlParser.COLON); }
+":\\"                                   { return createToken(CmlParser.COLONBACKSLASH); }
 ":-"                                    { return createToken(CmlParser.COLONDASH); }
 ":->"                                   { return createToken(CmlParser.COLONDASHGT); }
 ":="                                    { return createToken(CmlParser.COLONEQUALS); }
@@ -362,6 +364,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 ";"                                     { return createToken(CmlParser.SEMI); }
 "/"                                     { return createToken(CmlParser.SLASH); }
 "/\\"                                   { return createToken(CmlParser.SLASHBACKSLASH); }
+"/:"                                    { return createToken(CmlParser.SLASHCOLON); }
 "*"                                     { return createToken(CmlParser.STAR); }
 "|||"                                   { return createToken(CmlParser.TBAR); }
 "~"                                     { return createToken(CmlParser.TILDE); }
