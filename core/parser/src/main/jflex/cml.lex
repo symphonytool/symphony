@@ -212,6 +212,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "abs"                                   { return createToken(CmlParser.ABS); } 
 "actions"                               { return createToken(CmlParser.ACTIONS); }
 "and"                                   { return createToken(CmlParser.AND); }
+"atomic"                                { return createToken(CmlParser.ATOMIC); }
 "begin"                                 { return createToken(CmlParser.BEGIN); }
 "bool"                                  { return createToken(CmlParser.TBOOL); }
 "card"                                  { return createToken(CmlParser.CARD); }  

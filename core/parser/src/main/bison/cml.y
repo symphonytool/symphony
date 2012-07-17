@@ -567,17 +567,18 @@ process :
 			      left, 
 			      right);
 }
-| process SLASH expression BACKSLASH process
-{
-    PProcess left = (PProcess)$1;
-    PProcess right = (PProcess)$5;
-    LexLocation location = combineLexLocation(left.getLocation(),
-					      right.getLocation());
-    $$ = new ATimedInterruptProcess(location, 
-				    left, 
-				    (PExp)$3,
-				    right);
-}
+// FIXME
+/* | process SLASH expression BACKSLASH process */
+/* { */
+/*     PProcess left = (PProcess)$1; */
+/*     PProcess right = (PProcess)$5; */
+/*     LexLocation location = combineLexLocation(left.getLocation(), */
+/* 					      right.getLocation()); */
+/*     $$ = new ATimedInterruptProcess(location,  */
+/* 				    left,  */
+/* 				    (PExp)$3, */
+/* 				    right); */
+/* } */
 | process LSQUAREGT process
 {
     PProcess left = (PProcess)$1;
@@ -599,16 +600,17 @@ process :
 			     (PExp)$3,
 			     right);
 }
-| process BACKSLASH chansetExpr
-{
-    PProcess left = (PProcess)$1;
-    SChansetSetExp cse = (SChansetSetExp)$3;
-    LexLocation location = combineLexLocation(left.getLocation(),
-					      cse.getLocation());
-    $$ = new AHidingProcess(location, 
-			    left, 
-			    cse);
-}
+// FIXME
+/* | process BACKSLASH chansetExpr */
+/* { */
+/*     PProcess left = (PProcess)$1; */
+/*     SChansetSetExp cse = (SChansetSetExp)$3; */
+/*     LexLocation location = combineLexLocation(left.getLocation(), */
+/* 					      cse.getLocation()); */
+/*     $$ = new AHidingProcess(location,  */
+/* 			    left,  */
+/* 			    cse); */
+/* } */
 | process STARTBY expression
 {
     PProcess left = (PProcess)$1;
@@ -643,23 +645,24 @@ process :
 				   identifier,
 				   (PExp)$7);
 }
-| IDENTIFIER LPAREN expression RPAREN
-{
-    LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$4); 
-    List<ASingleTypeDeclaration> decls = null;
-    LexNameToken identifier = extractLexNameToken((CmlLexeme)$1);
-    $$ = new AInstantiationProcess(location, 
-				   decls,
-				   identifier,
-				   (PExp)$3);
-}
-//this rule is added, hence it it not in the grammar document.
-| IDENTIFIER
-{
-    LexNameToken identifier = extractLexNameToken((CmlLexeme)$1);
-    $$ = new AIdentifierProcess(identifier.getLocation(), 
-				identifier);
-}
+// FIXME --- causes s/r against everything in VDM
+/* | IDENTIFIER LPAREN expression RPAREN */
+/* { */
+/*     LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$4);  */
+/*     List<ASingleTypeDeclaration> decls = null; */
+/*     LexNameToken identifier = extractLexNameToken((CmlLexeme)$1); */
+/*     $$ = new AInstantiationProcess(location,  */
+/* 				   decls, */
+/* 				   identifier, */
+/* 				   (PExp)$3); */
+/* } */
+// FIXME this rule is should probably be added
+/* | IDENTIFIER */
+/* { */
+/*     LexNameToken identifier = extractLexNameToken((CmlLexeme)$1); */
+/*     $$ = new AIdentifierProcess(identifier.getLocation(),  */
+/* 				identifier); */
+/* } */
 | process renameExpression
 {
     SRenameChannelExp renameExpression = (SRenameChannelExp)$2;
@@ -886,13 +889,14 @@ action :
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new AInterruptAction(location, left, right);
 }
-| action SLASH expression BACKSLASH action
-{
-    PAction left = (PAction)$1;
-    PAction right = (PAction)$5;
-    LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
-    $$ = new ATimedInterruptAction(location, left, right,(PExp)$3);
-}
+// FIXME
+/* | action SLASH expression BACKSLASH action */
+/* { */
+/*     PAction left = (PAction)$1; */
+/*     PAction right = (PAction)$5; */
+/*     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation()); */
+/*     $$ = new ATimedInterruptAction(location, left, right,(PExp)$3); */
+/* } */
 | action LSQUAREGT action
 {
     PAction left = (PAction)$1;
@@ -900,7 +904,7 @@ action :
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new AUntimedTimeoutAction(location, left, right);
 }
-//TODO the BAR is not the correct syntax, its there to fix shift/reduce
+// FIXME the BAR is not the correct syntax, its there to fix shift/reduce
 | action LSQUARE expression BAR GT action
 {
     PAction left = (PAction)$1;
@@ -908,13 +912,14 @@ action :
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new ATimeoutAction(location, left, right, (PExp)$3);
 }
-| action BACKSLASH chansetExpr 
-{
-    PAction left = (PAction)$1;
-    SChansetSetExp chansetExp = (SChansetSetExp)$3;
-    LexLocation location = combineLexLocation(left.getLocation(),chansetExp.getLocation());
-    $$ = new AHidingAction(location, left, chansetExp);
-}
+// FIXME
+/* | action BACKSLASH chansetExpr  */
+/* { */
+/*     PAction left = (PAction)$1; */
+/*     SChansetSetExp chansetExp = (SChansetSetExp)$3; */
+/*     LexLocation location = combineLexLocation(left.getLocation(),chansetExp.getLocation()); */
+/*     $$ = new AHidingAction(location, left, chansetExp); */
+/* } */
 | action STARTBY expression 
 {
     PAction left = (PAction)$1;
@@ -1249,28 +1254,28 @@ channelDef :
 
 channelNameDecl : 
   nameList
-  {
-      List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$1;
+{
+  List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$1;
 
-      LexLocation start = ids.get(0).getLocation();
-      LexLocation end = ids.get(ids.size()-1).getLocation();
-      LexLocation location = combineLexLocation(start,end);
+  LexLocation start = ids.get(0).getLocation();
+  LexLocation end = ids.get(ids.size()-1).getLocation();
+  LexLocation location = combineLexLocation(start,end);
 
-      ASingleTypeDeclaration singleTypeDeclaration = new ASingleTypeDeclaration(location,NameScope.GLOBAL,ids,null);
+  ASingleTypeDeclaration singleTypeDeclaration = new ASingleTypeDeclaration(location,NameScope.GLOBAL,ids,null);
             
-      AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location,NameScope.GLOBAL,singleTypeDeclaration);
+  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location,NameScope.GLOBAL,singleTypeDeclaration);
       
-      $$ = channelNameDecl;
-  }
- |singleTypeDecl
- {
-     ASingleTypeDeclaration singleTypeDeclaration = (ASingleTypeDeclaration)$1;
+  $$ = channelNameDecl;
+}
+| singleTypeDecl
+{
+  ASingleTypeDeclaration singleTypeDeclaration = (ASingleTypeDeclaration)$1;
 
-     AChannelNameDeclaration channelNameDecl = 
-       new AChannelNameDeclaration(singleTypeDeclaration.getLocation(),NameScope.GLOBAL,singleTypeDeclaration);
+  AChannelNameDeclaration channelNameDecl = 
+    new AChannelNameDeclaration(singleTypeDeclaration.getLocation(),NameScope.GLOBAL,singleTypeDeclaration);
       
-      $$ = channelNameDecl; 
- }
+  $$ = channelNameDecl; 
+}
 ;
 
 declaration : 
@@ -1356,41 +1361,43 @@ chansetExpr :
   LexIdentifierToken idToken = extractLexIdentifierToken((CmlLexeme)$1);
   $$ = new AIdentifierChansetSetExp(idToken.getLocation(),idToken);
 }
-| LCURLY nameList RCURLY
-{
-  LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3);
-  List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2;
-  $$ = new AEnumChansetSetExp(location,identifiers);
-}
+/* FIXME this causes a reduce/reduce based on 'name . RCURLY' */
+/* | LCURLY nameList RCURLY */
+/* { */
+/*   LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3); */
+/*   List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2; */
+/*   $$ = new AEnumChansetSetExp(location,identifiers); */
+/* } */
 | LCURLYBAR nameList BARRCURLY
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3);
   List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2;
   $$ = new AEnumChansetSetExp(location,identifiers);
 }
-| chansetExpr UNION chansetExpr
-{
-  PExp left = (PExp)$1;
-  PExp right = (PExp)$3;
-  LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
-  $$ = new ASetUnionBinaryExp(location,left, null, right);
-}
-| chansetExpr INTER chansetExpr
-{
-  PExp left = (PExp)$1;
-  PExp right = (PExp)$3;
-  LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
-  $$ = new ASetIntersectBinaryExp(location,left, null, right);
-}
-| chansetExpr BACKSLASH chansetExpr
-{
-  PExp left = (PExp)$1;
-  PExp right = (PExp)$3;
-  LexLocation opLocation = extractLexLocation((CmlLexeme)$2);
-  /* LexToken lexToken = new LexToken(opLocation,VDMToken.BACKSLASH); */
-  LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
-  $$ = new ASetDifferenceBinaryExp(location, left, /*lexToken*/null, right);
-}
+/* FIXME chanset union, intersection, and subtraction give reduce/reduce conflicts */
+/* | chansetExpr UNION chansetExpr */
+/* { */
+/*   PExp left = (PExp)$1; */
+/*   PExp right = (PExp)$3; */
+/*   LexLocation location = combineLexLocation(left.getLocation(),right.getLocation()); */
+/*   $$ = new ASetUnionBinaryExp(location,left, null, right); */
+/* } */
+/* | chansetExpr INTER chansetExpr */
+/* { */
+/*   PExp left = (PExp)$1; */
+/*   PExp right = (PExp)$3; */
+/*   LexLocation location = combineLexLocation(left.getLocation(),right.getLocation()); */
+/*   $$ = new ASetIntersectBinaryExp(location,left, null, right); */
+/* } */
+/* | chansetExpr BACKSLASH chansetExpr */
+/* { */
+/*   PExp left = (PExp)$1; */
+/*   PExp right = (PExp)$3; */
+/*   LexLocation opLocation = extractLexLocation((CmlLexeme)$2); */
+/*   /\* LexToken lexToken = new LexToken(opLocation,VDMToken.BACKSLASH); *\/ */
+/*   LexLocation location = combineLexLocation(left.getLocation(),right.getLocation()); */
+/*   $$ = new ASetDifferenceBinaryExp(location, left, /\*lexToken*\/null, right); */
+/* } */
 | LCURLYBAR IDENTIFIER BAR bindList BARRCURLY
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
@@ -3098,17 +3105,32 @@ expression :
 {
   $$ = $1;
 }
-| apply
+/* apply expression */
+| expression LPAREN RPAREN
 {
-  $$ = $1;
+  PExp root = (PExp)$1;
+  List<? extends PExp> args = null;      
+  LexLocation location = combineLexLocation(root.getLocation(), extractLexLocation((CmlLexeme)$3));
+  $$ = new AApplyExp(location, root, args);
 }
-| fieldSelectOrName
+| expression LPAREN expressionList RPAREN
 {
-  $$ = $1;
+  PExp root = (PExp)$1;
+  List<? extends PExp> args = (List<? extends PExp>)$3;
+  LexLocation location = combineLexLocation(root.getLocation(), extractLexLocation((CmlLexeme)$4));
+  $$ = new AApplyExp(location, root, args);
 }
-| tupleSelect
+/* field select */
+//| expression DOT IDENTIFIER // TODO
+/* tuple select */
+| expression DOTHASH NUMERAL
 {
-  $$ = $1;
+  PExp tup = (PExp)$1;
+  CmlLexeme lexNum = (CmlLexeme)$3;
+  int num = Integer.parseInt(lexNum.getValue());
+  LexLocation loc = combineLexLocation(tup.getLocation(), extractLexLocation(lexNum));
+  ATupleSelectExp res = new ATupleSelectExp(loc, tup, num);
+  $$ = res;
 }
 | lambdaExpr
 {
@@ -3164,8 +3186,7 @@ numericLiteral
 | quoteLiteral
 {
     LexQuoteToken value = (LexQuoteToken)$1;
-    $$ = new AQuoteLiteralSymbolicLiteralExp(value.location, 
-					 value);
+    $$ = new AQuoteLiteralSymbolicLiteralExp(value.location, value);
 }
 ;
 
@@ -4036,69 +4057,60 @@ recordConstructor :
 
 /* 4.12 Apply Expressions */
 
-apply :
-  expression LPAREN expressionList RPAREN
-  {
-      PExp root = (PExp)$1;
-      List<? extends PExp> args = (List<? extends PExp>)$3;
-      
-      LexLocation location = combineLexLocation(root.getLocation(),
-						extractLexLocation((CmlLexeme)$4));
-      $$ = new AApplyExp(location, root, args);
-  }
-| expression LPAREN RPAREN
-  {
-      PExp root = (PExp)$1;
-      List<? extends PExp> args = null;
-      
-      LexLocation location = combineLexLocation(root.getLocation(),
-						extractLexLocation((CmlLexeme)$3));
-      $$ = new AApplyExp(location, root, args);
-  }
-  ;
+// Now inline
+/* apply : */
+/*   expression LPAREN RPAREN */
+/* { */
+/*   PExp root = (PExp)$1; */
+/*   List<? extends PExp> args = null;       */
+/*   LexLocation location = combineLexLocation(root.getLocation(), extractLexLocation((CmlLexeme)$3)); */
+/*   $$ = new AApplyExp(location, root, args); */
+/* } */
+/* | expression LPAREN expressionList RPAREN */
+/* { */
+/*   PExp root = (PExp)$1; */
+/*   List<? extends PExp> args = (List<? extends PExp>)$3; */
+/*   LexLocation location = combineLexLocation(root.getLocation(), extractLexLocation((CmlLexeme)$4)); */
+/*   $$ = new AApplyExp(location, root, args); */
+/* } */
+/* ; */
 
-fieldSelectOrName :
-  expression DOT IDENTIFIER
-  {
-    // PExp obj = (PExp)$1;
-    // // $2 DOT
+// now inline
+/* fieldSelectOrName : */
+/*   expression DOT IDENTIFIER */
+/*   { */
+/*     // PExp obj = (PExp)$1; */
+/*     // // $2 DOT */
+/*     // PExp res = null; */
+/*     // CmlLexeme id = (CmlLexeme)$3; */
+/*     // LexNameToken name = extractLexNameToken( id ); */
+/*     // LexLocation loc = combineLexLocation ( obj.getLocation(), */
+/*     // 					   extractLexLocation( id ) ); */
+/*     // if (obj instanceof ANameExp){ */
+/*     // 	LexNameToken prefixName = (LexNameToken)obj; */
+/*     // 	res = new LexNameToken(prefixName.getSimpleName(), name.getIdentifier()); */	 
+/*     // } */
+/*     // else{ */
+/*     // 	res = new AFieldExp( loc, obj, name, null ); */
+/*     // } */
+/*     // $$ = res; */
+/*   } */
+/*   ; */
 
-    // PExp res = null;
-
-    // CmlLexeme id = (CmlLexeme)$3;
-    // LexNameToken name = extractLexNameToken( id );
-    // LexLocation loc = combineLexLocation ( obj.getLocation(),
-    // 					   extractLexLocation( id ) );
-    // if (obj instanceof ANameExp){
-	
-    // 	LexNameToken prefixName = (LexNameToken)obj;
-	
-    // 	res = new LexNameToken(prefixName.getSimpleName(), name.getIdentifier());
-	 
-    // }
-    // else{
-    // 	res = new AFieldExp( loc, obj, name, null );
-    // }
-    // $$ = res;
-  }
-  ;
-
-tupleSelect :
-  expression DOTHASH NUMERAL
-  {
-    PExp tup = (PExp)$1;
-    // $2 DOTHASH
-    CmlLexeme lexNum = (CmlLexeme)$3;
-
-    int num = Integer.parseInt(lexNum.getValue());
-
-    LexLocation loc = combineLexLocation ( tup.getLocation(),
-					   extractLexLocation ( lexNum ) );
-
-    ATupleSelectExp res = new ATupleSelectExp( loc, tup, num );
-    $$ = res;
-  }
-  ;
+// Now inline
+/* tupleSelect : */
+/*   expression DOTHASH NUMERAL */
+/*   { */
+/*     PExp tup = (PExp)$1; */
+/*     // $2 DOTHASH */
+/*     CmlLexeme lexNum = (CmlLexeme)$3; */
+/*     int num = Integer.parseInt(lexNum.getValue()); */
+/*     LexLocation loc = combineLexLocation ( tup.getLocation(), */
+/* 					   extractLexLocation ( lexNum ) ); */
+/*     ATupleSelectExp res = new ATupleSelectExp( loc, tup, num ); */
+/*     $$ = res; */
+/*   } */
+/*   ; */
 
 /* 4.13 The Lambda Expression */
 
@@ -4273,10 +4285,11 @@ nonDeterministicIfStatement
 {
     $$ = $1;
 }
-| generalAssignStatement
-{
-    $$ = $1;
-}
+// FIXME --- causes r/r conflict with objectDesignator (call)
+/* | generalAssignStatement */
+/* { */
+/*     $$ = $1; */
+/* } */
 | specificationStatement
 | returnStatement
 {
@@ -4426,6 +4439,15 @@ assignStatement
 | multiAssignStatement // TODO
   ;
 
+assignStatementList :
+  assignStatement // TODO
+| assignStatementList SEMI assignStatement // TODO
+  ;
+
+multiAssignStatement :
+  ATOMIC LPAREN assignStatementList RPAREN // TODO
+  ;
+
 assignStatement :
   objectDesignator COLONEQUALS expression // was stateDesignator
 /* { */
@@ -4438,15 +4460,6 @@ assignStatement :
 /* 							    (PExp)$3); */
 /* } */
 ;
-
-assignStatementList :
-  assignStatement // TODO
-| assignStatementList SEMI assignStatement // TODO
-  ;
-
-multiAssignStatement :
-  ATOMIC LPAREN assignStatementList RPAREN // TODO
-  ;
 
 /* 6.3 Conditional Statements */
 ifStatement :
