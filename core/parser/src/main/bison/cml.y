@@ -318,9 +318,6 @@
  * by setting a left or right associativity.  For some this is surely
  * correct, for others it's a bit suspect
  *
- * 2) We need to go over the usage of [] and {} in the
- * CMLLanguageDef.pdf document and double-check their semantics.
- *
  */
 
 %token CLASS END PROCESS INITIAL EQUALS AT BEGIN ACTIONS BARTILDEBAR LRSQUARE TBAR LPAREN RPAREN LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LARROW LCURLY RCURLY BAR DBAR CHANNELS CHANSETS TYPES SEMI DCOLON COMPOSE OF STAR TO INMAPOF MAPOF SEQOF SEQ1OF SETOF PLUSGT COLONDASH DEQUALS INV VALUES FUNCTIONS PRE POST MEASURE SUBCLASSRESP NOTYETSPEC OPERATIONS FRAME RD WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE ELLIPSIS BARRARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS TILDE DCL COLONEQUALS ATOMIC DEQRARROW RETURN IDENTIFIER BACKTICK
@@ -328,7 +325,7 @@
 
 %token HEX_LITERAL QUOTE_LITERAL
 
-%token AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDBY STARTBY
+%token AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDBY STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
 %token nameset namesetExpr typeVarIdentifier  
@@ -338,7 +335,7 @@
 %left SEQOF
 
 /* CSP ops and more */
-%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF NEW COLONEQUALS SLASH BACKSLASH ENDBY STARTBY LSQUAREDBAR DBARRSQUARE DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI
+%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF NEW COLONEQUALS SLASH BACKSLASH ENDBY STARTBY LSQUAREDBAR DBARRSQUARE DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI COLONINTER COLONUNION BARGT
 
 %right ELSE ELSEIF
 
@@ -923,12 +920,12 @@ action :
  * grammar:
  *   action '[' expression '>' action
  * here:
- *   action '[' expression '|' '>' action
+ *   action '[' expression '|>' action
  */
-| action LSQUARE expression BAR GT action
+| action LSQUARE expression BARGT action
 {
     PAction left = (PAction)$1;
-    PAction right = (PAction)$6;
+    PAction right = (PAction)$5;
     LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
     $$ = new ATimeoutAction(location, left, right, (PExp)$3);
 }
@@ -1387,12 +1384,18 @@ chansetExpr :
   $$ = new AIdentifierChansetSetExp(idToken.getLocation(),idToken);
 }
 /* FIXME this causes a reduce/reduce based on 'name . RCURLY' */
-/* | LCURLY nameList RCURLY */
-/* { */
-/*   LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3); */
-/*   List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2; */
-/*   $$ = new AEnumChansetSetExp(location,identifiers); */
-/* } */
+/* DEVIATION 
+ * grammar:
+ *   '{' identifierList '}'
+ * here:
+ *   '{:' nameList ':}'
+ */
+| LCURLYCOLON nameList COLONRCURLY
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3);
+  List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2;
+  $$ = new AEnumChansetSetExp(location,identifiers);
+}
 | LCURLYBAR nameList BARRCURLY
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3);
@@ -1400,29 +1403,47 @@ chansetExpr :
   $$ = new AEnumChansetSetExp(location,identifiers);
 }
 /* FIXME chanset union, intersection, and subtraction give reduce/reduce conflicts */
-/* | chansetExpr UNION chansetExpr */
-/* { */
-/*   PExp left = (PExp)$1; */
-/*   PExp right = (PExp)$3; */
-/*   LexLocation location = combineLexLocation(left.getLocation(),right.getLocation()); */
-/*   $$ = new ASetUnionBinaryExp(location,left, null, right); */
-/* } */
-/* | chansetExpr INTER chansetExpr */
-/* { */
-/*   PExp left = (PExp)$1; */
-/*   PExp right = (PExp)$3; */
-/*   LexLocation location = combineLexLocation(left.getLocation(),right.getLocation()); */
-/*   $$ = new ASetIntersectBinaryExp(location,left, null, right); */
-/* } */
-/* | chansetExpr BACKSLASH chansetExpr */
-/* { */
-/*   PExp left = (PExp)$1; */
-/*   PExp right = (PExp)$3; */
-/*   LexLocation opLocation = extractLexLocation((CmlLexeme)$2); */
-/*   /\* LexToken lexToken = new LexToken(opLocation,VDMToken.BACKSLASH); *\/ */
-/*   LexLocation location = combineLexLocation(left.getLocation(),right.getLocation()); */
-/*   $$ = new ASetDifferenceBinaryExp(location, left, /\*lexToken*\/null, right); */
-/* } */
+/* DEVIATION 
+ * grammar:
+ *   chansetExpr 'union' chansetExpr
+ * here:
+ *   chansetExpr ':union' chansetExpr
+ */
+| chansetExpr COLONUNION chansetExpr
+{
+  PExp left = (PExp)$1;
+  PExp right = (PExp)$3;
+  LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+  $$ = new ASetUnionBinaryExp(location,left, null, right);
+}
+/* DEVIATION 
+ * grammar:
+ *   chansetExpr 'inter' chansetExpr
+ * here:
+ *   chansetExpr ':inter' chansetExpr
+ */
+| chansetExpr COLONINTER chansetExpr
+{
+  PExp left = (PExp)$1;
+  PExp right = (PExp)$3;
+  LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+  $$ = new ASetIntersectBinaryExp(location,left, null, right);
+}
+/* DEVIATION 
+ * grammar:
+ *   chansetExpr '\' chansetExpr
+ * here:
+ *   chansetExpr ':\' chansetExpr
+ */
+| chansetExpr COLONBACKSLASH chansetExpr
+{
+  PExp left = (PExp)$1;
+  PExp right = (PExp)$3;
+  LexLocation opLocation = extractLexLocation((CmlLexeme)$2);
+  /* LexToken lexToken = new LexToken(opLocation,VDMToken.BACKSLASH); */
+  LexLocation location = combineLexLocation(left.getLocation(),right.getLocation());
+  $$ = new ASetDifferenceBinaryExp(location, left, /*lexToken*/null, right);
+}
 | LCURLYBAR IDENTIFIER BAR bindList BARRCURLY
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1,(CmlLexeme)$5);
@@ -4311,10 +4332,10 @@ nonDeterministicIfStatement
     $$ = $1;
 }
 // FIXME --- causes r/r conflict with objectDesignator (call)
-/* | generalAssignStatement */
-/* { */
-/*     $$ = $1; */
-/* } */
+| generalAssignStatement
+{
+    $$ = $1;
+}
 | specificationStatement
 | returnStatement
 {
@@ -4602,8 +4623,6 @@ patternList RARROW action
 
 /* 6.4 Call and Return Statements */
 
-/* FIXME the CURLYs are there there to avoid several whatever/reduce conflicts with the assignment statement */
-
 callStatement :
 call
 {
@@ -4764,23 +4783,20 @@ patternIdentifier :
 /* FIXME shift/reduce conflict from a bracketed expression */
 matchValue :
   symbolicLiteral
-  {
-    PExp exp = (PExp)$1;
-    if (exp instanceof AIntLiteralSymbolicLiteralExp)
-      {
-	AIntLiteralSymbolicLiteralExp intExp = (AIntLiteralSymbolicLiteralExp)exp;
-	AIntegerPattern res = new AIntegerPattern();
-	res.setLocation(intExp.getLocation());
-	res.setValue(intExp.getValue());
-	$$ = res;
-      }
-    else
-      throw new RuntimeException("Unhandled expression type in pattern. ("+exp.getClass()+")"); // TODO RWL
-  }
-| LPAREN expression RPAREN //TODO
 {
-    
+  PExp exp = (PExp)$1;
+  if (exp instanceof AIntLiteralSymbolicLiteralExp)
+    {
+      AIntLiteralSymbolicLiteralExp intExp = (AIntLiteralSymbolicLiteralExp)exp;
+      AIntegerPattern res = new AIntegerPattern();
+      res.setLocation(intExp.getLocation());
+      res.setValue(intExp.getValue());
+      $$ = res;
+    }
+  else
+    throw new RuntimeException("Unhandled expression type in pattern. ("+exp.getClass()+")"); // TODO RWL
 }
+| LPAREN expression RPAREN //TODO
   ;
 
 /* FIXME not sure if if this is a minimum of one pattern or two; if the latter */
