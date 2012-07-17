@@ -337,6 +337,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 ">="                                    { return createToken(CmlParser.GTE); }
 "<-"                                    { return createToken(CmlParser.LARROW); }
 "{"                                     { return createToken(CmlParser.LCURLY); }
+"{|"                                    { return createToken(CmlParser.LCURLYBAR); }
 "("                                     { return createToken(CmlParser.LPAREN); }
 "[]"                                    { return createToken(CmlParser.LRSQUARE); }
 "["                                     { return createToken(CmlParser.LSQUARE); }
@@ -355,7 +356,6 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "?"                                     { return createToken(CmlParser.QUESTION); }
 "->"                                    { return createToken(CmlParser.RARROW); }
 "}"                                     { return createToken(CmlParser.RCURLY); }
-"{|"                                    { return createToken(CmlParser.RCURLYBAR); }
 ")"                                     { return createToken(CmlParser.RPAREN); }
 "]"                                     { return createToken(CmlParser.RSQUARE); }
 ";"                                     { return createToken(CmlParser.SEMI); }
