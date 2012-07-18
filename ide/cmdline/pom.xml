@@ -55,6 +55,12 @@
       <version>${project.version}</version>
     </dependency>
     
+	<!-- POG Analysis -->
+    <dependency>
+      <groupId>eu.compassresearch.core.analysis</groupId>
+      <artifactId>proofobligationgenerator</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
   </dependencies>
 

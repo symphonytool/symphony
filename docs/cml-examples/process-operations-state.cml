@@ -4,7 +4,7 @@ process RegisterProc =
   state 
    reg : Byte	
 
-  operatioNs  
+  operations  
    LOAD(i : Byte)
    frame wr reg : Byte
    post reg = i;

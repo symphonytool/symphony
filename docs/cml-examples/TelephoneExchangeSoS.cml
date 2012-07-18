@@ -95,11 +95,9 @@ begin
 		suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number))
 		
 	operations
-		private InitExchange: int ==> int
-		InitExchange(a) == 
-		skip
+		private InitExchange(a : int)  
 		frame wr status, number, subs
-			rd lSUBS
+		      rd lSUBS
 		post 
 			status = {|->} and 
 			number = {|->} and 
@@ -240,7 +238,7 @@ process ExchangeProc = lSUBS: set of SUBS @ begin -- there's not type "finite se
 						(dcl s: SUBS @ s:=number(t); Unsuspend(s,t))
 					else unsuspenderror -> Skip); Exch
 		
-		@ init -> InitExchange; Exch
+		@ init -> InitExchange(); Exch
 end		
 
 

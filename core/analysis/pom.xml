@@ -4,21 +4,20 @@
   <packaging>pom</packaging>  
 
   <parent>
-    <groupId>eu.compassresearch</groupId>
-    <artifactId>root</artifactId>
+    <groupId>eu.compassresearch.core</groupId>
+    <artifactId>core</artifactId>
     <version>0.0.1<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <groupId>eu.compassresearch.core</groupId>
-  <artifactId>core</artifactId>
-  <name>COMPASS Core Top-Level</name>
+  <groupId>eu.compassresearch.core.analysis</groupId>
+  <artifactId>analysis</artifactId>
+  <name>COMPASS Core Analysis Plug-ins</name>
 
   <modules>
-    <module>ast</module>
-    <module>parser</module>
-    <!-- <module>typechecker</module> -->
-    <module>analysis</module>
+    <module>proofobligationgenerator</module>
+    <module>theoremprover</module>
+    <module>refinementtool</module>
   </modules>
 </project>
 

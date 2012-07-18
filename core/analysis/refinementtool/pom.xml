@@ -3,14 +3,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>eu.compassresearch.core</groupId>
-    <artifactId>core</artifactId>
+    <groupId>eu.compassresearch.core.analysis</groupId>
+    <artifactId>analysis</artifactId>
     <version>0.0.1<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>typechecker</artifactId>
-  <name>COMPASS CML TypeChecker</name>
+  <artifactId>refinementtool</artifactId>
+  <name>COMPASS CML Refinement Tool</name>
 
   <dependencies>
 
@@ -27,17 +27,11 @@
     </dependency>
 
     <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>parser</artifactId>
+      <groupId>eu.compassresearch.core.analysis</groupId>
+      <artifactId>theoremprover</artifactId>
       <version>${project.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.overturetool.core</groupId>
-      <artifactId>typechecker</artifactId>
-      <version>${overture.version}</version>
-    </dependency>
-    
   </dependencies>
 
 </project>
