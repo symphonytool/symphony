@@ -61,7 +61,7 @@
     // *** MEMBER VARIABLES ***
     // ************************
 
-    private ASourcefileSourcefile currentSourceFile = null;
+    private PSource currentSource = null;
 
     // *************************
     // *** PRIVATE OPERATIONS ***
@@ -157,35 +157,35 @@
 
     private LexLocation extractLexLocation(CmlLexeme lexeme)
     {
-	return new LexLocation(currentSourceFile.getFile(), "Default",
+	return new LexLocation(currentSource.toString(), "Default",
 			       lexeme.getStartPos().line, lexeme.getStartPos().column, 
 			       lexeme.getEndPos().line, lexeme.getEndPos().column,0,0);
     }
 
     private LexLocation extractLexLocation(CmlLexeme start, CmlLexeme end)
     {
-	return new LexLocation(currentSourceFile.getFile(), "Default",
+	return new LexLocation(currentSource.toString(), "Default",
 			       start.getStartPos().line, start.getStartPos().column, 
 			       end.getEndPos().line, end.getEndPos().column,0,0);
     }
 
     private LexLocation extractLexLocation(CmlLexeme start, LexLocation end)
     {
-	return new LexLocation(currentSourceFile.getFile(), "Default",
+	return new LexLocation(currentSource.toString(), "Default",
 			       start.getStartPos().line, start.getStartPos().column, 
 			       end.endLine, end.endPos,0,0);
     }
     
     private LexLocation extractLexLocation(LexLocation start, CmlLexeme end)
     {
-	return new LexLocation(currentSourceFile.getFile(), "Default",
+	return new LexLocation(currentSource.toString(), "Default",
 			       start.endLine, start.endPos, 
 			       end.getStartPos().line, end.getStartPos().column,0,0);
     }
 
     private LexLocation combineLexLocation(LexLocation start, LexLocation end)
     {
-      return new LexLocation(currentSourceFile.getFile(), "Default",
+      return new LexLocation(currentSource.toString(), "Default",
 			     start.startLine, start.startPos, 
 			     end.endLine, end.endPos,0,0);
     }
@@ -260,14 +260,14 @@
     // *** PUBLIC OPERATIONS ***
     // *************************
 
-    public void setDocument(ASourcefileSourcefile doc)
+    public void setDocument(PSource doc)
     {
-      currentSourceFile = doc;
+      currentSource = doc;
     }
      
-    public ASourcefileSourcefile getDocument()
+    public AFileSource getDocument()
     {
-      return currentSourceFile;
+      return currentSource;
     }
     
     public static void main(String[] args) throws Exception
@@ -281,12 +281,12 @@
 	    try {
 	      String filePath = args[0];
 	      ClonableFile file = new ClonableFile(filePath); 
-	      ASourcefileSourcefile currentSourceFile = new ASourcefileSourcefile();
-	      currentSourceFile.setName(file.getName());
-	      currentSourceFile.setFile(file);
+	      AFileSource currentSource = new AFileSource();
+	      currentSource.setName(file.getName());
+	      currentSource.setFile(file);
 	      scanner = new CmlLexer( new java.io.FileReader(file) );
 	      CmlParser cmlParser = new CmlParser(scanner);
-	      cmlParser.setDocument(currentSourceFile);
+	      cmlParser.setDocument(currentSource);
 	      //cmlParser.setDebugLevel(1);
 	  
 	      //do {
@@ -377,30 +377,17 @@
  /* other hacks */
 %right LPAREN
 
-%start sourceFile
+%start source
 
 %%
 
 /* 2 CML Grammar */
 
-sourceFile
+source
 : programParagraphList                            
 {
-    List<PDeclaration> decls = (List<PDeclaration>) $1;  
-    currentSourceFile.setDecls(decls);
-}
-
-| globalDecl programParagraphList                  
-{
-    List<PDeclaration> globalDecls = (List<PDeclaration>)$1;
-    List<PDeclaration> decls = (List<PDeclaration>) $2;  
-    decls.addAll(globalDecls);
-    currentSourceFile.setDecls(decls);
-}
-| globalDecl                   
-{
-    List<PDeclaration> globalDecls = (List<PDeclaration>)$1;
-    currentSourceFile.setDecls(globalDecls);
+    List<SParagraphDefinition> paragraphs = (List<SParagraphDefinition>) $1;  
+    currentSource.setParagraphs(paragraphs);
 }
 ;
 
@@ -426,23 +413,22 @@ programParagraphList:
 ;
 
 programParagraph 
-: classDecl                                       { $$ = $1; }
-| processDecl                                     { $$ = $1; }
+: classDefinition                                       { $$ = $1; }
+| processDefinition                                     { $$ = $1; }
 | channelDecl                                     { $$ = $1; }
 | chansetDecl                                     { $$ = $1; }
 ;
 
 /* 2.1 Classes */
-classDecl 
+classDefinition 
 : CLASS IDENTIFIER EQUALS classBody
 { 
-  AClassbodyDefinition c = new AClassbodyDefinition();
+  AClassParagraphDefinition clz = new AClassParagraphDefinition();
   CmlLexeme id = (CmlLexeme)$2;
   Position startPos =  ((CmlLexeme)$1).getStartPos();
   Position endPos = ((CmlLexeme)$3).getEndPos(); // TODO Fix me, the ending position is the 
   LexNameToken lexName = extractLexNameToken( id ); 
-  LexIdentifierToken classIdent = extractLexIdentifierToken( id );
-  LexLocation loc = new LexLocation(currentSourceFile.getFile(),
+  LexLocation loc = new LexLocation(currentSource.toString(),
 				    id.getValue(),
 				    startPos.line, 
 				    startPos.column, 
@@ -450,29 +436,26 @@ classDecl
 				    endPos.column, 
 				    startPos.offset, endPos.offset);
   
-  c.setLocation(loc); 
-  c.setName(lexName);
-  c.setDeclarations( (List<PDeclaration>)$4 );
-  //  c.setDefinitions((List)$4);
-  AClassDeclaration res = new AClassDeclaration();
-  res.setClassBody( c );
-  res.setLocation ( loc );
-  res.setIdentifier( classIdent );
-  res.setNameScope( NameScope.CLASSNAME );
-  $$ = res;
+  clz.setLocation(loc); 
+  clz.setName(lexName);
+  clz.setDefinitions( (List<PDefinition>) $4 );
+  clz.setNameScope( NameScope.CLASSNAME );
+  $$ = clz;
 }
 ;
 
 /* 2.2 Processes */
 
-processDecl :
+processDefinition:
   PROCESS IDENTIFIER EQUALS processDef
   {
       LexLocation processLoc = extractLexLocation((CmlLexeme)$1);
-      AProcessDefinition processDef = (AProcessDefinition)$4;
+      AProcessParagraphDefinition processDef = (AProcessParagraphDefinition)$4;
       LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$2);
       LexLocation location = combineLexLocation(processLoc,processDef.getLocation());
-      $$ = new AProcessDeclaration(location, NameScope.GLOBAL, id, processDef);
+      processDef.setLocation(location);
+      processDef.setName(id);
+      $$ = processDef;
   }
   ;
 
@@ -483,7 +466,7 @@ declaration AT process
     List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)$1;
     LexLocation loc = combineLexLocation(extractFirstLexLocation(decls),
 					 process.getLocation());
-    $$ = new AProcessDefinition(loc, 
+    $$ = new AProcessParagraphDefinition(loc, 
 				NameScope.GLOBAL, 
 				false, 
 				null, 
@@ -493,12 +476,13 @@ declaration AT process
 | process
 {
     PProcess process = (PProcess)$1;
-    $$ = new AProcessDefinition(process.getLocation(), 
-				NameScope.GLOBAL, 
-				false, 
-				null, 
-				null,
-				process);
+    $$ = new AProcessParagraphDefinition(
+					 process.getLocation(), 
+					 NameScope.GLOBAL, 
+					 false, 
+					 null, 
+					 null,
+					 process);
 }
 ;
 
@@ -2920,7 +2904,7 @@ expression :
   List<PExp> members = new LinkedList<PExp>();
   for(int i = 0; i < chrs.length;i++)
     {
-      LexLocation cl = new LexLocation(currentSourceFile.getFile(), "Default",
+      LexLocation cl = new LexLocation(currentSource.toString(), "Default",
 				       sl.startLine, sl.startPos + i,
 				       sl.startLine, sl.startPos + (i + 1),0,0);
       members.add(new ACharLiteralSymbolicLiteralExp(cl, new LexCharacterToken( chrs[i], cl )) ); 
