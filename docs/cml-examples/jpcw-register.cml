@@ -15,7 +15,7 @@
    init, overflow, underflow;
    read, load, add, sub : Byte
 
-  Chansets
+  chansets
    I = {| init, overflow, underflow, read, load, add, sub |}
 
 
@@ -25,7 +25,7 @@ process RegisterProc =
   state 
   reg : Byte	
 
-  operatioNs  
+  operations  
    INIT()
    frame wr reg : Byte
    post reg = 0;
@@ -48,12 +48,12 @@ process RegisterProc =
    pre not uflow(reg,i)
    post reg = reg~ - i
   
-   aCtions
+  actions
    
    REG = 
      (load?i -> LOAD(i) ; REG)
      []
-     (dcl j: Byte @ j <- READ(); read!j -> REG)
+     (dcl j: Byte @ j := READ(); read!j -> REG)
      [] 
      (add?i -> ( (:oflow(reg,i) & overflow -> INIT(); REG)
        	     	 [] 

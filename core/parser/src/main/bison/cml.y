@@ -66,7 +66,18 @@
     // *** PRIVATE OPERATIONS ***
     // *************************
 
-    PStateDesignator convertToStateDesignator(PDesignator designator)
+    /* FIXME
+     * needs to throw an error if the name is multipart
+     */
+    private List<LexIdentifierToken> convertNameListToIdentifierList(List<LexNameToken> nameList) {
+      List<LexIdentifierToken> out = new Vector<LexIdentifierToken>();
+      for (LexNameToken name : nameList) {
+	out.add(extractLexIdentifierToken(name));
+      }
+      return out;
+    }
+
+    private PStateDesignator convertToStateDesignator(PDesignator designator)
     {
 	PStateDesignator sd = null;
 	if(designator instanceof ANameDesignator){
@@ -108,21 +119,17 @@
 
     private LexNameToken extractLexNameToken(ASimpleName sn)
     {
-	LexNameToken lnt = null;
-	if (sn.getIdentifiers().size() > 2){
-	    throw new CustomSyntaxErrorException();
-	}
-	else if (sn.getIdentifiers().size() == 2)
-	    lnt = new LexNameToken(sn.getIdentifiers().get(0).getName(),
-				   sn.getIdentifiers().get(1).getName(),
-				   combineLexLocation(extractFirstLexLocation(sn.getIdentifiers()),
-						      extractLastLexLocation(sn.getIdentifiers()))
-				  );
-	else{
-	    lnt = new LexNameToken("Default",
-				   sn.getIdentifiers().get(0));
-	}
-	return lnt;
+      LexNameToken lnt = null;
+      if (sn.getIdentifiers().size() > 2){
+	throw new CustomSyntaxErrorException();
+      } else if (sn.getIdentifiers().size() == 2) {
+	lnt = new LexNameToken(sn.getIdentifiers().get(0).getName(), sn.getIdentifiers().get(1).getName(),
+			       combineLexLocation(extractFirstLexLocation(sn.getIdentifiers()),
+						  extractLastLexLocation(sn.getIdentifiers())));
+      } else {
+	lnt = new LexNameToken("Default", sn.getIdentifiers().get(0));
+      }
+      return lnt;
     }
 
     private LexLocation extractLexLocation(CmlLexeme lexeme)
@@ -226,6 +233,11 @@
       return new LexIdentifierToken(lexeme.getValue(), false, extractLexLocation(lexeme));
     }
 
+    private LexIdentifierToken extractLexIdentifierToken(LexNameToken name)
+    {
+      return new LexIdentifierToken(name.getName(), false, name.getLocation());
+    }
+
     // *************************
     // *** PUBLIC OPERATIONS ***
     // *************************
@@ -321,7 +333,7 @@
 
 %token HEX_LITERAL QUOTE_LITERAL
 
-%token AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDBY STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY LSQUARECOLON COLONRSQUARE MU
+%token AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY LSQUARECOLON COLONRSQUARE MU
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
 %token nameset namesetExpr typeVarIdentifier
@@ -330,7 +342,7 @@
 %left SEQOF
 
 /* CSP ops and more */
-%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF NEW COLONEQUALS SLASH BACKSLASH ENDBY STARTBY LSQUAREDBAR DBARRSQUARE DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI COLONINTER COLONUNION BARGT
+%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF NEW COLONEQUALS SLASH BACKSLASH ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI COLONINTER COLONUNION BARGT
 
 %right ELSE ELSEIF
 
@@ -556,7 +568,7 @@ process :
   LexLocation location = combineLexLocation(left.getLocation(), exp.getLocation());
   $$ = new AStartDeadlineProcess(location, left, exp);
 }
-| process ENDBY expression
+| process ENDSBY expression
 {
   PProcess left = (PProcess)$1;
   PExp exp = (PExp)$3;
@@ -767,11 +779,18 @@ action :
   $$ = new ACommunicationAction(location, id, communicationParamters, action);
 }
 /* Communication rule end*/
+/* DEVIATON
+ * grammar:
+ *   expression '&' action
+ * here:
+ *   ':' expression '&' action
+ */
 | COLON expression AMP action
 {
+  PExp exp = (PExp)$2;
   PAction action = (PAction)$4;
-  LexLocation location = extractLexLocation((CmlLexeme)$1, action.getLocation());
-  $$ = new AGuardedAction(location, (PExp)$2, action);
+  LexLocation location = combineLexLocation(exp.getLocation(), action.getLocation());
+  $$ = new AGuardedAction(location, exp, action);
 }
 | action SEMI action
 {
@@ -854,7 +873,7 @@ action :
   LexLocation location = combineLexLocation(left.getLocation(), exp.getLocation());
   $$ = new AStartDeadlineAction(location, left, exp);
 }
-| action ENDBY expression
+| action ENDSBY expression
 {
   PAction left = (PAction)$1;
   PExp exp = (PExp)$3;
@@ -872,8 +891,10 @@ action :
  *  'mu' <identifierList> '@' action
  * here:
  *  'mu' <nameList> '@' '(' action ')'
+ *
+ * Also, this is apparently not yet in our AST
  */
-| MU nameList AT LPAREN action RPAREN // TODO
+/* | MU nameList AT LPAREN action RPAREN // TODO */
 | parallelAction
 {
     $$ = $1;
@@ -886,7 +907,14 @@ action :
 | blockStatement // TODO
 | controlStatement // TODO
 // FIXME this is the missing IDENTIFIER in action; should probably be a name anyway
+/* DEVIATION (?)
+ */
 | name // TODO
+{
+  LexNameToken lnt = extractLexNameToken((ASimpleName)$1);
+  // FIXME -- apparently AIdentifierAction doesn't have any fields to store the *name* of the action?
+  $$ = new AIdentifierAction(lnt.location);  
+}
 /* | IDENTIFIER */
 /* {  */
 /*     LexLocation location = extractLexLocation((CmlLexeme)$1); */
@@ -931,7 +959,7 @@ communicationParameter :
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1), exp.getLocation());
   $$ = new AWriteCommunicationParameter(location, exp);
 }
-// TODO -- this causes problems with general expressions
+// FIXME -- this causes problems with general expressions
 /* | DOT expression */
 /* { */
 /*   PExp exp = (PExp)$2; */
@@ -1130,11 +1158,19 @@ channelDef :
 ;
 
 channelNameDecl :
+/* DEVIATION
+ * grammar:
+ *   identifierList
+ * here:
+ *   nameList
+ * So, we need to cast the list of names down to a list of identifiers
+ */
   nameList
 {
-  List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$1;
-  LexLocation start = ids.get(0).getLocation();
-  LexLocation end = ids.get(ids.size()-1).getLocation();
+  List<LexNameToken> nameList = (List<LexNameToken>)$1;
+  List<LexIdentifierToken> ids = convertNameListToIdentifierList(nameList);
+  LexLocation start = nameList.get(0).getLocation();
+  LexLocation end = nameList.get(ids.size()-1).getLocation();
   LexLocation location = combineLexLocation(start, end);
   ASingleTypeDeclaration singleTypeDeclaration = new ASingleTypeDeclaration(location, NameScope.GLOBAL, ids, null);
   AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location, NameScope.GLOBAL, singleTypeDeclaration);
@@ -1164,10 +1200,18 @@ declaration :
 ;
 
 singleTypeDecl :
+/* DEVIATION
+ * grammar:
+ *   identifierList
+ * here:
+ *   nameList
+ */
   nameList COLON type
 {
-  List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$1;
-  ASingleTypeDeclaration singleTypeDeclaration = new ASingleTypeDeclaration(ids.get(0).getLocation(), NameScope.GLOBAL, ids, (PType)$3);
+  List<LexNameToken> nameList = (List<LexNameToken>)$1;
+  List<LexIdentifierToken> ids = convertNameListToIdentifierList(nameList);
+  ASingleTypeDeclaration singleTypeDeclaration =
+    new ASingleTypeDeclaration(nameList.get(0).getLocation(), NameScope.GLOBAL, ids, (PType)$3);
   $$ = singleTypeDeclaration;
 }
 ;
@@ -2763,10 +2807,8 @@ expression :
 }
 | name // TODO check this
 {
-  $$ = $1;
-  /* was IDENTIFIER */
-  /* LexNameToken lnt = extractLexNameToken((CmlLexeme)$1); */
-  /* $$ = new ANameExp(lnt.location, lnt); */
+  LexNameToken lnt = extractLexNameToken((ASimpleName)$1);
+  $$ = new ANameExp(lnt.location, lnt);  
 }
 | IDENTIFIER TILDE /* oldName */
 {
@@ -3412,9 +3454,7 @@ preconditionExpr :
 name :
   IDENTIFIER
 {
-  List<LexIdentifierToken> ids =
-    new Vector<LexIdentifierToken>();
-
+  List<LexIdentifierToken> ids = new Vector<LexIdentifierToken>();
   ids.add(extractLexIdentifierToken((CmlLexeme)$1));
   $$ = new ASimpleName(ids);
 }
@@ -3599,12 +3639,12 @@ multiAssignStatement :
 
 assignStatement :
   objectDesignator COLONEQUALS expression // was stateDesignator
-/* { */
-/*   PStateDesignator stateDesignator = convertToStateDesignator((PDesignator)$1); */
-/*   PExp exp = (PExp)$3; */
-/*   LexLocation location = combineLexLocation(stateDesignator.getLocation(), exp.getLocation()); */
-/*   $$ = new ASingleGeneralAssignmentControlStatementAction(location, stateDesignator, (PExp)$3); */
-/* } */
+{
+  PStateDesignator stateDesignator = convertToStateDesignator((PDesignator)$1);
+  PExp exp = (PExp)$3;
+  LexLocation location = combineLexLocation(stateDesignator.getLocation(), exp.getLocation());
+  $$ = new ASingleGeneralAssignmentControlStatementAction(location, stateDesignator, (PExp)$3);
+}
 ;
 
 /* 6.3 Conditional Statements */
@@ -3711,8 +3751,19 @@ callStatement :
  * done to figure out what to call.
  */
 call :
-  objectDesignator LPAREN RPAREN
-| objectDesignator LPAREN expressionList RPAREN
+  objectDesignator LPAREN RPAREN // TODO -- this isn't correct
+{
+  PObjectDesignatorBase objD = (PObjectDesignatorBase)$1;
+  CmlLexeme rp = (CmlLexeme)$3;
+  $$ = new ACallCallStatementControlStatementAction(combineLexLocation(objD.getLocation(),extractLexLocation(rp)), objD, null, null);
+}
+| objectDesignator LPAREN expressionList RPAREN // TODO --- this is wrong, too
+{
+  PObjectDesignatorBase objD = (PObjectDesignatorBase)$1;
+  List<PExp> args = (List<PExp>)$3;
+  CmlLexeme rp = (CmlLexeme)$4;
+  $$ = new ACallCallStatementControlStatementAction(combineLexLocation(objD.getLocation(),extractLexLocation(rp)), objD, null, args);
+}
 /*   name LPAREN RPAREN */
 /* | name LPAREN expressionList RPAREN */
 /* | objectDesignator DOT name LPAREN RPAREN // TODO */
@@ -3728,8 +3779,8 @@ objectDesignator :
 }
 | name
 {
-  LexNameToken name = (LexNameToken)$1;
-  $$ = new ANameObjectDesignator(name.location, name, null);
+  LexNameToken name = extractLexNameToken((ASimpleName)$1);
+  $$ = new ANameObjectDesignator(name.getLocation(), name, null);
 }
 | objectDesignator DOT IDENTIFIER // TODO
 | objectDesignator LPAREN RPAREN //TODO

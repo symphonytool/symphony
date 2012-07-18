@@ -232,7 +232,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "else"                                  { return createToken(CmlParser.ELSE); } 
 "elseif"                                { return createToken(CmlParser.ELSEIF); } 
 "end"                                   { return createToken(CmlParser.END); }
-"endsby"                                { return createToken(CmlParser.ENDBY); }
+"endsby"                                { return createToken(CmlParser.ENDSBY); }
 "exists"                                { return createToken(CmlParser.EXISTS); }
 "exists1"                               { return createToken(CmlParser.EXISTS1); }
 "floor"                                 { return createToken(CmlParser.FLOOR); } 

@@ -1,7 +1,7 @@
 process RegisterProc = 
- BeGiN
+ begin
 
-  operatioNs  
+  operations  
    LOAD(i : Byte)
    frame wr reg : Byte
    post reg = i;
