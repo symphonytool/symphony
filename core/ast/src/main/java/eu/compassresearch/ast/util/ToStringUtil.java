@@ -4,17 +4,17 @@ import java.util.List;
 import java.util.Vector;
 
 import eu.compassresearch.ast.definitions.AEqualsDefinition;
-import eu.compassresearch.ast.definitions.AExplicitFunctionFunctionDefinition;
-import eu.compassresearch.ast.definitions.AExplicitOperationOperationDefinition;
-import eu.compassresearch.ast.definitions.AImplicitFunctionFunctionDefinition;
-import eu.compassresearch.ast.definitions.AImplicitOperationOperationDefinition;
+import eu.compassresearch.ast.definitions.AExplicitFunctionDefinition;
+import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
+import eu.compassresearch.ast.definitions.AImplicitFunctionDefinition;
+import eu.compassresearch.ast.definitions.AImplicitOperationDefinition;
 import eu.compassresearch.ast.definitions.AImportedDefinition;
 import eu.compassresearch.ast.definitions.AInheritedDefinition;
 import eu.compassresearch.ast.definitions.AMultiBindListDefinition;
 import eu.compassresearch.ast.definitions.ARenamedDefinition;
 import eu.compassresearch.ast.definitions.AValueDefinition;
 import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.definitions.SClassDefinition;
+import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.lex.LexLocation;
 import eu.compassresearch.ast.lex.LexNameList;
 import eu.compassresearch.ast.lex.LexNameToken;
@@ -33,7 +33,7 @@ import eu.compassresearch.ast.typechecker.NameScope;
 
 public class ToStringUtil
 {
-	public static String getExplicitFunctionString(AExplicitFunctionFunctionDefinition d)
+	public static String getExplicitFunctionString(AExplicitFunctionDefinition d)
 	{
 		StringBuilder params = new StringBuilder();
 
@@ -62,7 +62,7 @@ public class ToStringUtil
 						+ d.getPostcondition());
 	}
 
-	public static String getImplicitFunctionString(AImplicitFunctionFunctionDefinition d)
+	public static String getImplicitFunctionString(AImplicitFunctionDefinition d)
 	{
 	    /** @FIXME @TODO Below body is commented out */
 		return d.getAccess()
@@ -101,7 +101,7 @@ public class ToStringUtil
 	}
 
 	public static String getExplicitOperationString(
-			AExplicitOperationOperationDefinition d)
+			AExplicitOperationDefinition d)
 	{
 		return d.getName()
 				+ " "
@@ -119,7 +119,7 @@ public class ToStringUtil
 	}
 
 	public static String getImplicitOperationString(
-			AImplicitOperationOperationDefinition d)
+			AImplicitOperationDefinition d)
 	{
 		return d.getName()
 				+ Utils.listToString("(", d.getParameterPatterns(), ", ", ")")
@@ -170,10 +170,12 @@ public class ToStringUtil
 		switch (d.kindPDefinition())
 		{
 
-			case CLASS:
-				if (d instanceof SClassDefinition)
+			case PARAGRAPH:
+				if (d instanceof AClassParagraphDefinition)
 				{
-					return getVariableNames(((SClassDefinition) d).getDefinitions());
+					return getVariableNames(
+								((AClassParagraphDefinition) d)
+								.getDefinitions());
 				}
 				assert false : "Error in class getVariableNames";
 				break;
@@ -207,7 +209,7 @@ public class ToStringUtil
 					AInheritedDefinition t = (AInheritedDefinition) d;
 					for (LexNameToken vn : getVariableNames(t.getSuperdef()))
 					{
-						names.add(vn.getModifiedName(t.getName().module));
+					    names.add(vn.getModifiedName( ((LexNameToken)t.getName()).module));
 					}
 
 					return names;
@@ -229,8 +231,8 @@ public class ToStringUtil
 			case RENAMED:
 				if (d instanceof ARenamedDefinition)
 				{
-					LexNameList both = new LexNameList(d.getName());
-					both.add(((ARenamedDefinition) d).getDef().getName());
+				    LexNameList both = new LexNameList( (LexNameToken)d.getName());
+				    both.add((LexNameToken)((ARenamedDefinition) d).getDef().getName());
 					return both;
 				}
 				assert false : "Error in renamed getVariableNames";
@@ -252,7 +254,7 @@ public class ToStringUtil
 				// assert false : "Error in thread getVariableNames";
 				// break;
 			case TYPE:
-				return new LexNameList(d.getName());
+			    return new LexNameList((LexNameToken)d.getName());
 			case UNTYPED:
 				assert false : "Can't get variables of untyped definition?";
 				return null;
@@ -268,7 +270,7 @@ public class ToStringUtil
 				break;
 
 			default:
-				return new LexNameList(d.getName());
+			    return new LexNameList((LexNameToken)d.getName());
 
 		}
 		return null;

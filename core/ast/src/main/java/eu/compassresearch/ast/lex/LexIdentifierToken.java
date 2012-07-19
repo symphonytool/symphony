@@ -15,7 +15,11 @@ public class LexIdentifierToken extends LexToken {
 	public final boolean old;
 
 	public LexIdentifierToken(String name, boolean old, LexLocation location) {
-		super(location, VDMToken.IDENTIFIER);
+	    this(name, old, location, VDMToken.IDENTIFIER);
+	}
+
+    protected LexIdentifierToken(String name, boolean old, LexLocation location, VDMToken tokenType) {
+		super(location, tokenType);
 		this.name = name;
 		this.old = old;
 	}

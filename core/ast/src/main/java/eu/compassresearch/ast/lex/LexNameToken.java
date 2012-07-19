@@ -14,13 +14,11 @@ import eu.compassresearch.ast.messages.InternalException;
 import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.ast.util.Utils;
 
-public class LexNameToken extends LexToken implements Serializable
+public class LexNameToken extends LexIdentifierToken implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
 	public final String module;
-	public final String name;
-	public final boolean old;
 	public final boolean explicit; // Name has an explicit module/class
 
 	public List<PType> typeQualifier = null;
@@ -30,10 +28,8 @@ public class LexNameToken extends LexToken implements Serializable
 	public LexNameToken(String module, String name, LexLocation location,
 			boolean old, boolean explicit)
 	{
-		super(location, VDMToken.NAME);
+	    super(name, old, location, VDMToken.NAME);
 		this.module = module;
-		this.name = name;
-		this.old = old;
 		this.explicit = explicit;
 	}
 
@@ -44,11 +40,9 @@ public class LexNameToken extends LexToken implements Serializable
 
 	public LexNameToken(String module, LexIdentifierToken id)
 	{
-		super(id.getLocation(), VDMToken.NAME);
-		this.module = module;
-		this.name = id.getName();
-		this.old = id.isOld();
-		this.explicit = false;
+	    super(id.getName(), id.isOld(), id.getLocation(), VDMToken.NAME);
+	    this.module = module;
+	    this.explicit = false;
 	}
 
 	public LexIdentifierToken getIdentifier()

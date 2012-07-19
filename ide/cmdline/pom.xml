@@ -42,11 +42,11 @@
     -->
 
     <!-- Type Checker Analysis -->
-    <!-- <dependency> -->
-    <!--   <groupId>eu.compassresearch.core</groupId> -->
-    <!--   <artifactId>typechecker</artifactId> -->
-    <!--   <version>${project.version}</version> -->
-    <!-- </dependency> -->
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>typechecker</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- Div Warn Exp Analysis -->
     <dependency>

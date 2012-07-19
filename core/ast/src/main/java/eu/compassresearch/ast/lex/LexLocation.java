@@ -71,6 +71,7 @@ public class LexLocation implements Serializable , ExternalNode
 	/** True if the location is executable. */
 	private boolean executable = false;
 
+        public final String resource;
 	/** The filename of the token. */
 	public final File file;
 	/** The module/class name of the token. */
@@ -96,9 +97,27 @@ public class LexLocation implements Serializable , ExternalNode
 	 * @param endOffset 
 	 */
 
+    public LexLocation(String resource, String module, int startLine, int startPos, int endLine, int endPos, int startOffset, int endOffset)
+    {
+	this.file = null;
+   	        this.resource = resource;
+		this.module = module;
+		this.startLine = startLine;
+		this.startPos = startPos;
+		this.endLine = endLine;
+		this.endPos = endPos;
+		this.startOffset = startOffset;
+		this.endOffset = endOffset;
+		synchronized (allLocations)
+		{
+			allLocations.add(this);
+		}
+
+    }
 	public LexLocation(File file, String module,
 		int startLine, int startPos, int endLine, int endPos, int startOffset, int endOffset)
 	{
+   	        this.resource = "" + file;
 		this.file = file;
 		this.module = module;
 		this.startLine = startLine;
@@ -122,33 +141,42 @@ public class LexLocation implements Serializable , ExternalNode
 		this(new File("?"), "?", 0, 0, 0, 0, 0, 0);
 	}
 
+
+    private String positionString()
+    {
+	return "at offset range "+startOffset+"-"+endOffset+" line "+startLine + ":" + startPos;
+    }
+
+    /* If there is a file use the file 
+     *
+     *
+     */
+    private String getStructuralPosition()
+    {
+	String fileContrib = "";
+	String moduleContrib = "";
+	String resourceContrib = "";
+	
+	if (file != null) fileContrib = "(" + (absoluteToStringLocation ? resource : file.getName())+") ";
+
+	if (module != null && !module.equals("?")) moduleContrib = "'" + module + "' ";
+	
+	if (fileContrib.equals("") && moduleContrib.equals("")) resourceContrib = resource;
+	
+	return "in "+resourceContrib + moduleContrib + fileContrib;
+
+    }
+
+
 	@Override
 	public String toString()
 	{
-		if (file.getPath().equals("?"))
-		{
-			return "";		// Default LexLocation has no location string
-		}
-		else if (module == null || module.equals(""))
-		{
-			return "in '" + (absoluteToStringLocation ? file : file.getName()) + "' at line " + startLine + ":" + startPos;
-		}
-		else
-		{
-			return "in '" + module + "' (" +  (absoluteToStringLocation ? file : file.getName()) + ") at line " + startLine + ":" + startPos;
-		}
+	     return getStructuralPosition()+" "+positionString() ;
 	}
 
 	public String toShortString()
 	{
-		if (file.getPath().equals("?"))
-		{
-			return "";		// Default LexLocation has no location string
-		}
-		else
-		{
-			return "at " + startLine + ":" + startPos;
-		}
+	    return positionString();
 	}
 
 	@Override

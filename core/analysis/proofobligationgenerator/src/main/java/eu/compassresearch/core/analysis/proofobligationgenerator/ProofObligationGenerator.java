@@ -15,8 +15,8 @@ package eu.compassresearch.core.analysis.proofobligationgenerator;
  *
  */
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisAdaptor;
+import eu.compassresearch.ast.definitions.ATypeDefinition;
 import eu.compassresearch.ast.expressions.ADivideNumericBinaryExp;
-import eu.compassresearch.ast.declarations.ATypeDeclaration;
 import eu.compassresearch.ast.lex.LexLocation;
 import eu.compassresearch.ast.analysis.AnalysisException;
 /**
@@ -57,8 +57,8 @@ public class ProofObligationGenerator extends DepthFirstAnalysisAdaptor
  	 * create a warning and add it to its output.
  	 */ 	 
  	@Override
- 	public void caseATypeDeclaration(ATypeDeclaration node)  throws AnalysisException {
- 		super.caseATypeDeclaration(node);
+ 	public void caseATypeDefinition(ATypeDefinition node)  throws AnalysisException {
+ 		super.caseATypeDefinition(node);
  		pos.add(prettyPrintLocation(node.getLocation()));
  	}
 

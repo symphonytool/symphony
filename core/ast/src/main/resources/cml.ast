@@ -65,96 +65,123 @@ primary {-> package='eu.compassresearch.ast.program'}
 	| {call} [call]:action.#ControlStatement.#CallStatement.call
 	| {primary} [primary]:primary [identifier]:LexIdentifierToken
 	;
-/*
-	Programs
-*/
 
-program {-> package='eu.compassresearch.ast.program'}
-    =  {program} 
-       [sourceFiles] : sourcefile* 
-       [name]:LexIdentifierToken
-       ;
-
-sourcefile {-> package='eu.compassresearch.ast.program'}
-    = {sourcefile} 
-      [file] : clonableFile 
-      [name]:java_String 
-      [decls]:declaration*
+source {->  package='eu.compassresearch.ast.program'}
+      = {file} [name]: java_String 
+      | {tcpStream} [ip]: java_String [port]: java_String 
+      | {inputStream} (origin): java_String
       ;
 
 /*
  Declarations 
 */
-
 declaration {-> package='eu.compassresearch.ast.declarations'}
-    = {class} [identifier]:LexIdentifierToken [classBody]: definition.classbody
-    | {process} [identifier]:LexIdentifierToken [processDefinition]:definition.process
-    | {channel} [channelDefinition]:definition.channel
-    | {channelName} [declaration]:singleType
-    | {chanset} [chansetDefinitions]:definition.chanset*
-    | {action} [actionDefinition]:definition.action*
-    // --- Maybe they should be grouped together in a sub declaration
-    | {type} [typeDefinitions]:definition.type*
-    | {function} [functionDefinitions]:definition.#function*
-    | {value} [definitions]: definition*
-    | {operation} [operationDefinitions]:definition.#operation*
-    | {state} [stateDefinition]:definition.state
-    // ---	
-    | {singleType} [identifiers]:LexIdentifierToken* (type):type
-;
+    // --- True declarations
+    = {channelName} 
+    [identifier]: LexIdentifierToken // We will look and see if this name is appropriate during tc
+    [singleType]: singleType
+    | {singleType}  [identifiers]:LexIdentifierToken* (type):type
+     // --- Maybe they should be grouped together in a sub declaration
+//    | {type} [typeDefinitions]:definition.type*
+//    | {function} [functionDefinitions]:definition.#function*
+//    | {value} [definitions]: definition*
+//    | {operation} [operationDefinitions]:definition.#operation*
+//    | {state} [stateDefinition]:definition.state
+//    | {action} [actionDefinition]:definition.action*
+      ;
+
+
 
 /*
  Definitions 
 */
-
 definition {-> package='eu.compassresearch.ast.definitions'}
-    =   {assignment} [expression]:exp (expType):type
+    = #paragraph
+    |   {invariant} [pattern]: pattern (expression): exp
+    |   {assignment} [expression]:exp (expType):type
     |   {instanceVariable} [expression]:exp (expType):type [initialized]:java_Boolean [oldname]:LexNameToken //this actually inherits assignment in Nicks tree
-    |   #class 
-    |   {classbody} [declarations]:declaration* 
-    |	{process} [declarations]:declaration.singleType* [process]:process
+//    |   {classbody} [declarations]:declaration* 
+//    |	{process} [declarations]:declaration.singleType* [process]:process
     |   {action} [declarations]:declaration.singleType* [action]:action
-    |   {chanset} [identifier]:LexIdentifierToken [chansetExpression]:exp.#Set.#Chanset
-    | 	{channel} [channelNameDecls]: declaration.channelName*
+    |   {chanset} [identifier]:LexIdentifierToken [chansetExpressions]:exp.#Set.#Chanset
     |   {classInvariant}  [expression]:exp
     |   {equals} [pattern]:pattern [typebind]:bind.type [setbind]:bind.set [test]:exp 
                  (expType):type (defType):type [defs]:definition*
     |   #function
     |   {external} (state):definition [readOnly]:java_Boolean (oldname):LexNameToken
 	|   #operation    
-    |   {imported} (def):definition (name):LexNameToken
+    |   {imported} (def):definition 
     |   {inherited} (superdef):definition [oldname]:LexNameToken //is access missing here
-    |   {local} [valueDefinition]:java_Boolean (name):LexNameToken
+    |   {local} [valueDefinition]:java_Boolean 
     |   {multiBindList} (bindings):multipleBind* (defs):definition*
     |   {renamed}  (def):definition 
     |   {state} [fields]:field.field* 
-                [invPattern]:pattern [invExpression]:exp (invdef):definition.#function.explicitFunction
-                [initPattern]:pattern [initExpression]:exp (initdef):definition.#function.explicitFunction
+                [invPattern]:pattern [invExpression]:exp (invdef):definition.#function.explicit
+                [initPattern]:pattern [initExpression]:exp (initdef):definition.#function.explicit
                 (stateDefs):definition* 
-    |   {type} (invType):type.#invariant [invPattern]:pattern [invExpression]:exp 
-               [invdef]:definition.#function.explicitFunction [infinite]:java_Boolean (name):LexNameToken//is access missing here
+    |   {type} (invType):type.#invariant 
+                [invPattern]:pattern 
+                [invExpression]:exp 
+                [invdef]:definition.#function.explicit 
+		[infinite]:java_Boolean //is access missing here
     |   {untyped}
     |   {value} [pattern]:pattern [expression]:exp [defs]:definition* (expType):type //is access missing here
     ;
     
+
+#paragraph {-> package='eu.compassresearch.ast.definitions'}
+	  =  {class}
+	   [body]: definition*
+	   (supertypes):type* 
+           (supernames):LexNameToken*// try out () 
+           (definitions):definition* 
+           (allInheritedDefinitions):definition*
+           (localInheritedDefinitions):definition* 
+           [hasContructors]:java_Boolean
+           [settingHierarchy]:ClassDefinitionSettings
+	   (superDefs):definition.#paragraph.class*	
+	   [gettingInheritable]:java_Boolean
+	   (superInheritedDefinitions):definition*
+	   [gettingInvDefs]:java_Boolean
+	   [isAbstract]:java_Boolean
+	   [isUndefined]:java_Boolean
+	   (classtype):type
+	   (isTypeChecked):java_Boolean
+	   (invariant):definition.#operation.explicit
+	   | {process} 
+	     [localState]: declaration*
+	     [processes]: process*
+	   | {channel} 
+	   [channelNames]: declaration.channelName*
+	   | {chanset} 
+	     [chansets] : definition.chanset*
+ 	   | {action} [actions]: definition.action*
+	   ;
+
+//    = {class} [identifier]:LexIdentifierToken [classBody]: definition.classbody
+//    | {process} [identifier]:LexIdentifierToken [processDefinition]:definition.process
+//    | {channel} [channelDefinition]:definition.channel
+//    | {chanset} [chansetDefinitions]:definition.chanset*
+
+
     
 #operation {-> package='eu.compassresearch.ast.definitions'}
-	=   {explicitOperation} [parameterPatterns]:pattern* 
+	=   {explicit} [parameterPatterns]:pattern* 
                             [body]:stm
                             [precondition]:exp 
                             [postcondition]:exp 
                             
                             (type):type.operation
                             
-                            (predef):definition.#function.explicitFunction
-                            (postdef):definition.#function.explicitFunction
+                            (predef):definition.#function.explicit
+                            (postdef):definition.#function.explicit
                             (paramDefinitions):definition*
                             (state):definition.state
                             
                             (actualResult):type
                             [isConstructor]:java_Boolean
                             
-    |   {implicitOperation} [parameterPatterns]:pair.patternListType*
+    |   {implicit} [parameterPatterns]:pair.patternListType*
                             [result]:pair.identifierType*
                             //[body]:stm
                             [externals]:clause.external*
@@ -163,8 +190,8 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                             [errors]:case.error*
                             
                             (type):type.operation
-                            (predef):definition.#function.explicitFunction
-                            (postdef):definition.#function.explicitFunction
+                            (predef):definition.#function.explicit
+                            (postdef):definition.#function.explicit
                             (state):definition.state
                             (actualResult):type
                             (stateDefinition):definition
@@ -172,7 +199,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
     ;
     
 #function {-> package='eu.compassresearch.ast.definitions'}
-    =  {explicitFunction}  [typeParams]:LexNameToken* 
+    =  {explicit}  [typeParams]:LexNameToken* 
                             [paramPatternList]:pattern**
                             (type):type.function 
                             (body):exp 
@@ -180,8 +207,8 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                             [postcondition]:exp
                             [measure]:LexNameToken
                             
-                            (predef):explicitFunction 
-                            (postdef):explicitFunction
+                            (predef):explicit 
+                            (postdef):explicit
                             (measureDef):definition
                             (paramDefinitionList):definition*
                             
@@ -197,13 +224,13 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                             
                             (typeInvariant):java_Boolean
                             //[poluFuncs]:???Map<TypeList, FunctionValue>
-	|   {implicitFunction}  [typeParams]:LexNameToken* 
+	|   {implicit}  [typeParams]:LexNameToken* 
                             [paramPatterns]:pair.patternListType*
                             [result]:pair*
                             [precondition]:exp 
                             [postcondition]:exp 
-                            (predef):explicitFunction 
-                            (postdef):explicitFunction 
+                            (predef):explicit 
+                            (postdef):explicit 
                             (measureDef):definition
                             (recursive):java_Boolean
                             (isUndefined):java_Boolean 
@@ -214,18 +241,10 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                             //[poluFuncs]:???Map<TypeList, FunctionValue>
 	;
     
-#class {-> package='eu.compassresearch.ast.definitions'}
-    = {class}//Hmm we cant instanciate SClassDefinition...
-    ;
-
-invariant {-> package='eu.compassresearch.ast.definitions'}
-    = {invariant} [location]:location [invPattern]:pattern [invExpression]:exp
-;
 
 /*
 	Process
 */
-
 process {-> package='eu.compassresearch.ast.process'}
 	= {state} [processDeclarations]:declaration* [action]:action
 	| {sequentialComposition} [left]:process [right]:process
@@ -263,7 +282,7 @@ exp {-> package='eu.compassresearch.ast.expressions'}
     |   {field} [object]:exp [memberName]:LexNameToken [field]:LexIdentifierToken
     |   {fieldNumber} [tuple]:exp [field]:LexIntegerToken
     |   {forAll} [bindList]:multipleBind* [predicate]:exp
-    |   {funcInstatiation} [function]:exp (actualTypes):type* [expdef]:definition.#function.explicitFunction (impdef):definition.#function.implicitFunction
+    |   {funcInstatiation} [function]:exp (actualTypes):type* [expdef]:definition.#function.explicit (impdef):definition.#function.implicit
     |   {history} [hop]:LexToken [opnames]:LexNameToken*
     |   {if} [test]:exp [then]:exp [elseList]:elseIf* [else]:exp /*cml*/
     |   {iota} [bind]:bind [predicate]:exp
@@ -279,7 +298,7 @@ exp {-> package='eu.compassresearch.ast.expressions'}
     |   {mkBasic} [arg]:exp
     |   {mkType} [typeName]:LexNameToken [args]:exp* (recordType):type.#invariant.record (argTypes):type*
     |   {mu} [record]:exp (recordType):type.#invariant.record [modifiers]:modifier.record* (modTypes):type*
-    |   {new} [className]:LexIdentifierToken [args]:exp* (classdef):definition.#class (ctorDefinition):definition
+    |   {new} [className]:LexIdentifierToken [args]:exp* (classdef):definition.#paragraph.class (ctorDefinition):definition
     |   {nil} 
     |   {notYetSpecified} 
     |   {postOp} [opname]:LexNameToken (preexpression):exp (postexpression):exp (errors):case.error* (state):definition.state [errorLocation]:location
@@ -432,7 +451,7 @@ type {-> package='eu.compassresearch.ast.types'}
     =   #basic
     |   {bracket} (type):type
     |   {channel}
-    |   {class} [name]:LexNameToken (classdef):definition.#class //change classdef to graf - is this correct dont see how it could have worked before
+    |   {class} [name]:LexNameToken (classdef):definition.#paragraph.class //change classdef to graf - is this correct dont see how it could have worked before
     |   {function} [partial]:java_Boolean (parameters):type* (result):type 
     |   #invariant
     |   #Map 
@@ -491,12 +510,14 @@ type {-> package='eu.compassresearch.ast.types'}
     ;
 
 field {-> package='eu.compassresearch.ast.types'}
-    =   {field} [access]:accessSpecifier.accessSpecifier [tagname]:LexNameToken 
+    =   {field} [access]:specifier.access [tagname]:LexNameToken 
                 [tag]:java_String (type):type [equalityAbstraction]:java_Boolean
     ;
-accessSpecifier  {-> package='eu.compassresearch.ast.types'}
-  = {accessSpecifier} [access]:access [static]:static [async]:async [location]:location 
+
+specifier  {-> package='eu.compassresearch.ast.types'}
+  = {access} [access]:access [static]:static [async]:async [location]:location 
   ;
+
 access  {-> package='eu.compassresearch.ast.definitions'}
     =   {public}
     |   {protected}
@@ -685,7 +706,7 @@ parameter {-> package='eu.compassresearch.ast.actions'}
 stm {-> package='eu.compassresearch.ast.statements'}
     =   {always} [always]:stm [body]:stm
     |   {assignment} [target]:stateDesignator [exp]:exp (targetType):type (expType):type 
-                     (classDefinition):definition.#class (stateDefinition):definition.state (inConstructor):java_Boolean
+                     (classDefinition):definition.#paragraph.class (stateDefinition):definition.state (inConstructor):java_Boolean
     |   {atomic} [assignments]:stm.assignment* (statedef):definition.state 
     |   {callObject} [designator]:objectDesignator [classname]:LexNameToken [fieldname]:LexIdentifierToken 
                      [field]:LexNameToken [args]:exp* [explicit]:java_Boolean
@@ -756,6 +777,9 @@ case {-> package='eu.compassresearch.ast.statements'}
 Aspect Declaration
 /* This section allows fields of root types to be declared e.g. exp*/
 
+%source = [paragraphs]: definition.#paragraph*
+	;
+
 %declaration =  [location]:location [nameScope]:nameScope
 	;
 
@@ -802,34 +826,17 @@ Aspect Declaration
     
 %definition 
     =   [location]:location 
-        (name):LexNameToken // try out () 
+        (name):LexIdentifierToken // Names are specialised Identifiers carrying an additional module property
         [nameScope]:nameScope 
         [used]:java_Boolean 
-//        (classDefinition):definition.#class 
+//      (classDefinition):definition.#paragraph.class 
 	(declaration):declaration
-        [access]:accessSpecifier.accessSpecifier
+        [access]:specifier.access
         (type):type 
         // [pass]:pass
     ;
 
-%definition->#class
-    =   (supertypes):type* 
-        (supernames):LexNameToken*// try out () 
-        (definitions):definition* 
-        (allInheritedDefinitions):definition*
-        (localInheritedDefinitions):definition* 
-        [hasContructors]:java_Boolean
-        [settingHierarchy]:ClassDefinitionSettings
-        (superDefs):definition.#class*
-        [gettingInheritable]:java_Boolean
-        (superInheritedDefinitions):definition*
-        [gettingInvDefs]:java_Boolean
-        [isAbstract]:java_Boolean
-        [isUndefined]:java_Boolean
-        (classtype):type
-        (isTypeChecked):java_Boolean
-        (invariant):definition.#operation.explicitOperation
-    ;
+
     
 %stm
     = [location]:location (type):type
@@ -863,7 +870,7 @@ Aspect Declaration
     
 %type->#invariant
     =   (opaque):java_Boolean
-        (invDef):definition.#function.explicitFunction
+        (invDef):definition.#function.explicit
     ; 
     
 %type->#seq

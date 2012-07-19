@@ -24,11 +24,13 @@ import eu.compassresearch.ast.analysis.intf.IAnalysis;
 import eu.compassresearch.ast.preview.DotGraphVisitor;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
-// import eu.compassresearch.core.typechecker.CmlTypeChecker; 
-// import eu.compassresearch.core.typechecker.TypeCheckInfo;
+import eu.compassresearch.core.typechecker.CmlTypeChecker; 
+import eu.compassresearch.core.typechecker.TypeCheckInfo;
+import eu.compassresearch.examples.DivWarnAnalysis;
 import eu.compassresearch.core.analysis.proofobligationgenerator.ProofObligationGenerator;
- import eu.compassresearch.examples.DivWarnAnalysis;
-import eu.compassresearch.ast.program.ASourcefileSourcefile;
+import eu.compassresearch.ast.program.AFileSource;
+import eu.compassresearch.ast.program.PSource;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Collections;
@@ -46,7 +48,7 @@ public class CheckCml {
     {
 	try {
 	    Input inp;
-	     List<ASourcefileSourcefile> sourceForest = new LinkedList<ASourcefileSourcefile>();
+	     List<PSource> sourceForest = new LinkedList<PSource>();
 	
 	    // Say hello
 	    System.out.println(HELLO + " - " + CmlParser.Info.CML_LANG_VERSION);
@@ -58,10 +60,9 @@ public class CheckCml {
 	    // Two modes of operation, Interactive or Batch mode on files.
 	    if (inp.isSwitchOn(Switch.INTER))
 		{
-		    ASourcefileSourcefile currentTree = new ASourcefileSourcefile();
+		    AFileSource currentTree = new AFileSource();
 		    Reader input = new BufferedReader( new InputStreamReader( System.in ) );
 		    currentTree.setName("standard input");
-		    currentTree.setFile(new ClonableFile(new File("-")));
 		    CmlLexer lexer = new CmlLexer(input);
 		    CmlParser parser = new CmlParser(lexer);
 		    parser.setDocument(currentTree);
@@ -75,9 +76,8 @@ public class CheckCml {
 	    for(File source : inp.sourceFiles)
 		{
 		    System.out.println("Parsing file: "+source);
-		    ASourcefileSourcefile currentTree = new ASourcefileSourcefile();
+		    AFileSource currentTree = new AFileSource();
 		    currentTree.setName(source.getName());
-		    currentTree.setFile(new ClonableFile(source));
 		    FileReader input = new FileReader(source);
 		    CmlLexer lexer = new CmlLexer(input);
 		    CmlParser parser = new CmlParser(lexer);
@@ -291,15 +291,15 @@ public class CheckCml {
      * Helper methods run analysis controlling propergation of exceptions
      *
      */
-    private static boolean runAnalysis(Input input, AnalysisRunAdaptor analysis, List<ASourcefileSourcefile> sources)
+    private static boolean runAnalysis(Input input, AnalysisRunAdaptor analysis, List<PSource> sources)
     {
 	boolean continueOnException = input.isSwitchOn(Switch.COE);
 	boolean silentOnException = input.isSwitchOn(Switch.SOE);
 	
-	for(ASourcefileSourcefile source : sources)
+	for(PSource source : sources)
 	    {
 		try {
-		    System.out.println(" Running "+getAnalysisName(analysis)+" on "+source.getName());
+		    System.out.println(" Running "+getAnalysisName(analysis)+" on "+source.toString());
 		    analysis.apply(source);
 		}
 		catch (Exception e)
@@ -395,7 +395,7 @@ public class CheckCml {
      *
      * Have fun :)
      */
-    private static void runAllAnalysis(Input input, List<ASourcefileSourcefile> sources)
+    private static void runAllAnalysis(Input input, List<PSource> sources)
     {
 	// Check The Parse Only Switch
 	if (input.isSwitchOn(Switch.PARSE_ONLY)) return;
@@ -467,18 +467,18 @@ public class CheckCml {
 	}
 
 	// Type checking
-	// if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
-	//     {
-	// 	final CmlTypeChecker typeChecker = new CmlTypeChecker();
+	if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
+	    {
+		final CmlTypeChecker typeChecker = new CmlTypeChecker();
 
-	// 	AnalysisRunAdaptor r = new AnalysisRunAdaptor(typeChecker) {
-	// 		public void apply(INode root)
-	// 		{
-	// 		    root.apply(typeChecker, new TypeCheckInfo());
-	// 		}
-	// 	    };
-	// 	runAnalysis(input, r , sources);
-	//     }
+		AnalysisRunAdaptor r = new AnalysisRunAdaptor(typeChecker) {
+			public void apply(INode root) throws AnalysisException
+			{
+			    root.apply(typeChecker, new TypeCheckInfo());
+			}
+		    };
+		runAnalysis(input, r , sources);
+	    }
 	
 	// Check The Type Check Only Switch
 	if (input.isSwitchOn(Switch.TYPE_CHECK_ONLY)) return;	
