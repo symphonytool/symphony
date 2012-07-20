@@ -540,7 +540,7 @@ process :
   LexLocation location = combineLexLocation(left.getLocation(), right.getLocation());
   $$ = new AUntimedTimeoutProcess(location, left, right);
 }
-| process LSQUARE expression GT process
+| process LSQUARE expression BARGT process
 {
   PProcess left = (PProcess)$1;
   PProcess right = (PProcess)$5;
@@ -1254,12 +1254,11 @@ chansetExpr :
   LexIdentifierToken idToken = extractLexIdentifierToken((CmlLexeme)$1);
   $$ = new AIdentifierChansetSetExp(idToken.getLocation(), idToken);
 }
-/* FIXME this causes a reduce/reduce based on 'name . RCURLY' */
 /* DEVIATION
  * grammar:
  *   '{' identifierList '}'
  * here:
- *   '{:' nameList ':}'
+ *   '{:' pathList ':}'
  */
 | LCURLYCOLON pathList COLONRCURLY
 {
@@ -3330,6 +3329,14 @@ recordConstructor :
 
 /* 4.13 The Lambda Expression */
 
+/* DEVIATION
+ * CML_0:
+ *   'lambda' typeBindList '@' expression
+ * here:
+ *   'lambda' typeBindList '&' expression
+ *
+ * Using an @ causes a lot of s/r conflicts
+ */ 
 lambdaExpr :
   LAMBDA typeBindList AMP expression
 {
