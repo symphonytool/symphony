@@ -26,7 +26,7 @@
     import eu.compassresearch.ast.lex.*;
     import eu.compassresearch.ast.typechecker.NameScope;
     import eu.compassresearch.ast.node.*;
-    //    import org.overture.transforms.*;
+    // import org.overture.transforms.*;
     import eu.compassresearch.ast.util.*;
     import eu.compassresearch.core.lexer.CmlLexeme;
     import eu.compassresearch.core.lexer.CmlLexer;
@@ -80,30 +80,24 @@
     private PStateDesignator convertToStateDesignator(PDesignator designator)
     {
 	PStateDesignator sd = null;
-	if(designator instanceof ANameDesignator){
+	if(designator instanceof ANameDesignator) {
 	    ANameDesignator ns = (ANameDesignator)designator;
 	    LexNameToken name = extractLexNameToken(ns.getName());
-
 	    sd = new AIdentifierStateDesignator(name.getLocation(), null, name);
-	}
-	else if (designator instanceof APrimaryDesignator){
+	} else if (designator instanceof APrimaryDesignator) {
 	    APrimaryDesignator primary = (APrimaryDesignator)designator;
-
-	    if(primary.getPrimary() instanceof ACallPrimary){
-		ACallCallStatementControlStatementAction call =
-		    (ACallCallStatementControlStatementAction) ((ACallPrimary)primary.getPrimary()).getCall();
-		if(call.getArgs().size() != 1)
+	    if(primary.getPrimary() instanceof ACallPrimary) {
+		ACallCallStatementControlStatementAction call = (ACallCallStatementControlStatementAction) ((ACallPrimary)primary.getPrimary()).getCall();
+		if(call.getArgs().size() != 1) {
 		    throw new RuntimeException("Missing implementation in convertToStateDesignator method. Throw nice error about map ot sequence apply only takes one arg");
-
+		}
 		sd = new AMapSeqStateDesignator(call.getLocation(), null, call.getArgs().get(0));
-	    }
-	    else
+	    } else {
 		throw new RuntimeException("Missing implementation in convertToStateDesignator method. Currently only ACallPrimary is implemented");
-	}
-	else
+	    }
+	} else {
 	    throw new RuntimeException("Missing implementation in convertToStateDesignator method. sd was null");
-
-
+	}
 	return sd;
     }
 
@@ -317,7 +311,7 @@
 	}
     }
 
- }
+}
 
 
 /* General notes/FIXMEs:
@@ -328,7 +322,7 @@
  *
  */
 
-%token CLASS END PROCESS INITIAL EQUALS AT BEGIN ACTIONS BARTILDEBAR LRSQUARE TBAR LPAREN RPAREN LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LARROW LCURLY RCURLY BAR DBAR CHANNELS CHANSETS TYPES SEMI DCOLON COMPOSE OF STAR TO INMAPOF MAPOF SEQOF SEQ1OF SETOF PLUSGT COLONDASH DEQUALS INV VALUES FUNCTIONS PRE POST MEASURE SUBCLASSRESP NOTYETSPEC OPERATIONS FRAME RD WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE ELLIPSIS BARRARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS TILDE DCL COLONEQUALS ATOMIC DEQRARROW RETURN IDENTIFIER BACKTICK
+%token CLASS END PROCESS INITIAL EQUALS AT BEGIN ACTIONS BARTILDEBAR LRSQUARE TBAR LPAREN RPAREN LRPAREN LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LARROW LCURLY RCURLY BAR DBAR CHANNELS CHANSETS TYPES SEMI DCOLON COMPOSE OF STAR TO INMAPOF MAPOF SEQOF SEQ1OF SETOF PLUSGT COLONDASH DEQUALS INV VALUES FUNCTIONS PRE POST MEASURE SUBCLASSRESP NOTYETSPEC OPERATIONS FRAME RD WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE ELLIPSIS BARRARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS TILDE DCL COLONEQUALS ATOMIC DEQRARROW RETURN IDENTIFIER BACKTICK
 %token SLASH DIVIDE REM MOD LT LTE GT GTE NEQ OR AND EQRARROW LTEQUALSGT INSET NOTINSET SUBSET PROPER_SUBSET UNION BACKSLASH INTER CARET DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL
 
 %token HEX_LITERAL QUOTE_LITERAL
@@ -336,8 +330,12 @@
 %token AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY LSQUARECOLON COLONRSQUARE MU
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
 
-%token nameset namesetExpr typeVarIdentifier
+%token nameset namesetExpr
 
+%right LPAREN
+%right COMMA
+
+/* FIXME --- we need to figure out what the correct precidence rules actually are */
 /* type op precidence */
 %left SEQOF
 
@@ -349,10 +347,11 @@
 /* unary ops */
 %right UPLUS UMINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE
 /* binary ops */
-%left PLUS MINUS DIVIDE REM MOD LT LTE GT GTE EQUALS NEQ OR AND EQRARROW LTEQUALSGT INSET STAR NOTINSET SUBSET PROPER_SUBSET UNION INTER CARET DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR IN DOT DOTHASH
+%left PLUS MINUS DIVIDE REM MOD LT LTE GT GTE EQUALS NEQ OR AND EQRARROW LTEQUALSGT INSET STAR NOTINSET SUBSET PROPER_SUBSET UNION INTER CARET DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR IN
 
 /* other hacks */
-%right LPAREN
+%right LRPAREN
+%left DOT DOTHASH
 
 %start sourceFile
 
@@ -606,7 +605,6 @@ process :
   PProcess process = (PProcess)$1;
   $$ = new AChannelRenamingProcess(combineLexLocation(process.getLocation(), renameExpression.getLocation()), process, renameExpression);
 }
-| LPAREN process RPAREN LSQUARE nameList RARROW nameList RSQUARE //TODO
 /* DEVIATION
  * all of the replicated processes
  * grammar:
@@ -890,11 +888,11 @@ action :
  * grammar:
  *  'mu' <identifierList> '@' action
  * here:
- *  'mu' <nameList> '@' '(' action ')'
+ *  'mu' <pathList> '@' '(' action ')'
  *
  * Also, this is apparently not yet in our AST
  */
-/* | MU nameList AT LPAREN action RPAREN // TODO */
+/* | MU pathList AT LPAREN action RPAREN // TODO */
 | parallelAction
 {
     $$ = $1;
@@ -902,23 +900,20 @@ action :
 | LPAREN parametrisationList AT action RPAREN // parametrisedAction TODO
 | instantiatedAction // TODO
 | replicatedAction // TODO
-| action LSQUARE nameList RARROW nameList RSQUARE // TODO
 | letStatement // TODO
 | blockStatement // TODO
 | controlStatement // TODO
 // FIXME this is the missing IDENTIFIER in action; should probably be a name anyway
-/* DEVIATION (?)
+/* DEVIATION --- PATH
+ * CML_0:
+ *   name
+ * TODO: convert to a name
  */
-| name // TODO
-{
-  LexNameToken lnt = extractLexNameToken((ASimpleName)$1);
-  // FIXME -- apparently AIdentifierAction doesn't have any fields to store the *name* of the action?
-  $$ = new AIdentifierAction(lnt.location);  
-}
-/* | IDENTIFIER */
-/* {  */
-/*     LexLocation location = extractLexLocation((CmlLexeme)$1); */
-/*     $$ = new AIdentifierAction(location);   */
+| path // TODO
+/* { */
+/*   LexNameToken lnt = extractLexNameToken((ASimpleName)$1); */
+/*   // FIXME -- apparently AIdentifierAction doesn't have any fields to store the *name* of the action? */
+/*   $$ = new AIdentifierAction(lnt.location);   */
 /* } */
 ;
 
@@ -959,7 +954,7 @@ communicationParameter :
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1), exp.getLocation());
   $$ = new AWriteCommunicationParameter(location, exp);
 }
-// FIXME -- this causes problems with general expressions
+/* this hits the DOT in path */
 /* | DOT expression */
 /* { */
 /*   PExp exp = (PExp)$2; */
@@ -978,19 +973,19 @@ parameter :
 {
   $$ = new ATupleParameter(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4), (List<? extends PParameter>)$3);
 }
-| MKUNDER LPAREN RPAREN
+| MKUNDER LRPAREN
 {
-  $$ = new ATupleParameter(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3), null);
+  $$ = new ATupleParameter(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$2), null);
 }
 | MKUNDERNAME LPAREN paramList RPAREN
 {
   LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)$1);
   $$ = new ARecordParameter(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4), name, (List<? extends PParameter>)$3);
 }
-| MKUNDERNAME LPAREN RPAREN
+| MKUNDERNAME LRPAREN
 {
   LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)$1);
-  $$ = new ARecordParameter(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3), name, null);
+  $$ = new ARecordParameter(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$2), name, null);
 }
 ;
 
@@ -1048,12 +1043,13 @@ instantiatedAction :
  */
 replicatedAction :
   SEMI LCURLY replicationDeclaration AT action RCURLY //TODO
-| BARTILDEBAR LCURLY replicationDeclaration AT action RCURLY //TODO
 | LRSQUARE LCURLY replicationDeclaration AT action RCURLY //TODO
+| BARTILDEBAR LCURLY replicationDeclaration AT action RCURLY //TODO
 | LSQUAREDBAR nameset DBARRSQUARE LPAREN replicationDeclaration AT action RPAREN //TODO
-| LSQUAREBAR nameset BAR chansetExpr BARRSQUARE LPAREN replicationDeclaration AT action RPAREN //TODO
-| DBAR replicationDeclaration AT LSQUARE nameset BAR chansetExpr RSQUARE action //TODO
-| LSQUARE renameList RSQUARE LPAREN replicationDeclaration AT action RPAREN //TODO
+| TBAR replicationDeclaration AT LSQUARE namesetExpr RSQUARE action // TODO
+| LSQUAREBAR chansetExpr BARRSQUARE replicationDeclaration AT LSQUARE namesetExpr RSQUARE action //TODO
+| DBAR replicationDeclaration AT LSQUARE namesetExpr BAR chansetExpr RSQUARE action //TODO
+| DBAR replicationDeclaration AT LSQUARE namesetExpr RSQUARE action //TODO
 ;
 
 renameExpression :
@@ -1074,24 +1070,19 @@ renameExpression :
 ;
 
 renameList :
-  renamePair
+  channelEvent LARROW channelEvent
 {
   List<ARenamePair> renamePairs = new Vector<ARenamePair>();
-  renamePairs.add((ARenamePair)$1);
+  ARenamePair pair = new ARenamePair(false, (AEventChannelExp)$1, (AEventChannelExp)$3);
+  renamePairs.add(pair);
   $$ = renamePairs;
 }
-| renameList COMMA renamePair
+| renameList COMMA channelEvent LARROW channelEvent
 {
   List<ARenamePair> renamePairs = (List<ARenamePair>)$1;
-  renamePairs.add((ARenamePair)$3);
+  ARenamePair pair = new ARenamePair(false, (AEventChannelExp)$3, (AEventChannelExp)$5);
+  renamePairs.add(pair);
   $$ = renamePairs;
-}
-;
-
-renamePair :
-channelEvent LARROW channelEvent
-{
-    $$ = new ARenamePair(false, (AEventChannelExp)$1, (AEventChannelExp)$3);
 }
 ;
 
@@ -1102,29 +1093,30 @@ channelEvent :
   List<? extends PExp> dotExpression = null;
   $$ = new AEventChannelExp(id.getLocation(), id, dotExpression);
 }
-| IDENTIFIER dotted_expression
-{
-  LexNameToken id = extractLexNameToken((CmlLexeme)$1);
-  List<? extends PExp> dotExpression = (List<? extends PExp>)$2 ;
-  $$ = new AEventChannelExp(id.getLocation(), id, dotExpression);
-}
+/* this hits the DOT in path */
+/* | IDENTIFIER DOT dotted_expression */
+/* { */
+/*   LexNameToken id = extractLexNameToken((CmlLexeme)$1); */
+/*   List<? extends PExp> dotExpression = (List<? extends PExp>)$3 ; */
+/*   $$ = new AEventChannelExp(id.getLocation(), id, dotExpression); */
+/* } */
 ;
 
-dotted_expression :
-DOT expression
-{
-  List<PExp> expTokens = new Vector<PExp>();
-  expTokens.add((PExp)$2);
-  $$ = expTokens;
-}
-| dotted_expression DOT expression
-{
-  List<PExp> expTokens = (List<PExp>)$1;
-  PExp exp = (PExp)$3;
-  expTokens.add(exp);
-  $$ = expTokens;
-}
-;
+/* dotted_expression : */
+/*   expression */
+/* { */
+/*   List<PExp> expTokens = new Vector<PExp>(); */
+/*   expTokens.add((PExp)$1); */
+/*   $$ = expTokens; */
+/* } */
+/* | dotted_expression DOT expression */
+/* { */
+/*   List<PExp> expTokens = (List<PExp>)$1; */
+/*   PExp exp = (PExp)$3; */
+/*   expTokens.add(exp); */
+/*   $$ = expTokens; */
+/* } */
+/* ; */
 
 /* 2.3 Channel Definitions */
 
@@ -1162,10 +1154,10 @@ channelNameDecl :
  * grammar:
  *   identifierList
  * here:
- *   nameList
+ *   pathList
  * So, we need to cast the list of names down to a list of identifiers
  */
-  nameList
+  pathList
 {
   List<LexNameToken> nameList = (List<LexNameToken>)$1;
   List<LexIdentifierToken> ids = convertNameListToIdentifierList(nameList);
@@ -1204,9 +1196,9 @@ singleTypeDecl :
  * grammar:
  *   identifierList
  * here:
- *   nameList
+ *   pathList
  */
-  nameList COLON type
+  pathList COLON type
 {
   List<LexNameToken> nameList = (List<LexNameToken>)$1;
   List<LexIdentifierToken> ids = convertNameListToIdentifierList(nameList);
@@ -1269,13 +1261,13 @@ chansetExpr :
  * here:
  *   '{:' nameList ':}'
  */
-| LCURLYCOLON nameList COLONRCURLY
+| LCURLYCOLON pathList COLONRCURLY
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3);
   List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2;
   $$ = new AEnumChansetSetExp(location, identifiers);
 }
-| LCURLYBAR nameList BARRCURLY
+| LCURLYBAR pathList BARRCURLY
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3);
   List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2;
@@ -1323,40 +1315,41 @@ chansetExpr :
   LexLocation location = combineLexLocation(left.getLocation(), right.getLocation());
   $$ = new ASetDifferenceBinaryExp(location, left, /*lexToken*/null, right);
 }
-| LCURLYBAR IDENTIFIER BAR bindList BARRCURLY
-{
-  LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$5);
-  LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2);
-  List<PExp> dotted_expression = new Vector<PExp>();
-  List<PMultipleBind> bindings = (List<PMultipleBind>)$4;
-  $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, null);
-}
-| LCURLYBAR IDENTIFIER dotted_expression BAR bindList BARRCURLY
-{
-  LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$6);
-  LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2);
-  List<PExp> dotted_expression = (List<PExp>)$3;
-  List<PMultipleBind> bindings = (List<PMultipleBind>)$5;
-  $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, null);
-}
-| LCURLYBAR IDENTIFIER BAR bindList AT expression BARRCURLY
-{
-  LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$7);
-  LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2);
-  List<PExp> dotted_expression = new Vector<PExp>();
-  List<PMultipleBind> bindings = (List<PMultipleBind>)$4;
-  PExp pred = (PExp)$6;
-  $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, pred);
-}
-| LCURLYBAR IDENTIFIER dotted_expression BAR bindList AT expression BARRCURLY
-{
-  LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8);
-  LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2);
-  List<PExp> dotted_expression = (List<PExp>)$3;
-  List<PMultipleBind> bindings = (List<PMultipleBind>)$5;
-  PExp pred = (PExp)$7;
-  $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, pred);
-}
+/* these hit the DOT in paths */
+/* | LCURLYBAR IDENTIFIER BAR bindList BARRCURLY */
+/* { */
+/*   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$5); */
+/*   LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2); */
+/*   List<PExp> dotted_expression = new Vector<PExp>(); */
+/*   List<PMultipleBind> bindings = (List<PMultipleBind>)$4; */
+/*   $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, null); */
+/* } */
+/* | LCURLYBAR IDENTIFIER dotted_expression BAR bindList BARRCURLY */
+/* { */
+/*   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$6); */
+/*   LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2); */
+/*   List<PExp> dotted_expression = (List<PExp>)$3; */
+/*   List<PMultipleBind> bindings = (List<PMultipleBind>)$5; */
+/*   $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, null); */
+/* } */
+/* | LCURLYBAR IDENTIFIER BAR bindList AT expression BARRCURLY */
+/* { */
+/*   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$7); */
+/*   LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2); */
+/*   List<PExp> dotted_expression = new Vector<PExp>(); */
+/*   List<PMultipleBind> bindings = (List<PMultipleBind>)$4; */
+/*   PExp pred = (PExp)$6; */
+/*   $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, pred); */
+/* } */
+/* | LCURLYBAR IDENTIFIER dotted_expression BAR bindList AT expression BARRCURLY */
+/* { */
+/*   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8); */
+/*   LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2); */
+/*   List<PExp> dotted_expression = (List<PExp>)$3; */
+/*   List<PMultipleBind> bindings = (List<PMultipleBind>)$5; */
+/*   PExp pred = (PExp)$7; */
+/*   $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, pred); */
+/* } */
 ;
 
 /* 2.5 Global Definitions */
@@ -1684,12 +1677,18 @@ type :
 {
   $$ = $1;
 }
-| name
-{
-  LexNameToken lnt = extractLexNameToken((ASimpleName)$1);
-  $$ = new AUnresolvedType(lnt.location, false /*resolved*/, null/*defs*/, lnt);
-}
-| typeVarIdentifier // TODO ?
+/* DEVIATION (x3)
+ * CML_0:
+ *   name
+ * here:
+ *   IDENTIFIER
+ *   IDENTIFIER DOT IDENTIFIER
+ *   IDENTIFIER BACKTICK IDENTIFIER
+ * TODO: convert these into to names
+ */
+| IDENTIFIER
+| IDENTIFIER DOT IDENTIFIER
+| IDENTIFIER BACKTICK IDENTIFIER
 ;
 
 basicType :
@@ -1793,10 +1792,7 @@ partialFunctionType :
   params.add(domType);
   $$ = new AFunctionType(loc, false, null, true, params, rngType);
 }
-/* FIXME
- * (jwc) we really ought lex '()' as a distinct token
- */
-| LPAREN RPAREN PLUSGT type /* VDMUNITTYPE */
+| LRPAREN PLUSGT type // discretionary type
 {
   PType domType = new AVoidType(extractLexLocation((CmlLexeme)$1), true);
   PType rngType = (PType)$3;
@@ -1825,7 +1821,7 @@ totalFunctionType :
   params.add(domType);
   $$ = new AFunctionType(loc, false, null, false, params, rngType);
 }
-| LPAREN RPAREN RARROW type /* VDMUNITTYPE */
+| LRPAREN RARROW type // discretionary type
 {
   PType domType = new AVoidType(extractLexLocation((CmlLexeme)$1), true);
   PType rngType = (PType)$3;
@@ -2129,7 +2125,7 @@ explicitFunctionDef :
 
 /* really? this is what a VDM function definition list looks like? */
 parameterList :
-  LPAREN RPAREN
+  LRPAREN
 {
   List<List<PPattern>> patternListList = new Vector<List<PPattern>>();
   $$ = patternListList;
@@ -2166,7 +2162,7 @@ functionBody :
 ;
 
 parameterTypes :
-  LPAREN RPAREN
+  LRPAREN
 {
   $$ = new Vector<APatternListTypePair>();
 }
@@ -2258,7 +2254,12 @@ postExpr :
 ;
 
 measureExpr :
-  MEASURE name
+/* DEVIATION --- PATH
+ * CML_0:
+ *   MEASURE name
+ * TODO: convert to a name
+ */
+  MEASURE path
 {
   $$ = $2;
 }
@@ -2351,9 +2352,9 @@ implicitOperationDef :
 
 operationType :
   type DEQRARROW type // TODO
-| LPAREN RPAREN DEQRARROW type /* VDMUNIT TYPE */ // TODO
-| type DEQRARROW LPAREN RPAREN // TODO
-| LPAREN RPAREN DEQRARROW LPAREN RPAREN /* VDMUNIT TYPE */ // TODO
+| LRPAREN DEQRARROW type // TODO
+| type DEQRARROW LRPAREN // TODO
+| LRPAREN DEQRARROW LRPAREN // TODO
 ;
 
 operationBody :
@@ -2404,11 +2405,11 @@ varInformationList :
 ;
 
 varInformation :
-  mode nameList
+  mode pathList
 {
   $$ = new AExternalClause((LexToken)$1, (List<? extends LexNameToken>)$2);
 }
-| mode nameList COLON type
+| mode pathList COLON type
 {
   $$ = new AExternalClause((LexToken)$1, (List<? extends LexNameToken>)$2, (PType)$4);
 }
@@ -2694,17 +2695,6 @@ expression :
   ASeqCompSeqExp res = new ASeqCompSeqExp(loc, exp, binds, pred);
   $$ = res;
 }
-/* subsequence expression */
-| expression LPAREN expression ELLIPSIS expression RPAREN
-{
-  PExp seq = (PExp)$1;
-  PExp from = (PExp)$3;
-  PExp to   = (PExp)$5;
-  CmlLexeme rparen = (CmlLexeme)$6;
-  LexLocation loc = combineLexLocation(seq.getLocation(), extractLexLocation(rparen));
-  ASubseqExp res = new ASubseqExp(loc, seq, from , to);
-  $$ = res;
-}
 /* map enumerations */
 | LCURLY BARRARROW RCURLY
 {
@@ -2753,43 +2743,7 @@ expression :
 {
   $$ = $1;
 }
-/* apply expression */
-| expression LPAREN RPAREN
-{
-  PExp root = (PExp)$1;
-  List<? extends PExp> args = null;
-  LexLocation location = combineLexLocation(root.getLocation(), extractLexLocation((CmlLexeme)$3));
-  $$ = new AApplyExp(location, root, args);
-}
-| expression LPAREN expressionList RPAREN
-{
-  PExp root = (PExp)$1;
-  List<? extends PExp> args = (List<? extends PExp>)$3;
-  LexLocation location = combineLexLocation(root.getLocation(), extractLexLocation((CmlLexeme)$4));
-  $$ = new AApplyExp(location, root, args);
-}
-/* field select */
-// FIXME --- causes r/r errors with objectDesignator
-//| expression DOT IDENTIFIER // TODO
-/* tuple select */
-| expression DOTHASH NUMERAL
-{
-  PExp tup = (PExp)$1;
-  CmlLexeme lexNum = (CmlLexeme)$3;
-  int num = Integer.parseInt(lexNum.getValue());
-  LexLocation loc = combineLexLocation(tup.getLocation(), extractLexLocation(lexNum));
-  ATupleSelectExp res = new ATupleSelectExp(loc, tup, num);
-  $$ = res;
-}
 | lambdaExpr
-{
-  $$ = $1;
-}
-| newExpr
-{
-  $$ = $1;
-}
-| SELF
 {
   $$ = $1;
 }
@@ -2801,20 +2755,32 @@ expression :
 {
   $$ = $1;
 }
-| ISOFCLASS LPAREN name COMMA expression RPAREN
+/* DEVIATION --- PATH
+ * CML_0:
+ *   ISOFCLASS LPAREN name COMMA expression RPAREN
+ * TODO: convert to a name
+ */
+| ISOFCLASS LPAREN path COMMA expression RPAREN
 {
   $$ = $1;
 }
-| name // TODO check this
-{
-  LexNameToken lnt = extractLexNameToken((ASimpleName)$1);
-  $$ = new ANameExp(lnt.location, lnt);  
-}
-| IDENTIFIER TILDE /* oldName */
-{
-  LexNameToken lnt = extractLexNameToken((CmlLexeme)$1).getOldName();
-  $$ = new ANameExp(lnt.location, lnt);
-}
+/* DEVIATION --- PATH
+ * CML_0:
+ *   name
+ *   IDENTIFIER TILDE // oldName 
+ *   expression LPAREN expression ELLIPSIS expression RPAREN // subsequence expression
+ *   expression DOTHASH NUMERAL // tuple select
+ *   expression DOT IDENTIFIER // field select
+ *   SELF
+ * TODO:
+ * 1) convert to a name
+ * 2) convert to an oldName
+ * 3) convert to a subsequence expression
+ * 4) convert to a tuple select
+ * 5) convert to a field select
+ * 6) convert to a self expression
+ */
+| path // TODO
 | symbolicLiteral // TODO
 ;
 
@@ -3376,37 +3342,33 @@ lambdaExpr :
 }
 ;
 
-/* 4.14 The New Expression */
-
-/* FIXME there is a reduce/reduce with <apply> if you take out the PARENs */
-// RWL: For now we are happy with IDENTIFIERS after NEW, if need be may
-// introduce the paren's for reflection like instantiation of objects.
-newExpr :
-//   NEW LPAREN expression LPAREN expressionList RPAREN RPAREN
-NEW IDENTIFIER LPAREN expressionList RPAREN
-{
-  CmlLexeme wen = (CmlLexeme)$1;
-  CmlLexeme lexId  = (CmlLexeme)$2;
-  List<PExp> exprs = (List<PExp>)$4;
-  CmlLexeme rparen = (CmlLexeme)$5;
-  LexLocation loc = combineLexLocation(extractLexLocation(wen), extractLexLocation(rparen));
-  LexIdentifierToken id = extractLexIdentifierToken(lexId);
-  ANewExp res = new ANewExp(loc, id, exprs);
-}
-;
-
 /* 4.16 The Is Expression */
 
 generalIsExpr :
-  ISUNDER name LPAREN expression RPAREN
-{
-  CmlLexeme isUnder = (CmlLexeme)$1;
-  LexNameToken typeName = (LexNameToken)$2;
-  PExp test = null;//(PExp)$4;
-  LexLocation loc = combineLexLocation(extractLexLocation(isUnder), typeName.getLocation());
-  AIsExp res = new AIsExp(loc, typeName, test, null);
-  $$ = res;
-}
+/* DEVIATION --- PATH
+ * CML_0:
+ *   ISUNDER name LPAREN expression RPAREN
+ * here:
+ *   ISUNDER IDENTIFIER LPAREN expression RPAREN
+ *   ISUNDER IDENTIFIER DOT IDENTIFIER LPAREN expression RPAREN
+ *   ISUNDER IDENTIFIER BACKTICK IDENTIFIER LPAREN expression RPAREN
+ * TODO: convert to a name
+ *
+ * I'm not sure the syntax of this is quite correct: I don't think we
+ * want to allow "is_ NAME ( ... )" with the space between is_ and the
+ * NAME.  We may need to do something more with the lexer, here.
+ */
+  ISUNDER IDENTIFIER LPAREN expression RPAREN
+| ISUNDER IDENTIFIER DOT IDENTIFIER LPAREN expression RPAREN
+| ISUNDER IDENTIFIER BACKTICK IDENTIFIER LPAREN expression RPAREN
+/* { */
+/*   CmlLexeme isUnder = (CmlLexeme)$1; */
+/*   LexNameToken typeName = (LexNameToken)$2; */
+/*   PExp test = null;//(PExp)$4; */
+/*   LexLocation loc = combineLexLocation(extractLexLocation(isUnder), typeName.getLocation()); */
+/*   AIsExp res = new AIsExp(loc, typeName, test, null); */
+/*   $$ = res; */
+/* } */
 | ISUNDER basicType LPAREN expression RPAREN
 {
   CmlLexeme isUnder = (CmlLexeme)$1;
@@ -3449,41 +3411,6 @@ preconditionExpr :
 }
 ;
 
-/* 4.19 Names */
-
-name :
-  IDENTIFIER
-{
-  List<LexIdentifierToken> ids = new Vector<LexIdentifierToken>();
-  ids.add(extractLexIdentifierToken((CmlLexeme)$1));
-  $$ = new ASimpleName(ids);
-}
-| name BACKTICK IDENTIFIER
-{
-  ASimpleName sname = (ASimpleName)$1;
-  sname.getIdentifiers().add(extractLexIdentifierToken((CmlLexeme)$3));
-  $$ = sname;
-}
-;
-
-nameList :
-  name
-{
-  LexNameToken lnt = extractLexNameToken((ASimpleName)$1);
-  List<LexNameToken> identifiers = new Vector<LexNameToken>();
-  identifiers.add(lnt);
-  $$ = identifiers;
-}
-| nameList COMMA name
-{
-  LexNameToken lnt = extractLexNameToken((ASimpleName)$3);
-  List<LexNameToken> identifiers = (List<LexNameToken>)$1;
-  identifiers.add(lnt);
-  $$ = identifiers;
-}
-;
-
-
 /* 6 Statements */
 
 controlStatement :
@@ -3498,10 +3425,12 @@ controlStatement :
 | casesStatement
 // FIXME --- is/was this a rule?
 /*| generalCasesIfStatement*/ //TODO
-| callStatement
-{
-  $$ = $1;
-}
+  /* DEVIATION --- PATH
+   * CML_0:
+   *  callStatement
+   * TODO: this gets merged with generalAssignStatement
+   */
+/* | callStatement */
 // FIXME --- causes r/r conflict with objectDesignator(call)
 | generalAssignStatement
 {
@@ -3512,7 +3441,15 @@ controlStatement :
 {
   $$ = $1;
 }
-/*| newStatement*/ // TODO
+/* DEVIATION --- PATH
+ * CML_0:
+ *   stateDesignator COLONEQUALS NEW name LRPAREN
+ *   stateDesignator COLONEQUALS NEW name LPAREN expressionList RPAREN
+ *
+ * TODO: need the convert the paths to stateDesignator and name, resp.
+ */
+/*   path COLONEQUALS NEW path LRPAREN */
+/* | path COLONEQUALS NEW path LPAREN expressionList RPAREN */
 /*| non-deterministicDoStatement */ // TODO
 /*| SequenceForLoop */ // TODO
 /*| setForLoop */ // TODO
@@ -3638,7 +3575,12 @@ multiAssignStatement :
 ;
 
 assignStatement :
-  objectDesignator COLONEQUALS expression // was stateDesignator
+/* DEVIATION --- PATH
+ * CML_0:
+ *   stateDesignator COLONEQUALS expression // was stateDesignator
+ * TODO: convert to a stateDesignator
+ */
+  path COLONEQUALS expression
 {
   PStateDesignator stateDesignator = convertToStateDesignator((PDesignator)$1);
   PExp exp = (PExp)$3;
@@ -3725,66 +3667,6 @@ casesStatementAlt :
     $$ = new ACaseAlternativeAction(combineLexLocation(extractFirstLexLocation(patterns), action.getLocation()),
 				    patterns, (PAction)$3);
 }
-;
-
-/* 6.4 Call and Return Statements */
-
-callStatement :
-  call
-{
-  $$ = $1;
-}
-/* DEVIATION (?)
- * replaced stateDesignator with objectDesignator
- */
-| objectDesignator COLONEQUALS call // was stateDesignator
-{
-  ACallCallStatementControlStatementAction call = (ACallCallStatementControlStatementAction)$3;
-  PStateDesignator designator = convertToStateDesignator((PDesignator)$1);
-  LexLocation location = combineLexLocation(designator.getLocation(), call.getLocation());
-  $$ = new AAssignmentCallCallStatementControlStatementAction(location, designator, call);
-}
-;
-
-/* DEVIATION (?)
- * I'm fairly sure that objectDesignator does most of the work we need
- * done to figure out what to call.
- */
-call :
-  objectDesignator LPAREN RPAREN // TODO -- this isn't correct
-{
-  PObjectDesignatorBase objD = (PObjectDesignatorBase)$1;
-  CmlLexeme rp = (CmlLexeme)$3;
-  $$ = new ACallCallStatementControlStatementAction(combineLexLocation(objD.getLocation(),extractLexLocation(rp)), objD, null, null);
-}
-| objectDesignator LPAREN expressionList RPAREN // TODO --- this is wrong, too
-{
-  PObjectDesignatorBase objD = (PObjectDesignatorBase)$1;
-  List<PExp> args = (List<PExp>)$3;
-  CmlLexeme rp = (CmlLexeme)$4;
-  $$ = new ACallCallStatementControlStatementAction(combineLexLocation(objD.getLocation(),extractLexLocation(rp)), objD, null, args);
-}
-/*   name LPAREN RPAREN */
-/* | name LPAREN expressionList RPAREN */
-/* | objectDesignator DOT name LPAREN RPAREN // TODO */
-/* | objectDesignator DOT name LPAREN expressionList RPAREN // TODO */
-;
-
-
-objectDesignator :
-  SELF
-{
-  LexNameToken self = extractLexNameToken((CmlLexeme)$1);
-  $$ = new ASelfObjectDesignator(self.location, self);
-}
-| name
-{
-  LexNameToken name = extractLexNameToken((ASimpleName)$1);
-  $$ = new ANameObjectDesignator(name.getLocation(), name, null);
-}
-| objectDesignator DOT IDENTIFIER // TODO
-| objectDesignator LPAREN RPAREN //TODO
-| objectDesignator LPAREN expressionList RPAREN //TODO
 ;
 
 returnStatement :
@@ -3875,11 +3757,11 @@ tuplePattern :
 ;
 
 recordPattern :
-  MKUNDERNAME LPAREN RPAREN
+  MKUNDERNAME LRPAREN
 {
   List<? extends PPattern> plist = null;
   LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)$1);
-  $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3), null, false, name, plist);
+  $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$2), null, false, name, plist);
 }
 | MKUNDERNAME LPAREN patternList RPAREN
 {
@@ -3983,6 +3865,55 @@ typeBindList :
 }
 ;
 
+
+/* New path-based naming scheme, to replace *Designators and names ---
+ * using this requires the use of a conversion function to take one of
+ * these and generate the VDM-compatible bit of AST
+ * -jwc/2012/06/20
+ */
+path
+: unit
+| path TILDE
+| path DOT unit
+| path BACKTICK unit
+| path DOTHASH NUMERAL
+| path LRPAREN
+| path LPAREN expressionList RPAREN
+| path LPAREN expression ELLIPSIS expression RPAREN
+;
+
+unit
+: SELF
+| IDENTIFIER
+/* | IDENTIFIER TILDE */
+/* | unit LRPAREN */
+/* | unit LPAREN expressionList RPAREN */
+/* | unit LPAREN expression ELLIPSIS expression RPAREN */
+;
+
+pathList
+: path
+/* { */
+/*   LexNameToken lnt = extractLexNameToken((ASimpleName)$1); */
+/*   List<LexNameToken> identifiers = new Vector<LexNameToken>(); */
+/*   identifiers.add(lnt); */
+/*   $$ = identifiers; */
+/* } */
+| pathList COMMA path
+/* { */
+/*   LexNameToken lnt = extractLexNameToken((ASimpleName)$3); */
+/*   List<LexNameToken> identifiers = (List<LexNameToken>)$1; */
+/*   identifiers.add(lnt); */
+/*   $$ = identifiers; */
+/* } */
+;
+
+/* unitList */
+/* : unit */
+/* | unitList COMMA unit */
+/* ; */
+
 // **********************
 // *** END OF GRAMMAR ***
 // **********************
+
