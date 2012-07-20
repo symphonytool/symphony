@@ -14,13 +14,15 @@
 
 %token IDENTIFIER STRING NUMERAL SELF
 %token LPAREN LRPAREN RPAREN ELLIPSIS DOT COMMA DOTHASH TILDE
-%token UPLUS UMINUS ABS REV NOT
-%token PLUS MINUS STAR SLASH AND
+%token UMINUS ABS NOT
+%token MINUS STAR AND
 
+/* make sure unary ops are later than binary ops */
 %left AND
 %left STAR
 %left MINUS
 %left UMINUS NOT
+%right ABS
 
 %start expression
 %%
@@ -51,15 +53,15 @@ expressionList
 
 path
 : unit
+| path TILDE
 | path DOT unit
 | path DOTHASH NUMERAL
+| path LRPAREN
+| path LPAREN expressionList RPAREN
+| path LPAREN expression ELLIPSIS expression RPAREN
 ;
 
 unit
 : SELF
 | IDENTIFIER
-| IDENTIFIER TILDE
-| unit LRPAREN
-| unit LPAREN expressionList RPAREN
-| unit LPAREN expression ELLIPSIS expression RPAREN
 ;
