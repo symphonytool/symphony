@@ -347,6 +347,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "{|"                                    { return createToken(CmlParser.LCURLYBAR); }
 "{:"                                    { return createToken(CmlParser.LCURLYCOLON); }
 "("                                     { return createToken(CmlParser.LPAREN); }
+"()"                                    { return createToken(CmlParser.LRPAREN); }
 "[]"                                    { return createToken(CmlParser.LRSQUARE); }
 "["                                     { return createToken(CmlParser.LSQUARE); }
 "[|"                                    { return createToken(CmlParser.LSQUAREBAR); }
