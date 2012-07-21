@@ -332,6 +332,7 @@
 
 %token nameset namesetExpr
 
+/* Predicence from loosest to tightest; tokens on same line are equal precidence */
 %right LPAREN
 %right COMMA
 
@@ -343,6 +344,8 @@
 %left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF NEW COLONEQUALS SLASH BACKSLASH ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI COLONINTER COLONUNION BARGT
 
 %right ELSE ELSEIF
+
+%left BAR
 
 /* unary ops */
 %right UPLUS UMINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE
@@ -1272,7 +1275,6 @@ chansetExpr :
   List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2;
   $$ = new AEnumChansetSetExp(location, identifiers);
 }
-/* FIXME chanset union, intersection, and subtraction give reduce/reduce conflicts */
 /* DEVIATION
  * grammar:
  *   chansetExpr 'union' chansetExpr
@@ -1557,6 +1559,7 @@ typeDef :
   ATypeDefinition res = new ATypeDefinition(loc, NameScope.GLOBAL, false, null, access, recType, null, null, null, null, true, name);
   $$ = res;
 }
+;
 
 /* FUTURE
  *
@@ -1618,14 +1621,11 @@ type :
   $$ = new AQuoteType(value.location, false, null, value);
 }
 | COMPOSE IDENTIFIER OF fieldList END // TODO
-| LPAREN unionType RPAREN
+| type BAR type // unionType
 {
   $$ = $2;
 }
-| productType
-{
-  $$ = $1;
-}
+| type STAR type //productType
 | LSQUARE type RSQUARE // optionalType
 {
   $$ = new  AOptionalType(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3), false, null, (PType)$2);
@@ -1725,46 +1725,46 @@ basicType :
 }
 ;
 
-unionType :
-  type BAR type
-{
-  PType fst = (PType)$1;
-  PType snd = (PType)$3;
-  LexLocation loc = combineLexLocation(fst.getLocation(), snd.getLocation());
-  List<PType> types = new Vector<PType>();
-  types.add(fst);
-  types.add(snd);
-  AUnionType utype = new AUnionType(loc, false, false, false);
-  utype.setTypes(types);
-  $$ = utype;
-}
-| unionType BAR type
-{
-  AUnionType utype = (AUnionType)$1;
-  utype.getTypes().add((PType)$3);
-  $$ = utype;
-}
-;
+/* unionType : */
+/*   type BAR type */
+/* { */
+/*   PType fst = (PType)$1; */
+/*   PType snd = (PType)$3; */
+/*   LexLocation loc = combineLexLocation(fst.getLocation(), snd.getLocation()); */
+/*   List<PType> types = new Vector<PType>(); */
+/*   types.add(fst); */
+/*   types.add(snd); */
+/*   AUnionType utype = new AUnionType(loc, false, false, false); */
+/*   utype.setTypes(types); */
+/*   $$ = utype; */
+/* } */
+/* | unionType BAR type */
+/* { */
+/*   AUnionType utype = (AUnionType)$1; */
+/*   utype.getTypes().add((PType)$3); */
+/*   $$ = utype; */
+/* } */
+/* ; */
 
-productType :
-  type STAR type
-{
-  List<PType> types = new Vector<PType>();
-  PType left = (PType)$1;
-  PType right = (PType)$3;
-  types.add(left);
-  types.add(right);
-  LexLocation location = combineLexLocation(left.getLocation(), right.getLocation());
-  $$ = new AProductType(location, false, null, types);
-}
-// FIXME --- causes a s/r (within type, jwc thinks)
+/* productType : */
+/*   type STAR type */
+/* { */
+/*   List<PType> types = new Vector<PType>(); */
+/*   PType left = (PType)$1; */
+/*   PType right = (PType)$3; */
+/*   types.add(left); */
+/*   types.add(right); */
+/*   LexLocation location = combineLexLocation(left.getLocation(), right.getLocation()); */
+/*   $$ = new AProductType(location, false, null, types); */
+/* } */
+/* // FIXME --- causes a s/r (within type, jwc thinks) */
 /* | productType STAR type //TODO */
 /* { */
 /*   AProductType ptype = (AProductType)$1; */
 /*   ptype.getTypes().add((PType)$3); */
 /*   $$ = ptype; */
 /* } */
-;
+/* ; */
 
 functionType :
   partialFunctionType
