@@ -2904,34 +2904,34 @@ casesExpr :
   bubbleUp.setLocation(lexLoc);
   $$ = bubbleUp;
 }
+| CASES expression COLON casesExprAltList OTHERS RARROW expression END
+/* { // from casesExprAlt OTHERS RARROW expression --- this clearly isn't correct here */
+/*   ACaseAlternative altExp = (ACaseAlternative)$1; */
+/*   PExp othExp = (PExp)$4; */
+/*   List<ACaseAlternative> altList = new LinkedList<ACaseAlternative>(); */
+/*   altList.add(altExp); */
+/*   ACasesExp casesExp = new ACasesExp(); */
+/*   casesExp.setCases(altList); */
+/*   casesExp.setOthers(othExp); */
+/*   $$ = casesExp; */
+/* } */
 ;
 
 casesExprAltList :
   casesExprAlt
-{
-  ACasesExp casesExp = new ACasesExp();
-  ACaseAlternative caseAlt = (ACaseAlternative)$1;
-  casesExp.getCases().add(caseAlt);
-  $$ = casesExp;
-}
-| casesExprAlt OTHERS RARROW expression
-{
-  ACaseAlternative altExp = (ACaseAlternative)$1;
-  PExp othExp = (PExp)$4;
-  List<ACaseAlternative> altList = new LinkedList<ACaseAlternative>();
-  altList.add(altExp);
-  ACasesExp casesExp = new ACasesExp();
-  casesExp.setCases(altList);
-  casesExp.setOthers(othExp);
-  $$ = casesExp;
-}
+/* { */
+/*   ACasesExp casesExp = new ACasesExp(); */
+/*   ACaseAlternative caseAlt = (ACaseAlternative)$1; */
+/*   casesExp.getCases().add(caseAlt); */
+/*   $$ = casesExp; */
+/* } */
 | casesExprAltList casesExprAlt
-{
-  ACasesExp casesExp = (ACasesExp)$1;
-  ACaseAlternative altExp = (ACaseAlternative)$2;
-  casesExp.getCases().add(altExp);
-  $$ = casesExp;
-}
+/* { */
+/*   ACasesExp casesExp = (ACasesExp)$1; */
+/*   ACaseAlternative altExp = (ACaseAlternative)$2; */
+/*   casesExp.getCases().add(altExp); */
+/*   $$ = casesExp; */
+/* } */
 ;
 
 casesExprAlt :
@@ -3641,6 +3641,14 @@ casesStatement :
     cases.setExp((PExp)$2);
     $$ = cases;
 }
+| CASES expression COLON casesStatementAltList OTHERS RARROW action END
+/*   // FROM | casesStatementAlt COMMA OTHERS RARROW action */
+/* { */
+/*   List<ACaseAlternativeAction> casesList = new Vector<ACaseAlternativeAction>(); */
+/*   casesList.add((ACaseAlternativeAction)$1); */
+/*   ACasesControlStatementAction cases = new ACasesControlStatementAction(null, null, casesList, (PAction)$5); */
+/*   $$ = cases; */
+/* } */
 ;
 
 casesStatementAltList :
@@ -3649,13 +3657,6 @@ casesStatementAltList :
   List<ACaseAlternativeAction> casesList = new Vector<ACaseAlternativeAction>();
   casesList.add((ACaseAlternativeAction)$1);
   ACasesControlStatementAction cases = new ACasesControlStatementAction(null, null, casesList, null);
-  $$ = cases;
-}
-| casesStatementAlt COMMA OTHERS RARROW action
-{
-  List<ACaseAlternativeAction> casesList = new Vector<ACaseAlternativeAction>();
-  casesList.add((ACaseAlternativeAction)$1);
-  ACasesControlStatementAction cases = new ACasesControlStatementAction(null, null, casesList, (PAction)$5);
   $$ = cases;
 }
 | casesStatementAlt COMMA casesStatementAltList
