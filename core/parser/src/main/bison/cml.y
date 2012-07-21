@@ -34,7 +34,6 @@
     public
 }
 
-
 %code{
   // **************************
   // *** PARSER PUBLIC INFO ***
@@ -45,322 +44,319 @@
 
   public class CustomSyntaxErrorException extends RuntimeException
   {
+  }
 
-  };
-
-   // **************************
+  // **************************
   // *** PARSER INTERNAL DS ***
   // **************************
   class PatternWithVDMType {
     public PType type;
     public PPattern pattern;
-  };
+  }
 
-    // ************************
-    // *** MEMBER VARIABLES ***
-    // ************************
+  // ************************
+  // *** MEMBER VARIABLES ***
+  // ************************
+  
+  private ASourcefileSourcefile currentSourceFile = null;
 
-    private ASourcefileSourcefile currentSourceFile = null;
+  // *************************
+  // *** PRIVATE OPERATIONS ***
+  // *************************
 
-    // *************************
-    // *** PRIVATE OPERATIONS ***
-    // *************************
-
-    /* FIXME
-     * needs to throw an error if the name is multipart
-     */
-    private List<LexIdentifierToken> convertNameListToIdentifierList(List<LexNameToken> nameList) {
-      List<LexIdentifierToken> out = new Vector<LexIdentifierToken>();
-      for (LexNameToken name : nameList) {
-	out.add(extractLexIdentifierToken(name));
-      }
-      return out;
+  /* FIXME
+   * needs to throw an error if the name is multipart
+   */
+  private List<LexIdentifierToken> convertNameListToIdentifierList(List<LexNameToken> nameList) {
+    List<LexIdentifierToken> out = new Vector<LexIdentifierToken>();
+    for (LexNameToken name : nameList) {
+      out.add(extractLexIdentifierToken(name));
     }
+    return out;
+  }
 
-    private PStateDesignator convertToStateDesignator(PDesignator designator)
-    {
-	PStateDesignator sd = null;
-	if(designator instanceof ANameDesignator) {
-	    ANameDesignator ns = (ANameDesignator)designator;
-	    LexNameToken name = extractLexNameToken(ns.getName());
-	    sd = new AIdentifierStateDesignator(name.getLocation(), null, name);
-	} else if (designator instanceof APrimaryDesignator) {
-	    APrimaryDesignator primary = (APrimaryDesignator)designator;
-	    if(primary.getPrimary() instanceof ACallPrimary) {
-		ACallCallStatementControlStatementAction call = (ACallCallStatementControlStatementAction) ((ACallPrimary)primary.getPrimary()).getCall();
-		if(call.getArgs().size() != 1) {
-		    throw new RuntimeException("Missing implementation in convertToStateDesignator method. Throw nice error about map ot sequence apply only takes one arg");
-		}
-		sd = new AMapSeqStateDesignator(call.getLocation(), null, call.getArgs().get(0));
-	    } else {
-		throw new RuntimeException("Missing implementation in convertToStateDesignator method. Currently only ACallPrimary is implemented");
-	    }
-	} else {
-	    throw new RuntimeException("Missing implementation in convertToStateDesignator method. sd was null");
+  private PStateDesignator convertToStateDesignator(PDesignator designator)
+  {
+    PStateDesignator sd = null;
+    if(designator instanceof ANameDesignator) {
+      ANameDesignator ns = (ANameDesignator)designator;
+      LexNameToken name = extractLexNameToken(ns.getName());
+      sd = new AIdentifierStateDesignator(name.getLocation(), null, name);
+    } else if (designator instanceof APrimaryDesignator) {
+      APrimaryDesignator primary = (APrimaryDesignator)designator;
+      if(primary.getPrimary() instanceof ACallPrimary) {
+	ACallCallStatementControlStatementAction call = (ACallCallStatementControlStatementAction) ((ACallPrimary)primary.getPrimary()).getCall();
+	if(call.getArgs().size() != 1) {
+	  throw new RuntimeException("Missing implementation in convertToStateDesignator method. Throw nice error about map ot sequence apply only takes one arg");
 	}
-	return sd;
-    }
-
-    private LexNameToken getNameTokenFromMKUNDERNAME(CmlLexeme mkUnderName)
-    {
-	LexNameToken name = new LexNameToken("Default",
-					     mkUnderName.getValue().split("_")[1],
-					     extractLexLocation(mkUnderName),
-					     false,
-					     true);
-	return name;
-    }
-
-    private LexNameToken extractLexNameToken(ASimpleName sn)
-    {
-      LexNameToken lnt = null;
-      if (sn.getIdentifiers().size() > 2){
-	throw new CustomSyntaxErrorException();
-      } else if (sn.getIdentifiers().size() == 2) {
-	lnt = new LexNameToken(sn.getIdentifiers().get(0).getName(), sn.getIdentifiers().get(1).getName(),
-			       combineLexLocation(extractFirstLexLocation(sn.getIdentifiers()),
-						  extractLastLexLocation(sn.getIdentifiers())));
+	sd = new AMapSeqStateDesignator(call.getLocation(), null, call.getArgs().get(0));
       } else {
-	lnt = new LexNameToken("Default", sn.getIdentifiers().get(0));
+	throw new RuntimeException("Missing implementation in convertToStateDesignator method. Currently only ACallPrimary is implemented");
       }
-      return lnt;
+    } else {
+      throw new RuntimeException("Missing implementation in convertToStateDesignator method. sd was null");
     }
+    return sd;
+  }
 
-    private LexLocation extractLexLocation(CmlLexeme lexeme)
-    {
-	return new LexLocation(currentSourceFile.getFile(), "Default",
-			       lexeme.getStartPos().line, lexeme.getStartPos().column,
-			       lexeme.getEndPos().line, lexeme.getEndPos().column,0,0);
+  private LexNameToken getNameTokenFromMKUNDERNAME(CmlLexeme mkUnderName)
+  {
+    LexNameToken name = new LexNameToken("Default",
+					 mkUnderName.getValue().split("_")[1],
+					 extractLexLocation(mkUnderName),
+					 false,
+					 true);
+    return name;
+  }
+
+  private LexNameToken extractLexNameToken(ASimpleName sn)
+  {
+    LexNameToken lnt = null;
+    if (sn.getIdentifiers().size() > 2) {
+      throw new CustomSyntaxErrorException();
+    } else if (sn.getIdentifiers().size() == 2) {
+      lnt = new LexNameToken(sn.getIdentifiers().get(0).getName(), sn.getIdentifiers().get(1).getName(),
+			     combineLexLocation(extractFirstLexLocation(sn.getIdentifiers()),
+						extractLastLexLocation(sn.getIdentifiers())));
+    } else {
+      lnt = new LexNameToken("Default", sn.getIdentifiers().get(0));
     }
+    return lnt;
+  }
 
-    private LexLocation extractLexLocation(CmlLexeme start, CmlLexeme end)
-    {
-	return new LexLocation(currentSourceFile.getFile(), "Default",
-			       start.getStartPos().line, start.getStartPos().column,
-			       end.getEndPos().line, end.getEndPos().column,0,0);
-    }
+  private LexLocation extractLexLocation(CmlLexeme lexeme)
+  {
+    return new LexLocation(currentSourceFile.getFile(), "Default",
+			   lexeme.getStartPos().line, lexeme.getStartPos().column,
+			   lexeme.getEndPos().line, lexeme.getEndPos().column,0,0);
+  }
 
-    private LexLocation extractLexLocation(CmlLexeme start, LexLocation end)
-    {
-	return new LexLocation(currentSourceFile.getFile(), "Default",
-			       start.getStartPos().line, start.getStartPos().column,
-			       end.endLine, end.endPos,0,0);
-    }
+  private LexLocation extractLexLocation(CmlLexeme start, CmlLexeme end)
+  {
+    return new LexLocation(currentSourceFile.getFile(), "Default",
+			   start.getStartPos().line, start.getStartPos().column,
+			   end.getEndPos().line, end.getEndPos().column,0,0);
+  }
 
-    private LexLocation extractLexLocation(LexLocation start, CmlLexeme end)
-    {
-	return new LexLocation(currentSourceFile.getFile(), "Default",
-			       start.endLine, start.endPos,
-			       end.getStartPos().line, end.getStartPos().column,0,0);
-    }
+  private LexLocation extractLexLocation(CmlLexeme start, LexLocation end)
+  {
+    return new LexLocation(currentSourceFile.getFile(), "Default",
+			   start.getStartPos().line, start.getStartPos().column,
+			   end.endLine, end.endPos,0,0);
+  }
 
-    private LexLocation combineLexLocation(LexLocation start, LexLocation end)
-    {
-      return new LexLocation(currentSourceFile.getFile(), "Default",
-			     start.startLine, start.startPos,
-			     end.endLine, end.endPos,0,0);
-    }
+  private LexLocation extractLexLocation(LexLocation start, CmlLexeme end)
+  {
+    return new LexLocation(currentSourceFile.getFile(), "Default",
+			   start.endLine, start.endPos,
+			   end.getStartPos().line, end.getStartPos().column,0,0);
+  }
 
+  private LexLocation combineLexLocation(LexLocation start, LexLocation end)
+  {
+    return new LexLocation(currentSourceFile.getFile(), "Default",
+			   start.startLine, start.startPos,
+			   end.endLine, end.endPos,0,0);
+  }
 
-    private LexLocation extractLastLexLocation(List<?> fields)
-    {
-      try
-	{
-	  Object o = fields.get(0);
-	  Class<?> clz = o.getClass();
+  private LexLocation extractLastLexLocation(List<?> fields)
+  {
+    try {
+      Object o = fields.get(0);
+      Class<?> clz = o.getClass();
 
-	  Method locMethod = clz.getMethod("getLocation", new Class<?>[] {});
+      Method locMethod = clz.getMethod("getLocation", new Class<?>[] {});
 
-	  LexLocation candidate = (LexLocation)locMethod.invoke(o, null);
-	  for(Object p : fields)
-	    {
-	      LexLocation pLoc = (LexLocation)locMethod.invoke(o, null);
-	      if (pLoc.endOffset > candidate.endOffset)
-		candidate = pLoc;
-	    }
-	  return candidate;
-	} catch (Exception e)
-	    {
-	      throw new RuntimeException(e);
-	    }
-    }
-
-    private LexLocation extractFirstLexLocation(List<?> fields)
-    {
-      try
-	{
-	  Object o = fields.get(0);
-	  Class<?> clz = o.getClass();
-
-	  Method locMethod = clz.getMethod("getLocation", new Class<?>[] {});
-
-	  LexLocation candidate = (LexLocation)locMethod.invoke(o, null);
-	  for(Object p : fields)
-	    {
-	      LexLocation pLoc = (LexLocation)locMethod.invoke(o, null);
-	      if (pLoc.startOffset < candidate.startOffset)
-		candidate = pLoc;
-	    }
-	  return candidate;
-	} catch (Exception e)
-	    {
-	      throw new RuntimeException(e);
-	    }
-    }
-
-    private< T extends PPattern> LexLocation extractLexLeftMostFromPatterns(List<T> ptrns)
-    {
-      LexLocation candidate = ptrns.get(0).getLocation();
-      for(PPattern p : ptrns)
-	if (p.getLocation().endOffset > candidate.endOffset)
-	  candidate = p.getLocation();
+      LexLocation candidate = (LexLocation)locMethod.invoke(o, null);
+      for(Object p : fields) {
+	LexLocation pLoc = (LexLocation)locMethod.invoke(o, null);
+	if (pLoc.endOffset > candidate.endOffset)
+	  candidate = pLoc;
+      }
       return candidate;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    private LexNameToken extractLexNameToken(CmlLexeme lexeme)
-    {
-      return new LexNameToken("Default",lexeme.getValue(), extractLexLocation(lexeme),false, true);
+  private LexLocation extractFirstLexLocation(List<?> fields)
+  {
+    try {
+      Object o = fields.get(0);
+      Class<?> clz = o.getClass();
+
+      Method locMethod = clz.getMethod("getLocation", new Class<?>[] {});
+
+      LexLocation candidate = (LexLocation)locMethod.invoke(o, null);
+      for(Object p : fields) {
+	LexLocation pLoc = (LexLocation)locMethod.invoke(o, null);
+	if (pLoc.startOffset < candidate.startOffset)
+	  candidate = pLoc;
+      }
+      return candidate;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    private LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme)
-    {
-      return new LexIdentifierToken(lexeme.getValue(), false, extractLexLocation(lexeme));
+  private< T extends PPattern> LexLocation extractLexLeftMostFromPatterns(List<T> ptrns)
+  {
+    LexLocation candidate = ptrns.get(0).getLocation();
+    for(PPattern p : ptrns) {
+      if (p.getLocation().endOffset > candidate.endOffset)
+	candidate = p.getLocation();
     }
+    return candidate;
+  }
 
-    private LexIdentifierToken extractLexIdentifierToken(LexNameToken name)
-    {
-      return new LexIdentifierToken(name.getName(), false, name.getLocation());
-    }
+  private LexNameToken extractLexNameToken(CmlLexeme lexeme)
+  {
+    return new LexNameToken("Default",lexeme.getValue(), extractLexLocation(lexeme),false, true);
+  }
 
-    // *************************
-    // *** PUBLIC OPERATIONS ***
-    // *************************
+  private LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme)
+  {
+    return new LexIdentifierToken(lexeme.getValue(), false, extractLexLocation(lexeme));
+  }
 
-    public void setDocument(ASourcefileSourcefile doc)
-    {
-      currentSourceFile = doc;
-    }
+  private LexIdentifierToken extractLexIdentifierToken(LexNameToken name)
+  {
+    return new LexIdentifierToken(name.getName(), false, name.getLocation());
+  }
 
-    public ASourcefileSourcefile getDocument()
-    {
-      return currentSourceFile;
-    }
+  // *************************
+  // *** PUBLIC OPERATIONS ***
+  // *************************
 
-    public static void main(String[] args) throws Exception
-    {
-	if (args.length == 0) {
-	    System.out.println("Usage : java CmlParser <inputfile>");
+  public void setDocument(ASourcefileSourcefile doc)
+  {
+    currentSourceFile = doc;
+  }
+
+  public ASourcefileSourcefile getDocument()
+  {
+    return currentSourceFile;
+  }
+
+  public static void main(String[] args) throws Exception
+  {
+    if (args.length == 0) {
+      System.out.println("Usage : java CmlParser <inputfile>");
+    } else {
+      CmlLexer scanner = null;
+      try {
+	String filePath = args[0];
+	ClonableFile file = new ClonableFile(filePath);
+	ASourcefileSourcefile currentSourceFile = new ASourcefileSourcefile();
+	currentSourceFile.setName(file.getName());
+	currentSourceFile.setFile(file);
+	scanner = new CmlLexer(new java.io.FileReader(file));
+	CmlParser cmlParser = new CmlParser(scanner);
+	cmlParser.setDocument(currentSourceFile);
+	//cmlParser.setDebugLevel(1);
+
+	//do {
+	//System.out.println(scanner.yylex());
+	boolean result = cmlParser.parse();
+	if (result) {
+	  System.out.println("parsed!");
+
+	  //DotGraphVisitor dgv = new DotGraphVisitor();
+	  INode node = cmlParser.getDocument();
+
+	  //node.apply(dgv,null);
+
+	  File dotFile = new File("generatedAST.gv");
+	  java.io.FileWriter fw = new java.io.FileWriter(dotFile);
+	  //fw.write(dgv.getResultString());
+	  fw.close();
+
+	  //System.out.println(dgv.getResultString());
+	} else {
+	  System.out.println("Not parsed!");
+	  System.exit(-1);
 	}
-	else {
 
-	    CmlLexer scanner = null;
-	    try {
-	      String filePath = args[0];
-	      ClonableFile file = new ClonableFile(filePath);
-	      ASourcefileSourcefile currentSourceFile = new ASourcefileSourcefile();
-	      currentSourceFile.setName(file.getName());
-	      currentSourceFile.setFile(file);
-	      scanner = new CmlLexer(new java.io.FileReader(file));
-	      CmlParser cmlParser = new CmlParser(scanner);
-	      cmlParser.setDocument(currentSourceFile);
-	      //cmlParser.setDebugLevel(1);
-
-	      //do {
-	      //System.out.println(scanner.yylex());
-	      boolean result = cmlParser.parse();
-	      if (result){
-		System.out.println("parsed!");
-
-		//DotGraphVisitor dgv = new DotGraphVisitor();
-		INode node = cmlParser.getDocument();
-
-		//node.apply(dgv,null);
-
-		File dotFile = new File("generatedAST.gv");
-		java.io.FileWriter fw = new java.io.FileWriter(dotFile);
-		//fw.write(dgv.getResultString());
-		fw.close();
-
-		//System.out.println(dgv.getResultString());
-
-	      }
-	      else
-		{
-		  System.out.println("Not parsed!");
-		  System.exit(-1);
-		}
-
-	      //} while (!scanner.zzAtEOF);
-
-	    }
-	    catch (java.io.FileNotFoundException e) {
-		System.out.println("File not found : \""+args[0]+"\"");
-		System.exit(-2);
-	    }
-	    catch (java.io.IOException e) {
-		System.out.println("IO error scanning file \""+args[0]+"\"");
-		System.out.println(e);
-		System.exit(-3);
-	    }
-	    catch (Exception e) {
-		System.out.println("Unexpected exception:");
-		e.printStackTrace();
-		System.exit(-4);
-	    }
-
-	}
+	//} while (!scanner.zzAtEOF);
+      } catch (java.io.FileNotFoundException e) {
+	System.out.println("File not found : \""+args[0]+"\"");
+	System.exit(-2);
+      } catch (java.io.IOException e) {
+	System.out.println("IO error scanning file \""+args[0]+"\"");
+	System.out.println(e);
+	System.exit(-3);
+      } catch (Exception e) {
+	System.out.println("Unexpected exception:");
+	e.printStackTrace();
+	System.exit(-4);
+      }
     }
+  }
 
+/* End of code block */
 }
 
+/* ---------------------------------------------------------------- */
+/* Token declarations                                               */
+/* ---------------------------------------------------------------- */
 
-/* General notes/FIXMEs:
- *
- * 1) At the moment there are a lot of shift/reduce conflicts "hidden"
- * by setting a left or right associativity.  For some this is surely
- * correct, for others it's a bit suspect
- *
- */
+%token CLASS END PROCESS INITIAL EQUALS AT BEGIN ACTIONS BARTILDEBAR LRSQUARE
+%token TBAR LPAREN RPAREN LRPAREN LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS
+%token CSPDIV CSPWAIT RARROW LARROW LCURLY RCURLY BAR DBAR CHANNELS CHANSETS
+%token TYPES SEMI DCOLON COMPOSE OF STAR TO INMAPOF MAPOF SEQOF SEQ1OF SETOF
+%token PLUSGT COLONDASH DEQUALS INV VALUES FUNCTIONS PRE POST MEASURE
+%token SUBCLASSRESP NOTYETSPEC OPERATIONS FRAME RD WR STATE LET IN IF THEN
+%token ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION
+%token DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE
+%token ELLIPSIS BARRARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW
+%token SELF ISUNDER PREUNDER ISOFCLASS TILDE DCL COLONEQUALS ATOMIC DEQRARROW
+%token RETURN IDENTIFIER BACKTICK SLASH DIVIDE REM MOD LT LTE GT GTE NEQ OR
+%token AND EQRARROW LTEQUALSGT INSET NOTINSET SUBSET PROPER_SUBSET UNION
+%token BACKSLASH INTER CARET DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT
+%token COLONDASHGT COMP DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL
+%token HEX_LITERAL QUOTE_LITERAL AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE
+%token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
+%token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY 
+%token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY LSQUARECOLON
+%token COLONRSQUARE MU PRIVATE PROTECTED PUBLIC LOGICAL
+%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN
 
-%token CLASS END PROCESS INITIAL EQUALS AT BEGIN ACTIONS BARTILDEBAR LRSQUARE TBAR LPAREN RPAREN LRPAREN LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS CSPDIV CSPWAIT RARROW LARROW LCURLY RCURLY BAR DBAR CHANNELS CHANSETS TYPES SEMI DCOLON COMPOSE OF STAR TO INMAPOF MAPOF SEQOF SEQ1OF SETOF PLUSGT COLONDASH DEQUALS INV VALUES FUNCTIONS PRE POST MEASURE SUBCLASSRESP NOTYETSPEC OPERATIONS FRAME RD WR STATE LET IN IF THEN ELSEIF ELSE CASES OTHERS PLUS MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE ELLIPSIS BARRARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW SELF ISUNDER PREUNDER ISOFCLASS TILDE DCL COLONEQUALS ATOMIC DEQRARROW RETURN IDENTIFIER BACKTICK
-%token SLASH DIVIDE REM MOD LT LTE GT GTE NEQ OR AND EQRARROW LTEQUALSGT INSET NOTINSET SUBSET PROPER_SUBSET UNION BACKSLASH INTER CARET DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL
+%token nameset namesetExpr booleanLiteral nilLiteral characterLiteral textLiteral
 
-%token HEX_LITERAL QUOTE_LITERAL
+/* ---------------------------------------------------------------- */
+/* Precidence declarations                                          */
+/* ---------------------------------------------------------------- */
 
-%token AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY LSQUARECOLON COLONRSQUARE MU
-%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
-
-%token nameset namesetExpr
-
-/* Predicence from loosest to tightest; tokens on same line are equal precidence */
+/* Precidence from loosest to tightest; tokens on same line are equal precidence */
 %right LPAREN
 %right COMMA
-
-/* FIXME --- we need to figure out what the correct precidence rules actually are */
-/* type op precidence */
 %left SEQOF
-
-/* CSP ops and more */
-%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF NEW COLONEQUALS SLASH BACKSLASH ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI COLONINTER COLONUNION BARGT
-
-%right ELSE ELSEIF
-
+%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT 
+      BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF
+      NEW COLONEQUALS SLASH BACKSLASH ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE
+      DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI COLONINTER
+      COLONUNION BARGT
+%nonassoc ELSE ELSEIF
 %left BAR
-
 /* unary ops */
-%right UPLUS UMINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE
+%right UPLUS UMINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS
+       INDS REVERSE CONC DOM RNG MERGE INVERSE
 /* binary ops */
-%left PLUS MINUS DIVIDE REM MOD LT LTE GT GTE EQUALS NEQ OR AND EQRARROW LTEQUALSGT INSET STAR NOTINSET SUBSET PROPER_SUBSET UNION INTER CARET DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR IN
-
-/* other hacks */
-%right LRPAREN
+%left PLUS MINUS DIVIDE REM MOD LT LTE GT GTE EQUALS NEQ OR AND EQRARROW
+      LTEQUALSGT INSET STAR NOTINSET SUBSET PROPER_SUBSET UNION INTER CARET
+      DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR IN
 %left DOT DOTHASH
+%left LRPAREN
 
+/* ---------------------------------------------------------------- */
+/* Initial rule declaration                                         */
+/* ---------------------------------------------------------------- */
 %start sourceFile
-
 %%
 
-/* 2 CML Grammar */
+/* ---------------------------------------------------------------- */
+/* The rules                                                        */
+/* ---------------------------------------------------------------- */
 
 sourceFile :
   programParagraphList
@@ -406,7 +402,6 @@ programParagraph :
 | chansetDecl                                     { $$ = $1; }
 ;
 
-/* 2.1 Classes */
 classDecl :
   CLASS IDENTIFIER EQUALS classBody
 {
@@ -430,8 +425,6 @@ classDecl :
   $$ = res;
 }
 ;
-
-/* 2.2 Processes */
 
 processDecl :
   PROCESS IDENTIFIER EQUALS processDef
@@ -608,7 +601,7 @@ process :
   PProcess process = (PProcess)$1;
   $$ = new AChannelRenamingProcess(combineLexLocation(process.getLocation(), renameExpression.getLocation()), process, renameExpression);
 }
-/* DEVIATION
+/* DEVIATION (x4)
  * all of the replicated processes
  * grammar:
  *   <replOp> replicationDeclaration '@' process
@@ -657,8 +650,6 @@ replicationDeclarationAlt :
 /*   $$ = singleTypeDeclaration; */
 /* } */
 /* ; */
-
-
 
 processParagraphList :
   processParagraph
@@ -895,7 +886,7 @@ action :
  *
  * Also, this is apparently not yet in our AST
  */
-/* | MU pathList AT LPAREN action RPAREN // TODO */
+| MU pathList AT LPAREN action RPAREN // TODO
 | parallelAction
 {
     $$ = $1;
@@ -907,9 +898,11 @@ action :
 | blockStatement // TODO
 | controlStatement // TODO
 // FIXME this is the missing IDENTIFIER in action; should probably be a name anyway
-/* DEVIATION --- PATH
+/* DEVIATION
  * CML_0:
  *   name
+ * here:
+ *   path
  * TODO: convert to a name
  */
 | path // TODO
@@ -957,7 +950,8 @@ communicationParameter :
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1), exp.getLocation());
   $$ = new AWriteCommunicationParameter(location, exp);
 }
-/* this hits the DOT in path */
+// JWC next
+/* FIXME this hits the DOT in path */
 /* | DOT expression */
 /* { */
 /*   PExp exp = (PExp)$2; */
@@ -1096,7 +1090,7 @@ channelEvent :
   List<? extends PExp> dotExpression = null;
   $$ = new AEventChannelExp(id.getLocation(), id, dotExpression);
 }
-/* this hits the DOT in path */
+// FIXME this hits the DOT in path
 /* | IDENTIFIER DOT dotted_expression */
 /* { */
 /*   LexNameToken id = extractLexNameToken((CmlLexeme)$1); */
@@ -1105,6 +1099,7 @@ channelEvent :
 /* } */
 ;
 
+// FIXME
 /* dotted_expression : */
 /*   expression */
 /* { */
@@ -1120,8 +1115,6 @@ channelEvent :
 /*   $$ = expTokens; */
 /* } */
 /* ; */
-
-/* 2.3 Channel Definitions */
 
 channelDecl :
   CHANNELS channelDef
@@ -1145,11 +1138,11 @@ channelDef :
   $$ = decls;
 }
 | channelDef SEMI channelNameDecl
- {
-     List<AChannelNameDeclaration> decls = (List<AChannelNameDeclaration>)$1;
-     decls.add((AChannelNameDeclaration)$3);
-     $$ = decls;
- }
+{
+  List<AChannelNameDeclaration> decls = (List<AChannelNameDeclaration>)$1;
+  decls.add((AChannelNameDeclaration)$3);
+  $$ = decls;
+}
 ;
 
 channelNameDecl :
@@ -1210,8 +1203,6 @@ singleTypeDecl :
   $$ = singleTypeDeclaration;
 }
 ;
-
-/* 2.4 Chanset Definitions */
 
 chansetDecl :
   CHANSETS
@@ -1353,8 +1344,6 @@ chansetExpr :
 /* } */
 ;
 
-/* 2.5 Global Definitions */
-
 globalDecl :
   globalDefinitionBlock
 {
@@ -1399,8 +1388,6 @@ globalDefinitionBlockAlternative :
   $$ = functionGlobalDeclaration;
 }
 ;
-
-/* 3 Definitions */
 
 classBody :
   BEGIN classDefinitionBlock END
@@ -1456,8 +1443,6 @@ classDefinitionBlockAlternative :
  */
 | INITIAL operationDef // TODO
 ;
-
-/* 3.1 Type Definitions */
 
 typeDefs :
   TYPES
@@ -1623,9 +1608,40 @@ type :
 | COMPOSE IDENTIFIER OF fieldList END // TODO
 | type BAR type // unionType
 {
-  $$ = $2;
+  /* FIXME --- Make union type concatenation smarter
+   *
+   * This is technically correct as far as it goes, but it creates a
+   * tree of AUnionType objects, which is rather stupid.  It should
+   * check the left type to see if it already *is* an AUnionType and
+   * just add the right if so; otherwise, it should do as it does now.
+   */
+  PType fst = (PType)$1;
+  PType snd = (PType)$3;
+  LexLocation loc = combineLexLocation(fst.getLocation(), snd.getLocation());
+  List<PType> types = new Vector<PType>();
+  types.add(fst);
+  types.add(snd);
+  AUnionType utype = new AUnionType(loc, false, false, false);
+  utype.setTypes(types);
+  $$ = utype;
 }
 | type STAR type //productType
+{
+  /* FIXME --- Make product type concatenation smarter
+   *
+   * This is technically correct as far as it goes, but it creates a
+   * tree of AProductType objects, which is rather stupid.  It should
+   * check the left type to see if it already *is* an AProductType and
+   * just add the right if so; otherwise, it should do as it does now.
+   */
+  List<PType> types = new Vector<PType>();
+  PType left = (PType)$1;
+  PType right = (PType)$3;
+  types.add(left);
+  types.add(right);
+  LexLocation location = combineLexLocation(left.getLocation(), right.getLocation());
+  $$ = new AProductType(location, false, null, types);
+}
 | LSQUARE type RSQUARE // optionalType
 {
   $$ = new  AOptionalType(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3), false, null, (PType)$2);
@@ -1724,47 +1740,6 @@ basicType :
   $$ = new ATokenBasicType(extractLexLocation((CmlLexeme)$1), false);
 }
 ;
-
-/* unionType : */
-/*   type BAR type */
-/* { */
-/*   PType fst = (PType)$1; */
-/*   PType snd = (PType)$3; */
-/*   LexLocation loc = combineLexLocation(fst.getLocation(), snd.getLocation()); */
-/*   List<PType> types = new Vector<PType>(); */
-/*   types.add(fst); */
-/*   types.add(snd); */
-/*   AUnionType utype = new AUnionType(loc, false, false, false); */
-/*   utype.setTypes(types); */
-/*   $$ = utype; */
-/* } */
-/* | unionType BAR type */
-/* { */
-/*   AUnionType utype = (AUnionType)$1; */
-/*   utype.getTypes().add((PType)$3); */
-/*   $$ = utype; */
-/* } */
-/* ; */
-
-/* productType : */
-/*   type STAR type */
-/* { */
-/*   List<PType> types = new Vector<PType>(); */
-/*   PType left = (PType)$1; */
-/*   PType right = (PType)$3; */
-/*   types.add(left); */
-/*   types.add(right); */
-/*   LexLocation location = combineLexLocation(left.getLocation(), right.getLocation()); */
-/*   $$ = new AProductType(location, false, null, types); */
-/* } */
-/* // FIXME --- causes a s/r (within type, jwc thinks) */
-/* | productType STAR type //TODO */
-/* { */
-/*   AProductType ptype = (AProductType)$1; */
-/*   ptype.getTypes().add((PType)$3); */
-/*   $$ = ptype; */
-/* } */
-/* ; */
 
 functionType :
   partialFunctionType
@@ -1887,8 +1862,6 @@ invariant :
   $$ = new AInvariantInvariant(loc, (PPattern)$2, exp);
 }
 ;
-
-/* 3.2 Value Definitions */
 
 valueDefs :
   VALUES valueDefList
@@ -2021,8 +1994,6 @@ valueDef :
   $$ = vdef;
 }
 ;
-
-/* 3.3 Function Definitions */
 
 functionDefs :
   FUNCTIONS
@@ -2265,8 +2236,6 @@ measureExpr :
 | /* empty */
 ;
 
-/* 3.4 Operation Definitions */
-
 operationDefs :
   OPERATIONS operationDefList
 {
@@ -2425,8 +2394,6 @@ mode :
 }
 ;
 
-/* 3.5 Instance Variable Definitions */
-
 /* RWL, invariantDef
  *
  * In the AST PDefinition and PInvariant does not have a common
@@ -2494,8 +2461,6 @@ stateDef :
   $$ = new AClassInvariantDefinition(location, NameScope.GLOBAL, true, null, exp);
 }
 ;
-
-/* 4 Expressions */
 
 expressionList :
   expression
@@ -2783,17 +2748,20 @@ expression :
 | symbolicLiteral // TODO
 ;
 
+/* TODO --- verify
+ *
+ * We need to check that these are, indeed, the right possible literals.
+ */
 symbolicLiteral :
   numericLiteral
 {
   LexIntegerToken lit = (LexIntegerToken)$1;
   $$ = new AIntLiteralSymbolicLiteralExp(lit.location, lit);
 }
-// FIXME
-//| booleanLiteral
-//| nilLiteral
-//| characterLiteral
-//| textLiteral
+| booleanLiteral
+| nilLiteral
+| characterLiteral
+| textLiteral
 | quoteLiteral
 {
   LexQuoteToken value = (LexQuoteToken)$1;
@@ -2842,8 +2810,6 @@ localDef :
   $$ = $1;
 }
 ;
-
-/* 4.3 Conditional Expressions */
 
 ifExpr :
   IF expression THEN expression elseExprs
@@ -2949,14 +2915,6 @@ casesExprAlt :
   $$ = res;
 }
 ;
-
-/* 4.4 Unary Expressions */
-
-/* FIXME this hack makes me really tempted to see if I can use the
- * lexer to define PLUS, MINUS, etc and just call the terminals
- * UNARYOP and BINARYOP 
- */
-/* turns out that terminals embedded in a rule that only lists terminals ends up dropping precedence info */
 
 unaryExpr :
   PLUS expression %prec UPLUS
@@ -3100,8 +3058,6 @@ unaryExpr :
   $$ = new AMapInverseUnaryExp(location, exp);
 }
   ;
-
-/* 4.5 Binary Expressions */
 
 binaryExpr :
   expression PLUS expression
@@ -3298,8 +3254,6 @@ maplet :
 }
 ;
 
-/* 4.10 Tuple Constructor Expression */
-
 tupleConstructor :
   MKUNDER LPAREN expressionList RPAREN
 {
@@ -3311,8 +3265,6 @@ tupleConstructor :
   $$ = res;
 }
 ;
-
-/* 4.11 Record Expressions */
 
 recordConstructor :
   MKUNDERNAME LPAREN expressionList RPAREN
@@ -3326,8 +3278,6 @@ recordConstructor :
   $$ = res;
 }
 ;
-
-/* 4.13 The Lambda Expression */
 
 /* DEVIATION
  * CML_0:
@@ -3348,8 +3298,6 @@ lambdaExpr :
   $$ = res;
 }
 ;
-
-/* 4.16 The Is Expression */
 
 generalIsExpr :
 /* DEVIATION --- PATH
@@ -3400,7 +3348,6 @@ generalIsExpr :
 }
 ;
 
-/* 4.17 The Precondition Expression */
 preconditionExpr :
   PREUNDER LPAREN expressionList RPAREN
 {
@@ -3417,8 +3364,6 @@ preconditionExpr :
   $$ = res;
 }
 ;
-
-/* 6 Statements */
 
 controlStatement :
   nonDeterministicIfStatement
@@ -3596,7 +3541,6 @@ assignStatement :
 }
 ;
 
-/* 6.3 Conditional Statements */
 ifStatement :
   IF expression THEN action elseStatements ELSE action
 {
@@ -3686,8 +3630,6 @@ returnStatement :
 }
 ;
 
-/* 6.5 The Specification Statement */
-
 specificationStatement :
   LSQUARE implicitOperationBody RSQUARE // TODO
 ;
@@ -3695,10 +3637,6 @@ specificationStatement :
 implicitOperationBody :
   externals_opt preExpr_opt postExpr // TODO
 ;
-
-/* 7 Patterns and Bindings */
-
-/* 7.1  */
 
 pattern :
   patternIdentifier // TODO
@@ -3740,7 +3678,6 @@ patternIdentifier :
 | MINUS // TODO: Implement "don't care" pattern
 ;
 
-/* FIXME shift/reduce conflict from a bracketed expression */
 matchValue :
   symbolicLiteral
 {
@@ -3778,9 +3715,6 @@ recordPattern :
     $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4), null, false, name, plist);
 }
 ;
-
-
-/* 7.2 Bindings */
 
 bind :
   setBind
@@ -3873,7 +3807,6 @@ typeBindList :
 }
 ;
 
-
 /* New path-based naming scheme, to replace *Designators and names ---
  * using this requires the use of a conversion function to take one of
  * these and generate the VDM-compatible bit of AST
@@ -3916,6 +3849,7 @@ pathList
 /* } */
 ;
 
+// TODO probably won't need this one
 /* unitList */
 /* : unit */
 /* | unitList COMMA unit */
