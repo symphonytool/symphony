@@ -57,7 +57,7 @@
   // ************************
   // *** MEMBER VARIABLES ***
   // ************************
-  
+
   private ASourcefileSourcefile currentSourceFile = null;
 
   // *************************
@@ -316,7 +316,7 @@
 %token COLONDASHGT COMP DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL
 %token HEX_LITERAL QUOTE_LITERAL AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE
 %token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
-%token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY 
+%token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY LSQUARECOLON
 %token COLONRSQUARE MU PRIVATE PROTECTED PUBLIC LOGICAL
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN
@@ -331,7 +331,7 @@
 %right LPAREN
 %right COMMA
 %left SEQOF
-%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT 
+%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT
       BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF
       NEW COLONEQUALS SLASH BACKSLASH ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE
       DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI COLONINTER
@@ -521,6 +521,7 @@ process :
  *   process '/' expression '\' process
  * this conflicts all over, so
  *   process '/:' expression ':\' process
+ * (FIXME)
  */
 | process SLASHCOLON expression COLONBACKSLASH process
 {
@@ -573,6 +574,7 @@ process :
 /* DEVIATION
  * This does not follow the grammar from the document. processDef
  * has been replaced by IDENTIFIER.
+ * (FIXME)
  */
 | LPAREN declaration AT IDENTIFIER RPAREN LPAREN expression RPAREN
 {
@@ -582,6 +584,7 @@ process :
   $$ = new AInstantiationProcess(location, decls, identifier, (PExp)$7);
 }
 // FIXME --- causes s/r against everything in VDM
+// looks like a 'path' to me...
 /* | IDENTIFIER LPAREN expression RPAREN */
 /* { */
 /*   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4); */
@@ -590,6 +593,7 @@ process :
 /*   $$ = new AInstantiationProcess(location, decls, identifier, (PExp)$3); */
 /* } */
 // FIXME this rule is should probably be added
+// also looks like a path to me
 /* | IDENTIFIER */
 /* { */
 /*   LexNameToken identifier = extractLexNameToken((CmlLexeme)$1); */
@@ -2731,7 +2735,7 @@ expression :
 /* DEVIATION --- PATH
  * CML_0:
  *   name
- *   IDENTIFIER TILDE // oldName 
+ *   IDENTIFIER TILDE // oldName
  *   expression LPAREN expression ELLIPSIS expression RPAREN // subsequence expression
  *   expression DOTHASH NUMERAL // tuple select
  *   expression DOT IDENTIFIER // field select
@@ -3286,7 +3290,7 @@ recordConstructor :
  *   'lambda' typeBindList '&' expression
  *
  * Using an @ causes a lot of s/r conflicts
- */ 
+ */
 lambdaExpr :
   LAMBDA typeBindList AMP expression
 {
@@ -3858,4 +3862,3 @@ pathList
 // **********************
 // *** END OF GRAMMAR ***
 // **********************
-
