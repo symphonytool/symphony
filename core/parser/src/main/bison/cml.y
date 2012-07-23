@@ -395,6 +395,7 @@ programParagraph
 | processDefinition                                     { $$ = $1; }
 | channelDefinition                                     { $$ = $1; }
 | chansetDefinitionParagraph                            { $$ = $1; }
+| globalDefinitionParagraph                             { $$ = $1; } 
 ;
 
 /* 2.1 Classes */
@@ -1358,30 +1359,13 @@ chansetExpr :
 /* } */
 ;
 
-globalDecl :
-  globalDefinitionBlock
+globalDefinitionParagraph :
+  globalDefinitionBlockAlternative
 {
   $$ = $1;
 }
 ;
 
-globalDefinitionBlock :
-  globalDefinitionBlockAlternative
-{
-  List<PDeclaration> declBlockList = new Vector<PDeclaration>();
-  PDeclaration globalDecl = (PDeclaration)$1;
-  if (globalDecl != null) declBlockList.add(globalDecl);
-  $$ = declBlockList;
-}
-| globalDefinitionBlock globalDefinitionBlockAlternative
-{
-  List<PDeclaration> declBlockList = (List<PDeclaration>)$1;
-  PDeclaration globalDecl = (PDeclaration)$2;
-  if (declBlockList != null && globalDecl != null)
-      declBlockList.add(globalDecl);
-  $$ = declBlockList;
-}
-;
 
 globalDefinitionBlockAlternative :
   typeDefs
@@ -1394,7 +1378,7 @@ globalDefinitionBlockAlternative :
 }
 | functionDefs
 {
-  $$ = $1
+  $$ = $1;
 }
 ;
 
@@ -2774,7 +2758,6 @@ symbolicLiteral :
   LexBooleanToken lit = (LexBooleanToken)$1;
   $$ = new ABooleanLiteralExp(lit.location, lit);
 }
-| booleanLiteral
 | nilLiteral
 | characterLiteral
 | textLiteral
