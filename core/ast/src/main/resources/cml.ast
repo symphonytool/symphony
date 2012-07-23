@@ -53,6 +53,10 @@ Abstract Syntax Tree
 	These are only temporary nodes to help the parser and will not
 	end up in the AST.
 */
+unit {-> package='eu.compassresearch.ast.naming'}
+	= {identifier} [identifier]:LexIdentifierToken
+	| {self}
+	;
 name {-> package='eu.compassresearch.ast.program'}
 	= {simple} [identifiers]:LexIdentifierToken*
 	;
