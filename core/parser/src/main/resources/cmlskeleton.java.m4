@@ -91,10 +91,24 @@ b4_locations_if([[
      * <code>]b4_position_type[</code> should override the <code>equals</code>
      * method.  */
     public String toString () {
-      if (begin.equals (end))
-        return begin.toString ();
+      
+      String beginString;
+      if (begin == null)
+      	 beginString = "Warning! Position begin is null";
       else
-        return begin.toString () + "-" + end.toString ();
+      	 beginString = begin.toString ();
+
+      String endString;
+      if (end == null)
+      	 endString = "Warning! Position end is null";
+      else
+      	 endString = end.toString (); 
+      /*
+      if (begin.equals (end))
+        return beginString;
+      else
+      */
+        return beginString + "-" + endString;
     }
   }
 
