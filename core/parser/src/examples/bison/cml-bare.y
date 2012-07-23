@@ -669,11 +669,11 @@ expression :
 | LCURLY mapletList RCURLY
 | LCURLY maplet BAR bindList RCURLY
 | LCURLY maplet BAR bindList AMP expression RCURLY
-| tupleConstructor
-| recordConstructor
-| lambdaExpr
+| MKUNDER LPAREN expressionList RPAREN
+| MKUNDERNAME LPAREN expressionList RPAREN
+| LAMBDA typeBindList AMP expression
 | generalIsExpr
-| preconditionExpr
+| PREUNDER LPAREN expressionList RPAREN
 | ISOFCLASS LPAREN path COMMA expression RPAREN
 | path
 | symbolicLiteral
@@ -799,28 +799,12 @@ maplet :
   expression BARRARROW expression
 ;
 
-tupleConstructor :
-  MKUNDER LPAREN expressionList RPAREN
-;
-
-recordConstructor :
-  MKUNDERNAME LPAREN expressionList RPAREN
-;
-
-lambdaExpr :
-  LAMBDA typeBindList AMP expression
-;
-
 generalIsExpr :
   ISUNDER IDENTIFIER LPAREN expression RPAREN
 | ISUNDER IDENTIFIER DOT IDENTIFIER LPAREN expression RPAREN
 | ISUNDER IDENTIFIER BACKTICK IDENTIFIER LPAREN expression RPAREN
 | ISUNDER basicType LPAREN expression RPAREN
 | ISUNDER LPAREN expression COMMA type RPAREN
-;
-
-preconditionExpr :
-  PREUNDER LPAREN expressionList RPAREN
 ;
 
 controlStatement :
@@ -830,8 +814,9 @@ controlStatement :
 /* | generalCasesIfStatement */
 /* | callStatement */
 | generalAssignStatement
-| specificationStatement
-| returnStatement
+| LSQUARE implicitOperationBody RSQUARE
+| RETURN SEMI 
+| RETURN expression
 /*   path COLONEQUALS NEW path LRPAREN */
 /* | path COLONEQUALS NEW path LPAREN expressionList RPAREN */
 /* | non-deterministicDoStatement */
@@ -921,15 +906,6 @@ casesStatementAlt :
   patternList RARROW action
 ;
 
-returnStatement :
-  RETURN SEMI 
-| RETURN expression
-;
-
-specificationStatement :
-  LSQUARE implicitOperationBody RSQUARE
-;
-
 implicitOperationBody :
   externals_opt preExpr_opt postExpr
 ;
@@ -941,8 +917,9 @@ pattern :
 
 patternLessID :
   matchValue
-| tuplePattern
-| recordPattern
+| MKUNDER LPAREN patternList COMMA pattern RPAREN
+| MKUNDERNAME LRPAREN
+| MKUNDERNAME LPAREN patternList RPAREN
 ;
 
 patternList :
@@ -958,15 +935,6 @@ patternIdentifier :
 matchValue :
   symbolicLiteral
 | LPAREN expression RPAREN
-;
-
-tuplePattern :
-  MKUNDER LPAREN patternList COMMA pattern RPAREN
-;
-
-recordPattern :
-  MKUNDERNAME LRPAREN
-| MKUNDERNAME LPAREN patternList RPAREN
 ;
 
 bind :

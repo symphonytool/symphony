@@ -2652,25 +2652,62 @@ expression :
   AMapCompMapExp res = new AMapCompMapExp(loc, maplet, binds, pred);
   $$ = res;
 }
-| tupleConstructor
+/* tuple constructor */
+| MKUNDER LPAREN expressionList RPAREN
 {
-  $$ = $1;
+  CmlLexeme mku = (CmlLexeme)$1;
+  List<PExp> exprs = (List<PExp>)$3;
+  CmlLexeme rparen = (CmlLexeme)$4;
+  LexLocation loc = combineLexLocation(extractLexLocation(mku), extractLexLocation(rparen));
+  ATupleExp res = new ATupleExp(loc, exprs);
+  $$ = res;
 }
-| recordConstructor
+/* recordConstructor */
+| MKUNDERNAME LPAREN expressionList RPAREN
 {
-  $$ = $1;
+  CmlLexeme mku = (CmlLexeme)$1;
+  LexNameToken name = getNameTokenFromMKUNDERNAME(mku);
+  List<PExp> exprs = (List<PExp>)$3;
+  LexLocation loc = combineLexLocation(extractLexLocation(mku), extractLexLocation((CmlLexeme)$4));
+  ARecordExp res = new ARecordExp(loc, name, exprs);
+  $$ = res;
 }
-| lambdaExpr
+/* lambda expression */
+/* DEVIATION
+ * CML_0:
+ *   'lambda' typeBindList '@' expression
+ * here:
+ *   'lambda' typeBindList '&' expression
+ *
+ * Using an @ causes a lot of s/r conflicts
+ */
+| LAMBDA typeBindList AMP expression
 {
-  $$ = $1;
+  CmlLexeme l = (CmlLexeme)$1;
+  List<ATypeBind> binds = (List<ATypeBind>)$2;
+  PExp body = (PExp)$4;
+  LexLocation loc = combineLexLocation(extractLexLocation(l), body.getLocation());
+  ALambdaExp res = new ALambdaExp(loc, binds, body, null, null);
+  $$ = res;
 }
+;
 | generalIsExpr
 {
   $$ = $1;
 }
-| preconditionExpr
+/* precondition expression */
+/* (JWC) first parameter of the precondition expression is the
+ * function that we want the precondition of
+ */
+| PREUNDER LPAREN expressionList RPAREN
 {
-  $$ = $1;
+  CmlLexeme preu = (CmlLexeme)$1;
+  List<PExp> exprs = (List<PExp>)$3;
+  CmlLexeme rparen = (CmlLexeme)$4;
+  PExp function = null;
+  LexLocation loc = combineLexLocation(extractLexLocation(preu), extractLexLocation(rparen));
+  APreExp res = new APreExp(loc, function, exprs);
+  $$ = res;
 }
 /* DEVIATION --- PATH
  * CML_0:
@@ -3229,50 +3266,6 @@ maplet :
 }
 ;
 
-tupleConstructor :
-  MKUNDER LPAREN expressionList RPAREN
-{
-  CmlLexeme mku = (CmlLexeme)$1;
-  List<PExp> exprs = (List<PExp>)$3;
-  CmlLexeme rparen = (CmlLexeme)$4;
-  LexLocation loc = combineLexLocation(extractLexLocation(mku), extractLexLocation(rparen));
-  ATupleExp res = new ATupleExp(loc, exprs);
-  $$ = res;
-}
-;
-
-recordConstructor :
-  MKUNDERNAME LPAREN expressionList RPAREN
-{
-  CmlLexeme mku = (CmlLexeme)$1;
-  LexNameToken name = getNameTokenFromMKUNDERNAME(mku);
-  List<PExp> exprs = (List<PExp>)$3;
-  LexLocation loc = combineLexLocation(extractLexLocation(mku), extractLexLocation((CmlLexeme)$4));
-  ARecordExp res = new ARecordExp(loc, name, exprs);
-  $$ = res;
-}
-;
-
-/* DEVIATION
- * CML_0:
- *   'lambda' typeBindList '@' expression
- * here:
- *   'lambda' typeBindList '&' expression
- *
- * Using an @ causes a lot of s/r conflicts
- */
-lambdaExpr :
-  LAMBDA typeBindList AMP expression
-{
-  CmlLexeme l = (CmlLexeme)$1;
-  List<ATypeBind> binds = (List<ATypeBind>)$2;
-  PExp body = (PExp)$4;
-  LexLocation loc = combineLexLocation(extractLexLocation(l), body.getLocation());
-  ALambdaExp res = new ALambdaExp(loc, binds, body, null, null);
-  $$ = res;
-}
-;
-
 generalIsExpr :
 /* DEVIATION --- PATH
  * CML_0:
@@ -3322,23 +3315,6 @@ generalIsExpr :
 }
 ;
 
-preconditionExpr :
-  PREUNDER LPAREN expressionList RPAREN
-{
-  CmlLexeme preu = (CmlLexeme)$1;
-  List<PExp> exprs = (List<PExp>)$3;
-  CmlLexeme rparen = (CmlLexeme)$4;
-  // RWL FIXME: Either this is right because we dedeuce the
-  // function in a later phase where we know more or
-  // the production above should be PREUNDER exp LPAREN expList RPAREN
-  // however that introduces 36 reduce/reduce conflicts at this time.
-  PExp function = null;
-  LexLocation loc = combineLexLocation(extractLexLocation(preu), extractLexLocation(rparen));
-  APreExp res = new APreExp(loc, function, exprs);
-  $$ = res;
-}
-;
-
 controlStatement :
   nonDeterministicIfStatement
 {
@@ -3362,10 +3338,17 @@ controlStatement :
 {
   $$ = $1;
 }
-| specificationStatement // TODO
-| returnStatement
+/* specification statement */
+| LSQUARE implicitOperationBody RSQUARE // TODO
+/* FIXME
+ * (JWC) I really don't think we should require the SEMI here
+ */
+| RETURN SEMI  // TODO
+| RETURN expression
 {
-  $$ = $1;
+  PExp exp = (PExp)$2;
+  $$ = new AReturnStm(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
+  //  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
 }
 /* DEVIATION --- PATH
  * CML_0:
@@ -3418,8 +3401,6 @@ nonDeterministicIfAltList :
   $$ = alts;
 }
 ;
-
-/* let statements */
 
 letStatement :
   LET localDefList IN action // TODO
@@ -3591,20 +3572,6 @@ casesStatementAlt :
 }
 ;
 
-returnStatement :
-  RETURN SEMI  // TODO
-| RETURN expression
-{
-  PExp exp = (PExp)$2;
-  $$ = new AReturnStm(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
-  //  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
-}
-;
-
-specificationStatement :
-  LSQUARE implicitOperationBody RSQUARE // TODO
-;
-
 implicitOperationBody :
   externals_opt preExpr_opt postExpr // TODO
 ;
@@ -3616,8 +3583,21 @@ pattern :
 
 patternLessID :
   matchValue // TODO
-| tuplePattern // TODO
-| recordPattern // TODO
+/* tuple pattern */
+| MKUNDER LPAREN patternList COMMA pattern RPAREN // TODO
+/* record patterns */
+| MKUNDERNAME LRPAREN
+{
+  List<? extends PPattern> plist = null;
+  LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)$1);
+  $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$2), null, false, name, plist);
+}
+| MKUNDERNAME LPAREN patternList RPAREN
+{
+  List<? extends PPattern> plist = (List<? extends PPattern>)$3;
+  LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)$1);
+  $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4), null, false, name, plist);
+}
 ;
 
 patternList :
@@ -3664,29 +3644,6 @@ matchValue :
   }
 }
 | LPAREN expression RPAREN //TODO
-;
-
-/* FIXME not sure if if this is a minimum of one pattern or two; if the latter
- * (JWC) pretty sure tuples are len>=2
- */
-tuplePattern :
-//  MKUNDER LPAREN patternList RPAREN // TODO
-  MKUNDER LPAREN patternList COMMA pattern RPAREN
-;
-
-recordPattern :
-  MKUNDERNAME LRPAREN
-{
-  List<? extends PPattern> plist = null;
-  LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)$1);
-  $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$2), null, false, name, plist);
-}
-| MKUNDERNAME LPAREN patternList RPAREN
-{
-  List<? extends PPattern> plist = (List<? extends PPattern>)$3;
-  LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)$1);
-  $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4), null, false, name, plist);
-}
 ;
 
 bind :
