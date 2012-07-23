@@ -13,6 +13,10 @@
 // required standard Java definitions
     import java.util.*;
     import java.io.File;
+    import java.io.FileReader;
+    import java.io.FileNotFoundException;
+    import java.io.InputStreamReader;
+    import java.io.Reader;
     import java.lang.reflect.*;
     import eu.compassresearch.ast.definitions.*;
     import eu.compassresearch.ast.declarations.*;
@@ -262,6 +266,31 @@
       return currentSource;
     }
 
+    public static CmlParser newParserFromSource(PSource doc) throws FileNotFoundException
+    {
+      if (doc instanceof AFileSource)
+	{
+	  AFileSource fs = (AFileSource)doc;
+	  File f= fs.getFile();
+	  FileReader reader = new FileReader(f);
+	  CmlLexer lexer = new CmlLexer(reader);
+	  CmlParser parser = new CmlParser(lexer);
+	  parser.setDocument(fs);
+	  return parser;
+	}
+
+      if (doc instanceof AInputStreamSource)
+	{
+	  AInputStreamSource is = (AInputStreamSource)doc;
+	  InputStreamReader in = new InputStreamReader(is.getStream());
+	  CmlLexer lexer = new CmlLexer(in);
+	  CmlParser parser = new CmlParser(lexer);
+	  parser.setDocument(is);
+	  return parser;
+	}
+      return null;
+    }
+
     public static void main(String[] args) throws Exception
     {
 	if (args.length == 0) {
@@ -343,7 +372,7 @@
 %token HEX_LITERAL QUOTE_LITERAL
 
 %token AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY LSQUARECOLON COLONRSQUARE MU
-%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL
+%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN PRIVATE PROTECTED PUBLIC LOGICAL TRUE FALSE
 
 %token nameset namesetExpr typeVarIdentifier
 
@@ -451,7 +480,7 @@ processDef :
   LexLocation loc = combineLexLocation(extractFirstLexLocation(decls),
 				       process.getLocation());
   // by default a process is public 
-  AAccessSpecifier access = new AAccessSpecifier(new APublicAccess(), new TStatic(), null, loc);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
   $$ = new AProcessParagraphDefinition(loc, 
 				       NameScope.GLOBAL, 
 				       false, 
@@ -466,7 +495,7 @@ processDef :
 
   List<PProcess> processes = new LinkedList<PProcess>();
   processes.add((PProcess)$1);
-  AAccessSpecifier access = new AAccessSpecifier(new APublicAccess(), new TStatic(), null, process.getLocation());
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, process.getLocation());
   $$ = new AProcessParagraphDefinition(process.getLocation(),
 				       NameScope.GLOBAL, 
 				       false,
@@ -711,7 +740,7 @@ actionParagraph :
 {
   List<AActionDefinition> actionDefinitions = (List<AActionDefinition>)$2;
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$1), extractLastLexLocation(actionDefinitions));
-  AAccessSpecifier access = new AAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync(), loc);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
   $$ = new AActionParagraphDefinition( loc, NameScope.LOCAL, false, access, actionDefinitions);
 }
 | ACTIONS nameset IDENTIFIER EQUALS namesetExpr //TODO
@@ -1157,7 +1186,7 @@ channelDefinition :
   LexLocation end = (chanNameDecls != null && chanNameDecls.size() > 0) ? 
     chanNameDecls.get(chanNameDecls.size()-1).getLocation() : start;
   LexLocation location = combineLexLocation(start, end);
-  AAccessSpecifier access = new AAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync(),start);
+  AAccessSpecifier access = getDefaultAccessSpecifier( true,false,start);
   AChannelParagraphDefinition channelDefinition = new AChannelParagraphDefinition(location, 
 										  NameScope.GLOBAL, 
 										  false, 
@@ -1604,11 +1633,13 @@ qualifier :
   res.setAccess(new APublicAccess());
   $$ = res;
 }
+/* It is not in overture why are we having it?
 | LOGICAL
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1);
   $$ = new AAccessSpecifier(new ALogicalAccess(), null, null, location);
 }
+*/
 | /* empty */
 {
   /*Default private*/
@@ -2332,6 +2363,7 @@ explicitOperationDef :
   LexLocation loc = extractLexLocation((CmlLexeme)$2);
   AExplicitOperationDefinition res = new AExplicitOperationDefinition();
   res.setLocation(loc);
+  res.setBody((PStm)$8);
   $$ = res;
 }
 ;
@@ -2368,7 +2400,10 @@ operationType :
 operationBody :
   letStatement // TODO
 | blockStatement // TODO
-| controlStatement // TODO
+| controlStatement 
+  {
+    $$ = $1;
+  }
 | SUBCLASSRESP
 {
   $$ = new ASubclassResponsibilityAction(extractLexLocation((CmlLexeme)$1));
@@ -2550,7 +2585,7 @@ expression :
       LexLocation cl = new LexLocation(currentSource.toString(), "Default",
 				       sl.startLine, sl.startPos + i,
 				       sl.startLine, sl.startPos + (i + 1),0,0);
-      members.add(new ACharLiteralSymbolicLiteralExp(cl, new LexCharacterToken( chrs[i], cl )) ); 
+      members.add(new ACharLiteralExp(cl, new LexCharacterToken( chrs[i], cl )) ); 
     }
   // Build the ASeqEnumSeqExp as usual
   ASeqEnumSeqExp res = new ASeqEnumSeqExp(sl, members);
@@ -2827,21 +2862,39 @@ expression :
 | symbolicLiteral // TODO
 ;
 
+booleanLiteral:
+FALSE
+{
+  LexLocation loc = extractLexLocation( (CmlLexeme)$1 );
+  $$ = new LexBooleanToken(VDMToken.FALSE, loc);
+}
+|
+TRUE
+{
+  LexLocation loc = extractLexLocation( (CmlLexeme)$1 );
+  $$ = new LexBooleanToken(VDMToken.TRUE, loc);
+}
+;
+
 symbolicLiteral :
   numericLiteral
 {
   LexIntegerToken lit = (LexIntegerToken)$1;
-  $$ = new AIntLiteralSymbolicLiteralExp(lit.location, lit);
+  $$ = new AIntLiteralExp(lit.location, lit);
+}
+| booleanLiteral
+{
+  LexBooleanToken lit = (LexBooleanToken)$1;
+  $$ = new ABooleanLiteralExp(lit.location, lit);
 }
 // FIXME
-//| booleanLiteral
 //| nilLiteral
 //| characterLiteral
 //| textLiteral
 | quoteLiteral
 {
   LexQuoteToken value = (LexQuoteToken)$1;
-  $$ = new AQuoteLiteralSymbolicLiteralExp(value.location, value);
+  $$ = new AQuoteLiteralExp(value.location, value);
 }
 ;
 
@@ -3499,7 +3552,10 @@ nameList :
 
 
 /* 6 Statements */
-
+/*
+ * FIXME: Both 
+ *
+ */
 controlStatement :
   nonDeterministicIfStatement
 {
@@ -3806,7 +3862,8 @@ returnStatement :
 | RETURN expression
 {
   PExp exp = (PExp)$2;
-  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
+  $$ = new AReturnStm(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
+  //  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
 }
 ;
 
@@ -3869,8 +3926,8 @@ matchValue :
   symbolicLiteral
 {
   PExp exp = (PExp)$1;
-  if (exp instanceof AIntLiteralSymbolicLiteralExp) {
-    AIntLiteralSymbolicLiteralExp intExp = (AIntLiteralSymbolicLiteralExp)exp;
+  if (exp instanceof AIntLiteralExp) {
+    AIntLiteralExp intExp = (AIntLiteralExp)exp;
     AIntegerPattern res = new AIntegerPattern();
     res.setLocation(intExp.getLocation());
     res.setValue(intExp.getValue());
