@@ -26,7 +26,7 @@
 %token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY 
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY LSQUARECOLON
-%token COLONRSQUARE MU PRIVATE PROTECTED PUBLIC LOGICAL
+%token COLONRSQUARE MU PRIVATE PROTECTED PUBLIC LOGICAL DOTCOLON
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN
 
 %token nameset namesetExpr booleanLiteral nilLiteral characterLiteral textLiteral
@@ -53,7 +53,7 @@
 %left PLUS MINUS DIVIDE REM MOD LT LTE GT GTE EQUALS NEQ OR AND EQRARROW
       LTEQUALSGT INSET STAR NOTINSET SUBSET PROPER_SUBSET UNION INTER CARET
       DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR IN
-%left DOT DOTHASH
+%left DOT DOTHASH DOTCOLON
 %left LRPAREN
 
 /* ---------------------------------------------------------------- */
@@ -284,8 +284,16 @@ communicationParameter :
   QUESTION parameter
 | QUESTION parameter COLON expression
 | BANG expression
-/* FIXME this hits the DOT in path */
-/* | DOT expression */
+/* DEVIATION
+ * CML_0:
+ *   '.' expression
+ * here:
+ *   '.:' expression
+ *
+ * This runs into trouble with the DOT in paths that are used in
+ * expressions.  This could be difficult to resolve.
+ */
+| DOTCOLON expression
 ;
 
 parameter :
@@ -842,17 +850,6 @@ expressionList :
 ;
 
 expression :
-/* RWL On strings:
- *
- * In the lexer whole strings are matched up because it is easy given
- * its state machine functionality. At the same time string handling
- * is captured within a few lines of gammar (in the lexers STRING
- * states). However, building a string as a "seq of char" would
- * otherwise have been done by the parser and therefore the expected
- * result is a sequence of char. In this rule we take the lexer STRING
- * a part and creates the corresponding character expressions.
- *
- */
   STRING
 | LPAREN expression RPAREN
 | LET localDefList IN expression
@@ -1292,8 +1289,8 @@ typeBindList :
 | typeBindList COMMA typeBind
 ;
 
-path
-: unit
+path :
+  unit
 | path TILDE
 | path DOT unit
 | path BACKTICK unit
@@ -1303,17 +1300,13 @@ path
 | path LPAREN expression ELLIPSIS expression RPAREN
 ;
 
-unit
-: SELF
+unit :
+  SELF
 | IDENTIFIER
-/* | IDENTIFIER TILDE */
-/* | unit LRPAREN */
-/* | unit LPAREN expressionList RPAREN */
-/* | unit LPAREN expression ELLIPSIS expression RPAREN */
 ;
 
-pathList
-: path
+pathList :
+  path
 | pathList COMMA path
 ;
 

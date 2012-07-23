@@ -318,7 +318,7 @@
 %token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY LSQUARECOLON
-%token COLONRSQUARE MU PRIVATE PROTECTED PUBLIC LOGICAL
+%token COLONRSQUARE MU PRIVATE PROTECTED PUBLIC LOGICAL DOTCOLON
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN
 
 %token nameset namesetExpr booleanLiteral nilLiteral characterLiteral textLiteral
@@ -345,7 +345,7 @@
 %left PLUS MINUS DIVIDE REM MOD LT LTE GT GTE EQUALS NEQ OR AND EQRARROW
       LTEQUALSGT INSET STAR NOTINSET SUBSET PROPER_SUBSET UNION INTER CARET
       DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR IN
-%left DOT DOTHASH
+%left DOT DOTHASH DOTCOLON
 %left LRPAREN
 
 /* ---------------------------------------------------------------- */
@@ -954,14 +954,21 @@ communicationParameter :
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1), exp.getLocation());
   $$ = new AWriteCommunicationParameter(location, exp);
 }
-// JWC next
-/* FIXME this hits the DOT in path */
-/* | DOT expression */
-/* { */
-/*   PExp exp = (PExp)$2; */
-/*   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1), exp.getLocation()); */
-/*   $$ = new AReferenceCommunicationParameter(location, exp); */
-/* } */
+/* DEVIATION
+ * CML_0:
+ *   '.' expression
+ * here:
+ *   '.:' expression
+ *
+ * This runs into trouble with the DOT in paths that are used in
+ * expressions.  This could be difficult to resolve.
+ */
+| DOTCOLON expression
+{
+  PExp exp = (PExp)$2;
+  LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1), exp.getLocation());
+  $$ = new AReferenceCommunicationParameter(location, exp);
+}
 ;
 
 parameter :
@@ -3816,8 +3823,8 @@ typeBindList :
  * these and generate the VDM-compatible bit of AST
  * -jwc/2012/06/20
  */
-path
-: unit
+path :
+  unit
 | path TILDE
 | path DOT unit
 | path BACKTICK unit
@@ -3827,17 +3834,13 @@ path
 | path LPAREN expression ELLIPSIS expression RPAREN
 ;
 
-unit
-: SELF
+unit :
+  SELF
 | IDENTIFIER
-/* | IDENTIFIER TILDE */
-/* | unit LRPAREN */
-/* | unit LPAREN expressionList RPAREN */
-/* | unit LPAREN expression ELLIPSIS expression RPAREN */
 ;
 
-pathList
-: path
+pathList :
+  path
 /* { */
 /*   LexNameToken lnt = extractLexNameToken((ASimpleName)$1); */
 /*   List<LexNameToken> identifiers = new Vector<LexNameToken>(); */
@@ -3852,12 +3855,6 @@ pathList
 /*   $$ = identifiers; */
 /* } */
 ;
-
-// TODO probably won't need this one
-/* unitList */
-/* : unit */
-/* | unitList COMMA unit */
-/* ; */
 
 // **********************
 // *** END OF GRAMMAR ***

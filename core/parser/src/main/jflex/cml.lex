@@ -310,6 +310,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "=="                          { return createToken(CmlParser.DEQUALS); }
 "[["                          { return createToken(CmlParser.DLSQUARE); }
 "."                           { return createToken(CmlParser.DOT); }
+".:"                          { return createToken(CmlParser.DOTCOLON); }
 ".#"                          { return createToken(CmlParser.DOTHASH); }
 "++"                          { return createToken(CmlParser.DPLUS); }
 "]]"                          { return createToken(CmlParser.DRSQUARE); }
