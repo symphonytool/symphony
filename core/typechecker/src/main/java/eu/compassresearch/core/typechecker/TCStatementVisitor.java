@@ -1,7 +1,8 @@
 package eu.compassresearch.core.typechecker;
 
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
-import org.overture.ast.types.PType;
+import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
+import eu.compassresearch.ast.types.PType;
+
 
 public class TCStatementVisitor extends QuestionAnswerAdaptor<TypeCheckInfo, PType>{
 

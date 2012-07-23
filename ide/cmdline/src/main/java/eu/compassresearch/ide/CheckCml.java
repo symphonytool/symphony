@@ -469,7 +469,7 @@ public class CheckCml {
 	// Type checking
 	if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
 	    {
-		final CmlTypeChecker typeChecker = new CmlTypeChecker();
+		final CmlTypeChecker typeChecker = new CmlTypeChecker(sources);
 
 		AnalysisRunAdaptor r = new AnalysisRunAdaptor(typeChecker) {
 			public void apply(INode root) throws AnalysisException

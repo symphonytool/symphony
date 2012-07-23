@@ -2,19 +2,16 @@ package eu.compassresearch.core.typechecker;
 
 import java.util.List;
 
-import org.overture.ast.types.PType;
-import org.overturetool.vdmj.typechecker.NameScope;
+import eu.compassresearch.ast.types.PType;
 
 public class TypeCheckInfo {
 
 	public final Environment env;
-	public NameScope currentScope;
 	public List<PType> qualifiers;
 
-	public TypeCheckInfo(Environment env, NameScope scope, List<PType> qualifiers)
+	public TypeCheckInfo(Environment env, List<PType> qualifiers)
 	{
 		this.env = env;
-		this.currentScope = scope;
 		this.qualifiers = qualifiers;
 	}
 	

@@ -375,7 +375,8 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "|||"                                   { return createToken(CmlParser.TBAR); }
 "~"                                     { return createToken(CmlParser.TILDE); }
 "`"                                     { return createToken(CmlParser.BACKTICK); }
-
+"false"                                 { return createToken(CmlParser.FALSE); }
+"true"                                  { return createToken(CmlParser.TRUE); }
 /* ---- flattened above; to be dealt with below ---- */
 
 

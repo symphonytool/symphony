@@ -2,16 +2,18 @@ package eu.compassresearch.core.typechecker;
 
 import java.util.List;
 
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
-import org.overture.ast.definitions.AMultiBindListDefinition;
-import org.overture.ast.expressions.AExists1Exp;
-import org.overture.ast.factory.AstFactory;
-import org.overture.ast.patterns.ATypeBind;
-import org.overture.ast.patterns.PBind;
-import org.overture.ast.patterns.PMultipleBind;
-import org.overture.ast.patterns.assistants.ATypeBindAssistantTC;
-import org.overture.ast.patterns.assistants.PBindAssistantTC;
-import org.overture.ast.types.PType;
+import org.overture.ast.node.INode;
+import org.overture.typecheck.visitors.TypeCheckVisitor;
+import org.overture.typecheck.visitors.TypeCheckerExpVisitor;
+
+import eu.compassresearch.ast.analysis.AnalysisException;
+import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
+import eu.compassresearch.ast.expressions.AExists1Exp;
+import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.patterns.PBind;
+import eu.compassresearch.ast.types.PType;
+
+
 
 public class TCExpressionVisitor extends QuestionAnswerAdaptor<TypeCheckInfo, PType>{
 
@@ -28,21 +30,23 @@ public class TCExpressionVisitor extends QuestionAnswerAdaptor<TypeCheckInfo, PT
 	}
 
 	@Override
-	public PType caseAExists1Exp(AExists1Exp node, TypeCheckInfo question) {
-		PBind bind = node.getBind();
-		List<PMultipleBind> bindList = PBindAssistantTC.getMultipleBindList(bind);
-		node.setDef(AstFactory.newAMultiBindListDefinition(bind.getLocation(), bindList));
+	public PType defaultPExp(PExp node, TypeCheckInfo question)
+			throws AnalysisException {
+		org.overture.typecheck.TypeCheckInfo tci = new org.overture.typecheck.TypeCheckInfo();
+		TypeCheckerExpVisitor ovtExpVisitor = new TypeCheckerExpVisitor(new TypeCheckVisitor() {
+
+			@Override
+			public org.overture.ast.types.PType defaultINode(INode node,
+					org.overture.typecheck.TypeCheckInfo question) {
+				throw new RuntimeException("Sorry mate no can do!");
+			}
+			
+		});
 		
-		if (node.getBind() instanceof ATypeBind)
-		{
-			ATypeBind tb = (ATypeBind)node.getBind();
-			//ATypeBindAssistantTC.typeResolve(tb, parent, question);
-		}
-		
-		return super.caseAExists1Exp(node, question);
+		return null;
 	}
 
-
+	
 	
 	
 }

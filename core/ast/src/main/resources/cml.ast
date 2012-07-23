@@ -31,6 +31,9 @@ Tokens
   java_Integer = 'java:java.lang.Integer';
   java_String = 'java:java.lang.String';
   java_Long = 'java:java.lang.Long';
+  java_File = 'java:java.io.File';
+  java_Stream = 'java:java.io.InputStream';
+  
      
   static = 'static';
   async = 'async';
@@ -67,9 +70,9 @@ primary {-> package='eu.compassresearch.ast.program'}
 	;
 
 source {->  package='eu.compassresearch.ast.program'}
-      = {file} [name]: java_String 
-      | {tcpStream} [ip]: java_String [port]: java_String 
-      | {inputStream} (origin): java_String
+      = {file} [name]: java_String (file): java_File
+      | {tcpStream} [ip]: java_String [port]: java_String (stream): java_Stream 
+      | {inputStream} (origin): java_String (stream): java_Stream
       ;
 
 /*
@@ -101,7 +104,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
     |   {assignment} [expression]:exp (expType):type
     |   {instanceVariable} [expression]:exp (expType):type [initialized]:java_Boolean [oldname]:LexNameToken //this actually inherits assignment in Nicks tree
 //    |   {classbody} [declarations]:declaration* 
-//    |	{process} [declarations]:declaration.singleType* [process]:process
+
     |   {action} [declarations]:declaration.singleType* [action]:action
     |   {chanset} [identifier]:LexIdentifierToken [chansetExpressions]:exp.#Set.#Chanset
     |   {classInvariant}  [expression]:exp
@@ -309,7 +312,7 @@ exp {-> package='eu.compassresearch.ast.expressions'}
     |   {self} [name]:LexNameToken
     |   #Seq
     |   #Set
-    |   #SymbolicLiteral
+    |   #literal
     |   {stateInit} (state):definition.state  
     |   {subclassResponsibility} 
     |   {subseq} [seq]:exp [from]:exp [to]:exp (ftype):type (ttype):type
@@ -332,13 +335,13 @@ exp {-> package='eu.compassresearch.ast.expressions'}
  	| {enumeration} [renamePairs]:pair.rename*
     ;
     
-#SymbolicLiteral {-> package='eu.compassresearch.ast.expressions'}
-	= {textLiteral} [value]:LexStringToken
-	| {quoteLiteral} [value]:LexQuoteToken   
-	| {charLiteral} [value]:LexCharacterToken
-	| {booleanLiteral} [value]:LexBooleanToken 
-	| {intLiteral} [value]:LexIntegerToken
-	| {realLiteral} [value]:LexRealToken
+#literal {-> package='eu.compassresearch.ast.expressions'}
+	= {text} [value]:LexStringToken
+	| {quote} [value]:LexQuoteToken   
+	| {char} [value]:LexCharacterToken
+	| {boolean} [value]:LexBooleanToken 
+	| {int} [value]:LexIntegerToken
+	| {real} [value]:LexRealToken
     ; 
    
 #Unary {-> package='eu.compassresearch.ast.expressions'}
@@ -446,9 +449,13 @@ alternative {-> package='eu.compassresearch.ast.expressions'}
 /* 
 	Types 
 */
-   
+
 type {-> package='eu.compassresearch.ast.types'}
     =   #basic
+    |   {processParagraph} // marker stipulating process paragraph is typed ok
+    |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
+    |   {actionParagraph} // marker stipulating that a Action Paragraph is typed ok
+    |   {source} // marker stipulating a source was typed ok
     |   {bracket} (type):type
     |   {channel}
     |   {class} [name]:LexNameToken (classdef):definition.#paragraph.class //change classdef to graf - is this correct dont see how it could have worked before
@@ -522,7 +529,7 @@ access  {-> package='eu.compassresearch.ast.definitions'}
     =   {public}
     |   {protected}
     |   {private}
-    | 	{logical}
+//    | 	{logical} does not exists in ASTv2 why should we have it?
     ;
 
 /* 

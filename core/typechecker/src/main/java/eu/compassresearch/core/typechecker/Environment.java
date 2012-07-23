@@ -3,9 +3,11 @@ package eu.compassresearch.core.typechecker;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.overture.ast.declarations.PDeclaration;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.types.PType;
+import eu.compassresearch.ast.declarations.PDeclaration;
+import eu.compassresearch.ast.definitions.PDefinition;
+import eu.compassresearch.ast.lex.LexIdentifierToken;
+import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.types.PType;
 
 public class Environment {
 
@@ -15,7 +17,7 @@ public class Environment {
 	protected final Environment outer;
 
 	// private state
-	private Map<PDeclaration,PType> map;
+	private Map<LexIdentifierToken,PDefinition> map;
 	private PDefinition enclosingDefinition;
 
 	/**
@@ -32,7 +34,19 @@ public class Environment {
 	public Environment(Environment outer)
 	{
 		this.outer = outer;
-		this.map = new HashMap<PDeclaration, PType>();
+		this.map = new HashMap<LexIdentifierToken, PDefinition>();
+	}
+	
+	/**
+	 * Lookup the given identifier/name to find its definition.
+	 * 
+	 * @param name - The name of the identifier for which we need its definition.
+	 * 
+	 * @return null if the name is unresolved.
+	 */
+	public PDefinition lookupName(LexIdentifierToken name)
+	{
+		return map.get(name);
 	}
 	
 	/**
@@ -41,10 +55,10 @@ public class Environment {
 	 * @param outer - The surrounding environment
 	 * @param decl  - The enclosing definition (class, function or operation)
 	 */
-	public Environment(Environment outer, PDefinition decl)
+	public Environment(Environment outer, PDefinition def)
 	{
 		this(outer);
-		enclosingDefinition = decl;
+		enclosingDefinition = def;
 	}
 	
 	/**
@@ -54,8 +68,8 @@ public class Environment {
 	 * @param delc - Declaration to add type for
 	 * @param type - The type for decl in this environment.
 	 */
-	public void put(PDeclaration decl, PType  type)
+	public void put(LexIdentifierToken name, PDefinition type)
 	{
-		map.put(decl, type);
+		map.put(name, type);
 	}
 }

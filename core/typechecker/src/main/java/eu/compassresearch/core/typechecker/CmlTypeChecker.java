@@ -1,20 +1,22 @@
 package eu.compassresearch.core.typechecker;
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
-import org.overture.ast.analysis.intf.IAnalysis;
-import org.overture.ast.analysis.intf.IQuestionAnswer;
-import org.overture.ast.declarations.AClassDeclaration;
-import org.overture.ast.declarations.PDeclaration;
-import org.overture.ast.definitions.AClassClassDefinition;
-import org.overture.ast.definitions.AClassbodyDefinition;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.PExp;
+import eu.compassresearch.ast.analysis.AnalysisException;
+import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
+import eu.compassresearch.ast.analysis.intf.IAnalysis;
+import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
 
-import org.overture.ast.program.ASourcefileSourcefile;
-import org.overture.ast.statements.PStm;
-import org.overture.ast.types.AClassType;
-import org.overture.ast.types.PType;
-import org.overturetool.vdmj.lex.LexLocation;
-import org.overturetool.vdmj.typechecker.NameScope;
+import eu.compassresearch.ast.declarations.PDeclaration;
+import eu.compassresearch.ast.definitions.PDefinition;
+import eu.compassresearch.ast.definitions.SParagraphDefinition;
+import eu.compassresearch.ast.expressions.PExp;
+
+import eu.compassresearch.ast.lex.LexLocation;
+import eu.compassresearch.ast.program.AFileSource;
+import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.ast.program.AInputStreamSource;
+import eu.compassresearch.ast.statements.PStm;
+import eu.compassresearch.ast.types.AClassType;
+import eu.compassresearch.ast.types.PType;
+
 
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
@@ -75,106 +77,182 @@ public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType> 
 	// ---------------------------------------------
 	// -- Type Checker State
 	// ---------------------------------------------
-	private final List<ASourcefileSourcefile> sourceForest;
-	private final List<CMLTypeError> errors;
-	private final List<CMLTypeWarning> warnings;
+	private List<PSource> sourceForest;
+	private List<CMLTypeError> errors;
+	private List<CMLTypeWarning> warnings;
 
 	// subcheckers
-	private final IQuestionAnswer<TypeCheckInfo, PType> exp;
-	private final IQuestionAnswer<TypeCheckInfo, PType> stm;
-	private final IQuestionAnswer<TypeCheckInfo, PType> dad;
+	private IQuestionAnswer<TypeCheckInfo, PType> exp;
+	private IQuestionAnswer<TypeCheckInfo, PType> stm;
+	private IQuestionAnswer<TypeCheckInfo, PType> dad;
 
+	private void initialize()
+	{
+		exp = new TCExpressionVisitor(this);
+		stm = new TCStatementVisitor();
+		dad = new TCDeclAndDefVisitor(this);
+		this.errors = new LinkedList<CMLTypeError>();
+		this.warnings = new LinkedList<CMLTypeWarning>();
+	}
 
 	// ---------------------------------------------
 	// -- Dispatch to sub-checkers
 	// ---------------------------------------------
 	@Override
-	public PType defaultPDeclaration(PDeclaration node, TypeCheckInfo question) {
+	public PType defaultPDeclaration(PDeclaration node, TypeCheckInfo question) throws AnalysisException {
 		return node.apply(this.dad, question);
 	}
 
 	@Override
-	public PType defaultPDefinition(PDefinition node, TypeCheckInfo question) {
+	public PType defaultPDefinition(PDefinition node, TypeCheckInfo question) throws AnalysisException{
 		return node.apply(this.dad, question);
 	}
 
 	@Override
-	public PType defaultPExp(PExp node, TypeCheckInfo question) {
+	public PType defaultPExp(PExp node, TypeCheckInfo question) throws AnalysisException{
 		return node.apply(exp, question);
 	}
 
 	@Override
-	public PType defaultPStm(PStm node, TypeCheckInfo question) {
+	public PType defaultPStm(PStm node, TypeCheckInfo question)throws AnalysisException {
 		return node.apply(stm,question);
 	}
 
+
 	// ---------------------------------------------
-	// -- Top Level Rule dispatching to sub checkers
+	// -- Public API to CML Type Checker
 	// ---------------------------------------------
-	@Override
-	public PType caseASourcefileSourcefile(ASourcefileSourcefile node,
-			TypeCheckInfo question) {
-	
-		
-		for(PDeclaration decl : node.getDecls())
-			decl.apply(this, question);
-		
-		// Source file has no type
-		return null;
-	}
-
-
-
-
-
-
-
-
-
-
-
+	/**
+	 * This method is invoked by the command line tool when 
+	 * pretty printing the analysis name.
+	 * 
+	 * @return Pretty short name for this analysis.
+	 */
 	public String getAnalysisName() { return "The CML Type Checker"; }
 
-	public CmlTypeChecker()
+	
+	/**
+	 * Construct a CmlTypeChecker with the intension of checking a list of 
+	 * PSources. These source may refer to each other.
+	 * 
+	 * 
+	 * @param cmlSources - Source containing CML Paragraphs for type checking.
+	 */
+	public CmlTypeChecker(List<PSource> cmlSources)
 	{
-		exp = new TCExpressionVisitor(this);
-		stm = new TCStatementVisitor();
-		dad = new TCDeclAndDefVisitor(this);
-		this.sourceForest = new LinkedList<ASourcefileSourcefile>();
-		this.errors = new LinkedList<CMLTypeError>();
-		this.warnings = new LinkedList<CMLTypeWarning>();
+		initialize();
+		this.sourceForest = cmlSources;
+	}
+	
+	/**
+	 * Construct a CmlTypeChecker with the intension of checking a single source.
+	 * 
+	 * @param singleSource
+	 */
+	public CmlTypeChecker(PSource singleSource)
+	{
+		initialize();
+		this.sourceForest = new LinkedList<PSource>();
+		this.sourceForest.add(singleSource);
+	}
+
+	/**
+	 * Run the type checker. This will update the source(s) 
+	 * this type checker instance was constructed with.
+	 * 
+	 * @return - Returns true if the entire tree could be type 
+	 * checked without errors.
+	 */
+	public boolean typeCheck()
+	{
+		TypeCheckInfo info = new TypeCheckInfo();
+		Environment typeEnv = new Environment();
+		Environment varEnv  = new Environment();
+		
+		
+		// for each source
+		for(PSource s : sourceForest)
+		{
+			for(SParagraphDefinition paragraph : s.getParagraphs())
+			{
+				try {
+					paragraph.apply(this, info);
+				}
+				catch (AnalysisException ae)
+				{
+					this.errors.add(new CMLTypeError(null,ae.getMessage()));
+				}
+			}
+		}
+		
+		return errors.size() == 0;
 	}
 
 
+	/**
+	 * Get errors that occurred while type checking.
+	 * 
+	 * @return list of CMLTypeErrors
+	 */
+	public List<CMLTypeError> getErrors() {
+		return errors;
+	}
 
-	private static void runOnFile(File f) throws IOException
+	/**
+	 * Get warnings that occurred while type checking. The type check method 
+	 * will return true even though this returns an non-empty list.
+	 * 
+	 * @return list of CMLTypeWarnings
+	 */
+	public List<CMLTypeWarning> getWarnings() {
+		return warnings;
+	}
+
+	
+
+	// ---------------------------------------
+	// Static stuff for running the TypeChecker from Eclipse 
+	// ---------------------------------------
+	
+	// setting the file on AFileSource allows the CmlParser factory method
+	// to create both parser and lexer.
+	private static PSource prepareSource(File f)
 	{
-		
-		Reader r = null;
 		if (f == null)
 		{
-			r = new BufferedReader(new InputStreamReader(System.in));
+			AInputStreamSource iss = new AInputStreamSource();
+			iss.setStream(System.in);
+			iss.setOrigin("stdin");
+			return iss;
 		}
 		else
 		{
-			r = new FileReader(f);
+			AFileSource fs = new AFileSource();
+			fs.setName(f.getName());
+			fs.setFile(f);
+			return fs;
 		}
-		CmlLexer lexer = new CmlLexer(r);
-		CmlParser parser = new CmlParser(lexer);
-		ASourcefileSourcefile tree = new ASourcefileSourcefile();
-		parser.setDocument(tree);
-		if (parser.parse())
-		{	
-			TypeCheckInfo tci = new TypeCheckInfo();
-			CmlTypeChecker analysis = new CmlTypeChecker();
-			tree.apply(analysis, tci);
-			if (analysis.getErrors().size() > 0)
-			{
-				System.out.println("\n\nTYPE ERRORS EXIST:\n ");
-				for(CMLTypeError e : analysis.getErrors())
-					System.out.println(e);
-			}
-		}
+	}
+	
+	private static void runOnFile(File f) throws IOException
+	{
+		// set file name
+		PSource source = prepareSource(f);
+
+		// Call factory method to build parser and lexer
+		CmlParser parser = CmlParser.newParserFromSource(source);
+		
+		// Run the parser and lexer and report errors if any
+		if (!parser.parse()) { System.out.println("Failed to parse: "+source.toString()); return;}
+
+		// Type check 
+		CmlTypeChecker cmlTC = new CmlTypeChecker(source);
+		
+		// Print result and report errors if any
+		if (!cmlTC.typeCheck()) {System.out.println("Failed to type check"+source.toString());};
+		
+		// Report success
+		System.out.println("The given CML Program is type checked.");
 	}
 
 
@@ -208,16 +286,5 @@ public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType> 
 
 
 
-	public List<CMLTypeError> getErrors() {
-		return errors;
-	}
-
-
-
-
-
-	public List<CMLTypeWarning> getWarnings() {
-		return warnings;
-	}
 
 }
