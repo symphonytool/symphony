@@ -270,7 +270,7 @@ communicationParameter :
   QUESTION parameter
 | QUESTION parameter COLON expression
 | BANG expression
-/* DEVIATION
+/* DEVIATION --- related to channelNameExpr
  * CML_0:
  *   '.' expression
  * here:
@@ -349,21 +349,30 @@ renameExpression :
 ;
 
 renameList :
-  channelEvent LARROW channelEvent
-| renameList COMMA channelEvent LARROW channelEvent
+  channelNameExpr LARROW channelNameExpr
+| renameList COMMA channelNameExpr LARROW channelNameExpr
 ;
 
-channelEvent :
+channelNameExpr :
   IDENTIFIER
-// FIXME this hits the DOT in path
-/* | IDENTIFIER DOT dotted_expression */
+| IDENTIFIER DOTCOLON channelNameExprTail
 ;
 
-// FIXME
-/* dotted_expression : */
-/*   expression */
-/* | dotted_expression DOT expression */
-/* ; */
+channelNameExprTail :
+  expression
+{
+  List<PExp> expTokens = new Vector<PExp>();
+  expTokens.add((PExp)$1);
+  $$ = expTokens;
+}
+| channelNameExprTail DOTCOLON expression
+{
+  List<PExp> expTokens = (List<PExp>)$1;
+  PExp exp = (PExp)$3;
+  expTokens.add(exp);
+  $$ = expTokens;
+}
+;
 
 channelDecl :
   CHANNELS channelDef
@@ -446,11 +455,10 @@ chansetExpr :
  *   chansetExpr ':\' chansetExpr
  */
 | chansetExpr COLONBACKSLASH chansetExpr
-/* these hit the DOT in paths */
-/* | LCURLYBAR IDENTIFIER BAR bindList BARRCURLY */
-/* | LCURLYBAR IDENTIFIER dotted_expression BAR bindList BARRCURLY */
-/* | LCURLYBAR IDENTIFIER BAR bindList AT expression BARRCURLY */
-/* | LCURLYBAR IDENTIFIER dotted_expression BAR bindList AT expression BARRCURLY */
+/* DEVIATION --- see channelNameExpr
+ */
+| LCURLYBAR channelNameExpr BAR bindList BARRCURLY
+| LCURLYBAR channelNameExpr BAR bindList AT expression BARRCURLY
 ;
 
 globalDecl :

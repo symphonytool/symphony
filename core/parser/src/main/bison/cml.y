@@ -939,7 +939,7 @@ communicationParameter :
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1), exp.getLocation());
   $$ = new AWriteCommunicationParameter(location, exp);
 }
-/* DEVIATION
+/* DEVIATION --- related to channelNameExpr
  * CML_0:
  *   '.' expression
  * here:
@@ -1063,14 +1063,14 @@ renameExpression :
 ;
 
 renameList :
-  channelEvent LARROW channelEvent
+  channelNameExpr LARROW channelNameExpr
 {
   List<ARenamePair> renamePairs = new Vector<ARenamePair>();
   ARenamePair pair = new ARenamePair(false, (AEventChannelExp)$1, (AEventChannelExp)$3);
   renamePairs.add(pair);
   $$ = renamePairs;
 }
-| renameList COMMA channelEvent LARROW channelEvent
+| renameList COMMA channelNameExpr LARROW channelNameExpr
 {
   List<ARenamePair> renamePairs = (List<ARenamePair>)$1;
   ARenamePair pair = new ARenamePair(false, (AEventChannelExp)$3, (AEventChannelExp)$5);
@@ -1079,38 +1079,34 @@ renameList :
 }
 ;
 
-channelEvent :
+/* DEVIATION
+ *
+ * There's no single rule, but this applies whenever we might see
+ * "IDENTIFIER { '.' expression }", we are instead requiring that
+ * "IDENTIFIER { '.:' expression }" be used instead.  It's ugly, but
+ * it disambiguates channel names from regular paths.  (Channel names
+ * may have expressions in them, paths cannot.)
+ */
+channelNameExpr :
   IDENTIFIER
-{
-  LexNameToken id = extractLexNameToken((CmlLexeme)$1);
-  List<? extends PExp> dotExpression = null;
-  $$ = new AEventChannelExp(id.getLocation(), id, dotExpression);
-}
-// FIXME this hits the DOT in path
-/* | IDENTIFIER DOT dotted_expression */
-/* { */
-/*   LexNameToken id = extractLexNameToken((CmlLexeme)$1); */
-/*   List<? extends PExp> dotExpression = (List<? extends PExp>)$3 ; */
-/*   $$ = new AEventChannelExp(id.getLocation(), id, dotExpression); */
-/* } */
+| IDENTIFIER DOTCOLON channelNameExprTail
 ;
 
-// FIXME
-/* dotted_expression : */
-/*   expression */
-/* { */
-/*   List<PExp> expTokens = new Vector<PExp>(); */
-/*   expTokens.add((PExp)$1); */
-/*   $$ = expTokens; */
-/* } */
-/* | dotted_expression DOT expression */
-/* { */
-/*   List<PExp> expTokens = (List<PExp>)$1; */
-/*   PExp exp = (PExp)$3; */
-/*   expTokens.add(exp); */
-/*   $$ = expTokens; */
-/* } */
-/* ; */
+channelNameExprTail :
+  expression
+{
+  List<PExp> expTokens = new Vector<PExp>();
+  expTokens.add((PExp)$1);
+  $$ = expTokens;
+}
+| channelNameExprTail DOTCOLON expression
+{
+  List<PExp> expTokens = (List<PExp>)$1;
+  PExp exp = (PExp)$3;
+  expTokens.add(exp);
+  $$ = expTokens;
+}
+;
 
 channelDecl :
   CHANNELS channelDef
@@ -1303,16 +1299,9 @@ chansetExpr :
   LexLocation location = combineLexLocation(left.getLocation(), right.getLocation());
   $$ = new ASetDifferenceBinaryExp(location, left, /*lexToken*/null, right);
 }
-/* these hit the DOT in paths */
-/* | LCURLYBAR IDENTIFIER BAR bindList BARRCURLY */
-/* { */
-/*   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$5); */
-/*   LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2); */
-/*   List<PExp> dotted_expression = new Vector<PExp>(); */
-/*   List<PMultipleBind> bindings = (List<PMultipleBind>)$4; */
-/*   $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, null); */
-/* } */
-/* | LCURLYBAR IDENTIFIER dotted_expression BAR bindList BARRCURLY */
+/* DEVIATION --- see channelNameExpr
+ */
+| LCURLYBAR channelNameExpr BAR bindList BARRCURLY
 /* { */
 /*   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$6); */
 /*   LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2); */
@@ -1320,16 +1309,7 @@ chansetExpr :
 /*   List<PMultipleBind> bindings = (List<PMultipleBind>)$5; */
 /*   $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, null); */
 /* } */
-/* | LCURLYBAR IDENTIFIER BAR bindList AT expression BARRCURLY */
-/* { */
-/*   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$7); */
-/*   LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2); */
-/*   List<PExp> dotted_expression = new Vector<PExp>(); */
-/*   List<PMultipleBind> bindings = (List<PMultipleBind>)$4; */
-/*   PExp pred = (PExp)$6; */
-/*   $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, pred); */
-/* } */
-/* | LCURLYBAR IDENTIFIER dotted_expression BAR bindList AT expression BARRCURLY */
+| LCURLYBAR channelNameExpr BAR bindList AT expression BARRCURLY
 /* { */
 /*   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8); */
 /*   LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2); */
