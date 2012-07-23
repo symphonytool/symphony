@@ -24,12 +24,12 @@
 %token COLONDASHGT COMP DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL
 %token HEX_LITERAL QUOTE_LITERAL AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE
 %token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
-%token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY 
+%token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
 %token PROTECTED PUBLIC LOGICAL DOTCOLON
-%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN
+%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE
 
-%token nameset namesetExpr booleanLiteral nilLiteral characterLiteral textLiteral
+%token nameset namesetExpr nilLiteral characterLiteral textLiteral
 
 /* ---------------------------------------------------------------- */
 /* Precidence declarations                                          */
@@ -39,7 +39,7 @@
 %right LPAREN
 %right COMMA
 %left SEQOF
-%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT 
+%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT
       BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF
       NEW COLONEQUALS SLASH BACKSLASH ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE
       DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI COLONINTER
@@ -59,17 +59,16 @@
 /* ---------------------------------------------------------------- */
 /* Initial rule declaration                                         */
 /* ---------------------------------------------------------------- */
-%start sourceFile
+%start source
+
 %%
 
 /* ---------------------------------------------------------------- */
 /* The rules                                                        */
 /* ---------------------------------------------------------------- */
 
-sourceFile :
+source :
   programParagraphList
-| globalDecl programParagraphList
-| globalDecl
 ;
 
 programParagraphList :
@@ -78,17 +77,18 @@ programParagraphList :
 ;
 
 programParagraph :
-  classDecl
-| processDecl
-| channelDecl
-| chansetDecl
+  classDefinition                                       { $$ = $1; }
+| processDefinition                                     { $$ = $1; }
+| channelDefinition                                     { $$ = $1; }
+| chansetDefinitionParagraph                            { $$ = $1; }
+| globalDefinitionParagraph                             { $$ = $1; }
 ;
 
-classDecl :
+classDefinition :
   CLASS IDENTIFIER EQUALS classBody
 ;
 
-processDecl :
+processDefinition:
   PROCESS IDENTIFIER EQUALS processDef
 ;
 
@@ -108,34 +108,15 @@ process :
 | process DBAR process
 | process TBAR process
 | process SLASHBACKSLASH process
-/* DEVIATION
- * grammar:
- *   process '/' expression '\' process
- * this conflicts all over, so
- *   process '/:' expression ':\' process
- */
 | process SLASHCOLON expression COLONBACKSLASH process
 | process LSQUAREGT process
 | process LSQUARE expression BARGT process
-/* DEVIATION
- * grammar:
- *   process '\' chansetExpr
- * here:
- *   process ':\' chansetExpr
- */
 | process COLONBACKSLASH chansetExpr
 | process STARTBY expression
 | process ENDSBY expression
 | LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
 | path
 | process renameExpression
-/* DEVIATION (x4)
- * all of the replicated processes
- * grammar:
- *   <replOp> replicationDeclaration '@' process
- * here:
- *   <replOp> '{' replicationDeclaration '}' '@' process
- */
 | SEMI LCURLY replicationDeclaration AT process RCURLY
 | BARTILDEBAR LCURLY replicationDeclaration AT process RCURLY
 | LRSQUARE LCURLY replicationDeclaration AT process RCURLY
@@ -150,12 +131,11 @@ replicationDeclaration :
 
 replicationDeclarationAlt :
   singleTypeDecl
-// FIXME --- this causes a s/r conflict due to the name production
 /* | singleExpressionDeclaration */
 ;
 
 /* singleExpressionDeclaration : */
-/* IDENTIFIER COLON expression */
+/*   IDENTIFIER COLON expression */
 /* | singleExpressionDeclaration COMMA IDENTIFIER */
 /* ; */
 
@@ -194,54 +174,20 @@ action :
 | CSPCHAOS
 | CSPDIV
 | CSPWAIT LPAREN expression RPAREN
-/* Communication rule start*/
 | IDENTIFIER RARROW action
 | IDENTIFIER communicationParameterList RARROW action
-/* Communication rule end*/
-/* DEVIATON
- * grammar:
- *   expression '&' action
- * here:
- *   ':' expression '&' action
- */
 | COLON expression AMP action
 | action SEMI action
 | action LRSQUARE action
 | action BARTILDEBAR action
 | action SLASHBACKSLASH action
-/* DEVIATION
- * grammar:
- *   process '/' expression '\' process
- * this conflicts all over, so
- *   process '/:' expression ':\' process
- */
 | action SLASHCOLON expression COLONBACKSLASH action
 | action LSQUAREGT action
-/* DEVIATION
- * grammar:
- *   action '[' expression '>' action
- * here:
- *   action '[' expression '|>' action
- */
 | action LSQUARE expression BARGT action
-/* DEVIATION
- * grammar:
- *   process '\' chansetExpr
- * here:
- *   process ':\' chansetExpr
- */
 | action COLONBACKSLASH chansetExpr
 | action STARTBY expression
 | action ENDSBY expression
 | action renameExpression
-/* DEVIATION
- * grammar:
- *  'mu' <identifierList> '@' action
- * here:
- *  'mu' <pathList> '@' '(' action ')'
- *
- * Also, this is apparently not yet in our AST
- */
 | MU pathList AT LPAREN action RPAREN
 | parallelAction
 | LPAREN parametrisationList AT action RPAREN
@@ -250,14 +196,6 @@ action :
 | letStatement
 | blockStatement
 | controlStatement
-// FIXME this is the missing IDENTIFIER in action; should probably be a name anyway
-/* DEVIATION
- * CML_0:
- *   name
- * here:
- *   path
- * TODO: convert to a name
- */
 | path
 ;
 
@@ -270,15 +208,6 @@ communicationParameter :
   QUESTION parameter
 | QUESTION parameter COLON expression
 | BANG expression
-/* DEVIATION --- related to channelNameExpr
- * CML_0:
- *   '.' expression
- * here:
- *   '.:' expression
- *
- * This runs into trouble with the DOT in paths that are used in
- * expressions.  This could be difficult to resolve.
- */
 | DOTCOLON expression
 ;
 
@@ -291,7 +220,7 @@ parameter :
 ;
 
 paramList :
-parameter
+  parameter
 | paramList COMMA parameter
 ;
 
@@ -319,16 +248,9 @@ parametrisation :
 
 instantiatedAction :
   LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
-| LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN // parametrisedAction TODO
+| LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN
 ;
 
-/* DEVIATION
- * all of the replicated actions
- * grammar:
- *   <replOp> replicationDeclaration '@' process
- * here:
- *   <replOp> '{' replicationDeclaration '}' '@' process
- */
 replicatedAction :
   SEMI LCURLY replicationDeclaration AT action RCURLY
 | LRSQUARE LCURLY replicationDeclaration AT action RCURLY
@@ -341,9 +263,7 @@ replicatedAction :
 ;
 
 renameExpression :
-/* rename enumeration */
   DLSQUARE renameList DRSQUARE
-/* rename comprehensions */
 | DLSQUARE renameList BAR bindList DRSQUARE
 | DLSQUARE renameList BAR bindList AT expression DRSQUARE
 ;
@@ -360,21 +280,10 @@ channelNameExpr :
 
 channelNameExprTail :
   expression
-{
-  List<PExp> expTokens = new Vector<PExp>();
-  expTokens.add((PExp)$1);
-  $$ = expTokens;
-}
 | channelNameExprTail DOTCOLON expression
-{
-  List<PExp> expTokens = (List<PExp>)$1;
-  PExp exp = (PExp)$3;
-  expTokens.add(exp);
-  $$ = expTokens;
-}
 ;
 
-channelDecl :
+channelDefinition :
   CHANNELS channelDef
 ;
 
@@ -384,13 +293,6 @@ channelDef :
 ;
 
 channelNameDecl :
-/* DEVIATION
- * grammar:
- *   identifierList
- * here:
- *   pathList
- * So, we need to cast the list of names down to a list of identifiers
- */
   pathList
 | singleTypeDecl
 ;
@@ -401,18 +303,20 @@ declaration :
 ;
 
 singleTypeDecl :
-/* DEVIATION
- * grammar:
- *   identifierList
- * here:
- *   pathList
- */
   pathList COLON type
 ;
 
-chansetDecl :
+chansetDefinitionParagraph :
   CHANSETS
 | CHANSETS chansetDefinitionList
+{
+  CmlLexeme tok = (CmlLexeme)$1;
+  LexLocation loc = extractLexLocation ( tok );
+  List<AChansetDefinition> chansetDefinitions = (List<AChansetDefinition>)$2;
+  AAccessSpecifier access = new AAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync(),loc);
+  AChansetParagraphDefinition chansetParagraph = new AChansetParagraphDefinition( loc, NameScope.GLOBAL, false, access, chansetDefinitions );
+  $$ = chansetParagraph;
+ }
 ;
 
 chansetDefinitionList :
@@ -426,48 +330,17 @@ chansetDefinition :
 
 chansetExpr :
   IDENTIFIER
-/* DEVIATION
- * grammar:
- *   '{' identifierList '}'
- * here:
- *   '{:' pathList ':}'
- */
 | LCURLYCOLON pathList COLONRCURLY
 | LCURLYBAR pathList BARRCURLY
-/* DEVIATION
- * grammar:
- *   chansetExpr 'union' chansetExpr
- * here:
- *   chansetExpr ':union' chansetExpr
- */
 | chansetExpr COLONUNION chansetExpr
-/* DEVIATION
- * grammar:
- *   chansetExpr 'inter' chansetExpr
- * here:
- *   chansetExpr ':inter' chansetExpr
- */
 | chansetExpr COLONINTER chansetExpr
-/* DEVIATION
- * grammar:
- *   chansetExpr '\' chansetExpr
- * here:
- *   chansetExpr ':\' chansetExpr
- */
 | chansetExpr COLONBACKSLASH chansetExpr
-/* DEVIATION --- see channelNameExpr
- */
 | LCURLYBAR channelNameExpr BAR bindList BARRCURLY
 | LCURLYBAR channelNameExpr BAR bindList AT expression BARRCURLY
 ;
 
-globalDecl :
-  globalDefinitionBlock
-;
-
-globalDefinitionBlock :
+globalDefinitionParagraph :
   globalDefinitionBlockAlternative
-| globalDefinitionBlock globalDefinitionBlockAlternative
 ;
 
 globalDefinitionBlockAlternative :
@@ -491,9 +364,6 @@ classDefinitionBlockAlternative :
 | functionDefs
 | operationDefs
 | stateDefs
-/* DEVIATION
- * This is not yet in the (CML0) grammar, but the need for it has been recognised
- */
 | INITIAL operationDef
 ;
 
@@ -524,28 +394,19 @@ qualifier :
 ;
 
 type :
-  LPAREN type RPAREN // bracketedType
+  LPAREN type RPAREN
 | basicType
-| quoteLiteral // quoteType
+| quoteLiteral
 | COMPOSE IDENTIFIER OF fieldList END
-| type BAR type // unionType
-| type STAR type //productType
-| LSQUARE type RSQUARE // optionalType
+| type BAR type
+| type STAR type
+| LSQUARE type RSQUARE
 | SETOF type
 | SEQOF type
 | SEQ1OF type
 | MAPOF type TO type
 | INMAPOF type TO type
 | functionType
-/* DEVIATION (x3)
- * CML_0:
- *   name
- * here:
- *   IDENTIFIER
- *   IDENTIFIER DOT IDENTIFIER
- *   IDENTIFIER BACKTICK IDENTIFIER
- * TODO: convert these into to names
- */
 | IDENTIFIER
 | IDENTIFIER DOT IDENTIFIER
 | IDENTIFIER BACKTICK IDENTIFIER
@@ -569,12 +430,12 @@ functionType :
 
 partialFunctionType :
   type PLUSGT type
-| LRPAREN PLUSGT type // discretionary type
+| LRPAREN PLUSGT type
 ;
 
 totalFunctionType :
   type RARROW type
-| LRPAREN RARROW type // discretionary type
+| LRPAREN RARROW type
 ;
 
 quoteLiteral :
@@ -600,37 +461,6 @@ valueDefs :
   VALUES valueDefList
 ;
 
-/* RWL. On tailing SEMI:
- *
- * Lists definition like valueDefs below has an element and a
- * separater. Ofter it is convenient for the language that the
- * separater can be added to the end of the list optionally. Like:
- *
- * class valuelist =
- * begin
- *    values
- *       a : int = 1;
- *       b : int = 2;
- *       c : int = 3
- * end
- *
- * The list "c : int = 3" could be followed by a SEMI (;) as in:
- *
- *
- * class valuelist =
- * begin
- *     values
- *       a : int = 1;
- *       b : int = 2;
- *       c : int = 3;
- * end
- *
- * To relax the parser to accept both cases we add two "base-cases"
- * for the list, one without SEMI and one with SEMI.
- *
- * This production-rule-pattern should work for any list where there
- * is no conflict between element definition and the separator.
- */
 valueDefList :
   qualifiedValueDef
 | qualifiedValueDef SEMI
@@ -674,10 +504,8 @@ qualifiedExplicitFunctionDef :
 
 explicitFunctionDef :
   IDENTIFIER COLON functionType IDENTIFIER parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
-
 ;
 
-/* really? this is what a VDM function definition list looks like? */
 parameterList :
   LRPAREN
 | LPAREN patternList RPAREN
@@ -729,11 +557,6 @@ postExpr :
 ;
 
 measureExpr :
-/* DEVIATION --- PATH
- * CML_0:
- *   MEASURE name
- * TODO: convert to a name
- */
   MEASURE path
 | /* empty */
 ;
@@ -745,12 +568,9 @@ operationDefs :
 
 operationDefList :
   operationDef
-// FIXME --- making the SEMI optional causes s/r
 /* | operationDef SEMI */
 | operationDefList SEMI operationDef
 ;
-
-/* FIXME the optional trailing semicolon in the operations definitions is presently not optional */
 
 operationDef :
   implicitOperationDef
@@ -804,24 +624,6 @@ mode :
 | WR
 ;
 
-/* RWL, invariantDef
- *
- * In the AST PDefinition and PInvariant does not have a common
- * ancestor below Object ! Hence having a list containing both is
- * troublesome.
- *
- * Therefore, the stateDefs and stateDefList has been changed such
- * that invariantDef is separate from the stateDefList.
- *
- * FIXME: The invariantDef needs to be glued onto the tree.
- *
- * AKM, proposed fix:
- * The invariant in the state declaration would correspond to the old
- * "classInvariant" definition which is in the AST allready.
- * So maybe we should just find a more suitable name for it. For now
- * I have changed the grammar back and used the AClassInvariantDefinition
- * class witout a rename.
- */
 stateDefs :
   STATE stateDefList
 | STATE
@@ -851,28 +653,20 @@ expression :
 | casesExpr
 | unaryExpr
 | binaryExpr
-/* quantified expressions */
 | FORALL bindList AMP expression
 | EXISTS bindList AMP expression
 | EXISTS1 bind AMP expression
-/* set enumeration */
 | LCURLY RCURLY
 | LCURLY expressionList RCURLY
-/* set comprehensions */
 | LCURLY expression BAR bindList RCURLY
 | LCURLY expression BAR bindList AMP expression RCURLY
-/* set range expression */
 | LCURLY expression ELLIPSIS expression RCURLY
-/* sequence enumerations */
 | LSQUARE RSQUARE
 | LSQUARE expressionList RSQUARE
-/* sequence comprehensions */
 | LSQUARE expression BAR setBind RSQUARE
 | LSQUARE expression BAR setBind AMP expression RSQUARE
-/* map enumerations */
 | LCURLY BARRARROW RCURLY
 | LCURLY mapletList RCURLY
-/* map comprehensions */
 | LCURLY maplet BAR bindList RCURLY
 | LCURLY maplet BAR bindList AMP expression RCURLY
 | tupleConstructor
@@ -880,36 +674,16 @@ expression :
 | lambdaExpr
 | generalIsExpr
 | preconditionExpr
-/* DEVIATION --- PATH
- * CML_0:
- *   ISOFCLASS LPAREN name COMMA expression RPAREN
- * TODO: convert to a name
- */
 | ISOFCLASS LPAREN path COMMA expression RPAREN
-/* DEVIATION --- PATH
- * CML_0:
- *   name
- *   IDENTIFIER TILDE // oldName 
- *   expression LPAREN expression ELLIPSIS expression RPAREN // subsequence expression
- *   expression DOTHASH NUMERAL // tuple select
- *   expression DOT IDENTIFIER // field select
- *   SELF
- * TODO:
- * 1) convert to a name
- * 2) convert to an oldName
- * 3) convert to a subsequence expression
- * 4) convert to a tuple select
- * 5) convert to a field select
- * 6) convert to a self expression
- */
 | path
 | symbolicLiteral
 ;
 
-/* TODO --- verify
- *
- * We need to check that these are, indeed, the right possible literals.
- */
+booleanLiteral:
+  FALSE
+| TRUE
+;
+
 symbolicLiteral :
   numericLiteral
 | booleanLiteral
@@ -978,7 +752,7 @@ unaryExpr :
 | RNG expression
 | MERGE expression
 | INVERSE expression
-  ;
+;
 
 binaryExpr :
   expression PLUS expression
@@ -1033,32 +807,11 @@ recordConstructor :
   MKUNDERNAME LPAREN expressionList RPAREN
 ;
 
-/* DEVIATION
- * CML_0:
- *   'lambda' typeBindList '@' expression
- * here:
- *   'lambda' typeBindList '&' expression
- *
- * Using an @ causes a lot of s/r conflicts
- */ 
 lambdaExpr :
   LAMBDA typeBindList AMP expression
 ;
 
 generalIsExpr :
-/* DEVIATION --- PATH
- * CML_0:
- *   ISUNDER name LPAREN expression RPAREN
- * here:
- *   ISUNDER IDENTIFIER LPAREN expression RPAREN
- *   ISUNDER IDENTIFIER DOT IDENTIFIER LPAREN expression RPAREN
- *   ISUNDER IDENTIFIER BACKTICK IDENTIFIER LPAREN expression RPAREN
- * TODO: convert to a name
- *
- * I'm not sure the syntax of this is quite correct: I don't think we
- * want to allow "is_ NAME ( ... )" with the space between is_ and the
- * NAME.  We may need to do something more with the lexer, here.
- */
   ISUNDER IDENTIFIER LPAREN expression RPAREN
 | ISUNDER IDENTIFIER DOT IDENTIFIER LPAREN expression RPAREN
 | ISUNDER IDENTIFIER BACKTICK IDENTIFIER LPAREN expression RPAREN
@@ -1074,32 +827,18 @@ controlStatement :
   nonDeterministicIfStatement
 | ifStatement
 | casesStatement
-// FIXME --- is/was this a rule?
-/*| generalCasesIfStatement*/
-/* DEVIATION --- PATH
- * CML_0:
- *  callStatement
- * TODO: this gets merged with generalAssignStatement
- */
+/* | generalCasesIfStatement */
 /* | callStatement */
-// FIXME --- causes r/r conflict with objectDesignator(call)
 | generalAssignStatement
 | specificationStatement
 | returnStatement
-/* DEVIATION --- PATH
- * CML_0:
- *   stateDesignator COLONEQUALS NEW name LRPAREN
- *   stateDesignator COLONEQUALS NEW name LPAREN expressionList RPAREN
- *
- * TODO: need the convert the paths to stateDesignator and name, resp.
- */
 /*   path COLONEQUALS NEW path LRPAREN */
 /* | path COLONEQUALS NEW path LPAREN expressionList RPAREN */
-/*| non-deterministicDoStatement */
-/*| SequenceForLoop */
-/*| setForLoop */
-/*| indexForLoop*/
-/*| whileLoop */
+/* | non-deterministicDoStatement */
+/* | SequenceForLoop */
+/* | setForLoop */
+/* | indexForLoop*/
+/* | whileLoop */
 ;
 
 nonDeterministicIfStatement :
@@ -1116,21 +855,14 @@ nonDeterministicIfAltList :
 | nonDeterministicIfAltList nonDeterministicIfAlt
 ;
 
-/* let statements */
-
 letStatement :
   LET localDefList IN action
 ;
 
-/* 6.2 Block and Assignment Statements
- * to be clarified
- */
-
-/* FIXME trailing semicolon not optional */
 blockStatement :
   LPAREN action RPAREN
 | LPAREN dclStatement action RPAREN
-  ;
+;
 
 dclStatement :
   DCL assignmentDefList AT
@@ -1162,11 +894,6 @@ multiAssignStatement :
 ;
 
 assignStatement :
-/* DEVIATION --- PATH
- * CML_0:
- *   stateDesignator COLONEQUALS expression // was stateDesignator
- * TODO: convert to a stateDesignator
- */
   path COLONEQUALS expression
 ;
 
@@ -1178,13 +905,11 @@ ifStatement :
 elseStatements :
   ELSEIF expression THEN action
 | elseStatements ELSEIF expression THEN action
-
 ;
 
 casesStatement :
   CASES expression COLON casesStatementAltList END
 | CASES expression COLON casesStatementAltList OTHERS RARROW action END
-/*   // FROM | casesStatementAlt COMMA OTHERS RARROW action */
 ;
 
 casesStatementAltList :
@@ -1223,12 +948,11 @@ patternLessID :
 patternList :
   pattern
 | patternList COMMA pattern
-  ;
+;
 
 patternIdentifier :
   IDENTIFIER
-// FIXME -- shouldn't this be in patternLessID?
-| MINUS // TODO: Implement "don't care" pattern
+| MINUS
 ;
 
 matchValue :
@@ -1236,9 +960,7 @@ matchValue :
 | LPAREN expression RPAREN
 ;
 
-/* FIXME not sure if if this is a minimum of one pattern or two; if the latter */
 tuplePattern :
-//  MKUNDER LPAREN patternList RPAREN
   MKUNDER LPAREN patternList COMMA pattern RPAREN
 ;
 
@@ -1304,7 +1026,6 @@ pathList :
 | pathList COMMA path
 ;
 
-// **********************
-// *** END OF GRAMMAR ***
-// **********************
-
+/**********************/
+/*** END OF GRAMMAR ***/
+/**********************/
