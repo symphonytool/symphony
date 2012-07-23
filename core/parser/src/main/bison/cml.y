@@ -317,8 +317,8 @@
 %token HEX_LITERAL QUOTE_LITERAL AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE
 %token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY
-%token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY LSQUARECOLON
-%token COLONRSQUARE MU PRIVATE PROTECTED PUBLIC LOGICAL DOTCOLON
+%token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
+%token PROTECTED PUBLIC LOGICAL DOTCOLON
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN
 
 %token nameset namesetExpr booleanLiteral nilLiteral characterLiteral textLiteral
@@ -453,20 +453,22 @@ processDef :
 ;
 
 process :
-  BEGIN processParagraphList AT action END
-{
-  LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$5);
-  List<PDeclaration> processDeclarations = (List<PDeclaration>)$2;
-  PAction action = (PAction)$4;
-  $$ = new AStateProcess(location, processDeclarations, action);
-}
-| BEGIN AT action END
+/* actions */
+  BEGIN AT action END
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4);
   List<PDeclaration> processDeclarations = null;
   PAction action = (PAction)$3;
   $$ = new AStateProcess(location, processDeclarations, action);
 }
+| BEGIN processParagraphList AT action END
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$5);
+  List<PDeclaration> processDeclarations = (List<PDeclaration>)$2;
+  PAction action = (PAction)$4;
+  $$ = new AStateProcess(location, processDeclarations, action);
+}
+/* actions end */
 | process SEMI process
 {
   PProcess left = (PProcess)$1;
@@ -571,34 +573,24 @@ process :
   LexLocation location = combineLexLocation(left.getLocation(), exp.getLocation());
   $$ = new AEndDeadlineProcess(location, left, exp);
 }
-/* DEVIATION
- * This does not follow the grammar from the document. processDef
- * has been replaced by IDENTIFIER.
- * (FIXME)
- */
-| LPAREN declaration AT IDENTIFIER RPAREN LPAREN expression RPAREN
+| LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8);
   List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)$2;
   LexNameToken identifier = extractLexNameToken((CmlLexeme)$4);
   $$ = new AInstantiationProcess(location, decls, identifier, (PExp)$7);
 }
-// FIXME --- causes s/r against everything in VDM
-// looks like a 'path' to me...
-/* | IDENTIFIER LPAREN expression RPAREN */
-/* { */
-/*   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4); */
-/*   List<ASingleTypeDeclaration> decls = null; */
-/*   LexNameToken identifier = extractLexNameToken((CmlLexeme)$1); */
-/*   $$ = new AInstantiationProcess(location, decls, identifier, (PExp)$3); */
-/* } */
-// FIXME this rule is should probably be added
-// also looks like a path to me
-/* | IDENTIFIER */
-/* { */
-/*   LexNameToken identifier = extractLexNameToken((CmlLexeme)$1); */
-/*   $$ = new AIdentifierProcess(identifier.getLocation(), identifier); */
-/* } */
+/* DEVIATION
+ * CML_0:
+ *   IDENTIFIER
+ *   IDENTIFIER LRPAREN
+ *   IDENTIFIER LPAREN expressionList RPAREN
+ * here:
+ *   path
+ *
+ * TODO: need to convert the path to an instantiated process?
+ */
+| path
 | process renameExpression
 {
   SRenameChannelExp renameExpression = (SRenameChannelExp)$2;
@@ -616,14 +608,7 @@ process :
 | BARTILDEBAR LCURLY replicationDeclaration AT process RCURLY //TODO
 | LRSQUARE LCURLY replicationDeclaration AT process RCURLY //TODO
 | TBAR LCURLY replicationDeclaration AT process RCURLY //TODO
-/* DEVIATION (even more so!)
- * all of the replicated processes
- * grammar:
- *   '[' chansetExpr ']' replicationDeclaration '@' process
- * here:
- *   '[:' chansetExpr ':]' '{' replicationDeclaration '}' '@' process
- */
-| LSQUARECOLON chansetExpr COLONRSQUARE LCURLY replicationDeclaration AT process RCURLY //TODO
+| LSQUARE chansetExpr RSQUARE LCURLY replicationDeclaration AT process RCURLY //TODO
 ;
 
 replicationDeclaration :

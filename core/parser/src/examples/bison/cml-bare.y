@@ -25,8 +25,8 @@
 %token HEX_LITERAL QUOTE_LITERAL AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE
 %token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY 
-%token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY LSQUARECOLON
-%token COLONRSQUARE MU PRIVATE PROTECTED PUBLIC LOGICAL DOTCOLON
+%token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
+%token PROTECTED PUBLIC LOGICAL DOTCOLON
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN
 
 %token nameset namesetExpr booleanLiteral nilLiteral characterLiteral textLiteral
@@ -98,8 +98,8 @@ processDef :
 ;
 
 process :
-  BEGIN processParagraphList AT action END
-| BEGIN AT action END
+  BEGIN AT action END
+| BEGIN processParagraphList AT action END
 | process SEMI process
 | process LRSQUARE process
 | process BARTILDEBAR process
@@ -126,15 +126,8 @@ process :
 | process COLONBACKSLASH chansetExpr
 | process STARTBY expression
 | process ENDSBY expression
-/* DEVIATION
- * This does not follow the grammar from the document. processDef
- * has been replaced by IDENTIFIER.
- */
-| LPAREN declaration AT IDENTIFIER RPAREN LPAREN expression RPAREN
-// FIXME --- causes s/r against everything in VDM
-/* | IDENTIFIER LPAREN expression RPAREN */
-// FIXME this rule is should probably be added
-/* | IDENTIFIER */
+| LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
+| path
 | process renameExpression
 /* DEVIATION (x4)
  * all of the replicated processes
@@ -147,14 +140,7 @@ process :
 | BARTILDEBAR LCURLY replicationDeclaration AT process RCURLY
 | LRSQUARE LCURLY replicationDeclaration AT process RCURLY
 | TBAR LCURLY replicationDeclaration AT process RCURLY
-/* DEVIATION (even more so!)
- * all of the replicated processes
- * grammar:
- *   '[' chansetExpr ']' replicationDeclaration '@' process
- * here:
- *   '[:' chansetExpr ':]' '{' replicationDeclaration '}' '@' process
- */
-| LSQUARECOLON chansetExpr COLONRSQUARE LCURLY replicationDeclaration AT process RCURLY
+| LSQUARE chansetExpr RSQUARE LCURLY replicationDeclaration AT process RCURLY
 ;
 
 replicationDeclaration :
