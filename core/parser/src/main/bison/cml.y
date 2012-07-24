@@ -308,7 +308,7 @@
 %token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
-%token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR
+%token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY WHILE
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE
 
 %token nameset namesetExpr nilLiteral characterLiteral textLiteral
@@ -3355,9 +3355,14 @@ controlStatement :
 | FOR pattern IN expression DO action
 /* | FOR pattern IN REVERSE expression DO action */
 /* sequence for loop end */
-/*| setForLoop */ // TODO
-/*| indexForLoop*/ // TODO
-/*| whileLoop */ // TODO
+/* set for loop */
+| FOR ALL pattern INSET expression DO action
+/* index for loop */
+| FOR IDENTIFIER EQUALS expression TO expression DO action
+| FOR IDENTIFIER EQUALS expression TO expression BY expression DO action
+/* index for loop end */
+/* while loop */
+| WHILE expression DO action
 /* DEVIATION --- PATH
  * CML_0:
  *  callStatement

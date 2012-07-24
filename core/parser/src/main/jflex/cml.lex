@@ -190,6 +190,7 @@ blanks          = [ \t\f]*
 "Wait"                        { return createToken(CmlParser.CSPWAIT); }
 "abs"                         { return createToken(CmlParser.ABS); }
 "actions"                     { return createToken(CmlParser.ACTIONS); }
+"all"                         { return createToken(CmlParser.ALL); }
 "and"                         { return createToken(CmlParser.AND); }
 "atomic"                      { return createToken(CmlParser.ATOMIC); }
 "begin"                       { return createToken(CmlParser.BEGIN); }
@@ -222,7 +223,7 @@ blanks          = [ \t\f]*
 "functions"                   { return createToken(CmlParser.FUNCTIONS); }
 "hd"                          { return createToken(CmlParser.HD); }
 "if"                          { return createToken(CmlParser.IF); }
-"in set"                      { return createToken(CmlParser.INSET); }
+"in"{blanks}"set"             { return createToken(CmlParser.INSET); }
 "in"                          { return createToken(CmlParser.IN); }
 "inds"                        { return createToken(CmlParser.INDS); }
 "inmap"                       { return createToken(CmlParser.INMAPOF); }
@@ -280,6 +281,7 @@ blanks          = [ \t\f]*
 "val"                         { return createToken(CmlParser.VAL); }
 "values"                      { return createToken(CmlParser.VALUES); }
 "vres"                        { return createToken(CmlParser.VRES); }
+"while"                       { return createToken(CmlParser.WHILE); }
 "wr"                          { return createToken(CmlParser.WR); }
 
 {quoteliteral}                { return createToken(CmlParser.QUOTE_LITERAL); }

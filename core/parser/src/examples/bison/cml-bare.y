@@ -26,7 +26,7 @@
 %token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
-%token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR
+%token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY WHILE
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE
 
 %token nameset namesetExpr nilLiteral characterLiteral textLiteral
@@ -816,6 +816,10 @@ controlStatement :
 /* | FOR bind IN REVERSE expression DO action */
 | FOR pattern IN expression DO action
 /* | FOR pattern IN REVERSE expression DO action */
+| FOR ALL pattern INSET expression DO action
+| FOR IDENTIFIER EQUALS expression TO expression DO action
+| FOR IDENTIFIER EQUALS expression TO expression BY expression DO action
+| WHILE expression DO action
 /* | callStatement */
 | generalAssignStatement
 | LSQUARE implicitOperationBody RSQUARE
@@ -823,10 +827,6 @@ controlStatement :
 | RETURN expression
 /*   path COLONEQUALS NEW path LRPAREN */
 /* | path COLONEQUALS NEW path LPAREN expressionList RPAREN */
-/* | SequenceForLoop */
-/* | setForLoop */
-/* | indexForLoop*/
-/* | whileLoop */
 ;
 
 nonDeterministicAltList :
