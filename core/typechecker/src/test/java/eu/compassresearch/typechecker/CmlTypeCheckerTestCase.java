@@ -60,7 +60,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 	}
 	
 	
-	@Test
+	@Test 
 	public void lexingParsingTest() throws IOException, AnalysisException
 	{
 		CmlParser parser = CmlParser.newParserFromSource(source);
