@@ -72,7 +72,7 @@ import static eu.compassresearch.core.parser.CmlParser.YyPactClass.yypact_;
   import eu.compassresearch.ast.typechecker.NameScope;
   import eu.compassresearch.ast.node.*;
   import eu.compassresearch.ast.node.tokens.*;
-  //    import org.overture.transforms.*;
+  import eu.compassresearch.ast.preview.*;
   import eu.compassresearch.ast.util.*;
   import eu.compassresearch.core.lexer.CmlLexeme;
   import eu.compassresearch.core.lexer.CmlLexer;
@@ -810,8 +810,8 @@ public class CmlParser
 /* Line 374 of cmlskeleton.java.m4  */
 /* Line 369 of "src/main/bison/cml.y"  */
     {
-  List<PDefinition> programParagraphList = new Vector<PDefinition>();
-  programParagraphList.add((PDefinition)((yystack.valueAt (1-(1)))));
+  List<PDefinition> programParagraphList = new LinkedList<PDefinition>();
+  programParagraphList.addAll((List<PDefinition>)((yystack.valueAt (1-(1)))));
   yyval = programParagraphList;
 };
   break;
@@ -826,7 +826,7 @@ public class CmlParser
   List<PDefinition> programParagraphList = (List<PDefinition>)((yystack.valueAt (2-(1))));
   if (programParagraphList == null)
     programParagraphList = new Vector<PDefinition>();
-  programParagraphList.add((PDefinition)((yystack.valueAt (2-(2)))));
+  programParagraphList.addAll((List<PDefinition>)((yystack.valueAt (2-(2)))));
   yyval = programParagraphList;
 };
   break;
@@ -899,7 +899,9 @@ public class CmlParser
   clz.setName(lexName);
   clz.setDefinitions( (List<PDefinition>) ((yystack.valueAt (4-(4)))) );
   clz.setNameScope( NameScope.CLASSNAME );
-  yyval = clz;
+  List<PDefinition> def = new LinkedList<PDefinition>();
+  def.add(clz);
+  yyval = def;
 };
   break;
     
@@ -908,7 +910,7 @@ public class CmlParser
   if (yyn == 11)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 417 of "src/main/bison/cml.y"  */
+/* Line 419 of "src/main/bison/cml.y"  */
     {
   LexLocation processLoc = extractLexLocation((CmlLexeme)((yystack.valueAt (4-(1)))));
   AProcessParagraphDefinition processDef = (AProcessParagraphDefinition)((yystack.valueAt (4-(4))));
@@ -916,7 +918,9 @@ public class CmlParser
   LexLocation location = combineLexLocation(processLoc,processDef.getLocation());
   processDef.setLocation(location);
   processDef.setName(id);
-  yyval = processDef;
+  List<PDefinition> def = new LinkedList<PDefinition>();
+  def.add(processDef);
+  yyval = def;
 };
   break;
     
@@ -925,7 +929,7 @@ public class CmlParser
   if (yyn == 12)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 430 of "src/main/bison/cml.y"  */
+/* Line 434 of "src/main/bison/cml.y"  */
     {
   List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)((yystack.valueAt (3-(1))));
   PProcess process = (PProcess)((yystack.valueAt (3-(3))));
@@ -949,7 +953,7 @@ public class CmlParser
   if (yyn == 13)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 447 of "src/main/bison/cml.y"  */
+/* Line 451 of "src/main/bison/cml.y"  */
     {
   PProcess process = (PProcess)((yystack.valueAt (1-(1))));
   List<PProcess> processes = new LinkedList<PProcess>();
@@ -969,7 +973,7 @@ public class CmlParser
   if (yyn == 14)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 464 of "src/main/bison/cml.y"  */
+/* Line 468 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (4-(1)))), (CmlLexeme)((yystack.valueAt (4-(4)))));
   List<PDeclaration> processDeclarations = null;
@@ -983,7 +987,7 @@ public class CmlParser
   if (yyn == 15)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 471 of "src/main/bison/cml.y"  */
+/* Line 475 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (5-(1)))), (CmlLexeme)((yystack.valueAt (5-(5)))));
   List<PDeclaration> processDeclarations = (List<PDeclaration>)((yystack.valueAt (5-(2))));
@@ -997,7 +1001,7 @@ public class CmlParser
   if (yyn == 16)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 479 of "src/main/bison/cml.y"  */
+/* Line 483 of "src/main/bison/cml.y"  */
     {
   PProcess left = (PProcess)((yystack.valueAt (3-(1))));
   PProcess right = (PProcess)((yystack.valueAt (3-(3))));
@@ -1010,7 +1014,7 @@ public class CmlParser
   if (yyn == 17)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 485 of "src/main/bison/cml.y"  */
+/* Line 489 of "src/main/bison/cml.y"  */
     {
   PProcess left = (PProcess)((yystack.valueAt (3-(1))));
   PProcess right = (PProcess)((yystack.valueAt (3-(3))));
@@ -1023,7 +1027,7 @@ public class CmlParser
   if (yyn == 18)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 491 of "src/main/bison/cml.y"  */
+/* Line 495 of "src/main/bison/cml.y"  */
     {
   PProcess left = (PProcess)((yystack.valueAt (3-(1))));
   PProcess right = (PProcess)((yystack.valueAt (3-(3))));
@@ -1036,7 +1040,7 @@ public class CmlParser
   if (yyn == 19)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 497 of "src/main/bison/cml.y"  */
+/* Line 501 of "src/main/bison/cml.y"  */
     {
   PProcess left = (PProcess)((yystack.valueAt (5-(1))));
   PProcess right = (PProcess)((yystack.valueAt (5-(5))));
@@ -1049,7 +1053,7 @@ public class CmlParser
   if (yyn == 20)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 503 of "src/main/bison/cml.y"  */
+/* Line 507 of "src/main/bison/cml.y"  */
     {
   PProcess left = (PProcess)((yystack.valueAt (7-(1))));
   PProcess right = (PProcess)((yystack.valueAt (7-(7))));
@@ -1062,7 +1066,7 @@ public class CmlParser
   if (yyn == 21)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 509 of "src/main/bison/cml.y"  */
+/* Line 513 of "src/main/bison/cml.y"  */
     {
   PProcess left = (PProcess)((yystack.valueAt (3-(1))));
   PProcess right = (PProcess)((yystack.valueAt (3-(3))));
@@ -1075,7 +1079,7 @@ public class CmlParser
   if (yyn == 22)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 515 of "src/main/bison/cml.y"  */
+/* Line 519 of "src/main/bison/cml.y"  */
     {
   PProcess left = (PProcess)((yystack.valueAt (3-(1))));
   PProcess right = (PProcess)((yystack.valueAt (3-(3))));
@@ -1088,7 +1092,7 @@ public class CmlParser
   if (yyn == 23)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 521 of "src/main/bison/cml.y"  */
+/* Line 525 of "src/main/bison/cml.y"  */
     {
   PProcess left = (PProcess)((yystack.valueAt (3-(1))));
   PProcess right = (PProcess)((yystack.valueAt (3-(3))));
@@ -1102,7 +1106,7 @@ public class CmlParser
   if (yyn == 24)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 534 of "src/main/bison/cml.y"  */
+/* Line 538 of "src/main/bison/cml.y"  */
     {
   PProcess left = (PProcess)((yystack.valueAt (5-(1))));
   PProcess right = (PProcess)((yystack.valueAt (5-(5))));
@@ -1116,7 +1120,7 @@ public class CmlParser
   if (yyn == 25)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 541 of "src/main/bison/cml.y"  */
+/* Line 545 of "src/main/bison/cml.y"  */
     {
   PProcess left = (PProcess)((yystack.valueAt (3-(1))));
   PProcess right = (PProcess)((yystack.valueAt (3-(3))));
@@ -1130,7 +1134,7 @@ public class CmlParser
   if (yyn == 26)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 554 of "src/main/bison/cml.y"  */
+/* Line 558 of "src/main/bison/cml.y"  */
     {
   PProcess left = (PProcess)((yystack.valueAt (5-(1))));
   PProcess right = (PProcess)((yystack.valueAt (5-(5))));
@@ -1144,7 +1148,7 @@ public class CmlParser
   if (yyn == 27)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 567 of "src/main/bison/cml.y"  */
+/* Line 571 of "src/main/bison/cml.y"  */
     {
   PProcess left = (PProcess)((yystack.valueAt (3-(1))));
   SChansetSetExp cse = (SChansetSetExp)((yystack.valueAt (3-(3))));
@@ -1158,7 +1162,7 @@ public class CmlParser
   if (yyn == 28)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 574 of "src/main/bison/cml.y"  */
+/* Line 578 of "src/main/bison/cml.y"  */
     {
   PProcess left = (PProcess)((yystack.valueAt (3-(1))));
   PExp exp = (PExp)((yystack.valueAt (3-(3))));
@@ -1172,7 +1176,7 @@ public class CmlParser
   if (yyn == 29)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 581 of "src/main/bison/cml.y"  */
+/* Line 585 of "src/main/bison/cml.y"  */
     {
   PProcess left = (PProcess)((yystack.valueAt (3-(1))));
   PExp exp = (PExp)((yystack.valueAt (3-(3))));
@@ -1186,7 +1190,7 @@ public class CmlParser
   if (yyn == 30)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 588 of "src/main/bison/cml.y"  */
+/* Line 592 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (8-(1)))), (CmlLexeme)((yystack.valueAt (8-(8)))));
   List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)((yystack.valueAt (8-(2))));
@@ -1200,7 +1204,7 @@ public class CmlParser
   if (yyn == 32)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 606 of "src/main/bison/cml.y"  */
+/* Line 610 of "src/main/bison/cml.y"  */
     {
   SRenameChannelExp renameExpression = (SRenameChannelExp)((yystack.valueAt (2-(2))));
   PProcess process = (PProcess)((yystack.valueAt (2-(1))));
@@ -1213,7 +1217,7 @@ public class CmlParser
   if (yyn == 44)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 665 of "src/main/bison/cml.y"  */
+/* Line 669 of "src/main/bison/cml.y"  */
     {
   List<PDeclaration> processParagraphList = new Vector<PDeclaration>();
   processParagraphList.add((PDeclaration)((yystack.valueAt (1-(1)))));
@@ -1226,7 +1230,7 @@ public class CmlParser
   if (yyn == 45)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 671 of "src/main/bison/cml.y"  */
+/* Line 675 of "src/main/bison/cml.y"  */
     {
   List<PDeclaration> processParagraphList = (List<PDeclaration>)((yystack.valueAt (2-(1))));
   if (processParagraphList == null)
@@ -1241,7 +1245,7 @@ public class CmlParser
   if (yyn == 46)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 682 of "src/main/bison/cml.y"  */
+/* Line 686 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -1252,7 +1256,7 @@ public class CmlParser
   if (yyn == 47)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 686 of "src/main/bison/cml.y"  */
+/* Line 690 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -1263,7 +1267,7 @@ public class CmlParser
   if (yyn == 48)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 693 of "src/main/bison/cml.y"  */
+/* Line 697 of "src/main/bison/cml.y"  */
     {
   List<AActionDefinition> actionDefinitions = (List<AActionDefinition>)((yystack.valueAt (2-(2))));
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1))))), extractLastLexLocation(actionDefinitions));
@@ -1277,7 +1281,7 @@ public class CmlParser
   if (yyn == 50)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 704 of "src/main/bison/cml.y"  */
+/* Line 708 of "src/main/bison/cml.y"  */
     {
   List<AActionDefinition> actionDefs = new Vector<AActionDefinition>();
   actionDefs.add((AActionDefinition)((yystack.valueAt (1-(1)))));
@@ -1290,7 +1294,7 @@ public class CmlParser
   if (yyn == 51)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 710 of "src/main/bison/cml.y"  */
+/* Line 714 of "src/main/bison/cml.y"  */
     {
   List<AActionDefinition> actionDefs = (List<AActionDefinition>)((yystack.valueAt (2-(1))));
   actionDefs.add((AActionDefinition)((yystack.valueAt (2-(2)))));
@@ -1303,7 +1307,7 @@ public class CmlParser
   if (yyn == 52)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 719 of "src/main/bison/cml.y"  */
+/* Line 723 of "src/main/bison/cml.y"  */
     {
   Object[] pa = (Object[])((yystack.valueAt (3-(3))));
   List<ASingleTypeDeclaration> declarations = (List<ASingleTypeDeclaration>)pa[0];
@@ -1319,7 +1323,7 @@ public class CmlParser
   if (yyn == 53)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 731 of "src/main/bison/cml.y"  */
+/* Line 735 of "src/main/bison/cml.y"  */
     {
   yyval = new Object[]{new Vector<ASingleTypeDeclaration>(), ((yystack.valueAt (1-(1))))};
 };
@@ -1330,7 +1334,7 @@ public class CmlParser
   if (yyn == 54)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 735 of "src/main/bison/cml.y"  */
+/* Line 739 of "src/main/bison/cml.y"  */
     {
   yyval = new Object[]{((yystack.valueAt (3-(1)))), ((yystack.valueAt (3-(3))))};
 };
@@ -1341,7 +1345,7 @@ public class CmlParser
   if (yyn == 55)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 742 of "src/main/bison/cml.y"  */
+/* Line 746 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
   yyval = new ASkipAction(location);
@@ -1353,7 +1357,7 @@ public class CmlParser
   if (yyn == 56)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 747 of "src/main/bison/cml.y"  */
+/* Line 751 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
   yyval = new AStopAction(location);
@@ -1365,7 +1369,7 @@ public class CmlParser
   if (yyn == 57)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 752 of "src/main/bison/cml.y"  */
+/* Line 756 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
   yyval = new AChaosAction(location);
@@ -1377,7 +1381,7 @@ public class CmlParser
   if (yyn == 58)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 757 of "src/main/bison/cml.y"  */
+/* Line 761 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
   yyval = new ADivAction(location);
@@ -1389,7 +1393,7 @@ public class CmlParser
   if (yyn == 59)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 762 of "src/main/bison/cml.y"  */
+/* Line 766 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (4-(2))));
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (4-(1)))), exp.getLocation());
@@ -1402,7 +1406,7 @@ public class CmlParser
   if (yyn == 60)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 769 of "src/main/bison/cml.y"  */
+/* Line 773 of "src/main/bison/cml.y"  */
     {
   LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (3-(1)))));
   PAction action = (PAction)((yystack.valueAt (3-(3))));
@@ -1416,7 +1420,7 @@ public class CmlParser
   if (yyn == 61)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 776 of "src/main/bison/cml.y"  */
+/* Line 780 of "src/main/bison/cml.y"  */
     {
   LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (4-(1)))));
   PAction action = (PAction)((yystack.valueAt (4-(4))));
@@ -1431,7 +1435,7 @@ public class CmlParser
   if (yyn == 62)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 791 of "src/main/bison/cml.y"  */
+/* Line 795 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (4-(2))));
   PAction action = (PAction)((yystack.valueAt (4-(4))));
@@ -1445,7 +1449,7 @@ public class CmlParser
   if (yyn == 63)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 798 of "src/main/bison/cml.y"  */
+/* Line 802 of "src/main/bison/cml.y"  */
     {
   PAction left = (PAction)((yystack.valueAt (3-(1))));
   PAction right = (PAction)((yystack.valueAt (3-(3))));
@@ -1459,7 +1463,7 @@ public class CmlParser
   if (yyn == 64)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 805 of "src/main/bison/cml.y"  */
+/* Line 809 of "src/main/bison/cml.y"  */
     {
   PAction left = (PAction)((yystack.valueAt (3-(1))));
   PAction right = (PAction)((yystack.valueAt (3-(3))));
@@ -1473,7 +1477,7 @@ public class CmlParser
   if (yyn == 65)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 812 of "src/main/bison/cml.y"  */
+/* Line 816 of "src/main/bison/cml.y"  */
     {
   PAction left = (PAction)((yystack.valueAt (3-(1))));
   PAction right = (PAction)((yystack.valueAt (3-(3))));
@@ -1487,7 +1491,7 @@ public class CmlParser
   if (yyn == 66)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 819 of "src/main/bison/cml.y"  */
+/* Line 823 of "src/main/bison/cml.y"  */
     {
   PAction left = (PAction)((yystack.valueAt (3-(1))));
   PAction right = (PAction)((yystack.valueAt (3-(3))));
@@ -1501,7 +1505,7 @@ public class CmlParser
   if (yyn == 67)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 832 of "src/main/bison/cml.y"  */
+/* Line 836 of "src/main/bison/cml.y"  */
     {
   PAction left = (PAction)((yystack.valueAt (5-(1))));
   PAction right = (PAction)((yystack.valueAt (5-(5))));
@@ -1515,7 +1519,7 @@ public class CmlParser
   if (yyn == 68)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 839 of "src/main/bison/cml.y"  */
+/* Line 843 of "src/main/bison/cml.y"  */
     {
   PAction left = (PAction)((yystack.valueAt (3-(1))));
   PAction right = (PAction)((yystack.valueAt (3-(3))));
@@ -1529,7 +1533,7 @@ public class CmlParser
   if (yyn == 69)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 852 of "src/main/bison/cml.y"  */
+/* Line 856 of "src/main/bison/cml.y"  */
     {
   PAction left = (PAction)((yystack.valueAt (5-(1))));
   PAction right = (PAction)((yystack.valueAt (5-(5))));
@@ -1543,7 +1547,7 @@ public class CmlParser
   if (yyn == 70)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 865 of "src/main/bison/cml.y"  */
+/* Line 869 of "src/main/bison/cml.y"  */
     {
   PAction left = (PAction)((yystack.valueAt (3-(1))));
   SChansetSetExp chansetExp = (SChansetSetExp)((yystack.valueAt (3-(3))));
@@ -1557,7 +1561,7 @@ public class CmlParser
   if (yyn == 71)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 872 of "src/main/bison/cml.y"  */
+/* Line 876 of "src/main/bison/cml.y"  */
     {
   PAction left = (PAction)((yystack.valueAt (3-(1))));
   PExp exp = (PExp)((yystack.valueAt (3-(3))));
@@ -1571,7 +1575,7 @@ public class CmlParser
   if (yyn == 72)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 879 of "src/main/bison/cml.y"  */
+/* Line 883 of "src/main/bison/cml.y"  */
     {
   PAction left = (PAction)((yystack.valueAt (3-(1))));
   PExp exp = (PExp)((yystack.valueAt (3-(3))));
@@ -1585,7 +1589,7 @@ public class CmlParser
   if (yyn == 73)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 886 of "src/main/bison/cml.y"  */
+/* Line 890 of "src/main/bison/cml.y"  */
     {
   SRenameChannelExp renameExpression = (SRenameChannelExp)((yystack.valueAt (2-(2))));
   PAction action = (PAction)((yystack.valueAt (2-(1))));
@@ -1598,7 +1602,7 @@ public class CmlParser
   if (yyn == 75)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 901 of "src/main/bison/cml.y"  */
+/* Line 905 of "src/main/bison/cml.y"  */
     {
     yyval = ((yystack.valueAt (1-(1))));
 };
@@ -1609,7 +1613,7 @@ public class CmlParser
   if (yyn == 90)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 937 of "src/main/bison/cml.y"  */
+/* Line 941 of "src/main/bison/cml.y"  */
     {
   List<PCommunicationParameter> comParamList = new Vector<PCommunicationParameter>();
   comParamList.add((PCommunicationParameter)((yystack.valueAt (1-(1)))));
@@ -1622,7 +1626,7 @@ public class CmlParser
   if (yyn == 91)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 943 of "src/main/bison/cml.y"  */
+/* Line 947 of "src/main/bison/cml.y"  */
     {
   List<PCommunicationParameter> comParamList = (List<PCommunicationParameter>)((yystack.valueAt (2-(1))));
   if (comParamList == null)
@@ -1637,7 +1641,7 @@ public class CmlParser
   if (yyn == 92)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 954 of "src/main/bison/cml.y"  */
+/* Line 958 of "src/main/bison/cml.y"  */
     {
   PParameter parameter = (PParameter)((yystack.valueAt (2-(2))));
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1))))), parameter.getLocation());
@@ -1650,7 +1654,7 @@ public class CmlParser
   if (yyn == 93)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 960 of "src/main/bison/cml.y"  */
+/* Line 964 of "src/main/bison/cml.y"  */
     {
   PParameter parameter = (PParameter)((yystack.valueAt (4-(2))));
   PExp exp = (PExp)((yystack.valueAt (4-(4))));
@@ -1664,7 +1668,7 @@ public class CmlParser
   if (yyn == 94)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 967 of "src/main/bison/cml.y"  */
+/* Line 971 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1))))), exp.getLocation());
@@ -1677,7 +1681,7 @@ public class CmlParser
   if (yyn == 95)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 982 of "src/main/bison/cml.y"  */
+/* Line 986 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1))))), exp.getLocation());
@@ -1690,7 +1694,7 @@ public class CmlParser
   if (yyn == 96)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 991 of "src/main/bison/cml.y"  */
+/* Line 995 of "src/main/bison/cml.y"  */
     {
   LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (1-(1)))));
   yyval = new AIdentifierParameter(id.getLocation(), id);
@@ -1702,7 +1706,7 @@ public class CmlParser
   if (yyn == 97)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 996 of "src/main/bison/cml.y"  */
+/* Line 1000 of "src/main/bison/cml.y"  */
     {
   yyval = new ATupleParameter(extractLexLocation((CmlLexeme)((yystack.valueAt (4-(1)))), (CmlLexeme)((yystack.valueAt (4-(4))))), (List<? extends PParameter>)((yystack.valueAt (4-(3)))));
 };
@@ -1713,7 +1717,7 @@ public class CmlParser
   if (yyn == 98)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1000 of "src/main/bison/cml.y"  */
+/* Line 1004 of "src/main/bison/cml.y"  */
     {
   yyval = new ATupleParameter(extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))), (CmlLexeme)((yystack.valueAt (2-(2))))), null);
 };
@@ -1724,7 +1728,7 @@ public class CmlParser
   if (yyn == 99)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1004 of "src/main/bison/cml.y"  */
+/* Line 1008 of "src/main/bison/cml.y"  */
     {
   LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)((yystack.valueAt (4-(1)))));
   yyval = new ARecordParameter(extractLexLocation((CmlLexeme)((yystack.valueAt (4-(1)))), (CmlLexeme)((yystack.valueAt (4-(4))))), name, (List<? extends PParameter>)((yystack.valueAt (4-(3)))));
@@ -1736,7 +1740,7 @@ public class CmlParser
   if (yyn == 100)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1009 of "src/main/bison/cml.y"  */
+/* Line 1013 of "src/main/bison/cml.y"  */
     {
   LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)((yystack.valueAt (2-(1)))));
   yyval = new ARecordParameter(extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))), (CmlLexeme)((yystack.valueAt (2-(2))))), name, null);
@@ -1748,7 +1752,7 @@ public class CmlParser
   if (yyn == 101)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1017 of "src/main/bison/cml.y"  */
+/* Line 1021 of "src/main/bison/cml.y"  */
     {
   List<PParameter> parameters = new Vector<PParameter>();
   parameters.add((PParameter)((yystack.valueAt (1-(1)))));
@@ -1761,7 +1765,7 @@ public class CmlParser
   if (yyn == 102)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1023 of "src/main/bison/cml.y"  */
+/* Line 1027 of "src/main/bison/cml.y"  */
     {
   List<PParameter> parameters = (List<PParameter>)((yystack.valueAt (3-(1))));
   parameters.add((PParameter)((yystack.valueAt (3-(3)))));
@@ -1774,7 +1778,7 @@ public class CmlParser
   if (yyn == 116)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1054 of "src/main/bison/cml.y"  */
+/* Line 1058 of "src/main/bison/cml.y"  */
     {
   yyval = new ADeclarationInstantiatedAction(extractLexLocation((CmlLexeme)((yystack.valueAt (8-(1)))), (CmlLexeme)((yystack.valueAt (8-(8))))), (List<? extends ASingleTypeDeclaration>)((yystack.valueAt (8-(2)))), (PAction)((yystack.valueAt (8-(4)))), (List<PExp>)((yystack.valueAt (8-(7)))));
 };
@@ -1785,7 +1789,7 @@ public class CmlParser
   if (yyn == 118)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1063 of "src/main/bison/cml.y"  */
+/* Line 1067 of "src/main/bison/cml.y"  */
     {
   yyval = new AEnumerationRenameChannelExp(null, extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))), (CmlLexeme)((yystack.valueAt (3-(3))))), (List<? extends ARenamePair>)((yystack.valueAt (3-(2)))));
 };
@@ -1796,7 +1800,7 @@ public class CmlParser
   if (yyn == 119)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1068 of "src/main/bison/cml.y"  */
+/* Line 1072 of "src/main/bison/cml.y"  */
     {
   yyval = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)((yystack.valueAt (5-(1)))), (CmlLexeme)((yystack.valueAt (5-(5))))), (List<? extends ARenamePair>)((yystack.valueAt (5-(2)))), (List<? extends PMultipleBind>)((yystack.valueAt (5-(4)))), null);
 };
@@ -1807,7 +1811,7 @@ public class CmlParser
   if (yyn == 120)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1072 of "src/main/bison/cml.y"  */
+/* Line 1076 of "src/main/bison/cml.y"  */
     {
   yyval = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)((yystack.valueAt (7-(1)))), (CmlLexeme)((yystack.valueAt (7-(7))))), (List<? extends ARenamePair>)((yystack.valueAt (7-(2)))), (List<? extends PMultipleBind>)((yystack.valueAt (7-(4)))), (PExp)((yystack.valueAt (7-(6)))));
 };
@@ -1818,7 +1822,7 @@ public class CmlParser
   if (yyn == 121)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1079 of "src/main/bison/cml.y"  */
+/* Line 1083 of "src/main/bison/cml.y"  */
     {
   List<ARenamePair> renamePairs = new Vector<ARenamePair>();
   ARenamePair pair = new ARenamePair(false, (AEventChannelExp)((yystack.valueAt (3-(1)))), (AEventChannelExp)((yystack.valueAt (3-(3)))));
@@ -1832,7 +1836,7 @@ public class CmlParser
   if (yyn == 122)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1086 of "src/main/bison/cml.y"  */
+/* Line 1090 of "src/main/bison/cml.y"  */
     {
   List<ARenamePair> renamePairs = (List<ARenamePair>)((yystack.valueAt (5-(1))));
   ARenamePair pair = new ARenamePair(false, (AEventChannelExp)((yystack.valueAt (5-(3)))), (AEventChannelExp)((yystack.valueAt (5-(5)))));
@@ -1846,7 +1850,7 @@ public class CmlParser
   if (yyn == 125)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1109 of "src/main/bison/cml.y"  */
+/* Line 1113 of "src/main/bison/cml.y"  */
     {
   List<PExp> expTokens = new Vector<PExp>();
   expTokens.add((PExp)((yystack.valueAt (1-(1)))));
@@ -1859,7 +1863,7 @@ public class CmlParser
   if (yyn == 126)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1115 of "src/main/bison/cml.y"  */
+/* Line 1119 of "src/main/bison/cml.y"  */
     {
   List<PExp> expTokens = (List<PExp>)((yystack.valueAt (3-(1))));
   PExp exp = (PExp)((yystack.valueAt (3-(3))));
@@ -1873,7 +1877,7 @@ public class CmlParser
   if (yyn == 127)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1125 of "src/main/bison/cml.y"  */
+/* Line 1129 of "src/main/bison/cml.y"  */
     {
   List<AChannelNameDeclaration> chanNameDecls = (List<AChannelNameDeclaration>)((yystack.valueAt (2-(2))));
   LexLocation start = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -1895,7 +1899,7 @@ public class CmlParser
   if (yyn == 128)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1143 of "src/main/bison/cml.y"  */
+/* Line 1147 of "src/main/bison/cml.y"  */
     {
   List<AChannelNameDeclaration> decls = new Vector<AChannelNameDeclaration>();
   decls.add((AChannelNameDeclaration)((yystack.valueAt (1-(1)))));
@@ -1908,7 +1912,7 @@ public class CmlParser
   if (yyn == 129)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1149 of "src/main/bison/cml.y"  */
+/* Line 1153 of "src/main/bison/cml.y"  */
     {
   List<AChannelNameDeclaration> decls = (List<AChannelNameDeclaration>)((yystack.valueAt (3-(1))));
   decls.add((AChannelNameDeclaration)((yystack.valueAt (3-(3)))));
@@ -1921,7 +1925,7 @@ public class CmlParser
   if (yyn == 130)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1165 of "src/main/bison/cml.y"  */
+/* Line 1169 of "src/main/bison/cml.y"  */
     {
   List<LexNameToken> nameList = (List<LexNameToken>)((yystack.valueAt (1-(1))));
   List<LexIdentifierToken> ids = convertNameListToIdentifierList(nameList);
@@ -1939,7 +1943,7 @@ public class CmlParser
   if (yyn == 131)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1176 of "src/main/bison/cml.y"  */
+/* Line 1180 of "src/main/bison/cml.y"  */
     {
   ASingleTypeDeclaration singleTypeDeclaration = (ASingleTypeDeclaration)((yystack.valueAt (1-(1))));
   AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(singleTypeDeclaration.getLocation(), NameScope.GLOBAL, null, singleTypeDeclaration);
@@ -1952,7 +1956,7 @@ public class CmlParser
   if (yyn == 132)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1185 of "src/main/bison/cml.y"  */
+/* Line 1189 of "src/main/bison/cml.y"  */
     {
   List<ASingleTypeDeclaration> decls = new Vector<ASingleTypeDeclaration>();
   decls.add((ASingleTypeDeclaration)((yystack.valueAt (1-(1)))));
@@ -1965,7 +1969,7 @@ public class CmlParser
   if (yyn == 133)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1191 of "src/main/bison/cml.y"  */
+/* Line 1195 of "src/main/bison/cml.y"  */
     {
   List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)((yystack.valueAt (3-(1))));
   decls.add((ASingleTypeDeclaration)((yystack.valueAt (3-(3)))));
@@ -1978,7 +1982,7 @@ public class CmlParser
   if (yyn == 134)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1206 of "src/main/bison/cml.y"  */
+/* Line 1210 of "src/main/bison/cml.y"  */
     {
   List<LexNameToken> nameList = (List<LexNameToken>)((yystack.valueAt (3-(1))));
   List<LexIdentifierToken> ids = convertNameListToIdentifierList(nameList);
@@ -1993,7 +1997,7 @@ public class CmlParser
   if (yyn == 135)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1217 of "src/main/bison/cml.y"  */
+/* Line 1221 of "src/main/bison/cml.y"  */
     {
   CmlLexeme tok = (CmlLexeme)((yystack.valueAt (1-(1))));
   LexLocation loc = extractLexLocation( tok );
@@ -2008,7 +2012,7 @@ public class CmlParser
   if (yyn == 136)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1225 of "src/main/bison/cml.y"  */
+/* Line 1229 of "src/main/bison/cml.y"  */
     {
   CmlLexeme tok = (CmlLexeme)((yystack.valueAt (2-(1))));
   LexLocation loc = extractLexLocation ( tok );
@@ -2024,7 +2028,7 @@ public class CmlParser
   if (yyn == 137)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1237 of "src/main/bison/cml.y"  */
+/* Line 1241 of "src/main/bison/cml.y"  */
     {
   List<AChansetDefinition> defs = new Vector<AChansetDefinition>();
   defs.add((AChansetDefinition)((yystack.valueAt (1-(1)))));
@@ -2037,7 +2041,7 @@ public class CmlParser
   if (yyn == 138)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1243 of "src/main/bison/cml.y"  */
+/* Line 1247 of "src/main/bison/cml.y"  */
     {
   List<AChansetDefinition> defs = (List<AChansetDefinition>)((yystack.valueAt (2-(1))));
   defs.add((AChansetDefinition)((yystack.valueAt (2-(2)))));
@@ -2050,7 +2054,7 @@ public class CmlParser
   if (yyn == 139)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1252 of "src/main/bison/cml.y"  */
+/* Line 1256 of "src/main/bison/cml.y"  */
     {
   LexIdentifierToken idToken = extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (3-(1)))));
   SChansetSetBase chansetExp = (SChansetSetBase)((yystack.valueAt (3-(3))));
@@ -2064,7 +2068,7 @@ public class CmlParser
   if (yyn == 140)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1262 of "src/main/bison/cml.y"  */
+/* Line 1266 of "src/main/bison/cml.y"  */
     {
   LexIdentifierToken idToken = extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (1-(1)))));
   yyval = new AIdentifierChansetSetExp(idToken.getLocation(), idToken);
@@ -2076,7 +2080,7 @@ public class CmlParser
   if (yyn == 141)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1273 of "src/main/bison/cml.y"  */
+/* Line 1277 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))), (CmlLexeme)((yystack.valueAt (3-(3)))));
   List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)((yystack.valueAt (3-(2))));
@@ -2089,7 +2093,7 @@ public class CmlParser
   if (yyn == 142)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1279 of "src/main/bison/cml.y"  */
+/* Line 1283 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))), (CmlLexeme)((yystack.valueAt (3-(3)))));
   List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)((yystack.valueAt (3-(2))));
@@ -2102,7 +2106,7 @@ public class CmlParser
   if (yyn == 143)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1291 of "src/main/bison/cml.y"  */
+/* Line 1295 of "src/main/bison/cml.y"  */
     {
   PExp left = (PExp)((yystack.valueAt (3-(1))));
   PExp right = (PExp)((yystack.valueAt (3-(3))));
@@ -2116,7 +2120,7 @@ public class CmlParser
   if (yyn == 144)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1304 of "src/main/bison/cml.y"  */
+/* Line 1308 of "src/main/bison/cml.y"  */
     {
   PExp left = (PExp)((yystack.valueAt (3-(1))));
   PExp right = (PExp)((yystack.valueAt (3-(3))));
@@ -2130,7 +2134,7 @@ public class CmlParser
   if (yyn == 145)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1317 of "src/main/bison/cml.y"  */
+/* Line 1321 of "src/main/bison/cml.y"  */
     {
   PExp left = (PExp)((yystack.valueAt (3-(1))));
   PExp right = (PExp)((yystack.valueAt (3-(3))));
@@ -2146,7 +2150,7 @@ public class CmlParser
   if (yyn == 148)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1348 of "src/main/bison/cml.y"  */
+/* Line 1352 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -2157,7 +2161,7 @@ public class CmlParser
   if (yyn == 149)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1355 of "src/main/bison/cml.y"  */
+/* Line 1359 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -2168,7 +2172,7 @@ public class CmlParser
   if (yyn == 150)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1359 of "src/main/bison/cml.y"  */
+/* Line 1363 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -2179,7 +2183,7 @@ public class CmlParser
   if (yyn == 151)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1363 of "src/main/bison/cml.y"  */
+/* Line 1367 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -2190,7 +2194,7 @@ public class CmlParser
   if (yyn == 152)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1370 of "src/main/bison/cml.y"  */
+/* Line 1374 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (3-(2))));
 };
@@ -2201,7 +2205,7 @@ public class CmlParser
   if (yyn == 153)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1377 of "src/main/bison/cml.y"  */
+/* Line 1381 of "src/main/bison/cml.y"  */
     {
   List<PDefinition> defs = (List<PDefinition>)((yystack.valueAt (1-(1))));
   yyval = defs;
@@ -2213,7 +2217,7 @@ public class CmlParser
   if (yyn == 154)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1382 of "src/main/bison/cml.y"  */
+/* Line 1386 of "src/main/bison/cml.y"  */
     {
   List<PDefinition> defs = (List<PDefinition>) ((yystack.valueAt (2-(2))));
   List<PDefinition> newDefs = (List<PDefinition>) ((yystack.valueAt (2-(1))));
@@ -2227,7 +2231,7 @@ public class CmlParser
   if (yyn == 155)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1392 of "src/main/bison/cml.y"  */
+/* Line 1396 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -2238,7 +2242,7 @@ public class CmlParser
   if (yyn == 156)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1396 of "src/main/bison/cml.y"  */
+/* Line 1400 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -2249,7 +2253,7 @@ public class CmlParser
   if (yyn == 157)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1400 of "src/main/bison/cml.y"  */
+/* Line 1404 of "src/main/bison/cml.y"  */
     {
   List<SFunctionDefinition> functionDefs = (List<SFunctionDefinition>)((yystack.valueAt (1-(1))));
   yyval = functionDefs;
@@ -2261,7 +2265,7 @@ public class CmlParser
   if (yyn == 158)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1405 of "src/main/bison/cml.y"  */
+/* Line 1409 of "src/main/bison/cml.y"  */
     {
   List<SOperationDefinition> operationDefs = (List<SOperationDefinition>)((yystack.valueAt (1-(1))));
   yyval = operationDefs;
@@ -2273,7 +2277,7 @@ public class CmlParser
   if (yyn == 159)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1410 of "src/main/bison/cml.y"  */
+/* Line 1414 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -2284,7 +2288,7 @@ public class CmlParser
   if (yyn == 161)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1421 of "src/main/bison/cml.y"  */
+/* Line 1425 of "src/main/bison/cml.y"  */
     {
   yyval = new LinkedList<ATypeDefinition>();
 };
@@ -2295,7 +2299,7 @@ public class CmlParser
   if (yyn == 162)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1425 of "src/main/bison/cml.y"  */
+/* Line 1429 of "src/main/bison/cml.y"  */
     {
   yyval = (List<ATypeDefinition>)((yystack.valueAt (3-(2))));
 };
@@ -2306,7 +2310,7 @@ public class CmlParser
   if (yyn == 163)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1429 of "src/main/bison/cml.y"  */
+/* Line 1433 of "src/main/bison/cml.y"  */
     {
   List<ATypeDefinition> tdefs = (List<ATypeDefinition>)((yystack.valueAt (2-(2))));
   yyval = tdefs;
@@ -2318,7 +2322,7 @@ public class CmlParser
   if (yyn == 164)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1437 of "src/main/bison/cml.y"  */
+/* Line 1441 of "src/main/bison/cml.y"  */
     {
   List<ATypeDefinition> list = new Vector<ATypeDefinition>();
   list.add((ATypeDefinition)((yystack.valueAt (1-(1)))));
@@ -2331,7 +2335,7 @@ public class CmlParser
   if (yyn == 165)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1443 of "src/main/bison/cml.y"  */
+/* Line 1447 of "src/main/bison/cml.y"  */
     {
   List<ATypeDefinition> list = (List<ATypeDefinition>)((yystack.valueAt (3-(1))));
   list.add((ATypeDefinition)((yystack.valueAt (3-(3)))));
@@ -2344,19 +2348,31 @@ public class CmlParser
   if (yyn == 166)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1452 of "src/main/bison/cml.y"  */
+/* Line 1456 of "src/main/bison/cml.y"  */
     {
   AAccessSpecifier access = (AAccessSpecifier)((yystack.valueAt (5-(1))));
   LexNameToken name = extractLexNameToken((CmlLexeme)((yystack.valueAt (5-(2)))));
-  SInvariantType inv = (SInvariantType)((yystack.valueAt (5-(5))));
+  AInvariantDefinition inv = (AInvariantDefinition)((yystack.valueAt (5-(5)))); 
+  //SInvariantType inv = (SInvariantType)$5;
   LexLocation location = null;
   if (access.getLocation() != null) {
     location = combineLexLocation(access.getLocation(), inv.getLocation());
   } else {
     location = combineLexLocation(name.getLocation(), inv.getLocation());
   }
-  ATypeDefinition typeDef = new ATypeDefinition(location, NameScope.GLOBAL, false, access, null, null, null, false);
-  typeDef.setInvType(inv);
+  
+  ATypeDefinition typeDef = new ATypeDefinition(location, 
+						name, 
+						NameScope.GLOBAL, 
+						false/*Boolean used_*/, 
+						null/*PDeclaration declaration_*/, 
+						access, 
+						(PType)((yystack.valueAt (5-(4)))), 
+						null/*SInvariantType invType_*/, 
+						inv.getPattern()/*PPattern invPattern_*/, 
+						inv.getExpression()/*PExp invExpression_*/, 
+						null /*AExplicitFunctionDefinition invdef_*/, 
+						false/*Boolean infinite_*/);
   yyval = typeDef;
 };
   break;
@@ -2366,7 +2382,7 @@ public class CmlParser
   if (yyn == 167)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1467 of "src/main/bison/cml.y"  */
+/* Line 1483 of "src/main/bison/cml.y"  */
     {
   AAccessSpecifier access = (AAccessSpecifier)((yystack.valueAt (4-(1))));
   LexNameToken name = extractLexNameToken((CmlLexeme)((yystack.valueAt (4-(2)))));
@@ -2376,7 +2392,18 @@ public class CmlParser
   } else {
       location = combineLexLocation(name.getLocation(), ((PType)((yystack.valueAt (4-(4))))).getLocation());
   }
-  yyval = new ATypeDefinition();
+  yyval = new ATypeDefinition(location, 
+			   name, 
+			   NameScope.GLOBAL, 
+			   false/*Boolean used_*/, 
+			   null/*PDeclaration declaration_*/, 
+			   access, 
+			   (PType)((yystack.valueAt (4-(4)))), 
+			   null/*SInvariantType invType_*/, 
+			   null/*PPattern invPattern_*/, 
+			   null/*PExp invExpression_*/, 
+			   null /*AExplicitFunctionDefinition invdef_*/, 
+			   false/*Boolean infinite_*/);
 };
   break;
     
@@ -2385,7 +2412,7 @@ public class CmlParser
   if (yyn == 168)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1479 of "src/main/bison/cml.y"  */
+/* Line 1506 of "src/main/bison/cml.y"  */
     {
   AAccessSpecifier access = (AAccessSpecifier)((yystack.valueAt (4-(1))));
   LexNameToken name = extractLexNameToken((CmlLexeme)((yystack.valueAt (4-(2)))));
@@ -2403,7 +2430,7 @@ public class CmlParser
   if (yyn == 169)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1490 of "src/main/bison/cml.y"  */
+/* Line 1517 of "src/main/bison/cml.y"  */
     {
   AAccessSpecifier access = (AAccessSpecifier)((yystack.valueAt (5-(1))));
   LexNameToken name = extractLexNameToken((CmlLexeme)((yystack.valueAt (5-(2)))));
@@ -2424,7 +2451,7 @@ public class CmlParser
   if (yyn == 170)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1513 of "src/main/bison/cml.y"  */
+/* Line 1540 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
   AAccessSpecifier res = new AAccessSpecifier();
@@ -2439,7 +2466,7 @@ public class CmlParser
   if (yyn == 171)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1521 of "src/main/bison/cml.y"  */
+/* Line 1548 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
   AAccessSpecifier res = new AAccessSpecifier();
@@ -2454,7 +2481,7 @@ public class CmlParser
   if (yyn == 172)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1529 of "src/main/bison/cml.y"  */
+/* Line 1556 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
   AAccessSpecifier res = new AAccessSpecifier();
@@ -2469,7 +2496,7 @@ public class CmlParser
   if (yyn == 173)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1544 of "src/main/bison/cml.y"  */
+/* Line 1571 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
   yyval = new AAccessSpecifier(new ALogicalAccess(), null, null, location);
@@ -2481,7 +2508,7 @@ public class CmlParser
   if (yyn == 174)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1549 of "src/main/bison/cml.y"  */
+/* Line 1576 of "src/main/bison/cml.y"  */
     {
   /*Default private*/
   AAccessSpecifier a = new AAccessSpecifier();
@@ -2495,7 +2522,7 @@ public class CmlParser
   if (yyn == 175)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1559 of "src/main/bison/cml.y"  */
+/* Line 1586 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (3-(2))));
 };
@@ -2506,7 +2533,7 @@ public class CmlParser
   if (yyn == 176)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1563 of "src/main/bison/cml.y"  */
+/* Line 1590 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -2517,7 +2544,7 @@ public class CmlParser
   if (yyn == 177)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1567 of "src/main/bison/cml.y"  */
+/* Line 1594 of "src/main/bison/cml.y"  */
     {
   LexQuoteToken value = (LexQuoteToken)((yystack.valueAt (1-(1))));
   yyval = new AQuoteType(value.location, false, null, value);
@@ -2529,7 +2556,7 @@ public class CmlParser
   if (yyn == 179)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1573 of "src/main/bison/cml.y"  */
+/* Line 1600 of "src/main/bison/cml.y"  */
     {
   /* FIXME --- Make union type concatenation smarter
    *
@@ -2555,7 +2582,7 @@ public class CmlParser
   if (yyn == 180)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1592 of "src/main/bison/cml.y"  */
+/* Line 1619 of "src/main/bison/cml.y"  */
     {
   /* FIXME --- Make product type concatenation smarter
    *
@@ -2579,7 +2606,7 @@ public class CmlParser
   if (yyn == 181)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1609 of "src/main/bison/cml.y"  */
+/* Line 1636 of "src/main/bison/cml.y"  */
     {
   yyval = new  AOptionalType(extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))), (CmlLexeme)((yystack.valueAt (3-(3))))), false, null, (PType)((yystack.valueAt (3-(2)))));
 };
@@ -2590,7 +2617,7 @@ public class CmlParser
   if (yyn == 182)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1613 of "src/main/bison/cml.y"  */
+/* Line 1640 of "src/main/bison/cml.y"  */
     {
   CmlLexeme setof = (CmlLexeme)((yystack.valueAt (2-(1))));
   PType type = (PType)((yystack.valueAt (2-(2))));
@@ -2605,7 +2632,7 @@ public class CmlParser
   if (yyn == 183)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1621 of "src/main/bison/cml.y"  */
+/* Line 1648 of "src/main/bison/cml.y"  */
     {
   CmlLexeme seqof = (CmlLexeme)((yystack.valueAt (2-(1))));
   PType type = (PType)((yystack.valueAt (2-(2))));
@@ -2620,7 +2647,7 @@ public class CmlParser
   if (yyn == 184)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1629 of "src/main/bison/cml.y"  */
+/* Line 1656 of "src/main/bison/cml.y"  */
     {
   CmlLexeme seqof = (CmlLexeme)((yystack.valueAt (2-(1))));
   PType type = (PType)((yystack.valueAt (2-(2))));
@@ -2635,7 +2662,7 @@ public class CmlParser
   if (yyn == 185)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1637 of "src/main/bison/cml.y"  */
+/* Line 1664 of "src/main/bison/cml.y"  */
     {
   CmlLexeme mapof = (CmlLexeme)((yystack.valueAt (4-(1))));
   PType from = (PType)((yystack.valueAt (4-(2))));
@@ -2651,7 +2678,7 @@ public class CmlParser
   if (yyn == 186)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1646 of "src/main/bison/cml.y"  */
+/* Line 1673 of "src/main/bison/cml.y"  */
     {
   CmlLexeme mapof = (CmlLexeme)((yystack.valueAt (4-(1))));
   PType from = (PType)((yystack.valueAt (4-(2))));
@@ -2667,7 +2694,7 @@ public class CmlParser
   if (yyn == 187)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1655 of "src/main/bison/cml.y"  */
+/* Line 1682 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -2678,7 +2705,7 @@ public class CmlParser
   if (yyn == 191)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1674 of "src/main/bison/cml.y"  */
+/* Line 1701 of "src/main/bison/cml.y"  */
     {
   yyval = new ABooleanBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))), false);
 };
@@ -2689,7 +2716,7 @@ public class CmlParser
   if (yyn == 192)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1678 of "src/main/bison/cml.y"  */
+/* Line 1705 of "src/main/bison/cml.y"  */
     {
   yyval = new ANatNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))), false);
 };
@@ -2700,7 +2727,7 @@ public class CmlParser
   if (yyn == 193)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1682 of "src/main/bison/cml.y"  */
+/* Line 1709 of "src/main/bison/cml.y"  */
     {
   yyval = new ANatOneNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))), false);
 };
@@ -2711,7 +2738,7 @@ public class CmlParser
   if (yyn == 194)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1686 of "src/main/bison/cml.y"  */
+/* Line 1713 of "src/main/bison/cml.y"  */
     {
   yyval = new AIntNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))), false);
 };
@@ -2722,7 +2749,7 @@ public class CmlParser
   if (yyn == 195)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1690 of "src/main/bison/cml.y"  */
+/* Line 1717 of "src/main/bison/cml.y"  */
     {
   yyval = new ARationalNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))), false);
 };
@@ -2733,7 +2760,7 @@ public class CmlParser
   if (yyn == 196)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1694 of "src/main/bison/cml.y"  */
+/* Line 1721 of "src/main/bison/cml.y"  */
     {
   yyval = new ARealNumericBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))), false);
 };
@@ -2744,7 +2771,7 @@ public class CmlParser
   if (yyn == 197)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1698 of "src/main/bison/cml.y"  */
+/* Line 1725 of "src/main/bison/cml.y"  */
     {
   yyval = new ACharBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))), false);
 };
@@ -2755,7 +2782,7 @@ public class CmlParser
   if (yyn == 198)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1702 of "src/main/bison/cml.y"  */
+/* Line 1729 of "src/main/bison/cml.y"  */
     {
   yyval = new ATokenBasicType(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))), false);
 };
@@ -2766,7 +2793,7 @@ public class CmlParser
   if (yyn == 199)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1709 of "src/main/bison/cml.y"  */
+/* Line 1736 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -2777,7 +2804,7 @@ public class CmlParser
   if (yyn == 200)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1713 of "src/main/bison/cml.y"  */
+/* Line 1740 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -2788,7 +2815,7 @@ public class CmlParser
   if (yyn == 201)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1720 of "src/main/bison/cml.y"  */
+/* Line 1747 of "src/main/bison/cml.y"  */
     {
   PType domType = (PType)((yystack.valueAt (3-(1))));
   PType rngType = (PType)((yystack.valueAt (3-(3))));
@@ -2808,7 +2835,7 @@ public class CmlParser
   if (yyn == 202)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1733 of "src/main/bison/cml.y"  */
+/* Line 1760 of "src/main/bison/cml.y"  */
     {
   PType domType = new AVoidType(extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1))))), true);
   PType rngType = (PType)((yystack.valueAt (3-(3))));
@@ -2828,7 +2855,7 @@ public class CmlParser
   if (yyn == 203)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1749 of "src/main/bison/cml.y"  */
+/* Line 1776 of "src/main/bison/cml.y"  */
     {
   PType domType = (PType)((yystack.valueAt (3-(1))));
   PType rngType = (PType)((yystack.valueAt (3-(3))));
@@ -2848,7 +2875,7 @@ public class CmlParser
   if (yyn == 204)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1762 of "src/main/bison/cml.y"  */
+/* Line 1789 of "src/main/bison/cml.y"  */
     {
   PType domType = new AVoidType(extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1))))), true);
   PType rngType = (PType)((yystack.valueAt (3-(3))));
@@ -2868,7 +2895,7 @@ public class CmlParser
   if (yyn == 205)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1778 of "src/main/bison/cml.y"  */
+/* Line 1805 of "src/main/bison/cml.y"  */
     {
   CmlLexeme id = (CmlLexeme)((yystack.valueAt (1-(1))));
   LexLocation loc = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
@@ -2882,7 +2909,7 @@ public class CmlParser
   if (yyn == 206)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1788 of "src/main/bison/cml.y"  */
+/* Line 1815 of "src/main/bison/cml.y"  */
     {
   List<AFieldField> res = new LinkedList<AFieldField>();
   res.add((AFieldField)((yystack.valueAt (1-(1)))));
@@ -2895,7 +2922,7 @@ public class CmlParser
   if (yyn == 207)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1794 of "src/main/bison/cml.y"  */
+/* Line 1821 of "src/main/bison/cml.y"  */
     {
   List<AFieldField> head = (List<AFieldField>)((yystack.valueAt (2-(1))));
   head.add((AFieldField)((yystack.valueAt (2-(2)))));
@@ -2908,7 +2935,7 @@ public class CmlParser
   if (yyn == 208)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1803 of "src/main/bison/cml.y"  */
+/* Line 1830 of "src/main/bison/cml.y"  */
     {
   yyval = new AFieldField(null, null, null, (PType)((yystack.valueAt (1-(1)))), null);
 };
@@ -2919,7 +2946,7 @@ public class CmlParser
   if (yyn == 209)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1807 of "src/main/bison/cml.y"  */
+/* Line 1834 of "src/main/bison/cml.y"  */
     {
   LexNameToken name = extractLexNameToken((CmlLexeme)((yystack.valueAt (3-(1)))));
   PType type = (PType) ((yystack.valueAt (3-(3))));
@@ -2932,7 +2959,7 @@ public class CmlParser
   if (yyn == 210)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1813 of "src/main/bison/cml.y"  */
+/* Line 1840 of "src/main/bison/cml.y"  */
     {
   // TODO --- dude, that's harsh
   throw new RuntimeException("No way");
@@ -2944,7 +2971,7 @@ public class CmlParser
   if (yyn == 211)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1821 of "src/main/bison/cml.y"  */
+/* Line 1848 of "src/main/bison/cml.y"  */
     {
   LexIdentifierToken name = null; // cannot be desided here
   CmlLexeme vdmInvLexeme = (CmlLexeme)((yystack.valueAt (4-(1))));
@@ -2970,7 +2997,7 @@ public class CmlParser
   if (yyn == 212)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1843 of "src/main/bison/cml.y"  */
+/* Line 1870 of "src/main/bison/cml.y"  */
     {
   List<PDefinition> defs = (List<PDefinition>)((yystack.valueAt (2-(2))));
   yyval = defs;
@@ -2982,7 +3009,7 @@ public class CmlParser
   if (yyn == 213)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1882 of "src/main/bison/cml.y"  */
+/* Line 1909 of "src/main/bison/cml.y"  */
     {
   List<PDefinition> defs = new LinkedList<PDefinition>();
   defs.add((PDefinition)((yystack.valueAt (1-(1)))));
@@ -2995,7 +3022,7 @@ public class CmlParser
   if (yyn == 214)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1888 of "src/main/bison/cml.y"  */
+/* Line 1915 of "src/main/bison/cml.y"  */
     {
   List<PDefinition> defs = new LinkedList<PDefinition>();
   defs.add((PDefinition)((yystack.valueAt (2-(1)))));
@@ -3008,7 +3035,7 @@ public class CmlParser
   if (yyn == 215)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1894 of "src/main/bison/cml.y"  */
+/* Line 1921 of "src/main/bison/cml.y"  */
     {
   PDefinition def = (PDefinition)((yystack.valueAt (3-(1))));
   List<PDefinition> defs = (List<PDefinition>)((yystack.valueAt (3-(3))));
@@ -3022,7 +3049,7 @@ public class CmlParser
   if (yyn == 216)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1904 of "src/main/bison/cml.y"  */
+/* Line 1931 of "src/main/bison/cml.y"  */
     {
   AAccessSpecifier access = (AAccessSpecifier)((yystack.valueAt (2-(1))));
   PDefinition def = (PDefinition)((yystack.valueAt (2-(2))));
@@ -3036,7 +3063,7 @@ public class CmlParser
   if (yyn == 217)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1914 of "src/main/bison/cml.y"  */
+/* Line 1941 of "src/main/bison/cml.y"  */
     {
   CmlLexeme id = (CmlLexeme)((yystack.valueAt (5-(1))));
   PType type = (PType)((yystack.valueAt (5-(3))));
@@ -3060,7 +3087,7 @@ public class CmlParser
   if (yyn == 218)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1931 of "src/main/bison/cml.y"  */
+/* Line 1958 of "src/main/bison/cml.y"  */
     {
   PPattern pattern = (PPattern)((yystack.valueAt (5-(1))));
   PType type = (PType)((yystack.valueAt (5-(3))));
@@ -3080,7 +3107,7 @@ public class CmlParser
   if (yyn == 219)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1944 of "src/main/bison/cml.y"  */
+/* Line 1971 of "src/main/bison/cml.y"  */
     {
   CmlLexeme id = (CmlLexeme)((yystack.valueAt (3-(1))));
   PExp expression = (PExp)((yystack.valueAt (3-(3))));
@@ -3101,7 +3128,7 @@ public class CmlParser
   if (yyn == 220)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1958 of "src/main/bison/cml.y"  */
+/* Line 1985 of "src/main/bison/cml.y"  */
     {
   PPattern pattern = (PPattern)((yystack.valueAt (3-(1))));
   PExp expression = (PExp)((yystack.valueAt (3-(3))));
@@ -3120,7 +3147,7 @@ public class CmlParser
   if (yyn == 221)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1973 of "src/main/bison/cml.y"  */
+/* Line 2000 of "src/main/bison/cml.y"  */
     {
   List<SFunctionDefinition> functionDefs = new LinkedList<SFunctionDefinition>();
   yyval = functionDefs;
@@ -3132,7 +3159,7 @@ public class CmlParser
   if (yyn == 222)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1978 of "src/main/bison/cml.y"  */
+/* Line 2005 of "src/main/bison/cml.y"  */
     {
   List<SFunctionDefinition> functionDefs = (List<SFunctionDefinition>) ((yystack.valueAt (2-(2))));
   yyval = functionDefs;
@@ -3144,7 +3171,7 @@ public class CmlParser
   if (yyn == 223)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1986 of "src/main/bison/cml.y"  */
+/* Line 2013 of "src/main/bison/cml.y"  */
     {
   List<SFunctionDefinition> functionList = new Vector<SFunctionDefinition>();
   functionList.add((SFunctionDefinition)((yystack.valueAt (1-(1)))));
@@ -3157,7 +3184,7 @@ public class CmlParser
   if (yyn == 224)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1992 of "src/main/bison/cml.y"  */
+/* Line 2019 of "src/main/bison/cml.y"  */
     {
   List<SFunctionDefinition> functionList = new Vector<SFunctionDefinition>();
   functionList.add((SFunctionDefinition)((yystack.valueAt (2-(1)))));
@@ -3170,7 +3197,7 @@ public class CmlParser
   if (yyn == 225)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 1998 of "src/main/bison/cml.y"  */
+/* Line 2025 of "src/main/bison/cml.y"  */
     {
   List<SFunctionDefinition> functionList = (List<SFunctionDefinition>)((yystack.valueAt (3-(3))));
   functionList.add((SFunctionDefinition)((yystack.valueAt (3-(1)))));
@@ -3183,7 +3210,7 @@ public class CmlParser
   if (yyn == 226)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2007 of "src/main/bison/cml.y"  */
+/* Line 2034 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -3194,7 +3221,7 @@ public class CmlParser
   if (yyn == 227)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2011 of "src/main/bison/cml.y"  */
+/* Line 2038 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -3205,7 +3232,7 @@ public class CmlParser
   if (yyn == 228)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2018 of "src/main/bison/cml.y"  */
+/* Line 2045 of "src/main/bison/cml.y"  */
     {
   AAccessSpecifier access = (AAccessSpecifier)((yystack.valueAt (6-(1))));
   LexNameToken name = extractLexNameToken((CmlLexeme)((yystack.valueAt (6-(2)))));
@@ -3231,7 +3258,7 @@ public class CmlParser
   if (yyn == 229)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2040 of "src/main/bison/cml.y"  */
+/* Line 2067 of "src/main/bison/cml.y"  */
     {
   AAccessSpecifier access = (AAccessSpecifier)((yystack.valueAt (2-(1))));
   AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)((yystack.valueAt (2-(2))));
@@ -3245,7 +3272,7 @@ public class CmlParser
   if (yyn == 230)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2050 of "src/main/bison/cml.y"  */
+/* Line 2077 of "src/main/bison/cml.y"  */
     {
   LexNameToken name = extractLexNameToken((CmlLexeme)((yystack.valueAt (10-(1)))));
   LexLocation loc = extractLexLocation((CmlLexeme)((yystack.valueAt (10-(1)))));
@@ -3263,7 +3290,7 @@ public class CmlParser
   if (yyn == 231)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2065 of "src/main/bison/cml.y"  */
+/* Line 2092 of "src/main/bison/cml.y"  */
     {
   List<List<PPattern>> patternListList = new Vector<List<PPattern>>();
   yyval = patternListList;
@@ -3275,7 +3302,7 @@ public class CmlParser
   if (yyn == 232)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2070 of "src/main/bison/cml.y"  */
+/* Line 2097 of "src/main/bison/cml.y"  */
     {
   List<PPattern> patternList = (List<PPattern>)((yystack.valueAt (3-(2))));
   List<List<PPattern>> patternListList = new Vector<List<PPattern>>();
@@ -3289,7 +3316,7 @@ public class CmlParser
   if (yyn == 233)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2077 of "src/main/bison/cml.y"  */
+/* Line 2104 of "src/main/bison/cml.y"  */
     {
   List<PPattern> patternList = (List<PPattern>)((yystack.valueAt (4-(3))));
   List<List<PPattern>> patternListList = (List<List<PPattern>>)((yystack.valueAt (4-(1))));
@@ -3303,7 +3330,7 @@ public class CmlParser
   if (yyn == 234)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2087 of "src/main/bison/cml.y"  */
+/* Line 2114 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -3314,7 +3341,7 @@ public class CmlParser
   if (yyn == 235)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2091 of "src/main/bison/cml.y"  */
+/* Line 2118 of "src/main/bison/cml.y"  */
     {
   yyval = new ASubclassResponsibilityExp(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))));
 };
@@ -3325,7 +3352,7 @@ public class CmlParser
   if (yyn == 236)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2095 of "src/main/bison/cml.y"  */
+/* Line 2122 of "src/main/bison/cml.y"  */
     {
   yyval = new ANotYetSpecifiedExp(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))));
 };
@@ -3336,7 +3363,7 @@ public class CmlParser
   if (yyn == 237)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2102 of "src/main/bison/cml.y"  */
+/* Line 2129 of "src/main/bison/cml.y"  */
     {
   yyval = new Vector<APatternListTypePair>();
 };
@@ -3347,7 +3374,7 @@ public class CmlParser
   if (yyn == 238)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2106 of "src/main/bison/cml.y"  */
+/* Line 2133 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (3-(2))));
 };
@@ -3358,7 +3385,7 @@ public class CmlParser
   if (yyn == 239)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2113 of "src/main/bison/cml.y"  */
+/* Line 2140 of "src/main/bison/cml.y"  */
     {
   List<PPattern> patternList = (List<PPattern>)((yystack.valueAt (3-(1))));
   List<APatternListTypePair> pltpl = new Vector<APatternListTypePair>();
@@ -3372,7 +3399,7 @@ public class CmlParser
   if (yyn == 240)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2120 of "src/main/bison/cml.y"  */
+/* Line 2147 of "src/main/bison/cml.y"  */
     {
   List<APatternListTypePair> pltpl = (List<APatternListTypePair>)((yystack.valueAt (5-(1))));
   List<PPattern> patternList = (List<PPattern>)((yystack.valueAt (5-(3))));
@@ -3386,7 +3413,7 @@ public class CmlParser
   if (yyn == 241)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2130 of "src/main/bison/cml.y"  */
+/* Line 2157 of "src/main/bison/cml.y"  */
     {
   yyval = null;
 };
@@ -3397,7 +3424,7 @@ public class CmlParser
   if (yyn == 242)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2134 of "src/main/bison/cml.y"  */
+/* Line 2161 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -3408,7 +3435,7 @@ public class CmlParser
   if (yyn == 243)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2141 of "src/main/bison/cml.y"  */
+/* Line 2168 of "src/main/bison/cml.y"  */
     {
   AIdentifierTypePair typePair = new AIdentifierTypePair(null, extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (3-(1))))), (PType)((yystack.valueAt (3-(3)))));
   List<AIdentifierTypePair> typePairs = new Vector<AIdentifierTypePair>();
@@ -3422,7 +3449,7 @@ public class CmlParser
   if (yyn == 244)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2148 of "src/main/bison/cml.y"  */
+/* Line 2175 of "src/main/bison/cml.y"  */
     {
   AIdentifierTypePair typePair = new AIdentifierTypePair(null, extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (5-(3))))), (PType)((yystack.valueAt (5-(5)))));
   List<AIdentifierTypePair> typePairs = (List<AIdentifierTypePair>)((yystack.valueAt (5-(1))));
@@ -3436,7 +3463,7 @@ public class CmlParser
   if (yyn == 245)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2158 of "src/main/bison/cml.y"  */
+/* Line 2185 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -3447,7 +3474,7 @@ public class CmlParser
   if (yyn == 246)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2162 of "src/main/bison/cml.y"  */
+/* Line 2189 of "src/main/bison/cml.y"  */
     {
   yyval = null;
 };
@@ -3458,7 +3485,7 @@ public class CmlParser
   if (yyn == 247)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2169 of "src/main/bison/cml.y"  */
+/* Line 2196 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (2-(2))));
 };
@@ -3469,7 +3496,7 @@ public class CmlParser
   if (yyn == 248)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2176 of "src/main/bison/cml.y"  */
+/* Line 2203 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -3480,7 +3507,7 @@ public class CmlParser
   if (yyn == 249)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2180 of "src/main/bison/cml.y"  */
+/* Line 2207 of "src/main/bison/cml.y"  */
     {
     yyval = null;
 };
@@ -3491,7 +3518,7 @@ public class CmlParser
   if (yyn == 250)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2187 of "src/main/bison/cml.y"  */
+/* Line 2214 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (2-(2))));
 };
@@ -3502,7 +3529,7 @@ public class CmlParser
   if (yyn == 251)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2199 of "src/main/bison/cml.y"  */
+/* Line 2226 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (2-(2))));
 };
@@ -3513,7 +3540,7 @@ public class CmlParser
   if (yyn == 253)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2207 of "src/main/bison/cml.y"  */
+/* Line 2234 of "src/main/bison/cml.y"  */
     {
   List<? extends SOperationDefinition> opDefinitions = (List<? extends SOperationDefinition>)((yystack.valueAt (2-(2))));
   yyval = opDefinitions;
@@ -3525,7 +3552,7 @@ public class CmlParser
   if (yyn == 254)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2212 of "src/main/bison/cml.y"  */
+/* Line 2239 of "src/main/bison/cml.y"  */
     {
   yyval = new LinkedList<SOperationDefinition>();
 };
@@ -3536,7 +3563,7 @@ public class CmlParser
   if (yyn == 255)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2219 of "src/main/bison/cml.y"  */
+/* Line 2246 of "src/main/bison/cml.y"  */
     {
     List<SOperationDefinition> opDefinitions = new Vector<SOperationDefinition>();
     opDefinitions.add((SOperationDefinition)((yystack.valueAt (1-(1)))));
@@ -3549,7 +3576,7 @@ public class CmlParser
   if (yyn == 256)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2232 of "src/main/bison/cml.y"  */
+/* Line 2259 of "src/main/bison/cml.y"  */
     {
     List<SOperationDefinition> opDefinitions = (List<SOperationDefinition>)((yystack.valueAt (3-(1))));
     opDefinitions.add((SOperationDefinition)((yystack.valueAt (3-(3)))));
@@ -3562,7 +3589,7 @@ public class CmlParser
   if (yyn == 257)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2243 of "src/main/bison/cml.y"  */
+/* Line 2270 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -3573,7 +3600,7 @@ public class CmlParser
   if (yyn == 258)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2247 of "src/main/bison/cml.y"  */
+/* Line 2274 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -3584,7 +3611,7 @@ public class CmlParser
   if (yyn == 259)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2254 of "src/main/bison/cml.y"  */
+/* Line 2281 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = extractLexLocation((CmlLexeme)((yystack.valueAt (10-(2)))));
   AExplicitOperationDefinition res = new AExplicitOperationDefinition();
@@ -3599,7 +3626,7 @@ public class CmlParser
   if (yyn == 260)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2265 of "src/main/bison/cml.y"  */
+/* Line 2292 of "src/main/bison/cml.y"  */
     {
   AAccessSpecifier access = (AAccessSpecifier)((yystack.valueAt (7-(1))));
   LexNameToken name = extractLexNameToken((CmlLexeme)((yystack.valueAt (7-(2)))));
@@ -3625,7 +3652,7 @@ public class CmlParser
   if (yyn == 267)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2303 of "src/main/bison/cml.y"  */
+/* Line 2330 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -3636,7 +3663,7 @@ public class CmlParser
   if (yyn == 268)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2307 of "src/main/bison/cml.y"  */
+/* Line 2334 of "src/main/bison/cml.y"  */
     {
   yyval = new ASubclassResponsibilityAction(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))));
 };
@@ -3647,7 +3674,7 @@ public class CmlParser
   if (yyn == 269)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2311 of "src/main/bison/cml.y"  */
+/* Line 2338 of "src/main/bison/cml.y"  */
     {
   yyval = new ANotYetSpecifiedAction(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))), null, null);
 };
@@ -3658,7 +3685,7 @@ public class CmlParser
   if (yyn == 270)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2318 of "src/main/bison/cml.y"  */
+/* Line 2345 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -3669,7 +3696,7 @@ public class CmlParser
   if (yyn == 271)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2322 of "src/main/bison/cml.y"  */
+/* Line 2349 of "src/main/bison/cml.y"  */
     {
   yyval = null;
 };
@@ -3680,7 +3707,7 @@ public class CmlParser
   if (yyn == 272)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2329 of "src/main/bison/cml.y"  */
+/* Line 2356 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (2-(2))));
 };
@@ -3691,7 +3718,7 @@ public class CmlParser
   if (yyn == 273)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2336 of "src/main/bison/cml.y"  */
+/* Line 2363 of "src/main/bison/cml.y"  */
     {
   List<AExternalClause> infoList = new Vector<AExternalClause>();
   infoList.add((AExternalClause)((yystack.valueAt (1-(1)))));
@@ -3704,7 +3731,7 @@ public class CmlParser
   if (yyn == 274)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2342 of "src/main/bison/cml.y"  */
+/* Line 2369 of "src/main/bison/cml.y"  */
     {
   List<AExternalClause> infoList = (List<AExternalClause>)((yystack.valueAt (2-(1))));
   infoList.add((AExternalClause)((yystack.valueAt (2-(2)))));
@@ -3717,7 +3744,7 @@ public class CmlParser
   if (yyn == 275)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2351 of "src/main/bison/cml.y"  */
+/* Line 2378 of "src/main/bison/cml.y"  */
     {
   yyval = new AExternalClause((LexToken)((yystack.valueAt (2-(1)))), (List<? extends LexNameToken>)((yystack.valueAt (2-(2)))));
 };
@@ -3728,7 +3755,7 @@ public class CmlParser
   if (yyn == 276)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2355 of "src/main/bison/cml.y"  */
+/* Line 2382 of "src/main/bison/cml.y"  */
     {
   yyval = new AExternalClause((LexToken)((yystack.valueAt (4-(1)))), (List<? extends LexNameToken>)((yystack.valueAt (4-(2)))), (PType)((yystack.valueAt (4-(4)))));
 };
@@ -3739,7 +3766,7 @@ public class CmlParser
   if (yyn == 277)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2362 of "src/main/bison/cml.y"  */
+/* Line 2389 of "src/main/bison/cml.y"  */
     {
   yyval = new LexToken(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))), VDMToken.READ); // TODO why are we using VDMToken?
 };
@@ -3750,7 +3777,7 @@ public class CmlParser
   if (yyn == 278)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2366 of "src/main/bison/cml.y"  */
+/* Line 2393 of "src/main/bison/cml.y"  */
     {
   yyval = new LexToken(extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))), VDMToken.WRITE); // TODO why are we using VDMToken?
 };
@@ -3761,7 +3788,7 @@ public class CmlParser
   if (yyn == 279)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2391 of "src/main/bison/cml.y"  */
+/* Line 2418 of "src/main/bison/cml.y"  */
     {
   List<AStateDefinition> stateDefs = (List<AStateDefinition>)((yystack.valueAt (2-(2))));
   yyval = stateDefs;
@@ -3773,7 +3800,7 @@ public class CmlParser
   if (yyn == 280)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2396 of "src/main/bison/cml.y"  */
+/* Line 2423 of "src/main/bison/cml.y"  */
     {
   yyval  = new LinkedList<AStateDefinition>();
 };
@@ -3784,7 +3811,7 @@ public class CmlParser
   if (yyn == 281)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2403 of "src/main/bison/cml.y"  */
+/* Line 2430 of "src/main/bison/cml.y"  */
     {
   AStateDefinition stateDef = new AStateDefinition();
   List<PDefinition> defs = new Vector<PDefinition>();
@@ -3799,7 +3826,7 @@ public class CmlParser
   if (yyn == 282)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2411 of "src/main/bison/cml.y"  */
+/* Line 2438 of "src/main/bison/cml.y"  */
     {
   AStateDefinition stateDef = new AStateDefinition();
   List<PDefinition> defs = new Vector<PDefinition>();
@@ -3814,7 +3841,7 @@ public class CmlParser
   if (yyn == 283)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2419 of "src/main/bison/cml.y"  */
+/* Line 2446 of "src/main/bison/cml.y"  */
     {
   AStateDefinition stateDef = (AStateDefinition)((yystack.valueAt (3-(3))));
   stateDef.getStateDefs().add((PDefinition)((yystack.valueAt (3-(1)))));
@@ -3827,7 +3854,7 @@ public class CmlParser
   if (yyn == 284)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2428 of "src/main/bison/cml.y"  */
+/* Line 2455 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (2-(2))));
 };
@@ -3838,7 +3865,7 @@ public class CmlParser
   if (yyn == 285)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2432 of "src/main/bison/cml.y"  */
+/* Line 2459 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp) ((yystack.valueAt (2-(2))));
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))), exp.getLocation());
@@ -3851,7 +3878,7 @@ public class CmlParser
   if (yyn == 286)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2441 of "src/main/bison/cml.y"  */
+/* Line 2468 of "src/main/bison/cml.y"  */
     {
   List<PExp> exps = new Vector<PExp>();
   exps.add((PExp)((yystack.valueAt (1-(1)))));
@@ -3864,7 +3891,7 @@ public class CmlParser
   if (yyn == 287)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2447 of "src/main/bison/cml.y"  */
+/* Line 2474 of "src/main/bison/cml.y"  */
     {
   List<PExp> exps = (List<PExp>)((yystack.valueAt (3-(1))));
   exps.add((PExp)((yystack.valueAt (3-(3)))));
@@ -3877,7 +3904,7 @@ public class CmlParser
   if (yyn == 288)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2467 of "src/main/bison/cml.y"  */
+/* Line 2494 of "src/main/bison/cml.y"  */
     {
   // Get a whole STRING from the lexer
   CmlLexeme s = (CmlLexeme)((yystack.valueAt (1-(1))));
@@ -3904,7 +3931,7 @@ public class CmlParser
   if (yyn == 289)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2487 of "src/main/bison/cml.y"  */
+/* Line 2514 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))), (CmlLexeme)((yystack.valueAt (3-(3)))));
   yyval = new ABracketedExp(loc, (PExp)((yystack.valueAt (3-(2)))));
@@ -3916,7 +3943,7 @@ public class CmlParser
   if (yyn == 290)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2492 of "src/main/bison/cml.y"  */
+/* Line 2519 of "src/main/bison/cml.y"  */
     {
   List<PDefinition> l = (List<PDefinition>)((yystack.valueAt (4-(2))));
   PExp e = (PExp)((yystack.valueAt (4-(4))));
@@ -3930,7 +3957,7 @@ public class CmlParser
   if (yyn == 291)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2499 of "src/main/bison/cml.y"  */
+/* Line 2526 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -3941,7 +3968,7 @@ public class CmlParser
   if (yyn == 292)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2503 of "src/main/bison/cml.y"  */
+/* Line 2530 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -3952,7 +3979,7 @@ public class CmlParser
   if (yyn == 293)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2507 of "src/main/bison/cml.y"  */
+/* Line 2534 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -3963,7 +3990,7 @@ public class CmlParser
   if (yyn == 294)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2511 of "src/main/bison/cml.y"  */
+/* Line 2538 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -3974,7 +4001,7 @@ public class CmlParser
   if (yyn == 295)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2516 of "src/main/bison/cml.y"  */
+/* Line 2543 of "src/main/bison/cml.y"  */
     {
   CmlLexeme forall = (CmlLexeme)((yystack.valueAt (4-(1))));
   List<PMultipleBind> binds = (List<PMultipleBind>)((yystack.valueAt (4-(2))));
@@ -3991,7 +4018,7 @@ public class CmlParser
   if (yyn == 296)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2526 of "src/main/bison/cml.y"  */
+/* Line 2553 of "src/main/bison/cml.y"  */
     {
   CmlLexeme exists = (CmlLexeme)((yystack.valueAt (4-(1))));
   List<PMultipleBind> binds = (List<PMultipleBind>)((yystack.valueAt (4-(2))));
@@ -4007,7 +4034,7 @@ public class CmlParser
   if (yyn == 297)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2535 of "src/main/bison/cml.y"  */
+/* Line 2562 of "src/main/bison/cml.y"  */
     {
   CmlLexeme exists = (CmlLexeme)((yystack.valueAt (4-(1))));
   PBind bind = (PBind)((yystack.valueAt (4-(2))));
@@ -4023,7 +4050,7 @@ public class CmlParser
   if (yyn == 298)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2545 of "src/main/bison/cml.y"  */
+/* Line 2572 of "src/main/bison/cml.y"  */
     {
   CmlLexeme lc = (CmlLexeme)((yystack.valueAt (2-(1))));
   CmlLexeme rc = (CmlLexeme)((yystack.valueAt (2-(2))));
@@ -4039,7 +4066,7 @@ public class CmlParser
   if (yyn == 299)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2554 of "src/main/bison/cml.y"  */
+/* Line 2581 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))), (CmlLexeme)((yystack.valueAt (3-(3)))));
   List<PExp> members = (List<PExp>)((yystack.valueAt (3-(2))));
@@ -4052,7 +4079,7 @@ public class CmlParser
   if (yyn == 300)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2561 of "src/main/bison/cml.y"  */
+/* Line 2588 of "src/main/bison/cml.y"  */
     {
   CmlLexeme lcurly = (CmlLexeme)((yystack.valueAt (5-(1))));
   PExp exp = (PExp)((yystack.valueAt (5-(2))));
@@ -4069,7 +4096,7 @@ public class CmlParser
   if (yyn == 301)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2571 of "src/main/bison/cml.y"  */
+/* Line 2598 of "src/main/bison/cml.y"  */
     {
     CmlLexeme lcurly = (CmlLexeme)((yystack.valueAt (7-(1))));
     PExp exp = (PExp)((yystack.valueAt (7-(2))));
@@ -4087,7 +4114,7 @@ public class CmlParser
   if (yyn == 302)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2583 of "src/main/bison/cml.y"  */
+/* Line 2610 of "src/main/bison/cml.y"  */
     {
   CmlLexeme lcurly = (CmlLexeme)((yystack.valueAt (5-(1))));
   PExp start = (PExp)((yystack.valueAt (5-(2))));
@@ -4104,7 +4131,7 @@ public class CmlParser
   if (yyn == 303)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2594 of "src/main/bison/cml.y"  */
+/* Line 2621 of "src/main/bison/cml.y"  */
     {
   CmlLexeme lsqr = (CmlLexeme)((yystack.valueAt (2-(1))));
   CmlLexeme rsqr = (CmlLexeme)((yystack.valueAt (2-(2))));
@@ -4120,7 +4147,7 @@ public class CmlParser
   if (yyn == 304)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2603 of "src/main/bison/cml.y"  */
+/* Line 2630 of "src/main/bison/cml.y"  */
     {
   CmlLexeme lsqr = (CmlLexeme)((yystack.valueAt (3-(1))));
   List<PExp> exps = (List<PExp>)((yystack.valueAt (3-(2))));
@@ -4136,7 +4163,7 @@ public class CmlParser
   if (yyn == 305)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2613 of "src/main/bison/cml.y"  */
+/* Line 2640 of "src/main/bison/cml.y"  */
     {
   CmlLexeme lsqr = (CmlLexeme)((yystack.valueAt (5-(1))));
   PExp exp = (PExp)((yystack.valueAt (5-(2))));
@@ -4153,7 +4180,7 @@ public class CmlParser
   if (yyn == 306)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2623 of "src/main/bison/cml.y"  */
+/* Line 2650 of "src/main/bison/cml.y"  */
     {
   CmlLexeme lsqr = (CmlLexeme)((yystack.valueAt (7-(1))));
   PExp exp = (PExp)((yystack.valueAt (7-(2))));
@@ -4171,7 +4198,7 @@ public class CmlParser
   if (yyn == 307)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2635 of "src/main/bison/cml.y"  */
+/* Line 2662 of "src/main/bison/cml.y"  */
     {
   CmlLexeme lcurly = (CmlLexeme)((yystack.valueAt (3-(1))));
   CmlLexeme rcurly = (CmlLexeme)((yystack.valueAt (3-(2))));
@@ -4186,7 +4213,7 @@ public class CmlParser
   if (yyn == 308)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2643 of "src/main/bison/cml.y"  */
+/* Line 2670 of "src/main/bison/cml.y"  */
     {
   CmlLexeme lcurly = (CmlLexeme)((yystack.valueAt (3-(1))));
   List<AMapletExp> maplets = (List<AMapletExp>)((yystack.valueAt (3-(2))));
@@ -4202,7 +4229,7 @@ public class CmlParser
   if (yyn == 309)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2653 of "src/main/bison/cml.y"  */
+/* Line 2680 of "src/main/bison/cml.y"  */
     {
   CmlLexeme lcurl = (CmlLexeme)((yystack.valueAt (5-(1))));
   AMapletExp maplet = (AMapletExp)((yystack.valueAt (5-(2))));
@@ -4219,7 +4246,7 @@ public class CmlParser
   if (yyn == 310)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2663 of "src/main/bison/cml.y"  */
+/* Line 2690 of "src/main/bison/cml.y"  */
     {
   CmlLexeme lcurl = (CmlLexeme)((yystack.valueAt (7-(1))));
   AMapletExp maplet = (AMapletExp)((yystack.valueAt (7-(2))));
@@ -4237,7 +4264,7 @@ public class CmlParser
   if (yyn == 311)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2675 of "src/main/bison/cml.y"  */
+/* Line 2702 of "src/main/bison/cml.y"  */
     {
   CmlLexeme mku = (CmlLexeme)((yystack.valueAt (4-(1))));
   List<PExp> exprs = (List<PExp>)((yystack.valueAt (4-(3))));
@@ -4253,7 +4280,7 @@ public class CmlParser
   if (yyn == 312)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2685 of "src/main/bison/cml.y"  */
+/* Line 2712 of "src/main/bison/cml.y"  */
     {
   CmlLexeme mku = (CmlLexeme)((yystack.valueAt (4-(1))));
   LexNameToken name = getNameTokenFromMKUNDERNAME(mku);
@@ -4269,7 +4296,7 @@ public class CmlParser
   if (yyn == 313)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2703 of "src/main/bison/cml.y"  */
+/* Line 2730 of "src/main/bison/cml.y"  */
     {
   CmlLexeme l = (CmlLexeme)((yystack.valueAt (4-(1))));
   List<ATypeBind> binds = (List<ATypeBind>)((yystack.valueAt (4-(2))));
@@ -4285,7 +4312,7 @@ public class CmlParser
   if (yyn == 314)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2713 of "src/main/bison/cml.y"  */
+/* Line 2740 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -4296,7 +4323,7 @@ public class CmlParser
   if (yyn == 315)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2721 of "src/main/bison/cml.y"  */
+/* Line 2748 of "src/main/bison/cml.y"  */
     {
   CmlLexeme preu = (CmlLexeme)((yystack.valueAt (4-(1))));
   List<PExp> exprs = (List<PExp>)((yystack.valueAt (4-(3))));
@@ -4313,9 +4340,30 @@ public class CmlParser
   if (yyn == 316)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2736 of "src/main/bison/cml.y"  */
+/* Line 2763 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (6-(1))));
+};
+  break;
+    
+
+  case 317:
+  if (yyn == 317)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 2783 of "src/main/bison/cml.y"  */
+    {
+  Path path = (Path)((yystack.valueAt (1-(1))));
+  PExp exp = null;
+  try{
+    exp = path.convertToExpression();
+  }
+  catch(Path.PathConvertException e){
+    e.printStackTrace();
+    System.exit(-4);
+  }
+
+  yyval = exp;
 };
   break;
     
@@ -4324,7 +4372,7 @@ public class CmlParser
   if (yyn == 319)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2761 of "src/main/bison/cml.y"  */
+/* Line 2801 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = extractLexLocation( (CmlLexeme)((yystack.valueAt (1-(1)))) );
   yyval = new LexBooleanToken(VDMToken.FALSE, loc);
@@ -4336,7 +4384,7 @@ public class CmlParser
   if (yyn == 320)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2766 of "src/main/bison/cml.y"  */
+/* Line 2806 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = extractLexLocation( (CmlLexeme)((yystack.valueAt (1-(1)))) );
   yyval = new LexBooleanToken(VDMToken.TRUE, loc);
@@ -4348,7 +4396,7 @@ public class CmlParser
   if (yyn == 321)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2778 of "src/main/bison/cml.y"  */
+/* Line 2818 of "src/main/bison/cml.y"  */
     {
   LexIntegerToken lit = (LexIntegerToken)((yystack.valueAt (1-(1))));
   yyval = new AIntLiteralExp(lit.location, lit);
@@ -4360,7 +4408,7 @@ public class CmlParser
   if (yyn == 322)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2783 of "src/main/bison/cml.y"  */
+/* Line 2823 of "src/main/bison/cml.y"  */
     {
   LexBooleanToken lit = (LexBooleanToken)((yystack.valueAt (1-(1))));
   yyval = new ABooleanLiteralExp(lit.location, lit);
@@ -4372,7 +4420,7 @@ public class CmlParser
   if (yyn == 326)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2791 of "src/main/bison/cml.y"  */
+/* Line 2831 of "src/main/bison/cml.y"  */
     {
   LexQuoteToken value = (LexQuoteToken)((yystack.valueAt (1-(1))));
   yyval = new AQuoteLiteralExp(value.location, value);
@@ -4384,7 +4432,7 @@ public class CmlParser
   if (yyn == 327)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2799 of "src/main/bison/cml.y"  */
+/* Line 2839 of "src/main/bison/cml.y"  */
     {
   CmlLexeme lexeme = (CmlLexeme)((yystack.valueAt (1-(1))));
   LexLocation loc = extractLexLocation(lexeme);
@@ -4397,7 +4445,7 @@ public class CmlParser
   if (yyn == 328)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2805 of "src/main/bison/cml.y"  */
+/* Line 2845 of "src/main/bison/cml.y"  */
     {
   CmlLexeme lexeme = (CmlLexeme)((yystack.valueAt (1-(1))));
   LexLocation loc = extractLexLocation(lexeme);
@@ -4410,7 +4458,7 @@ public class CmlParser
   if (yyn == 329)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2814 of "src/main/bison/cml.y"  */
+/* Line 2854 of "src/main/bison/cml.y"  */
     {
   List<PDefinition> res = new LinkedList<PDefinition>();
   res.add((PDefinition)((yystack.valueAt (1-(1)))));
@@ -4423,7 +4471,7 @@ public class CmlParser
   if (yyn == 330)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2820 of "src/main/bison/cml.y"  */
+/* Line 2860 of "src/main/bison/cml.y"  */
     {
   PDefinition def = (PDefinition)((yystack.valueAt (3-(3))));
   List<PDefinition> defs = (List<PDefinition>)((yystack.valueAt (3-(1))));
@@ -4437,7 +4485,7 @@ public class CmlParser
   if (yyn == 331)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2830 of "src/main/bison/cml.y"  */
+/* Line 2870 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -4448,7 +4496,7 @@ public class CmlParser
   if (yyn == 332)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2834 of "src/main/bison/cml.y"  */
+/* Line 2874 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -4459,7 +4507,7 @@ public class CmlParser
   if (yyn == 333)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2841 of "src/main/bison/cml.y"  */
+/* Line 2881 of "src/main/bison/cml.y"  */
     {
   CmlLexeme _if = (CmlLexeme)((yystack.valueAt (5-(1))));
   Position sif = _if.getStartPos();
@@ -4488,7 +4536,7 @@ public class CmlParser
   if (yyn == 334)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2866 of "src/main/bison/cml.y"  */
+/* Line 2906 of "src/main/bison/cml.y"  */
     {
   CmlLexeme elsetok = (CmlLexeme)((yystack.valueAt (2-(1))));
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
@@ -4505,7 +4553,7 @@ public class CmlParser
   if (yyn == 335)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2876 of "src/main/bison/cml.y"  */
+/* Line 2916 of "src/main/bison/cml.y"  */
     {
   CmlLexeme elseif = (CmlLexeme)((yystack.valueAt (5-(1))));
   PExp elseIf = (PExp)((yystack.valueAt (5-(2))));
@@ -4526,7 +4574,7 @@ public class CmlParser
   if (yyn == 336)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2893 of "src/main/bison/cml.y"  */
+/* Line 2933 of "src/main/bison/cml.y"  */
     {
   CmlLexeme cases = (CmlLexeme)((yystack.valueAt (5-(1))));
   PExp exp = (PExp)((yystack.valueAt (5-(2))));
@@ -4544,7 +4592,7 @@ public class CmlParser
   if (yyn == 340)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2935 of "src/main/bison/cml.y"  */
+/* Line 2975 of "src/main/bison/cml.y"  */
     {
   List<PPattern> patList = (List<PPattern>)((yystack.valueAt (4-(1))));
   PExp exp = (PExp)((yystack.valueAt (4-(3))));
@@ -4564,7 +4612,7 @@ public class CmlParser
   if (yyn == 341)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2951 of "src/main/bison/cml.y"  */
+/* Line 2991 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4578,7 +4626,7 @@ public class CmlParser
   if (yyn == 342)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2958 of "src/main/bison/cml.y"  */
+/* Line 2998 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4592,7 +4640,7 @@ public class CmlParser
   if (yyn == 343)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2965 of "src/main/bison/cml.y"  */
+/* Line 3005 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4606,7 +4654,7 @@ public class CmlParser
   if (yyn == 344)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2972 of "src/main/bison/cml.y"  */
+/* Line 3012 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4620,7 +4668,7 @@ public class CmlParser
   if (yyn == 345)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2979 of "src/main/bison/cml.y"  */
+/* Line 3019 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4634,7 +4682,7 @@ public class CmlParser
   if (yyn == 346)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2986 of "src/main/bison/cml.y"  */
+/* Line 3026 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4648,7 +4696,7 @@ public class CmlParser
   if (yyn == 347)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 2993 of "src/main/bison/cml.y"  */
+/* Line 3033 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4662,7 +4710,7 @@ public class CmlParser
   if (yyn == 348)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3000 of "src/main/bison/cml.y"  */
+/* Line 3040 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4676,7 +4724,7 @@ public class CmlParser
   if (yyn == 349)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3007 of "src/main/bison/cml.y"  */
+/* Line 3047 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4690,7 +4738,7 @@ public class CmlParser
   if (yyn == 350)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3014 of "src/main/bison/cml.y"  */
+/* Line 3054 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4704,7 +4752,7 @@ public class CmlParser
   if (yyn == 351)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3021 of "src/main/bison/cml.y"  */
+/* Line 3061 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4718,7 +4766,7 @@ public class CmlParser
   if (yyn == 352)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3028 of "src/main/bison/cml.y"  */
+/* Line 3068 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4732,7 +4780,7 @@ public class CmlParser
   if (yyn == 353)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3035 of "src/main/bison/cml.y"  */
+/* Line 3075 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4746,7 +4794,7 @@ public class CmlParser
   if (yyn == 354)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3042 of "src/main/bison/cml.y"  */
+/* Line 3082 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4760,7 +4808,7 @@ public class CmlParser
   if (yyn == 355)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3049 of "src/main/bison/cml.y"  */
+/* Line 3089 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4774,7 +4822,7 @@ public class CmlParser
   if (yyn == 356)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3056 of "src/main/bison/cml.y"  */
+/* Line 3096 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4788,7 +4836,7 @@ public class CmlParser
   if (yyn == 357)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3063 of "src/main/bison/cml.y"  */
+/* Line 3103 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4802,7 +4850,7 @@ public class CmlParser
   if (yyn == 358)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3070 of "src/main/bison/cml.y"  */
+/* Line 3110 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4816,7 +4864,7 @@ public class CmlParser
   if (yyn == 359)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3077 of "src/main/bison/cml.y"  */
+/* Line 3117 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4830,7 +4878,7 @@ public class CmlParser
   if (yyn == 360)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3084 of "src/main/bison/cml.y"  */
+/* Line 3124 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   LexLocation opLocation = extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -4844,7 +4892,7 @@ public class CmlParser
   if (yyn == 361)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3094 of "src/main/bison/cml.y"  */
+/* Line 3134 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new APlusNumericBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -4856,7 +4904,7 @@ public class CmlParser
   if (yyn == 362)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3099 of "src/main/bison/cml.y"  */
+/* Line 3139 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ATimesNumericBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -4868,7 +4916,7 @@ public class CmlParser
   if (yyn == 363)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3104 of "src/main/bison/cml.y"  */
+/* Line 3144 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ASubstractNumericBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -4880,7 +4928,7 @@ public class CmlParser
   if (yyn == 364)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3109 of "src/main/bison/cml.y"  */
+/* Line 3149 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ADivideNumericBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -4892,7 +4940,7 @@ public class CmlParser
   if (yyn == 365)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3114 of "src/main/bison/cml.y"  */
+/* Line 3154 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ADivNumericBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -4904,7 +4952,7 @@ public class CmlParser
   if (yyn == 366)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3119 of "src/main/bison/cml.y"  */
+/* Line 3159 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ARemNumericBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -4916,7 +4964,7 @@ public class CmlParser
   if (yyn == 367)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3124 of "src/main/bison/cml.y"  */
+/* Line 3164 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AModNumericBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -4928,7 +4976,7 @@ public class CmlParser
   if (yyn == 368)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3129 of "src/main/bison/cml.y"  */
+/* Line 3169 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ALessNumericBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -4940,7 +4988,7 @@ public class CmlParser
   if (yyn == 369)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3134 of "src/main/bison/cml.y"  */
+/* Line 3174 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ALessEqualNumericBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -4952,7 +5000,7 @@ public class CmlParser
   if (yyn == 370)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3139 of "src/main/bison/cml.y"  */
+/* Line 3179 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AGreaterNumericBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -4964,7 +5012,7 @@ public class CmlParser
   if (yyn == 371)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3144 of "src/main/bison/cml.y"  */
+/* Line 3184 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AGreaterEqualNumericBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -4976,7 +5024,7 @@ public class CmlParser
   if (yyn == 372)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3149 of "src/main/bison/cml.y"  */
+/* Line 3189 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AEqualsBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -4988,7 +5036,7 @@ public class CmlParser
   if (yyn == 373)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3154 of "src/main/bison/cml.y"  */
+/* Line 3194 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ANotEqualBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5000,7 +5048,7 @@ public class CmlParser
   if (yyn == 374)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3159 of "src/main/bison/cml.y"  */
+/* Line 3199 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AOrBooleanBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5012,7 +5060,7 @@ public class CmlParser
   if (yyn == 375)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3164 of "src/main/bison/cml.y"  */
+/* Line 3204 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AAndBooleanBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5024,7 +5072,7 @@ public class CmlParser
   if (yyn == 376)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3169 of "src/main/bison/cml.y"  */
+/* Line 3209 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AImpliesBooleanBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5036,7 +5084,7 @@ public class CmlParser
   if (yyn == 377)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3174 of "src/main/bison/cml.y"  */
+/* Line 3214 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AEquivalentBooleanBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5048,7 +5096,7 @@ public class CmlParser
   if (yyn == 378)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3179 of "src/main/bison/cml.y"  */
+/* Line 3219 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AInSetBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5060,7 +5108,7 @@ public class CmlParser
   if (yyn == 379)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3184 of "src/main/bison/cml.y"  */
+/* Line 3224 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ANotInSetBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5072,7 +5120,7 @@ public class CmlParser
   if (yyn == 380)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3189 of "src/main/bison/cml.y"  */
+/* Line 3229 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ASubsetBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5084,7 +5132,7 @@ public class CmlParser
   if (yyn == 381)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3194 of "src/main/bison/cml.y"  */
+/* Line 3234 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AProperSubsetBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5096,7 +5144,7 @@ public class CmlParser
   if (yyn == 382)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3199 of "src/main/bison/cml.y"  */
+/* Line 3239 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ASetUnionBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5108,7 +5156,7 @@ public class CmlParser
   if (yyn == 383)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3204 of "src/main/bison/cml.y"  */
+/* Line 3244 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ASetDifferenceBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5120,7 +5168,7 @@ public class CmlParser
   if (yyn == 384)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3209 of "src/main/bison/cml.y"  */
+/* Line 3249 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ASetIntersectBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5132,7 +5180,7 @@ public class CmlParser
   if (yyn == 385)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3214 of "src/main/bison/cml.y"  */
+/* Line 3254 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ASeqConcatBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5144,7 +5192,7 @@ public class CmlParser
   if (yyn == 386)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3219 of "src/main/bison/cml.y"  */
+/* Line 3259 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AModifyBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5156,7 +5204,7 @@ public class CmlParser
   if (yyn == 387)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3224 of "src/main/bison/cml.y"  */
+/* Line 3264 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AMapUnionBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5168,7 +5216,7 @@ public class CmlParser
   if (yyn == 388)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3229 of "src/main/bison/cml.y"  */
+/* Line 3269 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new ADomainResToBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5180,7 +5228,7 @@ public class CmlParser
   if (yyn == 389)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3234 of "src/main/bison/cml.y"  */
+/* Line 3274 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AModifyBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5192,7 +5240,7 @@ public class CmlParser
   if (yyn == 390)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3239 of "src/main/bison/cml.y"  */
+/* Line 3279 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AModifyBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5204,7 +5252,7 @@ public class CmlParser
   if (yyn == 391)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3244 of "src/main/bison/cml.y"  */
+/* Line 3284 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AModifyBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5216,7 +5264,7 @@ public class CmlParser
   if (yyn == 392)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3249 of "src/main/bison/cml.y"  */
+/* Line 3289 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AModifyBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5228,7 +5276,7 @@ public class CmlParser
   if (yyn == 393)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3254 of "src/main/bison/cml.y"  */
+/* Line 3294 of "src/main/bison/cml.y"  */
     {
   LexLocation loc = combineLexLocation(((PExp)((yystack.valueAt (3-(1))))).getLocation(), ((PExp)((yystack.valueAt (3-(3))))).getLocation());
   yyval = new AModifyBinaryExp(loc, (PExp)((yystack.valueAt (3-(1)))), null, (PExp)((yystack.valueAt (3-(3)))));
@@ -5240,7 +5288,7 @@ public class CmlParser
   if (yyn == 394)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3262 of "src/main/bison/cml.y"  */
+/* Line 3302 of "src/main/bison/cml.y"  */
     {
   List<AMapletExp> res = new LinkedList<AMapletExp>();
   res.add((AMapletExp)((yystack.valueAt (1-(1)))));
@@ -5253,7 +5301,7 @@ public class CmlParser
   if (yyn == 395)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3268 of "src/main/bison/cml.y"  */
+/* Line 3308 of "src/main/bison/cml.y"  */
     {
   List<AMapletExp> maplets = (List<AMapletExp>)((yystack.valueAt (3-(1))));
   AMapletExp hd = (AMapletExp)((yystack.valueAt (3-(3))));
@@ -5267,7 +5315,7 @@ public class CmlParser
   if (yyn == 396)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3278 of "src/main/bison/cml.y"  */
+/* Line 3318 of "src/main/bison/cml.y"  */
     {
   PExp domValue = (PExp)((yystack.valueAt (3-(1))));
   PExp rngValue = (PExp)((yystack.valueAt (3-(3))));
@@ -5282,7 +5330,7 @@ public class CmlParser
   if (yyn == 400)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3313 of "src/main/bison/cml.y"  */
+/* Line 3353 of "src/main/bison/cml.y"  */
     {
   CmlLexeme isUnder = (CmlLexeme)((yystack.valueAt (5-(1))));
   PType type = (PType)((yystack.valueAt (5-(2))));
@@ -5300,7 +5348,7 @@ public class CmlParser
   if (yyn == 401)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3324 of "src/main/bison/cml.y"  */
+/* Line 3364 of "src/main/bison/cml.y"  */
     {
   CmlLexeme isUnder = (CmlLexeme)((yystack.valueAt (6-(1))));
   PExp test = (PExp)((yystack.valueAt (6-(3))));
@@ -5318,7 +5366,7 @@ public class CmlParser
   if (yyn == 402)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3338 of "src/main/bison/cml.y"  */
+/* Line 3378 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -5329,7 +5377,7 @@ public class CmlParser
   if (yyn == 412)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3374 of "src/main/bison/cml.y"  */
+/* Line 3414 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -5340,7 +5388,7 @@ public class CmlParser
   if (yyn == 415)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3384 of "src/main/bison/cml.y"  */
+/* Line 3424 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (2-(2))));
   yyval = new AReturnStm(extractLexLocation((CmlLexeme)((yystack.valueAt (2-(1)))), exp.getLocation()), exp);
@@ -5353,7 +5401,7 @@ public class CmlParser
   if (yyn == 419)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3412 of "src/main/bison/cml.y"  */
+/* Line 3452 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))), (CmlLexeme)((yystack.valueAt (3-(3)))));
   PAction action = (PAction)((yystack.valueAt (3-(2))));
@@ -5366,7 +5414,7 @@ public class CmlParser
   if (yyn == 420)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3418 of "src/main/bison/cml.y"  */
+/* Line 3458 of "src/main/bison/cml.y"  */
     {
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (4-(1)))), (CmlLexeme)((yystack.valueAt (4-(4)))));
   ADeclareStatementDeclareStatement dclStm = (ADeclareStatementDeclareStatement)((yystack.valueAt (4-(2))));
@@ -5380,7 +5428,7 @@ public class CmlParser
   if (yyn == 421)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3428 of "src/main/bison/cml.y"  */
+/* Line 3468 of "src/main/bison/cml.y"  */
     {
   yyval = new ADeclareStatementDeclareStatement(extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))), (CmlLexeme)((yystack.valueAt (3-(3))))),
 					     (List<? extends PDefinition>)((yystack.valueAt (3-(2)))));
@@ -5392,7 +5440,7 @@ public class CmlParser
   if (yyn == 422)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3436 of "src/main/bison/cml.y"  */
+/* Line 3476 of "src/main/bison/cml.y"  */
     {
   List<AAssignmentDefinition> assignmentDefs = new Vector<AAssignmentDefinition>();
   assignmentDefs.add((AAssignmentDefinition)((yystack.valueAt (1-(1)))));
@@ -5405,7 +5453,7 @@ public class CmlParser
   if (yyn == 423)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3442 of "src/main/bison/cml.y"  */
+/* Line 3482 of "src/main/bison/cml.y"  */
     {
   List<AAssignmentDefinition> assignmentDefs = (List<AAssignmentDefinition>)((yystack.valueAt (3-(1))));
   if (assignmentDefs == null)
@@ -5420,7 +5468,7 @@ public class CmlParser
   if (yyn == 424)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3453 of "src/main/bison/cml.y"  */
+/* Line 3493 of "src/main/bison/cml.y"  */
     {
   LexNameToken name = extractLexNameToken((CmlLexeme)((yystack.valueAt (3-(1)))));
   PType type = (PType)((yystack.valueAt (3-(3))));
@@ -5435,7 +5483,7 @@ public class CmlParser
   if (yyn == 427)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3466 of "src/main/bison/cml.y"  */
+/* Line 3506 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -5446,7 +5494,7 @@ public class CmlParser
   if (yyn == 433)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3498 of "src/main/bison/cml.y"  */
+/* Line 3538 of "src/main/bison/cml.y"  */
     {
   PAction action = (PAction)((yystack.valueAt (7-(7))));
   yyval = new AIfControlStatementAction(extractLexLocation((CmlLexeme)((yystack.valueAt (7-(1)))), action.getLocation()),
@@ -5459,7 +5507,7 @@ public class CmlParser
   if (yyn == 434)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3504 of "src/main/bison/cml.y"  */
+/* Line 3544 of "src/main/bison/cml.y"  */
     {
   PAction action = (PAction)((yystack.valueAt (6-(6))));
   yyval = new AIfControlStatementAction(extractLexLocation((CmlLexeme)((yystack.valueAt (6-(1)))), action.getLocation()),
@@ -5472,7 +5520,7 @@ public class CmlParser
   if (yyn == 435)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3513 of "src/main/bison/cml.y"  */
+/* Line 3553 of "src/main/bison/cml.y"  */
     {
   List<AElseIfControlStatementAction> elseStms = new Vector<AElseIfControlStatementAction>();
   PAction thenStm = (PAction)((yystack.valueAt (4-(4))));
@@ -5487,7 +5535,7 @@ public class CmlParser
   if (yyn == 436)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3521 of "src/main/bison/cml.y"  */
+/* Line 3561 of "src/main/bison/cml.y"  */
     {
   PAction action = (PAction)((yystack.valueAt (5-(5))));
   List<AElseIfControlStatementAction> elseStms = (List<AElseIfControlStatementAction>)((yystack.valueAt (5-(1))));
@@ -5502,7 +5550,7 @@ public class CmlParser
   if (yyn == 437)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3532 of "src/main/bison/cml.y"  */
+/* Line 3572 of "src/main/bison/cml.y"  */
     {
     LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (5-(1)))), (CmlLexeme)((yystack.valueAt (5-(5)))));
     ACasesControlStatementAction cases = (ACasesControlStatementAction)((yystack.valueAt (5-(4))));
@@ -5517,7 +5565,7 @@ public class CmlParser
   if (yyn == 439)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3551 of "src/main/bison/cml.y"  */
+/* Line 3591 of "src/main/bison/cml.y"  */
     {
   List<ACaseAlternativeAction> casesList = new Vector<ACaseAlternativeAction>();
   casesList.add((ACaseAlternativeAction)((yystack.valueAt (1-(1)))));
@@ -5531,7 +5579,7 @@ public class CmlParser
   if (yyn == 440)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3558 of "src/main/bison/cml.y"  */
+/* Line 3598 of "src/main/bison/cml.y"  */
     {
   ACasesControlStatementAction cases = (ACasesControlStatementAction)((yystack.valueAt (3-(3))));
   cases.getCases().add((ACaseAlternativeAction)((yystack.valueAt (3-(1)))));
@@ -5544,7 +5592,7 @@ public class CmlParser
   if (yyn == 441)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3567 of "src/main/bison/cml.y"  */
+/* Line 3607 of "src/main/bison/cml.y"  */
     {
     PAction action = (PAction)((yystack.valueAt (3-(3))));
     List<PPattern> patterns = (List<PPattern>)((yystack.valueAt (3-(1))));
@@ -5558,7 +5606,7 @@ public class CmlParser
   if (yyn == 447)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3590 of "src/main/bison/cml.y"  */
+/* Line 3630 of "src/main/bison/cml.y"  */
     {
   List<? extends PPattern> plist = null;
   LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)((yystack.valueAt (2-(1)))));
@@ -5571,7 +5619,7 @@ public class CmlParser
   if (yyn == 448)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3596 of "src/main/bison/cml.y"  */
+/* Line 3636 of "src/main/bison/cml.y"  */
     {
   List<? extends PPattern> plist = (List<? extends PPattern>)((yystack.valueAt (4-(3))));
   LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)((yystack.valueAt (4-(1)))));
@@ -5584,7 +5632,7 @@ public class CmlParser
   if (yyn == 449)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3605 of "src/main/bison/cml.y"  */
+/* Line 3645 of "src/main/bison/cml.y"  */
     {
   List<PPattern> patterns = new Vector<PPattern>();
   patterns.add((PPattern)((yystack.valueAt (1-(1)))));
@@ -5597,7 +5645,7 @@ public class CmlParser
   if (yyn == 450)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3611 of "src/main/bison/cml.y"  */
+/* Line 3651 of "src/main/bison/cml.y"  */
     {
   List<PPattern> patterns = (Vector<PPattern>)((yystack.valueAt (3-(1))));
   patterns.add((PPattern)((yystack.valueAt (3-(3)))));
@@ -5610,7 +5658,7 @@ public class CmlParser
   if (yyn == 451)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3620 of "src/main/bison/cml.y"  */
+/* Line 3660 of "src/main/bison/cml.y"  */
     {
   CmlLexeme lexeme = (CmlLexeme)((yystack.valueAt (1-(1))));
   LexNameToken lnt = extractLexNameToken(lexeme);
@@ -5626,7 +5674,7 @@ public class CmlParser
   if (yyn == 453)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3634 of "src/main/bison/cml.y"  */
+/* Line 3674 of "src/main/bison/cml.y"  */
     {
   PExp exp = (PExp)((yystack.valueAt (1-(1))));
   if (exp instanceof AIntLiteralExp) {
@@ -5646,7 +5694,7 @@ public class CmlParser
   if (yyn == 455)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3651 of "src/main/bison/cml.y"  */
+/* Line 3691 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -5657,7 +5705,7 @@ public class CmlParser
   if (yyn == 456)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3655 of "src/main/bison/cml.y"  */
+/* Line 3695 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -5668,7 +5716,7 @@ public class CmlParser
   if (yyn == 457)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3662 of "src/main/bison/cml.y"  */
+/* Line 3702 of "src/main/bison/cml.y"  */
     {
   PPattern pattern = (PPattern)((yystack.valueAt (3-(1))));
   PExp exp = (PExp)((yystack.valueAt (3-(3))));
@@ -5682,7 +5730,7 @@ public class CmlParser
   if (yyn == 458)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3672 of "src/main/bison/cml.y"  */
+/* Line 3712 of "src/main/bison/cml.y"  */
     {
   PPattern pattern = (PPattern)((yystack.valueAt (3-(1))));
   PType type = (PType)((yystack.valueAt (3-(3))));
@@ -5696,7 +5744,7 @@ public class CmlParser
   if (yyn == 459)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3682 of "src/main/bison/cml.y"  */
+/* Line 3722 of "src/main/bison/cml.y"  */
     {
   List<PMultipleBind> binds = new Vector<PMultipleBind>();
   binds.add((PMultipleBind)((yystack.valueAt (1-(1)))));
@@ -5709,7 +5757,7 @@ public class CmlParser
   if (yyn == 460)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3688 of "src/main/bison/cml.y"  */
+/* Line 3728 of "src/main/bison/cml.y"  */
     {
   List<PMultipleBind> binds = (List<PMultipleBind>)((yystack.valueAt (3-(1))));
   binds.add((PMultipleBind)((yystack.valueAt (3-(3)))));
@@ -5722,7 +5770,7 @@ public class CmlParser
   if (yyn == 461)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3697 of "src/main/bison/cml.y"  */
+/* Line 3737 of "src/main/bison/cml.y"  */
     {
   yyval = ((yystack.valueAt (1-(1))));
 };
@@ -5733,7 +5781,7 @@ public class CmlParser
   if (yyn == 463)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3705 of "src/main/bison/cml.y"  */
+/* Line 3745 of "src/main/bison/cml.y"  */
     {
   List<PPattern> patterns = (List<PPattern>)((yystack.valueAt (3-(1))));
   PExp exp = (PExp)((yystack.valueAt (3-(3))));
@@ -5747,7 +5795,7 @@ public class CmlParser
   if (yyn == 464)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3715 of "src/main/bison/cml.y"  */
+/* Line 3755 of "src/main/bison/cml.y"  */
     {
   List<PPattern> patterns = (List<PPattern>)((yystack.valueAt (3-(1))));
   PType type = (PType)((yystack.valueAt (3-(3))));
@@ -5761,7 +5809,7 @@ public class CmlParser
   if (yyn == 465)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3725 of "src/main/bison/cml.y"  */
+/* Line 3765 of "src/main/bison/cml.y"  */
     {
   ATypeBind tb = (ATypeBind)((yystack.valueAt (1-(1))));
   List<ATypeBind> res = new LinkedList<ATypeBind>();
@@ -5775,7 +5823,7 @@ public class CmlParser
   if (yyn == 466)
     
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 3732 of "src/main/bison/cml.y"  */
+/* Line 3772 of "src/main/bison/cml.y"  */
     {
   ATypeBind hd = (ATypeBind)((yystack.valueAt (3-(3))));
   List<ATypeBind> tbl = (List<ATypeBind>)((yystack.valueAt (3-(1))));
@@ -5785,10 +5833,125 @@ public class CmlParser
   break;
     
 
+  case 467:
+  if (yyn == 467)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 3787 of "src/main/bison/cml.y"  */
+    {
+    yyval = new Path(Path.PathKind.UNIT,(Unit)((yystack.valueAt (1-(1)))));
+  };
+  break;
+    
+
+  case 468:
+  if (yyn == 468)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 3791 of "src/main/bison/cml.y"  */
+    {
+  yyval = new Path(Path.PathKind.TILDE,(Path)((yystack.valueAt (2-(1)))));
+};
+  break;
+    
+
+  case 469:
+  if (yyn == 469)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 3795 of "src/main/bison/cml.y"  */
+    {
+  yyval = new Path(Path.PathKind.DOT,(Path)((yystack.valueAt (3-(1)))),(Unit)((yystack.valueAt (3-(3)))));
+};
+  break;
+    
+
+  case 470:
+  if (yyn == 470)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 3799 of "src/main/bison/cml.y"  */
+    {
+  yyval = new Path(Path.PathKind.BACKTICK,(Path)((yystack.valueAt (3-(1)))),(Unit)((yystack.valueAt (3-(3)))));
+};
+  break;
+    
+
+  case 471:
+  if (yyn == 471)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 3803 of "src/main/bison/cml.y"  */
+    {
+  yyval = new Path(Path.PathKind.DOTHASH,(Path)((yystack.valueAt (3-(1)))),(LexIntegerToken)((yystack.valueAt (3-(3)))));
+};
+  break;
+    
+
+  case 472:
+  if (yyn == 472)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 3807 of "src/main/bison/cml.y"  */
+    {
+  yyval = new Path(Path.PathKind.APPLY,(Path)((yystack.valueAt (2-(1)))));
+};
+  break;
+    
+
+  case 473:
+  if (yyn == 473)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 3811 of "src/main/bison/cml.y"  */
+    {
+  yyval = new Path(Path.PathKind.APPLY,(Path)((yystack.valueAt (4-(1)))),(List<PExp>)((yystack.valueAt (4-(3)))));
+};
+  break;
+    
+
+  case 474:
+  if (yyn == 474)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 3815 of "src/main/bison/cml.y"  */
+    {
+  List<PExp> exps = new Vector<PExp>();
+  exps.add((PExp)((yystack.valueAt (6-(3)))));
+  exps.add((PExp)((yystack.valueAt (6-(5)))));
+  yyval = new Path(Path.PathKind.SEQRANGE,(Path)((yystack.valueAt (6-(1)))),exps);
+};
+  break;
+    
+
+  case 475:
+  if (yyn == 475)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 3825 of "src/main/bison/cml.y"  */
+    {
+    yyval = new Unit(Unit.UnitKind.SELF,
+		  extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (1-(1))))));
+  };
+  break;
+    
+
+  case 476:
+  if (yyn == 476)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 3830 of "src/main/bison/cml.y"  */
+    {
+  yyval = new Unit(Unit.UnitKind.IDENTIFIER,
+		extractLexIdentifierToken((CmlLexeme)((yystack.valueAt (1-(1))))));
+};
+  break;
+    
+
 
 
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 5792 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
+/* Line 5955 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
 	default: break;
       }
 
@@ -8344,53 +8507,53 @@ public class CmlParser
   private static final short yyrline_[] =
   {
          0,   360,   360,   368,   374,   385,   386,   387,   388,   389,
-     393,   416,   429,   446,   463,   470,   478,   484,   490,   496,
-     502,   508,   514,   520,   533,   540,   553,   566,   573,   580,
-     587,   604,   605,   612,   613,   614,   615,   616,   620,   621,
-     625,   626,   646,   654,   664,   670,   681,   685,   692,   699,
-     703,   709,   718,   730,   734,   741,   746,   751,   756,   761,
-     768,   775,   790,   797,   804,   811,   818,   831,   838,   851,
-     864,   871,   878,   885,   899,   900,   904,   905,   907,   908,
-     909,   910,   911,   912,   913,   914,   916,   917,   918,   927,
-     936,   942,   953,   959,   966,   981,   990,   995,   999,  1003,
-    1008,  1016,  1022,  1031,  1032,  1033,  1034,  1035,  1036,  1037,
-    1038,  1042,  1043,  1047,  1048,  1049,  1053,  1057,  1062,  1067,
-    1071,  1078,  1085,  1103,  1104,  1108,  1114,  1124,  1142,  1148,
-    1164,  1175,  1184,  1190,  1205,  1216,  1224,  1236,  1242,  1251,
-    1261,  1272,  1278,  1290,  1303,  1316,  1327,  1335,  1347,  1354,
-    1358,  1362,  1369,  1376,  1381,  1391,  1395,  1399,  1404,  1409,
-    1416,  1420,  1424,  1428,  1436,  1442,  1451,  1466,  1478,  1489,
-    1512,  1520,  1528,  1543,  1549,  1558,  1562,  1566,  1571,  1572,
-    1591,  1608,  1612,  1620,  1628,  1636,  1645,  1654,  1667,  1668,
-    1669,  1673,  1677,  1681,  1685,  1689,  1693,  1697,  1701,  1708,
-    1712,  1719,  1732,  1748,  1761,  1777,  1787,  1793,  1802,  1806,
-    1812,  1820,  1842,  1881,  1887,  1893,  1903,  1913,  1930,  1943,
-    1957,  1972,  1977,  1985,  1991,  1997,  2006,  2010,  2017,  2039,
-    2049,  2064,  2069,  2076,  2086,  2090,  2094,  2101,  2105,  2112,
-    2119,  2130,  2133,  2140,  2147,  2157,  2162,  2168,  2175,  2180,
-    2186,  2198,  2202,  2206,  2211,  2218,  2231,  2242,  2246,  2253,
-    2264,  2286,  2287,  2288,  2289,  2300,  2301,  2302,  2306,  2310,
-    2317,  2322,  2328,  2335,  2341,  2350,  2354,  2361,  2365,  2390,
-    2395,  2402,  2410,  2418,  2427,  2431,  2440,  2446,  2466,  2486,
-    2491,  2498,  2502,  2506,  2510,  2515,  2525,  2534,  2544,  2553,
-    2560,  2570,  2582,  2593,  2602,  2612,  2622,  2634,  2642,  2652,
-    2662,  2674,  2684,  2702,  2712,  2720,  2735,  2755,  2756,  2760,
-    2765,  2777,  2782,  2787,  2788,  2789,  2790,  2798,  2804,  2813,
-    2819,  2829,  2833,  2840,  2865,  2875,  2892,  2903,  2917,  2924,
-    2934,  2950,  2957,  2964,  2971,  2978,  2985,  2992,  2999,  3006,
-    3013,  3020,  3027,  3034,  3041,  3048,  3055,  3062,  3069,  3076,
-    3083,  3093,  3098,  3103,  3108,  3113,  3118,  3123,  3128,  3133,
-    3138,  3143,  3148,  3153,  3158,  3163,  3168,  3173,  3178,  3183,
-    3188,  3193,  3198,  3203,  3208,  3213,  3218,  3223,  3228,  3233,
-    3238,  3243,  3248,  3253,  3261,  3267,  3277,  3301,  3302,  3303,
-    3312,  3323,  3337,  3342,  3343,  3345,  3353,  3355,  3359,  3361,
-    3362,  3365,  3373,  3378,  3382,  3383,  3401,  3402,  3406,  3411,
-    3417,  3427,  3435,  3441,  3452,  3460,  3461,  3465,  3469,  3473,
-    3474,  3478,  3487,  3497,  3503,  3512,  3520,  3531,  3539,  3550,
-    3557,  3566,  3576,  3580,  3581,  3585,  3587,  3589,  3595,  3604,
-    3610,  3619,  3629,  3633,  3646,  3650,  3654,  3661,  3671,  3681,
-    3687,  3696,  3700,  3704,  3714,  3724,  3731,  3746,  3747,  3748,
-    3749,  3750,  3751,  3752,  3753,  3757,  3758,  3762,  3769
+     393,   418,   433,   450,   467,   474,   482,   488,   494,   500,
+     506,   512,   518,   524,   537,   544,   557,   570,   577,   584,
+     591,   608,   609,   616,   617,   618,   619,   620,   624,   625,
+     629,   630,   650,   658,   668,   674,   685,   689,   696,   703,
+     707,   713,   722,   734,   738,   745,   750,   755,   760,   765,
+     772,   779,   794,   801,   808,   815,   822,   835,   842,   855,
+     868,   875,   882,   889,   903,   904,   908,   909,   911,   912,
+     913,   914,   915,   916,   917,   918,   920,   921,   922,   931,
+     940,   946,   957,   963,   970,   985,   994,   999,  1003,  1007,
+    1012,  1020,  1026,  1035,  1036,  1037,  1038,  1039,  1040,  1041,
+    1042,  1046,  1047,  1051,  1052,  1053,  1057,  1061,  1066,  1071,
+    1075,  1082,  1089,  1107,  1108,  1112,  1118,  1128,  1146,  1152,
+    1168,  1179,  1188,  1194,  1209,  1220,  1228,  1240,  1246,  1255,
+    1265,  1276,  1282,  1294,  1307,  1320,  1331,  1339,  1351,  1358,
+    1362,  1366,  1373,  1380,  1385,  1395,  1399,  1403,  1408,  1413,
+    1420,  1424,  1428,  1432,  1440,  1446,  1455,  1482,  1505,  1516,
+    1539,  1547,  1555,  1570,  1576,  1585,  1589,  1593,  1598,  1599,
+    1618,  1635,  1639,  1647,  1655,  1663,  1672,  1681,  1694,  1695,
+    1696,  1700,  1704,  1708,  1712,  1716,  1720,  1724,  1728,  1735,
+    1739,  1746,  1759,  1775,  1788,  1804,  1814,  1820,  1829,  1833,
+    1839,  1847,  1869,  1908,  1914,  1920,  1930,  1940,  1957,  1970,
+    1984,  1999,  2004,  2012,  2018,  2024,  2033,  2037,  2044,  2066,
+    2076,  2091,  2096,  2103,  2113,  2117,  2121,  2128,  2132,  2139,
+    2146,  2157,  2160,  2167,  2174,  2184,  2189,  2195,  2202,  2207,
+    2213,  2225,  2229,  2233,  2238,  2245,  2258,  2269,  2273,  2280,
+    2291,  2313,  2314,  2315,  2316,  2327,  2328,  2329,  2333,  2337,
+    2344,  2349,  2355,  2362,  2368,  2377,  2381,  2388,  2392,  2417,
+    2422,  2429,  2437,  2445,  2454,  2458,  2467,  2473,  2493,  2513,
+    2518,  2525,  2529,  2533,  2537,  2542,  2552,  2561,  2571,  2580,
+    2587,  2597,  2609,  2620,  2629,  2639,  2649,  2661,  2669,  2679,
+    2689,  2701,  2711,  2729,  2739,  2747,  2762,  2782,  2796,  2800,
+    2805,  2817,  2822,  2827,  2828,  2829,  2830,  2838,  2844,  2853,
+    2859,  2869,  2873,  2880,  2905,  2915,  2932,  2943,  2957,  2964,
+    2974,  2990,  2997,  3004,  3011,  3018,  3025,  3032,  3039,  3046,
+    3053,  3060,  3067,  3074,  3081,  3088,  3095,  3102,  3109,  3116,
+    3123,  3133,  3138,  3143,  3148,  3153,  3158,  3163,  3168,  3173,
+    3178,  3183,  3188,  3193,  3198,  3203,  3208,  3213,  3218,  3223,
+    3228,  3233,  3238,  3243,  3248,  3253,  3258,  3263,  3268,  3273,
+    3278,  3283,  3288,  3293,  3301,  3307,  3317,  3341,  3342,  3343,
+    3352,  3363,  3377,  3382,  3383,  3385,  3393,  3395,  3399,  3401,
+    3402,  3405,  3413,  3418,  3422,  3423,  3441,  3442,  3446,  3451,
+    3457,  3467,  3475,  3481,  3492,  3500,  3501,  3505,  3509,  3513,
+    3514,  3518,  3527,  3537,  3543,  3552,  3560,  3571,  3579,  3590,
+    3597,  3606,  3616,  3620,  3621,  3625,  3627,  3629,  3635,  3644,
+    3650,  3659,  3669,  3673,  3686,  3690,  3694,  3701,  3711,  3721,
+    3727,  3736,  3740,  3744,  3754,  3764,  3771,  3786,  3790,  3794,
+    3798,  3802,  3806,  3810,  3814,  3824,  3829,  3837,  3844
   };
 
   // Report on the debug stream that the rule yyrule is going to be reduced.
@@ -8671,14 +8834,14 @@ public class CmlParser
 	if (result){
 	  System.out.println("parsed!");
 
-	  //DotGraphVisitor dgv = new DotGraphVisitor();
+	  DotGraphVisitor dgv = new DotGraphVisitor();
 	  INode node = cmlParser.getDocument();
 
-	  //node.apply(dgv,null);
+	  node.apply(dgv,null);
 
 	  File dotFile = new File("generatedAST.gv");
 	  java.io.FileWriter fw = new java.io.FileWriter(dotFile);
-	  //fw.write(dgv.getResultString());
+	  fw.write(dgv.getResultString());
 	  fw.close();
 
 	  //System.out.println(dgv.getResultString());
@@ -8739,7 +8902,7 @@ public class CmlParser
 
 
 /* Line 912 of cmlskeleton.java.m4  */
-/* Line 8743 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
+/* Line 8906 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
 
 }
 

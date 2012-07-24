@@ -31,7 +31,7 @@
   import eu.compassresearch.ast.typechecker.NameScope;
   import eu.compassresearch.ast.node.*;
   import eu.compassresearch.ast.node.tokens.*;
-  //    import org.overture.transforms.*;
+  import eu.compassresearch.ast.preview.*;
   import eu.compassresearch.ast.util.*;
   import eu.compassresearch.core.lexer.CmlLexeme;
   import eu.compassresearch.core.lexer.CmlLexer;
@@ -220,14 +220,14 @@
 	if (result){
 	  System.out.println("parsed!");
 
-	  //DotGraphVisitor dgv = new DotGraphVisitor();
+	  DotGraphVisitor dgv = new DotGraphVisitor();
 	  INode node = cmlParser.getDocument();
 
-	  //node.apply(dgv,null);
+	  node.apply(dgv,null);
 
 	  File dotFile = new File("generatedAST.gv");
 	  java.io.FileWriter fw = new java.io.FileWriter(dotFile);
-	  //fw.write(dgv.getResultString());
+	  fw.write(dgv.getResultString());
 	  fw.close();
 
 	  //System.out.println(dgv.getResultString());
@@ -367,8 +367,8 @@ source :
 programParagraphList :
   programParagraph
 {
-  List<PDefinition> programParagraphList = new Vector<PDefinition>();
-  programParagraphList.add((PDefinition)$1);
+  List<PDefinition> programParagraphList = new LinkedList<PDefinition>();
+  programParagraphList.addAll((List<PDefinition>)$1);
   $$ = programParagraphList;
 }
 | programParagraphList programParagraph
@@ -376,7 +376,7 @@ programParagraphList :
   List<PDefinition> programParagraphList = (List<PDefinition>)$1;
   if (programParagraphList == null)
     programParagraphList = new Vector<PDefinition>();
-  programParagraphList.add((PDefinition)$2);
+  programParagraphList.addAll((List<PDefinition>)$2);
   $$ = programParagraphList;
 }
 ;
@@ -408,7 +408,9 @@ classDefinition :
   clz.setName(lexName);
   clz.setDefinitions( (List<PDefinition>) $4 );
   clz.setNameScope( NameScope.CLASSNAME );
-  $$ = clz;
+  List<PDefinition> def = new LinkedList<PDefinition>();
+  def.add(clz);
+  $$ = def;
 }
 ;
 
@@ -421,7 +423,9 @@ processDefinition:
   LexLocation location = combineLexLocation(processLoc,processDef.getLocation());
   processDef.setLocation(location);
   processDef.setName(id);
-  $$ = processDef;
+  List<PDefinition> def = new LinkedList<PDefinition>();
+  def.add(processDef);
+  $$ = def;
 }
 ;
 
@@ -1452,15 +1456,27 @@ typeDef :
 {
   AAccessSpecifier access = (AAccessSpecifier)$1;
   LexNameToken name = extractLexNameToken((CmlLexeme)$2);
-  SInvariantType inv = (SInvariantType)$5;
+  AInvariantDefinition inv = (AInvariantDefinition)$5; 
+  //SInvariantType inv = (SInvariantType)$5;
   LexLocation location = null;
   if (access.getLocation() != null) {
     location = combineLexLocation(access.getLocation(), inv.getLocation());
   } else {
     location = combineLexLocation(name.getLocation(), inv.getLocation());
   }
-  ATypeDefinition typeDef = new ATypeDefinition(location, NameScope.GLOBAL, false, access, null, null, null, false);
-  typeDef.setInvType(inv);
+  
+  ATypeDefinition typeDef = new ATypeDefinition(location, 
+						name, 
+						NameScope.GLOBAL, 
+						false/*Boolean used_*/, 
+						null/*PDeclaration declaration_*/, 
+						access, 
+						(PType)$type, 
+						null/*SInvariantType invType_*/, 
+						inv.getPattern()/*PPattern invPattern_*/, 
+						inv.getExpression()/*PExp invExpression_*/, 
+						null /*AExplicitFunctionDefinition invdef_*/, 
+						false/*Boolean infinite_*/);
   $$ = typeDef;
 }
 | qualifier IDENTIFIER EQUALS type
@@ -1469,11 +1485,22 @@ typeDef :
   LexNameToken name = extractLexNameToken((CmlLexeme)$2);
   LexLocation location = null;
   if (access.getLocation() != null) {
-    location = combineLexLocation(access.getLocation(), ((PType)$4).getLocation());
+    location = combineLexLocation(access.getLocation(), ((PType)$type).getLocation());
   } else {
-      location = combineLexLocation(name.getLocation(), ((PType)$4).getLocation());
+      location = combineLexLocation(name.getLocation(), ((PType)$type).getLocation());
   }
-  $$ = new ATypeDefinition();
+  $$ = new ATypeDefinition(location, 
+			   name, 
+			   NameScope.GLOBAL, 
+			   false/*Boolean used_*/, 
+			   null/*PDeclaration declaration_*/, 
+			   access, 
+			   (PType)$type, 
+			   null/*SInvariantType invType_*/, 
+			   null/*PPattern invPattern_*/, 
+			   null/*PExp invExpression_*/, 
+			   null /*AExplicitFunctionDefinition invdef_*/, 
+			   false/*Boolean infinite_*/);
 }
 | qualifier IDENTIFIER DCOLON fieldList
 {
@@ -2753,6 +2780,19 @@ expression :
  * 6) convert to a self expression
  */
 | path // TODO
+{
+  Path path = (Path)$1;
+  PExp exp = null;
+  try{
+    exp = path.convertToExpression();
+  }
+  catch(Path.PathConvertException e){
+    e.printStackTrace();
+    System.exit(-4);
+  }
+
+  $$ = exp;
+}
 | symbolicLiteral // TODO
 ;
 
@@ -3744,18 +3784,53 @@ typeBindList :
  */
 path :
   unit
+  {
+    $$ = new Path(Path.PathKind.UNIT,(Unit)$1);
+  }
 | path TILDE
+{
+  $$ = new Path(Path.PathKind.TILDE,(Path)$1);
+}
 | path DOT unit
+{
+  $$ = new Path(Path.PathKind.DOT,(Path)$1,(Unit)$3);
+}
 | path BACKTICK unit
+{
+  $$ = new Path(Path.PathKind.BACKTICK,(Path)$1,(Unit)$3);
+}
 | path DOTHASH NUMERAL
+{
+  $$ = new Path(Path.PathKind.DOTHASH,(Path)$1,(LexIntegerToken)$3);
+}
 | path LRPAREN
+{
+  $$ = new Path(Path.PathKind.APPLY,(Path)$1);
+}
 | path LPAREN expressionList RPAREN
+{
+  $$ = new Path(Path.PathKind.APPLY,(Path)$1,(List<PExp>)$expressionList);
+}
 | path LPAREN expression ELLIPSIS expression RPAREN
+{
+  List<PExp> exps = new Vector<PExp>();
+  exps.add((PExp)$3);
+  exps.add((PExp)$5);
+  $$ = new Path(Path.PathKind.SEQRANGE,(Path)$1,exps);
+}
 ;
 
 unit :
   SELF
+  {
+    $$ = new Unit(Unit.UnitKind.SELF,
+		  extractLexIdentifierToken((CmlLexeme)$1));
+  }
 | IDENTIFIER
+{
+  $$ = new Unit(Unit.UnitKind.IDENTIFIER,
+		extractLexIdentifierToken((CmlLexeme)$1));
+}
 ;
 
 pathList :

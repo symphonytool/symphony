@@ -47,32 +47,6 @@ Abstract Syntax Tree
  *
  */
 
-/*
-	Name Resolving helpers 
-	
-	These are only temporary nodes to help the parser and will not
-	end up in the AST.
-*/
-unit {-> package='eu.compassresearch.ast.naming'}
-	= {identifier} [identifier]:LexIdentifierToken
-	| {self}
-	;
-name {-> package='eu.compassresearch.ast.program'}
-	= {simple} [identifiers]:LexIdentifierToken*
-	;
-
-
-designator {-> package='eu.compassresearch.ast.program'}
-	= {name} [name]:name.simple 
-	| {primary} [primary]:primary
-	;
-
-primary {-> package='eu.compassresearch.ast.program'}
-	= {self}
-	| {call} [call]:action.#ControlStatement.#CallStatement.call
-	| {primary} [primary]:primary [identifier]:LexIdentifierToken
-	;
-
 source {->  package='eu.compassresearch.ast.program'}
       = {file} [name]: java_String (file): java_File
       | {tcpStream} [ip]: java_String [port]: java_String (stream): java_Stream 
@@ -126,6 +100,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                 [invPattern]:pattern [invExpression]:exp (invdef):definition.#function.explicit
                 [initPattern]:pattern [initExpression]:exp (initdef):definition.#function.explicit
                 (stateDefs):definition* 
+   //Why does the type definition take inv pattern and expression and not just the inv definition which containts them both??
     |   {type} (invType):type.#invariant 
                 [invPattern]:pattern 
                 [invExpression]:exp 
@@ -533,7 +508,7 @@ access  {-> package='eu.compassresearch.ast.definitions'}
     =   {public}
     |   {protected}
     |   {private}
-//    | 	{logical} does not exists in ASTv2 why should we have it?
+    | 	{logical} 
     ;
 
 /* 
