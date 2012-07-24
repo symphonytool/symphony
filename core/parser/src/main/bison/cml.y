@@ -308,7 +308,7 @@
 %token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
-%token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY WHILE
+%token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY WHILE ISUNDERNAME
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE
 
 %token nameset namesetExpr nilLiteral characterLiteral textLiteral
@@ -2778,6 +2778,14 @@ expression :
  * 4) convert to a tuple select
  * 5) convert to a field select
  * 6) convert to a self expression
+ *
+ * (JWC) 3 through 5 need to be general expression rather than just
+ * paths/names.  So, this is a problem for now.
+ * e.g. we cannot do:
+ *   (1,2,3).#2
+ * but we can do
+ *   a := (1,2,3)
+ *   a.#2
  */
 | path // TODO
 {
@@ -3329,18 +3337,11 @@ generalIsExpr :
  * CML_0:
  *   ISUNDER name LPAREN expression RPAREN
  * here:
- *   ISUNDER IDENTIFIER LPAREN expression RPAREN
- *   ISUNDER IDENTIFIER DOT IDENTIFIER LPAREN expression RPAREN
- *   ISUNDER IDENTIFIER BACKTICK IDENTIFIER LPAREN expression RPAREN
- * TODO: convert to a name
+ *   ISUNDERNAME LPAREN expression RPAREN
  *
- * I'm not sure the syntax of this is quite correct: I don't think we
- * want to allow "is_ NAME ( ... )" with the space between is_ and the
- * NAME.  We may need to do something more with the lexer, here.
+ * TODO: convert the ISUNDERNAME token into a name
  */
-  ISUNDER IDENTIFIER LPAREN expression RPAREN
-| ISUNDER IDENTIFIER DOT IDENTIFIER LPAREN expression RPAREN
-| ISUNDER IDENTIFIER BACKTICK IDENTIFIER LPAREN expression RPAREN
+  ISUNDERNAME LPAREN expression RPAREN
 /* { */
 /*   CmlLexeme isUnder = (CmlLexeme)$1; */
 /*   LexNameToken typeName = (LexNameToken)$2; */
@@ -3626,6 +3627,14 @@ patternLessID :
 /* tuple pattern */
 | MKUNDER LPAREN patternList COMMA pattern RPAREN // TODO
 /* record patterns */
+/* DEVIATION --- PATH
+ * CML_0:
+ *   MKUNDER name LPAREN expression RPAREN
+ * here:
+ *   MKUNDERNAME LPAREN expression RPAREN
+ *
+ * TODO: convert the MKUNDERNAME token into a name
+ */
 | MKUNDERNAME LRPAREN
 {
   List<? extends PPattern> plist = null;
@@ -3784,9 +3793,9 @@ typeBindList :
  */
 path :
   unit
-  {
-    $$ = new Path(Path.PathKind.UNIT,(Unit)$1);
-  }
+{
+  $$ = new Path(Path.PathKind.UNIT,(Unit)$1);
+}
 | path TILDE
 {
   $$ = new Path(Path.PathKind.TILDE,(Path)$1);
@@ -3822,10 +3831,10 @@ path :
 
 unit :
   SELF
-  {
-    $$ = new Unit(Unit.UnitKind.SELF,
-		  extractLexIdentifierToken((CmlLexeme)$1));
-  }
+{
+  $$ = new Unit(Unit.UnitKind.SELF,
+		extractLexIdentifierToken((CmlLexeme)$1));
+}
 | IDENTIFIER
 {
   $$ = new Unit(Unit.UnitKind.IDENTIFIER,
