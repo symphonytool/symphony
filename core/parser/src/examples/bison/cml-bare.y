@@ -26,7 +26,7 @@
 %token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
-%token PROTECTED PUBLIC LOGICAL DOTCOLON
+%token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE
 
 %token nameset namesetExpr nilLiteral characterLiteral textLiteral
@@ -48,6 +48,8 @@
        U-LSQUAREDBAR
 %nonassoc ELSE ELSEIF
 %left BAR
+%left DO
+%right U-DO
 /* unary ops */
 %right UPLUS UMINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS
        INDS REVERSE CONC DOM RNG MERGE INVERSE
@@ -806,36 +808,30 @@ generalIsExpr :
 ;
 
 controlStatement :
-  nonDeterministicIfStatement
-| ifStatement
+  ifStatement
+| IF nonDeterministicAltList END
+| DO nonDeterministicAltList END
 | casesStatement
-/* | generalCasesIfStatement */
+| FOR bind IN expression DO action
+/* | FOR bind IN REVERSE expression DO action */
+| FOR pattern IN expression DO action
+/* | FOR pattern IN REVERSE expression DO action */
 /* | callStatement */
 | generalAssignStatement
 | LSQUARE implicitOperationBody RSQUARE
-| RETURN SEMI 
+| RETURN SEMI
 | RETURN expression
 /*   path COLONEQUALS NEW path LRPAREN */
 /* | path COLONEQUALS NEW path LPAREN expressionList RPAREN */
-/* | non-deterministicDoStatement */
 /* | SequenceForLoop */
 /* | setForLoop */
 /* | indexForLoop*/
 /* | whileLoop */
 ;
 
-nonDeterministicIfStatement :
-  IF expression RARROW action END
-| IF expression RARROW action nonDeterministicIfAltList END
-;
-
-nonDeterministicIfAlt :
-  BAR expression RARROW action
-;
-
-nonDeterministicIfAltList :
-  nonDeterministicIfAlt
-| nonDeterministicIfAltList nonDeterministicIfAlt
+nonDeterministicAltList :
+  expression RARROW action
+| nonDeterministicAltList BAR expression RARROW action
 ;
 
 letStatement :

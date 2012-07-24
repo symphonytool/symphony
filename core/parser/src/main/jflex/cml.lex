@@ -161,6 +161,7 @@ quoteliteral    = \<{identifier}\>
 LineTerminator  = \r|\n|\r\n
 /* InputCharacter  = [^\r\n] */
 WhiteSpace      = {LineTerminator} | [ \t\f]
+blanks          = [ \t\f]*
 
 /* We need COMMENT and STRING to be exclusionary states, to avoid
  * inadvertantly matching things inside them.
@@ -204,6 +205,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "dcl"                         { return createToken(CmlParser.DCL); }
 "dinter"                      { return createToken(CmlParser.DINTER); }
 "div"                         { return createToken(CmlParser.DIVIDE); }
+"do"                          { return createToken(CmlParser.DO); }
 "dom"                         { return createToken(CmlParser.DOM); }
 "dunion"                      { return createToken(CmlParser.DUNION); }
 "elems"                       { return createToken(CmlParser.ELEMS); }
@@ -214,6 +216,7 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "exists"                      { return createToken(CmlParser.EXISTS); }
 "exists1"                     { return createToken(CmlParser.EXISTS1); }
 "floor"                       { return createToken(CmlParser.FLOOR); }
+"for"                         { return createToken(CmlParser.FOR); }
 "forall"                      { return createToken(CmlParser.FORALL); }
 "frame"                       { return createToken(CmlParser.FRAME); }
 "functions"                   { return createToken(CmlParser.FUNCTIONS); }
@@ -316,46 +319,47 @@ WhiteSpace      = {LineTerminator} | [ \t\f]
 "]]"                          { return createToken(CmlParser.DRSQUARE); }
 "**"                          { return createToken(CmlParser.DSTAR); }
 // yes, the ellipsis includes the commas all as a single token
-","[ \t]*"..."[ \t]*","                 { return createToken(CmlParser.ELLIPSIS); }
-"=>"                                    { return createToken(CmlParser.EQRARROW); }
-"="                                     { return createToken(CmlParser.EQUALS); }
-">"                                     { return createToken(CmlParser.GT); }
-">="                                    { return createToken(CmlParser.GTE); }
-"<-"                                    { return createToken(CmlParser.LARROW); }
-"{"                                     { return createToken(CmlParser.LCURLY); }
-"{|"                                    { return createToken(CmlParser.LCURLYBAR); }
-"{:"                                    { return createToken(CmlParser.LCURLYCOLON); }
-"("                                     { return createToken(CmlParser.LPAREN); }
-"[]"                                    { return createToken(CmlParser.LRSQUARE); }
-"["                                     { return createToken(CmlParser.LSQUARE); }
-"[|"                                    { return createToken(CmlParser.LSQUAREBAR); }
-"[||"                                   { return createToken(CmlParser.LSQUAREDBAR); }
-/*"[:"                                    { return createToken(CmlParser.LSQUARECOLON); }*/
-"[>"                                    { return createToken(CmlParser.LSQUAREGT); }
-"<"                                     { return createToken(CmlParser.LT); }
-"<:"                                    { return createToken(CmlParser.LTCOLON); }
-"<-:"                                   { return createToken(CmlParser.LTDASHCOLON); }
-"<="                                    { return createToken(CmlParser.LTE); }
-"<=>"                                   { return createToken(CmlParser.LTEQUALSGT); }
-"-"                                     { return createToken(CmlParser.MINUS); }
-"<>"                                    { return createToken(CmlParser.NEQ); }
-"+"                                     { return createToken(CmlParser.PLUS); }
-"+>"                                    { return createToken(CmlParser.PLUSGT); }
-"?"                                     { return createToken(CmlParser.QUESTION); }
-"->"                                    { return createToken(CmlParser.RARROW); }
-"}"                                     { return createToken(CmlParser.RCURLY); }
-")"                                     { return createToken(CmlParser.RPAREN); }
-"]"                                     { return createToken(CmlParser.RSQUARE); }
-";"                                     { return createToken(CmlParser.SEMI); }
-"/"                                     { return createToken(CmlParser.SLASH); }
-"/\\"                                   { return createToken(CmlParser.SLASHBACKSLASH); }
-"/:"                                    { return createToken(CmlParser.SLASHCOLON); }
-"*"                                     { return createToken(CmlParser.STAR); }
-"|||"                                   { return createToken(CmlParser.TBAR); }
-"~"                                     { return createToken(CmlParser.TILDE); }
-"`"                                     { return createToken(CmlParser.BACKTICK); }
-"false"                                 { return createToken(CmlParser.FALSE); }
-"true"                                  { return createToken(CmlParser.TRUE); }
+","{blanks}"..."{blanks}","   { return createToken(CmlParser.ELLIPSIS); }
+"=>"                          { return createToken(CmlParser.EQRARROW); }
+"="                           { return createToken(CmlParser.EQUALS); }
+">"                           { return createToken(CmlParser.GT); }
+">="                          { return createToken(CmlParser.GTE); }
+"<-"                          { return createToken(CmlParser.LARROW); }
+"{"                           { return createToken(CmlParser.LCURLY); }
+"{|"                          { return createToken(CmlParser.LCURLYBAR); }
+"{:"                          { return createToken(CmlParser.LCURLYCOLON); }
+"("                           { return createToken(CmlParser.LPAREN); }
+"("{blanks}")"                { return createToken(CmlParser.LRPAREN); }
+"[]"                          { return createToken(CmlParser.LRSQUARE); }
+"["                           { return createToken(CmlParser.LSQUARE); }
+"[|"                          { return createToken(CmlParser.LSQUAREBAR); }
+"[||"                         { return createToken(CmlParser.LSQUAREDBAR); }
+/*"[:"                          { return createToken(CmlParser.LSQUARECOLON); }*/
+"[>"                          { return createToken(CmlParser.LSQUAREGT); }
+"<"                           { return createToken(CmlParser.LT); }
+"<:"                          { return createToken(CmlParser.LTCOLON); }
+"<-:"                         { return createToken(CmlParser.LTDASHCOLON); }
+"<="                          { return createToken(CmlParser.LTE); }
+"<=>"                         { return createToken(CmlParser.LTEQUALSGT); }
+"-"                           { return createToken(CmlParser.MINUS); }
+"<>"                          { return createToken(CmlParser.NEQ); }
+"+"                           { return createToken(CmlParser.PLUS); }
+"+>"                          { return createToken(CmlParser.PLUSGT); }
+"?"                           { return createToken(CmlParser.QUESTION); }
+"->"                          { return createToken(CmlParser.RARROW); }
+"}"                           { return createToken(CmlParser.RCURLY); }
+")"                           { return createToken(CmlParser.RPAREN); }
+"]"                           { return createToken(CmlParser.RSQUARE); }
+";"                           { return createToken(CmlParser.SEMI); }
+"/"                           { return createToken(CmlParser.SLASH); }
+"/\\"                         { return createToken(CmlParser.SLASHBACKSLASH); }
+"/:"                          { return createToken(CmlParser.SLASHCOLON); }
+"*"                           { return createToken(CmlParser.STAR); }
+"|||"                         { return createToken(CmlParser.TBAR); }
+"~"                           { return createToken(CmlParser.TILDE); }
+"`"                           { return createToken(CmlParser.BACKTICK); }
+"false"                       { return createToken(CmlParser.FALSE); }
+"true"                        { return createToken(CmlParser.TRUE); }
 
 /* ---- complex terminals below ---- */
 

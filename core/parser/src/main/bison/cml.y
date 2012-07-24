@@ -89,36 +89,36 @@
     return name;
   }
 
-  private AAccessSpecifier getDefaultAccessSpecifier(boolean isStatic, boolean isAsync, LexLocation loc) 
+  private AAccessSpecifier getDefaultAccessSpecifier(boolean isStatic, boolean isAsync, LexLocation loc)
   {
-    return new AAccessSpecifier(new APublicAccess(), 
+    return new AAccessSpecifier(new APublicAccess(),
 				(isStatic ? new TStatic() : null),
 				(isAsync ? new TAsync() : null),loc);
-				  
+
   }
 
   private LexLocation extractLexLocation(CmlLexeme lexeme)
   {
     return new LexLocation(currentSource.toString(), "Default",
-			   lexeme.getStartPos().line, lexeme.getStartPos().column, 
+			   lexeme.getStartPos().line, lexeme.getStartPos().column,
 			   lexeme.getEndPos().line, lexeme.getEndPos().column,0,0);
   }
-    
+
   private LexLocation extractLexLocation(CmlLexeme start, CmlLexeme end)
   {
     return new LexLocation(currentSource.toString(), "Default",
-			   start.getStartPos().line, start.getStartPos().column, 
+			   start.getStartPos().line, start.getStartPos().column,
 			   end.getEndPos().line, end.getEndPos().column,0,0);
   }
-    
+
   private LexLocation extractLexLocation(CmlLexeme start, LexLocation end)
   {
-      
+
     return new LexLocation(currentSource.toString(), "Default",
-			   start.getStartPos().line, start.getStartPos().column, 
+			   start.getStartPos().line, start.getStartPos().column,
 			   end.endLine, end.endPos,0,0);
   }
-    
+
   private LexLocation combineLexLocation(LexLocation start, LexLocation end)
   {
     return new LexLocation(currentSource.toString(), "Default",
@@ -176,7 +176,7 @@
       parser.setDocument(fs);
       return parser;
     }
-    
+
     if (doc instanceof AInputStreamSource) {
       AInputStreamSource is = (AInputStreamSource)doc;
       InputStreamReader in = new InputStreamReader(is.getStream());
@@ -206,7 +206,7 @@
       CmlLexer scanner = null;
       try {
 	String filePath = args[0];
-	ClonableFile file = new ClonableFile(filePath); 
+	ClonableFile file = new ClonableFile(filePath);
 	AFileSource fileSource = new AFileSource();
 	fileSource.setName(file.getName());
 	scanner = new CmlLexer( new java.io.FileReader(file) );
@@ -308,7 +308,7 @@
 %token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
-%token PROTECTED PUBLIC LOGICAL DOTCOLON
+%token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE
 
 %token nameset namesetExpr nilLiteral characterLiteral textLiteral
@@ -333,6 +333,8 @@
       U-LSQUAREDBAR
 %nonassoc ELSE ELSEIF
 %left BAR
+%left DO
+%right U-DO
 /* binary ops */
 %left PLUS MINUS DIVIDE REM MOD LT LTE GT GTE EQUALS NEQ OR AND EQRARROW
       LTEQUALSGT INSET STAR NOTINSET SUBSET PROPER_SUBSET UNION INTER CARET
@@ -355,9 +357,9 @@
 /* ---------------------------------------------------------------- */
 
 source :
-  programParagraphList                            
+  programParagraphList
 {
-  List<SParagraphDefinition> paragraphs = (List<SParagraphDefinition>) $1;  
+  List<SParagraphDefinition> paragraphs = (List<SParagraphDefinition>) $1;
   currentSource.setParagraphs(paragraphs);
 }
 ;
@@ -384,25 +386,25 @@ programParagraph :
 | processDefinition                                     { $$ = $processDefinition; }
 | channelDefinition                                     { $$ = $channelDefinition; }
 | chansetDefinitionParagraph                            { $$ = $chansetDefinitionParagraph; }
-| globalDefinitionParagraph                             { $$ = $globalDefinitionParagraph; } 
+| globalDefinitionParagraph                             { $$ = $globalDefinitionParagraph; }
 ;
 
-classDefinition : 
+classDefinition :
   CLASS IDENTIFIER EQUALS classBody
-{ 
+{
   AClassParagraphDefinition clz = new AClassParagraphDefinition();
   CmlLexeme id = (CmlLexeme)$2;
   Position startPos =  ((CmlLexeme)$1).getStartPos();
-  Position endPos = ((CmlLexeme)$3).getEndPos(); // TODO Fix me, the ending position is the 
-  LexNameToken lexName = extractLexNameToken( id ); 
+  Position endPos = ((CmlLexeme)$3).getEndPos(); // TODO Fix me, the ending position is the
+  LexNameToken lexName = extractLexNameToken( id );
   LexLocation loc = new LexLocation(currentSource.toString(),
 				    id.getValue(),
-				    startPos.line, 
-				    startPos.column, 
-				    endPos.line, 
-				    endPos.column, 
-				    startPos.offset, endPos.offset);  
-  clz.setLocation(loc); 
+				    startPos.line,
+				    startPos.column,
+				    endPos.line,
+				    endPos.column,
+				    startPos.offset, endPos.offset);
+  clz.setLocation(loc);
   clz.setName(lexName);
   clz.setDefinitions( (List<PDefinition>) $4 );
   clz.setNameScope( NameScope.CLASSNAME );
@@ -425,21 +427,21 @@ processDefinition:
 
 processDef :
   declaration AT process
-{ 
+{
   List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)$1;
   PProcess process = (PProcess)$3;
   List<PProcess> processes = new LinkedList<PProcess>();
   processes.add(process);
   LexLocation loc = combineLexLocation(extractFirstLexLocation(decls),
 				       process.getLocation());
-  // by default a process is public 
+  // by default a process is public
   AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
-  $$ = new AProcessParagraphDefinition(loc, 
-				       NameScope.GLOBAL, 
-				       false, 
+  $$ = new AProcessParagraphDefinition(loc,
+				       NameScope.GLOBAL,
+				       false,
 				       access,
 				       decls,
-				       processes); 
+				       processes);
 }
 | process
 {
@@ -448,7 +450,7 @@ processDef :
   processes.add((PProcess)$1);
   AAccessSpecifier access = getDefaultAccessSpecifier(true, false, process.getLocation());
   $$ = new AProcessParagraphDefinition(process.getLocation(),
-				       NameScope.GLOBAL, 
+				       NameScope.GLOBAL,
 				       false,
 				       access,
 				       null,
@@ -527,7 +529,6 @@ process :
  *   process '/' expression '\' process
  * this conflicts all over, so
  *   process '/:' expression ':\' process
- * (FIXME)
  */
 | process SLASHCOLON expression COLONBACKSLASH process
 {
@@ -1121,16 +1122,16 @@ channelNameExprTail :
 
 channelDefinition :
   CHANNELS channelDef
-{  
+{
   List<AChannelNameDeclaration> chanNameDecls = (List<AChannelNameDeclaration>)$2;
   LexLocation start = extractLexLocation((CmlLexeme)$1);
-  LexLocation end = (chanNameDecls != null && chanNameDecls.size() > 0) ? 
+  LexLocation end = (chanNameDecls != null && chanNameDecls.size() > 0) ?
     chanNameDecls.get(chanNameDecls.size()-1).getLocation() : start;
   LexLocation location = combineLexLocation(start, end);
   AAccessSpecifier access = getDefaultAccessSpecifier( true,false,start);
-  AChannelParagraphDefinition channelDefinition = new AChannelParagraphDefinition(location, 
-										  NameScope.GLOBAL, 
-										  false, 
+  AChannelParagraphDefinition channelDefinition = new AChannelParagraphDefinition(location,
+										  NameScope.GLOBAL,
+										  false,
 										  access,
 										  chanNameDecls);
   $$ = channelDefinition;
@@ -1822,17 +1823,17 @@ invariant :
   CmlLexeme vdmInvLexeme = (CmlLexeme)$1;
   PExp exp = (PExp)$4;
   LexLocation loc = extractLexLocation(vdmInvLexeme, exp.getLocation());
-  PDeclaration decl = null; // useless 
+  PDeclaration decl = null; // useless
   AAccessSpecifier access = getDefaultAccessSpecifier( true, true, loc );
-  PType type = null; // will be decided later  
-  $$ = new AInvariantDefinition(loc, 
-				name, 
-				NameScope.LOCAL, 
-				false, 
-				decl, 
-				access, 
-				type, 
-				(PPattern)$2, 
+  PType type = null; // will be decided later
+  $$ = new AInvariantDefinition(loc,
+				name,
+				NameScope.LOCAL,
+				false,
+				decl,
+				access,
+				type,
+				(PPattern)$2,
 				exp);
 }
 ;
@@ -2288,10 +2289,17 @@ operationType :
 | LRPAREN DEQRARROW LRPAREN // TODO
 ;
 
+/* DEVIATION
+ *
+ * (JWC) This is definitely not kosher against CML_0 --- an operation
+ * body there is an action or the subclass resp./not yet tokens.  Here
+ * we aren't doing that at all!
+ */
 operationBody :
-  letStatement // TODO
+  /* action */
+  letStatement
 | blockStatement // TODO
-| controlStatement 
+| controlStatement
 {
   $$ = $1;
 }
@@ -2469,7 +2477,7 @@ expression :
     LexLocation cl = new LexLocation(currentSource.toString(), "Default",
 				     sl.startLine, sl.startPos + i,
 				     sl.startLine, sl.startPos + (i + 1),0,0);
-    members.add(new ACharLiteralExp(cl, new LexCharacterToken( chrs[i], cl )) ); 
+    members.add(new ACharLiteralExp(cl, new LexCharacterToken( chrs[i], cl )) );
   }
   // Build the ASeqEnumSeqExp as usual
   ASeqEnumSeqExp res = new ASeqEnumSeqExp(sl, members);
@@ -2838,9 +2846,9 @@ ifExpr :
   PExp then = (PExp)$4;
   List<AElseIfExp> elses = (List<AElseIfExp>)$5;
   AIfExp ifexp = new AIfExp();
-  LexLocation  sifloc = new LexLocation(currentSource.toString(), 
-					"DEFAULT", 
-					sif.line, sif.column, 
+  LexLocation  sifloc = new LexLocation(currentSource.toString(),
+					"DEFAULT",
+					sif.line, sif.column,
 					sif.line, eif.column,
 					sif.offset, eif.offset);
   ifexp.setTest(test);
@@ -3326,17 +3334,30 @@ generalIsExpr :
 ;
 
 controlStatement :
-  nonDeterministicIfStatement
+  ifStatement
 {
   $$ = $1;
 }
-| ifStatement
-{
-  $$ = $1;
-}
+/* nondeterministic statements */
+| IF nonDeterministicAltList END
+| DO nonDeterministicAltList END %prec U-DO
+/* nondeterministic statements end */
 | casesStatement
-// FIXME --- is/was this a rule?
-/* | generalCasesIfStatement */
+// FIXME
+/* sequence for loop */
+/* FIXME
+ *
+ * The grammar allows reverse as a specific keyword to the for loop,
+ * but reverse is also a unary expression operator.
+ */
+| FOR bind IN expression DO action
+/* | FOR bind IN REVERSE expression DO action */
+| FOR pattern IN expression DO action
+/* | FOR pattern IN REVERSE expression DO action */
+/* sequence for loop end */
+/*| setForLoop */ // TODO
+/*| indexForLoop*/ // TODO
+/*| whileLoop */ // TODO
 /* DEVIATION --- PATH
  * CML_0:
  *  callStatement
@@ -3369,47 +3390,11 @@ controlStatement :
  */
 /*   path COLONEQUALS NEW path LRPAREN */
 /* | path COLONEQUALS NEW path LPAREN expressionList RPAREN */
-// FIXME
-/*| non-deterministicDoStatement */ // TODO
-/*| SequenceForLoop */ // TODO
-/*| setForLoop */ // TODO
-/*| indexForLoop*/ // TODO
-/*| whileLoop */ // TODO
 ;
 
-nonDeterministicIfStatement :
-  IF expression RARROW action END
-{
-  $$ = new ANonDeterministicIfControlStatementAction(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$5), (PExp)$2, (PAction)$4, null);
-}
-| IF expression RARROW action nonDeterministicIfAltList END
-{
-  $$ = new ANonDeterministicIfControlStatementAction(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$5), (PExp)$2, (PAction)$4, (List<ANonDeterministicElseIfControlStatementAction>)$5);
-}
-;
-
-nonDeterministicIfAlt :
-  BAR expression RARROW action
-{
-  PAction thenStm = (PAction)$4;
-  LexLocation location = extractLexLocation((CmlLexeme)$1, thenStm.getLocation());
-  $$ = new ANonDeterministicElseIfControlStatementAction(location, (PExp)$2, thenStm);
-}
-;
-
-nonDeterministicIfAltList :
-  nonDeterministicIfAlt
-{
-  List<ANonDeterministicElseIfControlStatementAction> alts = new Vector<ANonDeterministicElseIfControlStatementAction>();
-  alts.add((ANonDeterministicElseIfControlStatementAction)$1);
-  $$ = alts;
-}
-| nonDeterministicIfAltList nonDeterministicIfAlt
-{
-  List<ANonDeterministicElseIfControlStatementAction> alts = (List<ANonDeterministicElseIfControlStatementAction>)$1;
-  alts.add((ANonDeterministicElseIfControlStatementAction)$2);
-  $$ = alts;
-}
+nonDeterministicAltList :
+  expression RARROW action
+| nonDeterministicAltList BAR expression RARROW action
 ;
 
 letStatement :
