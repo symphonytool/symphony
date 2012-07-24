@@ -2735,7 +2735,6 @@ expression :
   ALambdaExp res = new ALambdaExp(loc, binds, body, null, null);
   $$ = res;
 }
-;
 | generalIsExpr
 {
   $$ = $1;
@@ -3674,7 +3673,7 @@ patternIdentifier :
   res.setLocation(lnt.getLocation());
   $$ = res;
 }
-// FIXME -- shouldn't this be in patternLessID?
+/* "don't care" identifier */
 | MINUS // TODO: Implement "don't care" pattern
 ;
 
