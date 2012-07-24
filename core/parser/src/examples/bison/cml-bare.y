@@ -44,6 +44,8 @@
       NEW COLONEQUALS SLASH BACKSLASH ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE
       DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI COLONINTER
       COLONUNION BARGT
+%right U-SEMI U-BARTILDEBAR U-DBAR U-TBAR U-LRSQUARE U-LSQUARE U-LSQUAREBAR
+       U-LSQUAREDBAR
 %nonassoc ELSE ELSEIF
 %left BAR
 /* unary ops */
@@ -131,13 +133,13 @@ replicationDeclaration :
 
 replicationDeclarationAlt :
   singleTypeDecl
-/* | singleExpressionDeclaration */
+| singleExpressionDeclaration
 ;
 
-/* singleExpressionDeclaration : */
-/*   IDENTIFIER COLON expression */
-/* | singleExpressionDeclaration COMMA IDENTIFIER */
-/* ; */
+singleExpressionDeclaration :
+  IDENTIFIER IN expression
+| singleExpressionDeclaration COMMA IDENTIFIER
+;
 
 processParagraphList :
   processParagraph
@@ -192,7 +194,14 @@ action :
 | parallelAction
 | LPAREN parametrisationList AT action RPAREN
 | instantiatedAction
-| replicatedAction
+| SEMI replicationDeclaration AT action %prec U-SEMI
+| LRSQUARE LCURLY replicationDeclaration AT action RCURLY %prec U-LRSQUARE
+| BARTILDEBAR LCURLY replicationDeclaration AT action RCURLY %prec U-BARTILDEBAR
+| LSQUAREDBAR nameset DBARRSQUARE LPAREN replicationDeclaration AT action RPAREN %prec U-LSQUAREDBAR
+| TBAR replicationDeclaration AT LSQUARE namesetExpr RSQUARE action %prec U-TBAR
+| LSQUAREBAR chansetExpr BARRSQUARE replicationDeclaration AT LSQUARE namesetExpr RSQUARE action %prec U-LSQUAREBAR
+| DBAR replicationDeclaration AT LSQUARE namesetExpr BAR chansetExpr RSQUARE action %prec U-DBAR
+| DBAR replicationDeclaration AT LSQUARE namesetExpr RSQUARE action %prec U-DBAR
 | letStatement
 | blockStatement
 | controlStatement
@@ -249,17 +258,6 @@ parametrisation :
 instantiatedAction :
   LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
 | LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN
-;
-
-replicatedAction :
-  SEMI LCURLY replicationDeclaration AT action RCURLY
-| LRSQUARE LCURLY replicationDeclaration AT action RCURLY
-| BARTILDEBAR LCURLY replicationDeclaration AT action RCURLY
-| LSQUAREDBAR nameset DBARRSQUARE LPAREN replicationDeclaration AT action RPAREN
-| TBAR replicationDeclaration AT LSQUARE namesetExpr RSQUARE action
-| LSQUAREBAR chansetExpr BARRSQUARE replicationDeclaration AT LSQUARE namesetExpr RSQUARE action
-| DBAR replicationDeclaration AT LSQUARE namesetExpr BAR chansetExpr RSQUARE action
-| DBAR replicationDeclaration AT LSQUARE namesetExpr RSQUARE action
 ;
 
 renameExpression :

@@ -317,6 +317,9 @@
 /* Precidence declarations                                          */
 /* ---------------------------------------------------------------- */
 
+/* Note that UPLUS, UMINUS, USEMI, ... are tokens for disambiguating
+ * precidence (shift/reduce conflicts, typically).
+ */
 /* Precidence from loosest to tightest; tokens on same line are equal precidence */
 %right LPAREN
 %right COMMA
@@ -326,15 +329,17 @@
       NEW COLONEQUALS SLASH BACKSLASH ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE
       DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI COLONINTER
       COLONUNION BARGT
+%right U-SEMI U-BARTILDEBAR U-DBAR U-TBAR U-LRSQUARE U-LSQUARE U-LSQUAREBAR
+      U-LSQUAREDBAR
 %nonassoc ELSE ELSEIF
 %left BAR
-/* unary ops */
-%right UPLUS UMINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS
-       INDS REVERSE CONC DOM RNG MERGE INVERSE
 /* binary ops */
 %left PLUS MINUS DIVIDE REM MOD LT LTE GT GTE EQUALS NEQ OR AND EQRARROW
       LTEQUALSGT INSET STAR NOTINSET SUBSET PROPER_SUBSET UNION INTER CARET
-      DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR IN
+      DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR IN COLON
+/* unary ops */
+%right U-PLUS U-MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS
+       INDS REVERSE CONC DOM RNG MERGE INVERSE
 %left DOT DOTHASH DOTCOLON
 %left LRPAREN
 
@@ -538,6 +543,12 @@ process :
   LexLocation location = combineLexLocation(left.getLocation(), right.getLocation());
   $$ = new AUntimedTimeoutProcess(location, left, right);
 }
+/* DEVIATION
+ * grammar:
+ *   process '[' expression '>' process
+ * here:
+ *   process '[' expression '|>' process
+ */
 | process LSQUARE expression BARGT process
 {
   PProcess left = (PProcess)$1;
@@ -596,18 +607,12 @@ process :
   PProcess process = (PProcess)$1;
   $$ = new AChannelRenamingProcess(combineLexLocation(process.getLocation(), renameExpression.getLocation()), process, renameExpression);
 }
-/* DEVIATION (x4)
- * all of the replicated processes
- * grammar:
- *   <replOp> replicationDeclaration '@' process
- * here:
- *   <replOp> '{' replicationDeclaration '}' '@' process
- */
-| SEMI LCURLY replicationDeclaration AT process RCURLY //TODO
-| BARTILDEBAR LCURLY replicationDeclaration AT process RCURLY //TODO
-| LRSQUARE LCURLY replicationDeclaration AT process RCURLY //TODO
-| TBAR LCURLY replicationDeclaration AT process RCURLY //TODO
-| LSQUARE chansetExpr RSQUARE LCURLY replicationDeclaration AT process RCURLY //TODO
+/* replicated processes */
+| SEMI replicationDeclaration AT process %prec U-SEMI
+| BARTILDEBAR replicationDeclaration AT process %prec U-BARTILDEBAR
+| TBAR replicationDeclaration AT process %prec U-TBAR
+| LRSQUARE replicationDeclaration AT process %prec U-LRSQUARE
+| LSQUARE chansetExpr RSQUARE replicationDeclaration AT process %prec U-LSQUARE
 ;
 
 replicationDeclaration :
@@ -617,12 +622,27 @@ replicationDeclaration :
 
 replicationDeclarationAlt :
   singleTypeDecl // TODO
-// FIXME --- this causes a s/r conflict due to the name production
-/* | singleExpressionDeclaration */
+| singleExpressionDeclaration
 ;
 
-/* singleExpressionDeclaration : */
-/* IDENTIFIER COLON expression // TODO */
+/* DEVIATION
+ * CML_0:
+ *   IDENTIFIER { COMMA IDENTIFIER } COLON expression
+ * here:
+ *   IDENTIFIER { COMMA IDENTIFIER } IN expression
+ *
+ * (JWC) This declares a replication variable to take values from the
+ * evaluation of an expression; I assume that the expression's type is
+ * a set, so using IN (INSET?) here seems at least somewhat
+ * appropriate.
+ *
+ * (JWC) We could make this consistent with singleTypeDecl by setting
+ * the rule to:
+ *   pathList IN expression
+ * which is an interesting idea.
+ */
+singleExpressionDeclaration :
+  IDENTIFIER IN expression // TODO
 /* { */
 /*   LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1); */
 /*   List<LexIdentifierToken> ids = new Vector<LexIdentifierToken>(); */
@@ -630,14 +650,14 @@ replicationDeclarationAlt :
 /*   ASingleTypeDeclaration singleTypeDeclaration = new ASingleTypeDeclaration(id.getLocation(), NameScope.GLOBAL, ids, (PType)$3); */
 /*   $$ = singleTypeDeclaration; */
 /* } */
-/* | singleExpressionDeclaration COMMA IDENTIFIER // TODO */
+| singleExpressionDeclaration COMMA IDENTIFIER // TODO
 /* { */
 /*   LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1); */
-/*   ASingleTypeDeclaration singleTypeDeclaration = (ASingleTypeDeclaration)$3;     */
+/*   ASingleTypeDeclaration singleTypeDeclaration = (ASingleTypeDeclaration)$3; */
 /*   singleTypeDeclaration.getIdentifiers().add(id); */
 /*   $$ = singleTypeDeclaration; */
 /* } */
-/* ; */
+;
 
 processParagraphList :
   processParagraph
@@ -882,7 +902,16 @@ action :
 }
 | LPAREN parametrisationList AT action RPAREN // parametrisedAction TODO
 | instantiatedAction // TODO
-| replicatedAction // TODO
+/* replicated actions */
+| SEMI replicationDeclaration AT action %prec U-SEMI
+| LRSQUARE LCURLY replicationDeclaration AT action RCURLY %prec U-LRSQUARE
+| BARTILDEBAR LCURLY replicationDeclaration AT action RCURLY %prec U-BARTILDEBAR
+| LSQUAREDBAR nameset DBARRSQUARE LPAREN replicationDeclaration AT action RPAREN %prec U-LSQUAREDBAR
+| TBAR replicationDeclaration AT LSQUARE namesetExpr RSQUARE action %prec U-TBAR
+| LSQUAREBAR chansetExpr BARRSQUARE replicationDeclaration AT LSQUARE namesetExpr RSQUARE action %prec U-LSQUAREBAR
+| DBAR replicationDeclaration AT LSQUARE namesetExpr BAR chansetExpr RSQUARE action %prec U-DBAR
+| DBAR replicationDeclaration AT LSQUARE namesetExpr RSQUARE action %prec U-DBAR
+/* replicated actions end */
 | letStatement // TODO
 | blockStatement // TODO
 | controlStatement // TODO
@@ -1025,24 +1054,6 @@ instantiatedAction :
   $$ = new ADeclarationInstantiatedAction(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8), (List<? extends ASingleTypeDeclaration>)$2, (PAction)$4, (List<PExp>)$7);
 }
 | LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN // parametrisedAction TODO
-;
-
-/* DEVIATION
- * all of the replicated actions
- * grammar:
- *   <replOp> replicationDeclaration '@' process
- * here:
- *   <replOp> '{' replicationDeclaration '}' '@' process
- */
-replicatedAction :
-  SEMI LCURLY replicationDeclaration AT action RCURLY //TODO
-| LRSQUARE LCURLY replicationDeclaration AT action RCURLY //TODO
-| BARTILDEBAR LCURLY replicationDeclaration AT action RCURLY //TODO
-| LSQUAREDBAR nameset DBARRSQUARE LPAREN replicationDeclaration AT action RPAREN //TODO
-| TBAR replicationDeclaration AT LSQUARE namesetExpr RSQUARE action // TODO
-| LSQUAREBAR chansetExpr BARRSQUARE replicationDeclaration AT LSQUARE namesetExpr RSQUARE action //TODO
-| DBAR replicationDeclaration AT LSQUARE namesetExpr BAR chansetExpr RSQUARE action //TODO
-| DBAR replicationDeclaration AT LSQUARE namesetExpr RSQUARE action //TODO
 ;
 
 renameExpression :
@@ -2928,14 +2939,14 @@ casesExprAlt :
 ;
 
 unaryExpr :
-  PLUS expression %prec UPLUS
+  PLUS expression %prec U-PLUS
 {
   PExp exp = (PExp)$2;
   LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
   LexLocation location = combineLexLocation(opLocation, exp.getLocation());
   $$ = new AUnaryPlusUnaryExp(location, exp);
 }
-| MINUS expression %prec UMINUS
+| MINUS expression %prec U-MINUS
 {
   PExp exp = (PExp)$2;
   LexLocation opLocation = extractLexLocation((CmlLexeme)$1);
