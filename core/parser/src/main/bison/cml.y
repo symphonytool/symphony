@@ -1,42 +1,41 @@
 %require "2.5"
 %language "java"
 %locations
-%define parser_class_name "CmlParser"
-//%define access "public"
 %define package "eu.compassresearch.core.parser"
+%define public
+%define parser_class_name "CmlParser"
 %code imports{
 
-// ******************************
-// *** required local imports ***
-// ******************************
+  // ******************************
+  // *** required local imports ***
+  // ******************************
 
-// required standard Java definitions
-    import java.util.*;
-    import java.io.File;
-    import java.io.FileReader;
-    import java.io.FileNotFoundException;
-    import java.io.InputStreamReader;
-    import java.io.Reader;
-    import java.lang.reflect.*;
-    import eu.compassresearch.ast.definitions.*;
-    import eu.compassresearch.ast.declarations.*;
-    import eu.compassresearch.ast.expressions.*;
-    import eu.compassresearch.ast.statements.*;
-    import eu.compassresearch.ast.actions.*;
-    import eu.compassresearch.ast.process.*;
-    import eu.compassresearch.ast.patterns.*;
-    import eu.compassresearch.ast.program.*;
-    import eu.compassresearch.ast.types.*;
-    import eu.compassresearch.ast.lex.*;
-    import eu.compassresearch.ast.typechecker.NameScope;
-    import eu.compassresearch.ast.node.*;
-    import eu.compassresearch.ast.node.tokens.*;
-    //    import org.overture.transforms.*;
-    import eu.compassresearch.ast.util.*;
-    import eu.compassresearch.core.lexer.CmlLexeme;
-    import eu.compassresearch.core.lexer.CmlLexer;
-    import eu.compassresearch.core.lexer.Position;
-    public
+  // required standard Java definitions
+  import java.util.*;
+  import java.io.File;
+  import java.io.FileReader;
+  import java.io.FileNotFoundException;
+  import java.io.InputStreamReader;
+  import java.io.Reader;
+  import java.lang.reflect.*;
+  import eu.compassresearch.ast.definitions.*;
+  import eu.compassresearch.ast.declarations.*;
+  import eu.compassresearch.ast.expressions.*;
+  import eu.compassresearch.ast.statements.*;
+  import eu.compassresearch.ast.actions.*;
+  import eu.compassresearch.ast.process.*;
+  import eu.compassresearch.ast.patterns.*;
+  import eu.compassresearch.ast.program.*;
+  import eu.compassresearch.ast.types.*;
+  import eu.compassresearch.ast.lex.*;
+  import eu.compassresearch.ast.typechecker.NameScope;
+  import eu.compassresearch.ast.node.*;
+  import eu.compassresearch.ast.node.tokens.*;
+  //    import org.overture.transforms.*;
+  import eu.compassresearch.ast.util.*;
+  import eu.compassresearch.core.lexer.CmlLexeme;
+  import eu.compassresearch.core.lexer.CmlLexer;
+  import eu.compassresearch.core.lexer.Position;
 }
 
 %code{
@@ -376,11 +375,11 @@ programParagraphList :
 ;
 
 programParagraph :
-  classDefinition                                       { $$ = $1; }
-| processDefinition                                     { $$ = $1; }
-| channelDefinition                                     { $$ = $1; }
-| chansetDefinitionParagraph                            { $$ = $1; }
-| globalDefinitionParagraph                             { $$ = $1; } 
+  classDefinition                                       { $$ = $classDefinition; }
+| processDefinition                                     { $$ = $processDefinition; }
+| channelDefinition                                     { $$ = $channelDefinition; }
+| chansetDefinitionParagraph                            { $$ = $chansetDefinitionParagraph; }
+| globalDefinitionParagraph                             { $$ = $globalDefinitionParagraph; } 
 ;
 
 classDefinition : 
