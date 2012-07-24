@@ -330,7 +330,7 @@
       DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI COLONINTER
       COLONUNION BARGT
 %right U-SEMI U-BARTILDEBAR U-DBAR U-TBAR U-LRSQUARE U-LSQUARE U-LSQUAREBAR
-      U-LSQUAREDBAR
+       U-LSQUAREDBAR
 %nonassoc ELSE ELSEIF
 %left BAR
 %left DO
@@ -1456,7 +1456,7 @@ typeDef :
 {
   AAccessSpecifier access = (AAccessSpecifier)$1;
   LexNameToken name = extractLexNameToken((CmlLexeme)$2);
-  AInvariantDefinition inv = (AInvariantDefinition)$5; 
+  AInvariantDefinition inv = (AInvariantDefinition)$5;
   //SInvariantType inv = (SInvariantType)$5;
   LexLocation location = null;
   if (access.getLocation() != null) {
@@ -1464,18 +1464,18 @@ typeDef :
   } else {
     location = combineLexLocation(name.getLocation(), inv.getLocation());
   }
-  
-  ATypeDefinition typeDef = new ATypeDefinition(location, 
-						name, 
-						NameScope.GLOBAL, 
-						false/*Boolean used_*/, 
-						null/*PDeclaration declaration_*/, 
-						access, 
-						(PType)$type, 
-						null/*SInvariantType invType_*/, 
-						inv.getPattern()/*PPattern invPattern_*/, 
-						inv.getExpression()/*PExp invExpression_*/, 
-						null /*AExplicitFunctionDefinition invdef_*/, 
+
+  ATypeDefinition typeDef = new ATypeDefinition(location,
+						name,
+						NameScope.GLOBAL,
+						false/*Boolean used_*/,
+						null/*PDeclaration declaration_*/,
+						access,
+						(PType)$type,
+						null/*SInvariantType invType_*/,
+						inv.getPattern()/*PPattern invPattern_*/,
+						inv.getExpression()/*PExp invExpression_*/,
+						null /*AExplicitFunctionDefinition invdef_*/,
 						false/*Boolean infinite_*/);
   $$ = typeDef;
 }
@@ -1489,17 +1489,17 @@ typeDef :
   } else {
       location = combineLexLocation(name.getLocation(), ((PType)$type).getLocation());
   }
-  $$ = new ATypeDefinition(location, 
-			   name, 
-			   NameScope.GLOBAL, 
-			   false/*Boolean used_*/, 
-			   null/*PDeclaration declaration_*/, 
-			   access, 
-			   (PType)$type, 
-			   null/*SInvariantType invType_*/, 
-			   null/*PPattern invPattern_*/, 
-			   null/*PExp invExpression_*/, 
-			   null /*AExplicitFunctionDefinition invdef_*/, 
+  $$ = new ATypeDefinition(location,
+			   name,
+			   NameScope.GLOBAL,
+			   false/*Boolean used_*/,
+			   null/*PDeclaration declaration_*/,
+			   access,
+			   (PType)$type,
+			   null/*SInvariantType invType_*/,
+			   null/*PPattern invPattern_*/,
+			   null/*PExp invExpression_*/,
+			   null /*AExplicitFunctionDefinition invdef_*/,
 			   false/*Boolean infinite_*/);
 }
 | qualifier IDENTIFIER DCOLON fieldList
@@ -3433,7 +3433,7 @@ controlStatement :
  *
  * TODO: need the convert the paths to stateDesignator and name, resp.
  */
-/*   path COLONEQUALS NEW path LRPAREN */
+/* | path COLONEQUALS NEW path LRPAREN */
 /* | path COLONEQUALS NEW path LPAREN expressionList RPAREN */
 ;
 

@@ -1,12 +1,9 @@
 %require "2.5"
 %language "java"
 %locations
-%define parser_class_name "CmlParser"
 %define package "eu.compassresearch.core.parser"
-
-/* ---------------------------------------------------------------- */
-/* Token declarations                                               */
-/* ---------------------------------------------------------------- */
+%define public
+%define parser_class_name "CmlParser"
 
 %token CLASS END PROCESS INITIAL EQUALS AT BEGIN ACTIONS BARTILDEBAR LRSQUARE
 %token TBAR LPAREN RPAREN LRPAREN LSQUARE RSQUARE CSPSKIP CSPSTOP CSPCHAOS
@@ -31,11 +28,6 @@
 
 %token nameset namesetExpr nilLiteral characterLiteral textLiteral
 
-/* ---------------------------------------------------------------- */
-/* Precidence declarations                                          */
-/* ---------------------------------------------------------------- */
-
-/* Precidence from loosest to tightest; tokens on same line are equal precidence */
 %right LPAREN
 %right COMMA
 %left SEQOF
@@ -50,26 +42,17 @@
 %left BAR
 %left DO
 %right U-DO
-/* unary ops */
-%right UPLUS UMINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS
-       INDS REVERSE CONC DOM RNG MERGE INVERSE
-/* binary ops */
 %left PLUS MINUS DIVIDE REM MOD LT LTE GT GTE EQUALS NEQ OR AND EQRARROW
       LTEQUALSGT INSET STAR NOTINSET SUBSET PROPER_SUBSET UNION INTER CARET
-      DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR IN
+      DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR IN COLON
+%right U-PLUS U-MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS
+       INDS REVERSE CONC DOM RNG MERGE INVERSE
 %left DOT DOTHASH DOTCOLON
 %left LRPAREN
 
-/* ---------------------------------------------------------------- */
-/* Initial rule declaration                                         */
-/* ---------------------------------------------------------------- */
 %start source
 
 %%
-
-/* ---------------------------------------------------------------- */
-/* The rules                                                        */
-/* ---------------------------------------------------------------- */
 
 source :
   programParagraphList
@@ -81,11 +64,11 @@ programParagraphList :
 ;
 
 programParagraph :
-  classDefinition                                       { $$ = $1; }
-| processDefinition                                     { $$ = $1; }
-| channelDefinition                                     { $$ = $1; }
-| chansetDefinitionParagraph                            { $$ = $1; }
-| globalDefinitionParagraph                             { $$ = $1; }
+  classDefinition
+| processDefinition
+| channelDefinition
+| chansetDefinitionParagraph
+| globalDefinitionParagraph
 ;
 
 classDefinition :
@@ -121,11 +104,11 @@ process :
 | LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
 | path
 | process renameExpression
-| SEMI LCURLY replicationDeclaration AT process RCURLY
-| BARTILDEBAR LCURLY replicationDeclaration AT process RCURLY
-| LRSQUARE LCURLY replicationDeclaration AT process RCURLY
-| TBAR LCURLY replicationDeclaration AT process RCURLY
-| LSQUARE chansetExpr RSQUARE LCURLY replicationDeclaration AT process RCURLY
+| SEMI replicationDeclaration AT process %prec U-SEMI
+| BARTILDEBAR replicationDeclaration AT process %prec U-BARTILDEBAR
+| TBAR replicationDeclaration AT process %prec U-TBAR
+| LRSQUARE replicationDeclaration AT process %prec U-LRSQUARE
+| LSQUARE chansetExpr RSQUARE replicationDeclaration AT process %prec U-LSQUARE
 ;
 
 replicationDeclaration :
@@ -593,6 +576,7 @@ operationType :
 ;
 
 operationBody :
+  /* action */
   letStatement
 | blockStatement
 | controlStatement
@@ -732,8 +716,8 @@ casesExprAlt :
 ;
 
 unaryExpr :
-  PLUS expression %prec UPLUS
-| MINUS expression %prec UMINUS
+  PLUS expression %prec U-PLUS
+| MINUS expression %prec U-MINUS
 | ABS expression
 | FLOOR expression
 | NOT expression
@@ -808,7 +792,7 @@ generalIsExpr :
 controlStatement :
   ifStatement
 | IF nonDeterministicAltList END
-| DO nonDeterministicAltList END
+| DO nonDeterministicAltList END %prec U-DO
 | casesStatement
 | FOR bind IN expression DO action
 /* | FOR bind IN REVERSE expression DO action */
@@ -823,7 +807,7 @@ controlStatement :
 | LSQUARE implicitOperationBody RSQUARE
 | RETURN SEMI
 | RETURN expression
-/*   path COLONEQUALS NEW path LRPAREN */
+/* | path COLONEQUALS NEW path LRPAREN */
 /* | path COLONEQUALS NEW path LPAREN expressionList RPAREN */
 ;
 
@@ -985,7 +969,3 @@ pathList :
   path
 | pathList COMMA path
 ;
-
-/**********************/
-/*** END OF GRAMMAR ***/
-/**********************/
