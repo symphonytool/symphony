@@ -154,8 +154,7 @@ numeral                                 = {digit}+
 
 identifier      = {letter}([0-9\'_]|{letter})*
 
-/* FIXME mk_name need to be extended to allow actual identifiers */
-mk_name         = "mk_"{identifier}
+name            = {identifier}("."{identifier})?
 /* FIXME and we need a is_name macro as well for the (to be created) ISUNDERNAME token  */
 quoteliteral    = \<{identifier}\>
 LineTerminator  = \r|\n|\r\n
@@ -285,8 +284,10 @@ blanks          = [ \t\f]*
 "wr"                          { return createToken(CmlParser.WR); }
 
 {quoteliteral}                { return createToken(CmlParser.QUOTE_LITERAL); }
-{mk_name}                     { return createToken(CmlParser.MKUNDERNAME); }
 "mk_"                         { return createToken(CmlParser.MKUNDER); }
+"mk_"{name}                   { return createToken(CmlParser.MKUNDERNAME); }
+"is_"                         { return createToken(CmlParser.ISUNDER); }
+"is_"{name}                   { return createToken(CmlParser.ISUNDERNAME); }
 
 "&"                           { return createToken(CmlParser.AMP); }
 "@"                           { return createToken(CmlParser.AT); }
