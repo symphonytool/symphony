@@ -331,8 +331,8 @@
 /* Precidence declarations                                          */
 /* ---------------------------------------------------------------- */
 
-/* Note that UPLUS, UMINUS, USEMI, ... are tokens for disambiguating
- * precidence (shift/reduce conflicts, typically).
+/* Note that U-PLUS, U-MINUS, U-SEMI, ... are tokens for
+ * disambiguating precidence (shift/reduce conflicts, typically).
  */
 /* Precidence from loosest to tightest; tokens on same line are equal precidence */
 %right LPAREN
@@ -341,8 +341,9 @@
 %left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT
       BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF
       NEW COLONEQUALS SLASH BACKSLASH ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE
-      DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI COLONINTER
-      COLONUNION BARGT
+      DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH COLONINTER COLONUNION
+      BARGT
+%right SEMI
 %right U-SEMI U-BARTILDEBAR U-DBAR U-TBAR U-LRSQUARE U-LSQUARE U-LSQUAREBAR
        U-LSQUAREDBAR
 %nonassoc ELSE ELSEIF
@@ -934,7 +935,6 @@ action :
 | letStatement // TODO
 | blockStatement // TODO
 | controlStatement // TODO
-// FIXME this is the missing IDENTIFIER in action; should probably be a name anyway
 /* DEVIATION
  * CML_0:
  *   name
@@ -2293,22 +2293,19 @@ operationDefList :
     opDefinitions.add((SOperationDefinition)$1);
     $$ = opDefinitions;
 }
-// FIXME --- making the SEMI optional causes s/r
-/* | operationDef SEMI */
-/* { */
-/*     List<SOperationDefinition> opDefinitions = new Vector<SOperationDefinition>(); */
-/*     opDefinitions.add((SOperationDefinition)$1); */
-/*     $$ = opDefinitions; */
-/* } */
 | operationDefList SEMI operationDef
 {
     List<SOperationDefinition> opDefinitions = (List<SOperationDefinition>)$1;
     opDefinitions.add((SOperationDefinition)$3);
     $$ = opDefinitions;
 }
+| operationDefList SEMI operationDef SEMI
+{
+    List<SOperationDefinition> opDefinitions = (List<SOperationDefinition>)$1;
+    opDefinitions.add((SOperationDefinition)$3);
+    $$ = opDefinitions;
+}
 ;
-
-/* FIXME the optional trailing semicolon in the operations definitions is presently not optional */
 
 operationDef :
   implicitOperationDef
@@ -2321,6 +2318,12 @@ operationDef :
 }
 ;
 
+/* ?FIXME the optional trailing semicolon in the operation body is
+ * presently not allowed.
+ *
+ * (JWC) Looking at the CML_0 grammar, I'm not sure there is an
+ * optional semicolon in an opBody.
+ */
 explicitOperationDef :
   qualifier IDENTIFIER COLON operationType IDENTIFIER parameterList DEQUALS operationBody preExpr_opt postExpr_opt
 {
@@ -3426,13 +3429,56 @@ controlStatement :
 | IF nonDeterministicAltList END
 | DO nonDeterministicAltList END %prec U-DO
 /* nondeterministic statements end */
+/* DEVIATION --- PATH
+ * CML_0:
+ *  callStatement
+ * TODO: this gets merged with generalAssignStatement
+ */
+/* | callStatement */
+// FIXME --- causes r/r conflict with objectDesignator(call)
+/* general assign statement */
+| assignStatement
+/* multiple assign statement */
+| ATOMIC LPAREN assignStatementList RPAREN
+/* general assign statement end */
+/* specification statement */
+| LSQUARE implicitOperationBody RSQUARE // TODO
+/* DEVIATION
+ * CML_0
+ *   RETURN [ expression ]
+ * here:
+ *   RETURN [ '(' expression ')' ]
+ *
+ * (JWC) For reasons I don't yet understand, not having () around the
+ * return expression causes conflicts with either []/[ or with
+ * identifiers (depending on whether or not, respectively, I've added
+ * precidence annotations.  Removing one of the two return productions
+ * allows it to work just fine, however, so there's an odd bit of
+ * ambiguity at play here.
+ */
+| RETURN
+| RETURN LPAREN expression RPAREN
+{
+  PExp exp = (PExp)$2;
+  $$ = new AReturnStm(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
+  //  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
+}
+/* DEVIATION --- PATH
+ * CML_0:
+ *   stateDesignator COLONEQUALS NEW name LRPAREN
+ *   stateDesignator COLONEQUALS NEW name LPAREN expressionList RPAREN
+ *
+ * TODO: need the convert the paths to stateDesignator and name, resp.
+ */
+| path COLONEQUALS NEW path LRPAREN
+| path COLONEQUALS NEW path LPAREN expressionList RPAREN
 | casesStatement
-// FIXME
 /* sequence for loop */
 /* FIXME
  *
- * The grammar allows reverse as a specific keyword to the for loop,
- * but reverse is also a unary expression operator.
+ * (JWC) The grammar allows reverse as a specific keyword to the for
+ * loop, but reverse is also a unary expression operator.  I've no
+ * idea what the semantic difference is.
  */
 | FOR bind IN expression DO action
 /* | FOR bind IN REVERSE expression DO action */
@@ -3447,38 +3493,6 @@ controlStatement :
 /* index for loop end */
 /* while loop */
 | WHILE expression DO action
-/* DEVIATION --- PATH
- * CML_0:
- *  callStatement
- * TODO: this gets merged with generalAssignStatement
- */
-/* | callStatement */
-// FIXME --- causes r/r conflict with objectDesignator(call)
-| generalAssignStatement
-{
-  $$ = $1;
-}
-/* specification statement */
-| LSQUARE implicitOperationBody RSQUARE // TODO
-/* FIXME
- * (JWC) I really don't think we should require the SEMI here
- */
-| RETURN SEMI  // TODO
-| RETURN expression
-{
-  PExp exp = (PExp)$2;
-  $$ = new AReturnStm(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
-  //  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
-}
-/* DEVIATION --- PATH
- * CML_0:
- *   stateDesignator COLONEQUALS NEW name LRPAREN
- *   stateDesignator COLONEQUALS NEW name LPAREN expressionList RPAREN
- *
- * TODO: need the convert the paths to stateDesignator and name, resp.
- */
-/* | path COLONEQUALS NEW path LRPAREN */
-/* | path COLONEQUALS NEW path LPAREN expressionList RPAREN */
 ;
 
 nonDeterministicAltList :
@@ -3490,7 +3504,6 @@ letStatement :
   LET localDefList IN action // TODO
 ;
 
-/* FIXME trailing semicolon not optional */
 blockStatement :
   LPAREN action RPAREN
 {
@@ -3498,20 +3511,14 @@ blockStatement :
   PAction action = (PAction)$2;
   $$ = new ABlockAction(location, null, action);
 }
-| LPAREN dclStatement action RPAREN
+| LPAREN DCL assignmentDefList AT action RPAREN
 {
-  LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4);
-  ADeclareStatementDeclareStatement dclStm = (ADeclareStatementDeclareStatement)$2;
-  PAction action = (PAction)$3;
+  LexLocation location = extractLexLocation((CmlLexeme)$LPAREN, (CmlLexeme)$RPAREN);
+  ADeclareStatementDeclareStatement dclStm = 
+    new ADeclareStatementDeclareStatement(extractLexLocation((CmlLexeme)$DCL, (CmlLexeme)$AT),
+					  (List<? extends PDefinition>)$assignmentDefList);
+  PAction action = (PAction)$action;
   $$ = new ABlockAction(location, dclStm, action);
-}
-;
-
-dclStatement :
-  DCL assignmentDefList AT
-{
-  $$ = new ADeclareStatementDeclareStatement(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3),
-					     (List<? extends PDefinition>)$2);
 }
 ;
 
@@ -3545,37 +3552,26 @@ assignmentDef :
 | IDENTIFIER COLON type IN expression // TODO
 ;
 
-generalAssignStatement :
-  assignStatement
-{
-  $$ = $1;
-}
-| multiAssignStatement // TODO
-;
-
 assignStatementList :
-  assignStatement // TODO
-| assignStatementList SEMI assignStatement // TODO
-;
-
-multiAssignStatement :
-  ATOMIC LPAREN assignStatementList RPAREN // TODO
+  assignStatement
+| assignStatementList SEMI assignStatement
 ;
 
 assignStatement :
 /* DEVIATION --- PATH
  * CML_0:
- *   stateDesignator COLONEQUALS expression // was stateDesignator
+ *   stateDesignator ':=' expression
+ * here:
+ *   path ':=' expression
  * TODO: convert to a stateDesignator
  */
   path COLONEQUALS expression
 {
   Path path = (Path)$path;
   PStateDesignator stateDesignator = null;
-  try{
+  try {
     stateDesignator = path.convertToStateDesignator();
-  }
-  catch(Path.PathConvertException e){
+  } catch(Path.PathConvertException e) {
     e.printStackTrace();
     System.exit(-4);
   }
@@ -3630,7 +3626,6 @@ casesStatement :
     $$ = cases;
 }
 | CASES expression COLON casesStatementAltList OTHERS RARROW action END
-/*   // FROM | casesStatementAlt COMMA OTHERS RARROW action */
 /* { */
 /*   List<ACaseAlternativeAction> casesList = new Vector<ACaseAlternativeAction>(); */
 /*   casesList.add((ACaseAlternativeAction)$1); */
