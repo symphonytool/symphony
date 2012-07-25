@@ -226,7 +226,7 @@
 	scanner = new CmlLexer( new java.io.FileReader(file) );
 	CmlParser cmlParser = new CmlParser(scanner);
 	cmlParser.setDocument(fileSource);
-	//cmlParser.setDebugLevel(1);
+	cmlParser.setDebugLevel(1);
 
 	//do {
 	//System.out.println(scanner.yylex());
@@ -681,16 +681,16 @@ singleExpressionDeclaration :
 processParagraphList :
   processParagraph
 {
-  List<PDeclaration> processParagraphList = new Vector<PDeclaration>();
-  processParagraphList.add((PDeclaration)$1);
+  List<PDefinition> processParagraphList = new Vector<PDefinition>();
+  processParagraphList.add((PDefinition)$1);
   $$ = processParagraphList;
 }
 | processParagraphList processParagraph
 {
-  List<PDeclaration> processParagraphList = (List<PDeclaration>)$1;
+  List<PDefinition> processParagraphList = (List<PDefinition>)$1;
   if (processParagraphList == null)
-    processParagraphList = new Vector<PDeclaration>();
-  processParagraphList.add((PDeclaration)$2);
+    processParagraphList = new Vector<PDefinition>();
+  processParagraphList.add((PDefinition)$2);
   $$ = processParagraphList;
 }
 ;
@@ -1437,16 +1437,26 @@ classDefinitionBlockAlternative :
 typeDefs :
   TYPES
 {
-  $$ = new LinkedList<ATypeDefinition>();
+  LexLocation loc = extractLexLocation((CmlLexeme)$1);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
+  $$ = new ATypesParagraphDefinition( loc, NameScope.LOCAL, false, access, null);
 }
 | TYPES typeDefList SEMI
 {
-  $$ = (List<ATypeDefinition>)$2;
+  List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$2;
+  LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$1), 
+				       extractLastLexLocation(typeDefinitions));
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
+  $$ = new ATypesParagraphDefinition( loc, NameScope.LOCAL, false, access, typeDefinitions);
+
 }
 | TYPES typeDefList
 {
-  List<ATypeDefinition> tdefs = (List<ATypeDefinition>)$2;
-  $$ = tdefs;
+  List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$2;
+  LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$1), 
+				       extractLastLexLocation(typeDefinitions));
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
+  $$ = new ATypesParagraphDefinition( loc, NameScope.LOCAL, false, access, typeDefinitions);
 }
 ;
 
@@ -2451,7 +2461,7 @@ mode :
 stateDefs :
   STATE stateDefList
 {
-  $$ = $1;
+  $$ = $2;
 }
 | STATE
 {

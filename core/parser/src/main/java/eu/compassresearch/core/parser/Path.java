@@ -202,14 +202,33 @@ public class Path
 					       unit.value);
 	    }
 	    break;
-	// case BACKTICK:
-	//     {
-	//     }
-	//     break;
-	// case APPLY:
-	//     {
-	//     }
-	//     break;
+	case BACKTICK:
+	    {
+		if (this.subPath.kind == PathKind.UNIT){
+		    LexNameToken name = this.unit.convertToName(subPath.unit.value.getName());
+		    sd= new AIdentifierStateDesignator(name.getLocation(),
+						       name);
+		}
+		else{
+		    throw new PathConvertException("Illigal path for stateDesignator");
+		}
+		LexNameToken name = unit.convertToName("");
+		sd = new AIdentifierStateDesignator(name.getLocation(), 
+						    name);
+	    }
+	    break;
+	case APPLY:
+	    {
+		PStateDesignator object = this.subPath.convertToStateDesignator();
+		LexLocation location = object.getLocation();
+		
+		if(this.expList.size() != 1)
+		    throw new PathConvertException("A map or sequence reference must have 1 argument");
+		sd = new  AMapSeqStateDesignator(location, 
+						 object, 
+						 this.expList.get(0));
+	    }
+	    break;
 	default:
 	    throw new PathConvertException("Illigal path for stateDesignator : " + kind);
 	}

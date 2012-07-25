@@ -138,6 +138,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	   | {chanset} 
 	     [chansets] : definition.chanset*
  	   | {action} [actions]: definition.action*
+ 	   | {types} [types]: definition.type*
 	   ;
 
 //    = {class} [identifier]:LexIdentifierToken [classBody]: definition.classbody
