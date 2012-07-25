@@ -18,4 +18,14 @@ public class Unit
 	this.kind = kind;
 	this.value = value ;
     }
+
+    public LexNameToken convertToName()
+    {
+	return new LexNameToken("Default", value); 
+    }
+
+    public LexNameToken convertToName(String prefix)
+    {
+	return new LexNameToken(prefix, value); 
+    }
 }

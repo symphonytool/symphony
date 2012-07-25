@@ -128,11 +128,11 @@ public class DotGraphVisitor extends QuestionAdaptor<DotGraphVisitor.DotPair>
 		{
 			nt = nt.substring(0, 150);
 		}
-		children.put("" + nt.replaceAll("[^a-zA-Z0-9 ]","") + "", null);
+		children.put("" + nt.replaceAll("[^a-zA-Z0-9 \\-':']","") + "", null);
 		for (Entry<String, Object> s : children.entrySet())
 		{
 			String id = dn.id + s.getKey();
-			id = id.replaceAll("[^a-zA-Z0-9]","");
+			id = id.replaceAll("[^a-zA-Z0-9 \\-':']","");
 			dn.childToId.put(id, s.getValue());
 			if (!firstChild)
 			{

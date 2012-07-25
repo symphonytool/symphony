@@ -1,0 +1,12 @@
+class Writer =
+  begin
+    types
+    Hej :: f : nat
+    	   s : nat
+    state
+      wpair :  Hej
+
+    operations 
+      choose_pair : Context`PI ==> ()
+      choose_pair(r) == wpair.f := not r
+  end

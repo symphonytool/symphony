@@ -1,0 +1,11 @@
+class Writer =
+  begin
+    state
+      wpair : nat
+
+    operations 
+      choose_pair : Context`PI ==> ()
+      choose_pair(r) == (
+        wpair := not r
+      );
+  end

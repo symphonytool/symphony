@@ -144,7 +144,7 @@ public class LexLocation implements Serializable , ExternalNode
 
     private String positionString()
     {
-	return "at offset range "+startOffset+"-"+endOffset+" line "+startLine + ":" + startPos;
+	return "at offset range "+startOffset+"-"+endOffset+" line "+startLine + ":" + startPos + "-" +endLine + ":" + endPos ;
     }
 
     /* If there is a file use the file 

@@ -100,15 +100,23 @@
   private LexLocation extractLexLocation(CmlLexeme lexeme)
   {
     return new LexLocation(currentSource.toString(), "Default",
-			   lexeme.getStartPos().line, lexeme.getStartPos().column,
-			   lexeme.getEndPos().line, lexeme.getEndPos().column,0,0);
+			   lexeme.getStartPos().line, 
+			   lexeme.getStartPos().column,
+			   lexeme.getEndPos().line, 
+			   lexeme.getEndPos().column,
+			   lexeme.getStartPos().offset,
+			   lexeme.getEndPos().offset);
   }
 
   private LexLocation extractLexLocation(CmlLexeme start, CmlLexeme end)
   {
     return new LexLocation(currentSource.toString(), "Default",
-			   start.getStartPos().line, start.getStartPos().column,
-			   end.getEndPos().line, end.getEndPos().column,0,0);
+			   start.getStartPos().line, 
+			   start.getStartPos().column,
+			   end.getEndPos().line, 
+			   end.getEndPos().column,
+			   start.getStartPos().offset,
+			   end.getEndPos().offset);
   }
 
   private LexLocation extractLexLocation(CmlLexeme start, LexLocation end)
@@ -116,14 +124,20 @@
 
     return new LexLocation(currentSource.toString(), "Default",
 			   start.getStartPos().line, start.getStartPos().column,
-			   end.endLine, end.endPos,0,0);
+			   end.endLine, 
+			   end.endPos,
+			   start.getStartPos().offset,
+			   end.endOffset);
   }
 
   private LexLocation combineLexLocation(LexLocation start, LexLocation end)
   {
     return new LexLocation(currentSource.toString(), "Default",
 			   start.startLine, start.startPos,
-			   end.endLine, end.endPos,0,0);
+			   end.endLine, 
+			   end.endPos,
+			   start.startOffset,
+			   end.endOffset);
   }
 
   private LexLocation extractLastLexLocation(List<?> fields)
@@ -1508,7 +1522,11 @@ typeDef :
   LexNameToken name = extractLexNameToken((CmlLexeme)$2);
   CmlLexeme vdmrec = (CmlLexeme)$3;
   List<AFieldField> fields = (List<AFieldField>)$4;
-  LexLocation loc = combineLexLocation(access.getLocation(), extractLexLocation(vdmrec));
+  LexLocation loc = null;
+  if(access.getLocation() != null)
+    loc = combineLexLocation(access.getLocation(), extractLexLocation(vdmrec));
+  else
+    loc = combineLexLocation(name.getLocation(), extractLexLocation(vdmrec));
   ARecordInvariantType recType = new ARecordInvariantType(loc, false, null, false, null, name, fields, true);
   ATypeDefinition res = new ATypeDefinition(loc, name, NameScope.GLOBAL, false, null, access, recType, null, null, null, null, true);
   $$ = res;
@@ -1521,8 +1539,11 @@ typeDef :
   List<AFieldField> fields = (List<AFieldField>)$4;
   // TODO: Added AInvariantInvariant to the ARecordInvariantType replacing
   // the current AExplicitFunctionFunctionDefinition for inv.
-  LexLocation loc = combineLexLocation(access.getLocation(), extractLexLocation(vdmrec));
-  //
+  LexLocation loc = null;
+  if(access.getLocation() != null)
+    loc = combineLexLocation(access.getLocation(), extractLexLocation(vdmrec));
+  else
+    loc = combineLexLocation(name.getLocation(), extractLexLocation(vdmrec));
   ARecordInvariantType recType = new ARecordInvariantType(loc, false, null, false, null, name, fields, true);
   ATypeDefinition res = new ATypeDefinition(loc, name, NameScope.GLOBAL, false, null, access, recType, null, null, null, null, true);
   $$ = res;
@@ -1692,8 +1713,22 @@ type :
  * TODO: convert these into to names
  */
 | IDENTIFIER
-| IDENTIFIER DOT IDENTIFIER
+{
+  LexNameToken name = extractLexNameToken((CmlLexeme)$1);
+  ANamedInvariantType type = new ANamedInvariantType();
+  type.setLocation(name.getLocation());
+  type.setName(name);
+  $$ = type;
+}
+//| IDENTIFIER DOT IDENTIFIER why also this?
 | IDENTIFIER BACKTICK IDENTIFIER
+{
+  LexNameToken name = extractLexNameToken((CmlLexeme)$3);
+  name = new LexNameToken(((CmlLexeme)$1).getValue(),name.getIdentifier());
+  ANamedInvariantType type = new ANamedInvariantType();
+  type.setName(name);
+  $$ = type;
+}
 ;
 
 basicType :
@@ -2416,12 +2451,11 @@ mode :
 stateDefs :
   STATE stateDefList
 {
-  List<AStateDefinition> stateDefs = (List<AStateDefinition>)$2;
-  $$ = stateDefs;
+  $$ = $1;
 }
 | STATE
 {
-  $$  = new LinkedList<AStateDefinition>();
+  $$  = new AStateDefinition();
 }
 ;
 
@@ -3525,12 +3559,21 @@ assignStatement :
  * TODO: convert to a stateDesignator
  */
   path COLONEQUALS expression
-/* { */
-/*   PStateDesignator stateDesignator = convertToStateDesignator((PDesignator)$1); */
-/*   PExp exp = (PExp)$3; */
-/*   LexLocation location = combineLexLocation(stateDesignator.getLocation(), exp.getLocation()); */
-/*   $$ = new ASingleGeneralAssignmentControlStatementAction(location, stateDesignator , (PExp)$3); */
-/* } */
+{
+  Path path = (Path)$path;
+  PStateDesignator stateDesignator = null;
+  try{
+    stateDesignator = path.convertToStateDesignator();
+  }
+  catch(Path.PathConvertException e){
+    e.printStackTrace();
+    System.exit(-4);
+  }
+
+  PExp exp = (PExp)$3;
+  LexLocation location = combineLexLocation(stateDesignator.getLocation(), exp.getLocation());
+  $$ = new ASingleGeneralAssignmentControlStatementAction(location, stateDesignator , (PExp)$3);
+}
 ;
 
 ifStatement :
@@ -3801,7 +3844,8 @@ path :
 }
 | path DOTHASH NUMERAL
 {
-  $$ = new Path(Path.PathKind.DOTHASH,(Path)$1,(LexIntegerToken)$3);
+  CmlLexeme lexeme = (CmlLexeme)$3;
+  $$ = new Path(Path.PathKind.DOTHASH,(Path)$1,Integer.decode(lexeme.getValue()));
 }
 | path LRPAREN
 {
