@@ -13,10 +13,12 @@ import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.expressions.ABooleanLiteralExp;
 import eu.compassresearch.ast.expressions.ABracketedExp;
+import eu.compassresearch.ast.expressions.ACaseAlternative;
 import eu.compassresearch.ast.expressions.AModifyBinaryExp;
 import eu.compassresearch.ast.expressions.ANameExp;
 import eu.compassresearch.ast.expressions.ARecordExp;
 import eu.compassresearch.ast.lex.LexCharacterToken;
+import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexIntegerToken;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.lex.LexQuoteToken;
@@ -33,13 +35,16 @@ import org.overture.ast.expressions.AFieldExp;
 import org.overture.ast.expressions.AMkBasicExp;
 import org.overture.ast.expressions.AMkTypeExp;
 import org.overture.ast.expressions.AMuExp;
+import org.overture.ast.expressions.APlusPlusBinaryExp;
 import org.overture.ast.expressions.AVariableExp;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexBooleanToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.NodeList;
 import org.overture.ast.node.tokens.TAsync;
 import org.overture.ast.node.tokens.TStatic;
+import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 
 public class CmlAstToOvertureAst extends AnswerAdaptor<INode>{
@@ -210,16 +215,39 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>{
 			if (eu.compassresearch.ast.lex.LexQuoteToken.class == cmlClz) return convertLexQuoteToken( (eu.compassresearch.ast.lex.LexQuoteToken)cmlGetterRes);
 			if (eu.compassresearch.ast.expressions.ABracketedExp.class == cmlClz) return convertBrackedExp( (eu.compassresearch.ast.expressions.ABracketedExp) cmlGetterRes);
 			if (eu.compassresearch.ast.expressions.AModifyBinaryExp.class == cmlClz) return convertModifyBinaryExp( (eu.compassresearch.ast.expressions.AModifyBinaryExp)cmlGetterRes);
+			if (eu.compassresearch.ast.expressions.ACaseAlternative.class == cmlClz) return convertACaseAlternative( (eu.compassresearch.ast.expressions.ACaseAlternative)cmlGetterRes);
+			if (eu.compassresearch.ast.lex.LexIdentifierToken.class == cmlClz) return convertLexIdentifierToken( (eu.compassresearch.ast.lex.LexIdentifierToken)cmlGetterRes);
+			
 			else  return defaultINode((eu.compassresearch.ast.node.INode)cmlGetterRes);
 		}
 	}
 
 
 
-	private Object convertModifyBinaryExp(AModifyBinaryExp cmlGetterRes) {
+	private Object convertLexIdentifierToken(LexIdentifierToken cmlGetterRes) throws AnalysisException {
+		org.overture.ast.lex.LexIdentifierToken res = new org.overture.ast.lex.LexIdentifierToken(cmlGetterRes.getName(), false, (LexLocation)translate(cmlGetterRes.getLocation()));
+		return res;
+	}
+
+	private Object convertACaseAlternative(ACaseAlternative cmlGetterRes) throws AnalysisException {
 		
+		org.overture.ast.expressions.ACaseAlternative res = new org.overture.ast.expressions.ACaseAlternative();
+		res.setCexp( (PExp) translate(cmlGetterRes.getCexp()));
+		res.setDefs((List)translate(cmlGetterRes.getDefs()));
+		res.setExpType( (org.overture.ast.types.PType)translate(cmlGetterRes.getExpType()));
+		res.setPattern( (PPattern) translate(cmlGetterRes.getPattern().get(0)));
+		res.setResult( (PExp) translate(cmlGetterRes.getResult()));
 		
-		return null;
+		return res;
+	}
+
+	private Object convertModifyBinaryExp(AModifyBinaryExp cmlGetterRes) throws AnalysisException {
+		
+		org.overture.ast.expressions.APlusPlusBinaryExp res = new APlusPlusBinaryExp();
+		res.setLeft((PExp)translate(cmlGetterRes.getLeft()));
+		res.setOp( (org.overture.ast.lex.LexToken)translate(cmlGetterRes.getOp()));
+		res.setRight( (PExp)translate(cmlGetterRes.getRight()));
+		return res;
 	}
 
 	private Object convertBrackedExp(ABracketedExp cmlGetterRes) throws AnalysisException {

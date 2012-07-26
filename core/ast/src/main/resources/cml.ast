@@ -256,6 +256,7 @@ exp {-> package='eu.compassresearch.ast.expressions'}
     |   {elseIf} [elseIf]:exp [then]:exp  /*cml*/
     |   {exists1}  [bind]:bind [predicate]:exp [def]:definition
     |   {exists} [bindList]:multipleBind* [predicate]:exp
+    |   {ioat} [bindList]:multipleBind* [predicate]:exp
     |   {field} [object]:exp [memberName]:LexNameToken [field]:LexIdentifierToken
     |   {fieldNumber} [tuple]:exp [field]:LexIntegerToken
     |   {forAll} [bindList]:multipleBind* [predicate]:exp
@@ -416,7 +417,7 @@ modifier {-> package='eu.compassresearch.ast.expressions'}
     ;
     
 alternative {-> package='eu.compassresearch.ast.expressions'}
-    = {case} [location]:location [cexp]:exp [pattern]:pattern* 
+    = {case} [location]:location [cexp]:exp [pattern]:pattern*
              [result]:exp [defs]:definition*  (type):type (expType):type
     ;
     

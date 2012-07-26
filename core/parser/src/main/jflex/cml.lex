@@ -156,7 +156,7 @@ decimal                                 = {numeral}"."{numeral}([Ee]("+"|"-"){nu
 /* textliteral                          = \"([\040-\041\043-\133\135-\176]|{embeddedctrlchar}|{backslashed}|{deletechar}|{highbitchar}|{universalcharactername}|{ucode})*\" */
 
 identifier      = {letter}([0-9\'_]|{letter})*
-escape          = (\\e)|(\\a)|(\\f)|(\\r)|(\\n)|(\\t)|(\\')|(\\\")
+escape          = (\\e)|(\\a)|(\\f)|(\\r)|(\\n)|(\\t)|(\\\')|(\\\")
 charLit         = \'({letter}|(\\[xX]{hexduo})|{escape}|\\u{hexquad}|\\{octliteral}|\\\\|(\\c[a-zA-Z]))\'
 name            = {identifier}("."{identifier})?
 /* FIXME and we need a is_name macro as well for the (to be created) ISUNDERNAME token  */
@@ -368,6 +368,10 @@ blanks          = [ \t\f]*
 "false"                       { return createToken(CmlParser.FALSE); }
 "true"                        { return createToken(CmlParser.TRUE); }
 "rem"                         { return createToken(CmlParser.REM); }
+"psubset"                     { return createToken(CmlParser.PROPER_SUBSET); }
+"comp"                        { return createToken(CmlParser.COMP); }
+"iota"                        { return createToken(CmlParser.IOTA); }
+
 /* ---- complex terminals below ---- */
 
 "\""                          { offset += yytext().length();stateStack.push(yystate());yybegin(STRING); stringBuilder = new StringBuilder(); }
