@@ -26,21 +26,14 @@ public class ParseAllCmlExampleFilesTest {
     {
 	this.filePath = filePath;
     }
-    
-    @Test
-	public void dummy() {
-	Assert.assertTrue(true);
-    }
-
+        
     @Parameters
     public static Collection params() {
-	return new LinkedList<String>();
+    	return new LinkedList<String>();
     }
 
-	
-
     //private static String watchedLog;
-    /* 
+    
     @Rule
     public TestWatcher watchman = new TestWatcher() {
 	    @Override
@@ -103,5 +96,4 @@ public class ParseAllCmlExampleFilesTest {
 	
 	return paths;
     }
-    */
 }

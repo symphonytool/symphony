@@ -1147,7 +1147,16 @@ renameList :
  */
 channelNameExpr :
   IDENTIFIER
+  {
+    LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
+    $$ = new Object[]{id,new LinkedList<PExp>()};
+  }
 | IDENTIFIER DOTCOLON channelNameExprTail
+{
+  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
+  List<PExp> expList = (List<PExp>)$channelNameExprTail;
+  $$ = new Object[]{id,expList};
+}
 ;
 
 channelNameExprTail :
@@ -1371,13 +1380,14 @@ chansetExpr :
 /* DEVIATION --- see channelNameExpr
  */
 | LCURLYBAR channelNameExpr BAR bindList BARRCURLY
-/* { */
-/*   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$6); */
-/*   LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2); */
-/*   List<PExp> dotted_expression = (List<PExp>)$3; */
-/*   List<PMultipleBind> bindings = (List<PMultipleBind>)$5; */
-/*   $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, null); */
-/* } */
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR, (CmlLexeme)$BARRCURLY);
+  Object[] channelExp = (Object[])$channelNameExpr;
+  LexIdentifierToken identifier = (LexIdentifierToken)channelExp[0];  
+  List<PExp> dotted_expression = (List<PExp>)channelExp[1];
+  List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
+  $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, null);
+}
 | LCURLYBAR channelNameExpr BAR bindList AT expression BARRCURLY
 /* { */
 /*   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8); */
@@ -1764,6 +1774,7 @@ type :
   LexNameToken name = extractLexNameToken((CmlLexeme)$3);
   name = new LexNameToken(((CmlLexeme)$1).getValue(),name.getIdentifier());
   ANamedInvariantType type = new ANamedInvariantType();
+  type.setLocation(name.getLocation());
   type.setName(name);
   $$ = type;
 }
@@ -2090,7 +2101,7 @@ functionDefs :
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1);
   AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
-  List<SFunctionDefinition> functionDefs = new LinkedList<SFunctionDefinition>();
+  List<SFunctionDefinition> functionDefs = (List<SFunctionDefinition>)$functionDefList;
   $$ = new AFunctionParagraphDefinition(location, 
 					NameScope.GLOBAL, 
 					false, 
