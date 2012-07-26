@@ -154,7 +154,7 @@ numeral                                 = {digit}+
 
 identifier      = {letter}([0-9\'_]|{letter})*
 
-name            = {identifier}("."{identifier})?
+name            = {identifier}(("."|"`"){identifier})?
 /* FIXME and we need a is_name macro as well for the (to be created) ISUNDERNAME token  */
 quoteliteral    = \<{identifier}\>
 LineTerminator  = \r|\n|\r\n
@@ -215,6 +215,7 @@ blanks          = [ \t\f]*
 "endsby"                      { return createToken(CmlParser.ENDSBY); }
 "exists"                      { return createToken(CmlParser.EXISTS); }
 "exists1"                     { return createToken(CmlParser.EXISTS1); }
+"extends"                     { return createToken(CmlParser.EXTENDS); }
 "floor"                       { return createToken(CmlParser.FLOOR); }
 "for"                         { return createToken(CmlParser.FOR); }
 "forall"                      { return createToken(CmlParser.FORALL); }

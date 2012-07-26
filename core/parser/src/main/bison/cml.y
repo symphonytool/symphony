@@ -323,6 +323,7 @@
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
 %token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY WHILE ISUNDERNAME
+%token EXTENDS
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE
 
 %token nameset namesetExpr nilLiteral characterLiteral textLiteral
@@ -405,12 +406,12 @@ programParagraph :
 ;
 
 classDefinition :
-  CLASS IDENTIFIER EQUALS classBody
+  CLASS IDENTIFIER EQUALS BEGIN classDefinitionBlock END
 {
   AClassParagraphDefinition clz = new AClassParagraphDefinition();
-  CmlLexeme id = (CmlLexeme)$2;
-  Position startPos =  ((CmlLexeme)$1).getStartPos();
-  Position endPos = ((CmlLexeme)$3).getEndPos(); // TODO Fix me, the ending position is the
+  CmlLexeme id = (CmlLexeme)$IDENTIFIER;
+  Position startPos =  ((CmlLexeme)$CLASS).getStartPos();
+  Position endPos = ((CmlLexeme)$EQUALS).getEndPos(); // TODO Fix me, the ending position is the
   LexNameToken lexName = extractLexNameToken( id );
   LexLocation loc = new LexLocation(currentSource.toString(),
 				    id.getValue(),
@@ -421,12 +422,13 @@ classDefinition :
 				    startPos.offset, endPos.offset);
   clz.setLocation(loc);
   clz.setName(lexName);
-  clz.setDefinitions( (List<PDefinition>) $4 );
-  clz.setNameScope( NameScope.CLASSNAME );
+  clz.setDefinitions((List<PDefinition>)$classDefinitionBlock);
+  clz.setNameScope(NameScope.CLASSNAME);
   List<PDefinition> def = new LinkedList<PDefinition>();
   def.add(clz);
   $$ = def;
 }
+| CLASS IDENTIFIER EQUALS EXTENDS IDENTIFIER BEGIN classDefinitionBlock END
 ;
 
 processDefinition:
@@ -619,6 +621,7 @@ process :
  *   path
  *
  * TODO: need to convert the path to an instantiated process?
+ * FIXME: Missing instantiated process
  */
 | path
 | process renameExpression
@@ -696,11 +699,20 @@ processParagraphList :
 }
 ;
 
+/* FIXME
+ *
+ * (JWC) I'm not convinced this matches the 'process paragraph' of the
+ * grammar.
+ */
 processParagraph :
  classDefinitionBlockAlternative
 {
   $$ = $1;
 }
+/* DEVIATION
+ * This is not yet in the (CML0) grammar, but the need for it has been recognised
+ */
+| INITIAL operationDef // TODO
 | actionParagraph
 {
   $$ = $1;
@@ -808,8 +820,8 @@ action :
  */
 | COLON expression AMP action
 {
-  PExp exp = (PExp)$2;
-  PAction action = (PAction)$4;
+  PExp exp = (PExp)$1;
+  PAction action = (PAction)$3;
   LexLocation location = combineLexLocation(exp.getLocation(), action.getLocation());
   $$ = new AGuardedAction(location, exp, action);
 }
@@ -941,6 +953,7 @@ action :
  * here:
  *   path
  * TODO: convert to a name
+ * It might solve a few issues to inline the name triplet of rules here, directly
  */
 | path // TODO
 /* { */
@@ -1383,13 +1396,6 @@ globalDefinitionBlockAlternative :
 }
 ;
 
-classBody :
-  BEGIN classDefinitionBlock END
-{
-  $$ = $2;
-}
-;
-
 classDefinitionBlock :
   classDefinitionBlockAlternative
 {
@@ -1428,10 +1434,6 @@ classDefinitionBlockAlternative :
 {
   $$ = $1;
 }
-/* DEVIATION
- * This is not yet in the (CML0) grammar, but the need for it has been recognised
- */
-| INITIAL operationDef // TODO
 ;
 
 typeDefs :
@@ -1730,7 +1732,14 @@ type :
   type.setName(name);
   $$ = type;
 }
-//| IDENTIFIER DOT IDENTIFIER why also this?
+| IDENTIFIER DOT IDENTIFIER // name is defined in CML_0 as using DOT
+{
+  LexNameToken name = extractLexNameToken((CmlLexeme)$3);
+  name = new LexNameToken(((CmlLexeme)$1).getValue(),name.getIdentifier());
+  ANamedInvariantType type = new ANamedInvariantType();
+  type.setName(name);
+  $$ = type;
+}
 | IDENTIFIER BACKTICK IDENTIFIER
 {
   LexNameToken name = extractLexNameToken((CmlLexeme)$3);
@@ -2318,12 +2327,6 @@ operationDef :
 }
 ;
 
-/* ?FIXME the optional trailing semicolon in the operation body is
- * presently not allowed.
- *
- * (JWC) Looking at the CML_0 grammar, I'm not sure there is an
- * optional semicolon in an opBody.
- */
 explicitOperationDef :
   qualifier IDENTIFIER COLON operationType IDENTIFIER parameterList DEQUALS operationBody preExpr_opt postExpr_opt
 {
@@ -3432,10 +3435,17 @@ controlStatement :
 /* DEVIATION --- PATH
  * CML_0:
  *  callStatement
- * TODO: this gets merged with generalAssignStatement
+ * here:
+ *  missing
+ *
+ * FIXME --- we're missing call entirely.  
  */
-/* | callStatement */
-// FIXME --- causes r/r conflict with objectDesignator(call)
+/* callStatement */
+/* | path LRPAREN */
+/* | path LPAREN expressionList RPAREN */
+/* | path COLONEQUALS path LRPAREN */
+/* | path COLONEQUALS path LPAREN expressionList RPAREN */
+/* callStatement end */
 /* general assign statement */
 | assignStatement
 /* multiple assign statement */
@@ -3459,7 +3469,7 @@ controlStatement :
 | RETURN
 | RETURN LPAREN expression RPAREN
 {
-  PExp exp = (PExp)$2;
+  PExp exp = (PExp)$expression;
   $$ = new AReturnStm(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
   //  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
 }
