@@ -429,6 +429,7 @@ type {-> package='eu.compassresearch.ast.types'}
     |   {processParagraph} // marker stipulating process paragraph is typed ok
     |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
     |   {actionParagraph} // marker stipulating that a Action Paragraph is typed ok
+    |   {valueParagraph} // marker stipulating that a Values paragraph is typed ok
     |   {source} // marker stipulating a source was typed ok
     |   {bracket} (type):type
     |   {channel}
