@@ -11,6 +11,7 @@
   // ******************************
 
   // required standard Java definitions
+  import java.math.BigInteger;
   import java.util.*;
   import java.io.File;
   import java.io.FileReader;
@@ -67,6 +68,32 @@
   // *************************
   // *** PRIVATE OPERATIONS ***
   // *************************
+
+    private char convertEscapeToChar(String escape)
+    {
+      if (escape.startsWith("\\")){
+	switch(escape.charAt(1))
+	  {
+	  case 'n':  return '\n';
+	  case '\\': return '\\';
+	  case 'r': return '\r';
+	  case 't': return '\t';
+	  case 'f': return '\f';
+	  case 'e': return (char)0x001B;
+	  case 'a': return (char)0x0007;
+	  case 'x': return (char)new BigInteger(escape.substring(2), 16).intValue();
+	  case 'u': return (char)new BigInteger(escape.substring(2), 16).intValue();
+	  case 'c': return (char)(escape.charAt(2) - 'A' + 1);
+	  case '0': return (char)new BigInteger(escape.substring(2), 8).intValue();
+	  case '\"' : return '\"';
+	  case '\'': return '\'';
+	  default:
+	    throw new RuntimeException("Illegal escape sequence: "+escape);			
+	  }
+      }
+      return escape.charAt(0);
+    }
+    
 
   /* FIXME
    * needs to throw an error if the name is multipart
@@ -320,12 +347,12 @@
 %token COLONDASHGT COMP DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL
 %token HEX_LITERAL QUOTE_LITERAL AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE
 %token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
-%token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY
+%token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY DECIMAL 
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
 %token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY WHILE ISUNDERNAME
-%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE
+%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE TICK CHAR_LIT
 
-%token nameset namesetExpr nilLiteral characterLiteral textLiteral
+%token nameset namesetExpr nilLiteral textLiteral
 
 /* ---------------------------------------------------------------- */
 /* Precidence declarations                                          */
@@ -2885,6 +2912,16 @@ symbolicLiteral :
 }
 ;
 
+characterLiteral :
+CHAR_LIT
+{
+  CmlLexeme lex = (CmlLexeme)$1;
+  LexLocation loc = extractLexLocation( lex );
+  String res = lex.getValue();
+  res = res.replace("'", "");
+  $$ = new ACharLiteralExp(loc, new LexCharacterToken(convertEscapeToChar(res), loc));
+}
+
 numericLiteral :
   NUMERAL
 {
@@ -2897,6 +2934,13 @@ numericLiteral :
   CmlLexeme lexeme = (CmlLexeme)$1;
   LexLocation loc = extractLexLocation(lexeme);
   $$ = new LexIntegerToken(Long.decode(lexeme.getValue()), loc);
+}
+| DECIMAL
+{
+  CmlLexeme lexeme = (CmlLexeme)$1;
+  LexLocation loc = extractLexLocation(lexeme);
+  // TODO decode(lexeme.getValue())
+  $$ = new LexIntegerToken(0, loc);
 }
 ;
 
