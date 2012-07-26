@@ -139,6 +139,9 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	     [chansets] : definition.chanset*
  	   | {action} [actions]: definition.action*
  	   | {types} [types]: definition.type*
+ 	   | {operation} [operations]:definition.#operation*
+ 	   | {function} [functionDefinitions]:definition.#function*
+ 	   | {value} [valueDefinitions]: definition*
 	   ;
 
 //    = {class} [identifier]:LexIdentifierToken [classBody]: definition.classbody
@@ -150,7 +153,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
     
 #operation {-> package='eu.compassresearch.ast.definitions'}
 	=   {explicit} [parameterPatterns]:pattern* 
-                            [body]:stm
+                            [body]:action.#Statement
                             [precondition]:exp 
                             [postcondition]:exp 
                             
@@ -630,17 +633,12 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {channelRenaming} [action]:action [renameExpression]:exp.#Channel.#Rename
 	| {parametrised} [parametrisations]:parametrisation [action]:action 
 	| #Instantiated
-	| #ControlStatement
-	| {block} [declareStatement]:declareStatement [action]:action
+	| #Statement
 	| {identifier}
 	| {subclassResponsibility}
 	| {notYetSpecified} [opname]:LexNameToken [args]:exp*
 	;
 
-declareStatement {-> package='eu.compassresearch.ast.actions'}
-	= {declareStatement}  [location]:location [assignmentDefs]:definition* 
-	;
-	
 parametrisation {-> package='eu.compassresearch.ast.actions'}
 	= {val}	[location]:location [declaration]:declaration.singleType
 	| {res} [location]:location [declaration]:declaration.singleType
@@ -650,27 +648,6 @@ parametrisation {-> package='eu.compassresearch.ast.actions'}
 #Instantiated {-> package='eu.compassresearch.ast.actions'}
 	= {declaration} [declaration]:declaration.singleType* [action]:action [args]:exp*
 	| {parametrisation} [action]:action.parametrised  [args]:exp*
-	;
-	
-#ControlStatement {-> package='eu.compassresearch.ast.actions'}
-	= {nonDeterministicIf} [ifExp]:exp [thenStm]:action [elseIf]:action.#ControlStatement.nonDeterministicElseIf*
-	| {nonDeterministicElseIf} [elseIf]:exp [thenStm]:action
-	| {if} [ifExp]:exp [thenStm]:action [elseIf]:action.#ControlStatement.elseIf* [elseStm]:action
-	| {elseIf} [elseIf]:exp [thenStm]:action
-	| {cases} [exp]:exp [cases]:alternativeAction.case* [others]:action
-	| #GeneralAssignment
-	| #CallStatement
-	| {return} [exp]:exp
-	;
-	
-#CallStatement {-> package='eu.compassresearch.ast.actions'}
-	= {call} [objectDesignator]:objectDesignator [name]:LexNameToken [args]:exp*
-	| {assignmentCall} [designator]:stateDesignator [call]:action.#ControlStatement.#CallStatement.call 	
-	;
-	
-#GeneralAssignment {-> package='eu.compassresearch.ast.actions'}
-    = {single} [stateDesignator]:stateDesignator [expression]:exp
-    | {multi} [assignments]:action.#ControlStatement.#GeneralAssignment.single*
 	;
 	
 communicationParameter {-> package='eu.compassresearch.ast.actions'}
@@ -684,10 +661,33 @@ parameter {-> package='eu.compassresearch.ast.actions'}
 	| {tuple} [parameters]:parameter*
 	| {record}	[name]:LexNameToken [parameters]:parameter* 
 	;
-    
+
+//there should be a let statement here as well
+#Statement {-> package='eu.compassresearch.ast.actions'}
+	= {block} [declareStatement]:action.#Statement.declare [action]:action	
+	| #Control
+	| {declare}  [assignmentDefs]:definition*
+	;
+
+#Control {-> package='eu.compassresearch.ast.actions'}
+	= {nonDeterministicIf} [ifExp]:exp [thenStm]:action [elseIf]:action.#Statement.#Control.nonDeterministicElseIf*
+	| {nonDeterministicElseIf} [elseIf]:exp [thenStm]:action
+	| {if} [ifExp]:exp [thenStm]:action [elseIf]:action.#Statement.#Control.elseIf* [elseStm]:action
+	| {elseIf} [elseIf]:exp [thenStm]:action
+	| {cases} [exp]:exp [cases]:alternativeAction.case* [others]:action
+	| #GeneralAssignment
+	| {call} [objectDesignator]:objectDesignator [name]:LexNameToken [args]:exp*
+	| {assignmentCall} [designator]:stateDesignator [call]:action.#Statement.#Control.call
+	| {return} [exp]:exp
+	;
+
+#GeneralAssignment {-> package='eu.compassresearch.ast.actions'}
+    = {single} [stateDesignator]:stateDesignator [expression]:exp
+    | {multi} [assignments]:action.#Statement.#Control.#GeneralAssignment.single*
+	;
     
 /*
-    Statements --these should be converted into actions
+    Statements -- !!!!!!!!these are the old VDM statements and are only kept here for the moment for convenience
 */
 
 stm {-> package='eu.compassresearch.ast.statements'}
@@ -728,7 +728,7 @@ stm {-> package='eu.compassresearch.ast.statements'}
     |   {nonDeterministic}
     ;
     
-stateDesignator {-> package='eu.compassresearch.ast.statements'}
+stateDesignator {-> package='eu.compassresearch.ast.actions'}
     =   {field} [object]:stateDesignator [field]:LexIdentifierToken (objectfield):LexNameToken
     |   {identifier} [name]:LexNameToken
     |   {mapSeq} [mapseq]:stateDesignator [exp]:exp (mapType):type.#Map (seqType):type.#seq

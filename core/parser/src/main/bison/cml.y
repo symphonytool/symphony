@@ -226,7 +226,7 @@
 	scanner = new CmlLexer( new java.io.FileReader(file) );
 	CmlParser cmlParser = new CmlParser(scanner);
 	cmlParser.setDocument(fileSource);
-	cmlParser.setDebugLevel(1);
+	//cmlParser.setDebugLevel(1);
 
 	//do {
 	//System.out.println(scanner.yylex());
@@ -1393,14 +1393,16 @@ classBody :
 classDefinitionBlock :
   classDefinitionBlockAlternative
 {
-  List<PDefinition> defs = (List<PDefinition>)$1;
+  List<PDefinition> defs = new LinkedList<PDefinition>();
+  defs.add((PDefinition)$1);
+  //List<PDefinition> defs = (List<PDefinition>)$1;
   $$ = defs;
 }
 | classDefinitionBlockAlternative classDefinitionBlock
 {
   List<PDefinition> defs = (List<PDefinition>) $2;
-  List<PDefinition> newDefs = (List<PDefinition>) $1;
-  defs.addAll(newDefs);
+  PDefinition newDefs = (PDefinition)$1;
+  defs.add(newDefs);
   $$ = defs;
 }
 ;
@@ -1416,13 +1418,11 @@ classDefinitionBlockAlternative :
 }
 | functionDefs
 {
-  List<SFunctionDefinition> functionDefs = (List<SFunctionDefinition>)$1;
-  $$ = functionDefs;
+  $$ = $1;
 }
 | operationDefs
 {
-  List<SOperationDefinition> operationDefs = (List<SOperationDefinition>)$1;
-  $$ = operationDefs;
+  $$ = $1;
 }
 | stateDefs
 {
@@ -1913,8 +1913,14 @@ invariant :
 valueDefs :
   VALUES valueDefList
 {
+  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   List<PDefinition> defs = (List<PDefinition>)$2;
-  $$ = defs;
+  $$ = new AValueParagraphDefinition(location, 
+				     NameScope.NAMES, 
+				     false, 
+				     access, 
+				     defs);
 }
 ;
 
@@ -2043,13 +2049,25 @@ valueDef :
 functionDefs :
   FUNCTIONS
 {
+  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   List<SFunctionDefinition> functionDefs = new LinkedList<SFunctionDefinition>();
-  $$ = functionDefs;
+  $$ = new AFunctionParagraphDefinition(location, 
+					NameScope.GLOBAL, 
+					false, 
+					access, 
+					functionDefs);
 }
 | FUNCTIONS functionDefList
 {
-  List<SFunctionDefinition> functionDefs = (List<SFunctionDefinition>) $2;
-  $$ = functionDefs;
+  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  List<SFunctionDefinition> functionDefs = new LinkedList<SFunctionDefinition>();
+  $$ = new AFunctionParagraphDefinition(location, 
+					NameScope.GLOBAL, 
+					false, 
+					access, 
+					functionDefs);
 }
 ;
 
@@ -2277,12 +2295,24 @@ measureExpr :
 operationDefs :
   OPERATIONS operationDefList
 {
+  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   List<? extends SOperationDefinition> opDefinitions = (List<? extends SOperationDefinition>)$2;
-  $$ = opDefinitions;
+  $$ = new AOperationParagraphDefinition(location, 
+					 NameScope.LOCAL, 
+					 false, 
+					 access, 
+					 opDefinitions);
 }
 | OPERATIONS
 {
-  $$ = new LinkedList<SOperationDefinition>();
+  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  $$ = new AOperationParagraphDefinition(location, 
+					 NameScope.LOCAL, 
+					 false, 
+					 access, 
+					 null);
 }
 ;
 
@@ -2327,7 +2357,7 @@ explicitOperationDef :
   LexLocation loc = extractLexLocation((CmlLexeme)$2);
   AExplicitOperationDefinition res = new AExplicitOperationDefinition();
   res.setLocation(loc);
-  res.setBody((PStm)$8);
+  res.setBody((SStatementAction)$8);
   $$ = res;
 }
 ;
@@ -3496,21 +3526,21 @@ blockStatement :
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3);
   PAction action = (PAction)$2;
-  $$ = new ABlockAction(location, null, action);
+  $$ = new ABlockStatementAction(location, null, action);
 }
 | LPAREN dclStatement action RPAREN
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4);
-  ADeclareStatementDeclareStatement dclStm = (ADeclareStatementDeclareStatement)$2;
+  ADeclareStatementAction dclStm = (ADeclareStatementAction)$2;
   PAction action = (PAction)$3;
-  $$ = new ABlockAction(location, dclStm, action);
+  $$ = new ABlockStatementAction(location, dclStm, action);
 }
 ;
 
 dclStatement :
   DCL assignmentDefList AT
 {
-  $$ = new ADeclareStatementDeclareStatement(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3),
+  $$ = new ADeclareStatementAction(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3),
 					     (List<? extends PDefinition>)$2);
 }
 ;
@@ -3670,7 +3700,10 @@ implicitOperationBody :
 ;
 
 pattern :
-  patternIdentifier // TODO
+  patternIdentifier 
+  {
+    $$ = $1;
+  }
 | patternLessID // TODO
 ;
 
