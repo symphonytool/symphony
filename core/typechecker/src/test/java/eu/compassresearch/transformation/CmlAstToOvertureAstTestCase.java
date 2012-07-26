@@ -34,6 +34,7 @@ public class CmlAstToOvertureAstTestCase {
 	public static Collection<Object[]> getParams() throws IOException
 	{
 		List<Object[]> sources = new LinkedList<Object[]>();
+		addTestProgram(sources, "class test = begin types therecord :: a int b int c int values k : int = mk_therecord(1,2,3).a end", AValueDefinition.class);
 		addTestProgram(sources, "class test = begin values public a : int = 42 end", AValueDefinition.class);
 		addTestProgram(sources, "class test = begin values public b : seq of char = \"test\" end", AValueDefinition.class);
 		addTestProgram(sources, "class test = begin values protected c : bool = false end", AValueDefinition.class);
