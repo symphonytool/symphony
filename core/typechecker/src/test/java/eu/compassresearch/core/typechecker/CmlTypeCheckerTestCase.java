@@ -83,20 +83,20 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "class test = begin values public a:char = '\\cc' end"); // token literal
 		addTestProgram(testData, "class test = begin values public a:char = '\\\"' end"); // token literal
 		// 27
-		addTestProgram(testData, "class test = begin values public a:seq of char  = \"\\\\ \\r \\n \\t \\f \\e \\a \\x61 \\ucc61 \\c \\\"cd  \" end"); // token literal
+		addTestProgram(testData, "class test = begin values public a:seq of char  = \"\\\\ \\r \\n \\t \\f \\e \\a \\x61 \\ucc61 \\cd \\\"  \" end"); // token literal
 		addTestProgram(testData, "class test = begin values public a:char = <Test> end"); // token literal
 		
 		// let
 		addTestProgram(testData, "class test = begin values a : int = let b:int = 42 rem 2 in b * 10 end");
-		// if 
+		// if 30
 		addTestProgram(testData, "class test = begin values a : int = if (let b:int=10 in b > 10) then 42 else 24 end");
 		addTestProgram(testData, "class test = begin values a : boolean = if true then 1 else 0 end");
 		addTestProgram(testData, "class test = begin values a : seq of char = if true then \"true\" else \"false\" end");
-		addTestProgram(testData, "class test = begin values b:int=2, a : seq of char = if b = 1 then \"one\" elseif b = 2 then \"two\" elseif b = 3 then \"three\" else \"above three\" end");
-		// cases
-		addTestProgram(testData, "class test = begin values a:int = cases 1 : 1 -> 2 2 -> 3 other -> 666 end end");
+		addTestProgram(testData, "class test = begin values b : int = 1; a : seq of char = if b = 2 then \"one\" elseif (b = 3) then \"two\" elseif b = 4 then \"three\" else \"above three\" end");
+		// cases 34
+		addTestProgram(testData, "class test = begin values a:int = cases 42 : 2 -> 3; 4 -> 5; end end");
 		// unary opers
-		addTestProgram(testData, "class test = begin values a:int = 1--1 end");
+		addTestProgram(testData, "class test = begin values a:int = 2-(-2) end");
 		addTestProgram(testData, "class test = begin values a:int = abs -42 end ");
 		addTestProgram(testData, "class test = begin values a:int = floor 42.3 end ");
 		addTestProgram(testData, "class test = begin values a:boolean = not true end ");
@@ -187,6 +187,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "class test = begin values one:boolean = isofclass( test, self ) end");
 		
 		addTestProgram(testData, "class evil_letters_æøå = begin values even:int = fn_int_to_int( 10 ) end");
+		
 		return testData;
 	}
 	

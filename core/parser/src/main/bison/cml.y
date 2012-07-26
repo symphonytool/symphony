@@ -11,6 +11,7 @@
   // ******************************
 
   // required standard Java definitions
+  import java.text.DecimalFormat;
   import java.math.BigInteger;
   import java.util.*;
   import java.io.File;
@@ -69,7 +70,7 @@
   // *** PRIVATE OPERATIONS ***
   // *************************
 
-    private char convertEscapeToChar(String escape)
+    public static char convertEscapeToChar(String escape)
     {
       if (escape.startsWith("\\")){
 	switch(escape.charAt(1))
@@ -2369,7 +2370,7 @@ explicitOperationDef :
   LexLocation loc = extractLexLocation((CmlLexeme)$2);
   AExplicitOperationDefinition res = new AExplicitOperationDefinition();
   res.setLocation(loc);
-  res.setBody((SStatementAction)$8);
+  res.setBody((SStatementAction)$operationBody);
   $$ = res;
 }
 ;
@@ -2942,7 +2943,7 @@ CHAR_LIT
 numericLiteral :
   NUMERAL
 {
-  CmlLexeme lexeme = (CmlLexeme)$1;
+  CmlLexeme lexeme = (CmlLexeme)$NUMERAL;
   LexLocation loc = extractLexLocation(lexeme);
   $$ = new LexIntegerToken(Long.decode(lexeme.getValue()), loc);
 }
@@ -2950,14 +2951,21 @@ numericLiteral :
 {
   CmlLexeme lexeme = (CmlLexeme)$1;
   LexLocation loc = extractLexLocation(lexeme);
-  $$ = new LexIntegerToken(Long.decode(lexeme.getValue()), loc);
+  BigInteger b = new BigInteger(lexeme.getValue().substring(2), 16);
+  $$ = new LexIntegerToken(b.longValue(), loc);
 }
 | DECIMAL
 {
   CmlLexeme lexeme = (CmlLexeme)$1;
   LexLocation loc = extractLexLocation(lexeme);
-  // TODO decode(lexeme.getValue())
-  $$ = new LexIntegerToken(0, loc);
+  try {
+    DecimalFormat dec = new DecimalFormat();
+    $$ = new LexIntegerToken(dec.parse(lexeme.getValue()).longValue(), loc);
+  }
+  catch (Exception e)
+    {
+      $$ = new LexIntegerToken(0, loc);
+    }
 }
 ;
 
@@ -3043,10 +3051,10 @@ elseExprs :
 casesExpr :
   CASES expression COLON casesExprAltList END
 {
-  CmlLexeme cases = (CmlLexeme)$1;
-  PExp exp = (PExp)$2;
-  ACasesExp bubbleUp = (ACasesExp)$4; // Others and Cases are taken care of
-  CmlLexeme end = (CmlLexeme)$5;
+  CmlLexeme cases = (CmlLexeme)$CASES;
+  PExp exp = (PExp)$expression;
+  ACasesExp bubbleUp = (ACasesExp)$casesExprAltList; // Others and Cases are taken care of
+  CmlLexeme end = (CmlLexeme)$END;
   LexLocation lexLoc = combineLexLocation(extractLexLocation(cases), extractLexLocation(end));
   bubbleUp.setExpression(exp);
   bubbleUp.setLocation(lexLoc);
@@ -3067,27 +3075,27 @@ casesExpr :
 
 casesExprAltList :
   casesExprAlt
-/* { */
-/*   ACasesExp casesExp = new ACasesExp(); */
-/*   ACaseAlternative caseAlt = (ACaseAlternative)$1; */
-/*   casesExp.getCases().add(caseAlt); */
-/*   $$ = casesExp; */
-/* } */
+{
+  ACasesExp casesExp = new ACasesExp();
+  ACaseAlternative caseAlt = (ACaseAlternative)$1;
+  casesExp.getCases().add(caseAlt);
+  $$ = casesExp;
+}
 | casesExprAltList casesExprAlt
-/* { */
-/*   ACasesExp casesExp = (ACasesExp)$1; */
-/*   ACaseAlternative altExp = (ACaseAlternative)$2; */
-/*   casesExp.getCases().add(altExp); */
-/*   $$ = casesExp; */
-/* } */
+{
+  ACasesExp casesExp = (ACasesExp)$1;
+  ACaseAlternative altExp = (ACaseAlternative)$2;
+  casesExp.getCases().add(altExp);
+  $$ = casesExp;
+}
 ;
 
 casesExprAlt :
   patternList RARROW expression SEMI
 {
   List<PPattern> patList = (List<PPattern>)$1;
-  PExp exp = (PExp)$3;
-  CmlLexeme semi = (CmlLexeme)$4;
+  PExp exp = (PExp)$expression;
+  CmlLexeme semi = (CmlLexeme)$SEMI;
   LexLocation leftMost = extractLexLeftMostFromPatterns(patList);
   LexLocation loc = combineLexLocation(leftMost, extractLexLocation(semi));
   ACaseAlternative res = new ACaseAlternative();
@@ -3528,11 +3536,16 @@ controlStatement :
  * ambiguity at play here.
  */
 | RETURN
+{
+  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1), 
+					 null);
+}
 | RETURN LPAREN expression RPAREN
 {
   PExp exp = (PExp)$expression;
-  $$ = new AReturnStm(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
-  //  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
+  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1, 
+							    exp.getLocation()), 
+					 exp);
 }
 /* DEVIATION --- PATH
  * CML_0:
@@ -3758,7 +3771,10 @@ pattern :
 ;
 
 patternLessID :
-  matchValue // TODO
+  matchValue 
+  {
+    $$ = $1;
+  }
 /* tuple pattern */
 | MKUNDER LPAREN patternList COMMA pattern RPAREN // TODO
 /* record patterns */

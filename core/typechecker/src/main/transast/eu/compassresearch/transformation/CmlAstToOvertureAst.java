@@ -12,17 +12,28 @@ import eu.compassresearch.ast.analysis.AnswerAdaptor;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.expressions.ABooleanLiteralExp;
+import eu.compassresearch.ast.expressions.ABracketedExp;
+import eu.compassresearch.ast.expressions.AModifyBinaryExp;
+import eu.compassresearch.ast.expressions.ANameExp;
+import eu.compassresearch.ast.expressions.ARecordExp;
 import eu.compassresearch.ast.lex.LexCharacterToken;
 import eu.compassresearch.ast.lex.LexIntegerToken;
 import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.LexQuoteToken;
 import eu.compassresearch.ast.lex.LexToken;
 import eu.compassresearch.ast.node.GraphNodeList;
 import eu.compassresearch.ast.node.NodeListList;
 import eu.compassresearch.ast.types.AAccessSpecifier;
+import eu.compassresearch.ast.types.PType;
 
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PAccess;
 import org.overture.ast.expressions.ABooleanConstExp;
+import org.overture.ast.expressions.AFieldExp;
+import org.overture.ast.expressions.AMkBasicExp;
+import org.overture.ast.expressions.AMkTypeExp;
+import org.overture.ast.expressions.AMuExp;
+import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.lex.LexBooleanToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
@@ -194,11 +205,46 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>{
 			if (eu.compassresearch.ast.types.AAccessSpecifier.class == cmlClz) return convertAAccessSpecifier((eu.compassresearch.ast.types.AAccessSpecifier)cmlGetterRes);
 			if (eu.compassresearch.ast.definitions.AClassParagraphDefinition.class == cmlClz) return convertClassParagraph( (eu.compassresearch.ast.definitions.AClassParagraphDefinition)cmlGetterRes);
 			if (eu.compassresearch.ast.expressions.ABooleanLiteralExp.class == cmlClz) return convertBooleanLiteralExp( (eu.compassresearch.ast.expressions.ABooleanLiteralExp)cmlGetterRes);
+			if (eu.compassresearch.ast.expressions.ARecordExp.class == cmlClz) return covertRecordExp( (eu.compassresearch.ast.expressions.ARecordExp)cmlGetterRes);
+			if (eu.compassresearch.ast.expressions.ANameExp.class == cmlClz) return convertNameExp ( (eu.compassresearch.ast.expressions.ANameExp) cmlGetterRes);
+			if (eu.compassresearch.ast.lex.LexQuoteToken.class == cmlClz) return convertLexQuoteToken( (eu.compassresearch.ast.lex.LexQuoteToken)cmlGetterRes);
+			if (eu.compassresearch.ast.expressions.ABracketedExp.class == cmlClz) return convertBrackedExp( (eu.compassresearch.ast.expressions.ABracketedExp) cmlGetterRes);
+			if (eu.compassresearch.ast.expressions.AModifyBinaryExp.class == cmlClz) return convertModifyBinaryExp( (eu.compassresearch.ast.expressions.AModifyBinaryExp)cmlGetterRes);
 			else  return defaultINode((eu.compassresearch.ast.node.INode)cmlGetterRes);
 		}
 	}
 
 
+
+	private Object convertModifyBinaryExp(AModifyBinaryExp cmlGetterRes) {
+		
+		
+		return null;
+	}
+
+	private Object convertBrackedExp(ABracketedExp cmlGetterRes) throws AnalysisException {
+		return translate(cmlGetterRes.getExpression());
+	}
+
+	private Object convertLexQuoteToken(LexQuoteToken cmlGetterRes) throws AnalysisException {
+		return new org.overture.ast.lex.LexQuoteToken(cmlGetterRes.value, (LexLocation)translate(cmlGetterRes.location));
+	}
+
+	private Object convertNameExp(ANameExp cmlGetterRes) throws AnalysisException {
+		org.overture.ast.expressions.AFieldExp ovt = new AFieldExp();
+		//ovt.setField( (org.overture.ast.lex.LexIdentifierToken)translate(cmlGetterRes.getName()));
+		ovt.setMemberName( (org.overture.ast.lex.LexNameToken) translate(cmlGetterRes.getName()));
+		return ovt;
+	}
+
+	private Object covertRecordExp(ARecordExp cmlGetterRes) throws AnalysisException {
+		// FIXME: This translation is a bit off setRecordType on Overture exp not done
+		org.overture.ast.expressions.AMkTypeExp o = new AMkTypeExp(); 
+		o.setArgs((List)translate(cmlGetterRes.getExprs()));
+		o.setType( (org.overture.ast.types.PType) translate(cmlGetterRes.getType()));
+		o.setTypeName( (org.overture.ast.lex.LexNameToken) translate ( cmlGetterRes.getName() ) );
+		return o;
+	}
 
 	private Object convertBooleanLiteralExp(ABooleanLiteralExp cmlGetterRes) throws AnalysisException {
 		
