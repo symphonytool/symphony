@@ -11,6 +11,7 @@
   // ******************************
 
   // required standard Java definitions
+  import java.math.BigInteger;
   import java.util.*;
   import java.io.File;
   import java.io.FileReader;
@@ -67,6 +68,32 @@
   // *************************
   // *** PRIVATE OPERATIONS ***
   // *************************
+
+    private char convertEscapeToChar(String escape)
+    {
+      if (escape.startsWith("\\")){
+	switch(escape.charAt(1))
+	  {
+	  case 'n':  return '\n';
+	  case '\\': return '\\';
+	  case 'r': return '\r';
+	  case 't': return '\t';
+	  case 'f': return '\f';
+	  case 'e': return (char)0x001B;
+	  case 'a': return (char)0x0007;
+	  case 'x': return (char)new BigInteger(escape.substring(2), 16).intValue();
+	  case 'u': return (char)new BigInteger(escape.substring(2), 16).intValue();
+	  case 'c': return (char)(escape.charAt(2) - 'A' + 1);
+	  case '0': return (char)new BigInteger(escape.substring(2), 8).intValue();
+	  case '\"' : return '\"';
+	  case '\'': return '\'';
+	  default:
+	    throw new RuntimeException("Illegal escape sequence: "+escape);			
+	  }
+      }
+      return escape.charAt(0);
+    }
+    
 
   /* FIXME
    * needs to throw an error if the name is multipart
@@ -226,7 +253,7 @@
 	scanner = new CmlLexer( new java.io.FileReader(file) );
 	CmlParser cmlParser = new CmlParser(scanner);
 	cmlParser.setDocument(fileSource);
-	cmlParser.setDebugLevel(1);
+	//cmlParser.setDebugLevel(1);
 
 	//do {
 	//System.out.println(scanner.yylex());
@@ -320,13 +347,13 @@
 %token COLONDASHGT COMP DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL
 %token HEX_LITERAL QUOTE_LITERAL AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE
 %token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
-%token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY
+%token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY DECIMAL 
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
 %token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY WHILE ISUNDERNAME
 %token EXTENDS
-%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE
+%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE TICK CHAR_LIT
 
-%token nameset namesetExpr nilLiteral characterLiteral textLiteral
+%token nameset namesetExpr nilLiteral textLiteral
 
 /* ---------------------------------------------------------------- */
 /* Precidence declarations                                          */
@@ -384,7 +411,7 @@ programParagraphList :
   programParagraph
 {
   List<PDefinition> programParagraphList = new LinkedList<PDefinition>();
-  programParagraphList.addAll((List<PDefinition>)$1);
+  programParagraphList.add((PDefinition)$programParagraph);
   $$ = programParagraphList;
 }
 | programParagraphList programParagraph
@@ -392,7 +419,7 @@ programParagraphList :
   List<PDefinition> programParagraphList = (List<PDefinition>)$1;
   if (programParagraphList == null)
     programParagraphList = new Vector<PDefinition>();
-  programParagraphList.addAll((List<PDefinition>)$2);
+  programParagraphList.add((PDefinition)$programParagraph);
   $$ = programParagraphList;
 }
 ;
@@ -424,9 +451,7 @@ classDefinition :
   clz.setName(lexName);
   clz.setDefinitions((List<PDefinition>)$classDefinitionBlock);
   clz.setNameScope(NameScope.CLASSNAME);
-  List<PDefinition> def = new LinkedList<PDefinition>();
-  def.add(clz);
-  $$ = def;
+  $$ = clz;
 }
 | CLASS IDENTIFIER EQUALS EXTENDS IDENTIFIER BEGIN classDefinitionBlock END
 ;
@@ -440,9 +465,9 @@ processDefinition:
   LexLocation location = combineLexLocation(processLoc,processDef.getLocation());
   processDef.setLocation(location);
   processDef.setName(id);
-  List<PDefinition> def = new LinkedList<PDefinition>();
-  def.add(processDef);
-  $$ = def;
+  //List<PDefinition> def = new LinkedList<PDefinition>();
+  //def.add(processDef);
+  $$ = processDef;
 }
 ;
 
@@ -1154,7 +1179,7 @@ channelNameExprTail :
 channelDefinition :
   CHANNELS channelDef
 {
-  List<AChannelNameDeclaration> chanNameDecls = (List<AChannelNameDeclaration>)$2;
+  List<AChannelNameDeclaration> chanNameDecls = (List<AChannelNameDeclaration>)$channelDef;
   LexLocation start = extractLexLocation((CmlLexeme)$1);
   LexLocation end = (chanNameDecls != null && chanNameDecls.size() > 0) ?
     chanNameDecls.get(chanNameDecls.size()-1).getLocation() : start;
@@ -1399,14 +1424,16 @@ globalDefinitionBlockAlternative :
 classDefinitionBlock :
   classDefinitionBlockAlternative
 {
-  List<PDefinition> defs = (List<PDefinition>)$1;
+  List<PDefinition> defs = new LinkedList<PDefinition>();
+  defs.add((PDefinition)$1);
+  //List<PDefinition> defs = (List<PDefinition>)$1;
   $$ = defs;
 }
 | classDefinitionBlockAlternative classDefinitionBlock
 {
   List<PDefinition> defs = (List<PDefinition>) $2;
-  List<PDefinition> newDefs = (List<PDefinition>) $1;
-  defs.addAll(newDefs);
+  PDefinition newDefs = (PDefinition)$1;
+  defs.add(newDefs);
   $$ = defs;
 }
 ;
@@ -1422,13 +1449,11 @@ classDefinitionBlockAlternative :
 }
 | functionDefs
 {
-  List<SFunctionDefinition> functionDefs = (List<SFunctionDefinition>)$1;
-  $$ = functionDefs;
+  $$ = $1;
 }
 | operationDefs
 {
-  List<SOperationDefinition> operationDefs = (List<SOperationDefinition>)$1;
-  $$ = operationDefs;
+  $$ = $1;
 }
 | stateDefs
 {
@@ -1922,8 +1947,14 @@ invariant :
 valueDefs :
   VALUES valueDefList
 {
+  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   List<PDefinition> defs = (List<PDefinition>)$2;
-  $$ = defs;
+  $$ = new AValueParagraphDefinition(location, 
+				     NameScope.NAMES, 
+				     false, 
+				     access, 
+				     defs);
 }
 ;
 
@@ -2052,13 +2083,25 @@ valueDef :
 functionDefs :
   FUNCTIONS
 {
+  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   List<SFunctionDefinition> functionDefs = new LinkedList<SFunctionDefinition>();
-  $$ = functionDefs;
+  $$ = new AFunctionParagraphDefinition(location, 
+					NameScope.GLOBAL, 
+					false, 
+					access, 
+					functionDefs);
 }
 | FUNCTIONS functionDefList
 {
-  List<SFunctionDefinition> functionDefs = (List<SFunctionDefinition>) $2;
-  $$ = functionDefs;
+  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  List<SFunctionDefinition> functionDefs = new LinkedList<SFunctionDefinition>();
+  $$ = new AFunctionParagraphDefinition(location, 
+					NameScope.GLOBAL, 
+					false, 
+					access, 
+					functionDefs);
 }
 ;
 
@@ -2286,12 +2329,24 @@ measureExpr :
 operationDefs :
   OPERATIONS operationDefList
 {
+  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   List<? extends SOperationDefinition> opDefinitions = (List<? extends SOperationDefinition>)$2;
-  $$ = opDefinitions;
+  $$ = new AOperationParagraphDefinition(location, 
+					 NameScope.LOCAL, 
+					 false, 
+					 access, 
+					 opDefinitions);
 }
 | OPERATIONS
 {
-  $$ = new LinkedList<SOperationDefinition>();
+  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  $$ = new AOperationParagraphDefinition(location, 
+					 NameScope.LOCAL, 
+					 false, 
+					 access, 
+					 null);
 }
 ;
 
@@ -2333,7 +2388,7 @@ explicitOperationDef :
   LexLocation loc = extractLexLocation((CmlLexeme)$2);
   AExplicitOperationDefinition res = new AExplicitOperationDefinition();
   res.setLocation(loc);
-  res.setBody((PStm)$8);
+  res.setBody((SStatementAction)$8);
   $$ = res;
 }
 ;
@@ -2891,6 +2946,16 @@ symbolicLiteral :
 }
 ;
 
+characterLiteral :
+CHAR_LIT
+{
+  CmlLexeme lex = (CmlLexeme)$1;
+  LexLocation loc = extractLexLocation( lex );
+  String res = lex.getValue();
+  res = res.replace("'", "");
+  $$ = new ACharLiteralExp(loc, new LexCharacterToken(convertEscapeToChar(res), loc));
+}
+
 numericLiteral :
   NUMERAL
 {
@@ -2903,6 +2968,13 @@ numericLiteral :
   CmlLexeme lexeme = (CmlLexeme)$1;
   LexLocation loc = extractLexLocation(lexeme);
   $$ = new LexIntegerToken(Long.decode(lexeme.getValue()), loc);
+}
+| DECIMAL
+{
+  CmlLexeme lexeme = (CmlLexeme)$1;
+  LexLocation loc = extractLexLocation(lexeme);
+  // TODO decode(lexeme.getValue())
+  $$ = new LexIntegerToken(0, loc);
 }
 ;
 
@@ -3519,16 +3591,16 @@ blockStatement :
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3);
   PAction action = (PAction)$2;
-  $$ = new ABlockAction(location, null, action);
+  $$ = new ABlockStatementAction(location, null, action);
 }
 | LPAREN DCL assignmentDefList AT action RPAREN
 {
   LexLocation location = extractLexLocation((CmlLexeme)$LPAREN, (CmlLexeme)$RPAREN);
-  ADeclareStatementDeclareStatement dclStm = 
-    new ADeclareStatementDeclareStatement(extractLexLocation((CmlLexeme)$DCL, (CmlLexeme)$AT),
-					  (List<? extends PDefinition>)$assignmentDefList);
+  ADeclareStatementAction dclStm = new ADeclareStatementAction(extractLexLocation((CmlLexeme)$DCL, 
+										  (CmlLexeme)$AT),
+							       (List<? extends PDefinition>)$assignmentDefList);
   PAction action = (PAction)$action;
-  $$ = new ABlockAction(location, dclStm, action);
+  $$ = new ABlockStatementAction(location, dclStm, action);
 }
 ;
 
@@ -3675,7 +3747,10 @@ implicitOperationBody :
 ;
 
 pattern :
-  patternIdentifier // TODO
+  patternIdentifier 
+  {
+    $$ = $1;
+  }
 | patternLessID // TODO
 ;
 
@@ -3902,19 +3977,31 @@ unit :
 
 pathList :
   path
-/* { */
-/*   LexNameToken lnt = extractLexNameToken((ASimpleName)$1); */
-/*   List<LexNameToken> identifiers = new Vector<LexNameToken>(); */
-/*   identifiers.add(lnt); */
-/*   $$ = identifiers; */
-/* } */
+{
+  try{
+    LexNameToken lnt = ((Path)$path).convertToName();
+    List<LexNameToken> names = new LinkedList<LexNameToken>();
+    names.add(lnt);
+    $$ = names;
+  }
+  catch(Path.PathConvertException e){
+    e.printStackTrace();
+    System.exit(-4);
+  }
+}
 | pathList COMMA path
-/* { */
-/*   LexNameToken lnt = extractLexNameToken((ASimpleName)$3); */
-/*   List<LexNameToken> identifiers = (List<LexNameToken>)$1; */
-/*   identifiers.add(lnt); */
-/*   $$ = identifiers; */
-/* } */
+{
+  try{
+    LexNameToken lnt = ((Path)$path).convertToName();
+    List<LexNameToken> names = (List<LexNameToken>)$1;
+    names.add(lnt);
+    $$ = names;
+  }
+  catch(Path.PathConvertException e){
+    e.printStackTrace();
+    System.exit(-4);
+  }
+}
 ;
 
 // **********************

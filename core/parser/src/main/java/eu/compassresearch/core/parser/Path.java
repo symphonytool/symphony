@@ -79,6 +79,10 @@ public class Path
 	numeral = null;
     }
 
+    /*
+     * Public Methods
+     */
+
     public PExp convertToExpression() throws PathConvertException
     {
 	PExp exp = null;
@@ -166,17 +170,7 @@ public class Path
 
 	return exp;
     }
-
-    private LexLocation combineLexLocation(LexLocation start, LexLocation end)
-    {
-	return new LexLocation(start.resource, "Default",
-			       start.startLine, start.startPos,
-			       end.endLine, 
-			       end.endPos,
-			       start.startOffset,
-			       end.endOffset);
-    }
-
+    
     public PStateDesignator convertToStateDesignator() throws PathConvertException
     {
 	if(unit != null && unit.kind == Unit.UnitKind.SELF)
@@ -204,15 +198,7 @@ public class Path
 	    break;
 	case BACKTICK:
 	    {
-		if (this.subPath.kind == PathKind.UNIT){
-		    LexNameToken name = this.unit.convertToName(subPath.unit.value.getName());
-		    sd= new AIdentifierStateDesignator(name.getLocation(),
-						       name);
-		}
-		else{
-		    throw new PathConvertException("Illigal path for stateDesignator");
-		}
-		LexNameToken name = unit.convertToName("");
+		LexNameToken name = convertToName();
 		sd = new AIdentifierStateDesignator(name.getLocation(), 
 						    name);
 	    }
@@ -235,16 +221,47 @@ public class Path
 
 	return sd;
     }
-
-        public PObjectDesignator convertToObjectDesignator() throws PathConvertException
+    
+    public LexNameToken convertToName() throws PathConvertException
     {
-	PObjectDesignator od = null;
+	LexNameToken name = null;
 	switch(kind){
 	case UNIT:
 	    {
-	
+		name = unit.convertToName();
 	    }
 	    break;
+	// case TILDE:
+	//     {
+	//     }
+	//     break;
+	
+	case BACKTICK:
+	    {
+		if (this.subPath.kind == PathKind.UNIT){
+		    name = this.unit.convertToName(subPath.unit.value.getName());
+		}
+		else{
+		    throw new PathConvertException("Illigal path for expression");
+		}
+	    }
+	    break;
+	default:
+	    throw new PathConvertException("Illigal path for name : " + kind);
+	}
+
+	return name;
+    }
+
+    public PObjectDesignator convertToObjectDesignator() throws PathConvertException
+    {
+	PObjectDesignator od = null;
+	switch(kind){
+	// case UNIT:
+	//     {
+	
+	//     }
+	//     break;
 	// case TILDE:
 	//     {
 	//     }
@@ -273,7 +290,21 @@ public class Path
 	    throw new PathConvertException("Illigal path for objectDesignator : " + kind);
 	}
 
-	return od;
+	//return od;
+    }
+
+    /*
+     * Private Methods
+     */
+
+    private LexLocation combineLexLocation(LexLocation start, LexLocation end)
+    {
+	return new LexLocation(start.resource, "Default",
+			       start.startLine, start.startPos,
+			       end.endLine, 
+			       end.endPos,
+			       start.startOffset,
+			       end.endOffset);
     }
 
 

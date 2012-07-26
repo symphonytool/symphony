@@ -134,7 +134,9 @@ import eu.compassresearch.ast.lex.*;
 ucode                                   = [\u0100-\ufff0]
 hexdigit                                = [0-9ABCDEF]|[0-9abcdef]
 hexquad                                 = {hexdigit}{hexdigit}{hexdigit}{hexdigit}
+hexduo                                  = {hexdigit}{hexdigit}
 hexliteral                              = 0[x X]{hexdigit}+
+octliteral                              = 0[1-7][0-7]*
 universalcharactername                  = (\\u{hexquad})|(\\U{hexquad})
 letter                                  = [A-Za-z]|#[A-Za-z]|{universalcharactername}|{ucode}
 digit                                   = [0-9]
@@ -142,6 +144,7 @@ digit                                   = [0-9]
 /* identifierorkeyword          = {letter}([0-9\'_]|{letter})* */
 
 numeral                                 = {digit}+
+decimal                                 = ({numeral}(.{numeral})*([Ee][+-]?{numeral})?)
 /* realliteral                          = [0-9]+(("."[0-9]+)|([Ee]("+"|"-")?[0-9]+)|("."[0-9]+[Ee]("+"|"-")?[0-9]+))  */
 
 /* embeddedctrlchar             = [\000-\037] */
@@ -153,7 +156,8 @@ numeral                                 = {digit}+
 /* textliteral                          = \"([\040-\041\043-\133\135-\176]|{embeddedctrlchar}|{backslashed}|{deletechar}|{highbitchar}|{universalcharactername}|{ucode})*\" */
 
 identifier      = {letter}([0-9\'_]|{letter})*
-
+escape          = (\\e)|(\\a)|(\\f)|(\\r)|(\\n)|(\\t)|(\\')|(\\\")
+charLit         = \'({letter}|(\\[xX]{hexduo})|{escape}|\\u{hexquad}|\\{octliteral}|\\\\|(\\c[a-zA-Z]))'
 name            = {identifier}(("."|"`"){identifier})?
 /* FIXME and we need a is_name macro as well for the (to be created) ISUNDERNAME token  */
 quoteliteral    = \<{identifier}\>
@@ -364,7 +368,7 @@ blanks          = [ \t\f]*
 "`"                           { return createToken(CmlParser.BACKTICK); }
 "false"                       { return createToken(CmlParser.FALSE); }
 "true"                        { return createToken(CmlParser.TRUE); }
-
+"rem"                         { return createToken(CmlParser.REM); }
 /* ---- complex terminals below ---- */
 
 "\""                          { offset += yytext().length();stateStack.push(yystate());yybegin(STRING); stringBuilder = new StringBuilder(); }
@@ -373,9 +377,10 @@ blanks          = [ \t\f]*
 
 {WhiteSpace}                  { offset += yytext().length(); }
 {identifier}                  { return createToken(CmlParser.IDENTIFIER); }
+{decimal}                     { return createToken(CmlParser.DECIMAL); }
 {numeral}                     { return createToken(CmlParser.NUMERAL); }
 {hexliteral}                  { return createToken(CmlParser.HEX_LITERAL); }
-
+{charLit}                     { return createToken(CmlParser.CHAR_LIT); }
 .                             { throw new IllegalArgumentException("Syntax at line "+(yyline+1)+" position "+yycolumn+" \"" + yytext() + "\" was unexpected at this time."); }
 
 <<EOF>>                       { stateStack.clear(); return 0; }

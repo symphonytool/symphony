@@ -181,6 +181,7 @@ public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType> 
 				catch (AnalysisException ae)
 				{
 					this.errors.add(new CMLTypeError(null,ae.getMessage()));
+					System.out.println(ae.getMessage());
 				}
 			}
 		}
