@@ -351,6 +351,7 @@
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY DECIMAL 
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
 %token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY WHILE ISUNDERNAME
+%token EXTENDS
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE TICK CHAR_LIT
 
 %token nameset namesetExpr nilLiteral textLiteral
@@ -433,12 +434,12 @@ programParagraph :
 ;
 
 classDefinition :
-  CLASS IDENTIFIER EQUALS classBody
+  CLASS IDENTIFIER EQUALS BEGIN classDefinitionBlock END
 {
   AClassParagraphDefinition clz = new AClassParagraphDefinition();
-  CmlLexeme id = (CmlLexeme)$2;
-  Position startPos =  ((CmlLexeme)$1).getStartPos();
-  Position endPos = ((CmlLexeme)$3).getEndPos(); // TODO Fix me, the ending position is the
+  CmlLexeme id = (CmlLexeme)$IDENTIFIER;
+  Position startPos =  ((CmlLexeme)$CLASS).getStartPos();
+  Position endPos = ((CmlLexeme)$EQUALS).getEndPos(); // TODO Fix me, the ending position is the
   LexNameToken lexName = extractLexNameToken( id );
   LexLocation loc = new LexLocation(currentSource.toString(),
 				    id.getValue(),
@@ -449,12 +450,11 @@ classDefinition :
 				    startPos.offset, endPos.offset);
   clz.setLocation(loc);
   clz.setName(lexName);
-  clz.setDefinitions( (List<PDefinition>) $4 );
-  clz.setNameScope( NameScope.CLASSNAME );
-  //List<PDefinition> def = new LinkedList<PDefinition>();
-  //def.add(clz);
+  clz.setDefinitions((List<PDefinition>)$classDefinitionBlock);
+  clz.setNameScope(NameScope.CLASSNAME);
   $$ = clz;
 }
+| CLASS IDENTIFIER EQUALS EXTENDS IDENTIFIER BEGIN classDefinitionBlock END
 ;
 
 processDefinition:
@@ -647,6 +647,7 @@ process :
  *   path
  *
  * TODO: need to convert the path to an instantiated process?
+ * FIXME: Missing instantiated process
  */
 | path
 | process renameExpression
@@ -724,11 +725,20 @@ processParagraphList :
 }
 ;
 
+/* FIXME
+ *
+ * (JWC) I'm not convinced this matches the 'process paragraph' of the
+ * grammar.
+ */
 processParagraph :
  classDefinitionBlockAlternative
 {
   $$ = $1;
 }
+/* DEVIATION
+ * This is not yet in the (CML0) grammar, but the need for it has been recognised
+ */
+| INITIAL operationDef // TODO
 | actionParagraph
 {
   $$ = $1;
@@ -832,12 +842,12 @@ action :
  * grammar:
  *   expression '&' action
  * here:
- *   ':' expression '&' action
+ *   '[' expression ']' '&' action
  */
-| COLON expression AMP action
+| LSQUARE expression RSQUARE AMP action
 {
-  PExp exp = (PExp)$2;
-  PAction action = (PAction)$4;
+  PExp exp = (PExp)$1;
+  PAction action = (PAction)$3;
   LexLocation location = combineLexLocation(exp.getLocation(), action.getLocation());
   $$ = new AGuardedAction(location, exp, action);
 }
@@ -944,12 +954,26 @@ action :
  * Also, this is apparently not yet in our AST
  */
 | MU pathList AT LPAREN action RPAREN // TODO
-| parallelAction
+/* parallel actions */
+| action LSQUAREDBAR namesetExpr BAR namesetExpr DBARRSQUARE action
+| action TBAR action
+| action LSQUAREBAR namesetExpr BAR namesetExpr BARRSQUARE action
+| action DBAR action
+| action LSQUARE namesetExpr BAR chansetExpr DBAR chansetExpr BAR namesetExpr RSQUARE action
+| action LSQUARE chansetExpr DBAR chansetExpr RSQUARE action
+| action LSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr BARRSQUARE action
+| action LSQUAREBAR chansetExpr BARRSQUARE action
+/* parallel actions end */
+/* parametrised action */
+| LPAREN parametrisationList AT action RPAREN
+/* instantiated actions */
+| LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
 {
-    $$ = $1;
+  $$ = new ADeclarationInstantiatedAction(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8),
+					  (List<? extends ASingleTypeDeclaration>)$declaration, (PAction)$4, (List<PExp>)$expressionList);
 }
-| LPAREN parametrisationList AT action RPAREN // parametrisedAction TODO
-| instantiatedAction // TODO
+| LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN // parametrisedAction TODO
+/* instantiated actions */
 /* replicated actions */
 | SEMI replicationDeclaration AT action %prec U-SEMI
 | LRSQUARE LCURLY replicationDeclaration AT action RCURLY %prec U-LRSQUARE
@@ -963,19 +987,6 @@ action :
 | letStatement // TODO
 | blockStatement // TODO
 | controlStatement // TODO
-/* DEVIATION
- * CML_0:
- *   name
- * here:
- *   path
- * TODO: convert to a name
- */
-| path // TODO
-/* { */
-/*   LexNameToken lnt = extractLexNameToken((ASimpleName)$1); */
-/*   // FIXME -- apparently AIdentifierAction doesn't have any fields to store the *name* of the action? */
-/*   $$ = new AIdentifierAction(lnt.location);   */
-/* } */
 ;
 
 communicationParameterList :
@@ -1073,17 +1084,6 @@ paramList :
 }
 ;
 
-parallelAction :
-  action LSQUAREDBAR namesetExpr BAR namesetExpr DBARRSQUARE action //TODO
-| action TBAR action //TODO
-| action LSQUAREBAR namesetExpr BAR namesetExpr BARRSQUARE action //TODO
-| action DBAR action //TODO
-| action LSQUARE namesetExpr BAR chansetExpr DBAR chansetExpr BAR namesetExpr RSQUARE action //TODO
-| action LSQUARE chansetExpr DBAR chansetExpr RSQUARE action //TODO
-| action LSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr BARRSQUARE action //TODO
-| action LSQUAREBAR chansetExpr BARRSQUARE action //TODO
-;
-
 parametrisationList :
   parametrisation // TODO
 | parametrisationList SEMI parametrisation // TODO
@@ -1093,14 +1093,6 @@ parametrisation :
   VAL singleTypeDecl // TODO
 | RES singleTypeDecl // TODO
 | VRES singleTypeDecl // TODO
-;
-
-instantiatedAction :
-  LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
-{
-  $$ = new ADeclarationInstantiatedAction(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8), (List<? extends ASingleTypeDeclaration>)$2, (PAction)$4, (List<PExp>)$7);
-}
-| LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN // parametrisedAction TODO
 ;
 
 renameExpression :
@@ -1421,13 +1413,6 @@ globalDefinitionBlockAlternative :
 }
 ;
 
-classBody :
-  BEGIN classDefinitionBlock END
-{
-  $$ = $2;
-}
-;
-
 classDefinitionBlock :
   classDefinitionBlockAlternative
 {
@@ -1466,10 +1451,6 @@ classDefinitionBlockAlternative :
 {
   $$ = $1;
 }
-/* DEVIATION
- * This is not yet in the (CML0) grammar, but the need for it has been recognised
- */
-| INITIAL operationDef // TODO
 ;
 
 typeDefs :
@@ -1768,7 +1749,14 @@ type :
   type.setName(name);
   $$ = type;
 }
-//| IDENTIFIER DOT IDENTIFIER why also this?
+| IDENTIFIER DOT IDENTIFIER // name is defined in CML_0 as using DOT
+{
+  LexNameToken name = extractLexNameToken((CmlLexeme)$3);
+  name = new LexNameToken(((CmlLexeme)$1).getValue(),name.getIdentifier());
+  ANamedInvariantType type = new ANamedInvariantType();
+  type.setName(name);
+  $$ = type;
+}
 | IDENTIFIER BACKTICK IDENTIFIER
 {
   LexNameToken name = extractLexNameToken((CmlLexeme)$3);
@@ -2387,12 +2375,6 @@ operationDef :
 }
 ;
 
-/* ?FIXME the optional trailing semicolon in the operation body is
- * presently not allowed.
- *
- * (JWC) Looking at the CML_0 grammar, I'm not sure there is an
- * optional semicolon in an opBody.
- */
 explicitOperationDef :
   qualifier IDENTIFIER COLON operationType IDENTIFIER parameterList DEQUALS operationBody preExpr_opt postExpr_opt
 {
@@ -2883,6 +2865,7 @@ expression :
  *   name
  *   IDENTIFIER TILDE // oldName
  *   expression LPAREN expression ELLIPSIS expression RPAREN // subsequence expression
+ *   expression LPAREN expressionList RPAREN
  *   expression DOTHASH NUMERAL // tuple select
  *   expression DOT IDENTIFIER // field select
  *   SELF
@@ -2890,9 +2873,10 @@ expression :
  * 1) convert to a name
  * 2) convert to an oldName
  * 3) convert to a subsequence expression
- * 4) convert to a tuple select
- * 5) convert to a field select
- * 6) convert to a self expression
+ * 4) convert to a function application
+ * 5) convert to a tuple select
+ * 6) convert to a field select
+ * 7) convert to a self expression
  *
  * (JWC) 3 through 5 need to be general expression rather than just
  * paths/names.  So, this is a problem for now.
@@ -3525,11 +3509,24 @@ controlStatement :
 /* DEVIATION --- PATH
  * CML_0:
  *  callStatement
- * TODO: this gets merged with generalAssignStatement
+ * here:
+ *  missing
+ *
+ * FIXME --- we're missing call entirely.  
  */
-/* | callStatement */
-// FIXME --- causes r/r conflict with objectDesignator(call)
 /* general assign statement */
+/* DEVIATION
+ * callStatement --- with assignment
+ * grammar:
+ *   state designator ':=' call
+ * here:
+ *   subsumed into assignStatement
+ *
+ * The typechecker will have to look at the expression in the assign
+ * and determine if it is actually an operation call; if it is, then
+ * it must rewrite the AST to convert the assign into a call
+ * statement.
+ */
 | assignStatement
 /* multiple assign statement */
 | ATOMIC LPAREN assignStatementList RPAREN
@@ -3560,7 +3557,6 @@ controlStatement :
   $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1, 
 							    exp.getLocation()), 
 					 exp);
-  //  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1, exp.getLocation()), exp);
 }
 /* DEVIATION --- PATH
  * CML_0:
@@ -3592,6 +3588,20 @@ controlStatement :
 /* index for loop end */
 /* while loop */
 | WHILE expression DO action
+/* DEVIATION
+ * callStatement --- without assignment
+ * grammar:
+ *   call
+ *   call : [ object designator '.' ] name '(' [ expressionList ] ')'
+ * here:
+ *   subsumed into path
+ *
+ * The typechecker will have to look at the expression in the assign
+ * and determine if it is actually an operation call; if it is, then
+ * it must rewrite the AST to convert the assign into a call
+ * statement.
+ */
+| path
 ;
 
 nonDeterministicAltList :
