@@ -21,12 +21,13 @@
 %token COLONDASHGT COMP DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL
 %token HEX_LITERAL QUOTE_LITERAL AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE
 %token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
-%token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY
+%token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY DECIMAL
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
 %token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY WHILE ISUNDERNAME
-%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE
+%token EXTENDS
+%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE TICK CHAR_LIT
 
-%token nameset namesetExpr nilLiteral characterLiteral textLiteral
+%token nameset namesetExpr nilLiteral textLiteral
 
 %right LPAREN
 %right COMMA
@@ -34,8 +35,9 @@
 %left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT
       BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF
       NEW COLONEQUALS SLASH BACKSLASH ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE
-      DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH SEMI COLONINTER
-      COLONUNION BARGT
+      DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH COLONINTER COLONUNION
+      BARGT
+%right SEMI
 %right U-SEMI U-BARTILDEBAR U-DBAR U-TBAR U-LRSQUARE U-LSQUARE U-LSQUAREBAR
        U-LSQUAREDBAR
 %nonassoc ELSE ELSEIF
@@ -72,7 +74,8 @@ programParagraph :
 ;
 
 classDefinition :
-  CLASS IDENTIFIER EQUALS classBody
+  CLASS IDENTIFIER EQUALS BEGIN classDefinitionBlock END
+| CLASS IDENTIFIER EQUALS EXTENDS IDENTIFIER BEGIN classDefinitionBlock END
 ;
 
 processDefinition:
@@ -133,6 +136,7 @@ processParagraphList :
 
 processParagraph :
  classDefinitionBlockAlternative
+| INITIAL operationDef
 | actionParagraph
 ;
 
@@ -163,7 +167,7 @@ action :
 | CSPWAIT LPAREN expression RPAREN
 | IDENTIFIER RARROW action
 | IDENTIFIER communicationParameterList RARROW action
-| COLON expression AMP action
+| LSQUARE expression RSQUARE AMP action
 | action SEMI action
 | action LRSQUARE action
 | action BARTILDEBAR action
@@ -176,9 +180,17 @@ action :
 | action ENDSBY expression
 | action renameExpression
 | MU pathList AT LPAREN action RPAREN
-| parallelAction
+| action LSQUAREDBAR namesetExpr BAR namesetExpr DBARRSQUARE action
+| action TBAR action
+| action LSQUAREBAR namesetExpr BAR namesetExpr BARRSQUARE action
+| action DBAR action
+| action LSQUARE namesetExpr BAR chansetExpr DBAR chansetExpr BAR namesetExpr RSQUARE action
+| action LSQUARE chansetExpr DBAR chansetExpr RSQUARE action
+| action LSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr BARRSQUARE action
+| action LSQUAREBAR chansetExpr BARRSQUARE action
 | LPAREN parametrisationList AT action RPAREN
-| instantiatedAction
+| LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
+| LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN
 | SEMI replicationDeclaration AT action %prec U-SEMI
 | LRSQUARE LCURLY replicationDeclaration AT action RCURLY %prec U-LRSQUARE
 | BARTILDEBAR LCURLY replicationDeclaration AT action RCURLY %prec U-BARTILDEBAR
@@ -190,7 +202,6 @@ action :
 | letStatement
 | blockStatement
 | controlStatement
-| path
 ;
 
 communicationParameterList :
@@ -218,17 +229,6 @@ paramList :
 | paramList COMMA parameter
 ;
 
-parallelAction :
-  action LSQUAREDBAR namesetExpr BAR namesetExpr DBARRSQUARE action
-| action TBAR action
-| action LSQUAREBAR namesetExpr BAR namesetExpr BARRSQUARE action
-| action DBAR action
-| action LSQUARE namesetExpr BAR chansetExpr DBAR chansetExpr BAR namesetExpr RSQUARE action
-| action LSQUARE chansetExpr DBAR chansetExpr RSQUARE action
-| action LSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr BARRSQUARE action
-| action LSQUAREBAR chansetExpr BARRSQUARE action
-;
-
 parametrisationList :
   parametrisation
 | parametrisationList SEMI parametrisation
@@ -238,11 +238,6 @@ parametrisation :
   VAL singleTypeDecl
 | RES singleTypeDecl
 | VRES singleTypeDecl
-;
-
-instantiatedAction :
-  LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
-| LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN
 ;
 
 renameExpression :
@@ -292,14 +287,6 @@ singleTypeDecl :
 chansetDefinitionParagraph :
   CHANSETS
 | CHANSETS chansetDefinitionList
-{
-  CmlLexeme tok = (CmlLexeme)$1;
-  LexLocation loc = extractLexLocation ( tok );
-  List<AChansetDefinition> chansetDefinitions = (List<AChansetDefinition>)$2;
-  AAccessSpecifier access = new AAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync(),loc);
-  AChansetParagraphDefinition chansetParagraph = new AChansetParagraphDefinition( loc, NameScope.GLOBAL, false, access, chansetDefinitions );
-  $$ = chansetParagraph;
- }
 ;
 
 chansetDefinitionList :
@@ -332,10 +319,6 @@ globalDefinitionBlockAlternative :
 | functionDefs
 ;
 
-classBody :
-  BEGIN classDefinitionBlock END
-;
-
 classDefinitionBlock :
   classDefinitionBlockAlternative
 | classDefinitionBlockAlternative classDefinitionBlock
@@ -347,7 +330,6 @@ classDefinitionBlockAlternative :
 | functionDefs
 | operationDefs
 | stateDefs
-| INITIAL operationDef
 ;
 
 typeDefs :
@@ -551,8 +533,8 @@ operationDefs :
 
 operationDefList :
   operationDef
-/* | operationDef SEMI */
 | operationDefList SEMI operationDef
+| operationDefList SEMI operationDef SEMI
 ;
 
 operationDef :
@@ -677,9 +659,13 @@ symbolicLiteral :
 | quoteLiteral
 ;
 
+characterLiteral :
+CHAR_LIT
+
 numericLiteral :
   NUMERAL
 | HEX_LITERAL
+| DECIMAL
 ;
 
 localDefList :
@@ -793,22 +779,21 @@ controlStatement :
   ifStatement
 | IF nonDeterministicAltList END
 | DO nonDeterministicAltList END %prec U-DO
+| assignStatement
+| ATOMIC LPAREN assignStatementList RPAREN
+| LSQUARE implicitOperationBody RSQUARE
+| RETURN
+| RETURN LPAREN expression RPAREN
+| path COLONEQUALS NEW path LRPAREN
+| path COLONEQUALS NEW path LPAREN expressionList RPAREN
 | casesStatement
 | FOR bind IN expression DO action
-/* | FOR bind IN REVERSE expression DO action */
 | FOR pattern IN expression DO action
-/* | FOR pattern IN REVERSE expression DO action */
 | FOR ALL pattern INSET expression DO action
 | FOR IDENTIFIER EQUALS expression TO expression DO action
 | FOR IDENTIFIER EQUALS expression TO expression BY expression DO action
 | WHILE expression DO action
-/* | callStatement */
-| generalAssignStatement
-| LSQUARE implicitOperationBody RSQUARE
-| RETURN SEMI
-| RETURN expression
-/* | path COLONEQUALS NEW path LRPAREN */
-/* | path COLONEQUALS NEW path LPAREN expressionList RPAREN */
+| path
 ;
 
 nonDeterministicAltList :
@@ -822,11 +807,7 @@ letStatement :
 
 blockStatement :
   LPAREN action RPAREN
-| LPAREN dclStatement action RPAREN
-;
-
-dclStatement :
-  DCL assignmentDefList AT
+| LPAREN DCL assignmentDefList AT action RPAREN
 ;
 
 assignmentDefList :
@@ -840,18 +821,9 @@ assignmentDef :
 | IDENTIFIER COLON type IN expression
 ;
 
-generalAssignStatement :
-  assignStatement
-| multiAssignStatement
-;
-
 assignStatementList :
   assignStatement
 | assignStatementList SEMI assignStatement
-;
-
-multiAssignStatement :
-  ATOMIC LPAREN assignStatementList RPAREN
 ;
 
 assignStatement :
@@ -969,3 +941,7 @@ pathList :
   path
 | pathList COMMA path
 ;
+
+
+
+

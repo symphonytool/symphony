@@ -986,20 +986,6 @@ action :
 | letStatement // TODO
 | blockStatement // TODO
 | controlStatement // TODO
-/* DEVIATION
- * CML_0:
- *   name
- * here:
- *   path
- * TODO: convert to a name
- * It might solve a few issues to inline the name triplet of rules here, directly
- */
-| path // TODO
-/* { */
-/*   LexNameToken lnt = extractLexNameToken((ASimpleName)$1); */
-/*   // FIXME -- apparently AIdentifierAction doesn't have any fields to store the *name* of the action? */
-/*   $$ = new AIdentifierAction(lnt.location);   */
-/* } */
 ;
 
 communicationParameterList :
@@ -2867,6 +2853,7 @@ expression :
  *   name
  *   IDENTIFIER TILDE // oldName
  *   expression LPAREN expression ELLIPSIS expression RPAREN // subsequence expression
+ *   expression LPAREN expressionList RPAREN
  *   expression DOTHASH NUMERAL // tuple select
  *   expression DOT IDENTIFIER // field select
  *   SELF
@@ -2874,9 +2861,10 @@ expression :
  * 1) convert to a name
  * 2) convert to an oldName
  * 3) convert to a subsequence expression
- * 4) convert to a tuple select
- * 5) convert to a field select
- * 6) convert to a self expression
+ * 4) convert to a function application
+ * 5) convert to a tuple select
+ * 6) convert to a field select
+ * 7) convert to a self expression
  *
  * (JWC) 3 through 5 need to be general expression rather than just
  * paths/names.  So, this is a problem for now.
@@ -3507,13 +3495,19 @@ controlStatement :
  *
  * FIXME --- we're missing call entirely.  
  */
-/* callStatement */
-/* | path LRPAREN */
-/* | path LPAREN expressionList RPAREN */
-/* | path COLONEQUALS path LRPAREN */
-/* | path COLONEQUALS path LPAREN expressionList RPAREN */
-/* callStatement end */
 /* general assign statement */
+/* DEVIATION
+ * callStatement --- with assignment
+ * grammar:
+ *   state designator ':=' call
+ * here:
+ *   subsumed into assignStatement
+ *
+ * The typechecker will have to look at the expression in the assign
+ * and determine if it is actually an operation call; if it is, then
+ * it must rewrite the AST to convert the assign into a call
+ * statement.
+ */
 | assignStatement
 /* multiple assign statement */
 | ATOMIC LPAREN assignStatementList RPAREN
@@ -3570,6 +3564,20 @@ controlStatement :
 /* index for loop end */
 /* while loop */
 | WHILE expression DO action
+/* DEVIATION
+ * callStatement --- without assignment
+ * grammar:
+ *   call
+ *   call : [ object designator '.' ] name '(' [ expressionList ] ')'
+ * here:
+ *   subsumed into path
+ *
+ * The typechecker will have to look at the expression in the assign
+ * and determine if it is actually an operation call; if it is, then
+ * it must rewrite the AST to convert the assign into a call
+ * statement.
+ */
+| path
 ;
 
 nonDeterministicAltList :
