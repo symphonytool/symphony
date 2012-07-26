@@ -4,7 +4,6 @@ import java.util.LinkedList;
 
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.ast.actions.ADeclareStatementDeclareStatement;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisAdaptor;
@@ -32,6 +31,7 @@ import eu.compassresearch.ast.definitions.AStateDefinition;
 import eu.compassresearch.ast.definitions.ATypeDefinition;
 import eu.compassresearch.ast.definitions.AUntypedDefinition;
 import eu.compassresearch.ast.definitions.AValueDefinition;
+import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -39,6 +39,7 @@ import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AChansetParagraphType;
 import eu.compassresearch.ast.types.AClassType;
 import eu.compassresearch.ast.types.AProcessParagraphType;
+import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.ast.types.PType;
 
 import eu.compassresearch.core.typechecker.CmlTypeChecker.CMLTypeError;
@@ -60,11 +61,31 @@ public class TCDeclAndDefVisitor extends QuestionAnswerAdaptor<TypeCheckInfo, PT
 		this.parentChecker = parent;
 	}
 
+
+	
 	
 	// -------------------------------------------------------
 	// Cases
 	// -------------------------------------------------------
 	
+	@Override
+	public PType caseAValueParagraphDefinition(AValueParagraphDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+		
+		LinkedList<PDefinition> list = node.getValueDefinitions();
+		for( PDefinition def : list)
+		{
+			PType defType = def.apply(parentChecker, question);
+			question.env.put(def.getName(), def);
+		}
+		
+		node.setType(new AValueParagraphType());
+		return node.getType();
+	}
+
+
+
+
 	@Override
 	public PType caseAValueDefinition(AValueDefinition node,
 			TypeCheckInfo question)  throws AnalysisException {
