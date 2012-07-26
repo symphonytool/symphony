@@ -410,7 +410,7 @@ programParagraphList :
   programParagraph
 {
   List<PDefinition> programParagraphList = new LinkedList<PDefinition>();
-  programParagraphList.addAll((List<PDefinition>)$1);
+  programParagraphList.add((PDefinition)$programParagraph);
   $$ = programParagraphList;
 }
 | programParagraphList programParagraph
@@ -418,7 +418,7 @@ programParagraphList :
   List<PDefinition> programParagraphList = (List<PDefinition>)$1;
   if (programParagraphList == null)
     programParagraphList = new Vector<PDefinition>();
-  programParagraphList.addAll((List<PDefinition>)$2);
+  programParagraphList.add((PDefinition)$programParagraph);
   $$ = programParagraphList;
 }
 ;
@@ -450,9 +450,9 @@ classDefinition :
   clz.setName(lexName);
   clz.setDefinitions( (List<PDefinition>) $4 );
   clz.setNameScope( NameScope.CLASSNAME );
-  List<PDefinition> def = new LinkedList<PDefinition>();
-  def.add(clz);
-  $$ = def;
+  //List<PDefinition> def = new LinkedList<PDefinition>();
+  //def.add(clz);
+  $$ = clz;
 }
 ;
 
@@ -465,9 +465,9 @@ processDefinition:
   LexLocation location = combineLexLocation(processLoc,processDef.getLocation());
   processDef.setLocation(location);
   processDef.setName(id);
-  List<PDefinition> def = new LinkedList<PDefinition>();
-  def.add(processDef);
-  $$ = def;
+  //List<PDefinition> def = new LinkedList<PDefinition>();
+  //def.add(processDef);
+  $$ = processDef;
 }
 ;
 
@@ -1168,7 +1168,7 @@ channelNameExprTail :
 channelDefinition :
   CHANNELS channelDef
 {
-  List<AChannelNameDeclaration> chanNameDecls = (List<AChannelNameDeclaration>)$2;
+  List<AChannelNameDeclaration> chanNameDecls = (List<AChannelNameDeclaration>)$channelDef;
   LexLocation start = extractLexLocation((CmlLexeme)$1);
   LexLocation end = (chanNameDecls != null && chanNameDecls.size() > 0) ?
     chanNameDecls.get(chanNameDecls.size()-1).getLocation() : start;
@@ -3969,19 +3969,31 @@ unit :
 
 pathList :
   path
-/* { */
-/*   LexNameToken lnt = extractLexNameToken((ASimpleName)$1); */
-/*   List<LexNameToken> identifiers = new Vector<LexNameToken>(); */
-/*   identifiers.add(lnt); */
-/*   $$ = identifiers; */
-/* } */
+{
+  try{
+    LexNameToken lnt = ((Path)$path).convertToName();
+    List<LexNameToken> names = new LinkedList<LexNameToken>();
+    names.add(lnt);
+    $$ = names;
+  }
+  catch(Path.PathConvertException e){
+    e.printStackTrace();
+    System.exit(-4);
+  }
+}
 | pathList COMMA path
-/* { */
-/*   LexNameToken lnt = extractLexNameToken((ASimpleName)$3); */
-/*   List<LexNameToken> identifiers = (List<LexNameToken>)$1; */
-/*   identifiers.add(lnt); */
-/*   $$ = identifiers; */
-/* } */
+{
+  try{
+    LexNameToken lnt = ((Path)$path).convertToName();
+    List<LexNameToken> names = (List<LexNameToken>)$1;
+    names.add(lnt);
+    $$ = names;
+  }
+  catch(Path.PathConvertException e){
+    e.printStackTrace();
+    System.exit(-4);
+  }
+}
 ;
 
 // **********************

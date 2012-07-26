@@ -818,7 +818,7 @@ public class CmlParser
 /* Line 411 of "src/main/bison/cml.y"  */
     {
   List<PDefinition> programParagraphList = new LinkedList<PDefinition>();
-  programParagraphList.addAll((List<PDefinition>)((yystack.valueAt (1-(1)))));
+  programParagraphList.add((PDefinition)((yystack.valueAt (1-(1)))));
   yyval = programParagraphList;
 };
   break;
@@ -833,7 +833,7 @@ public class CmlParser
   List<PDefinition> programParagraphList = (List<PDefinition>)((yystack.valueAt (2-(1))));
   if (programParagraphList == null)
     programParagraphList = new Vector<PDefinition>();
-  programParagraphList.addAll((List<PDefinition>)((yystack.valueAt (2-(2)))));
+  programParagraphList.add((PDefinition)((yystack.valueAt (2-(2)))));
   yyval = programParagraphList;
 };
   break;
@@ -906,9 +906,9 @@ public class CmlParser
   clz.setName(lexName);
   clz.setDefinitions( (List<PDefinition>) ((yystack.valueAt (4-(4)))) );
   clz.setNameScope( NameScope.CLASSNAME );
-  List<PDefinition> def = new LinkedList<PDefinition>();
-  def.add(clz);
-  yyval = def;
+  //List<PDefinition> def = new LinkedList<PDefinition>();
+  //def.add(clz);
+  yyval = clz;
 };
   break;
     
@@ -925,9 +925,9 @@ public class CmlParser
   LexLocation location = combineLexLocation(processLoc,processDef.getLocation());
   processDef.setLocation(location);
   processDef.setName(id);
-  List<PDefinition> def = new LinkedList<PDefinition>();
-  def.add(processDef);
-  yyval = def;
+  //List<PDefinition> def = new LinkedList<PDefinition>();
+  //def.add(processDef);
+  yyval = processDef;
 };
   break;
     
@@ -6075,10 +6075,50 @@ public class CmlParser
   break;
     
 
+  case 476:
+  if (yyn == 476)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 3972 of "src/main/bison/cml.y"  */
+    {
+  try{
+    LexNameToken lnt = ((Path)((yystack.valueAt (1-(1))))).convertToName();
+    List<LexNameToken> names = new LinkedList<LexNameToken>();
+    names.add(lnt);
+    yyval = names;
+  }
+  catch(Path.PathConvertException e){
+    e.printStackTrace();
+    System.exit(-4);
+  }
+};
+  break;
+    
+
+  case 477:
+  if (yyn == 477)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 3985 of "src/main/bison/cml.y"  */
+    {
+  try{
+    LexNameToken lnt = ((Path)((yystack.valueAt (3-(3))))).convertToName();
+    List<LexNameToken> names = (List<LexNameToken>)((yystack.valueAt (3-(1))));
+    names.add(lnt);
+    yyval = names;
+  }
+  catch(Path.PathConvertException e){
+    e.printStackTrace();
+    System.exit(-4);
+  }
+};
+  break;
+    
+
 
 
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 6082 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
+/* Line 6122 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
 	default: break;
       }
 
@@ -8620,7 +8660,7 @@ public class CmlParser
     3728,  3738,  3742,  3746,  3750,  3752,  3762,  3768,  3777,  3783,
     3792,  3802,  3806,  3819,  3823,  3827,  3834,  3844,  3854,  3860,
     3869,  3873,  3877,  3887,  3897,  3904,  3919,  3923,  3927,  3931,
-    3935,  3940,  3944,  3948,  3958,  3963,  3971,  3978
+    3935,  3940,  3944,  3948,  3958,  3963,  3971,  3984
   };
 
   // Report on the debug stream that the rule yyrule is going to be reduced.
@@ -9009,7 +9049,7 @@ public class CmlParser
 
 
 /* Line 912 of cmlskeleton.java.m4  */
-/* Line 9013 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
+/* Line 9053 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
 
 }
 
