@@ -69,7 +69,7 @@
   // *** PRIVATE OPERATIONS ***
   // *************************
 
-    private char convertEscapeToChar(String escape)
+    public static char convertEscapeToChar(String escape)
     {
       if (escape.startsWith("\\")){
 	switch(escape.charAt(1))
@@ -2933,14 +2933,15 @@ numericLiteral :
 {
   CmlLexeme lexeme = (CmlLexeme)$1;
   LexLocation loc = extractLexLocation(lexeme);
-  $$ = new LexIntegerToken(Long.decode(lexeme.getValue()), loc);
+  BigInteger b = new BigInteger(lexeme.getValue().substring(2), 16);
+  $$ = new LexIntegerToken(b.longValue(), loc);
 }
 | DECIMAL
 {
   CmlLexeme lexeme = (CmlLexeme)$1;
   LexLocation loc = extractLexLocation(lexeme);
-  // TODO decode(lexeme.getValue())
-  $$ = new LexIntegerToken(0, loc);
+  Decimal dec = new Decimal();
+  $$ = new LexIntegerToken(dec.parse(lexeme.getValue()), loc);
 }
 ;
 
