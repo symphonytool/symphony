@@ -62,16 +62,7 @@ declaration {-> package='eu.compassresearch.ast.declarations'}
     [identifier]: LexIdentifierToken // We will look and see if this name is appropriate during tc
     [singleType]: singleType
     | {singleType}  [identifiers]:LexIdentifierToken* (type):type
-     // --- Maybe they should be grouped together in a sub declaration
-//    | {type} [typeDefinitions]:definition.type*
-//    | {function} [functionDefinitions]:definition.#function*
-//    | {value} [definitions]: definition*
-//    | {operation} [operationDefinitions]:definition.#operation*
-//    | {state} [stateDefinition]:definition.state
-//    | {action} [actionDefinition]:definition.action*
-      ;
-
-
+	;
 
 /*
  Definitions 
