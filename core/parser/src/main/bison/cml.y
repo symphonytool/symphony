@@ -841,9 +841,9 @@ action :
  * grammar:
  *   expression '&' action
  * here:
- *   ':' expression '&' action
+ *   '[' expression ']' '&' action
  */
-| COLON expression AMP action
+| LSQUARE expression RSQUARE AMP action
 {
   PExp exp = (PExp)$1;
   PAction action = (PAction)$3;
@@ -953,12 +953,26 @@ action :
  * Also, this is apparently not yet in our AST
  */
 | MU pathList AT LPAREN action RPAREN // TODO
-| parallelAction
+/* parallel actions */
+| action LSQUAREDBAR namesetExpr BAR namesetExpr DBARRSQUARE action
+| action TBAR action
+| action LSQUAREBAR namesetExpr BAR namesetExpr BARRSQUARE action
+| action DBAR action
+| action LSQUARE namesetExpr BAR chansetExpr DBAR chansetExpr BAR namesetExpr RSQUARE action
+| action LSQUARE chansetExpr DBAR chansetExpr RSQUARE action
+| action LSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr BARRSQUARE action
+| action LSQUAREBAR chansetExpr BARRSQUARE action
+/* parallel actions end */
+/* parametrised action */
+| LPAREN parametrisationList AT action RPAREN
+/* instantiated actions */
+| LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
 {
-    $$ = $1;
+  $$ = new ADeclarationInstantiatedAction(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8),
+					  (List<? extends ASingleTypeDeclaration>)$declaration, (PAction)$4, (List<PExp>)$expressionList);
 }
-| LPAREN parametrisationList AT action RPAREN // parametrisedAction TODO
-| instantiatedAction // TODO
+| LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN // parametrisedAction TODO
+/* instantiated actions */
 /* replicated actions */
 | SEMI replicationDeclaration AT action %prec U-SEMI
 | LRSQUARE LCURLY replicationDeclaration AT action RCURLY %prec U-LRSQUARE
@@ -1083,17 +1097,6 @@ paramList :
 }
 ;
 
-parallelAction :
-  action LSQUAREDBAR namesetExpr BAR namesetExpr DBARRSQUARE action //TODO
-| action TBAR action //TODO
-| action LSQUAREBAR namesetExpr BAR namesetExpr BARRSQUARE action //TODO
-| action DBAR action //TODO
-| action LSQUARE namesetExpr BAR chansetExpr DBAR chansetExpr BAR namesetExpr RSQUARE action //TODO
-| action LSQUARE chansetExpr DBAR chansetExpr RSQUARE action //TODO
-| action LSQUAREBAR namesetExpr BAR chansetExpr BAR namesetExpr BARRSQUARE action //TODO
-| action LSQUAREBAR chansetExpr BARRSQUARE action //TODO
-;
-
 parametrisationList :
   parametrisation // TODO
 | parametrisationList SEMI parametrisation // TODO
@@ -1103,14 +1106,6 @@ parametrisation :
   VAL singleTypeDecl // TODO
 | RES singleTypeDecl // TODO
 | VRES singleTypeDecl // TODO
-;
-
-instantiatedAction :
-  LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
-{
-  $$ = new ADeclarationInstantiatedAction(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8), (List<? extends ASingleTypeDeclaration>)$2, (PAction)$4, (List<PExp>)$7);
-}
-| LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN // parametrisedAction TODO
 ;
 
 renameExpression :
