@@ -254,7 +254,7 @@
 	scanner = new CmlLexer( new java.io.FileReader(file) );
 	CmlParser cmlParser = new CmlParser(scanner);
 	cmlParser.setDocument(fileSource);
-	//cmlParser.setDebugLevel(1);
+	cmlParser.setDebugLevel(1);
 
 	//do {
 	//System.out.println(scanner.yylex());
@@ -650,6 +650,16 @@ process :
  * FIXME: Missing instantiated process
  */
 | path
+{
+  try{
+    Path path = (Path)$path;
+    $$ = path.convertToProcess();
+  }
+  catch(Path.PathConvertException e){
+    e.printStackTrace();
+    System.exit(-4);
+  }
+}
 | process renameExpression
 {
   SRenameChannelExp renameExpression = (SRenameChannelExp)$2;

@@ -3,6 +3,7 @@ package eu.compassresearch.core.parser;
 import eu.compassresearch.ast.expressions.*;
 import eu.compassresearch.ast.statements.*;
 import eu.compassresearch.ast.actions.*;
+import eu.compassresearch.ast.process.*;
 import eu.compassresearch.ast.lex.*; 
 import java.util.*;
 
@@ -220,6 +221,57 @@ public class Path
 	}
 
 	return sd;
+    }
+
+    public PProcess convertToProcess() throws PathConvertException
+    {
+	PProcess process = null;
+	switch(kind){
+	case UNIT:
+	    {
+		LexNameToken name = this.unit.convertToName();
+		process = new AInstantiationProcess(name.getLocation(), 
+						    null, 
+						    name, 
+						    null); 
+	    }
+	    break;
+	// case DOT:
+	//     {
+	//     }
+	//     break;
+	// case BACKTICK:
+	//     {
+	//     }
+	//     break;
+	
+	// This Apply form is : path LPAREN expressionList RPAREN
+	// Which should be converted into
+	// [ object designator '.' ] name '(' [ expressionList ] ')'
+	    
+	// case APPLY:
+	//     {
+	// 	Pair<Path,LexNameToken> pair = this.subPath.extractPostfixName();
+
+	// 	PObjectDesignator objectDesignator = null;
+
+	// 	//if this holds we need to exstract the ObjectDesignator 
+	// 	//from the returned path 
+	// 	if(pair.first != null){
+	// 	    objectDesignator = pair.first.convertToObjectDesignator();
+	// 	}
+		
+	// 	action = new ACallControlStatementAction(pair.second.getLocation(), 
+	// 						 objectDesignator, 
+	// 						 pair.second, 
+	// 						 this.expList);
+	//     }
+	//     break;
+	default:
+	    throw new PathConvertException("Illigal path for action : " + kind);
+	}
+
+	return process;
     }
 
     public PAction convertToAction() throws PathConvertException

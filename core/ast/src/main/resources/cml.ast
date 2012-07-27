@@ -239,7 +239,7 @@ process {-> package='eu.compassresearch.ast.process'}
 	| {startDeadline} [left]:process [expression]:exp
 	| {endDeadline} [left]:process [expression]:exp
 	| {instantiation} [declarations]:declaration.singleType* [identifer]:LexNameToken [expression]:exp
-	| {identifier} [identifer]:LexNameToken 
+	//| {identifier} [identifer]:LexNameToken 
 	| {channelRenaming} [process]:process [renameExpression]:exp.#Channel.#Rename
 	 
 ;
