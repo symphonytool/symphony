@@ -817,8 +817,9 @@ action :
 }
 | CSPWAIT LPAREN expression RPAREN
 {
-  PExp exp = (PExp)$2;
-  LexLocation location = extractLexLocation((CmlLexeme)$1, exp.getLocation());
+  PExp exp = (PExp)$expression;
+  //LexLocation location = extractLexLocation((CmlLexeme)$CSPWAIT, exp.getLocation());
+  LexLocation location = extractLexLocation((CmlLexeme)$CSPWAIT, (CmlLexeme)$RPAREN);
   $$ = new AWaitAction(location, exp);
 }
 /* Communication rule start*/

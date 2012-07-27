@@ -245,16 +245,25 @@ public class Path
 	// This Apply form is : path LPAREN expressionList RPAREN
 	// Which should be converted into
 	// [ object designator '.' ] name '(' [ expressionList ] ')'
-	// case APPLY:
-	//     {
-	// 	//First pick out the name part
-	// 	if(this.subPath == PathKind.DOT)
-	// 	    ;
-	// 	//else if ()
-	// 	else
-	// 	    throw new PathConvertException("Illigal path for action : " + kind);
-	//     }
-	//     break;
+	    
+	case APPLY:
+	    {
+		Pair<Path,LexNameToken> pair = this.subPath.extractPostfixName();
+
+		PObjectDesignator objectDesignator = null;
+
+		//if this holds we need to exstract the ObjectDesignator 
+		//from the returned path 
+		if(pair.first != null){
+		    objectDesignator = pair.first.convertToObjectDesignator();
+		}
+		
+		action = new ACallControlStatementAction(pair.second.getLocation(), 
+							 objectDesignator, 
+							 pair.second, 
+							 this.expList);
+	    }
+	    break;
 	default:
 	    throw new PathConvertException("Illigal path for action : " + kind);
 	}
@@ -272,9 +281,33 @@ public class Path
 	}
     }
 
-    private Pair<Path, LexNameToken> stripPostfixNameOfPath() throws PathConvertException
+    //names: ['.'] id
+    //       ['.'] id`id
+    private Pair<Path, LexNameToken> extractPostfixName() throws PathConvertException
     {
-	return null;
+	LexNameToken name = null;
+	Path path = null;
+	switch(kind){
+	case UNIT:
+	    {
+		name = this.unit.convertToName();
+	    }
+	    break;
+	
+	// case BACKTICK:
+	//     {
+	// 	if (this.subPath.kind == PathKind.UNIT){
+	// 	    name = this.unit.convertToName(subPath.unit.value.getName());
+	// 	}
+	// 	else{
+	// 	    throw new PathConvertException("Illigal path for expression");
+	// 	}
+	//     }
+	//     break;
+	default:
+	    throw new PathConvertException("Illigal path for call : " + kind);
+	}
+	return new Pair<Path,LexNameToken>(path,name);
     }
     
     public LexNameToken convertToName() throws PathConvertException
