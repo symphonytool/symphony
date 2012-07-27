@@ -369,6 +369,10 @@ blanks          = [ \t\f]*
 "false"                       { return createToken(CmlParser.FALSE); }
 "true"                        { return createToken(CmlParser.TRUE); }
 "rem"                         { return createToken(CmlParser.REM); }
+"psubset"                     { return createToken(CmlParser.PROPER_SUBSET); }
+"comp"                        { return createToken(CmlParser.COMP); }
+"iota"                        { return createToken(CmlParser.IOTA); }
+
 /* ---- complex terminals below ---- */
 
 "\""                          { offset += yytext().length();stateStack.push(yystate());yybegin(STRING); stringBuilder = new StringBuilder(); }
