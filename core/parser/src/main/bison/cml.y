@@ -986,7 +986,10 @@ action :
 /* replicated actions end */
 | letStatement // TODO
 | blockStatement // TODO
-| controlStatement // TODO
+| controlStatement 
+{
+  $$ = $1;
+}
 ;
 
 communicationParameterList :
@@ -1940,9 +1943,11 @@ invariant :
 valueDefs :
   VALUES valueDefList
 {
-  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  List<PDefinition> defs = (List<PDefinition>)$valueDefList;
+  LexLocation location = extractLexLocation((CmlLexeme)$VALUES,
+					    extractLastLexLocation(defs));
   AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
-  List<PDefinition> defs = (List<PDefinition>)$2;
+  
   $$ = new AValueParagraphDefinition(location, 
 				     NameScope.NAMES, 
 				     false, 
@@ -2155,7 +2160,7 @@ implicitFunctionDef :
 qualifiedExplicitFunctionDef :
   qualifier explicitFunctionDef
 {
-  AAccessSpecifier access = (AAccessSpecifier)$1;
+  AAccessSpecifier access = (AAccessSpecifier)$qualifier;
   AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)$2;
   f.setAccess(access);
   $$ = f;
@@ -2715,12 +2720,11 @@ expression :
   $$ = res;
 }
 /* sequence enumerations */
-| LSQUARE RSQUARE
+| LRSQUARE
 {
-  CmlLexeme lsqr = (CmlLexeme)$1;
-  CmlLexeme rsqr = (CmlLexeme)$2;
+  CmlLexeme lrsqr = (CmlLexeme)$LRSQUARE;
   List<PExp> exps = new LinkedList<PExp>();
-  LexLocation loc = combineLexLocation(extractLexLocation(lsqr), extractLexLocation(rsqr));
+  LexLocation loc = extractLexLocation(lrsqr);
   ASeqEnumSeqExp exp = new ASeqEnumSeqExp(loc, exps);
   $$ = exp;
 }
@@ -3602,6 +3606,18 @@ controlStatement :
  * statement.
  */
 | path
+{
+  Path path = (Path)$path;
+  PAction action = null;
+  try{
+    action = path.convertToAction();
+  }
+  catch(Path.PathConvertException e){
+    e.printStackTrace();
+    System.exit(-4);
+  }
+  $$ = action;
+}
 ;
 
 nonDeterministicAltList :
@@ -3685,9 +3701,9 @@ assignStatement :
     System.exit(-4);
   }
 
-  PExp exp = (PExp)$3;
+  PExp exp = (PExp)$expression;
   LexLocation location = combineLexLocation(stateDesignator.getLocation(), exp.getLocation());
-  $$ = new ASingleGeneralAssignmentControlStatementAction(location, stateDesignator , (PExp)$3);
+  $$ = new ASingleGeneralAssignmentControlStatementAction(location, stateDesignator , exp);
 }
 ;
 

@@ -626,7 +626,7 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {parametrised} [parametrisations]:parametrisation [action]:action 
 	| #Instantiated
 	| #Statement
-	| {identifier}
+	| {identifier} [actionName]:LexNameToken
 	| {subclassResponsibility}
 	| {notYetSpecified} [opname]:LexNameToken [args]:exp*
 	;

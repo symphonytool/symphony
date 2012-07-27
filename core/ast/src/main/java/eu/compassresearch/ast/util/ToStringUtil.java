@@ -42,7 +42,7 @@ public class ToStringUtil
 			params.append("(" + Utils.listToString(plist) + ")");
 		}
 
-		String accessStr = d.getAccess().toString();
+		String accessStr = d.getAccess() != null ? d.getAccess().toString() : "null";
 		if (d.getNameScope() == NameScope.LOCAL)
 			accessStr = "";
 

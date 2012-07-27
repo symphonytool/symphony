@@ -221,6 +221,61 @@ public class Path
 
 	return sd;
     }
+
+    public PAction convertToAction() throws PathConvertException
+    {
+	PAction action = null;
+	switch(kind){
+	case UNIT:
+	    {
+		LexNameToken actionName = this.unit.convertToName();
+		action = new AIdentifierAction(actionName.getLocation(), 
+					       actionName);
+	    }
+	    break;
+	// case DOT:
+	//     {
+	//     }
+	//     break;
+	// case BACKTICK:
+	//     {
+	//     }
+	//     break;
+	
+	// This Apply form is : path LPAREN expressionList RPAREN
+	// Which should be converted into
+	// [ object designator '.' ] name '(' [ expressionList ] ')'
+	// case APPLY:
+	//     {
+	// 	//First pick out the name part
+	// 	if(this.subPath == PathKind.DOT)
+	// 	    ;
+	// 	//else if ()
+	// 	else
+	// 	    throw new PathConvertException("Illigal path for action : " + kind);
+	//     }
+	//     break;
+	default:
+	    throw new PathConvertException("Illigal path for action : " + kind);
+	}
+
+	return action;
+    }
+
+    private class Pair<F, S> {
+	public final F first; //first member of pair
+	public final S second; //second member of pair
+	
+	public Pair(F first, S second) {
+	    this.first = first;
+	    this.second = second;
+	}
+    }
+
+    private Pair<Path, LexNameToken> stripPostfixNameOfPath() throws PathConvertException
+    {
+	return null;
+    }
     
     public LexNameToken convertToName() throws PathConvertException
     {
