@@ -1,1 +1,1 @@
-process RegisterProc = A \ {id,id2}
+process RegisterProc = A :\ {|id,id2|}
