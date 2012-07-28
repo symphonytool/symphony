@@ -302,7 +302,7 @@ exp {-> package='eu.compassresearch.ast.expressions'}
     
 #Channel  {-> package='eu.compassresearch.ast.expressions'}
 	= #Rename
-	| {event} [identifier]:LexNameToken [dotExpressions]:exp*
+	| {name} [identifier]:LexNameToken [dotExpressions]:exp*
 	;
 	
 #Rename   {-> package='eu.compassresearch.ast.expressions'}
@@ -409,7 +409,7 @@ exp {-> package='eu.compassresearch.ast.expressions'}
 #Chanset {-> package='eu.compassresearch.ast.expressions'}
 	= {identifier} [identifier]:LexIdentifierToken
 	| {enum} [identifiers]:LexIdentifierToken*
-	| {comp}  [identifier]:LexIdentifierToken [dotExpressions]:exp* [bindings]:multipleBind* [predicate]:exp 
+	| {comp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp 
     ;
     
 modifier {-> package='eu.compassresearch.ast.expressions'}
@@ -535,7 +535,7 @@ pair {-> package='eu.compassresearch.ast.patterns'}
     = {patternType} [pattern]:pattern (type):type
     | {patternListType} [patterns]:pattern* (type):type
     | {identifierType} [identifier]:LexIdentifierToken (type):type
-    | {rename} [from]:exp.#Channel.event [to]:exp.#Channel.event
+    | {rename} [from]:exp.#Channel.name [to]:exp.#Channel.name
     ; 
     
 bind {-> package='eu.compassresearch.ast.patterns'}

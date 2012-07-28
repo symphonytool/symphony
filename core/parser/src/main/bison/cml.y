@@ -254,7 +254,7 @@
 	scanner = new CmlLexer( new java.io.FileReader(file) );
 	CmlParser cmlParser = new CmlParser(scanner);
 	cmlParser.setDocument(fileSource);
-	cmlParser.setDebugLevel(1);
+	//cmlParser.setDebugLevel(1);
 
 	//do {
 	//System.out.println(scanner.yylex());
@@ -952,7 +952,7 @@ action :
 }
 | action renameExpression
 {
-  SRenameChannelExp renameExpression = (SRenameChannelExp)$2;
+  SRenameChannelExp renameExpression = (SRenameChannelExp)$renameExpression;
   PAction action = (PAction)$1;
   $$ = new AChannelRenamingAction(combineLexLocation(action.getLocation(), renameExpression.getLocation()), action, renameExpression);
 }
@@ -1130,14 +1130,14 @@ renameList :
   channelNameExpr LARROW channelNameExpr
 {
   List<ARenamePair> renamePairs = new Vector<ARenamePair>();
-  ARenamePair pair = new ARenamePair(false, (AEventChannelExp)$1, (AEventChannelExp)$3);
+  ARenamePair pair = new ARenamePair(false, (ANameChannelExp)$1, (ANameChannelExp)$3);
   renamePairs.add(pair);
   $$ = renamePairs;
 }
 | renameList COMMA channelNameExpr LARROW channelNameExpr
 {
   List<ARenamePair> renamePairs = (List<ARenamePair>)$1;
-  ARenamePair pair = new ARenamePair(false, (AEventChannelExp)$3, (AEventChannelExp)$5);
+  ARenamePair pair = new ARenamePair(false, (ANameChannelExp)$3, (ANameChannelExp)$5);
   renamePairs.add(pair);
   $$ = renamePairs;
 }
@@ -1154,14 +1154,17 @@ renameList :
 channelNameExpr :
   IDENTIFIER
   {
-    LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
-    $$ = new Object[]{id,new LinkedList<PExp>()};
+    LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+    $$ = new ANameChannelExp(name.getLocation(), 
+			      name, 
+			      new LinkedList<PExp>());
   }
 | IDENTIFIER DOTCOLON channelNameExprTail
 {
-  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
-  List<PExp> expList = (List<PExp>)$channelNameExprTail;
-  $$ = new Object[]{id,expList};
+  LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+  $$ = new ANameChannelExp(name.getLocation(), 
+			    name, 
+			    (List<PExp>)$channelNameExprTail);
 }
 ;
 
@@ -1388,21 +1391,19 @@ chansetExpr :
 | LCURLYBAR channelNameExpr BAR bindList BARRCURLY
 {
   LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR, (CmlLexeme)$BARRCURLY);
-  Object[] channelExp = (Object[])$channelNameExpr;
-  LexIdentifierToken identifier = (LexIdentifierToken)channelExp[0];  
-  List<PExp> dotted_expression = (List<PExp>)channelExp[1];
+  ANameChannelExp chanNameExp = (ANameChannelExp)$channelNameExpr;
   List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
-  $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, null);
+  $$ = new ACompChansetSetExp(location,chanNameExp , bindings, null);
 }
 | LCURLYBAR channelNameExpr BAR bindList AT expression BARRCURLY
-/* { */
-/*   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8); */
-/*   LexIdentifierToken identifier = extractLexIdentifierToken((CmlLexeme)$2); */
-/*   List<PExp> dotted_expression = (List<PExp>)$3; */
-/*   List<PMultipleBind> bindings = (List<PMultipleBind>)$5; */
-/*   PExp pred = (PExp)$7; */
-/*   $$ = new ACompChansetSetExp(location, identifier, dotted_expression, bindings, pred); */
-/* } */
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR, 
+					    (CmlLexeme)$BARRCURLY);
+  ANameChannelExp chanNameExp = (ANameChannelExp)$channelNameExpr;
+  List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
+  PExp pred = (PExp)$expression;
+  $$ = new ACompChansetSetExp(location, chanNameExp, bindings, pred);
+}
 ;
 
 globalDefinitionParagraph :

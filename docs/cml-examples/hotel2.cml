@@ -144,19 +144,19 @@ begin
 
 	actions
 	ZOTEL = 
-	check?s -> 	(: pre-checkAvailability(s) & (dcl a:bool @ a := checkAvailability(s); avail!a -> ZOTEL))
+	check?s -> 	([ pre-checkAvailability(s)] & (dcl a:bool @ a := checkAvailability(s); avail!a -> ZOTEL))
 				[]
-				(: not pre-checkAvailability(s) & (error -> ZOTEL))
+				([ not pre-checkAvailability(s)] & (error -> ZOTEL))
 	[]
-	book?s -> 	(: pre-makeBooking(s) & (dcl r:Reference @ r := makeBooking(s); reference!r -> ZOTEL))
+	book?s -> 	([ pre-makeBooking(s)] & (dcl r:Reference @ r := makeBooking(s); reference!r -> ZOTEL))
 			[]
-			(: not pre-makeBooking(s) & (unavailable -> ZOTEL))
+			([ not pre-makeBooking(s)] & (unavailable -> ZOTEL))
 	[]
-	reqPriceAvail?s -> 	(: pre-getQuoteAvail(s) & (dcl p:Price @ p := getQuoteAvail(s); outPrice!p -> ZOTEL))
+	reqPriceAvail?s -> 	([ pre-getQuoteAvail(s)] & (dcl p:Price @ p := getQuoteAvail(s); outPrice!p -> ZOTEL))
 					[]
-					(: not pre-getQuoteAvail(s) & (unavailable -> ZOTEL))
+					([ not pre-getQuoteAvail(s)] & (unavailable -> ZOTEL))
 --	[]
---	reqPrice?s -> 	(: pre-getQuote(s) &  (dcl p:Price @ p := getQuote(s); (:not p = nil & (outPrice!p -> ZOTEL))
+--	reqPrice?s -> 	([ pre-getQuote(s)] &  (dcl p:Price @ p := getQuote(s); (:not p = nil & (outPrice!p -> ZOTEL))
 --																		   []
 --																		   (:p = nil & (unavailable -> ZOTEL)))    -- detect/do something if nil
 --				    []
