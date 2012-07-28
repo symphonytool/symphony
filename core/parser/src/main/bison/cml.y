@@ -254,7 +254,7 @@
 	scanner = new CmlLexer( new java.io.FileReader(file) );
 	CmlParser cmlParser = new CmlParser(scanner);
 	cmlParser.setDocument(fileSource);
-	//cmlParser.setDebugLevel(1);
+	cmlParser.setDebugLevel(1);
 
 	//do {
 	//System.out.println(scanner.yylex());
@@ -2033,10 +2033,9 @@ qualifiedValueDef :
 valueDef :
   IDENTIFIER COLON type EQUALS expression
 {
-  CmlLexeme id = (CmlLexeme)$1;
-  PType type = (PType)$3;
-  PExp expression = (PExp)$5;
-  LexNameToken lnt = extractLexNameToken(id);
+  LexNameToken lnt = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+  PType type = (PType)$type;
+  PExp expression = (PExp)$expression;
   AIdentifierPattern idp = new AIdentifierPattern();
   idp.setLocation(lnt.location);
   // Build the resulting AValueDefinition
@@ -2363,21 +2362,21 @@ operationDefList :
   operationDef
 {
     List<SOperationDefinition> opDefinitions = new Vector<SOperationDefinition>();
-    opDefinitions.add((SOperationDefinition)$1);
+    opDefinitions.add((SOperationDefinition)$operationDef);
     $$ = opDefinitions;
 }
 | operationDefList SEMI operationDef
 {
     List<SOperationDefinition> opDefinitions = (List<SOperationDefinition>)$1;
-    opDefinitions.add((SOperationDefinition)$3);
+    opDefinitions.add((SOperationDefinition)$operationDef);
     $$ = opDefinitions;
 }
-| operationDefList SEMI operationDef SEMI
-{
-    List<SOperationDefinition> opDefinitions = (List<SOperationDefinition>)$1;
-    opDefinitions.add((SOperationDefinition)$3);
-    $$ = opDefinitions;
-}
+/* | operationDefList SEMI operationDef SEMI */
+/* { */
+/*     List<SOperationDefinition> opDefinitions = (List<SOperationDefinition>)$1; */
+/*     opDefinitions.add((SOperationDefinition)$3); */
+/*     $$ = opDefinitions; */
+/* } */
 ;
 
 operationDef :
@@ -2418,8 +2417,17 @@ implicitOperationDef :
   else
     location = combineLexLocation(access.getLocation(), postcondition.getLocation());
   AImplicitOperationDefinition ifunc =
-    new AImplicitOperationDefinition(location, NameScope.GLOBAL, null, access, parameterPatterns, result,
-					      externals, precondition, postcondition, null, null);
+    new AImplicitOperationDefinition(location, 
+				     NameScope.GLOBAL, 
+				     null, 
+				     access, 
+				     parameterPatterns, 
+				     result,
+				     externals, 
+				     precondition, 
+				     postcondition, 
+				     null, null);
+  ifunc.setName(name);
   $$ = ifunc;
 }
 ;
@@ -3096,16 +3104,17 @@ casesExpr :
   $$ = bubbleUp;
 }
 | CASES expression COLON casesExprAltList OTHERS RARROW expression END
-/* { // from casesExprAlt OTHERS RARROW expression --- this clearly isn't correct here */
-/*   ACaseAlternative altExp = (ACaseAlternative)$1; */
-/*   PExp othExp = (PExp)$4; */
-/*   List<ACaseAlternative> altList = new LinkedList<ACaseAlternative>(); */
-/*   altList.add(altExp); */
-/*   ACasesExp casesExp = new ACasesExp(); */
-/*   casesExp.setCases(altList); */
-/*   casesExp.setOthers(othExp); */
-/*   $$ = casesExp; */
-/* } */
+{ 
+  CmlLexeme cases = (CmlLexeme)$CASES;
+  PExp exp = (PExp)$2;
+  ACasesExp bubbleUp = (ACasesExp)$casesExprAltList; // Others and Cases are taken care of
+  CmlLexeme end = (CmlLexeme)$END;
+  LexLocation lexLoc = combineLexLocation(extractLexLocation(cases), extractLexLocation(end));
+  bubbleUp.setExpression(exp);
+  bubbleUp.setLocation(lexLoc);
+  bubbleUp.setOthers((PExp)$7);
+  $$ = bubbleUp;
+}
 ;
 
 casesExprAltList :
@@ -3687,13 +3696,22 @@ assignmentDefList :
 assignmentDef :
   IDENTIFIER COLON type
 {
-  LexNameToken name = extractLexNameToken((CmlLexeme)$1);
-  PType type = (PType)$3;
+  LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+  PType type = (PType)$type;
   LexLocation location = combineLexLocation(name.location, type.getLocation());
   AAccessSpecifier access = null;
-  $$ = new AAssignmentDefinition(location, name, NameScope.LOCAL, false, null, access, type, null, null);
+  $$ = new AAssignmentDefinition(location, name, NameScope.GLOBAL, false, null, access, type, null, null);
 }
-| IDENTIFIER COLON type COLONEQUALS expression // TODO
+| IDENTIFIER COLON type COLONEQUALS expression 
+{
+  LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+  PType type = (PType)$type;
+  PExp exp = (PExp)$expression;
+  LexLocation location = combineLexLocation(name.location, type.getLocation());
+  AAccessSpecifier access = null;
+  $$ = new AAssignmentDefinition(location, name, NameScope.GLOBAL, false, null, access, type, exp, null);
+
+}
 | IDENTIFIER COLON type IN expression // TODO
 ;
 

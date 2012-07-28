@@ -2,7 +2,7 @@ class my_cases =
 begin
 	values	
 	public sel : int = 42;
-	public val : int = cases sel :
+	public testval : int = cases sel :
 	       	     	   42 	  -> 2; 
 	       	     	   others -> 2
 			   end
