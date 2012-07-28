@@ -7,5 +7,5 @@ class Writer =
       choose_pair : Context`PI ==> ()
       choose_pair(r) == (
         wpair := not r
-      );
+      )
   end

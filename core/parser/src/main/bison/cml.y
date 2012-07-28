@@ -254,7 +254,7 @@
 	scanner = new CmlLexer( new java.io.FileReader(file) );
 	CmlParser cmlParser = new CmlParser(scanner);
 	cmlParser.setDocument(fileSource);
-	cmlParser.setDebugLevel(1);
+	//cmlParser.setDebugLevel(1);
 
 	//do {
 	//System.out.println(scanner.yylex());
@@ -3770,27 +3770,31 @@ casesStatement :
     cases.setExp((PExp)$2);
     $$ = cases;
 }
-| CASES expression COLON casesStatementAltList OTHERS RARROW action END
-/* { */
-/*   List<ACaseAlternativeAction> casesList = new Vector<ACaseAlternativeAction>(); */
-/*   casesList.add((ACaseAlternativeAction)$1); */
-/*   ACasesControlStatementAction cases = new ACasesControlStatementAction(null, null, casesList, (PAction)$5); */
-/*   $$ = cases; */
-/* } */
 ;
 
 casesStatementAltList :
   casesStatementAlt
 {
   List<ACaseAlternativeAction> casesList = new Vector<ACaseAlternativeAction>();
-  casesList.add((ACaseAlternativeAction)$1);
-  ACasesControlStatementAction cases = new ACasesControlStatementAction(null, null, casesList, null);
-  $$ = cases;
+  PAction others = null;
+  
+  if($casesStatementAlt instanceof ACaseAlternativeAction)
+    casesList.add((ACaseAlternativeAction)$casesStatementAlt);
+  else 
+    others = (PAction)$casesStatementAlt;
+  
+  $$ = new ACasesControlStatementAction(null, 
+					null, 
+					casesList,
+					others);
 }
 | casesStatementAlt COMMA casesStatementAltList
 {
+  if(!($casesStatementAlt instanceof ACaseAlternativeAction))
+    throw new RuntimeException("others must be the last case alternative"); 
+  
   ACasesControlStatementAction cases = (ACasesControlStatementAction)$3;
-  cases.getCases().add((ACaseAlternativeAction)$1);
+  cases.getCases().add((ACaseAlternativeAction)$casesStatementAlt);
   $$ = cases;
 }
 ;
@@ -3800,8 +3804,16 @@ casesStatementAlt :
 {
     PAction action = (PAction)$3;
     List<PPattern> patterns = (List<PPattern>)$1;
-    $$ = new ACaseAlternativeAction(combineLexLocation(extractFirstLexLocation(patterns), action.getLocation()),
-				    patterns, (PAction)$3);
+    $$ = new ACaseAlternativeAction(combineLexLocation(extractFirstLexLocation(patterns), 
+						       action.getLocation()),
+				    patterns, 
+				    (PAction)$3);
+}
+| OTHERS RARROW action
+{
+  PAction action = (PAction)$action;
+  
+  $$ = action;
 }
 ;
 
