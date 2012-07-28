@@ -857,8 +857,8 @@ action :
  */
 | LSQUARE expression RSQUARE AMP action
 {
-  PExp exp = (PExp)$1;
-  PAction action = (PAction)$3;
+  PExp exp = (PExp)$expression;
+  PAction action = (PAction)$5;
   LexLocation location = combineLexLocation(exp.getLocation(), action.getLocation());
   $$ = new AGuardedAction(location, exp, action);
 }

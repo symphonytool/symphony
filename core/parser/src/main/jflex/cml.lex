@@ -155,7 +155,7 @@ decimal                                 = {numeral}"."{numeral}([Ee]("+"|"-"){nu
 
 /* textliteral                          = \"([\040-\041\043-\133\135-\176]|{embeddedctrlchar}|{backslashed}|{deletechar}|{highbitchar}|{universalcharactername}|{ucode})*\" */
 
-identifier      = {letter}([0-9\'_]|{letter})*
+identifier      = {letter}([0-9\'_-]|{letter})*
 escape          = (\\e)|(\\a)|(\\f)|(\\r)|(\\n)|(\\t)|(\\\')|(\\\")
 charLit         = \'({letter}|(\\[xX]{hexduo})|{escape}|\\u{hexquad}|\\{octliteral}|\\\\|(\\c[a-zA-Z]))\'
 name            = {identifier}(("."|"`"){identifier})?

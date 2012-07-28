@@ -1466,8 +1466,8 @@ public class CmlParser
 /* Line 374 of cmlskeleton.java.m4  */
 /* Line 859 of "src/main/bison/cml.y"  */
     {
-  PExp exp = (PExp)((yystack.valueAt (5-(1))));
-  PAction action = (PAction)((yystack.valueAt (5-(3))));
+  PExp exp = (PExp)((yystack.valueAt (5-(2))));
+  PAction action = (PAction)((yystack.valueAt (5-(5))));
   LexLocation location = combineLexLocation(exp.getLocation(), action.getLocation());
   yyval = new AGuardedAction(location, exp, action);
 };
