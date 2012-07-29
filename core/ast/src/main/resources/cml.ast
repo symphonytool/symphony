@@ -238,7 +238,7 @@ process {-> package='eu.compassresearch.ast.process'}
 	| {hiding} [left]:process [chansetExpression]:exp.#Set.#Chanset
 	| {startDeadline} [left]:process [expression]:exp
 	| {endDeadline} [left]:process [expression]:exp
-	| {instantiation} [declarations]:declaration.singleType* [identifer]:LexNameToken [expression]:exp
+	| {instantiation} [declarations]:declaration.singleType* [identifer]:LexNameToken [args]:exp*
 	//| {identifier} [identifer]:LexNameToken 
 	| {channelRenaming} [process]:process [renameExpression]:exp.#Channel.#Rename
 	 
@@ -663,8 +663,8 @@ parameter {-> package='eu.compassresearch.ast.actions'}
 	;
 
 #Control {-> package='eu.compassresearch.ast.actions'}
-	= {nonDeterministicIf} [ifExp]:exp [thenStm]:action [elseIf]:action.#Statement.#Control.nonDeterministicElseIf*
-	| {nonDeterministicElseIf} [elseIf]:exp [thenStm]:action
+	= {nonDeterministicIf} [alternatives]:nonDeterministicIfAlt*
+	| {nonDeterministicIfAlt} [guard]:exp [action]:action
 	| {if} [ifExp]:exp [thenStm]:action [elseIf]:action.#Statement.#Control.elseIf* [elseStm]:action
 	| {elseIf} [elseIf]:exp [thenStm]:action
 	| {cases} [exp]:exp [cases]:alternativeAction.case* [others]:action

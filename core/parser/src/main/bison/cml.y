@@ -634,9 +634,12 @@ process :
 | LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8);
-  List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)$2;
-  LexNameToken identifier = extractLexNameToken((CmlLexeme)$4);
-  $$ = new AInstantiationProcess(location, decls, identifier, (PExp)$7);
+  List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)$declaration;
+  //LexNameToken identifier = extractLexNameToken((CmlLexeme)$4);
+  List<PExp> args = new LinkedList<PExp>();
+  args.add((PExp)$expression);
+  //TODO: The AST has to be changed to cope with the processDef
+  $$ = new AInstantiationProcess(location, decls, null, args);
 }
 /* DEVIATION
  * CML_0:
@@ -1769,6 +1772,7 @@ type :
   LexNameToken name = extractLexNameToken((CmlLexeme)$3);
   name = new LexNameToken(((CmlLexeme)$1).getValue(),name.getIdentifier());
   ANamedInvariantType type = new ANamedInvariantType();
+  type.setLocation(name.getLocation());
   type.setName(name);
   $$ = type;
 }
@@ -3538,6 +3542,13 @@ controlStatement :
 }
 /* nondeterministic statements */
 | IF nonDeterministicAltList END
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$IF,(CmlLexeme)$END);
+  List<ANonDeterministicIfAltControlStatementAction> alternatives = 
+    (List<ANonDeterministicIfAltControlStatementAction>)$nonDeterministicAltList;
+  $$ = new ANonDeterministicIfControlStatementAction(location, 
+						     alternatives);
+}
 | DO nonDeterministicAltList END %prec U-DO
 /* nondeterministic statements end */
 /* DEVIATION --- PATH
@@ -3652,7 +3663,31 @@ controlStatement :
 
 nonDeterministicAltList :
   expression RARROW action
+  {
+    PExp guard = (PExp)$expression;
+    PAction action = (PAction)$action;
+    LexLocation location = combineLexLocation(guard.getLocation(),
+					      action.getLocation());
+    List<ANonDeterministicIfAltControlStatementAction> alts = 
+      new LinkedList<ANonDeterministicIfAltControlStatementAction>();
+    alts.add(new ANonDeterministicIfAltControlStatementAction(location, 
+							      guard, 
+							      action));
+    $$ = alts;
+  }
 | nonDeterministicAltList BAR expression RARROW action
+{
+  PExp guard = (PExp)$expression;
+  PAction action = (PAction)$action;
+  LexLocation location = extractLexLocation((CmlLexeme)$BAR,
+					    action.getLocation());
+  List<ANonDeterministicIfAltControlStatementAction> alts = 
+    (List<ANonDeterministicIfAltControlStatementAction>)$1;
+  alts.add(new ANonDeterministicIfAltControlStatementAction(location, 
+							    guard, 
+							    action));
+  $$ = alts;
+}
 ;
 
 letStatement :

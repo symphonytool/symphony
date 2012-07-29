@@ -249,26 +249,22 @@ public class Path
 	// Which should be converted into
 	// [ object designator '.' ] name '(' [ expressionList ] ')'
 	    
-	// case APPLY:
-	//     {
-	// 	Pair<Path,LexNameToken> pair = this.subPath.extractPostfixName();
-
-	// 	PObjectDesignator objectDesignator = null;
-
-	// 	//if this holds we need to exstract the ObjectDesignator 
-	// 	//from the returned path 
-	// 	if(pair.first != null){
-	// 	    objectDesignator = pair.first.convertToObjectDesignator();
-	// 	}
+	case APPLY:
+	    {
+		Pair<Path,LexNameToken> pair = this.subPath.extractPostfixName();
+		LexNameToken name = pair.second;
+		if(pair.first != null){
+		    throw new PathConvertException("Illigal path for instantiation proces : ");
+		}
 		
-	// 	action = new ACallControlStatementAction(pair.second.getLocation(), 
-	// 						 objectDesignator, 
-	// 						 pair.second, 
-	// 						 this.expList);
-	//     }
-	//     break;
+		process = new AInstantiationProcess(name.getLocation(), 
+						    null, 
+						    name, 
+						    this.expList);
+	    }
+	    break;
 	default:
-	    throw new PathConvertException("Illigal path for action : " + kind);
+	    throw new PathConvertException("Illigal path for process : " + kind);
 	}
 
 	return process;
