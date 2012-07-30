@@ -2803,6 +2803,14 @@ expression :
   ASetCompSetExp setComp = new ASetCompSetExp(loc, exp, binds, null);
   $$ = setComp;
 }
+/* DEVIATION
+ * CML_0:
+ *   LCURLY expression BAR bindList AT expression RCURLY
+ * here: 
+ *   LCURLY expression BAR bindList AMP expression RCURLY
+ *
+ * use both?
+ */
 | LCURLY expression BAR bindList AMP expression RCURLY
 {
     CmlLexeme lcurly = (CmlLexeme)$1;
@@ -3671,6 +3679,11 @@ controlStatement :
  * ambiguity at play here.
  */
 | RETURN
+{
+  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1), 
+					 null);
+}
+| RETURN LRPAREN
 {
   $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1), 
 					 null);
