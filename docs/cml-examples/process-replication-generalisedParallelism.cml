@@ -1,0 +1,3 @@
+process test = [|{|a,b|}|]i in {2,3} @ A(i)
+process test = [|{|a,b|}|]b : nat @ A(i)
+process test = [|{|a,b|}|]i in {2,3};b : nat @ A(i)

@@ -240,6 +240,18 @@
     return candidate;
   }
 
+  private List<LexIdentifierToken> convertPathListToIdentifiers(List<LexNameToken> pathList)
+  {
+      List<LexIdentifierToken> identifiers = new LinkedList<LexIdentifierToken>();
+      for (LexNameToken name : pathList){
+	  if(name.explicit == true || !name.module.equals("Default"))
+	      throw new RuntimeException("A single expression declaration can only contain identifiers");
+	  identifiers.add(0,name.getIdentifier());
+      }
+
+      return identifiers;
+  }
+
   public static void main(String[] args) throws Exception
   {
     if (args.length == 0) {
@@ -437,17 +449,8 @@ classDefinition :
   CLASS IDENTIFIER EQUALS BEGIN classDefinitionBlock END
 {
   AClassParagraphDefinition clz = new AClassParagraphDefinition();
-  CmlLexeme id = (CmlLexeme)$IDENTIFIER;
-  Position startPos =  ((CmlLexeme)$CLASS).getStartPos();
-  Position endPos = ((CmlLexeme)$EQUALS).getEndPos(); // TODO Fix me, the ending position is the
-  LexNameToken lexName = extractLexNameToken( id );
-  LexLocation loc = new LexLocation(currentSource.toString(),
-				    id.getValue(),
-				    startPos.line,
-				    startPos.column,
-				    endPos.line,
-				    endPos.column,
-				    startPos.offset, endPos.offset);
+  LexNameToken lexName = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+  LexLocation loc = extractLexLocation((CmlLexeme)$CLASS,(CmlLexeme)$END); 
   clz.setLocation(loc);
   clz.setName(lexName);
   clz.setDefinitions((List<PDefinition>)$classDefinitionBlock);
@@ -460,14 +463,12 @@ classDefinition :
 processDefinition:
   PROCESS IDENTIFIER EQUALS processDef
 {
-  LexLocation processLoc = extractLexLocation((CmlLexeme)$1);
-  AProcessParagraphDefinition processDef = (AProcessParagraphDefinition)$4;
-  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$2);
-  LexLocation location = combineLexLocation(processLoc,processDef.getLocation());
+  AProcessParagraphDefinition processDef = (AProcessParagraphDefinition)$processDef;
+  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
+  LexLocation location = extractLexLocation((CmlLexeme)$PROCESS,
+					    processDef.getLocation());
   processDef.setLocation(location);
   processDef.setName(id);
-  //List<PDefinition> def = new LinkedList<PDefinition>();
-  //def.add(processDef);
   $$ = processDef;
 }
 ;
@@ -475,7 +476,7 @@ processDefinition:
 processDef :
   declaration AT process
 {
-  List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)$1;
+  List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)$1;
   PProcess process = (PProcess)$3;
   List<PProcess> processes = new LinkedList<PProcess>();
   processes.add(process);
@@ -634,7 +635,7 @@ process :
 | LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8);
-  List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)$declaration;
+  List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)$declaration;
   //LexNameToken identifier = extractLexNameToken((CmlLexeme)$4);
   List<PExp> args = new LinkedList<PExp>();
   args.add((PExp)$expression);
@@ -648,9 +649,6 @@ process :
  *   IDENTIFIER LPAREN expressionList RPAREN
  * here:
  *   path
- *
- * TODO: need to convert the path to an instantiated process?
- * FIXME: Missing instantiated process
  */
 | path
 {
@@ -671,54 +669,116 @@ process :
 }
 /* replicated processes */
 | SEMI replicationDeclaration AT process %prec U-SEMI
-| BARTILDEBAR replicationDeclaration AT process %prec U-BARTILDEBAR
-| TBAR replicationDeclaration AT process %prec U-TBAR
+{
+    PProcess process = (PProcess)$4;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
+    $$ = new ASequentialCompositionReplicationProcess(location, 
+						      (List<SSingleDeclaration>)$replicationDeclaration, 
+						      process);
+}
 | LRSQUARE replicationDeclaration AT process %prec U-LRSQUARE
-| LSQUARE chansetExpr RSQUARE replicationDeclaration AT process %prec U-LSQUARE
+{
+    PProcess process = (PProcess)$4;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
+    $$ = new AExternalChoiceReplicationProcess(location, 
+					       (List<SSingleDeclaration>)$replicationDeclaration, 
+					       process);
+}
+| BARTILDEBAR replicationDeclaration AT process %prec U-BARTILDEBAR
+{
+    PProcess process = (PProcess)$4;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
+    $$ = new AInternalChoiceReplicationProcess(location, 
+					       (List<SSingleDeclaration>)$replicationDeclaration, 
+					       process);
+}
+| LSQUAREBAR chansetExpr BARRSQUARE replicationDeclaration AT process %prec U-LSQUARE
+{
+    PProcess process = (PProcess)$6;
+    SChansetSetExp chansetExp = (SChansetSetExp)$2;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
+    $$ = new AGeneralisedParallelismReplicationProcess(location, 
+						       (List<SSingleDeclaration>)$replicationDeclaration, 
+						       process,
+						       chansetExp);
+}
+| DBAR replicationDeclaration AT LSQUAREBAR chansetExpr BARRSQUARE process %prec U-DBAR
+{
+    PProcess process = (PProcess)$7;
+    SChansetSetExp chansetExp = (SChansetSetExp)$chansetExpr;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
+    $$ = new AAlphabetisedParallelismReplicationProcess(location, 
+						       (List<SSingleDeclaration>)$replicationDeclaration, 
+						       process,
+						       chansetExp);
+}
+| DBAR replicationDeclaration AT process %prec U-DBAR
+{
+    PProcess process = (PProcess)$4;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
+    $$ = new ASynchronousParallelismReplicationProcess(location, 
+						       (List<SSingleDeclaration>)$replicationDeclaration, 
+						       process);
+}
+| TBAR replicationDeclaration AT process %prec U-TBAR
+{
+    PProcess process = (PProcess)$4;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
+    $$ = new AInterleavingReplicationProcess(location, 
+					     (List<SSingleDeclaration>)$replicationDeclaration, 
+					     process);
+}
 ;
 
 replicationDeclaration :
-  replicationDeclarationAlt // TODO
-| replicationDeclaration SEMI replicationDeclarationAlt // TODO
+  replicationDeclarationAlt 
+  {
+      List<SSingleDeclaration> decls = new LinkedList<SSingleDeclaration>();
+      decls.add((SSingleDeclaration)$replicationDeclarationAlt);
+      $$ = decls;
+  }
+| replicationDeclaration SEMI replicationDeclarationAlt 
+{
+    List<SSingleDeclaration> decls = (List<SSingleDeclaration>)$1;
+    decls.add((SSingleDeclaration)$replicationDeclarationAlt);
+    $$ = decls;
+}
 ;
 
 replicationDeclarationAlt :
-  singleTypeDecl // TODO
+  singleTypeDecl 
+  {
+      $$ = $singleTypeDecl;
+  }
 | singleExpressionDeclaration
+{
+    $$ = $singleExpressionDeclaration;
+}
 ;
 
 /* DEVIATION
  * CML_0:
  *   IDENTIFIER { COMMA IDENTIFIER } COLON expression
  * here:
- *   IDENTIFIER { COMMA IDENTIFIER } IN expression
+ *   pathList IN expression
  *
  * (JWC) This declares a replication variable to take values from the
  * evaluation of an expression; I assume that the expression's type is
  * a set, so using IN (INSET?) here seems at least somewhat
  * appropriate.
- *
- * (JWC) We could make this consistent with singleTypeDecl by setting
- * the rule to:
- *   pathList IN expression
- * which is an interesting idea.
  */
 singleExpressionDeclaration :
-  IDENTIFIER IN expression // TODO
-/* { */
-/*   LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1); */
-/*   List<LexIdentifierToken> ids = new Vector<LexIdentifierToken>(); */
-/*   ids.add(id); */
-/*   ASingleTypeDeclaration singleTypeDeclaration = new ASingleTypeDeclaration(id.getLocation(), NameScope.GLOBAL, ids, (PType)$3); */
-/*   $$ = singleTypeDeclaration; */
-/* } */
-| singleExpressionDeclaration COMMA IDENTIFIER // TODO
-/* { */
-/*   LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1); */
-/*   ASingleTypeDeclaration singleTypeDeclaration = (ASingleTypeDeclaration)$3; */
-/*   singleTypeDeclaration.getIdentifiers().add(id); */
-/*   $$ = singleTypeDeclaration; */
-/* } */
+pathList IN expression 
+{
+    List<LexIdentifierToken> identifiers = convertPathListToIdentifiers((List<LexNameToken>)$pathList);
+    PExp exp = (PExp)$expression;
+    LexLocation location = combineLexLocation(extractFirstLexLocation(identifiers),
+					      exp.getLocation());
+    $$ = new AExpressionSingleDeclaration(location, 
+					  NameScope.LOCAL, 
+ 					  identifiers, 
+					  exp);
+}
 ;
 
 processParagraphList :
@@ -788,7 +848,7 @@ actionDefinition :
   IDENTIFIER EQUALS paragraphAction
 {
   Object[] pa = (Object[])$3;
-  List<ASingleTypeDeclaration> declarations = (List<ASingleTypeDeclaration>)pa[0];
+  List<ATypeSingleDeclaration> declarations = (List<ATypeSingleDeclaration>)pa[0];
   PAction action = (PAction)pa[1];
   LexLocation defLocation = combineLexLocation(extractLexLocation((CmlLexeme)$1), action.getLocation());
   AActionDefinition actionDefinition = new AActionDefinition(defLocation, NameScope.LOCAL, false, null, declarations, action);
@@ -799,7 +859,7 @@ actionDefinition :
 paragraphAction :
   action
 {
-  $$ = new Object[]{new Vector<ASingleTypeDeclaration>(), $1};
+  $$ = new Object[]{new Vector<ATypeSingleDeclaration>(), $1};
 }
 | declaration AT action
 {
@@ -984,7 +1044,7 @@ action :
 | LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
 {
   $$ = new ADeclarationInstantiatedAction(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8),
-					  (List<? extends ASingleTypeDeclaration>)$declaration, (PAction)$4, (List<PExp>)$expressionList);
+					  (List<? extends ATypeSingleDeclaration>)$declaration, (PAction)$4, (List<PExp>)$expressionList);
 }
 | LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN // parametrisedAction TODO
 /* instantiated actions */
@@ -1235,13 +1295,13 @@ channelNameDecl :
   LexLocation start = nameList.get(0).getLocation();
   LexLocation end = nameList.get(ids.size()-1).getLocation();
   LexLocation location = combineLexLocation(start, end);
-  ASingleTypeDeclaration singleTypeDeclaration = new ASingleTypeDeclaration(location, NameScope.GLOBAL, ids, null);
+  ATypeSingleDeclaration singleTypeDeclaration = new ATypeSingleDeclaration(location, NameScope.GLOBAL, ids, null);
   AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location, NameScope.GLOBAL, null,  singleTypeDeclaration);
   $$ = channelNameDecl;
 }
 | singleTypeDecl
 {
-  ASingleTypeDeclaration singleTypeDeclaration = (ASingleTypeDeclaration)$1;
+  ATypeSingleDeclaration singleTypeDeclaration = (ATypeSingleDeclaration)$1;
   AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(singleTypeDeclaration.getLocation(), NameScope.GLOBAL, null, singleTypeDeclaration);
   $$ = channelNameDecl;
 }
@@ -1250,14 +1310,14 @@ channelNameDecl :
 declaration :
   singleTypeDecl
 {
-  List<ASingleTypeDeclaration> decls = new Vector<ASingleTypeDeclaration>();
-  decls.add((ASingleTypeDeclaration)$1);
+  List<ATypeSingleDeclaration> decls = new Vector<ATypeSingleDeclaration>();
+  decls.add((ATypeSingleDeclaration)$1);
   $$ = decls;
 }
 | declaration SEMI singleTypeDecl
 {
-  List<ASingleTypeDeclaration> decls = (List<ASingleTypeDeclaration>)$1;
-  decls.add((ASingleTypeDeclaration)$3);
+  List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)$1;
+  decls.add((ATypeSingleDeclaration)$3);
   $$ = decls;
 }
 ;
@@ -1273,8 +1333,8 @@ singleTypeDecl :
 {
   List<LexNameToken> nameList = (List<LexNameToken>)$1;
   List<LexIdentifierToken> ids = convertNameListToIdentifierList(nameList);
-  ASingleTypeDeclaration singleTypeDeclaration =
-    new ASingleTypeDeclaration(nameList.get(0).getLocation(), NameScope.GLOBAL, ids, (PType)$3);
+  ATypeSingleDeclaration singleTypeDeclaration =
+    new ATypeSingleDeclaration(nameList.get(0).getLocation(), NameScope.LOCAL, ids, (PType)$3);
   $$ = singleTypeDeclaration;
 }
 ;
@@ -2761,6 +2821,12 @@ expression :
   ASeqEnumSeqExp exp = new ASeqEnumSeqExp(loc, exps);
   $$ = exp;
 }
+/*
+  PROBLEM: Sequences cannot handle '[[]]' since '[[' and ']]' will be
+  lexed as a DLSQUARE and DRSQUARE token because of the renaming
+  comprehension. For now we need spaces like '[ [] ]' to be able to
+  parse it correctly.
+ */
 | LSQUARE expressionList RSQUARE
 {
   CmlLexeme lsqr = (CmlLexeme)$1;
@@ -2793,11 +2859,9 @@ expression :
   $$ = res;
 }
 /* map enumerations */
-| LCURLY BARRARROW RCURLY
+| EMPTYMAP
 {
-  CmlLexeme lcurly = (CmlLexeme)$1;
-  CmlLexeme rcurly = (CmlLexeme)$2;
-  LexLocation loc = combineLexLocation(extractLexLocation(lcurly), extractLexLocation(rcurly));
+  LexLocation loc = extractLexLocation((CmlLexeme)$EMPTYMAP);
   AMapEnumMapExp res = new AMapEnumMapExp(loc, new LinkedList<AMapletExp>());
   $$ = res;
 }

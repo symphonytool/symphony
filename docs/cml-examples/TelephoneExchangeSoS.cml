@@ -100,8 +100,8 @@ begin
 		frame wr status, number, subs
 		      rd lSUBS
 		post 
-			status = { |-> } and 
-			number = { |-> } and 
+			status = {|->} and 
+			number = {|->} and 
 			subs = lSUBS;
 		
 		Add (s: Node`SUBS)

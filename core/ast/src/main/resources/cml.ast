@@ -60,10 +60,16 @@ declaration {-> package='eu.compassresearch.ast.declarations'}
     // --- True declarations
     = {channelName} 
     [identifier]: LexIdentifierToken // We will look and see if this name is appropriate during tc
-    [singleType]: singleType
-    | {singleType}  [identifiers]:LexIdentifierToken* (type):type
+    [singleType]: declaration.#Single.type
+    | #Single
 	;
 
+#Single {-> package='eu.compassresearch.ast.declarations'}
+	= {type}  
+    [identifiers]:LexIdentifierToken* (type):type
+	| {expression}
+    [identifiers]:LexIdentifierToken* [expression]:exp
+    ;
 /*
  Definitions 
 */
@@ -74,7 +80,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
     |   {instanceVariable} [expression]:exp (expType):type [initialized]:java_Boolean [oldname]:LexNameToken //this actually inherits assignment in Nicks tree
 //    |   {classbody} [declarations]:declaration* 
 
-    |   {action} [declarations]:declaration.singleType* [action]:action
+    |   {action} [declarations]:declaration.#Single.type* [action]:action
     |   {chanset} [identifier]:LexIdentifierToken [chansetExpressions]:exp.#Set.#Chanset
     |   {classInvariant}  [expression]:exp
     |   {equals} [pattern]:pattern [typebind]:bind.type [setbind]:bind.set [test]:exp 
@@ -238,12 +244,22 @@ process {-> package='eu.compassresearch.ast.process'}
 	| {hiding} [left]:process [chansetExpression]:exp.#Set.#Chanset
 	| {startDeadline} [left]:process [expression]:exp
 	| {endDeadline} [left]:process [expression]:exp
-	| {instantiation} [declarations]:declaration.singleType* [identifer]:LexNameToken [args]:exp*
+	| {instantiation} [declarations]:declaration.#Single.type* [identifer]:LexNameToken [args]:exp*
 	//| {identifier} [identifer]:LexNameToken 
 	| {channelRenaming} [process]:process [renameExpression]:exp.#Channel.#Rename
-	 
-;
-	
+	| #Replication
+	;
+
+#Replication {-> package='eu.compassresearch.ast.process'}
+	= {sequentialComposition}  
+	| {externalChoice}
+	| {internalChoice}
+	| {generalisedParallelism} [chansetExpression]:exp.#Set.#Chanset
+	| {alphabetisedParallelism} [chansetExpression]:exp.#Set.#Chanset
+	| {synchronousParallelism}
+	| {interleaving} 
+	;	
+
 /*
     Expressions
 */    
@@ -633,13 +649,13 @@ action {-> package='eu.compassresearch.ast.actions'}
 	;
 
 parametrisation {-> package='eu.compassresearch.ast.actions'}
-	= {val}	[location]:location [declaration]:declaration.singleType
-	| {res} [location]:location [declaration]:declaration.singleType
-	| {vres} [location]:location [declaration]:declaration.singleType
+	= {val}	[location]:location [declaration]:declaration.#Single.type
+	| {res} [location]:location [declaration]:declaration.#Single.type
+	| {vres} [location]:location [declaration]:declaration.#Single.type
 	;
 	
 #Instantiated {-> package='eu.compassresearch.ast.actions'}
-	= {declaration} [declaration]:declaration.singleType* [action]:action [args]:exp*
+	= {declaration} [declaration]:declaration.#Single.type* [action]:action [args]:exp*
 	| {parametrisation} [action]:action.parametrised  [args]:exp*
 	;
 	
@@ -764,6 +780,9 @@ Aspect Declaration
 	;
 
 %process =  [location]:location 
+	;
+
+%process->#Replication = [replicationDeclaration]:declaration.#Single* [replicatedProcess]:process 
 	;
 
 %action =  [location]:location
