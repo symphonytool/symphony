@@ -363,7 +363,7 @@
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY DECIMAL 
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
 %token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY WHILE ISUNDERNAME
-%token EXTENDS EMPTYMAP
+%token EXTENDS EMPTYMAP DBACKSLASH
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE TICK CHAR_LIT
 
 %token nameset namesetExpr nilLiteral textLiteral
@@ -383,7 +383,7 @@
       BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF
       NEW COLONEQUALS SLASH BACKSLASH ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE
       DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH COLONINTER COLONUNION
-      BARGT
+      BARGT DBACKSLASH
 %right SEMI
 %right U-SEMI U-BARTILDEBAR U-DBAR U-TBAR U-LRSQUARE U-LSQUARE U-LSQUAREBAR
        U-LSQUAREDBAR
@@ -609,9 +609,9 @@ process :
  * grammar:
  *   process '\' chansetExpr
  * here:
- *   process ':\' chansetExpr
+ *   process '\\' chansetExpr
  */
-| process COLONBACKSLASH chansetExpr
+| process DBACKSLASH chansetExpr
 {
   PProcess left = (PProcess)$1;
   SChansetSetExp cse = (SChansetSetExp)$3;
@@ -808,10 +808,6 @@ processParagraph :
 {
   $$ = $1;
 }
-/* DEVIATION
- * This is not yet in the (CML0) grammar, but the need for it has been recognised
- */
-| INITIAL operationDef // TODO
 | actionParagraph
 {
   $$ = $1;
@@ -990,9 +986,9 @@ action :
  * grammar:
  *   process '\' chansetExpr
  * here:
- *   process ':\' chansetExpr
+ *   process '\\' chansetExpr
  */
-| action COLONBACKSLASH chansetExpr
+| action DBACKSLASH chansetExpr
 {
   PAction left = (PAction)$1;
   SChansetSetExp chansetExp = (SChansetSetExp)$3;
@@ -1452,9 +1448,9 @@ chansetExpr :
  * grammar:
  *   chansetExpr '\' chansetExpr
  * here:
- *   chansetExpr ':\' chansetExpr
+ *   chansetExpr '\\' chansetExpr
  */
-| chansetExpr COLONBACKSLASH chansetExpr
+| chansetExpr DBACKSLASH chansetExpr
 {
   PExp left = (PExp)$1;
   PExp right = (PExp)$3;
@@ -1543,6 +1539,13 @@ classDefinitionBlockAlternative :
 {
   $$ = $1;
 }
+/* UPCOMING --- CML_1
+ * absent in CML_0
+ *
+ * This will be in the CML_1 grammar, and is defines the constructor for the class.
+ * Confirmed between Joey, Alavro; Skype 30 July 2012
+ */
+| INITIAL operationDef // TODO
 ;
 
 typeDefs :
