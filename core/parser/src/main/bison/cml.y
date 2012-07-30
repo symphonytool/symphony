@@ -3108,7 +3108,7 @@ casesExpr :
   bubbleUp.setLocation(lexLoc);
   $$ = bubbleUp;
 }
-| CASES expression COLON casesExprAltList OTHERS RARROW expression END
+| CASES expression COLON casesExprAltList COMMA OTHERS RARROW expression END
 { 
   CmlLexeme cases = (CmlLexeme)$CASES;
   PExp exp = (PExp)$2;
@@ -3130,7 +3130,7 @@ casesExprAltList :
   casesExp.getCases().add(caseAlt);
   $$ = casesExp;
 }
-| casesExprAltList casesExprAlt
+| casesExprAltList COMMA casesExprAlt
 {
   ACasesExp casesExp = (ACasesExp)$1;
   ACaseAlternative altExp = (ACaseAlternative)$2;
@@ -3140,13 +3140,12 @@ casesExprAltList :
 ;
 
 casesExprAlt :
-  patternList RARROW expression SEMI
+  patternList RARROW expression 
 {
   List<PPattern> patList = (List<PPattern>)$1;
   PExp exp = (PExp)$expression;
-  CmlLexeme semi = (CmlLexeme)$SEMI;
   LexLocation leftMost = extractLexLeftMostFromPatterns(patList);
-  LexLocation loc = combineLexLocation(leftMost, extractLexLocation(semi));
+  LexLocation loc = combineLexLocation(leftMost, exp.getLocation());
   ACaseAlternative res = new ACaseAlternative();
   res.setPattern(patList);
   res.setLocation(loc);
@@ -3824,6 +3823,11 @@ casesStatement :
     cases.setExp((PExp)$2);
     $$ = cases;
 }
+| CASES expression COLON casesStatementAltList COMMA OTHERS RARROW action END
+/* { */
+/*   PAction action = (PAction)$action; */  
+/*   $$ = action; */
+/* } */
 ;
 
 casesStatementAltList :
@@ -3842,12 +3846,11 @@ casesStatementAltList :
 					casesList,
 					others);
 }
-| casesStatementAlt COMMA casesStatementAltList
+| casesStatementAltList COMMA casesStatementAlt
 {
-  if(!($casesStatementAlt instanceof ACaseAlternativeAction))
-    throw new RuntimeException("others must be the last case alternative"); 
-  
-  ACasesControlStatementAction cases = (ACasesControlStatementAction)$3;
+  /* if(!($casesStatementAlt instanceof ACaseAlternativeAction)) */
+  /*   throw new RuntimeException("others must be the last case alternative");    */
+  ACasesControlStatementAction cases = (ACasesControlStatementAction)$1;
   cases.getCases().add((ACaseAlternativeAction)$casesStatementAlt);
   $$ = cases;
 }
@@ -3862,12 +3865,6 @@ casesStatementAlt :
 						       action.getLocation()),
 				    patterns, 
 				    (PAction)$3);
-}
-| OTHERS RARROW action
-{
-  PAction action = (PAction)$action;
-  
-  $$ = action;
 }
 ;
 
