@@ -328,6 +328,7 @@ blanks          = [ \t\f]*
 "**"                          { return createToken(CmlParser.DSTAR); }
 // yes, the ellipsis includes the commas all as a single token
 ","{blanks}"..."{blanks}","   { return createToken(CmlParser.ELLIPSIS); }
+"{"{blanks}"|->"{blanks}"}"   { return createToken(CmlParser.EMPTYMAP); }
 "=>"                          { return createToken(CmlParser.EQRARROW); }
 "="                           { return createToken(CmlParser.EQUALS); }
 ">"                           { return createToken(CmlParser.GT); }
