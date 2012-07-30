@@ -377,6 +377,7 @@
  */
 /* Precidence from loosest to tightest; tokens on same line are equal precidence */
 %right MU LAMBDA
+%right FORALL EXISTS EXISTS1 IOTA
 %right LPAREN
 %right COMMA
 %left SEQOF
@@ -578,6 +579,8 @@ process :
  *   process '/' expression '\' process
  * this conflicts all over, so
  *   process '/:' expression ':\' process
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | process SLASHCOLON expression COLONBACKSLASH process
 {
@@ -598,6 +601,8 @@ process :
  *   process '[' expression '>' process
  * here:
  *   process '[' expression '|>' process
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | process LSQUARE expression BARGT process
 {
@@ -956,6 +961,8 @@ action :
  *   process '/' expression '\' process
  * this conflicts all over, so
  *   process '/:' expression ':\' process
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | action SLASHCOLON expression COLONBACKSLASH action
 {
@@ -976,6 +983,8 @@ action :
  *   action '[' expression '>' action
  * here:
  *   action '[' expression '|>' action
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | action LSQUARE expression BARGT action
 {
@@ -2740,7 +2749,7 @@ expression :
   $$ = $1;
 }
 /* quantified expressions */
-| FORALL bindList AMP expression
+| FORALL bindList AT expression %prec FORALL
 {
   CmlLexeme forall = (CmlLexeme)$1;
   List<PMultipleBind> binds = (List<PMultipleBind>)$2;
@@ -2750,7 +2759,7 @@ expression :
   AForAllExp forallexp = new AForAllExp(loc, binds, exp);
   $$ = forallexp;
 }
-| EXISTS bindList AMP expression
+| EXISTS bindList AT expression %prec EXISTS
 {
   CmlLexeme exists = (CmlLexeme)$1;
   List<PMultipleBind> binds = (List<PMultipleBind>)$2;
@@ -2759,7 +2768,7 @@ expression :
   AExistsExp existsExp = new AExistsExp(loc, binds, exp);
   $$ = existsExp;
 }
-| EXISTS1 bind AMP expression
+| EXISTS1 bind AT expression %prec EXISTS1
 {
   CmlLexeme exists = (CmlLexeme)$1;
   PBind bind = (PBind)$2;
@@ -2768,7 +2777,7 @@ expression :
   AExists1Exp existsExp = new AExists1Exp(loc, bind, exp, null);
   $$ = existsExp;
 }
-| IOTA bind AMP expression
+| IOTA bind AT expression %prec IOTA
 {
   CmlLexeme iota = (CmlLexeme)$1;
   PBind bind = (PBind)$2;
@@ -2804,15 +2813,7 @@ expression :
   ASetCompSetExp setComp = new ASetCompSetExp(loc, exp, binds, null);
   $$ = setComp;
 }
-/* DEVIATION
- * CML_0:
- *   LCURLY expression BAR bindList AT expression RCURLY
- * here: 
- *   LCURLY expression BAR bindList AMP expression RCURLY
- *
- * use both?
- */
-| LCURLY expression BAR bindList AMP expression RCURLY
+| LCURLY expression BAR bindList AT expression RCURLY
 {
     CmlLexeme lcurly = (CmlLexeme)$1;
     PExp exp = (PExp)$2;
@@ -2869,7 +2870,7 @@ expression :
   ASeqCompSeqExp res = new ASeqCompSeqExp(loc, exp, binds, null);
   $$ = res;
 }
-| LSQUARE expression BAR setBind AMP expression RSQUARE
+| LSQUARE expression BAR setBind AT expression RSQUARE
 {
   CmlLexeme lsqr = (CmlLexeme)$1;
   PExp exp = (PExp)$2;
@@ -2907,7 +2908,7 @@ expression :
   AMapCompMapExp res = new AMapCompMapExp(loc, maplet, binds, null);
   $$ = res;
 }
-| LCURLY maplet BAR bindList AMP expression RCURLY
+| LCURLY maplet BAR bindList AT expression RCURLY
 {
   CmlLexeme lcurl = (CmlLexeme)$1;
   AMapletExp maplet = (AMapletExp)$2;

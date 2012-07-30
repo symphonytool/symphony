@@ -55,14 +55,14 @@ fnRmCapacityDB = map fnRoomId to nat;
 
  AvailRng(s,e:Day,n:nat,av:AvailDB) b : bool 
   post b = (s <= e and
-           forall d in set {s,...,e} & CkAvail(d,av) >= n);
+           forall d in set {s,...,e} @ CkAvail(d,av) >= n);
 
 -- check are at least n hotel rooms booked on 
 -- a range {s,...,e} of days
 
  BookedRng(s,e:Day,n:nat,av:AvailDB) b : bool
   post b =  (s <= e and 
-            forall d in set {s,...,e} & 
+            forall d in set {s,...,e} @ 
                     TotalRooms - CkAvail(d,av) >= n);
 
 -- Check which Function rooms with at least capacity c 
@@ -71,12 +71,12 @@ fnRmCapacityDB = map fnRoomId to nat;
 
 checkFnRmAvail(d:Day, c:nat, fndb:fnAvailDB, fncap:fnRmCapacityDB) s:set of fnRoomId
  post s subset fndb(d) and 
-   forall r in set s & fncap(r) >= c;
+   forall r in set s @ fncap(r) >= c;
 
 -- alternative definition for checkFnRmAvail which gives all rooms
 
 checkFnRmAvail1(d:Day, c:nat, fndb:fnAvailDB, fncap:fnRmCapacityDB) s:set of fnRoomId
- post s subset fndb(d) inter {ss|ss:fnRoomId & fncap(ss) >= c};
+ post s subset fndb(d) inter {ss|ss:fnRoomId @ fncap(ss) >= c};
 
 -- check particular function room available
 
@@ -118,12 +118,12 @@ operations
    frame wr avail: AvailDB
          wr fnRmAvailOnDate: fnAvailDB
          wr fnRmCapacity: fnRmCapacityDB
-   post (forall d in set dom avail & avail(d) = TotalRooms)
+   post (forall d in set dom avail @ avail(d) = TotalRooms)
           and
-         forall d in set dom fnRmAvailOnDate & 
+         forall d in set dom fnRmAvailOnDate @ 
             fnRmAvailOnDate(d) = {f1,f2,f3,f4,f5};
 --      and
---     forall fr in set dom fnRmCapacityDB & 
+--     forall fr in set dom fnRmCapacityDB @ 
 --       fnRoomCapacity(fr) = capacity
 --      and 
 --     capacity <= MaximumCapacity;
@@ -133,16 +133,16 @@ operations
 BOOKROOM(s,e:Day,n:nat)
  frame wr avail: AvailDB
  pre  s <= e and
-      forall d in set {s,...,e} & CkAvail(d,avail) >= n
- post forall d in set {s,...,e} & 
+      forall d in set {s,...,e} @ CkAvail(d,avail) >= n
+ post forall d in set {s,...,e} @ 
                  avail(d) = avail~(d) - n;
 
 CANCELROOM(s,e:Day,n:nat)
  frame wr avail: AvailDB
  pre s <= e and 
-     forall d in set {s,...,e} & 
+     forall d in set {s,...,e} @ 
                     TotalRooms - CkAvail(d,avail) >= n
- post forall d in set {s,...,e} & 
+ post forall d in set {s,...,e} @ 
                        avail(d) = avail~(d) + n;
 
 BOOKFUNCTIONROOM(d:Day, c:nat) r:fnRoomId

@@ -79,7 +79,7 @@ begin
 	bookings : Bookings; -- maps a booking reference to stay details
 	
 	-- All booked stays have valid hotels and each booked stay has valid dates for that hotel
-	inv forall b in set rng bookings & b.stay.hotId in set dom zotels 
+	inv forall b in set rng bookings @ b.stay.hotId in set dom zotels 
 			and getDates(b.stay) subset dom zotels(b.stay.hotId).avail;
 
   operations
@@ -91,7 +91,7 @@ begin
 	
 
 --	public checkAvailability : Stay ==> bool
---	checkAvailability(s) == return (forall d in set getDates(s) & zotels(s.hotId).avail(d) >= s.noRooms)
+--	checkAvailability(s) == return (forall d in set getDates(s) @ zotels(s.hotId).avail(d) >= s.noRooms)
 	-- guard mapping look-ups 
 --	pre s.hotId in set dom zotels and getDates(s) subset dom zotels(s.hotId).avail; 
 	
@@ -100,7 +100,7 @@ begin
 	frame wr zotels, bookings
 	pre checkAvailability(s)  -- also need to guard mapping look-ups
 	-- main functionality
-	post forall d in set getDates(s) & zotels(s.hotId).avail(d) = zotels~(s.hotId).avail(d) - s.noRooms 
+	post forall d in set getDates(s) @ zotels(s.hotId).avail(d) = zotels~(s.hotId).avail(d) - s.noRooms 
 	and r not in set dom bookings~ and bookings(r) = mk_BookingDetails(s, zotels(s.hotId).price)
 	-- and nothing else changes (not formalised)!
 	;

@@ -2,7 +2,7 @@ class setrangeexp =
 begin
 	values
 	public a : set of int = {1, ..., 42};
-	public b : set of int = { c | c in set {22,...,42} & c in set a}
+	public b : set of int = { c | c in set {22,...,42} @ c in set a}
 end 
 
 

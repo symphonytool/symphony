@@ -41,7 +41,7 @@ functions
     
 	public total_booked : FlightId * BookingDb -> nat
 	total_booked(fd, bDb) == 
-	 let bookings : set of BookingData = {bDb(b) | b in set dom bDb & (bDb(b).f = fd)} in
+	 let bookings : set of BookingData = {bDb(b) | b in set dom bDb @ (bDb(b).f = fd)} in
 	     sum_bookings(bookings);
 
 
@@ -78,25 +78,25 @@ process Airline =
     state 
       fDb : FlightDb;
       bDb : BookingDb;
- 		  inv forall bd in set rng bDb & bd.f in set dom fDb and
-		     	 forall fId in set dom fDb & total_booked(fId, bDb) <= fDb(fId).max_seats
+ 		  inv forall bd in set rng bDb @ bd.f in set dom fDb and
+		     	 forall fId in set dom fDb @ total_booked(fId, bDb) <= fDb(fId).max_seats
 
 	operations
 		public Query(qorigin:Airport, qdest:Airport, qdate:Date, qseats:nat) r : FlightDb
 		frame rd fDb, bDb
-		post r = ({fd | fd in set dom fDb & fDb(fd).origin = qorigin and fDb(fd).dest = qdest
+		post r = ({fd | fd in set dom fDb @ fDb(fd).origin = qorigin and fDb(fd).dest = qdest
 				           and fDb(fd).dep.date = qdate and available_seats(fd, fDb, bDb) >= qseats} <: fDb);
 
 		public Reserve(fId:FlightId , qseats:nat) r: BookingId
 		frame wr bDb rd fDb
 		pre fId in set dom fDb and available_seats(fId, fDb, bDb) >= qseats
-		post r not in set bDb~ and exists b in set dom bDb & b = r and card bDb(b).ps = qseats and 
+		post r not in set bDb~ and exists b in set dom bDb @ b = r and card bDb(b).ps = qseats and 
 		                                                     bDb(b).f = fId and bDb(b).status = <Reserved>;
 
 		public Confirm(fId:FlightId, bId:BookingId, payment: token) r :bool
 		frame wr bDb
 		pre bId in set dom bDb and bDb(bId).status = <Reserved>
-		post forall b in set dom bDb & b = bId and bDb(b).f = fId and bDb(b).status = <Confirmed>;
+		post forall b in set dom bDb @ b = bId and bDb(b).f = fId and bDb(b).status = <Confirmed>;
 		
 		public Init() 
 		frame wr fDb, bDb

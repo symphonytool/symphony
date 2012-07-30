@@ -22,7 +22,7 @@ functions
 	pre
 		i in set LOC
 	post
-		forall j in set LOC & s inter home(j) = {};
+		forall j in set LOC @ s inter home(j) = {};
 	
 	callers: (map SUBS to STATUS) +>  set of SUBS
 	callers(status) == dom(status :> Connected);
@@ -66,7 +66,7 @@ begin
 		public number: map Node`SUBS to Node`SUBS;
 		public subs: set of Node.SUBS;
 		inv
-			exists n: nat & card(subs) = n and -- is card a partial or total function?
+			exists n: nat @ card(subs) = n and -- is card a partial or total function?
 			dom(status) = dom(number) and
 			dom(number) subset subs --and
 			--is_(dom(dom(status :> Node`Connected) <: number)) 
@@ -266,7 +266,7 @@ begin
 		pre
 			i in set LOC
 		post
-			forall j in set LOC & s inter home(j) = {};
+			forall j in set LOC @ s inter home(j) = {};
 	
 	state
 		i: nat; -- process parameter

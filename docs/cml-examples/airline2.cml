@@ -15,9 +15,9 @@ public Airport = token;
 
 -- a graph of connected airports
 public Connections = map Airport to set of Airport
-inv conn == forall a in set dom conn & 
+inv conn == forall a in set dom conn @ 
         not a in set conn(a)   -- not reflexive
-        and forall b in set conn(a) & b in set dom conn and a in set conn(b); -- symmetric
+        and forall b in set conn(a) @ b in set dom conn and a in set conn(b); -- symmetric
  
 -- Flights depart from / arrive at Airports on 
 -- respective dates (date notionally includes time of day). 
@@ -81,18 +81,18 @@ begin
    flights : FlightId -> Flight;
    authorisedAgents : set of Agent;
    bookings : ReservationNumber -> ReservationData;
- inv forall f in set rng flights & f.departure in set dom connections
+ inv forall f in set rng flights @ f.departure in set dom connections
                                  and f.arrival in set connections(f.departure)
    and
    -- bookings for valid flights
-   forall r in set dom bookings & bookings(r).flight in set dom flights;
+   forall r in set dom bookings @ bookings(r).flight in set dom flights;
    
  operations
 
 -- Given travel reqts (from, to, date) suggest a flight
 FindFlight (dep: Airport, arr: Airport, date: Date, n: nat) f: [FlightId]
 frame rd flights 
-post if exists fid in set dom flights & 
+post if exists fid in set dom flights @ 
        flights(fid).departure = dep and
        flights(fid).arrival = arr and
        flights(fid).date = date -- using simple idea of matching dates for now
