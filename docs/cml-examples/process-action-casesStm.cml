@@ -3,6 +3,7 @@ begin
    
    @
    cases 4:
-    4 -> REG
+    4 -> REG,
+    5 -> REG1
    end 
 end

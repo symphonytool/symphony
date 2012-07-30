@@ -113,11 +113,12 @@ process LibraryProcess = begin
 		GetBorrowed(l) == l.borrowed;
 		
 		ApplyBorrowed: Library*UserId -> set of BookId
-		ApplyBorrowed(l,u) == (GetBorrowed(l))(u)
+		--ApplyBorrowed(l,u) == (GetBorrowed(l))(u) not possible with the current grammar
+		ApplyBorrowed(l,u) == (l.borrowed(u))		 
 	
 	operations
 		Init(bs: map BookId to Book, us: map UserId to User)
-		post library = mk_Library(bs,us,{|->});
+		post library = mk_Library(bs,us,{ |-> });
 		
 		Assign(l: Library)
 		frame wr library

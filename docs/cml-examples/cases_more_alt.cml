@@ -3,12 +3,12 @@ begin
 	values	
 	public sel : int = 42;
 	public testval : int = cases sel :
-	       	     	   42 -> 2; 
-			   43 -> 3; 
-			   44 -> 4; 
-			   45 -> 5; 
-			   46 -> 6; 
-			   47 -> 7; 
-			   48 -> 8; 
+	       	     	   42 -> 2,
+			   43 -> 3, 
+			   44 -> 4, 
+			   45 -> 5, 
+			   46 -> 6, 
+			   47 -> 7, 
+			   48 -> 8 
 			   end
 end

@@ -3101,7 +3101,7 @@ casesExpr :
 {
   CmlLexeme cases = (CmlLexeme)$CASES;
   PExp exp = (PExp)$expression;
-  ACasesExp bubbleUp = (ACasesExp)$casesExprAltList; // Others and Cases are taken care of
+  ACasesExp bubbleUp = (ACasesExp)$casesExprAltList; 
   CmlLexeme end = (CmlLexeme)$END;
   LexLocation lexLoc = combineLexLocation(extractLexLocation(cases), extractLexLocation(end));
   bubbleUp.setExpression(exp);
@@ -3117,7 +3117,7 @@ casesExpr :
   LexLocation lexLoc = combineLexLocation(extractLexLocation(cases), extractLexLocation(end));
   bubbleUp.setExpression(exp);
   bubbleUp.setLocation(lexLoc);
-  bubbleUp.setOthers((PExp)$7);
+  bubbleUp.setOthers((PExp)$8);
   $$ = bubbleUp;
 }
 ;
@@ -3133,7 +3133,7 @@ casesExprAltList :
 | casesExprAltList COMMA casesExprAlt
 {
   ACasesExp casesExp = (ACasesExp)$1;
-  ACaseAlternative altExp = (ACaseAlternative)$2;
+  ACaseAlternative altExp = (ACaseAlternative)$casesExprAlt;
   casesExp.getCases().add(altExp);
   $$ = casesExp;
 }
@@ -3817,39 +3817,37 @@ elseStatements :
 casesStatement :
   CASES expression COLON casesStatementAltList END
 {
-    LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$5);
-    ACasesControlStatementAction cases = (ACasesControlStatementAction)$4;
+    LexLocation location = extractLexLocation((CmlLexeme)$CASES, (CmlLexeme)$END);
+    ACasesControlStatementAction cases = (ACasesControlStatementAction)$casesStatementAltList;
     cases.setLocation(location);
-    cases.setExp((PExp)$2);
+    cases.setExp((PExp)$expression);
     $$ = cases;
 }
 | CASES expression COLON casesStatementAltList COMMA OTHERS RARROW action END
-/* { */
-/*   PAction action = (PAction)$action; */  
-/*   $$ = action; */
-/* } */
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$CASES, (CmlLexeme)$END);
+    ACasesControlStatementAction cases = (ACasesControlStatementAction)$casesStatementAltList;
+    cases.setLocation(location);
+    cases.setExp((PExp)$expression);
+    PAction others = (PAction)$action;
+    cases.setOthers(others);
+    $$ = cases;
+}
 ;
 
 casesStatementAltList :
   casesStatementAlt
 {
-  List<ACaseAlternativeAction> casesList = new Vector<ACaseAlternativeAction>();
-  PAction others = null;
-  
-  if($casesStatementAlt instanceof ACaseAlternativeAction)
-    casesList.add((ACaseAlternativeAction)$casesStatementAlt);
-  else 
-    others = (PAction)$casesStatementAlt;
+  List<ACaseAlternativeAction> casesList = new LinkedList<ACaseAlternativeAction>();
+  casesList.add((ACaseAlternativeAction)$casesStatementAlt);
   
   $$ = new ACasesControlStatementAction(null, 
 					null, 
 					casesList,
-					others);
+					null);
 }
 | casesStatementAltList COMMA casesStatementAlt
 {
-  /* if(!($casesStatementAlt instanceof ACaseAlternativeAction)) */
-  /*   throw new RuntimeException("others must be the last case alternative");    */
   ACasesControlStatementAction cases = (ACasesControlStatementAction)$1;
   cases.getCases().add((ACaseAlternativeAction)$casesStatementAlt);
   $$ = cases;
@@ -3859,12 +3857,12 @@ casesStatementAltList :
 casesStatementAlt :
   patternList RARROW action
 {
-    PAction action = (PAction)$3;
-    List<PPattern> patterns = (List<PPattern>)$1;
+    PAction action = (PAction)$action;
+    List<PPattern> patterns = (List<PPattern>)$patternList;
     $$ = new ACaseAlternativeAction(combineLexLocation(extractFirstLexLocation(patterns), 
 						       action.getLocation()),
 				    patterns, 
-				    (PAction)$3);
+				    (PAction)$action);
 }
 ;
 

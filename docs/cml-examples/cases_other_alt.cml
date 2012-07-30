@@ -3,7 +3,7 @@ begin
 	values	
 	public sel : int = 42;
 	public testval : int = cases sel :
-	       	     	   42 	  -> 2; 
+	       	     	   42 	  -> 2,
 	       	     	   others -> 2
 			   end
 end
