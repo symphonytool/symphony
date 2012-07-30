@@ -610,6 +610,8 @@ process :
  *   process '\' chansetExpr
  * here:
  *   process '\\' chansetExpr
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | process DBACKSLASH chansetExpr
 {
@@ -758,17 +760,14 @@ replicationDeclarationAlt :
 
 /* DEVIATION
  * CML_0:
- *   IDENTIFIER { COMMA IDENTIFIER } COLON expression
+ *   IDENTIFIER { COMMA IDENTIFIER } ':' expression
  * here:
- *   pathList IN expression
+ *   pathList 'in set' expression
  *
- * (JWC) This declares a replication variable to take values from the
- * evaluation of an expression; I assume that the expression's type is
- * a set, so using IN (INSET?) here seems at least somewhat
- * appropriate.
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 singleExpressionDeclaration :
-pathList IN expression 
+pathList INSET expression 
 {
     List<LexIdentifierToken> identifiers = convertPathListToIdentifiers((List<LexNameToken>)$pathList);
     PExp exp = (PExp)$expression;
@@ -987,6 +986,8 @@ action :
  *   process '\' chansetExpr
  * here:
  *   process '\\' chansetExpr
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | action DBACKSLASH chansetExpr
 {
@@ -1449,6 +1450,8 @@ chansetExpr :
  *   chansetExpr '\' chansetExpr
  * here:
  *   chansetExpr '\\' chansetExpr
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | chansetExpr DBACKSLASH chansetExpr
 {
