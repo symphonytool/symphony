@@ -247,10 +247,10 @@ process {-> package='eu.compassresearch.ast.process'}
 	| {instantiation} [declarations]:declaration.#Single.type* [identifer]:LexNameToken [args]:exp*
 	//| {identifier} [identifer]:LexNameToken 
 	| {channelRenaming} [process]:process [renameExpression]:exp.#Channel.#Rename
-	| #Replication
+	| #Replicated
 	;
 
-#Replication {-> package='eu.compassresearch.ast.process'}
+#Replicated {-> package='eu.compassresearch.ast.process'}
 	= {sequentialComposition}  
 	| {externalChoice}
 	| {internalChoice}
@@ -643,10 +643,22 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {parametrised} [parametrisations]:parametrisation [action]:action 
 	| #Instantiated
 	| #Statement
+	| #Replicated
 	| {identifier} [actionName]:LexNameToken
 	| {subclassResponsibility}
 	| {notYetSpecified} [opname]:LexNameToken [args]:exp*
 	;
+	
+#Replicated {-> package='eu.compassresearch.ast.actions'}
+	= {sequentialComposition}  
+	| {externalChoice}
+	| {internalChoice}
+	| {interleaving}
+	| {generalisedParallelism} [chansetExpression]:exp.#Set.#Chanset
+	| {alphabetisedParallelism} [chansetExpression]:exp.#Set.#Chanset
+	| {synchronousParallelism}
+	 
+	;	
 
 parametrisation {-> package='eu.compassresearch.ast.actions'}
 	= {val}	[location]:location [declaration]:declaration.#Single.type
@@ -782,7 +794,10 @@ Aspect Declaration
 %process =  [location]:location 
 	;
 
-%process->#Replication = [replicationDeclaration]:declaration.#Single* [replicatedProcess]:process 
+%process->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedProcess]:process 
+	;
+	
+%action->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedAction]:action 
 	;
 
 %action =  [location]:location

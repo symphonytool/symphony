@@ -672,7 +672,7 @@ process :
 {
     PProcess process = (PProcess)$4;
     LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
-    $$ = new ASequentialCompositionReplicationProcess(location, 
+    $$ = new ASequentialCompositionReplicatedProcess(location, 
 						      (List<SSingleDeclaration>)$replicationDeclaration, 
 						      process);
 }
@@ -680,7 +680,7 @@ process :
 {
     PProcess process = (PProcess)$4;
     LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
-    $$ = new AExternalChoiceReplicationProcess(location, 
+    $$ = new AExternalChoiceReplicatedProcess(location, 
 					       (List<SSingleDeclaration>)$replicationDeclaration, 
 					       process);
 }
@@ -688,7 +688,7 @@ process :
 {
     PProcess process = (PProcess)$4;
     LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
-    $$ = new AInternalChoiceReplicationProcess(location, 
+    $$ = new AInternalChoiceReplicatedProcess(location, 
 					       (List<SSingleDeclaration>)$replicationDeclaration, 
 					       process);
 }
@@ -697,7 +697,7 @@ process :
     PProcess process = (PProcess)$6;
     SChansetSetExp chansetExp = (SChansetSetExp)$2;
     LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
-    $$ = new AGeneralisedParallelismReplicationProcess(location, 
+    $$ = new AGeneralisedParallelismReplicatedProcess(location, 
 						       (List<SSingleDeclaration>)$replicationDeclaration, 
 						       process,
 						       chansetExp);
@@ -707,7 +707,7 @@ process :
     PProcess process = (PProcess)$7;
     SChansetSetExp chansetExp = (SChansetSetExp)$chansetExpr;
     LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
-    $$ = new AAlphabetisedParallelismReplicationProcess(location, 
+    $$ = new AAlphabetisedParallelismReplicatedProcess(location, 
 						       (List<SSingleDeclaration>)$replicationDeclaration, 
 						       process,
 						       chansetExp);
@@ -716,7 +716,7 @@ process :
 {
     PProcess process = (PProcess)$4;
     LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
-    $$ = new ASynchronousParallelismReplicationProcess(location, 
+    $$ = new ASynchronousParallelismReplicatedProcess(location, 
 						       (List<SSingleDeclaration>)$replicationDeclaration, 
 						       process);
 }
@@ -724,7 +724,7 @@ process :
 {
     PProcess process = (PProcess)$4;
     LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
-    $$ = new AInterleavingReplicationProcess(location, 
+    $$ = new AInterleavingReplicatedProcess(location, 
 					     (List<SSingleDeclaration>)$replicationDeclaration, 
 					     process);
 }
@@ -1050,8 +1050,22 @@ action :
 /* instantiated actions */
 /* replicated actions */
 | SEMI replicationDeclaration AT action %prec U-SEMI
-| LRSQUARE LCURLY replicationDeclaration AT action RCURLY %prec U-LRSQUARE
-| BARTILDEBAR LCURLY replicationDeclaration AT action RCURLY %prec U-BARTILDEBAR
+{
+    PAction action = (PAction)$4;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,action.getLocation());
+    $$ = new ASequentialCompositionReplicatedAction(location, 
+						    (List<SSingleDeclaration>)$replicationDeclaration, 
+						    action);
+}
+| LRSQUARE replicationDeclaration AT action %prec U-LRSQUARE
+{
+    PAction action = (PAction)$4;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,action.getLocation());
+    $$ = new AExternalChoiceReplicatedAction(location, 
+						    (List<SSingleDeclaration>)$replicationDeclaration, 
+						    action);
+}
+| BARTILDEBAR replicationDeclaration AT action %prec U-BARTILDEBAR
 | LSQUAREDBAR nameset DBARRSQUARE LPAREN replicationDeclaration AT action RPAREN %prec U-LSQUAREDBAR
 | TBAR replicationDeclaration AT LSQUARE namesetExpr RSQUARE action %prec U-TBAR
 | LSQUAREBAR chansetExpr BARRSQUARE replicationDeclaration AT LSQUARE namesetExpr RSQUARE action %prec U-LSQUAREBAR
@@ -1817,7 +1831,6 @@ type :
  *   IDENTIFIER
  *   IDENTIFIER DOT IDENTIFIER
  *   IDENTIFIER BACKTICK IDENTIFIER
- * TODO: convert these into to names
  */
 | IDENTIFIER
 {
@@ -2987,7 +3000,7 @@ expression :
  *   a := (1,2,3)
  *   a.#2
  */
-| path // TODO
+| path 
 {
   Path path = (Path)$1;
   PExp exp = null;
@@ -3001,7 +3014,10 @@ expression :
 
   $$ = exp;
 }
-| symbolicLiteral // TODO
+| symbolicLiteral 
+{
+    $$ = $1;
+}
 ;
 
 booleanLiteral:
