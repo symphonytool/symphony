@@ -376,6 +376,7 @@
  * disambiguating precidence (shift/reduce conflicts, typically).
  */
 /* Precidence from loosest to tightest; tokens on same line are equal precidence */
+%right MU LAMBDA
 %right LPAREN
 %right COMMA
 %left SEQOF
@@ -912,6 +913,8 @@ action :
  *   expression '&' action
  * here:
  *   '[' expression ']' '&' action
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | LSQUARE expression RSQUARE AMP action
 {
@@ -1016,15 +1019,7 @@ action :
   PAction action = (PAction)$1;
   $$ = new AChannelRenamingAction(combineLexLocation(action.getLocation(), renameExpression.getLocation()), action, renameExpression);
 }
-/* DEVIATION
- * grammar:
- *  'mu' <identifierList> '@' action
- * here:
- *  'mu' <pathList> '@' '(' action ')'
- *
- * Also, this is apparently not yet in our AST
- */
-| MU pathList AT LPAREN action RPAREN // TODO
+| MU pathList AT action %prec MU // TODO
 /* parallel actions */
 | action LSQUAREDBAR namesetExpr BAR namesetExpr DBARRSQUARE action
 | action TBAR action
@@ -2944,15 +2939,7 @@ expression :
   $$ = res;
 }
 /* lambda expression */
-/* DEVIATION
- * CML_0:
- *   'lambda' typeBindList '@' expression
- * here:
- *   'lambda' typeBindList '&' expression
- *
- * Using an @ causes a lot of s/r conflicts
- */
-| LAMBDA typeBindList AMP expression
+| LAMBDA typeBindList AT expression %prec LAMBDA
 {
   CmlLexeme l = (CmlLexeme)$1;
   List<ATypeBind> binds = (List<ATypeBind>)$2;
