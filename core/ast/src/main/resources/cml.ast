@@ -693,7 +693,7 @@ parameter {-> package='eu.compassresearch.ast.actions'}
 #Statement {-> package='eu.compassresearch.ast.actions'}
 	= {let} [action]:action [localDefinitions]:definition*
 	| {block} [declareStatement]:action.#Statement.declare [action]:action	
-	| #Control
+	| #Control 
 	| {declare}  [assignmentDefs]:definition*
 	;
 
@@ -708,11 +708,17 @@ parameter {-> package='eu.compassresearch.ast.actions'}
 	| {specification} [externals]:clause.external* [precondition]:exp [postcondition]:exp 
 	| {assignmentCall} [designator]:stateDesignator [call]:action.#Statement.#Control.call
 	| {return} [exp]:exp
+	| {new} 
+		[destination]:stateDesignator 
+		[className]:LexNameToken 
+		[args]:exp* 
+		(classdef):definition.#paragraph.class 
+		(ctorDefinition):definition
 	;
 
 #GeneralAssignment {-> package='eu.compassresearch.ast.actions'}
     = {single} [stateDesignator]:stateDesignator [expression]:exp
-    | {multi} [assignments]:action.#Statement.#Control.#GeneralAssignment.single*
+    | {multiple} [assignments]:action.#Statement.#Control.#GeneralAssignment.single*
 	;
 
 stateDesignator {-> package='eu.compassresearch.ast.actions'}
@@ -777,28 +783,35 @@ stm {-> package='eu.compassresearch.ast.statements'}
     |   {trap} [patternBind]:patternBind.def [with]:stm [body]:stm
     |   {while} [exp]:exp [statement]:stm
     ; 
-  */  
-//#LetDef {-> package='eu.compassresearch.ast.statements'}
-//    =   {def}
-//    ;
     
-//#SimpleBlock {-> package='eu.compassresearch.ast.statements'}
-//    =   {block} [assignmentDefs]:definition*
-//    |   {nonDeterministic}
-//    ;
+#LetDef {-> package='eu.compassresearch.ast.statements'}
+    =   {def}
+    ;
+    
+#SimpleBlock {-> package='eu.compassresearch.ast.statements'}
+    =   {block} [assignmentDefs]:definition*
+    |   {nonDeterministic}
+    ;
 
-//alternativeStm {-> package='eu.compassresearch.ast.statements'}
-//    = {case} [location]:location [cexp]:exp [pattern]:pattern [result]:stm (defs):definition* (ctype):type 
-//    ;
+alternativeStm {-> package='eu.compassresearch.ast.statements'}
+    = {case} [location]:location [cexp]:exp [pattern]:pattern [result]:stm (defs):definition* (ctype):type 
+    ;
     
-//stmtAlternative {-> package='eu.compassresearch.ast.statements'}
-//    = {tixe} [patternBind]:patternBind.def [statement]:stm (exp):type
-//    ;
+stmtAlternative {-> package='eu.compassresearch.ast.statements'}
+    = {tixe} [patternBind]:patternBind.def [statement]:stm (exp):type
+    ;
+*/
     
 Aspect Declaration
 /* This section allows fields of root types to be declared e.g. exp*/
 
 %source = [paragraphs]: definition.#paragraph*
+	;
+
+%action =  [location]:location
+	;
+	
+%action->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedAction]:action 
 	;
 
 %declaration =  [location]:location [nameScope]:nameScope
@@ -808,12 +821,6 @@ Aspect Declaration
 	;
 
 %process->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedProcess]:process 
-	;
-	
-%action->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedAction]:action 
-	;
-
-%action =  [location]:location
 	;
 	
 %mode = [location]:location

@@ -12,11 +12,13 @@ public class Unit
 
     public final UnitKind kind;
     public final LexIdentifierToken value;
+    public final LexLocation location;
        
     public Unit(UnitKind kind, LexIdentifierToken value)
     {
 	this.kind = kind;
 	this.value = value ;
+	this.location = value.getLocation();
     }
 
     public LexNameToken convertToName()

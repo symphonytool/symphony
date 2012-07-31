@@ -249,6 +249,7 @@ blanks          = [ \t\f]*
 "munion"                      { return createToken(CmlParser.MAPMERGE); }
 "nat"                         { return createToken(CmlParser.TNAT); }
 "nat1"                        { return createToken(CmlParser.TNAT1); }
+"new"                         { return createToken(CmlParser.NEW); }
 "not in set"                  { return createToken(CmlParser.NOTINSET); }
 "not"                         { return createToken(CmlParser.NOT); }
 "not"                         { return createToken(CmlParser.NOT); }

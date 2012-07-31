@@ -157,6 +157,27 @@
 			   end.endOffset);
   }
 
+  private LexLocation extractLexLocation(LexLocation start, CmlLexeme end)
+  {
+
+    return new LexLocation(currentSource.toString(), "Default",
+			   start.startLine, start.startPos,
+			   end.getEndPos().line, 
+			   end.getEndPos().column,
+			   start.startOffset,
+			   end.getEndPos().offset);
+  }
+
+  private LexLocation extractLexLocation(LexLocation start, LexLocation end)
+  {
+    return new LexLocation(currentSource.toString(), "Default",
+			   start.startLine, start.startPos,
+			   end.endLine, 
+			   end.endPos,
+			   start.startOffset,
+			   end.endOffset);
+  }
+
   private LexLocation combineLexLocation(LexLocation start, LexLocation end)
   {
     return new LexLocation(currentSource.toString(), "Default",
@@ -3669,6 +3690,12 @@ controlStatement :
 }
 /* multiple assign statement */
 | ATOMIC LPAREN assignStatementList RPAREN
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$ATOMIC,(CmlLexeme)$RPAREN);
+    $$ = new AMultipleGeneralAssignmentControlStatementAction(location, 
+							      (List<? extends ASingleGeneralAssignmentControlStatementAction>)$assignStatementList);
+
+}
 /* general assign statement end */
 /* specification statement */
 | LSQUARE implicitOperationBody RSQUARE
@@ -3710,11 +3737,49 @@ controlStatement :
  *   stateDesignator COLONEQUALS NEW name LRPAREN
  *   stateDesignator COLONEQUALS NEW name LPAREN expressionList RPAREN
  *
- * TODO: need the convert the paths to stateDesignator and name, resp.
  */
 | path COLONEQUALS NEW path LRPAREN
+{
+    ANewControlStatementAction stm = null;
+    try{
+	Path statePath = (Path)$1;
+	Path namePath = (Path)$4;
+	List<? extends PExp> args = null;
+	LexLocation location = extractLexLocation(statePath.location,(CmlLexeme)$LRPAREN);
+	stm = new ANewControlStatementAction(location, 
+					     statePath.convertToStateDesignator(), 
+					     namePath.convertToName(), 
+					     args);
+    }
+    catch(Path.PathConvertException e){
+	e.printStackTrace();
+	System.exit(-4);
+    }
+    $$ = stm;
+}
 | path COLONEQUALS NEW path LPAREN expressionList RPAREN
+{
+    ANewControlStatementAction stm = null;
+    try{
+	Path statePath = (Path)$1;
+	Path namePath = (Path)$4;
+	List<? extends PExp> args = (List<? extends PExp>)$expressionList;
+	LexLocation location = extractLexLocation(statePath.location,(CmlLexeme)$RPAREN);
+	stm = new ANewControlStatementAction(location, 
+					     statePath.convertToStateDesignator(), 
+					     namePath.convertToName(), 
+					     args);
+    }
+    catch(Path.PathConvertException e){
+	e.printStackTrace();
+	System.exit(-4);
+    }
+    $$ = stm;
+}
 | casesStatement
+{
+    $$ = $casesStatement;
+}
 /* sequence for loop */
 /* FIXME
  *
@@ -3863,7 +3928,19 @@ assignmentDef :
 
 assignStatementList :
   assignStatement
+  {
+      List<ASingleGeneralAssignmentControlStatementAction> assigns = 
+	  new LinkedList<ASingleGeneralAssignmentControlStatementAction>();
+      assigns.add((ASingleGeneralAssignmentControlStatementAction)$1);
+      $$ = assigns;
+  }
 | assignStatementList SEMI assignStatement
+{
+    List<ASingleGeneralAssignmentControlStatementAction> assigns = 
+	(List<ASingleGeneralAssignmentControlStatementAction>)$1;
+    assigns.add((ASingleGeneralAssignmentControlStatementAction)$3);
+    $$ = assigns;
+}
 ;
 
 assignStatement :
@@ -4174,39 +4251,55 @@ typeBindList :
 path :
   unit
 {
-  $$ = new Path(Path.PathKind.UNIT,(Unit)$1);
+  $$ = new Path((Unit)$1);
 }
 | path TILDE
 {
-  $$ = new Path(Path.PathKind.TILDE,(Path)$1);
+    Path path = (Path)$1;
+    LexLocation location = extractLexLocation(path.location,(CmlLexeme)$TILDE);
+    $$ = new Path(location,Path.PathKind.TILDE,path);
 }
 | path DOT unit
 {
-  $$ = new Path(Path.PathKind.DOT,(Path)$1,(Unit)$3);
+    Path path = (Path)$1;
+    Unit unit = (Unit)$3;
+    LexLocation location = extractLexLocation(path.location,unit.location);
+    $$ = new Path(location,Path.PathKind.DOT,path,unit);
 }
 | path BACKTICK unit
 {
-  $$ = new Path(Path.PathKind.BACKTICK,(Path)$1,(Unit)$3);
+    Path path = (Path)$1;
+    Unit unit = (Unit)$3;
+    LexLocation location = extractLexLocation(path.location,unit.location);
+    $$ = new Path(location,Path.PathKind.BACKTICK,path,unit);
 }
 | path DOTHASH NUMERAL
 {
-  CmlLexeme lexeme = (CmlLexeme)$3;
-  $$ = new Path(Path.PathKind.DOTHASH,(Path)$1,Integer.decode(lexeme.getValue()));
+    CmlLexeme lexeme = (CmlLexeme)$NUMERAL;
+    Path path = (Path)$1;
+    LexLocation location = extractLexLocation(path.location,(CmlLexeme)$NUMERAL);
+    $$ = new Path(location,Path.PathKind.DOTHASH,path,Integer.decode(lexeme.getValue()));
 }
 | path LRPAREN
 {
-  $$ = new Path(Path.PathKind.APPLY,(Path)$1);
+    Path path = (Path)$1;
+    LexLocation location = extractLexLocation(path.location,(CmlLexeme)$LRPAREN);
+    $$ = new Path(location,Path.PathKind.APPLY,path);
 }
 | path LPAREN expressionList RPAREN
 {
-  $$ = new Path(Path.PathKind.APPLY,(Path)$1,(List<PExp>)$expressionList);
+    Path path = (Path)$1;
+    LexLocation location = extractLexLocation(path.location,(CmlLexeme)$RPAREN);
+    $$ = new Path(location,Path.PathKind.APPLY,path,(List<PExp>)$expressionList);
 }
 | path LPAREN expression ELLIPSIS expression RPAREN
 {
-  List<PExp> exps = new Vector<PExp>();
-  exps.add((PExp)$3);
-  exps.add((PExp)$5);
-  $$ = new Path(Path.PathKind.SEQRANGE,(Path)$1,exps);
+    List<PExp> exps = new Vector<PExp>();
+    exps.add((PExp)$3);
+    exps.add((PExp)$5);
+    Path path = (Path)$1;
+    LexLocation location = extractLexLocation(path.location,(CmlLexeme)$RPAREN);
+    $$ = new Path(location,Path.PathKind.SEQRANGE,path,exps);
 }
 ;
 

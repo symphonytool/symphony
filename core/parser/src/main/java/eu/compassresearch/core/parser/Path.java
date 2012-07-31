@@ -30,53 +30,56 @@ public class Path
     public final Path subPath;
     public final List<PExp> expList;
     public final Integer numeral;
-    //public final LexLocation location;
+    public final LexLocation location;
 
-    public Path(PathKind kind, Unit unit)
+    public Path(Unit unit)
     {
 	this.unit = unit;
-	this.kind = kind;
+	this.kind = PathKind.UNIT;
 	expList = null;
 	subPath = null;
 	numeral = null;
-	//location = unit.value.getLocation();
+	location = unit.value.getLocation();
     }
     
-    public Path(PathKind kind, Path subPath)
+    public Path(LexLocation location, PathKind kind, Path subPath)
     {
 	this.unit = null;
 	this.kind = kind;
 	expList = null;
 	this.subPath = subPath;
 	numeral = null;
+	this.location = location;
     }
     
-    public Path(PathKind kind, Path subPath, Integer numeral)
+    public Path(LexLocation location, PathKind kind, Path subPath, Integer numeral)
     {
 	this.unit = null;
 	this.kind = kind;
 	expList = null;
 	this.subPath = subPath;
 	this.numeral = numeral;
-	//location = unit.value.getLocation();
+	this.location = location;
     }
 
-    public Path(PathKind kind, Path subPath, Unit unit)
+    public Path(LexLocation location, PathKind kind, Path subPath, Unit unit)
     {
 	this.unit = unit;
 	this.kind = kind;
 	expList = null;
 	this.subPath = subPath;
 	numeral = null;
+	this.location = location;
     }
     
-    public Path(PathKind kind, Path subPath, List<PExp> expList)
+    public Path(LexLocation location, PathKind kind, Path subPath, List<PExp> expList)
     {
 	this.unit = null;
 	this.kind = kind;
 	this.expList = expList;
 	this.subPath = subPath;
 	numeral = null;
+	this.location = location;
     }
 
     /*
@@ -92,10 +95,10 @@ public class Path
 		LexNameToken name = unit.convertToName();
 		switch(unit.kind){
 		case SELF:
-		    exp = new ASelfExp(name.getLocation(),name);
+		    exp = new ASelfExp(location,name);
 		    break;
 		case IDENTIFIER:
-		    exp = new ANameExp(name.getLocation(),name);
+		    exp = new ANameExp(location,name);
 		    break;
 		}
 	    }
@@ -117,8 +120,7 @@ public class Path
 	case DOT:
 	    {
 		PExp root = this.subPath.convertToExpression();
-		//TODO: The location is not correct
-		exp = new AFieldExp(root.getLocation(), 
+		exp = new AFieldExp(location, 
 				    root, 
 				    null/*LexNameToken memberName_???*/,
 				    this.unit.value);
@@ -127,7 +129,7 @@ public class Path
 	case BACKTICK:
 	    if (this.subPath.kind == PathKind.UNIT){
 		LexNameToken name = this.unit.convertToName(subPath.unit.value.getName());
-		exp = new ANameExp(name.getLocation(),name);
+		exp = new ANameExp(location,name);
 	    }
 	    else{
 		throw new PathConvertException("Illigal path for expression");
@@ -136,9 +138,8 @@ public class Path
 	case DOTHASH:
 	    {
 		PExp tuple = this.subPath.convertToExpression();
-		//TODO: The location is not correct
 		exp = new ATupleSelectExp(null/*PType type_*/, 
-					  tuple.getLocation(), 
+					  location, 
 					  tuple, 
 					  numeral);
 	    }
@@ -146,8 +147,7 @@ public class Path
 	case APPLY:
 	    {
 		PExp root = this.subPath.convertToExpression();
-		//TODO: The location is not correct
-		exp = new AApplyExp(root.getLocation(), 
+		exp = new AApplyExp(location, 
 				    root, 
 				    expList);
 	    }
@@ -159,8 +159,7 @@ public class Path
 		if(this.expList.size() != 2)
 		    throw new PathConvertException("A subset sequence expression must have 2 expression arguments");
 
-		//TODO: The location is not correct
-		exp = new ASubseqExp(seq.getLocation(), 
+		exp = new ASubseqExp(location, 
 				     seq, 
 				     this.expList.get(0), 
 				     this.expList.get(1));
@@ -181,16 +180,13 @@ public class Path
 	case UNIT:
 	    {
 		LexNameToken name = unit.convertToName();
-		sd = new AIdentifierStateDesignator(name.getLocation(), 
+		sd = new AIdentifierStateDesignator(location, 
 						    name);
 	    }
 	    break;
 	case DOT:
 	    {
 		PStateDesignator object = this.subPath.convertToStateDesignator();
-		LexLocation location = combineLexLocation(object.getLocation(),
-							  unit.value.getLocation());
-
 		sd = new AFieldStateDesignator(location, 
 					       object, 
 					       unit.value);
@@ -199,14 +195,13 @@ public class Path
 	case BACKTICK:
 	    {
 		LexNameToken name = convertToName();
-		sd = new AIdentifierStateDesignator(name.getLocation(), 
+		sd = new AIdentifierStateDesignator(location, 
 						    name);
 	    }
 	    break;
 	case APPLY:
 	    {
 		PStateDesignator object = this.subPath.convertToStateDesignator();
-		LexLocation location = object.getLocation();
 		
 		if(this.expList.size() != 1)
 		    throw new PathConvertException("A map or sequence reference must have 1 argument");
@@ -229,7 +224,7 @@ public class Path
 	case UNIT:
 	    {
 		LexNameToken name = this.unit.convertToName();
-		process = new AInstantiationProcess(name.getLocation(), 
+		process = new AInstantiationProcess(location, 
 						    null, 
 						    name, 
 						    null); 
@@ -256,7 +251,7 @@ public class Path
 		    throw new PathConvertException("Illigal path for instantiation proces : ");
 		}
 		
-		process = new AInstantiationProcess(name.getLocation(), 
+		process = new AInstantiationProcess(location, 
 						    null, 
 						    name, 
 						    this.expList);
@@ -276,7 +271,7 @@ public class Path
 	case UNIT:
 	    {
 		LexNameToken actionName = this.unit.convertToName();
-		action = new AIdentifierAction(actionName.getLocation(), 
+		action = new AIdentifierAction(location, 
 					       actionName);
 	    }
 	    break;
@@ -305,7 +300,7 @@ public class Path
 		    objectDesignator = pair.first.convertToObjectDesignator();
 		}
 		
-		action = new ACallControlStatementAction(pair.second.getLocation(), 
+		action = new ACallControlStatementAction(location, 
 							 objectDesignator, 
 							 pair.second, 
 							 this.expList);
@@ -318,45 +313,6 @@ public class Path
 	return action;
     }
 
-    private class Pair<F, S> {
-	public final F first; //first member of pair
-	public final S second; //second member of pair
-	
-	public Pair(F first, S second) {
-	    this.first = first;
-	    this.second = second;
-	}
-    }
-
-    //names: ['.'] id
-    //       ['.'] id`id
-    private Pair<Path, LexNameToken> extractPostfixName() throws PathConvertException
-    {
-	LexNameToken name = null;
-	Path path = null;
-	switch(kind){
-	case UNIT:
-	    {
-		name = this.unit.convertToName();
-	    }
-	    break;
-	
-	// case BACKTICK:
-	//     {
-	// 	if (this.subPath.kind == PathKind.UNIT){
-	// 	    name = this.unit.convertToName(subPath.unit.value.getName());
-	// 	}
-	// 	else{
-	// 	    throw new PathConvertException("Illigal path for expression");
-	// 	}
-	//     }
-	//     break;
-	default:
-	    throw new PathConvertException("Illigal path for call : " + kind);
-	}
-	return new Pair<Path,LexNameToken>(path,name);
-    }
-    
     public LexNameToken convertToName() throws PathConvertException
     {
 	LexNameToken name = null;
@@ -432,15 +388,42 @@ public class Path
      * Private Methods
      */
 
-    private LexLocation combineLexLocation(LexLocation start, LexLocation end)
-    {
-	return new LexLocation(start.resource, "Default",
-			       start.startLine, start.startPos,
-			       end.endLine, 
-			       end.endPos,
-			       start.startOffset,
-			       end.endOffset);
+        private class Pair<F, S> {
+	public final F first; //first member of pair
+	public final S second; //second member of pair
+	
+	public Pair(F first, S second) {
+	    this.first = first;
+	    this.second = second;
+	}
     }
 
-
+    //names: ['.'] id
+    //       ['.'] id`id
+    private Pair<Path, LexNameToken> extractPostfixName() throws PathConvertException
+    {
+	LexNameToken name = null;
+	Path path = null;
+	switch(kind){
+	case UNIT:
+	    {
+		name = this.unit.convertToName();
+	    }
+	    break;
+	
+	// case BACKTICK:
+	//     {
+	// 	if (this.subPath.kind == PathKind.UNIT){
+	// 	    name = this.unit.convertToName(subPath.unit.value.getName());
+	// 	}
+	// 	else{
+	// 	    throw new PathConvertException("Illigal path for expression");
+	// 	}
+	//     }
+	//     break;
+	default:
+	    throw new PathConvertException("Illigal path for call : " + kind);
+	}
+	return new Pair<Path,LexNameToken>(path,name);
+    }
 }
