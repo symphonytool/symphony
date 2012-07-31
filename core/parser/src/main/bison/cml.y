@@ -3474,14 +3474,14 @@ generalIsExpr :
  * TODO: convert the ISUNDERNAME token into a name
  */
   ISUNDERNAME LPAREN expression RPAREN
-/* { */
-/*   CmlLexeme isUnder = (CmlLexeme)$1; */
-/*   LexNameToken typeName = (LexNameToken)$2; */
-/*   PExp test = null;//(PExp)$4; */
-/*   LexLocation loc = combineLexLocation(extractLexLocation(isUnder), typeName.getLocation()); */
-/*   AIsExp res = new AIsExp(loc, typeName, test, null); */
-/*   $$ = res; */
-/* } */
+{
+  CmlLexeme isUnder = (CmlLexeme)$1;
+  PExp exp = (PExp)$3;
+  LexLocation loc = combineLexLocation(extractLexLocation(isUnder), exp.getLocation());
+  LexNameToken typeName = new LexNameToken("Default", isUnder.getValue().split("_")[1], loc);
+  AIsExp res = new AIsExp(loc, typeName, exp, null);
+  $$ = res;
+}
 | ISUNDER basicType LPAREN expression RPAREN
 {
   CmlLexeme isUnder = (CmlLexeme)$1;

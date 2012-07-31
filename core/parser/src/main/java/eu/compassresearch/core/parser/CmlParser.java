@@ -5541,6 +5541,22 @@ public class CmlParser
   break;
     
 
+  case 398:
+  if (yyn == 398)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 3477 of "src/main/bison/cml.y"  */
+    {
+  CmlLexeme isUnder = (CmlLexeme)((yystack.valueAt (4-(1))));
+  PExp exp = (PExp)((yystack.valueAt (4-(3))));
+  LexLocation loc = combineLexLocation(extractLexLocation(isUnder), exp.getLocation());
+  LexNameToken typeName = new LexNameToken("Default", isUnder.getValue().split("_")[1], loc);
+  AIsExp res = new AIsExp(loc, typeName, exp, null);
+  yyval = res;
+};
+  break;
+    
+
   case 399:
   if (yyn == 399)
     
@@ -6232,7 +6248,7 @@ public class CmlParser
 
 
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 6236 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
+/* Line 6252 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
 	default: break;
       }
 
@@ -9291,7 +9307,7 @@ public class CmlParser
 
 
 /* Line 912 of cmlskeleton.java.m4  */
-/* Line 9295 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
+/* Line 9311 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
 
 }
 
