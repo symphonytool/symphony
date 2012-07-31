@@ -155,7 +155,7 @@ decimal                                 = {numeral}"."{numeral}([Ee]("+"|"-"){nu
 
 /* textliteral                          = \"([\040-\041\043-\133\135-\176]|{embeddedctrlchar}|{backslashed}|{deletechar}|{highbitchar}|{universalcharactername}|{ucode})*\" */
 
-identifier      = {letter}([0-9\'_]|{letter})*
+identifier      = {letter}([0-9\'_-]|{letter})*
 escape          = (\\e)|(\\a)|(\\f)|(\\r)|(\\n)|(\\t)|(\\\')|(\\\")
 charLit         = \'({letter}|(\\[xX]{hexduo})|{escape}|\\u{hexquad}|\\{octliteral}|\\\\|(\\c[a-zA-Z]))\'
 name            = {identifier}(("."|"`"){identifier})?
@@ -314,6 +314,7 @@ blanks          = [ \t\f]*
 ":}"                          { return createToken(CmlParser.COLONRCURLY); }
 /* ":]"                          { return createToken(CmlParser.COLONRSQUARE); } */
 ","                           { return createToken(CmlParser.COMMA); }
+"\\\\"                        { return createToken(CmlParser.DBACKSLASH); }
 "||"                          { return createToken(CmlParser.DBAR); }
 "||]"                         { return createToken(CmlParser.DBARRSQUARE); }
 "::"                          { return createToken(CmlParser.DCOLON); }
@@ -328,6 +329,7 @@ blanks          = [ \t\f]*
 "**"                          { return createToken(CmlParser.DSTAR); }
 // yes, the ellipsis includes the commas all as a single token
 ","{blanks}"..."{blanks}","   { return createToken(CmlParser.ELLIPSIS); }
+"{"{blanks}"|->"{blanks}"}"   { return createToken(CmlParser.EMPTYMAP); }
 "=>"                          { return createToken(CmlParser.EQRARROW); }
 "="                           { return createToken(CmlParser.EQUALS); }
 ">"                           { return createToken(CmlParser.GT); }

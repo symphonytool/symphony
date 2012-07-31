@@ -1,8 +1,8 @@
 package eu.compassresearch.core.parser;
 
 import eu.compassresearch.ast.expressions.*;
-import eu.compassresearch.ast.statements.*;
 import eu.compassresearch.ast.actions.*;
+import eu.compassresearch.ast.process.*;
 import eu.compassresearch.ast.lex.*; 
 import java.util.*;
 
@@ -220,6 +220,141 @@ public class Path
 	}
 
 	return sd;
+    }
+
+    public PProcess convertToProcess() throws PathConvertException
+    {
+	PProcess process = null;
+	switch(kind){
+	case UNIT:
+	    {
+		LexNameToken name = this.unit.convertToName();
+		process = new AInstantiationProcess(name.getLocation(), 
+						    null, 
+						    name, 
+						    null); 
+	    }
+	    break;
+	// case DOT:
+	//     {
+	//     }
+	//     break;
+	// case BACKTICK:
+	//     {
+	//     }
+	//     break;
+	
+	// This Apply form is : path LPAREN expressionList RPAREN
+	// Which should be converted into
+	// [ object designator '.' ] name '(' [ expressionList ] ')'
+	    
+	case APPLY:
+	    {
+		Pair<Path,LexNameToken> pair = this.subPath.extractPostfixName();
+		LexNameToken name = pair.second;
+		if(pair.first != null){
+		    throw new PathConvertException("Illigal path for instantiation proces : ");
+		}
+		
+		process = new AInstantiationProcess(name.getLocation(), 
+						    null, 
+						    name, 
+						    this.expList);
+	    }
+	    break;
+	default:
+	    throw new PathConvertException("Illigal path for process : " + kind);
+	}
+
+	return process;
+    }
+
+    public PAction convertToAction() throws PathConvertException
+    {
+	PAction action = null;
+	switch(kind){
+	case UNIT:
+	    {
+		LexNameToken actionName = this.unit.convertToName();
+		action = new AIdentifierAction(actionName.getLocation(), 
+					       actionName);
+	    }
+	    break;
+	// case DOT:
+	//     {
+	//     }
+	//     break;
+	// case BACKTICK:
+	//     {
+	//     }
+	//     break;
+	
+	// This Apply form is : path LPAREN expressionList RPAREN
+	// Which should be converted into
+	// [ object designator '.' ] name '(' [ expressionList ] ')'
+	    
+	case APPLY:
+	    {
+		Pair<Path,LexNameToken> pair = this.subPath.extractPostfixName();
+
+		PObjectDesignator objectDesignator = null;
+
+		//if this holds we need to exstract the ObjectDesignator 
+		//from the returned path 
+		if(pair.first != null){
+		    objectDesignator = pair.first.convertToObjectDesignator();
+		}
+		
+		action = new ACallControlStatementAction(pair.second.getLocation(), 
+							 objectDesignator, 
+							 pair.second, 
+							 this.expList);
+	    }
+	    break;
+	default:
+	    throw new PathConvertException("Illigal path for action : " + kind);
+	}
+
+	return action;
+    }
+
+    private class Pair<F, S> {
+	public final F first; //first member of pair
+	public final S second; //second member of pair
+	
+	public Pair(F first, S second) {
+	    this.first = first;
+	    this.second = second;
+	}
+    }
+
+    //names: ['.'] id
+    //       ['.'] id`id
+    private Pair<Path, LexNameToken> extractPostfixName() throws PathConvertException
+    {
+	LexNameToken name = null;
+	Path path = null;
+	switch(kind){
+	case UNIT:
+	    {
+		name = this.unit.convertToName();
+	    }
+	    break;
+	
+	// case BACKTICK:
+	//     {
+	// 	if (this.subPath.kind == PathKind.UNIT){
+	// 	    name = this.unit.convertToName(subPath.unit.value.getName());
+	// 	}
+	// 	else{
+	// 	    throw new PathConvertException("Illigal path for expression");
+	// 	}
+	//     }
+	//     break;
+	default:
+	    throw new PathConvertException("Illigal path for call : " + kind);
+	}
+	return new Pair<Path,LexNameToken>(path,name);
     }
     
     public LexNameToken convertToName() throws PathConvertException

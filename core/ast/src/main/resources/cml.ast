@@ -60,10 +60,16 @@ declaration {-> package='eu.compassresearch.ast.declarations'}
     // --- True declarations
     = {channelName} 
     [identifier]: LexIdentifierToken // We will look and see if this name is appropriate during tc
-    [singleType]: singleType
-    | {singleType}  [identifiers]:LexIdentifierToken* (type):type
+    [singleType]: declaration.#Single.type
+    | #Single
 	;
 
+#Single {-> package='eu.compassresearch.ast.declarations'}
+	= {type}  
+    [identifiers]:LexIdentifierToken* (type):type
+	| {expression}
+    [identifiers]:LexIdentifierToken* [expression]:exp
+    ;
 /*
  Definitions 
 */
@@ -74,7 +80,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
     |   {instanceVariable} [expression]:exp (expType):type [initialized]:java_Boolean [oldname]:LexNameToken //this actually inherits assignment in Nicks tree
 //    |   {classbody} [declarations]:declaration* 
 
-    |   {action} [declarations]:declaration.singleType* [action]:action
+    |   {action} [declarations]:declaration.#Single.type* [action]:action
     |   {chanset} [identifier]:LexIdentifierToken [chansetExpressions]:exp.#Set.#Chanset
     |   {classInvariant}  [expression]:exp
     |   {equals} [pattern]:pattern [typebind]:bind.type [setbind]:bind.set [test]:exp 
@@ -238,12 +244,22 @@ process {-> package='eu.compassresearch.ast.process'}
 	| {hiding} [left]:process [chansetExpression]:exp.#Set.#Chanset
 	| {startDeadline} [left]:process [expression]:exp
 	| {endDeadline} [left]:process [expression]:exp
-	| {instantiation} [declarations]:declaration.singleType* [identifer]:LexNameToken [expression]:exp
-	| {identifier} [identifer]:LexNameToken 
+	| {instantiation} [declarations]:declaration.#Single.type* [identifer]:LexNameToken [args]:exp*
+	//| {identifier} [identifer]:LexNameToken 
 	| {channelRenaming} [process]:process [renameExpression]:exp.#Channel.#Rename
-	 
-;
-	
+	| #Replicated
+	;
+
+#Replicated {-> package='eu.compassresearch.ast.process'}
+	= {sequentialComposition}  
+	| {externalChoice}
+	| {internalChoice}
+	| {generalisedParallelism} [chansetExpression]:exp.#Set.#Chanset
+	| {alphabetisedParallelism} [chansetExpression]:exp.#Set.#Chanset
+	| {synchronousParallelism}
+	| {interleaving} 
+	;	
+
 /*
     Expressions
 */    
@@ -302,7 +318,7 @@ exp {-> package='eu.compassresearch.ast.expressions'}
     
 #Channel  {-> package='eu.compassresearch.ast.expressions'}
 	= #Rename
-	| {event} [identifier]:LexNameToken [dotExpressions]:exp*
+	| {name} [identifier]:LexNameToken [dotExpressions]:exp*
 	;
 	
 #Rename   {-> package='eu.compassresearch.ast.expressions'}
@@ -409,7 +425,7 @@ exp {-> package='eu.compassresearch.ast.expressions'}
 #Chanset {-> package='eu.compassresearch.ast.expressions'}
 	= {identifier} [identifier]:LexIdentifierToken
 	| {enum} [identifiers]:LexIdentifierToken*
-	| {comp}  [identifier]:LexIdentifierToken [dotExpressions]:exp* [bindings]:multipleBind* [predicate]:exp 
+	| {comp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp 
     ;
     
 modifier {-> package='eu.compassresearch.ast.expressions'}
@@ -535,7 +551,7 @@ pair {-> package='eu.compassresearch.ast.patterns'}
     = {patternType} [pattern]:pattern (type):type
     | {patternListType} [patterns]:pattern* (type):type
     | {identifierType} [identifier]:LexIdentifierToken (type):type
-    | {rename} [from]:exp.#Channel.event [to]:exp.#Channel.event
+    | {rename} [from]:exp.#Channel.name [to]:exp.#Channel.name
     ; 
     
 bind {-> package='eu.compassresearch.ast.patterns'}
@@ -624,22 +640,41 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {startDeadline} [left]:action [expression]:exp
 	| {endDeadline} [left]:action [expression]:exp
 	| {channelRenaming} [action]:action [renameExpression]:exp.#Channel.#Rename
+    | #Parallel
 	| {parametrised} [parametrisations]:parametrisation [action]:action 
 	| #Instantiated
+	| #Replicated
 	| #Statement
-	| {identifier}
+	| {identifier} [actionName]:LexNameToken
 	| {subclassResponsibility}
 	| {notYetSpecified} [opname]:LexNameToken [args]:exp*
 	;
+	
+#Parallel {-> package='eu.compassresearch.ast.actions'}
+	=  {interleaving}
+	| {generalisedParallelism} [chansetExpression]:exp.#Set.#Chanset
+	| {alphabetisedParallelism} [chansetExpression]:exp.#Set.#Chanset
+	| {synchronousParallelism}
+	;	
+
+#Replicated {-> package='eu.compassresearch.ast.actions'}
+	= {sequentialComposition}  
+	| {externalChoice}
+	| {internalChoice}
+	| {interleaving}
+	| {generalisedParallelism} [chansetExpression]:exp.#Set.#Chanset
+	| {alphabetisedParallelism} [chansetExpression]:exp.#Set.#Chanset
+	| {synchronousParallelism}
+	;	
 
 parametrisation {-> package='eu.compassresearch.ast.actions'}
-	= {val}	[location]:location [declaration]:declaration.singleType
-	| {res} [location]:location [declaration]:declaration.singleType
-	| {vres} [location]:location [declaration]:declaration.singleType
+	= {val}	[location]:location [declaration]:declaration.#Single.type
+	| {res} [location]:location [declaration]:declaration.#Single.type
+	| {vres} [location]:location [declaration]:declaration.#Single.type
 	;
 	
 #Instantiated {-> package='eu.compassresearch.ast.actions'}
-	= {declaration} [declaration]:declaration.singleType* [action]:action [args]:exp*
+	= {declaration} [declaration]:declaration.#Single.type* [action]:action [args]:exp*
 	| {parametrisation} [action]:action.parametrised  [args]:exp*
 	;
 	
@@ -655,21 +690,22 @@ parameter {-> package='eu.compassresearch.ast.actions'}
 	| {record}	[name]:LexNameToken [parameters]:parameter* 
 	;
 
-//there should be a let statement here as well
 #Statement {-> package='eu.compassresearch.ast.actions'}
-	= {block} [declareStatement]:action.#Statement.declare [action]:action	
+	= {let} [action]:action [localDefinitions]:definition*
+	| {block} [declareStatement]:action.#Statement.declare [action]:action	
 	| #Control
 	| {declare}  [assignmentDefs]:definition*
 	;
 
 #Control {-> package='eu.compassresearch.ast.actions'}
-	= {nonDeterministicIf} [ifExp]:exp [thenStm]:action [elseIf]:action.#Statement.#Control.nonDeterministicElseIf*
-	| {nonDeterministicElseIf} [elseIf]:exp [thenStm]:action
+	= {nonDeterministicIf} [alternatives]:nonDeterministicIfAlt*
+	| {nonDeterministicIfAlt} [guard]:exp [action]:action
 	| {if} [ifExp]:exp [thenStm]:action [elseIf]:action.#Statement.#Control.elseIf* [elseStm]:action
 	| {elseIf} [elseIf]:exp [thenStm]:action
 	| {cases} [exp]:exp [cases]:alternativeAction.case* [others]:action
 	| #GeneralAssignment
 	| {call} [objectDesignator]:objectDesignator [name]:LexNameToken [args]:exp*
+	| {specification} [externals]:clause.external* [precondition]:exp [postcondition]:exp 
 	| {assignmentCall} [designator]:stateDesignator [call]:action.#Statement.#Control.call
 	| {return} [exp]:exp
 	;
@@ -678,11 +714,41 @@ parameter {-> package='eu.compassresearch.ast.actions'}
     = {single} [stateDesignator]:stateDesignator [expression]:exp
     | {multi} [assignments]:action.#Statement.#Control.#GeneralAssignment.single*
 	;
+
+stateDesignator {-> package='eu.compassresearch.ast.actions'}
+    =   {field} [object]:stateDesignator [field]:LexIdentifierToken (objectfield):LexNameToken
+    |   {identifier} [name]:LexNameToken
+    |   {mapSeq} [mapseq]:stateDesignator [exp]:exp (mapType):type.#Map (seqType):type.#seq
+    ;
+    
+objectDesignator {-> package='eu.compassresearch.ast.actions'}
+    =   {apply} [object]:objectDesignator [args]:exp*
+    |   {field} [object]:objectDesignator [className]:LexNameToken [fieldName]:LexIdentifierToken (field):LexNameToken
+    |   {name} [name]:LexNameToken [expression]:exp.variable
+    |   {self} [self]:LexNameToken
+    ;
+
+alternativeAction {-> package='eu.compassresearch.ast.actions'}
+    = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition* 
+    ;
+
+clause {-> package='eu.compassresearch.ast.actions'}
+    = {external} [location]:location [mode]:mode [identifiers]:LexNameToken* (type):type
+    ;
+
+mode {-> package='eu.compassresearch.ast.actions'}
+	= {read}
+	| {write}
+	;
+    
+case {-> package='eu.compassresearch.ast.actions'}
+    = {error} [name]:LexIdentifierToken [left]:exp [right]:exp
+    ;
     
 /*
     Statements -- !!!!!!!!these are the old VDM statements and are only kept here for the moment for convenience
 */
-
+/*
 stm {-> package='eu.compassresearch.ast.statements'}
     =   {always} [always]:stm [body]:stm
     |   {assignment} [target]:stateDesignator [exp]:exp (targetType):type (expType):type 
@@ -690,7 +756,7 @@ stm {-> package='eu.compassresearch.ast.statements'}
     |   {atomic} [assignments]:stm.assignment* (statedef):definition.state 
     |   {callObject} [designator]:objectDesignator [classname]:LexNameToken [fieldname]:LexIdentifierToken 
                      [field]:LexNameToken [args]:exp* [explicit]:java_Boolean
-    //|   {call} [name]:LexNameToken [args]:exp*
+    |   {call} [name]:LexNameToken [args]:exp*
     |   {cases} [exp]:exp [cases]:alternativeStm.case* [others]:stm
     |   {classInvariant} [name]:LexNameToken [invDefs]:definition*
     |   {elseIf} [elseIf]:exp [thenStm]:stm
@@ -711,48 +777,23 @@ stm {-> package='eu.compassresearch.ast.statements'}
     |   {trap} [patternBind]:patternBind.def [with]:stm [body]:stm
     |   {while} [exp]:exp [statement]:stm
     ; 
+  */  
+//#LetDef {-> package='eu.compassresearch.ast.statements'}
+//    =   {def}
+//    ;
     
-#LetDef {-> package='eu.compassresearch.ast.statements'}
-    =   {def}
-    ;
-    
-#SimpleBlock {-> package='eu.compassresearch.ast.statements'}
-    =   {block} [assignmentDefs]:definition*
-    |   {nonDeterministic}
-    ;
-    
-stateDesignator {-> package='eu.compassresearch.ast.actions'}
-    =   {field} [object]:stateDesignator [field]:LexIdentifierToken (objectfield):LexNameToken
-    |   {identifier} [name]:LexNameToken
-    |   {mapSeq} [mapseq]:stateDesignator [exp]:exp (mapType):type.#Map (seqType):type.#seq
-    ;
-    
-objectDesignator {-> package='eu.compassresearch.ast.actions'}
-    =   {apply} [object]:objectDesignator [args]:exp*
-    |   {field} [object]:objectDesignator [className]:LexNameToken [fieldName]:LexIdentifierToken (field):LexNameToken
-    |   {name} [name]:LexNameToken [expression]:exp.variable
-    |   {self} [self]:LexNameToken
-    ;
+//#SimpleBlock {-> package='eu.compassresearch.ast.statements'}
+//    =   {block} [assignmentDefs]:definition*
+//    |   {nonDeterministic}
+//    ;
 
-alternativeAction {-> package='eu.compassresearch.ast.actions'}
-    = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition* 
-    ;
-
-alternativeStm {-> package='eu.compassresearch.ast.statements'}
-    = {case} [location]:location [cexp]:exp [pattern]:pattern [result]:stm (defs):definition* (ctype):type 
-    ;
+//alternativeStm {-> package='eu.compassresearch.ast.statements'}
+//    = {case} [location]:location [cexp]:exp [pattern]:pattern [result]:stm (defs):definition* (ctype):type 
+//    ;
     
-stmtAlternative {-> package='eu.compassresearch.ast.statements'}
-    = {tixe} [patternBind]:patternBind.def [statement]:stm (exp):type
-    ;
-    
-clause {-> package='eu.compassresearch.ast.statements'}
-    = {external} [mode]:LexToken [identifiers]:LexNameToken* (type):type
-    ;
-    
-case {-> package='eu.compassresearch.ast.statements'}
-    = {error} [name]:LexIdentifierToken [left]:exp [right]:exp
-    ;
+//stmtAlternative {-> package='eu.compassresearch.ast.statements'}
+//    = {tixe} [patternBind]:patternBind.def [statement]:stm (exp):type
+//    ;
     
 Aspect Declaration
 /* This section allows fields of root types to be declared e.g. exp*/
@@ -766,7 +807,16 @@ Aspect Declaration
 %process =  [location]:location 
 	;
 
+%process->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedProcess]:process 
+	;
+	
+%action->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedAction]:action 
+	;
+
 %action =  [location]:location
+	;
+	
+%mode = [location]:location
 	;
 	
 %communicationParameter = [location]:location
@@ -774,10 +824,6 @@ Aspect Declaration
 
 %parameter = [location]:location
 	; 
-
-
-//%exp->#Chanset = [channelIdentifiers]:LexIdentifierToken*
-//	;
 	
 %exp->#Unary =  [exp]:exp
     ;
@@ -817,7 +863,7 @@ Aspect Declaration
     ;
 
 
-    
+/*    
 %stm
     = [location]:location (type):type
     ;
@@ -829,7 +875,7 @@ Aspect Declaration
 %stm->#SimpleBlock 
     =   [statements]:stm*
     ;
- 
+ */
 %import
     =   [location]:location [name]:LexNameToken [renamed]:LexNameToken [from]:modules.module
     ;  

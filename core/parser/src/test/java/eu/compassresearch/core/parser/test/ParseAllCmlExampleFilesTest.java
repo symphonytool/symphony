@@ -27,10 +27,10 @@ public class ParseAllCmlExampleFilesTest {
 	this.filePath = filePath;
     }
         
-    @Parameters
-    public static Collection params() {
-    	return new LinkedList<String>();
-    }
+    // @Parameters
+    // public static Collection params() {
+    // 	return new LinkedList<String>();
+    // }
 
     //private static String watchedLog;
     

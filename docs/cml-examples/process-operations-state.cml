@@ -5,6 +5,7 @@ process RegisterProc =
    reg : Byte	
 
   operations  
+
    LOAD(i : Byte)
    frame wr reg : Byte
    post reg = i;
@@ -13,7 +14,7 @@ process RegisterProc =
    frame rd reg : Byte
    post j = reg; 
 
-   ADD(i:Byte)
+   ADD(i : Byte)
    frame wr reg : Byte
    pre not oflow(reg, i)
    post reg = reg~ + i;

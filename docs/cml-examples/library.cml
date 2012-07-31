@@ -29,7 +29,7 @@ public Library ::
 inv mk_Library(bs,us,bor) ==
   dom bor subset dom us and
   dunion rng bor subset dom bs and
- forall u1, u2 in set dom bor & u1 <> u2 => bor(u1) inter bor(u2) = {}
+ forall u1, u2 in set dom bor @ u1 <> u2 => bor(u1) inter bor(u2) = {}
 ;
 
 public Book ::
@@ -88,7 +88,7 @@ RemoveCopy(c,bor) ==
   
 ExeFind: String * Library -> set of BookId
 ExeFind(s,l) ==
-   {bid | bid in set dom l.books & s in set {l.books(bid).title, l.books(bid).author}} 
+   {bid | bid in set dom l.books @ s in set {l.books(bid).title, l.books(bid).author}} 
   
 channels
 	init;
@@ -113,11 +113,12 @@ process LibraryProcess = begin
 		GetBorrowed(l) == l.borrowed;
 		
 		ApplyBorrowed: Library*UserId -> set of BookId
-		ApplyBorrowed(l,u) == (GetBorrowed(l))(u)
+		--ApplyBorrowed(l,u) == (GetBorrowed(l))(u) not possible with the current grammar
+		ApplyBorrowed(l,u) == (l.borrowed(u))		 
 	
 	operations
 		Init(bs: map BookId to Book, us: map UserId to User)
-		post library = mk_Library(bs,us,{|->});
+		post library = mk_Library(bs,us,{ |-> });
 		
 		Assign(l: Library)
 		frame wr library
