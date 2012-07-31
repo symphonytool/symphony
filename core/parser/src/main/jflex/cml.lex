@@ -271,6 +271,7 @@ blanks          = [ \t\f]*
 "return"                      { return createToken(CmlParser.RETURN); }
 "reverse"                     { return createToken(CmlParser.REVERSE); }
 "rng"                         { return createToken(CmlParser.RNG); }
+"self"                        { return createToken(CmlParser.SELF); }
 "seq of"                      { return createToken(CmlParser.SEQOF); }
 "seq1 of"                     { return createToken(CmlParser.SEQ1OF); }
 "set of"                      { return createToken(CmlParser.SETOF); }

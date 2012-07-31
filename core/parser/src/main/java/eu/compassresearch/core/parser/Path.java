@@ -348,40 +348,50 @@ public class Path
     {
 	PObjectDesignator od = null;
 	switch(kind){
-	// case UNIT:
-	//     {
-	
-	//     }
-	//     break;
-	// case TILDE:
-	//     {
-	//     }
-	//     break;
-	// case DOT:
-	//     {
-	//     }
-	//     break;
-	// case BACKTICK:
-	//     {
-	//     }
-	//     break;
-	// case DOTHASH:
-	//     {
-	//     }
-	//     break;
-	// case APPLY:
-	//     {
-	//     }
-	//     break;
-	// case SEQRANGE:
-	//     {
-	//     }
-	//     break;
+	case UNIT:
+	    {
+		String module = "Default";
+		if(this.unit.kind == Unit.UnitKind.IDENTIFIER)
+		    od = new ANameObjectDesignator(location, 
+						   new LexNameToken(module, 
+								    this.unit.value), 
+						   null); 
+		else if(this.unit.kind == Unit.UnitKind.SELF)
+		    od = new ASelfObjectDesignator(location, 
+						   new LexNameToken(module, 
+								    this.unit.value));
+
+		
+		    
+	    }
+	    break;
+	case DOT:
+	    {
+		od = new AFieldObjectDesignator(location, 
+						this.subPath.convertToObjectDesignator(), 
+						null, /*LexNameToken className_*/ 
+						this.unit.value);
+	    }
+	    break;
+	case BACKTICK:
+	    {
+		od = new ANameObjectDesignator(location, 
+					       this.convertToName(), 
+					       null); 
+	    }
+	    break;
+	case APPLY:
+	    {
+		od = new AApplyObjectDesignator(location, 
+						this.subPath.convertToObjectDesignator(), 
+						this.expList);
+	    }
+	    break;
 	default:
 	    throw new PathConvertException("Illigal path for objectDesignator : " + kind);
 	}
 
-	//return od;
+	return od;
     }
 
     /*
@@ -408,6 +418,12 @@ public class Path
 	case UNIT:
 	    {
 		name = this.unit.convertToName();
+	    }
+	    break;
+	case DOT:
+	    {
+		name = this.unit.convertToName();
+		path = this.subPath;
 	    }
 	    break;
 	
