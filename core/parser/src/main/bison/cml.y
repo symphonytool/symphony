@@ -23,7 +23,6 @@
   import eu.compassresearch.ast.definitions.*;
   import eu.compassresearch.ast.declarations.*;
   import eu.compassresearch.ast.expressions.*;
-  import eu.compassresearch.ast.statements.*;
   import eu.compassresearch.ast.actions.*;
   import eu.compassresearch.ast.process.*;
   import eu.compassresearch.ast.patterns.*;
@@ -1610,7 +1609,7 @@ typeDef :
 
   ATypeDefinition typeDef = new ATypeDefinition(location,
 						name,
-						NameScope.GLOBAL,
+						NameScope.TYPENAME,
 						false/*Boolean used_*/,
 						null/*PDeclaration declaration_*/,
 						access,
@@ -1634,7 +1633,7 @@ typeDef :
   }
   $$ = new ATypeDefinition(location,
 			   name,
-			   NameScope.GLOBAL,
+			   NameScope.TYPENAME,
 			   false/*Boolean used_*/,
 			   null/*PDeclaration declaration_*/,
 			   access,
@@ -1674,7 +1673,7 @@ typeDef :
   else
     loc = combineLexLocation(name.getLocation(), extractLexLocation(vdmrec));
   ARecordInvariantType recType = new ARecordInvariantType(loc, false, null, false, null, name, fields, true);
-  ATypeDefinition res = new ATypeDefinition(loc, name, NameScope.GLOBAL, false, null, access, recType, null, null, null, null, true);
+  ATypeDefinition res = new ATypeDefinition(loc, name, NameScope.TYPENAME, false, null, access, recType, null, null, null, null, true);
   $$ = res;
 }
 ;
@@ -2577,22 +2576,34 @@ varInformationList :
 varInformation :
   mode pathList
 {
-  $$ = new AExternalClause((LexToken)$1, (List<? extends LexNameToken>)$2);
+    
+    List<? extends LexNameToken> names = (List<? extends LexNameToken>)$pathList;
+    PMode mode = (PMode)$mode;
+    LexLocation location = combineLexLocation(mode.getLocation(),
+					      extractLastLexLocation(names)); 
+    $$ = new AExternalClause(location,mode,names, null);
 }
 | mode pathList COLON type
 {
-  $$ = new AExternalClause((LexToken)$1, (List<? extends LexNameToken>)$2, (PType)$4);
+    List<? extends LexNameToken> names = (List<? extends LexNameToken>)$pathList;
+    PMode mode = (PMode)$mode;
+    LexLocation location = combineLexLocation(mode.getLocation(),
+					      extractLastLexLocation(names)); 
+    $$ = new AExternalClause(location,
+			     mode, 
+			     names, 
+			     (PType)$type);
 }
 ;
 
 mode :
   RD
 {
-  $$ = new LexToken(extractLexLocation((CmlLexeme)$1), VDMToken.READ); // TODO why are we using VDMToken?
+    $$ = new AReadMode(extractLexLocation((CmlLexeme)$RD));
 }
 | WR
 {
-  $$ = new LexToken(extractLexLocation((CmlLexeme)$1), VDMToken.WRITE); // TODO why are we using VDMToken?
+  $$ = new AWriteMode(extractLexLocation((CmlLexeme)$WR));
 }
 ;
 
@@ -3667,7 +3678,10 @@ controlStatement :
 | ATOMIC LPAREN assignStatementList RPAREN
 /* general assign statement end */
 /* specification statement */
-| LSQUARE implicitOperationBody RSQUARE // TODO
+| LSQUARE implicitOperationBody RSQUARE
+{
+    $$ = $implicitOperationBody;
+}
 /* DEVIATION
  * CML_0
  *   RETURN [ expression ]
@@ -3971,7 +3985,17 @@ casesStatementAlt :
 ;
 
 implicitOperationBody :
-  externals_opt preExpr_opt postExpr // TODO
+  externals_opt preExpr_opt postExpr
+  {
+      PExp postcondition = (PExp)$postExpr;
+      List<? extends AExternalClause> exts = (List<? extends AExternalClause>)$externals_opt;
+      LexLocation location = combineLexLocation(extractFirstLexLocation(exts),
+						postcondition.getLocation());
+      $$ = new ASpecificationControlStatementAction(location, 
+						    exts, 
+						    (PExp)$preExpr_opt, 
+						    postcondition);
+  }
 ;
 
 pattern :

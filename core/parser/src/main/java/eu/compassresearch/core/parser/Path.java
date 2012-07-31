@@ -1,7 +1,6 @@
 package eu.compassresearch.core.parser;
 
 import eu.compassresearch.ast.expressions.*;
-import eu.compassresearch.ast.statements.*;
 import eu.compassresearch.ast.actions.*;
 import eu.compassresearch.ast.process.*;
 import eu.compassresearch.ast.lex.*; 

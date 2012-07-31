@@ -21,7 +21,6 @@ import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.node.NodeList;
 import eu.compassresearch.ast.patterns.APatternListTypePair;
 import eu.compassresearch.ast.patterns.PPattern;
-import eu.compassresearch.ast.statements.ACaseAlternativeStm;
 import eu.compassresearch.ast.typechecker.NameScope;
 
 public class ToStringUtil
