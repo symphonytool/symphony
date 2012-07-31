@@ -180,12 +180,7 @@
 
   private LexLocation combineLexLocation(LexLocation start, LexLocation end)
   {
-    return new LexLocation(currentSource.toString(), "Default",
-			   start.startLine, start.startPos,
-			   end.endLine, 
-			   end.endPos,
-			   start.startOffset,
-			   end.endOffset);
+      return extractLexLocation(start,end);
   }
 
   private LexLocation extractLastLexLocation(List<?> fields)
@@ -272,6 +267,28 @@
       return identifiers;
   }
 
+  private LexNameToken extractLexNameToken(CmlLexeme lexeme)
+  {
+      return new LexNameToken("Default",lexeme.getValue(), extractLexLocation(lexeme),false, true);
+  }
+  
+  private LexNameToken extractLexNameToken(Object obj)
+  {
+      CmlLexeme lexeme = (CmlLexeme)obj;
+      return new LexNameToken("Default",lexeme.getValue(), extractLexLocation(lexeme),false, true);
+  }
+
+  private LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme)
+  {
+      return new LexIdentifierToken(lexeme.getValue(), false, extractLexLocation(lexeme));
+  }
+
+  private LexIdentifierToken extractLexIdentifierToken(LexNameToken name)
+  {
+      return new LexIdentifierToken(name.getName(), false, name.getLocation());
+  }
+
+
   public static void main(String[] args) throws Exception
   {
     if (args.length == 0) {
@@ -326,21 +343,6 @@
 	System.exit(-4);
       }
     }
-  }
-
-  private LexNameToken extractLexNameToken(CmlLexeme lexeme)
-  {
-    return new LexNameToken("Default",lexeme.getValue(), extractLexLocation(lexeme),false, true);
-  }
-
-  private LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme)
-  {
-    return new LexIdentifierToken(lexeme.getValue(), false, extractLexLocation(lexeme));
-  }
-
-  private LexIdentifierToken extractLexIdentifierToken(LexNameToken name)
-  {
-    return new LexIdentifierToken(name.getName(), false, name.getLocation());
   }
 
   // *************************
@@ -3788,18 +3790,81 @@ controlStatement :
  * idea what the semantic difference is.
  */
 | FOR bind IN expression DO action
+{
+    PAction action = (PAction)$action;
+    LexLocation location = extractLexLocation((CmlLexeme)$FOR,action.getLocation());
+    PBind bind = (PBind)$bind;
+    ADefPatternBind patternBind = new ADefPatternBind(bind.getLocation(), 
+						      null, 
+						      bind, 
+						      null, null);
+    $$ = new AForSequenceControlStatementAction(location, 
+						patternBind, 
+						(PExp)$expression, 
+						action, 
+						null);
+}
 /* | FOR bind IN REVERSE expression DO action */
 | FOR pattern IN expression DO action
+{
+    PAction action = (PAction)$action;
+    LexLocation location = extractLexLocation((CmlLexeme)$FOR,action.getLocation());
+    PPattern pattern = (PPattern)$pattern;
+    ADefPatternBind patternBind = new ADefPatternBind(pattern.getLocation(), 
+						      pattern, 
+						      null, 
+						      null, null);
+    $$ = new AForSequenceControlStatementAction(location, 
+						patternBind, 
+						(PExp)$expression, 
+						action, 
+						null);
+}
 /* | FOR pattern IN REVERSE expression DO action */
 /* sequence for loop end */
 /* set for loop */
 | FOR ALL pattern INSET expression DO action
+{
+    PAction action = (PAction)$action;
+    LexLocation location = extractLexLocation((CmlLexeme)$FOR,action.getLocation());
+    $$ = new AForSetControlStatementAction(location, 
+					   (PPattern)$pattern, 
+					   (PExp)$expression, 
+					   action);
+}
 /* index for loop */
 | FOR IDENTIFIER EQUALS expression TO expression DO action
+{
+    PAction action = (PAction)$action;
+    LexLocation location = extractLexLocation((CmlLexeme)$FOR,action.getLocation());
+    $$ = new AForIndexControlStatementAction(location, 
+					     extractLexNameToken($IDENTIFIER), 
+					     (PExp)$4 , 
+					     (PExp)$6, 
+					     null, 
+					     action);
+}
 | FOR IDENTIFIER EQUALS expression TO expression BY expression DO action
+{
+    PAction action = (PAction)$action;
+    LexLocation location = extractLexLocation((CmlLexeme)$FOR,action.getLocation());
+    $$ = new AForIndexControlStatementAction(location, 
+					     extractLexNameToken($IDENTIFIER), 
+					     (PExp)$4 , 
+					     (PExp)$6, 
+					     (PExp)$8, 
+					     action);
+}
 /* index for loop end */
 /* while loop */
 | WHILE expression DO action
+{
+    PAction action = (PAction)$action;
+    LexLocation location = extractLexLocation((CmlLexeme)$WHILE,action.getLocation());
+    $$ = new AWhileControlStatementAction(location, 
+					  (PExp)$expression, 
+					  action);
+}
 /* DEVIATION
  * callStatement --- without assignment
  * grammar:

@@ -714,6 +714,23 @@ parameter {-> package='eu.compassresearch.ast.actions'}
 		[args]:exp* 
 		(classdef):definition.#paragraph.class 
 		(ctorDefinition):definition
+	| {forSet} 
+		[pattern]:pattern 
+		[set]:exp 
+		[action]:action
+    | {forIndex} 
+    	[var]:LexNameToken 
+    	[from]:exp 
+    	[to]:exp 
+    	[by]:exp 
+    	[action]:action
+    | {forSequence} 
+    	[patternBind]:patternBind.def 
+    	//[reverse]:java_Boolean 
+    	[exp]:exp 
+    	[action]:action 
+    	(seqType):type.#seq
+    | {while} [condition]:exp [action]:action
 	;
 
 #GeneralAssignment {-> package='eu.compassresearch.ast.actions'}

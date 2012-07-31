@@ -198,6 +198,7 @@ blanks          = [ \t\f]*
 "atomic"                      { return createToken(CmlParser.ATOMIC); }
 "begin"                       { return createToken(CmlParser.BEGIN); }
 "bool"                        { return createToken(CmlParser.TBOOL); }
+"by"                        { return createToken(CmlParser.BY); }
 "card"                        { return createToken(CmlParser.CARD); }
 "cases"                       { return createToken(CmlParser.CASES); }
 "channels"                    { return createToken(CmlParser.CHANNELS); }
