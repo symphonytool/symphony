@@ -2,6 +2,6 @@ class mapcomp =
 begin
 	values
 	public m : map int to int = { a |-> b | a in set {1,...,42}, b in set {1,...,42} };
-	public m2 : map int to int = { a |-> b| a in set {1,...,42}, b in set {1,...,42} & b > a }
+	public m2 : map int to int = { a |-> b| a in set {1,...,42}, b in set {1,...,42} @ b > a }
 	
 end

@@ -362,7 +362,7 @@
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY DECIMAL 
 %token STARTBY COLONINTER COLONUNION LCURLYCOLON COLONRCURLY MU PRIVATE
 %token PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY WHILE ISUNDERNAME
-%token EXTENDS EMPTYMAP
+%token EXTENDS EMPTYMAP DBACKSLASH
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE TICK CHAR_LIT
 
 %token nameset namesetExpr nilLiteral textLiteral
@@ -375,6 +375,8 @@
  * disambiguating precidence (shift/reduce conflicts, typically).
  */
 /* Precidence from loosest to tightest; tokens on same line are equal precidence */
+%right MU LAMBDA
+%right FORALL EXISTS EXISTS1 IOTA
 %right LPAREN
 %right COMMA
 %left SEQOF
@@ -382,7 +384,7 @@
       BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF
       NEW COLONEQUALS SLASH BACKSLASH ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE
       DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH COLONINTER COLONUNION
-      BARGT
+      BARGT DBACKSLASH
 %right SEMI
 %right U-SEMI U-BARTILDEBAR U-DBAR U-TBAR U-LRSQUARE U-LSQUARE U-LSQUAREBAR
        U-LSQUAREDBAR
@@ -576,6 +578,8 @@ process :
  *   process '/' expression '\' process
  * this conflicts all over, so
  *   process '/:' expression ':\' process
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | process SLASHCOLON expression COLONBACKSLASH process
 {
@@ -596,6 +600,8 @@ process :
  *   process '[' expression '>' process
  * here:
  *   process '[' expression '|>' process
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | process LSQUARE expression BARGT process
 {
@@ -608,9 +614,11 @@ process :
  * grammar:
  *   process '\' chansetExpr
  * here:
- *   process ':\' chansetExpr
+ *   process '\\' chansetExpr
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
-| process COLONBACKSLASH chansetExpr
+| process DBACKSLASH chansetExpr
 {
   PProcess left = (PProcess)$1;
   SChansetSetExp cse = (SChansetSetExp)$3;
@@ -757,17 +765,14 @@ replicationDeclarationAlt :
 
 /* DEVIATION
  * CML_0:
- *   IDENTIFIER { COMMA IDENTIFIER } COLON expression
+ *   IDENTIFIER { COMMA IDENTIFIER } ':' expression
  * here:
- *   pathList IN expression
+ *   pathList 'in set' expression
  *
- * (JWC) This declares a replication variable to take values from the
- * evaluation of an expression; I assume that the expression's type is
- * a set, so using IN (INSET?) here seems at least somewhat
- * appropriate.
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 singleExpressionDeclaration :
-pathList IN expression 
+pathList INSET expression 
 {
     List<LexIdentifierToken> identifiers = convertPathListToIdentifiers((List<LexNameToken>)$pathList);
     PExp exp = (PExp)$expression;
@@ -807,10 +812,6 @@ processParagraph :
 {
   $$ = $1;
 }
-/* DEVIATION
- * This is not yet in the (CML0) grammar, but the need for it has been recognised
- */
-| INITIAL operationDef // TODO
 | actionParagraph
 {
   $$ = $1;
@@ -916,6 +917,8 @@ action :
  *   expression '&' action
  * here:
  *   '[' expression ']' '&' action
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | LSQUARE expression RSQUARE AMP action
 {
@@ -957,6 +960,8 @@ action :
  *   process '/' expression '\' process
  * this conflicts all over, so
  *   process '/:' expression ':\' process
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | action SLASHCOLON expression COLONBACKSLASH action
 {
@@ -977,6 +982,8 @@ action :
  *   action '[' expression '>' action
  * here:
  *   action '[' expression '|>' action
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | action LSQUARE expression BARGT action
 {
@@ -989,9 +996,11 @@ action :
  * grammar:
  *   process '\' chansetExpr
  * here:
- *   process ':\' chansetExpr
+ *   process '\\' chansetExpr
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
-| action COLONBACKSLASH chansetExpr
+| action DBACKSLASH chansetExpr
 {
   PAction left = (PAction)$1;
   SChansetSetExp chansetExp = (SChansetSetExp)$3;
@@ -1018,16 +1027,7 @@ action :
   PAction action = (PAction)$1;
   $$ = new AChannelRenamingAction(combineLexLocation(action.getLocation(), renameExpression.getLocation()), action, renameExpression);
 }
-/* DEVIATION
- * grammar:
- *  'mu' <identifierList> '@' action
- * here:
- *  'mu' <pathList> '@' '(' action ')'
- *
- * Also, this is apparently not yet in our AST
- * (AKM) This should be a list of actions and not just one.
- */
-| MU pathList AT LPAREN action RPAREN // TODO
+| MU pathList AT action %prec MU // TODO
 /* parallel actions */
 | action LSQUAREDBAR namesetExpr BAR namesetExpr DBARRSQUARE action
 | action TBAR action
@@ -1459,9 +1459,11 @@ chansetExpr :
  * grammar:
  *   chansetExpr '\' chansetExpr
  * here:
- *   chansetExpr ':\' chansetExpr
+ *   chansetExpr '\\' chansetExpr
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
-| chansetExpr COLONBACKSLASH chansetExpr
+| chansetExpr DBACKSLASH chansetExpr
 {
   PExp left = (PExp)$1;
   PExp right = (PExp)$3;
@@ -1550,6 +1552,13 @@ classDefinitionBlockAlternative :
 {
   $$ = $1;
 }
+/* UPCOMING --- CML_1
+ * absent in CML_0
+ *
+ * This will be in the CML_1 grammar, and is defines the constructor for the class.
+ * Confirmed between Joey, Alavro; Skype 30 July 2012
+ */
+| INITIAL operationDef // TODO
 ;
 
 typeDefs :
@@ -2750,7 +2759,7 @@ expression :
   $$ = $1;
 }
 /* quantified expressions */
-| FORALL bindList AMP expression
+| FORALL bindList AT expression %prec FORALL
 {
   CmlLexeme forall = (CmlLexeme)$1;
   List<PMultipleBind> binds = (List<PMultipleBind>)$2;
@@ -2760,7 +2769,7 @@ expression :
   AForAllExp forallexp = new AForAllExp(loc, binds, exp);
   $$ = forallexp;
 }
-| EXISTS bindList AMP expression
+| EXISTS bindList AT expression %prec EXISTS
 {
   CmlLexeme exists = (CmlLexeme)$1;
   List<PMultipleBind> binds = (List<PMultipleBind>)$2;
@@ -2769,7 +2778,7 @@ expression :
   AExistsExp existsExp = new AExistsExp(loc, binds, exp);
   $$ = existsExp;
 }
-| EXISTS1 bind AMP expression
+| EXISTS1 bind AT expression %prec EXISTS1
 {
   CmlLexeme exists = (CmlLexeme)$1;
   PBind bind = (PBind)$2;
@@ -2778,7 +2787,7 @@ expression :
   AExists1Exp existsExp = new AExists1Exp(loc, bind, exp, null);
   $$ = existsExp;
 }
-| IOTA bind AMP expression
+| IOTA bind AT expression %prec IOTA
 {
   CmlLexeme iota = (CmlLexeme)$1;
   PBind bind = (PBind)$2;
@@ -2814,15 +2823,7 @@ expression :
   ASetCompSetExp setComp = new ASetCompSetExp(loc, exp, binds, null);
   $$ = setComp;
 }
-/* DEVIATION
- * CML_0:
- *   LCURLY expression BAR bindList AT expression RCURLY
- * here: 
- *   LCURLY expression BAR bindList AMP expression RCURLY
- *
- * use both?
- */
-| LCURLY expression BAR bindList AMP expression RCURLY
+| LCURLY expression BAR bindList AT expression RCURLY
 {
     CmlLexeme lcurly = (CmlLexeme)$1;
     PExp exp = (PExp)$2;
@@ -2879,7 +2880,7 @@ expression :
   ASeqCompSeqExp res = new ASeqCompSeqExp(loc, exp, binds, null);
   $$ = res;
 }
-| LSQUARE expression BAR setBind AMP expression RSQUARE
+| LSQUARE expression BAR setBind AT expression RSQUARE
 {
   CmlLexeme lsqr = (CmlLexeme)$1;
   PExp exp = (PExp)$2;
@@ -2917,7 +2918,7 @@ expression :
   AMapCompMapExp res = new AMapCompMapExp(loc, maplet, binds, null);
   $$ = res;
 }
-| LCURLY maplet BAR bindList AMP expression RCURLY
+| LCURLY maplet BAR bindList AT expression RCURLY
 {
   CmlLexeme lcurl = (CmlLexeme)$1;
   AMapletExp maplet = (AMapletExp)$2;
@@ -2949,15 +2950,7 @@ expression :
   $$ = res;
 }
 /* lambda expression */
-/* DEVIATION
- * CML_0:
- *   'lambda' typeBindList '@' expression
- * here:
- *   'lambda' typeBindList '&' expression
- *
- * Using an @ causes a lot of s/r conflicts
- */
-| LAMBDA typeBindList AMP expression
+| LAMBDA typeBindList AT expression %prec LAMBDA
 {
   CmlLexeme l = (CmlLexeme)$1;
   List<ATypeBind> binds = (List<ATypeBind>)$2;

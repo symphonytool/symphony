@@ -314,6 +314,7 @@ blanks          = [ \t\f]*
 ":}"                          { return createToken(CmlParser.COLONRCURLY); }
 /* ":]"                          { return createToken(CmlParser.COLONRSQUARE); } */
 ","                           { return createToken(CmlParser.COMMA); }
+"\\\\"                        { return createToken(CmlParser.DBACKSLASH); }
 "||"                          { return createToken(CmlParser.DBAR); }
 "||]"                         { return createToken(CmlParser.DBARRSQUARE); }
 "::"                          { return createToken(CmlParser.DCOLON); }

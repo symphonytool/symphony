@@ -36,7 +36,7 @@ public class ParserUnitTest {
 
     @Test
     public void testProcessReplicationSemi() throws IOException {
-	parseCml("process test = ;i in {2,3} @ A(i)");
+	parseCml("process test = ;i in set {2,3} @ A(i)");
     }
 
     
