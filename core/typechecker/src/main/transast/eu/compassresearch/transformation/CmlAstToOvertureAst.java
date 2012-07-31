@@ -63,6 +63,7 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>{
 	public CmlAstToOvertureAst()
 	{
 		this.nodeMap = new HashMap<org.overture.ast.node.INode, eu.compassresearch.ast.node.INode>();
+		this.lookup = new HashMap<LexIdentifierToken, org.overture.ast.definitions.PDefinition>();
 	}
 	
 	private static Class<?>[] typesFromArgs(Object[] args){
@@ -102,7 +103,23 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>{
 		return ovtClz;
 	}
 
-
+	Map<LexIdentifierToken, org.overture.ast.definitions.PDefinition> lookup;
+/*
+	@Override
+	public INode defaultPDefinition(PDefinition node) throws AnalysisException {
+		org.overture.ast.definitions.PDefinition ovtNode = (org.overture.ast.definitions.PDefinition)defaultINode(node);
+		if (node.getName() != null)
+		{
+			if (lookup.get(node.getName()) == null) lookup.put(node.getName(), ovtNode);
+		}
+		else
+			warn("CmlDefinition without name at: "+node.getLocation());
+		return ovtNode;
+	}
+*/
+	private static void warn(String string) {
+		System.out.println("[WARNING]: "+string);		
+	}
 
 	@Override
 	public INode defaultINode(eu.compassresearch.ast.node.INode node)
@@ -260,8 +277,10 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>{
 
 	private Object convertNameExp(ANameExp cmlGetterRes) throws AnalysisException {
 		org.overture.ast.expressions.AFieldExp ovt = new AFieldExp();
-		//ovt.setField( (org.overture.ast.lex.LexIdentifierToken)translate(cmlGetterRes.getName()));
-		ovt.setMemberName( (org.overture.ast.lex.LexNameToken) translate(cmlGetterRes.getName()));
+		org.overture.ast.expressions.AVariableExp varExp = new AVariableExp();
+		varExp.setName((org.overture.ast.lex.LexNameToken)translate(cmlGetterRes.getName()));
+		org.overture.ast.definitions.PDefinition lookedupDef = lookup.get(cmlGetterRes.getName());
+		varExp.setVardef((org.overture.ast.definitions.PDefinition)translate(lookedupDef));
 		return ovt;
 	}
 
