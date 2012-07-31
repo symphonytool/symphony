@@ -13,7 +13,6 @@ import eu.compassresearch.ast.lex.LexLocation;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
-import eu.compassresearch.ast.statements.PStm;
 import eu.compassresearch.ast.types.AClassType;
 import eu.compassresearch.ast.types.PType;
 
@@ -113,10 +112,6 @@ public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType> 
 		return node.apply(exp, question);
 	}
 
-	@Override
-	public PType defaultPStm(PStm node, TypeCheckInfo question)throws AnalysisException {
-		return node.apply(stm,question);
-	}
 
 
 	// ---------------------------------------------

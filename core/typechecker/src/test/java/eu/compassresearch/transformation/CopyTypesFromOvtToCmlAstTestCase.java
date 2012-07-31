@@ -1,5 +1,6 @@
 package eu.compassresearch.transformation;
 
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -14,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
 import static eu.compassresearch.transformation.TestUtil.*;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.definitions.AExplicitFunctionDefinition;
@@ -46,7 +48,7 @@ public class CopyTypesFromOvtToCmlAstTestCase {
 		List<Object[]> testData = new LinkedList<Object[]>();
 		// testData, cml string, first occurance where analysis will start, expected type
 		addTestProgram(testData, "class test = begin functions fn: int -> int fn(a) == a+42; end", AExplicitFunctionDefinition.class, AFunctionType.class);
-		addTestProgram(testData, "class test = begin operations oper: bool ==> int oper(b) == return if (b) then 42 else 21 end", AExplicitOperationDefinition.class, AOperationType.class);
+		//addTestProgram(testData, "class test = begin operations oper: bool ==> int oper(b) == return (if (b) then 42 else 21) end", AIfExp.class, AIntNumericBasicType.class);
 		// testData, file name, first occurance where analysis will start, expected type
 		addFileProgram(testData, "not.cml", AValueDefinition.class, ABooleanBasicType.class);
 		addFileProgram(testData,"binexp_plus.cml", AValueDefinition.class, AIntNumericBasicType.class);
@@ -55,7 +57,7 @@ public class CopyTypesFromOvtToCmlAstTestCase {
 		addFileProgram(testData,"binexp_divide.cml", AValueDefinition.class, AIntNumericBasicType.class);
 		addFileProgram(testData,"binexp_times.cml", AValueDefinition.class, AIntNumericBasicType.class);
 		addFileProgram(testData, "subseq.cml", AValueDefinition.class, ASeqSeqType.class);
-		addFileProgram(testData, "applyexp.cml", AValueDefinition.class, AIntNumericBasicType.class);
+		addFileProgram(testData, "applyexp.cml", AValueDefinition.class, AFunctionType.class);
 		return testData;
 	}
 	
@@ -83,6 +85,12 @@ public class CopyTypesFromOvtToCmlAstTestCase {
 		CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
 		eu.compassresearch.ast.node.INode node = (eu.compassresearch.ast.node.INode)findFirst(start, source);
 		org.overture.ast.node.INode ovtNode = node.apply(transform);
+
+		class RootChecker extends org.overture.typechecker.visitor.TypeCheckVisitor
+	{private static final long serialVersionUID = -9207787954742649875L;};
+		org.overture.typechecker.visitor.TypeCheckerExpVisitor e = new org.overture.typechecker.visitor.TypeCheckerExpVisitor(new RootChecker());
+		org.overture.typechecker.TypeCheckInfo question = new org.overture.typechecker.TypeCheckInfo();
+		ovtNode.apply(e, question );
 		
 		CopyTypesFromOvtToCmlAst copier = new CopyTypesFromOvtToCmlAst(transform.getNodeMap());
    	    INode res = copier.defaultINode(ovtNode);
@@ -90,6 +98,7 @@ public class CopyTypesFromOvtToCmlAstTestCase {
    	    Method getType = start.getMethod("getType", new Class<?>[0]);
    	    
    	    Assert.assertNotNull(getType.invoke(res, new Object[0]));
-   	    Assert.assertTrue(getType.invoke(res,  new Object[0]).getClass() == type);
+   	    Class<?> actualType = getType.invoke(res,  new Object[0]).getClass();
+   	    Assert.assertTrue("expected:"+type+" got: "+actualType, actualType == type);
 	}
 }
