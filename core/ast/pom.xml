@@ -14,7 +14,7 @@
 
   <build>
     <plugins>
-      <plugin>
+      <plugin> 
 	<groupId>org.overturetool.tools</groupId>
 	<artifactId>astcreatorplugin</artifactId>
 	<version>1.0.6</version>
