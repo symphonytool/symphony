@@ -183,18 +183,12 @@ import eu.compassresearch.ast.util.ToStringUtil;
 //%definition->value = [pattern] " : " [expType] " = " [expression]
 
 //  Statements
-%stm->always = "always "  [always]  " in "  [body]
 %stm->assignment = [target] " := " [exp]
 %stm->atomic = "atomic (" + $Utils.listToString($[assignments]$)$ + ")"
-%stm->callObject = [designator]  "." +
-            $($[classname]$ != null ? $[classname]$ : $[fieldname]$) + "(" + Utils.listToString($[args]$)$ + ")"
 %stm->call = [name]$.getName() + "(" + Utils.listToString($[args]$)$ + ")"
 %stm->cases = ""+$ToStringUtil.getCasesString(this)$
 %stm->classInvariant = "instance invariant " [name]
-%stm->cycles = "cycles (" [cycles] ") " [statement]
-%stm->duration = "duration (" [duration] ") " [statement]
 %stm->elseIf = "elseif " [elseIf] "\nthen\n" [thenStm]
-%stm->error = "error"
 %stm->exit = "exit" + $($[expression]$ == null ? ";" : " (" + $[expression]$ + ")")$
 %stm->forAll = "for all " [pattern] " in set " [set] " do\n" [statement] 
 %stm->forIndex = "for " [var] " = " [from] " to " [to] +
@@ -212,7 +206,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %stm->#SimpleBlock->block = ""+$ToStringUtil.getBlockSimpleBlockString(this)$
 %stm->#SimpleBlock->nonDeterministic = ""+$ToStringUtil.getNonDeterministicSimpleBlockString(this)$
 %stm->skip = "skip"
-%stm->specification = "[" +
+%action->specification = "[" +
             $($[externals]$.isEmpty() ? "" : "\n\text " + $[externals]$) +
             ($[precondition]$ == null ? "" : "\n\tpre " + $[precondition]$) +
             ($[postcondition]$ == null ? "" : "\n\tpost " + $[postcondition]$) +

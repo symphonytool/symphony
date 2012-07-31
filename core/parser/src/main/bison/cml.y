@@ -1026,6 +1026,7 @@ action :
  *  'mu' <pathList> '@' '(' action ')'
  *
  * Also, this is apparently not yet in our AST
+ * (AKM) This should be a list of actions and not just one.
  */
 | MU pathList AT LPAREN action RPAREN // TODO
 /* parallel actions */
@@ -1062,10 +1063,17 @@ action :
     PAction action = (PAction)$4;
     LexLocation location = extractLexLocation((CmlLexeme)$1,action.getLocation());
     $$ = new AExternalChoiceReplicatedAction(location, 
-						    (List<SSingleDeclaration>)$replicationDeclaration, 
-						    action);
+					     (List<SSingleDeclaration>)$replicationDeclaration, 
+					     action);
 }
 | BARTILDEBAR replicationDeclaration AT action %prec U-BARTILDEBAR
+{
+    PAction action = (PAction)$4;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,action.getLocation());
+    $$ = new AInternalChoiceReplicatedAction(location, 
+					     (List<SSingleDeclaration>)$replicationDeclaration, 
+					     action);
+}
 | LSQUAREDBAR nameset DBARRSQUARE LPAREN replicationDeclaration AT action RPAREN %prec U-LSQUAREDBAR
 | TBAR replicationDeclaration AT LSQUARE namesetExpr RSQUARE action %prec U-TBAR
 | LSQUAREBAR chansetExpr BARRSQUARE replicationDeclaration AT LSQUARE namesetExpr RSQUARE action %prec U-LSQUAREBAR
@@ -1941,10 +1949,6 @@ totalFunctionType :
   PType domType = (PType)$1;
   PType rngType = (PType)$3;
   LexLocation loc = combineLexLocation(domType.getLocation(), rngType.getLocation());
-  // TODO --- is this a dead comment?
-  // [CONSIDER,RWL] The domain type of a function is not a list,
-  // I think the AST is wrong taking a list of types for params
-  // AKM: Your right that is strange, but when it is changed the AstCreator is failing??
   List<PType> params = new LinkedList<PType>();
   params.add(domType);
   $$ = new AFunctionType(loc, false, null, false, params, rngType);
@@ -1954,10 +1958,6 @@ totalFunctionType :
   PType domType = new AVoidType(extractLexLocation((CmlLexeme)$1), true);
   PType rngType = (PType)$3;
   LexLocation loc = combineLexLocation(domType.getLocation(), rngType.getLocation());
-  // TODO --- is this a dead comment?
-  // [CONSIDER,RWL] The domain type of a function is not a list,
-  // I think the AST is wrong taking a list of types for params
-  // AKM: Your right that is strange, but when it is changed the AstCreator is failing??
   List<PType> params = new LinkedList<PType>();
   params.add(domType);
   $$ = new AFunctionType(loc, false, null, false, params, rngType);
@@ -3660,6 +3660,9 @@ controlStatement :
  * statement.
  */
 | assignStatement
+{
+    $$ = $assignStatement;
+}
 /* multiple assign statement */
 | ATOMIC LPAREN assignStatementList RPAREN
 /* general assign statement end */
@@ -3783,7 +3786,15 @@ nonDeterministicAltList :
 ;
 
 letStatement :
-  LET localDefList IN action // TODO
+  LET localDefList IN action 
+  {
+      PAction action = (PAction)$action;
+      LexLocation location = extractLexLocation((CmlLexeme)$LET,
+						action.getLocation());
+      $$ = new ALetStatementAction(location, 
+				   action, 
+				   (List<? extends PDefinition>)$localDefList);
+  }
 ;
 
 blockStatement :
