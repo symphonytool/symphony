@@ -1,5 +1,6 @@
 package eu.compassresearch.transformation;
 
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -14,10 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.overture.typecheck.TypeCheckInfo;
-import org.overture.typecheck.TypeChecker;
-import org.overture.typecheck.visitors.TypeCheckVisitor;
-import org.overture.typecheck.visitors.TypeCheckerExpVisitor;
 
 import static eu.compassresearch.transformation.TestUtil.*;
 import eu.compassresearch.ast.analysis.AnalysisException;
@@ -89,10 +86,10 @@ public class CopyTypesFromOvtToCmlAstTestCase {
 		eu.compassresearch.ast.node.INode node = (eu.compassresearch.ast.node.INode)findFirst(start, source);
 		org.overture.ast.node.INode ovtNode = node.apply(transform);
 
-		class RootChecker extends TypeCheckVisitor
+		class RootChecker extends org.overture.typechecker.visitor.TypeCheckVisitor
 	{private static final long serialVersionUID = -9207787954742649875L;};
-		org.overture.typecheck.visitors.TypeCheckerExpVisitor e = new TypeCheckerExpVisitor(new RootChecker());
-		TypeCheckInfo question = new TypeCheckInfo();
+		org.overture.typechecker.visitor.TypeCheckerExpVisitor e = new org.overture.typechecker.visitor.TypeCheckerExpVisitor(new RootChecker());
+		org.overture.typechecker.TypeCheckInfo question = new org.overture.typechecker.TypeCheckInfo();
 		ovtNode.apply(e, question );
 		
 		CopyTypesFromOvtToCmlAst copier = new CopyTypesFromOvtToCmlAst(transform.getNodeMap());

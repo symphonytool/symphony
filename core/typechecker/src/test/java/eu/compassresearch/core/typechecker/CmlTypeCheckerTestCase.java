@@ -97,7 +97,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "class test = begin values a : seq of char = if true then \"true\" else \"false\" end",false, true, true);
 		addTestProgram(testData, "class test = begin values b : int = 1; a : seq of char = if b = 2 then \"one\" elseif (b = 3) then \"two\" elseif b = 4 then \"three\" else \"above three\" end",false, true, true);
 		// cases 34
-		addTestProgram(testData, "class test = begin values a:int = cases 42 : 2 -> 3; 4 -> 5; end end",false, true, true);
+		addTestProgram(testData, "class test = begin values a:int = cases 42 : 2 -> 3, 4 -> 5 end end",false, true, true);
 		// unary opers
 		addTestProgram(testData, "class test = begin values a:int = 2-(-2) end",false, true, true);
 		addTestProgram(testData, "class test = begin values a:int = abs -42 end ",false, true, true);
@@ -160,11 +160,11 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "class test = begin values a:map int to int = {1|->2} ** 1 end",false, true, true);
 		addTestProgram(testData, "class test = begin values a:int = 2 end",false, true, true);
 		// quantified expressions
-		addTestProgram(testData, "class test = begin values a:boolean = forall i in set {1,2,3} & i+1 > 10 end",false, true, true);
+		addTestProgram(testData, "class test = begin values a:boolean = forall i in set {1,2,3} @ i+1 > 10 end",false, true, true);
 		// 90
-		addTestProgram(testData, "class test = begin values a:boolean = exists i in set {1,2,3} & i+1 > 10 end",false, true, true);
-		addTestProgram(testData, "class test = begin values a:boolean = exists1 i in set {1,2,3,9} & i+1 > 10 end",false, true, true);
-		addTestProgram(testData, "class test = begin values a:boolean = iota i in set {1,2,3} & i+1 > 10 end",false, true, true);
+		addTestProgram(testData, "class test = begin values a:boolean = exists i in set {1,2,3} @ i+1 > 10 end",false, true, true);
+		addTestProgram(testData, "class test = begin values a:boolean = exists1 i in set {1,2,3,9} @ i+1 > 10 end",false, true, true);
+		addTestProgram(testData, "class test = begin values a:boolean = iota i in set {1,2,3} @ i+1 > 10 end",false, true, true);
 		// set expressions
 		addTestProgram(testData, "class test = begin values a:set of int = {1,2,3} end",false, true, true);
 		addTestProgram(testData, "class test = begin values a:set of int = {a+1 | a in set {1,2,3}} end",false, true, true);
@@ -172,14 +172,15 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		// seq expressions 96
 		addTestProgram(testData, "class test = begin values a:seq of int = [1,2,3] end",false, true, true);
 		addTestProgram(testData, "class test = begin values a:seq of int = [1,2,3](1) end",true, true, true);
-		addTestProgram(testData, "class test = begin values a:int = [ 10 + a | a in set {1,2,3} & a > 1 ] end",false, true, true);
-		addTestProgram(testData, "class test = begin values a:seq of int = [ 10 + a | a in set {1,2,3} & a > 1 ](1) end",true, true, true);
+		addTestProgram(testData, "class test = begin values a:int = [ 10 + a | a in set {1,2,3} @ a > 1 ] end",false, true, true);
+		addTestProgram(testData, "class test = begin values a:seq of int = [ 10 + a | a in set {1,2,3} @ a > 1 ](1) end",true, true, true);
 		// 100
-		addTestProgram(testData, "class test = begin values a:set of int = [ 10 + a | a in set {1,2,3} & a > 1 ](1,...,2) end",true, true, true);
+		addTestProgram(testData, "class test = begin values a:set of int = [ 10 + a | a in set {1,2,3} @ a > 1 ](1,...,2) end",true, true, true);
+		addTestProgram(testData, "class test = begin values a:set of int = [ 10 + a | a in set {1,2,3} unexpectedid a > 1 ](1,...,2) end",true, false, false);
 		// map expressions
 		addTestProgram(testData, "class test = begin values even:map int to boolean = {1|->false, 2|->true, 3|->false, 4|->true}  end",false, true, true);
 		addTestProgram(testData, "class test = begin values even:map int to boolean = { |-> }  end",false, true, true);
-		addTestProgram(testData, "class test = begin values even:map int to boolean = { a|->b| a in set {1,2,3,4,5}, b in set {1,2,3,4,5} & a <> b } end",false, true, true);
+		addTestProgram(testData, "class test = begin values even:map int to boolean = { a|->b| a in set {1,2,3,4,5}, b in set {1,2,3,4,5} @ a <> b } end",false, true, true);
 		// tuple
 		addTestProgram(testData, "class test = begin values even:int*int = mk_(12,12) end",false, true, true);
 		// record expression 105
@@ -189,7 +190,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "class test = begin values a:int = test.even + 1  end",false, true, true);
 		addTestProgram(testData, "class test = begin values one:int = mk_(1,2,3,4).#1 end",true, true, true);
 		// lambda expression
-		addTestProgram(testData, "class test = begin values add42:int -> int = lambda x:int & x + 42 end",false, true, true);
+		addTestProgram(testData, "class test = begin values add42:int -> int = lambda x:int @ x + 42 end",false, true, true);
 		// self expressions 110
 		addTestProgram(testData, "class test = begin values one:test = self end",false, true, true);
 		// is experssion

@@ -1,16 +1,16 @@
 package eu.compassresearch.core.typechecker;
 
+
+
 import java.util.LinkedList;
 
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.DepthFirstAnalysisAdaptor;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
 import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
-import eu.compassresearch.ast.declarations.ASingleTypeDeclaration;
 import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionParagraphDefinition;

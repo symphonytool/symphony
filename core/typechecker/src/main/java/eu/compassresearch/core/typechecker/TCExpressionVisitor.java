@@ -3,8 +3,6 @@ package eu.compassresearch.core.typechecker;
 import java.util.List;
 
 import org.overture.ast.node.INode;
-import org.overture.typecheck.visitors.TypeCheckVisitor;
-import org.overture.typecheck.visitors.TypeCheckerExpVisitor;
 
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
@@ -32,12 +30,12 @@ public class TCExpressionVisitor extends QuestionAnswerAdaptor<TypeCheckInfo, PT
 	@Override
 	public PType defaultPExp(PExp node, TypeCheckInfo question)
 			throws AnalysisException {
-		org.overture.typecheck.TypeCheckInfo tci = new org.overture.typecheck.TypeCheckInfo();
-		TypeCheckerExpVisitor ovtExpVisitor = new TypeCheckerExpVisitor(new TypeCheckVisitor() {
+		org.overture.typechecker.TypeCheckInfo tci = new org.overture.typechecker.TypeCheckInfo();
+		org.overture.typechecker.visitor.TypeCheckerExpVisitor ovtExpVisitor = new org.overture.typechecker.visitor.TypeCheckerExpVisitor(new org.overture.typechecker.visitor.TypeCheckVisitor() {
 
 			@Override
 			public org.overture.ast.types.PType defaultINode(INode node,
-					org.overture.typecheck.TypeCheckInfo question) {
+					org.overture.typechecker.TypeCheckInfo question) {
 				throw new RuntimeException("Sorry mate no can do!");
 			}
 			
