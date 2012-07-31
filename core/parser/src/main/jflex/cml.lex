@@ -234,7 +234,6 @@ blanks          = [ \t\f]*
 "inmap"                       { return createToken(CmlParser.INMAPOF); }
 "int"                         { return createToken(CmlParser.TINT); }
 "inter"                       { return createToken(CmlParser.INTER); }
-":inter"                      { return createToken(CmlParser.COLONINTER); }
 "inv"                         { return createToken(CmlParser.INV); }
 "inverse"                     { return createToken(CmlParser.INVERSE); }
 "is not yet specified"        { return createToken(CmlParser.NOTYETSPEC); }
@@ -284,7 +283,6 @@ blanks          = [ \t\f]*
 "token"                       { return createToken(CmlParser.TTOKEN); }
 "types"                       { return createToken(CmlParser.TYPES); }
 "union"                       { return createToken(CmlParser.UNION); }
-":union"                      { return createToken(CmlParser.COLONUNION); }
 "val"                         { return createToken(CmlParser.VAL); }
 "values"                      { return createToken(CmlParser.VALUES); }
 "vres"                        { return createToken(CmlParser.VRES); }
@@ -314,7 +312,6 @@ blanks          = [ \t\f]*
 ":->"                         { return createToken(CmlParser.COLONDASHGT); }
 ":="                          { return createToken(CmlParser.COLONEQUALS); }
 ":>"                          { return createToken(CmlParser.COLONGT); }
-":}"                          { return createToken(CmlParser.COLONRCURLY); }
 /* ":]"                          { return createToken(CmlParser.COLONRSQUARE); } */
 ","                           { return createToken(CmlParser.COMMA); }
 "\\\\"                        { return createToken(CmlParser.DBACKSLASH); }
@@ -340,7 +337,6 @@ blanks          = [ \t\f]*
 "<-"                          { return createToken(CmlParser.LARROW); }
 "{"                           { return createToken(CmlParser.LCURLY); }
 "{|"                          { return createToken(CmlParser.LCURLYBAR); }
-"{:"                          { return createToken(CmlParser.LCURLYCOLON); }
 "("                           { return createToken(CmlParser.LPAREN); }
 "("{blanks}")"                { return createToken(CmlParser.LRPAREN); }
 "[]"                          { return createToken(CmlParser.LRSQUARE); }
