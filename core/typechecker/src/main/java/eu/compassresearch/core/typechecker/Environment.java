@@ -18,7 +18,6 @@ public class Environment {
 
 	// private state
 	private Map<LexIdentifierToken,PDefinition> map;
-	private PDefinition enclosingDefinition;
 
 	/**
 	 * Create an Empty top level Environment. 
@@ -46,20 +45,12 @@ public class Environment {
 	 */
 	public PDefinition lookupName(LexIdentifierToken name)
 	{
-		return map.get(name);
+		PDefinition def = map.get(name);
+		if (def == null) 
+			if (outer != null) def = outer.lookupName(name);
+		return def;
 	}
 	
-	/**
-	 * Create an enclosed environment linking to the enclosing definition.
-	 * 
-	 * @param outer - The surrounding environment
-	 * @param decl  - The enclosing definition (class, function or operation)
-	 */
-	public Environment(Environment outer, PDefinition def)
-	{
-		this(outer);
-		enclosingDefinition = def;
-	}
 	
 	/**
 	 * Associate a declaration with a type in this environment.
