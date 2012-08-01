@@ -1094,6 +1094,12 @@ action :
   PAction action = (PAction)$1;
   $$ = new AChannelRenamingAction(combineLexLocation(action.getLocation(), renameExpression.getLocation()), action, renameExpression);
 }
+/* DEVIATION
+ * grammar:
+ *   MU identifier {',' identifier} '@' action {',' action}
+ * here:
+ *   MU pathList '@' action 
+ */
 | MU pathList AT action %prec MU // TODO
 /* parallel actions */
 /* NAMESET
