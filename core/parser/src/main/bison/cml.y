@@ -374,11 +374,11 @@
 %token ELLIPSIS BARRARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW
 %token SELF ISUNDER PREUNDER ISOFCLASS TILDE DCL COLONEQUALS ATOMIC DEQRARROW
 %token RETURN IDENTIFIER BACKTICK SLASH DIVIDE REM MOD LT LTE GT GTE NEQ OR
-%token AND EQRARROW LTEQUALSGT INSET NOTINSET SUBSET PROPER_SUBSET UNION
-%token BACKSLASH INTER CARET DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT
-%token COLONDASHGT COMP DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL
-%token HEX_LITERAL QUOTE_LITERAL AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE
-%token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
+%token AND EQRARROW LTEQUALSGT INSET NOTINSET SUBSET PSUBSET UNION BACKSLASH
+%token INTER CARET DPLUS MUNION LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP
+%token DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL HEX_LITERAL
+%token QUOTE_LITERAL AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA
+%token LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY DECIMAL
 %token STARTBY MU PRIVATE PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY
 %token WHILE ISUNDERNAME EXTENDS EMPTYMAP DBACKSLASH
@@ -398,26 +398,59 @@
 %right FORALL EXISTS EXISTS1 IOTA
 %right LPAREN
 %right COMMA
-%left SEQOF
-%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT
-      BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF
-      NEW COLONEQUALS SLASH BACKSLASH ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE
+%left BARTILDEBAR LRSQUARE TBAR AMP DLSQUARE LSQUAREBAR LSQUAREGT
+      BARRSQUARE LSQUARE RSQUARE OF
+      COLONEQUALS ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE
       DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH BARGT DBACKSLASH
 %right SEMI
 %right U-SEMI U-BARTILDEBAR U-DBAR U-TBAR U-LRSQUARE U-LSQUARE U-LSQUAREBAR
        U-LSQUAREDBAR
 %nonassoc ELSE ELSEIF
-%left BAR
 %left DO
 %right U-DO
-/* binary ops */
-%left PLUS MINUS DIVIDE REM MOD LT LTE GT GTE EQUALS NEQ OR AND EQRARROW
-      LTEQUALSGT INSET STAR NOTINSET SUBSET PROPER_SUBSET UNION INTER CARET
-      DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR IN COLON
-/* unary ops */
-%right U-PLUS U-MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS
-       INDS REVERSE CONC DOM RNG MERGE INVERSE
-%left DOT DOTHASH DOTCOLON
+%left IN COLON
+// VDM prec START
+// VDM type operators
+%right RARROW PLUSGT
+%left BAR
+%nonassoc T-STAR
+%right INMAPOF MAPOF TO
+%right SEQOF SEQ1OF SETOF
+// VDM prec group connectives
+%right LTEQUALSGT
+%right EQRARROW
+%right OR
+%right AND
+%right NOT
+// VDM prec group relations
+%left LT LTE GT GTE EQUALS NEQ INSET NOTINSET SUBSET PSUBSET
+// VDM prec group evaluators
+// VDM prec evaluators 1
+%left PLUS MINUS
+%left UNION BACKSLASH
+%left MUNION DPLUS
+%left CARET
+// VDM prec evaluators 2
+%left STAR SLASH DIV REM MOD
+%left INTER
+// VDM prec evaluators 3
+%right INVERSE
+// VDM prec evaluators 4
+%right LTCOLON LTDASHCOLON
+// VDM prec evaluators 5
+%left COLONGT COLONDASHGT
+// VDM prec evaluators 6
+%right U-PLUS U-MINUS ABS FLOOR
+%right CARD POWER DUNION DINTER
+%right DOM RNG MERGE
+%right LEN ELEMS HD TL INDS CONC REVERSE
+// VDM prec group applicators
+%left DOT
+// VDM prec (highest) group combinators
+%right COMP
+%right DSTAR
+// VDM prec DONE
+%left DOTHASH DOTCOLON
 %left LRPAREN
 
 /* ---------------------------------------------------------------- */
@@ -858,10 +891,7 @@ actionParagraph :
   AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
   $$ = new AActionParagraphDefinition( loc, NameScope.LOCAL, false, access, actionDefinitions);
 }
-/* NAMESET
- * expression was namesetExpr here
- */
-| ACTIONS nameset IDENTIFIER EQUALS expression // TODO
+//| ACTIONS nameset IDENTIFIER EQUALS namesetExpression // TODO --- need feedback from Alvaro
 ;
 
 actionDefinitionList :
@@ -1827,7 +1857,7 @@ type :
   utype.setTypes(types);
   $$ = utype;
 }
-| type STAR type //productType
+| type STAR type %prec T-STAR //productType
 {
   /* FIXME --- Make product type concatenation smarter
    *
@@ -3525,7 +3555,7 @@ binaryExpr :
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   $$ = new ASubstractNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
 }
-| expression DIVIDE expression
+| expression DIV expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   $$ = new ADivideNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
@@ -3610,7 +3640,7 @@ binaryExpr :
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   $$ = new ASubsetBinaryExp(loc, (PExp)$1, null, (PExp)$3);
 }
-| expression PROPER_SUBSET expression
+| expression PSUBSET expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   $$ = new AProperSubsetBinaryExp(loc, (PExp)$1, null, (PExp)$3);
@@ -3640,7 +3670,7 @@ binaryExpr :
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   $$ = new AModifyBinaryExp(loc, (PExp)$1, null, (PExp)$3);
 }
-| expression MAPMERGE expression
+| expression MUNION expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   $$ = new AMapUnionBinaryExp(loc, (PExp)$1, null, (PExp)$3);
