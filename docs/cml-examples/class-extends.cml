@@ -1,0 +1,8 @@
+class Test = extends Test2
+begin 
+
+initial
+	test : () ==> ()
+	test() == a := 0     
+
+end

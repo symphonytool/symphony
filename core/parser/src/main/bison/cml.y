@@ -509,7 +509,36 @@ classDefinition :
   clz.setNameScope(NameScope.CLASSNAME);
   $$ = clz;
 }
-| CLASS IDENTIFIER EQUALS EXTENDS IDENTIFIER BEGIN classDefinitionBlock END // TODO
+| CLASS IDENTIFIER EQUALS EXTENDS IDENTIFIER BEGIN classDefinitionBlock END
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$CLASS,(CmlLexeme)$END);
+    List<LexNameToken> supernames = new LinkedList<LexNameToken>();
+    supernames.add(extractLexNameToken($5));
+    $$ = new AClassParagraphDefinition(location, 
+				       extractLexNameToken($2), 
+				       NameScope.CLASSNAME, 
+				       false, 
+				       null, 
+				       getDefaultAccessSpecifier(false,false,null), 
+				       null/*PType type_  should this be the namedInvariantType*/, 
+				       (List<? extends PDefinition>)$classDefinitionBlock, 
+				       new LinkedList<PType>() /* supertypes_*/, 
+				       supernames, 
+				       new LinkedList<PDefinition>()/* definitions_*/, 
+				       new LinkedList<PDefinition>() /*allInheritedDefinitions_*/, 
+				       new LinkedList<PDefinition>() /*localInheritedDefinitions_*/, 
+				       null /*Boolean hasContructors_*/, 
+				       null, 
+				       new LinkedList<AClassParagraphDefinition>()/* superDefs_*/, 
+				       true/*Boolean gettingInheritable_*/, 
+				       new LinkedList<PDefinition>() /*superInheritedDefinitions_*/, 
+				       null /*Boolean gettingInvDefs_*/, 
+				       false, 
+				       false /*Boolean isUndefined_*/, 
+				       null/*PType classtype_*/, 
+				       false /*Boolean isTypeChecked_*/, 
+				       null/*AExplicitOperationDefinition invariant_*/);
+}
 ;
 
 processDefinition:
@@ -761,10 +790,10 @@ process :
 /* CHANSET
  * expression was chansetExpr here
  */
-| LSQUAREBAR expression BARRSQUARE replicationDeclaration AT process %prec U-LSQUARE // TODO
+| LSQUAREBAR expression BARRSQUARE replicationDeclaration AT process %prec U-LSQUARE 
 {
   PProcess process = (PProcess)$6;
-  SChansetSetExp chansetExp = (SChansetSetExp)$2;
+  PExp chansetExp = (PExp)$2;
   LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
   $$ = new AGeneralisedParallelismReplicatedProcess(location,
 						    (List<SSingleDeclaration>)$replicationDeclaration,
@@ -774,10 +803,10 @@ process :
 /* CHANSET
  * expression was chansetExpr here
  */
-| DBAR replicationDeclaration AT LSQUAREBAR expression BARRSQUARE process %prec U-DBAR // TODO
+| DBAR replicationDeclaration AT LSQUAREBAR expression BARRSQUARE process %prec U-DBAR 
 {
   PProcess process = (PProcess)$7;
-  SChansetSetExp chansetExp = (SChansetSetExp)$expression;
+  PExp chansetExp = (PExp)$expression;
   LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
   $$ = new AAlphabetisedParallelismReplicatedProcess(location,
 						     (List<SSingleDeclaration>)$replicationDeclaration,
@@ -1209,8 +1238,14 @@ action :
  */
 | DBAR replicationDeclaration AT LSQUARE expression RSQUARE action %prec U-DBAR // TODO
 /* replicated actions end */
-| letStatement // TODO
-| blockStatement // TODO
+| letStatement 
+{
+    $$ = $1;
+}
+| blockStatement 
+{
+    $$ = $1;
+}
 | controlStatement
 {
   $$ = $1;
