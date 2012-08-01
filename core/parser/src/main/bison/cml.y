@@ -373,7 +373,7 @@
 %token DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE
 %token ELLIPSIS BARRARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW
 %token SELF ISUNDER PREUNDER ISOFCLASS TILDE DCL COLONEQUALS ATOMIC DEQRARROW
-%token RETURN IDENTIFIER BACKTICK SLASH DIVIDE REM MOD LT LTE GT GTE NEQ OR
+%token RETURN IDENTIFIER BACKTICK SLASH DIV REM MOD LT LTE GT GTE NEQ OR
 %token AND EQRARROW LTEQUALSGT INSET NOTINSET SUBSET PSUBSET UNION BACKSLASH
 %token INTER CARET DPLUS MUNION LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP
 %token DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL HEX_LITERAL
@@ -394,21 +394,30 @@
  * disambiguating precidence (shift/reduce conflicts, typically).
  */
 /* Precidence from loosest to tightest; tokens on same line are equal precidence */
+%right COMMA
 %right MU LAMBDA
 %right FORALL EXISTS EXISTS1 IOTA
 %right LPAREN
-%right COMMA
-%left BARTILDEBAR LRSQUARE TBAR AMP DLSQUARE LSQUAREBAR LSQUAREGT
-      BARRSQUARE LSQUARE RSQUARE OF
-      COLONEQUALS ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE
-      DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH BARGT DBACKSLASH
-%right SEMI
-%right U-SEMI U-BARTILDEBAR U-DBAR U-TBAR U-LRSQUARE U-LSQUARE U-LSQUAREBAR
-       U-LSQUAREDBAR
+%left OF COLONEQUALS
 %nonassoc ELSE ELSEIF
 %left DO
 %right U-DO
 %left IN COLON
+
+// CSP prec START
+%left TBAR
+%left LSQUAREBAR BARRSQUARE LSQUARE DBAR RSQUARE
+%left BARTILDEBAR 
+%left LRSQUARE
+%left SLASHCOLON SLASHBACKSLASH COLONBACKSLASH
+%left LSQUAREGT BARGT
+%left SEMI
+%left AMP
+%left DLSQUARE
+%left ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE DBACKSLASH
+%right U-SEMI U-BARTILDEBAR U-DBAR U-TBAR U-LRSQUARE U-LSQUARE U-LSQUAREBAR U-LSQUAREDBAR
+// CSP prec end
+
 // VDM prec START
 // VDM type operators
 %right RARROW PLUSGT
@@ -450,6 +459,7 @@
 %right COMP
 %right DSTAR
 // VDM prec DONE
+
 %left DOTHASH DOTCOLON
 %left LRPAREN
 
@@ -1130,6 +1140,7 @@ action :
  *   MU pathList '@' action 
  */
 | MU pathList AT action %prec MU // TODO
+//| MU pathList AT LPAREN actionList RPAREN %prec MU // TODO JWC apparently this works... 
 /* parallel actions */
 /* NAMESET
  * expression was namesetExpr here
@@ -1310,6 +1321,12 @@ action :
   $$ = $1;
 }
 ;
+
+/* JWC */
+/* actionList : */
+/*   action */
+/* | actionList COMMA action  */
+/* ; */
 
 communicationParameterList :
   communicationParameter
@@ -2773,7 +2790,7 @@ operationType :
  */
 operationBody :
   /* action */
-letStatement 
+  letStatement 
 {
   $$ = $1;
 }
@@ -3227,7 +3244,7 @@ expression :
  *   ISOFCLASS LPAREN name COMMA expression RPAREN
  * TODO: convert to a name
  */
-| ISOFCLASS LPAREN path COMMA expression RPAREN
+| ISOFCLASS LPAREN path COMMA expression RPAREN // TODO
 {
   $$ = $1;
 }
@@ -4652,6 +4669,11 @@ path :
   LexLocation location = extractLexLocation(path.location,(CmlLexeme)$LRPAREN);
   $$ = new Path(location,Path.PathKind.APPLY,path);
 }
+/* | path DOT nilLiteral */
+/* | path DOT booleanLiteral */
+/* | path DOT numericLiteral */
+/* | path DOT quoteLiteral */
+/* | path DOT LPAREN expression RPAREN */
 | path LPAREN expressionList RPAREN
 {
   Path path = (Path)$1;
