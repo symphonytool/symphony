@@ -1,1 +1,1 @@
-process RegisterProc = A [ {:id:} || {:id:} ] B
+process RegisterProc = A [ {id} || {id} ] B
