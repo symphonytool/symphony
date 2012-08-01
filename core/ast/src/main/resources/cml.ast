@@ -87,7 +87,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                  (expType):type (defType):type [defs]:definition*
     |   #function
     |   {external} (state):definition [readOnly]:java_Boolean (oldname):LexNameToken
-	|   #operation    
+    |   #operation    
     |   {imported} (def):definition 
     |   {inherited} (superdef):definition [oldname]:LexNameToken //is access missing here
     |   {local} [valueDefinition]:java_Boolean 
