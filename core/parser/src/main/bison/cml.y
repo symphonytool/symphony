@@ -1159,17 +1159,63 @@ action :
 /* NAMESET
  * expression was namesetExpr here
  */
-| action LSQUAREBAR expression BAR expression BARRSQUARE action // TODO
-| action DBAR action // TODO
+| action LSQUAREBAR expression BAR expression BARRSQUARE action 
+{
+    PAction leftAction = (PAction)$1;
+    PAction rightAction = (PAction)$7;
+    $$ = new ASynchronousParallelismParallelAction(extractLexLocation(leftAction.getLocation(),
+								      rightAction.getLocation()), 
+						   leftAction, 
+						   (PExp)$3, 
+						   (PExp)$5, 
+						   rightAction);
+}
+| action DBAR action 
+{
+    PAction leftAction = (PAction)$1;
+    PAction rightAction = (PAction)$3;
+    $$ = new ASynchronousParallelismParallelAction(extractLexLocation(leftAction.getLocation(),
+								      rightAction.getLocation()), 
+						   leftAction, 
+						   null, 
+						   null, 
+						   rightAction);
+}
 /* CHANSET
  * NAMESET
  * expressions were namesetExpr|chansetExpr||chansetExpr|namesetExpr here
  */
-| action LSQUARE expression BAR expression DBAR expression BAR expression RSQUARE action // TODO
+| action LSQUARE expression BAR expression DBAR expression BAR expression RSQUARE action 
+{
+    PAction leftAction = (PAction)$1;
+    PAction rightAction = (PAction)$11;
+    LexLocation location = extractLexLocation(leftAction.getLocation(),
+					      rightAction.getLocation());
+    $$ = new AAlphabetisedParallelismParallelAction(location, 
+						    leftAction, 
+						    (PExp)$3, 
+						    (PExp)$9,
+						    rightAction, 
+						    (PExp)$5, 
+						    (PExp)$7);
+}
 /* CHANSET
  * expression was chansetExpr here
  */
-| action LSQUARE expression DBAR expression RSQUARE action // TODO
+| action LSQUARE expression DBAR expression RSQUARE action
+{
+    PAction leftAction = (PAction)$1;
+    PAction rightAction = (PAction)$7;
+    LexLocation location = extractLexLocation(leftAction.getLocation(),
+					      rightAction.getLocation());
+    $$ = new AAlphabetisedParallelismParallelAction(location, 
+						    leftAction, 
+						    null, 
+						    null,
+						    rightAction, 
+						    (PExp)$3, 
+						    (PExp)$5);
+}
 /* CHANSET
  * NAMESET
  * expressions were namesetExpr|chansetExpr|namesetExpr here

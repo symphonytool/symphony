@@ -649,12 +649,10 @@ action {-> package='eu.compassresearch.ast.actions'}
 	
 #Parallel {-> package='eu.compassresearch.ast.actions'}
 	= {interleaving} 
-			[leftAction]:action
-			[leftNameSetExpression]:exp 
-			[rightNameSetExpression]:exp
-			[rightAction]:action 
-	| {generalisedParallelism} [chansetExpression]:exp
-	| {alphabetisedParallelism} [chansetExpression]:exp
+	| {generalisedParallelism} 
+	| {alphabetisedParallelism}
+		[leftChanSetExpression]:exp 
+		[rightChanSetExpression]:exp
 	| {synchronousParallelism}
 	;	
 
@@ -667,12 +665,6 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {alphabetisedParallelism} [chansetExpression]:exp
 	| {synchronousParallelism}
 	;	
-
-parametrisation {-> package='eu.compassresearch.ast.actions'}
-	= {val}	[location]:location [declaration]:declaration.#Single.type
-	| {res} [location]:location [declaration]:declaration.#Single.type
-	| {vres} [location]:location [declaration]:declaration.#Single.type
-	;
 	
 #Instantiated {-> package='eu.compassresearch.ast.actions'}
 	= {declaration} [declaration]:declaration.#Single.type* [action]:action [args]:exp*
@@ -683,6 +675,12 @@ communicationParameter {-> package='eu.compassresearch.ast.actions'}
 	= {read} [parameter]:parameter [expression]:exp
 	| {write} [expression]:exp 
 	| {reference} [expression]:exp	
+	;
+	
+parametrisation {-> package='eu.compassresearch.ast.actions'}
+	= {val}	
+	| {res} 
+	| {vres} 
 	;
 
 parameter {-> package='eu.compassresearch.ast.actions'}
@@ -831,8 +829,17 @@ Aspect Declaration
 	
 %action->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedAction]:action 
 	;
+	
+%action->#Parallel = 	[leftAction]:action
+						[leftNameSetExpression]:exp 
+						[rightNameSetExpression]:exp
+						[rightAction]:action
+	;	
 
 %declaration =  [location]:location [nameScope]:nameScope
+	;
+
+%parametrisation = [location]:location [declaration]:declaration.#Single.type 
 	;
 
 %process =  [location]:location 
