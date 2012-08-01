@@ -231,6 +231,7 @@ blanks          = [ \t\f]*
 "in"{blanks}"set"             { return createToken(CmlParser.INSET); }
 "in"                          { return createToken(CmlParser.IN); }
 "inds"                        { return createToken(CmlParser.INDS); }
+"initial"                     { return createToken(CmlParser.INITIAL); }
 "inmap"                       { return createToken(CmlParser.INMAPOF); }
 "int"                         { return createToken(CmlParser.TINT); }
 "inter"                       { return createToken(CmlParser.INTER); }

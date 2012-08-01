@@ -78,10 +78,8 @@ definition {-> package='eu.compassresearch.ast.definitions'}
     |   {invariant} [pattern]: pattern (expression): exp
     |   {assignment} [expression]:exp (expType):type
     |   {instanceVariable} [expression]:exp (expType):type [initialized]:java_Boolean [oldname]:LexNameToken //this actually inherits assignment in Nicks tree
-//    |   {classbody} [declarations]:declaration* 
-
     |   {action} [declarations]:declaration.#Single.type* [action]:action
-    |   {chanset} [identifier]:LexIdentifierToken [chansetExpressions]:exp.#Set.#Chanset
+    |   {chanset} [identifier]:LexIdentifierToken [chansetExpressions]:exp
     |   {classInvariant}  [expression]:exp
     |   {equals} [pattern]:pattern [typebind]:bind.type [setbind]:bind.set [test]:exp 
                  (expType):type (defType):type [defs]:definition*
@@ -97,7 +95,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                 [invPattern]:pattern [invExpression]:exp (invdef):definition.#function.explicit
                 [initPattern]:pattern [initExpression]:exp (initdef):definition.#function.explicit
                 (stateDefs):definition* 
-   //Why does the type definition take inv pattern and expression and not just the inv definition which containts them both??
+    //Why does the type definition take inv pattern and expression and not just the inv definition which containts them both??
     |   {type} (invType):type.#invariant 
                 [invPattern]:pattern 
                 [invExpression]:exp 
@@ -110,43 +108,43 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 
 #paragraph {-> package='eu.compassresearch.ast.definitions'}
 	  =  {class}
-	   [body]: definition*
-	   (supertypes):type* 
-           (supernames):LexNameToken*// try out () 
-           (definitions):definition* 
-           (allInheritedDefinitions):definition*
-           (localInheritedDefinitions):definition* 
-           [hasContructors]:java_Boolean
-           [settingHierarchy]:ClassDefinitionSettings
-	   (superDefs):definition.#paragraph.class*	
-	   [gettingInheritable]:java_Boolean
-	   (superInheritedDefinitions):definition*
-	   [gettingInvDefs]:java_Boolean
-	   [isAbstract]:java_Boolean
-	   [isUndefined]:java_Boolean
-	   (classtype):type
-	   (isTypeChecked):java_Boolean
-	   (invariant):definition.#operation.explicit
+	   		[body]: definition*
+	   		(supertypes):type* 
+           	(supernames):LexNameToken*// try out () 
+           	(definitions):definition* 
+           	(allInheritedDefinitions):definition*
+           	(localInheritedDefinitions):definition* 
+           	[hasContructors]:java_Boolean
+           	[settingHierarchy]:ClassDefinitionSettings
+	   		(superDefs):definition.#paragraph.class*	
+			[gettingInheritable]:java_Boolean
+			(superInheritedDefinitions):definition*
+			[gettingInvDefs]:java_Boolean
+			[isAbstract]:java_Boolean
+			[isUndefined]:java_Boolean
+			(classtype):type
+			(isTypeChecked):java_Boolean
+			(invariant):definition.#operation.explicit
 	   | {process} 
-	     [localState]: declaration*
-	     [processes]: process*
+	     	[localState]: declaration*
+	     	[processes]: process*
 	   | {channel} 
-	   [channelNames]: declaration.channelName*
+	   		[channelNames]: declaration.channelName*
 	   | {chanset} 
-	     [chansets] : definition.chanset*
- 	   | {action} [actions]: definition.action*
- 	   | {types} [types]: definition.type*
- 	   | {operation} [operations]:definition.#operation*
- 	   | {function} [functionDefinitions]:definition.#function*
- 	   | {value} [valueDefinitions]: definition*
+	     	[chansets] : definition.chanset*
+ 	   | {action} 
+ 	   		[actions]: definition.action*
+ 	   | {types} 
+ 	   		[types]: definition.type*
+ 	   | {operation} 
+ 	   		[operations]:definition.#operation*
+ 	   | {function} 
+ 	   		[functionDefinitions]:definition.#function*
+ 	   | {value} 
+ 	   		[valueDefinitions]: definition*
+ 	   | {initial} 
+ 	   		[operationDefinition]: definition
 	   ;
-
-//    = {class} [identifier]:LexIdentifierToken [classBody]: definition.classbody
-//    | {process} [identifier]:LexIdentifierToken [processDefinition]:definition.process
-//    | {channel} [channelDefinition]:definition.channel
-//    | {chanset} [chansetDefinitions]:definition.chanset*
-
-
     
 #operation {-> package='eu.compassresearch.ast.definitions'}
 	=   {explicit} [parameterPatterns]:pattern* 
@@ -223,42 +221,6 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                             (type):type.function
                             //[poluFuncs]:???Map<TypeList, FunctionValue>
 	;
-    
-
-/*
-	Process
-*/
-process {-> package='eu.compassresearch.ast.process'}
-	= {state} [processDeclarations]:declaration* [action]:action
-	| {sequentialComposition} [left]:process [right]:process
-	| {externalChoice} [left]:process [right]:process
-	| {internalChoice} [left]:process [right]:process
-	| {generalisedParallelism} [left]:process [chansetExpression]:exp.#Set.#Chanset [right]:process
-	| {alphabetisedParallelism} [left]:process [leftChansetExpression]:exp.#Set.#Chanset [rightChansetExpression]:exp.#Set.#Chanset [right]:process
-	| {synchronousParallelism} [left]:process [right]:process
-	| {interleaving} [left]:process [right]:process
-	| {interrupt} [left]:process [right]:process
-	| {timedInterrupt} [left]:process [timeExpression]:exp [right]:process
-	| {untimedTimeout} [left]:process [right]:process
-	| {timeout} [left]:process [timeoutExpression]:exp [right]:process
-	| {hiding} [left]:process [chansetExpression]:exp.#Set.#Chanset
-	| {startDeadline} [left]:process [expression]:exp
-	| {endDeadline} [left]:process [expression]:exp
-	| {instantiation} [declarations]:declaration.#Single.type* [identifer]:LexNameToken [args]:exp*
-	//| {identifier} [identifer]:LexNameToken 
-	| {channelRenaming} [process]:process [renameExpression]:exp.#Channel.#Rename
-	| #Replicated
-	;
-
-#Replicated {-> package='eu.compassresearch.ast.process'}
-	= {sequentialComposition}  
-	| {externalChoice}
-	| {internalChoice}
-	| {generalisedParallelism} [chansetExpression]:exp.#Set.#Chanset
-	| {alphabetisedParallelism} [chansetExpression]:exp.#Set.#Chanset
-	| {synchronousParallelism}
-	| {interleaving} 
-	;	
 
 /*
     Expressions
@@ -618,6 +580,41 @@ export {-> package='eu.compassresearch.ast.modules'}
     |   {value} [nameList]:LexNameToken* (exportType):type
     ;
 
+/*
+	Process
+*/
+process {-> package='eu.compassresearch.ast.process'}
+	= {state} [processDeclarations]:declaration* [action]:action
+	| {sequentialComposition} [left]:process [right]:process
+	| {externalChoice} [left]:process [right]:process
+	| {internalChoice} [left]:process [right]:process
+	| {generalisedParallelism} [left]:process [chansetExpression]:exp [right]:process
+	| {alphabetisedParallelism} [left]:process [leftChansetExpression]:exp [rightChansetExpression]:exp [right]:process
+	| {synchronousParallelism} [left]:process [right]:process
+	| {interleaving} [left]:process [right]:process
+	| {interrupt} [left]:process [right]:process
+	| {timedInterrupt} [left]:process [timeExpression]:exp [right]:process
+	| {untimedTimeout} [left]:process [right]:process
+	| {timeout} [left]:process [timeoutExpression]:exp [right]:process
+	| {hiding} [left]:process [chansetExpression]:exp
+	| {startDeadline} [left]:process [expression]:exp
+	| {endDeadline} [left]:process [expression]:exp
+	| {instantiation} [declarations]:declaration.#Single.type* [identifer]:LexNameToken [args]:exp*
+	| {channelRenaming} [process]:process [renameExpression]:exp.#Channel.#Rename
+	| #Replicated
+	;
+
+#Replicated {-> package='eu.compassresearch.ast.process'}
+	= {sequentialComposition}  
+	| {externalChoice}
+	| {internalChoice}
+	| {generalisedParallelism} [chansetExpression]:exp
+	| {alphabetisedParallelism} [chansetExpression]:exp
+	| {synchronousParallelism}
+	| {interleaving} 
+	;	
+
+
 /* 
 	Actions 
 */
@@ -636,7 +633,7 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {timedInterrupt} [left]:action [right]:action [timeExpression]:exp
 	| {untimedTimeout} [left]:action [right]:action
 	| {timeout} [left]:action [right]:action [timeoutExpression]:exp
-	| {hiding} [left]:action [chansetExpression]:exp.#Set.#Chanset
+	| {hiding} [left]:action [chansetExpression]:exp
 	| {startDeadline} [left]:action [expression]:exp
 	| {endDeadline} [left]:action [expression]:exp
 	| {channelRenaming} [action]:action [renameExpression]:exp.#Channel.#Rename
@@ -652,8 +649,8 @@ action {-> package='eu.compassresearch.ast.actions'}
 	
 #Parallel {-> package='eu.compassresearch.ast.actions'}
 	=  {interleaving}
-	| {generalisedParallelism} [chansetExpression]:exp.#Set.#Chanset
-	| {alphabetisedParallelism} [chansetExpression]:exp.#Set.#Chanset
+	| {generalisedParallelism} [chansetExpression]:exp
+	| {alphabetisedParallelism} [chansetExpression]:exp
 	| {synchronousParallelism}
 	;	
 
@@ -662,8 +659,8 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {externalChoice}
 	| {internalChoice}
 	| {interleaving}
-	| {generalisedParallelism} [chansetExpression]:exp.#Set.#Chanset
-	| {alphabetisedParallelism} [chansetExpression]:exp.#Set.#Chanset
+	| {generalisedParallelism} [chansetExpression]:exp
+	| {alphabetisedParallelism} [chansetExpression]:exp
 	| {synchronousParallelism}
 	;	
 

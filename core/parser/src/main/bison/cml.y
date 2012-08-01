@@ -563,20 +563,20 @@ process :
 /* CHANSET
  * expression was chansetExpr here
  */
-| process LSQUAREBAR expression BARRSQUARE process // TODO
+| process LSQUAREBAR expression BARRSQUARE process 
 {
   PProcess left = (PProcess)$1;
   PProcess right = (PProcess)$5;
-  $$ = new AGeneralisedParallelismProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, (SChansetSetExp)$3, right);
+  $$ = new AGeneralisedParallelismProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, (PExp)$3, right);
 }
 /* CHANSET
  * expression was chansetExpr here
  */
-| process LSQUARE expression DBAR expression RSQUARE process // TODO
+| process LSQUARE expression DBAR expression RSQUARE process 
 {
   PProcess left = (PProcess)$1;
   PProcess right = (PProcess)$7;
-  $$ = new AAlphabetisedParallelismProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, (SChansetSetExp)$3, (SChansetSetExp)$5, right);
+  $$ = new AAlphabetisedParallelismProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, (PExp)$3, (PExp)$5, right);
 }
 | process DBAR process
 {
@@ -645,10 +645,10 @@ process :
 /* CHANSET
  * expression was chansetExpr here
  */
-| process DBACKSLASH expression // TODO
+| process DBACKSLASH expression 
 {
   PProcess left = (PProcess)$1;
-  SChansetSetExp cse = (SChansetSetExp)$3;
+  PExp cse = (PExp)$3;
   LexLocation location = combineLexLocation(left.getLocation(), cse.getLocation());
   $$ = new AHidingProcess(location, left, cse);
 }
@@ -1038,10 +1038,10 @@ action :
 /* CHANSET
  * expression was chansetExpr here
  */
-| action DBACKSLASH expression // TODO
+| action DBACKSLASH expression 
 {
   PAction left = (PAction)$1;
-  SChansetSetExp chansetExp = (SChansetSetExp)$3;
+  PExp chansetExp = (PExp)$3;
   LexLocation location = combineLexLocation(left.getLocation(), chansetExp.getLocation());
   $$ = new AHidingAction(location, left, chansetExp);
 }
@@ -1579,7 +1579,16 @@ classDefinitionBlockAlternative :
  * This will be in the CML_1 grammar, and is defines the constructor for the class.
  * Confirmed between Joey, Alavro; Skype 30 July 2012
  */
-| INITIAL operationDef // TODO
+| INITIAL operationDef 
+{
+    PDefinition def = (PDefinition)$operationDef;
+    LexLocation location = extractLexLocation((CmlLexeme)$INITIAL,def.getLocation());
+    $$ = new AInitialParagraphDefinition(location, 
+					 NameScope.GLOBAL, 
+					 true, 
+					 getDefaultAccessSpecifier(false,false,null), 
+					 def);
+}
 ;
 
 typeDefs :
@@ -2501,6 +2510,7 @@ explicitOperationDef :
   AExplicitOperationDefinition res = new AExplicitOperationDefinition();
   res.setLocation(loc);
   res.setBody((SStatementAction)$operationBody);
+  res.setType((PType)$operationType);
   $$ = res;
 }
 ;
@@ -2537,10 +2547,55 @@ implicitOperationDef :
 ;
 
 operationType :
-  type DEQRARROW type // TODO
-| LRPAREN DEQRARROW type // TODO
-| type DEQRARROW LRPAREN // TODO
-| LRPAREN DEQRARROW LRPAREN // TODO
+  type DEQRARROW type 
+  {
+      List<PType> types = new LinkedList<PType>(); 
+      PType left = (PType)$1;
+      PType right = (PType)$3;
+      types.add(left);
+      $$ = new AOperationType(extractLexLocation(left.getLocation(),right.getLocation()), 
+			      false, 
+			      new LinkedList<PDefinition>(), 
+			      types, 
+			      right);
+  }
+| LRPAREN DEQRARROW type 
+  {
+      List<PType> types = new LinkedList<PType>(); 
+      PType right = (PType)$3;
+      types.add(new AVoidType(extractLexLocation((CmlLexeme)$1), 
+			      true));
+      $$ = new AOperationType(extractLexLocation((CmlLexeme)$1,right.getLocation()), 
+			      false, 
+			      new LinkedList<PDefinition>(), 
+			      types, 
+			      right);
+  }
+| type DEQRARROW LRPAREN 
+  {
+      List<PType> types = new LinkedList<PType>(); 
+      PType left = (PType)$1;
+      types.add(left);
+      $$ = new AOperationType(extractLexLocation(left.getLocation(),(CmlLexeme)$3), 
+			      false, 
+			      new LinkedList<PDefinition>(), 
+			      types, 
+			      new AVoidType(extractLexLocation((CmlLexeme)$3), 
+					    true));
+  }
+| LRPAREN DEQRARROW LRPAREN 
+  {
+      List<PType> types = new LinkedList<PType>(); 
+      types.add(new AVoidType(extractLexLocation((CmlLexeme)$1), 
+			      true));
+      
+      $$ = new AOperationType(extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3), 
+			      true, 
+			      new LinkedList<PDefinition>(), 
+			      types, 
+			      new AVoidType(extractLexLocation((CmlLexeme)$3), 
+					    true));
+  }
 ;
 
 /* DEVIATION
@@ -2551,11 +2606,11 @@ operationType :
  */
 operationBody :
   /* action */
-  letStatement // TODO
+letStatement 
 {
   $$ = $1;
 }
-| blockStatement // TODO
+| blockStatement 
 {
   $$ = $1;
 }
