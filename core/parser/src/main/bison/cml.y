@@ -1474,10 +1474,10 @@ chansetDefinition :
 /* CHANSET
  * expression was chansetExpr here
  */
-  IDENTIFIER EQUALS expression  // TODO
+  IDENTIFIER EQUALS expression  
 {
   LexIdentifierToken idToken = extractLexIdentifierToken((CmlLexeme)$1);
-  SChansetSetBase chansetExp = (SChansetSetBase)$3;
+  PExp chansetExp = (PExp)$3;
   LexLocation location = combineLexLocation(idToken.getLocation(), chansetExp.getLocation());
   $$ = new AChansetDefinition(location, NameScope.GLOBAL, false/*used_*/, null, /*AAccessSpecifierAccessSpecifier access_*/ idToken, chansetExp);
 }
@@ -1781,7 +1781,14 @@ type :
   LexQuoteToken value = (LexQuoteToken)$1;
   $$ = new AQuoteType(value.location, false, null, value);
 }
-| COMPOSE IDENTIFIER OF fieldList END // TODO
+| COMPOSE IDENTIFIER OF fieldList END
+{
+    List<AFieldField> fields = (List<AFieldField>)$fieldList;
+    $$ = new ARecordInvariantType(extractLexLocation((CmlLexeme)$1,(CmlLexeme)$END), 
+				  false, 
+				  extractLexNameToken($IDENTIFIER), 
+				  (List<? extends AFieldField>)$fieldList);
+}
 | type BAR type // unionType
 {
   /* FIXME --- Make union type concatenation smarter
@@ -1956,10 +1963,6 @@ partialFunctionType :
   PType domType = (PType)$1;
   PType rngType = (PType)$3;
   LexLocation loc = combineLexLocation(domType.getLocation(), rngType.getLocation());
-  // TODO --- is this a dead comment?
-  // [CONSIDER,RWL] The domain type of a function is not a list,
-  // I think the AST is wrong taking a list of types for params
-  // AKM: Your right that is strange, but when it is changed the AstCreator is failing??
   List<PType> params = new LinkedList<PType>();
   params.add(domType);
   $$ = new AFunctionType(loc, false, null, true, params, rngType);
@@ -1969,10 +1972,6 @@ partialFunctionType :
   PType domType = new AVoidType(extractLexLocation((CmlLexeme)$1), true);
   PType rngType = (PType)$3;
   LexLocation loc = combineLexLocation(domType.getLocation(), rngType.getLocation());
-  // TODO --- is this a dead comment?
-  // [CONSIDER,RWL] The domain type of a function is not a list,
-  // I think the AST is wrong taking a list of types for params
-  // AKM: Your right that is strange, but when it is changed the AstCreator is failing??
   List<PType> params = new LinkedList<PType>();
   params.add(domType);
   $$ = new AFunctionType(loc, false, null, true, params, rngType);
@@ -2028,18 +2027,22 @@ fieldList :
 field :
   type
 {
-  $$ = new AFieldField(null, null, null, (PType)$1, null);
+    $$ = new AFieldField(getDefaultAccessSpecifier(false,false,null), 
+			 null, null, (PType)$1, false);
 }
 | IDENTIFIER COLON type
 {
   LexNameToken name = extractLexNameToken((CmlLexeme)$1);
   PType type = (PType) $3;
-  $$ = new AFieldField(null, name, null, type, null);
+  $$ = new AFieldField(getDefaultAccessSpecifier(false,false,null), name, null, type, false);
 }
 | IDENTIFIER COLONDASH type
 {
-  // TODO --- dude, that's harsh
-  throw new RuntimeException("No way");
+    LexNameToken name = extractLexNameToken((CmlLexeme)$1);
+    PType type = (PType) $3;
+    $$ = new AFieldField(getDefaultAccessSpecifier(false,false,null), 
+			 name, null, type, true);
+
 }
 ;
 

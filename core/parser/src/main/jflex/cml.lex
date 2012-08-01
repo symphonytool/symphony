@@ -255,6 +255,7 @@ blanks          = [ \t\f]*
 "not"                         { return createToken(CmlParser.NOT); }
 "not"                         { return createToken(CmlParser.NOT); }
 "operations"                  { return createToken(CmlParser.OPERATIONS); }
+"of"                          { return createToken(CmlParser.OF); }
 "or"                          { return createToken(CmlParser.OR); }
 "others"                      { return createToken(CmlParser.OTHERS); }
 "post"                        { return createToken(CmlParser.POST); }
