@@ -251,6 +251,7 @@ blanks          = [ \t\f]*
 "nat"                         { return createToken(CmlParser.TNAT); }
 "nat1"                        { return createToken(CmlParser.TNAT1); }
 "new"                         { return createToken(CmlParser.NEW); }
+"nil"                         { return createToken(CmlParser.NIL); }
 "not in set"                  { return createToken(CmlParser.NOTINSET); }
 "not"                         { return createToken(CmlParser.NOT); }
 "not"                         { return createToken(CmlParser.NOT); }

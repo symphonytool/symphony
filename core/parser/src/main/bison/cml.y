@@ -382,9 +382,9 @@
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY DECIMAL
 %token STARTBY MU PRIVATE PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY
 %token WHILE ISUNDERNAME EXTENDS EMPTYMAP DBACKSLASH
-%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE TICK CHAR_LIT
+%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE TICK CHAR_LIT NIL
 
-%token nameset nilLiteral textLiteral
+%token nameset textLiteral
 
 /* ---------------------------------------------------------------- */
 /* Precidence declarations                                          */
@@ -1999,16 +1999,6 @@ totalFunctionType :
 }
 ;
 
-quoteLiteral :
-  QUOTE_LITERAL
-{
-  CmlLexeme id = (CmlLexeme)$1;
-  LexLocation loc = extractLexLocation((CmlLexeme)$1);
-  String value = id.getValue();
-  $$ = new LexQuoteToken(value.substring(1, value.length()-2), loc);
-}
-;
-
 fieldList :
   field
 {
@@ -2131,7 +2121,7 @@ valueDefList :
 {
   PDefinition def = (PDefinition)$1;
   List<PDefinition> defs = (List<PDefinition>)$3;
-  defs.add(def);
+  defs.add(0,def);
   $$ = defs;
 }
 ;
@@ -3105,16 +3095,50 @@ expression :
   }
   $$ = exp;
 }
-| symbolicLiteral
+/* symbolic literal expressions*/
+| numericLiteral
 {
-  $$ = $1;
+    PExp exp = null;
+    if($1 instanceof LexIntegerToken){
+	LexIntegerToken lit = (LexIntegerToken)$1;
+	exp = new AIntLiteralExp(lit.location, lit);
+    }
+    else{
+	LexRealToken lit = (LexRealToken)$1;
+	exp = new ARealLiteralExp(lit.location, lit);
+    }
+    $$ = exp;
 }
+| booleanLiteral
+{
+  LexBooleanToken lit = (LexBooleanToken)$1;
+  $$ = new ABooleanLiteralExp(lit.location, lit);
+}
+| nilLiteral
+{
+    LexKeywordToken tok = (LexKeywordToken)$1;
+    $$ = new ANilExp(tok.location);
+    
+}
+| characterLiteral 
+{
+    LexCharacterToken token = (LexCharacterToken)$characterLiteral;
+    $$ = new ACharLiteralExp(token.location, token);
+}
+| textLiteral // TODO
+| quoteLiteral
+{
+  LexQuoteToken value = (LexQuoteToken)$1;
+  $$ = new AQuoteLiteralExp(value.location, value);
+}
+/* symbolic literal expressions end*/
 | chansetExpr
 {
   $$ = $1;
 }
 ;
 
+/* symbolic literals*/
 booleanLiteral:
   FALSE
 {
@@ -3128,31 +3152,6 @@ booleanLiteral:
 }
 ;
 
-/* TODO --- verify
- *
- * We need to check that these are, indeed, the right possible literals.
- */
-symbolicLiteral :
-  numericLiteral
-{
-  LexIntegerToken lit = (LexIntegerToken)$1;
-  $$ = new AIntLiteralExp(lit.location, lit);
-}
-| booleanLiteral
-{
-  LexBooleanToken lit = (LexBooleanToken)$1;
-  $$ = new ABooleanLiteralExp(lit.location, lit);
-}
-| nilLiteral // TODO
-| characterLiteral // TODO
-| textLiteral // TODO
-| quoteLiteral
-{
-  LexQuoteToken value = (LexQuoteToken)$1;
-  $$ = new AQuoteLiteralExp(value.location, value);
-}
-;
-
 characterLiteral :
   CHAR_LIT
 {
@@ -3160,7 +3159,15 @@ characterLiteral :
   LexLocation loc = extractLexLocation( lex );
   String res = lex.getValue();
   res = res.replace("'", "");
-  $$ = new ACharLiteralExp(loc, new LexCharacterToken(convertEscapeToChar(res), loc));
+  $$ = new LexCharacterToken(convertEscapeToChar(res), loc);
+}
+;
+
+nilLiteral :
+NIL
+{
+    $$ = new LexKeywordToken(VDMToken.NIL, 
+			     extractLexLocation((CmlLexeme)$1));
 }
 ;
 
@@ -3184,12 +3191,24 @@ numericLiteral :
   LexLocation loc = extractLexLocation(lexeme);
   try {
     DecimalFormat dec = new DecimalFormat();
-    $$ = new LexIntegerToken(dec.parse(lexeme.getValue()).longValue(), loc);
+    $$ = new LexRealToken(dec.parse(lexeme.getValue()).doubleValue(), loc);
   } catch (Exception e) {
-    $$ = new LexIntegerToken(0, loc);
+    $$ = new LexRealToken(0, loc);
   }
 }
 ;
+
+quoteLiteral :
+  QUOTE_LITERAL
+{
+  CmlLexeme id = (CmlLexeme)$1;
+  LexLocation loc = extractLexLocation((CmlLexeme)$1);
+  String value = id.getValue();
+  $$ = new LexQuoteToken(value.substring(1, value.length()-2), loc);
+}
+;
+
+/* symbolic literals end*/
 
 localDefList :
   localDef
@@ -4253,20 +4272,66 @@ patternIdentifier :
 ;
 
 matchValue :
-  symbolicLiteral
+/* symbolic literal patterns*/
+ numericLiteral
 {
-  PExp exp = (PExp)$1;
-  if (exp instanceof AIntLiteralExp) {
-    AIntLiteralExp intExp = (AIntLiteralExp)exp;
-    AIntegerPattern res = new AIntegerPattern();
-    res.setLocation(intExp.getLocation());
-    res.setValue(intExp.getValue());
-    $$ = res;
-  } else {
-    throw new RuntimeException("Unhandled expression type in pattern. ("+exp.getClass()+")"); // TODO RWL
-  }
+    PPattern pattern = null;
+    if($1 instanceof LexIntegerToken){
+	LexIntegerToken lit = (LexIntegerToken)$1;
+	pattern = new AIntegerPattern(lit.location, 
+				      new LinkedList<PDefinition>(), 
+				      true, 
+				      lit);
+    }
+    else{
+	LexRealToken lit = (LexRealToken)$1;
+	pattern = new ARealPattern(lit.location, 
+				   new LinkedList<PDefinition>(), 
+				   true, 
+				   lit);
+    }
+    $$ = pattern;
 }
-| LPAREN expression RPAREN // TODO
+| booleanLiteral
+{
+  LexBooleanToken lit = (LexBooleanToken)$1;
+  $$ = new ABooleanPattern(lit.location, 
+			   new LinkedList<PDefinition>(), 
+			   true, 
+			   lit);
+}
+| nilLiteral
+{
+    LexKeywordToken tok = (LexKeywordToken)$1;
+    $$ = new ANilPattern(tok.location, 
+			 new LinkedList<PDefinition>(), 
+			 true);
+    
+}
+| characterLiteral 
+{
+    LexCharacterToken token = (LexCharacterToken)$characterLiteral;
+    $$ = new ACharacterPattern(token.location, 
+			       new LinkedList<PDefinition>(), 
+			       true, 
+			       token);
+}
+| textLiteral // TODO
+| quoteLiteral
+{
+  LexQuoteToken value = (LexQuoteToken)$1;
+  $$ = new AQuotePattern(value.location, 
+			 new LinkedList<PDefinition>(), 
+			 true, 
+			 value);
+}
+| LPAREN expression RPAREN
+{
+    $$ = new AExpressionPattern(extractLexLocation((CmlLexeme)$LPAREN,(CmlLexeme)$RPAREN), 
+				new LinkedList<PDefinition>(), 
+				false, 
+				(PExp)$expression);
+}
 ;
 
 bind :
@@ -4318,9 +4383,12 @@ bindList :
 multipleBind :
   multipleSetBind
 {
-  $$ = $1;
+    $$ = $1;
 }
-| multipleTypeBind // TODO
+| multipleTypeBind 
+{
+    $$ = $1;
+}
 ;
 
 multipleSetBind :
