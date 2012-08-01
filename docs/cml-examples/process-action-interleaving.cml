@@ -1,0 +1,2 @@
+process RegisterProc = begin @ A ||| B end
+process RegisterProc = begin @ A [|| {a,b} | {a,b} ||] B end

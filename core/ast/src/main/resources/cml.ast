@@ -648,7 +648,11 @@ action {-> package='eu.compassresearch.ast.actions'}
 	;
 	
 #Parallel {-> package='eu.compassresearch.ast.actions'}
-	=  {interleaving}
+	= {interleaving} 
+			[leftAction]:action
+			[leftNameSetExpression]:exp 
+			[rightNameSetExpression]:exp
+			[rightAction]:action 
 	| {generalisedParallelism} [chansetExpression]:exp
 	| {alphabetisedParallelism} [chansetExpression]:exp
 	| {synchronousParallelism}

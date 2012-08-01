@@ -926,7 +926,6 @@ action :
 | CSPWAIT LPAREN expression RPAREN
 {
   PExp exp = (PExp)$expression;
-  //LexLocation location = extractLexLocation((CmlLexeme)$CSPWAIT, exp.getLocation());
   LexLocation location = extractLexLocation((CmlLexeme)$CSPWAIT, (CmlLexeme)$RPAREN);
   $$ = new AWaitAction(location, exp);
 }
@@ -1070,8 +1069,28 @@ action :
 /* NAMESET
  * expression was namesetExpr here
  */
-| action LSQUAREDBAR expression BAR expression DBARRSQUARE action // TODO
-| action TBAR action // TODO
+| action LSQUAREDBAR expression BAR expression DBARRSQUARE action 
+{
+    PAction leftAction = (PAction)$1;
+    PAction rightAction = (PAction)$7;
+    $$ = new AInterleavingParallelAction(extractLexLocation(leftAction.getLocation(),
+							    rightAction.getLocation()), 
+					 leftAction, 
+					 (PExp)$3, 
+					 (PExp)$5 , 
+					 rightAction);
+}
+| action TBAR action 
+{
+    PAction leftAction = (PAction)$1;
+    PAction rightAction = (PAction)$3;
+    $$ = new AInterleavingParallelAction(extractLexLocation(leftAction.getLocation(),
+							    rightAction.getLocation()), 
+					 leftAction, 
+					 null, 
+					 null, 
+					 rightAction);
+}
 /* NAMESET
  * expression was namesetExpr here
  */
@@ -4087,7 +4106,6 @@ assignStatement :
  *   stateDesignator ':=' expression
  * here:
  *   path ':=' expression
- * TODO: convert to a stateDesignator
  */
   path COLONEQUALS expression
 {
