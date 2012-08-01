@@ -302,7 +302,7 @@
 	scanner = new CmlLexer( new java.io.FileReader(file) );
 	CmlParser cmlParser = new CmlParser(scanner);
 	cmlParser.setDocument(fileSource);
-	//cmlParser.setDebugLevel(1);
+	cmlParser.setDebugLevel(1);
 
 	//do {
 	//System.out.println(scanner.yylex());
@@ -1226,8 +1226,21 @@ action :
  */
 | action LSQUAREBAR expression BARRSQUARE action // TODO
 /* parallel actions end */
-/* parametrised action */
-| LPAREN parametrisationList AT action RPAREN // TODO
+/* 
+   parametrised action 
+   DEVIATION:
+   grammar: 
+   parametrisation {';' parametrisation} '@' action
+   here:
+   '(' parametrisation {';' parametrisation} '@' action ')'
+*/
+| LPAREN parametrisationList AT action RPAREN 
+{
+    $$ = new AParametrisedAction(extractLexLocation((CmlLexeme)$LPAREN,
+						    (CmlLexeme)$RPAREN), 
+						    (List<PParametrisation>)$parametrisationList, 
+						    (PAction)$4);
+}
 /* instantiated actions */
 | LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
 {
@@ -1394,14 +1407,39 @@ paramList :
 ;
 
 parametrisationList :
-  parametrisation // TODO
-| parametrisationList SEMI parametrisation // TODO
+parametrisation 
+{
+    List<PParametrisation> plist = new LinkedList<PParametrisation>();
+    plist.add((PParametrisation)$parametrisation);
+    $$ = plist;
+}
+| parametrisationList SEMI parametrisation 
+{
+    List<PParametrisation> plist = new LinkedList<PParametrisation>();
+    plist.add(0,(PParametrisation)$parametrisation);
+    $$ = plist;
+}
 ;
 
 parametrisation :
-  VAL singleTypeDecl // TODO
-| RES singleTypeDecl // TODO
-| VRES singleTypeDecl // TODO
+  VAL singleTypeDecl
+  {
+      ATypeSingleDeclaration declaration = (ATypeSingleDeclaration)$singleTypeDecl;
+      LexLocation location = extractLexLocation((CmlLexeme)$1, declaration.getLocation());
+      $$ = new AValParametrisation(location, declaration);
+  }
+| RES singleTypeDecl 
+{
+    ATypeSingleDeclaration declaration = (ATypeSingleDeclaration)$singleTypeDecl;
+    LexLocation location = extractLexLocation((CmlLexeme)$1, declaration.getLocation());
+    $$ = new AResParametrisation(location, declaration);
+}
+| VRES singleTypeDecl 
+{
+    ATypeSingleDeclaration declaration = (ATypeSingleDeclaration)$singleTypeDecl;
+    LexLocation location = extractLexLocation((CmlLexeme)$1, declaration.getLocation());
+    $$ = new AVresParametrisation(location, declaration);
+}
 ;
 
 renameExpression :
@@ -4342,9 +4380,12 @@ implicitOperationBody :
 pattern :
   patternIdentifier
 {
-  $$ = $1;
+    $$ = $1;
 }
-| patternLessID // TODO
+| patternLessID 
+{
+    $$ = $1;
+}
 ;
 
 patternLessID :
@@ -4403,7 +4444,12 @@ patternIdentifier :
   $$ = res;
 }
 /* "don't care" identifier */
-| MINUS // TODO: Implement "don't care" pattern
+| MINUS 
+{
+    $$ = new AIgnorePattern(extractLexLocation((CmlLexeme)$1), 
+			    new LinkedList<PDefinition>(), 
+			    true);
+}
 ;
 
 matchValue :

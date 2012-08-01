@@ -638,7 +638,7 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {endDeadline} [left]:action [expression]:exp
 	| {channelRenaming} [action]:action [renameExpression]:exp.#Channel.#Rename
     | #Parallel
-	| {parametrised} [parametrisations]:parametrisation [action]:action 
+	| {parametrised} [parametrisations]:parametrisation* [action]:action 
 	| #Instantiated
 	| #Replicated
 	| #Statement
