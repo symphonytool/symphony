@@ -198,18 +198,19 @@ blanks          = [ \t\f]*
 "atomic"                      { return createToken(CmlParser.ATOMIC); }
 "begin"                       { return createToken(CmlParser.BEGIN); }
 "bool"                        { return createToken(CmlParser.TBOOL); }
-"by"                        { return createToken(CmlParser.BY); }
+"by"                          { return createToken(CmlParser.BY); }
 "card"                        { return createToken(CmlParser.CARD); }
 "cases"                       { return createToken(CmlParser.CASES); }
 "channels"                    { return createToken(CmlParser.CHANNELS); }
 "chansets"                    { return createToken(CmlParser.CHANSETS); }
 "char"                        { return createToken(CmlParser.TCHAR); }
 "class"                       { return createToken(CmlParser.CLASS); }
+"comp"                        { return createToken(CmlParser.COMP); }
 "compose"                     { return createToken(CmlParser.COMPOSE); }
 "conc"                        { return createToken(CmlParser.CONC); }
 "dcl"                         { return createToken(CmlParser.DCL); }
 "dinter"                      { return createToken(CmlParser.DINTER); }
-"div"                         { return createToken(CmlParser.DIVIDE); }
+"div"                         { return createToken(CmlParser.DIV); }
 "do"                          { return createToken(CmlParser.DO); }
 "dom"                         { return createToken(CmlParser.DOM); }
 "dunion"                      { return createToken(CmlParser.DUNION); }
@@ -221,6 +222,7 @@ blanks          = [ \t\f]*
 "exists"                      { return createToken(CmlParser.EXISTS); }
 "exists1"                     { return createToken(CmlParser.EXISTS1); }
 "extends"                     { return createToken(CmlParser.EXTENDS); }
+"false"                       { return createToken(CmlParser.FALSE); }
 "floor"                       { return createToken(CmlParser.FLOOR); }
 "for"                         { return createToken(CmlParser.FOR); }
 "forall"                      { return createToken(CmlParser.FORALL); }
@@ -231,11 +233,13 @@ blanks          = [ \t\f]*
 "in"{blanks}"set"             { return createToken(CmlParser.INSET); }
 "in"                          { return createToken(CmlParser.IN); }
 "inds"                        { return createToken(CmlParser.INDS); }
+"initial"                     { return createToken(CmlParser.INITIAL); }
 "inmap"                       { return createToken(CmlParser.INMAPOF); }
 "int"                         { return createToken(CmlParser.TINT); }
 "inter"                       { return createToken(CmlParser.INTER); }
 "inv"                         { return createToken(CmlParser.INV); }
 "inverse"                     { return createToken(CmlParser.INVERSE); }
+"iota"                        { return createToken(CmlParser.IOTA); }
 "is not yet specified"        { return createToken(CmlParser.NOTYETSPEC); }
 "is subclass responsibility"  { return createToken(CmlParser.SUBCLASSRESP); }
 "lambda"                      { return createToken(CmlParser.LAMBDA); }
@@ -246,14 +250,16 @@ blanks          = [ \t\f]*
 "measure"                     { return createToken(CmlParser.MEASURE); }
 "merge"                       { return createToken(CmlParser.MERGE); }
 "mod"                         { return createToken(CmlParser.MOD); }
-"munion"                      { return createToken(CmlParser.MAPMERGE); }
+"munion"                      { return createToken(CmlParser.MUNION); }
 "nat"                         { return createToken(CmlParser.TNAT); }
 "nat1"                        { return createToken(CmlParser.TNAT1); }
 "new"                         { return createToken(CmlParser.NEW); }
+"nil"                         { return createToken(CmlParser.NIL); }
 "not in set"                  { return createToken(CmlParser.NOTINSET); }
 "not"                         { return createToken(CmlParser.NOT); }
 "not"                         { return createToken(CmlParser.NOT); }
 "operations"                  { return createToken(CmlParser.OPERATIONS); }
+"of"                          { return createToken(CmlParser.OF); }
 "or"                          { return createToken(CmlParser.OR); }
 "others"                      { return createToken(CmlParser.OTHERS); }
 "post"                        { return createToken(CmlParser.POST); }
@@ -262,10 +268,12 @@ blanks          = [ \t\f]*
 "private"                     { return createToken(CmlParser.PRIVATE); }
 "process"                     { return createToken(CmlParser.PROCESS); }
 "protected"                   { return createToken(CmlParser.PROTECTED); }
+"psubset"                     { return createToken(CmlParser.PSUBSET); }
 "public"                      { return createToken(CmlParser.PUBLIC); }
 "rat"                         { return createToken(CmlParser.TRAT); }
 "rd"                          { return createToken(CmlParser.RD); }
 "real"                        { return createToken(CmlParser.TREAL); }
+"rem"                         { return createToken(CmlParser.REM); }
 "res"                         { return createToken(CmlParser.RES); }
 "return"                      { return createToken(CmlParser.RETURN); }
 "reverse"                     { return createToken(CmlParser.REVERSE); }
@@ -281,6 +289,7 @@ blanks          = [ \t\f]*
 "tl"                          { return createToken(CmlParser.TL); }
 "to"                          { return createToken(CmlParser.TO); }
 "token"                       { return createToken(CmlParser.TTOKEN); }
+"true"                        { return createToken(CmlParser.TRUE); }
 "types"                       { return createToken(CmlParser.TYPES); }
 "union"                       { return createToken(CmlParser.UNION); }
 "val"                         { return createToken(CmlParser.VAL); }
@@ -367,12 +376,6 @@ blanks          = [ \t\f]*
 "|||"                         { return createToken(CmlParser.TBAR); }
 "~"                           { return createToken(CmlParser.TILDE); }
 "`"                           { return createToken(CmlParser.BACKTICK); }
-"false"                       { return createToken(CmlParser.FALSE); }
-"true"                        { return createToken(CmlParser.TRUE); }
-"rem"                         { return createToken(CmlParser.REM); }
-"psubset"                     { return createToken(CmlParser.PROPER_SUBSET); }
-"comp"                        { return createToken(CmlParser.COMP); }
-"iota"                        { return createToken(CmlParser.IOTA); }
 
 /* ---- complex terminals below ---- */
 

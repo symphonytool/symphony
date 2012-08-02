@@ -1,0 +1,8 @@
+class Exchange =
+begin 
+
+initial
+	test : () ==> ()
+	test() == a := 0     
+
+end

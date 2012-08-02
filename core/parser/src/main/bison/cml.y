@@ -302,7 +302,7 @@
 	scanner = new CmlLexer( new java.io.FileReader(file) );
 	CmlParser cmlParser = new CmlParser(scanner);
 	cmlParser.setDocument(fileSource);
-	//cmlParser.setDebugLevel(1);
+	cmlParser.setDebugLevel(1);
 
 	//do {
 	//System.out.println(scanner.yylex());
@@ -373,18 +373,18 @@
 %token DINTER HD TL LEN ELEMS INDS REVERSE CONC DOM RNG MERGE INVERSE
 %token ELLIPSIS BARRARROW MKUNDER MKUNDERNAME DOT DOTHASH NUMERAL LAMBDA NEW
 %token SELF ISUNDER PREUNDER ISOFCLASS TILDE DCL COLONEQUALS ATOMIC DEQRARROW
-%token RETURN IDENTIFIER BACKTICK SLASH DIVIDE REM MOD LT LTE GT GTE NEQ OR
-%token AND EQRARROW LTEQUALSGT INSET NOTINSET SUBSET PROPER_SUBSET UNION
-%token BACKSLASH INTER CARET DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT
-%token COLONDASHGT COMP DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL
-%token HEX_LITERAL QUOTE_LITERAL AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE
-%token COMMA LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
+%token RETURN IDENTIFIER BACKTICK SLASH DIV REM MOD LT LTE GT GTE NEQ OR
+%token AND EQRARROW LTEQUALSGT INSET NOTINSET SUBSET PSUBSET UNION BACKSLASH
+%token INTER CARET DPLUS MUNION LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP
+%token DSTAR FORALL EXISTS EXISTS1 STRING VRES RES VAL HEX_LITERAL
+%token QUOTE_LITERAL AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA
+%token LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY DECIMAL
 %token STARTBY MU PRIVATE PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY
 %token WHILE ISUNDERNAME EXTENDS EMPTYMAP DBACKSLASH
-%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE TICK CHAR_LIT
+%token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE TICK CHAR_LIT NIL
 
-%token nameset nilLiteral textLiteral
+%token nameset textLiteral
 
 /* ---------------------------------------------------------------- */
 /* Precidence declarations                                          */
@@ -394,30 +394,73 @@
  * disambiguating precidence (shift/reduce conflicts, typically).
  */
 /* Precidence from loosest to tightest; tokens on same line are equal precidence */
+%right COMMA
 %right MU LAMBDA
 %right FORALL EXISTS EXISTS1 IOTA
 %right LPAREN
-%right COMMA
-%left SEQOF
-%left BARTILDEBAR LRSQUARE TBAR AMP RARROW DLSQUARE LSQUAREBAR LSQUAREGT
-      BARRSQUARE LSQUARE RSQUARE SETOF SEQ1OF MAPOF INMAPOF PLUSGT TO OF
-      NEW COLONEQUALS SLASH BACKSLASH ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE
-      DBAR SLASHCOLON SLASHBACKSLASH COLONBACKSLASH BARGT DBACKSLASH
-%right SEMI
-%right U-SEMI U-BARTILDEBAR U-DBAR U-TBAR U-LRSQUARE U-LSQUARE U-LSQUAREBAR
-       U-LSQUAREDBAR
+%left OF COLONEQUALS
 %nonassoc ELSE ELSEIF
-%left BAR
 %left DO
 %right U-DO
-/* binary ops */
-%left PLUS MINUS DIVIDE REM MOD LT LTE GT GTE EQUALS NEQ OR AND EQRARROW
-      LTEQUALSGT INSET STAR NOTINSET SUBSET PROPER_SUBSET UNION INTER CARET
-      DPLUS MAPMERGE LTCOLON LTDASHCOLON COLONGT COLONDASHGT COMP DSTAR IN COLON
-/* unary ops */
-%right U-PLUS U-MINUS ABS FLOOR NOT CARD POWER DUNION DINTER HD TL LEN ELEMS
-       INDS REVERSE CONC DOM RNG MERGE INVERSE
-%left DOT DOTHASH DOTCOLON
+%left IN COLON
+
+// CSP prec START
+%left TBAR
+%left LSQUAREBAR BARRSQUARE LSQUARE DBAR RSQUARE
+%left BARTILDEBAR 
+%left LRSQUARE
+%left SLASHCOLON SLASHBACKSLASH COLONBACKSLASH
+%left LSQUAREGT BARGT
+%left SEMI
+%left AMP
+%left DLSQUARE
+%left ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE DBACKSLASH
+%right U-SEMI U-BARTILDEBAR U-DBAR U-TBAR U-LRSQUARE U-LSQUARE U-LSQUAREBAR U-LSQUAREDBAR
+// CSP prec end
+
+// VDM prec START
+// VDM type operators
+%right RARROW PLUSGT
+%left BAR
+%nonassoc T-STAR
+%right INMAPOF MAPOF TO
+%right SEQOF SEQ1OF SETOF
+// VDM prec group connectives
+%right LTEQUALSGT
+%right EQRARROW
+%right OR
+%right AND
+%right NOT
+// VDM prec group relations
+%left LT LTE GT GTE EQUALS NEQ INSET NOTINSET SUBSET PSUBSET
+// VDM prec group evaluators
+// VDM prec evaluators 1
+%left PLUS MINUS
+%left UNION BACKSLASH
+%left MUNION DPLUS
+%left CARET
+// VDM prec evaluators 2
+%left STAR SLASH DIV REM MOD
+%left INTER
+// VDM prec evaluators 3
+%right INVERSE
+// VDM prec evaluators 4
+%right LTCOLON LTDASHCOLON
+// VDM prec evaluators 5
+%left COLONGT COLONDASHGT
+// VDM prec evaluators 6
+%right U-PLUS U-MINUS ABS FLOOR
+%right CARD POWER DUNION DINTER
+%right DOM RNG MERGE
+%right LEN ELEMS HD TL INDS CONC REVERSE
+// VDM prec group applicators
+%left DOT
+// VDM prec (highest) group combinators
+%right COMP
+%right DSTAR
+// VDM prec DONE
+
+%left DOTHASH DOTCOLON
 %left LRPAREN
 
 /* ---------------------------------------------------------------- */
@@ -476,7 +519,36 @@ classDefinition :
   clz.setNameScope(NameScope.CLASSNAME);
   $$ = clz;
 }
-| CLASS IDENTIFIER EQUALS EXTENDS IDENTIFIER BEGIN classDefinitionBlock END // TODO
+| CLASS IDENTIFIER EQUALS EXTENDS IDENTIFIER BEGIN classDefinitionBlock END
+{
+    LexLocation location = extractLexLocation((CmlLexeme)$CLASS,(CmlLexeme)$END);
+    List<LexNameToken> supernames = new LinkedList<LexNameToken>();
+    supernames.add(extractLexNameToken($5));
+    $$ = new AClassParagraphDefinition(location, 
+				       extractLexNameToken($2), 
+				       NameScope.CLASSNAME, 
+				       false, 
+				       null, 
+				       getDefaultAccessSpecifier(false,false,null), 
+				       null/*PType type_  should this be the namedInvariantType*/, 
+				       (List<? extends PDefinition>)$classDefinitionBlock, 
+				       new LinkedList<PType>() /* supertypes_*/, 
+				       supernames, 
+				       new LinkedList<PDefinition>()/* definitions_*/, 
+				       new LinkedList<PDefinition>() /*allInheritedDefinitions_*/, 
+				       new LinkedList<PDefinition>() /*localInheritedDefinitions_*/, 
+				       null /*Boolean hasContructors_*/, 
+				       null, 
+				       new LinkedList<AClassParagraphDefinition>()/* superDefs_*/, 
+				       true/*Boolean gettingInheritable_*/, 
+				       new LinkedList<PDefinition>() /*superInheritedDefinitions_*/, 
+				       null /*Boolean gettingInvDefs_*/, 
+				       false, 
+				       false /*Boolean isUndefined_*/, 
+				       null/*PType classtype_*/, 
+				       false /*Boolean isTypeChecked_*/, 
+				       null/*AExplicitOperationDefinition invariant_*/);
+}
 ;
 
 processDefinition:
@@ -563,20 +635,20 @@ process :
 /* CHANSET
  * expression was chansetExpr here
  */
-| process LSQUAREBAR expression BARRSQUARE process // TODO
+| process LSQUAREBAR expression BARRSQUARE process 
 {
   PProcess left = (PProcess)$1;
   PProcess right = (PProcess)$5;
-  $$ = new AGeneralisedParallelismProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, (SChansetSetExp)$3, right);
+  $$ = new AGeneralisedParallelismProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, (PExp)$3, right);
 }
 /* CHANSET
  * expression was chansetExpr here
  */
-| process LSQUARE expression DBAR expression RSQUARE process // TODO
+| process LSQUARE expression DBAR expression RSQUARE process 
 {
   PProcess left = (PProcess)$1;
   PProcess right = (PProcess)$7;
-  $$ = new AAlphabetisedParallelismProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, (SChansetSetExp)$3, (SChansetSetExp)$5, right);
+  $$ = new AAlphabetisedParallelismProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, (PExp)$3, (PExp)$5, right);
 }
 | process DBAR process
 {
@@ -645,10 +717,10 @@ process :
 /* CHANSET
  * expression was chansetExpr here
  */
-| process DBACKSLASH expression // TODO
+| process DBACKSLASH expression 
 {
   PProcess left = (PProcess)$1;
-  SChansetSetExp cse = (SChansetSetExp)$3;
+  PExp cse = (PExp)$3;
   LexLocation location = combineLexLocation(left.getLocation(), cse.getLocation());
   $$ = new AHidingProcess(location, left, cse);
 }
@@ -728,10 +800,10 @@ process :
 /* CHANSET
  * expression was chansetExpr here
  */
-| LSQUAREBAR expression BARRSQUARE replicationDeclaration AT process %prec U-LSQUARE // TODO
+| LSQUAREBAR expression BARRSQUARE replicationDeclaration AT process %prec U-LSQUARE 
 {
   PProcess process = (PProcess)$6;
-  SChansetSetExp chansetExp = (SChansetSetExp)$2;
+  PExp chansetExp = (PExp)$2;
   LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
   $$ = new AGeneralisedParallelismReplicatedProcess(location,
 						    (List<SSingleDeclaration>)$replicationDeclaration,
@@ -741,10 +813,10 @@ process :
 /* CHANSET
  * expression was chansetExpr here
  */
-| DBAR replicationDeclaration AT LSQUAREBAR expression BARRSQUARE process %prec U-DBAR // TODO
+| DBAR replicationDeclaration AT LSQUAREBAR expression BARRSQUARE process %prec U-DBAR 
 {
   PProcess process = (PProcess)$7;
-  SChansetSetExp chansetExp = (SChansetSetExp)$expression;
+  PExp chansetExp = (PExp)$expression;
   LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
   $$ = new AAlphabetisedParallelismReplicatedProcess(location,
 						     (List<SSingleDeclaration>)$replicationDeclaration,
@@ -858,10 +930,7 @@ actionParagraph :
   AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
   $$ = new AActionParagraphDefinition( loc, NameScope.LOCAL, false, access, actionDefinitions);
 }
-/* NAMESET
- * expression was namesetExpr here
- */
-| ACTIONS nameset IDENTIFIER EQUALS expression // TODO
+//| ACTIONS nameset IDENTIFIER EQUALS namesetExpression // TODO --- need feedback from Alvaro
 ;
 
 actionDefinitionList :
@@ -926,7 +995,6 @@ action :
 | CSPWAIT LPAREN expression RPAREN
 {
   PExp exp = (PExp)$expression;
-  //LexLocation location = extractLexLocation((CmlLexeme)$CSPWAIT, exp.getLocation());
   LexLocation location = extractLexLocation((CmlLexeme)$CSPWAIT, (CmlLexeme)$RPAREN);
   $$ = new AWaitAction(location, exp);
 }
@@ -1038,10 +1106,10 @@ action :
 /* CHANSET
  * expression was chansetExpr here
  */
-| action DBACKSLASH expression // TODO
+| action DBACKSLASH expression 
 {
   PAction left = (PAction)$1;
-  SChansetSetExp chansetExp = (SChansetSetExp)$3;
+  PExp chansetExp = (PExp)$3;
   LexLocation location = combineLexLocation(left.getLocation(), chansetExp.getLocation());
   $$ = new AHidingAction(location, left, chansetExp);
 }
@@ -1065,27 +1133,100 @@ action :
   PAction action = (PAction)$1;
   $$ = new AChannelRenamingAction(combineLexLocation(action.getLocation(), renameExpression.getLocation()), action, renameExpression);
 }
+/* DEVIATION
+ * grammar:
+ *   MU identifier {',' identifier} '@' action {',' action}
+ * here:
+ *   MU pathList '@' action 
+ */
 | MU pathList AT action %prec MU // TODO
+//| MU pathList AT LPAREN actionList RPAREN %prec MU // TODO JWC apparently this works... 
 /* parallel actions */
 /* NAMESET
  * expression was namesetExpr here
  */
-| action LSQUAREDBAR expression BAR expression DBARRSQUARE action // TODO
-| action TBAR action // TODO
+| action LSQUAREDBAR expression BAR expression DBARRSQUARE action 
+{
+    PAction leftAction = (PAction)$1;
+    PAction rightAction = (PAction)$7;
+    $$ = new AInterleavingParallelAction(extractLexLocation(leftAction.getLocation(),
+							    rightAction.getLocation()), 
+					 leftAction, 
+					 (PExp)$3, 
+					 (PExp)$5 , 
+					 rightAction);
+}
+| action TBAR action 
+{
+    PAction leftAction = (PAction)$1;
+    PAction rightAction = (PAction)$3;
+    $$ = new AInterleavingParallelAction(extractLexLocation(leftAction.getLocation(),
+							    rightAction.getLocation()), 
+					 leftAction, 
+					 null, 
+					 null, 
+					 rightAction);
+}
 /* NAMESET
  * expression was namesetExpr here
  */
-| action LSQUAREBAR expression BAR expression BARRSQUARE action // TODO
-| action DBAR action // TODO
+| action LSQUAREBAR expression BAR expression BARRSQUARE action 
+{
+    PAction leftAction = (PAction)$1;
+    PAction rightAction = (PAction)$7;
+    $$ = new ASynchronousParallelismParallelAction(extractLexLocation(leftAction.getLocation(),
+								      rightAction.getLocation()), 
+						   leftAction, 
+						   (PExp)$3, 
+						   (PExp)$5, 
+						   rightAction);
+}
+| action DBAR action 
+{
+    PAction leftAction = (PAction)$1;
+    PAction rightAction = (PAction)$3;
+    $$ = new ASynchronousParallelismParallelAction(extractLexLocation(leftAction.getLocation(),
+								      rightAction.getLocation()), 
+						   leftAction, 
+						   null, 
+						   null, 
+						   rightAction);
+}
 /* CHANSET
  * NAMESET
  * expressions were namesetExpr|chansetExpr||chansetExpr|namesetExpr here
  */
-| action LSQUARE expression BAR expression DBAR expression BAR expression RSQUARE action // TODO
+| action LSQUARE expression BAR expression DBAR expression BAR expression RSQUARE action 
+{
+    PAction leftAction = (PAction)$1;
+    PAction rightAction = (PAction)$11;
+    LexLocation location = extractLexLocation(leftAction.getLocation(),
+					      rightAction.getLocation());
+    $$ = new AAlphabetisedParallelismParallelAction(location, 
+						    leftAction, 
+						    (PExp)$3, 
+						    (PExp)$9,
+						    rightAction, 
+						    (PExp)$5, 
+						    (PExp)$7);
+}
 /* CHANSET
  * expression was chansetExpr here
  */
-| action LSQUARE expression DBAR expression RSQUARE action // TODO
+| action LSQUARE expression DBAR expression RSQUARE action
+{
+    PAction leftAction = (PAction)$1;
+    PAction rightAction = (PAction)$7;
+    LexLocation location = extractLexLocation(leftAction.getLocation(),
+					      rightAction.getLocation());
+    $$ = new AAlphabetisedParallelismParallelAction(location, 
+						    leftAction, 
+						    null, 
+						    null,
+						    rightAction, 
+						    (PExp)$3, 
+						    (PExp)$5);
+}
 /* CHANSET
  * NAMESET
  * expressions were namesetExpr|chansetExpr|namesetExpr here
@@ -1096,8 +1237,21 @@ action :
  */
 | action LSQUAREBAR expression BARRSQUARE action // TODO
 /* parallel actions end */
-/* parametrised action */
-| LPAREN parametrisationList AT action RPAREN // TODO
+/* 
+   parametrised action 
+   DEVIATION:
+   grammar: 
+   parametrisation {';' parametrisation} '@' action
+   here:
+   '(' parametrisation {';' parametrisation} '@' action ')'
+*/
+| LPAREN parametrisationList AT action RPAREN 
+{
+    $$ = new AParametrisedAction(extractLexLocation((CmlLexeme)$LPAREN,
+						    (CmlLexeme)$RPAREN), 
+						    (List<PParametrisation>)$parametrisationList, 
+						    (PAction)$4);
+}
 /* instantiated actions */
 | LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
 {
@@ -1154,13 +1308,25 @@ action :
  */
 | DBAR replicationDeclaration AT LSQUARE expression RSQUARE action %prec U-DBAR // TODO
 /* replicated actions end */
-| letStatement // TODO
-| blockStatement // TODO
+| letStatement 
+{
+    $$ = $1;
+}
+| blockStatement 
+{
+    $$ = $1;
+}
 | controlStatement
 {
   $$ = $1;
 }
 ;
+
+/* JWC */
+/* actionList : */
+/*   action */
+/* | actionList COMMA action  */
+/* ; */
 
 communicationParameterList :
   communicationParameter
@@ -1258,14 +1424,39 @@ paramList :
 ;
 
 parametrisationList :
-  parametrisation // TODO
-| parametrisationList SEMI parametrisation // TODO
+parametrisation 
+{
+    List<PParametrisation> plist = new LinkedList<PParametrisation>();
+    plist.add((PParametrisation)$parametrisation);
+    $$ = plist;
+}
+| parametrisationList SEMI parametrisation 
+{
+    List<PParametrisation> plist = new LinkedList<PParametrisation>();
+    plist.add(0,(PParametrisation)$parametrisation);
+    $$ = plist;
+}
 ;
 
 parametrisation :
-  VAL singleTypeDecl // TODO
-| RES singleTypeDecl // TODO
-| VRES singleTypeDecl // TODO
+  VAL singleTypeDecl
+  {
+      ATypeSingleDeclaration declaration = (ATypeSingleDeclaration)$singleTypeDecl;
+      LexLocation location = extractLexLocation((CmlLexeme)$1, declaration.getLocation());
+      $$ = new AValParametrisation(location, declaration);
+  }
+| RES singleTypeDecl 
+{
+    ATypeSingleDeclaration declaration = (ATypeSingleDeclaration)$singleTypeDecl;
+    LexLocation location = extractLexLocation((CmlLexeme)$1, declaration.getLocation());
+    $$ = new AResParametrisation(location, declaration);
+}
+| VRES singleTypeDecl 
+{
+    ATypeSingleDeclaration declaration = (ATypeSingleDeclaration)$singleTypeDecl;
+    LexLocation location = extractLexLocation((CmlLexeme)$1, declaration.getLocation());
+    $$ = new AVresParametrisation(location, declaration);
+}
 ;
 
 renameExpression :
@@ -1474,10 +1665,10 @@ chansetDefinition :
 /* CHANSET
  * expression was chansetExpr here
  */
-  IDENTIFIER EQUALS expression  // TODO
+  IDENTIFIER EQUALS expression  
 {
   LexIdentifierToken idToken = extractLexIdentifierToken((CmlLexeme)$1);
-  SChansetSetBase chansetExp = (SChansetSetBase)$3;
+  PExp chansetExp = (PExp)$3;
   LexLocation location = combineLexLocation(idToken.getLocation(), chansetExp.getLocation());
   $$ = new AChansetDefinition(location, NameScope.GLOBAL, false/*used_*/, null, /*AAccessSpecifierAccessSpecifier access_*/ idToken, chansetExp);
 }
@@ -1579,7 +1770,16 @@ classDefinitionBlockAlternative :
  * This will be in the CML_1 grammar, and is defines the constructor for the class.
  * Confirmed between Joey, Alavro; Skype 30 July 2012
  */
-| INITIAL operationDef // TODO
+| INITIAL operationDef 
+{
+    PDefinition def = (PDefinition)$operationDef;
+    LexLocation location = extractLexLocation((CmlLexeme)$INITIAL,def.getLocation());
+    $$ = new AInitialParagraphDefinition(location, 
+					 NameScope.GLOBAL, 
+					 true, 
+					 getDefaultAccessSpecifier(false,false,null), 
+					 def);
+}
 ;
 
 typeDefs :
@@ -1772,7 +1972,14 @@ type :
   LexQuoteToken value = (LexQuoteToken)$1;
   $$ = new AQuoteType(value.location, false, null, value);
 }
-| COMPOSE IDENTIFIER OF fieldList END // TODO
+| COMPOSE IDENTIFIER OF fieldList END
+{
+    List<AFieldField> fields = (List<AFieldField>)$fieldList;
+    $$ = new ARecordInvariantType(extractLexLocation((CmlLexeme)$1,(CmlLexeme)$END), 
+				  false, 
+				  extractLexNameToken($IDENTIFIER), 
+				  (List<? extends AFieldField>)$fieldList);
+}
 | type BAR type // unionType
 {
   /* FIXME --- Make union type concatenation smarter
@@ -1792,7 +1999,7 @@ type :
   utype.setTypes(types);
   $$ = utype;
 }
-| type STAR type //productType
+| type STAR type %prec T-STAR //productType
 {
   /* FIXME --- Make product type concatenation smarter
    *
@@ -1947,10 +2154,6 @@ partialFunctionType :
   PType domType = (PType)$1;
   PType rngType = (PType)$3;
   LexLocation loc = combineLexLocation(domType.getLocation(), rngType.getLocation());
-  // TODO --- is this a dead comment?
-  // [CONSIDER,RWL] The domain type of a function is not a list,
-  // I think the AST is wrong taking a list of types for params
-  // AKM: Your right that is strange, but when it is changed the AstCreator is failing??
   List<PType> params = new LinkedList<PType>();
   params.add(domType);
   $$ = new AFunctionType(loc, false, null, true, params, rngType);
@@ -1960,10 +2163,6 @@ partialFunctionType :
   PType domType = new AVoidType(extractLexLocation((CmlLexeme)$1), true);
   PType rngType = (PType)$3;
   LexLocation loc = combineLexLocation(domType.getLocation(), rngType.getLocation());
-  // TODO --- is this a dead comment?
-  // [CONSIDER,RWL] The domain type of a function is not a list,
-  // I think the AST is wrong taking a list of types for params
-  // AKM: Your right that is strange, but when it is changed the AstCreator is failing??
   List<PType> params = new LinkedList<PType>();
   params.add(domType);
   $$ = new AFunctionType(loc, false, null, true, params, rngType);
@@ -1991,16 +2190,6 @@ totalFunctionType :
 }
 ;
 
-quoteLiteral :
-  QUOTE_LITERAL
-{
-  CmlLexeme id = (CmlLexeme)$1;
-  LexLocation loc = extractLexLocation((CmlLexeme)$1);
-  String value = id.getValue();
-  $$ = new LexQuoteToken(value.substring(1, value.length()-2), loc);
-}
-;
-
 fieldList :
   field
 {
@@ -2019,18 +2208,22 @@ fieldList :
 field :
   type
 {
-  $$ = new AFieldField(null, null, null, (PType)$1, null);
+    $$ = new AFieldField(getDefaultAccessSpecifier(false,false,null), 
+			 null, null, (PType)$1, false);
 }
 | IDENTIFIER COLON type
 {
   LexNameToken name = extractLexNameToken((CmlLexeme)$1);
   PType type = (PType) $3;
-  $$ = new AFieldField(null, name, null, type, null);
+  $$ = new AFieldField(getDefaultAccessSpecifier(false,false,null), name, null, type, false);
 }
 | IDENTIFIER COLONDASH type
 {
-  // TODO --- dude, that's harsh
-  throw new RuntimeException("No way");
+    LexNameToken name = extractLexNameToken((CmlLexeme)$1);
+    PType type = (PType) $3;
+    $$ = new AFieldField(getDefaultAccessSpecifier(false,false,null), 
+			 name, null, type, true);
+
 }
 ;
 
@@ -2119,7 +2312,7 @@ valueDefList :
 {
   PDefinition def = (PDefinition)$1;
   List<PDefinition> defs = (List<PDefinition>)$3;
-  defs.add(def);
+  defs.add(0,def);
   $$ = defs;
 }
 ;
@@ -2505,6 +2698,7 @@ explicitOperationDef :
   AExplicitOperationDefinition res = new AExplicitOperationDefinition();
   res.setLocation(loc);
   res.setBody((SStatementAction)$operationBody);
+  res.setType((PType)$operationType);
   $$ = res;
 }
 ;
@@ -2541,10 +2735,55 @@ implicitOperationDef :
 ;
 
 operationType :
-  type DEQRARROW type // TODO
-| LRPAREN DEQRARROW type // TODO
-| type DEQRARROW LRPAREN // TODO
-| LRPAREN DEQRARROW LRPAREN // TODO
+  type DEQRARROW type 
+  {
+      List<PType> types = new LinkedList<PType>(); 
+      PType left = (PType)$1;
+      PType right = (PType)$3;
+      types.add(left);
+      $$ = new AOperationType(extractLexLocation(left.getLocation(),right.getLocation()), 
+			      false, 
+			      new LinkedList<PDefinition>(), 
+			      types, 
+			      right);
+  }
+| LRPAREN DEQRARROW type 
+  {
+      List<PType> types = new LinkedList<PType>(); 
+      PType right = (PType)$3;
+      types.add(new AVoidType(extractLexLocation((CmlLexeme)$1), 
+			      true));
+      $$ = new AOperationType(extractLexLocation((CmlLexeme)$1,right.getLocation()), 
+			      false, 
+			      new LinkedList<PDefinition>(), 
+			      types, 
+			      right);
+  }
+| type DEQRARROW LRPAREN 
+  {
+      List<PType> types = new LinkedList<PType>(); 
+      PType left = (PType)$1;
+      types.add(left);
+      $$ = new AOperationType(extractLexLocation(left.getLocation(),(CmlLexeme)$3), 
+			      false, 
+			      new LinkedList<PDefinition>(), 
+			      types, 
+			      new AVoidType(extractLexLocation((CmlLexeme)$3), 
+					    true));
+  }
+| LRPAREN DEQRARROW LRPAREN 
+  {
+      List<PType> types = new LinkedList<PType>(); 
+      types.add(new AVoidType(extractLexLocation((CmlLexeme)$1), 
+			      true));
+      
+      $$ = new AOperationType(extractLexLocation((CmlLexeme)$1,(CmlLexeme)$3), 
+			      true, 
+			      new LinkedList<PDefinition>(), 
+			      types, 
+			      new AVoidType(extractLexLocation((CmlLexeme)$3), 
+					    true));
+  }
 ;
 
 /* DEVIATION
@@ -2555,11 +2794,11 @@ operationType :
  */
 operationBody :
   /* action */
-  letStatement // TODO
+  letStatement 
 {
   $$ = $1;
 }
-| blockStatement // TODO
+| blockStatement 
 {
   $$ = $1;
 }
@@ -3014,7 +3253,7 @@ expression :
  *   ISOFCLASS LPAREN name COMMA expression RPAREN
  * TODO: convert to a name
  */
-| ISOFCLASS LPAREN path COMMA expression RPAREN
+| ISOFCLASS LPAREN path COMMA expression RPAREN // TODO
 {
   $$ = $1;
 }
@@ -3056,16 +3295,50 @@ expression :
   }
   $$ = exp;
 }
-| symbolicLiteral
+/* symbolic literal expressions*/
+| numericLiteral
 {
-  $$ = $1;
+    PExp exp = null;
+    if($1 instanceof LexIntegerToken){
+	LexIntegerToken lit = (LexIntegerToken)$1;
+	exp = new AIntLiteralExp(lit.location, lit);
+    }
+    else{
+	LexRealToken lit = (LexRealToken)$1;
+	exp = new ARealLiteralExp(lit.location, lit);
+    }
+    $$ = exp;
 }
+| booleanLiteral
+{
+  LexBooleanToken lit = (LexBooleanToken)$1;
+  $$ = new ABooleanLiteralExp(lit.location, lit);
+}
+| nilLiteral
+{
+    LexKeywordToken tok = (LexKeywordToken)$1;
+    $$ = new ANilExp(tok.location);
+    
+}
+| characterLiteral 
+{
+    LexCharacterToken token = (LexCharacterToken)$characterLiteral;
+    $$ = new ACharLiteralExp(token.location, token);
+}
+| textLiteral // TODO
+| quoteLiteral
+{
+  LexQuoteToken value = (LexQuoteToken)$1;
+  $$ = new AQuoteLiteralExp(value.location, value);
+}
+/* symbolic literal expressions end*/
 | chansetExpr
 {
   $$ = $1;
 }
 ;
 
+/* symbolic literals*/
 booleanLiteral:
   FALSE
 {
@@ -3079,31 +3352,6 @@ booleanLiteral:
 }
 ;
 
-/* TODO --- verify
- *
- * We need to check that these are, indeed, the right possible literals.
- */
-symbolicLiteral :
-  numericLiteral
-{
-  LexIntegerToken lit = (LexIntegerToken)$1;
-  $$ = new AIntLiteralExp(lit.location, lit);
-}
-| booleanLiteral
-{
-  LexBooleanToken lit = (LexBooleanToken)$1;
-  $$ = new ABooleanLiteralExp(lit.location, lit);
-}
-| nilLiteral // TODO
-| characterLiteral // TODO
-| textLiteral // TODO
-| quoteLiteral
-{
-  LexQuoteToken value = (LexQuoteToken)$1;
-  $$ = new AQuoteLiteralExp(value.location, value);
-}
-;
-
 characterLiteral :
   CHAR_LIT
 {
@@ -3111,7 +3359,15 @@ characterLiteral :
   LexLocation loc = extractLexLocation( lex );
   String res = lex.getValue();
   res = res.replace("'", "");
-  $$ = new ACharLiteralExp(loc, new LexCharacterToken(convertEscapeToChar(res), loc));
+  $$ = new LexCharacterToken(convertEscapeToChar(res), loc);
+}
+;
+
+nilLiteral :
+NIL
+{
+    $$ = new LexKeywordToken(VDMToken.NIL, 
+			     extractLexLocation((CmlLexeme)$1));
 }
 ;
 
@@ -3135,12 +3391,24 @@ numericLiteral :
   LexLocation loc = extractLexLocation(lexeme);
   try {
     DecimalFormat dec = new DecimalFormat();
-    $$ = new LexIntegerToken(dec.parse(lexeme.getValue()).longValue(), loc);
+    $$ = new LexRealToken(dec.parse(lexeme.getValue()).doubleValue(), loc);
   } catch (Exception e) {
-    $$ = new LexIntegerToken(0, loc);
+    $$ = new LexRealToken(0, loc);
   }
 }
 ;
+
+quoteLiteral :
+  QUOTE_LITERAL
+{
+  CmlLexeme id = (CmlLexeme)$1;
+  LexLocation loc = extractLexLocation((CmlLexeme)$1);
+  String value = id.getValue();
+  $$ = new LexQuoteToken(value.substring(1, value.length()-2), loc);
+}
+;
+
+/* symbolic literals end*/
 
 localDefList :
   localDef
@@ -3438,7 +3706,7 @@ binaryExpr :
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   $$ = new ASubstractNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
 }
-| expression DIVIDE expression
+| expression DIV expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   $$ = new ADivideNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
@@ -3523,7 +3791,7 @@ binaryExpr :
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   $$ = new ASubsetBinaryExp(loc, (PExp)$1, null, (PExp)$3);
 }
-| expression PROPER_SUBSET expression
+| expression PSUBSET expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   $$ = new AProperSubsetBinaryExp(loc, (PExp)$1, null, (PExp)$3);
@@ -3553,7 +3821,7 @@ binaryExpr :
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   $$ = new AModifyBinaryExp(loc, (PExp)$1, null, (PExp)$3);
 }
-| expression MAPMERGE expression
+| expression MUNION expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   $$ = new AMapUnionBinaryExp(loc, (PExp)$1, null, (PExp)$3);
@@ -4019,7 +4287,6 @@ assignStatement :
  *   stateDesignator ':=' expression
  * here:
  *   path ':=' expression
- * TODO: convert to a stateDesignator
  */
   path COLONEQUALS expression
 {
@@ -4139,9 +4406,12 @@ implicitOperationBody :
 pattern :
   patternIdentifier
 {
-  $$ = $1;
+    $$ = $1;
 }
-| patternLessID // TODO
+| patternLessID 
+{
+    $$ = $1;
+}
 ;
 
 patternLessID :
@@ -4200,24 +4470,75 @@ patternIdentifier :
   $$ = res;
 }
 /* "don't care" identifier */
-| MINUS // TODO: Implement "don't care" pattern
+| MINUS 
+{
+    $$ = new AIgnorePattern(extractLexLocation((CmlLexeme)$1), 
+			    new LinkedList<PDefinition>(), 
+			    true);
+}
 ;
 
 matchValue :
-  symbolicLiteral
+/* symbolic literal patterns*/
+ numericLiteral
 {
-  PExp exp = (PExp)$1;
-  if (exp instanceof AIntLiteralExp) {
-    AIntLiteralExp intExp = (AIntLiteralExp)exp;
-    AIntegerPattern res = new AIntegerPattern();
-    res.setLocation(intExp.getLocation());
-    res.setValue(intExp.getValue());
-    $$ = res;
-  } else {
-    throw new RuntimeException("Unhandled expression type in pattern. ("+exp.getClass()+")"); // TODO RWL
-  }
+    PPattern pattern = null;
+    if($1 instanceof LexIntegerToken){
+	LexIntegerToken lit = (LexIntegerToken)$1;
+	pattern = new AIntegerPattern(lit.location, 
+				      new LinkedList<PDefinition>(), 
+				      true, 
+				      lit);
+    }
+    else{
+	LexRealToken lit = (LexRealToken)$1;
+	pattern = new ARealPattern(lit.location, 
+				   new LinkedList<PDefinition>(), 
+				   true, 
+				   lit);
+    }
+    $$ = pattern;
 }
-| LPAREN expression RPAREN // TODO
+| booleanLiteral
+{
+  LexBooleanToken lit = (LexBooleanToken)$1;
+  $$ = new ABooleanPattern(lit.location, 
+			   new LinkedList<PDefinition>(), 
+			   true, 
+			   lit);
+}
+| nilLiteral
+{
+    LexKeywordToken tok = (LexKeywordToken)$1;
+    $$ = new ANilPattern(tok.location, 
+			 new LinkedList<PDefinition>(), 
+			 true);
+    
+}
+| characterLiteral 
+{
+    LexCharacterToken token = (LexCharacterToken)$characterLiteral;
+    $$ = new ACharacterPattern(token.location, 
+			       new LinkedList<PDefinition>(), 
+			       true, 
+			       token);
+}
+| textLiteral // TODO
+| quoteLiteral
+{
+  LexQuoteToken value = (LexQuoteToken)$1;
+  $$ = new AQuotePattern(value.location, 
+			 new LinkedList<PDefinition>(), 
+			 true, 
+			 value);
+}
+| LPAREN expression RPAREN
+{
+    $$ = new AExpressionPattern(extractLexLocation((CmlLexeme)$LPAREN,(CmlLexeme)$RPAREN), 
+				new LinkedList<PDefinition>(), 
+				false, 
+				(PExp)$expression);
+}
 ;
 
 bind :
@@ -4269,9 +4590,12 @@ bindList :
 multipleBind :
   multipleSetBind
 {
-  $$ = $1;
+    $$ = $1;
 }
-| multipleTypeBind // TODO
+| multipleTypeBind 
+{
+    $$ = $1;
+}
 ;
 
 multipleSetBind :
@@ -4354,6 +4678,11 @@ path :
   LexLocation location = extractLexLocation(path.location,(CmlLexeme)$LRPAREN);
   $$ = new Path(location,Path.PathKind.APPLY,path);
 }
+/* | path DOT nilLiteral */
+/* | path DOT booleanLiteral */
+/* | path DOT numericLiteral */
+/* | path DOT quoteLiteral */
+/* | path DOT LPAREN expression RPAREN */
 | path LPAREN expressionList RPAREN
 {
   Path path = (Path)$1;
