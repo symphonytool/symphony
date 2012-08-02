@@ -406,6 +406,7 @@
  * disambiguating precidence (shift/reduce conflicts, typically).
  */
 /* Precidence from loosest to tightest; tokens on same line are equal precidence */
+%left G-LOOSE
 %right COMMA
 %right MU LAMBDA
 %right FORALL EXISTS EXISTS1 IOTA
@@ -474,6 +475,8 @@
 
 %left DOTHASH
 %left LRPAREN
+
+%left G-HIGH
 
 /* ---------------------------------------------------------------- */
 /* Initial rule declaration                                         */
@@ -3336,7 +3339,7 @@ expression :
 }
 ;
 
-/* symbolic literals*/
+/* symbolic literals */
 booleanLiteral:
   FALSE
 {
@@ -3362,7 +3365,7 @@ characterLiteral :
 ;
 
 nilLiteral :
-NIL
+  NIL
 {
     $$ = new LexKeywordToken(VDMToken.NIL, 
 			     extractLexLocation((CmlLexeme)$1));
@@ -4530,24 +4533,23 @@ patternIdentifier :
 
 matchValue :
 /* symbolic literal patterns*/
- numericLiteral
+  numericLiteral
 {
-    PPattern pattern = null;
-    if($1 instanceof LexIntegerToken){
-	LexIntegerToken lit = (LexIntegerToken)$1;
-	pattern = new AIntegerPattern(lit.location, 
-				      new LinkedList<PDefinition>(), 
-				      true, 
-				      lit);
-    }
-    else{
-	LexRealToken lit = (LexRealToken)$1;
-	pattern = new ARealPattern(lit.location, 
-				   new LinkedList<PDefinition>(), 
-				   true, 
-				   lit);
-    }
-    $$ = pattern;
+  PPattern pattern = null;
+  if($1 instanceof LexIntegerToken) {
+    LexIntegerToken lit = (LexIntegerToken)$1;
+    pattern = new AIntegerPattern(lit.location, 
+				  new LinkedList<PDefinition>(), 
+				  true, 
+				  lit);
+  } else {
+    LexRealToken lit = (LexRealToken)$1;
+    pattern = new ARealPattern(lit.location, 
+			       new LinkedList<PDefinition>(), 
+			       true, 
+			       lit);
+  }
+  $$ = pattern;
 }
 | booleanLiteral
 {
@@ -4559,27 +4561,26 @@ matchValue :
 }
 | nilLiteral
 {
-    LexKeywordToken tok = (LexKeywordToken)$1;
-    $$ = new ANilPattern(tok.location, 
-			 new LinkedList<PDefinition>(), 
-			 true);
-    
+  LexKeywordToken tok = (LexKeywordToken)$1;
+  $$ = new ANilPattern(tok.location, 
+		       new LinkedList<PDefinition>(), 
+		       true);    
 }
 | characterLiteral 
 {
-    LexCharacterToken token = (LexCharacterToken)$characterLiteral;
-    $$ = new ACharacterPattern(token.location, 
-			       new LinkedList<PDefinition>(), 
-			       true, 
-			       token);
+  LexCharacterToken token = (LexCharacterToken)$characterLiteral;
+  $$ = new ACharacterPattern(token.location, 
+			     new LinkedList<PDefinition>(), 
+			     true, 
+			     token);
 }
 | textLiteral 
 {
-    LexStringToken value = (LexStringToken)$textLiteral;
-    $$ = new AStringPattern(value.location, 
-			    new LinkedList<PDefinition>(), 
-			    true, 
-			    value);
+  LexStringToken value = (LexStringToken)$textLiteral;
+  $$ = new AStringPattern(value.location, 
+			  new LinkedList<PDefinition>(), 
+			  true, 
+			  value);
 }
 | quoteLiteral
 {
@@ -4591,10 +4592,10 @@ matchValue :
 }
 | LPAREN expression RPAREN
 {
-    $$ = new AExpressionPattern(extractLexLocation((CmlLexeme)$LPAREN,(CmlLexeme)$RPAREN), 
-				new LinkedList<PDefinition>(), 
-				false, 
-				(PExp)$expression);
+  $$ = new AExpressionPattern(extractLexLocation((CmlLexeme)$LPAREN,(CmlLexeme)$RPAREN), 
+			      new LinkedList<PDefinition>(), 
+			      false, 
+			      (PExp)$expression);
 }
 ;
 
@@ -4697,7 +4698,7 @@ typeBindList :
  * these and generate the VDM-compatible bit of AST
  * -jwc/2012/06/20
  */
-path :
+path[result] :
   unit
 {
   $$ = new Path((Unit)$1);
@@ -4751,61 +4752,56 @@ path :
   $$ = new Path(location,Path.PathKind.SEQRANGE,path,exps);
 }
 /* Bits for CSP renaming (IDENTIFIER DOT IDENTIFIER is above as path DOT unit) */
-/* channel name expression bits*/
-| path DOT nilLiteral 
-{
-    Path path = (Path)$1;
-    LexToken literal = (LexToken)$3; 
-    LexLocation location = extractLexLocation(path.location,literal.location);
-    $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal);
-}
-| path DOT booleanLiteral 
-{
-    Path path = (Path)$1;
-    LexToken literal = (LexToken)$3; 
-    LexLocation location = extractLexLocation(path.location,literal.location);
-    $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal);
-}
-| path DOT numericLiteral 
-{
-    Path path = (Path)$1;
-    LexToken literal = (LexToken)$3; 
-    LexLocation location = extractLexLocation(path.location,literal.location);
-    $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal);
-}
-| path DOT quoteLiteral 
-{
-    Path path = (Path)$1;
-    LexToken literal = (LexToken)$3; 
-    LexLocation location = extractLexLocation(path.location,literal.location);
-    $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal);
-}
-| path DOT textLiteral
-{
-    Path path = (Path)$1;
-    LexToken literal = (LexToken)$3; 
-    LexLocation location = extractLexLocation(path.location,literal.location);
-    $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal);
-}
-| path DOT characterLiteral 
-{
-    Path path = (Path)$1;
-    LexToken literal = (LexToken)$3; 
-    LexLocation location = extractLexLocation(path.location,literal.location);
-    $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal);
-}
-| path DOT LPAREN expression RPAREN // TODO -- channel name expression
-| path QUESTION pattern // TODO -- channel name expression
-/* | path QUESTION pattern INSET LCURLY expression RCURLY  */
-/* | path QUESTION pattern INSET LCURLY expression BAR bindList RCURLY */
-/* | path QUESTION pattern INSET LCURLY expression BAR bindList AT expression RCURLY */
-| path BANG nilLiteral // TODO -- channel name expression
-| path BANG booleanLiteral // TODO -- channel name expression
-| path BANG numericLiteral // TODO -- channel name expression
-| path BANG quoteLiteral // TODO -- channel name expression
-| path BANG textLiteral // TODO -- channel name expression
-| path BANG characterLiteral // TODO -- channel name expression
-| path BANG LPAREN expression RPAREN // TODO -- channel name expression
+/* channel name expression bits */
+| path DOT matchValue // Sorry Anders -jwc
+/* | path DOT nilLiteral  */
+/* { */
+/*     Path path = (Path)$1; */
+/*     LexToken literal = (LexToken)$3;  */
+/*     LexLocation location = extractLexLocation(path.location,literal.location); */
+/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
+/* } */
+/* | path DOT booleanLiteral  */
+/* { */
+/*     Path path = (Path)$1; */
+/*     LexToken literal = (LexToken)$3;  */
+/*     LexLocation location = extractLexLocation(path.location,literal.location); */
+/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
+/* } */
+/* | path DOT numericLiteral  */
+/* { */
+/*     Path path = (Path)$1; */
+/*     LexToken literal = (LexToken)$3;  */
+/*     LexLocation location = extractLexLocation(path.location,literal.location); */
+/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
+/* } */
+/* | path DOT quoteLiteral  */
+/* { */
+/*     Path path = (Path)$1; */
+/*     LexToken literal = (LexToken)$3;  */
+/*     LexLocation location = extractLexLocation(path.location,literal.location); */
+/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
+/* } */
+/* | path DOT textLiteral */
+/* { */
+/*     Path path = (Path)$1; */
+/*     LexToken literal = (LexToken)$3;  */
+/*     LexLocation location = extractLexLocation(path.location,literal.location); */
+/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
+/* } */
+/* | path DOT characterLiteral  */
+/* { */
+/*     Path path = (Path)$1; */
+/*     LexToken literal = (LexToken)$3;  */
+/*     LexLocation location = extractLexLocation(path.location,literal.location); */
+/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
+/* } */
+/* | path DOT LPAREN expression RPAREN // TODO -- channel name expression */
+| path QUESTION unit // TODO -- channel name expression
+| path QUESTION matchValue // TODO -- channel name expression
+/* | path QUESTION bind */
+| path BANG unit
+| path BANG matchValue
 /* channel name expression bits end*/
 ;
 
