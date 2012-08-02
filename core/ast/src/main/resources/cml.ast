@@ -667,6 +667,7 @@ action {-> package='eu.compassresearch.ast.actions'}
 		[nameSetExpression]:exp
 	| {generalisedParallelism} 
 		[chansetExpression]:exp
+		[nameSetExpression]:exp
 	| {alphabetisedParallelism}
 		[nameSetExpression]:exp 
 		[chansetExpression]:exp

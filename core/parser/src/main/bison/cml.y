@@ -105,14 +105,26 @@
     return out;
   }
 
-  private LexNameToken getNameTokenFromMKUNDERNAME(CmlLexeme mkUnderName)
+  private LexNameToken extractNameFromUNDERNAMEToken(CmlLexeme mkUnder)
   {
-    LexNameToken name = new LexNameToken("Default",
-					 mkUnderName.getValue().split("_")[1],
-					 extractLexLocation(mkUnderName),
-					 false,
-					 true);
-    return name;
+      String nameString = mkUnder.getValue().substring(3);
+      
+      LexNameToken name = null;
+      if(nameString.matches(".+['`''.'].+")){  
+	  String[] tokens = nameString.split("['`''.']");
+	  name = new LexNameToken(tokens[0],
+				  tokens[1],
+				  extractLexLocation(mkUnder),
+				  false,
+				  true);
+      }
+      else
+	  name = new LexNameToken("Default",
+				  nameString,
+				  extractLexLocation(mkUnder),
+				  false,
+				  true);
+      return name;
   }
 
   private AAccessSpecifier getDefaultAccessSpecifier(boolean isStatic, boolean isAsync, LexLocation loc)
@@ -1327,9 +1339,15 @@ action :
 /* NAMESET
  * expression was namesetExpr here
  */
-| LSQUAREDBAR expression DBARRSQUARE replicationDeclaration AT action %prec U-LSQUAREDBAR //TODO
+| LSQUAREDBAR expression DBARRSQUARE replicationDeclaration AT action %prec U-LSQUAREDBAR 
 {
-    
+    PAction replicatedAction = (PAction)$6;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,
+					      replicatedAction.getLocation());
+    $$ = new AInterleavingReplicatedAction(location, 
+					   (List<SSingleDeclaration>)$replicationDeclaration, 
+					   replicatedAction,
+					   (PExp)$expression);
 }
 /* NAMESET
  * expression was namesetExpr here
@@ -1348,7 +1366,17 @@ action :
  * NAMESET
  * expressions were namesetExpr, chansetExpr here
  */
-| LSQUAREBAR expression BARRSQUARE replicationDeclaration AT LSQUARE expression RSQUARE action %prec U-LSQUAREBAR // TODO
+| LSQUAREBAR expression BARRSQUARE replicationDeclaration AT LSQUARE expression RSQUARE action %prec U-LSQUAREBAR 
+{
+    PAction replicatedAction = (PAction)$9;
+    LexLocation location = extractLexLocation((CmlLexeme)$1,
+					      replicatedAction.getLocation());
+    $$ = new AGeneralisedParallelismReplicatedAction(location, 
+						     (List<SSingleDeclaration>)$replicationDeclaration, 
+						     replicatedAction, 
+						     (PExp)$2, 
+						     (PExp)$7);
+}
 /* CHANSET
  * NAMESET
  * expressions were namesetExpr, chansetExpr here
@@ -1391,12 +1419,22 @@ action :
 ;
 
 actionList :
-  action // TODO
-| actionList COMMA action // TODO
+  action 
+{
+    List<PAction> actionList = new LinkedList<PAction>();
+    actionList.add((PAction)$1);
+    $$ = actionList;
+}
+| actionList COMMA action 
+{
+    List<PAction> actionList = (List<PAction>)$1;
+    actionList.add(0,(PAction)$3);
+    $$ = actionList;
+}
 ;
 
 parametrisationList :
-parametrisation 
+  parametrisation 
 {
     List<PParametrisation> plist = new LinkedList<PParametrisation>();
     plist.add((PParametrisation)$parametrisation);
@@ -3182,9 +3220,9 @@ expression :
 | MKUNDERNAME LPAREN expressionList RPAREN
 {
   CmlLexeme mku = (CmlLexeme)$1;
-  LexNameToken name = getNameTokenFromMKUNDERNAME(mku);
+  LexNameToken name = extractNameFromUNDERNAMEToken(mku);
   List<PExp> exprs = (List<PExp>)$3;
-  LexLocation loc = combineLexLocation(extractLexLocation(mku), extractLexLocation((CmlLexeme)$4));
+  LexLocation loc = extractLexLocation(mku, (CmlLexeme)$4);
   ARecordExp res = new ARecordExp(loc, name, exprs);
   $$ = res;
 }
@@ -3217,13 +3255,26 @@ expression :
   $$ = res;
 }
 /* DEVIATION --- PATH
+ * GRAMMAR ERROR: Missing COMMA
  * CML_0:
- *   ISOFCLASS LPAREN name COMMA expression RPAREN
- * TODO: convert to a name
+ *   ISOFCLASS LPAREN name expression RPAREN
+ * here:
+ *   ISOFCLASS LPAREN path COMMA expression RPAREN
  */
-| ISOFCLASS LPAREN path COMMA expression RPAREN // TODO
+| ISOFCLASS LPAREN path COMMA expression RPAREN 
 {
-  $$ = $1;
+    PExp exp = null;
+    try{
+	Path path = (Path)$path;
+	exp = new AIsOfClassExp(extractLexLocation((CmlLexeme)$ISOFCLASS,(CmlLexeme)$RPAREN), 
+				path.convertToName(), 
+				(PExp)$5);
+    }
+    catch(Path.PathConvertException e) {
+	e.printStackTrace();
+	System.exit(-4);
+    }
+    $$ = exp;
 }
 /* DEVIATION --- PATH
  * CML_0:
@@ -3234,7 +3285,6 @@ expression :
  *   expression DOTHASH NUMERAL // tuple select
  *   expression DOT IDENTIFIER // field select
  *   SELF
- * TODO:
  * 1) convert to a name
  * 2) convert to an oldName
  * 3) convert to a subsequence expression
@@ -3860,14 +3910,13 @@ generalIsExpr :
  * here:
  *   ISUNDERNAME LPAREN expression RPAREN
  *
- * TODO: convert the ISUNDERNAME token into a name
  */
   ISUNDERNAME LPAREN expression RPAREN
 {
   CmlLexeme isUnder = (CmlLexeme)$1;
   PExp exp = (PExp)$3;
   LexLocation loc = combineLexLocation(extractLexLocation(isUnder), exp.getLocation());
-  LexNameToken typeName = new LexNameToken("Default", isUnder.getValue().split("_")[1], loc);
+  LexNameToken typeName = extractNameFromUNDERNAMEToken(isUnder);
   AIsExp res = new AIsExp(loc, typeName, exp, null);
   $$ = res;
 }
@@ -4435,18 +4484,17 @@ patternLessID :
  * here:
  *   MKUNDERNAME LPAREN expression RPAREN
  *
- * TODO: convert the MKUNDERNAME token into a name
  */
 | MKUNDERNAME LRPAREN
 {
   List<? extends PPattern> plist = null;
-  LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)$1);
+  LexNameToken name = extractNameFromUNDERNAMEToken((CmlLexeme)$1);
   $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$2), null, false, name, plist);
 }
 | MKUNDERNAME LPAREN patternList RPAREN
 {
   List<? extends PPattern> plist = (List<? extends PPattern>)$3;
-  LexNameToken name = getNameTokenFromMKUNDERNAME((CmlLexeme)$1);
+  LexNameToken name = extractNameFromUNDERNAMEToken((CmlLexeme)$1);
   $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4), null, false, name, plist);
 }
 ;
