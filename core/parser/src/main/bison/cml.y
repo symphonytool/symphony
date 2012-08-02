@@ -427,7 +427,7 @@
 %left AMP
 %left DLSQUARE
 %left ENDSBY STARTBY LSQUAREDBAR DBARRSQUARE DBACKSLASH
-%right U-SEMI U-BARTILDEBAR U-DBAR U-TBAR U-LRSQUARE U-LSQUARE U-LSQUAREBAR U-LSQUAREDBAR
+%right U-SEMI U-BARTILDEBAR U-DBAR U-TBAR U-LRSQUARE U-LSQUAREBAR U-LSQUAREDBAR
 // CSP prec end
 
 // VDM prec START
@@ -2424,23 +2424,20 @@ functionDefs :
 }
 ;
 
+/* DEVIATION !!
+ * functionDefs no longer have a semicolon separator
+ */
 functionDefList :
   functionDef
 {
   List<SFunctionDefinition> functionList = new Vector<SFunctionDefinition>();
-  functionList.add((SFunctionDefinition)$1);
+  functionList.add((SFunctionDefinition)$functionDef);
   $$ = functionList;
 }
-| functionDef SEMI
+| functionDefList[list] functionDef
 {
-  List<SFunctionDefinition> functionList = new Vector<SFunctionDefinition>();
-  functionList.add((SFunctionDefinition)$1);
-  $$ = functionList;
-}
-| functionDef SEMI functionDefList
-{
-  List<SFunctionDefinition> functionList = (List<SFunctionDefinition>)$3;
-  functionList.add((SFunctionDefinition)$1);
+  List<SFunctionDefinition> functionList = (List<SFunctionDefinition>)$list;
+  functionList.add((SFunctionDefinition)$functionDef);
   $$ = functionList;
 }
 ;
@@ -2674,6 +2671,9 @@ operationDefs :
 }
 ;
 
+/* DEVIATION !!
+ * operationDefs no longer have semicolons as separators
+ */
 operationDefList :
   operationDef
 {
@@ -2681,18 +2681,12 @@ operationDefList :
   opDefinitions.add((SOperationDefinition)$operationDef);
   $$ = opDefinitions;
 }
-| operationDefList SEMI operationDef
+| operationDefList[list] operationDef 
 {
-  List<SOperationDefinition> opDefinitions = (List<SOperationDefinition>)$1;
+  List<SOperationDefinition> opDefinitions = (List<SOperationDefinition>)$list;
   opDefinitions.add((SOperationDefinition)$operationDef);
   $$ = opDefinitions;
 }
-/* | operationDefList SEMI operationDef SEMI */
-/* { */
-/*     List<SOperationDefinition> opDefinitions = (List<SOperationDefinition>)$1; */
-/*     opDefinitions.add((SOperationDefinition)$3); */
-/*     $$ = opDefinitions; */
-/* } */
 ;
 
 operationDef :
@@ -2808,16 +2802,7 @@ operationType :
  * we aren't doing that at all!
  */
 operationBody :
-  /* action */
-  letStatement 
-{
-  $$ = $1;
-}
-| blockStatement 
-{
-  $$ = $1;
-}
-| controlStatement
+  action
 {
   $$ = $1;
 }
@@ -2926,27 +2911,22 @@ stateDefs :
 }
 ;
 
+/* DEVIATION !!
+ * stateDefs no longer have semicolon separators
+ */
 stateDefList :
   stateDef
 {
   AStateDefinition stateDef = new AStateDefinition();
   List<PDefinition> defs = new Vector<PDefinition>();
-  defs.add((PDefinition)$1);
+  defs.add((PDefinition)$stateDef);
   stateDef.setStateDefs(defs);
   $$ = stateDef;
 }
-| stateDef SEMI
+| stateDefList[list] stateDef
 {
-  AStateDefinition stateDef = new AStateDefinition();
-  List<PDefinition> defs = new Vector<PDefinition>();
-  defs.add((PDefinition)$1);
-  stateDef.setStateDefs(defs);
-  $$ = stateDef;
-}
-| stateDef SEMI stateDefList
-{
-  AStateDefinition stateDef = (AStateDefinition)$3;
-  stateDef.getStateDefs().add((PDefinition)$1);
+  AStateDefinition stateDef = (AStateDefinition)$list;
+  stateDef.getStateDefs().add((PDefinition)$stateDef);
   $$ = stateDef;
 }
 ;
@@ -3115,11 +3095,15 @@ expression :
   ASeqEnumSeqExp exp = new ASeqEnumSeqExp(loc, exps);
   $$ = exp;
 }
-/*
-  PROBLEM: Sequences cannot handle '[[]]' since '[[' and ']]' will be
-  lexed as a DLSQUARE and DRSQUARE token because of the renaming
-  comprehension. For now we need spaces like '[ [] ]' to be able to
-  parse it correctly.
+/* ?FIXME: Sequences cannot handle '[[]]' since '[[' and ']]' will be
+ * lexed as a DLSQUARE and DRSQUARE token because of the renaming
+ * comprehension. For now we need spaces like '[ [] ]' to be able to
+ * parse it correctly.
+ *
+ * (JWC) We definitely need to document this out for users; I don't
+ * think we can necessarily fix it (though it should be noted that a
+ * sequence enumeration that contains sequence enumerations is a
+ * little unusual).
  */
 | LSQUARE expressionList RSQUARE
 {
@@ -4326,19 +4310,22 @@ assignmentDef :
 }
 ;
 
+/* DEVIATION !!
+ * assignment lists in atomic blocks no longer use semicolon separators
+ */
 assignStatementList :
   assignStatement
 {
   List<ASingleGeneralAssignmentStatementAction> assigns =
     new LinkedList<ASingleGeneralAssignmentStatementAction>();
-  assigns.add((ASingleGeneralAssignmentStatementAction)$1);
+  assigns.add((ASingleGeneralAssignmentStatementAction)$assignStatement);
   $$ = assigns;
 }
-| assignStatementList SEMI assignStatement
+| assignStatementList[list] assignStatement
 {
   List<ASingleGeneralAssignmentStatementAction> assigns =
-    (List<ASingleGeneralAssignmentStatementAction>)$1;
-  assigns.add((ASingleGeneralAssignmentStatementAction)$3);
+    (List<ASingleGeneralAssignmentStatementAction>)$list;
+  assigns.add((ASingleGeneralAssignmentStatementAction)$assignStatement);
   $$ = assigns;
 }
 ;
