@@ -240,6 +240,7 @@ blanks          = [ \t\f]*
 "inv"                         { return createToken(CmlParser.INV); }
 "inverse"                     { return createToken(CmlParser.INVERSE); }
 "iota"                        { return createToken(CmlParser.IOTA); }
+"isofclass"                   { return createToken(CmlParser.ISOFCLASS); }
 "is not yet specified"        { return createToken(CmlParser.NOTYETSPEC); }
 "is subclass responsibility"  { return createToken(CmlParser.SUBCLASSRESP); }
 "lambda"                      { return createToken(CmlParser.LAMBDA); }
