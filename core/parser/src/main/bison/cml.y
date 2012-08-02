@@ -1521,33 +1521,54 @@ parametrisation :
 
 renameExpression :
 /* rename enumeration */
-  DLSQUARE renameList DRSQUARE
+  DLSQUARE renameList DRSQUARE // TODO
 {
-  $$ = new AEnumerationRenameChannelExp(null, extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3), (List<? extends ARenamePair>)$2);
+  $$ = new AEnumerationRenameChannelExp(null, extractLexLocation((CmlLexeme)$DLSQUARE, (CmlLexeme)$DRSQUARE), (List<? extends ARenamePair>)$renameList);
 }
 /* rename comprehensions */
-| DLSQUARE renameList BAR bindList DRSQUARE
+| DLSQUARE path[from] LARROW path[to] BAR bindList DRSQUARE // TODO
 {
-  $$ = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$5), (List<? extends ARenamePair>)$2, (List<? extends PMultipleBind>)$4, null);
+  ARenamePair pair = new ARenamePair(false,
+				     (ANameChannelExp)$from,
+				     (ANameChannelExp)$to);
+  $$ = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)$DLSQUARE, (CmlLexeme)$DRSQUARE),
+					  pair,
+					  (List<? extends PMultipleBind>)$bindList,
+					  null);
 }
-| DLSQUARE renameList BAR bindList AT expression DRSQUARE
+| DLSQUARE path[from] LARROW path[to] BAR bindList AT expression DRSQUARE // TODO
 {
-  $$ = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$7), (List<? extends ARenamePair>)$2, (List<? extends PMultipleBind>)$4, (PExp)$6);
+  ARenamePair pair = new ARenamePair(false,
+				     (ANameChannelExp)$from,
+				     (ANameChannelExp)$to);
+  $$ = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)$DLSQUARE, (CmlLexeme)$DRSQUARE),
+					  pair,
+					  (List<? extends PMultipleBind>)$bindList,
+					  (PExp)$expression);
 }
 ;
 
+/* DEVIATION --- PATH
+ * CML_0:
+ *   renamingEnumeration: '[[' renamingPair { ',' renamingPair } ']]'
+ *   renamingPair: IDENTIFIER { ',' expression } '<-' IDENTIFIER { ',' expression }
+ * here:
+ *   renamingPair: path '<-' path
+ * 
+ * Note that path requires expressions in (...) but allows literals without.
+ */
 renameList :
-  channelNameExpr LARROW channelNameExpr
+  path[from] LARROW path[to] // TODO -- channel name expression
 {
   List<ARenamePair> renamePairs = new Vector<ARenamePair>();
-  ARenamePair pair = new ARenamePair(false, (ANameChannelExp)$1, (ANameChannelExp)$3);
+  ARenamePair pair = new ARenamePair(false, (ANameChannelExp)$from, (ANameChannelExp)$to);
   renamePairs.add(pair);
   $$ = renamePairs;
 }
-| renameList COMMA channelNameExpr LARROW channelNameExpr
+| renameList COMMA path[from] LARROW path[to] // TODO -- channel name expression
 {
   List<ARenamePair> renamePairs = (List<ARenamePair>)$1;
-  ARenamePair pair = new ARenamePair(false, (ANameChannelExp)$3, (ANameChannelExp)$5);
+  ARenamePair pair = new ARenamePair(false, (ANameChannelExp)$from, (ANameChannelExp)$to);
   renamePairs.add(pair);
   $$ = renamePairs;
 }
@@ -1561,38 +1582,38 @@ renameList :
  * it disambiguates channel names from regular paths.  (Channel names
  * may have expressions in them, paths cannot.)
  */
-channelNameExpr :
-  IDENTIFIER
-{
-  LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
-  $$ = new ANameChannelExp(name.getLocation(),
-			   name,
-			   new LinkedList<PExp>());
-}
-| IDENTIFIER DOTCOLON channelNameExprTail
-{
-  LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
-  $$ = new ANameChannelExp(name.getLocation(),
-			    name,
-			    (List<PExp>)$channelNameExprTail);
-}
-;
+/* channelNameExpr : */
+/*   IDENTIFIER */
+/* { */
+/*   LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER); */
+/*   $$ = new ANameChannelExp(name.getLocation(), */
+/* 			   name, */
+/* 			   new LinkedList<PExp>()); */
+/* } */
+/* | IDENTIFIER DOTCOLON channelNameExprTail */
+/* { */
+/*   LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER); */
+/*   $$ = new ANameChannelExp(name.getLocation(), */
+/* 			    name, */
+/* 			    (List<PExp>)$channelNameExprTail); */
+/* } */
+/* ; */
 
-channelNameExprTail :
-  expression
-{
-  List<PExp> expTokens = new Vector<PExp>();
-  expTokens.add((PExp)$1);
-  $$ = expTokens;
-}
-| channelNameExprTail DOTCOLON expression
-{
-  List<PExp> expTokens = (List<PExp>)$1;
-  PExp exp = (PExp)$3;
-  expTokens.add(exp);
-  $$ = expTokens;
-}
-;
+/* channelNameExprTail : */
+/*   expression */
+/* { */
+/*   List<PExp> expTokens = new Vector<PExp>(); */
+/*   expTokens.add((PExp)$1); */
+/*   $$ = expTokens; */
+/* } */
+/* | channelNameExprTail DOTCOLON expression */
+/* { */
+/*   List<PExp> expTokens = (List<PExp>)$1; */
+/*   PExp exp = (PExp)$3; */
+/*   expTokens.add(exp); */
+/*   $$ = expTokens; */
+/* } */
+/* ; */
 
 channelDefinition :
   CHANNELS channelDef
@@ -1741,18 +1762,18 @@ chansetExpr :
   List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2;
   $$ = new AEnumChansetSetExp(location, identifiers);
 }
-| LCURLYBAR channelNameExpr BAR bindList BARRCURLY
+| LCURLYBAR path BAR bindList BARRCURLY // TODO --- channelNameExpr
 {
   LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR, (CmlLexeme)$BARRCURLY);
-  ANameChannelExp chanNameExp = (ANameChannelExp)$channelNameExpr;
+  ANameChannelExp chanNameExp = (ANameChannelExp)$path;
   List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
   $$ = new ACompChansetSetExp(location,chanNameExp , bindings, null);
 }
-| LCURLYBAR channelNameExpr BAR bindList AT expression BARRCURLY
+| LCURLYBAR path BAR bindList AT expression BARRCURLY // TODO --- channelNameExpr
 {
   LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR,
 					    (CmlLexeme)$BARRCURLY);
-  ANameChannelExp chanNameExp = (ANameChannelExp)$channelNameExpr;
+  ANameChannelExp chanNameExp = (ANameChannelExp)$path;
   List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
   PExp pred = (PExp)$expression;
   $$ = new ACompChansetSetExp(location, chanNameExp, bindings, pred);
@@ -4793,11 +4814,6 @@ path :
   LexLocation location = extractLexLocation(path.location,(CmlLexeme)$LRPAREN);
   $$ = new Path(location,Path.PathKind.APPLY,path);
 }
-/* | path DOT nilLiteral */
-/* | path DOT booleanLiteral */
-/* | path DOT numericLiteral */
-/* | path DOT quoteLiteral */
-/* | path DOT LPAREN expression RPAREN */
 | path LPAREN expressionList RPAREN
 {
   Path path = (Path)$1;
@@ -4813,6 +4829,14 @@ path :
   LexLocation location = extractLexLocation(path.location,(CmlLexeme)$RPAREN);
   $$ = new Path(location,Path.PathKind.SEQRANGE,path,exps);
 }
+/* Bits for CSP renaming (IDENTIFIER DOT IDENTIFIER is above as path DOT unit) */
+| path DOT nilLiteral // TODO -- channel name expression
+| path DOT booleanLiteral // TODO -- channel name expression
+| path DOT numericLiteral // TODO -- channel name expression
+| path DOT quoteLiteral // TODO -- channel name expression
+| path DOT textLiteral // TODO -- channel name expression
+| path DOT characterLiteral // TODO -- channel name expression
+| path DOT LPAREN expression RPAREN // TODO -- channel name expression
 ;
 
 unit :
