@@ -44,18 +44,15 @@ import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.transformation.CmlAstToOvertureAst;
 import eu.compassresearch.transformation.CopyTypesFromOvtToCmlAst;
 
+@SuppressWarnings("serial")
 public class TCDeclAndDefVisitor extends
     QuestionAnswerAdaptor<TypeCheckInfo, PType>
   {
     
-    /**
-	 * 
-	 */
-    private static final long serialVersionUID = -3595335302756624612L;
+    // Errors and other things are recorded on this guy
+    private VanillaCmlTypeChecker parentChecker;
     
-    private CmlTypeChecker    parentChecker;
-    
-    public TCDeclAndDefVisitor(CmlTypeChecker parent)
+    public TCDeclAndDefVisitor(VanillaCmlTypeChecker parent)
       {
         this.parentChecker = parent;
       }
@@ -262,7 +259,7 @@ public class TCDeclAndDefVisitor extends
           {
             for (VDMError vdme : org.overture.typechecker.TypeChecker
                 .getErrors())
-              parentChecker.addTypeError(cml.getLocation(), vdme.message);
+              parentChecker.addTypeError(cml, vdme.message);
             cml.setType(new AErrorType());
             return cml;
           }
@@ -346,7 +343,7 @@ public class TCDeclAndDefVisitor extends
         if (!funcType.getResult().equals(body.getType()))
           parentChecker
               .addTypeError(
-                  funcType.getLocation(),
+                  funcType,
                   "Function return type is different than the type of the function body. ReturnType: ["
                       + funcType.getResult()
                       + "], BodyType: ["

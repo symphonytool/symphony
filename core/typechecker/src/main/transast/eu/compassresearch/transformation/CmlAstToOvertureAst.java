@@ -38,6 +38,7 @@ import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexIntegerToken;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.lex.LexQuoteToken;
+import eu.compassresearch.ast.lex.LexRealToken;
 import eu.compassresearch.ast.lex.LexToken;
 import eu.compassresearch.ast.node.GraphNodeList;
 import eu.compassresearch.ast.node.NodeListList;
@@ -264,10 +265,20 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
               return convertLexIdentifierToken((eu.compassresearch.ast.lex.LexIdentifierToken) cmlGetterRes);
             if (eu.compassresearch.ast.typechecker.NameScope.class == cmlClz)
               return convertNameScope((eu.compassresearch.ast.typechecker.NameScope) cmlGetterRes);
+            if (eu.compassresearch.ast.lex.LexRealToken.class == cmlClz)
+              return convertLexRealToken((eu.compassresearch.ast.lex.LexRealToken) cmlGetterRes);
             
             else
               return defaultINode((eu.compassresearch.ast.node.INode) cmlGetterRes);
           }
+      }
+    
+    private Object convertLexRealToken(LexRealToken cmlGetterRes)
+        throws AnalysisException
+      {
+        org.overture.ast.lex.LexRealToken ovt = new org.overture.ast.lex.LexRealToken(
+            cmlGetterRes.value, (LexLocation) translate(cmlGetterRes.location));
+        return ovt;
       }
     
     private org.overture.ast.typechecker.NameScope convertNameScope(

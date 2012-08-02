@@ -564,7 +564,7 @@ public class CmlTypeCheckerTestCase extends TestCase
             + (expectedParserOk ? "success" : "fail") + " but it did'nt.",
             parserOk == expectedParserOk);
         
-        CmlTypeChecker tc = new CmlTypeChecker(parser.getDocument());
+        VanillaCmlTypeChecker tc = new VanillaCmlTypeChecker(parser.getDocument());
         Assert.assertTrue("Expected type checker to "
             + (expectedTypesOk ? "success" : "fail") + " but it did'nt.",
             tc.typeCheck() == expectedTypesOk);

@@ -22,7 +22,7 @@ public class TCExpressionVisitor extends
     @SuppressWarnings("unused")
     final private QuestionAnswerAdaptor<TypeCheckInfo, PType> parent;
     
-    public TCExpressionVisitor(CmlTypeChecker parentChecker)
+    public TCExpressionVisitor(VanillaCmlTypeChecker parentChecker)
       {
         parent = parentChecker;
       }
