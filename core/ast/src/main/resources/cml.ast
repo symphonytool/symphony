@@ -652,6 +652,7 @@ action {-> package='eu.compassresearch.ast.actions'}
 #Parallel {-> package='eu.compassresearch.ast.actions'}
 	= {interleaving} 
 	| {generalisedParallelism} 
+		[chanSetExpression]:exp
 	| {alphabetisedParallelism}
 		[leftChanSetExpression]:exp 
 		[rightChanSetExpression]:exp
@@ -662,15 +663,20 @@ action {-> package='eu.compassresearch.ast.actions'}
 	= {sequentialComposition}  
 	| {externalChoice}
 	| {internalChoice}
-	| {interleaving}
-	| {generalisedParallelism} [chansetExpression]:exp
-	| {alphabetisedParallelism} [chansetExpression]:exp
+	| {interleaving} 
+		[nameSetExpression]:exp
+	| {generalisedParallelism} 
+		[chansetExpression]:exp
+	| {alphabetisedParallelism}
+		[nameSetExpression]:exp 
+		[chansetExpression]:exp
 	| {synchronousParallelism}
+		[nameSetExpression]:exp
 	;	
 	
 #Instantiated {-> package='eu.compassresearch.ast.actions'}
 	= {declaration} [declaration]:declaration.#Single.type* [action]:action [args]:exp*
-	| {parametrisation} [action]:action.parametrised  [args]:exp*
+	| {parametrised} [action]:action.parametrised  [args]:exp*
 	;
 	
 communicationParameter {-> package='eu.compassresearch.ast.actions'}
@@ -699,22 +705,45 @@ parameter {-> package='eu.compassresearch.ast.actions'}
 	;
 
 #Control {-> package='eu.compassresearch.ast.actions'}
-	= {nonDeterministicIf} [alternatives]:nonDeterministicIfAlt*
-	| {nonDeterministicIfAlt} [guard]:exp [action]:action
-	| {if} [ifExp]:exp [thenStm]:action [elseIf]:action.#Statement.#Control.elseIf* [elseStm]:action
-	| {elseIf} [elseIf]:exp [thenStm]:action
-	| {cases} [exp]:exp [cases]:alternativeAction.case* [others]:action
+	= {nonDeterministicIf} 
+		[alternatives]:nonDeterministicAlt*
+	| {nonDeterministicAlt} 
+		[guard]:exp 
+		[action]:action
+	| {if} 
+		[ifExp]:exp 
+		[thenStm]:action 
+		[elseIf]:action.#Statement.#Control.elseIf* 
+		[elseStm]:action
+	| {elseIf} 
+		[elseIf]:exp 
+		[thenStm]:action
+	| {cases} 
+		[exp]:exp 
+		[cases]:alternativeAction.case* 
+		[others]:action
 	| #GeneralAssignment
-	| {call} [objectDesignator]:objectDesignator [name]:LexNameToken [args]:exp*
-	| {specification} [externals]:clause.external* [precondition]:exp [postcondition]:exp 
-	| {assignmentCall} [designator]:stateDesignator [call]:action.#Statement.#Control.call
-	| {return} [exp]:exp
+	| {call} 
+		[objectDesignator]:objectDesignator 
+		[name]:LexNameToken 
+		[args]:exp*
+	| {specification} 
+		[externals]:clause.external* 
+		[precondition]:exp 
+		[postcondition]:exp 
+	| {assignmentCall} 
+		[designator]:stateDesignator 
+		[call]:action.#Statement.#Control.call
+	| {return} 
+		[exp]:exp
 	| {new} 
 		[destination]:stateDesignator 
 		[className]:LexNameToken 
 		[args]:exp* 
 		(classdef):definition.#paragraph.class 
 		(ctorDefinition):definition
+	| {nonDeterministicDo} 
+		[alternatives]:nonDeterministicAlt*
 	| {forSet} 
 		[pattern]:pattern 
 		[set]:exp 
@@ -731,7 +760,9 @@ parameter {-> package='eu.compassresearch.ast.actions'}
     	[exp]:exp 
     	[action]:action 
     	(seqType):type.#seq
-    | {while} [condition]:exp [action]:action
+    | {while} 
+    	[condition]:exp 
+    	[action]:action
 	;
 
 #GeneralAssignment {-> package='eu.compassresearch.ast.actions'}
