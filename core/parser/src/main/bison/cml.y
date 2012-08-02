@@ -800,7 +800,7 @@ process :
 /* CHANSET
  * expression was chansetExpr here
  */
-| LSQUAREBAR expression BARRSQUARE replicationDeclaration AT process %prec U-LSQUARE 
+| LSQUAREBAR expression BARRSQUARE replicationDeclaration AT process %prec U-LSQUAREBAR
 {
   PProcess process = (PProcess)$6;
   PExp chansetExp = (PExp)$2;
@@ -992,10 +992,10 @@ action :
   LexLocation location = extractLexLocation((CmlLexeme)$1);
   $$ = new ADivAction(location);
 }
-| CSPWAIT LPAREN expression RPAREN
+| CSPWAIT expression
 {
   PExp exp = (PExp)$expression;
-  LexLocation location = extractLexLocation((CmlLexeme)$CSPWAIT, (CmlLexeme)$RPAREN);
+  LexLocation location = combineLexLocation(((CmlLexeme)$CSPWAIT).getLocation(), exp.getLocation());
   $$ = new AWaitAction(location, exp);
 }
 /* Communication rule start*/
@@ -1137,10 +1137,9 @@ action :
  * grammar:
  *   MU identifier {',' identifier} '@' action {',' action}
  * here:
- *   MU pathList '@' action 
+ *   MU pathList '@' '(' actionList ')'
  */
-| MU pathList AT action %prec MU // TODO
-//| MU pathList AT LPAREN actionList RPAREN %prec MU // TODO JWC apparently this works... 
+| MU pathList AT LPAREN actionList RPAREN %prec MU // TODO JWC
 /* parallel actions */
 /* NAMESET
  * expression was namesetExpr here
@@ -1322,11 +1321,10 @@ action :
 }
 ;
 
-/* JWC */
-/* actionList : */
-/*   action */
-/* | actionList COMMA action  */
-/* ; */
+actionList :
+  action // TODO
+| actionList COMMA action // TODO
+;
 
 communicationParameterList :
   communicationParameter
