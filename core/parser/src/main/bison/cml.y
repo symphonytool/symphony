@@ -396,7 +396,7 @@
 %token WHILE ISUNDERNAME EXTENDS EMPTYMAP DBACKSLASH
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE TICK CHAR_LIT NIL
 
-%token nameset textLiteral
+%token nameset
 
 /* ---------------------------------------------------------------- */
 /* Precidence declarations                                          */
@@ -1559,9 +1559,11 @@ parametrisation :
 
 renameExpression :
 /* rename enumeration */
-  DLSQUARE renameList DRSQUARE // TODO
+  DLSQUARE renameList DRSQUARE 
 {
-  $$ = new AEnumerationRenameChannelExp(null, extractLexLocation((CmlLexeme)$DLSQUARE, (CmlLexeme)$DRSQUARE), (List<? extends ARenamePair>)$renameList);
+    $$ = new AEnumerationRenameChannelExp(extractLexLocation((CmlLexeme)$DLSQUARE, 
+							     (CmlLexeme)$DRSQUARE), 
+					  (List<? extends ARenamePair>)$renameList);
 }
 /* rename comprehensions */
 | DLSQUARE path[from] LARROW path[to] BAR bindList DRSQUARE // TODO
@@ -3111,32 +3113,7 @@ expression :
  * a part and creates the corresponding character expressions.
  *
  */
-  STRING
-{
-  // Get a whole STRING from the lexer
-  CmlLexeme s = (CmlLexeme)$1;
-  LexLocation sl = extractLexLocation(s);
-  // extract the string and convert it to a char array
-  String str = s.getValue();
-  char[] chrs = str.toCharArray();
-  // build a list of ACharLiteralSymbolicLiteralExp from the lexer String
-  List<PExp> members = new LinkedList<PExp>();
-  for(int i = 0; i < chrs.length;i++) {
-    LexLocation cl = new LexLocation(currentSource.toString(), "Default",
-				     sl.startLine, sl.startPos + i,
-				     sl.startLine, sl.startPos + (i + 1),0,0);
-    ACharLiteralExp exp = new ACharLiteralExp(new ACharBasicType(),cl, new LexCharacterToken( chrs[i], cl ));
-    
-    members.add(exp);
-  }
-  // Build the ASeqEnumSeqExp as usual
-  ASeqSeqType t = new ASeqSeqType(sl, true, null, new ACharBasicType(), chrs.length == 0);
-  
-  ASeqEnumSeqExp res = new ASeqEnumSeqExp(sl, members);
-  res.setType(t);
-  $$ = res;
-}
-| LPAREN expression RPAREN
+ LPAREN expression RPAREN
 {
   LexLocation loc = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3);
   $$ = new ABracketedExp(loc, (PExp)$2);
@@ -3472,7 +3449,17 @@ expression :
     LexCharacterToken token = (LexCharacterToken)$characterLiteral;
     $$ = new ACharLiteralExp(token.location, token);
 }
-| textLiteral // TODO
+| textLiteral 
+{
+    LexStringToken value = (LexStringToken)$textLiteral;
+    ASeqSeqType t = new ASeqSeqType(value.location, 
+				    true, null, 
+				    new ACharBasicType(), 
+				    value.value.length() == 0);
+    $$ = new AStringLiteralExp(t, 
+			       value.location, 
+			       value);
+}
 | quoteLiteral
 {
   LexQuoteToken value = (LexQuoteToken)$1;
@@ -3543,6 +3530,15 @@ numericLiteral :
     $$ = new LexRealToken(0, loc);
   }
 }
+;
+
+textLiteral : 
+ STRING
+ {
+     String value = ((CmlLexeme)$1).getValue();
+     LexLocation loc = extractLexLocation((CmlLexeme)$STRING);
+     $$ = new LexStringToken(value.substring(1, value.length()-2), loc);
+ }
 ;
 
 quoteLiteral :
@@ -4707,7 +4703,14 @@ matchValue :
 			       true, 
 			       token);
 }
-| textLiteral // TODO
+| textLiteral 
+{
+    LexStringToken value = (LexStringToken)$textLiteral;
+    $$ = new AStringPattern(value.location, 
+			    new LinkedList<PDefinition>(), 
+			    true, 
+			    value);
+}
 | quoteLiteral
 {
   LexQuoteToken value = (LexQuoteToken)$1;

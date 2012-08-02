@@ -284,12 +284,12 @@ exp {-> package='eu.compassresearch.ast.expressions'}
 	;
 	
 #Rename   {-> package='eu.compassresearch.ast.expressions'}
- 	= {comprehension} [renamePairs]:pair.rename* [bindings]:multipleBind* [predicate]:exp
+ 	= {comprehension} [renamePairs]:pair.rename [bindings]:multipleBind* [predicate]:exp
  	| {enumeration} [renamePairs]:pair.rename*
     ;
     
 #literal {-> package='eu.compassresearch.ast.expressions'}
-	= {text} [value]:LexStringToken
+	= {string} [value]:LexStringToken
 	| {quote} [value]:LexQuoteToken   
 	| {char} [value]:LexCharacterToken
 	| {boolean} [value]:LexBooleanToken 
