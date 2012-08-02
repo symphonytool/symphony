@@ -4752,12 +4752,49 @@ path :
   $$ = new Path(location,Path.PathKind.SEQRANGE,path,exps);
 }
 /* Bits for CSP renaming (IDENTIFIER DOT IDENTIFIER is above as path DOT unit) */
-| path DOT nilLiteral // TODO -- channel name expression
-| path DOT booleanLiteral // TODO -- channel name expression
-| path DOT numericLiteral // TODO -- channel name expression
-| path DOT quoteLiteral // TODO -- channel name expression
-| path DOT textLiteral // TODO -- channel name expression
-| path DOT characterLiteral // TODO -- channel name expression
+/* channel name expression bits*/
+| path DOT nilLiteral 
+{
+    Path path = (Path)$1;
+    LexToken literal = (LexToken)$3; 
+    LexLocation location = extractLexLocation(path.location,literal.location);
+    $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal);
+}
+| path DOT booleanLiteral 
+{
+    Path path = (Path)$1;
+    LexToken literal = (LexToken)$3; 
+    LexLocation location = extractLexLocation(path.location,literal.location);
+    $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal);
+}
+| path DOT numericLiteral 
+{
+    Path path = (Path)$1;
+    LexToken literal = (LexToken)$3; 
+    LexLocation location = extractLexLocation(path.location,literal.location);
+    $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal);
+}
+| path DOT quoteLiteral 
+{
+    Path path = (Path)$1;
+    LexToken literal = (LexToken)$3; 
+    LexLocation location = extractLexLocation(path.location,literal.location);
+    $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal);
+}
+| path DOT textLiteral
+{
+    Path path = (Path)$1;
+    LexToken literal = (LexToken)$3; 
+    LexLocation location = extractLexLocation(path.location,literal.location);
+    $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal);
+}
+| path DOT characterLiteral 
+{
+    Path path = (Path)$1;
+    LexToken literal = (LexToken)$3; 
+    LexLocation location = extractLexLocation(path.location,literal.location);
+    $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal);
+}
 | path DOT LPAREN expression RPAREN // TODO -- channel name expression
 | path QUESTION pattern // TODO -- channel name expression
 /* | path QUESTION pattern INSET LCURLY expression RCURLY  */
@@ -4770,6 +4807,7 @@ path :
 | path BANG textLiteral // TODO -- channel name expression
 | path BANG characterLiteral // TODO -- channel name expression
 | path BANG LPAREN expression RPAREN // TODO -- channel name expression
+/* channel name expression bits end*/
 ;
 
 unit :
