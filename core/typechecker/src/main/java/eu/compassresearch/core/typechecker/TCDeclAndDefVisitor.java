@@ -1,8 +1,11 @@
 package eu.compassresearch.core.typechecker;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import org.overture.ast.node.INode;
+import org.overture.parser.messages.VDMError;
+import org.overture.typechecker.visitor.TypeCheckerExpVisitor;
 
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
@@ -16,16 +19,23 @@ import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.AExplicitFunctionDefinition;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
+import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
+import eu.compassresearch.ast.definitions.ALocalDefinition;
 import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.patterns.AIdentifierPattern;
+import eu.compassresearch.ast.patterns.PPattern;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.ast.typechecker.NameScope;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AChansetParagraphType;
 import eu.compassresearch.ast.types.AClassType;
+import eu.compassresearch.ast.types.AErrorType;
+import eu.compassresearch.ast.types.AFunctionParagraphType;
 import eu.compassresearch.ast.types.AFunctionType;
 import eu.compassresearch.ast.types.AOperationType;
 import eu.compassresearch.ast.types.AProcessParagraphType;
@@ -122,6 +132,30 @@ public class TCDeclAndDefVisitor extends
         return clzType;
       }
     
+    /**
+     * A Function Paragraph is well typed if all the type definitions it
+     * contains are well typed.
+     * 
+     * 
+     * 
+     */
+    @Override
+    public PType caseAFunctionParagraphDefinition(
+        AFunctionParagraphDefinition node, TypeCheckInfo question)
+        throws AnalysisException
+      {
+        for (PDefinition def : node.getFunctionDefinitions())
+          {
+            PType type = def.apply(parentChecker, question);
+            if (type == null)
+              throw new AnalysisException(
+                  "Unable to determined type for function definition: " + def);
+          }
+        node.setType(new AFunctionParagraphType());
+        
+        return node.getType();
+      }
+    
     @Override
     public PType caseAOperationParagraphDefinition(
         AOperationParagraphDefinition node, TypeCheckInfo question)
@@ -203,14 +237,39 @@ public class TCDeclAndDefVisitor extends
         return node.getType();
       }
     
-    private eu.compassresearch.ast.node.INode applyTransformToGetType(
-        eu.compassresearch.ast.node.INode cml) throws AnalysisException,
-        org.overture.ast.analysis.AnalysisException
+    private static class FakeOvertureRootVisitor extends
+        org.overture.typechecker.visitor.TypeCheckVisitor
       {
+        
+      }
+    
+    private eu.compassresearch.ast.node.INode applyTransformToGetType(
+        eu.compassresearch.ast.expressions.PExp cml, TypeCheckInfo nfo)
+        throws AnalysisException, org.overture.ast.analysis.AnalysisException
+      {
+        
         CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
+        org.overture.ast.expressions.PExp ovtNode = (org.overture.ast.expressions.PExp) cml
+            .apply(transform);
+        org.overture.typechecker.visitor.TypeCheckerExpVisitor exprCheckerExpVisitor = new TypeCheckerExpVisitor(
+            new FakeOvertureRootVisitor());
+        org.overture.typechecker.TypeCheckInfo ovtQuestion = new org.overture.typechecker.TypeCheckInfo(
+            nfo.env.getOvertureEnv());
+        
+        ovtNode.apply(exprCheckerExpVisitor, ovtQuestion);
+        
+        if (org.overture.typechecker.TypeChecker.getErrorCount() > 0)
+          {
+            for (VDMError vdme : org.overture.typechecker.TypeChecker
+                .getErrors())
+              parentChecker.addTypeError(cml.getLocation(), vdme.message);
+            cml.setType(new AErrorType());
+            return cml;
+          }
+        
         CopyTypesFromOvtToCmlAst copier = new CopyTypesFromOvtToCmlAst(
             transform.getNodeMap());
-        return cml.apply(transform).apply(copier);
+        return ovtNode.apply(copier);
       }
     
     @Override
@@ -247,10 +306,37 @@ public class TCDeclAndDefVisitor extends
         AExplicitFunctionDefinition node, TypeCheckInfo question)
         throws AnalysisException
       {
+        Environment functionBodyEnv = new Environment(question.env);
+        // add formal arguments to the environment
+        int i = 0;
+        for (List<PPattern> def : node.getParamPatternList())
+          {
+            for (PPattern p : def)
+              {
+                if (p instanceof AIdentifierPattern)
+                  {
+                    AIdentifierPattern idp = (AIdentifierPattern) p;
+                    ALocalDefinition local = new ALocalDefinition(
+                        idp.getLocation(), idp.getName(), NameScope.LOCAL,
+                        false, null, null, node.getType().getParameters()
+                            .get(i), null);
+                    functionBodyEnv.put(idp.getName(), local);
+                  } else
+                  throw new AnalysisException(
+                      "Can only handle identifier patterns at this time.");
+              }
+            i++;
+          }
+        
         PExp body = node.getBody();
         try
           {
-            applyTransformToGetType(body);
+            TypeCheckInfo newQuestion = new TypeCheckInfo(functionBodyEnv);
+            body = (PExp) applyTransformToGetType(body, newQuestion);
+            if (body.getType() == null)
+              throw new AnalysisException(
+                  "Transformation and type checking with Overture type checker failed for expression: "
+                      + body);
           } catch (org.overture.ast.analysis.AnalysisException e)
           {
             throw new AnalysisException(e.getMessage());
@@ -266,7 +352,7 @@ public class TCDeclAndDefVisitor extends
                       + "], BodyType: ["
                       + body.getType() + "]");
         
-        return super.caseAExplicitFunctionDefinition(node, question);
+        return funcType;
       }
     
     @Override

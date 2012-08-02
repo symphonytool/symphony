@@ -2287,10 +2287,14 @@ explicitFunctionDef :
   LexNameToken name = extractLexNameToken((CmlLexeme)$1);
   LexLocation loc = extractLexLocation((CmlLexeme)$1);
   AFunctionType ftype = (AFunctionType)$3;
+  PExp functionBody = (PExp)$functionBody;
+  List<List<PPattern>> args = (List<List<PPattern>>)$parameterList;
   AExplicitFunctionDefinition res = new AExplicitFunctionDefinition();
   res.setName(name);
   res.setLocation(loc);
   res.setType(ftype);
+  res.setBody(functionBody);
+  res.setParamPatternList(args);
   $$ = res;
 }
 ;
@@ -2747,10 +2751,15 @@ expression :
     LexLocation cl = new LexLocation(currentSource.toString(), "Default",
 				     sl.startLine, sl.startPos + i,
 				     sl.startLine, sl.startPos + (i + 1),0,0);
-    members.add(new ACharLiteralExp(cl, new LexCharacterToken( chrs[i], cl )) );
+    ACharLiteralExp exp = new ACharLiteralExp(new ACharBasicType(),cl, new LexCharacterToken( chrs[i], cl ));
+    
+    members.add(exp);
   }
   // Build the ASeqEnumSeqExp as usual
+  ASeqSeqType t = new ASeqSeqType(sl, true, null, new ACharBasicType(), chrs.length == 0);
+  
   ASeqEnumSeqExp res = new ASeqEnumSeqExp(sl, members);
+  res.setType(t);
   $$ = res;
 }
 | LPAREN expression RPAREN
@@ -4184,7 +4193,7 @@ patternIdentifier :
   IDENTIFIER
 {
   CmlLexeme lexeme = (CmlLexeme)$1;
-  LexNameToken lnt = extractLexNameToken(lexeme);
+  LexNameToken lnt = new LexNameToken("", lexeme.getValue(), extractLexLocation(lexeme), false, true);
   AIdentifierPattern res = new AIdentifierPattern();
   res.setName(lnt);
   res.setLocation(lnt.getLocation());

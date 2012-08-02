@@ -184,8 +184,6 @@ public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType>
     public boolean typeCheck()
       {
         TypeCheckInfo info = new TypeCheckInfo();
-        Environment typeEnv = new Environment();
-        Environment varEnv = new Environment();
         
         // for each source
         for (PSource s : sourceForest)
@@ -197,10 +195,16 @@ public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType>
                     paragraph.apply(this, info);
                   } catch (AnalysisException ae)
                   {
-                    this.errors.add(new CMLTypeError(null, ae.getMessage()));
-                    System.out.println(ae.getMessage());
+                    // This means we have a bug in the type checker
+                    ae.printStackTrace();
+                    return false;
                   }
               }
+          }
+        
+        for (CMLIssue issue : errors)
+          {
+            System.out.println("TypeError: " + issue);
           }
         
         return errors.size() == 0;

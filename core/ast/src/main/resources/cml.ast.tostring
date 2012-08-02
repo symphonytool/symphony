@@ -92,6 +92,8 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %type->#basic->char="char"
 %type->#basic->token="token"
 
+%type->error = "type error"
+
 %type->#basic->#numeric->int ="int"
 %type->#basic->#numeric->natOne="nat1"
 %type->#basic->#numeric->nat="nat"

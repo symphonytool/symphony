@@ -464,7 +464,7 @@ public class CmlTypeCheckerTestCase extends TestCase
         // 115
         addTestProgram(
             testData,
-            "class c = begin functions fn: int -> int fn(a) == \"Wrong type\" end",
+            "class c = begin functions fn: int -> int fn(a) == \"Wrong type\" + a end",
             false, true, true);
         
         addTestProgram(
@@ -472,7 +472,7 @@ public class CmlTypeCheckerTestCase extends TestCase
             "class c = begin state a:int; operations c: int ==> c c(v) == a := v end",
             false, true, true);
         
-        // /--------------------------------------------------------------------------
+        // '--------------------------------------------------------------------------
         // | Processes
         // \--------------------------------------------------------------------------
         addTestProgram(testData, "process p1 = begin @ skip end", false, true,
