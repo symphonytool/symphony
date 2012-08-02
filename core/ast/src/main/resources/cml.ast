@@ -698,12 +698,7 @@ parameter {-> package='eu.compassresearch.ast.actions'}
 #Statement {-> package='eu.compassresearch.ast.actions'}
 	= {let} [action]:action [localDefinitions]:definition*
 	| {block} [declareStatement]:action.#Statement.declare [action]:action	
-	| #Control 
-	| {declare}  [assignmentDefs]:definition*
-	;
-
-#Control {-> package='eu.compassresearch.ast.actions'}
-	= {nonDeterministicIf} 
+	| {nonDeterministicIf} 
 		[alternatives]:nonDeterministicAlt*
 	| {nonDeterministicAlt} 
 		[guard]:exp 
@@ -711,7 +706,7 @@ parameter {-> package='eu.compassresearch.ast.actions'}
 	| {if} 
 		[ifExp]:exp 
 		[thenStm]:action 
-		[elseIf]:action.#Statement.#Control.elseIf* 
+		[elseIf]:action.#Statement.elseIf* 
 		[elseStm]:action
 	| {elseIf} 
 		[elseIf]:exp 
@@ -731,7 +726,7 @@ parameter {-> package='eu.compassresearch.ast.actions'}
 		[postcondition]:exp 
 	| {assignmentCall} 
 		[designator]:stateDesignator 
-		[call]:action.#Statement.#Control.call
+		[call]:action.#Statement.call
 	| {return} 
 		[exp]:exp
 	| {new} 
@@ -760,12 +755,13 @@ parameter {-> package='eu.compassresearch.ast.actions'}
     	(seqType):type.#seq
     | {while} 
     	[condition]:exp 
-    	[action]:action
+    	[action]:action 
+	| {declare}  [assignmentDefs]:definition*
 	;
 
 #GeneralAssignment {-> package='eu.compassresearch.ast.actions'}
     = {single} [stateDesignator]:stateDesignator [expression]:exp
-    | {multiple} [assignments]:action.#Statement.#Control.#GeneralAssignment.single*
+    | {multiple} [assignments]:action.#Statement.#GeneralAssignment.single*
 	;
 
 stateDesignator {-> package='eu.compassresearch.ast.actions'}
@@ -867,27 +863,28 @@ Aspect Declaration
 						[rightAction]:action
 	;	
 
-%declaration =  [location]:location [nameScope]:nameScope
-	;
+%bind = [location]:location
+    ;
 
-%parametrisation = [location]:location [declaration]:declaration.#Single.type 
-	;
-
-%process =  [location]:location 
-	;
-
-%process->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedProcess]:process 
-	;
-	
-%mode = [location]:location
-	;
-	
 %communicationParameter = [location]:location
 	; 
 
-%parameter = [location]:location
-	; 
-	
+
+%declaration =  [location]:location [nameScope]:nameScope
+	;
+
+%definition 
+    =   [location]:location 
+        (name):LexIdentifierToken // Names are specialised Identifiers carrying an additional module property
+        [nameScope]:nameScope 
+        [used]:java_Boolean 
+//      (classDefinition):definition.#paragraph.class 
+//	    (declaration):declaration
+        [access]:specifier.access
+        (type):type 
+        // [pass]:pass
+    ;
+
 %exp->#Unary =  [exp]:exp
     ;
 
@@ -901,30 +898,57 @@ Aspect Declaration
     = (setType):type.set
     ;
 
-%type = [location]:location [resolved]:java_Boolean (definitions):definition*
-     ; 
+%export 
+    =   [location]:location [definition]:definition*
+    ;
+
+%mode = [location]:location
+	;
+
+%multipleBind = [location]:location [plist]:pattern*
+    ;
+
+%objectDesignator
+    = [location]:location
+    ;
+
+%pair
+    = [resolved]:java_Boolean
+    ;
 
 %pattern = [location]:location [definitions]:definition* [resolved]:java_Boolean
     ;
 
-%bind = [location]:location
+%parametrisation = [location]:location [declaration]:declaration.#Single.type 
+	;
+
+%process =  [location]:location 
+	;
+
+%process->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedProcess]:process 
+	;
+
+%parameter = [location]:location
+	; 
+
+%stateDesignator 
+    = [location]:location (type):type
     ;
 
-%multipleBind = [location]:location [plist]:pattern*
-    ;
-    
-%definition 
-    =   [location]:location 
-        (name):LexIdentifierToken // Names are specialised Identifiers carrying an additional module property
-        [nameScope]:nameScope 
-        [used]:java_Boolean 
-//      (classDefinition):definition.#paragraph.class 
-	(declaration):declaration
-        [access]:specifier.access
-        (type):type 
-        // [pass]:pass
+%type = [location]:location [resolved]:java_Boolean (definitions):definition*
+     ; 
+
+%type->#Map = (from):type (to):type [empty]:java_Boolean
     ;
 
+%type->#invariant
+    =   (opaque):java_Boolean
+        (invDef):definition.#function.explicit
+    ; 
+
+%type->#seq
+    = (seqof):type [empty]:java_Boolean
+    ;
 
 /*    
 %stm
@@ -945,31 +969,4 @@ Aspect Declaration
     
 %import->#value 
     = (importType):type
-    ;
-     
-%type->#Map = (from):type (to):type [empty]:java_Boolean
-    ;
-%export 
-    =   [location]:location [definition]:definition*
-    ;
-    
-%pair
-    = [resolved]:java_Boolean
-    ;
-    
-%type->#invariant
-    =   (opaque):java_Boolean
-        (invDef):definition.#function.explicit
-    ; 
-    
-%type->#seq
-    = (seqof):type [empty]:java_Boolean
-    ;
-    
-%stateDesignator 
-    = [location]:location (type):type
-    ;
-    
-%objectDesignator
-    = [location]:location
     ;

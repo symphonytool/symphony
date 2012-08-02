@@ -528,7 +528,6 @@ classDefinition :
 				       extractLexNameToken($2), 
 				       NameScope.CLASSNAME, 
 				       false, 
-				       null, 
 				       getDefaultAccessSpecifier(false,false,null), 
 				       null/*PType type_  should this be the namedInvariantType*/, 
 				       (List<? extends PDefinition>)$classDefinitionBlock, 
@@ -1902,7 +1901,6 @@ typeDef :
 						name,
 						NameScope.TYPENAME,
 						false/*Boolean used_*/,
-						null/*PDeclaration declaration_*/,
 						access,
 						(PType)$type,
 						null/*SInvariantType invType_*/,
@@ -1926,7 +1924,6 @@ typeDef :
 			   name,
 			   NameScope.TYPENAME,
 			   false/*Boolean used_*/,
-			   null/*PDeclaration declaration_*/,
 			   access,
 			   (PType)$type,
 			   null/*SInvariantType invType_*/,
@@ -1947,7 +1944,17 @@ typeDef :
   else
     loc = combineLexLocation(name.getLocation(), extractLexLocation(vdmrec));
   ARecordInvariantType recType = new ARecordInvariantType(loc, false, null, false, null, name, fields, true);
-  ATypeDefinition res = new ATypeDefinition(loc, name, NameScope.GLOBAL, false, null, access, recType, null, null, null, null, true);
+  ATypeDefinition res = new ATypeDefinition(loc, 
+					    name, 
+					    NameScope.GLOBAL, 
+					    false, 
+					    access, 
+					    recType, 
+					    null, 
+					    null, 
+					    null, 
+					    null, 
+					    true);
   $$ = res;
 }
 | qualifier IDENTIFIER DCOLON fieldList invariant
@@ -1964,7 +1971,17 @@ typeDef :
   else
     loc = combineLexLocation(name.getLocation(), extractLexLocation(vdmrec));
   ARecordInvariantType recType = new ARecordInvariantType(loc, false, null, false, null, name, fields, true);
-  ATypeDefinition res = new ATypeDefinition(loc, name, NameScope.TYPENAME, false, null, access, recType, null, null, null, null, true);
+  ATypeDefinition res = new ATypeDefinition(loc, 
+					    name, 
+					    NameScope.TYPENAME, 
+					    false, 
+					    access, 
+					    recType, 
+					    null, 
+					    null, 
+					    null, 
+					    null, 
+					    true);
   $$ = res;
 }
 ;
@@ -2297,14 +2314,12 @@ invariant :
   CmlLexeme vdmInvLexeme = (CmlLexeme)$1;
   PExp exp = (PExp)$4;
   LexLocation loc = extractLexLocation(vdmInvLexeme, exp.getLocation());
-  PDeclaration decl = null; // useless
   AAccessSpecifier access = getDefaultAccessSpecifier( true, true, loc );
   PType type = null; // will be decided later
   $$ = new AInvariantDefinition(loc,
 				name,
 				NameScope.LOCAL,
 				false,
-				decl,
 				access,
 				type,
 				(PPattern)$2,
@@ -3990,17 +4005,17 @@ controlStatement :
 | IF nonDeterministicAltList END
 {
   LexLocation location = extractLexLocation((CmlLexeme)$IF,(CmlLexeme)$END);
-  List<ANonDeterministicAltControlStatementAction> alternatives =
-    (List<ANonDeterministicAltControlStatementAction>)$nonDeterministicAltList;
-  $$ = new ANonDeterministicIfControlStatementAction(location,
+  List<ANonDeterministicAltStatementAction> alternatives =
+    (List<ANonDeterministicAltStatementAction>)$nonDeterministicAltList;
+  $$ = new ANonDeterministicIfStatementAction(location,
 						     alternatives);
 }
 | DO nonDeterministicAltList END %prec U-DO 
 {
     LexLocation location = extractLexLocation((CmlLexeme)$DO,(CmlLexeme)$END);
-    List<ANonDeterministicAltControlStatementAction> alternatives =
-	(List<ANonDeterministicAltControlStatementAction>)$nonDeterministicAltList;
-    $$ = new ANonDeterministicDoControlStatementAction(location,
+    List<ANonDeterministicAltStatementAction> alternatives =
+	(List<ANonDeterministicAltStatementAction>)$nonDeterministicAltList;
+    $$ = new ANonDeterministicDoStatementAction(location,
 						       alternatives);
 }
 /* nondeterministic statements end */
@@ -4033,8 +4048,8 @@ controlStatement :
 | ATOMIC LPAREN assignStatementList RPAREN
 {
   LexLocation location = extractLexLocation((CmlLexeme)$ATOMIC,(CmlLexeme)$RPAREN);
-  $$ = new AMultipleGeneralAssignmentControlStatementAction(location,
-							    (List<? extends ASingleGeneralAssignmentControlStatementAction>)$assignStatementList);
+  $$ = new AMultipleGeneralAssignmentStatementAction(location,
+							    (List<? extends ASingleGeneralAssignmentStatementAction>)$assignStatementList);
 }
 /* general assign statement end */
 /* specification statement */
@@ -4057,18 +4072,18 @@ controlStatement :
  */
 | RETURN
 {
-  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1),
+  $$ = new AReturnStatementAction(extractLexLocation((CmlLexeme)$1),
 					 null);
 }
 | RETURN LRPAREN
 {
-  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1),
+  $$ = new AReturnStatementAction(extractLexLocation((CmlLexeme)$1),
 					 null);
 }
 | RETURN LPAREN expression RPAREN
 {
   PExp exp = (PExp)$expression;
-  $$ = new AReturnControlStatementAction(extractLexLocation((CmlLexeme)$1,
+  $$ = new AReturnStatementAction(extractLexLocation((CmlLexeme)$1,
 							    exp.getLocation()),
 					 exp);
 }
@@ -4080,13 +4095,13 @@ controlStatement :
  */
 | path COLONEQUALS NEW path LRPAREN
 {
-  ANewControlStatementAction stm = null;
+  ANewStatementAction stm = null;
   try {
     Path statePath = (Path)$1;
     Path namePath = (Path)$4;
     List<? extends PExp> args = null;
     LexLocation location = extractLexLocation(statePath.location,(CmlLexeme)$LRPAREN);
-    stm = new ANewControlStatementAction(location,
+    stm = new ANewStatementAction(location,
 					 statePath.convertToStateDesignator(),
 					 namePath.convertToName(),
 					 args);
@@ -4098,13 +4113,13 @@ controlStatement :
 }
 | path COLONEQUALS NEW path LPAREN expressionList RPAREN
 {
-  ANewControlStatementAction stm = null;
+  ANewStatementAction stm = null;
   try {
     Path statePath = (Path)$1;
     Path namePath = (Path)$4;
     List<? extends PExp> args = (List<? extends PExp>)$expressionList;
     LexLocation location = extractLexLocation(statePath.location,(CmlLexeme)$RPAREN);
-    stm = new ANewControlStatementAction(location,
+    stm = new ANewStatementAction(location,
 					 statePath.convertToStateDesignator(),
 					 namePath.convertToName(),
 					 args);
@@ -4134,7 +4149,7 @@ controlStatement :
 						    null,
 						    bind,
 						    null, null);
-  $$ = new AForSequenceControlStatementAction(location,
+  $$ = new AForSequenceStatementAction(location,
 					      patternBind,
 					      (PExp)$expression,
 					      action,
@@ -4150,7 +4165,7 @@ controlStatement :
 						    pattern,
 						    null,
 						    null, null);
-  $$ = new AForSequenceControlStatementAction(location,
+  $$ = new AForSequenceStatementAction(location,
 					      patternBind,
 					      (PExp)$expression,
 					      action,
@@ -4163,7 +4178,7 @@ controlStatement :
 {
   PAction action = (PAction)$action;
   LexLocation location = extractLexLocation((CmlLexeme)$FOR,action.getLocation());
-  $$ = new AForSetControlStatementAction(location,
+  $$ = new AForSetStatementAction(location,
 					 (PPattern)$pattern,
 					 (PExp)$expression,
 					 action);
@@ -4173,7 +4188,7 @@ controlStatement :
 {
   PAction action = (PAction)$action;
   LexLocation location = extractLexLocation((CmlLexeme)$FOR,action.getLocation());
-  $$ = new AForIndexControlStatementAction(location,
+  $$ = new AForIndexStatementAction(location,
 					   extractLexNameToken($IDENTIFIER),
 					   (PExp)$4 ,
 					   (PExp)$6,
@@ -4184,7 +4199,7 @@ controlStatement :
 {
   PAction action = (PAction)$action;
   LexLocation location = extractLexLocation((CmlLexeme)$FOR,action.getLocation());
-  $$ = new AForIndexControlStatementAction(location,
+  $$ = new AForIndexStatementAction(location,
 					   extractLexNameToken($IDENTIFIER),
 					   (PExp)$4 ,
 					   (PExp)$6,
@@ -4197,7 +4212,7 @@ controlStatement :
 {
   PAction action = (PAction)$action;
   LexLocation location = extractLexLocation((CmlLexeme)$WHILE,action.getLocation());
-  $$ = new AWhileControlStatementAction(location,
+  $$ = new AWhileStatementAction(location,
 					(PExp)$expression,
 					action);
 }
@@ -4235,9 +4250,9 @@ nonDeterministicAltList :
   PAction action = (PAction)$action;
   LexLocation location = combineLexLocation(guard.getLocation(),
 					    action.getLocation());
-  List<ANonDeterministicAltControlStatementAction> alts =
-    new LinkedList<ANonDeterministicAltControlStatementAction>();
-  alts.add(new ANonDeterministicAltControlStatementAction(location,
+  List<ANonDeterministicAltStatementAction> alts =
+    new LinkedList<ANonDeterministicAltStatementAction>();
+  alts.add(new ANonDeterministicAltStatementAction(location,
 							    guard,
 							    action));
   $$ = alts;
@@ -4248,9 +4263,9 @@ nonDeterministicAltList :
   PAction action = (PAction)$action;
   LexLocation location = extractLexLocation((CmlLexeme)$BAR,
 					    action.getLocation());
-  List<ANonDeterministicAltControlStatementAction> alts =
-    (List<ANonDeterministicAltControlStatementAction>)$1;
-  alts.add(new ANonDeterministicAltControlStatementAction(location,
+  List<ANonDeterministicAltStatementAction> alts =
+    (List<ANonDeterministicAltStatementAction>)$1;
+  alts.add(new ANonDeterministicAltStatementAction(location,
 							    guard,
 							    action));
   $$ = alts;
@@ -4315,7 +4330,6 @@ assignmentDef :
 				 name, 
 				 NameScope.GLOBAL, 
 				 false, 
-				 null, 
 				 access, 
 				 type, 
 				 null, 
@@ -4331,7 +4345,6 @@ assignmentDef :
   $$ = new AAssignmentDefinition(location, name, 
 				 NameScope.GLOBAL, 
 				 false, 
-				 null, 
 				 access, 
 				 type, 
 				 exp, 
@@ -4352,7 +4365,6 @@ assignmentDef :
     $$ = new AAssignmentDefinition(location, name, 
 				   NameScope.GLOBAL, 
 				   false, 
-				   null, 
 				   access, 
 				   type, 
 				   exp, 
@@ -4363,16 +4375,16 @@ assignmentDef :
 assignStatementList :
   assignStatement
 {
-  List<ASingleGeneralAssignmentControlStatementAction> assigns =
-    new LinkedList<ASingleGeneralAssignmentControlStatementAction>();
-  assigns.add((ASingleGeneralAssignmentControlStatementAction)$1);
+  List<ASingleGeneralAssignmentStatementAction> assigns =
+    new LinkedList<ASingleGeneralAssignmentStatementAction>();
+  assigns.add((ASingleGeneralAssignmentStatementAction)$1);
   $$ = assigns;
 }
 | assignStatementList SEMI assignStatement
 {
-  List<ASingleGeneralAssignmentControlStatementAction> assigns =
-    (List<ASingleGeneralAssignmentControlStatementAction>)$1;
-  assigns.add((ASingleGeneralAssignmentControlStatementAction)$3);
+  List<ASingleGeneralAssignmentStatementAction> assigns =
+    (List<ASingleGeneralAssignmentStatementAction>)$1;
+  assigns.add((ASingleGeneralAssignmentStatementAction)$3);
   $$ = assigns;
 }
 ;
@@ -4396,7 +4408,7 @@ assignStatement :
   }
   PExp exp = (PExp)$expression;
   LexLocation location = combineLexLocation(stateDesignator.getLocation(), exp.getLocation());
-  $$ = new ASingleGeneralAssignmentControlStatementAction(location, stateDesignator , exp);
+  $$ = new ASingleGeneralAssignmentStatementAction(location, stateDesignator , exp);
 }
 ;
 
@@ -4404,13 +4416,13 @@ ifStatement :
   IF expression THEN action elseStatements ELSE action
 {
   PAction action = (PAction)$7;
-  $$ = new AIfControlStatementAction(extractLexLocation((CmlLexeme)$1, action.getLocation()),
-				     (PExp)$2, (PAction)$4, (List<? extends AElseIfControlStatementAction>)$5, action);
+  $$ = new AIfStatementAction(extractLexLocation((CmlLexeme)$1, action.getLocation()),
+				     (PExp)$2, (PAction)$4, (List<? extends AElseIfStatementAction>)$5, action);
 }
 | IF expression THEN action ELSE action
 {
   PAction action = (PAction)$6;
-  $$ = new AIfControlStatementAction(extractLexLocation((CmlLexeme)$1, action.getLocation()),
+  $$ = new AIfStatementAction(extractLexLocation((CmlLexeme)$1, action.getLocation()),
 				     (PExp)$2, (PAction)$4, null, action);
 }
 ;
@@ -4418,18 +4430,18 @@ ifStatement :
 elseStatements :
   ELSEIF expression THEN action
 {
-  List<AElseIfControlStatementAction> elseStms = new Vector<AElseIfControlStatementAction>();
+  List<AElseIfStatementAction> elseStms = new Vector<AElseIfStatementAction>();
   PAction thenStm = (PAction)$4;
   LexLocation location = extractLexLocation((CmlLexeme)$1, thenStm.getLocation());
-  elseStms.add(new AElseIfControlStatementAction(location, (PExp)$2, thenStm));
+  elseStms.add(new AElseIfStatementAction(location, (PExp)$2, thenStm));
   $$ = elseStms;
 }
 | elseStatements ELSEIF expression THEN action
 {
   PAction action = (PAction)$5;
-  List<AElseIfControlStatementAction> elseStms = (List<AElseIfControlStatementAction>)$1;
+  List<AElseIfStatementAction> elseStms = (List<AElseIfStatementAction>)$1;
   LexLocation location = combineLexLocation(extractLastLexLocation(elseStms), extractLexLocation((CmlLexeme)$4));
-  elseStms.add(0, new AElseIfControlStatementAction(location, (PExp)$3, action));
+  elseStms.add(0, new AElseIfStatementAction(location, (PExp)$3, action));
   $$ = elseStms;
 }
 ;
@@ -4438,7 +4450,7 @@ casesStatement :
   CASES expression COLON casesStatementAltList END
 {
   LexLocation location = extractLexLocation((CmlLexeme)$CASES, (CmlLexeme)$END);
-  ACasesControlStatementAction cases = (ACasesControlStatementAction)$casesStatementAltList;
+  ACasesStatementAction cases = (ACasesStatementAction)$casesStatementAltList;
   cases.setLocation(location);
   cases.setExp((PExp)$expression);
   $$ = cases;
@@ -4446,7 +4458,7 @@ casesStatement :
 | CASES expression COLON casesStatementAltList COMMA OTHERS RARROW action END
 {
   LexLocation location = extractLexLocation((CmlLexeme)$CASES, (CmlLexeme)$END);
-  ACasesControlStatementAction cases = (ACasesControlStatementAction)$casesStatementAltList;
+  ACasesStatementAction cases = (ACasesStatementAction)$casesStatementAltList;
   cases.setLocation(location);
   cases.setExp((PExp)$expression);
   PAction others = (PAction)$action;
@@ -4460,14 +4472,14 @@ casesStatementAltList :
 {
   List<ACaseAlternativeAction> casesList = new LinkedList<ACaseAlternativeAction>();
   casesList.add((ACaseAlternativeAction)$casesStatementAlt);
-  $$ = new ACasesControlStatementAction(null,
+  $$ = new ACasesStatementAction(null,
 					null,
 					casesList,
 					null);
 }
 | casesStatementAltList COMMA casesStatementAlt
 {
-  ACasesControlStatementAction cases = (ACasesControlStatementAction)$1;
+  ACasesStatementAction cases = (ACasesStatementAction)$1;
   cases.getCases().add((ACaseAlternativeAction)$casesStatementAlt);
   $$ = cases;
 }
@@ -4492,7 +4504,7 @@ implicitOperationBody :
   List<? extends AExternalClause> exts = (List<? extends AExternalClause>)$externals_opt;
   LexLocation location = combineLexLocation(extractFirstLexLocation(exts),
 					    postcondition.getLocation());
-  $$ = new ASpecificationControlStatementAction(location,
+  $$ = new ASpecificationStatementAction(location,
 						exts,
 						(PExp)$preExpr_opt,
 						postcondition);

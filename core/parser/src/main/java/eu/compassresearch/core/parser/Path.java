@@ -300,7 +300,7 @@ public class Path
 		    objectDesignator = pair.first.convertToObjectDesignator();
 		}
 		
-		action = new ACallControlStatementAction(location, 
+		action = new ACallStatementAction(location, 
 							 objectDesignator, 
 							 pair.second, 
 							 this.expList);
