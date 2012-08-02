@@ -759,7 +759,7 @@ process :
   //TODO: The AST has to be changed to cope with the processDef
   $$ = new AInstantiationProcess(location, decls, null, args);
 }
-/* DEVIATION
+/* PATH
  * CML_0:
  *   IDENTIFIER
  *   IDENTIFIER LRPAREN
@@ -879,6 +879,7 @@ replicationDeclarationAlt :
 ;
 
 /* DEVIATION
+ * PATH
  * CML_0:
  *   IDENTIFIER { COMMA IDENTIFIER } ':' expression
  * here:
@@ -1010,7 +1011,8 @@ action :
   $$ = new AWaitAction(location, exp);
 }
 /* Communication rule start*/
-/* DEVIATION --- PATH
+/* DEVIATION
+ * PATH
  * CML_0:
  *   action: ...| communication '->' action
  *   communication: IDENTIFIER { communicationParameter }
@@ -1152,6 +1154,7 @@ action :
   $$ = new AChannelRenamingAction(combineLexLocation(action.getLocation(), renameExpression.getLocation()), action, renameExpression);
 }
 /* DEVIATION
+ * PATH
  * grammar:
  *   MU identifier {',' identifier} '@' action {',' action}
  * here:
@@ -1278,7 +1281,7 @@ action :
 						   (PExp)$3);
 }
 /* parallel actions end */
-/* DEVIATION:
+/* DEVIATION
  * grammar: 
  *   parametrisation {';' parametrisation} '@' action
  * here:
@@ -1500,7 +1503,8 @@ renameExpression :
 }
 ;
 
-/* DEVIATION --- PATH
+/* DEVIATION
+ * PATH
  * CML_0:
  *   renamingEnumeration: '[[' renamingPair { ',' renamingPair } ']]'
  *   renamingPair: IDENTIFIER { ',' expression } '<-' IDENTIFIER { ',' expression }
@@ -1561,6 +1565,7 @@ channelDef :
 
 channelNameDecl :
 /* DEVIATION
+ * PATH
  * grammar:
  *   identifierList
  * here:
@@ -1603,6 +1608,7 @@ declaration :
 
 singleTypeDecl :
 /* DEVIATION
+ * PATH
  * grammar:
  *   identifierList
  * here:
@@ -2631,7 +2637,8 @@ postExpr :
 ;
 
 measureExpr :
-/* DEVIATION --- PATH
+/* DEVIATION
+ * PATH
  * CML_0:
  *   MEASURE name
  * TODO: convert to a name
@@ -3231,7 +3238,8 @@ expression :
   APreExp res = new APreExp(loc, function, exprs);
   $$ = res;
 }
-/* DEVIATION --- PATH
+/* DEVIATION
+ * PATH
  * GRAMMAR ERROR: Missing COMMA
  * CML_0:
  *   ISOFCLASS LPAREN name expression RPAREN
@@ -3253,7 +3261,8 @@ expression :
     }
     $$ = exp;
 }
-/* DEVIATION --- PATH
+/* DEVIATION
+ * PATH
  * CML_0:
  *   name
  *   IDENTIFIER TILDE // oldName
@@ -3900,7 +3909,7 @@ maplet :
 ;
 
 generalIsExpr :
-/* DEVIATION --- PATH
+/* DEVIATION
  * CML_0:
  *   ISUNDER name LPAREN expression RPAREN
  * here:
@@ -3965,11 +3974,9 @@ controlStatement :
 /* nondeterministic statements end */
 /* DEVIATION --- PATH
  * CML_0:
- *  callStatement
+ *   callStatement
  * here:
- *  missing
- *
- * FIXME --- we're missing call entirely.
+ *   We're missing explicit call statements, they're subsumed into path and assignment.
  */
 /* general assign statement */
 /* DEVIATION
@@ -4027,14 +4034,17 @@ controlStatement :
 | RETURN LPAREN expression RPAREN
 {
   PExp exp = (PExp)$expression;
-  $$ = new AReturnStatementAction(extractLexLocation((CmlLexeme)$1,
+  $$ = new AReturnStatementAction(extractLexLocation((CmlLexeme)$RETURN,
 							    exp.getLocation()),
 					 exp);
 }
-/* DEVIATION --- PATH
+/* DEVIATION
+ * PATH
  * CML_0:
- *   stateDesignator COLONEQUALS NEW name LRPAREN
- *   stateDesignator COLONEQUALS NEW name LPAREN expressionList RPAREN
+ *   stateDesignator ':=' 'new' name '(' { expression } ')'
+ * here:
+ *   path COLONEQUALS NEW path LRPAREN
+ *   path COLONEQUALS NEW path LPAREN expressionList RPAREN
  *
  */
 | path COLONEQUALS NEW path LRPAREN
@@ -4334,7 +4344,8 @@ assignStatementList :
 ;
 
 assignStatement :
-/* DEVIATION --- PATH
+/* DEVIATION
+ * PATH
  * CML_0:
  *   stateDesignator ':=' expression
  * here:
@@ -4474,7 +4485,8 @@ patternLessID :
 /* tuple pattern */
 | MKUNDER LPAREN patternList COMMA pattern RPAREN // TODO
 /* record patterns */
-/* DEVIATION --- PATH
+/* DEVIATION
+ * PATH
  * CML_0:
  *   MKUNDER name LPAREN expression RPAREN
  * here:
