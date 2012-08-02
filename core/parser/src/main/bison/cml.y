@@ -392,8 +392,8 @@
 %token QUOTE_LITERAL AMP LSQUAREBAR DLSQUARE DRSQUARE BARRSQUARE COMMA
 %token LSQUAREDBAR DBARRSQUARE COLON LCURLYBAR BARRCURLY QUESTION BANG
 %token SLASHCOLON SLASHBACKSLASH COLONBACKSLASH LSQUAREGT BARGT ENDSBY DECIMAL
-%token STARTBY MU PRIVATE PROTECTED PUBLIC LOGICAL DOTCOLON DO FOR ALL BY
-%token WHILE ISUNDERNAME EXTENDS EMPTYMAP DBACKSLASH
+%token STARTBY MU PRIVATE PROTECTED PUBLIC LOGICAL DO FOR ALL BY WHILE
+%token ISUNDERNAME EXTENDS EMPTYMAP DBACKSLASH
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE TICK CHAR_LIT NIL
 
 %token nameset
@@ -472,7 +472,7 @@
 %right DSTAR
 // VDM prec DONE
 
-%left DOTHASH DOTCOLON
+%left DOTHASH
 %left LRPAREN
 
 /* ---------------------------------------------------------------- */
@@ -1010,21 +1010,28 @@ action :
   $$ = new AWaitAction(location, exp);
 }
 /* Communication rule start*/
-| IDENTIFIER RARROW action
-{
-  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
-  PAction action = (PAction)$3;
-  LexLocation location = combineLexLocation(id.getLocation(), action.getLocation());
-  $$ = new ACommunicationAction(location, id, null, action);
-}
-| IDENTIFIER communicationParameterList RARROW action
-{
-  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
-  PAction action = (PAction)$4;
-  LexLocation location = combineLexLocation(id.getLocation(), action.getLocation());
-  List<PCommunicationParameter> communicationParamters = (List<PCommunicationParameter>)$2;
-  $$ = new ACommunicationAction(location, id, communicationParamters, action);
-}
+/* DEVIATION --- PATH
+ * CML_0:
+ *   action: ...| communication '->' action
+ *   communication: IDENTIFIER { communicationParameter }
+ *   communicationParameter: '?' parameter | '?' parameter ':' expression | '!' expression | '.' expression
+ * here:
+ *   path '->' action
+ *
+ * all of the communication machinery is in path, now
+ * parameters are just patterns
+ * parameter COLON expression is horribly broken
+ * BANG/DOT expression both need params around general expressions, but literal values are ok
+ */
+| path RARROW action // TODO -- channel name expression
+/* old rule for reference | IDENTIFIER communicationParameterList RARROW action */
+/* { */
+/*   LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1); */
+/*   PAction action = (PAction)$4; */
+/*   LexLocation location = combineLexLocation(id.getLocation(), action.getLocation()); */
+/*   List<PCommunicationParameter> communicationParamters = (List<PCommunicationParameter>)$2; */
+/*   $$ = new ACommunicationAction(location, id, communicationParamters, action); */
+/* } */
 /* Communication rule end*/
 /* DEVIATON
  * grammar:
@@ -1412,7 +1419,7 @@ action :
 ;
 
 actionList :
-action 
+  action 
 {
     List<PAction> actionList = new LinkedList<PAction>();
     actionList.add((PAction)$1);
@@ -1426,103 +1433,8 @@ action
 }
 ;
 
-communicationParameterList :
-  communicationParameter
-{
-  List<PCommunicationParameter> comParamList = new Vector<PCommunicationParameter>();
-  comParamList.add((PCommunicationParameter)$1);
-  $$ = comParamList;
-}
-| communicationParameterList communicationParameter
-{
-  List<PCommunicationParameter> comParamList = (List<PCommunicationParameter>)$1;
-  if (comParamList == null)
-    comParamList = new Vector<PCommunicationParameter>();
-  comParamList.add((PCommunicationParameter)$2);
-  $$ = comParamList;
-}
-;
-
-communicationParameter :
-  QUESTION parameter
-{
-  PParameter parameter = (PParameter)$2;
-  LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1), parameter.getLocation());
-  $$ = new AReadCommunicationParameter(location, parameter, null);
-}
-| QUESTION parameter COLON expression
-{
-  PParameter parameter = (PParameter)$2;
-  PExp exp = (PExp)$4;
-  LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1), exp.getLocation());
-  $$ = new AReadCommunicationParameter(location, parameter, exp);
-}
-| BANG expression
-{
-  PExp exp = (PExp)$2;
-  LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1), exp.getLocation());
-  $$ = new AWriteCommunicationParameter(location, exp);
-}
-/* DEVIATION --- related to channelNameExpr
- * CML_0:
- *   '.' expression
- * here:
- *   '.:' expression
- *
- * This runs into trouble with the DOT in paths that are used in
- * expressions.  This could be difficult to resolve.
- */
-| DOTCOLON expression
-{
-  PExp exp = (PExp)$2;
-  LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$1), exp.getLocation());
-  $$ = new AReferenceCommunicationParameter(location, exp);
-}
-;
-
-parameter :
-  IDENTIFIER
-{
-  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1);
-  $$ = new AIdentifierParameter(id.getLocation(), id);
-}
-| MKUNDER LPAREN paramList RPAREN
-{
-  $$ = new ATupleParameter(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4), (List<? extends PParameter>)$3);
-}
-| MKUNDER LRPAREN
-{
-  $$ = new ATupleParameter(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$2), null);
-}
-| MKUNDERNAME LPAREN paramList RPAREN
-{
-    LexNameToken name = extractNameFromUNDERNAMEToken((CmlLexeme)$1);
-    $$ = new ARecordParameter(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4), name, (List<? extends PParameter>)$3);
-}
-| MKUNDERNAME LRPAREN
-{
-    LexNameToken name = extractNameFromUNDERNAMEToken((CmlLexeme)$1);
-    $$ = new ARecordParameter(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$2), name, null);
-}
-;
-
-paramList :
-  parameter
-{
-  List<PParameter> parameters = new Vector<PParameter>();
-  parameters.add((PParameter)$1);
-  $$ = parameters;
-}
-| paramList COMMA parameter
-{
-  List<PParameter> parameters = (List<PParameter>)$1;
-  parameters.add((PParameter)$3);
-  $$ = parameters;
-}
-;
-
 parametrisationList :
-parametrisation 
+  parametrisation 
 {
     List<PParametrisation> plist = new LinkedList<PParametrisation>();
     plist.add((PParametrisation)$parametrisation);
@@ -1613,47 +1525,6 @@ renameList :
   $$ = renamePairs;
 }
 ;
-
-/* DEVIATION
- *
- * There's no single rule, but this applies whenever we might see
- * "IDENTIFIER { '.' expression }", we are instead requiring that
- * "IDENTIFIER { '.:' expression }" be used instead.  It's ugly, but
- * it disambiguates channel names from regular paths.  (Channel names
- * may have expressions in them, paths cannot.)
- */
-/* channelNameExpr : */
-/*   IDENTIFIER */
-/* { */
-/*   LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER); */
-/*   $$ = new ANameChannelExp(name.getLocation(), */
-/* 			   name, */
-/* 			   new LinkedList<PExp>()); */
-/* } */
-/* | IDENTIFIER DOTCOLON channelNameExprTail */
-/* { */
-/*   LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER); */
-/*   $$ = new ANameChannelExp(name.getLocation(), */
-/* 			    name, */
-/* 			    (List<PExp>)$channelNameExprTail); */
-/* } */
-/* ; */
-
-/* channelNameExprTail : */
-/*   expression */
-/* { */
-/*   List<PExp> expTokens = new Vector<PExp>(); */
-/*   expTokens.add((PExp)$1); */
-/*   $$ = expTokens; */
-/* } */
-/* | channelNameExprTail DOTCOLON expression */
-/* { */
-/*   List<PExp> expTokens = (List<PExp>)$1; */
-/*   PExp exp = (PExp)$3; */
-/*   expTokens.add(exp); */
-/*   $$ = expTokens; */
-/* } */
-/* ; */
 
 channelDefinition :
   CHANNELS channelDef
@@ -4888,6 +4759,17 @@ path :
 | path DOT textLiteral // TODO -- channel name expression
 | path DOT characterLiteral // TODO -- channel name expression
 | path DOT LPAREN expression RPAREN // TODO -- channel name expression
+| path QUESTION pattern // TODO -- channel name expression
+/* | path QUESTION pattern INSET LCURLY expression RCURLY  */
+/* | path QUESTION pattern INSET LCURLY expression BAR bindList RCURLY */
+/* | path QUESTION pattern INSET LCURLY expression BAR bindList AT expression RCURLY */
+| path BANG nilLiteral // TODO -- channel name expression
+| path BANG booleanLiteral // TODO -- channel name expression
+| path BANG numericLiteral // TODO -- channel name expression
+| path BANG quoteLiteral // TODO -- channel name expression
+| path BANG textLiteral // TODO -- channel name expression
+| path BANG characterLiteral // TODO -- channel name expression
+| path BANG LPAREN expression RPAREN // TODO -- channel name expression
 ;
 
 unit :
