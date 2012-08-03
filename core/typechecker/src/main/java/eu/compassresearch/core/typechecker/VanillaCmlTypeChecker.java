@@ -33,7 +33,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
     private void initialize()
       {
         exp = new TCExpressionVisitor(this);
-        stm = new TCStatementVisitor();
+        stm = new TCStatementVisitor(this);
         dad = new TCDeclAndDefVisitor(this);
       }
     

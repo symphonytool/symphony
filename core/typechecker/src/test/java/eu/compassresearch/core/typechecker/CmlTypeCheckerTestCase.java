@@ -472,8 +472,13 @@ public class CmlTypeCheckerTestCase extends TestCase
         // 118
         addTestProgram(
             testData,
-            "class c = begin state a:int operations o:int ==> int o(n) == return (a + n) end",
+            "class c = begin state a:int operations o:int ==> int o(n) == (skip) end",
             false, true, true);
+        //
+        addTestProgram(
+            testData,
+            "class c = begin state a:int operations o:int ==> int o(n) == (return (a + n)) end",
+            false, true, false);
         // 119
         addTestProgram(
             testData,
