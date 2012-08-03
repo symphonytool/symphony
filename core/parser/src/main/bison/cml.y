@@ -579,7 +579,7 @@ processDefinition:
 ;
 
 processDef :
-  declaration AT process
+  singleTypeDeclarationList AT process
 {
   List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)$1;
   PProcess process = (PProcess)$3;
@@ -752,10 +752,10 @@ process :
   LexLocation location = combineLexLocation(left.getLocation(), exp.getLocation());
   $$ = new AEndDeadlineProcess(location, left, exp);
 }
-| LPAREN declaration AT processDef RPAREN LPAREN expression RPAREN
+| LPAREN singleTypeDeclarationList AT processDef RPAREN LPAREN expression RPAREN
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8);
-  List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)$declaration;
+  List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)$singleTypeDeclarationList;
   //LexNameToken identifier = extractLexNameToken((CmlLexeme)$4);
   List<PExp> args = new LinkedList<PExp>();
   args.add((PExp)$expression);
@@ -855,29 +855,41 @@ process :
 }
 ;
 
+/* DEVIATION
+ * CML_0:
+ *   ( singleTypeDeclaration | singleExpressionDeclaration ) ';' { ( singleTypeDeclaration | singleExpressionDeclaration ) }
+ * here:
+ *   ( singleTypeDeclaration | singleExpressionDeclaration )
+ *   replicationDeclaration ',' ( singleTypeDeclaration | singleExpressionDeclaration )
+ *
+ * Two major points:
+ * 1) we're using a COMMA as separator rather than a SEMI
+ * 2) the SEMI in the rule as given should have been inside the {...}
+ */
 replicationDeclaration :
-  replicationDeclarationAlt
+  singleTypeDeclaration
 {
   List<SSingleDeclaration> decls = new LinkedList<SSingleDeclaration>();
-  decls.add((SSingleDeclaration)$replicationDeclarationAlt);
+  decls.add((SSingleDeclaration)$singleTypeDeclaration);
   $$ = decls;
-}
-| replicationDeclaration SEMI replicationDeclarationAlt
-{
-  List<SSingleDeclaration> decls = (List<SSingleDeclaration>)$1;
-  decls.add((SSingleDeclaration)$replicationDeclarationAlt);
-  $$ = decls;
-}
-;
-
-replicationDeclarationAlt :
-  singleTypeDecl
-{
-  $$ = $singleTypeDecl;
 }
 | singleExpressionDeclaration
 {
-  $$ = $singleExpressionDeclaration;
+  List<SSingleDeclaration> decls = new LinkedList<SSingleDeclaration>();
+  decls.add((SSingleDeclaration)$singleExpressionDeclaration);
+  $$ = decls;
+}
+| replicationDeclaration COMMA singleTypeDeclaration
+{
+  List<SSingleDeclaration> decls = (List<SSingleDeclaration>)$1;
+  decls.add((SSingleDeclaration)$singleTypeDeclaration);
+  $$ = decls;
+}
+| replicationDeclaration COMMA singleExpressionDeclaration
+{
+  List<SSingleDeclaration> decls = (List<SSingleDeclaration>)$1;
+  decls.add((SSingleDeclaration)$singleExpressionDeclaration);
+  $$ = decls;
 }
 ;
 
@@ -980,7 +992,7 @@ paragraphAction :
 {
   $$ = new Object[]{new Vector<ATypeSingleDeclaration>(), $1};
 }
-| declaration AT action
+| singleTypeDeclarationList AT action
 {
   $$ = new Object[]{$1, $3};
 }
@@ -1300,10 +1312,12 @@ action :
 						    (PAction)$4);
 }
 /* instantiated actions */
-| LPAREN declaration AT action RPAREN LPAREN expressionList RPAREN
+| LPAREN singleTypeDeclarationList AT action RPAREN LPAREN expressionList RPAREN
 {
   $$ = new ADeclarationInstantiatedAction(extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8),
-					  (List<? extends ATypeSingleDeclaration>)$declaration, (PAction)$4, (List<PExp>)$expressionList);
+					  (List<? extends ATypeSingleDeclaration>)$singleTypeDeclarationList,
+					  (PAction)$4,
+					  (List<PExp>)$expressionList);
 }
 | LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN 
 {
@@ -1455,21 +1469,21 @@ parametrisationList :
 ;
 
 parametrisation :
-  VAL singleTypeDecl
+  VAL singleTypeDeclaration
   {
-      ATypeSingleDeclaration declaration = (ATypeSingleDeclaration)$singleTypeDecl;
+      ATypeSingleDeclaration declaration = (ATypeSingleDeclaration)$singleTypeDeclaration;
       LexLocation location = extractLexLocation((CmlLexeme)$1, declaration.getLocation());
       $$ = new AValParametrisation(location, declaration);
   }
-| RES singleTypeDecl 
+| RES singleTypeDeclaration 
 {
-    ATypeSingleDeclaration declaration = (ATypeSingleDeclaration)$singleTypeDecl;
+    ATypeSingleDeclaration declaration = (ATypeSingleDeclaration)$singleTypeDeclaration;
     LexLocation location = extractLexLocation((CmlLexeme)$1, declaration.getLocation());
     $$ = new AResParametrisation(location, declaration);
 }
-| VRES singleTypeDecl 
+| VRES singleTypeDeclaration 
 {
-    ATypeSingleDeclaration declaration = (ATypeSingleDeclaration)$singleTypeDecl;
+    ATypeSingleDeclaration declaration = (ATypeSingleDeclaration)$singleTypeDeclaration;
     LexLocation location = extractLexLocation((CmlLexeme)$1, declaration.getLocation());
     $$ = new AVresParametrisation(location, declaration);
 }
@@ -1561,7 +1575,7 @@ channelDef :
 | channelDef SEMI channelNameDecl
 {
   List<AChannelNameDeclaration> decls = (List<AChannelNameDeclaration>)$1;
-  decls.add((AChannelNameDeclaration)$3);
+  decls.add((AChannelNameDeclaration)$channelNameDecl);
   $$ = decls;
 }
 ;
@@ -1586,7 +1600,7 @@ channelNameDecl :
   AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location, NameScope.GLOBAL, null,  singleTypeDeclaration);
   $$ = channelNameDecl;
 }
-| singleTypeDecl
+| singleTypeDeclaration
 {
   ATypeSingleDeclaration singleTypeDeclaration = (ATypeSingleDeclaration)$1;
   AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(singleTypeDeclaration.getLocation(), NameScope.GLOBAL, null, singleTypeDeclaration);
@@ -1594,22 +1608,28 @@ channelNameDecl :
 }
 ;
 
-declaration :
-  singleTypeDecl
+/* DEVIATION
+ * CML_0:
+ *   declaration: singleTypeDeclaration { ‘;’ singleTypeDeclaration }
+ * here:
+ *   singleTypeDeclarationList: singleTypeDeclaration { ‘,’ singleTypeDeclaration }
+ */
+singleTypeDeclarationList[result] :
+  singleTypeDeclaration
 {
   List<ATypeSingleDeclaration> decls = new Vector<ATypeSingleDeclaration>();
-  decls.add((ATypeSingleDeclaration)$1);
+  decls.add((ATypeSingleDeclaration)$singleTypeDeclaration);
   $$ = decls;
 }
-| declaration SEMI singleTypeDecl
+| singleTypeDeclarationList[list] COMMA singleTypeDeclaration
 {
-  List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)$1;
-  decls.add((ATypeSingleDeclaration)$3);
+  List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)$list;
+  decls.add((ATypeSingleDeclaration)$singleTypeDeclaration);
   $$ = decls;
 }
 ;
 
-singleTypeDecl :
+singleTypeDeclaration :
 /* DEVIATION
  * PATH
  * grammar:
@@ -1812,13 +1832,13 @@ typeDefList :
   typeDef
 {
   List<ATypeDefinition> list = new Vector<ATypeDefinition>();
-  list.add((ATypeDefinition)$1);
+  list.add((ATypeDefinition)$typeDef);
   $$ = list;
 }
-| typeDefList SEMI typeDef
+| typeDefList[list] SEMI typeDef
 {
-  List<ATypeDefinition> list = (List<ATypeDefinition>)$1;
-  list.add((ATypeDefinition)$3);
+  List<ATypeDefinition> list = (List<ATypeDefinition>)$list;
+  list.add((ATypeDefinition)$typeDef);
   $$ = list;
 }
 ;
