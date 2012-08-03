@@ -33,7 +33,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
     private void initialize()
       {
         exp = new TCExpressionVisitor(this);
-        stm = new TCStatementVisitor();
+        stm = new TCStatementVisitor(this);
         dad = new TCDeclAndDefVisitor(this);
       }
     
@@ -134,11 +134,6 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
           }
         super.cleared = false;
         
-        for (CMLIssue issue : errors)
-          {
-            System.out.println(issue);
-          }
-        
         return (lastResult = (errors.size() == 0));
       }
     
@@ -149,7 +144,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
      */
     public List<CMLTypeError> getTypeErrors()
       {
-        if (!cleared)
+        if (cleared)
           throw new IllegalStateException(
               "The type checker has not run yet, invoke typeCheck before getting the errors.");
         return errors;
@@ -163,7 +158,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
      */
     public List<CMLTypeWarning> getTypeWarnings()
       {
-        if (!cleared)
+        if (cleared)
           throw new IllegalStateException(
               "The type checker has not run yet, please invoke typeCheck method before getting the warnings.");
         return warnings;

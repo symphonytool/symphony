@@ -234,16 +234,39 @@ public class TCDeclAndDefVisitor extends
         return node.getType();
       }
     
+    /*
+     * The Overture TypeCheckVisitor needs a parent visitor to invoke. At this
+     * time we provide the empty one.
+     */
     private static class FakeOvertureRootVisitor extends
         org.overture.typechecker.visitor.TypeCheckVisitor
       {
         
       }
     
+    /*
+     * Utility method to transform from CmlAst to OvtAst, type check OvtAst copy
+     * the types froom OvtAst and Back to the CmlAst.
+     * 
+     * 
+     * 
+     * @param cml - cml subtree
+     * 
+     * @param nfo - the current environment
+     * 
+     * @return - cml subtree with types
+     * 
+     * @throws AnalysisException - if things goes wrong, like if some tree-node
+     * is named differently in the OveAst than in the CmlAst.
+     * 
+     * @throws org.overture.ast.analysis.AnalysisException
+     */
     private eu.compassresearch.ast.node.INode applyTransformToGetType(
         eu.compassresearch.ast.expressions.PExp cml, TypeCheckInfo nfo)
-        throws AnalysisException, org.overture.ast.analysis.AnalysisException
+        throws AnalysisException
       {
+        
+        org.overture.typechecker.TypeChecker.clearErrors();
         
         CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
         org.overture.ast.expressions.PExp ovtNode = (org.overture.ast.expressions.PExp) cml
@@ -253,7 +276,13 @@ public class TCDeclAndDefVisitor extends
         org.overture.typechecker.TypeCheckInfo ovtQuestion = new org.overture.typechecker.TypeCheckInfo(
             nfo.env.getOvertureEnv());
         
-        ovtNode.apply(exprCheckerExpVisitor, ovtQuestion);
+        try
+          {
+            ovtNode.apply(exprCheckerExpVisitor, ovtQuestion);
+          } catch (org.overture.ast.analysis.AnalysisException ae)
+          {
+            throw new AnalysisException(ae.getMessage());
+          }
         
         if (org.overture.typechecker.TypeChecker.getErrorCount() > 0)
           {
@@ -266,7 +295,17 @@ public class TCDeclAndDefVisitor extends
         
         CopyTypesFromOvtToCmlAst copier = new CopyTypesFromOvtToCmlAst(
             transform.getNodeMap());
-        return ovtNode.apply(copier);
+        
+        eu.compassresearch.ast.node.INode result = cml;
+        try
+          {
+            result = ovtNode.apply(copier);
+          } catch (org.overture.ast.analysis.AnalysisException ae)
+          {
+            throw new AnalysisException(ae.getMessage());
+          }
+        
+        return result;
       }
     
     @Override
@@ -274,10 +313,15 @@ public class TCDeclAndDefVisitor extends
         AExplicitOperationDefinition node, TypeCheckInfo question)
         throws AnalysisException
       {
+        // add the state of the enclosing class to the Environment
+        
+        // add the parameter to the Environment
+        Environment bodyEnv = createEnvironmentWithFormals(question.env, node);
         
         // check the body
+        TypeCheckInfo newQuestion = new TypeCheckInfo(bodyEnv);
         SStatementAction operationBody = node.getBody();
-        PType bodyType = operationBody.apply(parentChecker, question);
+        PType bodyType = operationBody.apply(parentChecker, newQuestion);
         if (bodyType == null)
           throw new AnalysisException("Unable to type check operation body "
               + node.getName());
@@ -298,49 +342,82 @@ public class TCDeclAndDefVisitor extends
         return node.getType();
       }
     
+    private Environment createEnvironmentWithFormals(Environment existingEnv,
+        PDefinition funDef) throws AnalysisException
+      {
+        
+        List<PType> paramTypes = null;
+        List<PPattern> patterns = null;
+        
+        if (funDef instanceof AExplicitFunctionDefinition)
+          {
+            // Flatten list of lists into one list.
+            patterns = new LinkedList<PPattern>();
+            for (List<PPattern> lp : AExplicitFunctionDefinition.class.cast(
+                funDef).getParamPatternList())
+              for (PPattern p : lp)
+                patterns.add(p);
+            
+            paramTypes = AExplicitFunctionDefinition.class.cast(funDef)
+                .getType().getParameters();
+          } else if (funDef instanceof AExplicitOperationDefinition)
+          {
+            patterns = AExplicitOperationDefinition.class.cast(funDef)
+                .getParameterPatterns();
+          }
+        
+        // setup local environment
+        Environment functionBodyEnv = new Environment(existingEnv);
+        
+        // add formal arguments to the environment
+        int i = 0;
+        for (PPattern p : patterns)
+          {
+            if (p instanceof AIdentifierPattern)
+              {
+                AIdentifierPattern idp = (AIdentifierPattern) p;
+                ALocalDefinition local = new ALocalDefinition(
+                    idp.getLocation(), idp.getName(), NameScope.LOCAL, false,
+                    null, paramTypes.get(i), null);
+                functionBodyEnv.put(idp.getName(), local);
+              } else
+              throw new AnalysisException(
+                  "Can only handle identifier patterns at this time.");
+            i++;
+          }
+        
+        /*
+         * TODO: Question, are identifier patterns the only one we care about
+         * for function parameters? If they are the AnalysisException thrown
+         * above must be turned into a type error.
+         */
+        return functionBodyEnv;
+      }
+    
     @Override
     public PType caseAExplicitFunctionDefinition(
         AExplicitFunctionDefinition node, TypeCheckInfo question)
         throws AnalysisException
       {
-        Environment functionBodyEnv = new Environment(question.env);
-        // add formal arguments to the environment
-        int i = 0;
-        for (List<PPattern> def : node.getParamPatternList())
-          {
-            for (PPattern p : def)
-              {
-                if (p instanceof AIdentifierPattern)
-                  {
-                    AIdentifierPattern idp = (AIdentifierPattern) p;
-                    ALocalDefinition local = new ALocalDefinition(
-                        idp.getLocation(), idp.getName(), NameScope.LOCAL,
-                        false, null, null, node.getType().getParameters()
-                            .get(i), null);
-                    functionBodyEnv.put(idp.getName(), local);
-                  } else
-                  throw new AnalysisException(
-                      "Can only handle identifier patterns at this time.");
-              }
-            i++;
-          }
         
-        PExp body = node.getBody();
-        try
-          {
-            TypeCheckInfo newQuestion = new TypeCheckInfo(functionBodyEnv);
-            body = (PExp) applyTransformToGetType(body, newQuestion);
-            if (body.getType() == null)
-              throw new AnalysisException(
-                  "Transformation and type checking with Overture type checker failed for expression: "
-                      + body);
-          } catch (org.overture.ast.analysis.AnalysisException e)
-          {
-            throw new AnalysisException(e.getMessage());
-          }
-        
+        //
         AFunctionType funcType = node.getType();
-        if (!funcType.getResult().equals(body.getType()))
+        
+        // Setup local environment
+        Environment functionBodyEnv = createEnvironmentWithFormals(
+            question.env, node);
+        
+        // Type check the function body in the functionBodyEnv.
+        PExp body = node.getBody();
+        TypeCheckInfo newQuestion = new TypeCheckInfo(functionBodyEnv);
+        applyTransformToGetType(body, newQuestion);
+        if (body.getType() == null)
+          throw new AnalysisException(
+              "Transformation and type checking with Overture type checker failed for expression: "
+                  + body);
+        
+        // Check funcType <: bodyType in question.env {@link subTypeOf}
+        if (subTypeOf(question.env, funcType, body.getType()))
           parentChecker
               .addTypeError(
                   funcType,
@@ -349,7 +426,21 @@ public class TCDeclAndDefVisitor extends
                       + "], BodyType: ["
                       + body.getType() + "]");
         
+        // Nonetheless the function type will be the type its definition to
+        // facilitate further type checking even in the presents of errors.
         return funcType;
+      }
+    
+    /*
+     * This method determines the sub type relation between two types. It is
+     * denoted: "A <: B" and we say A is a sub type of B.
+     * 
+     * @return true => A <: B, false => not A <: B
+     */
+    private static boolean subTypeOf(Environment env, PType typeA, PType typeB)
+      {
+        // TODO: Implement this guy proper
+        return typeA.equals(typeB);
       }
     
     @Override

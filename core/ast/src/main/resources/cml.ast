@@ -50,7 +50,7 @@ Abstract Syntax Tree
 source {->  package='eu.compassresearch.ast.program'}
       = {file} [name]: java_String (file): java_File
       | {tcpStream} [ip]: java_String [port]: java_String (stream): java_Stream 
-      | {inputStream} (origin): java_String (stream): java_Stream
+      | {inputStream} [origin]: java_String (stream): java_Stream
       ;
 
 /*

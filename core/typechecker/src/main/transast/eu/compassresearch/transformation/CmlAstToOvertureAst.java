@@ -39,6 +39,7 @@ import eu.compassresearch.ast.lex.LexIntegerToken;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.lex.LexQuoteToken;
 import eu.compassresearch.ast.lex.LexRealToken;
+import eu.compassresearch.ast.lex.LexStringToken;
 import eu.compassresearch.ast.lex.LexToken;
 import eu.compassresearch.ast.node.GraphNodeList;
 import eu.compassresearch.ast.node.NodeListList;
@@ -267,10 +268,21 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
               return convertNameScope((eu.compassresearch.ast.typechecker.NameScope) cmlGetterRes);
             if (eu.compassresearch.ast.lex.LexRealToken.class == cmlClz)
               return convertLexRealToken((eu.compassresearch.ast.lex.LexRealToken) cmlGetterRes);
+            if (eu.compassresearch.ast.lex.LexStringToken.class == cmlClz)
+              return convertLexStringLiteral((eu.compassresearch.ast.lex.LexStringToken) cmlGetterRes);
             
             else
               return defaultINode((eu.compassresearch.ast.node.INode) cmlGetterRes);
           }
+      }
+    
+    private org.overture.ast.lex.LexStringToken convertLexStringLiteral(
+        LexStringToken cmlGetterRes) throws AnalysisException
+      {
+        org.overture.ast.lex.LexStringToken res = new org.overture.ast.lex.LexStringToken(
+            cmlGetterRes.value, (LexLocation) translate(cmlGetterRes.location));
+        return res;
+        
       }
     
     private Object convertLexRealToken(LexRealToken cmlGetterRes)
@@ -451,6 +463,9 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
     private org.overture.ast.lex.VDMToken fromCml(
         eu.compassresearch.ast.lex.VDMToken t)
       {
+        if (t == null)
+          return null;
+        
         for (org.overture.ast.lex.VDMToken ot : org.overture.ast.lex.VDMToken
             .values())
           if (t.name().equals(ot.name()))

@@ -29,6 +29,7 @@
   import eu.compassresearch.ast.program.*;
   import eu.compassresearch.ast.types.*;
   import eu.compassresearch.ast.lex.*;
+  import eu.compassresearch.ast.lex.LexToken;
   import eu.compassresearch.ast.typechecker.NameScope;
   import eu.compassresearch.ast.node.*;
   import eu.compassresearch.ast.node.tokens.*;
@@ -133,6 +134,19 @@
                                 (isStatic ? new TStatic() : null),
                                 (isAsync ? new TAsync() : null),loc);
 
+  }
+
+  private LexToken extractLexToken(CmlLexeme lexeme)
+  {
+    LexLocation loc = extractLexLocation(lexeme);
+    VDMToken tok = null;
+    for(VDMToken t : VDMToken.values())
+      {
+	String tokenDisplay = t.toString();
+	if (tokenDisplay != null && tokenDisplay.equals(lexeme.getValue())) { tok = t; break; }
+      }
+    if (tok == null) throw new RuntimeException("Cannot find VDM token for "+lexeme.getValue());
+    return new LexToken(loc, tok);
   }
 
   private LexLocation extractLexLocation(CmlLexeme lexeme)
@@ -3768,167 +3782,200 @@ binaryExpr :
   expression PLUS expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new APlusNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new APlusNumericBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression STAR expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new ATimesNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new ATimesNumericBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression MINUS expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new ASubstractNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new ASubstractNumericBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression DIV expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new ADivideNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new ADivideNumericBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression SLASH expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new ADivNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new ADivNumericBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression REM expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
   $$ = new ARemNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
 }
 | expression MOD expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AModNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AModNumericBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression LT expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new ALessNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new ALessNumericBinaryExp(loc, (PExp)$1,tok, (PExp)$3);
 }
 | expression LTE expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new ALessEqualNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new ALessEqualNumericBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression GT expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AGreaterNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AGreaterNumericBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression GTE expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AGreaterEqualNumericBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AGreaterEqualNumericBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression EQUALS expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AEqualsBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AEqualsBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression NEQ expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new ANotEqualBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new ANotEqualBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression OR expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AOrBooleanBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AOrBooleanBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression AND expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AAndBooleanBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AAndBooleanBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression EQRARROW expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AImpliesBooleanBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AImpliesBooleanBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression LTEQUALSGT expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AEquivalentBooleanBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AEquivalentBooleanBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression INSET expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AInSetBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AInSetBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression NOTINSET expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new ANotInSetBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new ANotInSetBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression SUBSET expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new ASubsetBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new ASubsetBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression PSUBSET expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AProperSubsetBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AProperSubsetBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression UNION expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new ASetUnionBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new ASetUnionBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression BACKSLASH expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new ASetDifferenceBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new ASetDifferenceBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression INTER expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new ASetIntersectBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new ASetIntersectBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression CARET expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new ASeqConcatBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new ASeqConcatBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression DPLUS expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression MUNION expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AMapUnionBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AMapUnionBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression LTCOLON expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new ADomainResToBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new ADomainResToBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression LTDASHCOLON expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression COLONGT expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression COLONDASHGT expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression COMP expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression DSTAR expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, null, (PExp)$3);
+  LexToken tok = extractLexToken( (CmlLexeme) $2 );
+  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 ;
 
