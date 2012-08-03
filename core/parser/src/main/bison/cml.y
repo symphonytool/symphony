@@ -1726,13 +1726,6 @@ chansetExpr :
 ;
 
 globalDefinitionParagraph :
-  globalDefinitionBlockAlternative
-{
-  $$ = $1;
-}
-;
-
-globalDefinitionBlockAlternative :
   typeDefs
 {
   $$ = $1;
