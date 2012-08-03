@@ -2313,36 +2313,8 @@ valueDefs :
 }
 ;
 
-/* RWL. On tailing SEMI:
- *
- * Lists definition like valueDefs below has an element and a
- * separater. Ofter it is convenient for the language that the
- * separater can be added to the end of the list optionally. Like:
- *
- * class valuelist =
- * begin
- *    values
- *       a : int = 1;
- *       b : int = 2;
- *       c : int = 3
- * end
- *
- * The list "c : int = 3" could be followed by a SEMI (;) as in:
- *
- *
- * class valuelist =
- * begin
- *     values
- *       a : int = 1;
- *       b : int = 2;
- *       c : int = 3;
- * end
- *
- * To relax the parser to accept both cases we add two "base-cases"
- * for the list, one without SEMI and one with SEMI.
- *
- * This production-rule-pattern should work for any list where there
- * is no conflict between element definition and the separator.
+/* DEVIATION
+ * Trailing SEMI not optional
  */
 valueDefList :
   qualifiedValueDef
