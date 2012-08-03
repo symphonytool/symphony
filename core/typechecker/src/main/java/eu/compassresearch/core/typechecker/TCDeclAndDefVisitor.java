@@ -378,7 +378,7 @@ public class TCDeclAndDefVisitor extends
                 AIdentifierPattern idp = (AIdentifierPattern) p;
                 ALocalDefinition local = new ALocalDefinition(
                     idp.getLocation(), idp.getName(), NameScope.LOCAL, false,
-                    null, null, paramTypes.get(i), null);
+                    null, paramTypes.get(i), null);
                 functionBodyEnv.put(idp.getName(), local);
               } else
               throw new AnalysisException(

@@ -19,6 +19,10 @@ public class Path
 	UNIT,
 	TILDE,
 	DOT,
+	DOT_LITERAL,
+	DOT_EXP,
+	BANG_LITERAL,
+	BANG_EXP,
 	BACKTICK,
 	DOTHASH,
 	APPLY,
@@ -31,6 +35,7 @@ public class Path
     public final List<PExp> expList;
     public final Integer numeral;
     public final LexLocation location;
+    public final LexToken literalToken;
 
     public Path(Unit unit)
     {
@@ -40,6 +45,7 @@ public class Path
 	subPath = null;
 	numeral = null;
 	location = unit.value.getLocation();
+	literalToken = null;
     }
     
     public Path(LexLocation location, PathKind kind, Path subPath)
@@ -50,6 +56,7 @@ public class Path
 	this.subPath = subPath;
 	numeral = null;
 	this.location = location;
+	literalToken = null;
     }
     
     public Path(LexLocation location, PathKind kind, Path subPath, Integer numeral)
@@ -60,6 +67,7 @@ public class Path
 	this.subPath = subPath;
 	this.numeral = numeral;
 	this.location = location;
+	literalToken = null;
     }
 
     public Path(LexLocation location, PathKind kind, Path subPath, Unit unit)
@@ -70,6 +78,7 @@ public class Path
 	this.subPath = subPath;
 	numeral = null;
 	this.location = location;
+	literalToken = null;
     }
     
     public Path(LexLocation location, PathKind kind, Path subPath, List<PExp> expList)
@@ -80,6 +89,18 @@ public class Path
 	this.subPath = subPath;
 	numeral = null;
 	this.location = location;
+	literalToken = null;
+    }
+    
+    public Path(LexLocation location, PathKind kind, Path subPath, LexToken literal)
+    {
+	this.unit = null;
+	this.kind = kind;
+	this.expList = null;
+	this.subPath = subPath;
+	numeral = null;
+	this.location = location;
+	literalToken = literal;
     }
 
     /*
@@ -300,7 +321,7 @@ public class Path
 		    objectDesignator = pair.first.convertToObjectDesignator();
 		}
 		
-		action = new ACallControlStatementAction(location, 
+		action = new ACallStatementAction(location, 
 							 objectDesignator, 
 							 pair.second, 
 							 this.expList);
