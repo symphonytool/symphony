@@ -856,17 +856,6 @@ process :
 }
 ;
 
-/* DEVIATION
- * CML_0:
- *   ( singleTypeDeclaration | singleExpressionDeclaration ) ';' { ( singleTypeDeclaration | singleExpressionDeclaration ) }
- * here:
- *   ( singleTypeDeclaration | singleExpressionDeclaration )
- *   replicationDeclaration ',' ( singleTypeDeclaration | singleExpressionDeclaration )
- *
- * Two major points:
- * 1) we're using a COMMA as separator rather than a SEMI
- * 2) the SEMI in the rule as given should have been inside the {...}
- */
 replicationDeclaration :
   singleTypeDeclaration
 {
@@ -880,13 +869,13 @@ replicationDeclaration :
   decls.add((SSingleDeclaration)$singleExpressionDeclaration);
   $$ = decls;
 }
-| replicationDeclaration COMMA singleTypeDeclaration
+| replicationDeclaration SEMI singleTypeDeclaration
 {
   List<SSingleDeclaration> decls = (List<SSingleDeclaration>)$1;
   decls.add((SSingleDeclaration)$singleTypeDeclaration);
   $$ = decls;
 }
-| replicationDeclaration COMMA singleExpressionDeclaration
+| replicationDeclaration SEMI singleExpressionDeclaration
 {
   List<SSingleDeclaration> decls = (List<SSingleDeclaration>)$1;
   decls.add((SSingleDeclaration)$singleExpressionDeclaration);
@@ -1305,12 +1294,12 @@ action :
  *
  * parametrised action
  */
-| LPAREN parametrisationList AT action RPAREN
+| LPAREN parametrisationList AT action[pAction] RPAREN
 {
     $$ = new AParametrisedAction(extractLexLocation((CmlLexeme)$LPAREN,
                                                     (CmlLexeme)$RPAREN),
                                                     (List<PParametrisation>)$parametrisationList,
-                                                    (PAction)$4);
+                                                    (PAction)$pAction);
 }
 /* instantiated actions */
 | LPAREN singleTypeDeclarationList AT action RPAREN LPAREN expressionList RPAREN
@@ -1443,13 +1432,13 @@ actionList :
   action
 {
     List<PAction> actionList = new LinkedList<PAction>();
-    actionList.add((PAction)$1);
+    actionList.add((PAction)$action);
     $$ = actionList;
 }
-| actionList COMMA action
+| actionList[list] COMMA action
 {
-    List<PAction> actionList = (List<PAction>)$1;
-    actionList.add(0,(PAction)$3);
+    List<PAction> actionList = (List<PAction>)$list;
+    actionList.add(0,(PAction)$action);
     $$ = actionList;
 }
 ;
@@ -1552,7 +1541,7 @@ renameList :
  * CML_0:
  *   doesn't exist as such
  * here:
- *   'channels', { channelDefnition, { ‘;’, channelDefinition } }
+ *   'channels', { channelDefinition, { ‘;’, channelDefinition } } [ ';' ]
  */
 channelDefinition :
   CHANNELS
@@ -2334,7 +2323,7 @@ invariant :
  * CML_0:
  *   'values', qualifiedValueDef, { ‘;’, qualifiedValueDef }
  * here:
- *   'values', { qualifiedValueDef, { ‘;’, qualifiedValueDef } }
+ *   'values', { qualifiedValueDef, { ‘;’, qualifiedValueDef } } [ ';' ]
  */
 valueDefs :
   VALUES
@@ -2373,9 +2362,6 @@ valueDefs :
 }
 ;
 
-/* DEVIATION
- * Trailing SEMI not optional
- */
 valueDefList :
   qualifiedValueDef[def]
 {
@@ -2751,9 +2737,6 @@ operationDefs :
 }
 ;
 
-/* DEVIATION !!
- * operationDefs no longer have semicolons as separators
- */
 operationDefList :
   operationDef
 {
@@ -4394,9 +4377,6 @@ assignmentDef :
 }
 ;
 
-/* DEVIATION !!
- * assignment lists in atomic blocks no longer use semicolon separators
- */
 assignStatementList :
   assignStatement
 {
@@ -4405,7 +4385,7 @@ assignStatementList :
   assigns.add((ASingleGeneralAssignmentStatementAction)$assignStatement);
   $$ = assigns;
 }
-| assignStatementList[list] assignStatement
+| assignStatementList[list] SEMI assignStatement
 {
   List<ASingleGeneralAssignmentStatementAction> assigns =
     (List<ASingleGeneralAssignmentStatementAction>)$list;
