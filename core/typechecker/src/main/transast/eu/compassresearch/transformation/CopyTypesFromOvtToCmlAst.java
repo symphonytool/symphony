@@ -8,6 +8,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.AnswerAdaptor;
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.ast.expressions.PExpBase;
 import eu.compassresearch.ast.types.PType;
 
 public class CopyTypesFromOvtToCmlAst extends
@@ -47,11 +48,15 @@ public class CopyTypesFromOvtToCmlAst extends
           }
         
         PType type = typeToType(ovtType);
+        if (type == null)
+          throw new AnalysisException("Could not copy type " + ovtType
+              + " to a cml type.");
         try
           {
-            Class<?> clazz = node.getClass();
+            Class<?> pexpBase = PExpBase.class;
+            Class<?> clazz = pexpBase;
             Method setType = clazz.getMethod("setType",
-                new Class<?>[] { type.getClass() });
+                new Class<?>[] { PType.class });
             setType.invoke(cmlNode, type);
           } catch (Exception e)
           {
@@ -81,7 +86,7 @@ public class CopyTypesFromOvtToCmlAst extends
         try
           {
             String cmlName = ovtType.getClass().getName()
-                .replace("org.overture.", "eu.compassresearch");
+                .replace("org.overture.", "eu.compassresearch.");
             
             // create cml class
             ClassLoader cl = this.getClass().getClassLoader();

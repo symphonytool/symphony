@@ -25,7 +25,9 @@ import eu.compassresearch.ast.preview.DotGraphVisitor;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.CmlTypeChecker; 
+import eu.compassresearch.core.typechecker.CmlTypeChecker.CMLTypeError;
 import eu.compassresearch.core.typechecker.TypeCheckInfo;
+import eu.compassresearch.core.typechecker.VanillaCmlTypeChecker;
 import eu.compassresearch.examples.DivWarnAnalysis;
 import eu.compassresearch.core.analysis.proofobligationgenerator.ProofObligationGenerator;
 import eu.compassresearch.ast.program.AFileSource;
@@ -469,12 +471,18 @@ public class CheckCml {
 	// Type checking
 	if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
 	    {
-		final CmlTypeChecker typeChecker = new CmlTypeChecker(sources);
+		final CmlTypeChecker typeChecker = new VanillaCmlTypeChecker(sources);
 
 		AnalysisRunAdaptor r = new AnalysisRunAdaptor(typeChecker) {
 			public void apply(INode root) throws AnalysisException
 			{
-			    root.apply(typeChecker, new TypeCheckInfo());
+			    
+			    if (!(typeChecker.typeCheck()))
+				{
+				    for(CMLTypeError e :  typeChecker.getTypeErrors())
+					System.out.println("\t"+e);
+				}
+			    //   root.apply(typeChecker, new TypeCheckInfo());
 			}
 		    };
 		runAnalysis(input, r , sources);

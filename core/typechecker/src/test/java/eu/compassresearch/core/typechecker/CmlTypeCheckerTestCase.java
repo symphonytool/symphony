@@ -431,15 +431,14 @@ public class CmlTypeCheckerTestCase extends TestCase
         addTestProgram(testData,
             "class test = begin values one:int = mk_(1,2,3,4).#1 end", true,
             true, true);
-        // lambda expression
+        // lambda expression 110
         addTestProgram(
             testData,
             "class test = begin values add42:int -> int = lambda x:int @ x + 42 end",
             false, true, true);
-        // self expressions 110
         addTestProgram(testData,
             "class test = begin values one:test = self end", false, true, true);
-        // is experssion
+        // is expression
         addTestProgram(testData,
             "class test = begin values one:boolean = is_self ( test ) end",
             false, true, true);
@@ -452,7 +451,7 @@ public class CmlTypeCheckerTestCase extends TestCase
             "class test = begin values one:boolean = isofclass( test, self ) end",
             false, true, true);
         
-        // 114
+        // 115
         addTestProgram(
             testData,
             "class evil_letters_æøå = begin values even:int = fn_int_to_int( 10 ) end",
@@ -461,12 +460,21 @@ public class CmlTypeCheckerTestCase extends TestCase
         // /--------------------------------------------------------------------------
         // | Expressions with context
         // \--------------------------------------------------------------------------
-        // 115
+        // 116
         addTestProgram(
             testData,
             "class c = begin functions fn: int -> int fn(a) == \"Wrong type\" + a end",
+            false, true, false);
+        // 117
+        addTestProgram(testData,
+            "class test = begin functions fn: int -> int fn(a) == a + 2 end",
             false, true, true);
-        
+        // 118
+        addTestProgram(
+            testData,
+            "class c = begin state a:int operations o:int ==> int o(n) == return (a + n) end",
+            false, true, true);
+        // 119
         addTestProgram(
             testData,
             "class c = begin state a:int; operations c: int ==> c c(v) == a := v end",
@@ -475,24 +483,25 @@ public class CmlTypeCheckerTestCase extends TestCase
         // '--------------------------------------------------------------------------
         // | Processes
         // \--------------------------------------------------------------------------
+        // 120
         addTestProgram(testData, "process p1 = begin @ skip end", false, true,
             true);
-        
+        // 121
         addTestProgram(testData, "process p1 = a:int @ begin @ skip end",
             false, true, true);
-        
+        // 122
         addTestProgram(testData,
             "process A = begin @ skip end process p1 = begin @ A ; skip end",
             false, true, true);
-        
+        // 123
         addTestProgram(testData,
             "process A = begin @ skip end process p1 = begin @ A [] skip end",
             false, true, true);
-        
+        // 124
         addTestProgram(testData,
             "process A = begin @ skip end process p1 = begin @ A |~| skip end",
             false, true, true);
-        
+        // 125
         addTestProgram(
             testData,
             "process A = begin @ skip end process p1 = begin @ A [| channel1 |] skip end",
@@ -564,7 +573,8 @@ public class CmlTypeCheckerTestCase extends TestCase
             + (expectedParserOk ? "success" : "fail") + " but it did'nt.",
             parserOk == expectedParserOk);
         
-        VanillaCmlTypeChecker tc = new VanillaCmlTypeChecker(parser.getDocument());
+        VanillaCmlTypeChecker tc = new VanillaCmlTypeChecker(
+            parser.getDocument());
         Assert.assertTrue("Expected type checker to "
             + (expectedTypesOk ? "success" : "fail") + " but it did'nt.",
             tc.typeCheck() == expectedTypesOk);

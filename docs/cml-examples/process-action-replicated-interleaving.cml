@@ -1,0 +1,2 @@
+process RegisterProc = begin @ ||| a in set {1,2} @ [ns] A(a) end
+
