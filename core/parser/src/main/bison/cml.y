@@ -1044,7 +1044,7 @@ action :
  * parameter COLON expression is horribly broken
  * BANG/DOT expression both need params around general expressions, but literal values are ok
  */
-| path RARROW action // TODO -- channel name expression
+| communication RARROW action // TODO -- channel name expression
 /* old rule for reference | IDENTIFIER communicationParameterList RARROW action */
 /* { */
 /*   LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1); */
@@ -1455,6 +1455,17 @@ actionList :
     actionList.add(0,(PAction)$action);
     $$ = actionList;
 }
+;
+
+communication :
+  IDENTIFIER
+/* | communication DOT IDENTIFIER */
+/* | communication DOT matchValue */
+| communication BANG IDENTIFIER
+| communication BANG matchValue
+| communication QUESTION IDENTIFIER
+| communication QUESTION matchValue
+| communication QUESTION bind
 ;
 
 parametrisationList :
@@ -4861,7 +4872,7 @@ path[result] :
 }
 /* Bits for CSP renaming (IDENTIFIER DOT IDENTIFIER is above as path DOT unit) */
 /* channel name expression bits */
-| path DOT matchValue // Sorry Anders -jwc
+/* | path DOT matchValue */
 /* | path DOT nilLiteral  */
 /* { */
 /*     Path path = (Path)$1; */
@@ -4905,11 +4916,11 @@ path[result] :
 /*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
 /* } */
 /* | path DOT LPAREN expression RPAREN // TODO -- channel name expression */
-| path QUESTION unit // TODO -- channel name expression
-| path QUESTION matchValue // TODO -- channel name expression
+/* | path QUESTION unit // TODO -- channel name expression */
+/* | path QUESTION matchValue // TODO -- channel name expression */
 /* | path QUESTION bind */
-| path BANG unit
-| path BANG matchValue
+/* | path BANG unit */
+/* | path BANG matchValue */
 /* channel name expression bits end*/
 ;
 
