@@ -396,6 +396,7 @@
 %token ISUNDERNAME EXTENDS EMPTYMAP DBACKSLASH
 %token TBOOL TNAT TNAT1 TINT TRAT TREAL TCHAR TTOKEN TRUE FALSE TICK CHAR_LIT NIL
 
+%token DUMMY
 %token nameset
 
 /* ---------------------------------------------------------------- */
@@ -1608,11 +1609,8 @@ channelNameDecl :
 }
 ;
 
-/* DEVIATION
- * CML_0:
- *   declaration: singleTypeDeclaration { ‘;’ singleTypeDeclaration }
- * here:
- *   singleTypeDeclarationList: singleTypeDeclaration { ‘,’ singleTypeDeclaration }
+/* RENAME
+ * declaration in CML_0 grammar corresponds to singleTypeDeclarationList
  */
 singleTypeDeclarationList[result] :
   singleTypeDeclaration
@@ -1621,7 +1619,7 @@ singleTypeDeclarationList[result] :
   decls.add((ATypeSingleDeclaration)$singleTypeDeclaration);
   $$ = decls;
 }
-| singleTypeDeclarationList[list] COMMA singleTypeDeclaration
+| singleTypeDeclarationList[list] SEMI singleTypeDeclaration
 {
   List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)$list;
   decls.add((ATypeSingleDeclaration)$singleTypeDeclaration);
@@ -1651,7 +1649,7 @@ chansetDefinitionParagraph :
   CHANSETS
 {
   CmlLexeme tok = (CmlLexeme)$1;
-  LexLocation loc = extractLexLocation( tok );
+  LexLocation loc = extractLexLocation(tok);
   AAccessSpecifier access = new AAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync(),loc);
   AChansetParagraphDefinition chansetParagraph = new AChansetParagraphDefinition( loc, NameScope.GLOBAL, false, access, null  );
   $$ = chansetParagraph;
@@ -1659,7 +1657,7 @@ chansetDefinitionParagraph :
 | CHANSETS chansetDefinitionList
 {
   CmlLexeme tok = (CmlLexeme)$1;
-  LexLocation loc = extractLexLocation ( tok );
+  LexLocation loc = extractLexLocation(tok);
   List<AChansetDefinition> chansetDefinitions = (List<AChansetDefinition>)$2;
   AAccessSpecifier access = new AAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync(),loc);
   AChansetParagraphDefinition chansetParagraph = new AChansetParagraphDefinition( loc, NameScope.GLOBAL, false, access, chansetDefinitions );
@@ -1667,6 +1665,9 @@ chansetDefinitionParagraph :
  }
 ;
 
+/* DEVIATION
+ * chanset declarations are now separated by SEMIs, just like everything else.
+ */
 chansetDefinitionList :
   chansetDefinition
 {
@@ -1674,7 +1675,7 @@ chansetDefinitionList :
   defs.add((AChansetDefinition)$1);
   $$ = defs;
 }
-| chansetDefinitionList chansetDefinition
+| chansetDefinitionList SEMI chansetDefinition
 {
   List<AChansetDefinition> defs = (List<AChansetDefinition>)$1;
   defs.add((AChansetDefinition)$2);
@@ -2279,8 +2280,26 @@ invariant :
 }
 ;
 
+
+/* DEVIATION
+ * CML_0:
+ *   'values', qualifiedValueDef, { ‘;’, qualifiedValueDef }
+ * here:
+ *   'values', { qualifiedValueDef, { ‘;’, qualifiedValueDef } }
+ */
 valueDefs :
-  VALUES valueDefList
+  VALUES
+{
+  List<PDefinition> defs = new List<PDefinition>();
+  LexLocation location = extractLexLocation((CmlLexeme)$VALUES);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  $$ = new AValueParagraphDefinition(location,
+				     NameScope.NAMES,
+				     false,
+				     access,
+				     defs);
+}
+| VALUES valueDefList
 {
   List<PDefinition> defs = (List<PDefinition>)$valueDefList;
   LexLocation location = extractLexLocation((CmlLexeme)$VALUES,
@@ -2440,9 +2459,6 @@ functionDefs :
 }
 ;
 
-/* DEVIATION !!
- * functionDefs no longer have a semicolon separator
- */
 functionDefList :
   functionDef
 {
@@ -2450,7 +2466,7 @@ functionDefList :
   functionList.add((SFunctionDefinition)$functionDef);
   $$ = functionList;
 }
-| functionDefList[list] functionDef
+| functionDefList[list] SEMI functionDef
 {
   List<SFunctionDefinition> functionList = (List<SFunctionDefinition>)$list;
   functionList.add((SFunctionDefinition)$functionDef);
@@ -2697,7 +2713,7 @@ operationDefList :
   opDefinitions.add((SOperationDefinition)$operationDef);
   $$ = opDefinitions;
 }
-| operationDefList[list] operationDef 
+| operationDefList[list] SEMI operationDef 
 {
   List<SOperationDefinition> opDefinitions = (List<SOperationDefinition>)$list;
   opDefinitions.add((SOperationDefinition)$operationDef);
@@ -2811,14 +2827,17 @@ operationType :
   }
 ;
 
-/* DEVIATION
- *
- * (JWC) This is definitely not kosher against CML_0 --- an operation
- * body there is an action or the subclass resp./not yet tokens.  Here
- * we aren't doing that at all!
- */
 operationBody :
-  action
+/* DEVIATION
+ * CML_0:
+ *   action
+ * here:
+ *   blockStatement
+ *
+ * Use of a SEMI to separate operation definitions conflicts with the
+ * use of a SEMI for the CSP sequential combinator.
+ */
+  blockStatement
 {
   $$ = $1;
 }
@@ -2927,9 +2946,6 @@ stateDefs :
 }
 ;
 
-/* DEVIATION !!
- * stateDefs no longer have semicolon separators
- */
 stateDefList :
   stateDef
 {
@@ -2939,7 +2955,7 @@ stateDefList :
   stateDef.setStateDefs(defs);
   $$ = stateDef;
 }
-| stateDefList[list] stateDef
+| stateDefList[list] SEMI stateDef
 {
   AStateDefinition stateDef = (AStateDefinition)$list;
   stateDef.getStateDefs().add((PDefinition)$stateDef);
