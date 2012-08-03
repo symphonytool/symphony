@@ -2329,9 +2329,9 @@ public class CmlParser
 /* Line 374 of cmlskeleton.java.m4  */
 /* Line 1559 of "src/main/bison/cml.y"  */
     {
-  List<AChannelNameDeclaration> chanNameDecls = new List<AChannelNameDeclaration>();
+  List<AChannelNameDeclaration> chanNameDecls = new Vector<AChannelNameDeclaration>();
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
-  AAccessSpecifier access = getDefaultAccessSpecifier( true,false,start);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   AChannelParagraphDefinition channelDefinition = new AChannelParagraphDefinition(location,
                                                                                   NameScope.GLOBAL,
                                                                                   false,
@@ -2373,7 +2373,7 @@ public class CmlParser
   List<AChannelNameDeclaration> chanNameDecls = (List<AChannelNameDeclaration>)((yystack.valueAt (3-(2))));
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1))))),
                                             extractLexLocation((CmlLexeme)((yystack.valueAt (3-(3))))));
-  AAccessSpecifier access = getDefaultAccessSpecifier( true,false,start);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   AChannelParagraphDefinition channelDefinition = new AChannelParagraphDefinition(location,
                                                                                   NameScope.GLOBAL,
                                                                                   false,
@@ -2751,7 +2751,7 @@ public class CmlParser
     {
     PDefinition def = (PDefinition)((yystack.valueAt (3-(2))));
     LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1))))),
-                                              extractLexLocation((CmlLexeme)((yystack.valueAt (3-(3)))));
+                                              extractLexLocation((CmlLexeme)((yystack.valueAt (3-(3))))));
     yyval = new AInitialParagraphDefinition(location,
                                          NameScope.GLOBAL,
                                          true,
@@ -3543,7 +3543,7 @@ public class CmlParser
 /* Line 374 of cmlskeleton.java.m4  */
 /* Line 2341 of "src/main/bison/cml.y"  */
     {
-  List<PDefinition> defs = new List<PDefinition>();
+  List<PDefinition> defs = new Vector<PDefinition>();
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
   AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   yyval = new AValueParagraphDefinition(location,
@@ -3758,7 +3758,7 @@ public class CmlParser
 /* Line 374 of cmlskeleton.java.m4  */
 /* Line 2487 of "src/main/bison/cml.y"  */
     {
-  LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))), extractLexLocation((CmlLexeme)((yystack.valueAt (3-(3)))));
+  LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1))))), extractLexLocation((CmlLexeme)((yystack.valueAt (3-(3))))));
   AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   List<SFunctionDefinition> functionDefs = (List<SFunctionDefinition>)((yystack.valueAt (3-(2))));
   yyval = new AFunctionParagraphDefinition(location,
@@ -4171,7 +4171,7 @@ public class CmlParser
 /* Line 374 of cmlskeleton.java.m4  */
 /* Line 2742 of "src/main/bison/cml.y"  */
     {
-  LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1)))), extractLexLocation((CmlLexeme)((yystack.valueAt (3-(3))))));
+  LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)((yystack.valueAt (3-(1))))), extractLexLocation((CmlLexeme)((yystack.valueAt (3-(3))))));
   AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   List<? extends SOperationDefinition> opDefinitions = (List<? extends SOperationDefinition>)((yystack.valueAt (3-(2))));
   yyval = new AOperationParagraphDefinition(location,

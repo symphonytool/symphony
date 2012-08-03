@@ -1557,9 +1557,9 @@ renameList :
 channelDefinition :
   CHANNELS
 {
-  List<AChannelNameDeclaration> chanNameDecls = new List<AChannelNameDeclaration>();
+  List<AChannelNameDeclaration> chanNameDecls = new Vector<AChannelNameDeclaration>();
   LexLocation location = extractLexLocation((CmlLexeme)$CHANNELS);
-  AAccessSpecifier access = getDefaultAccessSpecifier( true,false,start);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   AChannelParagraphDefinition channelDefinition = new AChannelParagraphDefinition(location,
                                                                                   NameScope.GLOBAL,
                                                                                   false,
@@ -1587,7 +1587,7 @@ channelDefinition :
   List<AChannelNameDeclaration> chanNameDecls = (List<AChannelNameDeclaration>)$channelDef;
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$CHANNELS),
                                             extractLexLocation((CmlLexeme)$SEMI));
-  AAccessSpecifier access = getDefaultAccessSpecifier( true,false,start);
+  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   AChannelParagraphDefinition channelDefinition = new AChannelParagraphDefinition(location,
                                                                                   NameScope.GLOBAL,
                                                                                   false,
@@ -1837,7 +1837,7 @@ classDefinitionBlockAlternative :
 {
     PDefinition def = (PDefinition)$operationDef;
     LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$INITIAL),
-                                              extractLexLocation((CmlLexeme)$SEMI);
+                                              extractLexLocation((CmlLexeme)$SEMI));
     $$ = new AInitialParagraphDefinition(location,
                                          NameScope.GLOBAL,
                                          true,
@@ -2339,7 +2339,7 @@ invariant :
 valueDefs :
   VALUES
 {
-  List<PDefinition> defs = new List<PDefinition>();
+  List<PDefinition> defs = new Vector<PDefinition>();
   LexLocation location = extractLexLocation((CmlLexeme)$VALUES);
   AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   $$ = new AValueParagraphDefinition(location,
@@ -2485,7 +2485,7 @@ functionDefs :
 }
 | FUNCTIONS functionDefList SEMI
 {
-  LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$FUNCTIONS, extractLexLocation((CmlLexeme)$SEMI);
+  LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$FUNCTIONS), extractLexLocation((CmlLexeme)$SEMI));
   AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   List<SFunctionDefinition> functionDefs = (List<SFunctionDefinition>)$functionDefList;
   $$ = new AFunctionParagraphDefinition(location,
@@ -2740,7 +2740,7 @@ operationDefs :
 }
 | OPERATIONS operationDefList SEMI
 {
-  LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$OPERATIONS, extractLexLocation((CmlLexeme)$SEMI));
+  LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$OPERATIONS), extractLexLocation((CmlLexeme)$SEMI));
   AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   List<? extends SOperationDefinition> opDefinitions = (List<? extends SOperationDefinition>)$operationDefList;
   $$ = new AOperationParagraphDefinition(location,
