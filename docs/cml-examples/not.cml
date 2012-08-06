@@ -6,5 +6,5 @@ begin
 
 	operations
 		public OP1: int ==> bool
-		OP1(a) == return (true)
+		OP1(a) == (return (true))
 end

@@ -126,9 +126,9 @@ process LibraryProcess = begin
 		
 	actions
 		Act = (
-			borrow?b:pre_ExeBorrow(b,library) -> Assign(ExeBorrow(b,library))
+			borrow?b in set pre_ExeBorrow(b,library) -> Assign(ExeBorrow(b,library))
 			[]
-			renew?r:pre_ExeReturn(r,library) -> 
+			renew?r in set pre_ExeReturn(r,library) -> 
 				Assign(ExeReturn(r,library));
 				Assign(ExeBorrow(r,library))
 			[]
