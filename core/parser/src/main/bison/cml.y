@@ -425,8 +425,8 @@
 %right COMMA
 %right MU LAMBDA
 %right FORALL EXISTS EXISTS1 IOTA
-%right LPAREN
-%left OF COLONEQUALS
+//%right LPAREN
+//%left OF COLONEQUALS
 %nonassoc ELSE ELSEIF
 %left DO
 %right U-DO
@@ -1037,23 +1037,11 @@ action :
  *   communication: IDENTIFIER { communicationParameter }
  *   communicationParameter: '?' parameter | '?' parameter ':' expression | '!' expression | '.' expression
  * here:
- *   path '->' action
+ *   communication '->' action
  *
- * all of the communication machinery is in path, now
- * parameters are just patterns
- * parameter COLON expression is horribly broken
- * BANG/DOT expression both need params around general expressions, but literal values are ok
+ * We're not accepting DOT params, yet
  */
 | communication RARROW action // TODO -- channel name expression
-/* old rule for reference | IDENTIFIER communicationParameterList RARROW action */
-/* { */
-/*   LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$1); */
-/*   PAction action = (PAction)$4; */
-/*   LexLocation location = combineLexLocation(id.getLocation(), action.getLocation()); */
-/*   List<PCommunicationParameter> communicationParamters = (List<PCommunicationParameter>)$2; */
-/*   $$ = new ACommunicationAction(location, id, communicationParamters, action); */
-/* } */
-/* Communication rule end*/
 /* DEVIATON
  * grammar:
  *   expression '&' action
@@ -1746,36 +1734,6 @@ chansetDefinition :
   LexLocation location = combineLexLocation(idToken.getLocation(), chansetExp.getLocation());
   $$ = new AChansetDefinition(location, NameScope.GLOBAL, false/*used_*/, null, /*AAccessSpecifierAccessSpecifier access_*/ idToken, chansetExp);
 }
-;
-
-chansetExpr :
-  LCURLYBAR pathList BARRCURLY
-{
-  LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3);
-  List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2;
-  $$ = new AEnumChansetSetExp(location, identifiers);
-}
-| LCURLYBAR path BAR bindList BARRCURLY // TODO --- channelNameExpr
-{
-  LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR, (CmlLexeme)$BARRCURLY);
-  ANameChannelExp chanNameExp = (ANameChannelExp)$path;
-  List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
-  $$ = new ACompChansetSetExp(location,chanNameExp , bindings, null);
-}
-| LCURLYBAR path BAR bindList AT expression BARRCURLY // TODO --- channelNameExpr
-{
-  LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR,
-                                            (CmlLexeme)$BARRCURLY);
-  ANameChannelExp chanNameExp = (ANameChannelExp)$path;
-  List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
-  PExp pred = (PExp)$expression;
-  $$ = new ACompChansetSetExp(location, chanNameExp, bindings, pred);
-}
-//| IDENTIFIER // now path
-//| LCURLYCOLON pathList COLONRCURLY // now set enumeration
-//| chansetExpr COLONUNION chansetExpr // now regular union
-//| chansetExpr COLONINTER chansetExpr // now regular intersection
-//| chansetExpr DBACKSLASH chansetExpr // now regular set subtraction
 ;
 
 globalDefinitionParagraph :
@@ -3379,11 +3337,10 @@ expression :
 | numericLiteral
 {
     PExp exp = null;
-    if($1 instanceof LexIntegerToken){
+    if($1 instanceof LexIntegerToken) {
         LexIntegerToken lit = (LexIntegerToken)$1;
         exp = new AIntLiteralExp(lit.location, lit);
-    }
-    else{
+    } else {
         LexRealToken lit = (LexRealToken)$1;
         exp = new ARealLiteralExp(lit.location, lit);
     }
@@ -3398,7 +3355,6 @@ expression :
 {
     LexKeywordToken tok = (LexKeywordToken)$1;
     $$ = new ANilExp(tok.location);
-
 }
 | characterLiteral
 {
@@ -3422,10 +3378,30 @@ expression :
   $$ = new AQuoteLiteralExp(value.location, value);
 }
 /* symbolic literal expressions end*/
-| chansetExpr
+/* chanset expressions */
+| LCURLYBAR pathList BARRCURLY
 {
-  $$ = $1;
+  LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3);
+  List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2;
+  $$ = new AEnumChansetSetExp(location, identifiers);
 }
+| LCURLYBAR path BAR bindList BARRCURLY // TODO --- channelNameExpr
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR, (CmlLexeme)$BARRCURLY);
+  ANameChannelExp chanNameExp = (ANameChannelExp)$path;
+  List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
+  $$ = new ACompChansetSetExp(location,chanNameExp , bindings, null);
+}
+| LCURLYBAR path BAR bindList AT expression[exp] BARRCURLY // TODO --- channelNameExpr
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR,
+                                            (CmlLexeme)$BARRCURLY);
+  ANameChannelExp chanNameExp = (ANameChannelExp)$path;
+  List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
+  PExp pred = (PExp)$exp;
+  $$ = new ACompChansetSetExp(location, chanNameExp, bindings, pred);
+}
+/* chanset expressions end */
 ;
 
 /* symbolic literals */
@@ -4870,58 +4846,6 @@ path[result] :
   LexLocation location = extractLexLocation(path.location,(CmlLexeme)$RPAREN);
   $$ = new Path(location,Path.PathKind.SEQRANGE,path,exps);
 }
-/* Bits for CSP renaming (IDENTIFIER DOT IDENTIFIER is above as path DOT unit) */
-/* channel name expression bits */
-/* | path DOT matchValue */
-/* | path DOT nilLiteral  */
-/* { */
-/*     Path path = (Path)$1; */
-/*     LexToken literal = (LexToken)$3;  */
-/*     LexLocation location = extractLexLocation(path.location,literal.location); */
-/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
-/* } */
-/* | path DOT booleanLiteral  */
-/* { */
-/*     Path path = (Path)$1; */
-/*     LexToken literal = (LexToken)$3;  */
-/*     LexLocation location = extractLexLocation(path.location,literal.location); */
-/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
-/* } */
-/* | path DOT numericLiteral  */
-/* { */
-/*     Path path = (Path)$1; */
-/*     LexToken literal = (LexToken)$3;  */
-/*     LexLocation location = extractLexLocation(path.location,literal.location); */
-/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
-/* } */
-/* | path DOT quoteLiteral  */
-/* { */
-/*     Path path = (Path)$1; */
-/*     LexToken literal = (LexToken)$3;  */
-/*     LexLocation location = extractLexLocation(path.location,literal.location); */
-/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
-/* } */
-/* | path DOT textLiteral */
-/* { */
-/*     Path path = (Path)$1; */
-/*     LexToken literal = (LexToken)$3;  */
-/*     LexLocation location = extractLexLocation(path.location,literal.location); */
-/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
-/* } */
-/* | path DOT characterLiteral  */
-/* { */
-/*     Path path = (Path)$1; */
-/*     LexToken literal = (LexToken)$3;  */
-/*     LexLocation location = extractLexLocation(path.location,literal.location); */
-/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
-/* } */
-/* | path DOT LPAREN expression RPAREN // TODO -- channel name expression */
-/* | path QUESTION unit // TODO -- channel name expression */
-/* | path QUESTION matchValue // TODO -- channel name expression */
-/* | path QUESTION bind */
-/* | path BANG unit */
-/* | path BANG matchValue */
-/* channel name expression bits end*/
 ;
 
 unit :
