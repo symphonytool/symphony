@@ -1502,15 +1502,21 @@ renameExpression :
                                           (List<? extends ARenamePair>)$renameList);
 }
 /* rename comprehensions */
-| DLSQUARE path[from] LARROW path[to] BAR bindList DRSQUARE // TODO
+| DLSQUARE path[from] LARROW path[to] BAR bindList DRSQUARE 
 {
-  ARenamePair pair = new ARenamePair(false,
-                                     (ANameChannelExp)$from,
-                                     (ANameChannelExp)$to);
-  $$ = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)$DLSQUARE, (CmlLexeme)$DRSQUARE),
-                                          pair,
-                                          (List<? extends PMultipleBind>)$bindList,
-                                          null);
+  try{
+    ARenamePair pair = new ARenamePair(false,
+				       (ANameChannelExp)((Path)$from).convertToChannelNameExpression(),
+				       (ANameChannelExp)((Path)$to).convertToChannelNameExpression());
+    $$ = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)$DLSQUARE, (CmlLexeme)$DRSQUARE),
+					    pair,
+					    (List<? extends PMultipleBind>)$bindList,
+					    null);
+  }
+  catch(Path.PathConvertException e) {
+    e.printStackTrace();
+    System.exit(-4);
+  }
 }
 | DLSQUARE path[from] LARROW path[to] BAR bindList AT expression DRSQUARE // TODO
 {
@@ -4862,49 +4868,12 @@ path[result] :
 /* Bits for CSP renaming (IDENTIFIER DOT IDENTIFIER is above as path DOT unit) */
 /* channel name expression bits */
 | path DOT matchValue // Sorry Anders -jwc
-/* | path DOT nilLiteral  */
-/* { */
-/*     Path path = (Path)$1; */
-/*     LexToken literal = (LexToken)$3;  */
-/*     LexLocation location = extractLexLocation(path.location,literal.location); */
-/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
-/* } */
-/* | path DOT booleanLiteral  */
-/* { */
-/*     Path path = (Path)$1; */
-/*     LexToken literal = (LexToken)$3;  */
-/*     LexLocation location = extractLexLocation(path.location,literal.location); */
-/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
-/* } */
-/* | path DOT numericLiteral  */
-/* { */
-/*     Path path = (Path)$1; */
-/*     LexToken literal = (LexToken)$3;  */
-/*     LexLocation location = extractLexLocation(path.location,literal.location); */
-/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
-/* } */
-/* | path DOT quoteLiteral  */
-/* { */
-/*     Path path = (Path)$1; */
-/*     LexToken literal = (LexToken)$3;  */
-/*     LexLocation location = extractLexLocation(path.location,literal.location); */
-/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
-/* } */
-/* | path DOT textLiteral */
-/* { */
-/*     Path path = (Path)$1; */
-/*     LexToken literal = (LexToken)$3;  */
-/*     LexLocation location = extractLexLocation(path.location,literal.location); */
-/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
-/* } */
-/* | path DOT characterLiteral  */
-/* { */
-/*     Path path = (Path)$1; */
-/*     LexToken literal = (LexToken)$3;  */
-/*     LexLocation location = extractLexLocation(path.location,literal.location); */
-/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
-/* } */
-/* | path DOT LPAREN expression RPAREN // TODO -- channel name expression */
+{
+    Path path = (Path)$1; 
+    PPattern pattern = (PPattern)$3;
+    LexLocation location = extractLexLocation(path.location,pattern.getLocation());
+    $$ = new Path(location,Path.PathKind.DOT_MATCHVALUE,path, pattern);
+}
 | path QUESTION unit // TODO -- channel name expression
 | path QUESTION matchValue // TODO -- channel name expression
 /* | path QUESTION bind */

@@ -2,8 +2,10 @@ package eu.compassresearch.core.parser;
 
 import eu.compassresearch.ast.expressions.*;
 import eu.compassresearch.ast.actions.*;
+import eu.compassresearch.ast.types.*;
 import eu.compassresearch.ast.process.*;
 import eu.compassresearch.ast.lex.*; 
+import eu.compassresearch.ast.patterns.*;
 import java.util.*;
 
 public class Path
@@ -19,10 +21,8 @@ public class Path
 	UNIT,
 	TILDE,
 	DOT,
-	DOT_LITERAL,
-	DOT_EXP,
-	BANG_LITERAL,
-	BANG_EXP,
+	DOT_MATCHVALUE,
+	BANG_MATCHVALUE,
 	BACKTICK,
 	DOTHASH,
 	APPLY,
@@ -35,7 +35,7 @@ public class Path
     public final List<PExp> expList;
     public final Integer numeral;
     public final LexLocation location;
-    public final LexToken literalToken;
+    public final PPattern literalPattern;
 
     public Path(Unit unit)
     {
@@ -45,7 +45,7 @@ public class Path
 	subPath = null;
 	numeral = null;
 	location = unit.value.getLocation();
-	literalToken = null;
+	literalPattern = null;
     }
     
     public Path(LexLocation location, PathKind kind, Path subPath)
@@ -56,7 +56,7 @@ public class Path
 	this.subPath = subPath;
 	numeral = null;
 	this.location = location;
-	literalToken = null;
+	literalPattern = null;
     }
     
     public Path(LexLocation location, PathKind kind, Path subPath, Integer numeral)
@@ -67,7 +67,7 @@ public class Path
 	this.subPath = subPath;
 	this.numeral = numeral;
 	this.location = location;
-	literalToken = null;
+	literalPattern = null;
     }
 
     public Path(LexLocation location, PathKind kind, Path subPath, Unit unit)
@@ -78,7 +78,7 @@ public class Path
 	this.subPath = subPath;
 	numeral = null;
 	this.location = location;
-	literalToken = null;
+	literalPattern = null;
     }
     
     public Path(LexLocation location, PathKind kind, Path subPath, List<PExp> expList)
@@ -89,10 +89,10 @@ public class Path
 	this.subPath = subPath;
 	numeral = null;
 	this.location = location;
-	literalToken = null;
+	literalPattern = null;
     }
     
-    public Path(LexLocation location, PathKind kind, Path subPath, LexToken literal)
+    public Path(LexLocation location, PathKind kind, Path subPath, PPattern literal)
     {
 	this.unit = null;
 	this.kind = kind;
@@ -100,13 +100,70 @@ public class Path
 	this.subPath = subPath;
 	numeral = null;
 	this.location = location;
-	literalToken = literal;
+	literalPattern = literal;
     }
 
     /*
      * Public Methods
      */
 
+    public PAction convertToAction() throws PathConvertException
+    {
+	PAction action = null;
+	switch(kind){
+	case UNIT:
+	    {
+		LexNameToken actionName = this.unit.convertToName();
+		action = new AIdentifierAction(location, 
+					       actionName);
+	    }
+	    break;
+	// case DOT:
+	//     {
+	//     }
+	//     break;
+	// case BACKTICK:
+	//     {
+	//     }
+	//     break;
+	
+	// This Apply form is : path LPAREN expressionList RPAREN
+	// Which should be converted into
+	// [ object designator '.' ] name '(' [ expressionList ] ')'
+	    
+	case APPLY:
+	    {
+		Pair<Path,LexNameToken> pair = this.subPath.extractPostfixName();
+
+		PObjectDesignator objectDesignator = null;
+
+		//if this holds we need to exstract the ObjectDesignator 
+		//from the returned path 
+		if(pair.first != null){
+		    objectDesignator = pair.first.convertToObjectDesignator();
+		}
+		
+		action = new ACallStatementAction(location, 
+						  objectDesignator, 
+						  pair.second, 
+						  this.expList);
+	    }
+	    break;
+	default:
+	    throw new PathConvertException("Illigal path for action : " + kind);
+	}
+	
+	return action;
+    }
+
+    public ANameChannelExp convertToChannelNameExpression() throws PathConvertException
+    {
+	Pair<LexNameToken,List<PExp>> pair = convertToChannelNameExpHelper();
+	return new ANameChannelExp(location,
+				   pair.first,
+				   pair.second);
+    }
+    
     public PExp convertToExpression() throws PathConvertException
     {
 	PExp exp = null;
@@ -284,56 +341,7 @@ public class Path
 
 	return process;
     }
-
-    public PAction convertToAction() throws PathConvertException
-    {
-	PAction action = null;
-	switch(kind){
-	case UNIT:
-	    {
-		LexNameToken actionName = this.unit.convertToName();
-		action = new AIdentifierAction(location, 
-					       actionName);
-	    }
-	    break;
-	// case DOT:
-	//     {
-	//     }
-	//     break;
-	// case BACKTICK:
-	//     {
-	//     }
-	//     break;
-	
-	// This Apply form is : path LPAREN expressionList RPAREN
-	// Which should be converted into
-	// [ object designator '.' ] name '(' [ expressionList ] ')'
-	    
-	case APPLY:
-	    {
-		Pair<Path,LexNameToken> pair = this.subPath.extractPostfixName();
-
-		PObjectDesignator objectDesignator = null;
-
-		//if this holds we need to exstract the ObjectDesignator 
-		//from the returned path 
-		if(pair.first != null){
-		    objectDesignator = pair.first.convertToObjectDesignator();
-		}
-		
-		action = new ACallStatementAction(location, 
-							 objectDesignator, 
-							 pair.second, 
-							 this.expList);
-	    }
-	    break;
-	default:
-	    throw new PathConvertException("Illigal path for action : " + kind);
-	}
-
-	return action;
-    }
-
+    
     public LexNameToken convertToName() throws PathConvertException
     {
 	LexNameToken name = null;
@@ -427,6 +435,94 @@ public class Path
 	    this.first = first;
 	    this.second = second;
 	}
+    }
+
+    private Pair< LexNameToken , List<PExp> > convertToChannelNameExpHelper() throws PathConvertException
+    {
+	Pair<LexNameToken,List<PExp>> pair = null;
+	switch(kind){
+	case UNIT:
+	    {
+		pair = new Pair(convertToName(), 
+				new LinkedList<PExp>());
+
+	    }
+	    break;
+	case DOT:
+	    {
+		Pair<LexNameToken,List<PExp>> tmpPair = this.subPath.convertToChannelNameExpHelper();
+		LexNameToken name = unit.convertToName();
+		ANameExp nameExp = new ANameExp(name.getLocation(),name);
+		tmpPair.second.add(nameExp);
+		pair = new Pair<LexNameToken,List<PExp>>(tmpPair.first,
+							 tmpPair.second); 
+	    }
+	    break;
+	case DOT_MATCHVALUE:
+	    {
+		Pair<LexNameToken,List<PExp>> tmpPair = this.subPath.convertToChannelNameExpHelper();
+		PExp exp = convertPatternToExp(literalPattern);
+		tmpPair.second.add(exp);
+		pair = new Pair<LexNameToken,List<PExp>>(tmpPair.first,
+							 tmpPair.second); 
+	    }
+	    break;
+	default:
+	    throw new PathConvertException("path not implemented for channel expression " + kind);
+	}
+	return pair;
+    }
+    
+    private PExp convertPatternToExp(PPattern pattern) throws PathConvertException
+    {
+	PExp exp = null;
+
+	switch(pattern.kindPPattern()){
+	case BOOLEAN:
+	    {
+		ABooleanPattern p = (ABooleanPattern)pattern;
+		exp = new ABooleanLiteralExp(new ABooleanBasicType(p.getLocation(), 
+								   true),
+					     p.getLocation(),
+					     p.getValue());
+	    }
+	    break;
+	// case CHARACTER:
+	//     {
+	//     }
+	//     break;
+      	// case INTEGER:
+	//     {
+	//     }
+	//     break;
+	// case NIL:
+	//     {
+	//     }
+	//     break;
+	// case QUOTE:
+	//     {
+	//     }
+	//     break;
+	// case REAL:
+	//     {
+	//     }
+	//     break;
+	// case STRING:
+	//     {
+	//     }
+	//     break;
+	case EXPRESSION:
+	    {
+		AExpressionPattern p = (AExpressionPattern)pattern;
+		exp = p.getExp();
+	    }
+	    break;
+	default:
+	    throw new PathConvertException("Illigal Pattern kind for channelNameExp " + pattern.kindPPattern());
+
+	}
+
+	return exp;
     }
 
     //names: ['.'] id
