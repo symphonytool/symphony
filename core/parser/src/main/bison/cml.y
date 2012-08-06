@@ -3010,21 +3010,10 @@ expressionList :
 ;
 
 expression :
-/* RWL On strings:
- *
- * In the lexer whole strings are matched up because it is easy given
- * its state machine functionality. At the same time string handling
- * is captured within a few lines of gammar (in the lexers STRING
- * states). However, building a string as a "seq of char" would
- * otherwise have been done by the parser and therefore the expected
- * result is a sequence of char. In this rule we take the lexer STRING
- * a part and creates the corresponding character expressions.
- *
- */
- LPAREN expression RPAREN
+  LPAREN expression[exp] RPAREN
 {
-  LexLocation loc = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$3);
-  $$ = new ABracketedExp(loc, (PExp)$2);
+  LexLocation loc = extractLexLocation((CmlLexeme)$LPAREN, (CmlLexeme)$RPAREN);
+  $$ = new ABracketedExp(loc, (PExp)$exp);
 }
 | LET localDefList IN expression
 {
