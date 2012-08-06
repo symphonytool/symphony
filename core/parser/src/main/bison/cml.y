@@ -4835,6 +4835,52 @@ path[result] :
   LexLocation location = extractLexLocation(path.location,(CmlLexeme)$RPAREN);
   $$ = new Path(location,Path.PathKind.SEQRANGE,path,exps);
 }
+/* Bits for CSP renaming (IDENTIFIER DOT IDENTIFIER is above as path DOT unit) */
+/* channel name expression bits */
+| path DOT matchValue // TODO -- channel name expression
+/* | path DOT nilLiteral */
+/* { */
+/*     Path path = (Path)$1; */
+/*     LexToken literal = (LexToken)$3; */
+/*     LexLocation location = extractLexLocation(path.location,literal.location); */
+/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
+/* } */
+/* | path DOT booleanLiteral */
+/* { */
+/*     Path path = (Path)$1; */
+/*     LexToken literal = (LexToken)$3; */
+/*     LexLocation location = extractLexLocation(path.location,literal.location); */
+/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
+/* } */
+/* | path DOT numericLiteral */
+/* { */
+/*     Path path = (Path)$1; */
+/*     LexToken literal = (LexToken)$3; */
+/*     LexLocation location = extractLexLocation(path.location,literal.location); */
+/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
+/* } */
+/* | path DOT quoteLiteral */
+/* { */
+/*     Path path = (Path)$1; */
+/*     LexToken literal = (LexToken)$3; */
+/*     LexLocation location = extractLexLocation(path.location,literal.location); */
+/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
+/* } */
+/* | path DOT textLiteral */
+/* { */
+/*     Path path = (Path)$1; */
+/*     LexToken literal = (LexToken)$3; */
+/*     LexLocation location = extractLexLocation(path.location,literal.location); */
+/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
+/* } */
+/* | path DOT characterLiteral */
+/* { */
+/*     Path path = (Path)$1; */
+/*     LexToken literal = (LexToken)$3; */
+/*     LexLocation location = extractLexLocation(path.location,literal.location); */
+/*     $$ = new Path(location,Path.PathKind.DOT_LITERAL,path, literal); */
+/* } */
+/* channel name expression bits end*/
 ;
 
 unit :
