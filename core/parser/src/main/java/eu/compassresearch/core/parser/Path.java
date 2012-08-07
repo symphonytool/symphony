@@ -107,7 +107,7 @@ public class Path
 	case UNIT:
 	    {
 		LexNameToken actionName = this.unit.convertToName();
-		action = new AIdentifierAction(location, 
+		action = new ACallAction(location, 
 					       actionName);
 	    }
 	    break;

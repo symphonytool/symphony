@@ -2642,6 +2642,7 @@ explicitFunctionDef :
   res.setLocation(loc);
   res.setType(ftype);
   res.setBody(functionBody);
+  res.setMeasure((LexNameToken)$measureExpr);
   res.setParamPatternList(args);
   $$ = res;
 }
@@ -2782,13 +2783,21 @@ measureExpr :
  * PATH
  * CML_0:
  *   MEASURE name
- * TODO: convert to a name
  */
-  MEASURE path
+MEASURE path
 {
-  $$ = $2;
+    try{
+	$$ = ((Path)$path).convertToName();
+    }
+    catch(PathConvertException e) {
+        e.printStackTrace();
+        System.exit(-4);
+    }
 }
-| /* empty */ // TODO
+| /* empty */ 
+{
+    $$ = null;
+}
 ;
 
 operationDefs :
@@ -3056,17 +3065,24 @@ mode :
  * class witout a rename.
  */
 stateDefs :
-  STATE // TODO -- lexlocations
+  STATE 
 {
-  $$  = new AStateDefinition();
+    AStateDefinition state = new AStateDefinition();
+    state.setLocation(extractLexLocation((CmlLexeme)$STATE));
+    $$  = state;
 }
-| STATE stateDefList // TODO -- lexlocations
+| STATE stateDefList 
 {
-  $$ = $stateDefList;
+    AStateDefinition state = (AStateDefinition)$stateDefList;
+    state.setLocation(extractLexLocation((CmlLexeme)$STATE,
+					 extractLastLexLocation(state.getStateDefs())));
+    $$ = state;
 }
-| STATE stateDefList SEMI // TODO -- lexlocations
+| STATE stateDefList SEMI
 {
-  $$ = $stateDefList;
+    AStateDefinition state = (AStateDefinition)$stateDefList;
+    state.setLocation(extractLexLocation((CmlLexeme)$STATE,(CmlLexeme)$SEMI));
+    $$ = state;
 }
 ;
 
@@ -3480,7 +3496,7 @@ expression :
   List<LexIdentifierToken> identifiers = (List<LexIdentifierToken>)$2;
   $$ = new AEnumChansetSetExp(location, identifiers);
 }
-| LCURLYBAR path BAR bindList BARRCURLY // TODO --- channelNameExpr
+| LCURLYBAR path BAR bindList BARRCURLY 
 {
     try{
 	LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR, (CmlLexeme)$BARRCURLY);
@@ -3493,7 +3509,7 @@ expression :
 	System.exit(-4);
     }
 }
-| LCURLYBAR path BAR bindList AT expression[exp] BARRCURLY // TODO --- channelNameExpr
+| LCURLYBAR path BAR bindList AT expression[exp] BARRCURLY
 {
     try{
 	LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR,
