@@ -303,6 +303,11 @@
     return new LexNameToken("Default",lexeme.getValue(), extractLexLocation(lexeme),false, true);
   }
 
+  private LexIdentifierToken extractLexIdentifierToken(Object obj)
+  {
+      return extractLexIdentifierToken((CmlLexeme)obj);
+  }
+
   private LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme)
   {
     return new LexIdentifierToken(lexeme.getValue(), false, extractLexLocation(lexeme));
@@ -790,7 +795,7 @@ process :
   try {
     Path path = (Path)$path;
     $$ = path.convertToProcess();
-  } catch(Path.PathConvertException e) {
+  } catch(PathConvertException e) {
     e.printStackTrace();
     System.exit(-4);
   }
@@ -1041,7 +1046,16 @@ action :
  *
  * We're not accepting DOT params, yet
  */
-| communication RARROW action // TODO -- channel name expression
+| communication RARROW action[to] 
+{
+    ACommunicationAction comAction = (ACommunicationAction)$communication;
+    PAction to = (PAction)$to;
+    LexLocation location = extractLexLocation(comAction.getLocation(),
+					      to.getLocation());
+    comAction.setAction(to);
+    comAction.setLocation(location);
+    $$ = comAction;
+}
 /* DEVIATON
  * grammar:
  *   expression '&' action
@@ -1445,15 +1459,79 @@ actionList :
 }
 ;
 
-communication :
+communication[result] :
   IDENTIFIER
+  {
+    LexIdentifierToken lid = extractLexIdentifierToken($IDENTIFIER);
+    $$ = new ACommunicationAction(lid.location, 
+				  lid, 
+				  new LinkedList<PCommunicationParameter>(), 
+				  null);
+  }
 /* | communication DOT IDENTIFIER */
 /* | communication DOT matchValue */
-| communication BANG IDENTIFIER
-| communication BANG matchValue
-| communication QUESTION IDENTIFIER
-| communication QUESTION matchValue
-| communication QUESTION bind
+| communication[before] BANG IDENTIFIER
+{
+    ACommunicationAction comAction = (ACommunicationAction)$before;
+    LexNameToken name = extractLexNameToken($IDENTIFIER);
+    PExp exp = new ANameExp(name.location,name);
+    LexLocation location = extractLexLocation((CmlLexeme)$BANG,exp.getLocation());
+    comAction.getCommunicationParameters().add(new AWriteCommunicationParameter(location, 
+										exp));
+}
+| communication[before] BANG matchValue
+{
+    try{
+
+	ACommunicationAction comAction = (ACommunicationAction)$before;
+	PExp exp = ConvertUtil.convertPatternToExp((PPattern)$matchValue);
+	LexLocation location = extractLexLocation((CmlLexeme)$BANG,exp.getLocation());
+	comAction.getCommunicationParameters().add(new AWriteCommunicationParameter(location, 
+										    exp));
+    }
+    catch(PathConvertException e) {
+	e.printStackTrace();
+	System.exit(-4);
+    }
+}
+| communication[before] QUESTION pattern
+{
+    try{
+
+    ACommunicationAction comAction = (ACommunicationAction)$before;
+    PExp exp = null;
+    PParameter parameter = ConvertUtil.convertPatternToPParameter((PPattern)$pattern);
+    LexLocation location = extractLexLocation((CmlLexeme)$QUESTION,parameter.getLocation());
+    AReadCommunicationParameter param = new AReadCommunicationParameter(location, 
+									parameter, 
+									exp);
+    comAction.getCommunicationParameters().add(param);
+    $$ = comAction;
+    }
+    catch(PathConvertException e) {
+	e.printStackTrace();
+	System.exit(-4);
+    }
+}
+| communication[before] QUESTION setBind
+{
+    try{
+	ACommunicationAction comAction = (ACommunicationAction)$before;
+	ASetBind setbind = (ASetBind)$setBind;
+	PParameter parameter = ConvertUtil.convertPatternToPParameter(setbind.getPattern());
+	LexLocation location = extractLexLocation((CmlLexeme)$QUESTION,setbind.getLocation());
+	AReadCommunicationParameter param = new AReadCommunicationParameter(location, 
+									    parameter, 
+									    setbind.getSet());
+	comAction.getCommunicationParameters().add(param);
+	$$ = comAction;
+    }
+    catch(PathConvertException e) {
+	e.printStackTrace();
+	System.exit(-4);
+    }
+    
+}
 ;
 
 parametrisationList :
@@ -1512,7 +1590,7 @@ renameExpression :
 					    (List<? extends PMultipleBind>)$bindList,
 					    null);
   }
-  catch(Path.PathConvertException e) {
+  catch(PathConvertException e) {
     e.printStackTrace();
     System.exit(-4);
   }
@@ -1528,7 +1606,7 @@ renameExpression :
 					    (List<? extends PMultipleBind>)$bindList,
 					    (PExp)$expression);
   }
-  catch(Path.PathConvertException e) {
+  catch(PathConvertException e) {
     e.printStackTrace();
     System.exit(-4);
   }
@@ -1556,7 +1634,7 @@ renameList :
     renamePairs.add(pair);
     $$ = renamePairs;
   }
-  catch(Path.PathConvertException e) {
+  catch(PathConvertException e) {
     e.printStackTrace();
     System.exit(-4);
   }
@@ -1571,7 +1649,7 @@ renameList :
     renamePairs.add(pair);
     $$ = renamePairs;
   }
-  catch(Path.PathConvertException e) {
+  catch(PathConvertException e) {
     e.printStackTrace();
     System.exit(-4);
   }
@@ -3306,7 +3384,7 @@ expression :
                                 path.convertToName(),
                                 (PExp)$5);
     }
-    catch(Path.PathConvertException e) {
+    catch(PathConvertException e) {
         e.printStackTrace();
         System.exit(-4);
     }
@@ -3344,7 +3422,7 @@ expression :
   PExp exp = null;
   try {
     exp = path.convertToExpression();
-  } catch(Path.PathConvertException e) {
+  } catch(PathConvertException e) {
     e.printStackTrace();
     System.exit(-4);
   }
@@ -3404,19 +3482,31 @@ expression :
 }
 | LCURLYBAR path BAR bindList BARRCURLY // TODO --- channelNameExpr
 {
-  LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR, (CmlLexeme)$BARRCURLY);
-  ANameChannelExp chanNameExp = (ANameChannelExp)$path;
-  List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
-  $$ = new ACompChansetSetExp(location,chanNameExp , bindings, null);
+    try{
+	LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR, (CmlLexeme)$BARRCURLY);
+	ANameChannelExp chanNameExp = (ANameChannelExp)((Path)$path).convertToChannelNameExpression();
+	List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
+	$$ = new ACompChansetSetExp(location,chanNameExp , bindings, null);
+    }
+    catch(PathConvertException e) {
+	e.printStackTrace();
+	System.exit(-4);
+    }
 }
 | LCURLYBAR path BAR bindList AT expression[exp] BARRCURLY // TODO --- channelNameExpr
 {
-  LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR,
-                                            (CmlLexeme)$BARRCURLY);
-  ANameChannelExp chanNameExp = (ANameChannelExp)$path;
-  List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
-  PExp pred = (PExp)$exp;
-  $$ = new ACompChansetSetExp(location, chanNameExp, bindings, pred);
+    try{
+	LexLocation location = extractLexLocation((CmlLexeme)$LCURLYBAR,
+						  (CmlLexeme)$BARRCURLY);
+	ANameChannelExp chanNameExp = (ANameChannelExp)((Path)$path).convertToChannelNameExpression();
+	List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
+	PExp pred = (PExp)$exp;
+	$$ = new ACompChansetSetExp(location, chanNameExp, bindings, pred);
+    }
+    catch(PathConvertException e) {
+	e.printStackTrace();
+	System.exit(-4);
+    }
 }
 /* chanset expressions end */
 ;
@@ -4161,7 +4251,7 @@ controlStatement :
                                          statePath.convertToStateDesignator(),
                                          namePath.convertToName(),
                                          args);
-  } catch(Path.PathConvertException e) {
+  } catch(PathConvertException e) {
     e.printStackTrace();
     System.exit(-4);
   }
@@ -4179,7 +4269,7 @@ controlStatement :
                                          statePath.convertToStateDesignator(),
                                          namePath.convertToName(),
                                          args);
-  } catch(Path.PathConvertException e) {
+  } catch(PathConvertException e) {
     e.printStackTrace();
     System.exit(-4);
   }
@@ -4291,7 +4381,7 @@ controlStatement :
   PAction action = null;
   try {
     action = path.convertToAction();
-  } catch(Path.PathConvertException e) {
+  } catch(PathConvertException e) {
     e.printStackTrace();
     System.exit(-4);
   }
@@ -4459,7 +4549,7 @@ assignStatement :
   PStateDesignator stateDesignator = null;
   try {
     stateDesignator = path.convertToStateDesignator();
-  } catch(Path.PathConvertException e) {
+  } catch(PathConvertException e) {
     e.printStackTrace();
     System.exit(-4);
   }
@@ -4585,7 +4675,16 @@ patternLessID :
   $$ = $1;
 }
 /* tuple pattern */
-| MKUNDER LPAREN patternList COMMA pattern RPAREN // TODO
+| MKUNDER LPAREN patternList COMMA pattern RPAREN
+{
+
+    List<PPattern> plist = (List<PPattern>)$patternList;
+    plist.add((PPattern)$pattern);
+    $$ = new ATuplePattern(extractLexLocation((CmlLexeme)$MKUNDER,(CmlLexeme)$RPAREN), 
+			   new LinkedList<PDefinition>(), 
+			   false, 
+			   plist);
+}
 /* record patterns */
 /* DEVIATION
  * PATH
@@ -4896,7 +4995,7 @@ pathList :
     List<LexNameToken> names = new LinkedList<LexNameToken>();
     names.add(lnt);
     $$ = names;
-  } catch(Path.PathConvertException e) {
+  } catch(PathConvertException e) {
     e.printStackTrace();
     System.exit(-4);
   }
@@ -4908,7 +5007,7 @@ pathList :
     List<LexNameToken> names = (List<LexNameToken>)$1;
     names.add(lnt);
     $$ = names;
-  } catch(Path.PathConvertException e) {
+  } catch(PathConvertException e) {
     e.printStackTrace();
     System.exit(-4);
   }

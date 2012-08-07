@@ -10,13 +10,6 @@ import java.util.*;
 
 public class Path
 {
-    public class PathConvertException extends Exception
-    {
-	public PathConvertException(String message){
-	    super(message);
-	}
-    }
-
     public enum PathKind {
 	UNIT,
 	TILDE,
@@ -461,7 +454,7 @@ public class Path
 	case DOT_MATCHVALUE:
 	    {
 		Pair<LexNameToken,List<PExp>> tmpPair = this.subPath.convertToChannelNameExpHelper();
-		PExp exp = convertPatternToExp(literalPattern);
+		PExp exp = ConvertUtil.convertPatternToExp(literalPattern);
 		tmpPair.second.add(exp);
 		pair = new Pair<LexNameToken,List<PExp>>(tmpPair.first,
 							 tmpPair.second); 
@@ -472,59 +465,7 @@ public class Path
 	}
 	return pair;
     }
-    
-    private PExp convertPatternToExp(PPattern pattern) throws PathConvertException
-    {
-	PExp exp = null;
-
-	switch(pattern.kindPPattern()){
-	case BOOLEAN:
-	    {
-		ABooleanPattern p = (ABooleanPattern)pattern;
-		exp = new ABooleanLiteralExp(new ABooleanBasicType(p.getLocation(), 
-								   true),
-					     p.getLocation(),
-					     p.getValue());
-	    }
-	    break;
-	// case CHARACTER:
-	//     {
-	//     }
-	//     break;
-      	// case INTEGER:
-	//     {
-	//     }
-	//     break;
-	// case NIL:
-	//     {
-	//     }
-	//     break;
-	// case QUOTE:
-	//     {
-	//     }
-	//     break;
-	// case REAL:
-	//     {
-	//     }
-	//     break;
-	// case STRING:
-	//     {
-	//     }
-	//     break;
-	case EXPRESSION:
-	    {
-		AExpressionPattern p = (AExpressionPattern)pattern;
-		exp = p.getExp();
-	    }
-	    break;
-	default:
-	    throw new PathConvertException("Illigal Pattern kind for channelNameExp " + pattern.kindPPattern());
-
-	}
-
-	return exp;
-    }
-
+        
     //names: ['.'] id
     //       ['.'] id`id
     private Pair<Path, LexNameToken> extractPostfixName() throws PathConvertException

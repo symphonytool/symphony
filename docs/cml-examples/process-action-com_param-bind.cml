@@ -2,5 +2,5 @@ process RegisterProc =
 begin 
    
    @
-   init?mk_(a,b)-> REG
+   init?e in set {1,2} -> REG
 end
