@@ -586,48 +586,51 @@ classDefinition :
 ;
 
 processDefinition:
-  PROCESS IDENTIFIER EQUALS processDef
+PROCESS IDENTIFIER EQUALS processDef
 {
-  AProcessParagraphDefinition processDef = (AProcessParagraphDefinition)$processDef;
-  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
-  LexLocation location = extractLexLocation((CmlLexeme)$PROCESS,
-                                            processDef.getLocation());
-  processDef.setLocation(location);
-  processDef.setName(id);
-  $$ = processDef;
+    AProcessDefinition processDef = (AProcessDefinition)$processDef;
+    LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
+    LexLocation location = extractLexLocation((CmlLexeme)$PROCESS,
+					      processDef.getLocation());
+    AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+    
+    $$ = new AProcessParagraphDefinition(location,
+					 id,
+					 NameScope.PROCESSNAME, 
+					 false, 
+					 access,
+					 null,
+					 processDef);
 }
 ;
 
 processDef :
   singleTypeDeclarationList AT process
 {
-  List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)$1;
-  PProcess process = (PProcess)$3;
-  List<PProcess> processes = new LinkedList<PProcess>();
-  processes.add(process);
-  LexLocation loc = combineLexLocation(extractFirstLexLocation(decls),
-                                       process.getLocation());
-  // by default a process is public
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
-  $$ = new AProcessParagraphDefinition(loc,
-                                       NameScope.GLOBAL,
-                                       false,
-                                       access,
-                                       decls,
-                                       processes);
+    List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)$1;
+    PProcess process = (PProcess)$process;
+    LexLocation loc = combineLexLocation(extractFirstLexLocation(decls),
+					 process.getLocation());
+    // by default a process is public
+    AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
+    
+    $$ = new AProcessDefinition(loc,
+				NameScope.GLOBAL,
+				false,
+				access,
+				decls,
+				process);
 }
 | process
 {
-  PProcess process = (PProcess)$1;
-  List<PProcess> processes = new LinkedList<PProcess>();
-  processes.add((PProcess)$1);
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, process.getLocation());
-  $$ = new AProcessParagraphDefinition(process.getLocation(),
-                                       NameScope.GLOBAL,
-                                       false,
-                                       access,
-                                       null,
-                                       processes);
+    PProcess process = (PProcess)$process;
+    AAccessSpecifier access = getDefaultAccessSpecifier(true, false, process.getLocation());
+    $$ = new AProcessDefinition(process.getLocation(),
+				NameScope.GLOBAL,
+				false,
+				access,
+				null,
+				process);
 }
 ;
 
@@ -776,11 +779,13 @@ process :
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$8);
   List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)$singleTypeDeclarationList;
-  //LexNameToken identifier = extractLexNameToken((CmlLexeme)$4);
   List<PExp> args = new LinkedList<PExp>();
   args.add((PExp)$expression);
-  //TODO: The AST has to be changed to cope with the processDef
-  $$ = new AInstantiationProcess(location, decls, null, args);
+  $$ = new AInstantiationProcess(location, 
+				 decls, 
+				 null,
+				 (AProcessDefinition)$processDef, 
+				 args);
 }
 /* PATH
  * CML_0:
@@ -1181,7 +1186,14 @@ action :
  * here:
  *   MU pathList '@' '(' actionList ')'
  */
-| MU pathList AT LPAREN actionList RPAREN %prec MU // TODO JWC
+| MU pathList AT LPAREN actionList RPAREN %prec MU 
+{
+    List<LexNameToken> nameList = (List<LexNameToken>)$pathList;
+    List<LexIdentifierToken> ids = convertNameListToIdentifierList(nameList);
+    $$ = new AMuAction(extractLexLocation((CmlLexeme)$MU,(CmlLexeme)$RPAREN), 
+		       ids, 
+		       (List<PAction>)$actionList);
+}
 /* parallel actions */
 /* NAMESET
  * expression was namesetExpr here
@@ -1454,7 +1466,7 @@ actionList :
 | actionList[list] COMMA action
 {
     List<PAction> actionList = (List<PAction>)$list;
-    actionList.add(0,(PAction)$action);
+    actionList.add((PAction)$action);
     $$ = actionList;
 }
 ;

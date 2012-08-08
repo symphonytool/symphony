@@ -297,7 +297,8 @@ public class Path
 		LexNameToken name = this.unit.convertToName();
 		process = new AInstantiationProcess(location, 
 						    null, 
-						    name, 
+						    name,
+						    null,
 						    null); 
 	    }
 	    break;
@@ -324,7 +325,8 @@ public class Path
 		
 		process = new AInstantiationProcess(location, 
 						    null, 
-						    name, 
+						    name,
+						    null,
 						    this.expList);
 	    }
 	    break;

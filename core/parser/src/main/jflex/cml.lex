@@ -210,6 +210,7 @@ blanks          = [ \t\f]*
 "conc"                        { return createToken(CmlParser.CONC); }
 "dcl"                         { return createToken(CmlParser.DCL); }
 "dinter"                      { return createToken(CmlParser.DINTER); }
+"Div"                         { return createToken(CmlParser.CSPDIV); }
 "div"                         { return createToken(CmlParser.DIV); }
 "do"                          { return createToken(CmlParser.DO); }
 "dom"                         { return createToken(CmlParser.DOM); }
@@ -251,6 +252,7 @@ blanks          = [ \t\f]*
 "measure"                     { return createToken(CmlParser.MEASURE); }
 "merge"                       { return createToken(CmlParser.MERGE); }
 "mod"                         { return createToken(CmlParser.MOD); }
+"mu"                          { return createToken(CmlParser.MU); }
 "munion"                      { return createToken(CmlParser.MUNION); }
 "nat"                         { return createToken(CmlParser.TNAT); }
 "nat1"                        { return createToken(CmlParser.TNAT1); }
