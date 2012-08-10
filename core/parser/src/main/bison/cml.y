@@ -4204,8 +4204,7 @@ controlStatement :
   $$ = new AForSequenceStatementAction(location,
                                               patternBind,
                                               (PExp)$expression,
-                                              action,
-                                              null);
+                                              action);
 }
 /* | FOR bind IN REVERSE expression DO action */
 | FOR pattern IN expression DO action
@@ -4220,8 +4219,8 @@ controlStatement :
   $$ = new AForSequenceStatementAction(location,
                                               patternBind,
                                               (PExp)$expression,
-                                              action,
-                                              null);
+                                              
+                                              action);
 }
 /* | FOR pattern IN REVERSE expression DO action */
 /* sequence for loop end */
