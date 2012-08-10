@@ -645,7 +645,7 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| #Instantiated
 	| #Replicated
 	| #Statement
-	| {identifier} [actionName]:LexNameToken
+	| {call} [actionName]:LexNameToken
 	| {subclassResponsibility}
 	| {notYetSpecified} [opname]:LexNameToken [args]:exp*
 	;

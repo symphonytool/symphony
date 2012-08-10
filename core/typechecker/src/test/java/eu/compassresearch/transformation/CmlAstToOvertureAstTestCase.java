@@ -19,7 +19,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.definitions.AExplicitFunctionDefinition;
 import eu.compassresearch.ast.definitions.AValueDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlParser;
@@ -55,17 +54,17 @@ public class CmlAstToOvertureAstTestCase
         addTestProgram(sources,
             "class test = begin values protected c : bool = false end", false,
             AValueDefinition.class);
-        addTestProgram(sources,
-            "class test = begin functions fn: int -> int fn(a) == 42 end",
-            false, AExplicitFunctionDefinition.class);
         // addTestProgram(sources,
+        // "class test = begin functions fn: int -> int fn(a) == 42 end",
+        // false, AExplicitFunctionDefinition.class);
+        // // addTestProgram(sources,
         // "class test = begin operations o: int ==> int o(n) == return n + 1 end",
         // false, AExplicitOperationDefinition.class);
         // 6
         // addTestProgram(sources,
         // "class test = begin state a : int operations public test: () ==> test test() == a := 42 end",
         // false, AReturnControlStatementAction.class);
-        addFileProgram(sources, "not.cml", false, AValueDefinition.class);
+        // addFileProgram(sources, "not.cml", false, AValueDefinition.class);
         addFileProgram(sources, "binexp_plus.cml", false,
             AValueDefinition.class);
         addFileProgram(sources, "binexp_mod.cml", false, AValueDefinition.class);

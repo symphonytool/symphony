@@ -126,17 +126,17 @@ process LibraryProcess = begin
 		
 	actions
 		Act = (
-			borrow?b:pre_ExeBorrow(b,library) -> Assign(ExeBorrow(b,library))
+			borrow?b in set pre_ExeBorrow(b,library) -> Assign(ExeBorrow(b,library))
 			[]
-			renew?r:pre_ExeReturn(r,library) -> 
+			renew?r in set pre_ExeReturn(r,library) -> 
 				Assign(ExeReturn(r,library));
 				Assign(ExeBorrow(r,library))
 			[]
-			retBook?r:pre_ExeReturn(r,library) -> Assign(ExeReturn(r,library))
+			retBook?r in set pre_ExeReturn(r,library) -> Assign(ExeReturn(r,library))
 			[]
-			find?f:pre_ExeFind(f,library) -> Assign(ExeFind(f,library))
+			find?f in set pre_ExeFind(f,library) -> Assign(ExeFind(f,library))
 			[]
-			loans?u:(u in set dom(GetBorrowed(library)))!(card(ApplyBorrowed(library,u))) -> SKIP 
+			loans?u in set (u in set dom(GetBorrowed(library)))!(card(ApplyBorrowed(library,u))) -> SKIP 
 		); Act
 	
 	@ init -> Init(books,users); Act
@@ -171,10 +171,10 @@ process Scenario1 = i: UserId @ begin
 		frame wr books
 		post books = b
 	
-	@ initUser?u -> Init(u); borrow!MkBorrow(book1,id) -> SKIP;
+	@ initUser?u -> Init(u); borrow!(MkBorrow(book1,id)) -> SKIP;
 			Assign(books union {book1});
-			borrow!MkBorrow(book2,id) -> Assign(books union {book2});
-			retBook!MkReturn(book1) -> Assign(diff(books, {book1}));
+			borrow!(MkBorrow(book2,id)) -> Assign(books union {book2});
+			retBook!(MkReturn(book1)) -> Assign(diff(books, {book1}));
 			loans!id?s -> if s = books then success -> STOP else error -> STOP
 end
 
@@ -203,8 +203,8 @@ process Scenario2 = i: UserId @ begin
 		frame wr books
 		post books = b
 			
-	@ initUser?u -> Init(u); borrow!MkBorrow(book1,id) -> Assign(books union {book1});
-			retBook!MkReturn(book2) -> Assign(diff(books,{book2})); STOP
+	@ initUser?u -> Init(u); borrow!(MkBorrow(book1,id)) -> Assign(books union {book1});
+			retBook!(MkReturn(book2)) -> Assign(diff(books,{book2})); STOP
 end
 
 -- empty chanset is not working ({||})

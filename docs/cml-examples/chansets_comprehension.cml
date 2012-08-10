@@ -1,2 +1,2 @@
 chansets
-   I = {| test.:hey.:loo | a in set {1,2} |}
+   I = {| test.hey.loo | a in set {1,2} |}

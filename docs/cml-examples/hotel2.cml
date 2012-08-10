@@ -68,7 +68,7 @@ channels
 chansets
 
 	-- Define two chansets: one for a travel agents interface, the other for manager interface
-	TA = {| init, avail, book, check, reqPriceAvail, reqPrice, outPrice, reqFac, outFac, reference, cancel, chDate, chRooms, invalidRef, unavailable, error |}
+	TA = {| init, avail, book, check, reqPriceAvail, reqPrice, outPrice, reqFac, outFac, reference, cancel, chDate, chRooms, invalidRef, unavailable, error |};
 	Manager = {| init, setPrice, setAvail, error |}
 
 process Zotel_Booking =

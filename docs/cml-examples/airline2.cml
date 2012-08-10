@@ -137,7 +137,7 @@ actions
   []
   makeBooking?mk_(f,n) ->
          ([ pre_BookSeats(n,f)] & (dcl r:ReservationId @ r:= BookSeat(f,s); 
-                                   (dcl c:Price @ c := CalculatePrice(n); payment!mk_(r,c) ->  BOOK)))
+                                   (dcl c:Price @ c := CalculatePrice(n); payment!(mk_(r,c)) ->  BOOK)))
          []
          ([ not pre_BookSeats(n,f) ] & failBooking -> BOOK)
   []

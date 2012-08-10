@@ -3,6 +3,6 @@ begin
 
 initial
 	test : () ==> ()
-	test() == a := 0     
+	test() == (a := 0)     
 
 end
