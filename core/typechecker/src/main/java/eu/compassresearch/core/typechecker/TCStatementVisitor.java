@@ -1,7 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
-import eu.compassresearch.ast.actions.AIdentifierAction;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
@@ -58,15 +57,6 @@ public class TCStatementVisitor extends
         node.setType(new AStatementType());
         
         return node.getType();
-      }
-    
-    @Override
-    public PType caseAIdentifierAction(AIdentifierAction node,
-        TypeCheckInfo question) throws AnalysisException
-      {
-        
-        return new AStatementType();
-        
       }
     
   }
