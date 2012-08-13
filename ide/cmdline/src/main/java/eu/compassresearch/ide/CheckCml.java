@@ -25,7 +25,7 @@ import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 // import eu.compassresearch.core.typechecker.CmlTypeChecker; 
 // import eu.compassresearch.core.typechecker.TypeCheckInfo;
-import eu.compassresearch.core.analysis.proofobligationgenerator.ProofObligationGenerator;
+import eu.compassresearch.core.analysis.pog.ProofObligationGenerator;
  import eu.compassresearch.examples.DivWarnAnalysis;
 import org.overture.ast.program.ASourcefileSourcefile;
 import java.util.LinkedList;

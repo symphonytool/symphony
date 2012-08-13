@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *	Copyright (c) 2009 Fujitsu Services Ltd.
+ *	Copyright (C) 2008 Fujitsu Services Ltd.
  *
  *	Author: Nick Battle
  *
@@ -21,26 +21,40 @@
  *
  ******************************************************************************
  * 
- * Just using Overture POStatus for now
+ * Just using Overture POContext for now
  *
  ******************************************************************************/
 
-package eu.compassresearch.core.analysis.proofobligationgenerator;
+package eu.compassresearch.core.analysis.pog.obligations;
 
-public enum POStatus
+import java.util.HashMap;
+import java.util.Map;
+
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.types.PType;
+
+abstract public class POContext
 {
-	UNPROVED("Unproved"), PROVED("Proved"), TRIVIAL("Trivial");
+	abstract public String getContext();
+	private Map<PExp, PType> knownTypes = new HashMap<PExp, PType>();
 
-	private String text;
-
-	POStatus(String text)
+	public String getName()
 	{
-		this.text = text;
+		return "";		// Overridden in PONameContext
 	}
 
-	@Override
-	public String toString()
+	public boolean isScopeBoundary()
 	{
-		return text;
+		return false;
+	}
+
+	public void noteType(PExp exp, PType type)
+	{
+		knownTypes.put(exp, type);
+	}
+
+	public PType checkType(PExp exp)
+	{
+		return knownTypes.get(exp);
 	}
 }
