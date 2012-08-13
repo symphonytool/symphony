@@ -1,0 +1,11 @@
+process RegisterProc = 
+ begin
+  types
+  Ass :: f : seq of nat
+ 
+  state 
+  reg : Ass	
+ 
+   @
+     reg.f(1) := 1
+ end

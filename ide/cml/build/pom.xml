@@ -27,9 +27,10 @@
 				<executions>
 					<execution>
 
-						<phase>deploy</phase>
+						<phase>install</phase>
 						<configuration>
 							<target>
+							  
 								<property name="base" value="${user.rcp.build.base}" />
 								<property name="equinoxLauncherPluginVersion"
 									value="${user.rcp.build.equinox.launcher.plugin.version}" />
@@ -39,10 +40,8 @@
 								<property name="basews" value="${user.rcp.build.basews}" />
 								<property name="basearch" value="${user.rcp.build.basearch}" />
 
-								<property name="eclipseLocation" value="${base}" />
-								<property name="buildDirectory" value="${project.build.directory}/RCP" />
-								<!-- Custom configuration for build server -->
-
+								<property name="eclipseLocation" value="${user.rcp.build.eclipse}" />
+								<property name="buildDirectory" value="${project.build.directory}/COMPASSIde" />
 								<property name="pluginPath" value="${user.rcp.pluginpath}" />
 
 								<ant antfile="build.xml" />

@@ -1,0 +1,9 @@
+process RegisterProc = 
+ begin
+	
+  state 
+  reg : Byte	
+ 
+   @
+     reg := 1
+ end

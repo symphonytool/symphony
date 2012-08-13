@@ -1,6 +1,6 @@
 process RegisterProc = 
  begin
- aCtions
+ actions
    REG = init -> INIT(); REG
  @
    Skip  

@@ -1,6 +1,6 @@
 class forallexp =
 begin
 	values
-	public a : bool = forall i in set {1,2,3,4} & i < 42
+	public a : bool = forall i in set {1,2,3,4} @ i < 42
 	
 end

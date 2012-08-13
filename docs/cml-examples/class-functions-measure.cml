@@ -1,0 +1,9 @@
+class Exchange =
+begin 
+      
+functions
+		callers: int +>  int
+		callers(a) == a
+		measure a;
+		
+end

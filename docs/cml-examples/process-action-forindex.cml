@@ -1,0 +1,2 @@
+process test = begin @ for a = 1 to 4 do Skip end
+process test = begin @ for a = 1 to 4 by 2 do Skip end

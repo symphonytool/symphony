@@ -39,7 +39,10 @@ fi
 #
 # Okay lets run the tests
 #
+SUCESSES=0
+TOTAL_TESTS=0
  for test in $(ls -1 ../../docs/cml-examples/); do 
+     let TOTAL_TESTS=TOTAL_TESTS+1;
      txt=$(echo -n ${test});
      notabs=$(expr ${width} - ${#txt} );
      str=$(printf "%-${notabs}s" " ");
@@ -50,6 +53,7 @@ fi
      then 
 	 echo -n -e "$(colortxt ${green} ${txt}) ${tabstr}";
 	 echo $(colortxt ${green} "[ok]"); 
+	 let SUCESSES=SUCESSES+1;
      elif [ "${retcode}" == "255" ]; then
 	 echo -n -e "$(colortxt ${yellow} ${txt}) ${tabstr}";
 	 echo $(colortxt ${yellow} "[not parsing]");
@@ -68,3 +72,5 @@ fi
      fi
      
 done
+
+echo -e "${SUCESSES} tests succeeded out of ${TOTAL_TESTS}"

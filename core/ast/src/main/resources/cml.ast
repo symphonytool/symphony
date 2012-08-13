@@ -1,7 +1,7 @@
 //TODO1: maybe generate classes with the Comparable interface 
 Packages
-base org.overture.ast.node;
-analysis org.overture.ast.analysis;
+base eu.compassresearch.ast.node;
+analysis eu.compassresearch.ast.analysis;
   
 Tokens
 /* This section declared tokens as internal types or external classes
@@ -11,26 +11,29 @@ Tokens
  * external
  *  location = 'java:org.overturetool.vdmj.lex.LexLocation';
  */
-  LexToken = 'java:node:org.overture.ast.lex.LexToken';
-  LexNameToken = 'java:node:org.overture.ast.lex.LexNameToken';
-  LexIdentifierToken = 'java:node:org.overture.ast.lex.LexIdentifierToken';
-  LexBooleanToken = 'java:node:org.overture.ast.lex.LexBooleanToken';
-  LexCharacterToken = 'java:node:org.overture.ast.lex.LexCharacterToken';
-  LexIntegerToken = 'java:node:org.overture.ast.lex.LexIntegerToken';
-  LexQuoteToken = 'java:node:org.overture.ast.lex.LexQuoteToken';
-  LexRealToken = 'java:node:org.overture.ast.lex.LexRealToken';
-  LexStringToken = 'java:node:org.overture.ast.lex.LexStringToken';
-  clonableFile ='java:org.overture.ast.util.ClonableFile';
-  clonableString ='java:org.overture.ast.util.ClonableString';
-  ClassDefinitionSettings = 'java:enum:org.overture.ast.typechecker.ClassDefinitionSettings';
-  location = 'java:org.overture.ast.lex.LexLocation';
-  nameScope = 'java:enum:org.overture.ast.typechecker.NameScope';
+  LexToken = 'java:node:eu.compassresearch.ast.lex.LexToken';
+  LexNameToken = 'java:node:eu.compassresearch.ast.lex.LexNameToken';
+  LexIdentifierToken = 'java:node:eu.compassresearch.ast.lex.LexIdentifierToken';
+  LexBooleanToken = 'java:node:eu.compassresearch.ast.lex.LexBooleanToken';
+  LexCharacterToken = 'java:node:eu.compassresearch.ast.lex.LexCharacterToken';
+  LexIntegerToken = 'java:node:eu.compassresearch.ast.lex.LexIntegerToken';
+  LexQuoteToken = 'java:node:eu.compassresearch.ast.lex.LexQuoteToken';
+  LexRealToken = 'java:node:eu.compassresearch.ast.lex.LexRealToken';
+  LexStringToken = 'java:node:eu.compassresearch.ast.lex.LexStringToken';
+  clonableFile ='java:eu.compassresearch.ast.util.ClonableFile';
+  clonableString ='java:eu.compassresearch.ast.util.ClonableString';
+  ClassDefinitionSettings = 'java:enum:eu.compassresearch.ast.typechecker.ClassDefinitionSettings';
+  location = 'java:eu.compassresearch.ast.lex.LexLocation';
+  nameScope = 'java:enum:eu.compassresearch.ast.typechecker.NameScope';
   
   //Java
   java_Boolean = 'java:java.lang.Boolean';
   java_Integer = 'java:java.lang.Integer';
   java_String = 'java:java.lang.String';
   java_Long = 'java:java.lang.Long';
+  java_File = 'java:java.io.File';
+  java_Stream = 'java:java.io.InputStream';
+  
      
   static = 'static';
   async = 'async';
@@ -38,123 +41,128 @@ Tokens
 Abstract Syntax Tree
 /* This section declares the AST by giving root nodes and their possible sub classes
  *
- * exp {-> package='org.overture.ast.expressions'}
+ * exp {-> package='eu.compassresearch.ast.expressions'}
  *      = {subclass1} [field_name]:field_type_must_either_be_root_or_token ...
  *      ;
  *
  */
 
-/*
-	Name Resolving helpers 
-	
-	These are only temporary nodes to help the parser and will not
-	end up in the AST.
-*/
-name {-> package='org.overture.ast.program'}
-	= {simple} [identifiers]:LexIdentifierToken*
-	;
-
-
-designator {-> package='org.overture.ast.program'}
-	= {name} [name]:name.simple 
-	| {primary} [primary]:primary
-	;
-
-primary {-> package='org.overture.ast.program'}
-	= {self}
-	| {call} [call]:action.#ControlStatement.#CallStatement.call
-	| {primary} [primary]:primary [identifier]:LexIdentifierToken
-	;
-/*
-	Programs
-*/
-
-program {-> package='org.overture.ast.program'}
-    =  {program} 
-       [sourceFiles] : sourcefile* 
-       [name]:LexIdentifierToken
-       ;
-
-sourcefile {-> package='org.overture.ast.program'}
-    = {sourcefile} 
-      [file] : clonableFile 
-      [name]:java_String 
-      [decls]:declaration*
+source {->  package='eu.compassresearch.ast.program'}
+      = {file} [name]: java_String (file): java_File
+      | {tcpStream} [ip]: java_String [port]: java_String (stream): java_Stream 
+      | {inputStream} [origin]: java_String (stream): java_Stream
       ;
 
 /*
  Declarations 
 */
+declaration {-> package='eu.compassresearch.ast.declarations'}
+    // --- True declarations
+    = {channelName} 
+    [identifier]: LexIdentifierToken // We will look and see if this name is appropriate during tc
+    [singleType]: declaration.#Single.type
+    | #Single
+	;
 
-declaration {-> package='org.overture.ast.declarations'}
-    = {class} [identifier]:LexIdentifierToken [classBody]: definition.classbody
-    | {process} [identifier]:LexIdentifierToken [processDefinition]:definition.process
-    | {channel} [channelDefinition]:definition.channel
-    | {channelName} [declaration]:singleType
-    | {chanset} [chansetDefinitions]:definition.chanset*
-    | {action} [actionDefinition]:definition.action*
-    // --- Maybe they should be grouped together in a sub declaration
-    | {type} [typeDefinitions]:definition.type*
-    | {function} [functionDefinitions]:definition.#function*
-    | {value} [definitions]: definition*
-    | {operation} [operationDefinitions]:definition.#operation*
-    | {state} [stateDefinition]:definition.state
-    // ---	
-    | {singleType} [identifiers]:LexIdentifierToken* (type):type
-;
-
+#Single {-> package='eu.compassresearch.ast.declarations'}
+	= {type}  
+    [identifiers]:LexIdentifierToken* (type):type
+	| {expression}
+    [identifiers]:LexIdentifierToken* [expression]:exp
+    ;
 /*
  Definitions 
 */
-
-definition {-> package='org.overture.ast.definitions'}
-    =   {assignment} [expression]:exp (expType):type
+definition {-> package='eu.compassresearch.ast.definitions'}
+    = #paragraph
+    |   {invariant} [pattern]: pattern (expression): exp
+    |   {assignment} [expression]:exp (expType):type
     |   {instanceVariable} [expression]:exp (expType):type [initialized]:java_Boolean [oldname]:LexNameToken //this actually inherits assignment in Nicks tree
-    |   #class 
-    |   {classbody} [declarations]:declaration* 
-    |	{process} [declarations]:declaration.singleType* [process]:process
-    |   {action} [declarations]:declaration.singleType* [action]:action
-    |   {chanset} [identifier]:LexIdentifierToken [chansetExpression]:exp.#Set.#Chanset
-    | 	{channel} [channelNameDecls]: declaration.channelName*
+    |   {action} [declarations]:declaration.#Single.type* [action]:action
+    |   {chanset} [identifier]:LexIdentifierToken [chansetExpressions]:exp
     |   {classInvariant}  [expression]:exp
     |   {equals} [pattern]:pattern [typebind]:bind.type [setbind]:bind.set [test]:exp 
                  (expType):type (defType):type [defs]:definition*
     |   #function
     |   {external} (state):definition [readOnly]:java_Boolean (oldname):LexNameToken
-	|   #operation    
-    |   {imported} (def):definition (name):LexNameToken
+    |   #operation    
+    |   {imported} (def):definition 
     |   {inherited} (superdef):definition [oldname]:LexNameToken //is access missing here
-    |   {local} [valueDefinition]:java_Boolean (name):LexNameToken
+    |   {local} [valueDefinition]:java_Boolean 
     |   {multiBindList} (bindings):multipleBind* (defs):definition*
     |   {renamed}  (def):definition 
     |   {state} [fields]:field.field* 
-                [invPattern]:pattern [invExpression]:exp (invdef):definition.#function.explicitFunction
-                [initPattern]:pattern [initExpression]:exp (initdef):definition.#function.explicitFunction
+                [invPattern]:pattern [invExpression]:exp (invdef):definition.#function.explicit
+                [initPattern]:pattern [initExpression]:exp (initdef):definition.#function.explicit
                 (stateDefs):definition* 
-    |   {type} (invType):type.#invariant [invPattern]:pattern [invExpression]:exp 
-               [invdef]:definition.#function.explicitFunction [infinite]:java_Boolean (name):LexNameToken//is access missing here
+    //Why does the type definition take inv pattern and expression and not just the inv definition which containts them both??
+    |   {type} (invType):type.#invariant 
+                [invPattern]:pattern 
+                [invExpression]:exp 
+                [invdef]:definition.#function.explicit 
+		[infinite]:java_Boolean //is access missing here
     |   {untyped}
     |   {value} [pattern]:pattern [expression]:exp [defs]:definition* (expType):type //is access missing here
     ;
     
+
+#paragraph {-> package='eu.compassresearch.ast.definitions'}
+	  =  {class}
+	   		[body]: definition*
+	   		(supertypes):type* 
+           	(supernames):LexNameToken*// try out () 
+           	(definitions):definition* 
+           	(allInheritedDefinitions):definition*
+           	(localInheritedDefinitions):definition* 
+           	[hasContructors]:java_Boolean
+           	[settingHierarchy]:ClassDefinitionSettings
+	   		(superDefs):definition.#paragraph.class*	
+			[gettingInheritable]:java_Boolean
+			(superInheritedDefinitions):definition*
+			[gettingInvDefs]:java_Boolean
+			[isAbstract]:java_Boolean
+			[isUndefined]:java_Boolean
+			(classtype):type
+			(isTypeChecked):java_Boolean
+			(invariant):definition.#operation.explicit
+	   | {process} 
+	     	[localState]: declaration*
+	     	[processes]: process*
+	   | {channel} 
+	   		[channelNames]: declaration.channelName*
+	   | {chanset} 
+	     	[chansets] : definition.chanset*
+ 	   | {action} 
+ 	   		[actions]: definition.action*
+ 	   | {types} 
+ 	   		[types]: definition.type*
+ 	   | {operation} 
+ 	   		[operations]:definition.#operation*
+ 	   | {function} 
+ 	   		[functionDefinitions]:definition.#function*
+ 	   | {value} 
+ 	   		[valueDefinitions]: definition*
+ 	   | {initial} 
+ 	   		[operationDefinition]: definition
+	   ;
     
-#operation {-> package='org.overture.ast.definitions'}
-	=   {explicitOperation} [parameterPatterns]:pattern* 
-                            [body]:stm
+#operation {-> package='eu.compassresearch.ast.definitions'}
+	=   {explicit} [parameterPatterns]:pattern* 
+                            [body]:action.#Statement
                             [precondition]:exp 
                             [postcondition]:exp 
                             
                             (type):type.operation
                             
-                            (predef):definition.#function.explicitFunction
-                            (postdef):definition.#function.explicitFunction
+                            (predef):definition.#function.explicit
+                            (postdef):definition.#function.explicit
                             (paramDefinitions):definition*
                             (state):definition.state
                             
                             (actualResult):type
                             [isConstructor]:java_Boolean
                             
-    |   {implicitOperation} [parameterPatterns]:pair.patternListType*
+    |   {implicit} [parameterPatterns]:pair.patternListType*
                             [result]:pair.identifierType*
                             //[body]:stm
                             [externals]:clause.external*
@@ -163,16 +171,16 @@ definition {-> package='org.overture.ast.definitions'}
                             [errors]:case.error*
                             
                             (type):type.operation
-                            (predef):definition.#function.explicitFunction
-                            (postdef):definition.#function.explicitFunction
+                            (predef):definition.#function.explicit
+                            (postdef):definition.#function.explicit
                             (state):definition.state
                             (actualResult):type
                             (stateDefinition):definition
                             [isConstructor]:java_Boolean    
     ;
     
-#function {-> package='org.overture.ast.definitions'}
-    =  {explicitFunction}  [typeParams]:LexNameToken* 
+#function {-> package='eu.compassresearch.ast.definitions'}
+    =  {explicit}  [typeParams]:LexNameToken* 
                             [paramPatternList]:pattern**
                             (type):type.function 
                             (body):exp 
@@ -180,8 +188,8 @@ definition {-> package='org.overture.ast.definitions'}
                             [postcondition]:exp
                             [measure]:LexNameToken
                             
-                            (predef):explicitFunction 
-                            (postdef):explicitFunction
+                            (predef):explicit 
+                            (postdef):explicit
                             (measureDef):definition
                             (paramDefinitionList):definition*
                             
@@ -197,13 +205,13 @@ definition {-> package='org.overture.ast.definitions'}
                             
                             (typeInvariant):java_Boolean
                             //[poluFuncs]:???Map<TypeList, FunctionValue>
-	|   {implicitFunction}  [typeParams]:LexNameToken* 
+	|   {implicit}  [typeParams]:LexNameToken* 
                             [paramPatterns]:pair.patternListType*
                             [result]:pair*
                             [precondition]:exp 
                             [postcondition]:exp 
-                            (predef):explicitFunction 
-                            (postdef):explicitFunction 
+                            (predef):explicit 
+                            (postdef):explicit 
                             (measureDef):definition
                             (recursive):java_Boolean
                             (isUndefined):java_Boolean 
@@ -213,45 +221,11 @@ definition {-> package='org.overture.ast.definitions'}
                             (type):type.function
                             //[poluFuncs]:???Map<TypeList, FunctionValue>
 	;
-    
-#class {-> package='org.overture.ast.definitions'}
-    = {class}//Hmm we cant instanciate SClassDefinition...
-    ;
 
-invariant {-> package='org.overture.ast.definitions'}
-    = {invariant} [location]:location [invPattern]:pattern [invExpression]:exp
-;
-
-/*
-	Process
-*/
-
-process {-> package='org.overture.ast.process'}
-	= {state} [processDeclarations]:declaration* [action]:action
-	| {sequentialComposition} [left]:process [right]:process
-	| {externalChoice} [left]:process [right]:process
-	| {internalChoice} [left]:process [right]:process
-	| {generalisedParallelism} [left]:process [chansetExpression]:exp.#Set.#Chanset [right]:process
-	| {alphabetisedParallelism} [left]:process [leftChansetExpression]:exp.#Set.#Chanset [rightChansetExpression]:exp.#Set.#Chanset [right]:process
-	| {synchronousParallelism} [left]:process [right]:process
-	| {interleaving} [left]:process [right]:process
-	| {interrupt} [left]:process [right]:process
-	| {timedInterrupt} [left]:process [timeExpression]:exp [right]:process
-	| {untimedTimeout} [left]:process [right]:process
-	| {timeout} [left]:process [timeoutExpression]:exp [right]:process
-	| {hiding} [left]:process [chansetExpression]:exp.#Set.#Chanset
-	| {startDeadline} [left]:process [expression]:exp
-	| {endDeadline} [left]:process [expression]:exp
-	| {instantiation} [declarations]:declaration.singleType* [identifer]:LexNameToken [expression]:exp
-	| {identifier} [identifer]:LexNameToken 
-	| {channelRenaming} [process]:process [renameExpression]:exp.#Channel.#Rename
-	 
-;
-	
 /*
     Expressions
 */    
-exp {-> package='org.overture.ast.expressions'}
+exp {-> package='eu.compassresearch.ast.expressions'}
     =   {apply} [root]:exp [args]:exp* (argtypes):type* (recursive):definition /*cml*/
     |   #Unary /*cml*/
     |   #Binary /*cml*/
@@ -260,10 +234,11 @@ exp {-> package='org.overture.ast.expressions'}
     |   {elseIf} [elseIf]:exp [then]:exp  /*cml*/
     |   {exists1}  [bind]:bind [predicate]:exp [def]:definition
     |   {exists} [bindList]:multipleBind* [predicate]:exp
+    |   {ioat} [bindList]:multipleBind* [predicate]:exp
     |   {field} [object]:exp [memberName]:LexNameToken [field]:LexIdentifierToken
     |   {fieldNumber} [tuple]:exp [field]:LexIntegerToken
     |   {forAll} [bindList]:multipleBind* [predicate]:exp
-    |   {funcInstatiation} [function]:exp (actualTypes):type* [expdef]:definition.#function.explicitFunction (impdef):definition.#function.implicitFunction
+    |   {funcInstatiation} [function]:exp (actualTypes):type* [expdef]:definition.#function.explicit (impdef):definition.#function.implicit
     |   {history} [hop]:LexToken [opnames]:LexNameToken*
     |   {if} [test]:exp [then]:exp [elseList]:elseIf* [else]:exp /*cml*/
     |   {iota} [bind]:bind [predicate]:exp
@@ -279,7 +254,7 @@ exp {-> package='org.overture.ast.expressions'}
     |   {mkBasic} [arg]:exp
     |   {mkType} [typeName]:LexNameToken [args]:exp* (recordType):type.#invariant.record (argTypes):type*
     |   {mu} [record]:exp (recordType):type.#invariant.record [modifiers]:modifier.record* (modTypes):type*
-    |   {new} [className]:LexIdentifierToken [args]:exp* (classdef):definition.#class (ctorDefinition):definition
+    |   {new} [className]:LexIdentifierToken [args]:exp* (classdef):definition.#paragraph.class (ctorDefinition):definition
     |   {nil} 
     |   {notYetSpecified} 
     |   {postOp} [opname]:LexNameToken (preexpression):exp (postexpression):exp (errors):case.error* (state):definition.state [errorLocation]:location
@@ -290,7 +265,7 @@ exp {-> package='org.overture.ast.expressions'}
     |   {self} [name]:LexNameToken
     |   #Seq
     |   #Set
-    |   #SymbolicLiteral
+    |   #literal
     |   {stateInit} (state):definition.state  
     |   {subclassResponsibility} 
     |   {subseq} [seq]:exp [from]:exp [to]:exp (ftype):type (ttype):type
@@ -303,26 +278,26 @@ exp {-> package='org.overture.ast.expressions'}
     |   #Channel
     ;
     
-#Channel  {-> package='org.overture.ast.expressions'}
+#Channel  {-> package='eu.compassresearch.ast.expressions'}
 	= #Rename
-	| {event} [identifier]:LexNameToken [dotExpressions]:exp*
+	| {name} [identifier]:LexNameToken [dotExpressions]:exp*
 	;
 	
-#Rename   {-> package='org.overture.ast.expressions'}
- 	= {comprehension} [renamePairs]:pair.rename* [bindings]:multipleBind* [predicate]:exp
+#Rename   {-> package='eu.compassresearch.ast.expressions'}
+ 	= {comprehension} [renamePairs]:pair.rename [bindings]:multipleBind* [predicate]:exp
  	| {enumeration} [renamePairs]:pair.rename*
     ;
     
-#SymbolicLiteral {-> package='org.overture.ast.expressions'}
-	= {textLiteral} [value]:LexStringToken
-	| {quoteLiteral} [value]:LexQuoteToken   
-	| {charLiteral} [value]:LexCharacterToken
-	| {booleanLiteral} [value]:LexBooleanToken 
-	| {intLiteral} [value]:LexIntegerToken
-	| {realLiteral} [value]:LexRealToken
+#literal {-> package='eu.compassresearch.ast.expressions'}
+	= {string} [value]:LexStringToken
+	| {quote} [value]:LexQuoteToken   
+	| {char} [value]:LexCharacterToken
+	| {boolean} [value]:LexBooleanToken 
+	| {int} [value]:LexIntegerToken
+	| {real} [value]:LexRealToken
     ; 
    
-#Unary {-> package='org.overture.ast.expressions'}
+#Unary {-> package='eu.compassresearch.ast.expressions'}
     =   {absolute} 
     |   {cardinality}  
     |   {distConcat} 
@@ -346,7 +321,7 @@ exp {-> package='org.overture.ast.expressions'}
     ;
 
 
-#Binary {-> package='org.overture.ast.expressions'}
+#Binary {-> package='eu.compassresearch.ast.expressions'}
     =   #Boolean
     |   {comp} 
     |   {domainResBy}
@@ -371,14 +346,14 @@ exp {-> package='org.overture.ast.expressions'}
     
 
     
-#Boolean {-> package='org.overture.ast.expressions'}
+#Boolean {-> package='eu.compassresearch.ast.expressions'}
     =   {and}
     |   {equivalent}
     |   {implies}
     |   {or}
     ;
     
-#Numeric {-> package='org.overture.ast.expressions'}
+#Numeric {-> package='eu.compassresearch.ast.expressions'}
     =   {div}
     |   {divide}
     |   {greaterEqual}
@@ -392,47 +367,55 @@ exp {-> package='org.overture.ast.expressions'}
     |   {times}
     ;
     
-#Map {-> package='org.overture.ast.expressions'}
+#Map {-> package='eu.compassresearch.ast.expressions'}
     =   {mapComp} [first]:exp.maplet [bindings]:multipleBind* [predicate]:exp
     |   {mapEnum} [members]:exp.maplet* (domTypes):type* (rngTypes):type*
     ;
     
-#Seq {-> package='org.overture.ast.expressions'}
+#Seq {-> package='eu.compassresearch.ast.expressions'}
     =   {seqComp} [first]:exp [setBind]:bind.set [predicate]:exp
     |   {seqEnum} [members]:exp* (types):type*
     ;
     
-#Set {-> package='org.overture.ast.expressions'}
+#Set {-> package='eu.compassresearch.ast.expressions'}
     =   {setComp} [first]:exp [bindings]:multipleBind* [predicate]:exp
     |   {setEnum} [members]:exp* (types):type*
     |   {setRange} [first]:exp [last]:exp (ftype):type (ltype):type
     |   #Chanset
     ;
     
-#Chanset {-> package='org.overture.ast.expressions'}
+#Chanset {-> package='eu.compassresearch.ast.expressions'}
 	= {identifier} [identifier]:LexIdentifierToken
 	| {enum} [identifiers]:LexIdentifierToken*
-	| {comp}  [identifier]:LexIdentifierToken [dotExpressions]:exp* [bindings]:multipleBind* [predicate]:exp 
+	| {comp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp 
     ;
     
-modifier {-> package='org.overture.ast.expressions'}
+modifier {-> package='eu.compassresearch.ast.expressions'}
     = {record} [tag]:LexIdentifierToken [value]:exp
     ;
     
-alternative {-> package='org.overture.ast.expressions'}
-    = {case} [location]:location [cexp]:exp [pattern]:pattern* 
+alternative {-> package='eu.compassresearch.ast.expressions'}
+    = {case} [location]:location [cexp]:exp [pattern]:pattern*
              [result]:exp [defs]:definition*  (type):type (expType):type
     ;
     
 /* 
 	Types 
 */
-   
-type {-> package='org.overture.ast.types'}
+
+type {-> package='eu.compassresearch.ast.types'}
     =   #basic
+    |   {statement} // marker that a statement is typed ok
+    |   {error} // marker that type of a subtree has failed 
+    |   {processParagraph} // marker stipulating process paragraph is typed ok
+    |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
+    |   {actionParagraph} // marker stipulating that a Action Paragraph is typed ok
+    |   {valueParagraph} // marker stipulating that a Values paragraph is typed ok
+    |   {functionParagraph} // marker stipulating that a Function Paragraph is typed ok
+    |   {source} // marker stipulating a source was typed ok
     |   {bracket} (type):type
     |   {channel}
-    |   {class} [name]:LexNameToken (classdef):definition.#class //change classdef to graf - is this correct dont see how it could have worked before
+    |   {class} [name]:LexNameToken (classdef):definition.#paragraph.class //change classdef to graf - is this correct dont see how it could have worked before
     |   {function} [partial]:java_Boolean (parameters):type* (result):type 
     |   #invariant
     |   #Map 
@@ -461,28 +444,28 @@ type {-> package='org.overture.ast.types'}
     ; 
 
 
-#seq {-> package='org.overture.ast.types'}
+#seq {-> package='eu.compassresearch.ast.types'}
     =   {seq} 
     |   {seq1} 
     ;
 
-#Map  {-> package='org.overture.ast.types'}
+#Map  {-> package='eu.compassresearch.ast.types'}
     =   {inMap} 
     |   {map}
     ;
-#invariant {-> package='org.overture.ast.types'}
+#invariant {-> package='eu.compassresearch.ast.types'}
     =   {named} (name):LexNameToken (type):type //[invdef]:explicitFunction //super = invariant type
     |   {record} [name]:LexNameToken [fields]:field.field* (infinite):java_Boolean //[invdef]:explicitFunction //super = invariant type
     ;
 
-#basic {-> package='org.overture.ast.types'}
+#basic {-> package='eu.compassresearch.ast.types'}
     =   {boolean}
     |   {char}
     |   #numeric     
     |   {token}
     ;
 
-#numeric {-> package='org.overture.ast.types'}
+#numeric {-> package='eu.compassresearch.ast.types'}
     =   {int} 
     |   {natOne} 
     |   {nat} 
@@ -490,25 +473,27 @@ type {-> package='org.overture.ast.types'}
     |   {real} 
     ;
 
-field {-> package='org.overture.ast.types'}
-    =   {field} [access]:accessSpecifier.accessSpecifier [tagname]:LexNameToken 
+field {-> package='eu.compassresearch.ast.types'}
+    =   {field} [access]:specifier.access [tagname]:LexNameToken 
                 [tag]:java_String (type):type [equalityAbstraction]:java_Boolean
     ;
-accessSpecifier  {-> package='org.overture.ast.types'}
-  = {accessSpecifier} [access]:access [static]:static [async]:async [location]:location 
+
+specifier  {-> package='eu.compassresearch.ast.types'}
+  = {access} [access]:access [static]:static [async]:async [location]:location 
   ;
-access  {-> package='org.overture.ast.definitions'}
+
+access  {-> package='eu.compassresearch.ast.definitions'}
     =   {public}
     |   {protected}
     |   {private}
-    | 	{logical}
+    | 	{logical} 
     ;
 
 /* 
 	Patterns 
 */
 
-pattern {-> package='org.overture.ast.patterns'}
+pattern {-> package='eu.compassresearch.ast.patterns'}
     =   {boolean} [value]:LexBooleanToken
     |   {character} [value]:LexCharacterToken
     |   {concatenation} [left]:pattern [right]:pattern
@@ -527,25 +512,25 @@ pattern {-> package='org.overture.ast.patterns'}
     |   {union} [left]:pattern [right]:pattern
     ;
     
-pair {-> package='org.overture.ast.patterns'}
+pair {-> package='eu.compassresearch.ast.patterns'}
     = {patternType} [pattern]:pattern (type):type
     | {patternListType} [patterns]:pattern* (type):type
     | {identifierType} [identifier]:LexIdentifierToken (type):type
-    | {rename} [from]:exp.#Channel.event [to]:exp.#Channel.event
+    | {rename} [from]:exp.#Channel.name [to]:exp.#Channel.name
     ; 
     
-bind {-> package='org.overture.ast.patterns'}
+bind {-> package='eu.compassresearch.ast.patterns'}
     =   {set} [pattern]:pattern [set]:exp //binds
     |   {type} [pattern]:pattern (type):type //binds
     ;
 
 //This is used in PExp and PDefinition
-multipleBind {-> package='org.overture.ast.patterns'}
+multipleBind {-> package='eu.compassresearch.ast.patterns'}
     =   {set}  [set]:exp //binds
     |   {type} (type):type //binds
     ;
 
-patternBind {-> package='org.overture.ast.patterns'}
+patternBind {-> package='eu.compassresearch.ast.patterns'}
     = {def} [location]:location [pattern]:pattern [bind]:bind (defs):definition* (type):type
     ;
 
@@ -553,7 +538,7 @@ patternBind {-> package='org.overture.ast.patterns'}
 	Modules -- this might get kicked out 
 */
 
-modules {-> package='org.overture.ast.modules'}
+modules {-> package='eu.compassresearch.ast.modules'}
     = {module}  [name]:LexIdentifierToken 
                 [imports]:imports.module
                 [exports]:exports.module
@@ -568,29 +553,29 @@ modules {-> package='org.overture.ast.modules'}
     ;
 
 
-imports {-> package='org.overture.ast.modules'} 
+imports {-> package='eu.compassresearch.ast.modules'} 
     = {module} [name]:LexIdentifierToken [imports]:imports.fromModule* //no root
     | {fromModule} [name]:LexIdentifierToken [signatures]:import** //no root
 //    | {signatures} [importList]:import*
     ;
     
-import {-> package='org.overture.ast.modules'}
+import {-> package='eu.compassresearch.ast.modules'}
     =   {all}
     |   {type} [def]:definition.type
     |   #value
     ;
     
-#value {-> package='org.overture.ast.modules'}
+#value {-> package='eu.compassresearch.ast.modules'}
     =   {value}//since we cant instanciate #value
     |   {function} [typeParams]:LexNameToken*
     |   {operation}
     ;
     
-exports {-> package='org.overture.ast.modules'}
+exports {-> package='eu.compassresearch.ast.modules'}
     =   {module} [exports]:export**
     ;
 
-export {-> package='org.overture.ast.modules'}
+export {-> package='eu.compassresearch.ast.modules'}
     =   {all}
     |   {function} [nameList]:LexNameToken* (exportType):type
     |   {operation} [nameList]:LexNameToken* (exportType):type
@@ -598,10 +583,45 @@ export {-> package='org.overture.ast.modules'}
     |   {value} [nameList]:LexNameToken* (exportType):type
     ;
 
+/*
+	Process
+*/
+process {-> package='eu.compassresearch.ast.process'}
+	= {state} [processDeclarations]:declaration* [action]:action
+	| {sequentialComposition} [left]:process [right]:process
+	| {externalChoice} [left]:process [right]:process
+	| {internalChoice} [left]:process [right]:process
+	| {generalisedParallelism} [left]:process [chansetExpression]:exp [right]:process
+	| {alphabetisedParallelism} [left]:process [leftChansetExpression]:exp [rightChansetExpression]:exp [right]:process
+	| {synchronousParallelism} [left]:process [right]:process
+	| {interleaving} [left]:process [right]:process
+	| {interrupt} [left]:process [right]:process
+	| {timedInterrupt} [left]:process [timeExpression]:exp [right]:process
+	| {untimedTimeout} [left]:process [right]:process
+	| {timeout} [left]:process [timeoutExpression]:exp [right]:process
+	| {hiding} [left]:process [chansetExpression]:exp
+	| {startDeadline} [left]:process [expression]:exp
+	| {endDeadline} [left]:process [expression]:exp
+	| {instantiation} [declarations]:declaration.#Single.type* [identifer]:LexNameToken [args]:exp*
+	| {channelRenaming} [process]:process [renameExpression]:exp.#Channel.#Rename
+	| #Replicated
+	;
+
+#Replicated {-> package='eu.compassresearch.ast.process'}
+	= {sequentialComposition}  
+	| {externalChoice}
+	| {internalChoice}
+	| {generalisedParallelism} [chansetExpression]:exp
+	| {alphabetisedParallelism} [chansetExpression]:exp
+	| {synchronousParallelism}
+	| {interleaving} 
+	;	
+
+
 /* 
 	Actions 
 */
-action {-> package='org.overture.ast.actions'}
+action {-> package='eu.compassresearch.ast.actions'}
 	= {skip}
 	| {stop}
 	| {chaos}
@@ -616,80 +636,180 @@ action {-> package='org.overture.ast.actions'}
 	| {timedInterrupt} [left]:action [right]:action [timeExpression]:exp
 	| {untimedTimeout} [left]:action [right]:action
 	| {timeout} [left]:action [right]:action [timeoutExpression]:exp
-	| {hiding} [left]:action [chansetExpression]:exp.#Set.#Chanset
+	| {hiding} [left]:action [chansetExpression]:exp
 	| {startDeadline} [left]:action [expression]:exp
 	| {endDeadline} [left]:action [expression]:exp
 	| {channelRenaming} [action]:action [renameExpression]:exp.#Channel.#Rename
-	| {parametrised} [parametrisations]:parametrisation [action]:action 
+        | #Parallel
+	| {parametrised} [parametrisations]:parametrisation* [action]:action 
 	| #Instantiated
-	| #ControlStatement
-	| {block} [declareStatement]:declareStatement [action]:action
-	| {identifier}
+	| #Replicated
+	| #Statement
+	| {call} [actionName]:LexNameToken
 	| {subclassResponsibility}
 	| {notYetSpecified} [opname]:LexNameToken [args]:exp*
 	;
+	
+#Parallel {-> package='eu.compassresearch.ast.actions'}
+	= {interleaving} 
+	| {generalisedParallelism} 
+		[chanSetExpression]:exp
+	| {alphabetisedParallelism}
+		[leftChanSetExpression]:exp 
+		[rightChanSetExpression]:exp
+	| {synchronousParallelism}
+	;	
 
-declareStatement {-> package='org.overture.ast.actions'}
-	= {declareStatement}  [location]:location [assignmentDefs]:definition* 
+#Replicated {-> package='eu.compassresearch.ast.actions'}
+	= {sequentialComposition}  
+	| {externalChoice}
+	| {internalChoice}
+	| {interleaving} 
+		[nameSetExpression]:exp
+	| {generalisedParallelism} 
+		[chansetExpression]:exp
+		[nameSetExpression]:exp
+	| {alphabetisedParallelism}
+		[nameSetExpression]:exp 
+		[chansetExpression]:exp
+	| {synchronousParallelism}
+		[nameSetExpression]:exp
+	;	
+	
+#Instantiated {-> package='eu.compassresearch.ast.actions'}
+	= {declaration} [declaration]:declaration.#Single.type* [action]:action [args]:exp*
+	| {parametrised} [action]:action.parametrised  [args]:exp*
 	;
 	
-parametrisation {-> package='org.overture.ast.actions'}
-	= {val}	[location]:location [declaration]:declaration.singleType
-	| {res} [location]:location [declaration]:declaration.singleType
-	| {vres} [location]:location [declaration]:declaration.singleType
-	;
-	
-#Instantiated {-> package='org.overture.ast.actions'}
-	= {declaration} [declaration]:declaration.singleType* [action]:action [args]:exp*
-	| {parametrisation} [action]:action.parametrised  [args]:exp*
-	;
-	
-#ControlStatement {-> package='org.overture.ast.actions'}
-	= {nonDeterministicIf} [ifExp]:exp [thenStm]:action [elseIf]:action.#ControlStatement.nonDeterministicElseIf*
-	| {nonDeterministicElseIf} [elseIf]:exp [thenStm]:action
-	| {if} [ifExp]:exp [thenStm]:action [elseIf]:action.#ControlStatement.elseIf* [elseStm]:action
-	| {elseIf} [elseIf]:exp [thenStm]:action
-	| {cases} [exp]:exp [cases]:alternativeAction.case* [others]:action
-	| #GeneralAssignment
-	| #CallStatement
-	| {return} [exp]:exp
-	;
-	
-#CallStatement {-> package='org.overture.ast.actions'}
-	= {call} [objectDesignator]:objectDesignator [name]:LexNameToken [args]:exp*
-	| {assignmentCall} [designator]:stateDesignator [call]:action.#ControlStatement.#CallStatement.call 	
-	;
-	
-#GeneralAssignment {-> package='org.overture.ast.actions'}
-    = {single} [stateDesignator]:stateDesignator [expression]:exp
-    | {multi} [assignments]:action.#ControlStatement.#GeneralAssignment.single*
-	;
-	
-communicationParameter {-> package='org.overture.ast.actions'}
+communicationParameter {-> package='eu.compassresearch.ast.actions'}
 	= {read} [parameter]:parameter [expression]:exp
 	| {write} [expression]:exp 
 	| {reference} [expression]:exp	
 	;
+	
+parametrisation {-> package='eu.compassresearch.ast.actions'}
+	= {val}	
+	| {res} 
+	| {vres} 
+	;
 
-parameter {-> package='org.overture.ast.actions'}
+parameter {-> package='eu.compassresearch.ast.actions'}
 	= {identifier} [identifier]:LexIdentifierToken
 	| {tuple} [parameters]:parameter*
 	| {record}	[name]:LexNameToken [parameters]:parameter* 
 	;
+
+#Statement {-> package='eu.compassresearch.ast.actions'}
+	= {let} [action]:action [localDefinitions]:definition*
+	| {block} [declareStatement]:action.#Statement.declare [action]:action	
+	| {nonDeterministicIf} 
+		[alternatives]:nonDeterministicAlt*
+	| {nonDeterministicAlt} 
+		[guard]:exp 
+		[action]:action
+	| {if} 
+		[ifExp]:exp 
+		[thenStm]:action 
+		[elseIf]:action.#Statement.elseIf* 
+		[elseStm]:action
+	| {elseIf} 
+		[elseIf]:exp 
+		[thenStm]:action
+	| {cases} 
+		[exp]:exp 
+		[cases]:alternativeAction.case* 
+		[others]:action
+	| #GeneralAssignment
+	| {call} 
+		[objectDesignator]:objectDesignator 
+		[name]:LexNameToken 
+		[args]:exp*
+	| {specification} 
+		[externals]:clause.external* 
+		[precondition]:exp 
+		[postcondition]:exp 
+	| {assignmentCall} 
+		[designator]:stateDesignator 
+		[call]:action.#Statement.call
+	| {return} 
+		[exp]:exp
+	| {new} 
+		[destination]:stateDesignator 
+		[className]:LexNameToken 
+		[args]:exp* 
+		(classdef):definition.#paragraph.class 
+		(ctorDefinition):definition
+	| {nonDeterministicDo} 
+		[alternatives]:nonDeterministicAlt*
+	| {forSet} 
+		[pattern]:pattern 
+		[set]:exp 
+		[action]:action
+    | {forIndex} 
+    	[var]:LexNameToken 
+    	[from]:exp 
+    	[to]:exp 
+    	[by]:exp 
+    	[action]:action
+    | {forSequence} 
+    	[patternBind]:patternBind.def 
+    	//[reverse]:java_Boolean 
+    	[exp]:exp 
+    	[action]:action 
+    	(seqType):type.#seq
+    | {while} 
+    	[condition]:exp 
+    	[action]:action 
+	| {declare}  [assignmentDefs]:definition*
+	;
+
+#GeneralAssignment {-> package='eu.compassresearch.ast.actions'}
+    = {single} [stateDesignator]:stateDesignator [expression]:exp
+    | {multiple} [assignments]:action.#Statement.#GeneralAssignment.single*
+	;
+
+stateDesignator {-> package='eu.compassresearch.ast.actions'}
+    =   {field} [object]:stateDesignator [field]:LexIdentifierToken (objectfield):LexNameToken
+    |   {identifier} [name]:LexNameToken
+    |   {mapSeq} [mapseq]:stateDesignator [exp]:exp (mapType):type.#Map (seqType):type.#seq
+    ;
     
+objectDesignator {-> package='eu.compassresearch.ast.actions'}
+    =   {apply} [object]:objectDesignator [args]:exp*
+    |   {field} [object]:objectDesignator [className]:LexNameToken [fieldName]:LexIdentifierToken (field):LexNameToken
+    |   {name} [name]:LexNameToken [expression]:exp.variable
+    |   {self} [self]:LexNameToken
+    ;
+
+alternativeAction {-> package='eu.compassresearch.ast.actions'}
+    = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition* 
+    ;
+
+clause {-> package='eu.compassresearch.ast.actions'}
+    = {external} [location]:location [mode]:mode [identifiers]:LexNameToken* (type):type
+    ;
+
+mode {-> package='eu.compassresearch.ast.actions'}
+	= {read}
+	| {write}
+	;
+    
+case {-> package='eu.compassresearch.ast.actions'}
+    = {error} [name]:LexIdentifierToken [left]:exp [right]:exp
+    ;
     
 /*
-    Statements --these should be converted into actions
+    Statements -- !!!!!!!!these are the old VDM statements and are only kept here for the moment for convenience
 */
-
-stm {-> package='org.overture.ast.statements'}
+/*
+stm {-> package='eu.compassresearch.ast.statements'}
     =   {always} [always]:stm [body]:stm
     |   {assignment} [target]:stateDesignator [exp]:exp (targetType):type (expType):type 
-                     (classDefinition):definition.#class (stateDefinition):definition.state (inConstructor):java_Boolean
+                     (classDefinition):definition.#paragraph.class (stateDefinition):definition.state (inConstructor):java_Boolean
     |   {atomic} [assignments]:stm.assignment* (statedef):definition.state 
     |   {callObject} [designator]:objectDesignator [classname]:LexNameToken [fieldname]:LexIdentifierToken 
                      [field]:LexNameToken [args]:exp* [explicit]:java_Boolean
-    //|   {call} [name]:LexNameToken [args]:exp*
+    |   {call} [name]:LexNameToken [args]:exp*
     |   {cases} [exp]:exp [cases]:alternativeStm.case* [others]:stm
     |   {classInvariant} [name]:LexNameToken [invDefs]:definition*
     |   {elseIf} [elseIf]:exp [thenStm]:stm
@@ -711,70 +831,64 @@ stm {-> package='org.overture.ast.statements'}
     |   {while} [exp]:exp [statement]:stm
     ; 
     
-#LetDef {-> package='org.overture.ast.statements'}
+#LetDef {-> package='eu.compassresearch.ast.statements'}
     =   {def}
     ;
     
-#SimpleBlock {-> package='org.overture.ast.statements'}
+#SimpleBlock {-> package='eu.compassresearch.ast.statements'}
     =   {block} [assignmentDefs]:definition*
     |   {nonDeterministic}
     ;
-    
-stateDesignator {-> package='org.overture.ast.statements'}
-    =   {field} [object]:stateDesignator [field]:LexIdentifierToken (objectfield):LexNameToken
-    |   {identifier} [name]:LexNameToken
-    |   {mapSeq} [mapseq]:stateDesignator [exp]:exp (mapType):type.#Map (seqType):type.#seq
-    ;
-    
-objectDesignator {-> package='org.overture.ast.actions'}
-    =   {apply} [object]:objectDesignator [args]:exp*
-    |   {field} [object]:objectDesignator [className]:LexNameToken [fieldName]:LexIdentifierToken (field):LexNameToken
-    |   {name} [name]:LexNameToken [expression]:exp.variable
-    |   {self} [self]:LexNameToken
-    ;
 
-alternativeAction {-> package='org.overture.ast.actions'}
-    = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition* 
-    ;
-
-alternativeStm {-> package='org.overture.ast.statements'}
+alternativeStm {-> package='eu.compassresearch.ast.statements'}
     = {case} [location]:location [cexp]:exp [pattern]:pattern [result]:stm (defs):definition* (ctype):type 
     ;
     
-stmtAlternative {-> package='org.overture.ast.statements'}
+stmtAlternative {-> package='eu.compassresearch.ast.statements'}
     = {tixe} [patternBind]:patternBind.def [statement]:stm (exp):type
     ;
-    
-clause {-> package='org.overture.ast.statements'}
-    = {external} [mode]:LexToken [identifiers]:LexNameToken* (type):type
-    ;
-    
-case {-> package='org.overture.ast.statements'}
-    = {error} [name]:LexIdentifierToken [left]:exp [right]:exp
-    ;
+*/
     
 Aspect Declaration
 /* This section allows fields of root types to be declared e.g. exp*/
 
-%declaration =  [location]:location [nameScope]:nameScope
-	;
-
-%process =  [location]:location 
+%source = [paragraphs]: definition.#paragraph*
 	;
 
 %action =  [location]:location
 	;
 	
+%action->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedAction]:action 
+	;
+	
+%action->#Parallel = 	[leftAction]:action
+						[leftNameSetExpression]:exp 
+						[rightNameSetExpression]:exp
+						[rightAction]:action
+	;	
+
+%bind = [location]:location
+    ;
+
 %communicationParameter = [location]:location
 	; 
 
-%parameter = [location]:location
-	; 
 
+%declaration =  [location]:location [nameScope]:nameScope
+	;
 
-//%exp->#Chanset = [channelIdentifiers]:LexIdentifierToken*
-//	;
-	
+%definition 
+    =   [location]:location 
+        (name):LexIdentifierToken // Names are specialised Identifiers carrying an additional module property
+        [nameScope]:nameScope 
+        [used]:java_Boolean 
+//      (classDefinition):definition.#paragraph.class 
+//	    (declaration):declaration
+        [access]:specifier.access
+        (type):type 
+        // [pass]:pass
+    ;
+
 %exp->#Unary =  [exp]:exp
     ;
 
@@ -788,92 +902,65 @@ Aspect Declaration
     = (setType):type.set
     ;
 
-%type = [location]:location [resolved]:java_Boolean (definitions):definition*
-     ; 
+%export 
+    =   [location]:location [definition]:definition*
+    ;
+
+%mode = [location]:location
+	;
+
+%multipleBind = [location]:location [plist]:pattern*
+    ;
+
+%objectDesignator
+    = [location]:location
+    ;
+
+%pair
+    = [resolved]:java_Boolean
+    ;
 
 %pattern = [location]:location [definitions]:definition* [resolved]:java_Boolean
     ;
 
-%bind = [location]:location
-    ;
+%parametrisation = [location]:location [declaration]:declaration.#Single.type 
+	;
 
-%multipleBind = [location]:location [plist]:pattern*
-    ;
-    
-%definition 
-    =   [location]:location 
-        (name):LexNameToken // try out () 
-        [nameScope]:nameScope 
-        [used]:java_Boolean 
-//        (classDefinition):definition.#class 
-	(declaration):declaration
-        [access]:accessSpecifier.accessSpecifier
-        (type):type 
-        // [pass]:pass
-    ;
+%process =  [location]:location 
+	;
 
-%definition->#class
-    =   (supertypes):type* 
-        (supernames):LexNameToken*// try out () 
-        (definitions):definition* 
-        (allInheritedDefinitions):definition*
-        (localInheritedDefinitions):definition* 
-        [hasContructors]:java_Boolean
-        [settingHierarchy]:ClassDefinitionSettings
-        (superDefs):definition.#class*
-        [gettingInheritable]:java_Boolean
-        (superInheritedDefinitions):definition*
-        [gettingInvDefs]:java_Boolean
-        [isAbstract]:java_Boolean
-        [isUndefined]:java_Boolean
-        (classtype):type
-        (isTypeChecked):java_Boolean
-        (invariant):definition.#operation.explicitOperation
-    ;
-    
-%stm
+%process->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedProcess]:process 
+	;
+
+%parameter = [location]:location
+	; 
+
+%stateDesignator 
     = [location]:location (type):type
     ;
-    
-%stm->#LetDef
-    = [localDefs]:definition* [statement]:stm
+
+%type = [location]:location [resolved]:java_Boolean (definitions):definition*
+     ; 
+
+%type->#Map = (from):type (to):type [empty]:java_Boolean
     ;
-    
-%stm->#SimpleBlock 
-    =   [statements]:stm*
+
+%type->#invariant
+    =   (opaque):java_Boolean
+        (invDef):definition.#function.explicit
+    ; 
+
+%type->#seq
+    = (seqof):type [empty]:java_Boolean
     ;
- 
+
+%action->#Statement = (type):type
+		   ;
+
 %import
     =   [location]:location [name]:LexNameToken [renamed]:LexNameToken [from]:modules.module
     ;  
     
 %import->#value 
     = (importType):type
-    ;
-     
-%type->#Map = (from):type (to):type [empty]:java_Boolean
-    ;
-%export 
-    =   [location]:location [definition]:definition*
-    ;
-    
-%pair
-    = [resolved]:java_Boolean
-    ;
-    
-%type->#invariant
-    =   (opaque):java_Boolean
-        (invDef):definition.#function.explicitFunction
-    ; 
-    
-%type->#seq
-    = (seqof):type [empty]:java_Boolean
-    ;
-    
-%stateDesignator 
-    = [location]:location (type):type
-    ;
-    
-%objectDesignator
-    = [location]:location
     ;

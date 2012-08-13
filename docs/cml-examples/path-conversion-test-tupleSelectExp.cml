@@ -1,0 +1,6 @@
+class Test =
+begin 
+      values
+      l = mk_(5,6);
+      a = l.#2
+end
