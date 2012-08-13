@@ -1,6 +1,8 @@
 package eu.compassresearch.core.typechecker;
 
 import org.overture.ast.node.INode;
+import org.overture.typechecker.visitor.TypeCheckVisitor;
+import org.overture.typechecker.visitor.TypeCheckerExpVisitor;
 
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
@@ -45,9 +47,23 @@ public class TCExpressionVisitor extends
     public PType defaultPExp(PExp node, TypeCheckInfo question)
         throws AnalysisException
       {
-        
         CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
         INode ovtNode = transform.defaultINode(node);
+        
+        TypeCheckerExpVisitor ovtExpVist = new TypeCheckerExpVisitor(
+            new TypeCheckVisitor());
+        
+        org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(
+            question.env.getOvertureEnv());
+        
+        try
+          {
+            ovtExpVist.defaultPExp((org.overture.ast.expressions.PExp) ovtNode,
+                quest);
+          } catch (org.overture.ast.analysis.AnalysisException e1)
+          {
+            e1.printStackTrace();
+          }
         
         CopyTypesFromOvtToCmlAst copier = new CopyTypesFromOvtToCmlAst(
             transform.getNodeMap());

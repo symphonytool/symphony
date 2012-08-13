@@ -472,84 +472,85 @@ public class CmlTypeCheckerTestCase extends TestCase
         // 118
         addTestProgram(
             testData,
-            "class c = begin state a:int operations o:int ==> int o(n) == (skip) end",
-            false, true, true);
-        //
+            "class c = begin state public a : int; operations o:int ==> int o(n) == (skip) end",
+            true, true, true);
+        // 119
         addTestProgram(
             testData,
             "class c = begin state a:int operations o:int ==> int o(n) == (return (a + n)) end",
             false, true, false);
-        // 119
+        // 120
         addTestProgram(
             testData,
             "class c = begin state a:int; operations c: int ==> c c(v) == a := v end",
-            false, true, true);
+            true, true, true);
         
         // '--------------------------------------------------------------------------
         // | Processes
         // \--------------------------------------------------------------------------
-        // 120
-        addTestProgram(testData, "process p1 = begin @ skip end", false, true,
-            true);
         // 121
-        addTestProgram(testData, "process p1 = a:int @ begin @ skip end",
-            false, true, true);
+        addTestProgram(testData, "process p1 = begin @ skip end", true, true,
+            true);
         // 122
-        addTestProgram(testData,
-            "process A = begin @ skip end process p1 = begin @ A ; skip end",
-            false, true, true);
+        addTestProgram(testData, "process p1 = a:int @ begin @ skip end", true,
+            true, true);
         // 123
         addTestProgram(testData,
-            "process A = begin @ skip end process p1 = begin @ A [] skip end",
-            false, true, true);
+            "process A = begin @ skip end process p1 = begin @ A ; skip end",
+            true, true, true);
         // 124
         addTestProgram(testData,
-            "process A = begin @ skip end process p1 = begin @ A |~| skip end",
-            false, true, true);
+            "process A = begin @ skip end process p1 = begin @ A [] skip end",
+            true, true, true);
         // 125
+        addTestProgram(testData,
+            "process A = begin @ skip end process p1 = begin @ A |~| skip end",
+            true, true, true);
+        // 126
         addTestProgram(
             testData,
             "process A = begin @ skip end process p1 = begin @ A [| channel1 |] skip end",
             false, true, false); // negative as channel1 is undefined TC should
                                  // find that
-        
+        // 127
         addTestProgram(
             testData,
             "process A = begin @ skip end process p1 = begin @ A [ channel1 || channel2 ] skip end",
             false, true, false); // negative as channel1 and channel2 are
                                  // undefined TC should find that
-        
+        // 128
         addTestProgram(testData,
             "process A = begin @ skip end process p1 = begin @ A || skip end",
-            false, true, true);
-        
+            true, true, true);
+        // 129
         addTestProgram(
             testData,
             "process A = begin @ skip end process p1 = begin @ A / 42 \\ skip end",
-            false, true, true);
-        
+            true, true, true);
+        // 130
         addTestProgram(
             testData,
             "process A = begin @ skip end process p1 = begin @ A \\ channel1 end",
-            false, true, true);
-        
+            true, true, true);
+        // 131
         addTestProgram(testData,
             "process A = begin @ skip end process p1 = begin @ A ; skip end",
-            false, true, true);
-        
+            true, true, true);
+        // 132
         addTestProgram(
             testData,
             "process A = begin @ skip end process p1 = begin @ A startsby 42 end",
-            false, true, true);
-        
+            true, true, true);
+        // 133
         addTestProgram(
             testData,
             "process A = begin @ skip end process p1 = begin @ A endsby 42 end",
-            false, true, true);
+            true, true, true);
         
+        // 134
         addTestProgram(testData,
             "process A = begin @ skip end process p1 = begin @ A ; skip end",
-            false, true, true);
+            true, true, true);
         
         return testData;
       }

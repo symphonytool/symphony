@@ -439,6 +439,7 @@ alternative {-> package='eu.compassresearch.ast.expressions'}
 
 type {-> package='eu.compassresearch.ast.types'}
     =   #basic
+    |   {statement} // marker that a statement is typed ok
     |   {error} // marker that type of a subtree has failed 
     |   {processParagraph} // marker stipulating process paragraph is typed ok
     |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
@@ -1068,19 +1069,9 @@ Aspect Declaration
     = (seqof):type [empty]:java_Boolean
     ;
 
-/*    
-%stm
-    = [location]:location (type):type
-    ;
-    
-%stm->#LetDef
-    = [localDefs]:definition* [statement]:stm
-    ;
-    
-%stm->#SimpleBlock 
-    =   [statements]:stm*
-    ;
- */
+%action->#Statement = (type):type
+		   ;
+
 %import
     =   [location]:location [name]:LexNameToken [renamed]:LexNameToken [from]:modules.module
     ;  

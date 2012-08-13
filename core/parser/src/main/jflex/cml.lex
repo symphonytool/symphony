@@ -254,6 +254,7 @@ blanks          = [ \t\f]*
 "mod"                         { return createToken(CmlParser.MOD); }
 "mu"                          { return createToken(CmlParser.MU); }
 "munion"                      { return createToken(CmlParser.MUNION); }
+"namesets"                    { return createToken(CmlParser.NAMESETS); }
 "nat"                         { return createToken(CmlParser.TNAT); }
 "nat1"                        { return createToken(CmlParser.TNAT1); }
 "new"                         { return createToken(CmlParser.NEW); }

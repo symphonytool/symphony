@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
 import eu.compassresearch.ast.declarations.PDeclaration;
@@ -59,6 +60,13 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
         throws AnalysisException
       {
         return node.apply(exp, question);
+      }
+    
+    @Override
+    public PType defaultPAction(PAction node, TypeCheckInfo question)
+        throws AnalysisException
+      {
+        return node.apply(stm, question);
       }
     
     // ---------------------------------------------

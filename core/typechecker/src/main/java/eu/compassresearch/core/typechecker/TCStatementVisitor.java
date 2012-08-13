@@ -1,10 +1,13 @@
 package eu.compassresearch.core.typechecker;
 
+import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
 import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.types.AStatementType;
 import eu.compassresearch.ast.types.PType;
 
 @SuppressWarnings("serial")
@@ -37,4 +40,23 @@ public class TCStatementVisitor extends
         
         return super.caseAReturnStatementAction(node, question);
       }
+    
+    @Override
+    public PType caseABlockStatementAction(ABlockStatementAction node,
+        TypeCheckInfo question) throws AnalysisException
+      {
+        // extend the environment
+        
+        //
+        PAction action = node.getAction();
+        PType actionType = action.apply(parentChecker, question);
+        if (actionType == null)
+          throw new AnalysisException(
+              "Unable to type check enclosed action in block statement action.");
+        
+        node.setType(new AStatementType());
+        
+        return node.getType();
+      }
+    
   }
