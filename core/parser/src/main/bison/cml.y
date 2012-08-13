@@ -424,6 +424,16 @@
 /* Precidence declarations                                          */
 /* ---------------------------------------------------------------- */
 
+/* TODO (JWC) --- eventual precendence ordering
+ * From loose -> tight
+ *
+ * 5. ifs and loops (15.7, 15.8, 15.9), let statement (let x = e in A), block statement (dcl x: T @ A), parametrised actions (val x: T @ A)
+ * 4. parallelism ([|ns1|ns2|], ||, [ns1|cs1||cs2|ns2], [cs1||cs2], [|ns1|cs|ns2|], [|cs|]), interleaving ([||ns1|ns2||],|||)
+ * 3. timeout ([>), interrupt (/\), external choice ([]), internal choice (|~|)
+ * 2. prefixing (->), guard (&), sequence (;)
+ * 1. VDM statements
+ */
+
 /* Note that U-PLUS, U-MINUS, U-SEMI, ... are tokens for
  * disambiguating precidence (shift/reduce conflicts, typically).
  */
