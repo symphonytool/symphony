@@ -15,7 +15,7 @@
   <name>COMPASS Core Analysis Plug-ins</name>
 
   <modules>
-    <module>proofobligationgenerator</module>
+    <module>pog</module>
     <module>theoremprover</module>
     <module>refinementtool</module>
   </modules>

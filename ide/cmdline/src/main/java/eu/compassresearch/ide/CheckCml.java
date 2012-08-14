@@ -29,7 +29,7 @@ import eu.compassresearch.core.typechecker.CmlTypeChecker.CMLTypeError;
 import eu.compassresearch.core.typechecker.TypeCheckInfo;
 import eu.compassresearch.core.typechecker.VanillaCmlTypeChecker;
 import eu.compassresearch.examples.DivWarnAnalysis;
-import eu.compassresearch.core.analysis.proofobligationgenerator.ProofObligationGenerator;
+import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 
