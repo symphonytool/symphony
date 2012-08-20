@@ -190,13 +190,11 @@ public class TCDeclAndDefVisitor extends
         throws AnalysisException
       {
         
-        for (PProcess d : node.getProcesses())
-          {
             // check the process
-            PType type = d.apply(parentChecker, question);
-            if (type == null)
-              throw new AnalysisException("Unable to determine type for: " + d);
-          }
+       	PProcess d = node.getProcessDefinition().getProcess();
+        PType type = d.apply(parentChecker, question);
+        if (type == null)
+        	throw new AnalysisException("Unable to determine type for: " + d);
         
         // Marker type indicating paragraph type check ok
         node.setType(new AProcessParagraphType());

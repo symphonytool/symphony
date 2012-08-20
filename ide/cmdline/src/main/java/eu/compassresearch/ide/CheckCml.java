@@ -28,6 +28,9 @@ import eu.compassresearch.core.typechecker.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.CmlTypeChecker.CMLTypeError;
 import eu.compassresearch.core.typechecker.TypeCheckInfo;
 import eu.compassresearch.core.typechecker.VanillaCmlTypeChecker;
+import eu.compassresearch.core.interpreter.runtime.CmlInterpreter; 
+import eu.compassresearch.core.interpreter.runtime.VanillaCmlInterpreter;
+
 import eu.compassresearch.examples.DivWarnAnalysis;
 import eu.compassresearch.core.analysis.proofobligationgenerator.ProofObligationGenerator;
 import eu.compassresearch.ast.program.AFileSource;
@@ -115,7 +118,8 @@ public class CheckCml {
 	    DOTG("dotg", "Dot Graph, -dotg=<out> write ast dot graph to file <out>.", true),
 	    DWA("dwa", "Example, the Div Warn Analysis example", false),
 	    POG("pog", "Proof Obligation Generator, the proof obligation generator", false),
-	    INTER("i", "Interactive mode", false)
+	    INTER("i", "Interactive mode", false),
+	    EXEC("e", "Interpret", false)
 	    ;
 
 	// Switch state
@@ -487,9 +491,36 @@ public class CheckCml {
 		    };
 		runAnalysis(input, r , sources);
 	    }
-	
+		
 	// Check The Type Check Only Switch
 	if (input.isSwitchOn(Switch.TYPE_CHECK_ONLY)) return;	
+
+	// Interpreter
+	if (input.isSwitchOn(Switch.EXEC)) 
+	    {
+		if(input.isSwitchOn(Switch.NOTC))
+		    System.out.println("You can only interpret typechecked models!");
+		else{
+		    
+		    final CmlInterpreter interpreter = new VanillaCmlInterpreter(sources);
+		
+		    AnalysisRunAdaptor r = new AnalysisRunAdaptor(interpreter) {
+			    public void apply(INode root) throws AnalysisException
+			    {
+				System.out.println("hallo interpreter");
+				
+				//if (input.isSwitchOn(Switch.NOTC))
+				//	{
+				
+				//for(CMLTypeError e :  typeChecker.getTypeErrors())
+				//	System.out.println("\t"+e);
+				//	}
+				//   root.apply(typeChecker, new TypeCheckInfo());
+			    }
+			};
+		    runAnalysis(input, r , sources);
+		}
+	    }
 
 	// Add more analysis here ...
     }

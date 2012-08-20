@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter.runtime;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.expressions.PExp;
 import eu.compassresearch.ast.lex.LexLocation;
 import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.core.typechecker.Environment;
 
@@ -23,6 +25,8 @@ import eu.compassresearch.core.typechecker.Environment;
 public abstract class AbstractCmlInterpreter extends
 		QuestionAnswerAdaptor<Context, Value> implements CmlInterpreter {
 
+	protected List<PSource> sourceForest;
+	
 	@Override
 	public String getInitialContext() {
 		// TODO Auto-generated method stub
