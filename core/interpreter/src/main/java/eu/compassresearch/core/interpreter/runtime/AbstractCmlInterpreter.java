@@ -13,7 +13,9 @@ import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
 
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
+import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.expressions.PExp;
 import eu.compassresearch.ast.lex.LexLocation;
 import eu.compassresearch.ast.lex.LexNameToken;
@@ -28,15 +30,18 @@ public abstract class AbstractCmlInterpreter extends
 	protected List<PSource> sourceForest;
 	
 	@Override
-	public String getInitialContext() {
-		// TODO Auto-generated method stub
+	public Context getInitialContext() {
+		
+		//collect all the top 
+		
+		
 		return null;
 	}
 
 	@Override
 	public Environment getGlobalEnvironment() {
-		// TODO Auto-generated method stub
-		return null;
+	
+		return EnvironmentBuilder.BuildGlobalEnvironment(sourceForest);
 	}
 
 	@Override
@@ -53,8 +58,8 @@ public abstract class AbstractCmlInterpreter extends
 
 	@Override
 	public void setDefaultName(String name) throws Exception {
-		// TODO Auto-generated method stub
-
+		
+		
 	}
 
 	@Override

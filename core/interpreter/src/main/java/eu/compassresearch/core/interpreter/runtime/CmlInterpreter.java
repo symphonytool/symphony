@@ -34,7 +34,7 @@ public interface CmlInterpreter
 	 * Get a string version of the environment.
 	 */
 
-	public String getInitialContext();
+	public Context getInitialContext();
 
 	/**
 	 * Get the global environment.

@@ -4,16 +4,14 @@ import java.util.List;
 
 public class CmlScheduler {
 
-	List<ExecutionThread> allProcesses;
+	List<ExecutionThread> processes;
 	
-	List<ExecutionThread> activeProcesses;
-	
+		
 	public CmlScheduler()
 	{
 		
 	}
-	
-	
+		
 	public boolean step()
 	{
 		return false;

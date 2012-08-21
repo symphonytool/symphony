@@ -11,6 +11,11 @@ public class Context extends LexNameTokenMap<Value>{
      */
 	private Context outer;
 	
+	public Context()
+	{
+		this.outer = null;
+	}
+	
 	public Context(Context outer)
 	{
 		this.outer = outer;
