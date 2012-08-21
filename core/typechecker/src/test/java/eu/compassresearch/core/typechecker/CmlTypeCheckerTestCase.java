@@ -509,18 +509,18 @@ public class CmlTypeCheckerTestCase extends TestCase
         // 126
         addTestProgram(
             testData,
-            "process A = begin @ skip end process p1 = begin @ A [| channel1 |] skip end",
+            "process A = begin @ skip end process B = begin @ skip end process p1 = A [| channel1 |] B",
             false, true, false); // negative as channel1 is undefined TC should
                                  // find that
         // 127
         addTestProgram(
             testData,
-            "process A = begin @ skip end process p1 = begin @ A [ channel1 || channel2 ] skip end",
+            "process A = begin @ Skip end process B = begin @ Skip end process p1 = A [ channel1 || channel2 ] B",
             false, true, false); // negative as channel1 and channel2 are
                                  // undefined TC should find that
         // 128
         addTestProgram(testData,
-            "process A = begin @ skip end process p1 = begin @ A || skip end",
+            "process A = begin @ Skip end process p1 = A || Skip",
             true, true, true);
         // 129
         addTestProgram(

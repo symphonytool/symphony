@@ -440,12 +440,14 @@ alternative {-> package='eu.compassresearch.ast.expressions'}
 type {-> package='eu.compassresearch.ast.types'}
     =   #basic
     |   {statement} // marker that a statement is typed ok
+    |   {process} // marker that a process is typed ok
     |   {error} // marker that type of a subtree has failed 
     |   {processParagraph} // marker stipulating process paragraph is typed ok
     |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
     |   {actionParagraph} // marker stipulating that a Action Paragraph is typed ok
     |   {valueParagraph} // marker stipulating that a Values paragraph is typed ok
     |   {functionParagraph} // marker stipulating that a Function Paragraph is typed ok
+    |   {operationParagraph} // marker stipulating that a Function Paragraph is typed ok
     |   {source} // marker stipulating a source was typed ok
     |   {bracket} (type):type
     |   {channel}

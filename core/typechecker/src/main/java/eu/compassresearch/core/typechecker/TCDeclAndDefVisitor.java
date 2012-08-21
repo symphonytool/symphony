@@ -37,6 +37,7 @@ import eu.compassresearch.ast.types.AClassType;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.AFunctionParagraphType;
 import eu.compassresearch.ast.types.AFunctionType;
+import eu.compassresearch.ast.types.AOperationParagraphType;
 import eu.compassresearch.ast.types.AOperationType;
 import eu.compassresearch.ast.types.AProcessParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
@@ -165,6 +166,7 @@ public class TCDeclAndDefVisitor extends
             question.env.put(def.getName(), def);
           }
         
+        node.setType(new AOperationParagraphType());
         return node.getType();
       }
     
