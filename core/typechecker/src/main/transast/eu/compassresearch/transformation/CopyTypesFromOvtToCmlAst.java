@@ -60,10 +60,12 @@ public class CopyTypesFromOvtToCmlAst extends
             setType.invoke(cmlNode, type);
           } catch (Exception e)
           {
-            return cmlNode;
+            //return cmlNode;
+            return super.defaultINode(node);
           }
         
-        return super.defaultINode(node);
+        //return super.defaultINode(node);
+        return cmlNode;
       }
     
     private boolean cmlNodeAlreadyHasType(

@@ -38,7 +38,8 @@ public class TCStatementVisitor extends
           throw new AnalysisException("Unable to type check expression \""
               + exp + "\" in return statement action of " + operation.getName());
         
-        return super.caseAReturnStatementAction(node, question);
+        node.setType(new AStatementType());
+        return node.getType();
       }
     
     @Override

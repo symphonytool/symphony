@@ -651,16 +651,16 @@ process :
   BEGIN AT action END
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4);
-  List<PDeclaration> processDeclarations = null;
+  List<SParagraphDefinition> processParagraphs = null;
   PAction action = (PAction)$3;
-  $$ = new AStateProcess(location, processDeclarations, action);
+  $$ = new AStateProcess(location, processParagraphs, action);
 }
 | BEGIN processParagraphList AT action END
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$5);
-  List<PDeclaration> processDeclarations = (List<PDeclaration>)$2;
+  List<SParagraphDefinition> processParagraphs = (List<SParagraphDefinition>)$processParagraphList;
   PAction action = (PAction)$4;
-  $$ = new AStateProcess(location, processDeclarations, action);
+  $$ = new AStateProcess(location, processParagraphs, action);
 }
 /* actions end */
 | process SEMI process
@@ -2890,7 +2890,9 @@ explicitOperationDef :
 {
   LexLocation loc = extractLexLocation((CmlLexeme)$2);
   AExplicitOperationDefinition res = new AExplicitOperationDefinition();
+  res.setName((LexNameToken)extractLexNameToken($2));
   res.setLocation(loc);
+  res.setIsConstructor(false);
   res.setBody((SStatementAction)$operationBody);
   res.setType((PType)$operationType);
   $$ = res;

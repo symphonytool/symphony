@@ -12,6 +12,7 @@ import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
@@ -28,6 +29,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
     // subcheckers
     private IQuestionAnswer<TypeCheckInfo, PType> exp;
     private IQuestionAnswer<TypeCheckInfo, PType> stm;
+    private IQuestionAnswer<TypeCheckInfo, PType> prc;
     private IQuestionAnswer<TypeCheckInfo, PType> dad;
     private boolean                               lastResult;
     
@@ -35,6 +37,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
       {
         exp = new TCExpressionVisitor(this);
         stm = new TCStatementVisitor(this);
+        prc = new TCProcessVisitor(this);
         dad = new TCDeclAndDefVisitor(this);
       }
     
@@ -61,6 +64,13 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
       {
         return node.apply(exp, question);
       }
+    
+    @Override
+    public PType defaultPProcess(PProcess node, TypeCheckInfo question)
+    		throws AnalysisException
+    {
+    	return node.apply(prc, question);
+    }
     
     @Override
     public PType defaultPAction(PAction node, TypeCheckInfo question)

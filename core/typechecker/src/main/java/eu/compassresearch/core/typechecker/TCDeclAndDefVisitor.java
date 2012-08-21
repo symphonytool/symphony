@@ -190,7 +190,7 @@ public class TCDeclAndDefVisitor extends
         throws AnalysisException
       {
         
-            // check the process
+           // check the process
        	PProcess d = node.getProcessDefinition().getProcess();
         PType type = d.apply(parentChecker, question);
         if (type == null)

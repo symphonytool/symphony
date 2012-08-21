@@ -622,7 +622,7 @@ export {-> package='eu.compassresearch.ast.modules'}
 */
 process {-> package='eu.compassresearch.ast.process'}
 	= {state} 
-		[processDeclarations]:declaration* 
+		[definitionParagraphs]:definition.#paragraph* 
 		[action]:action
 	| {sequentialComposition} 
 		[left]:process 

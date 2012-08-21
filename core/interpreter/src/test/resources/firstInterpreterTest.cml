@@ -1,0 +1,10 @@
+process InterpTest =
+begin
+		
+	operations
+		Op1 : () ==> int
+		Op1() == (return (1 + 2))	
+	
+	@ 
+		Op1()
+end

@@ -19,6 +19,7 @@
     <module>parser</module>
     <module>analysis</module>
     <module>typechecker</module>
+    <module>interpreter</module>
   </modules>
 </project>
 

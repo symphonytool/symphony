@@ -58,8 +58,9 @@ public class TCExpressionVisitor extends
         
         try
           {
-            ovtExpVist.defaultPExp((org.overture.ast.expressions.PExp) ovtNode,
-                quest);
+        	ovtNode.apply(ovtExpVist, quest);	
+            //ovtExpVist.defaultPExp((org.overture.ast.expressions.PExp) ovtNode,
+            //    quest);
           } catch (org.overture.ast.analysis.AnalysisException e1)
           {
             e1.printStackTrace();
