@@ -605,14 +605,17 @@ PROCESS IDENTIFIER EQUALS processDef
     LexLocation location = extractLexLocation((CmlLexeme)$PROCESS,
 					      processDef.getLocation());
     AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
-    
-    $$ = new AProcessParagraphDefinition(location,
+    processDef.setName(id);
+
+    AProcessParagraphDefinition p = new AProcessParagraphDefinition(location,
 					 id,
 					 NameScope.PROCESSNAME, 
 					 false, 
 					 access,
 					 null,
 					 processDef);
+    p.setName(id);
+    $$ = p;
 }
 ;
 
@@ -2509,6 +2512,7 @@ valueDef :
   PExp expression = (PExp)$expression;
   AIdentifierPattern idp = new AIdentifierPattern();
   idp.setLocation(lnt.location);
+  idp.setName(lnt);
   // Build the resulting AValueDefinition
   AValueDefinition vdef = new AValueDefinition();
   vdef.setPattern(idp);
@@ -2516,6 +2520,7 @@ valueDef :
   vdef.setExpression(expression);
   vdef.setDefs(null);
   vdef.setLocation(combineLexLocation(idp.getLocation(), expression.getLocation()));
+  vdef.setName(lnt);
   $$ = vdef;
 }
 | patternLessID COLON type EQUALS expression
@@ -2529,6 +2534,7 @@ valueDef :
   vdef.setExpression(expression);
   vdef.setDefs(null);
   vdef.setLocation(combineLexLocation(pattern.getLocation(), expression.getLocation()));
+  vdef.setName(new LexNameToken("Default", "plesstypeexp",vdef.getLocation(), false, false));
   $$ = vdef;
 }
 | IDENTIFIER EQUALS expression

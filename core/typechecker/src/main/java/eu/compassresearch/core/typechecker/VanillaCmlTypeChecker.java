@@ -1,7 +1,9 @@
 package eu.compassresearch.core.typechecker;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -134,8 +136,14 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
                     paragraph.apply(this, info);
                   } catch (AnalysisException ae)
                   {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ae.printStackTrace(new PrintStream(baos));
+                    errors
+                        .add(new CMLTypeError(
+                            s,
+                            "The COMPASS Type checker failed on this cml-source. Please submit it for investigation to rala@iha.dk.\n"
+                                + new String(baos.toByteArray())));
                     // This means we have a bug in the type checker
-                    ae.printStackTrace();
                     return false;
                   }
               }

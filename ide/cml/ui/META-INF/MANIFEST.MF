@@ -7,24 +7,35 @@ Bundle-Localization: plugin
 Bundle-Name: COMPASS IDE CML UI
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: eu.compassresearch.ide.cml.ui;singleton:=true
-Require-Bundle: org.overture.ide.vdmpp.core;bundle-version="2.2.0",
- org.overture.ide.core,
+Require-Bundle: org.overture.ide.core,
+ eu.compassresearch.ide.cml.core,
  org.overture.ide.ui,
  org.eclipse.debug.ui,
  org.eclipse.ui.workbench.texteditor;bundle-version="3.5.1",
- eu.compassresearch.ide.cml.core,
- org.eclipse.ui.views;bundle-version="3.6.0"
+ org.eclipse.ui.views
 Bundle-Activator: eu.compassresearch.ide.cml.ui.CmlUIPlugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Export-Package: eu.compassresearch.ide.cml.ui,
- eu.compassresearch.ide.cml.ui.editor.core,
- eu.compassresearch.ide.cml.ui.editor.syntax
+Export-Package: eu.compassresearch.ide.cml.ui;uses:="org.eclipse.ui.plugin,org.osgi.framework",
+ eu.compassresearch.ide.cml.ui.builder,
+ eu.compassresearch.ide.cml.ui.editor.core;
+  uses:="org.eclipse.jface.text,
+   org.eclipse.jface.text.reconciler,
+   org.eclipse.jface.text.source,
+   eu.compassresearch.ide.cml.ui.editor.core.dom,
+   org.eclipse.jface.text.rules,
+   org.eclipse.jface.text.contentassist,
+   org.overture.ide.ui.editor.core",
+ eu.compassresearch.ide.cml.ui.editor.core.dom,
+ eu.compassresearch.ide.cml.ui.editor.syntax;
+  uses:="org.overture.ide.ui.editor.syntax,
+   org.eclipse.ui.views.contentoutline,
+   eu.compassresearch.ide.cml.ui.editor.core.dom,
+   org.eclipse.jface.viewers,
+   org.eclipse.swt.widgets",
+ eu.compassresearch.ide.cml.ui.wizard
 Import-Package: eu.compassresearch.ide.cml.core
 Bundle-ClassPath: .,
- ast-0.0.1.jar,
- junit-4.8.1.jar,
- org.overture.ide.core-2.2.0.jar,
- org.overture.ide.ui-2.2.0.jar,
- testframework-2.2.1.jar,
- typechecker-2.2.0.jar,
- parser-0.0.1.jar
+ lib/ast-0.0.1.jar,
+ lib/parser-0.0.1.jar,
+ lib/typechecker-0.0.1.jar,
+ lib/typechecker-2.2.0.jar

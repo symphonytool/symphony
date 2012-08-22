@@ -39,7 +39,7 @@ public interface CmlTypeChecker
         
         // temporary method goes away when astCreator is updated. ( INode should
         // have getLocation method )
-        protected LexLocation getLocation()
+        public LexLocation getLocation()
           {
             LexLocation location = null;
             if (subtree != null)
@@ -73,6 +73,11 @@ public interface CmlTypeChecker
     public static class CMLTypeWarning extends CMLIssue
       {
         protected final String description;
+        
+        public String getDescription()
+          {
+            return description;
+          }
         
         public CMLTypeWarning(INode subtree, String description)
           {

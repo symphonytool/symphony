@@ -18,12 +18,7 @@
  *******************************************************************************/
 package eu.compassresearch.ide.cml.ui.editor.core;
 
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.text.source.IAnnotationHover;
-import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.overture.ide.ui.editor.core.VdmEditor;
@@ -34,80 +29,83 @@ import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit.CmlSourceChangedListener;
 import eu.compassresearch.ide.cml.ui.editor.syntax.CmlContentPageOutliner;
 
-public class CmlEditor extends VdmEditor{
-
-	private IContentOutlinePage cmlOutLiner;
-	
-	@Override
-	public Object getAdapter(Class required) {
-		
-		if (IContentOutlinePage.class.equals(required))
-		{
-			if (cmlOutLiner == null)
-				cmlOutLiner = createCmlOutliner();
-			return cmlOutLiner;
-		}
-
-		return super.getAdapter(required);
-
-	}
-
-
-	
-	private IContentOutlinePage createCmlOutliner() {
-		
-		final CmlContentPageOutliner cmlOutliner = new CmlContentPageOutliner();
-		if (getEditorInput() instanceof FileEditorInput)
-		{
-			FileEditorInput fei = (FileEditorInput)getEditorInput();
-			CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
-			cmlOutliner.setInput(csu);
-			csu.addChangeListener( new CmlSourceChangedListener() {
-
-				@Override
-				public void sourceChanged(CmlSourceUnit csu) {
-					cmlOutliner.refresh();
-				}
-				
-				
-			});
-			csu.addChangeListener(new CmlSourceChangedListener() {
-				
-				public void sourceChanged(CmlSourceUnit csu) {
-					for(final ParserError pe : csu.getErrors())
-					{
-						 Display.getDefault().asyncExec(new Runnable() {
-				               public void run() {
-				            	   CmlEditor.this.setHighlightRange(pe.offset, pe.otext.length(),true);
-				            	   CmlEditor.this.getSourceViewer().setSelectedRange(pe.offset, pe.otext.length());
-				            	   CmlEditor.this.getSourceViewer().showAnnotations(true);
-				            	   StringBuilder msg = new StringBuilder();
-				            	   
-				            	   msg.append("An syntax error occurred near line "+pe.line+" position "+pe.col+" offending token: "+pe.otext);
-				            	   
-				            	   MessageDialog.open(MessageDialog.ERROR, new Shell(), "Error",msg.toString(), 0); 
-				              }
-						 });
-					}
-				}
-			});
-		}
-		return cmlOutliner;
-	}
-
-
-	public CmlEditor() {
-		super();
-	}
-
-
-
-	@Override
-	public VdmSourceViewerConfiguration getVdmSourceViewerConfiguration() {
-		return new CmlSourceViewerConfiguration();
-	}
-	
-	
-	
-
-}
+public class CmlEditor extends VdmEditor
+  {
+    
+    private IContentOutlinePage cmlOutLiner;
+    
+    @Override
+    public Object getAdapter(Class required)
+      {
+        
+        if (IContentOutlinePage.class.equals(required))
+          {
+            if (cmlOutLiner == null)
+              cmlOutLiner = createCmlOutliner();
+            return cmlOutLiner;
+          }
+        
+        return super.getAdapter(required);
+        
+      }
+    
+    private IContentOutlinePage createCmlOutliner()
+      {
+        
+        final CmlContentPageOutliner cmlOutliner = new CmlContentPageOutliner();
+        if (getEditorInput() instanceof FileEditorInput)
+          {
+            FileEditorInput fei = (FileEditorInput) getEditorInput();
+            CmlSourceUnit csu = CmlSourceUnit
+                .getFromFileResource(fei.getFile());
+            cmlOutliner.setInput(csu);
+            csu.addChangeListener(new CmlSourceChangedListener()
+              {
+                
+                @Override
+                public void sourceChanged(CmlSourceUnit csu)
+                  {
+                    cmlOutliner.refresh();
+                  }
+                
+              });
+            csu.addChangeListener(new CmlSourceChangedListener()
+              {
+                
+                public void sourceChanged(CmlSourceUnit csu)
+                  {
+                    for (final ParserError pe : csu.getErrors())
+                      {
+                        Display.getDefault().asyncExec(new Runnable()
+                          {
+                            public void run()
+                              {
+                                CmlEditor.this.setHighlightRange(pe.offset,
+                                    pe.otext.length(), true);
+                                CmlEditor.this.getSourceViewer()
+                                    .setSelectedRange(pe.offset,
+                                        pe.otext.length());
+                                CmlEditor.this.getSourceViewer()
+                                    .showAnnotations(true);
+                                
+                              }
+                          });
+                      }
+                  }
+              });
+          }
+        return cmlOutliner;
+      }
+    
+    public CmlEditor()
+      {
+        super();
+      }
+    
+    @Override
+    public VdmSourceViewerConfiguration getVdmSourceViewerConfiguration()
+      {
+        return new CmlSourceViewerConfiguration();
+      }
+    
+  }

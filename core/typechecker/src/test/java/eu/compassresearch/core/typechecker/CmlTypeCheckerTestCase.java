@@ -552,6 +552,11 @@ public class CmlTypeCheckerTestCase extends TestCase
             "process A = begin @ skip end process p1 = begin @ A ; skip end",
             true, true, true);
         
+        addTestProgram(
+            testData,
+            "class test = begin functions public plus: int * int -> int plus(a,b) == 0 + a + b; end",
+            false, true, true);
+        
         return testData;
       }
     

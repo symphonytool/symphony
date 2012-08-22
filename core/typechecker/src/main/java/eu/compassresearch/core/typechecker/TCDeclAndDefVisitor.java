@@ -3,7 +3,6 @@ package eu.compassresearch.core.typechecker;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.overture.ast.node.INode;
 import org.overture.parser.messages.VDMError;
 import org.overture.typechecker.visitor.TypeCheckerExpVisitor;
 
@@ -22,6 +21,7 @@ import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
 import eu.compassresearch.ast.definitions.ALocalDefinition;
 import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
@@ -29,7 +29,6 @@ import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.expressions.PExp;
 import eu.compassresearch.ast.patterns.AIdentifierPattern;
 import eu.compassresearch.ast.patterns.PPattern;
-import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.typechecker.NameScope;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AChansetParagraphType;
@@ -81,17 +80,8 @@ public class TCDeclAndDefVisitor extends
     public PType caseAValueDefinition(AValueDefinition node,
         TypeCheckInfo question) throws AnalysisException
       {
-        CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
-        INode ovtNode = node.apply(transform);
-        CopyTypesFromOvtToCmlAst copy = new CopyTypesFromOvtToCmlAst(
-            transform.getNodeMap());
-        try
-          {
-            ovtNode.apply(copy);
-          } catch (org.overture.ast.analysis.AnalysisException e)
-          {
-            throw new AnalysisException(e);
-          }
+        PExp exp = applyTransformToGetType(node.getExpression(), question);
+        
         return node.getType();
       }
     
@@ -190,13 +180,8 @@ public class TCDeclAndDefVisitor extends
         throws AnalysisException
       {
         
-        for (PProcess d : node.getProcesses())
-          {
-            // check the process
-            PType type = d.apply(parentChecker, question);
-            if (type == null)
-              throw new AnalysisException("Unable to determine type for: " + d);
-          }
+        AProcessDefinition pdef = node.getProcessDefinition();
+        pdef.apply(this, question);
         
         // Marker type indicating paragraph type check ok
         node.setType(new AProcessParagraphType());
@@ -261,8 +246,7 @@ public class TCDeclAndDefVisitor extends
      * 
      * @throws org.overture.ast.analysis.AnalysisException
      */
-    private eu.compassresearch.ast.node.INode applyTransformToGetType(
-        eu.compassresearch.ast.expressions.PExp cml, TypeCheckInfo nfo)
+    private <T extends PExp> T applyTransformToGetType(T cml, TypeCheckInfo nfo)
         throws AnalysisException
       {
         
@@ -296,16 +280,16 @@ public class TCDeclAndDefVisitor extends
         CopyTypesFromOvtToCmlAst copier = new CopyTypesFromOvtToCmlAst(
             transform.getNodeMap());
         
-        eu.compassresearch.ast.node.INode result = cml;
+        PExp result = cml;
         try
           {
-            result = ovtNode.apply(copier);
+            result = (PExp) ovtNode.apply(copier);
           } catch (org.overture.ast.analysis.AnalysisException ae)
           {
             throw new AnalysisException(ae.getMessage());
           }
         
-        return result;
+        return (T) result;
       }
     
     @Override
@@ -375,10 +359,12 @@ public class TCDeclAndDefVisitor extends
           {
             if (p instanceof AIdentifierPattern)
               {
+                PType paramType = (i < paramTypes.size() ? paramTypes.get(i)
+                    : new AErrorType(p.getLocation(), true));
                 AIdentifierPattern idp = (AIdentifierPattern) p;
                 ALocalDefinition local = new ALocalDefinition(
                     idp.getLocation(), idp.getName(), NameScope.LOCAL, false,
-                    null, paramTypes.get(i), null);
+                    null, paramType, null);
                 functionBodyEnv.put(idp.getName(), local);
               } else
               throw new AnalysisException(
