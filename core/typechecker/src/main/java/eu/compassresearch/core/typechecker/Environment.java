@@ -10,9 +10,11 @@ import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.typechecker.NameScope;
 
+import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexLocation;
+import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.transformation.CmlAstToOvertureAst;
 
 public class Environment
@@ -25,6 +27,7 @@ public class Environment
     
     // private state
     private Map<LexIdentifierToken, PDefinition> map;
+    private Map<LexIdentifierToken, PType> channelMap;
     
     /**
      * Create an Empty top level Environment.
@@ -44,7 +47,14 @@ public class Environment
       {
         this.outer = outer;
         this.map = new HashMap<LexIdentifierToken, PDefinition>();
+        this.channelMap = new HashMap<LexIdentifierToken, PType>();
       }
+    
+    public Set<LexIdentifierToken> getGlobalChannels()
+    {    	    	
+    	return this.channelMap.keySet();
+    }
+    
     
     /**
      * Lookup the given identifier/name to find its definition.
@@ -72,10 +82,15 @@ public class Environment
      * @param type
      *          - The type for decl in this environment.
      */
-    public void put(LexIdentifierToken name, PDefinition type)
+    public void put(LexIdentifierToken name, PDefinition definition)
       {
-        map.put(name, type);
+        map.put(name, definition);
       }
+    
+    public void putChannel(LexIdentifierToken name, PType type)
+    {
+      channelMap.put(name, type);
+    }
     
     private static org.overture.ast.definitions.PDefinition translateDefinition(
         PDefinition cmlDef)

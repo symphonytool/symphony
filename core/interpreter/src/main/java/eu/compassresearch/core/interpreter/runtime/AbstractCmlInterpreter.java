@@ -28,14 +28,15 @@ public abstract class AbstractCmlInterpreter extends
 		QuestionAnswerAdaptor<Context, Value> implements CmlInterpreter {
 
 	protected List<PSource> sourceForest;
+	protected String defaultProcess;
 	
 	@Override
 	public Context getInitialContext() {
-		
-		//collect all the top 
-		
-		
-		return null;
+				
+		Context context = new Context();
+		//TODO: Initialize all global value definitions and put them into the initial context
+				
+		return context;
 	}
 
 	@Override
@@ -46,8 +47,8 @@ public abstract class AbstractCmlInterpreter extends
 
 	@Override
 	public String getDefaultName() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return defaultProcess;
 	}
 
 	@Override
@@ -59,7 +60,7 @@ public abstract class AbstractCmlInterpreter extends
 	@Override
 	public void setDefaultName(String name) throws Exception {
 		
-		
+		defaultProcess = name;
 	}
 
 	@Override
@@ -79,13 +80,7 @@ public abstract class AbstractCmlInterpreter extends
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public Value execute(File file) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
 	@Override
 	public Value evaluate(String line, Context ctxt) throws Exception {
 		// TODO Auto-generated method stub

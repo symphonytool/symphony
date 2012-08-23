@@ -7,17 +7,13 @@ import java.util.List;
 
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.declarations.PDeclaration;
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.typechecker.TypeCheckInfo;
+import eu.compassresearch.core.typechecker.Environment;
 import eu.compassresearch.core.typechecker.VanillaCmlTypeChecker;
 
 public class VanillaCmlInterpreter extends AbstractCmlInterpreter {
@@ -28,8 +24,6 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter {
 	 */
 	private static final long serialVersionUID = 6664128061930795395L;
 
-		
-	
 	/**
      * Construct a CmlInterpreter with a list of
      * PSources. These source may refer to each other.
@@ -43,6 +37,22 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter {
 //    	initialize();
         this.sourceForest = cmlSources;
       }
+    
+    @Override
+	public Value execute() throws Exception {
+		
+    	Environment env = getGlobalEnvironment();
+    	
+    	AProcessDefinition processDef = (AProcessDefinition)env.lookupName(new LexIdentifierToken(defaultProcess, false, null));
+    	CmlRuntime.setGlobalEnvironment(env);
+    	CmlRuntime.getCmlScheduler().addProcessThread(processDef.getProcess(),getInitialContext());
+    	//Make main thread
+    	
+    	
+    	
+    	
+		return null;
+	}
     
     /**
      * Construct a CmlTypeChecker with the intension of checking a single
@@ -107,8 +117,22 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter {
       if (!cmlTC.typeCheck())
         {
           System.out.println("Failed to type check" + source.toString());
+          return;
         }
-      ;
+      
+      //interpret
+      VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
+      try{
+    	  cmlInterp.setDefaultName("C");
+    	  cmlInterp.execute();
+      }
+      catch(Exception ex)
+      {
+    	  System.out.println("Failed to interpret" + source.toString());
+    	  System.out.println("With Error : " + ex.getMessage());
+          return;
+      
+      }
       
       // Report success
       System.out.println("The given CML Program is type checked.");

@@ -11,6 +11,7 @@ import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
+import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionParagraphDefinition;
 import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
@@ -27,11 +28,13 @@ import eu.compassresearch.ast.definitions.AValueDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.patterns.AIdentifierPattern;
 import eu.compassresearch.ast.patterns.PPattern;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.typechecker.NameScope;
 import eu.compassresearch.ast.types.AChannelType;
+import eu.compassresearch.ast.types.AChannelsParagraphType;
 import eu.compassresearch.ast.types.AChansetParagraphType;
 import eu.compassresearch.ast.types.AClassType;
 import eu.compassresearch.ast.types.AErrorType;
@@ -204,36 +207,47 @@ public class TCDeclAndDefVisitor extends
         
         return node.getType();
       }
+   
+    @Override
+    public PType caseATypeSingleDeclaration(ATypeSingleDeclaration node,
+    		TypeCheckInfo question) throws AnalysisException {
+    	    	    	
+    	AChannelType ctype = new AChannelType();
+    	ctype.setType(node.getType());
+    	node.setType(new AChannelType());
+    	
+    	return node.getType();
+    }
     
     @Override
     public PType caseAChannelParagraphDefinition(
-        AChannelParagraphDefinition node, TypeCheckInfo question)
-        throws AnalysisException
-      {
-        
-        LinkedList<AChannelNameDeclaration> cns = node.getChannelNames();
-        for (AChannelNameDeclaration decl : cns)
-          {
-            PType typeBack = decl.apply(this, question);
-            if (typeBack == null)
-              {
-                PDefinition def = question.env.lookupName(decl.getIdentifier());
-                if (def == null)
-                  throw new AnalysisException("Channel name: "
-                      + decl.getIdentifier() + " cannot be resolved.");
-                typeBack = def.getType();
-              }
-            if (typeBack == null)
-              throw new AnalysisException("Unable to determine type for: "
-                  + decl);
-          }
-        
-        node.setType(new AChannelType());
-        question.env.put(node.getName(), node);
-        
-        return node.getType();
-      }
-    
+    		AChannelParagraphDefinition node, TypeCheckInfo question)
+    				throws AnalysisException
+    {
+    	LinkedList<AChannelNameDeclaration> cns = node.getChannelNameDeclarations();
+    	for (AChannelNameDeclaration decl : cns)
+    	{
+    		decl.getSingleType().apply(this,question); 
+
+    		//PType typeBack = decl.apply(this, question);
+
+    		//    		if (typeBack == null)
+    		//    		{
+    		//    			PDefinition def = question.env.lookupName(decl.getIdentifier());
+    		//    			if (def == null)
+    		//    				throw new AnalysisException("Channel name: "
+    		//    						+ decl.getIdentifier() + " cannot be resolved.");
+    		//    			typeBack = def.getType();
+    		//    		}
+    		//    		if (typeBack == null)
+    		//    			throw new AnalysisException("Unable to determine type for: "
+    		//    					+ decl);
+    	}
+
+    	node.setType(new AChannelsParagraphType());
+    	return node.getType();
+   }
+
     /*
      * The Overture TypeCheckVisitor needs a parent visitor to invoke. At this
      * time we provide the empty one.

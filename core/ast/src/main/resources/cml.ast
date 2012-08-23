@@ -59,8 +59,7 @@ source {->  package='eu.compassresearch.ast.program'}
 declaration {-> package='eu.compassresearch.ast.declarations'}
     // --- True declarations
     = {channelName} 
-    [identifier]: LexIdentifierToken // We will look and see if this name is appropriate during tc
-    [singleType]: declaration.#Single.type
+    	[singleType]: declaration.#Single.type
     | #Single
 	;
 
@@ -163,7 +162,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	   | {process} 
 	     	[processDefinition]: definition.process
 	   | {channel} 
-	   		[channelNames]: declaration.channelName*
+	   		[channelNameDeclarations]: declaration.channelName*
 	   | {chanset} 
 	     	[chansets] : definition.chanset*
  	   | {action} 
@@ -444,13 +443,14 @@ type {-> package='eu.compassresearch.ast.types'}
     |   {error} // marker that type of a subtree has failed 
     |   {processParagraph} // marker stipulating process paragraph is typed ok
     |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
+    |   {channelsParagraph} // marker stipulating a chanset paragraph is typed ok
     |   {actionParagraph} // marker stipulating that a Action Paragraph is typed ok
     |   {valueParagraph} // marker stipulating that a Values paragraph is typed ok
     |   {functionParagraph} // marker stipulating that a Function Paragraph is typed ok
     |   {operationParagraph} // marker stipulating that a Function Paragraph is typed ok
     |   {source} // marker stipulating a source was typed ok
     |   {bracket} (type):type
-    |   {channel}
+    |   {channel} (type):type
     |   {class} [name]:LexNameToken (classdef):definition.#paragraph.class //change classdef to graf - is this correct dont see how it could have worked before
     |   {function} [partial]:java_Boolean (parameters):type* (result):type 
     |   #invariant

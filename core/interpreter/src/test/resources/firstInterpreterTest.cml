@@ -1,10 +1,4 @@
-process InterpTest =
-begin
-		
-	operations
-		Op1 : () ==> int
-		Op1() == (return (1 + 2))	
-	
-	@ 
-		Op1()
-end
+channels init
+process A = begin @ init -> a -> Skip end
+process B = begin @ init -> b -> Skip end
+process C = A || B

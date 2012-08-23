@@ -3,7 +3,9 @@ package eu.compassresearch.core.typechecker;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.definitions.PDefinition;
+import eu.compassresearch.ast.process.AInstantiationProcess;
 import eu.compassresearch.ast.process.AStateProcess;
+import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.ast.types.PType;
 
@@ -19,6 +21,31 @@ public class TCProcessVisitor extends
     	this.parentChecker = parentChecker;
     }
 
+    
+    @Override
+    public PType caseASynchronousParallelismProcess(
+    		ASynchronousParallelismProcess node, TypeCheckInfo question)
+    		throws AnalysisException {
+    	
+    	node.getLeft().apply(this,question);
+    	node.getRight().apply(this,question);
+    	
+    	//TODO:  missing marker on processes
+    	    	
+    	return new AProcessType();
+    }
+    
+    
+    @Override
+    public PType caseAInstantiationProcess(AInstantiationProcess node,
+    		TypeCheckInfo question) throws AnalysisException {
+    	
+    	//TODO: implement this!
+    	
+    	return new AProcessType();
+    	
+    }
+    
     @Override
     public PType caseAStateProcess(AStateProcess node, TypeCheckInfo question)
     		throws AnalysisException {
@@ -29,11 +56,14 @@ public class TCProcessVisitor extends
     		def.apply(this.parentChecker, question);
     		
     		if (def.getType() == null)
-    			throw new AnalysisException("Unable to type process definition :" + def.toString());
+    			throw new AnalysisException("Unable to type check process definition :" + def.toString());
     	}
     	
     	//types check the main action
     	node.getAction().apply(this.parentChecker, question);
+    	//TODO: We need to put a type on all actions to mark that they have been type checked
+//    	if (node.getAction().getType() == null)
+//			throw new AnalysisException("Unable to typechecl process definition :" + node.getAction().toString());
     	
     	return new AProcessType();
     }

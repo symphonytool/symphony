@@ -92,7 +92,7 @@ public interface CmlInterpreter
 	 * Parse the line passed, type check it and evaluate it as an expression
 	 * in the initial context.
 	 *
-	 * @param line A VDM expression.
+	 * @param line A CML expression.
 	 * @param dbgp The DBGPReader, if any
 	 * @return The value of the expression.
 	 * @throws Exception Parser, type checking or runtime errors.
@@ -101,21 +101,19 @@ public interface CmlInterpreter
 	public Value execute(String line, DBGPReader dbgp) throws Exception;
 
 	/**
-	 * Parse the content of the file passed, type check it and evaluate it as an
-	 * expression in the initial context.
-	 *
-	 * @param file A file containing a VDM expression.
+	 * Executes the defined default process from the given sourceForest  
+	 * 
 	 * @return The value of the expression.
 	 * @throws Exception Parser, type checking or runtime errors.
 	 */
 
-	public Value execute(File file) throws Exception;
+	public Value execute() throws Exception;
 
 	/**
 	 * Parse the line passed, and evaluate it as an expression in the context
 	 * passed. Note that this does not type check the expression.
 	 *
-	 * @param line A VDM expression.
+	 * @param line A CML expression.
 	 * @param ctxt The context in which to evaluate the expression.
 	 * @return The value of the expression.
 	 * @throws Exception Parser or runtime errors.

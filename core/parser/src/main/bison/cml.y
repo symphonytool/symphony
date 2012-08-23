@@ -602,6 +602,7 @@ PROCESS IDENTIFIER EQUALS processDef
 {
     AProcessDefinition processDef = (AProcessDefinition)$processDef;
     LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
+    processDef.setName(id);
     LexLocation location = extractLexLocation((CmlLexeme)$PROCESS,
 					      processDef.getLocation());
     AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
@@ -1761,13 +1762,13 @@ channelNameDecl :
   LexLocation end = nameList.get(ids.size()-1).getLocation();
   LexLocation location = combineLexLocation(start, end);
   ATypeSingleDeclaration singleTypeDeclaration = new ATypeSingleDeclaration(location, NameScope.GLOBAL, ids, null);
-  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location, NameScope.GLOBAL, null,  singleTypeDeclaration);
+  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location, NameScope.GLOBAL, singleTypeDeclaration);
   $$ = channelNameDecl;
 }
 | singleTypeDeclaration
 {
   ATypeSingleDeclaration singleTypeDeclaration = (ATypeSingleDeclaration)$1;
-  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(singleTypeDeclaration.getLocation(), NameScope.GLOBAL, null, singleTypeDeclaration);
+  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(singleTypeDeclaration.getLocation(), NameScope.GLOBAL, singleTypeDeclaration);
   $$ = channelNameDecl;
 }
 ;

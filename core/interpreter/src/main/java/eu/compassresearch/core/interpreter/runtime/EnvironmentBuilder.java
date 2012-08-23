@@ -4,6 +4,8 @@ import java.util.List;
 
 import eu.compassresearch.ast.analysis.AnalysisAdaptor;
 import eu.compassresearch.ast.analysis.AnalysisException;
+import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
+import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
@@ -14,6 +16,7 @@ import eu.compassresearch.ast.definitions.ATypeDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.SFunctionDefinition;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
+import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.Environment;
 
@@ -38,7 +41,9 @@ public class EnvironmentBuilder extends AnalysisAdaptor {
 					def.apply(envBuilder);
 				}
 				//this should not happen when typechecked!!
-				catch(AnalysisException ex){}
+				catch(AnalysisException ex){
+					ex.printStackTrace();
+				}
 			}
 		}
 		
@@ -65,7 +70,7 @@ public class EnvironmentBuilder extends AnalysisAdaptor {
 
 		//TODO: check access specifier
 		AProcessDefinition processDef = node.getProcessDefinition();
-		env.put(processDef.getName(), node.getProcessDefinition());
+		env.put(processDef.getName(), processDef);
 		
 	}
 
@@ -99,6 +104,17 @@ public class EnvironmentBuilder extends AnalysisAdaptor {
 		}
 	}
 	
-	
+	@Override
+	public void caseAChannelParagraphDefinition(AChannelParagraphDefinition node)
+			throws AnalysisException {
+		
+		for(AChannelNameDeclaration cnd : node.getChannelNameDeclarations())
+		{
+			for(LexIdentifierToken channelName : cnd.getSingleType().getIdentifiers())
+			{
+				env.putChannel(channelName, cnd.getSingleType().getType());
+			}
+		}
+	}
 	
 }
