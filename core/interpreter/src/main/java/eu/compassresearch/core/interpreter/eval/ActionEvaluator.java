@@ -23,17 +23,25 @@ public class ActionEvaluator extends QuestionAnswerAdaptor<Context, Value> {
 	public Value caseACommunicationAction(ACommunicationAction node,
 			Context question) throws AnalysisException {
 	
+		//question.getProcessThread().waitForSchedule();
 		
-		System.out.println(node.getIdentifier());
+		//System.out.println("<" + node.getIdentifier() + ">");
 		
-		return node.getAction().apply(parentInterpreter,question);
+		if(question.getContinueOnEvent() != null && 
+				question.getContinueOnEvent().equals(node.getIdentifier().getName())  )
+			return node.getAction().apply(parentInterpreter,question);
+		else
+			return new ProcessValue(node,question);
+			
 	}
 	
 	@Override
 	public Value caseASkipAction(ASkipAction node, Context question)
 			throws AnalysisException {
 		
-		System.out.println("Skip");
+		//question.getProcessThread().waitForSchedule();
+		
+		//System.out.print("<Skip>");
 		
 		return new ProcessValue();
 	}

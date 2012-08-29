@@ -48,8 +48,8 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter {
     	CmlRuntime.getCmlScheduler().addProcessThread(processDef.getProcess(),getInitialContext());
     	//Make main thread
     	
-    	
-    	
+    	CmlRuntime.getCmlScheduler().start();
+    	//CmlRuntime.getCmlScheduler().printTrace();
     	
 		return null;
 	}
@@ -129,7 +129,8 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter {
       catch(Exception ex)
       {
     	  System.out.println("Failed to interpret" + source.toString());
-    	  System.out.println("With Error : " + ex.getMessage());
+    	  System.out.println("With Error : ");
+    	  ex.printStackTrace();
           return;
       
       }

@@ -2,28 +2,25 @@ package eu.compassresearch.core.interpreter.runtime;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.scheduler.ProcessThread;
 
 public class Context {
 	
-
     /**
      * The enclosing Context to search if a symbol is not found in this
      */
-	private Context outer;
+	private Context outer = null;
 	private ProcessThread processThread = null;
-	private Set<LexIdentifierToken> synchronizationChannels;
+	private String continueOnEvent = null;
+	private ChannelSynchronizationConstraint channelConstraint = null;
 	private Map<LexNameToken,Value> map;
 	
 	public Context()
 	{
-		this.outer = null;
 		map = new HashMap<LexNameToken,Value>();
 	}
 	
@@ -33,18 +30,46 @@ public class Context {
 		map = new HashMap<LexNameToken,Value>();
 	}
 	
+	public Context(Context outer, ChannelSynchronizationConstraint channelConstraint)
+	{
+		this.outer = outer;
+		map = new HashMap<LexNameToken,Value>();
+		this.channelConstraint = channelConstraint;
+	}
+	
 	public void setProcessThread(ProcessThread processThread)
 	{
 		this.processThread = processThread;
 	}
 	
-	public void setSynchronizationChannels(Set<LexIdentifierToken> channelNames)
+	public ProcessThread getProcessThread()
 	{
-		synchronizationChannels = channelNames;
+		if (this.processThread == null)
+			return outer.getProcessThread();
+		else
+			return this.processThread;
+	}
+	
+	public void setChannelConstraint(ChannelSynchronizationConstraint channelConstraint)
+	{
+		this.channelConstraint = channelConstraint;
+	}
+	
+	public ChannelSynchronizationConstraint  getChannelConstraint()
+	{
+		return this.channelConstraint;
 	}
 	
 	public void put(LexNameToken name, Value value)
 	{
 		map.put(name, value);
+	}
+	
+	public String getContinueOnEvent() {
+		return continueOnEvent;
+	}
+
+	public void setContinueOnEvent(String continueOnEvent) {
+		this.continueOnEvent = continueOnEvent;
 	}
 }

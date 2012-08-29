@@ -8,15 +8,16 @@ import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
-import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.process.AInstantiationProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
+import eu.compassresearch.core.interpreter.runtime.ChannelSynchronizationConstraint;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.runtime.Context;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
 
+@SuppressWarnings("serial")
 public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,Value> {
 	
 	private CmlEvaluator parentInterpreter; 
@@ -30,6 +31,8 @@ public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,Value> {
 	public Value caseAInstantiationProcess(AInstantiationProcess node,
 			Context question) throws AnalysisException {
 						
+		//question.getProcessThread().waitForSchedule();
+		
 		AProcessDefinition processDefinition = (AProcessDefinition) 
 				CmlRuntime.getGlobalEnvironment().lookupName(node.getProcessName().getIdentifier());
 		
@@ -38,7 +41,10 @@ public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,Value> {
 				
 		Context inner = new Context(question);
 		inner.put(processDefinition.getName().getProcessName(),new ProcessValue());
-		return processDefinition.getProcess().apply(parentInterpreter,inner);
+				
+		//CmlRuntime.getCmlScheduler().addProcessThread(processDefinition.getProcess(), inner);
+		
+		return processDefinition.getProcess().apply(this,inner);
 	}
 	
 	@Override
@@ -46,7 +52,9 @@ public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,Value> {
 			throws AnalysisException {
 		
 		//TODO Add state, value, etc to the corresponding processValue  
-							
+		
+		//question.getProcessThread().waitForSchedule();
+		
 		return node.getAction().apply(parentInterpreter,question);
 	}
 		
@@ -55,18 +63,26 @@ public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,Value> {
 			ASynchronousParallelismProcess node, Context question)
 			throws AnalysisException {
 		
+		//question.getProcessThread().waitForSchedule();
+		
 		Set<LexIdentifierToken> channels = CmlRuntime.getGlobalEnvironment().getGlobalChannels();
 		
 		if (channels == null)
 				throw new AnalysisException("No channels are defined to synchrnize on");
 		
-		Context inner = new Context(question);
-		inner.setSynchronizationChannels(channels);
+		ChannelSynchronizationConstraint comSyncLeft = new ChannelSynchronizationConstraint(channels,node.getRight());
+		ChannelSynchronizationConstraint comSyncRight = new ChannelSynchronizationConstraint(channels,node.getLeft());
+				
+		Context innerLeft = new Context(question,comSyncLeft);
+		Context innerRight = new Context(question,comSyncRight);
+				
+		ProcessValue leftValue = (ProcessValue)node.getLeft().apply(this,innerLeft);
+		ProcessValue rightValue = (ProcessValue)node.getRight().apply(this, innerRight);
 		
-		node.getLeft().apply(this,inner);
-		node.getRight().apply(this, inner);
+		leftValue.getOfferedEvents();
+		rightValue.getOfferedEvents();
 		
-		//TODO I don't really now what would be appropriate to returned here, so I created a ProcessValue.
+		
 		return new ProcessValue();
 	}
 		
