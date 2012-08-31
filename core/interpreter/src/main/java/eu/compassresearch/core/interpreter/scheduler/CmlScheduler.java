@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.runtime.Context;
+import eu.compassresearch.core.interpreter.util.Pair;
 
 public class CmlScheduler {
 
@@ -103,13 +105,21 @@ public class CmlScheduler {
 	}
 			
 	
-	public ACommunicationAction selectEvent(Map<ProcessThread,List<ACommunicationAction>> availableEvents)
+	public List<Pair<ProcessThread, ACommunicationAction>> selectEvent(Map<ProcessThread,List<ACommunicationAction>> availableEvents)
 	{
-		ACommunicationAction a = availableEvents.get(0);	
-				
-		trace.add(a);
+		List<Pair<ProcessThread, ACommunicationAction>> res = 
+				new LinkedList<Pair<ProcessThread,ACommunicationAction>>();
 		
-		return a;
+						
+		for(Entry<ProcessThread,List<ACommunicationAction>> entry : availableEvents.entrySet())
+		{
+			//For now, select a random event from the set of possible events
+			ACommunicationAction event = entry.getValue().get(0);
+			res.add(new Pair<ProcessThread, ACommunicationAction>(entry.getKey(),event));
+			trace.add(event);
+		}
+			
+		return res;
 	}
 	
 	public void start()
@@ -122,20 +132,28 @@ public class CmlScheduler {
 			
 			synchronized (sync) {
 
+				System.out.println("--------begin step---------");
+				
 				Map<ProcessThread,List<ACommunicationAction>> allEvents = step();
 				
-				System.out.println("Offered Events");
+				System.out.println("Offered Events:");
 				
 				
 				for(List<ACommunicationAction> ev : allEvents.values())
 					printEvents(ev);
 				
 				
-				System.out.println("Current Trace");
+				for(Pair<ProcessThread, ACommunicationAction> actionToExec :
+					selectEvent(allEvents))
+				{
+					actionToExec.first.eventOccured(actionToExec.second);
+				}
+											
+				
+				System.out.println("Current Trace:");
 				printTrace();
-				
-				selectEvent(pt, availableEvents)
-				
+						
+				System.out.println("--------end step---------");
 			}			
 		}
 	}
