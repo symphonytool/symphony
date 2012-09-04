@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.scheduler.ProcessThread;
 
@@ -63,6 +64,15 @@ public class Context {
 	public void put(LexNameToken name, Value value)
 	{
 		map.put(name, value);
+	}
+	
+	public Value lookupName(LexNameToken name)
+	{
+		Value v = map.get(name);
+        if (v == null)
+          if (outer != null)
+            v = outer.lookupName(name);
+        return v;
 	}
 	
 	public String getContinueOnEvent() {

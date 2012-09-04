@@ -1,9 +1,11 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import java.util.List;
 import java.util.Set;
 
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
@@ -14,6 +16,7 @@ import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.core.interpreter.runtime.ChannelSynchronizationConstraint;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.runtime.Context;
+import eu.compassresearch.core.interpreter.scheduler.ProcessThread;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
 
@@ -31,8 +34,7 @@ public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,Value> {
 	public Value caseAInstantiationProcess(AInstantiationProcess node,
 			Context question) throws AnalysisException {
 						
-		//question.getProcessThread().waitForSchedule();
-		
+				
 		AProcessDefinition processDefinition = (AProcessDefinition) 
 				CmlRuntime.getGlobalEnvironment().lookupName(node.getProcessName().getIdentifier());
 		
@@ -40,11 +42,11 @@ public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,Value> {
 		//TODO Initialize the process state 
 				
 		Context inner = new Context(question);
-		inner.put(processDefinition.getName().getProcessName(),new ProcessValue());
-				
-		//CmlRuntime.getCmlScheduler().addProcessThread(processDefinition.getProcess(), inner);
-		
-		return processDefinition.getProcess().apply(this,inner);
+		ProcessThread pt = CmlRuntime.getCmlScheduler().addProcessThread(processDefinition.getProcess(), inner);
+		ProcessValue pv = new ProcessValue(pt,inner);
+		inner.put(processDefinition.getName().getProcessName(),pv);
+
+		return pv;
 	}
 	
 	@Override
@@ -68,7 +70,7 @@ public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,Value> {
 		Set<LexIdentifierToken> channels = CmlRuntime.getGlobalEnvironment().getGlobalChannels();
 		
 		if (channels == null)
-				throw new AnalysisException("No channels are defined to synchrnize on");
+				throw new AnalysisException("No channels are defined to synchronize on");
 		
 		ChannelSynchronizationConstraint comSyncLeft = new ChannelSynchronizationConstraint(channels,node.getRight());
 		ChannelSynchronizationConstraint comSyncRight = new ChannelSynchronizationConstraint(channels,node.getLeft());
@@ -79,8 +81,11 @@ public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,Value> {
 		ProcessValue leftValue = (ProcessValue)node.getLeft().apply(this,innerLeft);
 		ProcessValue rightValue = (ProcessValue)node.getRight().apply(this, innerRight);
 		
-		leftValue.getOfferedEvents();
-		rightValue.getOfferedEvents();
+		List<ACommunicationAction> leftEvents = leftValue.getOfferedEvents();
+		List<ACommunicationAction> rightEvents = rightValue.getOfferedEvents();
+			
+		
+		
 		
 		
 		return new ProcessValue();

@@ -22,7 +22,6 @@ public class ProcessValue extends Value {
 	{
 		this.offeredEvents = availableEvents;
 		this.currentContext = currentContext;
-		
 	}
 	
 	public ProcessValue(ACommunicationAction availableEvent, Context currentContext)
@@ -39,6 +38,12 @@ public class ProcessValue extends Value {
 		this.currentContext = currentContext;	
 	}
 	
+//	public ProcessValue(List<ProcessValue> dependendValues, Context context)
+//	{
+//		this.processThread = processThread;
+//		this.currentContext = currentContext;	
+//	}
+	
 	public Context getCurrentContext() {
 		return currentContext;
 	}
@@ -53,6 +58,11 @@ public class ProcessValue extends Value {
 
 	public void setOfferedEvents(List<ACommunicationAction> offeredEvents) {
 		this.offeredEvents = offeredEvents;
+	}
+	
+	public boolean isProxy()
+	{
+		return this.processThread != null;
 	}
 	
 	@Override

@@ -14,14 +14,13 @@ import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.runtime.Context;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
-public class ProcessThread implements Runnable {
+public class ProcessThread extends AbstractProcess implements Runnable {
 	
 	private PProcess process;
 	private Context context;
 	public final Thread t;
 	private CmlEvaluator evalutor = new CmlEvaluator();
-	private SynchronousQueue<List<ACommunicationAction>> offeredEvents = new SynchronousQueue<List<ACommunicationAction>>();
-	private SynchronousQueue<ACommunicationAction> recievedEvent = new SynchronousQueue<ACommunicationAction>();
+	
 	private List<ProcessThread> childProcesses = new LinkedList<ProcessThread>();		
 	
 	
@@ -33,30 +32,7 @@ public class ProcessThread implements Runnable {
 		this.t.setDaemon(true);
 		//this.t.setName(process.)
 	}
-	
-	public List<ACommunicationAction> WaitForEventOffer()
-	{
-		List<ACommunicationAction> events = null;
-		try {
-			events = offeredEvents.take();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return events;
-	}
-	
-	public void eventOccured(ACommunicationAction event)
-	{
-		try {
-			recievedEvent.put(event);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
+			
 	public void addChildProcess(Context context, PProcess process)
 	{
 		childProcesses.add(new ProcessThread(context,process));
