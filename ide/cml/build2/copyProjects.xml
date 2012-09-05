@@ -1,0 +1,52 @@
+<project name="eu.compassresearch.ide" default="copyStuff">
+  <target name="copyStuff">
+    <property name="buildDirectory" value="target/CompassIDE"/>
+    
+    <echo message="Copying ui, core and platform"/>
+    <copy todir="${buildDirectory}/plugins">
+      <fileset dir="../">
+	<include name="ui/**" />
+	<include name="core/**" />
+	<include name="platform/**" />
+	<exclude name="**/target/"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${buildDirectory}/plugins">
+      <fileset dir="cml_local_deps">
+	<include name="**/*.jar"/>
+	<exclude name="**/ui"/>
+      </fileset>
+    </copy>
+    
+    <echo message="Copying Parsers"/>
+    <copy todir="${buildDirectory}/plugins">
+      <fileset dir="../../">
+	<include name="parsers/**" />
+      </fileset>
+    </copy>
+
+
+    <copy file="../platform/plugin.properties" toFile="${buildDirectory}/plugins/platform/plugin.properties"
+	  overwrite="true" filtering="true">
+      <filterchain>
+	<replacetokens>
+	  <token key="version" value="${platformReleaseVersion}${RCVersion}" />
+	  <token key="builddate" value="${TODAY}" />
+	  <token key="svnrevision" value="${svn.info.rev}" />
+	  <token key="svnurl" value="${svn.info.url}" />
+	</replacetokens>
+      </filterchain>
+    </copy>
+    <copy file="../platform/META-INF/MANIFEST.MF"
+	  toFile="${buildDirectory}/plugins/platform/META-INF/MANIFEST.MF"
+	  overwrite="true" filtering="true">
+      <filterchain>
+	<tokenfilter>
+	  <replaceregex pattern="0.0.0" replace="${platformReleaseVersion}"
+			flags="gi" />
+	</tokenfilter>
+      </filterchain>
+    </copy>
+  </target>
+</project>
