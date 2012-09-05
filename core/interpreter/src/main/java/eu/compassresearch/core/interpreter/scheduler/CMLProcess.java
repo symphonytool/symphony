@@ -15,5 +15,5 @@ public interface CMLProcess {
 	
 	public void start();
 	
-	public boolean isAlive();
+	public boolean isSkip();
 }

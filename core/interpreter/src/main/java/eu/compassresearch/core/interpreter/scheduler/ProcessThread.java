@@ -17,9 +17,8 @@ public class ProcessThread extends AbstractCMLProcess implements Runnable {
 	private final Thread t;
 	private CmlEvaluator evalutor = new CmlEvaluator();
 	
-	private List<ProcessThread> childProcesses = new LinkedList<ProcessThread>();		
-	
-	
+	private List<ACommunicationAction> currentlyOfferedEvents = new LinkedList<ACommunicationAction>();	
+		
 	public ProcessThread(Context context, AStateProcess process)
 	{
 		this.context = context;
@@ -27,54 +26,32 @@ public class ProcessThread extends AbstractCMLProcess implements Runnable {
 		this.t = new Thread(this);
 		this.t.setDaemon(true);
 		//this.t.setName(process.)
+		//add fake to not make isSkip true before it has been started
+		currentlyOfferedEvents.add(new ACommunicationAction());
 	}
-			
-	public void addChildProcess(Context context, AStateProcess process)
-	{
-		childProcesses.add(new ProcessThread(context,process));
-	}
-				
+					
 	@Override
 	public void run() {
-				
-		try {
-//			ProcessValue pvalue = (ProcessValue)process.apply(evalutor,context);
-//									
-//			offeredEventsChannel.put(pvalue.getOfferedEvents());
-//			
-//			if(pvalue.isComposition())
-//			{
-//				CMLProcess p = pvalue.getProcess();
-//				List<ACommunicationAction> offeredEvents = null;
-//				
-//				do{
-//					ACommunicationAction ca = recievedEvent.take();
-//					p.eventOccured(ca);
-//					offeredEvents = p.WaitForEventOffer();
-//					offeredEventsChannel.put(offeredEvents);
-//				}while(!offeredEvents.isEmpty());
-//			}
-//			else
-//			{
-			ProcessValue pvalue = (ProcessValue)process.getAction().apply(evalutor,context);
-			offeredEventsChannel.put(pvalue.getOfferedEvents());
 
-			while(pvalue != null && !pvalue.getOfferedEvents().isEmpty())
+		try {
+			ProcessValue pvalue = (ProcessValue)process.getAction().apply(evalutor,context);
+			currentlyOfferedEvents = pvalue.getOfferedEvents();
+			offeredEventsChannel.put(currentlyOfferedEvents);
+
+			while(pvalue != null && !currentlyOfferedEvents.isEmpty())
 			{
 				ACommunicationAction ca = recievedEvent.take();
 				pvalue = (ProcessValue)ca.getAction().apply(evalutor,pvalue.getCurrentContext());
-				offeredEventsChannel.put(pvalue.getOfferedEvents());
+				currentlyOfferedEvents = pvalue.getOfferedEvents();
+				offeredEventsChannel.put(currentlyOfferedEvents);
 			}
-//			}
-			
+
 		} catch (AnalysisException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
 	}
 
 	@Override
@@ -84,8 +61,9 @@ public class ProcessThread extends AbstractCMLProcess implements Runnable {
 	}
 
 	@Override
-	public boolean isAlive() {
+	public boolean isSkip() {
 		
-		return this.t.isAlive();
+		//return !this.t.isAlive() || currentlyOfferedEvents.isEmpty();
+		return currentlyOfferedEvents.isEmpty();
 	}
 }

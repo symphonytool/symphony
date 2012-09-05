@@ -26,7 +26,9 @@ public class InstantiatedProcess implements CMLProcess {
 	@Override
 	public void eventOccured(ACommunicationAction event) {
 		
+		System.out.println("Event on instance of process " + processDefinition.getName().getName());
 		this.process.eventOccured(event);
+		
 	}
 
 	@Override
@@ -39,12 +41,13 @@ public class InstantiatedProcess implements CMLProcess {
 	public void start() {
 		
 		this.process.start();
+		System.out.println("Instance of process " + processDefinition.getName().getName() + " started"); 
 	}
 
 	@Override
-	public boolean isAlive() {
+	public boolean isSkip() {
 		
-		return this.process.isAlive();
+		return this.process.isSkip();
 	}
 
 }

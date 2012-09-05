@@ -34,7 +34,7 @@ public class ParallelSynchronisationProcess extends AbstractCMLProcess
 	}
 
 	@Override
-	public boolean isAlive() {
-		return this.leftProcess.isAlive() || this.rightProcess.isAlive();
+	public boolean isSkip() {
+		return this.leftProcess.isSkip() || this.rightProcess.isSkip();
 	}
 }

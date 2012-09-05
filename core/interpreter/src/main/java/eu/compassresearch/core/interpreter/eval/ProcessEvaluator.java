@@ -11,6 +11,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.process.AInstantiationProcess;
+import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.core.interpreter.runtime.ChannelSynchronizationConstraint;
@@ -19,6 +20,7 @@ import eu.compassresearch.core.interpreter.runtime.Context;
 import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
 import eu.compassresearch.core.interpreter.scheduler.InstantiatedProcess;
 import eu.compassresearch.core.interpreter.scheduler.ProcessThread;
+import eu.compassresearch.core.interpreter.scheduler.SequentialCompositionProcess;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
 
@@ -95,6 +97,20 @@ public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,Value> {
 		List<ACommunicationAction> rightEvents = rightValue.getOfferedEvents();
 					
 		return new ProcessValue();
+	}
+	
+	@Override
+	public Value caseASequentialCompositionProcess(
+			ASequentialCompositionProcess node, Context question)
+			throws AnalysisException {
+		
+		ProcessValue leftValue = (ProcessValue)node.getLeft().apply(this,question);
+		ProcessValue rightValue = (ProcessValue)node.getRight().apply(this,question);
+				
+		CMLProcess pv = new SequentialCompositionProcess(leftValue.getProcess(), rightValue.getProcess());
+				
+		// TODO Auto-generated method stub
+		return new ProcessValue(pv,question);
 	}
 		
 }

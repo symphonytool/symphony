@@ -52,7 +52,7 @@ public class CmlScheduler {
 		{
 			CMLProcess pt = processes.poll();
 			
-			if(pt.isAlive()){
+			if(!pt.isSkip()){
 				
 				List<ACommunicationAction> cActions = pt.WaitForEventOffer();
 				

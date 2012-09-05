@@ -131,7 +131,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter {
       //interpret
       VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
       try{
-    	  cmlInterp.setDefaultName("C");
+    	  cmlInterp.setDefaultName("D");
     	  cmlInterp.execute();
       }
       catch(Exception ex)

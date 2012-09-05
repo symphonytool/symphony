@@ -4,6 +4,7 @@ import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.process.AInstantiationProcess;
+import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.types.AProcessType;
@@ -35,6 +36,18 @@ public class TCProcessVisitor extends
     	return new AProcessType();
     }
     
+    @Override
+    public PType caseASequentialCompositionProcess(
+    		ASequentialCompositionProcess node, TypeCheckInfo question)
+    		throws AnalysisException {
+    	
+    	node.getLeft().apply(this,question);
+    	node.getRight().apply(this,question);
+    	
+    	//TODO:  missing marker on processes
+    	    	
+    	return new AProcessType();
+    }
     
     @Override
     public PType caseAInstantiationProcess(AInstantiationProcess node,
