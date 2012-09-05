@@ -1,6 +1,6 @@
 channels init, a, b
-/*process A = begin @ init -> a -> Skip end
+process A = begin @ init -> a -> Skip end
 process B = begin @ init -> b -> Skip end
-process C = A || B
-*/
-process C = begin @ init -> a -> Skip end
+//process C = A || B
+
+process C = A //begin @ init -> a -> Skip end

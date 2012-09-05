@@ -1,13 +1,14 @@
 package eu.compassresearch.core.interpreter.scheduler;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.SynchronousQueue;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 
-public abstract class AbstractProcess implements Process {
+public abstract class AbstractCMLProcess implements CMLProcess {
 
-	protected SynchronousQueue<List<ACommunicationAction>> offeredEvents = new SynchronousQueue<List<ACommunicationAction>>();
+	protected SynchronousQueue<List<ACommunicationAction>> offeredEventsChannel = new SynchronousQueue<List<ACommunicationAction>>();
 	protected SynchronousQueue<ACommunicationAction> recievedEvent = new SynchronousQueue<ACommunicationAction>();
 	
 	@Override
@@ -15,7 +16,7 @@ public abstract class AbstractProcess implements Process {
 	{
 		List<ACommunicationAction> events = null;
 		try {
-			events = offeredEvents.take();
+			events = offeredEventsChannel.take();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -33,6 +34,12 @@ public abstract class AbstractProcess implements Process {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public Set<ACommunicationAction> getChannelSet() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

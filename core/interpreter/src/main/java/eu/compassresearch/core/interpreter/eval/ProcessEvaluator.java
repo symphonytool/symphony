@@ -16,6 +16,8 @@ import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.core.interpreter.runtime.ChannelSynchronizationConstraint;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.runtime.Context;
+import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
+import eu.compassresearch.core.interpreter.scheduler.InstantiatedProcess;
 import eu.compassresearch.core.interpreter.scheduler.ProcessThread;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
@@ -33,19 +35,27 @@ public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,Value> {
 	@Override
 	public Value caseAInstantiationProcess(AInstantiationProcess node,
 			Context question) throws AnalysisException {
-						
-				
+										
 		AProcessDefinition processDefinition = (AProcessDefinition) 
 				CmlRuntime.getGlobalEnvironment().lookupName(node.getProcessName().getIdentifier());
 		
-		//FIXME don't do this, this needs to go in a separate execution thread
+		
+		
 		//TODO Initialize the process state 
 				
 		Context inner = new Context(question);
-		ProcessThread pt = CmlRuntime.getCmlScheduler().addProcessThread(processDefinition.getProcess(), inner);
-		ProcessValue pv = new ProcessValue(pt,inner);
-		inner.put(processDefinition.getName().getProcessName(),pv);
 
+		//TODO Add the process arguments
+		
+		ProcessValue instantiatedProcessValue = (ProcessValue)processDefinition.getProcess().apply(this,inner);
+		
+		CMLProcess process = new InstantiatedProcess(processDefinition,instantiatedProcessValue.getProcess());
+		
+//		ProcessThread pt = new ProcessThread(inner, processDefinition.getProcess());
+//		//CmlRuntime.getCmlScheduler().addProcessThread(processDefinition.getProcess(), inner);
+		ProcessValue pv = new ProcessValue(process,inner);
+		//inner.put(processDefinition.getName().getProcessName(),pv);
+//		pt.start();
 		return pv;
 	}
 	
@@ -53,11 +63,11 @@ public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,Value> {
 	public Value caseAStateProcess(AStateProcess node, Context question)
 			throws AnalysisException {
 		
-		//TODO Add state, value, etc to the corresponding processValue  
+		//TODO Add state, value, etc to the corresponding processValue and context  
 		
-		//question.getProcessThread().waitForSchedule();
+		ProcessThread pt = new ProcessThread(question, node);
 		
-		return node.getAction().apply(parentInterpreter,question);
+		return new ProcessValue(pt,question);
 	}
 		
 	@Override
@@ -83,11 +93,7 @@ public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,Value> {
 		
 		List<ACommunicationAction> leftEvents = leftValue.getOfferedEvents();
 		List<ACommunicationAction> rightEvents = rightValue.getOfferedEvents();
-			
-		
-		
-		
-		
+					
 		return new ProcessValue();
 	}
 		

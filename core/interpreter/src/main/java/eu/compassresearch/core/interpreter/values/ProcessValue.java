@@ -7,13 +7,13 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.core.interpreter.runtime.Context;
-import eu.compassresearch.core.interpreter.scheduler.ProcessThread;
+import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
 
 public class ProcessValue extends Value {
 
 	private Context currentContext = null;
 	private List<ACommunicationAction> offeredEvents = new LinkedList<ACommunicationAction>();
-	private ProcessThread processThread = null;
+	private CMLProcess process = null;
 		
 	public ProcessValue()
 	{}
@@ -32,9 +32,9 @@ public class ProcessValue extends Value {
 		
 	}
 		
-	public ProcessValue(ProcessThread processThread, Context context)
+	public ProcessValue(CMLProcess process, Context context)
 	{
-		this.processThread = processThread;
+		this.process = process;
 		this.currentContext = currentContext;	
 	}
 	
@@ -50,8 +50,8 @@ public class ProcessValue extends Value {
 	
 	public List<ACommunicationAction> getOfferedEvents() {
 		
-		if (this.processThread != null)
-			return this.processThread.WaitForEventOffer();
+		if (this.process != null)
+			return this.process.WaitForEventOffer();
 		else
 			return offeredEvents;
 	}
@@ -60,9 +60,14 @@ public class ProcessValue extends Value {
 		this.offeredEvents = offeredEvents;
 	}
 	
-	public boolean isProxy()
+	public boolean isComposition()
 	{
-		return this.processThread != null;
+		return this.process != null;
+	}
+	
+	public CMLProcess getProcess()
+	{
+		return this.process;
 	}
 	
 	@Override

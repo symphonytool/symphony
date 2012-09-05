@@ -12,6 +12,9 @@ import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
+import eu.compassresearch.core.interpreter.scheduler.InstantiatedProcess;
+import eu.compassresearch.core.interpreter.values.ProcessValue;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.Environment;
 import eu.compassresearch.core.typechecker.VanillaCmlTypeChecker;
@@ -23,7 +26,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter {
 	 * 
 	 */
 	private static final long serialVersionUID = 6664128061930795395L;
-
+	private CmlEvaluator evalutor = new CmlEvaluator();
 	/**
      * Construct a CmlInterpreter with a list of
      * PSources. These source may refer to each other.
@@ -45,7 +48,12 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter {
     	
     	AProcessDefinition processDef = (AProcessDefinition)env.lookupName(new LexIdentifierToken(defaultProcess, false, null));
     	CmlRuntime.setGlobalEnvironment(env);
-    	CmlRuntime.getCmlScheduler().addProcessThread(processDef.getProcess(),getInitialContext());
+    	
+    	ProcessValue pv = (ProcessValue)processDef.getProcess().apply(this.evalutor,getInitialContext());
+    	
+    	InstantiatedProcess instantProcess = new InstantiatedProcess(processDef, pv.getProcess());
+    	
+    	CmlRuntime.getCmlScheduler().addProcess(instantProcess);
     	//Make main thread
     	
     	CmlRuntime.getCmlScheduler().start();
