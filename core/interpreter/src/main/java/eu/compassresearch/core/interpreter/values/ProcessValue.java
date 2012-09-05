@@ -32,17 +32,11 @@ public class ProcessValue extends Value {
 		
 	}
 		
-	public ProcessValue(CMLProcess process, Context context)
+	public ProcessValue(CMLProcess process, Context currentContext)
 	{
 		this.process = process;
 		this.currentContext = currentContext;	
 	}
-	
-//	public ProcessValue(List<ProcessValue> dependendValues, Context context)
-//	{
-//		this.processThread = processThread;
-//		this.currentContext = currentContext;	
-//	}
 	
 	public Context getCurrentContext() {
 		return currentContext;
@@ -59,12 +53,7 @@ public class ProcessValue extends Value {
 	public void setOfferedEvents(List<ACommunicationAction> offeredEvents) {
 		this.offeredEvents = offeredEvents;
 	}
-	
-	public boolean isComposition()
-	{
-		return this.process != null;
-	}
-	
+			
 	public CMLProcess getProcess()
 	{
 		return this.process;

@@ -74,12 +74,5 @@ public class Context {
             v = outer.lookupName(name);
         return v;
 	}
-	
-	public String getContinueOnEvent() {
-		return continueOnEvent;
-	}
 
-	public void setContinueOnEvent(String continueOnEvent) {
-		this.continueOnEvent = continueOnEvent;
-	}
 }

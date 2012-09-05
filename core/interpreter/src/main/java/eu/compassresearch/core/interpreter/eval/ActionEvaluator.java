@@ -22,15 +22,13 @@ public class ActionEvaluator extends QuestionAnswerAdaptor<Context, Value> {
 	@Override
 	public Value caseACommunicationAction(ACommunicationAction node,
 			Context question) throws AnalysisException {
-	
-		//question.getProcessThread().waitForSchedule();
 		
 		//System.out.println("<" + node.getIdentifier() + ">");
 		
-		if(question.getContinueOnEvent() != null && 
-				question.getContinueOnEvent().equals(node.getIdentifier().getName())  )
-			return node.getAction().apply(parentInterpreter,question);
-		else
+//		if(question.getContinueOnEvent() != null && 
+//				question.getContinueOnEvent().equals(node.getIdentifier().getName())  )
+//			return node.getAction().apply(parentInterpreter,question);
+//		else
 			return new ProcessValue(node,question);
 			
 	}

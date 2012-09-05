@@ -1,10 +1,11 @@
 package eu.compassresearch.core.interpreter.scheduler;
 
 import java.util.List;
+import java.util.Set;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 
-public class ParallelSynchronisationProcess extends AbstractCMLProcess
+public class ParallelSynchronisationProcess implements CMLProcess
 {
 	private CMLProcess leftProcess; 
 	private CMLProcess rightProcess;
@@ -20,10 +21,8 @@ public class ParallelSynchronisationProcess extends AbstractCMLProcess
 				
 		List<ACommunicationAction> leftActions = leftProcess.WaitForEventOffer();
 		List<ACommunicationAction> rigthActions = rightProcess.WaitForEventOffer();
-		
-		
-		
-		return super.WaitForEventOffer();
+				
+		return null;
 	}
 
 	@Override
@@ -35,6 +34,18 @@ public class ParallelSynchronisationProcess extends AbstractCMLProcess
 
 	@Override
 	public boolean isSkip() {
-		return this.leftProcess.isSkip() || this.rightProcess.isSkip();
+		return this.leftProcess.isSkip() && this.rightProcess.isSkip();
+	}
+
+	@Override
+	public void eventOccured(ACommunicationAction event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Set<ACommunicationAction> getChannelSet() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
