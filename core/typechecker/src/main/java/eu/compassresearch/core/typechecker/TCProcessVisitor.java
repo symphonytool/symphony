@@ -2,7 +2,11 @@ package eu.compassresearch.core.typechecker;
 
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
+import eu.compassresearch.ast.definitions.EDefinition;
 import eu.compassresearch.ast.definitions.PDefinition;
+import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.process.AInstantiationProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
@@ -54,9 +58,15 @@ public class TCProcessVisitor extends
     		TypeCheckInfo question) throws AnalysisException {
     	
     	//TODO: implement this!
+    	PDefinition processDef = question.env.lookupName(node.getProcessName().getIdentifier());
+    
+    	if(!(processDef instanceof AProcessParagraphDefinition))
+    			throw new AnalysisException("The Identifier " + node.getProcessName().getIdentifier() + 
+        				" is refered to as a process, No processes with that name can be found");
     	
-    	return new AProcessType();
-    	
+    	node.setProcessDefinition(((AProcessParagraphDefinition)processDef).getProcessDefinition());
+    	    	    	
+       	return new AProcessType();
     }
     
     @Override

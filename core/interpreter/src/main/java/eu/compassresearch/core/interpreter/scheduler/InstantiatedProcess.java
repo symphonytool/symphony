@@ -4,17 +4,28 @@ import java.util.List;
 import java.util.Set;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.core.interpreter.eval.EventCollector;
 
 public class InstantiatedProcess implements CMLProcess {
 
 	private AProcessDefinition processDefinition;
 	private CMLProcess process;
+	private Set<String> channelSet;
 	
 	public InstantiatedProcess(AProcessDefinition processDefinition, CMLProcess process)
 	{
 		this.processDefinition = processDefinition;
 		this.process = process;
+		
+		try {
+			EventCollector ec = new EventCollector();
+			this.processDefinition.apply(ec);
+			channelSet = ec.getChannelSet();
+		} catch (AnalysisException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -32,9 +43,9 @@ public class InstantiatedProcess implements CMLProcess {
 	}
 
 	@Override
-	public Set<ACommunicationAction> getChannelSet() {
+	public Set<String> getChannelSet() {
 		
-		return this.process.getChannelSet();
+		return this.channelSet;
 	}
 
 	@Override

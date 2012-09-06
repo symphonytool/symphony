@@ -119,7 +119,7 @@ public class CheckCml {
 	    DWA("dwa", "Example, the Div Warn Analysis example", false),
 	    POG("pog", "Proof Obligation Generator, the proof obligation generator", false),
 	    INTER("i", "Interactive mode", false),
-	    EXEC("e", "Interpret, -e=<processID> process to interpret", true)
+	    EXEC("e", "Simulation, -e=<processID>, simulate the process identified by <processID>", true)
 	    ;
 
 	// Switch state

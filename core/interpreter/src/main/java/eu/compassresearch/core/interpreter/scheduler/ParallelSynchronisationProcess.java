@@ -44,7 +44,7 @@ public class ParallelSynchronisationProcess implements CMLProcess
 	}
 
 	@Override
-	public Set<ACommunicationAction> getChannelSet() {
+	public Set<String> getChannelSet() {
 		// TODO Auto-generated method stub
 		return null;
 	}

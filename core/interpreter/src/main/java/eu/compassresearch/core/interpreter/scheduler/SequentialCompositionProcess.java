@@ -2,7 +2,6 @@ package eu.compassresearch.core.interpreter.scheduler;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 import java.util.Stack;
 
@@ -20,7 +19,7 @@ public class SequentialCompositionProcess implements CMLProcess {
 	}
 
 	@Override
-	public List<ACommunicationAction> WaitForEventOffer() {
+	synchronized public List<ACommunicationAction> WaitForEventOffer() {
 
 		List<ACommunicationAction> events = new LinkedList<ACommunicationAction>();
 
@@ -42,14 +41,14 @@ public class SequentialCompositionProcess implements CMLProcess {
 	}
 
 	@Override
-	public void eventOccured(ACommunicationAction event) {
+	synchronized public void eventOccured(ACommunicationAction event) {
 		
 		processStack.peek().eventOccured(event);
 
 	}
 
 	@Override
-	public Set<ACommunicationAction> getChannelSet() {
+	public Set<String> getChannelSet() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -62,7 +61,7 @@ public class SequentialCompositionProcess implements CMLProcess {
 	}
 
 	@Override
-	public boolean isSkip() {
+	synchronized public boolean isSkip() {
 						
 		return processStack.size() == 1 && processStack.peek().isSkip();
 	}

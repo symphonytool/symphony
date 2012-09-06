@@ -2,6 +2,8 @@ package eu.compassresearch.core.interpreter.scheduler;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.SynchronousQueue;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.PAction;
@@ -11,7 +13,7 @@ import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.runtime.Context;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
-public class ProcessThread extends AbstractCMLProcess implements Runnable {
+public class ProcessThread implements Runnable, CMLProcess {
 	
 	private AStateProcess process;
 	private Context context;
@@ -19,7 +21,9 @@ public class ProcessThread extends AbstractCMLProcess implements Runnable {
 	private CmlEvaluator evalutor = new CmlEvaluator();
 	private PAction currentAction;
 	private List<ACommunicationAction> currentlyOfferedEvents = new LinkedList<ACommunicationAction>();	
-		
+	private SynchronousQueue<List<ACommunicationAction>> offeredEventsChannel = new SynchronousQueue<List<ACommunicationAction>>();
+	private SynchronousQueue<ACommunicationAction> recievedEvent = new SynchronousQueue<ACommunicationAction>();
+	
 	public ProcessThread(Context context, AStateProcess process)
 	{
 		this.context = context;
@@ -44,6 +48,7 @@ public class ProcessThread extends AbstractCMLProcess implements Runnable {
 			{
 				ACommunicationAction ca = recievedEvent.take();
 				pvalue = (ProcessValue)ca.getAction().apply(evalutor,pvalue.getCurrentContext());
+				currentAction = ca.getAction();
 				currentlyOfferedEvents = pvalue.getOfferedEvents();
 				offeredEventsChannel.put(currentlyOfferedEvents);
 			}
@@ -54,6 +59,37 @@ public class ProcessThread extends AbstractCMLProcess implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+		
+	@Override
+	public List<ACommunicationAction> WaitForEventOffer()
+	{
+		List<ACommunicationAction> events = null;
+		try {
+			events = offeredEventsChannel.take();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return events;
+	}
+	
+	@Override
+	public void eventOccured(ACommunicationAction event)
+	{
+		try {
+			recievedEvent.put(event);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public Set<String> getChannelSet() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -72,6 +108,6 @@ public class ProcessThread extends AbstractCMLProcess implements Runnable {
 	@Override
 	public String getRemainingInterpretationState(boolean expand) {
 		
-		return "NA";
+		return currentAction.toString();
 	}
 }

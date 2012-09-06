@@ -14,6 +14,7 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
+import eu.compassresearch.core.interpreter.eval.EventCollector;
 import eu.compassresearch.core.interpreter.scheduler.InstantiatedProcess;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 import eu.compassresearch.core.parser.CmlParser;
@@ -54,12 +55,11 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter {
     	
     	
     	CmlRuntime.setGlobalEnvironment(env);
-    	    	
     	//This constructs the runtime process structure from the AST
     	ProcessValue pv = (ProcessValue)processDef.getProcess().apply(this.evalutor,getInitialContext());
     	//Wrap the top process in an InstantiatedProcess
     	InstantiatedProcess instantProcess = new InstantiatedProcess(processDef, pv.getProcess());
-    	
+    	    	
     	//Add the top process to the scheduler and start it
     	CmlRuntime.getCmlScheduler().addProcess(instantProcess);
     	CmlRuntime.getCmlScheduler().start();
@@ -136,7 +136,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter {
       //interpret
       VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
       try{
-    	  cmlInterp.setDefaultName("D");
+    	  cmlInterp.setDefaultName("C");
     	  cmlInterp.execute();
       }
       catch(Exception ex)

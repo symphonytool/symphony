@@ -22,9 +22,8 @@ public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,CMLProcess> 
 			Context question) throws AnalysisException {
 		
 		//Grab the definition from the name
-		AProcessDefinition processDefinition = (AProcessDefinition) 
-				CmlRuntime.getGlobalEnvironment().lookupName(node.getProcessName().getIdentifier());
-		
+		AProcessDefinition processDefinition = node.getProcessDefinition();
+				
 		//TODO Initialize the process state 
 		Context inner = new Context(question);
 		//TODO Add the process arguments

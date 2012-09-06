@@ -11,7 +11,7 @@ public interface CMLProcess {
 	
 	public void eventOccured(ACommunicationAction event);
 	
-	public Set<ACommunicationAction> getChannelSet();
+	public Set<String> getChannelSet();
 	
 	public void start();
 	
