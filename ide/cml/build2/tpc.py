@@ -142,7 +142,7 @@ def SplitBundlesInRequireBundles(str):
 # Build list with all symbols provided from target_platform plugins
 # and from the plugins in the parent directory.
 #
-# Then check that we have dependency closure in both places
+# Then check that we have dependency closure in both these places
 #
 def CheckFromBuild2():
     global AllSymbolicName;
@@ -188,7 +188,10 @@ def ExamineProductFile():
             print required_plugin;
             print "Is listed in the product file but not in the target platform."
 
-
+#
+# Check that if a bundle is Required by some other bundle then that
+# bundle is in the cml.product file.
+#
 def CheckRequiredBundlesAreListedInProduct(d,l):
     global AllSymbolicName;
     pfile = open("../platform/cml.product");
