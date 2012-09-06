@@ -8,8 +8,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.interpreter.runtime.Context;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 public class CmlScheduler {
@@ -35,10 +33,7 @@ public class CmlScheduler {
 	{
 		synchronized (sync) {
 		
-			//ProcessThread processThread = new ProcessThread(context, process); 
-			//context.setProcessThread(processThread);
 			addedProcesses.add(process);
-			
 			return process;
 		}
 	}
@@ -59,8 +54,6 @@ public class CmlScheduler {
 				if(!cActions.isEmpty())
 				{
 					allEvents.put(pt, cActions);
-					//ACommunicationAction a = selectEvent(cActions);
-					//pt.eventOccured(a);
 					executedInCurrentStep.add(pt);
 				}
 			}
@@ -88,14 +81,10 @@ public class CmlScheduler {
 	
 	public void printTrace()
 	{
-		for(ACommunicationAction a : trace)
-		{
-			System.out.print("<" + a.getIdentifier() + ">");
-		}
-		System.out.println();
+		printEvents(trace);
 	}
 	
-	public void printEvents(List<ACommunicationAction> offeredActions)
+	private void printEvents(List<ACommunicationAction> offeredActions)
 	{
 		for(ACommunicationAction a : offeredActions)
 		{
@@ -103,7 +92,6 @@ public class CmlScheduler {
 		}
 		System.out.println();
 	}
-			
 	
 	public List<Pair<CMLProcess, ACommunicationAction>> selectEvent(Map<CMLProcess,List<ACommunicationAction>> availableEvents)
 	{
@@ -150,10 +138,10 @@ public class CmlScheduler {
 				}
 											
 				
-				System.out.println("Current Trace:");
+				System.out.println("Trace after step:");
 				printTrace();
 						
-				System.out.println("--------end step---------");
+				//System.out.println("--------end step---------");
 			}			
 		}
 	}

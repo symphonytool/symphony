@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.program.AFileSource;
@@ -42,22 +43,26 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter {
       }
     
     @Override
-	public Value execute() throws Exception {
+	public Value execute() throws AnalysisException {
 		
     	Environment env = getGlobalEnvironment();
+    	//Find the default process
+    	AProcessDefinition processDef = (AProcessDefinition)env.lookupName(new LexIdentifierToken(getDefaultName(), false, null));
     	
-    	AProcessDefinition processDef = (AProcessDefinition)env.lookupName(new LexIdentifierToken(defaultProcess, false, null));
+    	if(processDef == null)
+    		throw new AnalysisException("No process identified by '" + getDefaultName() + "' exists" );
+    	
+    	
     	CmlRuntime.setGlobalEnvironment(env);
-    	
+    	    	
+    	//This constructs the runtime process structure from the AST
     	ProcessValue pv = (ProcessValue)processDef.getProcess().apply(this.evalutor,getInitialContext());
-    	
+    	//Wrap the top process in an InstantiatedProcess
     	InstantiatedProcess instantProcess = new InstantiatedProcess(processDef, pv.getProcess());
     	
+    	//Add the top process to the scheduler and start it
     	CmlRuntime.getCmlScheduler().addProcess(instantProcess);
-    	//Make main thread
-    	
     	CmlRuntime.getCmlScheduler().start();
-    	//CmlRuntime.getCmlScheduler().printTrace();
     	
 		return null;
 	}

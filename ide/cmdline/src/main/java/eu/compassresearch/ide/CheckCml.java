@@ -119,7 +119,7 @@ public class CheckCml {
 	    DWA("dwa", "Example, the Div Warn Analysis example", false),
 	    POG("pog", "Proof Obligation Generator, the proof obligation generator", false),
 	    INTER("i", "Interactive mode", false),
-	    EXEC("e", "Interpret", false)
+	    EXEC("e", "Interpret, -e=<processID> process to interpret", true)
 	    ;
 
 	// Switch state
@@ -507,15 +507,13 @@ public class CheckCml {
 		    AnalysisRunAdaptor r = new AnalysisRunAdaptor(interpreter) {
 			    public void apply(INode root) throws AnalysisException
 			    {
-				System.out.println("hallo interpreter");
-				
-				//if (input.isSwitchOn(Switch.NOTC))
-				//	{
-				
-				//for(CMLTypeError e :  typeChecker.getTypeErrors())
-				//	System.out.println("\t"+e);
-				//	}
-				//   root.apply(typeChecker, new TypeCheckInfo());
+			    	try {
+			    		interpreter.setDefaultName(Switch.EXEC.getValue());
+						interpreter.execute();
+					} catch (Exception e) {
+					
+						e.printStackTrace();
+					}
 			    }
 			};
 		    runAnalysis(input, r , sources);

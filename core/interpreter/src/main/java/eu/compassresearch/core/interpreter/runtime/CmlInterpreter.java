@@ -2,23 +2,23 @@ package eu.compassresearch.core.interpreter.runtime;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import eu.compassresearch.core.typechecker.*;
-import eu.compassresearch.ast.lex.*;
-import eu.compassresearch.ast.node.INode;
-import eu.compassresearch.ast.types.PType;
-import eu.compassresearch.ast.expressions.PExp;
-import eu.compassresearch.ast.actions.*;
-
-import org.overture.interpreter.values.Value;
-import org.overture.interpreter.debug.BreakpointManager;
 import org.overture.interpreter.debug.DBGPReader;
+import org.overture.interpreter.runtime.Breakpoint;
+import org.overture.interpreter.runtime.SourceFile;
+import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
-import org.overture.interpreter.*;
-import org.overture.interpreter.runtime.*;
+import org.overture.parser.syntax.ParserException;
+
+import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.analysis.AnalysisException;
+import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.lex.LexLocation;
+import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.types.PType;
+import eu.compassresearch.core.typechecker.Environment;
 /**
  * The CML interpreter interface.
  */
@@ -107,7 +107,7 @@ public interface CmlInterpreter
 	 * @throws Exception Parser, type checking or runtime errors.
 	 */
 
-	public Value execute() throws Exception;
+	public Value execute() throws AnalysisException;
 
 	/**
 	 * Parse the line passed, and evaluate it as an expression in the context
