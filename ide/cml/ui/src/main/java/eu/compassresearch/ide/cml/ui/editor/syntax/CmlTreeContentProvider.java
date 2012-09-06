@@ -142,22 +142,16 @@ public class CmlTreeContentProvider implements ITreeContentProvider
                     (AValueParagraphDefinition) w.value).toArray();
               }
             
-            if (w.isClass(AProcessParagraphDefinition.class))
+            if (w.isClass(AProcessParagraphDefinition.class)
+                || w.isClass(PProcess.class))
               {
                 AProcessParagraphDefinition processDecl = (AProcessParagraphDefinition) w.value;
                 AProcessDefinition def = processDecl.getProcessDefinition();
                 PProcess process = def.getProcess();
                 
-                if (process instanceof AStateProcess)
-                  {
-                    List<Object> res = new LinkedList<Object>();
-                    AStateProcess sp = (AStateProcess) process;
-                    PAction a = sp.getAction();
-                    addActions(res, a);
-                    return res.toArray();
-                  }
+                List<Object> res = handleProcess(process);
                 
-                return new Object[] { "Not Implemented Yet" };
+                return res.toArray();
               }
             
             if (w.isClass(ASequentialCompositionProcess.class))
@@ -205,6 +199,31 @@ public class CmlTreeContentProvider implements ITreeContentProvider
           }
         
         return new String[0];
+      }
+    
+    private List<Object> handleProcess(PProcess process)
+      {
+        List<Object> res = new LinkedList<Object>();
+        if (process instanceof AStateProcess)
+          {
+            AStateProcess sp = (AStateProcess) process;
+            PAction a = sp.getAction();
+            addActions(res, a);
+            return res;
+          }
+        
+        if (process instanceof ASequentialCompositionProcess)
+          {
+            ASequentialCompositionProcess p = (ASequentialCompositionProcess) process;
+            PProcess left = p.getLeft();
+            PProcess right = p.getRight();
+            res.add(Wrapper.newInstance(left, "left"));
+            res.add(Wrapper.newInstance(right, "right"));
+            return res;
+          }
+        
+        res.add("Not implemented yet \"" + process.getClass().getName() + "\"");
+        return res;
       }
     
     private void handleSequentialCompisitionProcess(List<Object> res,
