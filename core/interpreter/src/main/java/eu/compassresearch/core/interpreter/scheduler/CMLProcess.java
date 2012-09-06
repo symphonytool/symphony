@@ -16,4 +16,6 @@ public interface CMLProcess {
 	public void start();
 	
 	public boolean isSkip();
+	
+	public String getRemainingInterpretationState(boolean expand);
 }

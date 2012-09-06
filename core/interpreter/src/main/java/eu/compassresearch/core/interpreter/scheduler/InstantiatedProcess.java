@@ -50,4 +50,12 @@ public class InstantiatedProcess implements CMLProcess {
 		return this.process.isSkip();
 	}
 
+	@Override
+	public String getRemainingInterpretationState(boolean expand) {
+		if (expand)
+			return this.processDefinition.getName() + " = (" + this.process.getRemainingInterpretationState(expand) + ")";
+		else
+			return this.processDefinition.getName() + "";
+	}
+
 }

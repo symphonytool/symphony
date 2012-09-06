@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
@@ -16,7 +17,7 @@ public class ProcessThread extends AbstractCMLProcess implements Runnable {
 	private Context context;
 	private final Thread t;
 	private CmlEvaluator evalutor = new CmlEvaluator();
-	
+	private PAction currentAction;
 	private List<ACommunicationAction> currentlyOfferedEvents = new LinkedList<ACommunicationAction>();	
 		
 	public ProcessThread(Context context, AStateProcess process)
@@ -28,6 +29,7 @@ public class ProcessThread extends AbstractCMLProcess implements Runnable {
 		//this.t.setName(process.)
 		//add fake to not make isSkip true before it has been started
 		currentlyOfferedEvents.add(new ACommunicationAction());
+		currentAction = process.getAction();
 	}
 					
 	@Override
@@ -65,5 +67,11 @@ public class ProcessThread extends AbstractCMLProcess implements Runnable {
 		
 		//return !this.t.isAlive() || currentlyOfferedEvents.isEmpty();
 		return currentlyOfferedEvents.isEmpty();
+	}
+
+	@Override
+	public String getRemainingInterpretationState(boolean expand) {
+		
+		return "NA";
 	}
 }

@@ -18,7 +18,6 @@ public class CmlScheduler {
 	private List<ACommunicationAction> trace = new LinkedList<ACommunicationAction>();
 	//private final int numberOfThreads = 100;
 	//private ExecutorService threadPool;
-	//private List<Future> futures;
 	private Object sync = new Object();
 	
 	public CmlScheduler()
@@ -125,19 +124,18 @@ public class CmlScheduler {
 				Map<CMLProcess,List<ACommunicationAction>> allEvents = step();
 				
 				System.out.println("Offered Events:");
-				
-				
+								
 				for(List<ACommunicationAction> ev : allEvents.values())
 					printEvents(ev);
-				
-				
+								
+				System.out.println("Current interpretation state:");
 				for(Pair<CMLProcess, ACommunicationAction> actionToExec :
 					selectEvent(allEvents))
 				{
+					System.out.println(actionToExec.first.getRemainingInterpretationState(true));
 					actionToExec.first.eventOccured(actionToExec.second);
 				}
-											
-				
+							
 				System.out.println("Trace after step:");
 				printTrace();
 						

@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter.scheduler;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 import java.util.Stack;
 
@@ -64,6 +65,26 @@ public class SequentialCompositionProcess implements CMLProcess {
 	public boolean isSkip() {
 						
 		return processStack.size() == 1 && processStack.peek().isSkip();
+	}
+
+	@Override
+	public String getRemainingInterpretationState(boolean expand) {
+		
+		StringBuilder strBuilder = new StringBuilder();
+				
+		for(int i = processStack.size()-1 ; i >= 0 ; i--)
+		{
+			CMLProcess p = processStack.get(i);
+		
+			if(i == processStack.size()-1 && processStack.size() > 1)
+				strBuilder.append(p.getRemainingInterpretationState(expand) + ";");
+			else if(i == processStack.size()-1 && processStack.size() == 1)
+				strBuilder.append(p.getRemainingInterpretationState(expand));
+			else
+				strBuilder.append(p.getRemainingInterpretationState(false));
+		}
+						
+		return strBuilder.toString();
 	}
 
 }

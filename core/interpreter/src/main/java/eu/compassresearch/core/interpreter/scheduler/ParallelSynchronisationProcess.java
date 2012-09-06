@@ -48,4 +48,10 @@ public class ParallelSynchronisationProcess implements CMLProcess
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public String getRemainingInterpretationState(boolean expand) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
