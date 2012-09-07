@@ -41,7 +41,7 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
         super.createControl(parent);
         TreeViewer viewer = getTreeViewer();
         viewer.setContentProvider(provider);
-        viewer.setLabelProvider(new CmlLabelProvider());
+        // viewer.setLabelProvider(new CmlLabelProvider());
         viewer.addSelectionChangedListener(this);
         viewer.setInput(input);
       }

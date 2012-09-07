@@ -11,14 +11,14 @@
 	<exclude name="**/target/"/>
       </fileset>
     </copy>
-
+<!--
     <copy todir="${buildDirectory}/plugins">
       <fileset dir="cml_local_deps">
 	<include name="**/*.jar"/>
 	<exclude name="**/ui"/>
       </fileset>
     </copy>
-    
+-->
     <echo message="Copying Parsers"/>
     <copy todir="${buildDirectory}/plugins">
       <fileset dir="../../">
