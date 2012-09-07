@@ -1,4 +1,4 @@
-#!/bin/bas
+#!/bin/bash
 #
 # This script is configured to build agains Eclipse 3.7.2 Update
 # equinox.version and pde.version for if using another version of

@@ -9,8 +9,8 @@ pde_version=3.7.0.v20111116-2009
 equinox_version=1.2.0.v20110502
 copy_plugins_cmd="ant -f copyProjects.xml copyStuff -DbuildDirectory=${build_dir}"
 target_platform=$(pwd)/target_platform
-baseos=linux
-basews=gtk
+baseos=win32
+basews=win32
 basearch=x86_64
 
 

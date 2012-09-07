@@ -8,7 +8,6 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -81,9 +80,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider
         
         public static <T> Wrapper<T> newInstance(T value, String str)
           {
-            Image icon = new Image(Display.getCurrent(),
-                "/home/rwl/Desktop/PhD/develop/cml/ide/cml/ui/icons/cview16/cml_file_tsk.png");
-            return new Wrapper<T>(icon, value, str);
+            return new Wrapper<T>(null, value, str);
           }
         
         public Wrapper(Image img, T value, String str)

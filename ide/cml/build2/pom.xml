@@ -25,26 +25,48 @@
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.7</version>
 				<executions>
+				  <execution>
+				    <id>copy stuff</id>
+				    <phase>install</phase>
+				    <configuration>
+				      <target>
+					<property name="buildDirectory" value="${buildDirectory}"/>
+
+					<ant antfile="copyProjects.xml" target="copyStuff"/>
+				      </target>
+				    </configuration>
+				  </execution>
 					<execution>
 
 						<phase>install</phase>
 						<configuration>
 							<target>
-							  
-								<property name="base" value="${eclipse.installtion}" />
-								<property name="equinoxLauncherPluginVersion"
-									value="${equinox.version}" />
-								<property name="pdeBuildPluginVersion"
-									value="${pde.version}" />
-								<property name="baseos" value="${baseos}" />
-								<property name="basews" value="${basews}" />
-								<property name="basearch" value="${basearch}" />
+							  <property name="equinoxLauncherPluginVersion"
+								    value="${equinox.version}" />
+							  <property name="pdeBuildPluginVersion"
+								    value="${pde.version}" />
+							  <property name="product" 
+								    value="${product}"/>
+							  <property name="buildDirectory" 
+								    value="${buildDirectory}"/>
+							  <property name="builder" 
+								    value="${builder}"/>
+							  <property name="baseLocation" 
+								    value="${target_platform}"/>
+							  <property name="base" 
+								    value="${base}"/>
+							  <property name="baseos" 
+								    value="${baseos}"/>
+							  <property name="basews" 
+								    value="${basews}"/>
+							  <property name="basearch" 
+								    value="${basearch}"/>
+							  <property name="pluginPath" 
+								    value="${target_platform}"/>
+							  <property name="buildDirectory" 
+								    value="${builddir}"/>
 
-								<property name="eclipseLocation" value="${eclipse.installation}" />
-								<property name="buildDirectory" value="${project.build.directory}/CompassIDE" />
-								<property name="pluginPath" value="${pluginpath}" />
-
-								<ant antfile="${eclipse.installation}/plugins/org.eclipse.pde.build_${pde.version}/scripts/productBuild/productBuild.xml" />
+							  <ant antfile="${eclipse.installation}/plugins/org.eclipse.pde.build_${pde.version}/scripts/productBuild/productBuild.xml" />
 							</target>
 
 						</configuration>

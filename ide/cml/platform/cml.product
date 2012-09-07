@@ -12,9 +12,10 @@
 
    <splash
       location="eu.compassresearch.ide.cml.platform"
-      startupProgressRect="0,400,300,20"
+      startupProgressRect="0,0,300,20"
       startupMessageRect="75,200,300,15"
       startupForegroundColor="7F7F7F" />
+
    <launcher name="COMPASS">
       <solaris/>
       <win useIco="false">
@@ -40,6 +41,7 @@
      <plugin id="org.eclipse.team.ui"/>
       <plugin id="eu.compassresearch.ide.cml.core"/>
       <plugin id="eu.compassresearch.ide.cml.ui"/>
+      <plugin id="eu.compassresearch.ide.cml.platform"/>
       <plugin id="org.eclipse.compare.core"/>
       <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.contenttype"/>
@@ -119,6 +121,8 @@
       <plugin id="org.overture.ide.core"/>
       <plugin id="org.overture.ide.ui"/>
       <plugin id="org.overture.ide.vdmpp.core"/>
+      <plugin id="org.eclipse.ui.intro"/>
+      <plugin id="org.eclipse.ui.views.log"/>
    </plugins>
 
 
