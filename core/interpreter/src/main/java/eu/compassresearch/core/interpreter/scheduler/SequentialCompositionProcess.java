@@ -25,17 +25,30 @@ public class SequentialCompositionProcess implements CMLProcess {
 
 		CMLProcess nextProcess = processStack.pop();
 
-		//Check if the current process has evolved into Skip
-		if(!nextProcess.isSkip())
+		events = nextProcess.WaitForEventOffer();
+		
+		
+		if(!events.isEmpty())
 		{
-			events = nextProcess.WaitForEventOffer();
 			processStack.push(nextProcess);
 		}
-		else if(!processStack.isEmpty())
+		else if(events.isEmpty() && !processStack.isEmpty())
 		{
 			processStack.peek().start();
 			events = processStack.peek().WaitForEventOffer();
 		}
+		
+		//Check if the current process has evolved into Skip
+//		if(!nextProcess.isSkip())
+//		{
+//			events = nextProcess.WaitForEventOffer();
+//			processStack.push(nextProcess);
+//		}
+//		else if(!processStack.isEmpty())
+//		{
+//			processStack.peek().start();
+//			events = processStack.peek().WaitForEventOffer();
+//		}
 
 		return events;
 	}

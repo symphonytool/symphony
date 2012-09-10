@@ -39,7 +39,8 @@ public class ProcessThread implements Runnable, CMLProcess {
 	@Override
 	public void run() {
 
-		try {
+		try 
+		{
 			ProcessValue pvalue = (ProcessValue)process.getAction().apply(evalutor,context);
 			currentlyOfferedEvents = pvalue.getOfferedEvents();
 			offeredEventsChannel.put(currentlyOfferedEvents);
@@ -56,7 +57,6 @@ public class ProcessThread implements Runnable, CMLProcess {
 		} catch (AnalysisException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -76,7 +76,7 @@ public class ProcessThread implements Runnable, CMLProcess {
 	}
 	
 	@Override
-	public void eventOccured(ACommunicationAction event)
+	synchronized public void eventOccured(ACommunicationAction event)
 	{
 		try {
 			recievedEvent.put(event);
@@ -99,7 +99,7 @@ public class ProcessThread implements Runnable, CMLProcess {
 	}
 
 	@Override
-	public boolean isSkip() {
+	synchronized public boolean isSkip() {
 		
 		//return !this.t.isAlive() || currentlyOfferedEvents.isEmpty();
 		return currentlyOfferedEvents.isEmpty();

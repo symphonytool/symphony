@@ -3,6 +3,7 @@ package eu.compassresearch.core.interpreter.values;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
@@ -14,7 +15,8 @@ public class ProcessValue extends Value {
 	private Context currentContext = null;
 	private List<ACommunicationAction> offeredEvents = new LinkedList<ACommunicationAction>();
 	private CMLProcess process = null;
-		
+	public  NameValuePairMap members = new NameValuePairMap();	
+	
 	public ProcessValue()
 	{}
 	

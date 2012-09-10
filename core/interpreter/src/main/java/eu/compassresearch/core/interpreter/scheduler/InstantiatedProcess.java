@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.scheduler;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,7 +46,7 @@ public class InstantiatedProcess implements CMLProcess {
 	@Override
 	public Set<String> getChannelSet() {
 		
-		return this.channelSet;
+		return new HashSet<String>(this.channelSet);
 	}
 
 	@Override

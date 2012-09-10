@@ -1,5 +1,5 @@
 channels init, a, b, c
-process A = begin @ init -> a -> Skip end
+process A = begin @ init -> a ->  a := 4 end
 process B = begin @ init -> b -> Skip end
 //process C = begin @ init -> c -> Skip end
 //process C = A || B

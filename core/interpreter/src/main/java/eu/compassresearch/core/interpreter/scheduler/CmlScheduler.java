@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.overture.ast.lex.Dialect;
+import org.overture.config.Settings;
+
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.core.interpreter.util.Pair;
 
@@ -19,6 +22,7 @@ public class CmlScheduler {
 	//private final int numberOfThreads = 100;
 	//private ExecutorService threadPool;
 	private Object sync = new Object();
+	private boolean animate = false;
 	
 	public CmlScheduler()
 	{
@@ -26,6 +30,7 @@ public class CmlScheduler {
 		addedProcesses = new ConcurrentLinkedQueue<CMLProcess>();
 		executedInCurrentStep = new ConcurrentLinkedQueue<CMLProcess>();
 		//threadPool = Executors.newFixedThreadPool(numberOfThreads);
+		Settings.dialect = Dialect.CML;
 	}
 	
 	public CMLProcess addProcess(CMLProcess process)
@@ -96,14 +101,25 @@ public class CmlScheduler {
 	{
 		List<Pair<CMLProcess, ACommunicationAction>> res = 
 				new LinkedList<Pair<CMLProcess,ACommunicationAction>>();
-		
-						
-		for(Entry<CMLProcess,List<ACommunicationAction>> entry : availableEvents.entrySet())
+			
+		if(animate)
 		{
-			//For now, select a random event from the set of possible events
-			ACommunicationAction event = entry.getValue().get(0);
-			res.add(new Pair<CMLProcess, ACommunicationAction>(entry.getKey(),event));
-			trace.add(event);
+//			for(Entry<CMLProcess,List<ACommunicationAction>> entry : availableEvents.entrySet())
+//			{
+//				System.out.println("Available events:");
+//				System.out.println(entry.getValue().get(0));
+//				System.in.read();
+//			}
+		}
+		else
+		{
+			for(Entry<CMLProcess,List<ACommunicationAction>> entry : availableEvents.entrySet())
+			{
+				//For now, select a the first event from the set of possible events
+				ACommunicationAction event = entry.getValue().get(0);
+				res.add(new Pair<CMLProcess, ACommunicationAction>(entry.getKey(),event));
+				trace.add(event);
+			}
 		}
 			
 		return res;
@@ -128,12 +144,20 @@ public class CmlScheduler {
 				for(List<ACommunicationAction> ev : allEvents.values())
 					printEvents(ev);
 								
+				System.out.println();
+				
 				System.out.println("Current interpretation state:");
 				for(Pair<CMLProcess, ACommunicationAction> actionToExec :
 					selectEvent(allEvents))
 				{
 					System.out.println(actionToExec.first.getRemainingInterpretationState(true));
 					actionToExec.first.eventOccured(actionToExec.second);
+					
+					System.out.println();
+					
+					System.out.println("The ENV(Simulator) picks: " + actionToExec.second.getIdentifier());
+				
+					System.out.println();
 				}
 							
 				System.out.println("Trace after step:");

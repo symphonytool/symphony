@@ -1,17 +1,27 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
+import eu.compassresearch.ast.expressions.ANameChannelExp;
+import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.lex.LexIdentifierToken;
+import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AInstantiationProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
+import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.runtime.Context;
 import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
 import eu.compassresearch.core.interpreter.scheduler.InstantiatedProcess;
 import eu.compassresearch.core.interpreter.scheduler.ProcessThread;
 import eu.compassresearch.core.interpreter.scheduler.SequentialCompositionProcess;
+import eu.compassresearch.core.interpreter.scheduler.SynchronousParallelismProcess;
 
 
 @SuppressWarnings("serial")
@@ -42,32 +52,48 @@ public class ProcessEvaluator extends QuestionAnswerAdaptor<Context,CMLProcess> 
 		return pt;
 	}
 		
-//	@Override
-//	public Value caseASynchronousParallelismProcess(
-//			ASynchronousParallelismProcess node, Context question)
-//			throws AnalysisException {
-//		
-//		//question.getProcessThread().waitForSchedule();
-//		
-//		Set<LexIdentifierToken> channels = CmlRuntime.getGlobalEnvironment().getGlobalChannels();
-//		
-//		if (channels == null)
-//				throw new AnalysisException("No channels are defined to synchronize on");
-//		
-//		ChannelSynchronizationConstraint comSyncLeft = new ChannelSynchronizationConstraint(channels,node.getRight());
-//		ChannelSynchronizationConstraint comSyncRight = new ChannelSynchronizationConstraint(channels,node.getLeft());
-//				
-//		Context innerLeft = new Context(question,comSyncLeft);
-//		Context innerRight = new Context(question,comSyncRight);
-//				
-//		ProcessValue leftValue = (ProcessValue)node.getLeft().apply(this,innerLeft);
-//		ProcessValue rightValue = (ProcessValue)node.getRight().apply(this, innerRight);
-//		
-//		List<ACommunicationAction> leftEvents = leftValue.getOfferedEvents();
-//		List<ACommunicationAction> rightEvents = rightValue.getOfferedEvents();
-//					
-//		return new ProcessValue();
-//	}
+	@Override
+	public CMLProcess caseASynchronousParallelismProcess(
+			ASynchronousParallelismProcess node, Context question)
+			throws AnalysisException {
+		
+		//question.getProcessThread().waitForSchedule();
+		
+		Set<String> allChannels = CmlRuntime.getGlobalEnvironment().getGlobalChannelNames();
+		
+		if (allChannels == null)
+				throw new AnalysisException("No channels are defined to synchronize on");
+					
+						
+		CMLProcess leftProcess = node.getLeft().apply(this,question);
+		CMLProcess rightProcess = node.getRight().apply(this, question);
+							
+		return new SynchronousParallelismProcess(leftProcess, rightProcess,allChannels);
+	}
+	
+	@Override
+	public CMLProcess caseAGeneralisedParallelismProcess(
+			AGeneralisedParallelismProcess node, Context question)
+			throws AnalysisException {
+	
+		PExp exp = node.getChansetExpression();
+		
+		//TODO This should not be done like this. This is only a test
+		if(!(exp instanceof AEnumChansetSetExp))
+			throw new AnalysisException("For now the the expression here can only be a channelset enumeration");
+			
+		AEnumChansetSetExp chansetExp = (AEnumChansetSetExp)exp;
+		
+		Set<String> chanset = new HashSet<String>();
+		
+		for(LexIdentifierToken id : chansetExp.getIdentifiers())
+			chanset.add(id.getName());
+		
+		CMLProcess leftProcess = node.getLeft().apply(this,question);
+		CMLProcess rightProcess = node.getRight().apply(this, question);
+		
+		return new SynchronousParallelismProcess(leftProcess, rightProcess,chanset);
+	}
 	
 	@Override
 	public CMLProcess caseASequentialCompositionProcess(

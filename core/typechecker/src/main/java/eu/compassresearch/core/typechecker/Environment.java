@@ -50,9 +50,14 @@ public class Environment
         this.channelMap = new HashMap<LexIdentifierToken, PType>();
       }
     
-    public Set<LexIdentifierToken> getGlobalChannels()
-    {    	    	
-    	return this.channelMap.keySet();
+    public Set<String> getGlobalChannelNames()
+    {    	    
+    	Set<String> r = new HashSet<String>();
+    	
+    	for(LexIdentifierToken id : this.channelMap.keySet())
+    		r.add(id.getName());
+    	
+    	return r;
     }
     
     
