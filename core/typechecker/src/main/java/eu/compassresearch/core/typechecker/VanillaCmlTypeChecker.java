@@ -28,10 +28,10 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
     // -- Type Checker State
     // ---------------------------------------------
     // subcheckers
-    private IQuestionAnswer<TypeCheckInfo, PType> exp;
-    private IQuestionAnswer<TypeCheckInfo, PType> stm;
-    private IQuestionAnswer<TypeCheckInfo, PType> dad;
-    private boolean                               lastResult;
+    private IQuestionAnswer<TypeCheckQuestion, PType> exp;
+    private IQuestionAnswer<TypeCheckQuestion, PType> stm;
+    private IQuestionAnswer<TypeCheckQuestion, PType> dad;
+    private boolean                                   lastResult;
     
     private void initialize()
       {
@@ -44,28 +44,28 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
     // -- Dispatch to sub-checkers
     // ---------------------------------------------
     @Override
-    public PType defaultPDeclaration(PDeclaration node, TypeCheckInfo question)
+    public PType defaultPDeclaration(PDeclaration node,
+        TypeCheckQuestion question) throws AnalysisException
+      {
+        return node.apply(this.dad, question);
+      }
+    
+    @Override
+    public PType defaultPDefinition(PDefinition node, TypeCheckQuestion question)
         throws AnalysisException
       {
         return node.apply(this.dad, question);
       }
     
     @Override
-    public PType defaultPDefinition(PDefinition node, TypeCheckInfo question)
-        throws AnalysisException
-      {
-        return node.apply(this.dad, question);
-      }
-    
-    @Override
-    public PType defaultPExp(PExp node, TypeCheckInfo question)
+    public PType defaultPExp(PExp node, TypeCheckQuestion question)
         throws AnalysisException
       {
         return node.apply(exp, question);
       }
     
     @Override
-    public PType defaultPAction(PAction node, TypeCheckInfo question)
+    public PType defaultPAction(PAction node, TypeCheckQuestion question)
         throws AnalysisException
       {
         return node.apply(stm, question);

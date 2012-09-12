@@ -27,7 +27,7 @@ import eu.compassresearch.ast.types.PType;
  */
 @SuppressWarnings("serial")
 public abstract class AbstractTypeChecker extends
-    QuestionAnswerAdaptor<TypeCheckInfo, PType> implements CmlTypeChecker
+    QuestionAnswerAdaptor<TypeCheckQuestion, PType> implements CmlTypeChecker
   {
     
     protected List<CmlTypeChecker.CMLTypeError>   errors;

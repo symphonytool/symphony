@@ -53,7 +53,7 @@ public class CmlTypeCheckerTestCase extends TestCase
             "class test = begin values public a:int=42 end", false, true, true); // int
                                                                                  // literal
         addTestProgram(testData,
-            "class test = begin values public a:boolean =false end", false,
+            "class test = begin values public a:boolean = false end", false,
             true, true); // bool literal
         addTestProgram(testData,
             "class test = begin values public a:boolean =true end", false,

@@ -15,16 +15,16 @@ import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexLocation;
 import eu.compassresearch.transformation.CmlAstToOvertureAst;
 
-public class Environment
+public class Environment<T>
   {
     
     /**
      * The enclosing Environment to search if a symbol is not found in this
      */
-    protected final Environment                  outer;
+    protected final Environment<T>     outer;
     
     // private state
-    private Map<LexIdentifierToken, PDefinition> map;
+    private Map<LexIdentifierToken, T> map;
     
     /**
      * Create an Empty top level Environment.
@@ -43,7 +43,7 @@ public class Environment
     public Environment(Environment outer)
       {
         this.outer = outer;
-        this.map = new HashMap<LexIdentifierToken, PDefinition>();
+        this.map = new HashMap<LexIdentifierToken, T>();
       }
     
     /**
@@ -54,9 +54,9 @@ public class Environment
      * 
      * @return null if the name is unresolved.
      */
-    public PDefinition lookupName(LexIdentifierToken name)
+    public T lookupName(LexIdentifierToken name)
       {
-        PDefinition def = map.get(name);
+        T def = map.get(name);
         if (def == null)
           if (outer != null)
             def = outer.lookupName(name);
@@ -72,7 +72,7 @@ public class Environment
      * @param type
      *          - The type for decl in this environment.
      */
-    public void put(LexIdentifierToken name, PDefinition type)
+    public void put(LexIdentifierToken name, T type)
       {
         map.put(name, type);
       }
@@ -100,7 +100,8 @@ public class Environment
         String stringName = name.getName();
         LexIdentifierToken id = new LexIdentifierToken(stringName, old,
             location);
-        PDefinition cmlDef = lookupName(id);
+        // Cowboy code, it is typically a PDefinition ;)
+        PDefinition cmlDef = (PDefinition) lookupName(id);
         return cmlDef;
       }
     

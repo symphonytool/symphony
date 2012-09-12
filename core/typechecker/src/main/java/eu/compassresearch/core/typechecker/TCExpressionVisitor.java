@@ -12,17 +12,17 @@ import eu.compassresearch.transformation.CmlAstToOvertureAst;
 import eu.compassresearch.transformation.CopyTypesFromOvtToCmlAst;
 
 public class TCExpressionVisitor extends
-    QuestionAnswerAdaptor<TypeCheckInfo, PType>
+    QuestionAnswerAdaptor<TypeCheckQuestion, PType>
   {
     
     /**
 	 * 
 	 */
-    private static final long                                 serialVersionUID = -6509187123701383525L;
+    private static final long           serialVersionUID = -6509187123701383525L;
     
     // A parent checker may actually not be necessary on this
     @SuppressWarnings("unused")
-    final private QuestionAnswerAdaptor<TypeCheckInfo, PType> parent;
+    final private VanillaCmlTypeChecker parent;
     
     public TCExpressionVisitor(VanillaCmlTypeChecker parentChecker)
       {
@@ -44,7 +44,7 @@ public class TCExpressionVisitor extends
      *           - if anythings goes wrong that is not just a type error.
      */
     @Override
-    public PType defaultPExp(PExp node, TypeCheckInfo question)
+    public PType defaultPExp(PExp node, TypeCheckQuestion question)
         throws AnalysisException
       {
         CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
@@ -54,7 +54,7 @@ public class TCExpressionVisitor extends
             new TypeCheckVisitor());
         
         org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(
-            question.env.getOvertureEnv());
+            null);
         
         try
           {

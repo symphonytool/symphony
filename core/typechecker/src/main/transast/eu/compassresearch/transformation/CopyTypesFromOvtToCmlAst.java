@@ -63,7 +63,7 @@ public class CopyTypesFromOvtToCmlAst extends
             return cmlNode;
           }
         
-        return super.defaultINode(node);
+        return cmlNode;
       }
     
     private boolean cmlNodeAlreadyHasType(

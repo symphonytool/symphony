@@ -93,7 +93,7 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
     private Class<?> loadOvtEquivalent(Class<?> cmlClz)
         throws AnalysisException
       {
-        String cmlName = cmlClz.getName();
+        String cmlName = lookupName(cmlClz.getName());
         String ovtName = cmlName.replace("eu.compassresearch", "org.overture");
         
         // Dark magic
@@ -124,6 +124,22 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
     private static void warn(String string)
       {
         System.out.println("[WARNING]: " + string);
+      }
+    
+    private static Map<String, String> classNameTranslation;
+    static
+      {
+        classNameTranslation = new HashMap<String, String>();
+        classNameTranslation.put(
+            "eu.compassresearch.ast.expressions.ABooleanLiteralExp",
+            "org.overture.ast.expressions.ABooleanConstExp");
+      }
+    
+    private static String lookupName(String name)
+      {
+        if (classNameTranslation.containsKey(name))
+          return classNameTranslation.get(name);
+        return name;
       }
     
     @Override
@@ -217,7 +233,7 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
         return res;
       }
     
-    private Object translate(Object cmlGetterRes) throws AnalysisException
+    public Object translate(Object cmlGetterRes) throws AnalysisException
       {
         
         if (cmlGetterRes == null)
@@ -270,10 +286,34 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
               return convertLexRealToken((eu.compassresearch.ast.lex.LexRealToken) cmlGetterRes);
             if (eu.compassresearch.ast.lex.LexStringToken.class == cmlClz)
               return convertLexStringLiteral((eu.compassresearch.ast.lex.LexStringToken) cmlGetterRes);
-            
+            if (eu.compassresearch.ast.expressions.ABooleanLiteralExp.class == cmlClz)
+              return convertBooleanExpression((eu.compassresearch.ast.expressions.ABooleanLiteralExp) cmlGetterRes);
+            if (eu.compassresearch.ast.lex.LexBooleanToken.class == cmlClz)
+              return convertLexBooleanToken((eu.compassresearch.ast.lex.LexBooleanToken) cmlGetterRes);
             else
               return defaultINode((eu.compassresearch.ast.node.INode) cmlGetterRes);
           }
+      }
+    
+    private Object convertLexBooleanToken(
+        eu.compassresearch.ast.lex.LexBooleanToken cmlGetterRes)
+        throws AnalysisException
+      {
+        org.overture.ast.lex.LexBooleanToken tok = new org.overture.ast.lex.LexBooleanToken(
+            cmlGetterRes.value, (LexLocation) translate(cmlGetterRes.location));
+        return tok;
+      }
+    
+    private Object convertBooleanExpression(ABooleanLiteralExp cmlGetterRes)
+        throws AnalysisException
+      {
+        LexLocation loc = convertLexLocation(cmlGetterRes.getLocation());
+        eu.compassresearch.ast.lex.LexBooleanToken value = cmlGetterRes
+            .getValue();
+        org.overture.ast.expressions.ABooleanConstExp res = new ABooleanConstExp(
+            loc, (LexBooleanToken) translate(value));
+        
+        return res;
       }
     
     private org.overture.ast.lex.LexStringToken convertLexStringLiteral(
