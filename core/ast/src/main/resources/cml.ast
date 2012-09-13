@@ -123,11 +123,6 @@ definition {-> package='eu.compassresearch.ast.definitions'}
     		[localState]: declaration*
 	     	[process]: process
     |   {renamed}  (def):definition 
-    |   {state} 
-    		[fields]:field.field* 
-            [invPattern]:pattern [invExpression]:exp (invdef):definition.#function.explicit
-            [initPattern]:pattern [initExpression]:exp (initdef):definition.#function.explicit
-            (stateDefs):definition* 
     //Why does the type definition take inv pattern and expression and not just the inv definition which containts them both??
     |   {type} 
     		(invType):type.#invariant 
@@ -177,6 +172,11 @@ definition {-> package='eu.compassresearch.ast.definitions'}
  	   		[valueDefinitions]: definition*
  	   | {initial} 
  	   		[operationDefinition]: definition
+ 	   | {state} 
+    		[fields]:field.field* 
+            [invPattern]:pattern [invExpression]:exp (invdef):definition.#function.explicit
+            [initPattern]:pattern [initExpression]:exp (initdef):definition.#function.explicit
+            (stateDefs):definition* 
 	   ;
     
 #operation {-> package='eu.compassresearch.ast.definitions'}
@@ -190,7 +190,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                             (predef):definition.#function.explicit
                             (postdef):definition.#function.explicit
                             (paramDefinitions):definition*
-                            (state):definition.state
+                            (state):definition.#paragraph.state
                             
                             (actualResult):type
                             [isConstructor]:java_Boolean
@@ -206,7 +206,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                             (type):type.operation
                             (predef):definition.#function.explicit
                             (postdef):definition.#function.explicit
-                            (state):definition.state
+                            (state):definition.#paragraph.state
                             (actualResult):type
                             (stateDefinition):definition
                             [isConstructor]:java_Boolean    
@@ -290,16 +290,16 @@ exp {-> package='eu.compassresearch.ast.expressions'}
     |   {new} [className]:LexIdentifierToken [args]:exp* (classdef):definition.#paragraph.class (ctorDefinition):definition
     |   {nil} 
     |   {notYetSpecified} 
-    |   {postOp} [opname]:LexNameToken (preexpression):exp (postexpression):exp (errors):case.error* (state):definition.state [errorLocation]:location
+    |   {postOp} [opname]:LexNameToken (preexpression):exp (postexpression):exp (errors):case.error* (state):definition.#paragraph.state [errorLocation]:location
     |   {pre} [function]:exp [args]:exp*
-    |   {preOp} [opname]:LexNameToken (expression):exp  (errors):case.error* (state):definition.state
+    |   {preOp} [opname]:LexNameToken (expression):exp  (errors):case.error* (state):definition.#paragraph.state
     |   {sameBaseClass} [left]:exp [right]:exp
     |   {sameClass} [left]:exp [right]:exp
     |   {self} [name]:LexNameToken
     |   #Seq
     |   #Set
     |   #literal
-    |   {stateInit} (state):definition.state  
+    |   {stateInit} (state):definition.#paragraph.state  
     |   {subclassResponsibility} 
     |   {subseq} [seq]:exp [from]:exp [to]:exp (ftype):type (ttype):type
     |   {tuple} [args]:exp* (types):type*
@@ -448,6 +448,7 @@ type {-> package='eu.compassresearch.ast.types'}
     |   {valueParagraph} // marker stipulating that a Values paragraph is typed ok
     |   {functionParagraph} // marker stipulating that a Function Paragraph is typed ok
     |   {operationParagraph} // marker stipulating that a Function Paragraph is typed ok
+    |   {stateParagraph} // marker stipulating that a state Paragraph is typed ok
     |   {source} // marker stipulating a source was typed ok
     |   {bracket} (type):type
     |   {channel} (type):type

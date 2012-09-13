@@ -1,5 +1,6 @@
 package eu.compassresearch.transformation;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -197,7 +198,8 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
       {
         LexLocation res = null;
         eu.compassresearch.ast.lex.LexLocation cmlLoc = (eu.compassresearch.ast.lex.LexLocation) node;
-        res = new LexLocation(cmlLoc.file, cmlLoc.module, cmlLoc.startLine,
+        //FIXME file
+        res = new LexLocation(cmlLoc.file==null?new File("null"):cmlLoc.file, cmlLoc.module, cmlLoc.startLine,
             cmlLoc.startPos, cmlLoc.endLine, cmlLoc.endPos, cmlLoc.startOffset,
             cmlLoc.endOffset);
         return res;
@@ -360,6 +362,10 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
             .get(cmlGetterRes.getName());
         varExp
             .setVardef((org.overture.ast.definitions.PDefinition) translate(lookedupDef));
+                
+        varExp.setOriginal(varExp.getName().name);
+        varExp.setLocation(convertLexLocation(cmlGetterRes.getName().getLocation()));
+        
         return varExp;
       }
     

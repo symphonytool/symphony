@@ -10,13 +10,13 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
-import eu.compassresearch.core.interpreter.runtime.Context;
+import eu.compassresearch.core.interpreter.runtime.CMLContext;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
 public class ProcessThread implements Runnable, CMLProcess {
 	
 	private AStateProcess process;
-	private Context context;
+	private CMLContext context;
 	private final Thread t;
 	private CmlEvaluator evalutor = new CmlEvaluator();
 	private PAction currentAction;
@@ -24,7 +24,7 @@ public class ProcessThread implements Runnable, CMLProcess {
 	private SynchronousQueue<List<ACommunicationAction>> offeredEventsChannel = new SynchronousQueue<List<ACommunicationAction>>();
 	private SynchronousQueue<ACommunicationAction> recievedEvent = new SynchronousQueue<ACommunicationAction>();
 	
-	public ProcessThread(Context context, AStateProcess process)
+	public ProcessThread(CMLContext context, AStateProcess process)
 	{
 		this.context = context;
 		this.process = process;

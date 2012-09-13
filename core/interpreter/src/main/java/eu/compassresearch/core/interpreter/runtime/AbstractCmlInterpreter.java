@@ -25,15 +25,15 @@ import eu.compassresearch.core.typechecker.Environment;
 
 
 public abstract class AbstractCmlInterpreter extends
-		QuestionAnswerAdaptor<Context, Value> implements CmlInterpreter {
+		QuestionAnswerAdaptor<CMLContext, Value> implements CmlInterpreter {
 
 	protected List<PSource> sourceForest;
 	protected String defaultProcess;
 	
 	@Override
-	public Context getInitialContext() {
+	public CMLContext getInitialContext(LexLocation location) {
 				
-		Context context = new Context();
+		CMLContext context = new CMLContext(location);
 		//TODO: Initialize all global value definitions and put them into the initial context
 				
 		return context;
@@ -82,7 +82,7 @@ public abstract class AbstractCmlInterpreter extends
 	}
 	
 	@Override
-	public Value evaluate(String line, Context ctxt) throws Exception {
+	public Value evaluate(String line, CMLContext ctxt) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}

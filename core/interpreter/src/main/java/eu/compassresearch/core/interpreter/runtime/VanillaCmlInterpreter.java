@@ -56,7 +56,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter {
     	
     	CmlRuntime.setGlobalEnvironment(env);
     	//This constructs the runtime process structure from the AST
-    	ProcessValue pv = (ProcessValue)processDef.getProcess().apply(this.evalutor,getInitialContext());
+    	ProcessValue pv = (ProcessValue)processDef.getProcess().apply(this.evalutor,getInitialContext(processDef.getLocation()));
     	//Wrap the top process in an InstantiatedProcess
     	InstantiatedProcess instantProcess = new InstantiatedProcess(processDef, pv.getProcess());
     	    	

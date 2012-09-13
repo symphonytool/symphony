@@ -34,7 +34,7 @@ public interface CmlInterpreter
 	 * Get a string version of the environment.
 	 */
 
-	public Context getInitialContext();
+	public CMLContext getInitialContext(LexLocation location);
 
 	/**
 	 * Get the global environment.
@@ -119,7 +119,7 @@ public interface CmlInterpreter
 	 * @throws Exception Parser or runtime errors.
 	 */
 
-	abstract public Value evaluate(String line, Context ctxt) throws Exception;
+	abstract public Value evaluate(String line, CMLContext ctxt) throws Exception;
 
 	/**
 	 * @return The list of breakpoints currently set.

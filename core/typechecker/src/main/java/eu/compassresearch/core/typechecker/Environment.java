@@ -10,7 +10,6 @@ import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.typechecker.NameScope;
 
-import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexLocation;
@@ -49,18 +48,7 @@ public class Environment
         this.map = new HashMap<LexIdentifierToken, PDefinition>();
         this.channelMap = new HashMap<LexIdentifierToken, PType>();
       }
-    
-    public Set<String> getGlobalChannelNames()
-    {    	    
-    	Set<String> r = new HashSet<String>();
-    	
-    	for(LexIdentifierToken id : this.channelMap.keySet())
-    		r.add(id.getName());
-    	
-    	return r;
-    }
-    
-    
+           
     /**
      * Lookup the given identifier/name to find its definition.
      * 
@@ -97,6 +85,16 @@ public class Environment
       channelMap.put(name, type);
     }
     
+    public Set<String> getGlobalChannelNames()
+    {    	    
+    	Set<String> r = new HashSet<String>();
+    	
+    	for(LexIdentifierToken id : this.channelMap.keySet())
+    		r.add(id.getName());
+    	
+    	return r;
+    }
+    
     private static org.overture.ast.definitions.PDefinition translateDefinition(
         PDefinition cmlDef)
       {
@@ -113,10 +111,23 @@ public class Environment
           }
       }
     
+    public static LexLocation translateLexLocation(
+    		org.overture.ast.lex.LexLocation ovtLocation)
+          {
+            return new LexLocation(ovtLocation.file, 
+            						ovtLocation.module, 
+            					   ovtLocation.startLine, 
+            					   ovtLocation.startPos, 
+            					   ovtLocation.endLine, 
+            					   ovtLocation.endPos, 
+            					   ovtLocation.startOffset, 
+            					   ovtLocation.endOffset);
+          }
+    
     private PDefinition lookupFromOvtName(LexNameToken name)
       {
         boolean old = false;
-        LexLocation location = null;
+        LexLocation location = translateLexLocation(name.location);
         String stringName = name.getName();
         LexIdentifierToken id = new LexIdentifierToken(stringName, old,
             location);

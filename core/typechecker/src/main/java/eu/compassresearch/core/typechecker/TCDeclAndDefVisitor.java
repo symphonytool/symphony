@@ -24,6 +24,7 @@ import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
 import eu.compassresearch.ast.definitions.ALocalDefinition;
 import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
+import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.definitions.PDefinition;
@@ -43,6 +44,7 @@ import eu.compassresearch.ast.types.AFunctionType;
 import eu.compassresearch.ast.types.AOperationParagraphType;
 import eu.compassresearch.ast.types.AOperationType;
 import eu.compassresearch.ast.types.AProcessParagraphType;
+import eu.compassresearch.ast.types.AStateParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.transformation.CmlAstToOvertureAst;
@@ -173,6 +175,22 @@ public class TCDeclAndDefVisitor extends
         return node.getType();
       }
     
+    @Override
+    public PType caseAStateParagraphDefinition(AStateParagraphDefinition node,
+    		TypeCheckInfo question) throws AnalysisException {
+    	
+    	//Go through all the state defs and typecheck them
+    	for(PDefinition def : node.getStateDefs())
+        {
+          def.apply(this, question);
+          question.env.put(def.getName(), def);
+        }
+    	
+    	node.setType(new AStateParagraphType());
+    	
+    	return node.getType();
+    }
+    
     /**
      * A process paragraph is well typed if all its constituents are.
      * 
@@ -216,6 +234,11 @@ public class TCDeclAndDefVisitor extends
     	ctype.setType(node.getType());
     	node.setType(new AChannelType());
     	
+    	for(LexIdentifierToken id : node.getIdentifiers())
+    	{
+    		question.env.putChannel(id, ctype);
+    	}
+    	
     	return node.getType();
     }
     
@@ -228,7 +251,7 @@ public class TCDeclAndDefVisitor extends
     	for (AChannelNameDeclaration decl : cns)
     	{
     		decl.getSingleType().apply(this,question); 
-
+    		//question.env.putChannel(decl.getSingleType().g, type)
     		//PType typeBack = decl.apply(this, question);
 
     		//    		if (typeBack == null)

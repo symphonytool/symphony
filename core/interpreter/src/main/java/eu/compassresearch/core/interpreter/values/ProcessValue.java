@@ -7,12 +7,12 @@ import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.core.interpreter.runtime.Context;
+import eu.compassresearch.core.interpreter.runtime.CMLContext;
 import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
 
 public class ProcessValue extends Value {
 
-	private Context currentContext = null;
+	private CMLContext currentContext = null;
 	private List<ACommunicationAction> offeredEvents = new LinkedList<ACommunicationAction>();
 	private CMLProcess process = null;
 	public  NameValuePairMap members = new NameValuePairMap();	
@@ -20,13 +20,13 @@ public class ProcessValue extends Value {
 	public ProcessValue()
 	{}
 	
-	public ProcessValue(List<ACommunicationAction> availableEvents, Context currentContext)
+	public ProcessValue(List<ACommunicationAction> availableEvents, CMLContext currentContext)
 	{
 		this.offeredEvents = availableEvents;
 		this.currentContext = currentContext;
 	}
 	
-	public ProcessValue(ACommunicationAction availableEvent, Context currentContext)
+	public ProcessValue(ACommunicationAction availableEvent, CMLContext currentContext)
 	{
 		this.offeredEvents = new LinkedList<ACommunicationAction>();
 		this.offeredEvents.add(availableEvent);
@@ -34,13 +34,13 @@ public class ProcessValue extends Value {
 		
 	}
 		
-	public ProcessValue(CMLProcess process, Context currentContext)
+	public ProcessValue(CMLProcess process, CMLContext currentContext)
 	{
 		this.process = process;
 		this.currentContext = currentContext;	
 	}
 	
-	public Context getCurrentContext() {
+	public CMLContext getCurrentContext() {
 		return currentContext;
 	}
 	

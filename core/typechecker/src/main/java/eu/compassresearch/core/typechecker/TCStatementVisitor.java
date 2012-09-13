@@ -1,7 +1,9 @@
 package eu.compassresearch.core.typechecker;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
+import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
+import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
@@ -59,5 +61,44 @@ public class TCStatementVisitor extends
         
         return node.getType();
       }
+    
+    @Override
+    public PType caseASingleGeneralAssignmentStatementAction(
+    		ASingleGeneralAssignmentStatementAction node, TypeCheckInfo question)
+    		throws AnalysisException {
+
+    	//FIXME Some scope stuff is not correct when typechecking let exp
+//    	PType expType = node.getExpression().apply(parentChecker, question);
+//    	if (expType == null)
+//            throw new AnalysisException(
+//                "Unable to type check expression in assignment action.");
+    	
+    	PType stateDesignatorType = node.getStateDesignator().apply(parentChecker, question);
+//  TODO This is not implemented yet
+//    	if (stateDesignatorType == null)
+//            throw new AnalysisException(
+//                "Unable to type check state designator in assignment action.");
+    	
+    	node.setType(new AStatementType());
+    	
+    	return node.getType();
+    }
+    
+    @Override
+    public PType caseACommunicationAction(ACommunicationAction node,
+    		TypeCheckInfo question) throws AnalysisException {
+    	
+    	//There should be a channel defined with this name
+    	if(!question.env.getGlobalChannelNames().contains(node.getIdentifier().getName()))
+    		throw new AnalysisException(
+                    "No channel with name '" + node.getIdentifier() + "' is defined");
+    	
+    	node.getAction().apply(this,question);
+    	
+    	//TODO there is no type field on a general action
+    	//node.setType
+    	
+    	return new AStatementType();
+    }
     
   }
