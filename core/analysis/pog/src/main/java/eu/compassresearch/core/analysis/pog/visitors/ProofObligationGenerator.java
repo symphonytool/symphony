@@ -27,11 +27,11 @@ import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.expressions.PExp;
-import eu.compassresearch.ast.expressions.PStm;//???
+//import eu.compassresearch.ast.expressions.PStm;//???
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.parser.CmlParser;
+//import eu.compassresearch.core.parser.CmlParser; CAN'T FIND PARSER PACKAGE     
 //import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
 //import eu.compassresearch.ast.node.INode;
 //import eu.compassresearch.ast.lex.LexLocation;
@@ -47,8 +47,10 @@ import eu.compassresearch.core.analysis.pog.obligations.ProofObligation;
 public class ProofObligationGenerator extends 
 				QuestionAnswerAdaptor<POContextStack, ProofObligationList>
 {
-    private final static String ANALYSIS_NAME = "Proof Obligation Generator";
+    private final static String ANALYSIS_NAME = "Proof Obligation Generator1";
      
+    private List<PSource> sourceForest;
+    
     // ---------------------------------------------
     // -- Proof Obligation Generator State
     // ---------------------------------------------
@@ -61,6 +63,7 @@ public class ProofObligationGenerator extends
     
     private void initialize()
     {
+        System.out.println( "177");
         exp = new POGExpressionVisitor(this);
         stm = new POGStatementVisitor(this);
         dad = new POGDeclAndDefVisitor(this);
@@ -73,6 +76,7 @@ public class ProofObligationGenerator extends
     public ProofObligationList defaultPDeclaration(PDeclaration node, POContextStack question)
         throws AnalysisException
       {
+        System.out.println( "da1");
         return node.apply(this.dad, question);
       }
     
@@ -80,6 +84,7 @@ public class ProofObligationGenerator extends
     public ProofObligationList defaultPDefinition(PDefinition node, POContextStack question)
         throws AnalysisException
       {
+        System.out.println( "da1");
         return node.apply(this.dad, question);
       }
     
@@ -87,6 +92,7 @@ public class ProofObligationGenerator extends
     public ProofObligationList defaultPExp(PExp node, POContextStack question)
         throws AnalysisException
       {
+        System.out.println( "ex1");
         return node.apply(exp, question);
       }
     
@@ -94,17 +100,18 @@ public class ProofObligationGenerator extends
     public ProofObligationList defaultPAction(PAction node, POContextStack question)
         throws AnalysisException
       {
+        System.out.println( "st1");
         return node.apply(stm, question);
       }
       
       
     // FROM OVERTURE POG
-    @Override
-	public ProofObligationList defaultPStm(PStm node, POContextStack question)
-        throws AnalysisException
-	{
-		return node.apply(stm, question);
-	}
+    //@Override
+	//public ProofObligationList defaultPStm(PStm node, POContextStack question)
+    //    throws AnalysisException
+	//{
+	//	return node.apply(stm, question);
+	//}
       
 	// ---------------------------------------------
     // -- Public API to CML POG
@@ -130,8 +137,11 @@ public class ProofObligationGenerator extends
      */
     public ProofObligationGenerator(List<PSource> cmlSources)
     {
+        System.out.println( "ss1");
         initialize();
-        this.sourceForest = cmlSources;
+        this.sourceForest = cmlSources; 
+        System.out.println( "ProofObligationGenerator constructore - single source");
+
     }
     
     /**
@@ -142,9 +152,11 @@ public class ProofObligationGenerator extends
      */
     public ProofObligationGenerator(PSource singleSource)
     {
+        System.out.println( "ms1");
         initialize();
         this.sourceForest = new LinkedList<PSource>();
         this.sourceForest.add(singleSource);
+        System.out.println( "ProofObligationGenerator constructore - many source");
     }
 
 	/**
@@ -155,6 +167,7 @@ public class ProofObligationGenerator extends
      */
     public ProofObligationList generatePOs()
       {
+        System.out.println( "5");
         ProofObligationList obligations = new ProofObligationList();
 		
 		POContextStack ctxt = new POContextStack();
@@ -167,24 +180,25 @@ public class ProofObligationGenerator extends
             {
                 try
                 {
-                	ctxt.push(new PONameContext(getVariableNames(d)));
-                    obligations.addAll(paragraph.apply(this, ctxt));
-					ctxt.pop();
+                	paragraph.apply(this, ctxt);
+                	//ctxt.push(new PONameContext(getVariableNames(d)));
+                    //obligations.addAll(paragraph.apply(this, ctxt));
+					//ctxt.pop();
                 } 
                 catch (AnalysisException ae)
                 {
                   	// This means we have a bug in the type checker
-                  	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    ae.printStackTrace(new PrintStream(baos));
-                    errors.add(new CMLTypeError(s,
-                        "The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n"
-                               + new String(baos.toByteArray())));
+                  	//ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    //ae.printStackTrace(new PrintStream(baos));
+                    //errors.add(new CMLTypeError(s,
+                       System.out.println( "The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
+                    //          + new String(baos.toByteArray())));
                     return null;
                   }
               }
           }
 		       
-		System.out.println(obligations.size() + "Proof Obligations generated");
+		System.out.println(obligations.size() + " Proof Obligations generated");
 		return obligations;
       }
 
@@ -199,6 +213,7 @@ public class ProofObligationGenerator extends
     // to create both parser and lexer.
     private static PSource prepareSource(File f)
       {
+        System.out.println( "1");
         if (f == null)
           {
             AInputStreamSource iss = new AInputStreamSource();
@@ -222,18 +237,18 @@ public class ProofObligationGenerator extends
      */
     private static void runOnFile(File f) throws IOException
       {
+        System.out.println( "2");
         // set file name
         PSource source = prepareSource(f);
         
         // Call factory method to build parser and lexer
-        CmlParser parser = CmlParser.newParserFromSource(source);
-        
+        //CmlParser parser = CmlParser.newParserFromSource(source); CAN'T FIND PARSER PACKAGE        
         // Run the parser and lexer and report errors if any
-        if (!parser.parse())
-          {
-            System.out.println("Failed to parse: " + source.toString());
-            return;
-          }
+        //if (!parser.parse())
+        //  {
+        //    System.out.println("Failed to parse: " + source.toString());
+        //    return;
+        //  }
         
         // generate POs
         ProofObligationGenerator cmlPOG = new ProofObligationGenerator(source);
@@ -249,6 +264,7 @@ public class ProofObligationGenerator extends
      */
     public static void main(String[] args) throws IOException
       {
+        System.out.println( "3");
         File cml_examples = new File("../../docs/cml-examples");
         int failures = 0;
         int successes = 0;

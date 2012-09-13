@@ -1,15 +1,22 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
+import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.PDefinition;
+
+
+import eu.compassresearch.core.analysis.pog.obligations.MapApplyObligation;
+import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
+import eu.compassresearch.core.analysis.pog.obligations.POContext;
+import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.ProofObligation;
 // import java.util.LinkedList;
 // import java.util.List;
 // 
 // import org.overture.parser.messages.VDMError;
 // 
 // import eu.compassresearch.ast.actions.SStatementAction;
-// import eu.compassresearch.ast.analysis.AnalysisException;
 // import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 // import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
 // import eu.compassresearch.ast.definitions.AActionDefinition;
