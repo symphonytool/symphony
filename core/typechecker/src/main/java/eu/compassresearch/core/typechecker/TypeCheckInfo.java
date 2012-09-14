@@ -1,5 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -14,10 +15,15 @@ import org.overture.ast.typechecker.NameScope;
 import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
+import eu.compassresearch.ast.lex.LexLocation;
+import eu.compassresearch.ast.node.INode;
 import eu.compassresearch.ast.types.AIntNumericBasicType;
 import eu.compassresearch.ast.types.ANatNumericBasicType;
 import eu.compassresearch.ast.types.ANatOneNumericBasicType;
+import eu.compassresearch.ast.types.ARationalNumericBasicType;
+import eu.compassresearch.ast.types.ARealNumericBasicType;
 import eu.compassresearch.ast.types.PType;
+import eu.compassresearch.ast.types.SBasicType;
 
 /**
  * TypeCheckInfo tracks the three scopes we care about in CML. These are
@@ -33,23 +39,29 @@ import eu.compassresearch.ast.types.PType;
 public class TypeCheckInfo implements TypeCheckQuestion
   {
     
+    public final String                     CML_SCOPE     = "CML";
+    public final String                     DEFAULT_SCOPE = "Default";
+    
     private final Environment<PDefinition>  variables;
     private final Environment<PType>        types;
     private final Environment<PDeclaration> channels;
     
+    private final PDefinition               enclosingDefinition;
+    
     private TypeCheckInfo(Environment<PDefinition> vars,
-        Environment<PType> types, Environment<PDeclaration> channels)
+        Environment<PType> types, Environment<PDeclaration> channels,
+        PDefinition enclosingDefinition)
       {
         this.variables = new Environment<PDefinition>(vars);
         this.types = new Environment<PType>(types);
         this.channels = new Environment<PDeclaration>(channels);
+        this.enclosingDefinition = enclosingDefinition;
       }
     
     public TypeCheckInfo()
       {
-        variables = new Environment<PDefinition>();
-        types = new Environment<PType>();
-        channels = new Environment<PDeclaration>();
+        this(new Environment<PDefinition>(), new Environment<PType>(),
+            new Environment<PDeclaration>(), null);
       }
     
     @Override
@@ -89,11 +101,12 @@ public class TypeCheckInfo implements TypeCheckQuestion
       }
     
     @Override
-    public TypeCheckQuestion newScope()
+    public TypeCheckQuestion newScope(PDefinition def)
       {
         // Variables are scoped, types and channels are global (for now at
         // least)
-        TypeCheckInfo res = new TypeCheckInfo(this.variables, types, channels);
+        TypeCheckInfo res = new TypeCheckInfo(this.variables, types, channels,
+            def);
         return res;
       }
     
@@ -185,6 +198,12 @@ public class TypeCheckInfo implements TypeCheckQuestion
             Arrays.asList(new Class<?>[] { ANatNumericBasicType.class }));
         fixedSubTypeRelations.put(ANatNumericBasicType.class,
             Arrays.asList(new Class<?>[] { ANatOneNumericBasicType.class }));
+        fixedSubTypeRelations.put(ARationalNumericBasicType.class,
+            Arrays.asList(new Class<?>[] { AIntNumericBasicType.class }));
+        fixedSubTypeRelations.put(
+            ARealNumericBasicType.class,
+            Arrays.asList(new Class<?>[] { AIntNumericBasicType.class,
+        ARationalNumericBasicType.class }));
       }
     
     private static boolean checkClosureOnFixedTypeRelation(Class<?> top,
@@ -210,6 +229,96 @@ public class TypeCheckInfo implements TypeCheckQuestion
         return first.getClass() == second.getClass()
             || checkClosureOnFixedTypeRelation(second.getClass(),
                 first.getClass());
+      }
+    
+    @Override
+    public void updateContextNameToCurrentScope(INode n)
+      {
+        
+        if (n instanceof PType)
+          {
+            updateLocationToCurrentScope((PType) n);
+            return;
+          }
+        
+        updateLocationdAttr(n);
+        updateNameAttr(n);
+      }
+    
+    private void updateNameAttr(INode n)
+      {
+        if (enclosingDefinition != null)
+          try
+            {
+              Class<?> clz = n.getClass();
+              Method getLocation = clz.getMethod("getName", new Class<?>[0]);
+              eu.compassresearch.ast.lex.LexNameToken loc = (eu.compassresearch.ast.lex.LexNameToken) getLocation
+                  .invoke(n, new Object[0]);
+              Method setLocation = clz.getMethod("setName",
+                  new Class<?>[] { LexLocation.class });
+              setLocation.invoke(n,
+                  newNameModule(loc, enclosingDefinition.getName().name));
+            } catch (Exception e)
+            {
+            }
+      }
+    
+    private Object newNameModule(eu.compassresearch.ast.lex.LexNameToken nme,
+        String name)
+      {
+        if (enclosingDefinition != null)
+          {
+            String module = enclosingDefinition.getName().name;
+            LexIdentifierToken id = nme.getIdentifier();
+            nme = new eu.compassresearch.ast.lex.LexNameToken(module, id);
+          }
+        return nme;
+      }
+    
+    private void updateLocationdAttr(INode n)
+      {
+        if (enclosingDefinition != null)
+          try
+            {
+              Class<?> clz = n.getClass();
+              Method getLocation = clz
+                  .getMethod("getLocation", new Class<?>[0]);
+              LexLocation loc = (LexLocation) getLocation.invoke(n,
+                  new Object[0]);
+              Method setLocation = clz.getMethod("setLocation",
+                  new Class<?>[] { LexLocation.class });
+              setLocation.invoke(n,
+                  newLocationModule(loc, enclosingDefinition.getName().name));
+            } catch (Exception e)
+            {
+              System.out.println(e.getMessage());
+            }
+        
+      }
+    
+    private void updateLocationToCurrentScope(PType typ)
+      {
+        LexLocation loc = typ.getLocation();
+        
+        if (typ instanceof SBasicType)
+          {
+            typ.setLocation(newLocationModule(loc, CML_SCOPE));
+            return;
+          }
+        
+        if (enclosingDefinition == null)
+          return;
+        
+        typ.setLocation(newLocationModule(loc,
+            enclosingDefinition.getName().name));
+        
+      }
+    
+    private LexLocation newLocationModule(LexLocation loc, String newModule)
+      {
+        return new LexLocation(loc.file, newModule, loc.startLine,
+            loc.startPos, loc.endLine, loc.endPos, loc.startOffset,
+            loc.endOffset);
       }
     
   }

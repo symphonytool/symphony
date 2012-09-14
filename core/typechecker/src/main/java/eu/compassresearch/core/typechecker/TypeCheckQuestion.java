@@ -4,6 +4,7 @@ import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
+import eu.compassresearch.ast.node.INode;
 import eu.compassresearch.ast.types.PType;
 
 public interface TypeCheckQuestion
@@ -65,9 +66,22 @@ public interface TypeCheckQuestion
      * Create a new scope. This only affects the variables evironment types and
      * channels are global.
      * 
+     * @param surroundingDefinition
+     *          - The definition that defines and encapsulates this scope
      * @return
      */
-    public abstract TypeCheckQuestion newScope();
+    public abstract TypeCheckQuestion newScope(PDefinition surroundingDefinition);
+    
+    /**
+     * Takes an INode and set the module parameter to the current scope. The
+     * top-level scope for CML should be hardcoded to "Default" and a special
+     * scope named CML should be enforced for language specific constructs like
+     * basic types. For example basic types exists in the CML namespace thus we
+     * have CML`int, CML`bool etc...
+     * 
+     * @param treenode
+     */
+    public abstract void updateContextNameToCurrentScope(INode treenode);
     
     /**
      * Translate this environment to an appropriate Overture environment for
@@ -102,7 +116,6 @@ public interface TypeCheckQuestion
      * 
      * @param first
      * @param second
-     * @return
      */
     public abstract boolean isFirstSubTypeOfSecond(PType first, PType second);
   }

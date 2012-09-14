@@ -14,6 +14,7 @@ import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.node.INode;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
@@ -31,6 +32,8 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
     private IQuestionAnswer<TypeCheckQuestion, PType> exp;
     private IQuestionAnswer<TypeCheckQuestion, PType> stm;
     private IQuestionAnswer<TypeCheckQuestion, PType> dad;
+    private IQuestionAnswer<TypeCheckQuestion, PType> typ;       // basic type
+                                                                  // checker
     private boolean                                   lastResult;
     
     private void initialize()
@@ -38,15 +41,34 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
         exp = new TCExpressionVisitor(this);
         stm = new TCStatementVisitor(this);
         dad = new TCDeclAndDefVisitor(this);
+        typ = new TCTypeVisitor(this);
       }
     
     // ---------------------------------------------
     // -- Dispatch to sub-checkers
     // ---------------------------------------------
+    
+    @Override
+    public PType defaultPType(PType node, TypeCheckQuestion question)
+        throws AnalysisException
+      {
+        question.updateContextNameToCurrentScope(node);
+        return node.apply(typ, question);
+      }
+    
+    @Override
+    public PType defaultINode(INode node, TypeCheckQuestion question)
+        throws AnalysisException
+      {
+        question.updateContextNameToCurrentScope(node);
+        return super.defaultINode(node, question);
+      }
+    
     @Override
     public PType defaultPDeclaration(PDeclaration node,
         TypeCheckQuestion question) throws AnalysisException
       {
+        question.updateContextNameToCurrentScope(node);
         return node.apply(this.dad, question);
       }
     
@@ -54,6 +76,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
     public PType defaultPDefinition(PDefinition node, TypeCheckQuestion question)
         throws AnalysisException
       {
+        question.updateContextNameToCurrentScope(node);
         return node.apply(this.dad, question);
       }
     
@@ -61,6 +84,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
     public PType defaultPExp(PExp node, TypeCheckQuestion question)
         throws AnalysisException
       {
+        question.updateContextNameToCurrentScope(node);
         return node.apply(exp, question);
       }
     
@@ -68,6 +92,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
     public PType defaultPAction(PAction node, TypeCheckQuestion question)
         throws AnalysisException
       {
+        question.updateContextNameToCurrentScope(node);
         return node.apply(stm, question);
       }
     

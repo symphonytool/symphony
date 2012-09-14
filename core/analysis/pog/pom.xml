@@ -22,7 +22,19 @@
 
     <dependency>
       <groupId>org.overturetool.core</groupId>
-      <artifactId>ast-stripped</artifactId>
+      <artifactId>ast</artifactId>
+      <version>${overture.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.overturetool.core</groupId>
+      <artifactId>typechecker</artifactId>
+      <version>${overture.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.overturetool.core</groupId>
+      <artifactId>pog</artifactId>
       <version>${overture.version}</version>
     </dependency>
 

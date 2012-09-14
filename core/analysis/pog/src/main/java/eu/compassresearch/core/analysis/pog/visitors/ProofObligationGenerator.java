@@ -14,7 +14,7 @@ import eu.compassresearch.core.analysis.pog.obligations.*;
 /**
  * Core stuff needed in this simple analysis.
  */
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 //import org.overture.ast.expressions.ADivideNumericBinaryExp;
 //import org.overture.ast.declarations.ATypeDeclaration;
 import org.overture.ast.lex.LexLocation;
@@ -88,8 +88,9 @@ public class ProofObligationGenerator extends QuestionAnswerAdaptor<POContextSta
     /**
      * Test Method to acquire the result produced by this analysis.
      */
-//    public void getResults()
-//    {
+    public void getResults()
+    {
+    }
   //  	System.out.println("   Generation complete. Results:");
  //   	for(String s :pos)
 // 		{

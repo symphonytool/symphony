@@ -58,7 +58,7 @@
 	<!-- POG Analysis -->
     <dependency>
       <groupId>eu.compassresearch.core.analysis</groupId>
-      <artifactId>proofobligationgenerator</artifactId>
+      <artifactId>pog</artifactId>
       <version>${project.version}</version>
     </dependency>
 

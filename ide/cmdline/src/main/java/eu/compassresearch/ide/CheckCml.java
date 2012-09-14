@@ -20,6 +20,7 @@ import java.io.Reader;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisAdaptor;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
+import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.analysis.intf.IAnalysis; 
 import eu.compassresearch.ast.preview.DotGraphVisitor;
 import eu.compassresearch.core.lexer.CmlLexer;
@@ -30,6 +31,8 @@ import eu.compassresearch.core.typechecker.TypeCheckInfo;
 import eu.compassresearch.core.typechecker.VanillaCmlTypeChecker;
 import eu.compassresearch.examples.DivWarnAnalysis;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
+import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 
@@ -459,7 +462,8 @@ public class CheckCml {
  		AnalysisRunAdaptor r = new AnalysisRunAdaptor(pog) {
  				public void apply(INode root) throws AnalysisException
  				{ 
- 					root.apply( pog ); 
+				    POContextStack question = new POContextStack();
+				    root.apply( (QuestionAnswerAdaptor<POContextStack, ProofObligationList>)pog , question ); 
  				}
  		    };
  		    

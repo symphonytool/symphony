@@ -5,8 +5,9 @@ package eu.compassresearch.core.analysis.pog.visitors;
 //import java.util.List;
 //import java.util.Queue;
 
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.expressions.*;
+import org.overture.ast.types.SMapType;
 import eu.compassresearch.core.analysis.pog.obligations.MapApplyObligation;
 import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
 import eu.compassresearch.core.analysis.pog.obligations.POContext;
@@ -17,8 +18,9 @@ import eu.compassresearch.core.analysis.pog.obligations.ProofObligation;
 
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SMapType;
-import org.overture.ast.types.assistants.PTypeAssistant;//ERROR
-import org.overture.typecheck.TypeComparator;//ERROR
+import org.overture.ast.assistant.type.PTypeAssistant;
+//import org.overture.ast.type.assistants.PTypeAssistant;//ERROR
+import org.overture.typechecker.TypeComparator;//ERROR
 
 public class PogExpVisitor extends
 		QuestionAnswerAdaptor<POContextStack, ProofObligationList>
@@ -32,6 +34,17 @@ public class PogExpVisitor extends
 
 	}
 
+	private boolean isMap(PType type)
+	{
+	    return type instanceof SMapType;
+	}
+
+	private SMapType getMap(PType type)
+	{
+	    return (SMapType)type;
+	}
+
+	/*
 	@Override
 	public ProofObligationList caseAApplyExp(AApplyExp node, POContextStack question)
 	{
@@ -42,10 +55,10 @@ public class PogExpVisitor extends
 
 		// is it a map?
 		PType type = root.getType();
-		if (PTypeAssistant.isMap(type))
+		if (isMap(type))
 		{
 			if (node.getLocation().startLine == 64);
-			SMapType mapType = PTypeAssistant.getMap(type);
+			SMapType mapType = getMap(type);
 			obligations.add(new MapApplyObligation(node.getRoot(), node.getArgs().get(0), question));
 			PType aType = question.checkType(node.getArgs().get(0), node.getArgtypes().get(0));
 		}
@@ -60,11 +73,12 @@ public class PogExpVisitor extends
 		return obligations;
 		
 	}
-
+	*/
+	/*
 	@Override
 	public ProofObligationList defaultPExp(PExp node, POContextStack question)
 	{
 		return new ProofObligationList();
 	}
-
+	*/
 }

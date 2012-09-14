@@ -3,9 +3,6 @@ package eu.compassresearch.core.typechecker;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.overture.parser.messages.VDMError;
-import org.overture.typechecker.visitor.TypeCheckerExpVisitor;
-
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
@@ -38,8 +35,6 @@ import eu.compassresearch.ast.types.AProcessParagraphType;
 import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.ast.types.PType;
-import eu.compassresearch.transformation.CmlAstToOvertureAst;
-import eu.compassresearch.transformation.CopyTypesFromOvtToCmlAst;
 
 @SuppressWarnings("serial")
 public class TCDeclAndDefVisitor extends
@@ -66,7 +61,7 @@ public class TCDeclAndDefVisitor extends
         LinkedList<ATypeDefinition> defs = node.getTypes();
         for (ATypeDefinition d : defs)
           {
-            PType type = d.apply(this, question);
+            PType type = d.apply(parentChecker, question);
             question.addType(d.getName(), type);
           }
         node.setType(new ATypeParagraphType());
@@ -94,17 +89,17 @@ public class TCDeclAndDefVisitor extends
         TypeCheckQuestion question) throws AnalysisException
       {
         // Use Overture to get type for expression
-        PExp exp = runOvertureTypeCheckerOnCmlExpression(node.getExpression(),
-            question);
-        
-        PType declaredType = node.getType();
-        PType expressionType = exp.getType();
+        // runOvertureTypeCheckerOnCmlExpression(node.getExpression(),
+        // question);
+        PExp exp = node.getExpression();
+        PType declaredType = node.getType().apply(parentChecker, question);
+        PType expressionType = exp.apply(parentChecker, question);
         
         // Check type consistency
         if (!question.isFirstSubTypeOfSecond(expressionType, declaredType))
-          parentChecker.addTypeError(exp,
+          parentChecker.addTypeError(node,
               TypeErrorMessages.EXPECTED_SUBTYPE_RELATION.customizeMessage(
-                  declaredType.toString(), expressionType.toString()));
+                  expressionType.toString(), declaredType.toString()));
         
         // No matter the declared type is the type of the definition
         node.setType(declaredType);
@@ -130,17 +125,21 @@ public class TCDeclAndDefVisitor extends
         TypeCheckQuestion question) throws AnalysisException
       {
         
+        // Add this class to the current environment
+        PType clzType = new AClassType();
+        clzType.setDefinitions(node.getDefinitions());
+        node.setType(clzType);
+        
+        // Create scope for the class body
+        TypeCheckQuestion classQuestion = question.newScope(node);
         for (PDefinition def : node.getDefinitions())
           {
-            PType type = def.apply(parentChecker, question);
+            question.updateContextNameToCurrentScope(def);
+            PType type = def.apply(parentChecker, classQuestion);
             if (type == null)
               throw new AnalysisException("Unable to determine type for: "
                   + def);
           }
-        
-        PType clzType = new AClassType();
-        clzType.setDefinitions(node.getDefinitions());
-        node.setType(clzType);
         
         return clzType;
       }
@@ -177,7 +176,7 @@ public class TCDeclAndDefVisitor extends
         
         for (PDefinition def : node.getOperations())
           {
-            PType defType = def.apply(this, question);
+            PType defType = def.apply(parentChecker, question);
             if (defType == null)
               parentChecker.addTypeError(def,
                   TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
@@ -211,7 +210,7 @@ public class TCDeclAndDefVisitor extends
       {
         
         AProcessDefinition pdef = node.getProcessDefinition();
-        pdef.apply(this, question);
+        pdef.apply(parentChecker, question);
         
         // Marker type indicating paragraph type check ok
         node.setType(new AProcessParagraphType());
@@ -229,7 +228,7 @@ public class TCDeclAndDefVisitor extends
         LinkedList<AChannelNameDeclaration> cns = node.getChannelNames();
         for (AChannelNameDeclaration decl : cns)
           {
-            PType typeBack = decl.apply(this, question);
+            PType typeBack = decl.apply(parentChecker, question);
             if (typeBack == null)
               parentChecker.addTypeError(decl,
                   TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
@@ -252,70 +251,6 @@ public class TCDeclAndDefVisitor extends
         org.overture.typechecker.visitor.TypeCheckVisitor
       {
         
-      }
-    
-    /*
-     * Utility method to transform from CmlAst to OvtAst, type check OvtAst copy
-     * the types froom OvtAst and Back to the CmlAst.
-     * 
-     * 
-     * 
-     * @param cml - cml subtree
-     * 
-     * @param nfo - the current environment
-     * 
-     * @return - cml subtree with types
-     * 
-     * @throws AnalysisException - if things goes wrong, like if some tree-node
-     * is named differently in the OveAst than in the CmlAst.
-     * 
-     * @throws org.overture.ast.analysis.AnalysisException
-     */
-    @SuppressWarnings("unchecked")
-    private <T extends PExp> T runOvertureTypeCheckerOnCmlExpression(T cml,
-        TypeCheckQuestion nfo) throws AnalysisException
-      {
-        
-        org.overture.typechecker.TypeChecker.clearErrors();
-        
-        CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
-        org.overture.ast.expressions.PExp ovtNode = (org.overture.ast.expressions.PExp) (cml
-            .apply(transform));
-        org.overture.typechecker.visitor.TypeCheckerExpVisitor exprCheckerExpVisitor = new TypeCheckerExpVisitor(
-            new FakeOvertureRootVisitor());
-        org.overture.typechecker.TypeCheckInfo ovtQuestion = new org.overture.typechecker.TypeCheckInfo(
-            null); // TODO: fix null to be the right env
-        
-        try
-          {
-            ovtNode.apply(exprCheckerExpVisitor, ovtQuestion);
-          } catch (org.overture.ast.analysis.AnalysisException ae)
-          {
-            throw new AnalysisException(ae.getMessage());
-          }
-        
-        if (org.overture.typechecker.TypeChecker.getErrorCount() > 0)
-          {
-            for (VDMError vdme : org.overture.typechecker.TypeChecker
-                .getErrors())
-              parentChecker.addTypeError(cml, vdme.message);
-            cml.setType(new AErrorType());
-            return cml;
-          }
-        
-        CopyTypesFromOvtToCmlAst copier = new CopyTypesFromOvtToCmlAst(
-            transform.getNodeMap());
-        
-        PExp result = cml;
-        try
-          {
-            result = (PExp) ovtNode.apply(copier);
-          } catch (org.overture.ast.analysis.AnalysisException ae)
-          {
-            throw new AnalysisException(ae.getMessage());
-          }
-        
-        return (T) result;
       }
     
     @Override
@@ -377,7 +312,7 @@ public class TCDeclAndDefVisitor extends
           }
         
         // setup local environment
-        TypeCheckQuestion functionBodyEnv = current.newScope();
+        TypeCheckQuestion functionBodyEnv = current.newScope(funDef);
         
         // add formal arguments to the environment
         int i = 0;
@@ -416,7 +351,7 @@ public class TCDeclAndDefVisitor extends
         TypeCheckQuestion newQuestion = createEnvironmentWithFormals(question,
             node);
         PExp body = node.getBody();
-        runOvertureTypeCheckerOnCmlExpression(body, newQuestion);
+        body.apply(parentChecker, newQuestion);
         if (body.getType() == null)
           parentChecker.addTypeError(body,
               TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node

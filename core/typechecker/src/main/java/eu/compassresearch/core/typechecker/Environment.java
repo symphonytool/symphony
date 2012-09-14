@@ -80,7 +80,7 @@ public class Environment<T>
     private static org.overture.ast.definitions.PDefinition translateDefinition(
         PDefinition cmlDef)
       {
-        CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
+        CmlAstToOvertureAst transform = new CmlAstToOvertureAst(null);
         try
           {
             org.overture.ast.definitions.PDefinition ovtDef = (org.overture.ast.definitions.PDefinition) transform

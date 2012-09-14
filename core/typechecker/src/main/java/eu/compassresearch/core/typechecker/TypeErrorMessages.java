@@ -7,7 +7,11 @@ public enum TypeErrorMessages
     INCOMPATIBLE_TYPE("Expected an entity of type %s but %s was found."),
     
     EXPECTED_SUBTYPE_RELATION(
-        "Expected to subtype relation to hold for %s and %s but it did not.");
+        "This code assumes that %s is a sub type of %s, which is not true."),
+    
+    NAMED_TYPE_UNDEFINED("The type %s is undefined.")
+    
+    ;
     
     private String template;
     

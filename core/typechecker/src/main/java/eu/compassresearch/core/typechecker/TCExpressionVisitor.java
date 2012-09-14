@@ -1,12 +1,17 @@
 package eu.compassresearch.core.typechecker;
 
+import java.util.List;
+
 import org.overture.ast.node.INode;
+import org.overture.parser.messages.VDMError;
+import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.visitor.TypeCheckVisitor;
 import org.overture.typechecker.visitor.TypeCheckerExpVisitor;
 
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.transformation.CmlAstToOvertureAst;
 import eu.compassresearch.transformation.CopyTypesFromOvtToCmlAst;
@@ -47,22 +52,35 @@ public class TCExpressionVisitor extends
     public PType defaultPExp(PExp node, TypeCheckQuestion question)
         throws AnalysisException
       {
-        CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
-        INode ovtNode = transform.defaultINode(node);
+        org.overture.typechecker.TypeChecker.clearErrors();
+        
+        question.updateContextNameToCurrentScope(node);
+        
+        CmlAstToOvertureAst transform = new CmlAstToOvertureAst(parent);
+        INode ovtNode = node.apply(transform);
         
         TypeCheckerExpVisitor ovtExpVist = new TypeCheckerExpVisitor(
             new TypeCheckVisitor());
         
         org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(
-            null);
+            question.getOvertureEnvironment());
         
         try
           {
-            ovtExpVist.defaultPExp((org.overture.ast.expressions.PExp) ovtNode,
-                quest);
+            ovtNode.apply(ovtExpVist, quest);
           } catch (org.overture.ast.analysis.AnalysisException e1)
           {
             e1.printStackTrace();
+          }
+        
+        if (org.overture.typechecker.TypeChecker.getErrorCount() > 0)
+          {
+            List<VDMError> errorList = TypeChecker.getErrors();
+            for (VDMError err : errorList)
+              {
+                parent.addTypeError(node, err.toProblemString());
+              }
+            return new AErrorType(node.getLocation(), true);
           }
         
         CopyTypesFromOvtToCmlAst copier = new CopyTypesFromOvtToCmlAst(
