@@ -1,21 +1,11 @@
 package eu.compassresearch.core.interpreter.eval;
 
 
-import java.io.File;
-
-import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.config.Settings;
-import org.overture.interpreter.debug.DBGPReader;
-import org.overture.interpreter.runtime.RootContext;
-import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
-import org.overture.interpreter.scheduler.MainThread;
 import org.overture.interpreter.values.CPUValue;
-import org.overture.interpreter.values.NameValuePair;
-import org.overture.interpreter.values.NaturalValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.AnalysisException;
@@ -30,19 +20,9 @@ public class CmlExpressionEvaluator extends QuestionAnswerAdaptor<CMLContext, Va
 	org.overture.interpreter.eval.ExpressionEvaluator ovtExpEval = 
     		new org.overture.interpreter.eval.ExpressionEvaluator();
 	
-	
-	
-	public CmlExpressionEvaluator()
-	{
-		
-        
-       
-	}
-	
 	@Override
 	public Value defaultPExp(PExp node, CMLContext question)
 			throws AnalysisException {
-						
 		
         INode ovtNode = transform.defaultINode(node);
        
@@ -75,7 +55,4 @@ public class CmlExpressionEvaluator extends QuestionAnswerAdaptor<CMLContext, Va
         
         return value;
 	}
-	
-	
-	
 }

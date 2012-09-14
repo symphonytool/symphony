@@ -82,7 +82,7 @@ public class CMLContext {
 //			{
 //				return false;
 //			}
-//		}
+//		}	
 //		else if ((one.typeQualifier != null && lother.getTypeQualifier() == null) ||
 //				 (one.typeQualifier == null && lother.getTypeQualifier() != null))
 //		{
@@ -105,96 +105,41 @@ public class CMLContext {
 	}
 	
 	public org.overture.interpreter.runtime.Context getOvertureContext()
-    {
-      class CmlOvertureContext extends Context 
-        {
-          
-          private CmlOvertureContext(org.overture.ast.lex.LexLocation location, org.overture.interpreter.runtime.Context context)
-            {
-              super(location,"Test", context);
-            }
-         
-          
-          
-          
-          @Override
-      	public Value get(Object name)
-      	{
-      		Value rv = map.get(name);
+	{
+		@SuppressWarnings("serial")
+		class CmlOvertureContext extends Context 
+		{
 
-      		if (rv == null)
-      		{
-          		for (LexNameToken var: map.keySet())
-          		{
-          			if (isEqual(var, name))
-          			{
-          				rv = map.get(var);
-          				break;
-          			}
-          		}
-      		}
+			private CmlOvertureContext(org.overture.ast.lex.LexLocation location, org.overture.interpreter.runtime.Context context)
+			{
+				super(location,"CMLWrapperContext", context);
+			}
 
-      		return rv;
-      	}
-          
-          
-//          @Override
-//          public Value check(org.overture.ast.lex.LexNameToken name) {
-//        	  
-//        	  return lookupFromOvtName(name);
-//          }
-          
-//          @Override
-//          public Value lookup(org.overture.ast.lex.LexNameToken name) {
-//        	       	  
-//        	  return lookupFromOvtName(name);
-//          }
-                              
-//          @Override
-//          public org.overture.ast.definitions.PDefinition findName(
-//              LexNameToken name, NameScope scope)
-//            {
-//              PDefinition cmlDef = lookupFromOvtName(name);
-//              
-//              if (cmlDef == null)
-//                return null;
-//              
-//              return translateDefinition(cmlDef);
-//            }
-//          
-//          @Override
-//          public org.overture.ast.definitions.PDefinition findType(
-//              LexNameToken name, String fromModule)
-//            {
-//              PDefinition cmlDef = lookupFromOvtName(name);
-//              
-//              if (cmlDef == null)
-//                return null;
-//              
-//              return translateDefinition(cmlDef);
-//            }
-//         
-//                                   
-//          @Override
-//          public Set<org.overture.ast.definitions.PDefinition> findMatches(
-//              LexNameToken name)
-//            {
-//              Set<org.overture.ast.definitions.PDefinition> matchesFound = new HashSet<org.overture.ast.definitions.PDefinition>();
-//              
-//              PDefinition cmlDef = lookupFromOvtName(name);
-//              if (cmlDef != null)
-//                {
-//                  matchesFound.add(translateDefinition(cmlDef));
-//                }
-//              
-//              return matchesFound;
-//            }
-          
-        }
-      ;
-      CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
-      
-      org.overture.ast.lex.LexLocation overtureLoc = null;
+			@Override
+			public Value get(Object name)
+			{
+				Value rv = map.get(name);
+
+				if (rv == null)
+				{
+					for (LexNameToken var: map.keySet())
+					{
+						if (isEqual(var, name))
+						{
+							rv = map.get(var);
+							break;
+						}
+					}
+				}
+
+				return rv;
+			}
+
+		}
+		;
+		CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
+
+		org.overture.ast.lex.LexLocation overtureLoc = null;
       
       try {
 		overtureLoc = (org.overture.ast.lex.LexLocation)transform.caseLexLocation(this.location);

@@ -4,6 +4,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AIdentifierStateDesignator;
+import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
@@ -51,15 +52,6 @@ public class ActionEvaluator extends QuestionAnswerAdaptor<CMLContext, Value> {
 				
 	}
 	
-//	@Override
-//	public Value caseAAssignmentDefinition(AAssignmentDefinition node,
-//			Context question) throws AnalysisException {
-//		
-//		System.out.println("assign");
-//		
-//		return new ProcessValue();
-//	}
-	
 	@Override
 	public Value caseASkipAction(ASkipAction node, CMLContext question)
 			throws AnalysisException {
@@ -70,5 +62,18 @@ public class ActionEvaluator extends QuestionAnswerAdaptor<CMLContext, Value> {
 		
 		return new ProcessValue();
 	}
+
+	@Override
+	public Value caseASequentialCompositionAction(
+			ASequentialCompositionAction node, CMLContext question)
+			throws AnalysisException {
 	
+		
+		Value leftValue = node.getLeft().apply(this,question);
+
+		
+		Value rightValue = node.getRight().apply(this,question);
+		
+		return super.caseASequentialCompositionAction(node, question);
+	}
 }
