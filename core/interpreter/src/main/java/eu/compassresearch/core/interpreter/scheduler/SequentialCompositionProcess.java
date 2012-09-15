@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
 
 public class SequentialCompositionProcess implements CMLProcess {
 
@@ -54,7 +55,7 @@ public class SequentialCompositionProcess implements CMLProcess {
 	}
 
 	@Override
-	synchronized public void eventOccured(ACommunicationAction event) {
+	synchronized public void eventOccured(ChannelEvent event) {
 		
 		processStack.peek().eventOccured(event);
 

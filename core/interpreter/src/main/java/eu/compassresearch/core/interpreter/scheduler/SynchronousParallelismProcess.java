@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
 
 public class SynchronousParallelismProcess implements CMLProcess
 {
@@ -59,7 +60,7 @@ public class SynchronousParallelismProcess implements CMLProcess
 	}
 
 	@Override
-	synchronized public void eventOccured(ACommunicationAction event) {
+	synchronized public void eventOccured(ChannelEvent event) {
 		// TODO Auto-generated method stub
 		
 	}

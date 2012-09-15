@@ -37,6 +37,14 @@ public class ProcessValue extends Value {
 		this.currentContext = currentContext;
 		
 	}
+	
+	public ProcessValue(PAction action)
+	{
+		this.isReduced = true;
+		this.reducedAction = action;
+		if(this.reducedAction != null)
+			this.offeredEvents.add((ACommunicationAction)action);
+	}
 		
 	public ProcessValue(CMLProcess process, CMLContext currentContext)
 	{
@@ -58,6 +66,11 @@ public class ProcessValue extends Value {
 
 	public void setReduced(boolean isReduced) {
 		this.isReduced = isReduced;
+	}
+	
+	public boolean isSkip()
+	{
+		return this.isReduced && this.reducedAction == null;
 	}
 	
 	public CMLContext getCurrentContext() {

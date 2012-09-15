@@ -21,6 +21,7 @@ public class CMLContext {
 	private Map<LexNameToken,Value> map;
 	/** The location of the context. */
 	public final LexLocation location;
+	private ChannelEvent currentEvent = null;
 	/** The name of the location. */
 	//public final String title;
 	/** The thread state associated with this context. */
@@ -40,6 +41,27 @@ public class CMLContext {
 		map = new HashMap<LexNameToken,Value>();
 	}
 							
+	public ChannelEvent getCurrentEvent() {
+		
+		ChannelEvent ce = currentEvent;
+        if (ce == null)
+          if (outer != null)
+            ce = outer.getCurrentEvent();
+        return ce;
+	}
+
+	public void setCurrentEvent(ChannelEvent currentEvent) {
+		this.currentEvent = currentEvent;
+	}
+	
+	public void resetEvent()
+	{
+		currentEvent = null;
+        if (outer != null)
+            outer.resetEvent();
+        
+	}
+
 	public void put(LexNameToken name, Value value)
 	{
 		map.put(name, value);

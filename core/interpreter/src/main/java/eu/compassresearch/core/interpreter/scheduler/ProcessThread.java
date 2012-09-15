@@ -11,6 +11,7 @@ import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.runtime.CMLContext;
+import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
 public class ProcessThread implements Runnable, CMLProcess {
@@ -22,7 +23,7 @@ public class ProcessThread implements Runnable, CMLProcess {
 	private PAction currentAction;
 	private List<ACommunicationAction> currentlyOfferedEvents = new LinkedList<ACommunicationAction>();	
 	private SynchronousQueue<List<ACommunicationAction>> offeredEventsChannel = new SynchronousQueue<List<ACommunicationAction>>();
-	private SynchronousQueue<ACommunicationAction> recievedEvent = new SynchronousQueue<ACommunicationAction>();
+	private SynchronousQueue<ChannelEvent> recievedEvent = new SynchronousQueue<ChannelEvent>();
 	
 	public ProcessThread(CMLContext context, AStateProcess process)
 	{
@@ -47,9 +48,16 @@ public class ProcessThread implements Runnable, CMLProcess {
 
 			while(pvalue != null && !currentlyOfferedEvents.isEmpty())
 			{
-				ACommunicationAction ca = recievedEvent.take();
-				pvalue = (ProcessValue)ca.getAction().apply(evalutor,pvalue.getCurrentContext());
-				currentAction = ca.getAction();
+				ChannelEvent ca = recievedEvent.take();
+				
+				context.setCurrentEvent(ca);
+				pvalue = (ProcessValue)currentAction.apply(evalutor,context);
+				if(pvalue.isReduced())
+					currentAction = pvalue.getReducedAction();
+					
+				
+				//pvalue = (ProcessValue)ca.getAction().apply(evalutor,pvalue.getCurrentContext());
+				//currentAction = ca.getAction();
 				currentlyOfferedEvents = pvalue.getOfferedEvents();
 				offeredEventsChannel.put(currentlyOfferedEvents);
 			}
@@ -76,7 +84,7 @@ public class ProcessThread implements Runnable, CMLProcess {
 	}
 	
 	@Override
-	synchronized public void eventOccured(ACommunicationAction event)
+	synchronized public void eventOccured(ChannelEvent event)
 	{
 		try {
 			recievedEvent.put(event);

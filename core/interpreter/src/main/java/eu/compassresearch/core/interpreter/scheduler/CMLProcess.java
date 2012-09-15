@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.Set;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
 
 public interface CMLProcess {
 
 	public List<ACommunicationAction> WaitForEventOffer();
 	
-	public void eventOccured(ACommunicationAction event);
+	public void eventOccured(ChannelEvent event);
 	
 	public Set<String> getChannelSet();
 	

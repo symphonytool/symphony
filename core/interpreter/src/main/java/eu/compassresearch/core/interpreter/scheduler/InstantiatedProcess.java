@@ -8,6 +8,7 @@ import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.interpreter.eval.EventCollector;
+import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
 
 public class InstantiatedProcess implements CMLProcess {
 
@@ -36,7 +37,7 @@ public class InstantiatedProcess implements CMLProcess {
 	}
 
 	@Override
-	public void eventOccured(ACommunicationAction event) {
+	public void eventOccured(ChannelEvent event) {
 		
 		//System.out.println("Event on instance of process " + processDefinition.getName().getName());
 		this.process.eventOccured(event);
