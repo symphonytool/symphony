@@ -33,7 +33,7 @@ public class ProcessThread implements Runnable, CMLProcess {
 		//this.t.setName(process.)
 		//add fake to not make isSkip true before it has been started
 		currentlyOfferedEvents.add(new ACommunicationAction());
-		currentAction = process.getAction();
+		currentAction = process.getAction().clone();
 	}
 					
 	@Override
@@ -41,7 +41,7 @@ public class ProcessThread implements Runnable, CMLProcess {
 
 		try 
 		{
-			ProcessValue pvalue = (ProcessValue)process.getAction().apply(evalutor,context);
+			ProcessValue pvalue = (ProcessValue)currentAction.apply(evalutor,context);
 			currentlyOfferedEvents = pvalue.getOfferedEvents();
 			offeredEventsChannel.put(currentlyOfferedEvents);
 

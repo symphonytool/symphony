@@ -54,6 +54,46 @@ public class CMLContext {
         return v;
 	}
 	
+	public Value get(Object name)
+	{
+		Value rv = map.get(name);
+
+		if (rv == null)
+		{
+			for (LexNameToken var: map.keySet())
+			{
+				if (isEqual(var, name))
+				{
+					rv = map.get(var);
+					break;
+				}
+			}
+		}
+
+		return rv;
+	}
+	
+	public CMLContext locate(LexNameToken name)
+	{
+		Value v = get(name);
+
+		if (v == null)
+		{
+			if (outer != null)
+			{
+				return outer.locate(name);
+			}
+			else
+			{
+				return null;
+			}
+		}
+		else
+		{
+			return this;
+		}
+	}
+	
 //	private Value lookupFromOvtName(org.overture.ast.lex.LexNameToken name)
 //    {
 //      LexLocation location = Environment.translateLexLocation(name.location);
@@ -65,6 +105,44 @@ public class CMLContext {
 	
 	
 	public static boolean isEqual(LexNameToken one, Object other)
+	{
+		if (!(other instanceof org.overture.ast.lex.LexNameToken))
+		{
+			return false;
+		}
+
+		LexNameToken lother = (LexNameToken)other;
+		
+//		if (one.typeQualifier != null && lother.getTypeQualifier() != null)
+//		{
+//			if (!TypeComparator.compatible(one.typeQualifier, lother.typeQualifier))
+//			{
+//				return false;
+//			}
+//		}	
+//		else if ((one.typeQualifier != null && lother.getTypeQualifier() == null) ||
+//				 (one.typeQualifier == null && lother.getTypeQualifier() != null))
+//		{
+//			return false;
+//		}
+
+		return one.matches(lother);
+		
+	}
+	
+	public static boolean isEqual(Object one, Object other)
+	{
+		
+		if(one instanceof LexNameToken)
+		{
+			return isEqual((LexNameToken)one, other);
+		}
+		return false;
+		
+	}
+	
+	
+	public static boolean isEqualOvt(LexNameToken one, Object other)
 	{
 		if (!(other instanceof org.overture.ast.lex.LexNameToken))
 		{
@@ -93,12 +171,12 @@ public class CMLContext {
 		
 	}
 	
-	public static boolean isEqual(Object one, Object other)
+	public static boolean isEqualOvt(Object one, Object other)
 	{
 		
 		if(one instanceof LexNameToken)
 		{
-			return isEqual((LexNameToken)one, other);
+			return isEqualOvt((LexNameToken)one, other);
 		}
 		return false;
 		
@@ -124,7 +202,7 @@ public class CMLContext {
 				{
 					for (LexNameToken var: map.keySet())
 					{
-						if (isEqual(var, name))
+						if (isEqualOvt(var, name))
 						{
 							rv = map.get(var);
 							break;

@@ -2,8 +2,9 @@ channels init, a, b, c
 process A = 
 begin 
       state 
-      	    d : nat1 := 10       
-      @ init -> v := let a = 2, b = 3 in a + b + d; a -> Skip  
+      	    d : nat1 := 10;
+	    v : nat1       
+      @ init -> a -> v := let a = 2, b = 3 in a + b + d  
 end
 process B = begin @ init -> b -> Skip end
 //process C = begin @ init -> c -> Skip end

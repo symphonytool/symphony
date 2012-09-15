@@ -3,10 +3,10 @@ package eu.compassresearch.core.interpreter.values;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.interpreter.runtime.CMLContext;
 import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
 
@@ -15,8 +15,12 @@ public class ProcessValue extends Value {
 	private CMLContext currentContext = null;
 	private List<ACommunicationAction> offeredEvents = new LinkedList<ACommunicationAction>();
 	private CMLProcess process = null;
-	public  NameValuePairMap members = new NameValuePairMap();	
 	
+	private boolean isReduced = false;
+	
+	private PAction reducedAction = null;
+	//public  NameValuePairMap members = new NameValuePairMap();	
+		
 	public ProcessValue()
 	{}
 	
@@ -38,6 +42,22 @@ public class ProcessValue extends Value {
 	{
 		this.process = process;
 		this.currentContext = currentContext;	
+	}
+	
+	public PAction getReducedAction() {
+		return reducedAction;
+	}
+
+	public void setReducedAction(PAction reducedAction) {
+		this.reducedAction = reducedAction;
+	}
+
+	public boolean isReduced() {
+		return isReduced;
+	}
+
+	public void setReduced(boolean isReduced) {
+		this.isReduced = isReduced;
 	}
 	
 	public CMLContext getCurrentContext() {

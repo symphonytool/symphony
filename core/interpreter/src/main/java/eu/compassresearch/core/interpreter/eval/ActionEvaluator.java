@@ -1,5 +1,7 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import java.util.List;
+
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
@@ -9,7 +11,6 @@ import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.definitions.AAssignmentDefinition;
 import eu.compassresearch.core.interpreter.runtime.CMLContext;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
@@ -28,8 +29,14 @@ public class ActionEvaluator extends QuestionAnswerAdaptor<CMLContext, Value> {
 			throws AnalysisException {
 				
 		Value expValue = node.getExpression().apply(parentInterpreter,question);
-		//TODO Remove this
+		//TODO Change this to deal with it in general
 		AIdentifierStateDesignator id = (AIdentifierStateDesignator)node.getStateDesignator();
+		
+		CMLContext nameContext = question.locate(id.getName());
+		
+		if(nameContext == null)
+			nameContext = new CMLContext(node.getLocation());	
+		
 		question.put(id.getName(), expValue);
 		
 		System.out.println( id.getName() + " := " + expValue);
@@ -69,11 +76,21 @@ public class ActionEvaluator extends QuestionAnswerAdaptor<CMLContext, Value> {
 			throws AnalysisException {
 	
 		
-		Value leftValue = node.getLeft().apply(this,question);
-
 		
-		Value rightValue = node.getRight().apply(this,question);
-		
+//		//ProcessValue leftValue = null;
+//		if(node.getLeft() != null)
+//		{
+//			ProcessValue leftValue = (ProcessValue)node.getLeft().apply(this,question);
+//			List<ACommunicationAction> comActions = leftValue.getOfferedEvents();
+//			
+//		}
+//		else
+//			
+//
+//		//if(node.getLeft() == null && node.getRight() != null)
+//		
+//		Value rightValue = node.getRight().apply(this,question);
+//		
 		return super.caseASequentialCompositionAction(node, question);
 	}
 }

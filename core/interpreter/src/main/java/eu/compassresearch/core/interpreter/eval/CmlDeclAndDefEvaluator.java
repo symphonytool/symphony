@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import org.overture.interpreter.values.NaturalValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.AnalysisException;
@@ -36,7 +37,10 @@ public class CmlDeclAndDefEvaluator extends
 	public Value caseAAssignmentDefinition(AAssignmentDefinition node,
 			CMLContext question) throws AnalysisException {
 		
-		Value expValue = node.getExpression().apply(parentInterpreter,question);
+		Value expValue = null;
+		if(node.getExpression() != null)
+			expValue = node.getExpression().apply(parentInterpreter,question);
+		
 		LexNameToken nt = new LexNameToken("Default",node.getName());
 		question.put(nt, expValue);
 		return expValue;

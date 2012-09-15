@@ -30,7 +30,7 @@ public class CmlScheduler {
 		addedProcesses = new ConcurrentLinkedQueue<CMLProcess>();
 		executedInCurrentStep = new ConcurrentLinkedQueue<CMLProcess>();
 		//threadPool = Executors.newFixedThreadPool(numberOfThreads);
-		Settings.dialect = Dialect.CML;
+		Settings.dialect = Dialect.VDM_PP;
 	}
 	
 	public CMLProcess addProcess(CMLProcess process)
