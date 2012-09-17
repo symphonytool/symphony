@@ -1,10 +1,10 @@
 process RegisterProc = 
  begin
- aCtions
+ actions
    REG = 
      (load?i -> LOAD(i) ; REG)
      []
-     (dcl j: Byte @ j <- READ(); read!j -> REG)
+     (dcl j: Byte @ j := READ(); read!j -> REG)
    @
-     Wait 4
+     Wait (4)
  end

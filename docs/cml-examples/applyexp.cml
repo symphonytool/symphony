@@ -1,6 +1,6 @@
 class applyexp =
 begin
 	values
-	public fn : int -> int = lambda a:int & a + 1;
+	public fn : int -> int = lambda a:int @ a + 1;
 	public two: int = fn(1);
 end

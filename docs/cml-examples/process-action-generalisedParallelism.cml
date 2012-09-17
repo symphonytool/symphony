@@ -1,0 +1,2 @@
+process RegisterProc = begin @ A [|X|] B end
+process RegisterProc = begin @ A [|ns1 | X | ns2|] B end

@@ -55,14 +55,14 @@ fnRmCapacityDB = map fnRoomId to nat;
 
  AvailRng(s,e:Day,n:nat,av:AvailDB) b : bool 
   post b = (s <= e and
-           forall d in set {s,...,e} & CkAvail(d,av) >= n);
+           forall d in set {s,...,e} @ CkAvail(d,av) >= n);
 
 -- check are at least n hotel rooms booked on 
 -- a range {s,...,e} of days
 
  BookedRng(s,e:Day,n:nat,av:AvailDB) b : bool
   post b =  (s <= e and 
-            forall d in set {s,...,e} & 
+            forall d in set {s,...,e} @ 
                     TotalRooms - CkAvail(d,av) >= n);
 
 -- Check which Function rooms with at least capacity c 
@@ -71,12 +71,12 @@ fnRmCapacityDB = map fnRoomId to nat;
 
 checkFnRmAvail(d:Day, c:nat, fndb:fnAvailDB, fncap:fnRmCapacityDB) s:set of fnRoomId
  post s subset fndb(d) and 
-   forall r in set s & fncap(r) >= c;
+   forall r in set s @ fncap(r) >= c;
 
 -- alternative definition for checkFnRmAvail which gives all rooms
 
 checkFnRmAvail1(d:Day, c:nat, fndb:fnAvailDB, fncap:fnRmCapacityDB) s:set of fnRoomId
- post s subset fndb(d) inter {ss|ss:fnRoomId & fncap(ss) >= c};
+ post s subset fndb(d) inter {ss|ss:fnRoomId @ fncap(ss) >= c};
 
 -- check particular function room available
 
@@ -92,7 +92,7 @@ channels
 
 chansets 
  I =    {|available,notavailable,init,
-          booked,cancelled,error,book,cancel|}
+          booked,cancelled,error,book,cancel|};
  I2 =   {|fnrmavailable, fnrmnotavailable, fnrmbooked, fnrmcancelled,
           bookfunctionroom, booknamedfunctionroom, 
           cancelnamedfunctionroom|}
@@ -118,12 +118,12 @@ operations
    frame wr avail: AvailDB
          wr fnRmAvailOnDate: fnAvailDB
          wr fnRmCapacity: fnRmCapacityDB
-   post (forall d in set dom avail & avail(d) = TotalRooms)
+   post (forall d in set dom avail @ avail(d) = TotalRooms)
           and
-         forall d in set dom fnRmAvailOnDate & 
+         forall d in set dom fnRmAvailOnDate @ 
             fnRmAvailOnDate(d) = {f1,f2,f3,f4,f5};
 --      and
---     forall fr in set dom fnRmCapacityDB & 
+--     forall fr in set dom fnRmCapacityDB @ 
 --       fnRoomCapacity(fr) = capacity
 --      and 
 --     capacity <= MaximumCapacity;
@@ -133,16 +133,16 @@ operations
 BOOKROOM(s,e:Day,n:nat)
  frame wr avail: AvailDB
  pre  s <= e and
-      forall d in set {s,...,e} & CkAvail(d,avail) >= n
- post forall d in set {s,...,e} & 
+      forall d in set {s,...,e} @ CkAvail(d,avail) >= n
+ post forall d in set {s,...,e} @ 
                  avail(d) = avail~(d) - n;
 
 CANCELROOM(s,e:Day,n:nat)
  frame wr avail: AvailDB
  pre s <= e and 
-     forall d in set {s,...,e} & 
+     forall d in set {s,...,e} @ 
                     TotalRooms - CkAvail(d,avail) >= n
- post forall d in set {s,...,e} & 
+ post forall d in set {s,...,e} @ 
                        avail(d) = avail~(d) + n;
 
 BOOKFUNCTIONROOM(d:Day, c:nat) r:fnRoomId
@@ -168,32 +168,32 @@ CANCELFUNCTIONROOM(d:Day, r:fnRoomId)
 actions
   HOTEL = 
     book?mk_(s,e,n) -> 
-       (:AvailRng(s,e,n,avail) & BOOKROOM(s,e,n);booked -> HOTEL 
+       ([AvailRng(s,e,n,avail)] & BOOKROOM(s,e,n);booked -> HOTEL 
         [] 
-        :not AvailRng(s,e,n,avail) & notavailable -> HOTEL)
+        [not AvailRng(s,e,n,avail)] & notavailable -> HOTEL)
     []
     cancel?mk_(s,e,n) -> 
-       (:BookedRng(s,e,n,avail) & CANCELROOM(s,e,n);cancelled -> HOTEL
+       ([BookedRng(s,e,n,avail)] & CANCELROOM(s,e,n);cancelled -> HOTEL
         []
-        :not BookedRng(s,e,n,avail) & error -> HOTEL)
+        [not BookedRng(s,e,n,avail)] & error -> HOTEL)
     []
     bookfnroom?mk_(d,c) ->
-       (:checkFnRmAvail(d,c,avail,fnRmCapacity) & 
+       ([checkFnRmAvail(d,c,avail,fnRmCapacity)] & 
           BOOKFUNCTIONROOM(d,c);fnrmbooked -> HOTEL
         []
-        :not checkFnRmAvail(d,c,avail,fnRmCapacity) & error -> HOTEL)
+        [not checkFnRmAvail(d,c,avail,fnRmCapacity)] & error -> HOTEL)
     []
     booknamedfnroom?mk_(d,r) ->
-        (:checkthisFnRmAvail(d,r,fnRmAvailOnDate) & 
+        ([checkthisFnRmAvail(d,r,fnRmAvailOnDate)] & 
              BOOKNAMEDFUNCTIONROOM(d,r);fnrmbooked -> HOTEL
          []
-         :not checkthisFnRmAvail(d,r,fnRmAvailOnDate) & fnrmnotavailable -> HOTEL)
+         [not checkthisFnRmAvail(d,r,fnRmAvailOnDate)] & fnrmnotavailable -> HOTEL)
     []
     cancelfnroom?mk_(d,r) ->
-        (:checkThisFnRmAvail(d,r,fnRmAvailOnDate) & 
+        ([checkThisFnRmAvail(d,r,fnRmAvailOnDate)] & 
           CANCELFUNCTIONROOM(d,r);fnrmcancelled -> HOTEL
          []
-         :not checkThisFnRmAvail(d,r,fnRmAvailOnDate) & error -> HOTEL)
+         [not checkThisFnRmAvail(d,r,fnRmAvailOnDate)] & error -> HOTEL)
   @ init -> INIT();HOTEL
 
 end

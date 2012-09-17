@@ -1,0 +1,23 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> 
+  <modelVersion>4.0.0</modelVersion>
+  <packaging>pom</packaging>  
+
+  <parent>
+    <groupId>eu.compassresearch.core</groupId>
+    <artifactId>core</artifactId>
+    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <groupId>eu.compassresearch.core.analysis</groupId>
+  <artifactId>analysis</artifactId>
+  <name>COMPASS Core Analysis Plug-ins</name>
+
+  <modules>
+    <module>proofobligationgenerator</module>
+    <module>theoremprover</module>
+    <module>refinementtool</module>
+  </modules>
+</project>
+

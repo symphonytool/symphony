@@ -1,0 +1,3 @@
+process test = begin @ |~|i in set {2,3} @ A(i) end
+process test = begin @ |~|i : nat @ A(i) end
+process test = begin @ |~|i in set {2,3};b : nat @ A(i) end

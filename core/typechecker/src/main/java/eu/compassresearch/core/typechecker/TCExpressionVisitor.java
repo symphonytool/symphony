@@ -1,48 +1,81 @@
 package eu.compassresearch.core.typechecker;
 
-import java.util.List;
+import org.overture.ast.node.INode;
+import org.overture.typechecker.visitor.TypeCheckVisitor;
+import org.overture.typechecker.visitor.TypeCheckerExpVisitor;
 
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
-import org.overture.ast.definitions.AMultiBindListDefinition;
-import org.overture.ast.expressions.AExists1Exp;
-import org.overture.ast.factory.AstFactory;
-import org.overture.ast.patterns.ATypeBind;
-import org.overture.ast.patterns.PBind;
-import org.overture.ast.patterns.PMultipleBind;
-import org.overture.ast.patterns.assistants.ATypeBindAssistantTC;
-import org.overture.ast.patterns.assistants.PBindAssistantTC;
-import org.overture.ast.types.PType;
+import eu.compassresearch.ast.analysis.AnalysisException;
+import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
+import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.types.PType;
+import eu.compassresearch.transformation.CmlAstToOvertureAst;
+import eu.compassresearch.transformation.CopyTypesFromOvtToCmlAst;
 
-public class TCExpressionVisitor extends QuestionAnswerAdaptor<TypeCheckInfo, PType>{
-
-	/**
+public class TCExpressionVisitor extends
+    QuestionAnswerAdaptor<TypeCheckInfo, PType>
+  {
+    
+    /**
 	 * 
 	 */
-	private static final long serialVersionUID = -6509187123701383525L;
-
-	final private QuestionAnswerAdaptor<TypeCheckInfo, PType> parent;
-
-	public TCExpressionVisitor(CmlTypeChecker parentChecker)
-	{
-		parent = parentChecker;
-	}
-
-	@Override
-	public PType caseAExists1Exp(AExists1Exp node, TypeCheckInfo question) {
-		PBind bind = node.getBind();
-		List<PMultipleBind> bindList = PBindAssistantTC.getMultipleBindList(bind);
-		node.setDef(AstFactory.newAMultiBindListDefinition(bind.getLocation(), bindList));
-		
-		if (node.getBind() instanceof ATypeBind)
-		{
-			ATypeBind tb = (ATypeBind)node.getBind();
-			//ATypeBindAssistantTC.typeResolve(tb, parent, question);
-		}
-		
-		return super.caseAExists1Exp(node, question);
-	}
-
-
-	
-	
-}
+    private static final long                                 serialVersionUID = -6509187123701383525L;
+    
+    // A parent checker may actually not be necessary on this
+    @SuppressWarnings("unused")
+    final private QuestionAnswerAdaptor<TypeCheckInfo, PType> parent;
+    
+    public TCExpressionVisitor(VanillaCmlTypeChecker parentChecker)
+      {
+        parent = parentChecker;
+      }
+    
+    /**
+     * Translate a CML expression into an equivalent Overture VDM expression and
+     * type check that. Afterwards use the CopyTypesFromOvtToCmlAst to copy over
+     * the Overture VDM types.
+     * 
+     * 
+     * @param node
+     *          - the expression to type check
+     * @param question
+     *          - environmental stuff, green trees whatever
+     * @return A type checked cml expression
+     * @throws AnalysisException
+     *           - if anythings goes wrong that is not just a type error.
+     */
+    @Override
+    public PType defaultPExp(PExp node, TypeCheckInfo question)
+        throws AnalysisException
+      {
+        CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
+        INode ovtNode = transform.defaultINode(node);
+        
+        TypeCheckerExpVisitor ovtExpVist = new TypeCheckerExpVisitor(
+            new TypeCheckVisitor());
+        
+        org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(
+            question.env.getOvertureEnv());
+        
+        try
+          {
+            ovtExpVist.defaultPExp((org.overture.ast.expressions.PExp) ovtNode,
+                quest);
+          } catch (org.overture.ast.analysis.AnalysisException e1)
+          {
+            e1.printStackTrace();
+          }
+        
+        CopyTypesFromOvtToCmlAst copier = new CopyTypesFromOvtToCmlAst(
+            transform.getNodeMap());
+        
+        try
+          {
+            node = (PExp) copier.defaultINode(ovtNode);
+          } catch (org.overture.ast.analysis.AnalysisException e)
+          {
+            throw new AnalysisException(e.getMessage());
+          }
+        
+        return node.getType();
+      }
+  }

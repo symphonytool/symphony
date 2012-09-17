@@ -25,14 +25,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
-import org.overture.ast.declarations.PDeclaration;
-import org.overture.ast.lex.LexLocation;
-import org.overture.ast.messages.InternalException;
-import org.overture.ast.node.INode;
-import org.overture.ast.program.ASourcefileSourcefile;
-import org.overture.ide.core.parser.AbstractParserParticipant;
-import org.overture.ide.core.resources.IVdmSourceUnit;
-import org.overture.parser.messages.VDMError;
+import eu.compassresearch.ast.declarations.PDeclaration;
+import eu.compassresearch.ast.lex.LexLocation;
+import eu.compassresearch.ast.messages.InternalException;
+import eu.compassresearch.ast.node.INode;
+import eu.compassresearch.ast.program.ASourcefileSourcefile;
+import eu.compassresearch.ide.core.parser.AbstractParserParticipant;
+import eu.compassresearch.ide.core.resources.IVdmSourceUnit;
+//import eu.compassresearch.parser.messages.VDMError;
 
 //import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.lexer.ParserError;

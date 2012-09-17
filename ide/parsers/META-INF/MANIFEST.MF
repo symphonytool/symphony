@@ -6,7 +6,7 @@ Bundle-Version: 0.0.1
 Bundle-Activator: eu.compassresearch.ide.parsers.cml.Activator
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
-Require-Bundle: org.overture.ide.core;bundle-version="2.1.2"
+Require-Bundle: org.overture.ide.core;bundle-version="2.2.0"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered

@@ -1,0 +1,1 @@
+process test = begin @ [|cs|] i in set {2,3} @ [{|a,b|}] A(i) end

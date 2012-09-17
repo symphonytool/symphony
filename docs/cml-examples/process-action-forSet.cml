@@ -1,0 +1,1 @@
+process test = begin @ for all a in set {1,2} do Skip end

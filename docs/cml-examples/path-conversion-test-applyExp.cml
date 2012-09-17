@@ -1,0 +1,8 @@
+class Test =
+begin 
+      functions
+      fn: int -> int fn() == 42
+      
+      values 
+      a = fn()
+end

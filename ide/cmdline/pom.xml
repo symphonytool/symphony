@@ -26,26 +26,7 @@
     </dependency>
 
     <!-- 
-	 Basic Compiler classes like LexLocation.
-    -->
-    <!-- <dependency> -->
-    <!--   <groupId>org.overturetool.core</groupId> -->
-    <!--   <artifactId>vdmj</artifactId> -->
-    <!--   <version>${overture.version}</version> -->
-    <!-- </dependency> -->
-
-    <!--
-	Generic Visitor classes like AnalysisAdapter
-	and classes for the root of the AST.
-    -->
-    <dependency>
-      <groupId>org.overturetool.core</groupId>
-      <artifactId>ast-stripped</artifactId>
-      <version>${overture.version}</version>
-    </dependency>
-
-    <!-- 
-	 Depend on the parser and lexer.
+       Link with the parser
     -->
     <dependency>
       <groupId>eu.compassresearch.core</groupId>
@@ -61,19 +42,25 @@
     -->
 
     <!-- Type Checker Analysis -->
-    <!-- <dependency> -->
-    <!--   <groupId>eu.compassresearch.core</groupId> -->
-    <!--   <artifactId>typechecker</artifactId> -->
-    <!--   <version>${project.version}</version> -->
-    <!-- </dependency> -->
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>typechecker</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- Div Warn Exp Analysis -->
-    <!-- <dependency> -->
-    <!--   <groupId>eu.compassresearch.examples</groupId> -->
-    <!--   <artifactId>divwarnanalysis</artifactId> -->
-    <!--   <version>${project.version}</version> -->
-    <!-- </dependency> -->
+    <dependency>
+      <groupId>eu.compassresearch.examples</groupId>
+      <artifactId>divwarnanalysis</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     
+	<!-- POG Analysis -->
+    <dependency>
+      <groupId>eu.compassresearch.core.analysis</groupId>
+      <artifactId>proofobligationgenerator</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
   </dependencies>
 

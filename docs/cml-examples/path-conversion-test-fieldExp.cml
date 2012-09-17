@@ -1,0 +1,10 @@
+class Test =
+begin 
+      types
+      Library :: books : nat
+      	      	 users : nat
+   
+      values
+      l = mk_Library(a,b);
+      a = l.books
+end

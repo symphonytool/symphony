@@ -18,9 +18,8 @@
   <modules>
     <module>ast</module>
     <module>parser</module>
-<!--    <module>typechecker</module>
-    <module>theoremprover</module>
-    <module>refinementtool</module> -->
+    <module>analysis</module>
+    <module>typechecker</module>
   </modules>
 </project>
 

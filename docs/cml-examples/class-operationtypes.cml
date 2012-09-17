@@ -1,0 +1,17 @@
+class Exchange =
+begin 
+
+operations
+	test : () ==> ()
+	test() == (a := 0);
+
+	test1 : int ==> ()
+	test1(b) == (a := b);     
+	
+	test2 : () ==> int
+	test2() == (return (0));
+	
+	test3 : int ==> int
+	test3(b) == (return (b))
+
+end

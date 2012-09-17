@@ -68,7 +68,7 @@ channels
 chansets
 
 	-- Define two chansets: one for a travel agents interface, the other for manager interface
-	TA = {| init, avail, book, check, reqPriceAvail, reqPrice, outPrice, reqFac, outFac, reference, cancel, chDate, chRooms, invalidRef, unavailable, error |}
+	TA = {| init, avail, book, check, reqPriceAvail, reqPrice, outPrice, reqFac, outFac, reference, cancel, chDate, chRooms, invalidRef, unavailable, error |};
 	Manager = {| init, setPrice, setAvail, error |}
 
 process Zotel_Booking =
@@ -79,7 +79,7 @@ begin
 	bookings : Bookings; -- maps a booking reference to stay details
 	
 	-- All booked stays have valid hotels and each booked stay has valid dates for that hotel
-	inv forall b in set rng bookings & b.stay.hotId in set dom zotels 
+	inv forall b in set rng bookings @ b.stay.hotId in set dom zotels 
 			and getDates(b.stay) subset dom zotels(b.stay.hotId).avail;
 
   operations
@@ -91,7 +91,7 @@ begin
 	
 
 --	public checkAvailability : Stay ==> bool
---	checkAvailability(s) == return (forall d in set getDates(s) & zotels(s.hotId).avail(d) >= s.noRooms)
+--	checkAvailability(s) == return (forall d in set getDates(s) @ zotels(s.hotId).avail(d) >= s.noRooms)
 	-- guard mapping look-ups 
 --	pre s.hotId in set dom zotels and getDates(s) subset dom zotels(s.hotId).avail; 
 	
@@ -100,7 +100,7 @@ begin
 	frame wr zotels, bookings
 	pre checkAvailability(s)  -- also need to guard mapping look-ups
 	-- main functionality
-	post forall d in set getDates(s) & zotels(s.hotId).avail(d) = zotels~(s.hotId).avail(d) - s.noRooms 
+	post forall d in set getDates(s) @ zotels(s.hotId).avail(d) = zotels~(s.hotId).avail(d) - s.noRooms 
 	and r not in set dom bookings~ and bookings(r) = mk_BookingDetails(s, zotels(s.hotId).price)
 	-- and nothing else changes (not formalised)!
 	;
@@ -144,19 +144,19 @@ begin
 
 	actions
 	ZOTEL = 
-	check?s -> 	(: pre-checkAvailability(s) & (dcl a:bool @ a := *checkAvailability(s); avail!a -> ZOTEL))
+	check?s -> 	([ pre-checkAvailability(s)] & (dcl a:bool @ a := checkAvailability(s); avail!a -> ZOTEL))
 				[]
-				(: not pre-checkAvailability(s) & (error -> ZOTEL))
+				([ not pre-checkAvailability(s)] & (error -> ZOTEL))
 	[]
-	book?s -> 	(: pre-makeBooking(s) & (dcl r:Reference @ r := *makeBooking(s); reference!r -> ZOTEL))
+	book?s -> 	([ pre-makeBooking(s)] & (dcl r:Reference @ r := makeBooking(s); reference!r -> ZOTEL))
 			[]
-			(: not pre-makeBooking(s) & (unavailable -> ZOTEL))
+			([ not pre-makeBooking(s)] & (unavailable -> ZOTEL))
 	[]
-	reqPriceAvail?s -> 	(: pre-getQuoteAvail(s) & (dcl p:Price @ p := *getQuoteAvail(s); outPrice!p -> ZOTEL))
+	reqPriceAvail?s -> 	([ pre-getQuoteAvail(s)] & (dcl p:Price @ p := getQuoteAvail(s); outPrice!p -> ZOTEL))
 					[]
-					(: not pre-getQuoteAvail(s) & (unavailable -> ZOTEL))
+					([ not pre-getQuoteAvail(s)] & (unavailable -> ZOTEL))
 --	[]
---	reqPrice?s -> 	(: pre-getQuote(s) &  (dcl p:Price @ p := getQuote(s); (:not p = nil & (outPrice!p -> ZOTEL))
+--	reqPrice?s -> 	([ pre-getQuote(s)] &  (dcl p:Price @ p := getQuote(s); (:not p = nil & (outPrice!p -> ZOTEL))
 --																		   []
 --																		   (:p = nil & (unavailable -> ZOTEL)))    -- detect/do something if nil
 --				    []
@@ -164,5 +164,5 @@ begin
 	
 	-- include other operations when specified...				
 	@				
-	  init -> *init(); ZOTEL	
+	  init -> init(); ZOTEL	
 end
