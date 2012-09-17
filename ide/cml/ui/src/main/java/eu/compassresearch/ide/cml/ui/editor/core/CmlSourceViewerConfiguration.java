@@ -51,14 +51,15 @@ public class CmlSourceViewerConfiguration extends
 
 	@Override
 	public IReconciler getReconciler(ISourceViewer sv) {
-		MonoReconciler mr = new MonoReconciler(new VdmReconcilingStrategy()/*CmlReconcilingStrategy()*/, false);
+		MonoReconciler mr = new MonoReconciler(new CmlReconcilingStrategy(), false);
+		//MonoReconciler mr = new MonoReconciler(new VdmReconcilingStrategy()/*CmlReconcilingStrategy()*/, false);
 		mr.setDelay(1000);
 		mr.install(sv);
 		return mr;
 	}
 	
 	
-
+	
 	
 	
 }

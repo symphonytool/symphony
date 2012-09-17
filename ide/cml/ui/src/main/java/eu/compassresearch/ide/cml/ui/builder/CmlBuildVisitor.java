@@ -2,6 +2,8 @@ package eu.compassresearch.ide.cml.ui.builder;
 
 import java.io.FileReader;
 
+import javax.swing.JDialog;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
@@ -10,6 +12,7 @@ import org.overture.ast.program.ASourcefileSourcefile;
 import org.overture.ast.util.ClonableFile;
 
 import eu.compassresearch.core.lexer.CmlLexer;
+import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
@@ -21,7 +24,7 @@ public class CmlBuildVisitor implements IResourceVisitor {
 	@Override
 	public boolean visit(IResource resource) throws CoreException {
 
-		// We want to resource to be a file with the cml extension 
+		// We want the resource to be a file with the cml extension 
 		if (resource instanceof IFile)
 		{
 			IFile file = (IFile)resource;
@@ -40,15 +43,20 @@ public class CmlBuildVisitor implements IResourceVisitor {
 					CmlParser parser = new CmlParser(lexer);
 					parser.setDocument(source);
 					
+					
+					
 					// Parse the document
 					if (!parser.parse())
-						System.out.println("Parsing file: "+file.getName()+ " failed.");
-				
+					{
+						System.out.println(lexer.parseErrors.size()+" errors occurred.");
+						ParserError e = lexer.parseErrors.get(0);
+						
+					}
 					
 					// Set the build source on the dom object
 					ClonableFile f = new ClonableFile(localPathToFile);
 					source.setFile(f);
-					dom.setSourceAst(source);
+					dom.setSourceAst(source, lexer.parseErrors);
 					
 				} catch (Exception e) {
 					e.printStackTrace();

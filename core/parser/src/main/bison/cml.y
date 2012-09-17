@@ -1753,7 +1753,9 @@ qualifier
 | /* empty */
 {
     /*Default private*/
-    $$ = new AAccessSpecifierAccessSpecifier(new APrivateAccess(),null,null,null);
+  AAccessSpecifierAccessSpecifier a = new AAccessSpecifierAccessSpecifier();
+  a.setAccess(new APrivateAccess());
+  $$ = a;
 }
 ;
 
@@ -2224,8 +2226,9 @@ IDENTIFIER COLON type EQUALS expression
   // Make pattern
   CmlLexeme lexeme = (CmlLexeme)$1;
   LexNameToken lnt = extractLexNameToken(lexeme);
-  AIdentifierPattern idp = new AIdentifierPattern(lnt.location,null,false,lnt);
-  
+  //   AIdentifierPattern idp = new AIdentifierPattern(lnt.location,null,false,lnt);
+  AIdentifierPattern idp = new AIdentifierPattern();
+  idp.setLocation(lnt.location);
   // Build the resulting AValueDefinition
   AValueDefinition vdef = new AValueDefinition();
   vdef.setPattern(idp);

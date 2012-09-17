@@ -242,7 +242,7 @@ class S {
 	    		msg += " after reading token \"" + currentToken.getValue() + "\"";
 	    		
 	    		parseErrors.add(new ParserError(err+" after reading token \"" + currentToken.getValue() + "\"", 
-	    		currentToken.getStartPos().line, currentToken.getStartPos().column));
+							currentToken.getStartPos().line, currentToken.getStartPos().column, yychar,currentToken.getValue().toString()));
 	    	}
 	    }
 		System.out.println(msg);

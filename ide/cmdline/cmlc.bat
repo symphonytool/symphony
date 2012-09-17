@@ -13,8 +13,8 @@ set CLASSPATH=.;%REPO%\core\parser\target\parser-%VERSION%.jar;%REPO%\core\ast\t
 
 IF NOT EXIST %JAR% GOTO ERR_NOJAR
 
-REM java -cp %CLASSPATH% -jar %JAR% %*
-java -cp %CLASSPATH% eu.compassresearch.ide.CheckCml %*
+java -cp %CLASSPATH% -jar %JAR% %*
+REM java -cp %CLASSPATH% eu.compassresearch.ide.CheckCml %*
 GOTO END
 
 
