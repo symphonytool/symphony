@@ -9,7 +9,7 @@ set BASE=%~dp0
 set REPO=%BASE%\..\..
 set VERSION=0.0.1
 set JAR=%BASE%\target\commandlinetool-%VERSION%-jar-with-dependencies.jar
-set CLASSPATH=.;%REPO%\core\parser\target\parser-%VERSION%.jar;%REPO%\core\ast\target\ast-%VERSION%.jar
+set CLASSPATH=.;%REPO%\core\parser\target\parser-%VERSION%.jar;%REPO%\core\ast\target\ast-%VERSION%.jar;%JAR%
 
 IF NOT EXIST %JAR% GOTO ERR_NOJAR
 

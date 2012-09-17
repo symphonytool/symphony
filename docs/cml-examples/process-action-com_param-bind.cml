@@ -1,0 +1,6 @@
+process RegisterProc = 
+begin 
+   
+   @
+   init?e in set {1,2} -> REG
+end

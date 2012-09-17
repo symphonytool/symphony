@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="eu.compassresearch.features.core"
-      label="Overture Core"
+      label="COMPASS Core"
       version="0.3.0.qualifier"
       plugin="eu.compassresearch.ide.cml.core">
 

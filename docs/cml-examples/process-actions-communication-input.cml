@@ -1,6 +1,6 @@
 process RegisterProc = 
  begin
- aCtions
+ actions
    REG = 
      load?i -> LOAD(i) ; REG
    @

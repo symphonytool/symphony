@@ -1,0 +1,1 @@
+process test = begin @ let a=2,b=4 in A(a,b) end

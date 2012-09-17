@@ -1,223 +1,153 @@
 package eu.compassresearch.core.typechecker;
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
-import org.overture.ast.analysis.intf.IAnalysis;
-import org.overture.ast.analysis.intf.IQuestionAnswer;
-import org.overture.ast.declarations.AClassDeclaration;
-import org.overture.ast.declarations.PDeclaration;
-import org.overture.ast.definitions.AClassClassDefinition;
-import org.overture.ast.definitions.AClassbodyDefinition;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.PExp;
 
-import org.overture.ast.program.ASourcefileSourcefile;
-import org.overture.ast.statements.PStm;
-import org.overture.ast.types.AClassType;
-import org.overture.ast.types.PType;
-import org.overturetool.vdmj.lex.LexLocation;
-import org.overturetool.vdmj.typechecker.NameScope;
-
-import eu.compassresearch.core.lexer.CmlLexer;
-import eu.compassresearch.core.parser.CmlParser;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.LinkedList;
+import java.lang.reflect.Method;
 import java.util.List;
 
+import eu.compassresearch.ast.lex.LexLocation;
+import eu.compassresearch.ast.node.INode;
 
-@SuppressWarnings("serial")
-public class CmlTypeChecker extends QuestionAnswerAdaptor<TypeCheckInfo, PType> {
-
-	// --------------------------------------------- 
-	// To be refactored, issues, warnings and errors
-	// ---------------------------------------------
-	static abstract class CMLIssue
-	{
-		// the position for the least common ancestor node spanning the nodes making up an error.  
-		protected final LexLocation location;
-		public CMLIssue(LexLocation location) {  this.location = location;}
-	}
-
-	static class CMLTypeWarning extends CMLIssue {
-		protected final String description;
-
-		public CMLTypeWarning(LexLocation location, String description) {
-			super(location);
-			this.description = description;
-		}
-	}
-
-	static class CMLTypeError extends CMLTypeWarning {
-		private boolean canBeIgnored = false;
-		public CMLTypeError(LexLocation location, String message) {
-			super(location, message);
-		}
-
-		public boolean isCanBeIgnored() {
-			return canBeIgnored;
-		}
-		public void setCanBeIgnored(boolean canBeIgnored) {
-			this.canBeIgnored = canBeIgnored;
-		}
-		
-		@Override
-		public String toString()
-		{
-			return "ERROR: "+location+" : "+description;
-		}
-	}
-
-
-	// ---------------------------------------------
-	// -- Type Checker State
-	// ---------------------------------------------
-	private final List<ASourcefileSourcefile> sourceForest;
-	private final List<CMLTypeError> errors;
-	private final List<CMLTypeWarning> warnings;
-
-	// subcheckers
-	private final IQuestionAnswer<TypeCheckInfo, PType> exp;
-	private final IQuestionAnswer<TypeCheckInfo, PType> stm;
-	private final IQuestionAnswer<TypeCheckInfo, PType> dad;
-
-
-	// ---------------------------------------------
-	// -- Dispatch to sub-checkers
-	// ---------------------------------------------
-	@Override
-	public PType defaultPDeclaration(PDeclaration node, TypeCheckInfo question) {
-		return node.apply(this.dad, question);
-	}
-
-	@Override
-	public PType defaultPDefinition(PDefinition node, TypeCheckInfo question) {
-		return node.apply(this.dad, question);
-	}
-
-	@Override
-	public PType defaultPExp(PExp node, TypeCheckInfo question) {
-		return node.apply(exp, question);
-	}
-
-	@Override
-	public PType defaultPStm(PStm node, TypeCheckInfo question) {
-		return node.apply(stm,question);
-	}
-
-	// ---------------------------------------------
-	// -- Top Level Rule dispatching to sub checkers
-	// ---------------------------------------------
-	@Override
-	public PType caseASourcefileSourcefile(ASourcefileSourcefile node,
-			TypeCheckInfo question) {
-	
-		
-		for(PDeclaration decl : node.getDecls())
-			decl.apply(this, question);
-		
-		// Source file has no type
-		return null;
-	}
-
-
-
-
-
-
-
-
-
-
-
-	public String getAnalysisName() { return "The CML Type Checker"; }
-
-	public CmlTypeChecker()
-	{
-		exp = new TCExpressionVisitor(this);
-		stm = new TCStatementVisitor();
-		dad = new TCDeclAndDefVisitor(this);
-		this.sourceForest = new LinkedList<ASourcefileSourcefile>();
-		this.errors = new LinkedList<CMLTypeError>();
-		this.warnings = new LinkedList<CMLTypeWarning>();
-	}
-
-
-
-	private static void runOnFile(File f) throws IOException
-	{
-		
-		Reader r = null;
-		if (f == null)
-		{
-			r = new BufferedReader(new InputStreamReader(System.in));
-		}
-		else
-		{
-			r = new FileReader(f);
-		}
-		CmlLexer lexer = new CmlLexer(r);
-		CmlParser parser = new CmlParser(lexer);
-		ASourcefileSourcefile tree = new ASourcefileSourcefile();
-		parser.setDocument(tree);
-		if (parser.parse())
-		{	
-			TypeCheckInfo tci = new TypeCheckInfo();
-			CmlTypeChecker analysis = new CmlTypeChecker();
-			tree.apply(analysis, tci);
-			if (analysis.getErrors().size() > 0)
-			{
-				System.out.println("\n\nTYPE ERRORS EXIST:\n ");
-				for(CMLTypeError e : analysis.getErrors())
-					System.out.println(e);
-			}
-		}
-	}
-
-
-	public static void main(String[] args) throws IOException
-	{
-		File cml_examples = new File("../../docs/cml-examples");
-		int failures = 0;
-		int successes = 0;
-		// runOnFile(null);
-		
-		if (cml_examples.isDirectory())
-		{
-			for(File example : cml_examples.listFiles())
-			{
-				System.out.print("Typechecking example: "+example.getName()+" \t\t...: ");System.out.flush();
-				try {
-					runOnFile(example);
-					System.out.println("done"); successes++;
-				} catch (Exception e)
-				{
-					System.out.println("exception");failures++;
-				}
-			}
-		}
-		
-		System.out.println(successes+" was successful, "+failures+" was failures.");
-
-	}
-
-
-
-
-
-	public List<CMLTypeError> getErrors() {
-		return errors;
-	}
-
-
-
-
-
-	public List<CMLTypeWarning> getWarnings() {
-		return warnings;
-	}
-
-}
+/**
+ * 
+ * @author rwl
+ * 
+ *         A CML Type checker has the characteristics of this interface.
+ * 
+ */
+public interface CmlTypeChecker
+  {
+    // /----------------------------------------------------------
+    // | Error reporting
+    // \----------------------------------------------------------
+    /**
+     * @author rwl
+     * 
+     *         The result from the CML type checker is a set of CMLIssues. These
+     *         can be warnings or error.
+     * 
+     *         A CML Issue points the a subtree node that is the least upper
+     *         bound node in the AST spanning causing the issue.
+     * 
+     */
+    public static abstract class CMLIssue
+      {
+        protected final INode subtree;
+        
+        public CMLIssue(INode subtree)
+          {
+            this.subtree = subtree;
+          }
+        
+        // temporary method goes away when astCreator is updated. ( INode should
+        // have getLocation method )
+        protected LexLocation getLocation()
+          {
+            LexLocation location = null;
+            if (subtree != null)
+              {
+                try
+                  {
+                    Method getLocation = subtree.getClass().getMethod(
+                        "getLocation", new Class<?>[0]);
+                    location = (LexLocation) getLocation.invoke(subtree,
+                        new Object[0]);
+                  } catch (Exception e)
+                  {
+                    // no location :(
+                  }
+              }
+            return location;
+          }
+      }
+    
+    /**
+     * 
+     * @author rwl
+     * 
+     *         CML Type Warnings can be ignored as the properties of CML special
+     *         preservation and CML special progress should still hold in the
+     *         presents of warnings. However, the model may be ill shaped for
+     *         e.g. simulation: a set of classes with no processes can never
+     *         run. Such issues are not directly errors but will lead to limited
+     *         exploration with later phases of the COMPASS tools.
+     */
+    public static class CMLTypeWarning extends CMLIssue
+      {
+        protected final String description;
+        
+        public CMLTypeWarning(INode subtree, String description)
+          {
+            super(subtree);
+            this.description = description;
+          }
+        
+        @Override
+        public String toString()
+          {
+            LexLocation location = super.getLocation();
+            return "TypeWarning: " + location + " : " + description;
+          }
+        
+      }
+    
+    /**
+     * 
+     * @author rwl
+     * 
+     *         CML Type Errors means that the CML model leads to an AST that
+     *         cannot be given a proper semantics.
+     * 
+     */
+    public static class CMLTypeError extends CMLTypeWarning
+      {
+        
+        public CMLTypeError(INode subtree, String message)
+          {
+            super(subtree, message);
+          }
+        
+        @Override
+        public String toString()
+          {
+            LexLocation location = super.getLocation();
+            return "TypeError: " + location + " : " + description;
+          }
+      }
+    
+    /**
+     * Returns the list of type errors found after type checking. If the type
+     * check method has not been invoked yet an IllegalStateException will be
+     * thrown.
+     * 
+     * @return - List with CML type errors.
+     * @throws IllegalStateException
+     */
+    public List<CMLTypeError> getTypeErrors() throws IllegalStateException;
+    
+    /**
+     * Returns the list of type warnings found during type checking. See
+     * {@link CMLTypeWarning}. An IllegalStateException will be thrown is
+     * invoked before the type checker has completed a full type check.
+     * 
+     * @return
+     * @throws IllegalStateException
+     */
+    public List<CMLTypeWarning> getTypeWarnings() throws IllegalStateException;
+    
+    /**
+     * Run the type checker. This will update the source(s) this type checker
+     * instance was constructed with.
+     * 
+     * @return - Returns true if the entire tree could be type checked without
+     *         errors. It returns false otherwise and courses to failing the
+     *         type check can be inspected though getErrors.
+     */
+    public boolean typeCheck();
+    
+    /**
+     * Return a pretty name for this type checker user-interactive tools can use
+     * for printing.
+     * 
+     * @return - analysis pretty name.
+     */
+    public String getAnalysisName();
+  }

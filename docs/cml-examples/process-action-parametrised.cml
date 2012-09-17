@@ -1,0 +1,2 @@
+process RegisterProc = begin @ (val a : nat ; res b : nat ; vres c :int @ A) end
+

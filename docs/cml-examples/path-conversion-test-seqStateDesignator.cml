@@ -1,0 +1,9 @@
+process RegisterProc = 
+ begin
+
+  state 
+  reg : seq of nat	
+ 
+   @
+     reg(1) := 1
+ end

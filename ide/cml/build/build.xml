@@ -16,15 +16,14 @@
     at patrick@rcpquickstart.com.
     
     Modified by Lukas Zapletal <lzapletal@pikeelectronic.com>.
--->
+
 <!DOCTYPE project [
        <!ENTITY copyProjects SYSTEM "copyProjects.xml">
 ]>
+-->
 <project name="eu.compassresearch.ide" default="build">
 	<tstamp />
-	<property file="build.properties" />
-
-
+	<property file="build_config/build.properties" />
 
 	<target name="validateEnv">
 		<sequential>
@@ -34,8 +33,8 @@
 			</property-->
 			<echo message="${mvn.executable}">
 			</echo>
-			<fail message="1MVN not avaliable in path">
-				<condition>
+			<fail message="1MVN not avaliable in path">	
+			<condition>
 					<not>
 						<available file="${mvn.executable}" />
 					</not>
@@ -81,26 +80,34 @@
 		<mkdir dir="${buildDirectory}" />
 		<mkdir dir="${buildDirectory}/plugins" />
 		<mkdir dir="${buildDirectory}/features" />
-		&copyProjects;
+		<ant antfile="copyProjects.xml" target="copyStuff"/> 
 	</target>
 
 	<!--
         This target actually executes the PDE Build process by launching the 
         Eclipse antRunner application.
     -->
+	<echo message="BaseOS: ${baseos}"/>
+	<echo message="BaseWS: ${basews}"/>
+	<echo message="BaseARCH: ${basearch}"/>
+	<echo message="SkipBase: ${skipBase}"/>
+	<echo message="PluginPath: ${pluginPath}"/>
+	<echo message="BaseDir: ${basedir}"/>
+	<echo message="PluginPath: ${pluginPath}"/>
+	<echo message="BuildDirectory: ${buildDirectory}"/>
+	<echo message="Executing ${eclipseLocation}/plugins/org.eclipse.equinox.launcher_${equinoxLauncherPluginVersion}.jar" />
+	<echo message="Eclipse base location: ${eclipseLocation}" />
+	<echo message="Base location: ${base}" />
+	<echo message="Product: ${product}" />
+
 	<target name="pde-build">
-		<echo message="Executing ${eclipseLocation}/plugins/org.eclipse.equinox.launcher_${equinoxLauncherPluginVersion}.jar" />
-		<echo message="Eclipse base location: ${eclipseLocation}" />
-		<echo message="Base location: ${base}" />
-		<echo message="Product: ${product}" />
 		<java classname="org.eclipse.equinox.launcher.Main" fork="true" failonerror="true">
 			<arg value="-application" />
 			<arg value="org.eclipse.ant.core.antRunner" />
 			<arg value="-buildfile" />
 			<arg value="${eclipseLocation}/plugins/org.eclipse.pde.build_${pdeBuildPluginVersion}/scripts/productBuild/productBuild.xml" />
-			<arg value="-Dtimestamp=${timestamp}" />
-			<arg value="-Dproduct=${product}" />
-			<arg value="-Dbase=${base}" />
+			<arg value="-Dproduct=${basedir}/../platform/cml.product"/>
+			<arg value="-DbaseLocation=${eclipseLocation}"/>
 			<arg value="-DeclipseLocation=${eclipseLocation}" />
 			<arg value="-DbuildDirectory=${buildDirectory}" />
 			<arg value="-DpdeBuildPluginVersion=${pdeBuildPluginVersion}" />
@@ -108,6 +115,7 @@
 			<arg value="-Dbasews=${basews}" />
 			<arg value="-Dbasearch=${basearch}" />
 			<arg value="-DpluginPath=${pluginPath}" />
+			<arg value="-Dbuilder=${basedir}/build_config"/>
 
 			<classpath>
 				<pathelement location="${eclipseLocation}/plugins/org.eclipse.equinox.launcher_${equinoxLauncherPluginVersion}.jar" />

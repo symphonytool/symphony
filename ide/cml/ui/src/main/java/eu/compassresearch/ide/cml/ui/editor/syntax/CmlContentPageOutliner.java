@@ -3,6 +3,7 @@ package eu.compassresearch.ide.cml.ui.editor.syntax;
 
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
@@ -13,15 +14,27 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements IConte
 	private CmlSourceUnit input;
 	private CmlTreeContentProvider provider;
 
+	public void refresh()
+	{
+		final Display curDisp = Display.getDefault();
+		if (curDisp != null)
+			curDisp.syncExec(new Runnable() {
+				public void run()
+				{
+					getTreeViewer().refresh();		
+				}
+			});
+	}
+	
 	public CmlContentPageOutliner() {
 		provider = new CmlTreeContentProvider();
+		
 	}
 
 	@Override
 	public void createControl(Composite parent) {
 		super.createControl(parent);
 		TreeViewer viewer = getTreeViewer();
-		CmlTreeContentProvider provider = new CmlTreeContentProvider();
 		viewer.setContentProvider(provider);
 		viewer.addSelectionChangedListener(this);
 		viewer.setInput(input);

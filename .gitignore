@@ -51,7 +51,6 @@ target/
 
 # temporary excludes #
 ######################
-#core/ast/src/main/java
 bin/
-/core/parser/cml.report
+/core/parser/*.report
 

@@ -1,6 +1,6 @@
 chansets 
  I =    {|available,notavailable,init,
-          booked,cancelled,error,book,cancel|}
+          booked,cancelled,error,book,cancel|};
  I2 =   {|fnrmavailable, fnrmnotavailable, fnrmbooked, fnrmcancelled,
           bookfunctionroom, booknamedfunctionroom, 
           cancelnamedfunctionroom|}
