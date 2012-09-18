@@ -10,7 +10,6 @@
 
 package eu.compassresearch.core.analysis.pog.visitors;
  
-
 // Java libraries 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -27,17 +26,16 @@ import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.expressions.PExp;
-//import eu.compassresearch.ast.expressions.PStm;//???
+//import eu.compassresearch.ast.expressions.PStm;//Taken from Overture POG
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 //import eu.compassresearch.core.parser.CmlParser; CAN'T FIND PARSER PACKAGE     
 //import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
 //import eu.compassresearch.ast.node.INode;
-//import eu.compassresearch.ast.lex.LexLocation;
+import eu.compassresearch.ast.lex.LexLocation;
 
 //COMPASS POG libraries 
-import eu.compassresearch.core.analysis.pog.obligations.*;
 import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
 import eu.compassresearch.core.analysis.pog.obligations.POContext;
 import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
@@ -54,8 +52,7 @@ public class ProofObligationGenerator extends
     // ---------------------------------------------
     // -- Proof Obligation Generator State
     // ---------------------------------------------
-    // Taken from Type Checker code
-    // ---------------------------------------------
+    
     // subcheckers
     private POGExpressionVisitor exp;
     private POGStatementVisitor  stm;
@@ -63,7 +60,6 @@ public class ProofObligationGenerator extends
     
     private void initialize()
     {
-        System.out.println( "177");
         exp = new POGExpressionVisitor(this);
         stm = new POGStatementVisitor(this);
         dad = new POGDeclAndDefVisitor(this);
@@ -76,7 +72,6 @@ public class ProofObligationGenerator extends
     public ProofObligationList defaultPDeclaration(PDeclaration node, POContextStack question)
         throws AnalysisException
       {
-        System.out.println( "da1");
         return node.apply(this.dad, question);
       }
     
@@ -84,7 +79,6 @@ public class ProofObligationGenerator extends
     public ProofObligationList defaultPDefinition(PDefinition node, POContextStack question)
         throws AnalysisException
       {
-        System.out.println( "da1");
         return node.apply(this.dad, question);
       }
     
@@ -92,7 +86,6 @@ public class ProofObligationGenerator extends
     public ProofObligationList defaultPExp(PExp node, POContextStack question)
         throws AnalysisException
       {
-        System.out.println( "ex1");
         return node.apply(exp, question);
       }
     
@@ -100,7 +93,6 @@ public class ProofObligationGenerator extends
     public ProofObligationList defaultPAction(PAction node, POContextStack question)
         throws AnalysisException
       {
-        System.out.println( "st1");
         return node.apply(stm, question);
       }
       
@@ -137,11 +129,8 @@ public class ProofObligationGenerator extends
      */
     public ProofObligationGenerator(List<PSource> cmlSources)
     {
-        System.out.println( "ss1");
         initialize();
         this.sourceForest = cmlSources; 
-        System.out.println( "ProofObligationGenerator constructore - single source");
-
     }
     
     /**
@@ -152,38 +141,44 @@ public class ProofObligationGenerator extends
      */
     public ProofObligationGenerator(PSource singleSource)
     {
-        System.out.println( "ms1");
         initialize();
         this.sourceForest = new LinkedList<PSource>();
         this.sourceForest.add(singleSource);
-        System.out.println( "ProofObligationGenerator constructore - many source");
     }
 
 	/**
      * Run the proof obligation generator. This will update the source(s) this POG
      * instance was constructed with.
      * 
-     * @return - Returns - WHAT?
+     * @return - Returns ProofObligation list. This may need to change. 
      */
     public ProofObligationList generatePOs()
-      {
-        System.out.println( "5");
+    {
         ProofObligationList obligations = new ProofObligationList();
-		
 		POContextStack ctxt = new POContextStack();
 		
 		// for each source
         for (PSource s : sourceForest)
-        {
-        	//for (PDefinition d : defs) {
+        {	
+        	// for each CML paragraph
             for (SParagraphDefinition paragraph : s.getParagraphs())
             {
                 try
-                {
-                	paragraph.apply(this, ctxt);
+                {	
+                    System.out.println("--------------------------------PROCESSING--------------------------------");
+                	System.out.println(paragraph.toString());
+                	System.out.println("----------------------------------RESULT----------------------------------");
+                	
+                	// process paragraph:
+                	// 1.'prime' POContext, push variable names (from Overture)
+                	// 2. start processing paragraph - passing new context 
+                	// 3.remove POContext, popping variable names (from Overture)
                 	//ctxt.push(new PONameContext(getVariableNames(d)));
-                    //obligations.addAll(paragraph.apply(this, ctxt));
+                    obligations.addAll(paragraph.apply(this, ctxt));
 					//ctxt.pop();
+					
+					System.out.println();
+					System.out.println();
                 } 
                 catch (AnalysisException ae)
                 {
@@ -200,7 +195,7 @@ public class ProofObligationGenerator extends
 		       
 		System.out.println(obligations.size() + " Proof Obligations generated");
 		return obligations;
-      }
+    }
 
 
     // ---------------------------------------------
@@ -212,85 +207,73 @@ public class ProofObligationGenerator extends
     // setting the file on AFileSource allows the CmlParser factory method
     // to create both parser and lexer.
     private static PSource prepareSource(File f)
-      {
-        System.out.println( "1");
+    {
         if (f == null)
-          {
+        {
             AInputStreamSource iss = new AInputStreamSource();
             iss.setStream(System.in);
             iss.setOrigin("stdin");
             return iss;
-          } else
-          {
+        } 
+        else
+        {
             AFileSource fs = new AFileSource();
             fs.setName(f.getName());
             fs.setFile(f);
             return fs;
-          }
-      }
+        }
+    }
     
     /**
-     * This method runs the PO generator on a given file. The method parses the file 
-     * prior to POG, and invokes methods to generate POs.
+     * This method runs the PO generator on a given file. The method invokes methods to generate POs.
      * 
      * @param f - The file to generate POs
      */
     private static void runOnFile(File f) throws IOException
-      {
-        System.out.println( "2");
+    {
         // set file name
         PSource source = prepareSource(f);
-        
-        // Call factory method to build parser and lexer
-        //CmlParser parser = CmlParser.newParserFromSource(source); CAN'T FIND PARSER PACKAGE        
-        // Run the parser and lexer and report errors if any
-        //if (!parser.parse())
-        //  {
-        //    System.out.println("Failed to parse: " + source.toString());
-        //    return;
-        //  }
-        
+               
         // generate POs
         ProofObligationGenerator cmlPOG = new ProofObligationGenerator(source);
         cmlPOG.generatePOs();
         
         // Report success
         System.out.println("Proof Obligation Generation is complete for the given CML Program");
-      }
+    }
       
      /**
      * Main method for class. Current test class takes a set of cml examples and 
      * generates POs for each
      */
     public static void main(String[] args) throws IOException
-      {
-        System.out.println( "3");
+    {
         File cml_examples = new File("../../docs/cml-examples");
         int failures = 0;
         int successes = 0;
         // runOnFile(null);
         
         if (cml_examples.isDirectory())
-          {
+        {
             for (File example : cml_examples.listFiles())
-              {
+            {
                 System.out.print("Generating Proof Obligations for example: " + example.getName()
                     + " \t\t...: ");
                 System.out.flush();
                 try
-                  {
+                {
                     runOnFile(example);
                     System.out.println("done");
                     successes++;
-                  } catch (Exception e)
-                  {
+                } 
+                catch (Exception e)
+                {
                     System.out.println("exception");
                     failures++;
-                  }
-              }
-          }
+                }
+            }
+        }
         
-        System.out.println(successes + " was successful, " + failures
-            + " was failures.");
-      }    
+        System.out.println(successes + " was successful, " + failures + " was failures.");      
+	}
 }

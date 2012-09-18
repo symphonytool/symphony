@@ -1,7 +1,7 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
- import eu.compassresearch.ast.analysis.AnalysisException;
+import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.actions.PAction;
 //import eu.compassresearch.ast.expressions.PStm;
 import eu.compassresearch.core.analysis.pog.obligations.MapApplyObligation;
