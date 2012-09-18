@@ -8,7 +8,6 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -81,9 +80,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider
         
         public static <T> Wrapper<T> newInstance(T value, String str)
           {
-            Image icon = new Image(Display.getCurrent(),
-                "/home/rwl/Desktop/PhD/develop/cml/ide/cml/ui/icons/cview16/cml_file_tsk.png");
-            return new Wrapper<T>(icon, value, str);
+            return new Wrapper<T>(null, value, str);
           }
         
         public Wrapper(Image img, T value, String str)
@@ -142,22 +139,16 @@ public class CmlTreeContentProvider implements ITreeContentProvider
                     (AValueParagraphDefinition) w.value).toArray();
               }
             
-            if (w.isClass(AProcessParagraphDefinition.class))
+            if (w.isClass(AProcessParagraphDefinition.class)
+                || w.isClass(PProcess.class))
               {
                 AProcessParagraphDefinition processDecl = (AProcessParagraphDefinition) w.value;
                 AProcessDefinition def = processDecl.getProcessDefinition();
                 PProcess process = def.getProcess();
                 
-                if (process instanceof AStateProcess)
-                  {
-                    List<Object> res = new LinkedList<Object>();
-                    AStateProcess sp = (AStateProcess) process;
-                    PAction a = sp.getAction();
-                    addActions(res, a);
-                    return res.toArray();
-                  }
+                List<Object> res = handleProcess(process);
                 
-                return new Object[] { "Not Implemented Yet" };
+                return res.toArray();
               }
             
             if (w.isClass(ASequentialCompositionProcess.class))
@@ -205,6 +196,31 @@ public class CmlTreeContentProvider implements ITreeContentProvider
           }
         
         return new String[0];
+      }
+    
+    private List<Object> handleProcess(PProcess process)
+      {
+        List<Object> res = new LinkedList<Object>();
+        if (process instanceof AStateProcess)
+          {
+            AStateProcess sp = (AStateProcess) process;
+            PAction a = sp.getAction();
+            addActions(res, a);
+            return res;
+          }
+        
+        if (process instanceof ASequentialCompositionProcess)
+          {
+            ASequentialCompositionProcess p = (ASequentialCompositionProcess) process;
+            PProcess left = p.getLeft();
+            PProcess right = p.getRight();
+            res.add(Wrapper.newInstance(left, "left"));
+            res.add(Wrapper.newInstance(right, "right"));
+            return res;
+          }
+        
+        res.add("Not implemented yet \"" + process.getClass().getName() + "\"");
+        return res;
       }
     
     private void handleSequentialCompisitionProcess(List<Object> res,

@@ -27,7 +27,7 @@ import eu.compassresearch.ast.types.PType;
  */
 @SuppressWarnings("serial")
 public abstract class AbstractTypeChecker extends
-    QuestionAnswerAdaptor<TypeCheckInfo, PType> implements CmlTypeChecker
+    QuestionAnswerAdaptor<TypeCheckQuestion, PType> implements CmlTypeChecker
   {
     
     protected List<CmlTypeChecker.CMLTypeError>   errors;
@@ -50,7 +50,7 @@ public abstract class AbstractTypeChecker extends
      *          - A message detailing the nature of the the error and preferably
      *          hinting how to fix it.
      */
-    void addTypeError(INode offendingSubtree, String message)
+    public void addTypeError(INode offendingSubtree, String message)
       {
         CMLTypeError error = new CMLTypeError(offendingSubtree, message);
         errors.add(error);

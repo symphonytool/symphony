@@ -34,8 +34,4 @@ Export-Package: eu.compassresearch.ide.cml.ui;uses:="org.eclipse.ui.plugin,org.o
    org.eclipse.swt.widgets",
  eu.compassresearch.ide.cml.ui.wizard
 Import-Package: eu.compassresearch.ide.cml.core
-Bundle-ClassPath: .,
- lib/ast-0.0.1.jar,
- lib/parser-0.0.1.jar,
- lib/typechecker-0.0.1.jar,
- lib/typechecker-2.2.0.jar
+Bundle-ClassPath: .

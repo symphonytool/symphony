@@ -446,6 +446,7 @@ type {-> package='eu.compassresearch.ast.types'}
     |   {actionParagraph} // marker stipulating that a Action Paragraph is typed ok
     |   {valueParagraph} // marker stipulating that a Values paragraph is typed ok
     |   {functionParagraph} // marker stipulating that a Function Paragraph is typed ok
+    |   {typeParagraph} // marker stipulating that a Types Paragraph is typed ok
     |   {source} // marker stipulating a source was typed ok
     |   {bracket} (type):type
     |   {channel}

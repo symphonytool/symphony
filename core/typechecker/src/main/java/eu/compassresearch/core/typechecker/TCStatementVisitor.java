@@ -12,7 +12,7 @@ import eu.compassresearch.ast.types.PType;
 
 @SuppressWarnings("serial")
 public class TCStatementVisitor extends
-    QuestionAnswerAdaptor<TypeCheckInfo, PType>
+    QuestionAnswerAdaptor<TypeCheckQuestion, PType>
   {
     
     private VanillaCmlTypeChecker parentChecker;
@@ -24,7 +24,7 @@ public class TCStatementVisitor extends
     
     @Override
     public PType caseAReturnStatementAction(AReturnStatementAction node,
-        TypeCheckInfo question) throws AnalysisException
+        TypeCheckQuestion question) throws AnalysisException
       {
         AExplicitOperationDefinition operation = node
             .getAncestor(AExplicitOperationDefinition.class);
@@ -43,7 +43,7 @@ public class TCStatementVisitor extends
     
     @Override
     public PType caseABlockStatementAction(ABlockStatementAction node,
-        TypeCheckInfo question) throws AnalysisException
+        TypeCheckQuestion question) throws AnalysisException
       {
         // extend the environment
         
@@ -51,9 +51,9 @@ public class TCStatementVisitor extends
         PAction action = node.getAction();
         PType actionType = action.apply(parentChecker, question);
         if (actionType == null)
-          throw new AnalysisException(
-              "Unable to type check enclosed action in block statement action.");
-        
+          parentChecker.addTypeError(action,
+              TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+                  .customizeMessage(action.toString()));
         node.setType(new AStatementType());
         
         return node.getType();
