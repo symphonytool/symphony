@@ -45,4 +45,14 @@ public class POGExpressionVisitor extends
 		System.out.println("Reached POGExpressionVisitor - defaultPEx ");
 		return new ProofObligationList();
 	}
+		
+	//private boolean isMap(PType type)
+	//{
+	//    return type instanceof SMapType;
+	//}
+
+	//private SMapType getMap(PType type)
+	//{
+	//   return (SMapType)type;
+	//}
 }
