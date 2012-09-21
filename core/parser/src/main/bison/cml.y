@@ -2521,6 +2521,8 @@ valueDef :
   vdef.setDefs(null);
   vdef.setLocation(combineLexLocation(idp.getLocation(), expression.getLocation()));
   vdef.setName(lnt);
+  vdef.setUsed(false);
+  vdef.setAccess(new AAccessSpecifier(new APrivateAccess(), null, null, lnt.location));
   $$ = vdef;
 }
 | patternLessID COLON type EQUALS expression
@@ -3673,8 +3675,16 @@ ifExpr :
   Position eif = _if.getEndPos();
   PExp test = (PExp)$2;
   PExp then = (PExp)$4;
-  List<AElseIfExp> elses = (List<AElseIfExp>)$5;
+  List<PExp> elses = (List<PExp>)$5;
   AIfExp ifexp = new AIfExp();
+  List<AElseIfExp> elseifs = new LinkedList<AElseIfExp>();
+  for(PExp exp : elses)
+    if (exp instanceof AElseIfExp) 
+      elseifs.add((AElseIfExp)exp);
+    else
+      ifexp.setElse(exp);
+
+
   LexLocation  sifloc = new LexLocation(currentSource.toString(),
                                         "DEFAULT",
                                         sif.line, sif.column,
@@ -3682,7 +3692,7 @@ ifExpr :
                                         sif.offset, eif.offset);
   ifexp.setTest(test);
   ifexp.setThen(then);
-  ifexp.setElseList(elses);
+  ifexp.setElseList(elseifs);
   ifexp.setLocation(
                     combineLexLocation(sifloc,
                                        extractLastLexLocation(elses)));
@@ -3695,10 +3705,8 @@ elseExprs :
 {
   CmlLexeme elsetok = (CmlLexeme)$1;
   PExp exp = (PExp)$2;
-  AElseIfExp eie = new AElseIfExp();
-  eie.setLocation(combineLexLocation(extractLexLocation(elsetok), exp.getLocation()));
-  List<AElseIfExp> res = new LinkedList<AElseIfExp>();
-  res.add(eie);
+  List<PExp> res = new LinkedList<PExp>();
+  res.add(exp);
   $$ = res;
 }
 | ELSEIF expression THEN expression elseExprs
@@ -3706,7 +3714,7 @@ elseExprs :
   CmlLexeme elseif = (CmlLexeme)$1;
   PExp elseIf = (PExp)$2;
   PExp then = (PExp)$4;
-  List<AElseIfExp> tail = (List<AElseIfExp>)$5;
+  List<PExp> tail = (List<PExp>)$5;
   LexLocation loc = combineLexLocation(extractLexLocation(elseif), then.getLocation());
   AElseIfExp eie = new AElseIfExp();
   eie.setElseIf(elseIf);

@@ -20,9 +20,11 @@ import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
+import eu.compassresearch.core.typechecker.api.TypeComparator;
 
 @SuppressWarnings("serial")
-public class VanillaCmlTypeChecker extends AbstractTypeChecker
+class VanillaCmlTypeChecker extends AbstractTypeChecker
   {
     
     // ---------------------------------------------
@@ -32,16 +34,18 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
     private IQuestionAnswer<TypeCheckQuestion, PType> exp;
     private IQuestionAnswer<TypeCheckQuestion, PType> stm;
     private IQuestionAnswer<TypeCheckQuestion, PType> dad;
-    private IQuestionAnswer<TypeCheckQuestion, PType> typ;       // basic type
-                                                                  // checker
+    private IQuestionAnswer<TypeCheckQuestion, PType> typ;           // basic
+                                                                      // type
+                                                                      // checker
     private boolean                                   lastResult;
+    private final TypeComparator                      typeComparator;
     
     private void initialize()
       {
-        exp = new TCExpressionVisitor(this);
-        stm = new TCStatementVisitor(this);
-        dad = new TCDeclAndDefVisitor(this);
-        typ = new TCTypeVisitor(this);
+        exp = new TCExpressionVisitor(this, this);
+        stm = new TCStatementVisitor(this, this);
+        dad = new TCDeclAndDefVisitor(this, typeComparator, this);
+        typ = new TCTypeVisitor(this, this);
       }
     
     // ---------------------------------------------
@@ -120,8 +124,26 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
      */
     public VanillaCmlTypeChecker(List<PSource> cmlSources)
       {
-        initialize();
+        
         this.sourceForest = cmlSources;
+        typeComparator = SimpleTypeComparator.newInstance();
+        initialize();
+      }
+    
+    void clear()
+      {
+        cleared = true;
+        sourceForest = null;
+        this.issueHandler = new CollectingIssueHandler();
+      }
+    
+    public VanillaCmlTypeChecker(List<PSource> cmlSource,
+        TypeComparator typeComparator)
+      {
+        this.sourceForest = new LinkedList<PSource>();
+        sourceForest.addAll(cmlSource);
+        this.typeComparator = typeComparator;
+        initialize();
       }
     
     /**
@@ -132,9 +154,12 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
      */
     public VanillaCmlTypeChecker(PSource singleSource)
       {
-        initialize();
+        
         this.sourceForest = new LinkedList<PSource>();
         this.sourceForest.add(singleSource);
+        typeComparator = SimpleTypeComparator.newInstance();
+        initialize();
+        
       }
     
     /**
@@ -146,7 +171,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
      */
     public boolean typeCheck()
       {
-        TypeCheckInfo info = new TypeCheckInfo();
+        TypeCheckInfo info = TypeCheckInfo.getNewTopLevelInstance(this);
         
         if (!cleared)
           return lastResult;
@@ -163,11 +188,11 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
                   {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ae.printStackTrace(new PrintStream(baos));
-                    errors
-                        .add(new CMLTypeError(
+                    super
+                        .addTypeError(
                             s,
                             "The COMPASS Type checker failed on this cml-source. Please submit it for investigation to rala@iha.dk.\n"
-                                + new String(baos.toByteArray())));
+                                + new String(baos.toByteArray()));
                     // This means we have a bug in the type checker
                     return false;
                   }
@@ -175,7 +200,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
           }
         super.cleared = false;
         
-        return (lastResult = (errors.size() == 0));
+        return !super.issueHandler.hasErrors();
       }
     
     /**
@@ -185,10 +210,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
      */
     public List<CMLTypeError> getTypeErrors()
       {
-        if (cleared)
-          throw new IllegalStateException(
-              "The type checker has not run yet, invoke typeCheck before getting the errors.");
-        return errors;
+        return issueHandler.getTypeErrors();
       }
     
     /**
@@ -199,10 +221,7 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
      */
     public List<CMLTypeWarning> getTypeWarnings()
       {
-        if (cleared)
-          throw new IllegalStateException(
-              "The type checker has not run yet, please invoke typeCheck method before getting the warnings.");
-        return warnings;
+        return issueHandler.getTypeWarnings();
       }
     
     // ---------------------------------------
@@ -287,6 +306,24 @@ public class VanillaCmlTypeChecker extends AbstractTypeChecker
         System.out.println(successes + " was successful, " + failures
             + " was failures.");
         
+      }
+    
+    @Override
+    public boolean hasErrors()
+      {
+        return issueHandler.hasErrors();
+      }
+    
+    @Override
+    public boolean hasWarnings()
+      {
+        return issueHandler.hasWarnings();
+      }
+    
+    @Override
+    public boolean hasIssues()
+      {
+        return issueHandler.hasIssues();
       }
     
   }

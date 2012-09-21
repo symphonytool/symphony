@@ -9,6 +9,8 @@ import org.overture.ast.analysis.AnswerAdaptor;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.expressions.PExpBase;
+import eu.compassresearch.ast.lex.LexLocation;
+import eu.compassresearch.ast.lex.LexQuoteToken;
 import eu.compassresearch.ast.types.PType;
 
 public class CopyTypesFromOvtToCmlAst extends
@@ -136,12 +138,31 @@ public class CopyTypesFromOvtToCmlAst extends
                             Class<?> getterRet = getter.getReturnType();
                             if (isBasicJavaType(getterRet))
                               {
-                                
                                 setter.invoke(to, getterResult);
                               } else
                               {
-                                Constructor<?> argClassCtor = setter
-                                    .getParameterTypes()[0]
+                                String cmlClzName = getterResult
+                                    .getClass()
+                                    .getName()
+                                    .replace("org.overture.",
+                                        "eu.compassresearch.");
+                                Class<?> cmlClz = getClass().getClassLoader()
+                                    .loadClass(cmlClzName);
+                                
+                                // Special case, handle LexQuoteToken
+                                if (LexQuoteToken.class == cmlClz)
+                                  {
+                                    org.overture.ast.lex.LexQuoteToken quote = (org.overture.ast.lex.LexQuoteToken) getterResult;
+                                    
+                                    LexLocation cmlLocation = new LexLocation();
+                                    deepCopy(cmlLocation, quote.location);
+                                    String cmlFrom = quote.value;
+                                    LexQuoteToken r = new LexQuoteToken(
+                                        cmlFrom, cmlLocation);
+                                    setter.invoke(to, r);
+                                    return;
+                                  }
+                                Constructor<?> argClassCtor = cmlClz
                                     .getConstructor(new Class<?>[0]);
                                 Object copyedArd = argClassCtor
                                     .newInstance(new Object[0]);
@@ -156,6 +177,7 @@ public class CopyTypesFromOvtToCmlAst extends
               }
           } catch (Exception e)
           {
+            e.printStackTrace();
             return;
           }
         

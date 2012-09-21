@@ -22,6 +22,7 @@ import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.definitions.AValueDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.typechecker.VanillaFactory;
 
 @RunWith(value = Parameterized.class)
 public class CmlAstToOvertureAstTestCase
@@ -102,10 +103,10 @@ public class CmlAstToOvertureAstTestCase
         CmlParser parser = CmlParser.newParserFromSource(source);
         Assert.assertTrue(parser.parse());
         
-        CmlAstToOvertureAst transform = new CmlAstToOvertureAst(null);
+        CmlAstToOvertureAst transform = new CmlAstToOvertureAst(null,
+            VanillaFactory.newCollectingIssueHandle());
         eu.compassresearch.ast.node.INode node = (eu.compassresearch.ast.node.INode) findFirst(
             start, source);
         node.apply(transform);
       }
-    
   }

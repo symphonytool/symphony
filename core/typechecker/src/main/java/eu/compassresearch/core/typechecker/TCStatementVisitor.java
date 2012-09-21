@@ -9,17 +9,24 @@ import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
 import eu.compassresearch.ast.expressions.PExp;
 import eu.compassresearch.ast.types.AStatementType;
 import eu.compassresearch.ast.types.PType;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
+import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 @SuppressWarnings("serial")
-public class TCStatementVisitor extends
+class TCStatementVisitor extends
     QuestionAnswerAdaptor<TypeCheckQuestion, PType>
   {
     
-    private VanillaCmlTypeChecker parentChecker;
+    private final CmlTypeChecker   parentChecker;
+    private final TypeIssueHandler issueHandler;
     
-    public TCStatementVisitor(VanillaCmlTypeChecker parentChecker)
+    public TCStatementVisitor(CmlTypeChecker parentChecker,
+        TypeIssueHandler issueHandler)
       {
         this.parentChecker = parentChecker;
+        this.issueHandler = issueHandler;
       }
     
     @Override
@@ -51,7 +58,7 @@ public class TCStatementVisitor extends
         PAction action = node.getAction();
         PType actionType = action.apply(parentChecker, question);
         if (actionType == null)
-          parentChecker.addTypeError(action,
+          issueHandler.addTypeError(action,
               TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
                   .customizeMessage(action.toString()));
         node.setType(new AStatementType());

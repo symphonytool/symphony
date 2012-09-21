@@ -1,10 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.overture.ast.definitions.AStateDefinition;
@@ -17,13 +13,10 @@ import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexLocation;
 import eu.compassresearch.ast.node.INode;
-import eu.compassresearch.ast.types.AIntNumericBasicType;
-import eu.compassresearch.ast.types.ANatNumericBasicType;
-import eu.compassresearch.ast.types.ANatOneNumericBasicType;
-import eu.compassresearch.ast.types.ARationalNumericBasicType;
-import eu.compassresearch.ast.types.ARealNumericBasicType;
 import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.ast.types.SBasicType;
+import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
  * TypeCheckInfo tracks the three scopes we care about in CML. These are
@@ -36,7 +29,7 @@ import eu.compassresearch.ast.types.SBasicType;
  * @author rwl
  * 
  */
-public class TypeCheckInfo implements TypeCheckQuestion
+class TypeCheckInfo implements TypeCheckQuestion
   {
     
     public final String                     CML_SCOPE     = "CML";
@@ -47,21 +40,40 @@ public class TypeCheckInfo implements TypeCheckQuestion
     private final Environment<PDeclaration> channels;
     
     private final PDefinition               enclosingDefinition;
+    private final TypeIssueHandler          issueHandler;
     
     private TypeCheckInfo(Environment<PDefinition> vars,
         Environment<PType> types, Environment<PDeclaration> channels,
-        PDefinition enclosingDefinition)
+        PDefinition enclosingDefinition, TypeIssueHandler issueHandler)
       {
-        this.variables = new Environment<PDefinition>(vars);
-        this.types = new Environment<PType>(types);
-        this.channels = new Environment<PDeclaration>(channels);
+        this.variables = new Environment<PDefinition>(vars, issueHandler);
+        this.types = new Environment<PType>(types, issueHandler);
+        this.channels = new Environment<PDeclaration>(channels, issueHandler);
         this.enclosingDefinition = enclosingDefinition;
+        this.issueHandler = issueHandler;
       }
     
-    public TypeCheckInfo()
+    /**
+     * Create a new Type Check Info at top level
+     * 
+     * 
+     * @param issueHandler
+     *          -- Where to report issues
+     * @return a fresh Type Check Info instance at top level
+     */
+    public static TypeCheckInfo getNewTopLevelInstance(
+        TypeIssueHandler issueHandler)
       {
-        this(new Environment<PDefinition>(), new Environment<PType>(),
-            new Environment<PDeclaration>(), null);
+        
+        Environment<PDefinition> variables = new Environment<PDefinition>(
+            issueHandler);
+        Environment<PType> types = new Environment<PType>(issueHandler);
+        PDefinition enclosingDefinition = null;
+        Environment<PDeclaration> channels = new Environment<PDeclaration>(
+            issueHandler);
+        
+        return new TypeCheckInfo(variables, types, channels,
+            enclosingDefinition, issueHandler);
       }
     
     @Override
@@ -106,7 +118,7 @@ public class TypeCheckInfo implements TypeCheckQuestion
         // Variables are scoped, types and channels are global (for now at
         // least)
         TypeCheckInfo res = new TypeCheckInfo(this.variables, types, channels,
-            def);
+            def, null);
         return res;
       }
     
@@ -188,47 +200,6 @@ public class TypeCheckInfo implements TypeCheckQuestion
           }
         ;
         return new CombinedEnv();
-      }
-    
-    private static final Map<Class<?>, List<Class<?>>> fixedSubTypeRelations;
-    static
-      {
-        fixedSubTypeRelations = new HashMap<Class<?>, List<Class<?>>>();
-        fixedSubTypeRelations.put(AIntNumericBasicType.class,
-            Arrays.asList(new Class<?>[] { ANatNumericBasicType.class }));
-        fixedSubTypeRelations.put(ANatNumericBasicType.class,
-            Arrays.asList(new Class<?>[] { ANatOneNumericBasicType.class }));
-        fixedSubTypeRelations.put(ARationalNumericBasicType.class,
-            Arrays.asList(new Class<?>[] { AIntNumericBasicType.class }));
-        fixedSubTypeRelations.put(
-            ARealNumericBasicType.class,
-            Arrays.asList(new Class<?>[] { AIntNumericBasicType.class,
-        ARationalNumericBasicType.class }));
-      }
-    
-    private static boolean checkClosureOnFixedTypeRelation(Class<?> top,
-        Class<?> bottom)
-      {
-        if (top == bottom)
-          return true;
-        
-        if (fixedSubTypeRelations.containsKey(top))
-          {
-            boolean f = false;
-            for (Class<?> candidate : fixedSubTypeRelations.get(top))
-              f |= checkClosureOnFixedTypeRelation(candidate, bottom);
-            return f;
-          }
-        
-        return false;
-      }
-    
-    @Override
-    public boolean isFirstSubTypeOfSecond(PType first, PType second)
-      {
-        return first.getClass() == second.getClass()
-            || checkClosureOnFixedTypeRelation(second.getClass(),
-                first.getClass());
       }
     
     @Override

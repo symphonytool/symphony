@@ -3,6 +3,7 @@ package eu.compassresearch.core.typechecker;
 import java.util.List;
 
 import org.overture.ast.node.INode;
+import org.overture.ast.typechecker.NameScope;
 import org.overture.parser.messages.VDMError;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.visitor.TypeCheckVisitor;
@@ -13,25 +14,31 @@ import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.expressions.PExp;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.PType;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.transformation.CmlAstToOvertureAst;
 import eu.compassresearch.transformation.CopyTypesFromOvtToCmlAst;
 
-public class TCExpressionVisitor extends
+class TCExpressionVisitor extends
     QuestionAnswerAdaptor<TypeCheckQuestion, PType>
   {
     
     /**
 	 * 
 	 */
-    private static final long           serialVersionUID = -6509187123701383525L;
+    private static final long      serialVersionUID = -6509187123701383525L;
     
     // A parent checker may actually not be necessary on this
     @SuppressWarnings("unused")
-    final private VanillaCmlTypeChecker parent;
+    final private CmlTypeChecker   parent;
+    private final TypeIssueHandler issueHandler;
     
-    public TCExpressionVisitor(VanillaCmlTypeChecker parentChecker)
+    public TCExpressionVisitor(CmlTypeChecker parentChecker,
+        TypeIssueHandler issueHandler)
       {
         parent = parentChecker;
+        this.issueHandler = issueHandler;
       }
     
     /**
@@ -56,7 +63,8 @@ public class TCExpressionVisitor extends
         
         question.updateContextNameToCurrentScope(node);
         
-        CmlAstToOvertureAst transform = new CmlAstToOvertureAst(parent);
+        CmlAstToOvertureAst transform = new CmlAstToOvertureAst(parent,
+            issueHandler);
         INode ovtNode = node.apply(transform);
         
         TypeCheckerExpVisitor ovtExpVist = new TypeCheckerExpVisitor(
@@ -64,6 +72,8 @@ public class TCExpressionVisitor extends
         
         org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(
             question.getOvertureEnvironment());
+        
+        quest.scope = NameScope.NAMES;
         
         try
           {
@@ -78,7 +88,7 @@ public class TCExpressionVisitor extends
             List<VDMError> errorList = TypeChecker.getErrors();
             for (VDMError err : errorList)
               {
-                parent.addTypeError(node, err.toProblemString());
+                issueHandler.addTypeError(node, err.toProblemString());
               }
             return new AErrorType(node.getLocation(), true);
           }

@@ -35,18 +35,28 @@ import eu.compassresearch.ast.types.AProcessParagraphType;
 import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.ast.types.PType;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
+import eu.compassresearch.core.typechecker.api.TypeComparator;
+import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 @SuppressWarnings("serial")
-public class TCDeclAndDefVisitor extends
+class TCDeclAndDefVisitor extends
     QuestionAnswerAdaptor<TypeCheckQuestion, PType>
   {
     
     // Errors and other things are recorded on this guy
-    private VanillaCmlTypeChecker parentChecker;
+    private CmlTypeChecker         parentChecker;
+    private TypeComparator         typeComparator;
+    private final TypeIssueHandler issueHandler;
     
-    public TCDeclAndDefVisitor(VanillaCmlTypeChecker parent)
+    public TCDeclAndDefVisitor(CmlTypeChecker parent,
+        TypeComparator typeComparator, TypeIssueHandler issueHandler)
       {
         this.parentChecker = parent;
+        this.issueHandler = issueHandler;
+        this.typeComparator = typeComparator;
       }
     
     // -------------------------------------------------------
@@ -88,16 +98,15 @@ public class TCDeclAndDefVisitor extends
     public PType caseAValueDefinition(AValueDefinition node,
         TypeCheckQuestion question) throws AnalysisException
       {
-        // Use Overture to get type for expression
-        // runOvertureTypeCheckerOnCmlExpression(node.getExpression(),
-        // question);
+        // Acquire declared type and expression type
         PExp exp = node.getExpression();
         PType declaredType = node.getType().apply(parentChecker, question);
         PType expressionType = exp.apply(parentChecker, question);
+        node.setExpType(expressionType);
         
         // Check type consistency
-        if (!question.isFirstSubTypeOfSecond(expressionType, declaredType))
-          parentChecker.addTypeError(node,
+        if (!typeComparator.isSubType(expressionType, declaredType))
+          issueHandler.addTypeError(node,
               TypeErrorMessages.EXPECTED_SUBTYPE_RELATION.customizeMessage(
                   expressionType.toString(), declaredType.toString()));
         
@@ -178,7 +187,7 @@ public class TCDeclAndDefVisitor extends
           {
             PType defType = def.apply(parentChecker, question);
             if (defType == null)
-              parentChecker.addTypeError(def,
+              issueHandler.addTypeError(def,
                   TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
                       .customizeMessage(def.toString()));
             question.addVariable(def.getName(), def);
@@ -230,7 +239,7 @@ public class TCDeclAndDefVisitor extends
           {
             PType typeBack = decl.apply(parentChecker, question);
             if (typeBack == null)
-              parentChecker.addTypeError(decl,
+              issueHandler.addTypeError(decl,
                   TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
                       .customizeMessage(decl.getIdentifier().name));
             else
@@ -353,14 +362,14 @@ public class TCDeclAndDefVisitor extends
         PExp body = node.getBody();
         body.apply(parentChecker, newQuestion);
         if (body.getType() == null)
-          parentChecker.addTypeError(body,
+          issueHandler.addTypeError(body,
               TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node
                   .getName().name));
         
         // Check funcType <: bodyType in question
         AFunctionType funcType = node.getType();
-        if (!question.isFirstSubTypeOfSecond(funcType, body.getType()))
-          parentChecker.addTypeError(body,
+        if (!typeComparator.isSubType(funcType, body.getType()))
+          issueHandler.addTypeError(body,
               TypeErrorMessages.EXPECTED_SUBTYPE_RELATION.customizeMessage(
                   funcType.toString(), body.getType().toString()));
         

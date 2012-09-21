@@ -13,6 +13,7 @@ import org.overture.ast.typechecker.NameScope;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexLocation;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.transformation.CmlAstToOvertureAst;
 
 public class Environment<T>
@@ -26,12 +27,15 @@ public class Environment<T>
     // private state
     private Map<LexIdentifierToken, T> map;
     
+    private final TypeIssueHandler     issueHandler;
+    
     /**
      * Create an Empty top level Environment.
      */
-    public Environment()
+    public Environment(TypeIssueHandler issueHandler)
       {
-        this(null);
+        this(null, issueHandler);
+        
       }
     
     /**
@@ -40,10 +44,11 @@ public class Environment<T>
      * @param outer
      *          - The enclosing environment
      */
-    public Environment(Environment outer)
+    public Environment(Environment outer, TypeIssueHandler issueHandler)
       {
         this.outer = outer;
         this.map = new HashMap<LexIdentifierToken, T>();
+        this.issueHandler = issueHandler;
       }
     
     /**
@@ -78,9 +83,10 @@ public class Environment<T>
       }
     
     private static org.overture.ast.definitions.PDefinition translateDefinition(
-        PDefinition cmlDef)
+        PDefinition cmlDef, TypeIssueHandler issueHandler)
       {
-        CmlAstToOvertureAst transform = new CmlAstToOvertureAst(null);
+        CmlAstToOvertureAst transform = new CmlAstToOvertureAst(null,
+            issueHandler);
         try
           {
             org.overture.ast.definitions.PDefinition ovtDef = (org.overture.ast.definitions.PDefinition) transform
@@ -118,6 +124,7 @@ public class Environment<T>
      */
     public org.overture.typechecker.Environment getOvertureEnv()
       {
+        final TypeIssueHandler theIssueHandler = this.issueHandler;
         class CmlOvertureEnvironment extends
             org.overture.typechecker.Environment
           {
@@ -136,7 +143,7 @@ public class Environment<T>
                 if (cmlDef == null)
                   return null;
                 
-                return translateDefinition(cmlDef);
+                return translateDefinition(cmlDef, theIssueHandler);
               }
             
             @Override
@@ -148,7 +155,7 @@ public class Environment<T>
                 if (cmlDef == null)
                   return null;
                 
-                return translateDefinition(cmlDef);
+                return translateDefinition(cmlDef, theIssueHandler);
               }
             
             @Override
@@ -196,7 +203,8 @@ public class Environment<T>
                 PDefinition cmlDef = lookupFromOvtName(name);
                 if (cmlDef != null)
                   {
-                    matchesFound.add(translateDefinition(cmlDef));
+                    matchesFound.add(translateDefinition(cmlDef,
+                        theIssueHandler));
                   }
                 
                 return matchesFound;
