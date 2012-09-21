@@ -15,6 +15,7 @@ import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.expressions.PExp;
 import eu.compassresearch.ast.node.INode;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
@@ -35,8 +36,9 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
     private IQuestionAnswer<TypeCheckQuestion, PType> stm;
     private IQuestionAnswer<TypeCheckQuestion, PType> dad;
     private IQuestionAnswer<TypeCheckQuestion, PType> typ;           // basic
-                                                                      // type
-                                                                      // checker
+    private IQuestionAnswer<TypeCheckQuestion, PType> prc;
+    // type
+    // checker
     private boolean                                   lastResult;
     private final TypeComparator                      typeComparator;
     
@@ -90,6 +92,13 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
       {
         question.updateContextNameToCurrentScope(node);
         return node.apply(exp, question);
+      }
+    
+    @Override
+    public PType defaultPProcess(PProcess node, TypeCheckQuestion question)
+        throws AnalysisException
+      {
+        return node.apply(prc, question);
       }
     
     @Override

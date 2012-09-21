@@ -26,7 +26,6 @@ public class Environment<T>
     
     // private state
     private Map<LexIdentifierToken, T> map;
-    
     private final TypeIssueHandler     issueHandler;
     
     /**
@@ -99,10 +98,18 @@ public class Environment<T>
           }
       }
     
+    public static LexLocation translateLexLocation(
+        org.overture.ast.lex.LexLocation ovtLocation)
+      {
+        return new LexLocation(ovtLocation.file, ovtLocation.module,
+            ovtLocation.startLine, ovtLocation.startPos, ovtLocation.endLine,
+            ovtLocation.endPos, ovtLocation.startOffset, ovtLocation.endOffset);
+      }
+    
     private PDefinition lookupFromOvtName(LexNameToken name)
       {
         boolean old = false;
-        LexLocation location = null;
+        LexLocation location = translateLexLocation(name.location);
         String stringName = name.getName();
         LexIdentifierToken id = new LexIdentifierToken(stringName, old,
             location);

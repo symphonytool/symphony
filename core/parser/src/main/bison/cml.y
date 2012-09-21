@@ -136,6 +136,14 @@
 
   }
 
+  private AAccessSpecifier getPrivateAccessSpecifier(boolean isStatic, boolean isAsync, LexLocation loc)
+  {
+    return new AAccessSpecifier(new APrivateAccess(),
+                                (isStatic ? new TStatic() : null),
+                                (isAsync ? new TAsync() : null),loc);
+    
+  }
+
   private LexToken extractLexToken(CmlLexeme lexeme)
   {
     LexLocation loc = extractLexLocation(lexeme);
@@ -602,6 +610,7 @@ PROCESS IDENTIFIER EQUALS processDef
 {
     AProcessDefinition processDef = (AProcessDefinition)$processDef;
     LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
+    processDef.setName(id);
     LexLocation location = extractLexLocation((CmlLexeme)$PROCESS,
 					      processDef.getLocation());
     AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
@@ -654,16 +663,16 @@ process :
   BEGIN AT action END
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4);
-  List<PDeclaration> processDeclarations = null;
+  List<SParagraphDefinition> processParagraphs = null;
   PAction action = (PAction)$3;
-  $$ = new AStateProcess(location, processDeclarations, action);
+  $$ = new AStateProcess(location, processParagraphs, action);
 }
 | BEGIN processParagraphList AT action END
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$5);
-  List<PDeclaration> processDeclarations = (List<PDeclaration>)$2;
+  List<SParagraphDefinition> processParagraphs = (List<SParagraphDefinition>)$processParagraphList;
   PAction action = (PAction)$4;
-  $$ = new AStateProcess(location, processDeclarations, action);
+  $$ = new AStateProcess(location, processParagraphs, action);
 }
 /* actions end */
 | process SEMI process
@@ -1764,13 +1773,13 @@ channelNameDecl :
   LexLocation end = nameList.get(ids.size()-1).getLocation();
   LexLocation location = combineLexLocation(start, end);
   ATypeSingleDeclaration singleTypeDeclaration = new ATypeSingleDeclaration(location, NameScope.GLOBAL, ids, null);
-  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location, NameScope.GLOBAL, null,  singleTypeDeclaration);
+  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location, NameScope.GLOBAL, singleTypeDeclaration);
   $$ = channelNameDecl;
 }
 | singleTypeDeclaration
 {
   ATypeSingleDeclaration singleTypeDeclaration = (ATypeSingleDeclaration)$1;
-  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(singleTypeDeclaration.getLocation(), NameScope.GLOBAL, null, singleTypeDeclaration);
+  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(singleTypeDeclaration.getLocation(), NameScope.GLOBAL, singleTypeDeclaration);
   $$ = channelNameDecl;
 }
 ;
@@ -2522,7 +2531,8 @@ valueDef :
   vdef.setLocation(combineLexLocation(idp.getLocation(), expression.getLocation()));
   vdef.setName(lnt);
   vdef.setUsed(false);
-  vdef.setAccess(new AAccessSpecifier(new APrivateAccess(), null, null, lnt.location));
+  vdef.setAccess(getPrivateAccessSpecifier(false,false,lnt.location));
+  vdef.setNameScope(NameScope.LOCAL);
   $$ = vdef;
 }
 | patternLessID COLON type EQUALS expression
@@ -2537,6 +2547,8 @@ valueDef :
   vdef.setDefs(null);
   vdef.setLocation(combineLexLocation(pattern.getLocation(), expression.getLocation()));
   vdef.setName(new LexNameToken("Default", "plesstypeexp",vdef.getLocation(), false, false));
+  vdef.setAccess(getPrivateAccessSpecifier(false,false,vdef.getLocation()));
+  vdef.setNameScope(NameScope.LOCAL);
   $$ = vdef;
 }
 | IDENTIFIER EQUALS expression
@@ -2551,6 +2563,8 @@ valueDef :
   vdef.setExpression(expression);
   vdef.setDefs(null);
   vdef.setLocation(combineLexLocation(idp.getLocation(), expression.getLocation()));
+  vdef.setAccess(getPrivateAccessSpecifier(false,false,new LexLocation()));
+  vdef.setNameScope(NameScope.LOCAL);
   $$ = vdef;
 }
 | patternLessID EQUALS expression
@@ -2563,6 +2577,8 @@ valueDef :
   vdef.setExpression(expression);
   vdef.setDefs(null);
   vdef.setLocation(combineLexLocation(pattern.getLocation(), expression.getLocation()));
+  vdef.setAccess(getPrivateAccessSpecifier(false,false,new LexLocation()));
+  vdef.setNameScope(NameScope.LOCAL);
   $$ = vdef;
 }
 ;
@@ -2898,7 +2914,9 @@ explicitOperationDef :
 {
   LexLocation loc = extractLexLocation((CmlLexeme)$2);
   AExplicitOperationDefinition res = new AExplicitOperationDefinition();
+  res.setName((LexNameToken)extractLexNameToken($2));
   res.setLocation(loc);
+  res.setIsConstructor(false);
   res.setBody((SStatementAction)$operationBody);
   res.setType((PType)$operationType);
   $$ = res;
@@ -3099,20 +3117,20 @@ mode :
 stateDefs :
   STATE 
 {
-    AStateDefinition state = new AStateDefinition();
+    AStateParagraphDefinition state = new AStateParagraphDefinition();
     state.setLocation(extractLexLocation((CmlLexeme)$STATE));
     $$  = state;
 }
 | STATE stateDefList 
 {
-    AStateDefinition state = (AStateDefinition)$stateDefList;
+    AStateParagraphDefinition state = (AStateParagraphDefinition)$stateDefList;
     state.setLocation(extractLexLocation((CmlLexeme)$STATE,
 					 extractLastLexLocation(state.getStateDefs())));
     $$ = state;
 }
 | STATE stateDefList SEMI
 {
-    AStateDefinition state = (AStateDefinition)$stateDefList;
+    AStateParagraphDefinition state = (AStateParagraphDefinition)$stateDefList;
     state.setLocation(extractLexLocation((CmlLexeme)$STATE,(CmlLexeme)$SEMI));
     $$ = state;
 }
@@ -3121,7 +3139,7 @@ stateDefs :
 stateDefList :
   stateDef
 {
-  AStateDefinition stateDef = new AStateDefinition();
+  AStateParagraphDefinition stateDef = new AStateParagraphDefinition();
   List<PDefinition> defs = new Vector<PDefinition>();
   defs.add((PDefinition)$stateDef);
   stateDef.setStateDefs(defs);
@@ -3129,7 +3147,7 @@ stateDefList :
 }
 | stateDefList[list] SEMI stateDef
 {
-  AStateDefinition stateDef = (AStateDefinition)$list;
+  AStateParagraphDefinition stateDef = (AStateParagraphDefinition)$list;
   stateDef.getStateDefs().add((PDefinition)$stateDef);
   $$ = stateDef;
 }
@@ -4521,7 +4539,7 @@ assignmentDefList :
 assignmentDef :
   IDENTIFIER COLON type
 {
-  LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+  LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
   PType type = (PType)$type;
   LexLocation location = combineLexLocation(name.location, type.getLocation());
   AAccessSpecifier access = null;
@@ -4536,7 +4554,7 @@ assignmentDef :
 }
 | IDENTIFIER COLON type COLONEQUALS expression
 {
-  LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+  LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
   PType type = (PType)$type;
   PExp exp = (PExp)$expression;
   LexLocation location = combineLexLocation(name.location, type.getLocation());
@@ -4556,7 +4574,7 @@ assignmentDef :
  */
 | IDENTIFIER COLON type IN expression
 {
-    LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+    LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
     PType type = (PType)$type;
     PExp exp = (PExp)$expression;
     LexLocation location = combineLexLocation(name.location, exp.getLocation());

@@ -263,6 +263,7 @@ class SimpleTypeComparator implements TypeComparator
                 to = ((AOptionalType) to).getType();
                 continue;
               }
+
             
             if (from instanceof AOptionalType)
               {

@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter.runtime;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,33 +13,42 @@ import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
 
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
+import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.expressions.PExp;
 import eu.compassresearch.ast.lex.LexLocation;
 import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.core.typechecker.Environment;
 
 
 public abstract class AbstractCmlInterpreter extends
-		QuestionAnswerAdaptor<Context, Value> implements CmlInterpreter {
+		QuestionAnswerAdaptor<CMLContext, Value> implements CmlInterpreter {
 
+	protected List<PSource> sourceForest;
+	protected String defaultProcess;
+	
 	@Override
-	public String getInitialContext() {
-		// TODO Auto-generated method stub
-		return null;
+	public CMLContext getInitialContext(LexLocation location) {
+				
+		CMLContext context = new CMLContext(location);
+		//TODO: Initialize all global value definitions and put them into the initial context
+				
+		return context;
 	}
 
 	@Override
 	public Environment getGlobalEnvironment() {
-		// TODO Auto-generated method stub
-		return null;
+	
+		return EnvironmentBuilder.BuildGlobalEnvironment(sourceForest);
 	}
 
 	@Override
 	public String getDefaultName() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return defaultProcess;
 	}
 
 	@Override
@@ -49,8 +59,8 @@ public abstract class AbstractCmlInterpreter extends
 
 	@Override
 	public void setDefaultName(String name) throws Exception {
-		// TODO Auto-generated method stub
-
+		
+		defaultProcess = name;
 	}
 
 	@Override
@@ -70,15 +80,9 @@ public abstract class AbstractCmlInterpreter extends
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	@Override
-	public Value execute(File file) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Value evaluate(String line, Context ctxt) throws Exception {
+	public Value evaluate(String line, CMLContext ctxt) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}

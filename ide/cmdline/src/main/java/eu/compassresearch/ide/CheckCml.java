@@ -30,6 +30,8 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.VanillaFactory;
+import eu.compassresearch.core.interpreter.runtime.CmlInterpreter; 
+import eu.compassresearch.core.interpreter.runtime.VanillaCmlInterpreter;
 import eu.compassresearch.examples.DivWarnAnalysis;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
@@ -119,7 +121,8 @@ public class CheckCml {
 	    DOTG("dotg", "Dot Graph, -dotg=<out> write ast dot graph to file <out>.", true),
 	    DWA("dwa", "Example, the Div Warn Analysis example", false),
 	    POG("pog", "Proof Obligation Generator, the proof obligation generator", false),
-	    INTER("i", "Interactive mode", false)
+	    INTER("i", "Interactive mode", false),
+	    EXEC("e", "Simulation, -e=<processID>, simulate the process identified by <processID>", true)
 	    ;
 
 	// Switch state
@@ -424,6 +427,8 @@ public class CheckCml {
 	if (input.isSwitchOn(Switch.DOTG))
 	    {
 		final DotGraphVisitor dga = new DotGraphVisitor();
+		dga.includeTokens = false;
+		dga.showNullPointers = false;
 		AnalysisRunAdaptor r = new AnalysisRunAdaptor(dga) {
 			public void apply(INode root) throws AnalysisException
 			{
@@ -498,6 +503,30 @@ public class CheckCml {
  		pog.getResults();
 	}
 
+	// Interpreter
+	if (input.isSwitchOn(Switch.EXEC)) 
+	    {
+		if(input.isSwitchOn(Switch.NOTC))
+		    System.out.println("You can only interpret typechecked models!");
+		else{
+		    
+		    final CmlInterpreter interpreter = new VanillaCmlInterpreter(sources);
+		
+		    AnalysisRunAdaptor r = new AnalysisRunAdaptor(interpreter) {
+			    public void apply(INode root) throws AnalysisException
+			    {
+			    	try {
+			    		interpreter.setDefaultName(Switch.EXEC.getValue());
+						interpreter.execute();
+					} catch (Exception e) {
+					
+						e.printStackTrace();
+					}
+			    }
+			};
+		    runAnalysis(input, r , sources);
+		}
+	    }
 
 	// Add more analysis here ...
     }

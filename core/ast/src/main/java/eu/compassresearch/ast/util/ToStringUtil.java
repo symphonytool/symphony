@@ -229,10 +229,10 @@ public class ToStringUtil
 				}
 				assert false : "Error in renamed getVariableNames";
 
-			case STATE:
+			//case STATE:
 				// return statedefs.getVariableNames();
 				// TODO
-				return new LexNameList(new LexNameToken("Not implemented", "Not implemented", new LexLocation()));
+				//return new LexNameList(new LexNameToken("Not implemented", "Not implemented", new LexLocation()));
 				// if (d instanceof AThreadDefinition)
 				// {
 				// 	if (((AThreadDefinition) d).getOperationDef() != null)// Differnt from VDMJ

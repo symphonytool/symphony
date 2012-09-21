@@ -59,8 +59,7 @@ source {->  package='eu.compassresearch.ast.program'}
 declaration {-> package='eu.compassresearch.ast.declarations'}
     // --- True declarations
     = {channelName} 
-    [identifier]: LexIdentifierToken // We will look and see if this name is appropriate during tc
-    [singleType]: declaration.#Single.type
+    	[singleType]: declaration.#Single.type
     | #Single
 	;
 
@@ -124,11 +123,6 @@ definition {-> package='eu.compassresearch.ast.definitions'}
     		[localState]: declaration*
 	     	[process]: process
     |   {renamed}  (def):definition 
-    |   {state} 
-    		[fields]:field.field* 
-            [invPattern]:pattern [invExpression]:exp (invdef):definition.#function.explicit
-            [initPattern]:pattern [initExpression]:exp (initdef):definition.#function.explicit
-            (stateDefs):definition* 
     //Why does the type definition take inv pattern and expression and not just the inv definition which containts them both??
     |   {type} 
     		(invType):type.#invariant 
@@ -163,7 +157,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	   | {process} 
 	     	[processDefinition]: definition.process
 	   | {channel} 
-	   		[channelNames]: declaration.channelName*
+	   		[channelNameDeclarations]: declaration.channelName*
 	   | {chanset} 
 	     	[chansets] : definition.chanset*
  	   | {action} 
@@ -178,6 +172,11 @@ definition {-> package='eu.compassresearch.ast.definitions'}
  	   		[valueDefinitions]: definition*
  	   | {initial} 
  	   		[operationDefinition]: definition
+ 	   | {state} 
+    		[fields]:field.field* 
+            [invPattern]:pattern [invExpression]:exp (invdef):definition.#function.explicit
+            [initPattern]:pattern [initExpression]:exp (initdef):definition.#function.explicit
+            (stateDefs):definition* 
 	   ;
     
 #operation {-> package='eu.compassresearch.ast.definitions'}
@@ -191,7 +190,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                             (predef):definition.#function.explicit
                             (postdef):definition.#function.explicit
                             (paramDefinitions):definition*
-                            (state):definition.state
+                            (state):definition.#paragraph.state
                             
                             (actualResult):type
                             [isConstructor]:java_Boolean
@@ -207,7 +206,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                             (type):type.operation
                             (predef):definition.#function.explicit
                             (postdef):definition.#function.explicit
-                            (state):definition.state
+                            (state):definition.#paragraph.state
                             (actualResult):type
                             (stateDefinition):definition
                             [isConstructor]:java_Boolean    
@@ -291,16 +290,16 @@ exp {-> package='eu.compassresearch.ast.expressions'}
     |   {new} [className]:LexIdentifierToken [args]:exp* (classdef):definition.#paragraph.class (ctorDefinition):definition
     |   {nil} 
     |   {notYetSpecified} 
-    |   {postOp} [opname]:LexNameToken (preexpression):exp (postexpression):exp (errors):case.error* (state):definition.state [errorLocation]:location
+    |   {postOp} [opname]:LexNameToken (preexpression):exp (postexpression):exp (errors):case.error* (state):definition.#paragraph.state [errorLocation]:location
     |   {pre} [function]:exp [args]:exp*
-    |   {preOp} [opname]:LexNameToken (expression):exp  (errors):case.error* (state):definition.state
+    |   {preOp} [opname]:LexNameToken (expression):exp  (errors):case.error* (state):definition.#paragraph.state
     |   {sameBaseClass} [left]:exp [right]:exp
     |   {sameClass} [left]:exp [right]:exp
     |   {self} [name]:LexNameToken
     |   #Seq
     |   #Set
     |   #literal
-    |   {stateInit} (state):definition.state  
+    |   {stateInit} (state):definition.#paragraph.state  
     |   {subclassResponsibility} 
     |   {subseq} [seq]:exp [from]:exp [to]:exp (ftype):type (ttype):type
     |   {tuple} [args]:exp* (types):type*
@@ -440,16 +439,20 @@ alternative {-> package='eu.compassresearch.ast.expressions'}
 type {-> package='eu.compassresearch.ast.types'}
     =   #basic
     |   {statement} // marker that a statement is typed ok
+    |   {process} // marker that a process is typed ok
     |   {error} // marker that type of a subtree has failed 
     |   {processParagraph} // marker stipulating process paragraph is typed ok
     |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
+    |   {channelsParagraph} // marker stipulating a chanset paragraph is typed ok
     |   {actionParagraph} // marker stipulating that a Action Paragraph is typed ok
     |   {valueParagraph} // marker stipulating that a Values paragraph is typed ok
     |   {functionParagraph} // marker stipulating that a Function Paragraph is typed ok
     |   {typeParagraph} // marker stipulating that a Types Paragraph is typed ok
+    |   {operationParagraph} // marker stipulating that a Function Paragraph is typed ok
+    |   {stateParagraph} // marker stipulating that a state Paragraph is typed ok
     |   {source} // marker stipulating a source was typed ok
     |   {bracket} (type):type
-    |   {channel}
+    |   {channel} (type):type
     |   {class} [name]:LexNameToken (classdef):definition.#paragraph.class //change classdef to graf - is this correct dont see how it could have worked before
     |   {function} [partial]:java_Boolean (parameters):type* (result):type 
     |   #invariant
@@ -623,7 +626,7 @@ export {-> package='eu.compassresearch.ast.modules'}
 */
 process {-> package='eu.compassresearch.ast.process'}
 	= {state} 
-		[processDeclarations]:declaration* 
+		[definitionParagraphs]:definition.#paragraph* 
 		[action]:action
 	| {sequentialComposition} 
 		[left]:process 
@@ -675,7 +678,7 @@ process {-> package='eu.compassresearch.ast.process'}
 	| {instantiation} 
 		[declarations]:declaration.#Single.type* 
 		[processName]:LexNameToken 
-		[processDefinition]: definition.process 
+		(processDefinition): definition.process 
 		[args]:exp*
 	| {channelRenaming} 
 		[process]:process 

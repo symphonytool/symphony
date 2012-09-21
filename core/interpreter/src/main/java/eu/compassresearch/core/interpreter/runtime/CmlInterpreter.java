@@ -2,23 +2,23 @@ package eu.compassresearch.core.interpreter.runtime;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import eu.compassresearch.core.typechecker.*;
-import eu.compassresearch.ast.lex.*;
-import eu.compassresearch.ast.node.INode;
-import eu.compassresearch.ast.types.PType;
-import eu.compassresearch.ast.expressions.PExp;
-import eu.compassresearch.ast.actions.*;
-
-import org.overture.interpreter.values.Value;
-import org.overture.interpreter.debug.BreakpointManager;
 import org.overture.interpreter.debug.DBGPReader;
+import org.overture.interpreter.runtime.Breakpoint;
+import org.overture.interpreter.runtime.SourceFile;
+import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
-import org.overture.interpreter.*;
-import org.overture.interpreter.runtime.*;
+import org.overture.parser.syntax.ParserException;
+
+import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.analysis.AnalysisException;
+import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.lex.LexLocation;
+import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.types.PType;
+import eu.compassresearch.core.typechecker.Environment;
 /**
  * The CML interpreter interface.
  */
@@ -34,7 +34,7 @@ public interface CmlInterpreter
 	 * Get a string version of the environment.
 	 */
 
-	public String getInitialContext();
+	public CMLContext getInitialContext(LexLocation location);
 
 	/**
 	 * Get the global environment.
@@ -92,7 +92,7 @@ public interface CmlInterpreter
 	 * Parse the line passed, type check it and evaluate it as an expression
 	 * in the initial context.
 	 *
-	 * @param line A VDM expression.
+	 * @param line A CML expression.
 	 * @param dbgp The DBGPReader, if any
 	 * @return The value of the expression.
 	 * @throws Exception Parser, type checking or runtime errors.
@@ -101,27 +101,25 @@ public interface CmlInterpreter
 	public Value execute(String line, DBGPReader dbgp) throws Exception;
 
 	/**
-	 * Parse the content of the file passed, type check it and evaluate it as an
-	 * expression in the initial context.
-	 *
-	 * @param file A file containing a VDM expression.
+	 * Executes the defined default process from the given sourceForest  
+	 * 
 	 * @return The value of the expression.
 	 * @throws Exception Parser, type checking or runtime errors.
 	 */
 
-	public Value execute(File file) throws Exception;
+	public Value execute() throws AnalysisException;
 
 	/**
 	 * Parse the line passed, and evaluate it as an expression in the context
 	 * passed. Note that this does not type check the expression.
 	 *
-	 * @param line A VDM expression.
+	 * @param line A CML expression.
 	 * @param ctxt The context in which to evaluate the expression.
 	 * @return The value of the expression.
 	 * @throws Exception Parser or runtime errors.
 	 */
 
-	abstract public Value evaluate(String line, Context ctxt) throws Exception;
+	abstract public Value evaluate(String line, CMLContext ctxt) throws Exception;
 
 	/**
 	 * @return The list of breakpoints currently set.

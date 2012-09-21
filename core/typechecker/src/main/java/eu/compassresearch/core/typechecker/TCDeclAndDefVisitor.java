@@ -7,6 +7,7 @@ import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
+import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.AExplicitFunctionDefinition;
@@ -16,12 +17,14 @@ import eu.compassresearch.ast.definitions.ALocalDefinition;
 import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
+import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypeDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.patterns.AIdentifierPattern;
 import eu.compassresearch.ast.patterns.PPattern;
 import eu.compassresearch.ast.typechecker.NameScope;
@@ -30,8 +33,10 @@ import eu.compassresearch.ast.types.AClassType;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.AFunctionParagraphType;
 import eu.compassresearch.ast.types.AFunctionType;
+import eu.compassresearch.ast.types.AOperationParagraphType;
 import eu.compassresearch.ast.types.AOperationType;
 import eu.compassresearch.ast.types.AProcessParagraphType;
+import eu.compassresearch.ast.types.AStateParagraphType;
 import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.ast.types.PType;
@@ -193,6 +198,24 @@ class TCDeclAndDefVisitor extends
             question.addVariable(def.getName(), def);
           }
         
+        node.setType(new AOperationParagraphType());
+        return node.getType();
+      }
+    
+    @Override
+    public PType caseAStateParagraphDefinition(AStateParagraphDefinition node,
+        TypeCheckQuestion question) throws AnalysisException
+      {
+        
+        // Go through all the state defs and typecheck them
+        for (PDefinition def : node.getStateDefs())
+          {
+            def.apply(this, question);
+            question.addVariable(def.getName(), def);
+          }
+        
+        node.setType(new AStateParagraphType());
+        
         return node.getType();
       }
     
@@ -218,6 +241,7 @@ class TCDeclAndDefVisitor extends
         throws AnalysisException
       {
         
+        // TODO: Rethink the environment
         AProcessDefinition pdef = node.getProcessDefinition();
         pdef.apply(parentChecker, question);
         
@@ -229,21 +253,42 @@ class TCDeclAndDefVisitor extends
       }
     
     @Override
+    public PType caseATypeSingleDeclaration(ATypeSingleDeclaration node,
+        TypeCheckQuestion question) throws AnalysisException
+      {
+        
+        AChannelType ctype = new AChannelType();
+        ctype.setType(node.getType());
+        node.setType(new AChannelType());
+        
+        for (LexIdentifierToken id : node.getIdentifiers())
+          {
+            question.addChannel(id, node);
+          }
+        
+        return node.getType();
+      }
+    
+    @Override
     public PType caseAChannelParagraphDefinition(
         AChannelParagraphDefinition node, TypeCheckQuestion question)
         throws AnalysisException
       {
         
-        LinkedList<AChannelNameDeclaration> cns = node.getChannelNames();
+        LinkedList<AChannelNameDeclaration> cns = node
+            .getChannelNameDeclarations();
         for (AChannelNameDeclaration decl : cns)
           {
-            PType typeBack = decl.apply(parentChecker, question);
+            PType typeBack = decl.getSingleType().apply(this, question); // decl.apply(parentChecker,
+                                                                         // question);
             if (typeBack == null)
               issueHandler.addTypeError(decl,
                   TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-                      .customizeMessage(decl.getIdentifier().name));
+                      .customizeMessage(decl.toString()));
             else
-              question.addChannel(decl.getIdentifier(), decl);
+              for (LexIdentifierToken id : decl.getSingleType()
+                  .getIdentifiers())
+                question.addChannel(id, decl);
           }
         
         node.setType(new AChannelType());
