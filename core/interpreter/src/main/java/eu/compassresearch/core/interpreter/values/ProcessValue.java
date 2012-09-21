@@ -19,7 +19,6 @@ public class ProcessValue extends Value {
 	private boolean isReduced = false;
 	
 	private PAction reducedAction = null;
-	//public  NameValuePairMap members = new NameValuePairMap();	
 		
 	public ProcessValue()
 	{}

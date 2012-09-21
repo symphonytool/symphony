@@ -424,6 +424,8 @@ public class CheckCml {
 	if (input.isSwitchOn(Switch.DOTG))
 	    {
 		final DotGraphVisitor dga = new DotGraphVisitor();
+		dga.includeTokens = false;
+		dga.showNullPointers = false;
 		AnalysisRunAdaptor r = new AnalysisRunAdaptor(dga) {
 			public void apply(INode root) throws AnalysisException
 			{

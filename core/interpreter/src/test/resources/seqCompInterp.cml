@@ -1,0 +1,11 @@
+//channels init, a, b
+process A = 
+begin 
+      state
+	v : nat1 := 10
+      
+      @ init -> a -> v := v + 2  
+end
+process B = begin @ init -> b -> Skip end
+
+process C = A;B
