@@ -144,7 +144,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
         try
           {
-            cmlInterp.setDefaultName("C");
+            cmlInterp.setDefaultName("A");
             cmlInterp.execute();
           } catch (Exception ex)
           {
@@ -163,7 +163,8 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
       {
         
         File cml_example = new File(
-            "src/test/resources/firstInterpreterTest.cml");
+            //"src/test/resources/firstInterpreterTest.cml");
+        		"src/test/resources/InternalChoiceAction.cml");
         runOnFile(cml_example);
         // File cml_examples = new File("../../docs/cml-examples");
         // int failures = 0;

@@ -2,9 +2,11 @@ package eu.compassresearch.core.interpreter.eval;
 
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AIdentifierStateDesignator;
+import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -84,18 +86,6 @@ public class ActionEvaluator extends QuestionAnswerAdaptor<CMLContext, Value> {
 		return new ProcessValue(null);
 	}
 
-	private PAction getNextAction(ProcessValue processValue, PAction currentAction)
-	{
-		PAction nextAction = null;
-
-		if(processValue.isReduced())
-			nextAction = processValue.getReducedAction();
-		else
-			nextAction = currentAction;
-
-		return nextAction;
-	}
-
 	@Override
 	public Value caseASequentialCompositionAction(
 			ASequentialCompositionAction node, CMLContext question)
@@ -121,24 +111,61 @@ public class ActionEvaluator extends QuestionAnswerAdaptor<CMLContext, Value> {
 
 		return retValue;
 	}
-
+	
 	@Override
-	public Value caseAExternalChoiceAction(AExternalChoiceAction node,
+	public Value caseAInternalChoiceAction(AInternalChoiceAction node,
 			CMLContext question) throws AnalysisException {
-
-		ProcessValue retValue = null;
-		if(node.getLeft() != null)
-		{
-			ProcessValue leftValue = (ProcessValue)node.getLeft().apply(this,question);
-			PAction nextAction = getNextAction(leftValue, node.getLeft());
-			node.setLeft(nextAction);
-			if(!leftValue.isSkip())
-				retValue = new ProcessValue(leftValue.getOfferedEvents(),null);
-		}
-
 		
+		/*
+		 * Since we can pick a random action to continue with we can
+		 * just always pick the right one. This of course need to be more "random"
+		 * deterministic
+		 */
+				
+		return node.getRight().apply(this,question);
+	}
+	
+	@Override
+	public Value caseABlockStatementAction(ABlockStatementAction node,
+			CMLContext question) throws AnalysisException {
 		
-		return retValue;
+		//TODO handle declare statements
+		//node.getDeclareStatement();
+				
+		return node.getAction().apply(this,question);
 	}
 
+//	@Override
+//	public Value caseAExternalChoiceAction(AExternalChoiceAction node,
+//			CMLContext question) throws AnalysisException {
+//
+//		ProcessValue retValue = null;
+//		if(node.getLeft() != null)
+//		{
+//			ProcessValue leftValue = (ProcessValue)node.getLeft().apply(this,question);
+//			PAction nextAction = getNextAction(leftValue, node.getLeft());
+//			node.setLeft(nextAction);
+//			if(!leftValue.isSkip())
+//				retValue = new ProcessValue(leftValue.getOfferedEvents(),null);
+//		}
+//
+//		
+//		
+//		return retValue;
+//	}
+
+	/* Private Helper Methods
+	 * 
+	 */
+	private PAction getNextAction(ProcessValue processValue, PAction currentAction)
+	{
+		PAction nextAction = null;
+
+		if(processValue.isReduced())
+			nextAction = processValue.getReducedAction();
+		else
+			nextAction = currentAction;
+
+		return nextAction;
+	}
 }

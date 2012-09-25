@@ -2,6 +2,7 @@ package eu.compassresearch.core.typechecker;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.PAction;
@@ -95,6 +96,18 @@ class TCStatementVisitor extends
       }
     
     @Override
+    public PType caseAInternalChoiceAction(AInternalChoiceAction node,
+    		TypeCheckQuestion question) throws AnalysisException {
+    	
+    	// TODO there is no type marker on a general action
+        // node.setType
+    	
+    	//node.setType(new AStatementType());
+           	
+        return new AStatementType();
+    }
+    
+    @Override
     public PType caseACommunicationAction(ACommunicationAction node,
         TypeCheckQuestion question) throws AnalysisException
       {
@@ -109,7 +122,7 @@ class TCStatementVisitor extends
           }
         node.getAction().apply(this, question);
         
-        // TODO there is no type field on a general action
+        // TODO there is no type marker on a general action
         // node.setType
         
         return new AStatementType();
