@@ -48,6 +48,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker
         stm = new TCStatementVisitor(this, this);
         dad = new TCDeclAndDefVisitor(this, typeComparator, this);
         typ = new TCTypeVisitor(this, this);
+        prc = new TCProcessVisitor(this);
       }
     
     // ---------------------------------------------

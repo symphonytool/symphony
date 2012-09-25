@@ -253,6 +253,13 @@ class TCDeclAndDefVisitor extends
       }
     
     @Override
+    public PType caseAProcessDefinition(AProcessDefinition node,
+    		TypeCheckQuestion question) throws AnalysisException {
+    	
+    	return node.getProcess().apply(this.parentChecker,question);
+    }
+    
+    @Override
     public PType caseATypeSingleDeclaration(ATypeSingleDeclaration node,
         TypeCheckQuestion question) throws AnalysisException
       {

@@ -2,21 +2,19 @@ package eu.compassresearch.core.typechecker;
 
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
-import eu.compassresearch.ast.definitions.EDefinition;
 import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.process.AInstantiationProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.ast.types.PType;
+import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 
 @SuppressWarnings("serial")
 public class TCProcessVisitor extends
-    QuestionAnswerAdaptor<TypeCheckInfo, PType>
+    QuestionAnswerAdaptor<TypeCheckQuestion, PType>
   {
     
     private VanillaCmlTypeChecker parentChecker;
@@ -29,7 +27,7 @@ public class TCProcessVisitor extends
     
     @Override
     public PType caseASynchronousParallelismProcess(
-    		ASynchronousParallelismProcess node, TypeCheckInfo question)
+    		ASynchronousParallelismProcess node, TypeCheckQuestion question)
     		throws AnalysisException {
     	
     	node.getLeft().apply(this,question);
@@ -42,7 +40,7 @@ public class TCProcessVisitor extends
     
     @Override
     public PType caseASequentialCompositionProcess(
-    		ASequentialCompositionProcess node, TypeCheckInfo question)
+    		ASequentialCompositionProcess node, TypeCheckQuestion question)
     		throws AnalysisException {
     	
     	node.getLeft().apply(this,question);
@@ -55,7 +53,7 @@ public class TCProcessVisitor extends
     
     @Override
     public PType caseAInstantiationProcess(AInstantiationProcess node,
-    		TypeCheckInfo question) throws AnalysisException {
+    		TypeCheckQuestion question) throws AnalysisException {
     	
     	//TODO: implement this!
     	PDefinition processDef = question.lookupVariable(node.getProcessName().getIdentifier());
@@ -70,7 +68,7 @@ public class TCProcessVisitor extends
     }
     
     @Override
-    public PType caseAStateProcess(AStateProcess node, TypeCheckInfo question)
+    public PType caseAStateProcess(AStateProcess node, TypeCheckQuestion question)
     		throws AnalysisException {
 
     	//Type check all the paragraph definitions	
