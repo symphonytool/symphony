@@ -73,7 +73,7 @@ public class CMLContext
     
     public Value lookupName(LexNameToken name)
       {
-        Value v = map.get(name);
+        Value v = get(name);
         if (v == null)
           if (outer != null)
             v = outer.lookupName(name);
@@ -100,23 +100,23 @@ public class CMLContext
       }
     
     public CMLContext locate(LexNameToken name)
-      {
-        Value v = get(name);
-        
-        if (v == null)
-          {
-            if (outer != null)
-              {
-                return outer.locate(name);
-              } else
-              {
-                return null;
-              }
-          } else
-          {
-            return this;
-          }
-      }
+    {
+    	Value v = get(name);
+
+    	if (v == null)
+    	{
+    		if (outer != null)
+    		{
+    			return outer.locate(name);
+    		} else
+    		{
+    			return null;
+    		}
+    	} else
+    	{
+    		return this;
+    	}
+    }
     
     // private Value lookupFromOvtName(org.overture.ast.lex.LexNameToken name)
     // {
@@ -130,7 +130,7 @@ public class CMLContext
     
     public static boolean isEqual(LexNameToken one, Object other)
       {
-        if (!(other instanceof org.overture.ast.lex.LexNameToken))
+        if (!(other instanceof LexNameToken))
           {
             return false;
           }
@@ -222,6 +222,24 @@ public class CMLContext
               {
                 super(location, "CMLWrapperContext", context);
               }
+            
+            
+            @Override
+            public Value check(org.overture.ast.lex.LexNameToken name) {
+
+            	Value v = get(name);
+
+            	if (v == null)
+            	{
+            		if (outer != null)
+            		{
+            			return outer.check(name);
+            		}
+            	}
+
+            	return v;
+            }
+            
             
             @Override
             public Value get(Object name)

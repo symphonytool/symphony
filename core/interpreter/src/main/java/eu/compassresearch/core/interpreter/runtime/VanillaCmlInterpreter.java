@@ -195,15 +195,15 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
           }
         
         // Report success
-        System.out.println("The given CML Program is type checked.");
+        System.out.println("The given CML Program is done simulating.");
       }
     
     public static void main(String[] args) throws IOException
       {
         
         File cml_example = new File(
-            //"src/test/resources/firstInterpreterTest.cml");
-        		"src/test/resources/process/InternalChoiceAction.cml");
+            "src/test/resources/process/firstInterpreterTest.cml");
+        	//	"src/test/resources/process/GeneralisedParallelismAction.cml");
         runOnFile(cml_example);
         
       }

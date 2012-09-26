@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter.eval;
 
-import org.overture.interpreter.values.NaturalValue;
+import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.AnalysisException;
@@ -40,7 +40,8 @@ public class CmlDeclAndDefEvaluator extends
 		Value expValue = null;
 		if(node.getExpression() != null)
 			expValue = node.getExpression().apply(parentInterpreter,question);
-		
+		else
+			expValue = new UndefinedValue();
 		LexNameToken nt = new LexNameToken("Default",node.getName());
 		question.put(nt, expValue);
 		return expValue;

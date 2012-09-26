@@ -16,7 +16,7 @@ import org.xml.sax.SAXException;
 
 public class TestResult {
 
-	public static TestResult parseTestResultFile(String filePath)
+	public static TestResult parseTestResultFile(String filePath) throws IOException 
 	{
 		//get the factory
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -53,8 +53,6 @@ public class TestResult {
 			pce.printStackTrace();
 		}catch(SAXException se) {
 			se.printStackTrace();
-		}catch(IOException ioe) {
-			ioe.printStackTrace();
 		}
 		
 		return testResult;
