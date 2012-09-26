@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.runtime;
+package eu.compassresearch.core.interpreter.api;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +9,7 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.lex.LexLocation;
 import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
 import eu.compassresearch.core.typechecker.Environment;
 import eu.compassresearch.transformation.CmlAstToOvertureAst;
 

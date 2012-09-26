@@ -9,8 +9,8 @@ import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.process.AStateProcess;
+import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
-import eu.compassresearch.core.interpreter.runtime.CMLContext;
 import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 

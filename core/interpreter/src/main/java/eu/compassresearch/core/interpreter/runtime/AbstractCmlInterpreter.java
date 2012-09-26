@@ -13,23 +13,23 @@ import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.definitions.SParagraphDefinition;
+import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.expressions.PExp;
 import eu.compassresearch.ast.lex.LexLocation;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.PType;
+import eu.compassresearch.core.interpreter.api.CMLContext;
+import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.typechecker.Environment;
 
 
+@SuppressWarnings("serial")
 public abstract class AbstractCmlInterpreter extends
 		QuestionAnswerAdaptor<CMLContext, Value> implements CmlInterpreter {
 
-	protected List<PSource> sourceForest;
-	protected String defaultProcess;
-	
+				
 	@Override
 	public CMLContext getInitialContext(LexLocation location) {
 				
@@ -38,31 +38,13 @@ public abstract class AbstractCmlInterpreter extends
 				
 		return context;
 	}
-
-	@Override
-	public Environment getGlobalEnvironment() {
-	
-		return EnvironmentBuilder.BuildGlobalEnvironment(sourceForest);
-	}
-
-	@Override
-	public String getDefaultName() {
 		
-		return defaultProcess;
-	}
-
 	@Override
 	public File getDefaultFile() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public void setDefaultName(String name) throws Exception {
-		
-		defaultProcess = name;
-	}
-
+	
 	@Override
 	public void init(DBGPReader dbgp) {
 		// TODO Auto-generated method stub

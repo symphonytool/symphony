@@ -27,22 +27,29 @@ public class EnvironmentBuilder extends AnalysisAdaptor
     /**
 	 * 
 	 */
-    private static final long        serialVersionUID = 493918199975006733L;
-    private Environment<PDefinition> env              = new Environment<PDefinition>(
-                                                          null);
+    private static final long serialVersionUID 			= 493918199975006733L;
+    private Environment<PDefinition> env             	= null;
+    private String lastDefinedProcess 					= null;
     
-    public static Environment<PDefinition> BuildGlobalEnvironment(
+    public EnvironmentBuilder(List<PSource> sources)
+    {
+    	BuildGlobalEnvironment(sources);
+    }
+    
+    private void BuildGlobalEnvironment(
         List<PSource> sources)
       {
-        EnvironmentBuilder envBuilder = new EnvironmentBuilder();
+        //EnvironmentBuilder envBuilder = new EnvironmentBuilder();
         
+    	env = new Environment<PDefinition>(null);
+    	
         for (PSource source : sources)
           {
             for (SParagraphDefinition def : source.getParagraphs())
               {
                 try
                   {
-                    def.apply(envBuilder);
+                    def.apply(this);
                   }
                 // this should not happen when typechecked!!
                 catch (AnalysisException ex)
@@ -51,11 +58,14 @@ public class EnvironmentBuilder extends AnalysisAdaptor
                   }
               }
           }
-        
-        return envBuilder.getEnvironment();
       }
     
-    public Environment<PDefinition> getEnvironment()
+    public String getLastDefinedProcess()
+    {
+    	return lastDefinedProcess;
+    }
+    
+    public Environment<PDefinition> getGlobalEnvironment()
       {
         return env;
       }
@@ -78,7 +88,7 @@ public class EnvironmentBuilder extends AnalysisAdaptor
         // TODO: check access specifier
         AProcessDefinition processDef = node.getProcessDefinition();
         env.put(processDef.getName(), processDef);
-        
+        lastDefinedProcess = processDef.getName().getName();
       }
     
     @Override

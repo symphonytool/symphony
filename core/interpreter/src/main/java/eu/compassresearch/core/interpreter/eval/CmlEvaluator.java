@@ -9,7 +9,7 @@ import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.expressions.PExp;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.interpreter.runtime.CMLContext;
+import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 

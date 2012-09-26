@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.runtime;
+package eu.compassresearch.core.interpreter.api;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +14,7 @@ import org.overture.parser.syntax.ParserException;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
+import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.expressions.PExp;
 import eu.compassresearch.ast.lex.LexLocation;
 import eu.compassresearch.ast.lex.LexNameToken;
@@ -40,7 +41,7 @@ public interface CmlInterpreter
 	 * Get the global environment.
 	 */
 
-	public Environment getGlobalEnvironment();
+	public Environment<PDefinition> getGlobalEnvironment();
 	
 	/**
 	 * Get the name of the default module or class. Symbols in the default
@@ -257,6 +258,6 @@ public interface CmlInterpreter
 	
 	public PType findType(String typename);
 	
-	
+	public InterpreterStatus getStatus();
 	
 }

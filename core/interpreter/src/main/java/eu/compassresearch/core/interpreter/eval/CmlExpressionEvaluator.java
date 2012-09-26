@@ -10,7 +10,7 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.expressions.PExp;
-import eu.compassresearch.core.interpreter.runtime.CMLContext;
+import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.transformation.CmlAstToOvertureAst;
 
 public class CmlExpressionEvaluator extends

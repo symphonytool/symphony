@@ -5,6 +5,7 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
+import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AIdentifierStateDesignator;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -13,7 +14,7 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.core.interpreter.runtime.CMLContext;
+import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
@@ -133,6 +134,19 @@ public class ActionEvaluator extends QuestionAnswerAdaptor<CMLContext, Value> {
 		//node.getDeclareStatement();
 				
 		return node.getAction().apply(this,question);
+	}
+	
+	@Override
+	public Value caseAGeneralisedParallelismParallelAction(
+			AGeneralisedParallelismParallelAction node, CMLContext question)
+			throws AnalysisException {
+		
+		ProcessValue leftValue = (ProcessValue)node.getLeftAction().apply(this,question);
+		
+		ProcessValue rightValue = (ProcessValue)node.getLeftAction().apply(this,question);
+		
+		
+		return null;
 	}
 
 //	@Override

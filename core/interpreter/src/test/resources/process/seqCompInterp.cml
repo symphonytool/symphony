@@ -1,4 +1,4 @@
-//channels init, a, b
+channels init, a, b
 process A = 
 begin 
       state

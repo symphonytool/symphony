@@ -89,6 +89,17 @@ public class CmlScheduler {
 		printEvents(trace);
 	}
 	
+	public List<String> getTrace()
+	{
+		LinkedList<String> outTrace = new LinkedList<String>();
+		for(ACommunicationAction a : trace)
+		{
+			outTrace.add(a.getIdentifier().getName());
+		}
+		
+		return outTrace;
+	}
+	
 	private void printEvents(List<ACommunicationAction> offeredActions)
 	{
 		for(ACommunicationAction a : offeredActions)
@@ -130,6 +141,7 @@ public class CmlScheduler {
 	
 	public void start()
 	{
+		trace = new LinkedList<ACommunicationAction>();
 		handleAddedProcesses();
 		
 		while(!processes.isEmpty())

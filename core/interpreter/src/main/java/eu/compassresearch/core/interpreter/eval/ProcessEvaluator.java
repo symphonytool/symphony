@@ -15,7 +15,7 @@ import eu.compassresearch.ast.process.AInstantiationProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
-import eu.compassresearch.core.interpreter.runtime.CMLContext;
+import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
 import eu.compassresearch.core.interpreter.scheduler.InstantiatedProcess;
 import eu.compassresearch.core.interpreter.scheduler.ProcessThread;

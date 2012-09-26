@@ -9,7 +9,7 @@ import eu.compassresearch.ast.definitions.AAssignmentDefinition;
 import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.runtime.CMLContext;
+import eu.compassresearch.core.interpreter.api.CMLContext;
 
 public class CmlDeclAndDefEvaluator extends
 		QuestionAnswerAdaptor<CMLContext, Value> {

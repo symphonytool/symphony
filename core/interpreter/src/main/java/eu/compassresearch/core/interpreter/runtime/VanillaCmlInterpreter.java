@@ -10,11 +10,14 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
+import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 import eu.compassresearch.core.interpreter.scheduler.InstantiatedProcess;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 import eu.compassresearch.core.parser.CmlParser;
@@ -30,7 +33,11 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	 */
     private static final long serialVersionUID = 6664128061930795395L;
     private CmlEvaluator      evalutor         = new CmlEvaluator();
-    
+    protected List<PSource> sourceForest;
+	protected Environment<PDefinition> env;
+	protected String defaultProcess;
+	private CmlScheduler cmlScheduler = new CmlScheduler();
+        
     /**
      * Construct a CmlInterpreter with a list of PSources. These source may
      * refer to each other.
@@ -41,15 +48,60 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
      */
     public VanillaCmlInterpreter(List<PSource> cmlSources)
       {
-        // initialize();
-        this.sourceForest = cmlSources;
+    	this.sourceForest = cmlSources;
+        initialize();
+        
       }
+    
+    /**
+     * Construct a CmlTypeInterpreter with the intension of checking a single
+     * source.
+     * 
+     * @param singleSource
+     */
+    public VanillaCmlInterpreter(PSource singleSource)
+      {
+        this.sourceForest = new LinkedList<PSource>();
+        this.sourceForest.add(singleSource);
+        initialize();
+      }
+    
+    protected void initialize()
+	{
+		EnvironmentBuilder envBuilder = new EnvironmentBuilder(sourceForest);
+		
+		env = envBuilder.getGlobalEnvironment();
+		
+		defaultProcess = envBuilder.getLastDefinedProcess();
+	}
+
+	@Override
+	public Environment<PDefinition> getGlobalEnvironment() {
+		
+		return env;
+	}
+
+	@Override
+	public String getDefaultName() {
+		
+		return defaultProcess;
+	}
+	
+	@Override
+	public void setDefaultName(String name) throws Exception {
+		
+		defaultProcess = name;
+	}
     
     @Override
     public Value execute() throws AnalysisException
       {
         
-        Environment env = getGlobalEnvironment();
+        Environment<PDefinition> env = getGlobalEnvironment();
+        
+        
+        //if(getDefaultName() == null)
+        
         // Find the default process
         AProcessDefinition processDef = (AProcessDefinition) env
             .lookupName(new LexIdentifierToken(getDefaultName(), false, null));
@@ -67,25 +119,12 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
             processDef, pv.getProcess());
         
         // Add the top process to the scheduler and start it
-        CmlRuntime.getCmlScheduler().addProcess(instantProcess);
-        CmlRuntime.getCmlScheduler().start();
+        cmlScheduler.addProcess(instantProcess);
+        cmlScheduler.start();
         
         return null;
       }
-    
-    /**
-     * Construct a CmlTypeChecker with the intension of checking a single
-     * source.
-     * 
-     * @param singleSource
-     */
-    public VanillaCmlInterpreter(PSource singleSource)
-      {
-        // initialize();
-        this.sourceForest = new LinkedList<PSource>();
-        this.sourceForest.add(singleSource);
-      }
-    
+        
     public String getAnalysisName()
       {
         return "The CML Interpreter";
@@ -144,7 +183,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
         try
           {
-            cmlInterp.setDefaultName("A");
+            //cmlInterp.setDefaultName("A");
             cmlInterp.execute();
           } catch (Exception ex)
           {
@@ -164,35 +203,13 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         
         File cml_example = new File(
             //"src/test/resources/firstInterpreterTest.cml");
-        		"src/test/resources/InternalChoiceAction.cml");
+        		"src/test/resources/process/InternalChoiceAction.cml");
         runOnFile(cml_example);
-        // File cml_examples = new File("../../docs/cml-examples");
-        // int failures = 0;
-        // int successes = 0;
-        // runOnFile(null);
-        
-        // if (cml_examples.isDirectory())
-        // {
-        // for (File example : cml_examples.listFiles())
-        // {
-        // System.out.print("Typechecking example: " + example.getName()
-        // + " \t\t...: ");
-        // System.out.flush();
-        // try
-        // {
-        // runOnFile(example);
-        // System.out.println("done");
-        // successes++;
-        // } catch (Exception e)
-        // {
-        // System.out.println("exception");
-        // failures++;
-        // }
-        // }
-        // }
-        //
-        // System.out.println(successes + " was successful, " + failures
-        // + " was failures.");
         
       }
+    
+    public InterpreterStatus getStatus()
+    {
+    	return new InterpreterStatus(cmlScheduler.getTrace());
+    }
   }

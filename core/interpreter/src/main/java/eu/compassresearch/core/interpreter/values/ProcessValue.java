@@ -7,7 +7,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.core.interpreter.runtime.CMLContext;
+import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
 
 public class ProcessValue extends Value {
