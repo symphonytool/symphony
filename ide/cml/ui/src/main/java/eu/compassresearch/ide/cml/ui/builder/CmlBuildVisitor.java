@@ -108,8 +108,7 @@ public class CmlBuildVisitor implements IResourceVisitor
                                     baos));
                                 IMarker tcMarker = file
                                     .createMarker(IMarker.PROBLEM);
-                                tcMarker.setAttribute(IMarker.SEVERITY,
-                                    IMarker.SEVERITY_WARNING);
+                                
                                 tcMarker
                                     .setAttribute(
                                         IMarker.MESSAGE,
