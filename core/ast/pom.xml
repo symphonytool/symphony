@@ -33,7 +33,7 @@
 	  <extendedName>CML</extendedName>
 	  <deletePackageOnGenerate>
 	    <param>org.overture.ast</param>
-	    <param>eu.compassresearch</param>
+	    <param>eu.compassresearch.ast</param>
 	  </deletePackageOnGenerate>
 	  <useSrcOutput>false</useSrcOutput>
 	</configuration>
