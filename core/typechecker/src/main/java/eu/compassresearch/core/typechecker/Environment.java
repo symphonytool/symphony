@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.overture.ast.definitions.AStateDefinition;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.typechecker.NameScope;
 
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
-import eu.compassresearch.ast.lex.LexLocation;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.transformation.CmlAstToOvertureAst;
 
@@ -88,10 +88,10 @@ public class Environment<T>
             issueHandler);
         try
           {
-            org.overture.ast.definitions.PDefinition ovtDef = (org.overture.ast.definitions.PDefinition) transform
+            org.overture.ast.definitions.PDefinition ovtDef = (org.overture.ast.definitions.PDefinition) ((Object) transform)
                 .defaultPDefinition(cmlDef);
             return ovtDef;
-          } catch (eu.compassresearch.ast.analysis.AnalysisException ae)
+          } catch (org.overture.ast.analysis.AnalysisException ae)
           {
             ae.printStackTrace();
             return null;

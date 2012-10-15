@@ -4,17 +4,17 @@ import java.lang.reflect.Method;
 import java.util.Set;
 
 import org.overture.ast.definitions.AStateDefinition;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.types.PType;
+import org.overture.ast.types.SBasicType;
 
 import eu.compassresearch.ast.declarations.PDeclaration;
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
-import eu.compassresearch.ast.lex.LexLocation;
-import eu.compassresearch.ast.node.INode;
-import eu.compassresearch.ast.types.PType;
-import eu.compassresearch.ast.types.SBasicType;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 

@@ -1,8 +1,11 @@
 package eu.compassresearch.core.parser;
 
 import eu.compassresearch.ast.expressions.*;
+import org.overture.ast.expressions.*;
 import eu.compassresearch.ast.patterns.*;
+import org.overture.ast.patterns.*;
 import eu.compassresearch.ast.types.*;
+import org.overture.ast.types.*;
 import eu.compassresearch.ast.actions.*;
 import java.util.*;
 
