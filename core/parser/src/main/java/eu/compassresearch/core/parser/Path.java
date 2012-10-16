@@ -1,11 +1,14 @@
 package eu.compassresearch.core.parser;
 
 import eu.compassresearch.ast.expressions.*;
+import org.overture.ast.expressions.*;
 import eu.compassresearch.ast.actions.*;
 import eu.compassresearch.ast.types.*;
+import org.overture.ast.types.*;
 import eu.compassresearch.ast.process.*;
-import eu.compassresearch.ast.lex.*; 
+import org.overture.ast.lex.*;
 import eu.compassresearch.ast.patterns.*;
+import org.overture.ast.patterns.*;
 import java.util.*;
 
 public class Path

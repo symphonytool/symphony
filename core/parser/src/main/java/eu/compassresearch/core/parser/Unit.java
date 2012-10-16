@@ -1,6 +1,7 @@
 package eu.compassresearch.core.parser;
 
-import eu.compassresearch.ast.lex.*; 
+//import eu.compassresearch.ast.lex.*; 
+import org.overture.ast.lex.*;
 
 public class Unit
 {
