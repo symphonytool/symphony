@@ -1,13 +1,38 @@
 package eu.compassresearch.core.parser;
 
-import eu.compassresearch.ast.expressions.*;
-import org.overture.ast.expressions.*;
-import eu.compassresearch.ast.patterns.*;
-import org.overture.ast.patterns.*;
-import eu.compassresearch.ast.types.*;
-import org.overture.ast.types.*;
-import eu.compassresearch.ast.actions.*;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.overture.ast.expressions.ABooleanConstExp;
+import org.overture.ast.expressions.ACharLiteralExp;
+import org.overture.ast.expressions.AIntLiteralExp;
+import org.overture.ast.expressions.ANilExp;
+import org.overture.ast.expressions.AQuoteLiteralExp;
+import org.overture.ast.expressions.ARealLiteralExp;
+import org.overture.ast.expressions.AStringLiteralExp;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.patterns.ABooleanPattern;
+import org.overture.ast.patterns.ACharacterPattern;
+import org.overture.ast.patterns.AExpressionPattern;
+import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.AIntegerPattern;
+import org.overture.ast.patterns.ANilPattern;
+import org.overture.ast.patterns.AQuotePattern;
+import org.overture.ast.patterns.ARealPattern;
+import org.overture.ast.patterns.ARecordPattern;
+import org.overture.ast.patterns.AStringPattern;
+import org.overture.ast.patterns.ATuplePattern;
+import org.overture.ast.patterns.PPattern;
+import org.overture.ast.types.ABooleanBasicType;
+import org.overture.ast.types.ACharBasicType;
+import org.overture.ast.types.AIntNumericBasicType;
+import org.overture.ast.types.AQuoteType;
+import org.overture.ast.types.ARealNumericBasicType;
+
+import eu.compassresearch.ast.actions.AIdentifierParameter;
+import eu.compassresearch.ast.actions.ARecordParameter;
+import eu.compassresearch.ast.actions.ATupleParameter;
+import eu.compassresearch.ast.actions.PParameter;
 
 
 public class ConvertUtil
@@ -69,7 +94,7 @@ public class ConvertUtil
 	case BOOLEAN:
 	    {
 		ABooleanPattern p = (ABooleanPattern)pattern;
-		exp = new ABooleanLiteralExp(new ABooleanBasicType(p.getLocation(), 
+		exp = new ABooleanConstExp(new ABooleanBasicType(p.getLocation(), 
 								   true),
 					     p.getLocation(),
 					     p.getValue());

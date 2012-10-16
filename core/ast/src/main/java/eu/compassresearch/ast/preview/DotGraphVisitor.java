@@ -6,13 +6,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAdaptor;
-import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.ast.node.ExternalNode;
-import eu.compassresearch.ast.node.INode;
-import eu.compassresearch.ast.node.IToken;
-import eu.compassresearch.ast.node.NodeList;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAdaptor;
+import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.node.ExternalNode;
+import org.overture.ast.node.INode;
+import org.overture.ast.node.IToken;
+import org.overture.ast.node.NodeList;
+
+
 
 public class DotGraphVisitor extends QuestionAdaptor<DotGraphVisitor.DotPair>
 {

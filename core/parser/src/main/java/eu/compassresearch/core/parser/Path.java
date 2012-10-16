@@ -1,15 +1,34 @@
 package eu.compassresearch.core.parser;
 
-import eu.compassresearch.ast.expressions.*;
-import org.overture.ast.expressions.*;
-import eu.compassresearch.ast.actions.*;
-import eu.compassresearch.ast.types.*;
-import org.overture.ast.types.*;
-import eu.compassresearch.ast.process.*;
-import org.overture.ast.lex.*;
-import eu.compassresearch.ast.patterns.*;
-import org.overture.ast.patterns.*;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.overture.ast.expressions.AApplyExp;
+import org.overture.ast.expressions.AFieldExp;
+import org.overture.ast.expressions.ASelfExp;
+import org.overture.ast.expressions.ASubseqExp;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AApplyObjectDesignator;
+import org.overture.ast.statements.AFieldObjectDesignator;
+import org.overture.ast.statements.AFieldStateDesignator;
+import org.overture.ast.statements.AIdentifierStateDesignator;
+import org.overture.ast.statements.AMapSeqStateDesignator;
+import org.overture.ast.statements.ASelfObjectDesignator;
+import org.overture.ast.statements.PObjectDesignator;
+import org.overture.ast.statements.PStateDesignator;
+
+import eu.compassresearch.ast.actions.ACallAction;
+import eu.compassresearch.ast.actions.ACallStatementAction;
+import eu.compassresearch.ast.actions.ANameObjectDesignator;
+import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.expressions.ANameChannelExp;
+import eu.compassresearch.ast.expressions.ANameExp;
+import eu.compassresearch.ast.expressions.ATupleSelectExp;
+import eu.compassresearch.ast.process.AInstantiationProcess;
+import eu.compassresearch.ast.process.PProcess;
 
 public class Path
 {
@@ -180,15 +199,16 @@ public class Path
 	case TILDE:
 	    {
 		PExp name = this.subPath.convertToExpression();
-		switch(name.kindPExp()){
-		case NAME:
+				
+		if(name instanceof ANameExp)
+		{
 		    ANameExp nameExp = (ANameExp)name;
 		    nameExp.setName(nameExp.getName().getOldName());
 		    exp = nameExp;
-		    break;
-		default:
+	    }
+		else
 		    throw new PathConvertException("Illigal path for old name expression");
-		}
+		
 	    }
 	    break;
 	case DOT:

@@ -488,7 +488,9 @@ public class AstFactory {
 		//AImplicitFunctionDefinition initialization
 		result.setTypeParams(typeParams);
 		result.setParamPatterns(parameterPatterns);
-		result.setResult(resultPattern);
+		List<APatternTypePair> resList = new LinkedList<APatternTypePair>();
+		resList.add(resultPattern);
+		result.setResult(resList);
 		result.setBody(body);
 		result.setPrecondition(precondition);
 		result.setPostcondition(postcondition);
@@ -1670,7 +1672,9 @@ public class AstFactory {
 		ACaseAlternative result = new ACaseAlternative();
 		result.setLocation(pattern.getLocation());
 		result.setCexp(cexp);
-		result.setPattern(pattern);
+		List<PPattern> listPattern = new LinkedList<PPattern>();
+		listPattern.add(pattern);
+		result.setPattern(listPattern);
 		result.setResult(resultExp);
 		return result;
 	}

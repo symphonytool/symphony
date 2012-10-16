@@ -193,9 +193,9 @@ exp {-> package='org.overture.ast.expressions'}
 modifier {-> package='org.overture.ast.expressions'}
     = {record} [tag]:LexIdentifierToken [value]:exp
     ;
-    
+//AKM: Found in VDM spec pattern should a list of patterns
 alternative {-> package='org.overture.ast.expressions'}
-    = {case} [location]:location [cexp]:exp [pattern]:pattern 
+    = {case} [location]:location [cexp]:exp [pattern]:pattern* 
              [result]:exp [defs]:definition*  (type):type (expType):type
     ;
     
@@ -355,7 +355,7 @@ definition {-> package='org.overture.ast.definitions'}
     |   {external} (state):definition [readOnly]:java_Boolean (oldname):LexNameToken
     |   {implicitFunction}  [typeParams]:LexNameToken* 
                             [paramPatterns]:pair.patternListType*
-                            [result]:pair.patternType
+                            [result]:pair.patternType*  //AKM: Found in VDM spec, should be a list of patternpairs
                             (body):exp
                             [precondition]:exp 
                             [postcondition]:exp 

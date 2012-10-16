@@ -13,6 +13,7 @@ public enum NameScope implements Serializable
 	OLDSTATE(8),	// State names with a "~" modifier
 	TYPENAME(16),	// The names of types
 	CLASSNAME(32),	// The names of classes
+	PROCESSNAME(64), // The names of processes
 
 	NAMES(3),
 	NAMESANDSTATE(7),
