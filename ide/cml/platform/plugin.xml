@@ -47,6 +47,73 @@
             splashId="eu.compassresearch.ide.platform.splash">
       </splashHandlerProductBinding>
    </extension>
+ <extension
+       id="product"
+       point="org.eclipse.core.runtime.products">
+    <product
+          application="org.eclipse.ui.ide.workbench"
+          name="CML Compass Project">
+       <property
+             name="startupForegroundColor"
+             value="7F7F7F">
+       </property>
+       <property
+             name="startupProgressRect"
+             value="0,0,300,20">
+       </property>
+       <property
+             name="startupMessageRect"
+             value="75,200,300,15">
+       </property>
+    </product>
+ </extension>
+ <extension
+       id="product"
+       point="org.eclipse.core.runtime.products">
+    <product
+          application="org.eclipse.ui.ide.workbench"
+          name="CML Compass Project">
+       <property
+             name="startupForegroundColor"
+             value="7F7F7F">
+       </property>
+       <property
+             name="startupProgressRect"
+             value="0,0,300,20">
+       </property>
+       <property
+             name="startupMessageRect"
+             value="75,200,300,15">
+       </property>
+       <property
+             name="preferenceCustomization">
+       </property>
+    </product>
+ </extension>
+ <extension
+       id="product"
+       point="org.eclipse.core.runtime.products">
+    <product
+          application="org.eclipse.ui.ide.workbench"
+          name="CML Compass Project">
+       <property
+             name="startupForegroundColor"
+             value="7F7F7F">
+       </property>
+       <property
+             name="startupProgressRect"
+             value="0,0,300,20">
+       </property>
+       <property
+             name="startupMessageRect"
+             value="75,200,300,15">
+       </property>
+       <property
+             name="preferenceCustomization"
+             value="plugin_customization.ini">
+       </property>
+    </product>
+ </extension>
 
  
 </plugin>
