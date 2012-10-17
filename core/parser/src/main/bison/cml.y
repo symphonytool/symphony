@@ -3181,12 +3181,14 @@ mode :
   RD
 {
   //$$ = new AReadMode(extractLexLocation((CmlLexeme)$RD));
-  $$ = $1;
+  LexLocation loc = extractLexLocation((CmlLexeme)$1);
+  $$ = new LexToken(loc,VDMToken.READ);
 }
 | WR
 {
   //$$ = new AWriteMode(extractLexLocation((CmlLexeme)$WR));
-  $$ = $1;
+  LexLocation loc = extractLexLocation((CmlLexeme)$1);
+  $$ = new LexToken(loc,VDMToken.WRITE);
 }
 ;
 
@@ -4820,8 +4822,9 @@ implicitOperationBody :
 {
   PExp postcondition = (PExp)$postExpr;
   List<? extends AExternalClause> exts = (List<? extends AExternalClause>)$externals_opt;
-  LexLocation location = combineLexLocation(extractFirstLexLocation(exts),
-                                            postcondition.getLocation());
+  /* LexLocation location = combineLexLocation(extractFirstLexLocation(exts), */
+  /*                                           postcondition.getLocation()); */
+  LexLocation location = postcondition.getLocation();
   $$ = new ASpecificationStatementAction(location,
                                                 exts,
                                                 (PExp)$preExpr_opt,
