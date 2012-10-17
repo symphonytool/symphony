@@ -21,6 +21,7 @@ import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
 import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
+import eu.compassresearch.ast.definitions.ATypeDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.definitions.PDefinition;
@@ -107,9 +108,12 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 				AClassParagraphDefinition clzdecl = (AClassParagraphDefinition) w.value;
 				for (PDefinition section : clzdecl.getDefinitions()) {
 					res.addAll(extractChildren(section));
-					/* we need to split these by definition types. Only the drilldowns should 
-					have children extracted. the rest go normal name extraction*/
-					res.add(extractPDefinitionName(section));
+					/*
+					 * we need to split these by definition types. Only the
+					 * drilldowns should have children extracted. the rest go
+					 * normal name extraction
+					 */
+				//	res.add(extractPDefinitionName(section));
 				}
 				return res.toArray();
 			}
@@ -172,30 +176,53 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 
 	private List<Wrapper<PDefinition>> extractChildren(PDefinition pdef) {
 		List<Wrapper<PDefinition>> res = new LinkedList<Wrapper<PDefinition>>();
-		
-		if (pdef instanceof AValueParagraphDefinition){
-			for (PDefinition subdef : ((AValueParagraphDefinition)pdef).getValueDefinitions())
-			{
-				res.add(Wrapper.newInstance(subdef, subdef.getName().name + "->" + subdef.getType()));
+
+		if (pdef instanceof AValueParagraphDefinition) {
+			for (PDefinition subdef : ((AValueParagraphDefinition) pdef)
+					.getValueDefinitions()) {
+				res.add(Wrapper.newInstance(subdef, "v] "
+						+ subdef.getName().name + ": " + subdef.getType()));
 			}
 		}
-	
+		if (pdef instanceof AFunctionParagraphDefinition) {
+			for (SFunctionDefinition subdef : ((AFunctionParagraphDefinition) pdef)
+					.getFunctionDefinitions()) {
+				// FIXME-ldc how to extract function types
+				res.add(Wrapper.newInstance((PDefinition) subdef, "f] "
+						+ subdef.getName().name + ":" + subdef.getType()));
+			}
+		}
+		if (pdef instanceof ATypesParagraphDefinition) {
+			for (ATypeDefinition subdef : ((ATypesParagraphDefinition) pdef)
+					.getTypes()) {
+				res.add(Wrapper.newInstance((PDefinition) subdef, "t] "
+						+ subdef.getName().name));
+			}
+		}
+		if (pdef instanceof AOperationParagraphDefinition) {
+			for (SOperationDefinition subdef : ((AOperationParagraphDefinition) pdef)
+					.getOperations()) {
+				// FIXME-ldc how to extract function types
+				res.add(Wrapper.newInstance((PDefinition) subdef, "o] "
+						+ subdef.getName().name + ":" + subdef.getType()));
+			}
+		}
+
 		return res;
 	}
 
-	private Wrapper<PDefinition> extractPDefinitionName(PDefinition pdef){	
-        if (pdef instanceof AValueParagraphDefinition)
-        	return Wrapper.newInstance(pdef, "Values");
-    	if (pdef instanceof AFunctionParagraphDefinition)
-    		return Wrapper.newInstance(pdef, "Functions");
-        if (pdef instanceof AOperationParagraphDefinition)
-    		return Wrapper.newInstance(pdef, "Operations");
-        if (pdef instanceof ATypesParagraphDefinition)
-    		return Wrapper.newInstance(pdef, "Types");
-        return Wrapper.newInstance(pdef, "ERROR: unknown section");
-        
-	}
+	private Wrapper<PDefinition> extractPDefinitionName(PDefinition pdef) {
+		if (pdef instanceof AValueParagraphDefinition)
+			return Wrapper.newInstance(pdef, "Values");
+		if (pdef instanceof AFunctionParagraphDefinition)
+			return Wrapper.newInstance(pdef, "Functions");
+		if (pdef instanceof AOperationParagraphDefinition)
+			return Wrapper.newInstance(pdef, "Operations");
+		if (pdef instanceof ATypesParagraphDefinition)
+			return Wrapper.newInstance(pdef, "Types");
+		return Wrapper.newInstance(pdef, "ERROR: unknown section");
 
+	}
 
 	private List<Object> handleProcess(PProcess process) {
 		List<Object> res = new LinkedList<Object>();
@@ -281,7 +308,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			return "null";
 		return name.name;
 	}
-	
+
 	// Why does this return null?
 	@Override
 	public Object getParent(Object element) {
