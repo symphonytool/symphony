@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
@@ -17,13 +16,14 @@ import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
 
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 
 
 @SuppressWarnings("serial")
 public abstract class AbstractCmlInterpreter extends
-		QuestionAnswerAdaptor<CMLContext, Value> implements CmlInterpreter {
+		QuestionAnswerCMLAdaptor<CMLContext, Value> implements CmlInterpreter {
 
 				
 	@Override

@@ -7,19 +7,20 @@ import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.intf.IQuestionAnswer;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.node.INode;
+import org.overture.ast.types.PType;
+
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
 import eu.compassresearch.ast.declarations.PDeclaration;
-import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
-import eu.compassresearch.ast.expressions.PExp;
-import eu.compassresearch.ast.node.INode;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeComparator;

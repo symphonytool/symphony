@@ -1,19 +1,20 @@
 package eu.compassresearch.core.typechecker;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.types.ABooleanBasicType;
-import eu.compassresearch.ast.types.ACharBasicType;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.types.ABooleanBasicType;
+import org.overture.ast.types.ACharBasicType;
+import org.overture.ast.types.AIntNumericBasicType;
+import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.ANatNumericBasicType;
+import org.overture.ast.types.ANatOneNumericBasicType;
+import org.overture.ast.types.ARationalNumericBasicType;
+import org.overture.ast.types.ARealNumericBasicType;
+import org.overture.ast.types.ASeqSeqType;
+import org.overture.ast.types.ATokenBasicType;
+import org.overture.ast.types.PType;
+
 import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.ast.types.AIntNumericBasicType;
-import eu.compassresearch.ast.types.ANamedInvariantType;
-import eu.compassresearch.ast.types.ANatNumericBasicType;
-import eu.compassresearch.ast.types.ANatOneNumericBasicType;
-import eu.compassresearch.ast.types.ARationalNumericBasicType;
-import eu.compassresearch.ast.types.ARealNumericBasicType;
-import eu.compassresearch.ast.types.ASeqSeqType;
-import eu.compassresearch.ast.types.ATokenBasicType;
-import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;

@@ -5,18 +5,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import eu.compassresearch.ast.types.ABracketType;
-import eu.compassresearch.ast.types.AIntNumericBasicType;
-import eu.compassresearch.ast.types.ANamedInvariantType;
-import eu.compassresearch.ast.types.ANatNumericBasicType;
-import eu.compassresearch.ast.types.ANatOneNumericBasicType;
-import eu.compassresearch.ast.types.AOptionalType;
-import eu.compassresearch.ast.types.ARationalNumericBasicType;
-import eu.compassresearch.ast.types.ARealNumericBasicType;
-import eu.compassresearch.ast.types.ASeqSeqType;
-import eu.compassresearch.ast.types.AUnknownType;
-import eu.compassresearch.ast.types.PType;
-import eu.compassresearch.ast.types.SBasicType;
+import org.overture.ast.types.ABracketType;
+import org.overture.ast.types.AIntNumericBasicType;
+import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.ANatNumericBasicType;
+import org.overture.ast.types.ANatOneNumericBasicType;
+import org.overture.ast.types.AOptionalType;
+import org.overture.ast.types.ARationalNumericBasicType;
+import org.overture.ast.types.ARealNumericBasicType;
+import org.overture.ast.types.ASeqSeqType;
+import org.overture.ast.types.AUnknownType;
+import org.overture.ast.types.PType;
+import org.overture.ast.types.SBasicType;
+
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 
 class SimpleTypeComparator implements TypeComparator

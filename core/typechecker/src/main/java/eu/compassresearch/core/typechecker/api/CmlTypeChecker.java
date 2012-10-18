@@ -1,7 +1,7 @@
 package eu.compassresearch.core.typechecker.api;
 
-import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
-import eu.compassresearch.ast.types.PType;
+import org.overture.ast.analysis.intf.IQuestionAnswer;
+import org.overture.ast.types.PType;
 
 /**
  * 
