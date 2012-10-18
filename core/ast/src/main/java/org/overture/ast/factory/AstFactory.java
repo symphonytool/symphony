@@ -967,23 +967,20 @@ public class AstFactory
         LexLocation location, List<AValueDefinition> localDefs,
         PTraceDefinition body)
       {
-        return new ALetDefBindingTraceDefinition(location, localDefs,
-            (ATraceDefinitionTerm) body);
+        return new ALetDefBindingTraceDefinition(location, localDefs, body);
       }
     
     public static ALetBeStBindingTraceDefinition newALetBeStBindingTraceDefinition(
         LexLocation location, PMultipleBind bind, PExp stexp,
         PTraceDefinition body)
       {
-        return new ALetBeStBindingTraceDefinition(location, bind, stexp,
-            (ATraceDefinitionTerm) body, null);
+        return new ALetBeStBindingTraceDefinition(location, bind, stexp, body, null);
       }
     
     public static AConcurrentExpressionTraceCoreDefinition newAConcurrentExpressionTraceCoreDefinition(
         LexLocation location, List<PTraceDefinition> defs)
       {
-        return new AConcurrentExpressionTraceCoreDefinition(location,
-            (List<? extends ATraceDefinitionTerm>) defs);
+        return new AConcurrentExpressionTraceCoreDefinition(location, defs);
       }
     
     public static AAccessSpecifierAccessSpecifier newAAccessSpecifierAccessSpecifier(

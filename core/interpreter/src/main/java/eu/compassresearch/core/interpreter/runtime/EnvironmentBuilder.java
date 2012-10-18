@@ -2,8 +2,12 @@ package eu.compassresearch.core.interpreter.runtime;
 
 import java.util.List;
 
-import eu.compassresearch.ast.analysis.AnalysisAdaptor;
-import eu.compassresearch.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.lex.LexIdentifierToken;
+
+import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
 import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
@@ -12,16 +16,12 @@ import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
-import eu.compassresearch.ast.definitions.ATypeDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.definitions.SFunctionDefinition;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.Environment;
 
-public class EnvironmentBuilder extends AnalysisAdaptor
+public class EnvironmentBuilder extends AnalysisCMLAdaptor
   {
     
     /**

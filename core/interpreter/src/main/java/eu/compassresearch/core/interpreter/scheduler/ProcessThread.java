@@ -5,9 +5,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.SynchronousQueue;
 
+import org.overture.ast.analysis.AnalysisException;
+
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;

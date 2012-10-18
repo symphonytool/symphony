@@ -2,10 +2,14 @@ package eu.compassresearch.core.interpreter.runtime;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.types.PType;
 import org.overture.interpreter.debug.DBGPReader;
 import org.overture.interpreter.runtime.Breakpoint;
 import org.overture.interpreter.runtime.SourceFile;
@@ -13,16 +17,8 @@ import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.expressions.PExp;
-import eu.compassresearch.ast.lex.LexLocation;
-import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
-import eu.compassresearch.core.typechecker.Environment;
 
 
 @SuppressWarnings("serial")
@@ -33,7 +29,7 @@ public abstract class AbstractCmlInterpreter extends
 	@Override
 	public CMLContext getInitialContext(LexLocation location) {
 				
-		CMLContext context = new CMLContext(location);
+		CMLContext context = new CMLContext(location,"Top context");
 		//TODO: Initialize all global value definitions and put them into the initial context
 				
 		return context;

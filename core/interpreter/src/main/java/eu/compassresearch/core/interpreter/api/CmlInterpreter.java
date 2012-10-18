@@ -5,6 +5,12 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.types.PType;
 import org.overture.interpreter.debug.DBGPReader;
 import org.overture.interpreter.runtime.Breakpoint;
 import org.overture.interpreter.runtime.SourceFile;
@@ -13,12 +19,6 @@ import org.overture.parser.lex.LexException;
 import org.overture.parser.syntax.ParserException;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.expressions.PExp;
-import eu.compassresearch.ast.lex.LexLocation;
-import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.core.typechecker.Environment;
 /**
  * The CML interpreter interface.
