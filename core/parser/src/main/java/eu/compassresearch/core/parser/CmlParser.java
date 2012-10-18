@@ -7031,7 +7031,7 @@ public class CmlParser
     Path statePath = (Path)((yystack.valueAt (5-(1))));
     Path namePath = (Path)((yystack.valueAt (5-(4))));
     List<? extends PExp> args = null;
-    LexLocation location = extractLexLocation(statePath.location,();
+    LexLocation location = extractLexLocation(statePath.location());
     stm = new ANewStatementAction(location,
                                          statePath.convertToStateDesignator(),
                                          namePath.convertToName(),

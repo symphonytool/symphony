@@ -4720,7 +4720,7 @@ controlStatement :
     Path statePath = (Path)$1;
     Path namePath = (Path)$4;
     List<? extends PExp> args = null;
-    LexLocation location = extractLexLocation(statePath.location,();
+    LexLocation location = extractLexLocation(statePath.location());
     stm = new ANewStatementAction(location,
                                          statePath.convertToStateDesignator(),
                                          namePath.convertToName(),
