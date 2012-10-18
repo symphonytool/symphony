@@ -14,8 +14,10 @@ import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionParagraphDefinition;
+import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
 import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
@@ -60,11 +62,15 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			current = ((CmlSourceUnit) inputElement).getSourceAst();
 			if (current == null)
 				return new Object[0];
-
+			String nameguard;
 			// If there are any declarations lets see them
 			List<Wrapper<PDefinition>> res = new LinkedList<CmlTreeContentProvider.Wrapper<PDefinition>>();
-			for (PDefinition def : current.getParagraphs())
-				res.add(Wrapper.newInstance(def, def.getName().name));
+			for (PDefinition def : current.getParagraphs()){
+				if (null == def.getName())
+					nameguard="";
+				else nameguard = def.getName().name;
+				res.add(Wrapper.newInstance(def, nameguard));
+			}
 			return res.toArray();
 		}
 		return new Object[0];
@@ -113,10 +119,14 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 					 * drilldowns should have children extracted. the rest go
 					 * normal name extraction
 					 */
-				//	res.add(extractPDefinitionName(section));
+					// res.add(extractPDefinitionName(section));
 				}
 				return res.toArray();
 			}
+
+			if (w.isClass(AChannelParagraphDefinition.class))
+				return handleChannelParagraphDefinition(
+						(AChannelParagraphDefinition) w.value).toArray();
 
 			if (w.isClass(AValueParagraphDefinition.class)) {
 				return handleValueParagraphDefinition(
@@ -189,7 +199,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 					.getFunctionDefinitions()) {
 				// FIXME-ldc how to extract function types
 				res.add(Wrapper.newInstance((PDefinition) subdef, "f] "
-						+ subdef.getName().name + ":" + subdef.getType()));
+						+ subdef.getName().name + ": " + subdef.getType()));
 			}
 		}
 		if (pdef instanceof ATypesParagraphDefinition) {
@@ -204,7 +214,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 					.getOperations()) {
 				// FIXME-ldc how to extract function types
 				res.add(Wrapper.newInstance((PDefinition) subdef, "o] "
-						+ subdef.getName().name + ":" + subdef.getType()));
+						+ subdef.getName().name + ": " + subdef.getType()));
 			}
 		}
 
@@ -292,6 +302,15 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			addActions(res, right);
 			return;
 		}
+	}
+
+	private List<String> handleChannelParagraphDefinition(
+			AChannelParagraphDefinition cpdef) {
+		List<String> r = new LinkedList<String>();
+		for (AChannelNameDeclaration dec : cpdef.getChannelNames()){
+				r.add(dec.getSingleType().getIdentifiers().toString() + ": " +dec.getSingleType().getType());
+		}
+		return r;
 	}
 
 	private List<String> handleValueParagraphDefinition(
