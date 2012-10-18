@@ -46,13 +46,15 @@ public class jsonCommand {
 	protected String userName;
 	protected String userId;
 	protected Boolean resultValue;
+	protected RttMbtClient client;
 
 	// constructor
-	jsonCommand(String server, Integer port, String user, String uid) {
-			rttMbtServer = server;
-			rttMbtServerPort = port;
-			userName = user;
-			userId = uid;
+	jsonCommand(RttMbtClient c) {
+			client = c;
+			rttMbtServer = client.getRttMbtServer();
+			rttMbtServerPort = client.getRttMbtPort();
+			userName = client.getUserName();
+			userId = client.getUserId();
 			isConnected = false;
 			success = false;
 			resultValue = false;

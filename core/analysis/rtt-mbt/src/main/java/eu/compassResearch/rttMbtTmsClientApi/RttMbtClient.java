@@ -1,8 +1,15 @@
 package eu.compassResearch.rttMbtTmsClientApi;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class RttMbtClient {
 
@@ -20,18 +27,14 @@ public class RttMbtClient {
 		userId = id;
 	}
 
-	public void setProject(String project) {
-		projectName = project;
-	}
-	
 	public String getProject() {
 		return projectName;
 	}
 
 	public Boolean testConenction() {
-		Boolean success = false;
+		Boolean success = true;
 		
-		jsonTestConnectionCommand cmd = new jsonTestConnectionCommand(rttMbtServer, rttMbtPort, userName, userId);
+		jsonTestConnectionCommand cmd = new jsonTestConnectionCommand(this);
 		cmd.executeCommand();
 		if (!cmd.executedSuccessfully()) {
 			success = false;
@@ -42,11 +45,11 @@ public class RttMbtClient {
 
 	public Boolean beginRttMbtSession() {
 		jsonCheckFileCacheExistsCommand check =
-					new jsonCheckFileCacheExistsCommand(rttMbtServer, rttMbtPort, userName, userId);
+					new jsonCheckFileCacheExistsCommand(this);
 		check.executeCommand();
 		if (!check.executedSuccessfully()) {
 			jsonStartFileCacheCommand start =
-					new jsonStartFileCacheCommand(rttMbtServer, rttMbtPort, userName, userId);
+					new jsonStartFileCacheCommand(this);
 			start.executeCommand();
 			if (!check.executedSuccessfully()) {
 				return false;
@@ -64,19 +67,20 @@ public class RttMbtClient {
 
 		// check if file already is in cache
 		System.out.println("checking if file '" + filename + "' already exists in cache");
-		jsonCheckFileInCacheCommand check = new jsonCheckFileInCacheCommand(rttMbtServer, rttMbtPort, userName, userId);
+		jsonCheckFileInCacheCommand check = new jsonCheckFileInCacheCommand(this);
 		check.setFilename(filename);
-		String checkReply = check.executeCommand();
+		check.executeCommand();
 		if (check.executedSuccessfully() && check.getResult()) {
 			return true;
 		} else {
-			System.err.println("[FAIL]: checking file '" + filename + "' failed!");
-			System.err.println("reply: " + checkReply);
+			if (!check.executedSuccessfully()) {
+				System.err.println("[FAIL]: checking file '" + filename + "' failed!");
+			}
 		}
 
 		// if file is not in cache: upload file
 		System.out.println("uploading file '" + filename + "' to cache");
-		jsonSendFileToCacheCommand cmd = new jsonSendFileToCacheCommand(rttMbtServer, rttMbtPort, userName, userId);
+		jsonSendFileToCacheCommand cmd = new jsonSendFileToCacheCommand(this);
 		cmd.setFilename(filename);
 		String reply = cmd.executeCommand();
 		success = cmd.executedSuccessfully();
@@ -117,7 +121,7 @@ public class RttMbtClient {
 		File file = new File(filename);
 		if (file.exists() && file.isFile()) {
 			System.out.println("checking if existing file '" + filename + "' already is up to date");
-			jsonCheckFileInCacheCommand check = new jsonCheckFileInCacheCommand(rttMbtServer, rttMbtPort, userName, userId);
+			jsonCheckFileInCacheCommand check = new jsonCheckFileInCacheCommand(this);
 			check.setFilename(filename);
 			String checkReply = check.executeCommand();
 			if (check.executedSuccessfully() && check.getResult()) {
@@ -130,7 +134,7 @@ public class RttMbtClient {
 		
 		// if file is not up to date: download file
 		System.out.println("downloading file '" + filename + "' from cache");
-		jsonReceiveFileFromCacheCommand cmd = new jsonReceiveFileFromCacheCommand(rttMbtServer, rttMbtPort, userName, userId);
+		jsonReceiveFileFromCacheCommand cmd = new jsonReceiveFileFromCacheCommand(this);
 		cmd.setFilename(filename);
 		String reply = cmd.executeCommand();
 		success = cmd.executedSuccessfully();
@@ -147,7 +151,7 @@ public class RttMbtClient {
 		System.out.println("downloading files in directory '" + directory + "' from cache");
 		
 		// get file list
-		jsonGetCachFileListCommand cmd = new jsonGetCachFileListCommand(rttMbtServer, rttMbtPort, userName, userId);
+		jsonGetCachFileListCommand cmd = new jsonGetCachFileListCommand(this);
 		cmd.setDirname(directory);
 		String reply = cmd.executeCommand();
 		success = cmd.executedSuccessfully();
@@ -157,11 +161,30 @@ public class RttMbtClient {
 			return success;
 		}
 
-		// for each file: download file
+		// get list if filenames
 		List<String> filenames = cmd.getFilenames();
+
+		// If no files are in the directory: do nothing
 		if (filenames == null) {
 			return success;
 		}
+
+		// check if local directory exists
+		File folder = new File(directory);
+		if (folder.isFile()) {
+			System.err.println("[FAIL]: '" + directory + "' already exists and is a file!");
+			return false;
+		}
+		if (! folder.isDirectory()) {
+			// create directory
+			success = folder.mkdirs();
+			if (!success) {
+				// Directory creation failed
+				System.err.println("[FAIL]: creating local directory '" + directory + "' failed!");
+			}
+		}
+		
+		// for each file: download file
 		for (int idx = 0; idx < filenames.size(); idx++) {
 			downloadFile(directory + "/" + filenames.get(idx));
 		}
@@ -169,24 +192,225 @@ public class RttMbtClient {
 		return success;
 	}
 	
-	public Boolean createProject(String projecName) {
-		// check if project already exists
+	public Boolean createProject(String project) {
+		Boolean success = true;
+		
 		// set project name
+		projectName = project;
+
+		// check if local directory exists
+		File folder = new File(project);
+		if (folder.isFile()) {
+			System.err.println("[FAIL]: '" + project + "' already exists and is a file!");
+			return false;
+		}
+
 		// create project structure
-		// check/start cache
+		if (! folder.exists()) {
+			// create directory
+			success = folder.mkdirs();
+			if (!success) {
+				// Directory creation failed
+				System.err.println("[FAIL]: creating local directory '" + project + "' failed!");
+				return false;
+			}
+			// extract project template
+			File templates = new File("templates");
+			if (!templates.isDirectory()) {
+				System.err.println("[FAIL]: local 'templates' directory does not exist!");
+				return false;
+			}
+			File archive = new File(templates, "_Project_compass.zip");
+			success = unzipArchive(archive.getPath(), projectName);
+		}
+
 		// upload project structure to cache
-		return false;
+		success = uploadDirectory(project, true);
+		return success;
 	}
 	
 	public Boolean initProject(String modelName, String modelVersion, String modelFileName) {
-		// copy model to model/ directory
+		Boolean success = true;
+
+		// check if project has been created / selected
+		if (projectName == null) {
+			System.err.println("[FAIL]: no project created / selected, yet!");
+			return false;
+		}
+		// copy model to <projectroot>/model/ directory
+		File projectRoot = new File(projectName);
+		try {
+			if (!projectRoot.isDirectory()) {
+				System.err.println("[FAIL]: project directory '" + projectName + "' does not exist!");
+				return false;
+			}
+			File modelDir = new File(projectRoot, "model");
+			if (!modelDir.exists()) {
+				modelDir.mkdir();
+			}
+			if (!modelDir.isDirectory()) {
+				System.err.println("[FAIL]: model directory '" + modelDir.getPath() + "' does not exist!");
+				return false;
+			}
+			File inputModel = new File(modelFileName);
+			if (!inputModel.isFile()) {
+				System.err.println("[FAIL]: model file '" + modelFileName + "' does not exist!");
+				return false;
+			}
+			File outputModel = new File(modelDir, "model_dump.xml");
+			outputModel.createNewFile();
+			
+		    FileInputStream fromModel = new FileInputStream(inputModel);
+		    FileOutputStream toModel = new FileOutputStream(outputModel);
+		    byte[] buffer = new byte[1024];
+		    int bytes_read = fromModel.read(buffer);
+		    while (bytes_read != -1) {
+		        toModel.write(buffer, 0, bytes_read);
+		    	bytes_read = fromModel.read(buffer);
+		    }
+		    fromModel.close();
+		    toModel.close();
+		}
+		catch (IOException e) {
+			System.err.println("[FAIL]: unable to copy model file '" + modelFileName + "' to project '" + projectName + "'!");
+		}
 		// send model to file cache
+		// @uwe: this is actually not needed, because the model is stored in the models directory
+
 		// perform store model command
+		jsonStoreModelCommand storeModel= new jsonStoreModelCommand(this);
+		storeModel.setModelName(modelName);
+		storeModel.setModelId(modelVersion);
+		storeModel.setModelFile(modelFileName);
+		storeModel.executeCommand();
+		if (!storeModel.executedSuccessfully()) {
+			System.err.println("[FAIL]: unable to store model file '" + modelFileName + "' on RTT-MBT server!");
+			return false;
+		}
+
 		// unpack _P1.zip
+		File templates = new File("templates");
+		if (!templates.isDirectory()) {
+			System.err.println("[FAIL]: local 'templates' directory does not exist!");
+			return false;
+		}
+		File archive = new File(templates, "_P1_compass.zip");
+		File testProcs = new File(projectRoot, "TestProcedures");
+		if (!testProcs.exists()) {
+			testProcs.mkdir();
+		}
+		if (!testProcs.isDirectory()) {
+			System.err.println("[FAIL]: '" + testProcs.toString() + "' is not a directory!");
+			return false;
+		}
+		success = unzipArchive(archive.getPath(), testProcs.getPath());
+
 		// perform livelock check
+		System.out.println("performing livelock check of the model!");
+		jsonCheckModelCommand checkModel = new jsonCheckModelCommand(this);
+		checkModel.setModelName(modelName);
+		checkModel.setModelId(modelVersion);
+		checkModel.executeCommand();
+		if (!checkModel.executedSuccessfully()) {
+			System.err.println("[FAIL]: livelock check of model '" + modelName + "', version '" + modelVersion + "' on RTT-MBT server failed!");
+			return false;
+		}
+
 		// perform conftool command
 		// perform sigmaptool command
-		return false;
+		return success;
+	}
+
+	private Boolean unzipArchive(String archiveName, String targetDirectory) {
+		Boolean success = true;
+		System.out.println("extracting archive '" + archiveName + "' to directory '" + targetDirectory + "'");
+		try {
+			File folder = new File(targetDirectory);
+			if (!folder.exists()) {
+				System.err.println("[FAIL]: target directory '" + targetDirectory + "' does not exist!");
+				return false;
+			}
+			if (!folder.isDirectory()) {
+				System.err.println("[FAIL]: '" + targetDirectory + "' is not a directory!");
+				return false;
+			}
+			File zipfile = new File(archiveName);
+	    	ZipInputStream stream;
+			stream = new ZipInputStream(new FileInputStream(zipfile));
+	    	ZipEntry entry = stream.getNextEntry();
+	        while (entry != null) {
+	            if(entry.isDirectory()) {
+	            	// Assume directories are stored parents first then children.
+	                File directory = new File(folder, entry.getName());
+	                directory.mkdir();
+	            } else {
+	            	File file = new File(folder, entry.getName());
+	            	FileOutputStream filestream = new FileOutputStream(file);
+	                BufferedOutputStream dest = new BufferedOutputStream(filestream, 1024);
+	                byte data[] = new byte[1024];
+	                // read first chunk
+	                int count = stream.read(data, 0, 1024);
+	                while (count != -1) {
+	                	// write chunk to file
+	                    dest.write(data, 0, count);
+	                    // prepare next loop
+		                count = stream.read(data, 0, 1024);
+	                }
+	                dest.flush();
+	                dest.close();
+	            }
+	        	// prepare next loop
+		    	entry = stream.getNextEntry();
+	        }
+	    	
+		} catch (FileNotFoundException e) {
+			System.err.println("[FAIL]: template archive '" + archiveName + "' does not exist!");
+			return false;
+		} catch (IOException e) {
+			System.err.println("[FAIL]: unable to extract files from template archive '_Project_compass.zip'!");
+			return false;
+		}
+		return success;
+	}
+	
+	public String getRttMbtServer() {
+		return rttMbtServer;
+	}
+
+	public void setRttMbtServer(String rttMbtServer) {
+		this.rttMbtServer = rttMbtServer;
+	}
+
+	public Integer getRttMbtPort() {
+		return rttMbtPort;
+	}
+
+	public void setRttMbtPort(Integer rttMbtPort) {
+		this.rttMbtPort = rttMbtPort;
+	}
+
+	public String getProjectName() {
+		return projectName;
+	}
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 	
 }

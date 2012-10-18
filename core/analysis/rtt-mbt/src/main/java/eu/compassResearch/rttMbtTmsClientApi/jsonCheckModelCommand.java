@@ -1,5 +1,6 @@
 package eu.compassResearch.rttMbtTmsClientApi;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -20,8 +21,8 @@ public class jsonCheckModelCommand extends jsonCommand {
 	private logExtent logOption;
 	private Boolean guiPorts;
 
-	public jsonCheckModelCommand(String server, Integer port, String user, String uid) {
-		super(server, port, user, uid);
+	public jsonCheckModelCommand(RttMbtClient client) {
+		super(client);
 		logOption = logExtent.STANDARD;
 		guiPorts = false;
 	}
@@ -68,7 +69,15 @@ public class jsonCheckModelCommand extends jsonCommand {
 		if (reply == null) {
 			return;
 		}
-		writeBase64StringFileContent("Livelockreport.log",
-								     (String)reply.get("model-checking-results"), false);
+		String filename;
+		if (client.projectName != null) {
+			File projectRoot = new File(client.projectName);
+			File modelDir = new File(projectRoot, "model");
+			File report = new File(modelDir, "LivelockReport.log");
+			filename = report.getPath();
+		} else {
+			filename = "LivelockReport.log";
+		}
+		writeBase64StringFileContent(filename, (String)reply.get("model-checking-results"), false);
 	}
 }

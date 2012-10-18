@@ -16,8 +16,8 @@ public class jsonReceiveFileFromCacheCommand extends jsonCommand {
 
 	private String filename;
 
-	public jsonReceiveFileFromCacheCommand(String server, Integer port, String user, String uid) {
-		super(server, port, user, uid);
+	public jsonReceiveFileFromCacheCommand(RttMbtClient client) {
+		super(client);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

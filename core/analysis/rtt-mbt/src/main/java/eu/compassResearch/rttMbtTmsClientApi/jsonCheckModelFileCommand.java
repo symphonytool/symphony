@@ -18,8 +18,8 @@ public class jsonCheckModelFileCommand extends jsonCommand {
 	private String modelId;
 	private String modelFile;
 
-	public jsonCheckModelFileCommand(String server, Integer port, String user, String uid) {
-		super(server, port, user, uid);
+	public jsonCheckModelFileCommand(RttMbtClient client) {
+		super(client);
 	}
 	
 	public void setModelName(String name) {

@@ -16,8 +16,8 @@ public class jsonSendFileToCacheCommand extends jsonCommand {
 	
 	private String filename;
 
-	public jsonSendFileToCacheCommand(String server, Integer port, String user, String uid) {
-		super(server, port, user, uid);
+	public jsonSendFileToCacheCommand(RttMbtClient client) {
+		super(client);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

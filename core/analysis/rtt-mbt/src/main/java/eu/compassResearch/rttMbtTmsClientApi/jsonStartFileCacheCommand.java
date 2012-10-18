@@ -14,8 +14,8 @@ import org.json.simple.JSONObject;
  */
 public class jsonStartFileCacheCommand extends jsonCommand {
 
-	public jsonStartFileCacheCommand(String server, Integer port, String user, String uid) {
-		super(server, port, user, uid);
+	public jsonStartFileCacheCommand(RttMbtClient client) {
+		super(client);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

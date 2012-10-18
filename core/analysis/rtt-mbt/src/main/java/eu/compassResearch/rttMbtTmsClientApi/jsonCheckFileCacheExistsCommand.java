@@ -13,8 +13,8 @@ import org.json.simple.JSONObject;
  *
  */
 public class jsonCheckFileCacheExistsCommand extends jsonCommand {
-	public jsonCheckFileCacheExistsCommand(String server, Integer port, String user, String uid) {
-		super(server, port, user, uid);
+	public jsonCheckFileCacheExistsCommand(RttMbtClient client) {
+		super(client);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

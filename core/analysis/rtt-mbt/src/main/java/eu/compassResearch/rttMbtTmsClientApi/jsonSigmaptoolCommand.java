@@ -14,8 +14,8 @@ public class jsonSigmaptoolCommand extends jsonCommand {
 	private String modelName;
 	private String modelId;
 
-	public jsonSigmaptoolCommand(String server, Integer port, String user, String uid) {
-		super(server, port, user, uid);
+	public jsonSigmaptoolCommand(RttMbtClient client) {
+		super(client);
 	}
 	
 	public void setModelName(String name) {
