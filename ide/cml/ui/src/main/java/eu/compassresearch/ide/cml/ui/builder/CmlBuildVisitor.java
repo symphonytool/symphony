@@ -37,7 +37,7 @@ public class CmlBuildVisitor implements IResourceVisitor
         // This visitor only build files.
         IFile file = (IFile) resource;
         
-        // Lets have a parser
+        // Parse the source
         AFileSource source = new AFileSource();
         if (!parse(file, source))
           return false;
@@ -56,7 +56,7 @@ public class CmlBuildVisitor implements IResourceVisitor
     /*
      * Run the type checker.
      */
-    private boolean typeCheck(IFile file, AFileSource source)
+    private static boolean typeCheck(IFile file, AFileSource source)
         throws CoreException
       {
         try
@@ -165,7 +165,7 @@ public class CmlBuildVisitor implements IResourceVisitor
      * Return true of this build visitor should continue to build the given
      * resource.
      */
-    private boolean shouldBuild(IResource resource)
+    private static boolean shouldBuild(IResource resource)
       {
         return resource instanceof IFile
             && "cml".equalsIgnoreCase(((IFile) resource).getFileExtension());
