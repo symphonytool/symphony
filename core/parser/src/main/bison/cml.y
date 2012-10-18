@@ -1588,7 +1588,7 @@ communication[result] :
 	LexLocation location = extractLexLocation((CmlLexeme)$QUESTION,setbind.getLocation());
 	AReadCommunicationParameter param = new AReadCommunicationParameter(location, 
 									    parameter, 
-									    setbind.getSet());
+									    (PExp)setbind.getSet());
 	comAction.getCommunicationParameters().add(param);
 	$$ = comAction;
     }
@@ -2014,7 +2014,8 @@ typeDefs :
 }
 | TYPES typeDefList
 {
-  List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
+  //List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
+  List<PDefinition> typeDefinitions = (List<PDefinition>)$typeDefList;
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$TYPES),
                                        extractLastLexLocation(typeDefinitions));
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
@@ -2022,7 +2023,8 @@ typeDefs :
 }
 | TYPES typeDefList SEMI
 {
-  List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
+  //List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
+  List<PDefinition> typeDefinitions = (List<PDefinition>)$typeDefList;
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$TYPES),
                                        extractLexLocation((CmlLexeme)$SEMI));
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
@@ -2856,14 +2858,18 @@ identifierTypePairList_opt :
 identifierTypePairList :
   IDENTIFIER COLON type
 {
-  AIdentifierTypePair typePair = new AIdentifierTypePair(null, extractLexIdentifierToken((CmlLexeme)$1), (PType)$3);
+  AIdentifierTypePair typePair = new AIdentifierTypePair(null, 
+							 extractLexIdentifierToken((CmlLexeme)$1), 
+							 (PType)$3);
   List<AIdentifierTypePair> typePairs = new Vector<AIdentifierTypePair>();
   typePairs.add(typePair);
   $$ = typePairs;
 }
 | identifierTypePairList COMMA IDENTIFIER COLON type
 {
-  AIdentifierTypePair typePair = new AIdentifierTypePair(null, extractLexIdentifierToken((CmlLexeme)$3), (PType)$5);
+  AIdentifierTypePair typePair = new AIdentifierTypePair(null, 
+							 extractLexIdentifierToken((CmlLexeme)$3), 
+							 (PType)$5);
   List<AIdentifierTypePair> typePairs = (List<AIdentifierTypePair>)$1;
   typePairs.add(typePair);
   $$ = typePairs;
@@ -3012,6 +3018,7 @@ implicitOperationDef :
   AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
   LexNameToken name = extractLexNameToken((CmlLexeme)$2);
   List<? extends APatternListTypePair> parameterPatterns = (List<? extends APatternListTypePair>)$3;
+  //List<? extends PCMLPair> parameterPatterns = (List<? extends PCMLPair>)$3;
   List<? extends AIdentifierTypePair> result = (List<? extends AIdentifierTypePair>)$4;
   List<? extends AExternalClause> externals = (List<? extends AExternalClause>)$5;
   PExp precondition = (PExp)$6;
@@ -4195,7 +4202,7 @@ binaryExpr :
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   LexToken tok = extractLexToken( (CmlLexeme) $2 );
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
+  $$ = new APlusPlusBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression MUNION expression
 {
@@ -4213,31 +4220,31 @@ binaryExpr :
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   LexToken tok = extractLexToken( (CmlLexeme) $2 );
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
+  $$ = new ADomainResByBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression COLONGT expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   LexToken tok = extractLexToken( (CmlLexeme) $2 );
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
+  $$ = new APlusPlusBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression COLONDASHGT expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   LexToken tok = extractLexToken( (CmlLexeme) $2 );
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
+  $$ = new APlusPlusBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression COMP expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   LexToken tok = extractLexToken( (CmlLexeme) $2 );
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
+  $$ = new ACompBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression DSTAR expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   LexToken tok = extractLexToken( (CmlLexeme) $2 );
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
+  $$ = new AStarStarBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 ;
 
