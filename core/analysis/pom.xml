@@ -18,6 +18,7 @@
     <module>pog</module>
     <module>theoremprover</module>
     <module>refinementtool</module>
+    <module>rtt-mbt</module>
   </modules>
 </project>
 
