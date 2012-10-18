@@ -1,19 +1,28 @@
 package eu.compassresearch.core.parser.test;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Vector;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import java.util.*;
-import java.io.*;
-import eu.compassresearch.ast.node.*;
-import eu.compassresearch.ast.util.*;
-import eu.compassresearch.ast.program.*;
-import eu.compassresearch.core.lexer.*;
-import eu.compassresearch.core.parser.*;
+
+import eu.compassresearch.ast.program.AFileSource;
+import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.lexer.CmlLexer;
+import eu.compassresearch.core.parser.CmlParser;
 
 @RunWith(Parameterized.class)
 public class ParseAllCmlExampleFilesTest {

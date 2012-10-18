@@ -449,18 +449,24 @@ import eu.compassresearch.core.lexer.Position;
 
   private AAccessSpecifierAccessSpecifier getDefaultAccessSpecifier(boolean isStatic, boolean isAsync, LexLocation loc)
   {
+    /* return new AAccessSpecifierAccessSpecifier(new APublicAccess(), */
+    /*                             (isStatic ? new TStatic() : null), */
+    /*                             (isAsync ? new TAsync() : null),loc); */
+
     return new AAccessSpecifierAccessSpecifier(new APublicAccess(),
                                 (isStatic ? new TStatic() : null),
-                                (isAsync ? new TAsync() : null),loc);
+                                (isAsync ? new TAsync() : null));
 
   }
 
   private AAccessSpecifierAccessSpecifier getPrivateAccessSpecifier(boolean isStatic, boolean isAsync, LexLocation loc)
   {
+    /* return new AAccessSpecifierAccessSpecifier(new APrivateAccess(), */
+    /*                             (isStatic ? new TStatic() : null), */
+    /*                             (isAsync ? new TAsync() : null),loc); */
     return new AAccessSpecifierAccessSpecifier(new APrivateAccess(),
                                 (isStatic ? new TStatic() : null),
-                                (isAsync ? new TAsync() : null),loc);
-    
+                                (isAsync ? new TAsync() : null));
   }
 
   private LexToken extractLexToken(CmlLexeme lexeme)
@@ -3451,32 +3457,44 @@ varInformation :
   mode pathList
 {
   List<? extends LexNameToken> names = (List<? extends LexNameToken>)$pathList;
-  PMode mode = (PMode)$mode;
-  LexLocation location = combineLexLocation(mode.getLocation(),
+  //  PMode mode = (PMode)$mode;
+  LexToken mode = (LexToken)$mode;
+  LexLocation location = combineLexLocation(mode.location,
                                             extractLastLexLocation(names));
-  $$ = new AExternalClause(location,mode,names, null);
+  //$$ = new AExternalClause(location,mode,names, null);
+  $$ = new AExternalClause(mode,names, null);
 }
 | mode pathList COLON type
 {
   List<? extends LexNameToken> names = (List<? extends LexNameToken>)$pathList;
-  PMode mode = (PMode)$mode;
-  LexLocation location = combineLexLocation(mode.getLocation(),
+  //Mode mode = (PMode)$mode;
+  LexToken mode = (LexToken)$mode;
+  LexLocation location = combineLexLocation(mode.location,
                                             extractLastLexLocation(names));
-  $$ = new AExternalClause(location,
-                           mode,
+
+  $$ = new AExternalClause(mode,
                            names,
                            (PType)$type);
+
+  /* $$ = new AExternalClause(location,
+  /*                          mode, */
+  /*                          names, */
+  /*                          (PType)$type); */
 }
 ;
 
 mode :
   RD
 {
-  $$ = new AReadMode(extractLexLocation((CmlLexeme)$RD));
+  //$$ = new AReadMode(extractLexLocation((CmlLexeme)$RD));
+  LexLocation loc = extractLexLocation((CmlLexeme)$1);
+  $$ = new LexToken(loc,VDMToken.READ);
 }
 | WR
 {
-  $$ = new AWriteMode(extractLexLocation((CmlLexeme)$WR));
+  //$$ = new AWriteMode(extractLexLocation((CmlLexeme)$WR));
+  LexLocation loc = extractLexLocation((CmlLexeme)$1);
+  $$ = new LexToken(loc,VDMToken.WRITE);
 }
 ;
 
@@ -4087,7 +4105,7 @@ ifExpr :
       ifexp.setElse(exp);
 
 
-  LexLocation  sifloc = new LexLocation(null,//currentSource.toString(),
+  LexLocation  sifloc = new LexLocation(currentSource.toString(),
                                         "DEFAULT",
                                         sif.line, sif.column,
                                         sif.line, eif.column,
@@ -4923,7 +4941,7 @@ assignmentDefList :
 assignmentDef :
   IDENTIFIER COLON type
 {
-  LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
+  LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
   PType type = (PType)$type;
   LexLocation location = combineLexLocation(name.location, type.getLocation());
   AAccessSpecifierAccessSpecifier access = null;
@@ -4931,14 +4949,16 @@ assignmentDef :
                                  name,
                                  NameScope.GLOBAL,
                                  false,
+				 null,//VDM classDef
                                  access,
                                  type,
+				 null,//Pass
                                  null,
                                  null);
 }
 | IDENTIFIER COLON type COLONEQUALS expression
 {
-  LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
+  LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
   PType type = (PType)$type;
   PExp exp = (PExp)$expression;
   LexLocation location = combineLexLocation(name.location, type.getLocation());
@@ -4946,8 +4966,10 @@ assignmentDef :
   $$ = new AAssignmentDefinition(location, name,
                                  NameScope.GLOBAL,
                                  false,
+				 null,//VDM classDef
                                  access,
                                  type,
+				 null,//Pass
                                  exp,
                                  null);
 }
@@ -4958,7 +4980,7 @@ assignmentDef :
  */
 | IDENTIFIER COLON type IN expression
 {
-    LexIdentifierToken name = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
+    LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
     PType type = (PType)$type;
     PExp exp = (PExp)$expression;
     LexLocation location = combineLexLocation(name.location, exp.getLocation());
@@ -4966,8 +4988,10 @@ assignmentDef :
     $$ = new AAssignmentDefinition(location, name,
                                    NameScope.GLOBAL,
                                    false,
+				   null,//VDM classDef
                                    access,
                                    type,
+				   null,//Pass
                                    exp,
                                    null);
 }
@@ -5104,8 +5128,9 @@ implicitOperationBody :
 {
   PExp postcondition = (PExp)$postExpr;
   List<? extends AExternalClause> exts = (List<? extends AExternalClause>)$externals_opt;
-  LexLocation location = combineLexLocation(extractFirstLexLocation(exts),
-                                            postcondition.getLocation());
+  /* LexLocation location = combineLexLocation(extractFirstLexLocation(exts), */
+  /*                                           postcondition.getLocation()); */
+  LexLocation location = postcondition.getLocation();
   $$ = new ASpecificationStatementAction(location,
                                                 exts,
                                                 (PExp)$preExpr_opt,

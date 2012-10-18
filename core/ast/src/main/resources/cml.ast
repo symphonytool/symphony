@@ -839,38 +839,9 @@ parameter {-> package='eu.compassresearch.ast.actions'}
     | {multiple} [assignments]:action.#Statement.#GeneralAssignment.single*
 	;
 
-stateDesignator {-> package='eu.compassresearch.ast.actions'}
-    =   {field} [object]:stateDesignator [field]:LexIdentifierToken (objectfield):LexNameToken
-    |   {identifier} [name]:LexNameToken
-    |   {mapSeq} [mapseq]:stateDesignator [exp]:exp (mapType):type.#Map (seqType):type.#seq
-    ;
-    
-objectDesignator {-> package='eu.compassresearch.ast.actions'}
-    =   {apply} [object]:objectDesignator [args]:exp*
-    |   {field} [object]:objectDesignator [className]:LexNameToken [fieldName]:LexIdentifierToken (field):LexNameToken
-    |   {name} [name]:LexNameToken [expression]:exp.variable
-    |   {self} [self]:LexNameToken
-    ;
-
 alternativeAction {-> package='eu.compassresearch.ast.actions'}
     = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition* 
     ;
-
-
-clause {-> package='eu.compassresearch.ast.actions'}
-    = {external} [location]:location [mode]:mode [identifiers]:LexNameToken* (type):type
-    ;
-
-mode {-> package='eu.compassresearch.ast.actions'}
-	= {read}
-	| {write}
-	;
-
-
-case {-> package='eu.compassresearch.ast.actions'}
-    = {error} [name]:LexIdentifierToken [left]:exp [right]:exp
-    ;
-   
 Aspect Declaration
 /* This section allows fields of root types to be declared e.g. exp*/
 

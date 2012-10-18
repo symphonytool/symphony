@@ -1,16 +1,18 @@
 package eu.compassresearch.core.parser.test;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import static org.junit.Assert.*;
-import java.util.*;
-import java.io.*;
-import eu.compassresearch.ast.node.*;
-import eu.compassresearch.ast.util.*;
-import eu.compassresearch.ast.program.*;
-import eu.compassresearch.core.lexer.*;
-import eu.compassresearch.core.parser.*;
+import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import eu.compassresearch.ast.program.AFileSource;
+import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.lexer.CmlLexer;
+import eu.compassresearch.core.parser.CmlParser;
 
 public class ParserUnitTest {
 
