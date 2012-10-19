@@ -3,7 +3,8 @@ package eu.compassresearch.core.typechecker;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.compassresearch.ast.node.INode;
+import org.overture.ast.node.INode;
+
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**

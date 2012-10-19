@@ -1,18 +1,19 @@
 package eu.compassresearch.core.typechecker;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.types.PType;
+
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
-import eu.compassresearch.ast.expressions.PExp;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.AStatementType;
-import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;

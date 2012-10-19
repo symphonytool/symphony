@@ -1,16 +1,12 @@
 package eu.compassresearch.core.typechecker;
 
 import java.lang.reflect.Method;
-import java.util.Set;
 
-import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
-import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SBasicType;
 
@@ -122,85 +118,85 @@ class TypeCheckInfo implements TypeCheckQuestion
         return res;
       }
     
-    @Override
-    public org.overture.typechecker.Environment getOvertureEnvironment()
-    
-      {
-        final org.overture.typechecker.Environment ve = variables
-            .getOvertureEnv();
-        final org.overture.typechecker.Environment te = types.getOvertureEnv();
-        
-        class CombinedEnv extends org.overture.typechecker.Environment
-          {
-            
-            public CombinedEnv()
-              {
-                super(null);
-              }
-            
-            @Override
-            public org.overture.ast.definitions.PDefinition findName(
-                LexNameToken name, NameScope scope)
-              {
-                return ve.findName(name, scope);
-              }
-            
-            @Override
-            public org.overture.ast.definitions.PDefinition findType(
-                LexNameToken name, String fromModule)
-              {
-                return te.findType(name, fromModule);
-              }
-            
-            @Override
-            public AStateDefinition findStateDefinition()
-              {
-                return null;
-              }
-            
-            @Override
-            public SClassDefinition findClassDefinition()
-              {
-                return null;
-              }
-            
-            @Override
-            public boolean isStatic()
-              {
-                return false;
-              }
-            
-            @Override
-            public void unusedCheck()
-              {
-                // TODO: Check this guy is invoked and make appropriate action
-                throw new RuntimeException(
-                    "Somebody better do something about this.");
-              }
-            
-            @Override
-            public boolean isVDMPP()
-              {
-                return true;
-              }
-            
-            @Override
-            public boolean isSystem()
-              {
-                return false;
-              }
-            
-            @Override
-            public Set<org.overture.ast.definitions.PDefinition> findMatches(
-                LexNameToken name)
-              {
-                return ve.findMatches(name);
-              }
-            
-          }
-        ;
-        return new CombinedEnv();
-      }
+//    @Override
+//    public org.overture.typechecker.Environment getOvertureEnvironment()
+//    
+//      {
+//        final org.overture.typechecker.Environment ve = variables
+//            .getOvertureEnv();
+//        final org.overture.typechecker.Environment te = types.getOvertureEnv();
+//        
+//        class CombinedEnv extends org.overture.typechecker.Environment
+//          {
+//            
+//            public CombinedEnv()
+//              {
+//                super(null);
+//              }
+//            
+//            @Override
+//            public org.overture.ast.definitions.PDefinition findName(
+//                LexNameToken name, NameScope scope)
+//              {
+//                return ve.findName(name, scope);
+//              }
+//            
+//            @Override
+//            public org.overture.ast.definitions.PDefinition findType(
+//                LexNameToken name, String fromModule)
+//              {
+//                return te.findType(name, fromModule);
+//              }
+//            
+//            @Override
+//            public AStateDefinition findStateDefinition()
+//              {
+//                return null;
+//              }
+//            
+//            @Override
+//            public SClassDefinition findClassDefinition()
+//              {
+//                return null;
+//              }
+//            
+//            @Override
+//            public boolean isStatic()
+//              {
+//                return false;
+//              }
+//            
+//            @Override
+//            public void unusedCheck()
+//              {
+//                // TODO: Check this guy is invoked and make appropriate action
+//                throw new RuntimeException(
+//                    "Somebody better do something about this.");
+//              }
+//            
+//            @Override
+//            public boolean isVDMPP()
+//              {
+//                return true;
+//              }
+//            
+//            @Override
+//            public boolean isSystem()
+//              {
+//                return false;
+//              }
+//            
+//            @Override
+//            public Set<org.overture.ast.definitions.PDefinition> findMatches(
+//                LexNameToken name)
+//              {
+//                return ve.findMatches(name);
+//              }
+//            
+//          }
+//        ;
+//        return new CombinedEnv();
+//      }
     
     @Override
     public void updateContextNameToCurrentScope(INode n)
@@ -223,7 +219,7 @@ class TypeCheckInfo implements TypeCheckQuestion
             {
               Class<?> clz = n.getClass();
               Method getLocation = clz.getMethod("getName", new Class<?>[0]);
-              eu.compassresearch.ast.lex.LexNameToken loc = (eu.compassresearch.ast.lex.LexNameToken) getLocation
+              LexNameToken loc = (LexNameToken) getLocation
                   .invoke(n, new Object[0]);
               Method setLocation = clz.getMethod("setName",
                   new Class<?>[] { LexLocation.class });
@@ -234,14 +230,14 @@ class TypeCheckInfo implements TypeCheckQuestion
             }
       }
     
-    private Object newNameModule(eu.compassresearch.ast.lex.LexNameToken nme,
+    private Object newNameModule(LexNameToken nme,
         String name)
       {
         if (enclosingDefinition != null)
           {
             String module = enclosingDefinition.getName().name;
             LexIdentifierToken id = nme.getIdentifier();
-            nme = new eu.compassresearch.ast.lex.LexNameToken(module, id);
+            nme = new LexNameToken(module, id);
           }
         return nme;
       }

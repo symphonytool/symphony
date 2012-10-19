@@ -104,6 +104,12 @@ public class CmlBuildVisitor implements IResourceVisitor
         marker.setAttribute(IMarker.TEXT, text);
       }
     
+    private static <K, T extends K> List<K> conv(List<T> l)
+      {
+        
+        return null;
+      }
+    
     private static void setExceptionInfo(IMarker marker, Exception e,
         String shortText) throws CoreException
       {

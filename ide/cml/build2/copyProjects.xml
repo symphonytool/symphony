@@ -8,6 +8,7 @@
 	<include name="ui/**" />
 	<include name="core/**" />
 	<include name="platform/**" />
+        <include name="rtt-plugin/**"/>
 	<exclude name="**/target/"/>
       </fileset>
     </copy>
