@@ -20,7 +20,8 @@
     <module>ui</module>
     <!-- <module>debug</module> -->
     <module>platform</module>
-	<module>build</module>
+    <module>rtt-plugin</module>
+    <module>build</module>
   </modules>
 
 </project>
