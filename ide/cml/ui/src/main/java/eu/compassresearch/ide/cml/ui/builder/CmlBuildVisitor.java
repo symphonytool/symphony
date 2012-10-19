@@ -48,8 +48,7 @@ public class CmlBuildVisitor implements IResourceVisitor
         
         // Set the AST on the source unit
         CmlSourceUnit dom = CmlSourceUnit.getFromFileResource(file);
-        dom.getSourceAst().dom.setSourceAst(source,
-            new LinkedList<ParserError>());
+        dom.setSourceAst(source, new LinkedList<ParserError>());
         
         return false;
       }
