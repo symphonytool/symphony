@@ -14,7 +14,7 @@ import eu.compassresearch.core.analysis.pog.obligations.*;
 /**
  * Core stuff needed in this simple analysis.
  */
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
 //import org.overture.ast.expressions.ADivideNumericBinaryExp;
 //import org.overture.ast.declarations.ATypeDeclaration;
 import org.overture.ast.lex.LexLocation;
