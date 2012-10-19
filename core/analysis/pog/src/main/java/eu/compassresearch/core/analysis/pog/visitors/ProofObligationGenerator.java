@@ -26,13 +26,9 @@ import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.expressions.PExp;
-//import eu.compassresearch.ast.expressions.PStm;//Taken from Overture POG
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
-import eu.compassresearch.ast.program.PSource;
-//import eu.compassresearch.core.parser.CmlParser; CAN'T FIND PARSER PACKAGE     
-//import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
-//import eu.compassresearch.ast.node.INode;
+import eu.compassresearch.ast.program.PSource;  
 import eu.compassresearch.ast.lex.LexLocation;
 
 //COMPASS POG libraries 
@@ -41,11 +37,20 @@ import eu.compassresearch.core.analysis.pog.obligations.POContext;
 import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.ProofObligation;
 
+//From Overture POG
+//import eu.compassresearch.ast.expressions.PStm;
+
+//From TC - not needed?
+//import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
+//import eu.compassresearch.ast.node.INode;
+//import eu.compassresearch.core.parser.CmlParser; CAN'T FIND PARSER PACKAGE    
+
+
 
 public class ProofObligationGenerator extends 
 				QuestionAnswerAdaptor<POContextStack, ProofObligationList>
 {
-    private final static String ANALYSIS_NAME = "Proof Obligation Generator1";
+    private final static String ANALYSIS_NAME = "Proof Obligation Generator";
      
     private List<PSource> sourceForest;
     
@@ -104,6 +109,7 @@ public class ProofObligationGenerator extends
 	//{
 	//	return node.apply(stm, question);
 	//}
+      
       
 	// ---------------------------------------------
     // -- Public API to CML POG
@@ -170,19 +176,14 @@ public class ProofObligationGenerator extends
                 	System.out.println("----------------------------------RESULT----------------------------------");
                 	
                 	// process paragraph:
-                	// 1.'prime' POContext, push variable names (from Overture)
-                	// 2. start processing paragraph - passing new context 
-                	// 3.remove POContext, popping variable names (from Overture)
-                	//ctxt.push(new PONameContext(getVariableNames(d)));
                     obligations.addAll(paragraph.apply(this, ctxt));
-					//ctxt.pop();
 					
 					System.out.println();
 					System.out.println();
                 } 
                 catch (AnalysisException ae)
                 {
-                  	// This means we have a bug in the type checker
+                  	// This means we have a bug in the pog
                   	//ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     //ae.printStackTrace(new PrintStream(baos));
                     //errors.add(new CMLTypeError(s,

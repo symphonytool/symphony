@@ -5,12 +5,15 @@ import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.PDefinition;
 
-
+//POG-related imports
 import eu.compassresearch.core.analysis.pog.obligations.MapApplyObligation;
 import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
 import eu.compassresearch.core.analysis.pog.obligations.POContext;
 import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.ProofObligation;
+import eu.compassresearch.core.analysis.pog.obligations.SatisfiabilityObligation;
+import eu.compassresearch.core.analysis.pog.obligations.POFunctionResultContext;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,34 +28,36 @@ import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
- import eu.compassresearch.ast.definitions.AExplicitFunctionDefinition;
- import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
- import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
- import eu.compassresearch.ast.definitions.ALocalDefinition;
- import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
+import eu.compassresearch.ast.definitions.AExplicitFunctionDefinition;
+import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
+import eu.compassresearch.ast.definitions.AImplicitFunctionDefinition;
+import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
+import eu.compassresearch.ast.definitions.ALocalDefinition;
+import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypeDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
- import eu.compassresearch.ast.definitions.PDefinition;
- import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.definitions.PDefinition;
+import eu.compassresearch.ast.expressions.PExp;
 import eu.compassresearch.ast.process.PProcess;
- import eu.compassresearch.ast.patterns.AIdentifierPattern;
- import eu.compassresearch.ast.patterns.PPattern;
- import eu.compassresearch.ast.typechecker.NameScope;
- import eu.compassresearch.ast.types.AChannelType;
- import eu.compassresearch.ast.types.AChansetParagraphType;
- import eu.compassresearch.ast.types.AClassType;
- import eu.compassresearch.ast.types.AErrorType;
- import eu.compassresearch.ast.types.AFunctionParagraphType;
- import eu.compassresearch.ast.types.AFunctionType;
- import eu.compassresearch.ast.types.AOperationType;
- import eu.compassresearch.ast.types.AProcessParagraphType;
- import eu.compassresearch.ast.types.AValueParagraphType;
+import eu.compassresearch.ast.patterns.AIdentifierPattern;
+import eu.compassresearch.ast.patterns.PPattern;
+import eu.compassresearch.ast.typechecker.NameScope;
+import eu.compassresearch.ast.types.AChannelType;
+import eu.compassresearch.ast.types.AChansetParagraphType;
+import eu.compassresearch.ast.types.AClassType;
+import eu.compassresearch.ast.types.AErrorType;
+import eu.compassresearch.ast.types.AFunctionParagraphType;
+import eu.compassresearch.ast.types.AFunctionType;
+import eu.compassresearch.ast.types.AOperationType;
+import eu.compassresearch.ast.types.AProcessParagraphType;
+import eu.compassresearch.ast.types.AValueParagraphType;
 // import eu.compassresearch.transformation.CmlAstToOvertureAst;
 // import eu.compassresearch.transformation.CopyTypesFromOvtToCmlAst;
+
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
@@ -296,6 +301,32 @@ public class POGDeclAndDefVisitor extends
          System.out.println("----------***----------");
 		return new ProofObligationList();
       }
+      
+    @Override
+	public ProofObligationList caseAImplicitFunctionDefinition(
+		AImplicitFunctionDefinition node, POContextStack question)
+        throws AnalysisException
+	{
+		ProofObligationList obligations = new ProofObligationList();
+
+		//if implicit function has a precondition, dispatch for PO checking 
+		if (node.getPrecondition() != null)
+		{
+			obligations.addAll(node.getPrecondition().apply(parentPOG, question));
+		}
+		
+		//if has a postcondition, should generate SatisfiabilityObligation
+		if (node.getPostcondition() != null)
+		{
+			obligations.add(new SatisfiabilityObligation(node, question));
+			
+			question.push(new POFunctionResultContext(node));
+			obligations.addAll(node.getPostcondition().apply(parentPOG, question));
+			question.pop();
+		}
+		return obligations;
+	}  
+      
       
     @Override
     public ProofObligationList caseAOperationParagraphDefinition(

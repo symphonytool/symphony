@@ -9,7 +9,7 @@ package eu.compassresearch.core.analysis.pog.obligations;
 /**
  * Core stuff needed
  */
-import org.overture.ast.lex.LexLocation;
+import eu.compassresearch.ast.lex.LexLocation;
 
 abstract public class ProofObligation implements Comparable<ProofObligation>
 {
@@ -22,7 +22,7 @@ abstract public class ProofObligation implements Comparable<ProofObligation>
 	public POStatus status;
 
 	private int var = 1;
-
+	
 	public ProofObligation(LexLocation location, POType kind, POContextStack ctxt)
 	{
 		this.location = location;

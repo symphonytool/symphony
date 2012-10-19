@@ -25,10 +25,10 @@ import eu.compassresearch.ast.analysis.intf.IAnalysis;
 import eu.compassresearch.ast.preview.DotGraphVisitor;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.typechecker.CmlTypeChecker; 
-import eu.compassresearch.core.typechecker.CmlTypeChecker.CMLTypeError;
-import eu.compassresearch.core.typechecker.TypeCheckInfo;
-import eu.compassresearch.core.typechecker.VanillaCmlTypeChecker;
+//import eu.compassresearch.core.typechecker.CmlTypeChecker; 
+//import eu.compassresearch.core.typechecker.CmlTypeChecker.CMLTypeError;
+//import eu.compassresearch.core.typechecker.TypeCheckInfo;
+//import eu.compassresearch.core.typechecker.VanillaCmlTypeChecker;
 import eu.compassresearch.examples.DivWarnAnalysis;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
@@ -306,7 +306,8 @@ public class CheckCml {
 		try {
 		    System.out.println(" Running "+getAnalysisName(analysis)+" on "+source.toString());
 		    analysis.apply(source);
-		}
+		    System.out.println("run Analysis ran");
+		    }
 		catch (Exception e)
 		    {
 			if (!silentOnException)
@@ -453,7 +454,7 @@ public class CheckCml {
 	if (input.isSwitchOn(Switch.POG))
 	{
 		//define pog object
-		final ProofObligationGenerator pog = new ProofObligationGenerator();
+		final ProofObligationGenerator pog = new ProofObligationGenerator(sources);
 		
 		System.out.println(pog.getAnalysisName());
 		
@@ -469,28 +470,29 @@ public class CheckCml {
  		    
  		//invoke runAnalysis method, giving switch input, run adaptor, and source files
  		runAnalysis(input, r, sources);
- 		pog.getResults();
+ 		
+ 		pog.generatePOs();
 	}
 
 	// Type checking
-	if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
-	    {
-		final CmlTypeChecker typeChecker = new VanillaCmlTypeChecker(sources);
+	//if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
+	//    {
+	//	final CmlTypeChecker typeChecker = new VanillaCmlTypeChecker(sources);
 
-		AnalysisRunAdaptor r = new AnalysisRunAdaptor(typeChecker) {
-			public void apply(INode root) throws AnalysisException
-			{
+	//	AnalysisRunAdaptor r = new AnalysisRunAdaptor(typeChecker) {
+	//		public void apply(INode root) throws AnalysisException
+	//		{
 			    
-			    if (!(typeChecker.typeCheck()))
-				{
-				    for(CMLTypeError e :  typeChecker.getTypeErrors())
-					System.out.println("\t"+e);
-				}
-			    //   root.apply(typeChecker, new TypeCheckInfo());
-			}
-		    };
-		runAnalysis(input, r , sources);
-	    }
+	//		    if (!(typeChecker.typeCheck()))
+	//			{
+	//			    for(CMLTypeError e :  typeChecker.getTypeErrors())
+	//				System.out.println("\t"+e);
+	//			}
+	//		    //   root.apply(typeChecker, new TypeCheckInfo());
+	//		}
+	//	    };
+	//	runAnalysis(input, r , sources);
+	//    }
 	
 	// Check The Type Check Only Switch
 	if (input.isSwitchOn(Switch.TYPE_CHECK_ONLY)) return;	
