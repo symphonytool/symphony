@@ -93,12 +93,6 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	     	[process]: process
     |   {renamed}  (def):definition 
     //Why does the type definition take inv pattern and expression and not just the inv definition which containts them both??
-    |   {type} 
-    		(invType):type.#invariant 
-            [invPattern]:pattern 
-            [invExpression]:exp 
-            [invdef]:definition.explicitFunction
-			[infinite]:java_Boolean //is access missing here
     |   {untyped}
     |   {value} [pattern]:pattern [expression]:exp [defs]:definition* (expType):type //is access missing here
     ;

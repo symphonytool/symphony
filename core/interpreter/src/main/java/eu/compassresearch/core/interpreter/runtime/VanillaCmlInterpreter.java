@@ -6,14 +6,12 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
-import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
@@ -101,11 +99,11 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         
         
         //if(getDefaultName() == null)
-        
         // Find the default process
-        AProcessDefinition processDef = (AProcessDefinition) env
-            .lookupName(new LexIdentifierToken(getDefaultName(), false, null));
-        
+        AProcessDefinition processDef = null;
+//        AProcessDefinition processDef = (AProcessDefinition)env
+//            .lookupName(new LexIdentifierToken(getDefaultName(), false, null));
+//        
         if (processDef == null)
           throw new AnalysisException("No process identified by '"
               + getDefaultName() + "' exists");

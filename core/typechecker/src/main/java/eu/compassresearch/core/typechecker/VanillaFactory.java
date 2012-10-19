@@ -2,9 +2,10 @@ package eu.compassresearch.core.typechecker;
 
 import java.util.List;
 
-import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
+import org.overture.ast.analysis.intf.IQuestionAnswer;
+import org.overture.ast.types.PType;
+
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeComparator;

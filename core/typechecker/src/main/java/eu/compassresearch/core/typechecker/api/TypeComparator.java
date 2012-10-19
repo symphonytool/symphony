@@ -2,7 +2,7 @@ package eu.compassresearch.core.typechecker.api;
 
 import java.util.List;
 
-import eu.compassresearch.ast.types.PType;
+import org.overture.ast.types.PType;
 
 public interface TypeComparator
   {

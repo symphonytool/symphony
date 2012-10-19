@@ -1,15 +1,16 @@
 package eu.compassresearch.core.typechecker;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.types.PType;
+
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
-import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.process.AInstantiationProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.types.AProcessType;
-import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 
 @SuppressWarnings("serial")
