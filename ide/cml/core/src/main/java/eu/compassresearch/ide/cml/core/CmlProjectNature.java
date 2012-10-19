@@ -1,4 +1,5 @@
 package eu.compassresearch.ide.cml.core;
+
 /*******************************************************************************
  * Copyright (c) 2009, 2011 Overture Team and others.
  *
@@ -18,47 +19,63 @@ package eu.compassresearch.ide.cml.core;
  * The Overture Tool web-site: http://overturetool.org/
  *******************************************************************************/
 
-
 import org.eclipse.core.resources.ICommand;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
-import org.overture.ide.core.resources.VdmProjectNature;
 
-
-public class CmlProjectNature extends VdmProjectNature
-{
-
-	@Override
-	public void configure() throws CoreException {
-		   final String BUILDER_ID = "eu.compassresearch.ide.cml.ui.cmlbuilder";
-		   IProjectDescription desc = project.getDescription();
-		   ICommand[] commands = desc.getBuildSpec();
-		   boolean found = false;
-
-		   for (int i = 0; i < commands.length; ++i) {
-		      if (commands[i].getBuilderName().equals(BUILDER_ID)) {
-		         found = true;
-		         break;
-		      }
-		   }
-		   
-		   if (!found) { 
-		      //add builder to project
-		      ICommand command = desc.newCommand();
-		      command.setBuilderName(BUILDER_ID);
-		      ICommand[] newCommands = new ICommand[commands.length + 1];
-
-		      // Add it before other builders.
-		      System.arraycopy(commands, 0, newCommands, 1, commands.length);
-		      newCommands[0] = command;
-		      desc.setBuildSpec(newCommands);
-		      project.setDescription(desc, null);
-		   }
-	}
-
-	@Override
-	public void deconfigure() throws CoreException {
-		// FIXME: DeConfiguration should go here		
-	}
-	
-}
+public class CmlProjectNature implements IProjectNature
+  {
+    
+    protected IProject project = null;
+    
+    public IProject getProject()
+      {
+        return project;
+      }
+    
+    public void setProject(IProject project)
+      {
+        this.project = project;
+      }
+    
+    @Override
+    public void configure() throws CoreException
+      {
+        final String BUILDER_ID = "eu.compassresearch.ide.cml.ui.cmlbuilder";
+        IProjectDescription desc = project.getDescription();
+        ICommand[] commands = desc.getBuildSpec();
+        boolean found = false;
+        
+        for (int i = 0; i < commands.length; ++i)
+          {
+            if (commands[i].getBuilderName().equals(BUILDER_ID))
+              {
+                found = true;
+                break;
+              }
+          }
+        
+        if (!found)
+          {
+            // add builder to project
+            ICommand command = desc.newCommand();
+            command.setBuilderName(BUILDER_ID);
+            ICommand[] newCommands = new ICommand[commands.length + 1];
+            
+            // Add it before other builders.
+            System.arraycopy(commands, 0, newCommands, 1, commands.length);
+            newCommands[0] = command;
+            desc.setBuildSpec(newCommands);
+            project.setDescription(desc, null);
+          }
+      }
+    
+    @Override
+    public void deconfigure() throws CoreException
+      {
+        // FIXME: DeConfiguration should go here
+      }
+    
+  }
