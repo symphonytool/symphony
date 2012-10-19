@@ -15,11 +15,11 @@
       startupProgressRect="0,0,300,20"
       startupMessageRect="75,200,300,15"
       startupForegroundColor="7F7F7F" />
-
    <launcher name="COMPASS">
+      <linux icon="/icons/compassToolIcon.png"/>
       <solaris/>
-      <win useIco="false">
-         <bmp/>
+      <win useIco="true">
+         <ico path="/icons/compassToolIcon.png"/>
       </win>
    </launcher>
 
@@ -28,21 +28,13 @@
    </vm>
 
    <plugins>
-     <plugin id="org.eclipse.jdt.launching"/>
-     <plugin id="org.eclipse.jdt.core"/>
-     <plugin id="org.eclipse.core.runtime.compatibility.auth"/>
-     <plugin id="org.eclipse.core.net"/>
-     <plugin id="org.eclipse.ui.views.properties.tabbed"/>
-     <plugin id="org.eclipse.ant.core"/>
-     <plugin id="org.eclipse.jdt.debug"/>
-     <plugin id="org.eclipse.compare"/>
-     <plugin id="com.ibm.icu"/>
-     <plugin id="org.eclipse.team.core"/>
-     <plugin id="org.eclipse.team.ui"/>
+      <plugin id="com.ibm.icu"/>
       <plugin id="eu.compassresearch.ide.cml.core"/>
-      <plugin id="eu.compassresearch.ide.cml.ui"/>
       <plugin id="eu.compassresearch.ide.cml.platform"/>
       <plugin id="eu.compassresearch.ide.cml.rttplugin"/>
+      <plugin id="eu.compassresearch.ide.cml.ui"/>
+      <plugin id="org.eclipse.ant.core"/>
+      <plugin id="org.eclipse.compare"/>
       <plugin id="org.eclipse.compare.core"/>
       <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.contenttype"/>
@@ -61,9 +53,11 @@
       <plugin id="org.eclipse.core.filesystem.win32.x86" fragment="true"/>
       <plugin id="org.eclipse.core.filesystem.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.net"/>
       <plugin id="org.eclipse.core.resources"/>
       <plugin id="org.eclipse.core.resources.win32.x86" fragment="true"/>
       <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.core.runtime.compatibility.auth"/>
       <plugin id="org.eclipse.core.variables"/>
       <plugin id="org.eclipse.debug.core"/>
       <plugin id="org.eclipse.debug.ui"/>
@@ -81,6 +75,9 @@
       <plugin id="org.eclipse.equinox.security.win32.x86" fragment="true"/>
       <plugin id="org.eclipse.equinox.security.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.help"/>
+      <plugin id="org.eclipse.jdt.core"/>
+      <plugin id="org.eclipse.jdt.debug"/>
+      <plugin id="org.eclipse.jdt.launching"/>
       <plugin id="org.eclipse.jface"/>
       <plugin id="org.eclipse.jface.databinding"/>
       <plugin id="org.eclipse.jface.text"/>
@@ -104,6 +101,8 @@
       <plugin id="org.eclipse.swt.gtk.solaris.x86" fragment="true"/>
       <plugin id="org.eclipse.swt.win32.win32.x86" fragment="true"/>
       <plugin id="org.eclipse.swt.win32.win32.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.team.core"/>
+      <plugin id="org.eclipse.team.ui"/>
       <plugin id="org.eclipse.text"/>
       <plugin id="org.eclipse.ui"/>
       <plugin id="org.eclipse.ui.carbon" fragment="true"/>
@@ -113,17 +112,18 @@
       <plugin id="org.eclipse.ui.forms"/>
       <plugin id="org.eclipse.ui.ide"/>
       <plugin id="org.eclipse.ui.ide.application"/>
+      <plugin id="org.eclipse.ui.intro"/>
       <plugin id="org.eclipse.ui.navigator"/>
       <plugin id="org.eclipse.ui.navigator.resources"/>
       <plugin id="org.eclipse.ui.views"/>
+      <plugin id="org.eclipse.ui.views.log"/>
+      <plugin id="org.eclipse.ui.views.properties.tabbed"/>
       <plugin id="org.eclipse.ui.win32" fragment="true"/>
       <plugin id="org.eclipse.ui.workbench"/>
       <plugin id="org.eclipse.ui.workbench.texteditor"/>
       <plugin id="org.overture.ide.core"/>
       <plugin id="org.overture.ide.ui"/>
       <plugin id="org.overture.ide.vdmpp.core"/>
-      <plugin id="org.eclipse.ui.intro"/>
-      <plugin id="org.eclipse.ui.views.log"/>
    </plugins>
 
 

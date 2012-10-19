@@ -32,6 +32,10 @@
 	      name="startupForegroundColor"
 	      value="FFFFFF">
 	  </property>
+	  <property
+	  	name="windowImages"
+	  	value="icons/compassToolIcon.png">
+	  </property>
       </product>
    </extension>
     
