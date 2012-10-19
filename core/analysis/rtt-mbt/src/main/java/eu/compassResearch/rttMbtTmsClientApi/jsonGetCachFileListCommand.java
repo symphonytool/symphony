@@ -22,8 +22,8 @@ public class jsonGetCachFileListCommand extends jsonCommand {
 	private String dirname;
 	private List<String> filenames;
 
-	public jsonGetCachFileListCommand(String server, Integer port, String user, String uid) {
-		super(server, port, user, uid);
+	public jsonGetCachFileListCommand(RttMbtClient client) {
+		super(client);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

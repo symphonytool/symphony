@@ -10,8 +10,8 @@ import org.json.simple.JSONObject;
  */
 public class jsonTestConnectionCommand extends jsonCommand {
 
-	public jsonTestConnectionCommand(String server, Integer port, String user, String uid) {
-		super(server, port, user, uid);
+	public jsonTestConnectionCommand(RttMbtClient client) {
+		super(client);
 	}
 	
 	@SuppressWarnings("unchecked")

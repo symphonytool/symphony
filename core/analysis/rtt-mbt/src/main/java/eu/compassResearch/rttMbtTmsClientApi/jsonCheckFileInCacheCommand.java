@@ -16,8 +16,8 @@ public class jsonCheckFileInCacheCommand extends jsonCommand {
 
 	private String filename;
 
-	public jsonCheckFileInCacheCommand(String server, Integer port, String user, String uid) {
-		super(server, port, user, uid);
+	public jsonCheckFileInCacheCommand(RttMbtClient client) {
+		super(client);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -57,9 +57,6 @@ public class jsonCheckFileInCacheCommand extends jsonCommand {
 			return;
 		}
 		if (!(checkResult.equals("PASS"))) {
-			System.err.println("*** error: checking file '"
-							   + filename + "' in cache directory for " 
-							   + user + " (ID: '" + userId + "') failed! Result was '" + checkResult + "'");
 			resultValue = false;
 		} else {
 			resultValue = true;

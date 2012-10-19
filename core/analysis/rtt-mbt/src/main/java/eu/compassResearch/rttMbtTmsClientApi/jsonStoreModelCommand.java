@@ -16,8 +16,8 @@ public class jsonStoreModelCommand extends jsonCommand {
 	private String modelId;
 	private String modelFile;
 
-	public jsonStoreModelCommand(String server, Integer port, String user, String uid) {
-		super(server, port, user, uid);
+	public jsonStoreModelCommand(RttMbtClient client) {
+		super(client);
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })

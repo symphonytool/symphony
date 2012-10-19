@@ -13,10 +13,9 @@ public class Client {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		RttMbtClient client = new RttMbtClient("peacock", 9116, "uwe", "uschulze@informatik.uni-bremen.de");
 
-		// define the current project
-		client.setProject("turnIndicationUML");
+		// create client instance
+		RttMbtClient client = new RttMbtClient("localhost", 9116, "uwe", "uschulze@informatik.uni-bremen.de");
 
 		// test connection to rtt-mbt-tms server
 		if (client.testConenction()) {
@@ -42,13 +41,11 @@ public class Client {
 			return;
 		}
 
-		// create a new project
-
+		// create/select a new project
+		client.createProject("turnIndicationUML");
+		
 		// initialize project with a model
-		// - store-model-command
-		// - check model-command
-		// - conftool-command
-		// - sigmaptool-command
+		client.initProject("turnIndicationUML", "1.0", "AS-401-turn-indication-UML.xml");
 
 		// create a new abstract test procedure
 		// - download templates/_P1_compass.zip

@@ -16,8 +16,8 @@ public class jsonRemoveFileFromCacheCommand extends jsonCommand {
 
 	private String filename;
 
-	public jsonRemoveFileFromCacheCommand(String server, Integer port, String user, String uid) {
-		super(server, port, user, uid);
+	public jsonRemoveFileFromCacheCommand(RttMbtClient client) {
+		super(client);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

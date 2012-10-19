@@ -17,8 +17,8 @@ public class jsonConftoolCommand extends jsonCommand {
 	private String modelName;
 	private String modelId;
 
-	public jsonConftoolCommand(String server, Integer port, String user, String uid) {
-		super(server, port, user, uid);
+	public jsonConftoolCommand(RttMbtClient client) {
+		super(client);
 	}
 	
 	public void setModelName(String name) {

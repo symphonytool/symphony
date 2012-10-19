@@ -14,8 +14,8 @@ import org.json.simple.JSONObject;
  */
 public class jsonRemoveFileCacheCommand extends jsonCommand {
 
-	public jsonRemoveFileCacheCommand(String server, Integer port, String user, String uid) {
-		super(server, port, user, uid);
+	public jsonRemoveFileCacheCommand(RttMbtClient client) {
+		super(client);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
