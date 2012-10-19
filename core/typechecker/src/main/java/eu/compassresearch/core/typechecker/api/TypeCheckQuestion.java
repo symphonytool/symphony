@@ -1,6 +1,5 @@
 package eu.compassresearch.core.typechecker.api;
 
-import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.node.INode;
@@ -93,7 +92,7 @@ public interface TypeCheckQuestion
      *           - if the variable and type environment contains overlapping
      *           names this function may throw an analysis exception
      */
-    public abstract org.overture.typechecker.Environment getOvertureEnvironment()
-        throws AnalysisException;
-    
+//    public abstract org.overture.typechecker.Environment getOvertureEnvironment()
+//        throws AnalysisException;
+//    
   }

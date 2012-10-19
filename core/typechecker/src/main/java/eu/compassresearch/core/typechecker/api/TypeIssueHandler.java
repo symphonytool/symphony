@@ -3,8 +3,8 @@ package eu.compassresearch.core.typechecker.api;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import eu.compassresearch.ast.lex.LexLocation;
-import eu.compassresearch.ast.node.INode;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.node.INode;
 
 /**
  * All error reporting from the type checker is handled by the TypeIssueHandler.

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+
+<plugin>
+  <!-- For possible extension points see
+ 
+  http://help.eclipse.org/indigo/index.jsp?
+  topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fextension-points%2Findex.html
+
+  -->
+  <extension point="org.eclipse.ui.views">
+    <view 
+        id="eu.compassresearch.ide.cml.rttplugin.RTTesterView"
+        name="RT Tester View"
+        category="compass_eu.compassresearch.ide.cml.ui.category"
+        icon="icons/cview16/cml_file_tsk.png"
+        class="eu.compassresearch.ide.cml.rttplugin.RTTesterView" />
+  </extension>
+</plugin>

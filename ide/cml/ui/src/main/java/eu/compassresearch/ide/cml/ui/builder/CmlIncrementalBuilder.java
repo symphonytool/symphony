@@ -7,15 +7,16 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
-
-	@Override
+public class CmlIncrementalBuilder extends IncrementalProjectBuilder
+  {
+    
+    @Override
 	protected IProject[] build(int kind, Map<String, String> args,
 			IProgressMonitor monitor) throws CoreException {
 
 		// Create a visitor
 		CmlBuildVisitor buildVisitor = new CmlBuildVisitor();
-
+		RttBuildVisitor 
 		// For now we build everything every time
 		getProject().accept(buildVisitor);	
 		
@@ -23,8 +24,5 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		// Return the projects that should be build also as result of rebuilding this
 		return null;
 	}
-
-
-	
-	
-}
+    
+  }

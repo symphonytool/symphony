@@ -48,7 +48,8 @@ public class CmlBuildVisitor implements IResourceVisitor
         
         // Set the AST on the source unit
         CmlSourceUnit dom = CmlSourceUnit.getFromFileResource(file);
-        dom.setSourceAst(source, new LinkedList<ParserError>());
+        dom.getSourceAst().dom.setSourceAst(source,
+            new LinkedList<ParserError>());
         
         return false;
       }
@@ -102,6 +103,12 @@ public class CmlBuildVisitor implements IResourceVisitor
         marker.setAttribute(IMarker.MESSAGE, shortText);
         marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
         marker.setAttribute(IMarker.TEXT, text);
+      }
+    
+    private static <K, T extends K> List<K> conv(List<T> l)
+      {
+        
+        return null;
       }
     
     private static void setExceptionInfo(IMarker marker, Exception e,

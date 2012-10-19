@@ -2,18 +2,18 @@ package eu.compassresearch.core.typechecker;
 
 import java.util.List;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.types.PType;
 import org.overture.parser.messages.VDMError;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.visitor.TypeCheckVisitor;
 import org.overture.typechecker.visitor.TypeCheckerExpVisitor;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.expressions.PExp;
 import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;

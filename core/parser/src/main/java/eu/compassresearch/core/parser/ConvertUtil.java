@@ -33,10 +33,12 @@ import eu.compassresearch.ast.actions.AIdentifierParameter;
 import eu.compassresearch.ast.actions.ARecordParameter;
 import eu.compassresearch.ast.actions.ATupleParameter;
 import eu.compassresearch.ast.actions.PParameter;
+import eu.compassresearch.ast.expressions.PCMLExp;
 
 
 public class ConvertUtil
 {
+	
     public static PParameter convertPatternToPParameter(PPattern pattern) throws PathConvertException
     {
 	PParameter param = null;

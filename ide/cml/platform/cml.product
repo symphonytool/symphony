@@ -42,6 +42,7 @@
       <plugin id="eu.compassresearch.ide.cml.core"/>
       <plugin id="eu.compassresearch.ide.cml.ui"/>
       <plugin id="eu.compassresearch.ide.cml.platform"/>
+      <plugin id="eu.compassresearch.ide.cml.rttplugin"/>
       <plugin id="org.eclipse.compare.core"/>
       <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.contenttype"/>

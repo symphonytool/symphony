@@ -9,8 +9,8 @@
   </parent>
 
   <groupId>eu.compassresearch.ide.cml</groupId>
-  <artifactId>eu.compassresearch.ide.cml.ui</artifactId>
-  <name>COMPASS IDE CML UI</name>
+  <artifactId>eu.compassresearch.ide.cml.rtt-plugin</artifactId>
+  <name>COMPASS RT Tester Plugin</name>
 
   <!-- <reporting> -->
   <!--   <plugins> -->
@@ -28,20 +28,6 @@
   <!-- </reporting> -->
 
   <dependencies>
-    <dependency>
-      <groupId>org.overture.ide</groupId>
-      <artifactId>org.overture.ide.ui</artifactId>
-      <version>${overture.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>eu.compassresearch.ide.cml</groupId>
-      <artifactId>eu.compassresearch.ide.cml.core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-
-
     <dependency>
       <groupId>org.eclipse.ui</groupId>
       <artifactId>org.eclipse.ui.ide</artifactId>
