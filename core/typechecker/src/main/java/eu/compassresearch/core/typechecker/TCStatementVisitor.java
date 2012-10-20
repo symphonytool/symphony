@@ -19,6 +19,10 @@ import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
+/**
+ * @author rwl
+ * 
+ */
 @SuppressWarnings("serial")
 class TCStatementVisitor extends
     QuestionAnswerAdaptor<TypeCheckQuestion, PType>
@@ -98,15 +102,16 @@ class TCStatementVisitor extends
     
     @Override
     public PType caseAInternalChoiceAction(AInternalChoiceAction node,
-    		TypeCheckQuestion question) throws AnalysisException {
-    	
-    	// TODO there is no type marker on a general action
+        TypeCheckQuestion question) throws AnalysisException
+      {
+        
+        // TODO there is no type marker on a general action
         // node.setType
-    	
-    	//node.setType(new AStatementType());
-           	
+        
+        // node.setType(new AStatementType());
+        
         return new AStatementType();
-    }
+      }
     
     @Override
     public PType caseACommunicationAction(ACommunicationAction node,

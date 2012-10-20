@@ -5,7 +5,7 @@ package eu.compassresearch.core.analysis.pog.visitors;
 //import java.util.List;
 //import java.util.Queue;
 
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.expressions.*;
 import org.overture.ast.types.SMapType;
 import eu.compassresearch.core.analysis.pog.obligations.MapApplyObligation;
