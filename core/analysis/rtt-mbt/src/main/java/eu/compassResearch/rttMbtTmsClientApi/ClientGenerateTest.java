@@ -1,17 +1,6 @@
-/**
- * 
- */
 package eu.compassResearch.rttMbtTmsClientApi;
 
-/**
- * @author uwe
- *
- */
-public class Client {
-
-	/**
-	 * @param args
-	 */
+public class ClientGenerateTest {
 	public static void main(String[] args) {
 
 		// create client instance
@@ -33,26 +22,15 @@ public class Client {
 			return;
 		}
 		
-		// download templates
-		if (client.downloadDirectory("templates")) {
-			System.out.println("[PASS]: downloading templates");
-		} else {
-			System.err.println("[FAIL]: downloading templates");
-			return;
-		}
-
-		// create/select a new project
-		client.createProject("turnIndicationUML");
-		
-		// initialize project with a model
-		client.initProject("turnIndicationUML", "1.0", "AS-401-turn-indication-UML.xml");
-
-		// create a new abstract test procedure
-		// - download templates/_P1_compass.zip
-		// - unzip _P1_compass.zip
-
 		// generate concrete test procedure
 		// - generate-test-command
+		client.setProjectName("turnIndicationUML");
+		if (client.generateTestProcedure("_P1")) {
+			System.out.println("[PASS]: generate test");
+		} else {
+			System.err.println("[FAIL]: generate test");
+			return;
+		}
 
 		// compile test procedure
 		// - (@todo) compile-test-command

@@ -70,7 +70,7 @@ public class jsonCheckModelCommand extends jsonCommand {
 			return;
 		}
 		String filename;
-		if (client.projectName != null) {
+		if (client.getProjectName() != null) {
 			File projectRoot = new File(client.projectName);
 			File modelDir = new File(projectRoot, "model");
 			File report = new File(modelDir, "LivelockReport.log");

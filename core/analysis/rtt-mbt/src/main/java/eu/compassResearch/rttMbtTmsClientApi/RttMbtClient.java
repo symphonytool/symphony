@@ -65,6 +65,12 @@ public class RttMbtClient {
 	public Boolean uploadFile(String filename) {
 		Boolean success = true;
 
+		// check if file exists in local file system
+		File localFile = new File(filename);
+		if (!localFile.exists()) {
+			return false;
+		}
+		
 		// check if file already is in cache
 		System.out.println("checking if file '" + filename + "' already exists in cache");
 		jsonCheckFileInCacheCommand check = new jsonCheckFileInCacheCommand(this);
@@ -120,15 +126,11 @@ public class RttMbtClient {
 		// check if file already is up to date
 		File file = new File(filename);
 		if (file.exists() && file.isFile()) {
-			System.out.println("checking if existing file '" + filename + "' already is up to date");
 			jsonCheckFileInCacheCommand check = new jsonCheckFileInCacheCommand(this);
 			check.setFilename(filename);
-			String checkReply = check.executeCommand();
+			check.executeCommand();
 			if (check.executedSuccessfully() && check.getResult()) {
 				return true;
-			} else {
-				System.err.println("[FAIL]: checking file '" + filename + "' failed!");
-				System.err.println("reply: " + checkReply);
 			}
 		}
 		
@@ -214,6 +216,10 @@ public class RttMbtClient {
 				System.err.println("[FAIL]: creating local directory '" + project + "' failed!");
 				return false;
 			}
+		}
+		// check for existing configuration project.rtp
+		File projectConf = new File(folder, "project.rtp");
+		if (!projectConf.exists()) {
 			// extract project template
 			File templates = new File("templates");
 			if (!templates.isDirectory()) {
@@ -222,6 +228,11 @@ public class RttMbtClient {
 			}
 			File archive = new File(templates, "_Project_compass.zip");
 			success = unzipArchive(archive.getPath(), projectName);
+			if (!success) {
+				// extracting project template failed
+				System.err.println("[FAIL]: creating project structure failed!");
+				return false;
+			}
 		}
 
 		// upload project structure to cache
@@ -275,9 +286,13 @@ public class RttMbtClient {
 			System.err.println("[FAIL]: unable to copy model file '" + modelFileName + "' to project '" + projectName + "'!");
 		}
 		// send model to file cache
-		// @uwe: this is actually not needed, because the model is stored in the models directory
+		// this is actually needed for test generation command
+		String modelDirName = projectName + File.separator
+				+ "model" + File.separator;
+		uploadFile(modelDirName + "model_dump.xml");
 
 		// perform store model command
+		// this is needed for livelock-check, conftool and sigmaptool
 		jsonStoreModelCommand storeModel= new jsonStoreModelCommand(this);
 		storeModel.setModelName(modelName);
 		storeModel.setModelId(modelVersion);
@@ -306,7 +321,7 @@ public class RttMbtClient {
 		success = unzipArchive(archive.getPath(), testProcs.getPath());
 
 		// perform livelock check
-		System.out.println("performing livelock check of the model!");
+		System.out.println("performing livelock check of the model...");
 		jsonCheckModelCommand checkModel = new jsonCheckModelCommand(this);
 		checkModel.setModelName(modelName);
 		checkModel.setModelId(modelVersion);
@@ -317,7 +332,30 @@ public class RttMbtClient {
 		}
 
 		// perform conftool command
+		System.out.println("creating initial configuration for abstract test procedure _P1...");
+		jsonConftoolCommand config = new jsonConftoolCommand(this);
+		config.setModelName(modelName);
+		config.setModelId(modelVersion);
+		config.setTestProcName("_P1");
+		config.executeCommand();
+		if (!config.executedSuccessfully()) {
+			System.err.println("[FAIL]: creating empty configuration for model '" + modelName + "', version '" + modelVersion + "' on RTT-MBT server failed!");
+			return false;
+		}
+
 		// perform sigmaptool command
+		System.out.println("creating initial signal map for abstract test procedure _P1...");
+		jsonSigmaptoolCommand sigmap = new jsonSigmaptoolCommand(this);
+		sigmap.setModelName(modelName);
+		sigmap.setModelId(modelVersion);
+		sigmap.setTestProcName("_P1");
+		sigmap.executeCommand();
+		if (!sigmap.executedSuccessfully()) {
+			System.err.println("[FAIL]: creating initial signal map for model '" + modelName + "', version '" + modelVersion + "' on RTT-MBT server failed!");
+			return false;
+		}
+
+		// return result
 		return success;
 	}
 
@@ -370,6 +408,128 @@ public class RttMbtClient {
 			System.err.println("[FAIL]: unable to extract files from template archive '_Project_compass.zip'!");
 			return false;
 		}
+		return success;
+	}
+	
+	public Boolean generateTestProcedure(String abstractTestProc) {
+		Boolean success = true;
+
+		// push necessary files to cache:
+		// - configuration.csv
+		// - signalmap.csv
+		// - advanced.conf
+		// - addgoals.conf
+		// - addgoalsordered.conf
+		String confDirName = projectName + File.separator
+				+ "TestProcedures" + File.separator
+				+ abstractTestProc + File.separator
+				+ "conf" +  File.separator;
+		uploadFile(confDirName + "configuration.csv");
+		uploadFile(confDirName + "signalmap.csv");
+		uploadFile(confDirName + "advanced.conf");
+		uploadFile(confDirName + "addgoals.conf");
+		uploadFile(confDirName + "addgoalsordered.conf");
+		
+		// generate-test-command
+		System.out.println("generating concrete test procedure _P1...");
+		jsonGenerateTestCommand cmd = new jsonGenerateTestCommand(this);
+		cmd.setTestProcName("TestProcedures/" + abstractTestProc);
+		cmd.executeCommand();
+		if (!cmd.executedSuccessfully()) {
+			System.err.println("[FAIL]: generatig RTT_TestProcedures/" + abstractTestProc + " failed!");
+			// download debugging data to local directory
+			// - error.log
+			// - rtt-mbt-tms.out
+			// - rtt-mbt-tms.err
+			String dirname = projectName + File.separator;
+			downloadFile(dirname + "error.log");
+			downloadFile(dirname + "rtt-mbt-tms-execution.err");
+			downloadFile(dirname + "rtt-mbt-tms-execution.out");
+			// - configuration.csv.bak
+			dirname = projectName + File.separator
+					+ "TestProcedures" + File.separator
+					+ abstractTestProc + File.separator
+					+ "conf" + File.separator;
+			downloadFile(dirname + "configuration.csv.bak");
+			// - generation.log
+			// - error.log
+			dirname = projectName + File.separator
+					+ "TestProcedures" + File.separator
+					+ abstractTestProc + File.separator
+					+ "log" + File.separator;
+			downloadFile(dirname + "generation.log");
+			downloadFile(dirname + "errors.log");
+			return false;
+		}
+		// download generated files to local directory:
+
+		// from cache/<user-id>/<project-name>/model/
+		// - symbols.log
+		// - testcases.csv
+		// - testcases.db
+		// - tc2req.csv
+		// - req2tc.csv
+		// - overall_coverage.csv
+		// - uncovered_testcases.csv
+		// - unreachable_testcases.csv
+		String dirname = projectName + File.separator
+		+ "model" + File.separator;
+		downloadFile(dirname + "symbols.log");
+		downloadFile(dirname + "testcases.csv");
+		downloadFile(dirname + "testcases.db");
+		downloadFile(dirname + "tc2req.csv");
+		downloadFile(dirname + "req2tc.csv");
+		downloadFile(dirname + "overall_coverage.csv");
+		downloadFile(dirname + "uncovered_testcases.csv");
+		downloadFile(dirname + "unreachable_testcases.csv");
+
+		// from cache/<user-id>/<project-name>/<testproc>/conf
+		// - configuration.csv
+		dirname = projectName + File.separator
+				+ "TestProcedures" + File.separator
+				+ abstractTestProc + File.separator
+				+ "conf" + File.separator;
+		downloadFile(dirname + "configuration.csv");
+
+		// from cache/<user-id>/<project-name>/<testproc>/log
+		// - addgoalcoverage.csv
+		// - covered_testcases.csv
+		// - focus_points_to_addgoals.conf
+		dirname = projectName + File.separator
+				+ "TestProcedures" + File.separator
+				+ abstractTestProc + File.separator
+				+ "log" + File.separator;
+		downloadFile(dirname + "addgoalcoverage.csv");
+		downloadFile(dirname + "covered_testcases.csv");
+		downloadFile(dirname + "focus_points_to_addgoals.conf");
+
+		// from cache/<user-id>/<project-name>/<testproc>/model
+		// - signals.dat
+		// - signals.json
+		// - *.pdf
+		dirname = projectName + File.separator
+				+ "TestProcedures" + File.separator
+				+ abstractTestProc + File.separator
+				+ "model";
+		downloadDirectory(dirname);
+
+		// from cache/<user-id>/<project-name>/<testproc>/testdata
+		// - signals.dat
+		dirname = projectName + File.separator
+				+ "TestProcedures" + File.separator
+				+ abstractTestProc + File.separator
+				+ "testdata";
+		downloadDirectory(dirname);
+
+		// download concrete test procedure from cache
+		dirname = projectName + File.separator
+				+ "RTT_TestProcedures" + File.separator
+				+ abstractTestProc + File.separator;
+		downloadDirectory(dirname + "conf");
+		downloadDirectory(dirname + "inc");
+		downloadDirectory(dirname + "specs");
+		downloadDirectory(dirname + "testdata");
+
 		return success;
 	}
 	

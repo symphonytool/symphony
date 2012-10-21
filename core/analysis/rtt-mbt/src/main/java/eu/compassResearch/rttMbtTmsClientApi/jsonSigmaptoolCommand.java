@@ -1,5 +1,6 @@
 package eu.compassResearch.rttMbtTmsClientApi;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ public class jsonSigmaptoolCommand extends jsonCommand {
 
 	private String modelName;
 	private String modelId;
+	private String testProcName;
 
 	public jsonSigmaptoolCommand(RttMbtClient client) {
 		super(client);
@@ -49,7 +51,27 @@ public class jsonSigmaptoolCommand extends jsonCommand {
 		if (parameters == null) {
 			return;
 		}
-		writeBase64StringFileContent("signalmap.csv",
+		String filename = "";
+		if (client.getProjectName() != null) {
+			filename = client.projectName + File.separator;
+		}
+		// if the test procedure name is not defined, generate
+		// the signalmap.csv in the model folder of the project 
+		if (testProcName != null) {
+			filename += "TestProcedures" + File.separator + testProcName + File.separator + "conf" + File.separator;
+		} else {
+			filename += "model" + File.separator;
+		}
+		filename += "signalmap.csv";
+		writeBase64StringFileContent(filename,
 								     (String)parameters.get("signalmap.csv"), false);
+	}
+
+	public String getTestProcName() {
+		return testProcName;
+	}
+
+	public void setTestProcName(String testProcName) {
+		this.testProcName = testProcName;
 	}
 }

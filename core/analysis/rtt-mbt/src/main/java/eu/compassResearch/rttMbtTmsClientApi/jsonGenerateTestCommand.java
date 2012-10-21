@@ -13,33 +13,29 @@ import org.json.simple.JSONObject;
  * @author uwe
  *
  */
-public class jsonConftoolCommand extends jsonCommand {
+public class jsonGenerateTestCommand extends jsonCommand {
 
-	private String modelName;
-	private String modelId;
 	private String testProcName;
 
-	public jsonConftoolCommand(RttMbtClient client) {
+	public jsonGenerateTestCommand(RttMbtClient client) {
 		super(client);
 	}
 	
-	public void setModelName(String name) {
-		modelName = name;
-	}
-
-	public void setModelId(String id) {
-		modelId = id;
-	}
-
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public String getJsonCommandString() {
+		// check if project name is properly assigned
+		if (client.getProjectName() == null) {
+			System.err.println("[ERROR]: project name not assigned!");
+			return null;
+		}
+
 		// add parameters
 		Map params = new LinkedHashMap();
-		params.put("model-name", modelName);
-		params.put("model-version", modelId);
+		params.put("project-name", client.getProjectName());
+		params.put("test-procedure-path", testProcName);
 		// create command
 		JSONObject cmd = new JSONObject();
-		cmd.put("conftool-command", params);
+		cmd.put("generate-test-command", params);
 		return cmd.toJSONString();
 	}
 
@@ -47,7 +43,7 @@ public class jsonConftoolCommand extends jsonCommand {
 		if (reply == null) {
 			return null;
 		}
-		return (JSONObject)reply.get("conftool-result");
+		return (JSONObject)reply.get("test-generation-result");
 	}
 
 	public void handleParameters(JSONObject parameters) {
