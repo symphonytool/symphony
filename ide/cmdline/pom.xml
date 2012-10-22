@@ -48,6 +48,13 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- Interpreter-->
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>interpreter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- Div Warn Exp Analysis -->
     <dependency>
       <groupId>eu.compassresearch.examples</groupId>
@@ -58,7 +65,7 @@
 	<!-- POG Analysis -->
     <dependency>
       <groupId>eu.compassresearch.core.analysis</groupId>
-      <artifactId>proofobligationgenerator</artifactId>
+      <artifactId>pog</artifactId>
       <version>${project.version}</version>
     </dependency>
 

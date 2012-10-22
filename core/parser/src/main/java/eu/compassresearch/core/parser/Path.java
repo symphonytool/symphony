@@ -1,12 +1,34 @@
 package eu.compassresearch.core.parser;
 
-import eu.compassresearch.ast.expressions.*;
-import eu.compassresearch.ast.actions.*;
-import eu.compassresearch.ast.types.*;
-import eu.compassresearch.ast.process.*;
-import eu.compassresearch.ast.lex.*; 
-import eu.compassresearch.ast.patterns.*;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.overture.ast.expressions.AApplyExp;
+import org.overture.ast.expressions.AFieldExp;
+import org.overture.ast.expressions.ASelfExp;
+import org.overture.ast.expressions.ASubseqExp;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AApplyObjectDesignator;
+import org.overture.ast.statements.AFieldObjectDesignator;
+import org.overture.ast.statements.AFieldStateDesignator;
+import org.overture.ast.statements.AIdentifierObjectDesignator;
+import org.overture.ast.statements.AIdentifierStateDesignator;
+import org.overture.ast.statements.AMapSeqStateDesignator;
+import org.overture.ast.statements.ASelfObjectDesignator;
+import org.overture.ast.statements.PObjectDesignator;
+import org.overture.ast.statements.PStateDesignator;
+
+import eu.compassresearch.ast.actions.ACallAction;
+import eu.compassresearch.ast.actions.ACallStatementAction;
+import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.expressions.ANameChannelExp;
+import eu.compassresearch.ast.expressions.ANameExp;
+import eu.compassresearch.ast.expressions.ATupleSelectExp;
+import eu.compassresearch.ast.process.AInstantiationProcess;
+import eu.compassresearch.ast.process.PProcess;
 
 public class Path
 {
@@ -177,15 +199,16 @@ public class Path
 	case TILDE:
 	    {
 		PExp name = this.subPath.convertToExpression();
-		switch(name.kindPExp()){
-		case NAME:
+				
+		if(name instanceof ANameExp)
+		{
 		    ANameExp nameExp = (ANameExp)name;
 		    nameExp.setName(nameExp.getName().getOldName());
 		    exp = nameExp;
-		    break;
-		default:
+	    }
+		else
 		    throw new PathConvertException("Illigal path for old name expression");
-		}
+		
 	    }
 	    break;
 	case DOT:
@@ -297,7 +320,8 @@ public class Path
 		LexNameToken name = this.unit.convertToName();
 		process = new AInstantiationProcess(location, 
 						    null, 
-						    name, 
+						    name,
+						    null,
 						    null); 
 	    }
 	    break;
@@ -324,7 +348,8 @@ public class Path
 		
 		process = new AInstantiationProcess(location, 
 						    null, 
-						    name, 
+						    name,
+						    null,
 						    this.expList);
 	    }
 	    break;
@@ -374,7 +399,7 @@ public class Path
 	    {
 		String module = "Default";
 		if(this.unit.kind == Unit.UnitKind.IDENTIFIER)
-		    od = new ANameObjectDesignator(location, 
+		    od = new AIdentifierObjectDesignator(location, 
 						   new LexNameToken(module, 
 								    this.unit.value), 
 						   null); 
@@ -397,7 +422,7 @@ public class Path
 	    break;
 	case BACKTICK:
 	    {
-		od = new ANameObjectDesignator(location, 
+		od = new AIdentifierObjectDesignator(location, 
 					       this.convertToName(), 
 					       null); 
 	    }

@@ -18,8 +18,9 @@
   <modules>
     <module>ast</module>
     <module>parser</module>
-    <module>analysis</module>
+    <module>analysis</module> 
     <module>typechecker</module>
+    <module>interpreter</module>
   </modules>
 </project>
 

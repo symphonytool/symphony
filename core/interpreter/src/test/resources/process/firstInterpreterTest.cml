@@ -1,0 +1,13 @@
+channels init, a, b, c
+process A = 
+begin 
+      state 
+      	    d : nat1 := 10;
+	    v : nat1       
+      @ init -> a -> v := let a = 2, b = 3 in a + b + d;a -> v := v + 2  
+end
+process B = begin @ init -> b -> Skip end
+//process C = begin @ init -> c -> Skip end
+//process C = A || B
+
+process C = A;B

@@ -12,6 +12,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 
+import eu.compassresearch.ide.cml.core.ICmlCoreConstants;
+
 public class NewCmlProjectWizard extends BasicNewProjectResourceWizard
     implements INewWizard
   {
@@ -66,7 +68,7 @@ public class NewCmlProjectWizard extends BasicNewProjectResourceWizard
     
     private void setVdmBuilder(IProject prj) throws CoreException
       {
-        addNature(prj, null);
+        addNature(prj, ICmlCoreConstants.NATURE);
         addBuilder(prj,
             "eu.compassresearch.ide.builders.cml.IncrementalCmlProjectBuilder",
             "", "");

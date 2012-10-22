@@ -92,7 +92,7 @@ public class CopyTypesFromOvtToCmlAstTestCase
         CmlParser parser = CmlParser.newParserFromSource(source);
         Assert.assertTrue(parser.parse());
         
-        CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
+        CmlAstToOvertureAst transform = new CmlAstToOvertureAst(null, null);
         eu.compassresearch.ast.node.INode node = (eu.compassresearch.ast.node.INode) findFirst(
             start, source);
         org.overture.ast.node.INode ovtNode = node.apply(transform);

@@ -1,32 +1,44 @@
 package eu.compassresearch.core.typechecker;
 
+import java.util.List;
+
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
+import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.types.PType;
+import org.overture.parser.messages.VDMError;
+import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.visitor.TypeCheckVisitor;
 import org.overture.typechecker.visitor.TypeCheckerExpVisitor;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.expressions.PExp;
-import eu.compassresearch.ast.types.PType;
+import eu.compassresearch.ast.types.AErrorType;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.transformation.CmlAstToOvertureAst;
 import eu.compassresearch.transformation.CopyTypesFromOvtToCmlAst;
 
-public class TCExpressionVisitor extends
-    QuestionAnswerAdaptor<TypeCheckInfo, PType>
+class TCExpressionVisitor extends
+    QuestionAnswerAdaptor<TypeCheckQuestion, PType>
   {
     
     /**
 	 * 
 	 */
-    private static final long                                 serialVersionUID = -6509187123701383525L;
+    private static final long      serialVersionUID = -6509187123701383525L;
     
     // A parent checker may actually not be necessary on this
     @SuppressWarnings("unused")
-    final private QuestionAnswerAdaptor<TypeCheckInfo, PType> parent;
+    final private CmlTypeChecker   parent;
+    private final TypeIssueHandler issueHandler;
     
-    public TCExpressionVisitor(VanillaCmlTypeChecker parentChecker)
+    public TCExpressionVisitor(CmlTypeChecker parentChecker,
+        TypeIssueHandler issueHandler)
       {
         parent = parentChecker;
+        this.issueHandler = issueHandler;
       }
     
     /**
@@ -44,25 +56,41 @@ public class TCExpressionVisitor extends
      *           - if anythings goes wrong that is not just a type error.
      */
     @Override
-    public PType defaultPExp(PExp node, TypeCheckInfo question)
+    public PType defaultPExp(PExp node, TypeCheckQuestion question)
         throws AnalysisException
       {
-        CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
-        INode ovtNode = transform.defaultINode(node);
+        org.overture.typechecker.TypeChecker.clearErrors();
+        
+        question.updateContextNameToCurrentScope(node);
+        
+        CmlAstToOvertureAst transform = new CmlAstToOvertureAst(parent,
+            issueHandler);
+        INode ovtNode = node.apply(transform);
         
         TypeCheckerExpVisitor ovtExpVist = new TypeCheckerExpVisitor(
             new TypeCheckVisitor());
         
         org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(
-            question.env.getOvertureEnv());
+            question.getOvertureEnvironment());
+        
+        quest.scope = NameScope.NAMES;
         
         try
           {
-            ovtExpVist.defaultPExp((org.overture.ast.expressions.PExp) ovtNode,
-                quest);
+            ovtNode.apply(ovtExpVist, quest);
           } catch (org.overture.ast.analysis.AnalysisException e1)
           {
             e1.printStackTrace();
+          }
+        
+        if (org.overture.typechecker.TypeChecker.getErrorCount() > 0)
+          {
+            List<VDMError> errorList = TypeChecker.getErrors();
+            for (VDMError err : errorList)
+              {
+                issueHandler.addTypeError(node, err.toProblemString());
+              }
+            return new AErrorType(node.getLocation(), true);
           }
         
         CopyTypesFromOvtToCmlAst copier = new CopyTypesFromOvtToCmlAst(

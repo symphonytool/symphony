@@ -1,0 +1,70 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> 
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>eu.compassresearch.core</groupId>
+    <artifactId>core</artifactId>
+    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>interpreter</artifactId>
+  <name>COMPASS CML Interpreter</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>ast</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>parser</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>typechecker</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.overturetool.core</groupId>
+      <artifactId>typechecker</artifactId>
+      <version>2.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.overturetool.core</groupId>
+      <artifactId>ast</artifactId>
+      <version>2.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.overturetool.core</groupId>
+      <artifactId>interpreter</artifactId>
+      <version>2.2.0</version>
+    </dependency>
+    
+  </dependencies>
+  <!-- <build> -->
+  <!--   <plugins> -->
+  <!--     <plugin> -->
+  <!--     	<version>1.7</version> -->
+  <!--       <groupId>org.codehaus.mojo</groupId> -->
+  <!--       <artifactId>build-helper-maven-plugin</artifactId> -->
+  <!--       <executions> -->
+  <!--         <execution> -->
+  <!--           <phase>generate-sources</phase> -->
+  <!--           <goals><goal>add-source</goal></goals> -->
+  <!--           <configuration> -->
+  <!--             <sources> -->
+  <!--               <source>src/main/transast</source> -->
+  <!--             </sources> -->
+  <!--           </configuration> -->
+  <!--         </execution> -->
+  <!--       </executions> -->
+  <!--     </plugin> -->
+  <!--   </plugins> -->
+  <!-- </build> -->
+ 
+</project>
+

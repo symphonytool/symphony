@@ -18,15 +18,21 @@
  *******************************************************************************/
 package eu.compassresearch.ide.cml.ui.editor.core;
 
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.text.source.IAnnotationHover;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextViewerExtension5;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-import org.overture.ide.ui.editor.core.VdmEditor;
+import org.overture.ast.node.INode;
+import org.overture.ide.ui.IVdmUiConstants;
 import org.overture.ide.ui.editor.core.VdmSourceViewerConfiguration;
 
 import eu.compassresearch.core.lexer.ParserError;
@@ -34,80 +40,183 @@ import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit.CmlSourceChangedListener;
 import eu.compassresearch.ide.cml.ui.editor.syntax.CmlContentPageOutliner;
 
-public class CmlEditor extends VdmEditor{
-
-	private IContentOutlinePage cmlOutLiner;
-	
-	@Override
-	public Object getAdapter(Class required) {
-		
-		if (IContentOutlinePage.class.equals(required))
-		{
-			if (cmlOutLiner == null)
-				cmlOutLiner = createCmlOutliner();
-			return cmlOutLiner;
-		}
-
-		return super.getAdapter(required);
-
-	}
-
-
-	
-	private IContentOutlinePage createCmlOutliner() {
-		
-		final CmlContentPageOutliner cmlOutliner = new CmlContentPageOutliner();
-		if (getEditorInput() instanceof FileEditorInput)
-		{
-			FileEditorInput fei = (FileEditorInput)getEditorInput();
-			CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
-			cmlOutliner.setInput(csu);
-			csu.addChangeListener( new CmlSourceChangedListener() {
-
-				@Override
-				public void sourceChanged(CmlSourceUnit csu) {
-					cmlOutliner.refresh();
-				}
-				
-				
-			});
-			csu.addChangeListener(new CmlSourceChangedListener() {
-				
-				public void sourceChanged(CmlSourceUnit csu) {
-					for(final ParserError pe : csu.getErrors())
-					{
-						 Display.getDefault().asyncExec(new Runnable() {
-				               public void run() {
-				            	   CmlEditor.this.setHighlightRange(pe.offset, pe.otext.length(),true);
-				            	   CmlEditor.this.getSourceViewer().setSelectedRange(pe.offset, pe.otext.length());
-				            	   CmlEditor.this.getSourceViewer().showAnnotations(true);
-				            	   StringBuilder msg = new StringBuilder();
-				            	   
-				            	   msg.append("An syntax error occurred near line "+pe.line+" position "+pe.col+" offending token: "+pe.otext);
-				            	   
-				            	   MessageDialog.open(MessageDialog.ERROR, new Shell(), "Error",msg.toString(), 0); 
-				              }
-						 });
-					}
-				}
-			});
-		}
-		return cmlOutliner;
-	}
-
-
-	public CmlEditor() {
-		super();
-	}
-
-
-
-	@Override
-	public VdmSourceViewerConfiguration getVdmSourceViewerConfiguration() {
-		return new CmlSourceViewerConfiguration();
-	}
-	
-	
-	
-
-}
+public class CmlEditor extends TextEditor
+  {
+    
+    private AbstractSelectionChangedListener selectionChangeListener;
+    
+    private class CmlSelectionChangeListener extends
+        AbstractSelectionChangedListener implements ISelectionChangedListener
+      {
+        @Override
+        public void selectionChanged(SelectionChangedEvent arg0)
+          {
+            CmlEditor.this.selectionChanged();
+          }
+        
+      }
+    
+    protected INode computeHighlightRangeSourceReference()
+      {
+        ISourceViewer sourceViewer = getSourceViewer();
+        if (sourceViewer == null)
+          return null;
+        
+        StyledText styledText = sourceViewer.getTextWidget();
+        if (styledText == null)
+          return null;
+        
+        int caret = 0;
+        if (sourceViewer instanceof ITextViewerExtension5)
+          {
+            ITextViewerExtension5 extension = (ITextViewerExtension5) sourceViewer;
+            caret = extension.widgetOffset2ModelOffset(styledText
+                .getCaretOffset());
+          } else
+          {
+            int offset = sourceViewer.getVisibleRegion().getOffset();
+            caret = offset + styledText.getCaretOffset();
+          }
+        INode element = getElementAt(caret, false);
+        
+        return element;
+      }
+    
+    private INode getElementAt(int caret, boolean b)
+      {
+        return null;
+      }
+    
+    protected void selectionChanged()
+      {
+        if (getSelectionProvider() == null)
+          return;
+        INode element = computeHighlightRangeSourceReference();
+        // if
+        // (getPreferenceStore().getBoolean(PreferenceConstants.EDITOR_SYNC_OUTLINE_ON_CURSOR_MOVE))
+        synchronizeOutlinePage(element);
+        // if (fIsBreadcrumbVisible && fBreadcrumb != null &&
+        // !fBreadcrumb.isActive())
+        // setBreadcrumbInput(element);
+        setSelection(element, false);
+        // if (!fSelectionChangedViaGotoAnnotation)
+        // updateStatusLine();
+        // fSelectionChangedViaGotoAnnotation= false;
+        
+      }
+    
+    private void setSelection(INode element, boolean b)
+      {
+        // TODO Auto-generated method stub
+        System.out.println("TODO: We need to add selection of the outline.");
+      }
+    
+    private void synchronizeOutlinePage(INode element)
+      {
+        // TODO Auto-generated method stub
+        System.out.println("TODO: Out line synchronization is missing");
+      }
+    
+    @Override
+    public void createPartControl(Composite parent)
+      {
+        super.createPartControl(parent);
+        selectionChangeListener = new CmlSelectionChangeListener();
+        selectionChangeListener.install(this.getSelectionProvider());
+        
+        IEditorInput input = getEditorInput();
+        IDocumentProvider documentProvider = getDocumentProvider();
+        IDocument doc = documentProvider.getDocument(input);
+        if (doc instanceof CmlDocument)
+          {
+            System.out.println("CML Document in the house.");
+          }
+      }
+    
+    @Override
+    protected void initializeEditor()
+      {
+        super.initializeEditor();
+        VdmSourceViewerConfiguration fVdmSourceViewer = getVdmSourceViewerConfiguration();
+        setSourceViewerConfiguration(fVdmSourceViewer);
+        setRulerContextMenuId(IVdmUiConstants.RULERBAR_ID);
+        
+      }
+    
+    private IContentOutlinePage cmlOutLiner;
+    
+    @Override
+    public Object getAdapter(Class required)
+      {
+        
+        if (IContentOutlinePage.class.equals(required))
+          {
+            if (cmlOutLiner == null)
+              cmlOutLiner = createCmlOutliner();
+            return cmlOutLiner;
+          }
+        
+        return super.getAdapter(required);
+        
+      }
+    
+    private IContentOutlinePage createCmlOutliner()
+      {
+        
+        final CmlContentPageOutliner cmlOutliner = new CmlContentPageOutliner();
+        if (getEditorInput() instanceof FileEditorInput)
+          {
+            FileEditorInput fei = (FileEditorInput) getEditorInput();
+            CmlSourceUnit csu = CmlSourceUnit
+                .getFromFileResource(fei.getFile());
+            cmlOutliner.setInput(csu);
+            csu.addChangeListener(new CmlSourceChangedListener()
+              {
+                
+                @Override
+                public void sourceChanged(CmlSourceUnit csu)
+                  {
+                    cmlOutliner.refresh();
+                  }
+                
+              });
+            csu.addChangeListener(new CmlSourceChangedListener()
+              {
+                
+                public void sourceChanged(CmlSourceUnit csu)
+                  {
+                    for (final ParserError pe : csu.getErrors())
+                      {
+                        Display.getDefault().asyncExec(new Runnable()
+                          {
+                            public void run()
+                              {
+                                CmlEditor.this.setHighlightRange(pe.offset,
+                                    pe.otext.length(), true);
+                                CmlEditor.this.getSourceViewer()
+                                    .setSelectedRange(pe.offset,
+                                        pe.otext.length());
+                                CmlEditor.this.getSourceViewer()
+                                    .showAnnotations(true);
+                                
+                              }
+                          });
+                      }
+                  }
+              });
+          }
+        return cmlOutliner;
+      }
+    
+    public CmlEditor()
+      {
+        super();
+        setDocumentProvider(new CmlDocumentProvider());
+      }
+    
+    public VdmSourceViewerConfiguration getVdmSourceViewerConfiguration()
+      {
+        return new CmlSourceViewerConfiguration();
+      }
+    
+  }

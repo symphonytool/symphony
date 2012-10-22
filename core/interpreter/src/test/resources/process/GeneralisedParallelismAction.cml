@@ -1,0 +1,3 @@
+channels init, a, b
+
+process A = begin @ (init -> a -> Skip) [| {|init|} |] (init -> b -> Skip) end

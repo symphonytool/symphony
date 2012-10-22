@@ -1,5 +1,6 @@
 package eu.compassresearch.transformation;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -45,6 +46,8 @@ import eu.compassresearch.ast.node.GraphNodeList;
 import eu.compassresearch.ast.node.NodeListList;
 import eu.compassresearch.ast.typechecker.NameScope;
 import eu.compassresearch.ast.types.AAccessSpecifier;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
   {
@@ -54,17 +57,31 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
 	 */
     private static final long                                                   serialVersionUID = 1L;
     
+    private final CmlTypeChecker                                                typeChecker;
+    
     private Map<org.overture.ast.node.INode, eu.compassresearch.ast.node.INode> nodeMap;
+    
+    private final TypeIssueHandler                                              issueHandler;
     
     public Map<org.overture.ast.node.INode, eu.compassresearch.ast.node.INode> getNodeMap()
       {
         return nodeMap;
       }
     
-    public CmlAstToOvertureAst()
+    private void reportError(eu.compassresearch.ast.node.INode node,
+        String error)
       {
+        if (typeChecker != null)
+          issueHandler.addTypeError(node, error);
+      }
+    
+    public CmlAstToOvertureAst(CmlTypeChecker typeChecker,
+        TypeIssueHandler issueHandler)
+      {
+        this.issueHandler = issueHandler;
         this.nodeMap = new HashMap<org.overture.ast.node.INode, eu.compassresearch.ast.node.INode>();
         this.lookup = new HashMap<LexIdentifierToken, org.overture.ast.definitions.PDefinition>();
+        this.typeChecker = typeChecker;
       }
     
     private static Class<?>[] typesFromArgs(Object[] args)
@@ -93,7 +110,7 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
     private Class<?> loadOvtEquivalent(Class<?> cmlClz)
         throws AnalysisException
       {
-        String cmlName = cmlClz.getName();
+        String cmlName = lookupName(cmlClz.getName());
         String ovtName = cmlName.replace("eu.compassresearch", "org.overture");
         
         // Dark magic
@@ -104,7 +121,7 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
             ovtClz = loader.loadClass(ovtName);
           } catch (ClassNotFoundException e)
           {
-            throw new AnalysisException(e);
+            return null;
           }
         
         return ovtClz;
@@ -126,22 +143,29 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
         System.out.println("[WARNING]: " + string);
       }
     
-    @Override
-    public INode defaultINode(eu.compassresearch.ast.node.INode node)
-        throws AnalysisException
+    private static Map<String, String> classNameTranslation;
+    static
       {
-        
+        classNameTranslation = new HashMap<String, String>();
+        classNameTranslation.put(
+            "eu.compassresearch.ast.expressions.ABooleanLiteralExp",
+            "org.overture.ast.expressions.ABooleanConstExp");
+      }
+    
+    private static String lookupName(String name)
+      {
+        if (classNameTranslation.containsKey(name))
+          return classNameTranslation.get(name);
+        return name;
+      }
+    
+    private void genericSetterGetterCopy(INode ovtNode,
+        eu.compassresearch.ast.node.INode cmlNode) throws AnalysisException
+      {
+        Class<?> ovtClz = ovtNode.getClass();
+        Class<?> cmlClz = cmlNode.getClass();
         try
           {
-            Class<?> cmlClz = node.getClass();
-            
-            Class<?> ovtClz = loadOvtEquivalent(cmlClz);
-            Object ovtInstance = null;
-            
-            ovtInstance = create(ovtClz);
-            
-            nodeMap.put((INode) ovtInstance, node);
-            
             // In the hope of nice code style
             for (Method om : ovtClz.getMethods())
               {
@@ -158,26 +182,58 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
                             {
                               Object translated = null;
                               Object cmlGetterRes = null;
-                              cmlGetterRes = cm.invoke(node, new Object[] {});
+                              cmlGetterRes = cm
+                                  .invoke(cmlNode, new Object[] {});
                               if (cmlGetterRes == null)
                                 continue;
                               translated = translate(cmlGetterRes);
                               String s = translated.getClass().getName();
-                              om.invoke(ovtInstance, translated);
+                              om.invoke(ovtNode, translated);
                               break;
                             }
                       }
                   }
               }
-            
-            return (INode) ovtInstance;
-          } catch (AnalysisException e)
+          } catch (AnalysisException ae)
           {
-            throw e;
+            throw ae;
           } catch (Exception e)
           {
             throw new AnalysisException(e);
           }
+        
+      }
+    
+    @Override
+    public INode defaultINode(eu.compassresearch.ast.node.INode node)
+        throws AnalysisException
+      {
+        Object ovtInstance = null;
+        
+        // Load name equivalent Overture class if it exists
+        Class<?> ovtClz = loadOvtEquivalent(node.getClass());
+        
+        // If no equivalent exists try to translate using handwritten
+        // translations
+        if (ovtClz == null)
+          ovtInstance = translate(node);
+        else
+          // okay an equivalent class does exists, create an instance and copy
+          // all
+          // getter to setter
+          try
+            {
+              ovtInstance = create(ovtClz);
+              genericSetterGetterCopy((INode) ovtInstance, node);
+            } catch (Exception e)
+            {
+              throw new AnalysisException(e);
+            }
+        
+        // Add the overture node to cml node for mapping back again
+        nodeMap.put((INode) ovtInstance, node);
+        
+        return (INode) ovtInstance;
         
       }
     
@@ -197,7 +253,8 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
       {
         LexLocation res = null;
         eu.compassresearch.ast.lex.LexLocation cmlLoc = (eu.compassresearch.ast.lex.LexLocation) node;
-        res = new LexLocation(cmlLoc.file, cmlLoc.module, cmlLoc.startLine,
+        //FIXME file
+        res = new LexLocation(cmlLoc.file==null?new File("null"):cmlLoc.file, cmlLoc.module, cmlLoc.startLine,
             cmlLoc.startPos, cmlLoc.endLine, cmlLoc.endPos, cmlLoc.startOffset,
             cmlLoc.endOffset);
         return res;
@@ -217,7 +274,7 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
         return res;
       }
     
-    private Object translate(Object cmlGetterRes) throws AnalysisException
+    public Object translate(Object cmlGetterRes) throws AnalysisException
       {
         
         if (cmlGetterRes == null)
@@ -250,8 +307,6 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
               return convertClassParagraph((eu.compassresearch.ast.definitions.AClassParagraphDefinition) cmlGetterRes);
             if (eu.compassresearch.ast.expressions.ABooleanLiteralExp.class == cmlClz)
               return convertBooleanLiteralExp((eu.compassresearch.ast.expressions.ABooleanLiteralExp) cmlGetterRes);
-            if (eu.compassresearch.ast.expressions.ARecordExp.class == cmlClz)
-              return covertRecordExp((eu.compassresearch.ast.expressions.ARecordExp) cmlGetterRes);
             if (eu.compassresearch.ast.expressions.ANameExp.class == cmlClz)
               return convertNameExp((eu.compassresearch.ast.expressions.ANameExp) cmlGetterRes);
             if (eu.compassresearch.ast.lex.LexQuoteToken.class == cmlClz)
@@ -270,10 +325,78 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
               return convertLexRealToken((eu.compassresearch.ast.lex.LexRealToken) cmlGetterRes);
             if (eu.compassresearch.ast.lex.LexStringToken.class == cmlClz)
               return convertLexStringLiteral((eu.compassresearch.ast.lex.LexStringToken) cmlGetterRes);
-            
+            if (eu.compassresearch.ast.expressions.ABooleanLiteralExp.class == cmlClz)
+              return convertBooleanExpression((eu.compassresearch.ast.expressions.ABooleanLiteralExp) cmlGetterRes);
+            if (eu.compassresearch.ast.lex.LexBooleanToken.class == cmlClz)
+              return convertLexBooleanToken((eu.compassresearch.ast.lex.LexBooleanToken) cmlGetterRes);
+            if (eu.compassresearch.ast.expressions.ARecordExp.class == cmlClz)
+              return convertARecordExp((eu.compassresearch.ast.expressions.ARecordExp) cmlGetterRes);
+            if (eu.compassresearch.ast.lex.LexQuoteToken.class == cmlClz)
+              return convertLexQuoteToken((eu.compassresearch.ast.lex.LexQuoteToken) cmlGetterRes);
             else
               return defaultINode((eu.compassresearch.ast.node.INode) cmlGetterRes);
           }
+      }
+    
+    @SuppressWarnings("deprecation")
+    private Object convertARecordExp(ARecordExp cmlGetterRes)
+        throws AnalysisException
+      {
+        
+        // In CML mk_<name> is ARecordExp mk_( are handled by ATupleExp
+        LexLocation oLoc = (org.overture.ast.lex.LexLocation) translate(cmlGetterRes
+            .getLocation());
+        
+        // Handle the token mk_-type
+        if ("token".equals(cmlGetterRes.getName().name))
+          {
+            if (cmlGetterRes.getExprs().size() != 1)
+              reportError(cmlGetterRes,
+                  "Invalid number of arguments expected 1 got "
+                      + cmlGetterRes.getExprs().size());
+            org.overture.ast.expressions.PExp oExp = (org.overture.ast.expressions.PExp) translate(cmlGetterRes
+                .getExprs().get(0));
+            org.overture.ast.types.PType otype = new org.overture.ast.types.ATokenBasicType(
+                oLoc, true);
+            return new org.overture.ast.expressions.AMkBasicExp(otype, oLoc,
+                oExp);
+          }
+        
+        // The name is not token it must be a named type
+        org.overture.ast.lex.LexNameToken oTypeName = (org.overture.ast.lex.LexNameToken) translate(cmlGetterRes
+            .getName());
+        List<PExp> oArgs = new LinkedList<PExp>();
+        for (eu.compassresearch.ast.expressions.PExp cmlExp : cmlGetterRes
+            .getExprs())
+          {
+            oArgs.add((PExp) translate(cmlExp));
+          }
+        org.overture.ast.types.PType oType = new org.overture.ast.types.ANamedInvariantType(
+            oLoc, false);
+        org.overture.ast.expressions.AMkTypeExp res = new AMkTypeExp(oType,
+            oLoc, oTypeName, oArgs, null, null);
+        return res;
+      }
+    
+    private Object convertLexBooleanToken(
+        eu.compassresearch.ast.lex.LexBooleanToken cmlGetterRes)
+        throws AnalysisException
+      {
+        org.overture.ast.lex.LexBooleanToken tok = new org.overture.ast.lex.LexBooleanToken(
+            cmlGetterRes.value, (LexLocation) translate(cmlGetterRes.location));
+        return tok;
+      }
+    
+    private Object convertBooleanExpression(ABooleanLiteralExp cmlGetterRes)
+        throws AnalysisException
+      {
+        LexLocation loc = convertLexLocation(cmlGetterRes.getLocation());
+        eu.compassresearch.ast.lex.LexBooleanToken value = cmlGetterRes
+            .getValue();
+        org.overture.ast.expressions.ABooleanConstExp res = new ABooleanConstExp(
+            loc, (LexBooleanToken) translate(value));
+        
+        return res;
       }
     
     private org.overture.ast.lex.LexStringToken convertLexStringLiteral(
@@ -360,21 +483,11 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
             .get(cmlGetterRes.getName());
         varExp
             .setVardef((org.overture.ast.definitions.PDefinition) translate(lookedupDef));
+                
+        varExp.setOriginal(varExp.getName().name);
+        varExp.setLocation(convertLexLocation(cmlGetterRes.getName().getLocation()));
+        
         return varExp;
-      }
-    
-    private Object covertRecordExp(ARecordExp cmlGetterRes)
-        throws AnalysisException
-      {
-        // FIXME: This translation is a bit off setRecordType on Overture exp
-        // not done
-        org.overture.ast.expressions.AMkTypeExp o = new AMkTypeExp();
-        o.setArgs((List) translate(cmlGetterRes.getExprs()));
-        o.setType((org.overture.ast.types.PType) translate(cmlGetterRes
-            .getType()));
-        o.setTypeName((org.overture.ast.lex.LexNameToken) translate(cmlGetterRes
-            .getName()));
-        return o;
       }
     
     private Object convertBooleanLiteralExp(ABooleanLiteralExp cmlGetterRes)
