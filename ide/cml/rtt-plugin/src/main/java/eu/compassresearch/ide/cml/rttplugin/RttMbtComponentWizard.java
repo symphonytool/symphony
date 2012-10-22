@@ -7,25 +7,22 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.ui.dialogs.WizardNewFolderMainPage;
 import org.eclipse.ui.wizards.newresource.BasicNewFolderResourceWizard;
 
-public class ComponentWizard extends BasicNewFolderResourceWizard
+import eu.compassResearch.rttMbtTmsClientApi.RttMbtClient;
+
+public class RttMbtComponentWizard extends BasicNewFolderResourceWizard
   {
-    
     @Override
     public boolean performFinish()
       {
         Object selectedObject = selection.getFirstElement();
         if (selectedObject instanceof IProject)
           {
-            File currentDir = new File(".");
-            IProject p = (IProject) selectedObject;
-            System.out.println(p.getName());
-            System.out.println(p.getFullPath());
+            IProject project = (IProject) selectedObject;
             WizardNewFolderMainPage newFolderPage = (WizardNewFolderMainPage) getPages()[0];
             IFolder newFolder = newFolderPage.createNewFolder();
-            File t = new File(newFolder.getFullPath().toString());
-            System.out.println(t.getAbsolutePath());
-            System.out.println(currentDir.getAbsolutePath() + File.separator
-                + t.getAbsolutePath());
+            String projectName = project.getName() + File.separator + newFolder.getName();
+            RttMbtClient client = new RttMbtClient("localhost", 9116, "uwe", "uschulze@informatik.uni-bremen.de");
+            client.createProject(projectName);
           }
         return true;
       }

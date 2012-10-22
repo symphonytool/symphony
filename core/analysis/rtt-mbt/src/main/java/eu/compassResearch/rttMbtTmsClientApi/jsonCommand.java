@@ -548,17 +548,14 @@ public class jsonCommand {
 
 		catch(SecurityException e) {
 			System.err.println("*** error: not allowed to access " + filename + "!");
-			e.printStackTrace();
 			return false;
 		}
 		catch (FileNotFoundException e) {
 			System.err.println("*** error: unable to find file " + filename + "!");
-			e.printStackTrace();
 			return false;
 		}
 		catch (IOException e) {
 			System.err.println("*** error: problem writing content to file " + filename + "!");
-			e.printStackTrace();
 			return false;
 		}
 

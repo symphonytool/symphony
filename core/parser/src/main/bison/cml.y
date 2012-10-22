@@ -2014,8 +2014,7 @@ typeDefs :
 }
 | TYPES typeDefList
 {
-  //List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
-  List<PDefinition> typeDefinitions = (List<PDefinition>)$typeDefList;
+  List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$TYPES),
                                        extractLastLexLocation(typeDefinitions));
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
@@ -2023,8 +2022,7 @@ typeDefs :
 }
 | TYPES typeDefList SEMI
 {
-  //List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
-  List<PDefinition> typeDefinitions = (List<PDefinition>)$typeDefList;
+  List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$TYPES),
                                        extractLexLocation((CmlLexeme)$SEMI));
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
@@ -3018,8 +3016,7 @@ implicitOperationDef :
   AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
   LexNameToken name = extractLexNameToken((CmlLexeme)$2);
   List<? extends APatternListTypePair> parameterPatterns = (List<? extends APatternListTypePair>)$3;
-  //List<? extends PCMLPair> parameterPatterns = (List<? extends PCMLPair>)$3;
-  List<? extends AIdentifierTypePair> result = (List<? extends AIdentifierTypePair>)$4;
+   List<? extends AIdentifierTypePair> result = (List<? extends AIdentifierTypePair>)$4;
   List<? extends AExternalClause> externals = (List<? extends AExternalClause>)$5;
   PExp precondition = (PExp)$6;
   PExp postcondition = (PExp)$7;
