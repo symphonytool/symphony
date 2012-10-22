@@ -130,6 +130,10 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 						(AValueParagraphDefinition) w.value).toArray();
 			}
 
+			if (w.isClass(AProcessParagraphDefinition.class)){
+				return handleProcessParagraphDefinition((AProcessParagraphDefinition)w.value).toArray();
+			}
+			
 			if (w.isClass(AProcessParagraphDefinition.class)
 					|| w.isClass(PProcess.class)) {
 				AProcessParagraphDefinition processDecl = (AProcessParagraphDefinition) w.value;
@@ -189,6 +193,8 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		return new String[0];
 	}
 
+
+
 	private List<String> handleChansetParagraphDefinition(
 			AChansetParagraphDefinition cspdef) {
 		List<String> r = new LinkedList<String>();
@@ -209,12 +215,21 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		}
 		return r;
 	}
+	
+	private List<String> handleProcessParagraphDefinition(
+			AProcessParagraphDefinition ppdef) {
+		List<String> r = new LinkedList<String>();
+		AProcessDefinition app = ppdef.getProcessDefinition();
+		//app.get
+		//app.getProcess().
+		return r;
+	}
 
 	String makeDefinitionName(PDefinition def) {
 		String r = "";
 		if (def instanceof AValueDefinition) {
-			String nameguard = "";
-			String typeguard = "";
+			String nameguard = "??";
+			String typeguard = "??";
 			if (null != def.getName())
 				nameguard = def.getName().name;
 			if (null != def.getType())
@@ -360,25 +375,6 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		}
 	}
 
-	private List<String> handeValueParagraphDefinition(
-			AValueParagraphDefinition vpdef) {
-		List<String> r = new LinkedList<String>();
-		String nameguard = "??";
-		String typeguard = "??";
-		/*
-		 * FIXME-ldc we need a way to extract names and types from value
-		 * definitions like A = {<x>,<y>,} (the getters return null)
-		 */
-		for (PDefinition pdef : vpdef.getValueDefinitions()) {
-			AValueDefinition vdef = (AValueDefinition) pdef;
-			if (null != vdef.getName())
-				nameguard = vdef.getName().name;
-			if (null != vdef.getType())
-				typeguard = vdef.getType().toString();
-			r.add("v] " + nameguard + ": " + typeguard);
-		}
-		return r;
-	}
 
 	private List<String> handleChannelParagraphDefinition(
 			AChannelParagraphDefinition cpdef) {
@@ -388,7 +384,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 					+ dec.getSingleType().getType());
 		}
 		return r;
-	}
+	}	
 
 	private List<String> handleValueParagraphDefinition(
 			AValueParagraphDefinition cast) {
