@@ -19,12 +19,15 @@ public class RttMbtClient {
 	protected String projectName;
 	protected String userName;
 	protected String userId;
+	protected String workspace;
 
 	public RttMbtClient(String server, Integer port, String user, String id) {
 		rttMbtServer = server;
 		rttMbtPort = port;
 		userName = user;
 		userId = id;
+		projectName = null;
+		workspace = null;
 	}
 
 	public String getProject() {
@@ -65,6 +68,11 @@ public class RttMbtClient {
 	public Boolean uploadFile(String filename) {
 		Boolean success = true;
 
+		// add workspace
+		if (workspace != null) {
+			filename = workspace + filename;
+		}
+		
 		// check if file exists in local file system
 		File localFile = new File(filename);
 		if (!localFile.exists()) {
@@ -99,7 +107,19 @@ public class RttMbtClient {
 	
 	public Boolean uploadDirectory(String directory, Boolean recursive) {
 		Boolean success = true;
+
+		// add workspace
+		if (workspace != null) {
+			directory = workspace + directory;
+		}
+		
+		// check if directory exists
 		File folder = new File(directory);
+		if (!folder.isDirectory()) {
+			return false;
+		}
+		
+		// get files in the directory
 		File[] files = folder.listFiles();
 		List<String> folders = new ArrayList<String>();
 		if (files == null) {
@@ -108,7 +128,8 @@ public class RttMbtClient {
 		}
 		for (int i = 0; i < files.length; i++) {
 			if (files[i].isFile()) {
-				success = (uploadFile(directory + "/" + files[i].getName()) && success);
+				String filename = removeLocalWorkspace(directory + "/" + files[i].getName());
+				success = (uploadFile(filename) && success);
 			} else if ((files[i].isDirectory()) && (recursive)) {
 				folders.add(directory + "/" + files[i].getName());
 			}
@@ -122,6 +143,11 @@ public class RttMbtClient {
 
 	public Boolean downloadFile(String filename) {
 		Boolean success = true;
+
+		// add workspace
+		if (workspace != null) {
+			filename = workspace + filename;
+		}
 
 		// check if file already is up to date
 		File file = new File(filename);
@@ -149,6 +175,11 @@ public class RttMbtClient {
 
 	public Boolean downloadDirectory(String directory) {
 		Boolean success = true;
+
+		// add workspace
+		if (workspace != null) {
+			directory = workspace + directory;
+		}
 
 		System.out.println("downloading files in directory '" + directory + "' from cache");
 		
@@ -188,7 +219,8 @@ public class RttMbtClient {
 		
 		// for each file: download file
 		for (int idx = 0; idx < filenames.size(); idx++) {
-			downloadFile(directory + "/" + filenames.get(idx));
+			String filename = removeLocalWorkspace(directory + "/" + filenames.get(idx));
+			downloadFile(filename);
 		}
 		
 		return success;
@@ -400,7 +432,7 @@ public class RttMbtClient {
 	        	// prepare next loop
 		    	entry = stream.getNextEntry();
 	        }
-	    	
+	    	stream.close();
 		} catch (FileNotFoundException e) {
 			System.err.println("[FAIL]: template archive '" + archiveName + "' does not exist!");
 			return false;
@@ -533,6 +565,27 @@ public class RttMbtClient {
 		return success;
 	}
 	
+	public String addLocalWorkspace(String filename) {
+		if (filename == null) return filename;
+		if (workspace != null) {
+			return workspace + filename;
+		} else {
+			return filename;
+		}
+	}
+	
+	public String removeLocalWorkspace(String filename) {
+		if (filename == null) return filename;
+		if ((workspace != null) &&
+			(filename.startsWith(workspace))) {
+			System.out.println("removing '" + workspace + "' from '" + filename + "'");
+			return filename.substring(workspace.length());
+		} else {
+			System.out.println("workspace '" + workspace + "' is no prefix of '" + filename + "'");
+			return filename;
+		}
+	}
+	
 	public String getRttMbtServer() {
 		return rttMbtServer;
 	}
@@ -571,6 +624,14 @@ public class RttMbtClient {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public String getWorkspace() {
+		return workspace;
+	}
+
+	public void setWorkspace(String workspace) {
+		this.workspace = workspace + File.separator;
 	}
 	
 }

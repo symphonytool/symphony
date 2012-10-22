@@ -26,10 +26,11 @@ public class jsonReceiveFileFromCacheCommand extends jsonCommand {
 		Map params = new LinkedHashMap();
 		params.put("user", userName);
 		params.put("user-id", userId);
-		params.put("filename", filename);
+		params.put("filename", client.removeLocalWorkspace(filename));
 		// create command
 		JSONObject cmd = new JSONObject();
 		cmd.put("receive-file-from-cache-command", params);
+		System.out.println("request: '" + cmd.toJSONString() + "'");
 		return cmd.toJSONString();
 	}
 
@@ -58,7 +59,7 @@ public class jsonReceiveFileFromCacheCommand extends jsonCommand {
 			return;
 		}
 		// store file
-		writeBase64StringFileContent(filename, fileContent, true);
+		writeBase64StringFileContent(client.addLocalWorkspace(filename), fileContent, true);
 		String localChecksum = getSHA256Checksum(filename);
 		if (!checksum.equals(localChecksum)) {
 			System.err.println("*** error: checksum of received file '" + filename + "' does not match!");
