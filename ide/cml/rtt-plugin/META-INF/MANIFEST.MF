@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS RT Tester Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.cml.rttplugin;singleton:=true
 Bundle-Version: 0.0.1
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/rtt-mbt-0.0.1.jar
 Bundle-Activator: eu.compassresearch.ide.cml.rttplugin.Activator
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
