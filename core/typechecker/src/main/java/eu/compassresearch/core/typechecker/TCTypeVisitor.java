@@ -1,30 +1,37 @@
 package eu.compassresearch.core.typechecker;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.types.ABooleanBasicType;
-import eu.compassresearch.ast.types.ACharBasicType;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.types.ABooleanBasicType;
+import org.overture.ast.types.ACharBasicType;
+import org.overture.ast.types.AIntNumericBasicType;
+import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.ANatNumericBasicType;
+import org.overture.ast.types.ANatOneNumericBasicType;
+import org.overture.ast.types.ARationalNumericBasicType;
+import org.overture.ast.types.ARealNumericBasicType;
+import org.overture.ast.types.ASeqSeqType;
+import org.overture.ast.types.ATokenBasicType;
+import org.overture.ast.types.PType;
+
 import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.ast.types.AIntNumericBasicType;
-import eu.compassresearch.ast.types.ANamedInvariantType;
-import eu.compassresearch.ast.types.ANatNumericBasicType;
-import eu.compassresearch.ast.types.ANatOneNumericBasicType;
-import eu.compassresearch.ast.types.ARationalNumericBasicType;
-import eu.compassresearch.ast.types.ARealNumericBasicType;
-import eu.compassresearch.ast.types.ASeqSeqType;
-import eu.compassresearch.ast.types.ATokenBasicType;
-import eu.compassresearch.ast.types.PType;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
+import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 @SuppressWarnings({ "deprecation", "serial" })
-public class TCTypeVisitor extends
-    QuestionAnswerAdaptor<TypeCheckQuestion, PType>
+class TCTypeVisitor extends QuestionAnswerAdaptor<TypeCheckQuestion, PType>
   {
     
-    private final VanillaCmlTypeChecker parentChecker;
+    private final CmlTypeChecker   parentChecker;
+    private final TypeIssueHandler issueHandler;
     
-    public TCTypeVisitor(VanillaCmlTypeChecker vanillaCmlTypeChecker)
+    public TCTypeVisitor(CmlTypeChecker parentTypeChecker,
+        TypeIssueHandler issueHandler)
       {
-        this.parentChecker = vanillaCmlTypeChecker;
+        this.parentChecker = parentTypeChecker;
+        this.issueHandler = issueHandler;
       }
     
     @Override
@@ -90,7 +97,7 @@ public class TCTypeVisitor extends
         PType lookedupType = question.lookupType(node.getName());
         if (lookedupType == null)
           {
-            parentChecker.addTypeError(node,
+            issueHandler.addTypeError(node,
                 TypeErrorMessages.NAMED_TYPE_UNDEFINED.customizeMessage(node
                     .getName().name));
             lookedupType = new AErrorType(node.getLocation(), true);
@@ -106,7 +113,7 @@ public class TCTypeVisitor extends
         PType innerType = node.getSeqof().apply(parentChecker, question);
         if (innerType == null)
           {
-            parentChecker.addTypeError(node,
+            issueHandler.addTypeError(node,
                 TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
                     .customizeMessage(node.getSeqof().toString()));
             return new AErrorType();

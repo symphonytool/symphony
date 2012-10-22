@@ -127,8 +127,23 @@ public class CmlTreeContentProvider implements ITreeContentProvider
                     else if (section instanceof AOperationParagraphDefinition)
                       res.add(Wrapper.newInstance(section, "Operations"));
                     else
-                      res.add(Wrapper.newInstance(section,
-                          section.getName().name));
+                      {
+                        if (section == null)
+                          res.add(Wrapper.newInstance((PDefinition) null,
+                              "null"));
+                        else
+                          {
+                            
+                            LexIdentifierToken name = section.getName();
+                            if (name == null)
+                              res.add(Wrapper.newInstance(section, section
+                                  .getClass().getCanonicalName()
+                                  + " has to name :(."));
+                            else
+                              res.add(Wrapper.newInstance(section,
+                                  section.getName().name));
+                          }
+                      }
                   }
                 return res.toArray();
               }
@@ -150,7 +165,6 @@ public class CmlTreeContentProvider implements ITreeContentProvider
                 
                 return res.toArray();
               }
-            
             if (w.isClass(ASequentialCompositionProcess.class))
               {
                 List<Object> res = new LinkedList<Object>();
@@ -165,8 +179,9 @@ public class CmlTreeContentProvider implements ITreeContentProvider
                 AFunctionParagraphDefinition fd = (AFunctionParagraphDefinition) w.value;
                 for (SFunctionDefinition fnd : fd.getFunctionDefinitions())
                   {
-                    res.add("" + notNullName(fnd.getName()) + ":"
-                        + fnd.getType());
+                    res.add(""
+                        + notNullName(fnd.getName(), fnd.getClass().getName())
+                        + ":" + fnd.getType());
                   }
                 return res.toArray();
               }
@@ -177,7 +192,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider
                 AOperationParagraphDefinition od = (AOperationParagraphDefinition) w.value;
                 for (SOperationDefinition sod : od.getOperations())
                   {
-                    res.add("[O] " + notNullName(sod.getName()));
+                    res.add(notNullName(sod.getName(), od.getClass().getName()));
                   }
                 return res.toArray();
               }
@@ -188,7 +203,8 @@ public class CmlTreeContentProvider implements ITreeContentProvider
                 AActionParagraphDefinition ad = (AActionParagraphDefinition) w.value;
                 for (AActionDefinition a : ad.getActions())
                   {
-                    res.add("[A] " + notNullName(a.getName()));
+                    res.add("[A] "
+                        + notNullName(a.getName(), ad.getClass().getName()));
                   }
                 return res.toArray();
                 
@@ -288,10 +304,10 @@ public class CmlTreeContentProvider implements ITreeContentProvider
         return res;
       }
     
-    private static String notNullName(LexIdentifierToken name)
+    private static String notNullName(LexIdentifierToken name, String d)
       {
         if (name == null)
-          return "null";
+          return d;
         return name.name;
       }
     

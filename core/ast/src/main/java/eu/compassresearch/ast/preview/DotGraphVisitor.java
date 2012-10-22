@@ -6,13 +6,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAdaptor;
-import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.ast.node.ExternalNode;
-import eu.compassresearch.ast.node.INode;
-import eu.compassresearch.ast.node.IToken;
-import eu.compassresearch.ast.node.NodeList;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAdaptor;
+import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.node.ExternalNode;
+import org.overture.ast.node.INode;
+import org.overture.ast.node.IToken;
+import org.overture.ast.node.NodeList;
+
+
 
 public class DotGraphVisitor extends QuestionAdaptor<DotGraphVisitor.DotPair>
 {
@@ -21,7 +23,7 @@ public class DotGraphVisitor extends QuestionAdaptor<DotGraphVisitor.DotPair>
 	 * generated serial version
 	 */
 	private static final long serialVersionUID = 637147601437624885L;
-
+		
 	public static class DotPair
 	{
 		public DotNode parent;
@@ -51,6 +53,7 @@ public class DotGraphVisitor extends QuestionAdaptor<DotGraphVisitor.DotPair>
 
 	private StringBuilder resultString;
 	public boolean showNullPointers = false;
+	public boolean includeTokens = true;
 	Set<INode> visitedNodes= null;
 
 	public DotGraphVisitor()
@@ -77,8 +80,13 @@ public class DotGraphVisitor extends QuestionAdaptor<DotGraphVisitor.DotPair>
 		boolean firstChild = true;
 		for (Entry<String, Object> s : node.getChildren(true).entrySet())
 		{
+			
+			if(s.getValue() == null && !showNullPointers)
+				continue;
+			
 			String id = dn.id + s.getKey();
 			dn.childToId.put(id, s.getValue());
+									
 			if (!firstChild)
 			{
 				tmp += " | ";
@@ -121,27 +129,27 @@ public class DotGraphVisitor extends QuestionAdaptor<DotGraphVisitor.DotPair>
 		if(node!=null)
 		{
 			tmp+= " |{";
-		boolean firstChild = true;
-		Map<String, Object> children = new HashMap<String, Object>();
-		String nt = node.toString();
-		if (nt.length() > 150)
-		{
-			nt = nt.substring(0, 150);
-		}
-		children.put("" + nt.replaceAll("[^a-zA-Z0-9 \\-':']","") + "", null);
-		for (Entry<String, Object> s : children.entrySet())
-		{
-			String id = dn.id + s.getKey();
-			id = id.replaceAll("[^a-zA-Z0-9 \\-':']","");
-			dn.childToId.put(id, s.getValue());
-			if (!firstChild)
+			boolean firstChild = true;
+			Map<String, Object> children = new HashMap<String, Object>();
+			String nt = node.toString();
+			if (nt.length() > 150)
 			{
-				tmp += " | ";
+				nt = nt.substring(0, 150);
 			}
-			firstChild = false;
-			tmp += " <" + id + "> " + s.getKey();
-		}
-		tmp+="}";
+			children.put("" + nt.replaceAll("[^a-zA-Z0-9 \\-':']","") + "", null);
+			for (Entry<String, Object> s : children.entrySet())
+			{
+				String id = dn.id + s.getKey();
+				id = id.replaceAll("[^a-zA-Z0-9 \\-':']","");
+				dn.childToId.put(id, s.getValue());
+				if (!firstChild)
+				{
+					tmp += " | ";
+				}
+				firstChild = false;
+				tmp += " <" + id + "> " + s.getKey();
+			}
+			tmp+="}";
 		}
 
 		resultString.append("\t" + dn.id + tmp + "}\"];\n");
@@ -162,12 +170,12 @@ public class DotGraphVisitor extends QuestionAdaptor<DotGraphVisitor.DotPair>
 		{
 			return;
 		}
-		
+
 		if(!(node instanceof LexNameToken))
 		{
-		visitedNodes.add(node);
+			visitedNodes.add(node);
 		}
-		
+
 		DotPair parentNode = new DotPair(createDotNode(question, node), null);
 
 		for (Entry<String, Object> field : node.getChildren(true).entrySet())
@@ -192,8 +200,8 @@ public class DotGraphVisitor extends QuestionAdaptor<DotGraphVisitor.DotPair>
 				{
 					childNode.apply(this, parentNode);
 				}
-			} else
-			// if (fieldObject instanceof ExternalNode)
+			} else if(includeTokens)
+				// if (fieldObject instanceof ExternalNode)
 			{
 				createDotNode(parentNode, fieldObject);
 			}

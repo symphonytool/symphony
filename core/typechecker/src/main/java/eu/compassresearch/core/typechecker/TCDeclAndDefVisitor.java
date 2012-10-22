@@ -3,50 +3,66 @@ package eu.compassresearch.core.typechecker;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.ALocalDefinition;
+import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.AValueDefinition;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.PPattern;
+import org.overture.ast.types.AClassType;
+import org.overture.ast.types.AFunctionType;
+import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.PType;
+
 import eu.compassresearch.ast.actions.SStatementAction;
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
+import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
-import eu.compassresearch.ast.definitions.AExplicitFunctionDefinition;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
-import eu.compassresearch.ast.definitions.ALocalDefinition;
 import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
-import eu.compassresearch.ast.definitions.ATypeDefinition;
+import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
-import eu.compassresearch.ast.definitions.AValueDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.expressions.PExp;
-import eu.compassresearch.ast.patterns.AIdentifierPattern;
-import eu.compassresearch.ast.patterns.PPattern;
 import eu.compassresearch.ast.typechecker.NameScope;
 import eu.compassresearch.ast.types.AChannelType;
-import eu.compassresearch.ast.types.AClassType;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.AFunctionParagraphType;
-import eu.compassresearch.ast.types.AFunctionType;
-import eu.compassresearch.ast.types.AOperationType;
+import eu.compassresearch.ast.types.AOperationParagraphType;
 import eu.compassresearch.ast.types.AProcessParagraphType;
+import eu.compassresearch.ast.types.AStateParagraphType;
 import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
-import eu.compassresearch.ast.types.PType;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
+import eu.compassresearch.core.typechecker.api.TypeComparator;
+import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 @SuppressWarnings("serial")
-public class TCDeclAndDefVisitor extends
-    QuestionAnswerAdaptor<TypeCheckQuestion, PType>
+class TCDeclAndDefVisitor extends
+    QuestionAnswerCMLAdaptor<TypeCheckQuestion, PType>
   {
     
     // Errors and other things are recorded on this guy
-    private VanillaCmlTypeChecker parentChecker;
+    private CmlTypeChecker         parentChecker;
+    private TypeComparator         typeComparator;
+    private final TypeIssueHandler issueHandler;
     
-    public TCDeclAndDefVisitor(VanillaCmlTypeChecker parent)
+    public TCDeclAndDefVisitor(CmlTypeChecker parent,
+        TypeComparator typeComparator, TypeIssueHandler issueHandler)
       {
         this.parentChecker = parent;
+        this.issueHandler = issueHandler;
+        this.typeComparator = typeComparator;
       }
     
     // -------------------------------------------------------
@@ -88,16 +104,15 @@ public class TCDeclAndDefVisitor extends
     public PType caseAValueDefinition(AValueDefinition node,
         TypeCheckQuestion question) throws AnalysisException
       {
-        // Use Overture to get type for expression
-        // runOvertureTypeCheckerOnCmlExpression(node.getExpression(),
-        // question);
+        // Acquire declared type and expression type
         PExp exp = node.getExpression();
         PType declaredType = node.getType().apply(parentChecker, question);
         PType expressionType = exp.apply(parentChecker, question);
+        node.setExpType(expressionType);
         
         // Check type consistency
-        if (!question.isFirstSubTypeOfSecond(expressionType, declaredType))
-          parentChecker.addTypeError(node,
+        if (!typeComparator.isSubType(expressionType, declaredType))
+          issueHandler.addTypeError(node,
               TypeErrorMessages.EXPECTED_SUBTYPE_RELATION.customizeMessage(
                   expressionType.toString(), declaredType.toString()));
         
@@ -178,11 +193,29 @@ public class TCDeclAndDefVisitor extends
           {
             PType defType = def.apply(parentChecker, question);
             if (defType == null)
-              parentChecker.addTypeError(def,
+              issueHandler.addTypeError(def,
                   TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
                       .customizeMessage(def.toString()));
             question.addVariable(def.getName(), def);
           }
+        
+        node.setType(new AOperationParagraphType());
+        return node.getType();
+      }
+    
+    @Override
+    public PType caseAStateParagraphDefinition(AStateParagraphDefinition node,
+        TypeCheckQuestion question) throws AnalysisException
+      {
+        
+        // Go through all the state defs and typecheck them
+        for (PDefinition def : node.getStateDefs())
+          {
+            def.apply(this, question);
+            question.addVariable(def.getName(), def);
+          }
+        
+        node.setType(new AStateParagraphType());
         
         return node.getType();
       }
@@ -209,6 +242,7 @@ public class TCDeclAndDefVisitor extends
         throws AnalysisException
       {
         
+        // TODO: Rethink the environment
         AProcessDefinition pdef = node.getProcessDefinition();
         pdef.apply(parentChecker, question);
         
@@ -220,21 +254,50 @@ public class TCDeclAndDefVisitor extends
       }
     
     @Override
+    public PType caseAProcessDefinition(AProcessDefinition node,
+        TypeCheckQuestion question) throws AnalysisException
+      {
+        
+        return node.getProcess().apply(this.parentChecker, question);
+      }
+    
+    @Override
+    public PType caseATypeSingleDeclaration(ATypeSingleDeclaration node,
+        TypeCheckQuestion question) throws AnalysisException
+      {
+        
+        AChannelType ctype = new AChannelType();
+        ctype.setType(node.getType());
+        node.setType(new AChannelType());
+        
+        for (LexIdentifierToken id : node.getIdentifiers())
+          {
+            question.addChannel(id, node);
+          }
+        
+        return node.getType();
+      }
+    
+    @Override
     public PType caseAChannelParagraphDefinition(
         AChannelParagraphDefinition node, TypeCheckQuestion question)
         throws AnalysisException
       {
         
-        LinkedList<AChannelNameDeclaration> cns = node.getChannelNames();
+        LinkedList<AChannelNameDeclaration> cns = node
+            .getChannelNameDeclarations();
         for (AChannelNameDeclaration decl : cns)
           {
-            PType typeBack = decl.apply(parentChecker, question);
+            PType typeBack = decl.getSingleType().apply(this, question); // decl.apply(parentChecker,
+                                                                         // question);
             if (typeBack == null)
-              parentChecker.addTypeError(decl,
+              issueHandler.addTypeError(decl,
                   TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-                      .customizeMessage(decl.getIdentifier().name));
+                      .customizeMessage(decl.toString()));
             else
-              question.addChannel(decl.getIdentifier(), decl);
+              for (LexIdentifierToken id : decl.getSingleType()
+                  .getIdentifiers())
+                question.addChannel(id, decl);
           }
         
         node.setType(new AChannelType());
@@ -353,14 +416,14 @@ public class TCDeclAndDefVisitor extends
         PExp body = node.getBody();
         body.apply(parentChecker, newQuestion);
         if (body.getType() == null)
-          parentChecker.addTypeError(body,
+          issueHandler.addTypeError(body,
               TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node
                   .getName().name));
         
         // Check funcType <: bodyType in question
         AFunctionType funcType = node.getType();
-        if (!question.isFirstSubTypeOfSecond(funcType, body.getType()))
-          parentChecker.addTypeError(body,
+        if (!typeComparator.isSubType(funcType, body.getType()))
+          issueHandler.addTypeError(body,
               TypeErrorMessages.EXPECTED_SUBTYPE_RELATION.customizeMessage(
                   funcType.toString(), body.getType().toString()));
         

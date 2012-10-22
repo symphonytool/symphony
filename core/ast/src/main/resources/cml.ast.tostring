@@ -4,11 +4,20 @@ import eu.compassresearch.ast.util.Utils;
 import eu.compassresearch.ast.util.ToStringUtil;
 
 
-//  Expressions
-
 %source->file = [name] 
 %source->inputStream = [origin]
 // %source->tcpStream = "" [ip] ":" [port] ""
+
+// Actions
+%action->specification = "[" +
+            $($[externals]$.isEmpty() ? "" : "\n\text " + $[externals]$) +
+            ($[precondition]$ == null ? "" : "\n\tpre " + $[precondition]$) +
+            ($[postcondition]$ == null ? "" : "\n\tpost " + $[postcondition]$) +
+            ($[errors]$.isEmpty() ? "" : "\n\terrs " + $[errors]$)$ + "]" 
+%action->communication = [identifier] "->" [action]
+%action->skip = "Skip"
+
+//  Expressions
 
 %exp->apply = [root] "(" + $Utils.listToString($ [args] $)$ + ")"
 %exp->boolean_const =  [value] 
@@ -212,11 +221,6 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %stm->#SimpleBlock->block = ""+$ToStringUtil.getBlockSimpleBlockString(this)$
 %stm->#SimpleBlock->nonDeterministic = ""+$ToStringUtil.getNonDeterministicSimpleBlockString(this)$
 %stm->skip = "skip"
-%action->specification = "[" +
-            $($[externals]$.isEmpty() ? "" : "\n\text " + $[externals]$) +
-            ($[precondition]$ == null ? "" : "\n\tpre " + $[precondition]$) +
-            ($[postcondition]$ == null ? "" : "\n\tpost " + $[postcondition]$) +
-            ($[errors]$.isEmpty() ? "" : "\n\terrs " + $[errors]$)$ + "]" 
 %stm->start = "start (" [obj] ")"
 %stm->subclassResponsibility = "is subclass responsibility"
 %stm->tixe = "tixe {" [traps] "} in " [body]

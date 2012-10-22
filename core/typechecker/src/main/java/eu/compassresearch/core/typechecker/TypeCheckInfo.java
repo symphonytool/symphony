@@ -1,29 +1,18 @@
 package eu.compassresearch.core.typechecker;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.overture.ast.definitions.AStateDefinition;
-import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.node.INode;
+import org.overture.ast.types.PType;
+import org.overture.ast.types.SBasicType;
 
 import eu.compassresearch.ast.declarations.PDeclaration;
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
-import eu.compassresearch.ast.lex.LexLocation;
-import eu.compassresearch.ast.node.INode;
-import eu.compassresearch.ast.types.AIntNumericBasicType;
-import eu.compassresearch.ast.types.ANatNumericBasicType;
-import eu.compassresearch.ast.types.ANatOneNumericBasicType;
-import eu.compassresearch.ast.types.ARationalNumericBasicType;
-import eu.compassresearch.ast.types.ARealNumericBasicType;
-import eu.compassresearch.ast.types.PType;
-import eu.compassresearch.ast.types.SBasicType;
+import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
  * TypeCheckInfo tracks the three scopes we care about in CML. These are
@@ -36,7 +25,7 @@ import eu.compassresearch.ast.types.SBasicType;
  * @author rwl
  * 
  */
-public class TypeCheckInfo implements TypeCheckQuestion
+class TypeCheckInfo implements TypeCheckQuestion
   {
     
     public final String                     CML_SCOPE     = "CML";
@@ -47,21 +36,40 @@ public class TypeCheckInfo implements TypeCheckQuestion
     private final Environment<PDeclaration> channels;
     
     private final PDefinition               enclosingDefinition;
+    private final TypeIssueHandler          issueHandler;
     
     private TypeCheckInfo(Environment<PDefinition> vars,
         Environment<PType> types, Environment<PDeclaration> channels,
-        PDefinition enclosingDefinition)
+        PDefinition enclosingDefinition, TypeIssueHandler issueHandler)
       {
-        this.variables = new Environment<PDefinition>(vars);
-        this.types = new Environment<PType>(types);
-        this.channels = new Environment<PDeclaration>(channels);
+        this.variables = new Environment<PDefinition>(vars, issueHandler);
+        this.types = new Environment<PType>(types, issueHandler);
+        this.channels = new Environment<PDeclaration>(channels, issueHandler);
         this.enclosingDefinition = enclosingDefinition;
+        this.issueHandler = issueHandler;
       }
     
-    public TypeCheckInfo()
+    /**
+     * Create a new Type Check Info at top level
+     * 
+     * 
+     * @param issueHandler
+     *          -- Where to report issues
+     * @return a fresh Type Check Info instance at top level
+     */
+    public static TypeCheckInfo getNewTopLevelInstance(
+        TypeIssueHandler issueHandler)
       {
-        this(new Environment<PDefinition>(), new Environment<PType>(),
-            new Environment<PDeclaration>(), null);
+        
+        Environment<PDefinition> variables = new Environment<PDefinition>(
+            issueHandler);
+        Environment<PType> types = new Environment<PType>(issueHandler);
+        PDefinition enclosingDefinition = null;
+        Environment<PDeclaration> channels = new Environment<PDeclaration>(
+            issueHandler);
+        
+        return new TypeCheckInfo(variables, types, channels,
+            enclosingDefinition, issueHandler);
       }
     
     @Override
@@ -106,130 +114,89 @@ public class TypeCheckInfo implements TypeCheckQuestion
         // Variables are scoped, types and channels are global (for now at
         // least)
         TypeCheckInfo res = new TypeCheckInfo(this.variables, types, channels,
-            def);
+            def, null);
         return res;
       }
     
-    @Override
-    public org.overture.typechecker.Environment getOvertureEnvironment()
-    
-      {
-        final org.overture.typechecker.Environment ve = variables
-            .getOvertureEnv();
-        final org.overture.typechecker.Environment te = types.getOvertureEnv();
-        
-        class CombinedEnv extends org.overture.typechecker.Environment
-          {
-            
-            public CombinedEnv()
-              {
-                super(null);
-              }
-            
-            @Override
-            public org.overture.ast.definitions.PDefinition findName(
-                LexNameToken name, NameScope scope)
-              {
-                return ve.findName(name, scope);
-              }
-            
-            @Override
-            public org.overture.ast.definitions.PDefinition findType(
-                LexNameToken name, String fromModule)
-              {
-                return te.findType(name, fromModule);
-              }
-            
-            @Override
-            public AStateDefinition findStateDefinition()
-              {
-                return null;
-              }
-            
-            @Override
-            public SClassDefinition findClassDefinition()
-              {
-                return null;
-              }
-            
-            @Override
-            public boolean isStatic()
-              {
-                return false;
-              }
-            
-            @Override
-            public void unusedCheck()
-              {
-                // TODO: Check this guy is invoked and make appropriate action
-                throw new RuntimeException(
-                    "Somebody better do something about this.");
-              }
-            
-            @Override
-            public boolean isVDMPP()
-              {
-                return true;
-              }
-            
-            @Override
-            public boolean isSystem()
-              {
-                return false;
-              }
-            
-            @Override
-            public Set<org.overture.ast.definitions.PDefinition> findMatches(
-                LexNameToken name)
-              {
-                return ve.findMatches(name);
-              }
-            
-          }
-        ;
-        return new CombinedEnv();
-      }
-    
-    private static final Map<Class<?>, List<Class<?>>> fixedSubTypeRelations;
-    static
-      {
-        fixedSubTypeRelations = new HashMap<Class<?>, List<Class<?>>>();
-        fixedSubTypeRelations.put(AIntNumericBasicType.class,
-            Arrays.asList(new Class<?>[] { ANatNumericBasicType.class }));
-        fixedSubTypeRelations.put(ANatNumericBasicType.class,
-            Arrays.asList(new Class<?>[] { ANatOneNumericBasicType.class }));
-        fixedSubTypeRelations.put(ARationalNumericBasicType.class,
-            Arrays.asList(new Class<?>[] { AIntNumericBasicType.class }));
-        fixedSubTypeRelations.put(
-            ARealNumericBasicType.class,
-            Arrays.asList(new Class<?>[] { AIntNumericBasicType.class,
-        ARationalNumericBasicType.class }));
-      }
-    
-    private static boolean checkClosureOnFixedTypeRelation(Class<?> top,
-        Class<?> bottom)
-      {
-        if (top == bottom)
-          return true;
-        
-        if (fixedSubTypeRelations.containsKey(top))
-          {
-            boolean f = false;
-            for (Class<?> candidate : fixedSubTypeRelations.get(top))
-              f |= checkClosureOnFixedTypeRelation(candidate, bottom);
-            return f;
-          }
-        
-        return false;
-      }
-    
-    @Override
-    public boolean isFirstSubTypeOfSecond(PType first, PType second)
-      {
-        return first.getClass() == second.getClass()
-            || checkClosureOnFixedTypeRelation(second.getClass(),
-                first.getClass());
-      }
+//    @Override
+//    public org.overture.typechecker.Environment getOvertureEnvironment()
+//    
+//      {
+//        final org.overture.typechecker.Environment ve = variables
+//            .getOvertureEnv();
+//        final org.overture.typechecker.Environment te = types.getOvertureEnv();
+//        
+//        class CombinedEnv extends org.overture.typechecker.Environment
+//          {
+//            
+//            public CombinedEnv()
+//              {
+//                super(null);
+//              }
+//            
+//            @Override
+//            public org.overture.ast.definitions.PDefinition findName(
+//                LexNameToken name, NameScope scope)
+//              {
+//                return ve.findName(name, scope);
+//              }
+//            
+//            @Override
+//            public org.overture.ast.definitions.PDefinition findType(
+//                LexNameToken name, String fromModule)
+//              {
+//                return te.findType(name, fromModule);
+//              }
+//            
+//            @Override
+//            public AStateDefinition findStateDefinition()
+//              {
+//                return null;
+//              }
+//            
+//            @Override
+//            public SClassDefinition findClassDefinition()
+//              {
+//                return null;
+//              }
+//            
+//            @Override
+//            public boolean isStatic()
+//              {
+//                return false;
+//              }
+//            
+//            @Override
+//            public void unusedCheck()
+//              {
+//                // TODO: Check this guy is invoked and make appropriate action
+//                throw new RuntimeException(
+//                    "Somebody better do something about this.");
+//              }
+//            
+//            @Override
+//            public boolean isVDMPP()
+//              {
+//                return true;
+//              }
+//            
+//            @Override
+//            public boolean isSystem()
+//              {
+//                return false;
+//              }
+//            
+//            @Override
+//            public Set<org.overture.ast.definitions.PDefinition> findMatches(
+//                LexNameToken name)
+//              {
+//                return ve.findMatches(name);
+//              }
+//            
+//          }
+//        ;
+//        return new CombinedEnv();
+//      }
     
     @Override
     public void updateContextNameToCurrentScope(INode n)
@@ -252,7 +219,7 @@ public class TypeCheckInfo implements TypeCheckQuestion
             {
               Class<?> clz = n.getClass();
               Method getLocation = clz.getMethod("getName", new Class<?>[0]);
-              eu.compassresearch.ast.lex.LexNameToken loc = (eu.compassresearch.ast.lex.LexNameToken) getLocation
+              LexNameToken loc = (LexNameToken) getLocation
                   .invoke(n, new Object[0]);
               Method setLocation = clz.getMethod("setName",
                   new Class<?>[] { LexLocation.class });
@@ -263,14 +230,14 @@ public class TypeCheckInfo implements TypeCheckQuestion
             }
       }
     
-    private Object newNameModule(eu.compassresearch.ast.lex.LexNameToken nme,
+    private Object newNameModule(LexNameToken nme,
         String name)
       {
         if (enclosingDefinition != null)
           {
             String module = enclosingDefinition.getName().name;
             LexIdentifierToken id = nme.getIdentifier();
-            nme = new eu.compassresearch.ast.lex.LexNameToken(module, id);
+            nme = new LexNameToken(module, id);
           }
         return nme;
       }

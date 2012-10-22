@@ -21,23 +21,36 @@
   import java.io.Reader;
   import java.lang.reflect.*;
   import eu.compassresearch.ast.definitions.*;
+  import org.overture.ast.definitions.*;
   import eu.compassresearch.ast.declarations.*;
   import eu.compassresearch.ast.expressions.*;
+  import org.overture.ast.expressions.*;
+  import org.overture.ast.statements.*;
   import eu.compassresearch.ast.actions.*;
   import eu.compassresearch.ast.process.*;
   import eu.compassresearch.ast.patterns.*;
+  import org.overture.ast.patterns.*;
   import eu.compassresearch.ast.program.*;
   import eu.compassresearch.ast.types.*;
-  import eu.compassresearch.ast.lex.*;
-  import eu.compassresearch.ast.lex.LexToken;
-  import eu.compassresearch.ast.typechecker.NameScope;
-  import eu.compassresearch.ast.node.*;
-  import eu.compassresearch.ast.node.tokens.*;
-  import eu.compassresearch.ast.preview.*;
-  import eu.compassresearch.ast.util.*;
+  import org.overture.ast.types.*;
+  //  import eu.compassresearch.ast.lex.*;
+  // import eu.compassresearch.ast.lex.LexToken;
+  import org.overture.ast.lex.*;
+  //  import eu.compassresearch.ast.typechecker.NameScope;
+  import org.overture.ast.typechecker.NameScope;
+  //  import eu.compassresearch.ast.node.*;
+  import org.overture.ast.node.*;
+  //  import eu.compassresearch.ast.node.tokens.*;
+  import org.overture.ast.node.tokens.*;
+  //  import eu.compassresearch.ast.preview.*;
+  import org.overture.ast.preview.*;
+  //  import eu.compassresearch.ast.util.*;
+  import org.overture.ast.util.*;
   import eu.compassresearch.core.lexer.CmlLexeme;
   import eu.compassresearch.core.lexer.CmlLexer;
   import eu.compassresearch.core.lexer.Position;
+  import eu.compassresearch.ast.definitions.AImplicitOperationDefinition;
+  import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
 }
 
 %code{
@@ -128,12 +141,26 @@
       return name;
   }
 
-  private AAccessSpecifier getDefaultAccessSpecifier(boolean isStatic, boolean isAsync, LexLocation loc)
+  private AAccessSpecifierAccessSpecifier getDefaultAccessSpecifier(boolean isStatic, boolean isAsync, LexLocation loc)
   {
-    return new AAccessSpecifier(new APublicAccess(),
-                                (isStatic ? new TStatic() : null),
-                                (isAsync ? new TAsync() : null),loc);
+    /* return new AAccessSpecifierAccessSpecifier(new APublicAccess(), */
+    /*                             (isStatic ? new TStatic() : null), */
+    /*                             (isAsync ? new TAsync() : null),loc); */
 
+    return new AAccessSpecifierAccessSpecifier(new APublicAccess(),
+                                (isStatic ? new TStatic() : null),
+                                (isAsync ? new TAsync() : null));
+
+  }
+
+  private AAccessSpecifierAccessSpecifier getPrivateAccessSpecifier(boolean isStatic, boolean isAsync, LexLocation loc)
+  {
+    /* return new AAccessSpecifierAccessSpecifier(new APrivateAccess(), */
+    /*                             (isStatic ? new TStatic() : null), */
+    /*                             (isAsync ? new TAsync() : null),loc); */
+    return new AAccessSpecifierAccessSpecifier(new APrivateAccess(),
+                                (isStatic ? new TStatic() : null),
+                                (isAsync ? new TAsync() : null));
   }
 
   private LexToken extractLexToken(CmlLexeme lexeme)
@@ -575,8 +602,10 @@ classDefinition :
                                        extractLexNameToken($2),
                                        NameScope.CLASSNAME,
                                        false,
+				       null,//ClassDefinition
                                        getDefaultAccessSpecifier(false,false,null),
                                        null/*PType type_  should this be the namedInvariantType*/,
+				       null,//Pass
                                        (List<? extends PDefinition>)$classDefinitionBlock,
                                        new LinkedList<PType>() /* supertypes_*/,
                                        supernames,
@@ -601,20 +630,22 @@ processDefinition:
 PROCESS IDENTIFIER EQUALS processDef
 {
     AProcessDefinition processDef = (AProcessDefinition)$processDef;
-    LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$IDENTIFIER);
+    LexNameToken id = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+    processDef.setName(id);
     LexLocation location = extractLexLocation((CmlLexeme)$PROCESS,
 					      processDef.getLocation());
-    AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+    AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
     processDef.setName(id);
 
     AProcessParagraphDefinition p = new AProcessParagraphDefinition(location,
-					 id,
-					 NameScope.PROCESSNAME, 
-					 false, 
-					 access,
-					 null,
-					 processDef);
-    p.setName(id);
+								    id,
+								    NameScope.PROCESSNAME, 
+								    false, 
+								    null,//VDM ClassDefinition
+								    access,
+								    null,//Type
+								    null,//Pass
+								    processDef);
     $$ = p;
 }
 ;
@@ -627,23 +658,25 @@ processDef :
     LexLocation loc = combineLexLocation(extractFirstLexLocation(decls),
 					 process.getLocation());
     // by default a process is public
-    AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
+    AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
     
     $$ = new AProcessDefinition(loc,
 				NameScope.GLOBAL,
 				false,
 				access,
+				null,//Pass
 				decls,
 				process);
 }
 | process
 {
     PProcess process = (PProcess)$process;
-    AAccessSpecifier access = getDefaultAccessSpecifier(true, false, process.getLocation());
+    AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, process.getLocation());
     $$ = new AProcessDefinition(process.getLocation(),
 				NameScope.GLOBAL,
 				false,
 				access,
+				null,//Pass
 				null,
 				process);
 }
@@ -654,16 +687,16 @@ process :
   BEGIN AT action END
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4);
-  List<PDeclaration> processDeclarations = null;
+  List<SParagraphDefinition> processParagraphs = null;
   PAction action = (PAction)$3;
-  $$ = new AStateProcess(location, processDeclarations, action);
+  $$ = new AStateProcess(location, processParagraphs, action);
 }
 | BEGIN processParagraphList AT action END
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$5);
-  List<PDeclaration> processDeclarations = (List<PDeclaration>)$2;
+  List<SParagraphDefinition> processParagraphs = (List<SParagraphDefinition>)$processParagraphList;
   PAction action = (PAction)$4;
-  $$ = new AStateProcess(location, processDeclarations, action);
+  $$ = new AStateProcess(location, processParagraphs, action);
 }
 /* actions end */
 | process SEMI process
@@ -976,8 +1009,8 @@ processParagraph :
 {
   List<AActionDefinition> actionDefinitions = (List<AActionDefinition>)$2;
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$1), extractLastLexLocation(actionDefinitions));
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
-  $$ = new AActionParagraphDefinition( loc, NameScope.LOCAL, false, access, actionDefinitions);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
+  $$ = new AActionParagraphDefinition( loc, NameScope.LOCAL, false, access,null/*Pass*/, actionDefinitions);
 }
 | NAMESETS // TODO
 | NAMESETS namesetDefList // TODO
@@ -1005,7 +1038,13 @@ actionDefinition :
   List<ATypeSingleDeclaration> declarations = (List<ATypeSingleDeclaration>)pa[0];
   PAction action = (PAction)pa[1];
   LexLocation defLocation = combineLexLocation(extractLexLocation((CmlLexeme)$1), action.getLocation());
-  AActionDefinition actionDefinition = new AActionDefinition(defLocation, NameScope.LOCAL, false, null, declarations, action);
+  AActionDefinition actionDefinition = new AActionDefinition(defLocation, 
+							     NameScope.LOCAL, 
+							     false, 
+							     null,//Access
+							     null,//Pass
+							     declarations, 
+							     action);
   $$ = actionDefinition;
 }
 ;
@@ -1549,7 +1588,7 @@ communication[result] :
 	LexLocation location = extractLexLocation((CmlLexeme)$QUESTION,setbind.getLocation());
 	AReadCommunicationParameter param = new AReadCommunicationParameter(location, 
 									    parameter, 
-									    setbind.getSet());
+									    (PExp)setbind.getSet());
 	comAction.getCommunicationParameters().add(param);
 	$$ = comAction;
     }
@@ -1694,11 +1733,12 @@ channelDefinition :
 {
   List<AChannelNameDeclaration> chanNameDecls = new Vector<AChannelNameDeclaration>();
   LexLocation location = extractLexLocation((CmlLexeme)$CHANNELS);
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   AChannelParagraphDefinition channelDefinition = new AChannelParagraphDefinition(location,
                                                                                   NameScope.GLOBAL,
                                                                                   false,
                                                                                   access,
+										  null,//Pass
                                                                                   chanNameDecls);
   $$ = channelDefinition;
 }
@@ -1709,11 +1749,12 @@ channelDefinition :
   LexLocation end = (chanNameDecls != null && chanNameDecls.size() > 0) ?
     chanNameDecls.get(chanNameDecls.size()-1).getLocation() : start;
   LexLocation location = combineLexLocation(start, end);
-  AAccessSpecifier access = getDefaultAccessSpecifier( true,false,start);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier( true,false,start);
   AChannelParagraphDefinition channelDefinition = new AChannelParagraphDefinition(location,
                                                                                   NameScope.GLOBAL,
                                                                                   false,
                                                                                   access,
+										  null,//Pass
                                                                                   chanNameDecls);
   $$ = channelDefinition;
 }
@@ -1722,11 +1763,12 @@ channelDefinition :
   List<AChannelNameDeclaration> chanNameDecls = (List<AChannelNameDeclaration>)$channelDef;
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$CHANNELS),
                                             extractLexLocation((CmlLexeme)$SEMI));
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   AChannelParagraphDefinition channelDefinition = new AChannelParagraphDefinition(location,
                                                                                   NameScope.GLOBAL,
                                                                                   false,
                                                                                   access,
+										  null,//Pass
                                                                                   chanNameDecls);
   $$ = channelDefinition;
 }
@@ -1764,13 +1806,13 @@ channelNameDecl :
   LexLocation end = nameList.get(ids.size()-1).getLocation();
   LexLocation location = combineLexLocation(start, end);
   ATypeSingleDeclaration singleTypeDeclaration = new ATypeSingleDeclaration(location, NameScope.GLOBAL, ids, null);
-  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location, NameScope.GLOBAL, null,  singleTypeDeclaration);
+  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location, NameScope.GLOBAL, singleTypeDeclaration);
   $$ = channelNameDecl;
 }
 | singleTypeDeclaration
 {
   ATypeSingleDeclaration singleTypeDeclaration = (ATypeSingleDeclaration)$1;
-  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(singleTypeDeclaration.getLocation(), NameScope.GLOBAL, null, singleTypeDeclaration);
+  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(singleTypeDeclaration.getLocation(), NameScope.GLOBAL, singleTypeDeclaration);
   $$ = channelNameDecl;
 }
 ;
@@ -1815,16 +1857,18 @@ chansetDefinitionParagraph :
   CHANSETS
 {
   LexLocation loc = extractLexLocation((CmlLexeme)$CHANSETS);
-  AAccessSpecifier access = new AAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync(),loc);
-  AChansetParagraphDefinition chansetParagraph = new AChansetParagraphDefinition(loc, NameScope.GLOBAL, false, access, null);
+  //AAccessSpecifierAccessSpecifier access = new AAccessSpecifierAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync(),loc);
+  AAccessSpecifierAccessSpecifier access = new AAccessSpecifierAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync());
+  AChansetParagraphDefinition chansetParagraph = new AChansetParagraphDefinition(loc, NameScope.GLOBAL, false, access, null/*Pass*/,new LinkedList<AChansetDefinition>() );
   $$ = chansetParagraph;
 }
 | CHANSETS chansetDefinitionList
 {
   LexLocation loc = extractLexLocation((CmlLexeme)$CHANSETS);
   List<AChansetDefinition> chansetDefinitions = (List<AChansetDefinition>)$2;
-  AAccessSpecifier access = new AAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync(),loc);
-  AChansetParagraphDefinition chansetParagraph = new AChansetParagraphDefinition(loc, NameScope.GLOBAL, false, access, chansetDefinitions);
+  //AAccessSpecifierAccessSpecifier access = new AAccessSpecifierAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync(),loc);
+  AAccessSpecifierAccessSpecifier access = new AAccessSpecifierAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync());
+  AChansetParagraphDefinition chansetParagraph = new AChansetParagraphDefinition(loc, NameScope.GLOBAL, false, access,null/*Pass*/, chansetDefinitions);
   $$ = chansetParagraph;
  }
 | CHANSETS chansetDefinitionList SEMI
@@ -1832,8 +1876,10 @@ chansetDefinitionParagraph :
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$CHANSETS),
                                        extractLexLocation((CmlLexeme)$SEMI));
   List<AChansetDefinition> chansetDefinitions = (List<AChansetDefinition>)$2;
-  AAccessSpecifier access = new AAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync(),loc);
-  AChansetParagraphDefinition chansetParagraph = new AChansetParagraphDefinition(loc, NameScope.GLOBAL, false, access, chansetDefinitions);
+  //AAccessSpecifierAccessSpecifier access = new AAccessSpecifierAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync(),loc);
+  AAccessSpecifierAccessSpecifier access = new AAccessSpecifierAccessSpecifier(new APublicAccess(), new TStatic(), new TAsync());
+  
+  AChansetParagraphDefinition chansetParagraph = new AChansetParagraphDefinition(loc, NameScope.GLOBAL, false, access,null/*Pass*/, chansetDefinitions);
   $$ = chansetParagraph;
  }
 ;
@@ -1865,7 +1911,13 @@ chansetDefinition :
   LexIdentifierToken idToken = extractLexIdentifierToken((CmlLexeme)$1);
   PExp chansetExp = (PExp)$3;
   LexLocation location = combineLexLocation(idToken.getLocation(), chansetExp.getLocation());
-  $$ = new AChansetDefinition(location, NameScope.GLOBAL, false/*used_*/, null, /*AAccessSpecifierAccessSpecifier access_*/ idToken, chansetExp);
+  $$ = new AChansetDefinition(location, 
+			      NameScope.GLOBAL, 
+			      false/*used_*/, 
+			      null/*AAccessSpecifierAccessSpecifierAccessSpecifier access_*/,  
+			      null/*Pass*/,
+			      idToken, 
+			      chansetExp);
 }
 ;
 
@@ -1936,6 +1988,7 @@ classDefinitionBlockAlternative :
                                          NameScope.GLOBAL,
                                          true,
                                          getDefaultAccessSpecifier(false,false,null),
+					 null/*Pass*/,
                                          def);
 }
 | INITIAL operationDef SEMI
@@ -1947,6 +2000,7 @@ classDefinitionBlockAlternative :
                                          NameScope.GLOBAL,
                                          true,
                                          getDefaultAccessSpecifier(false,false,null),
+					 null/*Pass*/,
                                          def);
 }
 ;
@@ -1955,24 +2009,24 @@ typeDefs :
   TYPES
 {
   LexLocation loc = extractLexLocation((CmlLexeme)$TYPES);
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
-  $$ = new ATypesParagraphDefinition( loc, NameScope.LOCAL, false, access, null);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
+  $$ = new ATypesParagraphDefinition( loc, NameScope.LOCAL, false, access,null/*Pass*/, null);
 }
 | TYPES typeDefList
 {
   List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$TYPES),
                                        extractLastLexLocation(typeDefinitions));
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
-  $$ = new ATypesParagraphDefinition( loc, NameScope.LOCAL, false, access, typeDefinitions);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
+  $$ = new ATypesParagraphDefinition( loc, NameScope.LOCAL, false, access,null/*Pass*/, typeDefinitions);
 }
 | TYPES typeDefList SEMI
 {
   List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$TYPES),
                                        extractLexLocation((CmlLexeme)$SEMI));
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
-  $$ = new ATypesParagraphDefinition( loc, NameScope.LOCAL, false, access, typeDefinitions);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
+  $$ = new ATypesParagraphDefinition( loc, NameScope.LOCAL, false, access,null/*Pass*/, typeDefinitions);
 }
 ;
 
@@ -1994,101 +2048,110 @@ typeDefList :
 typeDef :
   qualifier IDENTIFIER EQUALS type invariant
 {
-  AAccessSpecifier access = (AAccessSpecifier)$1;
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
   LexNameToken name = extractLexNameToken((CmlLexeme)$2);
   AInvariantDefinition inv = (AInvariantDefinition)$5;
   //SInvariantType inv = (SInvariantType)$5;
   LexLocation location = null;
-  if (access.getLocation() != null) {
-    location = combineLexLocation(access.getLocation(), inv.getLocation());
-  } else {
-    location = combineLexLocation(name.getLocation(), inv.getLocation());
-  }
+  /* if (access.getLocation() != null) { */
+  /*   location = combineLexLocation(access.getLocation(), inv.getLocation()); */
+  /* } else { */
+  location = combineLexLocation(name.getLocation(), inv.getLocation());
+  /* } */
   ATypeDefinition typeDef = new ATypeDefinition(location,
-                                                name,
-                                                NameScope.TYPENAME,
+						NameScope.TYPENAME,
                                                 false/*Boolean used_*/,
-                                                access,
+                                                null/*VDM ClassDef*/,
+						access,
                                                 (PType)$type,
+						null/*Pass*/,
                                                 null/*SInvariantType invType_*/,
                                                 inv.getPattern()/*PPattern invPattern_*/,
                                                 inv.getExpression()/*PExp invExpression_*/,
                                                 null /*AExplicitFunctionDefinition invdef_*/,
-                                                false/*Boolean infinite_*/);
+                                                false/*Boolean infinite_*/,
+						name);
   $$ = typeDef;
 }
 | qualifier IDENTIFIER EQUALS type
 {
-  AAccessSpecifier access = (AAccessSpecifier)$1;
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
   LexNameToken name = extractLexNameToken((CmlLexeme)$2);
   LexLocation location = null;
-  if (access.getLocation() != null) {
-    location = combineLexLocation(access.getLocation(), ((PType)$type).getLocation());
-  } else {
-      location = combineLexLocation(name.getLocation(), ((PType)$type).getLocation());
-  }
+  /* if (access.getLocation() != null) { */
+  /*   location = combineLexLocation(access.getLocation(), ((PType)$type).getLocation()); */
+  /* } else { */
+  location = combineLexLocation(name.getLocation(), ((PType)$type).getLocation());
+  /* } */
   $$ = new ATypeDefinition(location,
-                           name,
-                           NameScope.TYPENAME,
+			   NameScope.TYPENAME,
                            false/*Boolean used_*/,
+			   null/*VDM ClassDef*/,
                            access,
                            (PType)$type,
+			   null/*Pass*/,
                            null/*SInvariantType invType_*/,
                            null/*PPattern invPattern_*/,
                            null/*PExp invExpression_*/,
                            null /*AExplicitFunctionDefinition invdef_*/,
-                           false/*Boolean infinite_*/);
+                           false/*Boolean infinite_*/,
+			   name);
 }
 | qualifier IDENTIFIER DCOLON fieldList
 {
-  AAccessSpecifier access = (AAccessSpecifier)$1;
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
   LexNameToken name = extractLexNameToken((CmlLexeme)$2);
   CmlLexeme vdmrec = (CmlLexeme)$3;
   List<AFieldField> fields = (List<AFieldField>)$4;
   LexLocation loc = null;
-  if(access.getLocation() != null)
-    loc = combineLexLocation(access.getLocation(), extractLexLocation(vdmrec));
-  else
+  /* if(access.getLocation() != null) */
+  /*   loc = combineLexLocation(access.getLocation(), extractLexLocation(vdmrec)); */
+  /* else */
     loc = combineLexLocation(name.getLocation(), extractLexLocation(vdmrec));
   ARecordInvariantType recType = new ARecordInvariantType(loc, false, null, false, null, name, fields, true);
   ATypeDefinition res = new ATypeDefinition(loc,
-                                            name,
-                                            NameScope.GLOBAL,
+					    NameScope.GLOBAL,
                                             false,
+					    null/*VDM ClassDef*/,
                                             access,
                                             recType,
+					    null/*Pass*/,
                                             null,
                                             null,
                                             null,
                                             null,
-                                            true);
+                                            true,
+					    name);
   $$ = res;
 }
 | qualifier IDENTIFIER DCOLON fieldList invariant
 {
-  AAccessSpecifier access = (AAccessSpecifier)$1;
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
   LexNameToken name = extractLexNameToken((CmlLexeme)$2);
   CmlLexeme vdmrec = (CmlLexeme)$3;
   List<AFieldField> fields = (List<AFieldField>)$4;
   // TODO: Added AInvariantInvariant to the ARecordInvariantType replacing
   // the current AExplicitFunctionFunctionDefinition for inv.
   LexLocation loc = null;
-  if(access.getLocation() != null)
-    loc = combineLexLocation(access.getLocation(), extractLexLocation(vdmrec));
-  else
+  /* if(access.getLocation() != null) */
+  /*   loc = combineLexLocation(access.getLocation(), extractLexLocation(vdmrec)); */
+  /* else */
     loc = combineLexLocation(name.getLocation(), extractLexLocation(vdmrec));
   ARecordInvariantType recType = new ARecordInvariantType(loc, false, null, false, null, name, fields, true);
   ATypeDefinition res = new ATypeDefinition(loc,
-                                            name,
+                                            
                                             NameScope.TYPENAME,
                                             false,
+					    null/*VDM ClassDef*/,
                                             access,
                                             recType,
+					    null/*Pass*/,
                                             null,
                                             null,
                                             null,
                                             null,
-                                            true);
+                                            true,
+					    name);
   $$ = res;
 }
 ;
@@ -2103,24 +2166,27 @@ qualifier :
   PRIVATE
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1);
-  AAccessSpecifier res = new AAccessSpecifier();
+  AAccessSpecifierAccessSpecifier res = new AAccessSpecifierAccessSpecifier();
   res.setAccess(new APrivateAccess());
-  res.setLocation(location);
+  //FIXME: We should add location to the Accessspecifier
+  //res.setLocation(location);
   $$ = res;
 }
 | PROTECTED
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1);
-  AAccessSpecifier res = new AAccessSpecifier();
-  res.setLocation(location);
+  AAccessSpecifierAccessSpecifier res = new AAccessSpecifierAccessSpecifier();
+  //FIXME: We should add location to the Accessspecifier
+  //res.setLocation(location);
   res.setAccess(new AProtectedAccess());
   $$ = res;
 }
 | PUBLIC
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1);
-  AAccessSpecifier res = new AAccessSpecifier();
-  res.setLocation(location);
+  AAccessSpecifierAccessSpecifier res = new AAccessSpecifierAccessSpecifier();
+  //FIXME: We should add location to the Accessspecifier
+  //res.setLocation(location);
   res.setAccess(new APublicAccess());
   $$ = res;
 }
@@ -2134,12 +2200,13 @@ qualifier :
 | LOGICAL
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1);
-  $$ = new AAccessSpecifier(new ALogicalAccess(), null, null, location);
+  //$$ = new AAccessSpecifierAccessSpecifier(new ALogicalAccess(), null, null, location);
+  $$ = new AAccessSpecifierAccessSpecifier(new ALogicalAccess(), null, null);
 }
 | /* empty */
 {
   /*Default private*/
-  AAccessSpecifier a = new AAccessSpecifier();
+  AAccessSpecifierAccessSpecifier a = new AAccessSpecifierAccessSpecifier();
   a.setAccess(new APrivateAccess());
   $$ = a;
 }
@@ -2164,8 +2231,12 @@ type :
     List<AFieldField> fields = (List<AFieldField>)$fieldList;
     $$ = new ARecordInvariantType(extractLexLocation((CmlLexeme)$1,(CmlLexeme)$END),
                                   false,
+				  null,//definitions
+				  false,//opaque
+				  null,//invdef
                                   extractLexNameToken($IDENTIFIER),
-                                  (List<? extends AFieldField>)$fieldList);
+                                  (List<? extends AFieldField>)$fieldList,
+				  false/*infinite_*/);
 }
 | type BAR type // unionType
 {
@@ -2417,18 +2488,20 @@ field :
 invariant :
   INV pattern DEQUALS expression
 {
-  LexIdentifierToken name = null; // cannot be desided here
+  LexNameToken name = null; // cannot be desided here
   CmlLexeme vdmInvLexeme = (CmlLexeme)$1;
   PExp exp = (PExp)$4;
   LexLocation loc = extractLexLocation(vdmInvLexeme, exp.getLocation());
-  AAccessSpecifier access = getDefaultAccessSpecifier( true, true, loc );
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier( true, true, loc );
   PType type = null; // will be decided later
   $$ = new AInvariantDefinition(loc,
                                 name,
                                 NameScope.LOCAL,
                                 false,
+				null,//VDM ClassDef
                                 access,
                                 type,
+				null,//Pass
                                 (PPattern)$2,
                                 exp);
 }
@@ -2446,34 +2519,37 @@ valueDefs :
 {
   List<PDefinition> defs = new Vector<PDefinition>();
   LexLocation location = extractLexLocation((CmlLexeme)$VALUES);
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   $$ = new AValueParagraphDefinition(location,
                                      NameScope.NAMES,
                                      false,
-                                     access,
-                                     defs);
+				     access,
+                                     null,//Pass
+				     defs);
 }
 | VALUES valueDefList
 {
   List<PDefinition> defs = (List<PDefinition>)$valueDefList;
   LexLocation location = extractLexLocation((CmlLexeme)$VALUES,
                                             extractLastLexLocation(defs));
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   $$ = new AValueParagraphDefinition(location,
                                      NameScope.NAMES,
                                      false,
                                      access,
+				     null,//Pass
                                      defs);
 }
 | VALUES valueDefList SEMI
 {
   List<PDefinition> defs = (List<PDefinition>)$valueDefList;
   LexLocation location = extractLexLocation((CmlLexeme)$VALUES, (CmlLexeme)$SEMI);
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   $$ = new AValueParagraphDefinition(location,
                                      NameScope.NAMES,
                                      false,
                                      access,
+				     null,//Pass
                                      defs);
 }
 ;
@@ -2497,7 +2573,7 @@ valueDefList :
 qualifiedValueDef :
   qualifier valueDef
 {
-  AAccessSpecifier access = (AAccessSpecifier)$1;
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
   PDefinition def = (PDefinition)$2;
   def.setAccess(access);
   $$ = def;
@@ -2521,6 +2597,9 @@ valueDef :
   vdef.setDefs(null);
   vdef.setLocation(combineLexLocation(idp.getLocation(), expression.getLocation()));
   vdef.setName(lnt);
+  vdef.setUsed(false);
+  vdef.setAccess(getPrivateAccessSpecifier(false,false,lnt.location));
+  vdef.setNameScope(NameScope.LOCAL);
   $$ = vdef;
 }
 | patternLessID COLON type EQUALS expression
@@ -2535,6 +2614,8 @@ valueDef :
   vdef.setDefs(null);
   vdef.setLocation(combineLexLocation(pattern.getLocation(), expression.getLocation()));
   vdef.setName(new LexNameToken("Default", "plesstypeexp",vdef.getLocation(), false, false));
+  vdef.setAccess(getPrivateAccessSpecifier(false,false,vdef.getLocation()));
+  vdef.setNameScope(NameScope.LOCAL);
   $$ = vdef;
 }
 | IDENTIFIER EQUALS expression
@@ -2542,13 +2623,15 @@ valueDef :
   CmlLexeme id = (CmlLexeme)$1;
   PExp expression = (PExp)$3;
   LexNameToken lnt = extractLexNameToken(id);
-  AIdentifierPattern idp = new AIdentifierPattern(lnt.location, null, false, lnt);
+  AIdentifierPattern idp = new AIdentifierPattern(lnt.location, null, false, lnt, false/*constrained*/);
   AValueDefinition vdef = new AValueDefinition();
   vdef.setPattern(idp);
   vdef.setType(null);
   vdef.setExpression(expression);
   vdef.setDefs(null);
   vdef.setLocation(combineLexLocation(idp.getLocation(), expression.getLocation()));
+  vdef.setAccess(getPrivateAccessSpecifier(false,false,new LexLocation()));
+  vdef.setNameScope(NameScope.LOCAL);
   $$ = vdef;
 }
 | patternLessID EQUALS expression
@@ -2561,6 +2644,8 @@ valueDef :
   vdef.setExpression(expression);
   vdef.setDefs(null);
   vdef.setLocation(combineLexLocation(pattern.getLocation(), expression.getLocation()));
+  vdef.setAccess(getPrivateAccessSpecifier(false,false,new LexLocation()));
+  vdef.setNameScope(NameScope.LOCAL);
   $$ = vdef;
 }
 ;
@@ -2569,34 +2654,37 @@ functionDefs :
   FUNCTIONS
 {
   LexLocation location = extractLexLocation((CmlLexeme)$FUNCTIONS);
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
-  List<SFunctionDefinition> functionDefs = new LinkedList<SFunctionDefinition>();
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  List<PDefinition> functionDefs = new LinkedList<PDefinition>();
   $$ = new AFunctionParagraphDefinition(location,
                                         NameScope.GLOBAL,
                                         false,
                                         access,
+					null,//Pass
                                         functionDefs);
 }
 | FUNCTIONS functionDefList
 {
   LexLocation location = extractLexLocation((CmlLexeme)$FUNCTIONS);
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
-  List<SFunctionDefinition> functionDefs = (List<SFunctionDefinition>)$functionDefList;
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  List<PDefinition> functionDefs = (List<PDefinition>)$functionDefList;
   $$ = new AFunctionParagraphDefinition(location,
                                         NameScope.GLOBAL,
                                         false,
                                         access,
+					null,//Pass
                                         functionDefs);
 }
 | FUNCTIONS functionDefList SEMI
 {
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$FUNCTIONS), extractLexLocation((CmlLexeme)$SEMI));
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
-  List<SFunctionDefinition> functionDefs = (List<SFunctionDefinition>)$functionDefList;
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  List<PDefinition> functionDefs = (List<PDefinition>)$functionDefList;
   $$ = new AFunctionParagraphDefinition(location,
                                         NameScope.GLOBAL,
                                         false,
                                         access,
+					null,//Pass
                                         functionDefs);
 }
 ;
@@ -2604,14 +2692,14 @@ functionDefs :
 functionDefList :
   functionDef
 {
-  List<SFunctionDefinition> functionList = new Vector<SFunctionDefinition>();
-  functionList.add((SFunctionDefinition)$functionDef);
+  List<PDefinition> functionList = new Vector<PDefinition>();
+  functionList.add((PDefinition)$functionDef);
   $$ = functionList;
 }
 | functionDefList[list] SEMI functionDef
 {
-  List<SFunctionDefinition> functionList = (List<SFunctionDefinition>)$list;
-  functionList.add((SFunctionDefinition)$functionDef);
+  List<PDefinition> functionList = (List<PDefinition>)$list;
+  functionList.add((PDefinition)$functionDef);
   $$ = functionList;
 }
 ;
@@ -2630,20 +2718,30 @@ functionDef :
 implicitFunctionDef :
   qualifier IDENTIFIER parameterTypes identifierTypePairList preExpr_opt postExpr
 {
-  AAccessSpecifier access = (AAccessSpecifier)$1;
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
   LexNameToken name = extractLexNameToken((CmlLexeme)$2);
   List<APatternListTypePair> paramPatterns = (List<APatternListTypePair>)$3;
   List<APatternTypePair> result = (List<APatternTypePair>)$4;
   PExp preExp = (PExp)$5;
   PExp postExp = (PExp)$6;
   LexLocation location = null;
-  if (access.getLocation() != null) {
-    location = combineLexLocation(access.getLocation(), postExp.getLocation());
-  } else {
+  /* if (access.getLocation() != null) { */
+  /*   location = combineLexLocation(access.getLocation(), postExp.getLocation()); */
+  /* } else { */
     location = combineLexLocation(name.getLocation(), postExp.getLocation());
-  }
+  /* } */
   AImplicitFunctionDefinition impFunc =
-    new AImplicitFunctionDefinition(location, null, false, access, null, paramPatterns, result, preExp, postExp);
+    new AImplicitFunctionDefinition(location, 
+				    NameScope.LOCAL, 
+				    false, 
+				    access, 
+				    null,//Pass
+				    null, 
+				    paramPatterns, 
+				    result, 
+				    preExp, 
+				    postExp,
+				    null/*LexNameToken measure*/);
   impFunc.setName(name);
   $$ = impFunc;
 }
@@ -2652,7 +2750,7 @@ implicitFunctionDef :
 qualifiedExplicitFunctionDef :
   qualifier explicitFunctionDef
 {
-  AAccessSpecifier access = (AAccessSpecifier)$qualifier;
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$qualifier;
   AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)$2;
   f.setAccess(access);
   $$ = f;
@@ -2758,14 +2856,18 @@ identifierTypePairList_opt :
 identifierTypePairList :
   IDENTIFIER COLON type
 {
-  AIdentifierTypePair typePair = new AIdentifierTypePair(null, extractLexIdentifierToken((CmlLexeme)$1), (PType)$3);
+  AIdentifierTypePair typePair = new AIdentifierTypePair(null, 
+							 extractLexIdentifierToken((CmlLexeme)$1), 
+							 (PType)$3);
   List<AIdentifierTypePair> typePairs = new Vector<AIdentifierTypePair>();
   typePairs.add(typePair);
   $$ = typePairs;
 }
 | identifierTypePairList COMMA IDENTIFIER COLON type
 {
-  AIdentifierTypePair typePair = new AIdentifierTypePair(null, extractLexIdentifierToken((CmlLexeme)$3), (PType)$5);
+  AIdentifierTypePair typePair = new AIdentifierTypePair(null, 
+							 extractLexIdentifierToken((CmlLexeme)$3), 
+							 (PType)$5);
   List<AIdentifierTypePair> typePairs = (List<AIdentifierTypePair>)$1;
   typePairs.add(typePair);
   $$ = typePairs;
@@ -2834,33 +2936,36 @@ operationDefs :
   OPERATIONS
 {
   LexLocation location = extractLexLocation((CmlLexeme)$OPERATIONS);
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   $$ = new AOperationParagraphDefinition(location,
                                          NameScope.LOCAL,
                                          false,
                                          access,
+					 null,//Pass
                                          null);
 }
 | OPERATIONS operationDefList
 {
   LexLocation location = extractLexLocation((CmlLexeme)$OPERATIONS);
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   List<? extends SOperationDefinition> opDefinitions = (List<? extends SOperationDefinition>)$operationDefList;
   $$ = new AOperationParagraphDefinition(location,
                                          NameScope.LOCAL,
                                          false,
                                          access,
+					 null,//Pass
                                          opDefinitions);
 }
 | OPERATIONS operationDefList SEMI
 {
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$OPERATIONS), extractLexLocation((CmlLexeme)$SEMI));
-  AAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   List<? extends SOperationDefinition> opDefinitions = (List<? extends SOperationDefinition>)$operationDefList;
   $$ = new AOperationParagraphDefinition(location,
                                          NameScope.LOCAL,
                                          false,
                                          access,
+					 null,//Pass
                                          opDefinitions);
 }
 ;
@@ -2896,7 +3001,9 @@ explicitOperationDef :
 {
   LexLocation loc = extractLexLocation((CmlLexeme)$2);
   AExplicitOperationDefinition res = new AExplicitOperationDefinition();
+  res.setName((LexNameToken)extractLexNameToken($2));
   res.setLocation(loc);
+  res.setIsConstructor(false);
   res.setBody((SStatementAction)$operationBody);
   res.setType((PType)$operationType);
   $$ = res;
@@ -2906,23 +3013,24 @@ explicitOperationDef :
 implicitOperationDef :
   qualifier IDENTIFIER parameterTypes identifierTypePairList_opt externals_opt preExpr_opt postExpr
 {
-  AAccessSpecifier access = (AAccessSpecifier)$1;
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$1;
   LexNameToken name = extractLexNameToken((CmlLexeme)$2);
   List<? extends APatternListTypePair> parameterPatterns = (List<? extends APatternListTypePair>)$3;
-  List<? extends AIdentifierTypePair> result = (List<? extends AIdentifierTypePair>)$4;
+   List<? extends AIdentifierTypePair> result = (List<? extends AIdentifierTypePair>)$4;
   List<? extends AExternalClause> externals = (List<? extends AExternalClause>)$5;
   PExp precondition = (PExp)$6;
   PExp postcondition = (PExp)$7;
   LexLocation location = null;
-  if (access != null)
+  /* if (access != null) */
     location = combineLexLocation(name.location, postcondition.getLocation());
-  else
-    location = combineLexLocation(access.getLocation(), postcondition.getLocation());
+  /* else */
+  /*   location = combineLexLocation(access.getLocation(), postcondition.getLocation()); */
   AImplicitOperationDefinition ifunc =
     new AImplicitOperationDefinition(location,
                                      NameScope.GLOBAL,
-                                     null,
+                                     false,
                                      access,
+				     null,//Pass
                                      parameterPatterns,
                                      result,
                                      externals,
@@ -3047,32 +3155,44 @@ varInformation :
   mode pathList
 {
   List<? extends LexNameToken> names = (List<? extends LexNameToken>)$pathList;
-  PMode mode = (PMode)$mode;
-  LexLocation location = combineLexLocation(mode.getLocation(),
+  //  PMode mode = (PMode)$mode;
+  LexToken mode = (LexToken)$mode;
+  LexLocation location = combineLexLocation(mode.location,
                                             extractLastLexLocation(names));
-  $$ = new AExternalClause(location,mode,names, null);
+  //$$ = new AExternalClause(location,mode,names, null);
+  $$ = new AExternalClause(mode,names, null);
 }
 | mode pathList COLON type
 {
   List<? extends LexNameToken> names = (List<? extends LexNameToken>)$pathList;
-  PMode mode = (PMode)$mode;
-  LexLocation location = combineLexLocation(mode.getLocation(),
+  //Mode mode = (PMode)$mode;
+  LexToken mode = (LexToken)$mode;
+  LexLocation location = combineLexLocation(mode.location,
                                             extractLastLexLocation(names));
-  $$ = new AExternalClause(location,
-                           mode,
+
+  $$ = new AExternalClause(mode,
                            names,
                            (PType)$type);
+
+  /* $$ = new AExternalClause(location,
+  /*                          mode, */
+  /*                          names, */
+  /*                          (PType)$type); */
 }
 ;
 
 mode :
   RD
 {
-  $$ = new AReadMode(extractLexLocation((CmlLexeme)$RD));
+  //$$ = new AReadMode(extractLexLocation((CmlLexeme)$RD));
+  LexLocation loc = extractLexLocation((CmlLexeme)$1);
+  $$ = new LexToken(loc,VDMToken.READ);
 }
 | WR
 {
-  $$ = new AWriteMode(extractLexLocation((CmlLexeme)$WR));
+  //$$ = new AWriteMode(extractLexLocation((CmlLexeme)$WR));
+  LexLocation loc = extractLexLocation((CmlLexeme)$1);
+  $$ = new LexToken(loc,VDMToken.WRITE);
 }
 ;
 
@@ -3097,20 +3217,20 @@ mode :
 stateDefs :
   STATE 
 {
-    AStateDefinition state = new AStateDefinition();
+    AStateParagraphDefinition state = new AStateParagraphDefinition();
     state.setLocation(extractLexLocation((CmlLexeme)$STATE));
     $$  = state;
 }
 | STATE stateDefList 
 {
-    AStateDefinition state = (AStateDefinition)$stateDefList;
+    AStateParagraphDefinition state = (AStateParagraphDefinition)$stateDefList;
     state.setLocation(extractLexLocation((CmlLexeme)$STATE,
 					 extractLastLexLocation(state.getStateDefs())));
     $$ = state;
 }
 | STATE stateDefList SEMI
 {
-    AStateDefinition state = (AStateDefinition)$stateDefList;
+    AStateParagraphDefinition state = (AStateParagraphDefinition)$stateDefList;
     state.setLocation(extractLexLocation((CmlLexeme)$STATE,(CmlLexeme)$SEMI));
     $$ = state;
 }
@@ -3119,7 +3239,7 @@ stateDefs :
 stateDefList :
   stateDef
 {
-  AStateDefinition stateDef = new AStateDefinition();
+  AStateParagraphDefinition stateDef = new AStateParagraphDefinition();
   List<PDefinition> defs = new Vector<PDefinition>();
   defs.add((PDefinition)$stateDef);
   stateDef.setStateDefs(defs);
@@ -3127,7 +3247,7 @@ stateDefList :
 }
 | stateDefList[list] SEMI stateDef
 {
-  AStateDefinition stateDef = (AStateDefinition)$list;
+  AStateParagraphDefinition stateDef = (AStateParagraphDefinition)$list;
   stateDef.getStateDefs().add((PDefinition)$stateDef);
   $$ = stateDef;
 }
@@ -3142,7 +3262,7 @@ stateDef :
 {
   PExp exp = (PExp) $2;
   LexLocation location = extractLexLocation((CmlLexeme)$1, exp.getLocation());
-  $$ = new AClassInvariantDefinition(location, NameScope.GLOBAL, true, null, exp);
+  $$ = new AClassInvariantDefinition(location, NameScope.GLOBAL, true, null/*access*/,null/*Pass*/, exp);
 }
 ;
 
@@ -3490,7 +3610,7 @@ expression :
 | booleanLiteral
 {
   LexBooleanToken lit = (LexBooleanToken)$1;
-  $$ = new ABooleanLiteralExp(lit.location, lit);
+  $$ = new ABooleanConstExp(lit.location, lit);
 }
 | nilLiteral
 {
@@ -3673,8 +3793,16 @@ ifExpr :
   Position eif = _if.getEndPos();
   PExp test = (PExp)$2;
   PExp then = (PExp)$4;
-  List<AElseIfExp> elses = (List<AElseIfExp>)$5;
+  List<PExp> elses = (List<PExp>)$5;
   AIfExp ifexp = new AIfExp();
+  List<AElseIfExp> elseifs = new LinkedList<AElseIfExp>();
+  for(PExp exp : elses)
+    if (exp instanceof AElseIfExp) 
+      elseifs.add((AElseIfExp)exp);
+    else
+      ifexp.setElse(exp);
+
+
   LexLocation  sifloc = new LexLocation(currentSource.toString(),
                                         "DEFAULT",
                                         sif.line, sif.column,
@@ -3682,7 +3810,7 @@ ifExpr :
                                         sif.offset, eif.offset);
   ifexp.setTest(test);
   ifexp.setThen(then);
-  ifexp.setElseList(elses);
+  ifexp.setElseList(elseifs);
   ifexp.setLocation(
                     combineLexLocation(sifloc,
                                        extractLastLexLocation(elses)));
@@ -3695,10 +3823,8 @@ elseExprs :
 {
   CmlLexeme elsetok = (CmlLexeme)$1;
   PExp exp = (PExp)$2;
-  AElseIfExp eie = new AElseIfExp();
-  eie.setLocation(combineLexLocation(extractLexLocation(elsetok), exp.getLocation()));
-  List<AElseIfExp> res = new LinkedList<AElseIfExp>();
-  res.add(eie);
+  List<PExp> res = new LinkedList<PExp>();
+  res.add(exp);
   $$ = res;
 }
 | ELSEIF expression THEN expression elseExprs
@@ -3706,7 +3832,7 @@ elseExprs :
   CmlLexeme elseif = (CmlLexeme)$1;
   PExp elseIf = (PExp)$2;
   PExp then = (PExp)$4;
-  List<AElseIfExp> tail = (List<AElseIfExp>)$5;
+  List<PExp> tail = (List<PExp>)$5;
   LexLocation loc = combineLexLocation(extractLexLocation(elseif), then.getLocation());
   AElseIfExp eie = new AElseIfExp();
   eie.setElseIf(elseIf);
@@ -4073,7 +4199,7 @@ binaryExpr :
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   LexToken tok = extractLexToken( (CmlLexeme) $2 );
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
+  $$ = new APlusPlusBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression MUNION expression
 {
@@ -4091,31 +4217,31 @@ binaryExpr :
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   LexToken tok = extractLexToken( (CmlLexeme) $2 );
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
+  $$ = new ADomainResByBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression COLONGT expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   LexToken tok = extractLexToken( (CmlLexeme) $2 );
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
+  $$ = new APlusPlusBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression COLONDASHGT expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   LexToken tok = extractLexToken( (CmlLexeme) $2 );
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
+  $$ = new APlusPlusBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression COMP expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   LexToken tok = extractLexToken( (CmlLexeme) $2 );
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
+  $$ = new ACompBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression DSTAR expression
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   LexToken tok = extractLexToken( (CmlLexeme) $2 );
-  $$ = new AModifyBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
+  $$ = new AStarStarBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 ;
 
@@ -4516,13 +4642,15 @@ assignmentDef :
   LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
   PType type = (PType)$type;
   LexLocation location = combineLexLocation(name.location, type.getLocation());
-  AAccessSpecifier access = null;
+  AAccessSpecifierAccessSpecifier access = null;
   $$ = new AAssignmentDefinition(location,
                                  name,
                                  NameScope.GLOBAL,
                                  false,
+				 null,//VDM classDef
                                  access,
                                  type,
+				 null,//Pass
                                  null,
                                  null);
 }
@@ -4532,12 +4660,14 @@ assignmentDef :
   PType type = (PType)$type;
   PExp exp = (PExp)$expression;
   LexLocation location = combineLexLocation(name.location, type.getLocation());
-  AAccessSpecifier access = null;
+  AAccessSpecifierAccessSpecifier access = null;
   $$ = new AAssignmentDefinition(location, name,
                                  NameScope.GLOBAL,
                                  false,
+				 null,//VDM classDef
                                  access,
                                  type,
+				 null,//Pass
                                  exp,
                                  null);
 }
@@ -4552,12 +4682,14 @@ assignmentDef :
     PType type = (PType)$type;
     PExp exp = (PExp)$expression;
     LexLocation location = combineLexLocation(name.location, exp.getLocation());
-    AAccessSpecifier access = null;
+    AAccessSpecifierAccessSpecifier access = null;
     $$ = new AAssignmentDefinition(location, name,
                                    NameScope.GLOBAL,
                                    false,
+				   null,//VDM classDef
                                    access,
                                    type,
+				   null,//Pass
                                    exp,
                                    null);
 }
@@ -4694,8 +4826,9 @@ implicitOperationBody :
 {
   PExp postcondition = (PExp)$postExpr;
   List<? extends AExternalClause> exts = (List<? extends AExternalClause>)$externals_opt;
-  LexLocation location = combineLexLocation(extractFirstLexLocation(exts),
-                                            postcondition.getLocation());
+  /* LexLocation location = combineLexLocation(extractFirstLexLocation(exts), */
+  /*                                           postcondition.getLocation()); */
+  LexLocation location = postcondition.getLocation();
   $$ = new ASpecificationStatementAction(location,
                                                 exts,
                                                 (PExp)$preExpr_opt,

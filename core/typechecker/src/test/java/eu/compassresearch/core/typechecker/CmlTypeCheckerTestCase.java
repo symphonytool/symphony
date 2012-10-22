@@ -23,7 +23,7 @@ import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.typechecker.CmlTypeChecker.CMLTypeError;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 
 @RunWith(value = Parameterized.class)
 public class CmlTypeCheckerTestCase extends TestCase
@@ -150,7 +150,7 @@ public class CmlTypeCheckerTestCase extends TestCase
             false, true, true, new String[0]); // token literal
         addTestProgram(testData,
             "class test = begin values public a:char = <Test> end", false,
-            true, true, new String[0]); // token literal
+            true, false, new String[0]); // token literal
         
         // let
         addTestProgram(
@@ -162,10 +162,9 @@ public class CmlTypeCheckerTestCase extends TestCase
             testData,
             "class test = begin values a : int = if (let b:int=10 in b > 10) then 42 else 24 end",
             false, true, true, new String[0]);
-        addTestProgram(
-            testData,
-            "class test = begin values a : boolean = if true then 1 else 0 end",
-            false, true, true, new String[0]);
+        addTestProgram(testData,
+            "class test = begin values a : bool = if true then 1 else 0 end",
+            false, true, false, new String[0]);
         addTestProgram(
             testData,
             "class test = begin values a : seq of char = if true then \"true\" else \"false\" end",
@@ -521,21 +520,19 @@ public class CmlTypeCheckerTestCase extends TestCase
         // 126
         addTestProgram(
             testData,
-            "process A = begin @ skip end process p1 = begin @ A [| channel1 |] skip end",
-            false, true, true, new String[0]); // negative as channel1 is
-                                               // undefined TC should
-        // find that
+            "process A = begin @ skip end process B = begin @ skip end process p1 = A [| channel1 |] B",
+            false, true, false); // negative as channel1 is undefined TC should
+                                 // find that
         // 127
         addTestProgram(
             testData,
-            "process A = begin @ skip end process p1 = begin @ A [ channel1 || channel2 ] skip end",
-            false, true, true, new String[0]); // negative as channel1 and
-                                               // channel2 are
-        // undefined TC should find that
+            "process A = begin @ Skip end process B = begin @ Skip end process p1 = A [ channel1 || channel2 ] B",
+            false, true, false); // negative as channel1 and channel2 are
+                                 // undefined TC should find that
         // 128
         addTestProgram(testData,
-            "process A = begin @ skip end process p1 = begin @ A || skip end",
-            true, true, true, new String[0]);
+            "process A = begin @ Skip end process p1 = A || Skip",
+            true, true, true);
         // 129
         addTestProgram(
             testData,

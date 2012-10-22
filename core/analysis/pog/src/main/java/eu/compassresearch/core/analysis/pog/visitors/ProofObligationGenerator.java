@@ -9,6 +9,7 @@
  */
 
 package eu.compassresearch.core.analysis.pog.visitors;
+<<<<<<< HEAD
  
 // Java libraries 
 import java.io.ByteArrayOutputStream;
@@ -32,6 +33,17 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.lex.LexLocation;
 
 //COMPASS POG libraries 
+=======
+
+import eu.compassresearch.core.analysis.pog.obligations.*;
+/**
+ * Core stuff needed in this simple analysis.
+ */
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
+//import org.overture.ast.expressions.ADivideNumericBinaryExp;
+//import org.overture.ast.declarations.ATypeDeclaration;
+import org.overture.ast.lex.LexLocation;
+>>>>>>> origin/rwl
 import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
 import eu.compassresearch.core.analysis.pog.obligations.POContext;
 import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;

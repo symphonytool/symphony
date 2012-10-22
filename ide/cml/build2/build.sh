@@ -36,11 +36,22 @@ function print_configuration {
     echo "----------------------------------------"
 }
 
+
+# check configuration
+if [ ! -d ${eclipse_providing_pde} ]; then 
+    fn_error "Cannot find eclipse installation with the PDE tools. Please update the eclipse_providing_pde variable in the build2/build.sh script." ;
+fi 
+
+if [ ! -f ${launcher} ]; then
+    fn_error "Cannot find the PDE jar in the eclipse plugin directory. Make sure the equinox version and pde version variables are set correct in the build2/build.sh script" ;
+fi
+
 ### Execute ###
 print_configuration 
 echo "---------- BUILD DIR ----------"
 rm -rf ${build_dir} || fn_error "Unable to delete ${build_dir}" ;
 mkdir -p ${build_dir}/plugins || fn_error "Unable to mkdir -p ${build_dir}/plugins";
+echo "Created ${build_dir}/plugins"
 
 echo "---------- COPY ----------"
 ${copy_plugins_cmd} || fn_error "Unable to copy plugins" ;

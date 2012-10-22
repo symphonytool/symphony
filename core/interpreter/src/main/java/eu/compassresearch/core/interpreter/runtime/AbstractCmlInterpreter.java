@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.types.PType;
 import org.overture.interpreter.debug.DBGPReader;
 import org.overture.interpreter.runtime.Breakpoint;
 import org.overture.interpreter.runtime.SourceFile;
@@ -12,47 +16,31 @@ import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.expressions.PExp;
-import eu.compassresearch.ast.lex.LexLocation;
-import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.ast.types.PType;
-import eu.compassresearch.core.typechecker.Environment;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.interpreter.api.CMLContext;
+import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 
 
+@SuppressWarnings("serial")
 public abstract class AbstractCmlInterpreter extends
-		QuestionAnswerAdaptor<Context, Value> implements CmlInterpreter {
+		QuestionAnswerCMLAdaptor<CMLContext, Value> implements CmlInterpreter {
 
+				
 	@Override
-	public String getInitialContext() {
-		// TODO Auto-generated method stub
-		return null;
+	public CMLContext getInitialContext(LexLocation location) {
+				
+		CMLContext context = new CMLContext(location,"Top context");
+		//TODO: Initialize all global value definitions and put them into the initial context
+				
+		return context;
 	}
-
-	@Override
-	public Environment getGlobalEnvironment() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getDefaultName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+		
 	@Override
 	public File getDefaultFile() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public void setDefaultName(String name) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
+	
 	@Override
 	public void init(DBGPReader dbgp) {
 		// TODO Auto-generated method stub
@@ -70,15 +58,9 @@ public abstract class AbstractCmlInterpreter extends
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	@Override
-	public Value execute(File file) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Value evaluate(String line, Context ctxt) throws Exception {
+	public Value evaluate(String line, CMLContext ctxt) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}

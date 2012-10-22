@@ -1,5 +1,6 @@
 package eu.compassresearch.transformation;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -45,7 +46,8 @@ import eu.compassresearch.ast.node.GraphNodeList;
 import eu.compassresearch.ast.node.NodeListList;
 import eu.compassresearch.ast.typechecker.NameScope;
 import eu.compassresearch.ast.types.AAccessSpecifier;
-import eu.compassresearch.core.typechecker.VanillaCmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
   {
@@ -55,9 +57,11 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
 	 */
     private static final long                                                   serialVersionUID = 1L;
     
-    private final VanillaCmlTypeChecker                                         typeChecker;
+    private final CmlTypeChecker                                                typeChecker;
     
     private Map<org.overture.ast.node.INode, eu.compassresearch.ast.node.INode> nodeMap;
+    
+    private final TypeIssueHandler                                              issueHandler;
     
     public Map<org.overture.ast.node.INode, eu.compassresearch.ast.node.INode> getNodeMap()
       {
@@ -68,11 +72,13 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
         String error)
       {
         if (typeChecker != null)
-          typeChecker.addTypeError(node, error);
+          issueHandler.addTypeError(node, error);
       }
     
-    public CmlAstToOvertureAst(VanillaCmlTypeChecker typeChecker)
+    public CmlAstToOvertureAst(CmlTypeChecker typeChecker,
+        TypeIssueHandler issueHandler)
       {
+        this.issueHandler = issueHandler;
         this.nodeMap = new HashMap<org.overture.ast.node.INode, eu.compassresearch.ast.node.INode>();
         this.lookup = new HashMap<LexIdentifierToken, org.overture.ast.definitions.PDefinition>();
         this.typeChecker = typeChecker;
@@ -247,7 +253,8 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
       {
         LexLocation res = null;
         eu.compassresearch.ast.lex.LexLocation cmlLoc = (eu.compassresearch.ast.lex.LexLocation) node;
-        res = new LexLocation(cmlLoc.file, cmlLoc.module, cmlLoc.startLine,
+        //FIXME file
+        res = new LexLocation(cmlLoc.file==null?new File("null"):cmlLoc.file, cmlLoc.module, cmlLoc.startLine,
             cmlLoc.startPos, cmlLoc.endLine, cmlLoc.endPos, cmlLoc.startOffset,
             cmlLoc.endOffset);
         return res;
@@ -324,6 +331,8 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
               return convertLexBooleanToken((eu.compassresearch.ast.lex.LexBooleanToken) cmlGetterRes);
             if (eu.compassresearch.ast.expressions.ARecordExp.class == cmlClz)
               return convertARecordExp((eu.compassresearch.ast.expressions.ARecordExp) cmlGetterRes);
+            if (eu.compassresearch.ast.lex.LexQuoteToken.class == cmlClz)
+              return convertLexQuoteToken((eu.compassresearch.ast.lex.LexQuoteToken) cmlGetterRes);
             else
               return defaultINode((eu.compassresearch.ast.node.INode) cmlGetterRes);
           }
@@ -474,6 +483,10 @@ public class CmlAstToOvertureAst extends AnswerAdaptor<INode>
             .get(cmlGetterRes.getName());
         varExp
             .setVardef((org.overture.ast.definitions.PDefinition) translate(lookedupDef));
+                
+        varExp.setOriginal(varExp.getName().name);
+        varExp.setLocation(convertLexLocation(cmlGetterRes.getName().getLocation()));
+        
         return varExp;
       }
     
