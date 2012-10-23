@@ -11,38 +11,30 @@
 package eu.compassresearch.core.analysis.pog.visitors;
  
 // Java libraries 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
- 
-// Overture libraries 
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.PExp; 
+import org.overture.ast.expressions.PExp;
 
-// COMPASS libraries 
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PDeclaration;
-import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
-import eu.compassresearch.ast.program.PSource;  
-
-//COMPASS POG libraries 
+import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
-import eu.compassresearch.core.analysis.pog.obligations.POContext;
 import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
-import eu.compassresearch.core.analysis.pog.obligations.ProofObligation;
 
 //From Overture POG
 //import eu.compassresearch.ast.expressions.PStm;
 
-//From TC - not needed?
+//From TC - not needed ?
 //import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
 //import eu.compassresearch.ast.node.INode;
 //import eu.compassresearch.core.parser.CmlParser; CAN'T FIND PARSER PACKAGE    
@@ -50,7 +42,7 @@ import eu.compassresearch.core.analysis.pog.obligations.ProofObligation;
 
 
 public class ProofObligationGenerator extends 
-				QuestionAnswerAdaptor<POContextStack, ProofObligationList>
+				QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList>
 {
     private final static String ANALYSIS_NAME = "Proof Obligation Generator";
      
