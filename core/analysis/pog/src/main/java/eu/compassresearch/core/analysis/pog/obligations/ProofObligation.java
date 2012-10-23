@@ -9,7 +9,7 @@ package eu.compassresearch.core.analysis.pog.obligations;
 /**
  * Core stuff needed
  */
-import eu.compassresearch.ast.lex.LexLocation;
+import org.overture.ast.lex.LexLocation;
 
 abstract public class ProofObligation implements Comparable<ProofObligation>
 {

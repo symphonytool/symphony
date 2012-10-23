@@ -9,7 +9,6 @@
  */
 
 package eu.compassresearch.core.analysis.pog.visitors;
-<<<<<<< HEAD
  
 // Java libraries 
 import java.io.ByteArrayOutputStream;
@@ -19,31 +18,22 @@ import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
  
+// Overture libraries 
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp; 
+
 // COMPASS libraries 
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.declarations.PDeclaration;
-import eu.compassresearch.ast.definitions.PDefinition;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
-import eu.compassresearch.ast.expressions.PExp;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;  
-import eu.compassresearch.ast.lex.LexLocation;
 
 //COMPASS POG libraries 
-=======
-
-import eu.compassresearch.core.analysis.pog.obligations.*;
-/**
- * Core stuff needed in this simple analysis.
- */
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
-//import org.overture.ast.expressions.ADivideNumericBinaryExp;
-//import org.overture.ast.declarations.ATypeDeclaration;
-import org.overture.ast.lex.LexLocation;
->>>>>>> origin/rwl
 import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
 import eu.compassresearch.core.analysis.pog.obligations.POContext;
 import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
@@ -73,24 +63,57 @@ public class ProofObligationGenerator extends
     // subcheckers
     private POGExpressionVisitor exp;
     private POGStatementVisitor  stm;
+    private POGProcessVisitor  	 prc;
     private POGDeclAndDefVisitor dad;
     
     private void initialize()
     {
         exp = new POGExpressionVisitor(this);
         stm = new POGStatementVisitor(this);
+        prc = new POGProcessVisitor(this);
         dad = new POGDeclAndDefVisitor(this);
     }
     
     // ---------------------------------------------
     // -- Dispatch to sub-checkers
-    // ---------------------------------------------
+    // ---------------------------------------------    
+
+// SUBCHECKER FROM TYPECHECKER
+//     @Override
+//     public ProofObligationList defaultPType(PType node, TypeCheckQuestion question)
+//         throws AnalysisException
+//       {
+//         return node.apply(typ, question);
+//       }
+//   
+// SUBCHECKER FROM OVERTURE POG
+//     @Override
+// 	public ProofObligationList defaultPStm(PStm node, POContextStack question)
+//         throws AnalysisException
+// 	{
+// 		return node.apply(stm, question);
+// 	}  
+
     @Override
-    public ProofObligationList defaultPDeclaration(PDeclaration node, POContextStack question)
-        throws AnalysisException
-      {
-        return node.apply(this.dad, question);
-      }
+    public ProofObligationList defaultPProcess(PProcess node, POContextStack question)
+         throws AnalysisException
+    {
+         return node.apply(this.prc, question);
+    }
+      
+    @Override
+    public ProofObligationList defaultPAction(PAction node, POContextStack question)
+      throws AnalysisException
+    {
+      return node.apply(this.stm, question);
+    }
+   
+    @Override
+    public ProofObligationList defaultPDeclaration(PDeclaration node,
+       POContextStack question) throws AnalysisException
+    {
+       return node.apply(this.dad, question);
+    }
     
     @Override
     public ProofObligationList defaultPDefinition(PDefinition node, POContextStack question)
@@ -103,25 +126,10 @@ public class ProofObligationGenerator extends
     public ProofObligationList defaultPExp(PExp node, POContextStack question)
         throws AnalysisException
       {
-        return node.apply(exp, question);
-      }
-    
-    @Override
-    public ProofObligationList defaultPAction(PAction node, POContextStack question)
-        throws AnalysisException
-      {
-        return node.apply(stm, question);
+        return node.apply(this.exp, question);
       }
       
-      
-    // FROM OVERTURE POG
-    //@Override
-	//public ProofObligationList defaultPStm(PStm node, POContextStack question)
-    //    throws AnalysisException
-	//{
-	//	return node.apply(stm, question);
-	//}
-      
+
       
 	// ---------------------------------------------
     // -- Public API to CML POG

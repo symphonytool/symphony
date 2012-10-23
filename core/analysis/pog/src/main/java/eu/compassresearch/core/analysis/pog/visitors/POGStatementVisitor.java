@@ -1,7 +1,12 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.analysis.AnalysisException;
+
+ 
+// Overture libraries 
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.analysis.AnalysisException;
+
+
 import eu.compassresearch.ast.actions.PAction;
 //import eu.compassresearch.ast.expressions.PStm;
 import eu.compassresearch.core.analysis.pog.obligations.MapApplyObligation;
@@ -30,13 +35,13 @@ public class POGStatementVisitor extends
         this.parent = parent;
     }
       
-    @Override
-    public ProofObligationList defaultPAction(PAction node, POContextStack question)
-        throws AnalysisException
-      {
-		System.out.println("Reached POGStatementVisitor - defaultPAction");
-		return new ProofObligationList();
-      }
+//    @Override
+//    public ProofObligationList defaultPAction(PAction node, POContextStack question)
+//        throws AnalysisException
+//     {
+//		System.out.println("Reached POGStatementVisitor - defaultPAction");
+//		return new ProofObligationList();
+//      }
       
       
     // FROM OVERTURE POG
