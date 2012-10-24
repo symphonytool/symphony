@@ -576,6 +576,9 @@ Aspect Declaration
 %action =  [location]:location
 	;
 	
+%exp = (isVisited):java_Boolean
+     ;
+	
 %action->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedAction]:action 
 	;
 	

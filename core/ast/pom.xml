@@ -17,7 +17,7 @@
       <plugin> 
 	<groupId>org.overturetool.tools</groupId>
 	<artifactId>astcreatorplugin</artifactId>
-	<version>1.1.2</version>
+	<version>1.1.3</version>
 	<executions>
 	  <execution>
 	    <id>generate-ast</id>
@@ -31,10 +31,12 @@
 	  <ast>overtureII.astv2</ast>
 	  <extendedAst>cml.ast</extendedAst>
 	  <extendedName>CML</extendedName>
+          <!-- let's not delete these every time; I don't think we actually need to -jwc/22Oct2012
 	  <deletePackageOnGenerate>
 	    <param>org.overture.ast</param>
 	    <param>eu.compassresearch.ast</param>
 	  </deletePackageOnGenerate>
+          -->
 	  <useSrcOutput>false</useSrcOutput>
 	</configuration>
       </plugin>
