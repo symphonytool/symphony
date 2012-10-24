@@ -19,11 +19,20 @@ public class RttMbtComponentWizard extends BasicNewFolderResourceWizard
         Object selectedObject = selection.getFirstElement();
         if (selectedObject instanceof IProject)
           {
-        	// create RTT-MBT TMS client
+        	// get selected object
+            IProject project = (IProject) selectedObject;
+
+            // create RTT-MBT TMS client
         	RttMbtClient client = new RttMbtClient("localhost", 9116, "uwe", "uschulze@informatik.uni-bremen.de");
-    		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+
+        	// get workspace
+        	IWorkspace workspace = ResourcesPlugin.getWorkspace();
     		File workspaceDirectory = workspace.getRoot().getLocation().toFile();
-    		client.setWorkspace(workspaceDirectory.getAbsolutePath());
+    		
+    		// pass workspace and cml project information to client
+    		client.setCmlWorkspace(workspaceDirectory.getAbsolutePath());
+    		client.setCmlProject(project.getFullPath().toString());
+			System.out.println("projectWorkingDir: '" + client.getCmlWorkspace() + client.getCmlProject() + "'");
 
     		// test connection to rtt-mbt-tms server
     		if (client.testConenction()) {
@@ -33,10 +42,12 @@ public class RttMbtComponentWizard extends BasicNewFolderResourceWizard
     			return false;
     		}
 
-            IProject project = (IProject) selectedObject;
+    		// create folder
             WizardNewFolderMainPage newFolderPage = (WizardNewFolderMainPage) getPages()[0];
             IFolder newFolder = newFolderPage.createNewFolder();
-            String projectName = project.getName() + File.separator + newFolder.getName();
+
+            // get folder name
+            String projectName = newFolder.getName();
 
     		// start RTT-MBT-TMS session
     		if (client.beginRttMbtSession()) {
@@ -55,7 +66,12 @@ public class RttMbtComponentWizard extends BasicNewFolderResourceWizard
     		}
 
     		// create/select a new project
-    		client.createProject(projectName);
+    		if (client.createProject(projectName)) {
+    			System.out.println("[PASS]: create initial project structure");
+    		} else {
+    			System.err.println("[FAIL]: create initial project structure");
+    			return false;
+    		}
           }
         return true;
       }
