@@ -71,7 +71,8 @@ def CollectAllSymbolicNames(d):
 def GetNameStripAttrs(str):
     if (str.count(";") > 0):
         str = str[0:str.index(";")];
-    return str;
+
+    return     str.strip();
 
 #
 # AllSymbolicName aka List.
@@ -89,6 +90,7 @@ def IsBundleInList(bundle):
 # folders are present in the AllSymbolicName environment.
 #
 def CheckBundleClosure(d):
+    numberOfMissingBundles=0
     for file in os.listdir(d):
         filePath=d+"/"+file;
         bundleShape=FindProp(filePath,"Eclipse-BundleShape");
@@ -98,6 +100,8 @@ def CheckBundleClosure(d):
         for bundle in SplitBundlesInRequireBundles(bundles):
             if (not IsBundleInList(bundle)):
                 print "Warning:\n\t"+bundle+"\nrequired by\n\t"+file+"\nwere not found";
+                numberOfMissingBundles = numberOfMissingBundles + 1;
+    print "Total number of missing bundles is: "+str(numberOfMissingBundles)
 
 #
 # Going through all items in the given directory, this function prints
@@ -199,15 +203,19 @@ def CheckRequiredBundlesAreListedInProduct(d,l):
     pfile.close();
     AllSymbolicName = ListPluginsReferencedInProductFile(content);
 
+    bundle_list=[];
     for file in os.listdir(d):
         filePath = d + "/"+file;
         bundles=FindProp(filePath, "Require-Bundle");
         for bundle in SplitBundlesInRequireBundles(bundles):
             if (not IsBundleInList(bundle)):
                 if (l):
-                    print "<plugin id=\"" + GetNameStripAttrs( bundle ) +"\"/>"
+                    bundle_list.append("<plugin id=\"" + GetNameStripAttrs( bundle ) +"\"/>");
                 else:
                     print "Warning:\n\t"+bundle+"\nrequired by\n\t"+file+"\nwere not listed in product file."
+    bundle_list = list(set(bundle_list))
+    for line in sorted(bundle_list):
+       print line;
 
 # Create list of all existing symbolic names for bundles in this
 # folder.
@@ -224,4 +232,4 @@ print "Checking Bundle Dependency Closure:"
 CheckFromBuild2();
 print "Checking product configuration:"
 ExamineProductFile();
-CheckRequiredBundlesAreListedInProduct("target_platform/plugins", False);
+CheckRequiredBundlesAreListedInProduct("target_platform/plugins", True);

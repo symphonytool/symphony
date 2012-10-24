@@ -9,10 +9,16 @@ import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.typechecker.Pass;
+import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
@@ -32,7 +38,6 @@ import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
-import eu.compassresearch.ast.typechecker.NameScope;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.AFunctionParagraphType;
@@ -386,9 +391,18 @@ class TCDeclAndDefVisitor extends
                 PType paramType = (i < paramTypes.size() ? paramTypes.get(i)
                     : new AErrorType(p.getLocation(), true));
                 AIdentifierPattern idp = (AIdentifierPattern) p;
-                ALocalDefinition local = new ALocalDefinition(
-                    idp.getLocation(), idp.getName(), NameScope.LOCAL, false,
-                    null, paramType, null);
+                LexLocation location_ = p.getLocation();
+                org.overture.ast.typechecker.NameScope nameScope_ = NameScope.LOCAL;
+                Boolean used_ = false;
+                SClassDefinition classDefinition_ = null;
+                AAccessSpecifierAccessSpecifier access_;
+                PType type_ = paramType;
+                Pass pass_ = Pass.DEFS;
+                Boolean valueDefinition_ = false;
+                LexNameToken name_ = ((AIdentifierPattern) p).getName();
+                ALocalDefinition local = new ALocalDefinition(location_,
+                    nameScope_, used_, classDefinition_, null, type_, pass_,
+                    valueDefinition_, name_);
                 functionBodyEnv.addVariable(idp.getName(), local);
               } else
               throw new AnalysisException(
