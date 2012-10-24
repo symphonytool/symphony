@@ -4,8 +4,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.overture.ast.analysis.AnalysisException;
+
 import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.interpreter.eval.EventCollector;
 import eu.compassresearch.core.interpreter.runtime.ChannelEvent;

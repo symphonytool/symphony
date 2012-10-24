@@ -5,27 +5,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.statements.AIdentifierStateDesignator;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
-import eu.compassresearch.ast.actions.AIdentifierStateDesignator;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
-import eu.compassresearch.ast.expressions.PExp;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
-public class ActionEvaluator extends QuestionAnswerAdaptor<CMLContext, Value> {
+public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value> {
 
 	private CmlEvaluator parentInterpreter; 
 
@@ -43,10 +44,10 @@ public class ActionEvaluator extends QuestionAnswerAdaptor<CMLContext, Value> {
 		//TODO Change this to deal with it in general
 		AIdentifierStateDesignator id = (AIdentifierStateDesignator)node.getStateDesignator();
 
-		CMLContext nameContext = question.locate(id.getName());
+		Context nameContext = question.locate(id.getName());
 
 		if(nameContext == null)
-			nameContext = new CMLContext(node.getLocation());	
+			nameContext = new CMLContext(node.getLocation(),"caseASingleGeneralAssignmentStatementAction",question);	
 
 		nameContext.put(id.getName(), expValue);
 
@@ -64,7 +65,7 @@ public class ActionEvaluator extends QuestionAnswerAdaptor<CMLContext, Value> {
 		if(ev != null && ev.getChannelName().equals(node.getIdentifier().getName()))
 		{
 			//question.resetEvent();
-			CMLContext newQuestion = new CMLContext(node.getLocation(), question);
+			CMLContext newQuestion = new CMLContext(node.getLocation(),"", question);
 			newQuestion.setCurrentEvent(new ChannelEvent(""));
 			ProcessValue v = (ProcessValue)node.getAction().apply(parentInterpreter,newQuestion);
 
@@ -120,7 +121,7 @@ public class ActionEvaluator extends QuestionAnswerAdaptor<CMLContext, Value> {
 		 */
 		if(retValue == null )
 		{
-			CMLContext newQuestion = new CMLContext(node.getLocation(), question);
+			CMLContext newQuestion = new CMLContext(node.getLocation(),"", question);
 			newQuestion.setCurrentEvent(new ChannelEvent(""));
 			ProcessValue rightValue = (ProcessValue)node.getRight().apply(this,newQuestion);
 			

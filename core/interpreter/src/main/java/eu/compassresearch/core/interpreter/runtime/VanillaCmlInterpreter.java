@@ -8,10 +8,11 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.program.AFileSource;
+import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;

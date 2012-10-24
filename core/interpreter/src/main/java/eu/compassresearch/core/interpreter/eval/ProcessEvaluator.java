@@ -3,13 +3,14 @@ package eu.compassresearch.core.interpreter.eval;
 import java.util.HashSet;
 import java.util.Set;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexIdentifierToken;
+
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.PDefinition;
 import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
-import eu.compassresearch.ast.expressions.PExp;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AInstantiationProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
@@ -24,7 +25,7 @@ import eu.compassresearch.core.interpreter.scheduler.SynchronousParallelismProce
 
 @SuppressWarnings("serial")
 public class ProcessEvaluator extends
-    QuestionAnswerAdaptor<CMLContext, CMLProcess>
+    QuestionAnswerCMLAdaptor<CMLContext, CMLProcess>
   {
     
     private CmlEvaluator parentInterpreter;
@@ -43,7 +44,7 @@ public class ProcessEvaluator extends
         AProcessDefinition processDefinition = node.getProcessDefinition();
         
         // TODO Initialize the process state
-        CMLContext inner = new CMLContext(node.getLocation(), question);
+        CMLContext inner = new CMLContext(node.getLocation(),"caseAInstantiationProcess", question);
         // TODO Add the process arguments
         CMLProcess instantiatedProcess = processDefinition.getProcess().apply(
             this, inner);

@@ -1,18 +1,18 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.definitions.AAssignmentDefinition;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CMLContext;
 
 public class CmlDeclAndDefEvaluator extends
-		QuestionAnswerAdaptor<CMLContext, Value> {
+		QuestionAnswerCMLAdaptor<CMLContext, Value> {
 
 	private CmlEvaluator parentInterpreter; 
 

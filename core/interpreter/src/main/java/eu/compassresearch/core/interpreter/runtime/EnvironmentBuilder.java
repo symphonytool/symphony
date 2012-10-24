@@ -107,9 +107,9 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         throws AnalysisException
       {
         
-        for (ATypeDefinition typeDef : node.getTypes())
+        for (PDefinition typeDef : node.getTypes())
           {
-            env.put(typeDef.getName(), typeDef);
+            env.put(typeDef.getName(), (ATypeDefinition)typeDef);
           }
       }
     
@@ -118,7 +118,7 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         AFunctionParagraphDefinition node) throws AnalysisException
       {
         
-        for (SFunctionDefinition functionDef : node.getFunctionDefinitions())
+        for (PDefinition functionDef : node.getFunctionDefinitions())
           {
             env.put(functionDef.getName(), functionDef);
           }

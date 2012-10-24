@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,8 +18,8 @@ import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.overture.ast.analysis.AnalysisException;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
