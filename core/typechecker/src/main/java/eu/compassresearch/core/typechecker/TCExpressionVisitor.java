@@ -17,8 +17,6 @@ import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
-import eu.compassresearch.transformation.CmlAstToOvertureAst;
-import eu.compassresearch.transformation.CopyTypesFromOvtToCmlAst;
 
 class TCExpressionVisitor extends
     QuestionAnswerAdaptor<TypeCheckQuestion, PType>
@@ -63,15 +61,14 @@ class TCExpressionVisitor extends
         
         question.updateContextNameToCurrentScope(node);
         
-        CmlAstToOvertureAst transform = new CmlAstToOvertureAst(parent,
-            issueHandler);
-        INode ovtNode = node.apply(transform);
+        INode ovtNode = node;
         
         TypeCheckerExpVisitor ovtExpVist = new TypeCheckerExpVisitor(
             new TypeCheckVisitor());
         
+        // TODO: Need to figure out how to translate the environment
         org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(
-            question.getOvertureEnvironment());
+            null);
         
         quest.scope = NameScope.NAMES;
         
@@ -91,17 +88,6 @@ class TCExpressionVisitor extends
                 issueHandler.addTypeError(node, err.toProblemString());
               }
             return new AErrorType(node.getLocation(), true);
-          }
-        
-        CopyTypesFromOvtToCmlAst copier = new CopyTypesFromOvtToCmlAst(
-            transform.getNodeMap());
-        
-        try
-          {
-            node = (PExp) copier.defaultINode(ovtNode);
-          } catch (org.overture.ast.analysis.AnalysisException e)
-          {
-            throw new AnalysisException(e.getMessage());
           }
         
         return node.getType();

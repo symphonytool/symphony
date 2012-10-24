@@ -34,7 +34,7 @@ public class CmlBuildVisitor implements IResourceVisitor
         if (!shouldBuild(resource))
           return true;
         
-        // This visitor only build files.
+        // This visitor only builds files.
         IFile file = (IFile) resource;
         
         // Parse the source
@@ -104,12 +104,6 @@ public class CmlBuildVisitor implements IResourceVisitor
         marker.setAttribute(IMarker.TEXT, text);
       }
     
-    private static <K, T extends K> List<K> conv(List<T> l)
-      {
-        
-        return null;
-      }
-    
     private static void setExceptionInfo(IMarker marker, Exception e,
         String shortText) throws CoreException
       {
@@ -131,6 +125,9 @@ public class CmlBuildVisitor implements IResourceVisitor
         String localPathToFile = file.getLocation().toString();
         source.setFile(new File(localPathToFile));
         CmlLexer lexer = null;
+        
+        // Clear markers for this file
+        file.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
         try
           {
             
@@ -141,9 +138,13 @@ public class CmlBuildVisitor implements IResourceVisitor
             // parse
             if (!parser.parse())
               {
-                IMarker marker = file.createMarker(IMarker.MESSAGE);
-                setProblem(marker, "Parser failed", -1);
-                return false;
+                
+                // report errors
+                for (ParserError e : lexer.parseErrors)
+                  {
+                    IMarker marker = file.createMarker(IMarker.PROBLEM);
+                    setProblem(marker, e.message, e.line);
+                  }
               }
           } catch (Exception e1)
           {
@@ -153,16 +154,7 @@ public class CmlBuildVisitor implements IResourceVisitor
                     + "\"");
             return false;
           }
-        
         // Error reporting
-        file.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
-        
-        // report errors
-        for (ParserError e : lexer.parseErrors)
-          {
-            IMarker marker = file.createMarker(IMarker.PROBLEM);
-            setProblem(marker, e.message, e.line);
-          }
         
         return lexer.parseErrors.size() == 0;
       }
