@@ -17,11 +17,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
+//import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
 import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.process.PProcess;
@@ -42,7 +45,7 @@ import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
 
 
 public class ProofObligationGenerator extends 
-				QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList>
+				QuestionAnswerAdaptor<POContextStack, ProofObligationList>
 {
     private final static String ANALYSIS_NAME = "Proof Obligation Generator";
      
@@ -54,8 +57,8 @@ public class ProofObligationGenerator extends
     
     // subcheckers
     private POGExpressionVisitor exp;
-    private POGStatementVisitor  stm;
-    private POGProcessVisitor  	 prc;
+    private POGStatementVisitor stm;
+    private POGProcessVisitor prc;
     private POGDeclAndDefVisitor dad;
     
     private void initialize()
@@ -86,26 +89,26 @@ public class ProofObligationGenerator extends
 // 		return node.apply(stm, question);
 // 	}  
 
-    @Override
-    public ProofObligationList defaultPProcess(PProcess node, POContextStack question)
-         throws AnalysisException
-    {
-         return node.apply(this.prc, question);
-    }
-      
-    @Override
-    public ProofObligationList defaultPAction(PAction node, POContextStack question)
-      throws AnalysisException
-    {
-      return node.apply(this.stm, question);
-    }
-   
-    @Override
-    public ProofObligationList defaultPDeclaration(PDeclaration node,
-       POContextStack question) throws AnalysisException
-    {
-       return node.apply(this.dad, question);
-    }
+//    @Override
+//    public ProofObligationList defaultPProcess(PProcess node, POContextStack question)
+//         throws AnalysisException
+//    {
+//         return node.apply(this.prc, question);
+//    }
+//      
+//    @Override
+//    public ProofObligationList defaultPAction(PAction node, POContextStack question)
+//      throws AnalysisException
+//    {
+//      return node.apply(this.stm, question);
+//    }
+//   
+//    @Override
+//    public ProofObligationList defaultPDeclaration(PDeclaration node,
+//       POContextStack question) throws AnalysisException
+//    {
+//       return node.apply(this.dad, question);
+//    }
     
     @Override
     public ProofObligationList defaultPDefinition(PDefinition node, POContextStack question)
@@ -186,11 +189,11 @@ public class ProofObligationGenerator extends
                     System.out.println("--------------------------------PROCESSING--------------------------------");
                 	System.out.println(paragraph.toString());
                 	System.out.println("----------------------------------RESULT----------------------------------");
-                	
+
                 	// process paragraph:
-                    obligations.addAll(paragraph.apply(this, ctxt));
-					
-					System.out.println();
+                    obligations = paragraph.apply(this, ctxt);
+
+                    System.out.println();
 					System.out.println();
                 } 
                 catch (AnalysisException ae)
@@ -254,7 +257,7 @@ public class ProofObligationGenerator extends
         // Report success
         System.out.println("Proof Obligation Generation is complete for the given CML Program");
     }
-      
+   
      /**
      * Main method for class. Current test class takes a set of cml examples and 
      * generates POs for each

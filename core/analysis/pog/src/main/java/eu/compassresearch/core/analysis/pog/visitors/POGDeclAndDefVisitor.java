@@ -1,8 +1,8 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 // Overture libraries 
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp; 
 
@@ -23,6 +23,7 @@ import java.util.List;
  
 
 
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PDeclaration;
 // import eu.compassresearch.ast.actions.SStatementAction;
 // import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
@@ -63,7 +64,7 @@ import eu.compassresearch.ast.declarations.PDeclaration;
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
-		QuestionAnswerAdaptor<POContextStack, ProofObligationList>
+	QuestionAnswerAdaptor<POContextStack, ProofObligationList>
   {
     
     // Errors and other things are recorded on this guy

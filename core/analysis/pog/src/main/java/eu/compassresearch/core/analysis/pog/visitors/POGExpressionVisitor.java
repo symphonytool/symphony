@@ -6,6 +6,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp; 
 
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 //import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.core.analysis.pog.obligations.MapApplyObligation;
 import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
@@ -21,7 +22,7 @@ import org.overture.ast.node.INode;
 
 
 public class POGExpressionVisitor extends
-		QuestionAnswerAdaptor<POContextStack, ProofObligationList>
+	QuestionAnswerAdaptor<POContextStack, ProofObligationList>
   {
         
     // A parent checker may actually not be necessary on this
