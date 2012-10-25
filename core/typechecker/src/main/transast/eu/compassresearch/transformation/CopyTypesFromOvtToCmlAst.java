@@ -5,32 +5,32 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.analysis.AnswerAdaptor;
+import org.overture.ast.expressions.PExpBase;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexQuoteToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.types.PType;
 
-import eu.compassresearch.ast.expressions.PExpBase;
-import eu.compassresearch.ast.lex.LexLocation;
-import eu.compassresearch.ast.lex.LexQuoteToken;
-import eu.compassresearch.ast.types.PType;
+import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 
 public class CopyTypesFromOvtToCmlAst extends
-    AnswerAdaptor<eu.compassresearch.ast.node.INode>
+    AnswerCMLAdaptor<org.overture.ast.node.INode>
   {
     
     public CopyTypesFromOvtToCmlAst(
-        Map<org.overture.ast.node.INode, eu.compassresearch.ast.node.INode> nodeMap)
+        Map<org.overture.ast.node.INode, org.overture.ast.node.INode> nodeMap)
       {
         this.nodeMap = nodeMap;
       }
     
-    private Map<org.overture.ast.node.INode, eu.compassresearch.ast.node.INode> nodeMap;
+    private Map<org.overture.ast.node.INode, org.overture.ast.node.INode> nodeMap;
     
     @Override
-    public eu.compassresearch.ast.node.INode defaultINode(INode node)
+    public org.overture.ast.node.INode defaultINode(INode node)
         throws AnalysisException
       {
         
-        eu.compassresearch.ast.node.INode cmlNode = nodeMap.get(node);
+        org.overture.ast.node.INode cmlNode = nodeMap.get(node);
         if (cmlNode == null)
           throw new AnalysisException("Tree structure not the same");
         
@@ -62,14 +62,13 @@ public class CopyTypesFromOvtToCmlAst extends
             setType.invoke(cmlNode, type);
           } catch (Exception e)
           {
-            //return cmlNode;
+            // return cmlNode;
             return super.defaultINode(node);
-          }      
+          }
         return cmlNode;
       }
     
-    private boolean cmlNodeAlreadyHasType(
-        eu.compassresearch.ast.node.INode cmlNode)
+    private boolean cmlNodeAlreadyHasType(org.overture.ast.node.INode cmlNode)
       {
         try
           {

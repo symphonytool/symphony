@@ -1,88 +1,162 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<parent>
-		<groupId>eu.compassresearch.ide</groupId>
-		<artifactId>eu.compassresearch.ide.cml</artifactId>
-		<version>0.0.1<!--Replaceable: Main Version--></version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-	<modelVersion>4.0.0</modelVersion>
-	<name>eu.compassresearch.ide.cml.build</name>
-	<groupId>eu.compassresearch.ide.cml</groupId>
-	<artifactId>eu.compassresearch.ide.cml.build</artifactId>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<!--
+ Script parameters:
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<version>2.7</version>
-				<configuration>
-					<skip>true</skip>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-				  <execution>
-				    <id>copy stuff</id>
-				    <phase>install</phase>
-				    <configuration>
-				      <target>
-					<property name="buildDirectory" value="${buildDirectory}"/>
+ mvn install -D<key>=<value>
 
-					<ant antfile="copyProjects.xml" target="copyStuff"/>
-				      </target>
-				    </configuration>
-				  </execution>
-					<execution>
+ valid keys:
+   build.dir   - Typically target/CompassIDE
+   eclipse.dir - The PDE providing Eclipse installation directory
+   equinox.ver - The equinox version of that eclipse installation
+   pde.ver     - The PDE version of that eclipse installation
+   java.home   - Installations directory of the Java installation to use
+-->
 
-						<phase>install</phase>
-						<configuration>
-							<target>
-							  <property name="equinoxLauncherPluginVersion"
-								    value="${equinox.version}" />
-							  <property name="pdeBuildPluginVersion"
-								    value="${pde.version}" />
-							  <property name="product" 
-								    value="${product}"/>
-							  <property name="buildDirectory" 
-								    value="${buildDirectory}"/>
-							  <property name="builder" 
-								    value="${builder}"/>
-							  <property name="baseLocation" 
-								    value="${target_platform}"/>
-							  <property name="base" 
-								    value="${base}"/>
-							  <property name="baseos" 
-								    value="${baseos}"/>
-							  <property name="basews" 
-								    value="${basews}"/>
-							  <property name="basearch" 
-								    value="${basearch}"/>
-							  <property name="pluginPath" 
-								    value="${target_platform}"/>
-							  <property name="buildDirectory" 
-								    value="${builddir}"/>
+ <properties>
 
-							  <ant antfile="${eclipse.installation}/plugins/org.eclipse.pde.build_${pde.version}/scripts/productBuild/productBuild.xml" />
-							</target>
+   <!-- Defaults, override these as appropriate according to
+        descriptions above-->
+   <build.dir>${basedir}/target/CompassIDE</build.dir>
+   <eclipse.dir>${env.ECLIPSE_HOME}</eclipse.dir>
+   <equinox.ver>1.2.0.v20110502</equinox.ver>
+   <pde.ver>3.7.0.v20111116-2009</pde.ver>
+   <java.home>${env.JAVA_HOME}</java.home>
 
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
+   <!-- Home of the Eclipse providing PDE's plug-ins  -->
+   <eclipse.plugins.dir>${eclipse.dir}/plugins</eclipse.plugins.dir>
 
-				</executions>
-				<!-- dependencies> <dependency> <groupId>ant-contrib</groupId> <artifactId>ant-contrib</artifactId> 
-					<version>1.0b3</version> <exclusions> <exclusion> <groupId>ant</groupId> 
-					<artifactId>ant</artifactId> </exclusion> </exclusions> </dependency> <dependency> 
-					<groupId>ant</groupId> <artifactId>ant-nodeps</artifactId> <version>1.6.5</version> 
-					</dependency> </dependencies -->
-			</plugin>
-		</plugins>
-	</build>
+   <!--  build launcher is the equinox launcher  -->
+   <build.launcher>
+   ${eclipse.plugins.dir}/org.eclipse.equinox.launcher_${equinox.ver}.jar
+   </build.launcher>
+
+   <!-- XML Build script to create a product -->
+   <build.script>
+     ${eclipse.plugins.dir}/org.eclipse.pde.build_${pde.ver}/scripts/productBuild/productBuild.xml
+   </build.script>
+
+   <!-- The target platform -->
+   <target.platform.dir>
+     ${basedir}/target_platform
+   </target.platform.dir>
+
+ </properties>
+
+  <parent>
+    <groupId>eu.compassresearch.ide</groupId>
+    <artifactId>eu.compassresearch.ide.cml</artifactId>
+    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <name>eu.compassresearch.ide.cml.build</name>
+  <groupId>eu.compassresearch.ide.cml</groupId>
+  <artifactId>eu.compassresearch.ide.cml.build</artifactId>
+
+  <build>
+    <plugins>
+
+      <!-- Deploy Plug-in -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.7</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+
+      <!-- Copy our plugins into the build directory -->
+      <!-- Ant runner plug-in -->
+
+
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <id>build-config-files</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <ant target="copyStuff" inheritRefs="true" antfile="copyProjects.xml"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+
+
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.2</version>
+        <executions>
+          <execution>
+            <phase>install</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <executable>${java.home}/bin/java</executable>
+          <arguments> -->
+            <!-- For Eclipse documentation on invoking a headless build read:
+            http://help.eclipse.org/helios/index.jsp?
+            topic=%2Forg.eclipse.pde.doc.user%2Ftasks%2Fpde_product_build.htm
+            -->
+
+           <!-- The executable equinox launcher jar -->
+            <argument>-jar</argument> 
+            <argument> ${build.launcher}</argument>
+
+            <!-- The application argument -->
+            <argument>-application</argument>
+            <argument>org.eclipse.ant.core.antRunner</argument>
+
+           <!-- The build xml file for the ant runner -->
+            <argument>-buildfile</argument>
+            <argument>${build.script}</argument>
+
+            <!-- The build directory e.g. target/CompassIDE-->
+            <argument>-DbuildDirectory=${build.dir}</argument>
+
+            <!-- The product definition relative to the build.dir e.g. 
+                 plugins/platform/cml.product 
+            -->
+            <argument>
+            -Dproduct=plugins/platform/cml.product
+            </argument>
+
+            <!-- The builder points to the build.properties configuration-->
+            <argument>
+              -Dbuilder=${basedir}/build_config
+            </argument>
+
+           <!-- The target_platform -->
+            <argument>
+              -DbaseLocation=${target.platform.dir}
+            </argument>
+
+            <!-- The target_platform also provides additional extra plug-ins -->
+            <argument>
+              -DpluginPath=${target.platform.dir}
+            </argument>
+
+          </arguments>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
 
 </project>

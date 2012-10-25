@@ -12,15 +12,17 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
+import org.overture.ast.lex.LexLocation;
 
-import eu.compassresearch.ast.lex.LexLocation;
 import eu.compassresearch.ast.program.AFileSource;
+import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.typechecker.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.CmlTypeChecker.CMLTypeError;
-import eu.compassresearch.core.typechecker.VanillaCmlTypeChecker;
+import eu.compassresearch.core.typechecker.VanillaFactory;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlBuildVisitor implements IResourceVisitor
@@ -61,12 +63,18 @@ public class CmlBuildVisitor implements IResourceVisitor
       {
         try
           {
-            CmlTypeChecker cmlTC = new VanillaCmlTypeChecker(source);
+            
+            List<PSource> cmlSources = new LinkedList<PSource>();
+            cmlSources.add(source);
+            TypeIssueHandler issueHandler = VanillaFactory
+                .newCollectingIssueHandle();
+            CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(cmlSources,
+                issueHandler);
             boolean tcSuccess = cmlTC.typeCheck();
             if (!tcSuccess)
               {
                 
-                List<CMLTypeError> tcerrors = cmlTC.getTypeErrors();
+                List<CMLTypeError> tcerrors = issueHandler.getTypeErrors();
                 for (CMLTypeError tcError : tcerrors)
                   {
                     LexLocation loc = tcError.getLocation();

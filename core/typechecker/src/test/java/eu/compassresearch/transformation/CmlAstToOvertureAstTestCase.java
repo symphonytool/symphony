@@ -17,12 +17,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AValueDefinition;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.definitions.AValueDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.typechecker.VanillaFactory;
 
 @RunWith(value = Parameterized.class)
 public class CmlAstToOvertureAstTestCase
@@ -80,8 +79,7 @@ public class CmlAstToOvertureAstTestCase
       }
     
     public CmlAstToOvertureAstTestCase(String cmlSource, boolean postM12,
-        Class<? extends eu.compassresearch.ast.node.INode> start)
-        throws Throwable
+        Class<? extends org.overture.ast.node.INode> start) throws Throwable
       {
         this.cmlSource = cmlSource;
         this.postM12 = postM12;
@@ -103,9 +101,8 @@ public class CmlAstToOvertureAstTestCase
         CmlParser parser = CmlParser.newParserFromSource(source);
         Assert.assertTrue(parser.parse());
         
-        CmlAstToOvertureAst transform = new CmlAstToOvertureAst(null,
-            VanillaFactory.newCollectingIssueHandle());
-        eu.compassresearch.ast.node.INode node = (eu.compassresearch.ast.node.INode) findFirst(
+        CmlAstToOvertureAst transform = new CmlAstToOvertureAst();
+        org.overture.ast.node.INode node = (org.overture.ast.node.INode) findFirst(
             start, source);
         node.apply(transform);
       }
