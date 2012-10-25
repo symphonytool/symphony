@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.ltk.core.refactoring_3.5.201.r372_v20111101-0700" version="1.2">
+    <plugin id="org.eclipse.ltk.core.refactoring_3.5.201.r372_v20111101-0700"/>
+    <package name="org.eclipse.ltk.core.refactoring" visibility="1">
+        <type name="CategorizedTextEditGroup" restrictions="2"/>
+        <type name="CheckConditionsOperation" restrictions="2"/>
+        <type name="CompositeChange" restrictions="0">
+            <method name="internalContinueOnCancel" restrictions="8" signature="()Z"/>
+            <method name="internalHandleException" restrictions="8" signature="(Lorg/eclipse/ltk/core/refactoring/Change;Ljava/lang/Throwable;)V"/>
+            <method name="internalProcessOnCancel" restrictions="8" signature="(Lorg/eclipse/ltk/core/refactoring/Change;)Z"/>
+        </type>
+        <type name="ContentStamp" restrictions="2"/>
+        <type name="CreateChangeOperation" restrictions="2"/>
+        <type name="DocumentChange" restrictions="2"/>
+        <type name="FileStatusContext" restrictions="2"/>
+        <type name="GroupCategory" restrictions="2"/>
+        <type name="GroupCategorySet" restrictions="2"/>
+        <type name="IRefactoringCoreStatusCodes" restrictions="3"/>
+        <type name="IUndoManager" restrictions="3"/>
+        <type name="NullChange" restrictions="2"/>
+        <type name="PerformChangeOperation" restrictions="2"/>
+        <type name="PerformRefactoringHistoryOperation" restrictions="6"/>
+        <type name="PerformRefactoringOperation" restrictions="2"/>
+        <type name="RefactoringChangeDescriptor" restrictions="2"/>
+        <type name="RefactoringContribution" restrictions="0">
+            <method name="getId" restrictions="16" signature="()Ljava/lang/String;"/>
+        </type>
+        <type name="RefactoringCore" restrictions="2">
+            <method name="internalSetQueryFactory" restrictions="8" signature="(Lorg/eclipse/ltk/core/refactoring/IValidationCheckResultQueryFactory;)V"/>
+        </type>
+        <type name="RefactoringDescriptorProxy" restrictions="2"/>
+        <type name="RefactoringSessionDescriptor" restrictions="2"/>
+        <type name="RefactoringStatus" restrictions="2"/>
+        <type name="RefactoringStatusEntry" restrictions="2"/>
+        <type name="TextChange" restrictions="2"/>
+        <type name="TextEditBasedChangeGroup" restrictions="2"/>
+        <type name="TextEditChangeGroup" restrictions="2"/>
+    </package>
+    <package name="org.eclipse.ltk.core.refactoring.history" visibility="1">
+        <type name="IRefactoringHistoryService" restrictions="3"/>
+        <type name="RefactoringExecutionEvent" restrictions="4"/>
+        <type name="RefactoringHistoryEvent" restrictions="4"/>
+    </package>
+    <package name="org.eclipse.ltk.core.refactoring.participants" visibility="1">
+        <type name="CheckConditionsContext" restrictions="2"/>
+        <type name="CopyArguments" restrictions="2"/>
+        <type name="CopyRefactoring" restrictions="2"/>
+        <type name="CreateArguments" restrictions="2"/>
+        <type name="DeleteArguments" restrictions="2"/>
+        <type name="DeleteRefactoring" restrictions="2"/>
+        <type name="MoveArguments" restrictions="2"/>
+        <type name="MoveRefactoring" restrictions="2"/>
+        <type name="ParticipantExtensionPoint" restrictions="2"/>
+        <type name="ParticipantManager" restrictions="2"/>
+        <type name="RenameRefactoring" restrictions="2"/>
+        <type name="ReorgExecutionLog" restrictions="2"/>
+        <type name="ResourceChangeChecker" restrictions="2"/>
+        <type name="SharableParticipants" restrictions="6"/>
+        <type name="ValidateEditChecker" restrictions="2"/>
+    </package>
+    <package name="org.eclipse.ltk.core.refactoring.resource" visibility="1">
+        <type name="DeleteResourcesDescriptor" restrictions="6"/>
+        <type name="MoveResourcesDescriptor" restrictions="4"/>
+        <type name="RenameResourceDescriptor" restrictions="4"/>
+    </package>
+</component>
