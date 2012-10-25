@@ -23,7 +23,7 @@
   <build>
     <plugins>
 
-            <plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
@@ -43,6 +43,7 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
+              </artifactItems>
               <outputDirectory>lib</outputDirectory>
               <overWriteReleases>true</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
