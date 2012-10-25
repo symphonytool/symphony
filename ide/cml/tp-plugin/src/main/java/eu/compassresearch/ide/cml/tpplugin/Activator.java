@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.rttplugin;
+package eu.compassresearch.ide.cml.tpplugin;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
