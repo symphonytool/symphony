@@ -48,6 +48,7 @@ Import-Package:
   eu.compassresearch.ast.typechecker,
   eu.compassresearch.ast.types,
   eu.compassresearch.core.parser,
+  eu.compassresearch.core.lexer,
   eu.compassresearch.core.typechecker,
   eu.compassresearch.ide.cml.core,
   eu.compassresearch.transformation,
