@@ -12,6 +12,8 @@
   <artifactId>eu.compassresearch.ide.cml.tp-plugin</artifactId>
   <name>COMPASS Isabelle Plugin</name>
 
+  <packaging>pom</packaging>
+
   <dependencies>
     <dependency>
       <groupId>org.eclipse.ui</groupId>
