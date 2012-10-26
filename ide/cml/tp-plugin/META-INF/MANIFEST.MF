@@ -1,14 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: COMPASS RT Tester Plugin
-Bundle-SymbolicName: eu.compassresearch.ide.cml.rttplugin;singleton:=true
+Bundle-Name: COMPASS Isabelle Plugin
+Bundle-SymbolicName: eu.compassresearch.ide.cml.tpplugin;singleton:=true
 Bundle-Version: 0.0.1
 Bundle-ClassPath: .,
- lib/rtt-mbt-0.0.1.jar
-Bundle-Activator: eu.compassresearch.ide.cml.rttplugin.Activator
+ lib/theoremprover-0.0.1.jar
+Bundle-Activator: eu.compassresearch.ide.cml.tpplugin.Activator
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
-Export-Package: eu.compassresearch.ide.cml.rttplugin
 Require-Bundle: eu.compassresearch.ide.cml.core,
  org.eclipse.debug.ui,
  org.eclipse.ui.workbench.texteditor;bundle-version="3.5.1",
@@ -17,8 +16,7 @@ Require-Bundle: eu.compassresearch.ide.cml.core,
  eu.compassresearch.ide.cml.ui;bundle-version="0.0.1",
  org.eclipse.ui;bundle-version="3.7.0",
  org.eclipse.ui.ide;bundle-version="3.7.0",
- org.overture.ide.ui;bundle-version="2.2.0",
- org.eclipse.osgi;bundle-version="3.7.2"
+ org.overture.ide.ui;bundle-version="2.2.0"
 Import-Package: eu.compassresearch.ide.cml.core
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered

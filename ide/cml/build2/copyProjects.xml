@@ -1,6 +1,8 @@
 <project name="eu.compassresearch.ide" default="copyStuff">
   <target name="copyStuff">
     <property name="buildDirectory" value="target/CompassIDE"/>
+    <property name="target.platform.dir" value="target_platform"/>
+    <property name="target.platform.tar" value="targetplatform.tar.bz2"/>
     
     <echo message="Copying ui, core and platform"/>
     <copy todir="${buildDirectory}/plugins">
@@ -12,6 +14,19 @@
 	<exclude name="**/target/"/>
       </fileset>
     </copy>
+
+
+    <condition property="target_platform_exists">
+      <available file="${target.platform.dir}" type="dir"/>
+    </condition>
+
+    <condition property="target_platform_tar_exists">
+      <or>
+      <available file="${target.platform.tar}" type="file"/>
+      <available file="${target.platform.dir}" type="dir"/>
+      </or>
+    </condition>
+
 <!--
     <copy todir="${buildDirectory}/plugins">
       <fileset dir="cml_local_deps">
@@ -20,7 +35,8 @@
       </fileset>
     </copy>
 -->
-    <echo message="Copying Parsers"/>
+
+   <echo message="Copying Parsers"/>
     <copy todir="${buildDirectory}/plugins">
       <fileset dir="../../">
 	<include name="parsers/**" />
@@ -49,5 +65,24 @@
 	</tokenfilter>
       </filterchain>
     </copy>
-  </target>
+    <antcall target="download"/>
+    <antcall target="extract_target_platform"/>
+ 
+ </target>
+
+
+   <target name="download" unless="${target_platform_tar_exists}">
+     <echo message="Downloading Target Platform (approx 180Mb) this will take some time..."/>
+     <get src="http://build.overturetool.org/builds/compass-eclipse-372/${target.platform.tar}"
+          dest="${target.platform.tar}" />
+   </target>
+
+   <target name="extract_target_platform" unless="${target_platform_exists}">
+     <untar
+         src="${target.platform.tar}"
+         compression="bzip2"
+         dest="."/>
+   </target>
+
+ 
 </project>

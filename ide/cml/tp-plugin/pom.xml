@@ -9,21 +9,22 @@
   </parent>
 
   <groupId>eu.compassresearch.ide.cml</groupId>
-  <artifactId>eu.compassresearch.ide.cml.rtt-plugin</artifactId>
-  <name>COMPASS RT Tester Plugin</name>
+  <artifactId>eu.compassresearch.ide.cml.tp-plugin</artifactId>
+  <name>COMPASS Isabelle Plugin</name>
 
   <packaging>pom</packaging>
 
- <dependencies>
+  <dependencies>
     <dependency>
       <groupId>org.eclipse.ui</groupId>
       <artifactId>org.eclipse.ui.ide</artifactId>
       <version>3.7.0</version>
     </dependency>
- </dependencies>
+  </dependencies>
 
-  <build>
+ <build>
     <plugins>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -39,7 +40,7 @@
                 <!-- Copy the rtt-mbt analysis from core to lib -->
                 <artifactItem>
                   <groupId>eu.compassresearch.core.analysis</groupId>
-                  <artifactId>rtt-mbt</artifactId>
+                  <artifactId>theoremprover</artifactId>
                   <version>${project.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
@@ -55,5 +56,6 @@
 
     </plugins>
   </build>
+
 
 </project>

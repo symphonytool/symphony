@@ -30,13 +30,13 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
     /**
 	 * 
 	 */
-    private static final long serialVersionUID = 6664128061930795395L;
-    private CmlEvaluator      evalutor         = new CmlEvaluator();
-    protected List<PSource> sourceForest;
-	protected Environment<PDefinition> env;
-	protected String defaultProcess;
-	private CmlScheduler cmlScheduler = new CmlScheduler();
-        
+    private static final long          serialVersionUID = 6664128061930795395L;
+    private CmlEvaluator               evalutor         = new CmlEvaluator();
+    protected List<PSource>            sourceForest;
+    protected Environment<PDefinition> env;
+    protected String                   defaultProcess;
+    private CmlScheduler               cmlScheduler     = new CmlScheduler();
+    
     /**
      * Construct a CmlInterpreter with a list of PSources. These source may
      * refer to each other.
@@ -47,7 +47,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
      */
     public VanillaCmlInterpreter(List<PSource> cmlSources)
       {
-    	this.sourceForest = cmlSources;
+        this.sourceForest = cmlSources;
         initialize();
         
       }
@@ -66,31 +66,34 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
       }
     
     protected void initialize()
-	{
-		EnvironmentBuilder envBuilder = new EnvironmentBuilder(sourceForest);
-		
-		env = envBuilder.getGlobalEnvironment();
-		
-		defaultProcess = envBuilder.getLastDefinedProcess();
-	}
-
-	@Override
-	public Environment<PDefinition> getGlobalEnvironment() {
-		
-		return env;
-	}
-
-	@Override
-	public String getDefaultName() {
-		
-		return defaultProcess;
-	}
-	
-	@Override
-	public void setDefaultName(String name) throws Exception {
-		
-		defaultProcess = name;
-	}
+      {
+        EnvironmentBuilder envBuilder = new EnvironmentBuilder(sourceForest);
+        
+        env = envBuilder.getGlobalEnvironment();
+        
+        defaultProcess = envBuilder.getLastDefinedProcess();
+      }
+    
+    @Override
+    public Environment<PDefinition> getGlobalEnvironment()
+      {
+        
+        return env;
+      }
+    
+    @Override
+    public String getDefaultName()
+      {
+        
+        return defaultProcess;
+      }
+    
+    @Override
+    public void setDefaultName(String name) throws Exception
+      {
+        
+        defaultProcess = name;
+      }
     
     @Override
     public Value execute() throws AnalysisException
@@ -98,13 +101,12 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         
         Environment<PDefinition> env = getGlobalEnvironment();
         
-        
-        //if(getDefaultName() == null)
+        // if(getDefaultName() == null)
         // Find the default process
         AProcessDefinition processDef = null;
-//        AProcessDefinition processDef = (AProcessDefinition)env
-//            .lookupName(new LexIdentifierToken(getDefaultName(), false, null));
-//        
+        // AProcessDefinition processDef = (AProcessDefinition)env
+        // .lookupName(new LexIdentifierToken(getDefaultName(), false, null));
+        //
         if (processDef == null)
           throw new AnalysisException("No process identified by '"
               + getDefaultName() + "' exists");
@@ -123,7 +125,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         
         return null;
       }
-        
+    
     public String getAnalysisName()
       {
         return "The CML Interpreter";
@@ -182,7 +184,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
         try
           {
-            //cmlInterp.setDefaultName("A");
+            // cmlInterp.setDefaultName("A");
             cmlInterp.execute();
           } catch (Exception ex)
           {
@@ -202,13 +204,13 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         
         File cml_example = new File(
             "src/test/resources/process/firstInterpreterTest.cml");
-        	//	"src/test/resources/process/GeneralisedParallelismAction.cml");
+        // "src/test/resources/process/GeneralisedParallelismAction.cml");
         runOnFile(cml_example);
         
       }
     
     public InterpreterStatus getStatus()
-    {
-    	return new InterpreterStatus(cmlScheduler.getTrace());
-    }
+      {
+        return new InterpreterStatus(cmlScheduler.getTrace());
+      }
   }

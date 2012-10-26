@@ -8,6 +8,8 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.lex.LexIdentifierToken;
 
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -22,10 +24,7 @@ import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.definitions.SFunctionDefinition;
 import eu.compassresearch.ast.definitions.SOperationDefinition;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -134,8 +133,10 @@ public class CmlTreeContentProvider implements ITreeContentProvider
                         else
                           {
                             
-                            LexIdentifierToken name = section.getName();
-                            if (name == null)
+                            // LexIdentifierToken name = (LexIdentifierToken)
+                            // section
+                            // .getName();
+                            if (true)// (name == null)
                               res.add(Wrapper.newInstance(section, section
                                   .getClass().getCanonicalName()
                                   + " has to name :(."));
@@ -177,10 +178,9 @@ public class CmlTreeContentProvider implements ITreeContentProvider
               {
                 List<String> res = new LinkedList<String>();
                 AFunctionParagraphDefinition fd = (AFunctionParagraphDefinition) w.value;
-                for (SFunctionDefinition fnd : fd.getFunctionDefinitions())
+                for (PDefinition fnd : fd.getFunctionDefinitions())
                   {
-                    res.add(""
-                        + notNullName(fnd.getName(), fnd.getClass().getName())
+                    res.add("" + notNullName(null, fnd.getClass().getName())
                         + ":" + fnd.getType());
                   }
                 return res.toArray();
@@ -192,7 +192,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider
                 AOperationParagraphDefinition od = (AOperationParagraphDefinition) w.value;
                 for (SOperationDefinition sod : od.getOperations())
                   {
-                    res.add(notNullName(sod.getName(), od.getClass().getName()));
+                    res.add(notNullName(null, od.getClass().getName()));
                   }
                 return res.toArray();
               }
@@ -203,8 +203,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider
                 AActionParagraphDefinition ad = (AActionParagraphDefinition) w.value;
                 for (AActionDefinition a : ad.getActions())
                   {
-                    res.add("[A] "
-                        + notNullName(a.getName(), ad.getClass().getName()));
+                    res.add("[A] " + notNullName(null, ad.getClass().getName()));
                   }
                 return res.toArray();
                 

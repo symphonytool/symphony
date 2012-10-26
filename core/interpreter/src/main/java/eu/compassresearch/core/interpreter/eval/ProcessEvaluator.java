@@ -45,6 +45,7 @@ public class ProcessEvaluator extends
         
         // TODO Initialize the process state
         CMLContext inner = new CMLContext(node.getLocation(),"caseAInstantiationProcess", question);
+
         // TODO Add the process arguments
         CMLProcess instantiatedProcess = processDefinition.getProcess().apply(
             this, inner);

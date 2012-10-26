@@ -27,22 +27,21 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
     /**
 	 * 
 	 */
-    private static final long serialVersionUID 			= 493918199975006733L;
-    private Environment<PDefinition> env             	= null;
-    private String lastDefinedProcess 					= null;
+    private static final long        serialVersionUID   = 493918199975006733L;
+    private Environment<PDefinition> env                = null;
+    private String                   lastDefinedProcess = null;
     
     public EnvironmentBuilder(List<PSource> sources)
-    {
-    	BuildGlobalEnvironment(sources);
-    }
-    
-    private void BuildGlobalEnvironment(
-        List<PSource> sources)
       {
-        //EnvironmentBuilder envBuilder = new EnvironmentBuilder();
+        BuildGlobalEnvironment(sources);
+      }
+    
+    private void BuildGlobalEnvironment(List<PSource> sources)
+      {
+        // EnvironmentBuilder envBuilder = new EnvironmentBuilder();
         
-    	env = new Environment<PDefinition>(null);
-    	
+        env = new Environment<PDefinition>(null);
+        
         for (PSource source : sources)
           {
             for (SParagraphDefinition def : source.getParagraphs())
@@ -61,9 +60,9 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
       }
     
     public String getLastDefinedProcess()
-    {
-    	return lastDefinedProcess;
-    }
+      {
+        return lastDefinedProcess;
+      }
     
     public Environment<PDefinition> getGlobalEnvironment()
       {

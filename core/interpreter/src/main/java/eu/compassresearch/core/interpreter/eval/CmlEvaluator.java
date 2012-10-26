@@ -13,7 +13,6 @@ import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
-
 @SuppressWarnings("serial")
 public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value> {
 
