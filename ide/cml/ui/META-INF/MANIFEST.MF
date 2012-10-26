@@ -15,7 +15,7 @@ Require-Bundle: eu.compassresearch.ide.cml.core,
   org.eclipse.core.runtime,
   org.eclipse.equinox.common,
   org.overture.ide.ui;bundle-version="2.2.0",
-  org.overture.ide.core;bundle-version="2.2.0"
+  org.overture.ide.core
 Bundle-Activator: eu.compassresearch.ide.cml.ui.CmlUIPlugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: eu.compassresearch.ide.cml.ui;uses:="org.eclipse.ui.plugin,org.osgi.framework",
@@ -54,6 +54,7 @@ Import-Package:
   eu.compassresearch.transformation,
   org.overture.ast.lex,
   org.overture.ast.node,
+  org.overture.util,
   org.overture.ast.analysis,
   org.overture.ast.assistant.type,
   org.overture.ast.assistant.definition,

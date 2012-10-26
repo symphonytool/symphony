@@ -12,7 +12,7 @@
   <artifactId>eu.compassresearch.ide.cml.ui</artifactId>
   <name>COMPASS IDE CML UI</name>
 
- <dependencies>
+  <dependencies>
     <dependency>
       <groupId>org.overture.ide</groupId>
       <artifactId>org.overture.ide.ui</artifactId>
