@@ -17,7 +17,8 @@ Require-Bundle: eu.compassresearch.ide.cml.core,
  eu.compassresearch.ide.cml.ui;bundle-version="0.0.1",
  org.eclipse.ui;bundle-version="3.7.0",
  org.eclipse.ui.ide;bundle-version="3.7.0",
- org.overture.ide.ui;bundle-version="2.2.0"
+ org.overture.ide.ui;bundle-version="2.2.0",
+ org.eclipse.osgi;bundle-version="3.7.2"
 Import-Package: eu.compassresearch.ide.cml.core
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered

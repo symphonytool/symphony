@@ -1,5 +1,7 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.config.Settings;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
@@ -7,18 +9,15 @@ import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.CPUValue;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.transformation.CmlAstToOvertureAst;
 
 public class CmlExpressionEvaluator extends
-    QuestionAnswerAdaptor<CMLContext, Value>
+    QuestionAnswerCMLAdaptor<CMLContext, Value>
   {
     
-    CmlAstToOvertureAst                               transform  = new CmlAstToOvertureAst(
-                                                                     null, null);
+    CmlAstToOvertureAst                               transform  = new CmlAstToOvertureAst();
     org.overture.interpreter.eval.ExpressionEvaluator ovtExpEval = new org.overture.interpreter.eval.ExpressionEvaluator();
     
     @Override
@@ -44,8 +43,8 @@ public class CmlExpressionEvaluator extends
             InitThread initThread = new InitThread(Thread.currentThread());
             BasicSchedulableThread.setInitialThread(initThread);
             
-            org.overture.interpreter.runtime.Context evalContext = question
-                .getOvertureContext();
+            org.overture.interpreter.runtime.Context evalContext = null; // question
+            // .getOvertureContext();
             // new org.overture.interpreter.runtime.Context(location,
             // "process expression", initialContext);
             evalContext.setThreadState(null, CPUValue.vCPU);
