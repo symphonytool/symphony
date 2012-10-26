@@ -1,7 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.types.PType;
 
@@ -11,6 +10,7 @@ import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.AStatementType;
@@ -25,7 +25,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
  */
 @SuppressWarnings("serial")
 class TCStatementVisitor extends
-    QuestionAnswerAdaptor<TypeCheckQuestion, PType>
+    QuestionAnswerCMLAdaptor<TypeCheckQuestion, PType>
   {
     
     private final CmlTypeChecker   parentChecker;

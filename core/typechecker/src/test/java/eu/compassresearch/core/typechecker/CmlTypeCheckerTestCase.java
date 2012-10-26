@@ -18,8 +18,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.overture.ast.analysis.AnalysisException;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlParser;
@@ -531,8 +531,8 @@ public class CmlTypeCheckerTestCase extends TestCase
                                  // undefined TC should find that
         // 128
         addTestProgram(testData,
-            "process A = begin @ Skip end process p1 = A || Skip",
-            true, true, true);
+            "process A = begin @ Skip end process p1 = A || Skip", true, true,
+            true);
         // 129
         addTestProgram(
             testData,
