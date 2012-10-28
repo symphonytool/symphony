@@ -82,6 +82,16 @@
                   <overWrite>true</overWrite>
                 </artifactItem>
 
+                <!-- Overture Parser -->
+                <artifactItem>
+                  <groupId>org.overturetool.core</groupId>
+                  <artifactId>parser</artifactId>
+                  <version>2.2.0</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+
+
 
               </artifactItems>
               <outputDirectory>lib</outputDirectory>
