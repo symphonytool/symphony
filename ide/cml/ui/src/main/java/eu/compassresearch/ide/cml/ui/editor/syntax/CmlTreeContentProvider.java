@@ -8,6 +8,10 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
 
@@ -16,18 +20,18 @@ import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AActionParagraphDefinition;
+import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
+import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
 import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
+import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
-//import eu.compassresearch.ast.definitions.PDefinition;
-//import eu.compassresearch.ast.definitions.SFunctionDefinition;
 import eu.compassresearch.ast.definitions.SOperationDefinition;
-//import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -105,23 +109,23 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		if (n instanceof Wrapper) {
 			Wrapper w = (Wrapper) n;
 
-//			if (w.isClass(AClassParagraphDefinition.class)) {
-//				return handleClassParagraphDefinition(
-//						(AClassParagraphDefinition) w.value).toArray();
-//			}
-//
-//			if (w.isClass(AChannelParagraphDefinition.class))
-//				return handleChannelParagraphDefinition(
-//						(AChannelParagraphDefinition) w.value).toArray();
-//
-//			if (w.isClass(AChansetParagraphDefinition.class))
-//				return handleChansetParagraphDefinition(
-//						(AChansetParagraphDefinition) w.value).toArray();
-//
-//			if (w.isClass(AValueParagraphDefinition.class)) {
-//				return handleValueParagraphDefinition(
-//						(AValueParagraphDefinition) w.value).toArray();
-//			}
+			if (w.isClass(AClassParagraphDefinition.class)) {
+				return handleClassParagraphDefinition(
+						(AClassParagraphDefinition) w.value).toArray();
+			}
+
+			if (w.isClass(AChannelParagraphDefinition.class))
+				return handleChannelParagraphDefinition(
+						(AChannelParagraphDefinition) w.value).toArray();
+
+			if (w.isClass(AChansetParagraphDefinition.class))
+				return handleChansetParagraphDefinition(
+						(AChansetParagraphDefinition) w.value).toArray();
+
+			if (w.isClass(AValueParagraphDefinition.class)) {
+				return handleValueParagraphDefinition(
+						(AValueParagraphDefinition) w.value).toArray();
+			}
 
 			if (w.isClass(AProcessParagraphDefinition.class)){
 				return handleProcessParagraphDefinition((AProcessParagraphDefinition)w.value).toArray();
@@ -144,24 +148,26 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 				handleSequentialCompisitionProcess(res, comp);
 				return res.toArray();
 			}
-//
-//			if (((Wrapper) n).isClass(ATypesParagraphDefinition.class)) {
-//				List<String> res = new LinkedList<String>();
-//				ATypesParagraphDefinition td = (ATypesParagraphDefinition) w.value;
-//				for (ATypeDefinition atd : td.getTypes()) {
-//					res.add(makeDefinitionName(atd));
-//				}
-//				return res.toArray();
+
+			if (((Wrapper) n).isClass(ATypesParagraphDefinition.class)) {
+				List<String> res = new LinkedList<String>();
+				ATypesParagraphDefinition td = (ATypesParagraphDefinition) w.value;
+				for (ATypeDefinition atd : td.getTypes()) {
+					res.add(makeDefinitionName(atd));
+				}
+				return res.toArray();
 			}
 			
-//			if (((Wrapper) n).isClass(AFunctionParagraphDefinition.class)) {
-//				List<String> res = new LinkedList<String>();
-//				AFunctionParagraphDefinition fd = (AFunctionParagraphDefinition) w.value;
-//				for (SFunctionDefinition fnd : fd.getFunctionDefinitions()) {
-//					res.add(makeDefinitionName(fnd));
-//				}
-//				return res.toArray();
-//			}
+			if (((Wrapper) n).isClass(AFunctionParagraphDefinition.class)) {
+				List<String> res = new LinkedList<String>();
+				AFunctionParagraphDefinition fd = (AFunctionParagraphDefinition) w.value;
+				
+				//FIXME-New function definition is?
+				for (PDefinition fnd : fd.getFunctionDefinitions()) {
+					res.add(makeDefinitionName(fnd));
+				}
+				return res.toArray();
+			}
 
 //			if (((Wrapper) n).isClass(AOperationParagraphDefinition.class)) {
 //				List<String> res = new LinkedList<String>();
@@ -171,7 +177,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 //				}
 //				return res.toArray();
 //			}
-
+//
 //			if (((Wrapper) n).isClass(AActionParagraphDefinition.class)) {
 //				List<String> res = new LinkedList<String>();
 //				AActionParagraphDefinition ad = (AActionParagraphDefinition) w.value;
@@ -181,24 +187,22 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 //				return res.toArray();
 //
 //			}
-//		}
+		}
 
 		return new String[0];
 	}
 
 
 
-//	private List<String> handleChansetParagraphDefinition(
-//			AChansetParagraphDefinition cspdef) {
-//		List<String> r = new LinkedList<String>();
-//		for (AChansetDefinition cdef : cspdef.getChansets()) {
-//			// cdef.get
-//			r.add(cdef.getIdentifier().toString() + ": "
-//					+ cdef.getChansetExpressions().toString());
-//			// s r.add(cdef.getName().name);
-//		}
-//		return r;
-//	}
+	private List<String> handleChansetParagraphDefinition(
+			AChansetParagraphDefinition cspdef) {
+		List<String> r = new LinkedList<String>();
+		for (AChansetDefinition cdef : cspdef.getChansets()) {
+			r.add(cdef.getIdentifier().toString() + ": "
+					+ cdef.getChansetExpressions().toString());
+		}
+		return r;
+	}
 
 	private List<String> handleClassParagraphDefinition(
 			AClassParagraphDefinition cpdef) {
@@ -220,22 +224,22 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 
 	String makeDefinitionName(PDefinition def) {
 		String r = "";
-//		if (def instanceof AValueDefinition) {
-//			String nameguard = "??";
-//			String typeguard = "??";
-//			if (null != def.getName())
-//				nameguard = def.getName().name;
-//			if (null != def.getType())
-//				typeguard = def.getType().toString();
-//			r = "v] " + nameguard + ": " + typeguard;
-//		}
-//		if (def instanceof SFunctionDefinition) {
-//			// FIXME-ldc how to extract function types
-//			r = "f] " + def.getName().name + ": " + def.getType();
-//		}
-//		if (def instanceof ATypeDefinition) {
-//			r = "t] " + def.getName().name;
-//		}
+		if (def instanceof AValueDefinition) {
+			String nameguard = "??";
+			String typeguard = "??";
+			if (null != def.getName())
+				nameguard = def.getName().name;
+			if (null != def.getType())
+				typeguard = def.getType().toString();
+			r = "v] " + nameguard + ": " + typeguard;
+		}
+		if (def instanceof AExplicitFunctionDefinition || def instanceof AImplicitFunctionDefinition) {
+			// FIXME-ldc how to extract function types
+			r = "f] " + def.getName().name + ": " + def.getType();
+		}
+		if (def instanceof ATypeDefinition) {
+			r = "t] " + def.getName().name;
+		}
 		if (def instanceof SOperationDefinition) {
 			r="o] " + def.getName().name + ": " + def.getType();
 			}
@@ -252,18 +256,18 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 				r.add(makeDefinitionName(subdef));
 			}
 		}
-//		if (pdef instanceof AFunctionParagraphDefinition) {
-//			for (SFunctionDefinition subdef : ((AFunctionParagraphDefinition) pdef)
-//					.getFunctionDefinitions()) {
-//				r.add(makeDefinitionName(subdef));
-//			}
-//		}
-//		if (pdef instanceof ATypesParagraphDefinition) {
-//			for (ATypeDefinition subdef : ((ATypesParagraphDefinition) pdef)
-//					.getTypes()) {
-//				r.add(makeDefinitionName(subdef));
-//			}
-//		}
+		if (pdef instanceof AFunctionParagraphDefinition) {
+			for (PDefinition subdef : ((AFunctionParagraphDefinition) pdef)
+					.getFunctionDefinitions()) {
+				r.add(makeDefinitionName(subdef));
+			}
+		}
+		if (pdef instanceof ATypesParagraphDefinition) {
+			for (ATypeDefinition subdef : ((ATypesParagraphDefinition) pdef)
+					.getTypes()) {
+				r.add(makeDefinitionName(subdef));
+			}
+		}
 		if (pdef instanceof AOperationParagraphDefinition) {
 			for (SOperationDefinition subdef : ((AOperationParagraphDefinition) pdef)
 					.getOperations()) {
@@ -281,12 +285,12 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			return Wrapper.newInstance(pdef, "global function declarations");
 		if (pdef instanceof AOperationParagraphDefinition)
 			return Wrapper.newInstance(pdef, "Operations");
-//		if (pdef instanceof ATypesParagraphDefinition)
-//			return Wrapper.newInstance(pdef, "global type declarations");
-//		if (pdef instanceof AChannelParagraphDefinition)
-//			return Wrapper.newInstance(pdef, "channel declarations");
-//		if (pdef instanceof AChansetParagraphDefinition)
-//			return Wrapper.newInstance(pdef, "chanset declarations");
+		if (pdef instanceof ATypesParagraphDefinition)
+			return Wrapper.newInstance(pdef, "global type declarations");
+		if (pdef instanceof AChannelParagraphDefinition)
+			return Wrapper.newInstance(pdef, "channel declarations");
+		if (pdef instanceof AChansetParagraphDefinition)
+			return Wrapper.newInstance(pdef, "chanset declarations");
 
 		return Wrapper.newInstance(pdef, pdef.getName().name);
 		// if (null == def.getName())
@@ -369,15 +373,15 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 	}
 
 
-//	private List<String> handleChannelParagraphDefinition(
-//			AChannelParagraphDefinition cpdef) {
-//		List<String> r = new LinkedList<String>();
-//		for (AChannelNameDeclaration dec : cpdef.getChannelNames()) {
-//			r.add(dec.getSingleType().getIdentifiers().toString() + ": "
-//					+ dec.getSingleType().getType());
-//		}
-//		return r;
-//	}	
+	private List<String> handleChannelParagraphDefinition(
+			AChannelParagraphDefinition cpdef) {
+		List<String> r = new LinkedList<String>();
+		for (AChannelNameDeclaration dec : cpdef.getChannelNameDeclarations()) {
+			r.add(dec.getSingleType().getIdentifiers().toString() + ": "
+					+ dec.getSingleType().getType());
+		}
+		return r;
+	}	
 
 	private List<String> handleValueParagraphDefinition(
 			AValueParagraphDefinition cast) {
