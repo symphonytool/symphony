@@ -6,6 +6,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.overture.parser.messages.VDMMessage;
+import org.overture.typechecker.TypeChecker;
 
 public class CmlIncrementalBuilder extends IncrementalProjectBuilder
   {
@@ -14,7 +16,6 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder
     protected IProject[] build(int kind, Map<String, String> args,
         IProgressMonitor monitor) throws CoreException
       {
-        
         // Create a visitor
         CmlBuildVisitor buildVisitor = new CmlBuildVisitor();
         

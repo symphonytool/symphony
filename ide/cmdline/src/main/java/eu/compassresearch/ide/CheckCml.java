@@ -23,11 +23,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.DepthFirstAnalysisAdaptor;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.analysis.intf.IAnalysis;
-import eu.compassresearch.ast.node.INode;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.intf.IAnalysis;
+import org.overture.ast.node.INode;
+
+import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.preview.DotGraphVisitor;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
@@ -35,6 +36,7 @@ import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
 import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.lexer.CmlLexer;
+import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -73,7 +75,7 @@ public class CheckCml
                 parser.setDocument(currentTree);
                 if (!parser.parse())
                   {
-                    handleError(parser, new File("-"));
+                    handleError(lexer, new File("-"));
                     return;
                   } else
                   sourceForest.add(currentTree);
@@ -90,7 +92,7 @@ public class CheckCml
                   parser.setDocument(currentTree);
                   if (!parser.parse())
                     {
-                      handleError(parser, source);
+                      handleError(lexer, source);
                       return;
                     } else
                     sourceForest.add(currentTree);
@@ -294,9 +296,15 @@ public class CheckCml
         return r;
       }
     
-    private static void handleError(CmlParser parser, File input)
+    private static void handleError(CmlLexer lexer, File input)
       {
         System.out.println("Errors in " + input);
+        if (lexer != null)
+        {
+        	List<ParserError> errors = lexer.parseErrors;
+        	for(ParserError pe : errors)
+        		System.out.println("\t"+pe.toString());
+        }
       }
     
     /*************************************************************
@@ -455,7 +463,7 @@ public class CheckCml
         
         if (input.isSwitchOn(Switch.EMPTY))
           {
-            final IAnalysis empty = new DepthFirstAnalysisAdaptor();
+            final IAnalysis empty = new DepthFirstAnalysisCMLAdaptor();
             AnalysisRunAdaptor r = new AnalysisRunAdaptor(empty)
               {
                 public void apply(INode root) throws AnalysisException
@@ -545,7 +553,7 @@ public class CheckCml
                   {
                     POContextStack question = new POContextStack();
                     root.apply(
-                        (QuestionAnswerAdaptor<POContextStack, ProofObligationList>) pog,
+                         pog,
                         question);
                   }
               };
