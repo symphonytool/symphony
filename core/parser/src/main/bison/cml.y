@@ -117,8 +117,8 @@
 %right CARD POWER DUNION DINTER
 %right DOM RNG MERGE
 %right LEN ELEMS HD TL INDS CONC REVERSE
-// VDM prec group applicators
-%left DOT BACKTICK
+// VDM prec group applicators ---- plus CSP communication elements
+%left DOT BACKTICK BANG QUESTION
 // VDM prec (highest) group combinators
 %right COMP
 %right DSTAR
@@ -330,20 +330,13 @@ action :
  *   communication: IDENTIFIER { communicationParameter }
  *   communicationParameter: '?' parameter | '?' parameter ':' expression | '!' expression | '.' expression
  * here:
- *   communication '->' action
+ *   expression '->' action
  *
  * Need to verify that this matches all desired communication formats; see sub-production
  */
-| communication RARROW action[to]
-/* DEVIATON
- * grammar:
- *   expression '&' action
- * here:
- *   '[' expression ']' '&' action
- *
- * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
- */
-| LSQUARE expression RSQUARE AMP action
+| expression RARROW action[to]
+/* guards */
+| expression AMP action
 | action SEMI action
 | action LRSQUARE action
 | action BARTILDEBAR action
@@ -468,15 +461,15 @@ actionList :
 | actionList[list] COMMA action
 ;
 
-communication[result] :
-  IDENTIFIER
-| communication[before] DOT IDENTIFIER
-| communication[before] DOT matchValue
-| communication[before] BANG IDENTIFIER
-| communication[before] BANG matchValue
-| communication[before] QUESTION pattern
-| communication[before] QUESTION setBind
-;
+/* communication[result] : */
+/*   IDENTIFIER */
+/* | communication[before] DOT IDENTIFIER */
+/* | communication[before] DOT matchValue */
+/* | communication[before] BANG IDENTIFIER */
+/* | communication[before] BANG matchValue */
+/* | communication[before] QUESTION pattern */
+/* | communication[before] QUESTION setBind */
+/* ; */
 
 parametrisationList :
   parametrisation
@@ -952,6 +945,7 @@ expression :
 | textLiteral
 | quoteLiteral
 /* symbolic literal expressions end*/
+| LPAREN expression RPAREN
 | SELF
 | IDENTIFIER
 | IDENTIFIER TILDE
@@ -962,7 +956,12 @@ expression :
 | expression LPAREN expressionList RPAREN
 | expression LPAREN expression ELLIPSIS expression RPAREN
 | expression DOT matchValue 
-| LPAREN expression RPAREN
+/* communication structure */
+| expression BANG IDENTIFIER
+| expression BANG matchValue
+| expression QUESTION pattern
+| expression QUESTION setBind
+/* end communication structure*/
 | LET localDefList IN expression %prec LET
 | ifExpr
 | casesExpr
