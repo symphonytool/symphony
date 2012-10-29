@@ -32,8 +32,6 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.preview.DotGraphVisitor;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
-import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.lexer.ParserError;
@@ -340,6 +338,7 @@ public class CheckCml
      * Helper methods run analysis controlling propergation of exceptions
      * 
      */
+    
     private static boolean runAnalysis(Input input,
         AnalysisRunAdaptor analysis, List<PSource> sources)
       {
@@ -452,63 +451,16 @@ public class CheckCml
      * Have fun :)
      */
     private static void runAllAnalysis(Input input, List<PSource> sources)
+    
       {
         // Check The Parse Only Switch
         if (input.isSwitchOn(Switch.PARSE_ONLY))
           return;
         
-        // Inform parsing went well and analysis has begon
+        // Inform parsing went well and analysis has begun
         System.out.println(sources.size()
             + " file(s) successfully parsed. Starting analysis:");
         
-        if (input.isSwitchOn(Switch.EMPTY))
-          {
-            final IAnalysis empty = new DepthFirstAnalysisCMLAdaptor();
-            AnalysisRunAdaptor r = new AnalysisRunAdaptor(empty)
-              {
-                public void apply(INode root) throws AnalysisException
-                  {
-                    root.apply(empty);
-                  }
-              };
-            runAnalysis(input, r, sources);
-          }
-        
-        if (input.isSwitchOn(Switch.DOTG))
-          {
-            final DotGraphVisitor dga = new DotGraphVisitor();
-            dga.includeTokens = false;
-            dga.showNullPointers = false;
-            AnalysisRunAdaptor r = new AnalysisRunAdaptor(dga)
-              {
-                public void apply(INode root) throws AnalysisException
-                  {
-                    root.apply(dga, null);
-                  }
-              };
-            runAnalysis(input, r, sources);
-            writeGraphResult(dga, Switch.DOTG.getValue());
-          }
-        
-        // Example Analysis DivWarnAnalysis
-        if (input.isSwitchOn(Switch.DWA))
-          {
-            final DivWarnAnalysis dwa = new DivWarnAnalysis();
-            AnalysisRunAdaptor r = new AnalysisRunAdaptor(dwa)
-              {
-                public void apply(INode root) throws AnalysisException
-                  {
-                    root.apply(dwa);
-                  }
-              };
-            runAnalysis(input, r, sources);
-            for (String s : dwa.getWarnings())
-              {
-                System.out.println("\t" + s);
-              }
-          }
-        
-        // Type checking
         if (!input.isSwitchOn(Switch.NOTC)) // check no type checking switch
           {
             final TypeIssueHandler issueHandler = VanillaFactory
@@ -536,13 +488,60 @@ public class CheckCml
         if (input.isSwitchOn(Switch.TYPE_CHECK_ONLY))
           return;
         
+        if (input.isSwitchOn(Switch.EMPTY))
+          {
+            final IAnalysis empty = new DepthFirstAnalysisCMLAdaptor();
+            AnalysisRunAdaptor r = new AnalysisRunAdaptor(empty)
+              {
+                public void apply(INode root) throws AnalysisException
+                  {
+                    root.apply(empty);
+                  }
+              };
+            runAnalysis(input, r, sources);
+          }
+        
+        if (input.isSwitchOn(Switch.DOTG))
+          {
+            final DotGraphVisitor dga = new DotGraphVisitor();
+            AnalysisRunAdaptor r = new AnalysisRunAdaptor(dga)
+              {
+                
+                @Override
+                public void apply(INode node) throws AnalysisException
+                  {
+                    node.apply((IAnalysis) dga);
+                    writeGraphResult(dga, Switch.DOTG.getValue());
+                  }
+              };
+            runAnalysis(input, r, sources);
+          }
+        
+        // Example Analysis DivWarnAnalysis
+        if (input.isSwitchOn(Switch.DWA))
+          {
+            final DivWarnAnalysis dwa = new DivWarnAnalysis();
+            AnalysisRunAdaptor r = new AnalysisRunAdaptor(dwa)
+              {
+                
+                @Override
+                public void apply(INode node) throws AnalysisException
+                  {
+                    node.apply(dwa);
+                  }
+              };
+            runAnalysis(input, r, sources);
+            for (String thing : dwa.getWarnings())
+              System.out.println("\t" + thing);
+          }
+        
         // POG Analysis
         if (input.isSwitchOn(Switch.POG))
           {
             // define pog object
-            final ProofObligationGenerator pog = new ProofObligationGenerator();
-            
+            final ProofObligationGenerator pog = new ProofObligationGenerator(sources);
             System.out.println(pog.getAnalysisName());
+<<<<<<< HEAD
             
             // create analysis run adaptor object of type AnalysisRunAdaptor,
             // supplying pog
@@ -562,6 +561,8 @@ public class CheckCml
             // source files
             runAnalysis(input, r, sources);
             pog.getResults();
+=======
+>>>>>>> origin/rwl
           }
         
         // Interpreter
@@ -575,7 +576,7 @@ public class CheckCml
                 // final CmlInterpreter interpreter = new VanillaCmlInterpreter(
                 // sources);
                 
-                AnalysisRunAdaptor r = new AnalysisRunAdaptor(null)
+                AnalysisRunAdaptor re = new AnalysisRunAdaptor(null)
                   {
                     public void apply(INode root) throws AnalysisException
                       {
@@ -590,7 +591,7 @@ public class CheckCml
                           }
                       }
                   };
-                runAnalysis(input, r, sources);
+                runAnalysis(input, re, sources);
               }
           }
         
