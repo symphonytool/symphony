@@ -55,8 +55,11 @@
  */
 /* Precidence from loosest to tightest; tokens on same line are equal precidence */
 %left G-LOOSE
+%right RETURN
+%right LET //needed to make let expressions recurse correctly
+%right LPAREN // also needed to make parenthesized expressions recurse
+%right MU LAMBDA AT
 %right COMMA
-%right MU LAMBDA
 %right FORALL EXISTS EXISTS1 IOTA
 //%right LPAREN
 //%left OF COLONEQUALS
@@ -80,8 +83,6 @@
 // CSP prec end
 
 // VDM prec START
-%right LET //needed to make let expressions recurse correctly
-%right LPAREN // also needed to make parenthesized expressions recurse
 // VDM type operators
 %right RARROW PLUSGT
 %left BAR
@@ -132,7 +133,7 @@
 /* Initial rule declaration                                         */
 /* ---------------------------------------------------------------- */
 /* %start source */
-%start expression
+%start action
 
 %%
 
@@ -258,12 +259,12 @@
 /* | TBAR replicationDeclaration AT process %prec U-TBAR */
 /* ; */
 
-/* replicationDeclaration : */
-/*   singleTypeDeclaration */
+replicationDeclaration :
+  singleTypeDeclaration
 /* | singleExpressionDeclaration */
-/* | replicationDeclaration SEMI singleTypeDeclaration */
+| replicationDeclaration SEMI singleTypeDeclaration
 /* | replicationDeclaration SEMI singleExpressionDeclaration */
-/* ; */
+;
 
 /* DEVIATION
  * PATH
@@ -315,180 +316,178 @@
 /* | singleTypeDeclarationList AT action */
 /* ; */
 
-/* action : */
-/*   CSPSKIP */
-/* | CSPSTOP */
-/* | CSPCHAOS */
-/* | CSPDIV */
-/* | CSPWAIT expression */
-/* /\* Communication rule start*\/ */
-/* /\* DEVIATION */
-/*  * PATH */
-/*  * CML_0: */
-/*  *   action: ...| communication '->' action */
-/*  *   communication: IDENTIFIER { communicationParameter } */
-/*  *   communicationParameter: '?' parameter | '?' parameter ':' expression | '!' expression | '.' expression */
-/*  * here: */
-/*  *   communication '->' action */
-/*  * */
-/*  * We're not accepting DOT params, yet */
-/*  *\/ */
-/* | communication RARROW action[to]  */
-/* /\* DEVIATON */
-/*  * grammar: */
-/*  *   expression '&' action */
-/*  * here: */
-/*  *   '[' expression ']' '&' action */
-/*  * */
-/*  * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012 */
-/*  *\/ */
-/* | LSQUARE expression RSQUARE AMP action */
-/* | action SEMI action */
-/* | action LRSQUARE action */
-/* | action BARTILDEBAR action */
-/* | action SLASHBACKSLASH action */
-/* /\* DEVIATION */
-/*  * grammar: */
-/*  *   process '/' expression '\' process */
-/*  * this conflicts all over, so */
-/*  *   process '/:' expression ':\' process */
-/*  * */
-/*  * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012 */
-/*  *\/ */
-/* | action SLASHCOLON expression COLONBACKSLASH action */
-/* | action LSQUAREGT action */
-/* /\* DEVIATION */
-/*  * grammar: */
-/*  *   action '[' expression '>' action */
-/*  * here: */
-/*  *   action '[' expression '|>' action */
-/*  * */
-/*  * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012 */
-/*  *\/ */
-/* | action LSQUARE expression BARGT action */
-/* /\* DEVIATION */
-/*  * grammar: */
-/*  *   process '\' expression */
-/*  * here: */
-/*  *   process '\\' expression */
-/*  * */
-/*  * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012 */
-/*  *\/ */
-/* /\* CHANSET */
-/*  * expression was chansetExpr here */
-/*  *\/ */
-/* | action DBACKSLASH expression */
-/* | action STARTBY expression */
-/* | action ENDSBY expression */
+action :
+  CSPSKIP
+| CSPSTOP
+| CSPCHAOS
+| CSPDIV
+| CSPWAIT expression
+/* Communication rule start*/
+/* DEVIATION
+ * PATH
+ * CML_0:
+ *   action: ...| communication '->' action
+ *   communication: IDENTIFIER { communicationParameter }
+ *   communicationParameter: '?' parameter | '?' parameter ':' expression | '!' expression | '.' expression
+ * here:
+ *   communication '->' action
+ *
+ * Need to verify that this matches all desired communication formats; see sub-production
+ */
+| communication RARROW action[to]
+/* DEVIATON
+ * grammar:
+ *   expression '&' action
+ * here:
+ *   '[' expression ']' '&' action
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
+ */
+| LSQUARE expression RSQUARE AMP action
+| action SEMI action
+| action LRSQUARE action
+| action BARTILDEBAR action
+| action SLASHBACKSLASH action
+/* DEVIATION
+ * grammar:
+ *   process '/' expression '\' process
+ * this conflicts all over, so
+ *   process '/:' expression ':\' process
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
+ */
+| action SLASHCOLON expression COLONBACKSLASH action
+| action LSQUAREGT action
+/* DEVIATION
+ * grammar:
+ *   action '[' expression '>' action
+ * here:
+ *   action '[' expression '|>' action
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
+ */
+| action LSQUARE expression BARGT action
+/* DEVIATION
+ * CHANSET
+ * grammar:
+ *   action '\' chansetExpr
+ * here:
+ *   action '\\' expression
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
+ */
+| action DBACKSLASH expression
+| action STARTBY expression
+| action ENDSBY expression
 /* | action renameExpression */
-/* /\* DEVIATION */
-/*  * PATH */
-/*  * grammar: */
-/*  *   MU identifier {',' identifier} '@' action {',' action} */
-/*  * here: */
-/*  *   MU pathList '@' '(' actionList ')' */
-/*  *\/ */
-/* | MU expressionList AT LPAREN actionList RPAREN %prec MU  */
-/* /\* parallel actions *\/ */
-/* /\* NAMESET */
-/*  * expression was namesetExpr here */
-/*  *\/ */
-/* | action LSQUAREDBAR expression BAR expression DBARRSQUARE action */
-/* | action TBAR action */
-/* /\* NAMESET */
-/*  * expression was namesetExpr here */
-/*  *\/ */
-/* | action LSQUAREBAR expression BAR expression BARRSQUARE action */
-/* | action DBAR action */
-/* /\* CHANSET */
-/*  * NAMESET */
-/*  * expressions were namesetExpr|chansetExpr||chansetExpr|namesetExpr here */
-/*  *\/ */
-/* | action LSQUARE expression BAR expression DBAR expression BAR expression RSQUARE action */
-/* /\* CHANSET */
-/*  * expression was chansetExpr here */
-/*  *\/ */
-/* | action LSQUARE expression DBAR expression RSQUARE action */
-/* /\* CHANSET */
-/*  * NAMESET */
-/*  * expressions were namesetExpr|chansetExpr|namesetExpr here */
-/*  *\/ */
-/* | action LSQUAREBAR expression BAR expression BAR expression BARRSQUARE action */
-/* /\* CHANSET */
-/*  * expression was chansetExpr here */
-/*  *\/ */
-/* | action LSQUAREBAR expression BARRSQUARE action */
-/* /\* parallel actions end *\/ */
-/* /\* DEVIATION */
-/*  * grammar: */
-/*  *   parametrisation {';' parametrisation} '@' action */
-/*  * here: */
-/*  *   '(' parametrisation {';' parametrisation} '@' action ')' */
-/*  * */
-/*  * parametrised action */
-/*  *\/ */
-/* | LPAREN parametrisationList AT action[pAction] RPAREN */
+/* DEVIATION
+ * grammar:
+ *   MU identifier {',' identifier} '@' action {',' action}
+ * here:
+ *   MU expressionList '@' '(' actionList ')'
+ */
+| MU expressionList AT LPAREN actionList RPAREN
+/* parallel actions */
+/* NAMESET
+ * expression was namesetExpr here
+ */
+| action LSQUAREDBAR expression BAR expression DBARRSQUARE action
+| action TBAR action
+/* NAMESET
+ * expression was namesetExpr here
+ */
+| action LSQUAREBAR expression BAR expression BARRSQUARE action
+| action DBAR action
+/* CHANSET
+ * NAMESET
+ * expressions were namesetExpr|chansetExpr||chansetExpr|namesetExpr here
+ */
+| action LSQUARE expression BAR expression DBAR expression BAR expression RSQUARE action
+/* CHANSET
+ * expression was chansetExpr here
+ */
+| action LSQUARE expression DBAR expression RSQUARE action
+/* CHANSET
+ * NAMESET
+ * expressions were namesetExpr|chansetExpr|namesetExpr here
+ */
+| action LSQUAREBAR expression BAR expression BAR expression BARRSQUARE action
+/* CHANSET
+ * expression was chansetExpr here
+ */
+| action LSQUAREBAR expression BARRSQUARE action
+/* parallel actions end */
+/* DEVIATION
+ * grammar:
+ *   parametrisation {';' parametrisation} '@' action
+ * here:
+ *   '(' parametrisation {';' parametrisation} '@' action ')'
+ *
+ * parametrised action
+ */
+| parametrisationList AT action
 /* /\* instantiated actions *\/ */
 /* | LPAREN singleTypeDeclarationList AT action RPAREN LPAREN expressionList RPAREN */
 /* | LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN */
 /* /\* instantiated actions *\/ */
-/* /\* replicated actions *\/ */
-/* | SEMI replicationDeclaration AT action %prec U-SEMI */
-/* | LRSQUARE replicationDeclaration AT action %prec U-LRSQUARE */
-/* | BARTILDEBAR replicationDeclaration AT action %prec U-BARTILDEBAR */
-/* /\* NAMESET */
-/*  * expression was namesetExpr here */
-/*  *\/ */
-/* | LSQUAREDBAR expression DBARRSQUARE replicationDeclaration AT action %prec U-LSQUAREDBAR */
-/* /\* NAMESET */
-/*  * expression was namesetExpr here */
-/*  *\/ */
-/* | TBAR replicationDeclaration AT LSQUARE expression RSQUARE action %prec U-TBAR */
-/* /\* CHANSET */
-/*  * NAMESET */
-/*  * expressions were namesetExpr, chansetExpr here */
-/*  *\/ */
-/* | LSQUAREBAR expression BARRSQUARE replicationDeclaration AT LSQUARE expression RSQUARE action %prec U-LSQUAREBAR */
-/* /\* CHANSET */
-/*  * NAMESET */
-/*  * expressions were namesetExpr, chansetExpr here */
-/*  *\/ */
-/* | DBAR replicationDeclaration AT LSQUARE expression BAR expression RSQUARE action %prec U-DBAR */
-/* /\* CHANSET */
-/*  * expression was namesetExpr here */
-/*  *\/ */
-/* | DBAR replicationDeclaration AT LSQUARE expression RSQUARE action %prec U-DBAR */
-/* /\* replicated actions end *\/ */
-/* | letStatement */
-/* | blockStatement */
-/* | controlStatement */
-/* ; */
+/* replicated actions */
+| SEMI replicationDeclaration AT action %prec U-SEMI
+| LRSQUARE replicationDeclaration AT action %prec U-LRSQUARE
+| BARTILDEBAR replicationDeclaration AT action %prec U-BARTILDEBAR
+/* NAMESET
+ * expression was namesetExpr here
+ */
+| LSQUAREDBAR expression DBARRSQUARE replicationDeclaration AT action %prec U-LSQUAREDBAR
+/* NAMESET
+ * expression was namesetExpr here
+ */
+| TBAR replicationDeclaration AT LSQUARE expression RSQUARE action %prec U-TBAR
+/* CHANSET
+ * NAMESET
+ * expressions were namesetExpr, chansetExpr here
+ */
+| LSQUAREBAR expression BARRSQUARE replicationDeclaration AT LSQUARE expression RSQUARE action %prec U-LSQUAREBAR
+/* CHANSET
+ * NAMESET
+ * expressions were namesetExpr, chansetExpr here
+ */
+| DBAR replicationDeclaration AT LSQUARE expression BAR expression RSQUARE action %prec U-DBAR
+/* CHANSET
+ * expression was namesetExpr here
+ */
+| DBAR replicationDeclaration AT LSQUARE expression RSQUARE action %prec U-DBAR
+/* replicated actions end */
+| letStatement
+| blockStatement
+| controlStatement
+/* This is in blockStatement | LPAREN action RPAREN */
+;
 
-/* actionList : */
-/*   action */
-/* | actionList[list] COMMA action */
-/* ; */
+actionList :
+  action
+| actionList[list] COMMA action
+;
 
-/* communication[result] : */
-/*   IDENTIFIER */
-/* /\* | communication DOT IDENTIFIER *\/ */
-/* /\* | communication DOT matchValue *\/ */
-/* | communication[before] BANG IDENTIFIER */
-/* | communication[before] BANG matchValue */
-/* | communication[before] QUESTION pattern */
-/* | communication[before] QUESTION setBind */
-/* ; */
+communication[result] :
+  IDENTIFIER
+| communication[before] DOT IDENTIFIER
+| communication[before] DOT matchValue
+| communication[before] BANG IDENTIFIER
+| communication[before] BANG matchValue
+| communication[before] QUESTION pattern
+| communication[before] QUESTION setBind
+;
 
-/* parametrisationList : */
-/*   parametrisation */
-/* | parametrisationList SEMI parametrisation */
-/* ; */
+parametrisationList :
+  parametrisation
+| parametrisationList SEMI parametrisation
+;
 
-/* parametrisation : */
-/*   VAL singleTypeDeclaration */
-/* | RES singleTypeDeclaration */
-/* | VRES singleTypeDeclaration */
-/* ; */
+parametrisation :
+  VAL singleTypeDeclaration
+| RES singleTypeDeclaration
+| VRES singleTypeDeclaration
+;
 
 /* renameExpression : */
 /* /\* rename enumeration *\/ */
@@ -551,16 +550,16 @@
 /* | singleTypeDeclarationList[list] SEMI singleTypeDeclaration */
 /* ; */
 
-/* singleTypeDeclaration : */
-/* /\* DEVIATION */
-/*  * PATH */
-/*  * grammar: */
-/*  *   identifierList */
-/*  * here: */
-/*  *   pathList */
-/*  *\/ */
-/*   expressionList COLON type */
-/* ; */
+singleTypeDeclaration :
+/* DEVIATION
+ * PATH
+ * grammar:
+ *   identifierList
+ * here:
+ *   pathList
+ */
+  expressionList COLON type
+;
 
 /* chansetDefinitionParagraph : */
 /*   CHANSETS */
@@ -881,29 +880,29 @@ measureExpr :
 /* | NOTYETSPEC */
 /* ; */
 
-/* externals_opt : */
-/*   externals */
-/* | /\* empty *\/ */
-/* ; */
+externals_opt :
+  externals
+| /* empty */
+;
 
-/* externals : */
-/*   FRAME varInformationList */
-/* ; */
+externals :
+  FRAME varInformationList
+;
 
-/* varInformationList : */
-/*   varInformation */
-/* | varInformationList varInformation */
-/* ; */
+varInformationList :
+  varInformation
+| varInformationList varInformation
+;
 
-/* varInformation : */
-/*   mode expressionList */
-/* | mode expressionList COLON type */
-/* ; */
+varInformation :
+  mode expressionList
+| mode expressionList COLON type
+;
 
-/* mode : */
-/*   RD */
-/* | WR */
-/* ; */
+mode :
+  RD
+| WR
+;
 
 /* RWL, invariantDef
  *
@@ -1010,14 +1009,23 @@ expression :
 | MKUNDERNAME LPAREN expressionList RPAREN
 /* lambda expression */
 | LAMBDA typeBindList AT expression %prec LAMBDA
-| generalIsExpr
+/* general Is Expressions */
+/* DEVIATION
+ * CML_0:
+ *   ISUNDER name LPAREN expression RPAREN
+ * here:
+ *   ISUNDERNAME LPAREN expression RPAREN
+ *
+ */
+| ISUNDERNAME LPAREN expression RPAREN
+| ISUNDER basicType LPAREN expression RPAREN
+| ISUNDER LPAREN expression COMMA type RPAREN
 /* precondition expression */
 /* (JWC) first parameter of the precondition expression is the
  * function that we want the precondition of
  */
 | PREUNDER LPAREN expressionList RPAREN
 /* DEVIATION
- * PATH
  * GRAMMAR ERROR: Missing COMMA
  * CML_0:
  *   ISOFCLASS LPAREN name expression RPAREN
@@ -1163,143 +1171,118 @@ maplet :
   expression BARRARROW expression
 ;
 
-generalIsExpr :
-/* DEVIATION
+controlStatement :
+  ifStatement
+/* nondeterministic statements */
+| IF nonDeterministicAltList END
+| DO nonDeterministicAltList END %prec U-DO
+/* nondeterministic statements end */
+/* DEVIATION --- PATH
  * CML_0:
- *   ISUNDER name LPAREN expression RPAREN
+ *   callStatement
  * here:
- *   ISUNDERNAME LPAREN expression RPAREN
+ *   We're missing explicit call statements, they're subsumed into path and assignment.
+ */
+/* general assign statement */
+/* DEVIATION
+ * callStatement --- with assignment
+ * grammar:
+ *   state designator ':=' call
+ * here:
+ *   subsumed into assignStatement
+ *
+ * The typechecker will have to look at the expression in the assign
+ * and determine if it is actually an operation call; if it is, then
+ * it must rewrite the AST to convert the assign into a call
+ * statement.
+ */
+// | assignStatement
+/* multiple assign statement */
+// | ATOMIC LPAREN assignStatementList RPAREN
+/* general assign statement end */
+/* specification statement */
+| LSQUARE implicitOperationBody RSQUARE
+/* return statement */
+| RETURN
+| RETURN LRPAREN
+| RETURN expression 
+/* DEVIATION
+ * PATH
+ * CML_0:
+ *   stateDesignator ':=' 'new' name '(' { expression } ')'
+ * here:
+ *   path COLONEQUALS NEW path LRPAREN
+ *   path COLONEQUALS NEW path LPAREN expressionList RPAREN
  *
  */
-  ISUNDERNAME LPAREN expression RPAREN
-| ISUNDER basicType LPAREN expression RPAREN
-| ISUNDER LPAREN expression COMMA type RPAREN
+// | expression COLONEQUALS NEW expression LRPAREN
+// | expression COLONEQUALS NEW expression LPAREN expressionList RPAREN
+| casesStatement
+/* sequence for loop */
+/* FIXME
+ *
+ * (JWC) The grammar allows reverse as a specific keyword to the for
+ * loop, but reverse is also a unary expression operator.  I've no
+ * idea what the semantic difference is.
+ */
+| FOR bind IN expression DO action
+// | FOR bind IN REVERSE expression DO action
+| FOR pattern IN expression DO action
+// | FOR pattern IN REVERSE expression DO action */
+/* sequence for loop end */
+/* set for loop */
+| FOR ALL pattern INSET expression DO action
+/* index for loop */
+| FOR IDENTIFIER EQUALS expression TO expression DO action
+| FOR IDENTIFIER EQUALS expression TO expression BY expression DO action
+/* index for loop end */
+/* while loop */
+| WHILE expression DO action
+/* DEVIATION
+ * callStatement --- without assignment
+ * grammar:
+ *   call
+ *   call : [ object designator '.' ] name '(' [ expressionList ] ')'
+ * here:
+ *   subsumed into path
+ *
+ * The typechecker will have to look at the expression in the assign
+ * and determine if it is actually an operation call; if it is, then
+ * it must rewrite the AST to convert the assign into a call
+ * statement.
+ */
+// | expression
 ;
 
-/* controlStatement : */
-/*   ifStatement */
-/* /\* nondeterministic statements *\/ */
-/* | IF nonDeterministicAltList END */
-/* | DO nonDeterministicAltList END %prec U-DO */
-/* /\* nondeterministic statements end *\/ */
-/* /\* DEVIATION --- PATH */
-/*  * CML_0: */
-/*  *   callStatement */
-/*  * here: */
-/*  *   We're missing explicit call statements, they're subsumed into path and assignment. */
-/*  *\/ */
-/* /\* general assign statement *\/ */
-/* /\* DEVIATION */
-/*  * callStatement --- with assignment */
-/*  * grammar: */
-/*  *   state designator ':=' call */
-/*  * here: */
-/*  *   subsumed into assignStatement */
-/*  * */
-/*  * The typechecker will have to look at the expression in the assign */
-/*  * and determine if it is actually an operation call; if it is, then */
-/*  * it must rewrite the AST to convert the assign into a call */
-/*  * statement. */
-/*  *\/ */
-/* | assignStatement */
-/* /\* multiple assign statement *\/ */
-/* | ATOMIC LPAREN assignStatementList RPAREN */
-/* /\* general assign statement end *\/ */
-/* /\* specification statement *\/ */
-/* | LSQUARE implicitOperationBody RSQUARE */
-/* /\* DEVIATION */
-/*  * CML_0 */
-/*  *   RETURN [ expression ] */
-/*  * here: */
-/*  *   RETURN [ '(' expression ')' ] */
-/*  * */
-/*  * (JWC) For reasons I don't yet understand, not having () around the */
-/*  * return expression causes conflicts with either []/[ or with */
-/*  * identifiers (depending on whether or not, respectively, I've added */
-/*  * precidence annotations.  Removing one of the two return productions */
-/*  * allows it to work just fine, however, so there's an odd bit of */
-/*  * ambiguity at play here. */
-/*  *\/ */
-/* | RETURN */
-/* | RETURN LRPAREN */
-/* | RETURN LPAREN expression RPAREN */
-/* /\* DEVIATION */
-/*  * PATH */
-/*  * CML_0: */
-/*  *   stateDesignator ':=' 'new' name '(' { expression } ')' */
-/*  * here: */
-/*  *   path COLONEQUALS NEW path LRPAREN */
-/*  *   path COLONEQUALS NEW path LPAREN expressionList RPAREN */
-/*  * */
-/*  *\/ */
-/* | expression COLONEQUALS NEW expression LRPAREN */
-/* | expression COLONEQUALS NEW expression LPAREN expressionList RPAREN */
-/* | casesStatement */
-/* /\* sequence for loop *\/ */
-/* /\* FIXME */
-/*  * */
-/*  * (JWC) The grammar allows reverse as a specific keyword to the for */
-/*  * loop, but reverse is also a unary expression operator.  I've no */
-/*  * idea what the semantic difference is. */
-/*  *\/ */
-/* | FOR bind IN expression DO action */
-/* /\* | FOR bind IN REVERSE expression DO action *\/ */
-/* | FOR pattern IN expression DO action */
-/* /\* | FOR pattern IN REVERSE expression DO action *\/ */
-/* /\* sequence for loop end *\/ */
-/* /\* set for loop *\/ */
-/* | FOR ALL pattern INSET expression DO action */
-/* /\* index for loop *\/ */
-/* | FOR IDENTIFIER EQUALS expression TO expression DO action */
-/* | FOR IDENTIFIER EQUALS expression TO expression BY expression DO action */
-/* /\* index for loop end *\/ */
-/* /\* while loop *\/ */
-/* | WHILE expression DO action */
-/* /\* DEVIATION */
-/*  * callStatement --- without assignment */
-/*  * grammar: */
-/*  *   call */
-/*  *   call : [ object designator '.' ] name '(' [ expressionList ] ')' */
-/*  * here: */
-/*  *   subsumed into path */
-/*  * */
-/*  * The typechecker will have to look at the expression in the assign */
-/*  * and determine if it is actually an operation call; if it is, then */
-/*  * it must rewrite the AST to convert the assign into a call */
-/*  * statement. */
-/*  *\/ */
-/* | expression */
-/* ; */
+nonDeterministicAltList :
+  expression RARROW action
+| nonDeterministicAltList BAR expression RARROW action
+;
 
-/* nonDeterministicAltList : */
-/*   expression RARROW action */
-/* | nonDeterministicAltList BAR expression RARROW action */
-/* ; */
+letStatement :
+  LET localDefList IN action
+;
 
-/* letStatement : */
-/*   LET localDefList IN action */
-/* ; */
+blockStatement :
+  LPAREN action RPAREN
+| LPAREN DCL assignmentDefList AT action RPAREN
+;
 
-/* blockStatement : */
-/*   LPAREN action RPAREN */
-/* | LPAREN DCL assignmentDefList AT action RPAREN */
-/* ; */
+assignmentDefList :
+  assignmentDef
+| assignmentDefList COMMA assignmentDef
+;
 
-/* assignmentDefList : */
-/*   assignmentDef */
-/* | assignmentDefList COMMA assignmentDef */
-/* ; */
-
-/* assignmentDef : */
-/*   IDENTIFIER COLON type */
-/* | IDENTIFIER COLON type COLONEQUALS expression */
-/* /\*(AKM) */
-/*  *FIXME: This is probably not going to work since you can't see the difference */
-/*  *       Between 'id : type in exp' and 'id : type := exp' */
-/*  * */
-/*  *\/ */
-/* | IDENTIFIER COLON type IN expression */
-/* ; */
+assignmentDef :
+  IDENTIFIER COLON type
+| IDENTIFIER COLON type COLONEQUALS expression
+/*(AKM)
+ *FIXME: This is probably not going to work since you can't see the difference
+ *       Between 'id : type in exp' and 'id : type := exp'
+ *
+ */
+| IDENTIFIER COLON type IN expression
+;
 
 /* assignStatementList : */
 /*   assignStatement */
@@ -1317,33 +1300,33 @@ generalIsExpr :
 /*   expression COLONEQUALS expression */
 /* ; */
 
-/* ifStatement : */
-/*   IF expression THEN action elseStatements ELSE action */
-/* | IF expression THEN action ELSE action */
-/* ; */
+ifStatement :
+  IF expression THEN action elseStatements ELSE action
+| IF expression THEN action ELSE action
+;
 
-/* elseStatements : */
-/*   ELSEIF expression THEN action */
-/* | elseStatements ELSEIF expression THEN action */
-/* ; */
+elseStatements :
+  ELSEIF expression THEN action
+| elseStatements ELSEIF expression THEN action
+;
 
-/* casesStatement : */
-/*   CASES expression COLON casesStatementAltList END */
-/* | CASES expression COLON casesStatementAltList COMMA OTHERS RARROW action END */
-/* ; */
+casesStatement :
+  CASES expression COLON casesStatementAltList END
+| CASES expression COLON casesStatementAltList COMMA OTHERS RARROW action END
+;
 
-/* casesStatementAltList : */
-/*   casesStatementAlt */
-/* | casesStatementAltList COMMA casesStatementAlt */
-/* ; */
+casesStatementAltList :
+  casesStatementAlt
+| casesStatementAltList COMMA casesStatementAlt
+;
 
-/* casesStatementAlt : */
-/*   patternList RARROW action */
-/* ; */
+casesStatementAlt :
+  patternList RARROW action
+;
 
-/* implicitOperationBody : */
-/*   externals_opt preExpr_opt postExpr */
-/* ; */
+implicitOperationBody :
+  externals_opt preExpr_opt postExpr
+;
 
 pattern :
   patternIdentifier
@@ -1425,34 +1408,10 @@ typeBindList :
 | typeBindList COMMA typeBind
 ;
 
-/* New path-based naming scheme, to replace *Designators and names ---
- * using this requires the use of a conversion function to take one of
- * these and generate the VDM-compatible bit of AST
- * -jwc/2012/06/20
- */
-/* path[result] : */
-/*   unit */
-/* | path TILDE */
-/* | path DOT unit */
-/* | path BACKTICK unit */
-/* | path DOTHASH NUMERAL */
-/* | path LRPAREN */
-/* | path LPAREN expressionList RPAREN */
-/* | path LPAREN expression ELLIPSIS expression RPAREN */
-/* /\* Bits for CSP renaming (IDENTIFIER DOT IDENTIFIER is above as path DOT unit) *\/ */
-/* /\* channel name expression bits *\/ */
-/* | path DOT matchValue  */
-/* /\* channel name expression bits end*\/ */
-/* ; */
 
-/* unit : */
-/*   SELF */
-/* | IDENTIFIER */
-/* ; */
-
-/* pathList : */
-/*   path */
-/* | pathList COMMA path */
+/* identifierList: */
+/*   IDENTIFIER */
+/* | identifierList COMMA IDENTIFIER */
 /* ; */
 
 // **********************
