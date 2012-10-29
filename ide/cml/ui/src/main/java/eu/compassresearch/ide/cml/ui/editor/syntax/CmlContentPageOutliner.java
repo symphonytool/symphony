@@ -14,6 +14,7 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
     
     private CmlSourceUnit          input;
     private CmlTreeContentProvider provider;
+	//public static final int ALL_LEVELS = -1;
     
     public void refresh()
       {
@@ -24,6 +25,7 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
               public void run()
                 {
                   getTreeViewer().refresh();
+                  getTreeViewer().expandAll();
                 }
             });
         
@@ -41,9 +43,14 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
         super.createControl(parent);
         TreeViewer viewer = getTreeViewer();
         viewer.setContentProvider(provider);
-        // viewer.setLabelProvider(new CmlLabelProvider());
+      //  viewer.setLabelProvider(new CmlLabelProvider());
+//        viewer.setAutoExpandLevel(5);
+	//	viewer.setUseHashlookup(true);
+        //FIXME ldc -outline visualizer is here
+        //viewer.setLabelProvider(new CmlLabelProvider());
         viewer.addSelectionChangedListener(this);
         viewer.setInput(input);
+     //  viewer.expandAll();
       }
     
     public void setInput(CmlSourceUnit input)
