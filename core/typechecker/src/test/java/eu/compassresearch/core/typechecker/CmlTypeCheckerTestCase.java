@@ -578,7 +578,7 @@ public class CmlTypeCheckerTestCase extends TestCase
         this.expectedParserOk = parsesOk;
         this.expectedTypesOk = typesOk;
         this.errorMessages = errorMessages;
-        InputStream cmlSourceIn = new ByteArrayInputStream(cmlSource.getBytes());
+        InputStream cmlSourceIn = new ByteArrayInputStream(cmlSource.getBytes()); 
         AInputStreamSource source = new AInputStreamSource();
         source.setOrigin("Test Parameter");
         source.setStream(cmlSourceIn);

@@ -1,12 +1,19 @@
 package eu.compassresearch.core.typechecker;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
+import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SBasicType;
 
@@ -32,18 +39,18 @@ class TypeCheckInfo implements TypeCheckQuestion
     public final String                     DEFAULT_SCOPE = "Default";
     
     private final Environment<PDefinition>  variables;
-    private final Environment<PType>        types;
+    private final Environment<PDefinition>        types;
     private final Environment<PDeclaration> channels;
     
     private final PDefinition               enclosingDefinition;
     private final TypeIssueHandler          issueHandler;
     
     private TypeCheckInfo(Environment<PDefinition> vars,
-        Environment<PType> types, Environment<PDeclaration> channels,
+        Environment<PDefinition> types, Environment<PDeclaration> channels,
         PDefinition enclosingDefinition, TypeIssueHandler issueHandler)
       {
         this.variables = new Environment<PDefinition>(vars, issueHandler);
-        this.types = new Environment<PType>(types, issueHandler);
+        this.types = new Environment<PDefinition>(types, issueHandler);
         this.channels = new Environment<PDeclaration>(channels, issueHandler);
         this.enclosingDefinition = enclosingDefinition;
         this.issueHandler = issueHandler;
@@ -63,7 +70,7 @@ class TypeCheckInfo implements TypeCheckQuestion
         
         Environment<PDefinition> variables = new Environment<PDefinition>(
             issueHandler);
-        Environment<PType> types = new Environment<PType>(issueHandler);
+        Environment<PDefinition> types = new Environment<PDefinition>(issueHandler);
         PDefinition enclosingDefinition = null;
         Environment<PDeclaration> channels = new Environment<PDeclaration>(
             issueHandler);
@@ -75,13 +82,16 @@ class TypeCheckInfo implements TypeCheckQuestion
     @Override
     public PType lookupType(LexIdentifierToken ident)
       {
-        return types.lookupName(ident);
+    	PDefinition typeDef = types.lookupName(ident);
+        if (typeDef != null)
+        	return typeDef.getType();
+        return null;
       }
     
     @Override
-    public void addType(LexIdentifierToken ident, PType type)
+    public void addType(LexIdentifierToken ident, PDefinition typeDef)
       {
-        this.types.put(ident, type);
+        this.types.put(ident, typeDef);
       }
     
     @Override
@@ -118,85 +128,99 @@ class TypeCheckInfo implements TypeCheckQuestion
         return res;
       }
     
-//    @Override
-//    public org.overture.typechecker.Environment getOvertureEnvironment()
-//    
-//      {
-//        final org.overture.typechecker.Environment ve = variables
-//            .getOvertureEnv();
-//        final org.overture.typechecker.Environment te = types.getOvertureEnv();
-//        
-//        class CombinedEnv extends org.overture.typechecker.Environment
-//          {
-//            
-//            public CombinedEnv()
-//              {
-//                super(null);
-//              }
-//            
-//            @Override
-//            public org.overture.ast.definitions.PDefinition findName(
-//                LexNameToken name, NameScope scope)
-//              {
-//                return ve.findName(name, scope);
-//              }
-//            
-//            @Override
-//            public org.overture.ast.definitions.PDefinition findType(
-//                LexNameToken name, String fromModule)
-//              {
-//                return te.findType(name, fromModule);
-//              }
-//            
-//            @Override
-//            public AStateDefinition findStateDefinition()
-//              {
-//                return null;
-//              }
-//            
-//            @Override
-//            public SClassDefinition findClassDefinition()
-//              {
-//                return null;
-//              }
-//            
-//            @Override
-//            public boolean isStatic()
-//              {
-//                return false;
-//              }
-//            
-//            @Override
-//            public void unusedCheck()
-//              {
-//                // TODO: Check this guy is invoked and make appropriate action
-//                throw new RuntimeException(
-//                    "Somebody better do something about this.");
-//              }
-//            
-//            @Override
-//            public boolean isVDMPP()
-//              {
-//                return true;
-//              }
-//            
-//            @Override
-//            public boolean isSystem()
-//              {
-//                return false;
-//              }
-//            
-//            @Override
-//            public Set<org.overture.ast.definitions.PDefinition> findMatches(
-//                LexNameToken name)
-//              {
-//                return ve.findMatches(name);
-//              }
-//            
-//          }
-//        ;
-//        return new CombinedEnv();
-//      }
+    static final Map<org.overture.ast.typechecker.NameScope, eu.compassresearch.ast.typechecker.NameScope> scopeMap;
+    static {
+    	scopeMap = new HashMap<org.overture.ast.typechecker.NameScope, eu.compassresearch.ast.typechecker.NameScope>();
+    	scopeMap.put(NameScope.CLASSNAME, eu.compassresearch.ast.typechecker.NameScope.CLASSNAME);
+    	scopeMap.put(NameScope.GLOBAL, eu.compassresearch.ast.typechecker.NameScope.GLOBAL);
+    	scopeMap.put(NameScope.LOCAL, eu.compassresearch.ast.typechecker.NameScope.LOCAL);
+    	scopeMap.put(NameScope.NAMES, eu.compassresearch.ast.typechecker.NameScope.NAMES);
+    	scopeMap.put(NameScope.NAMESANDANYSTATE, eu.compassresearch.ast.typechecker.NameScope.NAMESANDANYSTATE);
+    	scopeMap.put(NameScope.NAMESANDSTATE, eu.compassresearch.ast.typechecker.NameScope.NAMESANDSTATE);
+    	scopeMap.put(NameScope.OLDSTATE, eu.compassresearch.ast.typechecker.NameScope.OLDSTATE);
+    	scopeMap.put(NameScope.PROCESSNAME, eu.compassresearch.ast.typechecker.NameScope.PROCESSNAME);
+    	scopeMap.put(NameScope.STATE, eu.compassresearch.ast.typechecker.NameScope.STATE);
+    	scopeMap.put(NameScope.TYPENAME, eu.compassresearch.ast.typechecker.NameScope.TYPENAME);
+    }
+    
+    @Override
+    public org.overture.typechecker.Environment getOvertureEnvironment()
+    
+      {
+        
+        class CombinedEnv extends org.overture.typechecker.Environment
+          {
+            
+            public CombinedEnv()
+              {
+                super(null);
+              }
+            
+            @Override
+            public org.overture.ast.definitions.PDefinition findName(
+                LexNameToken name, org.overture.ast.typechecker.NameScope scope)
+              {
+                return variables.lookupName(name);
+              }
+            
+            @Override
+            public org.overture.ast.definitions.PDefinition findType(
+                LexNameToken name, String fromModule)
+              {
+                return types.lookupName(name);
+              }
+            
+            @Override
+            public AStateDefinition findStateDefinition()
+              {
+                return null;
+              }
+            
+            @Override
+            public SClassDefinition findClassDefinition()
+              {
+                return null;
+              }
+            
+            @Override
+            public boolean isStatic()
+              {
+                return false;
+              }
+            
+            @Override
+            public void unusedCheck()
+              {
+                // TODO: Check this guy is invoked and make appropriate action
+                throw new RuntimeException(
+                    "Somebody better do something about this.");
+              }
+            
+            @Override
+            public boolean isVDMPP()
+              {
+                return true;
+              }
+            
+            @Override
+            public boolean isSystem()
+              {
+                return false;
+              }
+            
+            @Override
+            public Set<org.overture.ast.definitions.PDefinition> findMatches(
+                LexNameToken name)
+              {
+            	Set<PDefinition> result = new HashSet<PDefinition>();
+            	result.add(variables.lookupName(name));
+                return result;
+              }
+            
+          }
+        ;
+        return new CombinedEnv();
+      }
     
     @Override
     public void updateContextNameToCurrentScope(INode n)
