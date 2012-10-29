@@ -12,7 +12,22 @@
   <artifactId>eu.compassresearch.ide.cml.ui</artifactId>
   <name>COMPASS IDE CML UI</name>
 
- <dependencies>
+  <!-- <reporting> -->
+  <!--   <plugins> -->
+  <!--     <plugin> -->
+  <!--       <groupId>org.apache.maven.plugins</groupId> -->
+  <!--       <artifactId>maven-javadoc-plugin</artifactId> -->
+  <!--       <version>2.5</version> -->
+  <!--       <configuration> -->
+  <!--       <skip>true</skip> -->
+  <!--        <failOnError>false</failOnError> -->
+  <!--         <excludePackageNames>*org.eclipse.*</excludePackageNames> -->
+  <!--       </configuration> -->
+  <!--     </plugin> -->
+  <!--   </plugins> -->
+  <!-- </reporting> -->
+
+  <dependencies>
     <dependency>
       <groupId>org.overture.ide</groupId>
       <artifactId>org.overture.ide.ui</artifactId>

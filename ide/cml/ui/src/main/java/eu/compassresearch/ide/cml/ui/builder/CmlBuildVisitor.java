@@ -13,6 +13,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.overture.ast.lex.LexLocation;
+import org.overture.parser.messages.VDMMessage;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
@@ -31,7 +32,7 @@ public class CmlBuildVisitor implements IResourceVisitor
     @Override
     public boolean visit(IResource resource) throws CoreException
       {
-        
+
         // Resource for this build
         if (!shouldBuild(resource))
           return true;
