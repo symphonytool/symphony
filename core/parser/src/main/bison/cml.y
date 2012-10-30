@@ -133,7 +133,7 @@
 /* Initial rule declaration                                         */
 /* ---------------------------------------------------------------- */
 /* %start source */
-%start action
+%start processDefinition
 
 %%
 
@@ -163,102 +163,97 @@
 /* | CLASS IDENTIFIER EQUALS EXTENDS IDENTIFIER BEGIN classDefinitionBlock END */
 /* ; */
 
-/* processDefinition: */
-/* PROCESS IDENTIFIER EQUALS processDef */
-/* ; */
+processDefinition:
+  PROCESS IDENTIFIER EQUALS process
+| PROCESS IDENTIFIER EQUALS singleTypeDeclarationList AT process
+;
 
-/* processDef : */
-/*   singleTypeDeclarationList AT process */
-/* | process */
-/* ; */
+process :
+/* actions */
+  BEGIN AT action END
+| BEGIN processParagraphList AT action END
+/* actions end */
+| process SEMI process
+| process LRSQUARE process
+| process BARTILDEBAR process
+/* CHANSET
+ * expression was chansetExpr here
+ */
+| process LSQUAREBAR expression BARRSQUARE process
+/* CHANSET
+ * expression was chansetExpr here
+ */
+| process LSQUARE expression DBAR expression RSQUARE process
+| process DBAR process
+| process TBAR process
+| process SLASHBACKSLASH process
+/* DEVIATION
+ * grammar:
+ *   process '/' expression '\' process
+ * this conflicts all over, so
+ *   process '/:' expression ':\' process
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
+ */
+| process SLASHCOLON expression COLONBACKSLASH process
+| process LSQUAREGT process
+/* DEVIATION
+ * grammar:
+ *   process '[' expression '>' process
+ * here:
+ *   process '[' expression '|>' process
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
+ */
+| process LSQUARE expression BARGT process
+/* DEVIATION
+ * grammar:
+ *   process '\' expression
+ * here:
+ *   process '\\' expression
+ *
+ * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
+ */
+/* CHANSET
+ * expression was chansetExpr here
+ */
+| process DBACKSLASH expression
+| process STARTBY expression
+| process ENDSBY expression
+/* DEVIATION
+ * Unfolded the definition a little bit to avoid a conflict
+ */
+| LPAREN singleTypeDeclarationList AT process RPAREN LPAREN expression RPAREN
+/* PATH
+ * CML_0:
+ *   IDENTIFIER
+ *   IDENTIFIER LRPAREN
+ *   IDENTIFIER LPAREN expressionList RPAREN
+ * here:
+ *   path
+ */
+| IDENTIFIER
+| IDENTIFIER LRPAREN
+| IDENTIFIER LPAREN expressionList RPAREN
+| process renameExpression
+/* replicated processes */
+| SEMI replicationDeclaration AT process %prec U-SEMI
+| LRSQUARE replicationDeclaration AT process %prec U-LRSQUARE
+| BARTILDEBAR replicationDeclaration AT process %prec U-BARTILDEBAR
+/* CHANSET
+ * expression was chansetExpr here
+ */
+| LSQUAREBAR expression BARRSQUARE replicationDeclaration AT process %prec U-LSQUAREBAR
+/* CHANSET
+ * expression was chansetExpr here
+ */
+| DBAR replicationDeclaration AT LSQUARE expression RSQUARE process %prec U-DBAR
+| DBAR replicationDeclaration AT process %prec U-DBAR
+| TBAR replicationDeclaration AT process %prec U-TBAR
+;
 
-/* process : */
-/* /\* actions *\/ */
-/*   BEGIN AT action END */
-/* | BEGIN processParagraphList AT action END */
-/* /\* actions end *\/ */
-/* | process SEMI process */
-/* | process LRSQUARE process */
-/* | process BARTILDEBAR process */
-/* /\* CHANSET */
-/*  * expression was chansetExpr here */
-/*  *\/ */
-/* | process LSQUAREBAR expression BARRSQUARE process */
-/* /\* CHANSET */
-/*  * expression was chansetExpr here */
-/*  *\/ */
-/* | process LSQUARE expression DBAR expression RSQUARE process */
-/* | process DBAR process */
-/* | process TBAR process */
-/* | process SLASHBACKSLASH process */
-/* /\* DEVIATION */
-/*  * grammar: */
-/*  *   process '/' expression '\' process */
-/*  * this conflicts all over, so */
-/*  *   process '/:' expression ':\' process */
-/*  * */
-/*  * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012 */
-/*  *\/ */
-/* | process SLASHCOLON expression COLONBACKSLASH process */
-/* | process LSQUAREGT process */
-/* /\* DEVIATION */
-/*  * grammar: */
-/*  *   process '[' expression '>' process */
-/*  * here: */
-/*  *   process '[' expression '|>' process */
-/*  * */
-/*  * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012 */
-/*  *\/ */
-/* | process LSQUARE expression BARGT process */
-/* /\* DEVIATION */
-/*  * grammar: */
-/*  *   process '\' expression */
-/*  * here: */
-/*  *   process '\\' expression */
-/*  * */
-/*  * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012 */
-/*  *\/ */
-/* /\* CHANSET */
-/*  * expression was chansetExpr here */
-/*  *\/ */
-/* | process DBACKSLASH expression */
-/* | process STARTBY expression */
-/* | process ENDSBY expression */
-/* | LPAREN singleTypeDeclarationList AT processDef RPAREN LPAREN expression RPAREN */
-/* /\* PATH */
-/*  * CML_0: */
-/*  *   IDENTIFIER */
-/*  *   IDENTIFIER LRPAREN */
-/*  *   IDENTIFIER LPAREN expressionList RPAREN */
-/*  * here: */
-/*  *   path */
-/*  *\/ */
-/* | unit */
-/* | unit TILDE */
-/* | expression DOT unit */
-/* | expression BACKTICK unit */
-/* | expression DOTHASH NUMERAL */
-/* | expression LRPAREN */
-/* | expression LPAREN expressionList RPAREN */
-/* | expression LPAREN expression ELLIPSIS expression RPAREN */
-/* | expression DOT matchValue  */
-/* | process renameExpression */
-/* /\* replicated processes *\/ */
-/* | SEMI replicationDeclaration AT process %prec U-SEMI */
-/* | LRSQUARE replicationDeclaration AT process %prec U-LRSQUARE */
-/* | BARTILDEBAR replicationDeclaration AT process %prec U-BARTILDEBAR */
-/* /\* CHANSET */
-/*  * expression was chansetExpr here */
-/*  *\/ */
-/* | LSQUAREBAR expression BARRSQUARE replicationDeclaration AT process %prec U-LSQUAREBAR */
-/* /\* CHANSET */
-/*  * expression was chansetExpr here */
-/*  *\/ */
-/* | DBAR replicationDeclaration AT LSQUAREBAR expression BARRSQUARE process %prec U-DBAR */
-/* | DBAR replicationDeclaration AT process %prec U-DBAR */
-/* | TBAR replicationDeclaration AT process %prec U-TBAR */
-/* ; */
-
+/* FIXME
+ */
 replicationDeclaration :
   singleTypeDeclaration
 /* | singleExpressionDeclaration */
@@ -279,42 +274,48 @@ replicationDeclaration :
 /*   expressionList INSET expression */
 /* ; */
 
-/* processParagraphList : */
-/*   processParagraph */
-/* | processParagraphList processParagraph */
-/* ; */
+processParagraphList :
+  processParagraph
+| processParagraphList processParagraph
+;
 
 /* FIXME
  *
  * (JWC) I'm not convinced this matches the 'process paragraph' of the
  * grammar.
  */
-/* processParagraph : */
-/*   classDefinitionBlockAlternative */
-/* | ACTIONS actionDefinitionList */
-/* | NAMESETS // TODO */
-/* | NAMESETS namesetDefList // TODO */
-/* ; */
+processParagraph :
+  classDefinitionBlockAlternative
+| ACTIONS actionDefinitionList
+| NAMESETS
+| NAMESETS namesetDefList
+;
 
-/* actionDefinitionList : */
-/*   actionDefinition */
-/* | actionDefinitionList actionDefinition */
-/* ; */
+actionDefinitionList :
+  IDENTIFIER EQUALS paragraphAction
+| actionDefinitionList IDENTIFIER EQUALS paragraphAction
+;
 
 /* actionDefinition : */
 /*   IDENTIFIER EQUALS paragraphAction */
 /* ; */
 
 /* Note that the expressions here are nameset expressions */
-/* namesetDefList : */
-/*   IDENTIFIER EQUALS expression // TODO */
-/* | namesetDefList SEMI IDENTIFIER EQUALS expression // TODO */
-/* ; */
+/* DEVIATION
+ *
+ * The whole structure of the nameset definitions (including the
+ * keyword itself!) can be considered a deviation.
+ */
+namesetDefList :
+  IDENTIFIER EQUALS expression // TODO
+| namesetDefList IDENTIFIER EQUALS expression // TODO
+| namesetDefList SEMI IDENTIFIER EQUALS expression // TODO
+;
 
-/* paragraphAction : */
-/*   action */
-/* | singleTypeDeclarationList AT action */
-/* ; */
+paragraphAction :
+  action
+| singleTypeDeclarationList AT action
+;
 
 action :
   CSPSKIP
@@ -372,7 +373,7 @@ action :
 | action DBACKSLASH expression
 | action STARTBY expression
 | action ENDSBY expression
-/* | action renameExpression */
+| action renameExpression
 /* DEVIATION
  * grammar:
  *   MU identifier {',' identifier} '@' action {',' action}
@@ -410,19 +411,12 @@ action :
  */
 | action LSQUAREBAR expression BARRSQUARE action
 /* parallel actions end */
-/* DEVIATION
- * grammar:
- *   parametrisation {';' parametrisation} '@' action
- * here:
- *   '(' parametrisation {';' parametrisation} '@' action ')'
- *
- * parametrised action
- */
+/* parametrised action */
 | parametrisationList AT action
-/* /\* instantiated actions *\/ */
-/* | LPAREN singleTypeDeclarationList AT action RPAREN LPAREN expressionList RPAREN */
+/* instantiated actions */
+| LPAREN singleTypeDeclarationList AT action RPAREN LPAREN expressionList RPAREN
 /* | LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN */
-/* /\* instantiated actions *\/ */
+/* instantiated actions end */
 /* replicated actions */
 | SEMI replicationDeclaration AT action %prec U-SEMI
 | LRSQUARE replicationDeclaration AT action %prec U-LRSQUARE
@@ -461,16 +455,6 @@ actionList :
 | actionList[list] COMMA action
 ;
 
-/* communication[result] : */
-/*   IDENTIFIER */
-/* | communication[before] DOT IDENTIFIER */
-/* | communication[before] DOT matchValue */
-/* | communication[before] BANG IDENTIFIER */
-/* | communication[before] BANG matchValue */
-/* | communication[before] QUESTION pattern */
-/* | communication[before] QUESTION setBind */
-/* ; */
-
 parametrisationList :
   parametrisation
 | parametrisationList SEMI parametrisation
@@ -482,13 +466,13 @@ parametrisation :
 | VRES singleTypeDeclaration
 ;
 
-/* renameExpression : */
-/* /\* rename enumeration *\/ */
-/*   DLSQUARE renameList DRSQUARE */
-/* /\* rename comprehensions *\/ */
-/* | DLSQUARE expression[from] LARROW expression[to] BAR bindList DRSQUARE  */
-/* | DLSQUARE expression[from] LARROW expression[to] BAR bindList AT expression DRSQUARE  */
-/* ; */
+renameExpression :
+/* rename enumeration */
+  DLSQUARE renameList DRSQUARE
+/* rename comprehensions */
+| DLSQUARE expression[from] LARROW expression[to] BAR bindList DRSQUARE
+| DLSQUARE expression[from] LARROW expression[to] BAR bindList AT expression DRSQUARE
+;
 
 /* DEVIATION
  * PATH
@@ -500,10 +484,10 @@ parametrisation :
  *
  * Note that path requires expressions in (...) but allows literals without.
  */
-/* renameList : */
-/*   expression[from] LARROW expression[to]  */
-/* | renameList COMMA expression[from] LARROW expression[to] */
-/* ; */
+renameList :
+  expression[from] LARROW expression[to]
+| renameList COMMA expression[from] LARROW expression[to]
+;
 
 /* DEVIATION
  * CML_0:
@@ -538,20 +522,14 @@ parametrisation :
 /* RENAME
  * declaration in CML_0 grammar corresponds to singleTypeDeclarationList
  */
-/* singleTypeDeclarationList[result] : */
-/*   singleTypeDeclaration */
-/* | singleTypeDeclarationList[list] SEMI singleTypeDeclaration */
-/* ; */
+singleTypeDeclarationList[result] :
+  singleTypeDeclaration
+| singleTypeDeclarationList[list] SEMI singleTypeDeclaration
+;
 
 singleTypeDeclaration :
-/* DEVIATION
- * PATH
- * grammar:
- *   identifierList
- * here:
- *   pathList
- */
-  expressionList COLON type
+  IDENTIFIER COLON type
+| IDENTIFIER COMMA singleTypeDeclaration
 ;
 
 /* chansetDefinitionParagraph : */
@@ -586,39 +564,38 @@ singleTypeDeclaration :
 /* | classDefinitionBlockAlternative classDefinitionBlock */
 /* ; */
 
-/* classDefinitionBlockAlternative : */
-/*   typeDefs */
-/* | valueDefs */
-/* | functionDefs */
-/* | operationDefs */
-/* | stateDefs */
+classDefinitionBlockAlternative :
+  typeDefs
+| valueDefs
+| functionDefs
+| operationDefs
+| stateDefs
 /* /\* UPCOMING --- CML_1 */
 /*  * absent in CML_0 */
 /*  * */
 /*  * This will be in the CML_1 grammar, and is defines the constructor for the class. */
 /*  * Confirmed between Joey, Alavro; Skype 30 July 2012 */
 /*  *\/ */
-/* | INITIAL operationDef */
-/* | INITIAL operationDef SEMI */
-/* ; */
+| INITIAL operationDef
+;
 
-/* typeDefs : */
-/*   TYPES */
-/* | TYPES typeDefList */
-/* | TYPES typeDefList SEMI */
-/* ; */
+typeDefs :
+  TYPES
+| TYPES typeDefList
+| TYPES typeDefList SEMI
+;
 
-/* typeDefList : */
-/*   typeDef */
-/* | typeDefList[list] SEMI typeDef */
-/* ; */
+typeDefList :
+  typeDef
+| typeDefList[list] SEMI typeDef
+;
 
-/* typeDef : */
-/*   qualifier IDENTIFIER EQUALS type invariant */
-/* | qualifier IDENTIFIER EQUALS type */
-/* | qualifier IDENTIFIER DCOLON fieldList */
-/* | qualifier IDENTIFIER DCOLON fieldList invariant */
-/* ; */
+typeDef :
+  qualifier IDENTIFIER EQUALS type invariant
+| qualifier IDENTIFIER EQUALS type
+| qualifier IDENTIFIER DCOLON fieldList
+| qualifier IDENTIFIER DCOLON fieldList invariant
+;
 
 /* FUTURE
  *
@@ -626,20 +603,20 @@ singleTypeDeclaration :
  * token 'QUALIFIER' and then querying its value (like with numeric
  * literals) to figure out which one we have.
  */
-/* qualifier : */
-/*   PRIVATE */
-/* | PROTECTED */
-/* | PUBLIC */
-/* /\* (RWL) It is not in overture why are we having it? */
-/*  * */
-/*  * (JWC) It is in CML, however.  Jim wants it in (for perfectly */
-/*  * cromulent reasons), and it's mostly harmless.  We just need to */
-/*  * filter it (and all places where it's used) out, or flip it to */
-/*  * public/global.  See me for an explanation. */
-/*  *\/ */
-/* | LOGICAL */
-/* | /\* empty *\/ */
-/* ; */
+qualifier :
+  PRIVATE
+| PROTECTED
+| PUBLIC
+/* (RWL) It is not in overture why are we having it?
+ *
+ * (JWC) It is in CML, however.  Jim wants it in (for perfectly
+ * cromulent reasons), and it's mostly harmless.  We just need to
+ * filter it (and all places where it's used) out, or flip it to
+ * public/global.  See me for an explanation.
+ */
+| LOGICAL
+| /* empty */
+;
 
 type :
   LPAREN type RPAREN // bracketedType
@@ -705,9 +682,9 @@ field :
 | IDENTIFIER COLONDASH type
 ;
 
-/* invariant : */
-/*   INV pattern DEQUALS expression */
-/* ; */
+invariant :
+  INV pattern DEQUALS expression
+;
 
 
 /* DEVIATION
@@ -716,20 +693,20 @@ field :
  * here:
  *   'values', { qualifiedValueDef, { ‘;’, qualifiedValueDef } } [ ';' ]
  */
-/* valueDefs : */
-/*   VALUES */
-/* | VALUES valueDefList */
-/* | VALUES valueDefList SEMI */
-/* ; */
+valueDefs :
+  VALUES
+| VALUES valueDefList
+| VALUES valueDefList SEMI
+;
 
-/* valueDefList : */
-/*   qualifiedValueDef[def] */
-/* | valueDefList[list] SEMI qualifiedValueDef[def] */
-/* ; */
+valueDefList :
+  qualifiedValueDef[def]
+| valueDefList[list] SEMI qualifiedValueDef[def]
+;
 
-/* qualifiedValueDef : */
-/*   qualifier valueDef */
-/* ; */
+qualifiedValueDef :
+  qualifier valueDef
+;
 
 valueDef :
   IDENTIFIER COLON type EQUALS expression
@@ -738,29 +715,29 @@ valueDef :
 | patternLessID EQUALS expression
 ;
 
-/* functionDefs : */
-/*   FUNCTIONS */
-/* | FUNCTIONS functionDefList */
-/* | FUNCTIONS functionDefList SEMI */
-/* ; */
+functionDefs :
+  FUNCTIONS
+| FUNCTIONS functionDefList
+| FUNCTIONS functionDefList SEMI
+;
 
-/* functionDefList : */
-/*   functionDef */
-/* | functionDefList[list] SEMI functionDef */
-/* ; */
+functionDefList :
+  functionDef
+| functionDefList[list] SEMI functionDef
+;
 
-/* functionDef : */
-/*   implicitFunctionDef */
-/* | qualifiedExplicitFunctionDef */
-/* ; */
+functionDef :
+  implicitFunctionDef
+| qualifiedExplicitFunctionDef
+;
 
-/* implicitFunctionDef : */
-/*   qualifier IDENTIFIER parameterTypes identifierTypePairList preExpr_opt postExpr */
-/* ; */
+implicitFunctionDef :
+  qualifier IDENTIFIER parameterTypes identifierTypePairList preExpr_opt postExpr
+;
 
-/* qualifiedExplicitFunctionDef : */
-/*   qualifier explicitFunctionDef */
-/* ; */
+qualifiedExplicitFunctionDef :
+  qualifier explicitFunctionDef
+;
 
 explicitFunctionDef :
   IDENTIFIER COLON functionType IDENTIFIER parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
@@ -779,25 +756,25 @@ functionBody :
 | NOTYETSPEC
 ;
 
-/* parameterTypes : */
-/*   LRPAREN */
-/* | LPAREN patternListTypeList RPAREN */
-/* ; */
+parameterTypes :
+  LRPAREN
+| LPAREN patternListTypeList RPAREN
+;
 
-/* patternListTypeList : */
-/*   patternList COLON type */
-/* | patternListTypeList COMMA patternList COLON type */
-/* ; */
+patternListTypeList :
+  patternList COLON type
+| patternListTypeList COMMA patternList COLON type
+;
 
-/* identifierTypePairList_opt : */
-/*   /\* empty *\/ */
-/* | identifierTypePairList */
-/* ; */
+identifierTypePairList_opt :
+  /* empty */
+| identifierTypePairList
+;
 
-/* identifierTypePairList : */
-/*   IDENTIFIER COLON type */
-/* | identifierTypePairList COMMA IDENTIFIER COLON type */
-/* ; */
+identifierTypePairList :
+  IDENTIFIER COLON type
+| identifierTypePairList COMMA IDENTIFIER COLON type
+;
 
 preExpr_opt :
   preExpr
@@ -827,51 +804,44 @@ measureExpr :
 | /* empty */ 
 ;
 
-/* operationDefs : */
-/*   OPERATIONS */
-/* | OPERATIONS operationDefList */
-/* | OPERATIONS operationDefList SEMI */
-/* ; */
+operationDefs :
+  OPERATIONS
+| OPERATIONS operationDefList
+;
 
-/* operationDefList : */
-/*   operationDef */
-/* | operationDefList[list] SEMI operationDef */
-/* ; */
+/* DEVIATION
+ * require *no* separator between operations
+ */
+operationDefList :
+  operationDef
+| operationDefList[list] operationDef
+;
 
-/* operationDef : */
-/*   implicitOperationDef */
-/* | explicitOperationDef */
-/* ; */
+operationDef :
+  implicitOperationDef
+| explicitOperationDef
+;
 
-/* explicitOperationDef : */
-/*   qualifier IDENTIFIER COLON operationType IDENTIFIER parameterList DEQUALS operationBody preExpr_opt postExpr_opt */
-/* ; */
+explicitOperationDef :
+  qualifier IDENTIFIER COLON operationType IDENTIFIER parameterList DEQUALS operationBody preExpr_opt postExpr_opt
+;
 
-/* implicitOperationDef : */
-/*   qualifier IDENTIFIER parameterTypes identifierTypePairList_opt externals_opt preExpr_opt postExpr */
-/* ; */
+implicitOperationDef :
+  qualifier IDENTIFIER parameterTypes identifierTypePairList_opt externals_opt preExpr_opt postExpr
+;
 
-/* operationType : */
-/*   type DEQRARROW type */
-/* | LRPAREN DEQRARROW type */
-/* | type DEQRARROW LRPAREN */
-/* | LRPAREN DEQRARROW LRPAREN */
-/* ; */
+operationType :
+  type DEQRARROW type
+| LRPAREN DEQRARROW type
+| type DEQRARROW LRPAREN
+| LRPAREN DEQRARROW LRPAREN
+;
 
-/* operationBody : */
-/* /\* DEVIATION */
-/*  * CML_0: */
-/*  *   action */
-/*  * here: */
-/*  *   blockStatement */
-/*  * */
-/*  * Use of a SEMI to separate operation definitions conflicts with the */
-/*  * use of a SEMI for the CSP sequential combinator. */
-/*  *\/ */
-/*   blockStatement */
-/* | SUBCLASSRESP */
-/* | NOTYETSPEC */
-/* ; */
+operationBody :
+  action
+| SUBCLASSRESP
+| NOTYETSPEC
+;
 
 externals_opt :
   externals
@@ -915,21 +885,21 @@ mode :
  * I have changed the grammar back and used the AClassInvariantDefinition
  * class witout a rename.
  */
-/* stateDefs : */
-/*   STATE  */
-/* | STATE stateDefList  */
-/* | STATE stateDefList SEMI */
-/* ; */
+stateDefs :
+  STATE
+| STATE stateDefList
+| STATE stateDefList SEMI
+;
 
-/* stateDefList : */
-/*   stateDef */
-/* | stateDefList[list] SEMI stateDef */
-/* ; */
+stateDefList :
+  stateDef
+| stateDefList[list] SEMI stateDef
+;
 
-/* stateDef : */
-/*   qualifier assignmentDef */
-/* | INV expression */
-/* ; */
+stateDef :
+  qualifier assignmentDef
+| INV expression
+;
 
 expressionList :
   expression
@@ -1202,9 +1172,12 @@ controlStatement :
 /* specification statement */
 | LSQUARE implicitOperationBody RSQUARE
 /* return statement */
-| RETURN
+/* DEVIATION
+ * RETURN needs some sort of following value to avoid conflict with actionDefinitionList
+ */
+// | RETURN
 | RETURN LRPAREN
-| RETURN expression 
+| RETURN expression
 /* DEVIATION
  * PATH
  * CML_0:
