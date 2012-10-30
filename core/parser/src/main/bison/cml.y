@@ -132,8 +132,7 @@
 /* ---------------------------------------------------------------- */
 /* Initial rule declaration                                         */
 /* ---------------------------------------------------------------- */
-/* %start source */
-%start programParagraph
+%start source
 
 %%
 
@@ -141,27 +140,27 @@
 /* The rules                                                        */
 /* ---------------------------------------------------------------- */
 
-/* source : */
-/*   programParagraphList */
-/* ; */
+source :
+  programParagraphList
+;
 
-/* programParagraphList : */
-/*   programParagraph */
-/* | programParagraphList programParagraph */
-/* ; */
+programParagraphList :
+  programParagraph
+| programParagraphList programParagraph
+;
 
 programParagraph :
-/*   classDefinition */
+  classDefinition
 | processDefinition
 | channelDefinition
 | chansetDefinitionParagraph
 | globalDefinitionParagraph
 ;
 
-/* classDefinition : */
-/*   CLASS IDENTIFIER EQUALS BEGIN classDefinitionBlock END */
-/* | CLASS IDENTIFIER EQUALS EXTENDS IDENTIFIER BEGIN classDefinitionBlock END */
-/* ; */
+classDefinition :
+  CLASS IDENTIFIER EQUALS BEGIN classDefinitionBlock END
+| CLASS IDENTIFIER EQUALS EXTENDS IDENTIFIER BEGIN classDefinitionBlock END
+;
 
 processDefinition:
   PROCESS IDENTIFIER EQUALS process
@@ -256,9 +255,9 @@ process :
  */
 replicationDeclaration :
   singleTypeDeclaration
-/* | singleExpressionDeclaration */
+| singleExpressionDeclaration
 | replicationDeclaration SEMI singleTypeDeclaration
-/* | replicationDeclaration SEMI singleExpressionDeclaration */
+| replicationDeclaration SEMI singleExpressionDeclaration
 ;
 
 /* DEVIATION
@@ -266,13 +265,14 @@ replicationDeclaration :
  * CML_0:
  *   IDENTIFIER { COMMA IDENTIFIER } ':' expression
  * here:
- *   pathList 'in set' expression
+ *   IDENTIFIER { COMMA IDENTIFIER } INSET expression
  *
  * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
-/* singleExpressionDeclaration : */
-/*   expressionList INSET expression */
-/* ; */
+singleExpressionDeclaration :
+  IDENTIFIER INSET expression
+| IDENTIFIER COMMA singleExpressionDeclaration
+;
 
 processParagraphList :
   processParagraph
@@ -555,10 +555,10 @@ globalDefinitionParagraph :
 | functionDefs
 ;
 
-/* classDefinitionBlock : */
-/*   classDefinitionBlockAlternative */
-/* | classDefinitionBlockAlternative classDefinitionBlock */
-/* ; */
+classDefinitionBlock :
+  classDefinitionBlockAlternative
+| classDefinitionBlockAlternative classDefinitionBlock
+;
 
 classDefinitionBlockAlternative :
   typeDefs
