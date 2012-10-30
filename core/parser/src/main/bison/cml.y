@@ -133,7 +133,7 @@
 /* Initial rule declaration                                         */
 /* ---------------------------------------------------------------- */
 /* %start source */
-%start processDefinition
+%start programParagraph
 
 %%
 
@@ -150,13 +150,13 @@
 /* | programParagraphList programParagraph */
 /* ; */
 
-/* programParagraph : */
+programParagraph :
 /*   classDefinition */
-/* | processDefinition */
-/* | channelDefinition */
-/* | chansetDefinitionParagraph */
-/* | globalDefinitionParagraph */
-/* ; */
+| processDefinition
+| channelDefinition
+| chansetDefinitionParagraph
+| globalDefinitionParagraph
+;
 
 /* classDefinition : */
 /*   CLASS IDENTIFIER EQUALS BEGIN classDefinitionBlock END */
@@ -495,29 +495,29 @@ renameList :
  * here:
  *   'channels', { channelDefinition, { ‘;’, channelDefinition } } [ ';' ]
  */
-/* channelDefinition : */
-/*   CHANNELS */
-/* | CHANNELS channelDef */
-/* | CHANNELS channelDef SEMI */
-/* ; */
+channelDefinition :
+  CHANNELS
+| CHANNELS channelDef
+| CHANNELS channelDef SEMI
+;
 
-/* channelDef : */
-/*   channelNameDecl */
-/* | channelDef SEMI channelNameDecl */
-/* ; */
+channelDef :
+  channelNameDecl
+| channelDef SEMI channelNameDecl
+;
 
-/* channelNameDecl : */
-/* /\* DEVIATION */
-/*  * PATH */
-/*  * grammar: */
-/*  *   identifierList */
-/*  * here: */
-/*  *   pathList */
-/*  * So, we need to cast the list of names down to a list of identifiers */
-/*  *\/ */
-/*   expressionList */
-/* | singleTypeDeclaration */
-/* ; */
+channelNameDecl :
+/* DEVIATION
+ * grammar:
+ *   identifierList
+ * here:
+ *   IDENTIFIER
+ * So, it's not possible to have a comma-separated list of untyped channel names
+ * FIXME we could, however, eliminate the SEMI separator entirely
+ */
+  IDENTIFIER
+| singleTypeDeclaration
+;
 
 /* RENAME
  * declaration in CML_0 grammar corresponds to singleTypeDeclarationList
@@ -532,32 +532,28 @@ singleTypeDeclaration :
 | IDENTIFIER COMMA singleTypeDeclaration
 ;
 
-/* chansetDefinitionParagraph : */
-/*   CHANSETS */
-/* | CHANSETS chansetDefinitionList */
-/* | CHANSETS chansetDefinitionList SEMI */
-/* ; */
+chansetDefinitionParagraph :
+  CHANSETS
+| CHANSETS chansetDefinitionList
+;
 
-/* DEVIATION
- * chanset declarations are now separated by SEMIs, just like everything else.
+chansetDefinitionList :
+  chansetDefinition
+| chansetDefinitionList[list] chansetDefinition
+;
+
+chansetDefinition :
+/* CHANSET
+ * expression was chansetExpr here
  */
-/* chansetDefinitionList : */
-/*   chansetDefinition */
-/* | chansetDefinitionList[list] SEMI chansetDefinition */
-/* ; */
+  IDENTIFIER EQUALS expression
+;
 
-/* chansetDefinition : */
-/* /\* CHANSET */
-/*  * expression was chansetExpr here */
-/*  *\/ */
-/*   IDENTIFIER EQUALS expression */
-/* ; */
-
-/* globalDefinitionParagraph : */
-/*   typeDefs */
-/* | valueDefs */
-/* | functionDefs */
-/* ; */
+globalDefinitionParagraph :
+  typeDefs
+| valueDefs
+| functionDefs
+;
 
 /* classDefinitionBlock : */
 /*   classDefinitionBlockAlternative */
