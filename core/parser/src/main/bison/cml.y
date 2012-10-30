@@ -33,24 +33,19 @@
   import eu.compassresearch.ast.program.*;
   import eu.compassresearch.ast.types.*;
   import org.overture.ast.types.*;
-  //  import eu.compassresearch.ast.lex.*;
-  // import eu.compassresearch.ast.lex.LexToken;
   import org.overture.ast.lex.*;
-  //  import eu.compassresearch.ast.typechecker.NameScope;
   import org.overture.ast.typechecker.NameScope;
-  //  import eu.compassresearch.ast.node.*;
   import org.overture.ast.node.*;
-  //  import eu.compassresearch.ast.node.tokens.*;
   import org.overture.ast.node.tokens.*;
-  //  import eu.compassresearch.ast.preview.*;
   import org.overture.ast.preview.*;
-  //  import eu.compassresearch.ast.util.*;
   import org.overture.ast.util.*;
   import eu.compassresearch.core.lexer.CmlLexeme;
   import eu.compassresearch.core.lexer.CmlLexer;
   import eu.compassresearch.core.lexer.Position;
   import eu.compassresearch.ast.definitions.AImplicitOperationDefinition;
   import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
+  import org.overture.ast.types.*;
+ 
 }
 
 %code{
@@ -60,10 +55,6 @@
   public static class Info {
     public static final String CML_LANG_VERSION = "CML 0";
   };
-
-  public class CustomSyntaxErrorException extends RuntimeException
-  {
-  }
 
   // **************************
   // *** PARSER INTERNAL DS ***
@@ -3502,7 +3493,16 @@ expression :
   LexNameToken name = extractNameFromUNDERNAMEToken(mku);
   List<PExp> exprs = (List<PExp>)$3;
   LexLocation loc = extractLexLocation(mku, (CmlLexeme)$4);
-  ARecordExp res = new ARecordExp(loc, name, exprs);
+
+  PExp res = null;
+
+  if ("token".equals(name.name ) && exprs != null && exprs.size() == 1)
+    {
+      ATokenBasicType type = new ATokenBasicType(loc,true) ;
+      res = new AMkBasicExp(type, loc, exprs.get(0));
+    }
+  else
+       res = new AMkTypeExp(loc, name, exprs);
   $$ = res;
 }
 /* lambda expression */

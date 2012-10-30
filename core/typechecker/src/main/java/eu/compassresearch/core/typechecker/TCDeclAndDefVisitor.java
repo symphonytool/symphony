@@ -83,7 +83,8 @@ class TCDeclAndDefVisitor extends
         for (ATypeDefinition d : defs)
           {
             PType type = d.apply(parentChecker, question);
-            question.addType(d.getName(), type);
+            question.addType(d.getName(), d);
+            d.setType(type);
           }
         node.setType(new ATypeParagraphType());
         return node.getType();
@@ -98,7 +99,8 @@ class TCDeclAndDefVisitor extends
         for (PDefinition def : list)
           {
             PType defType = def.apply(parentChecker, question);
-            question.addType(def.getName(), defType);
+            question.addType(def.getName(), def);
+            def.setType(defType);
           }
         
         node.setType(new AValueParagraphType());
@@ -306,7 +308,7 @@ class TCDeclAndDefVisitor extends
           }
         
         node.setType(new AChannelType());
-        question.addType(node.getName(), node.getType());
+        question.addType(node.getName(), node);
         
         return node.getType();
       }

@@ -2,51 +2,42 @@ package eu.compassresearch.core.lexer;
 
 import org.overture.ast.lex.VDMToken;
 
-
 public class CmlLexeme {
-  
-    private Position startPos;
-    private Position endPos;
-    protected  String value;
-    private int lex;
-    private VDMToken vdmToken = null;
 
-    public CmlLexeme(Position startPos, Position endPos, int lex, String value)
-    {
-	this.value = value;
-	this.startPos = startPos;
-	this.endPos = endPos;
-	this.lex = lex;
-    }
+	private Position startPos;
+	private Position endPos;
+	protected String value;
+	private int lex;
+	private VDMToken vdmToken = null;
 
-    public Position getStartPos()
-    {
-	return startPos;
-    }
+	public CmlLexeme(Position startPos, Position endPos, int lex, String value) {
+		this.value = value;
+		this.startPos = startPos;
+		this.endPos = endPos;
+		this.lex = lex;
+	}
 
-    public Position getEndPos()
-    {
-	return endPos;
-    }
+	public Position getStartPos() {
+		return startPos;
+	}
 
-    public int getLexValue()
-    {
-	return lex;
-    }
+	public Position getEndPos() {
+		return endPos;
+	}
 
-    public VDMToken getVDMToken()
-    {
-	return null;
-    }
-    
-    public String getValue()
-    {
-	return this.value;
-    }
+	public int getLexValue() {
+		return lex;
+	}
 
-    public String toString()
-    {
-	return value + " " + startPos;
-    }
+	public VDMToken getVDMToken() {
+		return null;
+	}
+
+	public String getValue() {
+		return this.value;
+	}
+
+	public String toString() {
+		return value + " " + startPos;
+	}
 }
-
