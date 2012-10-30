@@ -42,8 +42,8 @@ public class CmlDeclAndDefEvaluator extends
 			expValue = node.getExpression().apply(parentInterpreter,question);
 		else
 			expValue = new UndefinedValue();
-		LexNameToken nt = new LexNameToken("Default",node.getName());
-		question.put(nt, expValue);
+		//LexNameToken nt = new LexNameToken("Default",node.getName());
+		question.put(node.getName(), expValue);
 		return expValue;
 	}
 

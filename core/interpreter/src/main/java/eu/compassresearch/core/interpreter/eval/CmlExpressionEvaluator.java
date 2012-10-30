@@ -4,8 +4,13 @@ import java.io.File;
 import java.io.InputStream;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
+import org.overture.config.Settings;
 import org.overture.interpreter.eval.ExpressionEvaluator;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.scheduler.BasicSchedulableThread;
+import org.overture.interpreter.scheduler.InitThread;
+import org.overture.interpreter.values.CPUValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
@@ -104,7 +109,6 @@ import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
 import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
 import eu.compassresearch.ast.expressions.AIdentifierChansetSetExp;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
-import eu.compassresearch.ast.expressions.ANameExp;
 import eu.compassresearch.ast.expressions.ATupleSelectExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.patterns.AIdentifierTypePair;
@@ -154,8 +158,9 @@ import eu.compassresearch.core.interpreter.api.CMLContext;
 
 public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 {
-	private ExpressionEvaluator vdmExpressionEvaluator;
-
+	//private ExpressionEvaluator vdmExpressionEvaluator;
+	private CML2VDMExpressionEvaluator vdmExpressionEvaluator = new CML2VDMExpressionEvaluator();
+	
 	class CML2VDMExpressionEvaluator extends ExpressionEvaluator 
 		implements ICMLQuestionAnswer<Context, Value>
 	{
@@ -351,13 +356,6 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext,
 
 		@Override
 		public Value caseABracketedExp(ABracketedExp node, Context question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Value caseANameExp(ANameExp node, Context question)
 				throws AnalysisException {
 			// TODO Auto-generated method stub
 			return null;
@@ -1202,6 +1200,19 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext,
 			return null;
 		}
 		
+	}
+	
+	@Override
+	public Value defaultPExp(PExp node, CMLContext question)
+			throws AnalysisException {
+		// TODO Auto-generated method stub
+				
+		InitThread initThread = new InitThread(Thread.currentThread());
+        BasicSchedulableThread.setInitialThread(initThread);
+        question.setThreadState(null, CPUValue.vCPU);
+        Settings.dynamictypechecks = false;
+        
+		return node.apply(vdmExpressionEvaluator, question);
 	}
 	
 	@Override

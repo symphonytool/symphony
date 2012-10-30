@@ -1531,7 +1531,8 @@ communication[result] :
 {
     ACommunicationAction comAction = (ACommunicationAction)$before;
     LexNameToken name = extractLexNameToken($IDENTIFIER);
-    PExp exp = new ANameExp(name.location,name);
+    //PExp exp = new ANameExp(name.location,name);
+    PExp exp = new AVariableExp(name.location,name,"");
     LexLocation location = extractLexLocation((CmlLexeme)$BANG,exp.getLocation());
     comAction.getCommunicationParameters().add(new AWriteCommunicationParameter(location, 
 										exp));

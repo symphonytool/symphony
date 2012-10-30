@@ -182,7 +182,7 @@ exp {-> package='eu.compassresearch.ast.expressions'}
     =   {bracketed} [expression]:exp /*cml*/
     |   #Set
     |   {stateInit} (state):definition.#paragraph.state  
-    |   {name} [name]:LexNameToken         
+    /*|   {name} [name]:LexNameToken*/         
     /* |   {record} [name]:LexNameToken [exprs]: exp* */ 
     |   {tupleSelect} [tuple]:exp [entry]:java_Integer 
     |   #Channel
