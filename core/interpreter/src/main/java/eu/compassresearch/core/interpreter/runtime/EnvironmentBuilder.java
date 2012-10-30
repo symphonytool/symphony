@@ -1,11 +1,13 @@
 package eu.compassresearch.core.interpreter.runtime;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.typechecker.Environment;
+import org.overture.typechecker.FlatEnvironment;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
@@ -19,28 +21,24 @@ import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.typechecker.Environment;
 
 public class EnvironmentBuilder extends AnalysisCMLAdaptor
   {
-    
     /**
 	 * 
 	 */
     private static final long        serialVersionUID   = 493918199975006733L;
-    private Environment<PDefinition> env                = null;
-    private String                   lastDefinedProcess = null;
+    private List<PDefinition>        globalDefs	        = new LinkedList<PDefinition>();
+    private AProcessDefinition       lastDefinedProcess = null;
     
     public EnvironmentBuilder(List<PSource> sources)
-      {
-        BuildGlobalEnvironment(sources);
-      }
-    
+    {
+    	BuildGlobalEnvironment(sources);
+    }
+
     private void BuildGlobalEnvironment(List<PSource> sources)
       {
         // EnvironmentBuilder envBuilder = new EnvironmentBuilder();
-        
-        env = new Environment<PDefinition>(null);
         
         for (PSource source : sources)
           {
@@ -59,14 +57,14 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
           }
       }
     
-    public String getLastDefinedProcess()
+    public AProcessDefinition getLastDefinedProcess()
       {
         return lastDefinedProcess;
       }
     
-    public Environment<PDefinition> getGlobalEnvironment()
+    public Environment getGlobalEnvironment()
       {
-        return env;
+        return new FlatEnvironment(globalDefs);
       }
     
     @Override
@@ -75,7 +73,8 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
       {
         
         // TODO: check access specifier
-        env.put(node.getName(), node);
+    	globalDefs.add(node);
+        //env..put(node.getName(), );
         
       }
     
@@ -86,8 +85,9 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         
         // TODO: check access specifier
         AProcessDefinition processDef = node.getProcessDefinition();
-        env.put(processDef.getName(), processDef);
-        lastDefinedProcess = processDef.getName().getName();
+        globalDefs.add(processDef);
+        //env.put(processDef.getName(), processDef);
+        lastDefinedProcess = processDef;
       }
     
     @Override
@@ -95,10 +95,11 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         throws AnalysisException
       {
         
-        for (AChansetDefinition chansetDef : node.getChansets())
-          {
-            env.put(chansetDef.getName(), chansetDef);
-          }
+    	for (AChansetDefinition chansetDef : node.getChansets())
+    	{
+    		//env.put(chansetDef.getName(), chansetDef);
+    		globalDefs.add(chansetDef);
+    	}
       }
     
     @Override
@@ -108,7 +109,8 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         
         for (PDefinition typeDef : node.getTypes())
           {
-            env.put(typeDef.getName(), (ATypeDefinition)typeDef);
+        	globalDefs.add(typeDef);
+            //env.put(typeDef.getName(), (ATypeDefinition)typeDef);
           }
       }
     
@@ -119,7 +121,8 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         
         for (PDefinition functionDef : node.getFunctionDefinitions())
           {
-            env.put(functionDef.getName(), functionDef);
+        	globalDefs.add(functionDef);
+            //env.put(functionDef.getName(), functionDef);
           }
       }
     

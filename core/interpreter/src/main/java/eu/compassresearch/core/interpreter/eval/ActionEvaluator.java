@@ -23,7 +23,7 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
 import eu.compassresearch.core.interpreter.api.CMLContext;
-import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
+import eu.compassresearch.core.interpreter.cml.CMLChannelEvent;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
 public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value> {
@@ -60,13 +60,13 @@ public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 	public Value caseACommunicationAction(ACommunicationAction node,
 			CMLContext question) throws AnalysisException {
 
-		ChannelEvent ev = question.getCurrentEvent();
+		CMLChannelEvent ev = question.getCurrentEvent();
 
 		if(ev != null && ev.getChannelName().equals(node.getIdentifier().getName()))
 		{
 			//question.resetEvent();
 			CMLContext newQuestion = new CMLContext(node.getLocation(),"", question);
-			newQuestion.setCurrentEvent(new ChannelEvent(""));
+			newQuestion.setCurrentEvent(new CMLChannelEvent(""));
 			ProcessValue v = (ProcessValue)node.getAction().apply(parentInterpreter,newQuestion);
 
 			ProcessValue retV = null;
@@ -122,7 +122,7 @@ public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 		if(retValue == null )
 		{
 			CMLContext newQuestion = new CMLContext(node.getLocation(),"", question);
-			newQuestion.setCurrentEvent(new ChannelEvent(""));
+			newQuestion.setCurrentEvent(new CMLChannelEvent(""));
 			ProcessValue rightValue = (ProcessValue)node.getRight().apply(this,newQuestion);
 			
 			PAction nextAction = getNextAction(rightValue, node.getRight());

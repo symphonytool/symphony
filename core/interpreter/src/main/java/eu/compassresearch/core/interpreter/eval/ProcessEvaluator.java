@@ -17,11 +17,11 @@ import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.core.interpreter.api.CMLContext;
-import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
-import eu.compassresearch.core.interpreter.scheduler.InstantiatedProcess;
-import eu.compassresearch.core.interpreter.scheduler.ProcessThread;
-import eu.compassresearch.core.interpreter.scheduler.SequentialCompositionProcess;
-import eu.compassresearch.core.interpreter.scheduler.SynchronousParallelismProcess;
+import eu.compassresearch.core.interpreter.cml.CMLProcess;
+import eu.compassresearch.core.interpreter.cml.InstantiatedProcess;
+import eu.compassresearch.core.interpreter.cml.ProcessThread;
+import eu.compassresearch.core.interpreter.cml.SequentialCompositionProcess;
+import eu.compassresearch.core.interpreter.cml.SynchronousParallelismProcess;
 
 @SuppressWarnings("serial")
 public class ProcessEvaluator extends

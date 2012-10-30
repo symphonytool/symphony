@@ -1,10 +1,10 @@
-package eu.compassresearch.core.interpreter.runtime;
+package eu.compassresearch.core.interpreter.cml;
 
-public class ChannelEvent {
+public class CMLChannelEvent {
 	
 	String channelName;
 	
-	public ChannelEvent(String channelName)
+	public CMLChannelEvent(String channelName)
 	{
 		this.channelName = channelName;
 	}

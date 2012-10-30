@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.scheduler;
+package eu.compassresearch.core.interpreter.cml;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,7 +12,6 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
-import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
 public class ProcessThread implements Runnable, CMLProcess {
@@ -24,7 +23,7 @@ public class ProcessThread implements Runnable, CMLProcess {
 	private PAction currentAction;
 	private List<ACommunicationAction> currentlyOfferedEvents = new LinkedList<ACommunicationAction>();	
 	private SynchronousQueue<List<ACommunicationAction>> offeredEventsChannel = new SynchronousQueue<List<ACommunicationAction>>();
-	private SynchronousQueue<ChannelEvent> recievedEvent = new SynchronousQueue<ChannelEvent>();
+	private SynchronousQueue<CMLChannelEvent> recievedEvent = new SynchronousQueue<CMLChannelEvent>();
 	
 	public ProcessThread(CMLContext context, AStateProcess process)
 	{
@@ -49,7 +48,7 @@ public class ProcessThread implements Runnable, CMLProcess {
 
 			while(pvalue != null && !currentlyOfferedEvents.isEmpty())
 			{
-				ChannelEvent ca = recievedEvent.take();
+				CMLChannelEvent ca = recievedEvent.take();
 				
 				context.setCurrentEvent(ca);
 				pvalue = (ProcessValue)currentAction.apply(evalutor,context);
@@ -85,7 +84,7 @@ public class ProcessThread implements Runnable, CMLProcess {
 	}
 	
 	@Override
-	synchronized public void eventOccured(ChannelEvent event)
+	synchronized public void eventOccured(CMLChannelEvent event)
 	{
 		try {
 			recievedEvent.put(event);

@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.scheduler;
+package eu.compassresearch.core.interpreter.cml;
 
 import java.util.HashSet;
 import java.util.List;
@@ -9,7 +9,6 @@ import org.overture.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.interpreter.eval.EventCollector;
-import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
 
 public class InstantiatedProcess implements CMLProcess
   {
@@ -43,7 +42,7 @@ public class InstantiatedProcess implements CMLProcess
       }
     
     @Override
-    public void eventOccured(ChannelEvent event)
+    public void eventOccured(CMLChannelEvent event)
       {
         
         // System.out.println("Event on instance of process " +
