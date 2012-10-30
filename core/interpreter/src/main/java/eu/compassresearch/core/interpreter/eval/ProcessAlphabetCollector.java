@@ -9,7 +9,7 @@ import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 
 @SuppressWarnings("serial")
-public class EventCollector extends DepthFirstAnalysisCMLAdaptor {
+public class ProcessAlphabetCollector extends DepthFirstAnalysisCMLAdaptor {
 
 	private Set<String> channelSet = new HashSet<String>();
 	

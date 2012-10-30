@@ -105,7 +105,6 @@ import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
 import eu.compassresearch.ast.expressions.AIdentifierChansetSetExp;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.ANameExp;
-import eu.compassresearch.ast.expressions.ARecordExp;
 import eu.compassresearch.ast.expressions.ATupleSelectExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.patterns.AIdentifierTypePair;
@@ -363,14 +362,7 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext,
 			// TODO Auto-generated method stub
 			return null;
 		}
-
-		@Override
-		public Value caseARecordExp(ARecordExp node, Context question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
+		
 		@Override
 		public Value caseATupleSelectExp(ATupleSelectExp node, Context question)
 				throws AnalysisException {

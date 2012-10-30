@@ -25,13 +25,11 @@ public class CMLContext extends Context
     
     public CMLChannelEvent getCurrentEvent()
     {
-
-    	//        ChannelEvent ce = currentEvent;
-    	//        if (ce == null)
-    	//          if (outer != null)
-    	//            ce = outer.getCurrentEvent();
-    	//        return ce;
-    	return null;
+    	CMLChannelEvent ce = currentEvent;
+    	if (ce == null)
+    		if (outer != null && outer instanceof CMLContext)
+    			ce = ((CMLContext)outer).getCurrentEvent();
+    	return ce;
     }
     
     public void setCurrentEvent(CMLChannelEvent currentEvent)

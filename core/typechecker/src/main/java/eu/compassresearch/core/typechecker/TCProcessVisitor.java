@@ -59,10 +59,9 @@ public class TCProcessVisitor extends
       {
         
         // TODO: implement this!
-        PDefinition processDef = question.lookupVariable(node.getProcessName()
-            .getIdentifier());
+        PDefinition processDef = question.lookupVariable(node.getProcessName());
         
-        if (!(processDef instanceof AProcessParagraphDefinition))
+        if (null != processDef && !(processDef instanceof AProcessParagraphDefinition))
           throw new AnalysisException(
               "The Identifier "
                   + node.getProcessName().getIdentifier()
