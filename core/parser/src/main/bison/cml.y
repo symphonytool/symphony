@@ -223,14 +223,6 @@ process :
  * Unfolded the definition a little bit to avoid a conflict
  */
 | LPAREN singleTypeDeclarationList AT process RPAREN LPAREN expression RPAREN
-/* PATH
- * CML_0:
- *   IDENTIFIER
- *   IDENTIFIER LRPAREN
- *   IDENTIFIER LPAREN expressionList RPAREN
- * here:
- *   path
- */
 | IDENTIFIER
 | IDENTIFIER LRPAREN
 | IDENTIFIER LPAREN expressionList RPAREN
@@ -261,7 +253,6 @@ replicationDeclaration :
 ;
 
 /* DEVIATION
- * PATH
  * CML_0:
  *   IDENTIFIER { COMMA IDENTIFIER } ':' expression
  * here:
@@ -325,7 +316,6 @@ action :
 | CSPWAIT expression
 /* Communication rule start*/
 /* DEVIATION
- * PATH
  * CML_0:
  *   action: ...| communication '->' action
  *   communication: IDENTIFIER { communicationParameter }
@@ -333,7 +323,7 @@ action :
  * here:
  *   expression '->' action
  *
- * Need to verify that this matches all desired communication formats; see sub-production
+ * Need to verify that this matches all desired communication formats; BANG and QUESTION are now integrated into expression
  */
 | expression RARROW action[to]
 /* guards */
@@ -475,12 +465,11 @@ renameExpression :
 ;
 
 /* DEVIATION
- * PATH
  * CML_0:
  *   renamingEnumeration: '[[' renamingPair { ',' renamingPair } ']]'
- *   renamingPair: IDENTIFIER { ',' expression } '<-' IDENTIFIER { ',' expression }
+ *   renamingPair: IDENTIFIER { '.' expression } '<-' IDENTIFIER { '.' expression }
  * here:
- *   renamingPair: path '<-' path
+ *   renamingPair: expression LARROW expression
  *
  * Note that path requires expressions in (...) but allows literals without.
  */
@@ -792,9 +781,11 @@ postExpr :
 
 measureExpr :
 /* DEVIATION
- * PATH
  * CML_0:
  *   MEASURE name
+ * here:
+ *   MEASURE expression
+ * but must resolve to some name
  */
   MEASURE expression
 | /* empty */ 
@@ -1307,7 +1298,6 @@ patternLessID :
 | MKUNDER LPAREN patternList COMMA pattern RPAREN
 /* record patterns */
 /* DEVIATION
- * PATH
  * CML_0:
  *   MKUNDER name LPAREN expression RPAREN
  * here:
