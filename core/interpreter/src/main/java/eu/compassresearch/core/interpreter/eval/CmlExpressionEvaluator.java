@@ -81,11 +81,11 @@ import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
-import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionParagraphDefinition;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
@@ -199,14 +199,7 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext,
 			// TODO Auto-generated method stub
 			return null;
 		}
-
-		@Override
-		public Value caseAChannelNameDeclaration(AChannelNameDeclaration node,
-				Context question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
+		
 		@Override
 		public Value caseATypeSingleDeclaration(ATypeSingleDeclaration node,
 				Context question) throws AnalysisException {
@@ -1195,6 +1188,13 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext,
 
 		@Override
 		public Value caseACaseAlternativeAction(ACaseAlternativeAction node,
+				Context question) throws AnalysisException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Value caseAChannelNameDefinition(AChannelNameDefinition node,
 				Context question) throws AnalysisException {
 			// TODO Auto-generated method stub
 			return null;

@@ -10,7 +10,7 @@ import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatEnvironment;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
-import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
@@ -131,7 +131,7 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         throws AnalysisException
       {
         
-        for (AChannelNameDeclaration cnd : node.getChannelNameDeclarations())
+        for (AChannelNameDefinition cnd : node.getChannelNameDeclarations())
           {
             for (LexIdentifierToken channelName : cnd.getSingleType()
                 .getIdentifiers())
