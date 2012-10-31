@@ -1210,6 +1210,7 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext,
 		InitThread initThread = new InitThread(Thread.currentThread());
         BasicSchedulableThread.setInitialThread(initThread);
         question.setThreadState(null, CPUValue.vCPU);
+        //This should be deleted once typechecking is properly done
         Settings.dynamictypechecks = false;
         
 		return node.apply(vdmExpressionEvaluator, question);
