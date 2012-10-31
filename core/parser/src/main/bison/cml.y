@@ -1732,6 +1732,7 @@ channelDefinition :
                                                                                   access,
 										  null,//Pass
                                                                                   chanNameDecls);
+  channelDefinition.setName(new LexNameToken("","",new LexLocation()));
   $$ = channelDefinition;
 }
 | CHANNELS channelDef
@@ -1748,6 +1749,7 @@ channelDefinition :
                                                                                   access,
 										  null,//Pass
                                                                                   chanNameDecls);
+  channelDefinition.setName(new LexNameToken("","",new LexLocation()));
   $$ = channelDefinition;
 }
 | CHANNELS channelDef SEMI
@@ -1762,6 +1764,7 @@ channelDefinition :
                                                                                   access,
 										  null,//Pass
                                                                                   chanNameDecls);
+  channelDefinition.setName(new LexNameToken("","",new LexLocation()));
   $$ = channelDefinition;
 }
 ;
