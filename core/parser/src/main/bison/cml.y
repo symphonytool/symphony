@@ -56,13 +56,15 @@
 /* Precidence from loosest to tightest; tokens on same line are equal precidence */
 %left G-LOOSE
 %right RETURN
+%right S-LET
 %right LET //needed to make let expressions recurse correctly
 %right LPAREN // also needed to make parenthesized expressions recurse
 %right MU LAMBDA AT
 %right COMMA
 %right FORALL EXISTS EXISTS1 IOTA
 //%right LPAREN
-//%left OF COLONEQUALS
+//%left OF
+%nonassoc COLONEQUALS
 %nonassoc ELSE ELSEIF
 %left DO
 %right U-DO
@@ -298,9 +300,9 @@ actionDefinitionList :
  * keyword itself!) can be considered a deviation.
  */
 namesetDefList :
-  IDENTIFIER EQUALS expression // TODO
-| namesetDefList IDENTIFIER EQUALS expression // TODO
-| namesetDefList SEMI IDENTIFIER EQUALS expression // TODO
+  IDENTIFIER EQUALS expression
+| namesetDefList IDENTIFIER EQUALS expression
+| namesetDefList SEMI IDENTIFIER EQUALS expression
 ;
 
 paragraphAction :
@@ -621,13 +623,17 @@ type :
  * CML_0:
  *   name
  * here:
- *   IDENTIFIER
- *   IDENTIFIER DOT IDENTIFIER
- *   IDENTIFIER BACKTICK IDENTIFIER
+ *   dottedIdentifier
+ *
+ * note that 'dottedIdentifier' includes backtick
  */
-| IDENTIFIER
-| IDENTIFIER DOT IDENTIFIER // name is defined in CML_0 as using DOT
-| IDENTIFIER BACKTICK IDENTIFIER
+| dottedIdentifier
+;
+
+dottedIdentifier :
+  IDENTIFIER 
+| dottedIdentifier DOT IDENTIFIER
+| dottedIdentifier BACKTICK IDENTIFIER
 ;
 
 basicType :
@@ -1129,17 +1135,8 @@ maplet :
 
 controlStatement :
   ifStatement
-/* nondeterministic statements */
 | IF nonDeterministicAltList END
 | DO nonDeterministicAltList END %prec U-DO
-/* nondeterministic statements end */
-/* DEVIATION --- PATH
- * CML_0:
- *   callStatement
- * here:
- *   We're missing explicit call statements, they're subsumed into path and assignment.
- */
-/* general assign statement */
 /* DEVIATION
  * callStatement --- with assignment
  * grammar:
@@ -1152,32 +1149,27 @@ controlStatement :
  * it must rewrite the AST to convert the assign into a call
  * statement.
  */
-// | assignStatement
-/* multiple assign statement */
-// | ATOMIC LPAREN assignStatementList RPAREN
-/* general assign statement end */
-/* specification statement */
+| assignStatement
+| ATOMIC LPAREN assignStatementList RPAREN
 | LSQUARE implicitOperationBody RSQUARE
-/* return statement */
 /* DEVIATION
  * RETURN needs some sort of following value to avoid conflict with actionDefinitionList
  */
 // | RETURN
 | RETURN LRPAREN
-| RETURN expression
+| RETURN expression 
 /* DEVIATION
- * PATH
  * CML_0:
  *   stateDesignator ':=' 'new' name '(' { expression } ')'
  * here:
- *   path COLONEQUALS NEW path LRPAREN
- *   path COLONEQUALS NEW path LPAREN expressionList RPAREN
+ *   expression COLONEQUALS NEW expression
  *
+ * The expression production deals with ensuring we have something
+ * that looks like a name + params; so we will have to add TC checks
+ * here.
  */
-// | expression COLONEQUALS NEW expression LRPAREN
-// | expression COLONEQUALS NEW expression LPAREN expressionList RPAREN
+| expression COLONEQUALS NEW expression
 | casesStatement
-/* sequence for loop */
 /* FIXME
  *
  * (JWC) The grammar allows reverse as a specific keyword to the for
@@ -1188,14 +1180,9 @@ controlStatement :
 // | FOR bind IN REVERSE expression DO action
 | FOR pattern IN expression DO action
 // | FOR pattern IN REVERSE expression DO action */
-/* sequence for loop end */
-/* set for loop */
 | FOR ALL pattern INSET expression DO action
-/* index for loop */
 | FOR IDENTIFIER EQUALS expression TO expression DO action
 | FOR IDENTIFIER EQUALS expression TO expression BY expression DO action
-/* index for loop end */
-/* while loop */
 | WHILE expression DO action
 /* DEVIATION
  * callStatement --- without assignment
@@ -1219,7 +1206,7 @@ nonDeterministicAltList :
 ;
 
 letStatement :
-  LET localDefList IN action
+  LET localDefList IN action %prec S-LET
 ;
 
 blockStatement :
@@ -1243,21 +1230,26 @@ assignmentDef :
 | IDENTIFIER COLON type IN expression
 ;
 
-/* assignStatementList : */
-/*   assignStatement */
-/* | assignStatementList[list] SEMI assignStatement */
-/* ; */
+/* Typechecker will have to ensure that all of the assigns in the list
+ * are genuine assigments rather than operation calls.
+ */
+assignStatementList :
+  assignStatement
+| assignStatementList[list] SEMI assignStatement
+;
 
-/* assignStatement : */
-/* /\* DEVIATION */
-/*  * PATH */
-/*  * CML_0: */
-/*  *   stateDesignator ':=' expression */
-/*  * here: */
-/*  *   path ':=' expression */
-/*  *\/ */
-/*   expression COLONEQUALS expression */
-/* ; */
+assignStatement :
+/* DEVIATION
+ * PATH
+ * CML_0:
+ *   stateDesignator ':=' expression
+ * here:
+ *   expression ':=' expression
+ *
+ * Kill 'em all and let the typechecker sort them out
+ */
+  expression COLONEQUALS expression
+;
 
 ifStatement :
   IF expression THEN action elseStatements ELSE action
@@ -1365,12 +1357,6 @@ typeBindList :
   typeBind
 | typeBindList COMMA typeBind
 ;
-
-
-/* identifierList: */
-/*   IDENTIFIER */
-/* | identifierList COMMA IDENTIFIER */
-/* ; */
 
 // **********************
 // *** END OF GRAMMAR ***
