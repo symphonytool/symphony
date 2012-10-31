@@ -24,7 +24,6 @@ import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 
 @SuppressWarnings("serial")
@@ -34,11 +33,11 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	// -- Type Checker State
 	// ---------------------------------------------
 	// subcheckers
-	private IQuestionAnswer<TypeCheckQuestion, PType> exp;
-	private IQuestionAnswer<TypeCheckQuestion, PType> stm;
-	private IQuestionAnswer<TypeCheckQuestion, PType> dad;
-	private IQuestionAnswer<TypeCheckQuestion, PType> typ; // basic
-	private IQuestionAnswer<TypeCheckQuestion, PType> prc;
+	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> exp;
+	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> stm;
+	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> dad;
+	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> typ; // basic
+	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> prc;
 	// type
 	// checker
 	private boolean lastResult;
@@ -66,50 +65,51 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	}
 
 	@Override
-	public PType defaultPType(PType node, TypeCheckQuestion question)
+	public PType defaultPType(PType node,
+			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		question.updateContextNameToCurrentScope(node);
 		return addErrorForMissingType(node, node.apply(typ, question));
 	}
 
 	@Override
-	public PType defaultINode(INode node, TypeCheckQuestion question)
+	public PType defaultINode(INode node,
+			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		question.updateContextNameToCurrentScope(node);
 		return addErrorForMissingType(node, super.defaultINode(node, question));
 	}
 
 	@Override
 	public PType defaultPDeclaration(PDeclaration node,
-			TypeCheckQuestion question) throws AnalysisException {
-		question.updateContextNameToCurrentScope(node);
+			org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
 		return addErrorForMissingType(node, node.apply(this.dad, question));
 	}
 
 	@Override
-	public PType defaultPDefinition(PDefinition node, TypeCheckQuestion question)
+	public PType defaultPDefinition(PDefinition node,
+			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		question.updateContextNameToCurrentScope(node);
 		return addErrorForMissingType(node, node.apply(this.dad, question));
 	}
 
 	@Override
-	public PType defaultPExp(PExp node, TypeCheckQuestion question)
+	public PType defaultPExp(PExp node,
+			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		question.updateContextNameToCurrentScope(node);
 		return addErrorForMissingType(node, node.apply(exp, question));
 	}
 
 	@Override
-	public PType defaultPProcess(PProcess node, TypeCheckQuestion question)
+	public PType defaultPProcess(PProcess node,
+			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 		return node.apply(prc, question);
 	}
 
 	@Override
-	public PType defaultPAction(PAction node, TypeCheckQuestion question)
+	public PType defaultPAction(PAction node,
+			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		question.updateContextNameToCurrentScope(node);
 		return node.apply(stm, question);
 	}
 

@@ -8,7 +8,6 @@ import org.overture.ast.types.PType;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
@@ -30,30 +29,26 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
  */
 @SuppressWarnings("serial")
 abstract class AbstractTypeChecker extends
-    QuestionAnswerCMLAdaptor<TypeCheckQuestion, PType> implements
-    CmlTypeChecker, TypeIssueHandler
-  {
-    protected CollectingIssueHandler issueHandler;
-    protected boolean                cleared;
-    protected List<PSource>          sourceForest;
-    
-    AbstractTypeChecker()
-      {
-        clear();
-      }
-    
-    public void addTypeError(INode offendingSubtree, String message)
-      {
-        issueHandler.addTypeError(offendingSubtree, message);
-      }
-    
-    public void addTypeWarning(INode hazardousSubtree, String message)
-      {
-        issueHandler.addTypeWarning(hazardousSubtree, message);
-      }
-    
-    /**
-     * Clear out all warnings and errors and resets the type checker.
-     */
-    abstract void clear();
-  }
+		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
+		implements TypeIssueHandler, CmlTypeChecker {
+	protected CollectingIssueHandler issueHandler;
+	protected boolean cleared;
+	protected List<PSource> sourceForest;
+
+	AbstractTypeChecker() {
+		clear();
+	}
+
+	public void addTypeError(INode offendingSubtree, String message) {
+		issueHandler.addTypeError(offendingSubtree, message);
+	}
+
+	public void addTypeWarning(INode hazardousSubtree, String message) {
+		issueHandler.addTypeWarning(hazardousSubtree, message);
+	}
+
+	/**
+	 * Clear out all warnings and errors and resets the type checker.
+	 */
+	abstract void clear();
+}

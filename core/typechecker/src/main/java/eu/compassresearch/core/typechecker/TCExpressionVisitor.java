@@ -5,180 +5,15 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.AAssignmentDefinition;
-import org.overture.ast.definitions.ABusClassDefinition;
-import org.overture.ast.definitions.AClassClassDefinition;
-import org.overture.ast.definitions.AClassInvariantDefinition;
-import org.overture.ast.definitions.ACpuClassDefinition;
-import org.overture.ast.definitions.AEqualsDefinition;
-import org.overture.ast.definitions.AExplicitFunctionDefinition;
-import org.overture.ast.definitions.AExplicitOperationDefinition;
-import org.overture.ast.definitions.AExternalDefinition;
-import org.overture.ast.definitions.AImplicitFunctionDefinition;
-import org.overture.ast.definitions.AImplicitOperationDefinition;
-import org.overture.ast.definitions.AImportedDefinition;
-import org.overture.ast.definitions.AInheritedDefinition;
-import org.overture.ast.definitions.AInstanceVariableDefinition;
-import org.overture.ast.definitions.ALocalDefinition;
-import org.overture.ast.definitions.AMultiBindListDefinition;
-import org.overture.ast.definitions.AMutexSyncDefinition;
-import org.overture.ast.definitions.ANamedTraceDefinition;
-import org.overture.ast.definitions.APerSyncDefinition;
-import org.overture.ast.definitions.APrivateAccess;
-import org.overture.ast.definitions.AProtectedAccess;
-import org.overture.ast.definitions.APublicAccess;
-import org.overture.ast.definitions.ARenamedDefinition;
-import org.overture.ast.definitions.AStateDefinition;
-import org.overture.ast.definitions.ASystemClassDefinition;
-import org.overture.ast.definitions.AThreadDefinition;
-import org.overture.ast.definitions.ATypeDefinition;
-import org.overture.ast.definitions.AUntypedDefinition;
-import org.overture.ast.definitions.AValueDefinition;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.traces.AApplyExpressionTraceCoreDefinition;
-import org.overture.ast.definitions.traces.ABracketedExpressionTraceCoreDefinition;
-import org.overture.ast.definitions.traces.AConcurrentExpressionTraceCoreDefinition;
-import org.overture.ast.definitions.traces.AInstanceTraceDefinition;
-import org.overture.ast.definitions.traces.ALetBeStBindingTraceDefinition;
-import org.overture.ast.definitions.traces.ALetDefBindingTraceDefinition;
-import org.overture.ast.definitions.traces.ARepeatTraceDefinition;
-import org.overture.ast.definitions.traces.ATraceDefinitionTerm;
-import org.overture.ast.expressions.*;
-import org.overture.ast.lex.LexBooleanToken;
-import org.overture.ast.lex.LexCharacterToken;
-import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexIntegerToken;
-import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.lex.LexQuoteToken;
-import org.overture.ast.lex.LexRealToken;
-import org.overture.ast.lex.LexStringToken;
-import org.overture.ast.lex.LexToken;
-import org.overture.ast.modules.AAllExport;
-import org.overture.ast.modules.AAllImport;
-import org.overture.ast.modules.AFromModuleImports;
-import org.overture.ast.modules.AFunctionExport;
-import org.overture.ast.modules.AFunctionValueImport;
-import org.overture.ast.modules.AModuleExports;
-import org.overture.ast.modules.AModuleImports;
-import org.overture.ast.modules.AModuleModules;
-import org.overture.ast.modules.AOperationExport;
-import org.overture.ast.modules.AOperationValueImport;
-import org.overture.ast.modules.ATypeExport;
-import org.overture.ast.modules.ATypeImport;
-import org.overture.ast.modules.AValueExport;
-import org.overture.ast.modules.AValueValueImport;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
-import org.overture.ast.node.tokens.TAsync;
-import org.overture.ast.node.tokens.TStatic;
-import org.overture.ast.patterns.ABooleanPattern;
-import org.overture.ast.patterns.ACharacterPattern;
-import org.overture.ast.patterns.AConcatenationPattern;
-import org.overture.ast.patterns.ADefPatternBind;
-import org.overture.ast.patterns.AExpressionPattern;
-import org.overture.ast.patterns.AIdentifierPattern;
-import org.overture.ast.patterns.AIgnorePattern;
-import org.overture.ast.patterns.AIntegerPattern;
-import org.overture.ast.patterns.AMapPattern;
-import org.overture.ast.patterns.AMapUnionPattern;
-import org.overture.ast.patterns.AMapletPatternMaplet;
-import org.overture.ast.patterns.ANilPattern;
-import org.overture.ast.patterns.APatternListTypePair;
-import org.overture.ast.patterns.APatternTypePair;
-import org.overture.ast.patterns.AQuotePattern;
-import org.overture.ast.patterns.ARealPattern;
-import org.overture.ast.patterns.ARecordPattern;
-import org.overture.ast.patterns.ASeqPattern;
-import org.overture.ast.patterns.ASetBind;
-import org.overture.ast.patterns.ASetMultipleBind;
-import org.overture.ast.patterns.ASetPattern;
-import org.overture.ast.patterns.AStringPattern;
-import org.overture.ast.patterns.ATuplePattern;
-import org.overture.ast.patterns.ATypeBind;
-import org.overture.ast.patterns.ATypeMultipleBind;
-import org.overture.ast.patterns.AUnionPattern;
-import org.overture.ast.statements.AAlwaysStm;
-import org.overture.ast.statements.AApplyObjectDesignator;
-import org.overture.ast.statements.AAssignmentStm;
-import org.overture.ast.statements.AAtomicStm;
-import org.overture.ast.statements.ABlockSimpleBlockStm;
-import org.overture.ast.statements.ACallObjectStm;
-import org.overture.ast.statements.ACallStm;
-import org.overture.ast.statements.ACaseAlternativeStm;
-import org.overture.ast.statements.ACasesStm;
-import org.overture.ast.statements.AClassInvariantStm;
-import org.overture.ast.statements.ACyclesStm;
-import org.overture.ast.statements.ADefLetDefStm;
-import org.overture.ast.statements.ADurationStm;
-import org.overture.ast.statements.AElseIfStm;
-import org.overture.ast.statements.AErrorCase;
-import org.overture.ast.statements.AErrorStm;
-import org.overture.ast.statements.AExitStm;
-import org.overture.ast.statements.AExternalClause;
-import org.overture.ast.statements.AFieldObjectDesignator;
-import org.overture.ast.statements.AFieldStateDesignator;
-import org.overture.ast.statements.AForAllStm;
-import org.overture.ast.statements.AForIndexStm;
-import org.overture.ast.statements.AForPatternBindStm;
-import org.overture.ast.statements.AIdentifierObjectDesignator;
-import org.overture.ast.statements.AIdentifierStateDesignator;
-import org.overture.ast.statements.AIfStm;
-import org.overture.ast.statements.ALetBeStStm;
-import org.overture.ast.statements.AMapSeqStateDesignator;
-import org.overture.ast.statements.ANewObjectDesignator;
-import org.overture.ast.statements.ANonDeterministicSimpleBlockStm;
-import org.overture.ast.statements.ANotYetSpecifiedStm;
-import org.overture.ast.statements.APeriodicStm;
-import org.overture.ast.statements.AReturnStm;
-import org.overture.ast.statements.ASelfObjectDesignator;
-import org.overture.ast.statements.ASkipStm;
-import org.overture.ast.statements.ASpecificationStm;
-import org.overture.ast.statements.AStartStm;
-import org.overture.ast.statements.ASubclassResponsibilityStm;
-import org.overture.ast.statements.ATixeStm;
-import org.overture.ast.statements.ATixeStmtAlternative;
-import org.overture.ast.statements.ATrapStm;
-import org.overture.ast.statements.AWhileStm;
-import org.overture.ast.typechecker.ClassDefinitionSettings;
 import org.overture.ast.typechecker.NameScope;
-import org.overture.ast.typechecker.Pass;
-import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
-import org.overture.ast.types.ABooleanBasicType;
-import org.overture.ast.types.ABracketType;
-import org.overture.ast.types.ACharBasicType;
-import org.overture.ast.types.AClassType;
-import org.overture.ast.types.AFieldField;
-import org.overture.ast.types.AFunctionType;
-import org.overture.ast.types.AInMapMapType;
-import org.overture.ast.types.AIntNumericBasicType;
-import org.overture.ast.types.AMapMapType;
-import org.overture.ast.types.ANamedInvariantType;
-import org.overture.ast.types.ANatNumericBasicType;
-import org.overture.ast.types.ANatOneNumericBasicType;
-import org.overture.ast.types.AOperationType;
-import org.overture.ast.types.AOptionalType;
-import org.overture.ast.types.AParameterType;
-import org.overture.ast.types.AProductType;
-import org.overture.ast.types.AQuoteType;
-import org.overture.ast.types.ARationalNumericBasicType;
-import org.overture.ast.types.ARealNumericBasicType;
-import org.overture.ast.types.ARecordInvariantType;
-import org.overture.ast.types.ASeq1SeqType;
-import org.overture.ast.types.ASeqSeqType;
-import org.overture.ast.types.ASetType;
-import org.overture.ast.types.ATokenBasicType;
-import org.overture.ast.types.AUndefinedType;
-import org.overture.ast.types.AUnionType;
-import org.overture.ast.types.AUnknownType;
-import org.overture.ast.types.AUnresolvedType;
-import org.overture.ast.types.AVoidReturnType;
-import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
-import org.overture.ast.util.ClonableFile;
-import org.overture.ast.util.ClonableString;
 import org.overture.parser.messages.VDMError;
+import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
-import org.overture.typechecker.visitor.TypeCheckVisitor;
 import org.overture.typechecker.visitor.TypeCheckerExpVisitor;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
@@ -258,7 +93,9 @@ import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
+import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
+import eu.compassresearch.ast.definitions.AImplicitOperationDefinition;
 import eu.compassresearch.ast.definitions.AInitialParagraphDefinition;
 import eu.compassresearch.ast.definitions.AInvariantDefinition;
 import eu.compassresearch.ast.definitions.ALogicalAccess;
@@ -321,1064 +158,11 @@ import eu.compassresearch.ast.types.AStatementType;
 import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 class TCExpressionVisitor extends
-		QuestionAnswerCMLAdaptor<TypeCheckQuestion, PType> {
-
-	class FixMe extends TypeCheckerExpVisitor implements
-			ICMLQuestionAnswer<TypeCheckQuestion, PType> {
-
-		public FixMe(TypeCheckVisitor typeCheckVisitor) {
-			super(typeCheckVisitor);
-			// TODO Auto-generated constructor stub
-		}
-
-		@Override
-		public PType caseFile(File node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseInputStream(InputStream node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAFileSource(AFileSource node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseATcpStreamSource(ATcpStreamSource node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAInputStreamSource(AInputStreamSource node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAChannelNameDeclaration(AChannelNameDeclaration node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseATypeSingleDeclaration(ATypeSingleDeclaration node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAExpressionSingleDeclaration(
-				AExpressionSingleDeclaration node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAActionDefinition(AActionDefinition node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAChansetDefinition(AChansetDefinition node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAInvariantDefinition(AInvariantDefinition node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAProcessDefinition(AProcessDefinition node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAClassParagraphDefinition(
-				AClassParagraphDefinition node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAProcessParagraphDefinition(
-				AProcessParagraphDefinition node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAChannelParagraphDefinition(
-				AChannelParagraphDefinition node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAChansetParagraphDefinition(
-				AChansetParagraphDefinition node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAActionParagraphDefinition(
-				AActionParagraphDefinition node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseATypesParagraphDefinition(
-				ATypesParagraphDefinition node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAOperationParagraphDefinition(
-				AOperationParagraphDefinition node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAFunctionParagraphDefinition(
-				AFunctionParagraphDefinition node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAValueParagraphDefinition(
-				AValueParagraphDefinition node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAInitialParagraphDefinition(
-				AInitialParagraphDefinition node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAStateParagraphDefinition(
-				AStateParagraphDefinition node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAExplicitOperationDefinition(
-				eu.compassresearch.ast.definitions.AExplicitOperationDefinition node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAImplicitOperationDefinition(
-				eu.compassresearch.ast.definitions.AImplicitOperationDefinition node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseABracketedExp(ABracketedExp node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseANameExp(ANameExp node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseATupleSelectExp(ATupleSelectExp node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseANameChannelExp(ANameChannelExp node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAComprehensionRenameChannelExp(
-				AComprehensionRenameChannelExp node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAEnumerationRenameChannelExp(
-				AEnumerationRenameChannelExp node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAIdentifierChansetSetExp(
-				AIdentifierChansetSetExp node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAEnumChansetSetExp(AEnumChansetSetExp node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseACompChansetSetExp(ACompChansetSetExp node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAStatementType(AStatementType node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAProcessType(AProcessType node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAErrorType(AErrorType node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAProcessParagraphType(AProcessParagraphType node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAChansetParagraphType(AChansetParagraphType node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAChannelsParagraphType(AChannelsParagraphType node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAActionParagraphType(AActionParagraphType node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAValueParagraphType(AValueParagraphType node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAFunctionParagraphType(AFunctionParagraphType node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseATypeParagraphType(ATypeParagraphType node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAOperationParagraphType(AOperationParagraphType node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAStateParagraphType(AStateParagraphType node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseASourceType(ASourceType node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAChannelType(AChannelType node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseALogicalAccess(ALogicalAccess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAIdentifierTypePair(AIdentifierTypePair node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseARenamePair(ARenamePair node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAStateProcess(AStateProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseASequentialCompositionProcess(
-				ASequentialCompositionProcess node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAExternalChoiceProcess(AExternalChoiceProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAInternalChoiceProcess(AInternalChoiceProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAGeneralisedParallelismProcess(
-				AGeneralisedParallelismProcess node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAAlphabetisedParallelismProcess(
-				AAlphabetisedParallelismProcess node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseASynchronousParallelismProcess(
-				ASynchronousParallelismProcess node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAInterleavingProcess(AInterleavingProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAInterruptProcess(AInterruptProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseATimedInterruptProcess(ATimedInterruptProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseATimeoutProcess(ATimeoutProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAHidingProcess(AHidingProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAStartDeadlineProcess(AStartDeadlineProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAEndDeadlineProcess(AEndDeadlineProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAInstantiationProcess(AInstantiationProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAChannelRenamingProcess(AChannelRenamingProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseASequentialCompositionReplicatedProcess(
-				ASequentialCompositionReplicatedProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAExternalChoiceReplicatedProcess(
-				AExternalChoiceReplicatedProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAInternalChoiceReplicatedProcess(
-				AInternalChoiceReplicatedProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAGeneralisedParallelismReplicatedProcess(
-				AGeneralisedParallelismReplicatedProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAAlphabetisedParallelismReplicatedProcess(
-				AAlphabetisedParallelismReplicatedProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseASynchronousParallelismReplicatedProcess(
-				ASynchronousParallelismReplicatedProcess node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAInterleavingReplicatedProcess(
-				AInterleavingReplicatedProcess node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseASkipAction(ASkipAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAStopAction(AStopAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAChaosAction(AChaosAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseADivAction(ADivAction node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAWaitAction(AWaitAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseACommunicationAction(ACommunicationAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAGuardedAction(AGuardedAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseASequentialCompositionAction(
-				ASequentialCompositionAction node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAExternalChoiceAction(AExternalChoiceAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAInternalChoiceAction(AInternalChoiceAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAInterruptAction(AInterruptAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseATimedInterruptAction(ATimedInterruptAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAUntimedTimeoutAction(AUntimedTimeoutAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseATimeoutAction(ATimeoutAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAHidingAction(AHidingAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAStartDeadlineAction(AStartDeadlineAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAEndDeadlineAction(AEndDeadlineAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAChannelRenamingAction(AChannelRenamingAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAMuAction(AMuAction node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAParametrisedAction(AParametrisedAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseACallAction(ACallAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseASubclassResponsibilityAction(
-				ASubclassResponsibilityAction node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseANotYetSpecifiedAction(ANotYetSpecifiedAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAInterleavingParallelAction(
-				AInterleavingParallelAction node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAGeneralisedParallelismParallelAction(
-				AGeneralisedParallelismParallelAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAAlphabetisedParallelismParallelAction(
-				AAlphabetisedParallelismParallelAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseASynchronousParallelismParallelAction(
-				ASynchronousParallelismParallelAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseASequentialCompositionReplicatedAction(
-				ASequentialCompositionReplicatedAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAExternalChoiceReplicatedAction(
-				AExternalChoiceReplicatedAction node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAInternalChoiceReplicatedAction(
-				AInternalChoiceReplicatedAction node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAInterleavingReplicatedAction(
-				AInterleavingReplicatedAction node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAGeneralisedParallelismReplicatedAction(
-				AGeneralisedParallelismReplicatedAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAAlphabetisedParallelismReplicatedAction(
-				AAlphabetisedParallelismReplicatedAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseASynchronousParallelismReplicatedAction(
-				ASynchronousParallelismReplicatedAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseADeclarationInstantiatedAction(
-				ADeclarationInstantiatedAction node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAParametrisedInstantiatedAction(
-				AParametrisedInstantiatedAction node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAReadCommunicationParameter(
-				AReadCommunicationParameter node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAWriteCommunicationParameter(
-				AWriteCommunicationParameter node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAReferenceCommunicationParameter(
-				AReferenceCommunicationParameter node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAValParametrisation(AValParametrisation node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAResParametrisation(AResParametrisation node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAVresParametrisation(AVresParametrisation node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAIdentifierParameter(AIdentifierParameter node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseATupleParameter(ATupleParameter node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseARecordParameter(ARecordParameter node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseALetStatementAction(ALetStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseABlockStatementAction(ABlockStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseANonDeterministicIfStatementAction(
-				ANonDeterministicIfStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseANonDeterministicAltStatementAction(
-				ANonDeterministicAltStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAIfStatementAction(AIfStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAElseIfStatementAction(AElseIfStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseACasesStatementAction(ACasesStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseACallStatementAction(ACallStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseASpecificationStatementAction(
-				ASpecificationStatementAction node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAAssignmentCallStatementAction(
-				AAssignmentCallStatementAction node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAReturnStatementAction(AReturnStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseANewStatementAction(ANewStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseANonDeterministicDoStatementAction(
-				ANonDeterministicDoStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAForSetStatementAction(AForSetStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAForIndexStatementAction(
-				AForIndexStatementAction node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAForSequenceStatementAction(
-				AForSequenceStatementAction node, TypeCheckQuestion question)
-				throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAWhileStatementAction(AWhileStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseADeclareStatementAction(ADeclareStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseASingleGeneralAssignmentStatementAction(
-				ASingleGeneralAssignmentStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseAMultipleGeneralAssignmentStatementAction(
-				AMultipleGeneralAssignmentStatementAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public PType caseACaseAlternativeAction(ACaseAlternativeAction node,
-				TypeCheckQuestion question) throws AnalysisException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-	}
+		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 	/**
 	 * 
@@ -1396,6 +180,1068 @@ class TCExpressionVisitor extends
 		this.issueHandler = issueHandler;
 	}
 
+	private class CmlOvertureTypeExpressionVisitor extends
+			TypeCheckerExpVisitor implements
+			ICMLQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> {
+
+		public CmlOvertureTypeExpressionVisitor(
+				QuestionAnswerAdaptor<TypeCheckInfo, PType> typeCheckVisitor) {
+			super(typeCheckVisitor);
+		}
+
+		private PType escapeFromOvertureContext(INode node,
+				org.overture.typechecker.TypeCheckInfo question) {
+			try {
+				return node.apply((VanillaCmlTypeChecker) parent, question);
+			} catch (AnalysisException e) {
+				e.printStackTrace();
+			}
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseFile(File node, TypeCheckInfo question)
+				throws AnalysisException {
+			return null;
+		}
+
+		@Override
+		public PType caseInputStream(InputStream node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return null;
+		}
+
+		@Override
+		public PType caseAFileSource(AFileSource node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseATcpStreamSource(ATcpStreamSource node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAInputStreamSource(AInputStreamSource node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAChannelNameDeclaration(AChannelNameDeclaration node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseATypeSingleDeclaration(ATypeSingleDeclaration node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAExpressionSingleDeclaration(
+				AExpressionSingleDeclaration node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAActionDefinition(AActionDefinition node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAChansetDefinition(AChansetDefinition node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAInvariantDefinition(AInvariantDefinition node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAProcessDefinition(AProcessDefinition node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAClassParagraphDefinition(
+				AClassParagraphDefinition node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAProcessParagraphDefinition(
+				AProcessParagraphDefinition node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAChannelParagraphDefinition(
+				AChannelParagraphDefinition node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAChansetParagraphDefinition(
+				AChansetParagraphDefinition node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAActionParagraphDefinition(
+				AActionParagraphDefinition node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseATypesParagraphDefinition(
+				ATypesParagraphDefinition node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAOperationParagraphDefinition(
+				AOperationParagraphDefinition node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAFunctionParagraphDefinition(
+				AFunctionParagraphDefinition node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAValueParagraphDefinition(
+				AValueParagraphDefinition node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAInitialParagraphDefinition(
+				AInitialParagraphDefinition node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAStateParagraphDefinition(
+				AStateParagraphDefinition node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAExplicitOperationDefinition(
+				AExplicitOperationDefinition node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAImplicitOperationDefinition(
+				AImplicitOperationDefinition node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseABracketedExp(ABracketedExp node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseANameExp(ANameExp node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseATupleSelectExp(ATupleSelectExp node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseANameChannelExp(ANameChannelExp node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAComprehensionRenameChannelExp(
+				AComprehensionRenameChannelExp node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAEnumerationRenameChannelExp(
+				AEnumerationRenameChannelExp node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAIdentifierChansetSetExp(
+				AIdentifierChansetSetExp node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAEnumChansetSetExp(AEnumChansetSetExp node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseACompChansetSetExp(ACompChansetSetExp node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAStatementType(AStatementType node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAProcessType(AProcessType node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAErrorType(AErrorType node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAProcessParagraphType(AProcessParagraphType node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAChansetParagraphType(AChansetParagraphType node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAChannelsParagraphType(AChannelsParagraphType node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAActionParagraphType(AActionParagraphType node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAValueParagraphType(AValueParagraphType node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAFunctionParagraphType(AFunctionParagraphType node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseATypeParagraphType(ATypeParagraphType node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAOperationParagraphType(AOperationParagraphType node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAStateParagraphType(AStateParagraphType node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseASourceType(ASourceType node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAChannelType(AChannelType node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseALogicalAccess(ALogicalAccess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAIdentifierTypePair(AIdentifierTypePair node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseARenamePair(ARenamePair node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAStateProcess(AStateProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseASequentialCompositionProcess(
+				ASequentialCompositionProcess node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAExternalChoiceProcess(AExternalChoiceProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAInternalChoiceProcess(AInternalChoiceProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAGeneralisedParallelismProcess(
+				AGeneralisedParallelismProcess node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAAlphabetisedParallelismProcess(
+				AAlphabetisedParallelismProcess node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseASynchronousParallelismProcess(
+				ASynchronousParallelismProcess node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAInterleavingProcess(AInterleavingProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAInterruptProcess(AInterruptProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseATimedInterruptProcess(ATimedInterruptProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAUntimedTimeoutProcess(AUntimedTimeoutProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseATimeoutProcess(ATimeoutProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAHidingProcess(AHidingProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAStartDeadlineProcess(AStartDeadlineProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAEndDeadlineProcess(AEndDeadlineProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAInstantiationProcess(AInstantiationProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAChannelRenamingProcess(AChannelRenamingProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseASequentialCompositionReplicatedProcess(
+				ASequentialCompositionReplicatedProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAExternalChoiceReplicatedProcess(
+				AExternalChoiceReplicatedProcess node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAInternalChoiceReplicatedProcess(
+				AInternalChoiceReplicatedProcess node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAGeneralisedParallelismReplicatedProcess(
+				AGeneralisedParallelismReplicatedProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAAlphabetisedParallelismReplicatedProcess(
+				AAlphabetisedParallelismReplicatedProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseASynchronousParallelismReplicatedProcess(
+				ASynchronousParallelismReplicatedProcess node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAInterleavingReplicatedProcess(
+				AInterleavingReplicatedProcess node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseASkipAction(ASkipAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAStopAction(AStopAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAChaosAction(AChaosAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseADivAction(ADivAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAWaitAction(AWaitAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseACommunicationAction(ACommunicationAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAGuardedAction(AGuardedAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseASequentialCompositionAction(
+				ASequentialCompositionAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAExternalChoiceAction(AExternalChoiceAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAInternalChoiceAction(AInternalChoiceAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAInterruptAction(AInterruptAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseATimedInterruptAction(ATimedInterruptAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAUntimedTimeoutAction(AUntimedTimeoutAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseATimeoutAction(ATimeoutAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAHidingAction(AHidingAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAStartDeadlineAction(AStartDeadlineAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAEndDeadlineAction(AEndDeadlineAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAChannelRenamingAction(AChannelRenamingAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAMuAction(AMuAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAParametrisedAction(AParametrisedAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseACallAction(ACallAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseASubclassResponsibilityAction(
+				ASubclassResponsibilityAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseANotYetSpecifiedAction(ANotYetSpecifiedAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAInterleavingParallelAction(
+				AInterleavingParallelAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAGeneralisedParallelismParallelAction(
+				AGeneralisedParallelismParallelAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAAlphabetisedParallelismParallelAction(
+				AAlphabetisedParallelismParallelAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseASynchronousParallelismParallelAction(
+				ASynchronousParallelismParallelAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseASequentialCompositionReplicatedAction(
+				ASequentialCompositionReplicatedAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAExternalChoiceReplicatedAction(
+				AExternalChoiceReplicatedAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAInternalChoiceReplicatedAction(
+				AInternalChoiceReplicatedAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAInterleavingReplicatedAction(
+				AInterleavingReplicatedAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAGeneralisedParallelismReplicatedAction(
+				AGeneralisedParallelismReplicatedAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAAlphabetisedParallelismReplicatedAction(
+				AAlphabetisedParallelismReplicatedAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseASynchronousParallelismReplicatedAction(
+				ASynchronousParallelismReplicatedAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseADeclarationInstantiatedAction(
+				ADeclarationInstantiatedAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAParametrisedInstantiatedAction(
+				AParametrisedInstantiatedAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAReadCommunicationParameter(
+				AReadCommunicationParameter node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAWriteCommunicationParameter(
+				AWriteCommunicationParameter node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAReferenceCommunicationParameter(
+				AReferenceCommunicationParameter node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAValParametrisation(AValParametrisation node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAResParametrisation(AResParametrisation node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAVresParametrisation(AVresParametrisation node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAIdentifierParameter(AIdentifierParameter node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseATupleParameter(ATupleParameter node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseARecordParameter(ARecordParameter node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseALetStatementAction(ALetStatementAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseABlockStatementAction(ABlockStatementAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseANonDeterministicIfStatementAction(
+				ANonDeterministicIfStatementAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseANonDeterministicAltStatementAction(
+				ANonDeterministicAltStatementAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAIfStatementAction(AIfStatementAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAElseIfStatementAction(AElseIfStatementAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseACasesStatementAction(ACasesStatementAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseACallStatementAction(ACallStatementAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseASpecificationStatementAction(
+				ASpecificationStatementAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAAssignmentCallStatementAction(
+				AAssignmentCallStatementAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAReturnStatementAction(AReturnStatementAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseANewStatementAction(ANewStatementAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseANonDeterministicDoStatementAction(
+				ANonDeterministicDoStatementAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAForSetStatementAction(AForSetStatementAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAForIndexStatementAction(
+				AForIndexStatementAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAForSequenceStatementAction(
+				AForSequenceStatementAction node, TypeCheckInfo question)
+				throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAWhileStatementAction(AWhileStatementAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseADeclareStatementAction(ADeclareStatementAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseASingleGeneralAssignmentStatementAction(
+				ASingleGeneralAssignmentStatementAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseAMultipleGeneralAssignmentStatementAction(
+				AMultipleGeneralAssignmentStatementAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+		@Override
+		public PType caseACaseAlternativeAction(ACaseAlternativeAction node,
+				TypeCheckInfo question) throws AnalysisException {
+
+			return escapeFromOvertureContext(node, question);
+		}
+
+	}
+
 	/**
 	 * Translate a CML expression into an equivalent Overture VDM expression and
 	 * type check that. Afterwards use the CopyTypesFromOvtToCmlAst to copy over
@@ -1410,26 +1256,24 @@ class TCExpressionVisitor extends
 	 * @throws AnalysisException
 	 *             - if anythings goes wrong that is not just a type error.
 	 */
-
-	public PType defaultPExp(PExp node, TypeCheckQuestion question)
+	@Override
+	public PType defaultPExp(PExp node,
+			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 		org.overture.typechecker.TypeChecker.clearErrors();
 
-		question.updateContextNameToCurrentScope(node);
-
 		INode ovtNode = node;
 
-		TypeCheckerExpVisitor ovtExpVist = new TypeCheckerExpVisitor(
-				new TypeCheckVisitor());
+		TypeCheckerExpVisitor overtureExpVisitor = new CmlOvertureTypeExpressionVisitor(
+				((QuestionAnswerAdaptor<org.overture.typechecker.TypeCheckInfo, PType>) this));
 
-		// TODO: Need to figure out how to translate the environment
 		org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(
-				question.getOvertureEnvironment());
+				question.env);
 
 		quest.scope = NameScope.NAMES;
 
 		try {
-			ovtNode.apply(ovtExpVist, quest);
+			ovtNode.apply(overtureExpVisitor, quest);
 		} catch (org.overture.ast.analysis.AnalysisException e1) {
 			e1.printStackTrace();
 		}
@@ -1445,18 +1289,19 @@ class TCExpressionVisitor extends
 		return node.getType();
 	}
 
-	public PType caseANameExp(ANameExp node, TypeCheckQuestion question)
+	public PType caseANameExp(ANameExp node, TypeCheckInfo question)
 			throws AnalysisException {
 
-		PDefinition type = question.lookupVariable(node.getName());
+		PDefinition type = question.env.findName(node.getName(),
+				NameScope.GLOBAL);
 		if (type == null) {
+			node.setType(new AErrorType());
 			issueHandler.addTypeError(node,
 					TypeErrorMessages.NAMED_TYPE_UNDEFINED
 							.customizeMessage(node.getName() + ""));
-			return new AErrorType();
-		}
-
-		return type.getType();
+		} else
+			node.setType(type.getType());
+		return node.getType();
 	}
 
 }
