@@ -316,6 +316,7 @@ action :
 | CSPCHAOS
 | CSPDIV
 | CSPWAIT expression
+| LPAREN action RPAREN
 /* Communication rule start*/
 /* DEVIATION
  * CML_0:
@@ -436,11 +437,77 @@ action :
  */
 | DBAR replicationDeclaration AT LSQUARE expression RSQUARE action %prec U-DBAR
 /* replicated actions end */
-| letStatement
-| blockStatement
-| controlStatement
-/* This is in blockStatement | LPAREN action RPAREN */
+/*
+ * controlStatements
+ */
+| LET localDefList IN action %prec S-LET
+| LPAREN DCL assignmentDefList AT action RPAREN
+| ifStatement
+| IF nonDeterministicAltList END
+| DO nonDeterministicAltList END %prec U-DO
+/* DEVIATION
+ * callStatement --- with assignment
+ * grammar:
+ *   state designator ':=' call
+ * here:
+ *   subsumed into assignStatement
+ *
+ * The typechecker will have to look at the expression in the assign
+ * and determine if it is actually an operation call; if it is, then
+ * it must rewrite the AST to convert the assign into a call
+ * statement.
+ */
+| assignStatement
+| ATOMIC LPAREN assignStatementList RPAREN
+| LSQUARE implicitOperationBody RSQUARE
+/* DEVIATION
+ * RETURN needs some sort of following value to avoid conflict with actionDefinitionList
+ */
+// | RETURN
+| RETURN LRPAREN
+| RETURN expression 
+/* DEVIATION
+ * CML_0:
+ *   stateDesignator ':=' 'new' name '(' { expression } ')'
+ * here:
+ *   expression COLONEQUALS NEW expression
+ *
+ * The expression production deals with ensuring we have something
+ * that looks like a name + params; so we will have to add TC checks
+ * here.
+ */
+| expression COLONEQUALS NEW expression
+| casesStatement
+/* FIXME
+ *
+ * (JWC) The grammar allows reverse as a specific keyword to the for
+ * loop, but reverse is also a unary expression operator.  I've no
+ * idea what the semantic difference is.
+ */
+| FOR bind IN expression DO action
+// | FOR bind IN REVERSE expression DO action
+| FOR pattern IN expression DO action
+// | FOR pattern IN REVERSE expression DO action */
+| FOR ALL pattern INSET expression DO action
+| FOR IDENTIFIER EQUALS expression TO expression DO action
+| FOR IDENTIFIER EQUALS expression TO expression BY expression DO action
+| WHILE expression DO action
+/* DEVIATION
+ * callStatement --- without assignment
+ * grammar:
+ *   call
+ *   call : [ object designator '.' ] name '(' [ expressionList ] ')'
+ * here:
+ *   subsumed into path
+ *
+ * The typechecker will have to look at the expression in the assign
+ * and determine if it is actually an operation call; if it is, then
+ * it must rewrite the AST to convert the assign into a call
+ * statement.
+ */
+// | expression
 ;
+
 
 actionList :
   action
@@ -1133,85 +1200,9 @@ maplet :
   expression BARRARROW expression
 ;
 
-controlStatement :
-  ifStatement
-| IF nonDeterministicAltList END
-| DO nonDeterministicAltList END %prec U-DO
-/* DEVIATION
- * callStatement --- with assignment
- * grammar:
- *   state designator ':=' call
- * here:
- *   subsumed into assignStatement
- *
- * The typechecker will have to look at the expression in the assign
- * and determine if it is actually an operation call; if it is, then
- * it must rewrite the AST to convert the assign into a call
- * statement.
- */
-| assignStatement
-| ATOMIC LPAREN assignStatementList RPAREN
-| LSQUARE implicitOperationBody RSQUARE
-/* DEVIATION
- * RETURN needs some sort of following value to avoid conflict with actionDefinitionList
- */
-// | RETURN
-| RETURN LRPAREN
-| RETURN expression 
-/* DEVIATION
- * CML_0:
- *   stateDesignator ':=' 'new' name '(' { expression } ')'
- * here:
- *   expression COLONEQUALS NEW expression
- *
- * The expression production deals with ensuring we have something
- * that looks like a name + params; so we will have to add TC checks
- * here.
- */
-| expression COLONEQUALS NEW expression
-| casesStatement
-/* FIXME
- *
- * (JWC) The grammar allows reverse as a specific keyword to the for
- * loop, but reverse is also a unary expression operator.  I've no
- * idea what the semantic difference is.
- */
-| FOR bind IN expression DO action
-// | FOR bind IN REVERSE expression DO action
-| FOR pattern IN expression DO action
-// | FOR pattern IN REVERSE expression DO action */
-| FOR ALL pattern INSET expression DO action
-| FOR IDENTIFIER EQUALS expression TO expression DO action
-| FOR IDENTIFIER EQUALS expression TO expression BY expression DO action
-| WHILE expression DO action
-/* DEVIATION
- * callStatement --- without assignment
- * grammar:
- *   call
- *   call : [ object designator '.' ] name '(' [ expressionList ] ')'
- * here:
- *   subsumed into path
- *
- * The typechecker will have to look at the expression in the assign
- * and determine if it is actually an operation call; if it is, then
- * it must rewrite the AST to convert the assign into a call
- * statement.
- */
-// | expression
-;
-
 nonDeterministicAltList :
   expression RARROW action
 | nonDeterministicAltList BAR expression RARROW action
-;
-
-letStatement :
-  LET localDefList IN action %prec S-LET
-;
-
-blockStatement :
-  LPAREN action RPAREN
-| LPAREN DCL assignmentDefList AT action RPAREN
 ;
 
 assignmentDefList :
