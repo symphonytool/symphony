@@ -317,7 +317,6 @@ action :
 | CSPDIV
 | CSPWAIT expression
 | LPAREN action RPAREN
-/* Communication rule start*/
 /* DEVIATION
  * CML_0:
  *   action: ...| communication '->' action
@@ -326,11 +325,22 @@ action :
  * here:
  *   expression '->' action
  *
- * Need to verify that this matches all desired communication formats; BANG and QUESTION are now integrated into expression
+ * Need to verify that this matches all desired communication formats;
+ * BANG and QUESTION are now integrated into expression
  */
-| expression RARROW action[to]
-/* guards */
-| expression AMP action
+| DUMMY expression RARROW action[to]
+/* DEVIATION
+ * CML_0:
+ *   expression '&' action
+ * here:
+ *   LSQUARE expression RSQUARE AMP action
+ *
+ * A bare expression here conflicts with the dottedIdentifiers that
+ * start off assignments, calls, and new statements.
+ *
+ * agreed: Alvaro & Joey, Skype, 30Jul2012
+ */
+| LSQUARE expression RSQUARE AMP action
 | action SEMI action
 | action LRSQUARE action
 | action BARTILDEBAR action
@@ -385,8 +395,7 @@ action :
  */
 | action LSQUAREBAR expression BAR expression BARRSQUARE action
 | action DBAR action
-/* CHANSET
- * NAMESET
+/* CHANSET NAMESET
  * expressions were namesetExpr|chansetExpr||chansetExpr|namesetExpr here
  */
 | action LSQUARE expression BAR expression DBAR expression BAR expression RSQUARE action
@@ -394,8 +403,7 @@ action :
  * expression was chansetExpr here
  */
 | action LSQUARE expression DBAR expression RSQUARE action
-/* CHANSET
- * NAMESET
+/* CHANSET NAMESET
  * expressions were namesetExpr|chansetExpr|namesetExpr here
  */
 | action LSQUAREBAR expression BAR expression BAR expression BARRSQUARE action
@@ -403,14 +411,15 @@ action :
  * expression was chansetExpr here
  */
 | action LSQUAREBAR expression BARRSQUARE action
-/* parallel actions end */
-/* parametrised action */
-| parametrisationList AT action
-/* instantiated actions */
+/* DEVIATION
+ * CML_0:
+ *   parametrisationList AT action
+ * here:
+ *   LPAREN parametrisationList AT action RPAREN
+ */
+| LPAREN parametrisationList AT action RPAREN
+| LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN
 | LPAREN singleTypeDeclarationList AT action RPAREN LPAREN expressionList RPAREN
-/* | LPAREN parametrisationList AT action RPAREN LPAREN expressionList RPAREN */
-/* instantiated actions end */
-/* replicated actions */
 | SEMI replicationDeclaration AT action %prec U-SEMI
 | LRSQUARE replicationDeclaration AT action %prec U-LRSQUARE
 | BARTILDEBAR replicationDeclaration AT action %prec U-BARTILDEBAR
@@ -422,13 +431,11 @@ action :
  * expression was namesetExpr here
  */
 | TBAR replicationDeclaration AT LSQUARE expression RSQUARE action %prec U-TBAR
-/* CHANSET
- * NAMESET
+/* CHANSET NAMESET
  * expressions were namesetExpr, chansetExpr here
  */
 | LSQUAREBAR expression BARRSQUARE replicationDeclaration AT LSQUARE expression RSQUARE action %prec U-LSQUAREBAR
-/* CHANSET
- * NAMESET
+/* CHANSET NAMESET
  * expressions were namesetExpr, chansetExpr here
  */
 | DBAR replicationDeclaration AT LSQUARE expression BAR expression RSQUARE action %prec U-DBAR
@@ -436,7 +443,6 @@ action :
  * expression was namesetExpr here
  */
 | DBAR replicationDeclaration AT LSQUARE expression RSQUARE action %prec U-DBAR
-/* replicated actions end */
 /*
  * controlStatements
  */
@@ -459,6 +465,9 @@ action :
  */
 | assignStatement
 | ATOMIC LPAREN assignStatementList RPAREN
+/* call statements without assignment */
+| dottedIdentifier LRPAREN
+| dottedIdentifier LPAREN expressionList RPAREN
 | LSQUARE implicitOperationBody RSQUARE
 /* DEVIATION
  * RETURN needs some sort of following value to avoid conflict with actionDefinitionList
@@ -476,7 +485,7 @@ action :
  * that looks like a name + params; so we will have to add TC checks
  * here.
  */
-| expression COLONEQUALS NEW expression
+| dottedIdentifier COLONEQUALS NEW expression
 | casesStatement
 /* FIXME
  *
@@ -505,7 +514,7 @@ action :
  * it must rewrite the AST to convert the assign into a call
  * statement.
  */
-// | expression
+  //| expression
 ;
 
 
@@ -1239,7 +1248,7 @@ assignStatement :
  *
  * Kill 'em all and let the typechecker sort them out
  */
-  expression COLONEQUALS expression
+  dottedIdentifier COLONEQUALS expression
 ;
 
 ifStatement :
