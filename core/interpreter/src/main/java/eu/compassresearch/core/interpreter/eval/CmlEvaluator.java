@@ -14,58 +14,53 @@ import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
 @SuppressWarnings("serial")
-public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
-  {
-    
-    private ICMLQuestionAnswer<CMLContext, Value>      exp;
-    private ICMLQuestionAnswer<CMLContext, CMLProcess> prc;
-    private ICMLQuestionAnswer<CMLContext, Value>      act;
-    private ICMLQuestionAnswer<CMLContext, Value>      def;
-    
-    private void initialize()
-      {
-        prc = new ProcessEvaluator(this);
-        act = new ActionEvaluator(this);
-        exp = new CmlExpressionEvaluator();
-        def = new CmlDeclAndDefEvaluator(this);
-      }
-    
-    public CmlEvaluator()
-      {
-        initialize();
-      }
-    
-    @Override
-    public Value defaultPAction(PAction node, CMLContext question)
-        throws AnalysisException
-      {
-        return node.apply(act, question);
-      }
-    
-    @Override
-    public Value defaultPExp(PExp node, CMLContext question)
-        throws AnalysisException
-      {
-        
-        return node.apply(exp, question);
-      }
-    
-    @Override
-    public Value defaultPProcess(PProcess node, CMLContext question)
-        throws AnalysisException
-      {
-        
-        CMLProcess process = node.apply(prc, question);
-        
-        return new ProcessValue(process, question);
-      }
-    
-    @Override
-    public Value defaultPDefinition(PDefinition node, CMLContext question)
-        throws AnalysisException
-      {
-        
-        return node.apply(this.def, question);
-      }
-    
-  }
+public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value> {
+
+	private ICMLQuestionAnswer<CMLContext, Value> exp;
+	private ICMLQuestionAnswer<CMLContext, CMLProcess> prc; 
+	private ICMLQuestionAnswer<CMLContext, Value> act;
+	private ICMLQuestionAnswer<CMLContext, Value> def;
+			
+	private void initialize()
+	{
+		prc = new ProcessEvaluator(this);
+		act = new ActionEvaluator(this);
+		exp = new CmlExpressionEvaluator();
+		def = new CmlDeclAndDefEvaluator(this);
+	}
+		
+	public CmlEvaluator()
+	{
+		initialize();
+	}
+				
+	@Override
+	public Value defaultPAction(PAction node, CMLContext question)
+			throws AnalysisException {
+		return node.apply(act,question);
+	}
+	
+	@Override
+	public Value defaultPExp(PExp node, CMLContext question)
+			throws AnalysisException {
+		
+		return node.apply(exp,question);
+	}
+		
+	@Override
+	public Value defaultPProcess(PProcess node, CMLContext question)
+			throws AnalysisException {
+		
+		CMLProcess process = node.apply(prc,question);
+		
+		return new ProcessValue(process,question);
+	}
+	
+	@Override
+	public Value defaultPDefinition(PDefinition node, CMLContext question)
+			throws AnalysisException {
+		
+		return node.apply(this.def,question);
+	}
+		
+}

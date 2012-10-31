@@ -44,7 +44,8 @@ public class ProcessEvaluator extends
         AProcessDefinition processDefinition = node.getProcessDefinition();
         
         // TODO Initialize the process state
-        CMLContext inner = new CMLContext(node.getLocation(), "", question);
+        CMLContext inner = new CMLContext(node.getLocation(),"caseAInstantiationProcess", question);
+
         // TODO Add the process arguments
         CMLProcess instantiatedProcess = processDefinition.getProcess().apply(
             this, inner);

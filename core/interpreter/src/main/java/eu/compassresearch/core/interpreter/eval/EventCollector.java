@@ -9,22 +9,20 @@ import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 
 @SuppressWarnings("serial")
-public class EventCollector extends DepthFirstAnalysisCMLAdaptor
-  {
-    
-    private Set<String> channelSet = new HashSet<String>();
-    
-    public void caseACommunicationAction(ACommunicationAction node)
-        throws AnalysisException
-      {
-        
-        channelSet.add(node.getIdentifier().getName());
-        node.getAction().apply(this);
-      }
-    
-    public Set<String> getChannelSet()
-      {
-        return channelSet;
-        
-      }
-  }
+public class EventCollector extends DepthFirstAnalysisCMLAdaptor {
+
+	private Set<String> channelSet = new HashSet<String>();
+	
+	public void caseACommunicationAction(ACommunicationAction node) throws AnalysisException {
+		
+		channelSet.add(node.getIdentifier().getName());
+		node.getAction().apply(this);
+	}
+	
+	public Set<String> getChannelSet()
+	{
+		return channelSet;
+		
+	}
+}
+

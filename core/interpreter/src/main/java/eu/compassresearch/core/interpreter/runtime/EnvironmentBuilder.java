@@ -106,9 +106,9 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         throws AnalysisException
       {
         
-        for (ATypeDefinition typeDef : node.getTypes())
+        for (PDefinition typeDef : node.getTypes())
           {
-            env.put(typeDef.getName(), typeDef);
+            env.put(typeDef.getName(), (ATypeDefinition)typeDef);
           }
       }
     
