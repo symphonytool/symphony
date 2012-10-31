@@ -11,7 +11,8 @@ import org.overture.ast.lex.Dialect;
 import org.overture.config.Settings;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
+import eu.compassresearch.core.interpreter.cml.CMLProcess;
+import eu.compassresearch.core.interpreter.cml.CMLChannelEvent;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 public class CmlScheduler {
@@ -109,10 +110,10 @@ public class CmlScheduler {
 		System.out.println();
 	}
 	
-	public List<Pair<CMLProcess, ChannelEvent>> selectEvent(Map<CMLProcess,List<ACommunicationAction>> availableEvents)
+	public List<Pair<CMLProcess, CMLChannelEvent>> selectEvent(Map<CMLProcess,List<ACommunicationAction>> availableEvents)
 	{
-		List<Pair<CMLProcess, ChannelEvent>> res = 
-				new LinkedList<Pair<CMLProcess,ChannelEvent>>();
+		List<Pair<CMLProcess, CMLChannelEvent>> res = 
+				new LinkedList<Pair<CMLProcess,CMLChannelEvent>>();
 			
 		if(animate)
 		{
@@ -130,8 +131,8 @@ public class CmlScheduler {
 				//For now, select a the first event from the set of possible events
 				ACommunicationAction event = entry.getValue().get(0);
 				
-				res.add(new Pair<CMLProcess, ChannelEvent>(entry.getKey(),
-															new ChannelEvent(event.getIdentifier().getName())));
+				res.add(new Pair<CMLProcess, CMLChannelEvent>(entry.getKey(),
+															new CMLChannelEvent(event.getIdentifier().getName())));
 				trace.add(event);
 			}
 		}
@@ -162,7 +163,7 @@ public class CmlScheduler {
 				System.out.println();
 				
 				System.out.println("Current interpretation state:");
-				for(Pair<CMLProcess, ChannelEvent> actionToExec :
+				for(Pair<CMLProcess, CMLChannelEvent> actionToExec :
 					selectEvent(allEvents))
 				{
 					System.out.println(actionToExec.first.getRemainingInterpretationState(true));

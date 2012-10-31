@@ -56,8 +56,7 @@ public class TCProcessVisitor extends
 			throws AnalysisException {
 		TypeCheckInfo newQ = (TypeCheckInfo) question;
 		// TODO: implement this!
-		PDefinition processDef = newQ.lookupVariable(node.getProcessName()
-				.getIdentifier());
+		PDefinition processDef = newQ.lookupVariable(node.getProcessName());
 
 		if (!(processDef instanceof AProcessParagraphDefinition))
 			throw new AnalysisException(

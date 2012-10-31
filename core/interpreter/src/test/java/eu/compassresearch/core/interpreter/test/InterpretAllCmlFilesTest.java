@@ -23,6 +23,7 @@ import org.overture.ast.analysis.AnalysisException;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
+import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.runtime.VanillaCmlInterpreter;
 import eu.compassresearch.core.parser.CmlParser;
@@ -79,7 +80,7 @@ public class InterpretAllCmlFilesTest
       }
     
     @Test
-    public void testParseCmlFile() throws IOException, AnalysisException
+    public void testParseCmlFile() throws IOException, AnalysisException, InterpreterException
       {
         
         File f = new File(filePath);

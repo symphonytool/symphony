@@ -10,16 +10,16 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.CMLContext;
-import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
+import eu.compassresearch.core.interpreter.cml.CMLProcess;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
 @SuppressWarnings("serial")
 public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value> {
 
-	private ICMLQuestionAnswer<CMLContext, Value> exp;
-	private ICMLQuestionAnswer<CMLContext, CMLProcess> prc; 
-	private ICMLQuestionAnswer<CMLContext, Value> act;
-	private ICMLQuestionAnswer<CMLContext, Value> def;
+	private QuestionAnswerCMLAdaptor<CMLContext, Value> exp;
+	private QuestionAnswerCMLAdaptor<CMLContext, CMLProcess> prc; 
+	private QuestionAnswerCMLAdaptor<CMLContext, Value> act;
+	private QuestionAnswerCMLAdaptor<CMLContext, Value> def;
 			
 	private void initialize()
 	{

@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.scheduler;
+package eu.compassresearch.core.interpreter.cml;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.Stack;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
 
 public class SequentialCompositionProcess implements CMLProcess {
 
@@ -55,7 +54,7 @@ public class SequentialCompositionProcess implements CMLProcess {
 	}
 
 	@Override
-	synchronized public void eventOccured(ChannelEvent event) {
+	synchronized public void eventOccured(CMLChannelEvent event) {
 		
 		processStack.peek().eventOccured(event);
 

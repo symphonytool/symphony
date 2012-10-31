@@ -12,7 +12,6 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.FlatEnvironment;
 
-import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
@@ -30,7 +29,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 		TypeCheckQuestion {
 
-	private final Environment<PDeclaration> channels;
+	private final Environment<PDefinition> channels;
 
 	public final String CML_SCOPE = "CML";
 	public final String DEFAULT_SCOPE = "Default";
@@ -53,10 +52,10 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 	private TypeCheckInfo(TypeIssueHandler issueHandler) {
 		super(new FlatEnvironment(new LinkedList<PDefinition>()));
 		this.issueHandler = issueHandler;
-		this.channels = new Environment<PDeclaration>(issueHandler);
+		this.channels = new Environment<PDefinition>(issueHandler);
 	}
 
-	private TypeCheckInfo(Environment<PDeclaration> channelSurounding,
+	private TypeCheckInfo(Environment<PDefinition> channelSurounding,
 			org.overture.typechecker.Environment suroundingEnv,
 			TypeIssueHandler issueHandler) {
 		super(suroundingEnv);
@@ -84,12 +83,12 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 	}
 
 	@Override
-	public PDeclaration lookupChannel(LexIdentifierToken ident) {
+	public PDefinition lookupChannel(LexIdentifierToken ident) {
 		return channels.lookupName(ident);
 	}
 
 	@Override
-	public void addChannel(LexIdentifierToken ident, PDeclaration channel) {
+	public void addChannel(LexIdentifierToken ident, PDefinition channel) {
 		channels.put(ident, channel);
 	}
 

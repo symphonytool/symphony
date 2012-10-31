@@ -1,16 +1,15 @@
-package eu.compassresearch.core.interpreter.scheduler;
+package eu.compassresearch.core.interpreter.cml;
 
 import java.util.List;
 import java.util.Set;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.core.interpreter.runtime.ChannelEvent;
 
 public interface CMLProcess {
 
 	public List<ACommunicationAction> WaitForEventOffer();
 	
-	public void eventOccured(ChannelEvent event);
+	public void eventOccured(CMLChannelEvent event);
 	
 	public Set<String> getChannelSet();
 	

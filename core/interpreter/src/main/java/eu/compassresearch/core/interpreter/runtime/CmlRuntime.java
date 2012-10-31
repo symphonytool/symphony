@@ -1,7 +1,7 @@
 package eu.compassresearch.core.interpreter.runtime;
 
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
-import eu.compassresearch.core.typechecker.Environment;
+import org.overture.typechecker.Environment;
+
 
 public class CmlRuntime {
 

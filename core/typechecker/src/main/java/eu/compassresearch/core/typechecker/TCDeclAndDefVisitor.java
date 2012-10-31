@@ -26,8 +26,8 @@ import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
@@ -271,10 +271,6 @@ class TCDeclAndDefVisitor extends
 		ctype.setType(node.getType());
 		node.setType(new AChannelType());
 
-		for (LexIdentifierToken id : node.getIdentifiers()) {
-			newQ.addChannel(id, node);
-		}
-
 		return node.getType();
 	}
 
@@ -286,9 +282,9 @@ class TCDeclAndDefVisitor extends
 
 		TypeCheckInfo newQ = (TypeCheckInfo) question;
 
-		LinkedList<AChannelNameDeclaration> cns = node
+		LinkedList<AChannelNameDefinition> cns = node
 				.getChannelNameDeclarations();
-		for (AChannelNameDeclaration decl : cns) {
+		for (AChannelNameDefinition decl : cns) {
 			PType typeBack = decl.getSingleType().apply(this, question); // decl.apply(parentChecker,
 																			// question);
 			if (typeBack == null)

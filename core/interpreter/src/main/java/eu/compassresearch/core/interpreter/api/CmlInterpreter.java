@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
@@ -17,9 +16,9 @@ import org.overture.interpreter.runtime.SourceFile;
 import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
 import org.overture.parser.syntax.ParserException;
+import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.core.typechecker.Environment;
 /**
  * The CML interpreter interface.
  */
@@ -41,7 +40,7 @@ public interface CmlInterpreter
 	 * Get the global environment.
 	 */
 
-	public Environment<PDefinition> getGlobalEnvironment();
+	public Environment getGlobalEnvironment();
 	
 	/**
 	 * Get the name of the default module or class. Symbols in the default

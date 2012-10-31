@@ -17,7 +17,7 @@
       <plugin> 
 	<groupId>org.overturetool.tools</groupId>
 	<artifactId>astcreatorplugin</artifactId>
-	<version>1.1.3</version>
+	<version>1.1.4</version>
 	<executions>
 	  <execution>
 	    <id>generate-ast</id>
@@ -77,7 +77,7 @@
 		  <pluginExecutionFilter>
 		    <groupId>org.overturetool.tools</groupId>
 		    <artifactId>astcreatorplugin</artifactId>
-		    <versionRange>1.1.3</versionRange>
+		    <versionRange>1.1.4</versionRange>
 		    <goals>
 		      <goal>generate</goal>
 		    </goals>

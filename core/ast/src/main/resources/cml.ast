@@ -23,14 +23,12 @@ source {->  package='eu.compassresearch.ast.program'}
       | {inputStream} [origin]: java_String (stream): java_Stream
       ;
 
+
 /*
  Declarations 
 */
 declaration {-> package='eu.compassresearch.ast.declarations'}
-    // --- True declarations
-    = {channelName} 
-    	[singleType]: declaration.#Single.type
-    | #Single
+    = #Single
 	;
 
 #Single {-> package='eu.compassresearch.ast.declarations'}
@@ -95,6 +93,8 @@ definition {-> package='eu.compassresearch.ast.definitions'}
     //Why does the type definition take inv pattern and expression and not just the inv definition which containts them both??
     |   {untyped}
     |   {value} [pattern]:pattern [expression]:exp [defs]:definition* (expType):type //is access missing here
+    | {channelName} 
+    	[singleType]: declaration.#Single.type
     ;
     
 
@@ -120,7 +120,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	   | {process} 
 	     	[processDefinition]: definition.process
 	   | {channel} 
-	   		[channelNameDeclarations]: declaration.channelName*
+	   		[channelNameDeclarations]: definition.channelName*
 	   | {chanset} 
 	     	[chansets] : definition.chanset*
  	   | {action} 
@@ -182,7 +182,7 @@ exp {-> package='eu.compassresearch.ast.expressions'}
     =   {bracketed} [expression]:exp /*cml*/
     |   #Set
     |   {stateInit} (state):definition.#paragraph.state  
-    |   {name} [name]:LexNameToken         
+    /*|   {name} [name]:LexNameToken*/         
     /* |   {record} [name]:LexNameToken [exprs]: exp* */ 
     |   {tupleSelect} [tuple]:exp [entry]:java_Integer 
     |   #Channel

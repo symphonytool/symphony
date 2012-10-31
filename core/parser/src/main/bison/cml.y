@@ -1531,7 +1531,8 @@ communication[result] :
 {
     ACommunicationAction comAction = (ACommunicationAction)$before;
     LexNameToken name = extractLexNameToken($IDENTIFIER);
-    PExp exp = new ANameExp(name.location,name);
+    //PExp exp = new ANameExp(name.location,name);
+    PExp exp = new AVariableExp(name.location,name,"");
     LexLocation location = extractLexLocation((CmlLexeme)$BANG,exp.getLocation());
     comAction.getCommunicationParameters().add(new AWriteCommunicationParameter(location, 
 										exp));
@@ -1722,7 +1723,7 @@ renameList :
 channelDefinition :
   CHANNELS
 {
-  List<AChannelNameDeclaration> chanNameDecls = new Vector<AChannelNameDeclaration>();
+  List<AChannelNameDefinition> chanNameDecls = new Vector<AChannelNameDefinition>();
   LexLocation location = extractLexLocation((CmlLexeme)$CHANNELS);
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   AChannelParagraphDefinition channelDefinition = new AChannelParagraphDefinition(location,
@@ -1735,7 +1736,7 @@ channelDefinition :
 }
 | CHANNELS channelDef
 {
-  List<AChannelNameDeclaration> chanNameDecls = (List<AChannelNameDeclaration>)$channelDef;
+  List<AChannelNameDefinition> chanNameDecls = (List<AChannelNameDefinition>)$channelDef;
   LexLocation start = extractLexLocation((CmlLexeme)$1);
   LexLocation end = (chanNameDecls != null && chanNameDecls.size() > 0) ?
     chanNameDecls.get(chanNameDecls.size()-1).getLocation() : start;
@@ -1751,7 +1752,7 @@ channelDefinition :
 }
 | CHANNELS channelDef SEMI
 {
-  List<AChannelNameDeclaration> chanNameDecls = (List<AChannelNameDeclaration>)$channelDef;
+  List<AChannelNameDefinition> chanNameDecls = (List<AChannelNameDefinition>)$channelDef;
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$CHANNELS),
                                             extractLexLocation((CmlLexeme)$SEMI));
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
@@ -1768,14 +1769,14 @@ channelDefinition :
 channelDef :
   channelNameDecl
 {
-  List<AChannelNameDeclaration> decls = new Vector<AChannelNameDeclaration>();
-  decls.add((AChannelNameDeclaration)$1);
+  List<AChannelNameDefinition> decls = new Vector<AChannelNameDefinition>();
+  decls.add((AChannelNameDefinition)$1);
   $$ = decls;
 }
 | channelDef SEMI channelNameDecl
 {
-  List<AChannelNameDeclaration> decls = (List<AChannelNameDeclaration>)$1;
-  decls.add((AChannelNameDeclaration)$channelNameDecl);
+  List<AChannelNameDefinition> decls = (List<AChannelNameDefinition>)$1;
+  decls.add((AChannelNameDefinition)$channelNameDecl);
   $$ = decls;
 }
 ;
@@ -1797,13 +1798,13 @@ channelNameDecl :
   LexLocation end = nameList.get(ids.size()-1).getLocation();
   LexLocation location = combineLexLocation(start, end);
   ATypeSingleDeclaration singleTypeDeclaration = new ATypeSingleDeclaration(location, NameScope.GLOBAL, ids, null);
-  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location, NameScope.GLOBAL, singleTypeDeclaration);
+  AChannelNameDefinition channelNameDecl = new AChannelNameDefinition(location, NameScope.GLOBAL, false, null, null, singleTypeDeclaration);
   $$ = channelNameDecl;
 }
 | singleTypeDeclaration
 {
   ATypeSingleDeclaration singleTypeDeclaration = (ATypeSingleDeclaration)$1;
-  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(singleTypeDeclaration.getLocation(), NameScope.GLOBAL, singleTypeDeclaration);
+  AChannelNameDefinition channelNameDecl = new AChannelNameDefinition(singleTypeDeclaration.getLocation(), NameScope.GLOBAL, false, null, null, singleTypeDeclaration);
   $$ = channelNameDecl;
 }
 ;
