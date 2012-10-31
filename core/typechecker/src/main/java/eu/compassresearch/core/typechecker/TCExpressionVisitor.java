@@ -16,6 +16,7 @@ import org.overture.typechecker.visitor.TypeCheckerExpVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.PCMLDefinition;
+import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -80,6 +81,12 @@ class TCExpressionVisitor extends
 			return node.apply(TCExpressionVisitor.this, question);
 		}
 
+		@Override
+		public PType caseABracketedExp(ABracketedExp node,
+				TypeCheckInfo question) throws AnalysisException {
+			return node.apply(TCExpressionVisitor.this, question);
+		}
+
 	}
 
 	/**
@@ -126,6 +133,15 @@ class TCExpressionVisitor extends
 		}
 
 		return node.getType();
+	}
+
+	@Override
+	public PType caseABracketedExp(ABracketedExp node, TypeCheckInfo question)
+			throws AnalysisException {
+
+		PType type = node.getExpression().apply(this, question);
+
+		return type;
 	}
 
 }
