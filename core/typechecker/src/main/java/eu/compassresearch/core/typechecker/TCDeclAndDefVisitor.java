@@ -94,7 +94,7 @@ class TCDeclAndDefVisitor extends
 		TypeCheckInfo newQ = (TypeCheckInfo) question;
 		LinkedList<PDefinition> list = node.getValueDefinitions();
 		for (PDefinition def : list) {
-			PType defType = def.apply(parentChecker, question);
+			PType defType = def.apply(parentChecker, newQ);
 			newQ.addType(def.getName(), def);
 			def.setType(defType);
 		}
@@ -112,6 +112,9 @@ class TCDeclAndDefVisitor extends
 		PType declaredType = node.getType().apply(parentChecker, question);
 		PType expressionType = exp.apply(parentChecker, question);
 		node.setExpType(expressionType);
+
+		TypeCheckInfo tci = (TypeCheckInfo) question;
+		tci.addVariable(node.getName(), node);
 
 		// Check type consistency
 		if (!typeComparator.isSubType(expressionType, declaredType))

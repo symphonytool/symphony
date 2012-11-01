@@ -2512,7 +2512,7 @@ invariant :
 valueDefs :
   VALUES
 {
-  List<PDefinition> defs = new Vector<PDefinition>();
+  List<PDefinition> defs = new LinkedList<PDefinition>();
   LexLocation location = extractLexLocation((CmlLexeme)$VALUES);
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   $$ = new AValueParagraphDefinition(location,
@@ -2560,7 +2560,7 @@ valueDefList :
 {
   PDefinition def = (PDefinition)$def;
   List<PDefinition> defs = (List<PDefinition>)$list;
-  defs.add(0,def);
+  defs.add(def);
   $$ = defs;
 }
 ;

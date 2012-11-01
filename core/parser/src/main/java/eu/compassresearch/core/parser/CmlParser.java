@@ -3719,7 +3719,7 @@ public class CmlParser
 /* Line 374 of cmlskeleton.java.m4  */
 /* Line 2514 of "src/main/bison/cml.y"  */
     {
-  List<PDefinition> defs = new Vector<PDefinition>();
+  List<PDefinition> defs = new LinkedList<PDefinition>();
   LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   yyval = new AValueParagraphDefinition(location,
@@ -3792,7 +3792,7 @@ public class CmlParser
     {
   PDefinition def = (PDefinition)((yystack.valueAt (3-(3))));
   List<PDefinition> defs = (List<PDefinition>)((yystack.valueAt (3-(1))));
-  defs.add(0,def);
+  defs.add(def);
   yyval = defs;
 };
   break;
