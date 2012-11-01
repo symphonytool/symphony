@@ -323,12 +323,12 @@ action :
  *   communication: IDENTIFIER { communicationParameter }
  *   communicationParameter: '?' parameter | '?' parameter ':' expression | '!' expression | '.' expression
  * here:
- *   expression '->' action
+ *   '[' expression ']' '->' action
  *
  * Need to verify that this matches all desired communication formats;
  * BANG and QUESTION are now integrated into expression
  */
-| DUMMY expression RARROW action[to]
+| LSQUARE expression RSQUARE RARROW action[to]
 /* DEVIATION
  * CML_0:
  *   expression '&' action
