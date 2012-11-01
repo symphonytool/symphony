@@ -784,21 +784,31 @@ m4_popdef([b4_at_dollar])])dnl
   /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
      positive, shift that token.  If negative, reduce the rule which
      number is the opposite.  If zero, do what YYDEFACT says.  */
+  private static final String yyTableString = "]m4_bpatsubst(b4_table, [[^-0-9,]], [])[";
   public static final ]b4_int_type_for([b4_table])[ yytable_ninf_ = ]b4_table_ninf[;
-  public static final ]b4_int_type_for([b4_table])[
-  yytable_[] =
-  {
-    ]b4_table[
-  };
+  public static final ]b4_int_type_for([b4_table])[ yytable_[];
+  static {
+    String[] shorts = yyTableString.split(",");
+    int size = shorts.length;
+    yytable_ = new short[size];
+    for (int pos=0; pos < size; pos++) {
+    	yytable_[pos] = Short.valueOf(shorts[pos]);
+    }
+  }
   }
 
   /* YYCHECK.  */
   static class YyCheckClass {
-  public static final ]b4_int_type_for([b4_check])[
-  yycheck_[] =
-  {
-    ]b4_check[
-  };
+  public static final String yyCheckString = "]m4_bpatsubst(b4_check, [[^-0-9,]], [])[";
+  public static final ]b4_int_type_for([b4_check])[ yycheck_[];
+  static {
+    String[] shorts = yyCheckString.split(",");
+    int size = shorts.length;
+    yycheck_ = new short[size];
+    for (int pos=0; pos < size; pos++) {
+    	yycheck_[pos] = Short.valueOf(shorts[pos]);
+    }
+  }
   }
 
 
