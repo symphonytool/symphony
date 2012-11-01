@@ -46,7 +46,7 @@
   import eu.compassresearch.ast.definitions.AImplicitOperationDefinition;
   import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
   import org.overture.ast.types.*;
- 
+
 }
 
 %code{
@@ -161,8 +161,8 @@
     VDMToken tok = null;
     for(VDMToken t : VDMToken.values())
       {
-	String tokenDisplay = t.toString();
-	if (tokenDisplay != null && tokenDisplay.equals(lexeme.getValue())) { tok = t; break; }
+        String tokenDisplay = t.toString();
+        if (tokenDisplay != null && tokenDisplay.equals(lexeme.getValue())) { tok = t; break; }
       }
     if (tok == null) throw new RuntimeException("Cannot find VDM token for "+lexeme.getValue());
     return new LexToken(loc, tok);
@@ -547,30 +547,141 @@
 
 source :
   programParagraphList
+{
+  List<SParagraphDefinition> paragraphs = (List<SParagraphDefinition>) $1;
+  currentSource.setParagraphs(paragraphs);
+}
 ;
 
 programParagraphList :
   programParagraph
+{
+  List<PDefinition> programParagraphList = new LinkedList<PDefinition>();
+  programParagraphList.add((PDefinition)$programParagraph);
+  $$ = programParagraphList;
+}
 | programParagraphList programParagraph
+{
+  List<PDefinition> programParagraphList = (List<PDefinition>)$1;
+  if (programParagraphList == null)
+    programParagraphList = new Vector<PDefinition>();
+  programParagraphList.add((PDefinition)$programParagraph);
+  $$ = programParagraphList;
+}
 ;
 
 programParagraph :
-  classDefinition
-| processDefinition
-| channelDefinition
-| chansetDefinitionParagraph
-| globalDefinitionParagraph
+  classDefinition            { $$ = $1; }
+| processDefinition          { $$ = $1; }
+| channelDefinition          { $$ = $1; }
+| chansetDefinitionParagraph { $$ = $1; }
+| globalDefinitionParagraph  { $$ = $1; }
 ;
 
 classDefinition :
   CLASS IDENTIFIER EQUALS BEGIN classDefinitionBlock END
+{
+  AClassParagraphDefinition clz = new AClassParagraphDefinition();
+  LexNameToken lexName = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+  LexLocation loc = extractLexLocation((CmlLexeme)$CLASS,(CmlLexeme)$END);
+  clz.setLocation(loc);
+  clz.setName(lexName);
+  clz.setDefinitions((List<PDefinition>)$classDefinitionBlock);
+  clz.setNameScope(NameScope.CLASSNAME);
+  $$ = clz;
+}
 | CLASS IDENTIFIER EQUALS EXTENDS IDENTIFIER BEGIN classDefinitionBlock END
-;
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$CLASS,(CmlLexeme)$END);
+  List<LexNameToken> supernames = new LinkedList<LexNameToken>();
+  supernames.add(extractLexNameToken($5));
+  $$ = new AClassParagraphDefinition(location,
+                                     extractLexNameToken($2),
+                                     NameScope.CLASSNAME,
+                                     false,
+                                     null,//ClassDefinition
+                                     getDefaultAccessSpecifier(false,false,null),
+                                     null/*PType type_  should this be the namedInvariantType*/,
+                                     null,//Pass
+                                     (List<? extends PDefinition>)$classDefinitionBlock,
+                                     new LinkedList<PType>() /* supertypes_*/,
+                                     supernames,
+                                     new LinkedList<PDefinition>()/* definitions_*/,
+                                     new LinkedList<PDefinition>() /*allInheritedDefinitions_*/,
+                                     new LinkedList<PDefinition>() /*localInheritedDefinitions_*/,
+                                     null /*Boolean hasContructors_*/,
+                                     null,
+                                     new LinkedList<AClassParagraphDefinition>()/* superDefs_*/,
+                                     true/*Boolean gettingInheritable_*/,
+                                     new LinkedList<PDefinition>() /*superInheritedDefinitions_*/,
+                                     null /*Boolean gettingInvDefs_*/,
+                                     false,
+                                     false /*Boolean isUndefined_*/,
+                                     null/*PType classtype_*/,
+                                     false /*Boolean isTypeChecked_*/,
+                                     null/*AExplicitOperationDefinition invariant_*/);
+};
 
 processDefinition:
   PROCESS IDENTIFIER EQUALS process
-| PROCESS IDENTIFIER EQUALS singleTypeDeclarationList AT process
-;
+{
+  PProcess process = (PProcess)$process;
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, process.getLocation());
+  AProcessDefinition processDef = new AProcessDefinition(process.getLocation(),
+                                                         NameScope.GLOBAL,
+                                                         false,
+                                                         access,
+                                                         null,//Pass
+                                                         null,
+                                                         process);
+  LexNameToken id = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+  processDef.setName(id);
+  LexLocation location = extractLexLocation((CmlLexeme)$PROCESS,
+                                            processDef.getLocation());
+  access = getDefaultAccessSpecifier(true, false, location);
+  processDef.setName(id);
+  AProcessParagraphDefinition p = new AProcessParagraphDefinition(location,
+                                                                  id,
+                                                                  NameScope.PROCESSNAME,
+                                                                  false,
+                                                                  null,//VDM ClassDefinition
+                                                                  access,
+                                                                  null,//Type
+                                                                  null,//Pass
+                                                                  processDef);
+  $$ = p;
+}
+| PROCESS IDENTIFIER EQUALS singleTypeDeclarationList[list] AT process
+{
+  List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)$list;
+  PProcess process = (PProcess)$process;
+  LexLocation loc = combineLexLocation(extractFirstLexLocation(decls),
+                                       process.getLocation());
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
+  AProcessDefinition processDef = new AProcessDefinition(loc,
+                                                         NameScope.GLOBAL,
+                                                         false,
+                                                         access,
+                                                         null,//Pass
+                                                         decls,
+                                                         process);
+  LexNameToken id = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+  processDef.setName(id);
+  LexLocation location = extractLexLocation((CmlLexeme)$PROCESS,
+                                            processDef.getLocation());
+  access = getDefaultAccessSpecifier(true, false, location);
+  processDef.setName(id);
+  AProcessParagraphDefinition p = new AProcessParagraphDefinition(location,
+                                                                  id,
+                                                                  NameScope.PROCESSNAME,
+                                                                  false,
+                                                                  null,//VDM ClassDefinition
+                                                                  access,
+                                                                  null,//Type
+                                                                  null,//Pass
+                                                                  processDef);
+  $$ = p;
+};
 
 process :
 /* actions */
@@ -876,7 +987,7 @@ action :
  */
 // | RETURN
 | RETURN LRPAREN
-| RETURN expression 
+| RETURN expression
 /* DEVIATION
  * CML_0:
  *   stateDesignator ':=' 'new' name '(' { expression } ')'
@@ -1109,7 +1220,7 @@ type :
 ;
 
 dottedIdentifier :
-  IDENTIFIER 
+  IDENTIFIER
 | dottedIdentifier DOT IDENTIFIER
 | dottedIdentifier BACKTICK IDENTIFIER
 ;
@@ -1272,7 +1383,7 @@ measureExpr :
  * but must resolve to some name
  */
   MEASURE expression
-| /* empty */ 
+| /* empty */
 ;
 
 operationDefs :
@@ -1396,7 +1507,7 @@ expression :
 | expression LRPAREN
 | expression LPAREN expressionList RPAREN
 | expression LPAREN expression ELLIPSIS expression RPAREN
-| expression DOT matchValue 
+| expression DOT matchValue
 /* communication structure */
 | expression BANG IDENTIFIER
 | expression BANG matchValue

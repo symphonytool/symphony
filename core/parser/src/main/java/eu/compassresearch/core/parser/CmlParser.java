@@ -86,7 +86,7 @@ import static eu.compassresearch.core.parser.CmlParser.YyPactClass.yypact_;
   import eu.compassresearch.ast.definitions.AImplicitOperationDefinition;
   import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
   import org.overture.ast.types.*;
- 
+
 
 
 
@@ -802,10 +802,224 @@ public class CmlParser
 
     switch (yyn)
       {
-	
+	  case 2:
+  if (yyn == 2)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 550 of "src/main/bison/cml.y"  */
+    {
+  List<SParagraphDefinition> paragraphs = (List<SParagraphDefinition>) ((yystack.valueAt (1-(1))));
+  currentSource.setParagraphs(paragraphs);
+};
+  break;
+    
+
+  case 3:
+  if (yyn == 3)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 558 of "src/main/bison/cml.y"  */
+    {
+  List<PDefinition> programParagraphList = new LinkedList<PDefinition>();
+  programParagraphList.add((PDefinition)((yystack.valueAt (1-(1)))));
+  yyval = programParagraphList;
+};
+  break;
+    
+
+  case 4:
+  if (yyn == 4)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 564 of "src/main/bison/cml.y"  */
+    {
+  List<PDefinition> programParagraphList = (List<PDefinition>)((yystack.valueAt (2-(1))));
+  if (programParagraphList == null)
+    programParagraphList = new Vector<PDefinition>();
+  programParagraphList.add((PDefinition)((yystack.valueAt (2-(2)))));
+  yyval = programParagraphList;
+};
+  break;
+    
+
+  case 5:
+  if (yyn == 5)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 574 of "src/main/bison/cml.y"  */
+    { yyval = ((yystack.valueAt (1-(1)))); };
+  break;
+    
+
+  case 6:
+  if (yyn == 6)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 575 of "src/main/bison/cml.y"  */
+    { yyval = ((yystack.valueAt (1-(1)))); };
+  break;
+    
+
+  case 7:
+  if (yyn == 7)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 576 of "src/main/bison/cml.y"  */
+    { yyval = ((yystack.valueAt (1-(1)))); };
+  break;
+    
+
+  case 8:
+  if (yyn == 8)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 577 of "src/main/bison/cml.y"  */
+    { yyval = ((yystack.valueAt (1-(1)))); };
+  break;
+    
+
+  case 9:
+  if (yyn == 9)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 578 of "src/main/bison/cml.y"  */
+    { yyval = ((yystack.valueAt (1-(1)))); };
+  break;
+    
+
+  case 10:
+  if (yyn == 10)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 583 of "src/main/bison/cml.y"  */
+    {
+  AClassParagraphDefinition clz = new AClassParagraphDefinition();
+  LexNameToken lexName = extractLexNameToken((CmlLexeme)((yystack.valueAt (6-(2)))));
+  LexLocation loc = extractLexLocation((CmlLexeme)((yystack.valueAt (6-(1)))),(CmlLexeme)((yystack.valueAt (6-(6)))));
+  clz.setLocation(loc);
+  clz.setName(lexName);
+  clz.setDefinitions((List<PDefinition>)((yystack.valueAt (6-(5)))));
+  clz.setNameScope(NameScope.CLASSNAME);
+  yyval = clz;
+};
+  break;
+    
+
+  case 11:
+  if (yyn == 11)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 594 of "src/main/bison/cml.y"  */
+    {
+  LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (8-(1)))),(CmlLexeme)((yystack.valueAt (8-(8)))));
+  List<LexNameToken> supernames = new LinkedList<LexNameToken>();
+  supernames.add(extractLexNameToken(((yystack.valueAt (8-(5))))));
+  yyval = new AClassParagraphDefinition(location,
+				     extractLexNameToken(((yystack.valueAt (8-(2))))),
+				     NameScope.CLASSNAME,
+				     false,
+				     null,//ClassDefinition
+				     getDefaultAccessSpecifier(false,false,null),
+				     null/*PType type_  should this be the namedInvariantType*/,
+				     null,//Pass
+				     (List<? extends PDefinition>)((yystack.valueAt (8-(7)))),
+				     new LinkedList<PType>() /* supertypes_*/,
+				     supernames,
+				     new LinkedList<PDefinition>()/* definitions_*/,
+				     new LinkedList<PDefinition>() /*allInheritedDefinitions_*/,
+				     new LinkedList<PDefinition>() /*localInheritedDefinitions_*/,
+				     null /*Boolean hasContructors_*/,
+				     null,
+				     new LinkedList<AClassParagraphDefinition>()/* superDefs_*/,
+				     true/*Boolean gettingInheritable_*/,
+				     new LinkedList<PDefinition>() /*superInheritedDefinitions_*/,
+				     null /*Boolean gettingInvDefs_*/,
+				     false,
+				     false /*Boolean isUndefined_*/,
+				     null/*PType classtype_*/,
+				     false /*Boolean isTypeChecked_*/,
+				     null/*AExplicitOperationDefinition invariant_*/);
+};
+  break;
+    
+
+  case 12:
+  if (yyn == 12)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 627 of "src/main/bison/cml.y"  */
+    {
+  PProcess process = (PProcess)((yystack.valueAt (4-(4))));
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, process.getLocation());
+  AProcessDefinition processDef = new AProcessDefinition(process.getLocation(),
+							 NameScope.GLOBAL,
+							 false,
+							 access,
+							 null,//Pass
+							 null,
+							 process);
+  LexNameToken id = extractLexNameToken((CmlLexeme)((yystack.valueAt (4-(2)))));
+  processDef.setName(id);
+  LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (4-(1)))),
+					    processDef.getLocation());
+  access = getDefaultAccessSpecifier(true, false, location);
+  processDef.setName(id);
+  AProcessParagraphDefinition p = new AProcessParagraphDefinition(location,
+								  id,
+								  NameScope.PROCESSNAME, 
+								  false, 
+								  null,//VDM ClassDefinition
+								  access,
+								  null,//Type
+								  null,//Pass
+								  processDef);
+  yyval = p;
+};
+  break;
+    
+
+  case 13:
+  if (yyn == 13)
+    
+/* Line 374 of cmlskeleton.java.m4  */
+/* Line 655 of "src/main/bison/cml.y"  */
+    {
+  List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)((yystack.valueAt (6-(4))));
+  PProcess process = (PProcess)((yystack.valueAt (6-(6))));
+  LexLocation loc = combineLexLocation(extractFirstLexLocation(decls),
+				       process.getLocation());
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
+  AProcessDefinition processDef = new AProcessDefinition(loc,
+							 NameScope.GLOBAL,
+							 false,
+							 access,
+							 null,//Pass
+							 decls,
+							 process);
+  LexNameToken id = extractLexNameToken((CmlLexeme)((yystack.valueAt (6-(2)))));
+  processDef.setName(id);
+  LexLocation location = extractLexLocation((CmlLexeme)((yystack.valueAt (6-(1)))),
+					    processDef.getLocation());
+  access = getDefaultAccessSpecifier(true, false, location);
+  processDef.setName(id);
+  AProcessParagraphDefinition p = new AProcessParagraphDefinition(location,
+								  id,
+								  NameScope.PROCESSNAME, 
+								  false, 
+								  null,//VDM ClassDefinition
+								  access,
+								  null,//Type
+								  null,//Pass
+								  processDef);
+  yyval = p;
+};
+  break;
+    
+
+
 
 /* Line 374 of cmlskeleton.java.m4  */
-/* Line 809 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
+/* Line 1023 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
 	default: break;
       }
 
@@ -2035,53 +2249,53 @@ public class CmlParser
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
   private static final short yyrline_[] =
   {
-         0,   549,   549,   553,   554,   558,   559,   560,   561,   562,
-     566,   567,   571,   572,   577,   578,   580,   581,   582,   586,
-     590,   591,   592,   593,   602,   603,   612,   624,   625,   626,
-     630,   631,   632,   633,   634,   636,   637,   638,   642,   646,
-     647,   648,   654,   655,   656,   657,   669,   670,   674,   675,
-     684,   685,   686,   687,   691,   692,   706,   707,   708,   712,
-     713,   717,   718,   719,   720,   721,   722,   734,   746,   747,
-     748,   749,   750,   759,   760,   769,   779,   780,   781,   782,
-     789,   794,   795,   799,   800,   804,   808,   812,   816,   823,
-     824,   825,   826,   827,   828,   832,   836,   840,   844,   848,
-     852,   853,   854,   855,   856,   869,   870,   872,   873,   874,
-     879,   880,   891,   892,   899,   901,   903,   904,   905,   906,
-     925,   926,   930,   931,   935,   936,   937,   942,   944,   945,
-     958,   959,   969,   970,   971,   975,   976,   988,   989,   996,
-     997,  1001,  1002,  1006,  1007,  1011,  1012,  1019,  1023,  1024,
-    1025,  1029,  1030,  1034,  1035,  1036,  1037,  1038,  1045,  1049,
-    1050,  1051,  1055,  1056,  1060,  1061,  1062,  1063,  1073,  1074,
-    1075,  1083,  1084,  1088,  1089,  1090,  1091,  1092,  1093,  1094,
-    1095,  1096,  1097,  1098,  1099,  1100,  1109,  1113,  1114,  1115,
-    1119,  1120,  1121,  1122,  1123,  1124,  1125,  1126,  1130,  1131,
-    1135,  1136,  1140,  1141,  1145,  1146,  1150,  1151,  1152,  1156,
-    1167,  1168,  1169,  1173,  1174,  1178,  1182,  1183,  1184,  1185,
-    1189,  1190,  1191,  1195,  1196,  1200,  1201,  1205,  1209,  1213,
-    1218,  1219,  1220,  1224,  1225,  1226,  1230,  1231,  1235,  1236,
-    1239,  1241,  1245,  1246,  1250,  1251,  1255,  1259,  1260,  1264,
-    1275,  1276,  1280,  1281,  1288,  1289,  1293,  1294,  1298,  1302,
-    1306,  1307,  1308,  1309,  1313,  1314,  1315,  1319,  1320,  1324,
-    1328,  1329,  1333,  1334,  1338,  1339,  1361,  1362,  1363,  1367,
-    1368,  1372,  1373,  1377,  1378,  1383,  1384,  1385,  1386,  1387,
-    1388,  1390,  1391,  1392,  1393,  1394,  1395,  1396,  1397,  1398,
-    1399,  1400,  1402,  1403,  1404,  1405,  1407,  1408,  1409,  1410,
-    1411,  1413,  1414,  1415,  1416,  1418,  1419,  1421,  1422,  1424,
-    1426,  1437,  1439,  1440,  1442,  1443,  1445,  1446,  1448,  1450,
-    1452,  1461,  1462,  1463,  1468,  1476,  1478,  1479,  1480,  1486,
-    1487,  1491,  1495,  1499,  1500,  1501,  1505,  1509,  1515,  1516,
-    1520,  1521,  1525,  1529,  1530,  1534,  1535,  1539,  1540,  1544,
-    1548,  1549,  1550,  1551,  1552,  1553,  1554,  1555,  1556,  1557,
-    1558,  1559,  1560,  1561,  1562,  1563,  1564,  1565,  1566,  1567,
-    1571,  1572,  1573,  1574,  1575,  1576,  1577,  1578,  1579,  1580,
-    1581,  1582,  1583,  1584,  1585,  1586,  1587,  1588,  1589,  1590,
-    1591,  1592,  1593,  1594,  1595,  1596,  1597,  1598,  1599,  1600,
-    1601,  1602,  1603,  1607,  1608,  1612,  1616,  1617,  1621,  1622,
-    1626,  1627,  1633,  1640,  1641,  1654,  1658,  1659,  1663,  1664,
-    1668,  1669,  1673,  1674,  1678,  1682,  1686,  1687,  1691,  1693,
-    1702,  1703,  1707,  1708,  1712,  1714,  1719,  1720,  1721,  1722,
-    1723,  1724,  1725,  1729,  1730,  1734,  1738,  1742,  1743,  1747,
-    1748,  1752,  1756,  1760,  1761
+         0,   549,   549,   557,   563,   574,   575,   576,   577,   578,
+     582,   593,   626,   654,   688,   689,   691,   692,   693,   697,
+     701,   702,   703,   704,   713,   714,   723,   735,   736,   737,
+     741,   742,   743,   744,   745,   747,   748,   749,   753,   757,
+     758,   759,   765,   766,   767,   768,   780,   781,   785,   786,
+     795,   796,   797,   798,   802,   803,   817,   818,   819,   823,
+     824,   828,   829,   830,   831,   832,   833,   845,   857,   858,
+     859,   860,   861,   870,   871,   880,   890,   891,   892,   893,
+     900,   904,   905,   909,   910,   914,   918,   922,   926,   933,
+     934,   935,   936,   937,   938,   942,   946,   950,   954,   958,
+     962,   963,   964,   965,   966,   979,   980,   982,   983,   984,
+     989,   990,  1001,  1002,  1009,  1011,  1013,  1014,  1015,  1016,
+    1035,  1036,  1040,  1041,  1045,  1046,  1047,  1052,  1054,  1055,
+    1068,  1069,  1079,  1080,  1081,  1085,  1086,  1098,  1099,  1106,
+    1107,  1111,  1112,  1116,  1117,  1121,  1122,  1129,  1133,  1134,
+    1135,  1139,  1140,  1144,  1145,  1146,  1147,  1148,  1155,  1159,
+    1160,  1161,  1165,  1166,  1170,  1171,  1172,  1173,  1183,  1184,
+    1185,  1193,  1194,  1198,  1199,  1200,  1201,  1202,  1203,  1204,
+    1205,  1206,  1207,  1208,  1209,  1210,  1219,  1223,  1224,  1225,
+    1229,  1230,  1231,  1232,  1233,  1234,  1235,  1236,  1240,  1241,
+    1245,  1246,  1250,  1251,  1255,  1256,  1260,  1261,  1262,  1266,
+    1277,  1278,  1279,  1283,  1284,  1288,  1292,  1293,  1294,  1295,
+    1299,  1300,  1301,  1305,  1306,  1310,  1311,  1315,  1319,  1323,
+    1328,  1329,  1330,  1334,  1335,  1336,  1340,  1341,  1345,  1346,
+    1349,  1351,  1355,  1356,  1360,  1361,  1365,  1369,  1370,  1374,
+    1385,  1386,  1390,  1391,  1398,  1399,  1403,  1404,  1408,  1412,
+    1416,  1417,  1418,  1419,  1423,  1424,  1425,  1429,  1430,  1434,
+    1438,  1439,  1443,  1444,  1448,  1449,  1471,  1472,  1473,  1477,
+    1478,  1482,  1483,  1487,  1488,  1493,  1494,  1495,  1496,  1497,
+    1498,  1500,  1501,  1502,  1503,  1504,  1505,  1506,  1507,  1508,
+    1509,  1510,  1512,  1513,  1514,  1515,  1517,  1518,  1519,  1520,
+    1521,  1523,  1524,  1525,  1526,  1528,  1529,  1531,  1532,  1534,
+    1536,  1547,  1549,  1550,  1552,  1553,  1555,  1556,  1558,  1560,
+    1562,  1571,  1572,  1573,  1578,  1586,  1588,  1589,  1590,  1596,
+    1597,  1601,  1605,  1609,  1610,  1611,  1615,  1619,  1625,  1626,
+    1630,  1631,  1635,  1639,  1640,  1644,  1645,  1649,  1650,  1654,
+    1658,  1659,  1660,  1661,  1662,  1663,  1664,  1665,  1666,  1667,
+    1668,  1669,  1670,  1671,  1672,  1673,  1674,  1675,  1676,  1677,
+    1681,  1682,  1683,  1684,  1685,  1686,  1687,  1688,  1689,  1690,
+    1691,  1692,  1693,  1694,  1695,  1696,  1697,  1698,  1699,  1700,
+    1701,  1702,  1703,  1704,  1705,  1706,  1707,  1708,  1709,  1710,
+    1711,  1712,  1713,  1717,  1718,  1722,  1726,  1727,  1731,  1732,
+    1736,  1737,  1743,  1750,  1751,  1764,  1768,  1769,  1773,  1774,
+    1778,  1779,  1783,  1784,  1788,  1792,  1796,  1797,  1801,  1803,
+    1812,  1813,  1817,  1818,  1822,  1824,  1829,  1830,  1831,  1832,
+    1833,  1834,  1835,  1839,  1840,  1844,  1848,  1852,  1853,  1857,
+    1858,  1862,  1866,  1870,  1871
   };
 
   // Report on the debug stream that the rule yyrule is going to be reduced.
@@ -2292,8 +2506,8 @@ public class CmlParser
     VDMToken tok = null;
     for(VDMToken t : VDMToken.values())
       {
-	String tokenDisplay = t.toString();
-	if (tokenDisplay != null && tokenDisplay.equals(lexeme.getValue())) { tok = t; break; }
+        String tokenDisplay = t.toString();
+        if (tokenDisplay != null && tokenDisplay.equals(lexeme.getValue())) { tok = t; break; }
       }
     if (tok == null) throw new RuntimeException("Cannot find VDM token for "+lexeme.getValue());
     return new LexToken(loc, tok);
@@ -2542,7 +2756,7 @@ public class CmlParser
 
 
 /* Line 922 of cmlskeleton.java.m4  */
-/* Line 2546 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
+/* Line 2760 of "src/main/java/eu/compassresearch/core/parser/CmlParser.java"  */
 
 }
 
