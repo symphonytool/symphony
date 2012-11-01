@@ -617,8 +617,8 @@ process :
  *   process '\\' expression
  *
  * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
- */
-/* CHANSET
+ *
+ * CHANSET
  * expression was chansetExpr here
  */
 | process DBACKSLASH expression
@@ -787,7 +787,6 @@ action :
  *   MU expressionList '@' '(' actionList ')'
  */
 | MU expressionList AT LPAREN actionList RPAREN
-/* parallel actions */
 /* NAMESET
  * expression was namesetExpr here
  */
@@ -1036,12 +1035,12 @@ classDefinitionBlockAlternative :
 | functionDefs
 | operationDefs
 | stateDefs
-/* /\* UPCOMING --- CML_1 */
-/*  * absent in CML_0 */
-/*  * */
-/*  * This will be in the CML_1 grammar, and is defines the constructor for the class. */
-/*  * Confirmed between Joey, Alavro; Skype 30 July 2012 */
-/*  *\/ */
+/* UPCOMING --- CML_1
+ * absent in CML_0
+ *
+ * This will be in the CML_1 grammar, and is defines the constructor for the class.
+ * Confirmed between Joey, Alavro; Skype 30 July 2012
+ */
 | INITIAL operationDef
 ;
 
