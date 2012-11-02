@@ -1,10 +1,25 @@
 package eu.compassResearch.rttMbtTmsClientApi;
 
+import java.io.File;
+
 public class ClientGenerateTest {
 	public static void main(String[] args) {
 
 		// create client instance
 		RttMbtClient client = new RttMbtClient("localhost", 9116, "uwe", "uschulze@informatik.uni-bremen.de");
+		// set CML workspace
+		File directory = new File(".");
+		String pathname = directory.getAbsolutePath() + File.separator;
+		System.out.println("using CML workspace '" + pathname + "'");
+		client.setCmlWorkspace(pathname);
+		// creste/set CML project
+		pathname = "CMLProject";
+		File cmlprjdir = new File(directory, pathname);
+		if (!cmlprjdir.exists()) {
+			cmlprjdir.mkdirs();
+		}
+		client.setCmlProject(pathname);
+		System.out.println("using CML project '" + pathname + "'");
 
 		// test connection to rtt-mbt-tms server
 		if (client.testConenction()) {

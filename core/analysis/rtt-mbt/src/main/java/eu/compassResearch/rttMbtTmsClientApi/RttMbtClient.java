@@ -224,8 +224,8 @@ public class RttMbtClient {
 		// set project name
 		projectName = project;
 
-		// check if local directory exists
-		File folder = new File(project);
+		// check if local project directory exists
+		File folder = new File(getRttProjectRoot());
 		if (folder.isFile()) {
 			System.err.println("[FAIL]: '" + project + "' already exists and is a file!");
 			return false;
@@ -242,7 +242,7 @@ public class RttMbtClient {
 			}
 		}
 		// check for existing configuration project.rtp
-		File projectConf = new File(folder, getRttProjectRoot() + File.separator + "project.rtp");
+		File projectConf = new File(folder, "project.rtp");
 		if (!projectConf.exists()) {
 			// extract project template
 			File templates = new File(getCmlWorkspace() + getCmlProject() + File.separator + "templates");
@@ -330,7 +330,7 @@ public class RttMbtClient {
 		}
 
 		// unpack _P1.zip
-		File templates = new File("templates");
+		File templates = new File(getCmlWorkspace() + getCmlProject() + File.separator + "templates");
 		if (!templates.isDirectory()) {
 			System.err.println("[FAIL]: local 'templates' directory does not exist!");
 			return false;
@@ -446,7 +446,7 @@ public class RttMbtClient {
 		// - advanced.conf
 		// - addgoals.conf
 		// - addgoalsordered.conf
-		String confDirName = getRttProjectRoot() + File.separator
+		String confDirName = getProjectName() + File.separator
 				+ "TestProcedures" + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" +  File.separator;
@@ -467,19 +467,19 @@ public class RttMbtClient {
 			// - error.log
 			// - rtt-mbt-tms.out
 			// - rtt-mbt-tms.err
-			String dirname = getRttProjectRoot() + File.separator;
+			String dirname = getProjectName() + File.separator;
 			downloadFile(dirname + "error.log");
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
 			// - configuration.csv.bak
-			dirname = getRttProjectRoot() + File.separator
+			dirname = getProjectName() + File.separator
 					+ "TestProcedures" + File.separator
 					+ abstractTestProc + File.separator
 					+ "conf" + File.separator;
 			downloadFile(dirname + "configuration.csv.bak");
 			// - generation.log
 			// - error.log
-			dirname = getRttProjectRoot() + File.separator
+			dirname = getProjectName() + File.separator
 					+ "TestProcedures" + File.separator
 					+ abstractTestProc + File.separator
 					+ "log" + File.separator;
@@ -498,7 +498,7 @@ public class RttMbtClient {
 		// - overall_coverage.csv
 		// - uncovered_testcases.csv
 		// - unreachable_testcases.csv
-		String dirname = getRttProjectRoot() + File.separator
+		String dirname = getProjectName() + File.separator
 		+ "model" + File.separator;
 		downloadFile(dirname + "symbols.log");
 		downloadFile(dirname + "testcases.csv");
@@ -511,7 +511,7 @@ public class RttMbtClient {
 
 		// from cache/<user-id>/<project-name>/<testproc>/conf
 		// - configuration.csv
-		dirname = getRttProjectRoot() + File.separator
+		dirname = getProjectName() + File.separator
 				+ "TestProcedures" + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" + File.separator;
@@ -521,7 +521,7 @@ public class RttMbtClient {
 		// - addgoalcoverage.csv
 		// - covered_testcases.csv
 		// - focus_points_to_addgoals.conf
-		dirname = getRttProjectRoot() + File.separator
+		dirname = getProjectName() + File.separator
 				+ "TestProcedures" + File.separator
 				+ abstractTestProc + File.separator
 				+ "log" + File.separator;
@@ -533,7 +533,7 @@ public class RttMbtClient {
 		// - signals.dat
 		// - signals.json
 		// - *.pdf
-		dirname = getRttProjectRoot() + File.separator
+		dirname = getProjectName() + File.separator
 				+ "TestProcedures" + File.separator
 				+ abstractTestProc + File.separator
 				+ "model";
@@ -541,14 +541,14 @@ public class RttMbtClient {
 
 		// from cache/<user-id>/<project-name>/<testproc>/testdata
 		// - signals.dat
-		dirname = getRttProjectRoot() + File.separator
+		dirname = getProjectName() + File.separator
 				+ "TestProcedures" + File.separator
 				+ abstractTestProc + File.separator
 				+ "testdata";
 		downloadDirectory(dirname);
 
 		// download concrete test procedure from cache
-		dirname = getRttProjectRoot() + File.separator
+		dirname = getProjectName() + File.separator
 				+ "RTT_TestProcedures" + File.separator
 				+ abstractTestProc + File.separator;
 		downloadDirectory(dirname + "conf");
