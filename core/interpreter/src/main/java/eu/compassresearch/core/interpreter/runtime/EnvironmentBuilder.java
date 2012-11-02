@@ -1,14 +1,16 @@
 package eu.compassresearch.core.interpreter.runtime;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.typechecker.Environment;
+import org.overture.typechecker.FlatEnvironment;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
-import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
@@ -19,30 +21,25 @@ import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.typechecker.Environment;
 
 public class EnvironmentBuilder extends AnalysisCMLAdaptor
   {
-    
     /**
 	 * 
 	 */
-    private static final long serialVersionUID 			= 493918199975006733L;
-    private Environment<PDefinition> env             	= null;
-    private String lastDefinedProcess 					= null;
+    private static final long        serialVersionUID   = 493918199975006733L;
+    private List<PDefinition>        globalDefs	        = new LinkedList<PDefinition>();
+    private AProcessDefinition       lastDefinedProcess = null;
     
     public EnvironmentBuilder(List<PSource> sources)
     {
     	BuildGlobalEnvironment(sources);
     }
-    
-    private void BuildGlobalEnvironment(
-        List<PSource> sources)
+
+    private void BuildGlobalEnvironment(List<PSource> sources)
       {
-        //EnvironmentBuilder envBuilder = new EnvironmentBuilder();
+        // EnvironmentBuilder envBuilder = new EnvironmentBuilder();
         
-    	env = new Environment<PDefinition>(null);
-    	
         for (PSource source : sources)
           {
             for (SParagraphDefinition def : source.getParagraphs())
@@ -60,14 +57,14 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
           }
       }
     
-    public String getLastDefinedProcess()
-    {
-    	return lastDefinedProcess;
-    }
-    
-    public Environment<PDefinition> getGlobalEnvironment()
+    public AProcessDefinition getLastDefinedProcess()
       {
-        return env;
+        return lastDefinedProcess;
+      }
+    
+    public Environment getGlobalEnvironment()
+      {
+        return new FlatEnvironment(globalDefs);
       }
     
     @Override
@@ -76,7 +73,8 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
       {
         
         // TODO: check access specifier
-        env.put(node.getName(), node);
+    	globalDefs.add(node);
+        //env..put(node.getName(), );
         
       }
     
@@ -87,8 +85,9 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         
         // TODO: check access specifier
         AProcessDefinition processDef = node.getProcessDefinition();
-        env.put(processDef.getName(), processDef);
-        lastDefinedProcess = processDef.getName().getName();
+        globalDefs.add(processDef);
+        //env.put(processDef.getName(), processDef);
+        lastDefinedProcess = processDef;
       }
     
     @Override
@@ -96,10 +95,11 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         throws AnalysisException
       {
         
-        for (AChansetDefinition chansetDef : node.getChansets())
-          {
-            env.put(chansetDef.getName(), chansetDef);
-          }
+    	for (AChansetDefinition chansetDef : node.getChansets())
+    	{
+    		//env.put(chansetDef.getName(), chansetDef);
+    		globalDefs.add(chansetDef);
+    	}
       }
     
     @Override
@@ -107,9 +107,10 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         throws AnalysisException
       {
         
-        for (ATypeDefinition typeDef : node.getTypes())
+        for (PDefinition typeDef : node.getTypes())
           {
-            env.put(typeDef.getName(), typeDef);
+        	globalDefs.add(typeDef);
+            //env.put(typeDef.getName(), (ATypeDefinition)typeDef);
           }
       }
     
@@ -118,9 +119,10 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         AFunctionParagraphDefinition node) throws AnalysisException
       {
         
-        for (SFunctionDefinition functionDef : node.getFunctionDefinitions())
+        for (PDefinition functionDef : node.getFunctionDefinitions())
           {
-            env.put(functionDef.getName(), functionDef);
+        	globalDefs.add(functionDef);
+            //env.put(functionDef.getName(), functionDef);
           }
       }
     
@@ -129,7 +131,7 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         throws AnalysisException
       {
         
-        for (AChannelNameDeclaration cnd : node.getChannelNameDeclarations())
+        for (AChannelNameDefinition cnd : node.getChannelNameDeclarations())
           {
             for (LexIdentifierToken channelName : cnd.getSingleType()
                 .getIdentifiers())

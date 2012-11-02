@@ -20,4 +20,85 @@
     </dependency>
 
   </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Copy the libraries from the core to the core plugin's lib folder -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <!-- Copy the AST -->
+                <artifactItem>
+                  <groupId>eu.compassresearch.core</groupId>
+                  <artifactId>ast</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <!-- <destFileName>optional-new-name.jar</destFileName> -->
+                </artifactItem>
+                
+                <!-- Copy the Parser -->
+                <artifactItem>
+                  <groupId>eu.compassresearch.core</groupId>
+                  <artifactId>parser</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+
+                <!-- CML Type Checker -->
+                <artifactItem>
+                  <groupId>eu.compassresearch.core</groupId>
+                  <artifactId>typechecker</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+
+                <!-- Overture Type Checker --> 
+                <artifactItem>
+                  <groupId>org.overturetool.core</groupId>
+                  <artifactId>typechecker</artifactId>
+                  <version>2.2.1</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+
+                <!-- Overture Test Framework -->
+                <artifactItem>
+                  <groupId>org.overturetool.core</groupId>
+                  <artifactId>testframework</artifactId>
+                  <version>2.2.1</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+
+                <!-- Overture Parser -->
+                <artifactItem>
+                  <groupId>org.overturetool.core</groupId>
+                  <artifactId>parser</artifactId>
+                  <version>2.2.0</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+
+              </artifactItems>
+              <outputDirectory>lib</outputDirectory>
+              <overWriteReleases>true</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

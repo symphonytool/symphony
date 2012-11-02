@@ -14,7 +14,6 @@ public class Activator implements BundleActivator
          * 
          * Do what needs to be done for initializing this plug-in
          */
-        
       }
     
     @Override

@@ -1,26 +1,25 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.expressions.PExp;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.CMLContext;
-import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
+import eu.compassresearch.core.interpreter.cml.CMLProcess;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 
-
 @SuppressWarnings("serial")
-public class CmlEvaluator extends QuestionAnswerAdaptor<CMLContext, Value> {
+public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value> {
 
-	private IQuestionAnswer<CMLContext, Value> exp;
-	private IQuestionAnswer<CMLContext, CMLProcess> prc; 
-	private IQuestionAnswer<CMLContext, Value> act;
-	private IQuestionAnswer<CMLContext, Value> def;
+	private QuestionAnswerCMLAdaptor<CMLContext, Value> exp;
+	private QuestionAnswerCMLAdaptor<CMLContext, CMLProcess> prc; 
+	private QuestionAnswerCMLAdaptor<CMLContext, Value> act;
+	private QuestionAnswerCMLAdaptor<CMLContext, Value> def;
 			
 	private void initialize()
 	{

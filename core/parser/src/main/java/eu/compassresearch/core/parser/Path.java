@@ -7,6 +7,7 @@ import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.AFieldExp;
 import org.overture.ast.expressions.ASelfExp;
 import org.overture.ast.expressions.ASubseqExp;
+import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
@@ -25,7 +26,6 @@ import eu.compassresearch.ast.actions.ACallAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
-import eu.compassresearch.ast.expressions.ANameExp;
 import eu.compassresearch.ast.expressions.ATupleSelectExp;
 import eu.compassresearch.ast.process.AInstantiationProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -191,7 +191,8 @@ public class Path
 		    exp = new ASelfExp(location,name);
 		    break;
 		case IDENTIFIER:
-		    exp = new ANameExp(location,name);
+		    //exp = new ANameExp(location,name);
+			exp = new AVariableExp(location,name,"");
 		    break;
 		}
 	    }
@@ -200,11 +201,15 @@ public class Path
 	    {
 		PExp name = this.subPath.convertToExpression();
 				
-		if(name instanceof ANameExp)
+		if(name instanceof AVariableExp)
 		{
-		    ANameExp nameExp = (ANameExp)name;
+//		    ANameExp nameExp = (ANameExp)name;
+//		    nameExp.setName(nameExp.getName().getOldName());
+//		    exp = nameExp;
+			AVariableExp nameExp = (AVariableExp)name;
 		    nameExp.setName(nameExp.getName().getOldName());
 		    exp = nameExp;
+
 	    }
 		else
 		    throw new PathConvertException("Illigal path for old name expression");
@@ -223,7 +228,8 @@ public class Path
 	case BACKTICK:
 	    if (this.subPath.kind == PathKind.UNIT){
 		LexNameToken name = this.unit.convertToName(subPath.unit.value.getName());
-		exp = new ANameExp(location,name);
+		//exp = new ANameExp(location,name);
+		exp = new AVariableExp(location,name,"");
 	    }
 	    else{
 		throw new PathConvertException("Illigal path for expression");
@@ -470,7 +476,8 @@ public class Path
 	    {
 		Pair<LexNameToken,List<PExp>> tmpPair = this.subPath.convertToChannelNameExpHelper();
 		LexNameToken name = unit.convertToName();
-		ANameExp nameExp = new ANameExp(name.getLocation(),name);
+		//ANameExp nameExp = new ANameExp(name.getLocation(),name);
+		AVariableExp nameExp = new AVariableExp(name.getLocation(),name,"");
 		tmpPair.second.add(nameExp);
 		pair = new Pair<LexNameToken,List<PExp>>(tmpPair.first,
 							 tmpPair.second); 

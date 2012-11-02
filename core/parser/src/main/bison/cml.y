@@ -33,24 +33,19 @@
   import eu.compassresearch.ast.program.*;
   import eu.compassresearch.ast.types.*;
   import org.overture.ast.types.*;
-  //  import eu.compassresearch.ast.lex.*;
-  // import eu.compassresearch.ast.lex.LexToken;
   import org.overture.ast.lex.*;
-  //  import eu.compassresearch.ast.typechecker.NameScope;
   import org.overture.ast.typechecker.NameScope;
-  //  import eu.compassresearch.ast.node.*;
   import org.overture.ast.node.*;
-  //  import eu.compassresearch.ast.node.tokens.*;
   import org.overture.ast.node.tokens.*;
-  //  import eu.compassresearch.ast.preview.*;
   import org.overture.ast.preview.*;
-  //  import eu.compassresearch.ast.util.*;
   import org.overture.ast.util.*;
   import eu.compassresearch.core.lexer.CmlLexeme;
   import eu.compassresearch.core.lexer.CmlLexer;
   import eu.compassresearch.core.lexer.Position;
   import eu.compassresearch.ast.definitions.AImplicitOperationDefinition;
   import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
+  import org.overture.ast.types.*;
+ 
 }
 
 %code{
@@ -60,10 +55,6 @@
   public static class Info {
     public static final String CML_LANG_VERSION = "CML 0";
   };
-
-  public class CustomSyntaxErrorException extends RuntimeException
-  {
-  }
 
   // **************************
   // *** PARSER INTERNAL DS ***
@@ -1540,7 +1531,8 @@ communication[result] :
 {
     ACommunicationAction comAction = (ACommunicationAction)$before;
     LexNameToken name = extractLexNameToken($IDENTIFIER);
-    PExp exp = new ANameExp(name.location,name);
+    //PExp exp = new ANameExp(name.location,name);
+    PExp exp = new AVariableExp(name.location,name,"");
     LexLocation location = extractLexLocation((CmlLexeme)$BANG,exp.getLocation());
     comAction.getCommunicationParameters().add(new AWriteCommunicationParameter(location, 
 										exp));
@@ -1731,7 +1723,7 @@ renameList :
 channelDefinition :
   CHANNELS
 {
-  List<AChannelNameDeclaration> chanNameDecls = new Vector<AChannelNameDeclaration>();
+  List<AChannelNameDefinition> chanNameDecls = new Vector<AChannelNameDefinition>();
   LexLocation location = extractLexLocation((CmlLexeme)$CHANNELS);
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   AChannelParagraphDefinition channelDefinition = new AChannelParagraphDefinition(location,
@@ -1740,11 +1732,12 @@ channelDefinition :
                                                                                   access,
 										  null,//Pass
                                                                                   chanNameDecls);
+  channelDefinition.setName(new LexNameToken("","",new LexLocation()));
   $$ = channelDefinition;
 }
 | CHANNELS channelDef
 {
-  List<AChannelNameDeclaration> chanNameDecls = (List<AChannelNameDeclaration>)$channelDef;
+  List<AChannelNameDefinition> chanNameDecls = (List<AChannelNameDefinition>)$channelDef;
   LexLocation start = extractLexLocation((CmlLexeme)$1);
   LexLocation end = (chanNameDecls != null && chanNameDecls.size() > 0) ?
     chanNameDecls.get(chanNameDecls.size()-1).getLocation() : start;
@@ -1756,11 +1749,12 @@ channelDefinition :
                                                                                   access,
 										  null,//Pass
                                                                                   chanNameDecls);
+  channelDefinition.setName(new LexNameToken("","",new LexLocation()));
   $$ = channelDefinition;
 }
 | CHANNELS channelDef SEMI
 {
-  List<AChannelNameDeclaration> chanNameDecls = (List<AChannelNameDeclaration>)$channelDef;
+  List<AChannelNameDefinition> chanNameDecls = (List<AChannelNameDefinition>)$channelDef;
   LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$CHANNELS),
                                             extractLexLocation((CmlLexeme)$SEMI));
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
@@ -1770,6 +1764,7 @@ channelDefinition :
                                                                                   access,
 										  null,//Pass
                                                                                   chanNameDecls);
+  channelDefinition.setName(new LexNameToken("","",new LexLocation()));
   $$ = channelDefinition;
 }
 ;
@@ -1777,14 +1772,14 @@ channelDefinition :
 channelDef :
   channelNameDecl
 {
-  List<AChannelNameDeclaration> decls = new Vector<AChannelNameDeclaration>();
-  decls.add((AChannelNameDeclaration)$1);
+  List<AChannelNameDefinition> decls = new Vector<AChannelNameDefinition>();
+  decls.add((AChannelNameDefinition)$1);
   $$ = decls;
 }
 | channelDef SEMI channelNameDecl
 {
-  List<AChannelNameDeclaration> decls = (List<AChannelNameDeclaration>)$1;
-  decls.add((AChannelNameDeclaration)$channelNameDecl);
+  List<AChannelNameDefinition> decls = (List<AChannelNameDefinition>)$1;
+  decls.add((AChannelNameDefinition)$channelNameDecl);
   $$ = decls;
 }
 ;
@@ -1806,13 +1801,13 @@ channelNameDecl :
   LexLocation end = nameList.get(ids.size()-1).getLocation();
   LexLocation location = combineLexLocation(start, end);
   ATypeSingleDeclaration singleTypeDeclaration = new ATypeSingleDeclaration(location, NameScope.GLOBAL, ids, null);
-  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(location, NameScope.GLOBAL, singleTypeDeclaration);
+  AChannelNameDefinition channelNameDecl = new AChannelNameDefinition(location, NameScope.GLOBAL, false, null, null, singleTypeDeclaration);
   $$ = channelNameDecl;
 }
 | singleTypeDeclaration
 {
   ATypeSingleDeclaration singleTypeDeclaration = (ATypeSingleDeclaration)$1;
-  AChannelNameDeclaration channelNameDecl = new AChannelNameDeclaration(singleTypeDeclaration.getLocation(), NameScope.GLOBAL, singleTypeDeclaration);
+  AChannelNameDefinition channelNameDecl = new AChannelNameDefinition(singleTypeDeclaration.getLocation(), NameScope.GLOBAL, false, null, null, singleTypeDeclaration);
   $$ = channelNameDecl;
 }
 ;
@@ -2517,7 +2512,7 @@ invariant :
 valueDefs :
   VALUES
 {
-  List<PDefinition> defs = new Vector<PDefinition>();
+  List<PDefinition> defs = new LinkedList<PDefinition>();
   LexLocation location = extractLexLocation((CmlLexeme)$VALUES);
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   $$ = new AValueParagraphDefinition(location,
@@ -2565,7 +2560,7 @@ valueDefList :
 {
   PDefinition def = (PDefinition)$def;
   List<PDefinition> defs = (List<PDefinition>)$list;
-  defs.add(0,def);
+  defs.add(def);
   $$ = defs;
 }
 ;
@@ -3502,7 +3497,16 @@ expression :
   LexNameToken name = extractNameFromUNDERNAMEToken(mku);
   List<PExp> exprs = (List<PExp>)$3;
   LexLocation loc = extractLexLocation(mku, (CmlLexeme)$4);
-  ARecordExp res = new ARecordExp(loc, name, exprs);
+
+  PExp res = null;
+
+  if ("token".equals(name.name ) && exprs != null && exprs.size() == 1)
+    {
+      ATokenBasicType type = new ATokenBasicType(loc,true) ;
+      res = new AMkBasicExp(type, loc, exprs.get(0));
+    }
+  else
+       res = new AMkTypeExp(loc, name, exprs);
   $$ = res;
 }
 /* lambda expression */
@@ -3873,15 +3877,15 @@ casesExprAltList :
   casesExprAlt
 {
   ACasesExp casesExp = new ACasesExp();
-  ACaseAlternative caseAlt = (ACaseAlternative)$1;
-  casesExp.getCases().add(caseAlt);
+  List<ACaseAlternative> caseAlts = (List<ACaseAlternative>)$1;
+  casesExp.getCases().addAll(caseAlts);
   $$ = casesExp;
 }
 | casesExprAltList COMMA casesExprAlt
 {
   ACasesExp casesExp = (ACasesExp)$1;
-  ACaseAlternative altExp = (ACaseAlternative)$casesExprAlt;
-  casesExp.getCases().add(altExp);
+  List<ACaseAlternative> altExp = (List<ACaseAlternative>)$casesExprAlt;
+  casesExp.getCases().addAll(altExp);
   $$ = casesExp;
 }
 ;
@@ -3889,14 +3893,19 @@ casesExprAltList :
 casesExprAlt :
   patternList RARROW expression
 {
+  List<ACaseAlternative> res = new LinkedList<ACaseAlternative>();
   List<PPattern> patList = (List<PPattern>)$1;
   PExp exp = (PExp)$expression;
   LexLocation leftMost = extractLexLeftMostFromPatterns(patList);
   LexLocation loc = combineLexLocation(leftMost, exp.getLocation());
-  ACaseAlternative res = new ACaseAlternative();
-  res.setPattern(patList);
-  res.setLocation(loc);
-  res.setCexp(exp);
+  for(PPattern p : patList)
+  {
+    ACaseAlternative r = new ACaseAlternative();
+    r.setPattern(p);
+    r.setLocation(loc);
+    r.setCexp(exp);
+    res.add(r);
+   }
   $$ = res;
 }
 ;
