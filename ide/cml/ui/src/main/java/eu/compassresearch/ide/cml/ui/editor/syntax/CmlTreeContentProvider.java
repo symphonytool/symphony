@@ -8,12 +8,7 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
-import org.overture.ast.definitions.AExplicitFunctionDefinition;
-import org.overture.ast.definitions.AImplicitFunctionDefinition;
-import org.overture.ast.definitions.ATypeDefinition;
-import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.lex.LexIdentifierToken;
 
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -31,7 +26,6 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
-import eu.compassresearch.ast.definitions.SOperationDefinition;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -64,7 +58,6 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			current = ((CmlSourceUnit) inputElement).getSourceAst();
 			if (current == null)
 				return new Object[0];
-			String nameguard;
 			// If there are any declarations lets see them
 			List<Wrapper<PDefinition>> res = new LinkedList<CmlTreeContentProvider.Wrapper<PDefinition>>();
 			for (PDefinition def : current.getParagraphs()) {
@@ -127,10 +120,11 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 						(AValueParagraphDefinition) w.value).toArray();
 			}
 
-			if (w.isClass(AProcessParagraphDefinition.class)){
-				return handleProcessParagraphDefinition((AProcessParagraphDefinition)w.value).toArray();
+			if (w.isClass(AProcessParagraphDefinition.class)) {
+				return handleProcessParagraphDefinition(
+						(AProcessParagraphDefinition) w.value).toArray();
 			}
-			
+
 			if (w.isClass(AProcessParagraphDefinition.class)
 					|| w.isClass(PProcess.class)) {
 				AProcessParagraphDefinition processDecl = (AProcessParagraphDefinition) w.value;
@@ -152,41 +146,37 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			if (((Wrapper) n).isClass(ATypesParagraphDefinition.class)) {
 				List<String> res = new LinkedList<String>();
 				ATypesParagraphDefinition td = (ATypesParagraphDefinition) w.value;
-				for (ATypeDefinition atd : td.getTypes()) {
-					res.add(makeDefinitionName(atd));
-				}
-				return res.toArray();
-			}
-			
-			if (((Wrapper) n).isClass(AFunctionParagraphDefinition.class)) {
-				List<String> res = new LinkedList<String>();
-				AFunctionParagraphDefinition fd = (AFunctionParagraphDefinition) w.value;
-				
-				//FIXME-New function definition is?
-				for (PDefinition fnd : fd.getFunctionDefinitions()) {
-					res.add(makeDefinitionName(fnd));
-				}
+				res = DefinitionMap.getDelegate(td.getClass()).extractSubdefinition(td);
 				return res.toArray();
 			}
 
-//			if (((Wrapper) n).isClass(AOperationParagraphDefinition.class)) {
-//				List<String> res = new LinkedList<String>();
-//				AOperationParagraphDefinition od = (AOperationParagraphDefinition) w.value;
-//				for (SOperationDefinition sod : od.getOperations()) {
-//					res.add("[O] " + notNullName(sod.getName()));
-//				}
-//				return res.toArray();
-//			}
-//
-//			if (((Wrapper) n).isClass(AActionParagraphDefinition.class)) {
-//				List<String> res = new LinkedList<String>();
-//				AActionParagraphDefinition ad = (AActionParagraphDefinition) w.value;
-//				for (AActionDefinition a : ad.getActions()) {
-//					res.add("[A] " + notNullName(a.getName()));
-//				}
-//				return res.toArray();
-//
-//			}
+			if (((Wrapper) n).isClass(AFunctionParagraphDefinition.class)) {
+				List<String> res = new LinkedList<String>();
+				AFunctionParagraphDefinition fd = (AFunctionParagraphDefinition) w.value;
+				res = DefinitionMap.getDelegate(fd.getClass()).extractSubdefinition(fd);
+				return res.toArray();
+			}
+
+			// if (((Wrapper) n).isClass(AOperationParagraphDefinition.class)) {
+			// List<String> res = new LinkedList<String>();
+			// AOperationParagraphDefinition od =
+			// (AOperationParagraphDefinition) w.value;
+			// for (SOperationDefinition sod : od.getOperations()) {
+			// res.add("[O] " + notNullName(sod.getName()));
+			// }
+			// return res.toArray();
+			// }
+			//
+			// if (((Wrapper) n).isClass(AActionParagraphDefinition.class)) {
+			// List<String> res = new LinkedList<String>();
+			// AActionParagraphDefinition ad = (AActionParagraphDefinition)
+			// w.value;
+			// for (AActionDefinition a : ad.getActions()) {
+			// res.add("[A] " + notNullName(a.getName()));
+			// }
+			// return res.toArray();
+			//
+			// }
 		}
 
 		return new String[0];
@@ -198,8 +188,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			AChansetParagraphDefinition cspdef) {
 		List<String> r = new LinkedList<String>();
 		for (AChansetDefinition cdef : cspdef.getChansets()) {
-			r.add(cdef.getIdentifier().toString() + ": "
-					+ cdef.getChansetExpressions().toString());
+			r.add(cdef.getIdentifier().toString());
 		}
 		return r;
 	}
@@ -207,75 +196,17 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 	private List<String> handleClassParagraphDefinition(
 			AClassParagraphDefinition cpdef) {
 		List<String> r = new LinkedList<String>();
+		
 		for (PDefinition pdef : cpdef.getDefinitions()) {
-			r.addAll(extractSubdefinitions(pdef));
+			r.addAll(DefinitionMap.getDelegate(pdef.getClass()).extractSubdefinition(pdef));
 		}
 		return r;
 	}
 	
 	private List<String> handleProcessParagraphDefinition(
 			AProcessParagraphDefinition ppdef) {
-		List<String> r = new LinkedList<String>();
-		AProcessDefinition app = ppdef.getProcessDefinition();
-		//app.get
-		//app.getProcess().
-		return r;
-	}
-
-	String makeDefinitionName(PDefinition def) {
-		String r = "";
-		if (def instanceof AValueDefinition) {
-			String nameguard = "??";
-			String typeguard = "??";
-			if (null != def.getName())
-				nameguard = def.getName().name;
-			if (null != def.getType())
-				typeguard = def.getType().toString();
-			r = "v] " + nameguard + ": " + typeguard;
-		}
-		if (def instanceof AExplicitFunctionDefinition || def instanceof AImplicitFunctionDefinition) {
-			// FIXME-ldc how to extract function types
-			r = "f] " + def.getName().name + ": " + def.getType();
-		}
-		if (def instanceof ATypeDefinition) {
-			r = "t] " + def.getName().name;
-		}
-		if (def instanceof SOperationDefinition) {
-			r="o] " + def.getName().name + ": " + def.getType();
-			}
-		
-		return r;
-	}
-
-	private List<String> extractSubdefinitions(PDefinition pdef) {
-		List<String> r = new LinkedList<String>();
-
-		if (pdef instanceof AValueParagraphDefinition) {
-			for (PDefinition subdef : ((AValueParagraphDefinition) pdef)
-					.getValueDefinitions()) {
-				r.add(makeDefinitionName(subdef));
-			}
-		}
-		if (pdef instanceof AFunctionParagraphDefinition) {
-			for (PDefinition subdef : ((AFunctionParagraphDefinition) pdef)
-					.getFunctionDefinitions()) {
-				r.add(makeDefinitionName(subdef));
-			}
-		}
-		if (pdef instanceof ATypesParagraphDefinition) {
-			for (ATypeDefinition subdef : ((ATypesParagraphDefinition) pdef)
-					.getTypes()) {
-				r.add(makeDefinitionName(subdef));
-			}
-		}
-		if (pdef instanceof AOperationParagraphDefinition) {
-			for (SOperationDefinition subdef : ((AOperationParagraphDefinition) pdef)
-					.getOperations()) {
-				// FIXME-ldc how to extract function types
-				r.add(makeDefinitionName(subdef));
-			}
-		}
-		return r;
+		PProcess pp = ppdef.getProcessDefinition().getProcess();
+		return ProcessMap.getProcessMap().get(pp.getClass()).makeEntries(pp);
 	}
 
 	private Wrapper<PDefinition> wrapParagraphDefinition(PDefinition pdef) {
@@ -293,13 +224,6 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			return Wrapper.newInstance(pdef, "chanset declarations");
 
 		return Wrapper.newInstance(pdef, pdef.getName().name);
-		// if (null == def.getName())
-		// nameguard="";
-		// else nameguard = def.getName().name;
-		// res.add(Wrapper.newInstance(def, nameguard));
-		//
-		// return Wrapper.newInstance(pdef, "ERROR: unknown section");
-
 	}
 
 	private List<Object> handleProcess(PProcess process) {
@@ -372,7 +296,6 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		}
 	}
 
-
 	private List<String> handleChannelParagraphDefinition(
 			AChannelParagraphDefinition cpdef) {
 		List<String> r = new LinkedList<String>();
@@ -381,21 +304,11 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 					+ dec.getSingleType().getType());
 		}
 		return r;
-	}	
+	}
 
 	private List<String> handleValueParagraphDefinition(
 			AValueParagraphDefinition cast) {
-		List<String> res = new LinkedList<String>();
-		LinkedList<PDefinition> valDefs = cast.getValueDefinitions();
-		for (PDefinition def : valDefs)
-			res.add(makeDefinitionName(def));
-		return res;
-	}
-
-	private static String notNullName(LexIdentifierToken name) {
-		if (name == null)
-			return "null";
-		return name.name;
+		return DefinitionMap.getDelegate(cast.getClass()).extractSubdefinition(cast);
 	}
 
 	// Why does this return null?

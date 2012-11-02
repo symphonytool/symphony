@@ -46,8 +46,8 @@ public class CmlBuildVisitor implements IResourceVisitor
           return false;
         
         // Lets run the type checker
-        if (!typeCheck(file, source))
-          return false;
+  //      if (!typeCheck(file, source))
+    //      return false;
         
         // Set the AST on the source unit
         CmlSourceUnit dom = CmlSourceUnit.getFromFileResource(file);

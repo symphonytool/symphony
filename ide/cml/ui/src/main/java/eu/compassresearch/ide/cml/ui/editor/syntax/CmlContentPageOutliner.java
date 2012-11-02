@@ -43,14 +43,12 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
         super.createControl(parent);
         TreeViewer viewer = getTreeViewer();
         viewer.setContentProvider(provider);
-      //  viewer.setLabelProvider(new CmlLabelProvider());
-//        viewer.setAutoExpandLevel(5);
-	//	viewer.setUseHashlookup(true);
+        viewer.setUseHashlookup(true);
         //FIXME ldc -outline visualizer is here
         //viewer.setLabelProvider(new CmlLabelProvider());
         viewer.addSelectionChangedListener(this);
         viewer.setInput(input);
-     //  viewer.expandAll();
+        viewer.expandAll();
       }
     
     public void setInput(CmlSourceUnit input)
