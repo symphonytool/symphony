@@ -686,22 +686,75 @@ processDefinition:
 process :
 /* actions */
   BEGIN AT action END
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4);
+  List<SParagraphDefinition> processParagraphs = null;
+  PAction action = (PAction)$3;
+  $$ = new AStateProcess(location, processParagraphs, action);
+}
 | BEGIN processParagraphList AT action END
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$1, (CmlLexeme)$5);
+  List<SParagraphDefinition> processParagraphs = (List<SParagraphDefinition>)$processParagraphList;
+  PAction action = (PAction)$4;
+  $$ = new AStateProcess(location, processParagraphs, action);
+}
 /* actions end */
 | process SEMI process
+{
+  PProcess left = (PProcess)$1;
+  PProcess right = (PProcess)$3;
+  $$ = new ASequentialCompositionProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, right);
+}
 | process LRSQUARE process
+{
+  PProcess left = (PProcess)$1;
+  PProcess right = (PProcess)$3;
+  $$ = new AExternalChoiceProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, right);
+}
 | process BARTILDEBAR process
+{
+  PProcess left = (PProcess)$1;
+  PProcess right = (PProcess)$3;
+  $$ = new AInternalChoiceProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, right);
+}
 /* CHANSET
  * expression was chansetExpr here
  */
 | process LSQUAREBAR expression BARRSQUARE process
+{
+  PProcess left = (PProcess)$1;
+  PProcess right = (PProcess)$5;
+  $$ = new AGeneralisedParallelismProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, (PExp)$3, right);
+}
 /* CHANSET
  * expression was chansetExpr here
  */
 | process LSQUARE expression DBAR expression RSQUARE process
+{
+  PProcess left = (PProcess)$1;
+  PProcess right = (PProcess)$7;
+  $$ = new AAlphabetisedParallelismProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, (PExp)$3, (PExp)$5, right);
+}
 | process DBAR process
+{
+  PProcess left = (PProcess)$1;
+  PProcess right = (PProcess)$3;
+  $$ = new ASynchronousParallelismProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, right);
+}
 | process TBAR process
+{
+  PProcess left = (PProcess)$1;
+  PProcess right = (PProcess)$3;
+  $$ = new AInterleavingProcess(combineLexLocation(left.getLocation(), right.getLocation()), left, right);
+}
 | process SLASHBACKSLASH process
+{
+  PProcess left = (PProcess)$1;
+  PProcess right = (PProcess)$3;
+  LexLocation location = combineLexLocation(left.getLocation(), right.getLocation());
+  $$ = new AInterruptProcess(location, left, right);
+}
 /* DEVIATION
  * grammar:
  *   process '/' expression '\' process
@@ -711,7 +764,19 @@ process :
  * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | process SLASHCOLON expression COLONBACKSLASH process
+{
+  PProcess left = (PProcess)$1;
+  PProcess right = (PProcess)$5;
+  LexLocation location = combineLexLocation(left.getLocation(), right.getLocation());
+  $$ = new ATimedInterruptProcess(location, left, (PExp)$3, right);
+}
 | process LSQUAREGT process
+{
+  PProcess left = (PProcess)$1;
+  PProcess right = (PProcess)$3;
+  LexLocation location = combineLexLocation(left.getLocation(), right.getLocation());
+  $$ = new AUntimedTimeoutProcess(location, left, right);
+}
 /* DEVIATION
  * grammar:
  *   process '[' expression '>' process
@@ -721,6 +786,12 @@ process :
  * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 | process LSQUARE expression BARGT process
+{
+  PProcess left = (PProcess)$1;
+  PProcess right = (PProcess)$5;
+  LexLocation location = combineLexLocation(left.getLocation(), right.getLocation());
+  $$ = new ATimeoutProcess(location, left, (PExp)$3, right);
+}
 /* DEVIATION
  * grammar:
  *   process '\' expression
@@ -733,39 +804,175 @@ process :
  * expression was chansetExpr here
  */
 | process DBACKSLASH expression
+{
+  PProcess left = (PProcess)$1;
+  PExp cse = (PExp)$3;
+  LexLocation location = combineLexLocation(left.getLocation(), cse.getLocation());
+  $$ = new AHidingProcess(location, left, cse);
+}
 | process STARTBY expression
+{
+  PProcess left = (PProcess)$1;
+  PExp exp = (PExp)$3;
+  LexLocation location = combineLexLocation(left.getLocation(), exp.getLocation());
+  $$ = new AStartDeadlineProcess(location, left, exp);
+}
 | process ENDSBY expression
+{
+  PProcess left = (PProcess)$1;
+  PExp exp = (PExp)$3;
+  LexLocation location = combineLexLocation(left.getLocation(), exp.getLocation());
+  $$ = new AEndDeadlineProcess(location, left, exp);
+}
 /* DEVIATION
  * Unfolded the definition a little bit to avoid a conflict
  */
-| LPAREN singleTypeDeclarationList AT process RPAREN LPAREN expression RPAREN
+| LPAREN[start] singleTypeDeclarationList AT process[proc] RPAREN LPAREN expression RPAREN[end]
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$start, (CmlLexeme)$end);
+  List<ATypeSingleDeclaration> decls = (List<ATypeSingleDeclaration>)$singleTypeDeclarationList;
+  List<PExp> args = new LinkedList<PExp>();
+  args.add((PExp)$expression);
+  PProcess proc = (PProcess)$proc;
+  /* FIXME: (->AKM) process was a processDefinition */
+  /* $$ = new AInstantiationProcess(location,  */
+  /* 				 decls,  */
+  /* 				 null, */
+  /* 				 (AProcessDefinition)$proc,  */
+  /* 				 args); */
+}
 | IDENTIFIER
+{
+  LexNameToken name = extractLexNameToken($IDENTIFIER);
+  $$ = new AInstantiationProcess(name.location, 
+				 null, 
+				 name,
+				 null,
+				 null); 
+}
 | IDENTIFIER LRPAREN
+{
+  LexNameToken name = extractLexNameToken($IDENTIFIER);
+  LexLocation location = extractLexLocation(name.location,(CmlLexeme)$LRPAREN);
+  $$ = new AInstantiationProcess(location, 
+				 null, 
+				 name,
+				 null,
+				 null); 
+}
 | IDENTIFIER LPAREN expressionList RPAREN
-| process renameExpression
+{
+  LexNameToken name = extractLexNameToken($IDENTIFIER);
+  LexLocation location = extractLexLocation(name.location,(CmlLexeme)$RPAREN);
+  $$ = new AInstantiationProcess(location, 
+				 null, 
+				 name,
+				 null,
+				 (List<PExp>)$expressionList); 
+}
+| process[proc] renameExpression[rexp]
+{
+  SRenameChannelExp renameExpression = (SRenameChannelExp)$rexp;
+  PProcess process = (PProcess)$proc;
+  $$ = new AChannelRenamingProcess(combineLexLocation(process.getLocation(),
+						      renameExpression.getLocation()),
+				   process,
+				   renameExpression);
+}
 /* replicated processes */
 | SEMI replicationDeclaration AT process %prec U-SEMI
+{
+  PProcess process = (PProcess)$4;
+  LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
+  $$ = new ASequentialCompositionReplicatedProcess(location,
+                                                   (List<SSingleDeclaration>)$replicationDeclaration,
+                                                   process);
+}
 | LRSQUARE replicationDeclaration AT process %prec U-LRSQUARE
+{
+  PProcess process = (PProcess)$4;
+  LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
+  $$ = new AExternalChoiceReplicatedProcess(location,
+                                            (List<SSingleDeclaration>)$replicationDeclaration,
+                                            process);
+}
 | BARTILDEBAR replicationDeclaration AT process %prec U-BARTILDEBAR
+{
+  PProcess process = (PProcess)$4;
+  LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
+  $$ = new AInternalChoiceReplicatedProcess(location,
+                                            (List<SSingleDeclaration>)$replicationDeclaration,
+                                            process);
+}
 /* CHANSET
  * expression was chansetExpr here
  */
 | LSQUAREBAR expression BARRSQUARE replicationDeclaration AT process %prec U-LSQUAREBAR
+{
+  PProcess process = (PProcess)$6;
+  PExp chansetExp = (PExp)$2;
+  LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
+  $$ = new AGeneralisedParallelismReplicatedProcess(location,
+                                                    (List<SSingleDeclaration>)$replicationDeclaration,
+                                                    process,
+                                                    chansetExp);
+}
 /* CHANSET
  * expression was chansetExpr here
  */
-| DBAR replicationDeclaration AT LSQUARE expression RSQUARE process %prec U-DBAR
+| DBAR replicationDeclaration AT LSQUAREBAR expression BARRSQUARE process %prec U-DBAR
+{
+  PProcess process = (PProcess)$7;
+  PExp chansetExp = (PExp)$expression;
+  LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
+  $$ = new AAlphabetisedParallelismReplicatedProcess(location,
+                                                     (List<SSingleDeclaration>)$replicationDeclaration,
+                                                     process,
+                                                     chansetExp);
+}
 | DBAR replicationDeclaration AT process %prec U-DBAR
+{
+  PProcess process = (PProcess)$4;
+  LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
+  $$ = new ASynchronousParallelismReplicatedProcess(location,
+                                                    (List<SSingleDeclaration>)$replicationDeclaration,
+                                                    process);
+}
 | TBAR replicationDeclaration AT process %prec U-TBAR
+{
+  PProcess process = (PProcess)$4;
+  LexLocation location = extractLexLocation((CmlLexeme)$1,process.getLocation());
+  $$ = new AInterleavingReplicatedProcess(location,
+                                          (List<SSingleDeclaration>)$replicationDeclaration,
+                                          process);
+}
 ;
 
-/* FIXME
- */
 replicationDeclaration :
   singleTypeDeclaration
+{
+  List<SSingleDeclaration> decls = new LinkedList<SSingleDeclaration>();
+  decls.add((SSingleDeclaration)$singleTypeDeclaration);
+  $$ = decls;
+}
 | singleExpressionDeclaration
+{
+  List<SSingleDeclaration> decls = new LinkedList<SSingleDeclaration>();
+  decls.add((SSingleDeclaration)$singleExpressionDeclaration);
+  $$ = decls;
+}
 | replicationDeclaration SEMI singleTypeDeclaration
+{
+  List<SSingleDeclaration> decls = (List<SSingleDeclaration>)$1;
+  decls.add((SSingleDeclaration)$singleTypeDeclaration);
+  $$ = decls;
+}
 | replicationDeclaration SEMI singleExpressionDeclaration
+{
+  List<SSingleDeclaration> decls = (List<SSingleDeclaration>)$1;
+  decls.add((SSingleDeclaration)$singleExpressionDeclaration);
+  $$ = decls;
+}
 ;
 
 /* DEVIATION
@@ -778,12 +985,30 @@ replicationDeclaration :
  */
 singleExpressionDeclaration :
   IDENTIFIER INSET expression
+{
+  /* --- TODO --- */
+}
 | IDENTIFIER COMMA singleExpressionDeclaration
+{
+  /* --- TODO --- */
+}
 ;
 
 processParagraphList :
   processParagraph
+{
+  List<PDefinition> processParagraphList = new Vector<PDefinition>();
+  processParagraphList.add((PDefinition)$1);
+  $$ = processParagraphList;
+}
 | processParagraphList processParagraph
+{
+  List<PDefinition> processParagraphList = (List<PDefinition>)$1;
+  /* if (processParagraphList == null) // FIXME: surely this cannot possibly happen? -jwc */
+  /*   processParagraphList = new Vector<PDefinition>(); */
+  processParagraphList.add((PDefinition)$2);
+  $$ = processParagraphList;
+}
 ;
 
 /* FIXME
@@ -793,19 +1018,62 @@ processParagraphList :
  */
 processParagraph :
   classDefinitionBlockAlternative
+{
+  $$ = $1;
+}
 | ACTIONS actionDefinitionList
+{
+  List<AActionDefinition> actionDefinitions = (List<AActionDefinition>)$2;
+  LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$1), extractLastLexLocation(actionDefinitions));
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, loc);
+  $$ = new AActionParagraphDefinition( loc, NameScope.LOCAL, false, access,null/*Pass*/, actionDefinitions);
+}
 | NAMESETS
+{
+  /* --- TODO --- */
+}
 | NAMESETS namesetDefList
+{
+  /* --- TODO --- */
+}
 ;
 
 actionDefinitionList :
   IDENTIFIER EQUALS paragraphAction
-| actionDefinitionList IDENTIFIER EQUALS paragraphAction
+{
+  Object[] pa = (Object[])$paragraphAction;
+  List<ATypeSingleDeclaration> declarations = (List<ATypeSingleDeclaration>)pa[0];
+  PAction action = (PAction)pa[1];
+  LexLocation defLocation = combineLexLocation(extractLexLocation((CmlLexeme)$IDENTIFIER), action.getLocation());
+  AActionDefinition actionDefinition = new AActionDefinition(defLocation, 
+							     NameScope.LOCAL, 
+							     false, 
+							     null,//Access
+							     null,//Pass
+							     declarations, 
+							     action);
+  List<AActionDefinition> actionDefs = new Vector<AActionDefinition>();
+  actionDefs.add(actionDefinition);
+  $$ = actionDefs;
+}
+| actionDefinitionList[list] IDENTIFIER EQUALS paragraphAction
+{
+  List<AActionDefinition> actionDefs = (List<AActionDefinition>)$list;
+  Object[] pa = (Object[])$paragraphAction;
+  List<ATypeSingleDeclaration> declarations = (List<ATypeSingleDeclaration>)pa[0];
+  PAction action = (PAction)pa[1];
+  LexLocation defLocation = combineLexLocation(extractLexLocation((CmlLexeme)$IDENTIFIER), action.getLocation());
+  AActionDefinition actionDefinition = new AActionDefinition(defLocation, 
+							     NameScope.LOCAL, 
+							     false, 
+							     null,//Access
+							     null,//Pass
+							     declarations, 
+							     action);
+  actionDefs.add(actionDefinition);
+  $$ = actionDefs;
+}
 ;
-
-/* actionDefinition : */
-/*   IDENTIFIER EQUALS paragraphAction */
-/* ; */
 
 /* Note that the expressions here are nameset expressions */
 /* DEVIATION
