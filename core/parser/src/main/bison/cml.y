@@ -3877,15 +3877,15 @@ casesExprAltList :
   casesExprAlt
 {
   ACasesExp casesExp = new ACasesExp();
-  ACaseAlternative caseAlt = (ACaseAlternative)$1;
-  casesExp.getCases().add(caseAlt);
+  List<ACaseAlternative> caseAlts = (List<ACaseAlternative>)$1;
+  casesExp.getCases().addAll(caseAlts);
   $$ = casesExp;
 }
 | casesExprAltList COMMA casesExprAlt
 {
   ACasesExp casesExp = (ACasesExp)$1;
-  ACaseAlternative altExp = (ACaseAlternative)$casesExprAlt;
-  casesExp.getCases().add(altExp);
+  List<ACaseAlternative> altExp = (List<ACaseAlternative>)$casesExprAlt;
+  casesExp.getCases().addAll(altExp);
   $$ = casesExp;
 }
 ;
@@ -3893,14 +3893,19 @@ casesExprAltList :
 casesExprAlt :
   patternList RARROW expression
 {
+  List<ACaseAlternative> res = new LinkedList<ACaseAlternative>();
   List<PPattern> patList = (List<PPattern>)$1;
   PExp exp = (PExp)$expression;
   LexLocation leftMost = extractLexLeftMostFromPatterns(patList);
   LexLocation loc = combineLexLocation(leftMost, exp.getLocation());
-  ACaseAlternative res = new ACaseAlternative();
-  res.setPattern(patList);
-  res.setLocation(loc);
-  res.setCexp(exp);
+  for(PPattern p : patList)
+  {
+    ACaseAlternative r = new ACaseAlternative();
+    r.setPattern(p);
+    r.setLocation(loc);
+    r.setCexp(exp);
+    res.add(r);
+   }
   $$ = res;
 }
 ;

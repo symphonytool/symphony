@@ -195,7 +195,7 @@ modifier {-> package='org.overture.ast.expressions'}
     ;
 //AKM: Found in VDM spec pattern should a list of patterns
 alternative {-> package='org.overture.ast.expressions'}
-    = {case} [location]:location [cexp]:exp [pattern]:pattern* 
+    = {case} [location]:location [cexp]:exp [pattern]:pattern 
              [result]:exp [defs]:definition*  (type):type (expType):type
     ;
     
