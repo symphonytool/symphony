@@ -2002,44 +2002,149 @@ singleTypeDeclarationList[result] :
 ;
 
 singleTypeDeclaration :
-  IDENTIFIER COLON type
-| IDENTIFIER COMMA singleTypeDeclaration
-;
+  IDENTIFIER[id] COLON type
+{
+  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$id);
+  LexLocation location = id.getLocation();
+  List<LexIdentifierToken> ids = new LinkedList<LexIdentifierToken>();
+  ids.add(id);
+  ATypeSingleDeclaration singleTypeDeclaration =
+    new ATypeSingleDeclaration(location,
+			       NameScope.LOCAL,
+			       ids,
+			       (PType)$type);
+  $$ = singleTypeDeclaration;
+}
+| IDENTIFIER[id] COMMA singleTypeDeclaration[decl]
+{
+  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$id);
+  ATypeSingleDeclaration decl = (ATypeSingleDeclaration)$decl;
+  decl.setLocation(combineLexLocation(id.getLocation(), decl.getLocation()));
+  decl.getIdentifiers().addFirst(id);
+  $$ = decl;
+};
 
 chansetDefinitionParagraph :
   CHANSETS
-| CHANSETS chansetDefinitionList
+{
+  LexLocation loc = extractLexLocation((CmlLexeme)$CHANSETS);
+  AAccessSpecifierAccessSpecifier access = 
+    new AAccessSpecifierAccessSpecifier(new APublicAccess(),
+					new TStatic(),
+					new TAsync());
+  AChansetParagraphDefinition chansetParagraph =
+    new AChansetParagraphDefinition(loc,
+				    NameScope.GLOBAL,
+				    false,
+				    access,
+				    null/*Pass*/,
+				    new LinkedList<AChansetDefinition>());
+  $$ = chansetParagraph;
+}
+| CHANSETS chansetDefinitionList[list]
+{
+  LexLocation loc = extractLexLocation((CmlLexeme)$CHANSETS);
+  List<AChansetDefinition> chansetDefinitions = (List<AChansetDefinition>)$list;
+  AAccessSpecifierAccessSpecifier access =
+    new AAccessSpecifierAccessSpecifier(new APublicAccess(),
+					new TStatic(),
+					new TAsync());
+  AChansetParagraphDefinition chansetParagraph =
+    new AChansetParagraphDefinition(loc,
+				    NameScope.GLOBAL,
+				    false,
+				    access,
+				    null/*Pass*/,
+				    chansetDefinitions);
+  $$ = chansetParagraph;
+}
 ;
 
 chansetDefinitionList :
-  chansetDefinition
-| chansetDefinitionList[list] chansetDefinition
+  chansetDefinition[def]
+{
+  List<AChansetDefinition> defs = new Vector<AChansetDefinition>();
+  defs.add((AChansetDefinition)$def);
+  $$ = defs;
+}
+| chansetDefinitionList[list] chansetDefinition[def]
+{
+  List<AChansetDefinition> defs = (List<AChansetDefinition>)$list;
+  defs.add((AChansetDefinition)$def);
+  $$ = defs;
+}
 ;
 
 chansetDefinition :
 /* CHANSET
  * expression was chansetExpr here
  */
-  IDENTIFIER EQUALS expression
+  IDENTIFIER[id] EQUALS expression[exp]
+{
+  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$id);
+  PExp exp = (PExp)$exp;
+  LexLocation location = combineLexLocation(id.getLocation(), exp.getLocation());
+  $$ = new AChansetDefinition(location, 
+			      NameScope.GLOBAL, 
+			      false/*used*/, 
+			      null/*access*/,  
+			      null/*Pass*/,
+			      id, 
+			      exp);
+}
 ;
 
 globalDefinitionParagraph :
   typeDefs
+{
+  $$ = $1;
+}
 | valueDefs
+{
+  $$ = $1;
+}
 | functionDefs
+{
+  $$ = $1;
+}
 ;
 
 classDefinitionBlock :
-  classDefinitionBlockAlternative
-| classDefinitionBlockAlternative classDefinitionBlock
+  classDefinitionBlockAlternative[alt]
+{
+  List<PDefinition> defs = new LinkedList<PDefinition>();
+  defs.add((PDefinition)$alt);
+  $$ = defs;
+}
+| classDefinitionBlockAlternative[alt] classDefinitionBlock[defs]
+{
+  List<PDefinition> defs = (List<PDefinition>)$defs;
+  defs.add((PDefinition)$alt);
+  $$ = defs;
+}
 ;
 
 classDefinitionBlockAlternative :
   typeDefs
+{
+  $$ = $1;
+}
 | valueDefs
+{
+  $$ = $1;
+}
 | functionDefs
+{
+  $$ = $1;
+}
 | operationDefs
+{
+  $$ = $1;
+}
 | stateDefs
+{
+  $$ = $1;
+}
 /* UPCOMING --- CML_1
  * absent in CML_0
  *
@@ -2047,24 +2152,177 @@ classDefinitionBlockAlternative :
  * Confirmed between Joey, Alavro; Skype 30 July 2012
  */
 | INITIAL operationDef
+{
+  PDefinition def = (PDefinition)$operationDef;
+  LexLocation location = extractLexLocation((CmlLexeme)$INITIAL,def.getLocation());
+  $$ = new AInitialParagraphDefinition(location,
+				       NameScope.GLOBAL,
+				       true,
+				       getDefaultAccessSpecifier(false,false,null),
+				       null/*Pass*/,
+				       def);
+}
 ;
 
 typeDefs :
   TYPES
+{
+  LexLocation loc = extractLexLocation((CmlLexeme)$TYPES);
+  $$ = new ATypesParagraphDefinition(loc,
+				     NameScope.LOCAL,
+				     false,
+				     getDefaultAccessSpecifier(true, false, loc),
+				     null/*Pass*/,
+				     null);
+}
 | TYPES typeDefList
+{
+  List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
+  LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$TYPES),
+                                       extractLastLexLocation(typeDefinitions));
+  $$ = new ATypesParagraphDefinition(loc,
+				     NameScope.LOCAL,
+				     false,
+				     getDefaultAccessSpecifier(true, false, loc),
+				     null/*Pass*/,
+				     typeDefinitions);
+}
 | TYPES typeDefList SEMI
+{
+  List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
+  LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$TYPES),
+                                       extractLexLocation((CmlLexeme)$SEMI));
+  $$ = new ATypesParagraphDefinition(loc,
+				     NameScope.LOCAL,
+				     false,
+				     getDefaultAccessSpecifier(true, false, loc),
+				     null/*Pass*/,
+				     typeDefinitions);
+}
 ;
 
 typeDefList :
   typeDef
+{
+  List<ATypeDefinition> list = new Vector<ATypeDefinition>();
+  list.add((ATypeDefinition)$typeDef);
+  $$ = list;
+}
 | typeDefList[list] SEMI typeDef
+{
+  List<ATypeDefinition> list = (List<ATypeDefinition>)$list;
+  list.add((ATypeDefinition)$typeDef);
+  $$ = list;
+}
 ;
 
 typeDef :
-  qualifier IDENTIFIER EQUALS type invariant
-| qualifier IDENTIFIER EQUALS type
-| qualifier IDENTIFIER DCOLON fieldList
-| qualifier IDENTIFIER DCOLON fieldList invariant
+  qualifier IDENTIFIER[id] EQUALS type
+{
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$qualifier;
+  LexNameToken name = extractLexNameToken((CmlLexeme)$id);
+  LexLocation location = null;
+  location = combineLexLocation(name.getLocation(), ((PType)$type).getLocation());
+  $$ = new ATypeDefinition(location,
+			   NameScope.TYPENAME,
+                           false/*Boolean used_*/,
+			   null/*VDM ClassDef*/,
+                           access,
+                           (PType)$type,
+			   null/*Pass*/,
+                           null/*SInvariantType invType_*/,
+                           null/*PPattern invPattern_*/,
+                           null/*PExp invExpression_*/,
+                           null /*AExplicitFunctionDefinition invdef_*/,
+                           false/*Boolean infinite_*/,
+			   name);
+}
+| qualifier IDENTIFIER[id] EQUALS type invariant
+{
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$qualifier;
+  LexNameToken name = extractLexNameToken((CmlLexeme)$id);
+  AInvariantDefinition inv = (AInvariantDefinition)$invariant;
+  LexLocation location = null;
+  location = combineLexLocation(name.getLocation(), inv.getLocation());
+  $$ = new ATypeDefinition(location,
+			   NameScope.TYPENAME,
+			   false/*Boolean used_*/,
+			   null/*VDM ClassDef*/,
+			   access,
+			   (PType)$type,
+			   null/*Pass*/,
+			   null/*SInvariantType invType_*/,
+			   inv.getPattern()/*PPattern invPattern_*/,
+			   inv.getExpression()/*PExp invExpression_*/,
+			   null /*AExplicitFunctionDefinition invdef_*/,
+			   false/*Boolean infinite_*/,
+			   name);
+}
+| qualifier IDENTIFIER[id] DCOLON fieldList
+{
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$qualifier;
+  LexNameToken name = extractLexNameToken((CmlLexeme)$id);
+  CmlLexeme vdmrec = (CmlLexeme)$DCOLON;
+  List<AFieldField> fields = (List<AFieldField>)$fieldList;
+  LexLocation loc = combineLexLocation(name.getLocation(), extractLexLocation(vdmrec));
+  ARecordInvariantType recType = new ARecordInvariantType(loc,
+							  false,
+							  null,
+							  false,
+							  null,
+							  name,
+							  fields,
+							  true);
+  $$ = new ATypeDefinition(loc, /* FIXME: this should end with the fieldList */
+			   NameScope.GLOBAL,
+			   false,
+			   null/*VDM ClassDef*/,
+			   access,
+			   recType,
+			   null/*Pass*/,
+			   null,
+			   null,
+			   null,
+			   null,
+			   true,
+			   name);
+}
+| qualifier IDENTIFIER[id] DCOLON fieldList invariant
+{
+  /* --- TODO --- */
+  /* Not sure why, but we're not actually using the invariant
+   * definition here.
+   */
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$qualifier;
+  LexNameToken name = extractLexNameToken((CmlLexeme)$id);
+  CmlLexeme vdmrec = (CmlLexeme)$DCOLON;
+  List<AFieldField> fields = (List<AFieldField>)$fieldList;
+  AInvariantDefinition inv = (AInvariantDefinition)$invariant;
+  // TODO: Added AInvariantInvariant to the ARecordInvariantType replacing
+  // the current AExplicitFunctionFunctionDefinition for inv.
+  LexLocation loc = combineLexLocation(name.getLocation(), extractLexLocation(vdmrec));
+  ARecordInvariantType recType = new ARecordInvariantType(loc,
+							  false,
+							  null,
+							  false,
+							  null, /* invdef */
+							  name,
+							  fields,
+							  true);
+  $$ = new ATypeDefinition(loc,                                            
+			   NameScope.TYPENAME,
+			   false,
+			   null/*VDM ClassDef*/,
+			   access,
+			   recType,
+			   null/*Pass*/,
+			   null,
+			   null,
+			   null,
+			   null,
+			   true,
+			   name);
+}
 ;
 
 /* FUTURE
