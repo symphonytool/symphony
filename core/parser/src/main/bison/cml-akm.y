@@ -25,23 +25,6 @@ singleExpressionDeclaration :
 /* HERE ---- above: to fix later; below: still to merge ---- */
 
 
-/* Note that the expressions here are nameset expressions */
-namesetDefList :
-  IDENTIFIER EQUALS expression // TODO
-| namesetDefList SEMI IDENTIFIER EQUALS expression // TODO
-;
-
-paragraphAction :
-  action
-{
-  $$ = new Object[]{new Vector<ATypeSingleDeclaration>(), $1};
-}
-| singleTypeDeclarationList AT action
-{
-  $$ = new Object[]{$1, $3};
-}
-;
-
 action :
   CSPSKIP
 {

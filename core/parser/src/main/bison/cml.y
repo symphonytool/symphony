@@ -1083,13 +1083,24 @@ actionDefinitionList :
  */
 namesetDefList :
   IDENTIFIER EQUALS expression
+{
+  /* --- TODO --- */
+}
 | namesetDefList IDENTIFIER EQUALS expression
-| namesetDefList SEMI IDENTIFIER EQUALS expression
+{
+  /* --- TODO --- */
+}
 ;
 
 paragraphAction :
   action
+{
+  $$ = new Object[]{new Vector<ATypeSingleDeclaration>(), $action};
+}
 | singleTypeDeclarationList AT action
+{
+  $$ = new Object[]{$singleTypeDeclarationList, $action};
+}
 ;
 
 action :
