@@ -2170,12 +2170,12 @@ invariant :
 valueDefs :
   VALUES
 | VALUES valueDefList
-| VALUES valueDefList SEMI
+  //| VALUES valueDefList SEMI
 ;
 
 valueDefList :
   qualifiedValueDef[def]
-| valueDefList[list] SEMI qualifiedValueDef[def]
+| valueDefList[list] qualifiedValueDef[def]
 ;
 
 qualifiedValueDef :
@@ -2192,12 +2192,12 @@ valueDef :
 functionDefs :
   FUNCTIONS
 | FUNCTIONS functionDefList
-| FUNCTIONS functionDefList SEMI
+  //| FUNCTIONS functionDefList SEMI
 ;
 
 functionDefList :
   functionDef
-| functionDefList[list] SEMI functionDef
+| functionDefList[list] functionDef
 ;
 
 functionDef :
@@ -2364,12 +2364,12 @@ mode :
 stateDefs :
   STATE
 | STATE stateDefList
-| STATE stateDefList SEMI
+  //| STATE stateDefList SEMI
 ;
 
 stateDefList :
   stateDef
-| stateDefList[list] SEMI stateDef
+| stateDefList[list]  stateDef
 ;
 
 stateDef :
