@@ -11,7 +11,7 @@ import org.eclipse.swt.graphics.Image;
 
 import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
-import eu.compassresearch.ide.cml.ui.editor.syntax.CmlTreeContentProvider.Wrapper;
+
 
 public class OutlineLabelProvider extends LabelProvider {
 

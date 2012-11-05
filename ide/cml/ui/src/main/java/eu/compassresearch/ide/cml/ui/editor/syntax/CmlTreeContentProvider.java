@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.cml.ui.editor.syntax;
 
+import java.beans.DesignMode;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Control;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -59,7 +61,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			if (current == null)
 				return new Object[0];
 			// If there are any declarations lets see them
-			List<Wrapper<PDefinition>> res = new LinkedList<CmlTreeContentProvider.Wrapper<PDefinition>>();
+			List<Wrapper<PDefinition>> res = new LinkedList<Wrapper<PDefinition>>();
 			for (PDefinition def : current.getParagraphs()) {
 				res.add(wrapParagraphDefinition(def));
 
@@ -69,30 +71,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		return new Object[0];
 	}
 
-	public static class Wrapper<T> extends FieldDecoration {
-		private String str;
 
-		public static <T> Wrapper<T> newInstance(T value, String str) {
-			return new Wrapper<T>(null, value, str);
-		}
-
-		public Wrapper(Image img, T value, String str) {
-			super(img, str);
-			this.value = value;
-			this.str = str;
-		}
-
-		public T value;
-
-		public boolean isClass(Class<?> clz) {
-			return clz.isInstance(value);
-		}
-
-		public String toString() {
-			return str;
-		}
-
-	}
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
@@ -125,26 +104,25 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 						(AProcessParagraphDefinition) w.value).toArray();
 			}
 
-			if (w.isClass(AProcessParagraphDefinition.class)
-					|| w.isClass(PProcess.class)) {
-				AProcessParagraphDefinition processDecl = (AProcessParagraphDefinition) w.value;
-				AProcessDefinition def = processDecl.getProcessDefinition();
-				PProcess process = def.getProcess();
-
-				List<Object> res = handleProcess(process);
-
-				return res.toArray();
-			}
-
-			if (w.isClass(ASequentialCompositionProcess.class)) {
-				List<Object> res = new LinkedList<Object>();
-				ASequentialCompositionProcess comp = (ASequentialCompositionProcess) w.value;
-				handleSequentialCompisitionProcess(res, comp);
-				return res.toArray();
-			}
+//			if (w.isClass(AProcessParagraphDefinition.class)) {
+//				AProcessParagraphDefinition processDecl = (AProcessParagraphDefinition) w.value;
+//				AProcessDefinition def = processDecl.getProcessDefinition();
+//				PProcess process = def.getProcess();
+//
+//				List<Object> res = handleProcess(process);
+//
+//				return res.toArray();
+//			}
+//
+//			if (w.isClass(ASequentialCompositionProcess.class)) {
+//				List<Object> res = new LinkedList<Object>();
+//				ASequentialCompositionProcess comp = (ASequentialCompositionProcess) w.value;
+//				handleSequentialCompisitionProcess(res, comp);
+//				return res.toArray();
+//			}
 
 			if (((Wrapper) n).isClass(ATypesParagraphDefinition.class)) {
-				List<OutlineEntry> res = new LinkedList<OutlineEntry>();
+			    List<Wrapper<? extends PDefinition>> res = new LinkedList<Wrapper<? extends PDefinition>>();
 				ATypesParagraphDefinition td = (ATypesParagraphDefinition) w.value;
 				res = DefinitionMap.getDelegate(td.getClass())
 						.extractSubdefinition(td);
@@ -152,7 +130,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			}
 
 			if (((Wrapper) n).isClass(AFunctionParagraphDefinition.class)) {
-				List<OutlineEntry> res = new LinkedList<OutlineEntry>();
+			    List<Wrapper<? extends PDefinition>> res = new LinkedList<Wrapper<? extends PDefinition>>();
 				AFunctionParagraphDefinition fd = (AFunctionParagraphDefinition) w.value;
 				res = DefinitionMap.getDelegate(fd.getClass())
 						.extractSubdefinition(fd);
@@ -184,19 +162,18 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		return new String[0];
 	}
 
-	private List<OutlineEntry> handleChansetParagraphDefinition(
+	private List<Wrapper<? extends PDefinition>> handleChansetParagraphDefinition(
 			AChansetParagraphDefinition cspdef) {
-		List<OutlineEntry> r = new LinkedList<OutlineEntry>();
+	    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 		for (AChansetDefinition cdef : cspdef.getChansets()) {
-			r.add(new OutlineEntry(cdef.getIdentifier().toString(),
-					OutlineEntryType.CHANSET_ENTRY));
+			r.add(Wrapper.newInstance(cdef, cdef.getIdentifier().toString()));
 		}
 		return r;
 	}
 
-	private List<OutlineEntry> handleClassParagraphDefinition(
+	private List<Wrapper<? extends PDefinition>> handleClassParagraphDefinition(
 			AClassParagraphDefinition cpdef) {
-		List<OutlineEntry> r = new LinkedList<OutlineEntry>();
+	    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 		for (PDefinition pdef : cpdef.getDefinitions()) {
 			r.addAll(DefinitionMap.getDelegate(pdef.getClass())
 					.extractSubdefinition(pdef));
@@ -204,7 +181,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		return r;
 	}
 
-	private List<OutlineEntry> handleProcessParagraphDefinition(
+	private List<Wrapper<? extends INode>> handleProcessParagraphDefinition(
 			AProcessParagraphDefinition ppdef) {
 		PProcess pp = ppdef.getProcessDefinition().getProcess();
 		return ProcessMap.getProcessMap().get(pp.getClass()).makeEntries(pp);
@@ -301,17 +278,17 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		}
 	}
 
-	private List<OutlineEntry> handleChannelParagraphDefinition(
+	private List<Wrapper<AChannelNameDeclaration>> handleChannelParagraphDefinition(
 			AChannelParagraphDefinition cpdef) {
-		List<OutlineEntry> r = new LinkedList<OutlineEntry>();
+		List<Wrapper<AChannelNameDeclaration>> r = new LinkedList<Wrapper<AChannelNameDeclaration>>();
 		for (AChannelNameDeclaration dec : cpdef.getChannelNameDeclarations()) {
-			r.add(new OutlineEntry(dec.getSingleType().getIdentifiers().toString() + ": "
-					+ dec.getSingleType().getType(), OutlineEntryType.CHANNEL_ENTRY));
+		    	r.add(Wrapper.newInstance(dec, dec.getSingleType().getIdentifiers().toString() + ": "
+					+ dec.getSingleType().getType()));
 		}
 		return r;
 	}
 
-	private List<OutlineEntry> handleValueParagraphDefinition(
+	private List<Wrapper<? extends PDefinition>> handleValueParagraphDefinition(
 			AValueParagraphDefinition cast) {
 		return DefinitionMap.getDelegate(cast.getClass()).extractSubdefinition(
 				cast);

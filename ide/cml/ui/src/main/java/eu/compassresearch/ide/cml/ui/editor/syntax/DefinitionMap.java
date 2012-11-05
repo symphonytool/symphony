@@ -1,6 +1,5 @@
 package eu.compassresearch.ide.cml.ui.editor.syntax;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -20,7 +19,7 @@ import eu.compassresearch.ast.definitions.SOperationDefinition;
 public class DefinitionMap {
 
 	public interface DefinitionHandler {
-		public List<OutlineEntry> extractSubdefinition(
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(
 				PDefinition pdef);
 	}
 
@@ -52,8 +51,8 @@ public class DefinitionMap {
 	private static class AValueParagraphDefinitionHandler implements
 			DefinitionHandler {
 
-		public List<OutlineEntry> extractSubdefinition(PDefinition pdef) {
-			List<OutlineEntry> r = new LinkedList<OutlineEntry>();
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
+			List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 
 			for (PDefinition subdef : ((AValueParagraphDefinition) pdef)
 					.getValueDefinitions()) {
@@ -63,8 +62,7 @@ public class DefinitionMap {
 					nameguard = subdef.getName().name;
 				if (null != subdef.getType())
 					typeguard = subdef.getType().toString();
-				r.add(new OutlineEntry(
-						nameguard + ": " + typeguard, OutlineEntryType.VALUE_ENTRY));
+				r.add(Wrapper.newInstance(subdef, nameguard + ": " + typeguard));
 			}
 			return r;
 		}
@@ -73,12 +71,12 @@ public class DefinitionMap {
 	private static class AFunctionParagraphDefinitionHandler implements
 			DefinitionHandler {
 
-		public List<OutlineEntry> extractSubdefinition(PDefinition pdef) {
-			List<OutlineEntry> r = new LinkedList<OutlineEntry>();
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
+		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			for (PDefinition subdef : ((AFunctionParagraphDefinition) pdef)
 					.getFunctionDefinitions()) {
-				r.add(new OutlineEntry(subdef.getName().name + ": "
-						+ subdef.getType(), OutlineEntryType.FUNCTION_ENTRY));
+				r.add(Wrapper.newInstance(subdef, subdef.getName().name + ": "
+						+ subdef.getType()));
 			}
 			return r;
 		}
@@ -87,12 +85,11 @@ public class DefinitionMap {
 	private static class ATypesParagraphDefinitionHandler implements
 			DefinitionHandler {
 
-		public List<OutlineEntry> extractSubdefinition(PDefinition pdef) {
-			List<OutlineEntry> r = new LinkedList<OutlineEntry>();
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
+		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			for (ATypeDefinition subdef : ((ATypesParagraphDefinition) pdef)
 					.getTypes())
-				r.add(new OutlineEntry(subdef.getName().name,
-						OutlineEntryType.TYPE_ENTRY));
+				r.add(Wrapper.newInstance(subdef, subdef.getName().name));
 			return r;
 		}
 	}
@@ -100,27 +97,27 @@ public class DefinitionMap {
 	private static class AOperationParagraphDefinitionHandler implements
 			DefinitionHandler {
 
-		public List<OutlineEntry> extractSubdefinition(PDefinition pdef) {
-			List<OutlineEntry> r = new LinkedList<OutlineEntry>();
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
+		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			for (SOperationDefinition subdef : ((AOperationParagraphDefinition) pdef)
 					.getOperations())
-				r.add(new OutlineEntry(subdef.getName().name + ": "
-						+ subdef.getType(), OutlineEntryType.OPERATION));
+				r.add(Wrapper.newInstance(subdef, subdef.getName().name + ": "
+						+ subdef.getType()));
 			return r;
 		}
 	}
 
 	private static class AActionParagraphDefinitionHandler implements
 			DefinitionHandler {
-		public List<OutlineEntry> extractSubdefinition(PDefinition pdef) {
-			List<OutlineEntry> r = new LinkedList<OutlineEntry>();
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
+		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			String nameguard;
 			if (pdef instanceof AActionParagraphDefinition) {
 				if (null == pdef.getName())
 					nameguard = "?";
 				else
 					nameguard = pdef.getName().name;
-				r.add(new OutlineEntry( nameguard, OutlineEntryType.ACTION));
+				r.add(Wrapper.newInstance(pdef, nameguard));
 			}
 			return r;
 		}

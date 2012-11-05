@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.process.AStateProcess;
@@ -16,7 +17,7 @@ import eu.compassresearch.ide.cml.ui.editor.syntax.DefinitionMap.DefinitionHandl
 public class ProcessMap {
 
 	public interface ProcessHandler {
-		public List<OutlineEntry> makeEntries(PProcess proc);
+		public List<Wrapper<? extends INode>> makeEntries(PProcess proc);
 	}
 
 	public static final Map<Class<?>, ? extends ProcessHandler> PROCESS_MAP = createMap();
@@ -40,11 +41,10 @@ public class ProcessMap {
 
 	private static class AStateProcessHandler implements ProcessHandler {
 
-		public List<OutlineEntry> makeEntries(PProcess proc) {
-			List<OutlineEntry> r = new LinkedList<OutlineEntry>();
+		public List<Wrapper<? extends INode>> makeEntries(PProcess proc) {
+		    List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
 			AStateProcess asp = (AStateProcess) proc;
-
-			r.add(new OutlineEntry("@]" + makeInitActionLine(asp.getAction()),OutlineEntryType.ACTION));
+			r.add(Wrapper.newInstance(asp.getAction(), "@ " + makeInitActionLine(asp.getAction())));				
 			for (PDefinition pdef : asp.getDefinitionParagraphs()) {
 				DefinitionHandler dh = DefinitionMap.getDelegate(pdef.getClass());						
 				if (dh != null)

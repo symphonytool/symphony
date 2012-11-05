@@ -7,16 +7,26 @@ import java.util.Map;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.AValueDefinition;
 
+import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
+import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AActionParagraphDefinition;
 import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
+import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
-import eu.compassresearch.ast.process.AStateProcess;
-import eu.compassresearch.ide.cml.ui.editor.syntax.CmlTreeContentProvider.Wrapper;
+import eu.compassresearch.ast.definitions.SOperationDefinition;
+import eu.compassresearch.ide.cml.ui.editor.syntax.DefinitionMap.DefinitionHandler;
 
 public enum OutlineEntryType {
 
@@ -49,31 +59,70 @@ public enum OutlineEntryType {
 		return img;
 	}
 
-	public static Image getImageForElement(Object obj) {
-		OutlineEntryType oi = null;
-		if (obj instanceof OutlineEntry)
-			oi = ((OutlineEntry) obj).getRight();
-		else {
-			Wrapper w = (Wrapper) obj;
-			if (w.getDescription() == "global value declarations")
-				return VALUE_TOP.getImage();
-			if (w.getDescription() == "global type declarations")
-				return TYPE_TOP.getImage();
-			if (w.getDescription() == "channel declarations")
-				return CHANNEL_TOP.getImage();
-			if (w.getDescription() == "chanset declarations")
-				return CHANSET_TOP.getImage();
-			if (w.getDescription() == "global function declarations")
-				return FUNCTION_TOP.getImage();
-			if (w.isClass(AProcessParagraphDefinition.class))
-				return PROCESS.getImage();
-			if (w.isClass(AClassParagraphDefinition.class))
-				return CLASS.getImage();
-		}
+	
+	private static final Map<Class<?>, Image> ICON_MAP = createMap();
 
-		if (oi == null)
-			return ERROR.getImage();
-		return oi.getImage();
+	public static Image getImage(Class<?> cls) {
+		Image r = ICON_MAP.get(cls);
+		if (r == null)
+			System.err.println("No outline icon found for class "
+					+ cls.getCanonicalName());
+		return r;
+	}
+
+	private static Map<Class<?>, Image> createMap() {
+		Map<Class<?>, Image> map = new HashMap<Class<?>, Image>();
+		//map.put(key, value)
+		//TODO Add class/image pairs
+		return Collections.unmodifiableMap(map);
+	}
+
+	
+	public static Image getImageForElement(Object obj) {
+	    OutlineEntryType oi = null;
+
+	    Wrapper w = (Wrapper) obj;
+	    
+	    // Fetch Top-level definitions
+	    if (w.isClass(AValueParagraphDefinition.class))
+		return VALUE_TOP.getImage();
+	    if (w.isClass(ATypesParagraphDefinition.class))
+		return TYPE_TOP.getImage();
+	    if (w.isClass(AFunctionParagraphDefinition.class))
+		return FUNCTION_TOP.getImage();
+	    
+	    // Fetch channels and chansets
+	    if (w.isClass(AChannelParagraphDefinition.class))
+		return CHANNEL_TOP.getImage();
+	    if (w.isClass(AChansetParagraphDefinition.class))
+		return CHANSET_TOP.getImage();
+	    if (w.isClass(AChannelNameDeclaration.class))
+		return CHANNEL_ENTRY.getImage();
+	    if (w.isClass(AChansetDefinition.class))
+		return CHANSET_ENTRY.getImage();
+	    
+	    // Fetch Top-Level Process and Class
+	    if (w.isClass(AProcessParagraphDefinition.class))
+		return PROCESS.getImage();
+	    if (w.isClass(AClassParagraphDefinition.class))
+		return CLASS.getImage();
+
+	    //Fetch interior of processes and classes
+	    if (w.isClass(AValueDefinition.class))
+		return VALUE_ENTRY.getImage();
+	    if (w.isClass(AImplicitFunctionDefinition.class) || w.isClass(AExplicitFunctionDefinition.class))
+		return FUNCTION_ENTRY.getImage();
+	    if (w.isClass(ATypeDefinition.class))
+		return TYPE_ENTRY.getImage();
+	    if (w.isClass(PAction.class))
+		return ACTION.getImage();
+	    if (w.isClass(AActionParagraphDefinition.class))
+		return ACTION.getImage();
+	    if (w.isClass(SOperationDefinition.class))
+		return OPERATION.getImage();
+	    
+	    //When all else fails...
+	    return ERROR.getImage();
 
 	}
 
