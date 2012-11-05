@@ -11,31 +11,31 @@ import org.overture.ast.lex.Dialect;
 import org.overture.config.Settings;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.core.interpreter.cml.CMLProcess;
+import eu.compassresearch.core.interpreter.cml.CMLProcessOld;
 import eu.compassresearch.core.interpreter.cml.CMLChannelEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 public class CmlScheduler {
 
-	ConcurrentLinkedQueue<CMLProcess> processes;
-	ConcurrentLinkedQueue<CMLProcess> executedInCurrentStep;
-	ConcurrentLinkedQueue<CMLProcess> addedProcesses;
+	ConcurrentLinkedQueue<CMLProcessOld> processes;
+	ConcurrentLinkedQueue<CMLProcessOld> executedInCurrentStep;
+	ConcurrentLinkedQueue<CMLProcessOld> addedProcesses;
 	private List<ACommunicationAction> trace = new LinkedList<ACommunicationAction>();
 	//private final int numberOfThreads = 100;
 	//private ExecutorService threadPool;
 	private Object sync = new Object();
-	private boolean animate = false;
 	
 	public CmlScheduler()
 	{
-		processes = new ConcurrentLinkedQueue<CMLProcess>();
-		addedProcesses = new ConcurrentLinkedQueue<CMLProcess>();
-		executedInCurrentStep = new ConcurrentLinkedQueue<CMLProcess>();
+		processes = new ConcurrentLinkedQueue<CMLProcessOld>();
+		addedProcesses = new ConcurrentLinkedQueue<CMLProcessOld>();
+		executedInCurrentStep = new ConcurrentLinkedQueue<CMLProcessOld>();
 		//threadPool = Executors.newFixedThreadPool(numberOfThreads);
 		Settings.dialect = Dialect.VDM_PP;
 	}
 	
-	public CMLProcess addProcess(CMLProcess process)
+	public CMLProcessOld addProcess(CMLProcessOld process)
 	{
 		synchronized (sync) {
 		
@@ -44,14 +44,14 @@ public class CmlScheduler {
 		}
 	}
 		
-	public Map<CMLProcess,List<ACommunicationAction>> step()
+	public Map<CMLProcessOld,List<ACommunicationAction>> step()
 	{
-		HashMap< CMLProcess,List<ACommunicationAction> > allEvents = 
-					new HashMap<CMLProcess, List<ACommunicationAction>>();
+		HashMap< CMLProcessOld,List<ACommunicationAction> > allEvents = 
+					new HashMap<CMLProcessOld, List<ACommunicationAction>>();
 		
 		while(!processes.isEmpty())
 		{
-			CMLProcess pt = processes.poll();
+			CMLProcessOld pt = processes.poll();
 			
 			if(!pt.isSkip()){
 				
@@ -67,7 +67,7 @@ public class CmlScheduler {
 						
 		while(!executedInCurrentStep.isEmpty())
 		{
-			CMLProcess pt = executedInCurrentStep.poll();
+			CMLProcessOld pt = executedInCurrentStep.poll();
 													
 			processes.add(pt);
 		}
@@ -79,9 +79,9 @@ public class CmlScheduler {
 	{
 		while(!addedProcesses.isEmpty())
 		{
-			CMLProcess pt = addedProcesses.poll();
+			CMLProcessOld pt = addedProcesses.poll();
 			processes.add(pt);
-			pt.start();
+			pt.start(CmlRuntime.getSupervisorEnvironment());
 		}
 	}
 	
@@ -110,33 +110,21 @@ public class CmlScheduler {
 		System.out.println();
 	}
 	
-	public List<Pair<CMLProcess, CMLChannelEvent>> selectEvent(Map<CMLProcess,List<ACommunicationAction>> availableEvents)
+	public List<Pair<CMLProcessOld, CMLChannelEvent>> selectEvent(Map<CMLProcessOld,List<ACommunicationAction>> availableEvents)
 	{
-		List<Pair<CMLProcess, CMLChannelEvent>> res = 
-				new LinkedList<Pair<CMLProcess,CMLChannelEvent>>();
-			
-		if(animate)
+		List<Pair<CMLProcessOld, CMLChannelEvent>> res = 
+				new LinkedList<Pair<CMLProcessOld,CMLChannelEvent>>();
+
+		for(Entry<CMLProcessOld,List<ACommunicationAction>> entry : availableEvents.entrySet())
 		{
-//			for(Entry<CMLProcess,List<ACommunicationAction>> entry : availableEvents.entrySet())
-//			{
-//				System.out.println("Available events:");
-//				System.out.println(entry.getValue().get(0));
-//				System.in.read();
-//			}
+			//For now, select a the first event from the set of possible events
+			ACommunicationAction event = entry.getValue().get(0);
+
+			res.add(new Pair<CMLProcessOld, CMLChannelEvent>(entry.getKey(),
+					new CMLChannelEvent(event.getIdentifier().getName())));
+			trace.add(event);
 		}
-		else
-		{
-			for(Entry<CMLProcess,List<ACommunicationAction>> entry : availableEvents.entrySet())
-			{
-				//For now, select a the first event from the set of possible events
-				ACommunicationAction event = entry.getValue().get(0);
-				
-				res.add(new Pair<CMLProcess, CMLChannelEvent>(entry.getKey(),
-															new CMLChannelEvent(event.getIdentifier().getName())));
-				trace.add(event);
-			}
-		}
-			
+
 		return res;
 	}
 	
@@ -153,7 +141,7 @@ public class CmlScheduler {
 
 				System.out.println("--------begin step---------");
 				
-				Map<CMLProcess,List<ACommunicationAction>> allEvents = step();
+				Map<CMLProcessOld,List<ACommunicationAction>> allEvents = step();
 				
 				System.out.println("Offered Events:");
 								
@@ -163,7 +151,7 @@ public class CmlScheduler {
 				System.out.println();
 				
 				System.out.println("Current interpretation state:");
-				for(Pair<CMLProcess, CMLChannelEvent> actionToExec :
+				for(Pair<CMLProcessOld, CMLChannelEvent> actionToExec :
 					selectEvent(allEvents))
 				{
 					System.out.println(actionToExec.first.getRemainingInterpretationState(true));

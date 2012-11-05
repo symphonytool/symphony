@@ -7,8 +7,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.typechecker.NameScope;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 import org.overture.typechecker.Environment;
 
@@ -19,10 +21,12 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.api.NoProcessFoundException;
+import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.DefaultSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.InstantiatedProcess;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
-import eu.compassresearch.core.interpreter.values.ProcessValue;
+import eu.compassresearch.core.interpreter.values.ProcessValueOld;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -37,6 +41,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
     private CmlEvaluator               evalutor         = new CmlEvaluator();
     protected List<PSource>            sourceForest;
     protected Environment 			   env;
+    protected Context                  globalContext;
     protected String 				   defaultName      = null;	
     protected AProcessDefinition       topProcess;
     private CmlScheduler               cmlScheduler     = new CmlScheduler();
@@ -74,7 +79,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
     	EnvironmentBuilder envBuilder = new EnvironmentBuilder(sourceForest);
 
     	env = envBuilder.getGlobalEnvironment();
-    	
+    	globalContext = envBuilder.getGlobalContext();
     	if(defaultName != null)
     	{
     		LexNameToken name = new LexNameToken("Default",getDefaultName(),null);
@@ -121,15 +126,21 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
                 
         CmlRuntime.setGlobalEnvironment(env);
         // This constructs the runtime process structure from the AST
-        ProcessValue pv = (ProcessValue) topProcess.getProcess().apply(
-            this.evalutor, getInitialContext(topProcess.getLocation()));
+        //ProcessValueOld pv = (ProcessValueOld) topProcess.getProcess().apply(
+        //    this.evalutor, getInitialContext(topProcess.getLocation()));
         // Wrap the top process in an InstantiatedProcess
-        InstantiatedProcess instantProcess = new InstantiatedProcess(
-        		topProcess, pv.getProcess());
+        //InstantiatedProcess instantProcess = new InstantiatedProcess(
+        //		topProcess, pv.getProcess());
         
         // Add the top process to the scheduler and start it
-        cmlScheduler.addProcess(instantProcess);
-        cmlScheduler.start();
+        //cmlScheduler.addProcess(instantProcess);
+        //cmlScheduler.start();
+        
+        CMLSupervisorEnvironment sve = CmlRuntime.getSupervisorEnvironment();
+        CMLProcessInstance pi = new CMLProcessInstance(topProcess, null,getInitialContext(null));
+        
+        pi.start(sve);
+        sve.start();
         
         return null;
       }
@@ -211,7 +222,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
       {
         
         File cml_example = new File(
-            "src/test/resources/process/firstInterpreterTest.cml");
+            "src/test/resources/process/seq-comp-no-state2.cml");
         // "src/test/resources/process/GeneralisedParallelismAction.cml");
         runOnFile(cml_example);
         
@@ -221,4 +232,9 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
       {
         return new InterpreterStatus(cmlScheduler.getTrace());
       }
+
+	@Override
+	public Context getInitialContext(LexLocation location) {
+		return globalContext;
+	}
   }

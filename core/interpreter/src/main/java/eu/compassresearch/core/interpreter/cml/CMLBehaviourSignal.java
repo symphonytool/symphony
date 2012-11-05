@@ -1,5 +1,7 @@
 package eu.compassresearch.core.interpreter.cml;
 
-public class CMLBehaviorSignal {
+public enum CMLBehaviourSignal {
 
+	EXEC_SUCCESS
+	
 }

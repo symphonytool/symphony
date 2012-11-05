@@ -10,15 +10,15 @@ import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.interpreter.eval.ProcessAlphabetCollector;
 
-public class InstantiatedProcess implements CMLProcess
+public class InstantiatedProcess implements CMLProcessOld
   {
     
     private AProcessDefinition processDefinition;
-    private CMLProcess         process;
+    private CMLProcessOld         process;
     private Set<String>        channelSet;
     
     public InstantiatedProcess(AProcessDefinition processDefinition,
-        CMLProcess process)
+        CMLProcessOld process)
       {
         this.processDefinition = processDefinition;
         this.process = process;
@@ -59,10 +59,10 @@ public class InstantiatedProcess implements CMLProcess
       }
     
     @Override
-    public void start()
+    public void start(CMLSupervisorEnvironment sve)
       {
         
-        this.process.start();
+        this.process.start(sve);
         // System.out.println("Instance of process " +
         // processDefinition.getName().getName() + " started");
       }

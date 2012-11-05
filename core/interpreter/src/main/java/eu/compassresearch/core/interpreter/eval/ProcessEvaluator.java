@@ -17,7 +17,7 @@ import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.core.interpreter.api.CMLContext;
-import eu.compassresearch.core.interpreter.cml.CMLProcess;
+import eu.compassresearch.core.interpreter.cml.CMLProcessOld;
 import eu.compassresearch.core.interpreter.cml.InstantiatedProcess;
 import eu.compassresearch.core.interpreter.cml.ProcessThread;
 import eu.compassresearch.core.interpreter.cml.SequentialCompositionProcess;
@@ -25,7 +25,7 @@ import eu.compassresearch.core.interpreter.cml.SynchronousParallelismProcess;
 
 @SuppressWarnings("serial")
 public class ProcessEvaluator extends
-    QuestionAnswerCMLAdaptor<CMLContext, CMLProcess>
+    QuestionAnswerCMLAdaptor<CMLContext, CMLProcessOld>
   {
     
     private CmlEvaluator parentInterpreter;
@@ -36,10 +36,9 @@ public class ProcessEvaluator extends
       }
     
     @Override
-    public CMLProcess caseAInstantiationProcess(AInstantiationProcess node,
+    public CMLProcessOld caseAInstantiationProcess(AInstantiationProcess node,
         CMLContext question) throws AnalysisException
       {
-        
         // Grab the definition from the name
         AProcessDefinition processDefinition = node.getProcessDefinition();
         
@@ -47,15 +46,15 @@ public class ProcessEvaluator extends
         CMLContext inner = new CMLContext(node.getLocation(),"caseAInstantiationProcess", question);
 
         // TODO Add the process arguments
-        CMLProcess instantiatedProcess = processDefinition.getProcess().apply(
+        CMLProcessOld instantiatedProcess = processDefinition.getProcess().apply(
             this, inner);
-        CMLProcess process = new InstantiatedProcess(processDefinition,
+        CMLProcessOld process = new InstantiatedProcess(processDefinition,
             instantiatedProcess);
         return process;
       }
     
     @Override
-    public CMLProcess caseAStateProcess(AStateProcess node, CMLContext question)
+    public CMLProcessOld caseAStateProcess(AStateProcess node, CMLContext question)
         throws AnalysisException
       {
         
@@ -73,7 +72,7 @@ public class ProcessEvaluator extends
       }
     
     @Override
-    public CMLProcess caseASynchronousParallelismProcess(
+    public CMLProcessOld caseASynchronousParallelismProcess(
         ASynchronousParallelismProcess node, CMLContext question)
         throws AnalysisException
       {
@@ -86,15 +85,15 @@ public class ProcessEvaluator extends
           throw new AnalysisException(
               "No channels are defined to synchronize on");
         
-        CMLProcess leftProcess = node.getLeft().apply(this, question);
-        CMLProcess rightProcess = node.getRight().apply(this, question);
+        CMLProcessOld leftProcess = node.getLeft().apply(this, question);
+        CMLProcessOld rightProcess = node.getRight().apply(this, question);
         
         return new SynchronousParallelismProcess(leftProcess, rightProcess,
             allChannels);
       }
     
     @Override
-    public CMLProcess caseAGeneralisedParallelismProcess(
+    public CMLProcessOld caseAGeneralisedParallelismProcess(
         AGeneralisedParallelismProcess node, CMLContext question)
         throws AnalysisException
       {
@@ -113,23 +112,23 @@ public class ProcessEvaluator extends
         for (LexIdentifierToken id : chansetExp.getIdentifiers())
           chanset.add(id.getName());
         
-        CMLProcess leftProcess = node.getLeft().apply(this, question);
-        CMLProcess rightProcess = node.getRight().apply(this, question);
+        CMLProcessOld leftProcess = node.getLeft().apply(this, question);
+        CMLProcessOld rightProcess = node.getRight().apply(this, question);
         
         return new SynchronousParallelismProcess(leftProcess, rightProcess,
             chanset);
       }
     
     @Override
-    public CMLProcess caseASequentialCompositionProcess(
+    public CMLProcessOld caseASequentialCompositionProcess(
         ASequentialCompositionProcess node, CMLContext question)
         throws AnalysisException
       {
         
-        CMLProcess leftProcess = node.getLeft().apply(this, question);
-        CMLProcess rightProcess = node.getRight().apply(this, question);
+        CMLProcessOld leftProcess = node.getLeft().apply(this, question);
+        CMLProcessOld rightProcess = node.getRight().apply(this, question);
         
-        CMLProcess process = new SequentialCompositionProcess(leftProcess,
+        CMLProcessOld process = new SequentialCompositionProcess(leftProcess,
             rightProcess);
         
         return process;

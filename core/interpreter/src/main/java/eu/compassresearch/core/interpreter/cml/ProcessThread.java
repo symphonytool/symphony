@@ -12,9 +12,9 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
-import eu.compassresearch.core.interpreter.values.ProcessValue;
+import eu.compassresearch.core.interpreter.values.ProcessValueOld;
 
-public class ProcessThread implements Runnable, CMLProcess {
+public class ProcessThread implements Runnable, CMLProcessOld {
 	
 	private AStateProcess process;
 	private CMLContext context;
@@ -42,7 +42,7 @@ public class ProcessThread implements Runnable, CMLProcess {
 
 		try 
 		{
-			ProcessValue pvalue = (ProcessValue)currentAction.apply(evalutor,context);
+			ProcessValueOld pvalue = (ProcessValueOld)currentAction.apply(evalutor,context);
 			currentlyOfferedEvents = pvalue.getOfferedEvents();
 			offeredEventsChannel.put(currentlyOfferedEvents);
 
@@ -51,7 +51,7 @@ public class ProcessThread implements Runnable, CMLProcess {
 				CMLChannelEvent ca = recievedEvent.take();
 				
 				context.setCurrentEvent(ca);
-				pvalue = (ProcessValue)currentAction.apply(evalutor,context);
+				pvalue = (ProcessValueOld)currentAction.apply(evalutor,context);
 				if(pvalue.isReduced())
 					currentAction = pvalue.getReducedAction();
 					
@@ -101,7 +101,7 @@ public class ProcessThread implements Runnable, CMLProcess {
 	}
 
 	@Override
-	public void start() {
+	public void start(CMLSupervisorEnvironment sve) {
 		
 		this.t.start();
 	}

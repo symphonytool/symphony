@@ -7,24 +7,25 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.CMLContext;
-import eu.compassresearch.core.interpreter.cml.CMLProcess;
-import eu.compassresearch.core.interpreter.values.ProcessValue;
+import eu.compassresearch.core.interpreter.cml.CMLProcessOld;
+import eu.compassresearch.core.interpreter.values.ProcessValueOld;
 
 @SuppressWarnings("serial")
 public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value> {
 
 	private QuestionAnswerCMLAdaptor<CMLContext, Value> exp;
-	private QuestionAnswerCMLAdaptor<CMLContext, CMLProcess> prc; 
-	private QuestionAnswerCMLAdaptor<CMLContext, Value> act;
+	//private QuestionAnswerCMLAdaptor<CMLContext, CMLProcessOld> prc;
+	//private QuestionAnswerCMLAdaptor<CMLContext, AbstractCMLProcess> prc;
+	//private QuestionAnswerCMLAdaptor<CMLContext, AbstractCMLAction> act;
+	//private QuestionAnswerCMLAdaptor<CMLContext, Value> act;
 	private QuestionAnswerCMLAdaptor<CMLContext, Value> def;
 			
 	private void initialize()
 	{
-		prc = new ProcessEvaluator(this);
-		act = new ActionEvaluator(this);
+		//prc = new ProcessEvaluator(this);
+		//act = new ActionEvaluator(this);
 		exp = new CmlExpressionEvaluator();
 		def = new CmlDeclAndDefEvaluator(this);
 	}
@@ -34,11 +35,14 @@ public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value> {
 		initialize();
 	}
 				
-	@Override
-	public Value defaultPAction(PAction node, CMLContext question)
-			throws AnalysisException {
-		return node.apply(act,question);
-	}
+//	@Override
+//	public Value defaultPAction(PAction node, CMLContext question)
+//			throws AnalysisException {
+//		
+//		
+//		
+//		return node.apply(act,question);
+//	}
 	
 	@Override
 	public Value defaultPExp(PExp node, CMLContext question)
@@ -47,14 +51,14 @@ public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value> {
 		return node.apply(exp,question);
 	}
 		
-	@Override
-	public Value defaultPProcess(PProcess node, CMLContext question)
-			throws AnalysisException {
-		
-		CMLProcess process = node.apply(prc,question);
-		
-		return new ProcessValue(process,question);
-	}
+//	@Override
+//	public Value defaultPProcess(PProcess node, CMLContext question)
+//			throws AnalysisException {
+//		
+//		CMLProcessOld process = node.apply(prc,question);
+//		
+//		return new ProcessValueOld(process,question);
+//	}
 	
 	@Override
 	public Value defaultPDefinition(PDefinition node, CMLContext question)

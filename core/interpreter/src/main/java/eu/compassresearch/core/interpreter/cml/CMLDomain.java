@@ -1,13 +1,11 @@
 package eu.compassresearch.core.interpreter.cml;
 
-public interface CMLBehavior {
+public interface CMLDomain {
 
 	/**
 	 * 
 	 * @return The immediate available CMLChannelEvents
 	 */
 	public CMLAlphabet inspect();
-	
-	public CMLBehaviorSignal execute(CMLSupervisorEnvironment supervisor);
-	
+
 }

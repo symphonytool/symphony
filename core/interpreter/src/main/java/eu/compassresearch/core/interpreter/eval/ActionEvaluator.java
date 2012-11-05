@@ -24,7 +24,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
 import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.cml.CMLChannelEvent;
-import eu.compassresearch.core.interpreter.values.ProcessValue;
+import eu.compassresearch.core.interpreter.values.ProcessValueOld;
 
 public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value> {
 
@@ -53,7 +53,7 @@ public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 
 		System.out.println( id.getName() + " := " + expValue);
 
-		return new ProcessValue(null);
+		return new ProcessValueOld(null);
 	}
 
 	@Override
@@ -67,14 +67,14 @@ public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 			//question.resetEvent();
 			CMLContext newQuestion = new CMLContext(node.getLocation(),"", question);
 			newQuestion.setCurrentEvent(new CMLChannelEvent(""));
-			ProcessValue v = (ProcessValue)node.getAction().apply(parentInterpreter,newQuestion);
+			ProcessValueOld v = (ProcessValueOld)node.getAction().apply(parentInterpreter,newQuestion);
 
-			ProcessValue retV = null;
+			ProcessValueOld retV = null;
 
 			if(v.isReduced())
 				retV = v;
 			else{
-				retV = new ProcessValue(v.getOfferedEvents(),null);
+				retV = new ProcessValueOld(v.getOfferedEvents(),null);
 				retV.setReduced(true);
 				retV.setReducedAction(node.getAction());
 			}
@@ -82,7 +82,7 @@ public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 			return retV;
 		}
 		else
-			return new ProcessValue(node,question);
+			return new ProcessValueOld(node,question);
 
 	}
 
@@ -93,7 +93,7 @@ public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 		//System.out.print("<Skip>");
 		
 		//reduce into null, which is interpret as Skip
-		return new ProcessValue(null);
+		return new ProcessValueOld(null);
 	}
 
 	@Override
@@ -101,18 +101,18 @@ public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 			ASequentialCompositionAction node, CMLContext question)
 					throws AnalysisException {
 
-		ProcessValue retValue = null;
+		ProcessValueOld retValue = null;
 		
 		//First we execute the left action of ';'. We do this until it evolves into Skip ()
 		if(node.getLeft() != null)
 		{
-			ProcessValue leftValue = (ProcessValue)node.getLeft().apply(this,question);
+			ProcessValueOld leftValue = (ProcessValueOld)node.getLeft().apply(this,question);
 			PAction nextAction = getNextAction(leftValue, node.getLeft());
 			node.setLeft(nextAction);
 
 			//Set retValue with the possible events if leftValue is not Skip. 
 			if(!leftValue.isSkip())
-				retValue = new ProcessValue(leftValue.getOfferedEvents(),null);
+				retValue = new ProcessValueOld(leftValue.getOfferedEvents(),null);
 		}
 
 		/*
@@ -123,11 +123,11 @@ public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 		{
 			CMLContext newQuestion = new CMLContext(node.getLocation(),"", question);
 			newQuestion.setCurrentEvent(new CMLChannelEvent(""));
-			ProcessValue rightValue = (ProcessValue)node.getRight().apply(this,newQuestion);
+			ProcessValueOld rightValue = (ProcessValueOld)node.getRight().apply(this,newQuestion);
 			
 			PAction nextAction = getNextAction(rightValue, node.getRight());
 			//Reduce the sequentialcomposition node to the left action
-			retValue = new ProcessValue(nextAction);
+			retValue = new ProcessValueOld(nextAction);
 		}
 
 		return retValue;
@@ -165,21 +165,21 @@ public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 			AGeneralisedParallelismParallelAction node, CMLContext question)
 			throws AnalysisException {
 		
-		ProcessValue processValue = null;
-		ProcessValue leftValue = null;		
-		ProcessValue rightValue = null;
+		ProcessValueOld processValue = null;
+		ProcessValueOld leftValue = null;		
+		ProcessValueOld rightValue = null;
 		
 		//Evaluate left and right action in parallel. Here parallel means left and then right
 		if(node.getLeftAction() != null){
 		
-			leftValue = (ProcessValue)node.getLeftAction().apply(this,question);
+			leftValue = (ProcessValueOld)node.getLeftAction().apply(this,question);
 			PAction nextAction = getNextAction(leftValue, node.getLeftAction());
 			node.setLeftAction(nextAction);
 			
 		}
 		if(node.getRightAction() != null){
 		
-			rightValue = (ProcessValue)node.getRightAction().apply(this,question);
+			rightValue = (ProcessValueOld)node.getRightAction().apply(this,question);
 			PAction nextAction = getNextAction(rightValue, node.getRightAction());
 			node.setRightAction(nextAction);
 		}
@@ -236,12 +236,12 @@ public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 				}
 			}
 			
-			processValue = new ProcessValue(goForItEvents,null);
+			processValue = new ProcessValueOld(goForItEvents,null);
 		}
 		else
 		{
 			//The operator has reduced into Skip
-			processValue = new ProcessValue(null);
+			processValue = new ProcessValueOld(null);
 		}
 		
 		return processValue;
@@ -269,7 +269,7 @@ public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 	/* Private Helper Methods
 	 * 
 	 */
-	private PAction getNextAction(ProcessValue processValue, PAction currentAction)
+	private PAction getNextAction(ProcessValueOld processValue, PAction currentAction)
 	{
 		PAction nextAction = null;
 

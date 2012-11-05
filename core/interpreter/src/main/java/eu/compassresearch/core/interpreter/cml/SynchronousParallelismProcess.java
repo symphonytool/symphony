@@ -6,13 +6,13 @@ import java.util.Set;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 
-public class SynchronousParallelismProcess implements CMLProcess
+public class SynchronousParallelismProcess implements CMLProcessOld
 {
-	private CMLProcess leftProcess; 
-	private CMLProcess rightProcess;
+	private CMLProcessOld leftProcess; 
+	private CMLProcessOld rightProcess;
 	private Set<String> channelSet;
 		
-	public SynchronousParallelismProcess(CMLProcess leftProcess, CMLProcess rightProcess, Set<String> channelSet)
+	public SynchronousParallelismProcess(CMLProcessOld leftProcess, CMLProcessOld rightProcess, Set<String> channelSet)
 	{
 		this.leftProcess = leftProcess;
 		this.rightProcess = rightProcess;
@@ -47,10 +47,10 @@ public class SynchronousParallelismProcess implements CMLProcess
 	}
 
 	@Override
-	public void start() {
+	public void start(CMLSupervisorEnvironment sve) {
 		
-		this.leftProcess.start();
-		this.rightProcess.start();
+		this.leftProcess.start(sve);
+		this.rightProcess.start(sve);
 	}
 
 	@Override

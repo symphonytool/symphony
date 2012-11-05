@@ -7,11 +7,13 @@ import java.util.Stack;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 
-public class SequentialCompositionProcess implements CMLProcess {
+public class SequentialCompositionProcess implements CMLProcessOld {
 
-	private Stack<CMLProcess> processStack = new Stack<CMLProcess>();
+	private Stack<CMLProcessOld> processStack = new Stack<CMLProcessOld>();
+	private CMLSupervisorEnvironment sve;
 	
-	public SequentialCompositionProcess(CMLProcess leftProcess, CMLProcess rightProcess)
+	
+	public SequentialCompositionProcess(CMLProcessOld leftProcess, CMLProcessOld rightProcess)
 	{
 		//push in reverse order
 		processStack.push(rightProcess);
@@ -23,7 +25,7 @@ public class SequentialCompositionProcess implements CMLProcess {
 
 		List<ACommunicationAction> events = new LinkedList<ACommunicationAction>();
 
-		CMLProcess nextProcess = processStack.pop();
+		CMLProcessOld nextProcess = processStack.pop();
 
 		events = nextProcess.WaitForEventOffer();
 		
@@ -34,7 +36,7 @@ public class SequentialCompositionProcess implements CMLProcess {
 		}
 		else if(events.isEmpty() && !processStack.isEmpty())
 		{
-			processStack.peek().start();
+			processStack.peek().start(sve);
 			events = processStack.peek().WaitForEventOffer();
 		}
 		
@@ -67,9 +69,10 @@ public class SequentialCompositionProcess implements CMLProcess {
 	}
 
 	@Override
-	public void start() {
+	public void start(CMLSupervisorEnvironment sve) {
 		
-		processStack.peek().start();
+		this.sve = sve;
+		processStack.peek().start(sve);
 
 	}
 
@@ -86,7 +89,7 @@ public class SequentialCompositionProcess implements CMLProcess {
 				
 		for(int i = processStack.size()-1 ; i >= 0 ; i--)
 		{
-			CMLProcess p = processStack.get(i);
+			CMLProcessOld p = processStack.get(i);
 		
 			if(i == processStack.size()-1 && processStack.size() > 1)
 				strBuilder.append(p.getRemainingInterpretationState(expand) + ";");
