@@ -2330,36 +2330,186 @@ typeDef :
  * (jwc) I think for this we really ought have the lexer give the
  * token 'QUALIFIER' and then querying its value (like with numeric
  * literals) to figure out which one we have.
+ *
+ * FIXME the AAccessSpecifierAccessSpecifier class should have a location field
  */
 qualifier :
   PRIVATE
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  $$ = new AAccessSpecifierAccessSpecifier(new APrivateAccess(),
+					   null, 
+					   null);//, location);
+}
 | PROTECTED
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  $$ = new AAccessSpecifierAccessSpecifier(new AProtectedAccess(),
+					   null, 
+					   null);//, location);
+}
 | PUBLIC
-/* (RWL) It is not in overture why are we having it?
- *
- * (JWC) It is in CML, however.  Jim wants it in (for perfectly
- * cromulent reasons), and it's mostly harmless.  We just need to
- * filter it (and all places where it's used) out, or flip it to
- * public/global.  See me for an explanation.
- */
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  $$ = new AAccessSpecifierAccessSpecifier(new APublicAccess(),
+					   null, 
+					   null);//, location);
+}
 | LOGICAL
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$1);
+  $$ = new AAccessSpecifierAccessSpecifier(new ALogicalAccess(),
+					   null, 
+					   null);//, location);
+}
 | /* empty */
+{
+  /*Default private*/
+  $$ = new AAccessSpecifierAccessSpecifier(new APrivateAccess(),
+					   null, 
+					   null);//, location);
+}
 ;
 
 type :
-  LPAREN type RPAREN // bracketedType
+  LPAREN[start] type[t] RPAREN[end] // bracketedType
+{
+  PType type = (PType)$t;
+  LexLocation loc = extractLexLocation((CmlLexeme)$start,(CmlLexeme)$end);
+  type.setLocation(loc);
+  $$ = type;
+}
 | basicType
+{
+  $$ = $basicType;
+}
 | quoteLiteral // quoteType
-| COMPOSE IDENTIFIER OF fieldList END
-| type BAR type // unionType
-| type STAR type %prec T-STAR //productType
-| LSQUARE type RSQUARE // optionalType
-| SETOF type
-| SEQOF type
-| SEQ1OF type
-| MAPOF type TO type
-| INMAPOF type TO type
+{
+  LexQuoteToken quote = (LexQuoteToken)$quoteLiteral;
+  $$ = new AQuoteType(quote.location, false, null, quote);
+}
+| COMPOSE[start] IDENTIFIER[id] OF fieldList END[end]
+{
+  List<AFieldField> fields = (List<AFieldField>)$fieldList;
+  $$ = new ARecordInvariantType(extractLexLocation((CmlLexeme)$start,(CmlLexeme)$end),
+				false,
+				null,//definitions
+				false,//opaque
+				null,//invdef
+				extractLexNameToken($id),
+				(List<? extends AFieldField>)$fieldList,
+				false/*infinite_*/);
+}
+| type[first] BAR type[second] // unionType
+{
+  PType first = (PType)$first;
+  PType second = (PType)$second;
+  LexLocation loc = combineLexLocation(first.getLocation(), second.getLocation());
+  AUnionType utype;
+  LinkedList<PType> types;
+  if (first instanceof AUnionType) {
+    // First is a UnionType
+    utype = (AUnionType)first;
+    types = utype.getTypes();
+    if (second instanceof AUnionType) {
+      // Second is also a union type, so merge the type lists
+      types.addAll(((AUnionType)second).getTypes());
+    } else {
+      // Second is not a union type, so just add it to the type list
+      types.add(second);
+    }
+  } else if (second instanceof AUnionType) { 
+    // First isn't union, but Second is, so just add first to the type list
+    utype = (AUnionType)second;
+    types = utype.getTypes();
+    types.add(first);
+  } else {
+    // Neither is a union type
+    types = new LinkedList<PType>();
+    types.add(first);
+    types.add(second);
+    utype = new AUnionType(loc, false, false, false);
+    utype.setTypes(types);
+  }
+  utype.setLocation(loc);
+  $$ = utype;
+}
+| type[first] STAR type[second] %prec T-STAR //productType
+{
+  PType first = (PType)$first;
+  PType second = (PType)$second;
+  LexLocation loc = combineLexLocation(first.getLocation(), second.getLocation());
+  AProductType ptype;
+  LinkedList<PType> types;
+  if (first instanceof AProductType) {
+    ptype = (AProductType)first;
+    types = ptype.getTypes();
+    if (second instanceof AProductType) {
+      types.addAll(((AProductType)second).getTypes());
+    } else {
+      types.add(second);
+    }
+  } else if (second instanceof AProductType) { 
+    ptype = (AProductType)second;
+    types = ptype.getTypes();
+    types.add(first);
+  } else {
+    types = new LinkedList<PType>();
+    types.add(first);
+    types.add(second);
+    ptype = new AProductType(loc, false, null, types);
+  }
+  ptype.setLocation(loc);
+  $$ = ptype;
+}
+| LSQUARE[start] type[otype] RSQUARE[end] // optionalType
+{
+  $$ = new AOptionalType(extractLexLocation((CmlLexeme)$start, (CmlLexeme)$end),
+			 false,
+			 null,
+			 (PType)$otype);
+}
+| SETOF[prefix] type[stype]
+{
+  PType type = (PType)$stype;
+  LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$prefix),
+				       type.getLocation());
+  $$ = new ASetType(loc, false, null, type, false, false);
+}
+| SEQOF[prefix] type[stype]
+{
+  PType type = (PType)$stype;
+  LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$prefix),
+				       type.getLocation());
+  $$ = new ASeqSeqType(loc, false, null, type, false);
+}
+| SEQ1OF[prefix] type[stype]
+{
+  PType type = (PType)$stype;
+  LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$prefix),
+				       type.getLocation());
+  $$ = new ASeq1SeqType(loc, false, null, type, false);
+}
+| MAPOF[prefix] type[dom] TO type[rng]
+{
+  PType dom = (PType)$dom;
+  PType rng = (PType)$rng;
+  LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$prefix),
+				       rng.getLocation());
+  $$ = new AMapMapType(loc, false, null, dom, rng, false);
+}
+| INMAPOF[prefix] type[dom] TO type[rng]
+{
+  PType dom = (PType)$dom;
+  PType rng = (PType)$rng;
+  LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$prefix),
+				       rng.getLocation());
+  AMapMapType res = new AMapMapType(loc, false, null, dom, rng, false);
+}
 | functionType
+{
+  $$ = $functionType;
+}
 /* DEVIATION (x3)
  * CML_0:
  *   name
@@ -2369,53 +2519,202 @@ type :
  * note that 'dottedIdentifier' includes backtick
  */
 | dottedIdentifier
+{
+  /* --- TODO --- */
+  /* Convert the dottedIdentifier into a LexNameToken?
+   * Old code from the IDENTIFIER DOT IDENTIFIER production below.
+   */
+  /* LexNameToken name = extractLexNameToken((CmlLexeme)$3); */
+  /* name = new LexNameToken(((CmlLexeme)$1).getValue(),name.getIdentifier()); */
+  /* ANamedInvariantType type = new ANamedInvariantType(); */
+  /* type.setLocation(name.getLocation()); */
+  /* type.setName(name); */
+  /* $$ = type; */
+}
 ;
 
+/* dottedIdentifier is used in many contexts; possibly we just want to
+ * return a List<LexIdentifierToken> and convert at place of use.
+ * Also need to check that we're not losing location info.
+ */
 dottedIdentifier :
-  IDENTIFIER
-| dottedIdentifier DOT IDENTIFIER
-| dottedIdentifier BACKTICK IDENTIFIER
+  IDENTIFIER[id]
+{
+  /* --- TODO --- */
+  List<LexIdentifierToken> ids = new Vector<LexIdentifierToken>();
+  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$id);
+  ids.add(id);
+  $$ = ids;
+}
+| dottedIdentifier[ids] DOT IDENTIFIER[id]
+{
+  /* --- TODO --- */
+  List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$ids;
+  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$id);
+  ids.add(id);
+  $$ = ids;
+}
+| dottedIdentifier[ids] BACKTICK IDENTIFIER[id]
+{
+  /* --- TODO --- */
+  List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$ids;
+  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$id);
+  ids.add(id);
+  $$ = ids;
+}
 ;
 
 basicType :
   TBOOL
+{
+  $$ = new ABooleanBasicType(extractLexLocation((CmlLexeme)$1), false);
+}
 | TNAT
+{
+  $$ = new ANatNumericBasicType(extractLexLocation((CmlLexeme)$1), false);
+}
 | TNAT1
+{
+  $$ = new ANatOneNumericBasicType(extractLexLocation((CmlLexeme)$1), false);
+}
 | TINT
+{
+  $$ = new AIntNumericBasicType(extractLexLocation((CmlLexeme)$1), false);
+}
 | TRAT
+{
+  $$ = new ARationalNumericBasicType(extractLexLocation((CmlLexeme)$1), false);
+}
 | TREAL
+{
+  $$ = new ARealNumericBasicType(extractLexLocation((CmlLexeme)$1), false);
+}
 | TCHAR
+{
+  $$ = new ACharBasicType(extractLexLocation((CmlLexeme)$1), false);
+}
 | TTOKEN
+{
+  $$ = new ATokenBasicType(extractLexLocation((CmlLexeme)$1), false);
+}
 ;
 
 functionType :
   partialFunctionType
+{
+  $$ = $1;
+}
 | totalFunctionType
+{
+  $$ = $1;
+}
 ;
 
 partialFunctionType :
-  type PLUSGT type
-| LRPAREN PLUSGT type // discretionary type
+  type[dom] PLUSGT type[rng]
+{
+  PType domType = (PType)$dom;
+  PType rngType = (PType)$rng;
+  LexLocation loc = combineLexLocation(domType.getLocation(), rngType.getLocation());
+  List<PType> params = new LinkedList<PType>();
+  params.add(domType);
+  $$ = new AFunctionType(loc, false, null, true, params, rngType);
+}
+| LRPAREN[dom] PLUSGT type[rng] // discretionary type
+{
+  PType domType = new AVoidType(extractLexLocation((CmlLexeme)$dom), true);
+  PType rngType = (PType)$rng;
+  LexLocation loc = combineLexLocation(domType.getLocation(), rngType.getLocation());
+  List<PType> params = new LinkedList<PType>();
+  params.add(domType);
+  $$ = new AFunctionType(loc, false, null, true, params, rngType);
+}
 ;
 
 totalFunctionType :
-  type RARROW type
-| LRPAREN RARROW type // discretionary type
+  type[dom] RARROW type[rng]
+{
+  PType domType = (PType)$dom;
+  PType rngType = (PType)$rng;
+  LexLocation loc = combineLexLocation(domType.getLocation(), rngType.getLocation());
+  List<PType> params = new LinkedList<PType>();
+  params.add(domType);
+  $$ = new AFunctionType(loc, false, null, false, params, rngType);
+}
+| LRPAREN[dom] RARROW type[rng] // discretionary type
+{
+  PType domType = new AVoidType(extractLexLocation((CmlLexeme)$dom), true);
+  PType rngType = (PType)$rng;
+  LexLocation loc = combineLexLocation(domType.getLocation(), rngType.getLocation());
+  List<PType> params = new LinkedList<PType>();
+  params.add(domType);
+  $$ = new AFunctionType(loc, false, null, false, params, rngType);
+}
 ;
 
 fieldList :
   field
-| fieldList field
+{
+  List<AFieldField> res = new LinkedList<AFieldField>();
+  res.add((AFieldField)$field);
+  $$ = res;
+}
+| fieldList[list] field
+{
+  List<AFieldField> res = (List<AFieldField>)$field;
+  res.add((AFieldField)$list);
+  $$ = res;
+}
 ;
 
 field :
   type
-| IDENTIFIER COLON type
-| IDENTIFIER COLONDASH type
+{
+  $$ = new AFieldField(getDefaultAccessSpecifier(false,false,null),
+		       null,
+		       null,
+		       (PType)$type,
+		       false);
+}
+| IDENTIFIER[id] COLON type
+{
+  LexNameToken name = extractLexNameToken((CmlLexeme)$id);
+  PType type = (PType)$type;
+  $$ = new AFieldField(getDefaultAccessSpecifier(false,false,null),
+		       name,
+		       null,
+		       type,
+		       false);
+}
+| IDENTIFIER[id] COLONDASH type
+{
+    LexNameToken name = extractLexNameToken((CmlLexeme)$id);
+    PType type = (PType)$type;
+    $$ = new AFieldField(getDefaultAccessSpecifier(false,false,null),
+                         name,
+			 null,
+			 type,
+			 true);
+}
 ;
 
 invariant :
   INV pattern DEQUALS expression
+{
+  PExp exp = (PExp)$expression;
+  LexLocation loc = extractLexLocation((CmlLexeme)$INV, exp.getLocation());
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, true, loc);
+  $$ = new AInvariantDefinition(loc,
+                                null, // decided later
+                                NameScope.LOCAL,
+                                false,
+				null, // VDM ClassDef
+                                access,
+                                null, // decided later
+				null, // Pass
+                                (PPattern)$pattern,
+                                exp);
+}
 ;
 
 
@@ -2424,106 +2723,400 @@ invariant :
  *   'values', qualifiedValueDef, { ‘;’, qualifiedValueDef }
  * here:
  *   'values', { qualifiedValueDef, { ‘;’, qualifiedValueDef } } [ ';' ]
+ *
+ * *** Actually semicolons are eliminated for now.
  */
 valueDefs :
   VALUES
+{
+  List<PDefinition> defs = new Vector<PDefinition>();
+  LexLocation location = extractLexLocation((CmlLexeme)$VALUES);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+  $$ = new AValueParagraphDefinition(location,
+                                     NameScope.NAMES,
+                                     false,
+				     access,
+                                     null, // Pass
+				     defs);
+}
 | VALUES valueDefList
-  //| VALUES valueDefList SEMI
+{
+  List<PDefinition> defs = (List<PDefinition>)$valueDefList;
+  LexLocation location = extractLexLocation((CmlLexeme)$VALUES,
+                                            extractLastLexLocation(defs));
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true,
+								     false,
+								     location);
+  $$ = new AValueParagraphDefinition(location,
+                                     NameScope.NAMES,
+                                     false,
+                                     access,
+				     null,//Pass
+                                     defs);
+}
+//| VALUES valueDefList SEMI
+//{
+//  List<PDefinition> defs = (List<PDefinition>)$valueDefList;
+//  LexLocation location = extractLexLocation((CmlLexeme)$VALUES, (CmlLexeme)$SEMI);
+//  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+//  $$ = new AValueParagraphDefinition(location,
+//                                     NameScope.NAMES,
+//                                     false,
+//                                     access,
+//				     null,//Pass
+//                                     defs);
+//}
 ;
 
 valueDefList :
   qualifiedValueDef[def]
+{
+  List<PDefinition> defs = new LinkedList<PDefinition>();
+  defs.add((PDefinition)$def);
+  $$ = defs;
+}
 | valueDefList[list] qualifiedValueDef[def]
+{
+  PDefinition def = (PDefinition)$def;
+  List<PDefinition> defs = (List<PDefinition>)$list;
+  defs.add(def);
+  $$ = defs;
+}
 ;
 
 qualifiedValueDef :
   qualifier valueDef
+{
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$qualifier;
+  PDefinition def = (PDefinition)$valueDef;
+  def.setAccess(access);
+  $$ = def;
+}
 ;
 
 valueDef :
-  IDENTIFIER COLON type EQUALS expression
-| patternLessID COLON type EQUALS expression
-| IDENTIFIER EQUALS expression
-| patternLessID EQUALS expression
+  IDENTIFIER[id] EQUALS expression
+{
+  PExp expression = (PExp)$expression;
+  LexNameToken lnt = extractLexNameToken((CmlLexeme)$id);
+  AIdentifierPattern idp = new AIdentifierPattern(lnt.location,
+						  null,
+						  false,
+						  lnt,
+						  false/*constrained*/);
+  AValueDefinition vdef =
+    new AValueDefinition(combineLexLocation(idp.getLocation(),
+					    expression.getLocation()),
+			    NameScope.LOCAL,
+			    false, // used
+			    getPrivateAccessSpecifier(false, false, lnt.location),
+			    null, // pass
+			    idp,
+			    expression,
+			    null // defs
+			    );
+  vdef.setName(lnt);
+  vdef.setType(null);
+  $$ = vdef;
+}
+| IDENTIFIER[id] COLON type EQUALS expression
+{
+  LexNameToken lnt = extractLexNameToken((CmlLexeme)$id);
+  PType type = (PType)$type;
+  PExp expression = (PExp)$expression;
+  AIdentifierPattern idp = new AIdentifierPattern(lnt.location,
+						  null,
+						  false,
+						  lnt,
+						  false/*constrained*/);
+  // Build the resulting AValueDefinition
+  AValueDefinition vdef =
+    new AValueDefinition(combineLexLocation(idp.getLocation(),
+					    expression.getLocation()),
+			 NameScope.LOCAL,
+			 false, // used
+			 getPrivateAccessSpecifier(false, false, lnt.location),
+			 null, // pass
+			 idp,
+			 expression,
+			 null // defs
+			 );
+  vdef.setName(lnt);
+  vdef.setType(type);
+  $$ = vdef;
+}
+| patternLessID[pat] EQUALS expression
+{
+  PPattern pattern = (PPattern)$pat;
+  PExp expression = (PExp)$expression;
+  LexLocation loc = combineLexLocation(pattern.getLocation(),
+				       expression.getLocation());
+  AValueDefinition vdef =
+    new AValueDefinition(loc,
+			 NameScope.LOCAL,
+			 false, // used
+			 getPrivateAccessSpecifier(false, false, loc),
+			 null, // pass
+			 pattern,
+			 expression,
+			 null // defs
+			 );
+  vdef.setName(null);
+  vdef.setType(null);
+  $$ = vdef;
+}
+| patternLessID[pat] COLON type EQUALS expression
+{
+  PPattern pattern = (PPattern)$pat;
+  PType type = (PType)$type;
+  PExp expression = (PExp)$expression;
+  LexLocation loc = combineLexLocation(pattern.getLocation(),
+				       expression.getLocation());
+  AValueDefinition vdef =
+    new AValueDefinition(loc,
+			 NameScope.LOCAL,
+			 false, // used
+			 getPrivateAccessSpecifier(false, false, loc),
+			 null, // pass
+			 pattern,
+			 expression,
+			 null // defs
+			 );
+  // FIXE wtf.setName -- esp. w.r.t. previous action
+  vdef.setName(new LexNameToken("Default", "plesstypeexp", loc, false, false));
+  vdef.setType(type);
+  $$ = vdef;
+}
 ;
 
 functionDefs :
   FUNCTIONS
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$FUNCTIONS);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true,
+								     false,
+								     location);
+  List<PDefinition> functionDefs = new LinkedList<PDefinition>();
+  $$ = new AFunctionParagraphDefinition(location,
+                                        NameScope.GLOBAL,
+                                        false,
+                                        access,
+					null,//Pass
+                                        functionDefs);
+}
 | FUNCTIONS functionDefList
-  //| FUNCTIONS functionDefList SEMI
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$FUNCTIONS);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true,
+								     false,
+								     location);
+  List<PDefinition> functionDefs = (List<PDefinition>)$functionDefList;
+  $$ = new AFunctionParagraphDefinition(location,
+                                        NameScope.GLOBAL,
+                                        false,
+                                        access,
+					null,//Pass
+                                        functionDefs);
+}
+//| FUNCTIONS functionDefList SEMI
+//{
+//  LexLocation location = combineLexLocation(extractLexLocation((CmlLexeme)$FUNCTIONS), extractLexLocation((CmlLexeme)$SEMI));
+//  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
+//  List<PDefinition> functionDefs = (List<PDefinition>)$functionDefList;
+//  $$ = new AFunctionParagraphDefinition(location,
+//                                        NameScope.GLOBAL,
+//                                        false,
+//                                        access,
+//					null,//Pass
+//                                        functionDefs);
+//}
 ;
 
 functionDefList :
   functionDef
+{
+  List<PDefinition> functionList = new Vector<PDefinition>();
+  functionList.add((PDefinition)$functionDef);
+  $$ = functionList;
+}
 | functionDefList[list] functionDef
+{
+  List<PDefinition> functionList = (List<PDefinition>)$list;
+  functionList.add((PDefinition)$functionDef);
+  $$ = functionList;
+}
 ;
 
 functionDef :
-  implicitFunctionDef
-| qualifiedExplicitFunctionDef
-;
-
-implicitFunctionDef :
-  qualifier IDENTIFIER parameterTypes identifierTypePairList preExpr_opt postExpr
-;
-
-qualifiedExplicitFunctionDef :
-  qualifier explicitFunctionDef
+  qualifier[qual] IDENTIFIER[id] parameterTypes[ptypes] identifierTypePairList[retvals] preExpr_opt[pre] postExpr[post]
+{
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$qual;
+  LexNameToken name = extractLexNameToken((CmlLexeme)$id);
+  List<APatternListTypePair> paramPatterns = (List<APatternListTypePair>)$ptypes;
+  List<APatternTypePair> result = (List<APatternTypePair>)$retvals;
+  PExp preExp = (PExp)$pre;
+  PExp postExp = (PExp)$post;
+  LexLocation location = combineLexLocation(name.getLocation(), postExp.getLocation());
+  AImplicitFunctionDefinition impFunc =
+    new AImplicitFunctionDefinition(location, 
+				    NameScope.LOCAL, 
+				    false, 
+				    access, 
+				    null,//Pass
+				    null, 
+				    paramPatterns, 
+				    result, 
+				    preExp, 
+				    postExp,
+				    null/*LexNameToken measure*/);
+  impFunc.setName(name);
+  $$ = impFunc;
+}
+| qualifier[qual] explicitFunctionDef[def]
+{
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$qual;
+  AExplicitFunctionDefinition func = (AExplicitFunctionDefinition)$def;
+  func.setAccess(access);
+  $$ = func;
+}
 ;
 
 explicitFunctionDef :
-  IDENTIFIER COLON functionType IDENTIFIER parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
+  IDENTIFIER[id] COLON functionType IDENTIFIER[checkId] parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
+{
+  LexNameToken name = extractLexNameToken((CmlLexeme)$id);
+  /* --- TODO --- */
+  /* We should be checking that the two IDENTIFIERS are equivalent
+   */
+  LexLocation loc = extractLexLocation((CmlLexeme)$id);
+  AFunctionType ftype = (AFunctionType)$functionType;
+  PExp functionBody = (PExp)$functionBody;
+  List<List<PPattern>> args = (List<List<PPattern>>)$parameterList;
+  AExplicitFunctionDefinition res = new AExplicitFunctionDefinition();
+  res.setName(name);
+  res.setLocation(loc);
+  res.setType(ftype);
+  res.setBody(functionBody);
+  res.setMeasure((LexNameToken)$measureExpr);
+  res.setParamPatternList(args);
+  $$ = res;
+}
 ;
 
-/* really? this is what a VDM function definition list looks like? */
 parameterList :
   LRPAREN
-| LPAREN patternList RPAREN
-| parameterList LPAREN patternList RPAREN
+{
+  $$ =  new Vector<List<PPattern>>();
+}
+| LPAREN patternList[patList] RPAREN
+{
+  List<PPattern> patternList = (List<PPattern>)$patList;
+  List<List<PPattern>> paramList = new Vector<List<PPattern>>();
+  paramList.add(patternList);
+  $$ = paramList;
+}
+| parameterList[paramList] LPAREN patternList[patList] RPAREN
+{
+  List<PPattern> patternList = (List<PPattern>)$patList;
+  List<List<PPattern>> paramList = (List<List<PPattern>>)$paramList;
+  paramList.add(patternList);
+  $$ = paramList;
+}
 ;
 
 functionBody :
   expression
+{
+  $$ = $1;
+}
 | SUBCLASSRESP
+{
+  $$ = new ASubclassResponsibilityExp(extractLexLocation((CmlLexeme)$1));
+}
 | NOTYETSPEC
+{
+  $$ = new ANotYetSpecifiedExp(extractLexLocation((CmlLexeme)$1));
+}
 ;
 
 parameterTypes :
   LRPAREN
+{
+  $$ = new Vector<APatternListTypePair>();
+}
 | LPAREN patternListTypeList RPAREN
+{
+  $$ = $2;
+}
 ;
 
 patternListTypeList :
-  patternList COLON type
-| patternListTypeList COMMA patternList COLON type
+  patternList[patList] COLON type
+{
+  List<PPattern> patternList = (List<PPattern>)$patList;
+  List<APatternListTypePair> pltpl = new Vector<APatternListTypePair>();
+  pltpl.add(new APatternListTypePair(false, patternList, (PType)$type));
+  $$ = pltpl;
+}
+| patternListTypeList[pltList] COMMA patternList[patList] COLON type
+{
+  List<APatternListTypePair> pltpl = (List<APatternListTypePair>)$pltList;
+  List<PPattern> patternList = (List<PPattern>)$patList;
+  pltpl.add(new APatternListTypePair(false, patternList, (PType)$type));
+  $$ = pltpl;
+}
 ;
 
 identifierTypePairList_opt :
   /* empty */
+{
+  $$ = null;
+}
 | identifierTypePairList
+{
+  $$ = $1;
+}
 ;
 
 identifierTypePairList :
-  IDENTIFIER COLON type
-| identifierTypePairList COMMA IDENTIFIER COLON type
+  IDENTIFIER[id] COLON type
+{
+  List<AIdentifierTypePair> typePairs = new Vector<AIdentifierTypePair>();
+  AIdentifierTypePair typePair =
+    new AIdentifierTypePair(null, 
+			    extractLexIdentifierToken((CmlLexeme)$id), 
+			    (PType)$type);
+  typePairs.add(typePair);
+  $$ = typePairs;
+}
+| identifierTypePairList[idtpList] COMMA IDENTIFIER[id] COLON type
+{
+  List<AIdentifierTypePair> typePairs = (List<AIdentifierTypePair>)$idtpList;
+  AIdentifierTypePair typePair =
+    new AIdentifierTypePair(null, 
+			    extractLexIdentifierToken((CmlLexeme)$id), 
+			    (PType)$type);
+  typePairs.add(typePair);
+  $$ = typePairs;
+}
 ;
 
 preExpr_opt :
-  preExpr
-| /* empty */
+  preExpr                       { $$ = $1; }
+| /* empty */                   { $$ = null; }
 ;
 
 preExpr :
-  PRE expression
+  PRE expression                { $$ = $2; }
 ;
 
 postExpr_opt :
-  postExpr
-| /* empty */
+  postExpr                      { $$ = $1; }
+| /* empty */                   { $$ = null; }
 ;
 
 postExpr :
-  POST expression
+  POST expression                { $$ = $2; }
 ;
 
 measureExpr :
@@ -2531,16 +3124,50 @@ measureExpr :
  * CML_0:
  *   MEASURE name
  * here:
- *   MEASURE expression
- * but must resolve to some name
+ *   MEASURE dottedIdentifier
  */
-  MEASURE expression
+  MEASURE dottedIdentifier
+{
+  /* --- TODO --- */
+  /* dottedIdentifier should be a list of LexIdentifierWhatsits, and
+   * we need a LexName here.
+   */
+}
 | /* empty */
+{
+  $$ = null;
+}
 ;
 
 operationDefs :
   OPERATIONS
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$OPERATIONS);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true,
+								     false,
+								     location);
+  $$ = new AOperationParagraphDefinition(location,
+                                         NameScope.LOCAL,
+                                         false,
+                                         access,
+					 null,//Pass
+                                         null);
+}
 | OPERATIONS operationDefList
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$OPERATIONS);
+  AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true,
+								     false,
+								     location);
+  List<? extends SOperationDefinition> opDefinitions =
+    (List<? extends SOperationDefinition>)$operationDefList;
+  $$ = new AOperationParagraphDefinition(location,
+                                         NameScope.LOCAL,
+                                         false,
+                                         access,
+					 null,//Pass
+                                         opDefinitions);
+}
 ;
 
 /* DEVIATION
@@ -2548,59 +3175,224 @@ operationDefs :
  */
 operationDefList :
   operationDef
+{
+  List<SOperationDefinition> opDefinitions = new Vector<SOperationDefinition>();
+  opDefinitions.add((SOperationDefinition)$operationDef);
+  $$ = opDefinitions;
+}
 | operationDefList[list] operationDef
+{
+  List<SOperationDefinition> opDefinitions = (List<SOperationDefinition>)$list;
+  opDefinitions.add((SOperationDefinition)$operationDef);
+  $$ = opDefinitions;
+}
 ;
 
 operationDef :
-  implicitOperationDef
-| explicitOperationDef
-;
-
-explicitOperationDef :
-  qualifier IDENTIFIER COLON operationType IDENTIFIER parameterList DEQUALS operationBody preExpr_opt postExpr_opt
-;
-
-implicitOperationDef :
-  qualifier IDENTIFIER parameterTypes identifierTypePairList_opt externals_opt preExpr_opt postExpr
+  qualifier[qual] IDENTIFIER[id] parameterTypes[ptypes] identifierTypePairList_opt[retvals] externals_opt[exts] preExpr_opt[pre] postExpr[post]
+{
+  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$qual;
+  LexNameToken name = extractLexNameToken((CmlLexeme)$id);
+  List<? extends APatternListTypePair> parameterPatterns =
+    (List<? extends APatternListTypePair>)$ptypes;
+   List<? extends AIdentifierTypePair> result =
+     (List<? extends AIdentifierTypePair>)$retvals;
+  List<? extends AExternalClause> externals = (List<? extends AExternalClause>)$exts;
+  PExp precondition = (PExp)$pre;
+  PExp postcondition = (PExp)$post;
+  LexLocation location = combineLexLocation(name.location, postcondition.getLocation());
+  eu.compassresearch.ast.definitions.AImplicitOperationDefinition res =
+    new eu.compassresearch.ast.definitions.AImplicitOperationDefinition(location,
+									NameScope.GLOBAL,
+                                     false,
+                                     access,
+				     null,//Pass
+                                     parameterPatterns,
+                                     result,
+                                     externals,
+                                     precondition,
+                                     postcondition,
+                                     null, null);
+  res.setName(name);
+  $$ = res;
+}
+| qualifier[qual] IDENTIFIER[id] COLON operationType[opType] IDENTIFIER[checkId] parameterList[paramList] DEQUALS operationBody[body] preExpr_opt[pre] postExpr_opt[post]
+{
+  /* --- TODO --- */ 
+  /* We shold check id against checkId for equality */
+  LexNameToken name = extractLexNameToken($id); 
+  SStatementAction body = (SStatementAction)$body;
+  LexLocation loc = extractLexLocation(name.location,
+				       body.getLocation());
+  eu.compassresearch.ast.definitions.AExplicitOperationDefinition res =
+    new eu.compassresearch.ast.definitions.AExplicitOperationDefinition();
+  res.setLocation(loc);
+  res.setAccess((AAccessSpecifierAccessSpecifier)$qual);
+  res.setName(name);
+  res.setType((PType)$opType);
+  res.setParameterPatterns((List<? extends PPattern>)$paramList);
+  res.setBody(body);
+  res.setPrecondition((PExp)$pre);
+  res.setPostcondition((PExp)$post);
+  res.setIsConstructor(false);
+  $$ = res;
+}
 ;
 
 operationType :
-  type DEQRARROW type
-| LRPAREN DEQRARROW type
-| type DEQRARROW LRPAREN
-| LRPAREN DEQRARROW LRPAREN
-;
+  type[dom] DEQRARROW type[rng]
+{
+  PType dom = (PType)$dom;
+  PType rng = (PType)$rng;
+  List<PType> types = new LinkedList<PType>();
+  types.add(dom);
+  $$ = new AOperationType(extractLexLocation(dom.getLocation(), rng.getLocation()),
+			  false,
+			  new LinkedList<PDefinition>(),
+			  types,
+			  rng);
+}
+| LRPAREN[dom] DEQRARROW type[rng]
+{
+  PType dom = new AVoidType(extractLexLocation((CmlLexeme)$dom), true);
+  PType rng = (PType)$rng;
+  List<PType> types = new LinkedList<PType>();
+  types.add(dom);
+  $$ = new AOperationType(extractLexLocation(dom.getLocation(), rng.getLocation()),
+			  false,
+			  new LinkedList<PDefinition>(),
+			  types,
+			  rng);
+}
+| type[dom] DEQRARROW LRPAREN[rng]
+{
+  PType dom = (PType)$dom;
+  PType rng = new AVoidType(extractLexLocation((CmlLexeme)$rng), true);
+  List<PType> types = new LinkedList<PType>();
+  types.add(dom);
+  $$ = new AOperationType(extractLexLocation(dom.getLocation(), rng.getLocation()),
+			  false,
+			  new LinkedList<PDefinition>(),
+			  types,
+			  rng);
+}
+| LRPAREN[dom] DEQRARROW LRPAREN[rng]
+{
+  PType dom = new AVoidType(extractLexLocation((CmlLexeme)$dom), true);
+  PType rng = new AVoidType(extractLexLocation((CmlLexeme)$rng), true);
+  List<PType> types = new LinkedList<PType>();
+  types.add(dom);
+  $$ = new AOperationType(extractLexLocation(dom.getLocation(), rng.getLocation()),
+			  false,
+			  new LinkedList<PDefinition>(),
+			  types,
+			  rng);
+};
 
 operationBody :
   action
+{
+  $$ = $1;
+}
 | SUBCLASSRESP
+{
+  $$ = new ASubclassResponsibilityAction(extractLexLocation((CmlLexeme)$1));
+}
 | NOTYETSPEC
+{
+  $$ = new ANotYetSpecifiedAction(extractLexLocation((CmlLexeme)$1), null, null);
+}
 ;
 
 externals_opt :
-  externals
-| /* empty */
+  externals                     { $$ = $1; }
+| /* empty */                   { $$ = null; }
 ;
 
 externals :
-  FRAME varInformationList
+  FRAME varInformationList      { $$ = $2; }
 ;
 
 varInformationList :
   varInformation
-| varInformationList varInformation
+{
+  List<AExternalClause> infoList = new Vector<AExternalClause>();
+  infoList.add((AExternalClause)$varInformation);
+  $$ = infoList;
+}
+| varInformationList[list] varInformation
+{
+  List<AExternalClause> infoList = (Vector<AExternalClause>)$list;
+  infoList.add((AExternalClause)$varInformation);
+  $$ = infoList;
+}
 ;
 
+/* DEVIATION
+ * CML_0:
+ *   mode, name list, [ ':', type ]
+ * here:
+ *   mode dottedIdentifier [ COLON type ] [ COMMA dottedIdentifier [ COLON type ] ]
+ */
+/* JWC FIXME
+ * There should only be one type per varInformation list.  We should
+ * have:
+ *   mode dottedIdentifier { COMMA dottedIdentifier } [ COLON type ]
+ */
 varInformation :
-  mode expressionList
-| mode expressionList COLON type
+  mode dottedIdentifier[id]
+{
+  /* --- TODO --- */
+  LexToken mode = (LexToken)$mode;
+  List<? extends LexNameToken> ids = null;
+  // FIXME: dottedIdentifier
+  //ids.add(convertDottedIdentifierToLexNameToken((List<? extends LexNameToken>)$id));
+  $$ = new AExternalClause(mode, ids, null);
+}
+| mode dottedIdentifier[id] COLON type
+{
+  /* --- TODO --- */
+  LexToken mode = (LexToken)$mode;
+  List<? extends LexNameToken> ids = null;
+  // FIXME: dottedIdentifier
+  //ids.add(convertDottedIdentifierToLexNameToken((List<? extends LexNameToken>)$id));
+  $$ = new AExternalClause(mode, ids, (PType)$type);
+}
+| varInformation[info] COMMA dottedIdentifier[id]
+{
+  /* --- TODO --- */
+  AExternalClause info = (AExternalClause)$info;
+  List<? extends LexNameToken> ids = info.getIdentifiers();
+  // FIXME: dottedIdentifier
+  //ids.add(convertDottedIdentifierToLexNameToken((List<? extends LexNameToken>)$id));
+  $$ = info;
+}
+| varInformation[info] COMMA dottedIdentifier[id] COLON type
+{
+  /* --- TODO --- */
+  AExternalClause info = (AExternalClause)$info;
+  List<? extends LexNameToken> ids = info.getIdentifiers();
+  // FIXME: dottedIdentifier
+  //ids.add(convertDottedIdentifierToLexNameToken((List<? extends LexNameToken>)$id));
+  $$ = info;
+}
 ;
 
 mode :
   RD
+{
+  $$ = new LexToken(extractLexLocation((CmlLexeme)$RD), VDMToken.READ);
+}
 | WR
+{
+  $$ = new LexToken(extractLexLocation((CmlLexeme)$WR), VDMToken.WRITE);
+}
 ;
 
+/* --- TODO --- */
+/* Determine the validity of the below comment and adjust as
+ * necessary.
+ */
 /* RWL, invariantDef
  *
  * In the AST PDefinition and PInvariant does not have a common
@@ -2621,97 +3413,409 @@ mode :
  */
 stateDefs :
   STATE
+{
+    AStateParagraphDefinition state = new AStateParagraphDefinition();
+    state.setLocation(extractLexLocation((CmlLexeme)$STATE));
+    $$  = state;
+}
 | STATE stateDefList
-  //| STATE stateDefList SEMI
+{
+    AStateParagraphDefinition state = (AStateParagraphDefinition)$stateDefList;
+    state.setLocation(extractLexLocation((CmlLexeme)$STATE,
+					 extractLastLexLocation(state.getStateDefs())));
+    $$ = state;
+}
+//| STATE stateDefList SEMI
+//{
+//    AStateParagraphDefinition state = (AStateParagraphDefinition)$stateDefList;
+//    state.setLocation(extractLexLocation((CmlLexeme)$STATE,(CmlLexeme)$SEMI));
+//    $$ = state;
+//}
 ;
 
 stateDefList :
   stateDef
-| stateDefList[list]  stateDef
+{
+  List<PDefinition> defs = new Vector<PDefinition>();
+  defs.add((PDefinition)$stateDef);
+  AStateParagraphDefinition stateDef = new AStateParagraphDefinition();
+  stateDef.setStateDefs(defs);
+  $$ = stateDef;
+}
+| stateDefList[list] stateDef
+{
+  AStateParagraphDefinition stateDef = (AStateParagraphDefinition)$list;
+  stateDef.getStateDefs().add((PDefinition)$stateDef);
+  $$ = stateDef;
+}
 ;
 
 stateDef :
   qualifier assignmentDef
+{
+  AAssignmentDefinition adef = (AAssignmentDefinition)$assignmentDef;
+  adef.setAccess((AAccessSpecifierAccessSpecifier)$qualifier);
+  $$ = adef;
+}
 | INV expression
+{
+  PExp exp = (PExp) $expression;
+  LexLocation location = extractLexLocation((CmlLexeme)$INV, exp.getLocation());
+  $$ = new AClassInvariantDefinition(location,
+				     NameScope.GLOBAL,
+				     true,
+				     null/*access*/,
+				     null/*Pass*/,
+				     exp);
+}
 ;
 
 expressionList :
   expression
-| expressionList COMMA expression
+{
+  List<PExp> exps = new Vector<PExp>();
+  exps.add((PExp)$expression);
+  $$ = exps;
+}
+| expressionList[list] COMMA expression
+{
+  List<PExp> exps = (List<PExp>)$list;
+  exps.add((PExp)$expression);
+  $$ = exps;
+}
 ;
+
+/* --- TODO --- */
+/* Old comment about paths and their conversion, below.
+ *
+ * We need to go through it an ensure that all the cases are being
+ * generated/handled somehow.
+ */
+/* DEVIATION
+ * PATH
+ * CML_0:
+ *   name
+ *   IDENTIFIER TILDE // oldName
+ *   expression LPAREN expression ELLIPSIS expression RPAREN // subsequence expression
+ *   expression LPAREN expressionList RPAREN
+ *   expression DOTHASH NUMERAL // tuple select
+ *   expression DOT IDENTIFIER // field select
+ *   SELF
+ * 1) convert to a name
+ * 2) convert to an oldName
+ * 3) convert to a subsequence expression
+ * 4) convert to a function application
+ * 5) convert to a tuple select
+ * 6) convert to a field select
+ * 7) convert to a self expression
+ *
+ * (JWC) 3 through 5 need to be general expression rather than just
+ * paths/names.  So, this is a problem for now.
+ * e.g. we cannot do:
+ *   (1,2,3).#2
+ * but we can do
+ *   a := (1,2,3)
+ *   a.#2
+ */
 
 expression :
 /* symbolic literal expressions*/
   numericLiteral
+{
+    PExp exp = null;
+    if($numericLiteral instanceof LexIntegerToken) {
+        LexIntegerToken lit = (LexIntegerToken)$numericLiteral;
+        exp = new AIntLiteralExp(lit.location, lit);
+    } else {
+        LexRealToken lit = (LexRealToken)$numericLiteral;
+        exp = new ARealLiteralExp(lit.location, lit);
+    }
+    $$ = exp;
+}
 | booleanLiteral
+{
+  LexBooleanToken lit = (LexBooleanToken)$booleanLiteral;
+  $$ = new ABooleanConstExp(lit.location, lit);
+}
 | nilLiteral
+{
+    $$ = new ANilExp(((LexKeywordToken)$nilLiteral).location);
+}
 | characterLiteral
+{
+    LexCharacterToken lit = (LexCharacterToken)$characterLiteral;
+    $$ = new ACharLiteralExp(lit.location, lit);
+}
 | textLiteral
+{
+    LexStringToken lit = (LexStringToken)$textLiteral;
+    ASeqSeqType charSeq = new ASeqSeqType(lit.location,
+                                    true,
+				    null,
+                                    new ACharBasicType(),
+                                    lit.value.length() == 0);
+    $$ = new AStringLiteralExp(charSeq,
+                               lit.location,
+                               lit);
+}
 | quoteLiteral
+{
+  LexQuoteToken lit = (LexQuoteToken)$quoteLiteral;
+  $$ = new AQuoteLiteralExp(lit.location, lit);
+}
 /* symbolic literal expressions end*/
-| LPAREN expression RPAREN
+| LPAREN[s] expression[exp] RPAREN[e]
+{
+  $$ = new ABracketedExp(extractLexLocation((CmlLexeme)$s, (CmlLexeme)$e), (PExp)$exp);
+}
 | SELF
+{
+  /* --- TODO --- */
+}
 | IDENTIFIER
+{
+  /* --- TODO --- */
+}
 | IDENTIFIER TILDE
+{
+  /* --- TODO --- */
+}
 | expression DOT IDENTIFIER
+{
+  /* --- TODO --- */
+}
 | expression BACKTICK IDENTIFIER
+{
+  /* --- TODO --- */
+}
 | expression DOTHASH NUMERAL
+{
+  /* --- TODO --- */
+}
 | expression LRPAREN
+{
+  /* --- TODO --- */
+}
 | expression LPAREN expressionList RPAREN
+{
+  /* --- TODO --- */
+}
 | expression LPAREN expression ELLIPSIS expression RPAREN
+{
+  /* --- TODO --- */
+}
 | expression DOT matchValue
+{
+  /* --- TODO --- */
+}
 /* communication structure */
 | expression BANG IDENTIFIER
+{
+  /* --- TODO --- */
+}
 | expression BANG matchValue
+{
+  /* --- TODO --- */
+}
 | expression QUESTION pattern
+{
+  /* --- TODO --- */
+}
 | expression QUESTION setBind
+{
+  /* --- TODO --- */
+}
 /* end communication structure*/
-| LET localDefList IN expression %prec LET
+| LET localDefList[defs] IN expression[exp] %prec LET
+{
+  List<PDefinition> defs = (List<PDefinition>)$defs;
+  PExp exp = (PExp)$exp;
+  LexLocation loc = extractLexLocation((CmlLexeme)$LET, exp.getLocation());
+  $$ = new ALetDefExp(loc, defs, exp);
+}
 | ifExpr
+{
+  $$ = $1;
+}
 | casesExpr
+{
+  $$ = $1;
+}
 | unaryExpr
+{
+  $$ = $1;
+}
 | binaryExpr
+{
+  $$ = $1;
+}
 /* quantified expressions */
-| FORALL bindList AT expression %prec FORALL
-| EXISTS bindList AT expression %prec EXISTS
-| EXISTS1 bind AT expression %prec EXISTS1
-| IOTA bind AT expression %prec IOTA
+| FORALL bindList[binds] AT expression[exp] %prec FORALL
+{
+  CmlLexeme forall = (CmlLexeme)$FORALL;
+  List<PMultipleBind> binds = (List<PMultipleBind>)$binds;
+  PExp exp = (PExp)$exp;
+  LexLocation loc = combineLexLocation(extractLexLocation(forall), exp.getLocation());
+  $$ = new AForAllExp(loc, binds, exp);
+}
+| EXISTS bindList[binds] AT expression[exp] %prec EXISTS
+{
+  CmlLexeme exists = (CmlLexeme)$EXISTS;
+  List<PMultipleBind> binds = (List<PMultipleBind>)$binds;
+  PExp exp = (PExp)$exp;
+  LexLocation loc = combineLexLocation(extractLexLocation(exists), exp.getLocation());
+  $$ = new AExistsExp(loc, binds, exp);
+}
+| EXISTS1 bind AT expression[exp] %prec EXISTS1
+{
+  CmlLexeme exists = (CmlLexeme)$EXISTS1;
+  PBind bind = (PBind)$bind;
+  PExp exp = (PExp)$exp;
+  LexLocation loc = combineLexLocation(extractLexLocation(exists), exp.getLocation());
+  $$ = new AExists1Exp(loc, bind, exp, null);
+}
+| IOTA bind AT expression[exp] %prec IOTA
+{
+  CmlLexeme iota = (CmlLexeme)$IOTA;
+  PBind bind = (PBind)$bind;
+  PExp exp = (PExp)$exp;
+  LexLocation loc = combineLexLocation(extractLexLocation(iota), exp.getLocation());
+  $$ = new AIotaExp(loc, bind, exp);
+}
 /* set enumeration */
 | LCURLY RCURLY
-| LCURLY expressionList RCURLY
+{
+  LexLocation loc = extractLexLocation((CmlLexeme)$LCURLY, (CmlLexeme)$RCURLY);
+  ASetEnumSetExp res = new ASetEnumSetExp();
+  res.setLocation(loc);
+  $$ = res;
+}
+| LCURLY expressionList[list] RCURLY
+{
+  LexLocation location = extractLexLocation((CmlLexeme)$LCURLY, (CmlLexeme)$RCURLY);
+  List<PExp> members = (List<PExp>)$list;
+  $$ = new ASetEnumSetExp(location, members);
+}
 /* set comprehensions */
-| LCURLY expression BAR bindList RCURLY
-| LCURLY expression BAR bindList AT expression RCURLY
+| LCURLY expression[exp] BAR bindList[binds] RCURLY
+{
+  PExp exp = (PExp)$exp;
+  List<PMultipleBind> binds = (List<PMultipleBind>)$binds;
+  LexLocation loc = extractLexLocation((CmlLexeme)$LCURLY, (CmlLexeme)$RCURLY);
+  $$ = new ASetCompSetExp(loc, exp, binds, null);
+}
+| LCURLY expression[exp] BAR bindList[binds] AT expression[pred] RCURLY
+{
+  PExp exp = (PExp)$exp;
+  List<PMultipleBind> binds = (List<PMultipleBind>)$binds;
+  PExp pred = (PExp)$pred;
+  LexLocation loc = extractLexLocation((CmlLexeme)$LCURLY, (CmlLexeme)$RCURLY);
+  $$ = new ASetCompSetExp(loc, exp, binds, pred);
+}
 /* set range expression */
-| LCURLY expression ELLIPSIS expression RCURLY
+| LCURLY expression[start] ELLIPSIS expression[end] RCURLY
+{
+  PExp start = (PExp)$start;
+  PExp end = (PExp)$end;
+  LexLocation loc = extractLexLocation((CmlLexeme)$LCURLY, (CmlLexeme)$RCURLY);
+  $$ = new ASetRangeSetExp(loc, start, end);
+}
 /* sequence enumerations */
 | LRSQUARE
-/* ?FIXME: Sequences cannot handle '[[]]' since '[[' and ']]' will be
- * lexed as a DLSQUARE and DRSQUARE token because of the renaming
- * comprehension. For now we need spaces like '[ [] ]' to be able to
- * parse it correctly.
- *
- * (JWC) We definitely need to document this out for users; I don't
- * think we can necessarily fix it (though it should be noted that a
- * sequence enumeration that contains sequence enumerations is a
- * little unusual).
- */
-| LSQUARE expressionList RSQUARE
+{
+  /* ?FIXME: Sequences cannot handle '[[]]' since '[[' and ']]' will be
+   * lexed as a DLSQUARE and DRSQUARE token because of the renaming
+   * comprehension. For now we need spaces like '[ [] ]' to be able to
+   * parse it correctly.
+   *
+   * (JWC) We definitely need to document this out for users; I don't
+   * think we can necessarily fix it (though it should be noted that a
+   * sequence enumeration that contains sequence enumerations is a
+   * little unusual).
+   */
+  List<PExp> exps = new LinkedList<PExp>();
+  LexLocation loc = extractLexLocation((CmlLexeme)$LRSQUARE);
+  $$ = new ASeqEnumSeqExp(loc, exps);
+}
+| LSQUARE expressionList[list] RSQUARE
+{
+  List<PExp> exps = (List<PExp>)$list;
+  LexLocation loc = extractLexLocation((CmlLexeme)$LSQUARE, (CmlLexeme)$RSQUARE);
+  $$ = new ASeqEnumSeqExp(loc, exps);
+}
 /* sequence comprehensions */
-| LSQUARE expression BAR setBind RSQUARE
-| LSQUARE expression BAR setBind AT expression RSQUARE
+| LSQUARE expression[exp] BAR setBind[bind] RSQUARE
+{
+  PExp exp = (PExp)$exp;
+  ASetBind binds = (ASetBind)$bind;
+  LexLocation loc = extractLexLocation((CmlLexeme)$LSQUARE, (CmlLexeme)$RSQUARE);
+  $$ = new ASeqCompSeqExp(loc, exp, binds, null);
+}
+| LSQUARE expression[exp] BAR setBind[bind] AT expression[pred] RSQUARE
+{
+  PExp exp = (PExp)$exp;
+  ASetBind binds = (ASetBind)$bind;
+  PExp pred = (PExp)$pred;
+  LexLocation loc = extractLexLocation((CmlLexeme)$LSQUARE, (CmlLexeme)$RSQUARE);
+  $$ = new ASeqCompSeqExp(loc, exp, binds, pred);
+}
 /* map enumerations */
-| EMPTYMAP
-| LCURLY mapletList RCURLY
+| EMPTYMAP // LRCURLY
+{
+  LexLocation loc = extractLexLocation((CmlLexeme)$EMPTYMAP);
+  $$ = new AMapEnumMapExp(loc, new LinkedList<AMapletExp>());
+}
+| LCURLY mapletList[list] RCURLY
+{
+  List<AMapletExp> maplets = (List<AMapletExp>)$list;
+  LexLocation loc = extractLexLocation((CmlLexeme)$LCURLY, (CmlLexeme)$RCURLY);
+  $$ = new AMapEnumMapExp(loc, maplets);
+}
 /* map comprehensions */
 | LCURLY maplet BAR bindList RCURLY
-| LCURLY maplet BAR bindList AT expression RCURLY
+{
+  AMapletExp maplet = (AMapletExp)$maplet;
+  List<PMultipleBind> binds = (List<PMultipleBind>)$bindList;
+  LexLocation loc = extractLexLocation((CmlLexeme)$LCURLY, (CmlLexeme)$RCURLY);
+  $$ = new AMapCompMapExp(loc, maplet, binds, null);
+}
+| LCURLY maplet BAR bindList AT expression[exp] RCURLY
+{
+  AMapletExp maplet = (AMapletExp)$maplet;
+  List<PMultipleBind> binds = (List<PMultipleBind>)$bindList;
+  PExp pred = (PExp)$exp;
+  LexLocation loc = extractLexLocation((CmlLexeme)$LCURLY, (CmlLexeme)$RCURLY);
+  $$ = new AMapCompMapExp(loc, maplet, binds, pred);
+}
 /* tuple constructor */
-| MKUNDER LPAREN expressionList RPAREN
+| MKUNDER LPAREN expressionList[list] RPAREN
+{
+  List<PExp> exprs = (List<PExp>)$list;
+  LexLocation loc = extractLexLocation((CmlLexeme)$MKUNDER, (CmlLexeme)$RPAREN);
+  $$ = new ATupleExp(loc, exprs);
+}
 /* recordConstructor */
-| MKUNDERNAME LPAREN expressionList RPAREN
+| MKUNDERNAME LPAREN expressionList[list] RPAREN
+{
+  LexNameToken name = extractNameFromUNDERNAMEToken((CmlLexeme)$MKUNDERNAME);
+  List<PExp> exprs = (List<PExp>)$list;
+  LexLocation loc = extractLexLocation(((CmlLexeme)$MKUNDERNAME), (CmlLexeme)$RPAREN);
+  PExp res = null;
+  if ("token".equals(name.name) && exprs != null && exprs.size() == 1) {
+    ATokenBasicType type = new ATokenBasicType(loc, true);
+    $$ = new AMkBasicExp(type, loc, exprs.get(0));
+  } else {
+    $$ = new AMkTypeExp(loc, name, exprs);
+  }
+}
 /* lambda expression */
-| LAMBDA typeBindList AT expression %prec LAMBDA
+| LAMBDA typeBindList[binds] AT expression[exp] %prec LAMBDA
+{
+  List<ATypeBind> binds = (List<ATypeBind>)$binds;
+  PExp body = (PExp)$exp;
+  LexLocation loc = extractLexLocation((CmlLexeme)$LAMBDA, body.getLocation());
+  $$ = new ALambdaExp(loc, binds, body, null, null);
+}
 /* general Is Expressions */
 /* DEVIATION
  * CML_0:
@@ -2721,46 +3825,140 @@ expression :
  *
  */
 | ISUNDERNAME LPAREN expression RPAREN
+{
+  /* --- TODO --- */
+}
 | ISUNDER basicType LPAREN expression RPAREN
+{
+  /* --- TODO --- */
+}
 | ISUNDER LPAREN expression COMMA type RPAREN
+{
+  /* --- TODO --- */
+}
 /* precondition expression */
 /* (JWC) first parameter of the precondition expression is the
  * function that we want the precondition of
  */
-| PREUNDER LPAREN expressionList RPAREN
+| PREUNDER LPAREN expressionList[list] RPAREN
+{
+  /* --- TODO --- */
+  /* This instantiation can't be correct.
+   */
+  List<PExp> exprs = (List<PExp>)$list;
+  PExp function = null;
+  LexLocation loc = extractLexLocation((CmlLexeme)$PREUNDER, (CmlLexeme)$RPAREN);
+  $$ = new APreExp(loc, function, exprs);
+}
 /* DEVIATION
  * GRAMMAR ERROR: Missing COMMA
  * CML_0:
  *   ISOFCLASS LPAREN name expression RPAREN
  * here:
- *   ISOFCLASS LPAREN path COMMA expression RPAREN
+ *   ISOFCLASS LPAREN dottedIdentifier COMMA expression RPAREN
  */
-| ISOFCLASS LPAREN expression COMMA expression RPAREN
+| ISOFCLASS LPAREN dottedIdentifier[id] COMMA expression[exp] RPAREN
+{
+  /* --- TODO --- */
+  LexLocation loc = extractLexLocation((CmlLexeme)$ISOFCLASS, (CmlLexeme)$RPAREN);
+  List<LexIdentifierToken> dotted = (List<LexIdentifierToken>)$id;
+  // FIXME
+  LexNameToken name = null;
+  //LexNameToken name = convertDottedIdentifierToLexNameToken(dotted);
+  $$ = new AIsOfClassExp(loc,
+			 name,
+			 (PExp)$exp);
+}
 /* chanset expressions */
-| LCURLYBAR expressionList BARRCURLY
+| LCURLYBAR expressionList[list] BARRCURLY
+{
+  /* --- TODO --- */
+  LexLocation loc = extractLexLocation((CmlLexeme)$LCURLYBAR, (CmlLexeme)$BARRCURLY);
+  List<PExp> exprs = (List<PExp>)$list;
+  // FIXME
+  List<LexIdentifierToken> ids = null;
+  //List<LexIdentifierToken> ids = convertExpressionListToLexNameTokenList(exprs);    
+  $$ = new AEnumChansetSetExp(loc, ids);
+}
 | LCURLYBAR expression BAR bindList BARRCURLY
+{
+  /* --- TODO --- */
+  /* below is from the old path-based code
+   */
+  //LexLocation loc = extractLexLocation((CmlLexeme)$LCURLYBAR, (CmlLexeme)$BARRCURLY);
+  //ANameChannelExp chanNameExp =
+  //  (ANameChannelExp)((Path)$path).convertToChannelNameExpression();
+  //List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
+  //$$ = new ACompChansetSetExp(loc, chanNameExp , bindings, null);
+}
 | LCURLYBAR expression BAR bindList AT expression[exp] BARRCURLY
+{
+  /* --- TODO --- */
+  //LexLocation loc = extractLexLocation((CmlLexeme)$LCURLYBAR, (CmlLexeme)$BARRCURLY);
+  //ANameChannelExp chanNameExp = (ANameChannelExp)((Path)$path).convertToChannelNameExpression();
+  //List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
+  //PExp pred = (PExp)$exp;
+  //$$ = new ACompChansetSetExp(loc, chanNameExp, bindings, pred);
+}
 /* chanset expressions end */
 ;
+
 
 /* symbolic literals */
 booleanLiteral:
   FALSE
+{
+  $$ = new LexBooleanToken(VDMToken.FALSE, extractLexLocation((CmlLexeme)$FALSE));
+}
 | TRUE
+{
+  $$ = new LexBooleanToken(VDMToken.TRUE, extractLexLocation((CmlLexeme)$TRUE));
+}
 ;
 
 characterLiteral :
   CHAR_LIT
+{
+  CmlLexeme lex = (CmlLexeme)$CHAR_LIT;
+  LexLocation loc = extractLexLocation(lex);
+  String res = lex.getValue();
+  res = res.replace("'", ""); // FIXME: what is this for? is it correct?
+  $$ = new LexCharacterToken(convertEscapeToChar(res), loc);
+}
 ;
 
 nilLiteral :
   NIL
+{
+  $$ = new LexKeywordToken(VDMToken.NIL, extractLexLocation((CmlLexeme)$NIL));
+}
 ;
 
 numericLiteral :
   NUMERAL
+{
+  CmlLexeme lexeme = (CmlLexeme)$NUMERAL;
+  LexLocation loc = extractLexLocation(lexeme);
+  $$ = new LexIntegerToken(Long.decode(lexeme.getValue()), loc);
+}
 | HEX_LITERAL
+{
+  CmlLexeme lexeme = (CmlLexeme)$HEX_LITERAL;
+  LexLocation loc = extractLexLocation(lexeme);
+  BigInteger b = new BigInteger(lexeme.getValue().substring(2), 16);
+  $$ = new LexIntegerToken(b.longValue(), loc);
+}
 | DECIMAL
+{
+  CmlLexeme lexeme = (CmlLexeme)$DECIMAL;
+  LexLocation loc = extractLexLocation(lexeme);
+  try {
+    DecimalFormat dec = new DecimalFormat();
+    $$ = new LexRealToken(dec.parse(lexeme.getValue()).doubleValue(), loc);
+  } catch (Exception e) {
+    $$ = new LexRealToken(0, loc);
+  }
+}
 ;
 
 textLiteral :
