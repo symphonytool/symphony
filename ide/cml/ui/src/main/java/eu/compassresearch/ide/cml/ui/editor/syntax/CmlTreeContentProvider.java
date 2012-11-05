@@ -311,7 +311,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		return DefinitionMap.getDelegate(cast.getClass()).extractSubdefinition(cast);
 	}
 
-	// Why does this return null?
+	// Why is this returning null?
 	@Override
 	public Object getParent(Object element) {
 		return null;

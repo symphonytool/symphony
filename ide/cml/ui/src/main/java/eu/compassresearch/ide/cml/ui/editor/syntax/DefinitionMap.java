@@ -54,8 +54,8 @@ public class DefinitionMap {
 			
 			for (PDefinition subdef : ((AValueParagraphDefinition) pdef)
 					.getValueDefinitions()){
-					String nameguard = "??";
-					String typeguard = "??";
+					String nameguard = "?";
+					String typeguard = "?";
 					if (null != subdef.getName())
 						nameguard = subdef.getName().name;
 					if (null != subdef.getType())
