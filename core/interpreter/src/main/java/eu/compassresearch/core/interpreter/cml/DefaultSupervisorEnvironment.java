@@ -75,9 +75,9 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 			{
 				CMLProcess p = iterator.next();
 
-				while(p.getState() != ProcessState.FINISHED && 
-						p.getState() != ProcessState.WAIT)
-				{
+//				while(!p.finished() && 
+//						p.getState() != ProcessState.WAIT)
+//				{
 					CMLBehaviourSignal signal = p.execute(this);
 
 					if(signal != CMLBehaviourSignal.EXEC_SUCCESS)
@@ -94,7 +94,7 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 						iterator.remove();
 						break;
 					}
-				}
+//				}
 			}
 			
 			for(Iterator<CMLProcess> iterator = waiting.iterator(); iterator.hasNext();)

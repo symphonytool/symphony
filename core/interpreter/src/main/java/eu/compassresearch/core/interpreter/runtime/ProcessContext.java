@@ -32,7 +32,7 @@ import org.overture.interpreter.runtime.RootContext;
 import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.values.ProcessValueOld;
+import eu.compassresearch.core.interpreter.values.ProcessValue;
 
 
 /**
@@ -42,8 +42,8 @@ import eu.compassresearch.core.interpreter.values.ProcessValueOld;
 @SuppressWarnings("serial")
 public class ProcessContext extends RootContext
 {
-	public final ObjectValue self;
-	//public final ProcessValue process;
+	//public final ObjectValue self;
+	public final ProcessValue self;
 
 	/**
 	 * Create an ObjectContext from the values passed.
@@ -56,14 +56,14 @@ public class ProcessContext extends RootContext
 
 	public ProcessContext(
 		LexLocation location, String title, Context freeVariables,
-		Context outer, ObjectValue self)
+		Context outer, ProcessValue self)
 	{
 		super(location, title, freeVariables, outer);
 		this.self = self;
 	}
 
 	public ProcessContext(
-		LexLocation location, String title, Context outer, ObjectValue self)
+		LexLocation location, String title, Context outer, ProcessValue self)
 	{
 		this(location, title, null, outer, self);
 	}
@@ -78,8 +78,9 @@ public class ProcessContext extends RootContext
 			below = outer.deepCopy();
 		}
 
-		Context result =
-			new ProcessContext(location, title, freeVariables, below, self.deepCopy());
+		//FIXME self should be deep copied
+		Context result = new ProcessContext(location, title, freeVariables, below, self);
+			//new ProcessContext(location, title, freeVariables, below, self.deepCopy());
 
 		for (LexNameToken var: keySet())
 		{
@@ -122,7 +123,7 @@ public class ProcessContext extends RootContext
 			}
 		}
 
-		v = self.get(name, name.explicit);
+		v = null;//self.get(name, name.explicit);
 
 		if (v != null)
 		{
@@ -164,9 +165,5 @@ public class ProcessContext extends RootContext
 		}
 	}
 
-	@Override
-	public ObjectValue getSelf()
-	{
-		return self;
-	}
+	
 }

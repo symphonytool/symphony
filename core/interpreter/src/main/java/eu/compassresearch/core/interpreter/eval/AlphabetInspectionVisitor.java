@@ -43,6 +43,7 @@ public class AlphabetInspectionVisitor
 		
 		CMLCommunication com = new CMLCommunication(chanValue);
 		Set<CMLCommunication> comset = new HashSet<CMLCommunication>();
+		comset.add(com);
 		return new CMLAlphabet(comset);
 	}
 	

@@ -6,6 +6,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CMLChannel;
 import eu.compassresearch.core.interpreter.cml.CMLChannelSignal;
+import eu.compassresearch.core.interpreter.cml.CMLCommunication;
 import eu.compassresearch.core.interpreter.cml.CMLInputChannel;
 import eu.compassresearch.core.interpreter.cml.CMLOutputChannel;
 
@@ -37,8 +38,16 @@ public class CMLChannelValue extends Value implements CMLChannel, CMLChannelSign
 
 	@Override
 	public boolean equals(Object other) {
-		// TODO Auto-generated method stub
-		return false;
+		
+		CMLChannelValue otherValue = null;
+		
+		if(!(other instanceof CMLChannelValue))
+			return false;
+		
+		otherValue = (CMLChannelValue)other;
+		
+		return otherValue.getName().equals(getName()) &&
+				otherValue.getType().equals(getType());
 	}
 
 	@Override
@@ -54,25 +63,21 @@ public class CMLChannelValue extends Value implements CMLChannel, CMLChannelSign
 
 	@Override
 	public Object clone() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Value read() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void write(Value value) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void signal() {
-		// TODO Auto-generated method stub
 		
 	}
 

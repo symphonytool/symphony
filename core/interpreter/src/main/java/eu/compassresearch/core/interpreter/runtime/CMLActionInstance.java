@@ -38,38 +38,38 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 		state = ProcessState.RUNNABLE;
 	}
 
-	@Override
-	public CMLBehaviourSignal execute(CMLSupervisorEnvironment env) throws AnalysisException {
-		this.env= env;
-
-		//inspect
-		CMLAlphabet alpha = inspect();
-		CMLBehaviourSignal ret = null;
-
-		//execute if the next is an invisible action
-		if(alpha.containsTau()){
-			state = ProcessState.RUNNING;
-			ret = executeNext();
-			//state = ProcessState.WAIT;
-		}
-		else 
-		{	
-			//if no com is selected yet we set go to wait state
-			if(env.communicationSelected() && alpha.containsCommunication(env.selectedCommunication()))
-			{
-				ret = executeNext();
-			}
-			else 
-			{
-				state = ProcessState.WAIT;
-				ret = CMLBehaviourSignal.EXEC_SUCCESS;
-			}
-		}
-
-		return ret;
-
-
-	}
+//	@Override
+//	public CMLBehaviourSignal execute(CMLSupervisorEnvironment env) throws AnalysisException {
+//		this.env= env;
+//
+//		//inspect
+//		CMLAlphabet alpha = inspect();
+//		CMLBehaviourSignal ret = null;
+//
+//		//execute if the next is an invisible action
+//		if(alpha.containsTau()){
+//			state = ProcessState.RUNNING;
+//			ret = executeNext();
+//			//state = ProcessState.WAIT;
+//		}
+//		else 
+//		{	
+//			//if no com is selected yet we set go to wait state
+//			if(env.communicationSelected() && alpha.containsCommunication(env.selectedCommunication()))
+//			{
+//				ret = executeNext();
+//			}
+//			else 
+//			{
+//				state = ProcessState.WAIT;
+//				ret = CMLBehaviourSignal.EXEC_SUCCESS;
+//			}
+//		}
+//
+//		return ret;
+//
+//
+//	}
 
 	@Override
 	public CMLAlphabet inspect() throws AnalysisException 
