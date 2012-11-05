@@ -43,8 +43,8 @@ public class CmlBuildVisitor implements IResourceVisitor {
 			return false;
 
 		// Lets run the type checker
-		// if (!typeCheck(file, source))
-		// return false;
+		if (!typeCheck(file, source))
+			return false;
 
 		// Set the AST on the source unit
 		CmlSourceUnit dom = CmlSourceUnit.getFromFileResource(file);
@@ -76,7 +76,7 @@ public class CmlBuildVisitor implements IResourceVisitor {
 					setProblem(marker, tcError.getDescription(), loc.startLine);
 				}
 			}
-			return tcSuccess;
+			return true;
 		} catch (Exception tcException) {
 			IMarker tcMarker = file.createMarker(IMarker.PROBLEM);
 			setExceptionInfo(
@@ -86,7 +86,7 @@ public class CmlBuildVisitor implements IResourceVisitor {
 							+ file.getName() + "\".");
 
 		}
-		return false;
+		return true;
 	}
 
 	private static void setProblem(IMarker marker, String text, int line)
