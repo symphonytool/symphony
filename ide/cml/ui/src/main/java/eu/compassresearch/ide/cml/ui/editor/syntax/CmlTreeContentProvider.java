@@ -69,7 +69,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		return new Object[0];
 	}
 
-	private static class Wrapper<T> extends FieldDecoration {
+	public static class Wrapper<T> extends FieldDecoration {
 		private String str;
 
 		public static <T> Wrapper<T> newInstance(T value, String str) {
@@ -144,16 +144,18 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			}
 
 			if (((Wrapper) n).isClass(ATypesParagraphDefinition.class)) {
-				List<String> res = new LinkedList<String>();
+				List<OutlineEntry> res = new LinkedList<OutlineEntry>();
 				ATypesParagraphDefinition td = (ATypesParagraphDefinition) w.value;
-				res = DefinitionMap.getDelegate(td.getClass()).extractSubdefinition(td);
+				res = DefinitionMap.getDelegate(td.getClass())
+						.extractSubdefinition(td);
 				return res.toArray();
 			}
 
 			if (((Wrapper) n).isClass(AFunctionParagraphDefinition.class)) {
-				List<String> res = new LinkedList<String>();
+				List<OutlineEntry> res = new LinkedList<OutlineEntry>();
 				AFunctionParagraphDefinition fd = (AFunctionParagraphDefinition) w.value;
-				res = DefinitionMap.getDelegate(fd.getClass()).extractSubdefinition(fd);
+				res = DefinitionMap.getDelegate(fd.getClass())
+						.extractSubdefinition(fd);
 				return res.toArray();
 			}
 
@@ -182,48 +184,51 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		return new String[0];
 	}
 
-
-
-	private List<String> handleChansetParagraphDefinition(
+	private List<OutlineEntry> handleChansetParagraphDefinition(
 			AChansetParagraphDefinition cspdef) {
-		List<String> r = new LinkedList<String>();
+		List<OutlineEntry> r = new LinkedList<OutlineEntry>();
 		for (AChansetDefinition cdef : cspdef.getChansets()) {
-			r.add(cdef.getIdentifier().toString());
+			r.add(new OutlineEntry(cdef.getIdentifier().toString(),
+					OutlineEntryType.CHANSET_ENTRY));
 		}
 		return r;
 	}
 
-	private List<String> handleClassParagraphDefinition(
+	private List<OutlineEntry> handleClassParagraphDefinition(
 			AClassParagraphDefinition cpdef) {
-		List<String> r = new LinkedList<String>();
-		
+		List<OutlineEntry> r = new LinkedList<OutlineEntry>();
 		for (PDefinition pdef : cpdef.getDefinitions()) {
-			r.addAll(DefinitionMap.getDelegate(pdef.getClass()).extractSubdefinition(pdef));
+			r.addAll(DefinitionMap.getDelegate(pdef.getClass())
+					.extractSubdefinition(pdef));
 		}
 		return r;
 	}
-	
-	private List<String> handleProcessParagraphDefinition(
+
+	private List<OutlineEntry> handleProcessParagraphDefinition(
 			AProcessParagraphDefinition ppdef) {
 		PProcess pp = ppdef.getProcessDefinition().getProcess();
 		return ProcessMap.getProcessMap().get(pp.getClass()).makeEntries(pp);
 	}
 
 	private Wrapper<PDefinition> wrapParagraphDefinition(PDefinition pdef) {
-		if (pdef instanceof AValueParagraphDefinition)
-			return Wrapper.newInstance(pdef, "global value declarations");
-		if (pdef instanceof AFunctionParagraphDefinition)
-			return Wrapper.newInstance(pdef, "global function declarations");
-		if (pdef instanceof AOperationParagraphDefinition)
-			return Wrapper.newInstance(pdef, "Operations");
-		if (pdef instanceof ATypesParagraphDefinition)
-			return Wrapper.newInstance(pdef, "global type declarations");
-		if (pdef instanceof AChannelParagraphDefinition)
-			return Wrapper.newInstance(pdef, "channel declarations");
-		if (pdef instanceof AChansetParagraphDefinition)
-			return Wrapper.newInstance(pdef, "chanset declarations");
-
-		return Wrapper.newInstance(pdef, pdef.getName().name);
+		String dscr = TopLevelDefinitionMap.getDescription(pdef.getClass());
+		if (dscr == null)
+			return Wrapper.newInstance(pdef, pdef.getName().name);
+		return Wrapper.newInstance(pdef, dscr);
+		// if (pdef instanceof AValueParagraphDefinition)
+		// return Wrapper.newInstance(pdef, "global value declarations");
+		// if (pdef instanceof AFunctionParagraphDefinition)
+		// return Wrapper.newInstance(pdef, "global function declarations");
+		// if (pdef instanceof AOperationParagraphDefinition)
+		// return Wrapper.newInstance(pdef, "Operations");
+		// if (pdef instanceof ATypesParagraphDefinition)
+		// return Wrapper.newInstance(pdef, "global type declarations");
+		// if (pdef instanceof AChannelParagraphDefinition)
+		// return Wrapper.newInstance(pdef, "channel declarations");
+		// if (pdef instanceof AChansetParagraphDefinition)
+		// return Wrapper.newInstance(pdef, "chanset declarations");
+		//
+		// return Wrapper.newInstance(pdef, pdef.getName().name);
 	}
 
 	private List<Object> handleProcess(PProcess process) {
@@ -296,19 +301,20 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		}
 	}
 
-	private List<String> handleChannelParagraphDefinition(
+	private List<OutlineEntry> handleChannelParagraphDefinition(
 			AChannelParagraphDefinition cpdef) {
-		List<String> r = new LinkedList<String>();
+		List<OutlineEntry> r = new LinkedList<OutlineEntry>();
 		for (AChannelNameDeclaration dec : cpdef.getChannelNameDeclarations()) {
-			r.add(dec.getSingleType().getIdentifiers().toString() + ": "
-					+ dec.getSingleType().getType());
+			r.add(new OutlineEntry(dec.getSingleType().getIdentifiers().toString() + ": "
+					+ dec.getSingleType().getType(), OutlineEntryType.CHANNEL_ENTRY));
 		}
 		return r;
 	}
 
-	private List<String> handleValueParagraphDefinition(
+	private List<OutlineEntry> handleValueParagraphDefinition(
 			AValueParagraphDefinition cast) {
-		return DefinitionMap.getDelegate(cast.getClass()).extractSubdefinition(cast);
+		return DefinitionMap.getDelegate(cast.getClass()).extractSubdefinition(
+				cast);
 	}
 
 	// Why is this returning null?

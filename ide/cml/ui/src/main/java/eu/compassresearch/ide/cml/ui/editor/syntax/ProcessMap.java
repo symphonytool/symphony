@@ -16,7 +16,7 @@ import eu.compassresearch.ide.cml.ui.editor.syntax.DefinitionMap.DefinitionHandl
 public class ProcessMap {
 
 	public interface ProcessHandler {
-		public List<String> makeEntries(PProcess proc);
+		public List<OutlineEntry> makeEntries(PProcess proc);
 	}
 
 	public static final Map<Class<?>, ? extends ProcessHandler> PROCESS_MAP = createMap();
@@ -40,11 +40,11 @@ public class ProcessMap {
 
 	private static class AStateProcessHandler implements ProcessHandler {
 
-		public List<String> makeEntries(PProcess proc) {
-			List<String> r = new LinkedList<String>();
+		public List<OutlineEntry> makeEntries(PProcess proc) {
+			List<OutlineEntry> r = new LinkedList<OutlineEntry>();
 			AStateProcess asp = (AStateProcess) proc;
 
-			r.add("@]" + makeInitActionLine(asp.getAction()));
+			r.add(new OutlineEntry("@]" + makeInitActionLine(asp.getAction()),OutlineEntryType.ACTION));
 			for (PDefinition pdef : asp.getDefinitionParagraphs()) {
 				DefinitionHandler dh = DefinitionMap.getDelegate(pdef.getClass());						
 				if (dh != null)

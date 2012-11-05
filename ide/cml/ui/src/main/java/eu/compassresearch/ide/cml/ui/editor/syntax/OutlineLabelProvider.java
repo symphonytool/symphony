@@ -9,6 +9,10 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 
+import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
+import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
+import eu.compassresearch.ide.cml.ui.editor.syntax.CmlTreeContentProvider.Wrapper;
+
 public class OutlineLabelProvider extends LabelProvider {
 
 	// TODO Initialize map w/ correct number of images
@@ -22,21 +26,8 @@ public class OutlineLabelProvider extends LabelProvider {
 	 * @see ILabelProvider#getImage(Object)
 	 */
 	public Image getImage(Object element) {
-
-		ImageDescriptor descriptor = null;
-		//TODO add code for multiple images
-		String img = "/icons/cview16/cml_file_tsk.png";
-		URL url = this.getClass().getResource(img);
-		descriptor= ImageDescriptor.createFromURL(url);
-		Image image = (Image)imageCache.get(descriptor);
-		if (image == null) {
-			image = descriptor.createImage();
-			imageCache.put(descriptor, image);
-		}
-		return image;
+		return OutlineEntryType.getImageForElement(element);
 	}
-
-
 
 	/*
 	 * @see ILabelProvider#getText(Object)
@@ -44,24 +35,6 @@ public class OutlineLabelProvider extends LabelProvider {
 	public String getText(Object element) {
 		// TODO extract proper label texts
 		return element.toString();
-		//
-		// Object o = new Object();
-		// for (Method m : element.getClass().getMethods())
-		// {
-		// if ("getLocation".equals(m.getName()))
-		// {
-		// try {
-		//
-		// LexLocation loc = (LexLocation)m.invoke(o, new
-		// Object[0]);
-		//
-		// } catch (Exception e)
-		// {
-		//
-		// }
-		// }
-		// }
-
 	}
 
 	public void dispose() {
