@@ -840,8 +840,8 @@ process :
     Path path = (Path)$path;
     $$ = path.convertToProcess();
   } catch(PathConvertException e) {
-    e.printStackTrace();
-    System.exit(-4);
+   // TODO: RWL Do not use System.exit - Figure out a nicer way of handling this. 
+   throw new RuntimeException(e); 
   }
 }
 | process renameExpression
@@ -1548,9 +1548,8 @@ communication[result] :
 										    exp));
     }
     catch(PathConvertException e) {
-	e.printStackTrace();
-	System.exit(-4);
-    }
+	   throw new RuntimeException(e);    
+	}
 }
 | communication[before] QUESTION pattern
 {
@@ -1567,8 +1566,7 @@ communication[result] :
     $$ = comAction;
     }
     catch(PathConvertException e) {
-	e.printStackTrace();
-	System.exit(-4);
+     throw new RuntimeException(e);
     }
 }
 | communication[before] QUESTION setBind
@@ -1585,8 +1583,7 @@ communication[result] :
 	$$ = comAction;
     }
     catch(PathConvertException e) {
-	e.printStackTrace();
-	System.exit(-4);
+		throw new RuntimeException(e);
     }
     
 }
@@ -1650,7 +1647,7 @@ renameExpression :
   }
   catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
 }
 | DLSQUARE path[from] LARROW path[to] BAR bindList AT expression DRSQUARE 
@@ -1666,7 +1663,7 @@ renameExpression :
   }
   catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
 }
 ;
@@ -1694,7 +1691,7 @@ renameList :
   }
   catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
 }
 | renameList COMMA path[from] LARROW path[to]
@@ -1709,7 +1706,7 @@ renameList :
   }
   catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
 }
 ;
@@ -2918,7 +2915,7 @@ MEASURE path
     }
     catch(PathConvertException e) {
         e.printStackTrace();
-        System.exit(-4);
+	    throw new RuntimeException(e);
     }
 }
 | /* empty */ 
@@ -3556,7 +3553,7 @@ expression :
     }
     catch(PathConvertException e) {
         e.printStackTrace();
-        System.exit(-4);
+        throw new RuntimeException(e);
     }
     $$ = exp;
 }
@@ -3594,7 +3591,7 @@ expression :
     exp = path.convertToExpression();
   } catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+	throw new RuntimeException(e);
   }
   $$ = exp;
 }
@@ -3660,7 +3657,7 @@ expression :
     }
     catch(PathConvertException e) {
 	e.printStackTrace();
-	System.exit(-4);
+	throw new RuntimeException(e);
     }
 }
 | LCURLYBAR path BAR bindList AT expression[exp] BARRCURLY
@@ -3675,7 +3672,7 @@ expression :
     }
     catch(PathConvertException e) {
 	e.printStackTrace();
-	System.exit(-4);
+	throw new RuntimeException(e);
     }
 }
 /* chanset expressions end */
@@ -4434,7 +4431,7 @@ controlStatement :
                                          args);
   } catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+	throw new RuntimeException(e);
   }
   $$ = stm;
 }
@@ -4452,7 +4449,7 @@ controlStatement :
                                          args);
   } catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
   $$ = stm;
 }
@@ -4563,7 +4560,7 @@ controlStatement :
     action = path.convertToAction();
   } catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
   $$ = action;
 }
@@ -4737,7 +4734,7 @@ assignStatement :
     stateDesignator = path.convertToStateDesignator();
   } catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+	throw new RuntimeException(e);
   }
   PExp exp = (PExp)$expression;
   LexLocation location = combineLexLocation(stateDesignator.getLocation(), exp.getLocation());
@@ -5184,7 +5181,7 @@ pathList :
     $$ = names;
   } catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
 }
 | pathList COMMA path
@@ -5196,7 +5193,7 @@ pathList :
     $$ = names;
   } catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
 }
 ;
