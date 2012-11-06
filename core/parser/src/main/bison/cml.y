@@ -312,7 +312,12 @@
 
   private LexNameToken extractLexNameToken(CmlLexeme lexeme)
   {
-    return new LexNameToken("Default",lexeme.getValue(), extractLexLocation(lexeme),false, true);
+    return new LexNameToken("Default", lexeme.getValue(), extractLexLocation(lexeme), false, true);
+  }
+
+  private LexNameToken extractLexNameToken(CmlLexeme lexeme, boolean old)
+  {
+    return new LexNameToken("Default", lexeme.getValue(), extractLexLocation(lexeme), old, true);
   }
 
   private LexNameToken extractLexNameToken(Object obj)
@@ -329,6 +334,11 @@
   private LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme)
   {
     return new LexIdentifierToken(lexeme.getValue(), false, extractLexLocation(lexeme));
+  }
+
+  private LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme, boolean old)
+  {
+    return new LexIdentifierToken(lexeme.getValue(), old, extractLexLocation(lexeme));
   }
 
   private LexIdentifierToken extractLexIdentifierToken(LexNameToken name)
@@ -835,48 +845,48 @@ process :
   PProcess proc = (PProcess)$proc;
   /* FIXME: (->AKM) process was a processDefinition */
   /* $$ = new AInstantiationProcess(location,  */
-  /* 				 decls,  */
-  /* 				 null, */
-  /* 				 (AProcessDefinition)$proc,  */
-  /* 				 args); */
+  /*                             decls,  */
+  /*                             null, */
+  /*                             (AProcessDefinition)$proc,  */
+  /*                             args); */
 }
 | IDENTIFIER
 {
   LexNameToken name = extractLexNameToken($IDENTIFIER);
-  $$ = new AInstantiationProcess(name.location, 
-				 null, 
-				 name,
-				 null,
-				 null); 
+  $$ = new AInstantiationProcess(name.location,
+                                 null,
+                                 name,
+                                 null,
+                                 null);
 }
 | IDENTIFIER LRPAREN
 {
   LexNameToken name = extractLexNameToken($IDENTIFIER);
   LexLocation location = extractLexLocation(name.location,(CmlLexeme)$LRPAREN);
-  $$ = new AInstantiationProcess(location, 
-				 null, 
-				 name,
-				 null,
-				 null); 
+  $$ = new AInstantiationProcess(location,
+                                 null,
+                                 name,
+                                 null,
+                                 null);
 }
 | IDENTIFIER LPAREN expressionList RPAREN
 {
   LexNameToken name = extractLexNameToken($IDENTIFIER);
   LexLocation location = extractLexLocation(name.location,(CmlLexeme)$RPAREN);
-  $$ = new AInstantiationProcess(location, 
-				 null, 
-				 name,
-				 null,
-				 (List<PExp>)$expressionList); 
+  $$ = new AInstantiationProcess(location,
+                                 null,
+                                 name,
+                                 null,
+                                 (List<PExp>)$expressionList);
 }
 | process[proc] renameExpression[rexp]
 {
   SRenameChannelExp renameExpression = (SRenameChannelExp)$rexp;
   PProcess process = (PProcess)$proc;
   $$ = new AChannelRenamingProcess(combineLexLocation(process.getLocation(),
-						      renameExpression.getLocation()),
-				   process,
-				   renameExpression);
+                                                      renameExpression.getLocation()),
+                                   process,
+                                   renameExpression);
 }
 /* replicated processes */
 | SEMI replicationDeclaration AT process %prec U-SEMI
@@ -1002,7 +1012,7 @@ singleExpressionDeclaration :
   AExpressionSingleDeclaration decls = (AExpressionSingleDeclaration)$decls;
   decls.getIdentifiers().add(0, id);
   decls.setLocation(extractLexLocation(id.getLocation(),
-				       exp.getLocation()));
+                                       decls.getLocation()));
   $$ = decls;
 }
 ;
@@ -1058,13 +1068,13 @@ actionDefinitionList :
   List<ATypeSingleDeclaration> declarations = (List<ATypeSingleDeclaration>)pa[0];
   PAction action = (PAction)pa[1];
   LexLocation defLocation = combineLexLocation(extractLexLocation((CmlLexeme)$IDENTIFIER), action.getLocation());
-  AActionDefinition actionDefinition = new AActionDefinition(defLocation, 
-							     NameScope.LOCAL, 
-							     false, 
-							     null,//Access
-							     null,//Pass
-							     declarations, 
-							     action);
+  AActionDefinition actionDefinition = new AActionDefinition(defLocation,
+                                                             NameScope.LOCAL,
+                                                             false,
+                                                             null,//Access
+                                                             null,//Pass
+                                                             declarations,
+                                                             action);
   List<AActionDefinition> actionDefs = new Vector<AActionDefinition>();
   actionDefs.add(actionDefinition);
   $$ = actionDefs;
@@ -1076,13 +1086,13 @@ actionDefinitionList :
   List<ATypeSingleDeclaration> declarations = (List<ATypeSingleDeclaration>)pa[0];
   PAction action = (PAction)pa[1];
   LexLocation defLocation = combineLexLocation(extractLexLocation((CmlLexeme)$IDENTIFIER), action.getLocation());
-  AActionDefinition actionDefinition = new AActionDefinition(defLocation, 
-							     NameScope.LOCAL, 
-							     false, 
-							     null,//Access
-							     null,//Pass
-							     declarations, 
-							     action);
+  AActionDefinition actionDefinition = new AActionDefinition(defLocation,
+                                                             NameScope.LOCAL,
+                                                             false,
+                                                             null,//Access
+                                                             null,//Pass
+                                                             declarations,
+                                                             action);
   actionDefs.add(actionDefinition);
   $$ = actionDefs;
 }
@@ -1164,7 +1174,7 @@ action :
 {
   /* --- TODO --- */
   /* need to merge in old action rule RARROW parser action and the old communication rule actions; along with an expression -> communication conversion?
-   */ 
+   */
   //ACommunicationAction comAction = (ACommunicationAction)$communication;
   //PAction to = (PAction)$to;
   //LexLocation location = extractLexLocation(comAction.getLocation(), to.getLocation());
@@ -1304,9 +1314,9 @@ action :
    */
   List<LexNameToken> nameList = (List<LexNameToken>)$expressionList;
   List<LexIdentifierToken> ids = convertNameListToIdentifierList(nameList);
-  $$ = new AMuAction(extractLexLocation((CmlLexeme)$start,(CmlLexeme)$end), 
-		     ids, 
-		     (List<PAction>)$actionList);
+  $$ = new AMuAction(extractLexLocation((CmlLexeme)$start,(CmlLexeme)$end),
+                     ids,
+                     (List<PAction>)$actionList);
 }
 /* NAMESET
  * expression was namesetExpr here
@@ -1316,22 +1326,22 @@ action :
   PAction leftAction = (PAction)$1;
   PAction rightAction = (PAction)$7;
   $$ = new AInterleavingParallelAction(extractLexLocation(leftAction.getLocation(),
-							  rightAction.getLocation()),
-				       leftAction,
-				       (PExp)$3,
-				       (PExp)$5 ,
-				       rightAction);
+                                                          rightAction.getLocation()),
+                                       leftAction,
+                                       (PExp)$3,
+                                       (PExp)$5 ,
+                                       rightAction);
 }
 | action TBAR action
 {
   PAction leftAction = (PAction)$1;
   PAction rightAction = (PAction)$3;
   $$ = new AInterleavingParallelAction(extractLexLocation(leftAction.getLocation(),
-							  rightAction.getLocation()),
-				       leftAction,
-				       null,
-				       null,
-				       rightAction);
+                                                          rightAction.getLocation()),
+                                       leftAction,
+                                       null,
+                                       null,
+                                       rightAction);
 }
 /* NAMESET
  * expression was namesetExpr here
@@ -1341,22 +1351,22 @@ action :
   PAction leftAction = (PAction)$1;
   PAction rightAction = (PAction)$7;
   $$ = new ASynchronousParallelismParallelAction(extractLexLocation(leftAction.getLocation(),
-								    rightAction.getLocation()),
-						 leftAction,
-						 (PExp)$3,
-						 (PExp)$5,
-						 rightAction);
+                                                                    rightAction.getLocation()),
+                                                 leftAction,
+                                                 (PExp)$3,
+                                                 (PExp)$5,
+                                                 rightAction);
 }
 | action DBAR action
 {
   PAction leftAction = (PAction)$1;
   PAction rightAction = (PAction)$3;
   $$ = new ASynchronousParallelismParallelAction(extractLexLocation(leftAction.getLocation(),
-								    rightAction.getLocation()),
-						 leftAction,
-						 null,
-						 null,
-						 rightAction);
+                                                                    rightAction.getLocation()),
+                                                 leftAction,
+                                                 null,
+                                                 null,
+                                                 rightAction);
 }
 /* CHANSET NAMESET
  * expressions were namesetExpr|chansetExpr||chansetExpr|namesetExpr here
@@ -1383,14 +1393,14 @@ action :
   PAction leftAction = (PAction)$1;
   PAction rightAction = (PAction)$7;
   LexLocation location = extractLexLocation(leftAction.getLocation(),
-					    rightAction.getLocation());
+                                            rightAction.getLocation());
   $$ = new AAlphabetisedParallelismParallelAction(location,
-						  leftAction,
-						  null,
-						  null,
-						  rightAction,
-						  (PExp)$3,
-						  (PExp)$5);
+                                                  leftAction,
+                                                  null,
+                                                  null,
+                                                  rightAction,
+                                                  (PExp)$3,
+                                                  (PExp)$5);
 }
 /* CHANSET NAMESET
  * expressions were namesetExpr|chansetExpr|namesetExpr here
@@ -1400,13 +1410,13 @@ action :
   PAction leftAction = (PAction)$1;
   PAction rightAction = (PAction)$9;
   LexLocation location = extractLexLocation(leftAction.getLocation(),
-					    rightAction.getLocation());
+                                            rightAction.getLocation());
   $$ = new AGeneralisedParallelismParallelAction(location,
-						 leftAction,
-						 (PExp)$3,
-						 (PExp)$7,
-						 rightAction,
-						 (PExp)$5);
+                                                 leftAction,
+                                                 (PExp)$3,
+                                                 (PExp)$7,
+                                                 rightAction,
+                                                 (PExp)$5);
 }
 /* CHANSET
  * expression was chansetExpr here
@@ -1416,13 +1426,13 @@ action :
   PAction leftAction = (PAction)$1;
   PAction rightAction = (PAction)$5;
   LexLocation location = extractLexLocation(leftAction.getLocation(),
-					    rightAction.getLocation());
+                                            rightAction.getLocation());
   $$ = new AGeneralisedParallelismParallelAction(location,
-						 leftAction,
-						 null,
-						 null,
-						 rightAction,
-						 (PExp)$3);
+                                                 leftAction,
+                                                 null,
+                                                 null,
+                                                 rightAction,
+                                                 (PExp)$3);
 }
 /* DEVIATION
  * CML_0:
@@ -1433,20 +1443,20 @@ action :
 | LPAREN parametrisationList AT action[pAction] RPAREN
 {
   $$ = new AParametrisedAction(extractLexLocation((CmlLexeme)$LPAREN,
-						  (CmlLexeme)$RPAREN),
-			       (List<PParametrisation>)$parametrisationList,
-			       (PAction)$pAction);
+                                                  (CmlLexeme)$RPAREN),
+                               (List<PParametrisation>)$parametrisationList,
+                               (PAction)$pAction);
 }
 | LPAREN[start] parametrisationList[params] AT action[pAction] RPAREN[pEnd] LPAREN expressionList[args] RPAREN[end]
 {
   AParametrisedAction action = new AParametrisedAction(extractLexLocation((CmlLexeme)$start,
-									  (CmlLexeme)$pEnd),
-						       (List<PParametrisation>)$params,
-						       (PAction)$pAction);
+                                                                          (CmlLexeme)$pEnd),
+                                                       (List<PParametrisation>)$params,
+                                                       (PAction)$pAction);
   $$ = new AParametrisedInstantiatedAction(extractLexLocation((CmlLexeme)$start,
-							      (CmlLexeme)$end),
-					   action,
-					   (List<PExp>)$args);
+                                                              (CmlLexeme)$end),
+                                           action,
+                                           (List<PExp>)$args);
 }
 | LPAREN[start] singleTypeDeclarationList[decls] AT action[pAction] RPAREN LPAREN expressionList[args] RPAREN[end]
 {
@@ -1486,11 +1496,11 @@ action :
 {
   PAction replicatedAction = (PAction)$6;
   LexLocation location = extractLexLocation((CmlLexeme)$1,
-					    replicatedAction.getLocation());
+                                            replicatedAction.getLocation());
   $$ = new AInterleavingReplicatedAction(location,
-					 (List<SSingleDeclaration>)$replicationDeclaration,
-					 replicatedAction,
-					 (PExp)$expression);
+                                         (List<SSingleDeclaration>)$replicationDeclaration,
+                                         replicatedAction,
+                                         (PExp)$expression);
 }
 /* NAMESET
  * expression was namesetExpr here
@@ -1499,11 +1509,11 @@ action :
 {
   PAction replicatedAction = (PAction)$7;
   LexLocation location = extractLexLocation((CmlLexeme)$1,
-					    replicatedAction.getLocation());
+                                            replicatedAction.getLocation());
   $$ = new AInterleavingReplicatedAction(location,
-					 (List<SSingleDeclaration>)$replicationDeclaration,
-					 replicatedAction,
-					 (PExp)$expression);
+                                         (List<SSingleDeclaration>)$replicationDeclaration,
+                                         replicatedAction,
+                                         (PExp)$expression);
 }
 /* CHANSET NAMESET
  * expressions were namesetExpr, chansetExpr here
@@ -1512,12 +1522,12 @@ action :
 {
   PAction replicatedAction = (PAction)$9;
   LexLocation location = extractLexLocation((CmlLexeme)$1,
-					    replicatedAction.getLocation());
+                                            replicatedAction.getLocation());
   $$ = new AGeneralisedParallelismReplicatedAction(location,
-						   (List<SSingleDeclaration>)$replicationDeclaration,
-						   replicatedAction,
-						   (PExp)$2,
-						   (PExp)$7);
+                                                   (List<SSingleDeclaration>)$replicationDeclaration,
+                                                   replicatedAction,
+                                                   (PExp)$2,
+                                                   (PExp)$7);
 }
 /* CHANSET NAMESET
  * expressions were namesetExpr, chansetExpr here
@@ -1527,10 +1537,10 @@ action :
   PAction replicatedAction = (PAction)$9;
   LexLocation location = extractLexLocation((CmlLexeme)$1,replicatedAction.getLocation());
   $$ = new AAlphabetisedParallelismReplicatedAction(location,
-						    (List<? extends SSingleDeclaration>)$replicationDeclaration,
-						    replicatedAction,
-						    (PExp)$5,
-						    (PExp)$7);
+                                                    (List<? extends SSingleDeclaration>)$replicationDeclaration,
+                                                    replicatedAction,
+                                                    (PExp)$5,
+                                                    (PExp)$7);
 }
 /* CHANSET
  * expression was namesetExpr here
@@ -1540,9 +1550,9 @@ action :
   PAction replicatedAction = (PAction)$7;
   LexLocation location = extractLexLocation((CmlLexeme)$1,replicatedAction.getLocation());
   $$ = new ASynchronousParallelismReplicatedAction(location,
-						   (List<? extends SSingleDeclaration>)$replicationDeclaration,
-						   replicatedAction,
-						   (PExp)$5);
+                                                   (List<? extends SSingleDeclaration>)$replicationDeclaration,
+                                                   replicatedAction,
+                                                   (PExp)$5);
 }
 /*
  * controlStatements
@@ -1561,8 +1571,8 @@ action :
   LexLocation location = extractLexLocation((CmlLexeme)$LPAREN, (CmlLexeme)$RPAREN);
   ADeclareStatementAction dclStm =
     new ADeclareStatementAction(extractLexLocation((CmlLexeme)$DCL,
-						   (CmlLexeme)$AT),
-				(List<? extends PDefinition>)$assignmentDefList);
+                                                   (CmlLexeme)$AT),
+                                (List<? extends PDefinition>)$assignmentDefList);
   PAction action = (PAction)$bAction;
   $$ = new ABlockStatementAction(location, dclStm, action);
 }
@@ -1576,7 +1586,7 @@ action :
   List<ANonDeterministicAltStatementAction> alternatives =
     (List<ANonDeterministicAltStatementAction>)$nonDeterministicAltList;
   $$ = new ANonDeterministicIfStatementAction(location,
-					      alternatives);
+                                              alternatives);
 }
 | DO nonDeterministicAltList END %prec U-DO
 {
@@ -1584,7 +1594,7 @@ action :
   List<ANonDeterministicAltStatementAction> alternatives =
     (List<ANonDeterministicAltStatementAction>)$nonDeterministicAltList;
   $$ = new ANonDeterministicDoStatementAction(location,
-					      alternatives);
+                                              alternatives);
 }
 /* DEVIATION
  * callStatement --- with assignment
@@ -1606,7 +1616,7 @@ action :
 {
   LexLocation location = extractLexLocation((CmlLexeme)$ATOMIC,(CmlLexeme)$RPAREN);
   $$ = new AMultipleGeneralAssignmentStatementAction(location,
-						     (List<? extends ASingleGeneralAssignmentStatementAction>)$assignStatementList);
+                                                     (List<? extends ASingleGeneralAssignmentStatementAction>)$assignStatementList);
 }
 /* call statements without assignment */
 | dottedIdentifier LRPAREN
@@ -1636,8 +1646,8 @@ action :
 {
   PExp exp = (PExp)$expression;
   $$ = new AReturnStatementAction(extractLexLocation((CmlLexeme)$RETURN,
-						     exp.getLocation()),
-				  exp);
+                                                     exp.getLocation()),
+                                  exp);
 }
 /* DEVIATION
  * CML_0:
@@ -1662,9 +1672,9 @@ action :
   List<? extends PExp> args = null;
   LexLocation location = combineLexLocation(target.getLocation(),newExp.getLocation());
   //stm = new ANewStatementAction(location,
-  //				  target.convertToStateDesignator(),
-  //				  newExp.convertToName(),
-  //				  args);
+  //                              target.convertToStateDesignator(),
+  //                              newExp.convertToName(),
+  //                              args);
   $$ = stm;
 }
 // --- FIXME delete this; in with above rule; here for reference until merged ---
@@ -1705,11 +1715,11 @@ action :
                                                     null,
                                                     bind,
                                                     null,
-						    null);
+                                                    null);
   $$ = new AForSequenceStatementAction(location,
-				       patternBind,
-				       (PExp)$expression,
-				       action);
+                                       patternBind,
+                                       (PExp)$expression,
+                                       action);
 }
 // | FOR bind IN REVERSE expression DO action
 | FOR pattern IN expression DO action[fAction]
@@ -1721,11 +1731,11 @@ action :
                                                     pattern,
                                                     null,
                                                     null,
-						    null);
+                                                    null);
   $$ = new AForSequenceStatementAction(location,
-				       patternBind,
-				       (PExp)$expression,
-				       action);
+                                       patternBind,
+                                       (PExp)$expression,
+                                       action);
 }
 // | FOR pattern IN REVERSE expression DO action */
 | FOR ALL pattern INSET expression DO action[fAction]
@@ -1733,39 +1743,39 @@ action :
   PAction action = (PAction)$fAction;
   LexLocation location = extractLexLocation((CmlLexeme)$FOR,action.getLocation());
   $$ = new AForSetStatementAction(location,
-				  (PPattern)$pattern,
-				  (PExp)$expression,
-				  action);
+                                  (PPattern)$pattern,
+                                  (PExp)$expression,
+                                  action);
 }
 | FOR IDENTIFIER EQUALS expression[start] TO expression[end] DO action[fAction]
 {
   PAction action = (PAction)$fAction;
   LexLocation location = extractLexLocation((CmlLexeme)$FOR,action.getLocation());
   $$ = new AForIndexStatementAction(location,
-				    extractLexNameToken($IDENTIFIER),
-				    (PExp)$start ,
-				    (PExp)$end,
-				    null,
-				    action);
+                                    extractLexNameToken($IDENTIFIER),
+                                    (PExp)$start ,
+                                    (PExp)$end,
+                                    null,
+                                    action);
 }
 | FOR IDENTIFIER EQUALS expression[start] TO expression[end] BY expression[step] DO action[fAction]
 {
   PAction action = (PAction)$fAction;
   LexLocation location = extractLexLocation((CmlLexeme)$FOR,action.getLocation());
   $$ = new AForIndexStatementAction(location,
-				    extractLexNameToken($IDENTIFIER),
-				    (PExp)$start ,
-				    (PExp)$end,
-				    (PExp)$step,
-				    action);
+                                    extractLexNameToken($IDENTIFIER),
+                                    (PExp)$start ,
+                                    (PExp)$end,
+                                    (PExp)$step,
+                                    action);
 }
 | WHILE expression DO action[wAction]
 {
   PAction action = (PAction)$wAction;
   LexLocation location = extractLexLocation((CmlLexeme)$WHILE,action.getLocation());
   $$ = new AWhileStatementAction(location,
-				 (PExp)$expression,
-				 action);
+                                 (PExp)$expression,
+                                 action);
 }
 /* This is the old way we managed to have bare calls in actions; we
  * now use the dottedIdentifier LPAREN... production
@@ -1828,34 +1838,34 @@ renameExpression :
   DLSQUARE renameList DRSQUARE
 {
   $$ = new AEnumerationRenameChannelExp(extractLexLocation((CmlLexeme)$DLSQUARE,
-							   (CmlLexeme)$DRSQUARE),
-					(List<? extends ARenamePair>)$renameList);
+                                                           (CmlLexeme)$DRSQUARE),
+                                        (List<? extends ARenamePair>)$renameList);
 }
 | DLSQUARE expression[from] LARROW expression[to] BAR bindList DRSQUARE
 {
   /* --- TODO --- */
   /* path elimination */
   ARenamePair pair = new ARenamePair(false,
-				     (ANameChannelExp)$from,
-				     (ANameChannelExp)$to);
+                                     (ANameChannelExp)$from,
+                                     (ANameChannelExp)$to);
   $$ = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)$DLSQUARE,
-							     (CmlLexeme)$DRSQUARE),
-					  pair,
-					  (List<? extends PMultipleBind>)$bindList,
-					  null);
+                                                             (CmlLexeme)$DRSQUARE),
+                                          pair,
+                                          (List<? extends PMultipleBind>)$bindList,
+                                          null);
 }
 | DLSQUARE expression[from] LARROW expression[to] BAR bindList AT expression[pred] DRSQUARE
 {
   /* --- TODO --- */
   /* path elimination */
   ARenamePair pair = new ARenamePair(false,
-				     (ANameChannelExp)$from,
-				     (ANameChannelExp)$to);
+                                     (ANameChannelExp)$from,
+                                     (ANameChannelExp)$to);
   $$ = new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)$DLSQUARE,
-							     (CmlLexeme)$DRSQUARE),
-					  pair,
-					  (List<? extends PMultipleBind>)$bindList,
-					  (PExp)$pred);
+                                                             (CmlLexeme)$DRSQUARE),
+                                          pair,
+                                          (List<? extends PMultipleBind>)$bindList,
+                                          (PExp)$pred);
 }
 ;
 
@@ -1874,9 +1884,9 @@ renameList :
   /* --- TODO --- */
   /* path elimination: from, to */
   List<ARenamePair> renamePairs = new Vector<ARenamePair>();
-  ARenamePair pair = new ARenamePair(false, 
-				     (ANameChannelExp)$from, 
-				     (ANameChannelExp)$to);
+  ARenamePair pair = new ARenamePair(false,
+                                     (ANameChannelExp)$from,
+                                     (ANameChannelExp)$to);
   renamePairs.add(pair);
   $$ = renamePairs;
 }
@@ -1885,9 +1895,9 @@ renameList :
   /* --- TODO --- */
   /* path elimination: from, to */
   List<ARenamePair> renamePairs = (List<ARenamePair>)$1;
-  ARenamePair pair = new ARenamePair(false, 
-				     (ANameChannelExp)$from, 
-				     (ANameChannelExp)$to);
+  ARenamePair pair = new ARenamePair(false,
+                                     (ANameChannelExp)$from,
+                                     (ANameChannelExp)$to);
   renamePairs.add(pair);
   $$ = renamePairs;
 }
@@ -1907,11 +1917,11 @@ channelDefinition :
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, location);
   AChannelParagraphDefinition channelDefinition =
     new AChannelParagraphDefinition(location,
-				    NameScope.GLOBAL,
-				    false,
-				    access,
-				    null,//Pass
-				    chanNameDecls);
+                                    NameScope.GLOBAL,
+                                    false,
+                                    access,
+                                    null,//Pass
+                                    chanNameDecls);
   channelDefinition.setName(new LexNameToken("","",new LexLocation()));
   $$ = channelDefinition;
 }
@@ -1925,11 +1935,11 @@ channelDefinition :
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, start);
   AChannelParagraphDefinition channelDefinition =
     new AChannelParagraphDefinition(location,
-				    NameScope.GLOBAL,
-				    false,
-				    access,
-				    null,//Pass
-				    chanNameDecls);
+                                    NameScope.GLOBAL,
+                                    false,
+                                    access,
+                                    null,//Pass
+                                    chanNameDecls);
   channelDefinition.setName(new LexNameToken("","",new LexLocation()));
   $$ = channelDefinition;
 }
@@ -1973,11 +1983,11 @@ channelNameDecl :
     new ATypeSingleDeclaration(location, NameScope.GLOBAL, ids, null);
   AChannelNameDeclaration channelNameDecl =
     new AChannelNameDeclaration(location,
-				NameScope.GLOBAL, 
-				/* false, */
-				/* null, */
-				/* null, */
-				singleTypeDeclaration);
+                                NameScope.GLOBAL,
+                                /* false, */
+                                /* null, */
+                                /* null, */
+                                singleTypeDeclaration);
   $$ = channelNameDecl;
 }
 | singleTypeDeclaration[decl]
@@ -1989,11 +1999,11 @@ channelNameDecl :
   ATypeSingleDeclaration singleTypeDeclaration = (ATypeSingleDeclaration)$decl;
   AChannelNameDeclaration channelNameDecl =
     new AChannelNameDeclaration(singleTypeDeclaration.getLocation(),
-			       NameScope.GLOBAL,
-			       /* false, */
-			       /* null, */
-			       /* null, */
-			       singleTypeDeclaration);
+                               NameScope.GLOBAL,
+                               /* false, */
+                               /* null, */
+                               /* null, */
+                               singleTypeDeclaration);
   $$ = channelNameDecl;
 };
 
@@ -2024,9 +2034,9 @@ singleTypeDeclaration :
   ids.add(id);
   ATypeSingleDeclaration singleTypeDeclaration =
     new ATypeSingleDeclaration(location,
-			       NameScope.LOCAL,
-			       ids,
-			       (PType)$type);
+                               NameScope.LOCAL,
+                               ids,
+                               (PType)$type);
   $$ = singleTypeDeclaration;
 }
 | IDENTIFIER[id] COMMA singleTypeDeclaration[decl]
@@ -2042,17 +2052,17 @@ chansetDefinitionParagraph :
   CHANSETS
 {
   LexLocation loc = extractLexLocation((CmlLexeme)$CHANSETS);
-  AAccessSpecifierAccessSpecifier access = 
+  AAccessSpecifierAccessSpecifier access =
     new AAccessSpecifierAccessSpecifier(new APublicAccess(),
-					new TStatic(),
-					new TAsync());
+                                        new TStatic(),
+                                        new TAsync());
   AChansetParagraphDefinition chansetParagraph =
     new AChansetParagraphDefinition(loc,
-				    NameScope.GLOBAL,
-				    false,
-				    access,
-				    null/*Pass*/,
-				    new LinkedList<AChansetDefinition>());
+                                    NameScope.GLOBAL,
+                                    false,
+                                    access,
+                                    null/*Pass*/,
+                                    new LinkedList<AChansetDefinition>());
   $$ = chansetParagraph;
 }
 | CHANSETS chansetDefinitionList[list]
@@ -2061,15 +2071,15 @@ chansetDefinitionParagraph :
   List<AChansetDefinition> chansetDefinitions = (List<AChansetDefinition>)$list;
   AAccessSpecifierAccessSpecifier access =
     new AAccessSpecifierAccessSpecifier(new APublicAccess(),
-					new TStatic(),
-					new TAsync());
+                                        new TStatic(),
+                                        new TAsync());
   AChansetParagraphDefinition chansetParagraph =
     new AChansetParagraphDefinition(loc,
-				    NameScope.GLOBAL,
-				    false,
-				    access,
-				    null/*Pass*/,
-				    chansetDefinitions);
+                                    NameScope.GLOBAL,
+                                    false,
+                                    access,
+                                    null/*Pass*/,
+                                    chansetDefinitions);
   $$ = chansetParagraph;
 }
 ;
@@ -2098,13 +2108,13 @@ chansetDefinition :
   LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$id);
   PExp exp = (PExp)$exp;
   LexLocation location = combineLexLocation(id.getLocation(), exp.getLocation());
-  $$ = new AChansetDefinition(location, 
-			      NameScope.GLOBAL, 
-			      false/*used*/, 
-			      null/*access*/,  
-			      null/*Pass*/,
-			      id, 
-			      exp);
+  $$ = new AChansetDefinition(location,
+                              NameScope.GLOBAL,
+                              false/*used*/,
+                              null/*access*/,
+                              null/*Pass*/,
+                              id,
+                              exp);
 }
 ;
 
@@ -2170,11 +2180,11 @@ classDefinitionBlockAlternative :
   PDefinition def = (PDefinition)$operationDef;
   LexLocation location = extractLexLocation((CmlLexeme)$INITIAL,def.getLocation());
   $$ = new AInitialParagraphDefinition(location,
-				       NameScope.GLOBAL,
-				       true,
-				       getDefaultAccessSpecifier(false,false,null),
-				       null/*Pass*/,
-				       def);
+                                       NameScope.GLOBAL,
+                                       true,
+                                       getDefaultAccessSpecifier(false,false,null),
+                                       null/*Pass*/,
+                                       def);
 }
 ;
 
@@ -2183,11 +2193,11 @@ typeDefs :
 {
   LexLocation loc = extractLexLocation((CmlLexeme)$TYPES);
   $$ = new ATypesParagraphDefinition(loc,
-				     NameScope.LOCAL,
-				     false,
-				     getDefaultAccessSpecifier(true, false, loc),
-				     null/*Pass*/,
-				     null);
+                                     NameScope.LOCAL,
+                                     false,
+                                     getDefaultAccessSpecifier(true, false, loc),
+                                     null/*Pass*/,
+                                     null);
 }
 | TYPES typeDefList
 {
@@ -2195,11 +2205,11 @@ typeDefs :
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$TYPES),
                                        extractLastLexLocation(typeDefinitions));
   $$ = new ATypesParagraphDefinition(loc,
-				     NameScope.LOCAL,
-				     false,
-				     getDefaultAccessSpecifier(true, false, loc),
-				     null/*Pass*/,
-				     typeDefinitions);
+                                     NameScope.LOCAL,
+                                     false,
+                                     getDefaultAccessSpecifier(true, false, loc),
+                                     null/*Pass*/,
+                                     typeDefinitions);
 }
 | TYPES typeDefList SEMI
 {
@@ -2207,11 +2217,11 @@ typeDefs :
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$TYPES),
                                        extractLexLocation((CmlLexeme)$SEMI));
   $$ = new ATypesParagraphDefinition(loc,
-				     NameScope.LOCAL,
-				     false,
-				     getDefaultAccessSpecifier(true, false, loc),
-				     null/*Pass*/,
-				     typeDefinitions);
+                                     NameScope.LOCAL,
+                                     false,
+                                     getDefaultAccessSpecifier(true, false, loc),
+                                     null/*Pass*/,
+                                     typeDefinitions);
 }
 ;
 
@@ -2238,18 +2248,18 @@ typeDef :
   LexLocation location = null;
   location = combineLexLocation(name.getLocation(), ((PType)$type).getLocation());
   $$ = new ATypeDefinition(location,
-			   NameScope.TYPENAME,
+                           NameScope.TYPENAME,
                            false/*Boolean used_*/,
-			   null/*VDM ClassDef*/,
+                           null/*VDM ClassDef*/,
                            access,
                            (PType)$type,
-			   null/*Pass*/,
+                           null/*Pass*/,
                            null/*SInvariantType invType_*/,
                            null/*PPattern invPattern_*/,
                            null/*PExp invExpression_*/,
                            null /*AExplicitFunctionDefinition invdef_*/,
                            false/*Boolean infinite_*/,
-			   name);
+                           name);
 }
 | qualifier IDENTIFIER[id] EQUALS type invariant
 {
@@ -2259,18 +2269,18 @@ typeDef :
   LexLocation location = null;
   location = combineLexLocation(name.getLocation(), inv.getLocation());
   $$ = new ATypeDefinition(location,
-			   NameScope.TYPENAME,
-			   false/*Boolean used_*/,
-			   null/*VDM ClassDef*/,
-			   access,
-			   (PType)$type,
-			   null/*Pass*/,
-			   null/*SInvariantType invType_*/,
-			   inv.getPattern()/*PPattern invPattern_*/,
-			   inv.getExpression()/*PExp invExpression_*/,
-			   null /*AExplicitFunctionDefinition invdef_*/,
-			   false/*Boolean infinite_*/,
-			   name);
+                           NameScope.TYPENAME,
+                           false/*Boolean used_*/,
+                           null/*VDM ClassDef*/,
+                           access,
+                           (PType)$type,
+                           null/*Pass*/,
+                           null/*SInvariantType invType_*/,
+                           inv.getPattern()/*PPattern invPattern_*/,
+                           inv.getExpression()/*PExp invExpression_*/,
+                           null /*AExplicitFunctionDefinition invdef_*/,
+                           false/*Boolean infinite_*/,
+                           name);
 }
 | qualifier IDENTIFIER[id] DCOLON fieldList
 {
@@ -2280,26 +2290,26 @@ typeDef :
   List<AFieldField> fields = (List<AFieldField>)$fieldList;
   LexLocation loc = combineLexLocation(name.getLocation(), extractLexLocation(vdmrec));
   ARecordInvariantType recType = new ARecordInvariantType(loc,
-							  false,
-							  null,
-							  false,
-							  null,
-							  name,
-							  fields,
-							  true);
+                                                          false,
+                                                          null,
+                                                          false,
+                                                          null,
+                                                          name,
+                                                          fields,
+                                                          true);
   $$ = new ATypeDefinition(loc, /* FIXME: this should end with the fieldList */
-			   NameScope.GLOBAL,
-			   false,
-			   null/*VDM ClassDef*/,
-			   access,
-			   recType,
-			   null/*Pass*/,
-			   null,
-			   null,
-			   null,
-			   null,
-			   true,
-			   name);
+                           NameScope.GLOBAL,
+                           false,
+                           null/*VDM ClassDef*/,
+                           access,
+                           recType,
+                           null/*Pass*/,
+                           null,
+                           null,
+                           null,
+                           null,
+                           true,
+                           name);
 }
 | qualifier IDENTIFIER[id] DCOLON fieldList invariant
 {
@@ -2316,26 +2326,26 @@ typeDef :
   // the current AExplicitFunctionFunctionDefinition for inv.
   LexLocation loc = combineLexLocation(name.getLocation(), extractLexLocation(vdmrec));
   ARecordInvariantType recType = new ARecordInvariantType(loc,
-							  false,
-							  null,
-							  false,
-							  null, /* invdef */
-							  name,
-							  fields,
-							  true);
-  $$ = new ATypeDefinition(loc,                                            
-			   NameScope.TYPENAME,
-			   false,
-			   null/*VDM ClassDef*/,
-			   access,
-			   recType,
-			   null/*Pass*/,
-			   null,
-			   null,
-			   null,
-			   null,
-			   true,
-			   name);
+                                                          false,
+                                                          null,
+                                                          false,
+                                                          null, /* invdef */
+                                                          name,
+                                                          fields,
+                                                          true);
+  $$ = new ATypeDefinition(loc,
+                           NameScope.TYPENAME,
+                           false,
+                           null/*VDM ClassDef*/,
+                           access,
+                           recType,
+                           null/*Pass*/,
+                           null,
+                           null,
+                           null,
+                           null,
+                           true,
+                           name);
 }
 ;
 
@@ -2352,36 +2362,36 @@ qualifier :
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1);
   $$ = new AAccessSpecifierAccessSpecifier(new APrivateAccess(),
-					   null, 
-					   null);//, location);
+                                           null,
+                                           null);//, location);
 }
 | PROTECTED
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1);
   $$ = new AAccessSpecifierAccessSpecifier(new AProtectedAccess(),
-					   null, 
-					   null);//, location);
+                                           null,
+                                           null);//, location);
 }
 | PUBLIC
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1);
   $$ = new AAccessSpecifierAccessSpecifier(new APublicAccess(),
-					   null, 
-					   null);//, location);
+                                           null,
+                                           null);//, location);
 }
 | LOGICAL
 {
   LexLocation location = extractLexLocation((CmlLexeme)$1);
   $$ = new AAccessSpecifierAccessSpecifier(new ALogicalAccess(),
-					   null, 
-					   null);//, location);
+                                           null,
+                                           null);//, location);
 }
 | /* empty */
 {
   /*Default private*/
   $$ = new AAccessSpecifierAccessSpecifier(new APrivateAccess(),
-					   null, 
-					   null);//, location);
+                                           null,
+                                           null);//, location);
 }
 ;
 
@@ -2406,13 +2416,13 @@ type :
 {
   List<AFieldField> fields = (List<AFieldField>)$fieldList;
   $$ = new ARecordInvariantType(extractLexLocation((CmlLexeme)$start,(CmlLexeme)$end),
-				false,
-				null,//definitions
-				false,//opaque
-				null,//invdef
-				extractLexNameToken($id),
-				(List<? extends AFieldField>)$fieldList,
-				false/*infinite_*/);
+                                false,
+                                null,//definitions
+                                false,//opaque
+                                null,//invdef
+                                extractLexNameToken($id),
+                                (List<? extends AFieldField>)$fieldList,
+                                false/*infinite_*/);
 }
 | type[first] BAR type[second] // unionType
 {
@@ -2432,7 +2442,7 @@ type :
       // Second is not a union type, so just add it to the type list
       types.add(second);
     }
-  } else if (second instanceof AUnionType) { 
+  } else if (second instanceof AUnionType) {
     // First isn't union, but Second is, so just add first to the type list
     utype = (AUnionType)second;
     types = utype.getTypes();
@@ -2463,7 +2473,7 @@ type :
     } else {
       types.add(second);
     }
-  } else if (second instanceof AProductType) { 
+  } else if (second instanceof AProductType) {
     ptype = (AProductType)second;
     types = ptype.getTypes();
     types.add(first);
@@ -2479,29 +2489,29 @@ type :
 | LSQUARE[start] type[otype] RSQUARE[end] // optionalType
 {
   $$ = new AOptionalType(extractLexLocation((CmlLexeme)$start, (CmlLexeme)$end),
-			 false,
-			 null,
-			 (PType)$otype);
+                         false,
+                         null,
+                         (PType)$otype);
 }
 | SETOF[prefix] type[stype]
 {
   PType type = (PType)$stype;
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$prefix),
-				       type.getLocation());
+                                       type.getLocation());
   $$ = new ASetType(loc, false, null, type, false, false);
 }
 | SEQOF[prefix] type[stype]
 {
   PType type = (PType)$stype;
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$prefix),
-				       type.getLocation());
+                                       type.getLocation());
   $$ = new ASeqSeqType(loc, false, null, type, false);
 }
 | SEQ1OF[prefix] type[stype]
 {
   PType type = (PType)$stype;
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$prefix),
-				       type.getLocation());
+                                       type.getLocation());
   $$ = new ASeq1SeqType(loc, false, null, type, false);
 }
 | MAPOF[prefix] type[dom] TO type[rng]
@@ -2509,7 +2519,7 @@ type :
   PType dom = (PType)$dom;
   PType rng = (PType)$rng;
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$prefix),
-				       rng.getLocation());
+                                       rng.getLocation());
   $$ = new AMapMapType(loc, false, null, dom, rng, false);
 }
 | INMAPOF[prefix] type[dom] TO type[rng]
@@ -2517,7 +2527,7 @@ type :
   PType dom = (PType)$dom;
   PType rng = (PType)$rng;
   LexLocation loc = combineLexLocation(extractLexLocation((CmlLexeme)$prefix),
-				       rng.getLocation());
+                                       rng.getLocation());
   AMapMapType res = new AMapMapType(loc, false, null, dom, rng, false);
 }
 | functionType
@@ -2554,26 +2564,20 @@ type :
 dottedIdentifier :
   IDENTIFIER[id]
 {
-  /* --- TODO --- */
   List<LexIdentifierToken> ids = new Vector<LexIdentifierToken>();
-  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$id);
-  ids.add(id);
+  ids.add(extractLexIdentifierToken((CmlLexeme)$id));
   $$ = ids;
 }
 | dottedIdentifier[ids] DOT IDENTIFIER[id]
 {
-  /* --- TODO --- */
   List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$ids;
-  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$id);
-  ids.add(id);
+  ids.add(extractLexIdentifierToken((CmlLexeme)$id));
   $$ = ids;
 }
 | dottedIdentifier[ids] BACKTICK IDENTIFIER[id]
 {
-  /* --- TODO --- */
   List<LexIdentifierToken> ids = (List<LexIdentifierToken>)$ids;
-  LexIdentifierToken id = extractLexIdentifierToken((CmlLexeme)$id);
-  ids.add(id);
+  ids.add(extractLexIdentifierToken((CmlLexeme)$id));
   $$ = ids;
 }
 ;
@@ -2685,20 +2689,20 @@ field :
   type
 {
   $$ = new AFieldField(getDefaultAccessSpecifier(false,false,null),
-		       null,
-		       null,
-		       (PType)$type,
-		       false);
+                       null,
+                       null,
+                       (PType)$type,
+                       false);
 }
 | IDENTIFIER[id] COLON type
 {
   LexNameToken name = extractLexNameToken((CmlLexeme)$id);
   PType type = (PType)$type;
   $$ = new AFieldField(getDefaultAccessSpecifier(false,false,null),
-		       name,
-		       null,
-		       type,
-		       false);
+                       name,
+                       null,
+                       type,
+                       false);
 }
 | IDENTIFIER[id] COLONDASH type
 {
@@ -2706,9 +2710,9 @@ field :
     PType type = (PType)$type;
     $$ = new AFieldField(getDefaultAccessSpecifier(false,false,null),
                          name,
-			 null,
-			 type,
-			 true);
+                         null,
+                         type,
+                         true);
 }
 ;
 
@@ -2722,10 +2726,10 @@ invariant :
                                 null, // decided later
                                 NameScope.LOCAL,
                                 false,
-				null, // VDM ClassDef
+                                null, // VDM ClassDef
                                 access,
                                 null, // decided later
-				null, // Pass
+                                null, // Pass
                                 (PPattern)$pattern,
                                 exp);
 }
@@ -2749,9 +2753,9 @@ valueDefs :
   $$ = new AValueParagraphDefinition(location,
                                      NameScope.NAMES,
                                      false,
-				     access,
+                                     access,
                                      null, // Pass
-				     defs);
+                                     defs);
 }
 | VALUES valueDefList
 {
@@ -2759,13 +2763,13 @@ valueDefs :
   LexLocation location = extractLexLocation((CmlLexeme)$VALUES,
                                             extractLastLexLocation(defs));
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true,
-								     false,
-								     location);
+                                                                     false,
+                                                                     location);
   $$ = new AValueParagraphDefinition(location,
                                      NameScope.NAMES,
                                      false,
                                      access,
-				     null,//Pass
+                                     null,//Pass
                                      defs);
 }
 //| VALUES valueDefList SEMI
@@ -2777,7 +2781,7 @@ valueDefs :
 //                                     NameScope.NAMES,
 //                                     false,
 //                                     access,
-//				     null,//Pass
+//                                   null,//Pass
 //                                     defs);
 //}
 ;
@@ -2814,21 +2818,21 @@ valueDef :
   PExp expression = (PExp)$expression;
   LexNameToken lnt = extractLexNameToken((CmlLexeme)$id);
   AIdentifierPattern idp = new AIdentifierPattern(lnt.location,
-						  null,
-						  false,
-						  lnt,
-						  false/*constrained*/);
+                                                  null,
+                                                  false,
+                                                  lnt,
+                                                  false/*constrained*/);
   AValueDefinition vdef =
     new AValueDefinition(combineLexLocation(idp.getLocation(),
-					    expression.getLocation()),
-			    NameScope.LOCAL,
-			    false, // used
-			    getPrivateAccessSpecifier(false, false, lnt.location),
-			    null, // pass
-			    idp,
-			    expression,
-			    null // defs
-			    );
+                                            expression.getLocation()),
+                            NameScope.LOCAL,
+                            false, // used
+                            getPrivateAccessSpecifier(false, false, lnt.location),
+                            null, // pass
+                            idp,
+                            expression,
+                            null // defs
+                            );
   vdef.setName(lnt);
   vdef.setType(null);
   $$ = vdef;
@@ -2839,22 +2843,22 @@ valueDef :
   PType type = (PType)$type;
   PExp expression = (PExp)$expression;
   AIdentifierPattern idp = new AIdentifierPattern(lnt.location,
-						  null,
-						  false,
-						  lnt,
-						  false/*constrained*/);
+                                                  null,
+                                                  false,
+                                                  lnt,
+                                                  false/*constrained*/);
   // Build the resulting AValueDefinition
   AValueDefinition vdef =
     new AValueDefinition(combineLexLocation(idp.getLocation(),
-					    expression.getLocation()),
-			 NameScope.LOCAL,
-			 false, // used
-			 getPrivateAccessSpecifier(false, false, lnt.location),
-			 null, // pass
-			 idp,
-			 expression,
-			 null // defs
-			 );
+                                            expression.getLocation()),
+                         NameScope.LOCAL,
+                         false, // used
+                         getPrivateAccessSpecifier(false, false, lnt.location),
+                         null, // pass
+                         idp,
+                         expression,
+                         null // defs
+                         );
   vdef.setName(lnt);
   vdef.setType(type);
   $$ = vdef;
@@ -2864,17 +2868,17 @@ valueDef :
   PPattern pattern = (PPattern)$pat;
   PExp expression = (PExp)$expression;
   LexLocation loc = combineLexLocation(pattern.getLocation(),
-				       expression.getLocation());
+                                       expression.getLocation());
   AValueDefinition vdef =
     new AValueDefinition(loc,
-			 NameScope.LOCAL,
-			 false, // used
-			 getPrivateAccessSpecifier(false, false, loc),
-			 null, // pass
-			 pattern,
-			 expression,
-			 null // defs
-			 );
+                         NameScope.LOCAL,
+                         false, // used
+                         getPrivateAccessSpecifier(false, false, loc),
+                         null, // pass
+                         pattern,
+                         expression,
+                         null // defs
+                         );
   vdef.setName(null);
   vdef.setType(null);
   $$ = vdef;
@@ -2885,17 +2889,17 @@ valueDef :
   PType type = (PType)$type;
   PExp expression = (PExp)$expression;
   LexLocation loc = combineLexLocation(pattern.getLocation(),
-				       expression.getLocation());
+                                       expression.getLocation());
   AValueDefinition vdef =
     new AValueDefinition(loc,
-			 NameScope.LOCAL,
-			 false, // used
-			 getPrivateAccessSpecifier(false, false, loc),
-			 null, // pass
-			 pattern,
-			 expression,
-			 null // defs
-			 );
+                         NameScope.LOCAL,
+                         false, // used
+                         getPrivateAccessSpecifier(false, false, loc),
+                         null, // pass
+                         pattern,
+                         expression,
+                         null // defs
+                         );
   // FIXE wtf.setName -- esp. w.r.t. previous action
   vdef.setName(new LexNameToken("Default", "plesstypeexp", loc, false, false));
   vdef.setType(type);
@@ -2908,28 +2912,28 @@ functionDefs :
 {
   LexLocation location = extractLexLocation((CmlLexeme)$FUNCTIONS);
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true,
-								     false,
-								     location);
+                                                                     false,
+                                                                     location);
   List<PDefinition> functionDefs = new LinkedList<PDefinition>();
   $$ = new AFunctionParagraphDefinition(location,
                                         NameScope.GLOBAL,
                                         false,
                                         access,
-					null,//Pass
+                                        null,//Pass
                                         functionDefs);
 }
 | FUNCTIONS functionDefList
 {
   LexLocation location = extractLexLocation((CmlLexeme)$FUNCTIONS);
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true,
-								     false,
-								     location);
+                                                                     false,
+                                                                     location);
   List<PDefinition> functionDefs = (List<PDefinition>)$functionDefList;
   $$ = new AFunctionParagraphDefinition(location,
                                         NameScope.GLOBAL,
                                         false,
                                         access,
-					null,//Pass
+                                        null,//Pass
                                         functionDefs);
 }
 //| FUNCTIONS functionDefList SEMI
@@ -2941,7 +2945,7 @@ functionDefs :
 //                                        NameScope.GLOBAL,
 //                                        false,
 //                                        access,
-//					null,//Pass
+//                                      null,//Pass
 //                                        functionDefs);
 //}
 ;
@@ -2972,17 +2976,17 @@ functionDef :
   PExp postExp = (PExp)$post;
   LexLocation location = combineLexLocation(name.getLocation(), postExp.getLocation());
   AImplicitFunctionDefinition impFunc =
-    new AImplicitFunctionDefinition(location, 
-				    NameScope.LOCAL, 
-				    false, 
-				    access, 
-				    null,//Pass
-				    null, 
-				    paramPatterns, 
-				    result, 
-				    preExp, 
-				    postExp,
-				    null/*LexNameToken measure*/);
+    new AImplicitFunctionDefinition(location,
+                                    NameScope.LOCAL,
+                                    false,
+                                    access,
+                                    null,//Pass
+                                    null,
+                                    paramPatterns,
+                                    result,
+                                    preExp,
+                                    postExp,
+                                    null/*LexNameToken measure*/);
   impFunc.setName(name);
   $$ = impFunc;
 }
@@ -3097,9 +3101,9 @@ identifierTypePairList :
 {
   List<AIdentifierTypePair> typePairs = new Vector<AIdentifierTypePair>();
   AIdentifierTypePair typePair =
-    new AIdentifierTypePair(null, 
-			    extractLexIdentifierToken((CmlLexeme)$id), 
-			    (PType)$type);
+    new AIdentifierTypePair(null,
+                            extractLexIdentifierToken((CmlLexeme)$id),
+                            (PType)$type);
   typePairs.add(typePair);
   $$ = typePairs;
 }
@@ -3107,9 +3111,9 @@ identifierTypePairList :
 {
   List<AIdentifierTypePair> typePairs = (List<AIdentifierTypePair>)$idtpList;
   AIdentifierTypePair typePair =
-    new AIdentifierTypePair(null, 
-			    extractLexIdentifierToken((CmlLexeme)$id), 
-			    (PType)$type);
+    new AIdentifierTypePair(null,
+                            extractLexIdentifierToken((CmlLexeme)$id),
+                            (PType)$type);
   typePairs.add(typePair);
   $$ = typePairs;
 }
@@ -3158,28 +3162,28 @@ operationDefs :
 {
   LexLocation location = extractLexLocation((CmlLexeme)$OPERATIONS);
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true,
-								     false,
-								     location);
+                                                                     false,
+                                                                     location);
   $$ = new AOperationParagraphDefinition(location,
                                          NameScope.LOCAL,
                                          false,
                                          access,
-					 null,//Pass
+                                         null,//Pass
                                          null);
 }
 | OPERATIONS operationDefList
 {
   LexLocation location = extractLexLocation((CmlLexeme)$OPERATIONS);
   AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true,
-								     false,
-								     location);
+                                                                     false,
+                                                                     location);
   List<? extends SOperationDefinition> opDefinitions =
     (List<? extends SOperationDefinition>)$operationDefList;
   $$ = new AOperationParagraphDefinition(location,
                                          NameScope.LOCAL,
                                          false,
                                          access,
-					 null,//Pass
+                                         null,//Pass
                                          opDefinitions);
 }
 ;
@@ -3217,10 +3221,10 @@ operationDef :
   LexLocation location = combineLexLocation(name.location, postcondition.getLocation());
   eu.compassresearch.ast.definitions.AImplicitOperationDefinition res =
     new eu.compassresearch.ast.definitions.AImplicitOperationDefinition(location,
-									NameScope.GLOBAL,
+                                                                        NameScope.GLOBAL,
                                      false,
                                      access,
-				     null,//Pass
+                                     null,//Pass
                                      parameterPatterns,
                                      result,
                                      externals,
@@ -3232,12 +3236,12 @@ operationDef :
 }
 | qualifier[qual] IDENTIFIER[id] COLON operationType[opType] IDENTIFIER[checkId] parameterList[paramList] DEQUALS operationBody[body] preExpr_opt[pre] postExpr_opt[post]
 {
-  /* --- TODO --- */ 
+  /* --- TODO --- */
   /* We shold check id against checkId for equality */
-  LexNameToken name = extractLexNameToken($id); 
+  LexNameToken name = extractLexNameToken($id);
   SStatementAction body = (SStatementAction)$body;
   LexLocation loc = extractLexLocation(name.location,
-				       body.getLocation());
+                                       body.getLocation());
   eu.compassresearch.ast.definitions.AExplicitOperationDefinition res =
     new eu.compassresearch.ast.definitions.AExplicitOperationDefinition();
   res.setLocation(loc);
@@ -3261,10 +3265,10 @@ operationType :
   List<PType> types = new LinkedList<PType>();
   types.add(dom);
   $$ = new AOperationType(extractLexLocation(dom.getLocation(), rng.getLocation()),
-			  false,
-			  new LinkedList<PDefinition>(),
-			  types,
-			  rng);
+                          false,
+                          new LinkedList<PDefinition>(),
+                          types,
+                          rng);
 }
 | LRPAREN[dom] DEQRARROW type[rng]
 {
@@ -3273,10 +3277,10 @@ operationType :
   List<PType> types = new LinkedList<PType>();
   types.add(dom);
   $$ = new AOperationType(extractLexLocation(dom.getLocation(), rng.getLocation()),
-			  false,
-			  new LinkedList<PDefinition>(),
-			  types,
-			  rng);
+                          false,
+                          new LinkedList<PDefinition>(),
+                          types,
+                          rng);
 }
 | type[dom] DEQRARROW LRPAREN[rng]
 {
@@ -3285,10 +3289,10 @@ operationType :
   List<PType> types = new LinkedList<PType>();
   types.add(dom);
   $$ = new AOperationType(extractLexLocation(dom.getLocation(), rng.getLocation()),
-			  false,
-			  new LinkedList<PDefinition>(),
-			  types,
-			  rng);
+                          false,
+                          new LinkedList<PDefinition>(),
+                          types,
+                          rng);
 }
 | LRPAREN[dom] DEQRARROW LRPAREN[rng]
 {
@@ -3297,10 +3301,10 @@ operationType :
   List<PType> types = new LinkedList<PType>();
   types.add(dom);
   $$ = new AOperationType(extractLexLocation(dom.getLocation(), rng.getLocation()),
-			  false,
-			  new LinkedList<PDefinition>(),
-			  types,
-			  rng);
+                          false,
+                          new LinkedList<PDefinition>(),
+                          types,
+                          rng);
 };
 
 operationBody :
@@ -3436,7 +3440,7 @@ stateDefs :
 {
     AStateParagraphDefinition state = (AStateParagraphDefinition)$stateDefList;
     state.setLocation(extractLexLocation((CmlLexeme)$STATE,
-					 extractLastLexLocation(state.getStateDefs())));
+                                         extractLastLexLocation(state.getStateDefs())));
     $$ = state;
 }
 //| STATE stateDefList SEMI
@@ -3476,11 +3480,11 @@ stateDef :
   PExp exp = (PExp) $expression;
   LexLocation location = extractLexLocation((CmlLexeme)$INV, exp.getLocation());
   $$ = new AClassInvariantDefinition(location,
-				     NameScope.GLOBAL,
-				     true,
-				     null/*access*/,
-				     null/*Pass*/,
-				     exp);
+                                     NameScope.GLOBAL,
+                                     true,
+                                     null/*access*/,
+                                     null/*Pass*/,
+                                     exp);
 }
 ;
 
@@ -3565,7 +3569,7 @@ expression :
     LexStringToken lit = (LexStringToken)$textLiteral;
     ASeqSeqType charSeq = new ASeqSeqType(lit.location,
                                     true,
-				    null,
+                                    null,
                                     new ACharBasicType(),
                                     lit.value.length() == 0);
     $$ = new AStringLiteralExp(charSeq,
@@ -3584,15 +3588,18 @@ expression :
 }
 | SELF
 {
-  /* --- TODO --- */
+  LexNameToken name = extractLexNameToken((CmlLexeme)$SELF);
+  $$ = new ASelfExp(name.location, name);
 }
 | IDENTIFIER
 {
-  /* --- TODO --- */
+  LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+  $$ = new ANameExp(name.location, name);
 }
 | IDENTIFIER TILDE
 {
-  /* --- TODO --- */
+  LexNameToken id = extractLexNameToken((CmlLexeme)$IDENTIFIER, true);
+  $$ = new ANameExp(name.location, name);
 }
 | expression DOT IDENTIFIER
 {
@@ -3841,32 +3848,32 @@ expression :
 | ISUNDERNAME LPAREN expression[exp] RPAREN
 {
   $$ = new AIsExp(null, // tc type
-		  extractLexLocation(type.getLocation(),
-				     (CmlLexeme)$RPAREN),
-		  extractNameFromUNDERNAMEToken((CmlLexeme)$ISUNDERNAME),
-		  null, //basicType
-		  (PExp)$exp,
-		  null); //PDef
+                  extractLexLocation((CmlLexeme)$ISUNDERNAME,
+                                     (CmlLexeme)$RPAREN),
+                  extractNameFromUNDERNAMEToken((CmlLexeme)$ISUNDERNAME),
+                  null, //basicType
+                  (PExp)$exp,
+                  null); //PDef
 }
 | ISUNDER basicType[type] LPAREN expression[exp] RPAREN
 {
   $$ = new AIsExp(null,
-		  extractLexLocation((CmlLexeme)$ISUNDER,
-				     (CmlLexeme)$RPAREN),
-		  null,
-		  (PType)$type,
-		  (PExp)$exp,
-		  null);
+                  extractLexLocation((CmlLexeme)$ISUNDER,
+                                     (CmlLexeme)$RPAREN),
+                  null,
+                  (PType)$type,
+                  (PExp)$exp,
+                  null);
 }
 | ISUNDER LPAREN expression[exp] COMMA type RPAREN
 {
   $$ = new AIsExp(null,
-		  extractLexLocation((CmlLexeme)$ISUNDER,
-				     (CmlLexeme)$RPAREN),
-		  null,
-		  (PType)$type,
-		  (PExp)$exp,
-		  null);
+                  extractLexLocation((CmlLexeme)$ISUNDER,
+                                     (CmlLexeme)$RPAREN),
+                  null,
+                  (PType)$type,
+                  (PExp)$exp,
+                  null);
 }
 /* precondition expression */
 /* (JWC) first parameter of the precondition expression is the
@@ -3898,8 +3905,8 @@ expression :
   LexNameToken name = null;
   //LexNameToken name = convertDottedIdentifierToLexNameToken(dotted);
   $$ = new AIsOfClassExp(loc,
-			 name,
-			 (PExp)$exp);
+                         name,
+                         (PExp)$exp);
 }
 /* chanset expressions */
 | LCURLYBAR expressionList[list] BARRCURLY
@@ -3909,7 +3916,7 @@ expression :
   List<PExp> exprs = (List<PExp>)$list;
   // FIXME
   List<LexIdentifierToken> ids = null;
-  //List<LexIdentifierToken> ids = convertExpressionListToLexNameTokenList(exprs);    
+  //List<LexIdentifierToken> ids = convertExpressionListToLexNameTokenList(exprs);
   $$ = new AEnumChansetSetExp(loc, ids);
 }
 | LCURLYBAR expression BAR bindList BARRCURLY
@@ -3998,7 +4005,7 @@ textLiteral :
 {
   String lit = ((CmlLexeme)$STRING).getValue();
   $$ = new LexStringToken(lit.substring(1, lit.length()-2),
-			  extractLexLocation((CmlLexeme)$STRING));
+                          extractLexLocation((CmlLexeme)$STRING));
 }
 ;
 
@@ -4007,7 +4014,7 @@ quoteLiteral :
 {
   String lit = ((CmlLexeme)$lit).getValue();
   $$ = new LexQuoteToken(lit.substring(1, lit.length()-2),
-			 extractLexLocation((CmlLexeme)$lit));
+                         extractLexLocation((CmlLexeme)$lit));
 }
 ;
 
@@ -4042,16 +4049,16 @@ ifExpr :
   LexLocation loc = null;
   if (elses.size() > 0) {
     loc = combineLexLocation(extractLexLocation((CmlLexeme)$IF),
-			     extractLastLexLocation(elses));
+                             extractLastLexLocation(elses));
   } else {
     loc = combineLexLocation(extractLexLocation((CmlLexeme)$IF),
-			     then.getLocation());
-  }    
+                             then.getLocation());
+  }
   AIfExp ifexp = new AIfExp(loc,
-			    test,
-			    then,
-			    null, // elseIfs
-			    null); // else
+                            test,
+                            then,
+                            null, // elseIfs
+                            null); // else
   List<AElseIfExp> elseifs = new LinkedList<AElseIfExp>();
   ifexp.setElseList(elseifs);
   for(PExp exp : elses) {
@@ -4079,9 +4086,9 @@ elseExprs :
   PExp then = (PExp)$then;
   List<PExp> tail = (List<PExp>)$tail;
   tail.add(new AElseIfExp(extractLexLocation(extractLexLocation((CmlLexeme)$ELSEIF),
-					     then.getLocation()),
-			  test,
-			  then));
+                                             then.getLocation()),
+                          test,
+                          then));
   $$ = tail;
 }
 ;
@@ -4127,12 +4134,12 @@ casesExprAlt :
   List<PPattern> patList = (List<PPattern>)$patternList;
   PExp exp = (PExp)$expression;
   LexLocation loc = combineLexLocation(extractLexLeftMostFromPatterns(patList),
-				       exp.getLocation());
+                                       exp.getLocation());
   ACaseAlternative res = new ACaseAlternative(loc,
-					      exp,
-					      patList,
-					      null,//PExp result_
-					      null);//List<? extends PDefinition> defs_
+                                              exp,
+                                              patList,
+                                              null,//PExp result_
+                                              null);//List<? extends PDefinition> defs_
   $$ = res;
 }
 ;
@@ -4141,122 +4148,122 @@ unaryExpr :
   PLUS[op] expression[exp] %prec U-PLUS
 {
   $$ = new AUnaryPlusUnaryExp(extractLexLocation((CmlLexeme)$op,
-						 ((PExp)$exp).getLocation()),
-			      (PExp)$exp);
+                                                 ((PExp)$exp).getLocation()),
+                              (PExp)$exp);
 }
 | MINUS[op] expression[exp] %prec U-MINUS
 {
   $$ = new AUnaryMinusUnaryExp(extractLexLocation((CmlLexeme)$op,
-						  ((PExp)$exp).getLocation()),
-			       (PExp)$exp);
+                                                  ((PExp)$exp).getLocation()),
+                               (PExp)$exp);
 }
 | ABS[op] expression[exp]
 {
   $$ = new AAbsoluteUnaryExp(extractLexLocation((CmlLexeme)$op,
-						((PExp)$exp).getLocation()),
-			     (PExp)$exp);
+                                                ((PExp)$exp).getLocation()),
+                             (PExp)$exp);
 }
 | FLOOR[op] expression[exp]
 {
   $$ = new AFloorUnaryExp(extractLexLocation((CmlLexeme)$op,
-					     ((PExp)$exp).getLocation()),
-			  (PExp)$exp);
+                                             ((PExp)$exp).getLocation()),
+                          (PExp)$exp);
 }
 | NOT[op] expression[exp]
 {
   $$ = new ANotUnaryExp(extractLexLocation((CmlLexeme)$op,
-					   ((PExp)$exp).getLocation()),
-			(PExp)$exp);
+                                           ((PExp)$exp).getLocation()),
+                        (PExp)$exp);
 }
 | CARD[op] expression[exp]
 {
   $$ = new ACardinalityUnaryExp(extractLexLocation((CmlLexeme)$op,
-						   ((PExp)$exp).getLocation()),
-				(PExp)$exp);
+                                                   ((PExp)$exp).getLocation()),
+                                (PExp)$exp);
 }
 | POWER[op] expression[exp]
 {
   $$ = new APowerSetUnaryExp(extractLexLocation((CmlLexeme)$op,
-						((PExp)$exp).getLocation()),
-			     (PExp)$exp);
+                                                ((PExp)$exp).getLocation()),
+                             (PExp)$exp);
 }
 | DUNION[op] expression[exp]
 {
   $$ = new ADistUnionUnaryExp(extractLexLocation((CmlLexeme)$op,
-						 ((PExp)$exp).getLocation()),
-			      (PExp)$exp);
+                                                 ((PExp)$exp).getLocation()),
+                              (PExp)$exp);
 }
 | DINTER[op] expression[exp]
 {
   $$ = new ADistIntersectUnaryExp(extractLexLocation((CmlLexeme)$op,
-						     ((PExp)$exp).getLocation()),
-				  (PExp)$exp);
+                                                     ((PExp)$exp).getLocation()),
+                                  (PExp)$exp);
 }
 | HD[op] expression[exp]
 {
   $$ = new AHeadUnaryExp(extractLexLocation((CmlLexeme)$op,
-					    ((PExp)$exp).getLocation()),
-			 (PExp)$exp);
+                                            ((PExp)$exp).getLocation()),
+                         (PExp)$exp);
 }
 | TL[op] expression[exp]
 {
   $$ = new ATailUnaryExp(extractLexLocation((CmlLexeme)$op,
-					    ((PExp)$exp).getLocation()),
-			 (PExp)$exp);
+                                            ((PExp)$exp).getLocation()),
+                         (PExp)$exp);
 }
 | LEN[op] expression[exp]
 {
   $$ = new ALenUnaryExp(extractLexLocation((CmlLexeme)$op,
-					   ((PExp)$exp).getLocation()),
-			(PExp)$exp);
+                                           ((PExp)$exp).getLocation()),
+                        (PExp)$exp);
 }
 | ELEMS[op] expression[exp]
 {
   $$ = new AElementsUnaryExp(extractLexLocation((CmlLexeme)$op,
-						((PExp)$exp).getLocation()),
-			     (PExp)$exp);
+                                                ((PExp)$exp).getLocation()),
+                             (PExp)$exp);
 }
 | INDS[op] expression[exp]
 {
   $$ = new AIndicesUnaryExp(extractLexLocation((CmlLexeme)$op,
-					       ((PExp)$exp).getLocation()),
-			    (PExp)$exp);
+                                               ((PExp)$exp).getLocation()),
+                            (PExp)$exp);
 }
 | REVERSE[op] expression[exp]
 {
   $$ = new AReverseUnaryExp(extractLexLocation((CmlLexeme)$op,
-					       ((PExp)$exp).getLocation()),
-			    (PExp)$exp);
+                                               ((PExp)$exp).getLocation()),
+                            (PExp)$exp);
 }
 | CONC[op] expression[exp]
 {
   $$ = new ADistConcatUnaryExp(extractLexLocation((CmlLexeme)$op,
-						  ((PExp)$exp).getLocation()),
-			       (PExp)$exp);
+                                                  ((PExp)$exp).getLocation()),
+                               (PExp)$exp);
 }
 | DOM[op] expression[exp]
 {
   $$ = new AMapDomainUnaryExp(extractLexLocation((CmlLexeme)$op,
-						 ((PExp)$exp).getLocation()),
-			      (PExp)$exp);
+                                                 ((PExp)$exp).getLocation()),
+                              (PExp)$exp);
 }
 | RNG[op] expression[exp]
 {
   $$ = new AMapRangeUnaryExp(extractLexLocation((CmlLexeme)$op,
-						((PExp)$exp).getLocation()),
-			     (PExp)$exp);
+                                                ((PExp)$exp).getLocation()),
+                             (PExp)$exp);
 }
 | MERGE[op] expression[exp]
 {
   $$ = new ADistMergeUnaryExp(extractLexLocation((CmlLexeme)$op,
-						 ((PExp)$exp).getLocation()),
-			      (PExp)$exp);
+                                                 ((PExp)$exp).getLocation()),
+                              (PExp)$exp);
 }
 | INVERSE[op] expression[exp]
 {
   $$ = new AMapInverseUnaryExp(extractLexLocation((CmlLexeme)$op,
-						  ((PExp)$exp).getLocation()),
-			       (PExp)$exp);
+                                                  ((PExp)$exp).getLocation()),
+                               (PExp)$exp);
 }
 ;
 
@@ -4264,266 +4271,266 @@ binaryExpr :
   expression[left] PLUS[op] expression[right]
 {
   $$ = new APlusNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						    ((PExp)$right).getLocation()),
-				 (PExp)$left,
-				 extractLexToken((CmlLexeme)$op),
-				 (PExp)$right);
+                                                    ((PExp)$right).getLocation()),
+                                 (PExp)$left,
+                                 extractLexToken((CmlLexeme)$op),
+                                 (PExp)$right);
 }
 | expression[left] STAR[op] expression[right]
 {
   $$ = new ATimesNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						     ((PExp)$right).getLocation()),
-				  (PExp)$left,
-				  extractLexToken((CmlLexeme)$op),
-				  (PExp)$right);
+                                                     ((PExp)$right).getLocation()),
+                                  (PExp)$left,
+                                  extractLexToken((CmlLexeme)$op),
+                                  (PExp)$right);
 }
 | expression[left] MINUS[op] expression[right]
 {
   $$ = new ASubstractNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-							 ((PExp)$right).getLocation()),
-				      (PExp)$left,
-				      extractLexToken((CmlLexeme)$op),
-				      (PExp)$right);
+                                                         ((PExp)$right).getLocation()),
+                                      (PExp)$left,
+                                      extractLexToken((CmlLexeme)$op),
+                                      (PExp)$right);
 }
 | expression[left] DIV[op] expression[right]
 {
   $$ = new ADivideNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						      ((PExp)$right).getLocation()),
-				   (PExp)$left,
-				   extractLexToken((CmlLexeme)$op),
-				   (PExp)$right);
+                                                      ((PExp)$right).getLocation()),
+                                   (PExp)$left,
+                                   extractLexToken((CmlLexeme)$op),
+                                   (PExp)$right);
 }
 | expression[left] SLASH[op] expression[right]
 {
   $$ = new ADivNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						   ((PExp)$right).getLocation()),
-				(PExp)$left,
-				extractLexToken((CmlLexeme)$op),
-				(PExp)$right);
+                                                   ((PExp)$right).getLocation()),
+                                (PExp)$left,
+                                extractLexToken((CmlLexeme)$op),
+                                (PExp)$right);
 }
 | expression[left] REM[op] expression[right]
 {
   $$ = new ARemNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						   ((PExp)$right).getLocation()),
-				(PExp)$left,
-				extractLexToken((CmlLexeme)$op),
-				(PExp)$right);
+                                                   ((PExp)$right).getLocation()),
+                                (PExp)$left,
+                                extractLexToken((CmlLexeme)$op),
+                                (PExp)$right);
 }
 | expression[left] MOD[op] expression[right]
 {
   $$ = new AModNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						   ((PExp)$right).getLocation()),
-				(PExp)$left,
-				extractLexToken((CmlLexeme)$op),
-				(PExp)$right);
+                                                   ((PExp)$right).getLocation()),
+                                (PExp)$left,
+                                extractLexToken((CmlLexeme)$op),
+                                (PExp)$right);
 }
 | expression[left] LT[op] expression[right]
 {
   $$ = new ALessNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						    ((PExp)$right).getLocation()),
-				 (PExp)$left,
-				 extractLexToken((CmlLexeme)$op),
-				 (PExp)$right);
+                                                    ((PExp)$right).getLocation()),
+                                 (PExp)$left,
+                                 extractLexToken((CmlLexeme)$op),
+                                 (PExp)$right);
 }
 | expression[left] LTE[op] expression[right]
 {
   $$ = new ALessEqualNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-							 ((PExp)$right).getLocation()),
-				      (PExp)$left,
-				      extractLexToken((CmlLexeme)$op),
-				      (PExp)$right);
+                                                         ((PExp)$right).getLocation()),
+                                      (PExp)$left,
+                                      extractLexToken((CmlLexeme)$op),
+                                      (PExp)$right);
 }
 | expression[left] GT[op] expression[right]
 {
   $$ = new AGreaterNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						       ((PExp)$right).getLocation()),
-				    (PExp)$left,
-				    extractLexToken((CmlLexeme)$op),
-				    (PExp)$right);
+                                                       ((PExp)$right).getLocation()),
+                                    (PExp)$left,
+                                    extractLexToken((CmlLexeme)$op),
+                                    (PExp)$right);
 }
 | expression[left] GTE[op] expression[right]
 {
   $$ = new AGreaterEqualNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-							    ((PExp)$right).getLocation()),
-					 (PExp)$left,
-					 extractLexToken((CmlLexeme)$op),
-					 (PExp)$right);
+                                                            ((PExp)$right).getLocation()),
+                                         (PExp)$left,
+                                         extractLexToken((CmlLexeme)$op),
+                                         (PExp)$right);
 }
 | expression[left] EQUALS[op] expression[right]
 {
   $$ = new AEqualsBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-					       ((PExp)$right).getLocation()),
-			    (PExp)$left,
-			    extractLexToken((CmlLexeme)$op),
-			    (PExp)$right);
+                                               ((PExp)$right).getLocation()),
+                            (PExp)$left,
+                            extractLexToken((CmlLexeme)$op),
+                            (PExp)$right);
 }
 | expression[left] NEQ[op] expression[right]
 {
   $$ = new ANotEqualBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						 ((PExp)$right).getLocation()),
-			      (PExp)$left,
-			      extractLexToken((CmlLexeme)$op),
-			      (PExp)$right);
+                                                 ((PExp)$right).getLocation()),
+                              (PExp)$left,
+                              extractLexToken((CmlLexeme)$op),
+                              (PExp)$right);
 }
 | expression[left] OR[op] expression[right]
 {
   $$ = new AOrBooleanBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						  ((PExp)$right).getLocation()),
-			       (PExp)$left,
-			       extractLexToken((CmlLexeme)$op),
-			       (PExp)$right);
+                                                  ((PExp)$right).getLocation()),
+                               (PExp)$left,
+                               extractLexToken((CmlLexeme)$op),
+                               (PExp)$right);
 }
 | expression[left] AND[op] expression[right]
 {
   $$ = new AAndBooleanBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						   ((PExp)$right).getLocation()),
-				(PExp)$left,
-				extractLexToken((CmlLexeme)$op),
-				(PExp)$right);
+                                                   ((PExp)$right).getLocation()),
+                                (PExp)$left,
+                                extractLexToken((CmlLexeme)$op),
+                                (PExp)$right);
 }
 | expression[left] EQRARROW[op] expression[right]
 {
   $$ = new AImpliesBooleanBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						       ((PExp)$right).getLocation()),
-				    (PExp)$left,
-				    extractLexToken((CmlLexeme)$op),
-				    (PExp)$right);
+                                                       ((PExp)$right).getLocation()),
+                                    (PExp)$left,
+                                    extractLexToken((CmlLexeme)$op),
+                                    (PExp)$right);
 }
 | expression[left] LTEQUALSGT[op] expression[right]
 {
   $$ = new AEquivalentBooleanBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-							  ((PExp)$right).getLocation()),
-				       (PExp)$left,
-				       extractLexToken((CmlLexeme)$op),
-				       (PExp)$right);
+                                                          ((PExp)$right).getLocation()),
+                                       (PExp)$left,
+                                       extractLexToken((CmlLexeme)$op),
+                                       (PExp)$right);
 }
 | expression[left] INSET[op] expression[right]
 {
   $$ = new AInSetBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-					      ((PExp)$right).getLocation()),
-			   (PExp)$left,
-			   extractLexToken((CmlLexeme)$op),
-			   (PExp)$right);
+                                              ((PExp)$right).getLocation()),
+                           (PExp)$left,
+                           extractLexToken((CmlLexeme)$op),
+                           (PExp)$right);
 }
 | expression[left] NOTINSET[op] expression[right]
 {
   $$ = new ANotInSetBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						 ((PExp)$right).getLocation()),
-			      (PExp)$left,
-			      extractLexToken((CmlLexeme)$op),
-			      (PExp)$right);
+                                                 ((PExp)$right).getLocation()),
+                              (PExp)$left,
+                              extractLexToken((CmlLexeme)$op),
+                              (PExp)$right);
 }
 | expression[left] SUBSET[op] expression[right]
 {
   $$ = new ASubsetBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-					       ((PExp)$right).getLocation()),
-			    (PExp)$left,
-			    extractLexToken((CmlLexeme)$op),
-			    (PExp)$right);
+                                               ((PExp)$right).getLocation()),
+                            (PExp)$left,
+                            extractLexToken((CmlLexeme)$op),
+                            (PExp)$right);
 }
 | expression[left] PSUBSET[op] expression[right]
 {
   $$ = new AProperSubsetBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						     ((PExp)$right).getLocation()),
-				  (PExp)$left,
-				  extractLexToken((CmlLexeme)$op),
-				  (PExp)$right);
+                                                     ((PExp)$right).getLocation()),
+                                  (PExp)$left,
+                                  extractLexToken((CmlLexeme)$op),
+                                  (PExp)$right);
 }
 | expression[left] UNION[op] expression[right]
 {
   $$ = new ASetUnionBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						 ((PExp)$right).getLocation()),
-			      (PExp)$left,
-			      extractLexToken((CmlLexeme)$op),
-			      (PExp)$right);
+                                                 ((PExp)$right).getLocation()),
+                              (PExp)$left,
+                              extractLexToken((CmlLexeme)$op),
+                              (PExp)$right);
 }
 | expression[left] BACKSLASH[op] expression[right]
 {
   $$ = new ASetDifferenceBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						      ((PExp)$right).getLocation()),
-				   (PExp)$left,
-				   extractLexToken((CmlLexeme)$op),
-				   (PExp)$right);
+                                                      ((PExp)$right).getLocation()),
+                                   (PExp)$left,
+                                   extractLexToken((CmlLexeme)$op),
+                                   (PExp)$right);
 }
 | expression[left] INTER[op] expression[right]
 {
   $$ = new ASetIntersectBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						     ((PExp)$right).getLocation()),
-				  (PExp)$left,
-				  extractLexToken((CmlLexeme)$op),
-				  (PExp)$right);
+                                                     ((PExp)$right).getLocation()),
+                                  (PExp)$left,
+                                  extractLexToken((CmlLexeme)$op),
+                                  (PExp)$right);
 }
 | expression[left] CARET[op] expression[right]
 {
   $$ = new ASeqConcatBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						  ((PExp)$right).getLocation()),
-			       (PExp)$left,
-			       extractLexToken((CmlLexeme)$op),
-			       (PExp)$right);
+                                                  ((PExp)$right).getLocation()),
+                               (PExp)$left,
+                               extractLexToken((CmlLexeme)$op),
+                               (PExp)$right);
 }
 | expression[left] DPLUS[op] expression[right]
 {
   $$ = new APlusPlusBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						 ((PExp)$right).getLocation()),
-			      (PExp)$left,
-			      extractLexToken((CmlLexeme)$op),
-			      (PExp)$right);
+                                                 ((PExp)$right).getLocation()),
+                              (PExp)$left,
+                              extractLexToken((CmlLexeme)$op),
+                              (PExp)$right);
 }
 | expression[left] MUNION[op] expression[right]
 {
   $$ = new AMapUnionBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						 ((PExp)$right).getLocation()),
-			      (PExp)$left,
-			      extractLexToken((CmlLexeme)$op),
-			      (PExp)$right);
+                                                 ((PExp)$right).getLocation()),
+                              (PExp)$left,
+                              extractLexToken((CmlLexeme)$op),
+                              (PExp)$right);
 }
 | expression[left] LTCOLON[op] expression[right]
 {
   $$ = new ADomainResToBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						    ((PExp)$right).getLocation()),
-				 (PExp)$left,
-				 extractLexToken((CmlLexeme)$op),
-				 (PExp)$right);
+                                                    ((PExp)$right).getLocation()),
+                                 (PExp)$left,
+                                 extractLexToken((CmlLexeme)$op),
+                                 (PExp)$right);
 }
 | expression[left] LTDASHCOLON[op] expression[right]
 {
   $$ = new ADomainResByBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						    ((PExp)$right).getLocation()),
-				 (PExp)$left,
-				 extractLexToken((CmlLexeme)$op),
-				 (PExp)$right);
+                                                    ((PExp)$right).getLocation()),
+                                 (PExp)$left,
+                                 extractLexToken((CmlLexeme)$op),
+                                 (PExp)$right);
 }
 | expression[left] COLONGT[op] expression[right]
 {
   $$ = new APlusPlusBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						 ((PExp)$right).getLocation()),
-			      (PExp)$left,
-			      extractLexToken((CmlLexeme)$op),
-			      (PExp)$right);
+                                                 ((PExp)$right).getLocation()),
+                              (PExp)$left,
+                              extractLexToken((CmlLexeme)$op),
+                              (PExp)$right);
 }
 | expression[left] COLONDASHGT[op] expression[right]
 {
   $$ = new APlusPlusBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						 ((PExp)$right).getLocation()),
-			      (PExp)$left,
-			      extractLexToken((CmlLexeme)$op),
-			      (PExp)$right);
+                                                 ((PExp)$right).getLocation()),
+                              (PExp)$left,
+                              extractLexToken((CmlLexeme)$op),
+                              (PExp)$right);
 }
 | expression[left] COMP[op] expression[right]
 {
   $$ = new ACompBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-					     ((PExp)$right).getLocation()),
-			  (PExp)$left,
-			  extractLexToken((CmlLexeme)$op),
-			  (PExp)$right);
+                                             ((PExp)$right).getLocation()),
+                          (PExp)$left,
+                          extractLexToken((CmlLexeme)$op),
+                          (PExp)$right);
 }
 | expression[left] DSTAR[op] expression[right]
 {
   $$ = new AStarStarBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
-						 ((PExp)$right).getLocation()),
-			      (PExp)$left,
-			      extractLexToken((CmlLexeme)$op),
-			      (PExp)$right);
+                                                 ((PExp)$right).getLocation()),
+                              (PExp)$left,
+                              extractLexToken((CmlLexeme)$op),
+                              (PExp)$right);
 }
 ;
 
@@ -4547,9 +4554,9 @@ maplet :
   PExp dom = (PExp)$dom;
   PExp rng = (PExp)$rng;
   $$ = new AMapletExp(extractLexLocation(dom.getLocation(),
-					 rng.getLocation()),
-		      dom,
-		      rng);
+                                         rng.getLocation()),
+                      dom,
+                      rng);
 }
 ;
 
@@ -4563,8 +4570,8 @@ nonDeterministicAltList :
   List<ANonDeterministicAltStatementAction> alts =
     new LinkedList<ANonDeterministicAltStatementAction>();
   alts.add(new ANonDeterministicAltStatementAction(location,
-						   guard,
-						   action));
+                                                   guard,
+                                                   action));
   $$ = alts;
 }
 | nonDeterministicAltList[list] BAR expression RARROW action
@@ -4576,8 +4583,8 @@ nonDeterministicAltList :
   List<ANonDeterministicAltStatementAction> alts =
     (List<ANonDeterministicAltStatementAction>)$list;
   alts.add(new ANonDeterministicAltStatementAction(location,
-						   guard,
-						   action));
+                                                   guard,
+                                                   action));
   $$ = alts;
 }
 ;
@@ -4608,10 +4615,10 @@ assignmentDef :
                                  name,
                                  NameScope.GLOBAL,
                                  false,
-				 null,//VDM classDef
+                                 null,//VDM classDef
                                  access,
                                  type,
-				 null,//Pass
+                                 null,//Pass
                                  null,
                                  null);
 }
@@ -4624,10 +4631,10 @@ assignmentDef :
   $$ = new AAssignmentDefinition(location, name,
                                  NameScope.GLOBAL,
                                  false,
-				 null,//VDM classDef
+                                 null,//VDM classDef
                                  null,//access
                                  type,
-				 null,//Pass
+                                 null,//Pass
                                  exp,
                                  null);
 }
@@ -4640,10 +4647,10 @@ assignmentDef :
     $$ = new AAssignmentDefinition(location, name,
                                    NameScope.GLOBAL,
                                    false,
-				   null,//VDM classDef
+                                   null,//VDM classDef
                                    null,//access
                                    type,
-				   null,//Pass
+                                   null,//Pass
                                    exp,
                                    null);
 }
@@ -4688,7 +4695,7 @@ assignStatement :
   // stateDesignator = path.convertToStateDesignator();
   PExp exp = (PExp)$expression;
   LexLocation location = extractLexLocation(stateDesignator.getLocation(),
-					    exp.getLocation());
+                                            exp.getLocation());
   $$ = new ASingleGeneralAssignmentStatementAction(location, stateDesignator, exp);
 }
 ;
@@ -4697,20 +4704,20 @@ ifStatement :
   IF expression THEN action[then] elseStatements ELSE action[else]
 {
   $$ = new AIfStatementAction(extractLexLocation((CmlLexeme)$IF,
-						 ((PAction)$else).getLocation()),
-			      (PExp)$expression,
-			      (PAction)$then,
-			      (List<? extends AElseIfStatementAction>)$elseStatements,
-			      (PAction)$else);
+                                                 ((PAction)$else).getLocation()),
+                              (PExp)$expression,
+                              (PAction)$then,
+                              (List<? extends AElseIfStatementAction>)$elseStatements,
+                              (PAction)$else);
 }
 | IF expression THEN action[then] ELSE action[else]
 {
   $$ = new AIfStatementAction(extractLexLocation((CmlLexeme)$IF,
-						 ((PAction)$else).getLocation()),
-			      (PExp)$expression,
-			      (PAction)$then,
-			      null,
-			      (PAction)$else);
+                                                 ((PAction)$else).getLocation()),
+                              (PExp)$expression,
+                              (PAction)$then,
+                              null,
+                              (PAction)$else);
 }
 ;
 
@@ -4720,9 +4727,9 @@ elseStatements :
   List<AElseIfStatementAction> elseStms = new Vector<AElseIfStatementAction>();
   AElseIfStatementAction elseif =
     new AElseIfStatementAction(extractLexLocation((CmlLexeme)$ELSEIF,
-						  ((PAction)$action).getLocation()),
-			       (PExp)$expression,
-			       (PAction)$action);
+                                                  ((PAction)$action).getLocation()),
+                               (PExp)$expression,
+                               (PAction)$action);
   elseStms.add(elseif);
   $$ = elseStms;
 }
@@ -4731,9 +4738,9 @@ elseStatements :
   List<AElseIfStatementAction> elseStms = (List<AElseIfStatementAction>)$elses;
   AElseIfStatementAction elseif =
     new AElseIfStatementAction(extractLexLocation((CmlLexeme)$ELSEIF,
-						  ((PAction)$action).getLocation()),
-			       (PExp)$expression,
-			       (PAction)$action);
+                                                  ((PAction)$action).getLocation()),
+                               (PExp)$expression,
+                               (PAction)$action);
   elseStms.add(elseif);
   $$ = elseStms;
 }
@@ -4819,10 +4826,10 @@ patternLessID :
   List<PPattern> plist = (List<PPattern>)$patternList;
   plist.add((PPattern)$pattern);
   $$ = new ATuplePattern(extractLexLocation((CmlLexeme)$MKUNDER,
-					    (CmlLexeme)$RPAREN), 
-			 new LinkedList<PDefinition>(), 
-			 false, 
-			 plist);
+                                            (CmlLexeme)$RPAREN),
+                         new LinkedList<PDefinition>(),
+                         false,
+                         plist);
 }
 /* DEVIATION
  * CML_0:
@@ -4836,22 +4843,22 @@ patternLessID :
   List<? extends PPattern> plist = null;
   LexNameToken name = extractNameFromUNDERNAMEToken((CmlLexeme)$MKUNDERNAME);
   $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$MKUNDERNAME,
-					     (CmlLexeme)$LRPAREN),
-			  null,
-			  false,
-			  name,
-			  plist);
+                                             (CmlLexeme)$LRPAREN),
+                          null,
+                          false,
+                          name,
+                          plist);
 }
 | MKUNDERNAME LPAREN patternList RPAREN
 {
   List<? extends PPattern> plist = (List<? extends PPattern>)$patternList;
   LexNameToken name = extractNameFromUNDERNAMEToken((CmlLexeme)$MKUNDERNAME);
   $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$MKUNDERNAME,
-					     (CmlLexeme)$RPAREN),
-			  null,
-			  false,
-			  name,
-			  plist);
+                                             (CmlLexeme)$RPAREN),
+                          null,
+                          false,
+                          name,
+                          plist);
 }
 ;
 
@@ -4876,10 +4883,10 @@ patternIdentifier :
   CmlLexeme lexeme = (CmlLexeme)$IDENTIFIER;
   LexLocation loc = extractLexLocation(lexeme);
   LexNameToken lnt = new LexNameToken("",
-				      lexeme.getValue(),
-				      loc,
-				      false,
-				      true);
+                                      lexeme.getValue(),
+                                      loc,
+                                      false,
+                                      true);
   AIdentifierPattern res = new AIdentifierPattern();
   res.setName(lnt);
   res.setLocation(loc);
@@ -4888,8 +4895,8 @@ patternIdentifier :
 | MINUS // "don't care" pattern
 {
   $$ = new AIgnorePattern(extractLexLocation((CmlLexeme)$MINUS),
-			  new LinkedList<PDefinition>(),
-			  true);
+                          new LinkedList<PDefinition>(),
+                          true);
 }
 ;
 
@@ -4933,7 +4940,7 @@ matchValue :
 | LPAREN expression RPAREN
 {
   $$ = new AExpressionPattern(extractLexLocation((CmlLexeme)$LPAREN,
-						 (CmlLexeme)$RPAREN),
+                                                 (CmlLexeme)$RPAREN),
                               new LinkedList<PDefinition>(),
                               false,
                               (PExp)$expression);
@@ -4951,7 +4958,7 @@ setBind :
   PPattern pattern = (PPattern)$pattern;
   PExp exp = (PExp)$expression;
   LexLocation location = extractLexLocation(pattern.getLocation(),
-					    exp.getLocation());
+                                            exp.getLocation());
   $$ = new ASetBind(location, pattern, exp);
 }
 ;
@@ -4962,7 +4969,7 @@ typeBind :
   PPattern pattern = (PPattern)$pattern;
   PType type = (PType)$type;
   LexLocation location = extractLexLocation(pattern.getLocation(),
-					    type.getLocation());
+                                            type.getLocation());
   $$ = new ATypeBind(location, pattern, type);
 }
 ;
@@ -4993,7 +5000,7 @@ multipleSetBind :
   List<PPattern> patterns = (List<PPattern>)$patternList;
   PExp exp = (PExp)$expression;
   LexLocation loc = extractLexLocation(extractFirstLexLocation(patterns),
-				       exp.getLocation());
+                                       exp.getLocation());
   $$ = new ASetMultipleBind(loc, patterns, exp);
 }
 ;
@@ -5004,7 +5011,7 @@ multipleTypeBind :
   List<PPattern> patterns = (List<PPattern>)$patternList;
   PType type = (PType)$type;
   LexLocation loc = extractLexLocation(extractFirstLexLocation(patterns),
-				       type.getLocation());
+                                       type.getLocation());
   $$ = new ATypeMultipleBind(loc, patterns, type);
 }
 ;
