@@ -33,8 +33,6 @@ public class TopLevelDefinitionMap {
 		Map<Class<?>, String> map = new HashMap<Class<?>, String>();
 		map.put(AValueParagraphDefinition.class, "global value declarations");
 		map.put(AFunctionParagraphDefinition.class, "global function declarations");
-		// TODO check if operations need to have top level entry
-		// map.put(AOperationParagraphDefinition.class, "operations");
 		map.put(ATypesParagraphDefinition.class, "global type declarations");
 		map.put(AChannelParagraphDefinition.class, "channel declarations");
 		map.put(AChansetParagraphDefinition.class, "chanset declarations");

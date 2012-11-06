@@ -14,19 +14,16 @@ import org.overture.ast.definitions.AValueDefinition;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
-import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionParagraphDefinition;
 import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
-import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.definitions.SOperationDefinition;
-import eu.compassresearch.ide.cml.ui.editor.syntax.DefinitionMap.DefinitionHandler;
 
 public enum OutlineEntryType {
 
@@ -60,27 +57,28 @@ public enum OutlineEntryType {
 	}
 
 	
-	private static final Map<Class<?>, Image> ICON_MAP = createMap();
-
-	public static Image getImage(Class<?> cls) {
-		Image r = ICON_MAP.get(cls);
-		if (r == null)
-			System.err.println("No outline icon found for class "
-					+ cls.getCanonicalName());
-		return r;
-	}
-
-	private static Map<Class<?>, Image> createMap() {
-		Map<Class<?>, Image> map = new HashMap<Class<?>, Image>();
-		//map.put(key, value)
-		//TODO Add class/image pairs
-		return Collections.unmodifiableMap(map);
-	}
+//	private static final Map<Class<?>, Image> ICON_MAP = createMap();
+//
+//	public static Image getImage(Class<?> cls) {
+//		Image r = ICON_MAP.get(cls);
+//		if (r == null)
+//			System.err.println("No outline icon found for class "
+//					+ cls.getCanonicalName());
+//		return r;
+//	}
+//
+//	private static Map<Class<?>, Image> createMap() {
+//		Map<Class<?>, Image> map = new HashMap<Class<?>, Image>();
+//		//map.put(key, value)
+//		//TODO Add class/image pairs
+//		return Collections.unmodifiableMap(map);
+//	}
 
 	
 	public static Image getImageForElement(Object obj) {
-	    OutlineEntryType oi = null;
-
+	 
+	    //TODO fix Unparameterized references
+	    //TODO change to (class,map) format?
 	    Wrapper w = (Wrapper) obj;
 	    
 	    // Fetch Top-level definitions
@@ -122,6 +120,7 @@ public enum OutlineEntryType {
 		return OPERATION.getImage();
 	    
 	    //When all else fails...
+	    System.err.println("No icon found for class "+w.value.getClass().getCanonicalName());
 	    return ERROR.getImage();
 
 	}

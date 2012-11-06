@@ -28,7 +28,7 @@ public class DefinitionMap {
 	public static DefinitionHandler getDelegate(Class<?> cls) {
 		DefinitionHandler r = DEFINITION_MAP.get(cls);
 		if (r == null)
-			System.err.println("No delegate found for class "
+			System.err.println("No delegate found for definition class "
 					+ cls.getCanonicalName());
 		return r;
 	}
