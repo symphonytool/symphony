@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexIdentifierToken;
 
@@ -14,12 +13,10 @@ import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AInstantiationProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
-import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.cml.CMLProcessOld;
 import eu.compassresearch.core.interpreter.cml.InstantiatedProcess;
-import eu.compassresearch.core.interpreter.cml.ProcessThread;
 import eu.compassresearch.core.interpreter.cml.SequentialCompositionProcess;
 import eu.compassresearch.core.interpreter.cml.SynchronousParallelismProcess;
 
@@ -53,23 +50,23 @@ public class ProcessEvaluator extends
         return process;
       }
     
-    @Override
-    public CMLProcessOld caseAStateProcess(AStateProcess node, CMLContext question)
-        throws AnalysisException
-      {
-        
-        // TODO Add state, value, etc to the corresponding processValue and
-        // context
-        
-        for (PDefinition def : node.getDefinitionParagraphs())
-          {
-            def.apply(this.parentInterpreter, question);
-            // question.put(def.getName(), def.getType().g);
-          }
-        ProcessThread pt = new ProcessThread(question, node);
-        
-        return pt;
-      }
+//    @Override
+//    public CMLProcessOld caseAStateProcess(AStateProcess node, CMLContext question)
+//        throws AnalysisException
+//      {
+//        
+//        // TODO Add state, value, etc to the corresponding processValue and
+//        // context
+//        
+//        for (PDefinition def : node.getDefinitionParagraphs())
+//          {
+//            def.apply(this.parentInterpreter, question);
+//            // question.put(def.getName(), def.getType().g);
+//          }
+//        ProcessThread pt = new ProcessThread(question, node);
+//        
+//        return pt;
+//      }
     
     @Override
     public CMLProcessOld caseASynchronousParallelismProcess(

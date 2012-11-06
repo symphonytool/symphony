@@ -13,6 +13,7 @@ import eu.compassresearch.core.interpreter.cml.CMLChannelEvent;
 import eu.compassresearch.core.interpreter.cml.CMLCommunication;
 import eu.compassresearch.core.interpreter.cml.CMLProcess;
 import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.CMLTauEvent;
 import eu.compassresearch.core.interpreter.cml.ChannelObserver;
 import eu.compassresearch.core.interpreter.cml.ProcessState;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluator;
@@ -40,7 +41,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		CMLBehaviourSignal ret = null;
 
 		//execute silently if the next is an invisible action
-		if(alpha.containsTau()){
+		if(alpha.containsSpecialEvent(CMLTauEvent.instance())){
 			setState(ProcessState.RUNNING);
 			ret = executeNext();
 			//state = ProcessState.WAIT;
@@ -67,7 +68,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		
 	private void registerChannelsInAlpha(CMLAlphabet alpha)
 	{
-		for(CMLCommunication com : alpha.getAllCommunications())
+		for(CMLCommunication com : alpha.getCommunicationEvents())
 		{
 			switch(com.getCommunicationType())
 			{

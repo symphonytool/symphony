@@ -4,7 +4,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
-public class CMLCommunication {
+public class CMLCommunication extends CMLEvent {
 
 	private CMLChannelValue channel;
 	private Value value = null;

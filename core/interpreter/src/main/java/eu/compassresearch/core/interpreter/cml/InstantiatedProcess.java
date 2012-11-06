@@ -4,11 +4,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.overture.ast.analysis.AnalysisException;
-
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.core.interpreter.eval.ProcessAlphabetCollector;
 
 public class InstantiatedProcess implements CMLProcessOld
   {
@@ -23,15 +20,15 @@ public class InstantiatedProcess implements CMLProcessOld
         this.processDefinition = processDefinition;
         this.process = process;
         
-        try
-          {
-            ProcessAlphabetCollector ec = new ProcessAlphabetCollector();
-            this.processDefinition.apply(ec);
-            channelSet = ec.getChannelSet();
-          } catch (AnalysisException e)
-          {
-            e.printStackTrace();
-          }
+//        try
+//          {
+//            ProcessAlphabetCollector ec = new ProcessAlphabetCollector();
+//            this.processDefinition.apply(ec);
+//            channelSet = ec.getChannelSet();
+//          } catch (AnalysisException e)
+//          {
+//            e.printStackTrace();
+//          }
       }
     
     @Override

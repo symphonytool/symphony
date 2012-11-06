@@ -14,12 +14,12 @@ public class RandomSelectionStrategy implements
 	@Override
 	public CMLCommunication select(CMLAlphabet availableChannelEvents) {
 		
-		Set<CMLCommunication> comms = availableChannelEvents.getAllCommunications();
+		Set<CMLCommunication> comms = availableChannelEvents.getCommunicationEvents();
 		CMLCommunication selectedComm = null;
 		
 		if(!comms.isEmpty())
-			selectedComm = availableChannelEvents.getAllCommunications().iterator().next();
-		CmlRuntime.logger().fine("Available events " + availableChannelEvents.getAllCommunications());
+			selectedComm = availableChannelEvents.getCommunicationEvents().iterator().next();
+		CmlRuntime.logger().fine("Available events " + availableChannelEvents.getCommunicationEvents());
 		CmlRuntime.logger().fine("The supervisor environment picks : " + selectedComm);
 		
 		return selectedComm;

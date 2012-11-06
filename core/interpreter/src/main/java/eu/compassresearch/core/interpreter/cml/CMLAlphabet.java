@@ -5,43 +5,77 @@ import java.util.Set;
 
 public class CMLAlphabet {
 
-	private Set<CMLCommunication> alphabet;
-	private boolean hasTau;
+	private final Set<CMLCommunication> communicationEvents;
+	private final Set<SpecialEvent> specialEvents;
+	
 	public CMLAlphabet()
 	{
-		this.alphabet = new HashSet<CMLCommunication>();
-		hasTau = false;
+		this.communicationEvents = new HashSet<CMLCommunication>();
+		this.specialEvents = new HashSet<SpecialEvent>();
 	}
 	
-	public CMLAlphabet(boolean hasTau)
+	public CMLAlphabet(Set<CMLCommunication> comms, Set<SpecialEvent> specialEvents)
 	{
-		this.alphabet = new HashSet<CMLCommunication>();
-		this.hasTau = hasTau;
+		this.communicationEvents = comms;
+		this.specialEvents = specialEvents;
 	}
 	
-	public CMLAlphabet(Set<CMLCommunication> comms)
+	public CMLAlphabet(Set<CMLEvent> events)
 	{
-		this.alphabet = comms;
+		this.communicationEvents = new HashSet<CMLCommunication>();
+		this.specialEvents = new HashSet<SpecialEvent>();
+		
+		for(CMLEvent e : events)
+		{
+			if(e instanceof CMLCommunication)
+				this.communicationEvents.add((CMLCommunication)e);
+			else if(e instanceof SpecialEvent)
+				this.specialEvents.add((SpecialEvent)e);
+			
+		}
+		
 	}
 	
-	public Set<CMLCommunication> getAllCommunications()
+	public Set<CMLCommunication> getCommunicationEvents()
 	{
-		return new HashSet<CMLCommunication>(alphabet);
+		return new HashSet<CMLCommunication>(communicationEvents);
 	}
 	
+	public Set<SpecialEvent> getSpecialEvents()
+	{
+		return new HashSet<SpecialEvent>(specialEvents);
+	}
+	
+	public Set<CMLEvent> getAllEvents()
+	{
+		HashSet<CMLEvent> allEvents = new HashSet<CMLEvent>();
+		
+		allEvents.addAll(communicationEvents);
+		allEvents.addAll(specialEvents);
+		
+		return allEvents;
+	}
+	
+	
+	/**
+	 * This determines whether the alphabet contains a specific communication event. 
+	 * Communication events are both read, write and signaling channel event (synchronization events)
+	 * @return true if the special event is contained else false
+	 */
 	public boolean containsCommunication(CMLCommunication com)
 	{
-		return alphabet.contains(com);
+		return communicationEvents.contains(com);
 	}
 	
 	/**
-	 * This determins whether the alphabet contains the tau event
-	 * @return true if the tau event is contained else false
+	 * This determines whether the alphabet contains a specific special event like e.g. the tau event
+	 * @return true if the special event is contained else false
 	 */
-	public boolean containsTau()
+	public boolean containsSpecialEvent(SpecialEvent specialEvent)
 	{
-		return hasTau;
+		return specialEvents.contains(specialEvent);
 	}
+	
 	
 	
 }

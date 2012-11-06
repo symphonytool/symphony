@@ -5,19 +5,20 @@ import java.util.List;
 
 public class CMLTrace {
 
-	private List<CMLCommunication> trace;
+	private List<CMLEvent> trace;
 	
 	public CMLTrace()
 	{
-		trace = new LinkedList<CMLCommunication>();
+		trace = new LinkedList<CMLEvent>();
 	}
 	
-	//public void addEvent(CMLCommunication)
+	public void addEvent(CMLEvent event)
+	{
+		trace.add(event);
+	}
 	
 	@Override
 	public String toString() {
-		return "";
+		return trace.toString();
 	}
-	
-	
 }
