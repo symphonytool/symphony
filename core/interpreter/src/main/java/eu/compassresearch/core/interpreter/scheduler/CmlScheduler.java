@@ -159,7 +159,7 @@ public class CmlScheduler {
 					
 					System.out.println();
 					
-					System.out.println("The ENV(Simulator) picks: " + actionToExec.second.getChannelName());
+					System.out.println("The ENV(Simulator) picks: " + actionToExec.second.getChannel());
 				
 					System.out.println();
 				}

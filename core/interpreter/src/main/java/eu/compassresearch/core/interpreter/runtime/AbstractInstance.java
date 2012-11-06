@@ -144,7 +144,21 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 
 	@Override
 	public void onChannelEvent(CMLChannelEvent event) {
+		//enable the processthread to run again and unregister from the channel
 		setState(ProcessState.RUNNABLE);
 		
+		switch(event.getEventType())
+		{
+		case READ:
+			event.getChannel().unregisterOnChannelRead(this);
+			break;
+		case WRITE:
+			event.getChannel().unregisterOnChannelWrite(this);
+			break;
+		case SIGNAL:
+			event.getChannel().unregisterOnChannelSignal(this);
+			break;
+		
+		}
 	}
 }

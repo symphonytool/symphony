@@ -62,7 +62,7 @@ public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 
 		CMLChannelEvent ev = question.getCurrentEvent();
 
-		if(ev != null && ev.getChannelName().equals(node.getIdentifier().getName()))
+		if(ev != null && ev.getChannel().equals(node.getIdentifier().getName()))
 		{
 			//question.resetEvent();
 			CMLContext newQuestion = new CMLContext(node.getLocation(),"", question);

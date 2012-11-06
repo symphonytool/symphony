@@ -17,6 +17,7 @@ import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.ProcessState;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.util.Pair;
+import eu.compassresearch.core.interpreter.values.ProcessValue;
 
 public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 
@@ -139,9 +140,9 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 			throws AnalysisException {
 
 		//first push the right process
-		pushNext(node.getRight(), question);
+		//pushNext(node.getRight(), question);
 		//then push the left process so it will execute first
-		pushNext(node.getLeft(), question);
+		//pushNext(node.getLeft(), question);
 		
 		
 		return CMLBehaviourSignal.EXEC_SUCCESS;
@@ -152,7 +153,17 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 			AInstantiationProcess node, Context question)
 			throws AnalysisException {
 
+		//TODO add decls to the context
+		//ProcessValue value = new ProcessValue();
+		//ProcessContext processContext = new ProcessContext(node.getLocation(), "", 
+		//		question.getGlobal(), value);
+		Context newContext = new Context(node.getLocation(), "Child Process Context", question.getGlobal());
 		
+		AProcessDefinition processDef = node.getProcessDefinition();
+		
+		CMLProcessInstance childProcess = new CMLProcessInstance(processDef, this, newContext);
+		
+		this.children.add(childProcess);
 		
 		
 		return CMLBehaviourSignal.EXEC_SUCCESS;

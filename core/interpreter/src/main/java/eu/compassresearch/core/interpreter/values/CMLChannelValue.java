@@ -98,41 +98,44 @@ public class CMLChannelValue extends Value implements CMLChannel, CMLChannelSign
 	{
 		for(ChannelObserver observer : observers)
 		{
-			observer.onChannelEvent(new CMLChannelEvent(name, eventType));
+			observer.onChannelEvent(new CMLChannelEvent(this, eventType));
 		}
 	}
 
 	@Override
 	public void registerOnChannelRead(ChannelObserver observer) {
 		readObservers.add(observer);
-		CmlRuntime.logger().config(observer.name() + " registered on "+ this.toString() + " for onChannelRead events");
+		CmlRuntime.logger().finest(observer.name() + " registered on "+ this.toString() + " for onChannelRead events");
 	}
 
 	@Override
 	public void unregisterOnChannelRead(ChannelObserver observer) {
 		readObservers.remove(observer);		
+		CmlRuntime.logger().finest(observer.name() + " unregistered on "+ this.toString() + " for onChannelRead events");
 	}
 
 	@Override
 	public void registerOnChannelWrite(ChannelObserver observer) {
 		writeObservers.add(observer);
-		CmlRuntime.logger().config(observer.name() + " registered on "+ this.toString() + " for onChannelWrite events");
+		CmlRuntime.logger().finest(observer.name() + " registered on "+ this.toString() + " for onChannelWrite events");
 	}
 
 	@Override
 	public void unregisterOnChannelWrite(ChannelObserver observer) {
-		writeObservers.remove(observer);		
+		writeObservers.remove(observer);
+		CmlRuntime.logger().finest(observer.name() + " unregistered on "+ this.toString() + " for onChannelWrite events");
 	}
 
 	@Override
 	public void registerOnChannelSignal(ChannelObserver observer) {
 		signalObservers.add(observer);
-		CmlRuntime.logger().config(observer.name() + " registered on "+ this.toString() + " for onChannelSignal events");
+		CmlRuntime.logger().finest(observer.name() + " registered on "+ this.toString() + " for onChannelSignal events");
 	}
 
 	@Override
 	public void unregisterOnChannelSignal(ChannelObserver observer) {
 		signalObservers.remove(observer);		
+		CmlRuntime.logger().finest(observer.name() + " unregistered on "+ this.toString() + " for onChannelSignal events");
 	}
 
 }
