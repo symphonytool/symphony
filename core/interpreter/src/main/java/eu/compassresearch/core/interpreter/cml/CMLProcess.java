@@ -64,4 +64,7 @@ public interface CMLProcess {
 	public boolean finished();
 	public boolean waiting();
 	public boolean deadlocked();
+	
+	// Denotational Semantics Information
+	public CMLTrace getTraceModel();
 }

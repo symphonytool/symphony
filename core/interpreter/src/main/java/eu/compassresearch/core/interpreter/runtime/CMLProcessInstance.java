@@ -6,6 +6,8 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.ObjectValue;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.process.AInstantiationProcess;
+import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CMLAlphabet;
@@ -72,6 +74,19 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 	}
 		
 	@Override
+	public void setState(ProcessState state) {
+		if(null == mainBehaviour)
+			this.state = state;
+		else
+			mainBehaviour.setState(state);
+		
+	}
+	
+	/**
+	 * Transition functions
+	 */
+		
+	@Override
 	public CMLBehaviourSignal caseAStateProcess(AStateProcess node, Context question) throws AnalysisException
 	{
 		
@@ -117,14 +132,30 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 				
 		return ret;
 	}
-
+	
 	@Override
-	public void setState(ProcessState state) {
-		if(null == mainBehaviour)
-			this.state = state;
-		else
-			mainBehaviour.setState(state);
+	public CMLBehaviourSignal caseASequentialCompositionProcess(
+			ASequentialCompositionProcess node, Context question)
+			throws AnalysisException {
+
+		//first push the right process
+		pushNext(node.getRight(), question);
+		//then push the left process so it will execute first
+		pushNext(node.getLeft(), question);
 		
+		
+		return CMLBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	@Override
+	public CMLBehaviourSignal caseAInstantiationProcess(
+			AInstantiationProcess node, Context question)
+			throws AnalysisException {
+
+		
+		
+		
+		return CMLBehaviourSignal.EXEC_SUCCESS;
 	}
 
 }

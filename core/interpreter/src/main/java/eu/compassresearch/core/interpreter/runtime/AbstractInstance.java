@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
-import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.cml.CMLAlphabet;
 import eu.compassresearch.core.interpreter.cml.CMLBehaviourSignal;
@@ -14,6 +13,7 @@ import eu.compassresearch.core.interpreter.cml.CMLCommunication;
 import eu.compassresearch.core.interpreter.cml.CMLProcess;
 import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CMLTauEvent;
+import eu.compassresearch.core.interpreter.cml.CMLTrace;
 import eu.compassresearch.core.interpreter.cml.ChannelObserver;
 import eu.compassresearch.core.interpreter.cml.ProcessState;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluator;
@@ -25,11 +25,17 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	protected List<CMLProcess> children = new LinkedList<CMLProcess>();
 	protected CMLProcess parent;
 	protected CMLSupervisorEnvironment env;
+	protected CMLTrace trace = new CMLTrace();
 
 	public AbstractInstance(CMLProcess parent)
 	{
 		state = ProcessState.INITIALIZED;
 		this.parent = parent;
+	}
+	
+	@Override
+	public CMLTrace getTraceModel() {
+		return trace;
 	}
 		
 	@Override
@@ -43,6 +49,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		//execute silently if the next is an invisible action
 		if(alpha.containsSpecialEvent(CMLTauEvent.instance())){
 			setState(ProcessState.RUNNING);
+			trace.addEvent(CMLTauEvent.instance());
 			ret = executeNext();
 			//state = ProcessState.WAIT;
 		}
@@ -52,6 +59,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 			if(env.communicationSelected() && alpha.containsCommunication(env.selectedCommunication()))
 			{
 				ret = executeNext();
+				trace.addEvent(env.selectedCommunication());
 			}
 			//if no communication is selected by the supervisor or we cannot sync the selected events
 			//then we go to wait state and wait for channelEvent

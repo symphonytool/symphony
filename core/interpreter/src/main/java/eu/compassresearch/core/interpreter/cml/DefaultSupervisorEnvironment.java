@@ -81,7 +81,7 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 						!p.waiting())
 				{
 					CMLBehaviourSignal signal = p.execute(this);
-
+					CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
 					if(signal != CMLBehaviourSignal.EXEC_SUCCESS)
 						throw new RuntimeException("Change this!!!!");
 
