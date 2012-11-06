@@ -31,7 +31,8 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 	{
 		super(null);
 		this.name = name;
-		executionStack.push(new Pair<PAction, Context>(action, context));
+		pushNext(action, context);
+		//executionStack.push(new Pair<PAction, Context>(action, context));
 	}
 	
 	@Override
@@ -96,8 +97,7 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 			throws AnalysisException {
 		
 		System.out.println(node.getIdentifier() + "->");
-		
-		executionStack.push(new Pair<PAction, Context>(node.getAction(), question));
+		pushNext(node.getAction(), question);
 		
 		return CMLBehaviourSignal.EXEC_SUCCESS;
 	}

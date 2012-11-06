@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+
 public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 
 	private CMLCommunicationSelectionStrategy selectStrategy;

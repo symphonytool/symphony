@@ -17,7 +17,7 @@ public abstract class AbstractEvaluator<T  extends INode> extends
 	 * 
 	 */
 	private static final long serialVersionUID = 3882847083437565869L;
-	protected Stack<Pair<T,Context>> executionStack = new Stack<Pair<T,Context>>();
+	private Stack<Pair<T,Context>> executionStack = new Stack<Pair<T,Context>>();
 	
 	public boolean hasNext()
 	{
@@ -27,6 +27,11 @@ public abstract class AbstractEvaluator<T  extends INode> extends
 	public Pair<T,Context> nextState()
 	{
 		return executionStack.peek();
+	}
+	
+	protected void pushNext(T node, Context context)
+	{
+		executionStack.push(new Pair<T, Context>(node, context));
 	}
 	
 	protected CMLBehaviourSignal executeNext() throws AnalysisException

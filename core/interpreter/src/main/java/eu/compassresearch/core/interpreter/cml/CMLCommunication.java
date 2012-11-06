@@ -44,7 +44,7 @@ public class CMLCommunication {
 	
 	@Override public String toString() 
 	{
-		return channel.getName() + (!isSignal() ? "" : "." + value);
+		return channel.getName() + (isSignal() ? "" : "." + value);
 	};
 	
 	@Override public int hashCode() {

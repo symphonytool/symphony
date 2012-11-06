@@ -4,8 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.cml.CMLAlphabet;
 import eu.compassresearch.core.interpreter.cml.CMLBehaviourSignal;
@@ -30,16 +30,16 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		state = ProcessState.INITIALIZED;
 		this.parent = parent;
 	}
-	
+		
 	@Override
 	public CMLBehaviourSignal execute(CMLSupervisorEnvironment env) throws AnalysisException {
 		this.env= env;
 
-		//inspect
+		//inspect if there are any immediate events
 		CMLAlphabet alpha = inspect();
 		CMLBehaviourSignal ret = null;
 
-		//execute if the next is an invisible action
+		//execute silently if the next is an invisible action
 		if(alpha.containsTau()){
 			setState(ProcessState.RUNNING);
 			ret = executeNext();

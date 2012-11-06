@@ -14,6 +14,7 @@ import eu.compassresearch.core.interpreter.cml.CMLCommunicationType;
 import eu.compassresearch.core.interpreter.cml.CMLInputChannel;
 import eu.compassresearch.core.interpreter.cml.CMLOutputChannel;
 import eu.compassresearch.core.interpreter.cml.ChannelObserver;
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 
 public class CMLChannelValue extends Value implements CMLChannel, CMLChannelSignal,CMLOutputChannel<Value> ,CMLInputChannel<Value> 
 {
@@ -104,6 +105,7 @@ public class CMLChannelValue extends Value implements CMLChannel, CMLChannelSign
 	@Override
 	public void registerOnChannelRead(ChannelObserver observer) {
 		readObservers.add(observer);
+		CmlRuntime.logger().config(observer.name() + " registered on "+ this.toString() + " for onChannelRead events");
 	}
 
 	@Override
@@ -113,7 +115,8 @@ public class CMLChannelValue extends Value implements CMLChannel, CMLChannelSign
 
 	@Override
 	public void registerOnChannelWrite(ChannelObserver observer) {
-		writeObservers.add(observer);		
+		writeObservers.add(observer);
+		CmlRuntime.logger().config(observer.name() + " registered on "+ this.toString() + " for onChannelWrite events");
 	}
 
 	@Override
@@ -124,6 +127,7 @@ public class CMLChannelValue extends Value implements CMLChannel, CMLChannelSign
 	@Override
 	public void registerOnChannelSignal(ChannelObserver observer) {
 		signalObservers.add(observer);
+		CmlRuntime.logger().config(observer.name() + " registered on "+ this.toString() + " for onChannelSignal events");
 	}
 
 	@Override

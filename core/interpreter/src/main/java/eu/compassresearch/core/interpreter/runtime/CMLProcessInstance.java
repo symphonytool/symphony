@@ -30,7 +30,7 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 		ProcessContext context = new ProcessContext(processDef.getLocation(), "", globalContext, null);
 		this.processDef = processDef;
 		//this.prcEval = new ProcessEvaluatorNew(processDef.getProcess(),context,this);
-		executionStack.push(new Pair<PProcess, Context>(processDef.getProcess(), context));
+		pushNext(processDef.getProcess(), context);
 	}
 	
 	@Override
@@ -39,37 +39,6 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 		state = ProcessState.RUNNABLE;
 		env.addPupil(this);
 	}
-
-//	@Override
-//	public CMLBehaviourSignal execute(CMLSupervisorEnvironment env) throws AnalysisException {
-//		this.env = env;
-//		
-//		//inspect
-//		CMLAlphabet alpha = inspect();
-//		CMLBehaviourSignal ret = null;
-//		
-//		//execute if the next is an invisible action
-//		if(alpha.containsTau()){
-//			state = ProcessState.RUNNING;
-//			ret = executeNext();
-//			//state = ProcessState.WAIT;
-//		}
-//		else 
-//		{	
-//			//if no com is selected yet we set go to wait state
-//			if(env.communicationSelected() && alpha.containsCommunication(env.selectedCommunication()))
-//			{
-//				ret = executeNext();
-//			}
-//			else 
-//			{
-//				state = ProcessState.WAIT;
-//				ret = CMLBehaviourSignal.EXEC_SUCCESS;
-//			}
-//		}
-//		
-//		return ret;
-//	}
 
 	@Override
 	public CMLAlphabet inspect() throws AnalysisException{
@@ -107,9 +76,9 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 	{
 		
 		CMLBehaviourSignal ret = null;
-		
+		//The behavior of this process has not been started yet, so start it and execute the main
+		//Behavior in the next execution step
 		if(mainBehaviour == null)
-	    //The main action has not been started yet
 		{
 			
 			// TODO Add state, value, etc to the corresponding processValue and
@@ -120,31 +89,32 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 //			}
 			//ProcessThread pt = new ProcessThread(question, node);
 
-			
-			Context newContext = new Context(node.getLocation(), "caseAStateProcess", question);
+			//Create the context for this process and hand it over to the process behavior 
+			Context newContext = new Context(node.getLocation(), "Process Context :" + name(), question);
 
-			
+			//Create the name for the behavior and start it 
 			LexNameToken mainActionName = new LexNameToken(name().getModule(),
 					name().getName() + "@",
 					node.getAction().getLocation());
 
-			
 			mainBehaviour = new CMLActionInstance(node.getAction(),newContext,mainActionName);
-					
 			mainBehaviour.start(supervisor());
-		}
-		
-		
-		if(!mainBehaviour.finished())
-		{
-			ret = mainBehaviour.execute(supervisor());
-			executionStack.push(new Pair<PProcess, Context>(node, question)); 
+			pushNext(node, question);
+			ret = CMLBehaviourSignal.EXEC_SUCCESS; 
 		}
 		else
 		{
-			ret = CMLBehaviourSignal.EXEC_SUCCESS; 
+			if(!mainBehaviour.finished())
+			{
+				ret = mainBehaviour.execute(supervisor());
+				pushNext(node, question);
+			}
+			else
+			{
+				ret = CMLBehaviourSignal.EXEC_SUCCESS; 
+			}
 		}
-		
+				
 		return ret;
 	}
 
