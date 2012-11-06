@@ -983,13 +983,27 @@ replicationDeclaration :
  * Likely to appear in CML_1; discussed by Joey, Alvaro; Skype 30 July 2012
  */
 singleExpressionDeclaration :
-  IDENTIFIER INSET expression
+  IDENTIFIER[id] INSET expression
 {
-  /* --- TODO --- */
+  LexNameToken id = extractLexNameToken((CmlLexeme)$id);
+  List<LexNameToken> ids = new Vector<LexNameToken>();
+  ids.add(id);
+  PExp exp = (PExp)$expression;
+  LexLocation location = extractLexLocation(id.getLocation(),
+                                            exp.getLocation());
+  $$ = new AExpressionSingleDeclaration(location,
+                                        NameScope.LOCAL,
+                                        ids,
+                                        exp);
 }
-| IDENTIFIER COMMA singleExpressionDeclaration
+| IDENTIFIER[id] COMMA singleExpressionDeclaration[decls]
 {
-  /* --- TODO --- */
+  LexNameToken id = extractLexNameToken((CmlLexeme)$id);
+  AExpressionSingleDeclaration decls = (AExpressionSingleDeclaration)$decls;
+  decls.getIdentifiers().add(0, id);
+  decls.setLocation(extractLexLocation(id.getLocation(),
+				       exp.getLocation()));
+  $$ = decls;
 }
 ;
 
@@ -1150,7 +1164,7 @@ action :
 {
   /* --- TODO --- */
   /* need to merge in old action rule RARROW parser action and the old communication rule actions; along with an expression -> communication conversion?
-   */  
+   */ 
   //ACommunicationAction comAction = (ACommunicationAction)$communication;
   //PAction to = (PAction)$to;
   //LexLocation location = extractLexLocation(comAction.getLocation(), to.getLocation());
@@ -3824,17 +3838,35 @@ expression :
  *   ISUNDERNAME LPAREN expression RPAREN
  *
  */
-| ISUNDERNAME LPAREN expression RPAREN
+| ISUNDERNAME LPAREN expression[exp] RPAREN
 {
-  /* --- TODO --- */
+  $$ = new AIsExp(null, // tc type
+		  extractLexLocation(type.getLocation(),
+				     (CmlLexeme)$RPAREN),
+		  extractNameFromUNDERNAMEToken((CmlLexeme)$ISUNDERNAME),
+		  null, //basicType
+		  (PExp)$exp,
+		  null); //PDef
 }
-| ISUNDER basicType LPAREN expression RPAREN
+| ISUNDER basicType[type] LPAREN expression[exp] RPAREN
 {
-  /* --- TODO --- */
+  $$ = new AIsExp(null,
+		  extractLexLocation((CmlLexeme)$ISUNDER,
+				     (CmlLexeme)$RPAREN),
+		  null,
+		  (PType)$type,
+		  (PExp)$exp,
+		  null);
 }
-| ISUNDER LPAREN expression COMMA type RPAREN
+| ISUNDER LPAREN expression[exp] COMMA type RPAREN
 {
-  /* --- TODO --- */
+  $$ = new AIsExp(null,
+		  extractLexLocation((CmlLexeme)$ISUNDER,
+				     (CmlLexeme)$RPAREN),
+		  null,
+		  (PType)$type,
+		  (PExp)$exp,
+		  null);
 }
 /* precondition expression */
 /* (JWC) first parameter of the precondition expression is the
@@ -3962,196 +3994,836 @@ numericLiteral :
 ;
 
 textLiteral :
- STRING
+  STRING
+{
+  String lit = ((CmlLexeme)$STRING).getValue();
+  $$ = new LexStringToken(lit.substring(1, lit.length()-2),
+			  extractLexLocation((CmlLexeme)$STRING));
+}
 ;
 
 quoteLiteral :
-  QUOTE_LITERAL
+  QUOTE_LITERAL[lit]
+{
+  String lit = ((CmlLexeme)$lit).getValue();
+  $$ = new LexQuoteToken(lit.substring(1, lit.length()-2),
+			 extractLexLocation((CmlLexeme)$lit));
+}
 ;
 
 /* symbolic literals end*/
 
 localDefList :
   localDef
-| localDefList COMMA localDef
+{
+  List<PDefinition> res = new LinkedList<PDefinition>();
+  res.add((PDefinition)$localDef);
+  $$ = res;
+}
+| localDefList[list] COMMA localDef
+{
+  List<PDefinition> defs = (List<PDefinition>)$list;
+  defs.add((PDefinition)$localDef);
+  $$ = defs;
+}
 ;
 
 localDef :
-  valueDef
-| explicitFunctionDef
+  valueDef                      { $$ = $1; }
+| explicitFunctionDef           { $$ = $1; }
 ;
 
 ifExpr :
-  IF expression THEN expression elseExprs
+  IF expression[test] THEN expression[then] elseExprs
+{
+  PExp test = (PExp)$test;
+  PExp then = (PExp)$then;
+  List<PExp> elses = (List<PExp>)$elseExprs;
+  LexLocation loc = null;
+  if (elses.size() > 0) {
+    loc = combineLexLocation(extractLexLocation((CmlLexeme)$IF),
+			     extractLastLexLocation(elses));
+  } else {
+    loc = combineLexLocation(extractLexLocation((CmlLexeme)$IF),
+			     then.getLocation());
+  }    
+  AIfExp ifexp = new AIfExp(loc,
+			    test,
+			    then,
+			    null, // elseIfs
+			    null); // else
+  List<AElseIfExp> elseifs = new LinkedList<AElseIfExp>();
+  ifexp.setElseList(elseifs);
+  for(PExp exp : elses) {
+    if (exp instanceof AElseIfExp) {
+      elseifs.add((AElseIfExp)exp);
+    } else {
+      ifexp.setElse(exp);
+    }
+  }
+  $$ = ifexp;
+}
 ;
 
 elseExprs :
   ELSE expression
-| ELSEIF expression THEN expression elseExprs
+{
+  PExp exp = (PExp)$expression;
+  List<PExp> res = new LinkedList<PExp>();
+  res.add(exp);
+  $$ = res;
+}
+| ELSEIF expression[test] THEN expression[then] elseExprs[tail]
+{
+  PExp test = (PExp)$test;
+  PExp then = (PExp)$then;
+  List<PExp> tail = (List<PExp>)$tail;
+  tail.add(new AElseIfExp(extractLexLocation(extractLexLocation((CmlLexeme)$ELSEIF),
+					     then.getLocation()),
+			  test,
+			  then));
+  $$ = tail;
+}
 ;
 
 casesExpr :
-  CASES expression COLON casesExprAltList END
-| CASES expression COLON casesExprAltList COMMA OTHERS RARROW expression END
+  CASES expression[test] COLON casesExprAltList[alts] END
+{
+  ACasesExp alts = (ACasesExp)$alts;
+  alts.setExpression((PExp)$test);
+  alts.setLocation(extractLexLocation((CmlLexeme)$CASES, (CmlLexeme)$END));
+  $$ = alts;
+}
+| CASES expression[test] COLON casesExprAltList[alts] COMMA OTHERS RARROW expression[others] END
+{
+  ACasesExp alts = (ACasesExp)$alts;
+  alts.setExpression((PExp)$test);
+  alts.setLocation(extractLexLocation((CmlLexeme)$CASES, (CmlLexeme)$END));
+  alts.setOthers((PExp)$others);
+  $$ = alts;
+}
 ;
 
 casesExprAltList :
-  casesExprAlt
-| casesExprAltList COMMA casesExprAlt
+  casesExprAlt[alt]
+{
+  ACasesExp casesExp = new ACasesExp();
+  casesExp.getCases().add((ACaseAlternative)$alt);
+  $$ = casesExp;
+}
+| casesExprAltList[alts] COMMA casesExprAlt[alt]
+{
+  ACasesExp casesExp = (ACasesExp)$alts;
+  casesExp.getCases().add((ACaseAlternative)$alt);
+  $$ = casesExp;
+}
 ;
 
+/* --- TODO --- */
+/* I think we can merge this upwards */
 casesExprAlt :
   patternList RARROW expression
+{
+  List<PPattern> patList = (List<PPattern>)$patternList;
+  PExp exp = (PExp)$expression;
+  LexLocation loc = combineLexLocation(extractLexLeftMostFromPatterns(patList),
+				       exp.getLocation());
+  ACaseAlternative res = new ACaseAlternative(loc,
+					      exp,
+					      patList,
+					      null,//PExp result_
+					      null);//List<? extends PDefinition> defs_
+  $$ = res;
+}
 ;
 
 unaryExpr :
-  PLUS expression %prec U-PLUS
-| MINUS expression %prec U-MINUS
-| ABS expression
-| FLOOR expression
-| NOT expression
-| CARD expression
-| POWER expression
-| DUNION expression
-| DINTER expression
-| HD expression
-| TL expression
-| LEN expression
-| ELEMS expression
-| INDS expression
-| REVERSE expression
-| CONC expression
-| DOM expression
-| RNG expression
-| MERGE expression
-| INVERSE expression
+  PLUS[op] expression[exp] %prec U-PLUS
+{
+  $$ = new AUnaryPlusUnaryExp(extractLexLocation((CmlLexeme)$op,
+						 ((PExp)$exp).getLocation()),
+			      (PExp)$exp);
+}
+| MINUS[op] expression[exp] %prec U-MINUS
+{
+  $$ = new AUnaryMinusUnaryExp(extractLexLocation((CmlLexeme)$op,
+						  ((PExp)$exp).getLocation()),
+			       (PExp)$exp);
+}
+| ABS[op] expression[exp]
+{
+  $$ = new AAbsoluteUnaryExp(extractLexLocation((CmlLexeme)$op,
+						((PExp)$exp).getLocation()),
+			     (PExp)$exp);
+}
+| FLOOR[op] expression[exp]
+{
+  $$ = new AFloorUnaryExp(extractLexLocation((CmlLexeme)$op,
+					     ((PExp)$exp).getLocation()),
+			  (PExp)$exp);
+}
+| NOT[op] expression[exp]
+{
+  $$ = new ANotUnaryExp(extractLexLocation((CmlLexeme)$op,
+					   ((PExp)$exp).getLocation()),
+			(PExp)$exp);
+}
+| CARD[op] expression[exp]
+{
+  $$ = new ACardinalityUnaryExp(extractLexLocation((CmlLexeme)$op,
+						   ((PExp)$exp).getLocation()),
+				(PExp)$exp);
+}
+| POWER[op] expression[exp]
+{
+  $$ = new APowerSetUnaryExp(extractLexLocation((CmlLexeme)$op,
+						((PExp)$exp).getLocation()),
+			     (PExp)$exp);
+}
+| DUNION[op] expression[exp]
+{
+  $$ = new ADistUnionUnaryExp(extractLexLocation((CmlLexeme)$op,
+						 ((PExp)$exp).getLocation()),
+			      (PExp)$exp);
+}
+| DINTER[op] expression[exp]
+{
+  $$ = new ADistIntersectUnaryExp(extractLexLocation((CmlLexeme)$op,
+						     ((PExp)$exp).getLocation()),
+				  (PExp)$exp);
+}
+| HD[op] expression[exp]
+{
+  $$ = new AHeadUnaryExp(extractLexLocation((CmlLexeme)$op,
+					    ((PExp)$exp).getLocation()),
+			 (PExp)$exp);
+}
+| TL[op] expression[exp]
+{
+  $$ = new ATailUnaryExp(extractLexLocation((CmlLexeme)$op,
+					    ((PExp)$exp).getLocation()),
+			 (PExp)$exp);
+}
+| LEN[op] expression[exp]
+{
+  $$ = new ALenUnaryExp(extractLexLocation((CmlLexeme)$op,
+					   ((PExp)$exp).getLocation()),
+			(PExp)$exp);
+}
+| ELEMS[op] expression[exp]
+{
+  $$ = new AElementsUnaryExp(extractLexLocation((CmlLexeme)$op,
+						((PExp)$exp).getLocation()),
+			     (PExp)$exp);
+}
+| INDS[op] expression[exp]
+{
+  $$ = new AIndicesUnaryExp(extractLexLocation((CmlLexeme)$op,
+					       ((PExp)$exp).getLocation()),
+			    (PExp)$exp);
+}
+| REVERSE[op] expression[exp]
+{
+  $$ = new AReverseUnaryExp(extractLexLocation((CmlLexeme)$op,
+					       ((PExp)$exp).getLocation()),
+			    (PExp)$exp);
+}
+| CONC[op] expression[exp]
+{
+  $$ = new ADistConcatUnaryExp(extractLexLocation((CmlLexeme)$op,
+						  ((PExp)$exp).getLocation()),
+			       (PExp)$exp);
+}
+| DOM[op] expression[exp]
+{
+  $$ = new AMapDomainUnaryExp(extractLexLocation((CmlLexeme)$op,
+						 ((PExp)$exp).getLocation()),
+			      (PExp)$exp);
+}
+| RNG[op] expression[exp]
+{
+  $$ = new AMapRangeUnaryExp(extractLexLocation((CmlLexeme)$op,
+						((PExp)$exp).getLocation()),
+			     (PExp)$exp);
+}
+| MERGE[op] expression[exp]
+{
+  $$ = new ADistMergeUnaryExp(extractLexLocation((CmlLexeme)$op,
+						 ((PExp)$exp).getLocation()),
+			      (PExp)$exp);
+}
+| INVERSE[op] expression[exp]
+{
+  $$ = new AMapInverseUnaryExp(extractLexLocation((CmlLexeme)$op,
+						  ((PExp)$exp).getLocation()),
+			       (PExp)$exp);
+}
 ;
 
 binaryExpr :
-  expression PLUS expression
-| expression STAR expression
-| expression MINUS expression
-| expression DIV expression
-| expression SLASH expression
-| expression REM expression
-| expression MOD expression
-| expression LT expression
-| expression LTE expression
-| expression GT expression
-| expression GTE expression
-| expression EQUALS expression
-| expression NEQ expression
-| expression OR expression
-| expression AND expression
-| expression EQRARROW expression
-| expression LTEQUALSGT expression
-| expression INSET expression
-| expression NOTINSET expression
-| expression SUBSET expression
-| expression PSUBSET expression
-| expression UNION expression
-| expression BACKSLASH expression
-| expression INTER expression
-| expression CARET expression
-| expression DPLUS expression
-| expression MUNION expression
-| expression LTCOLON expression
-| expression LTDASHCOLON expression
-| expression COLONGT expression
-| expression COLONDASHGT expression
-| expression COMP expression
-| expression DSTAR expression
+  expression[left] PLUS[op] expression[right]
+{
+  $$ = new APlusNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						    ((PExp)$right).getLocation()),
+				 (PExp)$left,
+				 extractLexToken((CmlLexeme)$op),
+				 (PExp)$right);
+}
+| expression[left] STAR[op] expression[right]
+{
+  $$ = new ATimesNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						     ((PExp)$right).getLocation()),
+				  (PExp)$left,
+				  extractLexToken((CmlLexeme)$op),
+				  (PExp)$right);
+}
+| expression[left] MINUS[op] expression[right]
+{
+  $$ = new ASubstractNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+							 ((PExp)$right).getLocation()),
+				      (PExp)$left,
+				      extractLexToken((CmlLexeme)$op),
+				      (PExp)$right);
+}
+| expression[left] DIV[op] expression[right]
+{
+  $$ = new ADivideNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						      ((PExp)$right).getLocation()),
+				   (PExp)$left,
+				   extractLexToken((CmlLexeme)$op),
+				   (PExp)$right);
+}
+| expression[left] SLASH[op] expression[right]
+{
+  $$ = new ADivNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						   ((PExp)$right).getLocation()),
+				(PExp)$left,
+				extractLexToken((CmlLexeme)$op),
+				(PExp)$right);
+}
+| expression[left] REM[op] expression[right]
+{
+  $$ = new ARemNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						   ((PExp)$right).getLocation()),
+				(PExp)$left,
+				extractLexToken((CmlLexeme)$op),
+				(PExp)$right);
+}
+| expression[left] MOD[op] expression[right]
+{
+  $$ = new AModNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						   ((PExp)$right).getLocation()),
+				(PExp)$left,
+				extractLexToken((CmlLexeme)$op),
+				(PExp)$right);
+}
+| expression[left] LT[op] expression[right]
+{
+  $$ = new ALessNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						    ((PExp)$right).getLocation()),
+				 (PExp)$left,
+				 extractLexToken((CmlLexeme)$op),
+				 (PExp)$right);
+}
+| expression[left] LTE[op] expression[right]
+{
+  $$ = new ALessEqualNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+							 ((PExp)$right).getLocation()),
+				      (PExp)$left,
+				      extractLexToken((CmlLexeme)$op),
+				      (PExp)$right);
+}
+| expression[left] GT[op] expression[right]
+{
+  $$ = new AGreaterNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						       ((PExp)$right).getLocation()),
+				    (PExp)$left,
+				    extractLexToken((CmlLexeme)$op),
+				    (PExp)$right);
+}
+| expression[left] GTE[op] expression[right]
+{
+  $$ = new AGreaterEqualNumericBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+							    ((PExp)$right).getLocation()),
+					 (PExp)$left,
+					 extractLexToken((CmlLexeme)$op),
+					 (PExp)$right);
+}
+| expression[left] EQUALS[op] expression[right]
+{
+  $$ = new AEqualsBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+					       ((PExp)$right).getLocation()),
+			    (PExp)$left,
+			    extractLexToken((CmlLexeme)$op),
+			    (PExp)$right);
+}
+| expression[left] NEQ[op] expression[right]
+{
+  $$ = new ANotEqualBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						 ((PExp)$right).getLocation()),
+			      (PExp)$left,
+			      extractLexToken((CmlLexeme)$op),
+			      (PExp)$right);
+}
+| expression[left] OR[op] expression[right]
+{
+  $$ = new AOrBooleanBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						  ((PExp)$right).getLocation()),
+			       (PExp)$left,
+			       extractLexToken((CmlLexeme)$op),
+			       (PExp)$right);
+}
+| expression[left] AND[op] expression[right]
+{
+  $$ = new AAndBooleanBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						   ((PExp)$right).getLocation()),
+				(PExp)$left,
+				extractLexToken((CmlLexeme)$op),
+				(PExp)$right);
+}
+| expression[left] EQRARROW[op] expression[right]
+{
+  $$ = new AImpliesBooleanBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						       ((PExp)$right).getLocation()),
+				    (PExp)$left,
+				    extractLexToken((CmlLexeme)$op),
+				    (PExp)$right);
+}
+| expression[left] LTEQUALSGT[op] expression[right]
+{
+  $$ = new AEquivalentBooleanBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+							  ((PExp)$right).getLocation()),
+				       (PExp)$left,
+				       extractLexToken((CmlLexeme)$op),
+				       (PExp)$right);
+}
+| expression[left] INSET[op] expression[right]
+{
+  $$ = new AInSetBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+					      ((PExp)$right).getLocation()),
+			   (PExp)$left,
+			   extractLexToken((CmlLexeme)$op),
+			   (PExp)$right);
+}
+| expression[left] NOTINSET[op] expression[right]
+{
+  $$ = new ANotInSetBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						 ((PExp)$right).getLocation()),
+			      (PExp)$left,
+			      extractLexToken((CmlLexeme)$op),
+			      (PExp)$right);
+}
+| expression[left] SUBSET[op] expression[right]
+{
+  $$ = new ASubsetBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+					       ((PExp)$right).getLocation()),
+			    (PExp)$left,
+			    extractLexToken((CmlLexeme)$op),
+			    (PExp)$right);
+}
+| expression[left] PSUBSET[op] expression[right]
+{
+  $$ = new AProperSubsetBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						     ((PExp)$right).getLocation()),
+				  (PExp)$left,
+				  extractLexToken((CmlLexeme)$op),
+				  (PExp)$right);
+}
+| expression[left] UNION[op] expression[right]
+{
+  $$ = new ASetUnionBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						 ((PExp)$right).getLocation()),
+			      (PExp)$left,
+			      extractLexToken((CmlLexeme)$op),
+			      (PExp)$right);
+}
+| expression[left] BACKSLASH[op] expression[right]
+{
+  $$ = new ASetDifferenceBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						      ((PExp)$right).getLocation()),
+				   (PExp)$left,
+				   extractLexToken((CmlLexeme)$op),
+				   (PExp)$right);
+}
+| expression[left] INTER[op] expression[right]
+{
+  $$ = new ASetIntersectBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						     ((PExp)$right).getLocation()),
+				  (PExp)$left,
+				  extractLexToken((CmlLexeme)$op),
+				  (PExp)$right);
+}
+| expression[left] CARET[op] expression[right]
+{
+  $$ = new ASeqConcatBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						  ((PExp)$right).getLocation()),
+			       (PExp)$left,
+			       extractLexToken((CmlLexeme)$op),
+			       (PExp)$right);
+}
+| expression[left] DPLUS[op] expression[right]
+{
+  $$ = new APlusPlusBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						 ((PExp)$right).getLocation()),
+			      (PExp)$left,
+			      extractLexToken((CmlLexeme)$op),
+			      (PExp)$right);
+}
+| expression[left] MUNION[op] expression[right]
+{
+  $$ = new AMapUnionBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						 ((PExp)$right).getLocation()),
+			      (PExp)$left,
+			      extractLexToken((CmlLexeme)$op),
+			      (PExp)$right);
+}
+| expression[left] LTCOLON[op] expression[right]
+{
+  $$ = new ADomainResToBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						    ((PExp)$right).getLocation()),
+				 (PExp)$left,
+				 extractLexToken((CmlLexeme)$op),
+				 (PExp)$right);
+}
+| expression[left] LTDASHCOLON[op] expression[right]
+{
+  $$ = new ADomainResByBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						    ((PExp)$right).getLocation()),
+				 (PExp)$left,
+				 extractLexToken((CmlLexeme)$op),
+				 (PExp)$right);
+}
+| expression[left] COLONGT[op] expression[right]
+{
+  $$ = new APlusPlusBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						 ((PExp)$right).getLocation()),
+			      (PExp)$left,
+			      extractLexToken((CmlLexeme)$op),
+			      (PExp)$right);
+}
+| expression[left] COLONDASHGT[op] expression[right]
+{
+  $$ = new APlusPlusBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						 ((PExp)$right).getLocation()),
+			      (PExp)$left,
+			      extractLexToken((CmlLexeme)$op),
+			      (PExp)$right);
+}
+| expression[left] COMP[op] expression[right]
+{
+  $$ = new ACompBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+					     ((PExp)$right).getLocation()),
+			  (PExp)$left,
+			  extractLexToken((CmlLexeme)$op),
+			  (PExp)$right);
+}
+| expression[left] DSTAR[op] expression[right]
+{
+  $$ = new AStarStarBinaryExp(extractLexLocation(((PExp)$left).getLocation(),
+						 ((PExp)$right).getLocation()),
+			      (PExp)$left,
+			      extractLexToken((CmlLexeme)$op),
+			      (PExp)$right);
+}
 ;
 
 mapletList :
   maplet
-| mapletList COMMA maplet
-;
+{
+  List<AMapletExp> res = new LinkedList<AMapletExp>();
+  res.add((AMapletExp)$maplet);
+  $$ = res;
+}
+| mapletList[list] COMMA maplet
+{
+  List<AMapletExp> maplets = (List<AMapletExp>)$list;
+  maplets.add((AMapletExp)$maplet);
+  $$ = maplets;
+};
 
 maplet :
-  expression BARRARROW expression
+  expression[dom] BARRARROW expression[rng]
+{
+  PExp dom = (PExp)$dom;
+  PExp rng = (PExp)$rng;
+  $$ = new AMapletExp(extractLexLocation(dom.getLocation(),
+					 rng.getLocation()),
+		      dom,
+		      rng);
+}
 ;
 
 nonDeterministicAltList :
   expression RARROW action
-| nonDeterministicAltList BAR expression RARROW action
+{
+  PExp guard = (PExp)$expression;
+  PAction action = (PAction)$action;
+  LexLocation location = extractLexLocation(guard.getLocation(),
+                                            action.getLocation());
+  List<ANonDeterministicAltStatementAction> alts =
+    new LinkedList<ANonDeterministicAltStatementAction>();
+  alts.add(new ANonDeterministicAltStatementAction(location,
+						   guard,
+						   action));
+  $$ = alts;
+}
+| nonDeterministicAltList[list] BAR expression RARROW action
+{
+  PExp guard = (PExp)$expression;
+  PAction action = (PAction)$action;
+  LexLocation location = extractLexLocation(guard.getLocation(),
+                                            action.getLocation());
+  List<ANonDeterministicAltStatementAction> alts =
+    (List<ANonDeterministicAltStatementAction>)$list;
+  alts.add(new ANonDeterministicAltStatementAction(location,
+						   guard,
+						   action));
+  $$ = alts;
+}
 ;
 
 assignmentDefList :
   assignmentDef
-| assignmentDefList COMMA assignmentDef
+{
+  List<AAssignmentDefinition> assignmentDefs = new Vector<AAssignmentDefinition>();
+  assignmentDefs.add((AAssignmentDefinition)$assignmentDef);
+  $$ = assignmentDefs;
+}
+| assignmentDefList[list] COMMA assignmentDef
+{
+  List<AAssignmentDefinition> assignmentDefs = (List<AAssignmentDefinition>)$list;
+  assignmentDefs.add((AAssignmentDefinition)$assignmentDef);
+  $$ = assignmentDefs;
+}
 ;
 
 assignmentDef :
   IDENTIFIER COLON type
+{
+  LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+  PType type = (PType)$type;
+  LexLocation location = extractLexLocation(name.location, type.getLocation());
+  AAccessSpecifierAccessSpecifier access = null;
+  $$ = new AAssignmentDefinition(location,
+                                 name,
+                                 NameScope.GLOBAL,
+                                 false,
+				 null,//VDM classDef
+                                 access,
+                                 type,
+				 null,//Pass
+                                 null,
+                                 null);
+}
 | IDENTIFIER COLON type COLONEQUALS expression
-/*(AKM)
- *FIXME: This is probably not going to work since you can't see the difference
- *       Between 'id : type in exp' and 'id : type := exp'
- *
- */
+{
+  LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+  PType type = (PType)$type;
+  PExp exp = (PExp)$expression;
+  LexLocation location = combineLexLocation(name.location, exp.getLocation());
+  $$ = new AAssignmentDefinition(location, name,
+                                 NameScope.GLOBAL,
+                                 false,
+				 null,//VDM classDef
+                                 null,//access
+                                 type,
+				 null,//Pass
+                                 exp,
+                                 null);
+}
 | IDENTIFIER COLON type IN expression
+{
+    LexNameToken name = extractLexNameToken((CmlLexeme)$IDENTIFIER);
+    PType type = (PType)$type;
+    PExp exp = (PExp)$expression;
+    LexLocation location = combineLexLocation(name.location, exp.getLocation());
+    $$ = new AAssignmentDefinition(location, name,
+                                   NameScope.GLOBAL,
+                                   false,
+				   null,//VDM classDef
+                                   null,//access
+                                   type,
+				   null,//Pass
+                                   exp,
+                                   null);
+}
 ;
 
-/* Typechecker will have to ensure that all of the assigns in the list
+/* DEVIATION
+ * Typechecker will have to ensure that all of the assigns in the list
  * are genuine assigments rather than operation calls.
  */
 assignStatementList :
   assignStatement
+{
+  List<ASingleGeneralAssignmentStatementAction> assigns =
+    new LinkedList<ASingleGeneralAssignmentStatementAction>();
+  assigns.add((ASingleGeneralAssignmentStatementAction)$assignStatement);
+  $$ = assigns;
+}
 | assignStatementList[list] SEMI assignStatement
+{
+  List<ASingleGeneralAssignmentStatementAction> assigns =
+    (List<ASingleGeneralAssignmentStatementAction>)$list;
+  assigns.add((ASingleGeneralAssignmentStatementAction)$assignStatement);
+  $$ = assigns;
+}
 ;
 
 assignStatement :
 /* DEVIATION
- * PATH
  * CML_0:
  *   stateDesignator ':=' expression
  * here:
- *   expression ':=' expression
+ *   dottedIdentifier ':=' expression
  *
  * Kill 'em all and let the typechecker sort them out
  */
-  dottedIdentifier COLONEQUALS expression
+  dottedIdentifier[id] COLONEQUALS expression
+{
+  /* --- TODO --- */
+  List<LexIdentifierToken> id = (List<LexIdentifierToken>)$id;
+  PStateDesignator stateDesignator = null;
+  // FIXME: old path code
+  // stateDesignator = path.convertToStateDesignator();
+  PExp exp = (PExp)$expression;
+  LexLocation location = extractLexLocation(stateDesignator.getLocation(),
+					    exp.getLocation());
+  $$ = new ASingleGeneralAssignmentStatementAction(location, stateDesignator, exp);
+}
 ;
 
 ifStatement :
-  IF expression THEN action elseStatements ELSE action
-| IF expression THEN action ELSE action
+  IF expression THEN action[then] elseStatements ELSE action[else]
+{
+  $$ = new AIfStatementAction(extractLexLocation((CmlLexeme)$IF,
+						 ((PAction)$else).getLocation()),
+			      (PExp)$expression,
+			      (PAction)$then,
+			      (List<? extends AElseIfStatementAction>)$elseStatements,
+			      (PAction)$else);
+}
+| IF expression THEN action[then] ELSE action[else]
+{
+  $$ = new AIfStatementAction(extractLexLocation((CmlLexeme)$IF,
+						 ((PAction)$else).getLocation()),
+			      (PExp)$expression,
+			      (PAction)$then,
+			      null,
+			      (PAction)$else);
+}
 ;
 
 elseStatements :
   ELSEIF expression THEN action
-| elseStatements ELSEIF expression THEN action
+{
+  List<AElseIfStatementAction> elseStms = new Vector<AElseIfStatementAction>();
+  AElseIfStatementAction elseif =
+    new AElseIfStatementAction(extractLexLocation((CmlLexeme)$ELSEIF,
+						  ((PAction)$action).getLocation()),
+			       (PExp)$expression,
+			       (PAction)$action);
+  elseStms.add(elseif);
+  $$ = elseStms;
+}
+| elseStatements[elses] ELSEIF expression THEN action
+{
+  List<AElseIfStatementAction> elseStms = (List<AElseIfStatementAction>)$elses;
+  AElseIfStatementAction elseif =
+    new AElseIfStatementAction(extractLexLocation((CmlLexeme)$ELSEIF,
+						  ((PAction)$action).getLocation()),
+			       (PExp)$expression,
+			       (PAction)$action);
+  elseStms.add(elseif);
+  $$ = elseStms;
+}
 ;
 
 casesStatement :
-  CASES expression COLON casesStatementAltList END
-| CASES expression COLON casesStatementAltList COMMA OTHERS RARROW action END
+  CASES expression COLON casesStatementAltList[alts] END
+{
+  ACasesStatementAction cases = (ACasesStatementAction)$alts;
+  cases.setLocation(extractLexLocation((CmlLexeme)$CASES, (CmlLexeme)$END));
+  cases.setExp((PExp)$expression);
+  $$ = cases;
+}
+| CASES expression COLON casesStatementAltList[alts] COMMA OTHERS RARROW action[others] END
+{
+  ACasesStatementAction cases = (ACasesStatementAction)$alts;
+  cases.setLocation(extractLexLocation((CmlLexeme)$CASES, (CmlLexeme)$END));
+  cases.setExp((PExp)$expression);
+  cases.setOthers((PAction)$others);
+  $$ = cases;
+}
 ;
 
 casesStatementAltList :
   casesStatementAlt
-| casesStatementAltList COMMA casesStatementAlt
+{
+  List<ACaseAlternativeAction> casesList = new LinkedList<ACaseAlternativeAction>();
+  casesList.add((ACaseAlternativeAction)$casesStatementAlt);
+  $$ = new ACasesStatementAction(null, null, casesList, null);
+}
+| casesStatementAltList[cases] COMMA casesStatementAlt
+{
+  ACasesStatementAction cases = (ACasesStatementAction)$cases;
+  cases.getCases().add((ACaseAlternativeAction)$casesStatementAlt);
+  $$ = cases;
+}
 ;
 
+/* TODO merge upward?
+ */
 casesStatementAlt :
   patternList RARROW action
+{
+  List<PPattern> patterns = (List<PPattern>)$patternList;
+  PAction action = (PAction)$action;
+  $$ = new ACaseAlternativeAction(combineLexLocation(extractFirstLexLocation(patterns),
+                                                     action.getLocation()),
+                                  patterns,
+                                  action);
+}
 ;
 
 implicitOperationBody :
-  externals_opt preExpr_opt postExpr
+  externals_opt[exts] preExpr_opt[pre] postExpr[post]
+{
+  List<? extends AExternalClause> exts = (List<? extends AExternalClause>)$exts;
+  PExp pre = (PExp)$pre;
+  PExp post = (PExp)$post;
+  LexLocation loc = null;
+  if (exts != null) {
+    loc = extractLexLocation(extractFirstLexLocation(exts), post.getLocation());
+  } else if (pre != null) {
+    loc = extractLexLocation(pre.getLocation(), post.getLocation());
+  } else {
+    loc = post.getLocation();
+  }
+  $$ = new ASpecificationStatementAction(loc, exts, pre, post);
+}
 ;
 
 pattern :
-  patternIdentifier
-| patternLessID
+  patternIdentifier             { $$ = $1; }
+| patternLessID                 { $$ = $1; }
 ;
 
 patternLessID :
   matchValue
-/* tuple pattern */
-| MKUNDER LPAREN patternList COMMA pattern RPAREN
-/* record patterns */
+{
+  $$ = $1;
+}
+| MKUNDER LPAREN patternList COMMA pattern RPAREN // tuple patterns need at least 2
+{
+  List<PPattern> plist = (List<PPattern>)$patternList;
+  plist.add((PPattern)$pattern);
+  $$ = new ATuplePattern(extractLexLocation((CmlLexeme)$MKUNDER,
+					    (CmlLexeme)$RPAREN), 
+			 new LinkedList<PDefinition>(), 
+			 false, 
+			 plist);
+}
 /* DEVIATION
  * CML_0:
  *   MKUNDER name LPAREN expression RPAREN
@@ -4160,65 +4832,198 @@ patternLessID :
  *
  */
 | MKUNDERNAME LRPAREN
+{
+  List<? extends PPattern> plist = null;
+  LexNameToken name = extractNameFromUNDERNAMEToken((CmlLexeme)$MKUNDERNAME);
+  $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$MKUNDERNAME,
+					     (CmlLexeme)$LRPAREN),
+			  null,
+			  false,
+			  name,
+			  plist);
+}
 | MKUNDERNAME LPAREN patternList RPAREN
+{
+  List<? extends PPattern> plist = (List<? extends PPattern>)$patternList;
+  LexNameToken name = extractNameFromUNDERNAMEToken((CmlLexeme)$MKUNDERNAME);
+  $$ = new ARecordPattern(extractLexLocation((CmlLexeme)$MKUNDERNAME,
+					     (CmlLexeme)$RPAREN),
+			  null,
+			  false,
+			  name,
+			  plist);
+}
 ;
 
 patternList :
   pattern
-| patternList COMMA pattern
+{
+  List<PPattern> patterns = new Vector<PPattern>();
+  patterns.add((PPattern)$pattern);
+  $$ = patterns;
+}
+| patternList[list] COMMA pattern
+{
+  List<PPattern> patterns = (List<PPattern>)$list;
+  patterns.add((PPattern)$pattern);
+  $$ = patterns;
+}
 ;
 
 patternIdentifier :
   IDENTIFIER
-/* "don't care" identifier */
-| MINUS
+{
+  CmlLexeme lexeme = (CmlLexeme)$IDENTIFIER;
+  LexLocation loc = extractLexLocation(lexeme);
+  LexNameToken lnt = new LexNameToken("",
+				      lexeme.getValue(),
+				      loc,
+				      false,
+				      true);
+  AIdentifierPattern res = new AIdentifierPattern();
+  res.setName(lnt);
+  res.setLocation(loc);
+  $$ = res;
+}
+| MINUS // "don't care" pattern
+{
+  $$ = new AIgnorePattern(extractLexLocation((CmlLexeme)$MINUS),
+			  new LinkedList<PDefinition>(),
+			  true);
+}
 ;
 
 matchValue :
 /* symbolic literal patterns*/
-  numericLiteral
-| booleanLiteral
-| nilLiteral
-| characterLiteral
-| textLiteral
-| quoteLiteral
+  numericLiteral[lit]
+{
+  if ($lit instanceof LexIntegerToken) {
+    LexIntegerToken lit = (LexIntegerToken)$lit;
+    $$ = new AIntegerPattern(lit.location, new LinkedList<PDefinition>(), true, lit);
+  } else {
+    LexRealToken lit = (LexRealToken)$lit;
+    $$ = new ARealPattern(lit.location, new LinkedList<PDefinition>(), true, lit);
+  }
+}
+| booleanLiteral[lit]
+{
+  LexBooleanToken lit = (LexBooleanToken)$lit;
+  $$ = new ABooleanPattern(lit.location, new LinkedList<PDefinition>(), true, lit);
+}
+| nilLiteral[lit]
+{
+  LexKeywordToken lit = (LexKeywordToken)$lit;
+  $$ = new ANilPattern(lit.location, new LinkedList<PDefinition>(), true);
+}
+| characterLiteral[lit]
+{
+  LexCharacterToken lit = (LexCharacterToken)$lit;
+  $$ = new ACharacterPattern(lit.location, new LinkedList<PDefinition>(), true, lit);
+}
+| textLiteral[lit]
+{
+  LexStringToken lit = (LexStringToken)$lit;
+  $$ = new AStringPattern(lit.location, new LinkedList<PDefinition>(), true, lit);
+}
+| quoteLiteral[lit]
+{
+  LexQuoteToken lit = (LexQuoteToken)$lit;
+  $$ = new AQuotePattern(lit.location, new LinkedList<PDefinition>(), true, lit);
+}
 | LPAREN expression RPAREN
+{
+  $$ = new AExpressionPattern(extractLexLocation((CmlLexeme)$LPAREN,
+						 (CmlLexeme)$RPAREN),
+                              new LinkedList<PDefinition>(),
+                              false,
+                              (PExp)$expression);
+}
 ;
 
 bind :
-  setBind
-| typeBind
+  setBind                       { $$ = $1; }
+| typeBind                      { $$ = $1; }
 ;
 
 setBind :
   pattern INSET expression
+{
+  PPattern pattern = (PPattern)$pattern;
+  PExp exp = (PExp)$expression;
+  LexLocation location = extractLexLocation(pattern.getLocation(),
+					    exp.getLocation());
+  $$ = new ASetBind(location, pattern, exp);
+}
 ;
 
 typeBind :
   pattern COLON type
+{
+  PPattern pattern = (PPattern)$pattern;
+  PType type = (PType)$type;
+  LexLocation location = extractLexLocation(pattern.getLocation(),
+					    type.getLocation());
+  $$ = new ATypeBind(location, pattern, type);
+}
 ;
 
 bindList :
   multipleBind
-| bindList COMMA multipleBind
+{
+  List<PMultipleBind> binds = new Vector<PMultipleBind>();
+  binds.add((PMultipleBind)$multipleBind);
+  $$ = binds;
+}
+| bindList[binds] COMMA multipleBind
+{
+  List<PMultipleBind> binds = (List<PMultipleBind>)$binds;
+  binds.add((PMultipleBind)$multipleBind);
+  $$ = binds;
+}
 ;
 
 multipleBind :
-  multipleSetBind
-| multipleTypeBind
+  multipleSetBind               { $$ = $1; }
+| multipleTypeBind              { $$ = $1; }
 ;
 
 multipleSetBind :
   patternList INSET expression
+{
+  List<PPattern> patterns = (List<PPattern>)$patternList;
+  PExp exp = (PExp)$expression;
+  LexLocation loc = extractLexLocation(extractFirstLexLocation(patterns),
+				       exp.getLocation());
+  $$ = new ASetMultipleBind(loc, patterns, exp);
+}
 ;
 
 multipleTypeBind :
   patternList COLON type
+{
+  List<PPattern> patterns = (List<PPattern>)$patternList;
+  PType type = (PType)$type;
+  LexLocation loc = extractLexLocation(extractFirstLexLocation(patterns),
+				       type.getLocation());
+  $$ = new ATypeMultipleBind(loc, patterns, type);
+}
 ;
 
 typeBindList :
   typeBind
-| typeBindList COMMA typeBind
+{
+  List<ATypeBind> list = new LinkedList<ATypeBind>();
+  ATypeBind bind = (ATypeBind)$typeBind;
+  list.add(bind);
+  $$ = list;
+}
+| typeBindList[list] COMMA typeBind
+{
+  List<ATypeBind> list = (List<ATypeBind>)$list;
+  ATypeBind bind = (ATypeBind)$typeBind;
+  list.add(bind);
+  $$ = list;
+}
 ;
 
 // **********************
