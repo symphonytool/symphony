@@ -120,8 +120,8 @@ public class CmlScheduler {
 			//For now, select a the first event from the set of possible events
 			ACommunicationAction event = entry.getValue().get(0);
 
-			res.add(new Pair<CMLProcessOld, CMLChannelEvent>(entry.getKey(),
-					new CMLChannelEvent(event.getIdentifier().getName())));
+//			res.add(new Pair<CMLProcessOld, CMLChannelEvent>(entry.getKey(),
+//					new CMLChannelEvent(event.getIdentifier().getName())));
 			trace.add(event);
 		}
 

@@ -148,4 +148,13 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 		return ret;
 	}
 
+	@Override
+	public void setState(ProcessState state) {
+		if(null == mainBehaviour)
+			this.state = state;
+		else
+			mainBehaviour.setState(state);
+		
+	}
+
 }

@@ -33,7 +33,7 @@ public interface CMLProcess {
 	 * @return The current state of the process
 	 */
 	public ProcessState getState();
-	
+		
 	/**
 	 * 
 	 * @return The current supervisor of this process

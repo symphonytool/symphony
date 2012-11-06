@@ -9,13 +9,16 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.cml.CMLAlphabet;
 import eu.compassresearch.core.interpreter.cml.CMLBehaviourSignal;
+import eu.compassresearch.core.interpreter.cml.CMLChannelEvent;
+import eu.compassresearch.core.interpreter.cml.CMLCommunication;
 import eu.compassresearch.core.interpreter.cml.CMLProcess;
 import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.ChannelObserver;
 import eu.compassresearch.core.interpreter.cml.ProcessState;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluator;
 
 public abstract class AbstractInstance<T extends INode> extends AbstractEvaluator<T>
-		implements CMLProcess {
+		implements CMLProcess , ChannelObserver {
 	
 	protected ProcessState state;
 	protected List<CMLProcess> children = new LinkedList<CMLProcess>();
@@ -38,20 +41,23 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 
 		//execute if the next is an invisible action
 		if(alpha.containsTau()){
-			state = ProcessState.RUNNING;
+			setState(ProcessState.RUNNING);
 			ret = executeNext();
 			//state = ProcessState.WAIT;
 		}
 		else 
 		{	
-			//if no com is selected yet we set go to wait state
+			//If the selected event is in the immediate alphabet then we can continue
 			if(env.communicationSelected() && alpha.containsCommunication(env.selectedCommunication()))
 			{
 				ret = executeNext();
 			}
+			//if no communication is selected by the supervisor or we cannot sync the selected events
+			//then we go to wait state and wait for channelEvent
 			else 
 			{
-				state = ProcessState.WAIT;
+				setState(ProcessState.WAIT);
+				registerChannelsInAlpha(alpha);
 				ret = CMLBehaviourSignal.EXEC_SUCCESS;
 			}
 		}
@@ -59,6 +65,26 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		return ret;
 	}
 		
+	private void registerChannelsInAlpha(CMLAlphabet alpha)
+	{
+		for(CMLCommunication com : alpha.getAllCommunications())
+		{
+			switch(com.getCommunicationType())
+			{
+			case SIGNAL:
+				com.getChannel().registerOnChannelSignal(this);
+				break;
+			case WRITE:
+				com.getChannel().registerOnChannelWrite(this);
+				break;
+			case READ:
+				com.getChannel().registerOnChannelRead(this);
+				break;
+			}
+		}
+	}
+	
+	public abstract void setState(ProcessState state);
 	
 	@Override
 	public CMLSupervisorEnvironment supervisor() {
@@ -107,4 +133,9 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		return false;
 	}
 
+	@Override
+	public void onChannelEvent(CMLChannelEvent event) {
+		setState(ProcessState.RUNNABLE);
+		
+	}
 }

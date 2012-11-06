@@ -1,19 +1,24 @@
 package eu.compassresearch.core.interpreter.cml;
 
+import org.overture.ast.lex.LexNameToken;
+
 public class CMLChannelEvent {
+		
+	final private LexNameToken channelName;
+	final private CMLCommunicationType eventType;
 	
-	String channelName;
-	
-	public CMLChannelEvent(String channelName)
+	public CMLChannelEvent(LexNameToken channelName,CMLCommunicationType eventType)
 	{
 		this.channelName = channelName;
+		this.eventType = eventType;
 	}
 
-	public String getChannelName() {
+	public LexNameToken getChannelName() {
 		return channelName;
 	}
-
-	public void setChannelName(String channelName) {
-		this.channelName = channelName;
+	
+	public CMLCommunicationType getEventType()
+	{
+		return eventType;
 	}
 }

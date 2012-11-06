@@ -13,8 +13,10 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CMLAlphabet;
 import eu.compassresearch.core.interpreter.cml.CMLBehaviourSignal;
+import eu.compassresearch.core.interpreter.cml.CMLChannelEvent;
 import eu.compassresearch.core.interpreter.cml.CMLProcess;
 import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.ChannelObserver;
 import eu.compassresearch.core.interpreter.cml.ProcessState;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluator;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
@@ -109,6 +111,11 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 		state = ProcessState.FINISHED;
 		
 		return CMLBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	@Override
+	public void setState(ProcessState state) {
+		this.state = state;
 	}
 	
 }

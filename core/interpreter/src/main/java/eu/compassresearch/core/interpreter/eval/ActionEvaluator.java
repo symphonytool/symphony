@@ -66,7 +66,7 @@ public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 		{
 			//question.resetEvent();
 			CMLContext newQuestion = new CMLContext(node.getLocation(),"", question);
-			newQuestion.setCurrentEvent(new CMLChannelEvent(""));
+//			newQuestion.setCurrentEvent(new CMLChannelEvent(""));
 			ProcessValueOld v = (ProcessValueOld)node.getAction().apply(parentInterpreter,newQuestion);
 
 			ProcessValueOld retV = null;
@@ -122,7 +122,7 @@ public class ActionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
 		if(retValue == null )
 		{
 			CMLContext newQuestion = new CMLContext(node.getLocation(),"", question);
-			newQuestion.setCurrentEvent(new CMLChannelEvent(""));
+//			newQuestion.setCurrentEvent(new CMLChannelEvent(""));
 			ProcessValueOld rightValue = (ProcessValueOld)node.getRight().apply(this,newQuestion);
 			
 			PAction nextAction = getNextAction(rightValue, node.getRight());

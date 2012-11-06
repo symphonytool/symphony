@@ -75,9 +75,9 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 			{
 				CMLProcess p = iterator.next();
 
-//				while(!p.finished() && 
-//						p.getState() != ProcessState.WAIT)
-//				{
+				while(!p.finished() && 
+						!p.waiting())
+				{
 					CMLBehaviourSignal signal = p.execute(this);
 
 					if(signal != CMLBehaviourSignal.EXEC_SUCCESS)
@@ -94,7 +94,7 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 						iterator.remove();
 						break;
 					}
-//				}
+				}
 			}
 			
 			for(Iterator<CMLProcess> iterator = waiting.iterator(); iterator.hasNext();)
@@ -103,7 +103,7 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 				
 				//Select the 
 				setSelectedCommunication(decisionFunction().select(p.inspect()));
-				
+				selectedCommunication.getChannel().signal();
 				running.add(p);
 				iterator.remove();
 				

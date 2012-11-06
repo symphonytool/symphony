@@ -2,23 +2,27 @@ package eu.compassresearch.core.interpreter.cml;
 
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.core.interpreter.values.CMLChannelValue;
+
 public class CMLCommunication {
 
-	private CMLChannel channel;
+	private CMLChannelValue channel;
 	private Value value = null;
+	private CMLCommunicationType commtype;
 	
-	public CMLCommunication(CMLChannel channel)
+	public CMLCommunication(CMLChannelValue channel)
 	{
 		this.channel = channel;
+		this.commtype = CMLCommunicationType.SIGNAL;
 	}
 	
-	public CMLCommunication(CMLChannel channel, Value value)
+	public CMLCommunication(CMLChannelValue channel, Value value)
 	{
 		this.channel = channel;
 		this.value = value;
 	}
 	
-	public CMLChannel getChannel()
+	public CMLChannelValue getChannel()
 	{
 		return channel;
 	}
@@ -28,9 +32,14 @@ public class CMLCommunication {
 		return value;
 	}
 	
+	public CMLCommunicationType getCommunicationType()
+	{
+		return this.commtype;
+	}
+	
 	public boolean isSignal()
 	{
-		return channel == null;
+		return this.commtype == CMLCommunicationType.SIGNAL;
 	}
 	
 	@Override public String toString() 
