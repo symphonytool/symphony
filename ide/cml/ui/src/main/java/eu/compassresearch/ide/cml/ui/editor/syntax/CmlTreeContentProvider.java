@@ -168,9 +168,10 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		cast);
     }
 
-    // FIXME This must return the propper parent<
     @Override
     public Object getParent(Object element) {
+	if (element instanceof INode)
+	    return ((INode)element).parent();
 	return null;
     }
 
