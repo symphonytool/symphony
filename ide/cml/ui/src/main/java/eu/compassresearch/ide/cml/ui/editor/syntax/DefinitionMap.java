@@ -19,18 +19,20 @@ import eu.compassresearch.ast.definitions.SOperationDefinition;
 public class DefinitionMap {
 
 	public interface DefinitionHandler {
-		public List<String> extractSubdefinition(PDefinition pdef);
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(
+				PDefinition pdef);
 	}
 
 	private static final Map<Class<?>, ? extends DefinitionHandler> DEFINITION_MAP = createMap();
 
 	public static DefinitionHandler getDelegate(Class<?> cls) {
 		DefinitionHandler r = DEFINITION_MAP.get(cls);
-		if (r==null)
-			System.err.println("No delegate found for class " + cls.getCanonicalName());
+		if (r == null)
+			System.err.println("No delegate found for definition class "
+					+ cls.getCanonicalName());
 		return r;
 	}
-	
+
 	private static Map<Class<?>, ? extends DefinitionHandler> createMap() {
 		Map<Class<?>, DefinitionHandler> map = new HashMap<Class<?>, DefinitionHandler>();
 		map.put(AActionParagraphDefinition.class,
@@ -47,33 +49,34 @@ public class DefinitionMap {
 	}
 
 	private static class AValueParagraphDefinitionHandler implements
-			DefinitionHandler {		
-		
-		public List<String> extractSubdefinition(PDefinition pdef) {
-			List<String> r = new LinkedList<String>();
-			
+			DefinitionHandler {
+
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
+			List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
+
 			for (PDefinition subdef : ((AValueParagraphDefinition) pdef)
-					.getValueDefinitions()){
-					String nameguard = "??";
-					String typeguard = "??";
-					if (null != subdef.getName())
-						nameguard = subdef.getName().name;
-					if (null != subdef.getType())
-						typeguard = subdef.getType().toString();
-					r.add( "v] " + nameguard + ": " + typeguard);
+					.getValueDefinitions()) {
+				String nameguard = "?";
+				String typeguard = "?";
+				if (null != subdef.getName())
+					nameguard = subdef.getName().name;
+				if (null != subdef.getType())
+					typeguard = subdef.getType().toString();
+				r.add(Wrapper.newInstance(subdef, nameguard + ": " + typeguard));
 			}
-				return r;
+			return r;
 		}
 	}
 
 	private static class AFunctionParagraphDefinitionHandler implements
 			DefinitionHandler {
 
-		public List<String> extractSubdefinition(PDefinition pdef) {
-			List<String> r = new LinkedList<String>();
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
+		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			for (PDefinition subdef : ((AFunctionParagraphDefinition) pdef)
 					.getFunctionDefinitions()) {
-				r.add("f] " + subdef.getName().name + ": " + subdef.getType());
+				r.add(Wrapper.newInstance(subdef, subdef.getName().name + ": "
+						+ subdef.getType()));
 			}
 			return r;
 		}
@@ -82,11 +85,11 @@ public class DefinitionMap {
 	private static class ATypesParagraphDefinitionHandler implements
 			DefinitionHandler {
 
-		public List<String> extractSubdefinition(PDefinition pdef) {
-			List<String> r = new LinkedList<String>();
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
+		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			for (ATypeDefinition subdef : ((ATypesParagraphDefinition) pdef)
 					.getTypes())
-				r.add("t] " + subdef.getName().name);
+				r.add(Wrapper.newInstance(subdef, subdef.getName().name));
 			return r;
 		}
 	}
@@ -94,31 +97,30 @@ public class DefinitionMap {
 	private static class AOperationParagraphDefinitionHandler implements
 			DefinitionHandler {
 
-		public List<String> extractSubdefinition(PDefinition pdef) {
-			List<String> r = new LinkedList<String>();
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
+		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			for (SOperationDefinition subdef : ((AOperationParagraphDefinition) pdef)
-					.getOperations()) 
-				r.add("o] " + subdef.getName().name + ": " + subdef.getType());
+					.getOperations())
+				r.add(Wrapper.newInstance(subdef, subdef.getName().name + ": "
+						+ subdef.getType()));
 			return r;
 		}
 	}
 
 	private static class AActionParagraphDefinitionHandler implements
 			DefinitionHandler {
-		public List<String> extractSubdefinition(PDefinition pdef) {
-			List<String> r = new LinkedList<String>();
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
+		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			String nameguard;
 			if (pdef instanceof AActionParagraphDefinition) {
 				if (null == pdef.getName())
 					nameguard = "?";
 				else
 					nameguard = pdef.getName().name;
-				r.add("a] " + nameguard);
+				r.add(Wrapper.newInstance(pdef, nameguard));
 			}
 			return r;
 		}
 	}
-
-
 
 }

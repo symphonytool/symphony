@@ -1029,6 +1029,7 @@ actionDefinition :
   List<ATypeSingleDeclaration> declarations = (List<ATypeSingleDeclaration>)pa[0];
   PAction action = (PAction)pa[1];
   LexLocation defLocation = combineLexLocation(extractLexLocation((CmlLexeme)$1), action.getLocation());
+  
   AActionDefinition actionDefinition = new AActionDefinition(defLocation, 
 							     NameScope.LOCAL, 
 							     false, 
@@ -1036,6 +1037,8 @@ actionDefinition :
 							     null,//Pass
 							     declarations, 
 							     action);
+  CmlLexeme id = (CmlLexeme)$1;							     
+  actionDefinition.setName(new LexNameToken("", id.getValue(), defLocation ));
   $$ = actionDefinition;
 }
 ;
@@ -3106,7 +3109,7 @@ operationBody :
 }
 | NOTYETSPEC
 {
-  $$ = new ANotYetSpecifiedAction(extractLexLocation((CmlLexeme)$1), null, null);
+  $$ = new ANotYetSpecifiedStatementAction(extractLexLocation((CmlLexeme)$1), null, null);
 }
 ;
 

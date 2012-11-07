@@ -30,40 +30,25 @@ public class CmlBuildVisitor implements IResourceVisitor {
 	@Override
 	public boolean visit(IResource resource) throws CoreException {
 
-		try {
-			// Resource for this build
-			if (!shouldBuild(resource))
-				return true;
+		// Resource for this build
+		if (!shouldBuild(resource))
+			return true;
 
-			// This visitor only builds files.
-			IFile file = (IFile) resource;
+		// This visitor only builds files.
+		IFile file = (IFile) resource;
 
-			// Parse the source
-			AFileSource source = new AFileSource();
-			if (!parse(file, source))
-				return false;
+		// Parse the source
+		AFileSource source = new AFileSource();
+		if (!parse(file, source))
+			return false;
 
-			// Lets run the type checker
-			if (!typeCheck(file, source))
-				return false;
+		// Lets run the type checker
+		if (!typeCheck(file, source))
+			return false;
 
-			// Set the AST on the source unit
-			CmlSourceUnit dom = CmlSourceUnit.getFromFileResource(file);
-			dom.setSourceAst(source, new LinkedList<ParserError>());
-		} catch (Exception e) {
-			//
-			// TODO RWL: When having a "this" expression the tool crashes big
-			// time The Java runtime is going down with a hollow booooom.
-			//
-			// The initial source for this originates from the parser
-			// when a PathConvertException is thrown. However, it seems that
-			// some code further up the stack is very fragile to escaping
-			// exceptions. :S
-			//
-			// Adding this try-catch block prevents the tool from crashing.
-			//
-			System.err.println("Exception :( " + e.getMessage());
-		}
+		// Set the AST on the source unit
+		CmlSourceUnit dom = CmlSourceUnit.getFromFileResource(file);
+		dom.setSourceAst(source, new LinkedList<ParserError>());
 		return false;
 	}
 
@@ -112,7 +97,7 @@ public class CmlBuildVisitor implements IResourceVisitor {
 
 	private static void setInfo(IMarker marker, String shortText, String text)
 			throws CoreException {
-		marker.setAttribute(IMarker.MESSAGE, shortText);
+		marker.setAttribute(IMarker.MESSAGE, shortText + "\n" + text);
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
 		marker.setAttribute(IMarker.TEXT, text);
 	}
