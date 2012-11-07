@@ -52,7 +52,7 @@ import eu.compassresearch.ast.actions.ANewStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
-import eu.compassresearch.ast.actions.ANotYetSpecifiedAction;
+import eu.compassresearch.ast.actions.ANotYetSpecifiedStatementAction;
 import eu.compassresearch.ast.actions.AParametrisedAction;
 import eu.compassresearch.ast.actions.AParametrisedInstantiatedAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
@@ -156,14 +156,13 @@ import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.core.interpreter.api.CMLContext;
 
-public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value>
-{
-	//private ExpressionEvaluator vdmExpressionEvaluator;
+public class CmlExpressionEvaluator extends
+		QuestionAnswerCMLAdaptor<CMLContext, Value> {
+	// private ExpressionEvaluator vdmExpressionEvaluator;
 	private CML2VDMExpressionEvaluator vdmExpressionEvaluator = new CML2VDMExpressionEvaluator();
-	
-	class CML2VDMExpressionEvaluator extends ExpressionEvaluator 
-		implements ICMLQuestionAnswer<Context, Value>
-	{
+
+	class CML2VDMExpressionEvaluator extends ExpressionEvaluator implements
+			ICMLQuestionAnswer<Context, Value> {
 
 		@Override
 		public Value caseFile(File node, Context question)
@@ -199,7 +198,7 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext,
 			// TODO Auto-generated method stub
 			return null;
 		}
-		
+
 		@Override
 		public Value caseATypeSingleDeclaration(ATypeSingleDeclaration node,
 				Context question) throws AnalysisException {
@@ -353,7 +352,7 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext,
 			// TODO Auto-generated method stub
 			return null;
 		}
-		
+
 		@Override
 		public Value caseATupleSelectExp(ATupleSelectExp node, Context question)
 				throws AnalysisException {
@@ -861,8 +860,9 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext,
 		}
 
 		@Override
-		public Value caseANotYetSpecifiedAction(ANotYetSpecifiedAction node,
-				Context question) throws AnalysisException {
+		public Value caseANotYetSpecifiedStatementAction(
+				ANotYetSpecifiedStatementAction node, Context question)
+				throws AnalysisException {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -1199,88 +1199,88 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<CMLContext,
 			// TODO Auto-generated method stub
 			return null;
 		}
-		
+
 	}
-	
+
 	@Override
 	public Value defaultPExp(PExp node, CMLContext question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
-				
+
 		InitThread initThread = new InitThread(Thread.currentThread());
-        BasicSchedulableThread.setInitialThread(initThread);
-        question.setThreadState(null, CPUValue.vCPU);
-        //This should be deleted once typechecking is properly done
-        Settings.dynamictypechecks = false;
-        
+		BasicSchedulableThread.setInitialThread(initThread);
+		question.setThreadState(null, CPUValue.vCPU);
+		// This should be deleted once typechecking is properly done
+		Settings.dynamictypechecks = false;
+
 		return node.apply(vdmExpressionEvaluator, question);
 	}
-	
+
 	@Override
 	public Value defaultPCMLExp(PCMLExp node, CMLContext question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.defaultPCMLExp(node, question);
 	}
-	
+
 	@Override
 	public Value caseANameChannelExp(ANameChannelExp node, CMLContext question)
 			throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseANameChannelExp(node, question);
 	}
-	
+
 	@Override
 	public Value caseAEnumChansetSetExp(AEnumChansetSetExp node,
 			CMLContext question) throws AnalysisException {
 		// TODO Auto-generated method stub
 		return super.caseAEnumChansetSetExp(node, question);
 	}
-	
-    
-//    CmlAstToOvertureAst                               transform  = new CmlAstToOvertureAst(
-//                                                                     null, null);
-//    org.overture.interpreter.eval.ExpressionEvaluator ovtExpEval = new org.overture.interpreter.eval.ExpressionEvaluator();
-//    
-//    @Override
-//    public Value defaultPExp(PExp node, CMLContext question)
-//        throws AnalysisException
-//      {
-//        
-//        INode ovtNode = transform.defaultINode(node);
-//        
-//        /** The initial execution context. */
-//        // RootContext initialContext = new StateContext(
-//        // new LexLocation(), "global environment");
-//        // initialContext.setThreadState(null, CPUValue.vCPU);
-//        
-//        // TODO For now we diable VDM typechecking, since something is not
-//        // working
-//        Settings.dynamictypechecks = false;
-//        
-//        Value value = null;
-//        
-//        try
-//          {
-//            InitThread initThread = new InitThread(Thread.currentThread());
-//            BasicSchedulableThread.setInitialThread(initThread);
-//            
-//            org.overture.interpreter.runtime.Context evalContext = question
-//                .getOvertureContext();
-//            // new org.overture.interpreter.runtime.Context(location,
-//            // "process expression", initialContext);
-//            evalContext.setThreadState(null, CPUValue.vCPU);
-//            // LexNameToken dName = new LexNameToken("Default", "d", location);
-//            // evalContext.putNew(new NameValuePair(dName, new
-//            // NaturalValue(10)));
-//            
-//            value = ovtNode.apply(ovtExpEval, evalContext);
-//          } catch (org.overture.ast.analysis.AnalysisException e)
-//          {
-//            throw new AnalysisException(e.getMessage());
-//          }
-//        
-//        return value;
-//      }
+
+	// CmlAstToOvertureAst transform = new CmlAstToOvertureAst(
+	// null, null);
+	// org.overture.interpreter.eval.ExpressionEvaluator ovtExpEval = new
+	// org.overture.interpreter.eval.ExpressionEvaluator();
+	//
+	// @Override
+	// public Value defaultPExp(PExp node, CMLContext question)
+	// throws AnalysisException
+	// {
+	//
+	// INode ovtNode = transform.defaultINode(node);
+	//
+	// /** The initial execution context. */
+	// // RootContext initialContext = new StateContext(
+	// // new LexLocation(), "global environment");
+	// // initialContext.setThreadState(null, CPUValue.vCPU);
+	//
+	// // TODO For now we diable VDM typechecking, since something is not
+	// // working
+	// Settings.dynamictypechecks = false;
+	//
+	// Value value = null;
+	//
+	// try
+	// {
+	// InitThread initThread = new InitThread(Thread.currentThread());
+	// BasicSchedulableThread.setInitialThread(initThread);
+	//
+	// org.overture.interpreter.runtime.Context evalContext = question
+	// .getOvertureContext();
+	// // new org.overture.interpreter.runtime.Context(location,
+	// // "process expression", initialContext);
+	// evalContext.setThreadState(null, CPUValue.vCPU);
+	// // LexNameToken dName = new LexNameToken("Default", "d", location);
+	// // evalContext.putNew(new NameValuePair(dName, new
+	// // NaturalValue(10)));
+	//
+	// value = ovtNode.apply(ovtExpEval, evalContext);
+	// } catch (org.overture.ast.analysis.AnalysisException e)
+	// {
+	// throw new AnalysisException(e.getMessage());
+	// }
+	//
+	// return value;
+	// }
 
 }
