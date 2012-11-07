@@ -8,7 +8,7 @@ Bundle-ClassPath: .,
  lib/parser-0.0.1.jar,
  lib/typechecker-0.0.1.jar,
  lib/testframework-2.2.1.jar,
- lib/typechecker-2.2.0.jar,
+ lib/typechecker-2.2.1.jar,
  lib/parser-2.2.0.jar
 Bundle-Activator: eu.compassresearch.ide.cml.core.CmlCorePlugin
 Bundle-Vendor: The COMPASS Project
