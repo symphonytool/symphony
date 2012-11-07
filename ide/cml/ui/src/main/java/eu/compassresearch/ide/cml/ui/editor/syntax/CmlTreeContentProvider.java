@@ -64,7 +64,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 						res.add(Wrapper.newInstance(def, dscr));
 
 				}
-				return new Object[0];
+				return res.toArray();
 			}
 		} catch (Exception e) {
 			return new String[] { SMILING_ERROR_STRING };
