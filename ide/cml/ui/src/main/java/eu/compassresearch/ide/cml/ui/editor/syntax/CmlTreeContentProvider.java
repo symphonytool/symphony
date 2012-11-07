@@ -268,7 +268,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 				cast);
 	}
 
-	// Why is this returning null?
+	//FIXME This must return the propper parent<
 	@Override
 	public Object getParent(Object element) {
 		return null;

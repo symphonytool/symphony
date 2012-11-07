@@ -1,9 +1,6 @@
 package eu.compassresearch.ide.cml.ui.editor.syntax;
 
 import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
