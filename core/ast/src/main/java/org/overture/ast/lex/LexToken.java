@@ -53,6 +53,11 @@ import org.overture.ast.node.NodeEnum;
 	/** The basic type of the token. */
 	public final VDMToken type;
 
+	
+	public LexLocation getLocation(){
+	    return location;
+	}
+	
 	/**
 	 * Create a token of the given type at the given location.
 	 *

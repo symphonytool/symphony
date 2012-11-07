@@ -74,6 +74,7 @@ public enum OutlineEntryType {
 
 		// TODO fix Unparameterized references
 		// TODO change to (class,map) format?
+	    	if (obj instanceof Wrapper){
 		Wrapper w = (Wrapper) obj;
 
 		// Fetch Top-level definitions
@@ -118,6 +119,7 @@ public enum OutlineEntryType {
 		// When all else fails...
 		System.err.println("No icon found for class "
 				+ w.value.getClass().getCanonicalName());
+	    	}
 		return ERROR.getImage();
 
 	}

@@ -18,12 +18,18 @@
  *******************************************************************************/
 package eu.compassresearch.ide.cml.ui.editor.core;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewerExtension5;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -32,7 +38,6 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 import org.overture.ide.ui.IVdmUiConstants;
 import org.overture.ide.ui.editor.core.VdmSourceViewerConfiguration;
@@ -43,7 +48,6 @@ import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit.CmlSourceChangedListener;
 import eu.compassresearch.ide.cml.ui.editor.syntax.CmlContentPageOutliner;
-import eu.compassresearch.ide.cml.ui.editor.syntax.Wrapper;
 
 public class CmlEditor extends TextEditor {
 
@@ -57,29 +61,90 @@ public class CmlEditor extends TextEditor {
 			CmlEditor.this.selectionChanged();
 		}
 
+    }
+
+    protected INode computeHighlightRangeSourceReference() {
+	ISourceViewer sourceViewer = getSourceViewer();
+	if (sourceViewer == null)
+	    return null;
+
+	StyledText styledText = sourceViewer.getTextWidget();
+	if (styledText == null)
+	    return null;
+
+	int caret = 0;
+	if (sourceViewer instanceof ITextViewerExtension5) {
+	    ITextViewerExtension5 extension = (ITextViewerExtension5) sourceViewer;
+	    caret = extension.widgetOffset2ModelOffset(styledText
+		    .getCaretOffset());
+	} else {
+	    int offset = sourceViewer.getVisibleRegion().getOffset();
+	    caret = offset + styledText.getCaretOffset();
 	}
+	INode element = getElementAt(caret, false);
 
-	protected INode computeHighlightRangeSourceReference() {
-		ISourceViewer sourceViewer = getSourceViewer();
-		if (sourceViewer == null)
-			return null;
+	return element;
+    }
 
-		StyledText styledText = sourceViewer.getTextWidget();
-		if (styledText == null)
-			return null;
+    private INode getElementAt(int caret, boolean b) {
+	FileEditorInput fei = (FileEditorInput) getEditorInput();
+	INode r = null;
+	CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
+	PSource ast = csu.getSourceAst();
+	if (ast == null)
+	    return null;
+	// Visitor Version on hold due to parser (ldc)
+	// INodeFromCaret visitor = new INodeFromCaret(caret, ast);
+	// try {
+	// ast.apply(visitor);
+	// return visitor.getBestCandidate();
+	// } catch (AnalysisException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
 
-		int caret = 0;
-		if (sourceViewer instanceof ITextViewerExtension5) {
-			ITextViewerExtension5 extension = (ITextViewerExtension5) sourceViewer;
-			caret = extension.widgetOffset2ModelOffset(styledText
-					.getCaretOffset());
-		} else {
-			int offset = sourceViewer.getVisibleRegion().getOffset();
-			caret = offset + styledText.getCaretOffset();
-		}
-		INode element = getElementAt(caret, false);
+	for (SParagraphDefinition sef : ast.getParagraphs()) {
+	    if (sef.getLocation().endOffset > caret
+		    && sef.getLocation().startOffset < caret)
+		r = sef;
+	}
+	return r;
+    }
 
-		return element;
+    protected void selectionChanged() {
+	if (getSelectionProvider() == null)
+	    return;
+	INode element = computeHighlightRangeSourceReference();
+	// if
+	// (getPreferenceStore().getBoolean(PreferenceConstants.EDITOR_SYNC_OUTLINE_ON_CURSOR_MOVE))
+	synchronizeOutlinePage(element);
+	// if (fIsBreadcrumbVisible && fBreadcrumb != null &&
+	// !fBreadcrumb.isActive())
+	// setBreadcrumbInput(element);
+	setSelection(element, false);
+	// if (!fSelectionChangedViaGotoAnnotation)
+	// updateStatusLine();
+	// fSelectionChangedViaGotoAnnotation= false;
+
+    }
+
+    private void setSelection(INode element, boolean b) {
+	if (element != null) {
+	    
+	    cmlOutLiner.setTreeSelection(element);
+	    
+	    // PDefinition pdef = (PDefinition) element;
+	    // Wrapper w;
+	    // String dscr = TopLevelDefinitionMap.getDescription(pdef
+	    // .getClass());
+	    // if (dscr == null)
+	    // w = Wrapper.newInstance(pdef, pdef.getName().name);
+	    // else
+	    // w = Wrapper.newInstance(pdef, dscr);
+	    // CmlContentPageOutliner cmlCPO = (CmlContentPageOutliner)
+	    // cmlOutLiner;
+	    // StructuredSelection ss = new StructuredSelection(w);
+	    // cmlCPO.setTreeSelection(ss);
 	}
 
 	private INode getElementAt(int caret, boolean b) {
@@ -115,21 +180,7 @@ public class CmlEditor extends TextEditor {
 
 	}
 
-	private void setSelection(INode element, boolean b) {
-		try {
-			System.out
-					.println("TODO: Synchronize outline when selecting in editor.");
-			if (element != null) {
-				PDefinition pdef = (PDefinition) element;
-				Wrapper w = Wrapper.newInstance(pdef, pdef.getName().name);
-				CmlContentPageOutliner cmlCPO = (CmlContentPageOutliner) cmlOutLiner;
-				StructuredSelection ss = new StructuredSelection(w);
-				cmlCPO.setTreeSelection(ss);
-			}
-		} catch (Exception e) {
-			System.out.println("Todo fix me: CmlEditor setSelection.");
-		}
-	}
+    private CmlContentPageOutliner cmlOutLiner;
 
 	private void synchronizeOutlinePage(INode element) {
 		// TODO Auto-generated method stub
@@ -160,7 +211,7 @@ public class CmlEditor extends TextEditor {
 
 	}
 
-	private IContentOutlinePage cmlOutLiner;
+    private CmlContentPageOutliner createCmlOutliner() {
 
 	@Override
 	public Object getAdapter(Class required) {
