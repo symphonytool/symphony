@@ -5,12 +5,14 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.ACharBasicType;
 import org.overture.ast.types.AIntNumericBasicType;
+import org.overture.ast.types.AMapMapType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.ANatOneNumericBasicType;
 import org.overture.ast.types.ARationalNumericBasicType;
 import org.overture.ast.types.ARealNumericBasicType;
 import org.overture.ast.types.ASeqSeqType;
+import org.overture.ast.types.ASetType;
 import org.overture.ast.types.ATokenBasicType;
 import org.overture.ast.types.PType;
 
@@ -115,6 +117,53 @@ class TCTypeVisitor extends
 							.customizeMessage(node.getSeqof().toString()));
 			return new AErrorType();
 		}
+		return node;
+	}
+
+	@Override
+	public PType caseASetType(ASetType node,
+			org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
+
+		PType setOfType = node.getSetof().apply(this, question);
+
+		if (setOfType == null) {
+			issueHandler.addTypeError(node,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage(node.getSetof().toString()));
+			return new AErrorType();
+		}
+
+		node.setSetof(setOfType);
+
+		return node;
+	}
+
+	@Override
+	public PType caseAMapMapType(AMapMapType node,
+			org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
+
+		PType fromType = node.getFrom().apply(parentChecker, question);
+		if (fromType == null) {
+			issueHandler.addTypeError(node,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage(node.getFrom().toString()));
+			return new AErrorType();
+		}
+
+		PType toType = node.getTo().apply(parentChecker, question);
+		if (toType == null) {
+			issueHandler.addTypeError(node,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage(node.getTo().toString()));
+			return new AErrorType();
+		}
+
+		node.setFrom(fromType);
+
+		node.setTo(toType);
+
 		return node;
 	}
 

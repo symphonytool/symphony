@@ -1533,8 +1533,8 @@ communication[result] :
 | communication[before] BANG IDENTIFIER
 {
     ACommunicationAction comAction = (ACommunicationAction)$before;
+    
     LexNameToken name = extractLexNameToken($IDENTIFIER);
-    //PExp exp = new ANameExp(name.location,name);
     PExp exp = new AVariableExp(name.location,name,"");
     LexLocation location = extractLexLocation((CmlLexeme)$BANG,exp.getLocation());
     comAction.getCommunicationParameters().add(new AWriteCommunicationParameter(location, 
@@ -2264,8 +2264,17 @@ type :
   List<PType> types = new Vector<PType>();
   PType left = (PType)$1;
   PType right = (PType)$3;
-  types.add(left);
-  types.add(right);
+  if (left instanceof AProductType)
+  	types.addAll( ((AProductType) left).getTypes());
+  else
+  	types.add(left);
+  
+  if (right instanceof AProductType)
+  	types.addAll(  ((AProductType) right).getTypes());
+  else
+    types.add(right);
+  
+  	
   LexLocation location = combineLexLocation(left.getLocation(), right.getLocation());
   $$ = new AProductType(location, false, null, types);
 }
@@ -2583,6 +2592,7 @@ valueDef :
   PExp expression = (PExp)$expression;
   AIdentifierPattern idp = new AIdentifierPattern();
   idp.setLocation(lnt.location);
+  lnt = new LexNameToken("", lnt.name, lnt.location);
   idp.setName(lnt);
   // Build the resulting AValueDefinition
   AValueDefinition vdef = new AValueDefinition();
@@ -3903,7 +3913,9 @@ casesExprAlt :
     ACaseAlternative r = new ACaseAlternative();
     r.setPattern(p);
     r.setLocation(loc);
+    // The CExp is the case expression of the ACasesExp?
     r.setCexp(exp);
+    r.setResult(exp);
     res.add(r);
    }
   $$ = res;
@@ -4076,7 +4088,7 @@ binaryExpr :
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   LexToken tok = extractLexToken( (CmlLexeme) $2 );
-  $$ = new ADivideNumericBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
+  $$ = new ADivNumericBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression SLASH expression
 {
