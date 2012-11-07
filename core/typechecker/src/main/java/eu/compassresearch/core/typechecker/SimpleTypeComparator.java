@@ -13,6 +13,7 @@ import org.overture.ast.types.ANatOneNumericBasicType;
 import org.overture.ast.types.AOptionalType;
 import org.overture.ast.types.ARationalNumericBasicType;
 import org.overture.ast.types.ARealNumericBasicType;
+import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SBasicType;
@@ -189,7 +190,8 @@ class SimpleTypeComparator implements TypeComparator {
 			return true;
 
 		// TODO: sub type maps
-
+		if (pair.from instanceof AUnionType || pair.to instanceof AUnionType)
+			return true;
 		// TODO: sub type sets
 
 		// sub type sequences

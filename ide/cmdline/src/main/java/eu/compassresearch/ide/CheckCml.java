@@ -486,7 +486,9 @@ public class CheckCml {
 		// POG Analysis
 		if (input.isSwitchOn(Switch.POG)) {
 			// define pog object
-			final ProofObligationGenerator pog = new ProofObligationGenerator(sources);
+			final ProofObligationGenerator pog = new ProofObligationGenerator(
+					sources);
+
 			System.out.println(pog.getAnalysisName());
 
 			// create analysis run adaptor object of type AnalysisRunAdaptor,
@@ -502,6 +504,7 @@ public class CheckCml {
 			// invoke runAnalysis method, giving switch input, run adaptor, and
 			// source files
 			runAnalysis(input, r, sources);
+
 			//pog.getResults();
 		}
 

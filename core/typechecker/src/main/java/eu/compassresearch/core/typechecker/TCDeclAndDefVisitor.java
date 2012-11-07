@@ -1,7 +1,9 @@
 package eu.compassresearch.core.typechecker;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
@@ -94,8 +96,7 @@ class TCDeclAndDefVisitor extends
 		TypeCheckInfo newQ = (TypeCheckInfo) question;
 		LinkedList<PDefinition> list = node.getValueDefinitions();
 		for (PDefinition def : list) {
-			PType defType = def.apply(parentChecker, question);
-			newQ.addType(def.getName(), def);
+			PType defType = def.apply(parentChecker, newQ);
 			def.setType(defType);
 		}
 
@@ -113,6 +114,9 @@ class TCDeclAndDefVisitor extends
 		PType expressionType = exp.apply(parentChecker, question);
 		node.setExpType(expressionType);
 
+		TypeCheckInfo tci = (TypeCheckInfo) question;
+		tci.addVariable(node.getName(), node);
+
 		// Check type consistency
 		if (!typeComparator.isSubType(expressionType, declaredType))
 			issueHandler.addTypeError(node,
@@ -120,9 +124,44 @@ class TCDeclAndDefVisitor extends
 							.customizeMessage(expressionType.toString(),
 									declaredType.toString()));
 
+		List<PDefinition> newDefs = getHandler(node.getPattern())
+				.getDefinitions(node.getPattern(), node);
+
+		node.setDefs(newDefs);
+
 		// No matter the declared type is the type of the definition
 		node.setType(declaredType);
 		return node.getType();
+	}
+
+	private static interface PatternHandlerDelegate<K extends PPattern> {
+		public List<PDefinition> getDefinitions(K pattern, PDefinition parentDef);
+	}
+
+	public static Map<Class<?>, PatternHandlerDelegate<?>> ptrnDelegates;
+
+	static {
+		ptrnDelegates = new HashMap<Class<?>, TCDeclAndDefVisitor.PatternHandlerDelegate<?>>();
+		ptrnDelegates.put(AIdentifierPattern.class,
+				new PatternHandlerDelegate<AIdentifierPattern>() {
+
+					@Override
+					public List<PDefinition> getDefinitions(
+							AIdentifierPattern pattern, PDefinition parentDef) {
+						List<PDefinition> result = new LinkedList<PDefinition>();
+						result.add(parentDef);
+						return result;
+					}
+				});
+	}
+
+	private static <K extends PPattern> PatternHandlerDelegate<K> getHandler(
+			K instance) {
+		if (instance == null)
+			return null;
+		PatternHandlerDelegate<K> k = (PatternHandlerDelegate<K>) ptrnDelegates
+				.get(instance.getClass());
+		return k;
 	}
 
 	// ------------------------------------------------

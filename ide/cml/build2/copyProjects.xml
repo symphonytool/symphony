@@ -2,7 +2,7 @@
   <target name="copyStuff">
     <property name="buildDirectory" value="target/CompassIDE"/>
     <property name="target.platform.dir" value="target_platform"/>
-    <property name="target.platform.tar" value="targetplatform.tar.bz2"/>
+    <property name="target.platform.tar" value="targetplatform-${target.platform.ver}.tar.bz2"/>
     
     <echo message="Copying ui, core and platform"/>
     <copy todir="${buildDirectory}/plugins">
