@@ -1,4 +1,4 @@
-package eu.compassresearch.core.parser.util;
+package eu.compassresearch.core.parser;
 
 public class ParserException extends RuntimeException {
 

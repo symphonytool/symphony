@@ -486,7 +486,7 @@ public class Path
 	case DOT_MATCHVALUE:
 	    {
 		Pair<LexNameToken,List<PExp>> tmpPair = this.subPath.convertToChannelNameExpHelper();
-		PExp exp = ConvertUtil.convertPatternToExp(literalPattern);
+		PExp exp = null;//ConvertUtil.convertPatternToExp(literalPattern);
 		tmpPair.second.add(exp);
 		pair = new Pair<LexNameToken,List<PExp>>(tmpPair.first,
 							 tmpPair.second); 

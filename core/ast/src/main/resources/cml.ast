@@ -373,9 +373,9 @@ action {-> package='eu.compassresearch.ast.actions'}
 	;
 	
 communicationParameter {-> package='eu.compassresearch.ast.actions'}
-	= {read} [parameter]:parameter [expression]:exp
-	| {write} [pattern]:pattern 
-	| {signal} [expression]:exp	
+	= {read} [expression]:exp
+	| {write}  
+	| {signal} 	
 	;
 	
 parametrisation {-> package='eu.compassresearch.ast.actions'}
@@ -383,12 +383,12 @@ parametrisation {-> package='eu.compassresearch.ast.actions'}
 	| {res} 
 	| {vres} 
 	;
-
-parameter {-> package='eu.compassresearch.ast.actions'}
-	= {identifier} [identifier]:LexIdentifierToken
-	| {tuple} [parameters]:parameter*
-	| {record}	[name]:LexNameToken [parameters]:parameter* 
-	;
+//These are now patterns instead
+//parameter {-> package='eu.compassresearch.ast.actions'}
+//	= {identifier} [identifier]:LexIdentifierToken
+//	| {tuple} [parameters]:parameter*
+//	| {record}	[name]:LexNameToken [parameters]:parameter* 
+//	;
 
 #Statement {-> package='eu.compassresearch.ast.actions'}
 	= {let} [action]:action [localDefinitions]:definition*
@@ -486,7 +486,7 @@ Aspect Declaration
 %action->#Statement = (type):type
     ;
 
-%communicationParameter = [location]:location
+%communicationParameter = [location]:location [pattern]:pattern
 	; 
 
 %declaration =  [location]:location [nameScope]:nameScope

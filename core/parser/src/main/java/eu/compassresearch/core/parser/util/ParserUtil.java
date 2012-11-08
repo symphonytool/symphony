@@ -23,10 +23,15 @@ import org.overture.ast.lex.VDMToken;
 import org.overture.ast.node.tokens.TAsync;
 import org.overture.ast.node.tokens.TStatic;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.ARecordPattern;
+import org.overture.ast.patterns.ASetBind;
+import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.AReadCommunicationParameter;
+import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
@@ -37,6 +42,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.lexer.CmlLexeme;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.parser.ParserException;
 
 public class ParserUtil {
 
@@ -368,6 +374,7 @@ public class ParserUtil {
 			varExp = (AVariableExp)exp;
 			location = varExp.getLocation();
 		}
+		//else if
 		else
 		{
 			Pair<AVariableExp,List<PCommunicationParameter>> com = (Pair<AVariableExp,List<PCommunicationParameter>>)exp;
@@ -378,41 +385,104 @@ public class ParserUtil {
 		
 		return new ACommunicationAction(location,varExp.getName(), communicationParameters, action);
 	}
-	
-	
-	public Pair<AVariableExp,List<PCommunicationParameter>> caseExpBangIdentifier(Object exp, Object lexeme)
+			
+	private <T extends PCommunicationParameter > Pair<AVariableExp,List<PCommunicationParameter>> communicationParamHelper(Object exp, PPattern pattern, T param)
 	{
-		LexIdentifierToken id = extractLexIdentifierToken(lexeme);
-		
 		Pair<AVariableExp,List<PCommunicationParameter>> ret = null;
-		
-		//create a identifier pattern
-		LexNameToken name = new LexNameToken("",id);
-		PPattern idpattern = new AIdentifierPattern(id.getLocation(),null,false,name,false);
-		
+				
 		//if this is true, then this is the first com. param.
 		if(exp instanceof AVariableExp)
 		{
 			AVariableExp varExp = (AVariableExp)exp;
 			List<PCommunicationParameter> coms = new LinkedList<PCommunicationParameter>();
-			coms.add(new AWriteCommunicationParameter(extractLexLocation(varExp.getLocation(),
-																		idpattern.getLocation()),idpattern));
+			param.setLocation(extractLexLocation(varExp.getLocation(),
+	          		pattern.getLocation()));
+			param.setPattern(pattern);
+			coms.add(param);
 			ret = new Pair<AVariableExp, List<PCommunicationParameter>>(varExp, coms);
 		}
 		else if(exp instanceof Pair<?,?>)
 		{
 			ret = (Pair<AVariableExp,List<PCommunicationParameter>>)exp;
-			ret.second.add(new AWriteCommunicationParameter(extractLexLocation(ret.first.getLocation(),
-								idpattern.getLocation()),idpattern));
+			param.setLocation(extractLexLocation(ret.first.getLocation(),
+					pattern.getLocation()));
+			param.setPattern(pattern);
+			ret.second.add(param);
 		}
 		else
 			throw new ParserException("A Communication construct must begin with an identifier");
 		
-		
-		
 		return ret;
 	}
 	
+	
+	/**
+	 * This returns the channel identifier and the list of communicationsparams.
+	 * @param exp
+	 * @param patternObj
+	 * @return
+	 */
+	public Pair<AVariableExp,List<PCommunicationParameter>> caseExpBangMatchValue(Object exp, Object patternObj)
+	{
+		PPattern pattern = (PPattern)patternObj;
+		return communicationParamHelper(exp,pattern,new AWriteCommunicationParameter());
+	}
+	
+	/**
+	 * This returns the channel identifier and the list of communicationsparams.
+	 * @param exp
+	 * @param lexeme
+	 * @return
+	 */
+	public Pair<AVariableExp,List<PCommunicationParameter>> caseExpBangIdentifier(Object exp, Object lexeme)
+	{
+		LexIdentifierToken id = extractLexIdentifierToken(lexeme);
+		Pair<AVariableExp,List<PCommunicationParameter>> ret = null;
+		
+		//create a identifier pattern
+		LexNameToken name = new LexNameToken("",id);
+		PPattern pattern = new AIdentifierPattern(id.getLocation(),null,false,name,false);
+		
+		return communicationParamHelper(exp, pattern,new AWriteCommunicationParameter());
+	}
+	
+	public Pair<AVariableExp,List<PCommunicationParameter>> caseExpDotMatchValue(Object exp, Object patternObj)
+	{
+		if(exp instanceof AVariableExp || exp instanceof Pair<?,?>)
+		{
+			PPattern pattern = (PPattern)patternObj;
+			return communicationParamHelper(exp,pattern,new ASignalCommunicationParameter());
+		}
+		else
+			//TODO what can this be other than communication?
+			throw new ParserException("I don't really now what to do here right now");
+		
+
+	}
+	
+	public Pair<AVariableExp,List<PCommunicationParameter>> caseExpQuestionPattern(Object exp, Object patternObj)
+	{
+		PPattern pattern = (PPattern)patternObj;
+		
+		//pattern must be indentifier pattern, tuple pattern or record pattern 
+		//according to the parameter rule at page 35
+		
+		if(pattern instanceof AIdentifierPattern  ||
+				pattern instanceof ATuplePattern ||
+				pattern instanceof ARecordPattern )
+			return communicationParamHelper(exp,pattern,new AReadCommunicationParameter());
+		else
+			throw new ParserException("communication paramters must be either identifier, tuple or record pattern"); 
+	}
+	
+	public Pair<AVariableExp,List<PCommunicationParameter>> caseExpQuestionSetBind(Object exp, Object setBindObj)
+	{
+		ASetBind setBind = (ASetBind)setBindObj;
+		AReadCommunicationParameter rcp = new AReadCommunicationParameter();
+		rcp.setExpression(setBind.getSet());
+				
+		return communicationParamHelper(exp,setBind.getPattern(),rcp);
+	}
 	
 	//Communication expressions end
 	

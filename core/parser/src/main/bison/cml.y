@@ -3401,29 +3401,28 @@ expression :
   PExp to = (PExp)$to;
   $$ = AstFactory.newASubseqExp(seq,from,to);
 }
-| expression DOT matchValue
+| expression[exp] DOT matchValue
 {
-  /* --- TODO --- */
+  $$ = util.caseExpDotMatchValue($exp,$matchValue);
 }
 /* communication structure */
-| expression[idExp] BANG IDENTIFIER
+| expression[exp] BANG IDENTIFIER
 {
-  $$ = util.caseExpBangIdentifier($idExp,$IDENTIFIER);
+  $$ = util.caseExpBangIdentifier($exp,$IDENTIFIER);
 }
-| expression[idExp] BANG matchValue
+| expression[exp] BANG matchValue
 {
-  /* --- TODO --- */
+  $$ = util.caseExpBangMatchValue($exp,$matchValue);
 }
-| expression[idExp] QUESTION pattern
+| expression[exp] QUESTION pattern
 {
-  /* PExp exp = (PExp)  */
-  /* LexLocation location = util.extractLexLocation($exp); */
-  /* $$ = new AReadCommunicationParameter(location, PParameter parameter_, PExp expression_); */
-  /* --- TODO --- */
+  $$ = util.caseExpQuestionPattern($exp,$pattern);
 }
-| expression[idExp] QUESTION setBind
+//AKM: we have a preceedence problem here, "expression[exp] QUESTION pattern" get reduced 
+// to an expression even though the setBind is the one it should be making it into an in set expression instead
+| expression[exp] QUESTION setBind
 {
-  /* --- TODO --- */
+  $$ = util.caseExpQuestionSetBind($exp,$setBind);
 }
 /* end communication structure*/
 | LET localDefList[defs] IN expression[exp] %prec LET

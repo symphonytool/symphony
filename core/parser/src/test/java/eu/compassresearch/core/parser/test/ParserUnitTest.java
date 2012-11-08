@@ -33,7 +33,7 @@ public class ParserUnitTest {
     	
 //    	File source = new File(filePath);
 //    	FileReader input = new FileReader(source);
-    	bytes = Files.readAllBytes(Paths.get("/home/akm/sandbox/overture_cml/docs/cml-examples/process-actions-communication-write.cml"));
+    	bytes = Files.readAllBytes(Paths.get("/home/akm/sandbox/overture_cml/docs/cml-examples/process-action-com_param-bind.cml"));
     	
     	ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
     	InputStreamReader isr = new InputStreamReader(bais);
