@@ -599,13 +599,16 @@ classDefinition :
   clz.setNameScope(NameScope.CLASSNAME);
   $$ = clz;
 }
-| CLASS IDENTIFIER EQUALS EXTENDS IDENTIFIER BEGIN classDefinitionBlock END
+/* DEVIATION
+ * EXTENDS moved to the left of the EQUALS
+ */
+| CLASS IDENTIFIER[id] EXTENDS IDENTIFIER[parent] EQUALS BEGIN classDefinitionBlock END
 {
   LexLocation location = extractLexLocation((CmlLexeme)$CLASS,(CmlLexeme)$END);
   List<LexNameToken> supernames = new LinkedList<LexNameToken>();
-  supernames.add(extractLexNameToken($5));
+  supernames.add(extractLexNameToken($parent));
   $$ = new AClassParagraphDefinition(location,
-                                     extractLexNameToken($2),
+                                     extractLexNameToken($id),
                                      NameScope.CLASSNAME,
                                      false,
                                      null,//ClassDefinition
