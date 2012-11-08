@@ -355,7 +355,7 @@ definition {-> package='org.overture.ast.definitions'}
     |   {external} (state):definition [readOnly]:java_Boolean (oldname):LexNameToken
     |   {implicitFunction}  [typeParams]:LexNameToken* 
                             [paramPatterns]:pair.patternListType*
-                            [result]:pair.patternType*  //AKM: Found in VDM spec, should be a list of patternpairs
+                            [result]:pair.patternType
                             (body):exp
                             [precondition]:exp 
                             [postcondition]:exp 
