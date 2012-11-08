@@ -18,6 +18,7 @@
  *******************************************************************************/
 package eu.compassresearch.ide.cml.ui.editor.core;
 
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.reconciler.IReconciler;
@@ -38,26 +39,27 @@ public class CmlSourceViewerConfiguration extends VdmSourceViewerConfiguration
         return new CmlCodeScanner(new VdmColorProvider());
       }
     
-    private ContentAssistant assistance;
+    private ContentAssistant assistant;
     
     @Override
     public synchronized IContentAssistant getContentAssistant(
         ISourceViewer sourceViewer)
       {
-        if (assistance == null)
+        if (assistant == null)
           {
-            assistance = new ContentAssistant();
-            assistance
+            assistant = new ContentAssistant();
+            assistant
                 .setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-            assistance.setContentAssistProcessor(new CmlAssistanceProcessor(),
-                "cml");
-            assistance.enableAutoActivation(true);
-            assistance
+            assistant.setContentAssistProcessor(new CmlContentAssistProcessor(),
+                IDocument.DEFAULT_CONTENT_TYPE);
+            assistant.setAutoActivationDelay(0);
+            assistant.enableAutoActivation(true);
+            assistant
                 .setProposalPopupOrientation(IContentAssistant.PROPOSAL_OVERLAY);
-            assistance
+            assistant
                 .setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
           }
-        return assistance;
+        return assistant;
       }
     
     @Override

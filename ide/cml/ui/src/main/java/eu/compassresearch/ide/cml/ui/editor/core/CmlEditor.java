@@ -131,20 +131,9 @@ public class CmlEditor extends TextEditor {
     private void setSelection(INode element, boolean b) {
 	if (element != null) {
 	    
+	  //FIXME Remove the Editor->Outline->Editor selection loop. Code disabled until then.
 	    cmlOutLiner.setTreeSelection(element);
-	    
-	    // PDefinition pdef = (PDefinition) element;
-	    // Wrapper w;
-	    // String dscr = TopLevelDefinitionMap.getDescription(pdef
-	    // .getClass());
-	    // if (dscr == null)
-	    // w = Wrapper.newInstance(pdef, pdef.getName().name);
-	    // else
-	    // w = Wrapper.newInstance(pdef, dscr);
-	    // CmlContentPageOutliner cmlCPO = (CmlContentPageOutliner)
-	    // cmlOutLiner;
-	    // StructuredSelection ss = new StructuredSelection(w);
-	    // cmlCPO.setTreeSelection(ss);
+	   
 	}
     }
 

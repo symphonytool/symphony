@@ -71,6 +71,8 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
 
 	    public void selectionChanged(SelectionChangedEvent event) {
 		// if the selection is empty clear the label
+		
+		//FIXME Remove the Editor->Outline->Editor selection loop.
 		if (event.getSelection().isEmpty()) {
 		    System.out.println("Empty Selection");
 		    return;
