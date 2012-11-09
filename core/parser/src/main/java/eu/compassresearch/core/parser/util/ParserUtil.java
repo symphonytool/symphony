@@ -1,21 +1,21 @@
 package eu.compassresearch.core.parser.util;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Vector;
 
 import org.overture.ast.definitions.APrivateAccess;
 import org.overture.ast.definitions.APublicAccess;
+import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexIntegerToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.lex.LexToken;
@@ -27,21 +27,32 @@ import org.overture.ast.patterns.ARecordPattern;
 import org.overture.ast.patterns.ASetBind;
 import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.PObjectDesignator;
+import org.overture.ast.statements.PStateDesignator;
+import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
+import org.overture.ast.types.AFieldField;
+import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.ARecordInvariantType;
+import org.overture.ast.types.PType;
 
+import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
+import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
+import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
+import eu.compassresearch.ast.actions.AUnresolvedObjectDesignator;
+import eu.compassresearch.ast.actions.AUnresolvedStateDesignator;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
+import eu.compassresearch.ast.actions.SStatementAction;
+import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
-import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.lexer.CmlLexeme;
-import eu.compassresearch.core.lexer.CmlLexer;
-import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.parser.ParserErrorMessage;
 import eu.compassresearch.core.parser.ParserException;
 
 public class ParserUtil {
@@ -77,6 +88,67 @@ public class ParserUtil {
 	}
 
 
+	/**
+	 * Helpers
+	 */
+	
+	private LexNameToken dottedIdentifierToLexNameToken(List<LexIdentifierToken> ids)
+	{
+		StringBuilder module = new StringBuilder();
+		//if we get in here there must at least be one identifier, id will be set to something other than null
+		LexIdentifierToken id = null;
+				
+		for(ListIterator<LexIdentifierToken> it = ids.listIterator() ; it.hasNext();)
+		{
+			LexIdentifierToken prefixid = it.next();
+			
+			if(it.hasNext())
+			{
+				module.append(prefixid.getName() + ".");
+			}
+			else
+			{
+				if(module.length() > 0)
+					module.deleteCharAt(module.length()-1);
+				else
+					module.append("Default");
+				id = prefixid;
+			}
+		}
+		
+		return new LexNameToken(module.toString(), id);
+	}
+	
+	/**
+	 * Since names now can be longer than 2 ids, then we cannot determine at this point 
+	 * if this is a "name" or a "field ref", so an UnresolvedObjectDesignator is returned and the typechecker should fix this 
+	 * @param ids
+	 * @return
+	 */
+	private PObjectDesignator dottedIdentifierToObjDesignator(List<LexIdentifierToken> ids)
+	{
+		LexLocation loc = extractLexLocation(extractFirstLexLocation(ids),extractLastLexLocation(ids));
+		
+		//if only one element then this must be name
+		if(ids.size() == 1)
+			return AstFactory.newAIdentifierObjectDesignator(dottedIdentifierToLexNameToken(ids));
+		//we cannot decide if this is a name with multiple components or a field ref
+		else
+			return new AUnresolvedObjectDesignator(loc, ids);
+	}
+	
+	private PStateDesignator dottedIdentifierToStateDesignator(List<LexIdentifierToken> ids)
+	{
+		LexLocation loc = extractLexLocation(extractFirstLexLocation(ids),extractLastLexLocation(ids));
+		
+		//if only one element then this must be name
+		if(ids.size() == 1)
+			return AstFactory.newAIdentifierStateDesignator(dottedIdentifierToLexNameToken(ids));
+		//we cannot decide if this is a name with multiple components or a field ref
+		else
+			return new AUnresolvedStateDesignator(loc, ids);
+	}
+	
 	/* FIXME
 	 * needs to throw an error if the name is multipart
 	 */
@@ -242,30 +314,7 @@ public class ParserUtil {
 			throw new RuntimeException(e);
 		}
 	}
-
-	public static CmlParser newParserFromSource(PSource doc) throws FileNotFoundException
-	{
-		if (doc instanceof AFileSource) {
-			AFileSource fs = (AFileSource)doc;
-			File f= fs.getFile();
-			FileReader reader = new FileReader(f);
-			CmlLexer lexer = new CmlLexer(reader);
-			CmlParser parser = new CmlParser(lexer);
-			parser.setDocument(fs);
-			return parser;
-		}
-
-		if (doc instanceof AInputStreamSource) {
-			AInputStreamSource is = (AInputStreamSource)doc;
-			InputStreamReader in = new InputStreamReader(is.getStream());
-			CmlLexer lexer = new CmlLexer(in);
-			CmlParser parser = new CmlParser(lexer);
-			parser.setDocument(is);
-			return parser;
-		}
-		return null;
-	}
-
+	
 	public< T extends PPattern> LexLocation extractLexLeftMostFromPatterns(List<T> ptrns)
 	{
 		LexLocation candidate = ptrns.get(0).getLocation();
@@ -325,8 +374,130 @@ public class ParserUtil {
 	}
 	
 	/**
-	 * Expression helpers
+	 * Actions
 	 */
+	public PAction caseDottedIdentifierLRPARENToCallAction(Object dottedIdentifier, Object PAREN, Object argsObj)
+	{
+		List<LexIdentifierToken> ids = (List<LexIdentifierToken>)dottedIdentifier;
+		List<? extends PExp> args = (List<? extends PExp>)argsObj;
+		
+		LexNameToken name = null;
+		PObjectDesignator objectDesignator = null;
+		LexLocation location = null;
+		
+		int listSize = ids.size();
+		//if the are only one id this must be the name of the method 
+		if(listSize == 1)
+		{
+			name = dottedIdentifierToLexNameToken(ids);
+			location = extractLexLocation(name.getLocation(),(CmlLexeme)PAREN);
+						
+		}
+		else
+		{
+			name = dottedIdentifierToLexNameToken(ids.subList(listSize - 2,listSize-1));
+			objectDesignator = dottedIdentifierToObjDesignator(ids.subList(0, listSize - 1));
+			location = extractLexLocation(objectDesignator.getLocation(),(CmlLexeme)PAREN);
+		}
+				
+		return new ACallStatementAction(location, objectDesignator, name, args);
+	}
+
+	public PAction caseDottedIdentifierToRefAction(Object dottedIdentifier)
+	{
+		List<LexIdentifierToken> ids = (List<LexIdentifierToken>)dottedIdentifier;
+		
+		LexNameToken name = dottedIdentifierToLexNameToken(ids);
+		
+		return new AReferenceAction(name.getLocation(),name);
+	}
+	
+	/**
+	 * Actions - statements
+	 */
+	
+	public PAction caseDottedIdentifierToAssignmentStm(Object idsObj, Object COLONEQUALS, Object expression)
+	{
+		
+		List<LexIdentifierToken> ids = (List<LexIdentifierToken>)idsObj;
+		PStateDesignator stateDesignator = dottedIdentifierToStateDesignator(ids);
+		PExp exp = (PExp)expression;
+		LexLocation location = extractLexLocation(stateDesignator.getLocation(),
+		                                            exp.getLocation());
+		return new ASingleGeneralAssignmentStatementAction(location, stateDesignator, exp);
+	}
+
+	/**
+	 * Definitions
+	 */
+	
+	/**
+	 * 
+	 * @param qual
+	 * @param id
+	 * @param COLON
+	 * @param opType
+	 * @param checkId
+	 * @param paramList
+	 * @param DEQUALS
+	 * @param bodyObj
+	 * @param pre
+	 * @param post
+	 * @return
+	 */
+	public PDefinition caseExplicitOperationDefinition(	Object qual, 
+		   	Object id, 
+		   	Object COLON, 
+			Object opType, 
+			Object checkId,
+			Object paramList,
+			Object DEQUALS,
+			Object bodyObj,
+			Object pre,
+			Object post )
+	{
+		LexNameToken name = extractLexNameToken(id);
+		LexNameToken checkIdname = extractLexNameToken(checkId);
+
+		if(!name.equals(checkIdname))
+			throw new ParserException(ParserErrorMessage.OPERATION_NAMES_ARE_NOT_EQUAL.customizeMessage(name.getIdentifier().getName(),
+																					checkIdname.getIdentifier().getName()));
+		
+		SStatementAction body = (SStatementAction)bodyObj;
+		LexLocation loc = extractLexLocation(name.location,
+				body.getLocation());
+		AExplicitOperationDefinition res =
+				new AExplicitOperationDefinition();
+		res.setLocation(loc);
+		res.setAccess((AAccessSpecifierAccessSpecifier)qual);
+		res.setName(name);
+		res.setType((PType)opType);
+		
+		res.setParameterPatterns((List<? extends PPattern>)paramList);
+		res.setBody(body);
+		res.setPrecondition((PExp)pre);
+		res.setPostcondition((PExp)post);
+		res.setIsConstructor(false);
+		return res;
+	}
+	
+	/**
+	 * Expressions 
+	 */
+	
+	public LexIntegerToken CmlLexemeToLexIntegerToken(Object NUMERAL)
+	{
+		CmlLexeme lexeme = (CmlLexeme)NUMERAL;
+		LexLocation loc = extractLexLocation(lexeme);
+		return new LexIntegerToken(Long.decode(lexeme.getValue()), loc);
+	}
+	
+	public PExp expressionDotHashNumeralToFieldNumberExp(Object tupleObj, Object NUMERAL)
+	{
+	   PExp tuple = (PExp)tupleObj;
+	   LexIntegerToken field = CmlLexemeToLexIntegerToken(NUMERAL);	   
+	   return AstFactory.newAFieldNumberExp(tuple, field);
+	}
 	
 	public PExp caseExpDotIdentifier(PExp prefix, LexIdentifierToken id)
 	{
@@ -486,4 +657,58 @@ public class ParserUtil {
 	
 	//Communication expressions end
 	
+	/**
+	 * Type definition helpers
+	 */
+	
+	public ATypeDefinition caseRecordTypeDefinition(Object qualifier, Object id, Object fieldList)
+	{
+		AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)qualifier;
+		LexNameToken name = extractLexNameToken((CmlLexeme)id);
+		List<AFieldField> fields = (List<AFieldField>)fieldList;
+		//FIXME fields should have a location but they don't!!, so records will not have the correct location
+		//LexLocation loc = extractLexLocation(name.getLocation(), extractLastLexLocation(fields));
+		LexLocation loc = name.getLocation();
+		ARecordInvariantType recType = new ARecordInvariantType(loc,
+																false,
+																null,
+																false,
+																null,
+																name,
+																fields,
+																true);
+		return new ATypeDefinition(loc, /* FIXME: this should end with the fieldList */
+									NameScope.GLOBAL,
+									false,
+									null/*VDM ClassDef*/,
+									access,
+									recType,
+									null/*Pass*/,
+									null,
+									null,
+									null,
+									null,
+									true,
+									name);
+	}
+		
+	/**
+	 * Types
+	 */
+	
+	public ANamedInvariantType caseDottedIdentifierToNamedType(Object dottedIdentifier)
+	{
+		
+		/* Convert the dottedIdentifier into a LexNameToken?
+		   * Old code from the IDENTIFIER DOT IDENTIFIER production below.
+		   */
+		ANamedInvariantType type = new ANamedInvariantType(); 
+		List<LexIdentifierToken> ids = (List<LexIdentifierToken>)dottedIdentifier;
+		LexNameToken name = dottedIdentifierToLexNameToken(ids);
+		
+		type.setLocation(name.getLocation()); 
+		type.setName(name); 
+		return type; 
+	}
+		
 }

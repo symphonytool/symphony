@@ -259,7 +259,7 @@ type {-> package='org.overture.ast.types'}
     |   {rational} 
     |   {real} 
     ;
-
+//AKM: Fields should have a location!
 field {-> package='org.overture.ast.types'}
     =   {field} [access]:accessSpecifier.accessSpecifier [tagname]:LexNameToken 
                 [tag]:java_String (type):type [equalityAbstraction]:java_Boolean

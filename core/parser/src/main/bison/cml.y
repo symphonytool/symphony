@@ -265,6 +265,7 @@
 %right AND
 %right NOT
 // VDM prec group relations
+%right QUESTIONALONE
 %left LT LTE GT GTE EQUALS NEQ INSET NOTINSET SUBSET PSUBSET
 // VDM prec group evaluators
 // VDM prec evaluators 1
@@ -287,7 +288,7 @@
 %right DOM RNG MERGE
 %right LEN ELEMS HD TL INDS CONC REVERSE
 // VDM prec group applicators ---- plus CSP communication elements
-%left DOT BACKTICK BANG QUESTION
+%right DOT BACKTICK BANG QUESTION
 // VDM prec (highest) group combinators
 %right COMP
 %right DSTAR
@@ -354,13 +355,16 @@ classDefinition :
   clz.setNameScope(NameScope.CLASSNAME);
   $$ = clz;
 }
-| CLASS IDENTIFIER EQUALS EXTENDS IDENTIFIER BEGIN classDefinitionBlock END
+/* DEVIATION
+ * EXTENDS moved to the left of the EQUALS
+ */
+| CLASS IDENTIFIER[id] EXTENDS IDENTIFIER[parent] EQUALS BEGIN classDefinitionBlock END
 {
   LexLocation location = util.extractLexLocation((CmlLexeme)$CLASS,(CmlLexeme)$END);
   List<LexNameToken> supernames = new LinkedList<LexNameToken>();
-  supernames.add(util.extractLexNameToken($5));
+  supernames.add(util.extractLexNameToken($parent));
   $$ = new AClassParagraphDefinition(location,
-                                     util.extractLexNameToken($2),
+                                     util.extractLexNameToken($id),
                                      NameScope.CLASSNAME,
                                      false,
                                      null,//ClassDefinition
@@ -1196,6 +1200,10 @@ action :
  * here:
  *   LPAREN parametrisationList AT action RPAREN
  */
+| dottedIdentifier
+{
+  $$ = util.caseDottedIdentifierToRefAction($dottedIdentifier);
+}
 | LPAREN parametrisationList AT action[pAction] RPAREN
 {
   $$ = new AParametrisedAction(util.extractLexLocation((CmlLexeme)$LPAREN,
@@ -1377,11 +1385,11 @@ action :
 /* call statements without assignment */
 | dottedIdentifier LRPAREN
 {
-  /* --- TODO --- */
+  $$ = util.caseDottedIdentifierLRPARENToCallAction($dottedIdentifier, $LRPAREN,new LinkedList<PExp>());
 }
 | dottedIdentifier LPAREN expressionList RPAREN
 {
-  /* --- TODO --- */
+  $$ = util.caseDottedIdentifierLRPARENToCallAction($dottedIdentifier, $RPAREN,$expressionList);
 }
 | LSQUARE implicitOperationBody RSQUARE
 {
@@ -1847,7 +1855,7 @@ chansetDefinitionList :
   defs.add((AChansetDefinition)$def);
   $$ = defs;
 }
-| chansetDefinitionList[list] chansetDefinition[def]
+| chansetDefinitionList[list] SEMI chansetDefinition[def]
 {
   List<AChansetDefinition> defs = (List<AChansetDefinition>)$list;
   defs.add((AChansetDefinition)$def);
@@ -2040,32 +2048,7 @@ typeDef :
 }
 | qualifier IDENTIFIER[id] DCOLON fieldList
 {
-  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$qualifier;
-  LexNameToken name = util.extractLexNameToken((CmlLexeme)$id);
-  CmlLexeme vdmrec = (CmlLexeme)$DCOLON;
-  List<AFieldField> fields = (List<AFieldField>)$fieldList;
-  LexLocation loc = util.combineLexLocation(name.getLocation(), util.extractLexLocation(vdmrec));
-  ARecordInvariantType recType = new ARecordInvariantType(loc,
-                                                          false,
-                                                          null,
-                                                          false,
-                                                          null,
-                                                          name,
-                                                          fields,
-                                                          true);
-  $$ = new ATypeDefinition(loc, /* FIXME: this should end with the fieldList */
-                           NameScope.GLOBAL,
-                           false,
-                           null/*VDM ClassDef*/,
-                           access,
-                           recType,
-                           null/*Pass*/,
-                           null,
-                           null,
-                           null,
-                           null,
-                           true,
-                           name);
+  $$ = util.caseRecordTypeDefinition($qualifier, $id, $fieldList);
 }
 | qualifier IDENTIFIER[id] DCOLON fieldList invariant
 {
@@ -2300,16 +2283,7 @@ type :
  */
 | dottedIdentifier
 {
-  /* --- TODO --- */
-  /* Convert the dottedIdentifier into a LexNameToken?
-   * Old code from the IDENTIFIER DOT IDENTIFIER production below.
-   */
-  /* LexNameToken name = util.extractLexNameToken((CmlLexeme)$3); */
-  /* name = new LexNameToken(((CmlLexeme)$1).getValue(),name.getIdentifier()); */
-  /* ANamedInvariantType type = new ANamedInvariantType(); */
-  /* type.setLocation(name.getLocation()); */
-  /* type.setName(name); */
-  /* $$ = type; */
+  $$ = util.caseDottedIdentifierToNamedType($dottedIdentifier);
 }
 ;
 
@@ -2777,24 +2751,52 @@ explicitFunctionDef :
 }
 ;
 
+
+
+/* parameterList : */
+/*   LRPAREN */
+/* { */
+/*   $$ =  new Vector<List<PPattern>>(); */
+/* } */
+/* | LPAREN patternList[patList] RPAREN */
+/* { */
+/*   List<PPattern> patternList = (List<PPattern>)$patList; */
+/*   List<List<PPattern>> paramList = new Vector<List<PPattern>>(); */
+/*   paramList.add(patternList); */
+/*   $$ = paramList; */
+/* } */
+/* | parameterList[paramList] LPAREN patternList[patList] RPAREN */
+/* { */
+/*   List<PPattern> patternList = (List<PPattern>)$patList; */
+/*   List<List<PPattern>> paramList = (List<List<PPattern>>)$paramList; */
+/*   paramList.add(patternList); */
+/*   $$ = paramList; */
+/* } */
+/* ; */
+
 parameterList :
+  parameters[params]
+{
+  List<List<PPattern>> paramsList = new LinkedList<List<PPattern>>();
+  paramsList.add((List<PPattern>)$params);
+  $$ = paramsList;
+}
+| parameterList[paramsList] parameters[params]
+{
+  List<List<PPattern>> paramsList = (List<List<PPattern>>)$paramsList;
+  paramsList.add((List<PPattern>)$params);
+  $$ = paramsList;
+}
+;
+
+parameters :
   LRPAREN
 {
-  $$ =  new Vector<List<PPattern>>();
+  $$ =  new LinkedList<PPattern>();
 }
 | LPAREN patternList[patList] RPAREN
 {
-  List<PPattern> patternList = (List<PPattern>)$patList;
-  List<List<PPattern>> paramList = new Vector<List<PPattern>>();
-  paramList.add(patternList);
-  $$ = paramList;
-}
-| parameterList[paramList] LPAREN patternList[patList] RPAREN
-{
-  List<PPattern> patternList = (List<PPattern>)$patList;
-  List<List<PPattern>> paramList = (List<List<PPattern>>)$paramList;
-  paramList.add(patternList);
-  $$ = paramList;
+  $$ = $patList;
 }
 ;
 
@@ -3000,26 +3002,9 @@ operationDef :
   res.setName(name);
   $$ = res;
 }
-| qualifier[qual] IDENTIFIER[id] COLON operationType[opType] IDENTIFIER[checkId] parameterList[paramList] DEQUALS operationBody[body] preExpr_opt[pre] postExpr_opt[post]
+| qualifier[qual] IDENTIFIER[id] COLON operationType[opType] IDENTIFIER[checkId] parameters[params] DEQUALS operationBody[body] preExpr_opt[pre] postExpr_opt[post]
 {
-  /* --- TODO --- */
-  /* We shold check id against checkId for equality */
-  LexNameToken name = util.extractLexNameToken($id);
-  SStatementAction body = (SStatementAction)$body;
-  LexLocation loc = util.extractLexLocation(name.location,
-                                       body.getLocation());
-  eu.compassresearch.ast.definitions.AExplicitOperationDefinition res =
-    new eu.compassresearch.ast.definitions.AExplicitOperationDefinition();
-  res.setLocation(loc);
-  res.setAccess((AAccessSpecifierAccessSpecifier)$qual);
-  res.setName(name);
-  res.setType((PType)$opType);
-  res.setParameterPatterns((List<? extends PPattern>)$paramList);
-  res.setBody(body);
-  res.setPrecondition((PExp)$pre);
-  res.setPostcondition((PExp)$post);
-  res.setIsConstructor(false);
-  $$ = res;
+  $$ = util.caseExplicitOperationDefinition($qual,$id,$COLON,$opType,$checkId,$params,$DEQUALS,$body,$pre,$post );
 }
 ;
 
@@ -3226,7 +3211,7 @@ stateDefList :
   stateDef.setStateDefs(defs);
   $$ = stateDef;
 }
-| stateDefList[list] stateDef
+| stateDefList[list] SEMI stateDef
 {
   AStateParagraphDefinition stateDef = (AStateParagraphDefinition)$list;
   stateDef.getStateDefs().add((PDefinition)$stateDef);
@@ -3377,9 +3362,7 @@ expression :
 }
 | expression[tuple] DOTHASH NUMERAL
 {
-  PExp tuple = (PExp)$tuple;
-  LexIntegerToken field = (LexIntegerToken)$NUMERAL; 
-  $$ = AstFactory.newAFieldNumberExp(tuple, field);
+  $$ = util.expressionDotHashNumeralToFieldNumberExp($tuple, $NUMERAL);
 }
 | expression[rootExp] LRPAREN
 {
@@ -3414,12 +3397,10 @@ expression :
 {
   $$ = util.caseExpBangMatchValue($exp,$matchValue);
 }
-| expression[exp] QUESTION pattern
+| expression[exp] QUESTION pattern %prec QUESTIONALONE
 {
   $$ = util.caseExpQuestionPattern($exp,$pattern);
 }
-//AKM: we have a preceedence problem here, "expression[exp] QUESTION pattern" get reduced 
-// to an expression even though the setBind is the one it should be making it into an in set expression instead
 | expression[exp] QUESTION setBind
 {
   $$ = util.caseExpQuestionSetBind($exp,$setBind);
@@ -3754,9 +3735,7 @@ nilLiteral :
 numericLiteral :
   NUMERAL
 {
-  CmlLexeme lexeme = (CmlLexeme)$NUMERAL;
-  LexLocation loc = util.extractLexLocation(lexeme);
-  $$ = new LexIntegerToken(Long.decode(lexeme.getValue()), loc);
+  $$ = util.CmlLexemeToLexIntegerToken($NUMERAL);
 }
 | HEX_LITERAL
 {
@@ -3864,7 +3843,7 @@ elseExprs :
   PExp then = (PExp)$then;
   List<PExp> tail = (List<PExp>)$tail;
   tail.add(new AElseIfExp(util.extractLexLocation(util.extractLexLocation((CmlLexeme)$ELSEIF),
-                                             then.getLocation()),
+						  then.getLocation()),
                           test,
                           then));
   $$ = tail;
@@ -3874,14 +3853,16 @@ elseExprs :
 casesExpr :
   CASES expression[test] COLON casesExprAltList[alts] END
 {
-  ACasesExp alts = (ACasesExp)$alts;
+  ACasesExp alts = new ACasesExp();//(ACasesExp)$alts;
+  alts.setCases((List<ACaseAlternative>)$alts);
   alts.setExpression((PExp)$test);
   alts.setLocation(util.extractLexLocation((CmlLexeme)$CASES, (CmlLexeme)$END));
   $$ = alts;
 }
 | CASES expression[test] COLON casesExprAltList[alts] COMMA OTHERS RARROW expression[others] END
 {
-  ACasesExp alts = (ACasesExp)$alts;
+  ACasesExp alts = new ACasesExp();//(ACasesExp)$alts;
+  alts.setCases((List<ACaseAlternative>)$alts);
   alts.setExpression((PExp)$test);
   alts.setLocation(util.extractLexLocation((CmlLexeme)$CASES, (CmlLexeme)$END));
   alts.setOthers((PExp)$others);
@@ -3892,15 +3873,19 @@ casesExpr :
 casesExprAltList :
   casesExprAlt[alt]
 {
-  ACasesExp casesExp = new ACasesExp();
-  casesExp.getCases().add((ACaseAlternative)$alt);
-  $$ = casesExp;
+  $$ = $alt; 
+  //ACasesExp casesExp = new ACasesExp();
+  //casesExp.getCases().add((ACaseAlternative)$alt);
+  //$$ = casesExp;
 }
 | casesExprAltList[alts] COMMA casesExprAlt[alt]
 {
-  ACasesExp casesExp = (ACasesExp)$alts;
-  casesExp.getCases().add((ACaseAlternative)$alt);
-  $$ = casesExp;
+  List<ACaseAlternative> alts = (List<ACaseAlternative>)$alts;
+  alts.addAll((List<ACaseAlternative>)$alt);
+  $$ = alts;
+  //ACasesExp casesExp = (ACasesExp)$alts;
+  //casesExp.getCases().add((ACaseAlternative)$alt);
+  //$$ = casesExp;
 }
 ;
 
@@ -3910,7 +3895,7 @@ casesExprAlt :
   patternList RARROW expression
 {
    List<ACaseAlternative> res = new LinkedList<ACaseAlternative>();
-   List<PPattern> patList = (List<PPattern>)$1;
+   List<PPattern> patList = (List<PPattern>)$patternList;
    PExp exp = (PExp)$expression;
    LexLocation leftMost = util.extractLexLeftMostFromPatterns(patList);
    LexLocation loc = util.combineLexLocation(leftMost, exp.getLocation());
@@ -4470,15 +4455,7 @@ assignStatement :
  */
   dottedIdentifier[id] COLONEQUALS expression
 {
-  /* --- TODO --- */
-  List<LexIdentifierToken> id = (List<LexIdentifierToken>)$id;
-  PStateDesignator stateDesignator = null;
-  // FIXME: old path code
-  // stateDesignator = path.convertToStateDesignator();
-  PExp exp = (PExp)$expression;
-  LexLocation location = util.extractLexLocation(stateDesignator.getLocation(),
-                                            exp.getLocation());
-  $$ = new ASingleGeneralAssignmentStatementAction(location, stateDesignator, exp);
+  $$ = util.caseDottedIdentifierToAssignmentStm($id,$COLONEQUALS,$expression);
 }
 ;
 

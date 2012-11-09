@@ -339,6 +339,7 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {call} 
 		[actionName]:LexNameToken
 	| {subclassResponsibility}
+	| {reference} [name]:LexNameToken
 	;
 	
 #Parallel {-> package='eu.compassresearch.ast.actions'}
@@ -461,6 +462,14 @@ parametrisation {-> package='eu.compassresearch.ast.actions'}
     = {single} [stateDesignator]:stateDesignator [expression]:exp
     | {multiple} [assignments]:action.#Statement.#GeneralAssignment.single*
 	;
+
+objectDesignator {-> package='eu.compassresearch.ast.actions'}
+	= {unresolved} [identifiers]:LexIdentifierToken* 
+	;
+	
+stateDesignator {-> package='eu.compassresearch.ast.actions'}
+    =   {unresolved} [identifiers]:LexIdentifierToken*
+    ;
 
 alternativeAction {-> package='eu.compassresearch.ast.actions'}
     = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition* 
