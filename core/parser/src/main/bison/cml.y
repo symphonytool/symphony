@@ -510,6 +510,7 @@
 %right AND
 %right NOT
 // VDM prec group relations
+%right QUESTIONALONE
 %left LT LTE GT GTE EQUALS NEQ INSET NOTINSET SUBSET PSUBSET
 // VDM prec group evaluators
 // VDM prec evaluators 1
@@ -532,7 +533,7 @@
 %right DOM RNG MERGE
 %right LEN ELEMS HD TL INDS CONC REVERSE
 // VDM prec group applicators ---- plus CSP communication elements
-%left DOT BACKTICK BANG QUESTION
+%right DOT BACKTICK BANG QUESTION
 // VDM prec (highest) group combinators
 %right COMP
 %right DSTAR
@@ -3641,11 +3642,11 @@ expression :
 {
   /* --- TODO --- */
 }
-| expression QUESTION pattern
+| expression QUESTION pattern %prec QUESTIONALONE
 {
   /* --- TODO --- */
 }
-| expression QUESTION setBind
+| expression QUESTION pattern INSET expression
 {
   /* --- TODO --- */
 }
