@@ -5,8 +5,8 @@ import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Vector;
 
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.APrivateAccess;
 import org.overture.ast.definitions.APublicAccess;
 import org.overture.ast.definitions.ATypeDefinition;
@@ -23,10 +23,14 @@ import org.overture.ast.lex.VDMToken;
 import org.overture.ast.node.tokens.TAsync;
 import org.overture.ast.node.tokens.TStatic;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.APatternListTypePair;
+import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.ARecordPattern;
 import org.overture.ast.patterns.ASetBind;
 import org.overture.ast.patterns.ATuplePattern;
+import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.statements.PObjectDesignator;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.typechecker.NameScope;
@@ -38,10 +42,13 @@ import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.AMuAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
+import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
+import eu.compassresearch.ast.actions.ASpecificationStatementAction;
 import eu.compassresearch.ast.actions.AUnresolvedObjectDesignator;
 import eu.compassresearch.ast.actions.AUnresolvedStateDesignator;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
@@ -49,7 +56,12 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
+import eu.compassresearch.ast.expressions.ACompChansetSetExp;
+import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
+import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
+import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
+import eu.compassresearch.ast.patterns.ARenamePair;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.lexer.CmlLexeme;
 import eu.compassresearch.core.parser.ParserErrorMessage;
@@ -153,7 +165,7 @@ public class ParserUtil {
 	 * needs to throw an error if the name is multipart
 	 */
 	public List<LexIdentifierToken> convertNameListToIdentifierList(List<LexNameToken> nameList) {
-		List<LexIdentifierToken> out = new Vector<LexIdentifierToken>();
+		List<LexIdentifierToken> out = new LinkedList<LexIdentifierToken>();
 		for (LexNameToken name : nameList) {
 			out.add(extractLexIdentifierToken(name));
 		}
@@ -324,19 +336,7 @@ public class ParserUtil {
 		}
 		return candidate;
 	}
-
-	public List<LexIdentifierToken> convertPathListToIdentifiers(List<LexNameToken> pathList)
-	{
-		List<LexIdentifierToken> identifiers = new LinkedList<LexIdentifierToken>();
-		for (LexNameToken name : pathList){
-			if(name.explicit == true || !name.module.equals("Default"))
-				throw new RuntimeException("A single expression declaration can only contain identifiers");
-			identifiers.add(0,name.getIdentifier());
-		}
-
-		return identifiers;
-	}
-
+	
 	public LexNameToken extractLexNameToken(CmlLexeme lexeme)
 	{
 		return new LexNameToken("Default", lexeme.getValue(), extractLexLocation(lexeme), false, true);
@@ -376,6 +376,27 @@ public class ParserUtil {
 	/**
 	 * Actions
 	 */
+	
+	public List<ARenamePair> caseARenamePair(Object from, Object to)
+	{
+		List<ARenamePair> renamePairs = new LinkedList<ARenamePair>();
+		ARenamePair pair = new ARenamePair(false,
+				ConvertPExpToANameChannelExp(from),
+				ConvertPExpToANameChannelExp(to));
+		renamePairs.add(pair);
+		return renamePairs;
+	}
+	
+	public List<ARenamePair> caseRenameList(Object renameList, Object from, Object to)
+	{
+		List<ARenamePair> renamePairs = (List<ARenamePair>)renameList;
+		ARenamePair pair = new ARenamePair(false,
+				ConvertPExpToANameChannelExp(from),
+				ConvertPExpToANameChannelExp(to));
+		renamePairs.add(pair);
+		return renamePairs;
+	}
+
 	public PAction caseDottedIdentifierLRPARENToCallAction(Object dottedIdentifier, Object PAREN, Object argsObj)
 	{
 		List<LexIdentifierToken> ids = (List<LexIdentifierToken>)dottedIdentifier;
@@ -411,10 +432,36 @@ public class ParserUtil {
 		
 		return new AReferenceAction(name.getLocation(),name);
 	}
-	
+		
 	/**
 	 * Actions - statements
 	 */
+	
+	public PAction caseMuAction(Object start, Object expressionList, Object actionList, Object end)
+	{
+		List<LexIdentifierToken> ids = convertExpressionListToLexIdentifierTokenList((List<PExp>)expressionList);
+		return new AMuAction(extractLexLocation((CmlLexeme)start,(CmlLexeme)end),
+				ids,
+				(List<PAction>)actionList);
+	}
+	
+	public ASpecificationStatementAction caseImplicitOperationBody(Object extsObj, Object preObj, Object postObj)
+	{
+		List<? extends AExternalClause> exts = (List<? extends AExternalClause>)extsObj;
+		PExp pre = (PExp)preObj;
+		PExp post = (PExp)postObj;
+		LexLocation loc = null;
+		if (exts != null) {
+			//FIXME for some weird reason the exts do not have locations?
+			//loc = extractLexLocation(extractFirstLexLocation(exts), post.getLocation());
+			loc = extractLexLocation(pre.getLocation(), post.getLocation());
+		} else if (pre != null) {
+			loc = extractLexLocation(pre.getLocation(), post.getLocation());
+		} else {
+			loc = post.getLocation();
+		}
+		return new ASpecificationStatementAction(loc, exts, pre, post);
+	}
 	
 	public PAction caseDottedIdentifierToAssignmentStm(Object idsObj, Object COLONEQUALS, Object expression)
 	{
@@ -430,6 +477,61 @@ public class ParserUtil {
 	/**
 	 * Definitions
 	 */
+
+	public PDefinition caseImplicitFunctionDefinition( Object qual, 
+			Object id,
+			Object ptypes,
+			Object retvalsObj,
+			Object pre,
+			Object post)
+	{
+		AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)qual;
+		LexNameToken name = extractLexNameToken((CmlLexeme)id);
+		List<APatternListTypePair> paramPatterns = (List<APatternListTypePair>)ptypes;
+		
+		//FIXME This conversion is caused by a flaw in the VDM tree and needs to be fixed at some point.
+		//		The result is actually a list af patterns but somehow this is not the case in the vdm ast definition.
+		List<APatternTypePair> retvals = (List<APatternTypePair>)retvalsObj;
+		
+		APatternTypePair retval = null; 
+		//retval.setType(value)
+		if(retvals.size() == 1)
+		{
+			retval = retvals.get(0);
+		}
+		//if there is more create a tuple pattern to contain them all and only take the type from the first one
+		else
+		{
+			ATuplePattern tuple = new ATuplePattern();
+			List<PPattern> plist = new LinkedList<PPattern>();
+			for(APatternTypePair pair : (List<APatternTypePair>)retvals )
+			{
+				plist.add(pair.getPattern());
+			}
+			tuple.setPlist(plist);
+			retval = new APatternTypePair(false,tuple);
+		}
+		
+		APatternTypePair result = retval;//(APatternTypePair)retvals;
+		PExp preExp = (PExp)pre;
+		PExp postExp = (PExp)post;
+		LexLocation location = combineLexLocation(name.getLocation(), postExp.getLocation());
+		AImplicitFunctionDefinition impFunc =
+				new AImplicitFunctionDefinition(location,
+						NameScope.LOCAL,
+						false,
+						access,
+						null,//Pass
+						null,
+						paramPatterns,
+						result,
+						preExp,
+						postExp,
+						null/*LexNameToken measure*/);
+		impFunc.setName(name);
+		return impFunc;
+	}
+	
 	
 	/**
 	 * 
@@ -460,10 +562,19 @@ public class ParserUtil {
 		LexNameToken checkIdname = extractLexNameToken(checkId);
 
 		if(!name.equals(checkIdname))
-			throw new ParserException(ParserErrorMessage.OPERATION_NAMES_ARE_NOT_EQUAL.customizeMessage(name.getIdentifier().getName(),
+			throw new ParserException(name.getLocation(),ParserErrorMessage.OPERATION_NAMES_ARE_NOT_EQUAL.customizeMessage(name.getIdentifier().getName(),
 																					checkIdname.getIdentifier().getName()));
-		
-		SStatementAction body = (SStatementAction)bodyObj;
+		SStatementAction body = null;
+		try{
+			body = (SStatementAction)bodyObj;
+		}
+		catch(ClassCastException ex)
+		{
+			if(bodyObj instanceof ASequentialCompositionAction)
+				throw new ParserException(checkIdname.getLocation(), ParserErrorMessage.SEMI_BETWEEN_CLASS_OPERATIONS.customizeMessage());
+			else
+				throw new ParserException(checkIdname.getLocation(), ParserErrorMessage.ACTIONS_INSIDE_CLASS_OPERATION.customizeMessage());
+		}
 		LexLocation loc = extractLexLocation(name.location,
 				body.getLocation());
 		AExplicitOperationDefinition res =
@@ -484,6 +595,114 @@ public class ParserUtil {
 	/**
 	 * Expressions 
 	 */
+	
+	public LexNameToken caseMeasure(Object dottedIdentifier)
+	{
+		return dottedIdentifierToLexNameToken((List<LexIdentifierToken>)dottedIdentifier);
+	}
+
+	private ANameChannelExp ConvertPExpToANameChannelExp(Object exp)
+	{
+		ANameChannelExp cn = null;
+		
+		//This is a single id channel name
+		if(exp instanceof AVariableExp)
+		{
+			AVariableExp varExp = (AVariableExp)exp;
+			cn = new ANameChannelExp(varExp.getLocation(),varExp.getName(),new LinkedList<PPattern>());
+		}
+		else if(exp instanceof AUnresolvedPathExp)
+		{
+			AUnresolvedPathExp unresolvedExp = (AUnresolvedPathExp)exp;
+			
+			LexNameToken name = new LexNameToken("",unresolvedExp.getIdentifiers().get(0)); 
+			
+			List<PPattern> patterns = new LinkedList<PPattern>();
+			for(LexIdentifierToken id : unresolvedExp.getIdentifiers().subList(1, unresolvedExp.getIdentifiers().size()))
+			{
+				LexNameToken idName = new LexNameToken("",id);
+				patterns.add(new AIdentifierPattern(id.getLocation(),new LinkedList<PDefinition>(), false, idName, false));
+			}
+			
+			LexLocation location = extractLexLocation(name.getLocation(), extractLastLexLocation(patterns));
+			cn = new ANameChannelExp(location,name,patterns);
+		}
+		//This is a channelname with dotted expressions
+		else if (exp instanceof Pair<?,?>)
+		{
+			//This is already converted in a pair of AVariableExp and a list of ASignalCommunicationParameter
+			//in the expression rule to make the communicationAction easier. So all we have to do here is to 
+			//take out the patterns
+			Pair<AVariableExp,List<ASignalCommunicationParameter>> pair = (Pair<AVariableExp,List<ASignalCommunicationParameter>>)exp;
+			
+			List<PPattern> patterns = new LinkedList<PPattern>();
+			for(ASignalCommunicationParameter s : pair.second)
+			{
+				patterns.add(s.getPattern());
+			}
+			
+			LexLocation location = extractLexLocation(pair.first.getLocation(), extractLastLexLocation(pair.second));
+			cn = new ANameChannelExp(location, pair.first.getName(), patterns);
+		}
+		else
+		{
+			throw new ParserException(((PExp)exp).getLocation(),ParserErrorMessage.MALFORMED_CHANNEL_EXPRESSION.customizeMessage(exp.toString()));
+		}
+		
+		return cn;
+	}
+	
+	
+	public PExp caseRenameExpressionAComprehensionRenameChannelExp(	Object DLSQUARE, 
+			Object from, 
+			Object to,
+			Object bindList, 
+			Object pred, 
+			Object DRSQUARE)
+	{
+		ARenamePair pair = new ARenamePair(false,
+				ConvertPExpToANameChannelExp(from),
+				ConvertPExpToANameChannelExp(to));
+		return new AComprehensionRenameChannelExp(extractLexLocation((CmlLexeme)DLSQUARE,
+				(CmlLexeme)DRSQUARE),
+				pair,
+				(List<? extends PMultipleBind>)bindList,
+				null);
+	}	
+	
+	private List<LexIdentifierToken> convertExpressionListToLexIdentifierTokenList(List<PExp> exprs)
+	{
+		List<LexIdentifierToken> ids = new LinkedList<LexIdentifierToken>();
+		
+		for(PExp exp : exprs)
+		{
+			//If the expression is a single identifer it will be converted into a AVariableExp
+			if(exp instanceof AVariableExp)
+			{	
+				AVariableExp var = (AVariableExp)exp;
+				ids.add(var.getName().getIdentifier());
+			}
+			else throw new ParserException(exp.getLocation(),
+					ParserErrorMessage.MALFORMED_CHANNEL_SET_EXPRESSION.customizeMessage(exp.toString()));
+		}
+
+		return ids;
+	}
+	
+	public PExp caseACompChansetSetExp( Object LCURLYBAR, Object chanexp, Object bindList, Object exp, Object BARRCURLY)
+	{
+		LexLocation loc = extractLexLocation((CmlLexeme)LCURLYBAR, (CmlLexeme)BARRCURLY);
+		ANameChannelExp chanNameExp = ConvertPExpToANameChannelExp(chanexp);
+		PExp pred = (PExp)exp;
+		return new ACompChansetSetExp(loc, chanNameExp, (List<PMultipleBind>)bindList, pred);
+	}
+	
+	public PExp caseAEnumChansetSetExp(Object LCURLYBAR, Object list, Object BARRCURLY)
+	{
+	  LexLocation loc = extractLexLocation((CmlLexeme)LCURLYBAR, (CmlLexeme)BARRCURLY);
+	  List<LexIdentifierToken> ids = convertExpressionListToLexIdentifierTokenList((List<PExp>)list);
+	  return new AEnumChansetSetExp(loc, ids);
+	}
 	
 	public LexIntegerToken CmlLexemeToLexIntegerToken(Object NUMERAL)
 	{
@@ -625,7 +844,7 @@ public class ParserUtil {
 			return communicationParamHelper(exp,pattern,new ASignalCommunicationParameter());
 		}
 		else
-			//TODO what can this be other than communication?
+			//TODO what can this be other than communication? aha it can a channel expression
 			throw new ParserException("I don't really now what to do here right now");
 		
 

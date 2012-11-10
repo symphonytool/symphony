@@ -4,6 +4,6 @@ begin
 functions
 		callers: int +>  int
 		callers(a) == a
-		measure a;
+		measure a
 		
 end

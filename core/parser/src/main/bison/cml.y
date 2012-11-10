@@ -1069,14 +1069,7 @@ action :
  */
 | MU[start] expressionList AT LPAREN actionList RPAREN[end]
 {
-  /* --- TODO --- */
-  /* that expressionList needs to be converted down into a nameList?
-   */
-  List<LexNameToken> nameList = (List<LexNameToken>)$expressionList;
-  List<LexIdentifierToken> ids = util.convertNameListToIdentifierList(nameList);
-  $$ = new AMuAction(util.extractLexLocation((CmlLexeme)$start,(CmlLexeme)$end),
-                     ids,
-                     (List<PAction>)$actionList);
+  $$ = util.caseMuAction($start,$expressionList,$actionList,$end);
 }
 /* NAMESET
  * expression was namesetExpr here
@@ -1607,16 +1600,18 @@ renameExpression :
 }
 | DLSQUARE expression[from] LARROW expression[to] BAR bindList DRSQUARE
 {
-  /* --- TODO --- */
-  /* path elimination */
-  ARenamePair pair = new ARenamePair(false,
-                                     (ANameChannelExp)$from,
-                                     (ANameChannelExp)$to);
-  $$ = new AComprehensionRenameChannelExp(util.extractLexLocation((CmlLexeme)$DLSQUARE,
-                                                             (CmlLexeme)$DRSQUARE),
-                                          pair,
-                                          (List<? extends PMultipleBind>)$bindList,
-                                          null);
+  $$ = util.caseRenameExpressionAComprehensionRenameChannelExp($DLSQUARE,$from,$to,$bindList,null,$DRSQUARE);
+
+  /* /\* --- TODO --- *\/ */
+  /* /\* path elimination *\/ */
+  /* ARenamePair pair = new ARenamePair(false, */
+  /*                                    (ANameChannelExp)$from, */
+  /*                                    (ANameChannelExp)$to); */
+  /* $$ = new AComprehensionRenameChannelExp(util.extractLexLocation((CmlLexeme)$DLSQUARE, */
+  /*                                                            (CmlLexeme)$DRSQUARE), */
+  /*                                         pair, */
+  /*                                         (List<? extends PMultipleBind>)$bindList, */
+  /*                                         null); */
 }
 | DLSQUARE expression[from] LARROW expression[to] BAR bindList AT expression[pred] DRSQUARE
 {
@@ -1645,25 +1640,11 @@ renameExpression :
 renameList :
   expression[from] LARROW expression[to]
 {
-  /* --- TODO --- */
-  /* path elimination: from, to */
-  List<ARenamePair> renamePairs = new Vector<ARenamePair>();
-  ARenamePair pair = new ARenamePair(false,
-                                     (ANameChannelExp)$from,
-                                     (ANameChannelExp)$to);
-  renamePairs.add(pair);
-  $$ = renamePairs;
+  $$ = util.caseARenamePair($from,$to);
 }
-| renameList COMMA expression[from] LARROW expression[to]
+| renameList[list] COMMA expression[from] LARROW expression[to]
 {
-  /* --- TODO --- */
-  /* path elimination: from, to */
-  List<ARenamePair> renamePairs = (List<ARenamePair>)$1;
-  ARenamePair pair = new ARenamePair(false,
-                                     (ANameChannelExp)$from,
-                                     (ANameChannelExp)$to);
-  renamePairs.add(pair);
-  $$ = renamePairs;
+  $$ = util.caseRenameList($list,$from,$to);
 }
 ;
 
@@ -2359,7 +2340,7 @@ functionType :
 ;
 
 partialFunctionType :
-  type[dom] PLUSGT type[rng]
+  type[dom] RARROW type[rng]
 {
   PType domType = (PType)$dom;
   PType rngType = (PType)$rng;
@@ -2368,7 +2349,7 @@ partialFunctionType :
   params.add(domType);
   $$ = new AFunctionType(loc, false, null, true, params, rngType);
 }
-| LRPAREN[dom] PLUSGT type[rng] // discretionary type
+| LRPAREN[dom] RARROW type[rng] // discretionary type
 {
   PType domType = new AVoidType(util.extractLexLocation((CmlLexeme)$dom), true);
   PType rngType = (PType)$rng;
@@ -2380,7 +2361,7 @@ partialFunctionType :
 ;
 
 totalFunctionType :
-  type[dom] RARROW type[rng]
+  type[dom] PLUSGT type[rng]
 {
   PType domType = (PType)$dom;
   PType rngType = (PType)$rng;
@@ -2389,7 +2370,7 @@ totalFunctionType :
   params.add(domType);
   $$ = new AFunctionType(loc, false, null, false, params, rngType);
 }
-| LRPAREN[dom] RARROW type[rng] // discretionary type
+| LRPAREN[dom] PLUSGT type[rng] // discretionary type
 {
   PType domType = new AVoidType(util.extractLexLocation((CmlLexeme)$dom), true);
   PType rngType = (PType)$rng;
@@ -2698,27 +2679,7 @@ functionDefList :
 functionDef :
   qualifier[qual] IDENTIFIER[id] parameterTypes[ptypes] identifierTypePairList[retvals] preExpr_opt[pre] postExpr[post]
 {
-  AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier)$qual;
-  LexNameToken name = util.extractLexNameToken((CmlLexeme)$id);
-  List<APatternListTypePair> paramPatterns = (List<APatternListTypePair>)$ptypes;
-  APatternTypePair result = (APatternTypePair)$retvals;
-  PExp preExp = (PExp)$pre;
-  PExp postExp = (PExp)$post;
-  LexLocation location = util.combineLexLocation(name.getLocation(), postExp.getLocation());
-  AImplicitFunctionDefinition impFunc =
-    new AImplicitFunctionDefinition(location,
-                                    NameScope.LOCAL,
-                                    false,
-                                    access,
-                                    null,//Pass
-                                    null,
-                                    paramPatterns,
-                                    result,
-                                    preExp,
-                                    postExp,
-                                    null/*LexNameToken measure*/);
-  impFunc.setName(name);
-  $$ = impFunc;
+  $$ = util.caseImplicitFunctionDefinition($qual,$id,$ptypes,$retvals,$pre,$post);
 }
 | qualifier[qual] explicitFunctionDef[def]
 {
@@ -2741,6 +2702,7 @@ explicitFunctionDef :
   PExp functionBody = (PExp)$functionBody;
   List<List<PPattern>> args = (List<List<PPattern>>)$parameterList;
   AExplicitFunctionDefinition res = new AExplicitFunctionDefinition();
+  res.setAccess(util.getPrivateAccessSpecifier(false,false,loc));
   res.setName(name);
   res.setLocation(loc);
   res.setType(ftype);
@@ -2918,6 +2880,7 @@ measureExpr :
   /* dottedIdentifier should be a list of LexIdentifierWhatsits, and
    * we need a LexName here.
    */
+  $$ = util.caseMeasure($dottedIdentifier);
 }
 | /* empty */
 {
@@ -3670,33 +3633,15 @@ expression :
 /* chanset expressions */
 | LCURLYBAR expressionList[list] BARRCURLY
 {
-  /* --- TODO --- */
-  LexLocation loc = util.extractLexLocation((CmlLexeme)$LCURLYBAR, (CmlLexeme)$BARRCURLY);
-  List<PExp> exprs = (List<PExp>)$list;
-  // FIXME
-  List<LexIdentifierToken> ids = null;
-  //List<LexIdentifierToken> ids = convertExpressionListToLexNameTokenList(exprs);
-  $$ = new AEnumChansetSetExp(loc, ids);
+  $$ = util.caseAEnumChansetSetExp($LCURLYBAR,$list,$BARRCURLY);
 }
-| LCURLYBAR expression BAR bindList BARRCURLY
+| LCURLYBAR expression[chanexp] BAR bindList BARRCURLY
 {
-  /* --- TODO --- */
-  /* below is from the old path-based code
-   */
-  //LexLocation loc = util.extractLexLocation((CmlLexeme)$LCURLYBAR, (CmlLexeme)$BARRCURLY);
-  //ANameChannelExp chanNameExp =
-  //  (ANameChannelExp)((Path)$path).convertToChannelNameExpression();
-  //List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
-  //$$ = new ACompChansetSetExp(loc, chanNameExp , bindings, null);
+  $$ = util.caseACompChansetSetExp($LCURLYBAR, $chanexp,$bindList, null, $BARRCURLY);
 }
-| LCURLYBAR expression BAR bindList AT expression[exp] BARRCURLY
+| LCURLYBAR expression[chanexp] BAR bindList AT expression[exp] BARRCURLY
 {
-  /* --- TODO --- */
-  //LexLocation loc = util.extractLexLocation((CmlLexeme)$LCURLYBAR, (CmlLexeme)$BARRCURLY);
-  //ANameChannelExp chanNameExp = (ANameChannelExp)((Path)$path).convertToChannelNameExpression();
-  //List<PMultipleBind> bindings = (List<PMultipleBind>)$bindList;
-  //PExp pred = (PExp)$exp;
-  //$$ = new ACompChansetSetExp(loc, chanNameExp, bindings, pred);
+  $$ = util.caseACompChansetSetExp($LCURLYBAR, $chanexp,$bindList, $exp, $BARRCURLY);
 }
 /* chanset expressions end */
 ;
@@ -4555,18 +4500,7 @@ casesStatementAlt :
 implicitOperationBody :
   externals_opt[exts] preExpr_opt[pre] postExpr[post]
 {
-  List<? extends AExternalClause> exts = (List<? extends AExternalClause>)$exts;
-  PExp pre = (PExp)$pre;
-  PExp post = (PExp)$post;
-  LexLocation loc = null;
-  if (exts != null) {
-    loc = util.extractLexLocation(util.extractFirstLexLocation(exts), post.getLocation());
-  } else if (pre != null) {
-    loc = util.extractLexLocation(pre.getLocation(), post.getLocation());
-  } else {
-    loc = post.getLocation();
-  }
-  $$ = new ASpecificationStatementAction(loc, exts, pre, post);
+  $$ = util.caseImplicitOperationBody($exts, $pre, $post);
 }
 ;
 

@@ -145,7 +145,8 @@ exp {-> package='eu.compassresearch.ast.expressions'}
     
 #Channel  {-> package='eu.compassresearch.ast.expressions'}
 	= #Rename
-	| {name} [identifier]:LexNameToken [dotExpressions]:exp*
+	| {name} 	[identifier]:LexNameToken 
+				[dottedPatternList]:pattern* //This use to be expressions!
 	;
 	
 #Rename   {-> package='eu.compassresearch.ast.expressions'}
