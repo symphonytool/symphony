@@ -3560,15 +3560,7 @@ expression :
  */
 | ISOFCLASS LPAREN dottedIdentifier[id] COMMA expression[exp] RPAREN
 {
-  /* --- TODO --- */
-  LexLocation loc = util.extractLexLocation((CmlLexeme)$ISOFCLASS, (CmlLexeme)$RPAREN);
-  List<LexIdentifierToken> dotted = (List<LexIdentifierToken>)$id;
-  // FIXME
-  LexNameToken name = null;
-  //LexNameToken name = convertDottedIdentifierToLexNameToken(dotted);
-  $$ = new AIsOfClassExp(loc,
-                         name,
-                         (PExp)$exp);
+  $$ = util.caseExpressionIsOfBaseClass($ISOFCLASS,$id,$exp,$RPAREN);
 }
 /* chanset expressions */
 | LCURLYBAR expressionList[list] BARRCURLY

@@ -12,6 +12,7 @@ import org.overture.ast.definitions.APrivateAccess;
 import org.overture.ast.definitions.APublicAccess;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AIsOfClassExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
@@ -647,6 +648,15 @@ public class ParserUtil {
 	/**
 	 * Expressions 
 	 */
+	
+	public AIsOfClassExp caseExpressionIsOfBaseClass(Object ISOFCLASS, Object dottedId, Object exp, Object RPAREN)
+	{
+		LexLocation loc = extractLexLocation((CmlLexeme)ISOFCLASS, (CmlLexeme)RPAREN);
+		LexNameToken name = dottedIdentifierToLexNameToken((List<LexIdentifierToken>)dottedId);
+		return new AIsOfClassExp(loc,
+				name,
+				(PExp)exp);
+	}
 	
 	public LexNameToken caseMeasure(Object dottedIdentifier)
 	{
