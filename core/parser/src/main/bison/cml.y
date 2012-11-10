@@ -3269,16 +3269,11 @@ expression :
 }
 | expression[rootExp] LRPAREN
 {
-  PExp rootExp = (PExp)$rootExp;
-  LexLocation location = util.extractLexLocation(rootExp.getLocation(),(CmlLexeme)$LRPAREN);
-  $$ = new AApplyExp(location, (PExp)$rootExp, new LinkedList<PExp>());
+  $$ = util.caseExpressionApply($rootExp, new LinkedList<PExp>(), $LRPAREN);
 }
 | expression[rootExp] LPAREN expressionList RPAREN
 {
-  PExp rootExp = (PExp)$rootExp;
-  LexLocation location = util.extractLexLocation(rootExp.getLocation(),(CmlLexeme)$RPAREN);
-  List<PExp> exps = (List<PExp>)$expressionList;
-  $$ = new AApplyExp(location, (PExp)$rootExp, exps);
+  $$ = util.caseExpressionApply($rootExp, $expressionList, $RPAREN);
 }
 | expression[seq] LPAREN expression[from] ELLIPSIS expression[to] RPAREN
 {
@@ -3543,13 +3538,7 @@ expression :
  */
 | PREUNDER LPAREN expressionList[list] RPAREN
 {
-  /* --- TODO --- */
-  /* This instantiation can't be correct.
-   */
-  List<PExp> exprs = (List<PExp>)$list;
-  PExp function = null;
-  LexLocation loc = util.extractLexLocation((CmlLexeme)$PREUNDER, (CmlLexeme)$RPAREN);
-  $$ = new APreExp(loc, function, exprs);
+  $$ = util.caseExpressionPrecondition($PREUNDER,$list,$RPAREN);
 }
 /* DEVIATION
  * GRAMMAR ERROR: Missing COMMA

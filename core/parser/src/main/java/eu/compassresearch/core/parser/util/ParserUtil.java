@@ -12,7 +12,9 @@ import org.overture.ast.definitions.APrivateAccess;
 import org.overture.ast.definitions.APublicAccess;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.AIsOfClassExp;
+import org.overture.ast.expressions.APreExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
@@ -648,6 +650,22 @@ public class ParserUtil {
 	/**
 	 * Expressions 
 	 */
+
+	public AApplyExp caseExpressionApply(Object rootExpObj, Object expressionList, Object RPAREN)
+	{
+		PExp rootExp = (PExp)rootExpObj;
+		LexLocation location = extractLexLocation(rootExp.getLocation(),(CmlLexeme)RPAREN);
+		List<PExp> exps = (List<PExp>)expressionList;
+		return new AApplyExp(location, rootExp, exps);
+	}
+	
+	public APreExp caseExpressionPrecondition(Object PREUNDER, Object expList, Object RPAREN)
+	{
+		List<PExp> exprs = (List<PExp>)expList;
+		PExp function = exprs.get(0);
+		LexLocation loc = extractLexLocation((CmlLexeme)PREUNDER, (CmlLexeme)RPAREN);
+		return new APreExp(loc, function, exprs.subList(1, exprs.size()));
+	}
 	
 	public AIsOfClassExp caseExpressionIsOfBaseClass(Object ISOFCLASS, Object dottedId, Object exp, Object RPAREN)
 	{
@@ -862,7 +880,7 @@ public class ParserUtil {
 			ret.second.add(param);
 		}
 		else
-			throw new ParserException("A Communication construct must begin with an identifier");
+			throw new ParserException(((PExp)exp).getLocation(),"A Communication construct must begin with an identifier");
 		
 		return ret;
 	}
