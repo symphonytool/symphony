@@ -32,23 +32,23 @@ public class ProcessEvaluator extends
         this.parentInterpreter = parentInterpreter;
       }
     
-    @Override
-    public CMLProcessOld caseAInstantiationProcess(AInstantiationProcess node,
-        CMLContext question) throws AnalysisException
-      {
-        // Grab the definition from the name
-        AProcessDefinition processDefinition = node.getProcessDefinition();
-        
-        // TODO Initialize the process state
-        CMLContext inner = new CMLContext(node.getLocation(),"caseAInstantiationProcess", question);
-
-        // TODO Add the process arguments
-        CMLProcessOld instantiatedProcess = processDefinition.getProcess().apply(
-            this, inner);
-        CMLProcessOld process = new InstantiatedProcess(processDefinition,
-            instantiatedProcess);
-        return process;
-      }
+//    @Override
+//    public CMLProcessOld caseAInstantiationProcess(AInstantiationProcess node,
+//        CMLContext question) throws AnalysisException
+//      {
+//        // Grab the definition from the name
+//        AProcessDefinition processDefinition = node.g getProcessDefinition();
+//        
+//        // TODO Initialize the process state
+//        CMLContext inner = new CMLContext(node.getLocation(),"caseAInstantiationProcess", question);
+//
+//        // TODO Add the process arguments
+//        CMLProcessOld instantiatedProcess = processDefinition.getProcess().apply(
+//            this, inner);
+//        CMLProcessOld process = new InstantiatedProcess(processDefinition,
+//            instantiatedProcess);
+//        return process;
+//      }
     
 //    @Override
 //    public CMLProcessOld caseAStateProcess(AStateProcess node, CMLContext question)

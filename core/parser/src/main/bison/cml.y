@@ -171,6 +171,30 @@
   {
     return currentSource;
   }
+
+  public static CmlParser newParserFromSource(PSource doc) throws FileNotFoundException
+  {
+    if (doc instanceof AFileSource) {
+      AFileSource fs = (AFileSource)doc;
+      File f= fs.getFile();
+      FileReader reader = new FileReader(f);
+      CmlLexer lexer = new CmlLexer(reader);
+      CmlParser parser = new CmlParser(lexer);
+      parser.setDocument(fs);
+      return parser;
+    }
+
+    if (doc instanceof AInputStreamSource) {
+      AInputStreamSource is = (AInputStreamSource)doc;
+      InputStreamReader in = new InputStreamReader(is.getStream());
+      CmlLexer lexer = new CmlLexer(in);
+      CmlParser parser = new CmlParser(lexer);
+      parser.setDocument(is);
+      return parser;
+    }
+    return null;
+  }
+
 } /* End of code block */
 
 /* ---------------------------------------------------------------- */
@@ -604,38 +628,48 @@ process :
   PProcess proc = (PProcess)$proc;
   $$ = new AInstantiationProcess(location,
 				 decls,
-				 null,
 				 proc,
 				 args);
 }
 | IDENTIFIER
 {
   LexNameToken name = util.extractLexNameToken($IDENTIFIER);
-  $$ = new AInstantiationProcess(name.location,
-                                 null,
-                                 name,
-                                 null,
-                                 null);
+  $$ = new AReferenceProcess(name.location,
+			     name,
+			     new LinkedList<PExp>());
+  /* $$ = new AInstantiationProcess(name.location, */
+  /*                                null, */
+  /*                                name, */
+  /*                                null, */
+  /*                                null); */
 }
 | IDENTIFIER LRPAREN
 {
   LexNameToken name = util.extractLexNameToken($IDENTIFIER);
   LexLocation location = util.extractLexLocation(name.location,(CmlLexeme)$LRPAREN);
-  $$ = new AInstantiationProcess(location,
-                                 null,
-                                 name,
-                                 null,
-                                 null);
+  $$ = new AReferenceProcess(location,
+			     name,
+			     new LinkedList<PExp>());
+
+  /* $$ = new AInstantiationProcess(location, */
+  /*                                null, */
+  /*                                name, */
+  /*                                null, */
+  /*                                null); */
 }
 | IDENTIFIER LPAREN expressionList RPAREN
 {
   LexNameToken name = util.extractLexNameToken($IDENTIFIER);
   LexLocation location = util.extractLexLocation(name.location,(CmlLexeme)$RPAREN);
-  $$ = new AInstantiationProcess(location,
-                                 null,
-                                 name,
-                                 null,
-                                 (List<PExp>)$expressionList);
+  $$ = new AReferenceProcess(location,
+			     name,
+			     (List<PExp>)$expressionList);
+
+  /* $$ = new AInstantiationProcess(location, */
+  /*                                null, */
+  /*                                name, */
+  /*                                null, */
+  /*                                (List<PExp>)$expressionList); */
 }
 | process[proc] renameExpression[rexp]
 {

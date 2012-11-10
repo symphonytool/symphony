@@ -435,7 +435,7 @@ public class ParserUtil {
 		
 		LexNameToken name = dottedIdentifierToLexNameToken(ids);
 		
-		return new AReferenceAction(name.getLocation(),name);
+		return new AReferenceAction(name.getLocation(),name,new LinkedList<PExp>());
 	}
 		
 	/**

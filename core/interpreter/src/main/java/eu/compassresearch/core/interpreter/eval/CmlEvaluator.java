@@ -3,19 +3,16 @@ package eu.compassresearch.core.interpreter.eval;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.CMLContext;
-import eu.compassresearch.core.interpreter.cml.CMLProcessOld;
-import eu.compassresearch.core.interpreter.values.ProcessValueOld;
 
 @SuppressWarnings("serial")
 public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value> {
 
-	private QuestionAnswerCMLAdaptor<CMLContext, Value> exp;
+	private QuestionAnswerCMLAdaptor<Context, Value> exp;
 	//private QuestionAnswerCMLAdaptor<CMLContext, CMLProcessOld> prc;
 	//private QuestionAnswerCMLAdaptor<CMLContext, AbstractCMLProcess> prc;
 	//private QuestionAnswerCMLAdaptor<CMLContext, AbstractCMLAction> act;

@@ -7,6 +7,7 @@ import org.overture.ast.types.PType;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.process.AInstantiationProcess;
+import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
@@ -49,11 +50,12 @@ public class TCProcessVisitor extends
 
 		return new AProcessType();
 	}
-
+	
 	@Override
-	public PType caseAInstantiationProcess(AInstantiationProcess node,
+	public PType caseAReferenceProcess(AReferenceProcess node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
+		
 		TypeCheckInfo newQ = (TypeCheckInfo) question;
 		// TODO: implement this!
 		PDefinition processDef = newQ.lookupVariable(node.getProcessName());

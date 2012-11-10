@@ -7,6 +7,7 @@ import org.overture.interpreter.values.ObjectValue;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AInstantiationProcess;
+import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -149,24 +150,22 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 	}
 	
 	@Override
-	public CMLBehaviourSignal caseAInstantiationProcess(
-			AInstantiationProcess node, Context question)
-			throws AnalysisException {
+	public CMLBehaviourSignal caseAReferenceProcess(AReferenceProcess node,
+			Context question) throws AnalysisException {
 
 		//TODO add decls to the context
 		//ProcessValue value = new ProcessValue();
 		//ProcessContext processContext = new ProcessContext(node.getLocation(), "", 
 		//		question.getGlobal(), value);
 		Context newContext = new Context(node.getLocation(), "Child Process Context", question.getGlobal());
-		
+
 		AProcessDefinition processDef = node.getProcessDefinition();
-		
+
 		CMLProcessInstance childProcess = new CMLProcessInstance(processDef, this, newContext);
-		
+
 		this.children.add(childProcess);
-		
-		
+
+
 		return CMLBehaviourSignal.EXEC_SUCCESS;
 	}
-
 }
