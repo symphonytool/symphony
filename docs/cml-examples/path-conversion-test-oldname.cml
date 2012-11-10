@@ -1,6 +1,6 @@
 class Test =
 begin
  values    
-      rpair = Context`PI~;
+      rpair = Context.PI~;
 
 end

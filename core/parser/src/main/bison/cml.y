@@ -602,12 +602,11 @@ process :
   List<PExp> args = new LinkedList<PExp>();
   args.add((PExp)$expression);
   PProcess proc = (PProcess)$proc;
-  /* FIXME: (->AKM) process was a processDefinition */
-  /* $$ = new AInstantiationProcess(location,  */
-  /*                             decls,  */
-  /*                             null, */
-  /*                             (AProcessDefinition)$proc,  */
-  /*                             args); */
+  $$ = new AInstantiationProcess(location,
+				 decls,
+				 null,
+				 proc,
+				 args);
 }
 | IDENTIFIER
 {
@@ -1416,7 +1415,7 @@ action :
  * that looks like a name + params; so we will have to add TC checks
  * here.
  */
-| dottedIdentifier COLONEQUALS NEW expression
+| dottedIdentifier[stateDesignator] COLONEQUALS NEW expression[new]
 {
   /* --- TODO --- */
   /* Need to rip out the path-based stuff here.
@@ -1424,8 +1423,8 @@ action :
    */
   ANewStatementAction stm = null;
   // these were Paths
-  PExp target = (PExp)$dottedIdentifier; //should probably be more specific, typewise
-  PExp newExp = (PExp)$expression;
+  PExp target = (PExp)$stateDesignator; //should probably be more specific, typewise
+  PExp newExp = (PExp)$new;
   List<? extends PExp> args = null;
   LexLocation location = util.combineLexLocation(target.getLocation(),newExp.getLocation());
   //stm = new ANewStatementAction(location,
@@ -1601,30 +1600,10 @@ renameExpression :
 | DLSQUARE expression[from] LARROW expression[to] BAR bindList DRSQUARE
 {
   $$ = util.caseRenameExpressionAComprehensionRenameChannelExp($DLSQUARE,$from,$to,$bindList,null,$DRSQUARE);
-
-  /* /\* --- TODO --- *\/ */
-  /* /\* path elimination *\/ */
-  /* ARenamePair pair = new ARenamePair(false, */
-  /*                                    (ANameChannelExp)$from, */
-  /*                                    (ANameChannelExp)$to); */
-  /* $$ = new AComprehensionRenameChannelExp(util.extractLexLocation((CmlLexeme)$DLSQUARE, */
-  /*                                                            (CmlLexeme)$DRSQUARE), */
-  /*                                         pair, */
-  /*                                         (List<? extends PMultipleBind>)$bindList, */
-  /*                                         null); */
 }
 | DLSQUARE expression[from] LARROW expression[to] BAR bindList AT expression[pred] DRSQUARE
 {
-  /* --- TODO --- */
-  /* path elimination */
-  ARenamePair pair = new ARenamePair(false,
-                                     (ANameChannelExp)$from,
-                                     (ANameChannelExp)$to);
-  $$ = new AComprehensionRenameChannelExp(util.extractLexLocation((CmlLexeme)$DLSQUARE,
-                                                             (CmlLexeme)$DRSQUARE),
-                                          pair,
-                                          (List<? extends PMultipleBind>)$bindList,
-                                          (PExp)$pred);
+  $$ = util.caseRenameExpressionAComprehensionRenameChannelExp($DLSQUARE,$from,$to,$bindList,$pred,$DRSQUARE);
 }
 ;
 
@@ -2248,7 +2227,7 @@ type :
   PType rng = (PType)$rng;
   LexLocation loc = util.combineLexLocation(util.extractLexLocation((CmlLexeme)$prefix),
                                        rng.getLocation());
-  AMapMapType res = new AMapMapType(loc, false, null, dom, rng, false);
+  $$ = new AMapMapType(loc, false, null, dom, rng, false);
 }
 | functionType
 {
@@ -2693,23 +2672,8 @@ functionDef :
 explicitFunctionDef :
   IDENTIFIER[id] COLON functionType IDENTIFIER[checkId] parameterList DEQUALS functionBody preExpr_opt postExpr_opt measureExpr
 {
-  LexNameToken name = util.extractLexNameToken((CmlLexeme)$id);
-  /* --- TODO --- */
-  /* We should be checking that the two IDENTIFIERS are equivalent
-   */
-  LexLocation loc = util.extractLexLocation((CmlLexeme)$id);
-  AFunctionType ftype = (AFunctionType)$functionType;
-  PExp functionBody = (PExp)$functionBody;
-  List<List<PPattern>> args = (List<List<PPattern>>)$parameterList;
-  AExplicitFunctionDefinition res = new AExplicitFunctionDefinition();
-  res.setAccess(util.getPrivateAccessSpecifier(false,false,loc));
-  res.setName(name);
-  res.setLocation(loc);
-  res.setType(ftype);
-  res.setBody(functionBody);
-  res.setMeasure((LexNameToken)$measureExpr);
-  res.setParamPatternList(args);
-  $$ = res;
+  $$ = util.caseExplicitFunctionDefinition($id,$functionType,$checkId,$parameterList, 
+					   $functionBody,$preExpr_opt,$postExpr_opt,$measureExpr);
 }
 ;
 
@@ -2876,10 +2840,6 @@ measureExpr :
  */
   MEASURE dottedIdentifier
 {
-  /* --- TODO --- */
-  /* dottedIdentifier should be a list of LexIdentifierWhatsits, and
-   * we need a LexName here.
-   */
   $$ = util.caseMeasure($dottedIdentifier);
 }
 | /* empty */
@@ -3074,39 +3034,19 @@ varInformationList :
 varInformation :
   mode dottedIdentifier[id]
 {
-  /* --- TODO --- */
-  LexToken mode = (LexToken)$mode;
-  List<? extends LexNameToken> ids = null;
-  // FIXME: dottedIdentifier
-  //ids.add(convertDottedIdentifierToLexNameToken((List<? extends LexNameToken>)$id));
-  $$ = new AExternalClause(mode, ids, null);
+  $$ = util.caseVarInformation($mode,$id,null);
 }
 | mode dottedIdentifier[id] COLON type
 {
-  /* --- TODO --- */
-  LexToken mode = (LexToken)$mode;
-  List<? extends LexNameToken> ids = null;
-  // FIXME: dottedIdentifier
-  //ids.add(convertDottedIdentifierToLexNameToken((List<? extends LexNameToken>)$id));
-  $$ = new AExternalClause(mode, ids, (PType)$type);
+  $$ = util.caseVarInformation($mode,$id,$type);
 }
 | varInformation[info] COMMA dottedIdentifier[id]
 {
-  /* --- TODO --- */
-  AExternalClause info = (AExternalClause)$info;
-  List<? extends LexNameToken> ids = info.getIdentifiers();
-  // FIXME: dottedIdentifier
-  //ids.add(convertDottedIdentifierToLexNameToken((List<? extends LexNameToken>)$id));
-  $$ = info;
+  $$ = util.caseMultiVarInformation($info,$id,null);
 }
 | varInformation[info] COMMA dottedIdentifier[id] COLON type
 {
-  /* --- TODO --- */
-  AExternalClause info = (AExternalClause)$info;
-  List<? extends LexNameToken> ids = info.getIdentifiers();
-  // FIXME: dottedIdentifier
-  //ids.add(convertDottedIdentifierToLexNameToken((List<? extends LexNameToken>)$id));
-  $$ = info;
+  $$ = util.caseMultiVarInformation($info,$id,$type);
 }
 ;
 

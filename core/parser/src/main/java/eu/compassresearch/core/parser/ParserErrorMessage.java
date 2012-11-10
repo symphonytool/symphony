@@ -11,11 +11,13 @@ public enum ParserErrorMessage
 //  
 //  NAMED_TYPE_UNDEFINED("The type %s is undefined.")
 	
-	OPERATION_NAMES_ARE_NOT_EQUAL("The operation definition name %s does not match the body name %s"),
+	OPERATION_NAMES_ARE_NOT_CONSISTENT("The operation definition name %s does not match the body name %s"),
+	FUNCTION_NAMES_ARE_NOT_CONSISTENT("The function definition name %s does not match the body name %s"),
 	MALFORMED_CHANNEL_EXPRESSION("The channel expresison %s is malformed"),
 	MALFORMED_CHANNEL_SET_EXPRESSION("A channel set expresison can only contain identifiers, you gave %s"),
 	ACTIONS_INSIDE_CLASS_OPERATION("You cannot have actions inside class operations only statements"),
-	SEMI_BETWEEN_CLASS_OPERATIONS("You must not separate class operations with ';'")
+	SEMI_BETWEEN_CLASS_OPERATIONS("You must not separate class operations with ';'"),
+	VARINFORMATION_MULTIPLETYPES_DEFINED("Only one type is allowed")
   ;
   
   private String template;

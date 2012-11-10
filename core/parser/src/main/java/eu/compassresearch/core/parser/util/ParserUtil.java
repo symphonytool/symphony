@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.APrivateAccess;
 import org.overture.ast.definitions.APublicAccess;
@@ -36,6 +37,7 @@ import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.AFieldField;
+import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.PType;
@@ -477,7 +479,57 @@ public class ParserUtil {
 	/**
 	 * Definitions
 	 */
+	
+	public AExternalClause caseVarInformation(Object mode, Object dottedId, Object type)
+	{
+		LexNameToken name = dottedIdentifierToLexNameToken((List<LexIdentifierToken>)dottedId);
+		List<LexNameToken> ids = new LinkedList<LexNameToken>();
+		ids.add(name);
+		//ids.add(convertDottedIdentifierToLexNameToken((List<? extends LexNameToken>)$id));
+		return new AExternalClause((LexToken)mode, ids, (PType)type);
+	}
+	
+	public AExternalClause caseMultiVarInformation(Object infoObj, Object dottedId, Object type)
+	{
+		AExternalClause info = (AExternalClause)infoObj;
+		info.getIdentifiers().add(dottedIdentifierToLexNameToken((List<LexIdentifierToken>)dottedId));
+		if(info.getType() == null && type != null)
+			info.setType((PType)type);
+		else if(info.getType() != null && type != null)
+			throw new ParserException(info.getType().getLocation(),ParserErrorMessage.VARINFORMATION_MULTIPLETYPES_DEFINED.customizeMessage());
+		
+		return info;
+	}
+	
+	public PDefinition caseExplicitFunctionDefinition(Object id,Object functionType, Object checkId, Object parameterList, 
+			 Object functionBodyObj,Object preExpr_opt, Object postExpr_opt, Object measureExpr)
+	 {
+	   LexNameToken name = extractLexNameToken((CmlLexeme)id);
+	   LexNameToken checkName = extractLexNameToken((CmlLexeme)checkId);
+	   
+	   /* Checking that the two IDENTIFIERS are equivalent
+	    */
+	   if(!name.equals(checkName))
+		   throw new ParserException(name.getLocation(),
+				   ParserErrorMessage.FUNCTION_NAMES_ARE_NOT_CONSISTENT.customizeMessage(name.getIdentifier().getName(),
+						   checkName.getIdentifier().getName()));
 
+	   
+	   LexLocation loc = extractLexLocation((CmlLexeme)id);
+	   AFunctionType ftype = (AFunctionType)functionType;
+	   PExp functionBody = (PExp)functionBodyObj;
+	   List<List<PPattern>> args = (List<List<PPattern>>)parameterList;
+	   AExplicitFunctionDefinition res = new AExplicitFunctionDefinition();
+	   res.setAccess(getPrivateAccessSpecifier(false,false,loc));
+	   res.setName(name);
+	   res.setLocation(loc);
+	   res.setType(ftype);
+	   res.setBody(functionBody);
+	   res.setMeasure((LexNameToken)measureExpr);
+	   res.setParamPatternList(args);
+	   return res;
+	 }
+	
 	public PDefinition caseImplicitFunctionDefinition( Object qual, 
 			Object id,
 			Object ptypes,
@@ -562,7 +614,7 @@ public class ParserUtil {
 		LexNameToken checkIdname = extractLexNameToken(checkId);
 
 		if(!name.equals(checkIdname))
-			throw new ParserException(name.getLocation(),ParserErrorMessage.OPERATION_NAMES_ARE_NOT_EQUAL.customizeMessage(name.getIdentifier().getName(),
+			throw new ParserException(name.getLocation(),ParserErrorMessage.OPERATION_NAMES_ARE_NOT_CONSISTENT.customizeMessage(name.getIdentifier().getName(),
 																					checkIdname.getIdentifier().getName()));
 		SStatementAction body = null;
 		try{

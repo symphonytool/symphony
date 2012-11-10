@@ -254,7 +254,7 @@ process {-> package='eu.compassresearch.ast.process'}
 	| {instantiation} 
 		[declarations]:declaration.#Single.type* 
 		[processName]:LexNameToken 
-		(processDefinition): definition.process 
+		[process]: process 
 		[args]:exp*
 	| {channelRenaming} 
 		[process]:process 
