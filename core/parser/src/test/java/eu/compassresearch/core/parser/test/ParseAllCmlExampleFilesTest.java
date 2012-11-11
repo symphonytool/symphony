@@ -23,7 +23,6 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.parser.CmlParserActions;
 
 @RunWith(Parameterized.class)
 public class ParseAllCmlExampleFilesTest {

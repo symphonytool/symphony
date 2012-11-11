@@ -1,4 +1,4 @@
-package eu.compassresearch.core.parser.util;
+package eu.compassresearch.core.parser;
 
 import java.lang.reflect.Method;
 import java.math.BigInteger;
@@ -69,14 +69,20 @@ import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.patterns.ARenamePair;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.lexer.CmlLexeme;
-import eu.compassresearch.core.parser.ParserErrorMessage;
-import eu.compassresearch.core.parser.ParserException;
+import eu.compassresearch.core.parser.util.Pair;
 
-public class ParserUtil {
+/**
+ * Implements Parser actions and helper methods.
+ * TODO: A consistent method naming strategy is needed. I have unfortunately a mixed naming convention at the moment. 
+ * TODO: We might split this file into several for files one for expressions, processes and etc.
+ * @author Anders Kaels Malmos
+ *
+ */
+public class CmlParserHelper {
 
 	PSource currentSource = null;
 
-	public ParserUtil(PSource currentSource)
+	public CmlParserHelper(PSource currentSource)
 	{
 		this.currentSource = currentSource;
 	}
@@ -853,7 +859,7 @@ public class ParserUtil {
 			location = extractLexLocation(varExp.getLocation(),extractLastLexLocation(communicationParameters));
 		}
 		
-		return new ACommunicationAction(location,varExp.getName(), communicationParameters, action);
+		return new ACommunicationAction(location,varExp.getName().getIdentifier(), communicationParameters, action);
 	}
 			
 	private <T extends PCommunicationParameter > Pair<AVariableExp,List<PCommunicationParameter>> communicationParamHelper(Object exp, PPattern pattern, T param)

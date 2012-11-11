@@ -8939,7 +8939,7 @@ public class CmlParser
   // ************************
 
   private PSource currentSource = null;
-  private ParserUtil util = null;
+  private CmlParserHelper util = null;
 
   // *************************
   // *** PRIVATE OPERATIONS ***
@@ -9032,7 +9032,7 @@ public class CmlParser
   public void setDocument(PSource doc)
   {
     this.currentSource = doc;
-    this.util = new ParserUtil(this.currentSource);
+    this.util = new CmlParserHelper(this.currentSource);
   }
 
   public PSource getDocument()
