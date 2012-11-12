@@ -1,21 +1,32 @@
 package eu.compassresearch.core.interpreter.cml;
 
+import org.overture.ast.node.INode;
+
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+
 public class CMLTauEvent extends SpecialEvent {
 
 	protected static CMLTauEvent instance = null;
+	final static String tauString = "\u03C4".toLowerCase();
+	private final INode transitionNode;
 	
-	public static CMLTauEvent instance()
+	public static CMLTauEvent newTauEvent(INode transitionNode)
 	{
-		if(instance == null)
-			instance = new CMLTauEvent(); 
-		
-		return instance; 
+		return new CMLTauEvent(transitionNode);  
 	}
 		
-	final String tauString = "\u03C4".toLowerCase();
+	public static CMLTauEvent referenceTauEvent()
+	{
+		if(instance == null)
+			instance = new CMLTauEvent(null);
+		
+		return instance;
+	}
 	
-	protected CMLTauEvent()
-	{}
+	protected CMLTauEvent(INode transitionNode)
+	{
+		this.transitionNode = transitionNode;
+	}
 	
 	@Override
 	public int hashCode() {
@@ -24,7 +35,10 @@ public class CMLTauEvent extends SpecialEvent {
 
 	@Override
 	public String toString() {
-		return tauString;
+		if(CmlRuntime.isShowHiddenEvents())
+			return tauString + "(" + ( transitionNode != null ? transitionNode.toString() : "Ref" ) + ")";
+		else
+			return tauString;
 	}
 
 	@Override

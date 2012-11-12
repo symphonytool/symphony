@@ -5,6 +5,7 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -86,12 +87,36 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 	 * Transition cases
 	 */
 
+	/**
+	 * This transition can either be
+	 * Simple prefix   	: a -> A
+	 * Synchronisation 	: a.1 -> A
+	 * Output			: a!2 -> A
+	 * Input			: a?x -> A
+	 * As defined in 7.5.2 in D23.2
+	 */
 	@Override
 	public CMLBehaviourSignal caseACommunicationAction(
 			ACommunicationAction node, Context question)
 			throws AnalysisException {
 		
-		pushNext(node.getAction(), question);
+		//At this point the supervisor has already given go to the event, 
+		//so we can execute it immediately. We just have figure out which kind of event it is
+		if(isSimplePrefix(node))
+			return caseSimplePrefix(node, question);
+		else
+			return null;
+	}
+	
+	private boolean isSimplePrefix(ACommunicationAction node)
+	{
+		return node.getCommunicationParameters().isEmpty();
+	}
+	
+	private CMLBehaviourSignal caseSimplePrefix(ACommunicationAction node, Context question) 
+			throws AnalysisException 
+	{
+		pushNext(node.getAction(), question); 
 		
 		return CMLBehaviourSignal.EXEC_SUCCESS;
 	}
@@ -125,6 +150,15 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 		pushNext(node.getLeft(), question);
 		
 		return CMLBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	@Override
+	public CMLBehaviourSignal caseAInterleavingParallelAction(
+			AInterleavingParallelAction node, Context question)
+			throws AnalysisException {
+
+		
+		return super.caseAInterleavingParallelAction(node, question);
 	}
 	
 	@Override

@@ -27,7 +27,7 @@ public class AlphabetInspectionVisitor
 	public CMLAlphabet defaultPProcess(PProcess node, Context question)
 			throws AnalysisException {
 		HashSet<CMLEvent> specialEvents = new HashSet<CMLEvent>();
-		specialEvents.add(CMLTauEvent.instance());
+		specialEvents.add(CMLTauEvent.newTauEvent(node));
 		return new CMLAlphabet(specialEvents);
 	}
 	
@@ -36,7 +36,7 @@ public class AlphabetInspectionVisitor
 			throws AnalysisException {
 
 		HashSet<CMLEvent> specialEvents = new HashSet<CMLEvent>();
-		specialEvents.add(CMLTauEvent.instance());
+		specialEvents.add(CMLTauEvent.newTauEvent(node));
 		return new CMLAlphabet(specialEvents);
 	}
 	

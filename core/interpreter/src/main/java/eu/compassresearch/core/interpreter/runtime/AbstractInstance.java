@@ -47,9 +47,10 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		CMLBehaviourSignal ret = null;
 
 		//execute silently if the next is an invisible action
-		if(alpha.containsSpecialEvent(CMLTauEvent.instance())){
+		if(alpha.containsSpecialEvent(CMLTauEvent.referenceTauEvent())){
 			setState(ProcessState.RUNNING);
-			trace.addEvent(CMLTauEvent.instance());
+			//FIXME: this might not be the best idea
+			trace.addEvent(alpha.getSpecialEvents().iterator().next());
 			ret = executeNext();
 			//state = ProcessState.WAIT;
 		}

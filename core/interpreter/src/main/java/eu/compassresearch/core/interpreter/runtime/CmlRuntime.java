@@ -20,6 +20,7 @@ public class CmlRuntime {
 	protected static CMLSupervisorEnvironment supervisorEnvironment = null;
 	protected static Logger logger = null;
 	protected static Handler logHandler = null;
+	private static boolean showHiddenEvents = true;
 	
 //	public static CmlScheduler getCmlScheduler()
 //	{
@@ -81,6 +82,14 @@ public class CmlRuntime {
 
 	public static void setGlobalEnvironment(Environment globalEnvironment) {
 		CmlRuntime.globalEnvironment = globalEnvironment;
+	}
+
+	public static boolean isShowHiddenEvents() {
+		return showHiddenEvents;
+	}
+
+	protected static void setShowHiddenEvents(boolean showHiddenEvents) {
+		CmlRuntime.showHiddenEvents = showHiddenEvents;
 	}
 			
 }
