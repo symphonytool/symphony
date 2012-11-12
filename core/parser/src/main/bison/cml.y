@@ -3756,7 +3756,7 @@ textLiteral :
  {
      String value = ((CmlLexeme)$1).getValue();
      LexLocation loc = extractLexLocation((CmlLexeme)$STRING);
-     $$ = new LexStringToken(value.substring(1, value.length()-2), loc);
+     $$ = new LexStringToken(value.substring(0, value.length()), loc);
  }
 ;
 

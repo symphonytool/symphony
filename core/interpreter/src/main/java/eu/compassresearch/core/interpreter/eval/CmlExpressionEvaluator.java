@@ -141,6 +141,7 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.ATcpStreamSource;
 import eu.compassresearch.ast.types.AActionParagraphType;
+import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AChannelsParagraphType;
 import eu.compassresearch.ast.types.AChansetParagraphType;
@@ -1196,6 +1197,13 @@ public class CmlExpressionEvaluator extends
 		@Override
 		public Value caseAChannelNameDefinition(AChannelNameDefinition node,
 				Context question) throws AnalysisException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Value caseAActionType(AActionType node, Context question)
+				throws AnalysisException {
 			// TODO Auto-generated method stub
 			return null;
 		}

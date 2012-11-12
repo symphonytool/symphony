@@ -5594,7 +5594,7 @@ public class CmlParser
     {
      String value = ((CmlLexeme)((yystack.valueAt (1-(1))))).getValue();
      LexLocation loc = extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1)))));
-     yyval = new LexStringToken(value.substring(1, value.length()-2), loc);
+     yyval = new LexStringToken(value.substring(0, value.length()), loc);
  };
   break;
     

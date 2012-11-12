@@ -96,7 +96,9 @@ class TCDeclAndDefVisitor extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 		TypeCheckInfo newQ = (TypeCheckInfo) question;
-		LinkedList<PDefinition> list = node.getValueDefinitions();
+		LinkedList<PDefinition> _list = node.getValueDefinitions();
+		ShieldedList<PDefinition> list = new ShieldedList<PDefinition>();
+		list.addAll(_list);
 		for (PDefinition def : list) {
 			PType defType = def.apply(parentChecker, newQ);
 			def.setType(defType);
@@ -117,7 +119,13 @@ class TCDeclAndDefVisitor extends
 		// Acquire declared type and expression type
 		PExp exp = node.getExpression();
 		PType declaredType = node.getType().apply(parentChecker, question);
+		if (declaredType instanceof AErrorType)
+			return declaredType;
+
 		PType expressionType = exp.apply(parentChecker, question);
+		if (expressionType instanceof AErrorType)
+			return expressionType;
+
 		node.setExpType(expressionType);
 
 		TypeCheckInfo tci = (TypeCheckInfo) question;

@@ -55,7 +55,7 @@ public class CmlBuildVisitor implements IResourceVisitor {
 	/*
 	 * Run the type checker.
 	 */
-	private static boolean typeCheck(IFile file, AFileSource source)
+	private synchronized static boolean typeCheck(IFile file, AFileSource source)
 			throws CoreException {
 		try {
 
@@ -77,6 +77,7 @@ public class CmlBuildVisitor implements IResourceVisitor {
 			}
 			return true;
 		} catch (Exception tcException) {
+			tcException.printStackTrace();
 			IMarker tcMarker = file.createMarker(IMarker.PROBLEM);
 			setExceptionInfo(
 					tcMarker,
@@ -140,6 +141,7 @@ public class CmlBuildVisitor implements IResourceVisitor {
 				}
 			}
 		} catch (Exception e1) {
+			e1.printStackTrace();
 			IMarker m = file.createMarker(IMarker.PROBLEM);
 			setExceptionInfo(
 					m,
