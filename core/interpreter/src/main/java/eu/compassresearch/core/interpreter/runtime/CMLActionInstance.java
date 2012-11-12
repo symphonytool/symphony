@@ -100,4 +100,14 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 		this.state = state;
 	}
 	
+	@Override
+	public String toString() {
+	
+		if(hasNext())
+			return nextState().first.toString();
+		else
+			return "Finished";
+		
+	}
+	
 }

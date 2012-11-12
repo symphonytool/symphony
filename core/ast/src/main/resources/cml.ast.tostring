@@ -17,11 +17,16 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->communication = [identifier] "->" [action]
 %action->skip = "Skip"
 
+// Processes
+%process->state = "state: " [processDefinition] "@"
+
+
 //  Expressions
  
 //  Patterns
 
 //  Definitions
+%definition->process = "Process " [name]$.getName()$
 
 //  Statements
 

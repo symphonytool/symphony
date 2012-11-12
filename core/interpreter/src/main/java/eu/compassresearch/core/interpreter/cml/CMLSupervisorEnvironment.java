@@ -20,8 +20,8 @@ public interface CMLSupervisorEnvironment {
 	//public void setDecisionFunction(CMLCommunicationSelectionStrategy cdf)
 	//throws NullPointerException;
 	// Pupil Processes related methods
-	public void addPupil(CMLProcess process);
-	public void removePupil(CMLProcess process);
+	public void addPupil(CmlProcess process);
+	public void removePupil(CmlProcess process);
 	//public Iterator pupils();
 	// Supervision related methods
 	public void start() throws AnalysisException;

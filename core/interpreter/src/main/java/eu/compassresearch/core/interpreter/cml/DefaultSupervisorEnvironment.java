@@ -12,9 +12,9 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 
 	private CMLCommunicationSelectionStrategy selectStrategy;
 	private CMLCommunication selectedCommunication;
-	List<CMLProcess> running = new LinkedList<CMLProcess>();
-	List<CMLProcess> waiting = new LinkedList<CMLProcess>();
-	List<CMLProcess> finished = new LinkedList<CMLProcess>();
+	List<CmlProcess> running = new LinkedList<CmlProcess>();
+	List<CmlProcess> waiting = new LinkedList<CmlProcess>();
+	List<CmlProcess> finished = new LinkedList<CmlProcess>();
 	
 	public DefaultSupervisorEnvironment(CMLCommunicationSelectionStrategy selectStrategy)
 	{
@@ -57,12 +57,12 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 	}
 
 	@Override
-	public void addPupil(CMLProcess process) {
+	public void addPupil(CmlProcess process) {
 		running.add(process);		
 	}
 
 	@Override
-	public void removePupil(CMLProcess process) {
+	public void removePupil(CmlProcess process) {
 		running.remove(process);
 	}
 
@@ -72,19 +72,27 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 		//Active state
 		while(waiting.size() > 0 || running.size() > 0)
 		{
+			
+			CmlRuntime.logger().fine("----------------step----------------");
+			
 			//execute each of the running pupils until there are finished or in wait state
-			for(Iterator<CMLProcess> iterator = running.iterator(); iterator.hasNext();)
+			for(Iterator<CmlProcess> iterator = running.iterator(); iterator.hasNext();)
 			{
-				CMLProcess p = iterator.next();
-
+				CmlProcess p = iterator.next();
 				while(!p.finished() && 
 						!p.waiting())
 				{
 					CMLBehaviourSignal signal = p.execute(this);
-					CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
+					
 					if(signal != CMLBehaviourSignal.EXEC_SUCCESS)
-						throw new RuntimeException("Change this!!!!");
+						throw new RuntimeException("Change this!!!!, but now that you haven't changed this yet, then let me tell you that the return CMLBehaviourSignal was unsuccesful");
 
+					//List<CMLProcess> all = new LinkedList<CMLProcess>(running); 
+					//all.addAll(waiting);
+					//all.addAll(finished);
+					CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
+					CmlRuntime.logger().fine("next: " + p);
+					
 					switch(p.getState())
 					{
 					case FINISHED:
@@ -99,9 +107,9 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 				}
 			}
 			
-			for(Iterator<CMLProcess> iterator = waiting.iterator(); iterator.hasNext();)
+			for(Iterator<CmlProcess> iterator = waiting.iterator(); iterator.hasNext();)
 			{
-				CMLProcess p = iterator.next();
+				CmlProcess p = iterator.next();
 				
 				//Select the 
 				setSelectedCommunication(decisionFunction().select(p.inspect()));
@@ -110,10 +118,7 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 				iterator.remove();
 				
 			}
-			
 		}
-		
-		
 	}
 
 //	@Override

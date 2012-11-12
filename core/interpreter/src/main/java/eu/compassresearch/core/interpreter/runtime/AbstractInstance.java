@@ -10,31 +10,31 @@ import eu.compassresearch.core.interpreter.cml.CMLAlphabet;
 import eu.compassresearch.core.interpreter.cml.CMLBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CMLChannelEvent;
 import eu.compassresearch.core.interpreter.cml.CMLCommunication;
-import eu.compassresearch.core.interpreter.cml.CMLProcess;
+import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CMLTauEvent;
-import eu.compassresearch.core.interpreter.cml.CMLTrace;
+import eu.compassresearch.core.interpreter.cml.CmlTrace;
 import eu.compassresearch.core.interpreter.cml.ChannelObserver;
 import eu.compassresearch.core.interpreter.cml.ProcessState;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluator;
 
 public abstract class AbstractInstance<T extends INode> extends AbstractEvaluator<T>
-		implements CMLProcess , ChannelObserver {
+		implements CmlProcess , ChannelObserver {
 	
 	protected ProcessState state;
-	protected List<CMLProcess> children = new LinkedList<CMLProcess>();
-	protected CMLProcess parent;
+	protected List<CmlProcess> children = new LinkedList<CmlProcess>();
+	protected CmlProcess parent;
 	protected CMLSupervisorEnvironment env;
-	protected CMLTrace trace = new CMLTrace();
+	protected CmlTrace trace = new CmlTrace();
 
-	public AbstractInstance(CMLProcess parent)
+	public AbstractInstance(CmlProcess parent)
 	{
 		state = ProcessState.INITIALIZED;
 		this.parent = parent;
 	}
 	
 	@Override
-	public CMLTrace getTraceModel() {
+	public CmlTrace getTraceModel() {
 		return trace;
 	}
 		
@@ -101,12 +101,12 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	}
 
 	@Override
-	public CMLProcess parent() {
+	public CmlProcess parent() {
 		return parent;
 	}
 
 	@Override
-	public List<CMLProcess> children() {
+	public List<CmlProcess> children() {
 		return children;
 	}
 
@@ -161,4 +161,5 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		
 		}
 	}
+	
 }

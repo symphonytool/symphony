@@ -6,7 +6,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 
 
-public interface CMLProcess {
+public interface CmlProcess {
 
 	/**
 	 * Initializes the process
@@ -49,10 +49,10 @@ public interface CMLProcess {
 	
 	// Process Graph/Representation related methods
 //	public long level();
-	public CMLProcess parent();
+	public CmlProcess parent();
 //	public CMLDomain domain();
 //	public CMLProcessBehaviour behaviour();
-	public List<CMLProcess> children();
+	public List<CmlProcess> children();
 //	public CMLAlphabet childInspectedAlphabet(CMLProcessNew child);
 //	public void setChildInspectedAlphabet(CMLProcessNew child, CMLAlphabet alpha);
 	//public boolean hasChild(CMLProcess child, boolean recursive);
@@ -66,5 +66,5 @@ public interface CMLProcess {
 	public boolean deadlocked();
 	
 	// Denotational Semantics Information
-	public CMLTrace getTraceModel();
+	public CmlTrace getTraceModel();
 }

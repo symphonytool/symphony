@@ -6,11 +6,11 @@ import java.util.List;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 
-public class CMLTrace {
+public class CmlTrace {
 
 	private List<CMLEvent> trace;
 	
-	public CMLTrace()
+	public CmlTrace()
 	{
 		trace = new LinkedList<CMLEvent>();
 	}

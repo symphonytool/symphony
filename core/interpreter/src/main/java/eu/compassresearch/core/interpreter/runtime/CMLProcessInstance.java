@@ -13,7 +13,7 @@ import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CMLAlphabet;
 import eu.compassresearch.core.interpreter.cml.CMLBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CMLProcess;
+import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.ProcessState;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
@@ -40,7 +40,7 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor();
 	private Context globalContext;
 	
-	public CMLProcessInstance(AProcessDefinition processDef, CMLProcess parent, Context globalContext)
+	public CMLProcessInstance(AProcessDefinition processDef, CmlProcess parent, Context globalContext)
 	{
 		super(parent);
 		this.globalContext = globalContext; 
@@ -50,7 +50,7 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 		pushNext(processDef.getProcess(), context);
 	}
 	
-	public CMLProcessInstance(PProcess startProcess, CMLProcess parent, Context globalContext)
+	public CMLProcessInstance(PProcess startProcess, CmlProcess parent, Context globalContext)
 	{
 		super(parent);
 		this.globalContext = globalContext; 
@@ -194,5 +194,24 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 
 
 		return CMLBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	@Override
+	public String toString() {
+		
+		String value = null;
+		
+		if(hasNext())
+		{
+			if(mainBehaviour == null)
+				value = nextState().first.toString();
+			else
+				value = nextState().first.toString() + mainBehaviour.toString();
+		}
+		else
+			value = "Finished";
+
+
+		return value;
 	}
 }

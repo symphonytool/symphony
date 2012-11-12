@@ -204,6 +204,7 @@ process {-> package='eu.compassresearch.ast.process'}
 	= {state} 
 		[definitionParagraphs]:definition.#paragraph* 
 		[action]:action
+		(processDefinition):definition.process
 	| {sequentialComposition} 
 		[left]:process 
 		[right]:process
