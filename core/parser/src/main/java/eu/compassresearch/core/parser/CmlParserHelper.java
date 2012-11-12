@@ -60,6 +60,8 @@ import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.SStatementAction;
+import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
+import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
 import eu.compassresearch.ast.expressions.ACompChansetSetExp;
 import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
@@ -384,9 +386,41 @@ public class CmlParserHelper {
 		return new LexIdentifierToken(name.getName(), false, name.getLocation());
 	}
 	
+	public <T> List<T> caseFirstListElement(T element)
+	{
+		List<T> list = new LinkedList<T>();
+		list.add(element);
+		return list;
+	}
+	
+	public <T> List<T> caseNextListElement(Object listObj ,T element)
+	{
+		List<T> list = (List<T>)listObj;
+		list.add(element);
+		return list;
+	}
+	
 	/**
 	 * Actions
 	 */
+		
+	public AActionDefinition caseActionDefinition(Object IDENTIFIER, Object EQUALS,Object paragraphAction)
+	{
+		Object[] pa = (Object[])paragraphAction;
+		List<ATypeSingleDeclaration> declarations = (List<ATypeSingleDeclaration>)pa[0];
+		PAction action = (PAction)pa[1];
+		LexLocation defLocation = combineLexLocation(extractLexLocation((CmlLexeme)IDENTIFIER), action.getLocation());
+		return new AActionDefinition(defLocation,
+				extractLexNameToken(IDENTIFIER),
+				NameScope.LOCAL,
+				false,
+				null,
+				getPrivateAccessSpecifier(false, false, defLocation),//Access
+				null,
+				null,//Pass
+				declarations,
+				action);
+	}
 	
 	public List<ARenamePair> caseARenamePair(Object from, Object to)
 	{

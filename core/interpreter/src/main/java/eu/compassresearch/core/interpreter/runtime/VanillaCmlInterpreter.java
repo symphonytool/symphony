@@ -9,6 +9,7 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
@@ -30,6 +31,7 @@ import eu.compassresearch.core.interpreter.values.ProcessValueOld;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 public class VanillaCmlInterpreter extends AbstractCmlInterpreter
   {
@@ -192,10 +194,13 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
             Arrays.asList(new PSource[] { source }), null);
         
+        TypeIssueHandler issueHandler = (TypeIssueHandler)cmlTC;
+        
         // Print result and report errors if any
         if (!cmlTC.typeCheck())
           {
-            System.out.println("Failed to type check" + source.toString());
+            System.out.println("Failed to type check " + source.toString());
+            System.out.println(issueHandler.getTypeErrors());
             return;
           }
         
@@ -222,7 +227,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
       {
         
         File cml_example = new File(
-            "src/test/resources/process/seq-comp-no-state2.cml");
+            "src/test/resources/action/action-prefix.cml");
         // "src/test/resources/process/GeneralisedParallelismAction.cml");
         runOnFile(cml_example);
         

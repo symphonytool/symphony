@@ -12,6 +12,7 @@ import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.types.AProcessType;
+import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 
 @SuppressWarnings("serial")
 public class TCProcessVisitor extends
@@ -76,7 +77,7 @@ public class TCProcessVisitor extends
 	public PType caseAStateProcess(AStateProcess node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-
+		
 		// Type check all the paragraph definitions
 		for (PDefinition def : node.getDefinitionParagraphs()) {
 			def.apply(this.parentChecker, question);

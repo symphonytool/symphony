@@ -19,7 +19,20 @@ import eu.compassresearch.core.interpreter.cml.ProcessState;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
-
+/**
+ *  This class represents a running CML Process. It represents a specific node as specified in D23.2 section 7.4.2,
+ *  where a node is specified as a tuple (w,s,a) where w is the set of variables, s is the state values and a is the 
+ *  current action.
+ *  w and s are stored in the current Context object and a is represented by storing the next action AST node to be executed.
+ * 
+ * 	The possible transitions are handled in the visitor case methods.
+ * 
+ *  Therefore this Class should fully consistent with the operational semantics described in D23.2 chapter 7.
+ * 
+ * 
+ * @author akm
+ *
+ */
 public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 
 	private AProcessDefinition processDef;
@@ -35,6 +48,16 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 		this.processDef = processDef;
 		//this.prcEval = new ProcessEvaluatorNew(processDef.getProcess(),context,this);
 		pushNext(processDef.getProcess(), context);
+	}
+	
+	public CMLProcessInstance(PProcess startProcess, CMLProcess parent, Context globalContext)
+	{
+		super(parent);
+		this.globalContext = globalContext; 
+		ProcessContext context = new ProcessContext(processDef.getLocation(), "", globalContext, null);
+		this.processDef = null;
+		//this.prcEval = new ProcessEvaluatorNew(processDef.getProcess(),context,this);
+		pushNext(startProcess, context);
 	}
 	
 	@Override
@@ -149,6 +172,10 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 		return CMLBehaviourSignal.EXEC_SUCCESS;
 	}
 	
+	/**
+	 * This implements the 7.5.10 Action Reference transition rule in D23.2. 
+	 * (Even though this is a process I assume something similar will happen)
+	 */
 	@Override
 	public CMLBehaviourSignal caseAReferenceProcess(AReferenceProcess node,
 			Context question) throws AnalysisException {

@@ -127,15 +127,14 @@
         if (result){
           System.out.println("parsed!");
 
-          DotGraphVisitor dgv = new DotGraphVisitor();
-          INode node = cmlParser.getDocument();
+          //INode node = cmlParser.getDocument();
+	  //DotGraphVisitor dgv = new DotGraphVisitor();
+          //node.apply(dgv,null);
 
-          node.apply(dgv,null);
-
-          File dotFile = new File("generatedAST.gv");
-          java.io.FileWriter fw = new java.io.FileWriter(dotFile);
-          fw.write(dgv.getResultString());
-          fw.close();
+          //File dotFile = new File("generatedAST.gv");
+          //java.io.FileWriter fw = new java.io.FileWriter(dotFile);
+          //fw.write(dgv.getResultString());
+          //fw.close();
 
           //System.out.println(dgv.getResultString());
 
@@ -345,17 +344,11 @@ source :
 programParagraphList :
   programParagraph
 {
-  List<PDefinition> programParagraphList = new LinkedList<PDefinition>();
-  programParagraphList.add((PDefinition)$programParagraph);
-  $$ = programParagraphList;
+  $$ = util.caseFirstListElement((PDefinition)$programParagraph);
 }
-| programParagraphList programParagraph
+| programParagraphList[list] programParagraph
 {
-  List<PDefinition> programParagraphList = (List<PDefinition>)$1;
-  if (programParagraphList == null)
-    programParagraphList = new Vector<PDefinition>();
-  programParagraphList.add((PDefinition)$programParagraph);
-  $$ = programParagraphList;
+  $$ = util.caseNextListElement($list,(PDefinition)$programParagraph);
 }
 ;
 
@@ -856,37 +849,11 @@ processParagraph :
 actionDefinitionList :
   IDENTIFIER EQUALS paragraphAction
 {
-  Object[] pa = (Object[])$paragraphAction;
-  List<ATypeSingleDeclaration> declarations = (List<ATypeSingleDeclaration>)pa[0];
-  PAction action = (PAction)pa[1];
-  LexLocation defLocation = util.combineLexLocation(util.extractLexLocation((CmlLexeme)$IDENTIFIER), action.getLocation());
-  AActionDefinition actionDefinition = new AActionDefinition(defLocation,
-                                                             NameScope.LOCAL,
-                                                             false,
-                                                             null,//Access
-                                                             null,//Pass
-                                                             declarations,
-                                                             action);
-  List<AActionDefinition> actionDefs = new Vector<AActionDefinition>();
-  actionDefs.add(actionDefinition);
-  $$ = actionDefs;
+  $$ = util.caseFirstListElement(util.caseActionDefinition($IDENTIFIER, $EQUALS,$paragraphAction));
 }
 | actionDefinitionList[list] IDENTIFIER EQUALS paragraphAction
 {
-  List<AActionDefinition> actionDefs = (List<AActionDefinition>)$list;
-  Object[] pa = (Object[])$paragraphAction;
-  List<ATypeSingleDeclaration> declarations = (List<ATypeSingleDeclaration>)pa[0];
-  PAction action = (PAction)pa[1];
-  LexLocation defLocation = util.combineLexLocation(util.extractLexLocation((CmlLexeme)$IDENTIFIER), action.getLocation());
-  AActionDefinition actionDefinition = new AActionDefinition(defLocation,
-                                                             NameScope.LOCAL,
-                                                             false,
-                                                             null,//Access
-                                                             null,//Pass
-                                                             declarations,
-                                                             action);
-  actionDefs.add(actionDefinition);
-  $$ = actionDefs;
+  $$ = util.caseNextListElement($list,util.caseActionDefinition($IDENTIFIER, $EQUALS,$paragraphAction));
 }
 ;
 

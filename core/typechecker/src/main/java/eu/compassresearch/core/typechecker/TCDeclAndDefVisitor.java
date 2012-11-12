@@ -29,6 +29,8 @@ import org.overture.ast.types.PType;
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
+import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AActionParagraphDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
@@ -40,12 +42,14 @@ import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
+import eu.compassresearch.ast.types.AActionParagraphType;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.AFunctionParagraphType;
 import eu.compassresearch.ast.types.AOperationParagraphType;
 import eu.compassresearch.ast.types.AProcessParagraphType;
 import eu.compassresearch.ast.types.AStateParagraphType;
+import eu.compassresearch.ast.types.AStatementType;
 import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -74,6 +78,33 @@ class TCDeclAndDefVisitor extends
 	// Cases
 	// -------------------------------------------------------
 
+	@Override
+	public PType caseAActionParagraphDefinition(
+			AActionParagraphDefinition node,
+			org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
+		
+		for(AActionDefinition actionDefinition : node.getActions())
+		{
+			actionDefinition.apply(this,question);
+		}
+		
+		node.setType(new AActionParagraphType());
+		return node.getType();
+	}
+	
+	@Override
+	public PType caseAActionDefinition(AActionDefinition node,
+			org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
+		
+		//Add this to the current scope
+		((TypeCheckQuestion)question).addVariable(node.getName().getIdentifier(), node);
+		
+		node.setType(new AStatementType());
+		return  node.getType();
+	}
+	
 	@Override
 	public PType caseATypesParagraphDefinition(ATypesParagraphDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
@@ -281,15 +312,16 @@ class TCDeclAndDefVisitor extends
 			AProcessParagraphDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		TypeCheckInfo newQ = (TypeCheckInfo) question;
+		//make a new scope for the process
+		TypeCheckInfo newScope = (TypeCheckInfo)((TypeCheckQuestion)question).newScope(node);
 		// TODO: Rethink the environment
 		AProcessDefinition pdef = node.getProcessDefinition();
-		pdef.apply(parentChecker, question);
+		pdef.apply(parentChecker, newScope);
 
+		TypeCheckInfo newQ = (TypeCheckInfo) question;
+		newQ.addVariable(node.getName(), node);
 		// Marker type indicating paragraph type check ok
 		node.setType(new AProcessParagraphType());
-		newQ.addVariable(node.getName(), node);
-
 		return node.getType();
 	}
 
