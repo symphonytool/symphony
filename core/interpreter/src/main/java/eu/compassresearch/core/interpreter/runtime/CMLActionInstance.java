@@ -33,6 +33,7 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 
 	private LexNameToken name;
 	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(); 
+	//private Process
 	
 	public CMLActionInstance(PAction action,Context context, LexNameToken name)
 	{
@@ -81,8 +82,12 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 	@Override
 	public CMLBehaviourSignal caseAReferenceAction(AReferenceAction node,
 			Context question) throws AnalysisException {
-
-		System.out.println("Hello World ref");
+		//FIXME: the scoping is not correct, this should be done as described in the transition rule
+		
+		//FIXME: Consider: Instead of this might create a child process, and behave as this child until it terminates
+		//CMLActionInstance refchild = new CMLActionInstance(node.getActionDefinition().getAction(), question, node.getName()); 
+		
+		pushNext(node.getActionDefinition().getAction(), question); 
 		
 		return CMLBehaviourSignal.EXEC_SUCCESS;
 	}

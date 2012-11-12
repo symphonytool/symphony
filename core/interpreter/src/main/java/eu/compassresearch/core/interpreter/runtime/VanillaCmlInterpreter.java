@@ -153,7 +153,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
       }
     
     // ---------------------------------------
-    // Static stuff for running the TypeChecker from Eclipse
+    // Static stuff for running the Interpreter from Eclipse
     // ---------------------------------------
     
     // setting the file on AFileSource allows the CmlParser factory method
@@ -199,7 +199,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         // Print result and report errors if any
         if (!cmlTC.typeCheck())
           {
-            System.out.println("Failed to type check " + source.toString());
+            System.out.println("Failed to type check: " + source.toString());
             System.out.println(issueHandler.getTypeErrors());
             return;
           }
@@ -212,7 +212,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
             cmlInterp.execute();
           } catch (Exception ex)
           {
-            System.out.println("Failed to interpret" + source.toString());
+            System.out.println("Failed to interpret: " + source.toString());
             System.out.println("With Error : ");
             ex.printStackTrace();
             return;
@@ -227,7 +227,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
       {
         
         File cml_example = new File(
-            "src/test/resources/action/action-prefix.cml");
+            "src/test/resources/action/action-reference.cml");
         // "src/test/resources/process/GeneralisedParallelismAction.cml");
         runOnFile(cml_example);
         

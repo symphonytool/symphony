@@ -16,7 +16,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
             ($[errors]$.isEmpty() ? "" : "\n\terrs " + $[errors]$)$ + "]" 
 %action->communication = [identifier] "->" [action]
 %action->skip = "Skip"
-
+%action->reference = [name]
 // Processes
 %process->state = "state: " [processDefinition] "@"
 
