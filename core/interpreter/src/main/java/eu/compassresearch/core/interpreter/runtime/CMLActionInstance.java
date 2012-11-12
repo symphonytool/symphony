@@ -6,6 +6,7 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
+import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.interpreter.cml.CMLAlphabet;
@@ -65,6 +66,25 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 	public LexNameToken name() {
 		return this.name;
 	}
+	
+	@Override
+	public void setState(ProcessState state) {
+		this.state = state;
+	}
+	
+	@Override
+	public String toString() {
+	
+		if(hasNext())
+			return nextState().first.toString();
+		else
+			return "Finished";
+		
+	}
+	
+	/**
+	 * Transition cases
+	 */
 
 	@Override
 	public CMLBehaviourSignal caseACommunicationAction(
@@ -92,27 +112,26 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 		return CMLBehaviourSignal.EXEC_SUCCESS;
 	}
 	
+	/**
+	 * This implements the 7.5.6 Sequential Composition transition rules in D23.2.
+	 */
 	@Override
-	public CMLBehaviourSignal caseASkipAction(ASkipAction node, Context question)
+	public CMLBehaviourSignal caseASequentialCompositionAction(
+			ASequentialCompositionAction node, Context question)
 			throws AnalysisException {
+
+		//First push right and then left, so that left get executed first
+		pushNext(node.getRight(), question);
+		pushNext(node.getLeft(), question);
 		
-		state = ProcessState.FINISHED;
 		return CMLBehaviourSignal.EXEC_SUCCESS;
 	}
 	
 	@Override
-	public void setState(ProcessState state) {
-		this.state = state;
+	public CMLBehaviourSignal caseASkipAction(ASkipAction node, Context question)
+			throws AnalysisException {
+		if(!hasNext())
+			state = ProcessState.FINISHED;
+		return CMLBehaviourSignal.EXEC_SUCCESS;
 	}
-	
-	@Override
-	public String toString() {
-	
-		if(hasNext())
-			return nextState().first.toString();
-		else
-			return "Finished";
-		
-	}
-	
 }

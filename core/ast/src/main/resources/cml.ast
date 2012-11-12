@@ -500,7 +500,7 @@ Aspect Declaration
 						[rightAction]:action
 	;	
 
-%action->#Statement = (type):type
+%action = (type):type
     ;
 
 %communicationParameter = [location]:location [pattern]:pattern
