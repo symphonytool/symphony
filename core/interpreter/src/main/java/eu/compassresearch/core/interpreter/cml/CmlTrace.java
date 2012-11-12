@@ -8,14 +8,14 @@ import eu.compassresearch.ast.actions.ACommunicationAction;
 
 public class CmlTrace {
 
-	private List<CMLEvent> trace;
+	private List<CmlEvent> trace;
 	
 	public CmlTrace()
 	{
-		trace = new LinkedList<CMLEvent>();
+		trace = new LinkedList<CmlEvent>();
 	}
 	
-	public void addEvent(CMLEvent event)
+	public void addEvent(CmlEvent event)
 	{
 		trace.add(event);
 	}
@@ -26,7 +26,7 @@ public class CmlTrace {
 		
 		StringBuilder strbuilder = new StringBuilder();
 		strbuilder.append("<");
-		for(Iterator<CMLEvent> iterator = trace.iterator(); iterator.hasNext();)
+		for(Iterator<CmlEvent> iterator = trace.iterator(); iterator.hasNext();)
 		{
 			strbuilder.append(iterator.next());
 			if(iterator.hasNext())

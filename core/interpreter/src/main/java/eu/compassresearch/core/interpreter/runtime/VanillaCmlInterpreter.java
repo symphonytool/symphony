@@ -9,7 +9,6 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
@@ -23,11 +22,7 @@ import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.api.NoProcessFoundException;
 import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.DefaultSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.InstantiatedProcess;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
-import eu.compassresearch.core.interpreter.values.ProcessValueOld;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -46,7 +41,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
     protected Context                  globalContext;
     protected String 				   defaultName      = null;	
     protected AProcessDefinition       topProcess;
-    private CmlScheduler               cmlScheduler     = new CmlScheduler();
+    //private CmlScheduler               cmlScheduler     = new CmlScheduler();
     
     /**
      * Construct a CmlInterpreter with a list of PSources. These source may
@@ -76,7 +71,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
     	initialize();
     }
 
-    protected void initialize() throws NoProcessFoundException
+    protected void initialize() throws InterpreterException
     {
     	EnvironmentBuilder envBuilder = new EnvironmentBuilder(sourceForest);
 
@@ -88,7 +83,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
             AProcessDefinition processDef = (AProcessDefinition)env.findName(name, NameScope.GLOBAL);
             
             if (processDef == null)
-              throw new NoProcessFoundException("No process identified by '"
+              throw new InterpreterException("No process identified by '"
                   + getDefaultName() + "' exists");
     		
             topProcess = processDef;
@@ -235,7 +230,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
     
     public InterpreterStatus getStatus()
       {
-        return new InterpreterStatus(cmlScheduler.getTrace());
+        return null;//new InterpreterStatus(cmlScheduler.getTrace());
       }
 
 	@Override

@@ -14,7 +14,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CMLAlphabet;
 import eu.compassresearch.core.interpreter.cml.CMLCommunication;
-import eu.compassresearch.core.interpreter.cml.CMLEvent;
+import eu.compassresearch.core.interpreter.cml.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.CMLTauEvent;
 import eu.compassresearch.core.interpreter.cml.SpecialEvent;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
@@ -26,7 +26,7 @@ public class AlphabetInspectionVisitor
 	@Override
 	public CMLAlphabet defaultPProcess(PProcess node, Context question)
 			throws AnalysisException {
-		HashSet<CMLEvent> specialEvents = new HashSet<CMLEvent>();
+		HashSet<CmlEvent> specialEvents = new HashSet<CmlEvent>();
 		specialEvents.add(CMLTauEvent.newTauEvent(node));
 		return new CMLAlphabet(specialEvents);
 	}
@@ -35,7 +35,7 @@ public class AlphabetInspectionVisitor
 	public CMLAlphabet defaultPAction(PAction node, Context question)
 			throws AnalysisException {
 
-		HashSet<CMLEvent> specialEvents = new HashSet<CMLEvent>();
+		HashSet<CmlEvent> specialEvents = new HashSet<CmlEvent>();
 		specialEvents.add(CMLTauEvent.newTauEvent(node));
 		return new CMLAlphabet(specialEvents);
 	}
@@ -50,7 +50,7 @@ public class AlphabetInspectionVisitor
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 		
 		CMLCommunication com = new CMLCommunication(chanValue);
-		Set<CMLEvent> comset = new HashSet<CMLEvent>();
+		Set<CmlEvent> comset = new HashSet<CmlEvent>();
 		comset.add(com);
 		return new CMLAlphabet(comset);
 	}

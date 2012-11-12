@@ -22,29 +22,6 @@ public class CMLContext extends Context
     {
   		super(location,title,outer);
     }
-    
-    public CMLChannelEvent getCurrentEvent()
-    {
-    	CMLChannelEvent ce = currentEvent;
-    	if (ce == null)
-    		if (outer != null && outer instanceof CMLContext)
-    			ce = ((CMLContext)outer).getCurrentEvent();
-    	return ce;
-    }
-    
-    public void setCurrentEvent(CMLChannelEvent currentEvent)
-    {
-    	this.currentEvent = currentEvent;
-    }
-    
-    public void resetEvent()
-    {
-    	//        currentEvent = null;
-    	//        if (outer != null)
-    	//          outer.resetEvent();
-
-    }
-    
 //    public void put(LexNameToken name, Value value)
 //      {
 //        map.put(name, value);

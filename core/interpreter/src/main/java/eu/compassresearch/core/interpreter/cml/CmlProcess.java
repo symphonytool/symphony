@@ -6,7 +6,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 
 
-public interface CmlProcess {
+public interface CmlProcess extends CMLProcessBehaviour{
 
 	/**
 	 * Initializes the process

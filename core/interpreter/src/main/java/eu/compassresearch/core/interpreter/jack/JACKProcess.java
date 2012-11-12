@@ -1,12 +1,13 @@
-package eu.compassresearch.core.interpreter.cml;
+package eu.compassresearch.core.interpreter.jack;
 
 import java.util.Iterator;
 
-public interface CMLProcessNew {
+import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
+
+public interface JACKProcess {
 	// Process Graph/Representation related methods
 //	public long level();
-	public CMLProcessNew parent();
-	public CMLDomain domain();
+	public JACKProcess parent();
 //	public CMLProcessBehaviour behaviour();
 	//public Iterator children(boolean recursive);
 //	public CMLAlphabet childInspectedAlphabet(CMLProcessNew child);

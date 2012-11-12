@@ -18,7 +18,7 @@ import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 /**
- *  This class represents a running CML Process. It represents a specific node as specified in D23.2 section 7.4.2,
+ *  This class represents a running CML Action. It represents a specific node as specified in D23.2 section 7.4.2,
  *  where a node is specified as a tuple (w,s,a) where w is the set of variables, s is the state values and a is the 
  *  current action.
  *  w and s are stored in the current Context object and a is represented by storing the next action AST node to be executed.
@@ -108,6 +108,15 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 			return null;
 	}
 	
+	/**
+	 * Helper methods for Synchronisation and Communication transition rules
+	 */
+	
+	/**
+	 * Determines if the communication AST node is a simple prefix
+	 * @param node
+	 * @return
+	 */
 	private boolean isSimplePrefix(ACommunicationAction node)
 	{
 		return node.getCommunicationParameters().isEmpty();

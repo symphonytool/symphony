@@ -1,6 +1,6 @@
-package eu.compassresearch.core.interpreter.cml;
+package eu.compassresearch.core.interpreter.jack;
 
-public interface CMLProcessNetwork {
+public interface JACKProcessNetwork {
 
 	// Network User Configuration Options
 //	public CSPProcessNetworkOptions networkOptions();
@@ -11,7 +11,7 @@ public interface CMLProcessNetwork {
 	public boolean tryToInterruptOnDeadlock();
 	public boolean setTryToInterruptOnDeadlock(boolean value);
 	public boolean isInitialized();
-	public boolean isProcessRunning(CMLProcessNew process);
+	public boolean isProcessRunning(JACKProcess process);
 	public boolean isProcessRunning(String processName);
 	public boolean anyProcessRunning();
 	//public void associateInvocation(CSPProcess userProcess, RecoverableMethodObject rmo,

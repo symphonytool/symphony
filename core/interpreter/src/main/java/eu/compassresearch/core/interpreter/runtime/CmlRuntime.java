@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 import org.overture.typechecker.Environment;
 
 import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.DefaultSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 
 

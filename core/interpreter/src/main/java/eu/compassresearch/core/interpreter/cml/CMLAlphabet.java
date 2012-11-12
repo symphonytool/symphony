@@ -20,12 +20,12 @@ public class CMLAlphabet {
 		this.specialEvents = specialEvents;
 	}
 	
-	public CMLAlphabet(Set<CMLEvent> events)
+	public CMLAlphabet(Set<CmlEvent> events)
 	{
 		this.communicationEvents = new HashSet<CMLCommunication>();
 		this.specialEvents = new HashSet<SpecialEvent>();
 		
-		for(CMLEvent e : events)
+		for(CmlEvent e : events)
 		{
 			if(e instanceof CMLCommunication)
 				this.communicationEvents.add((CMLCommunication)e);
@@ -46,9 +46,9 @@ public class CMLAlphabet {
 		return new HashSet<SpecialEvent>(specialEvents);
 	}
 	
-	public Set<CMLEvent> getAllEvents()
+	public Set<CmlEvent> getAllEvents()
 	{
-		HashSet<CMLEvent> allEvents = new HashSet<CMLEvent>();
+		HashSet<CmlEvent> allEvents = new HashSet<CmlEvent>();
 		
 		allEvents.addAll(communicationEvents);
 		allEvents.addAll(specialEvents);

@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.cml;
+package eu.compassresearch.core.interpreter.runtime;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -6,7 +6,11 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 
-import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+import eu.compassresearch.core.interpreter.cml.CMLBehaviourSignal;
+import eu.compassresearch.core.interpreter.cml.CMLCommunication;
+import eu.compassresearch.core.interpreter.cml.CMLCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.CmlProcess;
 
 public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 
@@ -66,6 +70,12 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 		running.remove(process);
 	}
 
+	
+	/**
+	 * This is actually the main execution loop/scheduler, 
+	 * FIXME: this should be moved into the scheduler class and out of the
+	 * the supervisor 
+	 */
 	@Override
 	public void start() throws AnalysisException {
 		
@@ -75,7 +85,7 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 			
 			CmlRuntime.logger().fine("----------------step----------------");
 			
-			//execute each of the running pupils until there are finished or in wait state
+			//execute each of the running pupils until they are either finished or in wait state
 			for(Iterator<CmlProcess> iterator = running.iterator(); iterator.hasNext();)
 			{
 				CmlProcess p = iterator.next();
@@ -87,9 +97,6 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 					if(signal != CMLBehaviourSignal.EXEC_SUCCESS)
 						throw new RuntimeException("Change this!!!!, but now that you haven't changed this yet, then let me tell you that the return CMLBehaviourSignal was unsuccesful");
 
-					//List<CMLProcess> all = new LinkedList<CMLProcess>(running); 
-					//all.addAll(waiting);
-					//all.addAll(finished);
 					CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
 					CmlRuntime.logger().fine("next: " + p);
 					
@@ -106,7 +113,10 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 					}
 				}
 			}
-			
+
+			/**
+			 * Now, all the processes are sleep tight, so we need to decided which events should happen and wake them up
+			 */
 			for(Iterator<CmlProcess> iterator = waiting.iterator(); iterator.hasNext();)
 			{
 				CmlProcess p = iterator.next();
