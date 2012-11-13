@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter.cml;
 
-public enum ProcessState {
+public enum CmlProcessState {
 	WAIT_EVENT, 	//The process is Waiting for an event
 	WAIT_CHILD, 	//The process is waiting for its children to become a desired state 
 	RUNNING, 		//The process is currently begin executed

@@ -1,5 +1,7 @@
 package eu.compassresearch.core.interpreter.runtime;
 
+import java.util.Iterator;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
@@ -12,8 +14,11 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
+import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlProcessObserver;
+import eu.compassresearch.core.interpreter.cml.CmlProcessState;
+import eu.compassresearch.core.interpreter.cml.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.ProcessState;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.util.Pair;
 
@@ -31,10 +36,10 @@ import eu.compassresearch.core.interpreter.util.Pair;
  * @author akm
  *
  */
-public class CmlActionInstance extends AbstractInstance<PAction> {
+public class CmlActionInstance extends AbstractInstance<PAction> implements CmlProcessObserver {
 
 	private LexNameToken name;
-	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(); 
+	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this); 
 	//private Process
 	
 	public CmlActionInstance(PAction action,Context context, LexNameToken name)
@@ -45,10 +50,22 @@ public class CmlActionInstance extends AbstractInstance<PAction> {
 		//executionStack.push(new Pair<PAction, Context>(action, context));
 	}
 	
+	public CmlActionInstance(PAction action,Context context, LexNameToken name, CmlProcess parent)
+	{
+		super(parent);
+		this.name = name;
+		pushNext(action, context);
+		//executionStack.push(new Pair<PAction, Context>(action, context));
+	}
+	
 	@Override
 	public void start(CmlSupervisorEnvironment env) {
 		this.env= env; 
-		state = ProcessState.RUNNABLE;
+		
+		if(parent() != null)
+			supervisor().addPupil(this);
+		
+		setState(CmlProcessState.RUNNABLE);
 	}
 
 	@Override
@@ -77,14 +94,73 @@ public class CmlActionInstance extends AbstractInstance<PAction> {
 	 * Process state methods 
 	 */
 	@Override
-	public ProcessState getState() {
+	public CmlProcessState getState() {
 		return state;
 	}
 
 	@Override
-	public void setState(ProcessState state) {
-		this.state = state;
+	protected void setState(CmlProcessState state) {
+		
+		if(getState() != state)
+		{
+			CmlProcessStateEvent ev = new CmlProcessStateEvent(this, this.state, state);
+			this.state = state;
+			notifyOnStateChange(ev);
+		}
 	}
+	
+	/**
+	 * CmlProcessObserver interface methods
+	 */
+	
+	@Override
+	public void onStateChange(CmlProcessStateEvent stateEvent) {
+
+		switch(stateEvent.getTo())
+		{
+//		case WAIT_EVENT:
+//			//if all the children are waiting for events this process can continue
+//			if(isAllChildrenWaitingForEvent())
+//				setState(CmlProcessState.RUNNABLE);
+//			
+//			break;
+		case FINISHED:
+			stateEvent.getSource().unregisterOnStateChanged(this);
+			
+			//if all the children are finished this process can continue and evolve into skip
+			if(isAllChildrenFinished())
+				setState(CmlProcessState.RUNNABLE);
+			
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/**
+	 * Private helper methods
+	 */
+	private boolean isAllChildrenFinished()
+	{
+		boolean isAllFinished = true;
+		for(CmlProcess child : children())
+		{
+			isAllFinished &= child.finished();
+		}
+		return isAllFinished;
+	}
+	
+	private boolean isAllChildrenWaitingForEvent()
+	{
+		boolean isAllWaitingForEvent = true;
+		for(CmlProcess child : children())
+		{
+			isAllWaitingForEvent &= child.waiting();
+		}
+		return isAllWaitingForEvent;
+	}
+	
+	
 		
 	/**
 	 * Transition cases
@@ -182,12 +258,31 @@ public class CmlActionInstance extends AbstractInstance<PAction> {
 			AInterleavingParallelAction node, Context question)
 			throws AnalysisException {
 
+		CmlBehaviourSignal result = null;
+		
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
-		if(!hasChildren())
-			caseParallelBegin(node.getLeftAction(),node.getRightAction(),question);
+		if(!hasChildren()){
+			result = caseParallelBegin(node.getLeftAction(),node.getRightAction(),question);
+			//We push the current state, since this process will control the child processes created by it
+			pushNext(node, question);
+			
+		}
+		//the process has children and must now handle either termination or event sync
+		else if (isAllChildrenFinished())
+		{
+			for(Iterator<CmlProcess> iterator = children().iterator(); iterator.hasNext(); )
+			{
+				CmlProcess child = iterator.next();
+				supervisor().removePupil(child);
+				iterator.remove();
+			}
+			
+			pushNext(new ASkipAction(), question);
+			result = CmlBehaviourSignal.EXEC_SUCCESS;
+		}
+		//else if ()
 		
-		
-		return super.caseAInterleavingParallelAction(node, question);
+		return result;
 	}
 	
 	/**
@@ -205,22 +300,22 @@ public class CmlActionInstance extends AbstractInstance<PAction> {
 		//TODO: create a local copy of the question state for each of the actions
 		CmlActionInstance leftInstance = 
 				new CmlActionInstance(left, question, 
-						new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()));
+						new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),this);
 		
 		CmlActionInstance rightInstance = 
-				new CmlActionInstance(left, question, 
-						new LexNameToken(name.module,"|||" + name.getIdentifier().getName(),left.getLocation()));
+				new CmlActionInstance(right, question, 
+						new LexNameToken(name.module,"|||" + name.getIdentifier().getName(),right.getLocation()),this);
 		
-		supervisor().addPupil(rightInstance);
-		supervisor().addPupil(leftInstance);
+		children().add(leftInstance);
+		leftInstance.registerOnStateChanged(this);
+		children().add(rightInstance);
+		rightInstance.registerOnStateChanged(this);
+		
 		rightInstance.start(supervisor());
 		leftInstance.start(supervisor());
 		
-		
-		
-		
-		//We push the current state, since this will control the child processes created by it
-		//pushNext(parallelAction, question);
+		//Now let this process wait for the children to get into a waitForEvent state
+		setState(CmlProcessState.WAIT_CHILD);
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
@@ -231,7 +326,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> {
 
 		//if hasNext() is true then Skip is in sequential composition with next
 		if(!hasNext())
-			state = ProcessState.FINISHED;
+			setState(CmlProcessState.FINISHED);
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 }

@@ -222,7 +222,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
       {
         
         File cml_example = new File(
-            "src/test/resources/action/action-seq-comp.cml");
+            "src/test/resources/action/action-interleaving.cml");
         // "src/test/resources/process/GeneralisedParallelismAction.cml");
         runOnFile(cml_example);
         

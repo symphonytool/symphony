@@ -14,8 +14,10 @@ import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlProcessObserver;
+import eu.compassresearch.core.interpreter.cml.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.ProcessState;
+import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
@@ -33,11 +35,11 @@ import eu.compassresearch.core.interpreter.values.ProcessValue;
  * @author akm
  *
  */
-public class CmlProcessInstance extends AbstractInstance<PProcess>  {
+public class CmlProcessInstance extends AbstractInstance<PProcess>  implements CmlProcessObserver{
 
 	private AProcessDefinition processDef;
 	private CmlActionInstance mainBehaviour = null;
-	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor();
+	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this);
 	private Context globalContext;
 	
 	public CmlProcessInstance(AProcessDefinition processDef, CmlProcess parent, Context globalContext)
@@ -63,7 +65,7 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  {
 	@Override
 	public void start(CmlSupervisorEnvironment env) {
 		this.env = env;
-		state = ProcessState.RUNNABLE;
+		state = CmlProcessState.RUNNABLE;
 		env.addPupil(this);
 	}
 
@@ -88,7 +90,7 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  {
 	}
 
 	@Override
-	public ProcessState getState() {
+	public CmlProcessState getState() {
 		//If the main behaviour is null then this process is either not started or it is a composition process without
 		//behavior defined through other defined processes
 		if(null == mainBehaviour)
@@ -98,11 +100,48 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  {
 	}
 
 	@Override
-	public void setState(ProcessState state) {
-		if(null == mainBehaviour)
-			this.state = state;
+	public void setState(CmlProcessState state) {
+		
+		if(getState() != state)
+		{
+
+			if(null == mainBehaviour)
+			{
+				CmlProcessStateEvent ev = new CmlProcessStateEvent(this, this.state, state);
+				this.state = state;
+				notifyOnStateChange(ev);
+			}
+			else
+				mainBehaviour.setState(state);
+		}
+	}
+	
+	@Override
+	public String toString() {
+		
+		String value = null;
+		
+		if(hasNext())
+		{
+			if(mainBehaviour == null)
+				value = nextState().first.toString();
+			else
+				value = nextState().first.toString() + mainBehaviour.toString();
+		}
 		else
-			mainBehaviour.setState(state);
+			value = "Finished";
+
+
+		return value;
+	}
+
+	@Override
+	public void onStateChange(CmlProcessStateEvent stateEvent) {
+		
+		if(stateEvent.getSource() == this.mainBehaviour)
+		{
+			notifyOnStateChange(new CmlProcessStateEvent(this, stateEvent.getFrom(), stateEvent.getTo()));
+		}
 	}
 	
 	/**
@@ -136,6 +175,7 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  {
 					node.getAction().getLocation());
 
 			mainBehaviour = new CmlActionInstance(node.getAction(),newContext,mainActionName);
+			mainBehaviour.registerOnStateChanged(this);
 			mainBehaviour.start(supervisor());
 			pushNext(node, question);
 			ret = CmlBehaviourSignal.EXEC_SUCCESS; 
@@ -194,22 +234,4 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  {
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
-	@Override
-	public String toString() {
-		
-		String value = null;
-		
-		if(hasNext())
-		{
-			if(mainBehaviour == null)
-				value = nextState().first.toString();
-			else
-				value = nextState().first.toString() + mainBehaviour.toString();
-		}
-		else
-			value = "Finished";
-
-
-		return value;
-	}
 }

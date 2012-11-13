@@ -27,12 +27,6 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	 * @throws AnalysisException 
 	 */
 	public CmlAlphabet inspect() throws AnalysisException;
-	
-	/**
-	 * 
-	 * @return The current state of the process
-	 */
-	public ProcessState getState();
 		
 	/**
 	 * 
@@ -56,13 +50,25 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	//public boolean hasChild(CMLProcess child, boolean recursive);
 	public boolean hasChildren();
 	
-	// Process state methods 
+	/**
+	 * Process state methods 
+	 */
 	public boolean started();
 	public boolean running();
 	public boolean finished();
 	public boolean waiting();
 	public boolean deadlocked();
+
+	public void registerOnStateChanged(CmlProcessObserver observer);
+	public void unregisterOnStateChanged(CmlProcessObserver observer);
+	/**
+	 * 
+	 * @return The current state of the process
+	 */
+	public CmlProcessState getState();
 	
-	// Denotational Semantics Information
+	/**
+	 * Denotational Semantics Information
+	 */
 	public CmlTrace getTraceModel();
 }

@@ -31,9 +31,7 @@ public class CmlAlphabet {
 				this.communicationEvents.add((CmlCommunication)e);
 			else if(e instanceof SpecialEvent)
 				this.specialEvents.add((SpecialEvent)e);
-			
 		}
-		
 	}
 	
 	public Set<CmlCommunication> getCommunicationEvents()
@@ -56,6 +54,13 @@ public class CmlAlphabet {
 		return allEvents;
 	}
 	
+	public CmlAlphabet union(CmlAlphabet other)
+	{
+		Set<CmlEvent> resultSet = this.getAllEvents();
+		resultSet.addAll(other.getAllEvents());
+		
+		return new CmlAlphabet(resultSet);
+	}
 	
 	/**
 	 * This determines whether the alphabet contains a specific communication event. 

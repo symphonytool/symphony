@@ -3,16 +3,21 @@ package eu.compassresearch.core.interpreter.runtime;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexNameToken;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlCommunication;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlProcessObserver;
+import eu.compassresearch.core.interpreter.cml.CmlProcessStateEvent;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 
-public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
+public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, CmlProcessObserver {
 
 	private CmlCommunicationSelectionStrategy selectStrategy;
 	private CmlCommunication selectedCommunication;
@@ -62,15 +67,16 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 
 	@Override
 	public void addPupil(CmlProcess process) {
+		process.registerOnStateChanged(this);
 		running.add(process);		
 	}
 
 	@Override
 	public void removePupil(CmlProcess process) {
+		process.unregisterOnStateChanged(this);
 		running.remove(process);
 	}
 
-	
 	/**
 	 * This is actually the main execution loop/scheduler, 
 	 * FIXME: this should be moved into the scheduler class and out of the
@@ -80,13 +86,13 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	public void start() throws AnalysisException {
 		
 		//Active state
-		while(waiting.size() > 0 || running.size() > 0)
+		while( waiting.size() > 0 || running.size() > 0)
 		{
 			
 			CmlRuntime.logger().fine("----------------step----------------");
 			
 			//execute each of the running pupils until they are either finished or in wait state
-			for(Iterator<CmlProcess> iterator = running.iterator(); iterator.hasNext();)
+			for(Iterator<CmlProcess> iterator = new Vector<CmlProcess>(running).iterator(); iterator.hasNext();)
 			{
 				CmlProcess p = iterator.next();
 				while(!p.finished() && 
@@ -99,18 +105,6 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 
 					CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
 					CmlRuntime.logger().fine("next: " + p);
-					
-					switch(p.getState())
-					{
-					case FINISHED:
-						finished.add(p);
-						iterator.remove();
-						break;
-					case WAIT_EVENT:
-						waiting.add(p);
-						iterator.remove();
-						break;
-					}
 				}
 			}
 
@@ -118,21 +112,57 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 			 * Now, all the processes are sleeping tight, so the selected decision strategy needs to 
 			 * decide which event should occur and wake them up.
 			 */
-			for(Iterator<CmlProcess> iterator = waiting.iterator(); iterator.hasNext();)
+			for(Iterator<CmlProcess> iterator = new Vector<CmlProcess>(waiting).iterator(); iterator.hasNext();)
 			{
 				CmlProcess p = iterator.next();
-				//if(p.level() == 0)
-				//{
-				//Select and set the communication event
-				setSelectedCommunication(decisionFunction().select(p.inspect()));
-				//signal all the processes that are listening for this channel
-				selectedCommunication.getChannel().signal();
-				//FIXME: This should be done be observer pattern, so no inconsistencies occur in the lists
-				running.add(p);
-				iterator.remove();
-				
+				if(p.level() == 0)
+				{
+					//{
+					//Select and set the communication event
+					setSelectedCommunication(decisionFunction().select(p.inspect()));
+					//signal all the processes that are listening for this channel
+					selectedCommunication.getChannel().signal();
+				}
 			}
 		}
+	}
+	
+	@Override
+	public void onStateChange(CmlProcessStateEvent stateEvent) {
+
+		switch(stateEvent.getFrom())
+		{
+		case WAIT_CHILD:
+		case WAIT_EVENT:
+			waiting.remove(stateEvent.getSource());
+			break;
+		case INITIALIZED:
+		case RUNNABLE:
+		case RUNNING:
+			running.remove(stateEvent.getSource());
+			break;
+		}
+		
+		switch(stateEvent.getTo())
+		{
+		case WAIT_CHILD:
+		case WAIT_EVENT:
+			waiting.add(stateEvent.getSource());
+			break;
+		case INITIALIZED:
+		case RUNNABLE:
+		case RUNNING:
+			running.add(stateEvent.getSource());
+			break;
+		case FINISHED:
+			finished.add(stateEvent.getSource());
+			break;
+		}
+	}
+
+	@Override
+	public LexNameToken name() {
+		return new LexNameToken("","Default supervisorEnvironment",new LexLocation());
 	}
 
 //	@Override
