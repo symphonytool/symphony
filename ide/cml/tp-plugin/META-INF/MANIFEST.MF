@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: COMPASS Isabelle Plugin
+Bundle-SymbolicName: eu.compassresearch.ide.cml.tpplugin;singleton:=true
+Bundle-Version: 0.0.1
+Bundle-ClassPath: .,
+ lib/theoremprover-0.0.1.jar
+Bundle-Activator: eu.compassresearch.ide.cml.tpplugin.Activator
+Bundle-Vendor: The COMPASS Project
+Bundle-Localization: plugin
+Require-Bundle: eu.compassresearch.ide.cml.core,
+ org.eclipse.debug.ui,
+ org.eclipse.ui.workbench.texteditor;bundle-version="3.5.1",
+ org.eclipse.ui.views,
+ org.eclipse.swt,
+ eu.compassresearch.ide.cml.ui;bundle-version="0.0.1",
+ org.eclipse.ui;bundle-version="3.7.0",
+ org.eclipse.ui.ide;bundle-version="3.7.0",
+ org.overture.ide.ui;bundle-version="2.2.0"
+uses: ="org.eclipse.ui.plugin,org.osgi.framework",eu.compassresearch.ide.cml.ui.wizard
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
+Eclipse-BuddyPolicy: registered
+Import-Package: eu.compassresearch.ide.cml.core

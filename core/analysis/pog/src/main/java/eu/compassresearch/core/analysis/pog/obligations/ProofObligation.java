@@ -22,7 +22,7 @@ abstract public class ProofObligation implements Comparable<ProofObligation>
 	public POStatus status;
 
 	private int var = 1;
-
+	
 	public ProofObligation(LexLocation location, POType kind, POContextStack ctxt)
 	{
 		this.location = location;

@@ -41,12 +41,12 @@
 	 ************************************************************
     -->
 
-    <!-- Type Checker Analysis -->
+    <!-- Type Checker Analysis
     <dependency>
       <groupId>eu.compassresearch.core</groupId>
       <artifactId>typechecker</artifactId>
       <version>${project.version}</version>
-    </dependency>
+    </dependency> -->
 
     <!-- Interpreter-->
     <dependency>
@@ -121,7 +121,7 @@
 	    <manifest>
 	      <addClasspath>true</addClasspath>
 	      <!-- The main class -->
-	      <mainClass>CheckCml</mainClass>
+	      <mainClass>eu.compassresearch.ide.CheckCml</mainClass>
 	      <!-- The package for the main class -->
 	      <packageName>eu.compassresearch.ide</packageName>
 	    </manifest>
