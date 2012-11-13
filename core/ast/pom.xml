@@ -31,10 +31,10 @@
 	  <ast>overtureII.astv2</ast>
 	  <extendedAst>cml.ast</extendedAst>
 	  <extendedName>CML</extendedName>
-	  <deletePackageOnGenerate>
+	  <!-- deletePackageOnGenerate>
 	    <param>org.overture.ast</param>
 	    <param>eu.compassresearch.ast</param>
-	  </deletePackageOnGenerate>
+	  </deletePackageOnGenerate -->
 	  <useSrcOutput>false</useSrcOutput>
 	</configuration>
       </plugin>
