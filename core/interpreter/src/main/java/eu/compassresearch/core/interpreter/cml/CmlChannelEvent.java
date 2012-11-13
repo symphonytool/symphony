@@ -2,12 +2,12 @@ package eu.compassresearch.core.interpreter.cml;
 
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
-public class CMLChannelEvent {
+public class CmlChannelEvent {
 		
 	final private CMLChannelValue channel;
-	final private CMLCommunicationType eventType;
+	final private CmlCommunicationType eventType;
 	
-	public CMLChannelEvent(CMLChannelValue channel, CMLCommunicationType eventType)
+	public CmlChannelEvent(CMLChannelValue channel, CmlCommunicationType eventType)
 	{
 		this.channel = channel;
 		this.eventType = eventType;
@@ -17,7 +17,7 @@ public class CMLChannelEvent {
 		return channel;
 	}
 	
-	public CMLCommunicationType getEventType()
+	public CmlCommunicationType getEventType()
 	{
 		return eventType;
 	}

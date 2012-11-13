@@ -11,10 +11,10 @@ import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.interpreter.cml.CMLAlphabet;
-import eu.compassresearch.core.interpreter.cml.CMLBehaviourSignal;
+import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
-import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.ProcessState;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.util.Pair;
@@ -33,14 +33,14 @@ import eu.compassresearch.core.interpreter.values.ProcessValue;
  * @author akm
  *
  */
-public class CMLProcessInstance extends AbstractInstance<PProcess>  {
+public class CmlProcessInstance extends AbstractInstance<PProcess>  {
 
 	private AProcessDefinition processDef;
-	private CMLActionInstance mainBehaviour = null;
+	private CmlActionInstance mainBehaviour = null;
 	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor();
 	private Context globalContext;
 	
-	public CMLProcessInstance(AProcessDefinition processDef, CmlProcess parent, Context globalContext)
+	public CmlProcessInstance(AProcessDefinition processDef, CmlProcess parent, Context globalContext)
 	{
 		super(parent);
 		this.globalContext = globalContext; 
@@ -50,7 +50,7 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 		pushNext(processDef.getProcess(), context);
 	}
 	
-	public CMLProcessInstance(PProcess startProcess, CmlProcess parent, Context globalContext)
+	public CmlProcessInstance(PProcess startProcess, CmlProcess parent, Context globalContext)
 	{
 		super(parent);
 		this.globalContext = globalContext; 
@@ -61,16 +61,16 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 	}
 	
 	@Override
-	public void start(CMLSupervisorEnvironment env) {
+	public void start(CmlSupervisorEnvironment env) {
 		this.env = env;
 		state = ProcessState.RUNNABLE;
 		env.addPupil(this);
 	}
 
 	@Override
-	public CMLAlphabet inspect() throws AnalysisException{
+	public CmlAlphabet inspect() throws AnalysisException{
 		
-		CMLAlphabet alpha = null;
+		CmlAlphabet alpha = null;
 		
 		if(null != mainBehaviour)
 			alpha = mainBehaviour.inspect();
@@ -81,10 +81,15 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 		
 		return alpha;
 	}
+	
+	@Override
+	public LexNameToken name() {
+		return processDef.getName();
+	}
 
 	@Override
 	public ProcessState getState() {
-		//If the mainNehaviour is null then this process is either not started or it is a composition process without
+		//If the main behaviour is null then this process is either not started or it is a composition process without
 		//behavior defined through other defined processes
 		if(null == mainBehaviour)
 			return this.state;
@@ -93,18 +98,11 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 	}
 
 	@Override
-	public LexNameToken name() {
-		// TODO Auto-generated method stub
-		return processDef.getName();
-	}
-		
-	@Override
 	public void setState(ProcessState state) {
 		if(null == mainBehaviour)
 			this.state = state;
 		else
 			mainBehaviour.setState(state);
-		
 	}
 	
 	/**
@@ -112,10 +110,10 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 	 */
 		
 	@Override
-	public CMLBehaviourSignal caseAStateProcess(AStateProcess node, Context question) throws AnalysisException
+	public CmlBehaviourSignal caseAStateProcess(AStateProcess node, Context question) throws AnalysisException
 	{
 		
-		CMLBehaviourSignal ret = null;
+		CmlBehaviourSignal ret = null;
 		//The behavior of this process has not been started yet, so start it and execute the main
 		//Behavior in the next execution step
 		if(mainBehaviour == null)
@@ -137,10 +135,10 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 					name().getName() + "@",
 					node.getAction().getLocation());
 
-			mainBehaviour = new CMLActionInstance(node.getAction(),newContext,mainActionName);
+			mainBehaviour = new CmlActionInstance(node.getAction(),newContext,mainActionName);
 			mainBehaviour.start(supervisor());
 			pushNext(node, question);
-			ret = CMLBehaviourSignal.EXEC_SUCCESS; 
+			ret = CmlBehaviourSignal.EXEC_SUCCESS; 
 		}
 		else
 		{
@@ -151,7 +149,7 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 			}
 			else
 			{
-				ret = CMLBehaviourSignal.EXEC_SUCCESS; 
+				ret = CmlBehaviourSignal.EXEC_SUCCESS; 
 			}
 		}
 				
@@ -159,7 +157,7 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 	}
 	
 	@Override
-	public CMLBehaviourSignal caseASequentialCompositionProcess(
+	public CmlBehaviourSignal caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node, Context question)
 			throws AnalysisException {
 
@@ -169,7 +167,7 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 		//pushNext(node.getLeft(), question);
 		
 		
-		return CMLBehaviourSignal.EXEC_SUCCESS;
+		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
 	/**
@@ -177,7 +175,7 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 	 * (Even though this is a process I assume something similar will happen)
 	 */
 	@Override
-	public CMLBehaviourSignal caseAReferenceProcess(AReferenceProcess node,
+	public CmlBehaviourSignal caseAReferenceProcess(AReferenceProcess node,
 			Context question) throws AnalysisException {
 
 		//TODO add decls to the context
@@ -188,12 +186,12 @@ public class CMLProcessInstance extends AbstractInstance<PProcess>  {
 
 		AProcessDefinition processDef = node.getProcessDefinition();
 
-		CMLProcessInstance childProcess = new CMLProcessInstance(processDef, this, newContext);
+		CmlProcessInstance childProcess = new CmlProcessInstance(processDef, this, newContext);
 
 		this.children.add(childProcess);
 
 
-		return CMLBehaviourSignal.EXEC_SUCCESS;
+		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
 	@Override

@@ -6,13 +6,13 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.core.interpreter.cml.CMLAlphabet;
-import eu.compassresearch.core.interpreter.cml.CMLBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CMLChannelEvent;
-import eu.compassresearch.core.interpreter.cml.CMLCommunication;
+import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
+import eu.compassresearch.core.interpreter.cml.CmlChannelEvent;
+import eu.compassresearch.core.interpreter.cml.CmlCommunication;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
-import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.CMLTauEvent;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
 import eu.compassresearch.core.interpreter.cml.ChannelObserver;
 import eu.compassresearch.core.interpreter.cml.ProcessState;
@@ -24,7 +24,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	protected ProcessState state;
 	protected List<CmlProcess> children = new LinkedList<CmlProcess>();
 	protected CmlProcess parent;
-	protected CMLSupervisorEnvironment env;
+	protected CmlSupervisorEnvironment env;
 	protected CmlTrace trace = new CmlTrace();
 
 	public AbstractInstance(CmlProcess parent)
@@ -39,15 +39,15 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	}
 		
 	@Override
-	public CMLBehaviourSignal execute(CMLSupervisorEnvironment env) throws AnalysisException {
+	public CmlBehaviourSignal execute(CmlSupervisorEnvironment env) throws AnalysisException {
 		this.env= env;
 
 		//inspect if there are any immediate events
-		CMLAlphabet alpha = inspect();
-		CMLBehaviourSignal ret = null;
+		CmlAlphabet alpha = inspect();
+		CmlBehaviourSignal ret = null;
 
 		//execute silently if the next is an invisible action
-		if(alpha.containsSpecialEvent(CMLTauEvent.referenceTauEvent())){
+		if(alpha.containsSpecialEvent(CmlTauEvent.referenceTauEvent())){
 			setState(ProcessState.RUNNING);
 			//FIXME: this might not be the best idea
 			trace.addEvent(alpha.getSpecialEvents().iterator().next());
@@ -66,18 +66,18 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 			//then we go to wait state and wait for channelEvent
 			else 
 			{
-				setState(ProcessState.WAIT);
+				setState(ProcessState.WAIT_EVENT);
 				registerChannelsInAlpha(alpha);
-				ret = CMLBehaviourSignal.EXEC_SUCCESS;
+				ret = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
 		}
 
 		return ret;
 	}
 		
-	private void registerChannelsInAlpha(CMLAlphabet alpha)
+	private void registerChannelsInAlpha(CmlAlphabet alpha)
 	{
-		for(CMLCommunication com : alpha.getCommunicationEvents())
+		for(CmlCommunication com : alpha.getCommunicationEvents())
 		{
 			switch(com.getCommunicationType())
 			{
@@ -97,8 +97,21 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	public abstract void setState(ProcessState state);
 	
 	@Override
-	public CMLSupervisorEnvironment supervisor() {
+	public CmlSupervisorEnvironment supervisor() {
 		return env;
+	}
+	
+	/**
+	 * Process graph methods
+	 */
+	
+	@Override
+	public long level() {
+
+		if(parent() == null)
+			return 0;
+		else 
+			return parent().level() + 1;
 	}
 
 	@Override
@@ -116,15 +129,18 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		return children.size() > 0;
 	}
 
+	/**
+	 * State methods
+	 */
 	@Override
 	public boolean started() {
 		return getState() == ProcessState.RUNNING || 
 				getState() == ProcessState.RUNNABLE ||
-				getState() == ProcessState.WAIT;
+				getState() == ProcessState.WAIT_EVENT;
 	}
 
 	@Override public boolean waiting() {
-		return getState() == ProcessState.WAIT;
+		return getState() == ProcessState.WAIT_EVENT;
 	}
 	
 	
@@ -142,9 +158,14 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	public boolean deadlocked() {
 		return false;
 	}
+	
+	/**
+	 * ChannelListener interface method.
+	 * Here the process is notified when a registered channel is signalled by the supervisor
+	 */
 
 	@Override
-	public void onChannelEvent(CMLChannelEvent event) {
+	public void onChannelEvent(CmlChannelEvent event) {
 		//enable the processthread to run again and unregister from the channel
 		setState(ProcessState.RUNNABLE);
 		

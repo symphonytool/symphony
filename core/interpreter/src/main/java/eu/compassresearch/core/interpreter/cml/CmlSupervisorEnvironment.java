@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import org.overture.ast.analysis.AnalysisException;
 
-public interface CMLSupervisorEnvironment {
+public interface CmlSupervisorEnvironment {
 
 	// Java related
 	//public String asString();
@@ -16,7 +16,7 @@ public interface CMLSupervisorEnvironment {
 	 * Returns the selected CMLCommunicationSelectionStrategy object for the supervisor instance
 	 * @return
 	 */
-	public CMLCommunicationSelectionStrategy decisionFunction();
+	public CmlCommunicationSelectionStrategy decisionFunction();
 	//public void setDecisionFunction(CMLCommunicationSelectionStrategy cdf)
 	//throws NullPointerException;
 	// Pupil Processes related methods
@@ -34,8 +34,8 @@ public interface CMLSupervisorEnvironment {
 	 * returns the selected communication
 	 * @return The selected CMLCommunication if communicationSelected() is true else null
 	 */
-	public CMLCommunication selectedCommunication();
-	public void setSelectedCommunication(CMLCommunication comm);
+	public CmlCommunication selectedCommunication();
+	public void setSelectedCommunication(CmlCommunication comm);
 	/**
 	 * Clears the currently selected CMLCommunication
 	 */

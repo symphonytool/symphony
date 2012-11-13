@@ -9,13 +9,13 @@ import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
  *
  */
 public class RandomSelectionStrategy implements
-		CMLCommunicationSelectionStrategy {
+		CmlCommunicationSelectionStrategy {
 
 	@Override
-	public CMLCommunication select(CMLAlphabet availableChannelEvents) {
+	public CmlCommunication select(CmlAlphabet availableChannelEvents) {
 		
-		Set<CMLCommunication> comms = availableChannelEvents.getCommunicationEvents();
-		CMLCommunication selectedComm = null;
+		Set<CmlCommunication> comms = availableChannelEvents.getCommunicationEvents();
+		CmlCommunication selectedComm = null;
 		
 		if(!comms.isEmpty())
 			selectedComm = availableChannelEvents.getCommunicationEvents().iterator().next();

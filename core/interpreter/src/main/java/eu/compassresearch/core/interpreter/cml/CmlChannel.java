@@ -2,7 +2,7 @@ package eu.compassresearch.core.interpreter.cml;
 
 import org.overture.ast.types.PType;
 
-public interface CMLChannel {
+public interface CmlChannel {
 	
 	public String getName();
 	

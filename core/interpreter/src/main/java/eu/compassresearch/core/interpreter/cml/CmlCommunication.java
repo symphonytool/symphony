@@ -4,19 +4,19 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
-public class CMLCommunication extends CmlEvent {
+public class CmlCommunication extends CmlEvent {
 
 	private CMLChannelValue channel;
 	private Value value = null;
-	private CMLCommunicationType commtype;
+	private CmlCommunicationType commtype;
 	
-	public CMLCommunication(CMLChannelValue channel)
+	public CmlCommunication(CMLChannelValue channel)
 	{
 		this.channel = channel;
-		this.commtype = CMLCommunicationType.SIGNAL;
+		this.commtype = CmlCommunicationType.SIGNAL;
 	}
 	
-	public CMLCommunication(CMLChannelValue channel, Value value)
+	public CmlCommunication(CMLChannelValue channel, Value value)
 	{
 		this.channel = channel;
 		this.value = value;
@@ -32,14 +32,14 @@ public class CMLCommunication extends CmlEvent {
 		return value;
 	}
 	
-	public CMLCommunicationType getCommunicationType()
+	public CmlCommunicationType getCommunicationType()
 	{
 		return this.commtype;
 	}
 	
 	public boolean isSignal()
 	{
-		return this.commtype == CMLCommunicationType.SIGNAL;
+		return this.commtype == CmlCommunicationType.SIGNAL;
 	}
 	
 	@Override public String toString() 
@@ -55,12 +55,12 @@ public class CMLCommunication extends CmlEvent {
 	@Override
 	public boolean equals(Object obj) {
 
-		CMLCommunication other = null;
+		CmlCommunication other = null;
 		
-		if(!(obj instanceof CMLCommunication))
+		if(!(obj instanceof CmlCommunication))
 			return false;
 		
-		other = (CMLCommunication)obj;
+		other = (CmlCommunication)obj;
 		
 		return other.getChannel().equals(getChannel());
 	}

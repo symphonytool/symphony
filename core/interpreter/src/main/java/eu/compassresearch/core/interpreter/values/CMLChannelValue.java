@@ -7,16 +7,16 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.cml.CMLChannel;
-import eu.compassresearch.core.interpreter.cml.CMLChannelEvent;
-import eu.compassresearch.core.interpreter.cml.CMLChannelSignal;
-import eu.compassresearch.core.interpreter.cml.CMLCommunicationType;
-import eu.compassresearch.core.interpreter.cml.CMLInputChannel;
-import eu.compassresearch.core.interpreter.cml.CMLOutputChannel;
+import eu.compassresearch.core.interpreter.cml.CmlChannel;
+import eu.compassresearch.core.interpreter.cml.CmlChannelEvent;
+import eu.compassresearch.core.interpreter.cml.CmlChannelSignal;
+import eu.compassresearch.core.interpreter.cml.CmlCommunicationType;
+import eu.compassresearch.core.interpreter.cml.CmlInputChannel;
+import eu.compassresearch.core.interpreter.cml.CmlOutputChannel;
 import eu.compassresearch.core.interpreter.cml.ChannelObserver;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 
-public class CMLChannelValue extends Value implements CMLChannel, CMLChannelSignal,CMLOutputChannel<Value> ,CMLInputChannel<Value> 
+public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSignal,CmlOutputChannel<Value> ,CmlInputChannel<Value> 
 {
 
 	private LexNameToken 					name;
@@ -79,26 +79,26 @@ public class CMLChannelValue extends Value implements CMLChannel, CMLChannelSign
 
 	@Override
 	public Value read() {
-		notifyObservers(readObservers,CMLCommunicationType.READ);
+		notifyObservers(readObservers,CmlCommunicationType.READ);
 		return value;
 	}
 
 	@Override
 	public void write(Value value) {
 		this.value= value; 
-		notifyObservers(writeObservers,CMLCommunicationType.WRITE);
+		notifyObservers(writeObservers,CmlCommunicationType.WRITE);
 	}
 
 	@Override
 	public void signal() {
-		notifyObservers(signalObservers,CMLCommunicationType.SIGNAL);
+		notifyObservers(signalObservers,CmlCommunicationType.SIGNAL);
 	}
 	
-	private void notifyObservers(List<ChannelObserver> observers, CMLCommunicationType eventType)
+	private void notifyObservers(List<ChannelObserver> observers, CmlCommunicationType eventType)
 	{
 		for(ChannelObserver observer : observers)
 		{
-			observer.onChannelEvent(new CMLChannelEvent(this, eventType));
+			observer.onChannelEvent(new CmlChannelEvent(this, eventType));
 		}
 	}
 

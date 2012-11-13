@@ -2,11 +2,11 @@ package eu.compassresearch.core.interpreter.values;
 
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.runtime.CMLProcessInstance;
+import eu.compassresearch.core.interpreter.runtime.CmlProcessInstance;
 
 public class ProcessValue extends Value {
 
-	CMLProcessInstance processInstance;
+	CmlProcessInstance processInstance;
 	
 	@Override
 	public String toString() {

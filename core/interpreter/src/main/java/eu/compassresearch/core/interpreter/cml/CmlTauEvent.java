@@ -4,26 +4,26 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 
-public class CMLTauEvent extends SpecialEvent {
+public class CmlTauEvent extends SpecialEvent {
 
-	protected static CMLTauEvent instance = null;
+	protected static CmlTauEvent instance = null;
 	final static String tauString = "\u03C4".toLowerCase();
 	private final INode transitionNode;
 	
-	public static CMLTauEvent newTauEvent(INode transitionNode)
+	public static CmlTauEvent newTauEvent(INode transitionNode)
 	{
-		return new CMLTauEvent(transitionNode);  
+		return new CmlTauEvent(transitionNode);  
 	}
 		
-	public static CMLTauEvent referenceTauEvent()
+	public static CmlTauEvent referenceTauEvent()
 	{
 		if(instance == null)
-			instance = new CMLTauEvent(null);
+			instance = new CmlTauEvent(null);
 		
 		return instance;
 	}
 	
-	protected CMLTauEvent(INode transitionNode)
+	protected CmlTauEvent(INode transitionNode)
 	{
 		this.transitionNode = transitionNode;
 	}
@@ -44,7 +44,7 @@ public class CMLTauEvent extends SpecialEvent {
 	@Override
 	public boolean equals(Object obj) {
 		
-		if(!(obj instanceof CMLTauEvent))
+		if(!(obj instanceof CmlTauEvent))
 			return false;
 		else
 			return true;

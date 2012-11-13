@@ -7,11 +7,11 @@ import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.interpreter.cml.CMLBehaviourSignal;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 public abstract class AbstractEvaluator<T  extends INode> extends
-		QuestionAnswerCMLAdaptor<Context, CMLBehaviourSignal> {
+		QuestionAnswerCMLAdaptor<Context, CmlBehaviourSignal> {
 
 	/**
 	 * 
@@ -34,7 +34,7 @@ public abstract class AbstractEvaluator<T  extends INode> extends
 		executionStack.push(new Pair<T, Context>(node, context));
 	}
 	
-	protected CMLBehaviourSignal executeNext() throws AnalysisException
+	protected CmlBehaviourSignal executeNext() throws AnalysisException
 	{
 		if(hasNext())
 		{

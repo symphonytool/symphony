@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import org.overture.typechecker.Environment;
 
-import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 
 
@@ -16,7 +16,7 @@ public class CmlRuntime {
 
 	//protected static CmlScheduler cmlScheduler = new CmlScheduler();
 	protected static Environment globalEnvironment = null;
-	protected static CMLSupervisorEnvironment supervisorEnvironment = null;
+	protected static CmlSupervisorEnvironment supervisorEnvironment = null;
 	protected static Logger logger = null;
 	protected static Handler logHandler = null;
 	private static boolean showHiddenEvents = true;
@@ -66,7 +66,7 @@ public class CmlRuntime {
 
 	}
 	
-	public static CMLSupervisorEnvironment getSupervisorEnvironment()
+	public static CmlSupervisorEnvironment getSupervisorEnvironment()
 	{
 		if(null == supervisorEnvironment)
 			supervisorEnvironment = new DefaultSupervisorEnvironment(new RandomSelectionStrategy());

@@ -3,32 +3,32 @@ package eu.compassresearch.core.interpreter.cml;
 import java.util.HashSet;
 import java.util.Set;
 
-public class CMLAlphabet {
+public class CmlAlphabet {
 
-	private final Set<CMLCommunication> communicationEvents;
+	private final Set<CmlCommunication> communicationEvents;
 	private final Set<SpecialEvent> specialEvents;
 	
-	public CMLAlphabet()
+	public CmlAlphabet()
 	{
-		this.communicationEvents = new HashSet<CMLCommunication>();
+		this.communicationEvents = new HashSet<CmlCommunication>();
 		this.specialEvents = new HashSet<SpecialEvent>();
 	}
 	
-	public CMLAlphabet(Set<CMLCommunication> comms, Set<SpecialEvent> specialEvents)
+	public CmlAlphabet(Set<CmlCommunication> comms, Set<SpecialEvent> specialEvents)
 	{
 		this.communicationEvents = comms;
 		this.specialEvents = specialEvents;
 	}
 	
-	public CMLAlphabet(Set<CmlEvent> events)
+	public CmlAlphabet(Set<CmlEvent> events)
 	{
-		this.communicationEvents = new HashSet<CMLCommunication>();
+		this.communicationEvents = new HashSet<CmlCommunication>();
 		this.specialEvents = new HashSet<SpecialEvent>();
 		
 		for(CmlEvent e : events)
 		{
-			if(e instanceof CMLCommunication)
-				this.communicationEvents.add((CMLCommunication)e);
+			if(e instanceof CmlCommunication)
+				this.communicationEvents.add((CmlCommunication)e);
 			else if(e instanceof SpecialEvent)
 				this.specialEvents.add((SpecialEvent)e);
 			
@@ -36,9 +36,9 @@ public class CMLAlphabet {
 		
 	}
 	
-	public Set<CMLCommunication> getCommunicationEvents()
+	public Set<CmlCommunication> getCommunicationEvents()
 	{
-		return new HashSet<CMLCommunication>(communicationEvents);
+		return new HashSet<CmlCommunication>(communicationEvents);
 	}
 	
 	public Set<SpecialEvent> getSpecialEvents()
@@ -62,7 +62,7 @@ public class CMLAlphabet {
 	 * Communication events are both read, write and signaling channel event (synchronization events)
 	 * @return true if the special event is contained else false
 	 */
-	public boolean containsCommunication(CMLCommunication com)
+	public boolean containsCommunication(CmlCommunication com)
 	{
 		return communicationEvents.contains(com);
 	}

@@ -5,7 +5,7 @@ package eu.compassresearch.core.interpreter.cml;
  * @author akm
  *
  */
-public interface CMLChannelSignal extends CMLChannel {
+public interface CmlChannelSignal extends CmlChannel {
 
 	/**
 	 * Signals to the channel listeners that they can now proceed 

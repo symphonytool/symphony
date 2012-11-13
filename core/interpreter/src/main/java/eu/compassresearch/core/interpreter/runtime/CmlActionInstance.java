@@ -10,9 +10,9 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.core.interpreter.cml.CMLAlphabet;
-import eu.compassresearch.core.interpreter.cml.CMLBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.ProcessState;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.util.Pair;
@@ -31,13 +31,13 @@ import eu.compassresearch.core.interpreter.util.Pair;
  * @author akm
  *
  */
-public class CMLActionInstance extends AbstractInstance<PAction> {
+public class CmlActionInstance extends AbstractInstance<PAction> {
 
 	private LexNameToken name;
 	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(); 
 	//private Process
 	
-	public CMLActionInstance(PAction action,Context context, LexNameToken name)
+	public CmlActionInstance(PAction action,Context context, LexNameToken name)
 	{
 		super(null);
 		this.name = name;
@@ -46,31 +46,21 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 	}
 	
 	@Override
-	public void start(CMLSupervisorEnvironment env) {
+	public void start(CmlSupervisorEnvironment env) {
 		this.env= env; 
 		state = ProcessState.RUNNABLE;
 	}
 
 	@Override
-	public CMLAlphabet inspect() throws AnalysisException 
+	public CmlAlphabet inspect() throws AnalysisException 
 	{
 		Pair<PAction,Context> next = nextState();
 		return next.first.apply(alphabetInspectionVisitor,next.second);
 	}
 
 	@Override
-	public ProcessState getState() {
-		return state;
-	}
-
-	@Override
 	public LexNameToken name() {
 		return this.name;
-	}
-	
-	@Override
-	public void setState(ProcessState state) {
-		this.state = state;
 	}
 	
 	@Override
@@ -84,6 +74,19 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 	}
 	
 	/**
+	 * Process state methods 
+	 */
+	@Override
+	public ProcessState getState() {
+		return state;
+	}
+
+	@Override
+	public void setState(ProcessState state) {
+		this.state = state;
+	}
+		
+	/**
 	 * Transition cases
 	 */
 
@@ -96,16 +99,20 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 	 * As defined in 7.5.2 in D23.2
 	 */
 	@Override
-	public CMLBehaviourSignal caseACommunicationAction(
+	public CmlBehaviourSignal caseACommunicationAction(
 			ACommunicationAction node, Context question)
 			throws AnalysisException {
+		
+		CmlBehaviourSignal result = null;
 		
 		//At this point the supervisor has already given go to the event, 
 		//so we can execute it immediately. We just have figure out which kind of event it is
 		if(isSimplePrefix(node))
-			return caseSimplePrefix(node, question);
-		else
-			return null;
+			result = caseSimplePrefix(node, question);
+	
+		//supervisor().clearSelectedCommunication();
+		
+		return result;
 	}
 	
 	/**
@@ -122,19 +129,19 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 		return node.getCommunicationParameters().isEmpty();
 	}
 	
-	private CMLBehaviourSignal caseSimplePrefix(ACommunicationAction node, Context question) 
+	private CmlBehaviourSignal caseSimplePrefix(ACommunicationAction node, Context question) 
 			throws AnalysisException 
 	{
 		pushNext(node.getAction(), question); 
 		
-		return CMLBehaviourSignal.EXEC_SUCCESS;
+		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
 	/**
 	 * This implements the 7.5.10 Action Reference transition rule in D23.2. 
 	 */
 	@Override
-	public CMLBehaviourSignal caseAReferenceAction(AReferenceAction node,
+	public CmlBehaviourSignal caseAReferenceAction(AReferenceAction node,
 			Context question) throws AnalysisException {
 		//FIXME: the scoping is not correct, this should be done as described in the transition rule
 		
@@ -143,14 +150,14 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 		
 		pushNext(node.getActionDefinition().getAction(), question); 
 		
-		return CMLBehaviourSignal.EXEC_SUCCESS;
+		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
 	/**
 	 * This implements the 7.5.6 Sequential Composition transition rules in D23.2.
 	 */
 	@Override
-	public CMLBehaviourSignal caseASequentialCompositionAction(
+	public CmlBehaviourSignal caseASequentialCompositionAction(
 			ASequentialCompositionAction node, Context question)
 			throws AnalysisException {
 
@@ -158,23 +165,73 @@ public class CMLActionInstance extends AbstractInstance<PAction> {
 		pushNext(node.getRight(), question);
 		pushNext(node.getLeft(), question);
 		
-		return CMLBehaviourSignal.EXEC_SUCCESS;
+		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
+
+	/**
+	 * Parallel composition D23.2 7.5.7
+	 *  
+	 */
 	
+	/**
+	 * Interleaving
+	 * A ||| B
+	 */
 	@Override
-	public CMLBehaviourSignal caseAInterleavingParallelAction(
+	public CmlBehaviourSignal caseAInterleavingParallelAction(
 			AInterleavingParallelAction node, Context question)
 			throws AnalysisException {
 
+		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
+		if(!hasChildren())
+			caseParallelBegin(node.getLeftAction(),node.getRightAction(),question);
+		
 		
 		return super.caseAInterleavingParallelAction(node, question);
 	}
 	
+	/**
+	 * Parallel composition Helper methods
+	 */
+	
+	/**
+	 * This method introduces a local state for each parallel action which is the source state component
+	 * restricted by the nameset expressions
+	 * @param question
+	 * @return
+	 */
+	private CmlBehaviourSignal caseParallelBegin(PAction left, PAction right, Context question)
+	{
+		//TODO: create a local copy of the question state for each of the actions
+		CmlActionInstance leftInstance = 
+				new CmlActionInstance(left, question, 
+						new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()));
+		
+		CmlActionInstance rightInstance = 
+				new CmlActionInstance(left, question, 
+						new LexNameToken(name.module,"|||" + name.getIdentifier().getName(),left.getLocation()));
+		
+		supervisor().addPupil(rightInstance);
+		supervisor().addPupil(leftInstance);
+		rightInstance.start(supervisor());
+		leftInstance.start(supervisor());
+		
+		
+		
+		
+		//We push the current state, since this will control the child processes created by it
+		//pushNext(parallelAction, question);
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
 	@Override
-	public CMLBehaviourSignal caseASkipAction(ASkipAction node, Context question)
+	public CmlBehaviourSignal caseASkipAction(ASkipAction node, Context question)
 			throws AnalysisException {
+
+		//if hasNext() is true then Skip is in sequential composition with next
 		if(!hasNext())
 			state = ProcessState.FINISHED;
-		return CMLBehaviourSignal.EXEC_SUCCESS;
+		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 }

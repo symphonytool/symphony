@@ -2,7 +2,7 @@ package eu.compassresearch.core.interpreter.jack;
 
 import java.util.Iterator;
 
-import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 
 public interface JACKProcess {
 	// Process Graph/Representation related methods
@@ -27,12 +27,12 @@ public interface JACKProcess {
 	
 	// Process Supervision related methods
 //	public CMLProcessNetwork network();
-	public CMLSupervisorEnvironment supervisor();
+	public CmlSupervisorEnvironment supervisor();
 	//public Reason abortReason();
 	//public void setAbort(Reason reason);
 //	public void uncaughtException(Thread t, Throwable e);
 	// Methods that the user ought to call
-	public void start(CMLSupervisorEnvironment sve); //throws IllegalProcessStateException;
+	public void start(CmlSupervisorEnvironment sve); //throws IllegalProcessStateException;
 //	public void join();
 	// Process Network graph searching facilities
 //	public CMLProcessNew findInnerMostBacktrackable();

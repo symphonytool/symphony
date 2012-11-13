@@ -6,27 +6,27 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 
 
-public interface CmlProcess extends CMLProcessBehaviour{
+public interface CmlProcess extends CmlProcessBehaviour{
 
 	/**
 	 * Initializes the process
 	 * @param env
 	 */
-	public void start(CMLSupervisorEnvironment env);
+	public void start(CmlSupervisorEnvironment env);
 	
 	/**
 	 * Executes the next process/action in the process stack
 	 * @return
 	 * @throws AnalysisException 
 	 */
-	public CMLBehaviourSignal execute(CMLSupervisorEnvironment env) throws AnalysisException;
+	public CmlBehaviourSignal execute(CmlSupervisorEnvironment env) throws AnalysisException;
 	
 	/**
 	 * Returns the immediate alphabet of the process, meaning the next possible Communication Event
 	 * @return The immediate alphabet of the process
 	 * @throws AnalysisException 
 	 */
-	public CMLAlphabet inspect() throws AnalysisException;
+	public CmlAlphabet inspect() throws AnalysisException;
 	
 	/**
 	 * 
@@ -38,7 +38,7 @@ public interface CmlProcess extends CMLProcessBehaviour{
 	 * 
 	 * @return The current supervisor of this process
 	 */
-	public CMLSupervisorEnvironment supervisor();
+	public CmlSupervisorEnvironment supervisor();
 	
 	/**
 	 * Name of the process
@@ -48,10 +48,8 @@ public interface CmlProcess extends CMLProcessBehaviour{
 	
 	
 	// Process Graph/Representation related methods
-//	public long level();
+	public long level();
 	public CmlProcess parent();
-//	public CMLDomain domain();
-//	public CMLProcessBehaviour behaviour();
 	public List<CmlProcess> children();
 //	public CMLAlphabet childInspectedAlphabet(CMLProcessNew child);
 //	public void setChildInspectedAlphabet(CMLProcessNew child, CMLAlphabet alpha);

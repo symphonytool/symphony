@@ -6,27 +6,27 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 
-import eu.compassresearch.core.interpreter.cml.CMLBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CMLCommunication;
-import eu.compassresearch.core.interpreter.cml.CMLCommunicationSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
+import eu.compassresearch.core.interpreter.cml.CmlCommunication;
+import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
 
-public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
+public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 
-	private CMLCommunicationSelectionStrategy selectStrategy;
-	private CMLCommunication selectedCommunication;
+	private CmlCommunicationSelectionStrategy selectStrategy;
+	private CmlCommunication selectedCommunication;
 	List<CmlProcess> running = new LinkedList<CmlProcess>();
 	List<CmlProcess> waiting = new LinkedList<CmlProcess>();
 	List<CmlProcess> finished = new LinkedList<CmlProcess>();
 	
-	public DefaultSupervisorEnvironment(CMLCommunicationSelectionStrategy selectStrategy)
+	public DefaultSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy)
 	{
 		this.selectStrategy = selectStrategy;
 	}
 	
 	@Override
-	public CMLCommunicationSelectionStrategy decisionFunction() {
+	public CmlCommunicationSelectionStrategy decisionFunction() {
 
 		return this.selectStrategy;
 	}
@@ -44,12 +44,12 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 	}
 
 	@Override
-	public CMLCommunication selectedCommunication() {
+	public CmlCommunication selectedCommunication() {
 		return selectedCommunication;
 	}
 
 	@Override
-	public void setSelectedCommunication(CMLCommunication comm) {
+	public void setSelectedCommunication(CmlCommunication comm) {
 		selectedCommunication = comm;
 
 	}
@@ -92,9 +92,9 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 				while(!p.finished() && 
 						!p.waiting())
 				{
-					CMLBehaviourSignal signal = p.execute(this);
+					CmlBehaviourSignal signal = p.execute(this);
 					
-					if(signal != CMLBehaviourSignal.EXEC_SUCCESS)
+					if(signal != CmlBehaviourSignal.EXEC_SUCCESS)
 						throw new RuntimeException("Change this!!!!, but now that you haven't changed this yet, then let me tell you that the return CMLBehaviourSignal was unsuccesful");
 
 					CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
@@ -106,7 +106,7 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 						finished.add(p);
 						iterator.remove();
 						break;
-					case WAIT:
+					case WAIT_EVENT:
 						waiting.add(p);
 						iterator.remove();
 						break;
@@ -115,15 +115,19 @@ public class DefaultSupervisorEnvironment implements CMLSupervisorEnvironment {
 			}
 
 			/**
-			 * Now, all the processes are sleep tight, so we need to decided which events should happen and wake them up
+			 * Now, all the processes are sleeping tight, so the selected decision strategy needs to 
+			 * decide which event should occur and wake them up.
 			 */
 			for(Iterator<CmlProcess> iterator = waiting.iterator(); iterator.hasNext();)
 			{
 				CmlProcess p = iterator.next();
-				
-				//Select the 
+				//if(p.level() == 0)
+				//{
+				//Select and set the communication event
 				setSelectedCommunication(decisionFunction().select(p.inspect()));
+				//signal all the processes that are listening for this channel
 				selectedCommunication.getChannel().signal();
+				//FIXME: This should be done be observer pattern, so no inconsistencies occur in the lists
 				running.add(p);
 				iterator.remove();
 				

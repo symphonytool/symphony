@@ -12,36 +12,36 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.interpreter.cml.CMLAlphabet;
-import eu.compassresearch.core.interpreter.cml.CMLCommunication;
+import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
+import eu.compassresearch.core.interpreter.cml.CmlCommunication;
 import eu.compassresearch.core.interpreter.cml.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.CMLTauEvent;
+import eu.compassresearch.core.interpreter.cml.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.SpecialEvent;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
 public class AlphabetInspectionVisitor
 		extends
-		QuestionAnswerCMLAdaptor<Context, eu.compassresearch.core.interpreter.cml.CMLAlphabet> {
+		QuestionAnswerCMLAdaptor<Context, eu.compassresearch.core.interpreter.cml.CmlAlphabet> {
 
 	@Override
-	public CMLAlphabet defaultPProcess(PProcess node, Context question)
+	public CmlAlphabet defaultPProcess(PProcess node, Context question)
 			throws AnalysisException {
 		HashSet<CmlEvent> specialEvents = new HashSet<CmlEvent>();
-		specialEvents.add(CMLTauEvent.newTauEvent(node));
-		return new CMLAlphabet(specialEvents);
+		specialEvents.add(CmlTauEvent.newTauEvent(node));
+		return new CmlAlphabet(specialEvents);
 	}
 	
 	@Override
-	public CMLAlphabet defaultPAction(PAction node, Context question)
+	public CmlAlphabet defaultPAction(PAction node, Context question)
 			throws AnalysisException {
 
 		HashSet<CmlEvent> specialEvents = new HashSet<CmlEvent>();
-		specialEvents.add(CMLTauEvent.newTauEvent(node));
-		return new CMLAlphabet(specialEvents);
+		specialEvents.add(CmlTauEvent.newTauEvent(node));
+		return new CmlAlphabet(specialEvents);
 	}
 	
 	@Override
-	public CMLAlphabet caseACommunicationAction(ACommunicationAction node,
+	public CmlAlphabet caseACommunicationAction(ACommunicationAction node,
 			Context question) throws AnalysisException {
 
 		//FIXME: This should be a name so the conversion is avoided
@@ -49,10 +49,10 @@ public class AlphabetInspectionVisitor
 		
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 		
-		CMLCommunication com = new CMLCommunication(chanValue);
+		CmlCommunication com = new CmlCommunication(chanValue);
 		Set<CmlEvent> comset = new HashSet<CmlEvent>();
 		comset.add(com);
-		return new CMLAlphabet(comset);
+		return new CmlAlphabet(comset);
 	}
 	
 	

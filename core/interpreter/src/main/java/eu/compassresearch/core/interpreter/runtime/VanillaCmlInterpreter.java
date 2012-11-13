@@ -21,7 +21,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.api.NoProcessFoundException;
-import eu.compassresearch.core.interpreter.cml.CMLSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -133,8 +133,8 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         //cmlScheduler.addProcess(instantProcess);
         //cmlScheduler.start();
         
-        CMLSupervisorEnvironment sve = CmlRuntime.getSupervisorEnvironment();
-        CMLProcessInstance pi = new CMLProcessInstance(topProcess, null,getInitialContext(null));
+        CmlSupervisorEnvironment sve = CmlRuntime.getSupervisorEnvironment();
+        CmlProcessInstance pi = new CmlProcessInstance(topProcess, null,getInitialContext(null));
         
         pi.start(sve);
         sve.start();

@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter.cml;
 
-public enum CMLCommunicationType {
+public enum CmlCommunicationType {
 	READ,
 	WRITE,
 	SIGNAL
