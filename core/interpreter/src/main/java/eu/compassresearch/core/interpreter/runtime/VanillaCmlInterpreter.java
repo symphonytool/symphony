@@ -7,19 +7,23 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.typechecker.NameScope;
 import org.overture.interpreter.values.Value;
+import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.program.AFileSource;
+import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.api.NoProcessFoundException;
+import eu.compassresearch.core.interpreter.cml.InstantiatedProcess;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
-import eu.compassresearch.core.interpreter.scheduler.InstantiatedProcess;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.typechecker.Environment;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 
@@ -29,13 +33,14 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
     /**
 	 * 
 	 */
-    private static final long serialVersionUID = 6664128061930795395L;
-    private CmlEvaluator      evalutor         = new CmlEvaluator();
-    protected List<PSource> sourceForest;
-	protected Environment<PDefinition> env;
-	protected String defaultProcess;
-	private CmlScheduler cmlScheduler = new CmlScheduler();
-        
+    private static final long          serialVersionUID = 6664128061930795395L;
+    private CmlEvaluator               evalutor         = new CmlEvaluator();
+    protected List<PSource>            sourceForest;
+    protected Environment 			   env;
+    protected String 				   defaultName      = null;	
+    protected AProcessDefinition       topProcess;
+    private CmlScheduler               cmlScheduler     = new CmlScheduler();
+    
     /**
      * Construct a CmlInterpreter with a list of PSources. These source may
      * refer to each other.
@@ -44,12 +49,12 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
      * @param cmlSources
      *          - Source containing CML Paragraphs for type checking.
      */
-    public VanillaCmlInterpreter(List<PSource> cmlSources)
-      {
+    public VanillaCmlInterpreter(List<PSource> cmlSources) throws InterpreterException
+    {
     	this.sourceForest = cmlSources;
-        initialize();
-        
-      }
+    	initialize();
+
+    }
     
     /**
      * Construct a CmlTypeInterpreter with the intension of checking a single
@@ -57,64 +62,70 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
      * 
      * @param singleSource
      */
-    public VanillaCmlInterpreter(PSource singleSource)
-      {
-        this.sourceForest = new LinkedList<PSource>();
-        this.sourceForest.add(singleSource);
-        initialize();
-      }
-    
-    protected void initialize()
-	{
-		EnvironmentBuilder envBuilder = new EnvironmentBuilder(sourceForest);
-		
-		env = envBuilder.getGlobalEnvironment();
-		
-		defaultProcess = envBuilder.getLastDefinedProcess();
-	}
+    public VanillaCmlInterpreter(PSource singleSource) throws InterpreterException
+    {
+    	this.sourceForest = new LinkedList<PSource>();
+    	this.sourceForest.add(singleSource);
+    	initialize();
+    }
 
-	@Override
-	public Environment<PDefinition> getGlobalEnvironment() {
-		
-		return env;
-	}
+    protected void initialize() throws NoProcessFoundException
+    {
+    	EnvironmentBuilder envBuilder = new EnvironmentBuilder(sourceForest);
 
-	@Override
-	public String getDefaultName() {
-		
-		return defaultProcess;
-	}
-	
-	@Override
-	public void setDefaultName(String name) throws Exception {
-		
-		defaultProcess = name;
-	}
+    	env = envBuilder.getGlobalEnvironment();
+    	
+    	if(defaultName != null)
+    	{
+    		LexNameToken name = new LexNameToken("Default",getDefaultName(),null);
+            AProcessDefinition processDef = (AProcessDefinition)env.findName(name, NameScope.GLOBAL);
+            
+            if (processDef == null)
+              throw new NoProcessFoundException("No process identified by '"
+                  + getDefaultName() + "' exists");
+    		
+            topProcess = processDef;
+    	}
+    	else
+    		topProcess = envBuilder.getLastDefinedProcess();
+    }
+
+    @Override
+    public Environment getGlobalEnvironment()
+    {
+    	return env;
+    }
     
+    @Override
+    public String getDefaultName()
+    {
+    	return defaultName;
+    }
+    
+    @Override
+    public void setDefaultName(String name) throws Exception
+    {
+
+    	defaultName = name;
+    }
+
     @Override
     public Value execute() throws AnalysisException
       {
         
-        Environment<PDefinition> env = getGlobalEnvironment();
+        Environment env = getGlobalEnvironment();
         
-        
-        //if(getDefaultName() == null)
+        // if(getDefaultName() == null)
         // Find the default process
-        AProcessDefinition processDef = null;
-//        AProcessDefinition processDef = (AProcessDefinition)env
-//            .lookupName(new LexIdentifierToken(getDefaultName(), false, null));
-//        
-        if (processDef == null)
-          throw new AnalysisException("No process identified by '"
-              + getDefaultName() + "' exists");
-        
+        //AProcessDefinition processDef = null;
+                
         CmlRuntime.setGlobalEnvironment(env);
         // This constructs the runtime process structure from the AST
-        ProcessValue pv = (ProcessValue) processDef.getProcess().apply(
-            this.evalutor, getInitialContext(processDef.getLocation()));
+        ProcessValue pv = (ProcessValue) topProcess.getProcess().apply(
+            this.evalutor, getInitialContext(topProcess.getLocation()));
         // Wrap the top process in an InstantiatedProcess
         InstantiatedProcess instantProcess = new InstantiatedProcess(
-            processDef, pv.getProcess());
+        		topProcess, pv.getProcess());
         
         // Add the top process to the scheduler and start it
         cmlScheduler.addProcess(instantProcess);
@@ -122,7 +133,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         
         return null;
       }
-        
+    
     public String getAnalysisName()
       {
         return "The CML Interpreter";
@@ -151,7 +162,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
           }
       }
     
-    private static void runOnFile(File f) throws IOException
+    private static void runOnFile(File f) throws IOException, InterpreterException
       {
         // set file name
         PSource source = prepareSource(f);
@@ -181,7 +192,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
         try
           {
-            //cmlInterp.setDefaultName("A");
+            // cmlInterp.setDefaultName("A");
             cmlInterp.execute();
           } catch (Exception ex)
           {
@@ -196,18 +207,18 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         System.out.println("The given CML Program is done simulating.");
       }
     
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args) throws IOException, InterpreterException
       {
         
         File cml_example = new File(
             "src/test/resources/process/firstInterpreterTest.cml");
-        	//	"src/test/resources/process/GeneralisedParallelismAction.cml");
+        // "src/test/resources/process/GeneralisedParallelismAction.cml");
         runOnFile(cml_example);
         
       }
     
     public InterpreterStatus getStatus()
-    {
-    	return new InterpreterStatus(cmlScheduler.getTrace());
-    }
+      {
+        return new InterpreterStatus(cmlScheduler.getTrace());
+      }
   }

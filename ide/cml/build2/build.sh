@@ -62,8 +62,8 @@ touch build.log || fn_error "Cannot create build.log" ;
 java -jar ${launcher} \
 -application org.eclipse.ant.core.antRunner \
 -buildfile ${buildfile} \
--Dproduct=${build_dir}/${product} \
 -DbuildDirectory=${build_dir} \
+-Dproduct=${build_dir}/${product} \
 -Dbuilder=$(pwd)/build_config \
 -DbaseLocation=${target_platform} \
 -Dbase=$(pwd) \

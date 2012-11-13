@@ -26,7 +26,7 @@ import org.overture.ast.types.PType;
 import org.overture.ast.analysis.AnalysisAdaptor;
 
 import eu.compassresearch.ast.actions.SStatementAction;
-import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
