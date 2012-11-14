@@ -559,6 +559,62 @@ public class RttMbtClient {
 		return success;
 	}
 	
+	public Boolean compileTestProcedure(String concreteTestProc) {
+		Boolean success = true;
+
+		// push necessary files to cache:
+		// /conf/
+		// /inc/
+		// /specs/
+		// /stubs/
+		// /RTT_Testprocedure/<testproc>/conf/
+		// /RTT_Testprocedure/<testproc>/inc/
+		// /RTT_Testprocedure/<testproc>/specs/
+		// /RTT_Testprocedure/<testproc>/stubs/
+		String dirName = getProjectName() + File.separator;
+		uploadDirectory(dirName + "conf", false);
+		uploadDirectory(dirName + "inc", false);
+		uploadDirectory(dirName + "specs", false);
+		uploadDirectory(dirName + "stubs", false);
+		dirName = getProjectName() + File.separator
+				+ "RTT_TestProcedures" + File.separator
+				+ concreteTestProc + File.separator;
+		uploadDirectory(dirName + "conf", false);
+		uploadDirectory(dirName + "inc", false);
+		uploadDirectory(dirName + "specs", false);
+		uploadDirectory(dirName + "stubs", false);
+		
+		// generate-test-command
+		System.out.println("generating concrete test procedure _P1...");
+		jsonGenerateTestCommand cmd = new jsonGenerateTestCommand(this);
+		cmd.setTestProcName("RTT_TestProcedures/" + concreteTestProc);
+		cmd.executeCommand();
+		if (!cmd.executedSuccessfully()) {
+			System.err.println("[FAIL]: compiling RTT_TestProcedures/" + concreteTestProc + " failed!");
+			// download debug information:
+			// - rtt-mbt-tms.out
+			// - rtt-mbt-tms.err
+			String dirname = getProjectName() + File.separator;
+			downloadDirectory(dirname + "rtt-mbt-tms-execution.err");
+			downloadDirectory(dirname + "rtt-mbt-tms-execution.out");
+		} else {
+			// download generated files (not src, stubsrc, etc.)
+			dirName = getProjectName() + File.separator;
+			downloadDirectory(dirName + "conf");
+			downloadDirectory(dirName + "inc");
+			downloadDirectory(dirName + "specs");
+			downloadDirectory(dirName + "stubs");
+			dirName = getProjectName() + File.separator
+					+ "RTT_TestProcedures" + File.separator
+					+ concreteTestProc + File.separator;
+			downloadDirectory(dirName + "conf");
+			downloadDirectory(dirName + "inc");
+			downloadDirectory(dirName + "specs");
+			downloadDirectory(dirName + "stubs");
+		}
+		return success;
+	}
+	
 	public String addLocalWorkspace(String filename) {
 		if (filename == null) return filename;
 		String workspace = getCmlWorkspace() + getCmlProject();

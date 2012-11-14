@@ -66,22 +66,5 @@ public class ClientInitProject {
 			System.err.println("[FAIL]: init project");
 			return;
 		}
-
-		// create a new abstract test procedure
-		// - download templates/_P1_compass.zip
-		// - unzip _P1_compass.zip
-
-		// generate concrete test procedure
-		// - generate-test-command
-
-		// compile test procedure
-		// - (@todo) compile-test-command
-
-		// run test procedure
-		// - (@todo) run-test-command
-		// - (@todo) stop-test-command
-
-		// document test procedure
-		// - (@todo) doc-test-command
 	}
 }
