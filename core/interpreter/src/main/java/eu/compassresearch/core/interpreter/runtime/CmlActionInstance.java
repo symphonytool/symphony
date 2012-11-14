@@ -12,6 +12,8 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
@@ -69,10 +71,18 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	}
 
 	@Override
-	public CmlAlphabet inspect() throws AnalysisException 
+	public CmlAlphabet inspect()
 	{
-		Pair<PAction,Context> next = nextState();
-		return next.first.apply(alphabetInspectionVisitor,next.second);
+		try
+		{
+			Pair<PAction,Context> next = nextState();
+			return next.first.apply(alphabetInspectionVisitor,next.second);
+		}
+		catch(AnalysisException ex)
+		{
+			CmlRuntime.logger.throwing(this.toString(),"inspect()", ex);
+			throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage(),ex);
+		}
 	}
 
 	@Override

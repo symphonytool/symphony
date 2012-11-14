@@ -39,7 +39,6 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 //	@Override
 //	public void setDecisionFunction(CMLCommunicationSelectionStrategy cdf)
 //			throws NullPointerException {
-//		// TODO Auto-generated method stub
 //
 //	}
 
@@ -167,7 +166,6 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 
 //	@Override
 //	public boolean hasSupervisionFrame(CMLProcessNew process) {
-//		// TODO Auto-generated method stub
 //		return false;
 //	}
 

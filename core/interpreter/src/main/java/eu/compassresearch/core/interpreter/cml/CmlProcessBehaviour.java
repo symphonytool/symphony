@@ -4,8 +4,17 @@ import org.overture.ast.analysis.AnalysisException;
 
 public interface CmlProcessBehaviour{
 	
-	public CmlBehaviourSignal execute(CmlSupervisorEnvironment supervisor) throws AnalysisException;;
-	public CmlAlphabet inspect() throws AnalysisException;;
+	/**
+	 * Executes the next process/action in the process stack
+	 * @return
+	 */
+	public CmlBehaviourSignal execute(CmlSupervisorEnvironment supervisor);
+	
+	/**
+	 * Returns the immediate alphabet of the process, meaning the next possible Communication Event
+	 * @return The immediate alphabet of the process
+	 */
+	public CmlAlphabet inspect();
 	
 	
 }

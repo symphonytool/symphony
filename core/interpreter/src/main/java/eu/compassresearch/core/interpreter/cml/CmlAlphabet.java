@@ -81,6 +81,9 @@ public class CmlAlphabet {
 		return specialEvents.contains(specialEvent);
 	}
 	
-	
+	public boolean isEmpty()
+	{
+		return communicationEvents.isEmpty() && specialEvents.isEmpty();
+	}
 	
 }

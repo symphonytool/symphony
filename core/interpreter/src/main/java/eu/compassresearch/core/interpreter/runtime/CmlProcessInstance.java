@@ -11,6 +11,8 @@ import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
@@ -70,18 +72,25 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 	}
 
 	@Override
-	public CmlAlphabet inspect() throws AnalysisException{
-		
-		CmlAlphabet alpha = null;
-		
-		if(null != mainBehaviour)
-			alpha = mainBehaviour.inspect();
-		else
+	public CmlAlphabet inspect() 
+	{
+		try{
+
+			CmlAlphabet alpha = null;
+
+			if(null != mainBehaviour)
+				alpha = mainBehaviour.inspect();
+			else
+			{
+				alpha = nextState().first.apply(alphabetInspectionVisitor,nextState().second);
+			}
+
+			return alpha;
+		}catch(AnalysisException ex)
 		{
-			alpha = nextState().first.apply(alphabetInspectionVisitor,nextState().second);
+			CmlRuntime.logger.throwing(this.toString(),"inspect()", ex);
+			throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage(),ex);
 		}
-		
-		return alpha;
 	}
 	
 	@Override

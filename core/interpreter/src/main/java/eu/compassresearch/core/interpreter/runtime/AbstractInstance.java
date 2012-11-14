@@ -6,6 +6,7 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.ChannelObserver;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
@@ -36,46 +37,54 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		this.parent = parent;
 	}
 	
+	/**
+	 * Executes the current process behaviour
+	 */
 	@Override
-	public CmlTrace getTraceModel() {
-		return trace;
-	}
-		
-	@Override
-	public CmlBehaviourSignal execute(CmlSupervisorEnvironment env) throws AnalysisException {
+	public CmlBehaviourSignal execute(CmlSupervisorEnvironment env) 
+	{
 		this.env= env;
 
 		//inspect if there are any immediate events
 		CmlAlphabet alpha = inspect();
 		CmlBehaviourSignal ret = null;
 
-		//execute silently if the next is an invisible action
-		if(alpha.containsSpecialEvent(CmlTauEvent.referenceTauEvent())){
-			setState(CmlProcessState.RUNNING);
-			//FIXME: this might not be the best idea
-			trace.addEvent(alpha.getSpecialEvents().iterator().next());
-			ret = executeNext();
-			//state = ProcessState.WAIT;
-		}
-		else 
-		{	
-			//If the selected event is in the immediate alphabet then we can continue
-			if(env.communicationSelected() && alpha.containsCommunication(env.selectedCommunication()))
-			{
-				ret = executeNext();
-				trace.addEvent(env.selectedCommunication());
-			}
-			//if no communication is selected by the supervisor or we cannot sync the selected events
-			//then we go to wait state and wait for channelEvent
-			else 
-			{
-				setState(CmlProcessState.WAIT_EVENT);
-				registerChannelsInAlpha(alpha);
-				ret = CmlBehaviourSignal.EXEC_SUCCESS;
-			}
-		}
+		try
+		{
 
-		return ret;
+			//execute silently if the next is a silent action
+			if(alpha.containsSpecialEvent(CmlTauEvent.referenceTauEvent())){
+				setState(CmlProcessState.RUNNING);
+				//FIXME: this might not be the best idea to get the special event
+				trace.addEvent(alpha.getSpecialEvents().iterator().next());
+				ret = executeNext();
+			}
+			else 
+			{	
+				//If the selected event is in the immediate alphabet then we can continue
+				if(env.communicationSelected() && alpha.containsCommunication(env.selectedCommunication()))
+				{
+					ret = executeNext();
+					trace.addEvent(env.selectedCommunication());
+				}
+				//if no communication is selected by the supervisor or we cannot sync the selected events
+				//then we go to wait state and wait for channelEvent
+				else 
+				{
+					setState(CmlProcessState.WAIT_EVENT);
+					registerChannelsInAlpha(alpha);
+					ret = CmlBehaviourSignal.EXEC_SUCCESS;
+				}
+			}
+
+
+			return ret;
+		}
+		catch(AnalysisException ex)
+		{
+			CmlRuntime.logger.throwing(this.toString(),"execute", ex);
+			throw new InterpreterRuntimeException(ex);
+		}
 	}
 		
 	private void registerChannelsInAlpha(CmlAlphabet alpha)
@@ -154,10 +163,12 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	public boolean finished() {
 		return getState() == CmlProcessState.FINISHED;
 	}
-
+	
 	@Override
 	public boolean deadlocked() {
-		return false;
+		
+		//A Process is deadlocked if its immediate alphabet is empty
+		return inspect().isEmpty();
 	}
 	
 	protected void notifyOnStateChange(CmlProcessStateEvent event)
@@ -177,6 +188,14 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	}
 	
 	protected abstract void setState(CmlProcessState state);
+	
+	/**
+	 * Denotational Semantics Information
+	 */
+	@Override
+	public CmlTrace getTraceModel() {
+		return trace;
+	}
 	
 	/**
 	 * ChannelListener interface method.

@@ -9,25 +9,11 @@ import org.overture.ast.lex.LexNameToken;
 public interface CmlProcess extends CmlProcessBehaviour{
 
 	/**
-	 * Initializes the process
+	 * Initialises the process
 	 * @param env
 	 */
 	public void start(CmlSupervisorEnvironment env);
 	
-	/**
-	 * Executes the next process/action in the process stack
-	 * @return
-	 * @throws AnalysisException 
-	 */
-	public CmlBehaviourSignal execute(CmlSupervisorEnvironment env) throws AnalysisException;
-	
-	/**
-	 * Returns the immediate alphabet of the process, meaning the next possible Communication Event
-	 * @return The immediate alphabet of the process
-	 * @throws AnalysisException 
-	 */
-	public CmlAlphabet inspect() throws AnalysisException;
-		
 	/**
 	 * 
 	 * @return The current supervisor of this process
@@ -57,12 +43,16 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	public boolean running();
 	public boolean finished();
 	public boolean waiting();
+	/**
+	 * Determines if this process is deadlocked
+	 * @return true if the process is deadlocked else false
+	 */
 	public boolean deadlocked();
 
 	public void registerOnStateChanged(CmlProcessObserver observer);
 	public void unregisterOnStateChanged(CmlProcessObserver observer);
+	
 	/**
-	 * 
 	 * @return The current state of the process
 	 */
 	public CmlProcessState getState();
