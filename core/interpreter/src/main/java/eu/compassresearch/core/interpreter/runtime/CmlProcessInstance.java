@@ -1,12 +1,12 @@
 package eu.compassresearch.core.interpreter.runtime;
 
+import java.util.List;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.values.ObjectValue;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.process.AInstantiationProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
@@ -16,13 +16,12 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
-import eu.compassresearch.core.interpreter.util.Pair;
-import eu.compassresearch.core.interpreter.values.ProcessValue;
+import eu.compassresearch.core.interpreter.events.TraceEvent;
 /**
  *  This class represents a running CML Process. It represents a specific node as specified in D23.2 section 7.4.2,
  *  where a node is specified as a tuple (w,s,a) where w is the set of variables, s is the state values and a is the 
@@ -150,12 +149,31 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 		return name().toString();
 	}
 
+	/**
+	 * CmlProcessObserver interface methods
+	 */
+	
 	@Override
 	public void onStateChange(CmlProcessStateEvent stateEvent) {
 		
 		if(stateEvent.getSource() == this.mainBehaviour)
 		{
 			notifyOnStateChange(new CmlProcessStateEvent(this, stateEvent.getFrom(), stateEvent.getTo()));
+		}
+	}
+	
+	/**
+	 * This will provide the traces from all the child actions
+	 */
+	@Override
+	public void onTraceChange(TraceEvent traceEvent) {
+
+		//To prevent the trace to get updated twice from the mainThread, we need to check that
+		//the event did not originate from the mainThread since this would already be registered
+		if(traceEvent.getSource() == this.mainBehaviour  && traceEvent.isRedirectedEvent())
+		{
+			this.trace.addEvent(traceEvent.getEvent());
+			notifyOnTraceChange(TraceEvent.createRedirectedEvent(this, traceEvent));
 		}
 	}
 	
@@ -172,7 +190,6 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 		//Behavior in the next execution step
 		if(mainBehaviour == null)
 		{
-			
 			// TODO Add state, value, etc to the corresponding processValue and
 //			for (PDefinition def : node.getDefinitionParagraphs())
 //			{
@@ -191,6 +208,7 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 
 			mainBehaviour = new CmlActionInstance(node.getAction(),newContext,mainActionName);
 			mainBehaviour.registerOnStateChanged(this);
+			mainBehaviour.registerOnTraceChanged(this);
 			mainBehaviour.start(supervisor());
 			pushNext(node, question);
 			ret = CmlBehaviourSignal.EXEC_SUCCESS; 
@@ -209,20 +227,6 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 		}
 				
 		return ret;
-	}
-	
-	@Override
-	public CmlBehaviourSignal caseASequentialCompositionProcess(
-			ASequentialCompositionProcess node, Context question)
-			throws AnalysisException {
-
-		//first push the right process
-		//pushNext(node.getRight(), question);
-		//then push the left process so it will execute first
-		//pushNext(node.getLeft(), question);
-		
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
 	/**

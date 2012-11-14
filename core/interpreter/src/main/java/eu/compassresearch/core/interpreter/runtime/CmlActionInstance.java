@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.runtime;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
@@ -11,7 +12,6 @@ import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
-import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -23,6 +23,7 @@ import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
+import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 /**
@@ -151,6 +152,16 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		default:
 			break;
 		}
+	}
+
+	/**
+	 * This will provide the traces from all the child actions
+	 */
+	@Override
+	public void onTraceChange(TraceEvent traceEvent) {
+		
+		this.trace.addEvent(traceEvent.getEvent());
+		notifyOnTraceChange(TraceEvent.createRedirectedEvent(this, traceEvent));
 	}
 	
 	/**
@@ -328,11 +339,17 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 				new CmlActionInstance(right, question, 
 						new LexNameToken(name.module,"|||" + name.getIdentifier().getName(),right.getLocation()),this);
 		
+		//add the children FIXME: this should not be done directly in that method
 		children().add(leftInstance);
-		leftInstance.registerOnStateChanged(this);
 		children().add(rightInstance);
-		rightInstance.registerOnStateChanged(this);
 		
+		//Register for state change and trace change events
+		leftInstance.registerOnStateChanged(this);
+		leftInstance.registerOnTraceChanged(this);
+		rightInstance.registerOnStateChanged(this);
+		rightInstance.registerOnTraceChanged(this);
+		
+		//Add them to the superviser to get executed as a seperate process
 		rightInstance.start(supervisor());
 		leftInstance.start(supervisor());
 		

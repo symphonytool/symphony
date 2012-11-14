@@ -18,6 +18,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->skip = "Skip"
 %action->sequentialComposition = [left] ";" [right]
 %action->reference = [name]
+%action->#Parallel->interleaving = [leftAction] "|||" [rightAction]
 // Processes
 %process->state = "state: " [processDefinition] "@"
 

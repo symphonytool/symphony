@@ -55,17 +55,19 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	 * @return true if the process is deadlocked else false
 	 */
 	public boolean deadlocked();
+	/**
+	 * @return The current state of the process
+	 */
+	public CmlProcessState getState();
 
 	public void registerOnStateChanged(CmlProcessObserver observer);
 	public void unregisterOnStateChanged(CmlProcessObserver observer);
 	
 	/**
-	 * @return The current state of the process
-	 */
-	public CmlProcessState getState();
-	
-	/**
 	 * Denotational Semantics Information
 	 */
 	public CmlTrace getTraceModel();
+	
+	public void registerOnTraceChanged(CmlProcessObserver observer);
+	public void unregisterOnTraceChanged(CmlProcessObserver observer);
 }

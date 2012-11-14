@@ -9,5 +9,15 @@ package eu.compassresearch.core.interpreter.events;
  */
 public interface CmlProcessObserver {
 
+	/**
+	 * This event fires every times the process changes to a new state
+	 * @param stateEvent
+	 */
 	public void onStateChange(CmlProcessStateEvent stateEvent);
+	
+	/**
+	 * This event fires every times the trace is updated
+	 * @param stateEvent
+	 */
+	public void onTraceChange(TraceEvent traceEvent);
 }
