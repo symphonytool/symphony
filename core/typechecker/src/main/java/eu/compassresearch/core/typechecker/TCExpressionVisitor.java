@@ -1,5 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -116,8 +117,9 @@ class TCExpressionVisitor extends
 		org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(
 				question.env);
 
+		quest.env.setEnclosingDefinition(node.getAncestor(PDefinition.class));
 		quest.scope = NameScope.NAMES;
-
+		quest.qualifiers = new LinkedList<PType>();
 		try {
 			ovtNode.apply(overtureExpVisitor, quest);
 		} catch (org.overture.ast.analysis.AnalysisException e1) {
@@ -140,7 +142,7 @@ class TCExpressionVisitor extends
 			throws AnalysisException {
 
 		PType type = node.getExpression().apply(this, question);
-
+		node.setType(type);
 		return type;
 	}
 

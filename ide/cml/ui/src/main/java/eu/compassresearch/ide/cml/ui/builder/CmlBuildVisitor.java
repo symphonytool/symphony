@@ -49,14 +49,13 @@ public class CmlBuildVisitor implements IResourceVisitor {
 		// Set the AST on the source unit
 		CmlSourceUnit dom = CmlSourceUnit.getFromFileResource(file);
 		dom.setSourceAst(source, new LinkedList<ParserError>());
-
 		return false;
 	}
 
 	/*
 	 * Run the type checker.
 	 */
-	private static boolean typeCheck(IFile file, AFileSource source)
+	private synchronized static boolean typeCheck(IFile file, AFileSource source)
 			throws CoreException {
 		try {
 
@@ -76,8 +75,9 @@ public class CmlBuildVisitor implements IResourceVisitor {
 					setProblem(marker, tcError.getDescription(), loc.startLine);
 				}
 			}
-			return tcSuccess;
+			return true;
 		} catch (Exception tcException) {
+			tcException.printStackTrace();
 			IMarker tcMarker = file.createMarker(IMarker.PROBLEM);
 			setExceptionInfo(
 					tcMarker,
@@ -86,7 +86,7 @@ public class CmlBuildVisitor implements IResourceVisitor {
 							+ file.getName() + "\".");
 
 		}
-		return false;
+		return true;
 	}
 
 	private static void setProblem(IMarker marker, String text, int line)
@@ -98,7 +98,7 @@ public class CmlBuildVisitor implements IResourceVisitor {
 
 	private static void setInfo(IMarker marker, String shortText, String text)
 			throws CoreException {
-		marker.setAttribute(IMarker.MESSAGE, shortText);
+		marker.setAttribute(IMarker.MESSAGE, shortText + "\n" + text);
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
 		marker.setAttribute(IMarker.TEXT, text);
 	}
@@ -141,6 +141,7 @@ public class CmlBuildVisitor implements IResourceVisitor {
 				}
 			}
 		} catch (Exception e1) {
+			e1.printStackTrace();
 			IMarker m = file.createMarker(IMarker.PROBLEM);
 			setExceptionInfo(
 					m,

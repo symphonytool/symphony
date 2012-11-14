@@ -840,8 +840,8 @@ process :
     Path path = (Path)$path;
     $$ = path.convertToProcess();
   } catch(PathConvertException e) {
-    e.printStackTrace();
-    System.exit(-4);
+   // TODO: RWL Do not use System.exit - Figure out a nicer way of handling this. 
+   throw new RuntimeException(e); 
   }
 }
 | process renameExpression
@@ -1029,6 +1029,7 @@ actionDefinition :
   List<ATypeSingleDeclaration> declarations = (List<ATypeSingleDeclaration>)pa[0];
   PAction action = (PAction)pa[1];
   LexLocation defLocation = combineLexLocation(extractLexLocation((CmlLexeme)$1), action.getLocation());
+  
   AActionDefinition actionDefinition = new AActionDefinition(defLocation, 
 							     NameScope.LOCAL, 
 							     false, 
@@ -1036,6 +1037,8 @@ actionDefinition :
 							     null,//Pass
 							     declarations, 
 							     action);
+  CmlLexeme id = (CmlLexeme)$1;							     
+  actionDefinition.setName(new LexNameToken("", id.getValue(), defLocation ));
   $$ = actionDefinition;
 }
 ;
@@ -1530,8 +1533,8 @@ communication[result] :
 | communication[before] BANG IDENTIFIER
 {
     ACommunicationAction comAction = (ACommunicationAction)$before;
+    
     LexNameToken name = extractLexNameToken($IDENTIFIER);
-    //PExp exp = new ANameExp(name.location,name);
     PExp exp = new AVariableExp(name.location,name,"");
     LexLocation location = extractLexLocation((CmlLexeme)$BANG,exp.getLocation());
     comAction.getCommunicationParameters().add(new AWriteCommunicationParameter(location, 
@@ -1548,9 +1551,8 @@ communication[result] :
 										    exp));
     }
     catch(PathConvertException e) {
-	e.printStackTrace();
-	System.exit(-4);
-    }
+	   throw new RuntimeException(e);    
+	}
 }
 | communication[before] QUESTION pattern
 {
@@ -1567,8 +1569,7 @@ communication[result] :
     $$ = comAction;
     }
     catch(PathConvertException e) {
-	e.printStackTrace();
-	System.exit(-4);
+     throw new RuntimeException(e);
     }
 }
 | communication[before] QUESTION setBind
@@ -1585,8 +1586,7 @@ communication[result] :
 	$$ = comAction;
     }
     catch(PathConvertException e) {
-	e.printStackTrace();
-	System.exit(-4);
+		throw new RuntimeException(e);
     }
     
 }
@@ -1650,7 +1650,7 @@ renameExpression :
   }
   catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
 }
 | DLSQUARE path[from] LARROW path[to] BAR bindList AT expression DRSQUARE 
@@ -1666,7 +1666,7 @@ renameExpression :
   }
   catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
 }
 ;
@@ -1694,7 +1694,7 @@ renameList :
   }
   catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
 }
 | renameList COMMA path[from] LARROW path[to]
@@ -1709,7 +1709,7 @@ renameList :
   }
   catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
 }
 ;
@@ -2264,8 +2264,17 @@ type :
   List<PType> types = new Vector<PType>();
   PType left = (PType)$1;
   PType right = (PType)$3;
-  types.add(left);
-  types.add(right);
+  if (left instanceof AProductType)
+  	types.addAll( ((AProductType) left).getTypes());
+  else
+  	types.add(left);
+  
+  if (right instanceof AProductType)
+  	types.addAll(  ((AProductType) right).getTypes());
+  else
+    types.add(right);
+  
+  	
   LexLocation location = combineLexLocation(left.getLocation(), right.getLocation());
   $$ = new AProductType(location, false, null, types);
 }
@@ -2583,6 +2592,7 @@ valueDef :
   PExp expression = (PExp)$expression;
   AIdentifierPattern idp = new AIdentifierPattern();
   idp.setLocation(lnt.location);
+  lnt = new LexNameToken("", lnt.name, lnt.location);
   idp.setName(lnt);
   // Build the resulting AValueDefinition
   AValueDefinition vdef = new AValueDefinition();
@@ -2918,7 +2928,7 @@ MEASURE path
     }
     catch(PathConvertException e) {
         e.printStackTrace();
-        System.exit(-4);
+	    throw new RuntimeException(e);
     }
 }
 | /* empty */ 
@@ -3109,7 +3119,7 @@ operationBody :
 }
 | NOTYETSPEC
 {
-  $$ = new ANotYetSpecifiedAction(extractLexLocation((CmlLexeme)$1), null, null);
+  $$ = new ANotYetSpecifiedStatementAction(extractLexLocation((CmlLexeme)$1), null, null);
 }
 ;
 
@@ -3556,7 +3566,7 @@ expression :
     }
     catch(PathConvertException e) {
         e.printStackTrace();
-        System.exit(-4);
+        throw new RuntimeException(e);
     }
     $$ = exp;
 }
@@ -3594,7 +3604,7 @@ expression :
     exp = path.convertToExpression();
   } catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+	throw new RuntimeException(e);
   }
   $$ = exp;
 }
@@ -3660,7 +3670,7 @@ expression :
     }
     catch(PathConvertException e) {
 	e.printStackTrace();
-	System.exit(-4);
+	throw new RuntimeException(e);
     }
 }
 | LCURLYBAR path BAR bindList AT expression[exp] BARRCURLY
@@ -3675,7 +3685,7 @@ expression :
     }
     catch(PathConvertException e) {
 	e.printStackTrace();
-	System.exit(-4);
+	throw new RuntimeException(e);
     }
 }
 /* chanset expressions end */
@@ -3746,7 +3756,7 @@ textLiteral :
  {
      String value = ((CmlLexeme)$1).getValue();
      LexLocation loc = extractLexLocation((CmlLexeme)$STRING);
-     $$ = new LexStringToken(value.substring(1, value.length()-2), loc);
+     $$ = new LexStringToken(value.substring(0, value.length()), loc);
  }
 ;
 
@@ -3903,7 +3913,9 @@ casesExprAlt :
     ACaseAlternative r = new ACaseAlternative();
     r.setPattern(p);
     r.setLocation(loc);
+    // The CExp is the case expression of the ACasesExp?
     r.setCexp(exp);
+    r.setResult(exp);
     res.add(r);
    }
   $$ = res;
@@ -4076,7 +4088,7 @@ binaryExpr :
 {
   LexLocation loc = combineLexLocation(((PExp)$1).getLocation(), ((PExp)$3).getLocation());
   LexToken tok = extractLexToken( (CmlLexeme) $2 );
-  $$ = new ADivideNumericBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
+  $$ = new ADivNumericBinaryExp(loc, (PExp)$1, tok, (PExp)$3);
 }
 | expression SLASH expression
 {
@@ -4434,7 +4446,7 @@ controlStatement :
                                          args);
   } catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+	throw new RuntimeException(e);
   }
   $$ = stm;
 }
@@ -4452,7 +4464,7 @@ controlStatement :
                                          args);
   } catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
   $$ = stm;
 }
@@ -4563,7 +4575,7 @@ controlStatement :
     action = path.convertToAction();
   } catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
   $$ = action;
 }
@@ -4737,7 +4749,7 @@ assignStatement :
     stateDesignator = path.convertToStateDesignator();
   } catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+	throw new RuntimeException(e);
   }
   PExp exp = (PExp)$expression;
   LexLocation location = combineLexLocation(stateDesignator.getLocation(), exp.getLocation());
@@ -5184,7 +5196,7 @@ pathList :
     $$ = names;
   } catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
 }
 | pathList COMMA path
@@ -5196,7 +5208,7 @@ pathList :
     $$ = names;
   } catch(PathConvertException e) {
     e.printStackTrace();
-    System.exit(-4);
+    throw new RuntimeException(e);
   }
 }
 ;

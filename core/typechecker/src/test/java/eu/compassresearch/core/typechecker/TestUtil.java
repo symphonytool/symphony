@@ -1,4 +1,4 @@
-package eu.compassresearch.transformation;
+package eu.compassresearch.core.typechecker;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

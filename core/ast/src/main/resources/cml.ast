@@ -181,6 +181,7 @@ type {-> package='eu.compassresearch.ast.types'}
     |   {stateParagraph} // marker stipulating that a state Paragraph is typed ok
     |   {source} // marker stipulating a source was typed ok
     |   {channel} (type):type // marker stipulating that a channel Paragraph is typed ok
+    |   {action} // marker 
     ; 
 
 access  {-> package='eu.compassresearch.ast.definitions'}
@@ -339,9 +340,6 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {call} 
 		[actionName]:LexNameToken
 	| {subclassResponsibility}
-	| {notYetSpecified} 
-		[opname]:LexNameToken 
-		[args]:exp*
 	;
 	
 #Parallel {-> package='eu.compassresearch.ast.actions'}
@@ -427,6 +425,9 @@ parameter {-> package='eu.compassresearch.ast.actions'}
 		[call]:action.#Statement.call
 	| {return} 
 		[exp]:exp
+    | {notYetSpecified} 
+		[opname]:LexNameToken 
+		[args]:exp*
 	| {new} 
 		[destination]:stateDesignator 
 		[className]:LexNameToken 

@@ -1,7 +1,7 @@
 To String Extensions
 // import packages used by external $$ java code
-import eu.compassresearch.ast.util.Utils;
-import eu.compassresearch.ast.util.ToStringUtil;
+import org.overture.ast.util.Utils;
+import org.overture.ast.util.ToStringUtil;
 
 
 %source->file = [name] 
@@ -16,7 +16,12 @@ import eu.compassresearch.ast.util.ToStringUtil;
             ($[errors]$.isEmpty() ? "" : "\n\terrs " + $[errors]$)$ + "]" 
 %action->communication = [identifier] "->" [action]
 %action->skip = "Skip"
+%action->stop = "Stop"
+%action->chaos = "Chaos"
+%action->div = "Div Action"
+%action->wait = "Wait"
 
+%type->error = "Type Error"
 //  Expressions
  
 //  Patterns
