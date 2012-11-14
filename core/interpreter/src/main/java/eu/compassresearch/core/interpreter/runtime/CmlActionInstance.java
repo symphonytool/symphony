@@ -1,18 +1,19 @@
 package eu.compassresearch.core.interpreter.runtime;
 
 import java.util.Iterator;
-import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -177,15 +178,15 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		return isAllFinished;
 	}
 	
-	private boolean isAllChildrenWaitingForEvent()
-	{
-		boolean isAllWaitingForEvent = true;
-		for(CmlProcess child : children())
-		{
-			isAllWaitingForEvent &= child.waiting();
-		}
-		return isAllWaitingForEvent;
-	}
+//	private boolean isAllChildrenWaitingForEvent()
+//	{
+//		boolean isAllWaitingForEvent = true;
+//		for(CmlProcess child : children())
+//		{
+//			isAllWaitingForEvent &= child.waiting();
+//		}
+//		return isAllWaitingForEvent;
+//	}
 	
 	
 		
@@ -277,8 +278,38 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	 */
 	
 	/**
+	 * Generalised Parallelism
+	 * A [| cs |] B (no state) 
+	 * 
+	 * or
+	 * 
+	 * A [| ns1 | cs | ns2 |] B 
+	 */
+	@Override
+	public CmlBehaviourSignal caseAGeneralisedParallelismParallelAction(
+			AGeneralisedParallelismParallelAction node, Context question)
+			throws AnalysisException {
+	
+		//TODO: This only implements the "A [| cs |] B (no state)" and not "A [| ns1 | cs | ns2 |] B"
+		CmlBehaviourSignal result = null;
+		
+		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
+		if(!hasChildren()){
+			result = caseParallelBegin(node,question);
+			//We push the current state, since this process will control the child processes created by it
+			pushNext(node, question);
+		}
+		
+		return super.caseAGeneralisedParallelismParallelAction(node, question);
+	}
+	
+	/**
 	 * Interleaving
-	 * A ||| B
+	 * A ||| B (no state)
+	 * 
+	 * or 
+	 * 
+	 * A [|| ns1 | ns2 ||] B
 	 * 
 	 * This has three parts:
 	 * 
@@ -299,11 +330,12 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			AInterleavingParallelAction node, Context question)
 			throws AnalysisException {
 
+		//TODO: This only implements the "A ||| B (no state)" and not "A [|| ns1 | ns2 ||] B"
 		CmlBehaviourSignal result = null;
 		
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!hasChildren()){
-			result = caseParallelBegin(node.getLeftAction(),node.getRightAction(),question);
+			result = caseParallelBegin(node,question);
 			//We push the current state, since this process will control the child processes created by it
 			pushNext(node, question);
 			
@@ -328,8 +360,11 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	 * @param question
 	 * @return
 	 */
-	private CmlBehaviourSignal caseParallelBegin(PAction left, PAction right, Context question)
+	private CmlBehaviourSignal caseParallelBegin(SParallelAction node, Context question)
 	{
+		PAction left = node.getLeftAction();
+		PAction right = node.getRightAction();
+		
 		//TODO: create a local copy of the question state for each of the actions
 		CmlActionInstance leftInstance = 
 				new CmlActionInstance(left, question, 

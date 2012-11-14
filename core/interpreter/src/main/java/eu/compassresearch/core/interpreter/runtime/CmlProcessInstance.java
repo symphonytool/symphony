@@ -108,7 +108,7 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 	}
 
 	@Override
-	public void setState(CmlProcessState state) {
+	protected void setState(CmlProcessState state) {
 		
 		if(getState() != state)
 		{
@@ -156,6 +156,7 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 	@Override
 	public void onStateChange(CmlProcessStateEvent stateEvent) {
 		
+		//special case for the action behaviour of a process
 		if(stateEvent.getSource() == this.mainBehaviour)
 		{
 			notifyOnStateChange(new CmlProcessStateEvent(this, stateEvent.getFrom(), stateEvent.getTo()));

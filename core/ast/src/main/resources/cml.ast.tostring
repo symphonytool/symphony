@@ -19,11 +19,13 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->sequentialComposition = [left] ";" [right]
 %action->reference = [name]
 %action->#Parallel->interleaving = [leftAction] "|||" [rightAction]
+%action->#Parallel->generalisedParallelism = [leftAction] "[|" [chanSetExpression] "|]" [rightAction]
 // Processes
 %process->state = "state: " [processDefinition] "@"
 
 
 //  Expressions
+%exp->#Set->#Chanset->enum = "{|" [identifiers] "|}"
  
 //  Patterns
 
