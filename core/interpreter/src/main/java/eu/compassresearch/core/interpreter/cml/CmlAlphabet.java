@@ -3,18 +3,22 @@ package eu.compassresearch.core.interpreter.cml;
 import java.util.HashSet;
 import java.util.Set;
 
+import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlSpecialEvent;
+
 public class CmlAlphabet {
 
-	private final Set<CmlCommunication> communicationEvents;
-	private final Set<SpecialEvent> specialEvents;
+	private final Set<CmlCommunicationEvent> communicationEvents;
+	private final Set<CmlSpecialEvent> specialEvents;
 	
 	public CmlAlphabet()
 	{
-		this.communicationEvents = new HashSet<CmlCommunication>();
-		this.specialEvents = new HashSet<SpecialEvent>();
+		this.communicationEvents = new HashSet<CmlCommunicationEvent>();
+		this.specialEvents = new HashSet<CmlSpecialEvent>();
 	}
 	
-	public CmlAlphabet(Set<CmlCommunication> comms, Set<SpecialEvent> specialEvents)
+	public CmlAlphabet(Set<CmlCommunicationEvent> comms, Set<CmlSpecialEvent> specialEvents)
 	{
 		this.communicationEvents = comms;
 		this.specialEvents = specialEvents;
@@ -22,26 +26,26 @@ public class CmlAlphabet {
 	
 	public CmlAlphabet(Set<CmlEvent> events)
 	{
-		this.communicationEvents = new HashSet<CmlCommunication>();
-		this.specialEvents = new HashSet<SpecialEvent>();
+		this.communicationEvents = new HashSet<CmlCommunicationEvent>();
+		this.specialEvents = new HashSet<CmlSpecialEvent>();
 		
 		for(CmlEvent e : events)
 		{
-			if(e instanceof CmlCommunication)
-				this.communicationEvents.add((CmlCommunication)e);
-			else if(e instanceof SpecialEvent)
-				this.specialEvents.add((SpecialEvent)e);
+			if(e instanceof CmlCommunicationEvent)
+				this.communicationEvents.add((CmlCommunicationEvent)e);
+			else if(e instanceof CmlSpecialEvent)
+				this.specialEvents.add((CmlSpecialEvent)e);
 		}
 	}
 	
-	public Set<CmlCommunication> getCommunicationEvents()
+	public Set<CmlCommunicationEvent> getCommunicationEvents()
 	{
-		return new HashSet<CmlCommunication>(communicationEvents);
+		return new HashSet<CmlCommunicationEvent>(communicationEvents);
 	}
 	
-	public Set<SpecialEvent> getSpecialEvents()
+	public Set<CmlSpecialEvent> getSpecialEvents()
 	{
-		return new HashSet<SpecialEvent>(specialEvents);
+		return new HashSet<CmlSpecialEvent>(specialEvents);
 	}
 	
 	public Set<CmlEvent> getAllEvents()
@@ -67,7 +71,7 @@ public class CmlAlphabet {
 	 * Communication events are both read, write and signaling channel event (synchronization events)
 	 * @return true if the special event is contained else false
 	 */
-	public boolean containsCommunication(CmlCommunication com)
+	public boolean containsCommunication(CmlCommunicationEvent com)
 	{
 		return communicationEvents.contains(com);
 	}
@@ -76,7 +80,7 @@ public class CmlAlphabet {
 	 * This determines whether the alphabet contains a specific special event like e.g. the tau event
 	 * @return true if the special event is contained else false
 	 */
-	public boolean containsSpecialEvent(SpecialEvent specialEvent)
+	public boolean containsSpecialEvent(CmlSpecialEvent specialEvent)
 	{
 		return specialEvents.contains(specialEvent);
 	}

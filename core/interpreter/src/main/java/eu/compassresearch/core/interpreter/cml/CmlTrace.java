@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 
 public class CmlTrace {
 

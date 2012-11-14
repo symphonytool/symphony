@@ -7,13 +7,13 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.cml.CmlChannel;
-import eu.compassresearch.core.interpreter.cml.CmlChannelEvent;
-import eu.compassresearch.core.interpreter.cml.CmlChannelSignal;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationType;
-import eu.compassresearch.core.interpreter.cml.CmlInputChannel;
-import eu.compassresearch.core.interpreter.cml.CmlOutputChannel;
-import eu.compassresearch.core.interpreter.cml.ChannelObserver;
+import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
+import eu.compassresearch.core.interpreter.cml.channels.CmlChannelSignal;
+import eu.compassresearch.core.interpreter.cml.channels.CmlInputChannel;
+import eu.compassresearch.core.interpreter.cml.channels.CmlOutputChannel;
+import eu.compassresearch.core.interpreter.events.ChannelObserver;
+import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 
 public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSignal,CmlOutputChannel<Value> ,CmlInputChannel<Value> 
@@ -105,37 +105,37 @@ public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSign
 	@Override
 	public void registerOnChannelRead(ChannelObserver observer) {
 		readObservers.add(observer);
-		CmlRuntime.logger().finest(observer.name() + " registered on "+ this.toString() + " for onChannelRead events");
+		CmlRuntime.logger().finest(observer.toString() + " registered on "+ this.toString() + " for onChannelRead events");
 	}
 
 	@Override
 	public void unregisterOnChannelRead(ChannelObserver observer) {
 		readObservers.remove(observer);		
-		CmlRuntime.logger().finest(observer.name() + " unregistered on "+ this.toString() + " for onChannelRead events");
+		CmlRuntime.logger().finest(observer.toString() + " unregistered on "+ this.toString() + " for onChannelRead events");
 	}
 
 	@Override
 	public void registerOnChannelWrite(ChannelObserver observer) {
 		writeObservers.add(observer);
-		CmlRuntime.logger().finest(observer.name() + " registered on "+ this.toString() + " for onChannelWrite events");
+		CmlRuntime.logger().finest(observer.toString() + " registered on "+ this.toString() + " for onChannelWrite events");
 	}
 
 	@Override
 	public void unregisterOnChannelWrite(ChannelObserver observer) {
 		writeObservers.remove(observer);
-		CmlRuntime.logger().finest(observer.name() + " unregistered on "+ this.toString() + " for onChannelWrite events");
+		CmlRuntime.logger().finest(observer.toString() + " unregistered on "+ this.toString() + " for onChannelWrite events");
 	}
 
 	@Override
 	public void registerOnChannelSignal(ChannelObserver observer) {
 		signalObservers.add(observer);
-		CmlRuntime.logger().finest(observer.name() + " registered on "+ this.toString() + " for onChannelSignal events");
+		CmlRuntime.logger().finest(observer.toString() + " registered on "+ this.toString() + " for onChannelSignal events");
 	}
 
 	@Override
 	public void unregisterOnChannelSignal(ChannelObserver observer) {
 		signalObservers.remove(observer);		
-		CmlRuntime.logger().finest(observer.name() + " unregistered on "+ this.toString() + " for onChannelSignal events");
+		CmlRuntime.logger().finest(observer.toString() + " unregistered on "+ this.toString() + " for onChannelSignal events");
 	}
 
 }

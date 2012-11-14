@@ -11,17 +11,18 @@ import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
-import eu.compassresearch.core.interpreter.cml.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
+import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 /**
@@ -91,13 +92,18 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	}
 	
 	@Override
-	public String toString() {
-	
+	public String nextStepToString() {
+		
 		if(hasNext())
 			return nextState().first.toString();
 		else
 			return "Finished";
-		
+	}
+	
+	@Override
+	public String toString() {
+	
+		return name.toString();
 	}
 	
 	/**
@@ -262,6 +268,20 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	/**
 	 * Interleaving
 	 * A ||| B
+	 * 
+	 * This has three parts:
+	 * 
+	 * Parallel Begin:
+	 * 	At this step the interleaving action are not yet created. So this will be a silent (tau) transition
+	 * 	where the left and right actions will be created and started.
+	 * 
+	 * Parallel Non-sync:
+	 * 	At this step the actions are each executed separately. Since no sync shall stake place this Action just wait
+	 * 	for the child actions to be in the FINISHED state. 
+	 * 
+	 * Parallel End:
+	 *  At this step both child actions are in the FINISHED state and they will be removed from the running process network
+	 *  and this will make a silent transition into Skip. 
 	 */
 	@Override
 	public CmlBehaviourSignal caseAInterleavingParallelAction(
@@ -280,15 +300,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		//the process has children and must now handle either termination or event sync
 		else if (isAllChildrenFinished())
 		{
-			for(Iterator<CmlProcess> iterator = children().iterator(); iterator.hasNext(); )
-			{
-				CmlProcess child = iterator.next();
-				supervisor().removePupil(child);
-				iterator.remove();
-			}
-			
-			pushNext(new ASkipAction(), question);
-			result = CmlBehaviourSignal.EXEC_SUCCESS;
+			result = caseParallelEnd(question); 
 		}
 		//else if ()
 		
@@ -326,6 +338,21 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		
 		//Now let this process wait for the children to get into a waitForEvent state
 		setState(CmlProcessState.WAIT_CHILD);
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	private CmlBehaviourSignal caseParallelEnd(Context question)
+	{
+		for(Iterator<CmlProcess> iterator = children().iterator(); iterator.hasNext(); )
+		{
+			CmlProcess child = iterator.next();
+			supervisor().removePupil(child);
+			iterator.remove();
+		}
+		
+		//now this process evolves into Skip
+		pushNext(new ASkipAction(), question);
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}

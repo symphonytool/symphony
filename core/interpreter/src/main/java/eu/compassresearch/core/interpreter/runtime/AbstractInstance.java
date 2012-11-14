@@ -7,19 +7,19 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.ChannelObserver;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlChannelEvent;
-import eu.compassresearch.core.interpreter.cml.CmlCommunication;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
-import eu.compassresearch.core.interpreter.cml.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
+import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluator;
+import eu.compassresearch.core.interpreter.events.ChannelObserver;
+import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
+import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 
 public abstract class AbstractInstance<T extends INode> extends AbstractEvaluator<T>
 		implements CmlProcess , ChannelObserver {
@@ -89,7 +89,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		
 	private void registerChannelsInAlpha(CmlAlphabet alpha)
 	{
-		for(CmlCommunication com : alpha.getCommunicationEvents())
+		for(CmlCommunicationEvent com : alpha.getCommunicationEvents())
 		{
 			switch(com.getCommunicationType())
 			{

@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.cml;
+package eu.compassresearch.core.interpreter.cml.events;
 
 public abstract class CmlEvent {
 	

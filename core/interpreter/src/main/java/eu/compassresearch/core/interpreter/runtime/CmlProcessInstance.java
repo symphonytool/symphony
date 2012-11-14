@@ -16,11 +16,11 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
-import eu.compassresearch.core.interpreter.cml.CmlProcessObserver;
-import eu.compassresearch.core.interpreter.cml.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
+import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ProcessValue;
 /**
@@ -126,7 +126,7 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 	}
 	
 	@Override
-	public String toString() {
+	public String nextStepToString() {
 		
 		String value = null;
 		
@@ -135,13 +135,19 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 			if(mainBehaviour == null)
 				value = nextState().first.toString();
 			else
-				value = nextState().first.toString() + mainBehaviour.toString();
+				value = nextState().first.toString() + mainBehaviour.nextStepToString();
 		}
 		else
 			value = "Finished";
 
 
 		return value;
+	}
+	
+	@Override
+	public String toString() {
+
+		return name().toString();
 	}
 
 	@Override

@@ -1,4 +1,6 @@
-package eu.compassresearch.core.interpreter.cml;
+package eu.compassresearch.core.interpreter.cml.channels;
+
+import eu.compassresearch.core.interpreter.events.ChannelObserver;
 
 /**
  * A Channel that are able to signal, thus only synchronization

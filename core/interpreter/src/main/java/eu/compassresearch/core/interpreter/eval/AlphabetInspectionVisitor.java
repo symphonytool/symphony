@@ -13,10 +13,10 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlCommunication;
-import eu.compassresearch.core.interpreter.cml.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
-import eu.compassresearch.core.interpreter.cml.CmlTauEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
 public class AlphabetInspectionVisitor
@@ -56,7 +56,7 @@ public class AlphabetInspectionVisitor
 		
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 		
-		CmlCommunication com = new CmlCommunication(chanValue);
+		CmlCommunicationEvent com = new CmlCommunicationEvent(chanValue);
 		Set<CmlEvent> comset = new HashSet<CmlEvent>();
 		comset.add(com);
 		return new CmlAlphabet(comset);

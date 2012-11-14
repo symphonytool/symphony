@@ -10,17 +10,17 @@ import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlCommunication;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
-import eu.compassresearch.core.interpreter.cml.CmlProcessObserver;
-import eu.compassresearch.core.interpreter.cml.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
+import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 
 public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, CmlProcessObserver {
 
 	private CmlCommunicationSelectionStrategy selectStrategy;
-	private CmlCommunication selectedCommunication;
+	private CmlCommunicationEvent selectedCommunication;
 	List<CmlProcess> running = new LinkedList<CmlProcess>();
 	List<CmlProcess> waiting = new LinkedList<CmlProcess>();
 	List<CmlProcess> finished = new LinkedList<CmlProcess>();
@@ -48,12 +48,12 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 	}
 
 	@Override
-	public CmlCommunication selectedCommunication() {
+	public CmlCommunicationEvent selectedCommunication() {
 		return selectedCommunication;
 	}
 
 	@Override
-	public void setSelectedCommunication(CmlCommunication comm) {
+	public void setSelectedCommunication(CmlCommunicationEvent comm) {
 		selectedCommunication = comm;
 
 	}
@@ -103,7 +103,7 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 						throw new RuntimeException("Change this!!!!, but now that you haven't changed this yet, then let me tell you that the return CMLBehaviourSignal was unsuccesful");
 
 					CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
-					CmlRuntime.logger().fine("next: " + p);
+					CmlRuntime.logger().fine("next: " + p.nextStepToString());
 				}
 			}
 
@@ -116,7 +116,6 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 				CmlProcess p = iterator.next();
 				if(p.level() == 0)
 				{
-					//{
 					//Select and set the communication event
 					setSelectedCommunication(decisionFunction().select(p.inspect()));
 					//signal all the processes that are listening for this channel
@@ -160,8 +159,8 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 	}
 
 	@Override
-	public LexNameToken name() {
-		return new LexNameToken("","Default supervisorEnvironment",new LexLocation());
+	public String toString() {
+		return "Default Supervisor Environment";
 	}
 
 //	@Override
