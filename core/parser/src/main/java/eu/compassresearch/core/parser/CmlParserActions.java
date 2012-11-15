@@ -11,6 +11,7 @@ import org.overture.ast.definitions.APrivateAccess;
 import org.overture.ast.definitions.APublicAccess;
 import org.overture.ast.expressions.AForAllExp;
 import org.overture.ast.expressions.AMkBasicExp;
+import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexLocation;
@@ -104,6 +105,8 @@ public class CmlParserActions {
 		for (LexNameToken name : nameList) {
 			out.add(extractLexIdentifierToken(name));
 		}
+		AVariableExp a;
+
 		return out;
 	}
 
