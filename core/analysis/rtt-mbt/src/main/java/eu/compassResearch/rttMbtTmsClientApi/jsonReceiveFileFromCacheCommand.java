@@ -30,7 +30,7 @@ public class jsonReceiveFileFromCacheCommand extends jsonCommand {
 		// create command
 		JSONObject cmd = new JSONObject();
 		cmd.put("receive-file-from-cache-command", params);
-		System.out.println("request: '" + cmd.toJSONString() + "'");
+		//System.out.println("request: '" + cmd.toJSONString() + "'");
 		return cmd.toJSONString();
 	}
 

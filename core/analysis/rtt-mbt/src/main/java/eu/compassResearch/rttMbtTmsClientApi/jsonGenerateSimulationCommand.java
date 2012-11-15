@@ -3,7 +3,6 @@
  */
 package eu.compassResearch.rttMbtTmsClientApi;
 
-import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.json.simple.JSONObject;
@@ -12,11 +11,11 @@ import org.json.simple.JSONObject;
  * @author uwe
  *
  */
-public class jsonGenerateTestCommand extends jsonCommand {
+public class jsonGenerateSimulationCommand extends jsonCommand {
 
 	private String testProcName;
 
-	public jsonGenerateTestCommand(RttMbtClient client) {
+	public jsonGenerateSimulationCommand(RttMbtClient client) {
 		super(client);
 	}
 	
@@ -30,11 +29,13 @@ public class jsonGenerateTestCommand extends jsonCommand {
 
 		// add parameters
 		Map params = new LinkedHashMap();
+		params.put("user", client.getUserName());
+		params.put("user-id", client.getUserId());
 		params.put("project-name", client.getProjectName());
 		params.put("test-procedure-path", testProcName);
 		// create command
 		JSONObject cmd = new JSONObject();
-		cmd.put("generate-test-command", params);
+		cmd.put("generate-simulation-command", params);
 		return cmd.toJSONString();
 	}
 
@@ -42,30 +43,14 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		if (reply == null) {
 			return null;
 		}
-		return (JSONObject)reply.get("test-generation-result");
+		return (JSONObject)reply.get("simulation-generation-result");
 	}
 
 	public void handleParameters(JSONObject parameters) {
-
 		// get the parameter list
 		if (parameters == null) {
 			return;
 		}
-
-		// get configuration.csv
-		String filename = "";
-		if (client.getProjectName() != null) {
-			filename = client.projectName + File.separator;
-		}
-		if (testProcName != null) {
-			filename += "TestProcedures" + File.separator + testProcName + File.separator + "conf" + File.separator;
-		} else {
-			filename += "model" + File.separator;
-		}
-		filename += "configuration.csv";
-		writeBase64StringFileContent(filename,
-								     (String)parameters.get("configuration.csv"), false);
-
 		// get the result
 		String checkResult = (String)parameters.get("result");
 		if (!(checkResult.equals("PASS"))) {

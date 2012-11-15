@@ -11,11 +11,11 @@ import org.json.simple.JSONObject;
  * @author uwe
  *
  */
-public class jsonCompileTestCommand extends jsonCommand {
+public class jsonCleanTestCommand extends jsonCommand {
 
 	 private String testProcName;
 
-	 public jsonCompileTestCommand(RttMbtClient client) {
+	 public jsonCleanTestCommand(RttMbtClient client) {
 		 super(client);
 	 }
 		
@@ -35,7 +35,7 @@ public class jsonCompileTestCommand extends jsonCommand {
 		 params.put("test-procedure-path", testProcName);
 		 // create command
 		 JSONObject cmd = new JSONObject();
-		 cmd.put("compile-test-command", params);
+		 cmd.put("clean-test-command", params);
 		 return cmd.toJSONString();
 	 }
 
@@ -43,7 +43,7 @@ public class jsonCompileTestCommand extends jsonCommand {
 		 if (reply == null) {
 			 return null;
 		 }
-		 return (JSONObject)reply.get("compile-test-result");
+		 return (JSONObject)reply.get("clean-test-result");
 	 }
 
 	 public void handleParameters(JSONObject parameters) {
