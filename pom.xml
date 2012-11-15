@@ -37,7 +37,6 @@
   </dependencies>
 
   <repositories>
-
     <repository>
       <id>overture.iha.dk</id>
       <name>Overture Project Build Repository at AU/IHA</name>
@@ -175,6 +174,16 @@
       	<version>2.2</version>
       </extension>
     </extensions> 
+
+    <pluginManagement>
+      <plugins>
+	<plugin>
+          <groupId>org.antlr</groupId>
+          <artifactId>antlr3-maven-plugin</artifactId>
+          <version>3.4</version>
+	</plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 
   <scm>
