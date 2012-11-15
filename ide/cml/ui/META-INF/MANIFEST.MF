@@ -4,15 +4,6 @@ Bundle-Name: COMPASS IDE CML UI
 Bundle-SymbolicName: eu.compassresearch.ide.cml.ui;singleton:=true
 Bundle-Version: 0.0.1
 Bundle-ClassPath: .
-Require-Bundle: eu.compassresearch.ide.cml.core,
-  org.eclipse.debug.ui,
-  org.eclipse.ui.workbench.texteditor,
-  org.eclipse.ui.views,
-  org.eclipse.text,
-  org.eclipse.core.runtime,
-  org.eclipse.equinox.common,
-  org.overture.ide.ui;bundle-version="2.2.0",
-  org.overture.ide.core
 Bundle-Activator: eu.compassresearch.ide.cml.ui.CmlUIPlugin
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin

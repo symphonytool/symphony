@@ -60,7 +60,7 @@ public class jsonReceiveFileFromCacheCommand extends jsonCommand {
 		}
 		// store file
 		writeBase64StringFileContent(client.addLocalWorkspace(filename), fileContent, true);
-		String localChecksum = getSHA256Checksum(filename);
+		String localChecksum = getSHA256Checksum(client.addLocalWorkspace(filename));
 		if (!checksum.equals(localChecksum)) {
 			System.err.println("*** error: checksum of received file '" + filename + "' does not match!");
 		}

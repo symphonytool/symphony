@@ -381,7 +381,7 @@ public class jsonCommand {
 		try{
 			File file = new File(filename);
 			if (!file.isFile()) {
-				System.err.println("*** error: " + filename + " is not a regualr file!");
+				System.err.println("*** error: " + filename + " is not a regular file!");
 				return content;
 			}
 			if (!file.canRead()) {
@@ -445,7 +445,7 @@ public class jsonCommand {
 		try{
 			File file = new File(filename);
 			if (!file.isFile()) {
-				System.err.println("*** error: " + filename + " is not a regualr file!");
+				System.err.println("*** error: " + filename + " is not a regular file!");
 				return size;
 			}
 			size = file.length();
@@ -464,7 +464,7 @@ public class jsonCommand {
 		try{
 			File file = new File(filename);
 			if (!file.isFile()) {
-				System.err.println("*** error: " + filename + " is not a regualr file!");
+				System.err.println("*** error: " + filename + " is not a regular file!");
 				return checksum;
 			}
 			if (!file.canRead()) {

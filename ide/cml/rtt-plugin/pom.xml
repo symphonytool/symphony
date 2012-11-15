@@ -36,7 +36,8 @@
             </goals>
             <configuration>
               <artifactItems>
-                <!-- Copy the rtt-mbt analysis from core to lib -->
+ 
+               <!-- Copy the rtt-mbt analysis from core to lib -->
                 <artifactItem>
                   <groupId>eu.compassresearch.core.analysis</groupId>
                   <artifactId>rtt-mbt</artifactId>
@@ -44,7 +45,6 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
-
 
                 <artifactItem>
                   <groupId>com.googlecode.json-simple</groupId>
@@ -55,8 +55,8 @@
                 </artifactItem>
 
                 <artifactItem>
-                  <groupId>commons-codec</groupId>
-                  <artifactId>commons-codec</artifactId>
+                  <groupId>org.apache.directory.studio</groupId>
+                  <artifactId>org.apache.commons.codec</artifactId>
                   <version>1.6</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
@@ -70,8 +70,10 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
+
+
+
 
 </project>

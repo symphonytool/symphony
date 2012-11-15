@@ -48,11 +48,14 @@ import org.json.simple.JSONObject;
 		 if (parameters == null) {
 			 return;
 		 }
-		 // @todo:
 		 // - get result
-		 // - if compilation failed: get error.log
-		 // - if compilation passes: anything to do?
-	 }
+		 String checkResult = (String)parameters.get("result");
+			if (!(checkResult.equals("PASS"))) {
+				resultValue = false;
+			} else {
+				resultValue = true;
+			}
+		 }
 
 	 public String getTestProcName() {
 		 return testProcName;
