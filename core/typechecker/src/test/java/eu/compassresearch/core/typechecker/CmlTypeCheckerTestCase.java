@@ -163,10 +163,12 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				testData,
 				"class test = begin values a : bool = if true then 1 else 0 end",
 				false, true, false, new String[0]);
+		// 32
 		addTestProgram(
 				testData,
 				"class test = begin values a : seq of char = if true then \"true\" else \"false\" end",
 				false, true, true, new String[0]);
+		// 33
 		addTestProgram(
 				testData,
 				"class test = begin values b : int = 1; a : seq of char = if b = 2 then \"one\" elseif (b = 3) then \"two\" elseif b = 4 then \"three\" else \"above three\" end",
@@ -605,6 +607,9 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				testData,
 				"class test = begin functions public plus: int * int -> int plus(a,b) == (0 + a) + b; end",
 				false, true, false, new String[0]);
+		// 136
+		addTestProgram(testData, "values a:int = 1; b : int = a; ", false,
+				true, true, new String[0]);
 
 		return testData;
 	}
