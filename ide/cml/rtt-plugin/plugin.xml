@@ -12,7 +12,7 @@
         point="org.eclipse.ui.newWizards">
         <wizard 
         	id="eu.compassresearch.ide.cml.rttplugin.RttMbtComponentWizard"
-        	name="RTT-MBT Component"
+        	name="RTT-MBT component"
         	category="compass_eu.compassresearch.ide.cml.ui.category"
         	class="eu.compassresearch.ide.cml.rttplugin.RttMbtComponentWizard"
         	/>
@@ -36,4 +36,22 @@
         	name="COMPASS"/>
   </extension>
   
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtInitProject"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtInitProject"
+      name="Initialise RTT-MBT component"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtInitProject"
+        label="RTT-MBT init"
+        tooltip="Initialise RTT-MBT component"
+      />
+    </menuContribution>
+  </extension>
+
 </plugin>

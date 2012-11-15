@@ -19,16 +19,17 @@ public class RttMbtClient {
 	protected String projectName;
 	protected String userName;
 	protected String userId;
+	private String CmlProject;   // starting and ending with file separator
+	private String CmlWorkspace; // no file separator at the end
 
 	public RttMbtClient(String server, Integer port, String user, String id) {
 		rttMbtServer = server;
 		rttMbtPort = port;
 		userName = user;
 		userId = id;
-	}
-
-	public String getProject() {
-		return projectName;
+		projectName = null;
+		CmlProject = null;
+		CmlWorkspace = null;
 	}
 
 	public Boolean testConenction() {
@@ -65,6 +66,9 @@ public class RttMbtClient {
 	public Boolean uploadFile(String filename) {
 		Boolean success = true;
 
+		// add workspace
+		filename = addLocalWorkspace(filename);
+		
 		// check if file exists in local file system
 		File localFile = new File(filename);
 		if (!localFile.exists()) {
@@ -99,7 +103,18 @@ public class RttMbtClient {
 	
 	public Boolean uploadDirectory(String directory, Boolean recursive) {
 		Boolean success = true;
+
+		// add workspace
+		directory = addLocalWorkspace(directory);
+		
+		// check if directory exists
 		File folder = new File(directory);
+		if (!folder.isDirectory()) {
+			System.err.println("local directory '" + directory + "' does not exist!");
+			return false;
+		}
+		
+		// get files in the directory
 		File[] files = folder.listFiles();
 		List<String> folders = new ArrayList<String>();
 		if (files == null) {
@@ -108,20 +123,25 @@ public class RttMbtClient {
 		}
 		for (int i = 0; i < files.length; i++) {
 			if (files[i].isFile()) {
-				success = (uploadFile(directory + "/" + files[i].getName()) && success);
+				String filename = removeLocalWorkspace(directory + "/" + files[i].getName());
+				success = (uploadFile(filename) && success);
 			} else if ((files[i].isDirectory()) && (recursive)) {
 				folders.add(directory + "/" + files[i].getName());
 			}
 		}
 		for (int i = 0; i < folders.size(); i++) {
-			System.out.println("uploading directory " + folders.get(i));
-			success = (uploadDirectory(folders.get(i), recursive) && success);
+			String subdirname = removeLocalWorkspace(folders.get(i));
+			System.out.println("uploading directory '" + subdirname + "'");
+			success = (uploadDirectory(subdirname, recursive) && success);
 		}
 		return success;
 	}
 
 	public Boolean downloadFile(String filename) {
 		Boolean success = true;
+
+		// add workspace
+		filename = addLocalWorkspace(filename);
 
 		// check if file already is up to date
 		File file = new File(filename);
@@ -149,6 +169,9 @@ public class RttMbtClient {
 
 	public Boolean downloadDirectory(String directory) {
 		Boolean success = true;
+
+		// add workspace
+		directory = addLocalWorkspace(directory);
 
 		System.out.println("downloading files in directory '" + directory + "' from cache");
 		
@@ -188,7 +211,8 @@ public class RttMbtClient {
 		
 		// for each file: download file
 		for (int idx = 0; idx < filenames.size(); idx++) {
-			downloadFile(directory + "/" + filenames.get(idx));
+			String filename = removeLocalWorkspace(directory) + "/" + filenames.get(idx);
+			downloadFile(filename);
 		}
 		
 		return success;
@@ -200,8 +224,8 @@ public class RttMbtClient {
 		// set project name
 		projectName = project;
 
-		// check if local directory exists
-		File folder = new File(project);
+		// check if local project directory exists
+		File folder = new File(getRttProjectRoot());
 		if (folder.isFile()) {
 			System.err.println("[FAIL]: '" + project + "' already exists and is a file!");
 			return false;
@@ -221,13 +245,14 @@ public class RttMbtClient {
 		File projectConf = new File(folder, "project.rtp");
 		if (!projectConf.exists()) {
 			// extract project template
-			File templates = new File("templates");
+			File templates = new File(getCmlWorkspace() + getCmlProject() + File.separator + "templates");
 			if (!templates.isDirectory()) {
 				System.err.println("[FAIL]: local 'templates' directory does not exist!");
 				return false;
 			}
 			File archive = new File(templates, "_Project_compass.zip");
-			success = unzipArchive(archive.getPath(), projectName);
+			System.out.println("unzipping archive '" + archive.getPath() + "' into directory '" + getRttProjectRoot() + "'");
+			success = unzipArchive(archive.getPath(), getRttProjectRoot());
 			if (!success) {
 				// extracting project template failed
 				System.err.println("[FAIL]: creating project structure failed!");
@@ -236,7 +261,8 @@ public class RttMbtClient {
 		}
 
 		// upload project structure to cache
-		success = uploadDirectory(project, true);
+		System.out.println("uploading '" + getProjectName() + "' to the rtt-mbt-tms file cache...");
+		success = uploadDirectory(getProjectName(), true);
 		return success;
 	}
 	
@@ -249,10 +275,10 @@ public class RttMbtClient {
 			return false;
 		}
 		// copy model to <projectroot>/model/ directory
-		File projectRoot = new File(projectName);
+		File projectRoot = new File(getRttProjectRoot());
 		try {
 			if (!projectRoot.isDirectory()) {
-				System.err.println("[FAIL]: project directory '" + projectName + "' does not exist!");
+				System.err.println("[FAIL]: project directory '" + getRttProjectRoot() + "' does not exist!");
 				return false;
 			}
 			File modelDir = new File(projectRoot, "model");
@@ -287,7 +313,7 @@ public class RttMbtClient {
 		}
 		// send model to file cache
 		// this is actually needed for test generation command
-		String modelDirName = projectName + File.separator
+		String modelDirName = getRttProjectRoot() + File.separator
 				+ "model" + File.separator;
 		uploadFile(modelDirName + "model_dump.xml");
 
@@ -304,7 +330,7 @@ public class RttMbtClient {
 		}
 
 		// unpack _P1.zip
-		File templates = new File("templates");
+		File templates = new File(getCmlWorkspace() + getCmlProject() + File.separator + "templates");
 		if (!templates.isDirectory()) {
 			System.err.println("[FAIL]: local 'templates' directory does not exist!");
 			return false;
@@ -400,7 +426,7 @@ public class RttMbtClient {
 	        	// prepare next loop
 		    	entry = stream.getNextEntry();
 	        }
-	    	
+	    	stream.close();
 		} catch (FileNotFoundException e) {
 			System.err.println("[FAIL]: template archive '" + archiveName + "' does not exist!");
 			return false;
@@ -420,7 +446,7 @@ public class RttMbtClient {
 		// - advanced.conf
 		// - addgoals.conf
 		// - addgoalsordered.conf
-		String confDirName = projectName + File.separator
+		String confDirName = getProjectName() + File.separator
 				+ "TestProcedures" + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" +  File.separator;
@@ -441,19 +467,19 @@ public class RttMbtClient {
 			// - error.log
 			// - rtt-mbt-tms.out
 			// - rtt-mbt-tms.err
-			String dirname = projectName + File.separator;
+			String dirname = getProjectName() + File.separator;
 			downloadFile(dirname + "error.log");
 			downloadFile(dirname + "rtt-mbt-tms-execution.err");
 			downloadFile(dirname + "rtt-mbt-tms-execution.out");
 			// - configuration.csv.bak
-			dirname = projectName + File.separator
+			dirname = getProjectName() + File.separator
 					+ "TestProcedures" + File.separator
 					+ abstractTestProc + File.separator
 					+ "conf" + File.separator;
 			downloadFile(dirname + "configuration.csv.bak");
 			// - generation.log
 			// - error.log
-			dirname = projectName + File.separator
+			dirname = getProjectName() + File.separator
 					+ "TestProcedures" + File.separator
 					+ abstractTestProc + File.separator
 					+ "log" + File.separator;
@@ -472,7 +498,7 @@ public class RttMbtClient {
 		// - overall_coverage.csv
 		// - uncovered_testcases.csv
 		// - unreachable_testcases.csv
-		String dirname = projectName + File.separator
+		String dirname = getProjectName() + File.separator
 		+ "model" + File.separator;
 		downloadFile(dirname + "symbols.log");
 		downloadFile(dirname + "testcases.csv");
@@ -485,7 +511,7 @@ public class RttMbtClient {
 
 		// from cache/<user-id>/<project-name>/<testproc>/conf
 		// - configuration.csv
-		dirname = projectName + File.separator
+		dirname = getProjectName() + File.separator
 				+ "TestProcedures" + File.separator
 				+ abstractTestProc + File.separator
 				+ "conf" + File.separator;
@@ -495,7 +521,7 @@ public class RttMbtClient {
 		// - addgoalcoverage.csv
 		// - covered_testcases.csv
 		// - focus_points_to_addgoals.conf
-		dirname = projectName + File.separator
+		dirname = getProjectName() + File.separator
 				+ "TestProcedures" + File.separator
 				+ abstractTestProc + File.separator
 				+ "log" + File.separator;
@@ -507,7 +533,7 @@ public class RttMbtClient {
 		// - signals.dat
 		// - signals.json
 		// - *.pdf
-		dirname = projectName + File.separator
+		dirname = getProjectName() + File.separator
 				+ "TestProcedures" + File.separator
 				+ abstractTestProc + File.separator
 				+ "model";
@@ -515,14 +541,14 @@ public class RttMbtClient {
 
 		// from cache/<user-id>/<project-name>/<testproc>/testdata
 		// - signals.dat
-		dirname = projectName + File.separator
+		dirname = getProjectName() + File.separator
 				+ "TestProcedures" + File.separator
 				+ abstractTestProc + File.separator
 				+ "testdata";
 		downloadDirectory(dirname);
 
 		// download concrete test procedure from cache
-		dirname = projectName + File.separator
+		dirname = getProjectName() + File.separator
 				+ "RTT_TestProcedures" + File.separator
 				+ abstractTestProc + File.separator;
 		downloadDirectory(dirname + "conf");
@@ -531,6 +557,25 @@ public class RttMbtClient {
 		downloadDirectory(dirname + "testdata");
 
 		return success;
+	}
+	
+	public String addLocalWorkspace(String filename) {
+		if (filename == null) return filename;
+		String workspace = getCmlWorkspace() + getCmlProject();
+		return workspace + filename;
+	}
+	
+	public String removeLocalWorkspace(String filename) {
+		if (filename == null) return filename;
+		String workspace = getCmlWorkspace() + getCmlProject();
+		if ((workspace != null) &&
+			(filename.startsWith(workspace))) {
+			System.out.println("removing '" + workspace + "' from '" + filename + "'");
+			return filename.substring(workspace.length());
+		} else {
+			System.out.println("workspace '" + workspace + "' is no prefix of '" + filename + "'");
+			return filename;
+		}
 	}
 	
 	public String getRttMbtServer() {
@@ -572,5 +617,26 @@ public class RttMbtClient {
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
+
+	public String getCmlWorkspace() {
+		if (CmlWorkspace == null) return "";
+		return CmlWorkspace;
+	}
+
+	public void setCmlWorkspace(String workspace) {
+		this.CmlWorkspace = workspace;
+	}
 	
+	public String getCmlProject() {
+		if (CmlProject == null) return "";
+		return CmlProject;
+	}
+
+	public void setCmlProject(String project) {
+		this.CmlProject = project + File.separator;
+	}
+	
+	public String getRttProjectRoot() {
+		return getCmlWorkspace() + getCmlProject() + getProjectName();
+	}
 }
