@@ -707,14 +707,22 @@ public class RttMbtClient {
 			// - rtt-mbt-tms.out
 			// - rtt-mbt-tms.err
 			String dirname = getProjectName() + File.separator;
-			downloadDirectory(dirname + "rtt-mbt-tms-execution.err");
-			downloadDirectory(dirname + "rtt-mbt-tms-execution.out");
+			downloadFile(dirname + "rtt-mbt-tms-execution.err");
+			downloadFile(dirname + "rtt-mbt-tms-execution.out");
 		} else {
 			// download generated files (not src, stubsrc, etc.)
 			dirName = getProjectName() + File.separator
 					+ "RTT_TestProcedures" + File.separator
 					+ concreteTestProc + File.separator
 					+ "src" + File.separator;
+			// create local target directory (src) if it does not exist
+			File src = new File(addLocalWorkspace(dirName));
+			if (!src.exists()) {
+				System.out.println("creating directory '" + addLocalWorkspace(dirName) + "'");
+				if (!src.mkdir()) {
+					System.err.println("creating directory '" + addLocalWorkspace(dirName) + "' failed!");
+				}
+			}
 			downloadFile(dirName + "used.conf");
 			downloadFile(dirName + "used.rtp");
 			downloadFile(dirName + "rtt-compile-test.timestamp");
