@@ -113,7 +113,7 @@ class TCDeclAndDefVisitor extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 
-		node.setName(new LexNameToken("Default", node.getName().getName(), node
+		node.setName(new LexNameToken("", node.getName().getName(), node
 				.getLocation()));
 
 		// Acquire declared type and expression type
@@ -138,8 +138,11 @@ class TCDeclAndDefVisitor extends
 							.customizeMessage(expressionType.toString(),
 									declaredType.toString()));
 
-		List<PDefinition> newDefs = getHandler(node.getPattern())
-				.getDefinitions(node.getPattern(), node);
+		// if there is a parent definition lets find things
+		List<PDefinition> newDefs = new LinkedList<PDefinition>();
+		if (question.env.getEnclosingDefinition() != null)
+			newDefs = getHandler(node.getPattern()).getDefinitions(
+					node.getPattern(), question.env.getEnclosingDefinition());
 
 		node.setDefs(newDefs);
 

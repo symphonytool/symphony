@@ -36,7 +36,8 @@
             </goals>
             <configuration>
               <artifactItems>
-                <!-- Copy the rtt-mbt analysis from core to lib -->
+ 
+               <!-- Copy the rtt-mbt analysis from core to lib -->
                 <artifactItem>
                   <groupId>eu.compassresearch.core.analysis</groupId>
                   <artifactId>rtt-mbt</artifactId>
@@ -60,8 +61,8 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
-
               </artifactItems>
+
               <outputDirectory>lib</outputDirectory>
               <overWriteReleases>true</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>

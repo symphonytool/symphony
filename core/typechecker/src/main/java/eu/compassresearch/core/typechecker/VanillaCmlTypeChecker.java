@@ -10,9 +10,20 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
+import org.overture.ast.definitions.AClassClassDefinition;
+import org.overture.ast.definitions.APublicAccess;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.node.tokens.TAsync;
+import org.overture.ast.node.tokens.TStatic;
+import org.overture.ast.typechecker.ClassDefinitionSettings;
+import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.typechecker.Pass;
+import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.PAction;
@@ -43,7 +54,9 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	// checker
 	private boolean lastResult;
 	private final TypeComparator typeComparator;
+	private SClassDefinition globalRoot;
 
+	@SuppressWarnings("deprecation")
 	private void initialize(TypeIssueHandler issueHandler) {
 		exp = new TCExpressionVisitor(this, this);
 		stm = new TCStatementVisitor(this, this);
@@ -54,6 +67,30 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 			this.issueHandler = issueHandler;
 		else
 			this.issueHandler = new CollectingIssueHandler();
+
+		LexLocation location_ = new LexLocation("Built-In", "CML", 0, 0, 0, 0,
+				0, 0);
+		NameScope nameScope_ = NameScope.CLASSNAME;
+		Boolean used_ = true;
+		AAccessSpecifierAccessSpecifier access_ = new AAccessSpecifierAccessSpecifier(
+				new APublicAccess(), new TStatic(), new TAsync());
+		Pass pass_ = Pass.DEFS;
+		List<? extends PDefinition> body_ = new LinkedList<PDefinition>();
+		;
+		Boolean hasContructors_ = false;
+		;
+		ClassDefinitionSettings settingHierarchy_ = ClassDefinitionSettings.DONE;
+		Boolean gettingInheritable_ = false;
+		Boolean gettingInvDefs_ = false;
+		Boolean isAbstract_ = false;
+		Boolean isUndefined_ = false;
+		globalRoot = new AClassClassDefinition(location_, null, nameScope_,
+				used_, globalRoot, access_, null, pass_, null, null, body_,
+				body_, body_, hasContructors_, settingHierarchy_, null,
+				gettingInheritable_, body_, gettingInvDefs_, isAbstract_,
+				isUndefined_, null, isUndefined_, null);
+		globalRoot.setName(new LexNameToken("CML", "Global Declarations",
+				location_));
 
 	}
 
@@ -189,6 +226,8 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		TypeCheckInfo info = TypeCheckInfo.getNewTopLevelInstance(this);
 		if (!cleared)
 			return lastResult;
+
+		info.env.setEnclosingDefinition(globalRoot);
 
 		// for each source
 		for (PSource s : sourceForest) {

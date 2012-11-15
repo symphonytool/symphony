@@ -159,6 +159,7 @@ public class Path {
 		return new ANameChannelExp(location, pair.first, pair.second);
 	}
 
+	@SuppressWarnings("deprecation")
 	public PExp convertToExpression() throws PathConvertException {
 		PExp exp = null;
 		switch (kind) {
