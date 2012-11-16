@@ -11,8 +11,8 @@
   <groupId>eu.compassresearch.ide.cml</groupId>
   <artifactId>eu.compassresearch.ide.cml.rtt-plugin</artifactId>
   <name>COMPASS RT Tester Plugin</name>
+    <packaging>pom</packaging>
 
-  <packaging>pom</packaging>
 
  <dependencies>
     <dependency>
@@ -20,7 +20,33 @@
       <artifactId>org.eclipse.ui.ide</artifactId>
       <version>3.7.0</version>
     </dependency>
- </dependencies>
+
+    <dependency>
+      <groupId>org.eclipse.core</groupId>
+      <artifactId>org.eclipse.core.runtime</artifactId>
+      <version>3.7.0</version>
+    </dependency>
+
+
+   <dependency>
+     <groupId>eu.compassresearch.core.analysis</groupId>
+     <artifactId>rtt-mbt</artifactId>
+     <version>${project.version}</version>
+    </dependency>
+
+   <dependency>
+     <groupId>com.googlecode.json-simple</groupId>
+     <artifactId>json-simple</artifactId>
+     <version>1.1</version>
+   </dependency>
+ 
+   <dependency>
+     <groupId>commons-codec</groupId>
+     <artifactId>commons-codec</artifactId>
+     <version>1.5</version>
+   </dependency>
+   
+</dependencies>
 
   <build>
     <plugins>
@@ -55,9 +81,9 @@
                 </artifactItem>
 
                 <artifactItem>
-                  <groupId>org.apache.directory.studio</groupId>
-                  <artifactId>org.apache.commons.codec</artifactId>
-                  <version>1.6</version>
+                  <groupId>commons-codec</groupId>
+                  <artifactId>commons-codec</artifactId>
+                  <version>1.5</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
