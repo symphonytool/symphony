@@ -18,6 +18,12 @@
       <artifactId>ast</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.antlr</groupId>
+      <artifactId>antlr-runtime</artifactId>
+      <version>3.4</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
 
   <build>

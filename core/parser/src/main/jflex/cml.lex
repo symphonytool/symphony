@@ -261,7 +261,6 @@ blanks          = [ \t\f]*
 "nil"                         { return createToken(CmlParser.NIL); }
 "not in set"                  { return createToken(CmlParser.NOTINSET); }
 "not"                         { return createToken(CmlParser.NOT); }
-"not"                         { return createToken(CmlParser.NOT); }
 "operations"                  { return createToken(CmlParser.OPERATIONS); }
 "of"                          { return createToken(CmlParser.OF); }
 "or"                          { return createToken(CmlParser.OR); }

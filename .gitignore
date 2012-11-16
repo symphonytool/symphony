@@ -54,4 +54,4 @@ target/
 ######################
 bin/
 /core/parser/*.report
-
+output/

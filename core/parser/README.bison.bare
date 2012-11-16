@@ -1,1 +1,0 @@
-bison --skeleton=src/main/resources/cmlskeleton.java.m4 -v -r all --report-file=./cml-bare.report --output=./CmlParser-bare.java src/examples/bison/cml-bare.y
