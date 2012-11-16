@@ -147,7 +147,9 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
     private List<Wrapper<? extends INode>> handleProcessParagraphDefinition(
 	    AProcessParagraphDefinition ppdef) {
 	PProcess pp = ppdef.getProcessDefinition().getProcess();
+	if (ProcessMap.getDelegate(pp.getClass()) != null)
 	return ProcessMap.getDelegate(pp.getClass()).makeEntries(pp);
+	return new LinkedList<Wrapper<? extends INode>>();
     }
 
 

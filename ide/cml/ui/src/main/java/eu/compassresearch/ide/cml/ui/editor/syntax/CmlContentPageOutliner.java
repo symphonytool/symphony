@@ -28,6 +28,9 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
     private OutlineLabelProvider labelprovider;
     private TreeViewer viewer;
 
+    //TODO remove the flag hack once we get propper propper sync from the editor
+    private static boolean loopAvoidanceFlag=true;
+    
     // public static final int ALL_LEVELS = -1;
 
     public void setTreeSelection(INode element) {
@@ -39,6 +42,7 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
 	else
 	    w = Wrapper.newInstance(pdef, dscr);
 	System.out.println("Setting outline selection to " + w.toString());
+	loopAvoidanceFlag=false;
 	getTreeViewer().setSelection(new StructuredSelection(w), true);
 
 	// viewer.setSelection(element, true);
@@ -77,10 +81,9 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
 		    System.out.println("Empty Selection");
 		    return;
 		}
-		if (event.getSelection() instanceof IStructuredSelection) {
+		if ((event.getSelection() instanceof IStructuredSelection ) && loopAvoidanceFlag) {
 		    IStructuredSelection selection = (IStructuredSelection) event
 			    .getSelection();
-		    StringBuffer toShow = new StringBuffer();
 		    for (Iterator iterator = selection.iterator(); iterator
 			    .hasNext();) {
 
@@ -105,6 +108,7 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
 			}
 		    }
 		}
+		else loopAvoidanceFlag=true;
 	    }
 	});
 
