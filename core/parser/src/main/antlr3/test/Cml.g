@@ -13,7 +13,7 @@ programParagraph
 	;
 
 classDefinition
-	:	CLASS IDENTIFIER (EXTENDS IDENTIFIER)? EQUALS BEGIN classDefinitionBlock END
+	:	'class' IDENTIFIER ('extends' IDENTIFIER)? '=' 'begin' classDefinitionBlock 'end'
 	;
 
 classDefinitionBlock
@@ -30,53 +30,174 @@ classDefinitionBlockAlternative
 	;
 
 typeDefs
-    :	TYPES typeDef*
+    :	'types' typeDef*
 	;
 
 typeDef
-	:	QUALIFIER? IDENTIFIER EQUALS type invariant?
+	:	QUALIFIER? IDENTIFIER '=' type invariant?
 	|	QUALIFIER? IDENTIFIER '::' field+ invariant?
 	;
 
-type:	type0 (BAR type0)*
+type
+    :	type0 ('|' type0)*
 	;
 
 type0
-    :   type1 (STAR type1)*
+    :   type1 ('*' type1)*
     ;
 
 type1
     :   basicType
-	|	LPAREN type RPAREN
+	|	'(' type ')'
+	|	'[' type ']'
 	|	QUOTELITERAL
-	|	COMPOSE IDENTIFIER OF field+ END
-	|	LSQUARE type RSQUARE
-	|	SETOF type1
-	|	SEQOF type1
-	|	SEQ1OF type1
-	|	MAPOF type1 TO type1
-	|	INMAPOF type1 TO type1
-//	|	functionType
 	|	NAME
+	|	'compose' IDENTIFIER 'of' field+ 'end'
+	|	'set of' type1
+	|	'seq of' type1
+	|	'seq1 of' type1
+	|	'map of' type1 'to' type1
+	|	'inmap of' type1 'to' type1
+	// |	functionType
 	;
 
 basicType
-	:	TBOOL | TNAT | TNAT1 | TINT | TRAT | TREAL | TCHAR | TTOKEN
+	:	'bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token'
 	;
 
 field
 	:	type
 	|	IDENTIFIER ':' type
-	|	IDENTIFIER COLONDASH type
+	|	IDENTIFIER ':-' type
 	;
 
 invariant 
-	:	IDENTIFIER
-//	:	INV pattern DEQUALS expression
+	:	'inv' pattern '==' expression
 	;
-	
 
+functionType
+    : discretionaryType ( '+>' | '->' ) type
+    ;
+
+discretionaryType
+    : type
+    | '()'
+    ;
+
+pattern
+    : patternIdentifier
+    | matchValue
+    | tuplePattern
+    | recordPattern
+    ;	
+
+patternIdentifier
+    : IDENTIFIER
+    | '-'
+    ;
+
+matchValue
+    : '(' expression ')'
+    | symbolicLiteral
+    ;
+
+symbolicLiteral
+    : numLiteral
+    | boolLiteral
+    | NILLITERAL
+    | CHARLITERAL
+    | TEXTLITERAL
+    | QUOTELITERAL
+    ;
+
+numLiteral
+    : DECIMAL
+    | HEXLITERAL
+    ;
+
+boolLiteral
+    : 'true' | 'false'
+    ;
+
+tuplePattern
+    : MKUNDERLPAREN pattern (',' pattern)* ')'
+    ;
+
+recordPattern
+    : MKUNDERNAMELPAREN (pattern (',' pattern)+)* ')'
+    ;
+
+expression
+    : expr0
+    ;
+
+expr0op : '+' | '-' ;
+expr0
+    : exprbase expr0op exprbase
+    ;
+
+exprbase
+    : '(' expression ')'
+    | 'let' localDefinition (',' localDefinition)* 'in' expression
+    | 'if' expression 'then' expression ('elseif' expression 'then' expression)* 'else' expression
+    | 'cases' expression ':' (pattern (',' pattern)* '->' expression)+ ('others' '->' expression)? 'end'
+    | 'forall' bind+ '@' expression
+    | 'exists' bind+ '@' expression
+    | 'exists1' bind '@' expression
+    | 'iota' bind '@' expression
+    | '{' setMapExpr? '}'
+    | '[' seqExpr? ']'
+// | subsequence
+// | tuple constructor
+// | record constructor
+// | apply
+// | field select
+// | tuple select
+// | lambda expression
+// | general is expression
+// | precondition expression 
+// | isofclass expression
+    | 'self'
+    | NAME
+    | NAME '~'
+    | symbolicLiteral
+    ;
+
+/* set enumeration = '{', [ expression list ], '}' ;
+ * set comprehension = '{', expression, '|', bind list, [ '@', expression ], '}' ;
+ * set range expression = '{', expression, ',', '...', ',', expression, '}' ;
+ * sequence enumeration = '[', [ expression list ], ']' ;
+ * sequence comprehension = '[', expression, '|', set bind, [ '@', expression ], ']' ;
+ * map enumeration = '{', maplet, { ',', maplet }, '}' | '{', '|->', '}' ;
+ * maplet = expression, '|->', expression ;
+ * map comprehension = '{', maplet, '|', bind list, [ '@', expression ], '}' ;
+ */
+setMapExpr
+    : expression ( (',' expression)* | '|' bind+ ('@' expression)? | ',' '...' ','  expression )
+    | maplet ( (',' maplet)* | '|' bind+ ('@' expression)? )
+    | '|->'
+    ;
+
+maplet
+    : ':-:'
+    // : expression '|->' expression (',' expression '|->' expression)*
+    ;
+
+seqExpr
+    : expression ( (',' expression)* | '|' setBind ('@' expression)? | ',' '...' ','  expression )
+    ;
+
+localDefinition
+    : IDENTIFIER
+    ;
 	
+bind: IDENTIFIER
+    ;
+
+setBind
+    : IDENTIFIER
+    ;
+
 /* ********************************************************** */
 /* ***              SCANNER PRODUCTION RULES              *** */
 /* ********************************************************** */
@@ -85,239 +206,53 @@ invariant
 WHITESPACE
     : (' ' | '\t' | '\r' | '\n')+ { $channel=HIDDEN; }
     ;
+
 LINECOMMENT
     : ( '//' | '--' ) .* '\n' { $channel=HIDDEN; }
     ;
+
 MLINECOMMENT
     : '/*' .* '*/' { $channel=HIDDEN; }
     ;
 
 QUALIFIER
-    : 'public'
-    | 'protected'
-    | 'private'
-    | 'logical'
-    ;
+    : 'public' | 'protected' | 'private' | 'logical' ;
 
-CSPCHAOS : 'Chaos';
-CSPSKIP : 'Skip';
-CSPSTOP : 'Stop';
-CSPWAIT : 'Wait';
-ABS : 'abs';
-ACTIONS : 'actions';
-ALL : 'all';
-AND : 'and';
-ATOMIC : 'atomic';
-BEGIN : 'begin';
-TBOOL : 'bool';
-BY : 'by';
-CARD : 'card';
-CASES : 'cases';
-CHANNELS : 'channels';
-CHANSETS : 'chansets';
-TCHAR : 'char';
-CLASS : 'class';
-COMP : 'comp';
-COMPOSE : 'compose';
-CONC : 'conc';
-DCL : 'dcl';
-DINTER : 'dinter';
-CSPDIV : 'Div';
-DIV : 'div';
-DO : 'do';
-DOM : 'dom';
-DUNION : 'dunion';
-ELEMS : 'elems';
-ELSE : 'else';
-ELSEIF : 'elseif';
-END : 'end';
-ENDSBY : 'endsby';
-EXISTS : 'exists';
-EXISTS1 : 'exists1';
-EXTENDS : 'extends';
-FALSE : 'false';
-FLOOR : 'floor';
-FOR : 'for';
-FORALL : 'forall';
-FRAME : 'frame';
-FUNCTIONS : 'functions';
-HD : 'hd';
-IF : 'if';
-INSET : 'in set';
-IN : 'in';
-INDS : 'inds';
-INITIAL : 'initial';
-INMAPOF : 'inmap';
-TINT : 'int';
-INTER : 'inter';
-INV : 'inv';
-INVERSE : 'inverse';
-IOTA : 'iota';
-ISOFCLASS : 'isofclass';
-NOTYETSPEC : 'is not yet specified';
-SUBCLASSRESP : 'is subclass responsibility';
-LAMBDA : 'lambda';
-LEN : 'len';
-LET : 'let';
-//LOGICAL : 'logical';
-MAPOF : 'map';
-MEASURE : 'measure';
-MERGE : 'merge';
-MOD : 'mod';
-MU : 'mu';
-MUNION : 'munion';
-NAMESETS : 'namesets';
-TNAT : 'nat';
-TNAT1 : 'nat1';
-NEW : 'new';
-NIL : 'nil';
-NOTINSET : 'not in set';
-NOT : 'not';
-OPERATIONS : 'operations';
-OF : 'of';
-OR : 'or';
-OTHERS : 'others';
-POST : 'post';
-POWER : 'power';
-PRE : 'pre';
-PREUNDER : 'pre_';
-//PRIVATE : 'private';
-PROCESS : 'process';
-//PROTECTED : 'protected';
-PSUBSET : 'psubset';
-//PUBLIC : 'public';
-TRAT : 'rat';
-RD : 'rd';
-TREAL : 'real';
-REM : 'rem';
-RES : 'res';
-RETURN : 'return';
-REVERSE : 'reverse';
-RNG : 'rng';
-SELF : 'self';
-SEQOF : 'seq of';
-SEQ1OF : 'seq1 of';
-SETOF : 'set of';
-STARTBY : 'startby';
-STATE : 'state';
-SUBSET : 'subset';
-THEN : 'then';
-TL : 'tl';
-TO : 'to';
-TTOKEN : 'token';
-TRUE : 'true';
-TYPES : 'types';
-UNION : 'union';
-VAL : 'val';
-VALUES : 'values';
-VRES : 'vres';
-WHILE : 'while';
-WR : 'wr';
+NILLITERAL
+    : 'nil'
+    ;
 
 QUOTELITERAL
     : '<' IDENTIFIER '>'
     ;
 
-MKUNDER
-    : 'mk_'
+CHARLITERAL
+    : '\\\\' | '\\r' | '\\n' | '\\t' | '\\f' | '\\e' | '\\a' | '\\"' | '\\\''
+    | '\\x' HEXDIGIT HEXDIGIT
+    | '\\u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
+    | '\\' OCTDIGIT OCTDIGIT OCTDIGIT
+    // | '\\c' character
     ;
-MKUNDERNAME
-    : 'mk_' NAME
+
+MKUNDERLPAREN
+    : 'mk_('
+    ;
+
+MKUNDERNAMELPAREN
+    : 'mk_' NAME '('
     ;
 
 ISUNDER
     : 'is_'
     ;
+
 ISUNDERNAME
     : 'is_' NAME
     ;
 
-AMP : '&';
-AT : '@';
-BACKSLASH : '\\';
-BANG : '!';
-BAR : '|';
-BARRARROW : '|->';
-BARRCURLY : '|}';
-BARGT : '|>';
-BARRSQUARE : '|]';
-BARTILDEBAR : '|~|';
-CARET : '^';
-//COLON : ':';
-COLONBACKSLASH : ':\\';
-COLONDASH : ':-';
-COLONDASHGT : ':->';
-COLONEQUALS : ':=';
-COLONGT : ':>';
-COMMA : ',';
-DBACKSLASH : '\\\\';
-DBAR : '||';
-DBARRSQUARE : '||]';
-DCOLON : '::';
-DEQRARROW : '==>';
-DEQUALS : '==';
-DLSQUARE : '[[';
-DOT : '.';
-DOTHASH : '.#';
-DPLUS : '++';
-DRSQUARE : ']]';
-DSTAR : '**';
-
-// yes, the ellipsis includes the commas all as a single token
-ELLIPSIS
-    : ',' '...' ','
-    ;
-EMPTYMAP
-    : '{' '|->' '}'
-    ;
-
-
-EQRARROW : '=>';
-EQUALS : '=';
-GT : '>';
-GTE : '>=';
-LARROW : '<-';
-LCURLY : '{';
-LCURLYBAR : '{|';
-LPAREN : '(';
-
-LRPAREN
-    : '(' ')'
-    ;
-
-LRSQUARE : '[]';
-LSQUARE : '[';
-LSQUAREBAR : '[|';
-LSQUAREDBAR : '[||';
-LSQUAREGT : '[>';
-LT : '<';
-LTCOLON : '<:';
-LTDASHCOLON : '<-:';
-LTE : '<=';
-LTEQUALSGT : '<=>';
-MINUS : '-';
-NEQ : '<>';
-PLUS : '+';
-PLUSGT : '+>';
-QUESTION : '?';
-RARROW : '->';
-RCURLY : '}';
-RPAREN : ')';
-RSQUARE : ']';
-SEMI : ';';
-SLASH : '/';
-SLASHBACKSLASH : '/\\';
-SLASHCOLON : '/:';
-STAR : '*';
-TBAR : '|||';
-TILDE : '~';
-BACKTICK : '`';
-
-/* ---- complex terminals below ---- */
-
 /* Need to fix this, yet
  */
-STRING
+TEXTLITERAL
     : '"' .* '"'
     ;
 
@@ -333,13 +268,25 @@ STRING
  *   then Any character in categories Ll, Lm, Lo, Lt, Lu, Nd or U+0024 (a dollar sign) or U+005F (underscore) or U+0027 (apostrophe)
  *   else Any character except categories Cc, Zl, Zp, Zs, Cs, Cn
  */
-IDENTIFIER
-    : ( '\u0024' | '\u0041'..'\u005a' | '\u0061'..'\u007a' | '\u00AA' | '\u00BA' | '\u00B5' | '\u00c0'..'\u00FF' )
-      ( '\u0024' | '\u0041'..'\u005a' | '\u0061'..'\u007a' | '\u00AA' | '\u00BA' | '\u00B5' | '\u00c0'..'\u00FF' | DIGIT )*
+fragment
+INITIAL_LETTER
+    : '\u0024' | '\u0041'..'\u005a' | '\u0061'..'\u007a' | '\u00AA' | '\u00BA' | '\u00B5' | '\u00c0'..'\u00FF'
     ;
-NAME: IDENTIFIER '`' IDENTIFIER ;
+fragment
+FOLLOW_LETTER
+    : INITIAL_LETTER | DIGIT
+    ;
+IDENTIFIER
+    : INITIAL_LETTER FOLLOW_LETTER*
+    ;
+NAME: IDENTIFIER ('.' IDENTIFIER)? ;
 
+fragment
+OCTDIGIT
+    : '0'..'7'
+    ;
 
+fragment
 DIGIT
     : '0'..'9'
     ;
@@ -348,11 +295,216 @@ NUMERAL
     : DIGIT+
     ;
 
+fragment
+HEXDIGIT
+    : DIGIT
+    | 'a'..'f'
+    | 'A'..'F'
+    ;
+
 HEXLITERAL
-    : (DIGIT|'a'..'f')+
+    : ('0x'|'0X') HEXDIGIT+
     ;
 
 DECIMAL
     : NUMERAL '.' NUMERAL ( ('E'|'e') ('+'|'-') NUMERAL )?
 	;
+
+// CSPCHAOS : 'Chaos';
+// CSPSKIP : 'Skip';
+// CSPSTOP : 'Stop';
+// CSPWAIT : 'Wait';
+// ABS : 'abs';
+// ACTIONS : 'actions';
+// ALL : 'all';
+// AND : 'and';
+// ATOMIC : 'atomic';
+// BEGIN : 'begin';
+// TBOOL : 'bool';
+// BY : 'by';
+// CARD : 'card';
+// CASES : 'cases';
+// CHANNELS : 'channels';
+// CHANSETS : 'chansets';
+// TCHAR : 'char';
+// CLASS : 'class';
+// COMP : 'comp';
+// COMPOSE : 'compose';
+// CONC : 'conc';
+// DCL : 'dcl';
+// DINTER : 'dinter';
+// CSPDIV : 'Div';
+// DIV : 'div';
+// DO : 'do';
+// DOM : 'dom';
+// DUNION : 'dunion';
+// ELEMS : 'elems';
+// ELSE : 'else';
+// ELSEIF : 'elseif';
+// END : 'end';
+// ENDSBY : 'endsby';
+// EXISTS : 'exists';
+// EXISTS1 : 'exists1';
+// EXTENDS : 'extends';
+// FALSE : 'false';
+// FLOOR : 'floor';
+// FOR : 'for';
+// FORALL : 'forall';
+// FRAME : 'frame';
+// FUNCTIONS : 'functions';
+// HD : 'hd';
+// IF : 'if';
+// INSET : 'in set';
+// IN : 'in';
+// INDS : 'inds';
+// INITIAL : 'initial';
+// INMAPOF : 'inmap';
+// TINT : 'int';
+// INTER : 'inter';
+// INV : 'inv';
+// INVERSE : 'inverse';
+// IOTA : 'iota';
+// ISOFCLASS : 'isofclass';
+// NOTYETSPEC : 'is not yet specified';
+// SUBCLASSRESP : 'is subclass responsibility';
+// LAMBDA : 'lambda';
+// LEN : 'len';
+// LET : 'let';
+// LOGICAL : 'logical';
+// MAPOF : 'map';
+// MEASURE : 'measure';
+// MERGE : 'merge';
+// MOD : 'mod';
+// MU : 'mu';
+// MUNION : 'munion';
+// NAMESETS : 'namesets';
+// TNAT : 'nat';
+// TNAT1 : 'nat1';
+// NEW : 'new';
+// NIL : 'nil';
+// NOTINSET : 'not in set';
+// NOT : 'not';
+// OPERATIONS : 'operations';
+// OF : 'of';
+// OR : 'or';
+// OTHERS : 'others';
+// POST : 'post';
+// POWER : 'power';
+// PRE : 'pre';
+// PREUNDER : 'pre_';
+// PRIVATE : 'private';
+// PROCESS : 'process';
+// PROTECTED : 'protected';
+// PSUBSET : 'psubset';
+// PUBLIC : 'public';
+// TRAT : 'rat';
+// RD : 'rd';
+// TREAL : 'real';
+// REM : 'rem';
+// RES : 'res';
+// RETURN : 'return';
+// REVERSE : 'reverse';
+// RNG : 'rng';
+// SELF : 'self';
+// SEQOF : 'seq of';
+// SEQ1OF : 'seq1 of';
+// SETOF : 'set of';
+// STARTBY : 'startby';
+// STATE : 'state';
+// SUBSET : 'subset';
+// THEN : 'then';
+// TL : 'tl';
+// TO : 'to';
+// TTOKEN : 'token';
+// TRUE : 'true';
+// TYPES : 'types';
+// UNION : 'union';
+// VAL : 'val';
+// VALUES : 'values';
+// VRES : 'vres';
+// WHILE : 'while';
+// WR : 'wr';
+
+// AMP : '&';
+// AT : '@';
+// BACKSLASH : '\\';
+// BANG : '!';
+// BAR : '|';
+// BARRARROW : '|->';
+// BARRCURLY : '|}';
+// BARGT : '|>';
+// BARRSQUARE : '|]';
+// BARTILDEBAR : '|~|';
+// CARET : '^';
+// COLON : ':';
+// COLONBACKSLASH : ':\\';
+// COLONDASH : ':-';
+// COLONDASHGT : ':->';
+// COLONEQUALS : ':=';
+// COLONGT : ':>';
+// COMMA : ',';
+// DBACKSLASH : '\\\\';
+// DBAR : '||';
+// DBARRSQUARE : '||]';
+// DCOLON : '::';
+// DEQRARROW : '==>';
+// DEQUALS : '==';
+// DLSQUARE : '[[';
+// DOT : '.';
+// DOTHASH : '.#';
+// DPLUS : '++';
+// DRSQUARE : ']]';
+// DSTAR : '**';
+
+// yes, the ellipsis includes the commas all as a single token
+// ELLIPSIS
+//     : ',' '...' ','
+//     ;
+// EMPTYMAP
+//     : '{' '|->' '}'
+//     ;
+
+// EQRARROW : '=>';
+// EQUALS : '=';
+// GT : '>';
+// GTE : '>=';
+// LARROW : '<-';
+// LCURLY : '{';
+// LCURLYBAR : '{|';
+// LPAREN : '(';
+
+// LRPAREN
+//     : '(' ')'
+//     ;
+
+// LRSQUARE : '[]';
+// LSQUARE : '[';
+// LSQUAREBAR : '[|';
+// LSQUAREDBAR : '[||';
+// LSQUAREGT : '[>';
+// LT : '<';
+// LTCOLON : '<:';
+// LTDASHCOLON : '<-:';
+// LTE : '<=';
+// LTEQUALSGT : '<=>';
+// MINUS : '-';
+// NEQ : '<>';
+// PLUS : '+';
+// PLUSGT : '+>';
+// QUESTION : '?';
+// RARROW : '->';
+// RCURLY : '}';
+// RPAREN : ')';
+// RSQUARE : ']';
+// SEMI : ';';
+// SLASH : '/';
+// SLASHBACKSLASH : '/\\';
+// SLASHCOLON : '/:';
+// STAR : '*';
+// TBAR : '|||';
+// TILDE : '~';
+// BACKTICK : '`';
+
+/* ---- complex terminals below ---- */
+
 
