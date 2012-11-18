@@ -127,6 +127,7 @@ expression
     : expr0
     | 'let' localDefinition (',' localDefinition)* 'in' expression
     | 'if' expression 'then' expression ('elseif' expression 'then' expression)* 'else' expression
+    | 'cases' expression ':' (pattern (',' pattern)* '->' expression (',' pattern (',' pattern)* '->' expression)* )? (',' 'others' '->' expression)? 'end'
     | 'forall' bind+ '@' expression
     | 'exists' bind+ '@' expression
     | 'exists1' bind '@' expression
@@ -140,22 +141,26 @@ expr0
     ;
 
 expr1
-    : exprbase TUPLESELECTOR?
+    : expr2 TUPLESELECTOR?
+    ;
+
+expr2
+    : '{' setMapExpr? '}'
+    | '[' seqExpr? ']'
+    | MKUNDERLPAREN expression (',' expression)+ ')'
+    | MKUNDERNAMELPAREN ( expression (',' expression)* )? ')'
+    | ISOFCLASSLPAREN IDENTIFIER ('.' IDENTIFIER)* ',' expression ')'
+    | ISUNDERLPAREN expression ',' type ')'
+    | ISUNDERBASICLPAREN expression ')'
+    | ISUNDERNAMELPAREN expression ')'
+    | PREUNDERLPAREN expression (',' expression)* ')'
+// | subsequence
+// | apply
+    | exprbase ( '(' ( expression (',' '...' ',' expression | (',' expression)+ )? )? ')' )?
     ;
 
 exprbase
     : '(' expression ')'
-    | 'cases' expression ':' (pattern (',' pattern)* '->' expression)+ ('others' '->' expression)? 'end'
-    | '{' setMapExpr? '}'
-    | '[' seqExpr? ']'
-// | subsequence
-    | MKUNDERLPAREN expression (',' expression)+ ')'
-    | MKUNDERNAMELPAREN ( expression (',' expression)* )? ')'
-// | apply
-// | tuple select
-// | general is expression
-// | precondition expression 
-// | isofclass expression
     | 'self'
 // | name
 // | old name
@@ -244,20 +249,32 @@ CHARLITERAL
     // | '\\c' character
     ;
 
+PREUNDERLPAREN
+    : 'pre_('
+    ;
+
 MKUNDERLPAREN
     : 'mk_('
     ;
 
 MKUNDERNAMELPAREN
-    : 'mk_' IDENTIFIER '('
+    : 'mk_' IDENTIFIER ('.' IDENTIFIER)* '('
     ;
 
-ISUNDER
-    : 'is_'
+ISOFCLASSLPAREN
+    : 'isofclass('
     ;
 
-ISUNDERNAME
-    : 'is_' IDENTIFIER
+ISUNDERLPAREN
+    : 'is_('
+    ;
+
+ISUNDERBASICLPAREN
+    : 'is_' ('bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token') '('
+    ;
+
+ISUNDERNAMELPAREN
+    : 'is_' IDENTIFIER ('.' IDENTIFIER)* '('
     ;
 
 /* Need to fix this, yet
