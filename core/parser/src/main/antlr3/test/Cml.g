@@ -1,3 +1,10 @@
+/* Present halt:
+ * example:
+ *   let a = 5 in a
+ * a) parse fails: somehow 'loses' the in token
+ * b) in the let localdef, pattern..matchvalue conflicts with expression apply due to the expressions and ()
+ *
+ */
 grammar Cml;
 options {
     language = Java;
@@ -26,63 +33,75 @@ classDefinitionBlock
 	
 classDefinitionBlockAlternative
 	:	typeDefs
-//	|	valueDefs
+	|	valueDefs
 //	|	functionDefs
 //	|	operationDefs
 //	|	stateDefs
 //	|	INITIAL operationDef
 	;
 
+valueDefs
+    : 'values' ( qualValueDefinition (';' qualValueDefinition)* )? ';'?
+    ;
+
+qualValueDefinition
+    : QUALIFIER? valueDefinition
+    ;
+
+valueDefinition
+    : pattern (':' type)? ( '=' | 'be st' ) expression
+    ;
+
 typeDefs
-    :	'types' typeDef*
+    : 'types' typeDef*
 	;
 
 typeDef
-	:	QUALIFIER? IDENTIFIER '=' type invariant?
-	|	QUALIFIER? IDENTIFIER '::' field+ invariant?
+	: QUALIFIER? IDENTIFIER '=' type invariant?
+	| QUALIFIER? IDENTIFIER '::' field+ invariant?
 	;
 
 type
-    :	type0 (('+>'|'->') type0)?
-    |	'()' (('+>'|'->') type0)?
+    : type0 (('+>'|'->') type0)?
+    | '()' (('+>'|'->') type0)?
 	;
 
 type0op : '*' | '|' ;
 type0
-    :   type1 (type0op type1)*
+    : type1 (type0op type1)*
     ;
 
 type1
-    :   basicType
-	|	'(' type ')'
-	|	'[' type ']'
-	|	QUOTELITERAL
-	|	IDENTIFIER ('.' IDENTIFIER)*
-	|	'compose' IDENTIFIER 'of' field+ 'end'
-	|	'set of' type1
-	|	'seq of' type1
-	|	'seq1 of' type1
-	|	'map of' type1 'to' type1
-	|	'inmap of' type1 'to' type1
+    : basicType
+	| '(' type ')'
+	| '[' type ']'
+	| QUOTELITERAL
+	| IDENTIFIER ('.' IDENTIFIER)*
+	| 'compose' IDENTIFIER 'of' field+ 'end'
+	| 'set of' type1
+	| 'seq of' type1
+	| 'seq1 of' type1
+	| 'map of' type1 'to' type1
+	| 'inmap of' type1 'to' type1
 	;
 
 basicType
-	:	'bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token'
+	: 'bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token'
 	;
 
 field
-	:	type
-	|	IDENTIFIER ':' type
-	|	IDENTIFIER ':-' type
+	: type
+	| IDENTIFIER ':' type
+	| IDENTIFIER ':-' type
 	;
 
 invariant 
-	:	'inv' pattern '==' expression
+	: 'inv' pattern '==' expression
 	;
 
 pattern
     : patternIdentifier
-    | matchValue
+    // | matchValue // this conflicts with patterns in localdefs
     | tuplePattern
     | recordPattern
     ;	
@@ -93,8 +112,8 @@ patternIdentifier
     ;
 
 matchValue
-    : '(' expression ')'
-    | symbolicLiteral
+    : symbolicLiteral
+    | '(' expression ')'
     ;
 
 symbolicLiteral
@@ -128,16 +147,18 @@ expression
     | 'let' localDefinition (',' localDefinition)* 'in' expression
     | 'if' expression 'then' expression ('elseif' expression 'then' expression)* 'else' expression
     | 'cases' expression ':' (pattern (',' pattern)* '->' expression (',' pattern (',' pattern)* '->' expression)* )? (',' 'others' '->' expression)? 'end'
-    | 'forall' bind+ '@' expression
-    | 'exists' bind+ '@' expression
+    | 'forall' bind (',' bind)* '@' expression
+    | 'exists' bind (',' bind)* '@' expression
     | 'exists1' bind '@' expression
     | 'iota' bind '@' expression
-    | 'lambda' typeBind+ '@' expression
+    | 'lambda' typeBind (',' typeBind)* '@' expression
     ;
 
 binExpr0op
     : '+' | '-' | '*' | '/' | 'div' | 'rem' | 'mod' | '<' | '<=' | '>' | '>='
-    | '=' | '<>' | 'or' | 'and' | '=>' | '<=>' | 'in set' | 'not in set'
+    | '=' | '<>' | 'or' | 'and' | '=>' | '<=>' 
+    // | 'in set'
+    | 'not in set'
     | 'subset' | 'psubset' | 'union' | '\\' | 'inter' | '^' | '++' | 'munion'
     | '<:' | '<-:' | ':->' | ':>' | 'comp' | '**'
     ;
@@ -153,7 +174,8 @@ unaryExpr1op
     ;
 
 expr1
-    : '{' setMapExpr? '}'
+    : unaryExpr1op exprbase
+    | '{' setMapExpr? '}'
     | '[' seqExpr? ']'
     | MKUNDERLPAREN expression (',' expression)+ ')'
     | MKUNDERNAMELPAREN ( expression (',' expression)* )? ')'
@@ -162,10 +184,14 @@ expr1
     | ISUNDERBASICLPAREN expression ')'
     | ISUNDERNAMELPAREN expression ')'
     | PREUNDERLPAREN expression (',' expression)* ')'
+    | expr2 TUPLESELECTOR?
+    ;
+
+expr2
 // | subsequence
 // | apply
-    | exprbase ( TUPLESELECTOR | '(' ( expression (',' '...' ',' expression | (',' expression)+ )? )? ')' )?
-    | unaryExpr1op exprbase
+    : exprbase ( '(' ( expression (',' '...' ',' expression | (',' expression)+ )? )? ')' )?
+    // : exprbase //( '(' ( expression (',' '...' ',' expression | (',' expression)+ )? )? ')' )?
     ;
 
 exprbase
@@ -177,7 +203,6 @@ exprbase
     | IDENTIFIER ('.' IDENTIFIER)* '~'?
     | symbolicLiteral
     ;
-
 
 setMapExpr
     : expression setMapExprTail?
@@ -208,22 +233,23 @@ seqExpr
     ;
 
 localDefinition
-    : IDENTIFIER
+    : valueDefinition
+    // | functionDefinition
     ;
 	
-bind: IDENTIFIER
+bind: pattern ('in set' expression | ':' type)
     ;
 
 setBind
-    : IDENTIFIER
+    : pattern 'in set' expression
     ;
 
 typeBind
-    : IDENTIFIER
+    : pattern ':' type
     ;
 
 /* ********************************************************** */
-/* ***              SCANNER PRODUCTION RULES              *** */
+/* ***               LEXER PRODUCTION RULES               *** */
 /* ********************************************************** */
 
 
