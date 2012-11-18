@@ -1,4 +1,8 @@
 grammar Cml;
+options {
+    language = Java;
+    output=AST;
+}
 
 source
     :	programParagraph+
@@ -39,11 +43,13 @@ typeDef
 	;
 
 type
-    :	type0 ('|' type0)*
+    :	type0 (('+>'|'->') type0)?
+    |	'()' (('+>'|'->') type0)?
 	;
 
+type0op : '*' | '|' ;
 type0
-    :   type1 ('*' type1)*
+    :   type1 (type0op type1)*
     ;
 
 type1
@@ -51,14 +57,13 @@ type1
 	|	'(' type ')'
 	|	'[' type ']'
 	|	QUOTELITERAL
-	|	NAME
+	|	IDENTIFIER ('.' IDENTIFIER)*
 	|	'compose' IDENTIFIER 'of' field+ 'end'
 	|	'set of' type1
 	|	'seq of' type1
 	|	'seq1 of' type1
 	|	'map of' type1 'to' type1
 	|	'inmap of' type1 'to' type1
-	// |	functionType
 	;
 
 basicType
@@ -74,15 +79,6 @@ field
 invariant 
 	:	'inv' pattern '==' expression
 	;
-
-functionType
-    : discretionaryType ( '+>' | '->' ) type
-    ;
-
-discretionaryType
-    : type
-    | '()'
-    ;
 
 pattern
     : patternIdentifier
@@ -104,7 +100,7 @@ matchValue
 symbolicLiteral
     : numLiteral
     | boolLiteral
-    | NILLITERAL
+    | 'nil'
     | CHARLITERAL
     | TEXTLITERAL
     | QUOTELITERAL
@@ -129,60 +125,70 @@ recordPattern
 
 expression
     : expr0
-    ;
-
-expr0op : '+' | '-' ;
-expr0
-    : exprbase expr0op exprbase
-    ;
-
-exprbase
-    : '(' expression ')'
     | 'let' localDefinition (',' localDefinition)* 'in' expression
     | 'if' expression 'then' expression ('elseif' expression 'then' expression)* 'else' expression
-    | 'cases' expression ':' (pattern (',' pattern)* '->' expression)+ ('others' '->' expression)? 'end'
     | 'forall' bind+ '@' expression
     | 'exists' bind+ '@' expression
     | 'exists1' bind '@' expression
     | 'iota' bind '@' expression
+    | 'lambda' typeBind+ '@' expression
+    ;
+
+expr0op : '+' | '-' ;
+expr0
+    : expr1 (expr0op expression)?
+    ;
+
+expr1
+    : exprbase TUPLESELECTOR?
+    ;
+
+exprbase
+    : '(' expression ')'
+    | 'cases' expression ':' (pattern (',' pattern)* '->' expression)+ ('others' '->' expression)? 'end'
     | '{' setMapExpr? '}'
     | '[' seqExpr? ']'
 // | subsequence
-// | tuple constructor
-// | record constructor
+    | MKUNDERLPAREN expression (',' expression)+ ')'
+    | MKUNDERNAMELPAREN ( expression (',' expression)* )? ')'
 // | apply
-// | field select
 // | tuple select
-// | lambda expression
 // | general is expression
 // | precondition expression 
 // | isofclass expression
     | 'self'
-    | NAME
-    | NAME '~'
+// | name
+// | old name
+// | field select
+    | IDENTIFIER ('.' IDENTIFIER)* '~'?
     | symbolicLiteral
     ;
 
-/* set enumeration = '{', [ expression list ], '}' ;
- * set comprehension = '{', expression, '|', bind list, [ '@', expression ], '}' ;
- * set range expression = '{', expression, ',', '...', ',', expression, '}' ;
- * sequence enumeration = '[', [ expression list ], ']' ;
- * sequence comprehension = '[', expression, '|', set bind, [ '@', expression ], ']' ;
- * map enumeration = '{', maplet, { ',', maplet }, '}' | '{', '|->', '}' ;
- * maplet = expression, '|->', expression ;
- * map comprehension = '{', maplet, '|', bind list, [ '@', expression ], '}' ;
- */
+
 setMapExpr
-    : expression ( (',' expression)* | '|' bind+ ('@' expression)? | ',' '...' ','  expression )
-    | maplet ( (',' maplet)* | '|' bind+ ('@' expression)? )
+    : expression setMapExprTail?
     | '|->'
     ;
 
-maplet
-    : ':-:'
-    // : expression '|->' expression (',' expression '|->' expression)*
+setMapExprTail
+    : ',' '...' ',' expression
+    | ( ',' expression )+
+    | '|->' expression mapExprTail?
+    | setMapExprBinding
     ;
 
+mapExprTail
+    : ( ',' expression '|->' expression )+
+    | setMapExprBinding
+    ;
+
+setMapExprBinding
+    : '|' bind+ ('@' expression)? 
+    ;
+
+/* sequence enumeration = '[', [ expression list ], ']' ;
+ * sequence comprehension = '[', expression, '|', set bind, [ '@', expression ], ']' ;
+ */
 seqExpr
     : expression ( (',' expression)* | '|' setBind ('@' expression)? | ',' '...' ','  expression )
     ;
@@ -195,6 +201,10 @@ bind: IDENTIFIER
     ;
 
 setBind
+    : IDENTIFIER
+    ;
+
+typeBind
     : IDENTIFIER
     ;
 
@@ -218,9 +228,9 @@ MLINECOMMENT
 QUALIFIER
     : 'public' | 'protected' | 'private' | 'logical' ;
 
-NILLITERAL
-    : 'nil'
-    ;
+// NILLITERAL
+//     : 'nil'
+//     ;
 
 QUOTELITERAL
     : '<' IDENTIFIER '>'
@@ -239,7 +249,7 @@ MKUNDERLPAREN
     ;
 
 MKUNDERNAMELPAREN
-    : 'mk_' NAME '('
+    : 'mk_' IDENTIFIER '('
     ;
 
 ISUNDER
@@ -247,7 +257,7 @@ ISUNDER
     ;
 
 ISUNDERNAME
-    : 'is_' NAME
+    : 'is_' IDENTIFIER
     ;
 
 /* Need to fix this, yet
@@ -276,10 +286,14 @@ fragment
 FOLLOW_LETTER
     : INITIAL_LETTER | DIGIT
     ;
+
 IDENTIFIER
     : INITIAL_LETTER FOLLOW_LETTER*
     ;
-NAME: IDENTIFIER ('.' IDENTIFIER)? ;
+
+// NAME
+//     : IDENTIFIER ('.' IDENTIFIER)?
+//     ;
 
 fragment
 OCTDIGIT
@@ -289,10 +303,6 @@ OCTDIGIT
 fragment
 DIGIT
     : '0'..'9'
-    ;
-
-NUMERAL
-    : DIGIT+
     ;
 
 fragment
@@ -307,8 +317,12 @@ HEXLITERAL
     ;
 
 DECIMAL
-    : NUMERAL '.' NUMERAL ( ('E'|'e') ('+'|'-') NUMERAL )?
+    : DIGIT+ ('.' DIGIT+)? ( ('E'|'e') ('+'|'-')? DIGIT+ )?
 	;
+
+TUPLESELECTOR
+    : '.#' DIGIT+
+    ;
 
 // CSPCHAOS : 'Chaos';
 // CSPSKIP : 'Skip';
