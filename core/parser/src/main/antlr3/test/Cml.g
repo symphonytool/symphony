@@ -135,16 +135,24 @@ expression
     | 'lambda' typeBind+ '@' expression
     ;
 
-expr0op : '+' | '-' ;
+binExpr0op
+    : '+' | '-' | '*' | '/' | 'div' | 'rem' | 'mod' | '<' | '<=' | '>' | '>='
+    | '=' | '<>' | 'or' | 'and' | '=>' | '<=>' | 'in set' | 'not in set'
+    | 'subset' | 'psubset' | 'union' | '\\' | 'inter' | '^' | '++' | 'munion'
+    | '<:' | '<-:' | ':->' | ':>' | 'comp' | '**'
+    ;
+
 expr0
-    : expr1 (expr0op expression)?
+    : expr1 (binExpr0op expression)?
+    ;
+
+unaryExpr1op
+    : '+' | '-' | 'abs' | 'floor' | 'not' | 'card' | 'power' | 'dunion'
+    | 'dinter' | 'hd' | 'tl' | 'len' | 'elems' | 'inds' | 'reverse'
+    | 'conc' | 'dom' | 'rng' | 'merge' | 'inverse'
     ;
 
 expr1
-    : expr2 TUPLESELECTOR?
-    ;
-
-expr2
     : '{' setMapExpr? '}'
     | '[' seqExpr? ']'
     | MKUNDERLPAREN expression (',' expression)+ ')'
@@ -156,7 +164,8 @@ expr2
     | PREUNDERLPAREN expression (',' expression)* ')'
 // | subsequence
 // | apply
-    | exprbase ( '(' ( expression (',' '...' ',' expression | (',' expression)+ )? )? ')' )?
+    | exprbase ( TUPLESELECTOR | '(' ( expression (',' '...' ',' expression | (',' expression)+ )? )? ')' )?
+    | unaryExpr1op exprbase
     ;
 
 exprbase
