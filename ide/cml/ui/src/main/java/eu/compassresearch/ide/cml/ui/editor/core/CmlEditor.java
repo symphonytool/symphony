@@ -18,18 +18,11 @@
  *******************************************************************************/
 package eu.compassresearch.ide.cml.ui.editor.core;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewerExtension5;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.viewers.TreePath;
-import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -38,6 +31,7 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.ide.ui.IVdmUiConstants;
 import org.overture.ide.ui.editor.core.VdmSourceViewerConfiguration;
@@ -48,6 +42,7 @@ import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit.CmlSourceChangedListener;
 import eu.compassresearch.ide.cml.ui.editor.syntax.CmlContentPageOutliner;
+import eu.compassresearch.ide.cml.ui.editor.syntax.INodeFromCaret;
 
 public class CmlEditor extends TextEditor {
 
@@ -94,20 +89,20 @@ public class CmlEditor extends TextEditor {
 	if (ast == null)
 	    return null;
 	// Visitor Version on hold due to parser (ldc)
-	// INodeFromCaret visitor = new INodeFromCaret(caret, ast);
-	// try {
-	// ast.apply(visitor);
-	// return visitor.getBestCandidate();
-	// } catch (AnalysisException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-
-	for (SParagraphDefinition sef : ast.getParagraphs()) {
-	    if (sef.getLocation().endOffset > caret
-		    && sef.getLocation().startOffset < caret)
-		r = sef;
-	}
+	 INodeFromCaret visitor = new INodeFromCaret(caret, ast);
+	 try {
+	 ast.apply(visitor);
+	 return visitor.getBestCandidate();
+	 } catch (AnalysisException e) {
+	 // TODO Auto-generated catch block
+	 e.printStackTrace();
+	 }
+	 
+//	for (SParagraphDefinition sef : ast.getParagraphs()) {
+//	    if (sef.getLocation().endOffset > caret
+//		    && sef.getLocation().startOffset < caret)
+//		r = sef;
+//	}
 	return r;
     }
 

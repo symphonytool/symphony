@@ -28,7 +28,7 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
     private OutlineLabelProvider labelprovider;
     private TreeViewer viewer;
 
-    //TODO remove the flag hack once we get propper propper sync from the editor
+    //TODO remove the flag hack once we get proper sync from the editor
     private static boolean loopAvoidanceFlag=true;
     
     // public static final int ALL_LEVELS = -1;
@@ -76,7 +76,6 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
 	    public void selectionChanged(SelectionChangedEvent event) {
 		// if the selection is empty clear the label
 		
-		//FIXME Remove the Editor->Outline->Editor selection loop.
 		if (event.getSelection().isEmpty()) {
 		    System.out.println("Empty Selection");
 		    return;

@@ -11,7 +11,10 @@ import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.swt.graphics.Point;
+import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.PDefinition;
 
+import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
@@ -67,16 +70,49 @@ public class CmlContentAssistProcessor implements IContentAssistProcessor {
 	int qlen = qualifier.length();
 	
 	for (SParagraphDefinition spd : csu.getSourceAst().getParagraphs()) {
-	    if (spd.getName() != null)
-	    if ((spd.getName().name).toLowerCase().startsWith(qualifier.toLowerCase())) {
-		int cursor = spd.getName().name.length();
-		CompletionProposal proposal = new CompletionProposal(
-			spd.getName().name, documentOffset-qlen,qlen,cursor);
-		proposalList.add(proposal);
-	    }
+	    computeSingleProposal(spd, qualifier, documentOffset, qlen, proposalList);
+//	    if (spd.getName() != null)
+//	    if ((spd.getName().name).toLowerCase().startsWith(qualifier.toLowerCase())) {
+//		int cursor = spd.getName().name.length();
+//		CompletionProposal proposal = new CompletionProposal(
+//			spd.getName().name, documentOffset-qlen,qlen,cursor);
+//		proposalList.add(proposal);
+//	    }
 	}
+//	csu.getSourceAst().get
 	System.out.println("Qualifier is " + qualifier);
 
+    }
+
+    private void computeSingleProposal(ATypesParagraphDefinition definition, 
+	    String qualifier, int documentOffset, int qlen, List<ICompletionProposal> proposalList) {
+	for (ATypeDefinition atd :  definition.getTypes()){
+	 computeSingleProposal(atd, qualifier, documentOffset, qlen, proposalList);
+	    }
+    }
+
+    
+    private void computeSingleProposal(PDefinition pd, String qualifier,
+	    int documentOffset, int qlen, List<ICompletionProposal> proposalList) {
+	    if (pd.getName() != null)
+	    if ((pd.getName().name).toLowerCase().startsWith(qualifier.toLowerCase())) {
+		int cursor = pd.getName().name.length();
+		CompletionProposal proposal = new CompletionProposal(
+			pd.getName().name, documentOffset-qlen,qlen,cursor);
+		proposalList.add(proposal);
+	    }	
+	
+    }
+
+    private void computeSingleProposal(SParagraphDefinition definition,
+	    String qualifier, int documentOffset, int qlen, List<ICompletionProposal> proposalList) {
+	    if (definition.getName() != null)
+	    if ((definition.getName().name).toLowerCase().startsWith(qualifier.toLowerCase())) {
+		int cursor = definition.getName().name.length();
+		CompletionProposal proposal = new CompletionProposal(
+			definition.getName().name, documentOffset-qlen,qlen,cursor);
+		proposalList.add(proposal);
+	    }	
     }
 
     
