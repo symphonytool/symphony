@@ -166,6 +166,9 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 	@Override
 	public void onTraceChange(TraceEvent traceEvent) {
 		//TODO: here the presenting logic should be for running process
+		//CmlProcess p = traceEvent.getSource();
+		//CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
+		//CmlRuntime.logger().fine("next: " + p.nextStepToString());
 	}
 	
 	/**

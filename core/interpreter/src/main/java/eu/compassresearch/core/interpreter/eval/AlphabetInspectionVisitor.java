@@ -134,12 +134,11 @@ public class AlphabetInspectionVisitor
 	 * Parallel Begin: As the general case
 	 * 
 	 * Parallel sync/Non-sync:
-	 * 	At this step, the actions are each executed separately. Here the chanset will determine whether a
+	 * 	At this step, the actions are each executed separately. Here the channel set will determine whether a
 	 *  Sync or non-sync transition occurs. The alphabet returned here is {alpha(left) union alpha(right)}
 	 * 
 	 * Parallel End: As the general case
 	 *  
-	 
 	 */
 	@Override
 	public CmlAlphabet caseAGeneralisedParallelismParallelAction(
