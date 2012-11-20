@@ -12,7 +12,7 @@
   <artifactId>eu.compassresearch.ide.cml.rtt-plugin</artifactId>
   <name>COMPASS RT Tester Plugin</name>
 
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
 
  <dependencies>
     <dependency>

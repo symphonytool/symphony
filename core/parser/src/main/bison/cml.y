@@ -3762,7 +3762,7 @@ casesExprAlt :
      ACaseAlternative r = new ACaseAlternative();
      r.setPattern(p);
      r.setLocation(loc);
-     r.setCexp(exp);
+     r.setResult(exp);
      res.add(r);
     }
    $$ = res;

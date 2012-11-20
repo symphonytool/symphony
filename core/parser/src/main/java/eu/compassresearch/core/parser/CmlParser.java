@@ -5990,7 +5990,7 @@ public class CmlParser
      ACaseAlternative r = new ACaseAlternative();
      r.setPattern(p);
      r.setLocation(loc);
-     r.setCexp(exp);
+     r.setResult(exp);
      res.add(r);
     }
    yyval = res;
