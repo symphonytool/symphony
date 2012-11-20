@@ -125,17 +125,17 @@ process LibraryProcess = begin
 		
 	actions
 		Act = (
-			[borrow?b in set pre_(ExeBorrow,b,library)] -> Assign(ExeBorrow(b,library))
+			[borrow?[b in set pre_(ExeBorrow,b,library)] ] -> Assign(ExeBorrow(b,library))
 			[]
-			[renew?r in set pre_(ExeReturn,r,library)] -> 
+			[renew?[r in set pre_(ExeReturn,r,library)] ] -> 
 				Assign(ExeReturn(r,library));
 				Assign(ExeBorrow(r,library))
 			[]
-			[retBook?r in set pre_(ExeReturn,r,library)] -> Assign(ExeReturn(r,library))
+			[retBook?[r in set pre_(ExeReturn,r,library)] ] -> Assign(ExeReturn(r,library))
 			[]
-			[find?f in set pre_(ExeFind,f,library)] -> Assign(ExeFind(f,library))
+			[find?[f in set pre_(ExeFind,f,library)] ] -> Assign(ExeFind(f,library))
 			/*[]
-			[loans?u in set (u in set dom(GetBorrowed(library)))!(card(ApplyBorrowed(library,u)))] -> SKIP*/ 
+			[loans?[u in set (u in set dom(GetBorrowed(library)))]!(card(ApplyBorrowed(library,u)))] -> SKIP*/ 
 		); Act
 	
 	@ [init] -> Init(books,users); Act

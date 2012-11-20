@@ -3286,7 +3286,11 @@ expression :
 {
   $$ = util.caseExpQuestionPattern($exp,$pattern);
 }
-| expression[exp] QUESTION setBind
+/*
+ * DEVIATION
+ * The LSQUARE RSQUARE are a deviation
+ */
+| expression[exp] QUESTION LSQUARE setBind RSQUARE
 {
   $$ = util.caseExpQuestionSetBind($exp,$setBind);
 }
