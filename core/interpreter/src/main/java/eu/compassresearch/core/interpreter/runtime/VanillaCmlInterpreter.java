@@ -116,21 +116,8 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         
         Environment env = getGlobalEnvironment();
         
-        // if(getDefaultName() == null)
-        // Find the default process
-        //AProcessDefinition processDef = null;
-                
         CmlRuntime.setGlobalEnvironment(env);
-        // This constructs the runtime process structure from the AST
-        //ProcessValueOld pv = (ProcessValueOld) topProcess.getProcess().apply(
         //    this.evalutor, getInitialContext(topProcess.getLocation()));
-        // Wrap the top process in an InstantiatedProcess
-        //InstantiatedProcess instantProcess = new InstantiatedProcess(
-        //		topProcess, pv.getProcess());
-        
-        // Add the top process to the scheduler and start it
-        //cmlScheduler.addProcess(instantProcess);
-        //cmlScheduler.start();
         
         CmlSupervisorEnvironment sve = CmlRuntime.getSupervisorEnvironment();
         CmlProcessInstance pi = new CmlProcessInstance(topProcess, null,getInitialContext(null));

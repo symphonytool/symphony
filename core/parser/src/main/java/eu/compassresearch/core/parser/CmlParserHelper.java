@@ -48,6 +48,7 @@ import org.overture.ast.types.PType;
 import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AMuAction;
+import eu.compassresearch.ast.actions.ANewStatementAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -481,6 +482,33 @@ public class CmlParserHelper {
 	/**
 	 * Actions - statements
 	 */
+	
+	public PAction caseNewStatementAction(Object stateDesignator, Object NEW, Object newExp)
+	{
+		
+		  /* Need to rip out the path-based stuff here.
+		   * rule was: | path COLONEQUALS NEW path LRPAREN
+		   */
+		  ANewStatementAction stm = null;
+		  // these were Paths
+		  PStateDesignator target = dottedIdentifierToStateDesignator((List<LexIdentifierToken>)stateDesignator); //should probably be more specific, typewise
+		  AApplyExp applyExp = (AApplyExp)newExp;
+		  List<? extends PExp> args = applyExp.getArgs();
+		  LexLocation location = combineLexLocation(target.getLocation(),applyExp.getLocation());
+		  //TODO:Typechecker need to check the target to see what the name and
+		  LexNameToken name = null;
+		  if(applyExp.getRoot() instanceof AVariableExp)
+			  name = ((AVariableExp)applyExp.getRoot()).getName();
+		  else if(applyExp.getRoot() instanceof AUnresolvedPathExp)
+			  name = dottedIdentifierToLexNameToken(((AUnresolvedPathExp)applyExp.getRoot()).getIdentifiers());
+		  else
+			  throw new ParserException(location,"");
+			  
+		  return new ANewStatementAction(location,
+		                                target,
+		                                name,
+		                                args);
+	}
 	
 	public PAction caseMuAction(Object start, Object expressionList, Object actionList, Object end)
 	{

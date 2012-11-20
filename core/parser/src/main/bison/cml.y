@@ -1419,22 +1419,7 @@ action :
  */
 | dottedIdentifier[stateDesignator] COLONEQUALS NEW expression[new]
 {
-  /* --- TODO --- */
-  /* Need to rip out the path-based stuff here.
-   * rule was: | path COLONEQUALS NEW path LRPAREN
-   */
-  ANewStatementAction stm = null;
-  // these were Paths
-  LexLocation leftLoc = util.extractLexLocation((CmlLexeme)$2);
-  List<PExp> target = (List<PExp>)$stateDesignator; //should probably be more specific, typewise
-  PExp newExp = (PExp)$new;
-  List<? extends PExp> args = null;
-  LexLocation location = util.combineLexLocation(leftLoc,newExp.getLocation());
-  //stm = new ANewStatementAction(location,
-  //                              target.convertToStateDesignator(),
-  //                              newExp.convertToName(),
-  //                              args);
-  $$ = stm;
+  $$ = util.caseNewStatementAction($stateDesignator, $NEW, $new);
 }
 // --- FIXME delete this; in with above rule; here for reference until merged ---
 // | path COLONEQUALS NEW path LPAREN expressionList RPAREN
@@ -3302,7 +3287,11 @@ expression :
 {
   $$ = util.caseExpQuestionPattern($exp,$pattern);
 }
-| expression[exp] QUESTION setBind
+/*
+ * DEVIATION
+ * The LSQUARE RSQUARE are a deviation
+ */
+| expression[exp] QUESTION LSQUARE setBind RSQUARE
 {
   $$ = util.caseExpQuestionSetBind($exp,$setBind);
 }
