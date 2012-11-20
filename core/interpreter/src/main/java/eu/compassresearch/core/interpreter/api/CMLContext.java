@@ -3,7 +3,7 @@ package eu.compassresearch.core.interpreter.api;
 import org.overture.ast.lex.LexLocation;
 import org.overture.interpreter.runtime.Context;
 
-import eu.compassresearch.core.interpreter.cml.CmlChannelEvent;
+import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
 
 public class CMLContext extends Context
   {

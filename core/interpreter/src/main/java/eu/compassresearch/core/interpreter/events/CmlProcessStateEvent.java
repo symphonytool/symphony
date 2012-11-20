@@ -1,20 +1,18 @@
-package eu.compassresearch.core.interpreter.cml;
+package eu.compassresearch.core.interpreter.events;
 
-public class CmlProcessStateEvent {
+import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlProcessState;
+
+public class CmlProcessStateEvent extends Event<CmlProcess> {
 
 	private final CmlProcessState from;
 	private final CmlProcessState to;
-	private final CmlProcess source;
 	
 	public CmlProcessStateEvent(CmlProcess source,CmlProcessState from, CmlProcessState to)
 	{
-		this.source = source;
+		super(source);
 		this.from = from;
 		this.to = to;
-	}
-
-	public CmlProcess getSource() {
-		return source;
 	}
 
 	public CmlProcessState getTo() {

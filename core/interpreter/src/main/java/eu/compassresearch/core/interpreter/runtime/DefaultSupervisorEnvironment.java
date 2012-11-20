@@ -6,21 +6,20 @@ import java.util.List;
 import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlCommunication;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
-import eu.compassresearch.core.interpreter.cml.CmlProcessObserver;
-import eu.compassresearch.core.interpreter.cml.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
+import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
+import eu.compassresearch.core.interpreter.events.TraceEvent;
 
 public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, CmlProcessObserver {
 
 	private CmlCommunicationSelectionStrategy selectStrategy;
-	private CmlCommunication selectedCommunication;
+	private CmlCommunicationEvent selectedCommunication;
 	List<CmlProcess> running = new LinkedList<CmlProcess>();
 	List<CmlProcess> waiting = new LinkedList<CmlProcess>();
 	List<CmlProcess> finished = new LinkedList<CmlProcess>();
@@ -48,12 +47,12 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 	}
 
 	@Override
-	public CmlCommunication selectedCommunication() {
+	public CmlCommunicationEvent selectedCommunication() {
 		return selectedCommunication;
 	}
 
 	@Override
-	public void setSelectedCommunication(CmlCommunication comm) {
+	public void setSelectedCommunication(CmlCommunicationEvent comm) {
 		selectedCommunication = comm;
 
 	}
@@ -78,7 +77,7 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 
 	/**
 	 * This is actually the main execution loop/scheduler, 
-	 * FIXME: this should be moved into the scheduler class and out of the
+	 * FIXME: I think this should be moved into a scheduler class and out of the
 	 * the supervisor 
 	 */
 	@Override
@@ -100,10 +99,11 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 					CmlBehaviourSignal signal = p.execute(this);
 					
 					if(signal != CmlBehaviourSignal.EXEC_SUCCESS)
-						throw new RuntimeException("Change this!!!!, but now that you haven't changed this yet, then let me tell you that the return CMLBehaviourSignal was unsuccesful");
+						throw new RuntimeException("Change this!!!!, but now that you haven't changed this yet, " +
+								"then let me tell you that the return CMLBehaviourSignal was unsuccesful");
 
 					CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
-					CmlRuntime.logger().fine("next: " + p);
+					CmlRuntime.logger().fine("next: " + p.nextStepToString());
 				}
 			}
 
@@ -116,7 +116,6 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 				CmlProcess p = iterator.next();
 				if(p.level() == 0)
 				{
-					//{
 					//Select and set the communication event
 					setSelectedCommunication(decisionFunction().select(p.inspect()));
 					//signal all the processes that are listening for this channel
@@ -125,6 +124,10 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 			}
 		}
 	}
+	
+	/**
+	 * CmlProcessObserver interface methods
+	 */
 	
 	@Override
 	public void onStateChange(CmlProcessStateEvent stateEvent) {
@@ -158,11 +161,23 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 			break;
 		}
 	}
+	
+	
+	@Override
+	public void onTraceChange(TraceEvent traceEvent) {
+		//TODO: here the presenting logic should be for running process
+	}
+	
+	/**
+	 * String representation methods
+	 */
 
 	@Override
-	public LexNameToken name() {
-		return new LexNameToken("","Default supervisorEnvironment",new LexLocation());
+	public String toString() {
+		return "Default Supervisor Environment";
 	}
+
+	
 
 //	@Override
 //	public boolean hasSupervisionFrame(CMLProcessNew process) {

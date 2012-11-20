@@ -1,8 +1,10 @@
-package eu.compassresearch.core.interpreter.cml;
+package eu.compassresearch.core.interpreter.runtime;
 
 import java.util.Set;
 
-import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
+import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 /**
  * This class implements a random selection CMLCommunicaiton of the alphabet 
  * @author akm
@@ -12,10 +14,10 @@ public class RandomSelectionStrategy implements
 		CmlCommunicationSelectionStrategy {
 
 	@Override
-	public CmlCommunication select(CmlAlphabet availableChannelEvents) {
+	public CmlCommunicationEvent select(CmlAlphabet availableChannelEvents) {
 		
-		Set<CmlCommunication> comms = availableChannelEvents.getCommunicationEvents();
-		CmlCommunication selectedComm = null;
+		Set<CmlCommunicationEvent> comms = availableChannelEvents.getCommunicationEvents();
+		CmlCommunicationEvent selectedComm = null;
 		
 		if(!comms.isEmpty())
 			selectedComm = availableChannelEvents.getCommunicationEvents().iterator().next();

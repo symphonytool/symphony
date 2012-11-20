@@ -5,6 +5,8 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 
+import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
+
 
 public interface CmlProcess extends CmlProcessBehaviour{
 
@@ -26,6 +28,11 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	 */
 	public LexNameToken name();
 	
+	/**
+	 * This constructs a string representing the next execution step of this process
+	 * @return
+	 */
+	public String nextStepToString();
 	
 	// Process Graph/Representation related methods
 	public long level();
@@ -48,17 +55,19 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	 * @return true if the process is deadlocked else false
 	 */
 	public boolean deadlocked();
+	/**
+	 * @return The current state of the process
+	 */
+	public CmlProcessState getState();
 
 	public void registerOnStateChanged(CmlProcessObserver observer);
 	public void unregisterOnStateChanged(CmlProcessObserver observer);
 	
 	/**
-	 * @return The current state of the process
-	 */
-	public CmlProcessState getState();
-	
-	/**
 	 * Denotational Semantics Information
 	 */
 	public CmlTrace getTraceModel();
+	
+	public void registerOnTraceChanged(CmlProcessObserver observer);
+	public void unregisterOnTraceChanged(CmlProcessObserver observer);
 }

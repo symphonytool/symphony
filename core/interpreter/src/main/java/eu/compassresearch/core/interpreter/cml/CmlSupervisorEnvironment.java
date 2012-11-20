@@ -4,6 +4,8 @@ import java.util.Iterator;
 
 import org.overture.ast.analysis.AnalysisException;
 
+import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
+
 public interface CmlSupervisorEnvironment {
 
 	// Java related
@@ -34,8 +36,8 @@ public interface CmlSupervisorEnvironment {
 	 * returns the selected communication
 	 * @return The selected CMLCommunication if communicationSelected() is true else null
 	 */
-	public CmlCommunication selectedCommunication();
-	public void setSelectedCommunication(CmlCommunication comm);
+	public CmlCommunicationEvent selectedCommunication();
+	public void setSelectedCommunication(CmlCommunicationEvent comm);
 	/**
 	 * Clears the currently selected CMLCommunication
 	 */

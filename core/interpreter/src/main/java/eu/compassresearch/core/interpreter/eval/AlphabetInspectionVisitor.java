@@ -8,17 +8,22 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlCommunication;
-import eu.compassresearch.core.interpreter.cml.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
-import eu.compassresearch.core.interpreter.cml.CmlTauEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
-
+/**
+ * This class inspects the immediate alphabet of the current state of a CmlProcess
+ * @author akm
+ *
+ */
 public class AlphabetInspectionVisitor
 		extends
 		QuestionAnswerCMLAdaptor<Context, eu.compassresearch.core.interpreter.cml.CmlAlphabet> {
@@ -56,25 +61,40 @@ public class AlphabetInspectionVisitor
 		
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 		
-		CmlCommunication com = new CmlCommunication(chanValue);
+		CmlCommunicationEvent com = new CmlCommunicationEvent(chanValue);
 		Set<CmlEvent> comset = new HashSet<CmlEvent>();
 		comset.add(com);
 		return new CmlAlphabet(comset);
 	}
 	
 	/**
-	 * This returns the alphabet of a interleaved action. This has three parts:
+	 * Parallel action
+	 * 
+	 * In general all the parallel action have three transition rules that can be invoked
 	 * Parallel Begin:
 	 * 	At this step the interleaving action are not yet created. So this will be a silent (tau) transition
 	 * 	where they will be created and started. So the alphabet returned here is {tau}
+	 * 
+	 * Parallel Sync/Non-sync:
+	 * 
+	 * Parallel End:
+	 *  At this step both child actions are in the FINISHED state and they will be removed from the running process network
+	 *  and this will make a silent transition into Skip. So the alphabet returned here is {tau}
+	 */
+	
+	/**
+	 * This returns the alphabet of a interleaved action. 
+	 * 
+	 * This has three parts:
+	 * 
+	 * Parallel Begin: As the general case
 	 * 
 	 * Parallel Non-sync:
 	 * 	At this step the actions are each executed separately. Since no sync shall stake place this Action just wait
 	 * 	for the child actions to be in the FINISHED state. So the alphabet returned here is {alpha(left) union alpha(right)}
 	 * 
-	 * Parallel End:
-	 *  At this step both child actions are in the FINISHED state and they will be removed from the running process network
-	 *  and this will make a silent transition into Skip. So the alphabet returned here is {tau}
+	 * Parallel End: As the general case
+	 * 
 	 */
 	@Override
 	public CmlAlphabet caseAInterleavingParallelAction(
@@ -104,6 +124,32 @@ public class AlphabetInspectionVisitor
 		}
 		
 		return alpha;
+	}
+	
+	/**
+	 *  This returns the alphabet of a generalised parallel action. 
+	 *  
+	 *  This has three parts:
+	 * 
+	 * Parallel Begin: As the general case
+	 * 
+	 * Parallel sync/Non-sync:
+	 * 	At this step, the actions are each executed separately. Here the chanset will determine whether a
+	 *  Sync or non-sync transition occurs. The alphabet returned here is {alpha(left) union alpha(right)}
+	 * 
+	 * Parallel End: As the general case
+	 *  
+	 
+	 */
+	@Override
+	public CmlAlphabet caseAGeneralisedParallelismParallelAction(
+			AGeneralisedParallelismParallelAction node, Context question)
+			throws AnalysisException {
+		
+		
+		
+		
+		return super.caseAGeneralisedParallelismParallelAction(node, question);
 	}
 	
 }

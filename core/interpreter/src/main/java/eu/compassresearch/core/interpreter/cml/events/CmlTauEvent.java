@@ -1,10 +1,10 @@
-package eu.compassresearch.core.interpreter.cml;
+package eu.compassresearch.core.interpreter.cml.events;
 
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 
-public class CmlTauEvent extends SpecialEvent {
+public class CmlTauEvent extends CmlSpecialEvent {
 
 	protected static CmlTauEvent instance = null;
 	final static String tauString = "\u03C4".toLowerCase();

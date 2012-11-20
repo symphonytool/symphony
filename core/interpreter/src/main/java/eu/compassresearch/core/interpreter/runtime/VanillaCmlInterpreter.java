@@ -20,7 +20,6 @@ import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
-import eu.compassresearch.core.interpreter.api.NoProcessFoundException;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.parser.CmlParser;
@@ -222,8 +221,8 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
       {
         
         File cml_example = new File(
-            "src/test/resources/action/action-interleaving.cml");
-        // "src/test/resources/process/GeneralisedParallelismAction.cml");
+        //    "src/test/resources/action/action-generalised-parallelism-no-state.cml");
+        		"src/test/resources/action/action-interleaving.cml");
         runOnFile(cml_example);
         
       }

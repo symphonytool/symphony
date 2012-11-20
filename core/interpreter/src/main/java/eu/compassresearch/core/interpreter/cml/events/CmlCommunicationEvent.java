@@ -1,22 +1,23 @@
-package eu.compassresearch.core.interpreter.cml;
+package eu.compassresearch.core.interpreter.cml.events;
 
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.core.interpreter.cml.CmlCommunicationType;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
-public class CmlCommunication extends CmlEvent {
+public class CmlCommunicationEvent extends CmlEvent {
 
 	private CMLChannelValue channel;
 	private Value value = null;
 	private CmlCommunicationType commtype;
 	
-	public CmlCommunication(CMLChannelValue channel)
+	public CmlCommunicationEvent(CMLChannelValue channel)
 	{
 		this.channel = channel;
 		this.commtype = CmlCommunicationType.SIGNAL;
 	}
 	
-	public CmlCommunication(CMLChannelValue channel, Value value)
+	public CmlCommunicationEvent(CMLChannelValue channel, Value value)
 	{
 		this.channel = channel;
 		this.value = value;
@@ -55,12 +56,12 @@ public class CmlCommunication extends CmlEvent {
 	@Override
 	public boolean equals(Object obj) {
 
-		CmlCommunication other = null;
+		CmlCommunicationEvent other = null;
 		
-		if(!(obj instanceof CmlCommunication))
+		if(!(obj instanceof CmlCommunicationEvent))
 			return false;
 		
-		other = (CmlCommunication)obj;
+		other = (CmlCommunicationEvent)obj;
 		
 		return other.getChannel().equals(getChannel());
 	}

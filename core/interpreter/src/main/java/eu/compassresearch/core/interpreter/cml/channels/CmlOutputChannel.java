@@ -1,6 +1,8 @@
-package eu.compassresearch.core.interpreter.cml;
+package eu.compassresearch.core.interpreter.cml.channels;
 
 import org.overture.interpreter.values.Value;
+
+import eu.compassresearch.core.interpreter.events.ChannelObserver;
 
 public interface CmlOutputChannel<T extends Value> extends CmlChannel {
 
