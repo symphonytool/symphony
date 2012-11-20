@@ -2,69 +2,20 @@ package eu.compassresearch.core.analysis.pog.visitors;
 
 // Overture libraries 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.PExp; 
-
-//POG-related imports
-import eu.compassresearch.core.analysis.pog.obligations.MapApplyObligation;
-import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
-import eu.compassresearch.core.analysis.pog.obligations.POContext;
-import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
-import eu.compassresearch.core.analysis.pog.obligations.ProofObligation;
-//import eu.compassresearch.core.analysis.pog.obligations.SatisfiabilityObligation;
-//import eu.compassresearch.core.analysis.pog.obligations.POFunctionResultContext;
-
-import java.util.LinkedList;
-import java.util.List;
-
-//import org.overture.parser.messages.VDMError;
-
- 
-
+import org.overture.ast.expressions.PExp;
+import org.overture.pog.obligation.POContextStack;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.PDeclaration;
-// import eu.compassresearch.ast.actions.SStatementAction;
-// import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
-// import eu.compassresearch.ast.definitions.AActionDefinition;
-// import eu.compassresearch.ast.definitions.AActionParagraphDefinition;
-// import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
-// import eu.compassresearch.ast.definitions.AChansetDefinition;
-// import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
-// import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
-// import eu.compassresearch.ast.definitions.AExplicitFunctionDefinition;
-// import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
-// import eu.compassresearch.ast.definitions.AImplicitFunctionDefinition;
-// import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
-// import eu.compassresearch.ast.definitions.ALocalDefinition;
-// import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
-// import eu.compassresearch.ast.definitions.AProcessDefinition;
-// import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
-// import eu.compassresearch.ast.definitions.ATypeDefinition;
-// import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
-// import eu.compassresearch.ast.definitions.AValueDefinition;
-// import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
-// import eu.compassresearch.ast.process.PProcess;
-// import eu.compassresearch.ast.patterns.AIdentifierPattern;
-// import eu.compassresearch.ast.patterns.PPattern;
-// import eu.compassresearch.ast.typechecker.NameScope;
-// import eu.compassresearch.ast.types.AChannelType;
-// import eu.compassresearch.ast.types.AChansetParagraphType;
-// import eu.compassresearch.ast.types.AClassType;
-// import eu.compassresearch.ast.types.AErrorType;
-// import eu.compassresearch.ast.types.AFunctionParagraphType;
-// import eu.compassresearch.ast.types.AFunctionType;
-// import eu.compassresearch.ast.types.AOperationType;
-// import eu.compassresearch.ast.types.AProcessParagraphType;
-// import eu.compassresearch.ast.types.AValueParagraphType;
-// import eu.compassresearch.transformation.CmlAstToOvertureAst;
-// import eu.compassresearch.transformation.CopyTypesFromOvtToCmlAst;
+import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
+import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
+import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
-	QuestionAnswerAdaptor<POContextStack, ProofObligationList>
+	QuestionAnswerCMLAdaptor<POContextStack, CMLProofObligationList>
   {
     
     // Errors and other things are recorded on this guy
@@ -86,32 +37,34 @@ public class POGDeclAndDefVisitor extends
 //      }
     
     @Override
-    public ProofObligationList defaultPDefinition(PDefinition node, POContextStack question)
+    public CMLProofObligationList defaultPDefinition(PDefinition node, POContextStack question)
         throws AnalysisException
     {
 		System.out.println("Reached POGDeclAndDefVisitor - defaultPDefinition");
 		System.out.println(node.getClass());
-		return new ProofObligationList();
+		return new CMLProofObligationList();
     }
     
     
 
 //     @Override
-//     public ProofObligationList caseAClassParagraphDefinition(AClassParagraphDefinition node,
-//         POContextStack question) throws AnalysisException
-//     {		
-//         System.out.println("------");
-//       	System.out.println("Reached POGDeclAndDefVisitor - caseAClassParagraphDefinition");
-// 
-// 		for (PDefinition def : node.getDefinitions())
-//         {
-//             System.out.println("In defn Paragraph Loop: " + def.toString());
-// 
-//             ProofObligationList pol = def.apply(parentPOG, question);
-//         }
-//               
-// 		return new ProofObligationList();
-//     }
+     public CMLProofObligationList caseAClassParagraphDefinition(AClassParagraphDefinition node,
+         POContextStack question) throws AnalysisException
+     {		
+         System.out.println("------");
+       	System.out.println("Reached POGDeclAndDefVisitor - caseAClassParagraphDefinition");
+ 
+       	CMLProofObligationList pol = new CMLProofObligationList();
+       	
+ 		for (PDefinition def : node.getDefinitions())
+         {
+             System.out.println("In defn Paragraph Loop: " + def.toString());
+ 
+             pol.addAll(def.apply(parentPOG, question));
+         }
+               
+ 		return pol;
+     }
 //     
 //     @Override
 //     public ProofObligationList caseAProcessParagraphDefinition(
@@ -278,32 +231,39 @@ public class POGDeclAndDefVisitor extends
 //     }    
 // 
 // 
-//     @Override
-//     public ProofObligationList caseAFunctionParagraphDefinition(
-//          AFunctionParagraphDefinition node, POContextStack question)
-//          throws AnalysisException
-//     {
-//         System.out.println("-caseAFunctionParagraphDefinition-");
-//         
-//         for (PDefinition def : node.getFunctionDefinitions())
-//         {
-//         	ProofObligationList pol = def.apply(parentPOG, question);
-//         }
-//            
-// 		return new ProofObligationList();
-//     }
+     @Override
+     public CMLProofObligationList caseAFunctionParagraphDefinition(
+          AFunctionParagraphDefinition node, POContextStack question)
+          throws AnalysisException
+     {
+         System.out.println("-caseAFunctionParagraphDefinition-");
+         
+         CMLProofObligationList pol = new CMLProofObligationList();
+         
+         for (PDefinition def : node.getFunctionDefinitions())
+         {
+         	 pol.addAll(def.apply(parentPOG, question));
+         }
+            
+ 		return pol;
+     }
 //     
-//     @Override
-//     public ProofObligationList caseAExplicitFunctionDefinition(
-//         AExplicitFunctionDefinition node, POContextStack question)
-//         throws AnalysisException
-//       {
-//          System.out.println("----------***----------");
-//          System.out.println("caseAExplicitFunctionDefinition");
-//          System.out.println(node.toString());
-//          System.out.println("----------***----------");
-// 		return new ProofObligationList();
-//       }
+     @Override
+     public CMLProofObligationList caseAExplicitFunctionDefinition(
+         AExplicitFunctionDefinition node, POContextStack question)
+         throws AnalysisException
+       {
+          System.out.println("----------***----------");
+          System.out.println("caseAExplicitFunctionDefinition");
+          System.out.println(node.toString());
+          System.out.println("----------***----------");
+          
+          CMLProofObligationList obligations = new CMLProofObligationList();
+	  PExp body = node.getBody();
+	  int sizeBefore = question.size();
+	  obligations.addAll(body.apply(parentPOG, question));
+	  return obligations;
+       }
 //       
 //     @Override
 // 	public ProofObligationList caseAImplicitFunctionDefinition(

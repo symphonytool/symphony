@@ -15,26 +15,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
-//import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
-import org.overture.pog.visitor.PogExpVisitor;
-import org.overture.pog.visitor.PogVisitor;
+import org.overture.ast.node.INode;
+import org.overture.pog.obligation.POContextStack;
 
-
-import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
-import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
-import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 
 //From Overture POG
 //import eu.compassresearch.ast.expressions.PStm;
@@ -47,7 +41,7 @@ import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
 
 
 public class ProofObligationGenerator extends 
-				QuestionAnswerAdaptor<POContextStack, ProofObligationList>
+				QuestionAnswerCMLAdaptor<POContextStack, CMLProofObligationList>
 {
     private final static String ANALYSIS_NAME = "Proof Obligation Generator";
      
@@ -59,7 +53,6 @@ public class ProofObligationGenerator extends
     
     // subcheckers
     private POGExpressionVisitor exp;
-    private PogExpVisitor exp2;
     private POGStatementVisitor stm;
     private POGProcessVisitor prc;
     private POGDeclAndDefVisitor dad;
@@ -67,7 +60,6 @@ public class ProofObligationGenerator extends
     private void initialize()
     {
         exp = new POGExpressionVisitor(this);
-        exp2 = new PogExpVisitor(new PogVisitor());
         stm = new POGStatementVisitor(this);
         prc = new POGProcessVisitor(this);
         dad = new POGDeclAndDefVisitor(this);
@@ -115,22 +107,21 @@ public class ProofObligationGenerator extends
 //    }
     
     @Override
-    public ProofObligationList defaultPDefinition(PDefinition node, POContextStack question)
+    public CMLProofObligationList defaultPDefinition(PDefinition node, POContextStack question)
         throws AnalysisException
       {
         return node.apply(this.dad, question);
       }
     
     @Override
-    public ProofObligationList defaultPExp(PExp node, POContextStack question)
+    public CMLProofObligationList defaultPExp(PExp node, POContextStack question)
         throws AnalysisException
       {
         return node.apply(this.exp, question);
       }
       
 
-      
-	// ---------------------------------------------
+      // ---------------------------------------------
     // -- Public API to CML POG
     // ---------------------------------------------
     // Taken from Type Checker code
@@ -177,9 +168,9 @@ public class ProofObligationGenerator extends
      * 
      * @return - Returns ProofObligation list. This may need to change. 
      */
-    public ProofObligationList generatePOs()
+    public CMLProofObligationList generatePOs()
     {
-        ProofObligationList obligations = new ProofObligationList();
+        CMLProofObligationList obligations = new CMLProofObligationList();
 		POContextStack ctxt = new POContextStack();
 		
 		// for each source
@@ -195,10 +186,10 @@ public class ProofObligationGenerator extends
                 	System.out.println("----------------------------------RESULT----------------------------------");
 
                 	// process paragraph:
-                    obligations = paragraph.apply(this, ctxt);
+                    obligations.addAll(paragraph.apply(this, ctxt));
 
                     System.out.println();
-					System.out.println();
+		    System.out.println();
                 } 
                 catch (AnalysisException ae)
                 {
@@ -218,12 +209,32 @@ public class ProofObligationGenerator extends
     }
 
 
+    //ensure drilldown to children
+    @Override
+	public CMLProofObligationList defaultINode(INode node,
+		POContextStack question) throws AnalysisException {
+	CMLProofObligationList obligations = new CMLProofObligationList();
+	Stack<INode> workQ = new Stack<INode>();
+	for (Object o : node.getChildren(true).values() ){
+	    workQ.push((INode) o);
+	}
+	while (! workQ.isEmpty()){
+	    INode aux = workQ.pop();
+	    obligations.addAll(aux.apply(this,question));
+	    
+	}
+	return obligations;
+	}
+    
+    
     // ---------------------------------------------
     // Static stuff for running the TypeChecker from Eclipse
     // ---------------------------------------------
     // Taken from Type Checker code
     // ---------------------------------------------
     
+
+
     // setting the file on AFileSource allows the CmlParser factory method
     // to create both parser and lexer.
     private static PSource prepareSource(File f)

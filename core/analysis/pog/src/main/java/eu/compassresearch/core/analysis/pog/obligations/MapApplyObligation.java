@@ -25,21 +25,23 @@ package eu.compassresearch.core.analysis.pog.obligations;
 
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.statements.PStateDesignator;
+import org.overture.pog.obligation.POContextStack;
+import org.overture.pog.obligation.POType;
 
 
 
-public class MapApplyObligation extends ProofObligation
+public class MapApplyObligation extends CMLProofObligation
 {
 	public MapApplyObligation(PExp root, PExp arg, POContextStack ctxt)
 	{
-		super(root.getLocation(), POType.MAP_APPLY, ctxt);
+		super(root.getLocation(), CMLPOType.MAP_APPLY, ctxt);
 		value = ctxt.getObligation(arg + " in set dom " + root);
 	}
 
 	public MapApplyObligation(PStateDesignator root,
 		PExp arg, POContextStack ctxt)
 	{
-		super(root.getLocation(), POType.MAP_APPLY, ctxt);
+		super(root.getLocation(), CMLPOType.MAP_APPLY, ctxt);
 		value = ctxt.getObligation(arg + " in set dom " + root);
 	}
 }

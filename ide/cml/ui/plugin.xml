@@ -2,6 +2,9 @@
 <?eclipse version="3.4"?>
 
 <plugin>
+
+
+
    <extension
          point="org.eclipse.ui.editors">
       <editor
@@ -97,6 +100,30 @@
                class="eu.compassresearch.ide.cml.core.CmlProjectNature">
          </run>
       </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="eu.compassresearch.ide.cml.ui.actionSet"
+            label="Sample Action Set"
+            visible="true">
+         <menu
+               id="POGMenu"
+               label="POG&amp;Menu">
+            <separator
+                  name="POGGroup">
+            </separator>
+         </menu>
+         <action
+               class="eu.compassresearch.ide.cml.ui.actions.POGSampleAction"
+               icon="icons/pog_action.png"
+               id="eu.compassresearch.ide.cml.ui.actions.POGSampleAction"
+               label="&amp;POG Test Run"
+               menubarPath="POGMenu/POGGroup"
+               toolbarPath="POGGroup"
+               tooltip="POG Test Run">
+         </action>
+      </actionSet>
    </extension>
 
  

@@ -3,12 +3,10 @@ package eu.compassresearch.core.analysis.pog.visitors;
 
  
 // Overture libraries 
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.pog.obligation.POContextStack;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
-import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
-//import eu.compassresearch.ast.expressions.PStm;
+import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 
 // import eu.compassresearch.ast.actions.ABlockStatementAction;
 // import eu.compassresearch.ast.actions.AReturnStatementAction;
@@ -20,7 +18,7 @@ import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
 
 @SuppressWarnings("serial")
 public class POGStatementVisitor extends
-	QuestionAnswerAdaptor<POContextStack, ProofObligationList>
+	QuestionAnswerCMLAdaptor<POContextStack, CMLProofObligationList>
 {
     
     private ProofObligationGenerator parent;

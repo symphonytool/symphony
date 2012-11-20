@@ -27,7 +27,9 @@
  
 package eu.compassresearch.core.analysis.pog.obligations;
 
-public enum POType
+import org.overture.pog.obligation.POType;
+
+public enum CMLPOType
 {
 	MAP_APPLY("map apply"),
 	FUNC_APPLY("function apply"),
@@ -65,14 +67,25 @@ public enum POType
 
 	private String kind;
 
-	POType(String kind)
+	CMLPOType(String kind)
 	{
 		this.kind = kind;
 	}
 
-	@Override
-	public String toString()
+	public POType toOverturePOType(){
+	    try{
+	    return POType.valueOf(POType.class, this.toString());
+		    }
+	    catch (IllegalArgumentException e){
+		return POType.SUB_TYPE;
+	    }
+	}
+	
+	
+	public String toString2()
 	{
 		return kind;
 	}
+	
+	
 }

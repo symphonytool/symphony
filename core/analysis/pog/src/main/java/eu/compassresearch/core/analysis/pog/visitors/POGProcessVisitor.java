@@ -1,16 +1,13 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
-import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.pog.obligation.POContextStack;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
-import eu.compassresearch.core.analysis.pog.obligations.ProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 
 @SuppressWarnings("serial")
 public class POGProcessVisitor extends
-		QuestionAnswerAdaptor<POContextStack, ProofObligationList>
+		QuestionAnswerCMLAdaptor<POContextStack, CMLProofObligationList>
 {
     private ProofObligationGenerator parentPOG;
     

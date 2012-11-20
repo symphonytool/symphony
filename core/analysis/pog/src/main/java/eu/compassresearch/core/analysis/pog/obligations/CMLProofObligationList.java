@@ -14,7 +14,7 @@ package eu.compassresearch.core.analysis.pog.obligations;
 import java.util.Vector;
 
 @SuppressWarnings("serial") //msg to compiler to ignore 'serial' warnings
-public class ProofObligationList extends Vector<ProofObligation>
+public class CMLProofObligationList extends Vector<org.overture.pog.obligation.ProofObligation>
 {
 
 	@Override //override superclass method
@@ -22,11 +22,12 @@ public class ProofObligationList extends Vector<ProofObligation>
 	{
 		StringBuilder sb = new StringBuilder();
 
-		for (ProofObligation po: this)
+		for (org.overture.pog.obligation.ProofObligation po: this)
 		{
 			sb.append(po.toString());
 		}
 		
 		return sb.toString();
 	}
+
 }

@@ -11,6 +11,9 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
+//import eu.compassresearch.core
+
+//import  eu.compassresearch.core.analysis.pog.obligations
 
 /**
  * Our sample action implements workbench action delegate.
@@ -40,6 +43,9 @@ public class POGSampleAction implements IWorkbenchWindowActionDelegate {
 		    return;
 		FileEditorInput fei = (FileEditorInput) edi.getEditorInput();
 		CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
+		
+		//sProof
+		
 		MessageDialog.openInformation(
 			window.getShell(),
 			"COMPASS",
