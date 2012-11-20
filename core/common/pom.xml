@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>common</artifactId>
-  <name>COMPASS Interfaces</name>
+  <name>COMPASS Common</name>
 
   <dependencies>
 
