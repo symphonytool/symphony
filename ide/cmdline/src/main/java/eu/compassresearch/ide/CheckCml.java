@@ -33,6 +33,9 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.POContextStack;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.core.interpreter.api.CmlInterpreter;
+import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.runtime.VanillaCmlInterpreter;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.core.parser.CmlParser;
@@ -485,6 +488,7 @@ public class CheckCml {
 			// define pog object
 			final ProofObligationGenerator pog = new ProofObligationGenerator(
 					sources);
+
 			System.out.println(pog.getAnalysisName());
 
 			// create analysis run adaptor object of type AnalysisRunAdaptor,
@@ -500,31 +504,38 @@ public class CheckCml {
 			// invoke runAnalysis method, giving switch input, run adaptor, and
 			// source files
 			runAnalysis(input, r, sources);
-			// pog.getResults();
+
+			//pog.getResults();
 		}
 
 		// Interpreter
 		if (input.isSwitchOn(Switch.EXEC)) {
 			if (input.isSwitchOn(Switch.NOTC))
-				System.out
-						.println("You can only interpret typechecked models!");
+				System.out.println("You can only interpret typechecked models!");
 			else {
 
-				// final CmlInterpreter interpreter = new VanillaCmlInterpreter(
-				// sources);
+				try {
 
-				AnalysisRunAdaptor re = new AnalysisRunAdaptor(null) {
-					public void apply(INode root) throws AnalysisException {
-						try {
-							// interpreter.setDefaultName(Switch.EXEC.getValue());
-							// interpreter.execute();
-						} catch (Exception e) {
+					final CmlInterpreter interpreter = new VanillaCmlInterpreter(
+							sources);
 
-							e.printStackTrace();
+
+					AnalysisRunAdaptor re = new AnalysisRunAdaptor(null) {
+						public void apply(INode root) throws AnalysisException {
+							try {
+								interpreter.setDefaultName(Switch.EXEC.getValue());
+								interpreter.execute();
+							} catch (Exception e) {
+
+								e.printStackTrace();
+							}
 						}
-					}
-				};
-				runAnalysis(input, re, sources);
+					};
+					runAnalysis(input, re, sources);
+				} catch (InterpreterException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		}
 

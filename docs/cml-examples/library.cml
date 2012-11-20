@@ -63,14 +63,13 @@ pre b.copy in set dom b.books and
 --pre c in set dom bs and
 --    u in set dom us and
 --    c not in set dunion rng bor
-;
 
     
 BorrowCopy: UserId * BookId * BorrowMap -> set of BookId
 BorrowCopy(u,c,bor) ==
   if u in set dom bor
   then bor(u) union {c}
-  else {c};	
+  else {c}
   
   
 ExeReturn: Return * Library -> Library
@@ -80,22 +79,22 @@ pre r.copy in set dom l.books
 --ExeReturn(mk_Return(c), mk_Library(bs,us,bor)) ==
 --  mk_Library(bs,us,RemoveCopy(c,bor))
 --pre c in set dom bs
-;
+
 
 RemoveCopy: BookId * BorrowMap -> BorrowMap
 RemoveCopy(c,bor) ==
-  {u |-> bor(u)\{c} | u in set dom bor};
+  {u |-> bor(u)\{c} | u in set dom bor}
   
 ExeFind: String * Library -> set of BookId
 ExeFind(s,l) ==
    {bid | bid in set dom l.books @ s in set {l.books(bid).title, l.books(bid).author}} 
   
 channels
-	init;
-	borrow: Borrow;
-	retBook: Return;
-	find: Find;
-	renew: Renew;	
+	init
+	borrow: Borrow
+	retBook: Return
+	find: Find
+	renew: Renew	
 	loans: UserId*nat
 	
 chansets
@@ -110,7 +109,7 @@ process LibraryProcess = begin
 	functions
 	
 		GetBorrowed: Library -> BorrowMap
-		GetBorrowed(l) == l.borrowed;
+		GetBorrowed(l) == l.borrowed
 		
 		ApplyBorrowed: Library*UserId -> set of BookId
 		--ApplyBorrowed(l,u) == (GetBorrowed(l))(u) not possible with the current grammar
@@ -118,7 +117,7 @@ process LibraryProcess = begin
 	
 	operations
 		Init(bs: map BookId to Book, us: map UserId to User)
-		post library = mk_Library(bs,us,{ |-> });
+		post library = mk_Library(bs,us,{ |-> })
 		
 		Assign(l: Library)
 		frame wr library
@@ -126,20 +125,20 @@ process LibraryProcess = begin
 		
 	actions
 		Act = (
-			borrow?b in set pre_ExeBorrow(b,library) -> Assign(ExeBorrow(b,library))
+			[borrow?b in set pre_(ExeBorrow,b,library)] -> Assign(ExeBorrow(b,library))
 			[]
-			renew?r in set pre_ExeReturn(r,library) -> 
+			[renew?r in set pre_(ExeReturn,r,library)] -> 
 				Assign(ExeReturn(r,library));
 				Assign(ExeBorrow(r,library))
 			[]
-			retBook?r in set pre_ExeReturn(r,library) -> Assign(ExeReturn(r,library))
+			[retBook?r in set pre_(ExeReturn,r,library)] -> Assign(ExeReturn(r,library))
 			[]
-			find?f in set pre_ExeFind(f,library) -> Assign(ExeFind(f,library))
+			[find?f in set pre_(ExeFind,f,library)] -> Assign(ExeFind(f,library))
 			[]
-			loans?u in set (u in set dom(GetBorrowed(library)))!(card(ApplyBorrowed(library,u))) -> SKIP 
+			[loans?u in set (u in set dom(GetBorrowed(library)))!(card(ApplyBorrowed(library,u)))] -> SKIP 
 		); Act
 	
-	@ init -> Init(books,users); Act
+	@ [init] -> Init(books,users); Act
 end
 
 channels

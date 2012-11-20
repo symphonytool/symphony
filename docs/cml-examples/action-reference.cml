@@ -1,0 +1,7 @@
+channels a b
+process A = 
+begin 
+	actions
+	 TEST = [a] -> Skip 
+	@ TEST 
+end

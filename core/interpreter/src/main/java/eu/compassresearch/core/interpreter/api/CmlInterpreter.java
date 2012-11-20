@@ -12,6 +12,7 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.debug.DBGPReader;
 import org.overture.interpreter.runtime.Breakpoint;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.SourceFile;
 import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
@@ -34,7 +35,7 @@ public interface CmlInterpreter
 	 * Get a string version of the environment.
 	 */
 
-	public CMLContext getInitialContext(LexLocation location);
+	public Context getInitialContext(LexLocation location);
 
 	/**
 	 * Get the global environment.

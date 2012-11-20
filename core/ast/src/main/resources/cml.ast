@@ -99,7 +99,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	   ;
     
 #operation {-> package='eu.compassresearch.ast.definitions'}
-	=   {explicit} [parameterPatterns]:pattern* 
+	=   {explicit} 			[parameterPatterns]:pattern* 
                             [body]:action.#Statement
                             [precondition]:exp 
                             [postcondition]:exp 
@@ -114,8 +114,8 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                             (actualResult):type
                             [isConstructor]:java_Boolean
                             
-    |   {implicit} [parameterPatterns]:pair.patternListType*
-                            [result]:pair.identifierType*
+    |   {implicit} 			[parameterPatterns]:pair.patternListType*
+                            [result]:pair.patternType*
                             //[body]:stm
                             [externals]:clause.external*
                             [precondition]:exp 
@@ -140,11 +140,13 @@ exp {-> package='eu.compassresearch.ast.expressions'}
     |   {stateInit} (state):definition.#paragraph.state  
     |   {tupleSelect} [tuple]:exp [entry]:java_Integer 
     |   #Channel
+    | 	{unresolvedPath} [identifiers]:LexIdentifierToken*
     ;
     
 #Channel  {-> package='eu.compassresearch.ast.expressions'}
 	= #Rename
-	| {name} [identifier]:LexNameToken [dotExpressions]:exp*
+	| {name} 	[identifier]:LexNameToken 
+				[dottedPatternList]:pattern* //This use to be expressions!
 	;
 	
 #Rename   {-> package='eu.compassresearch.ast.expressions'}
@@ -193,8 +195,7 @@ access  {-> package='eu.compassresearch.ast.definitions'}
 */
     
 pair {-> package='eu.compassresearch.ast.patterns'}
-    = {identifierType} [identifier]:LexIdentifierToken (type):type
-    | {rename} [from]:exp.#Channel.name [to]:exp.#Channel.name
+    = {rename} [from]:exp.#Channel.name [to]:exp.#Channel.name
     ; 
 
 /*
@@ -204,6 +205,7 @@ process {-> package='eu.compassresearch.ast.process'}
 	= {state} 
 		[definitionParagraphs]:definition.#paragraph* 
 		[action]:action
+		(processDefinition):definition.process
 	| {sequentialComposition} 
 		[left]:process 
 		[right]:process
@@ -253,9 +255,12 @@ process {-> package='eu.compassresearch.ast.process'}
 		[expression]:exp
 	| {instantiation} 
 		[declarations]:declaration.#Single.type* 
-		[processName]:LexNameToken 
-		(processDefinition): definition.process 
+		[process]: process 
 		[args]:exp*
+	| {reference}
+		[processName]:LexNameToken
+		[args]:exp*
+		(processDefinition):definition.process
 	| {channelRenaming} 
 		[process]:process 
 		[renameExpression]:exp.#Channel.#Rename
@@ -340,6 +345,10 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {call} 
 		[actionName]:LexNameToken
 	| {subclassResponsibility}
+	| {reference} 
+		[name]:LexNameToken
+		[args]:exp*
+		(actionDefinition):definition.action
 	;
 	
 #Parallel {-> package='eu.compassresearch.ast.actions'}
@@ -374,9 +383,9 @@ action {-> package='eu.compassresearch.ast.actions'}
 	;
 	
 communicationParameter {-> package='eu.compassresearch.ast.actions'}
-	= {read} [parameter]:parameter [expression]:exp
-	| {write} [expression]:exp 
-	| {reference} [expression]:exp	
+	= {read} [expression]:exp
+	| {write}  
+	| {signal} 	
 	;
 	
 parametrisation {-> package='eu.compassresearch.ast.actions'}
@@ -384,12 +393,12 @@ parametrisation {-> package='eu.compassresearch.ast.actions'}
 	| {res} 
 	| {vres} 
 	;
-
-parameter {-> package='eu.compassresearch.ast.actions'}
-	= {identifier} [identifier]:LexIdentifierToken
-	| {tuple} [parameters]:parameter*
-	| {record}	[name]:LexNameToken [parameters]:parameter* 
-	;
+//These are now patterns instead
+//parameter {-> package='eu.compassresearch.ast.actions'}
+//	= {identifier} [identifier]:LexIdentifierToken
+//	| {tuple} [parameters]:parameter*
+//	| {record}	[name]:LexNameToken [parameters]:parameter* 
+//	;
 
 #Statement {-> package='eu.compassresearch.ast.actions'}
 	= {let} [action]:action [localDefinitions]:definition*
@@ -463,6 +472,14 @@ parameter {-> package='eu.compassresearch.ast.actions'}
     | {multiple} [assignments]:action.#Statement.#GeneralAssignment.single*
 	;
 
+objectDesignator {-> package='eu.compassresearch.ast.actions'}
+	= {unresolved} [identifiers]:LexIdentifierToken* 
+	;
+	
+stateDesignator {-> package='eu.compassresearch.ast.actions'}
+    =   {unresolved} [identifiers]:LexIdentifierToken*
+    ;
+
 alternativeAction {-> package='eu.compassresearch.ast.actions'}
     = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition* 
     ;
@@ -484,10 +501,10 @@ Aspect Declaration
 						[rightAction]:action
 	;	
 
-%action->#Statement = (type):type
+%action = (type):type
     ;
 
-%communicationParameter = [location]:location
+%communicationParameter = [location]:location [pattern]:pattern
 	; 
 
 %declaration =  [location]:location [nameScope]:nameScope

@@ -18,11 +18,11 @@ process Observer =
     
       -- produce a sequence of increasing numbers on the input
       OW = n:nat@
-        inc!n -> OW(n+1)
+        [inc!n] -> OW(n+1)
         
       -- read the numbers from the input and check whether it's an increasing sequence
       OR = n:nat@
-        out?n -> [n>=m] & OR(n) 
+       [out?n] -> [n>=m] & OR(n) 
         
       -- the system composed with its property specification
       OP =
@@ -58,17 +58,17 @@ process Reader =
      choose_pair : Context`PI ==> void
       choose_pair(k) == (
         rpair := k
-      );
+      )
       signal_pair : () ==> Context`PI
       signal_pair() == (
         --this is a diviation from the correct grammar
 	return (rpair)
-      );
+      )
 
       choose_index : Context`SI ==> void
       choose_index(i) == (
         rindex := i
-      );
+      )
       
       -- unused; covered by CSP
       read_output : void ==> Context`Data
@@ -77,10 +77,10 @@ process Reader =
       )
     actions
       RP = 
-        getLatest?k -> choose_pair(k) ;
-        (dcl r : Context`PI @ r := signal_pair(); setReading!r ->
-        getIndex!rpair?i -> choose_index(i);
-        getSlot!rpair!rindex?s -> out!s -> RP)
+        [getLatest?k] -> choose_pair(k) ;
+        (dcl r : Context`PI @ r := signal_pair(); [setReading!r] ->
+        [getIndex!rpair?i] -> choose_index(i);
+        [getSlot!rpair!rindex?s] -> [out!s] -> RP)
   @ RP
   end
 
@@ -102,8 +102,8 @@ process SharedState =
       reading : Context`PI
     actions
       IO =
-           setSlot?pi?si?i -> (slot(mk_(pi,si)) := i); IO
-        [] getSlot?pi?si!(slot(mk_(pi,si))) -> IO
+           [setSlot?pi?si?i] -> (slot(mk_(pi,si)) := i); IO
+        [] [getSlot?pi?si!(slot(mk_(pi,si)))] -> IO
         [] setIndex?pi?si -> (index(pi) := si) ; IO
         [] getIndex?pi!(index(pi)) -> IO
         [] setLatest?k -> (latest := k) ; IO
