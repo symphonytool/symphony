@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
 
@@ -12,6 +14,7 @@ import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
@@ -90,7 +93,7 @@ public class AlphabetInspectionVisitor
 	 * Parallel Begin: As the general case
 	 * 
 	 * Parallel Non-sync:
-	 * 	At this step the actions are each executed separately. Since no sync shall stake place this Action just wait
+	 * 	At this step the actions are each executed separately. Since no sync shall takes place this Action just wait
 	 * 	for the child actions to be in the FINISHED state. So the alphabet returned here is {alpha(left) union alpha(right)}
 	 * 
 	 * Parallel End: As the general case
@@ -143,12 +146,59 @@ public class AlphabetInspectionVisitor
 	@Override
 	public CmlAlphabet caseAGeneralisedParallelismParallelAction(
 			AGeneralisedParallelismParallelAction node, Context question)
-			throws AnalysisException {
+					throws AnalysisException {
+
+		CmlAlphabet alpha = null;
+
+		//Parallel Begin:
+		if(ownerProcess.hasChildren())
+		{
+			for(CmlProcess child : ownerProcess.children())
+			{
+				CmlAlphabet cs = convertChansetExpToAlphabet(node.getChanSetExpression(),question);
+				
+				if(!child.finished())
+				{
+					
+										
+//					if(alpha == null)
+//						alpha = child.inspect();
+//					else
+//						alpha = alpha.union(child.inspect());
+				}
+			}
+		}
+		//If there are no children, then either the interleaving is beginning or ending
+		if(null == alpha)
+		{
+			alpha = defaultPAction(node,question);
+		}
+
+		return alpha;
+	}
+	
+	/**
+	 * FIXME:This is just a temp solution, chansets can be other than this
+	 * @return
+	 */
+	private CmlAlphabet convertChansetExpToAlphabet(PExp chansetExp, Context question)
+	{
+		AEnumChansetSetExp chanset = (AEnumChansetSetExp)chansetExp;
+
+		Set<CmlEvent> coms = new HashSet<CmlEvent>();
 		
+		for(LexIdentifierToken id : chanset.getIdentifiers())
+		{
+			//FIXME: This should be a name so the conversion is avoided
+			LexNameToken channelName = new LexNameToken("Default",id);
+			CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
+			CmlCommunicationEvent com = new CmlCommunicationEvent(chanValue);
+			coms.add(com);
+		}
 		
+		CmlAlphabet alpha = new CmlAlphabet(coms);
 		
-		
-		return super.caseAGeneralisedParallelismParallelAction(node, question);
+		return alpha;
 	}
 	
 }
