@@ -18,6 +18,7 @@ public enum ParserErrorMessage
 	ACTIONS_INSIDE_CLASS_OPERATION("You cannot have actions inside class operations only statements"),
 	SEMI_BETWEEN_CLASS_OPERATIONS("You must not separate class operations with ';'"),
 	VARINFORMATION_MULTIPLETYPES_DEFINED("Only one type is allowed")
+	//NEW_STATEMENT_REQUIRES_A_NAME("")
   ;
   
   private String template;

@@ -9,50 +9,50 @@ types
 values
 	Connected = {<ringing>,<speech>,<suspended>};
 	n: nat = undefined;
-	LOC = {1,...,n-1};
+	LOC = {1,...,n-1}
 	
 functions
 	next(i: nat) j: nat
 	pre
 		i in set LOC
 	post
-		j = (i+1) mod n;
+		j = (i+1) mod n
 
 	home(i: nat) s: set of SUBS
 	pre
 		i in set LOC
 	post
-		forall j in set LOC @ s inter home(j) = {};
+		forall j in set LOC @ s inter home(j) = {}
 	
 	callers: (map SUBS to STATUS) +>  set of SUBS
-	callers(status) == dom(status :> Connected);
+	callers(status) == dom(status :> Connected)
 		
 	connected: (map SUBS to STATUS) * (map SUBS to SUBS) +> (inmap SUBS to SUBS)
-	connected(status,number) == callers(status) <: number;
+	connected(status,number) == callers(status) <: number
 		
 	free: (map SUBS to STATUS) * (map SUBS to SUBS) * (set of SUBS) +> set of SUBS
-	free(status,number,subs) == subs \ dom(status) \ rng(connected(status,number));
+	free(status,number,subs) == subs \ dom(status) \ rng(connected(status,number))
 		
 	connectable: (map SUBS to STATUS) * (map SUBS to SUBS) +> set of SUBS
-	connectable(status,number) == rng((dom(status:>{<connecting>}))<:number);
+	connectable(status,number) == rng((dom(status:>{<connecting>}))<:number)
 		
 	suspendable: (map SUBS to STATUS) * (map SUBS to SUBS) +> set of SUBS
-	suspendable(status,number) == rng((dom(status:>{<speech>}))<:connected(status,number));
+	suspendable(status,number) == rng((dom(status:>{<speech>}))<:connected(status,number))
 		
 	ringing: (map SUBS to STATUS) * (map SUBS to SUBS) +> set of SUBS
-	ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number));
+	ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number))
 		
 	suspended: (map SUBS to STATUS) * (map SUBS to SUBS) +> set of SUBS
-	suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number));
+	suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number))
 	
 channels
-	init;
-	call: SUBS*SUBS;
-	clear, suspend: SUBS;
-	answer, unsuspend: SUBS;
-	callok,clearok,suspendok,answerok,unsuspendok;
-	callerror,clearerror,suspenderror,answererror,unsuspenderror;
-	connectfree,connnectbusy: SUBS
+	init
+	call: SUBS*SUBS
+	clear, suspend: SUBS
+	answer, unsuspend: SUBS
+	callok clearok suspendok answerok unsuspendok
+	callerror clearerror suspenderror answererror unsuspenderror
+	connectfree, connnectbusy: SUBS
 
 
 class Exchange =
@@ -71,26 +71,26 @@ begin
 			dom(number) subset subs --and
 			--is_(dom(dom(status :> Node`Connected) <: number)) 
 			--,inmap Node.SUBS to Node.SUBS)
-			; 
+			
 			
 	functions
 		callers: (map Node.SUBS to Node.STATUS) +>  set of Node.SUBS
-		callers(status) == dom(status :> Node.Connected);
+		callers(status) == dom(status :> Node.Connected)
 		
 		connected: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> (inmap Node.SUBS to Node.SUBS)
-		connected(status,number) == callers(status) <: number;
+		connected(status,number) == callers(status) <: number
 		
 		free: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) * (set of Node.SUBS) +> set of Node.SUBS
-		free(status,number,subs) == subs \ dom(status) \ rng(connected(status,number));
+		free(status,number,subs) == subs \ dom(status) \ rng(connected(status,number))
 		
 		connectable: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> set of Node.SUBS
-		connectable(status,number) == rng((dom(status:>{<connecting>}))<:number);
+		connectable(status,number) == rng((dom(status:>{<connecting>}))<:number)
 		
 		suspendable: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> set of Node.SUBS
-		suspendable(status,number) == rng((dom(status:>{<speech>}))<:connected(status,number));
+		suspendable(status,number) == rng((dom(status:>{<speech>}))<:connected(status,number))
 		
 		ringing: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> set of Node.SUBS
-		ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number));
+		ringing(status,number) == rng((dom(status:>{<ringing>}))<:connected(status,number))
 		
 		suspended: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> set of Node.SUBS
 		suspended(status,number) == rng((dom(status:>{<suspended>}))<:connected(status,number))
@@ -102,17 +102,17 @@ begin
 		post 
 			status = {|->} and 
 			number = {|->} and 
-			subs = lSUBS;
+			subs = lSUBS
 		
 		Add (s: Node`SUBS)
 		frame wr subs
 		post 
-			subs = subs~ union {s};
+			subs = subs~ union {s}
 		
 		Del (s: Node.SUBS)
 		frame wr subs
 		post 
-			subs = subs~ \ {s};
+			subs = subs~ \ {s}
 		
 		Call (s,t: Node.SUBS)
 		frame wr status, number
@@ -123,7 +123,7 @@ begin
 			s in set free(status,number,subs)
 		post 
 			status = status~ ++ {s |-> <connecting>} and 
-			number = number~ ++ {s |-> t};
+			number = number~ ++ {s |-> t}
 		
 		Clear (s,t: Node.SUBS)
 		frame wr status, number
@@ -134,7 +134,7 @@ begin
 			s in set dom(status) and 
 			t = number(s)
 		post 
-			status = {s}<-: status~ and number = {s}<-: number~;
+			status = {s}<-: status~ and number = {s}<-: number~
 		
 		Suspend(s,t: Node.SUBS)
 		frame wr status
@@ -146,7 +146,7 @@ begin
 			status(s) = <speech> and
 			t = number(s)
 		post
-			status = status~ ++ {s |-> <suspended>};
+			status = status~ ++ {s |-> <suspended>}
 			
 		ConnectFree(s,t: Node.SUBS)
 		frame wr status
@@ -159,7 +159,7 @@ begin
 			t = number(s) and
 			t not in set rng(connected(status,number))
 		post
-			status = status~ ++ {s |-> <ringing>};
+			status = status~ ++ {s |-> <ringing>}
 			
 		ConnectBusy(s,t: Node.SUBS)
 		frame wr status
@@ -172,7 +172,7 @@ begin
 			t = number(s) and
 			t in set rng(connected(status,number))
 		post
-			status = status~ ++ {s |-> <engaged>};
+			status = status~ ++ {s |-> <engaged>}
 			
 		Answer(s,t: Node.SUBS)
 		frame wr status
@@ -184,7 +184,7 @@ begin
 			status(s) = <ringing> and
 			t = number(s)
 		post
-			status = status~ ++ {s |-> <speech>};
+			status = status~ ++ {s |-> <speech>}
 				
 		Unsuspend(s,t: Node.SUBS)
 		frame wr status
@@ -205,12 +205,12 @@ process ExchangeProc = lSUBS: set of SUBS @ begin -- there's not type "finite se
 	
 	actions
 		Exch = 
-				call?s in set subs?t in set subs ->
-					(if s in set free(status,number,subs) then callok -> Call(s,t)
-					else callerror -> Skip); Exch
+	/*			[call?s in set subs?t in set subs] -> Skip
+					(if s in set free(status,number,subs) then [callok] -> Call(s,t)
+					else [callerror] -> Skip); Exch
 	
 				[]
-				clear?s in set subs ->
+				[clear?s] in set subs ->
 					(if s in set dom(status) then clearok -> 
 						(dcl t: SUBS @ t := number(s); Clear(s,t))
 					else clearerror -> Skip); Exch
@@ -223,23 +223,24 @@ process ExchangeProc = lSUBS: set of SUBS @ begin -- there's not type "finite se
 				[]
 				connectfree?s in set connectable(status,number) union free(status,number,subs) ->
 					(dcl t: SUBS @ t:=number(s); ConnectFree(s,t)); Exch
-				[]
-/*
-				connectbusy?s:(s in set (connectable(status,number) \ free(status,number,subs))) ->
-					(dcl t: SUBS @ t:=number(s); ConnectBusy(s,t)); Exch
+
 				[]
 */
-				answer?t in set subs ->
-					(if t in set ringing(status,number) then answerok ->
-						(dcl s: SUBS @ s:=number(t); Answer(s,t))
-					else answererror -> Skip); Exch
+				[connectbusy?s in set (s in set (connectable(status,number) \ free(status,number,subs)))] ->
+					(dcl t: SUBS @ t:=number(s); ConnectBusy(s,t)); Exch
 				[]
-				unsuspend?t in set subs ->
-					(if t in set suspended(status,number) then unsuspendok ->
+
+				[answer?t in set subs] ->
+					(if t in set ringing(status,number) then [answerok] ->
+						(dcl s: SUBS @ s:=number(t); Answer(s,t))
+					else [answererror] -> Skip); Exch
+				[]
+				[unsuspend?t in set subs] ->
+					(if t in set suspended(status,number) then [unsuspendok] ->
 						(dcl s: SUBS @ s:=number(t); Unsuspend(s,t))
-					else unsuspenderror -> Skip); Exch
+					else [unsuspenderror] -> Skip); Exch
 		
-		@ init -> InitExchange(); Exch
+		@ [init] -> InitExchange(); Exch
 end		
 
 
@@ -253,20 +254,20 @@ begin
 	values
 		public Connected: STATUS = {<ringing>,<speech>,<suspended>};
 		n: nat = undefined;
-		LOC: set of int = {1,...,n-1};
+		LOC: set of int = {1,...,n-1}
 	
 	functions
 		next(i: nat) j: nat
 		pre
 			i in set LOC
 		post
-			j = (i+1) mod n;
+			j = (i+1) mod n
 
 		home(i: nat) s: set of SUBS
 		pre
 			i in set LOC
 		post
-			forall j in set LOC @ s inter home(j) = {};
+			forall j in set LOC @ s inter home(j) = {}
 	
 	state
 		i: nat; -- process parameter

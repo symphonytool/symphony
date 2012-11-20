@@ -134,16 +134,16 @@ process LibraryProcess = begin
 			[retBook?r in set pre_(ExeReturn,r,library)] -> Assign(ExeReturn(r,library))
 			[]
 			[find?f in set pre_(ExeFind,f,library)] -> Assign(ExeFind(f,library))
-			[]
-			[loans?u in set (u in set dom(GetBorrowed(library)))!(card(ApplyBorrowed(library,u)))] -> SKIP 
+			/*[]
+			[loans?u in set (u in set dom(GetBorrowed(library)))!(card(ApplyBorrowed(library,u)))] -> SKIP*/ 
 		); Act
 	
 	@ [init] -> Init(books,users); Act
 end
 
 channels
-	initUser: UserId;
-	success, error
+	initUser: UserId
+	success error
 
 process Scenario1 = i: UserId @ begin
 	state
@@ -153,10 +153,10 @@ process Scenario1 = i: UserId @ begin
 	
 	functions
 		MkBorrow: BookId*UserId -> Borrow
-		MkBorrow(b,u) == mk_Borrow(b,u);
+		MkBorrow(b,u) == mk_Borrow(b,u)
 		
 		MkReturn: BookId -> Return
-		MkReturn(b) == mk_Return(b);
+		MkReturn(b) == mk_Return(b)
 		
 		diff: (set of BookId) * BookId -> set of BookId
 		diff(bs,b) == bd\{b}
@@ -164,17 +164,17 @@ process Scenario1 = i: UserId @ begin
 	operations
 		Init()
 		frame wr id, books
-		post id = i and books = {};
+		post id = i and books = {}
 		
 		Assign(b: set of BookId)
 		frame wr books
 		post books = b
 	
-	@ initUser?u -> Init(u); borrow!(MkBorrow(book1,id)) -> SKIP;
+	@ [initUser?u] -> Init(u); [borrow!(MkBorrow(book1,id))] -> SKIP;
 			Assign(books union {book1});
-			borrow!(MkBorrow(book2,id)) -> Assign(books union {book2});
-			retBook!(MkReturn(book1)) -> Assign(diff(books, {book1}));
-			loans!id?s -> if s = books then success -> STOP else error -> STOP
+			[borrow!(MkBorrow(book2,id))] -> Assign(books union {book2});
+			[retBook!(MkReturn(book1))] -> Assign(diff(books, {book1}));
+			[loans!id?s] -> if s = books then [success] -> Skip else [error] -> STOP
 end
 
 process Scenario2 = i: UserId @ begin
@@ -185,10 +185,10 @@ process Scenario2 = i: UserId @ begin
 		
 	functions
 		MkBorrow: BookId*UserId -> Borrow
-		MkBorrow(b,u) == mk_Borrow(b,u);
+		MkBorrow(b,u) == mk_Borrow(b,u)
 		
 		MkReturn: BookId -> Return
-		MkReturn(b) == mk_Return(b);
+		MkReturn(b) == mk_Return(b)
 		
 		diff: (set of BookId) * BookId -> set of BookId
 		diff(bs,b) == bd\{b}
@@ -196,14 +196,14 @@ process Scenario2 = i: UserId @ begin
 	operations
 		Init()
 		frame wr id, books
-		post id = i and books = {};
+		post id = i and books = {}
 		
 		Assign(b: set of BookId)
 		frame wr books
 		post books = b
 			
-	@ initUser?u -> Init(u); borrow!(MkBorrow(book1,id)) -> Assign(books union {book1});
-			retBook!(MkReturn(book2)) -> Assign(diff(books,{book2})); STOP
+	@ [initUser?u] -> Init(u); [borrow!(MkBorrow(book1,id))] -> Assign(books union {book1});
+			[retBook!(MkReturn(book2))] -> Assign(diff(books,{book2})); STOP
 end
 
 -- empty chanset is not working ({||})

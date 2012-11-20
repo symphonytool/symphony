@@ -33,7 +33,7 @@ public class ParserUnitTest {
     	
 //    	File source = new File(filePath);
 //    	FileReader input = new FileReader(source);
-    	bytes = Files.readAllBytes(Paths.get("/home/akm/sandbox/overture_cml/docs/cml-examples/process-action-generalisedParallelism.cml"));
+    	bytes = Files.readAllBytes(Paths.get("/home/akm/sandbox/overture_cml/docs/cml-examples/TelephoneExchangeSoS.cml"));
     	
     	ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
     	InputStreamReader isr = new InputStreamReader(bais);
