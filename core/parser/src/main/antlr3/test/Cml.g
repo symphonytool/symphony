@@ -1,14 +1,31 @@
 /* Present halt:
- * example:
- *   let a = 5 in a
- * a) parse fails: somehow 'loses' the in token
- * b) in the let localdef, pattern..matchvalue conflicts with expression apply due to the expressions and ()
+ *  in the let localdef, pattern..matchvalue conflicts with expression apply due to the expressions and ()
  *
  */
 grammar Cml;
 options {
     language = Java;
     output=AST;
+}
+
+@members {
+public String getErrorMessage(RecognitionException e, String[] tokenNames) {
+    List stack = getRuleInvocationStack(e, this.getClass().getName());
+    String msg = null;
+    if (e instanceof NoViableAltException) {
+        NoViableAltException nvae = (NoViableAltException)e;
+        msg = " no viable alt; token="+e.token+
+            " (decision="+nvae.decisionNumber+
+            " state "+nvae.stateNumber+")"+
+            " decision=<<"+nvae.grammarDecisionDescription+">>";
+    } else {
+        msg = super.getErrorMessage(e, tokenNames);
+    }
+    return stack+" "+msg;
+}
+public String getTokenErrorDisplay(Token t) {
+    return t.toString();
+}
 }
 
 source
@@ -49,7 +66,7 @@ qualValueDefinition
     ;
 
 valueDefinition
-    : pattern (':' type)? ( '=' | 'be st' ) expression
+    : pattern (':' type)? ( '=' | 'be' 'st' ) expression
     ;
 
 typeDefs
@@ -156,9 +173,7 @@ expression
 
 binExpr0op
     : '+' | '-' | '*' | '/' | 'div' | 'rem' | 'mod' | '<' | '<=' | '>' | '>='
-    | '=' | '<>' | 'or' | 'and' | '=>' | '<=>' 
-    // | 'in set'
-    | 'not in set'
+    | '=' | '<>' | 'or' | 'and' | '=>' | '<=>' | 'in' 'set' | 'not' 'in' 'set'
     | 'subset' | 'psubset' | 'union' | '\\' | 'inter' | '^' | '++' | 'munion'
     | '<:' | '<-:' | ':->' | ':>' | 'comp' | '**'
     ;
@@ -237,11 +252,11 @@ localDefinition
     // | functionDefinition
     ;
 	
-bind: pattern ('in set' expression | ':' type)
+bind: pattern ('in' 'set' expression | ':' type)
     ;
 
 setBind
-    : pattern 'in set' expression
+    : pattern 'in' 'set' expression
     ;
 
 typeBind
