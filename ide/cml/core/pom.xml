@@ -45,6 +45,18 @@
                   <overWrite>true</overWrite>
                   <!-- <destFileName>optional-new-name.jar</destFileName> -->
                 </artifactItem>
+
+
+                <!-- Common -->
+                <artifactItem>
+                  <groupId>eu.compassresearch.core</groupId>
+                  <artifactId>common</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <!-- <destFileName>optional-new-name.jar</destFileName> -->
+                </artifactItem>
+
                 
                 <!-- Copy the Parser -->
                 <artifactItem>

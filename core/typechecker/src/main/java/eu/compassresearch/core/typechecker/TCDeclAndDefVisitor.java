@@ -24,7 +24,9 @@ import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.AProductType;
 import org.overture.ast.types.PType;
+import org.overture.typechecker.FlatEnvironment;
 
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -125,7 +127,9 @@ class TCDeclAndDefVisitor extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 		TypeCheckInfo newQ = (TypeCheckInfo) question;
-		LinkedList<PDefinition> list = node.getValueDefinitions();
+		LinkedList<PDefinition> _list = node.getValueDefinitions();
+		ShieldedList<PDefinition> list = new ShieldedList<PDefinition>();
+		list.addAll(_list);
 		for (PDefinition def : list) {
 			PType defType = def.apply(parentChecker, newQ);
 			def.setType(defType);
@@ -139,10 +143,20 @@ class TCDeclAndDefVisitor extends
 	public PType caseAValueDefinition(AValueDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
+
+		node.setName(new LexNameToken("", node.getName().getName(), node
+				.getLocation()));
+
 		// Acquire declared type and expression type
 		PExp exp = node.getExpression();
 		PType declaredType = node.getType().apply(parentChecker, question);
+		if (declaredType instanceof AErrorType)
+			return declaredType;
+
 		PType expressionType = exp.apply(parentChecker, question);
+		if (expressionType instanceof AErrorType)
+			return expressionType;
+
 		node.setExpType(expressionType);
 
 		TypeCheckInfo tci = (TypeCheckInfo) question;
@@ -155,8 +169,11 @@ class TCDeclAndDefVisitor extends
 							.customizeMessage(expressionType.toString(),
 									declaredType.toString()));
 
-		List<PDefinition> newDefs = getHandler(node.getPattern())
-				.getDefinitions(node.getPattern(), node);
+		// if there is a parent definition lets find things
+		List<PDefinition> newDefs = new LinkedList<PDefinition>();
+		if (question.env.getEnclosingDefinition() != null)
+			newDefs = getHandler(node.getPattern()).getDefinitions(
+					node.getPattern(), question.env.getEnclosingDefinition());
 
 		node.setDefs(newDefs);
 
@@ -221,6 +238,7 @@ class TCDeclAndDefVisitor extends
 
 		// Create scope for the class body
 		TypeCheckInfo classQuestion = (TypeCheckInfo) newQ.newScope(node);
+		((FlatEnvironment) classQuestion.env).add(node);
 		for (PDefinition def : node.getDefinitions()) {
 			newQ.updateContextNameToCurrentScope(def);
 			PType type = def.apply(parentChecker, classQuestion);
@@ -448,6 +466,11 @@ class TCDeclAndDefVisitor extends
 				SClassDefinition classDefinition_ = null;
 				AAccessSpecifierAccessSpecifier access_;
 				PType type_ = paramType;
+				if (paramType instanceof AProductType) {
+					AProductType pt = (AProductType) paramType;
+					type_ = pt.getTypes().get(i);
+				}
+
 				Pass pass_ = Pass.DEFS;
 				Boolean valueDefinition_ = false;
 				LexNameToken name_ = ((AIdentifierPattern) p).getName();
@@ -478,6 +501,7 @@ class TCDeclAndDefVisitor extends
 		// Type check the function body in an augmented environment
 		TypeCheckInfo newQuestion = (TypeCheckInfo) createEnvironmentWithFormals(
 				question, node);
+
 		PExp body = node.getBody();
 		body.apply(parentChecker, newQuestion);
 		if (body.getType() == null)

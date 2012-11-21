@@ -1,9 +1,11 @@
 package eu.compassresearch.core.typechecker;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
@@ -76,6 +78,17 @@ class TCExpressionVisitor extends
 		}
 
 		@Override
+		public PType caseAVariableExp(AVariableExp node, TypeCheckInfo question)
+				throws AnalysisException {
+			PDefinition type = question.env.findName(node.getName(),
+					question.scope);
+			if (type == null)
+				throw new RuntimeException("Cannot find: " + node.getName());
+			node.setType(type.getType());
+			return type.getType();
+		}
+
+		@Override
 		public PType defaultPCMLDefinition(PCMLDefinition node,
 				TypeCheckInfo question) throws AnalysisException {
 			return node.apply(TCExpressionVisitor.this, question);
@@ -115,9 +128,8 @@ class TCExpressionVisitor extends
 
 		org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(
 				question.env);
-
 		quest.scope = NameScope.NAMES;
-
+		quest.qualifiers = new LinkedList<PType>();
 		try {
 			ovtNode.apply(overtureExpVisitor, quest);
 		} catch (org.overture.ast.analysis.AnalysisException e1) {
@@ -140,7 +152,7 @@ class TCExpressionVisitor extends
 			throws AnalysisException {
 
 		PType type = node.getExpression().apply(this, question);
-
+		node.setType(type);
 		return type;
 	}
 

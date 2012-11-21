@@ -136,12 +136,11 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 
 		switch(stateEvent.getTo())
 		{
-//		case WAIT_EVENT:
-//			//if all the children are waiting for events this process can continue
-//			if(isAllChildrenWaitingForEvent())
-//				setState(CmlProcessState.RUNNABLE);
-//			
-//			break;
+		case WAIT_EVENT:
+			//if at least one child are waiting for an event this process must invoke either Parallel Non-sync or sync
+			if(isAtLeastOneChildWaitingForEvent())
+				setState(CmlProcessState.RUNNABLE);
+			break;
 		case FINISHED:
 			stateEvent.getSource().unregisterOnStateChanged(this);
 			
@@ -178,15 +177,16 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		return isAllFinished;
 	}
 	
-//	private boolean isAllChildrenWaitingForEvent()
-//	{
-//		boolean isAllWaitingForEvent = true;
-//		for(CmlProcess child : children())
-//		{
-//			isAllWaitingForEvent &= child.waiting();
-//		}
-//		return isAllWaitingForEvent;
-//	}
+	private boolean isAtLeastOneChildWaitingForEvent()
+	{
+		for(CmlProcess child : children())
+		{
+			if(child.waiting())
+				return true;
+		}
+		
+		return false;
+	}
 	
 	
 		
@@ -209,6 +209,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		
 		CmlBehaviourSignal result = null;
 		
+		//TODO: sync/output/input is still missing
 		//At this point the supervisor has already given go to the event, 
 		//so we can execute it immediately. We just have figure out which kind of event it is
 		if(isSimplePrefix(node))
@@ -299,8 +300,21 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			//We push the current state, since this process will control the child processes created by it
 			pushNext(node, question);
 		}
+		//At least one child is not finished and waiting for event, this will either invoke the Parallel Non-sync or Sync rule
+		else if(isAtLeastOneChildWaitingForEvent())
+		{
+			
+			
+			//We push the current state, 
+			pushNext(node, question);
+		}
+		//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
+		else if (isAllChildrenFinished())
+		{
+			result = caseParallelEnd(question); 
+		}
 		
-		return super.caseAGeneralisedParallelismParallelAction(node, question);
+		return result;
 	}
 	
 	/**
@@ -374,7 +388,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 				new CmlActionInstance(right, question, 
 						new LexNameToken(name.module,"|||" + name.getIdentifier().getName(),right.getLocation()),this);
 		
-		//add the children FIXME: this should not be done directly in that method
+		//add the children FIXME: this should not be done directly on the children() method
 		children().add(leftInstance);
 		children().add(rightInstance);
 		

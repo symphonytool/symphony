@@ -85,6 +85,7 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 			}
 
 			return alpha;
+			
 		}catch(AnalysisException ex)
 		{
 			CmlRuntime.logger.throwing(this.toString(),"inspect()", ex);

@@ -12,8 +12,9 @@
         point="org.eclipse.ui.newWizards">
         <wizard 
         	id="eu.compassresearch.ide.cml.rttplugin.RttMbtComponentWizard"
-        	name="RTT-MBT Component"
+        	name="RTT-MBT component"
         	category="compass_eu.compassresearch.ide.cml.ui.category"
+	        icon="icons/rtt-mbt.png"
         	class="eu.compassresearch.ide.cml.rttplugin.RttMbtComponentWizard"
         	/>
         
@@ -36,4 +37,64 @@
         	name="COMPASS"/>
   </extension>
   
+  <!-- Import Model -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
+      name="Initialise RTT-MBT component"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
+        label="Import Model"
+        tooltip="Initialise RTT-MBT component"
+        icon="icons/mbt_import_model.png"
+      />
+    </menuContribution>
+  </extension>
+
+  <!-- Generate Test Procedure -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateTestProcedure"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateTestProcedure"
+      name="Initialise RTT-MBT component"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateTestProcedure"
+        label="Generate Test Procedure"
+        tooltip="Generate concrete test procedure from abstract test procedure configuration"
+        icon="icons/mbt_generate.png"
+      />
+    </menuContribution>
+  </extension>
+
+  <!-- Import Model -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateSimulation"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateSimulation"
+      name="Initialise RTT-MBT component"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateSimulation"
+        label="Generate Simulation"
+        tooltip="Generate simulations from abstract test procedure configuration"
+        icon="icons/mbt_check.png"
+      />
+    </menuContribution>
+  </extension>
+
 </plugin>

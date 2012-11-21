@@ -4,13 +4,13 @@
 
   <parent>
     <groupId>eu.compassresearch.core</groupId>
-    <artifactId>common</artifactId>
+    <artifactId>core</artifactId>
     <version>0.0.1<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>common</artifactId>
-  <name>COMPASS Interfaces</name>
+  <name>COMPASS Core Common</name>
 
   <dependencies>
 
@@ -20,13 +20,19 @@
       <version>${project.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.overturetool.core</groupId>
-      <artifactId>ast</artifactId>
-      <version>${overture.version}</version>
-    </dependency>
-
   </dependencies>
+
+<build>
+	<plugins>
+		<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <testFailureIgnore>false</testFailureIgnore>
+                </configuration>
+            </plugin>
+     </plugins>
+</build>
 
 </project>
 

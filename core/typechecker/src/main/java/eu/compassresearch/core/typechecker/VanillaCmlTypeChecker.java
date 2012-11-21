@@ -10,9 +10,20 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
+import org.overture.ast.definitions.AClassClassDefinition;
+import org.overture.ast.definitions.APublicAccess;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.ast.node.tokens.TAsync;
+import org.overture.ast.node.tokens.TStatic;
+import org.overture.ast.typechecker.ClassDefinitionSettings;
+import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.typechecker.Pass;
+import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.PAction;
@@ -25,6 +36,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 @SuppressWarnings("serial")
 class VanillaCmlTypeChecker extends AbstractTypeChecker {
@@ -42,13 +54,44 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	// checker
 	private boolean lastResult;
 	private final TypeComparator typeComparator;
+	private SClassDefinition globalRoot;
 
-	private void initialize() {
+	@SuppressWarnings("deprecation")
+	private void initialize(TypeIssueHandler issueHandler) {
 		exp = new TCExpressionVisitor(this, this);
 		stm = new TCStatementVisitor(this, this);
 		dad = new TCDeclAndDefVisitor(this, typeComparator, this);
 		typ = new TCTypeVisitor(this, this);
 		prc = new TCProcessVisitor(this);
+		if (issueHandler != null)
+			this.issueHandler = issueHandler;
+		else
+			this.issueHandler = new CollectingIssueHandler();
+
+		LexLocation location_ = new LexLocation("Built-In", "CML", 0, 0, 0, 0,
+				0, 0);
+		NameScope nameScope_ = NameScope.CLASSNAME;
+		Boolean used_ = true;
+		AAccessSpecifierAccessSpecifier access_ = new AAccessSpecifierAccessSpecifier(
+				new APublicAccess(), new TStatic(), new TAsync());
+		Pass pass_ = Pass.DEFS;
+		List<? extends PDefinition> body_ = new LinkedList<PDefinition>();
+		;
+		Boolean hasContructors_ = false;
+		;
+		ClassDefinitionSettings settingHierarchy_ = ClassDefinitionSettings.DONE;
+		Boolean gettingInheritable_ = false;
+		Boolean gettingInvDefs_ = false;
+		Boolean isAbstract_ = false;
+		Boolean isUndefined_ = false;
+		globalRoot = new AClassClassDefinition(location_, null, nameScope_,
+				used_, globalRoot, access_, null, pass_, null, null, body_,
+				body_, body_, hasContructors_, settingHierarchy_, null,
+				gettingInheritable_, body_, gettingInvDefs_, isAbstract_,
+				isUndefined_, null, isUndefined_, null);
+		globalRoot.setName(new LexNameToken("CML", "Global Declarations",
+				location_));
+
 	}
 
 	// ---------------------------------------------
@@ -57,7 +100,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 
 	private PType addErrorForMissingType(INode node, PType type) {
 		if (type == null) {
-			addTypeError(node, "Insufficient type checker implementation.");
+			// addTypeError(node, "Insufficient type checker implementation.");
 			return new AErrorType();
 		} else
 			return type;
@@ -134,25 +177,26 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	 * @param cmlSources
 	 *            - Source containing CML Paragraphs for type checking.
 	 */
-	public VanillaCmlTypeChecker(List<PSource> cmlSources) {
+	public VanillaCmlTypeChecker(List<PSource> cmlSources,
+			TypeIssueHandler issueHandler) {
 
 		this.sourceForest = cmlSources;
 		typeComparator = SimpleTypeComparator.newInstance();
-		initialize();
+		initialize(issueHandler);
 	}
 
 	void clear() {
 		cleared = true;
 		sourceForest = null;
-		this.issueHandler = new CollectingIssueHandler();
+
 	}
 
 	public VanillaCmlTypeChecker(List<PSource> cmlSource,
-			TypeComparator typeComparator) {
+			TypeComparator typeComparator, TypeIssueHandler issueHandler) {
 		this.sourceForest = new LinkedList<PSource>();
 		sourceForest.addAll(cmlSource);
 		this.typeComparator = typeComparator;
-		initialize();
+		initialize(issueHandler);
 	}
 
 	/**
@@ -161,12 +205,13 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	 * 
 	 * @param singleSource
 	 */
-	public VanillaCmlTypeChecker(PSource singleSource) {
+	public VanillaCmlTypeChecker(PSource singleSource,
+			TypeIssueHandler issueHandler) {
 
 		this.sourceForest = new LinkedList<PSource>();
 		this.sourceForest.add(singleSource);
 		typeComparator = SimpleTypeComparator.newInstance();
-		initialize();
+		initialize(issueHandler);
 
 	}
 
@@ -181,6 +226,8 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		TypeCheckInfo info = TypeCheckInfo.getNewTopLevelInstance(this);
 		if (!cleared)
 			return lastResult;
+
+		info.env.setEnclosingDefinition(globalRoot);
 
 		// for each source
 		for (PSource s : sourceForest) {
@@ -268,7 +315,8 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		}
 
 		// Type check
-		VanillaCmlTypeChecker cmlTC = new VanillaCmlTypeChecker(source);
+		VanillaCmlTypeChecker cmlTC = new VanillaCmlTypeChecker(source,
+				VanillaFactory.newCollectingIssueHandle());
 
 		// Print result and report errors if any
 		if (!cmlTC.typeCheck()) {

@@ -33,7 +33,8 @@ public final class VanillaFactory {
 	 */
 	public static CmlTypeChecker newTypeChecker(List<PSource> cmlSources,
 			TypeIssueHandler issueHandler) {
-		VanillaCmlTypeChecker result = new VanillaCmlTypeChecker(cmlSources);
+		VanillaCmlTypeChecker result = new VanillaCmlTypeChecker(cmlSources,
+				issueHandler);
 		return result;
 	}
 

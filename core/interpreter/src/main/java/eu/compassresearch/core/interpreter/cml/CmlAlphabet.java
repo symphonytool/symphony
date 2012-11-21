@@ -66,6 +66,14 @@ public class CmlAlphabet {
 		return new CmlAlphabet(resultSet);
 	}
 	
+	public CmlAlphabet intersect(CmlAlphabet other)
+	{
+		Set<CmlEvent> resultSet = this.getAllEvents();
+		resultSet.retainAll(other.getAllEvents());
+		
+		return new CmlAlphabet(resultSet);
+	}
+	
 	/**
 	 * This determines whether the alphabet contains a specific communication event. 
 	 * Communication events are both read, write and signaling channel event (synchronization events)

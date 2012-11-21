@@ -3,7 +3,9 @@ package eu.compassresearch.core.typechecker;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.types.PType;
+import org.overture.typechecker.TypeCheckInfo;
 
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
@@ -12,6 +14,7 @@ import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
+import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 
@@ -20,6 +23,13 @@ public class TCProcessVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 	private VanillaCmlTypeChecker parentChecker;
+
+	@Override
+	public PType defaultPAction(PAction node, TypeCheckInfo question)
+			throws AnalysisException {
+		// TODO Auto-generated method stub
+		return new AActionType();
+	}
 
 	public TCProcessVisitor(VanillaCmlTypeChecker parentChecker) {
 		this.parentChecker = parentChecker;
@@ -57,8 +67,7 @@ public class TCProcessVisitor extends
 	public PType caseAReferenceProcess(AReferenceProcess node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		
-		TypeCheckInfo newQ = (TypeCheckInfo) question;
+		eu.compassresearch.core.typechecker.TypeCheckInfo newQ = (eu.compassresearch.core.typechecker.TypeCheckInfo) question;
 		// TODO: implement this!
 		PDefinition processDef = newQ.lookupVariable(node.getProcessName());
 

@@ -16,6 +16,10 @@ import eu.compassresearch.ast.util.ToStringUtil;
             ($[errors]$.isEmpty() ? "" : "\n\terrs " + $[errors]$)$ + "]" 
 %action->communication = [identifier] "->" [action]
 %action->skip = "Skip"
+%action->stop = "Stop"
+%action->chaos = "Chaos"
+%action->div = "Div Action"
+%action->wait = "Wait"
 %action->sequentialComposition = [left] ";" [right]
 %action->reference = [name]
 %action->#Parallel->interleaving = [leftAction] "|||" [rightAction]
@@ -23,6 +27,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 // Processes
 %process->state = "state: " [processDefinition] "@"
 
+%type->error = "Type Error"
 
 //  Expressions
 %exp->#Set->#Chanset->enum = "{|" [identifiers] "|}"

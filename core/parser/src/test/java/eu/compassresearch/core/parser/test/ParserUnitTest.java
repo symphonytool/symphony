@@ -7,8 +7,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+// import java.nio.file.Files;
+// import java.nio.file.Paths;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class ParserUnitTest {
     	
 //    	File source = new File(filePath);
 //    	FileReader input = new FileReader(source);
-    	bytes = Files.readAllBytes(Paths.get("/home/akm/sandbox/overture_cml/docs/cml-examples/process-action-generalisedParallelism.cml"));
+//    	bytes = Files.readAllBytes(Paths.get("/home/akm/sandbox/overture_cml/docs/cml-examples/library.cml"));
     	
     	ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
     	InputStreamReader isr = new InputStreamReader(bais);

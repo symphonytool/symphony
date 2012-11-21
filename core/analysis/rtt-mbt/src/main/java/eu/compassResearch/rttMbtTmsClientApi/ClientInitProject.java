@@ -3,6 +3,8 @@
  */
 package eu.compassResearch.rttMbtTmsClientApi;
 
+import java.io.File;
+
 /**
  * @author uwe
  *
@@ -16,6 +18,19 @@ public class ClientInitProject {
 
 		// create client instance
 		RttMbtClient client = new RttMbtClient("localhost", 9116, "uwe", "uschulze@informatik.uni-bremen.de");
+		// set CML workspace
+		File directory = new File(".");
+		String pathname = directory.getAbsolutePath() + File.separator;
+		System.out.println("using CML workspace '" + pathname + "'");
+		client.setCmlWorkspace(pathname);
+		// creste/set CML project
+		pathname = "CMLProject";
+		File cmlprjdir = new File(directory, pathname);
+		if (!cmlprjdir.exists()) {
+			cmlprjdir.mkdirs();
+		}
+		client.setCmlProject(pathname);
+		System.out.println("using CML project '" + pathname + "'");
 
 		// test connection to rtt-mbt-tms server
 		if (client.testConenction()) {
@@ -51,22 +66,5 @@ public class ClientInitProject {
 			System.err.println("[FAIL]: init project");
 			return;
 		}
-
-		// create a new abstract test procedure
-		// - download templates/_P1_compass.zip
-		// - unzip _P1_compass.zip
-
-		// generate concrete test procedure
-		// - generate-test-command
-
-		// compile test procedure
-		// - (@todo) compile-test-command
-
-		// run test procedure
-		// - (@todo) run-test-command
-		// - (@todo) stop-test-command
-
-		// document test procedure
-		// - (@todo) doc-test-command
 	}
 }

@@ -24,49 +24,51 @@ public class ProcessMap {
 	public static final Map<Class<?>, ? extends ProcessHandler> PROCESS_MAP = createMap();
 
 	private static Map<Class<?>, ? extends ProcessHandler> createMap() {
-		Map<Class<?>,ProcessHandler> map = new HashMap<Class<?>, ProcessHandler>();
+		Map<Class<?>, ProcessHandler> map = new HashMap<Class<?>, ProcessHandler>();
 		map.put(AStateProcess.class, new AStateProcessHandler());
-		map.put(AExternalChoiceProcess.class, new AExternalChoiseProcessHandler());
-		//TODO-ldc Add a ton more remaining processes :(
+		map.put(AExternalChoiceProcess.class,
+				new AExternalChoiseProcessHandler());
+		// TODO-ldc Add a ton more remaining processes :(
 		return Collections.unmodifiableMap(map);
 	}
 
-	public static ProcessHandler getDelegate(Class<?> cls){
+	public static ProcessHandler getDelegate(Class<?> cls) {
 		ProcessHandler r = PROCESS_MAP.get(cls);
 		if (r == null)
 			System.err.println("No delegate found for process class "
 					+ cls.getCanonicalName());
 		return r;
 	}
-	
-	private static class AExternalChoiseProcessHandler implements ProcessHandler{
 
-	    @Override
-	    public List<Wrapper<? extends INode>> makeEntries(PProcess proc) {
-		List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
-		AExternalChoiceProcess ecp = (AExternalChoiceProcess) proc;
-		AInstantiationProcess lp = (AInstantiationProcess) ecp.getLeft();
-		AInstantiationProcess rp = (AInstantiationProcess) ecp.getRight();
-		StringBuilder sb = new StringBuilder();
-		sb.append(lp.getProcessName().name);
-		sb.append(" [] ");
-		sb.append(rp.getProcessName().name);
-		r.add(Wrapper.newInstance(proc, sb.toString()));
-		return r;
-	    }
-	    
+	private static class AExternalChoiseProcessHandler implements
+			ProcessHandler {
+
+		@Override
+		public List<Wrapper<? extends INode>> makeEntries(PProcess proc) {
+			List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
+			AExternalChoiceProcess ecp = (AExternalChoiceProcess) proc;
+			AInstantiationProcess lp = (AInstantiationProcess) ecp.getLeft();
+			AInstantiationProcess rp = (AInstantiationProcess) ecp.getRight();
+			StringBuilder sb = new StringBuilder();
+			sb.append(lp.toString());
+			sb.append(" [] ");
+			sb.append(rp.toString());
+			r.add(Wrapper.newInstance(proc, sb.toString()));
+			return r;
+		}
+
 	}
-	
 
-	
 	private static class AStateProcessHandler implements ProcessHandler {
 
 		public List<Wrapper<? extends INode>> makeEntries(PProcess proc) {
-		    List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
+			List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
 			AStateProcess asp = (AStateProcess) proc;
-			r.add(Wrapper.newInstance(asp.getAction(), "@ " + asp.getAction().toString()));			
+			r.add(Wrapper.newInstance(asp.getAction(), "@ "
+					+ asp.getAction().toString()));
 			for (PDefinition pdef : asp.getDefinitionParagraphs()) {
-				DefinitionHandler dh = DefinitionMap.getDelegate(pdef.getClass());					
+				DefinitionHandler dh = DefinitionMap.getDelegate(pdef
+						.getClass());
 				if (dh != null)
 					r.addAll(dh.extractSubdefinition(pdef));
 			}

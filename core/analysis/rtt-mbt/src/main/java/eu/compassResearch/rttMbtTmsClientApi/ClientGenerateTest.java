@@ -1,10 +1,34 @@
 package eu.compassResearch.rttMbtTmsClientApi;
 
+import java.io.File;
+
 public class ClientGenerateTest {
 	public static void main(String[] args) {
 
 		// create client instance
 		RttMbtClient client = new RttMbtClient("localhost", 9116, "uwe", "uschulze@informatik.uni-bremen.de");
+
+		// get CML workspace path
+		File directory = new File(".");
+		String pathname = directory.getAbsolutePath() + File.separator;
+
+		// set CML workspace
+		client.setCmlWorkspace(pathname);
+		System.out.println("using CML workspace '" + pathname + "'");
+
+		// create/set CML project
+		pathname = "CMLProject";
+		File cmlprjdir = new File(directory, pathname);
+		if (!cmlprjdir.exists()) {
+			cmlprjdir.mkdirs();
+		}
+		// set CML project name
+		client.setCmlProject(pathname);
+		System.out.println("using CML project '" + pathname + "'");
+
+		// set RTT-MBT project name
+		client.setProjectName("turnIndicationUML");
+		System.out.println("using CML project '" + pathname + "'");
 
 		// test connection to rtt-mbt-tms server
 		if (client.testConenction()) {
@@ -24,7 +48,6 @@ public class ClientGenerateTest {
 		
 		// generate concrete test procedure
 		// - generate-test-command
-		client.setProjectName("turnIndicationUML");
 		if (client.generateTestProcedure("_P1")) {
 			System.out.println("[PASS]: generate test");
 		} else {
@@ -32,14 +55,13 @@ public class ClientGenerateTest {
 			return;
 		}
 
-		// compile test procedure
-		// - (@todo) compile-test-command
-
-		// run test procedure
-		// - (@todo) run-test-command
-		// - (@todo) stop-test-command
-
-		// document test procedure
-		// - (@todo) doc-test-command
+		// generate simulation
+		// - generate-simulation-command
+		if (client.generateSimulation("SIM")) {
+			System.out.println("[PASS]: generate simulation");
+		} else {
+			System.err.println("[FAIL]: generate simulation");
+			return;
+		}
 	}
 }

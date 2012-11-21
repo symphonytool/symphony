@@ -31,7 +31,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 abstract class AbstractTypeChecker extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
 		implements TypeIssueHandler, CmlTypeChecker {
-	protected CollectingIssueHandler issueHandler;
+	protected TypeIssueHandler issueHandler;
 	protected boolean cleared;
 	protected List<PSource> sourceForest;
 

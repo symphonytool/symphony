@@ -4,7 +4,6 @@
 %define package "eu.compassresearch.core.parser"
 %define public
 %define parser_class_name "CmlParser"
-
 %code imports{
 
   // ******************************
@@ -101,6 +100,29 @@
     return escape.charAt(0);
   }
 
+  public static CmlParser newParserFromSource(PSource doc) throws FileNotFoundException
+  {
+    if (doc instanceof AFileSource) {
+      AFileSource fs = (AFileSource)doc;
+      File f= fs.getFile();
+      FileReader reader = new FileReader(f);
+      CmlLexer lexer = new CmlLexer(reader);
+      CmlParser parser = new CmlParser(lexer);
+      parser.setDocument(fs);
+      return parser;
+    }
+
+    if (doc instanceof AInputStreamSource) {
+      AInputStreamSource is = (AInputStreamSource)doc;
+      InputStreamReader in = new InputStreamReader(is.getStream());
+      CmlLexer lexer = new CmlLexer(in);
+      CmlParser parser = new CmlParser(lexer);
+      parser.setDocument(is);
+      return parser;
+    }
+    return null;
+  }
+
   // *************************
   // *** PUBLIC OPERATIONS ***
   // *************************
@@ -169,29 +191,6 @@
   public PSource getDocument()
   {
     return currentSource;
-  }
-
-  public static CmlParser newParserFromSource(PSource doc) throws FileNotFoundException
-  {
-    if (doc instanceof AFileSource) {
-      AFileSource fs = (AFileSource)doc;
-      File f= fs.getFile();
-      FileReader reader = new FileReader(f);
-      CmlLexer lexer = new CmlLexer(reader);
-      CmlParser parser = new CmlParser(lexer);
-      parser.setDocument(fs);
-      return parser;
-    }
-
-    if (doc instanceof AInputStreamSource) {
-      AInputStreamSource is = (AInputStreamSource)doc;
-      InputStreamReader in = new InputStreamReader(is.getStream());
-      CmlLexer lexer = new CmlLexer(in);
-      CmlParser parser = new CmlParser(lexer);
-      parser.setDocument(is);
-      return parser;
-    }
-    return null;
   }
 
 } /* End of code block */
@@ -405,7 +404,8 @@ classDefinition :
                                      null/*PType classtype_*/,
                                      false /*Boolean isTypeChecked_*/,
                                      null/*AExplicitOperationDefinition invariant_*/);
-};
+}
+;
 
 processDefinition:
   PROCESS IDENTIFIER EQUALS process
@@ -466,7 +466,8 @@ processDefinition:
                                                                   null,//Pass
                                                                   processDef);
   $$ = p;
-};
+}
+;
 
 process :
 /* actions */
@@ -1418,21 +1419,7 @@ action :
  */
 | dottedIdentifier[stateDesignator] COLONEQUALS NEW expression[new]
 {
-  /* --- TODO --- */
-  /* Need to rip out the path-based stuff here.
-   * rule was: | path COLONEQUALS NEW path LRPAREN
-   */
-  ANewStatementAction stm = null;
-  // these were Paths
-  PExp target = (PExp)$stateDesignator; //should probably be more specific, typewise
-  PExp newExp = (PExp)$new;
-  List<? extends PExp> args = null;
-  LexLocation location = util.combineLexLocation(target.getLocation(),newExp.getLocation());
-  //stm = new ANewStatementAction(location,
-  //                              target.convertToStateDesignator(),
-  //                              newExp.convertToName(),
-  //                              args);
-  $$ = stm;
+  $$ = util.caseNewStatementAction($stateDesignator, $NEW, $new);
 }
 // --- FIXME delete this; in with above rule; here for reference until merged ---
 // | path COLONEQUALS NEW path LPAREN expressionList RPAREN
@@ -3300,7 +3287,11 @@ expression :
 {
   $$ = util.caseExpQuestionPattern($exp,$pattern);
 }
-| expression[exp] QUESTION setBind
+/*
+ * DEVIATION
+ * The LSQUARE RSQUARE are a deviation
+ */
+| expression[exp] QUESTION LSQUARE setBind RSQUARE
 {
   $$ = util.caseExpQuestionSetBind($exp,$setBind);
 }
@@ -3771,7 +3762,7 @@ casesExprAlt :
      ACaseAlternative r = new ACaseAlternative();
      r.setPattern(p);
      r.setLocation(loc);
-     r.setCexp(exp);
+     r.setResult(exp);
      res.add(r);
     }
    $$ = res;

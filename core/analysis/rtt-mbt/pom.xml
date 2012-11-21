@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>rtt-mbt</artifactId>
-  <name>COMPASS RTT-MBT Interface</name>
+  <name>COMPASS Core Analysis RTT-MBT Interface</name>
 
   <dependencies>
 
@@ -33,8 +33,8 @@
     </dependency>
    
     <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
+      <groupId>org.apache.directory.studio</groupId>
+      <artifactId>org.apache.commons.codec</artifactId>
       <version>1.6</version>
     </dependency>
 
