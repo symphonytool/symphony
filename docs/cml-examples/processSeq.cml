@@ -1,7 +1,0 @@
-process RegisterProc = 
- begin
- actions
-   REG = init -> INIT(); REG
- @
-   Skip  
- end

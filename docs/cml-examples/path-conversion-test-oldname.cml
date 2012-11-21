@@ -1,6 +1,0 @@
-class Test =
-begin
- values    
-      rpair = Context`PI~;
-
-end

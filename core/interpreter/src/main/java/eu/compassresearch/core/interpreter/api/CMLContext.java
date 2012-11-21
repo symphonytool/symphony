@@ -3,7 +3,7 @@ package eu.compassresearch.core.interpreter.api;
 import org.overture.ast.lex.LexLocation;
 import org.overture.interpreter.runtime.Context;
 
-import eu.compassresearch.core.interpreter.cml.CMLChannelEvent;
+import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
 
 public class CMLContext extends Context
   {
@@ -11,7 +11,7 @@ public class CMLContext extends Context
     /**
      * The enclosing Context to search if a symbol is not found in this
      */
-    private CMLChannelEvent             currentEvent = null;
+    private CmlChannelEvent             currentEvent = null;
         
     public CMLContext(LexLocation location,String title)
     {
@@ -22,29 +22,6 @@ public class CMLContext extends Context
     {
   		super(location,title,outer);
     }
-    
-    public CMLChannelEvent getCurrentEvent()
-    {
-    	CMLChannelEvent ce = currentEvent;
-    	if (ce == null)
-    		if (outer != null && outer instanceof CMLContext)
-    			ce = ((CMLContext)outer).getCurrentEvent();
-    	return ce;
-    }
-    
-    public void setCurrentEvent(CMLChannelEvent currentEvent)
-    {
-    	this.currentEvent = currentEvent;
-    }
-    
-    public void resetEvent()
-    {
-    	//        currentEvent = null;
-    	//        if (outer != null)
-    	//          outer.resetEvent();
-
-    }
-    
 //    public void put(LexNameToken name, Value value)
 //      {
 //        map.put(name, value);

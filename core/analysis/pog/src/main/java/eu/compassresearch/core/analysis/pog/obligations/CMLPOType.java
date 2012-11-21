@@ -19,10 +19,17 @@
  *	You should have received a copy of the GNU General Public License
  *	along with VDMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
+ ******************************************************************************
+ * 
+ * Just using Overture POTypes for now
+ *
  ******************************************************************************/
-
+ 
 package eu.compassresearch.core.analysis.pog.obligations;
 
+import org.overture.pog.obligation.POType;
+
+//Extending/copying the overture enums. Will need to encapsulate better.
 public enum CMLPOType
 {
 	MAP_APPLY("map apply"),
@@ -56,18 +63,30 @@ public enum CMLPOType
 	WHILE_LOOP("while loop termination"),
 	OP_POST_CONDITION("operation post condition"),
 	OPERATION_PATTERNS("operation parameter patterns"),
-	OP_SATISFIABILITY("operation satifiability");
-
+	OP_SATISFIABILITY("operation satifiability"),
+	TEST("test");
+	
 	private String kind;
 
 	CMLPOType(String kind)
 	{
 		this.kind = kind;
 	}
-
-	@Override
-	public String toString()
+	
+	public POType toOverturePOType(){
+	    try{
+	    return POType.valueOf(POType.class, this.toString());
+		    }
+	    catch (IllegalArgumentException e){
+		return POType.SUB_TYPE;
+	    }
+	}
+	
+	
+	public String toString2()
 	{
 		return kind;
 	}
+	
+	
 }

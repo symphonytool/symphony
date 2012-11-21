@@ -1,16 +1,20 @@
 package eu.compassresearch.core.typechecker;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
+import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.AStatementType;
@@ -110,6 +114,26 @@ class TCStatementVisitor extends
 
 		return new AStatementType();
 	}
+	
+	@Override
+	public PType caseAReferenceAction(AReferenceAction node,
+			org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
+	
+		TypeCheckInfo newQ = (TypeCheckInfo) question;
+		// TODO: implement this!
+		PDefinition actionDef = newQ.lookupVariable(node.getName());
+
+		if (!(actionDef instanceof AActionDefinition))
+			throw new AnalysisException(
+					"The Identifier "
+							+ node.getName().getIdentifier()
+							+ " is refered to as an action reference, no actions with that name can be found");
+
+		node.setActionDefinition(((AActionDefinition) actionDef));
+		node.setType(new AStatementType());
+		return node.getType();
+	}
 
 	@Override
 	public PType caseACommunicationAction(ACommunicationAction node,
@@ -128,9 +152,23 @@ class TCStatementVisitor extends
 			}
 			node.getAction().apply(this, question);
 
-			// TODO there is no type marker on a general action
-			// node.setType
+			node.setType(new AStatementType());
 		}
-		return new AStatementType();
+		return node.getType();
+	}
+	
+	@Override
+	public PType caseASequentialCompositionAction(
+			ASequentialCompositionAction node,
+			org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
+
+		node.getLeft().apply(parentChecker,question);
+		node.getRight().apply(parentChecker,question);
+		
+		
+		
+		node.setType(new AStatementType());
+		return node.getType();
 	}
 }

@@ -58,7 +58,7 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <name>eu.compassresearch.ide.cml.build</name>
+  <name>COMPASS IDE RCP Builder</name>
   <groupId>eu.compassresearch.ide.cml</groupId>
   <artifactId>eu.compassresearch.ide.cml.build</artifactId>
 
@@ -107,7 +107,7 @@
         <version>1.2</version>
         <executions>
           <execution>
-            <phase>install</phase>
+            <phase>deploy</phase>
             <goals>
               <goal>exec</goal>
             </goals>

@@ -47,22 +47,22 @@ functions
 
 	-- returns the set of dates included in a given stay
 	public getDates : Stay ->  set of Date
-	getDates(s) == is not yet specified;
+	getDates(s) == is not yet specified
 
 	-- multiplies price whilst keeping a pounds and pence format
 	multiplyPrice : Price * nat -> Price
-	multiplyPrice(p, no) == mk_Price(no * p.pounds + (no * p.pence)/100, (no * p.pence) mod 100);
+	multiplyPrice(p, no) == mk_Price(no * p.pounds + (no * p.pence)/100, (no * p.pence) mod 100)
 
 
 channels
 	
-	init, invalidRef, unavailable, error;
-	avail : bool;
-	book, check, reqPriceAvail, reqPrice : Stay;
-	reference, cancel, chDate, chRooms : Reference;
-	outPrice, setPrice : Price;
-	reqFac : HotelID;
-	outFac : set of Facility;
+	init invalidRef unavailable error
+	avail : bool
+	book, check, reqPriceAvail, reqPrice : Stay
+	reference, cancel, chDate, chRooms : Reference
+	outPrice, setPrice : Price
+	reqFac : HotelID
+	outFac : set of Facility
 	setAvail : map Date to nat
 
 chansets
@@ -80,14 +80,14 @@ begin
 	
 	-- All booked stays have valid hotels and each booked stay has valid dates for that hotel
 	inv forall b in set rng bookings @ b.stay.hotId in set dom zotels 
-			and getDates(b.stay) subset dom zotels(b.stay.hotId).avail;
+			and getDates(b.stay) subset dom zotels(b.stay.hotId).avail
 
   operations
 
 	-- initialisation
 	public Init() 
 	frame wr zotels, bookings
-	post true;
+	post true
 	
 
 --	public checkAvailability : Stay ==> bool
@@ -103,7 +103,7 @@ begin
 	post forall d in set getDates(s) @ zotels(s.hotId).avail(d) = zotels~(s.hotId).avail(d) - s.noRooms 
 	and r not in set dom bookings~ and bookings(r) = mk_BookingDetails(s, zotels(s.hotId).price)
 	-- and nothing else changes (not formalised)!
-	;
+	
 	
 --	-- Assumes hotel exists, returns null if unavailable on these dates
 --	public getQuote : Stay ==> [Price]
@@ -144,17 +144,17 @@ begin
 
 	actions
 	ZOTEL = 
-	check?s -> 	([ pre-checkAvailability(s)] & (dcl a:bool @ a := checkAvailability(s); avail!a -> ZOTEL))
+	[check?s] -> 	([ pre-checkAvailability(s)] & (dcl a:bool @ a := checkAvailability(s); [avail!a] -> ZOTEL))
 				[]
-				([ not pre-checkAvailability(s)] & (error -> ZOTEL))
+				([ not pre-checkAvailability(s)] & ([error] -> ZOTEL))
 	[]
-	book?s -> 	([ pre-makeBooking(s)] & (dcl r:Reference @ r := makeBooking(s); reference!r -> ZOTEL))
+	[book?s] -> 	([ pre-makeBooking(s)] & (dcl r:Reference @ r := makeBooking(s); [reference!r] -> ZOTEL))
 			[]
-			([ not pre-makeBooking(s)] & (unavailable -> ZOTEL))
+			([ not pre-makeBooking(s)] & ([unavailable] -> ZOTEL))
 	[]
-	reqPriceAvail?s -> 	([ pre-getQuoteAvail(s)] & (dcl p:Price @ p := getQuoteAvail(s); outPrice!p -> ZOTEL))
+	[reqPriceAvail?s] -> 	([ pre-getQuoteAvail(s)] & (dcl p:Price @ p := getQuoteAvail(s); [outPrice!p] -> ZOTEL))
 					[]
-					([ not pre-getQuoteAvail(s)] & (unavailable -> ZOTEL))
+					([ not pre-getQuoteAvail(s)] & ([unavailable] -> ZOTEL))
 --	[]
 --	reqPrice?s -> 	([ pre-getQuote(s)] &  (dcl p:Price @ p := getQuote(s); (:not p = nil & (outPrice!p -> ZOTEL))
 --																		   []
@@ -164,5 +164,5 @@ begin
 	
 	-- include other operations when specified...				
 	@				
-	  init -> init(); ZOTEL	
+	  [init] -> init(); ZOTEL	
 end

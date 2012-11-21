@@ -27,6 +27,7 @@
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
+// This enum is not being used anywhere so far.
 public enum POStatus
 {
 	UNPROVED("Unproved"), PROVED("Proved"), TRIVIAL("Trivial");

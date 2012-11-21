@@ -259,7 +259,7 @@ type {-> package='org.overture.ast.types'}
     |   {rational} 
     |   {real} 
     ;
-
+//AKM: Fields should have a location!
 field {-> package='org.overture.ast.types'}
     =   {field} [access]:accessSpecifier.accessSpecifier [tagname]:LexNameToken 
                 [tag]:java_String (type):type [equalityAbstraction]:java_Boolean
@@ -355,7 +355,7 @@ definition {-> package='org.overture.ast.definitions'}
     |   {external} (state):definition [readOnly]:java_Boolean (oldname):LexNameToken
     |   {implicitFunction}  [typeParams]:LexNameToken* 
                             [paramPatterns]:pair.patternListType*
-                            [result]:pair.patternType*  //AKM: Found in VDM spec, should be a list of patternpairs
+                            [result]:pair.patternType
                             (body):exp
                             [precondition]:exp 
                             [postcondition]:exp 

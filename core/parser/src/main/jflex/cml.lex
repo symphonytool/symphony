@@ -269,6 +269,7 @@ blanks          = [ \t\f]*
 "post"                        { return createToken(CmlParser.POST); }
 "power"                       { return createToken(CmlParser.POWER); }
 "pre"                         { return createToken(CmlParser.PRE); }
+"pre_"                        { return createToken(CmlParser.PREUNDER); }
 "private"                     { return createToken(CmlParser.PRIVATE); }
 "process"                     { return createToken(CmlParser.PROCESS); }
 "protected"                   { return createToken(CmlParser.PROTECTED); }

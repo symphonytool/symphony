@@ -10,13 +10,19 @@
   </parent>
 
   <artifactId>pog</artifactId>
-  <name>COMPASS CML Proof Obligation Generator</name>
+  <name>COMPASS Core Analysis Proof Obligation Generator</name>
 
   <dependencies>
 
     <dependency>
       <groupId>eu.compassresearch.core</groupId>
       <artifactId>ast</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>typechecker</artifactId>
       <version>${project.version}</version>
     </dependency>
 

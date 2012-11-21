@@ -34,59 +34,58 @@ import org.overture.ast.lex.LexLocation;
 abstract public class CMLProofObligation  implements Comparable<CMLProofObligation>
 {
 
-		public final LexLocation location;
-		public final CMLPOType kind;
-		public final String name;
+	public final LexLocation location;
+	public final CMLPOType kind;
+	public final String name;
 
-		public int number;
-		public String value;
-		public POStatus status;
-		//public POTrivialProof proof;
+	public int number;
+	public String value;
+	public POStatus status;
+	//public POTrivialProof proof;
 
-		private int var = 1;
+	private int var = 1;
 
-		public CMLProofObligation(LexLocation location, CMLPOType kind,
-				CMLPOContextStack ctxt)
-		{
-			this.location = location;
-			this.kind = kind;
-			this.name = ctxt.getName();
-			this.status = POStatus.UNPROVED;
-			//this.proof = null;
-			this.number = 0;
-		}
-
-		public String getValue()
-		{
-			return value;
-		}
-
-		@Override
-		public String toString()
-		{
-			return name + ": " + kind + " obligation " + location + "\n" + value;
-		}
-
-		protected String getVar(String root)
-		{
-			return root + var++;
-		}
-
-		//public void trivialCheck()
-		//{
-		//	for (POTrivialProof p : POTrivialProof.values())
-		//	{
-		//		if (p.proves(value))
-		//		{
-		//			status = POStatus.TRIVIAL;
-		//			proof = p;
-		//			break;
-		//		}
-		//	}
-		//}
-
-		public int compareTo(CMLProofObligation other)
-		{
-			return number - other.number;
-		}
+	public CMLProofObligation(LexLocation location, CMLPOType kind,	CMLPOContextStack ctxt)
+	{
+		this.location = location;
+		this.kind = kind;
+		this.name = ctxt.getName();
+		this.status = POStatus.UNPROVED;
+		//this.proof = null;
+		this.number = 0;
 	}
+
+	public String getValue()
+	{
+		return value;
+	}
+
+	@Override
+	public String toString()
+	{
+		return name + ": " + kind + " obligation " + location + "\n" + value;
+	}
+
+	protected String getVar(String root)
+	{
+		return root + var++;
+	}
+
+	//public void trivialCheck()
+	//{
+	//	for (POTrivialProof p : POTrivialProof.values())
+	//	{
+	//		if (p.proves(value))
+	//		{
+	//			status = POStatus.TRIVIAL;
+	//			proof = p;
+	//			break;
+	//		}
+	//	}
+	//}
+	public int compareTo(CMLProofObligation other)
+	{
+		return number - other.number;
+	}
+}
+

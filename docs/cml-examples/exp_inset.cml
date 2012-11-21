@@ -1,0 +1,7 @@
+class insetTest =
+begin
+	values
+	a : int = 2;
+	public b = a in set {1,2};
+	public c = b in set a(2)
+end

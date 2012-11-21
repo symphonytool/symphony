@@ -1,5 +1,6 @@
+<<<<<<< HEAD
 package eu.compassresearch.core.analysis.pog.visitors;
- 
+
 // Overture libraries 
 import java.lang.reflect.Method;
 
@@ -13,26 +14,21 @@ import org.overture.ast.expressions.ARealLiteralExp;
 import org.overture.ast.expressions.PExp; 
 import org.overture.ast.expressions.SNumericBinaryExp;
 
+
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-//import eu.compassresearch.ast.types.PType;
 import eu.compassresearch.core.analysis.pog.obligations.CMLNonZeroObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLPOContextStack;
-//import eu.compassresearch.core.analysis.pog.obligations.CMLPOContextStack;
-//import eu.compassresearch.core.analysis.pog.obligations.CMLPOContext;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligation;
-//import org.overturetool.vdmj.lex.LexIdentifierToken;
-//import org.overturetool.vdmj.lex.LexNameToken;
-
-
 
 import org.overture.ast.node.INode;
-
 
 public class POGExpressionVisitor extends
 QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList>
   {
-        
+  
+  	private static final long serialVersionUID = -8208272656463333796L;
+            
     // A parent checker may actually not be necessary on this
     @SuppressWarnings("unused")
     final private QuestionAnswerAdaptor<CMLPOContextStack, CMLProofObligationList> parent;
@@ -50,7 +46,24 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList>
 		return new CMLProofObligationList();
 	}
 	
+	@Override
+	public CMLProofObligationList caseADistIntersectUnaryExp(
+		ADistIntersectUnaryExp node, POContextStack question)
+		throws AnalysisException {
+		CMLProofObligationList obligations = node.getExp().apply(this, question);
+		obligations.add(new NonEmptySetObligation(node.getExp(), question));
+		return obligations;
+	}
+	
+	@Override
+	public CMLProofObligationList caseADivNumericBinaryExp(
+			ADivNumericBinaryExp node, POContextStack question) throws AnalysisException
+	{
+		return handleDivideNumericBinaryExp(node, question);
+	}
+	
 
+	// This code is a dupe of the overture visitor.
 	private <T extends PExp> CMLProofObligationList handleDivideNumericBinaryExp(
 			T node, CMLPOContextStack question)
 	{
@@ -94,22 +107,41 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList>
 		}
 		return res;
 	}
+}
+=======
+package eu.compassresearch.core.analysis.pog.visitors;
+ 
+// Overture libraries 
+import java.lang.reflect.Method;
+
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.expressions.ADistIntersectUnaryExp;
+import org.overture.ast.expressions.ADivNumericBinaryExp;
+import org.overture.ast.expressions.AIntLiteralExp;
+import org.overture.ast.expressions.ARealLiteralExp;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.expressions.SNumericBinaryExp;
+import org.overture.pog.obligation.NonEmptySetObligation;
+import org.overture.pog.obligation.NonZeroObligation;
+import org.overture.pog.obligation.POContextStack;
+
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+
+
+public class POGExpressionVisitor extends
+	QuestionAnswerCMLAdaptor<POContextStack, CMLProofObligationList>
+  {
+        
+    /**
+     * 
+     */
+    
+
 	
 
-	@Override
-	// RWL see [1] pg.
-	public CMLProofObligationList caseADivNumericBinaryExp(
-			ADivNumericBinaryExp node, CMLPOContextStack question)
-	{
-		return handleDivideNumericBinaryExp(node, question);
-	}
 
-	@Override
-	public CMLProofObligationList caseADivideNumericBinaryExp(
-			ADivideNumericBinaryExp node, CMLPOContextStack question)
-	{
-		return handleDivideNumericBinaryExp(node, question);
-	}
-	
+
 	
 }
