@@ -60,6 +60,8 @@ public class POGExpressionVisitor extends
 	}
 	
 
+	
+	// This code is a dupe of the overture visitor.
 	private <T extends PExp> CMLProofObligationList handleDivideNumericBinaryExp(
 			T node, POContextStack question) throws AnalysisException
 	{

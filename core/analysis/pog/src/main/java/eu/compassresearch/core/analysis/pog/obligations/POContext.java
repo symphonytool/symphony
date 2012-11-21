@@ -33,6 +33,8 @@ import java.util.Map;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.types.PType;
 
+
+//Not being used anywhere (except the equally unused POContextStack
 abstract public class POContext
 {
 	abstract public String getContext();

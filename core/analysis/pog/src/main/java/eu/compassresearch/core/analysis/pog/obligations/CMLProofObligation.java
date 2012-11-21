@@ -8,13 +8,13 @@ package eu.compassresearch.core.analysis.pog.obligations;
 
 import org.overture.ast.lex.LexLocation;
 import org.overture.pog.obligation.POContextStack;
-import org.overture.pog.obligation.POType;
 
 /**
- * Core stuff needed
+ * This class is used to extend and wrap the overture {@link org.overture.pog.obligation.ProofObligation ProofObligation} class.
+ * It does so by converting the {@link eu.compassresearch.core.analysis.pog.obligation.CMLPOType CMLPOType} enums to the appropriate overture ones.
  */
 
-
+// Not being used much yet. Will probably only be needed when we get to the CML bits.
 abstract public class CMLProofObligation extends org.overture.pog.obligation.ProofObligation 
 {
     

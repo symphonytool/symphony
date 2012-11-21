@@ -16,12 +16,6 @@ public class POGProcessVisitor extends
         this.parentPOG = parent;
     }
     
-//	@Override
-//    public ProofObligationList defaultPProcess(PProcess node, POContextStack question)
-//         throws AnalysisException
-//    {
-//		System.out.println("Reached POGProcessVisitor - defaultPProcess ");
-//		return new ProofObligationList();
-//    }    
+ // This one will probably not be touched for some time.
     
 }

@@ -9,7 +9,7 @@
  */
 
 package eu.compassresearch.core.analysis.pog.visitors;
- 
+
 // Java libraries 
 import java.io.File;
 import java.io.IOException;
@@ -21,107 +21,101 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
+import org.overture.ast.statements.PStm;
 import org.overture.pog.obligation.POContextStack;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 
-//From Overture POG
-//import eu.compassresearch.ast.expressions.PStm;
+public class ProofObligationGenerator extends
+	QuestionAnswerCMLAdaptor<POContextStack, CMLProofObligationList> {
+    /**
+     * Main generator class for the POG. Receives the sources to be checked,
+     * visits them and dispatches them to the various subvisitors.
+     */
+    private static final long serialVersionUID = -4538022323752020155L;
 
-//From TC - not needed ?
-//import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
-//import eu.compassresearch.ast.node.INode;
-//import eu.compassresearch.core.parser.CmlParser; CAN'T FIND PARSER PACKAGE    
-
-
-
-public class ProofObligationGenerator extends 
-				QuestionAnswerCMLAdaptor<POContextStack, CMLProofObligationList>
-{
     private final static String ANALYSIS_NAME = "Proof Obligation Generator";
-     
+
     private List<PSource> sourceForest;
-    
+
     // ---------------------------------------------
     // -- Proof Obligation Generator State
     // ---------------------------------------------
-    
-    // subcheckers
-    private POGExpressionVisitor exp;
-    private POGStatementVisitor stm;
-    private POGProcessVisitor prc;
-    private POGDeclAndDefVisitor dad;
-    
-    private void initialize()
-    {
-        exp = new POGExpressionVisitor(this);
-        stm = new POGStatementVisitor(this);
-        prc = new POGProcessVisitor(this);
-        dad = new POGDeclAndDefVisitor(this);
+
+    // subvisitors
+    private POGExpressionVisitor expressionVisitor;
+    private POGStatementVisitor statementVisitor;
+    private POGProcessVisitor processVisitor;
+    private POGDeclAndDefVisitor declAndDefVisitor;
+
+    private void initialize() {
+	expressionVisitor = new POGExpressionVisitor(this);
+	statementVisitor = new POGStatementVisitor(this);
+	processVisitor = new POGProcessVisitor(this);
+	declAndDefVisitor = new POGDeclAndDefVisitor(this);
     }
-    
+
     // ---------------------------------------------
-    // -- Dispatch to sub-checkers
-    // ---------------------------------------------    
+    // -- Dispatch to sub-visitors
+    // ---------------------------------------------
 
-// SUBCHECKER FROM TYPECHECKER
-//     @Override
-//     public ProofObligationList defaultPType(PType node, TypeCheckQuestion question)
-//         throws AnalysisException
-//       {
-//         return node.apply(typ, question);
-//       }
-//   
-// SUBCHECKER FROM OVERTURE POG
-//     @Override
-// 	public ProofObligationList defaultPStm(PStm node, POContextStack question)
-//         throws AnalysisException
-// 	{
-// 		return node.apply(stm, question);
-// 	}  
+    // Are these missing / needed?
+    // @Override
+    // public ProofObligationList defaultPType(PType node, TypeCheckQuestion
+    // question)
+    // throws AnalysisException
+    // {
+    // return node.apply(typ, question);
+    // }
 
-//    @Override
-//    public ProofObligationList defaultPProcess(PProcess node, POContextStack question)
-//         throws AnalysisException
-//    {
-//         return node.apply(this.prc, question);
-//    }
-//      
-//    @Override
-//    public ProofObligationList defaultPAction(PAction node, POContextStack question)
-//      throws AnalysisException
-//    {
-//      return node.apply(this.stm, question);
-//    }
-//   
-//    @Override
-//    public ProofObligationList defaultPDeclaration(PDeclaration node,
-//       POContextStack question) throws AnalysisException
-//    {
-//       return node.apply(this.dad, question);
-//    }
-    
+    // @Override
+    // public ProofObligationList defaultPAction(PAction node, POContextStack
+    // question)
+    // throws AnalysisException
+    // {
+    // return node.apply(this.stm, question);
+    // }
+
+    // TODO Need to figure out how many more "defaults" are missing
+
     @Override
-    public CMLProofObligationList defaultPDefinition(PDefinition node, POContextStack question)
-        throws AnalysisException
-      {
-        return node.apply(this.dad, question);
-      }
-    
+    public CMLProofObligationList defaultPDefinition(PDefinition node,
+	    POContextStack question) throws AnalysisException {
+	return node.apply(this.declAndDefVisitor, question);
+    }
+
+    @Override
+    public CMLProofObligationList defaultPDeclaration(PDeclaration node,
+	    POContextStack question) throws AnalysisException {
+	return node.apply(this.declAndDefVisitor, question);
+    }
+
+    @Override
+    public CMLProofObligationList defaultPProcess(PProcess node,
+	    POContextStack question) throws AnalysisException {
+	return node.apply(this.processVisitor, question);
+    }
+
+    @Override
+    public CMLProofObligationList defaultPStm(PStm node, POContextStack question)
+	    throws AnalysisException {
+	return node.apply(this.statementVisitor, question);
+    }
+
     @Override
     public CMLProofObligationList defaultPExp(PExp node, POContextStack question)
-        throws AnalysisException
-      {
-        return node.apply(this.exp, question);
-      }
-      
+	    throws AnalysisException {
+	return node.apply(this.expressionVisitor, question);
+    }
 
-      // ---------------------------------------------
+    // ---------------------------------------------
     // -- Public API to CML POG
     // ---------------------------------------------
     // Taken from Type Checker code
@@ -132,179 +126,167 @@ public class ProofObligationGenerator extends
      * 
      * @return Pretty short name for this analysis.
      */
-    public String getAnalysisName()
-    {
-        return ANALYSIS_NAME;
+    public String getAnalysisName() {
+	return ANALYSIS_NAME;
     }
-    
+
     /**
-     * Construct a ProofObligationGenerator with the intension of checking a list of
-     * PSources. These source may refer to each other.
+     * Construct a ProofObligationGenerator with the intension of checking a
+     * list of PSources. These source may refer to each other.
      * 
-     * @param cmlSources - Sources containing CML Paragraphs for PO gen.
+     * @param cmlSources
+     *            - Sources containing CML Paragraphs for PO gen.
      */
-    public ProofObligationGenerator(List<PSource> cmlSources)
-    {
-        initialize();
-        this.sourceForest = cmlSources; 
+    public ProofObligationGenerator(List<PSource> cmlSources) {
+	initialize();
+	this.sourceForest = cmlSources;
     }
-    
+
     /**
-     * Construct a ProofObligationGenerator with the intension of checking a single
-     * source.
+     * Construct a ProofObligationGenerator with the intension of checking a
+     * single source.
      * 
-     * @param singleSource - Source containing CML Paragraphs for PO gen.
+     * @param singleSource
+     *            - Source containing CML Paragraphs for PO gen.
      */
-    public ProofObligationGenerator(PSource singleSource)
-    {
-        initialize();
-        this.sourceForest = new LinkedList<PSource>();
-        this.sourceForest.add(singleSource);
+    public ProofObligationGenerator(PSource singleSource) {
+	initialize();
+	this.sourceForest = new LinkedList<PSource>();
+	this.sourceForest.add(singleSource);
     }
 
-	/**
-     * Run the proof obligation generator. This will update the source(s) this POG
-     * instance was constructed with.
+    /**
+     * Run the proof obligation generator. The POs are placed in the return
+     * value but we may eventually want to switch them over to the registry
      * 
-     * @return - Returns ProofObligation list. This may need to change. 
+     * @return - The ProofObligation containing generated POs.
      */
-    public CMLProofObligationList generatePOs()
-    {
-        CMLProofObligationList obligations = new CMLProofObligationList();
-		POContextStack ctxt = new POContextStack();
-		
-		// for each source
-        for (PSource s : sourceForest)
-        {	
-        	// for each CML paragraph
-            for (SParagraphDefinition paragraph : s.getParagraphs())
-            {
-                try
-                {	
-                    System.out.println("--------------------------------PROCESSING--------------------------------");
-                	System.out.println(paragraph.toString());
-                	System.out.println("----------------------------------RESULT----------------------------------");
+    // FIXME Will
+    public CMLProofObligationList generatePOs() {
+	CMLProofObligationList obligations = new CMLProofObligationList();
+	POContextStack ctxt = new POContextStack();
 
-                	// process paragraph:
-                    obligations.addAll(paragraph.apply(this, ctxt));
+	// for each source
+	for (PSource s : sourceForest) {
+	    // for each CML paragraph
+	    for (SParagraphDefinition paragraph : s.getParagraphs()) {
+		try {
+		    System.out
+			    .println("--------------------------------PROCESSING--------------------------------");
+		    System.out.println(paragraph.toString());
+		    System.out
+			    .println("----------------------------------RESULT----------------------------------");
 
-                    System.out.println();
+		    // process paragraph:
+		    obligations.addAll(paragraph.apply(this, ctxt));
+
 		    System.out.println();
-                } 
-                catch (AnalysisException ae)
-                {
-                  	// This means we have a bug in the pog
-                  	//ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    //ae.printStackTrace(new PrintStream(baos));
-                    //errors.add(new CMLTypeError(s,
-                       System.out.println( "The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
-                    //          + new String(baos.toByteArray())));
-                    return null;
-                  }
-              }
-          }
-		       
-		System.out.println(obligations.size() + " Proof Obligations generated");
-		return obligations;
+		    System.out.println();
+		} catch (AnalysisException ae) {
+		    // This means we have a bug in the pog
+
+		    System.out
+			    .println("The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
+		    ae.printStackTrace();
+		    return null;
+		}
+	    }
+	}
+
+	System.out.println(obligations.size() + " Proof Obligations generated");
+	return obligations;
     }
 
-
-    //ensure drilldown to children
+    // ensure drilldown to children (this may not be needed)
     @Override
-	public CMLProofObligationList defaultINode(INode node,
-		POContextStack question) throws AnalysisException {
+    public CMLProofObligationList defaultINode(INode node,
+	    POContextStack question) throws AnalysisException {
 	CMLProofObligationList obligations = new CMLProofObligationList();
 	Stack<INode> workQ = new Stack<INode>();
-	for (Object o : node.getChildren(true).values() ){
+	for (Object o : node.getChildren(true).values()) {
 	    workQ.push((INode) o);
 	}
-	while (! workQ.isEmpty()){
+	while (!workQ.isEmpty()) {
 	    INode aux = workQ.pop();
-	    obligations.addAll(aux.apply(this,question));
-	    
+	    obligations.addAll(aux.apply(this, question));
+
 	}
 	return obligations;
-	}
-    
-    
+    }
+
     // ---------------------------------------------
-    // Static stuff for running the TypeChecker from Eclipse
+    // Static stuff for running the POG from Eclipse
     // ---------------------------------------------
     // Taken from Type Checker code
     // ---------------------------------------------
-    
 
-
-    // setting the file on AFileSource allows the CmlParser factory method
-    // to create both parser and lexer.
-    private static PSource prepareSource(File f)
-    {
-        if (f == null)
-        {
-            AInputStreamSource iss = new AInputStreamSource();
-            iss.setStream(System.in);
-            iss.setOrigin("stdin");
-            return iss;
-        } 
-        else
-        {
-            AFileSource fs = new AFileSource();
-            fs.setName(f.getName());
-            fs.setFile(f);
-            return fs;
-        }
+    // setting the file on AFileSource allows the POG to interact with it
+    // TODO this method is a duplicate( from VanillaTypeChecker). Should be
+    // placed in a common utils lib
+    private static PSource prepareSource(File f) {
+	if (f == null) {
+	    AInputStreamSource iss = new AInputStreamSource();
+	    iss.setStream(System.in);
+	    iss.setOrigin("stdin");
+	    return iss;
+	} else {
+	    AFileSource fs = new AFileSource();
+	    fs.setName(f.getName());
+	    fs.setFile(f);
+	    return fs;
+	}
     }
-    
+
     /**
-     * This method runs the PO generator on a given file. The method invokes methods to generate POs.
+     * This method runs the PO generator on a given file. The method invokes
+     * methods to generate POs.
      * 
-     * @param f - The file to generate POs
+     * @param f
+     *            - The file to generate POs
      */
-    private static void runOnFile(File f) throws IOException
-    {
-        // set file name
-        PSource source = prepareSource(f);
-               
-        // generate POs
-        ProofObligationGenerator cmlPOG = new ProofObligationGenerator(source);
-        cmlPOG.generatePOs();
-        
-        // Report success
-        System.out.println("Proof Obligation Generation is complete for the given CML Program");
+    // TODO this method is a duplicate( from VanillaTypeChecker). Should be
+    // placed in a common utils lib
+    private static void runOnFile(File f) throws IOException {
+	// set file name
+	PSource source = prepareSource(f);
+
+	// generate POs
+	ProofObligationGenerator cmlPOG = new ProofObligationGenerator(source);
+	cmlPOG.generatePOs();
+
+	// Report success
+	System.out
+		.println("Proof Obligation Generation is complete for the given CML Program");
     }
-   
-     /**
-     * Main method for class. Current test class takes a set of cml examples and 
+
+    /**
+     * Main method for class. Current test class takes a set of cml examples and
      * generates POs for each
      */
-    public static void main(String[] args) throws IOException
-    {
-        File cml_examples = new File("../../docs/cml-examples");
-        int failures = 0;
-        int successes = 0;
-        // runOnFile(null);
-        
-        if (cml_examples.isDirectory())
-        {
-            for (File example : cml_examples.listFiles())
-            {
-                System.out.print("Generating Proof Obligations for example: " + example.getName()
-                    + " \t\t...: ");
-                System.out.flush();
-                try
-                {
-                    runOnFile(example);
-                    System.out.println("done");
-                    successes++;
-                } 
-                catch (Exception e)
-                {
-                    System.out.println("exception");
-                    failures++;
-                }
-            }
-        }
-        
-        System.out.println(successes + " was successful, " + failures + " was failures.");      
+    // TODO the body of this method is a duplicate (from VanillaTypeChecker)
+    public static void main(String[] args) throws IOException {
+	File cml_examples = new File("../../docs/cml-examples");
+	int failures = 0;
+	int successes = 0;
+	// runOnFile(null);
+
+	if (cml_examples.isDirectory()) {
+	    for (File example : cml_examples.listFiles()) {
+		System.out.print("Generating Proof Obligations for example: "
+			+ example.getName() + " \t\t...: ");
+		System.out.flush();
+		try {
+		    runOnFile(example);
+		    System.out.println("done");
+		    successes++;
+		} catch (Exception e) {
+		    System.out.println("exception");
+		    failures++;
+		}
+	    }
 	}
+
+	System.out.println(successes + " was successful, " + failures
+		+ " was failures.");
+    }
 }
