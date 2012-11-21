@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>pog</artifactId>
-  <name>COMPASS CML Proof Obligation Generator</name>
+  <name>COMPASS Core Analysis Proof Obligation Generator</name>
 
   <dependencies>
 

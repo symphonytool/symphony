@@ -263,9 +263,10 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData,
 				"class test = begin values a:int = 10 mod 10 end", false, true,
 				true, new String[0]);
+		// 59
 		addTestProgram(testData,
-				"class test = begin values a:int = 10 div 10 end", false, true,
-				true, new String[0]);
+				"class test = begin values a:real = 10 div 10 end", false,
+				true, true, new String[0]);
 		// 60
 		addTestProgram(testData,
 				"class test = begin values a:int = 10 rem 10 end", false, true,
@@ -609,7 +610,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		// 135 TODO: Function arguments are handled wrong
 		addTestProgram(
 				testData,
-				"class test = begin functions public plus: int * int -> int plus(a,b) == (0 + a) + b; end",
+				"class test = begin functions public plus: int * int -> int plus(a,b) == (0 + a) + b end",
 				false, true, false, new String[0]);
 		// 136 TODO: Fix this top level values referencing eachother
 		addTestProgram(testData, "values a:int = 1; b : int = a; ", true, true,

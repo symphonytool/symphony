@@ -79,6 +79,22 @@
             natureId="eu.compassresearch.ide.cml.core.nature">
       </image>
    </extension>
+   
+   
+    <extension point="org.eclipse.ui.views">
+    <view 
+        id="eu.compassresearch.ide.cml.ui.Sanitizer"
+        name="COMPASS UI Debug Sanitizer"
+        category="compass_eu.compassresearch.ide.cml.ui.category"
+        icon="icons/cview16/cml_file_tsk.png"
+        class="eu.compassresearch.ide.cml.ui.Sanitizer" />
+        
+        <category
+        	id="compass_eu.compassresearch.ide.cml.ui.category"
+        	name="COMPASS"/>
+  </extension>
+   
+   
    <extension
          id="cmlbuilder"
          point="org.eclipse.core.resources.builders">

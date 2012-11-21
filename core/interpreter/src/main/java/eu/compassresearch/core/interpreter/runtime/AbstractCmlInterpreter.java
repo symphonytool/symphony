@@ -11,6 +11,7 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.debug.DBGPReader;
 import org.overture.interpreter.runtime.Breakpoint;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.SourceFile;
 import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
@@ -25,15 +26,6 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 public abstract class AbstractCmlInterpreter extends
 		QuestionAnswerCMLAdaptor<CMLContext, Value> implements CmlInterpreter {
 
-				
-	@Override
-	public CMLContext getInitialContext(LexLocation location) {
-				
-		CMLContext context = new CMLContext(location,"Top context");
-		//TODO: Initialize all global value definitions and put them into the initial context
-				
-		return context;
-	}
 		
 	@Override
 	public File getDefaultFile() {

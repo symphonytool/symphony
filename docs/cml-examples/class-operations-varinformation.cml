@@ -1,0 +1,25 @@
+class Exchange =
+begin 
+
+operations
+	singleVarInfo()
+	frame rd a
+	post a = 6
+	
+	singleVarInfoWithType()
+	frame wr a : int
+	post true
+	
+	multiVarInfo()
+	frame wr a,b
+	post true    
+	
+	multiVarInfoWithType()
+	frame wr a,b : int
+	post true
+	
+	multiVarInfoWithTypeList()
+	frame wr a,b : int rd c,d
+	post true
+	
+end
