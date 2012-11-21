@@ -23,7 +23,8 @@ public class RttMbtComponentWizard extends BasicNewFolderResourceWizard
             IProject project = (IProject) selectedObject;
 
             // create RTT-MBT TMS client
-        	RttMbtClient client = new RttMbtClient("localhost", 9116, "uwe", "uschulze@informatik.uni-bremen.de");
+            
+        	RttMbtClient client = Activator.getClient();
 
         	// get workspace
         	IWorkspace workspace = ResourcesPlugin.getWorkspace();
