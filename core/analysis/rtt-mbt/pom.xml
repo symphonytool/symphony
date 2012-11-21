@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>rtt-mbt</artifactId>
-  <name>COMPASS RTT-MBT Interface</name>
+  <name>COMPASS Core Analysis RTT-MBT Interface</name>
 
   <dependencies>
 

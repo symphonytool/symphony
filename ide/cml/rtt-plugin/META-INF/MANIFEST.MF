@@ -5,8 +5,8 @@ Bundle-SymbolicName: eu.compassresearch.ide.cml.rttplugin;singleton:=true
 Bundle-Version: 0.0.1
 Bundle-ClassPath: .,
  lib/rtt-mbt-0.0.1.jar,
- lib/json-simple-1.1.jar,
- lib/commons-codec-1.5.jar
+ lib/commons-codec-1.5.jar,
+ lib/json-simple-1.1.jar
 Bundle-Activator: eu.compassresearch.ide.cml.rttplugin.Activator
 Bundle-Vendor: The COMPASS Project
 Require-Bundle: eu.compassresearch.ide.cml.core,

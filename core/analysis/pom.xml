@@ -12,7 +12,7 @@
 
   <groupId>eu.compassresearch.core.analysis</groupId>
   <artifactId>analysis</artifactId>
-  <name>COMPASS Core Analysis Plug-ins</name>
+  <name>COMPASS Core Analysis Top-level</name>
 
   <modules>
     <module>pog</module>

@@ -5,14 +5,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>eu.compassresearch.ide</groupId>
-    <artifactId>ide</artifactId>
+    <groupId>eu.compassresearch.core</groupId>
+    <artifactId>core</artifactId>
     <version>0.0.1<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>commandlinetool</artifactId>
-  <name>COMPASS CML Command Line Tool</name>
+  <name>COMPASS Core CML Command Line Tool</name>
 
   <dependencies>
     

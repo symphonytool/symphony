@@ -5,13 +5,13 @@ package eu.compassResearch.rttMbtTmsClientApi;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.json.simple.JSONObject;
 
 /**
  * @author uwe
  *
- */public class jsonCompileTestCommand extends jsonCommand {
+ */
+public class jsonCompileTestCommand extends jsonCommand {
 
 	 private String testProcName;
 
@@ -29,6 +29,8 @@ import org.json.simple.JSONObject;
 
 		 // add parameters
 		 Map params = new LinkedHashMap();
+		 params.put("user", client.getUserName());
+		 params.put("user-id", client.getUserId());
 		 params.put("project-name", client.getProjectName());
 		 params.put("test-procedure-path", testProcName);
 		 // create command
@@ -45,17 +47,18 @@ import org.json.simple.JSONObject;
 	 }
 
 	 public void handleParameters(JSONObject parameters) {
+		 // get the parameter list
 		 if (parameters == null) {
 			 return;
 		 }
 		 // - get result
 		 String checkResult = (String)parameters.get("result");
-			if (!(checkResult.equals("PASS"))) {
-				resultValue = false;
-			} else {
-				resultValue = true;
-			}
+		 if (!(checkResult.equals("PASS"))) {
+			 resultValue = false;
+		 } else {
+			 resultValue = true;
 		 }
+	 }
 
 	 public String getTestProcName() {
 		 return testProcName;
