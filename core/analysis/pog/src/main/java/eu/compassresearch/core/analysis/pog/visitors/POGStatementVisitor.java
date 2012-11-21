@@ -3,9 +3,9 @@ package eu.compassresearch.core.analysis.pog.visitors;
 
  
 // Overture libraries 
-import org.overture.pog.obligation.POContextStack;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.analysis.pog.obligations.CMLPOContextStack;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 
 // import eu.compassresearch.ast.actions.ABlockStatementAction;
@@ -17,7 +17,7 @@ import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 // import eu.compassresearch.ast.types.PType;
 
 @SuppressWarnings("serial")
-public class POGStatementVisitor extends QuestionAnswerCMLAdaptor<POContextStack, CMLProofObligationList>
+public class POGStatementVisitor extends QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList>
 
 {
     

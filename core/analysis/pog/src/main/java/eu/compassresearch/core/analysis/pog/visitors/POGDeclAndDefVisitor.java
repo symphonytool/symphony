@@ -69,25 +69,25 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList>
 		System.out.println(node.getClass());
 		return new CMLProofObligationList();
     }
-    
-    
 
-     @Override
-     public CMLProofObligationList caseAClassParagraphDefinition(AClassParagraphDefinition node,
-         CMLPOContextStack question) throws AnalysisException
-     {		
-         System.out.println("------");
-       	System.out.println("Reached POGDeclAndDefVisitor - caseAClassParagraphDefinition");
- 
- 		for (PDefinition def : node.getDefinitions())
-         {
-             System.out.println("In defn Paragraph Loop: " + def.toString());
- 
-             CMLProofObligationList pol = def.apply(parentPOG, question);
-         }
-               
- 		return new CMLProofObligationList();
-     }
+    //  @Override
+  public CMLProofObligationList caseAClassParagraphDefinition(AClassParagraphDefinition node,
+      CMLPOContextStack question) throws AnalysisException
+  {		
+      System.out.println("------");
+    	System.out.println("Reached POGDeclAndDefVisitor - caseAClassParagraphDefinition");
+
+    	CMLProofObligationList pol = new CMLProofObligationList();
+    	
+		for (PDefinition def : node.getDefinitions())
+      {
+          System.out.println("In defn Paragraph Loop: " + def.toString());
+
+          pol.addAll(def.apply(parentPOG, question));
+      }
+            
+		return pol;
+   }
      
      @Override
      public CMLProofObligationList caseAProcessParagraphDefinition(
@@ -205,24 +205,7 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList>
      }
        
        
-//     @Override
-     public CMLProofObligationList caseAClassParagraphDefinition(AClassParagraphDefinition node,
-         POContextStack question) throws AnalysisException
-     {		
-         System.out.println("------");
-       	System.out.println("Reached POGDeclAndDefVisitor - caseAClassParagraphDefinition");
- 
-       	CMLProofObligationList pol = new CMLProofObligationList();
-       	
- 		for (PDefinition def : node.getDefinitions())
-         {
-             System.out.println("In defn Paragraph Loop: " + def.toString());
- 
-             pol.addAll(def.apply(parentPOG, question));
-         }
-               
- 		return pol;
-     }
+
 //     
 //     @Override
 //     public ProofObligationList caseAProcessParagraphDefinition(

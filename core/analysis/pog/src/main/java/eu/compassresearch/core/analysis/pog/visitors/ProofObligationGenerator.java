@@ -93,30 +93,30 @@ public class ProofObligationGenerator extends QuestionAnswerCMLAdaptor<CMLPOCont
 
     @Override
     public CMLProofObligationList defaultPDefinition(PDefinition node,
-	    POContextStack question) throws AnalysisException {
+	    CMLPOContextStack question) throws AnalysisException {
 	return node.apply(this.declAndDefVisitor, question);
     }
 
     @Override
     public CMLProofObligationList defaultPDeclaration(PDeclaration node,
-	    POContextStack question) throws AnalysisException {
+	    CMLPOContextStack question) throws AnalysisException {
 	return node.apply(this.declAndDefVisitor, question);
     }
 
     @Override
     public CMLProofObligationList defaultPProcess(PProcess node,
-	    POContextStack question) throws AnalysisException {
+	    CMLPOContextStack question) throws AnalysisException {
 	return node.apply(this.processVisitor, question);
     }
 
     @Override
-    public CMLProofObligationList defaultPStm(PStm node, POContextStack question)
+    public CMLProofObligationList defaultPStm(PStm node, CMLPOContextStack question)
 	    throws AnalysisException {
 	return node.apply(this.statementVisitor, question);
     }
 
     @Override
-    public CMLProofObligationList defaultPExp(PExp node, POContextStack question)
+    public CMLProofObligationList defaultPExp(PExp node, CMLPOContextStack question)
 	    throws AnalysisException {
 	return node.apply(this.expressionVisitor, question);
     }
@@ -216,7 +216,7 @@ public class ProofObligationGenerator extends QuestionAnswerCMLAdaptor<CMLPOCont
     // ensure drilldown to children (this may not be needed)
     @Override
     public CMLProofObligationList defaultINode(INode node,
-	    POContextStack question) throws AnalysisException {
+	    CMLPOContextStack question) throws AnalysisException {
 	CMLProofObligationList obligations = new CMLProofObligationList();
 	Stack<INode> workQ = new Stack<INode>();
 	for (Object o : node.getChildren(true).values()) {
