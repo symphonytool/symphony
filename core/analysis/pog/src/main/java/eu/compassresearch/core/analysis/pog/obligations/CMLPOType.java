@@ -29,6 +29,7 @@ package eu.compassresearch.core.analysis.pog.obligations;
 
 import org.overture.pog.obligation.POType;
 
+//Extending/copying the overture enums. Will need to encapsulate better.
 public enum CMLPOType
 {
 	MAP_APPLY("map apply"),
