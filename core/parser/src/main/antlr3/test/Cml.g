@@ -1,7 +1,3 @@
-/* Present halt:
- *  in the let localdef, pattern..matchvalue conflicts with expression apply due to the expressions and ()
- *
- */
 grammar Cml;
 options {
     language = Java;
@@ -66,7 +62,7 @@ qualValueDefinition
     ;
 
 valueDefinition
-    : pattern (':' type)? ( '=' | 'be' 'st' ) expression
+    : bindablePattern (':' type)? ( '=' | 'be' 'st' ) expression
     ;
 
 typeDefs
@@ -113,15 +109,19 @@ field
 	;
 
 invariant 
-	: 'inv' pattern '==' expression
+	: 'inv' bindablePattern '==' expression
 	;
 
 pattern
+    : bindablePattern
+    | matchValue
+    ;	
+
+bindablePattern
     : patternIdentifier
-    // | matchValue // this conflicts with patterns in localdefs
     | tuplePattern
     | recordPattern
-    ;	
+    ;
 
 patternIdentifier
     : IDENTIFIER
@@ -156,7 +156,7 @@ tuplePattern
     ;
 
 recordPattern
-    : MKUNDERNAMELPAREN (pattern (',' pattern)+)* ')'
+    : MKUNDERNAMELPAREN (pattern (',' pattern)*)? ')'
     ;
 
 expression
@@ -206,7 +206,6 @@ expr2
 // | subsequence
 // | apply
     : exprbase ( '(' ( expression (',' '...' ',' expression | (',' expression)+ )? )? ')' )?
-    // : exprbase //( '(' ( expression (',' '...' ',' expression | (',' expression)+ )? )? ')' )?
     ;
 
 exprbase
@@ -232,8 +231,8 @@ setMapExprTail
     ;
 
 mapExprTail
-    : ( ',' expression '|->' expression )+
-    | setMapExprBinding
+    : setMapExprBinding
+    | ( ',' expression '|->' expression )+
     ;
 
 setMapExprBinding
@@ -252,15 +251,15 @@ localDefinition
     // | functionDefinition
     ;
 	
-bind: pattern ('in' 'set' expression | ':' type)
+bind: bindablePattern ('in' 'set' expression | ':' type)
     ;
 
 setBind
-    : pattern 'in' 'set' expression
+    : bindablePattern 'in' 'set' expression
     ;
 
 typeBind
-    : pattern ':' type
+    : bindablePattern ':' type
     ;
 
 /* ********************************************************** */

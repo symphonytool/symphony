@@ -34,8 +34,13 @@
 	<executions>
           <execution>
             <goals>
-              <goal>antlr</goal>
+	      <goal>antlr</goal>
             </goals>
+            <configuration>
+              <!-- <printGrammar>true</printGrammar> -->
+              <!-- <report>true</report> -->
+              <verbose>true</verbose>
+            </configuration>
           </execution>
 	</executions>
       </plugin>
