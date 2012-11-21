@@ -25,6 +25,7 @@ import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
+import eu.compassresearch.core.interpreter.util.CmlProcessUtil;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 /**
@@ -78,8 +79,16 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	{
 		try
 		{
-			Pair<PAction,Context> next = nextState();
-			return next.first.apply(alphabetInspectionVisitor,next.second);
+			if(hasNext())
+			{
+				Pair<PAction,Context> next = nextState();
+				return next.first.apply(alphabetInspectionVisitor,next.second);
+			}
+			//if the process is done we return the empty alphabet
+			else
+			{
+				return new CmlAlphabet();
+			}
 		}
 		catch(AnalysisException ex)
 		{
@@ -138,14 +147,14 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		{
 		case WAIT_EVENT:
 			//if at least one child are waiting for an event this process must invoke either Parallel Non-sync or sync
-			if(isAtLeastOneChildWaitingForEvent())
+			if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
 				setState(CmlProcessState.RUNNABLE);
 			break;
 		case FINISHED:
 			stateEvent.getSource().unregisterOnStateChanged(this);
 			
 			//if all the children are finished this process can continue and evolve into skip
-			if(isAllChildrenFinished())
+			if(CmlProcessUtil.isAllChildrenFinished(this))
 				setState(CmlProcessState.RUNNABLE);
 			
 			break;
@@ -167,26 +176,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	/**
 	 * Private helper methods
 	 */
-	private boolean isAllChildrenFinished()
-	{
-		boolean isAllFinished = true;
-		for(CmlProcess child : children())
-		{
-			isAllFinished &= child.finished();
-		}
-		return isAllFinished;
-	}
 	
-	private boolean isAtLeastOneChildWaitingForEvent()
-	{
-		for(CmlProcess child : children())
-		{
-			if(child.waiting())
-				return true;
-		}
-		
-		return false;
-	}
 	
 	
 		
@@ -301,15 +291,53 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			pushNext(node, question);
 		}
 		//At least one child is not finished and waiting for event, this will either invoke the Parallel Non-sync or Sync rule
-		else if(isAtLeastOneChildWaitingForEvent())
+		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
 		{
+			//convert the channelset of the current node to a alphabet
+			CmlAlphabet cs = CmlProcessUtil.convertChansetExpToAlphabet(
+					node.getChanSetExpression(),question);		
 			
+			CmlProcess leftChild = children().get(0);
+			CmlAlphabet leftChildAlpha = leftChild.inspect(); 
+			CmlProcess rightChild = children().get(1);
+			CmlAlphabet rightChildAlpha = rightChild.inspect();
+									
+			if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) &&
+					rightChildAlpha.containsCommunication(supervisor().selectedCommunication()))
+			{
+				leftChild.unregisterOnTraceChanged(this);
+				rightChild.unregisterOnTraceChanged(this);
+				
+				leftChild.execute(supervisor());
+				rightChild.execute(supervisor());
+				
+				leftChild.registerOnTraceChanged(this);
+				rightChild.registerOnTraceChanged(this);
+			}
+			else if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
+			{
+				leftChild.unregisterOnTraceChanged(this);				
+				leftChild.execute(supervisor());
+				leftChild.registerOnTraceChanged(this);
+			}
+			else if(rightChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
+			{
+				rightChild.unregisterOnTraceChanged(this);
+				rightChild.execute(supervisor());
+				rightChild.registerOnTraceChanged(this);
+			}
+			else
+			{
+				result = CmlBehaviourSignal.FATAL_ERROR;
+			}
 			
 			//We push the current state, 
 			pushNext(node, question);
+			
+			result = CmlBehaviourSignal.EXEC_SUCCESS;
 		}
 		//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
-		else if (isAllChildrenFinished())
+		else if (CmlProcessUtil.isAllChildrenFinished(this))
 		{
 			result = caseParallelEnd(question); 
 		}
@@ -355,7 +383,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			
 		}
 		//the process has children and must now handle either termination or event sync
-		else if (isAllChildrenFinished())
+		else if (CmlProcessUtil.isAllChildrenFinished(this))
 		{
 			result = caseParallelEnd(question); 
 		}

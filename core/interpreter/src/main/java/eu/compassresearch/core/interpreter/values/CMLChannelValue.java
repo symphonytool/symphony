@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.values;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -96,7 +97,7 @@ public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSign
 	
 	private void notifyObservers(List<ChannelObserver> observers, CmlCommunicationType eventType)
 	{
-		for(ChannelObserver observer : observers)
+		for(ChannelObserver observer : new LinkedList<ChannelObserver>(observers))
 		{
 			observer.onChannelEvent(new CmlChannelEvent(this, eventType));
 		}

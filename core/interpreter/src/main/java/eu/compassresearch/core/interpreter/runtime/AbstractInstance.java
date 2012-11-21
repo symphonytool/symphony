@@ -67,6 +67,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 				//If the selected event is in the immediate alphabet then we can continue
 				if(env.communicationSelected() && alpha.containsCommunication(env.selectedCommunication()))
 				{
+					setState(CmlProcessState.RUNNING);
 					ret = executeNext();
 					updateTrace(env.selectedCommunication());
 				}
@@ -182,7 +183,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	
 	protected void notifyOnStateChange(CmlProcessStateEvent event)
 	{
-		for(CmlProcessObserver o : stateObservers)
+		for(CmlProcessObserver o : new LinkedList<CmlProcessObserver>(stateObservers))
 			o.onStateChange(event);
 	}
 	
@@ -212,7 +213,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	
 	protected void notifyOnTraceChange(TraceEvent traceEvent)
 	{
-		for(CmlProcessObserver o : traceObservers)
+		for(CmlProcessObserver o : new LinkedList<CmlProcessObserver>(traceObservers))
 			o.onTraceChange(traceEvent);
 	}
 	
@@ -234,7 +235,8 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	@Override
 	public void onChannelEvent(CmlChannelEvent event) {
 		//enable the processthread to run again and unregister from the channel
-		setState(CmlProcessState.RUNNABLE);
+		if(level() == 0)
+			setState(CmlProcessState.RUNNABLE);
 		
 		switch(event.getEventType())
 		{
