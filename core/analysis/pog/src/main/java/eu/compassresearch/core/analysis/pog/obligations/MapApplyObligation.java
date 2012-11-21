@@ -29,7 +29,7 @@ import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.POType;
 
 
-// Not being used anywhere so far.
+// Not being used anywhere so far. Can we extend the overture one?
 public class MapApplyObligation extends CMLProofObligation
 {
 	public MapApplyObligation(PExp root, PExp arg, POContextStack ctxt)
