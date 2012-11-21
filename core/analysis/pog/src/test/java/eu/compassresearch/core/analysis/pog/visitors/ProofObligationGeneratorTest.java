@@ -1,7 +1,6 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -19,6 +18,7 @@ import org.overture.pog.obligation.NonZeroObligation;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.typechecker.TestUtil;
 
 @RunWith(value = Parameterized.class)
 public class ProofObligationGeneratorTest {
@@ -61,7 +61,7 @@ public class ProofObligationGeneratorTest {
 
     @Test
     public void testGeneratePOs() throws IOException {
-	PSource psAux = (Utilities.makeSource(sourceCode));
+	PSource psAux = (TestUtil.makeSource(sourceCode));
 	CmlParser cmlp = CmlParser.newParserFromSource(psAux);
 	cmlp.parse();
 	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);

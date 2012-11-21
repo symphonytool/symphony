@@ -165,7 +165,6 @@ public class ProofObligationGenerator extends QuestionAnswerCMLAdaptor<CMLPOCont
      * Run the proof obligation generator. The POs are placed in the return
      * value but we may eventually want to switch them over to the registry
      * 
-<<<<<<< HEAD
      * @return - Returns CMLProofObligation list. This may need to change. 
      */
     public CMLProofObligationList generatePOs()
