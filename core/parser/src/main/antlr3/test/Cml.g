@@ -1,6 +1,11 @@
+/* loose threads:
+ *   localDef -> valueDefinition | functionDefinition
+ *     the alternatives conflict; need to be left-factored, I think
+ *
+ */
 grammar Cml;
 options {
-    language = Java;
+    language=Java;
     output=AST;
 }
 
@@ -25,59 +30,87 @@ public String getTokenErrorDisplay(Token t) {
 }
 
 source
-    :	programParagraph+
-	;
-	
+    : programParagraph+
+    ;
+    
 programParagraph
-	:	classDefinition
-//	|	processDefinition
-//	|	channelDefinition
-//	|	chansetDefinitionParagraph
-//	|	globalDefinitionParagraph
-	;
-
-classDefinition
-	:	'class' IDENTIFIER ('extends' IDENTIFIER)? '=' 'begin' classDefinitionBlock 'end'
-	;
-
-classDefinitionBlock
-	:	classDefinitionBlockAlternative*
-	;
-	
-classDefinitionBlockAlternative
-	:	typeDefs
-	|	valueDefs
-//	|	functionDefs
-//	|	operationDefs
-//	|	stateDefs
-//	|	INITIAL operationDef
-	;
-
-valueDefs
-    : 'values' ( qualValueDefinition (';' qualValueDefinition)* )? ';'?
+    : classDefinition
+// | processDefinition
+// | channelDefinition
+// | chansetDefinitionParagraph
+    | typeDefs
+    | valueDefs
+    | functionDefs
     ;
 
-qualValueDefinition
-    : QUALIFIER? valueDefinition
+classDefinition
+    : 'class' IDENTIFIER ('extends' IDENTIFIER)? '=' 'begin' classDefinitionBlock* 'end'
+    ;
+
+classDefinitionBlock
+    : typeDefs
+    | valueDefs
+    | functionDefs
+//  | operationDefs
+//  | stateDefs
+//  | INITIAL operationDef
+    ;
+
+valueDefs
+    : 'values' ( QUALIFIER? valueDefinition (';' QUALIFIER? valueDefinition)* )? ';'?
+    ;
+
+functionDefs
+    : 'functions' (QUALIFIER? functionDefinition)*
     ;
 
 valueDefinition
     : bindablePattern (':' type)? ( '=' | 'be' 'st' ) expression
     ;
 
+functionDefinition
+    : IDENTIFIER (explicitFunctionDefintionTail | implicitFunctionDefintionTail)
+    ;
+
+explicitFunctionDefintionTail
+    : ':' type IDENTIFIER parameterGroup+ '==' functionBody ('pre' expression )? ('post' expression)? ('measure' name)?
+    ;
+
+implicitFunctionDefintionTail
+    : '(' parameterTypeList ')' IDENTIFIER ':' type (',' IDENTIFIER ':' type)* ('pre' expression )? 'post' expression
+    ;
+
+parameterTypeList
+    : parameterTypeGroup (',' parameterTypeGroup)*
+    ;
+
+parameterTypeGroup
+    : (bindablePattern (',' bindablePattern)* )? ':' type
+    ;
+
+parameterGroup
+    : '(' bindablePattern (',' bindablePattern)* ')'
+    ;
+
+functionBody
+    : expression
+    | 'is' 'not' 'yet' 'specified'
+    | 'is' 'subclass' 'responsibility'
+    ;
+
 typeDefs
     : 'types' typeDef*
-	;
+    ;
 
 typeDef
-	: QUALIFIER? IDENTIFIER '=' type invariant?
-	| QUALIFIER? IDENTIFIER '::' field+ invariant?
-	;
+    : QUALIFIER? IDENTIFIER '=' type invariant?
+    | QUALIFIER? IDENTIFIER '::' field+ invariant?
+    ;
 
 type
     : type0 (('+>'|'->') type0)?
     | '()' (('+>'|'->') type0)?
-	;
+    ;
 
 type0op : '*' | '|' ;
 type0
@@ -86,36 +119,36 @@ type0
 
 type1
     : basicType
-	| '(' type ')'
-	| '[' type ']'
-	| QUOTELITERAL
-	| IDENTIFIER ('.' IDENTIFIER)*
-	| 'compose' IDENTIFIER 'of' field+ 'end'
-	| 'set of' type1
-	| 'seq of' type1
-	| 'seq1 of' type1
-	| 'map of' type1 'to' type1
-	| 'inmap of' type1 'to' type1
-	;
+    | '(' type ')'
+    | '[' type ']'
+    | QUOTELITERAL
+    | IDENTIFIER ('.' IDENTIFIER)*
+    | 'compose' IDENTIFIER 'of' field+ 'end'
+    | 'set of' type1
+    | 'seq of' type1
+    | 'seq1 of' type1
+    | 'map of' type1 'to' type1
+    | 'inmap of' type1 'to' type1
+    ;
 
 basicType
-	: 'bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token'
-	;
+    : 'bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token'
+    ;
 
 field
-	: type
-	| IDENTIFIER ':' type
-	| IDENTIFIER ':-' type
-	;
+    : type
+    | IDENTIFIER ':' type
+    | IDENTIFIER ':-' type
+    ;
 
 invariant 
-	: 'inv' bindablePattern '==' expression
-	;
+    : 'inv' bindablePattern '==' expression
+    ;
 
 pattern
     : bindablePattern
     | matchValue
-    ;	
+    ;   
 
 bindablePattern
     : patternIdentifier
@@ -214,8 +247,12 @@ exprbase
 // | name
 // | old name
 // | field select
-    | IDENTIFIER ('.' IDENTIFIER)* '~'?
+    | name '~'?
     | symbolicLiteral
+    ;
+
+name
+    : IDENTIFIER ('.' IDENTIFIER)*
     ;
 
 setMapExpr
@@ -247,10 +284,10 @@ seqExpr
     ;
 
 localDefinition
-    : valueDefinition
-    // | functionDefinition
+    // : valueDefinition
+    : functionDefinition
     ;
-	
+    
 bind: bindablePattern ('in' 'set' expression | ':' type)
     ;
 
@@ -384,7 +421,7 @@ HEXLITERAL
 
 DECIMAL
     : DIGIT+ ('.' DIGIT+)? ( ('E'|'e') ('+'|'-')? DIGIT+ )?
-	;
+    ;
 
 TUPLESELECTOR
     : '.#' DIGIT+
