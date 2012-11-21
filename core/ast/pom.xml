@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>ast</artifactId>
-  <name>The CML Abstract Syntax Tree</name>
+  <name>COMPASS Core CML Abstract Syntax Tree</name>
 
   <build>
     <plugins>
