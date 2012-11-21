@@ -1,35 +1,38 @@
 package eu.compassresearch.core.analysis.pog.visitors;
- 
+
 // Overture libraries 
 import java.lang.reflect.Method;
 
-import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.ADistIntersectUnaryExp;
 import org.overture.ast.expressions.ADivNumericBinaryExp;
+import org.overture.ast.expressions.ADivideNumericBinaryExp;
 import org.overture.ast.expressions.AIntLiteralExp;
 import org.overture.ast.expressions.ARealLiteralExp;
-import org.overture.ast.expressions.PExp;
+import org.overture.ast.expressions.PExp; 
 import org.overture.ast.expressions.SNumericBinaryExp;
-import org.overture.pog.obligation.NonEmptySetObligation;
-import org.overture.pog.obligation.NonZeroObligation;
-import org.overture.pog.obligation.POContextStack;
+
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.analysis.pog.obligations.CMLNonEmptySetObligation;
+import eu.compassresearch.core.analysis.pog.obligations.CMLNonZeroObligation;
+import eu.compassresearch.core.analysis.pog.obligations.CMLPOContextStack;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligation;
 
+import org.overture.ast.node.INode;
 
 public class POGExpressionVisitor extends
-	QuestionAnswerCMLAdaptor<POContextStack, CMLProofObligationList>
+QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList>
   {
-        
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -8208272656463333796L;
+  
+  	private static final long serialVersionUID = -8208272656463333796L;
+            
     // A parent checker may actually not be necessary on this
     @SuppressWarnings("unused")
-    final private QuestionAnswerAdaptor<POContextStack, CMLProofObligationList> parent;
+    final private QuestionAnswerAdaptor<CMLPOContextStack, CMLProofObligationList> parent;
     
     public POGExpressionVisitor(ProofObligationGenerator parentVisitor)
     {
@@ -37,53 +40,57 @@ public class POGExpressionVisitor extends
     }
 
 	@Override
-	public CMLProofObligationList defaultPExp(PExp node, POContextStack question)
+	public CMLProofObligationList defaultPExp(PExp node, CMLPOContextStack question)
 	{
-		System.out.println("Reached POGExpressionVisitor - defaultPEx ");
+		System.out.println("Reached POGExpressionVisitor - defaultPEx");
+		System.out.println("Expression: " + node.toString());
 		return new CMLProofObligationList();
 	}
-
+	
 	@Override
 	public CMLProofObligationList caseADistIntersectUnaryExp(
-		ADistIntersectUnaryExp node, POContextStack question)
+		ADistIntersectUnaryExp node, CMLPOContextStack question)
 		throws AnalysisException {
 		CMLProofObligationList obligations = node.getExp().apply(this, question);
-		obligations.add(new NonEmptySetObligation(node.getExp(), question));
+		obligations.add(new CMLNonEmptySetObligation(node.getExp(), question));
 		return obligations;
 	}
 	
 	@Override
 	public CMLProofObligationList caseADivNumericBinaryExp(
-			ADivNumericBinaryExp node, POContextStack question) throws AnalysisException
+			ADivNumericBinaryExp node, CMLPOContextStack question) throws AnalysisException
 	{
 		return handleDivideNumericBinaryExp(node, question);
 	}
 	
 
-	
 	// This code is a dupe of the overture visitor.
 	private <T extends PExp> CMLProofObligationList handleDivideNumericBinaryExp(
-			T node, POContextStack question) throws AnalysisException
+			T node, CMLPOContextStack question)
 	{
 		CMLProofObligationList obligations = new CMLProofObligationList();
 		PExp[] leftRight = getLeftRight(node);
 		PExp rExp = leftRight[RIGHT];
 			
-		obligations.addAll(defaultSNumericBinaryExp((SNumericBinaryExp)node,question));
+		try {
+			obligations.addAll(defaultSNumericBinaryExp((SNumericBinaryExp)node,question));
+		} catch (AnalysisException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		if (!(rExp instanceof AIntLiteralExp)
 				&& !(rExp instanceof ARealLiteralExp))
 		{
-			obligations.add(new NonZeroObligation(node.getLocation(), rExp, question));
+			obligations.add(new CMLNonZeroObligation(node.getLocation(), rExp, question));
 		}
 
 		return obligations;
 	}
-	
+
 	final static int LEFT = 0;
 	final static int RIGHT = 1;
 
-	
 	private <T> PExp[] getLeftRight(T node)
 	{
 		PExp[] res = new PExp[2];
@@ -101,5 +108,4 @@ public class POGExpressionVisitor extends
 		}
 		return res;
 	}
-	
 }

@@ -19,44 +19,17 @@
  *	You should have received a copy of the GNU General Public License
  *	along with VDMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
- ******************************************************************************
- * 
- * Just using Overture POContext for now
- *
  ******************************************************************************/
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.types.PType;
 
+public class CMLNonEmptySetObligation extends CMLProofObligation{
 
-//Not being used anywhere (except the equally unused POContextStack
-abstract public class POContext
-{
-	abstract public String getContext();
-	private Map<PExp, PType> knownTypes = new HashMap<PExp, PType>();
-
-	public String getName()
+	public CMLNonEmptySetObligation(PExp exp, CMLPOContextStack ctxt)
 	{
-		return "";		// Overridden in PONameContext
-	}
-
-	public boolean isScopeBoundary()
-	{
-		return false;
-	}
-
-	public void noteType(PExp exp, PType type)
-	{
-		knownTypes.put(exp, type);
-	}
-
-	public PType checkType(PExp exp)
-	{
-		return knownTypes.get(exp);
+		super(exp.getLocation(), CMLPOType.NON_EMPTY_SET, ctxt);
+		value = ctxt.getObligation(exp + " <> {}");
 	}
 }

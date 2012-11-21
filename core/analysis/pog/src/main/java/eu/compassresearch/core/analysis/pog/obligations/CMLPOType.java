@@ -65,14 +65,14 @@ public enum CMLPOType
 	OPERATION_PATTERNS("operation parameter patterns"),
 	OP_SATISFIABILITY("operation satifiability"),
 	TEST("test");
-
+	
 	private String kind;
 
 	CMLPOType(String kind)
 	{
 		this.kind = kind;
 	}
-
+	
 	public POType toOverturePOType(){
 	    try{
 	    return POType.valueOf(POType.class, this.toString());

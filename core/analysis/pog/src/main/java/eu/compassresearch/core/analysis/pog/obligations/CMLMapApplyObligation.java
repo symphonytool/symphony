@@ -25,21 +25,20 @@ package eu.compassresearch.core.analysis.pog.obligations;
 
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.statements.PStateDesignator;
-import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.POType;
 
 
 // Not being used anywhere so far. Can we extend the overture one?
-public class MapApplyObligation extends CMLProofObligation
+public class CMLMapApplyObligation extends CMLProofObligation
 {
-	public MapApplyObligation(PExp root, PExp arg, POContextStack ctxt)
+	public CMLMapApplyObligation(PExp root, PExp arg, CMLPOContextStack ctxt)
 	{
 		super(root.getLocation(), CMLPOType.MAP_APPLY, ctxt);
 		value = ctxt.getObligation(arg + " in set dom " + root);
 	}
 
-	public MapApplyObligation(PStateDesignator root,
-		PExp arg, POContextStack ctxt)
+	public CMLMapApplyObligation(PStateDesignator root,
+		PExp arg, CMLPOContextStack ctxt)
 	{
 		super(root.getLocation(), CMLPOType.MAP_APPLY, ctxt);
 		value = ctxt.getObligation(arg + " in set dom " + root);
