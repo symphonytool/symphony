@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.overture.pog.obligation.NonEmptySetObligation;
 import org.overture.pog.obligation.NonZeroObligation;
 
 import eu.compassresearch.ast.program.PSource;
@@ -25,28 +26,39 @@ import eu.compassresearch.core.typechecker.TestUtil;
 public class ProofObligationGeneratorTest {
 
     private String sourceCode;
+    private Class<?> expectedPOClass;
+    private int posGenerated;
 
     @Before
     public void setup() {
 
     }
 
+    
+    public static Object[] divZeroFunction ={"class c = begin functions fn: int -> int fn(a) == 50/ a end", NonZeroObligation.class}
+    ;
+    public static Object[] distInterFunction= {"class c = begin functions fn : set of set of int -> set of int fn(ss) == dinter ss end", NonEmptySetObligation.class};
+    
+    
+    
+  //add test cases for further POs here...
+	
+
+    
     @Parameters
     public static Collection<Object[]> data() {
 	List<Object[]> r = new LinkedList<Object[]>();
-	Object[] a = new Object[] {
-		"class c = begin functions fn: int -> int fn(a) == 50/ a end",
-		null };
-	r.add(a);
-	
+
+	r.add(divZeroFunction);
+	r.add(distInterFunction);
 	//add test cases for further POs here...
 	
 	return r;
     }
 
-    public ProofObligationGeneratorTest(String source,
-	    CMLProofObligation expectedPO) {
+    public ProofObligationGeneratorTest(String source, Class<?> expectedPOClass) {
 	this.sourceCode = source;
+	this.expectedPOClass= expectedPOClass;
     }
 
     @Test
@@ -59,9 +71,8 @@ public class ProofObligationGeneratorTest {
 
 	// Haven't figured out a way to manually create expected POs (mostly
 	// because of ContextStack and LexLocation)
-	//For now we test amount and types
-	assertEquals(1, actual.size());
-	assertEquals(NonZeroObligation.class, actual.get(0).getClass());
+	//For now we test po types
+	assertEquals(expectedPOClass, actual.get(0).getClass());
 
     }
 
