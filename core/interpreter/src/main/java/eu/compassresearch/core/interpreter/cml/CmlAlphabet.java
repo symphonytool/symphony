@@ -66,6 +66,14 @@ public class CmlAlphabet {
 		return new CmlAlphabet(resultSet);
 	}
 	
+	public CmlAlphabet union(CmlEvent event)
+	{
+		Set<CmlEvent> resultSet = this.getAllEvents();
+		resultSet.add(event);
+		
+		return new CmlAlphabet(resultSet);
+	}
+	
 	public CmlAlphabet intersect(CmlAlphabet other)
 	{
 		Set<CmlEvent> resultSet = this.getAllEvents();

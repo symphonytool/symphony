@@ -1,6 +1,8 @@
 package eu.compassresearch.core.interpreter.eval;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -21,6 +23,7 @@ import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
+import eu.compassresearch.core.interpreter.util.CmlProcessUtil;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 /**
  * This class inspects the immediate alphabet of the current state of a CmlProcess
@@ -84,6 +87,31 @@ public class AlphabetInspectionVisitor
 	 *  At this step both child actions are in the FINISHED state and they will be removed from the running process network
 	 *  and this will make a silent transition into Skip. So the alphabet returned here is {tau}
 	 */
+	private interface ParallelAction
+	{
+		public CmlAlphabet inspectChildren();
+	}
+	
+	public CmlAlphabet caseParallelAction(PAction node, Context question,ParallelAction parallelAction)
+			throws AnalysisException {
+		
+		CmlAlphabet alpha = null;
+		
+		//If there are no children or the children has finished, then either the interleaving 
+		//is beginning or ending and we make a silent transition.
+		if(!ownerProcess.hasChildren() || CmlProcessUtil.isAllChildrenFinished(ownerProcess))
+		{
+			alpha = defaultPAction(node,question);
+		}
+		else
+		//if we are here at least one of the children is alive and we must inspect them
+		//and forward it.
+		{
+			alpha = parallelAction.inspectChildren();
+		}
+		
+		return alpha;
+	}
 	
 	/**
 	 * This returns the alphabet of a interleaved action. 
@@ -104,31 +132,46 @@ public class AlphabetInspectionVisitor
 			AInterleavingParallelAction node, Context question)
 			throws AnalysisException {
 		
-		CmlAlphabet alpha = null;
+//		CmlAlphabet alpha = null;
+//		
+//		//If there are no children or the children has finished, then either the interleaving 
+//		//is beginning or ending and we make a silent transition.
+//		if(!ownerProcess.hasChildren() || CmlProcessUtil.isAllChildrenFinished(ownerProcess))
+//		{
+//			alpha = defaultPAction(node,question);
+//		}
+//		else
+//		//if we are here at least one of the children is alive and we must inspect them
+//		//and forward it.
+//		{
+//			for(CmlProcess child : ownerProcess.children())
+//			{
+//				if(alpha == null)
+//					alpha = child.inspect();
+//				else
+//					alpha = alpha.union(child.inspect());
+//			}
+//		}
+//		
+//		return alpha;
 		
-		//Parallel Begin:
-		if(ownerProcess.hasChildren())
+		return caseParallelAction(node,question,new ParallelAction()
 		{
-			for(CmlProcess child : ownerProcess.children())
-			{
-				if(!child.finished())
+			@Override
+			public CmlAlphabet inspectChildren() {
+				CmlAlphabet alpha = null;
+				for(CmlProcess child : ownerProcess.children())
 				{
 					if(alpha == null)
 						alpha = child.inspect();
 					else
 						alpha = alpha.union(child.inspect());
 				}
+				return alpha;
 			}
-		}
-		//If there are no children, then either the interleaving is beginning or ending
-		if(null == alpha)
-		{
-			alpha = defaultPAction(node,question);
-		}
-		
-		return alpha;
+		});
 	}
-	
+			
 	/**
 	 *  This returns the alphabet of a generalised parallel action. 
 	 *  
@@ -148,57 +191,75 @@ public class AlphabetInspectionVisitor
 			AGeneralisedParallelismParallelAction node, Context question)
 					throws AnalysisException {
 
-		CmlAlphabet alpha = null;
-
-		//Parallel Begin:
-		if(ownerProcess.hasChildren())
+		final AGeneralisedParallelismParallelAction internalNode = node;
+		final Context internalQuestion = question;
+		
+		return caseParallelAction(node,question,new ParallelAction()
 		{
-			for(CmlProcess child : ownerProcess.children())
-			{
-				CmlAlphabet cs = convertChansetExpToAlphabet(node.getChanSetExpression(),question);
+			@Override
+			public CmlAlphabet inspectChildren() {
 				
-				if(!child.finished())
+				//convert the channelset of the current node to a alphabet
+				CmlAlphabet cs = CmlProcessUtil.convertChansetExpToAlphabet(
+						internalNode.getChanSetExpression(),internalQuestion);
+				
+				CmlAlphabet resultAlpha = new CmlAlphabet();
+				
+				List<CmlAlphabet> childEventsInCS = new LinkedList<CmlAlphabet>();
+				//Get all the child alphabets and add the events that are not in the channelset
+				for(CmlProcess child : ownerProcess.children())
 				{
+					CmlAlphabet childAlphabet = child.inspect();
+					CmlAlphabet eventInCS = new CmlAlphabet();
 					
-										
-//					if(alpha == null)
-//						alpha = child.inspect();
-//					else
-//						alpha = alpha.union(child.inspect());
+					for(CmlCommunicationEvent e  : childAlphabet.getCommunicationEvents())
+					{
+						if( !cs.containsCommunication(e) )
+							resultAlpha = resultAlpha.union(e);
+						else
+							eventInCS = eventInCS.union(e);
+					}
+					
+					childEventsInCS.add(eventInCS);
 				}
+					
+				//find the event intersection
+				CmlAlphabet childIntersection = null;
+				for(CmlAlphabet childAlpha : childEventsInCS)
+				{
+					if(null == childIntersection)
+						childIntersection = childAlpha;
+					else
+						childIntersection = childIntersection.intersect(childAlpha);
+				}
+				
+				//Now put all the events that are in cs and in all the children
+				resultAlpha = resultAlpha.union(childIntersection);
+				
+				return resultAlpha;
 			}
-		}
-		//If there are no children, then either the interleaving is beginning or ending
-		if(null == alpha)
-		{
-			alpha = defaultPAction(node,question);
-		}
-
-		return alpha;
+		});
+//		CmlAlphabet alpha = new CmlAlphabet();
+//
+//		//Children has
+//		if(ownerProcess.hasChildren())
+//		{
+//			CmlAlphabet cs = convertChansetExpToAlphabet(node.getChanSetExpression(),question);
+//			for(CmlProcess child : ownerProcess.children())
+//			{
+//				alpha = child.inspect();
+//				alpha = alpha.union(child.inspect());
+//			}
+//		}
+//		//If there are no children, then either the parallel composition is beginning or ending
+//		else
+//		{
+//			alpha = defaultPAction(node,question);
+//		}
+//
+//		return alpha;
 	}
 	
-	/**
-	 * FIXME:This is just a temp solution, chansets can be other than this
-	 * @return
-	 */
-	private CmlAlphabet convertChansetExpToAlphabet(PExp chansetExp, Context question)
-	{
-		AEnumChansetSetExp chanset = (AEnumChansetSetExp)chansetExp;
-
-		Set<CmlEvent> coms = new HashSet<CmlEvent>();
-		
-		for(LexIdentifierToken id : chanset.getIdentifiers())
-		{
-			//FIXME: This should be a name so the conversion is avoided
-			LexNameToken channelName = new LexNameToken("Default",id);
-			CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
-			CmlCommunicationEvent com = new CmlCommunicationEvent(chanValue);
-			coms.add(com);
-		}
-		
-		CmlAlphabet alpha = new CmlAlphabet(coms);
-		
-		return alpha;
-	}
+	
 	
 }
