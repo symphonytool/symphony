@@ -20,6 +20,7 @@ import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.parser.CmlParser;
@@ -40,6 +41,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
     protected Context                  globalContext;
     protected String 				   defaultName      = null;	
     protected AProcessDefinition       topProcess;
+    protected CmlSupervisorEnvironment currentSupervisor= null;
     //private CmlScheduler               cmlScheduler     = new CmlScheduler();
     
     /**
@@ -119,11 +121,18 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
         CmlRuntime.setGlobalEnvironment(env);
         //    this.evalutor, getInitialContext(topProcess.getLocation()));
         
-        CmlSupervisorEnvironment sve = CmlRuntime.getSupervisorEnvironment();
+        currentSupervisor = CmlRuntime.createSupervisorEnvironment();
+        
+        //Clear for pupils
+        for(CmlProcess p : currentSupervisor.getPupils())
+        {
+        	currentSupervisor.removePupil(p);
+        }
+        
         CmlProcessInstance pi = new CmlProcessInstance(topProcess, null,getInitialContext(null));
         
-        pi.start(sve);
-        sve.start();
+        pi.start(currentSupervisor);
+        currentSupervisor.start();
         
         return null;
       }
@@ -208,16 +217,18 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
       {
         
         File cml_example = new File(
-            "src/test/resources/action/action-generalised-parallelism-no-state.cml");
+            "src/test/resources/action/action-interleaving.cml");
         //		"src/test/resources/action/action-interleaving.cml");
         runOnFile(cml_example);
         
       }
     
     public InterpreterStatus getStatus()
-      {
-        return null;//new InterpreterStatus(cmlScheduler.getTrace());
-      }
+    {
+    	CmlProcess topCmlProcessInstance = currentSupervisor.findNamedProcess(topProcess.getName().toString());
+    	    	
+    	return new InterpreterStatus(topCmlProcessInstance.getTraceModel());
+    }
 
 	@Override
 	public Context getInitialContext(LexLocation location) {

@@ -67,13 +67,54 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 	@Override
 	public void addPupil(CmlProcess process) {
 		process.registerOnStateChanged(this);
+		//put them as running so they will get a chance to run
 		running.add(process);		
 	}
 
 	@Override
 	public void removePupil(CmlProcess process) {
 		process.unregisterOnStateChanged(this);
+						
 		running.remove(process);
+		waiting.remove(process);
+		finished.remove(process);
+	}
+	
+	@Override
+	public void clearPupils()
+	{
+		running.clear();
+		waiting.clear();
+		finished.clear();
+	}
+	
+	@Override
+	public List<CmlProcess> getPupils() {
+		
+		List<CmlProcess> all = new LinkedList<CmlProcess>();
+		all.addAll(running);
+		all.addAll(waiting);
+		all.addAll(finished);
+		
+		return all;
+	}
+	
+	@Override
+	public CmlProcess findNamedProcess(String name)
+	{
+		CmlProcess resultProcess = null;
+		List<CmlProcess> all = getPupils();
+		
+		for(CmlProcess p : all )
+		{
+			if(p.name().toString().equals(name))
+			{
+				resultProcess = p;
+				break;
+			}
+		}
+				
+		return resultProcess;
 	}
 
 	/**
@@ -193,8 +234,6 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 	public String toString() {
 		return "Default Supervisor Environment";
 	}
-
-	
 
 //	@Override
 //	public boolean hasSupervisionFrame(CMLProcessNew process) {

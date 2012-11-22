@@ -15,7 +15,7 @@ public class CmlRuntime {
 
 	//protected static CmlScheduler cmlScheduler = new CmlScheduler();
 	protected static Environment globalEnvironment = null;
-	protected static CmlSupervisorEnvironment supervisorEnvironment = null;
+	//protected static CmlSupervisorEnvironment supervisorEnvironment = null;
 	protected static Logger logger = null;
 	protected static Handler logHandler = null;
 	private static boolean showHiddenEvents = false;
@@ -65,12 +65,12 @@ public class CmlRuntime {
 
 	}
 	
-	public static CmlSupervisorEnvironment getSupervisorEnvironment()
+	public static CmlSupervisorEnvironment createSupervisorEnvironment()
 	{
-		if(null == supervisorEnvironment)
-			supervisorEnvironment = new DefaultSupervisorEnvironment(new RandomSelectionStrategy());
+		//if(null == supervisorEnvironment)
+			//supervisorEnvironment = new DefaultSupervisorEnvironment(new RandomSelectionStrategy());
 		
-		return supervisorEnvironment;
+		return new DefaultSupervisorEnvironment(new RandomSelectionStrategy());
 		
 	}
 
