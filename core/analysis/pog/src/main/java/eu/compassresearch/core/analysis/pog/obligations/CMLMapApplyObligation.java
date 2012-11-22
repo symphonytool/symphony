@@ -19,42 +19,28 @@
  *	You should have received a copy of the GNU General Public License
  *	along with VDMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
- ******************************************************************************
- * 
- * Just using Overture POContext for now
- *
  ******************************************************************************/
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.types.PType;
+import org.overture.ast.statements.PStateDesignator;
+import org.overture.pog.obligation.POType;
 
-abstract public class POContext
+
+// Not being used anywhere so far. Can we extend the overture one?
+public class CMLMapApplyObligation extends CMLProofObligation
 {
-	abstract public String getContext();
-	private Map<PExp, PType> knownTypes = new HashMap<PExp, PType>();
-
-	public String getName()
+	public CMLMapApplyObligation(PExp root, PExp arg, CMLPOContextStack ctxt)
 	{
-		return "";		// Overridden in PONameContext
+		super(root.getLocation(), CMLPOType.MAP_APPLY, ctxt);
+		value = ctxt.getObligation(arg + " in set dom " + root);
 	}
 
-	public boolean isScopeBoundary()
+	public CMLMapApplyObligation(PStateDesignator root,
+		PExp arg, CMLPOContextStack ctxt)
 	{
-		return false;
-	}
-
-	public void noteType(PExp exp, PType type)
-	{
-		knownTypes.put(exp, type);
-	}
-
-	public PType checkType(PExp exp)
-	{
-		return knownTypes.get(exp);
+		super(root.getLocation(), CMLPOType.MAP_APPLY, ctxt);
+		value = ctxt.getObligation(arg + " in set dom " + root);
 	}
 }

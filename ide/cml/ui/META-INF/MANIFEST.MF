@@ -33,7 +33,8 @@ Require-Bundle: eu.compassresearch.ide.cml.core,
  org.eclipse.core.runtime,
  org.eclipse.equinox.common,
  org.overture.ide.ui;bundle-version="2.2.0",
- org.overture.ide.core
+ org.overture.ide.core,
+ org.eclipse.ui
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered

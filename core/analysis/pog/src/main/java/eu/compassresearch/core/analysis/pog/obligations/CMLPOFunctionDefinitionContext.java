@@ -19,27 +19,26 @@
  *	You should have received a copy of the GNU General Public License
  *	along with VDMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
+ ******************************************************************************
+ *REUSE FOR NOW
  ******************************************************************************/
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import org.overture.ast.expressions.PExp;
-import org.overture.ast.statements.PStateDesignator;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.pog.obligation.POFunctionDefinitionContext;
 
+public class CMLPOFunctionDefinitionContext extends POFunctionDefinitionContext {
 
+    public CMLPOFunctionDefinitionContext(
+	    AExplicitFunctionDefinition definition, boolean precond) {
+	super(definition, precond);
+    }
 
-public class MapApplyObligation extends ProofObligation
-{
-	public MapApplyObligation(PExp root, PExp arg, POContextStack ctxt)
-	{
-		super(root.getLocation(), POType.MAP_APPLY, ctxt);
-		value = ctxt.getObligation(arg + " in set dom " + root);
-	}
+    public CMLPOFunctionDefinitionContext(
+	    AImplicitFunctionDefinition definition, boolean precond) {
+	super(definition, precond);
+    }
 
-	public MapApplyObligation(PStateDesignator root,
-		PExp arg, POContextStack ctxt)
-	{
-		super(root.getLocation(), POType.MAP_APPLY, ctxt);
-		value = ctxt.getObligation(arg + " in set dom " + root);
-	}
 }
