@@ -20,7 +20,6 @@ import java.util.Stack;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
-
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.PStm;
 
@@ -31,9 +30,7 @@ import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
-
 import eu.compassresearch.core.analysis.pog.obligations.CMLPOContextStack;
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 
 
@@ -72,25 +69,6 @@ public class ProofObligationGenerator extends QuestionAnswerCMLAdaptor<CMLPOCont
     // -- Dispatch to sub-visitors
     // ---------------------------------------------
 
-    // Are these missing / needed?
-    // @Override
-    // public ProofObligationList defaultPType(PType node, TypeCheckQuestion
-    // question)
-    // throws AnalysisException
-    // {
-    // return node.apply(typ, question);
-    // }
-
-    // @Override
-    // public ProofObligationList defaultPAction(PAction node, POContextStack
-    // question)
-    // throws AnalysisException
-    // {
-    // return node.apply(this.stm, question);
-    // }
-
-    // TODO Need to figure out how many more "defaults" are missing
-
     @Override
     public CMLProofObligationList defaultPDefinition(PDefinition node,
 	    CMLPOContextStack question) throws AnalysisException {
@@ -121,6 +99,9 @@ public class ProofObligationGenerator extends QuestionAnswerCMLAdaptor<CMLPOCont
 	return node.apply(this.expressionVisitor, question);
     }
 
+    // Need to figure out how many more "defaults" are missing
+
+    
     // ---------------------------------------------
     // -- Public API to CML POG
     // ---------------------------------------------
