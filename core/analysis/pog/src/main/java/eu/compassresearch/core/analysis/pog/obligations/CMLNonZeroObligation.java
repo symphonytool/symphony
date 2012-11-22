@@ -26,17 +26,19 @@ package eu.compassresearch.core.analysis.pog.obligations;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
 import org.overture.pog.obligation.NonZeroObligation;
-import org.overture.pog.obligation.POContextStack;
-import org.overture.pog.obligation.POType;
 
 
-public class CMLNonZeroObligation extends CMLProofObligation
+public class CMLNonZeroObligation extends NonZeroObligation
 {
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 3461400704589069201L;
+
 	public CMLNonZeroObligation(
 		LexLocation location, PExp exp, CMLPOContextStack ctxt)
 	{
-		super(location, CMLPOType.NON_ZERO, ctxt);
-		value = ctxt.getObligation(exp + " <> 0");
+		super(location, exp, ctxt);
 		System.out.println(toString());
 	}
 }
