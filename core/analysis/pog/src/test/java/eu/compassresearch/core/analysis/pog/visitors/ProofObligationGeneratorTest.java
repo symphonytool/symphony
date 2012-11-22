@@ -13,9 +13,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.overture.pog.obligation.NonEmptySetObligation;
-import org.overture.pog.obligation.NonZeroObligation;
 
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.analysis.pog.obligations.CMLNonZeroObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.TestUtil;
@@ -33,7 +33,7 @@ public class ProofObligationGeneratorTest {
     }
 
     
-    public static Object[] divZeroFunction ={"class c = begin functions fn: int -> int fn(a) == 50/ a end", NonZeroObligation.class}
+    public static Object[] divZeroFunction ={"class c = begin functions fn: int -> int fn(a) == 50/ a end", CMLNonZeroObligation.class}
     ;
     public static Object[] distInterFunction= {"class c = begin functions fn : set of set of int -> set of int fn(ss) == dinter ss end", NonEmptySetObligation.class};
     
