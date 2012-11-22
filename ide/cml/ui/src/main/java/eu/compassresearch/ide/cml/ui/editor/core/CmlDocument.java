@@ -11,12 +11,9 @@ public class CmlDocument extends VdmDocument {
 	public CmlSourceUnit getCmlSourceUnit() {
 		return this.source;
 	}
-	
-	public void setCmlSourceUnit(CmlSourceUnit csu)
-	{
+
+	public void setCmlSourceUnit(CmlSourceUnit csu) {
 		this.source = csu;
 	}
-	
-	
-	
+
 }

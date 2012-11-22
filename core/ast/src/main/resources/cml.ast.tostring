@@ -1,7 +1,7 @@
 To String Extensions
 // import packages used by external $$ java code
-import org.overture.ast.util.Utils;
-import org.overture.ast.util.ToStringUtil;
+import eu.compassresearch.ast.util.Utils;
+import eu.compassresearch.ast.util.ToStringUtil;
 
 
 %source->file = [name] 
@@ -20,13 +20,22 @@ import org.overture.ast.util.ToStringUtil;
 %action->chaos = "Chaos"
 %action->div = "Div Action"
 %action->wait = "Wait"
+%action->sequentialComposition = [left] ";" [right]
+%action->reference = [name]
+%action->#Parallel->interleaving = [leftAction] "|||" [rightAction]
+%action->#Parallel->generalisedParallelism = [leftAction] "[|" [chanSetExpression] "|]" [rightAction]
+// Processes
+%process->state = "state: " [processDefinition] "@"
 
 %type->error = "Type Error"
+
 //  Expressions
+%exp->#Set->#Chanset->enum = "{|" [identifiers] "|}"
  
 //  Patterns
 
 //  Definitions
+%definition->process = "Process " [name]$.getName()$
 
 //  Statements
 

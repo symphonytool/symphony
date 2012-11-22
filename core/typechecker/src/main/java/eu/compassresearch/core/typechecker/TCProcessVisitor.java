@@ -7,13 +7,16 @@ import org.overture.typechecker.TypeCheckInfo;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.process.AInstantiationProcess;
+import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.ast.types.AProcessType;
+import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 
 @SuppressWarnings("serial")
 public class TCProcessVisitor extends
@@ -59,9 +62,9 @@ public class TCProcessVisitor extends
 
 		return new AProcessType();
 	}
-
+	
 	@Override
-	public PType caseAInstantiationProcess(AInstantiationProcess node,
+	public PType caseAReferenceProcess(AReferenceProcess node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 		eu.compassresearch.core.typechecker.TypeCheckInfo newQ = (eu.compassresearch.core.typechecker.TypeCheckInfo) question;
@@ -84,7 +87,10 @@ public class TCProcessVisitor extends
 	public PType caseAStateProcess(AStateProcess node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-
+		
+		//Set the process def for this node
+		node.setProcessDefinition(node.getAncestor(AProcessDefinition.class));
+		
 		// Type check all the paragraph definitions
 		for (PDefinition def : node.getDefinitionParagraphs()) {
 			def.apply(this.parentChecker, question);

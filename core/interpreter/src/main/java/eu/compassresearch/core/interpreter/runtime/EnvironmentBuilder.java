@@ -6,6 +6,10 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexNameToken;
+import org.overture.interpreter.runtime.StateContext;
+import org.overture.interpreter.values.NameValuePair;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatEnvironment;
 
@@ -21,6 +25,7 @@ import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
 public class EnvironmentBuilder extends AnalysisCMLAdaptor
   {
@@ -30,6 +35,7 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
     private static final long        serialVersionUID   = 493918199975006733L;
     private List<PDefinition>        globalDefs	        = new LinkedList<PDefinition>();
     private AProcessDefinition       lastDefinedProcess = null;
+    private StateContext             globalState        = null;
     
     public EnvironmentBuilder(List<PSource> sources)
     {
@@ -38,6 +44,8 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
 
     private void BuildGlobalEnvironment(List<PSource> sources)
       {
+    	globalState = new StateContext(new LexLocation(), "GlobalContext");
+    	
         // EnvironmentBuilder envBuilder = new EnvironmentBuilder();
         
         for (PSource source : sources)
@@ -58,14 +66,20 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
       }
     
     public AProcessDefinition getLastDefinedProcess()
-      {
-        return lastDefinedProcess;
-      }
-    
+    {
+    	return lastDefinedProcess;
+    }
+
     public Environment getGlobalEnvironment()
-      {
-        return new FlatEnvironment(globalDefs);
-      }
+    {
+    	return new FlatEnvironment(globalDefs);
+    }
+
+    public StateContext getGlobalContext()
+    {
+    	return globalState;
+    }
+    
     
     @Override
     public void caseAClassParagraphDefinition(AClassParagraphDefinition node)
@@ -125,20 +139,20 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
             //env.put(functionDef.getName(), functionDef);
           }
       }
-    
+
     @Override
-    public void caseAChannelParagraphDefinition(AChannelParagraphDefinition node)
-        throws AnalysisException
-      {
-        
-        for (AChannelNameDefinition cnd : node.getChannelNameDeclarations())
-          {
-            for (LexIdentifierToken channelName : cnd.getSingleType()
-                .getIdentifiers())
-              {
-                // env.addChannel(channelName, cnd.getSingleType().getType());
-              }
-          }
-      }
-    
+    public void caseAChannelParagraphDefinition(AChannelParagraphDefinition node) throws AnalysisException
+    {
+
+    	for (AChannelNameDefinition cnd : node.getChannelNameDeclarations())
+    	{
+    		for (LexIdentifierToken channelName : cnd.getSingleType().getIdentifiers())
+    		{
+    			LexNameToken name = new LexNameToken("Default", channelName);
+    			globalState.putNew(new NameValuePair(name, new CMLChannelValue(cnd.getSingleType().getType(),name)));
+    			//globalDefs.add(e) addChannel(channelName, cnd.getSingleType().getType());
+    		}
+    	}
+    }
+
   }

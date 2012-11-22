@@ -1,7 +1,11 @@
 package eu.compassresearch.core.interpreter.api;
 
+import org.overture.ast.lex.LexLocation;
+
 public class InterpreterException extends Exception {
 
+	final LexLocation location;
+	
 	/**
 	 * 
 	 */
@@ -9,16 +13,24 @@ public class InterpreterException extends Exception {
 
 	public InterpreterException()
 	{
-		
+		location = null;
 	}
 
 	public InterpreterException(String message)
 	{
 		super(message);
+		location = null;
+	}
+	
+	public InterpreterException(LexLocation location, String message)
+	{
+		super(message);
+		this.location = location;
 	}
 	
 	public InterpreterException(String message,Throwable cause)
 	{
 		super(message,cause);
+		this.location = null;
 	}
 }

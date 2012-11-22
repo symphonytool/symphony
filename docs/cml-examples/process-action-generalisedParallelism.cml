@@ -1,2 +1,3 @@
-process RegisterProc = begin @ A [|X|] B end
-process RegisterProc = begin @ A [|ns1 | X | ns2|] B end
+process TestProcess1 = begin @ A [|X|] B end
+process TestProcess2 = begin @ A [| {| init |} |] B end
+process TestProcess3 = begin @ A [|ns1 | X | ns2|] B end
