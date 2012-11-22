@@ -22,6 +22,7 @@ import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
+import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
 import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
@@ -106,7 +107,18 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	public String nextStepToString() {
 		
 		if(hasNext())
-			return nextState().first.toString();
+		{
+			if(hasChildren())
+			{
+				CmlProcess leftChild = children().get(0);
+				CmlProcess rightChild = children().get(1);
+				
+				return "(" + leftChild.nextStepToString() + ")" + CmlOpsToString.toString(nextState().first) + "(" + rightChild.nextStepToString()+")";
+			}
+			else{
+				return nextState().first.toString();
+			}
+		}
 		else
 			return "Finished";
 	}
@@ -145,6 +157,9 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 
 		switch(stateEvent.getTo())
 		{
+		case RUNNING:
+			setState(CmlProcessState.WAIT_CHILD);
+			break;
 		case WAIT_EVENT:
 			//if at least one child are waiting for an event this process must invoke either Parallel Non-sync or sync
 			if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
@@ -313,18 +328,24 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 				
 				leftChild.registerOnTraceChanged(this);
 				rightChild.registerOnTraceChanged(this);
+				
+				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
 			else if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
 			{
 				leftChild.unregisterOnTraceChanged(this);				
 				leftChild.execute(supervisor());
 				leftChild.registerOnTraceChanged(this);
+				
+				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
 			else if(rightChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
 			{
 				rightChild.unregisterOnTraceChanged(this);
 				rightChild.execute(supervisor());
 				rightChild.registerOnTraceChanged(this);
+				
+				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
 			else
 			{
@@ -333,8 +354,6 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			
 			//We push the current state, 
 			pushNext(node, question);
-			
-			result = CmlBehaviourSignal.EXEC_SUCCESS;
 		}
 		//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
 		else if (CmlProcessUtil.isAllChildrenFinished(this))
@@ -379,6 +398,40 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		if(!hasChildren()){
 			result = caseParallelBegin(node,question);
 			//We push the current state, since this process will control the child processes created by it
+			pushNext(node, question);
+
+		}
+		//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
+		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
+		{
+			
+			CmlProcess leftChild = children().get(0);
+			CmlAlphabet leftChildAlpha = leftChild.inspect(); 
+			CmlProcess rightChild = children().get(1);
+			CmlAlphabet rightChildAlpha = rightChild.inspect();
+			
+			if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
+			{
+				leftChild.unregisterOnTraceChanged(this);				
+				leftChild.execute(supervisor());
+				leftChild.registerOnTraceChanged(this);
+				
+				result = CmlBehaviourSignal.EXEC_SUCCESS;
+			}
+			else if(rightChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
+			{
+				rightChild.unregisterOnTraceChanged(this);
+				rightChild.execute(supervisor());
+				rightChild.registerOnTraceChanged(this);
+				
+				result = CmlBehaviourSignal.EXEC_SUCCESS;
+			}
+			else
+			{
+				result = CmlBehaviourSignal.FATAL_ERROR;
+			}
+			
+			//We push the current state, 
 			pushNext(node, question);
 			
 		}
