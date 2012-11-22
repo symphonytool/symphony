@@ -208,7 +208,7 @@ public class VanillaCmlInterpreter extends AbstractCmlInterpreter
       {
         
         File cml_example = new File(
-            "src/test/resources/action/action-interleaving.cml");
+            "src/test/resources/action/action-generalised-parallelism-no-state.cml");
         //		"src/test/resources/action/action-interleaving.cml");
         runOnFile(cml_example);
         
