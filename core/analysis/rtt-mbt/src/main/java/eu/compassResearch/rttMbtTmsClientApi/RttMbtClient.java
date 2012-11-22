@@ -351,8 +351,9 @@ public class RttMbtClient {
 		success = unzipArchive(archive.getPath(), testProcs.getPath());
 
 		// perform livelock check
-		System.out.println("performing livelock check of the model...");
+		System.out.println("performing livelock check of the model (with enabled GUI ports)...");
 		jsonCheckModelCommand checkModel = new jsonCheckModelCommand(this);
+		checkModel.setGuiPorts(true);
 		checkModel.setModelName(modelName);
 		checkModel.setModelId(modelVersion);
 		checkModel.executeCommand();
@@ -461,8 +462,9 @@ public class RttMbtClient {
 		uploadFile(confDirName + "addgoalsordered.conf");
 		
 		// generate-test-command
-		System.out.println("generating concrete test procedure " + abstractTestProc + "...");
+		System.out.println("generating concrete test procedure (with GUI ports enabled)" + abstractTestProc + "...");
 		jsonGenerateTestCommand cmd = new jsonGenerateTestCommand(this);
+		cmd.setGuiPorts(true);
 		cmd.setTestProcName("TestProcedures/" + abstractTestProc);
 		cmd.executeCommand();
 		if (!cmd.executedSuccessfully()) {

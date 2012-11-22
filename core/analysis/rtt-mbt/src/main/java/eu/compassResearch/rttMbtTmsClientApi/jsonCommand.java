@@ -164,6 +164,47 @@ public class jsonCommand {
 		return;
 	}
 	
+	public Boolean hasProgressItems(String message) {
+		int start = message.lastIndexOf('{');
+		if (start == -1) {
+			return false;
+		}
+		String jsonWord = message.substring(start);
+		return (jsonWord.lastIndexOf("\"progress-item\"") != -1);
+	}
+	
+	public String scanForProgressItems(String message) {
+		if (hasProgressItems(message)) {
+			int start = message.lastIndexOf('{');
+			String item = message.substring(start);
+			System.out.println("extracted progress item '" + item + "'");
+			message = message.substring(0, start);
+			return message;
+		} else {
+			return message;
+		}
+	}
+
+	public Boolean hasConsoleItems(String message) {
+		int start = message.lastIndexOf('{');
+		if (start == -1) {
+			return false;
+		}
+		String jsonWord = message.substring(start);
+		return (jsonWord.lastIndexOf("\"console-item\"") != -1);
+	}
+	public String scanForConsoleItems(String message) {
+		if (hasConsoleItems(message)) {
+			int start = message.lastIndexOf('{');
+			String item = message.substring(start);
+			System.out.println("extracted console item '" + item + "'");
+			message = message.substring(0, start);
+			return message;
+		} else {
+			return message;
+		}
+	}
+	
 	public String receiveReply() {
 		String message = "";
 		try{
@@ -172,6 +213,15 @@ public class jsonCommand {
 			character = replyStream.read();
 			while (character != -1) {
 				message += (char)character;
+				// scan message for progress-item and console-item
+				if (character == '}') {
+					if (hasProgressItems(message)) {
+						message = scanForProgressItems(message);
+					}
+					if (hasConsoleItems(message)) {
+						message = scanForConsoleItems(message);
+					}
+				}
 				character = replyStream.read();
 			}
 		}
