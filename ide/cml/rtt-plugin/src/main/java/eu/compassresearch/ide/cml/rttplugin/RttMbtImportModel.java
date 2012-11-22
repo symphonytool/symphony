@@ -16,12 +16,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 import eu.compassResearch.rttMbtTmsClientApi.RttMbtClient;
 
-/*
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
-*/
 
-public class RttMbtInitProject extends AbstractHandler {
+public class RttMbtImportModel extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -44,19 +40,8 @@ public class RttMbtInitProject extends AbstractHandler {
 		// calculate CML project name from full path to selected folder
 		String CmlProject = selectionFullName.substring(0, selectionFullName.length() - selectionName.length() - 1);
 
-		/*
-		// try to print something to the console view (not working, yet)
-		IConsole[] consoles = ConsolePlugin.getDefault().getConsoleManager().getConsoles();
-		for (int idx = 0; idx < consoles.length; idx++) {
-			System.out.println("console #" + idx + ": " + consoles[idx].getName() + "'");
-		}
-		if (consoles.length == 0) {
-			System.err.println("[FAIL]: no active console present!");
-		}
-        */
-
 		// create RTT-MBT TMS client
-    	RttMbtClient client = new RttMbtClient("localhost", 9116, "uwe", "uschulze@informatik.uni-bremen.de");
+    	RttMbtClient client = Activator.getClient();
 
     	// set CML workspace
     	IWorkspace workspace = ResourcesPlugin.getWorkspace();

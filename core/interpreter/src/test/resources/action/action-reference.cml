@@ -1,4 +1,4 @@
-channels a b
+channels a 
 process A = 
 begin 
 	actions

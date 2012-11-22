@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 
 public class CmlTrace {
@@ -36,5 +37,18 @@ public class CmlTrace {
 		strbuilder.append(">");
 		
 		return strbuilder.toString();
+	}
+	
+	public List<CmlEvent> getVisibleEvents()
+	{
+		List<CmlEvent> visibleEvents = new LinkedList<CmlEvent>();
+			
+		for(CmlEvent e : trace)
+		{
+			if(e instanceof CmlCommunicationEvent)
+				visibleEvents.add(e);
+		}
+		
+		return visibleEvents;
 	}
 }

@@ -7,9 +7,12 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.Level;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,6 +28,8 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.runtime.VanillaCmlInterpreter;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -57,6 +62,14 @@ public class InterpretAllCmlFilesTest {
 					+ filePath);
 			System.out.println(e);
 		}
+		
+		@Override
+		protected void starting(Description description) {
+
+			System.out.println("Test started : " + description.getMethodName() + " : "
+					+ filePath);
+			super.starting(description);
+		}
 
 		@Override
 		protected void succeeded(Description d) {
@@ -68,6 +81,7 @@ public class InterpretAllCmlFilesTest {
 
 	@Before
 	public void setUp() {
+		//CmlRuntime.logger().setLevel(Level.OFF);
 	}
 
 	@Test
@@ -102,17 +116,45 @@ public class InterpretAllCmlFilesTest {
 
 		checkResult(testResult, interpreter.getStatus());
 	}
+	
+	private List<String> convertCmlEventsToStringList(List<CmlEvent> events)
+	{
+		List<String> result = new LinkedList<String>();
+
+		for(CmlEvent e : events)
+		{
+			result.add(e.toString());
+		}
+
+		return result;
+	}
 
 	private void checkResult(TestResult testResult, InterpreterStatus status) {
-		assertTrue(testResult.getVisibleTrace()
-				.equals(status.getVisibleTrace()));
+		if(!testResult.isInterleaved())
+		{
+			assertTrue(testResult.getFirstVisibleTrace()
+					.equals(convertCmlEventsToStringList(status.getVisibleTrace())));
+		}
+		else
+		{
+			boolean foundMatch = false;
+			//If we have interleaving it must be one of the possible traces
+			List<String> resultTrace = convertCmlEventsToStringList(status.getVisibleTrace());
+			for(List<String> trace : testResult.getVisibleTraces())
+			{
+				foundMatch |= trace.equals(resultTrace);
+				
+			}
+			
+			assertTrue(foundMatch);
+		}
 
 	}
 
 	@Parameters
 	public static Collection getCmlfilePaths() {
 
-		File dir = new File("src/test/resources/process/");
+		File dir = new File("src/test/resources/action/");
 		List<Object[]> paths = new Vector<Object[]>();
 
 		FilenameFilter filter = new FilenameFilter() {
