@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>theoremprover</artifactId>
-  <name>COMPASS CML Theorem Prover</name>
+  <name>COMPASS Core Analysis Theorem Prover</name>
 
   <dependencies>
 

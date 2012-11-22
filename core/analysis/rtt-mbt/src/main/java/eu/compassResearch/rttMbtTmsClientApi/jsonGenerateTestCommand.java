@@ -6,7 +6,6 @@ package eu.compassResearch.rttMbtTmsClientApi;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.json.simple.JSONObject;
 
 /**
@@ -47,15 +46,17 @@ public class jsonGenerateTestCommand extends jsonCommand {
 	}
 
 	public void handleParameters(JSONObject parameters) {
+
+		// get the parameter list
 		if (parameters == null) {
 			return;
 		}
+
+		// get configuration.csv
 		String filename = "";
 		if (client.getProjectName() != null) {
 			filename = client.projectName + File.separator;
 		}
-		// if the test procedure name is not defined, generate
-		// the signalmap.csv in the model folder of the project 
 		if (testProcName != null) {
 			filename += "TestProcedures" + File.separator + testProcName + File.separator + "conf" + File.separator;
 		} else {
@@ -64,6 +65,14 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		filename += "configuration.csv";
 		writeBase64StringFileContent(filename,
 								     (String)parameters.get("configuration.csv"), false);
+
+		// get the result
+		String checkResult = (String)parameters.get("result");
+		if (!(checkResult.equals("PASS"))) {
+			resultValue = false;
+		} else {
+			resultValue = true;
+		}
 	}
 
 	public String getTestProcName() {
