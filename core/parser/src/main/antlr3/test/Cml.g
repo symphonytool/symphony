@@ -2,6 +2,8 @@
  *   localDef -> valueDefinition | functionDefinition
  *     the alternatives conflict; need to be left-factored, I think
  *
+ * QUOTE_LITERAL doesn't do the right thing with "0<x" (but "0< x" is fine)
+ *
  */
 grammar Cml;
 options {
@@ -50,14 +52,31 @@ classDefinition
 classDefinitionBlock
     : typeDefs
     | valueDefs
+    | stateDefs
     | functionDefs
 //  | operationDefs
-//  | stateDefs
 //  | INITIAL operationDef
     ;
 
 valueDefs
     : 'values' ( QUALIFIER? valueDefinition (';' QUALIFIER? valueDefinition)* )? ';'?
+    ;
+
+stateDefs
+    : 'state' ( instanceVariableDefinition (';' instanceVariableDefinition)* )? ';'?
+    ;
+
+instanceVariableDefinition
+    : QUALIFIER? assignmentDefinition
+    | invariantDefinition
+    ;
+
+assignmentDefinition
+    : bindablePattern ':' type ( ( ':=' | 'in' ) expression )?
+    ;
+
+invariantDefinition
+    : 'inv' expression
     ;
 
 functionDefs
@@ -284,8 +303,8 @@ seqExpr
     ;
 
 localDefinition
-    // : valueDefinition
-    : functionDefinition
+    : valueDefinition
+    //| functionDefinition
     ;
     
 bind: bindablePattern ('in' 'set' expression | ':' type)
