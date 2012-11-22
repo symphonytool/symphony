@@ -77,11 +77,16 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 
 			CmlAlphabet alpha = null;
 
+			//If this process is a state process it has its behaviour defined in the mainBehaviour action part
+			//Therefore when this process is inspected this is forwarded to the mainBehaviour
 			if(null != mainBehaviour)
 				alpha = mainBehaviour.inspect();
 			else
 			{
-				alpha = nextState().first.apply(alphabetInspectionVisitor,nextState().second);
+				if(hasNext())
+					alpha = nextState().first.apply(alphabetInspectionVisitor,nextState().second);
+				else
+					alpha = new CmlAlphabet();
 			}
 
 			return alpha;

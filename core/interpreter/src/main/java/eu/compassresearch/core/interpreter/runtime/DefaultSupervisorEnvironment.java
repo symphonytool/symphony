@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import org.overture.ast.analysis.AnalysisException;
 
+import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
@@ -102,24 +103,37 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment, C
 						throw new RuntimeException("Change this!!!!, but now that you haven't changed this yet, " +
 								"then let me tell you that the return CMLBehaviourSignal was unsuccesful");
 
-					CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
+					CmlRuntime.logger().fine("current trace of '"+p+"': " + p.getTraceModel());
 					CmlRuntime.logger().fine("next: " + p.nextStepToString());
 				}
 			}
 
-			/**
-			 * Now, all the processes are sleeping tight, so the selected decision strategy needs to 
-			 * decide which event should occur and wake them up.
-			 */
-			for(Iterator<CmlProcess> iterator = new Vector<CmlProcess>(waiting).iterator(); iterator.hasNext();)
+			//Since we can have newly created children, must might have to go back another round before inspecting
+			if(running.size() == 0)
 			{
-				CmlProcess p = iterator.next();
-				if(p.level() == 0)
+
+				/**
+				 * Now, all the processes are sleeping tight, so the selected decision strategy needs to 
+				 * decide which event should occur and wake them up.
+				 */
+				for(Iterator<CmlProcess> iterator = new Vector<CmlProcess>(waiting).iterator(); iterator.hasNext();)
 				{
-					//Select and set the communication event
-					setSelectedCommunication(decisionFunction().select(p.inspect()));
-					//signal all the processes that are listening for this channel
-					selectedCommunication.getChannel().signal();
+					CmlProcess p = iterator.next();
+					if(p.level() == 0)
+					{
+						CmlAlphabet alpha = p.inspect();
+
+						if(alpha.isEmpty())
+							throw new RuntimeException("Change this!!!!, but now that you " +
+									"haven't changed this yet a deadlock has occured");
+						else
+						{
+							//Select and set the communication event
+							setSelectedCommunication(decisionFunction().select(p.inspect()));
+							//signal all the processes that are listening for this channel
+							selectedCommunication.getChannel().signal();
+						}
+					}
 				}
 			}
 		}

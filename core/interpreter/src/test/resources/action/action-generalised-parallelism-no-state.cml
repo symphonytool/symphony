@@ -1,5 +1,5 @@
 channels a b c init
 process A = 
 begin 
-	@ [init] -> [a] -> c -> Skip [| {|init,c|} |] [init] -> c -> [b] -> Skip 
+	@ [init] -> [a] -> [c] -> Skip [| {|init,c|} |] [init] -> [c] -> [b] -> Skip 
 end
