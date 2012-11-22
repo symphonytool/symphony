@@ -15,6 +15,7 @@ import org.json.simple.JSONObject;
 public class jsonGenerateTestCommand extends jsonCommand {
 
 	private String testProcName;
+	private Boolean guiPorts;
 
 	public jsonGenerateTestCommand(RttMbtClient client) {
 		super(client);
@@ -32,6 +33,11 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		Map params = new LinkedHashMap();
 		params.put("project-name", client.getProjectName());
 		params.put("test-procedure-path", testProcName);
+		// use gui ports
+		if (guiPorts) {
+			params.put("progress-port", "true");
+			params.put("console-port", "true");
+		}
 		// create command
 		JSONObject cmd = new JSONObject();
 		cmd.put("generate-test-command", params);
@@ -81,5 +87,13 @@ public class jsonGenerateTestCommand extends jsonCommand {
 
 	public void setTestProcName(String testProcName) {
 		this.testProcName = testProcName;
+	}
+
+	public Boolean getGuiPorts() {
+		return guiPorts;
+	}
+
+	public void setGuiPorts(Boolean guiPorts) {
+		this.guiPorts = guiPorts;
 	}
 }

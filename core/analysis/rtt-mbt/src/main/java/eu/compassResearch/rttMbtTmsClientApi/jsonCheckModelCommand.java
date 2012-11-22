@@ -80,4 +80,12 @@ public class jsonCheckModelCommand extends jsonCommand {
 		}
 		writeBase64StringFileContent(filename, (String)reply.get("model-checking-results"), false);
 	}
+
+	public Boolean getGuiPorts() {
+		return guiPorts;
+	}
+
+	public void setGuiPorts(Boolean guiPorts) {
+		this.guiPorts = guiPorts;
+	}
 }
