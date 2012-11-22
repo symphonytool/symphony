@@ -27,6 +27,14 @@
     </dependency>
 
     <dependency>
+      <groupId>eu.compassresearch.core</groupId>
+      <artifactId>typechecker</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.overturetool.core</groupId>
       <artifactId>ast</artifactId>
       <version>${overture.version}</version>
@@ -43,6 +51,9 @@
       <artifactId>pog</artifactId>
       <version>${overture.version}</version>
     </dependency>
+
+
+
 
   </dependencies>
 
