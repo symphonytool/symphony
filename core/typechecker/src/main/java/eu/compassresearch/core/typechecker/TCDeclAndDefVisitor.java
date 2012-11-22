@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
@@ -85,28 +86,28 @@ class TCDeclAndDefVisitor extends
 			AActionParagraphDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		
-		for(AActionDefinition actionDefinition : node.getActions())
-		{
-			actionDefinition.apply(this,question);
+
+		for (AActionDefinition actionDefinition : node.getActions()) {
+			actionDefinition.apply(this, question);
 		}
-		
+
 		node.setType(new AActionParagraphType());
 		return node.getType();
 	}
-	
+
 	@Override
 	public PType caseAActionDefinition(AActionDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		
-		//Add this to the current scope
-		((TypeCheckQuestion)question).addVariable(node.getName().getIdentifier(), node);
-		
+
+		// Add this to the current scope
+		((TypeCheckQuestion) question).addVariable(node.getName()
+				.getIdentifier(), node);
+
 		node.setType(new AStatementType());
-		return  node.getType();
+		return node.getType();
 	}
-	
+
 	@Override
 	public PType caseATypesParagraphDefinition(ATypesParagraphDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
@@ -159,8 +160,12 @@ class TCDeclAndDefVisitor extends
 
 		node.setExpType(expressionType);
 
+		// Add this value definition to the environment
 		TypeCheckInfo tci = (TypeCheckInfo) question;
-		tci.addVariable(node.getName(), node);
+		ALocalDefinition localDef = new ALocalDefinition(node.getLocation(),
+				NameScope.GLOBAL, false, node.getAccess(), Pass.VALUES, true);
+		localDef.setName(node.getName());
+		tci.addVariable(node.getName(), localDef);
 
 		// Check type consistency
 		if (!typeComparator.isSubType(expressionType, declaredType))
@@ -169,13 +174,24 @@ class TCDeclAndDefVisitor extends
 							.customizeMessage(expressionType.toString(),
 									declaredType.toString()));
 
+		// Get the enclosing definition that this value definition will be added
+		// to
+
+		PDefinition enclosingDef = question.env.getEnclosingDefinition();
+
 		// if there is a parent definition lets find things
 		List<PDefinition> newDefs = new LinkedList<PDefinition>();
-		if (question.env.getEnclosingDefinition() != null)
+		if (enclosingDef != null)
 			newDefs = getHandler(node.getPattern()).getDefinitions(
 					node.getPattern(), question.env.getEnclosingDefinition());
 
 		node.setDefs(newDefs);
+		if (enclosingDef instanceof AClassClassDefinition) {
+			AClassClassDefinition clzEnclosingDef = (AClassClassDefinition) enclosingDef;
+			clzEnclosingDef.getDefinitions().add(node);
+		} else {
+
+		}
 
 		// No matter the declared type is the type of the definition
 		node.setType(declaredType);
@@ -330,8 +346,9 @@ class TCDeclAndDefVisitor extends
 			AProcessParagraphDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		//make a new scope for the process
-		TypeCheckInfo newScope = (TypeCheckInfo)((TypeCheckQuestion)question).newScope(node);
+		// make a new scope for the process
+		TypeCheckInfo newScope = (TypeCheckInfo) ((TypeCheckQuestion) question)
+				.newScope(node);
 		// TODO: Rethink the environment
 		AProcessDefinition pdef = node.getProcessDefinition();
 		pdef.apply(parentChecker, newScope);

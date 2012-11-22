@@ -613,7 +613,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				"class test = begin functions public plus: int * int -> int plus(a,b) == (0 + a) + b end",
 				false, true, false, new String[0]);
 		// 136 TODO: Fix this top level values referencing eachother
-		addTestProgram(testData, "values a:int = 1; b : int = a; ", true, true,
+		addTestProgram(testData, "values a:int = 1; b : int = a ", false, true,
 				true, new String[0]);
 
 		return testData;
