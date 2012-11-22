@@ -3,26 +3,20 @@ package eu.compassresearch.core.analysis.pog.visitors;
 // Overture libraries 
 import java.lang.reflect.Method;
 
-import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.expressions.ADistIntersectUnaryExp;
 import org.overture.ast.expressions.ADivNumericBinaryExp;
-import org.overture.ast.expressions.ADivideNumericBinaryExp;
 import org.overture.ast.expressions.AIntLiteralExp;
 import org.overture.ast.expressions.ARealLiteralExp;
-import org.overture.ast.expressions.PExp; 
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.expressions.SNumericBinaryExp;
-
+import org.overture.pog.obligation.NonEmptySetObligation;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.analysis.pog.obligations.CMLNonEmptySetObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLNonZeroObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLPOContextStack;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligation;
-
-import org.overture.ast.node.INode;
 
 public class POGExpressionVisitor extends
 QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList>
@@ -52,7 +46,7 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList>
 		ADistIntersectUnaryExp node, CMLPOContextStack question)
 		throws AnalysisException {
 		CMLProofObligationList obligations = node.getExp().apply(this, question);
-		obligations.add(new CMLNonEmptySetObligation(node.getExp(), question));
+		obligations.add(new NonEmptySetObligation(node.getExp(), question));
 		return obligations;
 	}
 	
