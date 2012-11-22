@@ -478,9 +478,7 @@ public class AstFactory {
 		// AImplicitFunctionDefinition initialization
 		result.setTypeParams(typeParams);
 		result.setParamPatterns(parameterPatterns);
-		List<APatternTypePair> resList = new LinkedList<APatternTypePair>();
-		resList.add(resultPattern);
-		result.setResult(resList);
+		result.setResult(resultPattern);
 		result.setBody(body);
 		result.setPrecondition(precondition);
 		result.setPostcondition(postcondition);

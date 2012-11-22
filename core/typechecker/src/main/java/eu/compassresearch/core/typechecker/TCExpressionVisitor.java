@@ -83,7 +83,7 @@ class TCExpressionVisitor extends
 			PDefinition type = question.env.findName(node.getName(),
 					question.scope);
 			if (type == null)
-				throw new RuntimeException("Halleluja ... ");
+				throw new RuntimeException("Cannot find: " + node.getName());
 			node.setType(type.getType());
 			return type.getType();
 		}

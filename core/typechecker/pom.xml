@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>typechecker</artifactId>
-  <name>COMPASS CML TypeChecker</name>
+  <name>COMPASS Core CML TypeChecker</name>
 
   <dependencies>
 

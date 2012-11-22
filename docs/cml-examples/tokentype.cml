@@ -1,5 +1,5 @@
 class tokentype =
 begin
 	values
-	public a : States = <connecting>;
+	public a : States = <connecting>
 end

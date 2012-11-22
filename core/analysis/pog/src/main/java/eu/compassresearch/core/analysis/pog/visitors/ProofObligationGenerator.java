@@ -21,6 +21,9 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 //import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.pog.visitor.PogExpVisitor;
+import org.overture.pog.visitor.PogVisitor;
+
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -56,6 +59,7 @@ public class ProofObligationGenerator extends
     
     // subcheckers
     private POGExpressionVisitor exp;
+    private PogExpVisitor exp2;
     private POGStatementVisitor stm;
     private POGProcessVisitor prc;
     private POGDeclAndDefVisitor dad;
@@ -63,6 +67,7 @@ public class ProofObligationGenerator extends
     private void initialize()
     {
         exp = new POGExpressionVisitor(this);
+        exp2 = new PogExpVisitor(new PogVisitor());
         stm = new POGStatementVisitor(this);
         prc = new POGProcessVisitor(this);
         dad = new POGDeclAndDefVisitor(this);

@@ -10,7 +10,7 @@
 
   <groupId>eu.compassresearch.ide.cml</groupId>
   <artifactId>eu.compassresearch.ide.cml.tp-plugin</artifactId>
-  <name>COMPASS Isabelle Plugin</name>
+  <name>COMPASS IDE Isabelle Plugin</name>
 
   <packaging>pom</packaging>
 

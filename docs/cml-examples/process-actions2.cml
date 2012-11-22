@@ -2,8 +2,6 @@ process Hotel =
 begin
 actions
   HOTEL = 
-    book?s?e?n -> 
-       ([AvailRng(s,e,n,avail)] & BOOKROOM(s,e,n);booked -> HOTEL 
-        )
+    [book?s?e?n] -> [AvailRng(s,e,n,avail)] & BOOKROOM(s,e,n);[booked] -> HOTEL
   @ Skip
 end
