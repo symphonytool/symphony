@@ -94,8 +94,10 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 
 	@Override
 	public PDefinition lookupVariable(LexIdentifierToken ident) {
-		if (ident instanceof LexNameToken)
+		if (ident instanceof LexNameToken) {
+
 			return env.findName((LexNameToken) ident, NameScope.GLOBAL);
+		}
 		return null;
 	}
 

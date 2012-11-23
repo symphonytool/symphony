@@ -20,11 +20,14 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.tokens.TAsync;
 import org.overture.ast.node.tokens.TStatic;
+import org.overture.ast.patterns.PBind;
+import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.typechecker.ClassDefinitionSettings;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.PType;
+import org.overture.typechecker.TypeCheckInfo;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.declarations.PDeclaration;
@@ -36,6 +39,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
+import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 @SuppressWarnings("serial")
@@ -46,10 +50,11 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	// ---------------------------------------------
 	// subcheckers
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> exp;
-	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> stm;
+	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> act;
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> dad;
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> typ; // basic
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> prc;
+	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> bnd; // bind
 	// type
 	// checker
 	private boolean lastResult;
@@ -59,10 +64,11 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	@SuppressWarnings("deprecation")
 	private void initialize(TypeIssueHandler issueHandler) {
 		exp = new TCExpressionVisitor(this, this);
-		stm = new TCStatementVisitor(this, this);
+		act = new TCActionVisitor(this, this, typeComparator);
 		dad = new TCDeclAndDefVisitor(this, typeComparator, this);
 		typ = new TCTypeVisitor(this, this);
 		prc = new TCProcessVisitor(this);
+		bnd = new TCBindVisitor(this);
 		if (issueHandler != null)
 			this.issueHandler = issueHandler;
 		else
@@ -105,6 +111,18 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		} else
 			return type;
 
+	}
+
+	@Override
+	public PType defaultPMultipleBind(PMultipleBind node, TypeCheckInfo question)
+			throws AnalysisException {
+		return addErrorForMissingType(node, node.apply(bnd, question));
+	}
+
+	@Override
+	public PType defaultPBind(PBind node, TypeCheckInfo question)
+			throws AnalysisException {
+		return addErrorForMissingType(node, node.apply(bnd, question));
 	}
 
 	@Override
@@ -153,7 +171,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	public PType defaultPAction(PAction node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		return node.apply(stm, question);
+		return node.apply(act, question);
 	}
 
 	// ---------------------------------------------
@@ -223,7 +241,8 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	 *         errors.
 	 */
 	public boolean typeCheck() {
-		TypeCheckInfo info = TypeCheckInfo.getNewTopLevelInstance(this);
+		TypeCheckInfo info = eu.compassresearch.core.typechecker.TypeCheckInfo
+				.getNewTopLevelInstance(this);
 		if (!cleared)
 			return lastResult;
 
@@ -233,7 +252,13 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		for (PSource s : sourceForest) {
 			for (SParagraphDefinition paragraph : s.getParagraphs()) {
 				try {
-					paragraph.apply(this, info);
+					PType topType = paragraph.apply(this, info);
+					if (topType == null || topType instanceof AErrorType) {
+						addTypeError(paragraph,
+								TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+										.customizeMessage(paragraph.getName()
+												.toString()));
+					}
 				} catch (AnalysisException ae) {
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					ae.printStackTrace(new PrintStream(baos));
