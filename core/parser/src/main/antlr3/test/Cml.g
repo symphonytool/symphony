@@ -38,7 +38,7 @@ source
 programParagraph
     : classDefinition
 // | processDefinition
-// | channelDefinition
+    | channelDefs
 // | chansetDefinitionParagraph
     | typeDefs
     | valueDefs
@@ -47,6 +47,19 @@ programParagraph
 
 classDefinition
     : 'class' IDENTIFIER ('extends' IDENTIFIER)? '=' 'begin' classDefinitionBlock* 'end'
+    ;
+
+/* Ok, this is cute.  It works both with and without semicolons,
+ * though it may not be visually obvious (without the semis) that it
+ * is a space that separates untyped channels from typed ones. (-jwc)
+ */
+channelDefs
+    : 'channels' channelNameDeclaration*
+    // : 'channels' ( channelNameDeclaration (';' channelNameDeclaration)+ )?
+    ;
+
+channelNameDeclaration
+    : IDENTIFIER (',' IDENTIFIER)* (':' type)?
     ;
 
 classDefinitionBlock
