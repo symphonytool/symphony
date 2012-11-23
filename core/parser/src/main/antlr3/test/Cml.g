@@ -37,9 +37,9 @@ source
     
 programParagraph
     : classDefinition
-// | processDefinition
+    | processDefinition
     | channelDefs
-// | chansetDefinitionParagraph
+    | chansetDefs
     | typeDefs
     | valueDefs
     | functionDefs
@@ -49,17 +49,102 @@ classDefinition
     : 'class' IDENTIFIER ('extends' IDENTIFIER)? '=' 'begin' classDefinitionBlock* 'end'
     ;
 
+processDefinition
+    : 'process' IDENTIFIER '=' (declaration (';' declaration)* '@')? process
+    ;
+
+process
+    : proc0 procOps process
+    | replOp replicationDeclaration '@' ( '[' expression ']' )? process
+    ;
+
+procOps
+    : ';' | '[]' | '|~|' | '||' | '|||'
+    | '/\\' // I'm less sure about these
+    | '[|' expression '|]'
+    | '[' expression '||' expression ']'
+    ;
+
+proc0
+    : proc1 ('[[' renamingExpr ']]')?
+    ;
+
+replOp
+    : ';' | '[]' | '|~|' | '||' | '|||'
+    | '[|' expression '|]'
+    ;
+
+proc1
+    : proc2 proc1ops expression
+    ;
+
+proc1ops
+    : '/\\' | '[>' | '\\\\' | 'startsby' | 'endsby'
+    | '//' expression '\\\\'
+    | '[[' expression '>>'
+    ;
+
+proc2
+    : 'begin' processParagraph* '@' action 'end'
+    // merge of (process) | identifier [({expression})] | (decl@proc)({expression})
+    | ( IDENTIFIER | '(' (declaration (';' declaration)* '@')? process ')' ) ( '(' ( expression ( ',' expression )* )? ')'  )?
+    ;    
+
+declaration
+    : PMODE? IDENTIFIER (',' IDENTIFIER)* (':' type)?
+    ;
+
+replicationDeclaration
+    : replicationDecl (';' replicationDecl)*
+    ;
+
+replicationDecl
+    : IDENTIFIER ( ',' IDENTIFIER )* ( ':' type | 'in' 'set' expression )  // FIXME
+    ;
+
+renamingExpr
+    : renamePair ( ( ',' renamePair )+ | '|' bind+ ('@' expression)? )?
+    ;
+
+renamePair
+    : IDENTIFIER ( '.' '(' expression ')' )* '<-' IDENTIFIER ( '.' '(' expression ')' )*
+    ;
+
+processParagraph
+    : typeDefs
+    | valueDefs
+    | stateDefs 
+    | functionDefs
+    // | operationDefs
+    // | action declaration
+    // | nameset declaration
+    ;
+
+action
+    : IDENTIFIER
+    ;
+
 /* Ok, this is cute.  It works both with and without semicolons,
  * though it may not be visually obvious (without the semis) that it
  * is a space that separates untyped channels from typed ones. (-jwc)
  */
 channelDefs
-    : 'channels' channelNameDeclaration*
-    // : 'channels' ( channelNameDeclaration (';' channelNameDeclaration)+ )?
+    : 'channels' channelDef*
+    // : 'channels' ( channelDef (';' channelDef)+ )?
     ;
 
-channelNameDeclaration
+channelDef
     : IDENTIFIER (',' IDENTIFIER)* (':' type)?
+    ;
+
+chansetDefs
+    : 'chansets' chansetDef*
+    // : 'chansets' ( chansetDef (';' chansetDef)+ )?
+    ;
+
+chansetDef
+    : IDENTIFIER '=' expression
+    // : IDENTIFIER '=' chansetExpr
     ;
 
 classDefinitionBlock
@@ -349,7 +434,13 @@ MLINECOMMENT
     ;
 
 QUALIFIER
-    : 'public' | 'protected' | 'private' | 'logical' ;
+    : 'public' | 'protected' | 'private' | 'logical'
+    ;
+
+// in/out/bidi params
+PMODE
+    : 'val' | 'res' | 'vres'
+    ;
 
 // NILLITERAL
 //     : 'nil'
