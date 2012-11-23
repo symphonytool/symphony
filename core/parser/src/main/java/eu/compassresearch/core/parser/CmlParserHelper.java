@@ -43,6 +43,7 @@ import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ARecordInvariantType;
+import org.overture.ast.types.AUnresolvedType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.ACallStatementAction;
@@ -150,7 +151,7 @@ public class CmlParserHelper {
 				if (module.length() > 0)
 					module.deleteCharAt(module.length() - 1);
 				else
-					module.append("Default");
+					module.append("");
 				id = prefixid;
 			}
 		}
@@ -1037,6 +1038,7 @@ public class CmlParserHelper {
 	 * Types
 	 */
 
+	@SuppressWarnings({ "deprecation", "unchecked" })
 	public ANamedInvariantType caseDottedIdentifierToNamedType(
 			Object dottedIdentifier) {
 
@@ -1047,9 +1049,12 @@ public class CmlParserHelper {
 		ANamedInvariantType type = new ANamedInvariantType();
 		List<LexIdentifierToken> ids = (List<LexIdentifierToken>) dottedIdentifier;
 		LexNameToken name = dottedIdentifierToLexNameToken(ids);
-
+		type.setResolved(false);
 		type.setLocation(name.getLocation());
 		type.setName(name);
+		AUnresolvedType t = new AUnresolvedType(name.getLocation(), false,
+				new LinkedList<PDefinition>(), name);
+		type.setType(t);
 		return type;
 	}
 

@@ -369,6 +369,9 @@ classDefinition :
   clz.setName(lexName);
   clz.setDefinitions((List<PDefinition>)$classDefinitionBlock);
   clz.setNameScope(NameScope.CLASSNAME);
+  clz.setAccess(util.getDefaultAccessSpecifier(true, false, loc));
+  AClassType ct = new AClassType(clz.getLocation(), false, clz.getDefinitions(), clz.getName(), null);
+  clz.setType(ct);
   $$ = clz;
 }
 /* DEVIATION
@@ -379,7 +382,7 @@ classDefinition :
   LexLocation location = util.extractLexLocation((CmlLexeme)$CLASS,(CmlLexeme)$END);
   List<LexNameToken> supernames = new LinkedList<LexNameToken>();
   supernames.add(util.extractLexNameToken($parent));
-  $$ = new AClassParagraphDefinition(location,
+  AClassParagraphDefinition clz = new AClassParagraphDefinition(location,
                                      util.extractLexNameToken($id),
                                      NameScope.CLASSNAME,
                                      false,
@@ -404,6 +407,8 @@ classDefinition :
                                      null/*PType classtype_*/,
                                      false /*Boolean isTypeChecked_*/,
                                      null/*AExplicitOperationDefinition invariant_*/);
+   clz.setAccess(util.getDefaultAccessSpecifier(true, false, location));
+   $$ = clz;
 }
 ;
 
