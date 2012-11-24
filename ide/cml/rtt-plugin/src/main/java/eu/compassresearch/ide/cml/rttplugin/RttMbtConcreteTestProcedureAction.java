@@ -1,13 +1,11 @@
 package eu.compassresearch.ide.cml.rttplugin;
 
 import java.io.File;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
-
 import eu.compassResearch.rttMbtTmsClientApi.RttMbtClient;
 
 public class RttMbtConcreteTestProcedureAction extends AbstractHandler {
@@ -57,17 +55,17 @@ public class RttMbtConcreteTestProcedureAction extends AbstractHandler {
 		
 		// test connection to rtt-mbt-tms server
 		if (client.testConenction()) {
-			System.out.println("[PASS]: test RTT-MBT server connection");
+			client.addLogMessage("[PASS]: test RTT-MBT server connection");
 		} else {
-			System.err.println("[FAIL]: test RTT-MBT server connection");
+			client.addErrorMessage("[FAIL]: test RTT-MBT server connection");
 			return false;
 		}
 
 		// start RTT-MBT-TMS session
 		if (client.beginRttMbtSession()) {
-			System.out.println("[PASS]: begin RTT-MBT session");
+			client.addLogMessage("[PASS]: begin RTT-MBT session");
 		} else {
-			System.err.println("[FAIL]: begin RTT-MBT session");
+			client.addErrorMessage("[FAIL]: begin RTT-MBT session");
 			return false;
 		}
 		

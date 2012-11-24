@@ -27,11 +27,10 @@
   <extension point="org.eclipse.ui.views">
     <view 
         id="eu.compassresearch.ide.cml.rttplugin.RTTesterView"
-        name="RT Tester View"
+        name="RTT-MBT"
         category="compass_eu.compassresearch.ide.cml.ui.category"
-        icon="icons/cview16/cml_file_tsk.png"
+        icon="icons/rtt-mbt-small.png"
         class="eu.compassresearch.ide.cml.rttplugin.RTTesterView" />
-        
         <category
         	id="compass_eu.compassresearch.ide.cml.ui.category"
         	name="COMPASS"/>

@@ -177,7 +177,7 @@ public class jsonCommand {
 		if (hasProgressItems(message)) {
 			int start = message.lastIndexOf('{');
 			String item = message.substring(start);
-			System.out.println("extracted progress item '" + item + "'");
+			client.addLogMessage("extracted progress item '" + item + "'\n");
 			message = message.substring(0, start);
 			return message;
 		} else {
@@ -197,7 +197,7 @@ public class jsonCommand {
 		if (hasConsoleItems(message)) {
 			int start = message.lastIndexOf('{');
 			String item = message.substring(start);
-			System.out.println("extracted console item '" + item + "'");
+			client.addLogMessage("extracted console item '" + item + "'\n");
 			message = message.substring(0, start);
 			return message;
 		} else {

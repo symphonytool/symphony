@@ -22,6 +22,9 @@ public class RttMbtClient {
 	private String CmlProject;   // starting and ending with file separator
 	private String CmlWorkspace; // no file separator at the end
 
+	// Logging facility
+	IRttMbtLoggingFacility log;
+
 	public RttMbtClient(String server, Integer port, String user, String id) {
 		rttMbtServer = server;
 		rttMbtPort = port;
@@ -32,6 +35,26 @@ public class RttMbtClient {
 		CmlWorkspace = null;
 	}
 
+	public void setLoggingFacility(IRttMbtLoggingFacility logger) {
+		log = logger;
+	}
+	
+	public void addLogMessage(String msg) {
+		if (log != null) {
+			log.addLogMessage(msg);
+		} else {
+			System.out.println(msg);
+		}
+	}
+	
+	public void addErrorMessage(String msg) {
+		if (log != null) {
+			log.addErrorMessage(msg);
+		} else {
+			System.err.println(msg);
+		}
+	}
+	
 	public Boolean testConenction() {
 		Boolean success = true;
 		
