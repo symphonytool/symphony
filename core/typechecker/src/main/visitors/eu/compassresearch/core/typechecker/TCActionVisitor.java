@@ -202,6 +202,7 @@ class TCActionVisitor extends
 		return node.getType();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public PType caseASkipAction(ASkipAction node,
 			org.overture.typechecker.TypeCheckInfo question)
@@ -210,6 +211,7 @@ class TCActionVisitor extends
 		return node.getType();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public PType caseAExternalChoiceAction(AExternalChoiceAction node,
 			org.overture.typechecker.TypeCheckInfo question)
@@ -230,6 +232,7 @@ class TCActionVisitor extends
 		return node.getType();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public PType caseAHidingAction(AHidingAction node,
 			org.overture.typechecker.TypeCheckInfo question)

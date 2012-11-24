@@ -59,7 +59,7 @@ class TCExpressionVisitor extends
 		INode ovtNode = node;
 
 		OvertureRootCMLAdapter overtureExpVisitor = new OvertureRootCMLAdapter(
-				parent);
+				parent, issueHandler);
 
 		org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(
 				question.env);

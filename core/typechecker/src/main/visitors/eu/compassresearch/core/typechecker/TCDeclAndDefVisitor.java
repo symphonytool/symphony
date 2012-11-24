@@ -81,7 +81,6 @@ class TCDeclAndDefVisitor extends
 			throws AnalysisException {
 
 		PExp expression = node.getExpression();
-		LexNameToken valName = node.getName();
 		PType declaredType = node.getType();
 
 		// Check the declared type
@@ -164,6 +163,13 @@ class TCDeclAndDefVisitor extends
 		LinkedList<ATypeDefinition> defs = node.getTypes();
 		for (ATypeDefinition d : defs) {
 			PType type = d.apply(parentChecker, question);
+			if (!TCDeclAndDefVisitor.successfulType(type)) {
+				issueHandler.addTypeError(d,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+								.customizeMessage(d.getName() + ""));
+				d.setType(new AErrorType());
+				return d.getType();
+			}
 			newQ.addType(d.getName(), d);
 			d.setType(type);
 		}
@@ -177,7 +183,7 @@ class TCDeclAndDefVisitor extends
 			throws AnalysisException {
 		TypeCheckInfo newQ = (TypeCheckInfo) question;
 		LinkedList<PDefinition> _list = node.getValueDefinitions();
-		ShieldedList<PDefinition> list = new ShieldedList<PDefinition>();
+		List<PDefinition> list = new LinkedList<PDefinition>();
 		list.addAll(_list);
 		for (PDefinition def : list) {
 			PType defType = def.apply(parentChecker, newQ);
@@ -353,7 +359,6 @@ class TCDeclAndDefVisitor extends
 		return surrogateOvertureClass;
 	}
 
-	@SuppressWarnings("unused")
 	private PType typeCheckWithOverture(AClassParagraphDefinition node,
 			AClassClassDefinition surrogate) throws AnalysisException {
 
@@ -365,7 +370,8 @@ class TCDeclAndDefVisitor extends
 		// assistants
 		// on the TypeChecker.errors list.
 		TypeChecker.clearErrors();
-		OvertureRootCMLAdapter tc = new OvertureRootCMLAdapter(parentChecker);
+		OvertureRootCMLAdapter tc = new OvertureRootCMLAdapter(parentChecker,
+				issueHandler);
 		typeCheckPass(surrogate, Pass.TYPES, self, tc);
 		if (TypeChecker.getErrorCount() == 0)
 			typeCheckPass(surrogate, Pass.VALUES, self, tc);
@@ -375,7 +381,7 @@ class TCDeclAndDefVisitor extends
 		// add overture errors to cml errors
 		List<VDMError> errs = TypeChecker.getErrors();
 		for (VDMError e : errs) {
-			parentChecker.addTypeError(node, e.toProblemString());
+			issueHandler.addTypeError(e.location, e.toProblemString());
 
 		}
 
@@ -462,7 +468,7 @@ class TCDeclAndDefVisitor extends
 			for (PDefinition def : thoseHandledByCOMPASS) {
 				PType type = def.apply(parentChecker, classQuestion);
 				if (type == null || type instanceof AErrorType) {
-					parentChecker
+					issueHandler
 							.addTypeError(def,
 									TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 											.customizeMessage(def.getName()
@@ -797,6 +803,14 @@ class TCDeclAndDefVisitor extends
 		// Nonetheless the function type will be the type its definition to
 		// facilitate further type checking even in the presents of errors.
 		return funcType;
+	}
+
+	@Override
+	public PType caseATypeDefinition(ATypeDefinition node,
+			org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
+
+		return super.caseATypeDefinition(node, question);
 	}
 
 }

@@ -16,6 +16,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
  * The OvertureRootCMLAdapter functions as a root visitor for Overture Visitor.
@@ -35,12 +36,15 @@ public class OvertureRootCMLAdapter extends
 	private TypeCheckerDefinitionVisitor overtureDefinitionVisitor;
 	private TypeCheckerPatternVisitor overturePatternVisitor;
 	private VanillaCmlTypeChecker parent;
+	private TypeIssueHandler issueHandler;
 
-	public OvertureRootCMLAdapter(VanillaCmlTypeChecker cmlTC) {
+	public OvertureRootCMLAdapter(VanillaCmlTypeChecker cmlTC,
+			TypeIssueHandler issueHandler) {
 		overtureDefinitionVisitor = new TypeCheckerDefinitionVisitor(this);
 		overtureExpressionVisitor = new TypeCheckerExpVisitor(this);
 		overturePatternVisitor = new TypeCheckerPatternVisitor(this);
 		parent = cmlTC;
+		this.issueHandler = issueHandler;
 	}
 
 	private PType escapeFromOvertureContext(INode node,
@@ -71,7 +75,7 @@ public class OvertureRootCMLAdapter extends
 		PDefinition type = question.env
 				.findName(node.getName(), question.scope);
 		if (type == null || type instanceof AErrorType) {
-			parent.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL
+			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL
 					.customizeMessage(node.toString()));
 			node.setType(new AErrorType());
 			return node.getType();

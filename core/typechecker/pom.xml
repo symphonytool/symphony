@@ -45,7 +45,7 @@
             <goals><goal>add-source</goal></goals>
             <configuration>
 	      <sources>
-		<source>src/main/transast</source>
+			<source>src/main/visitors</source>
 	      </sources>
             </configuration>
 	  </execution>

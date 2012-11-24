@@ -1780,6 +1780,7 @@ chansetDefinitionParagraph :
                                     access,
                                     null/*Pass*/,
                                     new LinkedList<AChansetDefinition>());
+  chansetParagraph.setName(util.extractLexNameToken((CmlLexeme)$1));
   $$ = chansetParagraph;
 }
 | CHANSETS chansetDefinitionList[list]
@@ -1797,6 +1798,7 @@ chansetDefinitionParagraph :
                                     access,
                                     null/*Pass*/,
                                     chansetDefinitions);
+  chansetParagraph.setName(util.extractLexNameToken((CmlLexeme)$1));
   $$ = chansetParagraph;
 }
 ;
@@ -1909,36 +1911,43 @@ typeDefs :
   TYPES
 {
   LexLocation loc = util.extractLexLocation((CmlLexeme)$TYPES);
-  $$ = new ATypesParagraphDefinition(loc,
+  ATypesParagraphDefinition typesDef = new ATypesParagraphDefinition(loc,
                                      NameScope.LOCAL,
                                      false,
                                      util.getDefaultAccessSpecifier(true, false, loc),
                                      null/*Pass*/,
                                      null);
+  typesDef.setName(util.extractLexNameToken((CmlLexeme)$1));
+  $$ = typesDef;
+  
 }
 | TYPES typeDefList
 {
   List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
   LexLocation loc = util.combineLexLocation(util.extractLexLocation((CmlLexeme)$TYPES),
                                        util.extractLastLexLocation(typeDefinitions));
-  $$ = new ATypesParagraphDefinition(loc,
+  ATypesParagraphDefinition typesDef = new ATypesParagraphDefinition(loc,
                                      NameScope.LOCAL,
                                      false,
                                      util.getDefaultAccessSpecifier(true, false, loc),
                                      null/*Pass*/,
                                      typeDefinitions);
+  typesDef.setName(util.extractLexNameToken((CmlLexeme)$1));
+  $$ = typesDef;
 }
 | TYPES typeDefList SEMI
 {
   List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
   LexLocation loc = util.combineLexLocation(util.extractLexLocation((CmlLexeme)$TYPES),
                                        util.extractLexLocation((CmlLexeme)$SEMI));
-  $$ = new ATypesParagraphDefinition(loc,
+  ATypesParagraphDefinition typesDef =new ATypesParagraphDefinition(loc,
                                      NameScope.LOCAL,
                                      false,
                                      util.getDefaultAccessSpecifier(true, false, loc),
                                      null/*Pass*/,
                                      typeDefinitions);
+  typesDef.setName(util.extractLexNameToken((CmlLexeme)$1));
+  $$ = typesDef;
 }
 ;
 

@@ -41,6 +41,8 @@ import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
 
 @SuppressWarnings("serial")
 class VanillaCmlTypeChecker extends AbstractTypeChecker {
@@ -63,16 +65,17 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 
 	@SuppressWarnings("deprecation")
 	private void initialize(TypeIssueHandler issueHandler) {
-		exp = new TCExpressionVisitor(this, this);
-		act = new TCActionVisitor(this, this, typeComparator);
-		dad = new TCDeclAndDefVisitor(this, typeComparator, this);
-		typ = new TCTypeVisitor(this, this);
-		prc = new TCProcessVisitor(this);
-		bnd = new TCBindVisitor(this);
 		if (issueHandler != null)
 			this.issueHandler = issueHandler;
 		else
 			this.issueHandler = new CollectingIssueHandler();
+
+		exp = new TCExpressionVisitor(this, this.issueHandler);
+		act = new TCActionVisitor(this, this.issueHandler, typeComparator);
+		dad = new TCDeclAndDefVisitor(this, typeComparator, this.issueHandler);
+		typ = new TCTypeVisitor(this, this.issueHandler);
+		prc = new TCProcessVisitor(this);
+		bnd = new TCBindVisitor(this);
 
 		LexLocation location_ = new LexLocation("Built-In", "CML", 0, 0, 0, 0,
 				0, 0);
@@ -242,7 +245,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	 */
 	public boolean typeCheck() {
 		TypeCheckInfo info = eu.compassresearch.core.typechecker.TypeCheckInfo
-				.getNewTopLevelInstance(this);
+				.getNewTopLevelInstance(this.issueHandler);
 		if (!cleared)
 			return lastResult;
 
@@ -254,18 +257,19 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 				try {
 					PType topType = paragraph.apply(this, info);
 					if (topType == null || topType instanceof AErrorType) {
-						addTypeError(paragraph,
-								TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+						issueHandler.addTypeError(paragraph,
+								TypeErrorMessages.PARAGRAPH_HAS_TYPES_ERRORS
 										.customizeMessage(paragraph.getName()
 												.toString()));
 					}
 				} catch (AnalysisException ae) {
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					ae.printStackTrace(new PrintStream(baos));
-					super.addTypeError(
-							s,
-							"The COMPASS Type checker failed on this cml-source. Please submit it for investigation to rala@iha.dk.\n"
-									+ new String(baos.toByteArray()));
+					issueHandler
+							.addTypeError(
+									s,
+									"The COMPASS Type checker failed on this cml-source. Please submit it for investigation to rala@iha.dk.\n"
+											+ new String(baos.toByteArray()));
 					// This means we have a bug in the type checker
 					return false;
 				} catch (ClassCastException e) {
@@ -273,12 +277,13 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 					PrintWriter out = new PrintWriter(baos);
 					e.printStackTrace(out);
 					out.flush();
-					addTypeError(
-							paragraph,
-							"Ill defined ast definition. Check that the implied AST-node is not defined in both cml.ast and in overtureII.astv2. Naturally, if this is the case the visitor has an ambigouos choice.\n"
-									+ e.getMessage()
-									+ "\n"
-									+ new String(baos.toByteArray()));
+					issueHandler
+							.addTypeError(
+									paragraph,
+									"Ill defined ast definition. Check that the implied AST-node is not defined in both cml.ast and in overtureII.astv2. Naturally, if this is the case the visitor has an ambigouos choice.\n"
+											+ e.getMessage()
+											+ "\n"
+											+ new String(baos.toByteArray()));
 				}
 			}
 		}
@@ -380,17 +385,14 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 
 	}
 
-	@Override
 	public boolean hasErrors() {
 		return issueHandler.hasErrors();
 	}
 
-	@Override
 	public boolean hasWarnings() {
 		return issueHandler.hasWarnings();
 	}
 
-	@Override
 	public boolean hasIssues() {
 		return issueHandler.hasIssues();
 	}

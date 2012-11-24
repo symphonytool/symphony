@@ -1,6 +1,8 @@
 package eu.compassresearch.core.typechecker.api;
 
 public enum TypeErrorMessages {
+	PARAGRAPH_HAS_TYPES_ERRORS("Paragraph \"%s\" has type errors."),
+
 	COULD_NOT_DETERMINE_TYPE("Could not determine type for %s."),
 
 	INCOMPATIBLE_TYPE("Expected an entity of type %s but %s was found."),

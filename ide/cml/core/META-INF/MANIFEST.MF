@@ -73,7 +73,7 @@ Export-Package: eu.compassresearch.ast.actions,
  org.overture.pog.util,
  org.overture.pog.visitor,
  org.overture.typechecker,
-  org.overture.typechecker.assistant.definition,
+ org.overture.typechecker.assistant.definition,
  org.overture.typechecker.assistant.expression,
  org.overture.typechecker.assistant.module,
  org.overture.typechecker.assistant.pattern,
@@ -86,7 +86,7 @@ Export-Package: eu.compassresearch.ast.actions,
  org.overturetool.test.framework.results,
  org.overturetool.test.util,
  eu.compassresearch.core.common
-equire-Bundle: org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources
 Eclipse-BuddyPolicy: registered
 Bundle-ActivationPolicy: lazy

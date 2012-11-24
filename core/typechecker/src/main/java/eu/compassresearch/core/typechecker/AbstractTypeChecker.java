@@ -2,7 +2,6 @@ package eu.compassresearch.core.typechecker;
 
 import java.util.List;
 
-import org.overture.ast.node.INode;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -30,21 +29,13 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 @SuppressWarnings("serial")
 abstract class AbstractTypeChecker extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
-		implements TypeIssueHandler, CmlTypeChecker {
+		implements CmlTypeChecker {
 	protected TypeIssueHandler issueHandler;
 	protected boolean cleared;
 	protected List<PSource> sourceForest;
 
 	AbstractTypeChecker() {
 		clear();
-	}
-
-	public void addTypeError(INode offendingSubtree, String message) {
-		issueHandler.addTypeError(offendingSubtree, message);
-	}
-
-	public void addTypeWarning(INode hazardousSubtree, String message) {
-		issueHandler.addTypeWarning(hazardousSubtree, message);
 	}
 
 	/**
