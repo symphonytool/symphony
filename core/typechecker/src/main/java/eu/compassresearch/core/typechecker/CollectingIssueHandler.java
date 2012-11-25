@@ -6,6 +6,7 @@ import java.util.List;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
@@ -35,9 +36,12 @@ class CollectingIssueHandler implements TypeIssueHandler {
 		return warnings;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
-	public void addTypeError(INode offendingSubtree, String message) {
-		this.errors.add(new CMLTypeError(offendingSubtree, message));
+	public AErrorType addTypeError(INode offendingSubtree, String message) {
+		CMLTypeError error = new CMLTypeError(offendingSubtree, message);
+		this.errors.add(error);
+		return new AErrorType(error.getLocation(), true);
 	}
 
 	@Override
@@ -60,9 +64,11 @@ class CollectingIssueHandler implements TypeIssueHandler {
 		return hasErrors() || hasWarnings();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
-	public void addTypeError(LexLocation pos, String message) {
+	public AErrorType addTypeError(LexLocation pos, String message) {
 		errors.add(new CMLTypeError(pos, message));
+		return new AErrorType(pos, true);
 	}
 
 }

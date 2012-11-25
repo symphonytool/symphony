@@ -1,9 +1,12 @@
 package eu.compassresearch.core.typechecker;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.ACharBasicType;
 import org.overture.ast.types.AIntNumericBasicType;
@@ -16,14 +19,16 @@ import org.overture.ast.types.ARealNumericBasicType;
 import org.overture.ast.types.ASeqSeqType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.ATokenBasicType;
+import org.overture.ast.types.AUnresolvedType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
+import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
+import org.overture.typechecker.assistant.type.AUnresolvedTypeAssistantTC;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.ATypeParagraphType;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
@@ -31,8 +36,28 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 class TCTypeVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
-	private final CmlTypeChecker parentChecker;
+	private final VanillaCmlTypeChecker parentChecker;
 	private final TypeIssueHandler issueHandler;
+
+	@Override
+	public PType caseAUnresolvedType(AUnresolvedType node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		List<SClassDefinition> classes = new LinkedList<SClassDefinition>();
+		classes.add((SClassDefinition) question.env.getEnclosingDefinition());
+		PDefinition tDef = SClassDefinitionAssistantTC.findType(classes,
+				node.getName());
+		if (!(tDef instanceof ATypeDefinition)) {
+			return issueHandler.addTypeError(node,
+					TypeErrorMessages.EXPECTED_TYPE_DEFINITION
+							.customizeMessage(node.getName() + ""));
+		}
+
+		PType resolvedType = AUnresolvedTypeAssistantTC.typeResolve(node,
+				(ATypeDefinition) tDef, parentChecker, question);
+
+		return resolvedType;
+	}
 
 	@Override
 	public PType caseATypesParagraphDefinition(ATypesParagraphDefinition node,
@@ -46,7 +71,7 @@ class TCTypeVisitor extends
 		return new ATypeParagraphType();
 	}
 
-	public TCTypeVisitor(CmlTypeChecker parentTypeChecker,
+	public TCTypeVisitor(VanillaCmlTypeChecker parentTypeChecker,
 			TypeIssueHandler issueHandler) {
 		this.parentChecker = parentTypeChecker;
 		this.issueHandler = issueHandler;
@@ -112,16 +137,16 @@ class TCTypeVisitor extends
 	public PType caseANamedInvariantType(ANamedInvariantType node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		eu.compassresearch.core.typechecker.TypeCheckInfo newQ = (eu.compassresearch.core.typechecker.TypeCheckInfo) question;
-		PType lookedupType = newQ.lookupType(node.getName());
-		if (lookedupType == null) {
-			issueHandler.addTypeError(node,
+
+		PType type = node.getType().apply(parentChecker, question);
+
+		if (!TCDeclAndDefVisitor.successfulType(type)) {
+			return issueHandler.addTypeError(node,
 					TypeErrorMessages.NAMED_TYPE_UNDEFINED
 							.customizeMessage(node.getName().name));
-			lookedupType = new AErrorType(node.getLocation(), true);
 		}
 
-		return lookedupType;
+		return type;
 	}
 
 	@Override

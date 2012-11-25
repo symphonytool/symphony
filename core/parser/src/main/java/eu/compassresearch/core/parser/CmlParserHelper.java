@@ -604,11 +604,16 @@ public class CmlParserHelper {
 		return res;
 	}
 
+	@SuppressWarnings("deprecation")
 	public PDefinition caseImplicitFunctionDefinition(Object qual, Object id,
 			Object ptypes, Object retvalsObj, Object pre, Object post) {
 		AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier) qual;
 		LexNameToken name = extractLexNameToken((CmlLexeme) id);
 		List<APatternListTypePair> paramPatterns = (List<APatternListTypePair>) ptypes;
+
+		List<PType> paramTypes = new LinkedList<PType>();
+		for (APatternListTypePair pp : paramPatterns)
+			paramTypes.add(pp.getType());
 
 		// FIXME This conversion is caused by a flaw in the VDM tree and needs
 		// to be fixed at some point.
@@ -634,6 +639,7 @@ public class CmlParserHelper {
 		}
 
 		APatternTypePair result = retval;// (APatternTypePair)retvals;
+
 		PExp preExp = (PExp) pre;
 		PExp postExp = (PExp) post;
 		LexLocation location = combineLexLocation(name.getLocation(),
@@ -644,7 +650,12 @@ public class CmlParserHelper {
 																 * LexNameToken
 																 * measure
 																 */);
+		AFunctionType type = AstFactory.newAFunctionType(name.getLocation(),
+				true, paramTypes, result.getType());
+
+		type.setResult(result.getType());
 		impFunc.setName(name);
+		impFunc.setType(type);
 		return impFunc;
 	}
 

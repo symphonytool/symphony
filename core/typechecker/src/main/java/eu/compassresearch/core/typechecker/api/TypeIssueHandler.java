@@ -6,6 +6,8 @@ import java.util.List;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.ast.types.AErrorType;
+
 /**
  * All error reporting from the type checker is handled by the TypeIssueHandler.
  * 
@@ -149,9 +151,9 @@ public interface TypeIssueHandler {
 	 *            - A message detailing the nature of the the error and
 	 *            preferably hinting how to fix it.
 	 */
-	public void addTypeError(INode offendingSubtree, String message);
+	public AErrorType addTypeError(INode offendingSubtree, String message);
 
-	public void addTypeError(LexLocation pos, String message);
+	public AErrorType addTypeError(LexLocation pos, String message);
 
 	/**
 	 * Return a type warning.

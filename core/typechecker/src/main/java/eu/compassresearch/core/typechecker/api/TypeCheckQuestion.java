@@ -92,4 +92,5 @@ public interface TypeCheckQuestion {
 	public abstract org.overture.typechecker.Environment getOvertureEnvironment()
 			throws AnalysisException;
 
+	public abstract PDefinition getGlobalClassDefinitions();
 }

@@ -11,26 +11,19 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.definitions.AClassClassDefinition;
-import org.overture.ast.definitions.APublicAccess;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
-import org.overture.ast.node.tokens.TAsync;
-import org.overture.ast.node.tokens.TStatic;
 import org.overture.ast.patterns.PBind;
 import org.overture.ast.patterns.PMultipleBind;
-import org.overture.ast.typechecker.ClassDefinitionSettings;
-import org.overture.ast.typechecker.NameScope;
-import org.overture.ast.typechecker.Pass;
-import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.PType;
+import org.overture.typechecker.FlatEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.declarations.PDeclaration;
+import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
+import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
@@ -61,9 +54,8 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	// checker
 	private boolean lastResult;
 	private final TypeComparator typeComparator;
-	private SClassDefinition globalRoot;
+	private AClassClassDefinition globalRoot;
 
-	@SuppressWarnings("deprecation")
 	private void initialize(TypeIssueHandler issueHandler) {
 		if (issueHandler != null)
 			this.issueHandler = issueHandler;
@@ -74,32 +66,8 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		act = new TCActionVisitor(this, this.issueHandler, typeComparator);
 		dad = new TCDeclAndDefVisitor(this, typeComparator, this.issueHandler);
 		typ = new TCTypeVisitor(this, this.issueHandler);
-		prc = new TCProcessVisitor(this);
+		prc = new TCProcessVisitor(this, this.issueHandler, typeComparator);
 		bnd = new TCBindVisitor(this);
-
-		LexLocation location_ = new LexLocation("Built-In", "CML", 0, 0, 0, 0,
-				0, 0);
-		NameScope nameScope_ = NameScope.CLASSNAME;
-		Boolean used_ = true;
-		AAccessSpecifierAccessSpecifier access_ = new AAccessSpecifierAccessSpecifier(
-				new APublicAccess(), new TStatic(), new TAsync());
-		Pass pass_ = Pass.DEFS;
-		List<? extends PDefinition> body_ = new LinkedList<PDefinition>();
-		;
-		Boolean hasContructors_ = false;
-		;
-		ClassDefinitionSettings settingHierarchy_ = ClassDefinitionSettings.DONE;
-		Boolean gettingInheritable_ = false;
-		Boolean gettingInvDefs_ = false;
-		Boolean isAbstract_ = false;
-		Boolean isUndefined_ = false;
-		globalRoot = new AClassClassDefinition(location_, null, nameScope_,
-				used_, globalRoot, access_, null, pass_, null, null, body_,
-				body_, body_, hasContructors_, settingHierarchy_, null,
-				gettingInheritable_, body_, gettingInvDefs_, isAbstract_,
-				isUndefined_, null, isUndefined_, null);
-		globalRoot.setName(new LexNameToken("CML", "Global Declarations",
-				location_));
 
 	}
 
@@ -244,47 +212,73 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	 *         errors.
 	 */
 	public boolean typeCheck() {
-		TypeCheckInfo info = eu.compassresearch.core.typechecker.TypeCheckInfo
-				.getNewTopLevelInstance(this.issueHandler);
+
+		eu.compassresearch.core.typechecker.TypeCheckInfo info = eu.compassresearch.core.typechecker.TypeCheckInfo
+				.getNewTopLevelInstance(this.issueHandler, globalRoot);
 		if (!cleared)
 			return lastResult;
 
+		try {
+			globalRoot = CollectGlobalStateClass.getGlobalRoot(
+					this.sourceForest, issueHandler, info);
+			PType globalRootType = ((TCDeclAndDefVisitor) dad)
+					.typeCheckOvertureClass(globalRoot, info);
+			if (!TCDeclAndDefVisitor.successfulType(globalRootType)) {
+				issueHandler.addTypeError(globalRoot,
+						TypeErrorMessages.PARAGRAPH_HAS_TYPES_ERRORS
+								.customizeMessage("Global Definitions"));
+				return false;
+			}
+
+		} catch (AnalysisException e) {
+			e.printStackTrace();
+		}
+
+		// Add all global definitions to the environment
+		for (PDefinition d : globalRoot.getDefinitions())
+			((FlatEnvironment) info.env).add(d);
 		info.env.setEnclosingDefinition(globalRoot);
 
 		// for each source
 		for (PSource s : sourceForest) {
 			for (SParagraphDefinition paragraph : s.getParagraphs()) {
-				try {
-					PType topType = paragraph.apply(this, info);
-					if (topType == null || topType instanceof AErrorType) {
-						issueHandler.addTypeError(paragraph,
-								TypeErrorMessages.PARAGRAPH_HAS_TYPES_ERRORS
-										.customizeMessage(paragraph.getName()
-												.toString()));
+				if (paragraph instanceof AClassParagraphDefinition
+						|| paragraph instanceof AProcessParagraphDefinition)
+
+					try {
+						PType topType = paragraph.apply(this, info);
+						if (topType == null || topType instanceof AErrorType) {
+							issueHandler
+									.addTypeError(
+											paragraph,
+											TypeErrorMessages.PARAGRAPH_HAS_TYPES_ERRORS
+													.customizeMessage(paragraph
+															.getName()
+															.toString()));
+						}
+					} catch (AnalysisException ae) {
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						ae.printStackTrace(new PrintStream(baos));
+						issueHandler
+								.addTypeError(
+										s,
+										"The COMPASS Type checker failed on this cml-source. Please submit it for investigation to rala@iha.dk.\n"
+												+ new String(baos.toByteArray()));
+						// This means we have a bug in the type checker
+						return false;
+					} catch (ClassCastException e) {
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						PrintWriter out = new PrintWriter(baos);
+						e.printStackTrace(out);
+						out.flush();
+						issueHandler
+								.addTypeError(
+										paragraph,
+										"Ill defined ast definition. Check that the implied AST-node is not defined in both cml.ast and in overtureII.astv2. Naturally, if this is the case the visitor has an ambigouos choice.\n"
+												+ e.getMessage()
+												+ "\n"
+												+ new String(baos.toByteArray()));
 					}
-				} catch (AnalysisException ae) {
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					ae.printStackTrace(new PrintStream(baos));
-					issueHandler
-							.addTypeError(
-									s,
-									"The COMPASS Type checker failed on this cml-source. Please submit it for investigation to rala@iha.dk.\n"
-											+ new String(baos.toByteArray()));
-					// This means we have a bug in the type checker
-					return false;
-				} catch (ClassCastException e) {
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					PrintWriter out = new PrintWriter(baos);
-					e.printStackTrace(out);
-					out.flush();
-					issueHandler
-							.addTypeError(
-									paragraph,
-									"Ill defined ast definition. Check that the implied AST-node is not defined in both cml.ast and in overtureII.astv2. Naturally, if this is the case the visitor has an ambigouos choice.\n"
-											+ e.getMessage()
-											+ "\n"
-											+ new String(baos.toByteArray()));
-				}
 			}
 		}
 		super.cleared = false;

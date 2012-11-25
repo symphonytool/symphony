@@ -1973,14 +1973,17 @@ typeDef :
   LexNameToken name = util.extractLexNameToken((CmlLexeme)$id);
   LexLocation location = null;
   location = util.combineLexLocation(name.getLocation(), ((PType)$type).getLocation());
+  PType type = (PType)$4;
+  ANamedInvariantType invType = 
+    AstFactory.newANamedInvariantType(name, type);
   $$ = new ATypeDefinition(location,
                            NameScope.TYPENAME,
                            false/*Boolean used_*/,
                            null/*VDM ClassDef*/,
                            access,
-                           (PType)$type,
+                           null,
                            null/*Pass*/,
-                           null/*SInvariantType invType_*/,
+                           invType/*SInvariantType invType_*/,
                            null/*PPattern invPattern_*/,
                            null/*PExp invExpression_*/,
                            null /*AExplicitFunctionDefinition invdef_*/,
@@ -1994,14 +1997,18 @@ typeDef :
   AInvariantDefinition inv = (AInvariantDefinition)$invariant;
   LexLocation location = null;
   location = util.combineLexLocation(name.getLocation(), inv.getLocation());
+  PType type = (PType)$4;
+  ANamedInvariantType invType = 
+    AstFactory.newANamedInvariantType(name, type);
+
   $$ = new ATypeDefinition(location,
                            NameScope.TYPENAME,
                            false/*Boolean used_*/,
                            null/*VDM ClassDef*/,
                            access,
-                           (PType)$type,
+                           null,
                            null/*Pass*/,
-                           null/*SInvariantType invType_*/,
+                           invType,/*SInvariantType invType_*/
                            inv.getPattern()/*PPattern invPattern_*/,
                            inv.getExpression()/*PExp invExpression_*/,
                            null /*AExplicitFunctionDefinition invdef_*/,
@@ -2039,9 +2046,9 @@ typeDef :
                            false,
                            null/*VDM ClassDef*/,
                            access,
-                           recType,
-                           null/*Pass*/,
                            null,
+                           null/*Pass*/,
+                           recType,
                            null,
                            null,
                            null,
@@ -4460,25 +4467,15 @@ patternLessID :
  */
 | MKUNDERNAME LRPAREN
 {
-  List<? extends PPattern> plist = null;
+  List<PPattern> plist = new LinkedList<PPattern>();
   LexNameToken name = util.extractNameFromUNDERNAMEToken((CmlLexeme)$MKUNDERNAME);
-  $$ = new ARecordPattern(util.extractLexLocation((CmlLexeme)$MKUNDERNAME,
-                                             (CmlLexeme)$LRPAREN),
-                          null,
-                          false,
-                          name,
-                          plist);
+  $$ = AstFactory.newARecordPattern(name, plist);
 }
 | MKUNDERNAME LPAREN patternList RPAREN
 {
-  List<? extends PPattern> plist = (List<? extends PPattern>)$patternList;
+  List<PPattern> plist = (List<PPattern>)$patternList;
   LexNameToken name = util.extractNameFromUNDERNAMEToken((CmlLexeme)$MKUNDERNAME);
-  $$ = new ARecordPattern(util.extractLexLocation((CmlLexeme)$MKUNDERNAME,
-                                             (CmlLexeme)$RPAREN),
-                          null,
-                          false,
-                          name,
-                          plist);
+  $$ = AstFactory.newARecordPattern(name, plist);
 }
 ;
 
