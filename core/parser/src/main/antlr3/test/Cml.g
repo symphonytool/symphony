@@ -116,7 +116,7 @@ processParagraph
     | functionDefs
     // | operationDefs
     | actionDefs
-    // | nameset declaration
+    | namesetDefs
     ;
 
 actionDefs
@@ -209,6 +209,16 @@ chansetDefs
 chansetDef
     : IDENTIFIER '=' expression
     // : IDENTIFIER '=' chansetExpr
+    ;
+
+namesetDefs
+    : 'namesets' namesetDef*
+    // : 'chansets' ( chansetDef (';' chansetDef)+ )?
+    ;
+
+namesetDef
+    : IDENTIFIER '=' expression
+    // : IDENTIFIER '=' namesetExpr
     ;
 
 classDefinitionBlock
