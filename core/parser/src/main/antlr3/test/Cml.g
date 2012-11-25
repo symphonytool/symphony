@@ -115,8 +115,16 @@ processParagraph
     | stateDefs 
     | functionDefs
     // | operationDefs
-    // | action declaration
+    | actionDefs
     // | nameset declaration
+    ;
+
+actionDefs
+    : 'actions' actionDef* 
+    ;
+
+actionDef
+    : IDENTIFIER '=' (declaration '@')? action
     ;
 
 action
@@ -128,9 +136,10 @@ actionOps
     : ';' | '[]' | '|~|' 
     | '/\\' | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
     | '[>' | '[[' expression '>>'
-    // | '||' | '|||'
-    // | '[|' expression '|]'
-    // | '[' expression '||' expression ']'
+    | '||' | '|||'
+    | '['  expression ( '|'  expression )? '||'  expression ( '|'  expression )? ']' 
+    | '[|' expression ( '|'  expression ( '|'  expression )? )? '|]' 
+    | '[||' expression '|' expression '||]' 
     ;
 
 actionReplOp
@@ -151,10 +160,28 @@ action1Ops
 
 action2
     : 'Skip' | 'Stop' | 'Chaos' | 'Div' | 'Wait' expression
-    // | communications
-    // | guarded
-    | '(' action ')'
+    | '(' (declaration (';' declaration)* '@' )? action ')' ( '(' expression (',' expression )* ')' )?
+    | IDENTIFIER communication* '->' action
+    | '[' expression ']' '&' action // Still need [] around the expr; conflict: action2 -> (action) and expression...-> (expression)
+    | 'mu' IDENTIFIER '@'  action (',' action)*
     | statement
+    ;
+
+/* FIXME Ok, dots are still fragile
+ *
+ * In this case, it's IDENTIFIER '.' IDENTIFIER that kills us.  I
+ * think we could get away with splitting the '.' case so that
+ * arbitary expressions are ()'d, but constants and identifiers are
+ * clear.
+ *
+ * ( '!' expression '.' IDENTIFER ) still creates an ambiguity as to
+ * whether, say, ...!x.y was really ...(!x).y or ...!(x.y)
+ */
+communication
+    : '.' '(' expression ')'
+    // | '.' IDENTIFIER
+    | '!' expression
+    | '?' bindablePattern
     ;
 
 statement
