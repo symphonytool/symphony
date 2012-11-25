@@ -160,7 +160,10 @@ action1Ops
 
 action2
     : 'Skip' | 'Stop' | 'Chaos' | 'Div' | 'Wait' expression
-    | '(' (declaration (';' declaration)* '@' )? action ')' ( '(' expression (',' expression )* ')' )?
+    /* The mess below includes parenthesized actions, block
+     * statements, parametrised actions, instantiated actions.
+     */
+    | '(' ( ( declaration (';' declaration)* | 'dcl' assignmentDefinition (';' assignmentDefinition)* ) '@' )? action ')' ( '(' expression (',' expression )* ')' )?
     | IDENTIFIER communication* '->' action
     | '[' expression ']' '&' action // Still need [] around the expr; conflict: action2 -> (action) and expression...-> (expression)
     | 'mu' IDENTIFIER '@'  action (',' action)*
@@ -185,8 +188,54 @@ communication
     ;
 
 statement
-    : IDENTIFIER
+    : 'let' localDefinition (',' localDefinition)* 'in' action
+    | '[' ('frame' frameSpec (',' frameSpec)* )? ('pre' expression)? 'post' expression ']'
+    | 'do' nonDetStmtAlt ( '[]' nonDetStmtAlt )* 'end'
+    | 'if' expression 
+        ( '->' action ( '[]' nonDetStmtAlt )* 'end'
+        | 'then' action ('elseif' expression 'then' action)* 'else' action
+        )
+    | 'cases' expression ':' (pattern (',' pattern)* '->' action (',' pattern (',' pattern)* '->' action)* )? (',' 'others' '->' expression)? 'end'
+    | 'for' 
+        (  bindablePattern 'in' expression // was pattern bind here only
+        | 'all' bindablePattern 'in' 'set' expression
+        | IDENTIFIER '=' expression 'to' expression ( 'by' expression )?
+        ) 'do' action
+    | 'return' expression?
+    | 'while' expression 'do' action
+    | stateDesignator ':=' ( expression | 'new' name '(' expression ( ',' expression )* ')' )//| callStatement )
+    // | callStatement
+    | 'atomic' '(' stateDesignator ':=' expression ( ';' stateDesignator ':=' expression )+ ')'
     ;
+
+nonDetStmtAlt
+    : expression '->' action
+    ;
+
+frameSpec
+	: FRAMEMODE name (',' name)* (':' type)?
+    ;
+
+stateDesignator
+    : name sDTail?
+    ;
+
+sDTail
+    : '(' expression ')' ( '.' stateDesignator | sDTail )?
+    ;
+
+callStatement
+    : name '(' ( expression ( ',' expression )* )? ')'
+    // : ( objectDesignator '.' )? name '(' ( expression ( ',' expression )* )? ')'
+    ;
+
+// objectDesignator
+// 	: ( name | 'self' ) oDTail?
+//     ;
+
+// oDTail
+// 	: '(' expression ')' ( '.' objectDesignator | oDTail )?
+// 	;
 
 /* Ok, this is cute.  It works both with and without semicolons,
  * though it may not be visually obvious (without the semis) that it
@@ -515,6 +564,11 @@ QUALIFIER
 PMODE
     : 'val' | 'res' | 'vres'
     ;
+
+FRAMEMODE
+    : 'rd' | 'wr'
+    ;
+
 
 // NILLITERAL
 //     : 'nil'
