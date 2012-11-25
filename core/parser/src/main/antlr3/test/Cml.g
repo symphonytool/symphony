@@ -4,6 +4,10 @@
  *
  * QUOTE_LITERAL doesn't do the right thing with "0<x" (but "0< x" is fine)
  *
+ * communication prefixes using '.' separators are still causing problems
+ *
+ * conflict on call/new/assign; really, really ought to re-think how
+ * that is assembled
  */
 grammar Cml;
 options {
@@ -114,7 +118,7 @@ processParagraph
     | valueDefs
     | stateDefs 
     | functionDefs
-    // | operationDefs
+    | operationDefs
     | actionDefs
     | namesetDefs
     ;
@@ -193,7 +197,7 @@ statement
     | 'do' nonDetStmtAlt ( '[]' nonDetStmtAlt )* 'end'
     | 'if' expression 
         ( '->' action ( '[]' nonDetStmtAlt )* 'end'
-        | 'then' action ('elseif' expression 'then' action)* 'else' action
+        | 'then' action ( 'elseif' expression 'then' action )* 'else' action
         )
     | 'cases' expression ':' (pattern (',' pattern)* '->' action (',' pattern (',' pattern)* '->' action)* )? (',' 'others' '->' expression)? 'end'
     | 'for' 
@@ -275,8 +279,8 @@ classDefinitionBlock
     | valueDefs
     | stateDefs
     | functionDefs
-//  | operationDefs
-//  | INITIAL operationDef
+    | operationDefs
+    | 'initial' operationDef // why should this operation require a name, or be allowed to be explicit?
     ;
 
 valueDefs
@@ -337,6 +341,27 @@ functionBody
     | 'is' 'not' 'yet' 'specified'
     | 'is' 'subclass' 'responsibility'
     ;
+
+operationDefs
+	: 'operations' (QUALIFIER? operationDef)*
+    ;
+
+operationDef
+	: IDENTIFIER 
+        ( ':' opType IDENTIFIER parameterGroup '==' operationBody ('pre' expression)? ('post' expression)?
+        | '(' parameterTypeList ')' IDENTIFIER ':' type (',' IDENTIFIER ':' type)* ('frame' frameSpec (',' frameSpec)* )? ('pre' expression)? ('post' expression)
+        )
+    ;
+
+opType
+    : ( type0 | '(' ')' ) '==>' ( type0 | '(' ')' )
+    ;
+
+operationBody
+	: action
+	| 'is' 'not' 'yet' 'specified' 
+	| 'is' 'subclass' 'responsibility'
+	;
 
 typeDefs
     : 'types' typeDef*
