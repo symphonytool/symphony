@@ -60,7 +60,8 @@ process
 
 procOps
     : ';' | '[]' | '|~|' | '||' | '|||'
-    | '/\\' // I'm less sure about these
+    | '/\\' | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
+    | '[>' | '[[' expression '>>'
     | '[|' expression '|]'
     | '[' expression '||' expression ']'
     ;
@@ -79,9 +80,7 @@ proc1
     ;
 
 proc1ops
-    : '/\\' | '[>' | '\\\\' | 'startsby' | 'endsby'
-    | '//' expression '\\\\'
-    | '[[' expression '>>'
+    : '\\\\' | 'startsby' | 'endsby'
     ;
 
 proc2
@@ -121,6 +120,44 @@ processParagraph
     ;
 
 action
+    : action0 actionOps action
+    | ( replOp | actionReplOp ) replicationDeclaration '@' ( '[' expression ( '|' expression )? ']' )? process
+    ;
+
+actionOps
+    : ';' | '[]' | '|~|' 
+    | '/\\' | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
+    | '[>' | '[[' expression '>>'
+    // | '||' | '|||'
+    // | '[|' expression '|]'
+    // | '[' expression '||' expression ']'
+    ;
+
+actionReplOp
+    : '[||' expression '||]'
+    ;
+
+action0
+    : action1 ( '[[' renamingExpr ']]' )?
+    ;
+
+action1
+    : action2 action1Ops expression
+    ;
+
+action1Ops
+    : '\\\\' | 'startsby' | 'endsby'
+    ;
+
+action2
+    : 'Skip' | 'Stop' | 'Chaos' | 'Div' | 'Wait' expression
+    // | communications
+    // | guarded
+    | '(' action ')'
+    | statement
+    ;
+
+statement
     : IDENTIFIER
     ;
 
