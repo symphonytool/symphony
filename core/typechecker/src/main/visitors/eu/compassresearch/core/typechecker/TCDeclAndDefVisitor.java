@@ -431,10 +431,16 @@ class TCDeclAndDefVisitor extends
 	 * Create an Overture class that
 	 */
 	private static AClassClassDefinition createSurrogateClass(
-			AClassParagraphDefinition node) {
+			AClassParagraphDefinition node,
+			org.overture.typechecker.TypeCheckInfo question) {
 
 		// So a bit of work needs to be done for definitions
 		List<PDefinition> overtureReadyCMLDefinitions = new LinkedList<PDefinition>();
+
+		if (question.env.getEnclosingDefinition() instanceof AClassClassDefinition)
+			overtureReadyCMLDefinitions
+					.addAll(((AClassClassDefinition) question.env
+							.getEnclosingDefinition()).getDefinitions());
 
 		// Lets mangle the CML definitions for Overture to cope with them
 		for (PDefinition def : node.getDefinitions()) {
@@ -530,7 +536,7 @@ class TCDeclAndDefVisitor extends
 			throws AnalysisException {
 
 		// Create Surrogate Overture Class
-		AClassClassDefinition surrogate = createSurrogateClass(node);
+		AClassClassDefinition surrogate = createSurrogateClass(node, question);
 
 		// Type check surrogate with overture
 		PType classType = typeCheckWithOverture(node, surrogate, question);

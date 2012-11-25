@@ -16,6 +16,7 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PBind;
 import org.overture.ast.patterns.PMultipleBind;
+import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.FlatEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
@@ -217,6 +218,8 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 				.getNewTopLevelInstance(this.issueHandler, globalRoot);
 		if (!cleared)
 			return lastResult;
+
+		List<PPattern> list;
 
 		try {
 			globalRoot = CollectGlobalStateClass.getGlobalRoot(
