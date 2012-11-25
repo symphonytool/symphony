@@ -8,6 +8,8 @@
  *
  * conflict on call/new/assign; really, really ought to re-think how
  * that is assembled
+ *
+ * expression/statement precedence has still to be resolved
  */
 grammar Cml;
 options {
@@ -488,7 +490,7 @@ unaryExpr1op
 
 expr1
     : unaryExpr1op exprbase
-    | '{' setMapExpr? '}'
+    | '{' ( '|->' | expression setMapExprTail? )? '}'
     | '[' seqExpr? ']'
     | MKUNDERLPAREN expression (',' expression)+ ')'
     | MKUNDERNAMELPAREN ( expression (',' expression)* )? ')'
@@ -518,11 +520,6 @@ exprbase
 
 name
     : IDENTIFIER ('.' IDENTIFIER)*
-    ;
-
-setMapExpr
-    : expression setMapExprTail?
-    | '|->'
     ;
 
 setMapExprTail
@@ -702,202 +699,3 @@ DECIMAL
 TUPLESELECTOR
     : '.#' DIGIT+
     ;
-
-// CSPCHAOS : 'Chaos';
-// CSPSKIP : 'Skip';
-// CSPSTOP : 'Stop';
-// CSPWAIT : 'Wait';
-// ABS : 'abs';
-// ACTIONS : 'actions';
-// ALL : 'all';
-// AND : 'and';
-// ATOMIC : 'atomic';
-// BEGIN : 'begin';
-// TBOOL : 'bool';
-// BY : 'by';
-// CARD : 'card';
-// CASES : 'cases';
-// CHANNELS : 'channels';
-// CHANSETS : 'chansets';
-// TCHAR : 'char';
-// CLASS : 'class';
-// COMP : 'comp';
-// COMPOSE : 'compose';
-// CONC : 'conc';
-// DCL : 'dcl';
-// DINTER : 'dinter';
-// CSPDIV : 'Div';
-// DIV : 'div';
-// DO : 'do';
-// DOM : 'dom';
-// DUNION : 'dunion';
-// ELEMS : 'elems';
-// ELSE : 'else';
-// ELSEIF : 'elseif';
-// END : 'end';
-// ENDSBY : 'endsby';
-// EXISTS : 'exists';
-// EXISTS1 : 'exists1';
-// EXTENDS : 'extends';
-// FALSE : 'false';
-// FLOOR : 'floor';
-// FOR : 'for';
-// FORALL : 'forall';
-// FRAME : 'frame';
-// FUNCTIONS : 'functions';
-// HD : 'hd';
-// IF : 'if';
-// INSET : 'in set';
-// IN : 'in';
-// INDS : 'inds';
-// INITIAL : 'initial';
-// INMAPOF : 'inmap';
-// TINT : 'int';
-// INTER : 'inter';
-// INV : 'inv';
-// INVERSE : 'inverse';
-// IOTA : 'iota';
-// ISOFCLASS : 'isofclass';
-// NOTYETSPEC : 'is not yet specified';
-// SUBCLASSRESP : 'is subclass responsibility';
-// LAMBDA : 'lambda';
-// LEN : 'len';
-// LET : 'let';
-// LOGICAL : 'logical';
-// MAPOF : 'map';
-// MEASURE : 'measure';
-// MERGE : 'merge';
-// MOD : 'mod';
-// MU : 'mu';
-// MUNION : 'munion';
-// NAMESETS : 'namesets';
-// TNAT : 'nat';
-// TNAT1 : 'nat1';
-// NEW : 'new';
-// NIL : 'nil';
-// NOTINSET : 'not in set';
-// NOT : 'not';
-// OPERATIONS : 'operations';
-// OF : 'of';
-// OR : 'or';
-// OTHERS : 'others';
-// POST : 'post';
-// POWER : 'power';
-// PRE : 'pre';
-// PREUNDER : 'pre_';
-// PRIVATE : 'private';
-// PROCESS : 'process';
-// PROTECTED : 'protected';
-// PSUBSET : 'psubset';
-// PUBLIC : 'public';
-// TRAT : 'rat';
-// RD : 'rd';
-// TREAL : 'real';
-// REM : 'rem';
-// RES : 'res';
-// RETURN : 'return';
-// REVERSE : 'reverse';
-// RNG : 'rng';
-// SELF : 'self';
-// SEQOF : 'seq of';
-// SEQ1OF : 'seq1 of';
-// SETOF : 'set of';
-// STARTBY : 'startby';
-// STATE : 'state';
-// SUBSET : 'subset';
-// THEN : 'then';
-// TL : 'tl';
-// TO : 'to';
-// TTOKEN : 'token';
-// TRUE : 'true';
-// TYPES : 'types';
-// UNION : 'union';
-// VAL : 'val';
-// VALUES : 'values';
-// VRES : 'vres';
-// WHILE : 'while';
-// WR : 'wr';
-
-// AMP : '&';
-// AT : '@';
-// BACKSLASH : '\\';
-// BANG : '!';
-// BAR : '|';
-// BARRARROW : '|->';
-// BARRCURLY : '|}';
-// BARGT : '|>';
-// BARRSQUARE : '|]';
-// BARTILDEBAR : '|~|';
-// CARET : '^';
-// COLON : ':';
-// COLONBACKSLASH : ':\\';
-// COLONDASH : ':-';
-// COLONDASHGT : ':->';
-// COLONEQUALS : ':=';
-// COLONGT : ':>';
-// COMMA : ',';
-// DBACKSLASH : '\\\\';
-// DBAR : '||';
-// DBARRSQUARE : '||]';
-// DCOLON : '::';
-// DEQRARROW : '==>';
-// DEQUALS : '==';
-// DLSQUARE : '[[';
-// DOT : '.';
-// DOTHASH : '.#';
-// DPLUS : '++';
-// DRSQUARE : ']]';
-// DSTAR : '**';
-
-// yes, the ellipsis includes the commas all as a single token
-// ELLIPSIS
-//     : ',' '...' ','
-//     ;
-// EMPTYMAP
-//     : '{' '|->' '}'
-//     ;
-
-// EQRARROW : '=>';
-// EQUALS : '=';
-// GT : '>';
-// GTE : '>=';
-// LARROW : '<-';
-// LCURLY : '{';
-// LCURLYBAR : '{|';
-// LPAREN : '(';
-
-// LRPAREN
-//     : '(' ')'
-//     ;
-
-// LRSQUARE : '[]';
-// LSQUARE : '[';
-// LSQUAREBAR : '[|';
-// LSQUAREDBAR : '[||';
-// LSQUAREGT : '[>';
-// LT : '<';
-// LTCOLON : '<:';
-// LTDASHCOLON : '<-:';
-// LTE : '<=';
-// LTEQUALSGT : '<=>';
-// MINUS : '-';
-// NEQ : '<>';
-// PLUS : '+';
-// PLUSGT : '+>';
-// QUESTION : '?';
-// RARROW : '->';
-// RCURLY : '}';
-// RPAREN : ')';
-// RSQUARE : ']';
-// SEMI : ';';
-// SLASH : '/';
-// SLASHBACKSLASH : '/\\';
-// SLASHCOLON : '/:';
-// STAR : '*';
-// TBAR : '|||';
-// TILDE : '~';
-// BACKTICK : '`';
-
-/* ---- complex terminals below ---- */
-
-
