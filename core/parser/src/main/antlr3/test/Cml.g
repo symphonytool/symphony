@@ -1,9 +1,13 @@
 /* loose threads:
  *
  * QUOTELITERAL doesn't do the right thing with "0<x" (but "0< x" is fine)
- *   For now, I have a parser rule to match this, but I expect weirdnesses
+ * -> For now, I have a parser rule to match this, but I expect weirdnesses
  *
  * communication prefixes using '.' separators are still causing problems
+ * -> restriction in place: '.','!' may only be followed by ids,
+ *    (expr), symLit, and records/tuples; '?' is only followed by a
+ *    bindablePattern and optionally a set/map expr that delimited by
+ *    curlies
  *
  * conflict on call/new/assign; really, really ought to re-think how
  * that is assembled
@@ -186,10 +190,8 @@ action2
  * whether, say, ...!x.y was really ...(!x).y or ...!(x.y)
  */
 communication
-    : '.' '(' expression ')'
-    // | '.' IDENTIFIER
-    | '!' expression
-    | '?' bindablePattern
+    : ('.' | '!') ( IDENTIFIER | '(' expression ')' | symbolicLiteral | recordTupleExprs )
+    | '?' bindablePattern ( 'in' 'set' setMapExprs )?
     ;
 
 statement
@@ -493,16 +495,24 @@ unaryExpr1op
 
 expr1
     : unaryExpr1op exprbase
-    | '{' ( '|->' | expression setMapExprTail? )? '}'
+    | setMapExprs
     | '[' seqExpr? ']'
-    | MKUNDERLPAREN expression (',' expression)+ ')'
-    | MKUNDERNAMELPAREN ( expression (',' expression)* )? ')'
+    | recordTupleExprs
     | ISOFCLASSLPAREN IDENTIFIER ('.' IDENTIFIER)* ',' expression ')'
     | ISUNDERLPAREN expression ',' type ')'
     | ISUNDERBASICLPAREN expression ')'
     | ISUNDERNAMELPAREN expression ')'
     | PREUNDERLPAREN expression (',' expression)* ')'
     | expr2 TUPLESELECTOR?
+    ;
+
+setMapExprs
+    : '{' ( '|->' | expression setMapExprTail? )? '}'
+    ;
+
+recordTupleExprs
+    : MKUNDERLPAREN expression (',' expression)+ ')'
+    | MKUNDERNAMELPAREN ( expression (',' expression)* )? ')'
     ;
 
 expr2
