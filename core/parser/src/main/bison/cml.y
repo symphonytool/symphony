@@ -369,6 +369,9 @@ classDefinition :
   clz.setName(lexName);
   clz.setDefinitions((List<PDefinition>)$classDefinitionBlock);
   clz.setNameScope(NameScope.CLASSNAME);
+  clz.setAccess(util.getDefaultAccessSpecifier(true, false, loc));
+  AClassType ct = new AClassType(clz.getLocation(), false, clz.getDefinitions(), clz.getName(), null);
+  clz.setType(ct);
   $$ = clz;
 }
 /* DEVIATION
@@ -379,7 +382,7 @@ classDefinition :
   LexLocation location = util.extractLexLocation((CmlLexeme)$CLASS,(CmlLexeme)$END);
   List<LexNameToken> supernames = new LinkedList<LexNameToken>();
   supernames.add(util.extractLexNameToken($parent));
-  $$ = new AClassParagraphDefinition(location,
+  AClassParagraphDefinition clz = new AClassParagraphDefinition(location,
                                      util.extractLexNameToken($id),
                                      NameScope.CLASSNAME,
                                      false,
@@ -404,6 +407,8 @@ classDefinition :
                                      null/*PType classtype_*/,
                                      false /*Boolean isTypeChecked_*/,
                                      null/*AExplicitOperationDefinition invariant_*/);
+   clz.setAccess(util.getDefaultAccessSpecifier(true, false, location));
+   $$ = clz;
 }
 ;
 
@@ -1775,6 +1780,7 @@ chansetDefinitionParagraph :
                                     access,
                                     null/*Pass*/,
                                     new LinkedList<AChansetDefinition>());
+  chansetParagraph.setName(util.extractLexNameToken((CmlLexeme)$1));
   $$ = chansetParagraph;
 }
 | CHANSETS chansetDefinitionList[list]
@@ -1792,6 +1798,7 @@ chansetDefinitionParagraph :
                                     access,
                                     null/*Pass*/,
                                     chansetDefinitions);
+  chansetParagraph.setName(util.extractLexNameToken((CmlLexeme)$1));
   $$ = chansetParagraph;
 }
 ;
@@ -1904,36 +1911,43 @@ typeDefs :
   TYPES
 {
   LexLocation loc = util.extractLexLocation((CmlLexeme)$TYPES);
-  $$ = new ATypesParagraphDefinition(loc,
+  ATypesParagraphDefinition typesDef = new ATypesParagraphDefinition(loc,
                                      NameScope.LOCAL,
                                      false,
                                      util.getDefaultAccessSpecifier(true, false, loc),
                                      null/*Pass*/,
                                      null);
+  typesDef.setName(util.extractLexNameToken((CmlLexeme)$1));
+  $$ = typesDef;
+  
 }
 | TYPES typeDefList
 {
   List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
   LexLocation loc = util.combineLexLocation(util.extractLexLocation((CmlLexeme)$TYPES),
                                        util.extractLastLexLocation(typeDefinitions));
-  $$ = new ATypesParagraphDefinition(loc,
+  ATypesParagraphDefinition typesDef = new ATypesParagraphDefinition(loc,
                                      NameScope.LOCAL,
                                      false,
                                      util.getDefaultAccessSpecifier(true, false, loc),
                                      null/*Pass*/,
                                      typeDefinitions);
+  typesDef.setName(util.extractLexNameToken((CmlLexeme)$1));
+  $$ = typesDef;
 }
 | TYPES typeDefList SEMI
 {
   List<ATypeDefinition> typeDefinitions = (List<ATypeDefinition>)$typeDefList;
   LexLocation loc = util.combineLexLocation(util.extractLexLocation((CmlLexeme)$TYPES),
                                        util.extractLexLocation((CmlLexeme)$SEMI));
-  $$ = new ATypesParagraphDefinition(loc,
+  ATypesParagraphDefinition typesDef =new ATypesParagraphDefinition(loc,
                                      NameScope.LOCAL,
                                      false,
                                      util.getDefaultAccessSpecifier(true, false, loc),
                                      null/*Pass*/,
                                      typeDefinitions);
+  typesDef.setName(util.extractLexNameToken((CmlLexeme)$1));
+  $$ = typesDef;
 }
 ;
 
@@ -1959,14 +1973,17 @@ typeDef :
   LexNameToken name = util.extractLexNameToken((CmlLexeme)$id);
   LexLocation location = null;
   location = util.combineLexLocation(name.getLocation(), ((PType)$type).getLocation());
+  PType type = (PType)$4;
+  ANamedInvariantType invType = 
+    AstFactory.newANamedInvariantType(name, type);
   $$ = new ATypeDefinition(location,
                            NameScope.TYPENAME,
                            false/*Boolean used_*/,
                            null/*VDM ClassDef*/,
                            access,
-                           (PType)$type,
+                           null,
                            null/*Pass*/,
-                           null/*SInvariantType invType_*/,
+                           invType/*SInvariantType invType_*/,
                            null/*PPattern invPattern_*/,
                            null/*PExp invExpression_*/,
                            null /*AExplicitFunctionDefinition invdef_*/,
@@ -1980,14 +1997,18 @@ typeDef :
   AInvariantDefinition inv = (AInvariantDefinition)$invariant;
   LexLocation location = null;
   location = util.combineLexLocation(name.getLocation(), inv.getLocation());
+  PType type = (PType)$4;
+  ANamedInvariantType invType = 
+    AstFactory.newANamedInvariantType(name, type);
+
   $$ = new ATypeDefinition(location,
                            NameScope.TYPENAME,
                            false/*Boolean used_*/,
                            null/*VDM ClassDef*/,
                            access,
-                           (PType)$type,
+                           null,
                            null/*Pass*/,
-                           null/*SInvariantType invType_*/,
+                           invType,/*SInvariantType invType_*/
                            inv.getPattern()/*PPattern invPattern_*/,
                            inv.getExpression()/*PExp invExpression_*/,
                            null /*AExplicitFunctionDefinition invdef_*/,
@@ -2025,9 +2046,9 @@ typeDef :
                            false,
                            null/*VDM ClassDef*/,
                            access,
-                           recType,
-                           null/*Pass*/,
                            null,
+                           null/*Pass*/,
+                           recType,
                            null,
                            null,
                            null,
@@ -4446,25 +4467,15 @@ patternLessID :
  */
 | MKUNDERNAME LRPAREN
 {
-  List<? extends PPattern> plist = null;
+  List<PPattern> plist = new LinkedList<PPattern>();
   LexNameToken name = util.extractNameFromUNDERNAMEToken((CmlLexeme)$MKUNDERNAME);
-  $$ = new ARecordPattern(util.extractLexLocation((CmlLexeme)$MKUNDERNAME,
-                                             (CmlLexeme)$LRPAREN),
-                          null,
-                          false,
-                          name,
-                          plist);
+  $$ = AstFactory.newARecordPattern(name, plist);
 }
 | MKUNDERNAME LPAREN patternList RPAREN
 {
-  List<? extends PPattern> plist = (List<? extends PPattern>)$patternList;
+  List<PPattern> plist = (List<PPattern>)$patternList;
   LexNameToken name = util.extractNameFromUNDERNAMEToken((CmlLexeme)$MKUNDERNAME);
-  $$ = new ARecordPattern(util.extractLexLocation((CmlLexeme)$MKUNDERNAME,
-                                             (CmlLexeme)$RPAREN),
-                          null,
-                          false,
-                          name,
-                          plist);
+  $$ = AstFactory.newARecordPattern(name, plist);
 }
 ;
 

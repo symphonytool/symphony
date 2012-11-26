@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
@@ -31,6 +32,8 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 
 	private final Environment<PDefinition> channels;
 
+	private AClassClassDefinition globalClassDefinition;
+
 	public final String CML_SCOPE = "CML";
 	public final String DEFAULT_SCOPE = "Default";
 
@@ -45,22 +48,26 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 	 * @return a fresh Type Check Info instance at top level
 	 */
 	public static TypeCheckInfo getNewTopLevelInstance(
-			TypeIssueHandler issueHandler) {
-		return new TypeCheckInfo(issueHandler);
+			TypeIssueHandler issueHandler, AClassClassDefinition globalClassDef) {
+		return new TypeCheckInfo(issueHandler, globalClassDef);
+
 	}
 
-	private TypeCheckInfo(TypeIssueHandler issueHandler) {
+	private TypeCheckInfo(TypeIssueHandler issueHandler,
+			AClassClassDefinition globalDefs) {
 		super(new FlatEnvironment(new LinkedList<PDefinition>()));
 		this.issueHandler = issueHandler;
 		this.channels = new Environment<PDefinition>(issueHandler);
+		this.globalClassDefinition = globalDefs;
 	}
 
 	private TypeCheckInfo(Environment<PDefinition> channelSurounding,
 			org.overture.typechecker.Environment suroundingEnv,
-			TypeIssueHandler issueHandler) {
+			TypeIssueHandler issueHandler, AClassClassDefinition globalDefs) {
 		super(suroundingEnv);
 		this.channels = channelSurounding;
 		this.issueHandler = issueHandler;
+		this.globalClassDefinition = globalDefs;
 	}
 
 	@Override
@@ -94,8 +101,10 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 
 	@Override
 	public PDefinition lookupVariable(LexIdentifierToken ident) {
-		if (ident instanceof LexNameToken)
+		if (ident instanceof LexNameToken) {
+
 			return env.findName((LexNameToken) ident, NameScope.GLOBAL);
+		}
 		return null;
 	}
 
@@ -112,7 +121,7 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 		// Variables are scoped, types and channels are global (for now at
 		// least)
 		TypeCheckInfo res = new TypeCheckInfo(this.channels, super.env,
-				issueHandler);
+				issueHandler, this.globalClassDefinition);
 		return res;
 	}
 
@@ -151,6 +160,11 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 	@Override
 	public void updateContextNameToCurrentScope(INode n) {
 		// TODO: Set the current scope on the node n.
+	}
+
+	@Override
+	public PDefinition getGlobalClassDefinitions() {
+		return this.globalClassDefinition;
 	}
 
 }

@@ -49,7 +49,7 @@ import org.overture.ast.util.ToStringUtil;
 %exp->time = "time"
 %exp->tuple = "mk_(" + $Utils.listToString($ [args] $)$ + ")"
 %exp->undefined = "(undefined)"
-%exp->variable = [original]
+%exp->variable = [name]
 
 //
 %alternative->case ="case "  [pattern] + " -> "  [result] 
