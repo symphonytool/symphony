@@ -1,8 +1,7 @@
 /* loose threads:
- *   localDef -> valueDefinition | functionDefinition
- *     the alternatives conflict; need to be left-factored, I think
  *
- * QUOTE_LITERAL doesn't do the right thing with "0<x" (but "0< x" is fine)
+ * QUOTELITERAL doesn't do the right thing with "0<x" (but "0< x" is fine)
+ *   For now, I have a parser rule to match this, but I expect weirdnesses
  *
  * communication prefixes using '.' separators are still causing problems
  *
@@ -388,14 +387,14 @@ type1
     : basicType
     | '(' type ')'
     | '[' type ']'
-    | QUOTELITERAL
+    | quoteliteral
     | IDENTIFIER ('.' IDENTIFIER)*
     | 'compose' IDENTIFIER 'of' field+ 'end'
-    | 'set of' type1
-    | 'seq of' type1
-    | 'seq1 of' type1
-    | 'map of' type1 'to' type1
-    | 'inmap of' type1 'to' type1
+    | 'set' 'of' type1
+    | 'seq' 'of' type1
+    | 'seq1' 'of' type1
+    | 'map' 'of' type1 'to' type1
+    | 'inmap' 'of' type1 'to' type1
     ;
 
 basicType
@@ -439,7 +438,7 @@ symbolicLiteral
     | 'nil'
     | CHARLITERAL
     | TEXTLITERAL
-    | QUOTELITERAL
+    | quoteliteral
     ;
 
 numLiteral
@@ -449,6 +448,10 @@ numLiteral
 
 boolLiteral
     : 'true' | 'false'
+    ;
+
+quoteliteral
+	: '<' IDENTIFIER '>'
     ;
 
 tuplePattern
@@ -546,8 +549,8 @@ seqExpr
     ;
 
 localDefinition
-    : valueDefinition
-    //| functionDefinition
+    : (valueDefinition)=> valueDefinition // This.  THIS!  This is awesome.  Full of awesome.  Now I need to figure out Why it works. --jwc/26Nov2012
+    | functionDefinition
     ;
     
 bind: bindablePattern ('in' 'set' expression | ':' type)
@@ -566,18 +569,6 @@ typeBind
 /* ********************************************************** */
 
 
-WHITESPACE
-    : (' ' | '\t' | '\r' | '\n')+ { $channel=HIDDEN; }
-    ;
-
-LINECOMMENT
-    : ( '//' | '--' ) .* '\n' { $channel=HIDDEN; }
-    ;
-
-MLINECOMMENT
-    : '/*' .* '*/' { $channel=HIDDEN; }
-    ;
-
 QUALIFIER
     : 'public' | 'protected' | 'private' | 'logical'
     ;
@@ -595,18 +586,6 @@ FRAMEMODE
 // NILLITERAL
 //     : 'nil'
 //     ;
-
-QUOTELITERAL
-    : '<' IDENTIFIER '>'
-    ;
-
-CHARLITERAL
-    : '\\\\' | '\\r' | '\\n' | '\\t' | '\\f' | '\\e' | '\\a' | '\\"' | '\\\''
-    | '\\x' HEXDIGIT HEXDIGIT
-    | '\\u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
-    | '\\' OCTDIGIT OCTDIGIT OCTDIGIT
-    // | '\\c' character
-    ;
 
 PREUNDERLPAREN
     : 'pre_('
@@ -699,3 +678,28 @@ DECIMAL
 TUPLESELECTOR
     : '.#' DIGIT+
     ;
+
+// QUOTELITERAL
+//     : '<' INITIAL_LETTER FOLLOW_LETTER* '>'
+//     ;
+
+CHARLITERAL
+    : '\\\\' | '\\R' | '\\n' | '\\t' | '\\f' | '\\e' | '\\a' | '\\"' | '\\\''
+    | '\\x' HEXDIGIT HEXDIGIT
+    | '\\u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
+    | '\\' OCTDIGIT OCTDIGIT OCTDIGIT
+    // | '\\c' character
+    ;
+
+WHITESPACE
+    : (' ' | '\t' | '\r' | '\n')+ { skip(); }
+    ;
+
+LINECOMMENT
+    : ( '//' | '--' ) .* '\n' { $channel=HIDDEN; }
+    ;
+
+MLINECOMMENT
+    : '/*' .* '*/' { $channel=HIDDEN; }
+    ;
+
