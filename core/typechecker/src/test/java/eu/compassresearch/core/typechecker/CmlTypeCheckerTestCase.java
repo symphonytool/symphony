@@ -650,6 +650,11 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				"types A = int; class test = begin state k:A end", false, true,
 				true, new String[0]);
 
+		// 140
+		addTestProgram(testData,
+				"values k : int = 2 class test = begin state a : int := k end",
+				false, true, true, new String[0]);
+
 		return testData;
 	}
 

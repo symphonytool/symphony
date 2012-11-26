@@ -72,7 +72,7 @@ public class RunCmlExamplesTestCase {
 				TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage("A"));
 		addFailingFile("process-action-callstm.cml",
 				TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage("a"));
-		addFailingFile("airline2.cml", "The type init is undefined.");
+		// addFailingFile("airline2.cml", "The type init is undefined.");
 		addFailingFile("process-action-communication-multiwrite.cml",
 				"The type load is undefined.");
 		addFailingFile("process-action-whilestm.cml",
