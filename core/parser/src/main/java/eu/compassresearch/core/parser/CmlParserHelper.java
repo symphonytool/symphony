@@ -219,7 +219,7 @@ public class CmlParserHelper {
 			name = new LexNameToken(tokens[0], tokens[1],
 					extractLexLocation(mkUnder), false, true);
 		} else
-			name = new LexNameToken("Default", nameString,
+			name = new LexNameToken("", nameString,
 					extractLexLocation(mkUnder), false, true);
 		return name;
 	}
@@ -263,14 +263,14 @@ public class CmlParserHelper {
 	}
 
 	public LexLocation extractLexLocation(CmlLexeme lexeme) {
-		return new LexLocation(currentSource.toString(), "Default",
+		return new LexLocation(currentSource.toString(), "",
 				lexeme.getStartPos().line, lexeme.getStartPos().column,
 				lexeme.getEndPos().line, lexeme.getEndPos().column,
 				lexeme.getStartPos().offset, lexeme.getEndPos().offset);
 	}
 
 	public LexLocation extractLexLocation(CmlLexeme start, CmlLexeme end) {
-		return new LexLocation(currentSource.toString(), "Default",
+		return new LexLocation(currentSource.toString(), "",
 				start.getStartPos().line, start.getStartPos().column,
 				end.getEndPos().line, end.getEndPos().column,
 				start.getStartPos().offset, end.getEndPos().offset);
@@ -278,7 +278,7 @@ public class CmlParserHelper {
 
 	public LexLocation extractLexLocation(CmlLexeme start, LexLocation end) {
 
-		return new LexLocation(currentSource.toString(), "Default",
+		return new LexLocation(currentSource.toString(), "",
 				start.getStartPos().line, start.getStartPos().column,
 				end.endLine, end.endPos, start.getStartPos().offset,
 				end.endOffset);
@@ -286,16 +286,15 @@ public class CmlParserHelper {
 
 	public LexLocation extractLexLocation(LexLocation start, CmlLexeme end) {
 
-		return new LexLocation(currentSource.toString(), "Default",
-				start.startLine, start.startPos, end.getEndPos().line,
-				end.getEndPos().column, start.startOffset,
-				end.getEndPos().offset);
+		return new LexLocation(currentSource.toString(), "", start.startLine,
+				start.startPos, end.getEndPos().line, end.getEndPos().column,
+				start.startOffset, end.getEndPos().offset);
 	}
 
 	public LexLocation extractLexLocation(LexLocation start, LexLocation end) {
-		return new LexLocation(currentSource.toString(), "Default",
-				start.startLine, start.startPos, end.endLine, end.endPos,
-				start.startOffset, end.endOffset);
+		return new LexLocation(currentSource.toString(), "", start.startLine,
+				start.startPos, end.endLine, end.endPos, start.startOffset,
+				end.endOffset);
 	}
 
 	public LexLocation combineLexLocation(LexLocation start, LexLocation end) {
@@ -355,13 +354,13 @@ public class CmlParserHelper {
 	}
 
 	public LexNameToken extractLexNameToken(CmlLexeme lexeme, boolean old) {
-		return new LexNameToken("Default", lexeme.getValue(),
+		return new LexNameToken("", lexeme.getValue(),
 				extractLexLocation(lexeme), old, true);
 	}
 
 	public LexNameToken extractLexNameToken(Object obj) {
 		CmlLexeme lexeme = (CmlLexeme) obj;
-		return new LexNameToken("Default", lexeme.getValue(),
+		return new LexNameToken("", lexeme.getValue(),
 				extractLexLocation(lexeme), false, true);
 	}
 
