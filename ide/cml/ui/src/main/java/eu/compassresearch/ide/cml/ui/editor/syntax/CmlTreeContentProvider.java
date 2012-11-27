@@ -177,6 +177,25 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 	@Override
 	public boolean hasChildren(Object element) {
 		return element instanceof Wrapper;
+        }
+
+    private List<Wrapper<? extends INode>> handleProcessParagraphDefinition(
+	    AProcessParagraphDefinition ppdef) {
+	PProcess pp = ppdef.getProcessDefinition().getProcess();
+	if (ProcessMap.getDelegate(pp.getClass()) != null)
+	return ProcessMap.getDelegate(pp.getClass()).makeEntries(pp);
+	return new LinkedList<Wrapper<? extends INode>>();
+    }
+
+
+    private List<Wrapper<AChannelNameDefinition>> handleChannelParagraphDefinition(
+	    AChannelParagraphDefinition cpdef) {
+	List<Wrapper<AChannelNameDefinition>> r = new LinkedList<Wrapper<AChannelNameDefinition>>();
+	for (AChannelNameDefinition dec : cpdef.getChannelNameDeclarations()) {
+	    r.add(Wrapper.newInstance(dec, dec.getSingleType().getIdentifiers()
+		    .toString()
+		    + ": " + dec.getSingleType().getType()));
 	}
 
+}
 }
