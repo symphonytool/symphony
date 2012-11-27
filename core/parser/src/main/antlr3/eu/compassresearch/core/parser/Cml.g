@@ -10,7 +10,11 @@
  *    curlies
  *
  * conflict on call/new/assign; really, really ought to re-think how
- * that is assembled
+ * that is assembled.
+ * ... We still have an inherent conflict between opcalls and fncalls,
+ *   as syntactically there's no difference in the basic cases.  Both
+ *   are essentially ID '('expr*')'.  I've added lhs '<-' call as a
+ *   rule alternative.
  *
  * expression/statement precedence has still to be resolved
  */
@@ -43,7 +47,7 @@ public String getTokenErrorDisplay(Token t) {
 source
     : programParagraph+
     ;
-    
+
 programParagraph
     : classDefinition
     | processDefinition
@@ -96,7 +100,7 @@ proc2
     : 'begin' processParagraph* '@' action 'end'
     // merge of (process) | identifier [({expression})] | (decl@proc)({expression})
     | ( IDENTIFIER | '(' (declaration (';' declaration)* '@')? process ')' ) ( '(' ( expression ( ',' expression )* )? ')'  )?
-    ;    
+    ;
 
 declaration
     : PMODE? IDENTIFIER (',' IDENTIFIER)* (':' type)?
@@ -121,7 +125,7 @@ renamePair
 processParagraph
     : typeDefs
     | valueDefs
-    | stateDefs 
+    | stateDefs
     | functionDefs
     | operationDefs
     | actionDefs
@@ -129,7 +133,7 @@ processParagraph
     ;
 
 actionDefs
-    : 'actions' actionDef* 
+    : 'actions' actionDef*
     ;
 
 actionDef
@@ -142,13 +146,13 @@ action
     ;
 
 actionOps
-    : ';' | '[]' | '|~|' 
+    : ';' | '[]' | '|~|'
     | '/\\' | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
     | '[>' | '[[' expression '>>'
     | '||' | '|||'
-    | '['  expression ( '|'  expression )? '||'  expression ( '|'  expression )? ']' 
-    | '[|' expression ( '|'  expression ( '|'  expression )? )? '|]' 
-    | '[||' expression '|' expression '||]' 
+    | '['  expression ( '|'  expression )? '||'  expression ( '|'  expression )? ']'
+    | '[|' expression ( '|'  expression ( '|'  expression )? )? '|]'
+    | '[||' expression '|' expression '||]'
     ;
 
 actionReplOp
@@ -198,21 +202,24 @@ statement
     : 'let' localDefinition (',' localDefinition)* 'in' action
     | '[' ('frame' frameSpec (',' frameSpec)* )? ('pre' expression)? 'post' expression ']'
     | 'do' nonDetStmtAlt ( '[]' nonDetStmtAlt )* 'end'
-    | 'if' expression 
+    | 'if' expression
         ( '->' action ( '[]' nonDetStmtAlt )* 'end'
         | 'then' action ( 'elseif' expression 'then' action )* 'else' action
         )
     | 'cases' expression ':' (pattern (',' pattern)* '->' action (',' pattern (',' pattern)* '->' action)* )? (',' 'others' '->' expression)? 'end'
-    | 'for' 
-        (  bindablePattern 'in' expression // was pattern bind here only
+    | 'for'
+        ( bindablePattern 'in' expression // was pattern bind here only
         | 'all' bindablePattern 'in' 'set' expression
         | IDENTIFIER '=' expression 'to' expression ( 'by' expression )?
         ) 'do' action
     | 'return' expression?
     | 'while' expression 'do' action
-    | stateDesignator ':=' ( expression | 'new' name '(' expression ( ',' expression )* ')' )//| callStatement )
-    // | callStatement
     | 'atomic' '(' stateDesignator ':=' expression ( ';' stateDesignator ':=' expression )+ ')'
+    | (callStatement)=> callStatement // More syntactic predicate magic :)
+    | stateDesignator
+        ( ':=' ( expression | 'new' name '(' expression ( ',' expression )* ')' )//| callStatement )
+        | '<-' callStatement
+        )
     ;
 
 nonDetStmtAlt
@@ -220,7 +227,7 @@ nonDetStmtAlt
     ;
 
 frameSpec
-	: FRAMEMODE name (',' name)* (':' type)?
+    : FRAMEMODE name (',' name)* (':' type)?
     ;
 
 stateDesignator
@@ -231,18 +238,14 @@ sDTail
     : '(' expression ')' ( '.' stateDesignator | sDTail )?
     ;
 
+/* This does not support the 'object apply' form of the
+ * objectDesignator, but I don't know what that's for, anyway.
+ * Chained calls?  That should be more general anyway.
+ *
+ */
 callStatement
     : name '(' ( expression ( ',' expression )* )? ')'
-    // : ( objectDesignator '.' )? name '(' ( expression ( ',' expression )* )? ')'
     ;
-
-// objectDesignator
-// 	: ( name | 'self' ) oDTail?
-//     ;
-
-// oDTail
-// 	: '(' expression ')' ( '.' objectDesignator | oDTail )?
-// 	;
 
 /* Ok, this is cute.  It works both with and without semicolons,
  * though it may not be visually obvious (without the semis) that it
@@ -346,11 +349,11 @@ functionBody
     ;
 
 operationDefs
-	: 'operations' (QUALIFIER? operationDef)*
+    : 'operations' (QUALIFIER? operationDef)*
     ;
 
 operationDef
-	: IDENTIFIER 
+    : IDENTIFIER
         ( ':' opType IDENTIFIER parameterGroup '==' operationBody ('pre' expression)? ('post' expression)?
         | '(' parameterTypeList ')' IDENTIFIER ':' type (',' IDENTIFIER ':' type)* ('frame' frameSpec (',' frameSpec)* )? ('pre' expression)? ('post' expression)
         )
@@ -361,10 +364,10 @@ opType
     ;
 
 operationBody
-	: action
-	| 'is' 'not' 'yet' 'specified' 
-	| 'is' 'subclass' 'responsibility'
-	;
+    : action
+    | 'is' 'not' 'yet' 'specified'
+    | 'is' 'subclass' 'responsibility'
+    ;
 
 typeDefs
     : 'types' typeDef*
@@ -409,14 +412,14 @@ field
     | IDENTIFIER ':-' type
     ;
 
-invariant 
+invariant
     : 'inv' bindablePattern '==' expression
     ;
 
 pattern
     : bindablePattern
     | matchValue
-    ;   
+    ;
 
 bindablePattern
     : patternIdentifier
@@ -453,7 +456,7 @@ boolLiteral
     ;
 
 quoteliteral
-	: '<' IDENTIFIER '>'
+    : '<' IDENTIFIER '>'
     ;
 
 tuplePattern
@@ -548,7 +551,7 @@ mapExprTail
     ;
 
 setMapExprBinding
-    : '|' bind+ ('@' expression)? 
+    : '|' bind+ ('@' expression)?
     ;
 
 /* sequence enumeration = '[', [ expression list ], ']' ;
@@ -562,7 +565,7 @@ localDefinition
     : (valueDefinition)=> valueDefinition // This.  THIS!  This is awesome.  Full of awesome.  Now I need to figure out Why it works. --jwc/26Nov2012
     | functionDefinition
     ;
-    
+
 bind: bindablePattern ('in' 'set' expression | ':' type)
     ;
 
@@ -712,4 +715,3 @@ LINECOMMENT
 MLINECOMMENT
     : '/*' .* '*/' { $channel=HIDDEN; }
     ;
-
