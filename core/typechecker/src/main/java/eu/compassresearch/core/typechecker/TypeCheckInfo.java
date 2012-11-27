@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
@@ -32,7 +33,7 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 
 	private final Environment<PDefinition> channels;
 
-	private AClassClassDefinition globalClassDefinition;
+	private SClassDefinition globalClassDefinition;
 
 	public final String CML_SCOPE = "CML";
 	public final String DEFAULT_SCOPE = "Default";
@@ -54,7 +55,7 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 	}
 
 	private TypeCheckInfo(TypeIssueHandler issueHandler,
-			AClassClassDefinition globalDefs) {
+			SClassDefinition globalDefs) {
 		super(new FlatEnvironment(new LinkedList<PDefinition>()));
 		this.issueHandler = issueHandler;
 		this.channels = new Environment<PDefinition>(issueHandler);
@@ -63,7 +64,7 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 
 	private TypeCheckInfo(Environment<PDefinition> channelSurounding,
 			org.overture.typechecker.Environment suroundingEnv,
-			TypeIssueHandler issueHandler, AClassClassDefinition globalDefs) {
+			TypeIssueHandler issueHandler, SClassDefinition globalDefs) {
 		super(suroundingEnv);
 		this.channels = channelSurounding;
 		this.issueHandler = issueHandler;
@@ -163,8 +164,13 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 	}
 
 	@Override
-	public PDefinition getGlobalClassDefinitions() {
+	public SClassDefinition getGlobalClassDefinitions() {
 		return this.globalClassDefinition;
+	}
+
+	@Override
+	public void setGlobalClassDefinitions(SClassDefinition globalRoot) {
+		this.globalClassDefinition = globalRoot;
 	}
 
 }

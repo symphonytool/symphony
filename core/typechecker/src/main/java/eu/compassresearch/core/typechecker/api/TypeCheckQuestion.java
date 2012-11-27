@@ -2,6 +2,7 @@ package eu.compassresearch.core.typechecker.api;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.PType;
@@ -93,4 +94,6 @@ public interface TypeCheckQuestion {
 			throws AnalysisException;
 
 	public abstract PDefinition getGlobalClassDefinitions();
+
+	public abstract void setGlobalClassDefinitions(SClassDefinition globalRoot);
 }

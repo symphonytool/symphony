@@ -655,6 +655,11 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				"values k : int = 2 class test = begin state a : int := k end",
 				false, true, true, new String[0]);
 
+		// 141
+		addTestProgram(testData,
+				"channels init process test = begin @ [init] -> Skip end",
+				false, true, true, new String[0]);
+
 		return testData;
 	}
 
