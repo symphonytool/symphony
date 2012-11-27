@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+
+<plugin>
+  <!-- For possible extension points see
+ 
+  http://help.eclipse.org/indigo/index.jsp?
+  topic=%2Forg.eclipse.platform.doc.isv%2Freference%2Fextension-points%2Findex.html
+
+  -->
+  <!--icon="icons/cview16/cml_file_tsk.png"-->
+  <extension point="org.eclipse.ui.views">
+    <view 
+        id="eu.compassresearch.ide.cml.interpreter_plugin.CmlInterpreterView"
+        name="COMPASS Interpreter View"
+        category="compass_eu.compassresearch.ide.cml.ui.category"
+        
+        class="eu.compassresearch.ide.cml.interpreter_plugin.CmlInterpreterView" />
+        
+        <category
+        	id="compass_eu.compassresearch.ide.cml.ui.category"
+        	name="COMPASS"/>
+  </extension>
+  
+  <!-- Declare launch configuration type -->
+	<extension point="org.eclipse.debug.core.launchConfigurationTypes">
+		<launchConfigurationType
+        delegate="eu.compassresearch.ide.cml.interpreter_plugin.CmlLaunchConfigurationDelegate"
+        id="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationType"
+        modes="debug,run"
+        name="Cml Model">
+		</launchConfigurationType>
+	</extension>
+  
+</plugin>
