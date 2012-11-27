@@ -179,7 +179,7 @@ public class ProofObligationGenerator extends QuestionAnswerCMLAdaptor<CMLPOCont
                   }
                 catch (Exception e)
                 {
-                  	System.out.println("Error: ");
+                  	System.out.println("Error: " + e.getMessage());
                   	e.printStackTrace();
 
                     return null;
