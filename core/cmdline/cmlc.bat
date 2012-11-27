@@ -15,7 +15,7 @@ IF NOT EXIST %JAR% GOTO ERR_NOJAR
 
 java -jar %JAR% %*
 REM java -cp %CLASSPATH% -jar %JAR% %*
-REM java -cp %CLASSPATH% eu.compassresearch.ide.CheckCml %*
+REM java -cp %CLASSPATH% eu.compassresearch.core.CheckCml %*
 GOTO END
 
 
