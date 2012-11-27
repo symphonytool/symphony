@@ -50,6 +50,7 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 		AClassClassDefinition globalRoot = AstFactory.newAClassClassDefinition(
 				className, new LexNameList(), members);
 
+		info.setGlobalClassDefinitions(globalRoot);
 		// That's it
 		return globalRoot;
 	}
@@ -114,8 +115,9 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 			throws AnalysisException {
 		LinkedList<AChannelNameDefinition> channels = node
 				.getChannelNameDeclarations();
-		for (AChannelNameDefinition channel : channels)
-			question.addChannel(channel.getName(), channel);
-	}
+		for (AChannelNameDefinition channel : channels) {
 
+			question.addChannel(channel.getName(), channel);
+		}
+	}
 }

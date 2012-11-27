@@ -1705,6 +1705,7 @@ channelNameDecl :
                                 null, 
                                 null, 
                                 singleTypeDeclaration);
+  channelNameDecl.setName(new LexNameToken("", decl));
   $$ = channelNameDecl;
 }
 | singleTypeDeclaration[decl]

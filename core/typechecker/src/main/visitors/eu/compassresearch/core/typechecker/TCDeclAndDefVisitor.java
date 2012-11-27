@@ -60,6 +60,7 @@ import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
+import eu.compassresearch.ast.definitions.SOperationDefinition;
 import eu.compassresearch.ast.types.AActionParagraphType;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AErrorType;
@@ -434,6 +435,14 @@ class TCDeclAndDefVisitor extends
 			AClassParagraphDefinition node,
 			org.overture.typechecker.TypeCheckInfo question) {
 
+		TypeCheckInfo newQ = (TypeCheckInfo) question;
+
+		if (newQ.getGlobalClassDefinitions() == null)
+			throw new NullPointerException();
+
+		List<SClassDefinition> superDefs = new LinkedList<SClassDefinition>();
+		superDefs.add(newQ.getGlobalClassDefinitions());
+
 		// So a bit of work needs to be done for definitions
 		List<PDefinition> overtureReadyCMLDefinitions = new LinkedList<PDefinition>();
 
@@ -454,6 +463,8 @@ class TCDeclAndDefVisitor extends
 				.newAClassClassDefinition(node.getName(),
 						new LexNameList(node.getSupernames()),
 						overtureReadyCMLDefinitions);
+
+		surrogateOvertureClass.setSuperDefs(superDefs);
 
 		return surrogateOvertureClass;
 	}
@@ -662,7 +673,7 @@ class TCDeclAndDefVisitor extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 		TypeCheckInfo newQ = (TypeCheckInfo) question;
-		for (PDefinition def : node.getOperations()) {
+		for (SOperationDefinition def : node.getOperations()) {
 			PType defType = def.apply(parentChecker, question);
 			if (defType == null)
 				issueHandler.addTypeError(def,

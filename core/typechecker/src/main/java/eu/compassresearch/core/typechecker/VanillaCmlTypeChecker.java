@@ -11,8 +11,11 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.definitions.AClassClassDefinition;
+import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.factory.AstFactory;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PBind;
 import org.overture.ast.patterns.PMultipleBind;
@@ -216,6 +219,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 
 		eu.compassresearch.core.typechecker.TypeCheckInfo info = eu.compassresearch.core.typechecker.TypeCheckInfo
 				.getNewTopLevelInstance(this.issueHandler, globalRoot);
+
 		if (!cleared)
 			return lastResult;
 
@@ -238,8 +242,20 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		}
 
 		// Add all global definitions to the environment
-		for (PDefinition d : globalRoot.getDefinitions())
-			((FlatEnvironment) info.env).add(d);
+		for (PDefinition d : globalRoot.getDefinitions()) {
+			PDefinition defToAdd = null;
+			if (d instanceof AValueDefinition) {
+				AValueDefinition vdef = (AValueDefinition) d;
+				defToAdd = AstFactory.newALocalDefinition(vdef.getLocation(),
+						vdef.getName(), vdef.getNameScope(), vdef.getType());
+			}
+
+			if (d instanceof ATypeDefinition)
+				defToAdd = d;
+
+			if (defToAdd != null)
+				((FlatEnvironment) info.env).add(defToAdd);
+		}
 		info.env.setEnclosingDefinition(globalRoot);
 
 		// for each source
