@@ -96,12 +96,12 @@ public class ProofObligationGenerator
 	return node.apply(this.statementVisitor, question);
     }
 
-    // @Override
-//     public ProofObligationList defaultPExp(PExp node, POContextStack
-//     question)
-//     throws AnalysisException {
-//     return node.apply(this.expressionVisitor, question);
-//     }
+     @Override
+     public ProofObligationList defaultPExp(PExp node, POContextStack
+     question)
+     throws AnalysisException {
+     return node.apply(this.expressionVisitor, question);
+     }
 
     // Need to figure out how many more "defaults" are missing
 
