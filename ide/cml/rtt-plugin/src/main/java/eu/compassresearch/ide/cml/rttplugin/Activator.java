@@ -21,6 +21,14 @@ public class Activator implements BundleActivator
 	    	client.setLoggingFacility(consoleLogger);
 		}
 	}
+	
+	static public void setProgressBar(org.eclipse.swt.widgets.ProgressBar p) {
+		if (client != null) {
+			RttMbtProgressBar progressBar = new RttMbtProgressBar();
+			progressBar.setProgressBar(p);
+	    	client.setProgressBar(progressBar);
+		}
+	}
 
     @Override
     public void start(BundleContext arg0) throws Exception

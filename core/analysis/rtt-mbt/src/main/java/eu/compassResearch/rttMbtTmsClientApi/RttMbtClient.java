@@ -24,6 +24,9 @@ public class RttMbtClient {
 
 	// Logging facility
 	IRttMbtLoggingFacility log;
+	
+	// progress bar
+	IRttMbtProgressBar progressBar;
 
 	public RttMbtClient(String server, Integer port, String user, String id) {
 		rttMbtServer = server;
@@ -53,6 +56,18 @@ public class RttMbtClient {
 		} else {
 			System.err.println(msg);
 		}
+	}
+	
+	public void setProgressBar(IRttMbtProgressBar p) {
+		progressBar = p;
+	}
+	
+	public void setProgress(int percent) {
+		if (progressBar != null) {
+			progressBar.setProgress(percent);
+		} else {
+			System.err.println(percent + "%");
+		}		
 	}
 	
 	public Boolean testConenction() {
@@ -485,7 +500,7 @@ public class RttMbtClient {
 		uploadFile(confDirName + "addgoalsordered.conf");
 		
 		// generate-test-command
-		System.out.println("generating concrete test procedure (with GUI ports enabled)" + abstractTestProc + "...");
+		System.out.println("generating concrete test procedure (with GUI ports enabled) " + abstractTestProc + "...");
 		jsonGenerateTestCommand cmd = new jsonGenerateTestCommand(this);
 		cmd.setGuiPorts(true);
 		cmd.setTestProcName("TestProcedures/" + abstractTestProc);
@@ -557,6 +572,7 @@ public class RttMbtClient {
 		downloadFile(dirname + "addgoalcoverage.csv");
 		downloadFile(dirname + "covered_testcases.csv");
 		downloadFile(dirname + "focus_points_to_addgoals.conf");
+		downloadFile(dirname + "generation.log");
 
 		// from cache/<user-id>/<project-name>/<testproc>/model
 		// - signals.dat

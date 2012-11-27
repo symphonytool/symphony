@@ -165,65 +165,126 @@ public class jsonCommand {
 	}
 	
 	public Boolean hasProgressItems(String message) {
-		int start = message.lastIndexOf('{');
-		if (start == -1) {
-			return false;
-		}
-		String jsonWord = message.substring(start);
-		return (jsonWord.lastIndexOf("\"progress-item\"") != -1);
+		return (message.indexOf("\"progress-item\"") != -1);
 	}
 	
-	public String scanForProgressItems(String message) {
-		if (hasProgressItems(message)) {
-			int start = message.lastIndexOf('{');
-			String item = message.substring(start);
-			client.addLogMessage("extracted progress item '" + item + "'\n");
-			message = message.substring(0, start);
-			return message;
-		} else {
-			return message;
+	public int scanForProgressItems(String msg) {
+		String message = new String(msg);
+		int percent = -1;
+		int start, end, firstDigit, lastDigit;
+		while ((hasProgressItems(message)) && (percent < 100)) {
+			start = message.indexOf("{ \"progress-item\"");
+			end = message.indexOf('}', start);
+			if (start == -1) {
+				return percent;
+			}
+			if (end == -1) {
+				return percent;
+			}
+
+			// extract item
+			String item = message.substring(start, end + 1);
+
+			// extract percent from item
+			if (item.compareTo("{ \"progress-item\" : \"clean\" }") != 0) {
+				firstDigit = item.lastIndexOf(':') + 2;
+				lastDigit = item.lastIndexOf('\"') ;
+				if ((firstDigit >= 3) && (lastDigit >= firstDigit)) {
+					String number = item.substring(firstDigit, lastDigit);
+					percent = Integer.parseInt(number);
+					client.setProgress(percent);
+				}
+			}
+
+			// scan again in the rest of the message
+			message = message.substring(end + 1);
 		}
+		return percent;
 	}
 
 	public Boolean hasConsoleItems(String message) {
-		int start = message.lastIndexOf('{');
-		if (start == -1) {
-			return false;
-		}
-		String jsonWord = message.substring(start);
-		return (jsonWord.lastIndexOf("\"console-item\"") != -1);
+		return (message.indexOf("\"console-item\"") != -1);
 	}
-	public String scanForConsoleItems(String message) {
-		if (hasConsoleItems(message)) {
-			int start = message.lastIndexOf('{');
-			String item = message.substring(start);
-			client.addLogMessage("extracted console item '" + item + "'\n");
-			message = message.substring(0, start);
-			return message;
-		} else {
-			return message;
+
+	public void scanForConsoleItems(String msg) {
+		String message = new String(msg);
+		int start, end, first, last;
+		while (hasConsoleItems(message)) {
+			start = message.indexOf("{ \"console-item\"");
+			end = message.indexOf('}', start);
+			if (start == -1) {
+				return;
+			}
+			if (end == -1) {
+				return;
+			}
+
+			// extract item
+			String item = message.substring(start, end + 1);
+
+			// extract console message from item
+			first = item.lastIndexOf(':') + 3;
+			last = item.lastIndexOf('\"') ;
+			// - extract base64 encoded string
+			String base64content = item.substring(first, last);
+			// base64 decode encoded into content
+			byte [] decoded = Base64.decodeBase64(base64content);
+			String content = new String(decoded);
+			client.addLogMessage(content + "\n");			
+
+			// scan again in the rest of the message
+			message = message.substring(end + 1);
 		}
 	}
 	
 	public String receiveReply() {
 		String message = "";
+		int progress = -1;
 		try{
-			int character;
+
+			// read file content into buffer
 			replyStream = clientSocket.getInputStream();
-			character = replyStream.read();
-			while (character != -1) {
-				message += (char)character;
-				// scan message for progress-item and console-item
-				if (character == '}') {
-					if (hasProgressItems(message)) {
-						message = scanForProgressItems(message);
+			int max_chunk_size = 1024*1024;
+			int buffer_size = max_chunk_size;
+			byte buffer[] = new byte[buffer_size];
+			int offset = 0;
+			int bytes_read = 0;
+			while ((offset < buffer_size) && (bytes_read >= 0)) {
+				bytes_read = replyStream.read(buffer, offset, buffer_size - offset);
+				// scan for progress items
+				byte[] chunkBuffer = null;
+				String chunk = null;
+				if (bytes_read > 0) {
+					chunkBuffer = new byte[bytes_read];
+					System.arraycopy(buffer, offset, chunkBuffer, 0, bytes_read);
+					chunk = new String(chunkBuffer);
+					if ((progress < 100) && (hasProgressItems(chunk))) {
+						progress = scanForProgressItems(chunk);
 					}
-					if (hasConsoleItems(message)) {
-						message = scanForConsoleItems(message);
+					if (hasConsoleItems(chunk)) {
+						scanForConsoleItems(chunk);
 					}
 				}
-				character = replyStream.read();
+				offset += bytes_read;
+				if (offset == buffer_size) {
+					// use new chunk
+					byte[] old = buffer;
+					buffer_size += max_chunk_size;
+					buffer = new byte[buffer_size];
+					System.arraycopy(old, 0, buffer, 0, buffer_size - max_chunk_size);
+				}
 			}
+
+			// restrict buffer length to the number of bytes actually read
+			if (offset < buffer_size) {
+				byte[] binary = new byte[offset + 1];
+				System.arraycopy(buffer, 0, binary, 0, offset + 1);
+				buffer = binary;
+			}
+
+			// copy buffer to string for return type
+			message = new String(buffer);
+		
 		}
 		catch(IOException ioException){
 			System.err.println("*** error: unable to receive reply!");
@@ -264,7 +325,11 @@ public class jsonCommand {
 				jsonObjects.add(reply);
 			}
 			catch (ParseException e) {
-				System.err.println("*** error: unable to parse reply '" + replyString + "'!");
+				if (jsonWords.get(idx).length() <= 1024) {
+					System.err.println("*** error: unable to parse reply '" + jsonWords.get(idx) + "'!");					
+				} else {
+					System.err.println("*** error: unable to parse reply '" + jsonWords.get(idx).substring(0, 1024) + "...'" );
+				}
 				e.printStackTrace();
 			}
 			idx++;
@@ -283,7 +348,7 @@ public class jsonCommand {
 				String[] errorMsgs = getExceptions(reply);
 				int erridx = 0;
 				while (erridx < errorMsgs.length) {
-					System.err.println("*** error: " + errorMsgs[erridx]);
+					client.addErrorMessage(errorMsgs[erridx]);
 					erridx++;
 				}
 				// if errors did occur, do NOT extract result files

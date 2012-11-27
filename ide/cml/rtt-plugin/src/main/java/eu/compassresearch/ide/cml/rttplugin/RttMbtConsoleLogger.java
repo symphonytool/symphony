@@ -9,7 +9,7 @@ public class RttMbtConsoleLogger implements IRttMbtLoggingFacility {
 	@Override
 	public void addLogMessage(String msg) {
 		if (console != null) {
-			console.insert(msg);
+			console.append(msg);
 		} else {
 			System.out.println(msg);
 		}
@@ -17,7 +17,7 @@ public class RttMbtConsoleLogger implements IRttMbtLoggingFacility {
 
 	public void addErrorMessage(String msg) {
 		if (console != null) {
-			console.insert(msg);
+			console.insert("*** error: " + msg);
 		} else {
 			System.err.println(msg);
 		}

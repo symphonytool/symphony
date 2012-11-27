@@ -3,7 +3,7 @@ package eu.compassresearch.ide.cml.rttplugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IViewPart;
@@ -12,8 +12,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
-public class RTTesterView extends ViewPart implements IViewPart
-  {
+public class RttMbtProgressView extends ViewPart implements IViewPart {
     
     @Override
     public void addPropertyListener(IPropertyListener listener)
@@ -36,50 +35,41 @@ public class RTTesterView extends ViewPart implements IViewPart
     @Override
     public String getTitle()
       {
-        // TODO Auto-generated method stub
-        return "RTT-MBT";
+        return "Progress";
       }
     
     @Override
     public org.eclipse.swt.graphics.Image getTitleImage()
       {
-        // TODO Auto-generated method stub
         return super.getTitleImage();
       }
     
     @Override
     public String getTitleToolTip()
       {
-        // TODO Auto-generated method stub
-        return "Nothing";
+        return "Progress information for RTT-MBT commands";
       }
     
     @Override
     public void removePropertyListener(IPropertyListener listener)
       {
-        // TODO Auto-generated method stub
-        
       }
     
     @Override
     public void setFocus()
       {
-        // TODO Auto-generated method stub
-        
       }
     
     @SuppressWarnings("rawtypes")
 	@Override
     public Object getAdapter(Class adapter)
       {
-        // TODO Auto-generated method stub
         return null;
       }
     
     @Override
     public IViewSite getViewSite()
       {
-        // TODO Auto-generated method stub
         return super.getViewSite();
       }
     
@@ -106,13 +96,13 @@ public class RTTesterView extends ViewPart implements IViewPart
     public void createPartControl(final org.eclipse.swt.widgets.Composite parent)
       {
     	// create text field used for console output
-    	org.eclipse.swt.widgets.Text console = new Text(parent, SWT.V_SCROLL);
+    	org.eclipse.swt.widgets.ProgressBar progBar = new ProgressBar(parent, SWT.NONE);
 
         // make console view accessable
-        Activator.setConsole(console);
+        Activator.setProgressBar(progBar);
 
         // paint listener definition
-        console.addPaintListener(new PaintListener()
+        progBar.addPaintListener(new PaintListener()
           {
             @Override
             public void paintControl(PaintEvent e)
@@ -120,4 +110,5 @@ public class RTTesterView extends ViewPart implements IViewPart
               }
           });
       }
-  }
+
+}
