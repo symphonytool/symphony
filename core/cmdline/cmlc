@@ -15,5 +15,5 @@ fi
 
 java -jar ${JAR} $@
 #java -cp ${CLASSPATH} -jar ${JAR} $@
-#java -cp ${CLASSPATH} eu.compassresearch.ide.CheckCml $@
+#java -cp ${CLASSPATH} eu.compassresearch.core.CheckCml $@
 

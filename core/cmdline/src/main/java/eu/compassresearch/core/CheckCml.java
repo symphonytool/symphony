@@ -1,4 +1,4 @@
-package eu.compassresearch.ide;
+package eu.compassresearch.core;
 
 /**
  *

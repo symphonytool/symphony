@@ -74,8 +74,6 @@ public class ProofObligationGenerator
 	return node.apply(this.declAndDefVisitor, question);
     }
 
-    
-    
     @Override
     public ProofObligationList defaultPDeclaration(PDeclaration node,
 	    POContextStack question) throws AnalysisException {
@@ -88,8 +86,6 @@ public class ProofObligationGenerator
 	return node.apply(this.processVisitor, question);
     }
 
-    
-    
     @Override
     public ProofObligationList defaultPStm(PStm node,
 	    POContextStack question) throws AnalysisException {
@@ -105,6 +101,7 @@ public class ProofObligationGenerator
 
     // Need to figure out how many more "defaults" are missing
 
+    
     // ---------------------------------------------
     // -- Public API to CML POG
     // ---------------------------------------------
@@ -148,12 +145,13 @@ public class ProofObligationGenerator
     /**
      * Run the proof obligation generator. The POs are placed in the return
      * value but we may eventually want to switch them over to the registry
-     * >
-     * @return - Returns CMLProofObligation list. This may need to change.
+     * 
+     * @return - Returns CMLProofObligation list. This may need to change. 
      */
     public CMLProofObligationList generatePOs() {
 	CMLProofObligationList obligations = new CMLProofObligationList();
 	CMLPOContextStack ctxt = new CMLPOContextStack();
+
 
 	// for each source
 	for (PSource s : sourceForest) {
@@ -165,6 +163,8 @@ public class ProofObligationGenerator
 		    System.out.println(paragraph.toString());
 		    System.out
 			    .println("------------------------------------RESULT----------------------------------");
+
+
 
 		    // process paragraph:
 		    obligations.addAll(paragraph.apply(this, ctxt));

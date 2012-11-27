@@ -22,7 +22,7 @@
 
     <dependency>
       <groupId>org.overturetool.core</groupId>
-      <artifactId>ast-stripped</artifactId>
+      <artifactId>ast</artifactId>
       <version>${overture.version}</version>
     </dependency>
 

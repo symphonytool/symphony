@@ -20,8 +20,10 @@
     <module>ui</module>
     <module>platform</module>
     <module>rtt-plugin</module>
-    <module>build2</module>
     <module>tp-plugin</module>
+    <module>interpreter-plugin</module>
+    <!-- make sure build2 is last -->
+    <module>build2</module>
   </modules>
 
 </project>
