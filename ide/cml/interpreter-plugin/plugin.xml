@@ -31,5 +31,57 @@
         name="Cml Model">
 		</launchConfigurationType>
 	</extension>
+	
+	<!-- Add the launch config group to the launch dialog -->
+	<extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+		<launchConfigurationTabGroup
+			class="eu.compassresearch.ide.cml.interpreter_plugin.CmlLaunchConfigurationTabGroup"
+			description="COMPASS Launch Tab" 
+			id="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationTabGroup"
+			type="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationType">
+			<launchMode 
+                  mode="debug"
+                  perspective="org.eclipse.debug.ui.DebugPerspective"
+                  description="%localCmlApplicationTabGroupDescription.debug">
+            </launchMode>
+            <launchMode
+                  mode="run"
+                  perspective="org.eclipse.debug.ui.DebugPerspective"
+                  description="%localCmlApplicationTabGroupDescription.run">
+            </launchMode>
+		</launchConfigurationTabGroup>
+	</extension>
+	
+	<!-- Shoutcut for launching project. Extends the Debug and Run context menu in the VDM Explorer -->
+ <extension point="org.eclipse.debug.ui.launchShortcuts">
+  <shortcut
+        class="eu.compassresearch.ide.cml.interpreter_plugin.CmlApplicationLaunchShortcut"
+        id="eu.compassresearch.ide.cml.interpreter_plugin.CmlShortcut"
+        label="Cml Application"
+        modes="debug,run">
+     <contextualLaunch>
+           <enablement>
+             <with variable="selection">
+             <count value="1"/>
+                <iterate>
+                   <or>
+                      <adapt
+                            type="org.overture.ide.core.resources.IVdmProject">
+                         <test
+                               property="org.overture.ide.core.resources.dialect"
+                               value="VDM_PP">
+                         </test>
+                      </adapt>
+                   </or>
+                </iterate>
+           	</with>
+           </enablement>
+  		 </contextualLaunch>
+     <configurationType
+           id="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationType">
+     </configurationType>
+  </shortcut>
+ </extension>
+ 
   
 </plugin>
