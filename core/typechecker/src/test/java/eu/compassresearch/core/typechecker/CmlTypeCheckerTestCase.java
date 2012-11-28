@@ -641,8 +641,29 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "process p1 = begin @ UnknownAction end",
 				false, true, false, new String[0]);
 
+		// ------------------ TYPES Section -------------------------
+		// 138
+		addTestProgram(testData, "types A = int; B = A | real", false, true,
+				true, new String[0]);
+		// 139
+		addTestProgram(testData,
+				"types A = int; class test = begin state k:A end", false, true,
+				true, new String[0]);
+
+		// 140
+		addTestProgram(testData,
+				"values k : int = 2 class test = begin state a : int := k end",
+				false, true, true, new String[0]);
+
+		// 141
+		addTestProgram(testData,
+				"channels init process test = begin @ [init] -> Skip end",
+				false, true, true, new String[0]);
+
 		return testData;
 	}
+
+	static int no = 0;
 
 	public CmlTypeCheckerTestCase(String cmlSource, boolean postM12,
 			boolean parsesOk, boolean typesOk, String[] errorMessages) {
@@ -652,7 +673,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		this.errorMessages = errorMessages;
 		InputStream cmlSourceIn = new ByteArrayInputStream(cmlSource.getBytes());
 		AInputStreamSource source = new AInputStreamSource();
-		source.setOrigin("Test Parameter");
+		source.setOrigin("Test #" + (no++));
 		source.setStream(cmlSourceIn);
 		this.source = source;
 	}

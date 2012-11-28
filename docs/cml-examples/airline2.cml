@@ -38,7 +38,8 @@ public FlightId = token;
 public ReservationNumber = token;
 
 public ReservationData :: flight: FlightId
-                   numSeats: nat1;
+                   numSeats: nat1
+inv f == true;
 				   
 public Agent = token ;
 

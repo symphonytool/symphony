@@ -22,6 +22,8 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.PStm;
+import org.overture.pog.obligation.POContextStack;
+import org.overture.pog.obligation.ProofObligationList;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PDeclaration;
@@ -33,10 +35,8 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.CMLPOContextStack;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 
-
-
-public class ProofObligationGenerator extends QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList>
-{
+public class ProofObligationGenerator
+	extends QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
     /**
      * Main generator class for the POG. Receives the sources to be checked,
      * visits them and dispatches them to the various subvisitors.
@@ -50,7 +50,6 @@ public class ProofObligationGenerator extends QuestionAnswerCMLAdaptor<CMLPOCont
     // ---------------------------------------------
     // -- Proof Obligation Generator State
     // ---------------------------------------------
-
 
     // subvisitors
     private POGExpressionVisitor expressionVisitor;
@@ -70,34 +69,35 @@ public class ProofObligationGenerator extends QuestionAnswerCMLAdaptor<CMLPOCont
     // ---------------------------------------------
 
     @Override
-    public CMLProofObligationList defaultPDefinition(PDefinition node,
-	    CMLPOContextStack question) throws AnalysisException {
+    public ProofObligationList defaultPDefinition(PDefinition node,
+	    POContextStack question) throws AnalysisException {
 	return node.apply(this.declAndDefVisitor, question);
     }
 
     @Override
-    public CMLProofObligationList defaultPDeclaration(PDeclaration node,
-	    CMLPOContextStack question) throws AnalysisException {
+    public ProofObligationList defaultPDeclaration(PDeclaration node,
+	    POContextStack question) throws AnalysisException {
 	return node.apply(this.declAndDefVisitor, question);
     }
 
     @Override
-    public CMLProofObligationList defaultPProcess(PProcess node,
-	    CMLPOContextStack question) throws AnalysisException {
+    public ProofObligationList defaultPProcess(PProcess node,
+	    POContextStack question) throws AnalysisException {
 	return node.apply(this.processVisitor, question);
     }
 
     @Override
-    public CMLProofObligationList defaultPStm(PStm node, CMLPOContextStack question)
-	    throws AnalysisException {
+    public ProofObligationList defaultPStm(PStm node,
+	    POContextStack question) throws AnalysisException {
 	return node.apply(this.statementVisitor, question);
     }
 
-    @Override
-    public CMLProofObligationList defaultPExp(PExp node, CMLPOContextStack question)
-	    throws AnalysisException {
-	return node.apply(this.expressionVisitor, question);
-    }
+     @Override
+     public ProofObligationList defaultPExp(PExp node, POContextStack
+     question)
+     throws AnalysisException {
+     return node.apply(this.expressionVisitor, question);
+     }
 
     // Need to figure out how many more "defaults" are missing
 
@@ -148,55 +148,53 @@ public class ProofObligationGenerator extends QuestionAnswerCMLAdaptor<CMLPOCont
      * 
      * @return - Returns CMLProofObligation list. This may need to change. 
      */
-    public CMLProofObligationList generatePOs()
-    {
-        CMLProofObligationList obligations = new CMLProofObligationList();
-		CMLPOContextStack ctxt = new CMLPOContextStack();
-		
-		// for each source
-        for (PSource s : sourceForest)
-        {	
-        	// for each CML paragraph
-            for (SParagraphDefinition paragraph : s.getParagraphs())
-            {
-                try
-                {	
-                    System.out.println("--------------------------------PROCESSING--------------------------------");
-                	System.out.println(paragraph.toString());
-                	System.out.println("------------------------------------RESULT----------------------------------");
+    public CMLProofObligationList generatePOs() {
+	CMLProofObligationList obligations = new CMLProofObligationList();
+	CMLPOContextStack ctxt = new CMLPOContextStack();
 
-                	 // process paragraph:
-                	 obligations.addAll(paragraph.apply(this, ctxt));
 
-                    System.out.println();
-					System.out.println();
-                } 
-                catch (AnalysisException ae)
-                {
-                  	// This means we have a bug in the pog
-                    System.out.println("The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
-                    return null;
-                  }
-                catch (Exception e)
-                {
-                  	System.out.println("Error: " + e.getMessage());
-                  	e.printStackTrace();
+	// for each source
+	for (PSource s : sourceForest) {
+	    // for each CML paragraph
+	    for (SParagraphDefinition paragraph : s.getParagraphs()) {
+		try {
+		    System.out
+			    .println("--------------------------------PROCESSING--------------------------------");
+		    System.out.println(paragraph.toString());
+		    System.out
+			    .println("------------------------------------RESULT----------------------------------");
 
-                    return null;
-                  }
 
-              }
-          }
-		       
-		System.out.println(obligations.size() + " Proof Obligations generated");
-		obligations.toString();
-		return obligations;
+
+		    // process paragraph:
+		    obligations.addAll(paragraph.apply(this, ctxt));
+
+		    System.out.println();
+		    System.out.println();
+		} catch (AnalysisException ae) {
+		    // This means we have a bug in the pog
+		    System.out
+			    .println("The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
+		    return null;
+		} catch (Exception e) {
+		    System.out.println("Error: ");
+		    e.printStackTrace();
+
+		    return null;
+		}
+
+	    }
+	}
+
+	System.out.println(obligations.size() + " Proof Obligations generated");
+	obligations.toString();
+	return obligations;
     }
 
     // ensure drilldown to children (this may not be needed)
     @Override
-    public CMLProofObligationList defaultINode(INode node,
-	    CMLPOContextStack question) throws AnalysisException {
+    public ProofObligationList defaultINode(INode node,
+	   POContextStack question) throws AnalysisException {
 	CMLProofObligationList obligations = new CMLProofObligationList();
 	Stack<INode> workQ = new Stack<INode>();
 	for (Object o : node.getChildren(true).values()) {

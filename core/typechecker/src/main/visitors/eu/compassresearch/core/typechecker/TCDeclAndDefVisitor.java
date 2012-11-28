@@ -33,15 +33,19 @@ import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.PType;
+import org.overture.ast.types.SInvariantType;
 import org.overture.parser.messages.VDMError;
 import org.overture.typechecker.Environment;
+import org.overture.typechecker.FlatEnvironment;
 import org.overture.typechecker.PrivateClassEnvironment;
+import org.overture.typechecker.PublicClassEnvironment;
 import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionParagraphDefinition;
@@ -56,6 +60,7 @@ import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
+import eu.compassresearch.ast.definitions.SOperationDefinition;
 import eu.compassresearch.ast.types.AActionParagraphType;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AErrorType;
@@ -76,12 +81,101 @@ class TCDeclAndDefVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 	@Override
+	public PType caseAExpressionSingleDeclaration(
+			AExpressionSingleDeclaration node,
+			org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
+
+		PExp expression = node.getExpression();
+
+		PType expressionType = expression.apply(parentChecker, question);
+		if (!successfulType(expressionType))
+			return issueHandler.addTypeError(expressionType,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage(expression + ""));
+
+		LinkedList<LexIdentifierToken> identifiers = node.getIdentifiers();
+		for (LexIdentifierToken id : identifiers) {
+			LexNameToken name = null;
+			if (id instanceof LexNameToken)
+				name = (LexNameToken) id;
+			else
+				name = new LexNameToken(question.env.getEnclosingDefinition()
+						.getName().module, id.getName(), id.getLocation());
+
+			ALocalDefinition localDef = AstFactory
+					.newALocalDefinition(id.getLocation(), name,
+							node.getNameScope(), expressionType);
+			((FlatEnvironment) question.env).add(localDef);
+		}
+
+		return expressionType;
+	}
+
+	public PType typeCheckOvertureClass(AClassClassDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		// Create class environment
+		PrivateClassEnvironment self = new PrivateClassEnvironment(node, null);
+
+		List<SClassDefinition> classes = new LinkedList<SClassDefinition>();
+		classes.add(node);
+		Environment allClasses = new PublicClassEnvironment(classes);
+
+		for (SClassDefinition c : classes) {
+			if (!c.getTypeChecked()) {
+				SClassDefinitionAssistantTC.implicitDefinitions(c, allClasses);
+			}
+		}
+
+		for (SClassDefinition c : classes) {
+			if (!c.getTypeChecked()) {
+				try {
+					Environment selfInner = new PrivateClassEnvironment(c,
+							allClasses);
+					SClassDefinitionAssistantTC.typeResolve(c, null,
+							new org.overture.typechecker.TypeCheckInfo(
+									selfInner));
+				} catch (TypeCheckException te) {
+					issueHandler.addTypeError(te.location, te.getMessage());
+				} catch (AnalysisException te) {
+					issueHandler.addTypeError(c, te.getMessage());
+				}
+			}
+		}
+
+		// Errors will be reported statically by the sub-visitors and the
+		// assistants
+		// on the TypeChecker.errors list.
+		TypeChecker.clearErrors();
+		OvertureRootCMLAdapter tc = new OvertureRootCMLAdapter(parentChecker,
+				issueHandler);
+		typeCheckPass(node, Pass.TYPES, self, tc);
+		if (TypeChecker.getErrorCount() == 0)
+			typeCheckPass(node, Pass.VALUES, self, tc);
+		if (TypeChecker.getErrorCount() == 0)
+			typeCheckPass(node, Pass.DEFS, self, tc);
+
+		// add overture errors to cml errors
+		List<VDMError> errs = TypeChecker.getErrors();
+		for (VDMError e : errs) {
+			issueHandler.addTypeError(e.location, e.toProblemString());
+
+		}
+
+		if (TypeChecker.getErrorCount() != 0)
+			return new AErrorType();
+
+		return new AClassType(node.getLocation(), true, node.getName());
+
+	}
+
+	@Override
 	public PType caseAAssignmentDefinition(AAssignmentDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 
 		PExp expression = node.getExpression();
-		LexNameToken valName = node.getName();
 		PType declaredType = node.getType();
 
 		// Check the declared type
@@ -98,11 +192,10 @@ class TCDeclAndDefVisitor extends
 
 			// Check assignment compatibility
 			if (!typeComparator.isSubType(expType, actualDeclaredType)) {
-				issueHandler.addTypeError(node,
+				return issueHandler.addTypeError(node,
 						TypeErrorMessages.EXPECTED_SUBTYPE_RELATION
 								.customizeMessage("" + expType.toString(), ""
 										+ actualDeclaredType));
-				return new AErrorType();
 			}
 			node.setExpType(expType);
 		}
@@ -164,6 +257,13 @@ class TCDeclAndDefVisitor extends
 		LinkedList<ATypeDefinition> defs = node.getTypes();
 		for (ATypeDefinition d : defs) {
 			PType type = d.apply(parentChecker, question);
+			if (!TCDeclAndDefVisitor.successfulType(type)) {
+				issueHandler.addTypeError(d,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+								.customizeMessage(d.getName() + ""));
+				d.setType(new AErrorType());
+				return d.getType();
+			}
 			newQ.addType(d.getName(), d);
 			d.setType(type);
 		}
@@ -177,7 +277,7 @@ class TCDeclAndDefVisitor extends
 			throws AnalysisException {
 		TypeCheckInfo newQ = (TypeCheckInfo) question;
 		LinkedList<PDefinition> _list = node.getValueDefinitions();
-		ShieldedList<PDefinition> list = new ShieldedList<PDefinition>();
+		List<PDefinition> list = new LinkedList<PDefinition>();
 		list.addAll(_list);
 		for (PDefinition def : list) {
 			PType defType = def.apply(parentChecker, newQ);
@@ -332,10 +432,24 @@ class TCDeclAndDefVisitor extends
 	 * Create an Overture class that
 	 */
 	private static AClassClassDefinition createSurrogateClass(
-			AClassParagraphDefinition node) {
+			AClassParagraphDefinition node,
+			org.overture.typechecker.TypeCheckInfo question) {
+
+		TypeCheckInfo newQ = (TypeCheckInfo) question;
+
+		if (newQ.getGlobalClassDefinitions() == null)
+			throw new NullPointerException();
+
+		List<SClassDefinition> superDefs = new LinkedList<SClassDefinition>();
+		superDefs.add(newQ.getGlobalClassDefinitions());
 
 		// So a bit of work needs to be done for definitions
 		List<PDefinition> overtureReadyCMLDefinitions = new LinkedList<PDefinition>();
+
+		if (question.env.getEnclosingDefinition() instanceof AClassClassDefinition)
+			overtureReadyCMLDefinitions
+					.addAll(((AClassClassDefinition) question.env
+							.getEnclosingDefinition()).getDefinitions());
 
 		// Lets mangle the CML definitions for Overture to cope with them
 		for (PDefinition def : node.getDefinitions()) {
@@ -350,22 +464,26 @@ class TCDeclAndDefVisitor extends
 						new LexNameList(node.getSupernames()),
 						overtureReadyCMLDefinitions);
 
+		surrogateOvertureClass.setSuperDefs(superDefs);
+
 		return surrogateOvertureClass;
 	}
 
-	@SuppressWarnings("unused")
-	private PType typeCheckWithOverture(AClassParagraphDefinition node,
-			AClassClassDefinition surrogate) throws AnalysisException {
+	PType typeCheckWithOverture(AClassParagraphDefinition node,
+			AClassClassDefinition surrogate,
+			org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
 
 		// Create class environment
 		PrivateClassEnvironment self = new PrivateClassEnvironment(surrogate,
-				null);
+				question.env);
 
 		// Errors will be reported statically by the sub-visitors and the
 		// assistants
 		// on the TypeChecker.errors list.
 		TypeChecker.clearErrors();
-		OvertureRootCMLAdapter tc = new OvertureRootCMLAdapter(parentChecker);
+		OvertureRootCMLAdapter tc = new OvertureRootCMLAdapter(parentChecker,
+				issueHandler);
 		typeCheckPass(surrogate, Pass.TYPES, self, tc);
 		if (TypeChecker.getErrorCount() == 0)
 			typeCheckPass(surrogate, Pass.VALUES, self, tc);
@@ -375,7 +493,7 @@ class TCDeclAndDefVisitor extends
 		// add overture errors to cml errors
 		List<VDMError> errs = TypeChecker.getErrors();
 		for (VDMError e : errs) {
-			parentChecker.addTypeError(node, e.toProblemString());
+			issueHandler.addTypeError(e.location, e.toProblemString());
 
 		}
 
@@ -429,10 +547,10 @@ class TCDeclAndDefVisitor extends
 			throws AnalysisException {
 
 		// Create Surrogate Overture Class
-		AClassClassDefinition surrogate = createSurrogateClass(node);
+		AClassClassDefinition surrogate = createSurrogateClass(node, question);
 
 		// Type check surrogate with overture
-		PType classType = typeCheckWithOverture(node, surrogate);
+		PType classType = typeCheckWithOverture(node, surrogate, question);
 		if (classType == null || classType instanceof AErrorType)
 			return new AErrorType();
 
@@ -451,23 +569,28 @@ class TCDeclAndDefVisitor extends
 			List<AStateParagraphDefinition> states = findParticularDefinitionType(
 					AStateParagraphDefinition.class, node);
 			for (AStateParagraphDefinition paragraph : states) {
-				for (PDefinition sdef : paragraph.getStateDefs()) {
-					PType sdefType = sdef.apply(parentChecker, question);
-					if (!successfulType(sdefType))
-						return new AErrorType();
-					classQuestion.addVariable(sdef.getName(), sdef);
+
+				PType paragraphType = paragraph.apply(parentChecker, question);
+				if (!successfulType(paragraphType)) {
+					return issueHandler
+							.addTypeError(
+									paragraph,
+									TypeErrorMessages.PARAGRAPH_HAS_TYPES_ERRORS
+											.customizeMessage(paragraph
+													.getName() + ""));
+
 				}
+
 			}
 
 			for (PDefinition def : thoseHandledByCOMPASS) {
 				PType type = def.apply(parentChecker, classQuestion);
 				if (type == null || type instanceof AErrorType) {
-					parentChecker
+					return issueHandler
 							.addTypeError(def,
 									TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 											.customizeMessage(def.getName()
 													.toString()));
-					return new AErrorType();
 				}
 			}
 		}
@@ -482,6 +605,8 @@ class TCDeclAndDefVisitor extends
 			Environment base,
 			QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> tc)
 			throws AnalysisException {
+
+		SInvariantType it;
 
 		if (!c.getTypeChecked()) {
 			try {
@@ -548,7 +673,7 @@ class TCDeclAndDefVisitor extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 		TypeCheckInfo newQ = (TypeCheckInfo) question;
-		for (PDefinition def : node.getOperations()) {
+		for (SOperationDefinition def : node.getOperations()) {
 			PType defType = def.apply(parentChecker, question);
 			if (defType == null)
 				issueHandler.addTypeError(def,
@@ -797,6 +922,16 @@ class TCDeclAndDefVisitor extends
 		// Nonetheless the function type will be the type its definition to
 		// facilitate further type checking even in the presents of errors.
 		return funcType;
+	}
+
+	@Override
+	public PType caseATypeDefinition(ATypeDefinition node,
+			org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
+
+		node.setType(node.getType().apply(parentChecker, question));
+
+		return node.getType();
 	}
 
 }

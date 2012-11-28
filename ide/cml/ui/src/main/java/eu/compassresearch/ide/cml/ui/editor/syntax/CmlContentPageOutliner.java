@@ -20,13 +20,17 @@ import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlContentPageOutliner extends ContentOutlinePage implements
-		IContentOutlinePage {
+
+IContentOutlinePage {
 
 	private CmlSourceUnit input;
 	private CmlEditor editor;
 	private CmlTreeContentProvider provider;
 	private OutlineLabelProvider labelprovider;
 	private TreeViewer viewer;
+
+	// TODO remove the flag hack once we get proper sync from the editor
+	private static boolean loopAvoidanceFlag = true;
 
 	// public static final int ALL_LEVELS = -1;
 
@@ -39,6 +43,7 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
 		else
 			w = Wrapper.newInstance(pdef, dscr);
 		System.out.println("Setting outline selection to " + w.toString());
+		loopAvoidanceFlag = false;
 		getTreeViewer().setSelection(new StructuredSelection(w), true);
 
 		// viewer.setSelection(element, true);
@@ -49,10 +54,8 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
 		if (curDisp != null)
 			curDisp.syncExec(new Runnable() {
 				public void run() {
-					try {
-						getTreeViewer().refresh();
-					} catch (Exception e) {
-					}
+					getTreeViewer().refresh();
+					// getTreeViewer().expandAll();
 				}
 			});
 
@@ -73,14 +76,15 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
 
 			public void selectionChanged(SelectionChangedEvent event) {
 				// if the selection is empty clear the label
+
 				if (event.getSelection().isEmpty()) {
 					System.out.println("Empty Selection");
 					return;
 				}
-				if (event.getSelection() instanceof IStructuredSelection) {
+				if ((event.getSelection() instanceof IStructuredSelection)
+						&& loopAvoidanceFlag) {
 					IStructuredSelection selection = (IStructuredSelection) event
 							.getSelection();
-					StringBuffer toShow = new StringBuffer();
 					for (Iterator iterator = selection.iterator(); iterator
 							.hasNext();) {
 
@@ -101,7 +105,8 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
 									}
 								}
 							}
-						}
+						} else
+							loopAvoidanceFlag = true;
 					}
 				}
 			}

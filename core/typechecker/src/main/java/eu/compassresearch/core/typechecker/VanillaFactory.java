@@ -94,8 +94,8 @@ public final class VanillaFactory {
 	 */
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlTypeVisitor(
 			CmlTypeChecker parentChecker, TypeIssueHandler issueHandler) {
-		TCTypeVisitor exprVisitor = new TCTypeVisitor(parentChecker,
-				issueHandler);
+		TCTypeVisitor exprVisitor = new TCTypeVisitor(
+				(VanillaCmlTypeChecker) parentChecker, issueHandler);
 		return exprVisitor;
 	}
 
@@ -128,7 +128,7 @@ public final class VanillaFactory {
 	 */
 	public static TypeCheckQuestion newTopLevelTypeCheckQuestion(
 			TypeIssueHandler issueHandler) {
-		return TypeCheckInfo.getNewTopLevelInstance(issueHandler);
+		return TypeCheckInfo.getNewTopLevelInstance(issueHandler, null);
 	}
 
 	/**

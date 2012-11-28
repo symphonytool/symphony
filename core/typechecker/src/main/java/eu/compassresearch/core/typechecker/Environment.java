@@ -1,13 +1,15 @@
 package eu.compassresearch.core.typechecker;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
 
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
-public class Environment<T> {
+public class Environment<T> extends org.overture.typechecker.FlatEnvironment {
 
 	/**
 	 * The enclosing Environment to search if a symbol is not found in this
@@ -34,6 +36,7 @@ public class Environment<T> {
 	 *            - The enclosing environment
 	 */
 	public Environment(Environment<T> outer, TypeIssueHandler issueHandler) {
+		super(new LinkedList<PDefinition>());
 		this.outer = outer;
 		this.map = new HashMap<LexIdentifierToken, T>();
 		this.issueHandler = issueHandler;

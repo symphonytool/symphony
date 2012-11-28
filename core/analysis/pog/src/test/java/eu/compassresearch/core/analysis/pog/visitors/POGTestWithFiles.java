@@ -1,6 +1,8 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -12,20 +14,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.pog.obligation.NonEmptySetObligation;
+import org.overture.pog.obligation.NonZeroObligation;
 
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.pog.obligations.CMLNonZeroObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.TestUtil;
 
 @RunWith(value = Parameterized.class)
-public class ProofObligationGeneratorTest {
+public class POGTestWithFiles {
 
-    private String sourceCode;
-    private Class<?> expectedPOClass;
-    private int posGenerated;
+    private String filePath;
 
     @Before
     public void setup() {
@@ -33,11 +34,7 @@ public class ProofObligationGeneratorTest {
     }
 
     
-    public static Object[] divZeroFunction ={"class c = begin functions fn: int -> int fn(a) == 50/ a end", CMLNonZeroObligation.class}
-    ;
-    public static Object[] distInterFunction= {"class c = begin functions fn : set of set of int -> set of int fn(ss) == dinter ss end", NonEmptySetObligation.class};
-    
-    
+    public static Object[] alarmProof  ={"src/test/resources/AlarmFromOverture" };
     
   //add test cases for further POs here...
 	
@@ -47,21 +44,19 @@ public class ProofObligationGeneratorTest {
     public static Collection<Object[]> data() {
 	List<Object[]> r = new LinkedList<Object[]>();
 
-	r.add(divZeroFunction);
-	r.add(distInterFunction);
-	//add test cases for further POs here...
+	r.add(alarmProof);
+	//add test cases from further files here...
 	
 	return r;
     }
 
-    public ProofObligationGeneratorTest(String source, Class<?> expectedPOClass) {
-	this.sourceCode = source;
-	this.expectedPOClass= expectedPOClass;
+    public POGTestWithFiles(String source) {
+	this.filePath = source;
     }
 
     @Test
-    public void testGeneratePOs() throws IOException {
-	PSource psAux = (TestUtil.makeSource(sourceCode));
+    public void testGeneratePOsFromFile() throws IOException, AnalysisException {
+	PSource psAux = (Utilities.makeSourceFromFile(filePath));
 	CmlParser cmlp = CmlParser.newParserFromSource(psAux);
 	cmlp.parse();
 	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
@@ -70,8 +65,10 @@ public class ProofObligationGeneratorTest {
 	// Haven't figured out a way to manually create expected POs (mostly
 	// because of ContextStack and LexLocation)
 	//For now we test po types
-	assertEquals(expectedPOClass, actual.get(0).getClass());
+	fail("No asserts yet");
 
     }
-
+    
+    
+    
 }

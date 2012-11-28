@@ -9,6 +9,10 @@ import eu.compassresearch.ast.util.ToStringUtil;
 // %source->tcpStream = "" [ip] ":" [port] ""
 
 // Actions
+%action->#Replicated = "Replication of action: " [replicatedAction]
+
+%action->#Parallel->synchronousParallelism = [leftAction] "[ ns-left | ns-right ]" [rightAction]
+
 %action->specification = "[" +
             $($[externals]$.isEmpty() ? "" : "\n\text " + $[externals]$) +
             ($[precondition]$ == null ? "" : "\n\tpre " + $[precondition]$) +
@@ -26,6 +30,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->#Parallel->generalisedParallelism = [leftAction] "[|" [chanSetExpression] "|]" [rightAction]
 // Processes
 %process->state = "state: " [processDefinition] "@"
+%action->#Statement->call = [name] "(" + $org.overture.ast.util.Utils.listToString($  [args]  $)$ + ")"
 
 %type->error = "Type Error"
 
