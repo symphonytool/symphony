@@ -2,6 +2,8 @@ package eu.compassresearch.ide.cml.rttplugin;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+
+import eu.compassResearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 import eu.compassResearch.rttMbtTmsClientApi.RttMbtClient;
 
 public class Activator implements BundleActivator
@@ -14,19 +16,24 @@ public class Activator implements BundleActivator
 		return client;
 	}
 
+	// progress bars
+	static RttMbtProgressBar progressBars;
+	
 	static public void setConsole(org.eclipse.swt.widgets.Text t) {
 		if (client != null) {
 			RttMbtConsoleLogger consoleLogger = new RttMbtConsoleLogger();
 	    	consoleLogger.setConsole(t);
-	    	client.setLoggingFacility(consoleLogger);
+	    	client.setLoggingFacility(client.getProjectName(), consoleLogger);
 		}
 	}
 	
-	static public void setProgressBar(org.eclipse.swt.widgets.ProgressBar p) {
+	static public void addProgressBar(IRttMbtProgressBar.Tasks task, org.eclipse.swt.widgets.ProgressBar bar) {
 		if (client != null) {
-			RttMbtProgressBar progressBar = new RttMbtProgressBar();
-			progressBar.setProgressBar(p);
-	    	client.setProgressBar(progressBar);
+			if (progressBars == null) {
+				progressBars = new RttMbtProgressBar();
+			}
+			progressBars.addProgressBar(task, bar);
+	    	client.setProgressBar(progressBars);
 		}
 	}
 

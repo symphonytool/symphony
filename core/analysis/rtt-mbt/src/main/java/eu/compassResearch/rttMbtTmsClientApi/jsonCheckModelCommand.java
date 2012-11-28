@@ -87,5 +87,7 @@ public class jsonCheckModelCommand extends jsonCommand {
 
 	public void setGuiPorts(Boolean guiPorts) {
 		this.guiPorts = guiPorts;
+		hasProgress = guiPorts;
+		hasConsole = guiPorts;
 	}
 }

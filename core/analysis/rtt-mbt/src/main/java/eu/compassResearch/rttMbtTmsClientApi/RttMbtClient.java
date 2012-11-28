@@ -16,17 +16,18 @@ public class RttMbtClient {
 	// User name and id
 	private String rttMbtServer;
 	private Integer rttMbtPort;
-	protected String projectName;
-	protected String userName;
-	protected String userId;
+	private String projectName;
+	private String userName;
+	private String userId;
 	private String CmlProject;   // starting and ending with file separator
 	private String CmlWorkspace; // no file separator at the end
 
 	// Logging facility
-	IRttMbtLoggingFacility log;
+	private String consoleName;
+	private IRttMbtLoggingFacility log;
 	
 	// progress bar
-	IRttMbtProgressBar progressBar;
+	private IRttMbtProgressBar progress;
 
 	public RttMbtClient(String server, Integer port, String user, String id) {
 		rttMbtServer = server;
@@ -36,37 +37,41 @@ public class RttMbtClient {
 		projectName = null;
 		CmlProject = null;
 		CmlWorkspace = null;
+		consoleName = null;
+		log = null;
+		progress = null;
 	}
 
-	public void setLoggingFacility(IRttMbtLoggingFacility logger) {
+	public void setLoggingFacility(String name, IRttMbtLoggingFacility logger) {
+		consoleName = name;
 		log = logger;
 	}
 	
 	public void addLogMessage(String msg) {
 		if (log != null) {
-			log.addLogMessage(msg);
+			log.addLogMessage(consoleName, msg);
 		} else {
-			System.out.println(msg);
+			System.out.println("[" + consoleName + "]:" + msg);
 		}
 	}
 	
 	public void addErrorMessage(String msg) {
 		if (log != null) {
-			log.addErrorMessage(msg);
+			log.addErrorMessage(consoleName, msg);
 		} else {
-			System.err.println(msg);
+			System.err.println("[" + consoleName + "]:" + msg);
 		}
 	}
 	
 	public void setProgressBar(IRttMbtProgressBar p) {
-		progressBar = p;
+		progress = p;
 	}
 	
-	public void setProgress(int percent) {
-		if (progressBar != null) {
-			progressBar.setProgress(percent);
+	public void setProgress(IRttMbtProgressBar.Tasks task, int percent) {
+		if (progress != null) {
+			progress.setProgress(task, percent);
 		} else {
-			System.err.println(percent + "%");
+			System.out.println("[" + task.toString() + "]:" + percent + "%");
 		}		
 	}
 	
@@ -914,5 +919,13 @@ public class RttMbtClient {
 	
 	public String getRttProjectRoot() {
 		return getCmlWorkspace() + getCmlProject() + getProjectName();
+	}
+
+	public String getConsoleName() {
+		return consoleName;
+	}
+
+	public void setConsoleName(String consoleName) {
+		this.consoleName = consoleName;
 	}
 }

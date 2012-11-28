@@ -12,9 +12,11 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
+import eu.compassResearch.rttMbtTmsClientApi.IRttMbtProgressBar;
+
 public class RttMbtProgressView extends ViewPart implements IViewPart {
-    
-    @Override
+	
+	@Override
     public void addPropertyListener(IPropertyListener listener)
       {
         
@@ -95,11 +97,25 @@ public class RttMbtProgressView extends ViewPart implements IViewPart {
     @Override
     public void createPartControl(final org.eclipse.swt.widgets.Composite parent)
       {
-    	// create text field used for console output
-    	org.eclipse.swt.widgets.ProgressBar progBar = new ProgressBar(parent, SWT.NONE);
+    	// create progress bars
+    	ProgressBar progBar = new ProgressBar(parent, SWT.NONE);
+    	ProgressBar tc_cov = new ProgressBar(parent, SWT.NONE);
+    	ProgressBar bcs_cov = new ProgressBar(parent, SWT.NONE);
+    	ProgressBar tr_cov = new ProgressBar(parent, SWT.NONE);
+    	ProgressBar mcdc_cov = new ProgressBar(parent, SWT.NONE);
 
+    	progBar.setToolTipText("Overall Progress");
+    	tc_cov.setToolTipText("Test Case Coverage");
+    	tr_cov.setToolTipText("Transition Coverage");
+    	bcs_cov.setToolTipText("BCS Coverage");
+    	mcdc_cov.setToolTipText("MCDC Coverage");
+    	
         // make console view accessable
-        Activator.setProgressBar(progBar);
+        Activator.addProgressBar(IRttMbtProgressBar.Tasks.Global, progBar);
+        Activator.addProgressBar(IRttMbtProgressBar.Tasks.TC_COV, tc_cov);
+        Activator.addProgressBar(IRttMbtProgressBar.Tasks.BCS_COV, bcs_cov);
+        Activator.addProgressBar(IRttMbtProgressBar.Tasks.TR_COV, tr_cov);
+        Activator.addProgressBar(IRttMbtProgressBar.Tasks.MCDC_COV, mcdc_cov);
 
         // paint listener definition
         progBar.addPaintListener(new PaintListener()

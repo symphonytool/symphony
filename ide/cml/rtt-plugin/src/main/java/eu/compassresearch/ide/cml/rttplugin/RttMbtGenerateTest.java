@@ -18,7 +18,7 @@ public class RttMbtGenerateTest extends RttMbtAbstractTestProcedureAction  {
 		if (!initClient(selectedObjectPath)) {
 			return null;
 		}
-
+		
 		// generate concrete test procedure
 		if (client.generateTestProcedure(selectedObject)) {
 			client.addLogMessage("[PASS]: generate test\n");

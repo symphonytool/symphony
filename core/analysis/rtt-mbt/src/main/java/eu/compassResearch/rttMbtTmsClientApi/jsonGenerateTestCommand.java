@@ -61,7 +61,7 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		// get configuration.csv
 		String filename = "";
 		if (client.getProjectName() != null) {
-			filename = client.projectName + File.separator;
+			filename = client.getProjectName() + File.separator;
 		}
 		if (testProcName != null) {
 			filename += "TestProcedures" + File.separator + testProcName + File.separator + "conf" + File.separator;
@@ -95,5 +95,7 @@ public class jsonGenerateTestCommand extends jsonCommand {
 
 	public void setGuiPorts(Boolean guiPorts) {
 		this.guiPorts = guiPorts;
+		hasProgress = guiPorts;
+		hasConsole = guiPorts;
 	}
 }

@@ -7,20 +7,24 @@ public class RttMbtConsoleLogger implements IRttMbtLoggingFacility {
 	org.eclipse.swt.widgets.Text console;
 	
 	@Override
-	public void addLogMessage(String msg) {
+	public void addLogMessage(String consoleName, String msg) {
 		if (console != null) {
-			console.append(msg);
+			console.append("[" + consoleName + "]: " + msg);
 		} else {
-			System.out.println(msg);
+			System.out.println("[" + consoleName + "]: " + msg);
 		}
+		console.redraw();
+		console.update();
 	}
 
-	public void addErrorMessage(String msg) {
+	public void addErrorMessage(String consoleName, String msg) {
 		if (console != null) {
-			console.insert("*** error: " + msg);
+			console.insert("[" + consoleName + "]: " + "*** error: " + msg);
 		} else {
-			System.err.println(msg);
+			System.err.println("[" + consoleName + "]: " + msg);
 		}
+		console.redraw();
+		console.update();
 	}
 
 	public void setConsole(org.eclipse.swt.widgets.Text c) {

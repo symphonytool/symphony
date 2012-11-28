@@ -43,6 +43,8 @@ public class jsonCommand {
 	private Boolean debugMode;
 	private Boolean debugVerbose;
 	private Boolean debugIMR;
+	protected Boolean hasProgress;
+	protected Boolean hasConsole;
 	protected String userName;
 	protected String userId;
 	protected Boolean resultValue;
@@ -61,6 +63,8 @@ public class jsonCommand {
 			debugMode = false;
 			debugVerbose = false;
 			debugIMR = false;
+			hasProgress = false;
+			hasConsole = false;
 	}
 
 	public void setDebugMode(Boolean value) { debugMode = value; }
@@ -69,6 +73,11 @@ public class jsonCommand {
 	
 	public String executeCommand() {
 		String reply = "";
+
+		// reset progress to 0% for all tasks
+		if (hasProgress) {
+			client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
+		}
 		
 		// connect to server
 		if (!connectToServer()) {
@@ -168,10 +177,40 @@ public class jsonCommand {
 		return (message.indexOf("\"progress-item\"") != -1);
 	}
 	
+	public IRttMbtProgressBar.Tasks String2Task(String taskName) {
+		IRttMbtProgressBar.Tasks task = IRttMbtProgressBar.Tasks.Global;
+		
+		if (taskName.equals("Goal Coverage       ")) {
+			return IRttMbtProgressBar.Tasks.Global;
+		}
+		
+		if (taskName.equals("Test case coverage ")) {
+			return IRttMbtProgressBar.Tasks.TC_COV;
+		}
+		
+		if (taskName.equals("BCS coverage       ")) {
+			return IRttMbtProgressBar.Tasks.BCS_COV;
+		}
+		
+		if (taskName.equals("TR coverage        ")) {
+			return IRttMbtProgressBar.Tasks.TR_COV;
+		}
+		
+		if (taskName.equals("MCDC coverage      ")) {
+			return IRttMbtProgressBar.Tasks.MCDC_COV;
+		}
+		
+		if (taskName.equals("Check Model")) {
+			return IRttMbtProgressBar.Tasks.Global;
+		}
+		
+		return task;
+	}
+	
 	public int scanForProgressItems(String msg) {
 		String message = new String(msg);
 		int percent = -1;
-		int start, end, firstDigit, lastDigit;
+		int start, end, first, last, firstDigit, lastDigit;
 		while ((hasProgressItems(message)) && (percent < 100)) {
 			start = message.indexOf("{ \"progress-item\"");
 			end = message.indexOf('}', start);
@@ -187,12 +226,16 @@ public class jsonCommand {
 
 			// extract percent from item
 			if (item.compareTo("{ \"progress-item\" : \"clean\" }") != 0) {
+				first = item.indexOf(':') + 3;
+				last = item.lastIndexOf(':');
 				firstDigit = item.lastIndexOf(':') + 2;
 				lastDigit = item.lastIndexOf('\"') ;
 				if ((firstDigit >= 3) && (lastDigit >= firstDigit)) {
+					String taskName = item.substring(first, last);
 					String number = item.substring(firstDigit, lastDigit);
+					System.out.println("taskname: '" + taskName + "'");
 					percent = Integer.parseInt(number);
-					client.setProgress(percent);
+					client.setProgress(String2Task(taskName), percent);
 				}
 			}
 
@@ -251,18 +294,21 @@ public class jsonCommand {
 			int bytes_read = 0;
 			while ((offset < buffer_size) && (bytes_read >= 0)) {
 				bytes_read = replyStream.read(buffer, offset, buffer_size - offset);
-				// scan for progress items
-				byte[] chunkBuffer = null;
-				String chunk = null;
-				if (bytes_read > 0) {
-					chunkBuffer = new byte[bytes_read];
-					System.arraycopy(buffer, offset, chunkBuffer, 0, bytes_read);
-					chunk = new String(chunkBuffer);
-					if ((progress < 100) && (hasProgressItems(chunk))) {
-						progress = scanForProgressItems(chunk);
-					}
-					if (hasConsoleItems(chunk)) {
-						scanForConsoleItems(chunk);
+				// only scan for progress and console items
+				// if they are expected for this command
+				if (hasProgress || hasConsole) {
+					byte[] chunkBuffer = null;
+					String chunk = null;
+					if (bytes_read > 0) {
+						chunkBuffer = new byte[bytes_read];
+						System.arraycopy(buffer, offset, chunkBuffer, 0, bytes_read);
+						chunk = new String(chunkBuffer);
+						if ((progress < 100) && (hasProgress) && (hasProgressItems(chunk))) {
+							progress = scanForProgressItems(chunk);
+						}
+						if ((hasConsole) && (hasConsoleItems(chunk))) {
+							scanForConsoleItems(chunk);
+						}
 					}
 				}
 				offset += bytes_read;

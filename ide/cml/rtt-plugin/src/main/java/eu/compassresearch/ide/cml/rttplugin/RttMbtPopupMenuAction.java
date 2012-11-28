@@ -81,6 +81,9 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 
 		// set RTT-MBT project name
 		client.setProjectName(rttProject);
+
+		// set console name
+		client.setConsoleName(selectedObject);
 		
 		// test connection to rtt-mbt-tms server
 		if (client.testConenction()) {
