@@ -30,14 +30,14 @@ public class RttMbtComponentWizard extends BasicNewFolderResourceWizard {
 			// pass workspace and cml project information to client
 			client.setCmlWorkspace(workspaceDirectory.getAbsolutePath());
 			client.setCmlProject(project.getFullPath().toString());
-			System.out.println("projectWorkingDir: '"
-					+ client.getCmlWorkspace() + client.getCmlProject() + "'");
+			client.addLogMessage("projectWorkingDir: '"
+					+ client.getCmlWorkspace() + client.getCmlProject() + "'\n");
 
 			// test connection to rtt-mbt-tms server
 			if (client.testConenction()) {
-				System.out.println("[PASS]: test RTT-MBT server connection");
+				client.addLogMessage("[PASS]: test RTT-MBT server connection\n");
 			} else {
-				System.err.println("[FAIL]: test RTT-MBT server connection");
+				client.addErrorMessage("[FAIL]: test RTT-MBT server connection\n");
 				return false;
 			}
 
@@ -50,25 +50,25 @@ public class RttMbtComponentWizard extends BasicNewFolderResourceWizard {
 
 			// start RTT-MBT-TMS session
 			if (client.beginRttMbtSession()) {
-				System.out.println("[PASS]: begin RTT-MBT session");
+				client.addLogMessage("[PASS]: begin RTT-MBT session\n");
 			} else {
-				System.err.println("[FAIL]: begin RTT-MBT session");
+				client.addErrorMessage("[FAIL]: begin RTT-MBT session\n");
 				return false;
 			}
 
 			// download templates
 			if (client.downloadDirectory("templates")) {
-				System.out.println("[PASS]: downloading templates");
+				client.addLogMessage("[PASS]: downloading templates\n");
 			} else {
-				System.err.println("[FAIL]: downloading templates");
+				client.addErrorMessage("[FAIL]: downloading templates\n");
 				return false;
 			}
 
 			// create/select a new project
 			if (client.createProject(projectName)) {
-				System.out.println("[PASS]: create initial project structure");
+				client.addLogMessage("[PASS]: create initial project structure\n");
 			} else {
-				System.err.println("[FAIL]: create initial project structure");
+				client.addErrorMessage("[FAIL]: create initial project structure\n");
 				return false;
 			}
 		}
