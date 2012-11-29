@@ -83,9 +83,7 @@ Export-Package: eu.compassresearch.ast.actions,
  org.overture.util,
  org.overturetool.test.framework,
  org.overturetool.test.framework.results,
- org.overturetool.test.util,
- eu.compassresearch.core.common,
- org.overturetool.vdmj.util
+ org.overturetool.test.util
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources
 Eclipse-BuddyPolicy: registered

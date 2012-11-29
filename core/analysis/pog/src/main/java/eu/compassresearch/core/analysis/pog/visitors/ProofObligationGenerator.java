@@ -15,15 +15,43 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.ACaseAlternative;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.expressions.PModifier;
+import org.overture.ast.modules.AModuleModules;
+import org.overture.ast.modules.PExport;
+import org.overture.ast.modules.PExports;
+import org.overture.ast.modules.PImports;
+import org.overture.ast.modules.PModules;
 import org.overture.ast.node.INode;
+import org.overture.ast.patterns.ASetBind;
+import org.overture.ast.patterns.ASetMultipleBind;
+import org.overture.ast.patterns.ATypeBind;
+import org.overture.ast.patterns.ATypeMultipleBind;
+import org.overture.ast.patterns.PBind;
+import org.overture.ast.patterns.PPair;
+import org.overture.ast.patterns.PPattern;
+import org.overture.ast.patterns.PPatternBind;
+import org.overture.ast.statements.AMapSeqStateDesignator;
+import org.overture.ast.statements.ATixeStmtAlternative;
+import org.overture.ast.statements.PCase;
+import org.overture.ast.statements.PClause;
+import org.overture.ast.statements.PObjectDesignator;
+import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.statements.PStm;
+import org.overture.ast.types.PAccessSpecifier;
+import org.overture.ast.types.PField;
+import org.overture.ast.types.PType;
+import org.overture.pog.assistant.PDefinitionAssistantPOG;
+import org.overture.pog.obligation.POCaseContext;
 import org.overture.pog.obligation.POContextStack;
+import org.overture.pog.obligation.PONotCaseContext;
 import org.overture.pog.obligation.ProofObligationList;
+import org.overture.pog.obligation.SeqApplyObligation;
+import org.overture.pog.visitor.PogVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PDeclaration;
@@ -56,12 +84,13 @@ public class ProofObligationGenerator
     private POGStatementVisitor statementVisitor;
     private POGProcessVisitor processVisitor;
     private POGDeclAndDefVisitor declAndDefVisitor;
-
+    private PogVisitor overturePog;
+    
     private void initialize() {
 	expressionVisitor = new POGExpressionVisitor(this);
 	statementVisitor = new POGStatementVisitor(this);
 	processVisitor = new POGProcessVisitor(this);
-	declAndDefVisitor = new POGDeclAndDefVisitor(this);
+	declAndDefVisitor = new POGDeclAndDefVisitor(this);	
     }
 
     // ---------------------------------------------
@@ -98,6 +127,213 @@ public class ProofObligationGenerator
      throws AnalysisException {
      return node.apply(this.expressionVisitor, question);
      }
+     
+     
+     @Override
+     // See [1] pg. 167 for the definition
+     public ProofObligationList caseAModuleModules(AModuleModules node,
+ 	    POContextStack question) throws AnalysisException {
+ 	return PDefinitionAssistantPOG.getProofObligations(node.getDefs(),
+ 		declAndDefVisitor, question);
+
+     }
+
+     
+
+
+
+
+
+
+     @Override
+     public ProofObligationList defaultPModifier(PModifier node,
+ 	    POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+     
+     
+     @Override
+     public ProofObligationList caseACaseAlternative(ACaseAlternative node,
+ 	    POContextStack question) throws AnalysisException {
+
+ 	ProofObligationList obligations = new ProofObligationList();
+
+ 	question.push(new POCaseContext(node.getPattern(), node.getType(), node
+ 		.getCexp()));
+ 	obligations
+ 		.addAll(node.getResult().apply(this.expressionVisitor, question));
+ 	question.pop();
+ 	question.push(new PONotCaseContext(node.getPattern(), node.getType(),
+ 		node.getCexp()));
+
+ 	return obligations;
+     }
+
+     @Override
+     public ProofObligationList defaultPType(PType node, POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+     @Override
+     public ProofObligationList defaultPField(PField node,
+ 	    POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+     @Override
+     public ProofObligationList defaultPAccessSpecifier(PAccessSpecifier node,
+ 	    POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+     @Override
+     public ProofObligationList defaultPPattern(PPattern node,
+ 	    POContextStack question) {
+ 	return new ProofObligationList();
+     }
+
+     @Override
+     public ProofObligationList defaultPPair(PPair node, POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+     @Override
+     public ProofObligationList defaultPBind(PBind node, POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+     @Override
+     public ProofObligationList caseASetBind(ASetBind node,
+ 	    POContextStack question) throws AnalysisException {
+
+ 	return node.getSet().apply(this.expressionVisitor, question);
+     }
+
+     @Override
+     public ProofObligationList caseASetMultipleBind(ASetMultipleBind node,
+ 	    POContextStack question) throws AnalysisException {
+
+ 	return node.getSet().apply(this.expressionVisitor, question);
+     }
+
+     @Override
+     public ProofObligationList caseATypeMultipleBind(ATypeMultipleBind node,
+ 	    POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+     @Override
+     public ProofObligationList defaultPPatternBind(PPatternBind node,
+ 	    POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+
+
+     @Override
+     public ProofObligationList defaultPModules(PModules node,
+ 	    POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+     @Override
+     public ProofObligationList defaultPImports(PImports node,
+ 	    POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+     @Override
+     public ProofObligationList defaultPExports(PExports node,
+ 	    POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+     @Override
+     public ProofObligationList defaultPExport(PExport node,
+ 	    POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+
+
+     @Override
+     public ProofObligationList defaultPStateDesignator(PStateDesignator node,
+ 	    POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+     @Override
+     public ProofObligationList caseAMapSeqStateDesignator(
+ 	    AMapSeqStateDesignator node, POContextStack question) {
+
+ 	ProofObligationList list = new ProofObligationList();
+
+ 	if (node.getSeqType() != null) {
+ 	    list.add(new SeqApplyObligation(node.getMapseq(), node.getExp(),
+ 		    question));
+ 	}
+
+ 	// Maps are OK, as you can create new map domain entries
+
+ 	return list;
+     }
+
+     @Override
+     public ProofObligationList defaultPObjectDesignator(PObjectDesignator node,
+ 	    POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+     @Override
+     public ProofObligationList caseATixeStmtAlternative(
+ 	    ATixeStmtAlternative node, POContextStack question)
+ 	    throws AnalysisException {
+
+ 	ProofObligationList list = new ProofObligationList();
+
+ 	if (node.getPatternBind().getPattern() != null) {
+ 	    // Nothing to do
+ 	} else if (node.getPatternBind().getBind() instanceof ATypeBind) {
+ 	    // Nothing to do
+ 	} else if (node.getPatternBind().getBind() instanceof ASetBind) {
+ 	    ASetBind bind = (ASetBind) node.getPatternBind().getBind();
+ 	    list.addAll(bind.getSet().apply(this.expressionVisitor, question));
+ 	}
+
+ 	list.addAll(node.getStatement().apply(this.statementVisitor, question));
+ 	return list;
+
+     }
+
+     @Override
+     public ProofObligationList defaultPClause(PClause node,
+ 	    POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+     @Override
+     public ProofObligationList defaultPCase(PCase node, POContextStack question) {
+
+ 	return new ProofObligationList();
+     }
+
+     
 
     // Need to figure out how many more "defaults" are missing
 
@@ -168,6 +404,7 @@ public class ProofObligationGenerator
 
 		    // process paragraph:
 		    obligations.addAll(paragraph.apply(this, ctxt));
+//		    obligations.addAll(paragraph.apply(overturePog, ctxt));
 
 		    System.out.println();
 		    System.out.println();
@@ -191,28 +428,41 @@ public class ProofObligationGenerator
 	return obligations;
     }
 
-    // ensure drilldown to children (this may not be needed)
+    
     @Override
-    public ProofObligationList defaultINode(INode node,
-	   POContextStack question) throws AnalysisException {
-	CMLProofObligationList obligations = new CMLProofObligationList();
-	Stack<INode> workQ = new Stack<INode>();
-	for (Object o : node.getChildren(true).values()) {
-	    workQ.push((INode) o);
-	}
-	while (!workQ.isEmpty()) {
-	    INode aux = workQ.pop();
-	    obligations.addAll(aux.apply(this, question));
-
-	}
-	return obligations;
+    public ProofObligationList defaultINode(INode node, POContextStack question)
+	    throws AnalysisException {
+	CMLProofObligationList pol = new CMLProofObligationList();
+	pol.addAll(node.apply(overturePog,question));
+	return pol;
+	// TODO Auto-generated method stub
     }
+
+    
+    // ensure drilldown to children (this may not be needed)
+//    @Override
+//    public ProofObligationList defaultINode(INode node,
+//	   POContextStack question) throws AnalysisException {
+//	CMLProofObligationList obligations = new CMLProofObligationList();
+//	Stack<INode> workQ = new Stack<INode>();
+//	for (Object o : node.getChildren(true).values()) {
+//	    workQ.push((INode) o);
+//	}
+//	while (!workQ.isEmpty()) {
+//	    INode aux = workQ.pop();
+//	    obligations.addAll(aux.apply(this, question));
+//
+//	}
+//	return obligations;
+//    }
 
     // ---------------------------------------------
     // Static stuff for running the POG from Eclipse
     // ---------------------------------------------
     // Taken from Type Checker code
     // ---------------------------------------------
+
+
 
     // setting the file on AFileSource allows the POG to interact with it
     // TODO this method is a duplicate( from VanillaTypeChecker). Should be

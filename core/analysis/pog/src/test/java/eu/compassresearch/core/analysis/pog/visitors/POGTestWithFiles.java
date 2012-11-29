@@ -2,6 +2,7 @@ package eu.compassresearch.core.analysis.pog.visitors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -58,7 +59,7 @@ public class POGTestWithFiles {
     public void testGeneratePOsFromFile() throws IOException, AnalysisException {
 	PSource psAux = (Utilities.makeSourceFromFile(filePath));
 	CmlParser cmlp = CmlParser.newParserFromSource(psAux);
-	cmlp.parse();
+	assertTrue("Test Failed on parse.", cmlp.parse());
 	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
 	CMLProofObligationList actual = pog.generatePOs();
 
