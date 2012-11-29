@@ -355,13 +355,13 @@ public class CmlParserHelper {
 	}
 
 	public LexNameToken extractLexNameToken(CmlLexeme lexeme, boolean old) {
-		return new LexNameToken("Default", lexeme.getValue(),
+		return new LexNameToken("", lexeme.getValue(),
 				extractLexLocation(lexeme), old, true);
 	}
 
 	public LexNameToken extractLexNameToken(Object obj) {
 		CmlLexeme lexeme = (CmlLexeme) obj;
-		return new LexNameToken("Default", lexeme.getValue(),
+		return new LexNameToken("", lexeme.getValue(),
 				extractLexLocation(lexeme), false, true);
 	}
 
