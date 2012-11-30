@@ -1,8 +1,5 @@
 /* loose threads:
  *
- * QUOTELITERAL doesn't do the right thing with "0<x" (but "0< x" is fine)
- * -> For now, I have a parser rule to match this, but I expect weirdnesses
- *
  * communication prefixes using '.' separators are still causing problems
  * -> restriction in place: '.','!' may only be followed by ids,
  *    (expr), symLit, and records/tuples; '?' is only followed by a
@@ -17,11 +14,19 @@
  *   rule alternative.
  *
  * expression/statement precedence has still to be resolved
+ *
+ * make type not allow '()' unless coming from a function?
  */
 grammar Cml;
 options {
     language=Java;
     output=AST;
+}
+/* This is necessary for the lexer to disambiguate QUOTELITERALS and a
+ * '<' followed by an IDENTIFIER that is not followed by a '>'.
+ */
+tokens {
+    LESSTHAN = '<';
 }
 
 @members {
@@ -392,7 +397,7 @@ type1
     : basicType
     | '(' type ')'
     | '[' type ']'
-    | quoteliteral
+    | QUOTELITERAL
     | IDENTIFIER ('.' IDENTIFIER)*
     | 'compose' IDENTIFIER 'of' field+ 'end'
     | 'set' 'of' type1
@@ -443,7 +448,7 @@ symbolicLiteral
     | 'nil'
     | CHARLITERAL
     | TEXTLITERAL
-    | quoteliteral
+    | QUOTELITERAL
     ;
 
 numLiteral
@@ -453,10 +458,6 @@ numLiteral
 
 boolLiteral
     : 'true' | 'false'
-    ;
-
-quoteliteral
-    : '<' IDENTIFIER '>'
     ;
 
 tuplePattern
@@ -692,9 +693,18 @@ TUPLESELECTOR
     : '.#' DIGIT+
     ;
 
-// QUOTELITERAL
-//     : '<' INITIAL_LETTER FOLLOW_LETTER* '>'
-//     ;
+/* Ok, this appears to solve the problem with "0< x" being ok, but
+ * "0<x" failing to match a QUOTELITERAL token.  I don't know how much
+ * effect it has on lexer performance, though.
+ *
+ * QUOTELITERAL doesn't do the right thing with "0<x" (but "0< x" is fine)
+ * -> For now, I have a parser rule to match this, but I expect weirdnesses
+ */
+QUOTELITERAL
+	: ('<' INITIAL_LETTER FOLLOW_LETTER* '>')=> '<' INITIAL_LETTER FOLLOW_LETTER* '>'
+    | '<' { $type=LESSTHAN; }
+    ;
+
 
 CHARLITERAL
     : '\\\\' | '\\R' | '\\n' | '\\t' | '\\f' | '\\e' | '\\a' | '\\"' | '\\\''
@@ -704,8 +714,12 @@ CHARLITERAL
     // | '\\c' character
     ;
 
+/* { $channel=HIDDEN; } is great for debugging, but swap the action to
+ * { skip(); } for production as it will then not create Token objects
+ * for whitespace.
+ */
 WHITESPACE
-    : (' ' | '\t' | '\r' | '\n')+ { skip(); }
+    : (' ' | '\t' | '\r' | '\n')+ { $channel=HIDDEN; }
     ;
 
 LINECOMMENT
