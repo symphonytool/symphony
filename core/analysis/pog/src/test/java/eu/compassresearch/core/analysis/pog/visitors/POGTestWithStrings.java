@@ -73,17 +73,7 @@ public class POGTestWithStrings {
 	assertEquals(expectedPOClass, actual.get(0).getClass());
 
     }
-    
-    @Test
-    public void testGeneratePOsfromFile() throws IOException {
-	PSource psAux = (TestUtil.makeSource(sourceFromString));
-	CmlParser cmlp = CmlParser.newParserFromSource(psAux);
-	cmlp.parse();
-	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
-	CMLProofObligationList actual = pog.generatePOs();
 
-	fail("Not yet implemented");
-    }
 
     
     

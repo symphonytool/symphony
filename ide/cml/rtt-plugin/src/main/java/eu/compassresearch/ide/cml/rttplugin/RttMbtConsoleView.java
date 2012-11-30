@@ -3,9 +3,8 @@ package eu.compassresearch.ide.cml.rttplugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IViewPart;
@@ -14,7 +13,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
-public class RTTesterView extends ViewPart implements IViewPart
+public class RttMbtConsoleView extends ViewPart implements IViewPart
   {
     
     @Override
@@ -39,7 +38,7 @@ public class RTTesterView extends ViewPart implements IViewPart
     public String getTitle()
       {
         // TODO Auto-generated method stub
-        return "RT-Tester";
+        return "RTT-MBT";
       }
     
     @Override
@@ -70,7 +69,8 @@ public class RTTesterView extends ViewPart implements IViewPart
         
       }
     
-    @Override
+    @SuppressWarnings("rawtypes")
+	@Override
     public Object getAdapter(Class adapter)
       {
         // TODO Auto-generated method stub
@@ -106,19 +106,20 @@ public class RTTesterView extends ViewPart implements IViewPart
     @Override
     public void createPartControl(final org.eclipse.swt.widgets.Composite parent)
       {
-        org.eclipse.swt.widgets.Canvas canvas = new Canvas(parent, SWT.NONE);
-        canvas.addPaintListener(new PaintListener()
+    	// create text field used for console output
+    	org.eclipse.swt.widgets.Text console = new Text(parent, SWT.V_SCROLL);
+    	Font font = new Font(parent.getDisplay(), "Courier New", 10, SWT.NORMAL);
+    	console.setFont(font);
+
+        // make console view accessable
+        Activator.setConsole(console);
+
+        // paint listener definition
+        console.addPaintListener(new PaintListener()
           {
             @Override
             public void paintControl(PaintEvent e)
               {
-                Canvas canvas = ((Canvas) e.widget);
-                Rectangle rect = canvas.getBounds();
-                e.gc.setForeground(e.display.getSystemColor(SWT.COLOR_RED));
-                e.gc.drawFocus(5, 5, rect.width - 10, rect.height - 10);
-                e.gc.drawText("You can draw text directly on a canvas", 60, 60);
-                e.gc.drawText("Visit: http://www.compassresearch.eu/", 60, 90);
-                canvas.setBackground(new Color(parent.getDisplay(), 0, 213, 220));
               }
           });
       }

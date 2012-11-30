@@ -24,14 +24,27 @@
     	  </category>
   </extension>
 
+  <!-- Console View -->
   <extension point="org.eclipse.ui.views">
     <view 
-        id="eu.compassresearch.ide.cml.rttplugin.RTTesterView"
-        name="RT Tester View"
+        id="eu.compassresearch.ide.cml.rttplugin.RttMbtConsoleView"
+        name="RTT-MBT Console"
         category="compass_eu.compassresearch.ide.cml.ui.category"
-        icon="icons/cview16/cml_file_tsk.png"
-        class="eu.compassresearch.ide.cml.rttplugin.RTTesterView" />
-        
+        icon="icons/rtt-mbt-small.png"
+        class="eu.compassresearch.ide.cml.rttplugin.RttMbtConsoleView" />
+        <category
+        	id="compass_eu.compassresearch.ide.cml.ui.category"
+        	name="COMPASS"/>
+  </extension>
+
+  <!-- progress View -->
+  <extension point="org.eclipse.ui.views">
+    <view 
+        id="eu.compassresearch.ide.cml.rttplugin.RttMbtProgressView"
+        name="RTT-MBT Progress"
+        category="compass_eu.compassresearch.ide.cml.ui.category"
+        icon="icons/rtt-mbt-small.png"
+        class="eu.compassresearch.ide.cml.rttplugin.RttMbtProgressView" />
         <category
         	id="compass_eu.compassresearch.ide.cml.ui.category"
         	name="COMPASS"/>

@@ -20,12 +20,18 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.PType;
 import org.overture.pog.obligation.FuncPostConditionObligation;
 import org.overture.pog.obligation.OperationPostConditionObligation;
+import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.POFunctionDefinitionContext;
 import org.overture.pog.obligation.POFunctionResultContext;
 import org.overture.pog.obligation.POOperationDefinitionContext;
 import org.overture.pog.obligation.ParameterPatternObligation;
 import org.overture.pog.obligation.SatisfiabilityObligation;
 import org.overture.pog.obligation.StateInvariantObligation;
+import org.overture.pog.obligation.ProofObligationList;
+import org.overture.pog.obligation.SubTypeObligation;
+import org.overture.typechecker.TypeComparator;
+
+
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -42,14 +48,12 @@ import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.analysis.pog.obligations.CMLPOContextStack;
-import eu.compassresearch.core.analysis.pog.obligations.CMLPOFunctionDefinitionContext;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
 
-QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
+QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 
     // Errors and other things are recorded on this guy
     private ProofObligationGenerator parentPOG;
@@ -60,7 +64,7 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
 
     @Override
     public CMLProofObligationList defaultPDeclaration(PDeclaration node,
-	    CMLPOContextStack question) throws AnalysisException {
+	    POContextStack question) throws AnalysisException {
     	System.out.println("Reached POGDeclAndDefVisitor - defaultPDeclaration");
     	System.out.println(node.toString() +" : " + node.getClass());
 
@@ -69,7 +73,7 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
 
     @Override
     public CMLProofObligationList defaultPDefinition(PDefinition node,
-	    CMLPOContextStack question) throws AnalysisException {
+	    POContextStack question) throws AnalysisException {
     	System.out.println("Reached POGDeclAndDefVisitor - defaultPDefinition");
     	System.out.println(node.toString() +" : " +node.getClass());
     	
@@ -83,8 +87,8 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
      * 
      */
     @Override
-    public CMLProofObligationList caseATypesParagraphDefinition(
-	    ATypesParagraphDefinition node, CMLPOContextStack question)
+    public ProofObligationList caseATypesParagraphDefinition(
+	    ATypesParagraphDefinition node, POContextStack question)
 	    throws AnalysisException {
     	CMLProofObligationList pol = new CMLProofObligationList();
 	
@@ -96,8 +100,8 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
     }
 
     @Override
-    public CMLProofObligationList caseATypeDefinition(ATypeDefinition node,
-	    CMLPOContextStack question) throws AnalysisException {
+    public ProofObligationList caseATypeDefinition(ATypeDefinition node,
+	    POContextStack question) throws AnalysisException {
 
     	System.out.println("----------***----------");
 		System.out.println("ATypeDefinition");
@@ -136,8 +140,8 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
      * 
      */
     @Override
-    public CMLProofObligationList caseAValueParagraphDefinition(
-	    AValueParagraphDefinition node, CMLPOContextStack question)
+    public ProofObligationList caseAValueParagraphDefinition(
+	    AValueParagraphDefinition node, POContextStack question)
 	    throws AnalysisException {
     	
 		CMLProofObligationList pol = new CMLProofObligationList();
@@ -151,8 +155,8 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
     }
 
     @Override
-    public CMLProofObligationList caseAValueDefinition(AValueDefinition node,
-	    CMLPOContextStack question) throws AnalysisException {
+    public ProofObligationList caseAValueDefinition(AValueDefinition node,
+	    POContextStack question) throws AnalysisException {
 
     	System.out.println("----------***----------");
 		System.out.println("AValueDefinition");
@@ -212,8 +216,8 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
      * 
      */
     @Override
-    public CMLProofObligationList caseAFunctionParagraphDefinition(
-	    AFunctionParagraphDefinition node, CMLPOContextStack question)
+    public ProofObligationList caseAFunctionParagraphDefinition(
+	    AFunctionParagraphDefinition node, POContextStack question)
 	    throws AnalysisException {
 		CMLProofObligationList obligations = new CMLProofObligationList();
 	
@@ -225,8 +229,8 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
     }
 
     @Override
-    public CMLProofObligationList caseAExplicitFunctionDefinition(
-	    AExplicitFunctionDefinition node, CMLPOContextStack question)
+    public ProofObligationList caseAExplicitFunctionDefinition(
+	    AExplicitFunctionDefinition node, POContextStack question)
 	    throws AnalysisException {
 
 		CMLProofObligationList obligations = new CMLProofObligationList();
@@ -270,9 +274,10 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
 		}
 		
 		// do proof obligations for the function body
-		question.push(new CMLPOFunctionDefinitionContext(node, true));
+		question.push(new POFunctionDefinitionContext(node, true));
 		PExp body = node.getBody();
 		int sizeBefore = question.size();
+		ProofObligationList pol = body.apply(parentPOG,question);
 		obligations.addAll(body.apply(parentPOG, question));
 		assert sizeBefore <= question.size();
 		
@@ -292,8 +297,8 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
 
     
     @Override
-    public CMLProofObligationList caseAImplicitFunctionDefinition(
-	    AImplicitFunctionDefinition node, CMLPOContextStack question)
+    public ProofObligationList caseAImplicitFunctionDefinition(
+	    AImplicitFunctionDefinition node, POContextStack question)
 	    throws AnalysisException {
     	
     	System.out.println("----------***----------");
@@ -370,8 +375,8 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
      * 
      */
     @Override
-    public CMLProofObligationList caseAOperationParagraphDefinition(
-	    AOperationParagraphDefinition node, CMLPOContextStack question)
+    public ProofObligationList caseAOperationParagraphDefinition(
+	    AOperationParagraphDefinition node, POContextStack question)
 	    throws AnalysisException {
     	CMLProofObligationList pol = new CMLProofObligationList();
 		for (PDefinition def : node.getOperations()) {
@@ -381,8 +386,8 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
     }
 
     @Override
-    public CMLProofObligationList caseAExplicitOperationDefinition(
-    		AExplicitOperationDefinition node, CMLPOContextStack question)
+    public ProofObligationList caseAExplicitOperationDefinition(
+	    AExplicitOperationDefinition node, POContextStack question)
 	    throws AnalysisException {
     	System.out.println("----------***----------");
 		System.out.println("AExplicitOperationDefinition");
@@ -431,7 +436,7 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
     
     @Override
 	public CMLProofObligationList caseAImplicitOperationDefinition(
-			AImplicitOperationDefinition node, CMLPOContextStack question) throws AnalysisException
+			AImplicitOperationDefinition node, POContextStack question) throws AnalysisException
 	{
 
 		CMLProofObligationList pol = new CMLProofObligationList();
@@ -491,7 +496,7 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
      */
     @Override
     public CMLProofObligationList caseAChannelParagraphDefinition(
-    	AChannelParagraphDefinition node, CMLPOContextStack question)
+    	AChannelParagraphDefinition node, POContextStack question)
     	throws AnalysisException{
     	
     	CMLProofObligationList pol = new CMLProofObligationList();
@@ -503,10 +508,12 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
     
     	return pol;
      }
+     
+      
     
     @Override
     public CMLProofObligationList caseAChannelNameDefinition(
-    		AChannelNameDefinition node, CMLPOContextStack question)
+    		AChannelNameDefinition node, POContextStack question)
     		    	throws AnalysisException{
 
     	System.out.println("----------***----------");
@@ -532,8 +539,8 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
      * 
      */
     @Override
-    public CMLProofObligationList caseAChansetParagraphDefinition(
-	    AChansetParagraphDefinition node, CMLPOContextStack question)
+    public ProofObligationList caseAChansetParagraphDefinition(
+	    AChansetParagraphDefinition node, POContextStack question)
 	    throws AnalysisException {
 	
 		LinkedList<AChansetDefinition> subNodes = node.getChansets();
@@ -547,8 +554,8 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
     }
 
     @Override
-    public CMLProofObligationList caseAChansetDefinition(
-	    AChansetDefinition node, CMLPOContextStack question)
+    public ProofObligationList caseAChansetDefinition(
+	    AChansetDefinition node, POContextStack question)
 	    throws AnalysisException {
     	
     	System.out.println("----------***----------");
@@ -566,17 +573,16 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
 		
 		return pol;
     }
-
-
-   
+    
+    
     /**
      * 
      * CML ELEMENT - Classes
      * 
      */
-    // @Override
+    @Override
     public CMLProofObligationList caseAClassParagraphDefinition(
-	    AClassParagraphDefinition node, CMLPOContextStack question)
+	    AClassParagraphDefinition node, POContextStack question)
 	    throws AnalysisException {
 		System.out.println("------");
 		System.out
@@ -599,8 +605,8 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
      * 
      */
     @Override
-    public CMLProofObligationList caseAProcessParagraphDefinition(
-	    AProcessParagraphDefinition node, CMLPOContextStack question)
+    public ProofObligationList caseAProcessParagraphDefinition(
+	    AProcessParagraphDefinition node, POContextStack question)
 	    throws AnalysisException {
 	
 		AProcessDefinition pdef = node.getProcessDefinition();
@@ -608,8 +614,8 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
     }
 
     @Override
-    public CMLProofObligationList caseAProcessDefinition(
-	    AProcessDefinition node, CMLPOContextStack question)
+    public ProofObligationList caseAProcessDefinition(
+	    AProcessDefinition node, POContextStack question)
 	    throws AnalysisException {
     	
     	System.out.println("----------***----------");
@@ -633,11 +639,7 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
 		// CMLProofObligationList td = s.apply(this, question);
 		// System.out.println("----------***----------");
 		// }
-	
-		//CMLProofObligationList pol = pdef.apply(this, question);
-
-		// CMLProofObligationList td = d.apply(this, question);
-		
+			
 		return pol;
     }
     
@@ -647,8 +649,8 @@ QuestionAnswerCMLAdaptor<CMLPOContextStack, CMLProofObligationList> {
      * 
      */
     @Override
-    public CMLProofObligationList caseAActionParagraphDefinition(
-	    AActionParagraphDefinition node, CMLPOContextStack question)
+    public ProofObligationList caseAActionParagraphDefinition(
+	    AActionParagraphDefinition node, POContextStack question)
 	    throws AnalysisException {
 		System.out.println("------");
 		System.out
