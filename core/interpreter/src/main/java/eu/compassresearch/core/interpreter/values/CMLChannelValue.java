@@ -58,8 +58,10 @@ public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSign
 		
 		otherValue = (CMLChannelValue)other;
 		
-		return otherValue.getName().equals(getName()) &&
-				otherValue.getType().equals(getType());
+		return otherValue.getName().equals(getName());
+		//FIXME This fails after the typechecker has been updated		
+		//&&
+		//otherValue.getType().equals(getType());
 	}
 
 	@Override

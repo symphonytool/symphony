@@ -33,9 +33,9 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.CMLPOContextStack;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
-import eu.compassresearch.core.interpreter.runtime.VanillaCmlInterpreter;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.core.parser.CmlParser;
@@ -516,8 +516,7 @@ public class CheckCml {
 
 				try {
 
-					final CmlInterpreter interpreter = new VanillaCmlInterpreter(
-							sources);
+					final CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(sources);
 
 
 					AnalysisRunAdaptor re = new AnalysisRunAdaptor(null) {

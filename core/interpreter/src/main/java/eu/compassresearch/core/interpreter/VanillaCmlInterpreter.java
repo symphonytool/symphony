@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.runtime;
+package eu.compassresearch.core.interpreter;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,12 +23,16 @@ import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
+import eu.compassresearch.core.interpreter.runtime.AbstractCmlInterpreter;
+import eu.compassresearch.core.interpreter.runtime.CmlProcessInstance;
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+import eu.compassresearch.core.interpreter.runtime.EnvironmentBuilder;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
-public class VanillaCmlInterpreter extends AbstractCmlInterpreter
+class VanillaCmlInterpreter extends AbstractCmlInterpreter
   {
     
     /**
