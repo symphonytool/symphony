@@ -43,6 +43,7 @@ import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ARecordInvariantType;
+import org.overture.ast.types.AUnresolvedType;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.ACallStatementAction;
@@ -150,7 +151,7 @@ public class CmlParserHelper {
 				if (module.length() > 0)
 					module.deleteCharAt(module.length() - 1);
 				else
-					module.append("Default");
+					module.append("");
 				id = prefixid;
 			}
 		}
@@ -218,7 +219,7 @@ public class CmlParserHelper {
 			name = new LexNameToken(tokens[0], tokens[1],
 					extractLexLocation(mkUnder), false, true);
 		} else
-			name = new LexNameToken("Default", nameString,
+			name = new LexNameToken("", nameString,
 					extractLexLocation(mkUnder), false, true);
 		return name;
 	}
@@ -262,14 +263,14 @@ public class CmlParserHelper {
 	}
 
 	public LexLocation extractLexLocation(CmlLexeme lexeme) {
-		return new LexLocation(currentSource.toString(), "Default",
+		return new LexLocation(currentSource.toString(), "",
 				lexeme.getStartPos().line, lexeme.getStartPos().column,
 				lexeme.getEndPos().line, lexeme.getEndPos().column,
 				lexeme.getStartPos().offset, lexeme.getEndPos().offset);
 	}
 
 	public LexLocation extractLexLocation(CmlLexeme start, CmlLexeme end) {
-		return new LexLocation(currentSource.toString(), "Default",
+		return new LexLocation(currentSource.toString(), "",
 				start.getStartPos().line, start.getStartPos().column,
 				end.getEndPos().line, end.getEndPos().column,
 				start.getStartPos().offset, end.getEndPos().offset);
@@ -277,7 +278,7 @@ public class CmlParserHelper {
 
 	public LexLocation extractLexLocation(CmlLexeme start, LexLocation end) {
 
-		return new LexLocation(currentSource.toString(), "Default",
+		return new LexLocation(currentSource.toString(), "",
 				start.getStartPos().line, start.getStartPos().column,
 				end.endLine, end.endPos, start.getStartPos().offset,
 				end.endOffset);
@@ -285,16 +286,15 @@ public class CmlParserHelper {
 
 	public LexLocation extractLexLocation(LexLocation start, CmlLexeme end) {
 
-		return new LexLocation(currentSource.toString(), "Default",
-				start.startLine, start.startPos, end.getEndPos().line,
-				end.getEndPos().column, start.startOffset,
-				end.getEndPos().offset);
+		return new LexLocation(currentSource.toString(), "", start.startLine,
+				start.startPos, end.getEndPos().line, end.getEndPos().column,
+				start.startOffset, end.getEndPos().offset);
 	}
 
 	public LexLocation extractLexLocation(LexLocation start, LexLocation end) {
-		return new LexLocation(currentSource.toString(), "Default",
-				start.startLine, start.startPos, end.endLine, end.endPos,
-				start.startOffset, end.endOffset);
+		return new LexLocation(currentSource.toString(), "", start.startLine,
+				start.startPos, end.endLine, end.endPos, start.startOffset,
+				end.endOffset);
 	}
 
 	public LexLocation combineLexLocation(LexLocation start, LexLocation end) {
@@ -354,13 +354,13 @@ public class CmlParserHelper {
 	}
 
 	public LexNameToken extractLexNameToken(CmlLexeme lexeme, boolean old) {
-		return new LexNameToken("Default", lexeme.getValue(),
+		return new LexNameToken("", lexeme.getValue(),
 				extractLexLocation(lexeme), old, true);
 	}
 
 	public LexNameToken extractLexNameToken(Object obj) {
 		CmlLexeme lexeme = (CmlLexeme) obj;
-		return new LexNameToken("Default", lexeme.getValue(),
+		return new LexNameToken("", lexeme.getValue(),
 				extractLexLocation(lexeme), false, true);
 	}
 
@@ -603,11 +603,16 @@ public class CmlParserHelper {
 		return res;
 	}
 
+	@SuppressWarnings("deprecation")
 	public PDefinition caseImplicitFunctionDefinition(Object qual, Object id,
 			Object ptypes, Object retvalsObj, Object pre, Object post) {
 		AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier) qual;
 		LexNameToken name = extractLexNameToken((CmlLexeme) id);
 		List<APatternListTypePair> paramPatterns = (List<APatternListTypePair>) ptypes;
+
+		List<PType> paramTypes = new LinkedList<PType>();
+		for (APatternListTypePair pp : paramPatterns)
+			paramTypes.add(pp.getType());
 
 		// FIXME This conversion is caused by a flaw in the VDM tree and needs
 		// to be fixed at some point.
@@ -633,6 +638,7 @@ public class CmlParserHelper {
 		}
 
 		APatternTypePair result = retval;// (APatternTypePair)retvals;
+
 		PExp preExp = (PExp) pre;
 		PExp postExp = (PExp) post;
 		LexLocation location = combineLexLocation(name.getLocation(),
@@ -643,7 +649,12 @@ public class CmlParserHelper {
 																 * LexNameToken
 																 * measure
 																 */);
+		AFunctionType type = AstFactory.newAFunctionType(name.getLocation(),
+				true, paramTypes, result.getType());
+
+		type.setResult(result.getType());
 		impFunc.setName(name);
+		impFunc.setType(type);
 		return impFunc;
 	}
 
@@ -1037,6 +1048,7 @@ public class CmlParserHelper {
 	 * Types
 	 */
 
+	@SuppressWarnings({ "deprecation", "unchecked" })
 	public ANamedInvariantType caseDottedIdentifierToNamedType(
 			Object dottedIdentifier) {
 
@@ -1047,9 +1059,12 @@ public class CmlParserHelper {
 		ANamedInvariantType type = new ANamedInvariantType();
 		List<LexIdentifierToken> ids = (List<LexIdentifierToken>) dottedIdentifier;
 		LexNameToken name = dottedIdentifierToLexNameToken(ids);
-
+		type.setResolved(false);
 		type.setLocation(name.getLocation());
 		type.setName(name);
+		AUnresolvedType t = new AUnresolvedType(name.getLocation(), false,
+				new LinkedList<PDefinition>(), name);
+		type.setType(t);
 		return type;
 	}
 

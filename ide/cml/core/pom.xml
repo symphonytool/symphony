@@ -45,9 +45,8 @@
                   <overWrite>true</overWrite>
                   <!-- <destFileName>optional-new-name.jar</destFileName> -->
                 </artifactItem>
-
-
-                <!-- Common -->
+                
+    <!-- Common -->
                 <artifactItem>
                   <groupId>eu.compassresearch.core</groupId>
                   <artifactId>common</artifactId>
@@ -57,6 +56,15 @@
                   <!-- <destFileName>optional-new-name.jar</destFileName> -->
                 </artifactItem>
 
+               <!-- Copy the POG -->
+                <artifactItem>
+                  <groupId>eu.compassresearch.core.analysis</groupId>
+                  <artifactId>pog</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <!-- <destFileName>optional-new-name.jar</destFileName> -->
+                </artifactItem>
                 
                 <!-- Copy the Parser -->
                 <artifactItem>
@@ -80,16 +88,25 @@
                 <artifactItem>
                   <groupId>org.overturetool.core</groupId>
                   <artifactId>typechecker</artifactId>
-                  <version>2.2.1</version>
+                  <version>${overture.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
 
+                <!-- Overture POG --> 
+                <artifactItem>
+                  <groupId>org.overturetool.core</groupId>
+                  <artifactId>pog</artifactId>
+                  <version>${overture.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+                
                 <!-- Overture Test Framework -->
                 <artifactItem>
                   <groupId>org.overturetool.core</groupId>
                   <artifactId>testframework</artifactId>
-                  <version>2.2.1</version>
+                  <version>${overture.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
@@ -98,7 +115,7 @@
                 <artifactItem>
                   <groupId>org.overturetool.core</groupId>
                   <artifactId>parser</artifactId>
-                  <version>2.2.0</version>
+                  <version>${overture.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>

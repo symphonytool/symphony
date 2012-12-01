@@ -2,18 +2,21 @@ package eu.compassresearch.core.interpreter.api;
 
 import java.util.List;
 
+import eu.compassresearch.core.interpreter.cml.CmlTrace;
+import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+
 public class InterpreterStatus {
 
-	final private List<String> visibleTrace;
+	final private CmlTrace trace;
 	
-	public InterpreterStatus(List<String> visibleTrace)
+	public InterpreterStatus(CmlTrace trace)
 	{
-		this.visibleTrace = visibleTrace;
+		this.trace = trace;
 	}
 	
-	public List<String> getVisibleTrace()
+	public List<CmlEvent> getVisibleTrace()
 	{
-		return this.visibleTrace;
+		return this.trace.getVisibleEvents();
 	}
 	
 }

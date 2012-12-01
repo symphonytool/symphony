@@ -144,23 +144,6 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		return r;
 	}
 
-	private List<Wrapper<? extends INode>> handleProcessParagraphDefinition(
-			AProcessParagraphDefinition ppdef) {
-		PProcess pp = ppdef.getProcessDefinition().getProcess();
-		return ProcessMap.getDelegate(pp.getClass()).makeEntries(pp);
-	}
-
-	private List<Wrapper<AChannelNameDefinition>> handleChannelParagraphDefinition(
-			AChannelParagraphDefinition cpdef) {
-		List<Wrapper<AChannelNameDefinition>> r = new LinkedList<Wrapper<AChannelNameDefinition>>();
-		for (AChannelNameDefinition dec : cpdef.getChannelNameDeclarations()) {
-			r.add(Wrapper.newInstance(dec, dec.getSingleType().getIdentifiers()
-					.toString()
-					+ ": " + dec.getSingleType().getType()));
-		}
-		return r;
-	}
-
 	private List<Wrapper<? extends PDefinition>> handleValueParagraphDefinition(
 			AValueParagraphDefinition cast) {
 		return DefinitionMap.getDelegate(cast.getClass()).extractSubdefinition(
@@ -179,4 +162,23 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		return element instanceof Wrapper;
 	}
 
+	@SuppressWarnings("unchecked")
+	private List<Wrapper<? extends INode>> handleProcessParagraphDefinition(
+			AProcessParagraphDefinition ppdef) {
+		PProcess pp = ppdef.getProcessDefinition().getProcess();
+		if (ProcessMap.getDelegate(pp.getClass()) != null)
+			return ProcessMap.getDelegate(pp.getClass()).makeEntries(pp);
+		return new LinkedList<Wrapper<? extends INode>>();
+	}
+
+	private List<Wrapper<AChannelNameDefinition>> handleChannelParagraphDefinition(
+			AChannelParagraphDefinition cpdef) {
+		List<Wrapper<AChannelNameDefinition>> r = new LinkedList<Wrapper<AChannelNameDefinition>>();
+		for (AChannelNameDefinition dec : cpdef.getChannelNameDeclarations()) {
+			r.add(Wrapper.newInstance(dec, dec.getSingleType().getIdentifiers()
+					.toString()
+					+ ": " + dec.getSingleType().getType()));
+		}
+		return r;
+	}
 }

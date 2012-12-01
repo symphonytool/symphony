@@ -24,14 +24,27 @@
     	  </category>
   </extension>
 
+  <!-- Console View -->
   <extension point="org.eclipse.ui.views">
     <view 
-        id="eu.compassresearch.ide.cml.rttplugin.RTTesterView"
-        name="RT Tester View"
+        id="eu.compassresearch.ide.cml.rttplugin.RttMbtConsoleView"
+        name="RTT-MBT Console"
         category="compass_eu.compassresearch.ide.cml.ui.category"
-        icon="icons/cview16/cml_file_tsk.png"
-        class="eu.compassresearch.ide.cml.rttplugin.RTTesterView" />
-        
+        icon="icons/rtt-mbt-small.png"
+        class="eu.compassresearch.ide.cml.rttplugin.RttMbtConsoleView" />
+        <category
+        	id="compass_eu.compassresearch.ide.cml.ui.category"
+        	name="COMPASS"/>
+  </extension>
+
+  <!-- progress View -->
+  <extension point="org.eclipse.ui.views">
+    <view 
+        id="eu.compassresearch.ide.cml.rttplugin.RttMbtProgressView"
+        name="RTT-MBT Progress"
+        category="compass_eu.compassresearch.ide.cml.ui.category"
+        icon="icons/rtt-mbt-small.png"
+        class="eu.compassresearch.ide.cml.rttplugin.RttMbtProgressView" />
         <category
         	id="compass_eu.compassresearch.ide.cml.ui.category"
         	name="COMPASS"/>
@@ -60,16 +73,16 @@
   <!-- Generate Test Procedure -->
   <extension point="org.eclipse.ui.commands">
     <command
-      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateTestProcedure"
-      id="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateTestProcedure"
-      name="Initialise RTT-MBT component"
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateTest"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateTest"
+      name="Generate Test Procedure"
     />
   </extension>
   <extension point="org.eclipse.ui.menus">
     <menuContribution
       locationURI="popup:org.overture.ide.ui.VdmExplorer">
       <command
-        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateTestProcedure"
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateTest"
         label="Generate Test Procedure"
         tooltip="Generate concrete test procedure from abstract test procedure configuration"
         icon="icons/mbt_generate.png"
@@ -77,12 +90,12 @@
     </menuContribution>
   </extension>
 
-  <!-- Import Model -->
+  <!-- Generate Simulation -->
   <extension point="org.eclipse.ui.commands">
     <command
       defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateSimulation"
       id="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateSimulation"
-      name="Initialise RTT-MBT component"
+      name="Generate Simulation"
     />
   </extension>
   <extension point="org.eclipse.ui.menus">
@@ -93,6 +106,86 @@
         label="Generate Simulation"
         tooltip="Generate simulations from abstract test procedure configuration"
         icon="icons/mbt_check.png"
+      />
+    </menuContribution>
+  </extension>
+
+  <!-- Clean -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanRttTestProcedure"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanRttTestProcedure"
+      name="Clean Test"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanRttTestProcedure"
+        label="Clean Test"
+        tooltip="Cleanup concrete test procedure"
+        icon="icons/clean.png"
+      />
+    </menuContribution>
+  </extension>
+
+  <!-- Compile -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtCompileRttTestProcedure"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtCompileRttTestProcedure"
+      name="Compile Test"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCompileRttTestProcedure"
+        label="Compile Test"
+        tooltip="Compile concrete test procedure"
+        icon="icons/compile.png"
+      />
+    </menuContribution>
+  </extension>
+
+  <!-- Run -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtRunRttTestProcedure"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtRunRttTestProcedure"
+      name="Run Test"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtRunRttTestProcedure"
+        label="Run Test"
+        tooltip="Run concrete test procedure"
+        icon="icons/run.png"
+      />
+    </menuContribution>
+  </extension>
+
+  <!-- Doc -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtDocRttTestProcedure"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtDocRttTestProcedure"
+      name="Doc Test"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtDocRttTestProcedure"
+        label="Doc Test"
+        tooltip="Generate test procedure documentation"
+        icon="icons/documentate.png"
       />
     </menuContribution>
   </extension>

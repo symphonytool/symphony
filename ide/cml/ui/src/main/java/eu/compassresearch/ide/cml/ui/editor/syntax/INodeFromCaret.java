@@ -3,12 +3,13 @@ package eu.compassresearch.ide.cml.ui.editor.syntax;
 import java.lang.reflect.Method;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.DepthFirstAnalysisAdaptor;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
 
-public class INodeFromCaret extends AnalysisCMLAdaptor {
+public class INodeFromCaret extends DepthFirstAnalysisAdaptor {
 
     /**
      * 
@@ -51,11 +52,12 @@ public class INodeFromCaret extends AnalysisCMLAdaptor {
 	return null;
     }
 
-    @Override
-    public void defaultINode(INode node) throws AnalysisException {
+    
+    
+    public void defaultInINode(INode node) throws AnalysisException {
 
 	try {
-	    super.defaultINode(node);
+	    super.defaultInINode(node);
 	    LexLocation nodeLoc = getLocationFromObject(node);
 	    if (bestCandidateLocation == null){
 		bestCandidate = node;

@@ -13,6 +13,7 @@ import org.overture.ast.types.ANatOneNumericBasicType;
 import org.overture.ast.types.AOptionalType;
 import org.overture.ast.types.ARationalNumericBasicType;
 import org.overture.ast.types.ARealNumericBasicType;
+import org.overture.ast.types.ASetType;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
@@ -69,6 +70,7 @@ class SimpleTypeComparator implements TypeComparator {
 		return res;
 	}
 
+	@SuppressWarnings("unused")
 	private Environment<PType> typeEnvironment;
 
 	// only created through factory method
@@ -202,6 +204,15 @@ class SimpleTypeComparator implements TypeComparator {
 				return isSubType(innerToType, innerFromType);
 			}
 			return false;
+		}
+
+		// sub type set
+		if (pair.from instanceof ASetType) {
+			if (pair.to instanceof ASetType) {
+				PType innerFromType = ((ASetType) pair.from).getSetof();
+				PType innerToType = ((ASetType) pair.to).getSetof();
+				return isSubType(innerToType, innerFromType);
+			}
 		}
 
 		return fixedTypes;

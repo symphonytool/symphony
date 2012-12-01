@@ -56,8 +56,9 @@ public final class VanillaFactory {
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlDefinitionAndDeclarationVisitor(
 			CmlTypeChecker parentChecker, TypeComparator compareTypes,
 			TypeIssueHandler issueHandler) {
-		TCDeclAndDefVisitor v = new TCDeclAndDefVisitor(parentChecker,
-				compareTypes, issueHandler);
+		TCDeclAndDefVisitor v = new TCDeclAndDefVisitor(
+				(VanillaCmlTypeChecker) parentChecker, compareTypes,
+				issueHandler);
 		return v;
 	}
 
@@ -73,9 +74,10 @@ public final class VanillaFactory {
 	 *            TypeIssueHandler.
 	 */
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmStatementVisitor(
-			CmlTypeChecker parentChecker, TypeIssueHandler issueHandler) {
-		TCStatementVisitor v = new TCStatementVisitor(parentChecker,
-				issueHandler);
+			CmlTypeChecker parentChecker, TypeIssueHandler issueHandler,
+			TypeComparator typeComparator) {
+		TCActionVisitor v = new TCActionVisitor(parentChecker, issueHandler,
+				typeComparator);
 		return v;
 	}
 
@@ -92,8 +94,8 @@ public final class VanillaFactory {
 	 */
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlTypeVisitor(
 			CmlTypeChecker parentChecker, TypeIssueHandler issueHandler) {
-		TCTypeVisitor exprVisitor = new TCTypeVisitor(parentChecker,
-				issueHandler);
+		TCTypeVisitor exprVisitor = new TCTypeVisitor(
+				(VanillaCmlTypeChecker) parentChecker, issueHandler);
 		return exprVisitor;
 	}
 
@@ -111,7 +113,7 @@ public final class VanillaFactory {
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlExpressionVisitor(
 			CmlTypeChecker parentChecker, TypeIssueHandler issueHandler) {
 		TCExpressionVisitor exprVisitor = new TCExpressionVisitor(
-				parentChecker, issueHandler);
+				(VanillaCmlTypeChecker) parentChecker, issueHandler);
 		return exprVisitor;
 	}
 
@@ -126,7 +128,7 @@ public final class VanillaFactory {
 	 */
 	public static TypeCheckQuestion newTopLevelTypeCheckQuestion(
 			TypeIssueHandler issueHandler) {
-		return TypeCheckInfo.getNewTopLevelInstance(issueHandler);
+		return TypeCheckInfo.getNewTopLevelInstance(issueHandler, null);
 	}
 
 	/**

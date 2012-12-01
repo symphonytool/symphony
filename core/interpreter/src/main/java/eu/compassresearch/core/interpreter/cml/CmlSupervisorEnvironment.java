@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter.cml;
 
-import java.util.Iterator;
+import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 
@@ -24,7 +24,10 @@ public interface CmlSupervisorEnvironment {
 	// Pupil Processes related methods
 	public void addPupil(CmlProcess process);
 	public void removePupil(CmlProcess process);
-	//public Iterator pupils();
+	public void clearPupils();
+	public List<CmlProcess> getPupils();
+	public CmlProcess findNamedProcess(String name);
+	
 	// Supervision related methods
 	public void start() throws AnalysisException;
 	/**
@@ -47,11 +50,11 @@ public interface CmlSupervisorEnvironment {
 	//public CMLSupervisionSignal inspect(CMLProcessNew process);
 	//public CMLProcessNew notifyBacktrack(CMLProcessNew process);
 	//public void notifyProcessExecutionFinished(CMLProcessNew process, CMLBehaviourSignal executionSignal);
-	//public void notifyJDASCOConcurrentExecutionFinished(CMLProcessNew process, CSPBehaviourSignal
-	//executionSignal, ExecutionStatus xStatus);
+	
 	// Debugging related methods
 	//public void dump() throws IOException;//to STDOUT!
 	//public void dumpTo(Writer w) throws IOException;
+	
 	// Layer integration methods
 	//public Iterator supervisionHistory(CMLProcessNew process);
 	//public CSPSupervisionFrame supervisionFrame(CMLProcessNew process);
