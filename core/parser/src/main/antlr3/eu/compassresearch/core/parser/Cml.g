@@ -10,7 +10,7 @@
  * that is assembled.
  * ... We still have an inherent conflict between opcalls and fncalls,
  *   as syntactically there's no difference in the basic cases.  Both
- *   are essentially ID '('expr*')'.  I've added lhs '<-' call as a
+ *   are essentially ID '('expr*')'.  I've added "lhs '<-' call" as a
  *   rule alternative.
  *
  * expression/statement precedence has still to be resolved
@@ -21,12 +21,21 @@ grammar Cml;
 options {
     language=Java;
     output=AST;
+    TokenLabelType=CommonToken;
 }
 /* This is necessary for the lexer to disambiguate QUOTELITERALS and a
  * '<' followed by an IDENTIFIER that is not followed by a '>'.
  */
 tokens {
     LESSTHAN = '<';
+}
+
+@lexer::header {
+package eu.compassresearch.core.parser;
+}
+@parser::header {
+package eu.compassresearch.core.parser;
+import org.overture.ast.lex.*;
 }
 
 @members {
@@ -46,6 +55,22 @@ public String getErrorMessage(RecognitionException e, String[] tokenNames) {
 }
 public String getTokenErrorDisplay(Token t) {
     return t.toString();
+}
+
+private LexLocation extractLexLocation(CommonToken token) {
+    String text = token.getText();
+    int len = text.length();
+    int line = token.getLine();
+    int pos = token.getCharPositionInLine();
+    int offset = token.getStartIndex();
+    return new LexLocation("",// FIXME: filename --- was currentSource.toString(),
+                           "",// FIXME: module name
+                           line, //start line
+                           pos, //start column
+                           line, //end line (FIXME?)
+                           pos+len, //end column
+                           offset, //absolute start offset
+                           offset+len); //absolute end offset
 }
 }
 
@@ -453,6 +478,9 @@ symbolicLiteral
 
 numLiteral
     : DECIMAL
+        // {
+        //     return new LexIntegerToken(Long.decode($DECIMAL.getText()), extractLexLocation($DECIMAL));
+        // }
     | HEXLITERAL
     ;
 
