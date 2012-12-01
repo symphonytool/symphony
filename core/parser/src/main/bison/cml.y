@@ -1716,12 +1716,14 @@ channelNameDecl :
    */
   ATypeSingleDeclaration singleTypeDeclaration = (ATypeSingleDeclaration)$decl;
   AChannelNameDefinition channelNameDecl =
-    new AChannelNameDefinition(singleTypeDeclaration.getLocation(),
+   new AChannelNameDefinition(singleTypeDeclaration.getLocation(),
                                NameScope.GLOBAL,
                                false,
                                null,
                                null,
                                singleTypeDeclaration);
+   LexNameToken name = new LexNameToken("",singleTypeDeclaration.getIdentifiers().get(0));
+   channelNameDecl.setName(name);
   $$ = channelNameDecl;
 };
 
