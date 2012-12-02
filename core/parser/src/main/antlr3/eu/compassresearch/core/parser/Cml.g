@@ -22,6 +22,7 @@ options {
     language=Java;
     output=AST;
     TokenLabelType=CommonToken;
+//    ASTLabelType=CmlTree;
 }
 /* This is necessary for the lexer to disambiguate QUOTELITERALS and a
  * '<' followed by an IDENTIFIER that is not followed by a '>'.
