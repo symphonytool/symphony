@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,6 +22,9 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.typechecker.VanillaFactory;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 public class CmlInterpreterRunner {
 
@@ -33,6 +40,31 @@ public class CmlInterpreterRunner {
 		cmlInterpreter.execute();
 	}
 	
+	public void debug() throws AnalysisException
+	{
+		
+		try {
+			Socket socket = new Socket("localhost",CmlDebugDefaultValues.REQUEST_PORT);
+			//PrintStream ps = new PrintStream(socket.getOutputStream());
+			//ps.p
+			PrintWriter writer = new PrintWriter(socket.getOutputStream());
+			writer.println("started");
+			writer.flush();
+			Thread.sleep(9000);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		finally{
+			
+		}
+		
+		//cmlInterpreter.execute();
+	}
 	
 	/**
 	 * @param args
@@ -41,7 +73,7 @@ public class CmlInterpreterRunner {
 	 * @throws AnalysisException 
 	 */
 	public static void main(String[] args) throws IOException, InterpreterException, AnalysisException {
-
+		System.out.println(args);
 		//Index 0 of args is the JSON config
 		Object obj=JSONValue.parse(args[0]);
 		JSONObject config =(JSONObject)obj;
@@ -68,14 +100,26 @@ public class CmlInterpreterRunner {
 			} else
 				sourceForest.add(currentTree);
 		}
+
+		//create the typechecker and typecheck the source forest
+		TypeIssueHandler ih = VanillaFactory.newCollectingIssueHandle();
+		CmlTypeChecker tc = VanillaFactory.newTypeChecker(sourceForest, ih);
 		
-		CmlInterpreterRunner runner = new CmlInterpreterRunner(sourceForest);
-		
-		runner.run();
-		
-		
-		System.out.println(sourceForest);
-	
+		if(tc.typeCheck())
+		{
+			String mode = (String)config.get("mode");
+			CmlInterpreterRunner runner = new CmlInterpreterRunner(sourceForest);
+			if(mode.equals("run"))
+				runner.run();
+			else if(mode.equals("debug"))
+				runner.debug();
+			else if(mode.equals("animate"))
+				runner.debug();
+		}
+		else
+		{
+			System.out.println(ih.getTypeErrors());
+		}
 	}
 	
 	/**

@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import org.overture.typechecker.Environment;
 
+import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 
 
@@ -65,12 +66,21 @@ public class CmlRuntime {
 
 	}
 	
-	public static CmlSupervisorEnvironment createSupervisorEnvironment()
+//	public static CmlSupervisorEnvironment createSupervisorEnvironment()
+//	{
+//		//if(null == supervisorEnvironment)
+//			//supervisorEnvironment = new DefaultSupervisorEnvironment(new RandomSelectionStrategy());
+//		
+//		return new DefaultSupervisorEnvironment(new RandomSelectionStrategy());
+//		
+//	}
+	
+	public static CmlSupervisorEnvironment createSupervisorEnvironment(CmlCommunicationSelectionStrategy cmlCommunicationSelectionStrategy)
 	{
 		//if(null == supervisorEnvironment)
 			//supervisorEnvironment = new DefaultSupervisorEnvironment(new RandomSelectionStrategy());
 		
-		return new DefaultSupervisorEnvironment(new RandomSelectionStrategy());
+		return new DefaultSupervisorEnvironment(cmlCommunicationSelectionStrategy);
 		
 	}
 

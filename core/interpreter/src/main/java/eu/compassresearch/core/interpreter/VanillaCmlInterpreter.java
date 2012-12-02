@@ -27,6 +27,7 @@ import eu.compassresearch.core.interpreter.runtime.AbstractCmlInterpreter;
 import eu.compassresearch.core.interpreter.runtime.CmlProcessInstance;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.runtime.EnvironmentBuilder;
+import eu.compassresearch.core.interpreter.runtime.RandomSelectionStrategy;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -125,7 +126,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
         CmlRuntime.setGlobalEnvironment(env);
         //    this.evalutor, getInitialContext(topProcess.getLocation()));
         
-        currentSupervisor = CmlRuntime.createSupervisorEnvironment();
+        currentSupervisor = CmlRuntime.createSupervisorEnvironment(new RandomSelectionStrategy());
         
         //Clear for pupils
         for(CmlProcess p : currentSupervisor.getPupils())

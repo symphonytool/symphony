@@ -42,6 +42,7 @@
 			type="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationType">
 			<launchMode 
                   mode="debug"
+                  perspective="org.eclipse.debug.ui.DebugPerspective"
                   description="Debug Cml Model">
             </launchMode>
             <launchMode
