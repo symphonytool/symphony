@@ -1,10 +1,13 @@
 package eu.compassresearch.ide.cml.interpreter_plugin;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -14,6 +17,8 @@ import java.util.List;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.overture.ast.analysis.AnalysisException;
+
+import com.google.gson.Gson;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
@@ -29,10 +34,48 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 public class CmlInterpreterRunner {
 
 	private CmlInterpreter cmlInterpreter;
+	private Socket requestSocket;
+	private OutputStream requestOS;
+	private InputStream requestIS;
+	private BufferedReader requestReader;
+	private boolean connected = false;
 	
 	public CmlInterpreterRunner(List<PSource> cmlSources) throws InterpreterException
 	{
 		cmlInterpreter = VanillaInterpreterFactory.newInterpreter(cmlSources);
+	}
+	
+	private void connect() throws UnknownHostException, IOException
+	{
+		if(!isConnected())
+		{
+			requestSocket = new Socket("localhost",CmlDebugDefaultValues.REQUEST_PORT);
+			requestOS = requestSocket.getOutputStream();
+			requestIS = requestSocket.getInputStream();
+			requestReader = new BufferedReader(new InputStreamReader(requestIS));
+			connected = true;
+		}
+	}
+	
+	private void init()
+	{
+		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(CmlDbgpStatus.STARTING);
+		sendMessage(dm);
+	}
+	
+	private void sendMessage(CmlDbgStatusMessage dm)
+	{
+		CmlMessageCommunicator.sendMessage(requestOS, dm);
+	}
+
+	private CmlMessageContainer recvMessage() throws IOException
+	{
+		return CmlMessageCommunicator.receiveMessage(requestReader);
+	}
+	
+	private boolean isConnected()
+	{
+		return connected;
 	}
 	
 	public void run() throws AnalysisException
@@ -44,19 +87,13 @@ public class CmlInterpreterRunner {
 	{
 		
 		try {
-			Socket socket = new Socket("localhost",CmlDebugDefaultValues.REQUEST_PORT);
-			//PrintStream ps = new PrintStream(socket.getOutputStream());
-			//ps.p
-			PrintWriter writer = new PrintWriter(socket.getOutputStream());
-			writer.println("started");
-			writer.flush();
-			Thread.sleep(9000);
+			connect();
+			init();
+			debugLoop();
+			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		finally{
@@ -65,6 +102,53 @@ public class CmlInterpreterRunner {
 		
 		//cmlInterpreter.execute();
 	}
+	
+	/**
+	 * This handles the communication with the eclipse debugger UI
+	 * @throws IOException
+	 */
+	protected void debugLoop() throws IOException
+	{
+		CmlMessageContainer messageContainer = null;
+
+		do
+		{
+			messageContainer = recvMessage();
+			System.out.println(messageContainer);
+		}
+		while (processMessage(messageContainer));
+		
+		//if(message.getStatus() != CmlDbgpStatus.CONNECTION_CLOSED)
+		//	sendMessage(new CmlDebugStatusMessage(CmlDbgpStatus.STOPPED));
+	}
+	
+	private boolean processStatusMessage(CmlDbgStatusMessage message)
+	{
+		
+		switch(message.getStatus())
+		{
+		case CONNECTION_CLOSED:
+			return false;
+		default:
+			return true;
+		}
+		
+	}
+	
+	private boolean processMessage(CmlMessageContainer messageContainer)
+	{
+		switch(messageContainer.getType())
+		{
+		case STATUS:
+			return processStatusMessage(messageContainer.<CmlDbgStatusMessage>getMessage(CmlDbgStatusMessage.class));
+		default:
+			break;
+		}
+		
+		
+		return false;
+	}
+	
 	
 	/**
 	 * @param args
