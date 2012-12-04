@@ -56,6 +56,8 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 			JSONObject obj = serializeLaunchConfigurationToJSON(configuration);
 			obj.put("mode", mode);
 			
+			String mainJavaClass = "eu.compassresearch.ide.cml.interpreter_plugin.CmlInterpreterRunner";
+			
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
 			{
 				
@@ -74,7 +76,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 						"/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/target/*:" +
 						"/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/lib/*:" +
 						"/home/akm/sandbox/overture_cml/ide/cml/core/lib/*",
-						"eu.compassresearch.ide.cml.interpreter_plugin.CmlInterpreterRunner",
+						mainJavaClass,
 						JSONValue.toJSONString(obj)
 				};
 				File dir = new File("/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/target/");
@@ -83,7 +85,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 				Process process = Runtime.getRuntime().exec(commandArray, null, dir);
 
 				CmlDebugTarget target = new CmlDebugTarget(launch,DebugPlugin.newProcess(launch, process, "CML Debugger"),
-						CmlDebugDefaultValues.REQUEST_PORT,CmlDebugDefaultValues.EVENT_PORT);
+						CmlDebugDefaultValues.PORT);
 				//				target.setVdmProject(vdmProject);
 				launch.addDebugTarget(target);
 				
@@ -98,7 +100,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 				IVMRunner runner = vm.getVMRunner(mode);
 				// Create VM config
 				//TODO: this should be added from the config with absolut paths
-				VMRunnerConfiguration runConfig = new VMRunnerConfiguration("eu.compassresearch.ide.cml.interpreter_plugin.CmlInterpreterRunner", 
+				VMRunnerConfiguration runConfig = new VMRunnerConfiguration(mainJavaClass, 
 												new String[]{"/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/target/*",
 															"/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/lib/*",
 															"/home/akm/sandbox/overture_cml/ide/cml/core/lib/*"});

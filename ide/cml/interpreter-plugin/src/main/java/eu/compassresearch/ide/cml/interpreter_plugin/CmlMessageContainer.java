@@ -7,18 +7,15 @@ public class CmlMessageContainer {
 	private CmlMessageType type;
 	private String version = "0.0.1";
 	private String message;
-	private transient Gson gson;
 	
 	public CmlMessageContainer()
 	{
-		gson = new Gson();
 		this.setType(null);
 		message = null;
 	}
 	
 	public CmlMessageContainer(CmlMessage message)
 	{
-		gson = new Gson();
 		this.setType(type);
 		this.setMessage(message);
 	}
@@ -37,11 +34,13 @@ public class CmlMessageContainer {
 	
 	public <T> T getMessage(Class<T> classType)
 	{
+		Gson gson = new Gson();
 		return gson.fromJson(message,classType);
 	}
 
 	protected void setMessage(CmlMessage message) {
 		setType(message.getType());
+		Gson gson = new Gson();
 		this.message =  gson.toJson(message);
 	}
 	

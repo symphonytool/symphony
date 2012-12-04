@@ -123,8 +123,7 @@ public class CmlThread extends CmlDebugElement implements IThread {
 
 	@Override
 	public String getName() throws DebugException {
-		// TODO Auto-generated method stub
-		return null;
+		return "CML Main Thread";
 	}
 
 	@Override

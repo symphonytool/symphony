@@ -20,6 +20,7 @@ import org.overture.parser.syntax.ParserException;
 import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 /**
  * The CML interpreter interface.
  */
@@ -108,7 +109,17 @@ public interface CmlInterpreter
 	 * @throws Exception Parser, type checking or runtime errors.
 	 */
 
-	public Value execute() throws AnalysisException;
+	public Value execute() throws InterpreterException;
+	
+	
+	/**
+	 * Executes the defined default process from the given sourceForest  
+	 * 
+	 * @return The value of the expression.
+	 * @throws Exception Parser, type checking or runtime errors.
+	 */
+
+	public Value execute(CmlCommunicationSelectionStrategy selectionStrategy) throws InterpreterException;
 
 	/**
 	 * Parse the line passed, and evaluate it as an expression in the context

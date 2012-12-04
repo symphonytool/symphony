@@ -8,28 +8,34 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.overture.ast.analysis.AnalysisException;
-
-import com.google.gson.Gson;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
+import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
+import eu.compassresearch.core.interpreter.runtime.RandomSelectionStrategy;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+
+
 
 public class CmlInterpreterRunner {
 
@@ -40,37 +46,54 @@ public class CmlInterpreterRunner {
 	private BufferedReader requestReader;
 	private boolean connected = false;
 	
+	//private BlockingQueue<CmlResponseMessage> responseQueue = new LinkedBlockingQueue<CmlResponseMessage>();
+	private SynchronousQueue<CmlDialogMessage> responseSync = new SynchronousQueue<CmlDialogMessage>();
+	//private CmlRequestMessage pendingRequest = null;
+	
+	private CommandDispatcher commandDispatcher;
+	
+	
+	class CommandDispatcher implements Runnable
+	{
+		private boolean stopped = false;
+		private Thread thread = null;
+
+		public void stop()
+		{
+			stopped = true;
+			try {
+				requestSocket.shutdownInput();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		@Override
+		public void run() {
+			thread = Thread.currentThread();
+			//thread.setDaemon(true);
+			CmlMessageContainer messageContainer = null;
+			try{
+
+				do
+				{
+					messageContainer = recvMessage();
+					System.out.println(messageContainer);
+				}
+				while (!stopped && processMessage(messageContainer));
+			
+			}catch(IOException e)
+			{
+				stopped();
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
 	public CmlInterpreterRunner(List<PSource> cmlSources) throws InterpreterException
 	{
 		cmlInterpreter = VanillaInterpreterFactory.newInterpreter(cmlSources);
-	}
-	
-	private void connect() throws UnknownHostException, IOException
-	{
-		if(!isConnected())
-		{
-			requestSocket = new Socket("localhost",CmlDebugDefaultValues.REQUEST_PORT);
-			requestOS = requestSocket.getOutputStream();
-			requestIS = requestSocket.getInputStream();
-			requestReader = new BufferedReader(new InputStreamReader(requestIS));
-			connected = true;
-		}
-	}
-	
-	private void init()
-	{
-		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(CmlDbgpStatus.STARTING);
-		sendMessage(dm);
-	}
-	
-	private void sendMessage(CmlDbgStatusMessage dm)
-	{
-		CmlMessageCommunicator.sendMessage(requestOS, dm);
-	}
-
-	private CmlMessageContainer recvMessage() throws IOException
-	{
-		return CmlMessageCommunicator.receiveMessage(requestReader);
 	}
 	
 	private boolean isConnected()
@@ -78,18 +101,19 @@ public class CmlInterpreterRunner {
 		return connected;
 	}
 	
-	public void run() throws AnalysisException
+	public void run() throws InterpreterException
 	{
 		cmlInterpreter.execute();
 	}
 	
-	public void debug() throws AnalysisException
+	public void debug() throws InterpreterException
 	{
 		
 		try {
 			connect();
 			init();
 			debugLoop();
+			stopped();
 			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -104,27 +128,126 @@ public class CmlInterpreterRunner {
 	}
 	
 	/**
+	 * Private methods
+	 */
+	
+	/**
+	 * Connects to the request tcp connection on "localhost" (for now) 
+	 * where the eclipse UI should listening.
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 */
+	private void connect() throws UnknownHostException, IOException
+	{
+		if(!isConnected())
+		{
+			requestSocket = new Socket("localhost",CmlDebugDefaultValues.PORT);
+			requestOS = requestSocket.getOutputStream();
+			requestIS = requestSocket.getInputStream();
+			requestReader = new BufferedReader(new InputStreamReader(requestIS));
+			connected = true;
+		}
+	}
+	
+	/**
+	 * State change methods
+	 */
+	
+	/**
+	 * Sends the initialisation message to the eclipse debug target
+	 */
+	private void init()
+	{
+		sendStatusMessage(CmlDbgpStatus.STARTING);
+		commandDispatcher = new CommandDispatcher();
+		new Thread(commandDispatcher, "CMLInterpreterRunner event dipsatcher").start();
+	}
+	
+	private void stopped()
+	{
+		sendStatusMessage(CmlDbgpStatus.STOPPED);
+		commandDispatcher.stop();
+	}
+
+	/**
+	 * Message communication methods
+	 */
+	
+	/**
+	 * This message sends a status message to the eclipse debug target UI
+	 * @param status The status to send
+	 */
+	private void sendStatusMessage(CmlDbgpStatus status)
+	{
+		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(status);
+		System.out.println(dm);
+		CmlMessageCommunicator.sendMessage(requestOS, dm);
+	}
+	
+	private CmlDialogMessage sendRequestSynchronous(CmlDialogMessage message)
+	{
+		CmlMessageCommunicator.sendMessage(requestOS, message);
+		CmlDialogMessage responseMessage = null;
+		try {
+			responseMessage = responseSync.take();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		return responseMessage;
+	}
+
+	/**
+	 * Receives a CML message. This is a blocking call
+	 * @return The received message
+	 * @throws IOException
+	 */
+	private CmlMessageContainer recvMessage() throws IOException
+	{
+		return CmlMessageCommunicator.receiveMessage(requestReader);
+	}
+	
+	/**
 	 * This handles the communication with the eclipse debugger UI
 	 * @throws IOException
 	 */
-	protected void debugLoop() throws IOException
+	protected void debugLoop() throws IOException, InterpreterException
 	{
-		CmlMessageContainer messageContainer = null;
+//		CmlMessageContainer messageContainer = null;
 
-		do
-		{
-			messageContainer = recvMessage();
-			System.out.println(messageContainer);
-		}
-		while (processMessage(messageContainer));
+//		do
+//		{
+			sendStatusMessage(CmlDbgpStatus.RUNNING);
+			cmlInterpreter.execute(new CmlCommunicationSelectionStrategy() {
+				
+				@Override
+				public CmlCommunicationEvent select(CmlAlphabet availableChannelEvents) {
+					
+					//convert to list of strings for now
+					List<String> events = new LinkedList<String>();
+					for(CmlCommunicationEvent comEvent : availableChannelEvents.getCommunicationEvents())
+					{
+						events.add(comEvent.getChannel().getName());
+					}
+					
+					CmlDialogMessage response = sendRequestSynchronous(new CmlDialogMessage(CmlRequest.CHOICE,events));
+					System.out.println(response);
+					return new RandomSelectionStrategy().select(availableChannelEvents);
+				}
+			});
+			
+//			messageContainer = recvMessage();
+//			System.out.println(messageContainer);
+//		}
+//		while (processMessage(messageContainer));
 		
 		//if(message.getStatus() != CmlDbgpStatus.CONNECTION_CLOSED)
 		//	sendMessage(new CmlDebugStatusMessage(CmlDbgpStatus.STOPPED));
+		
 	}
 	
 	private boolean processStatusMessage(CmlDbgStatusMessage message)
 	{
-		
 		switch(message.getStatus())
 		{
 		case CONNECTION_CLOSED:
@@ -132,8 +255,31 @@ public class CmlInterpreterRunner {
 		default:
 			return true;
 		}
-		
 	}
+	
+	private boolean processCommand(CmlDbgCommandMessage message)
+	{
+		switch(message.getCommand())
+		{
+		case STOP:
+			sendStatusMessage(CmlDbgpStatus.STOPPING);
+			return false;
+		default:
+			return true;
+		}
+	}
+	
+	/**
+	 * Handles the response messages sent
+	 * @param message
+	 * @return
+	 */
+	private boolean processResponse(CmlDialogMessage message)
+	{
+		responseSync.offer(message);
+		return true;
+	}
+		
 	
 	private boolean processMessage(CmlMessageContainer messageContainer)
 	{
@@ -141,10 +287,12 @@ public class CmlInterpreterRunner {
 		{
 		case STATUS:
 			return processStatusMessage(messageContainer.<CmlDbgStatusMessage>getMessage(CmlDbgStatusMessage.class));
+		case COMMAND:
+			return processCommand(messageContainer.<CmlDbgCommandMessage>getMessage(CmlDbgCommandMessage.class));
+		case RESPONSE:
+			return processResponse(messageContainer.<CmlDialogMessage>getMessage(CmlDialogMessage.class));
 		default:
-			break;
 		}
-		
 		
 		return false;
 	}

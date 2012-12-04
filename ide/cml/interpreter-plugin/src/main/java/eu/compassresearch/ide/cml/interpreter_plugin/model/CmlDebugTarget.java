@@ -3,9 +3,11 @@ package eu.compassresearch.ide.cml.interpreter_plugin.model;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.CoreException;
@@ -22,13 +24,16 @@ import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
 
-import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlDbgpStatus;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlDbgCommandMessage;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlDbgStatusMessage;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugCommand;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlDialogMessage;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlMessage;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlMessageCommunicator;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlMessageContainer;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlMessageType;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlRequest;
 
 public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
@@ -41,7 +46,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 	
 	// sockets to communicate with VM
 	private Socket fRequestSocket;
-	private PrintWriter fRequestWriter;
+	private OutputStream requestOutputStream;
 	private BufferedReader fRequestReader;
 	private Socket fEventSocket;
 	private BufferedReader fEventReader;
@@ -51,7 +56,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		private EventDispatchJob fEventDispatch;
 		
 		/**
-		 * Listens to events from the PDA VM and fires corresponding 
+		 * Listens to events from the CML VM and fires corresponding 
 		 * debug events.
 		 */
 		class EventDispatchJob extends Job {
@@ -78,14 +83,38 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 				case STARTING:
 					started();
 					break;
+				case RUNNING:
+					break;
+				case STOPPING:
+					stopping();
+					break;
 				case STOPPED:
 					terminated();
+					result = false;
 					break;
+					
 				default:
 					result = false;
 				}
 				
 				return result;
+			}
+			
+			private boolean processRequest(CmlDialogMessage message)
+			{
+				switch(message.getRequest())
+				{
+				case CHOICE:
+					Type listType = new TypeToken<List<String>>(){}.getType();
+					List<String> events = message.<List<String>>getValue(listType);
+					
+					sendMessage(new CmlDialogMessage(message.getRequestId(),CmlRequest.CHOICE,events.get(0)));
+					break;
+				}
+				
+				
+				
+				return true;
 			}
 			
 			private boolean processMessage(CmlMessageContainer messageContainer)
@@ -94,6 +123,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 				{
 				case STATUS:
 					return processStatusMessage(messageContainer.<CmlDbgStatusMessage>getMessage(CmlDbgStatusMessage.class));
+				case REQUEST:
+					return processRequest(messageContainer.<CmlDialogMessage>getMessage(CmlDialogMessage.class));
 				default:
 					break;
 				}
@@ -126,16 +157,22 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			
 		}
 	
-	public CmlDebugTarget(ILaunch launch, IProcess process,int requestPort,int eventPort) throws CoreException
+	public CmlDebugTarget(ILaunch launch, IProcess process,int communicationPort) throws CoreException
 	{
 		super(null);
 		this.launch = launch;
 		this.process = process;
 		cmlDebugTarget = this;
 		
+		initialize(communicationPort);
+		
+	}
+	
+	private void initialize(int communicationPort) throws CoreException
+	{
 		try {
 			
-			waitForConnect(requestPort); 
+			waitForConnect(communicationPort); 
 			cmlThread = new CmlThread(this);
 			threads = new IThread[] {cmlThread};
 			fEventDispatch = new EventDispatchJob();
@@ -146,7 +183,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		} catch (IOException e) {
 			abort("Unable to connect to CML VM", e);
 		}
-		
 	}
 	
 	private void waitForConnect(int requestPort) throws IOException
@@ -158,7 +194,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			requestAcceptor.setSoTimeout(5000);
 			fRequestSocket = requestAcceptor.accept();
 			//fRequestSocket = new Socket("localhost", requestPort);
-			fRequestWriter = new PrintWriter(fRequestSocket.getOutputStream());
+			requestOutputStream = fRequestSocket.getOutputStream();
 			fRequestReader = new BufferedReader(new InputStreamReader(fRequestSocket.getInputStream()));
 			//fEventSocket = new Socket("localhost", eventPort);
 			//fEventReader = new BufferedReader(new InputStreamReader(fEventSocket.getInputStream()));
@@ -194,13 +230,11 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 	public void terminate() throws DebugException {
 		
 		synchronized (fRequestSocket) {
-		//	send
+			sendCommandMessage(CmlDebugCommand.STOP);
 		}	
 		
 	}
-	
-	//private sendMessage()
-
+		
 	@Override
 	public boolean canResume() {
 		// TODO Auto-generated method stub
@@ -251,20 +285,19 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
 	@Override
 	public boolean canDisconnect() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public void disconnect() throws DebugException {
 		// TODO Auto-generated method stub
 
+		sendCommandMessage(CmlDebugCommand.DISCONNECT);
 	}
 
 	@Override
 	public boolean isDisconnected() {
-		// TODO Auto-generated method stub
-		return false;
+		return fRequestSocket.isClosed();
 	}
 
 	@Override
@@ -297,7 +330,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
 	@Override
 	public String getName() throws DebugException {
-		return null;
+		return "CML Debug Target";
 	}
 
 	@Override
@@ -305,6 +338,25 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	/**
+	 * Private methods
+	 */
+	/**
+	 * Sends a command to the running interpreter
+	 * @param cmd
+	 */
+	private void sendCommandMessage(CmlDebugCommand cmd)
+	{
+		CmlDbgCommandMessage message = new CmlDbgCommandMessage(cmd);
+		CmlMessageCommunicator.sendMessage(requestOutputStream, message);
+	}
+	
+	private void sendMessage(CmlMessage message)
+	{
+		CmlMessageCommunicator.sendMessage(requestOutputStream, message);
+	}
+	
 	
 	/**
 	 * Notification we have connected to the VM and it has started.
@@ -319,7 +371,27 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		}
 	}
 	
-
+	/**
+	 * Called when interpreter is about to stop
+	 */
+	private void stopping() {
+	
+		
+	}
+	
+	private void connectionClosed()
+	{
+		try
+		{
+			this.fEventSocket.close();
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			
+		}
+	}
+	
 	/**
 	 * Called when this debug target terminates.
 	 */

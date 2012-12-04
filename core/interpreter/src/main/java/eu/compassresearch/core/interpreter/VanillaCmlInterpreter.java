@@ -20,6 +20,7 @@ import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
@@ -118,7 +119,13 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
     }
 
     @Override
-    public Value execute() throws AnalysisException
+    public Value execute() throws InterpreterException
+      {
+        return execute(new RandomSelectionStrategy());
+      }
+    
+    @Override
+    public Value execute(CmlCommunicationSelectionStrategy selectionStrategy) throws InterpreterException
       {
         
         Environment env = getGlobalEnvironment();
@@ -126,7 +133,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
         CmlRuntime.setGlobalEnvironment(env);
         //    this.evalutor, getInitialContext(topProcess.getLocation()));
         
-        currentSupervisor = CmlRuntime.createSupervisorEnvironment(new RandomSelectionStrategy());
+        currentSupervisor = CmlRuntime.createSupervisorEnvironment(selectionStrategy);
         
         //Clear for pupils
         for(CmlProcess p : currentSupervisor.getPupils())
@@ -137,7 +144,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
         CmlProcessInstance pi = new CmlProcessInstance(topProcess, null,getInitialContext(null));
         
         pi.start(currentSupervisor);
-        currentSupervisor.start();
+        try {
+			currentSupervisor.start();
+		} catch (AnalysisException e) {
+			throw new InterpreterException("Yes YES",e);
+		}
         
         return null;
       }

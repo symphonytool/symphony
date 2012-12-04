@@ -1,13 +1,9 @@
 package eu.compassresearch.ide.cml.interpreter_plugin;
 
-public enum CmlDebugCommand {
+public enum CmlRequest {
 
-	START,
-	STOP,
-	SUSPEND,
-	RESUME,
-	DISCONNECT;
-
+	CHOICE;
+	
 	@Override
 	public String toString()
 	{

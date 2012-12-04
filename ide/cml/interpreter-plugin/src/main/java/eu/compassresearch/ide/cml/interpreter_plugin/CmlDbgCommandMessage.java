@@ -1,8 +1,13 @@
 package eu.compassresearch.ide.cml.interpreter_plugin;
 
-public class CmlDbgRequestMessage extends CmlMessage {
+public class CmlDbgCommandMessage extends CmlMessage {
 
 	protected CmlDebugCommand command;
+	
+	public CmlDbgCommandMessage(CmlDebugCommand command)
+	{
+		setCommand(command);
+	}
 
 	public CmlDebugCommand getCommand() {
 		return command;
@@ -14,6 +19,6 @@ public class CmlDbgRequestMessage extends CmlMessage {
 	
 	@Override
 	public CmlMessageType getType() {
-		return CmlMessageType.REQUEST;
+		return CmlMessageType.COMMAND;
 	}
 }
