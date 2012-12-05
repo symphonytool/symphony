@@ -30,9 +30,11 @@ import org.eclipse.ui.PlatformUI;
 
 import com.google.gson.reflect.TypeToken;
 
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlChoiceMediator;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlDbgCommandMessage;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlDbgStatusMessage;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugCommand;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugConstants;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlEventOptionView;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlMessage;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlMessageCommunicator;
@@ -57,6 +59,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 	private Socket fEventSocket;
 	private BufferedReader fEventReader;
 	
+	//private CmlChoiceMediator cmlChoiceMediator;
 		
 	// event dispatch job
 		private EventDispatchJob fEventDispatch;
@@ -83,9 +86,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 				boolean result = true;
 				switch(message.getStatus())
 				{
-				case CONNECTION_CLOSED:
-					result = false;
-					break;
 				case STARTING:
 					started();
 					break;
@@ -94,6 +94,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 				case STOPPING:
 					stopping();
 					break;
+				case CONNECTION_CLOSED:
 				case STOPPED:
 					terminated();
 					result = false;
@@ -113,23 +114,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 				case CHOICE:
 					Type listType = new TypeToken<List<String>>(){}.getType();
 					final List<String> events = message.<List<String>>getValue(listType);
-					final StringBuilder selectedOption = new StringBuilder();
-					Display.getDefault().syncExec(new Runnable() {
-					    @Override
-					    public void run() {
-					    	try {
-								IViewPart view = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("eu.compassresearch.ide.cml.interpreter_plugin.OptionsView");
-								CmlEventOptionView optionsView = (CmlEventOptionView)view;
-								optionsView.setOptions(events);
-								//selectedOption.append(optionsView.waitForSelectedOption());
-					    	
-					    	} catch (PartInitException e) {
-								e.printStackTrace();
-							}
-					    }
-					});
-					
-					sendMessage(new CmlResponseMessage(message.getRequestId(),CmlRequest.CHOICE,selectedOption.toString()));
+					new CmlChoiceMediator(cmlDebugTarget).setChoiceOptions(events,message);
 					break;
 				}
 				
@@ -143,9 +128,9 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 				switch(messageContainer.getType())
 				{
 				case STATUS:
-					return processStatusMessage(messageContainer.<CmlDbgStatusMessage>getMessage(CmlDbgStatusMessage.class));
+					return processStatusMessage(messageContainer.getMessage(CmlDbgStatusMessage.class));
 				case REQUEST:
-					return processRequest(messageContainer.<CmlRequestMessage>getMessage(CmlRequestMessage.class));
+					return processRequest(messageContainer.getMessage(CmlRequestMessage.class));
 				default:
 					break;
 				}
@@ -200,7 +185,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			fEventDispatch.schedule();
 			//Add the target to listen to any breakpoints added
 			DebugPlugin.getDefault().getBreakpointManager().addBreakpointListener(this);
-
+			
 		} catch (IOException e) {
 			abort("Unable to connect to CML VM", e);
 		}
@@ -373,7 +358,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		CmlMessageCommunicator.sendMessage(requestOutputStream, message);
 	}
 	
-	private void sendMessage(CmlMessage message)
+	public void sendMessage(CmlMessage message)
 	{
 		CmlMessageCommunicator.sendMessage(requestOutputStream, message);
 	}

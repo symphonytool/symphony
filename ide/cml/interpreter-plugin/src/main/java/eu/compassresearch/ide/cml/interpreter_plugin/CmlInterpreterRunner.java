@@ -12,8 +12,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
 import org.json.simple.JSONObject;
@@ -25,6 +23,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
@@ -46,9 +45,7 @@ public class CmlInterpreterRunner {
 	private BufferedReader requestReader;
 	private boolean connected = false;
 	
-	//private BlockingQueue<CmlResponseMessage> responseQueue = new LinkedBlockingQueue<CmlResponseMessage>();
 	private SynchronousQueue<CmlResponseMessage> responseSync = new SynchronousQueue<CmlResponseMessage>();
-	//private CmlRequestMessage pendingRequest = null;
 	
 	private CommandDispatcher commandDispatcher;
 	
@@ -56,7 +53,6 @@ public class CmlInterpreterRunner {
 	class CommandDispatcher implements Runnable
 	{
 		private boolean stopped = false;
-		private Thread thread = null;
 
 		public void stop()
 		{
@@ -70,8 +66,6 @@ public class CmlInterpreterRunner {
 		
 		@Override
 		public void run() {
-			thread = Thread.currentThread();
-			//thread.setDaemon(true);
 			CmlMessageContainer messageContainer = null;
 			try{
 
@@ -218,24 +212,47 @@ public class CmlInterpreterRunner {
 //		do
 //		{
 			sendStatusMessage(CmlDbgpStatus.RUNNING);
-			cmlInterpreter.execute(new CmlCommunicationSelectionStrategy() {
-				
-				@Override
-				public CmlCommunicationEvent select(CmlAlphabet availableChannelEvents) {
-					
-					//convert to list of strings for now
-					List<String> events = new LinkedList<String>();
-					for(CmlCommunicationEvent comEvent : availableChannelEvents.getCommunicationEvents())
-					{
-						events.add(comEvent.getChannel().getName());
-					}
-					
-					CmlDialogMessage response = sendRequestSynchronous(new CmlRequestMessage(CmlRequest.CHOICE,events));
-					System.out.println(response);
-					return new RandomSelectionStrategy().select(availableChannelEvents);
-				}
-			});
 			
+			try{
+			
+				cmlInterpreter.execute(new CmlCommunicationSelectionStrategy() {
+
+					@Override
+					public CmlCommunicationEvent select(CmlAlphabet availableChannelEvents) {
+
+						//convert to list of strings for now
+						List<String> events = new LinkedList<String>();
+						for(CmlCommunicationEvent comEvent : availableChannelEvents.getCommunicationEvents())
+						{
+							events.add(comEvent.getChannel().getName());
+						}
+
+						CmlResponseMessage response = sendRequestSynchronous(new CmlRequestMessage(CmlRequest.CHOICE,events));
+						System.out.println(response);
+
+						if(response.isRequestInterrupted())
+							throw new InterpreterRuntimeException("intepreter interrupted");
+
+						String responseStr = response.getValue(String.class);
+						System.out.println("response: " + responseStr);
+						
+						CmlCommunicationEvent selectedEvent = null;
+						//For now we just search naively to find the event
+						for(CmlCommunicationEvent comEvent : availableChannelEvents.getCommunicationEvents())
+						{
+							System.out.println("found: " + comEvent.getChannel().getName());
+							if(comEvent.getChannel().getName().equals(responseStr))
+								selectedEvent = comEvent;
+						}
+
+						return selectedEvent;
+					}
+				});
+			}
+			catch(InterpreterRuntimeException e)
+			{
+				System.out.println("The interpreter was interrupted");
+			}
 //			messageContainer = recvMessage();
 //			System.out.println(messageContainer);
 //		}
@@ -257,12 +274,19 @@ public class CmlInterpreterRunner {
 		}
 	}
 	
+	private void stopping()
+	{
+		sendStatusMessage(CmlDbgpStatus.STOPPING);
+		responseSync.add(new CmlResponseMessage());
+	}
+	
 	private boolean processCommand(CmlDbgCommandMessage message)
 	{
 		switch(message.getCommand())
 		{
 		case STOP:
-			sendStatusMessage(CmlDbgpStatus.STOPPING);
+			stopping();
+			
 			return false;
 		default:
 			return true;
