@@ -12,7 +12,11 @@ Bundle-ClassPath: .,
  lib/parser-2.2.0.jar,
  lib/common-0.0.1.jar,
  lib/pog-0.0.1.jar,
- lib/pog-2.2.0.jar
+ lib/pog-2.2.0.jar,
+ lib/ast-2.2.0.jar,
+ lib/parser-2.2.1.jar,
+ lib/pog-2.2.1.jar,
+ lib/typechecker-2.2.0.jar
 Bundle-Activator: eu.compassresearch.ide.cml.core.CmlCorePlugin
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
