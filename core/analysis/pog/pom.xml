@@ -51,6 +51,13 @@
       <artifactId>pog</artifactId>
       <version>${overture.version}</version>
     </dependency>
+    <dependency>
+    	<groupId>eu.compassresearch.core</groupId>
+    	<artifactId>parser</artifactId>
+    	<version>${project.version}</version>
+    	<scope>test</scope>
+    	<type>test-jar</type>
+    </dependency>
   </dependencies>
 
   <build>

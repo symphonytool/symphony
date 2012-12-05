@@ -5806,7 +5806,7 @@ public class CmlParser
 /* Line 3644 of "src/main/bison/cml.y"  */
     {
   String lit = ((CmlLexeme)((yystack.valueAt (1-(1))))).getValue();
-  yyval = new LexStringToken(lit.substring(1, lit.length()-2),
+  yyval = new LexStringToken(lit,
                           util.extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))));
 };
   break;

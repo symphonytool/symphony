@@ -1,0 +1,80 @@
+class Account
+= begin
+
+state
+  cards : map Card.CardId to Cardholder;
+  balance : nat;
+  transactions : seq of Transaction := [];
+  
+  inv TransactionsInvariant(transactions)
+
+values
+  dailyLimit : nat = 2000
+
+types
+  public AccountId = nat;
+  public Transaction :: date : Clock.Date
+                 cardId : Card.CardId
+                 amount : nat;
+
+operations
+  public Account : map Card`CardId to Cardholder * nat ==> Account
+  Account(cs,b) ==
+    (cards := cs;
+     balance := b)
+
+  public GetBalance : () ==> nat
+  GetBalance() ==
+    (return (balance))
+  
+  public Withdrawal : Card`CardId * nat * Clock`Date ==> bool
+  Withdrawal(cardId,amount,date) ==
+   (let transaction = mk_Transaction(date,cardId,amount)
+    in
+      if balance - amount >= 0 and 
+         DateTotal(date,transactions^[transaction]) <= dailyLimit 
+      then
+       (balance := balance - amount;
+        transactions := transactions ^ [transaction];
+        return (true))
+      else 
+        return (false))
+  pre cardId in set dom cards
+
+  public MakeStatement : Card`CardId * Clock`Date ==> Letter
+  MakeStatement(cardId,date) ==
+   (let nm = cards(cardId).GetName(),
+        addr = cards(cardId).GetAddress()
+    in 
+      (dcl l : [Letter] @
+       l := new Letter(nm,addr,date,transactions,balance);
+       return (l))
+  ) 
+  pre cardId in set dom cards
+
+  public GetCardIds: () ==> set of Card`CardId
+  GetCardIds() == return (dom cards)
+  post RESULT = dom cards
+
+  AddCard : Card`CardId * Cardholder ==> ()
+  AddCard(cId,ch) ==
+    cards := cards munion {cId |-> ch}
+  pre cId not in set dom cards
+
+functions
+  TransactionsInvariant: seq of Transaction +> bool
+  TransactionsInvariant(ts) ==
+    forall date in set {ts(i).date | i in set inds ts} @
+      DateTotal(date,ts) <= dailyLimit
+
+  DateTotal : Clock`Date * seq of Transaction +> nat
+  DateTotal(date,ts) ==
+    Sum([ts(i).amount | i in set inds ts @ ts(i).date = date])
+
+  Sum: seq of real +> real
+  Sum(rs) ==
+    if rs = [] then 0
+    else
+      hd rs + Sum(tl rs)
+
+end

@@ -3643,7 +3643,7 @@ textLiteral :
   STRING
 {
   String lit = ((CmlLexeme)$STRING).getValue();
-  $$ = new LexStringToken(lit.substring(1, lit.length()-2),
+  $$ = new LexStringToken(lit,
                           util.extractLexLocation((CmlLexeme)$STRING));
 }
 ;
