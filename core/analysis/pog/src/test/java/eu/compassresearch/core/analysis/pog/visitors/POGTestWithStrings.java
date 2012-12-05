@@ -1,6 +1,8 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -13,17 +15,18 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.overture.pog.obligation.NonEmptySetObligation;
+import org.overture.pog.obligation.NonZeroObligation;
 
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.pog.obligations.CMLNonZeroObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.TestUtil;
 
 @RunWith(value = Parameterized.class)
-public class ProofObligationGeneratorTest {
+public class POGTestWithStrings {
 
-    private String sourceCode;
+    private String sourceFromString;
+    private String filePath;
     private Class<?> expectedPOClass;
     private int posGenerated;
 
@@ -33,11 +36,8 @@ public class ProofObligationGeneratorTest {
     }
 
     
-    public static Object[] divZeroFunction ={"class c = begin functions fn: int -> int fn(a) == 50/ a end", CMLNonZeroObligation.class}
-    ;
+    public static Object[] divZeroFunction ={"class c = begin functions fn: int -> int fn(a) == 50/ a end", NonZeroObligation.class};
     public static Object[] distInterFunction= {"class c = begin functions fn : set of set of int -> set of int fn(ss) == dinter ss end", NonEmptySetObligation.class};
-    
-    
     
   //add test cases for further POs here...
 	
@@ -54,14 +54,14 @@ public class ProofObligationGeneratorTest {
 	return r;
     }
 
-    public ProofObligationGeneratorTest(String source, Class<?> expectedPOClass) {
-	this.sourceCode = source;
+    public POGTestWithStrings(String source, Class<?> expectedPOClass) {
+	this.sourceFromString = source;
 	this.expectedPOClass= expectedPOClass;
     }
 
     @Test
-    public void testGeneratePOs() throws IOException {
-	PSource psAux = (TestUtil.makeSource(sourceCode));
+    public void testGeneratePOsfromSource() throws IOException {
+	PSource psAux = (TestUtil.makeSource(sourceFromString));
 	CmlParser cmlp = CmlParser.newParserFromSource(psAux);
 	cmlp.parse();
 	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
@@ -74,4 +74,7 @@ public class ProofObligationGeneratorTest {
 
     }
 
+
+    
+    
 }

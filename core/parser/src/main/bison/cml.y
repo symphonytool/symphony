@@ -3648,7 +3648,7 @@ textLiteral :
   STRING
 {
   String lit = ((CmlLexeme)$STRING).getValue();
-  $$ = new LexStringToken(lit.substring(1, lit.length()-2),
+  $$ = new LexStringToken(lit.substring(1, lit.length()-1),
                           util.extractLexLocation((CmlLexeme)$STRING));
 }
 ;
@@ -3657,7 +3657,7 @@ quoteLiteral :
   QUOTE_LITERAL[lit]
 {
   String lit = ((CmlLexeme)$lit).getValue();
-  $$ = new LexQuoteToken(lit.substring(1, lit.length()-2),
+  $$ = new LexQuoteToken(lit.substring(1, lit.length()-1),
                          util.extractLexLocation((CmlLexeme)$lit));
 }
 ;

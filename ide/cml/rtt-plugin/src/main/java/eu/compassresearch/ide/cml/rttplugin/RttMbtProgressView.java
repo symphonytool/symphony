@@ -3,9 +3,7 @@ package eu.compassresearch.ide.cml.rttplugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IViewPart;
@@ -14,10 +12,11 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
-public class RTTesterView extends ViewPart implements IViewPart
-  {
-    
-    @Override
+import eu.compassResearch.rttMbtTmsClientApi.IRttMbtProgressBar;
+
+public class RttMbtProgressView extends ViewPart implements IViewPart {
+	
+	@Override
     public void addPropertyListener(IPropertyListener listener)
       {
         
@@ -38,49 +37,41 @@ public class RTTesterView extends ViewPart implements IViewPart
     @Override
     public String getTitle()
       {
-        // TODO Auto-generated method stub
-        return "RT-Tester";
+        return "Progress";
       }
     
     @Override
     public org.eclipse.swt.graphics.Image getTitleImage()
       {
-        // TODO Auto-generated method stub
         return super.getTitleImage();
       }
     
     @Override
     public String getTitleToolTip()
       {
-        // TODO Auto-generated method stub
-        return "Nothing";
+        return "Progress information for RTT-MBT commands";
       }
     
     @Override
     public void removePropertyListener(IPropertyListener listener)
       {
-        // TODO Auto-generated method stub
-        
       }
     
     @Override
     public void setFocus()
       {
-        // TODO Auto-generated method stub
-        
       }
     
-    @Override
+    @SuppressWarnings("rawtypes")
+	@Override
     public Object getAdapter(Class adapter)
       {
-        // TODO Auto-generated method stub
         return null;
       }
     
     @Override
     public IViewSite getViewSite()
       {
-        // TODO Auto-generated method stub
         return super.getViewSite();
       }
     
@@ -106,20 +97,34 @@ public class RTTesterView extends ViewPart implements IViewPart
     @Override
     public void createPartControl(final org.eclipse.swt.widgets.Composite parent)
       {
-        org.eclipse.swt.widgets.Canvas canvas = new Canvas(parent, SWT.NONE);
-        canvas.addPaintListener(new PaintListener()
+    	// create progress bars
+    	ProgressBar progBar = new ProgressBar(parent, SWT.NONE);
+    	ProgressBar tc_cov = new ProgressBar(parent, SWT.NONE);
+    	ProgressBar bcs_cov = new ProgressBar(parent, SWT.NONE);
+    	ProgressBar tr_cov = new ProgressBar(parent, SWT.NONE);
+    	ProgressBar mcdc_cov = new ProgressBar(parent, SWT.NONE);
+
+    	progBar.setToolTipText("Overall Progress");
+    	tc_cov.setToolTipText("Test Case Coverage");
+    	tr_cov.setToolTipText("Transition Coverage");
+    	bcs_cov.setToolTipText("BCS Coverage");
+    	mcdc_cov.setToolTipText("MCDC Coverage");
+    	
+        // make console view accessable
+        Activator.addProgressBar(IRttMbtProgressBar.Tasks.Global, progBar);
+        Activator.addProgressBar(IRttMbtProgressBar.Tasks.TC_COV, tc_cov);
+        Activator.addProgressBar(IRttMbtProgressBar.Tasks.BCS_COV, bcs_cov);
+        Activator.addProgressBar(IRttMbtProgressBar.Tasks.TR_COV, tr_cov);
+        Activator.addProgressBar(IRttMbtProgressBar.Tasks.MCDC_COV, mcdc_cov);
+
+        // paint listener definition
+        progBar.addPaintListener(new PaintListener()
           {
             @Override
             public void paintControl(PaintEvent e)
               {
-                Canvas canvas = ((Canvas) e.widget);
-                Rectangle rect = canvas.getBounds();
-                e.gc.setForeground(e.display.getSystemColor(SWT.COLOR_RED));
-                e.gc.drawFocus(5, 5, rect.width - 10, rect.height - 10);
-                e.gc.drawText("You can draw text directly on a canvas", 60, 60);
-                e.gc.drawText("Visit: http://www.compassresearch.eu/", 60, 90);
-                canvas.setBackground(new Color(parent.getDisplay(), 0, 213, 220));
               }
           });
       }
-  }
+
+}

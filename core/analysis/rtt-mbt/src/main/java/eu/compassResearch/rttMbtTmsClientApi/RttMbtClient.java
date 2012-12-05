@@ -16,11 +16,18 @@ public class RttMbtClient {
 	// User name and id
 	private String rttMbtServer;
 	private Integer rttMbtPort;
-	protected String projectName;
-	protected String userName;
-	protected String userId;
+	private String projectName;
+	private String userName;
+	private String userId;
 	private String CmlProject;   // starting and ending with file separator
 	private String CmlWorkspace; // no file separator at the end
+
+	// Logging facility
+	private String consoleName;
+	private IRttMbtLoggingFacility log;
+	
+	// progress bar
+	private IRttMbtProgressBar progress;
 
 	public RttMbtClient(String server, Integer port, String user, String id) {
 		rttMbtServer = server;
@@ -30,8 +37,44 @@ public class RttMbtClient {
 		projectName = null;
 		CmlProject = null;
 		CmlWorkspace = null;
+		consoleName = null;
+		log = null;
+		progress = null;
 	}
 
+	public void setLoggingFacility(String name, IRttMbtLoggingFacility logger) {
+		consoleName = name;
+		log = logger;
+	}
+	
+	public void addLogMessage(String msg) {
+		if (log != null) {
+			log.addLogMessage(consoleName, msg);
+		} else {
+			System.out.println("[" + consoleName + "]:" + msg);
+		}
+	}
+	
+	public void addErrorMessage(String msg) {
+		if (log != null) {
+			log.addErrorMessage(consoleName, msg);
+		} else {
+			System.err.println("[" + consoleName + "]:" + msg);
+		}
+	}
+	
+	public void setProgressBar(IRttMbtProgressBar p) {
+		progress = p;
+	}
+	
+	public void setProgress(IRttMbtProgressBar.Tasks task, int percent) {
+		if (progress != null) {
+			progress.setProgress(task, percent);
+		} else {
+			System.out.println("[" + task.toString() + "]:" + percent + "%");
+		}		
+	}
+	
 	public Boolean testConenction() {
 		Boolean success = true;
 		
@@ -351,8 +394,9 @@ public class RttMbtClient {
 		success = unzipArchive(archive.getPath(), testProcs.getPath());
 
 		// perform livelock check
-		System.out.println("performing livelock check of the model...");
+		System.out.println("performing livelock check of the model (with enabled GUI ports)...");
 		jsonCheckModelCommand checkModel = new jsonCheckModelCommand(this);
+		checkModel.setGuiPorts(true);
 		checkModel.setModelName(modelName);
 		checkModel.setModelId(modelVersion);
 		checkModel.executeCommand();
@@ -461,8 +505,9 @@ public class RttMbtClient {
 		uploadFile(confDirName + "addgoalsordered.conf");
 		
 		// generate-test-command
-		System.out.println("generating concrete test procedure " + abstractTestProc + "...");
+		System.out.println("generating concrete test procedure (with GUI ports enabled) " + abstractTestProc + "...");
 		jsonGenerateTestCommand cmd = new jsonGenerateTestCommand(this);
+		cmd.setGuiPorts(true);
 		cmd.setTestProcName("TestProcedures/" + abstractTestProc);
 		cmd.executeCommand();
 		if (!cmd.executedSuccessfully()) {
@@ -532,6 +577,7 @@ public class RttMbtClient {
 		downloadFile(dirname + "addgoalcoverage.csv");
 		downloadFile(dirname + "covered_testcases.csv");
 		downloadFile(dirname + "focus_points_to_addgoals.conf");
+		downloadFile(dirname + "generation.log");
 
 		// from cache/<user-id>/<project-name>/<testproc>/model
 		// - signals.dat
@@ -873,5 +919,13 @@ public class RttMbtClient {
 	
 	public String getRttProjectRoot() {
 		return getCmlWorkspace() + getCmlProject() + getProjectName();
+	}
+
+	public String getConsoleName() {
+		return consoleName;
+	}
+
+	public void setConsoleName(String consoleName) {
+		this.consoleName = consoleName;
 	}
 }
