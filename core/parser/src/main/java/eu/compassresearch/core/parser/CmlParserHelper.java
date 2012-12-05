@@ -721,7 +721,8 @@ public class CmlParserHelper {
 		LexLocation location = extractLexLocation(rootExp.getLocation(),
 				(CmlLexeme) RPAREN);
 		List<PExp> exps = (List<PExp>) expressionList;
-		return new AApplyExp(location, rootExp, exps);
+		AApplyExp result = new AApplyExp(location, rootExp, exps);
+		return result;
 	}
 
 	public APreExp caseExpressionPrecondition(Object PREUNDER, Object expList,
