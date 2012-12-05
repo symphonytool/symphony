@@ -11,11 +11,11 @@
   <!--icon="icons/cview16/cml_file_tsk.png"-->
   <extension point="org.eclipse.ui.views">
     <view 
-        id="eu.compassresearch.ide.cml.interpreter_plugin.CmlInterpreterView"
-        name="COMPASS Interpreter View"
+        id="eu.compassresearch.ide.cml.interpreter_plugin.OptionsView"
+        name="CML Event Options"
         category="compass_eu.compassresearch.ide.cml.ui.category"
         
-        class="eu.compassresearch.ide.cml.interpreter_plugin.CmlInterpreterView" />
+        class="eu.compassresearch.ide.cml.interpreter_plugin.CmlEventOptionView" />
         
         <category
         	id="compass_eu.compassresearch.ide.cml.ui.category"

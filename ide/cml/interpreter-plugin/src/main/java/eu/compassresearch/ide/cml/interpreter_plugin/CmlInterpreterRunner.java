@@ -47,7 +47,7 @@ public class CmlInterpreterRunner {
 	private boolean connected = false;
 	
 	//private BlockingQueue<CmlResponseMessage> responseQueue = new LinkedBlockingQueue<CmlResponseMessage>();
-	private SynchronousQueue<CmlDialogMessage> responseSync = new SynchronousQueue<CmlDialogMessage>();
+	private SynchronousQueue<CmlResponseMessage> responseSync = new SynchronousQueue<CmlResponseMessage>();
 	//private CmlRequestMessage pendingRequest = null;
 	
 	private CommandDispatcher commandDispatcher;
@@ -184,10 +184,10 @@ public class CmlInterpreterRunner {
 		CmlMessageCommunicator.sendMessage(requestOS, dm);
 	}
 	
-	private CmlDialogMessage sendRequestSynchronous(CmlDialogMessage message)
+	private CmlResponseMessage sendRequestSynchronous(CmlRequestMessage message)
 	{
 		CmlMessageCommunicator.sendMessage(requestOS, message);
-		CmlDialogMessage responseMessage = null;
+		CmlResponseMessage responseMessage = null;
 		try {
 			responseMessage = responseSync.take();
 		} catch (InterruptedException e) {
@@ -230,7 +230,7 @@ public class CmlInterpreterRunner {
 						events.add(comEvent.getChannel().getName());
 					}
 					
-					CmlDialogMessage response = sendRequestSynchronous(new CmlDialogMessage(CmlRequest.CHOICE,events));
+					CmlDialogMessage response = sendRequestSynchronous(new CmlRequestMessage(CmlRequest.CHOICE,events));
 					System.out.println(response);
 					return new RandomSelectionStrategy().select(availableChannelEvents);
 				}
@@ -274,7 +274,7 @@ public class CmlInterpreterRunner {
 	 * @param message
 	 * @return
 	 */
-	private boolean processResponse(CmlDialogMessage message)
+	private boolean processResponse(CmlResponseMessage message)
 	{
 		responseSync.offer(message);
 		return true;
@@ -290,7 +290,7 @@ public class CmlInterpreterRunner {
 		case COMMAND:
 			return processCommand(messageContainer.<CmlDbgCommandMessage>getMessage(CmlDbgCommandMessage.class));
 		case RESPONSE:
-			return processResponse(messageContainer.<CmlDialogMessage>getMessage(CmlDialogMessage.class));
+			return processResponse(messageContainer.<CmlResponseMessage>getMessage(CmlResponseMessage.class));
 		default:
 		}
 		

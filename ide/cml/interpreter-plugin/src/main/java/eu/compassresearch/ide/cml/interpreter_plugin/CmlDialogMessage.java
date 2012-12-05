@@ -5,24 +5,21 @@ import java.util.UUID;
 
 import com.google.gson.Gson;
 
-public class CmlDialogMessage extends CmlMessage{
+public abstract class CmlDialogMessage extends CmlMessage{
 
 	private UUID requestId;
 	private CmlRequest request;
-	private CmlMessageType type;
 	private String content;
 
 	public CmlDialogMessage(CmlRequest request, Object value)
 	{
 		requestId = UUID.randomUUID();
-		type = CmlMessageType.REQUEST;
 		setValue(request,value);
 	}
 	
 	public CmlDialogMessage(UUID requestId, CmlRequest request, Object value)
 	{
 		this.requestId = requestId;
-		type = CmlMessageType.RESPONSE;
 		setValue(request,value);
 	}
 	
@@ -55,7 +52,5 @@ public class CmlDialogMessage extends CmlMessage{
 	}
 
 	@Override
-	public CmlMessageType getType() {
-		return type;
-	}
+	public abstract CmlMessageType getType();
 }

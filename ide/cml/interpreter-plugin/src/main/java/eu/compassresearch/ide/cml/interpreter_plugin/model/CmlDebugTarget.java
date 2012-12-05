@@ -23,17 +23,23 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 import com.google.gson.reflect.TypeToken;
 
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlDbgCommandMessage;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlDbgStatusMessage;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugCommand;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlDialogMessage;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlEventOptionView;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlMessage;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlMessageCommunicator;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlMessageContainer;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlRequest;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlRequestMessage;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlResponseMessage;
 
 public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
@@ -100,15 +106,30 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 				return result;
 			}
 			
-			private boolean processRequest(CmlDialogMessage message)
+			private boolean processRequest(CmlRequestMessage message)
 			{
 				switch(message.getRequest())
 				{
 				case CHOICE:
 					Type listType = new TypeToken<List<String>>(){}.getType();
-					List<String> events = message.<List<String>>getValue(listType);
+					final List<String> events = message.<List<String>>getValue(listType);
+					final StringBuilder selectedOption = new StringBuilder();
+					Display.getDefault().syncExec(new Runnable() {
+					    @Override
+					    public void run() {
+					    	try {
+								IViewPart view = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("eu.compassresearch.ide.cml.interpreter_plugin.OptionsView");
+								CmlEventOptionView optionsView = (CmlEventOptionView)view;
+								optionsView.setOptions(events);
+								//selectedOption.append(optionsView.waitForSelectedOption());
+					    	
+					    	} catch (PartInitException e) {
+								e.printStackTrace();
+							}
+					    }
+					});
 					
-					sendMessage(new CmlDialogMessage(message.getRequestId(),CmlRequest.CHOICE,events.get(0)));
+					sendMessage(new CmlResponseMessage(message.getRequestId(),CmlRequest.CHOICE,selectedOption.toString()));
 					break;
 				}
 				
@@ -124,7 +145,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 				case STATUS:
 					return processStatusMessage(messageContainer.<CmlDbgStatusMessage>getMessage(CmlDbgStatusMessage.class));
 				case REQUEST:
-					return processRequest(messageContainer.<CmlDialogMessage>getMessage(CmlDialogMessage.class));
+					return processRequest(messageContainer.<CmlRequestMessage>getMessage(CmlRequestMessage.class));
 				default:
 					break;
 				}
