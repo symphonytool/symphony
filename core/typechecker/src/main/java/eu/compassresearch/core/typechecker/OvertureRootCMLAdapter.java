@@ -17,9 +17,7 @@ import org.overture.typechecker.visitor.TypeCheckerPatternVisitor;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
-import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
@@ -86,18 +84,9 @@ public class OvertureRootCMLAdapter extends
 	@Override
 	public PType caseAVariableExp(AVariableExp node, TypeCheckInfo question)
 			throws AnalysisException {
-		PDefinition type = question.env
-				.findName(node.getName(), question.scope);
-		if (type == null || type instanceof AErrorType) {
-			issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL
-					.customizeMessage(node.toString()));
-			node.setType(new AErrorType());
-			return node.getType();
-		}
-		node.setType(type.getType());
-		return type.getType();
+		return escapeFromOvertureContext(node, question);
 	}
-	
+		
 	
 
 	@Override

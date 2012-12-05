@@ -578,142 +578,6 @@ public class CmlParserHelper {
 	    Object measureExpr) {
 	LexNameToken name = extractLexNameToken((CmlLexeme) id);
 	LexNameToken checkName = extractLexNameToken((CmlLexeme) checkId);
-
-	/*
-	 * Checking that the two IDENTIFIERS are equivalent
-	 */
-<<<<<<< HEAD
-
-	public AApplyExp caseExpressionApply(Object rootExpObj,
-			Object expressionList, Object RPAREN) {
-		PExp rootExp = (PExp) rootExpObj;
-		LexLocation location = extractLexLocation(rootExp.getLocation(),
-				(CmlLexeme) RPAREN);
-		List<PExp> exps = (List<PExp>) expressionList;
-		AApplyExp result = new AApplyExp(location, rootExp, exps);
-		return result;
-	}
-
-	public APreExp caseExpressionPrecondition(Object PREUNDER, Object expList,
-			Object RPAREN) {
-		List<PExp> exprs = (List<PExp>) expList;
-		PExp function = exprs.get(0);
-		LexLocation loc = extractLexLocation((CmlLexeme) PREUNDER,
-				(CmlLexeme) RPAREN);
-		return new APreExp(loc, function, exprs.subList(1, exprs.size()));
-	}
-
-	public AIsOfClassExp caseExpressionIsOfBaseClass(Object ISOFCLASS,
-			Object dottedId, Object exp, Object RPAREN) {
-		LexLocation loc = extractLexLocation((CmlLexeme) ISOFCLASS,
-				(CmlLexeme) RPAREN);
-		LexNameToken name = dottedIdentifierToLexNameToken((List<LexIdentifierToken>) dottedId);
-		return new AIsOfClassExp(loc, name, (PExp) exp);
-	}
-
-	public LexNameToken caseMeasure(Object dottedIdentifier) {
-		return dottedIdentifierToLexNameToken((List<LexIdentifierToken>) dottedIdentifier);
-	}
-
-	private ANameChannelExp ConvertPExpToANameChannelExp(Object exp) {
-		ANameChannelExp cn = null;
-
-		// This is a single id channel name
-		if (exp instanceof AVariableExp) {
-			AVariableExp varExp = (AVariableExp) exp;
-			cn = new ANameChannelExp(varExp.getLocation(), varExp.getName(),
-					new LinkedList<PPattern>());
-		} else if (exp instanceof AUnresolvedPathExp) {
-			AUnresolvedPathExp unresolvedExp = (AUnresolvedPathExp) exp;
-
-			LexNameToken name = new LexNameToken("", unresolvedExp
-					.getIdentifiers().get(0));
-
-			List<PPattern> patterns = new LinkedList<PPattern>();
-			for (LexIdentifierToken id : unresolvedExp.getIdentifiers()
-					.subList(1, unresolvedExp.getIdentifiers().size())) {
-				LexNameToken idName = new LexNameToken("", id);
-				patterns.add(new AIdentifierPattern(id.getLocation(),
-						new LinkedList<PDefinition>(), false, idName, false));
-			}
-
-			LexLocation location = extractLexLocation(name.getLocation(),
-					extractLastLexLocation(patterns));
-			cn = new ANameChannelExp(location, name, patterns);
-		}
-		// This is a channelname with dotted expressions
-		else if (exp instanceof Pair<?, ?>) {
-			// This is already converted in a pair of AVariableExp and a list of
-			// ASignalCommunicationParameter
-			// in the expression rule to make the communicationAction easier. So
-			// all we have to do here is to
-			// take out the patterns
-			Pair<AVariableExp, List<ASignalCommunicationParameter>> pair = (Pair<AVariableExp, List<ASignalCommunicationParameter>>) exp;
-
-			List<PPattern> patterns = new LinkedList<PPattern>();
-			for (ASignalCommunicationParameter s : pair.second) {
-				patterns.add(s.getPattern());
-			}
-
-			LexLocation location = extractLexLocation(pair.first.getLocation(),
-					extractLastLexLocation(pair.second));
-			cn = new ANameChannelExp(location, pair.first.getName(), patterns);
-		} else {
-			throw new ParserException(((PExp) exp).getLocation(),
-					ParserErrorMessage.MALFORMED_CHANNEL_EXPRESSION
-							.customizeMessage(exp.toString()));
-		}
-
-		return cn;
-	}
-
-	public PExp caseRenameExpressionAComprehensionRenameChannelExp(
-			Object DLSQUARE, Object from, Object to, Object bindList,
-			Object pred, Object DRSQUARE) {
-		ARenamePair pair = new ARenamePair(false,
-				ConvertPExpToANameChannelExp(from),
-				ConvertPExpToANameChannelExp(to));
-		return new AComprehensionRenameChannelExp(extractLexLocation(
-				(CmlLexeme) DLSQUARE, (CmlLexeme) DRSQUARE), pair,
-				(List<? extends PMultipleBind>) bindList, null);
-	}
-
-	private List<LexIdentifierToken> convertExpressionListToLexIdentifierTokenList(
-			List<PExp> exprs) {
-		List<LexIdentifierToken> ids = new LinkedList<LexIdentifierToken>();
-
-		for (PExp exp : exprs) {
-			// If the expression is a single identifer it will be converted into
-			// a AVariableExp
-			if (exp instanceof AVariableExp) {
-				AVariableExp var = (AVariableExp) exp;
-				ids.add(var.getName().getIdentifier());
-			} else
-				throw new ParserException(exp.getLocation(),
-						ParserErrorMessage.MALFORMED_CHANNEL_SET_EXPRESSION
-								.customizeMessage(exp.toString()));
-		}
-
-		return ids;
-	}
-
-	public PExp caseACompChansetSetExp(Object LCURLYBAR, Object chanexp,
-			Object bindList, Object exp, Object BARRCURLY) {
-		LexLocation loc = extractLexLocation((CmlLexeme) LCURLYBAR,
-				(CmlLexeme) BARRCURLY);
-		ANameChannelExp chanNameExp = ConvertPExpToANameChannelExp(chanexp);
-		PExp pred = (PExp) exp;
-		return new ACompChansetSetExp(loc, chanNameExp,
-				(List<PMultipleBind>) bindList, pred);
-	}
-
-	public PExp caseAEnumChansetSetExp(Object LCURLYBAR, Object list,
-			Object BARRCURLY) {
-		LexLocation loc = extractLexLocation((CmlLexeme) LCURLYBAR,
-				(CmlLexeme) BARRCURLY);
-		List<LexIdentifierToken> ids = convertExpressionListToLexIdentifierTokenList((List<PExp>) list);
-		return new AEnumChansetSetExp(loc, ids);
-=======
 	if (!name.equals(checkName))
 	    throw new ParserException(name.getLocation(),
 		    ParserErrorMessage.FUNCTION_NAMES_ARE_NOT_CONSISTENT
@@ -734,6 +598,13 @@ public class CmlParserHelper {
 	res.setParamPatternList(args);
 	return res;
     }
+
+	/*
+	 * Checking that the two IDENTIFIERS are equivalent
+	 */
+// <<<<<<< HEAD
+ 
+ // =======
 
     @SuppressWarnings("deprecation")
     public PDefinition caseImplicitFunctionDefinition(Object qual, Object id,
@@ -756,7 +627,7 @@ public class CmlParserHelper {
 	// retval.setType(value)
 	if (retvals.size() == 1) {
 	    retval = retvals.get(0);
->>>>>>> origin/development
+ // >>>>>>> origin/development
 	}
 	// if there is more create a tuple pattern to contain them all and only
 	// take the type from the first one

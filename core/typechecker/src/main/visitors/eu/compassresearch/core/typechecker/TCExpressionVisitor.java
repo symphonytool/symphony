@@ -7,6 +7,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.ANilExp;
+import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
@@ -34,6 +35,64 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	public PType caseANilExp(ANilExp node, TypeCheckInfo question)
 			throws AnalysisException {
 		return new AUnknownType(node.getLocation(), true);
+	}
+
+
+
+	@Override
+	public PType caseAVariableExp(AVariableExp node, TypeCheckInfo question)
+			throws AnalysisException {
+
+		// Try to see if we have a local variable here
+		PDefinition def = question.env.findName(node.getName(), question.scope);
+		
+		// ok not a local var, maybe a value
+		if (def == null)
+		{
+			eu.compassresearch.core.typechecker.TypeCheckInfo 
+			cmlEnv = null;
+			PDefinition enclosingDef = question.env.getEnclosingDefinition();
+			
+			// if no enclosing def we must have a cml env to lookup
+			// global values
+			if (enclosingDef == null)
+			{
+		
+				// is the current question a Cml environment?
+				if (question instanceof eu.compassresearch.core.typechecker.TypeCheckInfo)
+					// okay then we use it
+					cmlEnv = (eu.compassresearch.core.typechecker.TypeCheckInfo)question;
+				else
+					// well lets see if any definition added a cml env further up the tree
+					cmlEnv = question.contextGet(eu.compassresearch.core.typechecker.TypeCheckInfo.class);
+
+				// no, then we must have VDM exp at top-level or a bug in the type checker.
+				if (cmlEnv == null)
+				{
+					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
+					return node.getType();
+				}
+				
+				// aaah, finally we have an enclosing definition.
+				enclosingDef = cmlEnv.getGlobalClassDefinitions();
+			}
+			
+			// use the assistant to look up our variable name in the enclosing definition
+			CmlOvertureAssistant assistant = new CmlOvertureAssistant();
+			def = assistant.findMemberName(enclosingDef, node.getName(), question);
+		}
+
+		// now the definition is found or missing
+		if (def == null)
+		{ // missing
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""+node.getName())));
+		}
+		else
+			// found
+			node.setType(def.getType());
+		
+		
+		return node.getType();
 	}
 
 

@@ -527,7 +527,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(
 				testData,
 				"class test = begin functions fn: int -> int fn(a) == a + 2 end",
-				false, true, false, new String[0]);
+				false, true, true, new String[0]);
 		// 118
 		addTestProgram(
 				testData,
@@ -670,7 +670,14 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData,
 				"process P = begin actions INIT = Skip @ INIT end", false,
 				true, true, new String[0]);
-
+		
+		addTestProgram(testData, "class Thing = begin values public Douglas : int = 42 end class test = begin values a: int = 0 functions g: int -> int g(i) == a + Thing`Douglas end",
+				false,true,true,new String[0]);
+		
+		addTestProgram(testData, "class test = begin values a : int = 0	functions f:int -> int f(k) == k+a	end",
+				false,true,true,new String[0]);
+		
+		
 		return testData;
 	}
 
