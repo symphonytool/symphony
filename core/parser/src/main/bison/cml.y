@@ -1716,12 +1716,14 @@ channelNameDecl :
    */
   ATypeSingleDeclaration singleTypeDeclaration = (ATypeSingleDeclaration)$decl;
   AChannelNameDefinition channelNameDecl =
-    new AChannelNameDefinition(singleTypeDeclaration.getLocation(),
+   new AChannelNameDefinition(singleTypeDeclaration.getLocation(),
                                NameScope.GLOBAL,
                                false,
                                null,
                                null,
                                singleTypeDeclaration);
+   LexNameToken name = new LexNameToken("",singleTypeDeclaration.getIdentifiers().get(0));
+   channelNameDecl.setName(name);
   $$ = channelNameDecl;
 };
 
@@ -3641,7 +3643,7 @@ textLiteral :
   STRING
 {
   String lit = ((CmlLexeme)$STRING).getValue();
-  $$ = new LexStringToken(lit.substring(1, lit.length()-2),
+  $$ = new LexStringToken(lit,
                           util.extractLexLocation((CmlLexeme)$STRING));
 }
 ;

@@ -660,6 +660,16 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				"channels init process test = begin @ [init] -> Skip end",
 				false, true, true, new String[0]);
 
+		// 142
+		addTestProgram(
+				testData,
+				"channels init:int\ntest process test = begin @ [init?x] -> Skip end",
+				false, true, true, new String[0]);
+
+		addTestProgram(testData,
+				"process P = begin actions INIT = Skip @ INIT end", false,
+				true, true, new String[0]);
+
 		return testData;
 	}
 

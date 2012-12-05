@@ -15,6 +15,11 @@
   <packaging>jar</packaging>
 
   <dependencies>
+  	<dependency>
+  		<groupId>eu.compassresearch.ide.cml</groupId>
+  		<artifactId>eu.compassresearch.ide.cml.ui</artifactId>
+  		<version>${project.version}</version>
+  	</dependency>
     <dependency>
       <groupId>org.eclipse.ui</groupId>
       <artifactId>org.eclipse.ui.ide</artifactId>
@@ -40,68 +45,88 @@
       <artifactId>org.eclipse.jface</artifactId>
       <version>3.7.0</version>
     </dependency>
-
     <dependency>
       <groupId>org.eclipse.swt</groupId>
       <artifactId>org.eclipse.swt</artifactId>
       <version>3.7.2</version>
     </dependency>
-    
-<!--     <dependency> -->
-<!--       <groupId>org.eclipse.swt</groupId> -->
-<!--       <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId> -->
-<!--       <version>3.7.2</version> -->
-<!--     </dependency> -->
-  
   	<dependency>
       <groupId>org.eclipse.swt</groupId>
       <artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
       <version>3.7.2</version>
     </dependency>
-  
     <dependency>
       <groupId>org.eclipse.ui</groupId>
       <artifactId>org.eclipse.ui.console</artifactId>
       <version>3.5.100</version>
     </dependency>
-
     <dependency>
       <groupId>org.eclipse.core</groupId>
       <artifactId>org.eclipse.core.resources</artifactId>
       <version>3.7.101</version>
     </dependency>
+    <dependency>
+    	<groupId>org.eclipse.jdt</groupId>
+    	<artifactId>core</artifactId>
+    	<version>3.3.0-v_771</version>
+    </dependency>
+<!--   	dependency for launching a JVM from within the code -->
+  	<dependency>
+  		<groupId>org.eclipse.jdt</groupId>
+  		<artifactId>launching</artifactId>
+  		<version>3.3.0-v20070510</version>
+  	</dependency>
+<!--   	The interpreter core -->
+  	<dependency>
+  		<groupId>eu.compassresearch.core</groupId>
+  		<artifactId>interpreter</artifactId>
+  		<version>${project.version}</version>
+  	</dependency>
+  	 <dependency>
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+      <version>1.1</version>
+    </dependency>
   </dependencies>
 
  <build>
     <plugins>
-      <!-- I'm not sure if I need to copy anything right now -->
-      <!-- <plugin> -->
-      <!--   <groupId>org.apache.maven.plugins</groupId> -->
-      <!--   <artifactId>maven-dependency-plugin</artifactId> -->
-      <!--   <executions> -->
-      <!--     <execution> -->
-      <!--       <id>copy</id> -->
-      <!--       <phase>package</phase> -->
-      <!--       <goals> -->
-      <!--         <goal>copy</goal> -->
-      <!--       </goals> -->
-      <!--       <configuration> -->
-      <!--         <artifactItems> -->
-      <!-- 		<artifactItem> -->
-      <!--             <groupId>eu.compassresearch.core.analysis</groupId> -->
-      <!--             <artifactId>theoremprover</artifactId> -->
-      <!--             <version>${project.version}</version> -->
-      <!--             <type>jar</type> -->
-      <!--             <overWrite>true</overWrite> -->
-      <!--           </artifactItem> -->
-      <!--         </artifactItems> -->
-      <!--         <outputDirectory>lib</outputDirectory> -->
-      <!--         <overWriteReleases>true</overWriteReleases> -->
-      <!--         <overWriteSnapshots>true</overWriteSnapshots> -->
-      <!--       </configuration> -->
-      <!--     </execution> -->
-      <!--   </executions> -->
-      <!-- </plugin> -->
+      <!-- Copy the interpreter jar into the lib folder -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+      			<artifactItem>
+                  <groupId>eu.compassresearch.core</groupId>
+                  <artifactId>interpreter</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+                
+                <artifactItem>
+                  <groupId>com.googlecode.json-simple</groupId>
+                  <artifactId>json-simple</artifactId>
+                  <version>1.1</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>lib</outputDirectory>
+              <overWriteReleases>true</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
     </plugins>
   </build>

@@ -29,6 +29,7 @@ import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CMLPOFunctionDefinitionContext;
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
