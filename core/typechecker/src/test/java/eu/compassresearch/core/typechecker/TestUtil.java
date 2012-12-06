@@ -5,17 +5,55 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
+import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 
 public class TestUtil
   {
     
+	public static TypeIssueHandler runTypeChecker(String file)
+	{
+		AFileSource fileSource = new AFileSource();
+		
+		fileSource.setFile(new File(file));
+		
+		List<PSource> cmlSources = Arrays.asList(new PSource[] { fileSource });
+		
+		
+		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+		
+		CmlTypeChecker checker = VanillaFactory.newTypeChecker(cmlSources, issueHandler);
+		
+		checker.typeCheck();
+		
+		return issueHandler;
+	}
+	
+	public static String buildErrorMessage(TypeIssueHandler tc, boolean expectedTypesOk) {
+		StringBuilder sb = new StringBuilder();
+		if (expectedTypesOk) {
+			sb.append("Expected type checking to be successful, the following errors were unexpected:\n");
+			for (CMLTypeError error : tc.getTypeErrors())
+				sb.append(error.toString() + "\n------\n");
+			if (tc.getTypeErrors().size() > 0)
+			System.out.println(tc.getTypeErrors().get(0).getStackTrace());
+		} else {
+			sb.append("Expected type checking to fail but it was successful.");
+		}
+		return sb.toString();
+	}
+
+	
     public static <T> void addTestProgram(List<Object[]> col, String src,
         Object... objs)
       {
@@ -70,11 +108,11 @@ public class TestUtil
         col.add(args);
       }
     
-    public static PSource makeSource(String cmlSource)
+    public static PSource makeSource(String cmlSource, String... names)
       {
         InputStream cmlSourceIn = new ByteArrayInputStream(cmlSource.getBytes());
         AInputStreamSource source = new AInputStreamSource();
-        source.setOrigin("Test Parameter");
+        source.setOrigin(names != null && names.length > 0 ? names[0] : "Test Parameter");
         source.setStream(cmlSourceIn);
         return source;
       }

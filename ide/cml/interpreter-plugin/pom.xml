@@ -87,6 +87,14 @@
       <artifactId>json-simple</artifactId>
       <version>1.1</version>
     </dependency>
+   <!--  Gson: Java to Json conversion -->
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.2.2</version>
+      <scope>compile</scope>
+    </dependency>
+    
   </dependencies>
 
  <build>
@@ -104,10 +112,44 @@
             </goals>
             <configuration>
               <artifactItems>
+              
+              	<artifactItem>
+      				<groupId>eu.compassresearch.core</groupId>
+      				<artifactId>typechecker</artifactId>
+      				<version>${project.version}</version>
+      				<type>jar</type>
+                  	<overWrite>true</overWrite>
+    			</artifactItem>
+    			
+    			<!--  Gson: Java to Json conversion -->
+			    <artifactItem>
+			      <groupId>com.google.code.gson</groupId>
+			      <artifactId>gson</artifactId>
+			      <type>jar</type>
+                  <overWrite>true</overWrite>
+			    </artifactItem>
+    			
+    
+			    <artifactItem>
+			      <groupId>org.overturetool.core</groupId>
+			      <artifactId>typechecker</artifactId>
+			      <version>${overture.version}</version>
+			      <type>jar</type>
+			      <overWrite>true</overWrite>
+			    </artifactItem>
+              
       			<artifactItem>
                   <groupId>eu.compassresearch.core</groupId>
                   <artifactId>interpreter</artifactId>
                   <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+                
+                <artifactItem>
+                  <groupId>org.overturetool.core</groupId>
+                  <artifactId>interpreter</artifactId>
+                  <version>${overture.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>

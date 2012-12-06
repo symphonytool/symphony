@@ -11,6 +11,8 @@
 	<include name="core/**" />
 	<include name="platform/**" />
         <include name="rtt-plugin/**"/>
+	<include name="tp-plugin/**"/>
+	<include name="interpreter-plugin/**"/>
 	<exclude name="**/target/"/>
       </fileset>
     </copy>

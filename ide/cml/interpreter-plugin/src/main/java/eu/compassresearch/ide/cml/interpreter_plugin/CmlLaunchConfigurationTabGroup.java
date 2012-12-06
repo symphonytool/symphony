@@ -5,6 +5,7 @@ import java.util.Vector;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.CommonTab;
@@ -12,6 +13,7 @@ import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.sourcelookup.SourceLookupTab;
+import org.eclipse.ui.PlatformUI;
 
 public class CmlLaunchConfigurationTabGroup extends AbstractLaunchConfigurationTabGroup  {
 
@@ -34,12 +36,14 @@ public class CmlLaunchConfigurationTabGroup extends AbstractLaunchConfigurationT
 	
 	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-		
+						
 		IProject project = CmlUtil.getCurrentSelectedProject();
 		//Set the project name
 		configuration.setAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(),project.getName());
 		//Set the project path
 		configuration.setAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_PATH.toString(),getProjectPath(project));
+		//Set the project src path
+		configuration.setAttribute(CmlLaunchConfigurationConstants.ATTR_CML_SOURCES_PATH.toString(),getProjectPath(project));
 		
 		super.setDefaults(configuration);
 	}

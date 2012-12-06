@@ -26,7 +26,9 @@ public enum TypeErrorMessages {
 	EXPECTED_TYPE_DEFINITION(
 			"Expected symbol \"%s\" to be a type definition. But it was not."),
 
-	EXPECTED_PROCESS_DEFINITION("%s is expected to be a process definition.");
+	EXPECTED_PROCESS_DEFINITION("%s is expected to be a process definition."),
+	
+	ILLEGAL_CONTEXT("The symbol \"%s\" requires a CML context to be resolved. No such context is present.")
 
 	;
 

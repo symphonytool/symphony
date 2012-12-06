@@ -4,10 +4,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.APrivateAccess;
+import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.typechecker.Pass;
+import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.PType;
 
@@ -21,6 +26,7 @@ import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.AMuAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -54,6 +60,60 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 class TCActionVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
+	/*
+	 * Get the type check info object (context) for a CML context
+	 * given a Overture one.
+	 */
+	private static TypeCheckInfo getTypeCheckInfo(org.overture.typechecker.TypeCheckInfo question)
+	{
+		if (question instanceof TypeCheckInfo)
+			return (TypeCheckInfo)question;
+		
+		return question.contextGet(TypeCheckInfo.class);
+	}
+	
+
+	@Override
+	public PType caseAMuAction(AMuAction node, org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
+		
+		
+		// extract elements from the node
+		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
+		LinkedList<PAction> acts = node.getActions();
+
+		// get the enclosing definition if any
+		PDefinition enclosingDef = question.env.getEnclosingDefinition();
+		
+		// get the CML context we are in
+		TypeCheckInfo info = getTypeCheckInfo(question);
+		
+		// 
+		TypeCheckInfo newQuestion = (TypeCheckInfo)info.newScope(info, enclosingDef);
+		
+		// add IDs to the environment
+		for(LexIdentifierToken id : ids)
+		{
+			newQuestion.addType(id, new ATypeDefinition(node.getLocation(), NameScope.LOCAL, false, null, new AAccessSpecifierAccessSpecifier(new APrivateAccess(), null,null), new AActionType(node.getLocation(),true), Pass.DEFS, null, null, null, null, false,null));			
+		}
+		
+		// check the actions
+		for(PAction act : acts)
+		{
+			PType actType = act.apply(parentChecker,newQuestion);
+			if (!TCDeclAndDefVisitor.successfulType(actType))
+			{
+				node.setType(issueHandler.addTypeError(act, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(act+"")));
+				return node.getType();
+			}
+
+		}
+		
+		node.setType(new AActionType());
+		return node.getType();
+	}
+
+	
 	@SuppressWarnings("deprecation")
 	@Override
 	public PType caseAChaosAction(AChaosAction node,
