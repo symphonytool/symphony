@@ -18,8 +18,12 @@
  *******************************************************************************/
 package eu.compassresearch.ide.cml.ui.editor.core;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.ITextViewerExtension5;
+import org.eclipse.jface.text.source.DefaultCharacterPairMatcher;
+import org.eclipse.jface.text.source.ICharacterPairMatcher;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -30,13 +34,13 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.ide.ui.IVdmUiConstants;
 import org.overture.ide.ui.editor.core.VdmSourceViewerConfiguration;
 
-import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
@@ -159,6 +163,25 @@ public class CmlEditor extends TextEditor {
 	setSourceViewerConfiguration(fVdmSourceViewer);
 	setRulerContextMenuId(IVdmUiConstants.RULERBAR_ID);
 
+    }
+     
+    @Override
+    protected void configureSourceViewerDecorationSupport (SourceViewerDecorationSupport support) {
+    	super.configureSourceViewerDecorationSupport(support);	
+    	
+    	final String EDITOR_MATCHING_BRACKETS = "matchingBrackets";
+        final String EDITOR_MATCHING_BRACKETS_COLOR= "matchingBracketsColor";
+    	     
+    	char[] matchChars = {'(', ')', '[', ']'}; //which brackets to match		
+    	ICharacterPairMatcher matcher = new DefaultCharacterPairMatcher(matchChars ,
+    			IDocumentExtension3.DEFAULT_PARTITIONING);
+    	support.setCharacterPairMatcher(matcher);
+    	support.setMatchingCharacterPainterPreferenceKeys(EDITOR_MATCHING_BRACKETS,EDITOR_MATCHING_BRACKETS_COLOR);
+     
+    	//Enable bracket highlighting in the preference store
+    	IPreferenceStore store = getPreferenceStore();
+    	store.setDefault(EDITOR_MATCHING_BRACKETS, true);
+    	store.setDefault(EDITOR_MATCHING_BRACKETS_COLOR, "128,128,128");
     }
 
     private CmlContentPageOutliner cmlOutLiner;
