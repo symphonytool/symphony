@@ -28,4 +28,11 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
 Import-Package: eu.compassresearch.ide.cml.core
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/gson-2.2.2.jar,
+ lib/interpreter-0.0.1.jar,
+ lib/interpreter-2.2.1.jar,
+ lib/json-simple-1.1.jar,
+ lib/typechecker-0.0.1.jar,
+ lib/typechecker-2.2.1.jar
+

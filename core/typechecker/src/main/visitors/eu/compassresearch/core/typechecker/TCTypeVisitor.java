@@ -1,3 +1,4 @@
+
 package eu.compassresearch.core.typechecker;
 
 import java.util.LinkedList;
@@ -54,11 +55,16 @@ class TCTypeVisitor extends
 	public PType caseAUnresolvedType(AUnresolvedType node,
 			TypeCheckInfo question) throws AnalysisException {
 
-		// picolas de gleda, film band
-		// film ringtones vol 1. - die golden slager box
 		// is it a globally declared type
 		List<SClassDefinition> classes = new LinkedList<SClassDefinition>();
-		classes.add((SClassDefinition) question.env.getEnclosingDefinition());
+		if (question.env.getEnclosingDefinition() == null)
+		{
+			eu.compassresearch.core.typechecker.TypeCheckInfo q = (eu.compassresearch.core.typechecker.TypeCheckInfo)question;
+			classes.add(q.getGlobalClassDefinitions());
+			
+		}
+		else
+			classes.add((SClassDefinition) question.env.getEnclosingDefinition());
 		PDefinition tDef = SClassDefinitionAssistantTC.findType(classes,
 				node.getName());
 		

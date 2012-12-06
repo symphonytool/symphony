@@ -44,9 +44,6 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
 @SuppressWarnings("serial")
 class VanillaCmlTypeChecker extends AbstractTypeChecker {
 
-	static {
-		System.out.println("CML VanillaTypeChecker Loaded ");
-	}
 	
 	// ---------------------------------------------
 	// -- Type Checker State

@@ -35,6 +35,7 @@
       <plugin id="eu.compassresearch.ide.cml.rtt-plugin"/>
       <plugin id="eu.compassresearch.ide.cml.tpplugin"/>
       <plugin id="eu.compassresearch.ide.cml.ui"/>
+      <plugin id="eu.compassresearch.ide.cml.interpreter_plugin"/>
       <plugin id="isabelle.eclipse.core"/>
       <plugin id="isabelle.eclipse.launch"/>
       <plugin id="isabelle.eclipse.ui"/>

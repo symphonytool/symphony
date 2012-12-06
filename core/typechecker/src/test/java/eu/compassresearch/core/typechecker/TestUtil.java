@@ -29,6 +29,7 @@ public class TestUtil
 		
 		List<PSource> cmlSources = Arrays.asList(new PSource[] { fileSource });
 		
+		
 		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 		
 		CmlTypeChecker checker = VanillaFactory.newTypeChecker(cmlSources, issueHandler);

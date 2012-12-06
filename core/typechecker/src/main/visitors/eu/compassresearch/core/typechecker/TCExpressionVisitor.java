@@ -38,6 +38,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	}
 
 
+	
+
+
+
 
 	@Override
 	public PType caseAVariableExp(AVariableExp node, TypeCheckInfo question)
