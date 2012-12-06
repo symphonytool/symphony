@@ -296,10 +296,12 @@ public class CheckCml {
 			Class<?> clz = a.getClass();
 			Method getAnalysisName = clz.getMethod("getAnalysisName",
 					new Class<?>[] {});
+			getAnalysisName.setAccessible(true);
 			res = (String) getAnalysisName.invoke(a, new Object[] {});
 
 		} catch (Exception e) {
-			return res;
+		    e.printStackTrace();
+			return " e "+res;
 		}
 		return res;
 	}
@@ -317,9 +319,10 @@ public class CheckCml {
 
 		for (PSource source : sources) {
 			try {
-				System.out.println(" Running " + getAnalysisName(analysis)
-						+ " on " + source.toString());
+				System.out.print(" Running " + getAnalysisName(analysis)
+						+ " on " + source.toString() + " ");
 				analysis.apply(source);
+				System.out.println();
 			} catch (Exception e) {
 				if (!silentOnException) {
 					e.printStackTrace();
@@ -436,6 +439,10 @@ public class CheckCml {
 								.getTypeErrors())
 							System.out.println("\t" + e);
 					}
+					else
+					    {
+						System.out.println("[model types are ok]");
+					    }
 				}
 			};
 			runAnalysis(input, r, sources);

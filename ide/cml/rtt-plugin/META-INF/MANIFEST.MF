@@ -1,12 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: COMPASS RT Tester Plugin
-Bundle-SymbolicName: eu.compassresearch.ide.cml.rttplugin;singleton:=true
+Bundle-Name: COMPASS IDE RT Tester Plugin
+Bundle-SymbolicName: eu.compassresearch.ide.cml.rtt-plugin;singleton:=true
 Bundle-Version: 0.0.1
-Bundle-ClassPath: .,
- lib/rtt-mbt-0.0.1.jar,
- lib/commons-codec-1.5.jar,
- lib/json-simple-1.1.jar
 Bundle-Activator: eu.compassresearch.ide.cml.rttplugin.Activator
 Bundle-Vendor: The COMPASS Project
 Require-Bundle: eu.compassresearch.ide.cml.core,
@@ -25,3 +21,8 @@ Require-Bundle: eu.compassresearch.ide.cml.core,
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
+Bundle-ClassPath: .,
+ lib/json-simple-1.1.jar,
+ lib/ast-0.0.1.jar,
+ lib/rtt-mbt-0.0.1.jar,
+ lib/ast-2.2.1.jar

@@ -2,6 +2,7 @@ package eu.compassresearch.core.typechecker;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.overture.ast.definitions.AClassClassDefinition;
@@ -40,6 +41,19 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 
 	private final TypeIssueHandler issueHandler;
 
+	private static class AccessibleFlatEnvironment extends FlatEnvironment
+	{
+
+		public AccessibleFlatEnvironment(List<PDefinition> definitions) {
+			super(definitions);
+		}
+
+		public List<PDefinition> getDefinitions()
+		{
+			return super.definitions;
+		}
+	}
+	
 	/**
 	 * Create a new Type Check Info at top level
 	 * 
@@ -56,7 +70,7 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 
 	private TypeCheckInfo(TypeIssueHandler issueHandler,
 			SClassDefinition globalDefs) {
-		super(new FlatEnvironment(new LinkedList<PDefinition>()));
+		super(new AccessibleFlatEnvironment(new LinkedList<PDefinition>()));
 		this.issueHandler = issueHandler;
 		this.channels = new Environment<PDefinition>(issueHandler);
 		this.globalClassDefinition = globalDefs;
@@ -116,13 +130,22 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 			fenv.add(variable);
 		}
 	}
+	
 
+	public List<PDefinition> getDefinitions()
+	{
+		AccessibleFlatEnvironment env = (AccessibleFlatEnvironment)super.env;
+		return env.getDefinitions();
+	}
+	
+	
 	@Override
-	public TypeCheckInfo newScope(PDefinition def) {
+	public TypeCheckInfo newScope(SClassDefinition def) {
 		// Variables are scoped, types and channels are global (for now at
 		// least)
 		TypeCheckInfo res = new TypeCheckInfo(this.channels, super.env,
-				issueHandler, this.globalClassDefinition);
+				issueHandler, globalClassDefinition);
+		res.env.setEnclosingDefinition(def);
 		return res;
 	}
 
@@ -171,6 +194,12 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 	@Override
 	public void setGlobalClassDefinitions(SClassDefinition globalRoot) {
 		this.globalClassDefinition = globalRoot;
+	}
+
+	public TypeCheckQuestion newScope(
+			org.overture.typechecker.TypeCheckInfo current, PDefinition def) {
+		TypeCheckInfo res = new TypeCheckInfo(channels,env,issueHandler, this.globalClassDefinition);
+		return res;
 	}
 
 }
