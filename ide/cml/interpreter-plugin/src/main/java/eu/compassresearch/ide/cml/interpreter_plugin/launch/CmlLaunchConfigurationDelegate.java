@@ -2,6 +2,7 @@ package eu.compassresearch.ide.cml.interpreter_plugin.launch;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IProject;
@@ -21,6 +22,7 @@ import org.eclipse.jdt.launching.VMRunnerConfiguration;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
 import eu.compassresearch.ide.cml.interpreter_plugin.model.CmlDebugTarget;
 
 
@@ -56,7 +58,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 			JSONObject obj = serializeLaunchConfigurationToJSON(configuration);
 			obj.put("mode", mode);
 			
-			String mainJavaClass = "eu.compassresearch.ide.cml.interpreter_plugin.CmlInterpreterRunner";
+			String mainJavaClass = "eu.compassresearch.core.interpreter.debug.CmlInterpreterRunner";
 			
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
 			{
@@ -73,13 +75,20 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 				String[] commandArray = new String[]{
 						"java",
 						"-cp",
-						"/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/target/*:" +
-						"/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/lib/*:" +
-						"/home/akm/sandbox/overture_cml/ide/cml/core/lib/*",
+						"/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/lib/*",
 						mainJavaClass,
 						JSONValue.toJSONString(obj)
 				};
-				File dir = new File("/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/target/");
+				File dir = new File("/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/lib/");
+				
+				
+				
+				try {
+					System.out.println(CmlLaunchConfigurationDelegate.class.getProtectionDomain().getCodeSource().getLocation().toURI().toString());
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
 				
 				//Execute in a new JVM process
 				Process process = Runtime.getRuntime().exec(commandArray, null, dir);
@@ -101,9 +110,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 				// Create VM config
 				//TODO: this should be added from the config with absolut paths
 				VMRunnerConfiguration runConfig = new VMRunnerConfiguration(mainJavaClass, 
-												new String[]{"/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/target/*",
-															"/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/lib/*",
-															"/home/akm/sandbox/overture_cml/ide/cml/core/lib/*"});
+												new String[]{"/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/lib/*"});
 				
 								
 				runConfig.setProgramArguments(new String[]{JSONValue.toJSONString(obj)});

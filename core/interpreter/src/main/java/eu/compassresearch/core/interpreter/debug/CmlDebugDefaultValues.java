@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin.launch;
+package eu.compassresearch.core.interpreter.debug;
 
 public class CmlDebugDefaultValues {
 

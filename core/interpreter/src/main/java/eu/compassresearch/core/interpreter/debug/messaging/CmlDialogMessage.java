@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin.messaging;
+package eu.compassresearch.core.interpreter.debug.messaging;
 
 import java.lang.reflect.Type;
 import java.util.UUID;

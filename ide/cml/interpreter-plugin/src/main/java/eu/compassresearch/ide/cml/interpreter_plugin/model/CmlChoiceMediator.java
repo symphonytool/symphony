@@ -9,10 +9,10 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlResponseMessage;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugConstants;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlRequest;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlRequestMessage;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlResponseMessage;
 import eu.compassresearch.ide.cml.interpreter_plugin.views.CmlEventOptionView;
 
 public class CmlChoiceMediator implements IDoubleClickListener{

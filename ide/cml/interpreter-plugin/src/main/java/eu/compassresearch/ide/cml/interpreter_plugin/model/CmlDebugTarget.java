@@ -28,15 +28,15 @@ import org.eclipse.debug.core.model.IThread;
 
 import com.google.gson.reflect.TypeToken;
 
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlDbgCommandMessage;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlDbgStatusMessage;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlDbgpStatus;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlDebugCommand;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlMessage;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlMessageCommunicator;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlMessageContainer;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlRequest;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlRequestMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgStatusMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgpStatus;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlDebugCommand;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageCommunicator;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageContainer;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
 
 public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
@@ -277,12 +277,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 	@Override
 	public ILaunch getLaunch() {
 		return launch;
-	}
-
-	@Override
-	public Object getAdapter(Class arg0) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

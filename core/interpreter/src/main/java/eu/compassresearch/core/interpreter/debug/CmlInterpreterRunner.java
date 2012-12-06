@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin;
+package eu.compassresearch.core.interpreter.debug;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,21 +27,19 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgStatusMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgpStatus;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageCommunicator;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageContainer;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlResponseMessage;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
-import eu.compassresearch.ide.cml.interpreter_plugin.launch.CmlDebugDefaultValues;
-import eu.compassresearch.ide.cml.interpreter_plugin.launch.CmlLaunchConfigurationConstants;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlDbgCommandMessage;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlDbgStatusMessage;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlDbgpStatus;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlMessageCommunicator;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlMessageContainer;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlRequest;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlRequestMessage;
-import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlResponseMessage;
 
 
 
@@ -343,7 +341,7 @@ public class CmlInterpreterRunner {
 		Object obj=JSONValue.parse(args[0]);
 		JSONObject config =(JSONObject)obj;
 		//retrieve the paths for the cml sources of the project
-		List<String> cmlfilePaths = getCmlfilePaths((String)config.get(CmlLaunchConfigurationConstants.ATTR_CML_SOURCES_PATH.toString()));
+		List<String> cmlfilePaths = getCmlfilePaths((String)config.get("eu.compassresearch.ide.cml.interpreter_plugin.cml_sources_path"));
 		System.out.println(cmlfilePaths);
 	
 		List<PSource> sourceForest = new LinkedList<PSource>();

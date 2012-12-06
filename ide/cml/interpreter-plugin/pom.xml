@@ -161,6 +161,33 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
+                
+                <artifactItem>
+      				<groupId>eu.compassresearch.core</groupId>
+      				<artifactId>ast</artifactId>
+      				<version>${project.version}</version>
+      				<type>jar</type>
+                  	<overWrite>true</overWrite>
+    			</artifactItem>
+    			
+    			<!-- COMPASS Parser -->
+    			<artifactItem>
+      				<groupId>eu.compassresearch.core</groupId>
+      				<artifactId>parser</artifactId>
+      				<version>${project.version}</version>
+      				<type>jar</type>
+                  	<overWrite>true</overWrite>
+    			</artifactItem>
+    			
+    			 <!-- Overture Parser -->
+                <artifactItem>
+                  <groupId>org.overturetool.core</groupId>
+                  <artifactId>parser</artifactId>
+                  <version>${overture.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+                
               </artifactItems>
               <outputDirectory>lib</outputDirectory>
               <overWriteReleases>true</overWriteReleases>

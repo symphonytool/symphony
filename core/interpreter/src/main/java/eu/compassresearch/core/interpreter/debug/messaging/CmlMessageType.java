@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin.messaging;
+package eu.compassresearch.core.interpreter.debug.messaging;
 
 public enum CmlMessageType {
 
