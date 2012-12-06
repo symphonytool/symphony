@@ -220,9 +220,9 @@ public class ProcessMap {
 	    SReplicatedProcessBase repliproc = (SReplicatedProcessBase) proc;
 
 	    StringBuilder sb = new StringBuilder();
-	    sb.append("replication");
+	    sb.append("rplc");
 	    sb.append(" @ ");
-	    sb.append(" " + repliproc.getReplicatedProcess());
+	    sb.append(repliproc.getReplicatedProcess().toString());
 	    r.add(Wrapper.newInstance(proc, sb.toString()));
 	    return r;
 	}
