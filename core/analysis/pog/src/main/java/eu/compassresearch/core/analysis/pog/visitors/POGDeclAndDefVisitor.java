@@ -24,12 +24,15 @@ import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
+import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
+import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
+import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
+import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
-import eu.compassresearch.core.analysis.pog.obligations.CMLPOFunctionDefinitionContext;
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
@@ -90,7 +93,6 @@ public class POGDeclAndDefVisitor extends
 		PType type = node.getSingleType().getType();    	
     
     	return pol;
-    	
     }
     
     /**
@@ -241,9 +243,6 @@ public class POGDeclAndDefVisitor extends
     @Override
     public CMLProofObligationList defaultPDeclaration(PDeclaration node,
 	    POContextStack question) throws AnalysisException {
-    	System.out.println("Reached POGDeclAndDefVisitor - defaultPDeclaration");
-    	System.out.println(node.toString() +" : " + node.getClass());
-
     	CMLProofObligationList pol = new CMLProofObligationList();
     	pol.addAll(node.apply(overtureVisitor, question));
     	return pol;
@@ -252,9 +251,6 @@ public class POGDeclAndDefVisitor extends
     @Override
     public CMLProofObligationList defaultPDefinition(PDefinition node,
 	    POContextStack question) throws AnalysisException {
-    	System.out.println("Reached POGDeclAndDefVisitor - defaultPDefinition");
-    	System.out.println(node.toString() +" : " +node.getClass());
-    	
     	CMLProofObligationList pol = new CMLProofObligationList();
     	pol.addAll(node.apply(overtureVisitor, question));
     	return pol;
@@ -273,23 +269,81 @@ public class POGDeclAndDefVisitor extends
   
 
    
-//    /**
-//     * 
-//     * VDM ELEMENT - Types
-//     * 
-//     */
-//    @Override
-//    public ProofObligationList caseATypesParagraphDefinition(
-//	    ATypesParagraphDefinition node, POContextStack question)
-//	    throws AnalysisException {
-//    	CMLProofObligationList pol = new CMLProofObligationList();
-//	
-//    	for (PDefinition def : node.getTypes()) {
-//    		pol.addAll(def.apply(this, question));
-//    	}
-//
-//    	return pol;
-//    }
+    /**
+     * 
+     * VDM ELEMENT - Types
+     * 
+     */
+    @Override
+    public ProofObligationList caseATypesParagraphDefinition(
+	    ATypesParagraphDefinition node, POContextStack question)
+	    throws AnalysisException {
+    	CMLProofObligationList pol = new CMLProofObligationList();
+	
+    	for (PDefinition def : node.getTypes()) {
+    		pol.addAll(def.apply(this, question));
+    	}
+
+    	return pol;
+    }
+    
+	  /**
+	  * 
+	  * VDM ELEMENT - Values
+	  * 
+	  */
+	 @Override
+	 public ProofObligationList caseAValueParagraphDefinition(
+		    AValueParagraphDefinition node, POContextStack question)
+		    throws AnalysisException {
+	 	
+			CMLProofObligationList pol = new CMLProofObligationList();
+			LinkedList<PDefinition> list = node.getValueDefinitions();
+			
+			for (PDefinition def : list) {
+			   pol.addAll(def.apply(parentPOG, question));
+			}
+		
+			return pol;
+	 }
+	 
+	  /**
+	  * 
+	  * VDM ELEMENT - Functions
+	  * 
+	  */
+	 @Override
+	 public ProofObligationList caseAFunctionParagraphDefinition(
+		    AFunctionParagraphDefinition node, POContextStack question)
+		    throws AnalysisException {
+			CMLProofObligationList obligations = new CMLProofObligationList();
+		
+			for (PDefinition def : node.getFunctionDefinitions()) {
+				obligations.addAll(def.apply(parentPOG, question));
+			}
+		
+			return obligations;
+	 }
+	 
+	  /**
+	  * 
+	  * VDM ELEMENT - Operations
+	  * 
+	  */
+	 @Override
+	 public ProofObligationList caseAOperationParagraphDefinition(
+		    AOperationParagraphDefinition node, POContextStack question)
+		    throws AnalysisException {
+	 	CMLProofObligationList pol = new CMLProofObligationList();
+			for (PDefinition def : node.getOperations()) {
+		    	pol.addAll(def.apply(this, question));
+			}
+			return pol;
+	 }
+}
+
+
+
 //
 //    @Override
 //    public ProofObligationList caseATypeDefinition(ATypeDefinition node,
@@ -326,25 +380,7 @@ public class POGDeclAndDefVisitor extends
 //    }
 //
 //
-//    /**
-//     * 
-//     * VDM ELEMENT - Values
-//     * 
-//     */
-//    @Override
-//    public ProofObligationList caseAValueParagraphDefinition(
-//	    AValueParagraphDefinition node, POContextStack question)
-//	    throws AnalysisException {
-//    	
-//		CMLProofObligationList pol = new CMLProofObligationList();
-//		LinkedList<PDefinition> list = node.getValueDefinitions();
-//		
-//		for (PDefinition def : list) {
-//		   pol.addAll(def.apply(parentPOG, question));
-//		}
-//	
-//		return pol;
-//    }
+
 //
 //    @Override
 //    public ProofObligationList caseAValueDefinition(AValueDefinition node,
@@ -402,23 +438,7 @@ public class POGDeclAndDefVisitor extends
 //    }
 //
 //
-//    /**
-//     * 
-//     * VDM ELEMENT - Functions
-//     * 
-//     */
-//    @Override
-//    public ProofObligationList caseAFunctionParagraphDefinition(
-//	    AFunctionParagraphDefinition node, POContextStack question)
-//	    throws AnalysisException {
-//		CMLProofObligationList obligations = new CMLProofObligationList();
-//	
-//		for (PDefinition def : node.getFunctionDefinitions()) {
-//			obligations.addAll(def.apply(parentPOG, question));
-//		}
-//	
-//		return obligations;
-//    }
+
 //
 //    @Override
 //    public ProofObligationList caseAExplicitFunctionDefinition(
@@ -561,21 +581,7 @@ public class POGDeclAndDefVisitor extends
 //
 //    
 //
-//    /**
-//     * 
-//     * VDM ELEMENT - Operations
-//     * 
-//     */
-//    @Override
-//    public ProofObligationList caseAOperationParagraphDefinition(
-//	    AOperationParagraphDefinition node, POContextStack question)
-//	    throws AnalysisException {
-//    	CMLProofObligationList pol = new CMLProofObligationList();
-//		for (PDefinition def : node.getOperations()) {
-//	    	pol.addAll(def.apply(this, question));
-//		}
-//		return pol;
-//    }
+
 //
 //    @Override
 //    public ProofObligationList caseAExplicitOperationDefinition(
@@ -680,107 +686,3 @@ public class POGDeclAndDefVisitor extends
 //
 //		return pol;
 //	}
-    
-  
-   
-    
-    // @Override
-    // public ProofObligationList caseAProcessParagraphDefinition(
-    // AProcessParagraphDefinition node, POContextStack question)
-    // throws AnalysisException
-    // {
-    // System.out.println("- caseAProcessParagraphDefinition - ");
-    //
-    // AProcessDefinition pdef = node.getProcessDefinition();
-    // ProofObligationList pol = pdef.apply(this, question);
-    //
-    // return new ProofObligationList();
-    // }
-    //
-    // @Override
-    // public ProofObligationList caseAProcessDefinition(
-    // AProcessDefinition node, POContextStack question)
-    // throws AnalysisException
-    // {
-    // System.out.println("- caseAProcessDefinition - ");
-    //
-    // System.out.println("----------***----------");
-    // System.out.println(node.toString());
-    //
-    // //NEED TO WORK OUT CONTENTS OF PROCESS AND DISPATCH RELEVANT PARTS
-    // //LinkedList<> lstate = node.getLocalState();
-    // //for ( s : lstate)
-    // //{
-    // // System.out.println("----------***----------");
-    // // ProofObligationList td = s.apply(this, question);
-    // // System.out.println("----------***----------");
-    // //}
-    //
-    // PProcess pdef = node.getProcess();
-    // System.out.println("----------***----------");
-    // ProofObligationList pol = pdef.apply(this, question);
-    // System.out.println(pdef.toString());
-    // System.out.println("----------***----------");
-    //
-    //
-    //
-    // //ProofObligationList td = d.apply(this, question);
-    // System.out.println("----------***----------");
-    //
-    // return new ProofObligationList();
-    // }
-    
-    //
-    // @Override
-    // public ProofObligationList caseAChansetParagraphDefinition(
-    // AChansetParagraphDefinition node, POContextStack question)
-    // throws AnalysisException
-    // {
-    // System.out.println("- caseAChansetParagraphDefinition -");
-    //
-    // LinkedList<AChansetDefinition> subNodes = node.getChansets();
-    // for (AChansetDefinition d : subNodes)
-    // {
-    // System.out.println("----------***----------");
-    // ProofObligationList td = d.apply(this, question);
-    // System.out.println("----------***----------");
-    // }
-    //
-    // return new ProofObligationList();
-    // }
-    //
-    // @Override
-    // public ProofObligationList caseAChansetDefinition(
-    // AChansetDefinition node, POContextStack question)
-    // throws AnalysisException
-    // {
-    // System.out.println("- caseAChansetDefinition -");
-    //
-    // System.out.println(node.toString());
-    // ProofObligationList list = new ProofObligationList();
-    //
-    // return list;
-    // }
-    //
-    //
-    // @Override
-    // public ProofObligationList caseAChannelParagraphDefinition(
-    // AChannelParagraphDefinition node, POContextStack question)
-    // throws AnalysisException
-    // {
-    // System.out.println("- caseAChannelParagraphDefinition -");
-    //
-    //
-    // LinkedList<AChannelNameDeclaration> cns = node.getChannelNames();
-    // for (AChannelNameDeclaration decl : cns)
-    // {
-    //
-    // System.out.println("----------***----------");
-    // System.out.println(decl.toString());
-    // CMLProofObligationList typeBack = decl.apply(this, question);
-    // System.out.println("----------***----------");
-    // }
-    //
-    // return new CMLProofObligationList();
-    // }
-}
