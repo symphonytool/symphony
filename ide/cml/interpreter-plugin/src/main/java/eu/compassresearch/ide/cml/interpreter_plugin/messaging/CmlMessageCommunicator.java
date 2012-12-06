@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin;
+package eu.compassresearch.ide.cml.interpreter_plugin.messaging;
 
 import java.io.BufferedReader;
 import java.io.IOException;

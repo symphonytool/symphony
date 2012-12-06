@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin;
+package eu.compassresearch.ide.cml.interpreter_plugin.views;
 
 import java.util.LinkedList;
 import java.util.List;

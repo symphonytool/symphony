@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin;
+package eu.compassresearch.ide.cml.interpreter_plugin.model;
 
 import java.util.List;
 
@@ -9,7 +9,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import eu.compassresearch.ide.cml.interpreter_plugin.model.CmlDebugTarget;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugConstants;
+import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlRequest;
+import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlRequestMessage;
+import eu.compassresearch.ide.cml.interpreter_plugin.messaging.CmlResponseMessage;
+import eu.compassresearch.ide.cml.interpreter_plugin.views.CmlEventOptionView;
 
 public class CmlChoiceMediator implements IDoubleClickListener{
 

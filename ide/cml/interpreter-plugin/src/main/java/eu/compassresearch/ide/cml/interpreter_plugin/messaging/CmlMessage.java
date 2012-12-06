@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin;
+package eu.compassresearch.ide.cml.interpreter_plugin.messaging;
 
 public abstract class CmlMessage {
 
@@ -19,6 +19,7 @@ public abstract class CmlMessage {
 	
 	public abstract CmlMessageType getType();
 	
+	public abstract String getKey();
 	
 	
 }

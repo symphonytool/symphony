@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin;
+package eu.compassresearch.ide.cml.interpreter_plugin.messaging;
 
 public class CmlDbgCommandMessage extends CmlMessage {
 
@@ -20,5 +20,10 @@ public class CmlDbgCommandMessage extends CmlMessage {
 	@Override
 	public CmlMessageType getType() {
 		return CmlMessageType.COMMAND;
+	}
+
+	@Override
+	public String getKey() {
+		return getCommand().toString();
 	}
 }

@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin;
+package eu.compassresearch.ide.cml.interpreter_plugin.messaging;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
@@ -53,4 +53,11 @@ public abstract class CmlDialogMessage extends CmlMessage{
 
 	@Override
 	public abstract CmlMessageType getType();
+	
+	@Override
+	public String getKey()
+	{
+		return getRequest().toString();
+	}
+	
 }

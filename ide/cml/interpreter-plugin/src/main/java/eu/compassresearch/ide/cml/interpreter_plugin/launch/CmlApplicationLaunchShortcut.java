@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin;
+package eu.compassresearch.ide.cml.interpreter_plugin.launch;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -15,6 +15,8 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.ui.IEditorPart;
 
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugConstants;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlUtil;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
