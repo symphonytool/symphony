@@ -18,6 +18,8 @@ import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
+import eu.compassresearch.ast.process.AReferenceProcess;
+import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
@@ -80,6 +82,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			if (n instanceof Wrapper) {
 				Wrapper w = (Wrapper) n;
 
+			
 				if (w.isClass(AClassParagraphDefinition.class)) {
 					return handleClassParagraphDefinition(
 							(AClassParagraphDefinition) w.value).toArray();
@@ -102,6 +105,11 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 					return handleProcessParagraphDefinition(
 							(AProcessParagraphDefinition) w.value).toArray();
 				}
+				
+				if (w.isClass(AStateProcess.class)) {
+				    return handleReferenceProcess((AStateProcess) w.value).toArray();
+				}
+				
 
 				if (w.isClass(ATypesParagraphDefinition.class)) {
 					List<Wrapper<? extends PDefinition>> res = new LinkedList<Wrapper<? extends PDefinition>>();
@@ -124,6 +132,8 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			return new String[] { SMILING_ERROR_STRING };
 		}
 	}
+
+
 
 	private List<Wrapper<? extends PDefinition>> handleChansetParagraphDefinition(
 			AChansetParagraphDefinition cspdef) {
@@ -157,11 +167,27 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		return null;
 	}
 
+	//TODO - correct hasChildren method for reference processes at the highest level
 	@Override
 	public boolean hasChildren(Object element) {
-		return element instanceof Wrapper;
+	    if (element instanceof Wrapper){
+		Wrapper w = (Wrapper) element;
+		if (w.value instanceof AReferenceProcess)
+		    return false;
+		return true;
+	    }
+
+
+		return false;
 	}
 
+	private List<Wrapper<? extends INode>> handleReferenceProcess(
+		PProcess pp) {
+	    if (ProcessMap.getDelegate(pp.getClass()) != null)
+		return ProcessMap.getDelegate(pp.getClass()).makeEntries(pp);
+	    return new LinkedList<Wrapper<? extends INode>>();
+	}
+	
 	@SuppressWarnings("unchecked")
 	private List<Wrapper<? extends INode>> handleProcessParagraphDefinition(
 			AProcessParagraphDefinition ppdef) {

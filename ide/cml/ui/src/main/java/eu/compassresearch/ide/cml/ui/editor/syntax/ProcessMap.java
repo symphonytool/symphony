@@ -25,6 +25,7 @@ import eu.compassresearch.ast.process.AInterleavingReplicatedProcess;
 import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AInternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
+import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
 import eu.compassresearch.ast.process.AStartDeadlineProcess;
@@ -119,7 +120,7 @@ public class ProcessMap {
 		    + cls.getCanonicalName());
 	return r;
     }
-    
+
     private static class  AStartDeadlineProcessHandler implements ProcessHandler {
 
 	@Override
@@ -129,7 +130,7 @@ public class ProcessMap {
 
 	    StringBuilder sb = new StringBuilder();
 	    sb.append(startdeadproc.getLeft());
-	    sb.append(" startby n");
+	    sb.append(" startby e");
 //	    sb.append(startdeadproc.getExpression());
 	    r.add(Wrapper.newInstance(proc, sb.toString()));
 
@@ -165,7 +166,7 @@ public class ProcessMap {
 
 	    StringBuilder sb = new StringBuilder();
 	    sb.append(enddeadproc.getLeft());
-	    sb.append(" endsby n");
+	    sb.append(" endsby e");
 //	    sb.append(chanproc.getRenameExpression());
 	    r.add(Wrapper.newInstance(proc, sb.toString()));
 
@@ -202,7 +203,7 @@ public class ProcessMap {
 
 	    StringBuilder sb = new StringBuilder();
 	    sb.append(hideproc.getLeft());
-	    sb.append(" \\ cs ");
+	    sb.append(" \\\\ cs ");
 //	    sb.append("[ " + hideproc.getChansetExpression() + " ]");
 	    r.add(Wrapper.newInstance(proc, sb.toString()));
 
@@ -220,11 +221,14 @@ public class ProcessMap {
 	    SReplicatedProcessBase repliproc = (SReplicatedProcessBase) proc;
 
 	    StringBuilder sb = new StringBuilder();
-	    sb.append("rplc");
-	    sb.append(" @ ");
+	    sb.append(getReplicateSign());
 	    sb.append(repliproc.getReplicatedProcess().toString());
 	    r.add(Wrapper.newInstance(proc, sb.toString()));
 	    return r;
+	}
+	
+	public String getReplicateSign(){
+	    return "rplc @ ";
 	}
 
     }
@@ -298,11 +302,19 @@ public class ProcessMap {
 	@Override
 	public List<Wrapper<? extends INode>> makeEntries(PProcess proc) {
 	    List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
-	    StringBuilder sb = new StringBuilder();
-	    sb.append(getLeft(proc).toString());
-	    sb.append(this.getConnectionSymbol(proc));
-	    sb.append(getRight(proc).toString());
-	    r.add(Wrapper.newInstance(proc, sb.toString()));
+	    PProcess leftproc = getLeft(proc);
+	    PProcess rightproc = getRight(proc);
+//	    r.addAll(ProcessMap.getDelegate(leftproc.getClass()).makeEntries(leftproc));
+	    r.add(Wrapper.newInstance(leftproc, leftproc.toString()));
+	    r.add(Wrapper.newInstance(new AReferenceProcess(), getConnectionSymbol(proc)));
+//	    r.addAll(ProcessMap.getDelegate(rightproc.getClass()).makeEntries(rightproc));	    
+	    r.add(Wrapper.newInstance(rightproc, rightproc.toString()));
+	    
+//	    StringBuilder sb = new StringBuilder();
+//	    sb.append(getLeft(proc).toString());
+//	    sb.append(this.getConnectionSymbol(proc));
+//	    sb.append(getRight(proc).toString());
+//	    r.add(Wrapper.newInstance(proc, sb.toString()));
 	    return r;
 	}
     }
@@ -362,7 +374,7 @@ public class ProcessMap {
 
 	@Override
 	public String getConnectionSymbol(PProcess proc) {
-	    return " [n] ";
+	    return " [ e |>  ";
 	}
 
 	@Override
@@ -402,7 +414,7 @@ public class ProcessMap {
 
 	@Override
 	public String getConnectionSymbol(PProcess proc) {
-	    return " [X || Y]] ";
+	    return " [ X || Y ]] ";
 	    // AAlphabetisedParallelismProcess app =
 	    // (AAlphabetisedParallelismProcess) proc;
 	    // StringBuilder sb = new StringBuilder();
@@ -430,7 +442,7 @@ public class ProcessMap {
 
 	@Override
 	public String getConnectionSymbol(PProcess proc) {
-	    return " inter ";
+	    return " ||| ";
 	}
 
 	@Override
@@ -500,7 +512,7 @@ public class ProcessMap {
 
 	@Override
 	public String getConnectionSymbol(PProcess proc) {
-	    return " [|{| ... |}|] ";
+	    return " [| cs |] ";
 	}
 
     }
