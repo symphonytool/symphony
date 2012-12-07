@@ -19,7 +19,7 @@ import org.overture.ast.factory.AstFactory;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PBind;
 import org.overture.ast.patterns.PMultipleBind;
-import org.overture.ast.patterns.PPattern;
+import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.FlatEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
@@ -47,7 +47,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	
 	// ---------------------------------------------
 	// -- Type Checker State
-	// ---------------------------------------------
+	// ---------------------------------------------m
 	// subcheckers
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> exp;
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> act;
@@ -224,11 +224,27 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		if (!cleared)
 			return lastResult;
 
-		List<PPattern> list;
-
 		try {
 			globalRoot = CollectGlobalStateClass.getGlobalRoot(
 					this.sourceForest, issueHandler, info);
+
+			// Add all global definitions to the environment
+			for (PDefinition d : globalRoot.getDefinitions()) {
+				PDefinition defToAdd = null;
+				if (d instanceof AValueDefinition) {
+					AValueDefinition vdef = (AValueDefinition) d;
+					defToAdd = AstFactory.newALocalDefinition(vdef.getLocation(),
+							vdef.getName(), vdef.getNameScope(), vdef.getType());
+				}
+
+				if (d instanceof ATypeDefinition)
+					defToAdd = d;
+
+				if (defToAdd != null)
+					((FlatEnvironment) info.env).add(defToAdd);
+			}
+			info.env.setEnclosingDefinition(globalRoot);
+			info.scope = NameScope.GLOBAL;
 			PType globalRootType = ((TCDeclAndDefVisitor) dad)
 					.typeCheckOvertureClass(globalRoot, info);
 			if (!TCDeclAndDefVisitor.successfulType(globalRootType)) {
@@ -242,22 +258,6 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 			e.printStackTrace();
 		}
 
-		// Add all global definitions to the environment
-		for (PDefinition d : globalRoot.getDefinitions()) {
-			PDefinition defToAdd = null;
-			if (d instanceof AValueDefinition) {
-				AValueDefinition vdef = (AValueDefinition) d;
-				defToAdd = AstFactory.newALocalDefinition(vdef.getLocation(),
-						vdef.getName(), vdef.getNameScope(), vdef.getType());
-			}
-
-			if (d instanceof ATypeDefinition)
-				defToAdd = d;
-
-			if (defToAdd != null)
-				((FlatEnvironment) info.env).add(defToAdd);
-		}
-		info.env.setEnclosingDefinition(globalRoot);
 
 		// for each source
 		for (PSource s : sourceForest) {

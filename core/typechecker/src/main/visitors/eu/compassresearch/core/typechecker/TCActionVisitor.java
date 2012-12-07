@@ -58,7 +58,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
  */
 @SuppressWarnings("serial")
 class TCActionVisitor extends
-		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
+QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 	/*
 	 * Get the type check info object (context) for a CML context
@@ -68,57 +68,57 @@ class TCActionVisitor extends
 	{
 		if (question instanceof TypeCheckInfo)
 			return (TypeCheckInfo)question;
-		
+
 		return question.contextGet(TypeCheckInfo.class);
 	}
-	
+
 
 	@Override
 	public PType caseAMuAction(AMuAction node, org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		
-		
+
+
 		// extract elements from the node
 		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
 		LinkedList<PAction> acts = node.getActions();
 
 		// get the enclosing definition if any
 		PDefinition enclosingDef = question.env.getEnclosingDefinition();
-		
+
 		// get the CML context we are in
 		TypeCheckInfo info = getTypeCheckInfo(question);
-		
+
 		// 
 		TypeCheckInfo newQuestion = (TypeCheckInfo)info.newScope(info, enclosingDef);
-		
+
 		// add IDs to the environment
 		for(LexIdentifierToken id : ids)
 		{
-			newQuestion.addType(id, new ATypeDefinition(node.getLocation(), NameScope.LOCAL, false, null, new AAccessSpecifierAccessSpecifier(new APrivateAccess(), null,null), new AActionType(node.getLocation(),true), Pass.DEFS, null, null, null, null, false,null));			
+			newQuestion.addType(id, new ATypeDefinition(node.getLocation(), NameScope.LOCAL, false, null, new AAccessSpecifierAccessSpecifier(new APrivateAccess(), null,null), new AActionType(node.getLocation(),true), Pass.DEFS, null, null, null, null, false,new LexNameToken("", id)));			
 		}
-		
+
 		// check the actions
 		for(PAction act : acts)
 		{
 			PType actType = act.apply(parentChecker,newQuestion);
 			if (!TCDeclAndDefVisitor.successfulType(actType))
 			{
-				node.setType(issueHandler.addTypeError(act, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(act+"")));
-				return node.getType();
+				//	node.setType(issueHandler.addTypeError(act, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(act+"")));
+				issueHandler.addTypeWarning(node, "Not all identifiers are checked.");
 			}
 
 		}
-		
+
 		node.setType(new AActionType());
 		return node.getType();
 	}
 
-	
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public PType caseAChaosAction(AChaosAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 		return new AActionType(node.getLocation(), true);
 	}
 
@@ -126,7 +126,7 @@ class TCActionVisitor extends
 	@Override
 	public PType caseATimedInterruptAction(ATimedInterruptAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		PAction left = node.getLeft();
 		PAction right = node.getRight();
@@ -136,23 +136,23 @@ class TCActionVisitor extends
 		if (!TCDeclAndDefVisitor.successfulType(leftType))
 			return issueHandler.addTypeError(left,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(left + ""));
+					.customizeMessage(left + ""));
 
 		PType rightType = right.apply(parentChecker, question);
 		if (!TCDeclAndDefVisitor.successfulType(rightType))
 			return issueHandler.addTypeError(right,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(right + ""));
+					.customizeMessage(right + ""));
 
 		PType timeExpType = timeExp.apply(parentChecker, question);
 		if (!TCDeclAndDefVisitor.successfulType(timeExpType))
 			return issueHandler.addTypeError(timeExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(timeExp + ""));
+					.customizeMessage(timeExp + ""));
 		if (!typeComparator.isSubType(timeExpType, new ANatNumericBasicType()))
 			return issueHandler.addTypeError(timeExp,
 					TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT
-							.customizeMessage(node + "", timeExpType + ""));
+					.customizeMessage(node + "", timeExpType + ""));
 
 		return new AActionType(node.getLocation(), true);
 	}
@@ -162,7 +162,7 @@ class TCActionVisitor extends
 	public PType caseASequentialCompositionReplicatedAction(
 			ASequentialCompositionReplicatedAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		PAction replicatedAction = node.getReplicatedAction();
 		LinkedList<SSingleDeclaration> decls = node.getReplicationDeclaration();
@@ -172,7 +172,7 @@ class TCActionVisitor extends
 			if (!TCDeclAndDefVisitor.successfulType(declType))
 				return issueHandler.addTypeError(decl,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage(decl + ""));
+						.customizeMessage(decl + ""));
 
 			issueHandler.addTypeWarning(decl,
 					"This declaration should expand the environment: " + decl);
@@ -183,7 +183,7 @@ class TCActionVisitor extends
 		if (!TCDeclAndDefVisitor.successfulType(replicatedActionType))
 			return issueHandler.addTypeError(replicatedAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(replicatedAction + ""));
+					.customizeMessage(replicatedAction + ""));
 
 		return new AActionType(node.getLocation(), true);
 	}
@@ -192,7 +192,7 @@ class TCActionVisitor extends
 	public PType caseAAssignmentCallStatementAction(
 			AAssignmentCallStatementAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 		return super.caseAAssignmentCallStatementAction(node, question);
 	}
 
@@ -200,7 +200,7 @@ class TCActionVisitor extends
 	@Override
 	public PType caseAWhileStatementAction(AWhileStatementAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		PExp condExp = node.getCondition();
 		PAction actionBody = node.getAction();
@@ -209,13 +209,13 @@ class TCActionVisitor extends
 		if (!TCDeclAndDefVisitor.successfulType(condExpType))
 			return issueHandler.addTypeError(condExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(condExp + ""));
+					.customizeMessage(condExp + ""));
 
 		PType actionBodyType = actionBody.apply(parentChecker, question);
 		if (!TCDeclAndDefVisitor.successfulType(actionBodyType))
 			return issueHandler.addTypeError(actionBodyType,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(actionBody + ""));
+					.customizeMessage(actionBody + ""));
 
 		return new AActionType(node.getLocation(), true);
 	}
@@ -236,7 +236,7 @@ class TCActionVisitor extends
 	public PType caseAAlphabetisedParallelismParallelAction(
 			AAlphabetisedParallelismParallelAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		PAction leftAction = node.getLeftAction();
 		PExp leftChanSet = node.getLeftChanSetExpression();
@@ -250,37 +250,37 @@ class TCActionVisitor extends
 		if (!TCDeclAndDefVisitor.successfulType(leftActionType))
 			return issueHandler.addTypeError(leftAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(leftAction + ""));
+					.customizeMessage(leftAction + ""));
 
 		PType leftChanSetType = leftChanSet.apply(parentChecker, question);
 		if (!TCDeclAndDefVisitor.successfulType(leftChanSetType))
 			return issueHandler.addTypeError(leftChanSet,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(leftChanSet + ""));
+					.customizeMessage(leftChanSet + ""));
 
 		PType leftNameSetType = leftNameSet.apply(parentChecker, question);
 		if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
 			return issueHandler.addTypeError(leftNameSet,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(leftNameSet + ""));
+					.customizeMessage(leftNameSet + ""));
 
 		PType rightActionType = rightAction.apply(parentChecker, question);
 		if (!TCDeclAndDefVisitor.successfulType(rightActionType))
 			return issueHandler.addTypeError(rightAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(rightAction + ""));
+					.customizeMessage(rightAction + ""));
 
 		PType rightChanSetType = rightChanSet.apply(parentChecker, question);
 		if (!TCDeclAndDefVisitor.successfulType(rightChanSetType))
 			return issueHandler.addTypeError(rightChanSet,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(rightChanSet + ""));
+					.customizeMessage(rightChanSet + ""));
 
 		PType rightNameSetType = rightNameSet.apply(parentChecker, question);
 		if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
 			return issueHandler.addTypeError(rightNameSet,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(rightNameSet + ""));
+					.customizeMessage(rightNameSet + ""));
 
 		return new AProcessType(node.getLocation(), true);
 	}
@@ -288,7 +288,7 @@ class TCActionVisitor extends
 	@Override
 	public PType caseAReturnStatementAction(AReturnStatementAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 		AExplicitOperationDefinition operation = node
 				.getAncestor(AExplicitOperationDefinition.class);
 		if (operation == null)
@@ -309,7 +309,7 @@ class TCActionVisitor extends
 	@Override
 	public PType caseABlockStatementAction(ABlockStatementAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 		// extend the environment
 
 		//
@@ -318,7 +318,7 @@ class TCActionVisitor extends
 		if (actionType == null)
 			issueHandler.addTypeError(action,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(action.toString()));
+					.customizeMessage(action.toString()));
 		node.setType(new AStatementType());
 
 		return node.getType();
@@ -328,7 +328,7 @@ class TCActionVisitor extends
 	public PType caseASingleGeneralAssignmentStatementAction(
 			ASingleGeneralAssignmentStatementAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		// FIXME Some scope stuff is not correct when typechecking let exp
 		// PType expType = node.getExpression().apply(parentChecker, question);
@@ -351,7 +351,7 @@ class TCActionVisitor extends
 	@Override
 	public PType caseAInternalChoiceAction(AInternalChoiceAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		PAction left = node.getLeft();
 		PAction right = node.getRight();
@@ -371,11 +371,14 @@ class TCActionVisitor extends
 	@Override
 	public PType caseAReferenceAction(AReferenceAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		TypeCheckInfo newQ = (TypeCheckInfo) question;
 
 		PDefinition actionDef = newQ.lookupVariable(node.getName());
+
+		PType type = newQ.lookupType(node.getName());
+		if (type != null) return type;
 
 		if (actionDef == null) {
 			issueHandler.addTypeError(
@@ -405,7 +408,7 @@ class TCActionVisitor extends
 	@Override
 	public PType caseACommunicationAction(ACommunicationAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		if (question instanceof TypeCheckInfo) {
 			TypeCheckInfo cmlQuestion = (TypeCheckInfo) question;
@@ -414,7 +417,7 @@ class TCActionVisitor extends
 			if (null == cmlQuestion.lookupChannel(node.getIdentifier())) {
 				issueHandler.addTypeError(node,
 						TypeErrorMessages.NAMED_TYPE_UNDEFINED
-								.customizeMessage(node.getIdentifier().name));
+						.customizeMessage(node.getIdentifier().name));
 				return new AErrorType(node.getLocation(), true);
 			}
 			node.getAction().apply(this, question);
@@ -428,7 +431,7 @@ class TCActionVisitor extends
 	public PType caseASequentialCompositionAction(
 			ASequentialCompositionAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		node.getLeft().apply(parentChecker, question);
 		node.getRight().apply(parentChecker, question);
@@ -441,7 +444,7 @@ class TCActionVisitor extends
 	@Override
 	public PType caseASkipAction(ASkipAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 		node.setType(new AActionType(node.getLocation(), true));
 		return node.getType();
 	}
@@ -450,7 +453,7 @@ class TCActionVisitor extends
 	@Override
 	public PType caseAExternalChoiceAction(AExternalChoiceAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		PAction left = node.getLeft();
 		PAction right = node.getRight();
@@ -471,7 +474,7 @@ class TCActionVisitor extends
 	@Override
 	public PType caseAHidingAction(AHidingAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		PAction action = node.getLeft();
 		PExp chanSet = node.getChansetExpression();
@@ -487,7 +490,7 @@ class TCActionVisitor extends
 		if (!(chanSetType instanceof AChannelType)) {
 			issueHandler.addTypeError(chanSet,
 					TypeErrorMessages.EXPECTED_A_CHANNELSET
-							.customizeMessage(chanSet.toString()));
+					.customizeMessage(chanSet.toString()));
 			return new AErrorType();
 		}
 
@@ -500,7 +503,7 @@ class TCActionVisitor extends
 	@Override
 	public PType caseAStartDeadlineAction(AStartDeadlineAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		PAction event = node.getLeft();
 		PExp timeExp = node.getExpression();
@@ -515,7 +518,7 @@ class TCActionVisitor extends
 
 		if (!(typeComparator.isSubType(expType, new ANatNumericBasicType()))) {
 			TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT
-					.customizeMessage(timeExp + "", expType + "");
+			.customizeMessage(timeExp + "", expType + "");
 			node.setType(new AErrorType(timeExp.getLocation(), true));
 			return node.getType();
 		}
@@ -527,7 +530,7 @@ class TCActionVisitor extends
 	@Override
 	public PType caseAEndDeadlineAction(AEndDeadlineAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		PAction event = node.getLeft();
 		PExp timeExp = node.getExpression();
@@ -542,7 +545,7 @@ class TCActionVisitor extends
 
 		if (!(typeComparator.isSubType(timeExpType, new ANatNumericBasicType()))) {
 			TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT
-					.customizeMessage(timeExp + "", timeExpType + "");
+			.customizeMessage(timeExp + "", timeExpType + "");
 			node.setType(new AErrorType(timeExp.getLocation(), true));
 			return node.getType();
 
@@ -557,7 +560,7 @@ class TCActionVisitor extends
 	@Override
 	public PType caseACallStatementAction(ACallStatementAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		LexNameToken name = node.getName();
 		PDefinition callee = question.env.findName(name, NameScope.GLOBAL);
@@ -575,7 +578,7 @@ class TCActionVisitor extends
 			if (!(TCDeclAndDefVisitor.successfulType(argType)))
 				return issueHandler.addTypeError(arg,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage(arg + ""));
+						.customizeMessage(arg + ""));
 			argTypes.add(argType);
 		}
 
@@ -593,7 +596,7 @@ class TCActionVisitor extends
 	public PType caseASynchronousParallelismParallelAction(
 			ASynchronousParallelismParallelAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		PAction leftAction = node.getLeftAction();
 		PExp leftNameSet = node.getLeftNameSetExpression();
@@ -605,26 +608,31 @@ class TCActionVisitor extends
 		if (!TCDeclAndDefVisitor.successfulType(leftActionType))
 			return issueHandler.addTypeError(leftActionType,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(leftAction + ""));
+					.customizeMessage(leftAction + ""));
 
-		PType leftNameSetType = leftNameSet.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
-			return issueHandler.addTypeError(leftNameSet,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(leftNameSet + ""));
+		if (leftNameSet != null)
+		{
+			PType leftNameSetType = leftNameSet.apply(parentChecker, question);
+			if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
+				return issueHandler.addTypeError(leftNameSet,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+						.customizeMessage(leftNameSet + ""));
+		}
 
 		PType rightActionType = rightAction.apply(parentChecker, question);
 		if (!TCDeclAndDefVisitor.successfulType(rightActionType))
 			return issueHandler.addTypeError(leftActionType,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(rightAction + ""));
+					.customizeMessage(rightAction + ""));
 
-		PType rightNameSetType = rightNameSet.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
-			return issueHandler.addTypeError(rightNameSet,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(rightNameSet + ""));
-
+		if (rightNameSet != null)
+		{
+			PType rightNameSetType = rightNameSet.apply(parentChecker, question);
+			if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
+				return issueHandler.addTypeError(rightNameSet,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+						.customizeMessage(rightNameSet + ""));
+		}
 		return new AActionType(node.getLocation(), true);
 	}
 

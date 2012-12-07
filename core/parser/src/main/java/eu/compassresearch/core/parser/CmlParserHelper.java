@@ -1070,14 +1070,10 @@ public class CmlParserHelper {
 	// LexLocation loc = extractLexLocation(name.getLocation(),
 	// extractLastLexLocation(fields));
 	LexLocation loc = name.getLocation();
-	ARecordInvariantType recType = new ARecordInvariantType(loc, false,
-		null, false, null, name, fields, true);
-	return new ATypeDefinition(loc, /*
-					 * FIXME: this should end with the
-					 * fieldList
-					 */
-	NameScope.GLOBAL, false, null/* VDM ClassDef */, access, recType,
-		null/* Pass */, null, null, null, null, true, name);
+	ARecordInvariantType recType = AstFactory.newARecordInvariantType(name, fields);
+	ATypeDefinition result = AstFactory.newATypeDefinition( name, recType, null, null);
+	return result;
+	
     }
 
     /**
@@ -1098,6 +1094,7 @@ public class CmlParserHelper {
 	type.setResolved(false);
 	type.setLocation(name.getLocation());
 	type.setName(name);
+	type.setOpaque(false);
 	AUnresolvedType t = new AUnresolvedType(name.getLocation(), false,
 		new LinkedList<PDefinition>(), name);
 	type.setType(t);

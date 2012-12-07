@@ -98,6 +98,7 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 
 	@Override
 	public void addType(LexIdentifierToken ident, PDefinition typeDef) {
+		if (ident == null) throw new NullPointerException("Cannot add a type with null name");
 		if (env instanceof FlatEnvironment) {
 			FlatEnvironment fenv = (FlatEnvironment) env;
 			fenv.add(typeDef);
@@ -199,6 +200,15 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 	public TypeCheckQuestion newScope(
 			org.overture.typechecker.TypeCheckInfo current, PDefinition def) {
 		TypeCheckInfo res = new TypeCheckInfo(channels,env,issueHandler, this.globalClassDefinition);
+		res.env.setEnclosingDefinition(def);
+		return res;
+	}
+
+	public TypeCheckQuestion newScope(
+			org.overture.typechecker.Environment env, PDefinition def) {
+		TypeCheckInfo res = new TypeCheckInfo(channels,env,issueHandler, this.globalClassDefinition);
+		res.env.setEnclosingDefinition(def);
+		
 		return res;
 	}
 

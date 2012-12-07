@@ -6,19 +6,26 @@ import java.util.Map;
 
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
+import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.ARecordInvariantType;
+import org.overture.ast.types.SInvariantType;
 import org.overture.typechecker.LexNameTokenAssistent;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
+import org.overture.typechecker.assistant.type.ARecordInvariantTypeAssistantTC;
 
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.definitions.SOperationDefinition;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 
 class CmlOvertureAssistant {
 
@@ -27,6 +34,8 @@ class CmlOvertureAssistant {
 		PDefinition findMemberName(PDefinition def, LexIdentifierToken name, Object... more);
 	}
 
+	
+	
 	/*
 	 * Type erasure? Well then we gotta do it our self ... 
 	 * 
@@ -42,6 +51,7 @@ class CmlOvertureAssistant {
 		injectFindMemberNameBaseCase(new StateParagarphDefinitionFindMemberStragety());
 		injectFindMemberNameBaseCase(new ClassClassDefinitionFindMemberStrategy());
 		injectFindMemberNameBaseCase(new LocalDefinitionFindMemberStrategy());
+		injectFindMemberNameBaseCase(new TypeDefinitionFindNameMemberStrategy());
 	}
 
 
@@ -228,7 +238,22 @@ class CmlOvertureAssistant {
 
 			ALocalDefinition ldef = (ALocalDefinition)def;
 
-
+			
+			CmlTypeChecker parent = null;
+			// So what if it is a record type
+			if (def.getType() instanceof ARecordInvariantType)
+			{
+				
+				TypeCheckInfo cmlEnv = (TypeCheckInfo)more[0];
+				ARecordInvariantType recordType = (ARecordInvariantType)ldef.getType();
+				AFieldField field = ARecordInvariantTypeAssistantTC.findField(recordType, name.getName());
+				PDefinition defOfTheTypeOfThisLocalDef = null;
+				if (field != null){
+					return AstFactory.newALocalDefinition(recordType.getLocation(), field.getTagname(), NameScope.LOCAL, field.getType());
+				}
+				return CmlOvertureAssistant.this.findMemberName(defOfTheTypeOfThisLocalDef,name,more);
+			}
+			
 			if (ldef.getType() instanceof ANamedInvariantType)
 			{
 				TypeCheckInfo cmlEnv = (TypeCheckInfo)more[0];
@@ -245,5 +270,33 @@ class CmlOvertureAssistant {
 
 		}
 
+	}
+	
+	private class TypeDefinitionFindNameMemberStrategy implements FindMemberNameFinderStrategy
+	{
+
+		@Override
+		public Class<?> getType() {
+			return ATypeDefinition.class;
+		}
+
+		@Override
+		public PDefinition findMemberName(PDefinition def,
+				LexIdentifierToken name, Object... more) {
+
+			ATypeDefinition tdef = ATypeDefinition.class.cast(def);
+			SInvariantType invType = tdef.getInvType();
+			if (invType != null)
+			{
+				for(PDefinition idef : invType.getDefinitions())
+				{
+					PDefinition found = CmlOvertureAssistant.this.findMemberName(idef, name, more);
+					if (found != null) return found;
+				}
+			}
+			
+			return null;
+		}
+		
 	}
 }

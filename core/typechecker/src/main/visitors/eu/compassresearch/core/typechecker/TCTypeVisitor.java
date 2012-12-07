@@ -24,6 +24,7 @@ import org.overture.ast.types.ASetType;
 import org.overture.ast.types.ATokenBasicType;
 import org.overture.ast.types.AUnresolvedType;
 import org.overture.ast.types.PType;
+import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 import org.overture.typechecker.assistant.type.AUnresolvedTypeAssistantTC;
@@ -85,9 +86,15 @@ class TCTypeVisitor extends
 							.customizeMessage(node.getName() + ""));
 		}
 
-		PType resolvedType = AUnresolvedTypeAssistantTC.typeResolve(node,
+		PType resolvedType = null;
+		try {
+		  resolvedType = AUnresolvedTypeAssistantTC.typeResolve(node,
 				(ATypeDefinition) tDef, parentChecker, question);
-
+		} catch (TypeCheckException e)
+		{
+			return issueHandler.addTypeError(node,e.getMessage());
+		}
+		
 		return resolvedType;
 	}
 

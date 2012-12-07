@@ -1,4 +1,4 @@
-types
+xftes	types
 
 Command = (Borrow | (Renew | (Return | Find)));
 
@@ -26,10 +26,17 @@ public Library ::
   books : map BookId to Book
   users : map UserId to User
   borrowed : BorrowMap
-inv mk_Library(bs,us,bor) ==
-  dom bor subset dom us and
-  dunion rng bor subset dom bs and
- forall u1, u2 in set dom bor @ u1 <> u2 => bor(u1) inter bor(u2) = {}
+inv mk_Library(bs,us,bor) ==(
+                              ( (dom(bor) subset dom(us))
+                              and
+                                ( dunion((rng(bor) subset dom(bs))) 
+				and
+  				  (
+				   (forall u1, u2 in set dom(bor) @ ((u1 <> u2) => (bor(u1) inter bor(u2)) = {}))
+				   )
+				  )
+				 )
+				)
 ;
 
 public Book ::

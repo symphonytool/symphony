@@ -37,12 +37,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		return new AUnknownType(node.getLocation(), true);
 	}
 
-
 	
-
-
-
-
+	
 	@Override
 	public PType caseAVariableExp(AVariableExp node, TypeCheckInfo question)
 			throws AnalysisException {
@@ -86,6 +82,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			def = assistant.findMemberName(enclosingDef, node.getName(), question);
 		}
 
+		if (def == null) def = CmlTCUtil.findDefByAllMeans(question, node.getName());
 		// now the definition is found or missing
 		if (def == null)
 		{ // missing
@@ -181,7 +178,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// top-level and CML Specific.
 		// 
 		eu.compassresearch.core.typechecker.TypeCheckInfo 
-		cmlQuestion = question.contextGet(eu.compassresearch.core.typechecker.TypeCheckInfo.class);
+		cmlQuestion;
+		if (question instanceof eu.compassresearch.core.typechecker.TypeCheckInfo)
+			cmlQuestion = (eu.compassresearch.core.typechecker.TypeCheckInfo)question;
+		else
+			cmlQuestion = question.contextGet(eu.compassresearch.core.typechecker.TypeCheckInfo.class);
 
 		if (cmlQuestion == null)
 		{
@@ -218,6 +219,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (root == null)
 		{
 			root = question.env.getEnclosingDefinition();
+			if (root != null)
 			root = assist.findMemberName(root, rootName, cmlQuestion);
 		}
 
