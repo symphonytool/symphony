@@ -2955,7 +2955,12 @@ operationType :
   PType dom = new AVoidType(util.extractLexLocation((CmlLexeme)$dom), true);
   PType rng = (PType)$rng;
   List<PType> types = new LinkedList<PType>();
-  types.add(dom);
+  // RWL: Overture Type Checker expects the list of domain types to be empty 
+  // when there is none. Adding the Void type is causing it to mismatch
+  // the number of patterns and the number of formal types in apply expressions.
+  //
+  //types.add(dom);
+  //
   $$ = new AOperationType(util.extractLexLocation(dom.getLocation(), rng.getLocation()),
                           false,
                           new LinkedList<PDefinition>(),

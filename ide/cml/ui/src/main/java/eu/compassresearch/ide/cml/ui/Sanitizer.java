@@ -128,16 +128,13 @@ public class Sanitizer extends ViewPart {
 
 		table.addMouseListener(new MouseListener() {
 
-			@Override
 			public void mouseUp(MouseEvent arg0) {
 
 			}
 
-			@Override
 			public void mouseDown(MouseEvent arg0) {
 			}
 
-			@Override
 			public void mouseDoubleClick(MouseEvent arg0) {
 				Table t = (Table) arg0.widget;
 				int selectedItemIdx = t.getSelectionIndex();

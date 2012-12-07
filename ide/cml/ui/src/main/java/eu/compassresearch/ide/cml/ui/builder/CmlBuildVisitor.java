@@ -27,7 +27,6 @@ import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlBuildVisitor implements IResourceVisitor {
 
-	@Override
 	public boolean visit(IResource resource) throws CoreException {
 
 		// Resource for this build

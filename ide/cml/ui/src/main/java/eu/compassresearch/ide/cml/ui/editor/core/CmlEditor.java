@@ -55,7 +55,6 @@ public class CmlEditor extends TextEditor {
     private class CmlSelectionChangeListener extends
 	    AbstractSelectionChangedListener implements
 	    ISelectionChangedListener {
-	@Override
 	public void selectionChanged(SelectionChangedEvent arg0) {
 	    CmlEditor.this.selectionChanged();
 	}
@@ -210,7 +209,6 @@ public class CmlEditor extends TextEditor {
 	    cmlOutliner.setInput(csu);
 	    csu.addChangeListener(new CmlSourceChangedListener() {
 
-		@Override
 		public void sourceChanged(CmlSourceUnit csu) {
 		    cmlOutliner.refresh();
 		}

@@ -68,7 +68,7 @@ public interface TypeCheckQuestion {
 	 *            - The definition that defines and encapsulates this scope
 	 * @return
 	 */
-	public abstract TypeCheckQuestion newScope(PDefinition surroundingDefinition);
+	public abstract TypeCheckQuestion newScope(SClassDefinition surroundingDefinition);
 
 	/**
 	 * Takes an INode and set the module parameter to the current scope. The
