@@ -459,6 +459,32 @@ class TCDeclAndDefVisitor extends
 		
 	}
 	
+	private static class OvertureToCmlFunctionParagraphHandler implements OvertureToCmlHandler
+	{
+
+		@Override
+		public List<PDefinition> handle(PDefinition def) {
+
+			List<PDefinition> result = new LinkedList<PDefinition>();
+			
+			if (! (def instanceof AFunctionParagraphDefinition))
+			{
+				result.add(def);
+				return result;
+			}
+			
+			AFunctionParagraphDefinition funlist = (AFunctionParagraphDefinition)def;
+			for(PDefinition pdef : funlist.getFunctionDefinitions())
+			{
+				result.add(pdef);
+			}
+			
+			return result;
+			
+		}
+		
+	}
+	
 	/*
 	 * This Map defines which parts of a CML Class Paragraph should go into an
 	 * Overture surrogate class for type checking
@@ -475,6 +501,7 @@ class TCDeclAndDefVisitor extends
 		overtureClassBits.put(AValueParagraphDefinition.class,
 				new OvertureToCmlValuesParahraphHandler());
 		overtureClassBits.put(ATypesParagraphDefinition.class, new OvertureToCmlTypeParagraphHandler());
+		overtureClassBits.put(AFunctionParagraphDefinition.class, new OvertureToCmlFunctionParagraphHandler());
 
 	}
 

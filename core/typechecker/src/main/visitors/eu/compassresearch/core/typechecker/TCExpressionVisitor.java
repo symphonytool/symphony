@@ -42,7 +42,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	@Override
 	public PType caseAVariableExp(AVariableExp node, TypeCheckInfo question)
 			throws AnalysisException {
-
 		// Try to see if we have a local variable here
 		PDefinition def = question.env.findName(node.getName(), question.scope);
 		

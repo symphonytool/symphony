@@ -2090,6 +2090,8 @@ typeDef :
   }
   // AstFactory.newATypeDefinition(name, recType, invPattern, invExp);                                                          
   ATypeDefinition tdef = AstFactory.newATypeDefinition(name,recType,invPattern, invExp);
+  tdef.setAccess(access);
+  
   $$ = tdef;
 }
 ;
@@ -3203,6 +3205,7 @@ expressionList :
 }
 ;
 
+
 /* --- TODO --- */
 /* Old comment about paths and their conversion, below.
  *
@@ -3313,6 +3316,11 @@ expression :
 {
   $$ = util.expressionDotHashNumeralToFieldNumberExp($tuple, $NUMERAL);
 }
+//
+// RWL: This production is highly problematic ! It procuces an Ast for f(x)
+// saying f() :( Unable to type check that ... 
+//
+//
 | expression[rootExp] LRPAREN
 {
   $$ = util.caseExpressionApply($rootExp, new LinkedList<PExp>(), $LRPAREN);

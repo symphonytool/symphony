@@ -13,11 +13,13 @@ import org.overture.ast.definitions.APublicAccess;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AApplyExp;
+import org.overture.ast.expressions.ABooleanConstExp;
 import org.overture.ast.expressions.AIsOfClassExp;
 import org.overture.ast.expressions.APreExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
+import org.overture.ast.lex.LexBooleanToken;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexIntegerToken;
 import org.overture.ast.lex.LexLocation;
@@ -617,6 +619,12 @@ public class CmlParserHelper {
 	for (APatternListTypePair pp : paramPatterns)
 	    paramTypes.add(pp.getType());
 
+	if (pre == null)
+	{
+		ABooleanConstExp exp =AstFactory.newABooleanConstExp(new LexBooleanToken(true, name.getLocation()));
+		pre = exp;
+	}
+	
 	// FIXME This conversion is caused by a flaw in the VDM tree and needs
 	// to be fixed at some point.
 	// The result is actually a list af patterns but somehow this is not the
@@ -659,6 +667,8 @@ public class CmlParserHelper {
 	type.setResult(result.getType());
 	impFunc.setName(name);
 	impFunc.setType(type);
+	// TODO RWL Set PreDef
+	
 	return impFunc;
     }
 
@@ -725,7 +735,8 @@ public class CmlParserHelper {
 	LexLocation location = extractLexLocation(rootExp.getLocation(),
 		(CmlLexeme) RPAREN);
 	List<PExp> exps = (List<PExp>) expressionList;
-	return new AApplyExp(location, rootExp, exps);
+	AApplyExp res = new AApplyExp(location, rootExp, exps);
+	return res;
     }
 
     public APreExp caseExpressionPrecondition(Object PREUNDER, Object expList,
@@ -1072,6 +1083,7 @@ public class CmlParserHelper {
 	LexLocation loc = name.getLocation();
 	ARecordInvariantType recType = AstFactory.newARecordInvariantType(name, fields);
 	ATypeDefinition result = AstFactory.newATypeDefinition( name, recType, null, null);
+	result.setAccess(access);
 	return result;
 	
     }

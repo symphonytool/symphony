@@ -74,7 +74,9 @@ class CmlOvertureAssistant {
 		Class<T> c = (Class<T>)t.getClass();
 		if (!findMemberNameBaseCases.containsKey(c)) return null;
 
-		return findMemberNameBaseCases.get(c).findMemberName(t, name, more);
+		FindMemberNameFinderStrategy strategy = findMemberNameBaseCases.get(c);
+		
+		return strategy.findMemberName(t, name, more);
 
 	}
 
