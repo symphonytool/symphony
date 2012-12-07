@@ -1,10 +1,8 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,10 +16,6 @@ import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
-import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.parser.test.ParseAllCmlExampleFilesTest;
-import eu.compassresearch.core.typechecker.VanillaFactory;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 
 @RunWith(value = Parameterized.class)
 public class POGTestWithFiles {
