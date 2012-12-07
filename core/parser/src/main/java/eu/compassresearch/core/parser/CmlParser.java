@@ -5811,7 +5811,7 @@ public class CmlParser
 /* Line 3649 of "src/main/bison/cml.y"  */
     {
   String lit = ((CmlLexeme)((yystack.valueAt (1-(1))))).getValue();
-  yyval = new LexStringToken(lit.substring(1, lit.length()-1),
+  yyval = new LexStringToken(lit.replaceAll("^\"|$\"", ""),
                           util.extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))));
 };
   break;
@@ -5824,7 +5824,7 @@ public class CmlParser
 /* Line 3658 of "src/main/bison/cml.y"  */
     {
   String lit = ((CmlLexeme)((yystack.valueAt (1-(1))))).getValue();
-  yyval = new LexQuoteToken(lit.substring(1, lit.length()-1),
+  yyval = new LexQuoteToken(lit.substring(1, lit.length()),
                          util.extractLexLocation((CmlLexeme)((yystack.valueAt (1-(1))))));
 };
   break;
