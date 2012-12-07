@@ -57,22 +57,6 @@ public String getErrorMessage(RecognitionException e, String[] tokenNames) {
 public String getTokenErrorDisplay(Token t) {
     return t.toString();
 }
-
-private LexLocation extractLexLocation(CommonToken token) {
-    String text = token.getText();
-    int len = text.length();
-    int line = token.getLine();
-    int pos = token.getCharPositionInLine();
-    int offset = token.getStartIndex();
-    return new LexLocation("",// FIXME: filename --- was currentSource.toString(),
-                           "",// FIXME: module name
-                           line, //start line
-                           pos, //start column
-                           line, //end line (FIXME?)
-                           pos+len, //end column
-                           offset, //absolute start offset
-                           offset+len); //absolute end offset
-}
 }
 
 source
@@ -478,10 +462,7 @@ symbolicLiteral
     ;
 
 numLiteral
-    : DECIMAL
-        // {
-        //     return new LexIntegerToken(Long.decode($DECIMAL.getText()), extractLexLocation($DECIMAL));
-        // }
+    : NUMERIC
     | HEXLITERAL
     ;
 
@@ -557,10 +538,10 @@ expr2
 exprbase
     : '(' expression ')'
     | 'self'
+    | IDENTIFIER '~'
 // | name
-// | old name
 // | field select
-    | name '~'?
+    | name
     | symbolicLiteral
     ;
 
@@ -714,7 +695,7 @@ HEXLITERAL
     : ('0x'|'0X') HEXDIGIT+
     ;
 
-DECIMAL
+NUMERIC
     : DIGIT+ ('.' DIGIT+)? ( ('E'|'e') ('+'|'-')? DIGIT+ )?
     ;
 
