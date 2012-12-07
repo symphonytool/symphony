@@ -10,12 +10,44 @@ import org.antlr.runtime.TokenStream;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 
+import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeAdaptor;
 
+import org.overture.ast.lex.*;
+
 public class CmlTreeAdaptor extends CommonTreeAdaptor {
+
     public Object create(Token payload) {
-	System.out.println("CmlTreeAdaptor "+payload);
-	return super.create(payload);
+	if (payload == null)
+	    return new CommonTree(payload);
+
+	switch (payload.getType()) {
+	case CmlParser.NUMERIC:
+	    LexLocation loc = extractLexLocation((CommonToken)payload);
+	    LexIntegerToken t = new LexIntegerToken(Long.decode(payload.getText()), loc);
+	    System.out.println("==> NUMERIC token -> LexIntegerToken: " + t);
+	    return t;
+	default:
+	    System.out.println("CmlTreeAdaptor " + payload);
+	    System.out.println("|                 Text:" + payload.getText());
+	    System.out.println("|                 Type:" + payload.getType());
+	    System.out.println("|                 Line:" + payload.getLine());
+	    System.out.println("|   CharPositionInLine:" + payload.getCharPositionInLine());
+	    System.out.println("|              Channel:" + payload.getChannel());
+	    System.out.println("|           TokenIndex:" + payload.getTokenIndex());
+	    return super.create(payload);
+	}
+    }
+
+    public Object nil() {
+	Object nil = super.nil();
+	System.out.println("CmlTreeAdaptor.nil() gave " + nil);
+	return nil;
+    }
+
+    public void addChild(Object t, Object child) {
+    	System.out.println("CmlTreeAdaptor.addChild(" + t + ", " + child + ");");
+    	super.addChild(t,child);
     }
 
     public static void main(String[] args) throws Exception {
@@ -26,8 +58,26 @@ public class CmlTreeAdaptor extends CommonTreeAdaptor {
 	CmlParser parser = new CmlParser(tokens);
 	parser.setTreeAdaptor(adaptor);
 
-	parser.source();
+	System.out.println("Final tree:\n" + parser.expression().getTree());
     }
+
+
+    private LexLocation extractLexLocation(CommonToken token) {
+	String text = token.getText();
+	int len = text.length();
+	int line = token.getLine();
+	int pos = token.getCharPositionInLine();
+	int offset = token.getStartIndex();
+	return new LexLocation("",// FIXME: filename --- was currentSource.toString(),
+			       "",// FIXME: module name
+			       line, //start line
+			       pos, //start column
+			       line, //end line (FIXME?)
+			       pos+len, //end column
+			       offset, //absolute start offset
+			       offset+len); //absolute end offset
+    }
+
 }
 
 // public class CmlTreeAdaptor implements TreeAdaptor {

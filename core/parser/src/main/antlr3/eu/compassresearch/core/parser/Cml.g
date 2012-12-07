@@ -453,7 +453,7 @@ matchValue
     ;
 
 symbolicLiteral
-    : numLiteral
+    : numLiteral { System.out.println("I have a numLiteral: " + $numLiteral.tree); }
     | boolLiteral
     | 'nil'
     | CHARLITERAL
@@ -542,7 +542,7 @@ exprbase
 // | name
 // | field select
     | name
-    | symbolicLiteral
+    | symbolicLiteral { System.out.println("I have a symbolicLiteral: " + $symbolicLiteral.tree); }
     ;
 
 name
