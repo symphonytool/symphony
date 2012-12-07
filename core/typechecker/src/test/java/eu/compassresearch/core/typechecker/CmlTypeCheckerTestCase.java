@@ -26,6 +26,7 @@ import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 
 @RunWith(value = Parameterized.class)
@@ -526,7 +527,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(
 				testData,
 				"class test = begin functions fn: int -> int fn(a) == a + 2 end",
-				false, true, false, new String[0]);
+				false, true, true, new String[0]);
 		// 118
 		addTestProgram(
 				testData,
@@ -669,7 +670,14 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData,
 				"process P = begin actions INIT = Skip @ INIT end", false,
 				true, true, new String[0]);
-
+		
+		addTestProgram(testData, "class Thing = begin values public Douglas : int = 42 end class test = begin values a: int = 0 functions g: int -> int g(i) == a + Thing`Douglas end",
+				false,true,true,new String[0]);
+		
+		addTestProgram(testData, "class test = begin values a : int = 0	functions f:int -> int f(k) == k+a	end",
+				false,true,true,new String[0]);
+		
+		
 		return testData;
 	}
 
@@ -699,11 +707,12 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				+ (expectedParserOk ? "success" : "fail") + " but it did'nt.",
 				parserOk == expectedParserOk);
 
+		TypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
 		VanillaCmlTypeChecker tc = new VanillaCmlTypeChecker(
-				parser.getDocument(), VanillaFactory.newCollectingIssueHandle());
+				parser.getDocument(), errors);
 
 		boolean typeCheckOk = tc.typeCheck();
-		assertEquals(buildErrorMessage(tc), expectedTypesOk, typeCheckOk);
+		assertEquals(TestUtil.buildErrorMessage(errors, expectedTypesOk), expectedTypesOk, typeCheckOk);
 
 		if (parserOk && errorMessages != null && errorMessages.length > 0) {
 			int expectedNumberOfErrors = errorMessages.length;
@@ -724,15 +733,4 @@ public class CmlTypeCheckerTestCase extends TestCase {
 
 	}
 
-	private String buildErrorMessage(VanillaCmlTypeChecker tc) {
-		StringBuilder sb = new StringBuilder();
-		if (expectedTypesOk) {
-			sb.append("Expected type checking to be successful, the following errors were unexpected:\n");
-			for (CMLTypeError error : tc.getTypeErrors())
-				sb.append(error.toString() + "\n------\n");
-		} else {
-			sb.append("Expected type checking to fail but it was successful.");
-		}
-		return sb.toString();
-	}
 }

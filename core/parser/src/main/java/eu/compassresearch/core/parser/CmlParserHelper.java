@@ -578,10 +578,6 @@ public class CmlParserHelper {
 	    Object measureExpr) {
 	LexNameToken name = extractLexNameToken((CmlLexeme) id);
 	LexNameToken checkName = extractLexNameToken((CmlLexeme) checkId);
-
-	/*
-	 * Checking that the two IDENTIFIERS are equivalent
-	 */
 	if (!name.equals(checkName))
 	    throw new ParserException(name.getLocation(),
 		    ParserErrorMessage.FUNCTION_NAMES_ARE_NOT_CONSISTENT
@@ -602,6 +598,13 @@ public class CmlParserHelper {
 	res.setParamPatternList(args);
 	return res;
     }
+
+	/*
+	 * Checking that the two IDENTIFIERS are equivalent
+	 */
+// <<<<<<< HEAD
+ 
+ // =======
 
     @SuppressWarnings("deprecation")
     public PDefinition caseImplicitFunctionDefinition(Object qual, Object id,
@@ -624,6 +627,7 @@ public class CmlParserHelper {
 	// retval.setType(value)
 	if (retvals.size() == 1) {
 	    retval = retvals.get(0);
+ // >>>>>>> origin/development
 	}
 	// if there is more create a tuple pattern to contain them all and only
 	// take the type from the first one

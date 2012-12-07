@@ -28,6 +28,8 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->reference = [name]
 %action->#Parallel->interleaving = [leftAction] "|||" [rightAction]
 %action->#Parallel->generalisedParallelism = [leftAction] "[|" [chanSetExpression] "|]" [rightAction]
+%action->#Statement->block = "Block {" [action] "}"
+
 // Processes
 %process->state = "state: " [processDefinition] "@"
 %action->#Statement->call = [name] "(" + $org.overture.ast.util.Utils.listToString($  [args]  $)$ + ")"
@@ -41,6 +43,8 @@ import eu.compassresearch.ast.util.ToStringUtil;
 
 //  Definitions
 %definition->process = "Process " [name]$.getName()$
+%definition->paragraph->class = "Class " [name]$.getName()$
+%definition->paragraph->state = "State Paragraph"
 
 //  Statements
 
