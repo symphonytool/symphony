@@ -28,6 +28,7 @@ options {
  * '<' followed by an IDENTIFIER that is not followed by a '>'.
  */
 tokens {
+    DOTTEDNAME;
     LESSTHAN = '<';
 }
 
@@ -541,12 +542,12 @@ exprbase
     | IDENTIFIER '~'
 // | name
 // | field select
-    | name
+    | name            { System.out.println("I have a name: " + $name.tree); }
     | symbolicLiteral { System.out.println("I have a symbolicLiteral: " + $symbolicLiteral.tree); }
     ;
 
 name
-    : IDENTIFIER ('.' IDENTIFIER)*
+    : IDENTIFIER ('.' IDENTIFIER)* -> ^(DOTTEDNAME IDENTIFIER+)
     ;
 
 setMapExprTail
