@@ -1,4 +1,21 @@
-//package eu.compassresearch.core.interpreter.scheduler;
+package eu.compassresearch.core.interpreter.scheduler;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Vector;
+
+import org.overture.ast.analysis.AnalysisException;
+
+import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
+import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
+import eu.compassresearch.core.interpreter.events.TraceEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+
 //
 //import java.util.HashMap;
 //import java.util.LinkedList;
@@ -16,33 +33,130 @@
 //import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 //import eu.compassresearch.core.interpreter.util.Pair;
 //
-//public class CmlScheduler {
-//
-//	ConcurrentLinkedQueue<CMLProcessOld> processes;
-//	ConcurrentLinkedQueue<CMLProcessOld> executedInCurrentStep;
-//	ConcurrentLinkedQueue<CMLProcessOld> addedProcesses;
-//	private List<ACommunicationAction> trace = new LinkedList<ACommunicationAction>();
-//	//private final int numberOfThreads = 100;
-//	//private ExecutorService threadPool;
-//	private Object sync = new Object();
-//	
-//	public CmlScheduler()
-//	{
-//		processes = new ConcurrentLinkedQueue<CMLProcessOld>();
-//		addedProcesses = new ConcurrentLinkedQueue<CMLProcessOld>();
-//		executedInCurrentStep = new ConcurrentLinkedQueue<CMLProcessOld>();
-//		//threadPool = Executors.newFixedThreadPool(numberOfThreads);
-//		Settings.dialect = Dialect.VDM_PP;
-//	}
-//	
-//	public CMLProcessOld addProcess(CMLProcessOld process)
-//	{
-//		synchronized (sync) {
-//		
-//			addedProcesses.add(process);
-//			return process;
-//		}
-//	}
+public class CmlScheduler implements CmlProcessObserver {
+
+	List<CmlProcess> running = new LinkedList<CmlProcess>();
+	List<CmlProcess> waiting = new LinkedList<CmlProcess>();
+	List<CmlProcess> finished = new LinkedList<CmlProcess>();
+	
+	private CmlSupervisorEnvironment sve;
+	
+	public CmlScheduler(CmlSupervisorEnvironment sve)
+	{
+		this.sve = sve;
+	}
+	
+	public void addProcess(CmlProcess process)
+	{
+		if(process.waiting())
+			waiting.add(process);
+		else
+			running.add(process);
+	}
+	
+	public void start() throws AnalysisException {
+		
+		//Active state
+		while( waiting.size() > 0 || running.size() > 0)
+		{
+			
+			CmlRuntime.logger().fine("----------------step----------------");
+			
+			//execute each of the running pupils until they are either finished or in wait state
+			for(Iterator<CmlProcess> iterator = new Vector<CmlProcess>(running).iterator(); iterator.hasNext();)
+			{
+				CmlProcess p = iterator.next();
+				while(!p.finished() && 
+						!p.waiting())
+				{
+					CmlBehaviourSignal signal = p.execute(sve);
+					
+					if(signal != CmlBehaviourSignal.EXEC_SUCCESS)
+						throw new RuntimeException("Change this!!!!, but now that you haven't changed this yet, " +
+								"then let me tell you that the return CMLBehaviourSignal was unsuccesful");
+
+					CmlRuntime.logger().fine("current trace of '"+p+"': " + p.getTraceModel());
+					CmlRuntime.logger().fine("next: " + p.nextStepToString());
+				}
+			}
+
+			//Since we can have newly created children, must might have to go back another round before inspecting
+			if(running.size() == 0)
+			{
+
+				/**
+				 * Now, all the processes are sleeping tight, so the selected decision strategy needs to 
+				 * decide which event should occur and wake them up.
+				 */
+				for(Iterator<CmlProcess> iterator = new Vector<CmlProcess>(waiting).iterator(); iterator.hasNext();)
+				{
+					CmlProcess p = iterator.next();
+					if(p.level() == 0)
+					{
+						CmlAlphabet alpha = p.inspect();
+
+						if(alpha.isEmpty())
+							throw new RuntimeException("Change this!!!!, but now that you " +
+									"haven't changed this yet a deadlock has occured");
+						else
+						{
+							//Select and set the communication event
+							sve.setSelectedCommunication(sve.decisionFunction().select(p.inspect()));
+							//signal all the processes that are listening for this channel
+							sve.selectedCommunication().getChannel().signal();
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * CmlProcessObserver interface methods
+	 */
+	
+	@Override
+	public void onStateChange(CmlProcessStateEvent stateEvent) {
+
+		switch(stateEvent.getFrom())
+		{
+		case WAIT_CHILD:
+		case WAIT_EVENT:
+			waiting.remove(stateEvent.getSource());
+			break;
+		case INITIALIZED:
+		case RUNNABLE:
+		case RUNNING:
+			running.remove(stateEvent.getSource());
+			break;
+		}
+		
+		switch(stateEvent.getTo())
+		{
+		case WAIT_CHILD:
+		case WAIT_EVENT:
+			waiting.add(stateEvent.getSource());
+			break;
+		case INITIALIZED:
+		case RUNNABLE:
+		case RUNNING:
+			running.add(stateEvent.getSource());
+			break;
+		case FINISHED:
+			finished.add(stateEvent.getSource());
+			break;
+		}
+	}
+	
+	
+	@Override
+	public void onTraceChange(TraceEvent traceEvent) {
+		//TODO: here the presenting logic should be for running process
+		//CmlProcess p = traceEvent.getSource();
+		//CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
+		//CmlRuntime.logger().fine("next: " + p.nextStepToString());
+	}
+	
 //		
 //	public Map<CMLProcessOld,List<ACommunicationAction>> step()
 //	{
@@ -83,31 +197,6 @@
 //			processes.add(pt);
 //			pt.start(CmlRuntime.getSupervisorEnvironment());
 //		}
-//	}
-//	
-//	public void printTrace()
-//	{
-//		printEvents(trace);
-//	}
-//	
-//	public List<String> getTrace()
-//	{
-//		LinkedList<String> outTrace = new LinkedList<String>();
-//		for(ACommunicationAction a : trace)
-//		{
-//			outTrace.add(a.getIdentifier().getName());
-//		}
-//		
-//		return outTrace;
-//	}
-//	
-//	private void printEvents(List<ACommunicationAction> offeredActions)
-//	{
-//		for(ACommunicationAction a : offeredActions)
-//		{
-//			System.out.print("<" + a.getIdentifier() + ">");
-//		}
-//		System.out.println();
 //	}
 //	
 //	public List<Pair<CMLProcessOld, CMLChannelEvent>> selectEvent(Map<CMLProcessOld,List<ACommunicationAction>> availableEvents)
@@ -172,4 +261,4 @@
 //		}
 //	}
 //
-//}
+}

@@ -3,10 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE Interpreter Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.cml.interpreter_plugin;singleton:=true
 Bundle-Version: 0.0.1
-Bundle-ClassPath: .,
- lib/json-simple-1.1.jar,
- lib/gson-2.2.2.jar,
- lib/interpreter-0.0.1.jar
 Bundle-Activator: eu.compassresearch.ide.cml.interpreter_plugin.Activator
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
@@ -32,7 +28,4 @@ Bundle-ClassPath: .,
  lib/gson-2.2.2.jar,
  lib/interpreter-0.0.1.jar,
  lib/interpreter-2.2.1.jar,
- lib/json-simple-1.1.jar,
- lib/typechecker-0.0.1.jar,
- lib/typechecker-2.2.1.jar
-
+ lib/json-simple-1.1.jar

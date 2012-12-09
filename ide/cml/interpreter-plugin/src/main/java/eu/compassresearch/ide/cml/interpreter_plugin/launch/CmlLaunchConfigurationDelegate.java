@@ -2,11 +2,10 @@ package eu.compassresearch.ide.cml.interpreter_plugin.launch;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map.Entry;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -14,6 +13,7 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMRunner;
@@ -58,42 +58,19 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 			JSONObject obj = serializeLaunchConfigurationToJSON(configuration);
 			obj.put("mode", mode);
 			
-			String mainJavaClass = "eu.compassresearch.core.interpreter.debug.CmlInterpreterRunner";
-			
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
 			{
-				
-				//IDbgpService service = DebugPlugin.getDefault().getDbgpService();
-
-//				if (!service.available())
-//				{
-//					abort("Could not create DBGP Service", null);
-//				}
-
-				DebugPlugin.getDefault().getBreakpointManager().setEnabled(true);
-				
-				String[] commandArray = new String[]{
-						"java",
-						"-cp",
-						"/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/lib/*",
-						mainJavaClass,
-						JSONValue.toJSONString(obj)
-				};
-				File dir = new File("/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/lib/");
-				
-				
-				
 				try {
 					System.out.println(CmlLaunchConfigurationDelegate.class.getProtectionDomain().getCodeSource().getLocation().toURI().toString());
 				} catch (URISyntaxException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} 
 				
+				DebugPlugin.getDefault().getBreakpointManager().setEnabled(true);
+				
 				//Execute in a new JVM process
-				Process process = Runtime.getRuntime().exec(commandArray, null, dir);
-
-				CmlDebugTarget target = new CmlDebugTarget(launch,DebugPlugin.newProcess(launch, process, "CML Debugger"),
+				CmlDebugTarget target = new CmlDebugTarget(launch,
+						launchExternalProcess(launch,JSONValue.toJSONString(obj),"CML Debugger"),
 						CmlDebugDefaultValues.PORT);
 				//				target.setVdmProject(vdmProject);
 				launch.addDebugTarget(target);
@@ -105,18 +82,31 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 				//In run mode the debugger should not be enabled
 				DebugPlugin.getDefault().getBreakpointManager().setEnabled(false);
 				
-				IVMInstall vm = JavaRuntime.getDefaultVMInstall(); 
-				IVMRunner runner = vm.getVMRunner(mode);
-				// Create VM config
-				//TODO: this should be added from the config with absolut paths
-				VMRunnerConfiguration runConfig = new VMRunnerConfiguration(mainJavaClass, 
-												new String[]{"/home/akm/sandbox/overture_cml/ide/cml/interpreter-plugin/lib/*"});
-				
-								
-				runConfig.setProgramArguments(new String[]{JSONValue.toJSONString(obj)});
-				//runConfig.setWorkingDirectory(path);
-				
-				runner.run(runConfig, launch, monitor);
+				//Execute in a new JVM process
+				launchExternalProcess(launch,JSONValue.toJSONString(obj),"CML Runner");
+//				String develCP = "";
+//				try {
+//					develCP = CmlLaunchConfigurationDelegate.class.getProtectionDomain().getCodeSource().getLocation().toURI().toString();
+//				} catch (URISyntaxException e) {
+//					e.printStackTrace();
+//				} 
+//
+//				
+//				IVMInstall vm = JavaRuntime.getDefaultVMInstall(); 
+//				
+//				IVMRunner runner = vm.getVMRunner(mode);
+//				// Create VM config
+//				//TODO: this should be added from the config with absolut paths
+//				String mainJavaClass = "eu.compassresearch.core.interpreter.debug.CmlInterpreterRunner";
+//				VMRunnerConfiguration runConfig = new VMRunnerConfiguration(mainJavaClass,new String[]{".",develCP  + "lib/*"});
+//
+//				runConfig.setProgramArguments(new String[]{JSONValue.toJSONString(obj)});
+//				//runConfig.setWorkingDirectory(path);
+//				
+//				System.out.println("lib locs: " + vm.getLibraryLocations());
+//				System.out.println("vm args: " + vm.getVMArguments());
+//				
+//				runner.run(runConfig, launch, monitor);
 			}
 		
 		} 
@@ -134,6 +124,42 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 			monitor.done();
 		}
 		
+	}
+	
+	private IProcess launchExternalProcess(ILaunch launch, String config, String name) throws IOException
+	{
+		
+		URI develCP = null;
+		 
+		try {
+			develCP = CmlLaunchConfigurationDelegate.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		} 
+		
+		URI workingdirUri = develCP.resolve("./lib");
+		File workingdir = new File(workingdirUri);
+		
+		String mainJavaClass = "eu.compassresearch.core.interpreter.debug.CmlInterpreterRunner";
+		
+		System.out.println(workingdirUri.getPath());
+		
+		String[] commandArray = new String[]{
+				"java",
+				"-cp",
+				workingdirUri.getPath() + "/*:lib/*",
+				mainJavaClass,
+				config
+		};
+		
+		//Execute in a new JVM process
+		//Process process = Runtime.getRuntime().exec(commandArray, null, workingdir);
+		Process process = Runtime.getRuntime().exec(commandArray);
+		IProcess iprocess = DebugPlugin.newProcess(launch, process, name);
+		
+		launch.addProcess(iprocess);
+		
+		return iprocess;
 	}
 	
 	/**
@@ -168,12 +194,5 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 //		return null;
 //	}
 
-	static private IProject getProject(ILaunchConfiguration configuration)
-			throws CoreException
-	{
-		return ResourcesPlugin.getWorkspace().getRoot().getProject(configuration.getAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(), ""));
-	}
-	
-	
 
 }
