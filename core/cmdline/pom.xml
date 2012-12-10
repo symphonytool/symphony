@@ -110,7 +110,7 @@
 
       <!--
 	  To build an executable jar (as in java -jar myjar.jar)
-	  a main class must be set in the jar manifast.
+	  a main class must be set in the jar manifest.
       -->
       <plugin>
 	<version>2.4</version>
@@ -134,7 +134,7 @@
       </plugin>
 
       <!-- 
-	   Maving automatically looks in src/main/java and compiles
+	   Maven automatically looks in src/main/java and compiles
 	   java file in the sub-directory. Below source and target
 	   versions for the project are set.
       -->

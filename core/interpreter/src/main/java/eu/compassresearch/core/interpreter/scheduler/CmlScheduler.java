@@ -102,7 +102,7 @@ public class CmlScheduler implements CmlProcessObserver {
 						{
 							//Select and set the communication event
 							sve.setSelectedCommunication(sve.decisionFunction().select(p.inspect()));
-							//signal all the processes that are listening for this channel
+							//signal all the processes that are listening for events on this channel
 							sve.selectedCommunication().getChannel().signal();
 						}
 					}
@@ -157,37 +157,6 @@ public class CmlScheduler implements CmlProcessObserver {
 		//CmlRuntime.logger().fine("next: " + p.nextStepToString());
 	}
 	
-//		
-//	public Map<CMLProcessOld,List<ACommunicationAction>> step()
-//	{
-//		HashMap< CMLProcessOld,List<ACommunicationAction> > allEvents = 
-//					new HashMap<CMLProcessOld, List<ACommunicationAction>>();
-//		
-//		while(!processes.isEmpty())
-//		{
-//			CMLProcessOld pt = processes.poll();
-//			
-//			if(!pt.isSkip()){
-//				
-//				List<ACommunicationAction> cActions = pt.WaitForEventOffer();
-//				
-//				if(!cActions.isEmpty())
-//				{
-//					allEvents.put(pt, cActions);
-//					executedInCurrentStep.add(pt);
-//				}
-//			}
-//		}
-//						
-//		while(!executedInCurrentStep.isEmpty())
-//		{
-//			CMLProcessOld pt = executedInCurrentStep.poll();
-//													
-//			processes.add(pt);
-//		}
-//		
-//		return allEvents;
-//	}
 //	
 //	public void handleAddedProcesses()
 //	{
@@ -199,66 +168,4 @@ public class CmlScheduler implements CmlProcessObserver {
 //		}
 //	}
 //	
-//	public List<Pair<CMLProcessOld, CMLChannelEvent>> selectEvent(Map<CMLProcessOld,List<ACommunicationAction>> availableEvents)
-//	{
-//		List<Pair<CMLProcessOld, CMLChannelEvent>> res = 
-//				new LinkedList<Pair<CMLProcessOld,CMLChannelEvent>>();
-//
-//		for(Entry<CMLProcessOld,List<ACommunicationAction>> entry : availableEvents.entrySet())
-//		{
-//			//For now, select a the first event from the set of possible events
-//			ACommunicationAction event = entry.getValue().get(0);
-//
-////			res.add(new Pair<CMLProcessOld, CMLChannelEvent>(entry.getKey(),
-////					new CMLChannelEvent(event.getIdentifier().getName())));
-//			trace.add(event);
-//		}
-//
-//		return res;
-//	}
-//	
-//	public void start()
-//	{
-//		trace = new LinkedList<ACommunicationAction>();
-//		handleAddedProcesses();
-//		
-//		while(!processes.isEmpty())
-//		{
-//			handleAddedProcesses();
-//			
-//			synchronized (sync) {
-//
-//				System.out.println("--------begin step---------");
-//				
-//				Map<CMLProcessOld,List<ACommunicationAction>> allEvents = step();
-//				
-//				System.out.println("Offered Events:");
-//								
-//				for(List<ACommunicationAction> ev : allEvents.values())
-//					printEvents(ev);
-//								
-//				System.out.println();
-//				
-//				System.out.println("Current interpretation state:");
-//				for(Pair<CMLProcessOld, CMLChannelEvent> actionToExec :
-//					selectEvent(allEvents))
-//				{
-//					System.out.println(actionToExec.first.getRemainingInterpretationState(true));
-//					actionToExec.first.eventOccured(actionToExec.second);
-//					
-//					System.out.println();
-//					
-//					System.out.println("The ENV(Simulator) picks: " + actionToExec.second.getChannel());
-//				
-//					System.out.println();
-//				}
-//							
-//				System.out.println("Trace after step:");
-//				printTrace();
-//						
-//				//System.out.println("--------end step---------");
-//			}			
-//		}
-//	}
-//
 }

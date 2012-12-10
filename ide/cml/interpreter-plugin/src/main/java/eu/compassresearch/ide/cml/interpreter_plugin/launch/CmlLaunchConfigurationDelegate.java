@@ -1,28 +1,33 @@
 package eu.compassresearch.ide.cml.interpreter_plugin.launch;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Arrays;
 import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
-import org.eclipse.jdt.launching.IVMInstall;
-import org.eclipse.jdt.launching.IVMRunner;
-import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.jdt.launching.VMRunnerConfiguration;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.osgi.framework.Bundle;
 
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugConstants;
 import eu.compassresearch.ide.cml.interpreter_plugin.model.CmlDebugTarget;
 
 
@@ -84,13 +89,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 				
 				//Execute in a new JVM process
 				launchExternalProcess(launch,JSONValue.toJSONString(obj),"CML Runner");
-//				String develCP = "";
-//				try {
-//					develCP = CmlLaunchConfigurationDelegate.class.getProtectionDomain().getCodeSource().getLocation().toURI().toString();
-//				} catch (URISyntaxException e) {
-//					e.printStackTrace();
-//				} 
-//
 //				
 //				IVMInstall vm = JavaRuntime.getDefaultVMInstall(); 
 //				
@@ -118,6 +116,11 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 			launch.terminate();
 			e.printStackTrace();
 			//throw new CoreException()e;
+		} catch(URISyntaxException e)
+		{
+			launch.terminate();
+			e.printStackTrace();
+			//throw new CoreException()e;
 		}
 		finally
 		{
@@ -126,29 +129,113 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		
 	}
 	
-	private IProcess launchExternalProcess(ILaunch launch, String config, String name) throws IOException
+	private void WriteFile(InputStream inStream,File outfile) throws IOException
 	{
+		FileOutputStream fos = new FileOutputStream(outfile);
+
+		byte[] buffer = new byte[4096];  
+		int bytesRead;  
+		while ((bytesRead = inStream.read(buffer)) != -1) {  
+		  fos.write(buffer, 0, bytesRead);  
+		}  
+		inStream.close();  
+		fos.close();  
 		
-		URI develCP = null;
-		 
-		try {
-			develCP = CmlLaunchConfigurationDelegate.class.getProtectionDomain().getCodeSource().getLocation().toURI();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		} 
+	}
+	
+	private void unpackInterpreterFromPlugin(URI path) throws IOException, URISyntaxException
+	{
+		//File tempFile = File.createTempFile("interpreter-with-dependencies", ".jar");
+
+		InputStream jarStream = getClass().getResourceAsStream("/lib/interpreter-with-dependencies.jar");
+		InputStream jarHashStream = getClass().getResourceAsStream("/lib/interpreter-with-dependencies.jar.sha");
+
+		File jarFile = new File(path.getSchemeSpecificPart(),"interpreter-with-dependencies.jar");
+		File jarHashFile = new File(path.getSchemeSpecificPart(),"interpreter-with-dependencies.jar.sha");
+				
+		WriteFile(jarStream,jarFile);
+		WriteFile(jarHashStream,jarHashFile);
 		
-		URI workingdirUri = develCP.resolve("./lib");
-		File workingdir = new File(workingdirUri);
+	}
+	
+	private boolean isInterpreterAlreadyExtracted(URI uri) throws IOException
+	{
+		File jarHashFile = new File(uri.getSchemeSpecificPart(),"interpreter-with-dependencies.jar.sha");
 		
-		String mainJavaClass = "eu.compassresearch.core.interpreter.debug.CmlInterpreterRunner";
+		if(!jarHashFile.exists())
+			return false;
+		else
+			//if it exists we need to check if the sha1 hash matches
+		{
+			InputStream jarHashStream = getClass().getResourceAsStream("/lib/interpreter-with-dependencies.jar.sha");
+			byte[] pluginJarHashBytes = new byte[2*40];
+			jarHashStream.read(pluginJarHashBytes);
+			
+			FileInputStream existingJarHashFS = new FileInputStream(jarHashFile);
+			byte[] existingJarHashBytes = new byte[2*40];
+			existingJarHashFS.read(existingJarHashBytes);
+			
+			return Arrays.equals(pluginJarHashBytes, existingJarHashBytes);
+		}
 		
-		System.out.println(workingdirUri.getPath());
+		
+	}
+	
+	private String locateInterpreterFromPlugin() throws IOException, URISyntaxException
+	{
+		URI bundleURI = getBundleURI().resolve("./");
+		
+		File jarFile = new File(bundleURI.getSchemeSpecificPart(),"interpreter-with-dependencies.jar");
+				
+		if(!isInterpreterAlreadyExtracted(bundleURI))
+		{
+			unpackInterpreterFromPlugin(bundleURI);
+		}
+		
+		
+		return jarFile.getAbsolutePath();
+	}
+	
+	private URI getBundleURI()
+	{
+		Bundle bundle = Platform.getBundle(CmlDebugConstants.ID_CML_PLUGIN_NAME.toString());
+		URI uri = URI.create(bundle.getLocation());
+		uri = URI.create(uri.getSchemeSpecificPart());
+		
+		return uri;
+	}
+	
+	private String locateInterpreterJarPath() throws IOException, URISyntaxException
+	{
+		URI uri = getBundleURI();
+		File file = new File(uri.getSchemeSpecificPart());
+
+		if(!file.exists())
+			throw new FileNotFoundException("Can't determine the bundle path");
+		
+		//plugin is a folder and we can access it through the lib folder
+		if(file.isDirectory())
+		{
+			return uri.resolve("./lib").getPath() + "/interpreter-with-dependencies.jar";
+		}
+		//were in a plugin jar, so we need to extract the interpreter jar from the plugin har
+		else
+		{
+			//extract the interpreter with dependencies for launch
+			return locateInterpreterFromPlugin();
+		}
+		
+	}
+	
+	
+	private IProcess launchExternalProcess(ILaunch launch, String config, String name) throws IOException, URISyntaxException
+	{
+		String interpreterJarPath = locateInterpreterJarPath();
 		
 		String[] commandArray = new String[]{
 				"java",
-				"-cp",
-				workingdirUri.getPath() + "/*:lib/*",
-				mainJavaClass,
+				"-jar",
+				interpreterJarPath,
 				config
 		};
 		
