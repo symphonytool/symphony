@@ -44,9 +44,7 @@ IContentOutlinePage {
 			w = Wrapper.newInstance(pdef, dscr);
 		System.out.println("Setting outline selection to " + w.toString());
 		loopAvoidanceFlag = false;
-		getTreeViewer().setSelection(new StructuredSelection(w), true);
-
-		// viewer.setSelection(element, true);
+		viewer.setSelection(new StructuredSelection(w), true);
 	}
 
 	public void refresh() {
@@ -54,8 +52,8 @@ IContentOutlinePage {
 		if (curDisp != null)
 			curDisp.syncExec(new Runnable() {
 				public void run() {
-					getTreeViewer().refresh();
-					// getTreeViewer().expandAll();
+					viewer.refresh();
+//					viewer.expandAll();
 				}
 			});
 
@@ -105,19 +103,18 @@ IContentOutlinePage {
 									}
 								}
 							}
-						} else
-							loopAvoidanceFlag = true;
+						} 
 					}
-				}
+				}else
+					loopAvoidanceFlag = true;
 			}
 		});
 
 		labelprovider = new OutlineLabelProvider();
 		viewer.setLabelProvider(labelprovider);
-		viewer.expandAll();
 		viewer.setInput(input);
 		// FIXME ldc -Need to add proper filters
-		getTreeViewer().expandAll();
+		viewer.expandAll();
 	}
 
 	public void setInput(CmlSourceUnit input) {
