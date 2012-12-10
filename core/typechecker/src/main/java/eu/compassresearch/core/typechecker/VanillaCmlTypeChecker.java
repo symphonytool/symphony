@@ -14,17 +14,20 @@ import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PAlternative;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PBind;
 import org.overture.ast.patterns.PMultipleBind;
+import org.overture.ast.statements.PAlternativeStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.FlatEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
 
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.actions.PAlternativeAction;
 import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
@@ -45,6 +48,11 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
 class VanillaCmlTypeChecker extends AbstractTypeChecker {
 
 	
+	@Override
+	public PType defaultPAlternativeAction(PAlternativeAction node,
+			TypeCheckInfo question) throws AnalysisException {
+		return addErrorForMissingType(node, node.apply(this.act, question));	}
+
 	// ---------------------------------------------
 	// -- Type Checker State
 	// ---------------------------------------------m
@@ -121,6 +129,19 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 			throws AnalysisException {
 		return addErrorForMissingType(node, node.apply(this.dad, question));
 	}
+
+	
+	@Override
+	public PType defaultPAlternative(PAlternative node, TypeCheckInfo question)
+			throws AnalysisException {
+		return addErrorForMissingType(node, node.apply(this.act, question));
+	}
+
+	@Override
+	public PType defaultPAlternativeStm(PAlternativeStm node,
+			TypeCheckInfo question) throws AnalysisException {
+		return addErrorForMissingType(node, node.apply(this.act, question));
+		}
 
 	@Override
 	public PType defaultPDefinition(PDefinition node,

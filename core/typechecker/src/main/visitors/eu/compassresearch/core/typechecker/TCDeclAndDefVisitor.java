@@ -200,6 +200,7 @@ class TCDeclAndDefVisitor extends
 
 		// Check the declared type
 		PType actualDeclaredType = declaredType.apply(parentChecker, question);
+		
 		if (!successfulType(actualDeclaredType))
 			return new AErrorType();
 

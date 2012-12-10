@@ -44,6 +44,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			throws AnalysisException {
 		// Try to see if we have a local variable here
 		PDefinition def = question.env.findName(node.getName(), question.scope);
+		if (def != null) { node.setType(def.getType()); return node.getType(); }
 		
 		// ok not a local var, maybe a value
 		if (def == null)

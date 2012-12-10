@@ -41,6 +41,7 @@ import org.overture.ast.statements.PObjectDesignator;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
+import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.ANamedInvariantType;
@@ -94,6 +95,20 @@ public class CmlParserHelper {
 	this.currentSource = currentSource;
     }
 
+    public static void setDefaultTrueInvarientDefinition(ATypeDefinition type){
+    	LexNameToken fname = new LexNameToken("", new LexIdentifierToken("inv_"+type.getName(), false, type.getLocation()));
+    	List<LexNameToken> typeParams = new LinkedList<LexNameToken>();
+		List<List<PPattern>> parameters = new LinkedList<List<PPattern>>();
+		PExp body = AstFactory.newABooleanConstExp(new LexBooleanToken(true, type.getLocation()));
+		PExp precondition = null;
+		PExp postcondition = null;
+		boolean typeInvariant = true;
+		LexNameToken measure = null;
+		AFunctionType ftype = AstFactory.newAFunctionType(type.getLocation(), true, new LinkedList<PType>(), new ABooleanBasicType());
+		AExplicitFunctionDefinition invDef = AstFactory.newAExplicitFunctionDefinition(fname, NameScope.LOCAL, typeParams, ftype, parameters, body, precondition, postcondition, typeInvariant, measure);
+		type.setInvdef(invDef);
+    }
+    
     public static char convertEscapeToChar(String escape) {
 	if (escape.startsWith("\\")) {
 	    switch (escape.charAt(1)) {
@@ -1083,6 +1098,7 @@ public class CmlParserHelper {
 	LexLocation loc = name.getLocation();
 	ARecordInvariantType recType = AstFactory.newARecordInvariantType(name, fields);
 	ATypeDefinition result = AstFactory.newATypeDefinition( name, recType, null, null);
+	result.setLocation(loc);
 	result.setAccess(access);
 	return result;
 	

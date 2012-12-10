@@ -2023,7 +2023,8 @@ typeDef :
   PType type = (PType)$4;
   ANamedInvariantType invType = 
     AstFactory.newANamedInvariantType(name, type);
-  $$ = new ATypeDefinition(location,
+    
+  ATypeDefinition res = new ATypeDefinition(location,
                            NameScope.TYPENAME,
                            false/*Boolean used_*/,
                            null/*VDM ClassDef*/,
@@ -2036,6 +2037,7 @@ typeDef :
                            null /*AExplicitFunctionDefinition invdef_*/,
                            false/*Boolean infinite_*/,
                            name);
+   $$ = res;
 }
 | qualifier IDENTIFIER[id] EQUALS type invariant
 {

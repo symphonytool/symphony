@@ -14,6 +14,7 @@ import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
@@ -21,14 +22,21 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 public class TestUtil
   {
     
-	public static TypeIssueHandler runTypeChecker(String file)
+	public static TypeIssueHandler runTypeChecker(String file) throws IOException
 	{
 		AFileSource fileSource = new AFileSource();
 		
 		fileSource.setFile(new File(file));
 		
 		List<PSource> cmlSources = Arrays.asList(new PSource[] { fileSource });
+
+		CmlParser parser = CmlParser.newParserFromSource(fileSource);
 		
+		if (!parser.parse())
+		{
+			
+			throw new RuntimeException("Cannot parse: "+file);
+		}
 		
 		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 		

@@ -4,22 +4,32 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.APrivateAccess;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.patterns.AExpressionPattern;
+import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
+import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.PType;
+import org.overture.typechecker.Environment;
+import org.overture.typechecker.FlatCheckedEnvironment;
+import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
+import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
+import eu.compassresearch.ast.actions.ACaseAlternativeAction;
+import eu.compassresearch.ast.actions.ACasesStatementAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
@@ -34,8 +44,10 @@ import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStartDeadlineAction;
+import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
+import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -59,6 +71,111 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 @SuppressWarnings("serial")
 class TCActionVisitor extends
 QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
+
+
+
+	@Override
+	public PType caseAWaitAction(AWaitAction node, org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
+
+		PExp timedExp = node.getExpression();
+		PType timedExpType = timedExp.apply(parentChecker,question);
+
+		if (!TCDeclAndDefVisitor.successfulType(timedExpType))
+		{
+			node.setType(issueHandler.addTypeError(timedExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+timedExp)));
+			return node.getType();
+		}
+
+
+		if (!typeComparator.isSubType(timedExpType, new AIntNumericBasicType()))
+		{
+			node.setType(issueHandler.addTypeError(timedExpType, TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT.customizeMessage(timedExp+"")));
+			return node.getType();
+		}
+
+		node.setType(new AActionType(node.getLocation(), true));
+		return node.getType();
+	}
+
+
+	@Override
+	public PType caseACaseAlternativeAction(ACaseAlternativeAction node,
+			org.overture.typechecker.TypeCheckInfo question) throws AnalysisException {
+
+
+		LinkedList<PDefinition> defs = node.getDefs();
+		LinkedList<PPattern> ptrn = node.getPattern();
+		PAction res = node.getResult();
+
+
+
+		if (node.getDefs().size() == 0) {
+			PPattern pattern = ptrn.get(0);
+			node.setDefs(new LinkedList<PDefinition>());
+			PPatternAssistantTC.typeResolve(pattern, (QuestionAnswerAdaptor<org.overture.typechecker.TypeCheckInfo, PType>) parentChecker,
+					question);
+
+			if (ptrn.get(0) instanceof AExpressionPattern) {
+				// Only expression patterns need type checking...
+				AExpressionPattern ep = (AExpressionPattern) pattern;
+				ep.getExp().apply(parentChecker, question);
+			}
+
+			PPatternAssistantTC.typeResolve(pattern, (QuestionAnswerAdaptor<org.overture.typechecker.TypeCheckInfo, PType>) parentChecker,
+					question);
+
+			ACasesStatementAction stm = (ACasesStatementAction) node.parent();
+			node.getDefs().addAll(
+					PPatternAssistantTC.getDefinitions(pattern, stm
+							.getExp().getType(), NameScope.LOCAL));
+		}
+
+		PDefinitionListAssistantTC.typeCheck(node.getDefs(), (QuestionAnswerAdaptor<org.overture.typechecker.TypeCheckInfo, PType>)  parentChecker,
+				question);
+
+
+		question.contextSet(TypeCheckInfo.class, getTypeCheckInfo (question) );
+		Environment local = new FlatCheckedEnvironment(node.getDefs(),
+				question.env, question.scope);
+		PType r = node.getResult().apply(parentChecker,
+				new org.overture.typechecker.TypeCheckInfo(local, question.scope));
+		question.contextRem(TypeCheckInfo.class);
+		local.unusedCheck();
+
+
+		return r;
+	}
+
+
+	@Override
+	public PType caseACasesStatementAction(ACasesStatementAction node,
+			org.overture.typechecker.TypeCheckInfo question) throws AnalysisException {
+
+		LinkedList<ACaseAlternativeAction> cases = node.getCases();
+		for(ACaseAlternativeAction altAction : cases)
+		{
+			PType caseType = altAction.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(caseType))
+			{
+				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(altAction+"")));
+				return node.getType();
+			}
+		}
+		PExp exp = node.getExp();
+
+		PType expType = exp.apply(parentChecker,question);
+		if (TCDeclAndDefVisitor.successfulType(expType))
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(exp+"")));
+			return node.getType();
+
+		}
+
+		node.setType(new AStatementType(node.getLocation(), true));
+		return node.getType();
+	}
+
 
 	/*
 	 * Get the type check info object (context) for a CML context
@@ -119,7 +236,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	public PType caseAChaosAction(AChaosAction node,
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
-		return new AActionType(node.getLocation(), true);
+		node.setType( new AActionType(node.getLocation(), true));
+		return node.getType();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -373,7 +491,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 
-		TypeCheckInfo newQ = (TypeCheckInfo) question;
+		TypeCheckInfo newQ = getTypeCheckInfo(question);
+
 
 		PDefinition actionDef = newQ.lookupVariable(node.getName());
 
@@ -553,8 +672,17 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		node.setType(new AActionType());
 
-		return super.caseAEndDeadlineAction(node, question);
+		return node.getType();
 	}
+
+
+
+	@Override
+	public PType caseAStopAction(AStopAction node, org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
+		return new AActionType(node.getLocation(), true);
+	}
+
 
 	@SuppressWarnings("deprecation")
 	@Override
