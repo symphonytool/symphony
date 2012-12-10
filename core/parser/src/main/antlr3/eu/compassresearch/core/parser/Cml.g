@@ -20,7 +20,7 @@
 grammar Cml;
 options {
     language=Java;
-    output=AST;
+//    output=AST;
     TokenLabelType=CommonToken;
 //    ASTLabelType=CmlTree;
 }
@@ -38,6 +38,7 @@ package eu.compassresearch.core.parser;
 @parser::header {
 package eu.compassresearch.core.parser;
 import org.overture.ast.lex.*;
+// import org.apache.commons.lang3.StringUtils;
 }
 
 @members {
@@ -57,6 +58,28 @@ public String getErrorMessage(RecognitionException e, String[] tokenNames) {
 }
 public String getTokenErrorDisplay(Token t) {
     return t.toString();
+}
+
+private LexLocation extractLexLocation(CommonToken token) {
+	String text = token.getText();
+	int len = text.length();
+	int line = token.getLine();
+	int pos = token.getCharPositionInLine();
+	int offset = token.getStartIndex();
+	return new LexLocation("",// FIXME: filename --- was currentSource.toString(),
+                           "",// FIXME: (local?) module name
+                           line, //start line
+                           pos, //start column
+                           line, //end line (FIXME?)
+                           pos+len, //end column
+                           offset, //absolute start offset
+                           offset+len); //absolute end offset
+}
+public LexLocation extractLexLocation(LexLocation start, LexLocation end) {
+	return new LexLocation(start.file, "",
+                           start.startLine, start.startPos,
+                           end.endLine, end.endPos,
+                           start.startOffset, end.endOffset);
 }
 }
 
@@ -540,14 +563,41 @@ exprbase
     : '(' expression ')'
     | 'self'
     | IDENTIFIER '~'
+		{
+			LexLocation loc = extractLexLocation($IDENTIFIER);
+			System.out.println(new LexNameToken("", $IDENTIFIER.getText(), loc, true, false));
+		}
 // | name
 // | field select
-    | name            { System.out.println("I have a name: " + $name.tree); }
+    | name            { System.out.println("I have a name: " + $name.name); }
     | symbolicLiteral { System.out.println("I have a symbolicLiteral: " + $symbolicLiteral.tree); }
     ;
 
-name
-    : IDENTIFIER ('.' IDENTIFIER)* -> ^(DOTTEDNAME IDENTIFIER+)
+name returns[LexNameToken name]
+    : (ids+=IDENTIFIER '.')* identifier=IDENTIFIER
+		{
+            // FIXME: not setting the filename field
+            // Grab the location of the last identifier as default
+			LexLocation loc = extractLexLocation($identifier);
+            // default to a blank module
+			StringBuilder module = new StringBuilder();
+			if ($ids != null) {
+                // fix the name location
+                LexLocation firstLoc = extractLexLocation((CommonToken)$ids.get(0));
+                loc = new LexLocation(loc.file,
+                                      "", //FIXME: I assume this is the local module name?
+                                      firstLoc.startLine, firstLoc.startPos,
+                                      loc.endLine, loc.endPos,
+                                      firstLoc.startOffset, loc.endOffset);
+                // create the module string
+				for (Object t : $ids) {
+                    module.append(((CommonToken)t).getText());
+                    module.append('.');
+				}
+                module.deleteCharAt(module.length() - 1);
+			}
+			$name=new LexNameToken(module.toString(), $identifier.getText(), loc);
+		}
     ;
 
 setMapExprTail
