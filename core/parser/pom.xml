@@ -44,7 +44,7 @@
             <configuration>
               <!-- <printGrammar>true</printGrammar> -->
               <!-- <report>true</report> -->
-              <verbose>true</verbose>
+              <verbose>false</verbose>
             </configuration>
           </execution>
 	</executions>

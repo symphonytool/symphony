@@ -1,4 +1,8 @@
 /* loose threads:
+ * 
+ * FIXME Serious bug:
+ *   expression "a().field" fails to parse
+ *   problem is that I took too restrictive of a definition for name
  *
  * communication prefixes using '.' separators are still causing problems
  * -> restriction in place: '.','!' may only be followed by ids,
@@ -37,8 +41,30 @@ package eu.compassresearch.core.parser;
 }
 @parser::header {
 package eu.compassresearch.core.parser;
-import org.overture.ast.lex.*;
+
 // import org.apache.commons.lang3.StringUtils;
+
+// import org.overture.ast.definitions.*;
+import org.overture.ast.expressions.*;
+import org.overture.ast.lex.*;
+//import org.overture.ast.node.*;
+import org.overture.ast.node.tokens.*;
+import org.overture.ast.patterns.*;
+import org.overture.ast.preview.*;
+import org.overture.ast.statements.*;
+import org.overture.ast.types.*;
+import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.util.*;
+import org.overture.ast.typechecker.Pass;
+
+import eu.compassresearch.ast.actions.*;
+import eu.compassresearch.ast.declarations.*;
+import eu.compassresearch.ast.definitions.*;
+import eu.compassresearch.ast.expressions.*;
+import eu.compassresearch.ast.patterns.*;
+import eu.compassresearch.ast.process.*;
+import eu.compassresearch.ast.program.*;
+import eu.compassresearch.ast.types.*;
 }
 
 @members {
@@ -419,7 +445,7 @@ typeDef
 
 type
     : type0 (('+>'|'->') type0)?
-    | '()' (('+>'|'->') type0)?
+    | '(' ')' (('+>'|'->') type0)?
     ;
 
 type0op : '*' | '|' ;
@@ -532,7 +558,7 @@ unaryExpr1op
     ;
 
 expr1
-    : unaryExpr1op exprbase
+    : unaryExpr1op expr2
     | setMapExprs
     | '[' seqExpr? ']'
     | recordTupleExprs
@@ -559,17 +585,28 @@ expr2
     : exprbase ( '(' ( expression (',' '...' ',' expression | (',' expression)+ )? )? ')' )?
     ;
 
-exprbase
+exprbase returns[PExp exp]
     : '(' expression ')'
     | 'self'
     | IDENTIFIER '~'
 		{
 			LexLocation loc = extractLexLocation($IDENTIFIER);
-			System.out.println(new LexNameToken("", $IDENTIFIER.getText(), loc, true, false));
+            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), loc, true, false);
+            $exp = new AVariableExp(loc, name, "");
 		}
 // | name
 // | field select
-    | name            { System.out.println("I have a name: " + $name.name); }
+    | name
+        {
+            System.out.println("name as module:"+$name.name.module+":");
+            if ($name.name.module.equals("")) {
+                $exp = new AVariableExp($name.name.location, $name.name, "");
+            } else {
+                // FIXME: this needs to be an AUnresolvedPathExpr, but I've already stringified the list of ids
+                $exp = null;
+            }
+            System.out.println("I have a name: " + $name.name + " / " + ($exp==null?"null":$exp.getClass()));
+        }
     | symbolicLiteral { System.out.println("I have a symbolicLiteral: " + $symbolicLiteral.tree); }
     ;
 

@@ -10,7 +10,12 @@ public class CmlParserRig {
 	CommonTokenStream tokens = new CommonTokenStream(lexer);
 	CmlParser parser = new CmlParser(tokens);
 
-	parser.exprbase();
-	// System.out.println(parser.name());
+	// parser.exprbase();
+	try {
+	    System.out.println(parser.exprbase());
+	} catch(Exception e) {
+	    System.out.println("Exception from parse attempt");
+	    System.out.println(e);
+	}
     }
 }
