@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin;
+package eu.compassresearch.ide.cml.interpreter_plugin.launch;
 
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;

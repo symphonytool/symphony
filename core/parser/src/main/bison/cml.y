@@ -636,39 +636,33 @@ process :
   $$ = new AReferenceProcess(name.location,
 			     name,
 			     new LinkedList<PExp>());
-  /* $$ = new AInstantiationProcess(name.location, */
-  /*                                null, */
-  /*                                name, */
-  /*                                null, */
-  /*                                null); */
 }
 | IDENTIFIER LRPAREN
 {
   LexNameToken name = util.extractLexNameToken($IDENTIFIER);
   LexLocation location = util.extractLexLocation(name.location,(CmlLexeme)$LRPAREN);
-  $$ = new AReferenceProcess(location,
+  PProcess proc = new AReferenceProcess(location,
 			     name,
 			     new LinkedList<PExp>());
 
-  /* $$ = new AInstantiationProcess(location, */
-  /*                                null, */
-  /*                                name, */
-  /*                                null, */
-  /*                                null); */
+  $$ = new AInstantiationProcess(location,
+				 null,
+				 proc,
+				 new LinkedList<PExp>());
 }
 | IDENTIFIER LPAREN expressionList RPAREN
 {
   LexNameToken name = util.extractLexNameToken($IDENTIFIER);
-  LexLocation location = util.extractLexLocation(name.location,(CmlLexeme)$RPAREN);
-  $$ = new AReferenceProcess(location,
+  LexLocation location = util.extractLexLocation(name.location,(CmlLexeme)$RPAREN);		     
+  PProcess proc = new AReferenceProcess(location,
 			     name,
-			     (List<PExp>)$expressionList);
+			     new LinkedList<PExp>());
 
-  /* $$ = new AInstantiationProcess(location, */
-  /*                                null, */
-  /*                                name, */
-  /*                                null, */
-  /*                                (List<PExp>)$expressionList); */
+  $$ = new AInstantiationProcess(location,
+				 null,
+				 proc,
+				 (List<PExp>)$expressionList);
+
 }
 | process[proc] renameExpression[rexp]
 {

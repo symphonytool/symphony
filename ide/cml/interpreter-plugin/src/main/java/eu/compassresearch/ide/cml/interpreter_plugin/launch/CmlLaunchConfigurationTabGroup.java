@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin;
+package eu.compassresearch.ide.cml.interpreter_plugin.launch;
 
 import java.util.List;
 import java.util.Vector;
@@ -14,6 +14,8 @@ import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.sourcelookup.SourceLookupTab;
 import org.eclipse.ui.PlatformUI;
+
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlUtil;
 
 public class CmlLaunchConfigurationTabGroup extends AbstractLaunchConfigurationTabGroup  {
 

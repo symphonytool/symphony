@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin;
+package eu.compassresearch.core.interpreter.debug;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,8 +12,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
 import org.json.simple.JSONObject;
@@ -25,10 +23,18 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
-import eu.compassresearch.core.interpreter.runtime.RandomSelectionStrategy;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgStatusMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgpStatus;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageCommunicator;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageContainer;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlResponseMessage;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -46,9 +52,7 @@ public class CmlInterpreterRunner {
 	private BufferedReader requestReader;
 	private boolean connected = false;
 	
-	//private BlockingQueue<CmlResponseMessage> responseQueue = new LinkedBlockingQueue<CmlResponseMessage>();
 	private SynchronousQueue<CmlResponseMessage> responseSync = new SynchronousQueue<CmlResponseMessage>();
-	//private CmlRequestMessage pendingRequest = null;
 	
 	private CommandDispatcher commandDispatcher;
 	
@@ -56,7 +60,6 @@ public class CmlInterpreterRunner {
 	class CommandDispatcher implements Runnable
 	{
 		private boolean stopped = false;
-		private Thread thread = null;
 
 		public void stop()
 		{
@@ -70,8 +73,6 @@ public class CmlInterpreterRunner {
 		
 		@Override
 		public void run() {
-			thread = Thread.currentThread();
-			//thread.setDaemon(true);
 			CmlMessageContainer messageContainer = null;
 			try{
 
@@ -218,24 +219,47 @@ public class CmlInterpreterRunner {
 //		do
 //		{
 			sendStatusMessage(CmlDbgpStatus.RUNNING);
-			cmlInterpreter.execute(new CmlCommunicationSelectionStrategy() {
-				
-				@Override
-				public CmlCommunicationEvent select(CmlAlphabet availableChannelEvents) {
-					
-					//convert to list of strings for now
-					List<String> events = new LinkedList<String>();
-					for(CmlCommunicationEvent comEvent : availableChannelEvents.getCommunicationEvents())
-					{
-						events.add(comEvent.getChannel().getName());
-					}
-					
-					CmlDialogMessage response = sendRequestSynchronous(new CmlRequestMessage(CmlRequest.CHOICE,events));
-					System.out.println(response);
-					return new RandomSelectionStrategy().select(availableChannelEvents);
-				}
-			});
 			
+			try{
+			
+				cmlInterpreter.execute(new CmlCommunicationSelectionStrategy() {
+
+					@Override
+					public CmlCommunicationEvent select(CmlAlphabet availableChannelEvents) {
+
+						//convert to list of strings for now
+						List<String> events = new LinkedList<String>();
+						for(CmlCommunicationEvent comEvent : availableChannelEvents.getCommunicationEvents())
+						{
+							events.add(comEvent.getChannel().getName());
+						}
+
+						CmlResponseMessage response = sendRequestSynchronous(new CmlRequestMessage(CmlRequest.CHOICE,events));
+						System.out.println(response);
+
+						if(response.isRequestInterrupted())
+							throw new InterpreterRuntimeException("intepreter interrupted");
+
+						String responseStr = response.getValue(String.class);
+						System.out.println("response: " + responseStr);
+						
+						CmlCommunicationEvent selectedEvent = null;
+						//For now we just search naively to find the event
+						for(CmlCommunicationEvent comEvent : availableChannelEvents.getCommunicationEvents())
+						{
+							System.out.println("found: " + comEvent.getChannel().getName());
+							if(comEvent.getChannel().getName().equals(responseStr))
+								selectedEvent = comEvent;
+						}
+
+						return selectedEvent;
+					}
+				});
+			}
+			catch(InterpreterRuntimeException e)
+			{
+				System.out.println("The interpreter was interrupted");
+			}
 //			messageContainer = recvMessage();
 //			System.out.println(messageContainer);
 //		}
@@ -257,12 +281,19 @@ public class CmlInterpreterRunner {
 		}
 	}
 	
+	private void stopping()
+	{
+		sendStatusMessage(CmlDbgpStatus.STOPPING);
+		responseSync.add(new CmlResponseMessage());
+	}
+	
 	private boolean processCommand(CmlDbgCommandMessage message)
 	{
 		switch(message.getCommand())
 		{
 		case STOP:
-			sendStatusMessage(CmlDbgpStatus.STOPPING);
+			stopping();
+			
 			return false;
 		default:
 			return true;
@@ -310,7 +341,7 @@ public class CmlInterpreterRunner {
 		Object obj=JSONValue.parse(args[0]);
 		JSONObject config =(JSONObject)obj;
 		//retrieve the paths for the cml sources of the project
-		List<String> cmlfilePaths = getCmlfilePaths((String)config.get(CmlLaunchConfigurationConstants.ATTR_CML_SOURCES_PATH.toString()));
+		List<String> cmlfilePaths = getCmlfilePaths((String)config.get("eu.compassresearch.ide.cml.interpreter_plugin.cml_sources_path"));
 		System.out.println(cmlfilePaths);
 	
 		List<PSource> sourceForest = new LinkedList<PSource>();

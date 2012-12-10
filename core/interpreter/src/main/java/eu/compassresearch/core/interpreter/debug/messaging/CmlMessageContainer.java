@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin;
+package eu.compassresearch.core.interpreter.debug.messaging;
 
 import com.google.gson.Gson;
 

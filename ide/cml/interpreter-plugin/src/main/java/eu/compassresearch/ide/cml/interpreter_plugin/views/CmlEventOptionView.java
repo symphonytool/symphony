@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin;
+package eu.compassresearch.ide.cml.interpreter_plugin.views;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,8 +17,6 @@ public class CmlEventOptionView extends ViewPart
   {
 	ListViewer viewer;
 	List<String> options = new LinkedList<String>();
-    SynchronousQueue<String> selectSync = new SynchronousQueue<String>();
-    
 	
     @Override
     public String getTitle()
@@ -31,22 +29,11 @@ public class CmlEventOptionView extends ViewPart
     {
     }
     
-    public void setOptions(List<String> options)
+    public ListViewer getListViewer()
     {
-    	viewer.setInput(options);
+    	return viewer;
     }
-    
-    public String waitForSelectedOption()
-    {
-    	try {
-			return selectSync.take();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-    	
-    	return null;
-    }
-    
+            
     @Override
     public void createPartControl(final org.eclipse.swt.widgets.Composite parent)
       {
@@ -73,14 +60,14 @@ public class CmlEventOptionView extends ViewPart
 			}
 		});
     	
-    	viewer.addDoubleClickListener(new IDoubleClickListener() {
-			
-			@Override
-			public void doubleClick(DoubleClickEvent event) {
-				selectSync.offer(event.getSelection().toString());
-				//MessageDialog.openInformation(null, "New selction", event.getSelection().toString());
-			}
-		});
+//    	viewer.addDoubleClickListener(new IDoubleClickListener() {
+//			
+//			@Override
+//			public void doubleClick(DoubleClickEvent event) {
+//				selectSync.offer(event.getSelection().toString());
+//				//MessageDialog.openInformation(null, "New selction", event.getSelection().toString());
+//			}
+//		});
     	
     	//viewer.setContentProvider(new ListCon)
     	
