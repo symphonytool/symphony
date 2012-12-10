@@ -59,7 +59,7 @@ functions
 
 
 channels
-
+	init
 	failReserve failPreConfirm
 	query : (Airport * Airport * Date * nat)
 	queryResult : FlightDb

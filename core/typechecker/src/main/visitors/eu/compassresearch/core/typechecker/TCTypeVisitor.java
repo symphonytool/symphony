@@ -1,3 +1,4 @@
+
 package eu.compassresearch.core.typechecker;
 
 import java.util.LinkedList;
@@ -7,8 +8,10 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.ACharBasicType;
+import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.AMapMapType;
 import org.overture.ast.types.ANamedInvariantType;
@@ -23,7 +26,6 @@ import org.overture.ast.types.AUnresolvedType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
-import org.overture.typechecker.assistant.type.AUnresolvedTypeAssistantTC;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
@@ -38,25 +40,55 @@ class TCTypeVisitor extends
 
 	private final VanillaCmlTypeChecker parentChecker;
 	private final TypeIssueHandler issueHandler;
+	private CmlOvertureAssistant assist = new CmlOvertureAssistant();
+
+	
+	
+	@Override
+	public PType caseAClassType(AClassType node, TypeCheckInfo question)
+			throws AnalysisException {
+		return node;
+	}
 
 	@Override
 	public PType caseAUnresolvedType(AUnresolvedType node,
 			TypeCheckInfo question) throws AnalysisException {
 
+		// is it a globally declared type
 		List<SClassDefinition> classes = new LinkedList<SClassDefinition>();
-		classes.add((SClassDefinition) question.env.getEnclosingDefinition());
+		if (question.env.getEnclosingDefinition() == null)
+		{
+			eu.compassresearch.core.typechecker.TypeCheckInfo q = (eu.compassresearch.core.typechecker.TypeCheckInfo)question;
+			classes.add(q.getGlobalClassDefinitions());
+			
+		}
+		else
+			classes.add((SClassDefinition) question.env.getEnclosingDefinition());
 		PDefinition tDef = SClassDefinitionAssistantTC.findType(classes,
 				node.getName());
+		
+		if (tDef == null)
+		{
+			tDef = question.env.findName(node.getName(), NameScope.GLOBAL);
+			if (tDef != null)
+				return tDef.getType();
+		}
+		
+		// it could be CML class
+		if (tDef == null)
+			tDef = question.env.findType(node.getName(), "");
+		
+		if (tDef == null)
+		    tDef = CmlTCUtil.findDefByAllMeans(question, node.getName());
+		
 		if (!(tDef instanceof ATypeDefinition)) {
 			return issueHandler.addTypeError(node,
 					TypeErrorMessages.EXPECTED_TYPE_DEFINITION
 							.customizeMessage(node.getName() + ""));
+			
+			
 		}
-
-		PType resolvedType = AUnresolvedTypeAssistantTC.typeResolve(node,
-				(ATypeDefinition) tDef, parentChecker, question);
-
-		return resolvedType;
+		return tDef.getType();
 	}
 
 	@Override
@@ -146,6 +178,7 @@ class TCTypeVisitor extends
 							.customizeMessage(node.getName().name));
 		}
 
+		node.setType(type);
 		return type;
 	}
 
@@ -160,6 +193,7 @@ class TCTypeVisitor extends
 							.customizeMessage(node.getSeqof().toString()));
 			return new AErrorType();
 		}
+		node.setSeqof(innerType);
 		return node;
 	}
 

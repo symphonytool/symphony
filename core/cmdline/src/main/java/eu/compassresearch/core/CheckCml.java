@@ -33,9 +33,9 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.CMLPOContextStack;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
-import eu.compassresearch.core.interpreter.runtime.VanillaCmlInterpreter;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.core.parser.CmlParser;
@@ -296,10 +296,12 @@ public class CheckCml {
 			Class<?> clz = a.getClass();
 			Method getAnalysisName = clz.getMethod("getAnalysisName",
 					new Class<?>[] {});
+			getAnalysisName.setAccessible(true);
 			res = (String) getAnalysisName.invoke(a, new Object[] {});
 
 		} catch (Exception e) {
-			return res;
+		    e.printStackTrace();
+			return " e "+res;
 		}
 		return res;
 	}
@@ -317,9 +319,10 @@ public class CheckCml {
 
 		for (PSource source : sources) {
 			try {
-				System.out.println(" Running " + getAnalysisName(analysis)
-						+ " on " + source.toString());
+				System.out.print(" Running " + getAnalysisName(analysis)
+						+ " on " + source.toString() + " ");
 				analysis.apply(source);
+				System.out.println();
 			} catch (Exception e) {
 				if (!silentOnException) {
 					e.printStackTrace();
@@ -365,7 +368,7 @@ public class CheckCml {
 	/**
 	 * EXTENSION POINT: This is where you want to add more analys phases. That
 	 * is, add a bit of code to the end this method. First we see what inputs
-	 * you have can work with then follows an example.
+	 * you have to work with then follows an example.
 	 * 
 	 * @param input
 	 *            - input contains the command line switches and the source
@@ -436,6 +439,10 @@ public class CheckCml {
 								.getTypeErrors())
 							System.out.println("\t" + e);
 					}
+					else
+					    {
+						System.out.println("[model types are ok]");
+					    }
 				}
 			};
 			runAnalysis(input, r, sources);
@@ -516,8 +523,7 @@ public class CheckCml {
 
 				try {
 
-					final CmlInterpreter interpreter = new VanillaCmlInterpreter(
-							sources);
+					final CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(sources);
 
 
 					AnalysisRunAdaptor re = new AnalysisRunAdaptor(null) {

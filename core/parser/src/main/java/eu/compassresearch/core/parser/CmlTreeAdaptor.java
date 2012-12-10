@@ -21,15 +21,17 @@ public class CmlTreeAdaptor extends CommonTreeAdaptor {
 	if (payload == null)
 	    return new CommonTree(payload);
 
+	LexLocation loc;
+
 	switch (payload.getType()) {
 	case CmlParser.DOTTEDNAME:
 	    // This only deals with one identifier in the dotted sequence at a time
 	    // Intefacing the Lex*Token objects to ANTLR is going to be a royal nuisance
-	    LexLocation loc = extractLexLocation((CommonToken)payload);
+	    loc = extractLexLocation((CommonToken)payload);
 	    System.out.println("==> DOTTEDNAME(.) token");
 	    return super.create(payload);
 	case CmlParser.NUMERIC:
-	    LexLocation loc = extractLexLocation((CommonToken)payload);
+	    loc = extractLexLocation((CommonToken)payload);
 	    LexIntegerToken cmlt = new LexIntegerToken(Long.decode(payload.getText()), loc);
 	    System.out.println("==> NUMERIC token -> LexIntegerToken: " + cmlt);
 	    CmlCommonToken t = new CmlCommonToken(payload,cmlt);

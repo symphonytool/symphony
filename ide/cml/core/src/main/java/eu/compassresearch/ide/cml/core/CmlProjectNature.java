@@ -40,6 +40,8 @@ public class CmlProjectNature implements IProjectNature
         this.project = project;
       }
     
+    
+    
     @Override
     public void configure() throws CoreException
       {

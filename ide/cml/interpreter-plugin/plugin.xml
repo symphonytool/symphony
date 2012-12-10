@@ -11,11 +11,11 @@
   <!--icon="icons/cview16/cml_file_tsk.png"-->
   <extension point="org.eclipse.ui.views">
     <view 
-        id="eu.compassresearch.ide.cml.interpreter_plugin.CmlInterpreterView"
-        name="COMPASS Interpreter View"
+        id="eu.compassresearch.ide.cml.interpreter_plugin.OptionsView"
+        name="CML Event Options"
         category="compass_eu.compassresearch.ide.cml.ui.category"
         
-        class="eu.compassresearch.ide.cml.interpreter_plugin.CmlInterpreterView" />
+        class="eu.compassresearch.ide.cml.interpreter_plugin.CmlEventOptionView" />
         
         <category
         	id="compass_eu.compassresearch.ide.cml.ui.category"
@@ -28,7 +28,8 @@
         delegate="eu.compassresearch.ide.cml.interpreter_plugin.CmlLaunchConfigurationDelegate"
         id="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationType"
         modes="debug,run"
-        name="Cml Model">
+        name="Cml Model"
+        public="true">
 		</launchConfigurationType>
 	</extension>
 	
@@ -42,46 +43,53 @@
 			<launchMode 
                   mode="debug"
                   perspective="org.eclipse.debug.ui.DebugPerspective"
-                  description="%localCmlApplicationTabGroupDescription.debug">
+                  description="Debug Cml Model">
             </launchMode>
             <launchMode
                   mode="run"
-                  perspective="org.eclipse.debug.ui.DebugPerspective"
-                  description="%localCmlApplicationTabGroupDescription.run">
+                  description="Run Cml Model">
             </launchMode>
 		</launchConfigurationTabGroup>
 	</extension>
 	
-	<!-- Shoutcut for launching project. Extends the Debug and Run context menu in the VDM Explorer -->
- <extension point="org.eclipse.debug.ui.launchShortcuts">
-  <shortcut
-        class="eu.compassresearch.ide.cml.interpreter_plugin.CmlApplicationLaunchShortcut"
-        id="eu.compassresearch.ide.cml.interpreter_plugin.CmlShortcut"
-        label="Cml Application"
-        modes="debug,run">
-     <contextualLaunch>
-           <enablement>
-             <with variable="selection">
-             <count value="1"/>
-                <iterate>
-                   <or>
-                      <adapt
-                            type="org.overture.ide.core.resources.IVdmProject">
-                         <test
-                               property="org.overture.ide.core.resources.dialect"
-                               value="VDM_PP">
-                         </test>
-                      </adapt>
-                   </or>
-                </iterate>
-           	</with>
-           </enablement>
-  		 </contextualLaunch>
-     <configurationType
-           id="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationType">
-     </configurationType>
-  </shortcut>
- </extension>
+	<!-- Shoutcut for launching project. Extends the Debug and Run context menu in the CML Explorer -->
+ 	<extension point="org.eclipse.debug.ui.launchShortcuts">
+	  	<shortcut
+	  		id="eu.compassresearch.ide.cml.interpreter_plugin.CmlShortcut"
+	        class="eu.compassresearch.ide.cml.interpreter_plugin.CmlApplicationLaunchShortcut"
+	        label="Cml Application"
+	        modes="debug, run, profile"
+	        category="compass_eu.compassresearch.ide.cml.ui.category"
+	        description="Launch a CML model">
+	    <description
+	     description="Runs a local CML model"
+	     mode="run">
+	    </description>
+	    <description
+		     description="Debugs a local CML model"
+		     mode="debug">
+	    </description>
+	    <contextualLaunch>
+         <contextLabel mode="run" label="Run CML model" />
+         <contextLabel mode="debug" label="Debug CML model" />
+         <enablement >
+           <with variable="selection">
+           <count value="1"/>
+          <iterate>
+            <adapt type="org.eclipse.core.resources.IResource">
+                <and>
+                <test property="org.eclipse.core.resources.name" value="*.cml"/>
+            </and>
+        </adapt>
+          </iterate>
+           </with>
+       </enablement>
+     </contextualLaunch>
+	    <configurationType
+	    	id="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationType">
+	  	</configurationType>
+	  	</shortcut>
+ 	</extension>
  
   
 </plugin>

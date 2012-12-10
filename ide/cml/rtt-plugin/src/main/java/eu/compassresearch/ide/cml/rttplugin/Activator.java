@@ -5,6 +5,7 @@ import org.osgi.framework.BundleContext;
 
 import eu.compassResearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 import eu.compassResearch.rttMbtTmsClientApi.RttMbtClient;
+import eu.compassResearch.rttMbtTmsClientApi.IRttMbtLoggingFacility;
 
 public class Activator implements BundleActivator
   {

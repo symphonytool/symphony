@@ -33,6 +33,7 @@
   import org.overture.ast.types.*;
   import org.overture.ast.typechecker.NameScope;
   import org.overture.ast.util.*;
+  import org.overture.ast.typechecker.Pass;
 
   import eu.compassresearch.ast.actions.*;
   import eu.compassresearch.ast.declarations.*;
@@ -372,6 +373,14 @@ classDefinition :
   clz.setAccess(util.getDefaultAccessSpecifier(true, false, loc));
   AClassType ct = new AClassType(clz.getLocation(), false, clz.getDefinitions(), clz.getName(), null);
   clz.setType(ct);
+  for(PDefinition def : clz.getDefinitions())
+  {
+    	if (def instanceof AClassInvariantDefinition)
+		{
+			AClassInvariantDefinition cinv = (AClassInvariantDefinition)def;
+			cinv.setName(new LexNameToken("", new LexIdentifierToken("inv"+lexName.getName(), false, loc) ));
+		}
+  }
   $$ = clz;
 }
 /* DEVIATION
@@ -416,6 +425,7 @@ processDefinition:
   PROCESS IDENTIFIER EQUALS process
 {
   PProcess process = (PProcess)$process;
+  LexNameToken id = util.extractLexNameToken((CmlLexeme)$IDENTIFIER);
   AAccessSpecifierAccessSpecifier access = util.getDefaultAccessSpecifier(true, false, process.getLocation());
   AProcessDefinition processDef = new AProcessDefinition(process.getLocation(),
                                                          NameScope.GLOBAL,
@@ -424,10 +434,27 @@ processDefinition:
                                                          null,//Pass
                                                          null,
                                                          process);
-  LexNameToken id = util.extractLexNameToken((CmlLexeme)$IDENTIFIER);
-  processDef.setName(id);
   LexLocation location = util.extractLexLocation((CmlLexeme)$PROCESS,
-                                            processDef.getLocation());
+                                            processDef.getLocation());                                                         
+                                                         
+  if (process instanceof AStateProcess)
+  {
+    AStateProcess stateProcess = (AStateProcess)process;
+    List defs = stateProcess.getDefinitionParagraphs();
+    for(Object def : defs)
+    {
+    	if (def instanceof AClassInvariantDefinition)
+			{
+				
+				AClassInvariantDefinition cinv = (AClassInvariantDefinition)def;
+				cinv.setName(new LexNameToken("", new LexIdentifierToken("inv_"+id.getName(),false,location)));
+			}
+    }
+  }
+                                                         
+  
+  processDef.setName(id);
+  
   access = util.getDefaultAccessSpecifier(true, false, location);
   processDef.setName(id);
   AProcessParagraphDefinition p = new AProcessParagraphDefinition(location,
@@ -459,6 +486,21 @@ processDefinition:
   processDef.setName(id);
   LexLocation location = util.extractLexLocation((CmlLexeme)$PROCESS,
                                             processDef.getLocation());
+  if (process instanceof AStateProcess)
+  {
+    AStateProcess stateProcess = (AStateProcess)process;
+    List defs = stateProcess.getDefinitionParagraphs();
+    for(Object def : defs)
+    {
+    	if (def instanceof AClassInvariantDefinition)
+			{
+				
+				AClassInvariantDefinition cinv = (AClassInvariantDefinition)def;
+				cinv.setName(new LexNameToken("", new LexIdentifierToken("inv_"+id.getName(),false,location)));
+			}
+    }
+  }
+                                            
   access = util.getDefaultAccessSpecifier(true, false, location);
   processDef.setName(id);
   AProcessParagraphDefinition p = new AProcessParagraphDefinition(location,
@@ -479,7 +521,7 @@ process :
   BEGIN AT action END
 {
   LexLocation location = util.extractLexLocation((CmlLexeme)$1, (CmlLexeme)$4);
-  List<SParagraphDefinition> processParagraphs = null;
+  List<SParagraphDefinition> processParagraphs = new LinkedList<SParagraphDefinition>();
   PAction action = (PAction)$3;
   $$ = new AStateProcess(location, processParagraphs, action);
 }
@@ -1901,12 +1943,14 @@ classDefinitionBlockAlternative :
 {
   PDefinition def = (PDefinition)$operationDef;
   LexLocation location = util.extractLexLocation((CmlLexeme)$INITIAL,def.getLocation());
-  $$ = new AInitialParagraphDefinition(location,
+  AInitialParagraphDefinition initDef = new AInitialParagraphDefinition(location,
                                        NameScope.GLOBAL,
                                        true,
                                        util.getDefaultAccessSpecifier(false,false,null),
                                        null/*Pass*/,
                                        def);
+  initDef.setName(new LexNameToken("", new LexIdentifierToken("Initialiser", false, location)));
+  $$ = initDef;                 
 }
 ;
 
@@ -1979,7 +2023,8 @@ typeDef :
   PType type = (PType)$4;
   ANamedInvariantType invType = 
     AstFactory.newANamedInvariantType(name, type);
-  $$ = new ATypeDefinition(location,
+    
+  ATypeDefinition res = new ATypeDefinition(location,
                            NameScope.TYPENAME,
                            false/*Boolean used_*/,
                            null/*VDM ClassDef*/,
@@ -1992,6 +2037,7 @@ typeDef :
                            null /*AExplicitFunctionDefinition invdef_*/,
                            false/*Boolean infinite_*/,
                            name);
+   $$ = res;
 }
 | qualifier IDENTIFIER[id] EQUALS type invariant
 {
@@ -2036,27 +2082,19 @@ typeDef :
   // TODO: Added AInvariantInvariant to the ARecordInvariantType replacing
   // the current AExplicitFunctionFunctionDefinition for inv.
   LexLocation loc = util.combineLexLocation(name.getLocation(), util.extractLexLocation(vdmrec));
-  ARecordInvariantType recType = new ARecordInvariantType(loc,
-                                                          false,
-                                                          null,
-                                                          false,
-                                                          null, /* invdef */
-                                                          name,
-                                                          fields,
-                                                          true);
-  $$ = new ATypeDefinition(loc,
-                           NameScope.TYPENAME,
-                           false,
-                           null/*VDM ClassDef*/,
-                           access,
-                           null,
-                           null/*Pass*/,
-                           recType,
-                           null,
-                           null,
-                           null,
-                           true,
-                           name);
+  ARecordInvariantType recType =  AstFactory.newARecordInvariantType(name, fields);
+  PPattern invPattern = null;
+  PExp invExp = null;
+  if (inv != null)
+  {
+     invPattern = inv.getPattern();
+     invExp = inv.getExpression();
+  }
+  // AstFactory.newATypeDefinition(name, recType, invPattern, invExp);                                                          
+  ATypeDefinition tdef = AstFactory.newATypeDefinition(name,recType,invPattern, invExp);
+  tdef.setAccess(access);
+  
+  $$ = tdef;
 }
 ;
 
@@ -2126,14 +2164,8 @@ type :
 | COMPOSE[start] IDENTIFIER[id] OF fieldList END[end]
 {
   List<AFieldField> fields = (List<AFieldField>)$fieldList;
-  $$ = new ARecordInvariantType(util.extractLexLocation((CmlLexeme)$start,(CmlLexeme)$end),
-                                false,
-                                null,//definitions
-                                false,//opaque
-                                null,//invdef
-                                util.extractLexNameToken($id),
-                                (List<? extends AFieldField>)$fieldList,
-                                false/*infinite_*/);
+  LexLocation location = util.extractLexLocation((CmlLexeme)$1);
+  $$ = AstFactory.newARecordInvariantType(location, fields);
 }
 | type[first] BAR type[second] // unionType
 {
@@ -2390,11 +2422,10 @@ fieldList :
 field :
   type
 {
-  $$ = new AFieldField(util.getDefaultAccessSpecifier(false,false,null),
-                       null,
-                       null,
-                       (PType)$type,
-                       false);
+  PType type = (PType)$1;
+  String tag = "";
+  LexNameToken tagname = new LexNameToken("", new LexIdentifierToken(tag,false,type.getLocation()));
+  AFieldField res = AstFactory.newAFieldField(tagname, tag, type, false);
 }
 | IDENTIFIER[id] COLON type
 {
@@ -2402,7 +2433,7 @@ field :
   PType type = (PType)$type;
   $$ = new AFieldField(util.getDefaultAccessSpecifier(false,false,null),
                        name,
-                       null,
+                       name.getName(),
                        type,
                        false);
 }
@@ -2581,8 +2612,8 @@ valueDef :
                          expression,
                          null // defs
                          );
-  vdef.setName(null);
-  vdef.setType(null);
+  vdef.setName(new LexNameToken("", new LexIdentifierToken("pattern", false, loc)));
+  vdef.setType(new AUnknownType(loc, true));
   $$ = vdef;
 }
 | patternLessID[pat] COLON type EQUALS expression
@@ -2961,7 +2992,12 @@ operationType :
   PType dom = new AVoidType(util.extractLexLocation((CmlLexeme)$dom), true);
   PType rng = (PType)$rng;
   List<PType> types = new LinkedList<PType>();
-  types.add(dom);
+  // RWL: Overture Type Checker expects the list of domain types to be empty 
+  // when there is none. Adding the Void type is causing it to mismatch
+  // the number of patterns and the number of formal types in apply expressions.
+  //
+  //types.add(dom);
+  //
   $$ = new AOperationType(util.extractLexLocation(dom.getLocation(), rng.getLocation()),
                           false,
                           new LinkedList<PDefinition>(),
@@ -3145,12 +3181,14 @@ stateDef :
 {
   PExp exp = (PExp) $expression;
   LexLocation location = util.extractLexLocation((CmlLexeme)$INV, exp.getLocation());
-  $$ = new AClassInvariantDefinition(location,
+  AClassInvariantDefinition cinv = new AClassInvariantDefinition(location,
                                      NameScope.GLOBAL,
                                      true,
                                      null/*access*/,
-                                     null/*Pass*/,
+                                     Pass.DEFS/*Pass*/,
                                      exp);
+  cinv.setName(new LexNameToken("", new LexIdentifierToken("inv", false, location)));
+  $$ = cinv;  		                                  
 }
 ;
 
@@ -3168,6 +3206,7 @@ expressionList :
   $$ = exps;
 }
 ;
+
 
 /* --- TODO --- */
 /* Old comment about paths and their conversion, below.
@@ -3279,6 +3318,11 @@ expression :
 {
   $$ = util.expressionDotHashNumeralToFieldNumberExp($tuple, $NUMERAL);
 }
+//
+// RWL: This production is highly problematic ! It procuces an Ast for f(x)
+// saying f() :( Unable to type check that ... 
+//
+//
 | expression[rootExp] LRPAREN
 {
   $$ = util.caseExpressionApply($rootExp, new LinkedList<PExp>(), $LRPAREN);
@@ -3643,7 +3687,7 @@ textLiteral :
   STRING
 {
   String lit = ((CmlLexeme)$STRING).getValue();
-  $$ = new LexStringToken(lit.substring(1, lit.length()-2),
+  $$ = new LexStringToken(lit.substring(1, lit.length()-1),
                           util.extractLexLocation((CmlLexeme)$STRING));
 }
 ;
@@ -3652,7 +3696,7 @@ quoteLiteral :
   QUOTE_LITERAL[lit]
 {
   String lit = ((CmlLexeme)$lit).getValue();
-  $$ = new LexQuoteToken(lit.substring(1, lit.length()-2),
+  $$ = new LexQuoteToken(lit.substring(1, lit.length()-1),
                          util.extractLexLocation((CmlLexeme)$lit));
 }
 ;
