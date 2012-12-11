@@ -29,6 +29,8 @@ import eu.compassresearch.core.interpreter.runtime.CmlProcessInstance;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.runtime.EnvironmentBuilder;
 import eu.compassresearch.core.interpreter.runtime.RandomSelectionStrategy;
+import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
+import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -48,7 +50,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	protected String 				   defaultName      = null;	
 	protected AProcessDefinition       topProcess;
 	protected CmlSupervisorEnvironment currentSupervisor= null;
-	//private CmlScheduler               cmlScheduler     = new CmlScheduler();
+	protected Scheduler                cmlScheduler     = null;
 
 	/**
 	 * Construct a CmlInterpreter with a list of PSources. These source may
@@ -129,14 +131,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		Environment env = getGlobalEnvironment();
 		CmlRuntime.setGlobalEnvironment(env);
 
-		currentSupervisor = CmlRuntime.createSupervisorEnvironment(selectionStrategy);
+		cmlScheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
 		
-		//Clear for pupils
-		for(CmlProcess p : currentSupervisor.getPupils())
-		{
-			currentSupervisor.removePupil(p);
-		}
-
+		currentSupervisor = VanillaInterpreterFactory.newCmlSupervisorEnvironment(selectionStrategy,cmlScheduler);
+		cmlScheduler.setCmlSupervisorEnvironment(currentSupervisor);
+		
 		CmlProcessInstance pi = new CmlProcessInstance(topProcess, null,getInitialContext(null));
 
 		pi.start(currentSupervisor);
@@ -237,7 +236,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public InterpreterStatus getStatus()
 	{
 		CmlProcess topCmlProcessInstance = currentSupervisor.findNamedProcess(topProcess.getName().toString());
-		return new InterpreterStatus(topCmlProcessInstance.getTraceModel());
+		
+		//Collect the processInfos
+		
+		return new InterpreterStatus(cmlScheduler.getAllProcesses());
 	}
 
 	@Override

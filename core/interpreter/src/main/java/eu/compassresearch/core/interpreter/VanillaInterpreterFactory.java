@@ -5,6 +5,12 @@ import java.util.List;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.runtime.DefaultSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
+import eu.compassresearch.core.interpreter.scheduler.Scheduler;
+import eu.compassresearch.core.interpreter.scheduler.SchedulingPolicy;
 
 public final class VanillaInterpreterFactory {
 
@@ -29,5 +35,20 @@ public final class VanillaInterpreterFactory {
 	 */
 	public static CmlInterpreter newInterpreter(PSource cmlSource) throws InterpreterException {
 		return new VanillaCmlInterpreter(cmlSource);
+	}
+	
+	/**
+	 * Creates new CmlSupervisorEnvironment
+	 * @param selectStrategy
+	 * @return
+	 */
+	public static CmlSupervisorEnvironment newCmlSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy, Scheduler cmlScheduler)
+	{
+		return new DefaultSupervisorEnvironment(selectStrategy,cmlScheduler);
+	}
+	
+	public static Scheduler newScheduler(SchedulingPolicy policy)
+	{
+		return new CmlScheduler(policy);
 	}
 }

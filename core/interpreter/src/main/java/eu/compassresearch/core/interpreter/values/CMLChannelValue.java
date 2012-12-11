@@ -1,6 +1,5 @@
 package eu.compassresearch.core.interpreter.values;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,6 +15,8 @@ import eu.compassresearch.core.interpreter.cml.channels.CmlOutputChannel;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+import eu.compassresearch.core.interpreter.util.EventObserver;
+import eu.compassresearch.core.interpreter.util.EventSource;
 
 public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSignal,CmlOutputChannel<Value> ,CmlInputChannel<Value> 
 {
@@ -26,6 +27,9 @@ public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSign
 	private List<ChannelObserver> 			signalObservers = new LinkedList<ChannelObserver>();
 	private List<ChannelObserver> 			readObservers = new LinkedList<ChannelObserver>();
 	private List<ChannelObserver> 			writeObservers = new LinkedList<ChannelObserver>();
+	
+	private EventSource<EventObserver<CmlChannelEvent>,CmlChannelEvent> signalObserversTest = 
+			new EventSource<EventObserver<CmlChannelEvent>, CmlChannelEvent>(this); 
 	
 	public CMLChannelValue(PType channelType, LexNameToken name)
 	{
@@ -129,6 +133,11 @@ public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSign
 		CmlRuntime.logger().finest(observer.toString() + " unregistered on "+ this.toString() + " for onChannelWrite events");
 	}
 
+	public void registerOnChannelSignals(EventObserver<CmlChannelEvent> observer) {
+//		signalObservers.add(observer);
+//		CmlRuntime.logger().finest(observer.toString() + " registered on "+ this.toString() + " for onChannelSignal events");
+	}
+	
 	@Override
 	public void registerOnChannelSignal(ChannelObserver observer) {
 		signalObservers.add(observer);

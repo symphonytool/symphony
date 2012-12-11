@@ -8,6 +8,9 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 
 public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<Context, Value>
 {
+	//QuestionAnswerCMLAdaptor<Context, Value> test = 
+	
+	
 	//private ExpressionEvaluator vdmExpressionEvaluator;
 	//private CML2VDMExpressionEvaluator vdmExpressionEvaluator = new CML2VDMExpressionEvaluator();
 	

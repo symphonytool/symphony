@@ -4,13 +4,17 @@ import java.util.Iterator;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.statements.AIdentifierStateDesignator;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
+import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.SParallelAction;
@@ -26,7 +30,6 @@ import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
 import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 import eu.compassresearch.core.interpreter.util.CmlProcessUtil;
 import eu.compassresearch.core.interpreter.util.Pair;
 
@@ -190,14 +193,13 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	 * Private helper methods
 	 */
 	
-	
-	
-		
 	/**
 	 * Transition cases
 	 */
 
 	/**
+	 * Synchronisation and Communication D23.2 7.5.2
+	 * 
 	 * This transition can either be
 	 * Simple prefix   	: a -> A
 	 * Synchronisation 	: a.1 -> A
@@ -244,6 +246,31 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
+	
+	
+	/**
+	 * External Choice D23.2 7.5.4
+	 * 
+	 *  There four transition rules for external choice:
+	 *  
+	 *  * External Choice Begin
+	 *  
+	 *  * External Choice Silent
+	 *  
+	 *  * External Choice SKIP
+	 *  
+	 *  * External Choice End
+	 *  
+	 */
+	@Override
+	public CmlBehaviourSignal caseAExternalChoiceAction(
+			AExternalChoiceAction node, Context question)
+			throws AnalysisException {
+		// TODO Auto-generated method stub
+		return super.caseAExternalChoiceAction(node, question);
+	}
+	
+	
 	
 	/**
 	 * This implements the 7.5.10 Action Reference transition rule in D23.2. 
@@ -511,4 +538,31 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			setState(CmlProcessState.FINISHED);
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
+	
+	/**
+	 * action Assignment
+	 */
+	@Override
+	public CmlBehaviourSignal caseASingleGeneralAssignmentStatementAction(
+			ASingleGeneralAssignmentStatementAction node, Context question)
+					throws AnalysisException {
+
+		//				Value expValue = node.getExpression().apply(parentInterpreter,question);
+		//						//TODO Change this to deal with it in general
+		//						AIdentifierStateDesignator id = (AIdentifierStateDesignator)node
+		//
+		//						Context nameContext = question.locate(id.getName());
+		//
+		//				if(nameContext == null)
+		//					nameContext = new CMLContext(node.getLocation(),"caseASi
+		//
+		//							nameContext.put(id.getName(), expValue);
+		//
+		//					System.out.println( id.getName() + " := " + expValue);
+		//
+		//					return new ProcessValueOld(null);
+		
+		return null;
+	}
+
 }

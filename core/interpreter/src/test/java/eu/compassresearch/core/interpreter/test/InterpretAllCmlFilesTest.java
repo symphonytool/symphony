@@ -130,13 +130,13 @@ public class InterpretAllCmlFilesTest {
 		if(!testResult.isInterleaved())
 		{
 			assertTrue(testResult.getFirstVisibleTrace()
-					.equals(convertCmlEventsToStringList(status.getVisibleTrace())));
+					.equals(status.getToplevelProcessInfo().getVisibleTrace()));
 		}
 		else
 		{
 			boolean foundMatch = false;
 			//If we have interleaving it must be one of the possible traces
-			List<String> resultTrace = convertCmlEventsToStringList(status.getVisibleTrace());
+			List<String> resultTrace = status.getToplevelProcessInfo().getVisibleTrace();
 			for(List<String> trace : testResult.getVisibleTraces())
 			{
 				foundMatch |= trace.equals(resultTrace);

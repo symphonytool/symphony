@@ -24,6 +24,7 @@ import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
+import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
@@ -180,7 +181,12 @@ public class CmlInterpreterRunner {
 	 */
 	private void sendStatusMessage(CmlDbgpStatus status)
 	{
-		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(status);
+		sendStatusMessage(status, null);
+	}
+	
+	private void sendStatusMessage(CmlDbgpStatus status, InterpreterStatus interpreterStatus)
+	{
+		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(status,interpreterStatus);
 		System.out.println(dm);
 		CmlMessageCommunicator.sendMessage(requestOS, dm);
 	}
@@ -240,7 +246,7 @@ public class CmlInterpreterRunner {
 						if(response.isRequestInterrupted())
 							throw new InterpreterRuntimeException("intepreter interrupted");
 
-						String responseStr = response.getValue(String.class);
+						String responseStr = response.getContent(String.class);
 						System.out.println("response: " + responseStr);
 						
 						CmlCommunicationEvent selectedEvent = null;

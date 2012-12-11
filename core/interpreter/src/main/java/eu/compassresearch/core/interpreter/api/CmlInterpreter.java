@@ -27,10 +27,6 @@ import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy
 
 public interface CmlInterpreter
 {
-	/**
-	 * Create an Interpreter.
-	 */
-
 	
 	/**
 	 * Get a string version of the environment.
@@ -270,5 +266,6 @@ public interface CmlInterpreter
 	public PType findType(String typename);
 	
 	public InterpreterStatus getStatus();
-	
+
+	//public registerForEvent(InterpreterObserver observer);
 }
