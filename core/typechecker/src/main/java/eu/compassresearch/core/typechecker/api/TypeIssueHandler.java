@@ -106,18 +106,40 @@ public interface TypeIssueHandler {
 	 */
 	public static class CMLTypeError extends CMLTypeWarning {
 
+		private StackTraceElement[] stackTrace;
+		private void buildStack()
+		{
+			this.stackTrace = Thread.currentThread().getStackTrace();
+		}
+		
 		public CMLTypeError(INode subtree, String message) {
 			super(subtree, message);
+			buildStack();
 		}
 
 		public CMLTypeError(LexLocation loc, String message) {
 			super(loc, message);
+			buildStack();
 		}
 
 		@Override
 		public String toString() {
 			LexLocation location = super.getLocation();
 			return "TypeError: " + location + " : " + description;
+		}
+		
+		public String getStackTrace()
+		{
+			int i = 0;
+			StringBuilder sb = new StringBuilder();
+			sb.append("Type Error Details: " +
+					"\n\t"+description+"\nOffending node: "+(subtree == null ? "null" : subtree)+"\n");
+			for(i=4;i<stackTrace.length && i < 20;i++)
+			{
+				StackTraceElement e = stackTrace[i];
+				sb.append("\t" + e.toString() + "\n");
+			}
+			return sb.toString();
 		}
 	}
 

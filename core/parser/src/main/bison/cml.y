@@ -2961,7 +2961,12 @@ operationType :
   PType dom = new AVoidType(util.extractLexLocation((CmlLexeme)$dom), true);
   PType rng = (PType)$rng;
   List<PType> types = new LinkedList<PType>();
-  types.add(dom);
+  // RWL: Overture Type Checker expects the list of domain types to be empty 
+  // when there is none. Adding the Void type is causing it to mismatch
+  // the number of patterns and the number of formal types in apply expressions.
+  //
+  //types.add(dom);
+  //
   $$ = new AOperationType(util.extractLexLocation(dom.getLocation(), rng.getLocation()),
                           false,
                           new LinkedList<PDefinition>(),
@@ -3643,7 +3648,7 @@ textLiteral :
   STRING
 {
   String lit = ((CmlLexeme)$STRING).getValue();
-  $$ = new LexStringToken(lit,
+  $$ = new LexStringToken(lit.replaceAll("^\"|$\"", ""),
                           util.extractLexLocation((CmlLexeme)$STRING));
 }
 ;
@@ -3652,7 +3657,7 @@ quoteLiteral :
   QUOTE_LITERAL[lit]
 {
   String lit = ((CmlLexeme)$lit).getValue();
-  $$ = new LexQuoteToken(lit.substring(1, lit.length()-2),
+  $$ = new LexQuoteToken(lit.substring(1, lit.length()),
                          util.extractLexLocation((CmlLexeme)$lit));
 }
 ;

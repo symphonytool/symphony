@@ -20,7 +20,6 @@ import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlContentAssistProcessor implements IContentAssistProcessor {
 
-    @Override
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer,
 	    int documentOffset) {
 	CmlDocument doc = (CmlDocument) viewer.getDocument();
@@ -138,31 +137,26 @@ public class CmlContentAssistProcessor implements IContentAssistProcessor {
 	}
     }
 
-    @Override
     public IContextInformation[] computeContextInformation(ITextViewer viewer,
 	    int documentOffset) {
 	// TODO Auto-generated method stub
 	return null;
     }
 
-    @Override
     public char[] getCompletionProposalAutoActivationCharacters() {
 	return new char[] { '.' };
     }
 
-    @Override
     public char[] getContextInformationAutoActivationCharacters() {
 	// TODO Auto-generated method stub
 	return null;
     }
 
-    @Override
     public IContextInformationValidator getContextInformationValidator() {
 	// TODO Auto-generated method stub
 	return null;
     }
 
-    @Override
     public String getErrorMessage() {
 	// TODO Auto-generated method stub
 	return null;

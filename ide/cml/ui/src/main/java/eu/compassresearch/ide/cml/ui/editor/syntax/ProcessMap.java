@@ -71,7 +71,6 @@ public class ProcessMap {
 	private static class AGeneralisedParallelismProcessHandler implements
 			ProcessHandler {
 
-		@Override
 		public List<Wrapper<? extends INode>> makeEntries(PProcess proc) {
 			List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
 			AGeneralisedParallelismProcess gpp = (AGeneralisedParallelismProcess) proc;
@@ -104,7 +103,6 @@ public class ProcessMap {
 	private static class ASynchronousParallelismProcessHandler implements
 			ProcessHandler {
 
-		@Override
 		public List<Wrapper<? extends INode>> makeEntries(PProcess proc) {
 			List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
 			ASynchronousParallelismProcess spp = (ASynchronousParallelismProcess) proc;
@@ -123,7 +121,6 @@ public class ProcessMap {
 	private static class AExternalChoiceProcessHandler implements
 			ProcessHandler {
 
-		@Override
 		public List<Wrapper<? extends INode>> makeEntries(PProcess proc) {
 			List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
 			AExternalChoiceProcess ecp = (AExternalChoiceProcess) proc;
@@ -141,7 +138,6 @@ public class ProcessMap {
 	private static class AExternalChoiseProcessHandler implements
 			ProcessHandler {
 
-		@Override
 		public List<Wrapper<? extends INode>> makeEntries(PProcess proc) {
 			List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
 			AExternalChoiceProcess ecp = (AExternalChoiceProcess) proc;
