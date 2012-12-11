@@ -201,8 +201,9 @@ public class POGDeclAndDefVisitor extends
 		// CMLProofObligationList td = s.apply(this, question);
 		// System.out.println("----------***----------");
 		// }
-			
-		return pol;
+
+		return pdef.apply(this, question);
+//		return pol;
     }
     
     /**
@@ -257,7 +258,7 @@ public class POGDeclAndDefVisitor extends
     }
     
 
-    // Call the main pog when it's not an expression
+    // Call the main pog when it's not a defintion/declaration
     @Override
     public ProofObligationList defaultINode(INode node, POContextStack question)
 	    throws AnalysisException {
