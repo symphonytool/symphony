@@ -19,7 +19,7 @@ public class CmlRuntime {
 	//protected static CmlSupervisorEnvironment supervisorEnvironment = null;
 	protected static Logger logger = null;
 	protected static Handler logHandler = null;
-	private static boolean showHiddenEvents = false;
+	private static boolean showHiddenEvents = true;
 	
 //	public static CmlScheduler getCmlScheduler()
 //	{

@@ -158,10 +158,17 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		
 	}
 	
+	/**
+	 * Determines whether the interpreter jar is extracted at the specified path
+	 * @param uri The folder where the jar might be located
+	 * @return true if it exist else false
+	 * @throws IOException
+	 */
 	private boolean isInterpreterAlreadyExtracted(URI uri) throws IOException
 	{
 		File jarHashFile = new File(uri.getSchemeSpecificPart(),"interpreter-with-dependencies.jar.sha");
 		
+		//First check if the jar hash file exists, if not then we re-extract
 		if(!jarHashFile.exists())
 			return false;
 		else
@@ -181,17 +188,27 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		
 	}
 	
+	/**
+	 * Returns the path of the interpreter-with-dependencies jar. 
+	 * If the jar cannot be found or the hash is different from the one
+	 * inside the plugin jar, then the interpreter-with-dependencies jar
+	 * is extracted at the returned path.
+	 * @return Path to the interpreter jar
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	private String locateInterpreterFromPlugin() throws IOException, URISyntaxException
 	{
 		URI bundleURI = getBundleURI().resolve("./");
 		
 		File jarFile = new File(bundleURI.getSchemeSpecificPart(),"interpreter-with-dependencies.jar");
-				
+
+		//check whether the interpreter jar from the plugin is extracted
+		//If not then we extract it else do nothing
 		if(!isInterpreterAlreadyExtracted(bundleURI))
 		{
 			unpackInterpreterFromPlugin(bundleURI);
 		}
-		
 		
 		return jarFile.getAbsolutePath();
 	}

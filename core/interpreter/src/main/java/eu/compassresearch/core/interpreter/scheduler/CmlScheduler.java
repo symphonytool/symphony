@@ -33,6 +33,7 @@ import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 //import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 //import eu.compassresearch.core.interpreter.util.Pair;
 //
+
 public class CmlScheduler implements CmlProcessObserver {
 
 	List<CmlProcess> running = new LinkedList<CmlProcess>();
@@ -48,24 +49,69 @@ public class CmlScheduler implements CmlProcessObserver {
 	
 	public void addProcess(CmlProcess process)
 	{
+		process.registerOnStateChanged(this);
 		if(process.waiting())
 			waiting.add(process);
 		else
 			running.add(process);
 	}
 	
+	public void clearProcesses()
+	{
+		running.clear();
+		waiting.clear();
+		finished.clear();
+	}
+	
+	/**
+	 * Creates a list with all the currently waiting top-level processes
+	 * @return Currently Waiting top-level processes
+	 */
+	private List<CmlProcess> getWaitingTopLevelProcesses()
+	{
+		List<CmlProcess> foundProcesses = new LinkedList<CmlProcess>();
+		
+		for(CmlProcess p : waiting)
+		{
+			if(p.level() == 0)
+			{
+				foundProcesses.add(p);
+			}
+		}
+		
+		return foundProcesses;
+	}
+	
+	private List<CmlProcess> getRunningProcesses()
+	{
+		return new Vector<CmlProcess>(running);
+	}
+	
+	private boolean hasRunningProcesses()
+	{
+		return running.size() > 0;
+	}
+	
+	private boolean hasWaitingProcesses()
+	{
+		return waiting.size() > 0;
+	}
+	
+	private boolean hasActiveProcesses()
+	{
+		return hasWaitingProcesses() || hasRunningProcesses();
+	}
+	
 	public void start() throws AnalysisException {
 		
 		//Active state
-		while( waiting.size() > 0 || running.size() > 0)
+		while(hasActiveProcesses())
 		{
-			
 			CmlRuntime.logger().fine("----------------step----------------");
 			
 			//execute each of the running pupils until they are either finished or in wait state
-			for(Iterator<CmlProcess> iterator = new Vector<CmlProcess>(running).iterator(); iterator.hasNext();)
+			for(CmlProcess p : getRunningProcesses())
 			{
-				CmlProcess p = iterator.next();
 				while(!p.finished() && 
 						!p.waiting())
 				{
@@ -81,30 +127,25 @@ public class CmlScheduler implements CmlProcessObserver {
 			}
 
 			//Since we can have newly created children, must might have to go back another round before inspecting
-			if(running.size() == 0)
+			if(!hasRunningProcesses())
 			{
-
 				/**
 				 * Now, all the processes are sleeping tight, so the selected decision strategy needs to 
 				 * decide which event should occur and wake them up.
 				 */
-				for(Iterator<CmlProcess> iterator = new Vector<CmlProcess>(waiting).iterator(); iterator.hasNext();)
+				for(CmlProcess p : getWaitingTopLevelProcesses())
 				{
-					CmlProcess p = iterator.next();
-					if(p.level() == 0)
-					{
-						CmlAlphabet alpha = p.inspect();
+					CmlAlphabet alpha = p.inspect();
 
-						if(alpha.isEmpty())
-							throw new RuntimeException("Change this!!!!, but now that you " +
-									"haven't changed this yet a deadlock has occured");
-						else
-						{
-							//Select and set the communication event
-							sve.setSelectedCommunication(sve.decisionFunction().select(p.inspect()));
-							//signal all the processes that are listening for events on this channel
-							sve.selectedCommunication().getChannel().signal();
-						}
+					if(alpha.isEmpty())
+						throw new RuntimeException("Change this!!!!, but now that you " +
+								"haven't changed this yet a deadlock has occured");
+					else
+					{
+						//Select and set the communication event
+						sve.setSelectedCommunication(sve.decisionFunction().select(p.inspect()));
+						//signal all the processes that are listening for events on this channel
+						sve.selectedCommunication().getChannel().signal();
 					}
 				}
 			}
@@ -156,16 +197,4 @@ public class CmlScheduler implements CmlProcessObserver {
 		//CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
 		//CmlRuntime.logger().fine("next: " + p.nextStepToString());
 	}
-	
-//	
-//	public void handleAddedProcesses()
-//	{
-//		while(!addedProcesses.isEmpty())
-//		{
-//			CMLProcessOld pt = addedProcesses.poll();
-//			processes.add(pt);
-//			pt.start(CmlRuntime.getSupervisorEnvironment());
-//		}
-//	}
-//	
 }

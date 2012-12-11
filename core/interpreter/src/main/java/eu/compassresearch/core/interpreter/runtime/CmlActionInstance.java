@@ -26,6 +26,7 @@ import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
 import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
+import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 import eu.compassresearch.core.interpreter.util.CmlProcessUtil;
 import eu.compassresearch.core.interpreter.util.Pair;
 
@@ -38,7 +39,6 @@ import eu.compassresearch.core.interpreter.util.Pair;
  * 	The possible transitions are handled in the visitor case methods.
  * 
  *  Therefore this Class should be fully consistent with the operational semantics described in D23.2 chapter 7.
- * 
  * 
  * @author akm
  *
@@ -64,7 +64,8 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	
 	@Override
 	public void start(CmlSupervisorEnvironment env) {
-		this.env= env; 
+		
+		this.env = env; 
 		
 		if(parent() != null)
 			supervisor().addPupil(this);
