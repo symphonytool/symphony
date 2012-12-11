@@ -30,6 +30,7 @@ import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.ACaseAlternativeAction;
 import eu.compassresearch.ast.actions.ACasesStatementAction;
+import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
@@ -54,6 +55,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.SSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
+import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AErrorType;
@@ -72,6 +74,17 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 class TCActionVisitor extends
 QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
+
+
+	@Override
+	public PType caseAChannelRenamingAction(AChannelRenamingAction node,
+			org.overture.typechecker.TypeCheckInfo question) throws AnalysisException {
+
+		PAction action = node.getAction();
+		SRenameChannelExp renameExp = node.getRenameExpression();
+		
+		return super.caseAChannelRenamingAction(node, question);
+	}
 
 
 	@Override
