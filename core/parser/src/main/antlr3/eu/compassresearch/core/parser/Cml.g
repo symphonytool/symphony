@@ -1,8 +1,4 @@
 /* loose threads:
- * 
- * FIXME Serious bug:
- *   expression "a().field" fails to parse
- *   problem is that I took too restrictive of a definition for name
  *
  * communication prefixes using '.' separators are still causing problems
  * -> restriction in place: '.','!' may only be followed by ids,
@@ -87,12 +83,12 @@ public String getTokenErrorDisplay(Token t) {
 }
 
 private LexLocation extractLexLocation(CommonToken token) {
-	String text = token.getText();
-	int len = text.length();
-	int line = token.getLine();
-	int pos = token.getCharPositionInLine();
-	int offset = token.getStartIndex();
-	return new LexLocation("",// FIXME: filename --- was currentSource.toString(),
+    String text = token.getText();
+    int len = text.length();
+    int line = token.getLine();
+    int pos = token.getCharPositionInLine();
+    int offset = token.getStartIndex();
+    return new LexLocation("",// FIXME: filename --- was currentSource.toString(),
                            "",// FIXME: (local?) module name
                            line, //start line
                            pos, //start column
@@ -102,7 +98,7 @@ private LexLocation extractLexLocation(CommonToken token) {
                            offset+len); //absolute end offset
 }
 public LexLocation extractLexLocation(LexLocation start, LexLocation end) {
-	return new LexLocation(start.file, "",
+    return new LexLocation(start.file, "",
                            start.startLine, start.startPos,
                            end.endLine, end.endPos,
                            start.startOffset, end.endOffset);
@@ -558,16 +554,80 @@ unaryExpr1op
     ;
 
 expr1
-    : unaryExpr1op expr2
-    | setMapExprs
-    | '[' seqExpr? ']'
-    | recordTupleExprs
+    : unaryExpr1op exprbase
     | ISOFCLASSLPAREN IDENTIFIER ('.' IDENTIFIER)* ',' expression ')'
     | ISUNDERLPAREN expression ',' type ')'
     | ISUNDERBASICLPAREN expression ')'
     | ISUNDERNAMELPAREN expression ')'
     | PREUNDERLPAREN expression (',' expression)* ')'
-    | expr2 TUPLESELECTOR?
+    | exprbase selector*
+    ;
+
+selector
+    : '(' ( expression (',' '...' ',' expression | (',' expression)+ )? )? ')' // function application, sequence select and subsequence
+    | TUPLESELECTOR // tuple select
+    | '.' IDENTIFIER // field select
+    ;
+
+exprbase returns[PExp exp]
+    : '(' expression ')'
+    | self='self'
+        {
+            LexLocation loc = extractLexLocation($self);
+            LexNameToken name = new LexNameToken("", $self.getText(), loc, true, false);
+            $exp = new ASelfExp(loc, name);
+        }
+    | IDENTIFIER old='~'?
+        {
+            boolean isOld = (old != null);
+            LexLocation loc = extractLexLocation($IDENTIFIER);
+            if (isOld)
+                loc = extractLexLocation(loc, extractLexLocation($old));
+            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), loc, isOld, false);
+            $exp = new AVariableExp(loc, name, "");
+        }
+//    | name
+//        {
+//            System.out.println("name as module:"+$name.name.module+":");
+//            if ($name.name.module.equals("")) {
+//                $exp = new AVariableExp($name.name.location, $name.name, "");
+//            } else {
+//                // FIXME: this needs to be an AUnresolvedPathExpr, but I've already stringified the list of ids
+//                $exp = null;
+//            }
+//            System.out.println("I have a name: " + $name.name + " / " + ($exp==null?"null":$exp.getClass()));
+//        }
+    | symbolicLiteral { System.out.println("I have a symbolicLiteral: " + $symbolicLiteral.tree); }
+    | setMapExprs
+    | '[' seqExpr? ']'
+    | recordTupleExprs
+    ;
+
+name returns[LexNameToken name]
+    : (ids+=IDENTIFIER '.')* identifier=IDENTIFIER
+        {
+            // FIXME: not setting the filename field
+            // Grab the location of the last identifier as default
+            LexLocation loc = extractLexLocation($identifier);
+            // default to a blank module
+            StringBuilder module = new StringBuilder();
+            if ($ids != null) {
+                // fix the name location
+                LexLocation firstLoc = extractLexLocation((CommonToken)$ids.get(0));
+                loc = new LexLocation(loc.file,
+                                      "", //FIXME: I assume this is the local module name?
+                                      firstLoc.startLine, firstLoc.startPos,
+                                      loc.endLine, loc.endPos,
+                                      firstLoc.startOffset, loc.endOffset);
+                // create the module string
+                for (Object t : $ids) {
+                    module.append(((CommonToken)t).getText());
+                    module.append('.');
+                }
+                module.deleteCharAt(module.length() - 1);
+            }
+            $name=new LexNameToken(module.toString(), $identifier.getText(), loc);
+        }
     ;
 
 setMapExprs
@@ -577,64 +637,6 @@ setMapExprs
 recordTupleExprs
     : MKUNDERLPAREN expression (',' expression)+ ')'
     | MKUNDERNAMELPAREN ( expression (',' expression)* )? ')'
-    ;
-
-expr2
-// | subsequence
-// | apply
-    : exprbase ( '(' ( expression (',' '...' ',' expression | (',' expression)+ )? )? ')' )?
-    ;
-
-exprbase returns[PExp exp]
-    : '(' expression ')'
-    | 'self'
-    | IDENTIFIER '~'
-		{
-			LexLocation loc = extractLexLocation($IDENTIFIER);
-            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), loc, true, false);
-            $exp = new AVariableExp(loc, name, "");
-		}
-// | name
-// | field select
-    | name
-        {
-            System.out.println("name as module:"+$name.name.module+":");
-            if ($name.name.module.equals("")) {
-                $exp = new AVariableExp($name.name.location, $name.name, "");
-            } else {
-                // FIXME: this needs to be an AUnresolvedPathExpr, but I've already stringified the list of ids
-                $exp = null;
-            }
-            System.out.println("I have a name: " + $name.name + " / " + ($exp==null?"null":$exp.getClass()));
-        }
-    | symbolicLiteral { System.out.println("I have a symbolicLiteral: " + $symbolicLiteral.tree); }
-    ;
-
-name returns[LexNameToken name]
-    : (ids+=IDENTIFIER '.')* identifier=IDENTIFIER
-		{
-            // FIXME: not setting the filename field
-            // Grab the location of the last identifier as default
-			LexLocation loc = extractLexLocation($identifier);
-            // default to a blank module
-			StringBuilder module = new StringBuilder();
-			if ($ids != null) {
-                // fix the name location
-                LexLocation firstLoc = extractLexLocation((CommonToken)$ids.get(0));
-                loc = new LexLocation(loc.file,
-                                      "", //FIXME: I assume this is the local module name?
-                                      firstLoc.startLine, firstLoc.startPos,
-                                      loc.endLine, loc.endPos,
-                                      firstLoc.startOffset, loc.endOffset);
-                // create the module string
-				for (Object t : $ids) {
-                    module.append(((CommonToken)t).getText());
-                    module.append('.');
-				}
-                module.deleteCharAt(module.length() - 1);
-			}
-			$name=new LexNameToken(module.toString(), $identifier.getText(), loc);
-		}
     ;
 
 setMapExprTail
@@ -799,7 +801,7 @@ TUPLESELECTOR
  * -> For now, I have a parser rule to match this, but I expect weirdnesses
  */
 QUOTELITERAL
-	: ('<' INITIAL_LETTER FOLLOW_LETTER* '>')=> '<' INITIAL_LETTER FOLLOW_LETTER* '>'
+    : ('<' INITIAL_LETTER FOLLOW_LETTER* '>')=> '<' INITIAL_LETTER FOLLOW_LETTER* '>'
     | '<' { $type=LESSTHAN; }
     ;
 

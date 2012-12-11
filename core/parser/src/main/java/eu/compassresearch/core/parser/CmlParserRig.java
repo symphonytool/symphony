@@ -12,7 +12,8 @@ public class CmlParserRig {
 
 	// parser.exprbase();
 	try {
-	    System.out.println(parser.exprbase());
+	    parser.expression();
+	    // System.out.println(parser.exprbase());
 	} catch(Exception e) {
 	    System.out.println("Exception from parse attempt");
 	    System.out.println(e);
