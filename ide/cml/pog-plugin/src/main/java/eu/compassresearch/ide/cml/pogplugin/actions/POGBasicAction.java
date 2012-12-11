@@ -1,14 +1,15 @@
 package eu.compassresearch.ide.cml.pogplugin.actions;
 
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -21,7 +22,6 @@ import org.eclipse.ui.part.FileEditorInput;
 import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
-//import  eu.compassresearch.core.analysis.pog.obligations
 
 /**
  * Our sample action implements workbench action delegate. The action proxy will
@@ -31,13 +31,13 @@ import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
  * 
  * @see IWorkbenchWindowActionDelegate
  */
-public class POGSampleAction implements IWorkbenchWindowActionDelegate {
+public class POGBasicAction implements IWorkbenchWindowActionDelegate {
     private IWorkbenchWindow window;
 
     /**
      * The constructor.
      */
-    public POGSampleAction() {
+    public POGBasicAction() {
     }
 
     /**
@@ -54,17 +54,16 @@ public class POGSampleAction implements IWorkbenchWindowActionDelegate {
 	FileEditorInput fei = (FileEditorInput) edi.getEditorInput();
 	CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
 
-	// sProof
-
-	// add file and write POs to it
 	String workspaceLoc = ResourcesPlugin.getWorkspace().getRoot()
 		.getLocation().toString();
 	File tempPo = new File(workspaceLoc, "proofobligation.tmp");
+	tempPo.deleteOnExit();
 
 	FileWriter fw;
 	try {
 	    fw = new FileWriter(tempPo);
-	    fw.write(csu.toString());
+	  //  fw.write(csu.toString());
+	    fw.write(getPOsfromSource(csu));
 	    fw.flush();
 	    fw.close();
 
@@ -78,22 +77,24 @@ public class POGSampleAction implements IWorkbenchWindowActionDelegate {
 		IDE.openEditorOnFileStore(page, fileStore);
 
 	    } else {
-		// Do something if the file does not exist
 	    }
 
 	} catch (IOException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	} catch (PartInitException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
 
-	// tempPo.
+    }
 
-	MessageDialog.openInformation(window.getShell(), "COMPASS",
-		"POG test run to come... \n Working with: " + csu.toString());
-	// TODO add POG run plus output
+    private char[] getPOsfromSource(CmlSourceUnit csu) {
+	StringBuilder sb = new StringBuilder();
+	sb.append("-- AUTO-GENERATED PROOF OBLIGATIONS FOR: ");
+	sb.append(((IFile)csu.getFile()).getName()+"\n");
+	sb.append("-- CAUTION: this file will be deleted upon exit.\n");
+	sb.append("------------------------------------------------------\n");
+	// TODO-ldc: generate and add POs
+	return sb.toString().toCharArray();
     }
 
     /**

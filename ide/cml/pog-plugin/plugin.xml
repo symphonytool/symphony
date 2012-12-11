@@ -13,17 +13,16 @@
          point="org.eclipse.ui.actionSets">
       <actionSet
             id="eu.compassresearch.ide.cml.ui.actionSet"
-            label="Sample Action Set"
+            label="POG Basic Action Set"
             visible="true">
 
          <action
-               class="eu.compassresearch.ide.cml.pogplugin.actions.POGSampleAction"
+               class="eu.compassresearch.ide.cml.pogplugin.actions.POGBasicAction"
                icon="icons/pog_action.png"
-               id="eu.compassresearch.ide.cml.pogplugin.actions.POGSampleAction"
-               label="&amp;POG Test Run"
-               menubarPath="POGMenu/POGGroup"
+               id="eu.compassresearch.ide.cml.pogplugin.actions.POGBasicAction"
+               label="&amp;Generate POs"
                toolbarPath="POGGroup"
-               tooltip="POG Test Run">
+               tooltip="Generate POs for open file">
          </action>
       </actionSet>
    </extension>
