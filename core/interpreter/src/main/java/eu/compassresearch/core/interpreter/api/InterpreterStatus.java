@@ -20,7 +20,8 @@ public class InterpreterStatus {
 			this.processInfos[i] = new CmlProcessInfo(processes.get(i).name().getName(),
 					processes.get(i).getTraceModel(),
 					processes.get(i).level(),
-					processes.get(i) instanceof CmlProcessInstance);
+					processes.get(i) instanceof CmlProcessInstance,
+					processes.get(i).getState());
 			
 			if(this.processInfos[i].level() == 0)
 				toplevelIndex = i;

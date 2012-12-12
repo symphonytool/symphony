@@ -138,6 +138,13 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 				}
 			} );
 			
+			handlers.put(CmlDbgpStatus.CHOICE.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+				@Override
+				public boolean handleMessage(CmlDbgStatusMessage message) {
+					updateDebuggerInfo(message.getInterpreterStatus());
+					return true;
+				}
+			} );
 
 			handlers.put(CmlDbgpStatus.STOPPING.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
 				@Override
@@ -421,13 +428,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		CmlMessageCommunicator.sendMessage(requestOutputStream, message);
 	}
 
-
-	/**
-	 * Notification we have connected to the VM and it has started.
-	 * Resume the VM.
-	 */
-	private void started(InterpreterStatus status) {
-		
+	private void updateDebuggerInfo(InterpreterStatus status)
+	{
 		//cmlThread = new CmlThread(this,status.getToplevelProcessInfo());
 		threads.clear();
 		for(CmlProcessInfo t : status.getAllProcessInfos())
@@ -436,8 +438,16 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		}
 		threads.add(cmlThread);
 		//fireSuspendEvent(0);
-		fireResumeEvent(0);		
+		fireResumeEvent(0);
+	}
+
+	/**
+	 * Notification we have connected to the VM and it has started.
+	 * Resume the VM.
+	 */
+	private void started(InterpreterStatus status) {
 		
+		updateDebuggerInfo(status);
 		fireCreationEvent();
 		
 		//installDeferredBreakpoints();

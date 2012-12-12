@@ -44,8 +44,6 @@ import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
-
-
 public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 
 	private CmlInterpreter cmlInterpreter;
@@ -235,6 +233,8 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 					@Override
 					public CmlCommunicationEvent select(CmlAlphabet availableChannelEvents) {
 
+						sendStatusMessage(CmlDbgpStatus.CHOICE, CmlInterpreterRunner.this.cmlInterpreter.getStatus());
+						
 						//convert to list of strings for now
 						List<String> events = new LinkedList<String>();
 						for(CmlCommunicationEvent comEvent : availableChannelEvents.getCommunicationEvents())
