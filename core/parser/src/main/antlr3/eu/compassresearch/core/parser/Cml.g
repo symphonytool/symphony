@@ -28,7 +28,6 @@ options {
  * '<' followed by an IDENTIFIER that is not followed by a '>'.
  */
 tokens {
-    DOTTEDNAME;
     LESSTHAN = '<';
 }
 
@@ -64,23 +63,30 @@ import eu.compassresearch.ast.types.*;
 }
 
 @members {
-public String getErrorMessage(RecognitionException e, String[] tokenNames) {
-    List stack = getRuleInvocationStack(e, this.getClass().getName());
-    String msg = null;
-    if (e instanceof NoViableAltException) {
-        NoViableAltException nvae = (NoViableAltException)e;
-        msg = " no viable alt; token="+e.token+
-            " (decision="+nvae.decisionNumber+
-            " state "+nvae.stateNumber+")"+
-            " decision=<<"+nvae.grammarDecisionDescription+">>";
-    } else {
-        msg = super.getErrorMessage(e, tokenNames);
-    }
-    return stack+" "+msg;
+// public String getErrorMessage(RecognitionException e, String[] tokenNames) {
+//     List stack = getRuleInvocationStack(e, this.getClass().getName());
+//     String msg = null;
+//     if (e instanceof NoViableAltException) {
+//         NoViableAltException nvae = (NoViableAltException)e;
+//         msg = " no viable alt; token="+e.token+
+//             " (decision="+nvae.decisionNumber+
+//             " state "+nvae.stateNumber+")"+
+//             " decision=<<"+nvae.grammarDecisionDescription+">>";
+//     } else {
+//         msg = super.getErrorMessage(e, tokenNames);
+//     }
+//     return stack+" "+msg;
+// }
+// public String getTokenErrorDisplay(Token t) {
+//     return t.toString();
+// }
+
+protected void mismatch(IntStream input, int ttype, BitSet follow) throws RecognitionException {
+    throw new MismatchedTokenException(ttype, input);
 }
-public String getTokenErrorDisplay(Token t) {
-    return t.toString();
-}
+// public void recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow) throws RecognitionException {
+//     throw e; 
+// }
 
 private LexLocation extractLexLocation(CommonToken token) {
     String text = token.getText();
@@ -105,6 +111,12 @@ public LexLocation extractLexLocation(LexLocation start, LexLocation end) {
 }
 }
 
+@rulecatch {
+catch (RecognitionException e) {
+    throw e;
+}
+}
+
 source
     : programParagraph+
     ;
@@ -124,43 +136,56 @@ classDefinition
     ;
 
 processDefinition
-    : 'process' IDENTIFIER '=' (declaration (';' declaration)* '@')? process
+    : 'process' IDENTIFIER '=' ((procDeclarations)=>procDeclarations)? process
     ;
 
 process
-    : proc0 procOps process
+    : proc0
     | replOp replicationDeclaration '@' ( '[' expression ']' )? process
     ;
 
-procOps
-    : ';' | '[]' | '|~|' | '||' | '|||'
+proc0
+    : proc1 (proc0Ops process)?
+    ;
+
+proc0Ops
+    : '[]' | '|~|' | '||' | '|||'
     | '/\\' | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
     | '[>' | '[[' expression '>>'
     | '[|' expression '|]'
     | '[' expression '||' expression ']'
-    ;
-
-proc0
-    : proc1 ('[[' renamingExpr ']]')?
-    ;
-
-replOp
-    : ';' | '[]' | '|~|' | '||' | '|||'
-    | '[|' expression '|]'
+    | ';' 
     ;
 
 proc1
-    : proc2 proc1ops expression
+    : proc2 ('[[' renamingExpr ']]')?
     ;
 
-proc1ops
-    : '\\\\' | 'startsby' | 'endsby'
+replOp
+    : '[]'
+    | '|~|'
+    | '||'
+    | '|||'
+    | '[|' expression '|]'
+    | ';' 
     ;
 
 proc2
+    : proc3 (proc2ops expression)?
+    ;
+
+proc2ops
+    : '\\\\' | 'startsby' | 'endsby'
+    ;
+
+proc3
     : 'begin' processParagraph* '@' action 'end'
     // merge of (process) | identifier [({expression})] | (decl@proc)({expression})
-    | ( IDENTIFIER | '(' (declaration (';' declaration)* '@')? process ')' ) ( '(' ( expression ( ',' expression )* )? ')'  )?
+    | ( IDENTIFIER | '(' ((procDeclarations)=>procDeclarations)? process ')' ) ( '(' ( expression ( ',' expression )* )? ')'  )?
+    ;
+
+procDeclarations
+    : declaration (';' declaration)* '@'
     ;
 
 declaration
@@ -198,22 +223,17 @@ actionDefs
     ;
 
 actionDef
-    : IDENTIFIER '=' (declaration '@')? action
+    : IDENTIFIER '=' action
+    // the "declaration '@'" option is taken care of *in* the action rule
+    // : IDENTIFIER '=' (declaration '@')? action
     ;
 
 action
-    : action0 actionOps action
-    | ( replOp | actionReplOp ) replicationDeclaration '@' ( '[' expression ( '|' expression )? ']' )? process
-    ;
-
-actionOps
-    : ';' | '[]' | '|~|'
-    | '/\\' | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
-    | '[>' | '[[' expression '>>'
-    | '||' | '|||'
-    | '['  expression ( '|'  expression )? '||'  expression ( '|'  expression )? ']'
-    | '[|' expression ( '|'  expression ( '|'  expression )? )? '|]'
-    | '[||' expression '|' expression '||]'
+    : action0
+    | IDENTIFIER (communication* '->' action)?
+    | '[[' expression ']]' '&' action  // FIXME
+    | 'mu' IDENTIFIER '@'  '(' action (',' action)* ')'
+    | ( replOp | actionReplOp ) replicationDeclaration '@' ( '[' expression ( '|' expression )? ']' )? action
     ;
 
 actionReplOp
@@ -221,26 +241,49 @@ actionReplOp
     ;
 
 action0
-    : action1 ( '[[' renamingExpr ']]' )?
+    // : action1 (action0Ops action)?
+    : (action1 action0Ops)=>action1 action0Ops action
+    | (action1 '[[')=>action1 '[[' renamingExpr ']]'
+    | action1
+    ;
+
+action0Ops
+    : ';' 
+    | '[]'
+    | '|~|'
+    | '/\\' 
+    | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
+    | '[>'
+    | '[[' expression '>>'
+    | '||'
+    | '|||'
+    | '['  expression ( '|'  expression )? '||'  expression ( '|'  expression )? ']'
+    | '[|' expression ( '|'  expression ( '|'  expression )? )? '|]'
+    | '[||' expression '|' expression '||]'
     ;
 
 action1
-    : action2 action1Ops expression
-    ;
-
-action1Ops
-    : '\\\\' | 'startsby' | 'endsby'
+    : action2 //( '[[' renamingExpr ']]' )? in action0
     ;
 
 action2
-    : 'Skip' | 'Stop' | 'Chaos' | 'Div' | 'Wait' expression
+    : action3 ((action2Ops)=>action2Ops expression)?
+    ;
+
+action2Ops
+    : '\\\\' | 'startsby' | 'endsby'
+    ;
+
+action3
+    : 'Skip'
+    | 'Stop'
+    | 'Chaos'
+    | 'Div'
+    | 'Wait' expression
     /* The mess below includes parenthesized actions, block
      * statements, parametrised actions, instantiated actions.
      */
     | '(' ( ( declaration (';' declaration)* | 'dcl' assignmentDefinition (';' assignmentDefinition)* ) '@' )? action ')' ( '(' expression (',' expression )* ')' )?
-    | IDENTIFIER communication* '->' action
-    | '[' expression ']' '&' action // Still need [] around the expr; conflict: action2 -> (action) and expression...-> (expression)
-    | 'mu' IDENTIFIER '@'  action (',' action)*
     | statement
     ;
 
@@ -273,7 +316,8 @@ statement
         | 'all' bindablePattern 'in' 'set' expression
         | IDENTIFIER '=' expression 'to' expression ( 'by' expression )?
         ) 'do' action
-    | 'return' expression?
+    | ('return' expression)=>'return' expression
+    | 'return'
     | 'while' expression 'do' action
     | 'atomic' '(' stateDesignator ':=' expression ( ';' stateDesignator ':=' expression )+ ')'
     | (callStatement)=> callStatement // More syntactic predicate magic :)
@@ -499,7 +543,7 @@ matchValue
     ;
 
 symbolicLiteral
-    : numLiteral { System.out.println("I have a numLiteral: " + $numLiteral.tree); }
+    : numLiteral
     | boolLiteral
     | 'nil'
     | CHARLITERAL
@@ -597,7 +641,7 @@ exprbase returns[PExp exp]
 //            }
 //            System.out.println("I have a name: " + $name.name + " / " + ($exp==null?"null":$exp.getClass()));
 //        }
-    | symbolicLiteral { System.out.println("I have a symbolicLiteral: " + $symbolicLiteral.tree); }
+    | symbolicLiteral
     | setMapExprs
     | '[' seqExpr? ']'
     | recordTupleExprs
@@ -663,7 +707,7 @@ seqExpr
     ;
 
 localDefinition
-    : (valueDefinition)=> valueDefinition // This.  THIS!  This is awesome.  Full of awesome.  Now I need to figure out Why it works. --jwc/26Nov2012
+    : (valueDefinition)=> valueDefinition
     | functionDefinition
     ;
 
@@ -681,7 +725,6 @@ typeBind
 /* ********************************************************** */
 /* ***               LEXER PRODUCTION RULES               *** */
 /* ********************************************************** */
-
 
 QUALIFIER
     : 'public' | 'protected' | 'private' | 'logical'
@@ -753,7 +796,7 @@ INITIAL_LETTER
     ;
 fragment
 FOLLOW_LETTER
-    : INITIAL_LETTER | DIGIT
+    : INITIAL_LETTER | DIGIT | '\u005f'
     ;
 
 IDENTIFIER
@@ -804,7 +847,6 @@ QUOTELITERAL
     : ('<' INITIAL_LETTER FOLLOW_LETTER* '>')=> '<' INITIAL_LETTER FOLLOW_LETTER* '>'
     | '<' { $type=LESSTHAN; }
     ;
-
 
 CHARLITERAL
     : '\\\\' | '\\R' | '\\n' | '\\t' | '\\f' | '\\e' | '\\a' | '\\"' | '\\\''

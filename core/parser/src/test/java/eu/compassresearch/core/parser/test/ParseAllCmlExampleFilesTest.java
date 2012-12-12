@@ -3,6 +3,7 @@ package eu.compassresearch.core.parser.test;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -19,9 +20,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
+
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.lexer.CmlLexer;
+import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 
 @RunWith(Parameterized.class)
@@ -69,16 +73,17 @@ public class ParseAllCmlExampleFilesTest {
     }
 
     @Test
-    public void testParseCmlFile() throws IOException {
+    public void testParseCmlFile() throws Exception {
 	System.out.println("Test "+testCounter+": "+filePath);
 	testCounter++;
-	File source = new File(filePath);
-	PSource ast = new AFileSource(null,filePath);
-	FileReader input = new FileReader(source);
-	CmlLexer lexer = new CmlLexer(input);
-	CmlParser parser = new CmlParser(lexer);
-	parser.setDocument(ast);
-	assertTrue(parser.parse());
+
+	FileInputStream source = new FileInputStream(filePath);
+	ANTLRInputStream stream = new ANTLRInputStream(source);
+	CmlLexer lexer = new CmlLexer(stream);
+	CommonTokenStream tokens = new CommonTokenStream(lexer);
+	CmlParser parser = new CmlParser(tokens);
+
+	parser.source();
     }
 
     @Parameters
