@@ -2,6 +2,7 @@ package eu.compassresearch.ide.cml.interpreter_plugin.model;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -18,10 +19,10 @@ import eu.compassresearch.ide.cml.interpreter_plugin.views.CmlEventOptionView;
 public class CmlChoiceMediator implements IDoubleClickListener{
 
 //	SynchronousQueue<String> selectSync = new SynchronousQueue<String>();
-	CmlDebugTarget cmlDebugTarget;
+	final CmlDebugTarget cmlDebugTarget;
 	CmlRequestMessage requestMessage = null;
 	
-	public CmlChoiceMediator( CmlDebugTarget cmlDebugTarget)
+	public CmlChoiceMediator(CmlDebugTarget cmlDebugTarget)
 	{
 		this.cmlDebugTarget = cmlDebugTarget;
 		
@@ -31,7 +32,12 @@ public class CmlChoiceMediator implements IDoubleClickListener{
 				try {
 					CmlEventOptionView view = (CmlEventOptionView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(CmlDebugConstants.ID_CML_OPTION_VIEW.toString());
 					view.getListViewer().addDoubleClickListener(CmlChoiceMediator.this);
+					CmlChoiceMediator.this.cmlDebugTarget.resume();
+					
 				} catch (PartInitException e) {
+					e.printStackTrace();
+				}
+				catch (CoreException e) {
 					e.printStackTrace();
 				}
 			}

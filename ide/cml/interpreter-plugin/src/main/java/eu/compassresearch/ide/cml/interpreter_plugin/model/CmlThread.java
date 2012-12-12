@@ -7,11 +7,16 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 
+import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
+
 public class CmlThread extends CmlDebugElement implements IThread {
 
-	public CmlThread(CmlDebugTarget debugTarget)
+	private CmlProcessInfo cmlProcessInfo;
+	
+	public CmlThread(CmlDebugTarget debugTarget, CmlProcessInfo cmlProcessInfo)
 	{
 		super(debugTarget);
+		this.cmlProcessInfo = cmlProcessInfo; 
 	}
 
 	@Override
@@ -123,7 +128,7 @@ public class CmlThread extends CmlDebugElement implements IThread {
 
 	@Override
 	public String getName() throws DebugException {
-		return "CML Main Thread";
+		return cmlProcessInfo.getName();
 	}
 
 	@Override

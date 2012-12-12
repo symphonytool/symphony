@@ -20,6 +20,8 @@ import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
+import eu.compassresearch.core.interpreter.events.EventSource;
 /**
  * The CML interpreter interface.
  */
@@ -266,5 +268,5 @@ public interface CmlInterpreter
 	
 	public InterpreterStatus getStatus();
 
-	//public EventSource<InterpreterStatusEvent> onStatusEvent();
+	public EventSource<CmlInterpreterStatusObserver> onStatusChanged();
 }

@@ -19,6 +19,11 @@ import org.overture.parser.lex.LexException;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
+import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
+import eu.compassresearch.core.interpreter.events.EventFireMediator;
+import eu.compassresearch.core.interpreter.events.EventSource;
+import eu.compassresearch.core.interpreter.events.EventSourceHandler;
+import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 
 
 @SuppressWarnings("serial")
@@ -26,6 +31,20 @@ public abstract class AbstractCmlInterpreter extends
 		QuestionAnswerCMLAdaptor<Context, Value> implements CmlInterpreter {
 
 		
+	protected EventSourceHandler<CmlInterpreterStatusObserver, InterpreterStatusEvent> statusEventHandler =
+			new EventSourceHandler<CmlInterpreterStatusObserver, InterpreterStatusEvent>(this, 
+					new EventFireMediator<CmlInterpreterStatusObserver, InterpreterStatusEvent>() {
+
+				@Override
+				public void fireEvent(
+						CmlInterpreterStatusObserver observer,
+						Object source, InterpreterStatusEvent event) {
+					
+					observer.onStatusChanged(source, event);
+
+				}
+			});
+
 	@Override
 	public File getDefaultFile() {
 		// TODO Auto-generated method stub
@@ -153,6 +172,12 @@ public abstract class AbstractCmlInterpreter extends
 	public PType findType(String typename) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public EventSource<CmlInterpreterStatusObserver> onStatusChanged() {
+
+		return statusEventHandler;
 	}
 
 }

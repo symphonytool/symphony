@@ -4,21 +4,23 @@ import java.util.Arrays;
 import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.runtime.CmlProcessInstance;
 
 public class InterpreterStatus {
 
-	final private CmlProcessSnapshot[] processInfos;
+	final private CmlProcessInfo[] processInfos;
 	final private int topLevelProcessIndex;
 	
 	public InterpreterStatus(List<CmlProcess> processes)
 	{
-		this.processInfos = new CmlProcessSnapshot[processes.size()];
+		this.processInfos = new CmlProcessInfo[processes.size()];
 		int toplevelIndex = -1;
 		for(int i = 0; i < processes.size() ; i++ )
 		{
-			this.processInfos[i] = new CmlProcessSnapshot(processes.get(i).name().getName(),
+			this.processInfos[i] = new CmlProcessInfo(processes.get(i).name().getName(),
 					processes.get(i).getTraceModel(),
-					processes.get(i).level());
+					processes.get(i).level(),
+					processes.get(i) instanceof CmlProcessInstance);
 			
 			if(this.processInfos[i].level() == 0)
 				toplevelIndex = i;
@@ -27,12 +29,12 @@ public class InterpreterStatus {
 		topLevelProcessIndex = toplevelIndex;
 	}
 			
-	public List<CmlProcessSnapshot> getAllProcessInfos()
+	public List<CmlProcessInfo> getAllProcessInfos()
 	{
 		return Arrays.asList(this.processInfos);
 	}
 	
-	public CmlProcessSnapshot getToplevelProcessInfo()
+	public CmlProcessInfo getToplevelProcessInfo()
 	{
 		return processInfos[topLevelProcessIndex];
 	}

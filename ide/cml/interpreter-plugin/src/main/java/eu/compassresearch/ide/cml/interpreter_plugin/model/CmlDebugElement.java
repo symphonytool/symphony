@@ -64,6 +64,13 @@ public class CmlDebugElement extends PlatformObject implements IDebugElement {
 	}	
 	
 	/**
+	 * Fires a <code>CREATE</code> event for this element.
+	 */
+	protected void fireChangeEvent() {
+		fireEvent(new DebugEvent(this, DebugEvent.CHANGE));
+	}
+	
+	/**
 	 * Fires a <code>RESUME</code> event for this element with
 	 * the given detail.
 	 * 

@@ -36,6 +36,8 @@ import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageContainer;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlResponseMessage;
+import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
+import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -44,7 +46,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 
 
-public class CmlInterpreterRunner {
+public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 
 	private CmlInterpreter cmlInterpreter;
 	private Socket requestSocket;
@@ -110,7 +112,7 @@ public class CmlInterpreterRunner {
 	
 	public void debug() throws InterpreterException
 	{
-		
+		cmlInterpreter.onStatusChanged().registerObserver(this);
 		try {
 			connect();
 			init();
@@ -123,7 +125,7 @@ public class CmlInterpreterRunner {
 			e.printStackTrace();
 		}
 		finally{
-			
+			cmlInterpreter.onStatusChanged().unregisterObserver(this);
 		}
 		
 		//cmlInterpreter.execute();
@@ -224,7 +226,7 @@ public class CmlInterpreterRunner {
 
 //		do
 //		{
-			sendStatusMessage(CmlDbgpStatus.RUNNING);
+			//sendStatusMessage(CmlDbgpStatus.RUNNING);
 			
 			try{
 			
@@ -417,6 +419,18 @@ public class CmlInterpreterRunner {
 		}
 
 		return paths;
+	}
+
+	@Override
+	public void onStatusChanged(Object source, InterpreterStatusEvent event) {
+
+		switch(event.getStatus())
+		{
+		case RUNNING:
+			sendStatusMessage(CmlDbgpStatus.RUNNING, cmlInterpreter.getStatus());
+			break;
+		}
+		
 	}
 
 }

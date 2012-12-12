@@ -7,22 +7,24 @@ import java.util.List;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 
-public class CmlProcessSnapshot {
+public class CmlProcessInfo {
 
 	private final String name;
 	private final String[] trace;
 	private final long level;
+	private final boolean isProcess;
 
-	public CmlProcessSnapshot(String name, CmlTrace trace,long level)
+	public CmlProcessInfo(String name, CmlTrace trace,long level, boolean isProcess)
 	{
 		this.name = name;
 		List<String> evs = convertCmlEventsToStringList(trace.getVisibleEvents());
 		this.trace = evs.toArray(new String[evs.size()]);
 		this.level = level;
+		this.isProcess = isProcess;
 	}
 	
 	public String getName() {
-		return name;
+		return (isProcess ? "Process:" : "Action:") + " "+ name;
 	}
 	
 	public long level()
