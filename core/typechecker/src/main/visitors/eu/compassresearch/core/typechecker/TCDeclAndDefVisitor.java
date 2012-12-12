@@ -1079,6 +1079,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			PPatternListAssistantTC.typeResolve(pp, parentChecker, question);
 		}
 
+		node.setType(funcType);
+		node.setExpectedResult(funcType.getResult());
+		node.setActualResult(body.getType());
 
 		// Nonetheless the function type will be the type its definition to
 		// facilitate further type checking even in the presents of errors.
