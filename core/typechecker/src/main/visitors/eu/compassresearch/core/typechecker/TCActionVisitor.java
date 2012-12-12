@@ -81,9 +81,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question) throws AnalysisException {
 
 		PAction action = node.getAction();
+		
 		SRenameChannelExp renameExp = node.getRenameExpression();
 		
-		return super.caseAChannelRenamingAction(node, question);
+		return new AActionType(node.getLocation(), true);
 	}
 
 
