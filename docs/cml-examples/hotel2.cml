@@ -164,5 +164,5 @@ begin
 	
 	-- include other operations when specified...				
 	@				
-	  [init] -> init(); ZOTEL	
+	  [init] -> Init(); ZOTEL	
 end

@@ -29,7 +29,6 @@ public interface CmlSupervisorEnvironment {
 	public CmlProcess findNamedProcess(String name);
 	
 	// Supervision related methods
-	public void start() throws AnalysisException;
 	/**
 	 * Determines whether there is a currently selected communication 
 	 * @return true of there is a communication selected else false

@@ -1,6 +1,8 @@
 package eu.compassresearch.core.interpreter.cml.channels;
 
-import eu.compassresearch.core.interpreter.events.ChannelObserver;
+import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
+import eu.compassresearch.core.interpreter.events.EventObserver;
+import eu.compassresearch.core.interpreter.events.EventSource;
 
 /**
  * A Channel that are able to signal, thus only synchronization
@@ -13,14 +15,11 @@ public interface CmlChannelSignal extends CmlChannel {
 	 * Signals to the channel listeners that they can now proceed 
 	 */
 	public void signal();
+	
 	/**
-	 * Register a observer on this channel
-	 * @param observer
+	 * Register or unregister for the onChannelSignal event
+	 * @return The appropriate EventSource for event registration
 	 */
-	public void registerOnChannelSignal(ChannelObserver observer);
-	/**
-	 * Unregisters an observer on the channel
-	 * @param observer
-	 */
-	public void unregisterOnChannelSignal(ChannelObserver observer);
+	public EventSource<CmlChannelEvent> onChannelSignal();
+
 }

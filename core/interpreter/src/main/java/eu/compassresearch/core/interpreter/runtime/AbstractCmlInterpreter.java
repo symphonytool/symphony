@@ -18,13 +18,12 @@ import org.overture.parser.lex.LexException;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.interpreter.api.CMLContext;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 
 
 @SuppressWarnings("serial")
 public abstract class AbstractCmlInterpreter extends
-		QuestionAnswerCMLAdaptor<CMLContext, Value> implements CmlInterpreter {
+		QuestionAnswerCMLAdaptor<Context, Value> implements CmlInterpreter {
 
 		
 	@Override
@@ -52,7 +51,7 @@ public abstract class AbstractCmlInterpreter extends
 	}
 	
 	@Override
-	public Value evaluate(String line, CMLContext ctxt) throws Exception {
+	public Value evaluate(String line, Context ctxt) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}

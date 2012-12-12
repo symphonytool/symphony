@@ -2,10 +2,11 @@ package eu.compassresearch.core.interpreter.cml;
 
 import java.util.List;
 
-import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 
 import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
+import eu.compassresearch.core.interpreter.events.EventSource;
 
 
 public interface CmlProcess extends CmlProcessBehaviour{
@@ -60,6 +61,12 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	 */
 	public CmlProcessState getState();
 
+	/**
+	 * Register or unregister for the State Changed event
+	 * @return The appropriate EventSource for event registration
+	 */
+	//public EventSource<CmlProcessStateEvent> onStateChanged();
+	
 	public void registerOnStateChanged(CmlProcessObserver observer);
 	public void unregisterOnStateChanged(CmlProcessObserver observer);
 	

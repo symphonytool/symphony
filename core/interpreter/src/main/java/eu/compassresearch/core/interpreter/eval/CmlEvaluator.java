@@ -7,17 +7,16 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.interpreter.api.CMLContext;
 
 @SuppressWarnings("serial")
-public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value> {
+public class CmlEvaluator extends QuestionAnswerCMLAdaptor<Context, Value> {
 
 	private QuestionAnswerCMLAdaptor<Context, Value> exp;
 	//private QuestionAnswerCMLAdaptor<CMLContext, CMLProcessOld> prc;
 	//private QuestionAnswerCMLAdaptor<CMLContext, AbstractCMLProcess> prc;
 	//private QuestionAnswerCMLAdaptor<CMLContext, AbstractCMLAction> act;
 	//private QuestionAnswerCMLAdaptor<CMLContext, Value> act;
-	private QuestionAnswerCMLAdaptor<CMLContext, Value> def;
+	private QuestionAnswerCMLAdaptor<Context, Value> def;
 			
 	private void initialize()
 	{
@@ -42,7 +41,7 @@ public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value> {
 //	}
 	
 	@Override
-	public Value defaultPExp(PExp node, CMLContext question)
+	public Value defaultPExp(PExp node, Context question)
 			throws AnalysisException {
 		
 		return node.apply(exp,question);
@@ -58,7 +57,7 @@ public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CMLContext, Value> {
 //	}
 	
 	@Override
-	public Value defaultPDefinition(PDefinition node, CMLContext question)
+	public Value defaultPDefinition(PDefinition node, Context question)
 			throws AnalysisException {
 		
 		return node.apply(this.def,question);

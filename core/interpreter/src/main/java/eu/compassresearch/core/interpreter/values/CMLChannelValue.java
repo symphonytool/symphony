@@ -1,8 +1,5 @@
 package eu.compassresearch.core.interpreter.values;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
@@ -12,11 +9,11 @@ import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
 import eu.compassresearch.core.interpreter.cml.channels.CmlChannelSignal;
 import eu.compassresearch.core.interpreter.cml.channels.CmlInputChannel;
 import eu.compassresearch.core.interpreter.cml.channels.CmlOutputChannel;
-import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
+import eu.compassresearch.core.interpreter.events.EventObserver;
+import eu.compassresearch.core.interpreter.events.EventSource;
+import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
-import eu.compassresearch.core.interpreter.util.EventObserver;
-import eu.compassresearch.core.interpreter.util.EventSource;
 
 public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSignal,CmlOutputChannel<Value> ,CmlInputChannel<Value> 
 {
@@ -24,13 +21,12 @@ public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSign
 	private LexNameToken 					name;
 	private PType 							channelType;
 	private Value							value = null; 
-	private List<ChannelObserver> 			signalObservers = new LinkedList<ChannelObserver>();
-	private List<ChannelObserver> 			readObservers = new LinkedList<ChannelObserver>();
-	private List<ChannelObserver> 			writeObservers = new LinkedList<ChannelObserver>();
-	
-	private EventSource<EventObserver<CmlChannelEvent>,CmlChannelEvent> signalObserversTest = 
-			new EventSource<EventObserver<CmlChannelEvent>, CmlChannelEvent>(this); 
-	
+
+	//
+	private EventSourceHandler<CmlChannelEvent> signalObservers = new EventSourceHandler<CmlChannelEvent>(this);
+	private EventSourceHandler<CmlChannelEvent> readObservers = new EventSourceHandler<CmlChannelEvent>(this);
+	private EventSourceHandler<CmlChannelEvent> writeObservers = new EventSourceHandler<CmlChannelEvent>(this);
+
 	public CMLChannelValue(PType channelType, LexNameToken name)
 	{
 		this.channelType = channelType;
@@ -98,56 +94,30 @@ public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSign
 
 	@Override
 	public void signal() {
-		notifyObservers(signalObservers,CmlCommunicationType.SIGNAL);
+		notifyObservers(signalObservers, CmlCommunicationType.SIGNAL);
 	}
 	
-	private void notifyObservers(List<ChannelObserver> observers, CmlCommunicationType eventType)
+	private void notifyObservers(EventSourceHandler<CmlChannelEvent> source, CmlCommunicationType eventType)
 	{
-		for(ChannelObserver observer : new LinkedList<ChannelObserver>(observers))
-		{
-			observer.onChannelEvent(new CmlChannelEvent(this, eventType));
-		}
-	}
-
-	@Override
-	public void registerOnChannelRead(ChannelObserver observer) {
-		readObservers.add(observer);
-		CmlRuntime.logger().finest(observer.toString() + " registered on "+ this.toString() + " for onChannelRead events");
-	}
-
-	@Override
-	public void unregisterOnChannelRead(ChannelObserver observer) {
-		readObservers.remove(observer);		
-		CmlRuntime.logger().finest(observer.toString() + " unregistered on "+ this.toString() + " for onChannelRead events");
-	}
-
-	@Override
-	public void registerOnChannelWrite(ChannelObserver observer) {
-		writeObservers.add(observer);
-		CmlRuntime.logger().finest(observer.toString() + " registered on "+ this.toString() + " for onChannelWrite events");
-	}
-
-	@Override
-	public void unregisterOnChannelWrite(ChannelObserver observer) {
-		writeObservers.remove(observer);
-		CmlRuntime.logger().finest(observer.toString() + " unregistered on "+ this.toString() + " for onChannelWrite events");
-	}
-
-	public void registerOnChannelSignals(EventObserver<CmlChannelEvent> observer) {
-//		signalObservers.add(observer);
-//		CmlRuntime.logger().finest(observer.toString() + " registered on "+ this.toString() + " for onChannelSignal events");
+		source.fireEvent(new CmlChannelEvent(this, eventType));
 	}
 	
 	@Override
-	public void registerOnChannelSignal(ChannelObserver observer) {
-		signalObservers.add(observer);
-		CmlRuntime.logger().finest(observer.toString() + " registered on "+ this.toString() + " for onChannelSignal events");
+	public EventSource<CmlChannelEvent> onChannelRead()
+	{
+		return readObservers;
 	}
-
+	
 	@Override
-	public void unregisterOnChannelSignal(ChannelObserver observer) {
-		signalObservers.remove(observer);		
-		CmlRuntime.logger().finest(observer.toString() + " unregistered on "+ this.toString() + " for onChannelSignal events");
+	public EventSource<CmlChannelEvent> onChannelWrite()
+	{
+		return writeObservers;
+	}
+	
+	@Override
+	public EventSource<CmlChannelEvent> onChannelSignal()
+	{
+		return signalObservers;
 	}
 
 }

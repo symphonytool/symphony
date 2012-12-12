@@ -368,7 +368,7 @@ public class CheckCml {
 	/**
 	 * EXTENSION POINT: This is where you want to add more analys phases. That
 	 * is, add a bit of code to the end this method. First we see what inputs
-	 * you have can work with then follows an example.
+	 * you have to work with then follows an example.
 	 * 
 	 * @param input
 	 *            - input contains the command line switches and the source

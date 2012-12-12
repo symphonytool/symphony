@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
@@ -21,6 +20,9 @@ import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.events.EventObserver;
+import eu.compassresearch.core.interpreter.events.EventSource;
+import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 /**
  * The CML interpreter interface.
  */
@@ -41,8 +43,8 @@ public interface CmlInterpreter
 	public Environment getGlobalEnvironment();
 	
 	/**
-	 * Get the name of the default module or class. Symbols in the default
-	 * module or class do not have to have their names qualified when being
+	 * Get the name of the default process. Symbols in the default
+	 * process do not have to have their names qualified when being
 	 * referred to on the command line.
 	 *
 	 * @return The default name.
@@ -51,7 +53,7 @@ public interface CmlInterpreter
 	public String getDefaultName();
 
 	/**
-	 * Get the filename that contains the default module or class.
+	 * Get the filename that contains the default process.
 	 *
 	 * @return The default file name.
 	 */
@@ -59,7 +61,7 @@ public interface CmlInterpreter
 	public File getDefaultFile();
 
 	/**
-	 * Set the default module or class name.
+	 * Set the default process.
 	 *
 	 * @param name The default name.
 	 * @throws Exception
@@ -108,13 +110,13 @@ public interface CmlInterpreter
 	public Value execute() throws InterpreterException;
 	
 	
+	
 	/**
-	 * Executes the defined default process from the given sourceForest  
-	 * 
-	 * @return The value of the expression.
-	 * @throws Exception Parser, type checking or runtime errors.
+	 * Executes the defined default process from the given sourceForest, with the given selection strategy
+	 * @param selectionStrategy
+	 * @return
+	 * @throws InterpreterException
 	 */
-
 	public Value execute(CmlCommunicationSelectionStrategy selectionStrategy) throws InterpreterException;
 
 	/**
@@ -127,7 +129,7 @@ public interface CmlInterpreter
 	 * @throws Exception Parser or runtime errors.
 	 */
 
-	abstract public Value evaluate(String line, CMLContext ctxt) throws Exception;
+	abstract public Value evaluate(String line, Context ctxt) throws Exception;
 
 	/**
 	 * @return The list of breakpoints currently set.
@@ -267,5 +269,5 @@ public interface CmlInterpreter
 	
 	public InterpreterStatus getStatus();
 
-	//public registerForEvent(InterpreterObserver observer);
+	//public EventSource<InterpreterStatusEvent> onStatusEvent();
 }

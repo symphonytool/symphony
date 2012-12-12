@@ -140,7 +140,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		pi.start(currentSupervisor);
 		try {
-			currentSupervisor.start();
+			cmlScheduler.start();
 		} catch (AnalysisException e) {
 			throw new InterpreterException("Yes YES",e);
 		}

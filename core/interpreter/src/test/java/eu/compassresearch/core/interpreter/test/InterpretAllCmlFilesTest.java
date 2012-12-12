@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.Level;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,6 +29,7 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -78,7 +80,7 @@ public class InterpretAllCmlFilesTest {
 
 	@Before
 	public void setUp() {
-		//CmlRuntime.logger().setLevel(Level.OFF);
+		CmlRuntime.logger().setLevel(Level.OFF);
 	}
 
 	@Test

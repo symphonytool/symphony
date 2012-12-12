@@ -96,12 +96,7 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 				
 		return resultProcess;
 	}
-
-	@Override
-	public void start() throws AnalysisException {
-		scheduler.start();
-	}
-	
+		
 	/**
 	 * String representation methods
 	 */

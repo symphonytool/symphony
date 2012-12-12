@@ -17,14 +17,14 @@ import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluator;
-import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
+import eu.compassresearch.core.interpreter.events.EventObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 
 public abstract class AbstractInstance<T extends INode> extends AbstractEvaluator<T>
-		implements CmlProcess , ChannelObserver {
+		implements CmlProcess , EventObserver<CmlChannelEvent> {
 	
 	protected CmlProcessState 			state;
 	protected List<CmlProcess> 			children = new LinkedList<CmlProcess>();
@@ -104,13 +104,13 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 			switch(com.getCommunicationType())
 			{
 			case SIGNAL:
-				com.getChannel().registerOnChannelSignal(this);
+				com.getChannel().onChannelSignal().registerObserver(this);
 				break;
 			case WRITE:
-				com.getChannel().registerOnChannelWrite(this);
+				com.getChannel().onChannelWrite().registerObserver(this);
 				break;
 			case READ:
-				com.getChannel().registerOnChannelRead(this);
+				com.getChannel().onChannelRead().registerObserver(this);
 				break;
 			}
 		}
@@ -231,9 +231,8 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	 * ChannelListener interface method.
 	 * Here the process is notified when a registered channel is signalled by the supervisor
 	 */
-
 	@Override
-	public void onChannelEvent(CmlChannelEvent event) {
+	public void onEvent(Object source, CmlChannelEvent event) {
 		//enable the processthread to run again and unregister from the channel
 		if(level() == 0)
 			setState(CmlProcessState.RUNNABLE);
@@ -241,13 +240,13 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		switch(event.getEventType())
 		{
 		case READ:
-			event.getSource().unregisterOnChannelRead(this);
+			event.getSource().onChannelRead().unregisterObserver(this);
 			break;
 		case WRITE:
-			event.getSource().unregisterOnChannelWrite(this);
+			event.getSource().onChannelWrite().unregisterObserver(this);
 			break;
 		case SIGNAL:
-			event.getSource().unregisterOnChannelSignal(this);
+			event.getSource().onChannelSignal().unregisterObserver(this);
 			break;
 		
 		}

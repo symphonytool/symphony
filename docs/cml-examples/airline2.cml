@@ -29,7 +29,7 @@ public Flight :: departure : Airport
           totalSeats: nat
           bookedSeats: nat
 inv f == f.departure <> f.arrival 
-         and totalSeats >= bookedSeats
+         and f.totalSeats >= f.bookedSeats
 ;
 
 -- Route = seq of Flight -- not currently used
@@ -155,3 +155,6 @@ actions
 		[init] -> BOOK || PAY
 
 end
+
+channels
+    init
