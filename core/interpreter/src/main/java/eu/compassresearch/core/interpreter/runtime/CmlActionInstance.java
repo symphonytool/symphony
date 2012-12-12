@@ -27,6 +27,8 @@ import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
 import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
+import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.util.CmlProcessUtil;
 import eu.compassresearch.core.interpreter.util.Pair;
@@ -44,7 +46,7 @@ import eu.compassresearch.core.interpreter.util.Pair;
  * @author akm
  *
  */
-public class CmlActionInstance extends AbstractInstance<PAction> implements CmlProcessObserver {
+public class CmlActionInstance extends AbstractInstance<PAction> implements CmlProcessStateObserver , CmlProcessTraceObserver{
 
 	private LexNameToken name;
 	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this); 
@@ -165,7 +167,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 				setState(CmlProcessState.RUNNABLE);
 			break;
 		case FINISHED:
-			stateEvent.getSource().unregisterOnStateChanged(this);
+			stateEvent.getSource().onStateChanged().unregisterObserver(this);
 			
 			//if all the children are finished this process can continue and evolve into skip
 			if(CmlProcessUtil.isAllChildrenFinished(this))
@@ -343,30 +345,30 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) &&
 					rightChildAlpha.containsCommunication(supervisor().selectedCommunication()))
 			{
-				leftChild.unregisterOnTraceChanged(this);
-				rightChild.unregisterOnTraceChanged(this);
+				leftChild.onTraceChanged().unregisterObserver(this);
+				rightChild.onTraceChanged().unregisterObserver(this);
 				
 				leftChild.execute(supervisor());
 				rightChild.execute(supervisor());
 				
-				leftChild.registerOnTraceChanged(this);
-				rightChild.registerOnTraceChanged(this);
+				leftChild.onTraceChanged().registerObserver(this);
+				rightChild.onTraceChanged().registerObserver(this);
 				
 				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
 			else if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
 			{
-				leftChild.unregisterOnTraceChanged(this);				
+				leftChild.onTraceChanged().unregisterObserver(this);				
 				leftChild.execute(supervisor());
-				leftChild.registerOnTraceChanged(this);
+				leftChild.onTraceChanged().registerObserver(this);
 				
 				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
 			else if(rightChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
 			{
-				rightChild.unregisterOnTraceChanged(this);
+				rightChild.onTraceChanged().unregisterObserver(this);
 				rightChild.execute(supervisor());
-				rightChild.registerOnTraceChanged(this);
+				rightChild.onTraceChanged().registerObserver(this);
 				
 				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
@@ -435,17 +437,17 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			
 			if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
 			{
-				leftChild.unregisterOnTraceChanged(this);				
+				leftChild.onTraceChanged().unregisterObserver(this);				
 				leftChild.execute(supervisor());
-				leftChild.registerOnTraceChanged(this);
+				leftChild.onTraceChanged().registerObserver(this);
 				
 				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
 			else if(rightChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
 			{
-				rightChild.unregisterOnTraceChanged(this);
+				rightChild.onTraceChanged().unregisterObserver(this);
 				rightChild.execute(supervisor());
-				rightChild.registerOnTraceChanged(this);
+				rightChild.onTraceChanged().registerObserver(this);
 				
 				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
@@ -497,10 +499,10 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		children().add(rightInstance);
 		
 		//Register for state change and trace change events
-		leftInstance.registerOnStateChanged(this);
-		leftInstance.registerOnTraceChanged(this);
-		rightInstance.registerOnStateChanged(this);
-		rightInstance.registerOnTraceChanged(this);
+		leftInstance.onStateChanged().registerObserver(this);
+		leftInstance.onTraceChanged().registerObserver(this);
+		rightInstance.onStateChanged().registerObserver(this);
+		rightInstance.onTraceChanged().registerObserver(this);
 		
 		//Add them to the superviser to get executed as a seperate process
 		rightInstance.start(supervisor());

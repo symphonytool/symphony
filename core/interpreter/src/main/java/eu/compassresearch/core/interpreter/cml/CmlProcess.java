@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.overture.ast.lex.LexNameToken;
 
-import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
-import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
+import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.EventSource;
 
 
@@ -65,16 +65,19 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	 * Register or unregister for the State Changed event
 	 * @return The appropriate EventSource for event registration
 	 */
-	//public EventSource<CmlProcessStateEvent> onStateChanged();
+	public EventSource<CmlProcessStateObserver> onStateChanged();
 	
-	public void registerOnStateChanged(CmlProcessObserver observer);
-	public void unregisterOnStateChanged(CmlProcessObserver observer);
+//	public void registerOnStateChanged(CmlProcessObserver observer);
+//	public void unregisterOnStateChanged(CmlProcessObserver observer);
 	
 	/**
 	 * Denotational Semantics Information
 	 */
 	public CmlTrace getTraceModel();
 	
-	public void registerOnTraceChanged(CmlProcessObserver observer);
-	public void unregisterOnTraceChanged(CmlProcessObserver observer);
+	/**
+	 * Register or unregister for the State Changed event
+	 * @return The appropriate EventSource for event registration
+	 */
+	public EventSource<CmlProcessTraceObserver> onTraceChanged();
 }

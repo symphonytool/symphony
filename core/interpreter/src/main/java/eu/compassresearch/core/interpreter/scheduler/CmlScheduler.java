@@ -12,10 +12,11 @@ import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 
-public class CmlScheduler implements CmlProcessObserver , Scheduler{
+public class CmlScheduler implements CmlProcessObserver, CmlProcessStateObserver , Scheduler{
 
 	List<CmlProcess> running = new LinkedList<CmlProcess>();
 	List<CmlProcess> waiting = new LinkedList<CmlProcess>();
@@ -32,7 +33,7 @@ public class CmlScheduler implements CmlProcessObserver , Scheduler{
 	@Override
 	public void addProcess(CmlProcess process)
 	{
-		process.registerOnStateChanged(this);
+		process.onStateChanged().registerObserver(this);
 		if(process.waiting())
 			waiting.add(process);
 		else

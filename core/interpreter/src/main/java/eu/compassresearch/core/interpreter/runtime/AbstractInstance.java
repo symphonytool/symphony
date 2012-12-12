@@ -21,6 +21,11 @@ import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
+import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
+import eu.compassresearch.core.interpreter.events.EventFireMediator;
+import eu.compassresearch.core.interpreter.events.EventSource;
+import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 
 public abstract class AbstractInstance<T extends INode> extends AbstractEvaluator<T>
@@ -31,9 +36,29 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	protected CmlProcess 				parent;
 	protected CmlSupervisorEnvironment 	env;
 	protected CmlTrace 					trace = new CmlTrace();
-	protected List<CmlProcessObserver>  stateObservers = new LinkedList<CmlProcessObserver>();
-	protected List<CmlProcessObserver>  traceObservers = new LinkedList<CmlProcessObserver>();
 
+	protected EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>  stateObservers = 
+			new EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>(this,
+					new EventFireMediator<CmlProcessStateObserver,CmlProcessStateEvent>() {
+
+				@Override
+						public void fireEvent(CmlProcessStateObserver observer,
+								Object source, CmlProcessStateEvent event) {
+							observer.onStateChange(event);
+						}
+					});
+	
+	protected EventSourceHandler<CmlProcessTraceObserver,TraceEvent>  traceObservers = 
+			new EventSourceHandler<CmlProcessTraceObserver,TraceEvent>(this,
+					new EventFireMediator<CmlProcessTraceObserver,TraceEvent>() {
+
+				@Override
+						public void fireEvent(CmlProcessTraceObserver observer,
+								Object source, TraceEvent event) {
+							observer.onTraceChange(event);
+						}
+					});
+	
 	public AbstractInstance(CmlProcess parent)
 	{
 		state = CmlProcessState.INITIALIZED;
@@ -183,18 +208,13 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	
 	protected void notifyOnStateChange(CmlProcessStateEvent event)
 	{
-		for(CmlProcessObserver o : new LinkedList<CmlProcessObserver>(stateObservers))
-			o.onStateChange(event);
+		stateObservers.fireEvent(event);
 	}
 	
 	@Override
-	public void registerOnStateChanged(CmlProcessObserver observer) {
-		stateObservers.add(observer);
-	}
-	
-	@Override
-	public void unregisterOnStateChanged(CmlProcessObserver observer) {
-		stateObservers.remove(observer);
+	public EventSource<CmlProcessStateObserver> onStateChanged()
+	{
+		return stateObservers;
 	}
 	
 	protected abstract void setState(CmlProcessState state);
@@ -213,18 +233,14 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	
 	protected void notifyOnTraceChange(TraceEvent traceEvent)
 	{
-		for(CmlProcessObserver o : new LinkedList<CmlProcessObserver>(traceObservers))
-			o.onTraceChange(traceEvent);
+//		for(CmlProcessObserver o : new LinkedList<CmlProcessObserver>(traceObservers))
+//			o.onTraceChange(traceEvent);
 	}
 	
 	@Override
-	public void registerOnTraceChanged(CmlProcessObserver observer) {
-		traceObservers.add(observer);
-	}
-	
-	@Override
-	public void unregisterOnTraceChanged(CmlProcessObserver observer) {
-		traceObservers.remove(observer);
+	public EventSource<CmlProcessTraceObserver> onTraceChanged()
+	{
+		return traceObservers;
 	}
 	
 	/**
