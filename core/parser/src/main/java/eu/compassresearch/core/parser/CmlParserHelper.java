@@ -13,11 +13,13 @@ import org.overture.ast.definitions.APublicAccess;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AApplyExp;
+import org.overture.ast.expressions.ABooleanConstExp;
 import org.overture.ast.expressions.AIsOfClassExp;
 import org.overture.ast.expressions.APreExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
+import org.overture.ast.lex.LexBooleanToken;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexIntegerToken;
 import org.overture.ast.lex.LexLocation;
@@ -39,6 +41,7 @@ import org.overture.ast.statements.PObjectDesignator;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
+import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.ANamedInvariantType;
@@ -92,6 +95,20 @@ public class CmlParserHelper {
 	this.currentSource = currentSource;
     }
 
+    public static void setDefaultTrueInvarientDefinition(ATypeDefinition type){
+    	LexNameToken fname = new LexNameToken("", new LexIdentifierToken("inv_"+type.getName(), false, type.getLocation()));
+    	List<LexNameToken> typeParams = new LinkedList<LexNameToken>();
+		List<List<PPattern>> parameters = new LinkedList<List<PPattern>>();
+		PExp body = AstFactory.newABooleanConstExp(new LexBooleanToken(true, type.getLocation()));
+		PExp precondition = null;
+		PExp postcondition = null;
+		boolean typeInvariant = true;
+		LexNameToken measure = null;
+		AFunctionType ftype = AstFactory.newAFunctionType(type.getLocation(), true, new LinkedList<PType>(), new ABooleanBasicType());
+		AExplicitFunctionDefinition invDef = AstFactory.newAExplicitFunctionDefinition(fname, NameScope.LOCAL, typeParams, ftype, parameters, body, precondition, postcondition, typeInvariant, measure);
+		type.setInvdef(invDef);
+    }
+    
     public static char convertEscapeToChar(String escape) {
 	if (escape.startsWith("\\")) {
 	    switch (escape.charAt(1)) {
@@ -617,6 +634,12 @@ public class CmlParserHelper {
 	for (APatternListTypePair pp : paramPatterns)
 	    paramTypes.add(pp.getType());
 
+	if (pre == null)
+	{
+		ABooleanConstExp exp =AstFactory.newABooleanConstExp(new LexBooleanToken(true, name.getLocation()));
+		pre = exp;
+	}
+	
 	// FIXME This conversion is caused by a flaw in the VDM tree and needs
 	// to be fixed at some point.
 	// The result is actually a list af patterns but somehow this is not the
@@ -659,6 +682,8 @@ public class CmlParserHelper {
 	type.setResult(result.getType());
 	impFunc.setName(name);
 	impFunc.setType(type);
+	// TODO RWL Set PreDef
+	
 	return impFunc;
     }
 
@@ -725,7 +750,8 @@ public class CmlParserHelper {
 	LexLocation location = extractLexLocation(rootExp.getLocation(),
 		(CmlLexeme) RPAREN);
 	List<PExp> exps = (List<PExp>) expressionList;
-	return new AApplyExp(location, rootExp, exps);
+	AApplyExp res = new AApplyExp(location, rootExp, exps);
+	return res;
     }
 
     public APreExp caseExpressionPrecondition(Object PREUNDER, Object expList,
@@ -1070,14 +1096,12 @@ public class CmlParserHelper {
 	// LexLocation loc = extractLexLocation(name.getLocation(),
 	// extractLastLexLocation(fields));
 	LexLocation loc = name.getLocation();
-	ARecordInvariantType recType = new ARecordInvariantType(loc, false,
-		null, false, null, name, fields, true);
-	return new ATypeDefinition(loc, /*
-					 * FIXME: this should end with the
-					 * fieldList
-					 */
-	NameScope.GLOBAL, false, null/* VDM ClassDef */, access, recType,
-		null/* Pass */, null, null, null, null, true, name);
+	ARecordInvariantType recType = AstFactory.newARecordInvariantType(name, fields);
+	ATypeDefinition result = AstFactory.newATypeDefinition( name, recType, null, null);
+	result.setLocation(loc);
+	result.setAccess(access);
+	return result;
+	
     }
 
     /**
@@ -1098,6 +1122,7 @@ public class CmlParserHelper {
 	type.setResolved(false);
 	type.setLocation(name.getLocation());
 	type.setName(name);
+	type.setOpaque(false);
 	AUnresolvedType t = new AUnresolvedType(name.getLocation(), false,
 		new LinkedList<PDefinition>(), name);
 	type.setType(t);

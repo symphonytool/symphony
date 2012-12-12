@@ -9,6 +9,7 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.types.PType;
+import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.visitor.TypeCheckerDefinitionVisitor;
 import org.overture.typechecker.visitor.TypeCheckerExpVisitor;
@@ -78,7 +79,16 @@ public class OvertureRootCMLAdapter extends
 	@Override
 	public PType defaultPDefinition(PDefinition node, TypeCheckInfo question)
 			throws AnalysisException {
-		return node.apply(overtureDefinitionVisitor, question);
+		try {
+			eu.compassresearch.core.typechecker.TypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+			if (cmlEnv != null) question.contextSet(eu.compassresearch.core.typechecker.TypeCheckInfo.class, cmlEnv);
+			PType type = node.apply(overtureDefinitionVisitor, question);
+			if (cmlEnv != null) question.contextRem(eu.compassresearch.core.typechecker.TypeCheckInfo.class);
+			return type;
+		} catch (TypeCheckException e)
+		{
+			return issueHandler.addTypeError(node, e.getMessage());	
+		}
 	}
 
 	@Override
@@ -119,7 +129,13 @@ public class OvertureRootCMLAdapter extends
 	@Override
 	public PType defaultPMultipleBind(PMultipleBind node, TypeCheckInfo question)
 			throws AnalysisException {
-		return node.apply(overturePatternVisitor, question);
+		
+		try {
+  		  return node.apply(overturePatternVisitor, question);
+		} catch (TypeCheckException e)
+		{
+			return issueHandler.addTypeError(node, e.getMessage());
+		}
 	}
 
 }

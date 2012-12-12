@@ -16,6 +16,7 @@ import eu.compassresearch.ast.declarations.SSingleDeclaration;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
+import eu.compassresearch.ast.process.AEndDeadlineProcess;
 import eu.compassresearch.ast.process.AInterleavingReplicatedProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
@@ -108,6 +109,15 @@ public class TCProcessVisitor extends
 					TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT
 							.customizeMessage(node + "", timeExpType + ""));
 
+		return new AProcessType(node.getLocation(), true);
+	}
+
+	
+	
+	@Override
+	public PType caseAEndDeadlineProcess(AEndDeadlineProcess node,
+			TypeCheckInfo question) throws AnalysisException {
+		//TODO RWL Make this complete
 		return new AProcessType(node.getLocation(), true);
 	}
 
@@ -215,8 +225,10 @@ public class TCProcessVisitor extends
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(def.getName() + ""));
 		}
-
+		
+		question.contextSet(eu.compassresearch.core.typechecker.TypeCheckInfo.class, (eu.compassresearch.core.typechecker.TypeCheckInfo)question);
 		PType actionType = node.getAction().apply(this.parentChecker, question);
+		question.contextRem(eu.compassresearch.core.typechecker.TypeCheckInfo.class);
 		if (!TCDeclAndDefVisitor.successfulType(actionType))
 			return issueHandler.addTypeError(node.getAction(),
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
