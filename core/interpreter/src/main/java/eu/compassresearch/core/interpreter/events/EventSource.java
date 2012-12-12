@@ -1,8 +1,8 @@
 package eu.compassresearch.core.interpreter.events;
 
-public interface EventSource<E extends Event> {
+public interface EventSource<O> {
 
-	public void registerObserver(EventObserver<E> observer);
+	public void registerObserver(O observer);
 	
-	public void unregisterObserver(EventObserver<E> observer);
+	public void unregisterObserver(O observer);
 }

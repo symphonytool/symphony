@@ -17,14 +17,14 @@ import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluator;
+import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
-import eu.compassresearch.core.interpreter.events.EventObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 
 public abstract class AbstractInstance<T extends INode> extends AbstractEvaluator<T>
-		implements CmlProcess , EventObserver<CmlChannelEvent> {
+		implements CmlProcess , ChannelObserver {
 	
 	protected CmlProcessState 			state;
 	protected List<CmlProcess> 			children = new LinkedList<CmlProcess>();
@@ -232,7 +232,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	 * Here the process is notified when a registered channel is signalled by the supervisor
 	 */
 	@Override
-	public void onEvent(Object source, CmlChannelEvent event) {
+	public void onChannelEvent(Object source, CmlChannelEvent event) {
 		//enable the processthread to run again and unregister from the channel
 		if(level() == 0)
 			setState(CmlProcessState.RUNNABLE);

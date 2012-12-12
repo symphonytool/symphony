@@ -1,7 +1,6 @@
 package eu.compassresearch.core.interpreter.cml.channels;
 
-import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
-import eu.compassresearch.core.interpreter.events.EventObserver;
+import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.EventSource;
 
 /**
@@ -20,6 +19,6 @@ public interface CmlChannelSignal extends CmlChannel {
 	 * Register or unregister for the onChannelSignal event
 	 * @return The appropriate EventSource for event registration
 	 */
-	public EventSource<CmlChannelEvent> onChannelSignal();
+	public EventSource<ChannelObserver> onChannelSignal();
 
 }

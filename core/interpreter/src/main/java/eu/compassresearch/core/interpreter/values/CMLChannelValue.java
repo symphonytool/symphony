@@ -9,11 +9,11 @@ import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
 import eu.compassresearch.core.interpreter.cml.channels.CmlChannelSignal;
 import eu.compassresearch.core.interpreter.cml.channels.CmlInputChannel;
 import eu.compassresearch.core.interpreter.cml.channels.CmlOutputChannel;
+import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
-import eu.compassresearch.core.interpreter.events.EventObserver;
+import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
-import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 
 public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSignal,CmlOutputChannel<Value> ,CmlInputChannel<Value> 
 {
@@ -23,9 +23,23 @@ public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSign
 	private Value							value = null; 
 
 	//
-	private EventSourceHandler<CmlChannelEvent> signalObservers = new EventSourceHandler<CmlChannelEvent>(this);
-	private EventSourceHandler<CmlChannelEvent> readObservers = new EventSourceHandler<CmlChannelEvent>(this);
-	private EventSourceHandler<CmlChannelEvent> writeObservers = new EventSourceHandler<CmlChannelEvent>(this);
+	
+	private class ChannelEventMediator implements EventFireMediator<ChannelObserver,CmlChannelEvent>
+	{
+		@Override
+		public void fireEvent(ChannelObserver observer, Object source,
+				CmlChannelEvent event) {
+			observer.onChannelEvent(CMLChannelValue.this,event);			
+		}
+	}
+	
+	private EventSourceHandler<ChannelObserver,CmlChannelEvent> signalObservers = 
+			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
+					
+	private EventSourceHandler<ChannelObserver,CmlChannelEvent> readObservers =
+			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
+	private EventSourceHandler<ChannelObserver,CmlChannelEvent> writeObservers = 
+			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
 
 	public CMLChannelValue(PType channelType, LexNameToken name)
 	{
@@ -97,25 +111,30 @@ public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSign
 		notifyObservers(signalObservers, CmlCommunicationType.SIGNAL);
 	}
 	
-	private void notifyObservers(EventSourceHandler<CmlChannelEvent> source, CmlCommunicationType eventType)
+	/**
+	 * Helper method to fire away the channel events
+	 * @param source
+	 * @param eventType
+	 */
+	private void notifyObservers(EventSourceHandler<ChannelObserver,CmlChannelEvent> source, CmlCommunicationType eventType)
 	{
 		source.fireEvent(new CmlChannelEvent(this, eventType));
 	}
 	
 	@Override
-	public EventSource<CmlChannelEvent> onChannelRead()
+	public EventSource<ChannelObserver> onChannelRead()
 	{
 		return readObservers;
 	}
 	
 	@Override
-	public EventSource<CmlChannelEvent> onChannelWrite()
+	public EventSource<ChannelObserver> onChannelWrite()
 	{
 		return writeObservers;
 	}
 	
 	@Override
-	public EventSource<CmlChannelEvent> onChannelSignal()
+	public EventSource<ChannelObserver> onChannelSignal()
 	{
 		return signalObservers;
 	}

@@ -6,24 +6,26 @@ import java.util.Vector;
 
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 
-public class EventSourceHandler<E extends Event> implements EventSource<E>{
+public class EventSourceHandler<O,E> implements EventSource<O>{
 
-	protected List<EventObserver<E>> observers;
+	protected List<O> observers;
 	protected Object source;
+	protected EventFireMediator<O,E> eventMediator;
 	
-	public EventSourceHandler(Object source)
+	public EventSourceHandler(Object source, EventFireMediator<O,E> eventMediator)
 	{
-		observers = new LinkedList<EventObserver<E>>();
+		observers = new LinkedList<O>();
 		this.source= source; 
+		this.eventMediator = eventMediator;
 	}
 	
-	public void registerObserver(EventObserver<E> observer)
+	public void registerObserver(O observer)
 	{
 		observers.add(observer);
 		CmlRuntime.logger().finest(observer.toString() + " registered on "+ source.toString() + " for "+observer.getClass().getSimpleName()+" events");
 	}
 	
-	public void unregisterObserver(EventObserver<E> observer)
+	public void unregisterObserver(O observer)
 	{
 		observers.remove(observer);
 		CmlRuntime.logger().finest(observer.toString() + " unregistered on "+ source.toString() + " for "+observer.getClass().getSimpleName()+" events");
@@ -31,9 +33,41 @@ public class EventSourceHandler<E extends Event> implements EventSource<E>{
 	
 	public void fireEvent(E event)
 	{
-		for(EventObserver<E> observer : new Vector<EventObserver<E>>(observers))
+		for(O observer : new Vector<O>(observers))
 		{
-			observer.onEvent(source, event);
+			eventMediator.fireEvent(observer, observer, event);
 		}
 	}
 }
+
+//public class EventSourceHandler<E extends Event> implements EventSource<E>{
+//
+//	protected List<EventObserver<E>> observers;
+//	protected Object source;
+//	
+//	public EventSourceHandler(Object source)
+//	{
+//		observers = new LinkedList<EventObserver<E>>();
+//		this.source= source; 
+//	}
+//	
+//	public void registerObserver(EventObserver<E> observer)
+//	{
+//		observers.add(observer);
+//		CmlRuntime.logger().finest(observer.toString() + " registered on "+ source.toString() + " for "+observer.getClass().getSimpleName()+" events");
+//	}
+//	
+//	public void unregisterObserver(EventObserver<E> observer)
+//	{
+//		observers.remove(observer);
+//		CmlRuntime.logger().finest(observer.toString() + " unregistered on "+ source.toString() + " for "+observer.getClass().getSimpleName()+" events");
+//	}
+//	
+//	public void fireEvent(E event)
+//	{
+//		for(EventObserver<E> observer : new Vector<EventObserver<E>>(observers))
+//		{
+//			observer.onEvent(source, event);
+//		}
+//	}
+//}
