@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.experimental.runners.Enclosed;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
@@ -141,6 +142,10 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements
 	}
 	
 	
+	/**
+	 * Create an environment with this environment being the outer environment 
+	 * and the given definition being the surrounding definition.
+	 */
 	@Override
 	public CmlTypeCheckInfo newScope(SClassDefinition def) {
 		// Variables are scoped, types and channels are global (for now at
@@ -148,6 +153,16 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements
 		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.channels, super.env,
 				issueHandler, globalClassDefinition);
 		res.env.setEnclosingDefinition(def);
+		return res;
+	}
+	
+	/**
+	 * Create a new environment with this environment being its outer.
+	 * @return
+	 */
+	public CmlTypeCheckInfo newScope()
+	{
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels,env,issueHandler,globalClassDefinition);
 		return res;
 	}
 
