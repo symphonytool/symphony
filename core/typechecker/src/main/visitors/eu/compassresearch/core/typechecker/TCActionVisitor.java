@@ -45,6 +45,7 @@ import eu.compassresearch.ast.actions.AForIndexStatementAction;
 import eu.compassresearch.ast.actions.AForSequenceStatementAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AHidingAction;
+import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AMuAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
@@ -84,6 +85,55 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 @SuppressWarnings("serial")
 class TCActionVisitor extends
 	QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
+
+    
+    
+    @Override
+    public PType caseAInterleavingParallelAction(
+	    AInterleavingParallelAction node, TypeCheckInfo question)
+	    throws AnalysisException {
+	//extract sub-stuff
+	PAction leftAction = node.getLeftAction();
+	PExp leftNamesetExp = node.getLeftNameSetExpression();
+	PAction rightAction = node.getRightAction();
+	PExp rightnamesetExp = node.getRightNameSetExpression();
+
+	// type-check sub-actions
+	PType leftActionType = leftAction.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(leftActionType)) {
+	    node.setType(issueHandler.addTypeError(leftAction,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + leftAction)));
+	    return node.getType();
+	}
+	
+	PType rightActionType = rightAction.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
+	    node.setType(issueHandler.addTypeError(rightAction,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + rightAction)));
+	    return node.getType();
+	}
+	
+	// type-check the namesets
+	PType leftNameSetType = leftNamesetExp.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
+	    return issueHandler.addTypeError(leftNamesetExp,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(leftNamesetExp + ""));
+	
+	PType rightNameSetType = rightnamesetExp.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
+	    return issueHandler.addTypeError(rightnamesetExp,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(rightnamesetExp + ""));
+	
+	
+	
+	// All done!
+	node.setType(new AActionType());
+	return node.getType();
+    }
 
     @Override
     public PType caseADeclarationInstantiatedAction(

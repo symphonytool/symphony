@@ -133,7 +133,7 @@ public class RunCmlExamplesTestCase {
 		addFailingFile("process-action-generalisedParallelism.cml","The Symbol \"A\" is undefined.");
 		addFailingFile("process-action-hiding.cml","The Symbol \"id1\" is undefined.");
 		addFailingFile("process-action-instantiated.cml","The Symbol \"OW\" is undefined.");
-
+		addFailingFile("process-action-interleaving.cml","The Symbol \"A\" is undefined.");
 		// Failed tests caused by parser issues
 		
 		// // See cml.y production: | expression[rootExp] LRPAREN ... The argument list is 
