@@ -44,8 +44,8 @@ public class POGTestWithFiles {
 	r.add(alarm);
 	r.add(webServer);
 	r.add(telephoneExchange);
-	r.add(cashDispenser);
-	r.addAll(Utilities.getParserTestFilePaths());
+//	r.add(cashDispenser);
+//	r.addAll(Utilities.getParserTestFilePaths());
 	//add test cases from further files here...
 	
 	return r;
