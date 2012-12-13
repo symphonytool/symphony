@@ -37,7 +37,9 @@ public enum TypeErrorMessages {
     EXPECTED_PROCESS_DEFINITION("%s is expected to be a process definition."),
 
     ILLEGAL_CONTEXT(
-	    "The symbol \"%s\" requires a CML context to be resolved. No such context is present.")
+	    "The symbol \"%s\" requires a CML context to be resolved. No such context is present."),
+PATTERN_TYPE_MISSING("The pattern \"%s\" should already have a type from its context.")
+	
 
     ;
 

@@ -82,7 +82,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		dad = new TCDeclAndDefVisitor(this, typeComparator, this.issueHandler);
 		typ = new TCTypeVisitor(this, this.issueHandler);
 		prc = new TCProcessVisitor(this, this.issueHandler, typeComparator);
-		bnd = new TCBindVisitor(this);
+		bnd = new TCBindVisitor(this,this.issueHandler);
 
 	}
 
@@ -123,7 +123,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	@Override
 	public PType defaultPPattern(PPattern node, TypeCheckInfo question)
 			throws AnalysisException {
-		return super.defaultPPattern(node, question);
+		return addErrorForMissingType(node,node.apply(bnd,question));
 	}
 
 	@Override
@@ -132,6 +132,8 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		return addErrorForMissingType(node, node.apply(this.bnd, question));
 	}
 
+	
+	
 	@Override
 	public PType defaultINode(INode node,
 			org.overture.typechecker.TypeCheckInfo question)
