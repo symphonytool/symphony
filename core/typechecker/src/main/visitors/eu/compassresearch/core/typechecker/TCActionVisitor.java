@@ -38,6 +38,7 @@ import eu.compassresearch.ast.actions.ACasesStatementAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.ADeclarationInstantiatedAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AForIndexStatementAction;
@@ -60,6 +61,7 @@ import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.SSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
@@ -83,6 +85,42 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 class TCActionVisitor extends
 	QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
+    @Override
+    public PType caseADeclarationInstantiatedAction(
+	    ADeclarationInstantiatedAction node, TypeCheckInfo question)
+	    throws AnalysisException {
+	
+	// Extract sub-stuff
+	PAction action = node.getAction();
+	LinkedList<ATypeSingleDeclaration> declarations = node.getDeclaration();
+	
+	//type check sub-action
+	PType actionType = action.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+	    node.setType(issueHandler.addTypeError(action,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + action)));
+	    return node.getType();
+	}
+	
+
+	for (ATypeSingleDeclaration declr : declarations) {
+	    PType declType = declr.apply(parentChecker, question);
+	    if (!TCDeclAndDefVisitor.successfulType(declType))
+		return issueHandler.addTypeError(declr,
+			TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+				.customizeMessage(declr + ""));
+	    issueHandler.addTypeWarning(declr,
+		    "This declaration should expand the environment: " + declr);
+	}
+	
+	
+	
+	// All done!
+		node.setType(new AActionType());
+		return node.getType();
+    }
+    
     @Override
     public PType caseAGeneralisedParallelismParallelAction(
 	    AGeneralisedParallelismParallelAction node, TypeCheckInfo question)
@@ -695,6 +733,8 @@ class TCActionVisitor extends
 	node.setType(new AStatementType());
 	return node.getType();
     }
+
+
 
     @SuppressWarnings("deprecation")
     @Override
