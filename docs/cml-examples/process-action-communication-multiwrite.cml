@@ -1,4 +1,4 @@
 process RegisterProc = 
  begin
-  @ [load!1!id] -> Skip 
+  @ load!1!id -> Skip 
  end

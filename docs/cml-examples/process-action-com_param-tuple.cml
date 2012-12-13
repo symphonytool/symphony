@@ -2,5 +2,5 @@ process RegisterProc =
 begin 
    
    @
-   [init?mk_(a,b)]-> REG
+   init?mk_(a,b)-> REG
 end

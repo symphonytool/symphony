@@ -20,5 +20,5 @@ process RegisterProc =
    post reg = reg~ - i
   
    @
-     [init] -> INIT()
+     init -> INIT()
  end

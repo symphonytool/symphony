@@ -2,5 +2,5 @@ process RegisterProc =
 begin 
    
    @
-   [init?[e in set {1,2}] ] -> Skip
+   init?e in set {1,2} -> Skip
 end

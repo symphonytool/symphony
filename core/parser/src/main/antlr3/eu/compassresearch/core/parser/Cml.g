@@ -85,7 +85,7 @@ protected void mismatch(IntStream input, int ttype, BitSet follow) throws Recogn
     throw new MismatchedTokenException(ttype, input);
 }
 // public void recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow) throws RecognitionException {
-//     throw e; 
+//     throw e;
 // }
 
 private LexLocation extractLexLocation(CommonToken token) {
@@ -141,7 +141,7 @@ processDefinition
 
 process
     : proc0
-    | replOp replicationDeclaration '@' ( '[' expression ']' )? process
+    | replOp replicationDeclaration '@' ( '[' chansetNamesetExpr ']' )? process
     ;
 
 proc0
@@ -149,12 +149,17 @@ proc0
     ;
 
 proc0Ops
-    : '[]' | '|~|' | '||' | '|||'
-    | '/\\' | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
-    | '[>' | '[[' expression '>>'
-    | '[|' expression '|]'
-    | '[' expression '||' expression ']'
-    | ';' 
+    : '[]'
+    | '|~|'
+    | '||'
+    | '|||'
+    | '/\\'
+    | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
+    | '[>'
+    | '[[' expression '>>'
+    | '[' chansetNamesetExpr '||' chansetNamesetExpr ']'
+    | '[|' chansetNamesetExpr '|]'
+    | ';'
     ;
 
 proc1
@@ -166,16 +171,15 @@ replOp
     | '|~|'
     | '||'
     | '|||'
-    | '[|' expression '|]'
-    | ';' 
+    | '[|' chansetNamesetExpr '|]'
+    | ';'
     ;
 
 proc2
-    : proc3 (proc2ops expression)?
-    ;
-
-proc2ops
-    : '\\\\' | 'startsby' | 'endsby'
+    : proc3
+        ( ('startsby' | 'endsby') expression
+        | '\\\\' chansetNamesetExpr
+        )?
     ;
 
 proc3
@@ -204,8 +208,10 @@ renamingExpr
     : renamePair ( ( ',' renamePair )+ | '|' bind+ ('@' expression)? )?
     ;
 
+// just expression is too broad; need to restrict it a bit
 renamePair
-    : IDENTIFIER ( '.' '(' expression ')' )* '<-' IDENTIFIER ( '.' '(' expression ')' )*
+    : IDENTIFIER ( '.' (IDENTIFIER | '(' expression ')' | symbolicLiteral ) )*
+        '<-' IDENTIFIER ( '.' (IDENTIFIER | '(' expression ')' | symbolicLiteral ) )*
     ;
 
 processParagraph
@@ -230,14 +236,18 @@ actionDef
 
 action
     : action0
-    | IDENTIFIER (communication* '->' action)?
-    | '[[' expression ']]' '&' action  // FIXME
-    | 'mu' IDENTIFIER '@'  '(' action (',' action)* ')'
-    | ( replOp | actionReplOp ) replicationDeclaration '@' ( '[' expression ( '|' expression )? ']' )? action
+    | '[' expression ']' '&' action
+    | 'mu' IDENTIFIER (',' IDENTIFIER)* '@'  '(' action (',' action)* ')'
+    | ( actionSimpleReplOp ) replicationDeclaration '@' action
+    | ( actionSetReplOp ) replicationDeclaration '@' '[' chansetNamesetExpr ( '|' chansetNamesetExpr )? ']' action
     ;
 
-actionReplOp
-    : '[||' expression '||]'
+actionSimpleReplOp
+    : ';' | '[]' | '|~|' | '[||' chansetNamesetExpr '||]'
+    ;
+
+actionSetReplOp
+    : '||' | '|||' | '[|' chansetNamesetExpr '|]'
     ;
 
 action0
@@ -248,42 +258,43 @@ action0
     ;
 
 action0Ops
-    : ';' 
+    : ';'
     | '[]'
     | '|~|'
-    | '/\\' 
+    | '/\\'
     | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
-    | '[>'
-    | '[[' expression '>>'
     | '||'
     | '|||'
-    | '['  expression ( '|'  expression )? '||'  expression ( '|'  expression )? ']'
-    | '[|' expression ( '|'  expression ( '|'  expression )? )? '|]'
-    | '[||' expression '|' expression '||]'
+    | '[>'
+    | '[[' expression '>>'
+    | '[' chansetNamesetExpr ( '|' chansetNamesetExpr )? '||' chansetNamesetExpr ( '|' chansetNamesetExpr )? ']'
+    | '[|' chansetNamesetExpr ( '|' chansetNamesetExpr ( '|' chansetNamesetExpr )? )? '|]'
+    | '[||' chansetNamesetExpr '|' chansetNamesetExpr '||]'
     ;
 
 action1
-    : action2 //( '[[' renamingExpr ']]' )? in action0
+    : action2
+        ( ('startsby' | 'endsby')=> ('startsby' | 'endsby') expression
+        | ('\\\\')=> '\\\\' chansetNamesetExpr
+        )?
     ;
 
 action2
-    : action3 ((action2Ops)=>action2Ops expression)?
-    ;
-
-action2Ops
-    : '\\\\' | 'startsby' | 'endsby'
-    ;
-
-action3
     : 'Skip'
     | 'Stop'
     | 'Chaos'
     | 'Div'
     | 'Wait' expression
+    | IDENTIFIER (communication* '->' action)?
     /* The mess below includes parenthesized actions, block
      * statements, parametrised actions, instantiated actions.
      */
-    | '(' ( ( declaration (';' declaration)* | 'dcl' assignmentDefinition (';' assignmentDefinition)* ) '@' )? action ')' ( '(' expression (',' expression )* ')' )?
+    | '('
+        ( (declaration)=> declaration (';' declaration)* '@'
+        | 'dcl' assignmentDefinition (';' assignmentDefinition)* '@'
+        )?
+        action ')'
+        ( '(' expression (',' expression )* ')' )?
     | statement
     ;
 
@@ -304,7 +315,7 @@ communication
 
 statement
     : 'let' localDefinition (',' localDefinition)* 'in' action
-    | '[' ('frame' frameSpec (',' frameSpec)* )? ('pre' expression)? 'post' expression ']'
+    | '[:' ('frame' frameSpec (',' frameSpec)* )? ('pre' expression)? 'post' expression ':]' // DEVIATION
     | 'do' nonDetStmtAlt ( '[]' nonDetStmtAlt )* 'end'
     | 'if' expression
         ( '->' action ( '[]' nonDetStmtAlt )* 'end'
@@ -312,7 +323,7 @@ statement
         )
     | 'cases' expression ':' (pattern (',' pattern)* '->' action (',' pattern (',' pattern)* '->' action)* )? (',' 'others' '->' expression)? 'end'
     | 'for'
-        ( bindablePattern 'in' expression // was pattern bind here only
+        ( bindablePattern (':' type)? 'in' expression // was pattern bind here only
         | 'all' bindablePattern 'in' 'set' expression
         | IDENTIFIER '=' expression 'to' expression ( 'by' expression )?
         ) 'do' action
@@ -322,7 +333,7 @@ statement
     | 'atomic' '(' stateDesignator ':=' expression ( ';' stateDesignator ':=' expression )+ ')'
     | (callStatement)=> callStatement // More syntactic predicate magic :)
     | stateDesignator
-        ( ':=' ( expression | 'new' name '(' expression ( ',' expression )* ')' )//| callStatement )
+        ( ':=' ( expression | 'new' name '(' ( expression ( ',' expression )* )? ')' )//| callStatement )
         | '<-' callStatement
         )
     ;
@@ -371,8 +382,29 @@ chansetDefs
     ;
 
 chansetDef
-    : IDENTIFIER '=' expression
-    // : IDENTIFIER '=' chansetExpr
+    : IDENTIFIER '=' chansetNamesetExpr
+    ;
+
+chansetNamesetExpr
+    : chansetNamesetExprbase (cneOp chansetNamesetExpr)?
+    ;
+
+cneOp
+    : 'union'
+    | 'inter'
+    | '\\'
+    ;
+
+chansetNamesetExprbase
+    : name
+    | '{' ( IDENTIFIER (',' IDENTIFIER)* )? '}'
+    | '{|'
+        ( IDENTIFIER
+            ( (',' IDENTIFIER)+
+            | ('.' expression)? ( setMapExprBinding )
+            )?
+        )?
+        '|}'
     ;
 
 namesetDefs
@@ -432,7 +464,7 @@ explicitFunctionDefintionTail
     ;
 
 implicitFunctionDefintionTail
-    : '(' parameterTypeList ')' IDENTIFIER ':' type (',' IDENTIFIER ':' type)* ('pre' expression )? 'post' expression
+    : '(' parameterTypeList? ')' IDENTIFIER ':' type (',' IDENTIFIER ':' type)* ('pre' expression )? 'post' expression
     ;
 
 parameterTypeList
@@ -444,7 +476,7 @@ parameterTypeGroup
     ;
 
 parameterGroup
-    : '(' bindablePattern (',' bindablePattern)* ')'
+    : '(' (bindablePattern (',' bindablePattern)* )? ')'
     ;
 
 functionBody
@@ -460,7 +492,7 @@ operationDefs
 operationDef
     : IDENTIFIER
         ( ':' opType IDENTIFIER parameterGroup '==' operationBody ('pre' expression)? ('post' expression)?
-        | '(' parameterTypeList ')' IDENTIFIER ':' type (',' IDENTIFIER ':' type)* ('frame' frameSpec (',' frameSpec)* )? ('pre' expression)? ('post' expression)
+        | '(' parameterTypeList? ')' (IDENTIFIER ':' type (',' IDENTIFIER ':' type)* )? ('frame' frameSpec+ )? ('pre' expression)? ('post' expression)
         )
     ;
 
@@ -498,13 +530,13 @@ type1
     | '(' type ')'
     | '[' type ']'
     | QUOTELITERAL
-    | IDENTIFIER ('.' IDENTIFIER)*
+    | IDENTIFIER (('.'|'`') IDENTIFIER)*
     | 'compose' IDENTIFIER 'of' field+ 'end'
     | 'set' 'of' type1
     | 'seq' 'of' type1
     | 'seq1' 'of' type1
-    | 'map' 'of' type1 'to' type1
-    | 'inmap' 'of' type1 'to' type1
+    | 'map' type1 'to' type1
+    | 'inmap' type1 'to' type1
     ;
 
 basicType
@@ -598,8 +630,8 @@ unaryExpr1op
     ;
 
 expr1
-    : unaryExpr1op exprbase
-    | ISOFCLASSLPAREN IDENTIFIER ('.' IDENTIFIER)* ',' expression ')'
+    : unaryExpr1op expr1
+    | ISOFCLASSLPAREN IDENTIFIER (('.'|'`') IDENTIFIER)* ',' expression ')'
     | ISUNDERLPAREN expression ',' type ')'
     | ISUNDERBASICLPAREN expression ')'
     | ISUNDERNAMELPAREN expression ')'
@@ -643,12 +675,13 @@ exprbase returns[PExp exp]
 //        }
     | symbolicLiteral
     | setMapExprs
+    | '[]'
     | '[' seqExpr? ']'
     | recordTupleExprs
     ;
 
 name returns[LexNameToken name]
-    : (ids+=IDENTIFIER '.')* identifier=IDENTIFIER
+    : (ids+=IDENTIFIER ('.'|'`'))* identifier=IDENTIFIER
         {
             // FIXME: not setting the filename field
             // Grab the location of the last identifier as default
@@ -696,7 +729,7 @@ mapExprTail
     ;
 
 setMapExprBinding
-    : '|' bind+ ('@' expression)?
+    : '|' (bind (',' bind)* )? ('@' expression)?
     ;
 
 /* sequence enumeration = '[', [ expression list ], ']' ;
@@ -753,7 +786,7 @@ MKUNDERLPAREN
     ;
 
 MKUNDERNAMELPAREN
-    : 'mk_' IDENTIFIER ('.' IDENTIFIER)* '('
+    : 'mk_' IDENTIFIER (('.'|'`') IDENTIFIER)* '('
     ;
 
 ISOFCLASSLPAREN
@@ -769,7 +802,7 @@ ISUNDERBASICLPAREN
     ;
 
 ISUNDERNAMELPAREN
-    : 'is_' IDENTIFIER ('.' IDENTIFIER)* '('
+    : 'is_' IDENTIFIER (('.'|'`') IDENTIFIER)* '('
     ;
 
 /* Need to fix this, yet
@@ -798,14 +831,14 @@ fragment
 FOLLOW_LETTER
     : INITIAL_LETTER | DIGIT | '\u005f'
     // : { input.LT(1) <  0x0100 }? =>
-    //     ( UNICODE_Lo | UNICODE_Ll | UNICODE_Lm |  UNICODE_Lt | UNICODE_Lu 
+    //     ( UNICODE_Lo | UNICODE_Ll | UNICODE_Lm |  UNICODE_Lt | UNICODE_Lu
     //     | '\u0024' )
-    // | { input.LT(1) >= 0x0100 }? 
+    // | { input.LT(1) >= 0x0100 }?
     //     ( UNICODE_Ps | UNICODE_Nl | UNICODE_No | UNICODE_Lo | UNICODE_Ll
     //     | UNICODE_Lm | UNICODE_Nd | UNICODE_Pc | UNICODE_Lt | UNICODE_Lu
     //     | UNICODE_Pf | UNICODE_Pd | UNICODE_Pe | UNICODE_Pi | UNICODE_Po
     //     | UNICODE_Me | UNICODE_Mc | UNICODE_Mn | UNICODE_Sk | UNICODE_So
-    //     | UNICODE_Sm | UNICODE_Sc | UNICODE_Cf 
+    //     | UNICODE_Sm | UNICODE_Sc | UNICODE_Cf
     //     )
     ;
 

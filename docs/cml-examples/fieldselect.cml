@@ -4,7 +4,7 @@ begin
 		public person ::
 		       name : string
 		       age  : int
-		       ;
+
 
 	values
 		public rasmus : person = mk_person("Rasmus", 30);

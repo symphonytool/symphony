@@ -2,5 +2,5 @@ process RegisterProc =
 begin 
    
    @
-   [init?mk_hej()]-> Skip
+   init?mk_hej()-> Skip
 end
