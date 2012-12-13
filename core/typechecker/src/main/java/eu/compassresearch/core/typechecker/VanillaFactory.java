@@ -128,7 +128,7 @@ public final class VanillaFactory {
 	 */
 	public static TypeCheckQuestion newTopLevelTypeCheckQuestion(
 			TypeIssueHandler issueHandler) {
-		return TypeCheckInfo.getNewTopLevelInstance(issueHandler, null);
+		return CmlTypeCheckInfo.getNewTopLevelInstance(issueHandler, null);
 	}
 
 	/**

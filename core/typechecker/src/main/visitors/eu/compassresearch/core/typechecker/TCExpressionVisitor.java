@@ -49,7 +49,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// ok not a local var, maybe a value
 		if (def == null)
 		{
-			eu.compassresearch.core.typechecker.TypeCheckInfo 
+			eu.compassresearch.core.typechecker.CmlTypeCheckInfo 
 			cmlEnv = null;
 			PDefinition enclosingDef = question.env.getEnclosingDefinition();
 			
@@ -59,12 +59,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			{
 		
 				// is the current question a Cml environment?
-				if (question instanceof eu.compassresearch.core.typechecker.TypeCheckInfo)
+				if (question instanceof eu.compassresearch.core.typechecker.CmlTypeCheckInfo)
 					// okay then we use it
-					cmlEnv = (eu.compassresearch.core.typechecker.TypeCheckInfo)question;
+					cmlEnv = (eu.compassresearch.core.typechecker.CmlTypeCheckInfo)question;
 				else
 					// well lets see if any definition added a cml env further up the tree
-					cmlEnv = question.contextGet(eu.compassresearch.core.typechecker.TypeCheckInfo.class);
+					cmlEnv = question.contextGet(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class);
 
 				// no, then we must have VDM exp at top-level or a bug in the type checker.
 				if (cmlEnv == null)
@@ -177,12 +177,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// To find that class there must be a CML Environment as Classes are 
 		// top-level and CML Specific.
 		// 
-		eu.compassresearch.core.typechecker.TypeCheckInfo 
+		eu.compassresearch.core.typechecker.CmlTypeCheckInfo 
 		cmlQuestion;
-		if (question instanceof eu.compassresearch.core.typechecker.TypeCheckInfo)
-			cmlQuestion = (eu.compassresearch.core.typechecker.TypeCheckInfo)question;
+		if (question instanceof eu.compassresearch.core.typechecker.CmlTypeCheckInfo)
+			cmlQuestion = (eu.compassresearch.core.typechecker.CmlTypeCheckInfo)question;
 		else
-			cmlQuestion = question.contextGet(eu.compassresearch.core.typechecker.TypeCheckInfo.class);
+			cmlQuestion = question.contextGet(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class);
 
 		if (cmlQuestion == null)
 		{

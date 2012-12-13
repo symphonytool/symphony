@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.APrivateAccess;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.AExpressionPattern;
@@ -35,6 +37,8 @@ import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
+import eu.compassresearch.ast.actions.AForIndexStatementAction;
+import eu.compassresearch.ast.actions.AForSequenceStatementAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AMuAction;
@@ -62,6 +66,7 @@ import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.ast.types.AStatementType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -77,13 +82,79 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 
 	@Override
+	public PType caseAForSequenceStatementAction(
+			AForSequenceStatementAction node, org.overture.typechecker.TypeCheckInfo question)
+			throws AnalysisException {
+
+	
+		
+		node.setType(new AActionType());
+		return node.getType();
+	}
+
+
+	@Override
+	public PType caseAForIndexStatementAction(AForIndexStatementAction node,
+			org.overture.typechecker.TypeCheckInfo question) throws AnalysisException {
+
+		CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
+			return node.getType();
+		}
+
+		PAction action = node.getAction();
+		PExp byExp = node.getBy();
+		PExp toExp = node.getTo();
+		LexNameToken var = node.getVar();
+
+
+
+		// Get the type of the by expression
+		PType byExpType = null;
+		if (byExp != null)
+		{
+			byExpType = byExp.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(byExpType)){
+				node.setType(issueHandler.addTypeError(byExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(byExp+"")));
+				return node.getType();
+			}
+		}
+
+		// Get the type of the to expression
+		PType toExpType = toExp.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(toExpType)){
+			node.setType(issueHandler.addTypeError(toExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(toExp+"")));
+			return node.getType();
+		}
+
+
+		// Add the local variable 
+		ALocalDefinition localVar = AstFactory.newALocalDefinition(var.getLocation(), var, NameScope.LOCAL, toExpType);
+		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) cmlEnv.newScope(question, question.env.getEnclosingDefinition());
+		newQuestion.addVariable(localVar.getName(), localVar);
+
+		// Type chec the action in this new environment
+		PType actionType = action.apply(parentChecker,newQuestion);
+		if (!TCDeclAndDefVisitor.successfulType(actionType)){
+			node.setType(issueHandler.addTypeError(byExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(action+"")));
+			return node.getType();
+		}
+
+		node.setType(new AActionType());
+		return node.getType();
+	}
+
+
+	@Override
 	public PType caseAChannelRenamingAction(AChannelRenamingAction node,
 			org.overture.typechecker.TypeCheckInfo question) throws AnalysisException {
 
 		PAction action = node.getAction();
-		
+
 		SRenameChannelExp renameExp = node.getRenameExpression();
-		
+
 		return new AActionType(node.getLocation(), true);
 	}
 
@@ -149,12 +220,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				question);
 
 
-		question.contextSet(TypeCheckInfo.class, getTypeCheckInfo (question) );
+		question.contextSet(CmlTypeCheckInfo.class, getTypeCheckInfo (question) );
 		Environment local = new FlatCheckedEnvironment(node.getDefs(),
 				question.env, question.scope);
 		PType r = node.getResult().apply(parentChecker,
 				new org.overture.typechecker.TypeCheckInfo(local, question.scope));
-		question.contextRem(TypeCheckInfo.class);
+		question.contextRem(CmlTypeCheckInfo.class);
 		local.unusedCheck();
 
 
@@ -195,12 +266,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	 * Get the type check info object (context) for a CML context
 	 * given a Overture one.
 	 */
-	private static TypeCheckInfo getTypeCheckInfo(org.overture.typechecker.TypeCheckInfo question)
+	private static CmlTypeCheckInfo getTypeCheckInfo(org.overture.typechecker.TypeCheckInfo question)
 	{
-		if (question instanceof TypeCheckInfo)
-			return (TypeCheckInfo)question;
+		if (question instanceof CmlTypeCheckInfo)
+			return (CmlTypeCheckInfo)question;
 
-		return question.contextGet(TypeCheckInfo.class);
+		return question.contextGet(CmlTypeCheckInfo.class);
 	}
 
 
@@ -217,10 +288,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		PDefinition enclosingDef = question.env.getEnclosingDefinition();
 
 		// get the CML context we are in
-		TypeCheckInfo info = getTypeCheckInfo(question);
+		CmlTypeCheckInfo info = getTypeCheckInfo(question);
 
 		// 
-		TypeCheckInfo newQuestion = (TypeCheckInfo)info.newScope(info, enclosingDef);
+		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo)info.newScope(info, enclosingDef);
 
 		// add IDs to the environment
 		for(LexIdentifierToken id : ids)
@@ -505,7 +576,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 
-		TypeCheckInfo newQ = getTypeCheckInfo(question);
+		CmlTypeCheckInfo newQ = getTypeCheckInfo(question);
 
 
 		PDefinition actionDef = newQ.lookupVariable(node.getName());
@@ -543,8 +614,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 
-		if (question instanceof TypeCheckInfo) {
-			TypeCheckInfo cmlQuestion = (TypeCheckInfo) question;
+		if (question instanceof CmlTypeCheckInfo) {
+			CmlTypeCheckInfo cmlQuestion = (CmlTypeCheckInfo) question;
 
 			// There should be a channel defined with this name
 			if (null == cmlQuestion.lookupChannel(node.getIdentifier())) {

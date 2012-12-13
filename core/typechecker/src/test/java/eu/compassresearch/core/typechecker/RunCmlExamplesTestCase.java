@@ -31,23 +31,6 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 @RunWith(value = Parameterized.class)
 public class RunCmlExamplesTestCase {
 
-	private void unpack() throws IOException, URISyntaxException
-	{
-		File tempFile = File.createTempFile("cml-interpreter", "");
-
-		InputStream jar = getClass().getResourceAsStream("/lib/interpreter-with-dependencies.jar");
-
-		FileOutputStream fos = new FileOutputStream(tempFile);
-
-		int b = 0;
-		while( (b = jar.read()) >= 0)
-		{
-			fos.write(b);
-		}
-		
-		fos.close();
-		
-	}
 	
 	@Parameters
 	public static Collection<Object[]> getData() {

@@ -239,7 +239,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	 */
 	public boolean typeCheck() {
 
-		eu.compassresearch.core.typechecker.TypeCheckInfo info = eu.compassresearch.core.typechecker.TypeCheckInfo
+		eu.compassresearch.core.typechecker.CmlTypeCheckInfo info = eu.compassresearch.core.typechecker.CmlTypeCheckInfo
 				.getNewTopLevelInstance(this.issueHandler, globalRoot);
 
 		if (!cleared)

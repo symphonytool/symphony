@@ -246,7 +246,7 @@ class CmlOvertureAssistant {
 			if (def.getType() instanceof ARecordInvariantType)
 			{
 				
-				TypeCheckInfo cmlEnv = (TypeCheckInfo)more[0];
+				CmlTypeCheckInfo cmlEnv = (CmlTypeCheckInfo)more[0];
 				ARecordInvariantType recordType = (ARecordInvariantType)ldef.getType();
 				AFieldField field = ARecordInvariantTypeAssistantTC.findField(recordType, name.getName());
 				PDefinition defOfTheTypeOfThisLocalDef = null;
@@ -258,7 +258,7 @@ class CmlOvertureAssistant {
 			
 			if (ldef.getType() instanceof ANamedInvariantType)
 			{
-				TypeCheckInfo cmlEnv = (TypeCheckInfo)more[0];
+				CmlTypeCheckInfo cmlEnv = (CmlTypeCheckInfo)more[0];
 				ANamedInvariantType namedType = (ANamedInvariantType)ldef.getType();
 				PDefinition defOfTheTypeOfThisLocalDef = cmlEnv.env.findName(namedType.getName(),NameScope.GLOBAL);
 				return CmlOvertureAssistant.this.findMemberName(defOfTheTypeOfThisLocalDef,name,more);
