@@ -208,6 +208,8 @@ public class TCProcessVisitor extends
 		return new AProcessType();
 	}
 
+	
+	
 	@Override
 	public PType caseAStateProcess(AStateProcess node,
 			org.overture.typechecker.TypeCheckInfo question)

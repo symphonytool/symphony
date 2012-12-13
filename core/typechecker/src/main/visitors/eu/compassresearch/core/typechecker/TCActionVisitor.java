@@ -93,6 +93,16 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		ADefPatternBind pattern = node.getPatternBind();
 		SSeqType seqType = node.getSeqType();
 		
+		PType actionType = action.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(actionType))
+		{
+			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+action)));
+			return node.getType();
+		}
+		
+		
+		PType expType = exp.apply(parentChecker,question);
+		
 		node.setType(new AActionType());
 		return node.getType();
 	}
