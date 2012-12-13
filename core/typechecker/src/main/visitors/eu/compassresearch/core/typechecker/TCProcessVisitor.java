@@ -215,6 +215,7 @@ public class TCProcessVisitor extends
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 
+		
 		// Set the process def for this node
 		node.setProcessDefinition(node.getAncestor(AProcessDefinition.class));
 

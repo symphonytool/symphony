@@ -12,6 +12,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AExpressionPattern;
@@ -25,8 +26,11 @@ import org.overture.ast.types.PType;
 import org.overture.ast.types.SSeqType;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatCheckedEnvironment;
+import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
+import org.overture.typechecker.assistant.pattern.PPatternBindAssistantTC;
+import org.overture.typechecker.visitor.TypeCheckVisitor;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
@@ -41,6 +45,7 @@ import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AForIndexStatementAction;
 import eu.compassresearch.ast.actions.AForSequenceStatementAction;
+import eu.compassresearch.ast.actions.AForSetStatementAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AMuAction;
@@ -83,29 +88,82 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 
 
+
+
+	@Override
+	public PType caseAForSetStatementAction(AForSetStatementAction node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		node.getAction();
+		node.getPattern();
+		node.getSet();
+
+		node.setType(new AActionType());
+		return node.getType();
+	}
+
+
 	@Override
 	public PType caseAForSequenceStatementAction(
 			AForSequenceStatementAction node, org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		PAction action = node.getAction();
 		PExp exp = node.getExp();
 		ADefPatternBind pattern = node.getPatternBind();
-		SSeqType seqType = node.getSeqType();
+		PType patternType = null;
 		
-		PType actionType = action.apply(parentChecker,question);
+		// Get an CML environment  
+		CmlTypeCheckInfo cmlQuestion = getTypeCheckInfo(question);
+		if (cmlQuestion == null)
+		{
+			node.setType(issueHandler.addTypeError(exp, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(exp+"")));
+			return node.getType();
+		}
+
+		// Type check the expression ... 
+		PType expType = exp.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(expType))
+		{
+			node.setType(issueHandler.addTypeError(exp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+exp)));
+			return node.getType();
+		}		
+
+		// ... it has to be a sequence
+		if (!(expType instanceof SSeqType))
+		{
+			node.setType(issueHandler.addTypeError(exp, TypeErrorMessages.SEQ_TYPE_EXPECTED.customizeMessage(exp+"",expType+"")));
+			return node.getType();
+		}
+		else
+			patternType = ((SSeqType)expType).getSeqof();
+
+		// Create an extended local environment
+		CmlTypeCheckInfo newEnv = cmlQuestion.newScope();
+		LexNameList identifiers = PPatternAssistantTC.getAllVariableNames(pattern.getPattern());
+		for(LexNameToken n : identifiers)
+		{
+			ALocalDefinition localDef = AstFactory.newALocalDefinition(pattern.getLocation(), n, NameScope.LOCAL,patternType);
+			newEnv.addVariable(n, localDef);
+		}
+		
+
+		// In this new environment lets check the given action
+		PType actionType = action.apply(parentChecker,newEnv);
 		if (!TCDeclAndDefVisitor.successfulType(actionType))
 		{
 			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+action)));
 			return node.getType();
 		}
-		
-		
-		PType expType = exp.apply(parentChecker,question);
-		
+
+		// Interesting stuff goes here !
+
+
+
 		node.setType(new AActionType());
 		return node.getType();
 	}
+
 
 
 	@Override

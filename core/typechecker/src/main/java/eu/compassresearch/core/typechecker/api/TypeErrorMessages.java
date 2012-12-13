@@ -1,6 +1,7 @@
 package eu.compassresearch.core.typechecker.api;
 
 public enum TypeErrorMessages {
+	SEQ_TYPE_EXPECTED("The expresion %s has type %s which is not a sequence type as expected."),
 	PARAGRAPH_HAS_TYPES_ERRORS("Paragraph \"%s\" has type errors."),
 
 	COULD_NOT_DETERMINE_TYPE("Could not determine type for %s."),
@@ -11,7 +12,7 @@ public enum TypeErrorMessages {
 
 	NAMED_TYPE_UNDEFINED("The type %s is undefined."),
 
-	SET_TYPE_EXPECTED("The expression %s has type %s which is not a set type."),
+	SET_TYPE_EXPECTED("The expression %s has type %s which is not a set type as expected."),
 
 	UNDEFINED_SYMBOL("The Symbol \"%s\" is undefined."),
 
