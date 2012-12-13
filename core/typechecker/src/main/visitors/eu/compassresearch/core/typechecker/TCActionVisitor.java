@@ -5,20 +5,18 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
-import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.APrivateAccess;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AExpressionPattern;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AIdentifierStateDesignator;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
@@ -29,12 +27,9 @@ import org.overture.ast.types.SSeqType;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
-import org.overture.typechecker.assistant.definition.PAccessSpecifierAssistantTC;
-import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
+import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
-import org.overture.typechecker.assistant.pattern.PPatternBindAssistantTC;
-import org.overture.typechecker.visitor.TypeCheckVisitor;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
@@ -50,7 +45,6 @@ import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AForIndexStatementAction;
 import eu.compassresearch.ast.actions.AForSequenceStatementAction;
-import eu.compassresearch.ast.actions.AForSetStatementAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
@@ -59,6 +53,7 @@ import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.ALetStatementAction;
 import eu.compassresearch.ast.actions.AMuAction;
 import eu.compassresearch.ast.actions.AMultipleGeneralAssignmentStatementAction;
+import eu.compassresearch.ast.actions.ANewStatementAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -76,6 +71,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.SSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.types.AActionType;
@@ -84,7 +80,6 @@ import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.ast.types.AStatementType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -96,6 +91,96 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 @SuppressWarnings("serial")
 class TCActionVisitor extends
 	QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
+
+    @Override
+    public PType caseANewStatementAction(ANewStatementAction node,
+	    TypeCheckInfo question) throws AnalysisException {
+
+	List<PType> argtypes = new LinkedList<PType>();
+
+	CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
+
+	// lookup variable
+	AIdentifierStateDesignator destVar = (AIdentifierStateDesignator) node
+		.getDestination();
+
+	PDefinition dest = cmlEnv.lookupVariable(destVar.getName());
+	if (dest == null) {
+	    node.setType(issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+			    + destVar.toString())));
+	    return node.getType();
+	}
+	PType destType = dest.getType();
+
+	// lookup class
+	PType classType = cmlEnv.lookupType(node.getClassName());
+	if (classType == null) {
+	    node.setType(issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.UNDEFINED_TYPE.customizeMessage(""
+			    + classType)));
+	    return node.getType();
+	}
+
+	if (!(classType instanceof AClassParagraphDefinition)) {
+	    node.setType(issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.EXPECTED_CLASS.customizeMessage(""
+			    + node.getClassName())));
+	    return node.getType();
+	}
+
+	// make sure they match
+	if (!typeComparator.isSubType(classType, destType)) {
+	    node.setType(issueHandler.addTypeError(node,
+		    TypeErrorMessages.EXPECTED_SUBTYPE_RELATION
+			    .customizeMessage(classType.toString(),
+				    destType.toString())));
+	    return node.getType();
+	}
+
+	// // typecheck arguments
+	for (PExp arg : node.getArgs()) {
+	    PType pt = arg.apply(parentChecker, cmlEnv);
+	    if (!TCDeclAndDefVisitor.successfulType(pt)) {
+		node.setType(issueHandler.addTypeError(
+			arg,
+			TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+				+ arg)));
+		return node.getType();
+	    }
+	    argtypes.add(pt);
+	}
+
+	AClassParagraphDefinition cpd = (AClassParagraphDefinition) classType
+		.getDefinitions().get(0);
+
+	PDefinition constructor = SClassDefinitionAssistantTC.findConstructor(
+		cpd.getClassDefinition(), argtypes);
+
+	if (constructor == null) {
+	    node.setType(issueHandler.addTypeError(node,
+		    TypeErrorMessages.MISSING_CONSTRUCTOR
+			    .customizeMessage(classType.toString(),
+				    argtypes.toString())));
+	    return node.getType();
+	}
+
+	// maybe more constructor stuff necessary?
+	
+	
+	// // set stuff
+	node.setClassdef(cpd);
+	node.setCtorDefinition(constructor);
+	
+
+	// All done!
+	node.setType(new AActionType());
+	return node.getType();
+
+    }
 
     @Override
     public PType caseAMultipleGeneralAssignmentStatementAction(
@@ -118,7 +203,7 @@ class TCActionVisitor extends
 
 	// type-check the "let" definitions
 	CmlTypeCheckInfo newCmlEnv = cmlEnv.newScope();
-	
+
 	for (ASingleGeneralAssignmentStatementAction assign : assigns) {
 	    PType pt = assign.apply(parentChecker, newCmlEnv);
 	    if (!TCDeclAndDefVisitor.successfulType(pt)) {
