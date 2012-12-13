@@ -13,6 +13,7 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AExpressionPattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
@@ -21,6 +22,7 @@ import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.PType;
+import org.overture.ast.types.SSeqType;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
@@ -86,7 +88,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AForSequenceStatementAction node, org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 
-	
+		PAction action = node.getAction();
+		PExp exp = node.getExp();
+		ADefPatternBind pattern = node.getPatternBind();
+		SSeqType seqType = node.getSeqType();
 		
 		node.setType(new AActionType());
 		return node.getType();
