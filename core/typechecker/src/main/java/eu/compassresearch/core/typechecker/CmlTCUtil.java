@@ -13,11 +13,11 @@ public class CmlTCUtil {
 	 * @param question
 	 * @return
 	 */
-	public static TypeCheckInfo getCmlEnv(org.overture.typechecker.TypeCheckInfo question)
+	public static CmlTypeCheckInfo getCmlEnv(org.overture.typechecker.TypeCheckInfo question)
 	{
-		if (question instanceof TypeCheckInfo)
-			return (TypeCheckInfo)question;
-		return question.contextGet(TypeCheckInfo.class);
+		if (question instanceof CmlTypeCheckInfo)
+			return (CmlTypeCheckInfo)question;
+		return question.contextGet(CmlTypeCheckInfo.class);
 	}
 	
 	/**
@@ -61,7 +61,7 @@ public class CmlTCUtil {
 		}
 		
 		// search globally
-		TypeCheckInfo cmlEnv = getCmlEnv(question);
+		CmlTypeCheckInfo cmlEnv = getCmlEnv(question);
 		if (cmlEnv == null) return null; // no global scope :(
 		
 		PDefinition globalDef = cmlEnv.getGlobalClassDefinitions();

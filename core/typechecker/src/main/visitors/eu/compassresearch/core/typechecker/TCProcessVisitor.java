@@ -188,7 +188,7 @@ public class TCProcessVisitor extends
 	public PType caseAReferenceProcess(AReferenceProcess node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
-		eu.compassresearch.core.typechecker.TypeCheckInfo newQ = (eu.compassresearch.core.typechecker.TypeCheckInfo) question;
+		eu.compassresearch.core.typechecker.CmlTypeCheckInfo newQ = (eu.compassresearch.core.typechecker.CmlTypeCheckInfo) question;
 		PDefinition processDef = newQ.lookupVariable(node.getProcessName());
 
 		if (processDef == null) {
@@ -208,11 +208,14 @@ public class TCProcessVisitor extends
 		return new AProcessType();
 	}
 
+	
+	
 	@Override
 	public PType caseAStateProcess(AStateProcess node,
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 
+		
 		// Set the process def for this node
 		node.setProcessDefinition(node.getAncestor(AProcessDefinition.class));
 
@@ -226,9 +229,9 @@ public class TCProcessVisitor extends
 								.customizeMessage(def.getName() + ""));
 		}
 		
-		question.contextSet(eu.compassresearch.core.typechecker.TypeCheckInfo.class, (eu.compassresearch.core.typechecker.TypeCheckInfo)question);
+		question.contextSet(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class, (eu.compassresearch.core.typechecker.CmlTypeCheckInfo)question);
 		PType actionType = node.getAction().apply(this.parentChecker, question);
-		question.contextRem(eu.compassresearch.core.typechecker.TypeCheckInfo.class);
+		question.contextRem(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class);
 		if (!TCDeclAndDefVisitor.successfulType(actionType))
 			return issueHandler.addTypeError(node.getAction(),
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
