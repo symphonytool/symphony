@@ -11,12 +11,12 @@ public class CmlParserRig {
 	CmlParser parser = new CmlParser(tokens);
 
 	// parser.exprbase();
-	try {
-	    parser.action();
+	// try {
+	    parser.source();
 	    // System.out.println(parser.exprbase());
-	} catch(Exception e) {
-	    System.out.println("Exception from parse attempt");
-	    System.out.println(e);
-	}
+	// } catch(Exception e) {
+	//     System.out.println("Exception from parse attempt");
+	//     System.out.println(e);
+	// }
     }
 }

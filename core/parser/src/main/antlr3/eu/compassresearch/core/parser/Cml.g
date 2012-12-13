@@ -778,7 +778,7 @@ TEXTLITERAL
     : '"' .* '"'
     ;
 
-/* This only tracks the non-unicode chunk of the characters; this
+/* FIXME This only tracks the non-unicode chunk of the characters; this
  * needs to be extended into the unicode set per the basic VDM spec.
  *
  * initial letter:
@@ -797,6 +797,16 @@ INITIAL_LETTER
 fragment
 FOLLOW_LETTER
     : INITIAL_LETTER | DIGIT | '\u005f'
+    // : { input.LT(1) <  0x0100 }? =>
+    //     ( UNICODE_Lo | UNICODE_Ll | UNICODE_Lm |  UNICODE_Lt | UNICODE_Lu 
+    //     | '\u0024' )
+    // | { input.LT(1) >= 0x0100 }? 
+    //     ( UNICODE_Ps | UNICODE_Nl | UNICODE_No | UNICODE_Lo | UNICODE_Ll
+    //     | UNICODE_Lm | UNICODE_Nd | UNICODE_Pc | UNICODE_Lt | UNICODE_Lu
+    //     | UNICODE_Pf | UNICODE_Pd | UNICODE_Pe | UNICODE_Pi | UNICODE_Po
+    //     | UNICODE_Me | UNICODE_Mc | UNICODE_Mn | UNICODE_Sk | UNICODE_So
+    //     | UNICODE_Sm | UNICODE_Sc | UNICODE_Cf 
+    //     )
     ;
 
 IDENTIFIER
@@ -871,3 +881,5 @@ LINECOMMENT
 MLINECOMMENT
     : '/*' .* '*/' { $channel=HIDDEN; }
     ;
+
+
