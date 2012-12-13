@@ -92,9 +92,6 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 class TCActionVisitor extends
 QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
-
-
-
 	@Override
 	public PType caseAInterleavingParallelAction(
 			AInterleavingParallelAction node, TypeCheckInfo question)
