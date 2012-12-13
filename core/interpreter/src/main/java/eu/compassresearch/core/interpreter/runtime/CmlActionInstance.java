@@ -47,14 +47,12 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 
 	private LexNameToken name;
 	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this); 
-	//private Process
 	
 	public CmlActionInstance(PAction action,Context context, LexNameToken name)
 	{
 		super(null);
 		this.name = name;
 		pushNext(action, context);
-		//executionStack.push(new Pair<PAction, Context>(action, context));
 	}
 	
 	public CmlActionInstance(PAction action,Context context, LexNameToken name, CmlProcess parent)
@@ -62,7 +60,6 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		super(parent);
 		this.name = name;
 		pushNext(action, context);
-		//executionStack.push(new Pair<PAction, Context>(action, context));
 	}
 	
 	@Override

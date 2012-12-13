@@ -26,7 +26,6 @@ import org.overture.ast.types.AUnresolvedType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
-import org.overture.typechecker.assistant.type.AUnresolvedTypeAssistantTC;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
@@ -78,17 +77,18 @@ class TCTypeVisitor extends
 		// it could be CML class
 		if (tDef == null)
 			tDef = question.env.findType(node.getName(), "");
-				
+		
+		if (tDef == null)
+		    tDef = CmlTCUtil.findDefByAllMeans(question, node.getName());
+		
 		if (!(tDef instanceof ATypeDefinition)) {
 			return issueHandler.addTypeError(node,
 					TypeErrorMessages.EXPECTED_TYPE_DEFINITION
 							.customizeMessage(node.getName() + ""));
+			
+			
 		}
-
-		PType resolvedType = AUnresolvedTypeAssistantTC.typeResolve(node,
-				(ATypeDefinition) tDef, parentChecker, question);
-
-		return resolvedType;
+		return tDef.getType();
 	}
 
 	@Override

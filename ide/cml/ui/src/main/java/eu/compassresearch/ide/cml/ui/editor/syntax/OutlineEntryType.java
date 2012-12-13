@@ -23,14 +23,17 @@ import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.definitions.SOperationDefinition;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
+import eu.compassresearch.ast.process.PProcess;
 
 public enum OutlineEntryType {
 
     CLASS("/icons/cview16/outline_class.png"), PROCESS(
-	    "/icons/cview16/outline_process.png"), EXTERNAL_CHOICE_PROCESS(
-	    "/icons/cview16/outline_external_choice_process.png"), PARALLEL_PROCESS(
-	    "/icons/cview16/outline_parallel_process.png"), FUNCTION_TOP(
-	    "/icons/cview16/outline_function_top.png"), FUNCTION_ENTRY(
+	    "/icons/cview16/outline_process.png"),
+    // EXTERNAL_CHOICE_PROCESS(
+    // "/icons/cview16/outline_external_choice_process.png"),
+    // PARALLEL_PROCESS(
+    // "/icons/cview16/outline_parallel_process.png"),
+    FUNCTION_TOP("/icons/cview16/outline_function_top.png"), FUNCTION_ENTRY(
 	    "/icons/cview16/outline_function_entry.png"), OPERATION(
 	    "/icons/cview16/outline_operation.png"), TYPE_TOP(
 	    "/icons/cview16/outline_type_top.png"), TYPE_ENTRY(
@@ -102,6 +105,8 @@ public enum OutlineEntryType {
 	    // Fetch Top-Level Process and Class
 	    if (w.isClass(AProcessParagraphDefinition.class))
 		return PROCESS.getImage();
+	    if (w.isClass(PProcess.class))
+		return PROCESS.getImage();
 	    if (w.isClass(AClassParagraphDefinition.class))
 		return CLASS.getImage();
 
@@ -119,14 +124,14 @@ public enum OutlineEntryType {
 		return ACTION.getImage();
 	    if (w.isClass(SOperationDefinition.class))
 		return OPERATION.getImage();
-	    if (w.isClass(AExternalChoiceProcess.class))
-		return EXTERNAL_CHOICE_PROCESS.getImage();
-	    if (w.isClass(ASynchronousParallelismProcess.class))
-		return PARALLEL_PROCESS.getImage();
+	    // if (w.isClass(AExternalChoiceProcess.class))
+	    // return EXTERNAL_CHOICE_PROCESS.getImage();
+	    // if (w.isClass(ASynchronousParallelismProcess.class))
+	    // return PARALLEL_PROCESS.getImage();
 
-		// When all else fails...
-		System.err.println("No icon found for class "
-			+ w.value.getClass().getCanonicalName());
+	    // When all else fails...
+	    System.err.println("No icon found for class "
+		    + w.value.getClass().getCanonicalName());
 	}
 	return ERROR.getImage();
 
