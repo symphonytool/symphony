@@ -182,9 +182,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 		
-		if (patternUnknownType instanceof AUnresolvedType)
+		if (!(patternUnknownType instanceof AUnresolvedType))
 		{
-			node.setType(issueHandler.addTypeError(pattern,TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(node+"")));
+			node.setType(issueHandler.addTypeError(pattern,TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Unresolved Type",patternUnknownType+"")));
 			return node.getType();
 		}
 		else
