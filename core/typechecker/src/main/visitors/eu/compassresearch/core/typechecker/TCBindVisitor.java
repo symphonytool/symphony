@@ -44,6 +44,11 @@ implements ICMLQuestionAnswer<TypeCheckInfo, PType> {
 	public PType caseAIdentifierPattern(AIdentifierPattern node,
 			TypeCheckInfo question) throws AnalysisException {
 
+		// This is a bit wierd. But we are simply adding a binding to an unresolved type
+		// which some one further up the tree needs to fix as that information is not available here
+		// Support "for a in set {1,2,3}" the "for"-expression will tell us that a has type nat1 
+		// from the set expression "{1,2,3}" .
+		
 		PType result = AstFactory.newAUnresolvedType(node.getName());
 		ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), node.getName(), question.scope, result);
 		result.getDefinitions().add(localDef);

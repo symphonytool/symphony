@@ -23,6 +23,7 @@ import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.ASetType;
+import org.overture.ast.types.AUnresolvedType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SSeqType;
 import org.overture.typechecker.Environment;
@@ -174,15 +175,22 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		
 		CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
 		
-		// ooh crap ! PPattern has no type field which means we have no way for communicating the 
-		// the type of the set expression to the PPattern case.
-		patternType = pattern.apply(parentChecker,question);
-		if (!TCDeclAndDefVisitor.successfulType(patternType))
+		PType patternUnknownType = pattern.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(patternUnknownType))
 		{
 			node.setType(issueHandler.addTypeError(pattern, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(pattern+"")));
 			return node.getType();
 		}
 		
+		if (patternUnknownType instanceof AUnresolvedType)
+		{
+			node.setType(issueHandler.addTypeError(pattern,TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(node+"")));
+			return node.getType();
+		}
+		else
+		{
+			
+		}
 		
 		node.setType(new AActionType());
 		return node.getType();
