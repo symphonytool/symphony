@@ -47,7 +47,6 @@ import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AForIndexStatementAction;
 import eu.compassresearch.ast.actions.AForSequenceStatementAction;
-import eu.compassresearch.ast.actions.AForSetStatementAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
