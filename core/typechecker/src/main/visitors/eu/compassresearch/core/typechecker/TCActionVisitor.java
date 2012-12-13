@@ -58,6 +58,7 @@ import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInterruptAction;
 import eu.compassresearch.ast.actions.ALetStatementAction;
 import eu.compassresearch.ast.actions.AMuAction;
+import eu.compassresearch.ast.actions.AMultipleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -96,36 +97,72 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 class TCActionVisitor extends
 	QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
-    
-       @Override
+    @Override
+    public PType caseAMultipleGeneralAssignmentStatementAction(
+	    AMultipleGeneralAssignmentStatementAction node,
+	    TypeCheckInfo question) throws AnalysisException {
+
+	// extract sub-stuff
+	LinkedList<ASingleGeneralAssignmentStatementAction> assigns = node
+		.getAssignments();
+
+	CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
+
+	if (cmlEnv == null) {
+	    node.setType(issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+			    + node)));
+	    return node.getType();
+	}
+
+	// type-check the "let" definitions
+	CmlTypeCheckInfo newCmlEnv = cmlEnv.newScope();
+	
+	for (ASingleGeneralAssignmentStatementAction assign : assigns) {
+	    PType pt = assign.apply(parentChecker, newCmlEnv);
+	    if (!TCDeclAndDefVisitor.successfulType(pt)) {
+		node.setType(issueHandler.addTypeError(assign,
+			TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+				.customizeMessage("" + assign)));
+		return node.getType();
+	    }
+	}
+
+	// All done!
+	node.setType(new AActionType());
+	return node.getType();
+    }
+
+    @Override
     public PType caseALetStatementAction(ALetStatementAction node,
 	    TypeCheckInfo question) throws AnalysisException {
 	// Extract sub-stuff
 	PAction action = node.getAction();
 	LinkedList<PDefinition> localDefs = node.getLocalDefinitions();
 	CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
-	
-	if (cmlEnv == null)
-	{
-	    node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
+
+	if (cmlEnv == null) {
+	    node.setType(issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+			    + node)));
 	    return node.getType();
 	}
-	
+
 	// type-check the "let" definitions
 	CmlTypeCheckInfo newCmlEnv = cmlEnv.newScope();
-	
-	for (PDefinition pd : localDefs){
-	    PType pt = pd.apply(parentChecker,newCmlEnv);
-	    if(!TCDeclAndDefVisitor.successfulType(pt)){
-		 node.setType(issueHandler.addTypeError(pd,
-			    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-				    .customizeMessage("" + pd)));
-		    return node.getType();
+
+	for (PDefinition pd : localDefs) {
+	    PType pt = pd.apply(parentChecker, newCmlEnv);
+	    if (!TCDeclAndDefVisitor.successfulType(pt)) {
+		node.setType(issueHandler.addTypeError(pd,
+			TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+				.customizeMessage("" + pd)));
+		return node.getType();
 	    }
 	    newCmlEnv.addVariable(pd.getName(), pd);
 	}
-	
-	
 
 	// type check sub-action
 	PType actionType = action.apply(parentChecker, newCmlEnv);
@@ -141,15 +178,12 @@ class TCActionVisitor extends
 	return node.getType();
     }
 
-    
-    
     @Override
     public PType caseAInterruptAction(AInterruptAction node,
 	    TypeCheckInfo question) throws AnalysisException {
-	//extract sub-stuff
+	// extract sub-stuff
 	PAction leftAction = node.getLeft();
 	PAction rightAction = node.getRight();
-	
 
 	// type-check sub-actions
 	PType leftActionType = leftAction.apply(parentChecker, question);
@@ -159,7 +193,7 @@ class TCActionVisitor extends
 			    .customizeMessage("" + leftAction)));
 	    return node.getType();
 	}
-	
+
 	PType rightActionType = rightAction.apply(parentChecker, question);
 	if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
 	    node.setType(issueHandler.addTypeError(rightAction,
@@ -167,7 +201,7 @@ class TCActionVisitor extends
 			    .customizeMessage("" + rightAction)));
 	    return node.getType();
 	}
-	
+
 	// All done!
 	node.setType(new AActionType());
 	return node.getType();
@@ -177,7 +211,7 @@ class TCActionVisitor extends
     public PType caseAInterleavingParallelAction(
 	    AInterleavingParallelAction node, TypeCheckInfo question)
 	    throws AnalysisException {
-	//extract sub-stuff
+	// extract sub-stuff
 	PAction leftAction = node.getLeftAction();
 	PExp leftNamesetExp = node.getLeftNameSetExpression();
 	PAction rightAction = node.getRightAction();
@@ -191,7 +225,7 @@ class TCActionVisitor extends
 			    .customizeMessage("" + leftAction)));
 	    return node.getType();
 	}
-	
+
 	PType rightActionType = rightAction.apply(parentChecker, question);
 	if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
 	    node.setType(issueHandler.addTypeError(rightAction,
@@ -199,22 +233,20 @@ class TCActionVisitor extends
 			    .customizeMessage("" + rightAction)));
 	    return node.getType();
 	}
-	
+
 	// type-check the namesets
 	PType leftNameSetType = leftNamesetExp.apply(parentChecker, question);
 	if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
 	    return issueHandler.addTypeError(leftNamesetExp,
 		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 			    .customizeMessage(leftNamesetExp + ""));
-	
+
 	PType rightNameSetType = rightnamesetExp.apply(parentChecker, question);
 	if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
 	    return issueHandler.addTypeError(rightnamesetExp,
 		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 			    .customizeMessage(rightnamesetExp + ""));
-	
-	
-	
+
 	// All done!
 	node.setType(new AActionType());
 	return node.getType();
@@ -224,12 +256,12 @@ class TCActionVisitor extends
     public PType caseADeclarationInstantiatedAction(
 	    ADeclarationInstantiatedAction node, TypeCheckInfo question)
 	    throws AnalysisException {
-	
+
 	// Extract sub-stuff
 	PAction action = node.getAction();
 	LinkedList<ATypeSingleDeclaration> declarations = node.getDeclaration();
-	
-	//type check sub-action
+
+	// type check sub-action
 	PType actionType = action.apply(parentChecker, question);
 	if (!TCDeclAndDefVisitor.successfulType(actionType)) {
 	    node.setType(issueHandler.addTypeError(action,
@@ -237,7 +269,6 @@ class TCActionVisitor extends
 			    .customizeMessage("" + action)));
 	    return node.getType();
 	}
-	
 
 	for (ATypeSingleDeclaration declr : declarations) {
 	    PType declType = declr.apply(parentChecker, question);
@@ -248,14 +279,12 @@ class TCActionVisitor extends
 	    issueHandler.addTypeWarning(declr,
 		    "This declaration should expand the environment: " + declr);
 	}
-	
-	
-	
+
 	// All done!
-		node.setType(new AActionType());
-		return node.getType();
+	node.setType(new AActionType());
+	return node.getType();
     }
-    
+
     @Override
     public PType caseAGeneralisedParallelismParallelAction(
 	    AGeneralisedParallelismParallelAction node, TypeCheckInfo question)
@@ -276,7 +305,7 @@ class TCActionVisitor extends
 			    .customizeMessage("" + leftAction)));
 	    return node.getType();
 	}
-	
+
 	PType rightActionType = rightAction.apply(parentChecker, question);
 	if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
 	    node.setType(issueHandler.addTypeError(rightAction,
@@ -284,7 +313,7 @@ class TCActionVisitor extends
 			    .customizeMessage("" + rightAction)));
 	    return node.getType();
 	}
-	
+
 	// type-check the chanset
 	PType chanSetType = chansetExp.apply(parentChecker, question);
 	if (!TCDeclAndDefVisitor.successfulType(chanSetType))
@@ -298,15 +327,13 @@ class TCActionVisitor extends
 	    return issueHandler.addTypeError(leftNamesetExp,
 		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 			    .customizeMessage(leftNamesetExp + ""));
-	
+
 	PType rightNameSetType = rightnamesetExp.apply(parentChecker, question);
 	if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
 	    return issueHandler.addTypeError(rightnamesetExp,
 		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 			    .customizeMessage(rightnamesetExp + ""));
-	
-	
-	
+
 	// All done!
 	node.setType(new AActionType());
 	return node.getType();
@@ -868,8 +895,6 @@ class TCActionVisitor extends
 	node.setType(new AStatementType());
 	return node.getType();
     }
-
-
 
     @SuppressWarnings("deprecation")
     @Override
