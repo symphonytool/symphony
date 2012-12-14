@@ -13,13 +13,12 @@ import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
-import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableCmlEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluator;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
-import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
@@ -124,20 +123,21 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		
 	private void registerChannelsInAlpha(CmlAlphabet alpha)
 	{
-		for(CmlCommunicationEvent com : alpha.getCommunicationEvents())
+		for(ObservableCmlEvent com : alpha.getObservableEvents())
 		{
-			switch(com.getCommunicationType())
-			{
-			case SIGNAL:
-				com.getChannel().onChannelSignal().registerObserver(this);
-				break;
-			case WRITE:
-				com.getChannel().onChannelWrite().registerObserver(this);
-				break;
-			case READ:
-				com.getChannel().onChannelRead().registerObserver(this);
-				break;
-			}
+			com.handleChannelEventRegistration(this);
+//			switch(com.getCommunicationType())
+//			{
+//			case SIGNAL:
+//				com.getChannel().onChannelSignal().registerObserver(this);
+//				break;
+//			case WRITE:
+//				com.getChannel().onChannelWrite().registerObserver(this);
+//				break;
+//			case READ:
+//				com.getChannel().onChannelRead().registerObserver(this);
+//				break;
+//			}
 		}
 	}
 	

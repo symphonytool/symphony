@@ -1,13 +1,9 @@
 package eu.compassresearch.core.interpreter.eval;
 
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.expressions.PExp;
-import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
 
@@ -16,13 +12,15 @@ import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableCmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
+import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlProcessUtil;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 /**
@@ -67,9 +65,15 @@ public class AlphabetInspectionVisitor
 		
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 		
-		CmlCommunicationEvent com = new CmlCommunicationEvent(chanValue);
+//		node.getCommunicationParameters()
+		ObservableCmlEvent observableEvent = null;
+		
+		if(CmlActionAssistant.isPrefixEvent(node))
+			observableEvent = new PrefixEvent(ownerProcess, chanValue);
+		//TODO: do the rest here
+			
 		Set<CmlEvent> comset = new HashSet<CmlEvent>();
-		comset.add(com);
+		comset.add(observableEvent);
 		return new CmlAlphabet(comset);
 	}
 	
@@ -200,38 +204,50 @@ public class AlphabetInspectionVisitor
 			public CmlAlphabet inspectChildren() {
 				
 				//convert the channelset of the current node to a alphabet
-				CmlAlphabet cs = CmlProcessUtil.convertChansetExpToAlphabet(
+				CmlAlphabet cs = CmlProcessUtil.convertChansetExpToAlphabet(null,
 						internalNode.getChanSetExpression(),internalQuestion);
 				
 				CmlAlphabet resultAlpha = new CmlAlphabet();
 				
-				List<CmlAlphabet> childEventsInCS = new LinkedList<CmlAlphabet>();
+//				List<CmlAlphabet> childEventsInCS = new LinkedList<CmlAlphabet>();
+				
 				//Get all the child alphabets and add the events that are not in the channelset
+//				CmlProcess leftChild = ownerProcess.children().get(0);
+//				CmlAlphabet leftChildAlphabet = leftChild.inspect();
+//				CmlProcess rightChild = ownerProcess.children().get(1);
+//				CmlAlphabet rightChildAlphabet = rightChild.inspect();
+//				
+//				resultAlpha.union(other)
+				CmlAlphabet childIntersection = null;
 				for(CmlProcess child : ownerProcess.children())
 				{
 					CmlAlphabet childAlphabet = child.inspect();
 					CmlAlphabet eventInCS = new CmlAlphabet();
 					
-					for(CmlCommunicationEvent e  : childAlphabet.getCommunicationEvents())
+					//for each com event we need to check whether the com event is in the 
+					//synchronising CS
+					for(ObservableCmlEvent e  : childAlphabet.getObservableEvents())
 					{
-						if( !cs.containsCommunication(e) )
+						if( !cs.containsCommunication(e))
 							resultAlpha = resultAlpha.union(e);
 						else
 							eventInCS = eventInCS.union(e);
 					}
 					
-					childEventsInCS.add(eventInCS);
+					if(null == childIntersection)
+						childIntersection = eventInCS;
+					else
+						childIntersection = childIntersection.discardAndCombine(eventInCS,true);
 				}
 					
 				//find the event intersection
-				CmlAlphabet childIntersection = null;
-				for(CmlAlphabet childAlpha : childEventsInCS)
-				{
-					if(null == childIntersection)
-						childIntersection = childAlpha;
-					else
-						childIntersection = childIntersection.intersect(childAlpha);
-				}
+//				for(CmlAlphabet childAlpha : childEventsInCS)
+//				{
+//					if(null == childIntersection)
+//						childIntersection = childAlpha;
+//					else
+//						childIntersection = childIntersection.intersect(childAlpha);
+//				}
 				
 				//Now put all the events that are in cs and in all the children
 				resultAlpha = resultAlpha.union(childIntersection);

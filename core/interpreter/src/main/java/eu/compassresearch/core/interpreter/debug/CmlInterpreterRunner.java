@@ -28,6 +28,7 @@ import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableCmlEvent;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgpStatus;
@@ -231,13 +232,13 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 				cmlInterpreter.execute(new CmlCommunicationSelectionStrategy() {
 
 					@Override
-					public CmlCommunicationEvent select(CmlAlphabet availableChannelEvents) {
+					public ObservableCmlEvent select(CmlAlphabet availableChannelEvents) {
 
 						sendStatusMessage(CmlDbgpStatus.CHOICE, CmlInterpreterRunner.this.cmlInterpreter.getStatus());
 						
 						//convert to list of strings for now
 						List<String> events = new LinkedList<String>();
-						for(CmlCommunicationEvent comEvent : availableChannelEvents.getCommunicationEvents())
+						for(ObservableCmlEvent comEvent : availableChannelEvents.getObservableEvents())
 						{
 							events.add(comEvent.getChannel().getName());
 						}
@@ -251,9 +252,9 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 						String responseStr = response.getContent(String.class);
 						System.out.println("response: " + responseStr);
 						
-						CmlCommunicationEvent selectedEvent = null;
+						ObservableCmlEvent selectedEvent = null;
 						//For now we just search naively to find the event
-						for(CmlCommunicationEvent comEvent : availableChannelEvents.getCommunicationEvents())
+						for(ObservableCmlEvent comEvent : availableChannelEvents.getObservableEvents())
 						{
 							System.out.println("found: " + comEvent.getChannel().getName());
 							if(comEvent.getChannel().getName().equals(responseStr))

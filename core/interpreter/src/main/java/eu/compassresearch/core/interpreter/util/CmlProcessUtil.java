@@ -11,8 +11,9 @@ import org.overture.interpreter.runtime.Context;
 import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
-import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableCmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
 public class CmlProcessUtil {
@@ -42,7 +43,7 @@ public class CmlProcessUtil {
 	 * FIXME:This is just a temp solution, chansets can be other than this
 	 * @return
 	 */
-	public static CmlAlphabet convertChansetExpToAlphabet(PExp chansetExp, Context question)
+	public static CmlAlphabet convertChansetExpToAlphabet(CmlProcess sourceProcess, PExp chansetExp, Context question)
 	{
 		AEnumChansetSetExp chanset = (AEnumChansetSetExp)chansetExp;
 
@@ -53,7 +54,7 @@ public class CmlProcessUtil {
 			//FIXME: This should be a name so the conversion is avoided
 			LexNameToken channelName = new LexNameToken("Default",id);
 			CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
-			CmlCommunicationEvent com = new CmlCommunicationEvent(chanValue);
+			ObservableCmlEvent com = new PrefixEvent(sourceProcess,chanValue);
 			coms.add(com);
 		}
 		

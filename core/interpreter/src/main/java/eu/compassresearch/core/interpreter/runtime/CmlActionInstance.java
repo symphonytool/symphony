@@ -25,11 +25,11 @@ import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
-import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
+import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlProcessUtil;
 import eu.compassresearch.core.interpreter.util.Pair;
 
@@ -150,7 +150,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	}
 	
 	/**
-	 * CmlProcessObserver interface methods
+	 * CmlProcessStateObserver interface 
 	 */
 	
 	@Override
@@ -180,6 +180,10 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	}
 
 	/**
+	 * CmlProcessTraceObserver interface 
+	 */
+	
+	/**
 	 * This will provide the traces from all the child actions
 	 */
 	@Override
@@ -190,11 +194,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	}
 	
 	/**
-	 * Private helper methods
-	 */
-	
-	/**
-	 * Transition cases
+	 * Transition methods
 	 */
 
 	/**
@@ -217,8 +217,8 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		//TODO: sync/output/input is still missing
 		//At this point the supervisor has already given go to the event, 
 		//so we can execute it immediately. We just have figure out which kind of event it is
-		if(isSimplePrefix(node))
-			result = caseSimplePrefix(node, question);
+		if(CmlActionAssistant.isPrefixEvent(node))
+			result = casePrefixEvent(node, question);
 	
 		//supervisor().clearSelectedCommunication();
 		
@@ -229,17 +229,8 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	 * Helper methods for Synchronisation and Communication transition rules
 	 */
 	
-	/**
-	 * Determines if the communication AST node is a simple prefix
-	 * @param node
-	 * @return
-	 */
-	private boolean isSimplePrefix(ACommunicationAction node)
-	{
-		return node.getCommunicationParameters().isEmpty();
-	}
 	
-	private CmlBehaviourSignal caseSimplePrefix(ACommunicationAction node, Context question) 
+	private CmlBehaviourSignal casePrefixEvent(ACommunicationAction node, Context question) 
 			throws AnalysisException 
 	{
 		pushNext(node.getAction(), question); 
@@ -334,7 +325,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
 		{
 			//convert the channelset of the current node to a alphabet
-			CmlAlphabet cs = CmlProcessUtil.convertChansetExpToAlphabet(
+			CmlAlphabet cs = CmlProcessUtil.convertChansetExpToAlphabet(this,
 					node.getChanSetExpression(),question);		
 			
 			CmlProcess leftChild = children().get(0);
@@ -429,7 +420,6 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
 		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
 		{
-			
 			CmlProcess leftChild = children().get(0);
 			CmlAlphabet leftChildAlpha = leftChild.inspect(); 
 			CmlProcess rightChild = children().get(1);

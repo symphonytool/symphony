@@ -2,9 +2,7 @@ package eu.compassresearch.core.interpreter.cml;
 
 import java.util.List;
 
-import org.overture.ast.analysis.AnalysisException;
-
-import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableCmlEvent;
 
 public interface CmlSupervisorEnvironment {
 
@@ -38,8 +36,8 @@ public interface CmlSupervisorEnvironment {
 	 * returns the selected communication
 	 * @return The selected CMLCommunication if communicationSelected() is true else null
 	 */
-	public CmlCommunicationEvent selectedCommunication();
-	public void setSelectedCommunication(CmlCommunicationEvent comm);
+	public ObservableCmlEvent selectedCommunication();
+	public void setSelectedCommunication(ObservableCmlEvent comm);
 	/**
 	 * Clears the currently selected CMLCommunication
 	 */

@@ -436,7 +436,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		{
 			threads.add(new CmlThread(this,t));
 		}
-		threads.add(cmlThread);
 		//fireSuspendEvent(0);
 		fireResumeEvent(0);
 	}

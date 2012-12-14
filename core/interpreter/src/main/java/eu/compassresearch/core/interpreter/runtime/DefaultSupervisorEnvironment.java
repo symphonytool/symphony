@@ -3,18 +3,17 @@ package eu.compassresearch.core.interpreter.runtime;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.overture.ast.analysis.AnalysisException;
-
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableCmlEvent;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 
 public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 
 	private CmlCommunicationSelectionStrategy selectStrategy;
-	private CmlCommunicationEvent selectedCommunication;
+	private ObservableCmlEvent selectedCommunication;
 	
 	private List<CmlProcess> pupils = new LinkedList<CmlProcess>();
 	private Scheduler scheduler;
@@ -43,12 +42,12 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	}
 
 	@Override
-	public CmlCommunicationEvent selectedCommunication() {
+	public ObservableCmlEvent selectedCommunication() {
 		return selectedCommunication;
 	}
 
 	@Override
-	public void setSelectedCommunication(CmlCommunicationEvent comm) {
+	public void setSelectedCommunication(ObservableCmlEvent comm) {
 		selectedCommunication = comm;
 	}
 
