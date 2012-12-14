@@ -12,11 +12,11 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AExpressionPattern;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AIdentifierStateDesignator;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
@@ -30,9 +30,8 @@ import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
+import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
-import org.overture.typechecker.assistant.pattern.PPatternBindAssistantTC;
-import org.overture.typechecker.visitor.TypeCheckVisitor;
 
 import eu.compassresearch.ast.actions.AAlphabetisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
@@ -53,11 +52,15 @@ import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.AInterruptAction;
+import eu.compassresearch.ast.actions.ALetStatementAction;
 import eu.compassresearch.ast.actions.AMuAction;
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
 import eu.compassresearch.ast.actions.AParametrisedAction;
 import eu.compassresearch.ast.actions.AParametrisedInstantiatedAction;
+import eu.compassresearch.ast.actions.AMultipleGeneralAssignmentStatementAction;
+import eu.compassresearch.ast.actions.ANewStatementAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -77,6 +80,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.SSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.types.AActionType;
@@ -85,7 +89,6 @@ import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.ast.types.AStatementType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -96,61 +99,340 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
  */
 @SuppressWarnings("serial")
 class TCActionVisitor extends
-QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
+	QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
-	@Override
-	public PType caseAInterleavingParallelAction(
-			AInterleavingParallelAction node, TypeCheckInfo question)
-					throws AnalysisException {
-		//extract sub-stuff
-		PAction leftAction = node.getLeftAction();
-		PExp leftNamesetExp = node.getLeftNameSetExpression();
-		PAction rightAction = node.getRightAction();
-		PExp rightnamesetExp = node.getRightNameSetExpression();
+    @Override
+    public PType caseANewStatementAction(ANewStatementAction node,
+	    TypeCheckInfo question) throws AnalysisException {
 
-		// type-check sub-actions
-		PType leftActionType = leftAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftActionType)) {
-			node.setType(issueHandler.addTypeError(leftAction,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage("" + leftAction)));
-			return node.getType();
-		}
+	List<PType> argtypes = new LinkedList<PType>();
 
-		PType rightActionType = rightAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
-			node.setType(issueHandler.addTypeError(rightAction,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage("" + rightAction)));
-			return node.getType();
-		}
+	CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
 
-		// type-check the namesets
-		PType leftNameSetType = leftNamesetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
-			return issueHandler.addTypeError(leftNamesetExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(leftNamesetExp + ""));
+	// lookup variable
+	AIdentifierStateDesignator destVar = (AIdentifierStateDesignator) node
+		.getDestination();
 
-		PType rightNameSetType = rightnamesetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
-			return issueHandler.addTypeError(rightnamesetExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(rightnamesetExp + ""));
+	PDefinition dest = cmlEnv.lookupVariable(destVar.getName());
+	if (dest == null) {
+	    node.setType(issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+			    + destVar.toString())));
+	    return node.getType();
+	}
+	PType destType = dest.getType();
 
-
-
-		// All done!
-		node.setType(new AActionType());
-		return node.getType();
+	// lookup class
+	PType classType = cmlEnv.lookupType(node.getClassName());
+	if (classType == null) {
+	    node.setType(issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.UNDEFINED_TYPE.customizeMessage(""
+			    + classType)));
+	    return node.getType();
 	}
 
+	if (!(classType instanceof AClassParagraphDefinition)) {
+	    node.setType(issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.EXPECTED_CLASS.customizeMessage(""
+			    + node.getClassName())));
+	    return node.getType();
+	}
 
+	// make sure they match
+	if (!typeComparator.isSubType(classType, destType)) {
+	    node.setType(issueHandler.addTypeError(node,
+		    TypeErrorMessages.EXPECTED_SUBTYPE_RELATION
+			    .customizeMessage(classType.toString(),
+				    destType.toString())));
+	    return node.getType();
+	}
 
+	// // typecheck arguments
+	for (PExp arg : node.getArgs()) {
+	    PType pt = arg.apply(parentChecker, cmlEnv);
+	    if (!TCDeclAndDefVisitor.successfulType(pt)) {
+		node.setType(issueHandler.addTypeError(
+			arg,
+			TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+				+ arg)));
+		return node.getType();
+	    }
+	    argtypes.add(pt);
+	}
 
+	AClassParagraphDefinition cpd = (AClassParagraphDefinition) classType
+		.getDefinitions().get(0);
 
+	PDefinition constructor = SClassDefinitionAssistantTC.findConstructor(
+		cpd.getClassDefinition(), argtypes);
 
-	@Override
+	if (constructor == null) {
+	    node.setType(issueHandler.addTypeError(node,
+		    TypeErrorMessages.MISSING_CONSTRUCTOR
+			    .customizeMessage(classType.toString(),
+				    argtypes.toString())));
+	    return node.getType();
+	}
+
+	// maybe more constructor stuff necessary?
+	
+	
+	// // set stuff
+	node.setClassdef(cpd);
+	node.setCtorDefinition(constructor);
+	
+	// All done!
+	node.setType(new AActionType());
+	return node.getType();
+
+    }
+
+    @Override
+    public PType caseAMultipleGeneralAssignmentStatementAction(
+	    AMultipleGeneralAssignmentStatementAction node,
+	    TypeCheckInfo question) throws AnalysisException {
+
+	// extract sub-stuff
+	LinkedList<ASingleGeneralAssignmentStatementAction> assigns = node
+		.getAssignments();
+
+	CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
+
+	if (cmlEnv == null) {
+	    node.setType(issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+			    + node)));
+	    return node.getType();
+	}
+
+	// type-check the "let" definitions
+	CmlTypeCheckInfo newCmlEnv = cmlEnv.newScope();
+
+	for (ASingleGeneralAssignmentStatementAction assign : assigns) {
+	    PType pt = assign.apply(parentChecker, newCmlEnv);
+	    if (!TCDeclAndDefVisitor.successfulType(pt)) {
+		node.setType(issueHandler.addTypeError(assign,
+			TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+				.customizeMessage("" + assign)));
+		return node.getType();
+	    }
+	}
+
+	// All done!
+	node.setType(new AActionType());
+	return node.getType();
+    }
+
+    @Override
+    public PType caseALetStatementAction(ALetStatementAction node,
+	    TypeCheckInfo question) throws AnalysisException {
+	// Extract sub-stuff
+	PAction action = node.getAction();
+	LinkedList<PDefinition> localDefs = node.getLocalDefinitions();
+	CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
+
+	if (cmlEnv == null) {
+	    node.setType(issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+			    + node)));
+	    return node.getType();
+	}
+
+	// type-check the "let" definitions
+	CmlTypeCheckInfo newCmlEnv = cmlEnv.newScope();
+
+	for (PDefinition pd : localDefs) {
+	    PType pt = pd.apply(parentChecker, newCmlEnv);
+	    if (!TCDeclAndDefVisitor.successfulType(pt)) {
+		node.setType(issueHandler.addTypeError(pd,
+			TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+				.customizeMessage("" + pd)));
+		return node.getType();
+	    }
+	    newCmlEnv.addVariable(pd.getName(), pd);
+	}
+
+	// type check sub-action
+	PType actionType = action.apply(parentChecker, newCmlEnv);
+	if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+	    node.setType(issueHandler.addTypeError(action,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + action)));
+	    return node.getType();
+	}
+
+	// All done!
+	node.setType(new AActionType());
+	return node.getType();
+    }
+
+    @Override
+    public PType caseAInterruptAction(AInterruptAction node,
+	    TypeCheckInfo question) throws AnalysisException {
+	// extract sub-stuff
+	PAction leftAction = node.getLeft();
+	PAction rightAction = node.getRight();
+
+	// type-check sub-actions
+	PType leftActionType = leftAction.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(leftActionType)) {
+	    node.setType(issueHandler.addTypeError(leftAction,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + leftAction)));
+	    return node.getType();
+	}
+
+	PType rightActionType = rightAction.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
+	    node.setType(issueHandler.addTypeError(rightAction,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + rightAction)));
+	    return node.getType();
+	}
+
+	// All done!
+	node.setType(new AActionType());
+	return node.getType();
+    }
+
+    @Override
+    public PType caseAInterleavingParallelAction(
+	    AInterleavingParallelAction node, TypeCheckInfo question)
+	    throws AnalysisException {
+	// extract sub-stuff
+	PAction leftAction = node.getLeftAction();
+	PExp leftNamesetExp = node.getLeftNameSetExpression();
+	PAction rightAction = node.getRightAction();
+	PExp rightnamesetExp = node.getRightNameSetExpression();
+
+	// type-check sub-actions
+	PType leftActionType = leftAction.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(leftActionType)) {
+	    node.setType(issueHandler.addTypeError(leftAction,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + leftAction)));
+	    return node.getType();
+	}
+
+	PType rightActionType = rightAction.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
+	    node.setType(issueHandler.addTypeError(rightAction,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + rightAction)));
+	    return node.getType();
+	}
+
+	// type-check the namesets
+	PType leftNameSetType = leftNamesetExp.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
+	    return issueHandler.addTypeError(leftNamesetExp,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(leftNamesetExp + ""));
+
+	PType rightNameSetType = rightnamesetExp.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
+	    return issueHandler.addTypeError(rightnamesetExp,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(rightnamesetExp + ""));
+
+	// All done!
+	node.setType(new AActionType());
+	return node.getType();
+    }
+
+    @Override
+    public PType caseADeclarationInstantiatedAction(
+	    ADeclarationInstantiatedAction node, TypeCheckInfo question)
+	    throws AnalysisException {
+
+	// Extract sub-stuff
+	PAction action = node.getAction();
+	LinkedList<ATypeSingleDeclaration> declarations = node.getDeclaration();
+
+	// type check sub-action
+	PType actionType = action.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+	    node.setType(issueHandler.addTypeError(action,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + action)));
+	    return node.getType();
+	}
+
+	for (ATypeSingleDeclaration declr : declarations) {
+	    PType declType = declr.apply(parentChecker, question);
+	    if (!TCDeclAndDefVisitor.successfulType(declType))
+		return issueHandler.addTypeError(declr,
+			TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+				.customizeMessage(declr + ""));
+	    issueHandler.addTypeWarning(declr,
+		    "This declaration should expand the environment: " + declr);
+	}
+
+	// All done!
+	node.setType(new AActionType());
+	return node.getType();
+    }
+
+    @Override
+    public PType caseAGeneralisedParallelismParallelAction(
+	    AGeneralisedParallelismParallelAction node, TypeCheckInfo question)
+	    throws AnalysisException {
+
+	// Extract sub-stuff
+	PExp chansetExp = node.getChanSetExpression();
+	PAction leftAction = node.getLeftAction();
+	PExp leftNamesetExp = node.getLeftNameSetExpression();
+	PAction rightAction = node.getRightAction();
+	PExp rightnamesetExp = node.getRightNameSetExpression();
+
+	// type-check sub-actions
+	PType leftActionType = leftAction.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(leftActionType)) {
+	    node.setType(issueHandler.addTypeError(leftAction,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + leftAction)));
+	    return node.getType();
+	}
+
+	PType rightActionType = rightAction.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
+	    node.setType(issueHandler.addTypeError(rightAction,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + rightAction)));
+	    return node.getType();
+	}
+
+	// type-check the chanset
+	PType chanSetType = chansetExp.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(chanSetType))
+	    return issueHandler.addTypeError(chansetExp,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(chansetExp + ""));
+
+	// type-check the namesets
+	PType leftNameSetType = leftNamesetExp.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
+	    return issueHandler.addTypeError(leftNamesetExp,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(leftNamesetExp + ""));
+
+	PType rightNameSetType = rightnamesetExp.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
+	    return issueHandler.addTypeError(rightnamesetExp,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(rightnamesetExp + ""));
+
+	// All done!
+	node.setType(new AActionType());
+	return node.getType();
+    }
+
+    @Override
 	public PType caseAForSetStatementAction(AForSetStatementAction node,
 			TypeCheckInfo question) throws AnalysisException {
 		// TODO RWL Working on it !
@@ -198,10 +480,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		node.setType(new AActionType());
 		return node.getType();
 	}
-
-
-
-
+    
 
 
 	@Override
@@ -268,697 +547,634 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		node.setType(new AActionType());
 		return node.getType();
 	}
+    
+    @Override
+    public PType caseAForIndexStatementAction(AForIndexStatementAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
 
+	CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
+	if (cmlEnv == null) {
+	    node.setType(issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+			    + node)));
+	    return node.getType();
+	}
 
+	PAction action = node.getAction();
+	PExp byExp = node.getBy();
+	PExp toExp = node.getTo();
+	LexNameToken var = node.getVar();
 
-	@Override
-	public PType caseAForIndexStatementAction(AForIndexStatementAction node,
-			org.overture.typechecker.TypeCheckInfo question) throws AnalysisException {
-
-		CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
-		if (cmlEnv == null)
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
-			return node.getType();
-		}
-
-		PAction action = node.getAction();
-		PExp byExp = node.getBy();
-		PExp toExp = node.getTo();
-		LexNameToken var = node.getVar();
-
-
-
-		// Get the type of the by expression
-		PType byExpType = null;
-		if (byExp != null)
-		{
-			byExpType = byExp.apply(parentChecker,question);
-			if (!TCDeclAndDefVisitor.successfulType(byExpType)){
-				node.setType(issueHandler.addTypeError(byExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(byExp+"")));
-				return node.getType();
-			}
-		}
-
-		// Get the type of the to expression
-		PType toExpType = toExp.apply(parentChecker,question);
-		if (!TCDeclAndDefVisitor.successfulType(toExpType)){
-			node.setType(issueHandler.addTypeError(toExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(toExp+"")));
-			return node.getType();
-		}
-
-
-		// Add the local variable 
-		ALocalDefinition localVar = AstFactory.newALocalDefinition(var.getLocation(), var, NameScope.LOCAL, toExpType);
-		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) cmlEnv.newScope(question, question.env.getEnclosingDefinition());
-		newQuestion.addVariable(localVar.getName(), localVar);
-
-		// Type chec the action in this new environment
-		PType actionType = action.apply(parentChecker,newQuestion);
-		if (!TCDeclAndDefVisitor.successfulType(actionType)){
-			node.setType(issueHandler.addTypeError(byExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(action+"")));
-			return node.getType();
-		}
-
-		node.setType(new AActionType());
+	// Get the type of the by expression
+	PType byExpType = null;
+	if (byExp != null) {
+	    byExpType = byExp.apply(parentChecker, question);
+	    if (!TCDeclAndDefVisitor.successfulType(byExpType)) {
+		node.setType(issueHandler.addTypeError(byExp,
+			TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+				.customizeMessage(byExp + "")));
 		return node.getType();
+	    }
 	}
 
-
-	@Override
-	public PType caseADeclarationInstantiatedAction(
-			ADeclarationInstantiatedAction node, TypeCheckInfo question)
-					throws AnalysisException {
-
-		// Extract sub-stuff
-		PAction action = node.getAction();
-		LinkedList<ATypeSingleDeclaration> declarations = node.getDeclaration();
-
-		//type check sub-action
-		PType actionType = action.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(actionType)) {
-			node.setType(issueHandler.addTypeError(action,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage("" + action)));
-			return node.getType();
-		}
-
-
-		for (ATypeSingleDeclaration declr : declarations) {
-			PType declType = declr.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(declType))
-				return issueHandler.addTypeError(declr,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-						.customizeMessage(declr + ""));
-			issueHandler.addTypeWarning(declr,
-					"This declaration should expand the environment: " + declr);
-		}
-
-
-
-		// All done!
-		node.setType(new AActionType());
-		return node.getType();
+	// Get the type of the to expression
+	PType toExpType = toExp.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(toExpType)) {
+	    node.setType(issueHandler.addTypeError(toExp,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(toExp + "")));
+	    return node.getType();
 	}
 
-	@Override
-	public PType caseAGeneralisedParallelismParallelAction(
-			AGeneralisedParallelismParallelAction node, TypeCheckInfo question)
-					throws AnalysisException {
+	// Add the local variable
+	ALocalDefinition localVar = AstFactory.newALocalDefinition(
+		var.getLocation(), var, NameScope.LOCAL, toExpType);
+	CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) cmlEnv.newScope(
+		question, question.env.getEnclosingDefinition());
+	newQuestion.addVariable(localVar.getName(), localVar);
 
-		// Extract sub-stuff
-		PExp chansetExp = node.getChanSetExpression();
-		PAction leftAction = node.getLeftAction();
-		PExp leftNamesetExp = node.getLeftNameSetExpression();
-		PAction rightAction = node.getRightAction();
-		PExp rightnamesetExp = node.getRightNameSetExpression();
-
-		// type-check sub-actions
-		PType leftActionType = leftAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftActionType)) {
-			node.setType(issueHandler.addTypeError(leftAction,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage("" + leftAction)));
-			return node.getType();
-		}
-
-		PType rightActionType = rightAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
-			node.setType(issueHandler.addTypeError(rightAction,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage("" + rightAction)));
-			return node.getType();
-		}
-
-		// type-check the chanset
-		PType chanSetType = chansetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(chanSetType))
-			return issueHandler.addTypeError(chansetExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(chansetExp + ""));
-
-		// type-check the namesets
-		PType leftNameSetType = leftNamesetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
-			return issueHandler.addTypeError(leftNamesetExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(leftNamesetExp + ""));
-
-		PType rightNameSetType = rightnamesetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
-			return issueHandler.addTypeError(rightnamesetExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(rightnamesetExp + ""));
-
-
-
-		// All done!
-		node.setType(new AActionType());
-		return node.getType();
+	// Type chec the action in this new environment
+	PType actionType = action.apply(parentChecker, newQuestion);
+	if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+	    node.setType(issueHandler.addTypeError(byExp,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(action + "")));
+	    return node.getType();
 	}
 
-	@Override
-	public PType caseAChannelRenamingAction(AChannelRenamingAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
+	node.setType(new AActionType());
+	return node.getType();
+    }
 
-		// TODO RWL
-		PAction action = node.getAction();
+    @Override
+    public PType caseAChannelRenamingAction(AChannelRenamingAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
 
-		SRenameChannelExp renameExp = node.getRenameExpression();
+	PAction action = node.getAction();
 
-		return new AActionType(node.getLocation(), true);
+	SRenameChannelExp renameExp = node.getRenameExpression();
+
+	return new AActionType(node.getLocation(), true);
+    }
+
+    @Override
+    public PType caseAWaitAction(AWaitAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+
+	PExp timedExp = node.getExpression();
+	PType timedExpType = timedExp.apply(parentChecker, question);
+
+	if (!TCDeclAndDefVisitor.successfulType(timedExpType)) {
+	    node.setType(issueHandler.addTypeError(timedExp,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + timedExp)));
+	    return node.getType();
 	}
 
-	@Override
-	public PType caseAWaitAction(AWaitAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-
-		PExp timedExp = node.getExpression();
-		PType timedExpType = timedExp.apply(parentChecker, question);
-
-		if (!TCDeclAndDefVisitor.successfulType(timedExpType)) {
-			node.setType(issueHandler.addTypeError(timedExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage("" + timedExp)));
-			return node.getType();
-		}
-
-		if (!typeComparator.isSubType(timedExpType, new AIntNumericBasicType())) {
-			node.setType(issueHandler.addTypeError(timedExpType,
-					TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT
-					.customizeMessage(timedExp + "")));
-			return node.getType();
-		}
-
-		node.setType(new AActionType(node.getLocation(), true));
-		return node.getType();
+	if (!typeComparator.isSubType(timedExpType, new AIntNumericBasicType())) {
+	    node.setType(issueHandler.addTypeError(timedExpType,
+		    TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT
+			    .customizeMessage(timedExp + "")));
+	    return node.getType();
 	}
 
-	@Override
-	public PType caseACaseAlternativeAction(ACaseAlternativeAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
+	node.setType(new AActionType(node.getLocation(), true));
+	return node.getType();
+    }
 
-		LinkedList<PDefinition> defs = node.getDefs();
-		LinkedList<PPattern> ptrn = node.getPattern();
-		PAction res = node.getResult();
+    @Override
+    public PType caseACaseAlternativeAction(ACaseAlternativeAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
 
-		if (node.getDefs().size() == 0) {
-			PPattern pattern = ptrn.get(0);
-			node.setDefs(new LinkedList<PDefinition>());
-			PPatternAssistantTC
-			.typeResolve(
-					pattern,
-					(QuestionAnswerAdaptor<org.overture.typechecker.TypeCheckInfo, PType>) parentChecker,
-					question);
+	LinkedList<PDefinition> defs = node.getDefs();
+	LinkedList<PPattern> ptrn = node.getPattern();
+	PAction res = node.getResult();
 
-			if (ptrn.get(0) instanceof AExpressionPattern) {
-				// Only expression patterns need type checking...
-				AExpressionPattern ep = (AExpressionPattern) pattern;
-				ep.getExp().apply(parentChecker, question);
-			}
+	if (node.getDefs().size() == 0) {
+	    PPattern pattern = ptrn.get(0);
+	    node.setDefs(new LinkedList<PDefinition>());
+	    PPatternAssistantTC
+		    .typeResolve(
+			    pattern,
+			    (QuestionAnswerAdaptor<org.overture.typechecker.TypeCheckInfo, PType>) parentChecker,
+			    question);
 
-			PPatternAssistantTC
-			.typeResolve(
-					pattern,
-					(QuestionAnswerAdaptor<org.overture.typechecker.TypeCheckInfo, PType>) parentChecker,
-					question);
+	    if (ptrn.get(0) instanceof AExpressionPattern) {
+		// Only expression patterns need type checking...
+		AExpressionPattern ep = (AExpressionPattern) pattern;
+		ep.getExp().apply(parentChecker, question);
+	    }
 
-			ACasesStatementAction stm = (ACasesStatementAction) node.parent();
-			node.getDefs().addAll(
-					PPatternAssistantTC.getDefinitions(pattern, stm.getExp()
-							.getType(), NameScope.LOCAL));
-		}
+	    PPatternAssistantTC
+		    .typeResolve(
+			    pattern,
+			    (QuestionAnswerAdaptor<org.overture.typechecker.TypeCheckInfo, PType>) parentChecker,
+			    question);
 
-		PDefinitionListAssistantTC
+	    ACasesStatementAction stm = (ACasesStatementAction) node.parent();
+	    node.getDefs().addAll(
+		    PPatternAssistantTC.getDefinitions(pattern, stm.getExp()
+			    .getType(), NameScope.LOCAL));
+	}
+
+	PDefinitionListAssistantTC
 		.typeCheck(
-				node.getDefs(),
-				(QuestionAnswerAdaptor<org.overture.typechecker.TypeCheckInfo, PType>) parentChecker,
-				question);
+			node.getDefs(),
+			(QuestionAnswerAdaptor<org.overture.typechecker.TypeCheckInfo, PType>) parentChecker,
+			question);
 
-		question.contextSet(CmlTypeCheckInfo.class, getTypeCheckInfo(question));
-		Environment local = new FlatCheckedEnvironment(node.getDefs(),
-				question.env, question.scope);
-		PType r = node.getResult().apply(
-				parentChecker,
-				new org.overture.typechecker.TypeCheckInfo(local,
-						question.scope));
-		question.contextRem(CmlTypeCheckInfo.class);
-		local.unusedCheck();
+	question.contextSet(CmlTypeCheckInfo.class, getTypeCheckInfo(question));
+	Environment local = new FlatCheckedEnvironment(node.getDefs(),
+		question.env, question.scope);
+	PType r = node.getResult().apply(
+		parentChecker,
+		new org.overture.typechecker.TypeCheckInfo(local,
+			question.scope));
+	question.contextRem(CmlTypeCheckInfo.class);
+	local.unusedCheck();
 
-		return r;
-	}
+	return r;
+    }
 
-	@Override
-	public PType caseACasesStatementAction(ACasesStatementAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
+    @Override
+    public PType caseACasesStatementAction(ACasesStatementAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
 
-		LinkedList<ACaseAlternativeAction> cases = node.getCases();
-		for (ACaseAlternativeAction altAction : cases) {
-			PType caseType = altAction.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(caseType)) {
-				node.setType(issueHandler.addTypeError(node,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-						.customizeMessage(altAction + "")));
-				return node.getType();
-			}
-		}
-		PExp exp = node.getExp();
-
-		PType expType = exp.apply(parentChecker, question);
-		if (TCDeclAndDefVisitor.successfulType(expType)) {
-			node.setType(issueHandler.addTypeError(node,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(exp + "")));
-			return node.getType();
-
-		}
-
-		node.setType(new AStatementType(node.getLocation(), true));
+	LinkedList<ACaseAlternativeAction> cases = node.getCases();
+	for (ACaseAlternativeAction altAction : cases) {
+	    PType caseType = altAction.apply(parentChecker, question);
+	    if (!TCDeclAndDefVisitor.successfulType(caseType)) {
+		node.setType(issueHandler.addTypeError(node,
+			TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+				.customizeMessage(altAction + "")));
 		return node.getType();
+	    }
+	}
+	PExp exp = node.getExp();
+
+	PType expType = exp.apply(parentChecker, question);
+	if (TCDeclAndDefVisitor.successfulType(expType)) {
+	    node.setType(issueHandler.addTypeError(node,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(exp + "")));
+	    return node.getType();
+
 	}
 
-	/*
-	 * Get the type check info object (context) for a CML context given a
-	 * Overture one.
-	 */
-	private static CmlTypeCheckInfo getTypeCheckInfo(
-			org.overture.typechecker.TypeCheckInfo question) {
-		if (question instanceof CmlTypeCheckInfo)
-			return (CmlTypeCheckInfo) question;
+	node.setType(new AStatementType(node.getLocation(), true));
+	return node.getType();
+    }
 
-		return question.contextGet(CmlTypeCheckInfo.class);
+    /*
+     * Get the type check info object (context) for a CML context given a
+     * Overture one.
+     */
+    private static CmlTypeCheckInfo getTypeCheckInfo(
+	    org.overture.typechecker.TypeCheckInfo question) {
+	if (question instanceof CmlTypeCheckInfo)
+	    return (CmlTypeCheckInfo) question;
+
+	return question.contextGet(CmlTypeCheckInfo.class);
+    }
+
+    @Override
+    public PType caseAMuAction(AMuAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+
+	// extract elements from the node
+	LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
+	LinkedList<PAction> acts = node.getActions();
+
+	// get the enclosing definition if any
+	PDefinition enclosingDef = question.env.getEnclosingDefinition();
+
+	// get the CML context we are in
+	CmlTypeCheckInfo info = getTypeCheckInfo(question);
+
+	//
+	CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) info.newScope(info,
+		enclosingDef);
+
+	// add IDs to the environment
+	for (LexIdentifierToken id : ids) {
+	    newQuestion.addType(id, new ATypeDefinition(node.getLocation(),
+		    NameScope.LOCAL, false, null,
+		    new AAccessSpecifierAccessSpecifier(new APrivateAccess(),
+			    null, null), new AActionType(node.getLocation(),
+			    true), Pass.DEFS, null, null, null, null, false,
+		    new LexNameToken("", id)));
 	}
 
-	@Override
-	public PType caseAMuAction(AMuAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
+	// check the actions
+	for (PAction act : acts) {
+	    PType actType = act.apply(parentChecker, newQuestion);
+	    if (!TCDeclAndDefVisitor.successfulType(actType)) {
+		// node.setType(issueHandler.addTypeError(act,
+		// TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(act+"")));
+		issueHandler.addTypeWarning(node,
+			"Not all identifiers are checked.");
+	    }
 
-		// extract elements from the node
-		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
-		LinkedList<PAction> acts = node.getActions();
-
-		// get the enclosing definition if any
-		PDefinition enclosingDef = question.env.getEnclosingDefinition();
-
-		// get the CML context we are in
-		CmlTypeCheckInfo info = getTypeCheckInfo(question);
-
-		//
-		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) info.newScope(info,
-				enclosingDef);
-
-		// add IDs to the environment
-		for (LexIdentifierToken id : ids) {
-			newQuestion.addType(id, new ATypeDefinition(node.getLocation(),
-					NameScope.LOCAL, false, null,
-					new AAccessSpecifierAccessSpecifier(new APrivateAccess(),
-							null, null), new AActionType(node.getLocation(),
-									true), Pass.DEFS, null, null, null, null, false,
-									new LexNameToken("", id)));
-		}
-
-		// check the actions
-		for (PAction act : acts) {
-			PType actType = act.apply(parentChecker, newQuestion);
-			if (!TCDeclAndDefVisitor.successfulType(actType)) {
-				// node.setType(issueHandler.addTypeError(act,
-				// TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(act+"")));
-				issueHandler.addTypeWarning(node,
-						"Not all identifiers are checked.");
-			}
-
-		}
-
-		node.setType(new AActionType());
-		return node.getType();
 	}
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public PType caseAChaosAction(AChaosAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-		node.setType(new AActionType(node.getLocation(), true));
-		return node.getType();
+	node.setType(new AActionType());
+	return node.getType();
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public PType caseAChaosAction(AChaosAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+	node.setType(new AActionType(node.getLocation(), true));
+	return node.getType();
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public PType caseATimedInterruptAction(ATimedInterruptAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+
+	PAction left = node.getLeft();
+	PAction right = node.getRight();
+	PExp timeExp = node.getTimeExpression();
+
+	PType leftType = left.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(leftType))
+	    return issueHandler.addTypeError(left,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(left + ""));
+
+	PType rightType = right.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(rightType))
+	    return issueHandler.addTypeError(right,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(right + ""));
+
+	PType timeExpType = timeExp.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(timeExpType))
+	    return issueHandler.addTypeError(timeExp,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(timeExp + ""));
+	if (!typeComparator.isSubType(timeExpType, new ANatNumericBasicType()))
+	    return issueHandler.addTypeError(timeExp,
+		    TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT
+			    .customizeMessage(node + "", timeExpType + ""));
+
+	return new AActionType(node.getLocation(), true);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public PType caseASequentialCompositionReplicatedAction(
+	    ASequentialCompositionReplicatedAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+
+	PAction replicatedAction = node.getReplicatedAction();
+	LinkedList<SSingleDeclaration> decls = node.getReplicationDeclaration();
+
+	for (SSingleDeclaration decl : decls) {
+	    PType declType = decl.apply(parentChecker, question);
+	    if (!TCDeclAndDefVisitor.successfulType(declType))
+		return issueHandler.addTypeError(decl,
+			TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+				.customizeMessage(decl + ""));
+
+	    issueHandler.addTypeWarning(decl,
+		    "This declaration should expand the environment: " + decl);
 	}
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public PType caseATimedInterruptAction(ATimedInterruptAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
+	PType replicatedActionType = replicatedAction.apply(parentChecker,
+		question);
+	if (!TCDeclAndDefVisitor.successfulType(replicatedActionType))
+	    return issueHandler.addTypeError(replicatedAction,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(replicatedAction + ""));
 
-		PAction left = node.getLeft();
-		PAction right = node.getRight();
-		PExp timeExp = node.getTimeExpression();
+	return new AActionType(node.getLocation(), true);
+    }
 
-		PType leftType = left.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftType))
-			return issueHandler.addTypeError(left,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(left + ""));
+    @Override
+    public PType caseAAssignmentCallStatementAction(
+	    AAssignmentCallStatementAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+	return super.caseAAssignmentCallStatementAction(node, question);
+    }
 
-		PType rightType = right.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightType))
-			return issueHandler.addTypeError(right,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(right + ""));
+    @SuppressWarnings("deprecation")
+    @Override
+    public PType caseAWhileStatementAction(AWhileStatementAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
 
-		PType timeExpType = timeExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(timeExpType))
-			return issueHandler.addTypeError(timeExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(timeExp + ""));
-		if (!typeComparator.isSubType(timeExpType, new ANatNumericBasicType()))
-			return issueHandler.addTypeError(timeExp,
-					TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT
-					.customizeMessage(node + "", timeExpType + ""));
+	PExp condExp = node.getCondition();
+	PAction actionBody = node.getAction();
 
-		return new AActionType(node.getLocation(), true);
+	PType condExpType = condExp.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(condExpType))
+	    return issueHandler.addTypeError(condExp,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(condExp + ""));
+
+	PType actionBodyType = actionBody.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(actionBodyType))
+	    return issueHandler.addTypeError(actionBodyType,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(actionBody + ""));
+
+	return new AActionType(node.getLocation(), true);
+    }
+
+    private final CmlTypeChecker parentChecker;
+    private final TypeIssueHandler issueHandler;
+    private final TypeComparator typeComparator;
+
+    public TCActionVisitor(CmlTypeChecker parentChecker,
+	    TypeIssueHandler issueHandler, TypeComparator typeComparator) {
+	this.parentChecker = parentChecker;
+	this.issueHandler = issueHandler;
+	this.typeComparator = typeComparator;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public PType caseAAlphabetisedParallelismParallelAction(
+	    AAlphabetisedParallelismParallelAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+
+	PAction leftAction = node.getLeftAction();
+	PExp leftChanSet = node.getLeftChanSetExpression();
+	PExp leftNameSet = node.getLeftNameSetExpression();
+
+	PAction rightAction = node.getRightAction();
+	PExp rightChanSet = node.getRightChanSetExpression();
+	PExp rightNameSet = node.getRightNameSetExpression();
+
+	PType leftActionType = leftAction.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(leftActionType))
+	    return issueHandler.addTypeError(leftAction,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(leftAction + ""));
+
+	PType leftChanSetType = leftChanSet.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(leftChanSetType))
+	    return issueHandler.addTypeError(leftChanSet,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(leftChanSet + ""));
+
+	PType leftNameSetType = leftNameSet.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
+	    return issueHandler.addTypeError(leftNameSet,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(leftNameSet + ""));
+
+	PType rightActionType = rightAction.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(rightActionType))
+	    return issueHandler.addTypeError(rightAction,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(rightAction + ""));
+
+	PType rightChanSetType = rightChanSet.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(rightChanSetType))
+	    return issueHandler.addTypeError(rightChanSet,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(rightChanSet + ""));
+
+	PType rightNameSetType = rightNameSet.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
+	    return issueHandler.addTypeError(rightNameSet,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(rightNameSet + ""));
+
+	return new AProcessType(node.getLocation(), true);
+    }
+
+    @Override
+    public PType caseAReturnStatementAction(AReturnStatementAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+	AExplicitOperationDefinition operation = node
+		.getAncestor(AExplicitOperationDefinition.class);
+	if (operation == null)
+	    throw new AnalysisException(
+		    "Return Statement Action does not have explicit operation as parent.");
+
+	PExp exp = node.getExp();
+	PType type = exp.apply(parentChecker, question);
+	if (type == null)
+	    throw new AnalysisException("Unable to type check expression \""
+		    + exp + "\" in return statement action of "
+		    + operation.getName());
+
+	node.setType(new AStatementType());
+	return node.getType();
+    }
+
+    @Override
+    public PType caseABlockStatementAction(ABlockStatementAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+	// extend the environment
+
+	//
+	PAction action = node.getAction();
+	PType actionType = action.apply(parentChecker, question);
+	if (actionType == null)
+	    issueHandler.addTypeError(action,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(action.toString()));
+	node.setType(new AStatementType());
+
+	return node.getType();
+    }
+
+    @Override
+    public PType caseASingleGeneralAssignmentStatementAction(
+	    ASingleGeneralAssignmentStatementAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+
+	// FIXME Some scope stuff is not correct when typechecking let exp
+	// PType expType = node.getExpression().apply(parentChecker, question);
+	// if (expType == null)
+	// throw new AnalysisException(
+	// "Unable to type check expression in assignment action.");
+
+	// PType stateDesignatorType = node.getStateDesignator().apply(
+	// parentChecker, question);
+	// TODO This is not implemented yet
+	// if (stateDesignatorType == null)
+	// throw new AnalysisException(
+	// "Unable to type check state designator in assignment action.");
+
+	node.setType(new AStatementType());
+
+	return node.getType();
+    }
+
+    @Override
+    public PType caseAInternalChoiceAction(AInternalChoiceAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+
+	PAction left = node.getLeft();
+	PAction right = node.getRight();
+
+	PType leftType = left.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(leftType))
+	    return new AErrorType();
+
+	PType rightType = right.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(rightType))
+	    return new AErrorType();
+
+	node.setType(new AActionType());
+	return node.getType();
+    }
+
+    @Override
+    public PType caseAReferenceAction(AReferenceAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+
+	CmlTypeCheckInfo newQ = getTypeCheckInfo(question);
+
+	PDefinition actionDef = newQ.lookupVariable(node.getName());
+
+	PType type = newQ.lookupType(node.getName());
+	if (type != null)
+	    return type;
+
+	if (actionDef == null) {
+	    issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node
+			    .getName() + ""));
+	    node.setType(new AErrorType());
+	    return node.getType();
 	}
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public PType caseASequentialCompositionReplicatedAction(
-			ASequentialCompositionReplicatedAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
+	if (!(actionDef instanceof AActionDefinition)) {
+	    issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.EXPECTED_AN_ACTION.customizeMessage(node
+			    .getName() + ""));
+	    node.setType(new AErrorType());
+	    return node.getType();
 
-		PAction replicatedAction = node.getReplicatedAction();
-		LinkedList<SSingleDeclaration> decls = node.getReplicationDeclaration();
-
-		for (SSingleDeclaration decl : decls) {
-			PType declType = decl.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(declType))
-				return issueHandler.addTypeError(decl,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-						.customizeMessage(decl + ""));
-
-			issueHandler.addTypeWarning(decl,
-					"This declaration should expand the environment: " + decl);
-		}
-
-		PType replicatedActionType = replicatedAction.apply(parentChecker,
-				question);
-		if (!TCDeclAndDefVisitor.successfulType(replicatedActionType))
-			return issueHandler.addTypeError(replicatedAction,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(replicatedAction + ""));
-
-		return new AActionType(node.getLocation(), true);
 	}
 
-	@Override
-	public PType caseAAssignmentCallStatementAction(
-			AAssignmentCallStatementAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-		return super.caseAAssignmentCallStatementAction(node, question);
+	node.setActionDefinition(((AActionDefinition) actionDef));
+	node.setType(new AStatementType());
+	return node.getType();
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public PType caseACommunicationAction(ACommunicationAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+
+	if (question instanceof CmlTypeCheckInfo) {
+	    CmlTypeCheckInfo cmlQuestion = (CmlTypeCheckInfo) question;
+
+	    // There should be a channel defined with this name
+	    if (null == cmlQuestion.lookupChannel(node.getIdentifier())) {
+		issueHandler.addTypeError(node,
+			TypeErrorMessages.NAMED_TYPE_UNDEFINED
+				.customizeMessage(node.getIdentifier().name));
+		return new AErrorType(node.getLocation(), true);
+	    }
+	    node.getAction().apply(this, question);
+
+	    node.setType(new AStatementType());
+	}
+	return node.getType();
+    }
+
+    @Override
+    public PType caseASequentialCompositionAction(
+	    ASequentialCompositionAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+
+	node.getLeft().apply(parentChecker, question);
+	node.getRight().apply(parentChecker, question);
+
+	node.setType(new AStatementType());
+	return node.getType();
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public PType caseASkipAction(ASkipAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+	node.setType(new AActionType(node.getLocation(), true));
+	return node.getType();
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public PType caseAExternalChoiceAction(AExternalChoiceAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+
+	PAction left = node.getLeft();
+	PAction right = node.getRight();
+
+	PType leftType = left.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(leftType))
+	    return new AErrorType();
+
+	PType rightType = right.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(rightType))
+	    return new AErrorType();
+
+	node.setType(new AActionType(node.getLocation(), true));
+	return node.getType();
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public PType caseAHidingAction(AHidingAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+
+	PAction action = node.getLeft();
+	PExp chanSet = node.getChansetExpression();
+
+	PType actionType = action.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(actionType))
+	    return new AErrorType();
+
+	PType chanSetType = chanSet.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(chanSetType))
+	    return new AErrorType();
+
+	if (!(chanSetType instanceof AChannelType)) {
+	    issueHandler.addTypeError(chanSet,
+		    TypeErrorMessages.EXPECTED_A_CHANNELSET
+			    .customizeMessage(chanSet.toString()));
+	    return new AErrorType();
 	}
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public PType caseAWhileStatementAction(AWhileStatementAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-
-		PExp condExp = node.getCondition();
-		PAction actionBody = node.getAction();
-
-		PType condExpType = condExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(condExpType))
-			return issueHandler.addTypeError(condExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(condExp + ""));
-
-		PType actionBodyType = actionBody.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(actionBodyType))
-			return issueHandler.addTypeError(actionBodyType,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(actionBody + ""));
-
-		return new AActionType(node.getLocation(), true);
-	}
-
-	private final CmlTypeChecker parentChecker;
-	private final TypeIssueHandler issueHandler;
-	private final TypeComparator typeComparator;
-
-	public TCActionVisitor(CmlTypeChecker parentChecker,
-			TypeIssueHandler issueHandler, TypeComparator typeComparator) {
-		this.parentChecker = parentChecker;
-		this.issueHandler = issueHandler;
-		this.typeComparator = typeComparator;
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public PType caseAAlphabetisedParallelismParallelAction(
-			AAlphabetisedParallelismParallelAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-
-		PAction leftAction = node.getLeftAction();
-		PExp leftChanSet = node.getLeftChanSetExpression();
-		PExp leftNameSet = node.getLeftNameSetExpression();
-
-		PAction rightAction = node.getRightAction();
-		PExp rightChanSet = node.getRightChanSetExpression();
-		PExp rightNameSet = node.getRightNameSetExpression();
-
-		PType leftActionType = leftAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftActionType))
-			return issueHandler.addTypeError(leftAction,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(leftAction + ""));
-
-		PType leftChanSetType = leftChanSet.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftChanSetType))
-			return issueHandler.addTypeError(leftChanSet,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(leftChanSet + ""));
-
-		PType leftNameSetType = leftNameSet.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
-			return issueHandler.addTypeError(leftNameSet,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(leftNameSet + ""));
-
-		PType rightActionType = rightAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightActionType))
-			return issueHandler.addTypeError(rightAction,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(rightAction + ""));
-
-		PType rightChanSetType = rightChanSet.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightChanSetType))
-			return issueHandler.addTypeError(rightChanSet,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(rightChanSet + ""));
-
-		PType rightNameSetType = rightNameSet.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
-			return issueHandler.addTypeError(rightNameSet,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(rightNameSet + ""));
-
-		return new AProcessType(node.getLocation(), true);
-	}
-
-	@Override
-	public PType caseAReturnStatementAction(AReturnStatementAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-		AExplicitOperationDefinition operation = node
-				.getAncestor(AExplicitOperationDefinition.class);
-		if (operation == null)
-			throw new AnalysisException(
-					"Return Statement Action does not have explicit operation as parent.");
-
-		PExp exp = node.getExp();
-		PType type = exp.apply(parentChecker, question);
-		if (type == null)
-			throw new AnalysisException("Unable to type check expression \""
-					+ exp + "\" in return statement action of "
-					+ operation.getName());
-
-		node.setType(new AStatementType());
-		return node.getType();
-	}
-
-	@Override
-	public PType caseABlockStatementAction(ABlockStatementAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-		// extend the environment
-
-		//
-		PAction action = node.getAction();
-		PType actionType = action.apply(parentChecker, question);
-		if (actionType == null)
-			issueHandler.addTypeError(action,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(action.toString()));
-		node.setType(new AStatementType());
-
-		return node.getType();
-	}
-
-	@Override
-	public PType caseASingleGeneralAssignmentStatementAction(
-			ASingleGeneralAssignmentStatementAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-
-		// FIXME Some scope stuff is not correct when typechecking let exp
-		// PType expType = node.getExpression().apply(parentChecker, question);
-		// if (expType == null)
-		// throw new AnalysisException(
-		// "Unable to type check expression in assignment action.");
-
-		// PType stateDesignatorType = node.getStateDesignator().apply(
-		// parentChecker, question);
-		// TODO This is not implemented yet
-		// if (stateDesignatorType == null)
-		// throw new AnalysisException(
-		// "Unable to type check state designator in assignment action.");
-
-		node.setType(new AStatementType());
-
-		return node.getType();
-	}
-
-	@Override
-	public PType caseAInternalChoiceAction(AInternalChoiceAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-
-		PAction left = node.getLeft();
-		PAction right = node.getRight();
-
-		PType leftType = left.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftType))
-			return new AErrorType();
-
-		PType rightType = right.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightType))
-			return new AErrorType();
-
-		node.setType(new AActionType());
-		return node.getType();
-	}
-
-	@Override
-	public PType caseAReferenceAction(AReferenceAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-
-		CmlTypeCheckInfo newQ = getTypeCheckInfo(question);
-
-		PDefinition actionDef = newQ.lookupVariable(node.getName());
-
-		PType type = newQ.lookupType(node.getName());
-		if (type != null)
-			return type;
-
-		if (actionDef == null) {
-			issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node
-							.getName() + ""));
-			node.setType(new AErrorType());
-			return node.getType();
-		}
-
-		if (!(actionDef instanceof AActionDefinition)) {
-			issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.EXPECTED_AN_ACTION.customizeMessage(node
-							.getName() + ""));
-			node.setType(new AErrorType());
-			return node.getType();
-
-		}
-
-		node.setActionDefinition(((AActionDefinition) actionDef));
-		node.setType(new AStatementType());
-		return node.getType();
-	}
+	node.setType(new AActionType(node.getLocation(), true));
 
 
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public PType caseACommunicationAction(ACommunicationAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-
-		if (question instanceof CmlTypeCheckInfo) {
-			CmlTypeCheckInfo cmlQuestion = (CmlTypeCheckInfo) question;
-
-			// There should be a channel defined with this name
-			if (null == cmlQuestion.lookupChannel(node.getIdentifier())) {
-				issueHandler.addTypeError(node,
-						TypeErrorMessages.NAMED_TYPE_UNDEFINED
-						.customizeMessage(node.getIdentifier().name));
-				return new AErrorType(node.getLocation(), true);
-			}
-			node.getAction().apply(this, question);
-
-			node.setType(new AStatementType());
-		}
-		return node.getType();
-	}
-
-	@Override
-	public PType caseASequentialCompositionAction(
-			ASequentialCompositionAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-
-		node.getLeft().apply(parentChecker, question);
-		node.getRight().apply(parentChecker, question);
-
-		node.setType(new AStatementType());
-		return node.getType();
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public PType caseASkipAction(ASkipAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-		node.setType(new AActionType(node.getLocation(), true));
-		return node.getType();
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public PType caseAExternalChoiceAction(AExternalChoiceAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-
-		PAction left = node.getLeft();
-		PAction right = node.getRight();
-
-		PType leftType = left.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftType))
-			return new AErrorType();
-
-		PType rightType = right.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightType))
-			return new AErrorType();
-
-		node.setType(new AActionType(node.getLocation(), true));
-		return node.getType();
-	}
-
-
+	return node.getType();
+    }
 
 	@Override
 	public PType caseAVresParametrisation(AVresParametrisation node,
@@ -974,12 +1190,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		return new AActionType();
 	}
-
-
-
-
-
-
 
 	@Override
 	public PType caseAParametrisedInstantiatedAction(
@@ -1043,179 +1253,148 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 
 
+    @SuppressWarnings("deprecation")
+    @Override
+    public PType caseAStartDeadlineAction(AStartDeadlineAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
 
+	PAction event = node.getLeft();
+	PExp timeExp = node.getExpression();
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public PType caseAHidingAction(AHidingAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
+	PType eventType = event.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(eventType))
+	    return new AErrorType(node.getLocation(), true);
 
-		PAction action = node.getLeft();
-		PExp chanSet = node.getChansetExpression();
+	PType expType = timeExp.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(expType))
+	    return new AErrorType(node.getLocation(), true);
 
-		PType actionType = action.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(actionType))
-			return new AErrorType();
+	if (!(typeComparator.isSubType(expType, new ANatNumericBasicType()))) {
+	    TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT
+		    .customizeMessage(timeExp + "", expType + "");
+	    node.setType(new AErrorType(timeExp.getLocation(), true));
+	    return node.getType();
+	}
+	node.setType(new AActionType(node.getLocation(), true));
+	return node.getType();
+    }
 
-		PType chanSetType = chanSet.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(chanSetType))
-			return new AErrorType();
+    @SuppressWarnings("deprecation")
+    @Override
+    public PType caseAEndDeadlineAction(AEndDeadlineAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
 
-		if (!(chanSetType instanceof AChannelType)) {
-			issueHandler.addTypeError(chanSet,
-					TypeErrorMessages.EXPECTED_A_CHANNELSET
-					.customizeMessage(chanSet.toString()));
-			return new AErrorType();
-		}
+	PAction event = node.getLeft();
+	PExp timeExp = node.getExpression();
 
-		node.setType(new AActionType(node.getLocation(), true));
+	PType eventType = event.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(eventType))
+	    return new AErrorType(node.getLocation(), true);
 
-		return node.getType();
+	PType timeExpType = timeExp.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(timeExpType))
+	    return new AErrorType(node.getLocation(), true);
+
+	if (!(typeComparator.isSubType(timeExpType, new ANatNumericBasicType()))) {
+	    TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT
+		    .customizeMessage(timeExp + "", timeExpType + "");
+	    node.setType(new AErrorType(timeExp.getLocation(), true));
+	    return node.getType();
+
 	}
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public PType caseAStartDeadlineAction(AStartDeadlineAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
+	node.setType(new AActionType());
 
-		PAction event = node.getLeft();
-		PExp timeExp = node.getExpression();
+	return node.getType();
+    }
 
-		PType eventType = event.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(eventType))
-			return new AErrorType(node.getLocation(), true);
+    @Override
+    public PType caseAStopAction(AStopAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+	return new AActionType(node.getLocation(), true);
+    }
 
-		PType expType = timeExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(expType))
-			return new AErrorType(node.getLocation(), true);
+    @SuppressWarnings("deprecation")
+    @Override
+    public PType caseACallStatementAction(ACallStatementAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
 
-		if (!(typeComparator.isSubType(expType, new ANatNumericBasicType()))) {
-			TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT
-			.customizeMessage(timeExp + "", expType + "");
-			node.setType(new AErrorType(timeExp.getLocation(), true));
-			return node.getType();
-		}
-		node.setType(new AActionType(node.getLocation(), true));
-		return node.getType();
+	LexNameToken name = node.getName();
+	PDefinition callee = question.env.findName(name, NameScope.GLOBAL);
+
+	if (callee == null)
+	    return issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(name
+			    + ""));
+
+	LinkedList<PExp> args = node.getArgs();
+	List<PType> argTypes = new LinkedList<PType>();
+	for (PExp arg : args) {
+	    PType argType = arg.apply(parentChecker, question);
+	    if (!(TCDeclAndDefVisitor.successfulType(argType)))
+		return issueHandler.addTypeError(arg,
+			TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+				.customizeMessage(arg + ""));
+	    argTypes.add(argType);
 	}
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public PType caseAEndDeadlineAction(AEndDeadlineAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
+	// TODO check actual arg types agains the function or operation
+	// parameter types in callee.getType
+	issueHandler.addTypeWarning(node,
+		"Incomplete type checking arguments may be wrong.");
 
-		PAction event = node.getLeft();
-		PExp timeExp = node.getExpression();
+	// TODO Auto-generated method stub
+	return new AActionType(node.getLocation(), true);
+    }
 
-		PType eventType = event.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(eventType))
-			return new AErrorType(node.getLocation(), true);
+    @SuppressWarnings("deprecation")
+    @Override
+    public PType caseASynchronousParallelismParallelAction(
+	    ASynchronousParallelismParallelAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
 
-		PType timeExpType = timeExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(timeExpType))
-			return new AErrorType(node.getLocation(), true);
+	PAction leftAction = node.getLeftAction();
+	PExp leftNameSet = node.getLeftNameSetExpression();
 
-		if (!(typeComparator.isSubType(timeExpType, new ANatNumericBasicType()))) {
-			TypeErrorMessages.TIME_UNIT_EXPRESSION_MUST_BE_NAT
-			.customizeMessage(timeExp + "", timeExpType + "");
-			node.setType(new AErrorType(timeExp.getLocation(), true));
-			return node.getType();
+	PAction rightAction = node.getRightAction();
+	PExp rightNameSet = node.getRightNameSetExpression();
 
-		}
+	PType leftActionType = leftAction.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(leftActionType))
+	    return issueHandler.addTypeError(leftActionType,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(leftAction + ""));
 
-		node.setType(new AActionType());
-
-		return node.getType();
+	if (leftNameSet != null) {
+	    PType leftNameSetType = leftNameSet.apply(parentChecker, question);
+	    if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
+		return issueHandler.addTypeError(leftNameSet,
+			TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+				.customizeMessage(leftNameSet + ""));
 	}
 
-	@Override
-	public PType caseAStopAction(AStopAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-		return new AActionType(node.getLocation(), true);
+	PType rightActionType = rightAction.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(rightActionType))
+	    return issueHandler.addTypeError(leftActionType,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(rightAction + ""));
+
+	if (rightNameSet != null) {
+	    PType rightNameSetType = rightNameSet
+		    .apply(parentChecker, question);
+	    if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
+		return issueHandler.addTypeError(rightNameSet,
+			TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+				.customizeMessage(rightNameSet + ""));
 	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public PType caseACallStatementAction(ACallStatementAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-
-		LexNameToken name = node.getName();
-		PDefinition callee = question.env.findName(name, NameScope.GLOBAL);
-
-		if (callee == null)
-			return issueHandler.addTypeError(
-					node,
-					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(name
-							+ ""));
-
-		LinkedList<PExp> args = node.getArgs();
-		List<PType> argTypes = new LinkedList<PType>();
-		for (PExp arg : args) {
-			PType argType = arg.apply(parentChecker, question);
-			if (!(TCDeclAndDefVisitor.successfulType(argType)))
-				return issueHandler.addTypeError(arg,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-						.customizeMessage(arg + ""));
-			argTypes.add(argType);
-		}
-
-		// TODO check actual arg types agains the function or operation
-		// parameter types in callee.getType
-		issueHandler.addTypeWarning(node,
-				"Incomplete type checking arguments may be wrong.");
-
-		// TODO Auto-generated method stub
-		return new AActionType(node.getLocation(), true);
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public PType caseASynchronousParallelismParallelAction(
-			ASynchronousParallelismParallelAction node,
-			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
-
-		PAction leftAction = node.getLeftAction();
-		PExp leftNameSet = node.getLeftNameSetExpression();
-
-		PAction rightAction = node.getRightAction();
-		PExp rightNameSet = node.getRightNameSetExpression();
-
-		PType leftActionType = leftAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftActionType))
-			return issueHandler.addTypeError(leftActionType,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(leftAction + ""));
-
-		if (leftNameSet != null) {
-			PType leftNameSetType = leftNameSet.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
-				return issueHandler.addTypeError(leftNameSet,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-						.customizeMessage(leftNameSet + ""));
-		}
-
-		PType rightActionType = rightAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightActionType))
-			return issueHandler.addTypeError(leftActionType,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(rightAction + ""));
-
-		if (rightNameSet != null) {
-			PType rightNameSetType = rightNameSet
-					.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
-				return issueHandler.addTypeError(rightNameSet,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-						.customizeMessage(rightNameSet + ""));
-		}
-		return new AActionType(node.getLocation(), true);
-	}
+	return new AActionType(node.getLocation(), true);
+    }
 
 
 

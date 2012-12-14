@@ -328,16 +328,18 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// Acquire declared type and expression type
 		PExp exp = node.getExpression();
-		PType declaredType = node.getType().apply(parentChecker, question);
-		if (declaredType instanceof AErrorType)
-			return declaredType;
+		PType declaredType = node.getType();
+			
+
 
 		PType expressionType = exp.apply(parentChecker, question);
 		if (expressionType instanceof AErrorType)
 			return expressionType;
 
 		node.setExpType(expressionType);
-
+		if (declaredType == null)
+		    declaredType=node.getExpType();
+		
 		// Add this value definition to the environment
 		CmlTypeCheckInfo tci = (CmlTypeCheckInfo) question;
 		ALocalDefinition localDef = new ALocalDefinition(node.getLocation(),
