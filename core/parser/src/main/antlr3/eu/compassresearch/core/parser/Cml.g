@@ -18,6 +18,8 @@
  * make type not allow '()' unless coming from a function?
  *
  * I'm not sure if multiple binds are implemented. -jwc/14Dec2012
+ *
+ * Look into start/final rules to see if we can ease up the location bookkeeping
  */
 grammar Cml;
 options {
@@ -649,7 +651,7 @@ tuplePattern
     ;
 
 recordPattern
-    : MKUNDERNAME '(' (pattern (',' pattern)*)? ')'
+    : MKUNDER name '(' (pattern (',' pattern)*)? ')'
     ;
 
 expression returns[PExp exp]
@@ -816,7 +818,21 @@ recordTupleExprs returns[PExp exp]
             exps.add(0,$first.exp);
             $exp = new ATupleExp(loc,exps);
         }
-    | MKUNDERNAME '(' ( expression (',' expression)* )? ')'
+    | MKUNDER 'token' '(' expression r=')'
+        {
+            LexLocation start = extractLexLocation($MKUNDER);
+            LexLocation end = extractLexLocation($r);
+            LexLocation loc = extractLexLocation(start,end);
+            $exp = new AMkBasicExp(new ATokenBasicType(loc, true), loc, $expression.exp);
+        }
+    | MKUNDER name '(' ( first=expression ( ',' expItem=expression { exps.add($expItem.exp); } )* )? r=')'
+        {
+            LexLocation start = extractLexLocation($MKUNDER);
+            LexLocation end = extractLexLocation($r);
+            LexLocation loc = extractLexLocation(start,end);
+            exps.add(0,$first.exp);
+            $exp = new AMkTypeExp(loc, $name.name, exps);
+        }
     ;
 
 setMapExpr returns[PExp exp]
@@ -962,21 +978,12 @@ FRAMEMODE
     : 'rd' | 'wr'
     ;
 
-
-// NILLITERAL
-//     : 'nil'
-//     ;
-
 PREUNDER
     : 'pre_'
     ;
 
 MKUNDER
     : 'mk_'
-    ;
-
-MKUNDERNAME
-    : 'mk_' IDENTIFIER (('.'|'`') IDENTIFIER)*
     ;
 
 ISOFCLASS
