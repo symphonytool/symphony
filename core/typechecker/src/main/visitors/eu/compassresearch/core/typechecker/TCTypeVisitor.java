@@ -58,7 +58,7 @@ class TCTypeVisitor extends
 		List<SClassDefinition> classes = new LinkedList<SClassDefinition>();
 		if (question.env.getEnclosingDefinition() == null)
 		{
-			eu.compassresearch.core.typechecker.TypeCheckInfo q = (eu.compassresearch.core.typechecker.TypeCheckInfo)question;
+			eu.compassresearch.core.typechecker.CmlTypeCheckInfo q = (eu.compassresearch.core.typechecker.CmlTypeCheckInfo)question;
 			classes.add(q.getGlobalClassDefinitions());
 			
 		}

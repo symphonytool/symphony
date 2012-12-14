@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.pog.obligation.NonEmptySetObligation;
 import org.overture.pog.obligation.NonZeroObligation;
 
@@ -24,19 +25,15 @@ import eu.compassresearch.core.typechecker.TestUtil;
 public class POGTestWithStrings {
 
     private String sourceFromString;
-    private String filePath;
-    private Class<?> expectedPOClass;
-    private int posGenerated;
-
+    private String expectedPO;
+    
     @Before
     public void setup() {
 
     }
 
     
-    public static Object[] divZeroFunction ={"class c = begin functions fn: int -> int fn(a) == 50/ a end", NonZeroObligation.class};
-    public static Object[] distInterFunction= {"class c = begin functions fn : set of set of int -> set of int fn(ss) == dinter ss end", NonEmptySetObligation.class};
-    
+    public static Object[] divZeroFunction ={  "class Alice = begin functions bob: int -> int bob(a) == 50/a end", "WExpectedPO"};
   //add test cases for further POs here...
 	
 
@@ -46,29 +43,28 @@ public class POGTestWithStrings {
 	List<Object[]> r = new LinkedList<Object[]>();
 
 	r.add(divZeroFunction);
-	r.add(distInterFunction);
+//	r.add(distInterFunction);
 	//add test cases for further POs here...
 	
 	return r;
     }
 
-    public POGTestWithStrings(String source, Class<?> expectedPOClass) {
+    public POGTestWithStrings(String source, String expectedPO) {
 	this.sourceFromString = source;
-	this.expectedPOClass= expectedPOClass;
+	this.expectedPO= expectedPO;
     }
 
     @Test
-    public void testGeneratePOsfromSource() throws IOException {
-	PSource psAux = (TestUtil.makeSource(sourceFromString));
-	CmlParser cmlp = CmlParser.newParserFromSource(psAux);
-	cmlp.parse();
+    public void testGeneratePOsfromSource() throws IOException, AnalysisException {
+	PSource psAux = (Utilities.makeSourceFromString(sourceFromString));
+	
 	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
 	CMLProofObligationList actual = pog.generatePOs();
 
 	// Haven't figured out a way to manually create expected POs (mostly
 	// because of ContextStack and LexLocation)
 	//For now we test po types
-	assertEquals(expectedPOClass, actual.get(0).getClass());
+	assertEquals(expectedPO, actual.get(0).toString());
 
     }
 

@@ -18,17 +18,27 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.typechecker.TestUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 public class Utilities {
 
-    public static PSource makeSourceFromString(String cmlSource)
+    public static PSource makeSourceFromString(String cmlSource) throws IOException
     {
       InputStream cmlSourceIn = new ByteArrayInputStream(cmlSource.getBytes());
       AInputStreamSource source = new AInputStreamSource();
       source.setOrigin("Test Parameter");
       source.setStream(cmlSourceIn);
+      CmlParser parser = CmlParser.newParserFromSource(source);
+	assertTrue("Test failed on parser", parser.parse());
+	
+	// Type check
+	CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
+			Arrays.asList(new PSource[] { source }), null);
+	 assertTrue("Test failed on Typechecker", cmlTC.typeCheck());
+
       return source;
     }
     
@@ -44,13 +54,12 @@ public class Utilities {
 	assertTrue("Test failed on parser", parser.parse());
 
 	// Type check
+	TypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
 	CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
-			Arrays.asList(new PSource[] { ast }), null);
-
-	// For now it does not have to typecheck
-	// assertTrue(cmlTC.typeCheck());
-	cmlTC.typeCheck();
-
+			Arrays.asList(new PSource[] { ast }), errors);
+	boolean tcResult = cmlTC.typeCheck();
+	
+	 assertTrue(TestUtil.buildErrorMessage(errors, true), tcResult);
 	return ast;
     }
     

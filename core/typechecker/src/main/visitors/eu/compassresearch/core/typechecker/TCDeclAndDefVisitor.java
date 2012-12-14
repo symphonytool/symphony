@@ -137,7 +137,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	}
 
 	public PType typeCheckOvertureClass(AClassClassDefinition node,
-			TypeCheckInfo question) throws AnalysisException {
+			CmlTypeCheckInfo question) throws AnalysisException {
 
 		// Create class environment
 		PrivateClassEnvironment self = new PrivateClassEnvironment(node, null);
@@ -283,7 +283,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	public PType caseATypesParagraphDefinition(ATypesParagraphDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
-		TypeCheckInfo newQ = (TypeCheckInfo) question;
+		CmlTypeCheckInfo newQ = (CmlTypeCheckInfo) question;
 		LinkedList<ATypeDefinition> defs = node.getTypes();
 		for (ATypeDefinition d : defs) {
 			PType type = d.apply(parentChecker, question);
@@ -305,7 +305,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	public PType caseAValueParagraphDefinition(AValueParagraphDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
-		TypeCheckInfo newQ = (TypeCheckInfo) question;
+		CmlTypeCheckInfo newQ = (CmlTypeCheckInfo) question;
 		LinkedList<PDefinition> _list = node.getValueDefinitions();
 		List<PDefinition> list = new LinkedList<PDefinition>();
 		list.addAll(_list);
@@ -328,18 +328,20 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// Acquire declared type and expression type
 		PExp exp = node.getExpression();
-		PType declaredType = node.getType().apply(parentChecker, question);
-		if (declaredType instanceof AErrorType)
-			return declaredType;
+		PType declaredType = node.getType();
+			
+
 
 		PType expressionType = exp.apply(parentChecker, question);
 		if (expressionType instanceof AErrorType)
 			return expressionType;
 
 		node.setExpType(expressionType);
-
+		if (declaredType == null)
+		    declaredType=node.getExpType();
+		
 		// Add this value definition to the environment
-		TypeCheckInfo tci = (TypeCheckInfo) question;
+		CmlTypeCheckInfo tci = (CmlTypeCheckInfo) question;
 		ALocalDefinition localDef = new ALocalDefinition(node.getLocation(),
 				NameScope.GLOBAL, false, node.getAccess(), Pass.VALUES, true);
 		localDef.setName(node.getName());
@@ -515,7 +517,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	 */
 	private static AClassClassDefinition createSurrogateClass(
 			AClassParagraphDefinition node,
-			TypeCheckInfo question) {
+			CmlTypeCheckInfo question) {
 
 
 
@@ -558,9 +560,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// Add all available classes in the current environment as overture classes.
 		List<PDefinition> surrogateDefinitions = new LinkedList<PDefinition>();
-		if (question instanceof TypeCheckInfo)
+		if (question instanceof CmlTypeCheckInfo)
 		{
-			TypeCheckInfo info = (TypeCheckInfo)question;
+			CmlTypeCheckInfo info = (CmlTypeCheckInfo)question;
 			for(PDefinition def : info.getDefinitions())
 			{
 				if (def instanceof AClassParagraphDefinition)
@@ -654,13 +656,13 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					throws AnalysisException {
 
 		// Check environment, it must be a CML environment as we are coming from top-level
-		if (!(question instanceof TypeCheckInfo))
+		if (!(question instanceof CmlTypeCheckInfo))
 		{
 			node.setType(issueHandler.addTypeError(node,TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node+"")));
 			return node.getType();
 		}
-		TypeCheckInfo cmlEnvironment = (TypeCheckInfo)question;
-		question.contextSet(TypeCheckInfo.class, cmlEnvironment);
+		CmlTypeCheckInfo cmlEnvironment = (CmlTypeCheckInfo)question;
+		question.contextSet(CmlTypeCheckInfo.class, cmlEnvironment);
 
 		// Create Surrogate Overture Class
 		AClassClassDefinition surrogate = createSurrogateClass(node, cmlEnvironment);
@@ -678,7 +680,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// Handle the COMPASS definitions
 		{
-			TypeCheckInfo classQuestion = cmlEnvironment.newScope(surrogate);
+			CmlTypeCheckInfo classQuestion = cmlEnvironment.newScope(surrogate);
 
 			// add state
 			List<AStateParagraphDefinition> states = findParticularDefinitionType(
@@ -711,7 +713,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		cmlEnvironment.addType(node.getName(), node);
-		question.contextRem(TypeCheckInfo.class);
+		question.contextRem(CmlTypeCheckInfo.class);
 		AClassType result = new AClassType(node.getLocation(), true, node.getDefinitions(),
 				node.getName(), node.getClassDefinition());
 		node.setType(result);
@@ -727,11 +729,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question, TypeIssueHandler issueHandler)
 					throws AnalysisException {
 
-		TypeCheckInfo cmlEnv = null;
-		if(question instanceof TypeCheckInfo)
-			cmlEnv = (TypeCheckInfo)question;
+		CmlTypeCheckInfo cmlEnv = null;
+		if(question instanceof CmlTypeCheckInfo)
+			cmlEnv = (CmlTypeCheckInfo)question;
 		else
-			cmlEnv=question.contextGet(TypeCheckInfo.class);
+			cmlEnv=question.contextGet(CmlTypeCheckInfo.class);
 
 		if (cmlEnv == null)
 		{
@@ -739,7 +741,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return;
 		}
 
-		TypeCheckInfo classEnv = (TypeCheckInfo) cmlEnv.newScope(base,c);
+		CmlTypeCheckInfo classEnv = (CmlTypeCheckInfo) cmlEnv.newScope(base,c);
 		classEnv.scope = NameScope.LOCAL;
 		if (!c.getTypeChecked()) {
 			try {
@@ -802,7 +804,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AOperationParagraphDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
-		TypeCheckInfo newQ = (TypeCheckInfo) question;
+		CmlTypeCheckInfo newQ = (CmlTypeCheckInfo) question;
 		for (SOperationDefinition def : node.getOperations()) {
 			PType defType = def.apply(parentChecker, question);
 			if (defType == null)
@@ -820,7 +822,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	public PType caseAStateParagraphDefinition(AStateParagraphDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
-		TypeCheckInfo newQ = (TypeCheckInfo) question;
+		CmlTypeCheckInfo newQ = (CmlTypeCheckInfo) question;
 		// Go through all the state defs and typecheck them
 		for (PDefinition def : node.getStateDefs()) {
 			def.apply(this, question);
@@ -854,7 +856,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 		// make a new scope for the process
-		TypeCheckInfo newScope = (TypeCheckInfo) ((TypeCheckQuestion) question)
+		CmlTypeCheckInfo newScope = (CmlTypeCheckInfo) ((TypeCheckQuestion) question)
 				.newScope(null);
 
 		AProcessDefinition pdef = node.getProcessDefinition();
@@ -867,7 +869,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return pdef.getType();
 		}
 
-		TypeCheckInfo newQ = (TypeCheckInfo) question;
+		CmlTypeCheckInfo newQ = (CmlTypeCheckInfo) question;
 		newQ.addVariable(node.getName(), node);
 		// Marker type indicating paragraph type check ok
 		node.setType(new AProcessParagraphType());
@@ -899,7 +901,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 
-		TypeCheckInfo newQ = (TypeCheckInfo) question;
+		CmlTypeCheckInfo newQ = (CmlTypeCheckInfo) question;
 
 		LinkedList<AChannelNameDefinition> cns = node
 				.getChannelNameDeclarations();
@@ -931,7 +933,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// add the parameter to the Environment
 
 		// check the body
-		TypeCheckInfo newQuestion = (TypeCheckInfo) createEnvironmentWithFormals(
+		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) createEnvironmentWithFormals(
 				question, node);
 		SStatementAction operationBody = node.getBody();
 		PType bodyType = operationBody.apply(parentChecker, newQuestion);
@@ -959,7 +961,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo current, PDefinition funDef)
 					throws AnalysisException {
 
-		TypeCheckInfo newQuestion = (TypeCheckInfo) current;
+		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) current;
 		List<PType> paramTypes = null;
 		List<PPattern> patterns = null;
 
@@ -983,7 +985,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// setup local environment
 
-		TypeCheckInfo functionBodyEnv = (TypeCheckInfo)newQuestion.newScope(current, funDef);
+		CmlTypeCheckInfo functionBodyEnv = (CmlTypeCheckInfo)newQuestion.newScope(current, funDef);
 
 
 		// add formal arguments to the environment
@@ -1032,7 +1034,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					throws AnalysisException {
 
 		// Type check the function body in an augmented environment
-		TypeCheckInfo newQuestion = (TypeCheckInfo) createEnvironmentWithFormals(
+		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) createEnvironmentWithFormals(
 				question, node);
 
 		PExp body = node.getBody();
@@ -1085,6 +1087,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// Nonetheless the function type will be the type its definition to
 		// facilitate further type checking even in the presents of errors.
+		node.setType(funcType);
 		return funcType;
 	}
 

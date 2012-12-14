@@ -1,6 +1,5 @@
 package eu.compassresearch.ide.cml.pogplugin.actions;
 
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,10 +17,14 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.pog.obligation.ProofObligation;
 
+import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
-
 
 /**
  * Our sample action implements workbench action delegate. The action proxy will
@@ -62,7 +65,7 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 	FileWriter fw;
 	try {
 	    fw = new FileWriter(tempPo);
-	  //  fw.write(csu.toString());
+	    // fw.write(csu.toString());
 	    fw.write(getPOsfromSource(csu));
 	    fw.flush();
 	    fw.close();
@@ -90,10 +93,21 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
     private char[] getPOsfromSource(CmlSourceUnit csu) {
 	StringBuilder sb = new StringBuilder();
 	sb.append("-- AUTO-GENERATED PROOF OBLIGATIONS FOR: ");
-	sb.append(((IFile)csu.getFile()).getName()+"\n");
+	sb.append(((IFile) csu.getFile()).getName() + "\n");
 	sb.append("-- CAUTION: this file will be deleted upon exit.\n");
 	sb.append("------------------------------------------------------\n");
-	// TODO-ldc: generate and add POs
+
+	PSource psAux = csu.getSourceAst();
+	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
+	CMLProofObligationList pol = new CMLProofObligationList();
+	try {
+	    pol=pog.generatePOs();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    return null;
+	}
+	    for (ProofObligation po : pol)
+		sb.append(po.toString() + "\n");
 	return sb.toString().toCharArray();
     }
 
