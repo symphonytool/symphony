@@ -136,6 +136,7 @@ public class RunCmlExamplesTestCase {
 		addFailingFile("process-action-interleaving.cml","The Symbol \"A\" is undefined.");
 		addFailingFile("process-action-newstm.cml","The Symbol \"a\" is undefined.");
 		addFailingFile("process-action-letstm.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-action-nondeterministicif.cml","The Symbol \"REG\" is undefined.");
 		// Failed tests caused by parser issues
 		
 		// // See cml.y production: | expression[rootExp] LRPAREN ... The argument list is 

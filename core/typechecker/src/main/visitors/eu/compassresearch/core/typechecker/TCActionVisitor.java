@@ -47,6 +47,7 @@ import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AForIndexStatementAction;
 import eu.compassresearch.ast.actions.AForSequenceStatementAction;
+import eu.compassresearch.ast.actions.AForSetStatementAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
@@ -56,6 +57,8 @@ import eu.compassresearch.ast.actions.ALetStatementAction;
 import eu.compassresearch.ast.actions.AMuAction;
 import eu.compassresearch.ast.actions.AMultipleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ANewStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -164,19 +167,16 @@ class TCActionVisitor extends
 
 	if (constructor == null) {
 	    node.setType(issueHandler.addTypeError(node,
-		    TypeErrorMessages.MISSING_CONSTRUCTOR
-			    .customizeMessage(classType.toString(),
-				    argtypes.toString())));
+		    TypeErrorMessages.MISSING_CONSTRUCTOR.customizeMessage(
+			    classType.toString(), argtypes.toString())));
 	    return node.getType();
 	}
 
 	// maybe more constructor stuff necessary?
-	
-	
+
 	// // set stuff
 	node.setClassdef(cpd);
 	node.setCtorDefinition(constructor);
-	
 
 	// All done!
 	node.setType(new AActionType());
@@ -427,121 +427,124 @@ class TCActionVisitor extends
     }
 
     @Override
-	public PType caseAForSetStatementAction(AForSetStatementAction node,
-			TypeCheckInfo question) throws AnalysisException {
-		// TODO RWL Working on it !
-		
-		// extract sub-trees
-		PAction action = node.getAction();
-		PPattern pattern = node.getPattern();
-		PExp set = node.getSet();
-		PType patternType = null;
-		
-		PType setType = set.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(setType))
-		{
-			node.setType(issueHandler.addTypeError(set, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+set)));
-			return node.getType();
-		}
-		
-		if (!(setType instanceof ASetType))
-		{
-			node.setType(issueHandler.addTypeError(set, TypeErrorMessages.SET_TYPE_EXPECTED.customizeMessage(""+set,""+setType)));
-			return node.getType();
-		}
-		else
-			patternType = setType;
-		
-		CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
-		
-		PType patternUnknownType = pattern.apply(parentChecker,question);
-		if (!TCDeclAndDefVisitor.successfulType(patternUnknownType))
-		{
-			node.setType(issueHandler.addTypeError(pattern, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(pattern+"")));
-			return node.getType();
-		}
-		
-		if (!(patternUnknownType instanceof AUnresolvedType))
-		{
-			node.setType(issueHandler.addTypeError(pattern,TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Unresolved Type",patternUnknownType+"")));
-			return node.getType();
-		}
-		else
-		{
-			
-		}
-		
-		node.setType(new AActionType());
-		return node.getType();
+    public PType caseAForSetStatementAction(AForSetStatementAction node,
+	    TypeCheckInfo question) throws AnalysisException {
+	// TODO RWL Working on it !
+
+	// extract sub-trees
+	PAction action = node.getAction();
+	PPattern pattern = node.getPattern();
+	PExp set = node.getSet();
+	PType patternType = null;
+
+	PType setType = set.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(setType)) {
+	    node.setType(issueHandler.addTypeError(set,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + set)));
+	    return node.getType();
 	}
-    
 
+	if (!(setType instanceof ASetType)) {
+	    node.setType(issueHandler.addTypeError(
+		    set,
+		    TypeErrorMessages.SET_TYPE_EXPECTED.customizeMessage(""
+			    + set, "" + setType)));
+	    return node.getType();
+	} else
+	    patternType = setType;
 
-	@Override
-	public PType caseAForSequenceStatementAction(
-			AForSequenceStatementAction node, org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
+	CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
 
-		PAction action = node.getAction();
-		PExp exp = node.getExp();
-		ADefPatternBind pattern = node.getPatternBind();
-		PType patternType = null;
-
-		// Get an CML environment  
-		CmlTypeCheckInfo cmlQuestion = getTypeCheckInfo(question);
-		if (cmlQuestion == null)
-		{
-			node.setType(issueHandler.addTypeError(exp, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(exp+"")));
-			return node.getType();
-		}
-
-		// Type check the expression ... 
-		PType expType = exp.apply(parentChecker,question);
-		if (!TCDeclAndDefVisitor.successfulType(expType))
-		{
-			node.setType(issueHandler.addTypeError(exp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+exp)));
-			return node.getType();
-		}		
-
-		// ... it has to be a sequence
-		if (!(expType instanceof SSeqType))
-		{
-			node.setType(issueHandler.addTypeError(exp, TypeErrorMessages.SEQ_TYPE_EXPECTED.customizeMessage(exp+"",expType+"")));
-			return node.getType();
-		}
-		else
-			patternType = ((SSeqType)expType).getSeqof();
-
-		// Create an extended local environment
-		CmlTypeCheckInfo newEnv = cmlQuestion.newScope();
-
-		pattern.setType(patternType);
-		
-		PType patType = pattern.apply(parentChecker,question);
-		List<PDefinition> defs = patType.getDefinitions();
-		for(PDefinition d : defs)
-		{
-			ALocalDefinition localDef = AstFactory.newALocalDefinition(pattern.getLocation(), d.getName(), NameScope.LOCAL,patternType);
-			newEnv.addVariable(d.getName(), localDef);
-		}
-
-
-		// In this new environment lets check the given action
-		PType actionType = action.apply(parentChecker,newEnv);
-		if (!TCDeclAndDefVisitor.successfulType(actionType))
-		{
-			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+action)));
-			return node.getType();
-		}
-
-		// Interesting stuff goes here !
-
-
-
-		node.setType(new AActionType());
-		return node.getType();
+	PType patternUnknownType = pattern.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(patternUnknownType)) {
+	    node.setType(issueHandler.addTypeError(pattern,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage(pattern + "")));
+	    return node.getType();
 	}
-    
+
+	if (!(patternUnknownType instanceof AUnresolvedType)) {
+	    node.setType(issueHandler.addTypeError(pattern,
+		    TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(
+			    "Unresolved Type", patternUnknownType + "")));
+	    return node.getType();
+	} else {
+
+	}
+
+	node.setType(new AActionType());
+	return node.getType();
+    }
+
+    @Override
+    public PType caseAForSequenceStatementAction(
+	    AForSequenceStatementAction node,
+	    org.overture.typechecker.TypeCheckInfo question)
+	    throws AnalysisException {
+
+	PAction action = node.getAction();
+	PExp exp = node.getExp();
+	ADefPatternBind pattern = node.getPatternBind();
+	PType patternType = null;
+
+	// Get an CML environment
+	CmlTypeCheckInfo cmlQuestion = getTypeCheckInfo(question);
+	if (cmlQuestion == null) {
+	    node.setType(issueHandler.addTypeError(exp,
+		    TypeErrorMessages.ILLEGAL_CONTEXT
+			    .customizeMessage(exp + "")));
+	    return node.getType();
+	}
+
+	// Type check the expression ...
+	PType expType = exp.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(expType)) {
+	    node.setType(issueHandler.addTypeError(exp,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + exp)));
+	    return node.getType();
+	}
+
+	// ... it has to be a sequence
+	if (!(expType instanceof SSeqType)) {
+	    node.setType(issueHandler.addTypeError(
+		    exp,
+		    TypeErrorMessages.SEQ_TYPE_EXPECTED.customizeMessage(exp
+			    + "", expType + "")));
+	    return node.getType();
+	} else
+	    patternType = ((SSeqType) expType).getSeqof();
+
+	// Create an extended local environment
+	CmlTypeCheckInfo newEnv = cmlQuestion.newScope();
+
+	pattern.setType(patternType);
+
+	PType patType = pattern.apply(parentChecker, question);
+	List<PDefinition> defs = patType.getDefinitions();
+	for (PDefinition d : defs) {
+	    ALocalDefinition localDef = AstFactory.newALocalDefinition(
+		    pattern.getLocation(), d.getName(), NameScope.LOCAL,
+		    patternType);
+	    newEnv.addVariable(d.getName(), localDef);
+	}
+
+	// In this new environment lets check the given action
+	PType actionType = action.apply(parentChecker, newEnv);
+	if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+	    node.setType(issueHandler.addTypeError(action,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + action)));
+	    return node.getType();
+	}
+
+	// Interesting stuff goes here !
+
+	node.setType(new AActionType());
+	return node.getType();
+    }
+
     @Override
     public PType caseAForIndexStatementAction(AForIndexStatementAction node,
 	    org.overture.typechecker.TypeCheckInfo question)
@@ -1312,4 +1315,68 @@ class TCActionVisitor extends
 	return new AActionType(node.getLocation(), true);
     }
 
+    @Override
+    public PType caseANonDeterministicIfStatementAction(
+	    ANonDeterministicIfStatementAction node, TypeCheckInfo question)
+	    throws AnalysisException {
+	// extract sub-stuff
+	LinkedList<ANonDeterministicAltStatementAction> alts = node
+		.getAlternatives();
+
+	CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
+	if (cmlEnv == null) {
+	    node.setType(issueHandler.addTypeError(
+		    node,
+		    TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+			    + node)));
+	    return node.getType();
+	}
+
+	// type-check the alternatives
+	for (ANonDeterministicAltStatementAction alt : alts) {
+	    PType pt = alt.apply(parentChecker, cmlEnv);
+	    if (!TCDeclAndDefVisitor.successfulType(pt)) {
+		node.setType(issueHandler.addTypeError(alt,
+			TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+				.customizeMessage("" + alt)));
+		return node.getType();
+	    }
+	}
+	// All done!
+	node.setType(new AActionType());
+	return node.getType();
+    }
+
+    @Override
+    public PType caseANonDeterministicAltStatementAction(
+	    ANonDeterministicAltStatementAction node, TypeCheckInfo question)
+	    throws AnalysisException {
+	//extract sub-stuff
+	PAction action = node.getAction();
+	PExp guard = node.getGuard();
+	
+	//type-check sub.stuff
+	PType actionType = action.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+	    node.setType(issueHandler.addTypeError(action,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + action)));
+	    return node.getType();
+	}
+	
+	PType guardType = guard.apply(parentChecker, question);
+	if (!TCDeclAndDefVisitor.successfulType(guardType)) {
+	    node.setType(issueHandler.addTypeError(action,
+		    TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+			    .customizeMessage("" + guard)));
+	    return node.getType();
+	}
+	
+	// All done!
+	node.setType(new AActionType());
+	return node.getType();
+    }
+
+    
+    
 }
