@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.experimental.runners.Enclosed;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
@@ -14,6 +15,7 @@ import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.FlatEnvironment;
+import org.overture.typechecker.TypeCheckInfo;
 
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -29,7 +31,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
  * @author rwl
  * 
  */
-class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
+class CmlTypeCheckInfo extends TypeCheckInfo implements
 		TypeCheckQuestion {
 
 	private final Environment<PDefinition> channels;
@@ -62,13 +64,13 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 	 *            -- Where to report issues
 	 * @return a fresh Type Check Info instance at top level
 	 */
-	public static TypeCheckInfo getNewTopLevelInstance(
+	public static CmlTypeCheckInfo getNewTopLevelInstance(
 			TypeIssueHandler issueHandler, AClassClassDefinition globalClassDef) {
-		return new TypeCheckInfo(issueHandler, globalClassDef);
+		return new CmlTypeCheckInfo(issueHandler, globalClassDef);
 
 	}
 
-	private TypeCheckInfo(TypeIssueHandler issueHandler,
+	private CmlTypeCheckInfo(TypeIssueHandler issueHandler,
 			SClassDefinition globalDefs) {
 		super(new AccessibleFlatEnvironment(new LinkedList<PDefinition>()));
 		this.issueHandler = issueHandler;
@@ -76,7 +78,7 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 		this.globalClassDefinition = globalDefs;
 	}
 
-	private TypeCheckInfo(Environment<PDefinition> channelSurounding,
+	private CmlTypeCheckInfo(Environment<PDefinition> channelSurounding,
 			org.overture.typechecker.Environment suroundingEnv,
 			TypeIssueHandler issueHandler, SClassDefinition globalDefs) {
 		super(suroundingEnv);
@@ -140,13 +142,27 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 	}
 	
 	
+	/**
+	 * Create an environment with this environment being the outer environment 
+	 * and the given definition being the surrounding definition.
+	 */
 	@Override
-	public TypeCheckInfo newScope(SClassDefinition def) {
+	public CmlTypeCheckInfo newScope(SClassDefinition def) {
 		// Variables are scoped, types and channels are global (for now at
 		// least)
-		TypeCheckInfo res = new TypeCheckInfo(this.channels, super.env,
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.channels, super.env,
 				issueHandler, globalClassDefinition);
 		res.env.setEnclosingDefinition(def);
+		return res;
+	}
+	
+	/**
+	 * Create a new environment with this environment being its outer.
+	 * @return
+	 */
+	public CmlTypeCheckInfo newScope()
+	{
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels,env,issueHandler,globalClassDefinition);
 		return res;
 	}
 
@@ -199,14 +215,14 @@ class TypeCheckInfo extends org.overture.typechecker.TypeCheckInfo implements
 
 	public TypeCheckQuestion newScope(
 			org.overture.typechecker.TypeCheckInfo current, PDefinition def) {
-		TypeCheckInfo res = new TypeCheckInfo(channels,env,issueHandler, this.globalClassDefinition);
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels,env,issueHandler, this.globalClassDefinition);
 		res.env.setEnclosingDefinition(def);
 		return res;
 	}
 
 	public TypeCheckQuestion newScope(
 			org.overture.typechecker.Environment env, PDefinition def) {
-		TypeCheckInfo res = new TypeCheckInfo(channels,env,issueHandler, this.globalClassDefinition);
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels,env,issueHandler, this.globalClassDefinition);
 		res.env.setEnclosingDefinition(def);
 		
 		return res;

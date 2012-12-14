@@ -20,6 +20,8 @@ import org.overture.ast.factory.AstFactory;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PBind;
 import org.overture.ast.patterns.PMultipleBind;
+import org.overture.ast.patterns.PPattern;
+import org.overture.ast.patterns.PPatternBind;
 import org.overture.ast.statements.PAlternativeStm;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
@@ -57,11 +59,11 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	// -- Type Checker State
 	// ---------------------------------------------m
 	// subcheckers
-	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> exp;
-	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> act;
-	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> dad;
+	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> exp; // expressions
+	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> act; // actions
+	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> dad; // definition and decls
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> typ; // basic
-	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> prc;
+	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> prc; // process
 	private IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> bnd; // bind
 	// type
 	// checker
@@ -80,7 +82,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		dad = new TCDeclAndDefVisitor(this, typeComparator, this.issueHandler);
 		typ = new TCTypeVisitor(this, this.issueHandler);
 		prc = new TCProcessVisitor(this, this.issueHandler, typeComparator);
-		bnd = new TCBindVisitor(this);
+		bnd = new TCBindVisitor(this,this.issueHandler);
 
 	}
 
@@ -116,6 +118,22 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		return addErrorForMissingType(node, node.apply(typ, question));
 	}
 
+	
+	
+	@Override
+	public PType defaultPPattern(PPattern node, TypeCheckInfo question)
+			throws AnalysisException {
+		return addErrorForMissingType(node,node.apply(bnd,question));
+	}
+
+	@Override
+	public PType defaultPPatternBind(PPatternBind node, TypeCheckInfo question)
+			throws AnalysisException {
+		return addErrorForMissingType(node, node.apply(this.bnd, question));
+	}
+
+	
+	
 	@Override
 	public PType defaultINode(INode node,
 			org.overture.typechecker.TypeCheckInfo question)
@@ -239,7 +257,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	 */
 	public boolean typeCheck() {
 
-		eu.compassresearch.core.typechecker.TypeCheckInfo info = eu.compassresearch.core.typechecker.TypeCheckInfo
+		eu.compassresearch.core.typechecker.CmlTypeCheckInfo info = eu.compassresearch.core.typechecker.CmlTypeCheckInfo
 				.getNewTopLevelInstance(this.issueHandler, globalRoot);
 
 		if (!cleared)
