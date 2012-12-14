@@ -37,20 +37,23 @@ package eu.compassresearch.core.parser;
 @parser::header {
 package eu.compassresearch.core.parser;
 
+import java.lang.NumberFormatException;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 // import org.apache.commons.lang3.StringUtils;
 
 // import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
 import org.overture.ast.lex.*;
-//import org.overture.ast.node.*;
-import org.overture.ast.node.tokens.*;
-import org.overture.ast.patterns.*;
-import org.overture.ast.preview.*;
-import org.overture.ast.statements.*;
+// import org.overture.ast.node.*;
+// import org.overture.ast.node.tokens.*;
+// import org.overture.ast.patterns.*;
+// import org.overture.ast.preview.*;
+// import org.overture.ast.statements.*;
 import org.overture.ast.types.*;
-import org.overture.ast.typechecker.NameScope;
-import org.overture.ast.util.*;
-import org.overture.ast.typechecker.Pass;
+// import org.overture.ast.typechecker.NameScope;
+// import org.overture.ast.util.*;
+// import org.overture.ast.typechecker.Pass;
 
 import eu.compassresearch.ast.actions.*;
 import eu.compassresearch.ast.declarations.*;
@@ -80,6 +83,8 @@ import eu.compassresearch.ast.types.*;
 // public String getTokenErrorDisplay(Token t) {
 //     return t.toString();
 // }
+
+private DecimalFormat decimalFormatParser = new DecimalFormat();
 
 protected void mismatch(IntStream input, int ttype, BitSet follow) throws RecognitionException {
     throw new MismatchedTokenException(ttype, input);
@@ -574,23 +579,64 @@ matchValue
     | '(' expression ')'
     ;
 
-symbolicLiteral
-    : numLiteral
-    | boolLiteral
-    | 'nil'
-    | CHARLITERAL
-    | TEXTLITERAL
-    | QUOTELITERAL
-    ;
-
-numLiteral
+symbolicLiteral returns[LexToken literal]
     : NUMERIC
+        {
+            LexLocation loc = extractLexLocation($NUMERIC);
+            try {
+                Number num = decimalFormatParser.parse($NUMERIC.getText());
+                if (num instanceof Long) {
+                    $literal = new LexIntegerToken((Long)num, loc);
+                } else if (num instanceof Double) {
+                    $literal = new LexRealToken((Double)num, loc);
+                }
+            } catch (ParseException e) {
+                // FIXME log an error here!
+            }
+        }
     | HEXLITERAL
-    ;
-
-boolLiteral
-    : 'true' | 'false'
-    ;
+        {
+            LexLocation loc = extractLexLocation($HEXLITERAL);
+            try {
+                long num = Long.parseLong($HEXLITERAL.getText().substring(2), 16);
+                $literal = new LexIntegerToken(num, loc);
+            } catch (NumberFormatException e) {
+                // FIXME log an error here!
+            }
+        }
+    | t='true'
+        {
+            $literal = new LexBooleanToken(VDMToken.TRUE, extractLexLocation($t));
+        }
+    | f='false'
+        {
+            $literal = new LexBooleanToken(VDMToken.FALSE, extractLexLocation($f));
+        }
+    | nil='nil'
+        {
+            $literal = new LexKeywordToken(VDMToken.NIL, extractLexLocation($nil));
+        }
+    | CHARLITERAL
+        {
+            LexLocation loc = extractLexLocation($CHARLITERAL);
+            String res = $CHARLITERAL.getText();
+            res = res.replace("'", "");
+            $literal = new LexCharacterToken(CmlParserHelper.convertEscapeToChar(res), loc);
+        }
+    | TEXTLITERAL
+        {
+            LexLocation loc = extractLexLocation($TEXTLITERAL);
+            String str = $TEXTLITERAL.getText();
+            str = str.substring(1,str.length()-1);
+            $literal = new LexStringToken(str, loc);
+        }
+    | QUOTELITERAL
+        {
+            LexLocation loc = extractLexLocation($QUOTELITERAL);
+            String str = $QUOTELITERAL.getText();
+            str = str.substring(1,str.length()-1);
+            $literal = new LexQuoteToken(str, loc);
+        }    ;
 
 tuplePattern
     : MKUNDERLPAREN pattern (',' pattern)* ')'
@@ -600,7 +646,7 @@ recordPattern
     : MKUNDERNAMELPAREN (pattern (',' pattern)*)? ')'
     ;
 
-expression
+expression returns[PExp exp]
     : expr0
     | 'let' localDefinition (',' localDefinition)* 'in' expression
     | 'if' expression 'then' expression ('elseif' expression 'then' expression)* 'else' expression
@@ -646,7 +692,13 @@ selector
     ;
 
 exprbase returns[PExp exp]
-    : '(' expression ')'
+    : l='(' expression r=')'
+        {
+            LexLocation start = extractLexLocation($l);
+            LexLocation end = extractLexLocation($r);
+            LexLocation loc = extractLexLocation(start, end);
+            $exp = new ABracketedExp(loc, $expression.exp); 
+        }
     | self='self'
         {
             LexLocation loc = extractLexLocation($self);
@@ -662,18 +714,30 @@ exprbase returns[PExp exp]
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), loc, isOld, false);
             $exp = new AVariableExp(loc, name, "");
         }
-//    | name
-//        {
-//            System.out.println("name as module:"+$name.name.module+":");
-//            if ($name.name.module.equals("")) {
-//                $exp = new AVariableExp($name.name.location, $name.name, "");
-//            } else {
-//                // FIXME: this needs to be an AUnresolvedPathExpr, but I've already stringified the list of ids
-//                $exp = null;
-//            }
-//            System.out.println("I have a name: " + $name.name + " / " + ($exp==null?"null":$exp.getClass()));
-//        }
-    | symbolicLiteral
+    | lit=symbolicLiteral
+        {
+            if ($lit.literal instanceof LexIntegerToken) {
+                $exp = new AIntLiteralExp($lit.literal.location, (LexIntegerToken)$lit.literal);
+            } else if ($lit.literal instanceof LexRealToken) {
+                $exp = new ARealLiteralExp($lit.literal.location, (LexRealToken)$lit.literal);
+            } else if ($lit.literal instanceof LexBooleanToken) {
+                $exp = new ABooleanConstExp($lit.literal.location, (LexBooleanToken)$lit.literal);
+            } else if ($lit.literal instanceof LexKeywordToken) {
+                // Note, this assumes that lit only ever
+                // gives a LexKeywordToken for 'nil'
+                $exp = new ANilExp($lit.literal.location);
+            } else if ($lit.literal instanceof LexCharacterToken) {
+            } else if ($lit.literal instanceof LexStringToken) {
+                ASeqSeqType charSeqType = new ASeqSeqType($lit.literal.location,
+                                                          true, null,
+                                                          new ACharBasicType(),
+                                                          (((LexStringToken)$lit.literal).value.length() == 0));
+                $exp = new AStringLiteralExp(charSeqType, $lit.literal.location, (LexStringToken)$lit.literal);
+            } else if ($lit.literal instanceof LexQuoteToken) {
+            } else {
+                // FIXME log a never-happens error
+            }
+        }
     | setMapExprs
     | '[]'
     | '[' seqExpr? ']'
@@ -805,7 +869,7 @@ ISUNDERNAMELPAREN
     : 'is_' IDENTIFIER (('.'|'`') IDENTIFIER)* '('
     ;
 
-/* Need to fix this, yet
+/* FIXME Need to fix this, yet --- right now "\"" will fail
  */
 TEXTLITERAL
     : '"' .* '"'
