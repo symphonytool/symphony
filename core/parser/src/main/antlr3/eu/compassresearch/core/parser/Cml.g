@@ -643,11 +643,11 @@ symbolicLiteral returns[LexToken literal]
         }    ;
 
 tuplePattern
-    : MKUNDERLPAREN pattern (',' pattern)* ')'
+    : MKUNDER '(' pattern (',' pattern)* ')'
     ;
 
 recordPattern
-    : MKUNDERNAMELPAREN (pattern (',' pattern)*)? ')'
+    : MKUNDERNAME '(' (pattern (',' pattern)*)? ')'
     ;
 
 expression returns[PExp exp]
@@ -688,11 +688,11 @@ unaryExpr1op
 
 expr1 returns[PExp exp]
     : unaryExpr1op expr1
-    | ISOFCLASSLPAREN IDENTIFIER (('.'|'`') IDENTIFIER)* ',' expression ')'
-    | ISUNDERLPAREN expression ',' type ')'
-    | ISUNDERBASICLPAREN expression ')'
-    | ISUNDERNAMELPAREN expression ')'
-    | PREUNDERLPAREN expression (',' expression)* ')'
+    | ISOFCLASS '(' IDENTIFIER (('.'|'`') IDENTIFIER)* ',' expression ')'
+    | ISUNDER '(' expression ',' type ')'
+    | ISUNDERBASIC '(' expression ')'
+    | ISUNDERNAME '(' expression ')'
+    | PREUNDER '(' expression (',' expression)* ')'
     | exprbase selector*
         {
             // FIXME --- do something with the selector(s)
@@ -712,7 +712,7 @@ exprbase returns[PExp exp]
             LexLocation start = extractLexLocation($l);
             LexLocation end = extractLexLocation($r);
             LexLocation loc = extractLexLocation(start, end);
-            $exp = new ABracketedExp(loc, $expression.exp); 
+            $exp = new ABracketedExp(loc, $expression.exp);
         }
     | self='self'
         {
@@ -771,6 +771,9 @@ exprbase returns[PExp exp]
             }
         }
     | recordTupleExprs
+        {
+            $exp = $recordTupleExprs.exp;
+        }
     | setMapExprs
     ;
 
@@ -779,29 +782,36 @@ exprbase returns[PExp exp]
  */
 seqExpr returns[SSeqExp seqExpr]
 @init { List<PExp> exps = new ArrayList<PExp>(); }
-    : exp=expression 
-        ( (',' enumItem=expression { exps.add($enumItem.exp); } )*
-        | '|' binding=setBind ('@' pred=expression)? 
+    : exp=expression
+        ( '|' binding=setBind ('@' pred=expression)?
+        | (',' enumItem=expression { exps.add($enumItem.exp); } )*
             // Apparently, [1,...,5] is neither valid VDM nor CML
-            // | ',' '...' ','  end=expression 
+            // | ',' '...' ','  end=expression
         )
         {
             // This location doesn't matter --- it *will* be replaced
             // by the caller of seqExpr.
             LexLocation loc = new LexLocation();
-            if (exps.size() > 0) {
-                $seqExpr = new ASeqEnumSeqExp(loc, exps);
-            } else if ($setBind.bind != null) {
+            if ($setBind.bind != null) {
                 $seqExpr = new ASeqCompSeqExp(loc, $exp.exp, $setBind.bind, $pred.exp);
             } else {
-                // FIXME log an impossible error here
+                exps.add(0, exp);
+                $seqExpr = new ASeqEnumSeqExp(loc, exps);
             }
         }
     ;
 
-recordTupleExprs
-    : MKUNDERLPAREN expression (',' expression)+ ')'
-    | MKUNDERNAMELPAREN ( expression (',' expression)* )? ')'
+recordTupleExprs returns[PExp exp]
+@init { List<PExp> exps = new ArrayList<PExp>(); }
+    : l=MKUNDER '(' first=expression ( ',' expItem=expression { exps.add($expItem.exp); } )+ r=')'
+        {
+            LexLocation start = extractLexLocation($l);
+            LexLocation end = extractLexLocation($r);
+            LexLocation loc = extractLexLocation(start,end);
+            exps.add(0,$first.exp);
+            $exp = new ATupleExp(loc,exps);
+        }
+    | MKUNDERNAME '(' ( expression (',' expression)* )? ')'
     ;
 
 setMapExprs
@@ -889,32 +899,32 @@ FRAMEMODE
 //     : 'nil'
 //     ;
 
-PREUNDERLPAREN
-    : 'pre_('
+PREUNDER
+    : 'pre_'
     ;
 
-MKUNDERLPAREN
-    : 'mk_('
+MKUNDER
+    : 'mk_'
     ;
 
-MKUNDERNAMELPAREN
-    : 'mk_' IDENTIFIER (('.'|'`') IDENTIFIER)* '('
+MKUNDERNAME
+    : 'mk_' IDENTIFIER (('.'|'`') IDENTIFIER)*
     ;
 
-ISOFCLASSLPAREN
-    : 'isofclass('
+ISOFCLASS
+    : 'isofclass'
     ;
 
-ISUNDERLPAREN
-    : 'is_('
+ISUNDER
+    : 'is_'
     ;
 
-ISUNDERBASICLPAREN
-    : 'is_' ('bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token') '('
+ISUNDERBASIC
+    : 'is_' ('bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token')
     ;
 
-ISUNDERNAMELPAREN
-    : 'is_' IDENTIFIER (('.'|'`') IDENTIFIER)* '('
+ISUNDERNAME
+    : 'is_' IDENTIFIER (('.'|'`') IDENTIFIER)*
     ;
 
 /* FIXME Need to fix this, yet --- right now "\"" will fail
@@ -1026,5 +1036,3 @@ LINECOMMENT
 MLINECOMMENT
     : '/*' .* '*/' { $channel=HIDDEN; }
     ;
-
-
