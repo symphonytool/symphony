@@ -391,7 +391,7 @@ public class ProofObligationGenerator extends
 	}
 
 	System.out.println(obligations.size() + " Proof Obligations generated");
-	obligations.toString();
+	System.out.println(obligations.toString());
 	return obligations;
     }
 

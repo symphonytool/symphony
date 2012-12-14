@@ -28,6 +28,7 @@ import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
 import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
+import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
@@ -206,6 +207,19 @@ public class POGDeclAndDefVisitor extends
 //		return pol;
     }
     
+    
+    @Override
+    public ProofObligationList caseAStateParagraphDefinition(
+    		AStateParagraphDefinition node, POContextStack question)
+    	    throws AnalysisException {
+    	System.out.println("------");
+		System.out
+			.println("Reached POGDeclAndDefVisitor - caseAStateParagraphDefinition");
+		
+
+		return new CMLProofObligationList();
+    }
+    
     /**
      * 
      * CML ELEMENT - Actions
@@ -237,7 +251,7 @@ public class POGDeclAndDefVisitor extends
 	return new CMLProofObligationList();
     }
 
-    
+   
     
     
     // Call Overture for the other expressions    
@@ -267,7 +281,7 @@ public class POGDeclAndDefVisitor extends
     	return pol;
     }
 
-  
+
 
    
     /**
