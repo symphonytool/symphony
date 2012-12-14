@@ -20,9 +20,13 @@
 grammar Cml;
 options {
     language=Java;
-//    output=AST;
     TokenLabelType=CommonToken;
-//    ASTLabelType=CmlTree;
+    // We're not really using ANTLR's AST building functionality,
+    // except that I (jwc) want to be able to use list += operators.
+    // So, we turn this on.  Maybe in the future we'll use the AST
+    // builder properly.
+    // Nope, that doesn't do it either
+    // output=AST;
 }
 /* This is necessary for the lexer to disambiguate QUOTELITERALS and a
  * '<' followed by an IDENTIFIER that is not followed by a '>'.
@@ -45,9 +49,9 @@ import java.text.ParseException;
 // import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
 import org.overture.ast.lex.*;
-// import org.overture.ast.node.*;
+import org.overture.ast.node.*;
 // import org.overture.ast.node.tokens.*;
-// import org.overture.ast.patterns.*;
+import org.overture.ast.patterns.*;
 // import org.overture.ast.preview.*;
 // import org.overture.ast.statements.*;
 import org.overture.ast.types.*;
@@ -738,10 +742,91 @@ exprbase returns[PExp exp]
                 // FIXME log a never-happens error
             }
         }
-    | setMapExprs
-    | '[]'
-    | '[' seqExpr? ']'
+    | eseq='[]'
+        {
+            LexLocation loc = extractLexLocation($eseq);
+            $exp = new ASeqEnumSeqExp(loc, new ArrayList<PExp>());
+        }
+    | l='[' seqExpr? r=']'
+        {
+            LexLocation start = extractLexLocation($l);
+            LexLocation end = extractLexLocation($r);
+            LexLocation loc = extractLexLocation(start, end);
+            if ($seqExpr.seqExpr == null) {
+                $exp = new ASeqEnumSeqExp(loc, new ArrayList<PExp>());
+            } else {
+                $seqExpr.seqExpr.setLocation(loc);
+                $exp = $seqExpr.seqExpr;
+            }
+        }
     | recordTupleExprs
+    | setMapExprs
+    ;
+
+/* sequence enumeration = '[', [ expression list ], ']' ;
+ * sequence comprehension = '[', expression, '|', set bind, [ '@', expression ], ']' ;
+ */
+seqExpr returns[SSeqExp seqExpr]
+@init { List<PExp> exps = new ArrayList<PExp>(); }
+    : exp=expression 
+        ( (',' enumItem=expression { exps.add($enumItem.exp); } )*
+        | '|' binding=setBind ('@' pred=expression)? 
+            // Apparently, [1,...,5] is neither valid VDM nor CML
+            // | ',' '...' ','  end=expression 
+        )
+        {
+            // This location doesn't matter --- it *will* be replaced
+            // by the caller of seqExpr.
+            LexLocation loc = new LexLocation();
+            if (exps.size() > 0) {
+                $seqExpr = new ASeqEnumSeqExp(loc, exps);
+            } else if ($setBind.bind != null) {
+                $seqExpr = new ASeqCompSeqExp(loc, $exp.exp, $setBind.bind, $pred.exp);
+            } else {
+                // FIXME log an impossible error here
+            }
+        }
+    ;
+
+recordTupleExprs
+    : MKUNDERLPAREN expression (',' expression)+ ')'
+    | MKUNDERNAMELPAREN ( expression (',' expression)* )? ')'
+    ;
+
+setMapExprs
+    : '{' ( '|->' | expression setMapExprTail? )? '}'
+    ;
+
+setMapExprTail
+    : ',' '...' ',' expression
+    | ( ',' expression )+
+    | '|->' expression mapExprTail?
+    | setMapExprBinding
+    ;
+
+mapExprTail
+    : setMapExprBinding
+    | ( ',' expression '|->' expression )+
+    ;
+
+setMapExprBinding
+    : '|' (bind (',' bind)* )? ('@' expression)?
+    ;
+
+localDefinition
+    : (valueDefinition)=> valueDefinition
+    | functionDefinition
+    ;
+
+bind: bindablePattern ('in' 'set' expression | ':' type)
+    ;
+
+setBind returns[ASetBind bind]
+    : bindablePattern 'in' 'set' expression
+    ;
+
+typeBind
+    : bindablePattern ':' type
     ;
 
 name returns[LexNameToken name]
@@ -769,54 +854,6 @@ name returns[LexNameToken name]
             }
             $name=new LexNameToken(module.toString(), $identifier.getText(), loc);
         }
-    ;
-
-setMapExprs
-    : '{' ( '|->' | expression setMapExprTail? )? '}'
-    ;
-
-recordTupleExprs
-    : MKUNDERLPAREN expression (',' expression)+ ')'
-    | MKUNDERNAMELPAREN ( expression (',' expression)* )? ')'
-    ;
-
-setMapExprTail
-    : ',' '...' ',' expression
-    | ( ',' expression )+
-    | '|->' expression mapExprTail?
-    | setMapExprBinding
-    ;
-
-mapExprTail
-    : setMapExprBinding
-    | ( ',' expression '|->' expression )+
-    ;
-
-setMapExprBinding
-    : '|' (bind (',' bind)* )? ('@' expression)?
-    ;
-
-/* sequence enumeration = '[', [ expression list ], ']' ;
- * sequence comprehension = '[', expression, '|', set bind, [ '@', expression ], ']' ;
- */
-seqExpr
-    : expression ( (',' expression)* | '|' setBind ('@' expression)? | ',' '...' ','  expression )
-    ;
-
-localDefinition
-    : (valueDefinition)=> valueDefinition
-    | functionDefinition
-    ;
-
-bind: bindablePattern ('in' 'set' expression | ':' type)
-    ;
-
-setBind
-    : bindablePattern 'in' 'set' expression
-    ;
-
-typeBind
-    : bindablePattern ':' type
     ;
 
 /* ********************************************************** */
