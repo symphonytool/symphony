@@ -132,21 +132,6 @@
 	  </archive>
 	</configuration>
       </plugin>
-
-      <!-- 
-	   Maving automatically looks in src/main/java and compiles
-	   java file in the sub-directory. Below source and target
-	   versions for the project are set.
-      -->
-      <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.5.1</version>
-        <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
 </project>
