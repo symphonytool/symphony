@@ -2658,7 +2658,7 @@ public class CmlParser
 /* Line 374 of cmlskeleton.java.m4  */
 /* Line 1600 of "src/main/bison/cml.y"  */
     {
-  List<PParametrisation> plist = new LinkedList<PParametrisation>();
+  List<PParametrisation> plist = (LinkedList<PParametrisation>)((yystack.valueAt (3-(1))));
   plist.add(0,(PParametrisation)((yystack.valueAt (3-(3)))));
   yyval = plist;
 };

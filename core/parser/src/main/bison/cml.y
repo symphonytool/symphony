@@ -1598,7 +1598,7 @@ parametrisationList :
 }
 | parametrisationList SEMI parametrisation
 {
-  List<PParametrisation> plist = new LinkedList<PParametrisation>();
+  List<PParametrisation> plist = (LinkedList<PParametrisation>)$1;
   plist.add(0,(PParametrisation)$parametrisation);
   $$ = plist;
 }

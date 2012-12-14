@@ -54,6 +54,10 @@ import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AMuAction;
+import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
+import eu.compassresearch.ast.actions.AParametrisedAction;
+import eu.compassresearch.ast.actions.AParametrisedInstantiatedAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -64,9 +68,11 @@ import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
+import eu.compassresearch.ast.actions.AVresParametrisation;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.SSingleDeclaration;
@@ -141,27 +147,27 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 
 
-	
+
 
 
 	@Override
 	public PType caseAForSetStatementAction(AForSetStatementAction node,
 			TypeCheckInfo question) throws AnalysisException {
 		// TODO RWL Working on it !
-		
+
 		// extract sub-trees
 		PAction action = node.getAction();
 		PPattern pattern = node.getPattern();
 		PExp set = node.getSet();
 		PType patternType = null;
-		
+
 		PType setType = set.apply(parentChecker, question);
 		if (!TCDeclAndDefVisitor.successfulType(setType))
 		{
 			node.setType(issueHandler.addTypeError(set, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+set)));
 			return node.getType();
 		}
-		
+
 		if (!(setType instanceof ASetType))
 		{
 			node.setType(issueHandler.addTypeError(set, TypeErrorMessages.SET_TYPE_EXPECTED.customizeMessage(""+set,""+setType)));
@@ -169,16 +175,16 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 		else
 			patternType = setType;
-		
+
 		CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
-		
+
 		PType patternUnknownType = pattern.apply(parentChecker,question);
 		if (!TCDeclAndDefVisitor.successfulType(patternUnknownType))
 		{
 			node.setType(issueHandler.addTypeError(pattern, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(pattern+"")));
 			return node.getType();
 		}
-		
+
 		if (!(patternUnknownType instanceof AUnresolvedType))
 		{
 			node.setType(issueHandler.addTypeError(pattern,TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Unresolved Type",patternUnknownType+"")));
@@ -186,9 +192,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 		else
 		{
-			
+
 		}
-		
+
 		node.setType(new AActionType());
 		return node.getType();
 	}
@@ -237,7 +243,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		CmlTypeCheckInfo newEnv = cmlQuestion.newScope();
 
 		pattern.setType(patternType);
-		
+
 		PType patType = pattern.apply(parentChecker,question);
 		List<PDefinition> defs = patType.getDefinitions();
 		for(PDefinition d : defs)
@@ -952,6 +958,93 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		return node.getType();
 	}
 
+
+
+	@Override
+	public PType caseAVresParametrisation(AVresParametrisation node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		ATypeSingleDeclaration decl = node.getDeclaration();
+		PType declType = decl.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(declType))
+		{
+			return new AErrorType(node.getLocation(), true);
+		}
+
+
+		return new AActionType();
+	}
+
+
+
+
+
+
+
+	@Override
+	public PType caseAParametrisedInstantiatedAction(
+			AParametrisedInstantiatedAction node, TypeCheckInfo question)
+					throws AnalysisException {
+
+		AParametrisedAction action = node.getAction();
+		LinkedList<PExp> args = node.getArgs();
+
+		CmlTypeCheckInfo cmlEnv = getTypeCheckInfo(question);
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node+"")));
+			return node.getType();
+		}
+		
+		CmlTypeCheckInfo newCmlEnv = cmlEnv.newScope(); 
+		
+		LinkedList<PParametrisation> parameterNames = node.getAction().getParametrisations();
+		int i = 0;
+		for(PExp exp : args)
+		{
+			PType expType = exp.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(expType))
+			{
+				node.setType(issueHandler.addTypeError(exp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(exp+"")));
+				return node.getType();
+			}
+			
+			if (i > parameterNames.size())
+				continue;
+			PParametrisation pa = parameterNames.get(i++);
+			ATypeSingleDeclaration decl = pa.getDeclaration();
+			PType declType = decl.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(declType))
+			{
+				node.setType(issueHandler.addTypeError(decl, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+decl)));
+				return node.getType();
+			}
+
+			LinkedList<LexIdentifierToken> ids = decl.getIdentifiers();
+			for(LexIdentifierToken id : ids)
+			{
+				LexNameToken idName = new LexNameToken("", id);
+				ALocalDefinition localDef = AstFactory.newALocalDefinition( id.getLocation(), idName, NameScope.LOCAL, declType);
+				newCmlEnv.addVariable(id, localDef);
+			}
+		}
+		int a;
+		PType actionType = action.apply(parentChecker,newCmlEnv);
+		if (!TCDeclAndDefVisitor.successfulType(actionType))
+		{
+			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(action+"")));
+			return node.getType();
+		}
+
+		node.setType(new AActionType(node.getLocation(),true));
+		return node.getType();
+	}
+
+
+
+
+
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public PType caseAHidingAction(AHidingAction node,
@@ -1123,5 +1216,92 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 		return new AActionType(node.getLocation(), true);
 	}
+
+
+
+
+
+
+	@Override
+	public PType caseANonDeterministicDoStatementAction(
+			ANonDeterministicDoStatementAction node, TypeCheckInfo question)
+					throws AnalysisException {
+
+		LinkedList<ANonDeterministicAltStatementAction> alternatives = node.getAlternatives();
+		for(ANonDeterministicAltStatementAction act : alternatives){
+			PType actType = act.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(actType))
+			{
+				node.setType(issueHandler.addTypeError(act,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(act+"")));
+				return node.getType();
+			}
+		}
+
+		node.setType(new AActionType());
+		return node.getType();
+	}
+
+
+
+
+
+
+	@Override
+	public PType caseANonDeterministicAltStatementAction(
+			ANonDeterministicAltStatementAction node, TypeCheckInfo question)
+					throws AnalysisException {
+
+
+		PExp guard = node.getGuard();
+		PType guardType = guard.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(guardType))
+		{
+			node.setType(issueHandler.addTypeError(guard, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(guard+"")));
+			return node.getType();
+		}
+
+		PAction action = node.getAction();
+		PType actionType = action.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(actionType))
+		{
+			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+action)));
+			return node.getType();
+		}
+
+
+		node.setType(new AActionType());
+		return node.getType();
+	}
+
+
+
+
+
+
+	@Override
+	public PType caseAParametrisedAction(AParametrisedAction node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		
+		PAction action = node.getAction();
+		
+		// Params are already added to the environment above as we have the defining expressions there !
+		// at least in the case of caseAParametrisedInstantiatedAction. See how it is done there if your are in trouble
+		// with this guy.
+		LinkedList<PParametrisation> params = node.getParametrisations();
+		
+		PType actionType=  action.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(actionType))
+		{
+			node.setType(issueHandler.addTypeError(node,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(action+"")));
+			return node.getType();
+		}
+		
+		node.setType(new AActionType());
+		return node.getType();
+	}
+
+	
+
 
 }
