@@ -16,6 +16,8 @@
  * expression/statement precedence has still to be resolved
  *
  * make type not allow '()' unless coming from a function?
+ *
+ * I'm not sure if multiple binds are implemented. -jwc/14Dec2012
  */
 grammar Cml;
 options {
@@ -319,7 +321,7 @@ action2
  */
 communication
     : ('.' | '!') ( IDENTIFIER | '(' expression ')' | symbolicLiteral | recordTupleExprs )
-    | '?' bindablePattern ( 'in' 'set' setMapExprs )?
+    | '?' bindablePattern ( 'in' 'set' setMapExpr )?
     ;
 
 statement
@@ -774,7 +776,10 @@ exprbase returns[PExp exp]
         {
             $exp = $recordTupleExprs.exp;
         }
-    | setMapExprs
+    | setMapExpr
+        {
+            $exp = $setMapExpr.exp;
+        }
     ;
 
 /* sequence enumeration = '[', [ expression list ], ']' ;
@@ -814,24 +819,81 @@ recordTupleExprs returns[PExp exp]
     | MKUNDERNAME '(' ( expression (',' expression)* )? ')'
     ;
 
-setMapExprs
-    : '{' ( '|->' | expression setMapExprTail? )? '}'
+setMapExpr returns[PExp exp]
+    : l='{' ( empty='|->' | setMapExprGuts )? r='}'
+        {
+            LexLocation start = extractLexLocation($l);
+            LexLocation end = extractLexLocation($r);
+            LexLocation loc = extractLexLocation(start, end);
+            if ($setMapExprGuts.exp != null) {
+                $setMapExprGuts.exp.setLocation(loc);
+                $exp = $setMapExprGuts.exp;
+            } else if ($empty != null) {
+                $exp = new AMapEnumMapExp(loc, new ArrayList<AMapletExp>());
+            } else {
+                $exp = new ASetEnumSetExp(loc, new ArrayList<PExp>());
+            }
+        }
     ;
 
-setMapExprTail
-    : ',' '...' ',' expression
-    | ( ',' expression )+
-    | '|->' expression mapExprTail?
-    | setMapExprBinding
+setMapExprGuts returns[PExp exp]
+@init {
+    List<PExp> exps = new ArrayList<PExp>();
+    List<AMapletExp> mexps = new ArrayList<AMapletExp>();
+    // This location doesn't matter --- it *will* be replaced
+    // by the caller of seqExpr.
+    LexLocation loc = new LexLocation();
+}
+    : first=expression
+        ( ',' '...' ',' last=expression
+            {
+                $exp = new ASetRangeSetExp(loc, $first.exp, $last.exp);
+            }                
+        | ( ',' setItem=expression { exps.add($setItem.exp); } )+ // taken care of below
+        | '|->' firstto=expression 
+            ( mbinding=setMapExprBinding
+            | ( ',' fexp=expression '|->' texp=expression 
+                    {
+                        LexLocation mloc = extractLexLocation($fexp.exp.getLocation(), $texp.exp.getLocation());
+                        mexps.add(new AMapletExp(mloc,$fexp.exp,$texp.exp));
+                    }
+                )+
+            )?
+            {
+                LexLocation mloc = extractLexLocation($first.exp.getLocation(), $firstto.exp.getLocation());
+                AMapletExp firstMaplet = new AMapletExp(mloc, $first.exp, $firstto.exp);
+                if (mbinding != null) {
+                    $exp = new AMapCompMapExp(loc, firstMaplet, $mbinding.bindings, $mbinding.pred);
+                } else {
+                    mexps.add(0, firstMaplet);
+                    $exp = new AMapEnumMapExp(loc, mexps);
+                }
+            }
+        | binding=setMapExprBinding
+            {
+                  $exp = new ASetCompSetExp(loc, $first.exp, $binding.bindings, $binding.pred);
+            }
+        )?
+        {
+            if ($exp == null) {
+                exps.add(0, $first.exp);
+                $exp = new ASetEnumSetExp(loc, exps);
+            } else {
+                // Log a never-happens
+            }
+        }
     ;
 
-mapExprTail
-    : setMapExprBinding
-    | ( ',' expression '|->' expression )+
-    ;
-
-setMapExprBinding
-    : '|' (bind (',' bind)* )? ('@' expression)?
+setMapExprBinding returns[List<PMultipleBind> bindings, PExp pred, LexLocation loc]
+@init { List<PMultipleBind> bindList = new ArrayList<PMultipleBind>(); }
+    : '|' first=bind 
+        ( ',' bindItem=bind { bindList.add($bindItem.binding); } )*
+        ('@' expression)?
+        {
+            bindList.add(0, $first.binding);
+            $bindings = bindList;
+            $pred = $expression.exp;
+        }
     ;
 
 localDefinition
@@ -839,7 +901,13 @@ localDefinition
     | functionDefinition
     ;
 
-bind: bindablePattern ('in' 'set' expression | ':' type)
+bind returns[PMultipleBind binding]
+    : bindablePattern ('in' 'set' expression | ':' type)
+        {
+            // FIXME -- this is a placeholder to prevent NPEs
+            System.out.println("Implement the bind rule!");
+            $binding = new ASetMultipleBind();
+        }
     ;
 
 setBind returns[ASetBind bind]
