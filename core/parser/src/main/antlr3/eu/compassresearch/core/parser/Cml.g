@@ -652,6 +652,9 @@ recordPattern
 
 expression returns[PExp exp]
     : expr0
+        {
+            $exp = $expr0.exp;
+        }
     | 'let' localDefinition (',' localDefinition)* 'in' expression
     | 'if' expression 'then' expression ('elseif' expression 'then' expression)* 'else' expression
     | 'cases' expression ':' (pattern (',' pattern)* '->' expression (',' pattern (',' pattern)* '->' expression)* )? (',' 'others' '->' expression)? 'end'
@@ -669,8 +672,12 @@ binExpr0op
     | '<:' | '<-:' | ':->' | ':>' | 'comp' | '**'
     ;
 
-expr0
+expr0 returns[PExp exp]
     : expr1 (binExpr0op expression)?
+        {
+            // FIXME --- binops!
+            $exp = $expr1.exp;
+        }
     ;
 
 unaryExpr1op
@@ -679,7 +686,7 @@ unaryExpr1op
     | 'conc' | 'dom' | 'rng' | 'merge' | 'inverse'
     ;
 
-expr1
+expr1 returns[PExp exp]
     : unaryExpr1op expr1
     | ISOFCLASSLPAREN IDENTIFIER (('.'|'`') IDENTIFIER)* ',' expression ')'
     | ISUNDERLPAREN expression ',' type ')'
@@ -687,6 +694,10 @@ expr1
     | ISUNDERNAMELPAREN expression ')'
     | PREUNDERLPAREN expression (',' expression)* ')'
     | exprbase selector*
+        {
+            // FIXME --- do something with the selector(s)
+            $exp = $exprbase.exp;
+        }
     ;
 
 selector
