@@ -695,7 +695,7 @@ expr1 returns[PExp exp]
     | ISOFCLASS '(' IDENTIFIER (('.'|'`') IDENTIFIER)* ',' expression ')'
     | ISUNDER '(' expression ',' type ')'
     | ISUNDERBASIC '(' expression ')'
-    | ISUNDERNAME '(' expression ')'
+    | ISUNDER name '(' expression ')'
     | PREUNDER '(' expression (',' expression)* ')'
     | exprbase selector*
         {
@@ -784,9 +784,6 @@ exprbase returns[PExp exp]
         }
     ;
 
-/* sequence enumeration = '[', [ expression list ], ']' ;
- * sequence comprehension = '[', expression, '|', set bind, [ '@', expression ], ']' ;
- */
 seqExpr returns[SSeqExp seqExpr]
 @init { List<PExp> exps = new ArrayList<PExp>(); }
     : exp=expression
@@ -864,11 +861,11 @@ setMapExprGuts returns[PExp exp]
         ( ',' '...' ',' last=expression
             {
                 $exp = new ASetRangeSetExp(loc, $first.exp, $last.exp);
-            }                
+            }
         | ( ',' setItem=expression { exps.add($setItem.exp); } )+ // taken care of below
-        | '|->' firstto=expression 
+        | '|->' firstto=expression
             ( mbinding=setMapExprBinding
-            | ( ',' fexp=expression '|->' texp=expression 
+            | ( ',' fexp=expression '|->' texp=expression
                     {
                         LexLocation mloc = extractLexLocation($fexp.exp.getLocation(), $texp.exp.getLocation());
                         mexps.add(new AMapletExp(mloc,$fexp.exp,$texp.exp));
@@ -895,14 +892,14 @@ setMapExprGuts returns[PExp exp]
                 exps.add(0, $first.exp);
                 $exp = new ASetEnumSetExp(loc, exps);
             } else {
-                // Log a never-happens
+                // FIXME Log a never-happens
             }
         }
     ;
 
 setMapExprBinding returns[List<PMultipleBind> bindings, PExp pred, LexLocation loc]
 @init { List<PMultipleBind> bindList = new ArrayList<PMultipleBind>(); }
-    : '|' first=bind 
+    : '|' first=bind
         ( ',' bindItem=bind { bindList.add($bindItem.binding); } )*
         ('@' expression)?
         {
@@ -921,7 +918,8 @@ bind returns[PMultipleBind binding]
     : bindablePattern ('in' 'set' expression | ':' type)
         {
             // FIXME -- this is a placeholder to prevent NPEs
-            System.out.println("Implement the bind rule!");
+            // Note, also, the use of this in setMapExprBinding may not be quite right; I think it actually wants a multibind
+            System.out.println("++ Implement the bind rule!");
             $binding = new ASetMultipleBind();
         }
     ;
@@ -998,10 +996,6 @@ ISUNDERBASIC
     : 'is_' ('bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token')
     ;
 
-ISUNDERNAME
-    : 'is_' IDENTIFIER (('.'|'`') IDENTIFIER)*
-    ;
-
 /* FIXME Need to fix this, yet --- right now "\"" will fail
  */
 TEXTLITERAL
@@ -1040,12 +1034,10 @@ FOLLOW_LETTER
     ;
 
 IDENTIFIER
-    : INITIAL_LETTER FOLLOW_LETTER*
+    : ('mk_')=> 'mk_' { $type=MKUNDER; }
+    | ('is_')=> 'is_' { $type=ISUNDER; }
+    | INITIAL_LETTER FOLLOW_LETTER*
     ;
-
-// NAME
-//     : IDENTIFIER ('.' IDENTIFIER)?
-//     ;
 
 fragment
 OCTDIGIT
