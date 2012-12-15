@@ -52,6 +52,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 // import org.apache.commons.lang3.StringUtils;
 
+import static org.overture.ast.lex.Dialect.VDM_PP;
 // import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
 import org.overture.ast.lex.*;
@@ -130,6 +131,9 @@ private LexLocation extractLexLocation(CommonToken start, CommonToken end) {
                            sline, spos,
                            eline, epos,
                            soffset, eoffset);
+}
+public LexLocation extractLexLocation(PExp start, PExp end) {
+    return extractLexLocation(start.getLocation(),end.getLocation());
 }
 public LexLocation extractLexLocation(LexLocation start, LexLocation end) {
     return new LexLocation(start.file, "",
@@ -691,22 +695,142 @@ expression returns[PExp exp]
     | 'lambda' typeBind (',' typeBind)* '@' expression
     ;
 
-binExpr0op
-    : '+' | '-' | '*' | '/' | 'div' | 'rem' | 'mod' | '<' | '<=' | '>' | '>='
-    | '=' | '<>' | 'or' | 'and' | '=>' | '<=>' | 'in' 'set' | 'not' 'in' 'set'
-    | 'subset' | 'psubset' | 'union' | '\\' | 'inter' | '^' | '++' | 'munion'
-    | '<:' | '<-:' | ':->' | ':>' | 'comp' | '**'
-    ;
-
 expr0 returns[PExp exp]
-    : expr1 (binExpr0op expression)?
-        {
-            // FIXME --- binops!
-            $exp = $expr1.exp;
+    : e1=expr1 (o='<=>' e2=expr0)?
+        { 
+            if (e2 == null)
+                $exp = $e1.exp;
+            else
+                $exp = new AEquivalentBooleanBinaryExp(extractLexLocation($e1.exp,$e2.exp),
+                                                       $e1.exp,
+                                                       new LexToken(extractLexLocation($o), VDMToken.lookup($o.getText(), VDM_PP)),
+                                                       $e2.exp);
         }
     ;
 
-unaryExprOp returns[SUnaryExp op]
+expr1 returns[PExp exp]
+    : e1=expr2 (o='=>' e2=expr1)?
+        { 
+            if (e2 == null)
+                $exp = $e1.exp;
+            else
+                $exp = new AImpliesBooleanBinaryExp(extractLexLocation($e1.exp,$e2.exp),
+                                             $e1.exp,
+                                             new LexToken(extractLexLocation($o), VDMToken.lookup($o.getText(), VDM_PP)),
+                                             $e2.exp);
+        }
+    ;
+
+expr2 returns[PExp exp]
+    : e1=expr3 (o='or' e2=expr2)?
+        { 
+            if (e2 == null)
+                $exp = $e1.exp;
+            else
+                $exp = new AOrBooleanBinaryExp(extractLexLocation($e1.exp,$e2.exp),
+                                               $e1.exp,
+                                               new LexToken(extractLexLocation($o), VDMToken.lookup($o.getText(), VDM_PP)),
+                                               $e2.exp);
+        }
+    ;
+
+expr3 returns[PExp exp]
+    : e1=expr4 (o='and' e2=expr3)?
+        { 
+            if (e2 == null)
+                $exp = $e1.exp;
+            else
+                $exp = new AAndBooleanBinaryExp(extractLexLocation($e1.exp,$e2.exp),
+                                                $e1.exp,
+                                                new LexToken(extractLexLocation($o), VDMToken.lookup($o.getText(), VDM_PP)),
+                                                $e2.exp);
+        }
+    ;
+
+binOpRel returns[SBinaryExpBase op]
+@init {
+    LexLocation loc = null;
+    String opStr = null;
+}
+@after {
+    op.setLocation(loc);
+    op.setOp(new LexToken(loc, VDMToken.lookup(opStr, VDM_PP)));
+}
+    : o='<'                { $op = new ALessNumericBinaryExp();         loc = extractLexLocation($o);    opStr = $o.getText(); }
+    | o='<='               { $op = new ALessEqualNumericBinaryExp();    loc = extractLexLocation($o);    opStr = $o.getText(); }
+    | o='>'                { $op = new AGreaterNumericBinaryExp();      loc = extractLexLocation($o);    opStr = $o.getText(); }
+    | o='>='               { $op = new AGreaterEqualNumericBinaryExp(); loc = extractLexLocation($o);    opStr = $o.getText(); }
+    | o='='                { $op = new AEqualsBinaryExp();              loc = extractLexLocation($o);    opStr = $o.getText(); }
+    | o='<>'               { $op = new ANotEqualBinaryExp();            loc = extractLexLocation($o);    opStr = $o.getText(); }
+    | o='in' l='set'       { $op = new AInSetBinaryExp();               loc = extractLexLocation($o,$l); opStr = "in set"; }
+    | o='not' 'in' l='set' { $op = new ANotInSetBinaryExp();            loc = extractLexLocation($o,$l); opStr = "not in set"; }
+    | o='subset'           { $op = new ASubsetBinaryExp();              loc = extractLexLocation($o);    opStr = $o.getText(); }
+    | o='psubset'          { $op = new AProperSubsetBinaryExp();        loc = extractLexLocation($o);    opStr = $o.getText(); }
+    ;
+
+expr4 returns[PExp exp]
+    : e1=expr5 (binOpRel e2=expr4)?
+        {
+            if (e2 == null) {
+                $exp = $e1.exp;
+            } else {
+                LexLocation loc = extractLexLocation($e1.exp,$e2.exp);
+                SBinaryExpBase op = $binOpRel.op;
+                op.setLocation(loc);
+                op.setLeft($e1.exp);
+                op.setRight($e2.exp);
+                $exp = op;
+            }
+        }
+    ;
+
+binOpEval1
+    : '+' | '-' | 'union' | '\\' | 'munion' | '++' | '^'
+    ;
+
+expr5 returns[PExp exp]
+    : e1=expr6 (binOpEval1 e2=expr5)?
+        { $exp = $e1.exp; }
+    ;
+
+binOpEval2
+    : '*' | '/' | 'rem' | 'mod' | 'div' | 'inter'
+    ;
+
+expr6 returns[PExp exp]
+    : e1=expr7 (binOpEval2 e2=expr6)?
+        { $exp = $e1.exp; }
+    ;
+
+binOpEval3
+    : '<:' | '<-:' 
+    ;
+
+expr7 returns[PExp exp]
+    : e1=expr8 (binOpEval3 e2=expr7)?
+        { $exp = $e1.exp; }
+    ;
+
+binOpEval4
+    : ':->' | ':>' 
+    ;
+
+expr8 returns[PExp exp]
+    : e1=expr9 (binOpEval4 e2=expr8)?
+        { $exp = $e1.exp; }
+    ;
+
+expr9 returns[PExp exp]
+    : e1=expr10 ('comp' e2=expr9)?
+        { $exp = $e1.exp; }
+    ;
+
+expr10 returns[PExp exp]
+    : e1=expr11 ('**' e2=expr10)?
+        { $exp = $e1.exp; }
+    ;
+
+unaryOp returns[SUnaryExp op]
     : o='+'       { $op = new AUnaryPlusUnaryExp();     $op.setLocation(extractLexLocation($o)); }
     | o='-'       { $op = new AUnaryMinusUnaryExp();    $op.setLocation(extractLexLocation($o)); }
     | o='abs'     { $op = new AAbsoluteUnaryExp();      $op.setLocation(extractLexLocation($o)); }
@@ -729,10 +853,10 @@ unaryExprOp returns[SUnaryExp op]
     | o='inverse' { $op = new AMapInverseUnaryExp();    $op.setLocation(extractLexLocation($o)); }
     ;
 
-expr1 returns[PExp exp]
-    : unaryExprOp operand=expr1
+expr11 returns[PExp exp]
+    : unaryOp operand=expr11
         {
-            SUnaryExp unaryop = $unaryExprOp.op;
+            SUnaryExp unaryop = $unaryOp.op;
             PExp target = $operand.exp;
             unaryop.setExp(target);
             unaryop.setLocation(extractLexLocation(unaryop.getLocation(), target.getLocation()));
