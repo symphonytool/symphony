@@ -20,6 +20,7 @@
  * I'm not sure if multiple binds are implemented. -jwc/14Dec2012
  *
  * Look into start/final rules to see if we can ease up the location bookkeeping
+ *
  */
 grammar Cml;
 options {
@@ -30,6 +31,7 @@ options {
     // So, we turn this on.  Maybe in the future we'll use the AST
     // builder properly.
     // Nope, that doesn't do it either
+    // --> Sadly, the += syntax only works on token because we're not using the AST construction config
     // output=AST;
 }
 /* This is necessary for the lexer to disambiguate QUOTELITERALS and a
@@ -115,6 +117,19 @@ private LexLocation extractLexLocation(CommonToken token) {
                            pos+len, //end column
                            offset, //absolute start offset
                            offset+len); //absolute end offset
+}
+private LexLocation extractLexLocation(CommonToken start, CommonToken end) {
+    int sline = start.getLine();
+    int eline = end.getLine();
+    int spos = start.getCharPositionInLine();
+    int epos = end.getCharPositionInLine() + end.getText().length();
+    int soffset = start.getStartIndex();
+    int eoffset = end.getStopIndex();
+    return new LexLocation("",// FIXME: filename --- was currentSource.toString(),
+                           "",// FIXME: (local?) module name
+                           sline, spos,
+                           eline, epos,
+                           soffset, eoffset);
 }
 public LexLocation extractLexLocation(LexLocation start, LexLocation end) {
     return new LexLocation(start.file, "",
@@ -528,7 +543,7 @@ typeDef
     | QUALIFIER? IDENTIFIER '::' field+ invariant?
     ;
 
-type
+type returns[PType type]
     : type0 (('+>'|'->') type0)?
     | '(' ')' (('+>'|'->') type0)?
     ;
@@ -552,8 +567,15 @@ type1
     | 'inmap' type1 'to' type1
     ;
 
-basicType
-    : 'bool' | 'nat' | 'nat1' | 'int' | 'rat' | 'real' | 'char' | 'token'
+basicType returns[PType basicType]
+    : t='bool'  { $basicType = new ABooleanBasicType(extractLexLocation($t), false); }
+    | t='nat'   { $basicType = new ANatNumericBasicType(extractLexLocation($t), false); }
+    | t='nat1'  { $basicType = new ANatOneNumericBasicType(extractLexLocation($t), false); }
+    | t='int'   { $basicType = new AIntNumericBasicType(extractLexLocation($t), false); }
+    | t='rat'   { $basicType = new ARationalNumericBasicType(extractLexLocation($t), false); }
+    | t='real'  { $basicType = new ARealNumericBasicType(extractLexLocation($t), false); }
+    | t='char'  { $basicType = new ACharBasicType(extractLexLocation($t), false); }
+    | t='token' { $basicType = new ATokenBasicType(extractLexLocation($t), false); }
     ;
 
 field
@@ -692,11 +714,6 @@ unaryExpr1op
 
 expr1 returns[PExp exp]
     : unaryExpr1op expr1
-    | ISOFCLASS '(' IDENTIFIER (('.'|'`') IDENTIFIER)* ',' expression ')'
-    | ISUNDER '(' expression ',' type ')'
-    | ISUNDERBASIC '(' expression ')'
-    | ISUNDER name '(' expression ')'
-    | PREUNDER '(' expression (',' expression)* ')'
     | exprbase selector*
         {
             // FIXME --- do something with the selector(s)
@@ -711,11 +728,10 @@ selector
     ;
 
 exprbase returns[PExp exp]
+@init { List<PExp> exps = new ArrayList<PExp>(); }
     : l='(' expression r=')'
         {
-            LexLocation start = extractLexLocation($l);
-            LexLocation end = extractLexLocation($r);
-            LexLocation loc = extractLexLocation(start, end);
+            LexLocation loc = extractLexLocation($l,$r);
             $exp = new ABracketedExp(loc, $expression.exp);
         }
     | self='self'
@@ -764,9 +780,7 @@ exprbase returns[PExp exp]
         }
     | l='[' seqExpr? r=']'
         {
-            LexLocation start = extractLexLocation($l);
-            LexLocation end = extractLexLocation($r);
-            LexLocation loc = extractLexLocation(start, end);
+            LexLocation loc = extractLexLocation($l,$r);
             if ($seqExpr.seqExpr == null) {
                 $exp = new ASeqEnumSeqExp(loc, new ArrayList<PExp>());
             } else {
@@ -781,6 +795,31 @@ exprbase returns[PExp exp]
     | setMapExpr
         {
             $exp = $setMapExpr.exp;
+        }
+    | ISOFCLASS '(' name ',' expression r=')'
+        {
+            LexLocation loc = extractLexLocation($ISOFCLASS,$r);
+            $exp = new AIsOfClassExp(loc, $name.name, $expression.exp);
+        }
+    | ISUNDER '(' expression ',' type r=')'
+        {
+            LexLocation loc = extractLexLocation($ISUNDER,$r);
+            $exp = new AIsExp(null, loc, null, $type.type, $expression.exp, null);
+        }
+    | ISUNDER basicType '(' expression r=')'
+        {
+            LexLocation loc = extractLexLocation($ISUNDER,$r);
+            $exp = new AIsExp(null, loc, null, $basicType.basicType, $expression.exp, null);
+        }
+    | ISUNDER name '(' expression r=')'
+        {
+            LexLocation loc = extractLexLocation($ISUNDER,$r);
+            $exp = new AIsExp(null, loc, $name.name, null, $expression.exp, null);
+        }
+    | PREUNDER '(' func=expression ( ',' expr=expression { exps.add($expr.exp); } )* ')'
+        {
+            LexLocation loc = extractLexLocation($PREUNDER,$r);
+            $exp = new APreExp(loc, $func.exp, exps);
         }
     ;
 
@@ -809,24 +848,18 @@ recordTupleExprs returns[PExp exp]
 @init { List<PExp> exps = new ArrayList<PExp>(); }
     : l=MKUNDER '(' first=expression ( ',' expItem=expression { exps.add($expItem.exp); } )+ r=')'
         {
-            LexLocation start = extractLexLocation($l);
-            LexLocation end = extractLexLocation($r);
-            LexLocation loc = extractLexLocation(start,end);
+            LexLocation loc = extractLexLocation($l,$r);
             exps.add(0,$first.exp);
             $exp = new ATupleExp(loc,exps);
         }
     | MKUNDER 'token' '(' expression r=')'
         {
-            LexLocation start = extractLexLocation($MKUNDER);
-            LexLocation end = extractLexLocation($r);
-            LexLocation loc = extractLexLocation(start,end);
+            LexLocation loc = extractLexLocation($MKUNDER,$r);
             $exp = new AMkBasicExp(new ATokenBasicType(loc, true), loc, $expression.exp);
         }
     | MKUNDER name '(' ( first=expression ( ',' expItem=expression { exps.add($expItem.exp); } )* )? r=')'
         {
-            LexLocation start = extractLexLocation($MKUNDER);
-            LexLocation end = extractLexLocation($r);
-            LexLocation loc = extractLexLocation(start,end);
+            LexLocation loc = extractLexLocation($MKUNDER,$r);
             exps.add(0,$first.exp);
             $exp = new AMkTypeExp(loc, $name.name, exps);
         }
@@ -835,9 +868,7 @@ recordTupleExprs returns[PExp exp]
 setMapExpr returns[PExp exp]
     : l='{' ( empty='|->' | setMapExprGuts )? r='}'
         {
-            LexLocation start = extractLexLocation($l);
-            LexLocation end = extractLexLocation($r);
-            LexLocation loc = extractLexLocation(start, end);
+            LexLocation loc = extractLexLocation($l,$r);
             if ($setMapExprGuts.exp != null) {
                 $setMapExprGuts.exp.setLocation(loc);
                 $exp = $setMapExprGuts.exp;
