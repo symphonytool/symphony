@@ -706,14 +706,38 @@ expr0 returns[PExp exp]
         }
     ;
 
-unaryExpr1op
-    : '+' | '-' | 'abs' | 'floor' | 'not' | 'card' | 'power' | 'dunion'
-    | 'dinter' | 'hd' | 'tl' | 'len' | 'elems' | 'inds' | 'reverse'
-    | 'conc' | 'dom' | 'rng' | 'merge' | 'inverse'
+unaryExprOp returns[SUnaryExp op]
+    : o='+'       { $op = new AUnaryPlusUnaryExp();     $op.setLocation(extractLexLocation($o)); }
+    | o='-'       { $op = new AUnaryMinusUnaryExp();    $op.setLocation(extractLexLocation($o)); }
+    | o='abs'     { $op = new AAbsoluteUnaryExp();      $op.setLocation(extractLexLocation($o)); }
+    | o='floor'   { $op = new AFloorUnaryExp();         $op.setLocation(extractLexLocation($o)); }
+    | o='not'     { $op = new ANotUnaryExp();           $op.setLocation(extractLexLocation($o)); }
+    | o='card'    { $op = new ACardinalityUnaryExp();   $op.setLocation(extractLexLocation($o)); }
+    | o='power'   { $op = new APowerSetUnaryExp();      $op.setLocation(extractLexLocation($o)); }
+    | o='dunion'  { $op = new ADistUnionUnaryExp();     $op.setLocation(extractLexLocation($o)); }
+    | o='dinter'  { $op = new ADistIntersectUnaryExp(); $op.setLocation(extractLexLocation($o)); }
+    | o='hd'      { $op = new AHeadUnaryExp();          $op.setLocation(extractLexLocation($o)); }
+    | o='tl'      { $op = new ATailUnaryExp();          $op.setLocation(extractLexLocation($o)); }
+    | o='len'     { $op = new ALenUnaryExp();           $op.setLocation(extractLexLocation($o)); }
+    | o='elems'   { $op = new AElementsUnaryExp();      $op.setLocation(extractLexLocation($o)); }
+    | o='inds'    { $op = new AIndicesUnaryExp();       $op.setLocation(extractLexLocation($o)); }
+    | o='reverse' { $op = new AReverseUnaryExp();       $op.setLocation(extractLexLocation($o)); }
+    | o='conc'    { $op = new ADistConcatUnaryExp();    $op.setLocation(extractLexLocation($o)); }
+    | o='dom'     { $op = new AMapDomainUnaryExp();     $op.setLocation(extractLexLocation($o)); }
+    | o='rng'     { $op = new AMapRangeUnaryExp();      $op.setLocation(extractLexLocation($o)); }
+    | o='merge'   { $op = new ADistMergeUnaryExp();     $op.setLocation(extractLexLocation($o)); }
+    | o='inverse' { $op = new AMapInverseUnaryExp();    $op.setLocation(extractLexLocation($o)); }
     ;
 
 expr1 returns[PExp exp]
-    : unaryExpr1op expr1
+    : unaryExprOp operand=expr1
+        {
+            SUnaryExp unaryop = $unaryExprOp.op;
+            PExp target = $operand.exp;
+            unaryop.setExp(target);
+            unaryop.setLocation(extractLexLocation(unaryop.getLocation(), target.getLocation()));
+            $exp = unaryop;
+        }
     | exprbase selector*
         {
             // FIXME --- do something with the selector(s)
