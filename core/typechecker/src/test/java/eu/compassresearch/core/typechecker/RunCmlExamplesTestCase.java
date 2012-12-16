@@ -89,18 +89,18 @@ public class RunCmlExamplesTestCase {
 				TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage("a"));
 		addFailingFile("process-timed_interrupt.cml",
 				TypeErrorMessages.UNDEFINED_SYMBOL
-						.customizeMessage("Default`A"));
+						.customizeMessage("A"));
 		addFailingFile("process-replication-interleaving.cml",
 				TypeErrorMessages.UNDEFINED_SYMBOL
-						.customizeMessage("Default`A"));
+						.customizeMessage("A"));
 		addFailingFile("process-action-replicated-sequentialcomposition.cml",
 				TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage("A"));
 		addFailingFile("process-alphabetised_parallelism.cml",
 				TypeErrorMessages.UNDEFINED_SYMBOL
-						.customizeMessage("Default`A"));
+						.customizeMessage("A"));
 		addFailingFile("process-startdeadline.cml",
 				TypeErrorMessages.UNDEFINED_SYMBOL
-						.customizeMessage("Default`A"));
+						.customizeMessage("A"));
 		addFailingFile("class-functions.cml", "Unable to resolve type name 'SUBS'.");
 		
 		addFailingFile("class-types-composeof.cml","Unable to resolve type name 'A1'.");
@@ -138,6 +138,21 @@ public class RunCmlExamplesTestCase {
 		addFailingFile("process-action-parametrisedInstantiated.cml","The Symbol \"A\" is undefined.");
 		addFailingFile("process-action-newstm.cml","The Symbol \"a\" is undefined.");
 		addFailingFile("process-action-letstm.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-action-parametrised.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-actions-communication-input.cml","The type init is undefined.");
+		addFailingFile("process-actions-external_choice.cml","The type init is undefined.");
+		addFailingFile("process-actions.cml","The type init is undefined.");
+		addFailingFile("process-instantiation.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-operations-2.cml","The type init is undefined.");
+		addFailingFile("process-operations.cml","The type init is undefined.");
+		addFailingFile("process-seqcomp.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-state-invariant.cml","Expected symbol \"Byte\" to be a type definition. But it was not.");
+		addFailingFile("process-state.cml","Expected symbol \"Byte\" to be a type definition. But it was not.");
+		addFailingFile("process-synchronous_parallelism.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("recordpatterns.cml","Argument to 'dom' is not a map.");
+		addFailingFile("setcompsetexp.cml","The Symbol \"S\" is undefined.");
+		addFailingFile("setcompsetexp2.cml","Unable to resolve type name 'fnRoomId'");
+		addFailingFile("string.cml","Unable to resolve type name 'string'.");
 		// Failed tests caused by parser issues
 		
 		// // See cml.y production: | expression[rootExp] LRPAREN ... The argument list is 
@@ -169,6 +184,7 @@ public class RunCmlExamplesTestCase {
 		// but that is probably going to be with the Antlr :)
 		AFileSource source = new AFileSource();
 		source.setFile(file);
+		source.setName(file.getName());
 		CmlParser parser = CmlParser.newParserFromSource(source);
 		boolean parseOk = parser.parse();
 		if (!parseOk)
