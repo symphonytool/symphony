@@ -13,7 +13,7 @@
  *   are essentially ID '('expr*')'.  I've added "lhs '<-' call" as a
  *   rule alternative.
  *
- * expression/statement precedence has still to be resolved
+ * statement precedence has still to be resolved
  *
  * make type not allow '()' unless coming from a function?
  *
@@ -53,7 +53,7 @@ import java.text.ParseException;
 // import org.apache.commons.lang3.StringUtils;
 
 import static org.overture.ast.lex.Dialect.VDM_PP;
-// import org.overture.ast.definitions.*;
+import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
 import org.overture.ast.lex.*;
 import org.overture.ast.node.*;
@@ -548,27 +548,59 @@ typeDef
     ;
 
 type returns[PType type]
-    : type0 (('+>'|'->') type0)?
-    | '(' ')' (('+>'|'->') type0)?
+    : dom=type0 (('+>'|'->') rng=type0)?
+        {
+            $type = $dom.type;
+        }
+    | unit='()' (('+>'|'->') rng=type0)?
     ;
 
-type0op : '*' | '|' ;
-type0
-    : type1 (type0op type1)*
+type0op
+    : '*'
+    | '|'
     ;
 
-type1
+type0 returns[PType type]
+    : l=type1 (type0op r=type1)*
+        {
+            $type = $l.type;
+        }
+    ;
+
+type1 returns[PType type]
     : basicType
-    | '(' type ')'
-    | '[' type ']'
+        {
+            $type = $basicType.basicType;
+        }
+    | l='(' inside=type r=')'
+        {
+            $type = $inside.type;
+            $type.setLocation(extractLexLocation($l,$r));
+        }
+    | l='[' inside=type r=']'
+        {
+            $type = new AOptionalType(extractLexLocation($l,$r), false, null, $inside.type);
+        }
     | QUOTELITERAL
-    | IDENTIFIER (('.'|'`') IDENTIFIER)*
-    | 'compose' IDENTIFIER 'of' field+ 'end'
-    | 'set' 'of' type1
-    | 'seq' 'of' type1
-    | 'seq1' 'of' type1
-    | 'map' type1 'to' type1
-    | 'inmap' type1 'to' type1
+        {
+            LexLocation loc = extractLexLocation($QUOTELITERAL);
+            String str = $QUOTELITERAL.getText();
+            str = str.substring(1,str.length()-1);
+            $type = new AQuoteType(loc, false, null, new LexQuoteToken(str, loc));
+        }
+    | name //IDENTIFIER (('.'|'`') IDENTIFIER)*
+        {
+            LexNameToken tname = $name.name;
+            LexLocation loc = tname.getLocation();
+            $type = new ANamedInvariantType(loc, false, null, false, null, tname,
+                                            new AUnresolvedType(loc, false, new ArrayList<PDefinition>(), tname));
+        }
+    | set='set' 'of' type1
+    | seq='seq' 'of' type1
+    | seq1='seq1' 'of' type1
+    | map='map' type1 'to' type1
+    | inmap='inmap' type1 'to' type1
+    | compose='compose' IDENTIFIER 'of' field+ end='end'
     ;
 
 basicType returns[PType basicType]
@@ -670,7 +702,8 @@ symbolicLiteral returns[LexToken literal]
             String str = $QUOTELITERAL.getText();
             str = str.substring(1,str.length()-1);
             $literal = new LexQuoteToken(str, loc);
-        }    ;
+        }
+    ;
 
 tuplePattern
     : MKUNDER '(' pattern (',' pattern)* ')'
@@ -948,7 +981,7 @@ expr11 returns[PExp exp]
 selector
     : '(' ( expression (',' '...' ',' expression | (',' expression)+ )? )? ')' // function application, sequence select and subsequence
     | TUPLESELECTOR // tuple select
-    | '.' IDENTIFIER // field select
+    | '.' IDENTIFIER // field select, usually: it can only be a name *if* the thing immediately left of the dot is an identifier (but not guaranteed)
     ;
 
 exprbase returns[PExp exp]
