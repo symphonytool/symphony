@@ -13,7 +13,7 @@
  *   are essentially ID '('expr*')'.  I've added "lhs '<-' call" as a
  *   rule alternative.
  *
- * statement precedence has still to be resolved
+ * action/statement precedence has still to be resolved
  *
  * make type not allow '()' unless coming from a function?
  *
@@ -66,7 +66,7 @@ import org.overture.ast.patterns.*;
 // import org.overture.ast.preview.*;
 // import org.overture.ast.statements.*;
 import org.overture.ast.types.*;
-// import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.typechecker.NameScope;
 // import org.overture.ast.util.*;
 // import org.overture.ast.typechecker.Pass;
 
@@ -550,13 +550,28 @@ operationBody
     | 'is' 'subclass' 'responsibility'
     ;
 
-typeDefs
-    : 'types' typeDef*
+typeDefs returns[SParagraphDefinition para]
+@init {
+    List<ATypeDefinition> typeDefList = new ArrayList<ATypeDefinition>(); 
+    ATypeDefinition last = null;
+}
+    : t='types' ( def=typeDef { last = $def.def; typeDefList.add(last); } )*
+        {
+            LexLocation loc = extractLexLocation($t);
+            if (typeDefList.size()>0) 
+                loc = extractLexLocation(loc,last.getLocation());
+            $para = new ATypesParagraphDefinition(loc, NameScope.LOCAL, false,
+                                                  CmlParserHelper.getDefaultAccessSpecifier(true, false, loc),
+                                                  null, typeDefList);
+            $para.setName(new LexNameToken("", $t.getText(), loc));
+        }
     ;
 
-typeDef
-    : QUALIFIER? IDENTIFIER '=' type invariant?
-    | QUALIFIER? IDENTIFIER '::' field+ invariant?
+typeDef returns[ATypeDefinition def]
+    : QUALIFIER? IDENTIFIER t='=' type invariant?
+        { $def = new ATypeDefinition(); $def.setLocation(extractLexLocation($t)); } // FIXME... these are messy!
+    | QUALIFIER? IDENTIFIER t='::' field+ invariant?
+        { $def = new ATypeDefinition(); $def.setLocation(extractLexLocation($t)); } // FIXME
     ;
 
 type returns[PType type]
@@ -706,8 +721,13 @@ field returns[AFieldField field]
         }
     ;
 
-invariant
-    : 'inv' bindablePattern '==' expression
+invariant returns[AInvariantDefinition inv]
+    : t='inv' pat=bindablePattern '==' expression
+        {
+            LexLocation loc = extractLexLocation(extractLexLocation($t),$expression.exp.getLocation());
+            AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(true, true, loc);
+            $inv = new AInvariantDefinition(loc, null, NameScope.LOCAL, false, null, access, null, null, $pat.pattern, $expression.exp);
+        }
     ;
 
 pattern
@@ -715,7 +735,7 @@ pattern
     | matchValue
     ;
 
-bindablePattern
+bindablePattern returns[PPattern pattern]
     : patternIdentifier
     | tuplePattern
     | recordPattern

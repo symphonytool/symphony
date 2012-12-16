@@ -6,10 +6,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.antlr.runtime.CommonToken;
+
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.APrivateAccess;
+import org.overture.ast.definitions.AProtectedAccess;
 import org.overture.ast.definitions.APublicAccess;
+import org.overture.ast.definitions.PAccessBase;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AApplyExp;
@@ -68,6 +72,7 @@ import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
+import eu.compassresearch.ast.definitions.ALogicalAccess;
 import eu.compassresearch.ast.expressions.ACompChansetSetExp;
 import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
 import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
@@ -239,6 +244,20 @@ public class CmlParserHelper {
 	    name = new LexNameToken("", nameString,
 		    extractLexLocation(mkUnder), false, true);
 	return name;
+    }
+
+    public static AAccessSpecifierAccessSpecifier getAccessSpecifierFromToken(CommonToken qualifier) {
+	PAccessBase access = null;
+	if (qualifier == null || "private".equals(qualifier.getText()) ) {
+	    access = new APrivateAccess();
+	} else if ("protected".equals(qualifier.getText()) ) {
+	    access = new AProtectedAccess();
+	} else if ("logical".equals(qualifier.getText()) ) {
+	    access = new ALogicalAccess();
+	} else { // "public"
+	    access = new APublicAccess();
+	}
+	return new AAccessSpecifierAccessSpecifier(access, null, null);
     }
 
     public static AAccessSpecifierAccessSpecifier getDefaultAccessSpecifier(
