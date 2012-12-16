@@ -845,11 +845,22 @@ symbolicLiteral returns[LexToken literal]
     ;
 
 tuplePattern returns[PPattern pattern]
-    : MKUNDER '(' pattern (',' pattern)* ')'
+@init { List<PPattern> patList = new ArrayList<PPattern>(); }
+    : MKUNDER '(' first=pattern ( ',' patItem=pattern { patList.add($patItem.pattern); } )* end=')'
+        {
+            LexLocation loc = extractLexLocation($MKUNDER,$end);
+            patList.add(0, $first.pattern);
+            $pattern = new ATuplePattern(loc, null, true, patList);
+        }
     ;
 
 recordPattern returns[PPattern pattern]
-    : MKUNDER name '(' (pattern (',' pattern)*)? ')'
+@init { List<PPattern> patList = new ArrayList<PPattern>(); }
+    : MKUNDER name '(' ( first=pattern { patList.add($first.pattern); } ( ',' patItem=pattern { patList.add($patItem.pattern); } )* )? end=')'
+        {
+            LexLocation loc = extractLexLocation($MKUNDER,$end);
+            $pattern = new ARecordPattern(loc, null, true, $name.name, patList);
+        }
     ;
 
 expression returns[PExp exp]
