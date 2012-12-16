@@ -153,6 +153,30 @@ public class RunCmlExamplesTestCase {
 		addFailingFile("setcompsetexp.cml","The Symbol \"S\" is undefined.");
 		addFailingFile("setcompsetexp2.cml","Unable to resolve type name 'fnRoomId'");
 		addFailingFile("string.cml","Unable to resolve type name 'string'.");
+		addFailingFile("process-action-nondeterministicif.cml","The Symbol \"x\" is undefined.");
+		addFailingFile("process-action-replicated-externalChoice.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-action-replicated-internalChoice.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-action-specificationstm.cml","The Symbol \"h\" is undefined.");
+		addFailingFile("process-action-timed_interrupt2.cml","In it's context \"({5, 4} \\ {4})\" is a time unit expression and must be a subtype of nat, which \"set of (nat1)\" is not.");
+		addFailingFile("process-actions-ifelseifstm.cml","The Symbol \"REG1\" is undefined.");
+		addFailingFile("process-actions-ifelseifstm2.cml","The Symbol \"REG1\" is undefined.");
+		addFailingFile("process-actions-ifstm.cml","The Symbol \"REG1\" is undefined.");
+		addFailingFile("process-channelrenaming.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-extchoice.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-generalised_parallelism.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-hiding.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-instantiation-withdecl.cml","Expected an entity of type T but nat1 was found.");
+		addFailingFile("process-interleaving.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-interrupt.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-replication-alphabetisedParallelism.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-replication-externalchoice.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-replication-generalisedParallelism.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-replication-internalchoice.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-replication-sequentialcomp.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-replication-synchronousParallelism.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-timeout.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("process-untimed_timeout.cml","The Symbol \"A\" is undefined.");
+		addFailingFile("simpson.cml","The Symbol \"Shared\" is undefined.");
 		// Failed tests caused by parser issues
 		
 		// // See cml.y production: | expression[rootExp] LRPAREN ... The argument list is 

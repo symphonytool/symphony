@@ -22,11 +22,14 @@ import org.overture.typechecker.TypeChecker;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
+import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 
 class TCExpressionVisitor extends
 QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
@@ -39,6 +42,21 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 	
 	
+	@Override
+	public PType caseAEnumChansetSetExp(AEnumChansetSetExp node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
+
+		// TODO RWL I am not really sure what to do here ?
+		issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customize(""+node));
+		
+		node.setType(new AChannelType());
+		return node.getType();
+	}
+
+
+
 	@Override
 	public PType caseAVariableExp(AVariableExp node, TypeCheckInfo question)
 			throws AnalysisException {
