@@ -449,8 +449,7 @@ namesetDefs
     ;
 
 namesetDef
-    : IDENTIFIER '=' expression
-    // : IDENTIFIER '=' namesetExpr
+    : IDENTIFIER '=' chansetNamesetExpr
     ;
 
 classDefinitionBlock
