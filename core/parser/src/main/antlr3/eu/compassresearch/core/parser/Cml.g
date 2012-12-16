@@ -555,19 +555,37 @@ type returns[PType type]
     | unit='()' (('+>'|'->') rng=type0)?
     ;
 
-type0op
-    : '*'
-    | '|'
-    ;
-
 type0 returns[PType type]
-    : l=type1 (type0op r=type1)*
+@init { List<PType> typeList = new ArrayList<PType>(); LexLocation last = null; }
+    : first=type1 ('|' typeItem=type1 { typeList.add($typeItem.type); last = $typeItem.type.getLocation(); } )*
         {
-            $type = $l.type;
+            if (typeList.size()==0) {
+                $type = $first.type;
+            } else {
+                LexLocation loc = extractLexLocation($first.type.getLocation(), last);
+                AUnionType union = new AUnionType(loc, false, false, false);
+                typeList.add(0, $first.type);
+                union.setTypes(typeList);
+                $type = union;
+            }
         }
     ;
 
 type1 returns[PType type]
+@init { List<PType> typeList = new ArrayList<PType>(); LexLocation last = null; }
+    : first=typebase ('*' typeItem=typebase  { typeList.add($typeItem.type); last = $typeItem.type.getLocation(); } )*
+        {
+            if (typeList.size()==0) {
+                $type = $first.type;
+            } else {
+                LexLocation loc = extractLexLocation($first.type.getLocation(), last);
+                typeList.add(0, $first.type);
+                $type = new AProductType(loc, false, null, typeList);
+            }
+        }
+    ;
+
+typebase returns[PType type]
     : basicType
         {
             $type = $basicType.basicType;
@@ -588,19 +606,42 @@ type1 returns[PType type]
             str = str.substring(1,str.length()-1);
             $type = new AQuoteType(loc, false, null, new LexQuoteToken(str, loc));
         }
-    | name //IDENTIFIER (('.'|'`') IDENTIFIER)*
+    | name
         {
             LexNameToken tname = $name.name;
             LexLocation loc = tname.getLocation();
             $type = new ANamedInvariantType(loc, false, null, false, null, tname,
                                             new AUnresolvedType(loc, false, new ArrayList<PDefinition>(), tname));
         }
-    | set='set' 'of' type1
-    | seq='seq' 'of' type1
-    | seq1='seq1' 'of' type1
-    | map='map' type1 'to' type1
-    | inmap='inmap' type1 'to' type1
-    | compose='compose' IDENTIFIER 'of' field+ end='end'
+    | op='set' 'of' sub=typebase
+        {
+            LexLocation loc = extractLexLocation(extractLexLocation($op), $sub.type.getLocation());
+            $type = new ASetType(loc, false, null, $sub.type, false, false);
+        }
+    | op='seq' 'of' sub=typebase
+        {
+            LexLocation loc = extractLexLocation(extractLexLocation($op), $sub.type.getLocation());
+            $type = new ASeqSeqType(loc, false, null, $sub.type, false);
+        }
+    | op='seq1' 'of' sub=typebase
+        {
+            LexLocation loc = extractLexLocation(extractLexLocation($op), $sub.type.getLocation());
+            $type = new ASeq1SeqType(loc, false, null, $sub.type, false);
+        }
+    | op='map' dom=typebase 'to' rng=typebase
+        {
+            LexLocation loc = extractLexLocation(extractLexLocation($op), $rng.type.getLocation());
+            $type = new AMapMapType(loc, false, null, $dom.type, $rng.type, false);
+        }
+    | op='inmap' dom=typebase 'to' rng=typebase
+        {
+            LexLocation loc = extractLexLocation(extractLexLocation($op), $rng.type.getLocation());
+            $type = new AInMapMapType(loc, false, null, $dom.type, $rng.type, false);
+        }
+    | op='compose' IDENTIFIER 'of' field+ end='end'
+        {
+            //FIXME 
+        }
     ;
 
 basicType returns[PType basicType]
