@@ -586,6 +586,7 @@ type1 returns[PType type]
     ;
 
 typebase returns[PType type]
+@init { List<AFieldField> fieldList = new ArrayList<AFieldField>(); }
     : basicType
         {
             $type = $basicType.basicType;
@@ -638,9 +639,11 @@ typebase returns[PType type]
             LexLocation loc = extractLexLocation(extractLexLocation($op), $rng.type.getLocation());
             $type = new AInMapMapType(loc, false, null, $dom.type, $rng.type, false);
         }
-    | op='compose' IDENTIFIER 'of' field+ end='end'
+    | op='compose' IDENTIFIER 'of' ( field { fieldList.add($field.field); } )+ end='end'
         {
-            //FIXME 
+            LexLocation loc = extractLexLocation($op,$end);
+            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
+            $type = new ARecordInvariantType(loc, false, null, false, null, name, fieldList, false);
         }
     ;
 
@@ -655,10 +658,26 @@ basicType returns[PType basicType]
     | t='token' { $basicType = new ATokenBasicType(extractLexLocation($t), false); }
     ;
 
-field
+field returns[AFieldField field]
+@init { AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(false,false,null); }
     : type
+        {
+            LexLocation loc = $type.type.getLocation();
+            LexNameToken name = new LexNameToken("", new LexIdentifierToken("",false,loc));
+            $field = new AFieldField(null, name, null, $type.type, false);            
+        }
     | IDENTIFIER ':' type
+        {
+            String idStr = $IDENTIFIER.getText();
+            LexNameToken name = new LexNameToken("", idStr, extractLexLocation($IDENTIFIER));
+            $field = new AFieldField(access, name, idStr, $type.type, false);
+        }
     | IDENTIFIER ':-' type
+        {
+            String idStr = $IDENTIFIER.getText();
+            LexNameToken name = new LexNameToken("", idStr, extractLexLocation($IDENTIFIER));
+            $field = new AFieldField(access, name, idStr, $type.type, true);
+        }
     ;
 
 invariant

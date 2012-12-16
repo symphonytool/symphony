@@ -241,7 +241,7 @@ public class CmlParserHelper {
 	return name;
     }
 
-    public AAccessSpecifierAccessSpecifier getDefaultAccessSpecifier(
+    public static AAccessSpecifierAccessSpecifier getDefaultAccessSpecifier(
 	    boolean isStatic, boolean isAsync, LexLocation loc) {
 	/* return new AAccessSpecifierAccessSpecifier(new APublicAccess(), */
 	/* (isStatic ? new TStatic() : null), */
