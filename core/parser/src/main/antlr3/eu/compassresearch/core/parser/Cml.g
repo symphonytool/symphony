@@ -21,6 +21,10 @@
  *
  * Look into start/final rules to see if we can ease up the location bookkeeping
  *
+ * Note: don't use '()' as a token: it will probably end up
+ * conflicting with '(' ')' in places where there is an optional
+ * something inside the brackets.
+ *
  */
 grammar Cml;
 options {
@@ -528,8 +532,16 @@ operationDef
         )
     ;
 
-opType
-    : ( type0 | '(' ')' ) '==>' ( type0 | '(' ')' )
+opType returns[PType type]
+    : ( dom=type0 | vdom='(' vdom2=')' ) '==>' ( rng=type0 | vrng='(' vrng2=')' )
+        {
+            PType domType = ($dom.type != null ? $dom.type : new AVoidType(extractLexLocation($vdom,$vdom2),true));
+            PType rngType = ($rng.type != null ? $rng.type : new AVoidType(extractLexLocation($vrng,$vrng2),true));
+            LexLocation loc = extractLexLocation(domType.getLocation(),rngType.getLocation());
+            List<PType> typeList = new ArrayList<PType>();
+            typeList.add(domType);
+            $type = new AOperationType(loc, false, null, typeList, rngType);
+        }
     ;
 
 operationBody
@@ -548,11 +560,25 @@ typeDef
     ;
 
 type returns[PType type]
-    : dom=type0 (('+>'|'->') rng=type0)?
+@init { boolean totalFuncType=false; }
+    : dom=type0 (( '->' | '+>' { totalFuncType=true; } ) rng=type0)?
         {
-            $type = $dom.type;
+            if ($rng.type == null) {
+                $type = $dom.type;
+            } else {
+                LexLocation loc = extractLexLocation($dom.type.getLocation(), $rng.type.getLocation());
+                List<PType> params = new ArrayList<PType>();
+                params.add($dom.type);
+                $type = new AFunctionType(loc, false, null, totalFuncType, params, $rng.type);
+            }
         }
-    | unit='()' (('+>'|'->') rng=type0)?
+    | unit='('')' ( '->' | '+>' { totalFuncType=true; } ) rng=type0
+        {
+            LexLocation loc = extractLexLocation($dom.type.getLocation(), $rng.type.getLocation());
+            List<PType> params = new ArrayList<PType>();
+            params.add(new AVoidType(extractLexLocation($unit), true));
+            $type = new AFunctionType(loc, false, null, totalFuncType, params, $rng.type);
+        }
     ;
 
 type0 returns[PType type]
@@ -664,7 +690,7 @@ field returns[AFieldField field]
         {
             LexLocation loc = $type.type.getLocation();
             LexNameToken name = new LexNameToken("", new LexIdentifierToken("",false,loc));
-            $field = new AFieldField(null, name, null, $type.type, false);            
+            $field = new AFieldField(null, name, null, $type.type, false);
         }
     | IDENTIFIER ':' type
         {
