@@ -552,13 +552,13 @@ operationBody
 
 typeDefs returns[SParagraphDefinition para]
 @init {
-    List<ATypeDefinition> typeDefList = new ArrayList<ATypeDefinition>(); 
+    List<ATypeDefinition> typeDefList = new ArrayList<ATypeDefinition>();
     ATypeDefinition last = null;
 }
     : t='types' ( def=typeDef { last = $def.def; typeDefList.add(last); } )*
         {
             LexLocation loc = extractLexLocation($t);
-            if (typeDefList.size()>0) 
+            if (typeDefList.size()>0)
                 loc = extractLexLocation(loc,last.getLocation());
             $para = new ATypesParagraphDefinition(loc, NameScope.LOCAL, false,
                                                   CmlParserHelper.getDefaultAccessSpecifier(true, false, loc),
@@ -730,25 +730,58 @@ invariant returns[AInvariantDefinition inv]
         }
     ;
 
-pattern
-    : bindablePattern
-    | matchValue
+pattern returns[PPattern pattern]
+    : bindablePattern { $pattern = $bindablePattern.pattern; }
+    | matchValue      { $pattern = $matchValue.pattern; }
     ;
 
 bindablePattern returns[PPattern pattern]
-    : patternIdentifier
-    | tuplePattern
-    | recordPattern
+    : patternIdentifier { $pattern = $patternIdentifier.pattern; }
+    | tuplePattern      { $pattern = $tuplePattern.pattern; }
+    | recordPattern     { $pattern = $recordPattern.pattern; }
     ;
 
-patternIdentifier
+patternIdentifier returns[PPattern pattern]
     : IDENTIFIER
-    | '-'
+        {
+            LexLocation loc = extractLexLocation($IDENTIFIER);
+            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), loc, false, true);
+            $pattern = new AIdentifierPattern(loc, null, true, name, false);
+        }
+    | minus='-'
+        {
+            $pattern = new AIgnorePattern(extractLexLocation($minus), null, true);
+        }
     ;
 
-matchValue
-    : symbolicLiteral
-    | '(' expression ')'
+matchValue returns[PPattern pattern]
+    : lit=symbolicLiteral
+        {
+            if ($lit.literal instanceof LexIntegerToken) {
+                $pattern = new AIntegerPattern($lit.literal.location, null, true, (LexIntegerToken)$lit.literal);
+            } else if ($lit.literal instanceof LexRealToken) {
+                $pattern = new ARealPattern($lit.literal.location, null, true, (LexRealToken)$lit.literal);
+            } else if ($lit.literal instanceof LexBooleanToken) {
+                $pattern = new ABooleanPattern($lit.literal.location, null, true, (LexBooleanToken)$lit.literal);
+            } else if ($lit.literal instanceof LexKeywordToken) {
+                // Note, this assumes that lit only ever
+                // gives a LexKeywordToken for 'nil'
+                $pattern = new ANilPattern($lit.literal.location, null, true);
+            } else if ($lit.literal instanceof LexCharacterToken) {
+                $pattern = new ACharacterPattern($lit.literal.location, null, true, (LexCharacterToken)$lit.literal);
+            } else if ($lit.literal instanceof LexStringToken) {
+                $pattern = new AStringPattern($lit.literal.location, null, true, (LexStringToken)$lit.literal);
+            } else if ($lit.literal instanceof LexQuoteToken) {
+                $pattern = new AQuotePattern($lit.literal.location, null, true, (LexQuoteToken)$lit.literal);
+            } else {
+                // FIXME log a never-happens error
+            }
+        }
+    | l='(' expression r=')'
+        {
+            LexLocation loc = extractLexLocation($l,$r);
+            $pattern = new AExpressionPattern(loc, null, false, $expression.exp);
+        }
     ;
 
 symbolicLiteral returns[LexToken literal]
@@ -811,11 +844,11 @@ symbolicLiteral returns[LexToken literal]
         }
     ;
 
-tuplePattern
+tuplePattern returns[PPattern pattern]
     : MKUNDER '(' pattern (',' pattern)* ')'
     ;
 
-recordPattern
+recordPattern returns[PPattern pattern]
     : MKUNDER name '(' (pattern (',' pattern)*)? ')'
     ;
 
@@ -1125,6 +1158,7 @@ exprbase returns[PExp exp]
                 // gives a LexKeywordToken for 'nil'
                 $exp = new ANilExp($lit.literal.location);
             } else if ($lit.literal instanceof LexCharacterToken) {
+                $exp = new ACharLiteralExp($lit.literal.location, (LexCharacterToken)$lit.literal);
             } else if ($lit.literal instanceof LexStringToken) {
                 ASeqSeqType charSeqType = new ASeqSeqType($lit.literal.location,
                                                           true, null,
@@ -1132,6 +1166,7 @@ exprbase returns[PExp exp]
                                                           (((LexStringToken)$lit.literal).value.length() == 0));
                 $exp = new AStringLiteralExp(charSeqType, $lit.literal.location, (LexStringToken)$lit.literal);
             } else if ($lit.literal instanceof LexQuoteToken) {
+                $exp = new AQuoteLiteralExp($lit.literal.location, (LexQuoteToken)$lit.literal);
             } else {
                 // FIXME log a never-happens error
             }
