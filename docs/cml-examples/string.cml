@@ -1,5 +1,5 @@
 class thestring =
 begin
 	values 
-	public s : string = "With in every language, there is a smaller language fighting to get out."
+	public s : string = "Within every language, there is a smaller language fighting to get out."
 end
