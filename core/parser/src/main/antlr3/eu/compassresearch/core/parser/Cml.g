@@ -113,6 +113,19 @@ protected void mismatch(IntStream input, int ttype, BitSet follow) throws Recogn
 //     throw e;
 // }
 
+private LexToken extractLexToken(String str, LexLocation loc) {
+	VDMToken tok = null;
+	for (VDMToken t : VDMToken.values()) {
+	    String tokenDisplay = t.toString();
+	    if (tokenDisplay != null && tokenDisplay.equals(str)) {
+            tok = t;
+            break;
+	    }
+	}
+	if (tok == null)
+	    throw new RuntimeException("Cannot find VDM token for " + str);
+	return new LexToken(loc, tok);
+}
 private LexLocation extractLexLocation(CommonToken token) {
     String text = token.getText();
     int len = text.length();
@@ -873,18 +886,83 @@ recordPattern returns[PPattern pattern]
     ;
 
 expression returns[PExp exp]
+@init {
+    List<AElseIfExp> elifList = new ArrayList<AElseIfExp>();
+    List<ACaseAlternative> alts = null;
+}
     : expr0
         {
             $exp = $expr0.exp;
         }
-    | 'let' localDefinition (',' localDefinition)* 'in' expression
-    | 'if' expression 'then' expression ('elseif' expression 'then' expression)* 'else' expression
-    | 'cases' expression ':' (pattern (',' pattern)* '->' expression (',' pattern (',' pattern)* '->' expression)* )? (',' 'others' '->' expression)? 'end'
-    | 'forall' multipleBindList '@' expression
-    | 'exists' multipleBindList '@' expression
-    | 'exists1' singleBind '@' expression
-    | 'iota' singleBind '@' expression
-    | 'lambda' typeBind (',' typeBind)* '@' expression
+    | 'let' localDefinition (',' localDefinition)* 'in' body=expression
+        {
+            // FIXME --- JWC HERE
+            $exp = $body.exp;
+        }
+    | iftok='if' test=expression 'then' th=expression
+        ( ei='elseif' eitest=expression 'then' eith=expression
+            {
+                LexLocation eiloc = extractLexLocation($ei);
+                AElseIfExp eiexp = new AElseIfExp(extractLexLocation(eiloc, $eith.exp.getLocation()), $eitest.exp, $eith.exp);
+                elifList.add(eiexp);
+            }
+        )*
+        'else' el=expression
+        {
+            LexLocation loc = extractLexLocation($iftok);
+            loc = extractLexLocation(loc, $el.exp.getLocation());
+            $exp = new AIfExp(loc, $test.exp, $th.exp, elifList, $el.exp);
+        }
+    | l='cases' cexp=expression ':'
+        ( first=caseExprAlternative { alts = $first.alts; } ( ',' altItem=caseExprAlternative { alts.addAll($altItem.alts); } )* )?
+        ( ',' 'others' '->' oexp=expression )?
+        r='end'
+        {
+            LexLocation loc = extractLexLocation($l, $r);
+            $exp = new ACasesExp(loc, $cexp.exp, alts, $oexp.exp);
+        }
+    | tok='forall' multipleBindList '@' body=expression
+        {
+            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
+            $exp = new AForAllExp(loc, $multipleBindList.bindings, $body.exp);
+        }
+    | tok='exists' multipleBindList '@' body=expression
+        {
+            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
+            $exp = new AExistsExp(loc, $multipleBindList.bindings, $body.exp);
+        }
+    | tok='exists1' singleBind '@' body=expression
+        {
+            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
+            $exp = new AExists1Exp(loc, $singleBind.binding, $body.exp, null);
+        }
+    | tok='iota' singleBind '@' body=expression
+        {
+            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
+            $exp = new AIotaExp(loc, $singleBind.binding, $body.exp);
+        }
+    | tok='lambda' typeBindList '@' body=expression
+        {
+            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
+            $exp = new ALambdaExp(loc, $typeBindList.bindings, $body.exp, null, null);
+        }
+    ;
+
+caseExprAlternative returns[List<ACaseAlternative> alts]
+@init { $alts = new ArrayList<ACaseAlternative>(); }
+    : patternList '->' expression
+        {
+            LexLocation eloc = $expression.exp.getLocation();
+            for (PPattern p : $patternList.patterns) {
+                LexLocation loc = extractLexLocation(p.getLocation(), eloc);
+                ACaseAlternative alt = new ACaseAlternative(loc, null, p, $expression.exp, null);
+            }
+        }
+    ;
+
+patternList returns[List<PPattern> patterns]
+@init { $patterns = new ArrayList<PPattern>(); }
+    : first=pattern { $patterns.add($first.pattern); } ( ',' patItem=pattern { $patterns.add($patItem.pattern); } )*
     ;
 
 expr0 returns[PExp exp]
@@ -895,7 +973,7 @@ expr0 returns[PExp exp]
             else
                 $exp = new AEquivalentBooleanBinaryExp(extractLexLocation($e1.exp,$e2.exp),
                                                        $e1.exp,
-                                                       new LexToken(extractLexLocation($o), VDMToken.lookup($o.getText(), VDM_PP)),
+                                                       extractLexToken($o.getText(), extractLexLocation($o)),
                                                        $e2.exp);
         }
     ;
@@ -907,9 +985,9 @@ expr1 returns[PExp exp]
                 $exp = $e1.exp;
             else
                 $exp = new AImpliesBooleanBinaryExp(extractLexLocation($e1.exp,$e2.exp),
-                                             $e1.exp,
-                                             new LexToken(extractLexLocation($o), VDMToken.lookup($o.getText(), VDM_PP)),
-                                             $e2.exp);
+                                                    $e1.exp,
+                                                    extractLexToken($o.getText(), extractLexLocation($o)),
+                                                    $e2.exp);
         }
     ;
 
@@ -921,7 +999,7 @@ expr2 returns[PExp exp]
             else
                 $exp = new AOrBooleanBinaryExp(extractLexLocation($e1.exp,$e2.exp),
                                                $e1.exp,
-                                               new LexToken(extractLexLocation($o), VDMToken.lookup($o.getText(), VDM_PP)),
+                                               extractLexToken($o.getText(), extractLexLocation($o)),
                                                $e2.exp);
         }
     ;
@@ -934,14 +1012,14 @@ expr3 returns[PExp exp]
             else
                 $exp = new AAndBooleanBinaryExp(extractLexLocation($e1.exp,$e2.exp),
                                                 $e1.exp,
-                                                new LexToken(extractLexLocation($o), VDMToken.lookup($o.getText(), VDM_PP)),
+                                                extractLexToken($o.getText(), extractLexLocation($o)),
                                                 $e2.exp);
         }
     ;
 
 binOpRel returns[SBinaryExpBase op]
 @init { LexLocation loc = null; String opStr = null; }
-@after { op.setLocation(loc); op.setOp(new LexToken(loc, VDMToken.lookup(opStr, VDM_PP))); }
+@after { op.setLocation(loc); op.setOp(extractLexToken(opStr, loc)); }
     : o='<'                { $op = new ALessNumericBinaryExp();         loc = extractLexLocation($o);    opStr = $o.getText(); }
     | o='<='               { $op = new ALessEqualNumericBinaryExp();    loc = extractLexLocation($o);    opStr = $o.getText(); }
     | o='>'                { $op = new AGreaterNumericBinaryExp();      loc = extractLexLocation($o);    opStr = $o.getText(); }
@@ -972,7 +1050,7 @@ expr4 returns[PExp exp]
 
 binOpEval1 returns[SBinaryExpBase op]
 @init { LexLocation loc = null; String opStr = null; }
-@after { op.setLocation(loc); op.setOp(new LexToken(loc, VDMToken.lookup(opStr, VDM_PP))); }
+@after { op.setLocation(loc); op.setOp(extractLexToken(opStr, loc)); }
     : o='+'      { $op = new APlusNumericBinaryExp();      loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='-'      { $op = new ASubstractNumericBinaryExp(); loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='union'  { $op = new ASetUnionBinaryExp();         loc = extractLexLocation($o); opStr = $o.getText(); }
@@ -1028,7 +1106,7 @@ expr6 returns[PExp exp]
 
 binOpEval3 returns[SBinaryExpBase op]
 @init { LexLocation loc = null; String opStr = null; }
-@after { op.setLocation(loc); op.setOp(new LexToken(loc, VDMToken.lookup(opStr, VDM_PP))); }
+@after { op.setLocation(loc); op.setOp(extractLexToken(opStr, loc)); }
     : o='<:'  { $op = new ADomainResToBinaryExp(); loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='<-:' { $op = new ADomainResByBinaryExp(); loc = extractLexLocation($o); opStr = $o.getText(); }
     ;
@@ -1051,7 +1129,7 @@ expr7 returns[PExp exp]
 
 binOpEval4 returns[SBinaryExpBase op]
 @init { LexLocation loc = null; String opStr = null; }
-@after { op.setLocation(loc); op.setOp(new LexToken(loc, VDMToken.lookup(opStr, VDM_PP))); }
+@after { op.setLocation(loc); op.setOp(extractLexToken(opStr, loc)); }
     : o=':->' { $op = new ARangeResByBinaryExp(); loc = extractLexLocation($o); opStr = $o.getText(); }
     | o=':>'  { $op = new ARangeResToBinaryExp(); loc = extractLexLocation($o); opStr = $o.getText(); }
     ;
@@ -1080,7 +1158,7 @@ expr9 returns[PExp exp]
             else
                 $exp = new ACompBinaryExp(extractLexLocation($e1.exp,$e2.exp),
                                           $e1.exp,
-                                          new LexToken(extractLexLocation($o), VDMToken.lookup($o.getText(), VDM_PP)),
+                                          extractLexToken($o.getText(), extractLexLocation($o)),
                                           $e2.exp);
         }
     ;
@@ -1093,7 +1171,7 @@ expr10 returns[PExp exp]
             else
                 $exp = new AStarStarBinaryExp(extractLexLocation($e1.exp,$e2.exp),
                                               $e1.exp,
-                                              new LexToken(extractLexLocation($o), VDMToken.lookup($o.getText(), VDM_PP)),
+                                              extractLexToken($o.getText(), extractLexLocation($o)),
                                               $e2.exp);
         }
     ;
@@ -1476,6 +1554,10 @@ setBind returns[ASetBind binding]
     ;
 
 // only used by lambda, and could be a multi type bind
+typeBindList returns[List<ATypeBind> bindings]
+@init { $bindings = new ArrayList<ATypeBind>(); }
+    : first=typeBind { $bindings.add($first.binding); }  ( ',' bindItem=typeBind { $bindings.add($bindItem.binding); } )*
+    ;
 typeBind returns[ATypeBind binding]
     : bindablePattern ':' type
         {
