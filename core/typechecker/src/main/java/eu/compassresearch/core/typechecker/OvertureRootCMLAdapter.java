@@ -17,6 +17,7 @@ import org.overture.typechecker.visitor.TypeCheckerPatternVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
+import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -76,14 +77,24 @@ public class OvertureRootCMLAdapter extends
 		return node.apply(overtureExpressionVisitor, question);
 	}
 
+	
+	
+	@Override
+	public PType caseAEnumChansetSetExp(AEnumChansetSetExp node,
+			TypeCheckInfo question) throws AnalysisException {
+		return escapeFromOvertureContext(node, question);
+	}
+
+
+
 	@Override
 	public PType defaultPDefinition(PDefinition node, TypeCheckInfo question)
 			throws AnalysisException {
 		try {
-			eu.compassresearch.core.typechecker.TypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-			if (cmlEnv != null) question.contextSet(eu.compassresearch.core.typechecker.TypeCheckInfo.class, cmlEnv);
+			eu.compassresearch.core.typechecker.CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+			if (cmlEnv != null) question.contextSet(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class, cmlEnv);
 			PType type = node.apply(overtureDefinitionVisitor, question);
-			if (cmlEnv != null) question.contextRem(eu.compassresearch.core.typechecker.TypeCheckInfo.class);
+			if (cmlEnv != null) question.contextRem(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class);
 			return type;
 		} catch (TypeCheckException e)
 		{

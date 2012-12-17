@@ -22,11 +22,14 @@ import org.overture.typechecker.TypeChecker;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
+import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 
 class TCExpressionVisitor extends
 QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
@@ -40,6 +43,21 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	
 	
 	@Override
+	public PType caseAEnumChansetSetExp(AEnumChansetSetExp node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
+
+		// TODO RWL I am not really sure what to do here ?
+		issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customize(""+node));
+		
+		node.setType(new AChannelType());
+		return node.getType();
+	}
+
+
+
+	@Override
 	public PType caseAVariableExp(AVariableExp node, TypeCheckInfo question)
 			throws AnalysisException {
 		// Try to see if we have a local variable here
@@ -49,7 +67,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// ok not a local var, maybe a value
 		if (def == null)
 		{
-			eu.compassresearch.core.typechecker.TypeCheckInfo 
+			eu.compassresearch.core.typechecker.CmlTypeCheckInfo 
 			cmlEnv = null;
 			PDefinition enclosingDef = question.env.getEnclosingDefinition();
 			
@@ -59,12 +77,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			{
 		
 				// is the current question a Cml environment?
-				if (question instanceof eu.compassresearch.core.typechecker.TypeCheckInfo)
+				if (question instanceof eu.compassresearch.core.typechecker.CmlTypeCheckInfo)
 					// okay then we use it
-					cmlEnv = (eu.compassresearch.core.typechecker.TypeCheckInfo)question;
+					cmlEnv = (eu.compassresearch.core.typechecker.CmlTypeCheckInfo)question;
 				else
 					// well lets see if any definition added a cml env further up the tree
-					cmlEnv = question.contextGet(eu.compassresearch.core.typechecker.TypeCheckInfo.class);
+					cmlEnv = question.contextGet(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class);
 
 				// no, then we must have VDM exp at top-level or a bug in the type checker.
 				if (cmlEnv == null)
@@ -177,12 +195,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// To find that class there must be a CML Environment as Classes are 
 		// top-level and CML Specific.
 		// 
-		eu.compassresearch.core.typechecker.TypeCheckInfo 
+		eu.compassresearch.core.typechecker.CmlTypeCheckInfo 
 		cmlQuestion;
-		if (question instanceof eu.compassresearch.core.typechecker.TypeCheckInfo)
-			cmlQuestion = (eu.compassresearch.core.typechecker.TypeCheckInfo)question;
+		if (question instanceof eu.compassresearch.core.typechecker.CmlTypeCheckInfo)
+			cmlQuestion = (eu.compassresearch.core.typechecker.CmlTypeCheckInfo)question;
 		else
-			cmlQuestion = question.contextGet(eu.compassresearch.core.typechecker.TypeCheckInfo.class);
+			cmlQuestion = question.contextGet(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class);
 
 		if (cmlQuestion == null)
 		{

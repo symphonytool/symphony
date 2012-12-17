@@ -33,7 +33,7 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 	private List<PDefinition> members;
 
 	public static AClassClassDefinition getGlobalRoot(List<PSource> sources,
-			TypeIssueHandler issueHandler, TypeCheckInfo info)
+			TypeIssueHandler issueHandler, CmlTypeCheckInfo info)
 			throws AnalysisException {
 
 		// Create visitor and visit each source collecting global definitions
