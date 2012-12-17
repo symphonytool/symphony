@@ -28,6 +28,7 @@ import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
 import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
+import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
 import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
 import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
@@ -201,8 +202,22 @@ public class POGDeclAndDefVisitor extends
 		// CMLProofObligationList td = s.apply(this, question);
 		// System.out.println("----------***----------");
 		// }
-			
-		return pol;
+
+		return pdef.apply(this, question);
+//		return pol;
+    }
+    
+    
+    @Override
+    public ProofObligationList caseAStateParagraphDefinition(
+    		AStateParagraphDefinition node, POContextStack question)
+    	    throws AnalysisException {
+    	System.out.println("------");
+		System.out
+			.println("Reached POGDeclAndDefVisitor - caseAStateParagraphDefinition");
+		
+
+		return new CMLProofObligationList();
     }
     
     /**
@@ -236,7 +251,7 @@ public class POGDeclAndDefVisitor extends
 	return new CMLProofObligationList();
     }
 
-    
+   
     
     
     // Call Overture for the other expressions    
@@ -257,7 +272,7 @@ public class POGDeclAndDefVisitor extends
     }
     
 
-    // Call the main pog when it's not an expression
+    // Call the main pog when it's not a defintion/declaration
     @Override
     public ProofObligationList defaultINode(INode node, POContextStack question)
 	    throws AnalysisException {
@@ -266,7 +281,7 @@ public class POGDeclAndDefVisitor extends
     	return pol;
     }
 
-  
+
 
    
     /**
