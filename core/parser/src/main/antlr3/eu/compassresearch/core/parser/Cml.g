@@ -1,3 +1,7 @@
+/* A note to other editors of this file:
+ * Please try to match the indentation and format of the code that's already here.
+ * Thanks, -jwc
+ */
 /* loose threads:
  *
  * communication prefixes using '.' separators are still causing problems
@@ -241,7 +245,7 @@ replicationDecl
     ;
 
 renamingExpr
-    : renamePair ( ( ',' renamePair )+ | '|' bind+ ('@' expression)? )?
+    : renamePair ( ( ',' renamePair )+ | '|' multipleBindList ('@' expression)? )?
     ;
 
 // just expression is too broad; need to restrict it a bit
@@ -870,10 +874,10 @@ expression returns[PExp exp]
     | 'let' localDefinition (',' localDefinition)* 'in' expression
     | 'if' expression 'then' expression ('elseif' expression 'then' expression)* 'else' expression
     | 'cases' expression ':' (pattern (',' pattern)* '->' expression (',' pattern (',' pattern)* '->' expression)* )? (',' 'others' '->' expression)? 'end'
-    | 'forall' bind (',' bind)* '@' expression
-    | 'exists' bind (',' bind)* '@' expression
-    | 'exists1' bind '@' expression
-    | 'iota' bind '@' expression
+    | 'forall' multipleBindList '@' expression
+    | 'exists' multipleBindList '@' expression
+    | 'exists1' singleBind '@' expression
+    | 'iota' singleBind '@' expression
     | 'lambda' typeBind (',' typeBind)* '@' expression
     ;
 
@@ -1243,8 +1247,8 @@ seqExpr returns[SSeqExp seqExpr]
             // This location doesn't matter --- it *will* be replaced
             // by the caller of seqExpr.
             LexLocation loc = new LexLocation();
-            if ($setBind.bind != null) {
-                $seqExpr = new ASeqCompSeqExp(loc, $exp.exp, $setBind.bind, $pred.exp);
+            if ($setBind.binding != null) {
+                $seqExpr = new ASeqCompSeqExp(loc, $exp.exp, $setBind.binding, $pred.exp);
             } else {
                 exps.add(0, exp);
                 $seqExpr = new ASeqEnumSeqExp(loc, exps);
@@ -1336,14 +1340,10 @@ setMapExprGuts returns[PExp exp]
         }
     ;
 
-setMapExprBinding returns[List<PMultipleBind> bindings, PExp pred, LexLocation loc]
-@init { List<PMultipleBind> bindList = new ArrayList<PMultipleBind>(); }
-    : '|' first=bind
-        ( ',' bindItem=bind { bindList.add($bindItem.binding); } )*
-        ('@' expression)?
+setMapExprBinding returns[List<PMultipleBind> bindings, PExp pred]
+    : '|' multipleBindList ('@' expression)?
         {
-            bindList.add(0, $first.binding);
-            $bindings = bindList;
+            $bindings = $multipleBindList.bindings;
             $pred = $expression.exp;
         }
     ;
@@ -1353,22 +1353,65 @@ localDefinition
     | functionDefinition
     ;
 
-bind returns[PMultipleBind binding]
-    : bindablePattern ('in' 'set' expression | ':' type)
+multipleBindList returns[List<PMultipleBind> bindings]
+@init { List<PMultipleBind> bindingList = new ArrayList<PMultipleBind>(); }
+    : first=multipleBind ( ',' bindingListItem=multipleBind { bindingList.add($bindingListItem.bindings); } )*
         {
-            // FIXME -- this is a placeholder to prevent NPEs
-            // Note, also, the use of this in setMapExprBinding may not be quite right; I think it actually wants a multibind
-            System.out.println("++ Implement the bind rule!");
-            $binding = new ASetMultipleBind();
+            bindingList.add(0, $first.bindings);
+            $bindings = bindingList;
         }
     ;
 
-setBind returns[ASetBind bind]
-    : bindablePattern 'in' 'set' expression
+multipleBind returns[PMultipleBind bindings]
+@init { List<PPattern> patList = new ArrayList<PPattern>(); }
+    : first=bindablePattern ( ',' patItem=bindablePattern { patList.add($patItem.pattern); } )* ('in' 'set' expression | ':' type)
+        {
+            patList.add($first.pattern);
+            LexLocation loc = $first.pattern.getLocation();
+            if ($expression.exp != null) {
+                loc = extractLexLocation(loc, $expression.exp.getLocation());
+                $bindings = new ASetMultipleBind(loc, patList, $expression.exp);
+            } else if ($type.type != null) {
+                loc = extractLexLocation(loc, $type.type.getLocation());
+                $bindings = new ATypeMultipleBind(loc, patList, $type.type);
+            } else {
+                // FIXME Log a never-happens
+            }
+        }
     ;
 
-typeBind
+singleBind returns[PBind binding]
+    : bindablePattern ('in' 'set' expression | ':' type)
+        {
+            LexLocation loc = $bindablePattern.pattern.getLocation();
+            if ($expression.exp != null) {
+                loc = extractLexLocation(loc, $expression.exp.getLocation());
+                $binding = new ASetBind(loc, $bindablePattern.pattern, $expression.exp);
+            } else if ($type.type != null) {
+                loc = extractLexLocation(loc, $type.type.getLocation());
+                $binding = new ATypeBind(loc, $bindablePattern.pattern, $type.type);
+            } else {
+                // FIXME Log a never-happens
+            }
+        }
+    ;
+
+// only used in seq comprehension
+setBind returns[ASetBind binding]
+    : bindablePattern 'in' 'set' expression
+        {
+            LexLocation loc = extractLexLocation($bindablePattern.pattern.getLocation(), $expression.exp.getLocation());
+            $binding = new ASetBind(loc, $bindablePattern.pattern, $expression.exp);
+        }
+    ;
+
+// only used by lambda, and could be a multi type bind
+typeBind returns[ATypeBind binding]
     : bindablePattern ':' type
+        {
+            LexLocation loc = extractLexLocation($bindablePattern.pattern.getLocation(), $type.type.getLocation());
+            $binding = new ATypeBind(loc, $bindablePattern.pattern, $type.type);
+        }
     ;
 
 name returns[LexNameToken name]
