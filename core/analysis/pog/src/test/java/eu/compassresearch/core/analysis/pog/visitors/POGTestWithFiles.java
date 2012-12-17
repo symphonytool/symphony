@@ -30,9 +30,6 @@ public class POGTestWithFiles {
     
     public static Object[] alarm  ={"src/test/resources/AlarmFromOverture" };
     public static Object[] webServer = {"src/test/resources/WebServerFromOverture"};
-    public static Object[] telephoneExchange = {"src/test/resources/TelephoneExchange"};
-    public static Object[] cashDispenser = {"src/test/resources/CashDispenser"};
-    
   //add test cases for further POs here...
 	
 
@@ -43,9 +40,7 @@ public class POGTestWithFiles {
 
 	r.add(alarm);
 	r.add(webServer);
-	r.add(telephoneExchange);
-//	r.add(cashDispenser);
-//	r.addAll(Utilities.getParserTestFilePaths());
+	r.addAll(Utilities.getCmlExamplesFilePaths());
 	//add test cases from further files here...
 	
 	return r;

@@ -9,6 +9,7 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -17,7 +18,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
-import org.overture.ast.analysis.AnalysisException;
 import org.overture.pog.obligation.ProofObligation;
 
 import eu.compassresearch.ast.program.PSource;
@@ -62,6 +62,8 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 	File tempPo = new File(workspaceLoc, "proofobligation.tmp");
 	tempPo.deleteOnExit();
 
+	
+	
 	FileWriter fw;
 	try {
 	    fw = new FileWriter(tempPo);
@@ -87,7 +89,16 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 	} catch (PartInitException e) {
 	    e.printStackTrace();
 	}
+	catch (Exception e){
+	    e.printStackTrace();
+	    popErrorMessage();
+	}
 
+    }
+
+    private void popErrorMessage() {
+	MessageDialog.openInformation(window.getShell(), "COMPASS",
+		"Could not generate POs.");	
     }
 
     private char[] getPOsfromSource(CmlSourceUnit csu) {

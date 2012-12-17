@@ -375,7 +375,7 @@ public class ProofObligationGenerator extends
 			    .println("The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
 		    return null;
 		} catch (Exception e) {
-		    System.out.println("Error: ");
+		    System.out.println("Error: " + e.getMessage());
 		    e.printStackTrace();
 
 		    return null;
@@ -384,7 +384,7 @@ public class ProofObligationGenerator extends
 	}
 
 	System.out.println(obligations.size() + " Proof Obligations generated");
-	obligations.toString();
+	System.out.println(obligations.toString());
 	return obligations;
     }
 

@@ -25,30 +25,30 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 public class Utilities {
 
-    public static PSource makeSourceFromString(String cmlSource) throws IOException
-    {
-      InputStream cmlSourceIn = new ByteArrayInputStream(cmlSource.getBytes());
-      AInputStreamSource source = new AInputStreamSource();
-      source.setOrigin("Test Parameter");
-      source.setStream(cmlSourceIn);
-      CmlParser parser = CmlParser.newParserFromSource(source);
+    public static PSource makeSourceFromString(String cmlSource)
+	    throws IOException {
+	InputStream cmlSourceIn = new ByteArrayInputStream(cmlSource.getBytes());
+	AInputStreamSource source = new AInputStreamSource();
+	source.setOrigin("Test Parameter");
+	source.setStream(cmlSourceIn);
+	CmlParser parser = CmlParser.newParserFromSource(source);
 	assertTrue("Test failed on parser", parser.parse());
-	
+
 	// Type check
 	CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
-			Arrays.asList(new PSource[] { source }), null);
-	 assertTrue("Test failed on Typechecker", cmlTC.typeCheck());
+		Arrays.asList(new PSource[] { source }), null);
+	assertTrue("Test failed on Typechecker", cmlTC.typeCheck());
 
-      return source;
+	return source;
     }
-    
-    public static PSource makeSourceFromFile(String filePath) throws IOException, AnalysisException{
+
+    public static PSource makeSourceFromFile(String filePath)
+	    throws IOException, AnalysisException {
 	File f = new File(filePath);
 	AFileSource ast = new AFileSource();
 	ast.setName(f.getName());
 	ast.setFile(f);
 
-	
 	// Call factory method to build parser and lexer
 	CmlParser parser = CmlParser.newParserFromSource(ast);
 	assertTrue("Test failed on parser", parser.parse());
@@ -56,36 +56,35 @@ public class Utilities {
 	// Type check
 	TypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
 	CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
-			Arrays.asList(new PSource[] { ast }), errors);
+		Arrays.asList(new PSource[] { ast }), errors);
 	boolean tcResult = cmlTC.typeCheck();
-	
-	 assertTrue(TestUtil.buildErrorMessage(errors, true), tcResult);
+
+	assertTrue(TestUtil.buildErrorMessage(errors, true), tcResult);
 	return ast;
     }
-    
 
-    //Reusing code from Parser with a small change due to directory structures.
-    public static Collection<Object[]> getParserTestFilePaths() {
+    // Reusing code from Parser with a small change due to directory structures.
+    public static Collection<Object[]> getCmlExamplesFilePaths() {
 	File dir = new File("../../../docs/cml-examples");
 	List<Object[]> paths = new Vector<Object[]>();
 
 	FilenameFilter filter = new FilenameFilter() {
-		public boolean accept(File dir, String name) {
-		    return name.toLowerCase().endsWith(".cml") 
+	    public boolean accept(File dir, String name) {
+		return name.toLowerCase().endsWith(".cml")
 			&& !name.toLowerCase().contains("fail");
-		}
-	    };
-	    
+	    }
+	};
+
 	String[] children = dir.list(filter);
 	if (children == null) {
 	    // Either dir does not exist or is not a directory
 	} else {
-	    for (int i=0; i<children.length; i++) {
+	    for (int i = 0; i < children.length; i++) {
 		// Get filename of file or directory
-		paths.add(new Object[]{dir.getPath() + "/" + children[i]});
+		paths.add(new Object[] { dir.getPath() + "/" + children[i] });
 	    }
 	}
-	
+
 	return paths;
     }
 }
