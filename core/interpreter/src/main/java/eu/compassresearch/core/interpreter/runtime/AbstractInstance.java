@@ -15,7 +15,7 @@ import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
-import eu.compassresearch.core.interpreter.cml.events.ObservableCmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluator;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
@@ -35,7 +35,8 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	protected CmlProcess 				parent;
 	protected CmlSupervisorEnvironment 	env;
 	protected CmlTrace 					trace = new CmlTrace();
-
+	protected List<ObservableEvent>     registredEvents = new LinkedList<ObservableEvent>();
+	
 	protected EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>  stateObservers = 
 			new EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>(this,
 					new EventFireMediator<CmlProcessStateObserver,CmlProcessStateEvent>() {
@@ -93,6 +94,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 				{
 					setState(CmlProcessState.RUNNING);
 					ret = executeNext();
+					env.selectedCommunication().handleChannelEventUnregistration(this);
 					updateTrace(env.selectedCommunication());
 				}
 				//if no communication is selected by the supervisor or we cannot sync the selected events
@@ -120,11 +122,12 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		trace.addEvent(event);
 		notifyOnTraceChange(new TraceEvent(this,event));
 	}
-		
+	
 	private void registerChannelsInAlpha(CmlAlphabet alpha)
 	{
-		for(ObservableCmlEvent com : alpha.getObservableEvents())
+		for(ObservableEvent com : alpha.getObservableEvents())
 		{
+			registredEvents.add(com);
 			com.handleChannelEventRegistration(this);
 //			switch(com.getCommunicationType())
 //			{
@@ -245,7 +248,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	
 	/**
 	 * ChannelListener interface method.
-	 * Here the process is notified when a registered channel is signalled by the supervisor
+	 * Here the process is notified when a registered channel is signalled 
 	 */
 	@Override
 	public void onChannelEvent(Object source, CmlChannelEvent event) {
@@ -253,19 +256,19 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		if(level() == 0)
 			setState(CmlProcessState.RUNNABLE);
 		
-		switch(event.getEventType())
-		{
-		case READ:
-			event.getSource().onChannelRead().unregisterObserver(this);
-			break;
-		case WRITE:
-			event.getSource().onChannelWrite().unregisterObserver(this);
-			break;
-		case SIGNAL:
-			event.getSource().onChannelSignal().unregisterObserver(this);
-			break;
-		
-		}
+//		switch(event.getEventType())
+//		{
+//		case READ:
+//			event.getSource().onChannelRead().unregisterObserver(this);
+//			break;
+//		case WRITE:
+//			event.getSource().onChannelWrite().unregisterObserver(this);
+//			break;
+//		case SIGNAL:
+//			event.getSource().onChannelSignal().unregisterObserver(this);
+//			break;
+//		
+//		}
 	}
 	
 }

@@ -1,5 +1,7 @@
 channels init
 process A = 
 begin 
-	@ [init] -> Skip [| {|init|} |] [init] -> Skip 
+	actions
+		INIT = [init] -> Skip [| {|init|} |] [init] -> Skip
+	@  INIT
 end

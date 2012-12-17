@@ -7,13 +7,13 @@ import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
-import eu.compassresearch.core.interpreter.cml.events.ObservableCmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 
 public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 
 	private CmlCommunicationSelectionStrategy selectStrategy;
-	private ObservableCmlEvent selectedCommunication;
+	private ObservableEvent selectedCommunication;
 	
 	private List<CmlProcess> pupils = new LinkedList<CmlProcess>();
 	private Scheduler scheduler;
@@ -42,12 +42,12 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	}
 
 	@Override
-	public ObservableCmlEvent selectedCommunication() {
+	public ObservableEvent selectedCommunication() {
 		return selectedCommunication;
 	}
 
 	@Override
-	public void setSelectedCommunication(ObservableCmlEvent comm) {
+	public void setSelectedCommunication(ObservableEvent comm) {
 		selectedCommunication = comm;
 	}
 

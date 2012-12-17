@@ -10,21 +10,28 @@ import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
-public class CmlCommunicationEvent extends ObservableValueCmlEvent {
+public class CmlCommunicationEvent extends ObservableEvent {
 
 	private List<CmlCommunicationEvent> synchronisations = new LinkedList<CmlCommunicationEvent>();
-	
+	final protected Value value;
 	
 	public CmlCommunicationEvent(CmlProcess source, CMLChannelValue channel, Value value)
 	{
-		super(source,channel,value);
+		super(source,channel);
+		this.value = value;
 	}
 	
 	private CmlCommunicationEvent(CmlProcess source, CmlCommunicationEvent left, CmlCommunicationEvent right, Value value)
 	{
-		super(source,left.getChannel(),value);
+		super(source,left.getChannel());
 		this.synchronisations.add(left);
 		this.synchronisations.add(right);
+		this.value = value;
+	}
+	
+	public Value getValue()
+	{
+		return value;
 	}
 	
 	@Override 
@@ -87,5 +94,22 @@ public class CmlCommunicationEvent extends ObservableValueCmlEvent {
 	public void handleChannelEventRegistration(ChannelObserver observer) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public ObservableEvent getReferenceEvent() {
+		return new CmlCommunicationEvent(null, channel, value);
+	}
+
+	@Override
+	public void handleChannelEventUnregistration(ChannelObserver observer) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public boolean isReferencedFrom(ObservableEvent ref) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

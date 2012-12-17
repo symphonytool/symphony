@@ -12,7 +12,7 @@ import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.ObservableCmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
@@ -54,7 +54,7 @@ public class CmlProcessUtil {
 			//FIXME: This should be a name so the conversion is avoided
 			LexNameToken channelName = new LexNameToken("Default",id);
 			CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
-			ObservableCmlEvent com = new PrefixEvent(sourceProcess,chanValue);
+			ObservableEvent com = new PrefixEvent(sourceProcess,chanValue);
 			coms.add(com);
 		}
 		

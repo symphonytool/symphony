@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.runtime;
 
 import java.util.Iterator;
+import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
@@ -23,6 +24,8 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.SynchronisationEvent;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
@@ -333,21 +336,30 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			CmlProcess rightChild = children().get(1);
 			CmlAlphabet rightChildAlpha = rightChild.inspect();
 									
-			if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) &&
-					rightChildAlpha.containsCommunication(supervisor().selectedCommunication()))
+			ObservableEvent selectedEvent = supervisor().selectedCommunication(); 
+			
+			if(selectedEvent instanceof SynchronisationEvent)
 			{
-				leftChild.onTraceChanged().unregisterObserver(this);
-				rightChild.onTraceChanged().unregisterObserver(this);
+				CmlAlphabet syncEventsAlpha = ((SynchronisationEvent)selectedEvent).getSynchronousEvents(); 
+				CmlAlphabet leftOption = syncEventsAlpha.intersect(leftChildAlpha);
+				CmlAlphabet rightOption = syncEventsAlpha.intersect(rightChildAlpha);
 				
-				leftChild.execute(supervisor());
-				rightChild.execute(supervisor());
-				
-				leftChild.onTraceChanged().registerObserver(this);
-				rightChild.onTraceChanged().registerObserver(this);
-				
+				if(!leftOption.isEmpty() &&
+						!rightOption.isEmpty() )
+				{
+					leftChild.onTraceChanged().unregisterObserver(this);
+					rightChild.onTraceChanged().unregisterObserver(this);
+					supervisor().setSelectedCommunication(leftOption.getObservableEvents().iterator().next());
+					leftChild.execute(supervisor());
+					supervisor().setSelectedCommunication(rightOption.getObservableEvents().iterator().next());
+					rightChild.execute(supervisor());
+
+					leftChild.onTraceChanged().registerObserver(this);
+					rightChild.onTraceChanged().registerObserver(this);
+				}
 				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
-			else if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
+			else if(leftChildAlpha.containsCommunication(selectedEvent) )
 			{
 				leftChild.onTraceChanged().unregisterObserver(this);				
 				leftChild.execute(supervisor());
@@ -355,7 +367,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 				
 				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
-			else if(rightChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
+			else if(rightChildAlpha.containsCommunication(selectedEvent) )
 			{
 				rightChild.onTraceChanged().unregisterObserver(this);
 				rightChild.execute(supervisor());
