@@ -61,6 +61,7 @@ import java.text.ParseException;
 // import org.apache.commons.lang3.StringUtils;
 
 import static org.overture.ast.lex.Dialect.VDM_PP;
+import org.overture.ast.factory.AstFactory;
 import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
 import org.overture.ast.lex.*;
@@ -376,6 +377,11 @@ statement
         ( ':=' ( expression | 'new' name '(' ( expression ( ',' expression )* )? ')' )//| callStatement )
         | '<-' callStatement
         )
+    ;
+
+localDefinition
+    : (valueDefinition)=> valueDefinition
+    | functionDefinition
     ;
 
 nonDetStmtAlt
@@ -1116,6 +1122,7 @@ unaryOp returns[SUnaryExp op]
     ;
 
 expr11 returns[PExp exp]
+@init { List<PExp> selectors = new ArrayList<PExp>(); }
     : unaryOp operand=expr11
         {
             SUnaryExp unaryop = $unaryOp.op;
@@ -1124,17 +1131,85 @@ expr11 returns[PExp exp]
             unaryop.setLocation(extractLexLocation(unaryop.getLocation(), target.getLocation()));
             $exp = unaryop;
         }
-    | exprbase selector*
+    | exprbase ( selector { selectors.add($selector.exp); } )*
         {
-            // FIXME --- do something with the selector(s)
-            $exp = $exprbase.exp;
+            $exp = $exprbase.exp; // Set the leftmost root
+            for (PExp sel : selectors) { // Iterate through the selectors, building a left->right tree
+                LexLocation loc = extractLexLocation($exp.getLocation(), sel.getLocation());
+                if (sel instanceof AFieldNumberExp) {
+                    ((AFieldNumberExp)sel).setTuple($exp);
+                    sel.setLocation(loc);
+                    $exp = sel;
+                } else if (sel instanceof AApplyExp) {
+                    ((AApplyExp)sel).setRoot($exp);
+                    sel.setLocation(loc);
+                    $exp = sel;
+                } else if (sel instanceof ASubseqExp) {
+                    ((ASubseqExp)sel).setSeq($exp);
+                    sel.setLocation(loc);
+                    $exp = sel;
+                } else if (sel instanceof AUnresolvedPathExp) {
+                    // selector was a ".IDENTIFIER"; now let's figure out what to do
+                    AUnresolvedPathExp aupe = (AUnresolvedPathExp)sel; // avoid many casts
+                    if ($exp instanceof AVariableExp) { // if the left was an IDENTIFIER, then...
+                        AVariableExp ave = (AVariableExp)$exp;
+                        aupe.setLocation(loc);
+                        aupe.getIdentifiers().add(0, ave.getName().getIdentifier());
+                        $exp = aupe;
+                    } else if ($exp instanceof AUnresolvedPathExp) { // if it was an unresolved path...
+                        $exp.setLocation(loc);
+                        ((AUnresolvedPathExp)$exp).getIdentifiers().addAll(aupe.getIdentifiers());
+                        // no need to assign to $exp here
+                    } else { // otherwise it must be a field access
+                        // the AUnresolvedPathExp we get from the list
+                        // will only have a single Identifier in it.
+                        LexIdentifierToken id = aupe.getIdentifiers().get(0);
+                        $exp = AstFactory.newAFieldExp($exp,id);
+                    }
+                }
+            }
         }
     ;
 
-selector
-    : '(' ( expression (',' '...' ',' expression | (',' expression)+ )? )? ')' // function application, sequence select and subsequence
+// Note that each selector expression is partial, returned with a null "root" expression
+selector returns[PExp exp]
+@init { List<PExp> paramList = new ArrayList<PExp>(); }
+    : l='('
+        ( first=expression
+            ( ',' '...' ',' end=expression
+            | (',' paramItem=expression { paramList.add($paramItem.exp); } )+
+            )?
+        )?
+        r=')' // function application, sequence select and subsequence
+        {
+            LexLocation loc = extractLexLocation($l, $r);
+            if ($first.exp != null) {
+                if ($end.exp != null) {
+                    $exp = new ASubseqExp(loc, null, $first.exp, $end.exp);
+                } else {
+                    // Single param in () is treated as apply, even when sequence select
+                    paramList.add(0, $first.exp);
+                    $exp = new AApplyExp(loc, null, paramList);
+                }
+            } else { // must be a empty apply expression
+                $exp = new AApplyExp(loc, null, new ArrayList<PExp>());
+            }
+        }
     | TUPLESELECTOR // tuple select
-    | '.' IDENTIFIER // field select, usually: it can only be a name *if* the thing immediately left of the dot is an identifier (but not guaranteed)
+        {
+            LexLocation loc = extractLexLocation($TUPLESELECTOR);
+            String num = $TUPLESELECTOR.getText().substring(2);
+            LexIntegerToken fieldnum = new LexIntegerToken(Long.parseLong(num), loc);
+            $exp = new AFieldNumberExp(loc, null, fieldnum);
+        }
+    | t=('.'|'`') IDENTIFIER // field select, usually: it can only be a name *if* the thing immediately left of the dot is an identifier (but not guaranteed)
+        {
+            LexLocation loc = extractLexLocation($t,$IDENTIFIER);
+            LexLocation idloc = extractLexLocation($IDENTIFIER);
+            List<LexIdentifierToken> idList = new ArrayList<LexIdentifierToken>();
+            idList.add(new LexIdentifierToken($IDENTIFIER.getText(), false, idloc));
+            $exp = new AUnresolvedPathExp(loc, idList);
+        }
     ;
 
 exprbase returns[PExp exp]
@@ -1346,11 +1421,6 @@ setMapExprBinding returns[List<PMultipleBind> bindings, PExp pred]
             $bindings = $multipleBindList.bindings;
             $pred = $expression.exp;
         }
-    ;
-
-localDefinition
-    : (valueDefinition)=> valueDefinition
-    | functionDefinition
     ;
 
 multipleBindList returns[List<PMultipleBind> bindings]
