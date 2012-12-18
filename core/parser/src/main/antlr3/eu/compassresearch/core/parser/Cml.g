@@ -163,7 +163,21 @@ public LexLocation extractLexLocation(LexLocation start, LexLocation end) {
                            end.endLine, end.endPos,
                            start.startOffset, end.endOffset);
 }
+public AAccessSpecifierAccessSpecifier extractQualifier(CommonToken token) {
+    String tokenStr = (token == null ? null : token.getText());
+    if (token == null || tokenStr.equals("private")) {
+        return new AAccessSpecifierAccessSpecifier(new APrivateAccess(), null, null);
+    } else if (tokenStr.equals("protected")) {
+        return new AAccessSpecifierAccessSpecifier(new AProtectedAccess(), null, null);
+    } else if (tokenStr.equals("public")) {
+        return new AAccessSpecifierAccessSpecifier(new APublicAccess(), null, null);
+    } else if (tokenStr.equals("logical")) {
+        return new AAccessSpecifierAccessSpecifier(new ALogicalAccess(), null, null);
+    }
+    throw new RuntimeException("The given token, "+token+" is not a qualifier.");
 }
+
+} // end @members
 
 @rulecatch {
 catch (RecognitionException e) {
@@ -590,10 +604,25 @@ typeDefs returns[SParagraphDefinition para]
     ;
 
 typeDef returns[ATypeDefinition def]
-    : QUALIFIER? IDENTIFIER t='=' type invariant?
-        { $def = new ATypeDefinition(); $def.setLocation(extractLexLocation($t)); } // FIXME... these are messy!
-    | QUALIFIER? IDENTIFIER t='::' field+ invariant?
-        { $def = new ATypeDefinition(); $def.setLocation(extractLexLocation($t)); } // FIXME
+    : QUALIFIER? IDENTIFIER '=' type invariant?
+        {
+            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
+            ANamedInvariantType invType = AstFactory.newANamedInvariantType(name, $type.type);
+            PPattern invPat = ($invariant.inv != null ? $invariant.inv.getPattern() : null);
+            PExp invExp = ($invariant.inv != null ? $invariant.inv.getExpression() : null);
+            $def = AstFactory.newATypeDefinition(name,invType,invPat,invExp);
+            $def.setAccess(extractQualifier($QUALIFIER));
+
+        }
+    | QUALIFIER? IDENTIFIER '::' fieldList invariant?
+        {
+            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
+            ARecordInvariantType invType = AstFactory.newARecordInvariantType(name, $fieldList.fieldList);
+            PPattern invPat = ($invariant.inv != null ? $invariant.inv.getPattern() : null);
+            PExp invExp = ($invariant.inv != null ? $invariant.inv.getExpression() : null);
+            $def = AstFactory.newATypeDefinition(name,invType,invPat,invExp);
+            $def.setAccess(extractQualifier($QUALIFIER));
+        }
     ;
 
 type returns[PType type]
@@ -649,7 +678,6 @@ type1 returns[PType type]
     ;
 
 typebase returns[PType type]
-@init { List<AFieldField> fieldList = new ArrayList<AFieldField>(); }
     : basicType
         {
             $type = $basicType.basicType;
@@ -702,11 +730,11 @@ typebase returns[PType type]
             LexLocation loc = extractLexLocation(extractLexLocation($op), $rng.type.getLocation());
             $type = new AInMapMapType(loc, false, null, $dom.type, $rng.type, false);
         }
-    | op='compose' IDENTIFIER 'of' ( field { fieldList.add($field.field); } )+ end='end'
+    | op='compose' IDENTIFIER 'of' fieldList end='end'
         {
             LexLocation loc = extractLexLocation($op,$end);
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
-            $type = new ARecordInvariantType(loc, false, null, false, null, name, fieldList, false);
+            $type = new ARecordInvariantType(loc, false, null, false, null, name, $fieldList.fieldList, false);
         }
     ;
 
@@ -719,6 +747,11 @@ basicType returns[PType basicType]
     | t='real'  { $basicType = new ARealNumericBasicType(extractLexLocation($t), false); }
     | t='char'  { $basicType = new ACharBasicType(extractLexLocation($t), false); }
     | t='token' { $basicType = new ATokenBasicType(extractLexLocation($t), false); }
+    ;
+
+fieldList returns[List<AFieldField> fieldList]
+@init { $fieldList = new ArrayList<AFieldField>(); }
+    : first=field { $fieldList.add($first.field); } ( fieldItem=field { $fieldList.add($fieldItem.field); } )*
     ;
 
 field returns[AFieldField field]
