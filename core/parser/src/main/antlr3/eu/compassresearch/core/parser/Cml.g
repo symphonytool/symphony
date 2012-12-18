@@ -72,7 +72,7 @@ import org.overture.ast.node.*;
 // import org.overture.ast.node.tokens.*;
 import org.overture.ast.patterns.*;
 // import org.overture.ast.preview.*;
-// import org.overture.ast.statements.*;
+import org.overture.ast.statements.*;
 import org.overture.ast.types.*;
 import org.overture.ast.typechecker.NameScope;
 // import org.overture.ast.util.*;
@@ -307,10 +307,15 @@ actionDef
 
 action returns[PAction action]
     : action0
+        { $action = $action0.action; } // FIXME
     | '[' expression ']' '&' action
+        { $action = new AGuardedAction(); } // FIXME
     | 'mu' IDENTIFIER (',' IDENTIFIER)* '@'  '(' action (',' action)* ')'
+        { $action = new AMuAction(); } // FIXME
     | ( actionSimpleReplOp ) replicationDeclaration '@' action
+        { $action = new ASequentialCompositionReplicatedAction(); } // FIXME
     | ( actionSetReplOp ) replicationDeclaration '@' '[' chansetNamesetExpr ( '|' chansetNamesetExpr )? ']' action
+        { $action = new ASequentialCompositionReplicatedAction(); } // FIXME
     ;
 
 actionSimpleReplOp
@@ -324,8 +329,11 @@ actionSetReplOp
 action0 returns[PAction action]
     // : action1 (action0Ops action)?
     : (action1 action0Ops)=>action1 action0Ops action
+        { $action = $action1.action; } // FIXME
     | (action1 '[[')=>action1 '[[' renamingExpr ']]'
+        { $action = $action1.action; } // FIXME
     | action1
+        { $action = $action1.action; } // FIXME
     ;
 
 action0Ops
@@ -348,6 +356,7 @@ action1 returns[PAction action]
         ( ('startsby' | 'endsby')=> ('startsby' | 'endsby') expression
         | ('\\\\')=> '\\\\' chansetNamesetExpr
         )?
+        { $action = $action2.action; } // FIXME
     ;
 
 action2 returns[PAction action]
@@ -367,6 +376,9 @@ action2 returns[PAction action]
         action ')'
         ( '(' expression (',' expression )* ')' )?
     | statement
+        {
+            $action = $statement.statement; 
+        }
     ;
 
 /* FIXME Ok, dots are still fragile
@@ -387,8 +399,18 @@ communication
 statement returns[PAction statement]
 @after { $statement.setLocation(extractLexLocation($statement.start, $statement.stop)); }
     : 'let' localDefinitionList 'in' action
-    | '[:' ('frame' frameSpec (',' frameSpec)* )? ('pre' expression)? 'post' expression ':]' // DEVIATION
-    | ('if' expression 'then')=> 'if' expression 'then' action ( 'elseif' expression 'then' action )* 'else' action
+        {
+            $statement = new ALetStatementAction(null, $action.action, $localDefinitionList.defs);
+        }
+    | '[' ('frame' frameSpecList)? ('pre' pre=expression)? 'post' post=expression ']'
+        {
+            $statement = new ASpecificationStatementAction(null, $frameSpecList.frameSpecs, $pre.exp, $post.exp);
+        }
+    | ('if' expression 'then')=> 'if' test=expression 'then' th=action (('elseif')=>elseIfStmtOptList) (('else')=>'else' el=action)?
+        // need the ()=> to match elseif and else clauses greedily
+        {
+            $statement = new AIfStatementAction(null, $test.exp, $th.action, $elseIfStmtOptList.elseifs, $el.action);
+        }
     | 'if' nonDetStmtAltList 'end'
         {
             $statement = new ANonDeterministicIfStatementAction(null, $nonDetStmtAltList.alts);
@@ -397,12 +419,15 @@ statement returns[PAction statement]
         {
             $statement = new ANonDeterministicDoStatementAction(null, $nonDetStmtAltList.alts);
         }
-    | 'cases' expression ':' (pattern (',' pattern)* '->' action (',' pattern (',' pattern)* '->' action)* )? (',' 'others' '->' expression)? 'end'
+    | 'cases' expression ':' caseStmtAltOptList (',' 'others' '->' action)? 'end'
+        {
+            $statement = new ACasesStatementAction(null, $expression.exp, $caseStmtAltOptList.alts, $action.action);
+        }
     | ('for' 'all')=> 'for' 'all' bindablePattern 'in' 'set' expression 'do' action
         {
             $statement = new AForSetStatementAction(null, $bindablePattern.pattern, $expression.exp, $action.action);
         }
-    | ('for' IDENTIFIER)=> 'for' IDENTIFIER '=' start=expression 'to' end=expression ( 'by' step=expression )? 'do' action
+    | ('for' IDENTIFIER '=')=> 'for' IDENTIFIER '=' start=expression 'to' end=expression ( 'by' step=expression )? 'do' action
         {
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
             $statement = new AForIndexStatementAction(null, name, $start.exp, $end.exp, $step.exp, $action.action);
@@ -433,11 +458,59 @@ statement returns[PAction statement]
             $statement = new AWhileStatementAction(null, $expression.exp, $action.action);
         }
     | 'atomic' '(' stateDesignator ':=' expression ( ';' stateDesignator ':=' expression )+ ')'
+        {
+            $statement = new AMultipleGeneralAssignmentStatementAction(); // FIXME
+        }
     | (callStatement)=> callStatement // More syntactic predicate magic :)
+        {
+            $statement = new ACallStatementAction(); // FIXME
+        }
     | stateDesignator
-        ( ':=' ( expression | 'new' name '(' ( expression ( ',' expression )* )? ')' )//| callStatement )
+        ( ':=' 
+            ( expression 
+                {
+                    // FIXME: might be an assignment, might be a call statement
+                    $statement = new ASingleGeneralAssignmentStatementAction(); // FIXME
+                }
+            | 'new' name '(' ( expression ( ',' expression )* )? ')'
+                {
+                    $statement = new ANewStatementAction(); // FIXME
+                }
+            )//| callStatement )
         | '<-' callStatement
+            {
+                $statement = new ACallStatementAction(); // FIXME
+            }
         )
+    ;
+
+// need the ()=> to match elseifs greedily
+elseIfStmtOptList returns[List<AElseIfStatementAction> elseifs]
+@init { $elseifs = new ArrayList<AElseIfStatementAction>(); }
+    : ( ('elseif')=>elseIfStmt { $elseifs.add($elseIfStmt.elseif); } )*
+//    | /* empty match; we want a null list if no elseifs */
+    ;
+
+elseIfStmt returns[AElseIfStatementAction elseif]
+@after { $elseif.setLocation(extractLexLocation($elseIfStmt.start,$elseIfStmt.stop)); }
+    : 'elseif' test=expression 'then' th=action
+        {
+            $elseif = new AElseIfStatementAction(null, $test.exp, $th.action);
+        }
+    ;
+
+caseStmtAltOptList returns[List<ACaseAlternativeAction> alts]
+@init { $alts = new ArrayList<ACaseAlternativeAction>(); }
+    : first=caseStmtAlt { $alts.add($first.alt); } ( ',' altItem=caseStmtAlt { alts.add($altItem.alt); } )*
+    | /* empty match; we want a null list if no alternative */
+    ;
+
+caseStmtAlt returns[ACaseAlternativeAction alt]
+@after { $alt.setLocation(extractLexLocation($caseStmtAlt.start, $caseStmtAlt.stop)); }
+    : patternList '->' action
+        {
+            $alt = new ACaseAlternativeAction(null, $patternList.patterns, $action.action);
+        }
     ;
 
 localDefinitionList returns[List<PDefinition> defs]
@@ -447,7 +520,7 @@ localDefinitionList returns[List<PDefinition> defs]
 
 localDefinition returns[PDefinition def]
     : (valueDefinition)=> valueDefinition { $def = $valueDefinition.def; }
-    | functionDefinition                  { $def = new AExplicitFunctionDefinition(); } //FIXME
+    | functionDefinition                  { $def = new AExplicitFunctionDefinition(); } // FIXME
     ;
 
 nonDetStmtAltList returns[List<ANonDeterministicAltStatementAction> alts]
@@ -456,11 +529,25 @@ nonDetStmtAltList returns[List<ANonDeterministicAltStatementAction> alts]
     ;
 
 nonDetStmtAlt returns[ANonDeterministicAltStatementAction alt]
+@after { $alt.setLocation(extractLexLocation($nonDetStmtAlt.start, $nonDetStmtAlt.stop)); }
     : expression '->' action
+        {
+            $alt = new ANonDeterministicAltStatementAction(null, $expression.exp, $action.action);
+        }
     ;
 
-frameSpec
-    : FRAMEMODE name (',' name)* (':' type)?
+frameSpecList returns[List<AExternalClause> frameSpecs]
+@init { $frameSpecs = new ArrayList<AExternalClause>(); }
+    : first=frameSpec { $frameSpecs.add($first.frameSpec); } ( ',' frameItem=frameSpec { $frameSpecs.add($frameItem.frameSpec); } )*
+    ;
+
+frameSpec returns[AExternalClause frameSpec]
+    : FRAMEMODE nameList (':' type)?
+        {
+            LexToken mode = new LexToken(extractLexLocation($FRAMEMODE), VDMToken.lookup($FRAMEMODE.getText(), VDM_PP));
+            //new LexToken(, VDMToken.READ);
+            $frameSpec = new AExternalClause(mode, $nameList.names, $type.type);
+        }
     ;
 
 stateDesignator
@@ -985,9 +1072,9 @@ expression returns[PExp exp]
         {
             $exp = new AIfExp(null, $test.exp, $th.exp, $elseIfExprOptList.elseifs, $el.exp);
         }
-    | 'cases' cexp=expression ':' caseExprAlternativeOptList ( ',' 'others' '->' oexp=expression )? 'end'
+    | 'cases' cexp=expression ':' caseExprAltOptList ( ',' 'others' '->' oexp=expression )? 'end'
         {
-            $exp = new ACasesExp(null, $cexp.exp, $caseExprAlternativeOptList.alts, $oexp.exp);
+            $exp = new ACasesExp(null, $cexp.exp, $caseExprAltOptList.alts, $oexp.exp);
         }
     | 'forall' multipleBindList '@' body=expression
         {
@@ -1013,8 +1100,7 @@ expression returns[PExp exp]
 
 elseIfExprOptList returns[List<AElseIfExp> elseifs]
 @init { $elseifs = new ArrayList<AElseIfExp>(); }
-    : elseIfExpr { $elseifs.add($elseIfExpr.elseif); }
-    | /* empty match; we want a null list if no elseifs */
+    : ( elseIfExpr { $elseifs.add($elseIfExpr.elseif); } )*
     ;
 
 elseIfExpr returns[AElseIfExp elseif]
@@ -1025,13 +1111,13 @@ elseIfExpr returns[AElseIfExp elseif]
         }
     ;
 
-caseExprAlternativeOptList returns[List<ACaseAlternative> alts]
+caseExprAltOptList returns[List<ACaseAlternative> alts]
 @init { $alts = new ArrayList<ACaseAlternative>(); }
-    : first=caseExprAlternative { $alts.addAll($first.alts); } ( ',' altItem=caseExprAlternative { alts.addAll($altItem.alts); } )*
+    : first=caseExprAlt { $alts.addAll($first.alts); } ( ',' altItem=caseExprAlt { alts.addAll($altItem.alts); } )*
     | /* empty match; we want a null list if no alternative */
     ;
 
-caseExprAlternative returns[List<ACaseAlternative> alts]
+caseExprAlt returns[List<ACaseAlternative> alts]
 @init { $alts = new ArrayList<ACaseAlternative>(); }
     : patternList '->' expression
         {
@@ -1644,6 +1730,11 @@ typeBind returns[ATypeBind binding]
             LexLocation loc = extractLexLocation($bindablePattern.pattern.getLocation(), $type.type.getLocation());
             $binding = new ATypeBind(loc, $bindablePattern.pattern, $type.type);
         }
+    ;
+
+nameList returns[List<LexNameToken> names]
+@init { $names = new ArrayList<LexNameToken>(); }
+    : first=name { $names.add($first.name); } ( ',' nameItem=name { $names.add($nameItem.name); } )*
     ;
 
 name returns[LexNameToken name]
