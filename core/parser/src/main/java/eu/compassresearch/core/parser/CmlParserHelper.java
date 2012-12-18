@@ -40,6 +40,7 @@ import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.statements.PObjectDesignator;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AFieldField;
@@ -613,6 +614,8 @@ public class CmlParserHelper {
 	res.setBody(functionBody);
 	res.setMeasure((LexNameToken) measureExpr);
 	res.setParamPatternList(args);
+	res.setPass(Pass.DEFS);
+	res.setRecursive(false);
 	return res;
     }
 
