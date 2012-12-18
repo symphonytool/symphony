@@ -1112,7 +1112,7 @@ expr5 returns[PExp exp]
 // FIXME --- doublecheck that / and div use the correct objects
 binOpEval2 returns[SBinaryExpBase op]
 @init { LexLocation loc = null; String opStr = null; }
-@after { op.setLocation(loc); op.setOp(new LexToken(loc, VDMToken.lookup(opStr, VDM_PP))); }
+@after { op.setLocation(loc); op.setOp(extractLexToken(opStr, loc)); }
     : o='*'     { $op = new ATimesNumericBinaryExp();  loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='/'     { $op = new ADivNumericBinaryExp();    loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='rem'   { $op = new ARemNumericBinaryExp();    loc = extractLexLocation($o); opStr = $o.getText(); }
