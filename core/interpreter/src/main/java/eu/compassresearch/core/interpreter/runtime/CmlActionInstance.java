@@ -1,7 +1,8 @@
 package eu.compassresearch.core.interpreter.runtime;
 
 import java.util.Iterator;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
@@ -260,10 +261,136 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	public CmlBehaviourSignal caseAExternalChoiceAction(
 			AExternalChoiceAction node, Context question)
 			throws AnalysisException {
-		// TODO Auto-generated method stub
-		return super.caseAExternalChoiceAction(node, question);
+		
+		CmlBehaviourSignal result = null;
+		
+		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
+		if(!hasChildren()){
+			result = caseExternalChoiceBegin(node,question);
+			//We push the current state, since this process will control the child processes created by it
+			pushNext(node, question);
+		}
+		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
+		//with the state from the skip. After this all the children processes are terminated
+		else if(existsAFinishedChild())
+		{
+			//find the finished child
+			CmlProcess skipChild = findFinishedChild();
+			
+			//get the state replace the current state
+			pushNext(new ASkipAction(), skipChild.getExecutionState().second);
+			
+			//mmmmuhuhuhahaha kill all the children
+			//TODO mmmmuhuhuhahaha I command you to kill the children
+			killAndRemoveAllTheEvidenceOfTheChildren();
+		}
+		//if this is true, then we can resolve the choice to the event
+		//of one of the children that are waiting for events
+		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
+		{
+			List<CmlProcess> waitingChildren = findWaitingChildren();
+			
+			CmlProcess theChoosenOne = randomlyChooseWaitingChild(waitingChildren);
+			
+			//get the state replace the current state
+			pushNext((PAction)theChoosenOne.getExecutionState().first, 
+					theChoosenOne.getExecutionState().second);
+			
+			//mmmmuhuhuhahaha kill all the children
+			//TODO mmmmuhuhuhahaha I command you to kill the children
+			killAndRemoveAllTheEvidenceOfTheChildren();
+			
+		}
+		
+		return result;
 	}
 	
+	/**
+	 * External Choice helper methods
+	 */
+	
+	private boolean existsAFinishedChild()
+	{
+		for(CmlProcess child : children())
+		{
+			if(child.finished())
+				return true;
+		}
+		
+		return false;
+	}
+	
+	private CmlProcess findFinishedChild()
+	{
+		for(CmlProcess child : children())
+		{
+			if(child.finished())
+				return child;
+		}
+		
+		return null;
+	}
+	
+	private List<CmlProcess> findWaitingChildren()
+	{
+		List<CmlProcess> waitingChildren = new LinkedList<CmlProcess>();
+		
+		for(CmlProcess child : children())
+		{
+			if(child.waiting())
+				waitingChildren.add(child);
+		}
+		
+		return waitingChildren;
+	}
+	
+	private CmlProcess randomlyChooseWaitingChild(List<CmlProcess> waitingChildren)
+	{
+		return waitingChildren.get(0);
+	}
+	
+	private void killAndRemoveAllTheEvidenceOfTheChildren()
+	{
+		
+		
+		removeTheChildren();
+		
+	}
+	
+	
+	private CmlBehaviourSignal caseExternalChoiceBegin(AExternalChoiceAction node,Context question)
+	{
+		PAction left = node.getLeft();
+		PAction right = node.getRight();
+		
+		//TODO: create a local copy of the question state for each of the actions
+		CmlActionInstance leftInstance = 
+				new CmlActionInstance(left, question, 
+						new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,left.getLocation()),this);
+		
+		CmlActionInstance rightInstance = 
+				new CmlActionInstance(right, question, 
+						new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),right.getLocation()),this);
+		
+		//add the children FIXME: this should not be done directly on the children() method
+		children().add(leftInstance);
+		children().add(rightInstance);
+		
+		//Register for state change and trace change events
+		leftInstance.onStateChanged().registerObserver(this);
+		leftInstance.onTraceChanged().registerObserver(this);
+		rightInstance.onStateChanged().registerObserver(this);
+		rightInstance.onTraceChanged().registerObserver(this);
+		
+		//Add them to the superviser to get executed as a seperate process
+		rightInstance.start(supervisor());
+		leftInstance.start(supervisor());
+		
+		//Now let this process wait for the children to get into a waitForEvent state
+		setState(CmlProcessState.WAIT_CHILD);
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
 	
 	
 	/**
@@ -516,7 +643,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
-	private CmlBehaviourSignal caseParallelEnd(Context question)
+	private void removeTheChildren()
 	{
 		for(Iterator<CmlProcess> iterator = children().iterator(); iterator.hasNext(); )
 		{
@@ -524,6 +651,11 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			supervisor().removePupil(child);
 			iterator.remove();
 		}
+	}
+	
+	private CmlBehaviourSignal caseParallelEnd(Context question)
+	{
+		removeTheChildren();
 		
 		//now this process evolves into Skip
 		pushNext(new ASkipAction(), question);

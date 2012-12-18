@@ -3,10 +3,13 @@ package eu.compassresearch.core.interpreter.cml;
 import java.util.List;
 
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.node.INode;
+import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.EventSource;
+import eu.compassresearch.core.interpreter.util.Pair;
 
 
 public interface CmlProcess extends CmlProcessBehaviour{
@@ -24,11 +27,17 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	public CmlSupervisorEnvironment supervisor();
 	
 	/**
+	 * Returns the current context of the process
+	 * @return The current context
+	 */
+	public Pair<? extends INode,Context> getExecutionState();
+	
+	/**
 	 * Name of the process
 	 * @return The name of the process
 	 */
 	public LexNameToken name();
-	
+		
 	/**
 	 * This constructs a string representing the next execution step of this process
 	 * @return
@@ -66,9 +75,6 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	 * @return The appropriate EventSource for event registration
 	 */
 	public EventSource<CmlProcessStateObserver> onStateChanged();
-	
-//	public void registerOnStateChanged(CmlProcessObserver observer);
-//	public void unregisterOnStateChanged(CmlProcessObserver observer);
 	
 	/**
 	 * Denotational Semantics Information
