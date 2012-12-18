@@ -382,7 +382,7 @@ communication
     ;
 
 statement
-    : 'let' localDefinition (',' localDefinition)* 'in' action
+    : 'let' localDefinitionList 'in' action
     | '[:' ('frame' frameSpec (',' frameSpec)* )? ('pre' expression)? 'post' expression ':]' // DEVIATION
     | 'do' nonDetStmtAlt ( '[]' nonDetStmtAlt )* 'end'
     | 'if' expression
@@ -406,9 +406,16 @@ statement
         )
     ;
 
-localDefinition
+localDefinitionList returns[List<PDefinition> defs]
+@init { $defs = new ArrayList<PDefinition>(); }
+    : first=localDefinition { $defs.add($first.def); } ( ',' defItem=localDefinition { $defs.add($defItem.def); } )*
+    ;
+
+localDefinition returns[PDefinition def]
     : (valueDefinition)=> valueDefinition
+        { $def = new AValueDefinition(); } //FIXME
     | functionDefinition
+        { $def = new AValueDefinition(); } //FIXME
     ;
 
 nonDetStmtAlt
@@ -927,12 +934,12 @@ expression returns[PExp exp]
         {
             $exp = $expr0.exp;
         }
-    | 'let' localDefinition (',' localDefinition)* 'in' body=expression
+    | tok='let' localDefinitionList 'in' body=expression
         {
-            // FIXME --- JWC HERE
-            $exp = $body.exp;
+            LexLocation loc = extractLexLocation($tok);
+            $exp = AstFactory.newALetDefExp(loc, $localDefinitionList.defs, $body.exp);
         }
-    | iftok='if' test=expression 'then' th=expression
+    | tok='if' test=expression 'then' th=expression
         ( ei='elseif' eitest=expression 'then' eith=expression
             {
                 LexLocation eiloc = extractLexLocation($ei);
@@ -942,7 +949,7 @@ expression returns[PExp exp]
         )*
         'else' el=expression
         {
-            LexLocation loc = extractLexLocation($iftok);
+            LexLocation loc = extractLexLocation($tok);
             loc = extractLexLocation(loc, $el.exp.getLocation());
             $exp = new AIfExp(loc, $test.exp, $th.exp, elifList, $el.exp);
         }
