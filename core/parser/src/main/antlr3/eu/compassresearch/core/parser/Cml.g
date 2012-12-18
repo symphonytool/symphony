@@ -412,10 +412,8 @@ localDefinitionList returns[List<PDefinition> defs]
     ;
 
 localDefinition returns[PDefinition def]
-    : (valueDefinition)=> valueDefinition
-        { $def = new AValueDefinition(); } //FIXME
-    | functionDefinition
-        { $def = new AValueDefinition(); } //FIXME
+    : (valueDefinition)=> valueDefinition { $def = $valueDefinition.def; }
+    | functionDefinition                  { $def = new AValueDefinition(); } //FIXME
     ;
 
 nonDetStmtAlt
@@ -530,8 +528,16 @@ functionDefs
     : 'functions' (QUALIFIER? functionDefinition)*
     ;
 
-valueDefinition
-    : bindablePattern (':' type)? ( '=' | 'be' 'st' ) expression
+valueDefinition returns[AValueDefinition def]
+// We've had requests for the "be st" type of value definitions, but
+//  they're not in for now.  The Overture AST does this differently
+//  than I'd like. -jwc/18Dec2012
+//
+//  : bindablePattern (':' type)? ( '=' | 'be' 'st' ) expression
+    : bindablePattern (':' type)? '=' expression
+        {
+            $def = AstFactory.newAValueDefinition($bindablePattern.pattern, NameScope.LOCAL, $type.type, $expression.exp);
+        }
     ;
 
 functionDefinition
