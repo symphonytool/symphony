@@ -1,7 +1,7 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
+
 public abstract class CmlEvent {
-	
 	
 	@Override 
 	public abstract int hashCode();
@@ -10,5 +10,5 @@ public abstract class CmlEvent {
 	public abstract String toString();
 	
 	@Override
-	public abstract boolean equals(Object obj) ;
+	public abstract boolean equals(Object obj);
 }

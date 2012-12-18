@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,8 @@ import org.eclipse.debug.core.model.IThread;
 
 import com.google.gson.reflect.TypeToken;
 
+import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
+import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgpStatus;
@@ -45,9 +48,9 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
 	// threads
 	private CmlThread cmlThread;
-	private IThread[] threads;
+	private List<IThread> threads;
 
-	// sockets to communicate with VM
+	// socket to communicate with VM
 	private Socket fRequestSocket;
 	private OutputStream requestOutputStream;
 	private BufferedReader fRequestReader;
@@ -101,7 +104,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 				@Override
 				public boolean handleMessage(CmlRequestMessage message) {
 					Type listType = new TypeToken<List<String>>(){}.getType();
-					final List<String> events = message.<List<String>>getValue(listType);
+					final List<String> events = message.<List<String>>getContent(listType);
 					new CmlChoiceMediator(cmlDebugTarget).setChoiceOptions(events,message);
 					return true;
 				}
@@ -130,11 +133,18 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			handlers.put(CmlDbgpStatus.RUNNING.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
 				@Override
 				public boolean handleMessage(CmlDbgStatusMessage message) {
-					started();
+					started(message.getInterpreterStatus());
 					return true;
 				}
 			} );
 			
+			handlers.put(CmlDbgpStatus.CHOICE.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+				@Override
+				public boolean handleMessage(CmlDbgStatusMessage message) {
+					updateDebuggerInfo(message.getInterpreterStatus());
+					return true;
+				}
+			} );
 
 			handlers.put(CmlDbgpStatus.STOPPING.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
 				@Override
@@ -245,8 +255,8 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		try {
 
 			waitForConnect(communicationPort); 
-			cmlThread = new CmlThread(this);
-			threads = new IThread[] {cmlThread};
+//			cmlThread = new CmlThread(this);
+			threads = new LinkedList<IThread>();
 			fEventDispatch = new EventDispatchJob();
 			fEventDispatch.schedule();
 			//Add the target to listen to any breakpoints added
@@ -318,14 +328,12 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
 	@Override
 	public void resume() throws DebugException {
-		// TODO Auto-generated method stub
-
+		fireResumeEvent(0);
 	}
 
 	@Override
 	public void suspend() throws DebugException {
-		// TODO Auto-generated method stub
-
+		fireSuspendEvent(0);
 	}
 
 	@Override
@@ -383,12 +391,12 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
 	@Override
 	public IThread[] getThreads() throws DebugException {
-		return threads;
+		return threads.toArray(new IThread[threads.size()]);
 	}
 
 	@Override
 	public boolean hasThreads() throws DebugException {
-		return threads.length > 0;
+		return threads.size() > 0;
 	}
 
 	@Override
@@ -420,13 +428,27 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		CmlMessageCommunicator.sendMessage(requestOutputStream, message);
 	}
 
+	private void updateDebuggerInfo(InterpreterStatus status)
+	{
+		//cmlThread = new CmlThread(this,status.getToplevelProcessInfo());
+		threads.clear();
+		for(CmlProcessInfo t : status.getAllProcessInfos())
+		{
+			threads.add(new CmlThread(this,t));
+		}
+		//fireSuspendEvent(0);
+		fireResumeEvent(0);
+	}
 
 	/**
 	 * Notification we have connected to the VM and it has started.
 	 * Resume the VM.
 	 */
-	private void started() {
+	private void started(InterpreterStatus status) {
+		
+		updateDebuggerInfo(status);
 		fireCreationEvent();
+		
 		//installDeferredBreakpoints();
 		try {
 			resume();

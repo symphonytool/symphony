@@ -1,9 +1,6 @@
 package eu.compassresearch.core.interpreter.events;
 
-import org.overture.ast.lex.LexNameToken;
-
-
 public interface ChannelObserver {
 
-	public void onChannelEvent(CmlChannelEvent event);
+	public void onChannelEvent(Object source, CmlChannelEvent event);
 }

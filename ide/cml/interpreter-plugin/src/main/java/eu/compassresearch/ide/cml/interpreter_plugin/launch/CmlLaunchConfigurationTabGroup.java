@@ -19,6 +19,7 @@ import eu.compassresearch.ide.cml.interpreter_plugin.CmlUtil;
 
 public class CmlLaunchConfigurationTabGroup extends AbstractLaunchConfigurationTabGroup  {
 
+	//TODO: This is not done at all
 	@Override
 	public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
 		
@@ -39,6 +40,8 @@ public class CmlLaunchConfigurationTabGroup extends AbstractLaunchConfigurationT
 	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
 						
+		//FIXME: This method can only determine the project if its selected in the project explorer
+		//		 Therefore this should not be set like this, but should be put in the launchconfiggui
 		IProject project = CmlUtil.getCurrentSelectedProject();
 		//Set the project name
 		configuration.setAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(),project.getName());

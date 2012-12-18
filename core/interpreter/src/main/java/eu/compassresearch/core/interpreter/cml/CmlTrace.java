@@ -7,6 +7,7 @@ import java.util.List;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 
 public class CmlTrace {
 
@@ -45,7 +46,7 @@ public class CmlTrace {
 			
 		for(CmlEvent e : trace)
 		{
-			if(e instanceof CmlCommunicationEvent)
+			if(e instanceof ObservableEvent)
 				visibleEvents.add(e);
 		}
 		

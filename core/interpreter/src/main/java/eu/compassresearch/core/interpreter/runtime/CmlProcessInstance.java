@@ -1,14 +1,11 @@
 package eu.compassresearch.core.interpreter.runtime;
 
-import java.util.List;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AReferenceProcess;
-import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
@@ -19,8 +16,9 @@ import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
-import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
+import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 /**
  *  This class represents a running CML Process. It represents a specific node as specified in D23.2 section 7.4.2,
@@ -36,7 +34,8 @@ import eu.compassresearch.core.interpreter.events.TraceEvent;
  * @author akm
  *
  */
-public class CmlProcessInstance extends AbstractInstance<PProcess>  implements CmlProcessObserver{
+public class CmlProcessInstance extends AbstractInstance<PProcess>  implements CmlProcessStateObserver, CmlProcessTraceObserver
+{
 
 	private AProcessDefinition processDef;
 	private CmlActionInstance mainBehaviour = null;
@@ -214,8 +213,8 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 					node.getAction().getLocation());
 
 			mainBehaviour = new CmlActionInstance(node.getAction(),newContext,mainActionName);
-			mainBehaviour.registerOnStateChanged(this);
-			mainBehaviour.registerOnTraceChanged(this);
+			mainBehaviour.onStateChanged().registerObserver(this);
+			mainBehaviour.onTraceChanged().registerObserver(this);
 			mainBehaviour.start(supervisor());
 			pushNext(node, question);
 			ret = CmlBehaviourSignal.EXEC_SUCCESS; 

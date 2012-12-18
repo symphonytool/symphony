@@ -1,2 +1,7 @@
 channels a b
-process A = begin @ [a] -> Skip ||| [b] -> Skip end
+process A = 
+begin 
+	actions
+	INIT = [a] -> Skip ||| [b] -> Skip 
+	@ INIT
+end

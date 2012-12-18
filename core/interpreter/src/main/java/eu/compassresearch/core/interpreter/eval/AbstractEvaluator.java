@@ -18,10 +18,21 @@ public abstract class AbstractEvaluator<T  extends INode> extends
 	 */
 	private static final long serialVersionUID = 3882847083437565869L;
 	private Stack<Pair<T,Context>> executionStack = new Stack<Pair<T,Context>>();
+	protected Pair<T,Context> prevExecution = null;
 	
 	public boolean hasNext()
 	{
 		return !executionStack.isEmpty();
+	}
+	
+	public boolean hasPrev()
+	{
+		return prevExecution != null;
+	}
+	
+	public Pair<T,Context> prevState()
+	{
+		return prevExecution;
 	}
 	
 	public Pair<T,Context> nextState()
@@ -39,6 +50,7 @@ public abstract class AbstractEvaluator<T  extends INode> extends
 		if(hasNext())
 		{
 			Pair<T,Context> next = executionStack.pop();
+			prevExecution = next;
 			return next.first.apply(this,next.second);
 		}
 		else{

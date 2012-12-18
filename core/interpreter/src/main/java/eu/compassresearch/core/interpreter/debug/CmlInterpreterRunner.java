@@ -24,9 +24,11 @@ import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
+import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgpStatus;
@@ -35,15 +37,15 @@ import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageContainer;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlResponseMessage;
+import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
+import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
-
-
-public class CmlInterpreterRunner {
+public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 
 	private CmlInterpreter cmlInterpreter;
 	private Socket requestSocket;
@@ -109,7 +111,7 @@ public class CmlInterpreterRunner {
 	
 	public void debug() throws InterpreterException
 	{
-		
+		cmlInterpreter.onStatusChanged().registerObserver(this);
 		try {
 			connect();
 			init();
@@ -122,7 +124,7 @@ public class CmlInterpreterRunner {
 			e.printStackTrace();
 		}
 		finally{
-			
+			cmlInterpreter.onStatusChanged().unregisterObserver(this);
 		}
 		
 		//cmlInterpreter.execute();
@@ -180,7 +182,12 @@ public class CmlInterpreterRunner {
 	 */
 	private void sendStatusMessage(CmlDbgpStatus status)
 	{
-		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(status);
+		sendStatusMessage(status, null);
+	}
+	
+	private void sendStatusMessage(CmlDbgpStatus status, InterpreterStatus interpreterStatus)
+	{
+		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(status,interpreterStatus);
 		System.out.println(dm);
 		CmlMessageCommunicator.sendMessage(requestOS, dm);
 	}
@@ -218,18 +225,20 @@ public class CmlInterpreterRunner {
 
 //		do
 //		{
-			sendStatusMessage(CmlDbgpStatus.RUNNING);
+			//sendStatusMessage(CmlDbgpStatus.RUNNING);
 			
 			try{
 			
 				cmlInterpreter.execute(new CmlCommunicationSelectionStrategy() {
 
 					@Override
-					public CmlCommunicationEvent select(CmlAlphabet availableChannelEvents) {
+					public ObservableEvent select(CmlAlphabet availableChannelEvents) {
 
+						sendStatusMessage(CmlDbgpStatus.CHOICE, CmlInterpreterRunner.this.cmlInterpreter.getStatus());
+						
 						//convert to list of strings for now
 						List<String> events = new LinkedList<String>();
-						for(CmlCommunicationEvent comEvent : availableChannelEvents.getCommunicationEvents())
+						for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
 						{
 							events.add(comEvent.getChannel().getName());
 						}
@@ -240,12 +249,12 @@ public class CmlInterpreterRunner {
 						if(response.isRequestInterrupted())
 							throw new InterpreterRuntimeException("intepreter interrupted");
 
-						String responseStr = response.getValue(String.class);
+						String responseStr = response.getContent(String.class);
 						System.out.println("response: " + responseStr);
 						
-						CmlCommunicationEvent selectedEvent = null;
+						ObservableEvent selectedEvent = null;
 						//For now we just search naively to find the event
-						for(CmlCommunicationEvent comEvent : availableChannelEvents.getCommunicationEvents())
+						for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
 						{
 							System.out.println("found: " + comEvent.getChannel().getName());
 							if(comEvent.getChannel().getName().equals(responseStr))
@@ -411,6 +420,18 @@ public class CmlInterpreterRunner {
 		}
 
 		return paths;
+	}
+
+	@Override
+	public void onStatusChanged(Object source, InterpreterStatusEvent event) {
+
+		switch(event.getStatus())
+		{
+		case RUNNING:
+			sendStatusMessage(CmlDbgpStatus.RUNNING, cmlInterpreter.getStatus());
+			break;
+		}
+		
 	}
 
 }

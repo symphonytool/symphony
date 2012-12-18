@@ -7,11 +7,17 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 
+import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
+import eu.compassresearch.core.interpreter.cml.CmlProcessState;
+
 public class CmlThread extends CmlDebugElement implements IThread {
 
-	public CmlThread(CmlDebugTarget debugTarget)
+	private CmlProcessInfo cmlProcessInfo;
+	
+	public CmlThread(CmlDebugTarget debugTarget, CmlProcessInfo cmlProcessInfo)
 	{
 		super(debugTarget);
+		this.cmlProcessInfo = cmlProcessInfo; 
 	}
 
 	@Override
@@ -21,7 +27,6 @@ public class CmlThread extends CmlDebugElement implements IThread {
 
 	@Override
 	public boolean canSuspend() {
-		// TODO Auto-generated method stub
 		return !isSuspended();
 	}
 
@@ -83,19 +88,21 @@ public class CmlThread extends CmlDebugElement implements IThread {
 
 	}
 
+	/**
+	 * It should not be posible to terminate the thread from the debugger
+	 */
 	@Override
 	public boolean canTerminate() {
-		return !getDebugTarget().isTerminated();
+		return false;
 	}
 
 	@Override
 	public boolean isTerminated() {
-		return getDebugTarget().isTerminated();
+		return this.cmlProcessInfo.getState() == CmlProcessState.FINISHED || getDebugTarget().isTerminated();
 	}
 
 	@Override
 	public void terminate() throws DebugException {
-		getDebugTarget().terminate();
 	}
 
 	@Override
@@ -123,7 +130,7 @@ public class CmlThread extends CmlDebugElement implements IThread {
 
 	@Override
 	public String getName() throws DebugException {
-		return "CML Main Thread";
+		return cmlProcessInfo.getName();
 	}
 
 	@Override

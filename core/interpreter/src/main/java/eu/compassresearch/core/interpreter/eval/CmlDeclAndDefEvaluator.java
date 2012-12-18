@@ -3,16 +3,15 @@ package eu.compassresearch.core.interpreter.eval;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
-import eu.compassresearch.core.interpreter.api.CMLContext;
 
 public class CmlDeclAndDefEvaluator extends
-		QuestionAnswerCMLAdaptor<CMLContext, Value> {
+		QuestionAnswerCMLAdaptor<Context, Value> {
 
 	private CmlEvaluator parentInterpreter; 
 
@@ -23,7 +22,7 @@ public class CmlDeclAndDefEvaluator extends
 	
 	@Override
 	public Value caseAStateParagraphDefinition(AStateParagraphDefinition node,
-			CMLContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 		
 		for(PDefinition def : node.getStateDefs())
 		{
@@ -35,7 +34,7 @@ public class CmlDeclAndDefEvaluator extends
 
 	@Override
 	public Value caseAAssignmentDefinition(AAssignmentDefinition node,
-			CMLContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 		
 		Value expValue = null;
 		if(node.getExpression() != null)
