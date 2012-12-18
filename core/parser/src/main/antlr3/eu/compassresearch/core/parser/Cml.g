@@ -972,66 +972,63 @@ recordPattern returns[PPattern pattern]
     ;
 
 expression returns[PExp exp]
-@init {
-    List<AElseIfExp> elifList = new ArrayList<AElseIfExp>();
-    List<ACaseAlternative> alts = null;
-}
+@after { $exp.setLocation(extractLexLocation($expression.start,$expression.stop)); }
     : expr0
         {
             $exp = $expr0.exp;
         }
-    | tok='let' localDefinitionList 'in' body=expression
+    | 'let' localDefinitionList 'in' body=expression
         {
-            LexLocation loc = extractLexLocation($tok);
-            $exp = AstFactory.newALetDefExp(loc, $localDefinitionList.defs, $body.exp);
+            $exp = new ALetDefExp(null, $localDefinitionList.defs, $body.exp);
         }
-    | tok='if' test=expression 'then' th=expression
-        ( ei='elseif' eitest=expression 'then' eith=expression
-            {
-                LexLocation eiloc = extractLexLocation($ei);
-                AElseIfExp eiexp = new AElseIfExp(extractLexLocation(eiloc, $eith.exp.getLocation()), $eitest.exp, $eith.exp);
-                elifList.add(eiexp);
-            }
-        )*
-        'else' el=expression
+    | 'if' test=expression 'then' th=expression elseIfExprOptList 'else' el=expression
         {
-            LexLocation loc = extractLexLocation($tok);
-            loc = extractLexLocation(loc, $el.exp.getLocation());
-            $exp = new AIfExp(loc, $test.exp, $th.exp, elifList, $el.exp);
+            $exp = new AIfExp(null, $test.exp, $th.exp, $elseIfExprOptList.elseifs, $el.exp);
         }
-    | l='cases' cexp=expression ':'
-        ( first=caseExprAlternative { alts = $first.alts; } ( ',' altItem=caseExprAlternative { alts.addAll($altItem.alts); } )* )?
-        ( ',' 'others' '->' oexp=expression )?
-        r='end'
+    | 'cases' cexp=expression ':' caseExprAlternativeOptList ( ',' 'others' '->' oexp=expression )? 'end'
         {
-            LexLocation loc = extractLexLocation($l, $r);
-            $exp = new ACasesExp(loc, $cexp.exp, alts, $oexp.exp);
+            $exp = new ACasesExp(null, $cexp.exp, $caseExprAlternativeOptList.alts, $oexp.exp);
         }
-    | tok='forall' multipleBindList '@' body=expression
+    | 'forall' multipleBindList '@' body=expression
         {
-            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
-            $exp = new AForAllExp(loc, $multipleBindList.bindings, $body.exp);
+            $exp = new AForAllExp(null, $multipleBindList.bindings, $body.exp);
         }
-    | tok='exists' multipleBindList '@' body=expression
+    | 'exists' multipleBindList '@' body=expression
         {
-            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
-            $exp = new AExistsExp(loc, $multipleBindList.bindings, $body.exp);
+            $exp = new AExistsExp(null, $multipleBindList.bindings, $body.exp);
         }
-    | tok='exists1' singleBind '@' body=expression
+    | 'exists1' singleBind '@' body=expression
         {
-            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
-            $exp = new AExists1Exp(loc, $singleBind.binding, $body.exp, null);
+            $exp = new AExists1Exp(null, $singleBind.binding, $body.exp, null);
         }
-    | tok='iota' singleBind '@' body=expression
+    | 'iota' singleBind '@' body=expression
         {
-            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
-            $exp = new AIotaExp(loc, $singleBind.binding, $body.exp);
+            $exp = new AIotaExp(null, $singleBind.binding, $body.exp);
         }
-    | tok='lambda' typeBindList '@' body=expression
+    | 'lambda' typeBindList '@' body=expression
         {
-            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
-            $exp = new ALambdaExp(loc, $typeBindList.bindings, $body.exp, null, null);
+            $exp = new ALambdaExp(null, $typeBindList.bindings, $body.exp, null, null);
         }
+    ;
+
+elseIfExprOptList returns[List<AElseIfExp> elseifs]
+@init { $elseifs = new ArrayList<AElseIfExp>(); }
+    : elseIfExpr { $elseifs.add($elseIfExpr.elseif); }
+    | /* empty match; we want a null list if no elseifs */
+    ;
+
+elseIfExpr returns[AElseIfExp elseif]
+@after { $elseif.setLocation(extractLexLocation($elseIfExpr.start,$elseIfExpr.stop)); }
+    : 'elseif' test=expression 'then' th=expression
+        {
+            $elseif = new AElseIfExp(null, $test.exp, $th.exp);
+        }
+    ;
+
+caseExprAlternativeOptList returns[List<ACaseAlternative> alts]
+@init { $alts = new ArrayList<ACaseAlternative>(); }
+    : first=caseExprAlternative { $alts.addAll($first.alts); } ( ',' altItem=caseExprAlternative { alts.addAll($altItem.alts); } )*
+    | /* empty match; we want a null list if no alternative */
     ;
 
 caseExprAlternative returns[List<ACaseAlternative> alts]
@@ -1482,13 +1479,11 @@ seqExpr returns[SSeqExp seqExpr]
             // | ',' '...' ','  end=expression
         )
         {
-            // This location doesn't matter --- it *will* be replaced
-            // by the caller of seqExpr.
             LexLocation loc = new LexLocation();
             if ($setBind.binding != null) {
                 $seqExpr = new ASeqCompSeqExp(loc, $exp.exp, $setBind.binding, $pred.exp);
             } else {
-                exps.add(0, exp);
+                exps.add(0, $exp.exp);
                 $seqExpr = new ASeqEnumSeqExp(loc, exps);
             }
         }
