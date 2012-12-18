@@ -23,12 +23,15 @@
  *
  * I'm not sure if multiple binds are implemented. -jwc/14Dec2012
  *
- * Look into start/final rules to see if we can ease up the location bookkeeping
- *
  * Note: don't use '()' as a token: it will probably end up
  * conflicting with '(' ')' in places where there is an optional
  * something inside the brackets.
  *
+ * LexLocations really ought to be handled as is done in the @after
+ * block of the opType rule.  The $ruleName.start and $ruleName.stop
+ * attributes give the first and last tokens matched by that rule (or
+ * subrules), assuming I understand it correctly (and looking at the
+ * generated code appear to confirm my understanding).  -jwc/18Dec2012
  */
 grammar Cml;
 options {
@@ -269,7 +272,7 @@ replicationDeclaration
     ;
 
 replicationDecl
-    : IDENTIFIER ( ',' IDENTIFIER )* ( ':' type | 'in' 'set' expression )  // FIXME
+    : IDENTIFIER ( ',' IDENTIFIER )* ( ':' type | 'in' 'set' expression )  // FIXME -- looks like multiTypeBind | multiSetBind
     ;
 
 renamingExpr
@@ -302,7 +305,7 @@ actionDef
     // : IDENTIFIER '=' (declaration '@')? action
     ;
 
-action
+action returns[PAction action]
     : action0
     | '[' expression ']' '&' action
     | 'mu' IDENTIFIER (',' IDENTIFIER)* '@'  '(' action (',' action)* ')'
@@ -318,7 +321,7 @@ actionSetReplOp
     : '||' | '|||' | '[|' chansetNamesetExpr '|]'
     ;
 
-action0
+action0 returns[PAction action]
     // : action1 (action0Ops action)?
     : (action1 action0Ops)=>action1 action0Ops action
     | (action1 '[[')=>action1 '[[' renamingExpr ']]'
@@ -340,14 +343,14 @@ action0Ops
     | '[||' chansetNamesetExpr '|' chansetNamesetExpr '||]'
     ;
 
-action1
+action1 returns[PAction action]
     : action2
         ( ('startsby' | 'endsby')=> ('startsby' | 'endsby') expression
         | ('\\\\')=> '\\\\' chansetNamesetExpr
         )?
     ;
 
-action2
+action2 returns[PAction action]
     : 'Skip'
     | 'Stop'
     | 'Chaos'
@@ -381,23 +384,54 @@ communication
     | '?' bindablePattern ( 'in' 'set' setMapExpr )?
     ;
 
-statement
+statement returns[PAction statement]
+@after { $statement.setLocation(extractLexLocation($statement.start, $statement.stop)); }
     : 'let' localDefinitionList 'in' action
     | '[:' ('frame' frameSpec (',' frameSpec)* )? ('pre' expression)? 'post' expression ':]' // DEVIATION
-    | 'do' nonDetStmtAlt ( '[]' nonDetStmtAlt )* 'end'
-    | 'if' expression
-        ( '->' action ( '[]' nonDetStmtAlt )* 'end'
-        | 'then' action ( 'elseif' expression 'then' action )* 'else' action
-        )
+    | ('if' expression 'then')=> 'if' expression 'then' action ( 'elseif' expression 'then' action )* 'else' action
+    | 'if' nonDetStmtAltList 'end'
+        {
+            $statement = new ANonDeterministicIfStatementAction(null, $nonDetStmtAltList.alts);
+        }
+    | 'do' nonDetStmtAltList 'end'
+        {
+            $statement = new ANonDeterministicDoStatementAction(null, $nonDetStmtAltList.alts);
+        }
     | 'cases' expression ':' (pattern (',' pattern)* '->' action (',' pattern (',' pattern)* '->' action)* )? (',' 'others' '->' expression)? 'end'
-    | 'for'
-        ( bindablePattern (':' type)? 'in' expression // was pattern bind here only
-        | 'all' bindablePattern 'in' 'set' expression
-        | IDENTIFIER '=' expression 'to' expression ( 'by' expression )?
-        ) 'do' action
+    | ('for' 'all')=> 'for' 'all' bindablePattern 'in' 'set' expression 'do' action
+        {
+            $statement = new AForSetStatementAction(null, $bindablePattern.pattern, $expression.exp, $action.action);
+        }
+    | ('for' IDENTIFIER)=> 'for' IDENTIFIER '=' start=expression 'to' end=expression ( 'by' step=expression )? 'do' action
+        {
+            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
+            $statement = new AForIndexStatementAction(null, name, $start.exp, $end.exp, $step.exp, $action.action);
+        }
+    | 'for' bindablePattern (':' type)? 'in' expression 'do' action // was pattern bind here only
+        {
+            ADefPatternBind patternBind = new ADefPatternBind();
+            LexLocation pbloc = $bindablePattern.pattern.getLocation();
+            if ($type.type != null) {
+                pbloc = extractLexLocation(pbloc, $type.type.getLocation());
+                patternBind.setBind(new ATypeBind(pbloc, $bindablePattern.pattern, $type.type));
+            } else {
+                patternBind.setPattern($bindablePattern.pattern);
+            }
+            patternBind.setLocation(pbloc); //depends on the if
+            $statement = new AForSequenceStatementAction(null, patternBind, $expression.exp, $action.action);
+        }
     | ('return' expression)=>'return' expression
+        {
+            $statement = new AReturnStatementAction(null,$expression.exp);
+        }
     | 'return'
+        {
+            $statement = new AReturnStatementAction();
+        }
     | 'while' expression 'do' action
+        {
+            $statement = new AWhileStatementAction(null, $expression.exp, $action.action);
+        }
     | 'atomic' '(' stateDesignator ':=' expression ( ';' stateDesignator ':=' expression )+ ')'
     | (callStatement)=> callStatement // More syntactic predicate magic :)
     | stateDesignator
@@ -413,10 +447,15 @@ localDefinitionList returns[List<PDefinition> defs]
 
 localDefinition returns[PDefinition def]
     : (valueDefinition)=> valueDefinition { $def = $valueDefinition.def; }
-    | functionDefinition                  { $def = new AValueDefinition(); } //FIXME
+    | functionDefinition                  { $def = new AExplicitFunctionDefinition(); } //FIXME
     ;
 
-nonDetStmtAlt
+nonDetStmtAltList returns[List<ANonDeterministicAltStatementAction> alts]
+@init { $alts = new ArrayList<ANonDeterministicAltStatementAction>(); }
+    : first=nonDetStmtAlt { $alts.add($first.alt); } ( '[]' altItem=nonDetStmtAlt { $alts.add($altItem.alt); } )*
+    ;
+
+nonDetStmtAlt returns[ANonDeterministicAltStatementAction alt]
     : expression '->' action
     ;
 
@@ -429,7 +468,7 @@ stateDesignator
     ;
 
 sDTail
-    : '(' expression ')' ( '.' stateDesignator | sDTail )?
+    : '(' expression ')' ( '.' stateDesignator | sDTail )? // FIXME -- shouldn't that expression be a expressionList?
     ;
 
 /* This does not support the 'object apply' form of the
@@ -437,7 +476,7 @@ sDTail
  * Chained calls?  That should be more general anyway.
  *
  */
-callStatement
+callStatement returns[PAction statement]
     : name '(' ( expression ( ',' expression )* )? ')'
     ;
 
@@ -582,6 +621,7 @@ operationDef
     ;
 
 opType returns[PType type]
+@after { $type.setLocation(extractLexLocation($opType.start, $opType.stop)); }
     : ( dom=type0 | vdom='(' vdom2=')' ) '==>' ( rng=type0 | vrng='(' vrng2=')' )
         {
             PType domType = ($dom.type != null ? $dom.type : new AVoidType(extractLexLocation($vdom,$vdom2),true));
@@ -1122,15 +1162,14 @@ expr5 returns[PExp exp]
         }
     ;
 
-// FIXME --- doublecheck that / and div use the correct objects
 binOpEval2 returns[SBinaryExpBase op]
 @init { LexLocation loc = null; String opStr = null; }
 @after { op.setLocation(loc); op.setOp(extractLexToken(opStr, loc)); }
     : o='*'     { $op = new ATimesNumericBinaryExp();  loc = extractLexLocation($o); opStr = $o.getText(); }
-    | o='/'     { $op = new ADivNumericBinaryExp();    loc = extractLexLocation($o); opStr = $o.getText(); }
+    | o='/'     { $op = new ADivideNumericBinaryExp();    loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='rem'   { $op = new ARemNumericBinaryExp();    loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='mod'   { $op = new AModNumericBinaryExp();    loc = extractLexLocation($o); opStr = $o.getText(); }
-    | o='div'   { $op = new ADivideNumericBinaryExp(); loc = extractLexLocation($o); opStr = $o.getText(); }
+    | o='div'   { $op = new ADivNumericBinaryExp(); loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='inter' { $op = new ASetIntersectBinaryExp();  loc = extractLexLocation($o); opStr = $o.getText(); }
     ;
 
