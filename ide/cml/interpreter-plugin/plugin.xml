@@ -15,7 +15,7 @@
         name="CML Event Options"
         category="compass_eu.compassresearch.ide.cml.ui.category"
         
-        class="eu.compassresearch.ide.cml.interpreter_plugin.CmlEventOptionView" />
+        class="eu.compassresearch.ide.cml.interpreter_plugin.views.CmlEventOptionView" />
         
         <category
         	id="compass_eu.compassresearch.ide.cml.ui.category"
@@ -25,7 +25,7 @@
   <!-- Declare launch configuration type -->
 	<extension point="org.eclipse.debug.core.launchConfigurationTypes">
 		<launchConfigurationType
-        delegate="eu.compassresearch.ide.cml.interpreter_plugin.CmlLaunchConfigurationDelegate"
+        delegate="eu.compassresearch.ide.cml.interpreter_plugin.launch.CmlLaunchConfigurationDelegate"
         id="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationType"
         modes="debug,run"
         name="Cml Model"
@@ -36,7 +36,7 @@
 	<!-- Add the launch config group to the launch dialog -->
 	<extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
 		<launchConfigurationTabGroup
-			class="eu.compassresearch.ide.cml.interpreter_plugin.CmlLaunchConfigurationTabGroup"
+			class="eu.compassresearch.ide.cml.interpreter_plugin.launch.CmlLaunchConfigurationTabGroup"
 			description="COMPASS Launch Tab" 
 			id="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationTabGroup"
 			type="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationType">
@@ -56,7 +56,7 @@
  	<extension point="org.eclipse.debug.ui.launchShortcuts">
 	  	<shortcut
 	  		id="eu.compassresearch.ide.cml.interpreter_plugin.CmlShortcut"
-	        class="eu.compassresearch.ide.cml.interpreter_plugin.CmlApplicationLaunchShortcut"
+	        class="eu.compassresearch.ide.cml.interpreter_plugin.launch.CmlApplicationLaunchShortcut"
 	        label="Cml Application"
 	        modes="debug, run, profile"
 	        category="compass_eu.compassresearch.ide.cml.ui.category"

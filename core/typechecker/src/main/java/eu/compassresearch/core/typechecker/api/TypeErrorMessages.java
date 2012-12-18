@@ -38,7 +38,8 @@ public enum TypeErrorMessages {
 
     ILLEGAL_CONTEXT(
 	    "The symbol \"%s\" requires a CML context to be resolved. No such context is present."),
-PATTERN_TYPE_MISSING("The pattern \"%s\" should already have a type from its context.")
+PATTERN_TYPE_MISSING("The pattern \"%s\" should already have a type from its context."),
+	WRONG_NUMBER_OF_ARGUMENTS("Expected %s args, %s were found.")
 	
 
     ;

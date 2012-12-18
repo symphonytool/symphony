@@ -1,16 +1,20 @@
 package eu.compassresearch.core.interpreter.runtime;
 
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
+import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.SParallelAction;
@@ -21,11 +25,15 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.SynchronisationEvent;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
-import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
+import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
+import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlProcessUtil;
 import eu.compassresearch.core.interpreter.util.Pair;
 
@@ -39,22 +47,19 @@ import eu.compassresearch.core.interpreter.util.Pair;
  * 
  *  Therefore this Class should be fully consistent with the operational semantics described in D23.2 chapter 7.
  * 
- * 
  * @author akm
  *
  */
-public class CmlActionInstance extends AbstractInstance<PAction> implements CmlProcessObserver {
+public class CmlActionInstance extends AbstractInstance<PAction> implements CmlProcessStateObserver , CmlProcessTraceObserver{
 
 	private LexNameToken name;
 	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this); 
-	//private Process
 	
 	public CmlActionInstance(PAction action,Context context, LexNameToken name)
 	{
 		super(null);
 		this.name = name;
 		pushNext(action, context);
-		//executionStack.push(new Pair<PAction, Context>(action, context));
 	}
 	
 	public CmlActionInstance(PAction action,Context context, LexNameToken name, CmlProcess parent)
@@ -62,12 +67,12 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		super(parent);
 		this.name = name;
 		pushNext(action, context);
-		//executionStack.push(new Pair<PAction, Context>(action, context));
 	}
 	
 	@Override
 	public void start(CmlSupervisorEnvironment env) {
-		this.env= env; 
+		
+		this.env = env; 
 		
 		if(parent() != null)
 			supervisor().addPupil(this);
@@ -149,7 +154,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	}
 	
 	/**
-	 * CmlProcessObserver interface methods
+	 * CmlProcessStateObserver interface 
 	 */
 	
 	@Override
@@ -166,7 +171,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 				setState(CmlProcessState.RUNNABLE);
 			break;
 		case FINISHED:
-			stateEvent.getSource().unregisterOnStateChanged(this);
+			stateEvent.getSource().onStateChanged().unregisterObserver(this);
 			
 			//if all the children are finished this process can continue and evolve into skip
 			if(CmlProcessUtil.isAllChildrenFinished(this))
@@ -179,6 +184,10 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	}
 
 	/**
+	 * CmlProcessTraceObserver interface 
+	 */
+	
+	/**
 	 * This will provide the traces from all the child actions
 	 */
 	@Override
@@ -189,17 +198,12 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	}
 	
 	/**
-	 * Private helper methods
-	 */
-	
-	
-	
-		
-	/**
-	 * Transition cases
+	 * Transition methods
 	 */
 
 	/**
+	 * Synchronisation and Communication D23.2 7.5.2
+	 * 
 	 * This transition can either be
 	 * Simple prefix   	: a -> A
 	 * Synchronisation 	: a.1 -> A
@@ -217,8 +221,8 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		//TODO: sync/output/input is still missing
 		//At this point the supervisor has already given go to the event, 
 		//so we can execute it immediately. We just have figure out which kind of event it is
-		if(isSimplePrefix(node))
-			result = caseSimplePrefix(node, question);
+		if(CmlActionAssistant.isPrefixEvent(node))
+			result = casePrefixEvent(node, question);
 	
 		//supervisor().clearSelectedCommunication();
 		
@@ -229,23 +233,165 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	 * Helper methods for Synchronisation and Communication transition rules
 	 */
 	
-	/**
-	 * Determines if the communication AST node is a simple prefix
-	 * @param node
-	 * @return
-	 */
-	private boolean isSimplePrefix(ACommunicationAction node)
-	{
-		return node.getCommunicationParameters().isEmpty();
-	}
 	
-	private CmlBehaviourSignal caseSimplePrefix(ACommunicationAction node, Context question) 
+	private CmlBehaviourSignal casePrefixEvent(ACommunicationAction node, Context question) 
 			throws AnalysisException 
 	{
 		pushNext(node.getAction(), question); 
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
+	
+	
+	/**
+	 * External Choice D23.2 7.5.4
+	 * 
+	 *  There four transition rules for external choice:
+	 *  
+	 *  * External Choice Begin
+	 *  
+	 *  * External Choice Silent
+	 *  
+	 *  * External Choice SKIP
+	 *  
+	 *  * External Choice End
+	 *  
+	 */
+	@Override
+	public CmlBehaviourSignal caseAExternalChoiceAction(
+			AExternalChoiceAction node, Context question)
+			throws AnalysisException {
+		
+		CmlBehaviourSignal result = null;
+		
+		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
+		if(!hasChildren()){
+			result = caseExternalChoiceBegin(node,question);
+			//We push the current state, since this process will control the child processes created by it
+			pushNext(node, question);
+		}
+		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
+		//with the state from the skip. After this all the children processes are terminated
+		else if(existsAFinishedChild())
+		{
+			//find the finished child
+			CmlProcess skipChild = findFinishedChild();
+			
+			//get the state replace the current state
+			pushNext(new ASkipAction(), skipChild.getExecutionState().second);
+			
+			//mmmmuhuhuhahaha kill all the children
+			//TODO mmmmuhuhuhahaha I command you to kill the children
+			killAndRemoveAllTheEvidenceOfTheChildren();
+		}
+		//if this is true, then we can resolve the choice to the event
+		//of one of the children that are waiting for events
+		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
+		{
+			List<CmlProcess> waitingChildren = findWaitingChildren();
+			
+			CmlProcess theChoosenOne = randomlyChooseWaitingChild(waitingChildren);
+			
+			//get the state replace the current state
+			pushNext((PAction)theChoosenOne.getExecutionState().first, 
+					theChoosenOne.getExecutionState().second);
+			
+			//mmmmuhuhuhahaha kill all the children
+			//TODO mmmmuhuhuhahaha I command you to kill the children
+			killAndRemoveAllTheEvidenceOfTheChildren();
+			
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * External Choice helper methods
+	 */
+	
+	private boolean existsAFinishedChild()
+	{
+		for(CmlProcess child : children())
+		{
+			if(child.finished())
+				return true;
+		}
+		
+		return false;
+	}
+	
+	private CmlProcess findFinishedChild()
+	{
+		for(CmlProcess child : children())
+		{
+			if(child.finished())
+				return child;
+		}
+		
+		return null;
+	}
+	
+	private List<CmlProcess> findWaitingChildren()
+	{
+		List<CmlProcess> waitingChildren = new LinkedList<CmlProcess>();
+		
+		for(CmlProcess child : children())
+		{
+			if(child.waiting())
+				waitingChildren.add(child);
+		}
+		
+		return waitingChildren;
+	}
+	
+	private CmlProcess randomlyChooseWaitingChild(List<CmlProcess> waitingChildren)
+	{
+		return waitingChildren.get(0);
+	}
+	
+	private void killAndRemoveAllTheEvidenceOfTheChildren()
+	{
+		
+		
+		removeTheChildren();
+		
+	}
+	
+	
+	private CmlBehaviourSignal caseExternalChoiceBegin(AExternalChoiceAction node,Context question)
+	{
+		PAction left = node.getLeft();
+		PAction right = node.getRight();
+		
+		//TODO: create a local copy of the question state for each of the actions
+		CmlActionInstance leftInstance = 
+				new CmlActionInstance(left, question, 
+						new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,left.getLocation()),this);
+		
+		CmlActionInstance rightInstance = 
+				new CmlActionInstance(right, question, 
+						new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),right.getLocation()),this);
+		
+		//add the children FIXME: this should not be done directly on the children() method
+		children().add(leftInstance);
+		children().add(rightInstance);
+		
+		//Register for state change and trace change events
+		leftInstance.onStateChanged().registerObserver(this);
+		leftInstance.onTraceChanged().registerObserver(this);
+		rightInstance.onStateChanged().registerObserver(this);
+		rightInstance.onTraceChanged().registerObserver(this);
+		
+		//Add them to the superviser to get executed as a seperate process
+		rightInstance.start(supervisor());
+		leftInstance.start(supervisor());
+		
+		//Now let this process wait for the children to get into a waitForEvent state
+		setState(CmlProcessState.WAIT_CHILD);
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
 	
 	/**
 	 * This implements the 7.5.10 Action Reference transition rule in D23.2. 
@@ -309,7 +455,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
 		{
 			//convert the channelset of the current node to a alphabet
-			CmlAlphabet cs = CmlProcessUtil.convertChansetExpToAlphabet(
+			CmlAlphabet cs = CmlProcessUtil.convertChansetExpToAlphabet(this,
 					node.getChanSetExpression(),question);		
 			
 			CmlProcess leftChild = children().get(0);
@@ -317,33 +463,42 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			CmlProcess rightChild = children().get(1);
 			CmlAlphabet rightChildAlpha = rightChild.inspect();
 									
-			if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) &&
-					rightChildAlpha.containsCommunication(supervisor().selectedCommunication()))
+			ObservableEvent selectedEvent = supervisor().selectedCommunication(); 
+			
+			if(selectedEvent instanceof SynchronisationEvent)
 			{
-				leftChild.unregisterOnTraceChanged(this);
-				rightChild.unregisterOnTraceChanged(this);
+				CmlAlphabet syncEventsAlpha = ((SynchronisationEvent)selectedEvent).getSynchronousEvents(); 
+				CmlAlphabet leftOption = syncEventsAlpha.intersect(leftChildAlpha);
+				CmlAlphabet rightOption = syncEventsAlpha.intersect(rightChildAlpha);
 				
+				if(!leftOption.isEmpty() &&
+						!rightOption.isEmpty() )
+				{
+					leftChild.onTraceChanged().unregisterObserver(this);
+					rightChild.onTraceChanged().unregisterObserver(this);
+					supervisor().setSelectedCommunication(leftOption.getObservableEvents().iterator().next());
+					leftChild.execute(supervisor());
+					supervisor().setSelectedCommunication(rightOption.getObservableEvents().iterator().next());
+					rightChild.execute(supervisor());
+
+					leftChild.onTraceChanged().registerObserver(this);
+					rightChild.onTraceChanged().registerObserver(this);
+				}
+				result = CmlBehaviourSignal.EXEC_SUCCESS;
+			}
+			else if(leftChildAlpha.containsCommunication(selectedEvent) )
+			{
+				leftChild.onTraceChanged().unregisterObserver(this);				
 				leftChild.execute(supervisor());
-				rightChild.execute(supervisor());
-				
-				leftChild.registerOnTraceChanged(this);
-				rightChild.registerOnTraceChanged(this);
+				leftChild.onTraceChanged().registerObserver(this);
 				
 				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
-			else if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
+			else if(rightChildAlpha.containsCommunication(selectedEvent) )
 			{
-				leftChild.unregisterOnTraceChanged(this);				
-				leftChild.execute(supervisor());
-				leftChild.registerOnTraceChanged(this);
-				
-				result = CmlBehaviourSignal.EXEC_SUCCESS;
-			}
-			else if(rightChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
-			{
-				rightChild.unregisterOnTraceChanged(this);
+				rightChild.onTraceChanged().unregisterObserver(this);
 				rightChild.execute(supervisor());
-				rightChild.registerOnTraceChanged(this);
+				rightChild.onTraceChanged().registerObserver(this);
 				
 				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
@@ -404,7 +559,6 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
 		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
 		{
-			
 			CmlProcess leftChild = children().get(0);
 			CmlAlphabet leftChildAlpha = leftChild.inspect(); 
 			CmlProcess rightChild = children().get(1);
@@ -412,17 +566,17 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			
 			if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
 			{
-				leftChild.unregisterOnTraceChanged(this);				
+				leftChild.onTraceChanged().unregisterObserver(this);				
 				leftChild.execute(supervisor());
-				leftChild.registerOnTraceChanged(this);
+				leftChild.onTraceChanged().registerObserver(this);
 				
 				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
 			else if(rightChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
 			{
-				rightChild.unregisterOnTraceChanged(this);
+				rightChild.onTraceChanged().unregisterObserver(this);
 				rightChild.execute(supervisor());
-				rightChild.registerOnTraceChanged(this);
+				rightChild.onTraceChanged().registerObserver(this);
 				
 				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
@@ -474,10 +628,10 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		children().add(rightInstance);
 		
 		//Register for state change and trace change events
-		leftInstance.registerOnStateChanged(this);
-		leftInstance.registerOnTraceChanged(this);
-		rightInstance.registerOnStateChanged(this);
-		rightInstance.registerOnTraceChanged(this);
+		leftInstance.onStateChanged().registerObserver(this);
+		leftInstance.onTraceChanged().registerObserver(this);
+		rightInstance.onStateChanged().registerObserver(this);
+		rightInstance.onTraceChanged().registerObserver(this);
 		
 		//Add them to the superviser to get executed as a seperate process
 		rightInstance.start(supervisor());
@@ -489,7 +643,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
-	private CmlBehaviourSignal caseParallelEnd(Context question)
+	private void removeTheChildren()
 	{
 		for(Iterator<CmlProcess> iterator = children().iterator(); iterator.hasNext(); )
 		{
@@ -497,6 +651,11 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			supervisor().removePupil(child);
 			iterator.remove();
 		}
+	}
+	
+	private CmlBehaviourSignal caseParallelEnd(Context question)
+	{
+		removeTheChildren();
 		
 		//now this process evolves into Skip
 		pushNext(new ASkipAction(), question);
@@ -513,4 +672,31 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			setState(CmlProcessState.FINISHED);
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
+	
+	/**
+	 * action Assignment
+	 */
+	@Override
+	public CmlBehaviourSignal caseASingleGeneralAssignmentStatementAction(
+			ASingleGeneralAssignmentStatementAction node, Context question)
+					throws AnalysisException {
+
+		//				Value expValue = node.getExpression().apply(parentInterpreter,question);
+		//						//TODO Change this to deal with it in general
+		//						AIdentifierStateDesignator id = (AIdentifierStateDesignator)node
+		//
+		//						Context nameContext = question.locate(id.getName());
+		//
+		//				if(nameContext == null)
+		//					nameContext = new CMLContext(node.getLocation(),"caseASi
+		//
+		//							nameContext.put(id.getName(), expValue);
+		//
+		//					System.out.println( id.getName() + " := " + expValue);
+		//
+		//					return new ProcessValueOld(null);
+		
+		return null;
+	}
+
 }

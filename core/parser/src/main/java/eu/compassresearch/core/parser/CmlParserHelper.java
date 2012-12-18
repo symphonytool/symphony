@@ -44,6 +44,7 @@ import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.statements.PObjectDesignator;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AFieldField;
@@ -626,12 +627,15 @@ public class CmlParserHelper {
 	List<List<PPattern>> args = (List<List<PPattern>>) parameterList;
 	AExplicitFunctionDefinition res = new AExplicitFunctionDefinition();
 	res.setAccess(getPrivateAccessSpecifier(false, false, loc));
+	res.setPass(Pass.DEFS);
 	res.setName(name);
 	res.setLocation(loc);
 	res.setType(ftype);
 	res.setBody(functionBody);
 	res.setMeasure((LexNameToken) measureExpr);
 	res.setParamPatternList(args);
+	res.setIsUndefined(false);
+	res.setRecursive(false);
 	return res;
     }
 

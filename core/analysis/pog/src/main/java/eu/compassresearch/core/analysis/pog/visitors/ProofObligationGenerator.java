@@ -94,10 +94,10 @@ public class ProofObligationGenerator extends
     // -- Dispatch to sub-visitors
     // ---------------------------------------------
 
-    
-    // Duplicated main overture handlers. Necessary for now since we don't want to
+    // Duplicated main overture handlers. Necessary for now since we don't want
+    // to
     // switch visitor context at the root level
-    
+
     @Override
     public ProofObligationList defaultPDefinition(PDefinition node,
 	    POContextStack question) throws AnalysisException {
@@ -116,7 +116,7 @@ public class ProofObligationGenerator extends
 	return PDefinitionAssistantPOG.getProofObligations(node.getDefs(),
 		this.declAndDefVisitor, question);
     }
-    
+
     @Override
     public ProofObligationList defaultPProcess(PProcess node,
 	    POContextStack question) throws AnalysisException {
@@ -140,7 +140,7 @@ public class ProofObligationGenerator extends
 	    POContextStack question) throws AnalysisException {
 	return node.getSet().apply(this.expressionVisitor, question);
     }
-    
+
     @Override
     public ProofObligationList caseASetMultipleBind(ASetMultipleBind node,
 	    POContextStack question) throws AnalysisException {
@@ -167,7 +167,7 @@ public class ProofObligationGenerator extends
     @Override
     public ProofObligationList caseAMapSeqStateDesignator(
 	    AMapSeqStateDesignator node, POContextStack question) {
-	
+
 	ProofObligationList list = new ProofObligationList();
 
 	if (node.getSeqType() != null) {
@@ -179,7 +179,7 @@ public class ProofObligationGenerator extends
 
 	return list;
     }
-    
+
     @Override
     public ProofObligationList caseATixeStmtAlternative(
 	    ATixeStmtAlternative node, POContextStack question)
@@ -200,11 +200,9 @@ public class ProofObligationGenerator extends
 	return list;
 
     }
-    
-    
-    
+
     // Return empty lists for a bunch of stuff...
-    
+
     @Override
     public ProofObligationList defaultPModifier(PModifier node,
 	    POContextStack question) {
@@ -286,14 +284,11 @@ public class ProofObligationGenerator extends
 	return new ProofObligationList();
     }
 
-
-
     @Override
     public ProofObligationList defaultPObjectDesignator(PObjectDesignator node,
 	    POContextStack question) {
 	return new ProofObligationList();
     }
-
 
     @Override
     public ProofObligationList defaultPClause(PClause node,
@@ -307,7 +302,6 @@ public class ProofObligationGenerator extends
 	return new ProofObligationList();
     }
 
-    
     // ---------------------------------------------
     // -- Public API to CML POG
     // ---------------------------------------------
@@ -354,7 +348,7 @@ public class ProofObligationGenerator extends
      * 
      * @return - Returns CMLProofObligation list. This may need to change.
      */
-    public CMLProofObligationList generatePOs() {
+    public CMLProofObligationList generatePOs() throws AnalysisException {
 	CMLProofObligationList obligations = new CMLProofObligationList();
 	CMLPOContextStack ctxt = new CMLPOContextStack();
 
@@ -381,17 +375,16 @@ public class ProofObligationGenerator extends
 			    .println("The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
 		    return null;
 		} catch (Exception e) {
-		    System.out.println("Error: ");
+		    System.out.println("Error: " + e.getMessage());
 		    e.printStackTrace();
 
 		    return null;
 		}
-
 	    }
 	}
 
 	System.out.println(obligations.size() + " Proof Obligations generated");
-	obligations.toString();
+	System.out.println(obligations.toString());
 	return obligations;
     }
 
@@ -450,7 +443,13 @@ public class ProofObligationGenerator extends
 
 	// generate POs
 	ProofObligationGenerator cmlPOG = new ProofObligationGenerator(source);
-	cmlPOG.generatePOs();
+	try {
+	    cmlPOG.generatePOs();
+	} catch (AnalysisException e) {
+	    System.out
+	    .println("The COMPASS Proof Obligation Generator failed on this cml-source. Please submit it for investigation to richard.payne@ncl.ac.uk.\n");
+	    e.printStackTrace();
+	}
 
 	// Report success
 	System.out

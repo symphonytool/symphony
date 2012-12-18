@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
+import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -13,15 +14,20 @@ import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
-import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluator;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
-import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
+import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
+import eu.compassresearch.core.interpreter.events.EventFireMediator;
+import eu.compassresearch.core.interpreter.events.EventSource;
+import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
+import eu.compassresearch.core.interpreter.util.Pair;
 
 public abstract class AbstractInstance<T extends INode> extends AbstractEvaluator<T>
 		implements CmlProcess , ChannelObserver {
@@ -31,9 +37,30 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	protected CmlProcess 				parent;
 	protected CmlSupervisorEnvironment 	env;
 	protected CmlTrace 					trace = new CmlTrace();
-	protected List<CmlProcessObserver>  stateObservers = new LinkedList<CmlProcessObserver>();
-	protected List<CmlProcessObserver>  traceObservers = new LinkedList<CmlProcessObserver>();
+	protected List<ObservableEvent>     registredEvents = new LinkedList<ObservableEvent>();
+	
+	protected EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>  stateObservers = 
+			new EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>(this,
+					new EventFireMediator<CmlProcessStateObserver,CmlProcessStateEvent>() {
 
+				@Override
+						public void fireEvent(CmlProcessStateObserver observer,
+								Object source, CmlProcessStateEvent event) {
+							observer.onStateChange(event);
+						}
+					});
+	
+	protected EventSourceHandler<CmlProcessTraceObserver,TraceEvent>  traceObservers = 
+			new EventSourceHandler<CmlProcessTraceObserver,TraceEvent>(this,
+					new EventFireMediator<CmlProcessTraceObserver,TraceEvent>() {
+
+				@Override
+						public void fireEvent(CmlProcessTraceObserver observer,
+								Object source, TraceEvent event) {
+							observer.onTraceChange(event);
+						}
+					});
+	
 	public AbstractInstance(CmlProcess parent)
 	{
 		state = CmlProcessState.INITIALIZED;
@@ -54,7 +81,6 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 
 		try
 		{
-
 			//execute silently if the next is a silent action
 			if(alpha.containsSpecialEvent(CmlTauEvent.referenceTauEvent())){
 				setState(CmlProcessState.RUNNING);
@@ -69,6 +95,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 				{
 					setState(CmlProcessState.RUNNING);
 					ret = executeNext();
+					unregisterChannel(env.selectedCommunication());
 					updateTrace(env.selectedCommunication());
 				}
 				//if no communication is selected by the supervisor or we cannot sync the selected events
@@ -81,7 +108,6 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 				}
 			}
 
-
 			return ret;
 		}
 		catch(AnalysisException ex)
@@ -91,28 +117,32 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		}
 	}
 	
+	/**
+	 * Execute private helper methods
+	 */
+	
+	/**
+	 * Update the trace and fires the trace event
+	 * @param The next event in the trace
+	 */
 	private void updateTrace(CmlEvent event)
 	{
 		trace.addEvent(event);
 		notifyOnTraceChange(new TraceEvent(this,event));
 	}
-		
+	
+	private void unregisterChannel(ObservableEvent event)
+	{
+		event.handleChannelEventUnregistration(this);
+		registredEvents.remove(event);
+	}
+	
 	private void registerChannelsInAlpha(CmlAlphabet alpha)
 	{
-		for(CmlCommunicationEvent com : alpha.getCommunicationEvents())
+		for(ObservableEvent com : alpha.getObservableEvents())
 		{
-			switch(com.getCommunicationType())
-			{
-			case SIGNAL:
-				com.getChannel().registerOnChannelSignal(this);
-				break;
-			case WRITE:
-				com.getChannel().registerOnChannelWrite(this);
-				break;
-			case READ:
-				com.getChannel().registerOnChannelRead(this);
-				break;
-			}
+			registredEvents.add(com);
+			com.handleChannelEventRegistration(this);
 		}
 	}
 	
@@ -120,6 +150,18 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	public CmlSupervisorEnvironment supervisor() {
 		return env;
 	}
+	
+	@Override
+	public Pair<T,Context> getExecutionState() 
+	{
+		//the newest context is in the context of the next state
+		//However if there is no next state we need to take the last
+		//executed state
+		if(hasNext())
+			return nextState();
+		else
+			return prevState();
+	};
 	
 	/**
 	 * Process graph methods
@@ -183,18 +225,13 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	
 	protected void notifyOnStateChange(CmlProcessStateEvent event)
 	{
-		for(CmlProcessObserver o : new LinkedList<CmlProcessObserver>(stateObservers))
-			o.onStateChange(event);
+		stateObservers.fireEvent(event);
 	}
 	
 	@Override
-	public void registerOnStateChanged(CmlProcessObserver observer) {
-		stateObservers.add(observer);
-	}
-	
-	@Override
-	public void unregisterOnStateChanged(CmlProcessObserver observer) {
-		stateObservers.remove(observer);
+	public EventSource<CmlProcessStateObserver> onStateChanged()
+	{
+		return stateObservers;
 	}
 	
 	protected abstract void setState(CmlProcessState state);
@@ -213,44 +250,25 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	
 	protected void notifyOnTraceChange(TraceEvent traceEvent)
 	{
-		for(CmlProcessObserver o : new LinkedList<CmlProcessObserver>(traceObservers))
-			o.onTraceChange(traceEvent);
+//		for(CmlProcessObserver o : new LinkedList<CmlProcessObserver>(traceObservers))
+//			o.onTraceChange(traceEvent);
 	}
 	
 	@Override
-	public void registerOnTraceChanged(CmlProcessObserver observer) {
-		traceObservers.add(observer);
-	}
-	
-	@Override
-	public void unregisterOnTraceChanged(CmlProcessObserver observer) {
-		traceObservers.remove(observer);
+	public EventSource<CmlProcessTraceObserver> onTraceChanged()
+	{
+		return traceObservers;
 	}
 	
 	/**
 	 * ChannelListener interface method.
-	 * Here the process is notified when a registered channel is signalled by the supervisor
+	 * Here the process is notified when a registered channel is signalled 
 	 */
-
 	@Override
-	public void onChannelEvent(CmlChannelEvent event) {
+	public void onChannelEvent(Object source, CmlChannelEvent event) {
 		//enable the processthread to run again and unregister from the channel
 		if(level() == 0)
 			setState(CmlProcessState.RUNNABLE);
-		
-		switch(event.getEventType())
-		{
-		case READ:
-			event.getSource().unregisterOnChannelRead(this);
-			break;
-		case WRITE:
-			event.getSource().unregisterOnChannelWrite(this);
-			break;
-		case SIGNAL:
-			event.getSource().unregisterOnChannelSignal(this);
-			break;
-		
-		}
 	}
 	
 }

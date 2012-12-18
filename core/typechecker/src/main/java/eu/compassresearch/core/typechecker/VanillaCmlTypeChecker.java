@@ -23,6 +23,7 @@ import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.patterns.PPatternBind;
 import org.overture.ast.statements.PAlternativeStm;
+import org.overture.ast.statements.PClause;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.FlatEnvironment;
@@ -187,6 +188,15 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 			org.overture.typechecker.TypeCheckInfo question)
 			throws AnalysisException {
 		return node.apply(act, question);
+	}
+
+	
+	
+	
+	@Override
+	public PType defaultPClause(PClause node, TypeCheckInfo question)
+			throws AnalysisException {
+		return addErrorForMissingType(node, node.apply(act,question));
 	}
 
 	// ---------------------------------------------

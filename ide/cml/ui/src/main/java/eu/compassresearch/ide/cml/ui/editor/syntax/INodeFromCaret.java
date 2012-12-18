@@ -3,13 +3,14 @@ package eu.compassresearch.ide.cml.ui.editor.syntax;
 import java.lang.reflect.Method;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.analysis.DepthFirstAnalysisAdaptor;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
+import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
+import eu.compassresearch.ast.definitions.PCMLDefinition;
 
-public class INodeFromCaret extends DepthFirstAnalysisAdaptor {
+public class INodeFromCaret extends DepthFirstAnalysisCMLAdaptor {
 
     /**
      * 
@@ -52,25 +53,26 @@ public class INodeFromCaret extends DepthFirstAnalysisAdaptor {
 	return null;
     }
 
-    
-    
     public void defaultInINode(INode node) throws AnalysisException {
 
 	try {
 	    super.defaultInINode(node);
-	    LexLocation nodeLoc = getLocationFromObject(node);
-	    if (bestCandidateLocation == null){
-		bestCandidate = node;
-		bestCandidateLocation = nodeLoc;
-		node.apply(this);
-	    }	
-	    if (nodeLoc.startOffset > caret) // we are past the caret
-		return;
-	    if (nodeLoc.startOffset > bestCandidateLocation.startOffset) {
-		bestCandidate = node;
-		bestCandidateLocation = nodeLoc;
-		node.apply(this);
+	    if (node instanceof PDefinition || node instanceof PCMLDefinition) {
+		LexLocation nodeLoc = getLocationFromObject(node);
+		if (bestCandidateLocation == null) {
+		    bestCandidate = node;
+		    bestCandidateLocation = nodeLoc;
+		    // node.apply(this);
+		}
+		if (nodeLoc.startOffset > caret) // we are past the caret
+		    return;
+		if (nodeLoc.startOffset > bestCandidateLocation.startOffset) {
+		    bestCandidate = node;
+		    bestCandidateLocation = nodeLoc;
+		    // node.apply(this);
+		}
 	    }
+	    
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}

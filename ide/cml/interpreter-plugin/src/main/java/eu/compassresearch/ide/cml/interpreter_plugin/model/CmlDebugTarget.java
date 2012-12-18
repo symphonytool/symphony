@@ -7,7 +7,10 @@ import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.CoreException;
@@ -23,179 +26,237 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 
 import com.google.gson.reflect.TypeToken;
 
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlDbgCommandMessage;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlDbgStatusMessage;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugCommand;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlEventOptionView;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlMessage;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlMessageCommunicator;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlMessageContainer;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlRequest;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlRequestMessage;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlResponseMessage;
+import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
+import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgStatusMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgpStatus;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlDebugCommand;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlMessage;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageCommunicator;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageContainer;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
+import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
 
 public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
 	private ILaunch launch;
 	private IProcess process;
-	
+
 	// threads
 	private CmlThread cmlThread;
-	private IThread[] threads;
-	
-	// sockets to communicate with VM
+	private List<IThread> threads;
+
+	// socket to communicate with VM
 	private Socket fRequestSocket;
 	private OutputStream requestOutputStream;
 	private BufferedReader fRequestReader;
 	private Socket fEventSocket;
-	private BufferedReader fEventReader;
-	
-		
+
 	// event dispatch job
-		private EventDispatchJob fEventDispatch;
+	private EventDispatchJob fEventDispatch;
+
+	interface MessageEventHandler<T extends CmlMessage>
+	{
+		public boolean handleMessage(T message);
+	};
+	
+	/**
+	 * Listens to events from the CML VM and fires corresponding 
+	 * debug events.
+	 */
+	class EventDispatchJob extends Job {
+
+		private Map<String,MessageEventHandler<CmlRequestMessage>> requestHandlers;
+		private Map<String,MessageEventHandler<CmlDbgStatusMessage>> statusHandlers;
+		
+		public EventDispatchJob() {
+			super("CML Event Dispatch");
+			setSystem(true);
+			initializeHandlers();
+		}
 		
 		/**
-		 * Listens to events from the CML VM and fires corresponding 
-		 * debug events.
+		 * Initialisation methods
 		 */
-		class EventDispatchJob extends Job {
-			
-			public EventDispatchJob() {
-				super("CML Event Dispatch");
-				setSystem(true);
-			}
-			
-			private CmlMessageContainer receiveMessage() throws IOException
-			{
-				return CmlMessageCommunicator.receiveMessage(fRequestReader);
-			}
-
-			
-			private boolean processStatusMessage(CmlDbgStatusMessage message)
-			{
-				boolean result = true;
-				switch(message.getStatus())
-				{
-				case CONNECTION_CLOSED:
-					result = false;
-					break;
-				case STARTING:
-					started();
-					break;
-				case RUNNING:
-					break;
-				case STOPPING:
-					stopping();
-					break;
-				case STOPPED:
-					terminated();
-					result = false;
-					break;
-					
-				default:
-					result = false;
-				}
-				
-				return result;
-			}
-			
-			private boolean processRequest(CmlRequestMessage message)
-			{
-				switch(message.getRequest())
-				{
-				case CHOICE:
-					Type listType = new TypeToken<List<String>>(){}.getType();
-					final List<String> events = message.<List<String>>getValue(listType);
-					final StringBuilder selectedOption = new StringBuilder();
-					Display.getDefault().syncExec(new Runnable() {
-					    @Override
-					    public void run() {
-					    	try {
-								IViewPart view = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("eu.compassresearch.ide.cml.interpreter_plugin.OptionsView");
-								CmlEventOptionView optionsView = (CmlEventOptionView)view;
-								optionsView.setOptions(events);
-								//selectedOption.append(optionsView.waitForSelectedOption());
-					    	
-					    	} catch (PartInitException e) {
-								e.printStackTrace();
-							}
-					    }
-					});
-					
-					sendMessage(new CmlResponseMessage(message.getRequestId(),CmlRequest.CHOICE,selectedOption.toString()));
-					break;
-				}
-				
-				
-				
-				return true;
-			}
-			
-			private boolean processMessage(CmlMessageContainer messageContainer)
-			{
-				switch(messageContainer.getType())
-				{
-				case STATUS:
-					return processStatusMessage(messageContainer.<CmlDbgStatusMessage>getMessage(CmlDbgStatusMessage.class));
-				case REQUEST:
-					return processRequest(messageContainer.<CmlRequestMessage>getMessage(CmlRequestMessage.class));
-				default:
-					break;
-				}
-				
-				return false;
-			}
-			
-			/* (non-Javadoc)
-			 * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.IProgressMonitor)
-			 */
-			protected IStatus run(IProgressMonitor monitor) {
-				//CmlDebugStatusMessage event = new CmlDebugStatusMessage(CmlDbgpStatus.WAITING_FOR_CONNECTION);
-				CmlMessageContainer message = null;
-				
-				try
-				{
-					do{
-						message = receiveMessage(); 
-						System.out.println(message);
-					}
-					while (!isTerminated() && processMessage(message));
-				}
-				catch(IOException e)
-				{
-					terminated();
-				}
-		
-				return Status.OK_STATUS;
-			}
+		private void initializeHandlers()
+		{
+			requestHandlers = initializeRequestHandlers();
+			statusHandlers = initializeStatusHandlers();
 			
 		}
-	
+		
+		/**
+		 * Initialises all the request message handlers
+		 * @return
+		 */
+		private Map<String, CmlDebugTarget.MessageEventHandler<CmlRequestMessage>> initializeRequestHandlers()
+		{
+			Map<String, CmlDebugTarget.MessageEventHandler<CmlRequestMessage>> handlers = 
+					new HashMap<String, CmlDebugTarget.MessageEventHandler<CmlRequestMessage>>();
+			
+			//Handler for the Choice request
+			handlers.put(CmlRequest.CHOICE.toString(), new MessageEventHandler<CmlRequestMessage>() {
+
+				@Override
+				public boolean handleMessage(CmlRequestMessage message) {
+					Type listType = new TypeToken<List<String>>(){}.getType();
+					final List<String> events = message.<List<String>>getContent(listType);
+					new CmlChoiceMediator(cmlDebugTarget).setChoiceOptions(events,message);
+					return true;
+				}
+			});
+			
+			return handlers;
+		}
+		
+		
+		/**
+		 * Initialises all the status message handlers
+		 * @return
+		 */
+		private Map<String, CmlDebugTarget.MessageEventHandler<CmlDbgStatusMessage>> initializeStatusHandlers()
+		{
+			Map<String, CmlDebugTarget.MessageEventHandler<CmlDbgStatusMessage>> handlers = 
+					new HashMap<String, CmlDebugTarget.MessageEventHandler<CmlDbgStatusMessage>>();
+			
+			handlers.put(CmlDbgpStatus.STARTING.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+				@Override
+				public boolean handleMessage(CmlDbgStatusMessage message) {
+					return true;
+				}
+			} );
+			
+			handlers.put(CmlDbgpStatus.RUNNING.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+				@Override
+				public boolean handleMessage(CmlDbgStatusMessage message) {
+					started(message.getInterpreterStatus());
+					return true;
+				}
+			} );
+			
+			handlers.put(CmlDbgpStatus.CHOICE.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+				@Override
+				public boolean handleMessage(CmlDbgStatusMessage message) {
+					updateDebuggerInfo(message.getInterpreterStatus());
+					return true;
+				}
+			} );
+
+			handlers.put(CmlDbgpStatus.STOPPING.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+				@Override
+				public boolean handleMessage(CmlDbgStatusMessage message) {
+					stopping();
+					return true;
+				}
+			} );
+			
+			handlers.put(CmlDbgpStatus.STOPPED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+				@Override
+				public boolean handleMessage(CmlDbgStatusMessage message) {
+					return false;
+				}
+			} );
+			
+			handlers.put(CmlDbgpStatus.CONNECTION_CLOSED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
+				@Override
+				public boolean handleMessage(CmlDbgStatusMessage message) {
+					connectionClosed();
+					return false;
+				}
+			} );
+			
+			return handlers;
+		}
+
+		private CmlMessageContainer receiveMessage() throws IOException
+		{
+			return CmlMessageCommunicator.receiveMessage(fRequestReader);
+		}
+
+		/**
+		 * Dispatches the message to the corresponding message handler
+		 * @param handlers The corresponding message handler map for this message type
+		 * @param message The message to be processed
+		 * @return true if the event loop should continue otherwise false
+		 */
+		private <H extends CmlMessage> boolean dispatchMessageHandler(Map<String,CmlDebugTarget.MessageEventHandler<H>> handlers, H message)
+		{
+			boolean result = false;
+
+			if(handlers.containsKey(message.getKey()))
+				result = handlers.get(message.getKey()).handleMessage(message);
+			
+			return result;
+		}
+
+		private boolean processMessage(CmlMessageContainer messageContainer)
+		{
+			boolean result = false;
+			
+			switch(messageContainer.getType())
+			{
+			case STATUS:
+				return dispatchMessageHandler(statusHandlers,messageContainer.getMessage(CmlDbgStatusMessage.class));
+			case REQUEST:
+				return dispatchMessageHandler(requestHandlers,messageContainer.getMessage(CmlRequestMessage.class));
+			default:
+				break;
+			}
+
+			return result;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.IProgressMonitor)
+		 */
+		protected IStatus run(IProgressMonitor monitor) {
+			//CmlDebugStatusMessage event = new CmlDebugStatusMessage(CmlDbgpStatus.WAITING_FOR_CONNECTION);
+			CmlMessageContainer message = null;
+			try
+			{
+				do{
+					message = receiveMessage(); 
+					System.out.println(message);
+				}
+				while (!isTerminated() && processMessage(message));
+			}
+			catch(IOException e)
+			{
+				//terminated();
+			}
+			finally
+			{
+				terminated();	
+			}
+			
+						
+			return Status.OK_STATUS;
+		}
+
+	}
+
 	public CmlDebugTarget(ILaunch launch, IProcess process,int communicationPort) throws CoreException
 	{
 		super(null);
 		this.launch = launch;
 		this.process = process;
 		cmlDebugTarget = this;
-		
+
 		initialize(communicationPort);
-		
+
 	}
-	
+
 	private void initialize(int communicationPort) throws CoreException
 	{
 		try {
-			
+
 			waitForConnect(communicationPort); 
-			cmlThread = new CmlThread(this);
-			threads = new IThread[] {cmlThread};
+//			cmlThread = new CmlThread(this);
+			threads = new LinkedList<IThread>();
 			fEventDispatch = new EventDispatchJob();
 			fEventDispatch.schedule();
 			//Add the target to listen to any breakpoints added
@@ -205,7 +266,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			abort("Unable to connect to CML VM", e);
 		}
 	}
-	
+
 	private void waitForConnect(int requestPort) throws IOException
 	{
 		ServerSocket requestAcceptor = null;
@@ -214,27 +275,18 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			requestAcceptor = new ServerSocket(requestPort);
 			requestAcceptor.setSoTimeout(5000);
 			fRequestSocket = requestAcceptor.accept();
-			//fRequestSocket = new Socket("localhost", requestPort);
 			requestOutputStream = fRequestSocket.getOutputStream();
 			fRequestReader = new BufferedReader(new InputStreamReader(fRequestSocket.getInputStream()));
-			//fEventSocket = new Socket("localhost", eventPort);
-			//fEventReader = new BufferedReader(new InputStreamReader(fEventSocket.getInputStream()));
 		}
 		finally{
 			if(requestAcceptor != null)
 				requestAcceptor.close();
 		}
 	}
-	
+
 	@Override
 	public ILaunch getLaunch() {
 		return launch;
-	}
-
-	@Override
-	public Object getAdapter(Class arg0) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -249,13 +301,13 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
 	@Override
 	public void terminate() throws DebugException {
-		
+
 		synchronized (fRequestSocket) {
 			sendCommandMessage(CmlDebugCommand.STOP);
 		}	
-		
+
 	}
-		
+
 	@Override
 	public boolean canResume() {
 		// TODO Auto-generated method stub
@@ -276,14 +328,12 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
 	@Override
 	public void resume() throws DebugException {
-		// TODO Auto-generated method stub
-
+		fireResumeEvent(0);
 	}
 
 	@Override
 	public void suspend() throws DebugException {
-		// TODO Auto-generated method stub
-
+		fireSuspendEvent(0);
 	}
 
 	@Override
@@ -306,7 +356,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
 	@Override
 	public boolean canDisconnect() {
-		return true;
+		return !fRequestSocket.isClosed();
 	}
 
 	@Override
@@ -341,12 +391,12 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
 	@Override
 	public IThread[] getThreads() throws DebugException {
-		return threads;
+		return threads.toArray(new IThread[threads.size()]);
 	}
 
 	@Override
 	public boolean hasThreads() throws DebugException {
-		return threads.length > 0;
+		return threads.size() > 0;
 	}
 
 	@Override
@@ -359,7 +409,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
+
 	/**
 	 * Private methods
 	 */
@@ -372,34 +422,48 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		CmlDbgCommandMessage message = new CmlDbgCommandMessage(cmd);
 		CmlMessageCommunicator.sendMessage(requestOutputStream, message);
 	}
-	
-	private void sendMessage(CmlMessage message)
+
+	public void sendMessage(CmlMessage message)
 	{
 		CmlMessageCommunicator.sendMessage(requestOutputStream, message);
 	}
-	
-	
+
+	private void updateDebuggerInfo(InterpreterStatus status)
+	{
+		//cmlThread = new CmlThread(this,status.getToplevelProcessInfo());
+		threads.clear();
+		for(CmlProcessInfo t : status.getAllProcessInfos())
+		{
+			threads.add(new CmlThread(this,t));
+		}
+		//fireSuspendEvent(0);
+		fireResumeEvent(0);
+	}
+
 	/**
 	 * Notification we have connected to the VM and it has started.
 	 * Resume the VM.
 	 */
-	private void started() {
+	private void started(InterpreterStatus status) {
+		
+		updateDebuggerInfo(status);
 		fireCreationEvent();
+		
 		//installDeferredBreakpoints();
 		try {
 			resume();
 		} catch (DebugException e) {
 		}
 	}
-	
+
 	/**
 	 * Called when interpreter is about to stop
 	 */
 	private void stopping() {
-	
-		
+
+
 	}
-	
+
 	private void connectionClosed()
 	{
 		try
@@ -409,10 +473,10 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		catch(IOException e)
 		{
 			e.printStackTrace();
-			
+
 		}
 	}
-	
+
 	/**
 	 * Called when this debug target terminates.
 	 */

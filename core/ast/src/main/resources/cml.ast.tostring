@@ -29,6 +29,13 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->#Parallel->interleaving = [leftAction] "|||" [rightAction]
 %action->#Parallel->generalisedParallelism = [leftAction] "[|" [chanSetExpression] "|]" [rightAction]
 %action->#Statement->block = "Block {" [action] "}"
+%action->parametrised = "params: " [parametrisations] " action: " [action]
+%parametrisation->val = "val" [declaration]
+%parametrisation->res = "res" [declaration]
+%parametrisation->vres = "vres" [declaration]
+
+%declaration->#Single->type = [identifiers] ":" [type]
+%declaration->#Single->expression = [identifiers] " := " [expression]
 
 // Processes
 %process->state = "state: " [processDefinition] "@"

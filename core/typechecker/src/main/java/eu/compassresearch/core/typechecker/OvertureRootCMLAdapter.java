@@ -17,6 +17,7 @@ import org.overture.typechecker.visitor.TypeCheckerPatternVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
+import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -75,6 +76,16 @@ public class OvertureRootCMLAdapter extends
 			throws AnalysisException {
 		return node.apply(overtureExpressionVisitor, question);
 	}
+
+	
+	
+	@Override
+	public PType caseAEnumChansetSetExp(AEnumChansetSetExp node,
+			TypeCheckInfo question) throws AnalysisException {
+		return escapeFromOvertureContext(node, question);
+	}
+
+
 
 	@Override
 	public PType defaultPDefinition(PDefinition node, TypeCheckInfo question)

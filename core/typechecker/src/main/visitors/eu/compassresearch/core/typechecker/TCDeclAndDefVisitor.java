@@ -329,7 +329,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// Acquire declared type and expression type
 		PExp exp = node.getExpression();
 		PType declaredType = node.getType();
-			
+
 
 
 		PType expressionType = exp.apply(parentChecker, question);
@@ -338,8 +338,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		node.setExpType(expressionType);
 		if (declaredType == null)
-		    declaredType=node.getExpType();
-		
+			declaredType=node.getExpType();
+
 		// Add this value definition to the environment
 		CmlTypeCheckInfo tci = (CmlTypeCheckInfo) question;
 		ALocalDefinition localDef = new ALocalDefinition(node.getLocation(),
@@ -888,10 +888,19 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	public PType caseATypeSingleDeclaration(ATypeSingleDeclaration node,
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
-		AChannelType ctype = new AChannelType();
-		ctype.setType(node.getType());
-		node.setType(new AChannelType());
-
+		PType type = node.getType();
+		if (type != null)
+		{
+			LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
+			List<PDefinition> defs = new LinkedList<PDefinition>();
+			for(LexIdentifierToken id : ids)
+			{
+				LexNameToken idName = new LexNameToken("",id);
+				ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), idName, NameScope.LOCAL, node.getType());
+				defs.add(localDef);
+			}
+			type.setDefinitions(defs);
+		}
 		return node.getType();
 	}
 
@@ -936,7 +945,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) createEnvironmentWithFormals(
 				question, node);
 		SStatementAction operationBody = node.getBody();
+		question.contextSet(CmlTypeCheckInfo.class, newQuestion);
 		PType bodyType = operationBody.apply(parentChecker, newQuestion);
+		question.contextRem(CmlTypeCheckInfo.class);
 		if (bodyType == null)
 			throw new AnalysisException("Unable to type check operation body "
 					+ node.getName());
@@ -1054,7 +1065,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		AFunctionType fType = (AFunctionType) PDefinitionAssistantTC.getType(node);
 		node.getName().setTypeQualifier(fType.getParameters());
-		
+
 		if (node.getBody() instanceof ASubclassResponsibilityExp)
 		{
 			node.getClassDefinition().setIsAbstract(true);
@@ -1081,6 +1092,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			PPatternListAssistantTC.typeResolve(pp, parentChecker, question);
 		}
 
+		node.setType(funcType);
+		node.setExpectedResult(funcType.getResult());
+		node.setActualResult(body.getType());
 
 		// Nonetheless the function type will be the type its definition to
 		// facilitate further type checking even in the presents of errors.
