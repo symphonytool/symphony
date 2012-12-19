@@ -1058,6 +1058,11 @@ recordPattern returns[PPattern pattern]
         }
     ;
 
+expressionList returns[List<PExp> exps]
+@init { $exps = new ArrayList<PExp>(); }
+    : first=expression { $exps.add($first.exp); } ( ',' expItem=expression { $exps.add($expItem.exp); } )*
+    ;
+
 expression returns[PExp exp]
 @after { $exp.setLocation(extractLexLocation($expression.start,$expression.stop)); }
     : expr0
@@ -1558,6 +1563,7 @@ exprbase returns[PExp exp]
 
 seqExpr returns[SSeqExp seqExpr]
 @init { List<PExp> exps = new ArrayList<PExp>(); }
+@after { $seqExpr.setLocation(extractLexLocation($seqExpr.start, $seqExpr.stop)); }
     : exp=expression
         ( '|' binding=setBind ('@' pred=expression)?
         | (',' enumItem=expression { exps.add($enumItem.exp); } )*
@@ -1565,48 +1571,45 @@ seqExpr returns[SSeqExp seqExpr]
             // | ',' '...' ','  end=expression
         )
         {
-            LexLocation loc = new LexLocation();
             if ($setBind.binding != null) {
-                $seqExpr = new ASeqCompSeqExp(loc, $exp.exp, $setBind.binding, $pred.exp);
+                $seqExpr = new ASeqCompSeqExp(null, $exp.exp, $setBind.binding, $pred.exp);
             } else {
                 exps.add(0, $exp.exp);
-                $seqExpr = new ASeqEnumSeqExp(loc, exps);
+                $seqExpr = new ASeqEnumSeqExp(null, exps);
             }
         }
     ;
 
 recordTupleExprs returns[PExp exp]
-@init { List<PExp> exps = new ArrayList<PExp>(); }
-    : l=MKUNDER '(' first=expression ( ',' expItem=expression { exps.add($expItem.exp); } )+ r=')'
+@after { $exp.setLocation(extractLexLocation($recordTupleExprs.start, $recordTupleExprs.stop)); }
+    : MKUNDER '(' expression ',' expressionList ')'
         {
-            LexLocation loc = extractLexLocation($l,$r);
-            exps.add(0,$first.exp);
-            $exp = new ATupleExp(loc,exps);
+            $expressionList.exps.add(0,$expression.exp);
+            $exp = new ATupleExp(null,$expressionList.exps);
         }
-    | MKUNDER 'token' '(' expression r=')'
+    | MKUNDER token='token' '(' expression ')'
         {
-            LexLocation loc = extractLexLocation($MKUNDER,$r);
-            $exp = new AMkBasicExp(new ATokenBasicType(loc, true), loc, $expression.exp);
+            $exp = new AMkBasicExp(new ATokenBasicType(extractLexLocation($token), true), null, $expression.exp);
         }
-    | MKUNDER name '(' ( first=expression ( ',' expItem=expression { exps.add($expItem.exp); } )* )? r=')'
+    | MKUNDER name '(' expressionList? ')'
         {
-            LexLocation loc = extractLexLocation($MKUNDER,$r);
-            exps.add(0,$first.exp);
-            $exp = new AMkTypeExp(loc, $name.name, exps);
+            List<PExp> exps = $expressionList.exps;
+            if (exps == null)
+                exps = new ArrayList<PExp>();
+            $exp = new AMkTypeExp(null, $name.name, exps);
         }
     ;
 
 setMapExpr returns[PExp exp]
+@after { $exp.setLocation(extractLexLocation($setMapExpr.start, $setMapExpr.stop)); }
     : l='{' ( empty='|->' | setMapExprGuts )? r='}'
         {
-            LexLocation loc = extractLexLocation($l,$r);
             if ($setMapExprGuts.exp != null) {
-                $setMapExprGuts.exp.setLocation(loc);
                 $exp = $setMapExprGuts.exp;
             } else if ($empty != null) {
-                $exp = new AMapEnumMapExp(loc, new ArrayList<AMapletExp>());
+                $exp = new AMapEnumMapExp(null, new ArrayList<AMapletExp>());
             } else {
-                $exp = new ASetEnumSetExp(loc, new ArrayList<PExp>());
+                $exp = new ASetEnumSetExp(null, new ArrayList<PExp>());
             }
         }
     ;
@@ -1615,14 +1618,12 @@ setMapExprGuts returns[PExp exp]
 @init {
     List<PExp> exps = new ArrayList<PExp>();
     List<AMapletExp> mexps = new ArrayList<AMapletExp>();
-    // This location doesn't matter --- it *will* be replaced
-    // by the caller of seqExpr.
-    LexLocation loc = new LexLocation();
 }
+@after { $exp.setLocation(extractLexLocation($setMapExprGuts.start, $setMapExprGuts.stop)); }
     : first=expression
         ( ',' '...' ',' last=expression
             {
-                $exp = new ASetRangeSetExp(loc, $first.exp, $last.exp);
+                $exp = new ASetRangeSetExp(null, $first.exp, $last.exp);
             }
         | ( ',' setItem=expression { exps.add($setItem.exp); } )+ // taken care of below
         | '|->' firstto=expression
@@ -1638,21 +1639,21 @@ setMapExprGuts returns[PExp exp]
                 LexLocation mloc = extractLexLocation($first.exp.getLocation(), $firstto.exp.getLocation());
                 AMapletExp firstMaplet = new AMapletExp(mloc, $first.exp, $firstto.exp);
                 if (mbinding != null) {
-                    $exp = new AMapCompMapExp(loc, firstMaplet, $mbinding.bindings, $mbinding.pred);
+                    $exp = new AMapCompMapExp(null, firstMaplet, $mbinding.bindings, $mbinding.pred);
                 } else {
                     mexps.add(0, firstMaplet);
-                    $exp = new AMapEnumMapExp(loc, mexps);
+                    $exp = new AMapEnumMapExp(null, mexps);
                 }
             }
         | binding=setMapExprBinding
             {
-                  $exp = new ASetCompSetExp(loc, $first.exp, $binding.bindings, $binding.pred);
+                  $exp = new ASetCompSetExp(null, $first.exp, $binding.bindings, $binding.pred);
             }
         )?
         {
             if ($exp == null) {
                 exps.add(0, $first.exp);
-                $exp = new ASetEnumSetExp(loc, exps);
+                $exp = new ASetEnumSetExp(null, exps);
             } else {
                 // FIXME Log a never-happens
             }
