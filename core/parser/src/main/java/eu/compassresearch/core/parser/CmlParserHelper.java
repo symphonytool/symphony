@@ -273,7 +273,7 @@ public class CmlParserHelper {
 
     }
 
-    public AAccessSpecifierAccessSpecifier getPrivateAccessSpecifier(
+    public static AAccessSpecifierAccessSpecifier getPrivateAccessSpecifier(
 	    boolean isStatic, boolean isAsync, LexLocation loc) {
 	/* return new AAccessSpecifierAccessSpecifier(new APrivateAccess(), */
 	/* (isStatic ? new TStatic() : null), */

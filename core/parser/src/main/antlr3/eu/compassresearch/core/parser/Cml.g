@@ -520,7 +520,7 @@ localDefinitionList returns[List<PDefinition> defs]
 
 localDefinition returns[PDefinition def]
     : (valueDefinition)=> valueDefinition { $def = $valueDefinition.def; }
-    | functionDefinition                  { $def = new AExplicitFunctionDefinition(); } // FIXME
+    | functionDefinition                  { $def = $functionDefinition.def; }
     ;
 
 nonDetStmtAltList returns[List<ANonDeterministicAltStatementAction> alts]
@@ -639,6 +639,22 @@ valueDefs
     : 'values' ( QUALIFIER? valueDefinition (';' QUALIFIER? valueDefinition)* )? ';'?
     ;
 
+valueDefinition returns[AValueDefinition def]
+// We've had requests for the "be st" type of value definitions, but
+//  they're not in for now.  The Overture AST does this differently
+//  than I'd like. -jwc/18Dec2012
+//
+// Also, apparently JPCW doesn't want the "be st" because they
+//  introduce a type on non-determinism that he doesn't want to deal
+//  with.  So, they'll not happen. -jwc/19Dec2012
+//
+//  : bindablePattern (':' type)? ( '=' | 'be' 'st' ) expression
+    : bindablePattern (':' type)? '=' expression
+        {
+            $def = AstFactory.newAValueDefinition($bindablePattern.pattern, NameScope.LOCAL, $type.type, $expression.exp);
+        }
+    ;
+
 stateDefs
     : 'state' ( instanceVariableDefinition (';' instanceVariableDefinition)* )? ';'?
     ;
@@ -656,41 +672,77 @@ invariantDefinition
     : 'inv' expression
     ;
 
-functionDefs
-    : 'functions' (QUALIFIER? functionDefinition)*
-    ;
-
-valueDefinition returns[AValueDefinition def]
-// We've had requests for the "be st" type of value definitions, but
-//  they're not in for now.  The Overture AST does this differently
-//  than I'd like. -jwc/18Dec2012
-//
-//  : bindablePattern (':' type)? ( '=' | 'be' 'st' ) expression
-    : bindablePattern (':' type)? '=' expression
+functionDefs returns[AFunctionParagraphDefinition defs]
+@after { $defs.setLocation(extractLexLocation($functionDefs.start, $functionDefs.stop)); }
+    : 'functions' qualFunctionDefinitionOptList
         {
-            $def = AstFactory.newAValueDefinition($bindablePattern.pattern, NameScope.LOCAL, $type.type, $expression.exp);
+            $defs = new AFunctionParagraphDefinition(null, NameScope.GLOBAL, false,
+                                                     CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start)),
+                                                     null, $qualFunctionDefinitionOptList.defs);
         }
     ;
 
-functionDefinition returns[PDefinition funcDef]
-@after { $funcDef.setLocation(extractLexLocation($functionDefinition.start, $functionDefinition.stop)); }
-    : IDENTIFIER (expl=explicitFunctionDefintionTail | impl=implicitFunctionDefinitionTail)
+qualFunctionDefinitionOptList returns[List<PDefinition> defs]
+@init { defs = new ArrayList<PDefinition>(); }
+    : (QUALIFIER? functionDefinition 
+            {
+                $functionDefinition.def.setAccess(extractQualifier($QUALIFIER));
+                if ($QUALIFIER != null)
+                    $functionDefinition.def.setLocation(extractLexLocation(extractLexLocation($QUALIFIER),$functionDefinition.def.getLocation()));
+                $defs.add($functionDefinition.def);
+            }
+        )*
+    ;
+
+functionDefinition returns[PDefinition def]
+@after { $def.setLocation(extractLexLocation($functionDefinition.start, $functionDefinition.stop)); }
+    : IDENTIFIER (expl=explicitFunctionDefinitionTail | impl=implicitFunctionDefinitionTail)
         {
             if ($expl.tail != null) {
-                $funcDef = new AExplicitFunctionDefinition();
+                $def = $expl.tail;
+                if ( !$IDENTIFIER.getText().equals($def.getName().name) ) {
+                    System.out.println("Mismatch in function definition.  Signature has " + $IDENTIFIER.getText() + ", definition has " + $def.getName().name);
+                    // FIXME --- here we need some sort of exception (probably RecognitionException) to note the mismatch
+                }
             } else {
-                $funcDef = $impl.tail;
+                $def = $impl.tail;
             }
-            $funcDef.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
+            $def.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
         }
     ;
 
-explicitFunctionDefintionTail returns[AExplicitFunctionDefinition tail]
-    : ':' type IDENTIFIER parameterGroup+ '==' functionBody ('pre' expression )? ('post' expression)? ('measure' name)?
+explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
+    : ':' type IDENTIFIER parameterGroupList '==' functionBody (pretok='pre' pre=expression )? ('post' post=expression)? ('measure' name)?
+        {
+            $tail = new AExplicitFunctionDefinition();
+            $tail.setType($type.type);
+            $tail.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
+            $tail.setParamPatternList($parameterGroupList.pgroups);
+            $tail.setBody($functionBody.exp);
+            $tail.setIsUndefined(false);
+            $tail.setRecursive(false);
+            $tail.setMeasure($name.name);
+            $tail.setAccess(CmlParserHelper.getPrivateAccessSpecifier(false, false, extractLexLocation($IDENTIFIER)));
+            //$tail.setPass(Pass.DEFS); // what's this for?
+        }
+    ;
+
+parameterGroupList returns[List<List<PPattern>> pgroups]
+@init { $pgroups = new ArrayList<List<PPattern>>(); }
+    : first=parameterGroup { $pgroups.add($first.pgroup); } ( pgItem=parameterGroup { $pgroups.add($pgItem.pgroup); } )*
+    ;
+
+parameterGroup returns[List<PPattern> pgroup]
+    : '(' bindablePatternList? ')'
+        {
+            $pgroup = $bindablePatternList.patterns;
+            if ($pgroup == null)
+                $pgroup = new ArrayList<PPattern>();
+        }
     ;
 
 implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
-    : '(' parameterTypeList? ')' resultTypeList (pretok='pre' pre=expression )? 'post' post=expression
+    : '(' parameterTypeList? ')' resultTypeList ('pre' pre=expression )? posttok='post' post=expression
         {
             $tail = new AImplicitFunctionDefinition();
             $tail.setNameScope(NameScope.LOCAL);
@@ -720,7 +772,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             if ($pre.exp != null)
                 $tail.setPrecondition($pre.exp);
             else
-                $tail.setPrecondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($pretok))));
+                $tail.setPrecondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($posttok))));
 
             $tail.setPostcondition($post.exp);
 
@@ -735,7 +787,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
 
 parameterTypeList returns[List<APatternListTypePair> ptypes]
 @init { $ptypes = new ArrayList<APatternListTypePair>(); }
-    : first=parameterTypeGroup { $ptypes.add($first.ptype); } ( ',' ptypeItem=parameterTypeGroup { $ptypes.add($first.ptype); } )*
+    : first=parameterTypeGroup { $ptypes.add($first.ptype); } ( ',' ptypeItem=parameterTypeGroup { $ptypes.add($ptypeItem.ptype); } )*
     ;
 
 parameterTypeGroup returns[APatternListTypePair ptype]
@@ -759,14 +811,11 @@ resultType returns[APatternTypePair rtype]
         }
     ;
 
-parameterGroup
-    : '(' bindablePatternList? ')'
-    ;
-
-functionBody
-    : expression
-    | 'is' 'not' 'yet' 'specified'
-    | 'is' 'subclass' 'responsibility'
+functionBody returns[PExp exp]
+@after { $exp.setLocation(extractLexLocation($functionBody.start, $functionBody.stop)); }
+    : expression                       { $exp = $expression.exp; }
+    | 'is' 'not' 'yet' 'specified'     { $exp = new ANotYetSpecifiedExp(); }
+    | 'is' 'subclass' 'responsibility' { $exp = new ASubclassResponsibilityExp(); }
     ;
 
 operationDefs
