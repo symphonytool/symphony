@@ -672,28 +672,95 @@ valueDefinition returns[AValueDefinition def]
         }
     ;
 
-functionDefinition
-    : IDENTIFIER (explicitFunctionDefintionTail | implicitFunctionDefintionTail)
+functionDefinition returns[PDefinition funcDef]
+@after { $funcDef.setLocation(extractLexLocation($functionDefinition.start, $functionDefinition.stop)); }
+    : IDENTIFIER (expl=explicitFunctionDefintionTail | impl=implicitFunctionDefinitionTail)
+        {
+            if ($expl.tail != null) {
+                $funcDef = new AExplicitFunctionDefinition();
+            } else {
+                $funcDef = $impl.tail;
+            }
+            $funcDef.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
+        }
     ;
 
-explicitFunctionDefintionTail
+explicitFunctionDefintionTail returns[AExplicitFunctionDefinition tail]
     : ':' type IDENTIFIER parameterGroup+ '==' functionBody ('pre' expression )? ('post' expression)? ('measure' name)?
     ;
 
-implicitFunctionDefintionTail
-    : '(' parameterTypeList? ')' IDENTIFIER ':' type (',' IDENTIFIER ':' type)* ('pre' expression )? 'post' expression
+implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
+    : '(' parameterTypeList? ')' resultTypeList (pretok='pre' pre=expression )? 'post' post=expression
+        {
+            $tail = new AImplicitFunctionDefinition();
+            $tail.setNameScope(NameScope.LOCAL);
+            $tail.setUsed(Boolean.FALSE);
+            $tail.setAccess(CmlParserHelper.getDefaultAccessSpecifier(false,false,null));
+
+            List<APatternListTypePair> paramPatterns = $parameterTypeList.ptypes;
+            if (paramPatterns == null)
+                paramPatterns = new ArrayList<APatternListTypePair>();
+            $tail.setParamPatterns(paramPatterns);
+
+            List<APatternTypePair> resultList = $resultTypeList.rtypes;
+            APatternTypePair resultTypePair = null;
+            if (resultList.size() == 1) {
+                resultTypePair = resultList.get(0);
+            } else {
+                // VDMJ needs a product type of all of the result types
+                ATuplePattern tuple = new ATuplePattern();
+                List<PPattern> plist = new ArrayList<PPattern>();
+                for (APatternTypePair pair : resultList)
+                    plist.add(pair.getPattern());
+                tuple.setPlist(plist);
+                resultTypePair = new APatternTypePair(false, tuple);
+            }
+            $tail.setResult(resultTypePair);
+            
+            if ($pre.exp != null)
+                $tail.setPrecondition($pre.exp);
+            else
+                $tail.setPrecondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($pretok))));
+
+            $tail.setPostcondition($post.exp);
+
+            // figure out the overall function type
+            List<PType> paramTypes = new ArrayList<PType>();
+            for (APatternListTypePair pp : paramPatterns)
+                paramTypes.add(pp.getType());
+            LexLocation typeloc = extractLexLocation($implicitFunctionDefinitionTail.start, $resultTypeList.stop);
+            $tail.setType(AstFactory.newAFunctionType(typeloc, true, paramTypes, resultTypePair.getType()));
+        }
     ;
 
-parameterTypeList
-    : parameterTypeGroup (',' parameterTypeGroup)*
+parameterTypeList returns[List<APatternListTypePair> ptypes]
+@init { $ptypes = new ArrayList<APatternListTypePair>(); }
+    : first=parameterTypeGroup { $ptypes.add($first.ptype); } ( ',' ptypeItem=parameterTypeGroup { $ptypes.add($first.ptype); } )*
     ;
 
-parameterTypeGroup
-    : (bindablePattern (',' bindablePattern)* )? ':' type
+parameterTypeGroup returns[APatternListTypePair ptype]
+    : bindablePatternList ':' type
+        {
+            $ptype = new APatternListTypePair(false, $bindablePatternList.patterns, $type.type);
+        }
+    ;
+
+resultTypeList returns[List<APatternTypePair> rtypes]
+@init { $rtypes = new ArrayList<APatternTypePair>(); }
+    : first=resultType { $rtypes.add($first.rtype); } ( ',' resItem=resultType { $rtypes.add($resItem.rtype); } )*
+    ;
+
+resultType returns[APatternTypePair rtype]
+    : IDENTIFIER ':' type
+        {
+            LexLocation loc = extractLexLocation($IDENTIFIER);
+            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), loc, false, true);
+            $rtype = new APatternTypePair(false, new AIdentifierPattern(loc, null, true, name, false), $type.type);
+        }
     ;
 
 parameterGroup
-    : '(' (bindablePattern (',' bindablePattern)* )? ')'
+    : '(' bindablePatternList? ')'
     ;
 
 functionBody
@@ -934,6 +1001,11 @@ invariant returns[AInvariantDefinition inv]
 pattern returns[PPattern pattern]
     : bindablePattern { $pattern = $bindablePattern.pattern; }
     | matchValue      { $pattern = $matchValue.pattern; }
+    ;
+
+bindablePatternList returns[List<PPattern> patterns]
+@init { $patterns = new ArrayList<PPattern>(); }
+    : first=bindablePattern { $patterns.add($first.pattern); } ( ',' patItem=bindablePattern { $patterns.add($patItem.pattern); } )*
     ;
 
 bindablePattern returns[PPattern pattern]
@@ -1731,6 +1803,7 @@ typeBindList returns[List<ATypeBind> bindings]
 @init { $bindings = new ArrayList<ATypeBind>(); }
     : first=typeBind { $bindings.add($first.binding); }  ( ',' bindItem=typeBind { $bindings.add($bindItem.binding); } )*
     ;
+
 typeBind returns[ATypeBind binding]
     : bindablePattern ':' type
         {
