@@ -291,7 +291,9 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		{
 			CmlProcess theChoosenOne = findTheChoosenChild(supervisor().selectedCommunication());
 			
+			theChoosenOne.onTraceChanged().unregisterObserver(this);
 			theChoosenOne.execute(supervisor()); 
+			theChoosenOne.onTraceChanged().registerObserver(this);
 			
 			//get the state replace the current state
 			pushNext((PAction)theChoosenOne.getExecutionState().first, 

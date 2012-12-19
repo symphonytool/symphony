@@ -103,7 +103,10 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 				else 
 				{
 					setState(CmlProcessState.WAIT_EVENT);
-					registerChannelsInAlpha(alpha);
+					
+					if(level() == 0)
+						registerChannelsInAlpha(alpha);
+					
 					ret = CmlBehaviourSignal.EXEC_SUCCESS;
 				}
 			}
@@ -250,8 +253,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	
 	protected void notifyOnTraceChange(TraceEvent traceEvent)
 	{
-//		for(CmlProcessObserver o : new LinkedList<CmlProcessObserver>(traceObservers))
-//			o.onTraceChange(traceEvent);
+		traceObservers.fireEvent(traceEvent);
 	}
 	
 	@Override
@@ -267,7 +269,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	@Override
 	public void onChannelEvent(Object source, CmlChannelEvent event) {
 		//enable the processthread to run again and unregister from the channel
-		if(level() == 0)
+		//if(level() == 0)
 			setState(CmlProcessState.RUNNABLE);
 	}
 	

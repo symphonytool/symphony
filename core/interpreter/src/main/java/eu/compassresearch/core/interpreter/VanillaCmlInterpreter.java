@@ -231,7 +231,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-externalchoice-simple-skip.cml");
+				"src/test/resources/action/action-externalchoice-nostate.cml");
 		runOnFile(cml_example);
 
 	}
