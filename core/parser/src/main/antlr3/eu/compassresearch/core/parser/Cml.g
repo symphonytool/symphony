@@ -360,11 +360,12 @@ action1 returns[PAction action]
     ;
 
 action2 returns[PAction action]
-    : 'Skip'
-    | 'Stop'
-    | 'Chaos'
-    | 'Div'
-    | 'Wait' expression
+@after { $action.setLocation(extractLexLocation($action2.start, $action2.stop)); }
+    : 'Skip'            { $action = new ASkipAction(); }
+    | 'Stop'            { $action = new AStopAction(); }
+    | 'Chaos'           { $action = new AChaosAction(); }
+    | 'Div'             { $action = new ADivAction(); }
+    | 'Wait' expression { $action = new AWaitAction(null, $expression.exp); }
     | IDENTIFIER (communication* '->' action)?
     /* The mess below includes parenthesized actions, block
      * statements, parametrised actions, instantiated actions.
@@ -461,7 +462,7 @@ statement returns[PAction statement]
         {
             $statement = new AMultipleGeneralAssignmentStatementAction(); // FIXME
         }
-    | (callStatement)=> callStatement // More syntactic predicate magic :)
+    | (callStatement)=> callStatement
         {
             $statement = $callStatement.statement;
         }
@@ -1497,42 +1498,43 @@ expr10 returns[PExp exp]
     ;
 
 unaryOp returns[SUnaryExp op]
-    : o='+'       { $op = new AUnaryPlusUnaryExp();     $op.setLocation(extractLexLocation($o)); }
-    | o='-'       { $op = new AUnaryMinusUnaryExp();    $op.setLocation(extractLexLocation($o)); }
-    | o='abs'     { $op = new AAbsoluteUnaryExp();      $op.setLocation(extractLexLocation($o)); }
-    | o='floor'   { $op = new AFloorUnaryExp();         $op.setLocation(extractLexLocation($o)); }
-    | o='not'     { $op = new ANotUnaryExp();           $op.setLocation(extractLexLocation($o)); }
-    | o='card'    { $op = new ACardinalityUnaryExp();   $op.setLocation(extractLexLocation($o)); }
-    | o='power'   { $op = new APowerSetUnaryExp();      $op.setLocation(extractLexLocation($o)); }
-    | o='dunion'  { $op = new ADistUnionUnaryExp();     $op.setLocation(extractLexLocation($o)); }
-    | o='dinter'  { $op = new ADistIntersectUnaryExp(); $op.setLocation(extractLexLocation($o)); }
-    | o='hd'      { $op = new AHeadUnaryExp();          $op.setLocation(extractLexLocation($o)); }
-    | o='tl'      { $op = new ATailUnaryExp();          $op.setLocation(extractLexLocation($o)); }
-    | o='len'     { $op = new ALenUnaryExp();           $op.setLocation(extractLexLocation($o)); }
-    | o='elems'   { $op = new AElementsUnaryExp();      $op.setLocation(extractLexLocation($o)); }
-    | o='inds'    { $op = new AIndicesUnaryExp();       $op.setLocation(extractLexLocation($o)); }
-    | o='reverse' { $op = new AReverseUnaryExp();       $op.setLocation(extractLexLocation($o)); }
-    | o='conc'    { $op = new ADistConcatUnaryExp();    $op.setLocation(extractLexLocation($o)); }
-    | o='dom'     { $op = new AMapDomainUnaryExp();     $op.setLocation(extractLexLocation($o)); }
-    | o='rng'     { $op = new AMapRangeUnaryExp();      $op.setLocation(extractLexLocation($o)); }
-    | o='merge'   { $op = new ADistMergeUnaryExp();     $op.setLocation(extractLexLocation($o)); }
-    | o='inverse' { $op = new AMapInverseUnaryExp();    $op.setLocation(extractLexLocation($o)); }
+@after { $op.setLocation(extractLexLocation($o)); }
+    : o='+'       { $op = new AUnaryPlusUnaryExp(); }
+    | o='-'       { $op = new AUnaryMinusUnaryExp(); }
+    | o='abs'     { $op = new AAbsoluteUnaryExp(); }
+    | o='floor'   { $op = new AFloorUnaryExp(); }
+    | o='not'     { $op = new ANotUnaryExp(); }
+    | o='card'    { $op = new ACardinalityUnaryExp(); }
+    | o='power'   { $op = new APowerSetUnaryExp(); }
+    | o='dunion'  { $op = new ADistUnionUnaryExp(); }
+    | o='dinter'  { $op = new ADistIntersectUnaryExp(); }
+    | o='hd'      { $op = new AHeadUnaryExp(); }
+    | o='tl'      { $op = new ATailUnaryExp(); }
+    | o='len'     { $op = new ALenUnaryExp(); }
+    | o='elems'   { $op = new AElementsUnaryExp(); }
+    | o='inds'    { $op = new AIndicesUnaryExp(); }
+    | o='reverse' { $op = new AReverseUnaryExp(); }
+    | o='conc'    { $op = new ADistConcatUnaryExp(); }
+    | o='dom'     { $op = new AMapDomainUnaryExp(); }
+    | o='rng'     { $op = new AMapRangeUnaryExp(); }
+    | o='merge'   { $op = new ADistMergeUnaryExp(); }
+    | o='inverse' { $op = new AMapInverseUnaryExp(); }
     ;
 
 expr11 returns[PExp exp]
 @init { List<PExp> selectors = new ArrayList<PExp>(); }
+@after { $exp.setLocation(extractLexLocation($expr11.start, $expr11.stop)); }
     : unaryOp operand=expr11
         {
             SUnaryExp unaryop = $unaryOp.op;
             PExp target = $operand.exp;
             unaryop.setExp(target);
-            unaryop.setLocation(extractLexLocation(unaryop.getLocation(), target.getLocation()));
             $exp = unaryop;
         }
-    | exprbase ( selector { selectors.add($selector.exp); } )*
+    | exprbase selectorOptList //( selector { selectors.add($selector.exp); } )*
         {
             $exp = $exprbase.exp; // Set the leftmost root
-            for (PExp sel : selectors) { // Iterate through the selectors, building a left->right tree
+            for (PExp sel : $selectorOptList.selectors) { // Iterate through the selectors, building a left->right tree
                 LexLocation loc = extractLexLocation($exp.getLocation(), sel.getLocation());
                 if (sel instanceof AFieldNumberExp) {
                     ((AFieldNumberExp)sel).setTuple($exp);
@@ -1567,6 +1569,11 @@ expr11 returns[PExp exp]
                 }
             }
         }
+    ;
+
+selectorOptList returns[List<PExp> selectors]
+@init { $selectors = new ArrayList<PExp>(); }
+    : ( selector { $selectors.add($selector.exp); } )*
     ;
 
 // Note that each selector expression is partial, returned with a null "root" expression
@@ -1617,10 +1624,10 @@ exprbase returns[PExp exp]
             LexLocation loc = extractLexLocation($l,$r);
             $exp = new ABracketedExp(loc, $expression.exp);
         }
-    | self='self'
+    | SELF
         {
-            LexLocation loc = extractLexLocation($self);
-            LexNameToken name = new LexNameToken("", $self.getText(), loc, true, false);
+            LexLocation loc = extractLexLocation($SELF);
+            LexNameToken name = new LexNameToken("", $SELF.getText(), loc, true, false);
             $exp = new ASelfExp(loc, name);
         }
     | IDENTIFIER old='~'?
