@@ -147,7 +147,8 @@ public class CmlScheduler implements CmlProcessObserver, CmlProcessStateObserver
 					throw new RuntimeException("Change this!!!!, but now that you haven't changed this yet, " +
 							"then let me tell you that the return CMLBehaviourSignal was unsuccesful");
 
-				CmlRuntime.logger().fine("current trace of '"+p+"': " + p.getTraceModel());
+				CmlRuntime.logger().fine("Trace of '"+p+"': " + p.getTraceModel());
+				CmlRuntime.logger().fine("Observable trace of '"+p+"': " + p.getTraceModel().getVisibleEvents());
 				CmlRuntime.logger().fine("next: " + p.nextStepToString());
 			}
 
