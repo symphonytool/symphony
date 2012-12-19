@@ -635,10 +635,30 @@ classDefinitionBlock
     | 'initial' operationDef // why should this operation require a name, or be allowed to be explicit?
     ;
 
-valueDefs
-    : 'values' ( QUALIFIER? valueDefinition (';' QUALIFIER? valueDefinition)* )? ';'?
+valueDefs returns[AValueParagraphDefinition defs]
+@after { $defs.setLocation(extractLexLocation($valueDefs.start, $valueDefs.stop)); }
+    : 'values' qualValueDefinitionList? ';'?
+        {
+            AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($valueDefs.start));
+            $defs = new AValueParagraphDefinition(null, NameScope.NAMES, false, access, null, $qualValueDefinitionList.defs);
+        }
     ;
 
+qualValueDefinitionList returns[List<AValueDefinition> defs]
+@init { defs = new ArrayList<AValueDefinition>(); }
+    : item=qualValueDefinition { $defs.add($item.def); } ( ';' item=qualValueDefinition { $defs.add($item.def); } )*
+    ;
+
+qualValueDefinition returns[AValueDefinition def]
+    : QUALIFIER? valueDefinition
+        {
+            $def = $valueDefinition.def;
+            $def.setAccess(extractQualifier($QUALIFIER));
+            LexLocation loc = extractLexLocation(extractLexLocation($qualValueDefinition.start), $qualValueDefinition.def.getLocation()) ;
+            $def.setLocation(loc);
+        }
+
+    ;
 valueDefinition returns[AValueDefinition def]
 // We've had requests for the "be st" type of value definitions, but
 //  they're not in for now.  The Overture AST does this differently
@@ -676,19 +696,19 @@ functionDefs returns[AFunctionParagraphDefinition defs]
 @after { $defs.setLocation(extractLexLocation($functionDefs.start, $functionDefs.stop)); }
     : 'functions' qualFunctionDefinitionOptList
         {
-            $defs = new AFunctionParagraphDefinition(null, NameScope.GLOBAL, false,
-                                                     CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start)),
-                                                     null, $qualFunctionDefinitionOptList.defs);
+            AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start));
+            $defs = new AFunctionParagraphDefinition(null, NameScope.GLOBAL, false, access, null, $qualFunctionDefinitionOptList.defs);
         }
     ;
 
 qualFunctionDefinitionOptList returns[List<PDefinition> defs]
-@init { defs = new ArrayList<PDefinition>(); }
+@init { $defs = new ArrayList<PDefinition>(); }
     : (QUALIFIER? functionDefinition 
             {
                 $functionDefinition.def.setAccess(extractQualifier($QUALIFIER));
-                if ($QUALIFIER != null)
-                    $functionDefinition.def.setLocation(extractLexLocation(extractLexLocation($QUALIFIER),$functionDefinition.def.getLocation()));
+                LexLocation loc = extractLexLocation(extractLexLocation($qualFunctionDefinitionOptList.start),
+                                                     $functionDefinition.def.getLocation());
+                $functionDefinition.def.setLocation(loc);
                 $defs.add($functionDefinition.def);
             }
         )*
