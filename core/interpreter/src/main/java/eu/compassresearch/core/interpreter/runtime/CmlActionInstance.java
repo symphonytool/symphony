@@ -283,7 +283,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			CmlProcess skipChild = findFinishedChild();
 			
 			//get the state replace the current state
-			pushNext(new ASkipAction(), skipChild.getExecutionState().second);
+			pushNext(new ASkipAction(), skipChild.getExecutionState().get(0).second);
 			
 			//mmmmuhuhuhahaha kill all the children
 			killAndRemoveAllTheEvidenceOfTheChildren();
@@ -299,9 +299,12 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			result = executeChild(theChoosenOne);
 			
 			//get the state replace the current state
-			pushNext((PAction)theChoosenOne.getExecutionState().first, 
-					theChoosenOne.getExecutionState().second);
-			
+			//FIXME: this is really really ugly
+			for(Pair<PAction,Context> state : theChoosenOne.<PAction>getExecutionState())
+			{
+				pushNext(state.first, 
+						state.second);
+			}
 			setState(CmlProcessState.RUNNING);
 			
 			//mmmmuhuhuhahaha kill all the children

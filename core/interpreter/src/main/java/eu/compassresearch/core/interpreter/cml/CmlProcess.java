@@ -27,10 +27,10 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	public CmlSupervisorEnvironment supervisor();
 	
 	/**
-	 * Returns the current context of the process
+	 * Returns the current execution state of the process
 	 * @return The current context
 	 */
-	public Pair<? extends INode,Context> getExecutionState();
+	public <T extends INode> List<Pair<T,Context>> getExecutionState();
 	
 	/**
 	 * Name of the process

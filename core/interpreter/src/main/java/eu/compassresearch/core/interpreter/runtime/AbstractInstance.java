@@ -155,15 +155,23 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	}
 	
 	@Override
-	public Pair<T,Context> getExecutionState() 
+	public List<Pair<T,Context>> getExecutionState() 
 	{
+		if(hasNext())
+			return this.getExecutionStack();
+		else
+		{
+			List<Pair<T,Context>> res = new LinkedList<Pair<T,Context>>();
+			res.add(prevState());
+			return res;
+		}
 		//the newest context is in the context of the next state
 		//However if there is no next state we need to take the last
 		//executed state
-		if(hasNext())
-			return nextState();
-		else
-			return prevState();
+//		if(hasNext())
+//			return nextState();
+//		else
+//			return prevState();
 	}
 			
 	/**

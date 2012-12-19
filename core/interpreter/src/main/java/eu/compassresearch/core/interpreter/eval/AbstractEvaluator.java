@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import java.util.List;
 import java.util.Stack;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -7,6 +8,7 @@ import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.util.Pair;
 
@@ -40,6 +42,11 @@ public abstract class AbstractEvaluator<T  extends INode> extends
 		return executionStack.peek();
 	}
 	
+	protected List<Pair<T,Context>> getExecutionStack()
+	{
+		return executionStack;
+	}
+	
 	protected void pushNext(T node, Context context)
 	{
 		executionStack.push(new Pair<T, Context>(node, context));
@@ -54,7 +61,7 @@ public abstract class AbstractEvaluator<T  extends INode> extends
 			return next.first.apply(this,next.second);
 		}
 		else{
-			throw new RuntimeException("Trying to execute a finished Process...THIS SHOULD BE CHANGE INTO A DIFFERENT EXCEPTION");
+			throw new InterpreterRuntimeException("Trying to execute a finished Process...THIS SHOULD BE CHANGE INTO A DIFFERENT EXCEPTION");
 		}
 		
 	}
