@@ -41,6 +41,19 @@ public class CmlScheduler implements CmlProcessObserver, CmlProcessStateObserver
 	}
 	
 	@Override
+	public void removeProcess(CmlProcess process)
+	{
+		process.onStateChanged().unregisterObserver(this);
+		if(process.running())
+			running.remove(process);
+		else if(process.waiting())
+			waiting.remove(process);
+		else 
+			finished.remove(process);
+			
+	}
+	
+	@Override
 	public void clearProcesses()
 	{
 		running.clear();

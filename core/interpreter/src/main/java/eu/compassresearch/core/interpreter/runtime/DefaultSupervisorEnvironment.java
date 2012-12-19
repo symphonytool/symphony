@@ -65,6 +65,7 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	@Override
 	public void removePupil(CmlProcess process) {
 		pupils.remove(process);
+		scheduler.removeProcess(process);
 	}
 	
 	@Override

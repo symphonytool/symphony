@@ -272,7 +272,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		}
 		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 		//with the state from the skip. After this all the children processes are terminated
-		else if(existsAFinishedChild())
+		else if(CmlProcessUtil.existsAFinishedChild(this))
 		{
 			//find the finished child
 			CmlProcess skipChild = findFinishedChild();
@@ -281,26 +281,30 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			pushNext(new ASkipAction(), skipChild.getExecutionState().second);
 			
 			//mmmmuhuhuhahaha kill all the children
-			//TODO mmmmuhuhuhahaha I command you to kill the children
 			killAndRemoveAllTheEvidenceOfTheChildren();
+			
+			result = CmlBehaviourSignal.EXEC_SUCCESS;
 		}
 		//if this is true, then we can resolve the choice to the event
 		//of one of the children that are waiting for events
 		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
 		{
-			List<CmlProcess> waitingChildren = findWaitingChildren();
+			CmlProcess theChoosenOne = findTheChoosenChild(supervisor().selectedCommunication());
 			
-			CmlProcess theChoosenOne = randomlyChooseWaitingChild(waitingChildren);
+			theChoosenOne.execute(supervisor()); 
 			
 			//get the state replace the current state
 			pushNext((PAction)theChoosenOne.getExecutionState().first, 
 					theChoosenOne.getExecutionState().second);
 			
-			//mmmmuhuhuhahaha kill all the children
-			//TODO mmmmuhuhuhahaha I command you to kill the children
-			killAndRemoveAllTheEvidenceOfTheChildren();
+			setState(CmlProcessState.RUNNING);
 			
+			//mmmmuhuhuhahaha kill all the children
+			killAndRemoveAllTheEvidenceOfTheChildren();
+			result = CmlBehaviourSignal.EXEC_SUCCESS;
 		}
+		else
+			result = CmlBehaviourSignal.FATAL_ERROR;
 		
 		return result;
 	}
@@ -308,17 +312,6 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	/**
 	 * External Choice helper methods
 	 */
-	
-	private boolean existsAFinishedChild()
-	{
-		for(CmlProcess child : children())
-		{
-			if(child.finished())
-				return true;
-		}
-		
-		return false;
-	}
 	
 	private CmlProcess findFinishedChild()
 	{
@@ -331,30 +324,22 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		return null;
 	}
 	
-	private List<CmlProcess> findWaitingChildren()
+	private CmlProcess findTheChoosenChild(ObservableEvent event)
 	{
 		List<CmlProcess> waitingChildren = new LinkedList<CmlProcess>();
 		
 		for(CmlProcess child : children())
 		{
-			if(child.waiting())
-				waitingChildren.add(child);
+			if(child.waiting() && child.inspect().containsCommunication(event))
+				return child;
 		}
 		
-		return waitingChildren;
-	}
-	
-	private CmlProcess randomlyChooseWaitingChild(List<CmlProcess> waitingChildren)
-	{
-		return waitingChildren.get(0);
+		return null;
 	}
 	
 	private void killAndRemoveAllTheEvidenceOfTheChildren()
 	{
-		
-		
 		removeTheChildren();
-		
 	}
 	
 	

@@ -161,8 +161,8 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 			return nextState();
 		else
 			return prevState();
-	};
-	
+	}
+			
 	/**
 	 * Process graph methods
 	 */

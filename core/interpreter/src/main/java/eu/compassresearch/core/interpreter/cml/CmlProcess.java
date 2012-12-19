@@ -37,6 +37,8 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	 * @return The name of the process
 	 */
 	public LexNameToken name();
+	
+	//public void signalTermination();
 		
 	/**
 	 * This constructs a string representing the next execution step of this process

@@ -8,6 +8,7 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.PAction;
@@ -78,6 +79,34 @@ public class AlphabetInspectionVisitor
 		return new CmlAlphabet(comset);
 	}
 	
+	
+	@Override
+	public CmlAlphabet caseAExternalChoiceAction(AExternalChoiceAction node,
+			Context question) throws AnalysisException {
+
+		CmlAlphabet alpha = null;
+		
+		//if no children are present we make a silent transition to represent the
+		//external choice begin
+		if(!ownerProcess.hasChildren() ||
+				CmlProcessUtil.existsAFinishedChild(ownerProcess))
+		{
+			alpha = defaultPAction(node,question);
+		}
+		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(ownerProcess))
+		{
+			for(CmlProcess child : ownerProcess.children())
+			{
+				if(alpha == null)
+					alpha = child.inspect();
+				else
+					alpha = alpha.union(child.inspect());
+			}
+		}
+		
+		return alpha;
+	}
+	
 	/**
 	 * Parallel action
 	 * 
@@ -136,29 +165,6 @@ public class AlphabetInspectionVisitor
 	public CmlAlphabet caseAInterleavingParallelAction(
 			AInterleavingParallelAction node, Context question)
 			throws AnalysisException {
-		
-//		CmlAlphabet alpha = null;
-//		
-//		//If there are no children or the children has finished, then either the interleaving 
-//		//is beginning or ending and we make a silent transition.
-//		if(!ownerProcess.hasChildren() || CmlProcessUtil.isAllChildrenFinished(ownerProcess))
-//		{
-//			alpha = defaultPAction(node,question);
-//		}
-//		else
-//		//if we are here at least one of the children is alive and we must inspect them
-//		//and forward it.
-//		{
-//			for(CmlProcess child : ownerProcess.children())
-//			{
-//				if(alpha == null)
-//					alpha = child.inspect();
-//				else
-//					alpha = alpha.union(child.inspect());
-//			}
-//		}
-//		
-//		return alpha;
 		
 		return caseParallelAction(node,question,new ParallelAction()
 		{
@@ -226,65 +232,9 @@ public class AlphabetInspectionVisitor
 				resultAlpha = new CmlAlphabet(syncEvents).union(leftChildAlphabet.substract(cs));
 				resultAlpha = resultAlpha.union(rightChildAlphabet.substract(cs));
 				
-				
-//				
-//				resultAlpha.union(other)
-//				CmlAlphabet childIntersection = null;
-//				for(CmlProcess child : ownerProcess.children())
-//				{
-//					CmlAlphabet childAlphabet = child.inspect();
-//					CmlAlphabet eventInCS = new CmlAlphabet();
-//					
-//					//for each com event we need to check whether the com event is in the 
-//					//synchronising CS
-//					for(ObservableEvent e  : childAlphabet.getObservableEvents())
-//					{
-//						if( !cs.containsCommunication(e))
-//							resultAlpha = resultAlpha.union(e);
-//						else
-//							eventInCS = eventInCS.union(e);
-//					}
-//					
-//					if(null == childIntersection)
-//						childIntersection = eventInCS;
-//					else
-//						childIntersection = childIntersection.discardAndCombine(eventInCS,true);
-//				}
-					
-				//find the event intersection
-//				for(CmlAlphabet childAlpha : childEventsInCS)
-//				{
-//					if(null == childIntersection)
-//						childIntersection = childAlpha;
-//					else
-//						childIntersection = childIntersection.intersect(childAlpha);
-//				}
-				
-				//Now put all the events that are in cs and in all the children
-//				resultAlpha = resultAlpha.union(childIntersection);
-				
 				return resultAlpha;
 			}
 		});
-//		CmlAlphabet alpha = new CmlAlphabet();
-//
-//		//Children has
-//		if(ownerProcess.hasChildren())
-//		{
-//			CmlAlphabet cs = convertChansetExpToAlphabet(node.getChanSetExpression(),question);
-//			for(CmlProcess child : ownerProcess.children())
-//			{
-//				alpha = child.inspect();
-//				alpha = alpha.union(child.inspect());
-//			}
-//		}
-//		//If there are no children, then either the parallel composition is beginning or ending
-//		else
-//		{
-//			alpha = defaultPAction(node,question);
-//		}
-//
-//		return alpha;
 	}
 	
 	

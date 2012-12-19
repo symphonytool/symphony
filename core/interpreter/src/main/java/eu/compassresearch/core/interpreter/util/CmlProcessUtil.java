@@ -39,6 +39,17 @@ public class CmlProcessUtil {
 		return false;
 	}
 	
+	public static boolean existsAFinishedChild(CmlProcess process)
+	{
+		for(CmlProcess child : process.children())
+		{
+			if(child.finished())
+				return true;
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * FIXME:This is just a temp solution, chansets can be other than this
 	 * @return
