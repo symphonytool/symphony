@@ -1,8 +1,10 @@
 package eu.compassresearch.core.interpreter.runtime;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.values.CPUValue;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AReferenceProcess;
@@ -16,6 +18,7 @@ import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
+import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
@@ -41,6 +44,8 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 	private CmlActionInstance mainBehaviour = null;
 	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this);
 	private Context globalContext;
+	
+	private CmlEvaluator cmlEvaluator = new CmlEvaluator();
 	
 	public CmlProcessInstance(AProcessDefinition processDef, CmlProcess parent, Context globalContext)
 	{
@@ -197,15 +202,15 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 		if(mainBehaviour == null)
 		{
 			// TODO Add state, value, etc to the corresponding processValue and
-//			for (PDefinition def : node.getDefinitionParagraphs())
-//			{
-//				def.apply(this.parentInterpreter, question);
-//				// question.put(def.getName(), def.getType().g);
-//			}
-			//ProcessThread pt = new ProcessThread(question, node);
 
 			//Create the context for this process and hand it over to the process behavior 
 			Context newContext = new Context(node.getLocation(), "Process Context :" + name(), question);
+			question.setThreadState(null, CPUValue.vCPU);
+			for (PDefinition def : node.getDefinitionParagraphs())
+			{
+				def.apply(cmlEvaluator, question);
+				// question.put(def.getName(), def.getType().g);
+			}
 
 			//Create the name for the behavior and start it 
 			LexNameToken mainActionName = new LexNameToken(name().getModule(),

@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.statements.AIdentifierStateDesignator;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
@@ -28,6 +30,7 @@ import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.SynchronisationEvent;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
+import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
@@ -54,6 +57,8 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 
 	private LexNameToken name;
 	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this); 
+	private CmlEvaluator cmlEvaluator = new CmlEvaluator();
+	
 	
 	public CmlActionInstance(PAction action,Context context, LexNameToken name)
 	{
@@ -291,9 +296,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		{
 			CmlProcess theChoosenOne = findTheChoosenChild(supervisor().selectedCommunication());
 			
-			theChoosenOne.onTraceChanged().unregisterObserver(this);
-			theChoosenOne.execute(supervisor()); 
-			theChoosenOne.onTraceChanged().registerObserver(this);
+			result = executeChild(theChoosenOne);
 			
 			//get the state replace the current state
 			pushNext((PAction)theChoosenOne.getExecutionState().first, 
@@ -303,7 +306,6 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			
 			//mmmmuhuhuhahaha kill all the children
 			killAndRemoveAllTheEvidenceOfTheChildren();
-			result = CmlBehaviourSignal.EXEC_SUCCESS;
 		}
 		else
 			result = CmlBehaviourSignal.FATAL_ERROR;
@@ -369,7 +371,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		rightInstance.onStateChanged().registerObserver(this);
 		rightInstance.onTraceChanged().registerObserver(this);
 		
-		//Add them to the superviser to get executed as a seperate process
+		//Add them to the supervisor to get executed as a separate process
 		rightInstance.start(supervisor());
 		leftInstance.start(supervisor());
 		
@@ -461,33 +463,20 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 				if(!leftOption.isEmpty() &&
 						!rightOption.isEmpty() )
 				{
-					leftChild.onTraceChanged().unregisterObserver(this);
-					rightChild.onTraceChanged().unregisterObserver(this);
 					supervisor().setSelectedCommunication(leftOption.getObservableEvents().iterator().next());
-					leftChild.execute(supervisor());
+					executeChild(leftChild);
 					supervisor().setSelectedCommunication(rightOption.getObservableEvents().iterator().next());
-					rightChild.execute(supervisor());
-
-					leftChild.onTraceChanged().registerObserver(this);
-					rightChild.onTraceChanged().registerObserver(this);
+					executeChild(rightChild);
 				}
 				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
 			else if(leftChildAlpha.containsCommunication(selectedEvent) )
 			{
-				leftChild.onTraceChanged().unregisterObserver(this);				
-				leftChild.execute(supervisor());
-				leftChild.onTraceChanged().registerObserver(this);
-				
-				result = CmlBehaviourSignal.EXEC_SUCCESS;
+				result = executeChild(leftChild);
 			}
 			else if(rightChildAlpha.containsCommunication(selectedEvent) )
 			{
-				rightChild.onTraceChanged().unregisterObserver(this);
-				rightChild.execute(supervisor());
-				rightChild.onTraceChanged().registerObserver(this);
-				
-				result = CmlBehaviourSignal.EXEC_SUCCESS;
+				result = executeChild(rightChild);
 			}
 			else
 			{
@@ -553,19 +542,11 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			
 			if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
 			{
-				leftChild.onTraceChanged().unregisterObserver(this);				
-				leftChild.execute(supervisor());
-				leftChild.onTraceChanged().registerObserver(this);
-				
-				result = CmlBehaviourSignal.EXEC_SUCCESS;
+				result = executeChild(leftChild);
 			}
 			else if(rightChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
 			{
-				rightChild.onTraceChanged().unregisterObserver(this);
-				rightChild.execute(supervisor());
-				rightChild.onTraceChanged().registerObserver(this);
-				
-				result = CmlBehaviourSignal.EXEC_SUCCESS;
+				result = executeChild(rightChild);
 			}
 			else
 			{
@@ -667,23 +648,49 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	public CmlBehaviourSignal caseASingleGeneralAssignmentStatementAction(
 			ASingleGeneralAssignmentStatementAction node, Context question)
 					throws AnalysisException {
-
-		//				Value expValue = node.getExpression().apply(parentInterpreter,question);
-		//						//TODO Change this to deal with it in general
-		//						AIdentifierStateDesignator id = (AIdentifierStateDesignator)node
-		//
-		//						Context nameContext = question.locate(id.getName());
-		//
-		//				if(nameContext == null)
+//		question.putNew(new NameValuePair(new LexNameToken("", new LexIdentifierToken("a", false, new LexLocation())), new IntegerValue(2)));
+		Value expValue = node.getExpression().apply(cmlEvaluator,question);
+		
+		//TODO Change this to deal with it in general
+		AIdentifierStateDesignator id = (AIdentifierStateDesignator)node.getStateDesignator();
+		
+		Context nameContext = question.locate(id.getName());
+		
+		nameContext.put(id.getName(), expValue);
+		
+		System.out.println(id.getName() + " = " + expValue);
+		
+//		if(nameContext == null)
 		//					nameContext = new CMLContext(node.getLocation(),"caseASi
 		//
-		//							nameContext.put(id.getName(), expValue);
+//									nameContext.put(id.getName(), expValue);
 		//
 		//					System.out.println( id.getName() + " := " + expValue);
 		//
 		//					return new ProcessValueOld(null);
 		
-		return null;
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	/**
+	 * Private helper methods
+	 */
+	
+	/**
+	 * Executes the next state of the child process silently, meaning that the trace event
+	 * is disabled since the patent processes (this process) already have the event in the trace
+	 * since its supervising the child processes
+	 * @param child
+	 * @return
+	 */
+	private CmlBehaviourSignal executeChild(CmlProcess child)
+	{
+		
+		child.onTraceChanged().unregisterObserver(this);
+		CmlBehaviourSignal result = child.execute(supervisor());
+		child.onTraceChanged().registerObserver(this);
+		
+		return result;
 	}
 
 }
