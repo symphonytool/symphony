@@ -463,7 +463,7 @@ statement returns[PAction statement]
         }
     | (callStatement)=> callStatement // More syntactic predicate magic :)
         {
-            $statement = new ACallStatementAction(); // FIXME
+            $statement = $callStatement.statement;
         }
     | stateDesignator
         ( ':=' 
@@ -550,21 +550,27 @@ frameSpec returns[AExternalClause frameSpec]
         }
     ;
 
-stateDesignator
+stateDesignator returns[PStateDesignator sd]
+//@after { $sd.setLocation(extractLexLocation($stateDesignator.start, $stateDesignator.stop)); }
     : name sDTail?
     ;
 
-sDTail
-    : '(' expression ')' ( '.' stateDesignator | sDTail )? // FIXME -- shouldn't that expression be a expressionList?
+sDTail returns[List<PExp> tail] // type is incorrect
+    : '(' expression ')' ( '.' stateDesignator | sDTail )?
     ;
 
 /* This does not support the 'object apply' form of the
  * objectDesignator, but I don't know what that's for, anyway.
  * Chained calls?  That should be more general anyway.
  *
+ * FIXME -- missing objectDesignator part of this
  */
 callStatement returns[PAction statement]
-    : name '(' ( expression ( ',' expression )* )? ')'
+@after { $statement.setLocation(extractLexLocation($callStatement.start, $callStatement.stop)); }
+    : name '(' expressionList? ')'
+        {
+            $statement = new ACallStatementAction(null, null, $name.name, $expressionList.exps);
+        }
     ;
 
 /* Ok, this is cute.  It works both with and without semicolons,
@@ -1806,6 +1812,10 @@ ISUNDERBASIC
  */
 TEXTLITERAL
     : '"' .* '"'
+    ;
+
+SELF
+    : 'self' 
     ;
 
 /* FIXME This only tracks the non-unicode chunk of the characters; this
