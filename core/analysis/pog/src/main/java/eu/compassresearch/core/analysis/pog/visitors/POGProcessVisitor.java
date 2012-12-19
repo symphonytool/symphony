@@ -39,8 +39,8 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
     	LinkedList<SParagraphDefinition> pdef = node.getDefinitionParagraphs();
     	for (SParagraphDefinition def : pdef) {
     		System.out.println(def.toString());
-    		def.apply(this, question);
-    		pol.addAll(def.apply(this, question));
+    		
+    		pol.addAll(def.apply(parentPOG, question));
     	}
     	
     	
