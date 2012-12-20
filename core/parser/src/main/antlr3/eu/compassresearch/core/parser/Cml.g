@@ -76,7 +76,7 @@ import org.overture.ast.statements.*;
 import org.overture.ast.types.*;
 import org.overture.ast.typechecker.NameScope;
 // import org.overture.ast.util.*;
-// import org.overture.ast.typechecker.Pass;
+import org.overture.ast.typechecker.Pass;
 
 import eu.compassresearch.ast.actions.*;
 import eu.compassresearch.ast.declarations.*;
@@ -502,7 +502,7 @@ elseIfStmt returns[AElseIfStatementAction elseif]
 
 caseStmtAltOptList returns[List<ACaseAlternativeAction> alts]
 @init { $alts = new ArrayList<ACaseAlternativeAction>(); }
-    : first=caseStmtAlt { $alts.add($first.alt); } ( ',' altItem=caseStmtAlt { alts.add($altItem.alt); } )*
+    : item=caseStmtAlt { $alts.add($item.alt); } ( ',' item=caseStmtAlt { alts.add($item.alt); } )*
     | /* empty match; we want a null list if no alternative */
     ;
 
@@ -516,7 +516,7 @@ caseStmtAlt returns[ACaseAlternativeAction alt]
 
 localDefinitionList returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : first=localDefinition { $defs.add($first.def); } ( ',' defItem=localDefinition { $defs.add($defItem.def); } )*
+    : item=localDefinition { $defs.add($item.def); } ( ',' item=localDefinition { $defs.add($item.def); } )*
     ;
 
 localDefinition returns[PDefinition def]
@@ -526,7 +526,7 @@ localDefinition returns[PDefinition def]
 
 nonDetStmtAltList returns[List<ANonDeterministicAltStatementAction> alts]
 @init { $alts = new ArrayList<ANonDeterministicAltStatementAction>(); }
-    : first=nonDetStmtAlt { $alts.add($first.alt); } ( '[]' altItem=nonDetStmtAlt { $alts.add($altItem.alt); } )*
+    : item=nonDetStmtAlt { $alts.add($item.alt); } ( '[]' item=nonDetStmtAlt { $alts.add($item.alt); } )*
     ;
 
 nonDetStmtAlt returns[ANonDeterministicAltStatementAction alt]
@@ -539,7 +539,7 @@ nonDetStmtAlt returns[ANonDeterministicAltStatementAction alt]
 
 frameSpecList returns[List<AExternalClause> frameSpecs]
 @init { $frameSpecs = new ArrayList<AExternalClause>(); }
-    : first=frameSpec { $frameSpecs.add($first.frameSpec); } ( ',' frameItem=frameSpec { $frameSpecs.add($frameItem.frameSpec); } )*
+    : item=frameSpec { $frameSpecs.add($item.frameSpec); } ( ',' item=frameSpec { $frameSpecs.add($item.frameSpec); } )*
     ;
 
 frameSpec returns[AExternalClause frameSpec]
@@ -676,21 +676,64 @@ valueDefinition returns[AValueDefinition def]
         }
     ;
 
-stateDefs
-    : 'state' ( instanceVariableDefinition (';' instanceVariableDefinition)* )? ';'?
+stateDefs returns[AStateParagraphDefinition defs]
+@after { $defs.setLocation(extractLexLocation($stateDefs.start, $stateDefs.stop)); }
+    : 'state' instanceVariableDefinitionList? ';'?
+        {
+            $defs = new AStateParagraphDefinition();
+            if ($instanceVariableDefinitionList.defs != null)
+                $defs.setStateDefs($instanceVariableDefinitionList.defs);
+        }
     ;
 
-instanceVariableDefinition
+instanceVariableDefinitionList returns[List<PDefinition> defs]
+@init { $defs = new ArrayList<PDefinition>(); }
+    : item=instanceVariableDefinition { $defs.add($item.def); } ( ';' item=instanceVariableDefinition { $defs.add($item.def); } )*
+    ;
+
+instanceVariableDefinition returns[PDefinition def]
+@after { $def.setLocation(extractLexLocation($instanceVariableDefinition.start, $instanceVariableDefinition.stop)); }
     : QUALIFIER? assignmentDefinition
+        {
+            $def = $assignmentDefinition.def;
+            if ($QUALIFIER != null)
+                $def.setAccess(extractQualifier($QUALIFIER));
+        }
     | invariantDefinition
+        {
+            $def = $invariantDefinition.def;            
+        }
     ;
 
-assignmentDefinition
-    : bindablePattern ':' type ( ( ':=' | 'in' ) expression )?
+assignmentDefinition returns[AAssignmentDefinition def]
+@after { $def.setLocation(extractLexLocation($assignmentDefinition.start, $assignmentDefinition.stop)); }
+    : IDENTIFIER ':' type ( ( det=':=' | nondet='in' ) expression )?
+        {
+            $def = new AAssignmentDefinition();//null, name, NameScope.GLOBAL, false, null, null, type, null, null, null);
+            $def.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
+            $def.setNameScope(NameScope.GLOBAL);
+            $def.setType($type.type);
+            // FIXME --- This can't be right that both the ':=' and
+            // 'in' forms produce exactly the same result (that is
+            // what cml.y did, but we need to clarify
+            // this). -jwc/20Dec2012
+            if ($det != null)
+                $def.setExpression($expression.exp);
+            else if ($nondet != null)
+                $def.setExpression($expression.exp);
+        }
     ;
 
-invariantDefinition
+invariantDefinition returns[AClassInvariantDefinition def]
+@after { $def.setLocation(extractLexLocation($invariantDefinition.start, $invariantDefinition.stop)); }
     : 'inv' expression
+        {
+            $def = new AClassInvariantDefinition();//location, NameScope.GLOBAL, true, null/*access*/, Pass.DEFS/*Pass*/, exp);
+            $def.setNameScope(NameScope.GLOBAL);
+            $def.setUsed(true);
+            $def.setPass(Pass.DEFS);
+            $def.setExpression($expression.exp);
+        }
     ;
 
 functionDefs returns[AFunctionParagraphDefinition defs]
@@ -750,7 +793,7 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
 
 parameterGroupList returns[List<List<PPattern>> pgroups]
 @init { $pgroups = new ArrayList<List<PPattern>>(); }
-    : first=parameterGroup { $pgroups.add($first.pgroup); } ( pgItem=parameterGroup { $pgroups.add($pgItem.pgroup); } )*
+    : item=parameterGroup { $pgroups.add($item.pgroup); } ( item=parameterGroup { $pgroups.add($item.pgroup); } )*
     ;
 
 parameterGroup returns[List<PPattern> pgroup]
@@ -808,7 +851,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
 
 parameterTypeList returns[List<APatternListTypePair> ptypes]
 @init { $ptypes = new ArrayList<APatternListTypePair>(); }
-    : first=parameterTypeGroup { $ptypes.add($first.ptype); } ( ',' ptypeItem=parameterTypeGroup { $ptypes.add($ptypeItem.ptype); } )*
+    : item=parameterTypeGroup { $ptypes.add($item.ptype); } ( ',' item=parameterTypeGroup { $ptypes.add($item.ptype); } )*
     ;
 
 parameterTypeGroup returns[APatternListTypePair ptype]
@@ -820,7 +863,7 @@ parameterTypeGroup returns[APatternListTypePair ptype]
 
 resultTypeList returns[List<APatternTypePair> rtypes]
 @init { $rtypes = new ArrayList<APatternTypePair>(); }
-    : first=resultType { $rtypes.add($first.rtype); } ( ',' resItem=resultType { $rtypes.add($resItem.rtype); } )*
+    : item=resultType { $rtypes.add($item.rtype); } ( ',' item=resultType { $rtypes.add($item.rtype); } )*
     ;
 
 resultType returns[APatternTypePair rtype]
@@ -887,13 +930,12 @@ typeDefs returns[SParagraphDefinition para]
     ;
 
 typeDef returns[ATypeDefinition def]
+@after { $def.setLocation(extractLexLocation($typeDef.start, $typeDef.stop)); }
     : QUALIFIER? IDENTIFIER '=' type invariant?
         {
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
             ANamedInvariantType invType = AstFactory.newANamedInvariantType(name, $type.type);
-            PPattern invPat = ($invariant.inv != null ? $invariant.inv.getPattern() : null);
-            PExp invExp = ($invariant.inv != null ? $invariant.inv.getExpression() : null);
-            $def = AstFactory.newATypeDefinition(name,invType,invPat,invExp);
+            $def = AstFactory.newATypeDefinition(name,invType,$invariant.pattern,$invariant.exp);
             $def.setAccess(extractQualifier($QUALIFIER));
 
         }
@@ -901,9 +943,7 @@ typeDef returns[ATypeDefinition def]
         {
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
             ARecordInvariantType invType = AstFactory.newARecordInvariantType(name, $fieldList.fieldList);
-            PPattern invPat = ($invariant.inv != null ? $invariant.inv.getPattern() : null);
-            PExp invExp = ($invariant.inv != null ? $invariant.inv.getExpression() : null);
-            $def = AstFactory.newATypeDefinition(name,invType,invPat,invExp);
+            $def = AstFactory.newATypeDefinition(name,invType,$invariant.pattern,$invariant.exp);
             $def.setAccess(extractQualifier($QUALIFIER));
         }
     ;
@@ -1034,7 +1074,7 @@ basicType returns[PType basicType]
 
 fieldList returns[List<AFieldField> fieldList]
 @init { $fieldList = new ArrayList<AFieldField>(); }
-    : first=field { $fieldList.add($first.field); } ( fieldItem=field { $fieldList.add($fieldItem.field); } )*
+    : item=field { $fieldList.add($item.field); } ( item=field { $fieldList.add($item.field); } )*
     ;
 
 field returns[AFieldField field]
@@ -1059,13 +1099,8 @@ field returns[AFieldField field]
         }
     ;
 
-invariant returns[AInvariantDefinition inv]
-    : t='inv' pat=bindablePattern '==' expression
-        {
-            LexLocation loc = extractLexLocation(extractLexLocation($t),$expression.exp.getLocation());
-            AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(true, true, loc);
-            $inv = new AInvariantDefinition(loc, null, NameScope.LOCAL, false, null, access, null, null, $pat.pattern, $expression.exp);
-        }
+invariant returns[PPattern pattern, PExp exp]
+    : 'inv' bindablePattern '==' expression { $pattern = $bindablePattern.pattern; $exp = $expression.exp; }
     ;
 
 pattern returns[PPattern pattern]
@@ -1075,7 +1110,7 @@ pattern returns[PPattern pattern]
 
 bindablePatternList returns[List<PPattern> patterns]
 @init { $patterns = new ArrayList<PPattern>(); }
-    : first=bindablePattern { $patterns.add($first.pattern); } ( ',' patItem=bindablePattern { $patterns.add($patItem.pattern); } )*
+    : item=bindablePattern { $patterns.add($item.pattern); } ( ',' item=bindablePattern { $patterns.add($item.pattern); } )*
     ;
 
 bindablePattern returns[PPattern pattern]
@@ -1208,7 +1243,7 @@ recordPattern returns[PPattern pattern]
 
 expressionList returns[List<PExp> exps]
 @init { $exps = new ArrayList<PExp>(); }
-    : first=expression { $exps.add($first.exp); } ( ',' expItem=expression { $exps.add($expItem.exp); } )*
+    : item=expression { $exps.add($item.exp); } ( ',' item=expression { $exps.add($item.exp); } )*
     ;
 
 expression returns[PExp exp]
@@ -1266,7 +1301,7 @@ elseIfExpr returns[AElseIfExp elseif]
 
 caseExprAltOptList returns[List<ACaseAlternative> alts]
 @init { $alts = new ArrayList<ACaseAlternative>(); }
-    : first=caseExprAlt { $alts.addAll($first.alts); } ( ',' altItem=caseExprAlt { alts.addAll($altItem.alts); } )*
+    : item=caseExprAlt { $alts.addAll($item.alts); } ( ',' item=caseExprAlt { alts.addAll($item.alts); } )*
     | /* empty match; we want a null list if no alternative */
     ;
 
@@ -1284,7 +1319,7 @@ caseExprAlt returns[List<ACaseAlternative> alts]
 
 patternList returns[List<PPattern> patterns]
 @init { $patterns = new ArrayList<PPattern>(); }
-    : first=pattern { $patterns.add($first.pattern); } ( ',' patItem=pattern { $patterns.add($patItem.pattern); } )*
+    : item=pattern { $patterns.add($item.pattern); } ( ',' item=pattern { $patterns.add($item.pattern); } )*
     ;
 
 expr0 returns[PExp exp]
@@ -1823,12 +1858,8 @@ setMapExprBinding returns[List<PMultipleBind> bindings, PExp pred]
     ;
 
 multipleBindList returns[List<PMultipleBind> bindings]
-@init { List<PMultipleBind> bindingList = new ArrayList<PMultipleBind>(); }
-    : first=multipleBind ( ',' bindingListItem=multipleBind { bindingList.add($bindingListItem.bindings); } )*
-        {
-            bindingList.add(0, $first.bindings);
-            $bindings = bindingList;
-        }
+@init { bindings = new ArrayList<PMultipleBind>(); }
+    : item=multipleBind { $bindings.add($item.bindings); } ( ',' item=multipleBind { bindings.add($item.bindings); } )*
     ;
 
 multipleBind returns[PMultipleBind bindings]
@@ -1877,7 +1908,7 @@ setBind returns[ASetBind binding]
 // only used by lambda, and could be a multi type bind
 typeBindList returns[List<ATypeBind> bindings]
 @init { $bindings = new ArrayList<ATypeBind>(); }
-    : first=typeBind { $bindings.add($first.binding); }  ( ',' bindItem=typeBind { $bindings.add($bindItem.binding); } )*
+    : item=typeBind { $bindings.add($item.binding); }  ( ',' item=typeBind { $bindings.add($item.binding); } )*
     ;
 
 typeBind returns[ATypeBind binding]
@@ -1890,7 +1921,7 @@ typeBind returns[ATypeBind binding]
 
 nameList returns[List<LexNameToken> names]
 @init { $names = new ArrayList<LexNameToken>(); }
-    : first=name { $names.add($first.name); } ( ',' nameItem=name { $names.add($nameItem.name); } )*
+    : item=name { $names.add($item.name); } ( ',' item=name { $names.add($item.name); } )*
     ;
 
 name returns[LexNameToken name]
