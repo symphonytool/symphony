@@ -13,8 +13,7 @@ import eu.compassresearch.core.interpreter.cml.events.SynchronisationEvent;
 
 /**
  * This represents a CML alphabet containing both silent and observable events
- * FIXME: AKM It seems like it isn't deterministic, this has probably something to do with
- * 		  The Set and hash functions
+ * FIXME: AKM Its not deterministic beacuse of Set
  * @author akm
  *
  */
