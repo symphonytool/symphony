@@ -502,8 +502,7 @@ elseIfStmt returns[AElseIfStatementAction elseif]
 
 caseStmtAltOptList returns[List<ACaseAlternativeAction> alts]
 @init { $alts = new ArrayList<ACaseAlternativeAction>(); }
-    : item=caseStmtAlt { $alts.add($item.alt); } ( ',' item=caseStmtAlt { alts.add($item.alt); } )*
-    | /* empty match; we want a null list if no alternative */
+    : ( item=caseStmtAlt { $alts.add($item.alt); } ( ',' item=caseStmtAlt { alts.add($item.alt); } )* )?
     ;
 
 caseStmtAlt returns[ACaseAlternativeAction alt]
@@ -578,13 +577,36 @@ callStatement returns[PAction statement]
  * though it may not be visually obvious (without the semis) that it
  * is a space that separates untyped channels from typed ones. (-jwc)
  */
-channelDefs
-    : 'channels' channelDef*
-    // : 'channels' ( channelDef (';' channelDef)+ )?
+channelDefs returns[AChannelParagraphDefinition defs]
+@after { $defs.setLocation(extractLexLocation($channelDefs.start, $channelDefs.stop)); }
+    : 'channels' channelDefOptList
+        {
+            $defs = new AChannelParagraphDefinition();//location, NameScope.GLOBAL, false, access, null/* Pass */, chanNameDecls);
+            $defs.setNameScope(NameScope.GLOBAL);
+            $defs.setUsed(false);
+            $defs.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($channelDefs.start)));
+            $defs.setChannelNameDeclarations($channelDefOptList.defs);
+        }
     ;
 
-channelDef
-    : IDENTIFIER (',' IDENTIFIER)* (':' type)?
+channelDefOptList returns[List<AChannelNameDefinition> defs]
+@init { $defs = new ArrayList<AChannelNameDefinition>(); }
+    : ( channelDef { $defs.add($channelDef.def); } )*
+    ;
+
+channelDef returns[AChannelNameDefinition def]
+@after { $def.setLocation(extractLexLocation($channelDef.start, $channelDef.stop)); }
+    : identifierList (':' type)?
+        {
+            $def = new AChannelNameDefinition();//, false, null, null, singleTypeDeclaration);
+            //$def.setName(??); // not sure if this needs set; one cml.y case has an empty LexNameToken, the other uses the first element of the identifierList
+            $def.setNameScope(NameScope.GLOBAL);
+            $def.setUsed(false);
+            if ($type.type == null)
+                $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, null));
+            else
+                $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $type.type));
+        }
     ;
 
 chansetDefs
@@ -1301,8 +1323,7 @@ elseIfExpr returns[AElseIfExp elseif]
 
 caseExprAltOptList returns[List<ACaseAlternative> alts]
 @init { $alts = new ArrayList<ACaseAlternative>(); }
-    : item=caseExprAlt { $alts.addAll($item.alts); } ( ',' item=caseExprAlt { alts.addAll($item.alts); } )*
-    | /* empty match; we want a null list if no alternative */
+    : ( item=caseExprAlt { $alts.addAll($item.alts); } ( ',' item=caseExprAlt { alts.addAll($item.alts); } )* )?
     ;
 
 caseExprAlt returns[List<ACaseAlternative> alts]
@@ -1917,6 +1938,12 @@ typeBind returns[ATypeBind binding]
             LexLocation loc = extractLexLocation($bindablePattern.pattern.getLocation(), $type.type.getLocation());
             $binding = new ATypeBind(loc, $bindablePattern.pattern, $type.type);
         }
+    ;
+
+identifierList returns[List<LexIdentifierToken> ids]
+@init { $ids = new ArrayList<LexIdentifierToken>(); }
+    : item=IDENTIFIER { $ids.add(new LexIdentifierToken($item.getText(), false, extractLexLocation($item))); }
+        ( ',' item=IDENTIFIER { $ids.add(new LexIdentifierToken($item.getText(), false, extractLexLocation($item))); } )*
     ;
 
 nameList returns[List<LexNameToken> names]
