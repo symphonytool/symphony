@@ -42,10 +42,11 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 
 	private AProcessDefinition processDef;
 	private CmlActionInstance mainBehaviour = null;
-	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this);
+	private CmlEvaluator cmlEvaluator = new CmlEvaluator();
+	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this,cmlEvaluator);
 	private Context globalContext;
 	
-	private CmlEvaluator cmlEvaluator = new CmlEvaluator();
+	
 	
 	public CmlProcessInstance(AProcessDefinition processDef, CmlProcess parent, Context globalContext)
 	{

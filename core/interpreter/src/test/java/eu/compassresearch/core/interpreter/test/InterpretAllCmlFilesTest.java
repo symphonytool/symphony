@@ -40,6 +40,7 @@ public class InterpretAllCmlFilesTest {
 	private String filePath;
 
 	public InterpretAllCmlFilesTest(String filePath) {
+		CmlRuntime.logger().setLevel(Level.OFF);
 		this.filePath = filePath;
 	}
 
@@ -80,7 +81,7 @@ public class InterpretAllCmlFilesTest {
 
 	@Before
 	public void setUp() {
-		CmlRuntime.logger().setLevel(Level.OFF);
+		
 	}
 
 	@Test

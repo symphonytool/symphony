@@ -13,6 +13,7 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -56,8 +57,8 @@ import eu.compassresearch.core.interpreter.util.Pair;
 public class CmlActionInstance extends AbstractInstance<PAction> implements CmlProcessStateObserver , CmlProcessTraceObserver{
 
 	private LexNameToken name;
-	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this); 
 	private CmlEvaluator cmlEvaluator = new CmlEvaluator();
+	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this,cmlEvaluator);
 	
 	
 	public CmlActionInstance(PAction action,Context context, LexNameToken name)
@@ -346,6 +347,11 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	
 	private void killAndRemoveAllTheEvidenceOfTheChildren()
 	{
+		for(CmlProcess child : children())
+		{
+			child.setAbort(null);
+		}
+		
 		removeTheChildren();
 	}
 	
@@ -645,7 +651,8 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	}
 	
 	/**
-	 * action Assignment
+	 * Assignment - section 7.5.1 D23.2
+	 * 
 	 */
 	@Override
 	public CmlBehaviourSignal caseASingleGeneralAssignmentStatementAction(
@@ -671,6 +678,22 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		//					System.out.println( id.getName() + " := " + expValue);
 		//
 		//					return new ProcessValueOld(null);
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	/**
+	 * State-based Choice - section 7.5.5 D23.2
+	 * Guard
+	 * Guarded actions are stuck, unless the guard is true.
+	 * So If we ever execute this transition, the guard expression would already
+	 * have been checked for being true.
+	 */
+	@Override
+	public CmlBehaviourSignal caseAGuardedAction(AGuardedAction node,
+			Context question) throws AnalysisException {
+
+		pushNext(node.getAction(), question); 
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}

@@ -14,6 +14,7 @@ import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
+import eu.compassresearch.core.interpreter.cml.Reason;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
@@ -39,7 +40,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	protected CmlTrace 					trace = new CmlTrace();
 	protected List<ObservableEvent>     registredEvents = new LinkedList<ObservableEvent>();
 	
-	protected EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>  stateObservers = 
+	protected EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>  stateEventhandler = 
 			new EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>(this,
 					new EventFireMediator<CmlProcessStateObserver,CmlProcessStateEvent>() {
 
@@ -50,7 +51,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 						}
 					});
 	
-	protected EventSourceHandler<CmlProcessTraceObserver,TraceEvent>  traceObservers = 
+	protected EventSourceHandler<CmlProcessTraceObserver,TraceEvent>  traceEventHandler = 
 			new EventSourceHandler<CmlProcessTraceObserver,TraceEvent>(this,
 					new EventFireMediator<CmlProcessTraceObserver,TraceEvent>() {
 
@@ -155,6 +156,20 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	}
 	
 	@Override
+	public void setAbort(Reason reason) {
+
+		//abort all the children
+		for(CmlProcess child : children())
+			child.setAbort(reason);
+		
+		//unregister all the channels
+		for(ObservableEvent oe : registredEvents)
+			oe.handleChannelEventUnregistration(this);
+		
+		setState(CmlProcessState.FINISHED);
+	}
+	
+	@Override
 	public List<Pair<T,Context>> getExecutionState() 
 	{
 		if(hasNext())
@@ -236,13 +251,13 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	
 	protected void notifyOnStateChange(CmlProcessStateEvent event)
 	{
-		stateObservers.fireEvent(event);
+		stateEventhandler.fireEvent(event);
 	}
 	
 	@Override
 	public EventSource<CmlProcessStateObserver> onStateChanged()
 	{
-		return stateObservers;
+		return stateEventhandler;
 	}
 	
 	protected abstract void setState(CmlProcessState state);
@@ -261,13 +276,13 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	
 	protected void notifyOnTraceChange(TraceEvent traceEvent)
 	{
-		traceObservers.fireEvent(traceEvent);
+		traceEventHandler.fireEvent(traceEvent);
 	}
 	
 	@Override
 	public EventSource<CmlProcessTraceObserver> onTraceChanged()
 	{
-		return traceObservers;
+		return traceEventHandler;
 	}
 	
 	/**

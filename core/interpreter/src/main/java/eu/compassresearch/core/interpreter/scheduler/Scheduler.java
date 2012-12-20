@@ -11,7 +11,7 @@ public interface Scheduler {
 
 	public void addProcess(CmlProcess process);
 	
-	public void removeProcess(CmlProcess process);
+//	public void removeProcess(CmlProcess process);
 	
 	public void clearProcesses();
 	

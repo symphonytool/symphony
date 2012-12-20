@@ -40,18 +40,18 @@ public class CmlScheduler implements CmlProcessObserver, CmlProcessStateObserver
 			running.add(process);
 	}
 	
-	@Override
-	public void removeProcess(CmlProcess process)
-	{
-		process.onStateChanged().unregisterObserver(this);
-		if(process.running())
-			running.remove(process);
-		else if(process.waiting())
-			waiting.remove(process);
-		else 
-			finished.remove(process);
-			
-	}
+//	@Override
+//	public void removeProcess(CmlProcess process)
+//	{
+//		process.onStateChanged().unregisterObserver(this);
+//		if(process.running())
+//			running.remove(process);
+//		else if(process.waiting())
+//			waiting.remove(process);
+//		else 
+//			finished.remove(process);
+//			
+//	}
 	
 	@Override
 	public void clearProcesses()
@@ -148,7 +148,7 @@ public class CmlScheduler implements CmlProcessObserver, CmlProcessStateObserver
 							"then let me tell you that the return CMLBehaviourSignal was unsuccesful");
 
 				CmlRuntime.logger().fine("Trace of '"+p+"': " + p.getTraceModel());
-				CmlRuntime.logger().fine("Observable trace of '"+p+"': " + p.getTraceModel().getVisibleEvents());
+				CmlRuntime.logger().fine("Observable trace of '"+p+"': " + p.getTraceModel().getVisibleTrace());
 				CmlRuntime.logger().fine("next: " + p.nextStepToString());
 			}
 

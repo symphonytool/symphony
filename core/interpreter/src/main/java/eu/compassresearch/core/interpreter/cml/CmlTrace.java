@@ -40,7 +40,12 @@ public class CmlTrace {
 		return strbuilder.toString();
 	}
 	
-	public List<CmlEvent> getVisibleEvents()
+	public List<CmlEvent> getTrace()
+	{
+		return new LinkedList<CmlEvent>(trace);
+	}
+	
+	public List<CmlEvent> getVisibleTrace()
 	{
 		List<CmlEvent> visibleEvents = new LinkedList<CmlEvent>();
 			

@@ -26,6 +26,9 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	 */
 	public CmlSupervisorEnvironment supervisor();
 	
+	//public Reason abortReason();
+	public void setAbort(Reason reason);
+	
 	/**
 	 * Returns the current execution state of the process
 	 * @return The current context

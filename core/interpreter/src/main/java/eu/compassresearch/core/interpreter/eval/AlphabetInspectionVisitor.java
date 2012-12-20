@@ -6,17 +6,18 @@ import java.util.Set;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
-import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
@@ -34,11 +35,18 @@ public class AlphabetInspectionVisitor
 		extends
 		QuestionAnswerCMLAdaptor<Context, eu.compassresearch.core.interpreter.cml.CmlAlphabet> {
 
-	private final CmlProcess ownerProcess;
-	
-	public AlphabetInspectionVisitor(CmlProcess ownerProcess)
+	// The process that contains this instance
+	private final CmlProcess 		ownerProcess;
+	private final CmlEvaluator		cmlEvaluator;
+
+	/**
+	 * 
+	 * @param ownerProcess
+	 */
+	public AlphabetInspectionVisitor(CmlProcess ownerProcess,CmlEvaluator cmlEvalutor)
 	{
 		this.ownerProcess = ownerProcess;
+		this.cmlEvaluator = cmlEvalutor;
 	}
 	
 	@Override
@@ -79,7 +87,27 @@ public class AlphabetInspectionVisitor
 		return new CmlAlphabet(comset);
 	}
 	
-	
+	/**
+	 * External Choice section 7.5.4 D23.2
+	 * 
+	 * In terms of the alphabet, we have the following situations:
+	 * 
+	 *  External Choice Begin:
+	 *  When no children exists, the External Choice Begin transition rule must be executed.
+	 *  This is a silent transition and therefore the alphabet contains only tau event
+	 *  
+	 *  External Choice Silent:
+	 *  If any of the actions can take a silent transition they will do it before getting here again. 
+	 *  We therefore don't take this situation into account
+	 *  
+	 *  External Choice Skip:
+	 *  If one the children is Skip we make a silent transition of the whole choice into skip.
+	 *  We therefore just return the tau event
+	 *  
+	 *  External Choice End:
+	 *  The alphabet contains an observable event for every child that can engaged in one.
+	 *  
+	 */
 	@Override
 	public CmlAlphabet caseAExternalChoiceAction(AExternalChoiceAction node,
 			Context question) throws AnalysisException {
@@ -93,6 +121,7 @@ public class AlphabetInspectionVisitor
 		{
 			alpha = defaultPAction(node,question);
 		}
+		//If there are children we just return the union of the child alphabets
 		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(ownerProcess))
 		{
 			for(CmlProcess child : ownerProcess.children())
@@ -106,6 +135,27 @@ public class AlphabetInspectionVisitor
 		
 		return alpha;
 	}
+	
+	/**
+	 * State-based Choice - section 7.5.5 D23.2
+	 * Guard
+	 * Guarded actions are stuck, unless the guard is true.
+	 * So here we return the silent event tau, if the expression evaluates 
+	 * to true in the current state else the empty alphabet
+	 */
+	@Override
+	public CmlAlphabet caseAGuardedAction(AGuardedAction node, Context question)
+			throws AnalysisException {
+
+		Value guardExp = node.getExpression().apply(cmlEvaluator,question);
+		
+		if(guardExp.boolValue(question))
+			return defaultPAction(node,question);
+		else
+			return new CmlAlphabet();
+		
+	}
+	
 	
 	/**
 	 * Parallel action
