@@ -942,13 +942,32 @@ functionBody returns[PExp exp]
     ;
 
 operationDefs returns[AOperationParagraphDefinition defs]
-    : 'operations' (QUALIFIER? operationDef)*
+@after { $defs.setLocation(extractLexLocation($operationDefs.start, $operationDefs.stop)); }
+    : 'operations' qualOperationDefOptList
         {
             $defs = new AOperationParagraphDefinition(); // FIXME
+            $defs.setOperations($qualOperationDefOptList.defs);
+            $defs.setNameScope(NameScope.LOCAL);
+            $defs.setUsed(false);
+            $defs.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($operationDefs.start)));
         }
     ;
 
-operationDef returns[PDefinition def]
+qualOperationDefOptList returns[List<SOperationDefinition> defs]
+@init { $defs = new ArrayList<SOperationDefinition>(); }
+    : ( qualOperationDef { $defs.add($qualOperationDef.def); } )*
+    ;
+
+qualOperationDef returns[SOperationDefinition def]
+@after { $def.setLocation(extractLexLocation($qualOperationDef.start, $qualOperationDef.stop)); }
+    : QUALIFIER? operationDef
+        {
+            $def = $operationDef.def;
+            $def.setAccess(extractQualifier($QUALIFIER));
+        }
+    ;
+
+operationDef returns[SOperationDefinition def]
 @after { $def.setLocation(extractLexLocation($operationDef.start, $operationDef.stop)); }
     : id=IDENTIFIER
         ( ':' opType IDENTIFIER parameterGroup '==' operationBody ('pre' pre=expression)? ('post' post=expression)?
@@ -962,15 +981,24 @@ operationDef returns[PDefinition def]
                 opdef.setParameterPatterns($parameterGroup.pgroup);
                 // FIXME Commented until after RWL's AST fixes
                 //opdef.setBody($operationBody.body);
-                opdef.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
                 opdef.setPrecondition($pre.exp);
                 opdef.setPostcondition($post.exp);
+                opdef.setNameScope(NameScope.GLOBAL);
+                opdef.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
                 $def = opdef;
             }
-        | '(' parameterTypeList? ')' resultTypeList? ('frame' frameSpecList )? ('pre' expression)? ('post' expression)
+        | '(' parameterTypeList? ')' resultTypeList? ('frame' frameSpecList )? ('pre' pre=expression)? ('post' post=expression)
             {
-                AImplicitOperationDefinition opDef = new AImplicitOperationDefinition();
-                $def = opDef;
+                AImplicitOperationDefinition opdef = new AImplicitOperationDefinition();
+                opdef.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
+                opdef.setParameterPatterns($parameterTypeList.ptypes);
+                opdef.setResult($resultTypeList.rtypes);
+                opdef.setExternals($frameSpecList.frameSpecs);
+                opdef.setPrecondition($pre.exp);
+                opdef.setPostcondition($post.exp);
+                opdef.setNameScope(NameScope.GLOBAL);
+                opdef.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
+                $def = opdef;
             }
         )
     ;
