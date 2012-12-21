@@ -64,19 +64,19 @@ import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASpecificationStatementAction;
-import eu.compassresearch.ast.actions.AUnresolvedObjectDesignator;
-import eu.compassresearch.ast.actions.AUnresolvedStateDesignator;
+// import eu.compassresearch.ast.actions.AUnresolvedObjectDesignator;
+// import eu.compassresearch.ast.actions.AUnresolvedStateDesignator;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
+// import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
 import eu.compassresearch.ast.definitions.ALogicalAccess;
-import eu.compassresearch.ast.expressions.ACompChansetSetExp;
-import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
-import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
+// import eu.compassresearch.ast.expressions.ACompChansetSetExp;
+// import eu.compassresearch.ast.expressions.AComprehensionRenameChannelExp;
+// import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
 import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.patterns.ARenamePair;
@@ -191,35 +191,35 @@ public class CmlParserHelper {
      * @param ids
      * @return
      */
-    private PObjectDesignator dottedIdentifierToObjDesignator(
-	    List<LexIdentifierToken> ids) {
-	LexLocation loc = extractLexLocation(extractFirstLexLocation(ids),
-		extractLastLexLocation(ids));
+    // private PObjectDesignator dottedIdentifierToObjDesignator(
+    // 	    List<LexIdentifierToken> ids) {
+    // 	LexLocation loc = extractLexLocation(extractFirstLexLocation(ids),
+    // 		extractLastLexLocation(ids));
 
-	// if only one element then this must be name
-	if (ids.size() == 1)
-	    return AstFactory
-		    .newAIdentifierObjectDesignator(dottedIdentifierToLexNameToken(ids));
-	// we cannot decide if this is a name with multiple components or a
-	// field ref
-	else
-	    return new AUnresolvedObjectDesignator(loc, ids);
-    }
+    // 	// if only one element then this must be name
+    // 	if (ids.size() == 1)
+    // 	    return AstFactory
+    // 		    .newAIdentifierObjectDesignator(dottedIdentifierToLexNameToken(ids));
+    // 	// we cannot decide if this is a name with multiple components or a
+    // 	// field ref
+    // 	else
+    // 	    return new AUnresolvedObjectDesignator(loc, ids);
+    // }
 
-    private PStateDesignator dottedIdentifierToStateDesignator(
-	    List<LexIdentifierToken> ids) {
-	LexLocation loc = extractLexLocation(extractFirstLexLocation(ids),
-		extractLastLexLocation(ids));
+    // private PStateDesignator dottedIdentifierToStateDesignator(
+    // 	    List<LexIdentifierToken> ids) {
+    // 	LexLocation loc = extractLexLocation(extractFirstLexLocation(ids),
+    // 		extractLastLexLocation(ids));
 
-	// if only one element then this must be name
-	if (ids.size() == 1)
-	    return AstFactory
-		    .newAIdentifierStateDesignator(dottedIdentifierToLexNameToken(ids));
-	// we cannot decide if this is a name with multiple components or a
-	// field ref
-	else
-	    return new AUnresolvedStateDesignator(loc, ids);
-    }
+    // 	// if only one element then this must be name
+    // 	if (ids.size() == 1)
+    // 	    return AstFactory
+    // 		    .newAIdentifierStateDesignator(dottedIdentifierToLexNameToken(ids));
+    // 	// we cannot decide if this is a name with multiple components or a
+    // 	// field ref
+    // 	else
+    // 	    return new AUnresolvedStateDesignator(loc, ids);
+    // }
 
     /*
      * FIXME needs to throw an error if the name is multipart
@@ -470,32 +470,32 @@ public class CmlParserHelper {
 	return renamePairs;
     }
 
-    public PAction caseDottedIdentifierLRPARENToCallAction(
-	    Object dottedIdentifier, Object PAREN, Object argsObj) {
-	List<LexIdentifierToken> ids = (List<LexIdentifierToken>) dottedIdentifier;
-	List<? extends PExp> args = (List<? extends PExp>) argsObj;
+    // public PAction caseDottedIdentifierLRPARENToCallAction(
+    // 	    Object dottedIdentifier, Object PAREN, Object argsObj) {
+    // 	List<LexIdentifierToken> ids = (List<LexIdentifierToken>) dottedIdentifier;
+    // 	List<? extends PExp> args = (List<? extends PExp>) argsObj;
 
-	LexNameToken name = null;
-	PObjectDesignator objectDesignator = null;
-	LexLocation location = null;
+    // 	LexNameToken name = null;
+    // 	PObjectDesignator objectDesignator = null;
+    // 	LexLocation location = null;
 
-	int listSize = ids.size();
-	// if the are only one id this must be the name of the method
-	if (listSize == 1) {
-	    name = dottedIdentifierToLexNameToken(ids);
-	    location = extractLexLocation(name.getLocation(), (CmlLexeme) PAREN);
+    // 	int listSize = ids.size();
+    // 	// if the are only one id this must be the name of the method
+    // 	if (listSize == 1) {
+    // 	    name = dottedIdentifierToLexNameToken(ids);
+    // 	    location = extractLexLocation(name.getLocation(), (CmlLexeme) PAREN);
 
-	} else {
-	    name = dottedIdentifierToLexNameToken(ids.subList(listSize - 2,
-		    listSize - 1));
-	    objectDesignator = dottedIdentifierToObjDesignator(ids.subList(0,
-		    listSize - 1));
-	    location = extractLexLocation(objectDesignator.getLocation(),
-		    (CmlLexeme) PAREN);
-	}
+    // 	} else {
+    // 	    name = dottedIdentifierToLexNameToken(ids.subList(listSize - 2,
+    // 		    listSize - 1));
+    // 	    objectDesignator = dottedIdentifierToObjDesignator(ids.subList(0,
+    // 		    listSize - 1));
+    // 	    location = extractLexLocation(objectDesignator.getLocation(),
+    // 		    (CmlLexeme) PAREN);
+    // 	}
 
-	return new ACallStatementAction(location, objectDesignator, name, args);
-    }
+    // 	return new ACallStatementAction(location, objectDesignator, name, args);
+    // }
 
     public PAction caseDottedIdentifierToRefAction(Object dottedIdentifier) {
 	List<LexIdentifierToken> ids = (List<LexIdentifierToken>) dottedIdentifier;
@@ -510,37 +510,37 @@ public class CmlParserHelper {
      * Actions - statements
      */
 
-    public PAction caseNewStatementAction(Object stateDesignator, Object NEW,
-	    Object newExp) {
+    // public PAction caseNewStatementAction(Object stateDesignator, Object NEW,
+    // 	    Object newExp) {
 
-	/*
-	 * Need to rip out the path-based stuff here. rule was: | path
-	 * COLONEQUALS NEW path LRPAREN
-	 */
-	ANewStatementAction stm = null;
-	// these were Paths
-	PStateDesignator target = dottedIdentifierToStateDesignator((List<LexIdentifierToken>) stateDesignator); // should
-														 // probably
-														 // be
-														 // more
-														 // specific,
-														 // typewise
-	AApplyExp applyExp = (AApplyExp) newExp;
-	List<? extends PExp> args = applyExp.getArgs();
-	LexLocation location = combineLexLocation(target.getLocation(),
-		applyExp.getLocation());
-	// TODO:Typechecker need to check the target to see what the name and
-	LexNameToken name = null;
-	if (applyExp.getRoot() instanceof AVariableExp)
-	    name = ((AVariableExp) applyExp.getRoot()).getName();
-	else if (applyExp.getRoot() instanceof AUnresolvedPathExp)
-	    name = dottedIdentifierToLexNameToken(((AUnresolvedPathExp) applyExp
-		    .getRoot()).getIdentifiers());
-	else
-	    throw new ParserException(location, "");
+    // 	/*
+    // 	 * Need to rip out the path-based stuff here. rule was: | path
+    // 	 * COLONEQUALS NEW path LRPAREN
+    // 	 */
+    // 	ANewStatementAction stm = null;
+    // 	// these were Paths
+    // 	PStateDesignator target = dottedIdentifierToStateDesignator((List<LexIdentifierToken>) stateDesignator); // should
+    // 														 // probably
+    // 														 // be
+    // 														 // more
+    // 														 // specific,
+    // 														 // typewise
+    // 	AApplyExp applyExp = (AApplyExp) newExp;
+    // 	List<? extends PExp> args = applyExp.getArgs();
+    // 	LexLocation location = combineLexLocation(target.getLocation(),
+    // 		applyExp.getLocation());
+    // 	// TODO:Typechecker need to check the target to see what the name and
+    // 	LexNameToken name = null;
+    // 	if (applyExp.getRoot() instanceof AVariableExp)
+    // 	    name = ((AVariableExp) applyExp.getRoot()).getName();
+    // 	else if (applyExp.getRoot() instanceof AUnresolvedPathExp)
+    // 	    name = dottedIdentifierToLexNameToken(((AUnresolvedPathExp) applyExp
+    // 		    .getRoot()).getIdentifiers());
+    // 	else
+    // 	    throw new ParserException(location, "");
 
-	return new ANewStatementAction(location, target, name, args);
-    }
+    // 	return new ANewStatementAction(location, target, name, args);
+    // }
 
     public PAction caseMuAction(Object start, Object expressionList,
 	    Object actionList, Object end) {
@@ -568,17 +568,17 @@ public class CmlParserHelper {
 	return new ASpecificationStatementAction(loc, exts, pre, post);
     }
 
-    public PAction caseDottedIdentifierToAssignmentStm(Object idsObj,
-	    Object COLONEQUALS, Object expression) {
+    // public PAction caseDottedIdentifierToAssignmentStm(Object idsObj,
+    // 	    Object COLONEQUALS, Object expression) {
 
-	List<LexIdentifierToken> ids = (List<LexIdentifierToken>) idsObj;
-	PStateDesignator stateDesignator = dottedIdentifierToStateDesignator(ids);
-	PExp exp = (PExp) expression;
-	LexLocation location = extractLexLocation(
-		stateDesignator.getLocation(), exp.getLocation());
-	return new ASingleGeneralAssignmentStatementAction(location,
-		stateDesignator, exp);
-    }
+    // 	List<LexIdentifierToken> ids = (List<LexIdentifierToken>) idsObj;
+    // 	PStateDesignator stateDesignator = dottedIdentifierToStateDesignator(ids);
+    // 	PExp exp = (PExp) expression;
+    // 	LexLocation location = extractLexLocation(
+    // 		stateDesignator.getLocation(), exp.getLocation());
+    // 	return new ASingleGeneralAssignmentStatementAction(location,
+    // 		stateDesignator, exp);
+    // }
 
     /**
      * Definitions
@@ -724,44 +724,44 @@ public class CmlParserHelper {
      * @param post
      * @return
      */
-    public PDefinition caseExplicitOperationDefinition(Object qual, Object id,
-	    Object COLON, Object opType, Object checkId, Object paramList,
-	    Object DEQUALS, Object bodyObj, Object pre, Object post) {
-	LexNameToken name = extractLexNameToken(id);
-	LexNameToken checkIdname = extractLexNameToken(checkId);
+    // public PDefinition caseExplicitOperationDefinition(Object qual, Object id,
+    // 	    Object COLON, Object opType, Object checkId, Object paramList,
+    // 	    Object DEQUALS, Object bodyObj, Object pre, Object post) {
+    // 	LexNameToken name = extractLexNameToken(id);
+    // 	LexNameToken checkIdname = extractLexNameToken(checkId);
 
-	if (!name.equals(checkIdname))
-	    throw new ParserException(name.getLocation(),
-		    ParserErrorMessage.OPERATION_NAMES_ARE_NOT_CONSISTENT
-			    .customizeMessage(name.getIdentifier().getName(),
-				    checkIdname.getIdentifier().getName()));
-	SStatementAction body = null;
-	try {
-	    body = (SStatementAction) bodyObj;
-	} catch (ClassCastException ex) {
-	    if (bodyObj instanceof ASequentialCompositionAction)
-		throw new ParserException(checkIdname.getLocation(),
-			ParserErrorMessage.SEMI_BETWEEN_CLASS_OPERATIONS
-				.customizeMessage());
-	    else
-		throw new ParserException(checkIdname.getLocation(),
-			ParserErrorMessage.ACTIONS_INSIDE_CLASS_OPERATION
-				.customizeMessage());
-	}
-	LexLocation loc = extractLexLocation(name.location, body.getLocation());
-	AExplicitOperationDefinition res = new AExplicitOperationDefinition();
-	res.setLocation(loc);
-	res.setAccess((AAccessSpecifierAccessSpecifier) qual);
-	res.setName(name);
-	res.setType((PType) opType);
+    // 	if (!name.equals(checkIdname))
+    // 	    throw new ParserException(name.getLocation(),
+    // 		    ParserErrorMessage.OPERATION_NAMES_ARE_NOT_CONSISTENT
+    // 			    .customizeMessage(name.getIdentifier().getName(),
+    // 				    checkIdname.getIdentifier().getName()));
+    // 	SStatementAction body = null;
+    // 	try {
+    // 	    body = (SStatementAction) bodyObj;
+    // 	} catch (ClassCastException ex) {
+    // 	    if (bodyObj instanceof ASequentialCompositionAction)
+    // 		throw new ParserException(checkIdname.getLocation(),
+    // 			ParserErrorMessage.SEMI_BETWEEN_CLASS_OPERATIONS
+    // 				.customizeMessage());
+    // 	    else
+    // 		throw new ParserException(checkIdname.getLocation(),
+    // 			ParserErrorMessage.ACTIONS_INSIDE_CLASS_OPERATION
+    // 				.customizeMessage());
+    // 	}
+    // 	LexLocation loc = extractLexLocation(name.location, body.getLocation());
+    // 	AExplicitOperationDefinition res = new AExplicitOperationDefinition();
+    // 	res.setLocation(loc);
+    // 	res.setAccess((AAccessSpecifierAccessSpecifier) qual);
+    // 	res.setName(name);
+    // 	res.setType((PType) opType);
 
-	res.setParameterPatterns((List<? extends PPattern>) paramList);
-	res.setBody(body);
-	res.setPrecondition((PExp) pre);
-	res.setPostcondition((PExp) post);
-	res.setIsConstructor(false);
-	return res;
-    }
+    // 	res.setParameterPatterns((List<? extends PPattern>) paramList);
+    // 	res.setBody(body);
+    // 	res.setPrecondition((PExp) pre);
+    // 	res.setPostcondition((PExp) post);
+    // 	res.setIsConstructor(false);
+    // 	return res;
+    // }
 
     /**
      * Expressions
@@ -850,16 +850,16 @@ public class CmlParserHelper {
 	return cn;
     }
 
-    public PExp caseRenameExpressionAComprehensionRenameChannelExp(
-	    Object DLSQUARE, Object from, Object to, Object bindList,
-	    Object pred, Object DRSQUARE) {
-	ARenamePair pair = new ARenamePair(false,
-		ConvertPExpToANameChannelExp(from),
-		ConvertPExpToANameChannelExp(to));
-	return new AComprehensionRenameChannelExp(extractLexLocation(
-		(CmlLexeme) DLSQUARE, (CmlLexeme) DRSQUARE), pair,
-		(List<? extends PMultipleBind>) bindList, null);
-    }
+    // public PExp caseRenameExpressionAComprehensionRenameChannelExp(
+    // 	    Object DLSQUARE, Object from, Object to, Object bindList,
+    // 	    Object pred, Object DRSQUARE) {
+    // 	ARenamePair pair = new ARenamePair(false,
+    // 		ConvertPExpToANameChannelExp(from),
+    // 		ConvertPExpToANameChannelExp(to));
+    // 	return new AComprehensionRenameChannelExp(extractLexLocation(
+    // 		(CmlLexeme) DLSQUARE, (CmlLexeme) DRSQUARE), pair,
+    // 		(List<? extends PMultipleBind>) bindList, null);
+    // }
 
     private List<LexIdentifierToken> convertExpressionListToLexIdentifierTokenList(
 	    List<PExp> exprs) {
@@ -880,23 +880,23 @@ public class CmlParserHelper {
 	return ids;
     }
 
-    public PExp caseACompChansetSetExp(Object LCURLYBAR, Object chanexp,
-	    Object bindList, Object exp, Object BARRCURLY) {
-	LexLocation loc = extractLexLocation((CmlLexeme) LCURLYBAR,
-		(CmlLexeme) BARRCURLY);
-	ANameChannelExp chanNameExp = ConvertPExpToANameChannelExp(chanexp);
-	PExp pred = (PExp) exp;
-	return new ACompChansetSetExp(loc, chanNameExp,
-		(List<PMultipleBind>) bindList, pred);
-    }
+    // public PExp caseACompChansetSetExp(Object LCURLYBAR, Object chanexp,
+    // 	    Object bindList, Object exp, Object BARRCURLY) {
+    // 	LexLocation loc = extractLexLocation((CmlLexeme) LCURLYBAR,
+    // 		(CmlLexeme) BARRCURLY);
+    // 	ANameChannelExp chanNameExp = ConvertPExpToANameChannelExp(chanexp);
+    // 	PExp pred = (PExp) exp;
+    // 	return new ACompChansetSetExp(loc, chanNameExp,
+    // 		(List<PMultipleBind>) bindList, pred);
+    // }
 
-    public PExp caseAEnumChansetSetExp(Object LCURLYBAR, Object list,
-	    Object BARRCURLY) {
-	LexLocation loc = extractLexLocation((CmlLexeme) LCURLYBAR,
-		(CmlLexeme) BARRCURLY);
-	List<LexIdentifierToken> ids = convertExpressionListToLexIdentifierTokenList((List<PExp>) list);
-	return new AEnumChansetSetExp(loc, ids);
-    }
+    // public PExp caseAEnumChansetSetExp(Object LCURLYBAR, Object list,
+    // 	    Object BARRCURLY) {
+    // 	LexLocation loc = extractLexLocation((CmlLexeme) LCURLYBAR,
+    // 		(CmlLexeme) BARRCURLY);
+    // 	List<LexIdentifierToken> ids = convertExpressionListToLexIdentifierTokenList((List<PExp>) list);
+    // 	return new AEnumChansetSetExp(loc, ids);
+    // }
 
     public LexIntegerToken CmlLexemeToLexIntegerToken(Object NUMERAL) {
 	CmlLexeme lexeme = (CmlLexeme) NUMERAL;

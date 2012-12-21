@@ -65,19 +65,7 @@ import java.text.ParseException;
 
 import static org.overture.ast.lex.Dialect.VDM_PP;
 import org.overture.ast.factory.AstFactory;
-import org.overture.ast.definitions.APrivateAccess;
-import org.overture.ast.definitions.AProtectedAccess;
-import org.overture.ast.definitions.APublicAccess;
-import org.overture.ast.definitions.AAssignmentDefinition;
-import org.overture.ast.definitions.AClassInvariantDefinition;
-import org.overture.ast.definitions.AExplicitFunctionDefinition;
-import org.overture.ast.definitions.AImplicitFunctionDefinition;
-import org.overture.ast.definitions.AStateDefinition;
-import org.overture.ast.definitions.ATypeDefinition;
-import org.overture.ast.definitions.ATypesDefinition;
-import org.overture.ast.definitions.AValueDefinition;
-import org.overture.ast.definitions.AValuesDefinition;
-import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
 import org.overture.ast.lex.*;
 import org.overture.ast.node.*;
@@ -129,17 +117,17 @@ protected void mismatch(IntStream input, int ttype, BitSet follow) throws Recogn
 // }
 
 private LexToken extractLexToken(String str, LexLocation loc) {
-	VDMToken tok = null;
-	for (VDMToken t : VDMToken.values()) {
-	    String tokenDisplay = t.toString();
-	    if (tokenDisplay != null && tokenDisplay.equals(str)) {
+    VDMToken tok = null;
+    for (VDMToken t : VDMToken.values()) {
+        String tokenDisplay = t.toString();
+        if (tokenDisplay != null && tokenDisplay.equals(str)) {
             tok = t;
             break;
-	    }
-	}
-	if (tok == null)
-	    throw new RuntimeException("Cannot find VDM token for " + str);
-	return new LexToken(loc, tok);
+        }
+    }
+    if (tok == null)
+        throw new RuntimeException("Cannot find VDM token for " + str);
+    return new LexToken(loc, tok);
 }
 private LexLocation extractLexLocation(CommonToken token) {
     String text = token.getText();
@@ -214,7 +202,7 @@ programParagraph returns[PDefinition defs]
     | functionDefs      { $defs = $functionDefs.defs; }
     ;
 
-classDefinition returns[AClassParagraphDefinition def]
+classDefinition returns[AClassDefinition def]
 @after { $def.setLocation(extractLexLocation($classDefinition.start, $classDefinition.stop)); }
     : 'class' IDENTIFIER ('extends' IDENTIFIER)? '=' 'begin' classDefinitionBlock* 'end'
         {
@@ -225,7 +213,7 @@ classDefinition returns[AClassParagraphDefinition def]
         }
     ;
 
-processDefinition returns[AProcessParagraphDefinition def]
+processDefinition returns[AProcessDefinition def]
 @after { $def.setLocation(extractLexLocation($processDefinition.start, $processDefinition.stop)); }
     : 'process' IDENTIFIER '=' ((procDeclarations)=>procDeclarations)? process
         {
@@ -609,11 +597,11 @@ callStatement returns[PAction statement]
  * though it may not be visually obvious (without the semis) that it
  * is a space that separates untyped channels from typed ones. (-jwc)
  */
-channelDefs returns[AChannelParagraphDefinition defs]
+channelDefs returns[AChannelsDefinition defs]
 @after { $defs.setLocation(extractLexLocation($channelDefs.start, $channelDefs.stop)); }
     : 'channels' channelDefOptList
         {
-            $defs = new AChannelParagraphDefinition();//location, NameScope.GLOBAL, false, access, null/* Pass */, chanNameDecls);
+            $defs = new AChannelsDefinition();//location, NameScope.GLOBAL, false, access, null/* Pass */, chanNameDecls);
             $defs.setNameScope(NameScope.GLOBAL);
             $defs.setUsed(false);
             $defs.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($channelDefs.start)));
@@ -694,7 +682,7 @@ classDefinitionBlock returns[PDefinition defs]
     | operationDefs             { $defs = $operationDefs.defs; }
     | 'initial' operationDef
         {
-            $defs = new AInitialParagraphDefinition(); // FIXME
+            $defs = new AInitialDefinition(); // FIXME
         }
     ;
 
@@ -838,7 +826,7 @@ functionDefinition returns[PDefinition def]
     ;
 
 explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
-    : ':' type IDENTIFIER parameterGroupList '==' functionBody (pretok='pre' pre=expression )? ('post' post=expression)? ('measure' name)?
+    : ':' type IDENTIFIER parameterGroupList '==' functionBody ('pre' pre=expression )? ('post' post=expression)? ('measure' name)?
         {
             $tail = new AExplicitFunctionDefinition();
             $tail.setType($type.type);
@@ -847,6 +835,14 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
             $tail.setBody($functionBody.exp);
             $tail.setIsUndefined(false);
             $tail.setRecursive(false);
+            if ($pre.exp != null)
+                $tail.setPrecondition($pre.exp);
+            else
+                $tail.setPrecondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($functionBody.stop))));
+            if ($post.exp != null)
+                $tail.setPostcondition($post.exp);
+            else
+                $tail.setPostcondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($functionBody.stop))));
             $tail.setMeasure($name.name);
             $tail.setAccess(CmlParserHelper.getPrivateAccessSpecifier(false, false, extractLexLocation($IDENTIFIER)));
             //$tail.setPass(Pass.DEFS); // what's this for?
@@ -868,7 +864,7 @@ parameterGroup returns[List<PPattern> pgroup]
     ;
 
 implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
-    : '(' parameterTypeList? ')' resultTypeList ('pre' pre=expression )? posttok='post' post=expression
+    : '(' parameterTypeList? ')' resultTypeList ('pre' pre=expression )? 'post' post=expression
         {
             $tail = new AImplicitFunctionDefinition();
             $tail.setNameScope(NameScope.LOCAL);
@@ -898,7 +894,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             if ($pre.exp != null)
                 $tail.setPrecondition($pre.exp);
             else
-                $tail.setPrecondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($posttok))));
+                $tail.setPrecondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($resultTypeList.stop))));
 
             $tail.setPostcondition($post.exp);
 
@@ -956,12 +952,12 @@ operationDefs returns[AOperationsDefinition defs]
         }
     ;
 
-qualOperationDefOptList returns[List<SOperationDefinition> defs]
-@init { $defs = new ArrayList<SOperationDefinition>(); }
+qualOperationDefOptList returns[List<SCmlOperationDefinition> defs]
+@init { $defs = new ArrayList<SCmlOperationDefinition>(); }
     : ( qualOperationDef { $defs.add($qualOperationDef.def); } )*
     ;
 
-qualOperationDef returns[SOperationDefinition def]
+qualOperationDef returns[SCmlOperationDefinition def]
 @after { $def.setLocation(extractLexLocation($qualOperationDef.start, $qualOperationDef.stop)); }
     : QUALIFIER? operationDef
         {
@@ -970,7 +966,7 @@ qualOperationDef returns[SOperationDefinition def]
         }
     ;
 
-operationDef returns[SOperationDefinition def]
+operationDef returns[SCmlOperationDefinition def]
 @after { $def.setLocation(extractLexLocation($operationDef.start, $operationDef.stop)); }
     : id=IDENTIFIER
         ( ':' opType IDENTIFIER parameterGroup '==' operationBody ('pre' pre=expression)? ('post' post=expression)?
@@ -978,12 +974,11 @@ operationDef returns[SOperationDefinition def]
                 // FIXME --- check that the IDENTIFIERs match and
                 // throw a MismatchedTokenException (if that's the
                 // right exception)
-                AExplicitOperationDefinition opdef = new AExplicitOperationDefinition();
+                AExplicitCmlOperationDefinition opdef = new AExplicitCmlOperationDefinition();
                 opdef.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
                 opdef.setType($opType.type);
                 opdef.setParameterPatterns($parameterGroup.pgroup);
-                // FIXME Commented until after RWL's AST fixes
-                //opdef.setBody($operationBody.body);
+                opdef.setBody($operationBody.body);
                 opdef.setPrecondition($pre.exp);
                 opdef.setPostcondition($post.exp);
                 opdef.setNameScope(NameScope.GLOBAL);
@@ -992,7 +987,7 @@ operationDef returns[SOperationDefinition def]
             }
         | '(' parameterTypeList? ')' resultTypeList? ('frame' frameSpecList )? ('pre' pre=expression)? ('post' post=expression)
             {
-                AImplicitOperationDefinition opdef = new AImplicitOperationDefinition();
+                AImplicitCmlOperationDefinition opdef = new AImplicitCmlOperationDefinition();
                 opdef.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
                 opdef.setParameterPatterns($parameterTypeList.ptypes);
                 opdef.setResult($resultTypeList.rtypes);
