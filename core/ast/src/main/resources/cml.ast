@@ -129,7 +129,7 @@ exp {-> package='eu.compassresearch.ast.expressions'}
  	| {enumeration} [renamePairs]:pair.rename*
     ;
     
-ChansetExp {-> package='eu.compassresearch.ast.expressions'}
+ChansetExpression {-> package='eu.compassresearch.ast.expressions'}
 	= {identifier} [identifier]:LexIdentifierToken
 	| {enum} [identifiers]:LexIdentifierToken*
 	| {comp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp 
@@ -138,7 +138,7 @@ ChansetExp {-> package='eu.compassresearch.ast.expressions'}
 	| {Sub}   [left]:ChansetExp [op]: LexToken [right]:ChansetExp
     	;
 
-NamesetExp {-> package='eu.compassresearch.ast.expressions'}
+NamesetExpression {-> package='eu.compassresearch.ast.expressions'}
 	= {identifier} [identifier]:LexIdentifierToken
 	| {enum} [identifiers]:LexIdentifierToken*
 	| {comp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp 
