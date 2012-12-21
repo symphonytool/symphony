@@ -36,7 +36,10 @@ definition {-> package='eu.compassresearch.ast.definitions'}
     		[action]:action
     |   {chanset} 
     		[identifier]:LexIdentifierToken 
-    		[chansetExpressions]:exp
+    		[chansetExpression]:VarsetExpression
+    |   {nameset} 
+    		[identifier]:LexIdentifierToken 
+    		[namesetExpression]:VarsetExpression
     |   #operation    
     |   {process}
     		[localState]: singleDeclaration*
@@ -58,9 +61,11 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	[channelNameDeclarations]: definition.channelName*
    | {chansets} 
      	[chansets] : definition.chanset*
+   | {namesets} 
+     	[namesets] : definition.chanset*
    | {actions} 
 	[actions]: definition.action*
-  | {types} 
+   | {types} 
         [types]: definition.type*
    | {operations} 
 	[operations]:definition.#operation*
@@ -129,24 +134,14 @@ exp {-> package='eu.compassresearch.ast.expressions'}
  	| {enumeration} [renamePairs]:pair.rename*
     ;
     
-ChansetExpression {-> package='eu.compassresearch.ast.expressions'}
+VarsetExpression {-> package='eu.compassresearch.ast.expressions'}
 	= {identifier} [identifier]:LexIdentifierToken
 	| {enum} [identifiers]:LexIdentifierToken*
 	| {comp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp 
-	| {Union} [left]:ChansetExp [op]: LexToken [right]:ChansetExp
-	| {Inter} [left]:ChansetExp [op]: LexToken [right]:ChansetExp
-	| {Sub}   [left]:ChansetExp [op]: LexToken [right]:ChansetExp
+	| {Union} [left]:VarsetExpression [op]: LexToken [right]:VarsetExpression
+	| {Inter} [left]:VarsetExpression [op]: LexToken [right]:VarsetExpression
+	| {Sub}   [left]:VarsetExpression [op]: LexToken [right]:VarsetExpression
     	;
-
-NamesetExpression {-> package='eu.compassresearch.ast.expressions'}
-	= {identifier} [identifier]:LexIdentifierToken
-	| {enum} [identifiers]:LexIdentifierToken*
-	| {comp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp 
-	| {Union} [left]:NamesetExp [op]: LexToken [right]:NamesetExp
-	| {Inter} [left]:NamesetExp [op]: LexToken [right]:NamesetExp
-	| {Sub}   [left]:NamesetExp [op]: LexToken [right]:NamesetExp
-	;
-
 
 /* 
 	Types 
@@ -201,12 +196,12 @@ process {-> package='eu.compassresearch.ast.process'}
 		[right]:process
 	| {generalisedParallelism} 
 		[left]:process 
-		[chansetExpression]:exp 
+		[chansetExpression]:VarsetExpression
 		[right]:process
 	| {alphabetisedParallelism} 
 		[left]:process 
-		[leftChansetExpression]:exp 
-		[rightChansetExpression]:exp 
+		[leftChansetExpression]:VarsetExpression 
+		[rightChansetExpression]:VarsetExpression 
 		[right]:process
 	| {synchronousParallelism} 
 		[left]:process 
@@ -230,7 +225,7 @@ process {-> package='eu.compassresearch.ast.process'}
 		[right]:process
 	| {hiding} 
 		[left]:process 
-		[chansetExpression]:exp
+		[chansetExpression]:VarsetExpression
 	| {startDeadline} 
 		[left]:process 
 		[expression]:exp
@@ -256,9 +251,9 @@ process {-> package='eu.compassresearch.ast.process'}
 	| {externalChoice}
 	| {internalChoice}
 	| {generalisedParallelism} 
-		[chansetExpression]:ChansetExp
+		[chansetExpression]:VarsetExpression
 	| {alphabetisedParallelism} 
-		[chansetExpression]:ChansetExp
+		[chansetExpression]:VarsetExpression
 	| {synchronousParallelism}
 	| {interleaving} 
 	;
@@ -306,7 +301,7 @@ action {-> package='eu.compassresearch.ast.actions'}
 		[timeoutExpression]:exp
 	| {hiding} 
 		[left]:action 
-		[chansetExpression]:ChansetExp
+		[chansetExpression]:VarsetExpression
 	| {startDeadline} 
 		[left]:action 
 		[expression]:exp
@@ -316,30 +311,30 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {channelRenaming} 
 		[action]:action 
 		[renameExpression]:exp.#Channel.#Rename
-    | {mu} 
-    	[identifiers]:LexIdentifierToken* 
-    	[actions]:action*
-    | #Parallel
-    | {parametrised} 
-	[parametrisations]:parametrisation* 
-	[action]:action 
-    | #Instantiated
-    | #Replicated
-    | #Statement
-   | {subclassResponsibility}
-   | {reference} 
-	[name]:LexNameToken
-	[args]:exp*
-	(actionDefinition):definition.action
-   ;
+        | {mu} 
+      		[identifiers]:LexIdentifierToken* 
+    		[actions]:action*
+	| #Parallel
+    	| {parametrised} 
+	  	[parametrisations]:parametrisation* 
+		[action]:action 
+	| #Instantiated
+	| #Replicated
+    	| #Statement
+   	| {subclassResponsibility}
+   	| {reference} 
+	  	[name]:LexNameToken
+		[args]:exp*
+		(actionDefinition):definition.action
+	;
 	
 #Parallel {-> package='eu.compassresearch.ast.actions'}
 	= {interleaving} 
 	| {generalisedParallelism} 
-		[chanSetExpression]:ChansetExp
+		[chansetExpression]:VarsetExpression
 	| {alphabetisedParallelism}
-		[leftChanSetExpression]:ChansetExp
-		[rightChanSetExpression]:ChansetExp
+		[leftChansetExpression]:VarsetExpression
+		[rightChansetExpression]:VarsetExpression
 	| {synchronousParallelism}
 	;	
 
@@ -348,15 +343,15 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {externalChoice}
 	| {internalChoice}
 	| {interleaving} 
-		[nameSetExpression]:NamesetExp
+		[namesetExpression]:VarsetExpression
 	| {generalisedParallelism} 
-		[chansetExpression]:ChansetExp
-		[nameSetExpression]:NamesetExp
+		[chansetExpression]:VarsetExpression
+		[namesetExpression]:VarsetExpression
 	| {alphabetisedParallelism}
-		[nameSetExpression]:NamesetExp 
-		[chansetExpression]:ChansetExp
+		[namesetExpression]:VarsetExpression
+		[chansetExpression]:VarsetExpression
 	| {synchronousParallelism}
-		[nameSetExpression]:NamesetExp
+		[namesetExpression]:VarsetExpression
 	;	
 	
 #Instantiated {-> package='eu.compassresearch.ast.actions'}
@@ -462,8 +457,8 @@ Aspect Declaration
 	;
 	
 %action->#Parallel = 	[leftAction]:action
-			[leftNameSetExpression]:NamesetExp
-			[rightNameSetExpression]:NamesetExp
+			[leftNamesetExpression]:VarsetExpression
+			[rightNamesetExpression]:VarsetExpression
 			[rightAction]:action
 	;	
 
