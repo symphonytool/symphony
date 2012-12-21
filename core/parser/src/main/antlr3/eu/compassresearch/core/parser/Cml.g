@@ -65,7 +65,16 @@ import java.text.ParseException;
 
 import static org.overture.ast.lex.Dialect.VDM_PP;
 import org.overture.ast.factory.AstFactory;
-import org.overture.ast.definitions.*;
+import org.overture.ast.definitions.APrivateAccess;
+import org.overture.ast.definitions.AProtectedAccess;
+import org.overture.ast.definitions.APublicAccess;
+import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AClassInvariantDefinition;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.AValueDefinition;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.*;
 import org.overture.ast.lex.*;
 import org.overture.ast.node.*;
@@ -398,7 +407,7 @@ action2 returns[PAction action]
         }
     | statement
         {
-            $action = $statement.statement; 
+            $action = $statement.statement;
         }
     ;
 
@@ -487,8 +496,8 @@ statement returns[PAction statement]
             $statement = $callStatement.statement;
         }
     | stateDesignator
-        ( ':=' 
-            ( expression 
+        ( ':='
+            ( expression
                 {
                     // FIXME: might be an assignment, might be a call statement
                     $statement = new ASingleGeneralAssignmentStatementAction(); // FIXME
@@ -558,7 +567,7 @@ nonDetStmtAlt returns[ANonDeterministicAltStatementAction alt]
 
 frameSpecList returns[List<AExternalClause> frameSpecs]
 @init { $frameSpecs = new ArrayList<AExternalClause>(); }
-    : item=frameSpec { $frameSpecs.add($item.frameSpec); } ( ',' item=frameSpec { $frameSpecs.add($item.frameSpec); } )*
+    : ( item=frameSpec { $frameSpecs.add($item.frameSpec); } )+
     ;
 
 frameSpec returns[AExternalClause frameSpec]
@@ -751,7 +760,7 @@ instanceVariableDefinition returns[PDefinition def]
         }
     | invariantDefinition
         {
-            $def = $invariantDefinition.def;            
+            $def = $invariantDefinition.def;
         }
     ;
 
@@ -797,7 +806,7 @@ functionDefs returns[AFunctionParagraphDefinition defs]
 
 qualFunctionDefinitionOptList returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : (QUALIFIER? functionDefinition 
+    : (QUALIFIER? functionDefinition
             {
                 $functionDefinition.def.setAccess(extractQualifier($QUALIFIER));
                 LexLocation loc = extractLexLocation(extractLexLocation($qualFunctionDefinitionOptList.start),
@@ -882,7 +891,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
                 resultTypePair = new APatternTypePair(false, tuple);
             }
             $tail.setResult(resultTypePair);
-            
+
             if ($pre.exp != null)
                 $tail.setPrecondition($pre.exp);
             else
@@ -939,10 +948,30 @@ operationDefs returns[AOperationParagraphDefinition defs]
         }
     ;
 
-operationDef
-    : IDENTIFIER
-        ( ':' opType IDENTIFIER parameterGroup '==' operationBody ('pre' expression)? ('post' expression)?
-        | '(' parameterTypeList? ')' (IDENTIFIER ':' type (',' IDENTIFIER ':' type)* )? ('frame' frameSpec+ )? ('pre' expression)? ('post' expression)
+operationDef returns[PDefinition def]
+@after { $def.setLocation(extractLexLocation($operationDef.start, $operationDef.stop)); }
+    : id=IDENTIFIER
+        ( ':' opType IDENTIFIER parameterGroup '==' operationBody ('pre' pre=expression)? ('post' post=expression)?
+            {
+                // FIXME --- check that the IDENTIFIERs match and
+                // throw a MismatchedTokenException (if that's the
+                // right exception)
+                AExplicitOperationDefinition opdef = new AExplicitOperationDefinition();
+                opdef.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
+                opdef.setType($opType.type);
+                opdef.setParameterPatterns($parameterGroup.pgroup);
+                // FIXME Commented until after RWL's AST fixes
+                //opdef.setBody($operationBody.body);
+                opdef.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
+                opdef.setPrecondition($pre.exp);
+                opdef.setPostcondition($post.exp);
+                $def = opdef;
+            }
+        | '(' parameterTypeList? ')' resultTypeList? ('frame' frameSpecList )? ('pre' expression)? ('post' expression)
+            {
+                AImplicitOperationDefinition opDef = new AImplicitOperationDefinition();
+                $def = opDef;
+            }
         )
     ;
 
@@ -959,10 +988,11 @@ opType returns[PType type]
         }
     ;
 
-operationBody
-    : action
-    | 'is' 'not' 'yet' 'specified'
-    | 'is' 'subclass' 'responsibility'
+operationBody returns[PAction body]
+@after { $body.setLocation(extractLexLocation($operationBody.start, $operationBody.stop)); }
+    : action                           { $body = $action.action; }
+    | 'is' 'not' 'yet' 'specified'     { $body = new ASubclassResponsibilityAction(); }
+    | 'is' 'subclass' 'responsibility' { $body = new ANotYetSpecifiedStatementAction(); }
     ;
 
 typeDefs returns[PDefinition defs]
@@ -2053,7 +2083,7 @@ TEXTLITERAL
     ;
 
 SELF
-    : 'self' 
+    : 'self'
     ;
 
 /* FIXME This only tracks the non-unicode chunk of the characters; this
