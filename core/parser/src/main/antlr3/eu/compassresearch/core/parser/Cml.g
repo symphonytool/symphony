@@ -367,6 +367,9 @@ action2 returns[PAction action]
     | 'Div'             { $action = new ADivAction(); }
     | 'Wait' expression { $action = new AWaitAction(null, $expression.exp); }
     | IDENTIFIER (communication* '->' action)?
+        {
+            $action = new ACallStatementAction(); // FIXME
+        }
     /* The mess below includes parenthesized actions, block
      * statements, parametrised actions, instantiated actions.
      */
@@ -376,6 +379,9 @@ action2 returns[PAction action]
         )?
         action ')'
         ( '(' expression (',' expression )* ')' )?
+        {
+            $action = new ACallStatementAction(); // FIXME
+        }
     | statement
         {
             $action = $statement.statement; 
