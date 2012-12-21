@@ -62,7 +62,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
    | {chansets}
         [chansets] : definition.chanset*
    | {namesets}
-        [namesets] : definition.chanset*
+        [namesets] : definition.nameset*
    | {actions}
         [actions]: definition.action*
    | {types}
@@ -141,10 +141,15 @@ exp {-> package='eu.compassresearch.ast.expressions'}
 VarsetExpression {-> package='eu.compassresearch.ast.expressions'}
         = {identifier} [identifier]:LexIdentifierToken
         | {enum} [identifiers]:LexIdentifierToken*
-        | {comp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp
-        | {Union} [left]:VarsetExpression [op]: LexToken [right]:VarsetExpression
-        | {Inter} [left]:VarsetExpression [op]: LexToken [right]:VarsetExpression
-        | {Sub}   [left]:VarsetExpression [op]: LexToken [right]:VarsetExpression
+        | {fatEnum} [identifiers]:LexIdentifierToken*
+        | {fatComp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp
+	| #VOp
+	;
+
+#VOp {-> package='eu.compassresearch.ast.expressions'}
+        = {Union}
+        | {Inter}
+        | {Sub}
         ;
 
 /*
@@ -448,6 +453,7 @@ parametrisation {-> package='eu.compassresearch.ast.actions'}
 alternativeAction {-> package='eu.compassresearch.ast.actions'}
     = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition*
     ;
+
 Aspect Declaration
 /* This section allows fields of root types to be declared e.g. exp*/
 
@@ -456,6 +462,12 @@ Aspect Declaration
 
 %exp = (isVisited):java_Boolean
      ;
+
+%varsetExpression = [location]:location
+        ;
+
+%varsetExpression->#VOp = [left]:VarsetExpression [op]:LexToken [right]:VarsetExpression
+	;
 
 %action->#Replicated = [replicationDeclaration]:singleDeclaration* [replicatedAction]:action
         ;
@@ -484,8 +496,10 @@ Aspect Declaration
 %process->#Replicated = [replicationDeclaration]:singleDeclaration* [replicatedProcess]:process
         ;
 
+/*
 %parameter = [location]:location
         ;
+*/
 
 %source = [paragraphs]: definition*
         ;

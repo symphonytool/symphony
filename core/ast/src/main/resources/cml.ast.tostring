@@ -13,11 +13,11 @@ import eu.compassresearch.ast.util.ToStringUtil;
 
 %action->#Parallel->synchronousParallelism = [leftAction] "[ ns-left | ns-right ]" [rightAction]
 
-%action->specification = "[" +
-            $($[externals]$.isEmpty() ? "" : "\n\text " + $[externals]$) +
-            ($[precondition]$ == null ? "" : "\n\tpre " + $[precondition]$) +
-            ($[postcondition]$ == null ? "" : "\n\tpost " + $[postcondition]$) +
-            ($[errors]$.isEmpty() ? "" : "\n\terrs " + $[errors]$)$ + "]" 
+// %action->specification = "[" +
+//             $($[externals]$.isEmpty() ? "" : "\n\text " + $[externals]$) +
+//             ($[precondition]$ == null ? "" : "\n\tpre " + $[precondition]$) +
+//             ($[postcondition]$ == null ? "" : "\n\tpost " + $[postcondition]$) +
+//             ($[errors]$.isEmpty() ? "" : "\n\terrs " + $[errors]$)$ + "]" 
 %action->communication = [identifier] "->" [action]
 %action->skip = "Skip"
 %action->stop = "Stop"
@@ -38,20 +38,20 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %declaration->#Single->expression = [identifiers] " := " [expression]
 
 // Processes
-%process->state = "state: " [processDefinition] "@"
+// %process->state = "state: " [processDefinition] "@"
 %action->#Statement->call = [name] "(" + $org.overture.ast.util.Utils.listToString($  [args]  $)$ + ")"
 
 %type->error = "Type Error"
 
 //  Expressions
-%exp->#Set->#Chanset->enum = "{|" [identifiers] "|}"
+// %exp->#Set->#Chanset->enum = "{|" [identifiers] "|}"
  
 //  Patterns
 
 //  Definitions
 %definition->process = "Process " [name]$.getName()$
-%definition->paragraph->class = "Class " [name]$.getName()$
-%definition->paragraph->state = "State Paragraph"
+%definition->class = "Class " [name]$.getName()$
+%definition->state = "State Paragraph"
 
 //  Statements
 

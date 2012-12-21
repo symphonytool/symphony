@@ -223,7 +223,7 @@ processDefinition returns[AProcessDefinition def]
 
 process
     : proc0
-    | replOp replicationDeclaration '@' ( '[' chansetNamesetExpr ']' )? process
+    | replOp replicationDeclaration '@' ( '[' varsetExpr ']' )? process
     ;
 
 proc0
@@ -239,8 +239,8 @@ proc0Ops
     | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
     | '[>'
     | '[[' expression '>>'
-    | '[' chansetNamesetExpr '||' chansetNamesetExpr ']'
-    | '[|' chansetNamesetExpr '|]'
+    | '[' varsetExpr '||' varsetExpr ']'
+    | '[|' varsetExpr '|]'
     | ';'
     ;
 
@@ -253,14 +253,14 @@ replOp
     | '|~|'
     | '||'
     | '|||'
-    | '[|' chansetNamesetExpr '|]'
+    | '[|' varsetExpr '|]'
     | ';'
     ;
 
 proc2
     : proc3
         ( ('startsby' | 'endsby') expression
-        | '\\\\' chansetNamesetExpr
+        | '\\\\' varsetExpr
         )?
     ;
 
@@ -328,16 +328,16 @@ action returns[PAction action]
         { $action = new AMuAction(); } // FIXME
     | ( actionSimpleReplOp ) replicationDeclaration '@' action
         { $action = new ASequentialCompositionReplicatedAction(); } // FIXME
-    | ( actionSetReplOp ) replicationDeclaration '@' '[' chansetNamesetExpr ( '|' chansetNamesetExpr )? ']' action
+    | ( actionSetReplOp ) replicationDeclaration '@' '[' varsetExpr ( '|' varsetExpr )? ']' action
         { $action = new ASequentialCompositionReplicatedAction(); } // FIXME
     ;
 
 actionSimpleReplOp
-    : ';' | '[]' | '|~|' | '[||' chansetNamesetExpr '||]'
+    : ';' | '[]' | '|~|' | '[||' varsetExpr '||]'
     ;
 
 actionSetReplOp
-    : '||' | '|||' | '[|' chansetNamesetExpr '|]'
+    : '||' | '|||' | '[|' varsetExpr '|]'
     ;
 
 action0 returns[PAction action]
@@ -360,15 +360,15 @@ action0Ops
     | '|||'
     | '[>'
     | '[[' expression '>>'
-    | '[' chansetNamesetExpr ( '|' chansetNamesetExpr )? '||' chansetNamesetExpr ( '|' chansetNamesetExpr )? ']'
-    | '[|' chansetNamesetExpr ( '|' chansetNamesetExpr ( '|' chansetNamesetExpr )? )? '|]'
-    | '[||' chansetNamesetExpr '|' chansetNamesetExpr '||]'
+    | '[' varsetExpr ( '|' varsetExpr )? '||' varsetExpr ( '|' varsetExpr )? ']'
+    | '[|' varsetExpr ( '|' varsetExpr ( '|' varsetExpr )? )? '|]'
+    | '[||' varsetExpr '|' varsetExpr '||]'
     ;
 
 action1 returns[PAction action]
     : action2
         ( ('startsby' | 'endsby')=> ('startsby' | 'endsby') expression
-        | ('\\\\')=> '\\\\' chansetNamesetExpr
+        | ('\\\\')=> '\\\\' varsetExpr
         )?
         { $action = $action2.action; } // FIXME
     ;
@@ -630,48 +630,161 @@ channelDef returns[AChannelNameDefinition def]
     ;
 
 chansetDefs returns[AChansetsDefinition defs]
-    : 'chansets' chansetDef*
+    : 'chansets' chansetDefOptList
         {
-            $defs = new AChansetsDefinition(); // FIXME
+            $defs = new AChansetsDefinition();
+            $defs.setNameScope(NameScope.GLOBAL);
+            $defs.setUsed(false);
+            $defs.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($chansetDefs.start)));
+            $defs.setChansets($chansetDefOptList.defs);
         }
     ;
 
-chansetDef
-    : IDENTIFIER '=' chansetNamesetExpr
+chansetDefOptList returns[List<AChansetDefinition> defs]
+@init { $defs = new ArrayList<AChansetDefinition>(); }
+    : ( chansetDef { $defs.add($chansetDef.def); } )*
     ;
 
-chansetNamesetExpr
-    : chansetNamesetExprbase (cneOp chansetNamesetExpr)?
+chansetDef returns [AChansetDefinition def]
+@after { $def.setLocation(extractLexLocation($chansetDef.start, $chansetDef.stop)); }
+    : IDENTIFIER '=' varsetExpr
+        {
+            $def = new AChansetDefinition();
+            $def.setIdentifier(new LexIdentifierToken($IDENTIFIER.getText(), false, extractLexLocation($IDENTIFIER)));
+            $def.setChansetExpression($varsetExpr.vexp);
+        }
     ;
 
-cneOp
-    : 'union'
-    | 'inter'
-    | '\\'
+varsetExpr returns[PVarsetExpression vexp]
+    : l=varsetExpr0 varsetExprTailOptList
+        {
+            $vexp = $varsetExpr0.vexp;
+            for (SVOpVarsetExpression right : $varsetExprTailOptList.vexps) {
+                LexLocation loc = extractLexLocation($vexp.getLocation(), right.getLocation());
+                right.setLocation(loc);
+                right.setLeft($vexp);
+                $vexp = right;
+            }
+        }
     ;
 
-chansetNamesetExprbase
-    : name
-    | '{' ( IDENTIFIER (',' IDENTIFIER)* )? '}'
-    | '{|'
-        ( IDENTIFIER
-            ( (',' IDENTIFIER)+
-            | ('.' expression)? ( setMapExprBinding )
-            )?
-        )?
-        '|}'
+varsetExprTailOptList returns[List<SVOpVarsetExpression> vexps]
+@init { $vexps = new ArrayList<SVOpVarsetExpression>(); }
+    : ( op='union' varsetExpr0
+            {
+                AUnionVOpVarsetExpression vexp = new AUnionVOpVarsetExpression();
+                vexp.setLocation(extractLexLocation(extractLexLocation($varsetExprTailOptList.start), extractLexLocation($varsetExpr0.stop)));
+                vexp.setOp(new LexNameToken("", $op.getText(), extractLexLocation($op)));
+                vexp.setRight($varsetExpr0.vexp);
+                $vexps.add(vexp);
+            }
+        )*
     ;
 
-// FIXME --- this is the wrong type, but Nameset isn't in the AST yet
+varsetExpr0 returns[PVarsetExpression vexp]
+    : varsetExpr1 varsetExpr0TailOptList
+        {
+            $vexp = $varsetExpr1.vexp;
+            for (SVOpVarsetExpression right : $varsetExpr0TailOptList.vexps) {
+                LexLocation loc = extractLexLocation($vexp.getLocation(), right.getLocation());
+                right.setLocation(loc);
+                right.setLeft($vexp);
+                $vexp = right;
+            }
+        }
+    ;
+
+varsetExpr0TailOptList returns[List<SVOpVarsetExpression> vexps]
+@init { $vexps = new ArrayList<SVOpVarsetExpression>(); }
+    : ( op='inter' varsetExpr1
+            {
+                AInterVOpVarsetExpression vexp = new AInterVOpVarsetExpression();
+                vexp.setLocation(extractLexLocation(extractLexLocation($varsetExpr0TailOptList.start), extractLexLocation($varsetExpr1.stop)));
+                vexp.setOp(new LexNameToken("", $op.getText(), extractLexLocation($op)));
+                vexp.setRight($varsetExpr1.vexp);
+                $vexps.add(vexp);
+            }
+        )*
+    ;
+
+varsetExpr1 returns[PVarsetExpression vexp]
+    : varsetExprbase varsetExpr1TailOptList
+        {
+            $vexp = $varsetExprbase.vexp;
+            for (SVOpVarsetExpression right : $varsetExpr1TailOptList.vexps) {
+                LexLocation loc = extractLexLocation($vexp.getLocation(), right.getLocation());
+                right.setLocation(loc);
+                right.setLeft($vexp);
+                $vexp = right;
+            }
+        }
+    ;
+
+varsetExpr1TailOptList returns[List<SVOpVarsetExpression> vexps]
+@init { $vexps = new ArrayList<SVOpVarsetExpression>(); }
+    : ( op='\\' varsetExprbase
+            {
+                ASubVOpVarsetExpression vexp = new ASubVOpVarsetExpression();
+                vexp.setLocation(extractLexLocation(extractLexLocation($varsetExpr1TailOptList.start), extractLexLocation($varsetExprbase.stop)));
+                vexp.setOp(new LexNameToken("", $op.getText(), extractLexLocation($op)));
+                vexp.setRight($varsetExprbase.vexp);
+                $vexps.add(vexp);
+            }
+        )*
+    ;
+
+varsetExprbase returns[PVarsetExpression vexp]
+@after { $vexp.setLocation(extractLexLocation($varsetExprbase.start, $varsetExprbase.stop)); }
+    : IDENTIFIER
+        {
+            LexLocation loc = extractLexLocation($IDENTIFIER);
+            $vexp = new AIdentifierVarsetExpression(loc, new LexIdentifierToken($IDENTIFIER.getText(), false, loc));
+        }
+    | '(' varsetExpr ')'
+        {
+            $vexp = $varsetExpr.vexp;
+        }
+    | '{' ( identifierList )? '}'
+        {
+            List<LexIdentifierToken> ids = ($identifierList.ids!=null) ? $identifierList.ids : new ArrayList<LexIdentifierToken>();
+            $vexp = new AEnumVarsetExpression(null, ids);
+        }
+    | '{|' ( identifierList )? '|}'
+        {
+            List<LexIdentifierToken> ids = ($identifierList.ids!=null) ? $identifierList.ids : new ArrayList<LexIdentifierToken>();
+            $vexp = new AFatEnumVarsetExpression(null, ids);
+        }
+    | '{|' IDENTIFIER ('.' expression)? setMapExprBinding '|}'
+        {
+            // FIXME --- 2nd null below needs to be some combination of the IDENTIFIER and expression
+            $vexp = new AFatCompVarsetExpression(null, null, $setMapExprBinding.bindings, $setMapExprBinding.pred);
+        }
+    ;
+
 namesetDefs returns[ANamesetsDefinition defs]
-    : 'namesets' namesetDef*
+    : 'namesets' namesetDefOptList
         {
-            $defs = new ANamesetsDefinition(); // FIXME
+            $defs = new ANamesetsDefinition();
+            $defs.setNameScope(NameScope.GLOBAL);
+            $defs.setUsed(false);
+            $defs.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($namesetDefs.start)));
+            $defs.setNamesets($namesetDefOptList.defs);
         }
     ;
 
-namesetDef
-    : IDENTIFIER '=' chansetNamesetExpr
+namesetDefOptList returns[List<ANamesetDefinition> defs]
+@init { $defs = new ArrayList<ANamesetDefinition>(); }
+    : ( namesetDef { $defs.add($namesetDef.def); } )*
+    ;
+
+namesetDef returns [ANamesetDefinition def]
+@after { $def.setLocation(extractLexLocation($namesetDef.start, $namesetDef.stop)); }
+    : IDENTIFIER '=' varsetExpr
+        {
+            $def = new ANamesetDefinition();
+            $def.setIdentifier(new LexIdentifierToken($IDENTIFIER.getText(), false, extractLexLocation($IDENTIFIER)));
+            $def.setNamesetExpression($varsetExpr.vexp);
+        }
     ;
 
 classDefinitionBlock returns[PDefinition defs]
