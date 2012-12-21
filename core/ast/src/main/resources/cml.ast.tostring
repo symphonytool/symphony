@@ -27,7 +27,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->sequentialComposition = [left] ";" [right]
 %action->reference = [name]
 %action->#Parallel->interleaving = [leftAction] "|||" [rightAction]
-%action->#Parallel->generalisedParallelism = [leftAction] "[|" [chanSetExpression] "|]" [rightAction]
+%action->#Parallel->generalisedParallelism = [leftAction] "[|" [chansetExpression] "|]" [rightAction]
 %action->#Statement->block = "Block {" [action] "}"
 %action->parametrised = "params: " [parametrisations] " action: " [action]
 %parametrisation->val = "val" [declaration]

@@ -19,11 +19,7 @@ source {->  package='eu.compassresearch.ast.program'}
 /*
  Declarations 
 */
-declaration {-> package='eu.compassresearch.ast.declarations'}
-    = #Single
-	;
-
-#Single {-> package='eu.compassresearch.ast.declarations'}
+singleDeclaration {-> package='eu.compassresearch.ast.declarations'}
 	= {type}  
     	[identifiers]:LexIdentifierToken* 
     	(type):type
@@ -36,99 +32,84 @@ declaration {-> package='eu.compassresearch.ast.declarations'}
 */
 definition {-> package='eu.compassresearch.ast.definitions'}
     =   {action} 
-    		[declarations]:declaration.#Single.type* 
+    		[declarations]:singleDeclaration.type* 
     		[action]:action
     |   {chanset} 
     		[identifier]:LexIdentifierToken 
-    		[chansetExpressions]:exp
-    |   {invariant} 
-    		[pattern]: pattern 
-    		(expression): exp
+    		[chansetExpression]:VarsetExpression
+    |   {nameset} 
+    		[identifier]:LexIdentifierToken 
+    		[namesetExpression]:VarsetExpression
     |   #operation    
-    |   #paragraph
     |   {process}
-    		[localState]: declaration*
+    		[localState]: singleDeclaration*
 	     	[process]: process
     | {channelName} 
-    	[singleType]: declaration.#Single.type
-    ;
-    
+    	[singleType]: singleDeclaration.type
+    | {class}
+   	[body]: definition*
+       	[hasContructors]:java_Boolean
+	[gettingInheritable]:java_Boolean
+	[isAbstract]:java_Boolean
+	[isUndefined]:java_Boolean
+	(classtype):type
+	(isTypeChecked):java_Boolean
+	(invariant):definition.#operation.explicit
+   	(supertypes):type* 
+	(superDefs):definition*	
+   | {channels} 
+	[channelNameDeclarations]: definition.channelName*
+   | {chansets} 
+     	[chansets] : definition.chanset*
+   | {namesets} 
+     	[namesets] : definition.chanset*
+   | {actions} 
+	[actions]: definition.action*
+   | {types} 
+        [types]: definition.type*
+   | {operations} 
+	[operations]:definition.#operation*
+   | {function} 
+	[functionDefinitions]:definition*
+   | {values} 
+	[valueDefinitions]: definition*
+   | {initial} 
+	[operationDefinition]: definition
+   | {states} 
+	[fields]:field.field* 
+        [invPattern]:pattern [invExpression]:exp (invdef):definition.explicitFunction
+        [initPattern]:pattern [initExpression]:exp (initdef):definition.explicitFunction
+        (stateDefs):definition* 
+   ;
 
-#paragraph {-> package='eu.compassresearch.ast.definitions'}
-	  =  {class}
-	   		[body]: definition*
-	   		(supertypes):type* 
-           	(supernames):LexNameToken*// try out () 
-           	(definitions):definition* 
-           	(allInheritedDefinitions):definition*
-           	(localInheritedDefinitions):definition* 
-           	[hasContructors]:java_Boolean
-           	[settingHierarchy]:ClassDefinitionSettings
-	   		(superDefs):definition.#paragraph.class*	
-			[gettingInheritable]:java_Boolean
-			(superInheritedDefinitions):definition*
-			[gettingInvDefs]:java_Boolean
-			[isAbstract]:java_Boolean
-			[isUndefined]:java_Boolean
-			(classtype):type
-			(isTypeChecked):java_Boolean
-			(invariant):definition.#operation.explicit
-	   | {process} 
-	     	[processDefinition]: definition.process
-	   | {channel} 
-	   		[channelNameDeclarations]: definition.channelName*
-	   | {chanset} 
-	     	[chansets] : definition.chanset*
- 	   | {action} 
- 	   		[actions]: definition.action*
- 	   | {types} 
- 	   		[types]: definition.type*
- 	   | {operation} 
- 	   		[operations]:definition.#operation*
- 	   | {function} 
- 	   		[functionDefinitions]:definition*
- 	   | {value} 
- 	   		[valueDefinitions]: definition*
- 	   | {initial} 
- 	   		[operationDefinition]: definition
- 	   | {state} 
-    		[fields]:field.field* 
-            [invPattern]:pattern [invExpression]:exp (invdef):definition.explicitFunction
-            [initPattern]:pattern [initExpression]:exp (initdef):definition.explicitFunction
-            (stateDefs):definition* 
-	   ;
-    
+/*
+ * Operations 
+ *
+ */
 #operation {-> package='eu.compassresearch.ast.definitions'}
-	=   {explicit} 			[parameterPatterns]:pattern* 
-                            [body]:action.#Statement
-                            [precondition]:exp 
-                            [postcondition]:exp 
+	=   {explicit} 	[parameterPatterns]:pattern* 
+                        [body]:action
+                        [isConstructor]:java_Boolean
+                        (type):type.operation
+                        (predef):definition.explicitFunction
+                        (postdef):definition.explicitFunction
+                        (paramDefinitions):definition*
+                        (state):definition.states
+                        (actualResult):type
                             
-                            (type):type.operation
-                            
-                            (predef):definition.explicitFunction
-                            (postdef):definition.explicitFunction
-                            (paramDefinitions):definition*
-                            (state):definition.#paragraph.state
-                            
-                            (actualResult):type
-                            [isConstructor]:java_Boolean
-                            
-    |   {implicit} 			[parameterPatterns]:pair.patternListType*
-                            [result]:pair.patternType*
-                            //[body]:stm
-                            [externals]:clause.external*
-                            [precondition]:exp 
-                            [postcondition]:exp
-                            [errors]:case.error*
-                            
-                            (type):type.operation
-                            (predef):definition.explicitFunction
-                            (postdef):definition.explicitFunction
-                            (state):definition.#paragraph.state
-                            (actualResult):type
-                            (stateDefinition):definition
-                            [isConstructor]:java_Boolean    
+    |   {implicit}      [parameterPatterns]:pair.patternListType*
+                        [result]:pair.patternType*
+                        [externals]:clause.external*
+                        [precondition]:exp 
+                        [postcondition]:exp
+                        [isConstructor]:java_Boolean    
+                        [errors]:case.error*
+                        (type):type.operation
+                        (predef):definition.explicitFunction
+                        (postdef):definition.explicitFunction
+                        (state):definition.states
+                        (actualResult):type
+                        (stateDefinition):definition
     ;
 
 /*
@@ -136,8 +117,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 */    
 exp {-> package='eu.compassresearch.ast.expressions'}
     =   {bracketed} [expression]:exp /*cml*/
-    |   #Set
-    |   {stateInit} (state):definition.#paragraph.state  
+    |   {stateInit} (state):definition.states  
     |   {tupleSelect} [tuple]:exp [entry]:java_Integer 
     |   #Channel
     | 	{unresolvedPath} [identifiers]:LexIdentifierToken*
@@ -154,16 +134,15 @@ exp {-> package='eu.compassresearch.ast.expressions'}
  	| {enumeration} [renamePairs]:pair.rename*
     ;
     
-#Set {-> package='eu.compassresearch.ast.expressions'}
-    =   #Chanset
-    ;
-    
-#Chanset {-> package='eu.compassresearch.ast.expressions'}
+VarsetExpression {-> package='eu.compassresearch.ast.expressions'}
 	= {identifier} [identifier]:LexIdentifierToken
 	| {enum} [identifiers]:LexIdentifierToken*
 	| {comp} [channelNameExp]:exp.#Channel.name [bindings]:multipleBind* [predicate]:exp 
-    ;
-    
+	| {Union} [left]:VarsetExpression [op]: LexToken [right]:VarsetExpression
+	| {Inter} [left]:VarsetExpression [op]: LexToken [right]:VarsetExpression
+	| {Sub}   [left]:VarsetExpression [op]: LexToken [right]:VarsetExpression
+    	;
+
 /* 
 	Types 
 */
@@ -203,10 +182,9 @@ pair {-> package='eu.compassresearch.ast.patterns'}
 	Process
 */
 process {-> package='eu.compassresearch.ast.process'}
-	= {state} 
-		[definitionParagraphs]:definition.#paragraph* 
+	= {action} 
+		[definitionParagraphs]:definition* 
 		[action]:action
-		(processDefinition):definition.process
 	| {sequentialComposition} 
 		[left]:process 
 		[right]:process
@@ -218,12 +196,12 @@ process {-> package='eu.compassresearch.ast.process'}
 		[right]:process
 	| {generalisedParallelism} 
 		[left]:process 
-		[chansetExpression]:exp 
+		[chansetExpression]:VarsetExpression
 		[right]:process
 	| {alphabetisedParallelism} 
 		[left]:process 
-		[leftChansetExpression]:exp 
-		[rightChansetExpression]:exp 
+		[leftChansetExpression]:VarsetExpression 
+		[rightChansetExpression]:VarsetExpression 
 		[right]:process
 	| {synchronousParallelism} 
 		[left]:process 
@@ -247,7 +225,7 @@ process {-> package='eu.compassresearch.ast.process'}
 		[right]:process
 	| {hiding} 
 		[left]:process 
-		[chansetExpression]:exp
+		[chansetExpression]:VarsetExpression
 	| {startDeadline} 
 		[left]:process 
 		[expression]:exp
@@ -255,7 +233,7 @@ process {-> package='eu.compassresearch.ast.process'}
 		[left]:process 
 		[expression]:exp
 	| {instantiation} 
-		[declarations]:declaration.#Single.type* 
+		[declarations]:singleDeclaration.type* 
 		[process]: process 
 		[args]:exp*
 	| {reference}
@@ -273,12 +251,12 @@ process {-> package='eu.compassresearch.ast.process'}
 	| {externalChoice}
 	| {internalChoice}
 	| {generalisedParallelism} 
-		[chansetExpression]:exp
+		[chansetExpression]:VarsetExpression
 	| {alphabetisedParallelism} 
-		[chansetExpression]:exp
+		[chansetExpression]:VarsetExpression
 	| {synchronousParallelism}
 	| {interleaving} 
-	;	
+	;
 
 
 /* 
@@ -323,7 +301,7 @@ action {-> package='eu.compassresearch.ast.actions'}
 		[timeoutExpression]:exp
 	| {hiding} 
 		[left]:action 
-		[chansetExpression]:exp
+		[chansetExpression]:VarsetExpression
 	| {startDeadline} 
 		[left]:action 
 		[expression]:exp
@@ -333,21 +311,19 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {channelRenaming} 
 		[action]:action 
 		[renameExpression]:exp.#Channel.#Rename
-    | {mu} 
-    	[identifiers]:LexIdentifierToken* 
-    	[actions]:action*
-    | #Parallel
-	| {parametrised} 
-		[parametrisations]:parametrisation* 
+        | {mu} 
+      		[identifiers]:LexIdentifierToken* 
+    		[actions]:action*
+	| #Parallel
+    	| {parametrised} 
+	  	[parametrisations]:parametrisation* 
 		[action]:action 
 	| #Instantiated
 	| #Replicated
-	| #Statement
-	| {call} 
-		[actionName]:LexNameToken
-	| {subclassResponsibility}
-	| {reference} 
-		[name]:LexNameToken
+    	| #Statement
+   	| {subclassResponsibility}
+   	| {reference} 
+	  	[name]:LexNameToken
 		[args]:exp*
 		(actionDefinition):definition.action
 	;
@@ -355,10 +331,10 @@ action {-> package='eu.compassresearch.ast.actions'}
 #Parallel {-> package='eu.compassresearch.ast.actions'}
 	= {interleaving} 
 	| {generalisedParallelism} 
-		[chanSetExpression]:exp
+		[chansetExpression]:VarsetExpression
 	| {alphabetisedParallelism}
-		[leftChanSetExpression]:exp 
-		[rightChanSetExpression]:exp
+		[leftChansetExpression]:VarsetExpression
+		[rightChansetExpression]:VarsetExpression
 	| {synchronousParallelism}
 	;	
 
@@ -367,19 +343,19 @@ action {-> package='eu.compassresearch.ast.actions'}
 	| {externalChoice}
 	| {internalChoice}
 	| {interleaving} 
-		[nameSetExpression]:exp
+		[namesetExpression]:VarsetExpression
 	| {generalisedParallelism} 
-		[chansetExpression]:exp
-		[nameSetExpression]:exp
+		[chansetExpression]:VarsetExpression
+		[namesetExpression]:VarsetExpression
 	| {alphabetisedParallelism}
-		[nameSetExpression]:exp 
-		[chansetExpression]:exp
+		[namesetExpression]:VarsetExpression
+		[chansetExpression]:VarsetExpression
 	| {synchronousParallelism}
-		[nameSetExpression]:exp
+		[namesetExpression]:VarsetExpression
 	;	
 	
 #Instantiated {-> package='eu.compassresearch.ast.actions'}
-	= {declaration} [declaration]:declaration.#Single.type* [action]:action [args]:exp*
+	= {declaration} [declaration]:singleDeclaration.type* [action]:action [args]:exp*
 	| {parametrised} [action]:action.parametrised  [args]:exp*
 	;
 	
@@ -394,12 +370,6 @@ parametrisation {-> package='eu.compassresearch.ast.actions'}
 	| {res} 
 	| {vres} 
 	;
-//These are now patterns instead
-//parameter {-> package='eu.compassresearch.ast.actions'}
-//	= {identifier} [identifier]:LexIdentifierToken
-//	| {tuple} [parameters]:parameter*
-//	| {record}	[name]:LexNameToken [parameters]:parameter* 
-//	;
 
 #Statement {-> package='eu.compassresearch.ast.actions'}
 	= {let} [action]:action [localDefinitions]:definition*
@@ -422,34 +392,33 @@ parametrisation {-> package='eu.compassresearch.ast.actions'}
 		[cases]:alternativeAction.case* 
 		[others]:action
 	| #GeneralAssignment
-	| {call} 
-		[objectDesignator]:objectDesignator 
-		[name]:LexNameToken 
-		[args]:exp*
 	| {specification} 
 		[externals]:clause.external* 
 		[precondition]:exp 
 		[postcondition]:exp 
+        | {call} 
+		[name]:LexNameToken 
+		[args]:exp*
 	| {assignmentCall} 
-		[designator]:stateDesignator 
+		[designator]:exp 
 		[call]:action.#Statement.call
 	| {return} 
 		[exp]:exp
     | {notYetSpecified} 
 		[opname]:LexNameToken 
 		[args]:exp*
-	| {new} 
-		[destination]:stateDesignator 
-		[className]:LexNameToken 
-		[args]:exp* 
-		(classdef):definition.#paragraph.class 
-		(ctorDefinition):definition
-	| {nonDeterministicDo} 
-		[alternatives]:action.#Statement.nonDeterministicAlt*
-	| {forSet} 
-		[pattern]:pattern 
-		[set]:exp 
-		[action]:action
+    | {new} 
+	[destination]:exp 
+	[className]:LexNameToken 
+	[args]:exp* 
+	(classdef):definition.class 
+	(ctorDefinition):definition
+    | {nonDeterministicDo} 
+	[alternatives]:action.#Statement.nonDeterministicAlt*
+    | {forSet} 
+	[pattern]:pattern 
+	[set]:exp 
+	[action]:action
     | {forIndex} 
     	[var]:LexNameToken 
     	[from]:exp 
@@ -458,7 +427,6 @@ parametrisation {-> package='eu.compassresearch.ast.actions'}
     	[action]:action
     | {forSequence} 
     	[patternBind]:patternBind.def 
-    	//[reverse]:java_Boolean 
     	[exp]:exp 
     	[action]:action 
     	(seqType):type.#seq
@@ -469,17 +437,9 @@ parametrisation {-> package='eu.compassresearch.ast.actions'}
 	;
 
 #GeneralAssignment {-> package='eu.compassresearch.ast.actions'}
-    = {single} [stateDesignator]:stateDesignator [expression]:exp
+    = {single} [stateDesignator]:exp [expression]:exp
     | {multiple} [assignments]:action.#Statement.#GeneralAssignment.single*
 	;
-
-objectDesignator {-> package='eu.compassresearch.ast.actions'}
-	= {unresolved} [identifiers]:LexIdentifierToken* 
-	;
-	
-stateDesignator {-> package='eu.compassresearch.ast.actions'}
-    =   {unresolved} [identifiers]:LexIdentifierToken*
-    ;
 
 alternativeAction {-> package='eu.compassresearch.ast.actions'}
     = {case} [location]:location [pattern]:pattern* [result]:action (defs):definition* 
@@ -493,13 +453,13 @@ Aspect Declaration
 %exp = (isVisited):java_Boolean
      ;
 	
-%action->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedAction]:action 
+%action->#Replicated = [replicationDeclaration]:singleDeclaration* [replicatedAction]:action 
 	;
 	
 %action->#Parallel = 	[leftAction]:action
-						[leftNameSetExpression]:exp 
-						[rightNameSetExpression]:exp
-						[rightAction]:action
+			[leftNamesetExpression]:VarsetExpression
+			[rightNamesetExpression]:VarsetExpression
+			[rightAction]:action
 	;	
 
 %action = (type):type
@@ -508,20 +468,20 @@ Aspect Declaration
 %communicationParameter = [location]:location [pattern]:pattern
 	; 
 
-%declaration =  [location]:location [nameScope]:nameScope
+%singleDeclaration =  [location]:location [nameScope]:nameScope
 	;
     
-%parametrisation = [location]:location [declaration]:declaration.#Single.type 
+%parametrisation = [location]:location [declaration]:singleDeclaration.type 
 	;
 
 %process =  [location]:location 
 	;
 
-%process->#Replicated = [replicationDeclaration]:declaration.#Single* [replicatedProcess]:process 
+%process->#Replicated = [replicationDeclaration]:singleDeclaration* [replicatedProcess]:process 
 	;
 
 %parameter = [location]:location
 	; 
 
-%source = [paragraphs]: definition.#paragraph*
+%source = [paragraphs]: definition*
 	;
