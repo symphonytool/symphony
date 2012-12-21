@@ -72,8 +72,11 @@ import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.ATypesDefinition;
 import org.overture.ast.definitions.AValueDefinition;
+import org.overture.ast.definitions.AValuesDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.*;
 import org.overture.ast.lex.*;
@@ -218,7 +221,7 @@ classDefinition returns[AClassParagraphDefinition def]
             // FIXME --- Will need to check
             // AInitialParagraphDefinition defs that their identifier
             // matches the one here.
-            $def = new AClassParagraphDefinition(); // FIXME
+            $def = new AClassDefinition(); // FIXME
         }
     ;
 
@@ -226,7 +229,7 @@ processDefinition returns[AProcessParagraphDefinition def]
 @after { $def.setLocation(extractLexLocation($processDefinition.start, $processDefinition.stop)); }
     : 'process' IDENTIFIER '=' ((procDeclarations)=>procDeclarations)? process
         {
-            $def = new AProcessParagraphDefinition(); // FIXME
+            $def = new AProcessDefinition(); // FIXME
         }
     ;
 
@@ -315,10 +318,10 @@ processParagraph returns[PDefinition defs]
     | namesetDefs       { $defs = $namesetDefs.defs; }
     ;
 
-actionDefs returns[AActionParagraphDefinition defs]
+actionDefs returns[AActionsDefinition defs]
     : 'actions' actionDef*
         {
-            $defs = new AActionParagraphDefinition(); // FIXME
+            $defs = new AActionsDefinition(); // FIXME
         }
     ;
 
@@ -638,10 +641,10 @@ channelDef returns[AChannelNameDefinition def]
         }
     ;
 
-chansetDefs returns[AChansetParagraphDefinition defs]
+chansetDefs returns[AChansetsDefinition defs]
     : 'chansets' chansetDef*
         {
-            $defs = new AChansetParagraphDefinition(); // FIXME
+            $defs = new AChansetsDefinition(); // FIXME
         }
     ;
 
@@ -672,10 +675,10 @@ chansetNamesetExprbase
     ;
 
 // FIXME --- this is the wrong type, but Nameset isn't in the AST yet
-namesetDefs returns[AChansetParagraphDefinition defs]
+namesetDefs returns[ANamesetsDefinition defs]
     : 'namesets' namesetDef*
         {
-            $defs = new AChansetParagraphDefinition(); // FIXME
+            $defs = new ANamesetsDefinition(); // FIXME
         }
     ;
 
@@ -695,12 +698,12 @@ classDefinitionBlock returns[PDefinition defs]
         }
     ;
 
-valueDefs returns[AValueParagraphDefinition defs]
+valueDefs returns[AValuesDefinition defs]
 @after { $defs.setLocation(extractLexLocation($valueDefs.start, $valueDefs.stop)); }
     : 'values' qualValueDefinitionList? ';'?
         {
             AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($valueDefs.start));
-            $defs = new AValueParagraphDefinition(null, NameScope.NAMES, false, access, null, $qualValueDefinitionList.defs);
+            $defs = new AValuesDefinition(null, NameScope.NAMES, false, access, null, $qualValueDefinitionList.defs);
         }
     ;
 
@@ -735,11 +738,11 @@ valueDefinition returns[AValueDefinition def]
         }
     ;
 
-stateDefs returns[AStateParagraphDefinition defs]
+stateDefs returns[AStateDefinition defs]
 @after { $defs.setLocation(extractLexLocation($stateDefs.start, $stateDefs.stop)); }
     : 'state' instanceVariableDefinitionList? ';'?
         {
-            $defs = new AStateParagraphDefinition();
+            $defs = new AStateDefinition();
             if ($instanceVariableDefinitionList.defs != null)
                 $defs.setStateDefs($instanceVariableDefinitionList.defs);
         }
@@ -795,12 +798,12 @@ invariantDefinition returns[AClassInvariantDefinition def]
         }
     ;
 
-functionDefs returns[AFunctionParagraphDefinition defs]
+functionDefs returns[AFunctionsDefinition defs]
 @after { $defs.setLocation(extractLexLocation($functionDefs.start, $functionDefs.stop)); }
     : 'functions' qualFunctionDefinitionOptList
         {
             AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start));
-            $defs = new AFunctionParagraphDefinition(null, NameScope.GLOBAL, false, access, null, $qualFunctionDefinitionOptList.defs);
+            $defs = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null, $qualFunctionDefinitionOptList.defs);
         }
     ;
 
@@ -941,11 +944,11 @@ functionBody returns[PExp exp]
     | 'is' 'subclass' 'responsibility' { $exp = new ASubclassResponsibilityExp(); }
     ;
 
-operationDefs returns[AOperationParagraphDefinition defs]
+operationDefs returns[AOperationsDefinition defs]
 @after { $defs.setLocation(extractLexLocation($operationDefs.start, $operationDefs.stop)); }
     : 'operations' qualOperationDefOptList
         {
-            $defs = new AOperationParagraphDefinition(); // FIXME
+            $defs = new AOperationsDefinition(); // FIXME
             $defs.setOperations($qualOperationDefOptList.defs);
             $defs.setNameScope(NameScope.LOCAL);
             $defs.setUsed(false);
@@ -1033,7 +1036,7 @@ typeDefs returns[PDefinition defs]
             LexLocation loc = extractLexLocation($t);
             if (typeDefList.size()>0)
                 loc = extractLexLocation(loc,last.getLocation());
-            $defs = new ATypesParagraphDefinition(loc, NameScope.LOCAL, false,
+            $defs = new ATypesDefinition(loc, NameScope.LOCAL, false,
                                                   CmlParserHelper.getDefaultAccessSpecifier(true, false, loc),
                                                   null, typeDefList);
             $defs.setName(new LexNameToken("", $t.getText(), loc));

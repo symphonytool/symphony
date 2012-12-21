@@ -69,13 +69,13 @@ definition {-> package='eu.compassresearch.ast.definitions'}
         [types]: definition.type*
    | {operations} 
 	[operations]:definition.#operation*
-   | {function} 
+   | {functions} 
 	[functionDefinitions]:definition*
    | {values} 
 	[valueDefinitions]: definition*
    | {initial} 
 	[operationDefinition]: definition
-   | {states} 
+   | {state} 
 	[fields]:field.field* 
         [invPattern]:pattern [invExpression]:exp (invdef):definition.explicitFunction
         [initPattern]:pattern [initExpression]:exp (initdef):definition.explicitFunction
@@ -94,7 +94,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                         (predef):definition.explicitFunction
                         (postdef):definition.explicitFunction
                         (paramDefinitions):definition*
-                        (state):definition.states
+                        (state):definition.state
                         (actualResult):type
                             
     |   {implicit}      [parameterPatterns]:pair.patternListType*
@@ -107,7 +107,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
                         (type):type.operation
                         (predef):definition.explicitFunction
                         (postdef):definition.explicitFunction
-                        (state):definition.states
+                        (state):definition.state
                         (actualResult):type
                         (stateDefinition):definition
     ;
@@ -117,7 +117,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 */    
 exp {-> package='eu.compassresearch.ast.expressions'}
     =   {bracketed} [expression]:exp /*cml*/
-    |   {stateInit} (state):definition.states  
+    |   {stateInit} (state):definition.state  
     |   {tupleSelect} [tuple]:exp [entry]:java_Integer 
     |   #Channel
     | 	{unresolvedPath} [identifiers]:LexIdentifierToken*
