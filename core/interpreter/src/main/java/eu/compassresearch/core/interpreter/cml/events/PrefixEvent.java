@@ -40,15 +40,6 @@ public class PrefixEvent extends ObservableEvent {
 	}
 
 	@Override
-	public boolean isReferencedFrom(ObservableEvent ref) {
-		
-		if(!(ref instanceof PrefixEvent) || !ref.isReferenceEvent())
-			return false;
-		
-		return getChannel().equals(ref.getChannel());
-	}
-
-	@Override
 	public void handleChannelEventRegistration(ChannelObserver observer) {
 		
 		getChannel().onChannelSignal().registerObserver(observer);

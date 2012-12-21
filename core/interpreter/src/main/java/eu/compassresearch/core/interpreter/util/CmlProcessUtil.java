@@ -63,7 +63,7 @@ public class CmlProcessUtil {
 		for(LexIdentifierToken id : chanset.getIdentifiers())
 		{
 			//FIXME: This should be a name so the conversion is avoided
-			LexNameToken channelName = new LexNameToken("Default",id);
+			LexNameToken channelName = new LexNameToken("|CHANNELS|",id);
 			CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 			ObservableEvent com = new PrefixEvent(sourceProcess,chanValue);
 			coms.add(com);

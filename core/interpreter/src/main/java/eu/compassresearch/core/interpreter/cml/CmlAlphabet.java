@@ -1,7 +1,7 @@
 package eu.compassresearch.core.interpreter.cml;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -9,11 +9,9 @@ import java.util.Set;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlSpecialEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.cml.events.SynchronisationEvent;
 
 /**
  * This represents a CML alphabet containing both silent and observable events
- * FIXME: AKM Its not deterministic beacuse of Set
  * @author akm
  *
  */
@@ -24,7 +22,7 @@ public class CmlAlphabet {
 	
 	public CmlAlphabet()
 	{
-		this.specialEvents = new HashSet<CmlSpecialEvent>();
+		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
 		this.referenceEvents = new HashMap<ObservableEvent,Set<ObservableEvent>>();
 	}
 	
@@ -43,8 +41,8 @@ public class CmlAlphabet {
 	
 	public CmlAlphabet(Set<CmlEvent> events)
 	{
-		Set<ObservableEvent> observableEvents = new HashSet<ObservableEvent>();
-		this.specialEvents = new HashSet<CmlSpecialEvent>();
+		Set<ObservableEvent> observableEvents = new LinkedHashSet<ObservableEvent>();
+		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
 		this.referenceEvents = new HashMap<ObservableEvent,Set<ObservableEvent>>();
 		
 		for(CmlEvent e : events)
@@ -63,7 +61,7 @@ public class CmlAlphabet {
 		for(ObservableEvent oe : observableEvents)
 		{
 			if(oe.isReferenceEvent())
-				referenceEvents.put(oe, new HashSet<ObservableEvent>());
+				referenceEvents.put(oe, new LinkedHashSet<ObservableEvent>());
 			else
 			{
 				ObservableEvent ref = oe.getReferenceEvent();
@@ -72,7 +70,7 @@ public class CmlAlphabet {
 					referenceEvents.get(ref).add(oe);
 				else
 				{
-					Set<ObservableEvent> mapped = new HashSet<ObservableEvent>();
+					Set<ObservableEvent> mapped = new LinkedHashSet<ObservableEvent>();
 					mapped.add(oe);
 					referenceEvents.put(ref, mapped);
 				}
@@ -83,7 +81,7 @@ public class CmlAlphabet {
 	
 	public Set<ObservableEvent> getObservableEvents()
 	{
-		HashSet<ObservableEvent> obsEvents = new HashSet<ObservableEvent>();
+		Set<ObservableEvent> obsEvents = new LinkedHashSet<ObservableEvent>();
 		for(Set<ObservableEvent> obsEventSet : referenceEvents.values())
 			obsEvents.addAll(obsEventSet);
 		return obsEvents;
@@ -101,12 +99,12 @@ public class CmlAlphabet {
 	
 	public Set<CmlSpecialEvent> getSpecialEvents()
 	{
-		return new HashSet<CmlSpecialEvent>(specialEvents);
+		return new LinkedHashSet<CmlSpecialEvent>(specialEvents);
 	}
 	
 	public Set<CmlEvent> getAllEvents()
 	{
-		HashSet<CmlEvent> allEvents = new HashSet<CmlEvent>();
+		Set<CmlEvent> allEvents = new LinkedHashSet<CmlEvent>();
 		for(Set<ObservableEvent> obsEventSet : referenceEvents.values())
 			allEvents.addAll(obsEventSet);
 		allEvents.addAll(specialEvents);
@@ -139,10 +137,10 @@ public class CmlAlphabet {
 	{
 		
 		//first we find the common reference event set
-		Set<ObservableEvent> commonReferenceSet  = new HashSet<ObservableEvent>(referenceEvents.keySet());
+		Set<ObservableEvent> commonReferenceSet  = new LinkedHashSet<ObservableEvent>(referenceEvents.keySet());
 		commonReferenceSet.retainAll(other.referenceEvents.keySet());
 
-		Set<CmlEvent> resultSet = new HashSet<CmlEvent>();
+		Set<CmlEvent> resultSet = new LinkedHashSet<CmlEvent>();
 		for(ObservableEvent refEvent : commonReferenceSet)
 		{
 			resultSet.addAll( referenceEvents.get(refEvent) );
@@ -157,10 +155,10 @@ public class CmlAlphabet {
 	{
 		
 		//first we find the common reference event set
-		Set<ObservableEvent> commonReferenceSet  = new HashSet<ObservableEvent>(referenceEvents.keySet());
+		Set<ObservableEvent> commonReferenceSet  = new LinkedHashSet<ObservableEvent>(referenceEvents.keySet());
 		commonReferenceSet.retainAll(other.referenceEvents.keySet());
 
-		Set<CmlEvent> resultSet = new HashSet<CmlEvent>();
+		Set<CmlEvent> resultSet = new LinkedHashSet<CmlEvent>();
 		for(ObservableEvent refEvent : commonReferenceSet)
 		{
 			resultSet.addAll( referenceEvents.get(refEvent) );

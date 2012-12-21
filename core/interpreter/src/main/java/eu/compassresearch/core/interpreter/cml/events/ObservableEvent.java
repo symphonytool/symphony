@@ -32,8 +32,6 @@ public abstract class ObservableEvent extends CmlEvent {
 	
 	public abstract ObservableEvent getReferenceEvent();
 	
-	public abstract boolean isReferencedFrom(ObservableEvent ref);
-	
 	public abstract void handleChannelEventRegistration(ChannelObserver observer);
 	
 	public abstract void handleChannelEventUnregistration(ChannelObserver observer);

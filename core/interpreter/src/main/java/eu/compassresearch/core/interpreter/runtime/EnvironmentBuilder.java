@@ -148,7 +148,7 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
     	{
     		for (LexIdentifierToken channelName : cnd.getSingleType().getIdentifiers())
     		{
-    			LexNameToken name = new LexNameToken("Default", channelName);
+    			LexNameToken name = new LexNameToken("|CHANNELS|", channelName);
     			globalState.putNew(new NameValuePair(name, new CMLChannelValue(cnd.getSingleType().getType(),name)));
     			//globalDefs.add(e) addChannel(channelName, cnd.getSingleType().getType());
     		}

@@ -33,6 +33,10 @@ import eu.compassresearch.core.interpreter.util.Pair;
 public abstract class AbstractInstance<T extends INode> extends AbstractEvaluator<T>
 		implements CmlProcess , ChannelObserver {
 	
+	/**
+	 * 
+	 */
+	private static final long 			serialVersionUID = -4920762081111266274L;
 	protected CmlProcessState 			state;
 	protected List<CmlProcess> 			children = new LinkedList<CmlProcess>();
 	protected CmlProcess 				parent;
@@ -150,9 +154,21 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		}
 	}
 	
+	/**
+	 * Execute region end
+	 */
+	
 	@Override
 	public CmlSupervisorEnvironment supervisor() {
 		return env;
+	}
+	
+	@Override
+	public Pair<T, Context> getExecutionState() {
+		if(hasNext())
+			return nextState();
+		else
+			return prevState();
 	}
 	
 	@Override
@@ -169,26 +185,6 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 		setState(CmlProcessState.FINISHED);
 	}
 	
-	@Override
-	public List<Pair<T,Context>> getExecutionState() 
-	{
-		if(hasNext())
-			return this.getExecutionStack();
-		else
-		{
-			List<Pair<T,Context>> res = new LinkedList<Pair<T,Context>>();
-			res.add(prevState());
-			return res;
-		}
-		//the newest context is in the context of the next state
-		//However if there is no next state we need to take the last
-		//executed state
-//		if(hasNext())
-//			return nextState();
-//		else
-//			return prevState();
-	}
-			
 	/**
 	 * Process graph methods
 	 */

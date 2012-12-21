@@ -10,6 +10,7 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
 
+@SuppressWarnings("serial")
 public class CmlDeclAndDefEvaluator extends
 		QuestionAnswerCMLAdaptor<Context, Value> {
 
@@ -41,7 +42,7 @@ public class CmlDeclAndDefEvaluator extends
 			expValue = node.getExpression().apply(parentInterpreter,question);
 		else
 			expValue = new UndefinedValue();
-		//LexNameToken nt = new LexNameToken("Default",node.getName());
+		
 		question.put(node.getName(), expValue);
 		return expValue;
 	}

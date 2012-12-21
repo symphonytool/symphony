@@ -33,7 +33,7 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	 * Returns the current execution state of the process
 	 * @return The current context
 	 */
-	public <T extends INode> List<Pair<T,Context>> getExecutionState();
+	public Pair<? extends INode,Context> getExecutionState();
 	
 	/**
 	 * Name of the process
@@ -85,6 +85,9 @@ public interface CmlProcess extends CmlProcessBehaviour{
 	 * Denotational Semantics Information
 	 */
 	public CmlTrace getTraceModel();
+	//public CSPFailures failuresModel();
+	//public CSPDivergencies divergenciesModel();
+	//public CSPFailuresDivergencies failuresDivergenciesModel();
 	
 	/**
 	 * Register or unregister for the State Changed event

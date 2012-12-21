@@ -222,17 +222,21 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			ACommunicationAction node, Context question)
 			throws AnalysisException {
 		
-		CmlBehaviourSignal result = null;
+		pushNext(node.getAction(), question); 
 		
-		//TODO: sync/output/input is still missing
-		//At this point the supervisor has already given go to the event, 
-		//so we can execute it immediately. We just have figure out which kind of event it is
-		if(CmlActionAssistant.isPrefixEvent(node))
-			result = casePrefixEvent(node, question);
-	
-		//supervisor().clearSelectedCommunication();
+		return CmlBehaviourSignal.EXEC_SUCCESS;
 		
-		return result;
+//		CmlBehaviourSignal result = null;
+//		
+//		//TODO: sync/output/input is still missing
+//		//At this point the supervisor has already given go to the event, 
+//		//so we can execute it immediately. We just have figure out which kind of event it is
+//		if(CmlActionAssistant.isPrefixEvent(node))
+//			result = casePrefixEvent(node, question);
+//	
+//		//supervisor().clearSelectedCommunication();
+//		
+//		return result;
 	}
 	
 	/**
@@ -273,43 +277,18 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!hasChildren()){
 			result = caseExternalChoiceBegin(node,question);
-			//We push the current state, since this process will control the child processes created by it
-			pushNext(node, question);
 		}
 		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 		//with the state from the skip. After this all the children processes are terminated
 		else if(CmlProcessUtil.existsAFinishedChild(this))
 		{
-			//find the finished child
-			CmlProcess skipChild = findFinishedChild();
-			
-			//get the state replace the current state
-			pushNext(new ASkipAction(), skipChild.getExecutionState().get(0).second);
-			
-			//mmmmuhuhuhahaha kill all the children
-			killAndRemoveAllTheEvidenceOfTheChildren();
-			
-			result = CmlBehaviourSignal.EXEC_SUCCESS;
+			result = caseExternalChoiceSkip();
 		}
 		//if this is true, then we can resolve the choice to the event
 		//of one of the children that are waiting for events
 		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
 		{
-			CmlProcess theChoosenOne = findTheChoosenChild(supervisor().selectedCommunication());
-			
-			result = executeChild(theChoosenOne);
-			
-			//get the state replace the current state
-			//FIXME: this is really really ugly
-			for(Pair<PAction,Context> state : theChoosenOne.<PAction>getExecutionState())
-			{
-				pushNext(state.first, 
-						state.second);
-			}
-			setState(CmlProcessState.RUNNING);
-			
-			//mmmmuhuhuhahaha kill all the children
-			killAndRemoveAllTheEvidenceOfTheChildren();
+			result = caseExternalChoiceEnd();
 		}
 		else
 			result = CmlBehaviourSignal.FATAL_ERROR;
@@ -320,42 +299,13 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	/**
 	 * External Choice helper methods
 	 */
-	
-	private CmlProcess findFinishedChild()
-	{
-		for(CmlProcess child : children())
-		{
-			if(child.finished())
-				return child;
-		}
-		
-		return null;
-	}
-	
-	private CmlProcess findTheChoosenChild(ObservableEvent event)
-	{
-		List<CmlProcess> waitingChildren = new LinkedList<CmlProcess>();
-		
-		for(CmlProcess child : children())
-		{
-			if(child.waiting() && child.inspect().containsCommunication(event))
-				return child;
-		}
-		
-		return null;
-	}
-	
-	private void killAndRemoveAllTheEvidenceOfTheChildren()
-	{
-		for(CmlProcess child : children())
-		{
-			child.setAbort(null);
-		}
-		
-		removeTheChildren();
-	}
-	
-	
+
+	/**
+	 * handles the External Choice Begin Rule
+	 * @param node
+	 * @param question
+	 * @return
+	 */
 	private CmlBehaviourSignal caseExternalChoiceBegin(AExternalChoiceAction node,Context question)
 	{
 		PAction left = node.getLeft();
@@ -387,9 +337,121 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		//Now let this process wait for the children to get into a waitForEvent state
 		setState(CmlProcessState.WAIT_CHILD);
 		
+		//We push the current state, since this process will control the child processes created by it
+		pushNext(node, question);
+		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
+	/**
+	 * Handles the External Choice Skip rule
+	 * @return
+	 */
+	private CmlBehaviourSignal caseExternalChoiceSkip()
+	{
+		//find the finished child
+		CmlProcess skipChild = findFinishedChild();
+		
+		//FIXME: maybe the we should differentiate between actions and process instead of just having CmlProcess
+		// 		Childerens. We clearly need it!
+		//we know its an action
+		CmlActionInstance childAction = (CmlActionInstance)skipChild; 
+		
+		//Extract the current context of finished child action and use it as the context
+		//for the Skip action.
+		pushNext(new ASkipAction(), childAction.prevState().second);
+		
+		//mmmmuhuhuhahaha kill all the children
+		killAndRemoveAllTheEvidenceOfTheChildren();
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	private CmlBehaviourSignal caseExternalChoiceEnd()
+	{
+		CmlProcess theChoosenOne = findTheChoosenChild(supervisor().selectedCommunication());
+		
+		//first we execute the child
+		CmlBehaviourSignal result = executeChild(theChoosenOne);
+		
+		//FIXME: maybe the we should differentiate between actions and process instead of just having CmlProcess
+		//Children. We clearly need it!
+		//we know its an action
+		CmlActionInstance theChoosenOneAction = (CmlActionInstance)theChoosenOne;
+		
+		
+		if(theChoosenOneAction.hasNext())
+		{	//get the state replace the current state
+			//FIXME: this is really really ugly
+			for(Pair<PAction,Context> state : theChoosenOneAction.getExecutionStack())
+			{
+				pushNext(state.first, 
+						state.second);
+			}
+		}
+		else
+		{
+			pushNext(theChoosenOneAction.prevState().first, 
+					theChoosenOneAction.prevState().second);
+		}
+		setState(CmlProcessState.RUNNING);
+		
+		//mmmmuhuhuhahaha kill all the children
+		killAndRemoveAllTheEvidenceOfTheChildren();
+		
+		return result;
+	}
+	
+	/**
+	 * Finds the first finished child if any
+	 * @return The first finished child, if none then null is returned
+	 */
+	private CmlProcess findFinishedChild()
+	{
+		for(CmlProcess child : children())
+		{
+			if(child.finished())
+				return child;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param event
+	 * @return
+	 */
+	private CmlProcess findTheChoosenChild(ObservableEvent event)
+	{
+		List<CmlProcess> waitingChildren = new LinkedList<CmlProcess>();
+		
+		for(CmlProcess child : children())
+		{
+			if(child.waiting() && child.inspect().containsCommunication(event))
+				return child;
+		}
+		
+		return null;
+	}
+	
+	private void killAndRemoveAllTheEvidenceOfTheChildren()
+	{
+		//Abort all the children of this action
+		for(CmlProcess child : children())
+		{
+			child.setAbort(null);
+		}
+		
+		//Remove them from the supervisor
+		removeTheChildren();
+	}
+	
+	/**
+	 * External Choice  
+	 * End of region
+	 * 
+	*/
 	
 	/**
 	 * This implements the 7.5.10 Action Reference transition rule in D23.2. 

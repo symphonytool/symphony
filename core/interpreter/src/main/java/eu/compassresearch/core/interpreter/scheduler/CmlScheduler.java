@@ -10,13 +10,12 @@ import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.events.CmlProcessObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 
-public class CmlScheduler implements CmlProcessObserver, CmlProcessStateObserver , Scheduler{
+public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 
 	List<CmlProcess> running = new LinkedList<CmlProcess>();
 	List<CmlProcess> waiting = new LinkedList<CmlProcess>();
@@ -212,11 +211,11 @@ public class CmlScheduler implements CmlProcessObserver, CmlProcessStateObserver
 	}
 	
 	
-	@Override
-	public void onTraceChange(TraceEvent traceEvent) {
-		//TODO: here the presenting logic should be for running process
-		//CmlProcess p = traceEvent.getSource();
-		//CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
-		//CmlRuntime.logger().fine("next: " + p.nextStepToString());
-	}
+//	@Override
+//	public void onTraceChange(TraceEvent traceEvent) {
+//		//TODO: here the presenting logic should be for running process
+//		//CmlProcess p = traceEvent.getSource();
+//		//CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
+//		//CmlRuntime.logger().fine("next: " + p.nextStepToString());
+//	}
 }

@@ -1,10 +1,13 @@
 package eu.compassresearch.core.interpreter.eval;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.patterns.AExpressionPattern;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
@@ -13,15 +16,22 @@ import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
+import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
+import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
+import eu.compassresearch.core.interpreter.cml.events.CommunicationParameter;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
+import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
 import eu.compassresearch.core.interpreter.cml.events.SynchronisationEvent;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlProcessUtil;
@@ -31,6 +41,7 @@ import eu.compassresearch.core.interpreter.values.CMLChannelValue;
  * @author akm
  *
  */
+@SuppressWarnings("serial")
 public class AlphabetInspectionVisitor
 		extends
 		QuestionAnswerCMLAdaptor<Context, eu.compassresearch.core.interpreter.cml.CmlAlphabet> {
@@ -71,19 +82,50 @@ public class AlphabetInspectionVisitor
 			Context question) throws AnalysisException {
 
 		//FIXME: This should be a name so the conversion is avoided
-		LexNameToken channelName = new LexNameToken("Default",node.getIdentifier());
+		LexNameToken channelName = new LexNameToken("|CHANNELS|",node.getIdentifier());
 		
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 		
-//		node.getCommunicationParameters()
-		ObservableEvent observableEvent = null;
+		Set<CmlEvent> comset = new HashSet<CmlEvent>();
 		
 		if(CmlActionAssistant.isPrefixEvent(node))
-			observableEvent = new PrefixEvent(ownerProcess, chanValue);
-		//TODO: do the rest here
+		{
+			ObservableEvent observableEvent = new PrefixEvent(ownerProcess, chanValue);
+			comset.add(observableEvent);
+		}
+		else
+		{
+			List<CommunicationParameter> params = new LinkedList<CommunicationParameter>();
+			for(PCommunicationParameter p : node.getCommunicationParameters())
+			{
+				CommunicationParameter param = null;
+				if(p instanceof ASignalCommunicationParameter)
+				{
+					ASignalCommunicationParameter signal = (ASignalCommunicationParameter)p;
+					//TODO: this will change in the next AST version
+					AExpressionPattern patternExp  = (AExpressionPattern)signal.getPattern(); 
+					Value valueExp = patternExp.getExp().apply(cmlEvaluator,question);
+					param = new SignalParameter((ASignalCommunicationParameter)p, valueExp);
+					//FIXME: This should be done using the type of the channel
+					//long val = valueExp.intValue(question);
+				}
+				else if(p instanceof AWriteCommunicationParameter)
+				{
+					AWriteCommunicationParameter signal = (AWriteCommunicationParameter)p;
+					//TODO: this will change in the next AST version
+					AExpressionPattern patternExp  = (AExpressionPattern)signal.getPattern(); 
+					Value valueExp = patternExp.getExp().apply(cmlEvaluator,question);
+					param = new OutputParameter((AWriteCommunicationParameter)p, valueExp);
+				}
+				
+				params.add(param);
+			}
 			
-		Set<CmlEvent> comset = new HashSet<CmlEvent>();
-		comset.add(observableEvent);
+			ObservableEvent observableEvent = new CmlCommunicationEvent(ownerProcess, chanValue, params);
+			comset.add(observableEvent);
+		}
+		//TODO: do the rest here
+		
 		return new CmlAlphabet(comset);
 	}
 	

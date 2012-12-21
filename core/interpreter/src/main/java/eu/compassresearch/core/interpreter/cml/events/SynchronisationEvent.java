@@ -92,9 +92,4 @@ public class SynchronisationEvent extends ObservableEvent {
 		return synchronisingEvents.iterator().next().getReferenceEvent();
 	}
 
-	@Override
-	public boolean isReferencedFrom(ObservableEvent ref) {
-		return synchronisingEvents.iterator().next().isReferencedFrom(ref);
-	}
-
 }

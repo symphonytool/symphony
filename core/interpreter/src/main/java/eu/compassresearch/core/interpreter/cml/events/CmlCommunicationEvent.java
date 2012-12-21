@@ -1,71 +1,43 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.cml.CmlCommunicationType;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
 public class CmlCommunicationEvent extends ObservableEvent {
 
-	private List<CmlCommunicationEvent> synchronisations = new LinkedList<CmlCommunicationEvent>();
-	final protected Value value;
+	final protected List<CommunicationParameter> params;
 	
-	public CmlCommunicationEvent(CmlProcess source, CMLChannelValue channel, Value value)
+	public CmlCommunicationEvent(CmlProcess source, CMLChannelValue channel, List<CommunicationParameter> params)
 	{
 		super(source,channel);
-		this.value = value;
+		this.params = params;
 	}
 	
-	private CmlCommunicationEvent(CmlProcess source, CmlCommunicationEvent left, CmlCommunicationEvent right, Value value)
-	{
-		super(source,left.getChannel());
-		this.synchronisations.add(left);
-		this.synchronisations.add(right);
-		this.value = value;
-	}
-	
-	public Value getValue()
-	{
-		return value;
-	}
+//	public Value getValue()
+//	{
+//		return value;
+//	}
 	
 	@Override 
 	public String toString() 
 	{
-		return channel.getName() + (getValue() != null ? "" : "." + value);
+		StringBuilder strBuilder = new StringBuilder(channel.getName());
+		for(CommunicationParameter param : params)
+			strBuilder.append(param);
+		
+		return strBuilder.toString();
 	};
 	
 	@Override 
 	public int hashCode() {
 		
-		return this.toString().hashCode() + this.eventSource.hashCode();
+		return this.toString().hashCode() + (this.eventSource != null ? this.eventSource.hashCode() : "null".hashCode());
 	};
-	
-	/**
-	 * This merges the sources of the this and other object.
-	 * @param other
-	 * @return
-	 */
-	public CmlCommunicationEvent createSyncEventWith(CmlProcess source, CmlCommunicationEvent other, Value value)
-	{
-		if(equalsIqnoreSource(other))
-		{
-			//
-			return new CmlCommunicationEvent(source,this,other,value);
-		}
-		else
-			return null;
-	}
-	
-	public boolean isSynchronisationEvent()
-	{
-		return synchronisations.size() > 1;
-	}
 	
 	public boolean hasSource()
 	{
@@ -87,29 +59,29 @@ public class CmlCommunicationEvent extends ObservableEvent {
 		
 		other = (CmlCommunicationEvent)obj;
 		
-		return other.getChannel().equals(getChannel()) && other.getEventSource().equals(getEventSource());
+		return other.getChannel().equals(getChannel()) && 
+				other.getEventSource() == getEventSource();
 	}
 
 	@Override
 	public void handleChannelEventRegistration(ChannelObserver observer) {
-		// TODO Auto-generated method stub
-		
+
+		for(CommunicationParameter param : params)
+			param.handleChannelEventRegistration(channel, observer);
+
 	}
 
 	@Override
 	public ObservableEvent getReferenceEvent() {
-		return new CmlCommunicationEvent(null, channel, value);
+		return new CmlCommunicationEvent(null, channel, params);
 	}
 
 	@Override
 	public void handleChannelEventUnregistration(ChannelObserver observer) {
-		// TODO Auto-generated method stub
+
+		for(CommunicationParameter param : params)
+			param.handleChannelEventUnregistration(channel, observer);
 		
 	}
 	
-	@Override
-	public boolean isReferencedFrom(ObservableEvent ref) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 }
