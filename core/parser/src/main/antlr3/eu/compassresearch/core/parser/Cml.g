@@ -192,22 +192,33 @@ source
     : programParagraph+
     ;
 
-programParagraph
-    : classDefinition
-    | processDefinition
-    | channelDefs
-    | chansetDefs
-    | typeDefs
-    | valueDefs
-    | functionDefs
+programParagraph returns[PDefinition defs]
+    : classDefinition   { $defs = $classDefinition.def; }
+    | processDefinition { $defs = $processDefinition.def; }
+    | channelDefs       { $defs = $channelDefs.defs; }
+    | chansetDefs       { $defs = $chansetDefs.defs; }
+    | typeDefs          { $defs = $typeDefs.defs; }
+    | valueDefs         { $defs = $valueDefs.defs; }
+    | functionDefs      { $defs = $functionDefs.defs; }
     ;
 
-classDefinition
+classDefinition returns[AClassParagraphDefinition def]
+@after { $def.setLocation(extractLexLocation($classDefinition.start, $classDefinition.stop)); }
     : 'class' IDENTIFIER ('extends' IDENTIFIER)? '=' 'begin' classDefinitionBlock* 'end'
+        {
+            // FIXME --- Will need to check
+            // AInitialParagraphDefinition defs that their identifier
+            // matches the one here.
+            $def = new AClassParagraphDefinition(); // FIXME
+        }
     ;
 
-processDefinition
+processDefinition returns[AProcessParagraphDefinition def]
+@after { $def.setLocation(extractLexLocation($processDefinition.start, $processDefinition.stop)); }
     : 'process' IDENTIFIER '=' ((procDeclarations)=>procDeclarations)? process
+        {
+            $def = new AProcessParagraphDefinition(); // FIXME
+        }
     ;
 
 process
@@ -285,18 +296,21 @@ renamePair
         '<-' IDENTIFIER ( '.' (IDENTIFIER | '(' expression ')' | symbolicLiteral ) )*
     ;
 
-processParagraph
-    : typeDefs
-    | valueDefs
-    | stateDefs
-    | functionDefs
-    | operationDefs
-    | actionDefs
-    | namesetDefs
+processParagraph returns[PDefinition defs]
+    : typeDefs          { $defs = $typeDefs.defs; }
+    | valueDefs         { $defs = $valueDefs.defs; }
+    | stateDefs         { $defs = $stateDefs.defs; }
+    | functionDefs      { $defs = $functionDefs.defs; }
+    | operationDefs     { $defs = $operationDefs.defs; }
+    | actionDefs        { $defs = $actionDefs.defs; }
+    | namesetDefs       { $defs = $namesetDefs.defs; }
     ;
 
-actionDefs
+actionDefs returns[AActionParagraphDefinition defs]
     : 'actions' actionDef*
+        {
+            $defs = new AActionParagraphDefinition(); // FIXME
+        }
     ;
 
 actionDef
@@ -310,7 +324,7 @@ action returns[PAction action]
         { $action = $action0.action; } // FIXME
     | '[' expression ']' '&' action
         { $action = new AGuardedAction(); } // FIXME
-    | 'mu' IDENTIFIER (',' IDENTIFIER)* '@'  '(' action (',' action)* ')'
+    | 'mu' IDENTIFIER (',' IDENTIFIER)* '@' '(' action (',' action)* ')'
         { $action = new AMuAction(); } // FIXME
     | ( actionSimpleReplOp ) replicationDeclaration '@' action
         { $action = new ASequentialCompositionReplicatedAction(); } // FIXME
@@ -615,9 +629,11 @@ channelDef returns[AChannelNameDefinition def]
         }
     ;
 
-chansetDefs
+chansetDefs returns[AChansetParagraphDefinition defs]
     : 'chansets' chansetDef*
-    // : 'chansets' ( chansetDef (';' chansetDef)+ )?
+        {
+            $defs = new AChansetParagraphDefinition(); // FIXME
+        }
     ;
 
 chansetDef
@@ -646,22 +662,28 @@ chansetNamesetExprbase
         '|}'
     ;
 
-namesetDefs
+// FIXME --- this is the wrong type, but Nameset isn't in the AST yet
+namesetDefs returns[AChansetParagraphDefinition defs]
     : 'namesets' namesetDef*
-    // : 'chansets' ( chansetDef (';' chansetDef)+ )?
+        {
+            $defs = new AChansetParagraphDefinition(); // FIXME
+        }
     ;
 
 namesetDef
     : IDENTIFIER '=' chansetNamesetExpr
     ;
 
-classDefinitionBlock
-    : typeDefs
-    | valueDefs
-    | stateDefs
-    | functionDefs
-    | operationDefs
-    | 'initial' operationDef // why should this operation require a name, or be allowed to be explicit?
+classDefinitionBlock returns[PDefinition defs]
+    : typeDefs                  { $defs = $typeDefs.defs; }
+    | valueDefs                 { $defs = $valueDefs.defs; }
+    | stateDefs                 { $defs = $stateDefs.defs; }
+    | functionDefs              { $defs = $functionDefs.defs; }
+    | operationDefs             { $defs = $operationDefs.defs; }
+    | 'initial' operationDef
+        {
+            $defs = new AInitialParagraphDefinition(); // FIXME
+        }
     ;
 
 valueDefs returns[AValueParagraphDefinition defs]
@@ -910,8 +932,11 @@ functionBody returns[PExp exp]
     | 'is' 'subclass' 'responsibility' { $exp = new ASubclassResponsibilityExp(); }
     ;
 
-operationDefs
+operationDefs returns[AOperationParagraphDefinition defs]
     : 'operations' (QUALIFIER? operationDef)*
+        {
+            $defs = new AOperationParagraphDefinition(); // FIXME
+        }
     ;
 
 operationDef
@@ -940,7 +965,7 @@ operationBody
     | 'is' 'subclass' 'responsibility'
     ;
 
-typeDefs returns[SParagraphDefinition para]
+typeDefs returns[PDefinition defs]
 @init {
     List<ATypeDefinition> typeDefList = new ArrayList<ATypeDefinition>();
     ATypeDefinition last = null;
@@ -950,10 +975,10 @@ typeDefs returns[SParagraphDefinition para]
             LexLocation loc = extractLexLocation($t);
             if (typeDefList.size()>0)
                 loc = extractLexLocation(loc,last.getLocation());
-            $para = new ATypesParagraphDefinition(loc, NameScope.LOCAL, false,
+            $defs = new ATypesParagraphDefinition(loc, NameScope.LOCAL, false,
                                                   CmlParserHelper.getDefaultAccessSpecifier(true, false, loc),
                                                   null, typeDefList);
-            $para.setName(new LexNameToken("", $t.getText(), loc));
+            $defs.setName(new LexNameToken("", $t.getText(), loc));
         }
     ;
 
