@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.intf.IQuestion;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.ACaseAlternative;
 import org.overture.ast.expressions.PExp;
@@ -51,6 +52,7 @@ import org.overture.pog.obligation.PONotCaseContext;
 import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.obligation.SeqApplyObligation;
 
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
@@ -82,12 +84,14 @@ public class ProofObligationGenerator extends
     private POGStatementVisitor statementVisitor;
     private POGProcessVisitor processVisitor;
     private POGDeclAndDefVisitor declAndDefVisitor;
+    private POGActionVisitor actionVisitor;
 
     private void initialize() {
 	expressionVisitor = new POGExpressionVisitor(this);
 	statementVisitor = new POGStatementVisitor(this);
 	processVisitor = new POGProcessVisitor(this);
 	declAndDefVisitor = new POGDeclAndDefVisitor(this);
+	actionVisitor = new POGActionVisitor(this);
     }
 
     // ---------------------------------------------
@@ -123,6 +127,12 @@ public class ProofObligationGenerator extends
 	return node.apply(this.processVisitor, question);
     }
 
+    @Override
+    public ProofObligationList defaultPAction(PAction node, POContextStack question)
+	    throws AnalysisException {
+	return node.apply(this.actionVisitor, question);
+    }
+    
     @Override
     public ProofObligationList defaultPStm(PStm node, POContextStack question)
 	    throws AnalysisException {

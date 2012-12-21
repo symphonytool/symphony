@@ -23,6 +23,7 @@ import org.overture.pog.obligation.StateInvariantObligation;
 import org.overture.pog.visitor.PogParamDefinitionVisitor;
 
 
+import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -44,7 +45,11 @@ import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.definitions.SOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.analysis.pog.obligations.CMLOperationPostConditionObligation;
+import eu.compassresearch.core.analysis.pog.obligations.CMLPOOperationDefinitionContext;
+import eu.compassresearch.core.analysis.pog.obligations.CMLParameterPatternObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CMLSatisfiabilityObligation;
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
@@ -363,51 +368,34 @@ public class POGDeclAndDefVisitor extends
 		 System.out.println("----------***----------");
 		 
 		 CMLProofObligationList pol = new CMLProofObligationList();
-//		 LexNameList pids = new LexNameList();
-//
-//			for (APatternListTypePair tp : node.getParameterPatterns())
-//				for (PPattern p : tp.getPatterns())
-//					for (PDefinition def : p.getDefinitions())
-//						pids.add(def.getName());
-//
-//			if (pids.hasDuplicates()){
-//				pol.add(new ParameterPatternObligation(node, question));
-//			}
-//
-//			// if implicit operation has a precondition, dispatch for PO checking
-//			if (node.getPrecondition() != null){
-//				pol.addAll(node.getPrecondition().apply(parentPOG, question));
-//			}
-//			
-//			// if implicit operation has a precondition, dispatch for PO checking
-//			// and generate OperationPostConditionObligation
-//			if (node.getPostcondition() != null){
-//				pol.addAll(node.getPostcondition().apply(parentPOG, question));
-//				pol.add(new OperationPostConditionObligation(node, question));
-//			}
-//
-//			
-//			if (node.getBody() != null){
-//				pol.addAll(node.getBody().apply(parentPOG, question));
-//
-//				if (node.getIsConstructor() && node.getClassDefinition() != null
-//						&& node.getClassDefinition().getInvariant() != null){
-//					pol.add(new StateInvariantObligation(node, question));
-//				}
-//
-//				/*
-//				 * Subtype Obligation not working well - mainly the if statement, I believe.
-//				 */
-////				if (!node.getIsConstructor()
-////						&& !TypeComparator.isSubType(node.getActualResult(), node.getType().getResult())){
-////					pol.add(new SubTypeObligation(node, node.getActualResult(), question));
-////				}
-//			}else if (node.getPostcondition() != null){
-//					question.push(new POOperationDefinitionContext(node, false, node.getStateDefinition()));
-//					pol.add(new SatisfiabilityObligation(node, node.getStateDefinition(), question));
-//					question.pop();
-	//			
-//			}
+		 LexNameList pids = new LexNameList();
+
+		 for (APatternListTypePair tp : node.getParameterPatterns())
+			for (PPattern p : tp.getPatterns())
+				for (PDefinition def : p.getDefinitions())
+					pids.add(def.getName());
+
+			if (pids.hasDuplicates()){
+				pol.add(new CMLParameterPatternObligation(node, question));
+			}
+
+			// if implicit operation has a precondition, dispatch for PO checking
+			if (node.getPrecondition() != null){
+				pol.addAll(node.getPrecondition().apply(parentPOG, question));
+			}
+			
+			// if implicit operation has a precondition, dispatch for PO checking
+			// and generate OperationPostConditionObligation
+			if (node.getPostcondition() != null){
+				pol.addAll(node.getPostcondition().apply(parentPOG, question));
+				pol.add(new CMLOperationPostConditionObligation(node, question));
+
+		//		COMMENTED AS CONTEXT GENERATED VARIOUS NULL OBJECTS, DUE TO NEW AST...
+		//		AS SUCH SAT OBLIG DOESN'T DO MUCH
+		//		question.push(new CMLPOOperationDefinitionContext(node, false, node.getStateDefinition()));
+				pol.add(new CMLSatisfiabilityObligation(node, node.getStateDefinition(), question));
+		//		question.pop();			
+			}
 		 
 			return pol;
 		}
@@ -417,48 +405,43 @@ public class POGDeclAndDefVisitor extends
    public ProofObligationList caseAExplicitOperationDefinition(
 	    AExplicitOperationDefinition node, POContextStack question)
 	    throws AnalysisException {
- 
-		 System.out.println("----------***----------");
-		 System.out.println("AExplicitOperationDefinition");
-		 System.out.println(node.toString());
-		 System.out.println("----------***----------");
 		
 		 CMLProofObligationList pol = new CMLProofObligationList();
 
-//		LexNameList pids = new LexNameList();
-//
-//		// add all defined names from the function parameter list
-//		for (PPattern p : node.getParameterPatterns())
-//			for (PDefinition def : p.getDefinitions())
-//				pids.add(def.getName());
-//
-//	//	if (pids.hasDuplicates()){
-//	//		pol.add(new ParameterPatternObligation(node, question));
-//	//	}
-//
-//		if (node.getPrecondition() != null){
-//			pol.addAll(node.getPrecondition().apply(parentPOG, question));
-//		}
-//
-//		if (node.getPostcondition() != null){
-//			pol.addAll(node.getPostcondition().apply(parentPOG, question));
-//			pol.add(new OperationPostConditionObligation(node, question));
-//		}
-//
-//		pol.addAll(node.getBody().apply(parentPOG, question));
-//
+		LexNameList pids = new LexNameList();
+
+		// add all defined names from the function parameter list
+		for (PPattern p : node.getParameterPatterns())
+			for (PDefinition def : p.getDefinitions())
+				pids.add(def.getName());
+
+		if (pids.hasDuplicates()){
+			pol.add(new CMLParameterPatternObligation(node, question));
+		}
+
+		if (node.getPrecondition() != null){
+			pol.addAll(node.getPrecondition().apply(parentPOG, question));
+		}
+
+		if (node.getPostcondition() != null){
+			pol.addAll(node.getPostcondition().apply(parentPOG, question));
+			pol.add(new CMLOperationPostConditionObligation(node, question));
+		}
+		
+		pol.addAll(node.getBody().apply(parentPOG, question));
+
 //		if (node.getIsConstructor() && node.getClassDefinition() != null
 //				&& node.getClassDefinition().getInvariant() != null){
-//			pol.add(new StateInvariantObligation(node, question));
+//			pol.add(new CMLStateInvariantObligation(node, question));
+	//	}
+		
+		/*
+		 * Subtype Obligation not working well - mainly the if statement, I believe.
+		 */
+//		if (!node.getIsConstructor()
+//				&& !TypeComparator.isSubType(node.getActualResult(), node.getType().getResult())){
+//			pol.add(new SubTypeObligation(node, node.getActualResult(), question));
 //		}
-//		
-//		/*
-//		 * Subtype Obligation not working well - mainly the if statement, I believe.
-//		 */
-////		if (!node.getIsConstructor()
-////				&& !TypeComparator.isSubType(node.getActualResult(), node.getType().getResult())){
-////			pol.add(new SubTypeObligation(node, node.getActualResult(), question));
-////		}
    	
 		return pol;
    }
