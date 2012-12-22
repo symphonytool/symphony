@@ -677,7 +677,9 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "class test = begin values a : int = 0	functions f:int -> int f(k) == k+a	end",
 				false,true,true,new String[0]);
 		
-		
+		addTestProgram(testData, "class test = begin operations o:int ==> int o(a) == (return (\"ras\")) end", false,true,false,new String[0]);
+		addTestProgram(testData, "class test = begin operations o:int ==> int o(a) == (return (let a : int = 2 in \"42\")) end",false,true,false,new String[0]);
+		addTestProgram(testData, "class Stuff = begin functions operations o : () ==> int o() == (return (let a:int = 2 in  \"abcd\")) end",false,true,false,new String[0]); 
 		return testData;
 	}
 

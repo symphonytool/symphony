@@ -84,18 +84,16 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 	public void caseAFunctionParagraphDefinition(
 			AFunctionParagraphDefinition node) throws AnalysisException {
 
-		LinkedList<PDefinition> funDefs = node.getFunctionDefinitions();
-		for (PDefinition fdef : funDefs) {
-			members.add(fdef);
-		}
+		List<PDefinition> funDefs = node.getFunctionDefinitions();
+		funDefs = TCDeclAndDefVisitor.handleDefinitionsForOverture(node);
+		members.addAll(funDefs);
 	}
 
 	@Override
 	public void caseAValueParagraphDefinition(AValueParagraphDefinition node)
 			throws AnalysisException {
-		LinkedList<PDefinition> valDefs = node.getValueDefinitions();
-		for (PDefinition valDef : valDefs)
-			members.add(valDef);
+		List<PDefinition> defs = TCDeclAndDefVisitor.handleDefinitionsForOverture(node);
+		members.addAll(defs);
 	}
 
 	@Override

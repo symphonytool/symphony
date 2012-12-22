@@ -523,5 +523,5 @@ Aspect Declaration
 %parameter = [location]:location
 	; 
 
-%source = [paragraphs]: definition.#paragraph*
+%source = [paragraphs]: definition*
 	;

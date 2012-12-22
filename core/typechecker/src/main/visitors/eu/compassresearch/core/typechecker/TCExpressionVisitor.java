@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.assistant.type.PTypeAssistant;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.ANilExp;
@@ -14,11 +16,15 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AClassType;
+import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
 import org.overture.parser.messages.VDMError;
+import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
+import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
+import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
@@ -40,8 +46,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		return new AUnknownType(node.getLocation(), true);
 	}
 
-	
-	
+
+
 	@Override
 	public PType caseAEnumChansetSetExp(AEnumChansetSetExp node,
 			TypeCheckInfo question) throws AnalysisException {
@@ -50,7 +56,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// TODO RWL I am not really sure what to do here ?
 		issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customize(""+node));
-		
+
 		node.setType(new AChannelType());
 		return node.getType();
 	}
@@ -60,57 +66,114 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	@Override
 	public PType caseAVariableExp(AVariableExp node, TypeCheckInfo question)
 			throws AnalysisException {
-		// Try to see if we have a local variable here
-		PDefinition def = question.env.findName(node.getName(), question.scope);
-		if (def != null) { node.setType(def.getType()); return node.getType(); }
-		
-		// ok not a local var, maybe a value
-		if (def == null)
-		{
-			eu.compassresearch.core.typechecker.CmlTypeCheckInfo 
-			cmlEnv = null;
-			PDefinition enclosingDef = question.env.getEnclosingDefinition();
-			
-			// if no enclosing def we must have a cml env to lookup
-			// global values
-			if (enclosingDef == null)
+
+		// for convenience take out name and env
+		org.overture.typechecker.Environment env = question.env;
+		LexNameToken name = node.getName();
+
+		// the qualifiers are the argument names for potential function 
+		// or operation... We wish to find an abstraction with the right args.
+		name.setTypeQualifier(question.qualifiers);
+
+		// The defintion is set on the VariableExp for convenience 
+		node.setVardef(env.findName(name,question.scope));
+
+		do {
+
+			// definition successfully found with qualifiers on
+			if (node.getVardef() != null) break;
+
+			// The name was not found immediately, it could be a sequence or map
+			// in which case the qualifiers are not supposed to be set. See 
+			// TypeCheckExpVisitor.java:2510,
+			if (question.qualifiers != null)
 			{
-		
-				// is the current question a Cml environment?
-				if (question instanceof eu.compassresearch.core.typechecker.CmlTypeCheckInfo)
-					// okay then we use it
-					cmlEnv = (eu.compassresearch.core.typechecker.CmlTypeCheckInfo)question;
-				else
-					// well lets see if any definition added a cml env further up the tree
-					cmlEnv = question.contextGet(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class);
-
-				// no, then we must have VDM exp at top-level or a bug in the type checker.
-				if (cmlEnv == null)
-				{
-					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
-					return node.getType();
-				}
-				
-				// aaah, finally we have an enclosing definition.
-				enclosingDef = cmlEnv.getGlobalClassDefinitions();
+				name.setTypeQualifier(null);
+				node.setVardef(env.findName(name, question.scope));
+				if (node.getVardef() == null) name.setTypeQualifier(question.qualifiers);
+				else break;
 			}
+
+			// Definition still not found, we may be looking for a bare function/op "x",
+			// when in fact there is one with a qualified name "x(args)". So we check the 
+			// possible matches - if there is precisely one, we pick it else we raise an 
+			// ambiguity error. See TypeCheckerExpVisitor.java: 2527
+			//
+			//
+			// RWL: Update we can't do this as CML Definitions makes the findMatches function
+			// fail in the PDefinitionAssistantTC.java:87 as a switch does not have CML cases and
+			// returns null which are added to the list ... (sick, there should be a check)
+			//
+			// 
+			//			for(PDefinition possible : env.findMatches(name))
+			//			{
+			//				if (PDefinitionAssistantTC.isFunctionOrOperation(possible))
+			//				{
+			//					if (node.getVardef() != null)
+			//						return issueHandler.addTypeError(node, "Ambiguous function/operation name: "+name);
+			//					node.setVardef(possible);
+			//				}
+			//			}
+			//			if (node.getVardef() != null)
+			//				break;
+			//
+			// Hopefully the CmlTypeCheckInfo will find what we are looking for.
+			// Manual search:
+
+			node.setVardef(CmlTCUtil.findNearestFunctionOrOperationInEnvironment(name, env));
+		} while(false);
+
+		// The name this variable expressions points to was found.
+		if (node.getVardef() != null)
+		{
 			
-			// use the assistant to look up our variable name in the enclosing definition
-			CmlOvertureAssistant assistant = new CmlOvertureAssistant();
-			def = assistant.findMemberName(enclosingDef, node.getName(), question);
+			PType type = PDefinitionAssistantTC.getType(node.getVardef());
+			if (type == null)
+				type = node.getVardef().getType();
+			try {
+			node.setType(PTypeAssistantTC.typeResolve(type, null, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent, question));
+			} catch (TypeCheckException tce)
+			{
+				node.setType(issueHandler.addTypeError(node, tce.getMessage()));
+			}
+			return node.getType();
 		}
 
-		if (def == null) def = CmlTCUtil.findDefByAllMeans(question, node.getName());
-		// now the definition is found or missing
-		if (def == null)
-		{ // missing
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""+node.getName())));
+		// Okay given our best efforts the Overture Type Checking strategy could not find
+		// what we are looking for. Maybe it a CML class we are looking at.
+		CmlTypeCheckInfo nearestCmlEnvironment = question.contextGet(CmlTypeCheckInfo.class);
+		if (nearestCmlEnvironment == null)
+		{
+			node.setType(issueHandler.addTypeError(node,TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node+"")));
+			return node.getType();
 		}
-		else
-			// found
-			node.setType(def.getType());
-		
-		
+
+		// CML also uses LexNameToken.equals to compare names therefore the 
+		// qualifiers must be taking in to account.
+		PDefinition definition  = null;
+		do {
+			// Lookup in the CML context without the type qualifiers (arg types/param names)
+			name.setTypeQualifier(null);
+			definition = nearestCmlEnvironment.lookup(name, PDefinition.class);
+			if (definition != null ) break; else name.setTypeQualifier(question.qualifiers);
+
+			// Lookup in the CML context with qualifiers (for operations)
+			definition = nearestCmlEnvironment.lookup(name, PDefinition.class);
+
+		} while(false);
+
+		// any luck?
+		if (definition != null)
+		{
+			node.setVardef(definition);
+			node.setType(definition.getType());
+		}
+		else // guess not
+		{
+			name.setTypeQualifier(null);
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(name+"")));
+		}
+
 		return node.getType();
 	}
 
@@ -124,9 +187,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	// A parent checker may actually not be necessary on this
 	final private CmlTypeChecker parent;
 	private final TypeIssueHandler issueHandler;
-	private CmlOvertureAssistant assist;
+	private CmlAssistant assist;
 
-	TCExpressionVisitor(CmlTypeChecker parentChecker, TypeIssueHandler issueHandler, CmlOvertureAssistant assistant)
+	TCExpressionVisitor(CmlTypeChecker parentChecker, TypeIssueHandler issueHandler, CmlAssistant assistant)
 	{
 		this.parent=parentChecker;
 		this.issueHandler = issueHandler;
@@ -136,7 +199,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 	TCExpressionVisitor(VanillaCmlTypeChecker parentChecker,
 			TypeIssueHandler issueHandler) {
-		this(parentChecker,issueHandler,new CmlOvertureAssistant());
+		this(parentChecker,issueHandler,new CmlAssistant());
 	}
 
 	/**
@@ -185,8 +248,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		return node.getType();
 	}
-	
-	
+
+
 	@Override
 	public PType caseAUnresolvedPathExp(AUnresolvedPathExp node,
 			TypeCheckInfo question) throws AnalysisException {
@@ -195,6 +258,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// To find that class there must be a CML Environment as Classes are 
 		// top-level and CML Specific.
 		// 
+
+
 		eu.compassresearch.core.typechecker.CmlTypeCheckInfo 
 		cmlQuestion;
 		if (question instanceof eu.compassresearch.core.typechecker.CmlTypeCheckInfo)
@@ -213,14 +278,20 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// Get parent identifier
 		LexNameToken rootName = new LexNameToken("",identifiers.get(0));
-		
+
 		// is it a type like a class or global type
 		PDefinition root = question.env.findType(rootName,"");
-		
+
 		// no then it may be a variable 
 		if (root == null)
-			root = question.env.findName(rootName, NameScope.GLOBAL);
-		
+			root = question.env.findName(rootName, NameScope.LOCAL);
+
+		if (root == null)
+			root= question.env.findName(rootName, NameScope.NAMES);
+
+		if (root==null)
+			root= question.env.findName(rootName, NameScope.GLOBAL);
+
 		// RWL: UGLY Re-factor some day
 		if (root instanceof AAssignmentDefinition)
 		{
@@ -232,23 +303,23 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				root = question.env.findName(clzType.getName(), NameScope.GLOBAL);
 			}
 		}
-		
+
 		// last option it is not in something else then in must be in this class
 		if (root == null)
 		{
 			root = question.env.getEnclosingDefinition();
 			if (root != null)
-			root = assist.findMemberName(root, rootName, cmlQuestion);
+				root = assist.findMemberName(root, rootName, cmlQuestion);
 		}
 
-		
+
 		// did we find the top-level
 		if (root == null)
 		{
 			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""+rootName)));
 			return node.getType();
 		}
-		
+
 		// Now the root identifier is resolved, lets look for the first member
 		// We assume the identifiers are given in order with the outer most 
 		// definitions coming first
@@ -266,13 +337,13 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 			leafType = def.getType();
 		}
-	
+
 		node.setType(leafType);
 		return node.getType();
 	}
 
-	
-	
+
+
 	@Override
 	public PType caseABracketedExp(ABracketedExp node, TypeCheckInfo question)
 			throws AnalysisException {

@@ -26,6 +26,7 @@ import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANatNumericBasicType;
+import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.AUnresolvedType;
 import org.overture.ast.types.PType;
@@ -1297,8 +1298,16 @@ class TCActionVisitor extends
 	    throw new AnalysisException("Unable to type check expression \""
 		    + exp + "\" in return statement action of "
 		    + operation.getName());
+	
+	//check return type of parent function and the expression
+	AOperationType operType = operation.getType();
+	if (!typeComparator.isSubType(type, operType.getResult()))
+	{
+		node.setType(issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""+operType.getResult(),""+type)));
+		return node.getType();
+	}
 
-	node.setType(new AStatementType());
+	node.setType(new AStatementType(node.getLocation(),true));
 	return node.getType();
     }
 

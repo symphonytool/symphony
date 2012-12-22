@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import org.overture.ast.definitions.AClassClassDefinition;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -15,6 +16,7 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ARecordInvariantType;
+import org.overture.ast.types.PType;
 import org.overture.ast.types.SInvariantType;
 import org.overture.typechecker.LexNameTokenAssistent;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
@@ -27,15 +29,64 @@ import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
 import eu.compassresearch.ast.definitions.SOperationDefinition;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 
-class CmlOvertureAssistant {
 
+/**
+ * The CmlAssistant is for methods and utility-functionality for assisting the Cml Type Checker visitors. 
+ * 
+ * 
+ * 
+ * @author rwl
+ *
+ */
+class CmlAssistant {
+
+	/**
+	 * Find members inside a given definition.
+	 * 
+	 * Ex. find member totalSeats in Flight:
+	 * 
+	 * types
+	 * 	Flight :: 
+	 * 		totalSeats : int
+	 * 		id : token
+	 * 		;
+	 * 
+	 * 
+	 * values
+	 * 	k : Flight := mk_Flight(42,mk_token("Flight with 42 seats"))
+	 * 
+	 * functions
+	 * 	getTotalSeats: Flight -> int
+	 * 	getTotalSeats(Flight f) == f.totalSeats; <- this expression will be 
+	 * resolved by the FindMemberNameFinderStrategy for ATypeDefinition and inturn 
+	 * handled as a ARecordInvariantType for which we craete a LocalDefinition named 
+	 * totalSeats of type int.
+	 * 
+	 * 
+	 * @author rwl
+	 *
+	 */
 	interface FindMemberNameFinderStrategy {
+		/**
+		 * Type Erasure forces us to maintain type information explicitly.
+		 * @return
+		 */
 		Class<?> getType();
+		/**
+		 * 
+		 * Search for a member with name <em>name</em> the definition <em>def</em>.
+		 * more contains cmlQuestion and prevRoot typically... 
+		 * 
+		 * @param def
+		 * @param name
+		 * @param more
+		 * @return
+		 */
 		PDefinition findMemberName(PDefinition def, LexIdentifierToken name, Object... more);
 	}
 
-	
-	
+
+
 	/*
 	 * Type erasure? Well then we gotta do it our self ... 
 	 * 
@@ -44,7 +95,7 @@ class CmlOvertureAssistant {
 	 * 
 	 */
 	private final Map<Class<?>, FindMemberNameFinderStrategy> findMemberNameBaseCases = new HashMap<Class<?>, FindMemberNameFinderStrategy>();
-	public CmlOvertureAssistant() {
+	public CmlAssistant() {
 		injectFindMemberNameBaseCase(new ValuePararagraphDefinitionFindMemberStrategy());
 		injectFindMemberNameBaseCase(new OperationParagraphDefinitionFindMemberStrategy());
 		injectFindMemberNameBaseCase(new ClassParagraphFindMemberStrategy());
@@ -55,7 +106,12 @@ class CmlOvertureAssistant {
 	}
 
 
-	public void injectFindMemberNameBaseCase(FindMemberNameFinderStrategy strategy)
+	/**
+	 * Inject a new strategy for finding named members of Ast subtrees. 
+	 * 
+	 * @param strategy
+	 */
+	void injectFindMemberNameBaseCase(FindMemberNameFinderStrategy strategy)
 	{
 		findMemberNameBaseCases.put(strategy.getType(), strategy);
 	}
@@ -71,17 +127,25 @@ class CmlOvertureAssistant {
 	@SuppressWarnings("unchecked")
 	public<T extends PDefinition> PDefinition findMemberName(T t, LexIdentifierToken name, Object... more)
 	{
+		if (t == null) return null;
 		Class<T> c = (Class<T>)t.getClass();
-		if (!findMemberNameBaseCases.containsKey(c)) return null;
-
+		if (!findMemberNameBaseCases.containsKey(c))
+		{
+			return t;
+		}
 		FindMemberNameFinderStrategy strategy = findMemberNameBaseCases.get(c);
-		
+
 		return strategy.findMemberName(t, name, more);
 
 	}
 
 
-
+	/*
+	 * Find a named member of a class paragraph.
+	 * 
+	 * @author rwl
+	 *
+	 */
 	private class ClassParagraphFindMemberStrategy implements FindMemberNameFinderStrategy{
 		/*
 		 * 
@@ -103,7 +167,7 @@ class CmlOvertureAssistant {
 			for(PDefinition d : cpar.getDefinitions())
 			{
 				// invariant: all elements before d is not the one we are looking for
-				PDefinition member = CmlOvertureAssistant.this.findMemberName(d,name);
+				PDefinition member = CmlAssistant.this.findMemberName(d,name);
 				if (member != null)
 					return member;
 			}
@@ -119,6 +183,13 @@ class CmlOvertureAssistant {
 	}
 
 
+	/*
+	 * 
+	 * Find a named member of a value definition paragraph.
+	 * 
+	 * @author rwl
+	 * 
+	 */
 	private static class ValuePararagraphDefinitionFindMemberStrategy implements FindMemberNameFinderStrategy
 	{
 		/*
@@ -147,6 +218,11 @@ class CmlOvertureAssistant {
 		}
 	}
 
+	/*
+	 * Find a named member of a OperationParagraphDefinition.
+	 * 
+	 * @author rwl
+	 */
 	private static class OperationParagraphDefinitionFindMemberStrategy implements FindMemberNameFinderStrategy
 	{
 
@@ -176,7 +252,10 @@ class CmlOvertureAssistant {
 	}
 
 
-
+	/*
+	 * Find a named member in a state paragraph definition.
+	 * 
+	 */
 	private static class StateParagarphDefinitionFindMemberStragety implements FindMemberNameFinderStrategy
 	{
 		/**
@@ -206,7 +285,12 @@ class CmlOvertureAssistant {
 	}
 
 
-	private static class ClassClassDefinitionFindMemberStrategy implements FindMemberNameFinderStrategy
+	/*
+	 * Find a named member inside a class class definition (Overture class definition).
+	 * 
+	 * @author rwl
+	 */
+	private class ClassClassDefinitionFindMemberStrategy implements FindMemberNameFinderStrategy
 	{
 
 		@Override
@@ -218,12 +302,40 @@ class CmlOvertureAssistant {
 		public PDefinition findMemberName(PDefinition def,
 				LexIdentifierToken name, Object... more) {
 
-			AClassClassDefinition cdef = AClassClassDefinition.class.cast(def);
+			CmlTypeCheckInfo cmlQuestion = (CmlTypeCheckInfo)more[0];
 
+			LexNameToken searchFor = new LexNameToken("",def.getName());
+
+			PDefinition classDef = cmlQuestion.lookup(searchFor, AClassParagraphDefinition.class);
+			if (classDef != null)
+				return CmlAssistant.this.findMemberName(classDef, name, more);
+
+			AClassClassDefinition cdef = AClassClassDefinition.class.cast(def);
 			return SClassDefinitionAssistantTC.findName(cdef, (LexNameToken)name, NameScope.NAMESANDANYSTATE);
 
 		}
+	}
 
+	// *********** Helper methods for LocalDefinitionFindMemberStrategy ************
+	
+	// Looking for a field in a record, alright look up the Type def of the record
+	// and find the field. Return a local definition for that field.
+	private PDefinition handleRecordInvariantType(ARecordInvariantType recordInvType, LexIdentifierToken name, Object... more)
+	{
+		AFieldField field = ARecordInvariantTypeAssistantTC.findField(recordInvType, name.getName());
+		PDefinition defOfTheTypeOfThisLocalDef = null;
+		if (field != null){
+			return AstFactory.newALocalDefinition(recordInvType.getLocation(), field.getTagname(), NameScope.LOCAL, field.getType());
+		}
+		return CmlAssistant.this.findMemberName(defOfTheTypeOfThisLocalDef,name,more);		
+	}
+
+	// Lookup the named type in the environment, if found we are happy
+	private PDefinition handleNamedInvariantType(ANamedInvariantType namedInvType, LexIdentifierToken name, Object... more)
+	{
+		CmlTypeCheckInfo cmlEnv = (CmlTypeCheckInfo)more[0];
+		PDefinition defOfTheTypeOfThisLocalDef = cmlEnv.env.findType(namedInvType.getName(),"");
+		return CmlAssistant.this.findMemberName(defOfTheTypeOfThisLocalDef,name,more);
 	}
 
 	private class LocalDefinitionFindMemberStrategy implements FindMemberNameFinderStrategy
@@ -240,40 +352,30 @@ class CmlOvertureAssistant {
 
 			ALocalDefinition ldef = (ALocalDefinition)def;
 
-			
-			CmlTypeChecker parent = null;
+
 			// So what if it is a record type
 			if (def.getType() instanceof ARecordInvariantType)
 			{
-				
-				CmlTypeCheckInfo cmlEnv = (CmlTypeCheckInfo)more[0];
-				ARecordInvariantType recordType = (ARecordInvariantType)ldef.getType();
-				AFieldField field = ARecordInvariantTypeAssistantTC.findField(recordType, name.getName());
-				PDefinition defOfTheTypeOfThisLocalDef = null;
-				if (field != null){
-					return AstFactory.newALocalDefinition(recordType.getLocation(), field.getTagname(), NameScope.LOCAL, field.getType());
-				}
-				return CmlOvertureAssistant.this.findMemberName(defOfTheTypeOfThisLocalDef,name,more);
+				ARecordInvariantType recType = ARecordInvariantType.class.cast(def.getType());
+				return handleRecordInvariantType(recType, name, more);
 			}
-			
+
+			// It could be a named type
 			if (ldef.getType() instanceof ANamedInvariantType)
-			{
-				CmlTypeCheckInfo cmlEnv = (CmlTypeCheckInfo)more[0];
-				ANamedInvariantType namedType = (ANamedInvariantType)ldef.getType();
-				PDefinition defOfTheTypeOfThisLocalDef = cmlEnv.env.findName(namedType.getName(),NameScope.GLOBAL);
-				return CmlOvertureAssistant.this.findMemberName(defOfTheTypeOfThisLocalDef,name,more);
-			}
-			else
-			{
-				// ups it is a basic type then which we cannot dot into.
-			}
+				return handleNamedInvariantType(ANamedInvariantType.class.cast(ldef.getType()), name, more);
 
-			return null;			
-
+			return def;
 		}
 
 	}
 	
+	// *********** -- ************
+
+	/*
+	 * RecordInvariantTypes can have members. This class handles lookup of members 
+	 * in records.
+	 * 
+	 */
 	private class TypeDefinitionFindNameMemberStrategy implements FindMemberNameFinderStrategy
 	{
 
@@ -288,17 +390,17 @@ class CmlOvertureAssistant {
 
 			ATypeDefinition tdef = ATypeDefinition.class.cast(def);
 			SInvariantType invType = tdef.getInvType();
-			if (invType != null)
-			{
-				for(PDefinition idef : invType.getDefinitions())
-				{
-					PDefinition found = CmlOvertureAssistant.this.findMemberName(idef, name, more);
-					if (found != null) return found;
-				}
-			}
+
+			if (invType instanceof ARecordInvariantType)
+				return handleRecordInvariantType(ARecordInvariantType.class.cast(invType), name, more);
+
+			if (invType instanceof ANamedInvariantType)
+				return handleNamedInvariantType(ANamedInvariantType.class.cast(invType), name, more);
 			
 			return null;
 		}
-		
+
 	}
+
+
 }

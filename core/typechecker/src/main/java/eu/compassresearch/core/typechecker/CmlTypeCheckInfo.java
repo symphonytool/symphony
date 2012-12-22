@@ -31,7 +31,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
  * 
  */
 class CmlTypeCheckInfo extends TypeCheckInfo implements
-		TypeCheckQuestion {
+TypeCheckQuestion {
 
 	private final Environment<PDefinition> channels;
 
@@ -42,19 +42,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements
 
 	private final TypeIssueHandler issueHandler;
 
-	private static class AccessibleFlatEnvironment extends FlatEnvironment
-	{
 
-		public AccessibleFlatEnvironment(List<PDefinition> definitions) {
-			super(definitions);
-		}
-
-		public List<PDefinition> getDefinitions()
-		{
-			return super.definitions;
-		}
-	}
-	
 	/**
 	 * Create a new Type Check Info at top level
 	 * 
@@ -71,7 +59,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements
 
 	private CmlTypeCheckInfo(TypeIssueHandler issueHandler,
 			SClassDefinition globalDefs) {
-		super(new AccessibleFlatEnvironment(new LinkedList<PDefinition>()));
+		super(new FlatEnvironment(new LinkedList<PDefinition>()));
 		this.issueHandler = issueHandler;
 		this.channels = new Environment<PDefinition>(issueHandler);
 		this.globalClassDefinition = globalDefs;
@@ -94,6 +82,24 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements
 			if (typeDef != null)
 				return typeDef.getType();
 		}
+		return null;
+	}
+
+
+
+	public PDefinition lookup(LexIdentifierToken name, Class<?> astClass)
+	{
+		org.overture.typechecker.Environment cur = env;
+
+		while(cur != null)
+		{
+			List<PDefinition> defs = cur.getDefinitions();
+			for(PDefinition d :defs)
+				if (astClass.isInstance(d) && name.equals(d.getName()))
+					return d;
+			cur = cur.getOuter();
+		}
+		
 		return null;
 	}
 
@@ -132,15 +138,14 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements
 			fenv.add(variable);
 		}
 	}
-	
+
 
 	public List<PDefinition> getDefinitions()
 	{
-		AccessibleFlatEnvironment env = (AccessibleFlatEnvironment)super.env;
 		return env.getDefinitions();
 	}
-	
-	
+
+
 	/**
 	 * Create an environment with this environment being the outer environment 
 	 * and the given definition being the surrounding definition.
@@ -154,7 +159,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements
 		res.env.setEnclosingDefinition(def);
 		return res;
 	}
-	
+
 	/**
 	 * Create a new environment with this environment being its outer.
 	 * @return
@@ -223,7 +228,7 @@ class CmlTypeCheckInfo extends TypeCheckInfo implements
 			org.overture.typechecker.Environment env, PDefinition def) {
 		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels,env,issueHandler, this.globalClassDefinition);
 		res.env.setEnclosingDefinition(def);
-		
+
 		return res;
 	}
 
