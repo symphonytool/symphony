@@ -215,7 +215,7 @@ classDefinition returns[AClassDefinition def]
 
 processDefinition returns[AProcessDefinition def]
 @after { $def.setLocation(extractLexLocation($processDefinition.start, $processDefinition.stop)); }
-    : 'process' IDENTIFIER '=' ((procDeclarations)=>procDeclarations)? process
+    : 'process' IDENTIFIER '=' (declarationList '@')? process
         {
             $def = new AProcessDefinition(); // FIXME
         }
@@ -267,15 +267,15 @@ proc2
 proc3
     : 'begin' processParagraph* '@' action 'end'
     // merge of (process) | identifier [({expression})] | (decl@proc)({expression})
-    | ( IDENTIFIER | '(' ((procDeclarations)=>procDeclarations)? process ')' ) ( '(' ( expression ( ',' expression )* )? ')'  )?
+    | ( IDENTIFIER | '(' (declarationList '@')? process ')' ) ( '(' ( expression ( ',' expression )* )? ')'  )?
     ;
 
-procDeclarations
-    : declaration (';' declaration)* '@'
+declarationList
+    : declaration (';' declaration)*
     ;
 
 declaration
-    : PMODE? IDENTIFIER (',' IDENTIFIER)* (':' type)?
+    : PMODE? IDENTIFIER (',' IDENTIFIER)* ':' type
     ;
 
 replicationDeclaration
@@ -326,9 +326,9 @@ action returns[PAction action]
         { $action = new AGuardedAction(); } // FIXME
     | 'mu' IDENTIFIER (',' IDENTIFIER)* '@' '(' action (',' action)* ')'
         { $action = new AMuAction(); } // FIXME
-    | ( actionSimpleReplOp ) replicationDeclaration '@' action
+    | actionSimpleReplOp replicationDeclaration '@' action
         { $action = new ASequentialCompositionReplicatedAction(); } // FIXME
-    | ( actionSetReplOp ) replicationDeclaration '@' '[' varsetExpr ( '|' varsetExpr )? ']' action
+    | actionSetReplOp replicationDeclaration '@' '[' varsetExpr ( '|' varsetExpr )? ']' action
         { $action = new ASequentialCompositionReplicatedAction(); } // FIXME
     ;
 
@@ -387,12 +387,7 @@ action2 returns[PAction action]
     /* The mess below includes parenthesized actions, block
      * statements, parametrised actions, instantiated actions.
      */
-    | '('
-        ( (declaration)=> declaration (';' declaration)* '@'
-        | 'dcl' assignmentDefinition (';' assignmentDefinition)* '@'
-        )?
-        action ')'
-        ( '(' expression (',' expression )* ')' )?
+    | '(' declarationList '@' action ')' ( '(' expression (',' expression )* ')' )?
         {
             $action = new ACallStatementAction(); // FIXME
         }
@@ -444,11 +439,112 @@ statement returns[PAction statement]
         {
             $statement = new ACasesStatementAction(null, $expression.exp, $caseStmtAltOptList.alts, $action.action);
         }
-    | ('for' 'all')=> 'for' 'all' bindablePattern 'in' 'set' expression 'do' action
+    | forStatement 
+        {
+            $statement = $forStatement.statement;
+        }
+    | ('return' expression)=>'return' expression
+        {
+            $statement = new AReturnStatementAction(null,$expression.exp);
+        }
+    | 'return'
+        {
+            $statement = new AReturnStatementAction();
+        }
+    | 'while' expression 'do' action
+        {
+            $statement = new AWhileStatementAction(null, $expression.exp, $action.action);
+        }
+    | 'atomic' '(' assignmentStatementList ')'
+        {
+            $statement = new AMultipleGeneralAssignmentStatementAction(); // FIXME
+        }
+    | ('(' 'dcl')=> '(' 'dcl' assignmentDefinitionList '@' action ')'
+        {
+            $statement = new ACallStatementAction(); // FIXME
+        }
+    | '(' action ')' ( '(' expression (',' expression )* ')' )?
+        {
+            $statement = new ACallStatementAction(); // FIXME
+        }
+    | (assignableExpression ':=' 'new')=> assignableExpression ':=' 'new' expression
+        {
+            $statement = new ACallStatementAction(); // FIXME
+        }
+    | (assignableExpression ':=')=> assignmentStatement
+        {
+            $statement = new ACallStatementAction(); // FIXME
+        }
+    | callStatement
+        {
+            $statement = new ACallStatementAction(); // FIXME
+        }
+    ;
+
+assignmentStatementList
+    : assignmentStatement ( ';' assignmentStatement)+
+    ;
+
+assignmentStatement
+    : assignableExpression ':=' expression
+    ;
+
+// FIXME review this
+assignableExpression returns[PExp exp]
+    : ( t=SELF | t=IDENTIFIER ) selectorOptList
+        {
+            LexLocation loc = extractLexLocation($t);
+            if ($IDENTIFIER != null)
+                $exp = new AVariableExp(loc, new LexNameToken("", $t.getText(), loc, false, false), "");
+            else
+                $exp = new ASelfExp(loc, new LexNameToken("", $t.getText(), loc, true, false));
+
+            for (PExp sel : $selectorOptList.selectors) { // Iterate through the selectors, building a left->right tree
+                loc = extractLexLocation($exp.getLocation(), sel.getLocation());
+                if (sel instanceof AFieldNumberExp) { // FIXME
+                    System.out.println("Syntax error: AFieldNumberExp in a simpleSelector for calls");
+                    ((AFieldNumberExp)sel).setTuple($exp);
+                    sel.setLocation(loc);
+                    $exp = sel;
+                } else if (sel instanceof AApplyExp) {
+                    ((AApplyExp)sel).setRoot($exp);
+                    sel.setLocation(loc);
+                    $exp = sel;
+                } else if (sel instanceof ASubseqExp) { // FIXME
+                    System.out.println("Syntax error: ASubseqExp in a simpleSelector for calls");
+                    ((ASubseqExp)sel).setSeq($exp);
+                    sel.setLocation(loc);
+                    $exp = sel;
+                } else if (sel instanceof AUnresolvedPathExp) {
+                    // selector was a ".IDENTIFIER"; now let's figure out what to do
+                    AUnresolvedPathExp aupe = (AUnresolvedPathExp)sel; // avoid many casts
+                    if ($exp instanceof AVariableExp) { // if the left was an IDENTIFIER, then coalesce...
+                        AVariableExp ave = (AVariableExp)$exp;
+                        aupe.setLocation(loc);
+                        aupe.getIdentifiers().add(0, ave.getName().getIdentifier());
+                        $exp = aupe;
+                    } else if ($exp instanceof AUnresolvedPathExp) { // if it was an unresolved path, still coalesce...
+                        $exp.setLocation(loc);
+                        ((AUnresolvedPathExp)$exp).getIdentifiers().addAll(aupe.getIdentifiers());
+                        // no need to assign to $exp here
+                    } else { // otherwise it must be a field access
+                        // the AUnresolvedPathExp we get from the list
+                        // will only have a single Identifier in it.
+                        LexIdentifierToken id = aupe.getIdentifiers().get(0);
+                        $exp = AstFactory.newAFieldExp($exp,id);
+                    }
+                }
+            }
+        }
+    ;
+
+forStatement returns[PAction statement]
+options { k=3; } // k=3 is sufficient to disambiguate these (for ID =)
+    : 'for' 'all' bindablePattern 'in' 'set' expression 'do' action
         {
             $statement = new AForSetStatementAction(null, $bindablePattern.pattern, $expression.exp, $action.action);
         }
-    | ('for' IDENTIFIER '=')=> 'for' IDENTIFIER '=' start=expression 'to' end=expression ( 'by' step=expression )? 'do' action
+    | 'for' IDENTIFIER '=' start=expression 'to' end=expression ( 'by' step=expression )? 'do' action
         {
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
             $statement = new AForIndexStatementAction(null, name, $start.exp, $end.exp, $step.exp, $action.action);
@@ -466,44 +562,23 @@ statement returns[PAction statement]
             patternBind.setLocation(pbloc); //depends on the if
             $statement = new AForSequenceStatementAction(null, patternBind, $expression.exp, $action.action);
         }
-    | ('return' expression)=>'return' expression
-        {
-            $statement = new AReturnStatementAction(null,$expression.exp);
-        }
-    | 'return'
-        {
-            $statement = new AReturnStatementAction();
-        }
-    | 'while' expression 'do' action
-        {
-            $statement = new AWhileStatementAction(null, $expression.exp, $action.action);
-        }
-    | 'atomic' '(' stateDesignator ':=' expression ( ';' stateDesignator ':=' expression )+ ')'
-        {
-            $statement = new AMultipleGeneralAssignmentStatementAction(); // FIXME
-        }
-    | (callStatement)=> callStatement
-        {
-            $statement = $callStatement.statement;
-        }
-    | stateDesignator
-        ( ':='
-            ( expression
-                {
-                    // FIXME: might be an assignment, might be a call statement
-                    $statement = new ASingleGeneralAssignmentStatementAction(); // FIXME
-                }
-            | 'new' name '(' ( expression ( ',' expression )* )? ')'
-                {
-                    $statement = new ANewStatementAction(); // FIXME
-                }
-            )//| callStatement )
-        | '<-' callStatement
-            {
-                $statement = new ACallStatementAction(); // FIXME
-            }
-        )
     ;
+
+/* This does not support the 'object apply' form of the
+ * objectDesignator, but I don't know what that's for, anyway.
+ * Chained calls?  That should be more general anyway.
+ *
+ * FIXME -- missing objectDesignator part of this
+ */
+callStatement returns[PAction statement]
+@after { $statement.setLocation(extractLexLocation($callStatement.start, $callStatement.stop)); }
+    : name '(' expressionList? ')'
+        {
+            $statement = new ACallStatementAction(null, null, $name.name, $expressionList.exps);
+        }
+    ;
+
+// JWC --- DONE MARKER --- All parser rules below here done.
 
 // need the ()=> to match elseifs greedily
 elseIfStmtOptList returns[List<AElseIfStatementAction> elseifs]
@@ -567,29 +642,6 @@ frameSpec returns[AExternalClause frameSpec]
             LexToken mode = new LexToken(extractLexLocation($FRAMEMODE), VDMToken.lookup($FRAMEMODE.getText(), VDM_PP));
             //new LexToken(, VDMToken.READ);
             $frameSpec = new AExternalClause(mode, $nameList.names, $type.type);
-        }
-    ;
-
-stateDesignator returns[PStateDesignator sd]
-//@after { $sd.setLocation(extractLexLocation($stateDesignator.start, $stateDesignator.stop)); }
-    : name sDTail?
-    ;
-
-sDTail returns[List<PExp> tail] // type is incorrect
-    : '(' expression ')' ( '.' stateDesignator | sDTail )?
-    ;
-
-/* This does not support the 'object apply' form of the
- * objectDesignator, but I don't know what that's for, anyway.
- * Chained calls?  That should be more general anyway.
- *
- * FIXME -- missing objectDesignator part of this
- */
-callStatement returns[PAction statement]
-@after { $statement.setLocation(extractLexLocation($callStatement.start, $callStatement.stop)); }
-    : name '(' expressionList? ')'
-        {
-            $statement = new ACallStatementAction(null, null, $name.name, $expressionList.exps);
         }
     ;
 
@@ -795,7 +847,10 @@ classDefinitionBlock returns[PDefinition defs]
     | operationDefs             { $defs = $operationDefs.defs; }
     | 'initial' operationDef
         {
-            $defs = new AInitialDefinition(); // FIXME
+            AInitialDefinition def = new AInitialDefinition();
+            def.setOperationDefinition($operationDef.def);
+            def.setLocation(extractLexLocation(extractLexLocation($classDefinitionBlock.start), $operationDef.def.getLocation()));
+            $defs = def;
         }
     ;
 
@@ -859,13 +914,17 @@ instanceVariableDefinition returns[PDefinition def]
     : QUALIFIER? assignmentDefinition
         {
             $def = $assignmentDefinition.def;
-            if ($QUALIFIER != null)
-                $def.setAccess(extractQualifier($QUALIFIER));
+            $def.setAccess(extractQualifier($QUALIFIER));
         }
     | invariantDefinition
         {
             $def = $invariantDefinition.def;
         }
+    ;
+
+assignmentDefinitionList returns[List<AAssignmentDefinition> defs]
+@init { $defs = new ArrayList<AAssignmentDefinition>(); }
+    : item=assignmentDefinition { $defs.add($item.def); } ( ';' item=assignmentDefinition { $defs.add($item.def); } )*
     ;
 
 assignmentDefinition returns[AAssignmentDefinition def]
@@ -876,10 +935,9 @@ assignmentDefinition returns[AAssignmentDefinition def]
             $def.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
             $def.setNameScope(NameScope.GLOBAL);
             $def.setType($type.type);
-            // FIXME --- This can't be right that both the ':=' and
-            // 'in' forms produce exactly the same result (that is
-            // what cml.y did, but we need to clarify
-            // this). -jwc/20Dec2012
+            // FIXME --- It can't be right that both the ':=' and 'in'
+            // forms produce exactly the same result (that is what
+            // cml.y did, but we need to clarify this). -jwc/20Dec2012
             if ($det != null)
                 $def.setExpression($expression.exp);
             else if ($nondet != null)
@@ -891,7 +949,7 @@ invariantDefinition returns[AClassInvariantDefinition def]
 @after { $def.setLocation(extractLexLocation($invariantDefinition.start, $invariantDefinition.stop)); }
     : 'inv' expression
         {
-            $def = new AClassInvariantDefinition();//location, NameScope.GLOBAL, true, null/*access*/, Pass.DEFS/*Pass*/, exp);
+            $def = new AClassInvariantDefinition();
             $def.setNameScope(NameScope.GLOBAL);
             $def.setUsed(true);
             $def.setPass(Pass.DEFS);
@@ -1223,19 +1281,10 @@ type1 returns[PType type]
     ;
 
 typebase returns[PType type]
-    : basicType
-        {
-            $type = $basicType.basicType;
-        }
-    | l='(' inside=type r=')'
-        {
-            $type = $inside.type;
-            $type.setLocation(extractLexLocation($l,$r));
-        }
-    | l='[' inside=type r=']'
-        {
-            $type = new AOptionalType(extractLexLocation($l,$r), false, null, $inside.type);
-        }
+@after { $type.setLocation(extractLexLocation($typebase.start, $typebase.stop)); }
+    : basicType           { $type = $basicType.basicType; }
+    | '(' inside=type ')' { $type = $inside.type; }
+    | '[' inside=type ']' { $type = new AOptionalType(null, false, null, $inside.type); }
     | QUOTELITERAL
         {
             LexLocation loc = extractLexLocation($QUOTELITERAL);
@@ -1250,36 +1299,15 @@ typebase returns[PType type]
             $type = new ANamedInvariantType(loc, false, null, false, null, tname,
                                             new AUnresolvedType(loc, false, new ArrayList<PDefinition>(), tname));
         }
-    | op='set' 'of' sub=typebase
+    | 'set' 'of' sub=typebase                { $type = new ASetType(null, false, null, $sub.type, false, false); }
+    | 'seq' 'of' sub=typebase                { $type = new ASeqSeqType(null, false, null, $sub.type, false); }
+    | 'seq1' 'of' sub=typebase               { $type = new ASeq1SeqType(null, false, null, $sub.type, false); }
+    | 'map' dom=typebase 'to' rng=typebase   { $type = new AMapMapType(null, false, null, $dom.type, $rng.type, false); }
+    | 'inmap' dom=typebase 'to' rng=typebase { $type = new AInMapMapType(null, false, null, $dom.type, $rng.type, false); }
+    | 'compose' IDENTIFIER 'of' fieldList 'end'
         {
-            LexLocation loc = extractLexLocation(extractLexLocation($op), $sub.type.getLocation());
-            $type = new ASetType(loc, false, null, $sub.type, false, false);
-        }
-    | op='seq' 'of' sub=typebase
-        {
-            LexLocation loc = extractLexLocation(extractLexLocation($op), $sub.type.getLocation());
-            $type = new ASeqSeqType(loc, false, null, $sub.type, false);
-        }
-    | op='seq1' 'of' sub=typebase
-        {
-            LexLocation loc = extractLexLocation(extractLexLocation($op), $sub.type.getLocation());
-            $type = new ASeq1SeqType(loc, false, null, $sub.type, false);
-        }
-    | op='map' dom=typebase 'to' rng=typebase
-        {
-            LexLocation loc = extractLexLocation(extractLexLocation($op), $rng.type.getLocation());
-            $type = new AMapMapType(loc, false, null, $dom.type, $rng.type, false);
-        }
-    | op='inmap' dom=typebase 'to' rng=typebase
-        {
-            LexLocation loc = extractLexLocation(extractLexLocation($op), $rng.type.getLocation());
-            $type = new AInMapMapType(loc, false, null, $dom.type, $rng.type, false);
-        }
-    | op='compose' IDENTIFIER 'of' fieldList end='end'
-        {
-            LexLocation loc = extractLexLocation($op,$end);
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
-            $type = new ARecordInvariantType(loc, false, null, false, null, name, $fieldList.fieldList, false);
+            $type = new ARecordInvariantType(null, false, null, false, null, name, $fieldList.fieldList, false);
         }
     ;
 
@@ -1307,17 +1335,11 @@ field returns[AFieldField field]
             LexNameToken name = new LexNameToken("", new LexIdentifierToken("",false,loc));
             $field = new AFieldField(null, name, null, $type.type, false);
         }
-    | IDENTIFIER ':' type
+    | IDENTIFIER ( ':' | eqAbs=':-' ) type
         {
             String idStr = $IDENTIFIER.getText();
             LexNameToken name = new LexNameToken("", idStr, extractLexLocation($IDENTIFIER));
-            $field = new AFieldField(access, name, idStr, $type.type, false);
-        }
-    | IDENTIFIER ':-' type
-        {
-            String idStr = $IDENTIFIER.getText();
-            LexNameToken name = new LexNameToken("", idStr, extractLexLocation($IDENTIFIER));
-            $field = new AFieldField(access, name, idStr, $type.type, true);
+            $field = new AFieldField(access, name, idStr, $type.type, (eqAbs!=null));
         }
     ;
 
