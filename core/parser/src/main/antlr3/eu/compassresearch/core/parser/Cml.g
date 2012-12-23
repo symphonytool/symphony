@@ -393,6 +393,8 @@ action2 returns[PAction action]
         }
     ;
 
+// JWC --- DONE MARKER --- All parser rules below here done.
+
 /* FIXME Ok, dots are still fragile
  *
  * In this case, it's IDENTIFIER '.' IDENTIFIER that kills us.  I
@@ -402,13 +404,25 @@ action2 returns[PAction action]
  *
  * ( '!' expression '.' IDENTIFER ) still creates an ambiguity as to
  * whether, say, ...!x.y was really ...(!x).y or ...!(x.y)
+ *
+ * We read "a!x.y" as a(!x)(.y); if you wanted to communicate the
+ * value of "x.y", you need to use "a!(x.y)"
  */
-communication
-    : ('.' | '!') ( IDENTIFIER | '(' expression ')' | symbolicLiteral | recordTupleExprs )
+communication returns[PCommunicationParameter comm]
+@after { $comm.setLocation(extractLexLocation($communication.start, $communication.stop)); }
+    : (   '.' { $comm = new ASignalCommunicationParameter(); }
+        | '!' { $comm = new AWriteCommunicationParameter(); }
+        )
+        ( id=IDENTIFIER       { $comm.setExpression(new AVariableExp(extractLexLocation($id), new LexNameToken("", $id.getText(), extractLexLocation($id)), "")); }
+        | '(' expression ')'  { $comm.setExpression($expression.exp); }
+        | symbolicLiteralExpr { $comm.setExpression($symbolicLiteralExpr.exp); }
+        | recordTupleExprs    { $comm.setExpression($recordTupleExprs.exp); }
+        )
     | '?' bindablePattern ( 'in' 'set' setMapExpr )?
+        {
+            $comm = new AReadCommunicationParameter(null, $setMapExpr.exp, $bindablePattern.pattern);
+        }
     ;
-
-// JWC --- DONE MARKER --- All parser rules below here done.
 
 statement returns[PAction statement]
 @after { $statement.setLocation(extractLexLocation($statement.start, $statement.stop)); }
@@ -1926,31 +1940,9 @@ exprbase returns[PExp exp]
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), loc, isOld, false);
             $exp = new AVariableExp(loc, name, "");
         }
-    | lit=symbolicLiteral
+    | symbolicLiteralExpr
         {
-            if ($lit.literal instanceof LexIntegerToken) {
-                $exp = new AIntLiteralExp($lit.literal.location, (LexIntegerToken)$lit.literal);
-            } else if ($lit.literal instanceof LexRealToken) {
-                $exp = new ARealLiteralExp($lit.literal.location, (LexRealToken)$lit.literal);
-            } else if ($lit.literal instanceof LexBooleanToken) {
-                $exp = new ABooleanConstExp($lit.literal.location, (LexBooleanToken)$lit.literal);
-            } else if ($lit.literal instanceof LexKeywordToken) {
-                // Note, this assumes that lit only ever
-                // gives a LexKeywordToken for 'nil'
-                $exp = new ANilExp($lit.literal.location);
-            } else if ($lit.literal instanceof LexCharacterToken) {
-                $exp = new ACharLiteralExp($lit.literal.location, (LexCharacterToken)$lit.literal);
-            } else if ($lit.literal instanceof LexStringToken) {
-                ASeqSeqType charSeqType = new ASeqSeqType($lit.literal.location,
-                                                          true, null,
-                                                          new ACharBasicType(),
-                                                          (((LexStringToken)$lit.literal).value.length() == 0));
-                $exp = new AStringLiteralExp(charSeqType, $lit.literal.location, (LexStringToken)$lit.literal);
-            } else if ($lit.literal instanceof LexQuoteToken) {
-                $exp = new AQuoteLiteralExp($lit.literal.location, (LexQuoteToken)$lit.literal);
-            } else {
-                // FIXME log a never-happens error
-            }
+            $exp = $symbolicLiteralExpr.exp;
         }
     | eseq='[]'
         {
@@ -2000,6 +1992,36 @@ exprbase returns[PExp exp]
             LexLocation loc = extractLexLocation($PREUNDER,$r);
             $exp = new APreExp(loc, $func.exp, exps);
         }
+    ;
+
+symbolicLiteralExpr returns[PExp exp]
+    : lit=symbolicLiteral
+        {
+            if ($lit.literal instanceof LexIntegerToken) {
+                $exp = new AIntLiteralExp($lit.literal.location, (LexIntegerToken)$lit.literal);
+            } else if ($lit.literal instanceof LexRealToken) {
+                $exp = new ARealLiteralExp($lit.literal.location, (LexRealToken)$lit.literal);
+            } else if ($lit.literal instanceof LexBooleanToken) {
+                $exp = new ABooleanConstExp($lit.literal.location, (LexBooleanToken)$lit.literal);
+            } else if ($lit.literal instanceof LexKeywordToken) {
+                // Note, this assumes that lit only ever
+                // gives a LexKeywordToken for 'nil'
+                $exp = new ANilExp($lit.literal.location);
+            } else if ($lit.literal instanceof LexCharacterToken) {
+                $exp = new ACharLiteralExp($lit.literal.location, (LexCharacterToken)$lit.literal);
+            } else if ($lit.literal instanceof LexStringToken) {
+                ASeqSeqType charSeqType = new ASeqSeqType($lit.literal.location,
+                                                          true, null,
+                                                          new ACharBasicType(),
+                                                          (((LexStringToken)$lit.literal).value.length() == 0));
+                $exp = new AStringLiteralExp(charSeqType, $lit.literal.location, (LexStringToken)$lit.literal);
+            } else if ($lit.literal instanceof LexQuoteToken) {
+                $exp = new AQuoteLiteralExp($lit.literal.location, (LexQuoteToken)$lit.literal);
+            } else {
+                // FIXME log a never-happens error
+            }
+        }
+
     ;
 
 seqExpr returns[SSeqExp seqExpr]

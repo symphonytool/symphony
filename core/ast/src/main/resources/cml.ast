@@ -369,7 +369,7 @@ action {-> package='eu.compassresearch.ast.actions'}
         ;
 
 communicationParameter {-> package='eu.compassresearch.ast.actions'}
-        = {read} [expression]:exp
+        = {read} [pattern]:pattern
         | {write}
         | {signal}
         ;
@@ -481,7 +481,7 @@ Aspect Declaration
 %action = (type):type
     ;
 
-%communicationParameter = [location]:location [pattern]:pattern
+%communicationParameter = [location]:location [expression]:exp
         ;
 
 %singleDeclaration =  [location]:location [nameScope]:nameScope
