@@ -32,7 +32,7 @@ singleDeclaration {-> package='eu.compassresearch.ast.declarations'}
 */
 definition {-> package='eu.compassresearch.ast.definitions'}
     =   {action}
-                [declarations]:singleDeclaration.type*
+                [declarations]:parametrisation*
                 [action]:action
     |   {chanset}
                 [identifier]:LexIdentifierToken

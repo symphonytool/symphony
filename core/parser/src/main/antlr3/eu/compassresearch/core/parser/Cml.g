@@ -188,8 +188,9 @@ catch (RecognitionException e) {
 }
 }
 
-source
-    : programParagraph+
+source returns[List<PDefinition> defs]
+@init { $defs = new ArrayList<PDefinition>(); }
+    : ( programParagraph { $defs.add($programParagraph.defs); } )+
     ;
 
 programParagraph returns[PDefinition defs]
@@ -215,7 +216,7 @@ classDefinition returns[AClassDefinition def]
 
 processDefinition returns[AProcessDefinition def]
 @after { $def.setLocation(extractLexLocation($processDefinition.start, $processDefinition.stop)); }
-    : 'process' IDENTIFIER '=' (declarationList '@')? process
+    : 'process' IDENTIFIER '=' (parametrisationList '@')? process
         {
             $def = new AProcessDefinition(); // FIXME
         }
@@ -267,15 +268,30 @@ proc2
 proc3
     : 'begin' processParagraph* '@' action 'end'
     // merge of (process) | identifier [({expression})] | (decl@proc)({expression})
-    | ( IDENTIFIER | '(' (declarationList '@')? process ')' ) ( '(' ( expression ( ',' expression )* )? ')'  )?
+    | ( IDENTIFIER | '(' (parametrisationList '@')? process ')' ) ( '(' ( expression ( ',' expression )* )? ')'  )?
     ;
 
-declarationList returns[List<PParametrisation> params]
-    : declaration (';' declaration)*
+parametrisationList returns[List<PParametrisation> params]
+@init { $params = new ArrayList<PParametrisation>(); }
+    : item=parametrisation { $params.add($item.param); } ( ';' item=parametrisation { $params.add($item.param); } )*
     ;
 
-declaration
-    : PMODE? IDENTIFIER (',' IDENTIFIER)* ':' type
+parametrisation returns[PParametrisation param]
+@after { $param.setLocation(extractLexLocation($parametrisation.start, $parametrisation.stop)); }
+    : PMODE? identifierList ':' type
+        {
+            if ($PMODE==null || $PMODE.getText().equals("val")) {
+                $param = new AValParametrisation();
+            } else if ($PMODE.getText().equals("res")) {
+                $param = new AResParametrisation();
+            } else if ($PMODE.getText().equals("vres")) {
+                $param = new AVresParametrisation();
+            } else {
+                // FIXME --- log a never-happens
+            }
+            LexLocation loc = extractLexLocation($identifierList.start, $identifierList.stop);
+            $param.setDeclaration(new ATypeSingleDeclaration(loc, NameScope.GLOBAL, $identifierList.ids, $type.type));
+        }
     ;
 
 replicationDeclaration
@@ -307,16 +323,29 @@ processParagraph returns[PDefinition defs]
     ;
 
 actionDefs returns[AActionsDefinition defs]
-    : 'actions' actionDef*
+@after { $defs.setLocation(extractLexLocation($actionDefs.start, $actionDefs.stop)); }
+    : 'actions' actionDefOptList
         {
-            $defs = new AActionsDefinition(); // FIXME
+            $defs = new AActionsDefinition();
+            $defs.setActions($actionDefOptList.defs);
         }
     ;
 
-actionDef
-    : IDENTIFIER '=' action
-    // the "declaration '@'" option is taken care of *in* the action rule
-    // : IDENTIFIER '=' (declaration '@')? action
+actionDefOptList returns[List<AActionDefinition> defs]
+@init { $defs = new ArrayList<AActionDefinition>(); }
+    : ( actionDef { $defs.add($actionDef.def); } )*
+    ;
+
+actionDef returns[AActionDefinition def]
+@after { $def.setLocation(extractLexLocation($actionDef.start, $actionDef.stop)); }
+    : IDENTIFIER '=' (parametrisationList '@')? action
+        {
+            AActionDefinition adef = new AActionDefinition();
+            adef.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
+            adef.setAction($action.action);
+            adef.setDeclarations($parametrisationList.params);
+            $def = adef;
+        }
     ;
 
 action returns[PAction action]
@@ -366,15 +395,17 @@ action0Ops
     ;
 
 action1 returns[PAction action]
-    : action2
+    : actionbase
         ( ('startsby' | 'endsby')=> ('startsby' | 'endsby') expression
         | ('\\\\')=> '\\\\' varsetExpr
         )?
-        { $action = $action2.action; } // FIXME
+        { $action = $actionbase.action; } // FIXME
     ;
 
-action2 returns[PAction action]
-@after { $action.setLocation(extractLexLocation($action2.start, $action2.stop)); }
+// JWC --- DONE MARKER --- All parser rules below here done.
+
+actionbase returns[PAction action]
+@after { $action.setLocation(extractLexLocation($actionbase.start, $actionbase.stop)); }
     : 'Skip'            { $action = new ASkipAction(); }
     | 'Stop'            { $action = new AStopAction(); }
     | 'Chaos'           { $action = new AChaosAction(); }
@@ -392,8 +423,6 @@ action2 returns[PAction action]
             $action = $statement.statement;
         }
     ;
-
-// JWC --- DONE MARKER --- All parser rules below here done.
 
 /* FIXME Ok, dots are still fragile
  *
@@ -451,7 +480,7 @@ statement returns[PAction statement]
         {
             $statement = new ACasesStatementAction(null, $expression.exp, $caseStmtAltOptList.alts, $action.action);
         }
-    | forStatement 
+    | forStatement
         {
             $statement = $forStatement.statement;
         }
@@ -477,9 +506,9 @@ statement returns[PAction statement]
             ADeclareStatementAction dcls = new ADeclareStatementAction(dloc, $assignmentDefinitionList.defs);
             $statement = new ABlockStatementAction(null, dcls, $action.action);
         }
-    | ('(' declarationList '@')=> pl='(' declarationList '@' action pr=')' ( '(' expressionList ')' )?
+    | ('(' parametrisationList '@')=> pl='(' parametrisationList '@' action pr=')' ( '(' expressionList ')' )?
         {
-            $statement = new AParametrisedAction(null, $declarationList.params, $action.action);
+            $statement = new AParametrisedAction(null, $parametrisationList.params, $action.action);
             if ($expressionList.exps!=null) {
                 $statement.setLocation(extractLexLocation($pl, $pr));
                 $statement = new AParametrisedInstantiatedAction(null, (AParametrisedAction)$statement, $expressionList.exps);
