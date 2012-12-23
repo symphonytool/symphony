@@ -23,12 +23,15 @@
  *
  * I'm not sure if multiple binds are implemented. -jwc/14Dec2012
  *
- * Look into start/final rules to see if we can ease up the location bookkeeping
- *
  * Note: don't use '()' as a token: it will probably end up
  * conflicting with '(' ')' in places where there is an optional
  * something inside the brackets.
  *
+ * LexLocations really ought to be handled as is done in the @after
+ * block of the opType rule.  The $ruleName.start and $ruleName.stop
+ * attributes give the first and last tokens matched by that rule (or
+ * subrules), assuming I understand it correctly (and looking at the
+ * generated code appear to confirm my understanding).  -jwc/18Dec2012
  */
 grammar Cml;
 options {
@@ -69,11 +72,11 @@ import org.overture.ast.node.*;
 // import org.overture.ast.node.tokens.*;
 import org.overture.ast.patterns.*;
 // import org.overture.ast.preview.*;
-// import org.overture.ast.statements.*;
+import org.overture.ast.statements.*;
 import org.overture.ast.types.*;
 import org.overture.ast.typechecker.NameScope;
 // import org.overture.ast.util.*;
-// import org.overture.ast.typechecker.Pass;
+import org.overture.ast.typechecker.Pass;
 
 import eu.compassresearch.ast.actions.*;
 import eu.compassresearch.ast.declarations.*;
@@ -114,17 +117,17 @@ protected void mismatch(IntStream input, int ttype, BitSet follow) throws Recogn
 // }
 
 private LexToken extractLexToken(String str, LexLocation loc) {
-	VDMToken tok = null;
-	for (VDMToken t : VDMToken.values()) {
-	    String tokenDisplay = t.toString();
-	    if (tokenDisplay != null && tokenDisplay.equals(str)) {
+    VDMToken tok = null;
+    for (VDMToken t : VDMToken.values()) {
+        String tokenDisplay = t.toString();
+        if (tokenDisplay != null && tokenDisplay.equals(str)) {
             tok = t;
             break;
-	    }
-	}
-	if (tok == null)
-	    throw new RuntimeException("Cannot find VDM token for " + str);
-	return new LexToken(loc, tok);
+        }
+    }
+    if (tok == null)
+        throw new RuntimeException("Cannot find VDM token for " + str);
+    return new LexToken(loc, tok);
 }
 private LexLocation extractLexLocation(CommonToken token) {
     String text = token.getText();
@@ -189,27 +192,38 @@ source
     : programParagraph+
     ;
 
-programParagraph
-    : classDefinition
-    | processDefinition
-    | channelDefs
-    | chansetDefs
-    | typeDefs
-    | valueDefs
-    | functionDefs
+programParagraph returns[PDefinition defs]
+    : classDefinition   { $defs = $classDefinition.def; }
+    | processDefinition { $defs = $processDefinition.def; }
+    | channelDefs       { $defs = $channelDefs.defs; }
+    | chansetDefs       { $defs = $chansetDefs.defs; }
+    | typeDefs          { $defs = $typeDefs.defs; }
+    | valueDefs         { $defs = $valueDefs.defs; }
+    | functionDefs      { $defs = $functionDefs.defs; }
     ;
 
-classDefinition
+classDefinition returns[AClassDefinition def]
+@after { $def.setLocation(extractLexLocation($classDefinition.start, $classDefinition.stop)); }
     : 'class' IDENTIFIER ('extends' IDENTIFIER)? '=' 'begin' classDefinitionBlock* 'end'
+        {
+            // FIXME --- Will need to check
+            // AInitialParagraphDefinition defs that their identifier
+            // matches the one here.
+            $def = new AClassDefinition(); // FIXME
+        }
     ;
 
-processDefinition
-    : 'process' IDENTIFIER '=' ((procDeclarations)=>procDeclarations)? process
+processDefinition returns[AProcessDefinition def]
+@after { $def.setLocation(extractLexLocation($processDefinition.start, $processDefinition.stop)); }
+    : 'process' IDENTIFIER '=' (declarationList '@')? process
+        {
+            $def = new AProcessDefinition(); // FIXME
+        }
     ;
 
 process
     : proc0
-    | replOp replicationDeclaration '@' ( '[' chansetNamesetExpr ']' )? process
+    | replOp replicationDeclaration '@' ( '[' varsetExpr ']' )? process
     ;
 
 proc0
@@ -225,8 +239,8 @@ proc0Ops
     | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
     | '[>'
     | '[[' expression '>>'
-    | '[' chansetNamesetExpr '||' chansetNamesetExpr ']'
-    | '[|' chansetNamesetExpr '|]'
+    | '[' varsetExpr '||' varsetExpr ']'
+    | '[|' varsetExpr '|]'
     | ';'
     ;
 
@@ -239,29 +253,29 @@ replOp
     | '|~|'
     | '||'
     | '|||'
-    | '[|' chansetNamesetExpr '|]'
+    | '[|' varsetExpr '|]'
     | ';'
     ;
 
 proc2
     : proc3
         ( ('startsby' | 'endsby') expression
-        | '\\\\' chansetNamesetExpr
+        | '\\\\' varsetExpr
         )?
     ;
 
 proc3
     : 'begin' processParagraph* '@' action 'end'
     // merge of (process) | identifier [({expression})] | (decl@proc)({expression})
-    | ( IDENTIFIER | '(' ((procDeclarations)=>procDeclarations)? process ')' ) ( '(' ( expression ( ',' expression )* )? ')'  )?
+    | ( IDENTIFIER | '(' (declarationList '@')? process ')' ) ( '(' ( expression ( ',' expression )* )? ')'  )?
     ;
 
-procDeclarations
-    : declaration (';' declaration)* '@'
+declarationList
+    : declaration (';' declaration)*
     ;
 
 declaration
-    : PMODE? IDENTIFIER (',' IDENTIFIER)* (':' type)?
+    : PMODE? IDENTIFIER (',' IDENTIFIER)* ':' type
     ;
 
 replicationDeclaration
@@ -269,7 +283,7 @@ replicationDeclaration
     ;
 
 replicationDecl
-    : IDENTIFIER ( ',' IDENTIFIER )* ( ':' type | 'in' 'set' expression )  // FIXME
+    : IDENTIFIER ( ',' IDENTIFIER )* ( ':' type | 'in' 'set' expression )  // FIXME -- looks like multiTypeBind | multiSetBind
     ;
 
 renamingExpr
@@ -282,18 +296,21 @@ renamePair
         '<-' IDENTIFIER ( '.' (IDENTIFIER | '(' expression ')' | symbolicLiteral ) )*
     ;
 
-processParagraph
-    : typeDefs
-    | valueDefs
-    | stateDefs
-    | functionDefs
-    | operationDefs
-    | actionDefs
-    | namesetDefs
+processParagraph returns[PDefinition defs]
+    : typeDefs          { $defs = $typeDefs.defs; }
+    | valueDefs         { $defs = $valueDefs.defs; }
+    | stateDefs         { $defs = $stateDefs.defs; }
+    | functionDefs      { $defs = $functionDefs.defs; }
+    | operationDefs     { $defs = $operationDefs.defs; }
+    | actionDefs        { $defs = $actionDefs.defs; }
+    | namesetDefs       { $defs = $namesetDefs.defs; }
     ;
 
-actionDefs
+actionDefs returns[AActionsDefinition defs]
     : 'actions' actionDef*
+        {
+            $defs = new AActionsDefinition(); // FIXME
+        }
     ;
 
 actionDef
@@ -302,27 +319,35 @@ actionDef
     // : IDENTIFIER '=' (declaration '@')? action
     ;
 
-action
+action returns[PAction action]
     : action0
+        { $action = $action0.action; } // FIXME
     | '[' expression ']' '&' action
-    | 'mu' IDENTIFIER (',' IDENTIFIER)* '@'  '(' action (',' action)* ')'
-    | ( actionSimpleReplOp ) replicationDeclaration '@' action
-    | ( actionSetReplOp ) replicationDeclaration '@' '[' chansetNamesetExpr ( '|' chansetNamesetExpr )? ']' action
+        { $action = new AGuardedAction(); } // FIXME
+    | 'mu' IDENTIFIER (',' IDENTIFIER)* '@' '(' action (',' action)* ')'
+        { $action = new AMuAction(); } // FIXME
+    | actionSimpleReplOp replicationDeclaration '@' action
+        { $action = new ASequentialCompositionReplicatedAction(); } // FIXME
+    | actionSetReplOp replicationDeclaration '@' '[' varsetExpr ( '|' varsetExpr )? ']' action
+        { $action = new ASequentialCompositionReplicatedAction(); } // FIXME
     ;
 
 actionSimpleReplOp
-    : ';' | '[]' | '|~|' | '[||' chansetNamesetExpr '||]'
+    : ';' | '[]' | '|~|' | '[||' varsetExpr '||]'
     ;
 
 actionSetReplOp
-    : '||' | '|||' | '[|' chansetNamesetExpr '|]'
+    : '||' | '|||' | '[|' varsetExpr '|]'
     ;
 
-action0
+action0 returns[PAction action]
     // : action1 (action0Ops action)?
     : (action1 action0Ops)=>action1 action0Ops action
+        { $action = $action1.action; } // FIXME
     | (action1 '[[')=>action1 '[[' renamingExpr ']]'
+        { $action = $action1.action; } // FIXME
     | action1
+        { $action = $action1.action; } // FIXME
     ;
 
 action0Ops
@@ -335,35 +360,41 @@ action0Ops
     | '|||'
     | '[>'
     | '[[' expression '>>'
-    | '[' chansetNamesetExpr ( '|' chansetNamesetExpr )? '||' chansetNamesetExpr ( '|' chansetNamesetExpr )? ']'
-    | '[|' chansetNamesetExpr ( '|' chansetNamesetExpr ( '|' chansetNamesetExpr )? )? '|]'
-    | '[||' chansetNamesetExpr '|' chansetNamesetExpr '||]'
+    | '[' varsetExpr ( '|' varsetExpr )? '||' varsetExpr ( '|' varsetExpr )? ']'
+    | '[|' varsetExpr ( '|' varsetExpr ( '|' varsetExpr )? )? '|]'
+    | '[||' varsetExpr '|' varsetExpr '||]'
     ;
 
-action1
+action1 returns[PAction action]
     : action2
         ( ('startsby' | 'endsby')=> ('startsby' | 'endsby') expression
-        | ('\\\\')=> '\\\\' chansetNamesetExpr
+        | ('\\\\')=> '\\\\' varsetExpr
         )?
+        { $action = $action2.action; } // FIXME
     ;
 
-action2
-    : 'Skip'
-    | 'Stop'
-    | 'Chaos'
-    | 'Div'
-    | 'Wait' expression
+action2 returns[PAction action]
+@after { $action.setLocation(extractLexLocation($action2.start, $action2.stop)); }
+    : 'Skip'            { $action = new ASkipAction(); }
+    | 'Stop'            { $action = new AStopAction(); }
+    | 'Chaos'           { $action = new AChaosAction(); }
+    | 'Div'             { $action = new ADivAction(); }
+    | 'Wait' expression { $action = new AWaitAction(null, $expression.exp); }
     | IDENTIFIER (communication* '->' action)?
+        {
+            $action = new ACallStatementAction(); // FIXME
+        }
     /* The mess below includes parenthesized actions, block
      * statements, parametrised actions, instantiated actions.
      */
-    | '('
-        ( (declaration)=> declaration (';' declaration)* '@'
-        | 'dcl' assignmentDefinition (';' assignmentDefinition)* '@'
-        )?
-        action ')'
-        ( '(' expression (',' expression )* ')' )?
+    | '(' declarationList '@' action ')' ( '(' expression (',' expression )* ')' )?
+        {
+            $action = new ACallStatementAction(); // FIXME
+        }
     | statement
+        {
+            $action = $statement.statement;
+        }
     ;
 
 /* FIXME Ok, dots are still fragile
@@ -381,194 +412,768 @@ communication
     | '?' bindablePattern ( 'in' 'set' setMapExpr )?
     ;
 
-statement
-    : 'let' localDefinition (',' localDefinition)* 'in' action
-    | '[:' ('frame' frameSpec (',' frameSpec)* )? ('pre' expression)? 'post' expression ':]' // DEVIATION
-    | 'do' nonDetStmtAlt ( '[]' nonDetStmtAlt )* 'end'
-    | 'if' expression
-        ( '->' action ( '[]' nonDetStmtAlt )* 'end'
-        | 'then' action ( 'elseif' expression 'then' action )* 'else' action
-        )
-    | 'cases' expression ':' (pattern (',' pattern)* '->' action (',' pattern (',' pattern)* '->' action)* )? (',' 'others' '->' expression)? 'end'
-    | 'for'
-        ( bindablePattern (':' type)? 'in' expression // was pattern bind here only
-        | 'all' bindablePattern 'in' 'set' expression
-        | IDENTIFIER '=' expression 'to' expression ( 'by' expression )?
-        ) 'do' action
+statement returns[PAction statement]
+@after { $statement.setLocation(extractLexLocation($statement.start, $statement.stop)); }
+    : 'let' localDefinitionList 'in' action
+        {
+            $statement = new ALetStatementAction(null, $action.action, $localDefinitionList.defs);
+        }
+    | '[' ('frame' frameSpecList)? ('pre' pre=expression)? 'post' post=expression ']'
+        {
+            $statement = new ASpecificationStatementAction(null, $frameSpecList.frameSpecs, $pre.exp, $post.exp);
+        }
+    | ('if' expression 'then')=> 'if' test=expression 'then' th=action (('elseif')=>elseIfStmtOptList) (('else')=>'else' el=action)?
+        // need the ()=> to match elseif and else clauses greedily
+        {
+            $statement = new AIfStatementAction(null, $test.exp, $th.action, $elseIfStmtOptList.elseifs, $el.action);
+        }
+    | 'if' nonDetStmtAltList 'end'
+        {
+            $statement = new ANonDeterministicIfStatementAction(null, $nonDetStmtAltList.alts);
+        }
+    | 'do' nonDetStmtAltList 'end'
+        {
+            $statement = new ANonDeterministicDoStatementAction(null, $nonDetStmtAltList.alts);
+        }
+    | 'cases' expression ':' caseStmtAltOptList (',' 'others' '->' action)? 'end'
+        {
+            $statement = new ACasesStatementAction(null, $expression.exp, $caseStmtAltOptList.alts, $action.action);
+        }
+    | forStatement 
+        {
+            $statement = $forStatement.statement;
+        }
     | ('return' expression)=>'return' expression
+        {
+            $statement = new AReturnStatementAction(null,$expression.exp);
+        }
     | 'return'
+        {
+            $statement = new AReturnStatementAction();
+        }
     | 'while' expression 'do' action
-    | 'atomic' '(' stateDesignator ':=' expression ( ';' stateDesignator ':=' expression )+ ')'
-    | (callStatement)=> callStatement // More syntactic predicate magic :)
-    | stateDesignator
-        ( ':=' ( expression | 'new' name '(' ( expression ( ',' expression )* )? ')' )//| callStatement )
-        | '<-' callStatement
-        )
+        {
+            $statement = new AWhileStatementAction(null, $expression.exp, $action.action);
+        }
+    | 'atomic' '(' assignmentStatementList ')'
+        {
+            $statement = new AMultipleGeneralAssignmentStatementAction(); // FIXME
+        }
+    | ('(' 'dcl')=> '(' 'dcl' assignmentDefinitionList '@' action ')'
+        {
+            $statement = new ACallStatementAction(); // FIXME
+        }
+    | '(' action ')' ( '(' expression (',' expression )* ')' )?
+        {
+            $statement = new ACallStatementAction(); // FIXME
+        }
+    | (assignableExpression ':=' 'new')=> assignableExpression ':=' 'new' expression
+        {
+            $statement = new ACallStatementAction(); // FIXME
+        }
+    | (assignableExpression ':=')=> assignmentStatement
+        {
+            $statement = new ACallStatementAction(); // FIXME
+        }
+    | callStatement
+        {
+            $statement = new ACallStatementAction(); // FIXME
+        }
     ;
 
-localDefinition
-    : (valueDefinition)=> valueDefinition
-    | functionDefinition
+assignmentStatementList
+    : assignmentStatement ( ';' assignmentStatement)+
     ;
 
-nonDetStmtAlt
-    : expression '->' action
+assignmentStatement
+    : assignableExpression ':=' expression
     ;
 
-frameSpec
-    : FRAMEMODE name (',' name)* (':' type)?
+// FIXME review this
+assignableExpression returns[PExp exp]
+    : ( t=SELF | t=IDENTIFIER ) selectorOptList
+        {
+            LexLocation loc = extractLexLocation($t);
+            if ($IDENTIFIER != null)
+                $exp = new AVariableExp(loc, new LexNameToken("", $t.getText(), loc, false, false), "");
+            else
+                $exp = new ASelfExp(loc, new LexNameToken("", $t.getText(), loc, true, false));
+
+            for (PExp sel : $selectorOptList.selectors) { // Iterate through the selectors, building a left->right tree
+                loc = extractLexLocation($exp.getLocation(), sel.getLocation());
+                if (sel instanceof AFieldNumberExp) { // FIXME
+                    System.out.println("Syntax error: AFieldNumberExp in a simpleSelector for calls");
+                    ((AFieldNumberExp)sel).setTuple($exp);
+                    sel.setLocation(loc);
+                    $exp = sel;
+                } else if (sel instanceof AApplyExp) {
+                    ((AApplyExp)sel).setRoot($exp);
+                    sel.setLocation(loc);
+                    $exp = sel;
+                } else if (sel instanceof ASubseqExp) { // FIXME
+                    System.out.println("Syntax error: ASubseqExp in a simpleSelector for calls");
+                    ((ASubseqExp)sel).setSeq($exp);
+                    sel.setLocation(loc);
+                    $exp = sel;
+                } else if (sel instanceof AUnresolvedPathExp) {
+                    // selector was a ".IDENTIFIER"; now let's figure out what to do
+                    AUnresolvedPathExp aupe = (AUnresolvedPathExp)sel; // avoid many casts
+                    if ($exp instanceof AVariableExp) { // if the left was an IDENTIFIER, then coalesce...
+                        AVariableExp ave = (AVariableExp)$exp;
+                        aupe.setLocation(loc);
+                        aupe.getIdentifiers().add(0, ave.getName().getIdentifier());
+                        $exp = aupe;
+                    } else if ($exp instanceof AUnresolvedPathExp) { // if it was an unresolved path, still coalesce...
+                        $exp.setLocation(loc);
+                        ((AUnresolvedPathExp)$exp).getIdentifiers().addAll(aupe.getIdentifiers());
+                        // no need to assign to $exp here
+                    } else { // otherwise it must be a field access
+                        // the AUnresolvedPathExp we get from the list
+                        // will only have a single Identifier in it.
+                        LexIdentifierToken id = aupe.getIdentifiers().get(0);
+                        $exp = AstFactory.newAFieldExp($exp,id);
+                    }
+                }
+            }
+        }
     ;
 
-stateDesignator
-    : name sDTail?
-    ;
-
-sDTail
-    : '(' expression ')' ( '.' stateDesignator | sDTail )?
+forStatement returns[PAction statement]
+options { k=3; } // k=3 is sufficient to disambiguate these (for ID =)
+    : 'for' 'all' bindablePattern 'in' 'set' expression 'do' action
+        {
+            $statement = new AForSetStatementAction(null, $bindablePattern.pattern, $expression.exp, $action.action);
+        }
+    | 'for' IDENTIFIER '=' start=expression 'to' end=expression ( 'by' step=expression )? 'do' action
+        {
+            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
+            $statement = new AForIndexStatementAction(null, name, $start.exp, $end.exp, $step.exp, $action.action);
+        }
+    | 'for' bindablePattern (':' type)? 'in' expression 'do' action // was pattern bind here only
+        {
+            ADefPatternBind patternBind = new ADefPatternBind();
+            LexLocation pbloc = $bindablePattern.pattern.getLocation();
+            if ($type.type != null) {
+                pbloc = extractLexLocation(pbloc, $type.type.getLocation());
+                patternBind.setBind(new ATypeBind(pbloc, $bindablePattern.pattern, $type.type));
+            } else {
+                patternBind.setPattern($bindablePattern.pattern);
+            }
+            patternBind.setLocation(pbloc); //depends on the if
+            $statement = new AForSequenceStatementAction(null, patternBind, $expression.exp, $action.action);
+        }
     ;
 
 /* This does not support the 'object apply' form of the
  * objectDesignator, but I don't know what that's for, anyway.
  * Chained calls?  That should be more general anyway.
  *
+ * FIXME -- missing objectDesignator part of this
  */
-callStatement
-    : name '(' ( expression ( ',' expression )* )? ')'
+callStatement returns[PAction statement]
+@after { $statement.setLocation(extractLexLocation($callStatement.start, $callStatement.stop)); }
+    : name '(' expressionList? ')'
+        {
+            $statement = new ACallStatementAction(null, null, $name.name, $expressionList.exps);
+        }
+    ;
+
+// JWC --- DONE MARKER --- All parser rules below here done.
+
+// need the ()=> to match elseifs greedily
+elseIfStmtOptList returns[List<AElseIfStatementAction> elseifs]
+@init { $elseifs = new ArrayList<AElseIfStatementAction>(); }
+    : ( ('elseif')=>elseIfStmt { $elseifs.add($elseIfStmt.elseif); } )*
+//    | /* empty match; we want a null list if no elseifs */
+    ;
+
+elseIfStmt returns[AElseIfStatementAction elseif]
+@after { $elseif.setLocation(extractLexLocation($elseIfStmt.start,$elseIfStmt.stop)); }
+    : 'elseif' test=expression 'then' th=action
+        {
+            $elseif = new AElseIfStatementAction(null, $test.exp, $th.action);
+        }
+    ;
+
+caseStmtAltOptList returns[List<ACaseAlternativeAction> alts]
+@init { $alts = new ArrayList<ACaseAlternativeAction>(); }
+    : ( item=caseStmtAlt { $alts.add($item.alt); } ( ',' item=caseStmtAlt { alts.add($item.alt); } )* )?
+    ;
+
+caseStmtAlt returns[ACaseAlternativeAction alt]
+@after { $alt.setLocation(extractLexLocation($caseStmtAlt.start, $caseStmtAlt.stop)); }
+    : patternList '->' action
+        {
+            $alt = new ACaseAlternativeAction(null, $patternList.patterns, $action.action);
+        }
+    ;
+
+localDefinitionList returns[List<PDefinition> defs]
+@init { $defs = new ArrayList<PDefinition>(); }
+    : item=localDefinition { $defs.add($item.def); } ( ',' item=localDefinition { $defs.add($item.def); } )*
+    ;
+
+localDefinition returns[PDefinition def]
+    : (valueDefinition)=> valueDefinition { $def = $valueDefinition.def; }
+    | functionDefinition                  { $def = $functionDefinition.def; }
+    ;
+
+nonDetStmtAltList returns[List<ANonDeterministicAltStatementAction> alts]
+@init { $alts = new ArrayList<ANonDeterministicAltStatementAction>(); }
+    : item=nonDetStmtAlt { $alts.add($item.alt); } ( '[]' item=nonDetStmtAlt { $alts.add($item.alt); } )*
+    ;
+
+nonDetStmtAlt returns[ANonDeterministicAltStatementAction alt]
+@after { $alt.setLocation(extractLexLocation($nonDetStmtAlt.start, $nonDetStmtAlt.stop)); }
+    : expression '->' action
+        {
+            $alt = new ANonDeterministicAltStatementAction(null, $expression.exp, $action.action);
+        }
+    ;
+
+frameSpecList returns[List<AExternalClause> frameSpecs]
+@init { $frameSpecs = new ArrayList<AExternalClause>(); }
+    : ( item=frameSpec { $frameSpecs.add($item.frameSpec); } )+
+    ;
+
+frameSpec returns[AExternalClause frameSpec]
+    : FRAMEMODE nameList (':' type)?
+        {
+            LexToken mode = new LexToken(extractLexLocation($FRAMEMODE), VDMToken.lookup($FRAMEMODE.getText(), VDM_PP));
+            //new LexToken(, VDMToken.READ);
+            $frameSpec = new AExternalClause(mode, $nameList.names, $type.type);
+        }
     ;
 
 /* Ok, this is cute.  It works both with and without semicolons,
  * though it may not be visually obvious (without the semis) that it
  * is a space that separates untyped channels from typed ones. (-jwc)
  */
-channelDefs
-    : 'channels' channelDef*
-    // : 'channels' ( channelDef (';' channelDef)+ )?
+channelDefs returns[AChannelsDefinition defs]
+@after { $defs.setLocation(extractLexLocation($channelDefs.start, $channelDefs.stop)); }
+    : 'channels' channelDefOptList
+        {
+            $defs = new AChannelsDefinition();//location, NameScope.GLOBAL, false, access, null/* Pass */, chanNameDecls);
+            $defs.setNameScope(NameScope.GLOBAL);
+            $defs.setUsed(false);
+            $defs.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($channelDefs.start)));
+            $defs.setChannelNameDeclarations($channelDefOptList.defs);
+        }
     ;
 
-channelDef
-    : IDENTIFIER (',' IDENTIFIER)* (':' type)?
+channelDefOptList returns[List<AChannelNameDefinition> defs]
+@init { $defs = new ArrayList<AChannelNameDefinition>(); }
+    : ( channelDef { $defs.add($channelDef.def); } )*
     ;
 
-chansetDefs
-    : 'chansets' chansetDef*
-    // : 'chansets' ( chansetDef (';' chansetDef)+ )?
+channelDef returns[AChannelNameDefinition def]
+@after { $def.setLocation(extractLexLocation($channelDef.start, $channelDef.stop)); }
+    : identifierList (':' type)?
+        {
+            $def = new AChannelNameDefinition();//, false, null, null, singleTypeDeclaration);
+            //$def.setName(??); // not sure if this needs set; one cml.y case has an empty LexNameToken, the other uses the first element of the identifierList
+            $def.setNameScope(NameScope.GLOBAL);
+            $def.setUsed(false);
+            if ($type.type == null)
+                $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, null));
+            else
+                $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $type.type));
+        }
     ;
 
-chansetDef
-    : IDENTIFIER '=' chansetNamesetExpr
+chansetDefs returns[AChansetsDefinition defs]
+    : 'chansets' chansetDefOptList
+        {
+            $defs = new AChansetsDefinition();
+            $defs.setNameScope(NameScope.GLOBAL);
+            $defs.setUsed(false);
+            $defs.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($chansetDefs.start)));
+            $defs.setChansets($chansetDefOptList.defs);
+        }
     ;
 
-chansetNamesetExpr
-    : chansetNamesetExprbase (cneOp chansetNamesetExpr)?
+chansetDefOptList returns[List<AChansetDefinition> defs]
+@init { $defs = new ArrayList<AChansetDefinition>(); }
+    : ( chansetDef { $defs.add($chansetDef.def); } )*
     ;
 
-cneOp
-    : 'union'
-    | 'inter'
-    | '\\'
+chansetDef returns [AChansetDefinition def]
+@after { $def.setLocation(extractLexLocation($chansetDef.start, $chansetDef.stop)); }
+    : IDENTIFIER '=' varsetExpr
+        {
+            $def = new AChansetDefinition();
+            $def.setIdentifier(new LexIdentifierToken($IDENTIFIER.getText(), false, extractLexLocation($IDENTIFIER)));
+            $def.setChansetExpression($varsetExpr.vexp);
+        }
     ;
 
-chansetNamesetExprbase
-    : name
-    | '{' ( IDENTIFIER (',' IDENTIFIER)* )? '}'
-    | '{|'
-        ( IDENTIFIER
-            ( (',' IDENTIFIER)+
-            | ('.' expression)? ( setMapExprBinding )
-            )?
-        )?
-        '|}'
+varsetExpr returns[PVarsetExpression vexp]
+    : l=varsetExpr0 varsetExprTailOptList
+        {
+            $vexp = $varsetExpr0.vexp;
+            for (SVOpVarsetExpression right : $varsetExprTailOptList.vexps) {
+                LexLocation loc = extractLexLocation($vexp.getLocation(), right.getLocation());
+                right.setLocation(loc);
+                right.setLeft($vexp);
+                $vexp = right;
+            }
+        }
     ;
 
-namesetDefs
-    : 'namesets' namesetDef*
-    // : 'chansets' ( chansetDef (';' chansetDef)+ )?
+varsetExprTailOptList returns[List<SVOpVarsetExpression> vexps]
+@init { $vexps = new ArrayList<SVOpVarsetExpression>(); }
+    : ( op='union' varsetExpr0
+            {
+                AUnionVOpVarsetExpression vexp = new AUnionVOpVarsetExpression();
+                vexp.setLocation(extractLexLocation(extractLexLocation($varsetExprTailOptList.start), extractLexLocation($varsetExpr0.stop)));
+                vexp.setOp(new LexNameToken("", $op.getText(), extractLexLocation($op)));
+                vexp.setRight($varsetExpr0.vexp);
+                $vexps.add(vexp);
+            }
+        )*
     ;
 
-namesetDef
-    : IDENTIFIER '=' chansetNamesetExpr
+varsetExpr0 returns[PVarsetExpression vexp]
+    : varsetExpr1 varsetExpr0TailOptList
+        {
+            $vexp = $varsetExpr1.vexp;
+            for (SVOpVarsetExpression right : $varsetExpr0TailOptList.vexps) {
+                LexLocation loc = extractLexLocation($vexp.getLocation(), right.getLocation());
+                right.setLocation(loc);
+                right.setLeft($vexp);
+                $vexp = right;
+            }
+        }
     ;
 
-classDefinitionBlock
-    : typeDefs
-    | valueDefs
-    | stateDefs
-    | functionDefs
-    | operationDefs
-    | 'initial' operationDef // why should this operation require a name, or be allowed to be explicit?
+varsetExpr0TailOptList returns[List<SVOpVarsetExpression> vexps]
+@init { $vexps = new ArrayList<SVOpVarsetExpression>(); }
+    : ( op='inter' varsetExpr1
+            {
+                AInterVOpVarsetExpression vexp = new AInterVOpVarsetExpression();
+                vexp.setLocation(extractLexLocation(extractLexLocation($varsetExpr0TailOptList.start), extractLexLocation($varsetExpr1.stop)));
+                vexp.setOp(new LexNameToken("", $op.getText(), extractLexLocation($op)));
+                vexp.setRight($varsetExpr1.vexp);
+                $vexps.add(vexp);
+            }
+        )*
     ;
 
-valueDefs
-    : 'values' ( QUALIFIER? valueDefinition (';' QUALIFIER? valueDefinition)* )? ';'?
+varsetExpr1 returns[PVarsetExpression vexp]
+    : varsetExprbase varsetExpr1TailOptList
+        {
+            $vexp = $varsetExprbase.vexp;
+            for (SVOpVarsetExpression right : $varsetExpr1TailOptList.vexps) {
+                LexLocation loc = extractLexLocation($vexp.getLocation(), right.getLocation());
+                right.setLocation(loc);
+                right.setLeft($vexp);
+                $vexp = right;
+            }
+        }
     ;
 
-stateDefs
-    : 'state' ( instanceVariableDefinition (';' instanceVariableDefinition)* )? ';'?
+varsetExpr1TailOptList returns[List<SVOpVarsetExpression> vexps]
+@init { $vexps = new ArrayList<SVOpVarsetExpression>(); }
+    : ( op='\\' varsetExprbase
+            {
+                ASubVOpVarsetExpression vexp = new ASubVOpVarsetExpression();
+                vexp.setLocation(extractLexLocation(extractLexLocation($varsetExpr1TailOptList.start), extractLexLocation($varsetExprbase.stop)));
+                vexp.setOp(new LexNameToken("", $op.getText(), extractLexLocation($op)));
+                vexp.setRight($varsetExprbase.vexp);
+                $vexps.add(vexp);
+            }
+        )*
     ;
 
-instanceVariableDefinition
-    : QUALIFIER? assignmentDefinition
-    | invariantDefinition
-    ;
-
-assignmentDefinition
-    : bindablePattern ':' type ( ( ':=' | 'in' ) expression )?
-    ;
-
-invariantDefinition
-    : 'inv' expression
-    ;
-
-functionDefs
-    : 'functions' (QUALIFIER? functionDefinition)*
-    ;
-
-valueDefinition
-    : bindablePattern (':' type)? ( '=' | 'be' 'st' ) expression
-    ;
-
-functionDefinition
-    : IDENTIFIER (explicitFunctionDefintionTail | implicitFunctionDefintionTail)
-    ;
-
-explicitFunctionDefintionTail
-    : ':' type IDENTIFIER parameterGroup+ '==' functionBody ('pre' expression )? ('post' expression)? ('measure' name)?
-    ;
-
-implicitFunctionDefintionTail
-    : '(' parameterTypeList? ')' IDENTIFIER ':' type (',' IDENTIFIER ':' type)* ('pre' expression )? 'post' expression
-    ;
-
-parameterTypeList
-    : parameterTypeGroup (',' parameterTypeGroup)*
-    ;
-
-parameterTypeGroup
-    : (bindablePattern (',' bindablePattern)* )? ':' type
-    ;
-
-parameterGroup
-    : '(' (bindablePattern (',' bindablePattern)* )? ')'
-    ;
-
-functionBody
-    : expression
-    | 'is' 'not' 'yet' 'specified'
-    | 'is' 'subclass' 'responsibility'
-    ;
-
-operationDefs
-    : 'operations' (QUALIFIER? operationDef)*
-    ;
-
-operationDef
+varsetExprbase returns[PVarsetExpression vexp]
+@after { $vexp.setLocation(extractLexLocation($varsetExprbase.start, $varsetExprbase.stop)); }
     : IDENTIFIER
-        ( ':' opType IDENTIFIER parameterGroup '==' operationBody ('pre' expression)? ('post' expression)?
-        | '(' parameterTypeList? ')' (IDENTIFIER ':' type (',' IDENTIFIER ':' type)* )? ('frame' frameSpec+ )? ('pre' expression)? ('post' expression)
+        {
+            LexLocation loc = extractLexLocation($IDENTIFIER);
+            $vexp = new AIdentifierVarsetExpression(loc, new LexIdentifierToken($IDENTIFIER.getText(), false, loc));
+        }
+    | '(' varsetExpr ')'
+        {
+            $vexp = $varsetExpr.vexp;
+        }
+    | '{' ( identifierList )? '}'
+        {
+            List<LexIdentifierToken> ids = ($identifierList.ids!=null) ? $identifierList.ids : new ArrayList<LexIdentifierToken>();
+            $vexp = new AEnumVarsetExpression(null, ids);
+        }
+    | '{|' ( identifierList )? '|}'
+        {
+            List<LexIdentifierToken> ids = ($identifierList.ids!=null) ? $identifierList.ids : new ArrayList<LexIdentifierToken>();
+            $vexp = new AFatEnumVarsetExpression(null, ids);
+        }
+    | '{|' IDENTIFIER ('.' expression)? setMapExprBinding '|}'
+        {
+            // FIXME --- 2nd null below needs to be some combination of the IDENTIFIER and expression
+            $vexp = new AFatCompVarsetExpression(null, null, $setMapExprBinding.bindings, $setMapExprBinding.pred);
+        }
+    ;
+
+namesetDefs returns[ANamesetsDefinition defs]
+    : 'namesets' namesetDefOptList
+        {
+            $defs = new ANamesetsDefinition();
+            $defs.setNameScope(NameScope.GLOBAL);
+            $defs.setUsed(false);
+            $defs.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($namesetDefs.start)));
+            $defs.setNamesets($namesetDefOptList.defs);
+        }
+    ;
+
+namesetDefOptList returns[List<ANamesetDefinition> defs]
+@init { $defs = new ArrayList<ANamesetDefinition>(); }
+    : ( namesetDef { $defs.add($namesetDef.def); } )*
+    ;
+
+namesetDef returns [ANamesetDefinition def]
+@after { $def.setLocation(extractLexLocation($namesetDef.start, $namesetDef.stop)); }
+    : IDENTIFIER '=' varsetExpr
+        {
+            $def = new ANamesetDefinition();
+            $def.setIdentifier(new LexIdentifierToken($IDENTIFIER.getText(), false, extractLexLocation($IDENTIFIER)));
+            $def.setNamesetExpression($varsetExpr.vexp);
+        }
+    ;
+
+classDefinitionBlock returns[PDefinition defs]
+    : typeDefs                  { $defs = $typeDefs.defs; }
+    | valueDefs                 { $defs = $valueDefs.defs; }
+    | stateDefs                 { $defs = $stateDefs.defs; }
+    | functionDefs              { $defs = $functionDefs.defs; }
+    | operationDefs             { $defs = $operationDefs.defs; }
+    | 'initial' operationDef
+        {
+            AInitialDefinition def = new AInitialDefinition();
+            def.setOperationDefinition($operationDef.def);
+            def.setLocation(extractLexLocation(extractLexLocation($classDefinitionBlock.start), $operationDef.def.getLocation()));
+            $defs = def;
+        }
+    ;
+
+valueDefs returns[AValuesDefinition defs]
+@after { $defs.setLocation(extractLexLocation($valueDefs.start, $valueDefs.stop)); }
+    : 'values' qualValueDefinitionList? ';'?
+        {
+            AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($valueDefs.start));
+            $defs = new AValuesDefinition(null, NameScope.NAMES, false, access, null, $qualValueDefinitionList.defs);
+        }
+    ;
+
+qualValueDefinitionList returns[List<AValueDefinition> defs]
+@init { defs = new ArrayList<AValueDefinition>(); }
+    : item=qualValueDefinition { $defs.add($item.def); } ( ';' item=qualValueDefinition { $defs.add($item.def); } )*
+    ;
+
+qualValueDefinition returns[AValueDefinition def]
+    : QUALIFIER? valueDefinition
+        {
+            $def = $valueDefinition.def;
+            $def.setAccess(extractQualifier($QUALIFIER));
+            LexLocation loc = extractLexLocation(extractLexLocation($qualValueDefinition.start), $qualValueDefinition.def.getLocation()) ;
+            $def.setLocation(loc);
+        }
+
+    ;
+valueDefinition returns[AValueDefinition def]
+// We've had requests for the "be st" type of value definitions, but
+//  they're not in for now.  The Overture AST does this differently
+//  than I'd like. -jwc/18Dec2012
+//
+// Also, apparently JPCW doesn't want the "be st" because they
+//  introduce a type on non-determinism that he doesn't want to deal
+//  with.  So, they'll not happen. -jwc/19Dec2012
+//
+//  : bindablePattern (':' type)? ( '=' | 'be' 'st' ) expression
+    : bindablePattern (':' type)? '=' expression
+        {
+            $def = AstFactory.newAValueDefinition($bindablePattern.pattern, NameScope.LOCAL, $type.type, $expression.exp);
+        }
+    ;
+
+stateDefs returns[AStateDefinition defs]
+@after { $defs.setLocation(extractLexLocation($stateDefs.start, $stateDefs.stop)); }
+    : 'state' instanceVariableDefinitionList? ';'?
+        {
+            $defs = new AStateDefinition();
+            if ($instanceVariableDefinitionList.defs != null)
+                $defs.setStateDefs($instanceVariableDefinitionList.defs);
+        }
+    ;
+
+instanceVariableDefinitionList returns[List<PDefinition> defs]
+@init { $defs = new ArrayList<PDefinition>(); }
+    : item=instanceVariableDefinition { $defs.add($item.def); } ( ';' item=instanceVariableDefinition { $defs.add($item.def); } )*
+    ;
+
+instanceVariableDefinition returns[PDefinition def]
+@after { $def.setLocation(extractLexLocation($instanceVariableDefinition.start, $instanceVariableDefinition.stop)); }
+    : QUALIFIER? assignmentDefinition
+        {
+            $def = $assignmentDefinition.def;
+            $def.setAccess(extractQualifier($QUALIFIER));
+        }
+    | invariantDefinition
+        {
+            $def = $invariantDefinition.def;
+        }
+    ;
+
+assignmentDefinitionList returns[List<AAssignmentDefinition> defs]
+@init { $defs = new ArrayList<AAssignmentDefinition>(); }
+    : item=assignmentDefinition { $defs.add($item.def); } ( ';' item=assignmentDefinition { $defs.add($item.def); } )*
+    ;
+
+assignmentDefinition returns[AAssignmentDefinition def]
+@after { $def.setLocation(extractLexLocation($assignmentDefinition.start, $assignmentDefinition.stop)); }
+    : IDENTIFIER ':' type ( ( det=':=' | nondet='in' ) expression )?
+        {
+            $def = new AAssignmentDefinition();//null, name, NameScope.GLOBAL, false, null, null, type, null, null, null);
+            $def.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
+            $def.setNameScope(NameScope.GLOBAL);
+            $def.setType($type.type);
+            // FIXME --- It can't be right that both the ':=' and 'in'
+            // forms produce exactly the same result (that is what
+            // cml.y did, but we need to clarify this). -jwc/20Dec2012
+            if ($det != null)
+                $def.setExpression($expression.exp);
+            else if ($nondet != null)
+                $def.setExpression($expression.exp);
+        }
+    ;
+
+invariantDefinition returns[AClassInvariantDefinition def]
+@after { $def.setLocation(extractLexLocation($invariantDefinition.start, $invariantDefinition.stop)); }
+    : 'inv' expression
+        {
+            $def = new AClassInvariantDefinition();
+            $def.setNameScope(NameScope.GLOBAL);
+            $def.setUsed(true);
+            $def.setPass(Pass.DEFS);
+            $def.setExpression($expression.exp);
+        }
+    ;
+
+functionDefs returns[AFunctionsDefinition defs]
+@after { $defs.setLocation(extractLexLocation($functionDefs.start, $functionDefs.stop)); }
+    : 'functions' qualFunctionDefinitionOptList
+        {
+            AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start));
+            $defs = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null, $qualFunctionDefinitionOptList.defs);
+        }
+    ;
+
+qualFunctionDefinitionOptList returns[List<PDefinition> defs]
+@init { $defs = new ArrayList<PDefinition>(); }
+    : (QUALIFIER? functionDefinition
+            {
+                $functionDefinition.def.setAccess(extractQualifier($QUALIFIER));
+                LexLocation loc = extractLexLocation(extractLexLocation($qualFunctionDefinitionOptList.start),
+                                                     $functionDefinition.def.getLocation());
+                $functionDefinition.def.setLocation(loc);
+                $defs.add($functionDefinition.def);
+            }
+        )*
+    ;
+
+functionDefinition returns[PDefinition def]
+@after { $def.setLocation(extractLexLocation($functionDefinition.start, $functionDefinition.stop)); }
+    : IDENTIFIER (expl=explicitFunctionDefinitionTail | impl=implicitFunctionDefinitionTail)
+        {
+            if ($expl.tail != null) {
+                $def = $expl.tail;
+                if ( !$IDENTIFIER.getText().equals($def.getName().name) ) {
+                    System.out.println("Mismatch in function definition.  Signature has " + $IDENTIFIER.getText() + ", definition has " + $def.getName().name);
+                    // FIXME --- here we need some sort of exception (probably RecognitionException) to note the mismatch
+                }
+            } else {
+                $def = $impl.tail;
+            }
+            $def.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
+        }
+    ;
+
+explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
+    : ':' type IDENTIFIER parameterGroupList '==' functionBody ('pre' pre=expression )? ('post' post=expression)? ('measure' name)?
+        {
+            $tail = new AExplicitFunctionDefinition();
+            $tail.setType($type.type);
+            $tail.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
+            $tail.setParamPatternList($parameterGroupList.pgroups);
+            $tail.setBody($functionBody.exp);
+            $tail.setIsUndefined(false);
+            $tail.setRecursive(false);
+            if ($pre.exp != null)
+                $tail.setPrecondition($pre.exp);
+            else
+                $tail.setPrecondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($functionBody.stop))));
+            if ($post.exp != null)
+                $tail.setPostcondition($post.exp);
+            else
+                $tail.setPostcondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($functionBody.stop))));
+            $tail.setMeasure($name.name);
+            $tail.setAccess(CmlParserHelper.getPrivateAccessSpecifier(false, false, extractLexLocation($IDENTIFIER)));
+            //$tail.setPass(Pass.DEFS); // what's this for?
+        }
+    ;
+
+parameterGroupList returns[List<List<PPattern>> pgroups]
+@init { $pgroups = new ArrayList<List<PPattern>>(); }
+    : item=parameterGroup { $pgroups.add($item.pgroup); } ( item=parameterGroup { $pgroups.add($item.pgroup); } )*
+    ;
+
+parameterGroup returns[List<PPattern> pgroup]
+    : '(' bindablePatternList? ')'
+        {
+            $pgroup = $bindablePatternList.patterns;
+            if ($pgroup == null)
+                $pgroup = new ArrayList<PPattern>();
+        }
+    ;
+
+implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
+    : '(' parameterTypeList? ')' resultTypeList ('pre' pre=expression )? 'post' post=expression
+        {
+            $tail = new AImplicitFunctionDefinition();
+            $tail.setNameScope(NameScope.LOCAL);
+            $tail.setUsed(Boolean.FALSE);
+            $tail.setAccess(CmlParserHelper.getDefaultAccessSpecifier(false,false,null));
+
+            List<APatternListTypePair> paramPatterns = $parameterTypeList.ptypes;
+            if (paramPatterns == null)
+                paramPatterns = new ArrayList<APatternListTypePair>();
+            $tail.setParamPatterns(paramPatterns);
+
+            List<APatternTypePair> resultList = $resultTypeList.rtypes;
+            APatternTypePair resultTypePair = null;
+            if (resultList.size() == 1) {
+                resultTypePair = resultList.get(0);
+            } else {
+                // VDMJ needs a product type of all of the result types
+                ATuplePattern tuple = new ATuplePattern();
+                List<PPattern> plist = new ArrayList<PPattern>();
+                for (APatternTypePair pair : resultList)
+                    plist.add(pair.getPattern());
+                tuple.setPlist(plist);
+                resultTypePair = new APatternTypePair(false, tuple);
+            }
+            $tail.setResult(resultTypePair);
+
+            if ($pre.exp != null)
+                $tail.setPrecondition($pre.exp);
+            else
+                $tail.setPrecondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($resultTypeList.stop))));
+
+            $tail.setPostcondition($post.exp);
+
+            // figure out the overall function type
+            List<PType> paramTypes = new ArrayList<PType>();
+            for (APatternListTypePair pp : paramPatterns)
+                paramTypes.add(pp.getType());
+            LexLocation typeloc = extractLexLocation($implicitFunctionDefinitionTail.start, $resultTypeList.stop);
+            $tail.setType(AstFactory.newAFunctionType(typeloc, true, paramTypes, resultTypePair.getType()));
+        }
+    ;
+
+parameterTypeList returns[List<APatternListTypePair> ptypes]
+@init { $ptypes = new ArrayList<APatternListTypePair>(); }
+    : item=parameterTypeGroup { $ptypes.add($item.ptype); } ( ',' item=parameterTypeGroup { $ptypes.add($item.ptype); } )*
+    ;
+
+parameterTypeGroup returns[APatternListTypePair ptype]
+    : bindablePatternList ':' type
+        {
+            $ptype = new APatternListTypePair(false, $bindablePatternList.patterns, $type.type);
+        }
+    ;
+
+resultTypeList returns[List<APatternTypePair> rtypes]
+@init { $rtypes = new ArrayList<APatternTypePair>(); }
+    : item=resultType { $rtypes.add($item.rtype); } ( ',' item=resultType { $rtypes.add($item.rtype); } )*
+    ;
+
+resultType returns[APatternTypePair rtype]
+    : IDENTIFIER ':' type
+        {
+            LexLocation loc = extractLexLocation($IDENTIFIER);
+            LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), loc, false, true);
+            $rtype = new APatternTypePair(false, new AIdentifierPattern(loc, null, true, name, false), $type.type);
+        }
+    ;
+
+functionBody returns[PExp exp]
+@after { $exp.setLocation(extractLexLocation($functionBody.start, $functionBody.stop)); }
+    : expression                       { $exp = $expression.exp; }
+    | 'is' 'not' 'yet' 'specified'     { $exp = new ANotYetSpecifiedExp(); }
+    | 'is' 'subclass' 'responsibility' { $exp = new ASubclassResponsibilityExp(); }
+    ;
+
+operationDefs returns[AOperationsDefinition defs]
+@after { $defs.setLocation(extractLexLocation($operationDefs.start, $operationDefs.stop)); }
+    : 'operations' qualOperationDefOptList
+        {
+            $defs = new AOperationsDefinition(); // FIXME
+            $defs.setOperations($qualOperationDefOptList.defs);
+            $defs.setNameScope(NameScope.LOCAL);
+            $defs.setUsed(false);
+            $defs.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($operationDefs.start)));
+        }
+    ;
+
+qualOperationDefOptList returns[List<SCmlOperationDefinition> defs]
+@init { $defs = new ArrayList<SCmlOperationDefinition>(); }
+    : ( qualOperationDef { $defs.add($qualOperationDef.def); } )*
+    ;
+
+qualOperationDef returns[SCmlOperationDefinition def]
+@after { $def.setLocation(extractLexLocation($qualOperationDef.start, $qualOperationDef.stop)); }
+    : QUALIFIER? operationDef
+        {
+            $def = $operationDef.def;
+            $def.setAccess(extractQualifier($QUALIFIER));
+        }
+    ;
+
+operationDef returns[SCmlOperationDefinition def]
+@after { $def.setLocation(extractLexLocation($operationDef.start, $operationDef.stop)); }
+    : id=IDENTIFIER
+        ( ':' opType IDENTIFIER parameterGroup '==' operationBody ('pre' pre=expression)? ('post' post=expression)?
+            {
+                // FIXME --- check that the IDENTIFIERs match and
+                // throw a MismatchedTokenException (if that's the
+                // right exception)
+                AExplicitCmlOperationDefinition opdef = new AExplicitCmlOperationDefinition();
+                opdef.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
+                opdef.setType($opType.type);
+                opdef.setParameterPatterns($parameterGroup.pgroup);
+                opdef.setBody($operationBody.body);
+                opdef.setPrecondition($pre.exp);
+                opdef.setPostcondition($post.exp);
+                opdef.setNameScope(NameScope.GLOBAL);
+                opdef.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
+                $def = opdef;
+            }
+        | '(' parameterTypeList? ')' resultTypeList? ('frame' frameSpecList )? ('pre' pre=expression)? ('post' post=expression)
+            {
+                AImplicitCmlOperationDefinition opdef = new AImplicitCmlOperationDefinition();
+                opdef.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
+                opdef.setParameterPatterns($parameterTypeList.ptypes);
+                opdef.setResult($resultTypeList.rtypes);
+                opdef.setExternals($frameSpecList.frameSpecs);
+                opdef.setPrecondition($pre.exp);
+                opdef.setPostcondition($post.exp);
+                opdef.setNameScope(NameScope.GLOBAL);
+                opdef.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
+                $def = opdef;
+            }
         )
     ;
 
 opType returns[PType type]
+@after { $type.setLocation(extractLexLocation($opType.start, $opType.stop)); }
     : ( dom=type0 | vdom='(' vdom2=')' ) '==>' ( rng=type0 | vrng='(' vrng2=')' )
         {
             PType domType = ($dom.type != null ? $dom.type : new AVoidType(extractLexLocation($vdom,$vdom2),true));
@@ -580,13 +1185,15 @@ opType returns[PType type]
         }
     ;
 
-operationBody
-    : action
-    | 'is' 'not' 'yet' 'specified'
-    | 'is' 'subclass' 'responsibility'
+operationBody returns[PAction body]
+@after { $body.setLocation(extractLexLocation($operationBody.start, $operationBody.stop)); }
+    : action                           { $body = $action.action; }
+    | 'is' 'not' 'yet' 'specified'     { $body = new ASubclassResponsibilityAction(); }
+    | 'is' 'subclass' 'responsibility' { $body = new ANotYetSpecifiedStatementAction(); }
     ;
 
-typeDefs returns[PDefinition para]
+
+typeDefs returns[PDefinition defs]
 @init {
     List<ATypeDefinition> typeDefList = new ArrayList<ATypeDefinition>();
     ATypeDefinition last = null;
@@ -596,21 +1203,20 @@ typeDefs returns[PDefinition para]
             LexLocation loc = extractLexLocation($t);
             if (typeDefList.size()>0)
                 loc = extractLexLocation(loc,last.getLocation());
-            $para = new ATypesParagraphDefinition(loc, NameScope.LOCAL, false,
+            $defs = new ATypesDefinition(loc, NameScope.LOCAL, false,
                                                   CmlParserHelper.getDefaultAccessSpecifier(true, false, loc),
                                                   null, typeDefList);
-            $para.setName(new LexNameToken("", $t.getText(), loc));
+            $defs.setName(new LexNameToken("", $t.getText(), loc));
         }
     ;
 
 typeDef returns[ATypeDefinition def]
+@after { $def.setLocation(extractLexLocation($typeDef.start, $typeDef.stop)); }
     : QUALIFIER? IDENTIFIER '=' type invariant?
         {
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
             ANamedInvariantType invType = AstFactory.newANamedInvariantType(name, $type.type);
-            PPattern invPat = ($invariant.inv != null ? $invariant.inv.getPattern() : null);
-            PExp invExp = ($invariant.inv != null ? $invariant.inv.getExpression() : null);
-            $def = AstFactory.newATypeDefinition(name,invType,invPat,invExp);
+            $def = AstFactory.newATypeDefinition(name,invType,$invariant.pattern,$invariant.exp);
             $def.setAccess(extractQualifier($QUALIFIER));
 
         }
@@ -618,9 +1224,7 @@ typeDef returns[ATypeDefinition def]
         {
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
             ARecordInvariantType invType = AstFactory.newARecordInvariantType(name, $fieldList.fieldList);
-            PPattern invPat = ($invariant.inv != null ? $invariant.inv.getPattern() : null);
-            PExp invExp = ($invariant.inv != null ? $invariant.inv.getExpression() : null);
-            $def = AstFactory.newATypeDefinition(name,invType,invPat,invExp);
+            $def = AstFactory.newATypeDefinition(name,invType,$invariant.pattern,$invariant.exp);
             $def.setAccess(extractQualifier($QUALIFIER));
         }
     ;
@@ -678,19 +1282,10 @@ type1 returns[PType type]
     ;
 
 typebase returns[PType type]
-    : basicType
-        {
-            $type = $basicType.basicType;
-        }
-    | l='(' inside=type r=')'
-        {
-            $type = $inside.type;
-            $type.setLocation(extractLexLocation($l,$r));
-        }
-    | l='[' inside=type r=']'
-        {
-            $type = new AOptionalType(extractLexLocation($l,$r), false, null, $inside.type);
-        }
+@after { $type.setLocation(extractLexLocation($typebase.start, $typebase.stop)); }
+    : basicType           { $type = $basicType.basicType; }
+    | '(' inside=type ')' { $type = $inside.type; }
+    | '[' inside=type ']' { $type = new AOptionalType(null, false, null, $inside.type); }
     | QUOTELITERAL
         {
             LexLocation loc = extractLexLocation($QUOTELITERAL);
@@ -705,36 +1300,15 @@ typebase returns[PType type]
             $type = new ANamedInvariantType(loc, false, null, false, null, tname,
                                             new AUnresolvedType(loc, false, new ArrayList<PDefinition>(), tname));
         }
-    | op='set' 'of' sub=typebase
+    | 'set' 'of' sub=typebase                { $type = new ASetType(null, false, null, $sub.type, false, false); }
+    | 'seq' 'of' sub=typebase                { $type = new ASeqSeqType(null, false, null, $sub.type, false); }
+    | 'seq1' 'of' sub=typebase               { $type = new ASeq1SeqType(null, false, null, $sub.type, false); }
+    | 'map' dom=typebase 'to' rng=typebase   { $type = new AMapMapType(null, false, null, $dom.type, $rng.type, false); }
+    | 'inmap' dom=typebase 'to' rng=typebase { $type = new AInMapMapType(null, false, null, $dom.type, $rng.type, false); }
+    | 'compose' IDENTIFIER 'of' fieldList 'end'
         {
-            LexLocation loc = extractLexLocation(extractLexLocation($op), $sub.type.getLocation());
-            $type = new ASetType(loc, false, null, $sub.type, false, false);
-        }
-    | op='seq' 'of' sub=typebase
-        {
-            LexLocation loc = extractLexLocation(extractLexLocation($op), $sub.type.getLocation());
-            $type = new ASeqSeqType(loc, false, null, $sub.type, false);
-        }
-    | op='seq1' 'of' sub=typebase
-        {
-            LexLocation loc = extractLexLocation(extractLexLocation($op), $sub.type.getLocation());
-            $type = new ASeq1SeqType(loc, false, null, $sub.type, false);
-        }
-    | op='map' dom=typebase 'to' rng=typebase
-        {
-            LexLocation loc = extractLexLocation(extractLexLocation($op), $rng.type.getLocation());
-            $type = new AMapMapType(loc, false, null, $dom.type, $rng.type, false);
-        }
-    | op='inmap' dom=typebase 'to' rng=typebase
-        {
-            LexLocation loc = extractLexLocation(extractLexLocation($op), $rng.type.getLocation());
-            $type = new AInMapMapType(loc, false, null, $dom.type, $rng.type, false);
-        }
-    | op='compose' IDENTIFIER 'of' fieldList end='end'
-        {
-            LexLocation loc = extractLexLocation($op,$end);
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
-            $type = new ARecordInvariantType(loc, false, null, false, null, name, $fieldList.fieldList, false);
+            $type = new ARecordInvariantType(null, false, null, false, null, name, $fieldList.fieldList, false);
         }
     ;
 
@@ -751,7 +1325,7 @@ basicType returns[PType basicType]
 
 fieldList returns[List<AFieldField> fieldList]
 @init { $fieldList = new ArrayList<AFieldField>(); }
-    : first=field { $fieldList.add($first.field); } ( fieldItem=field { $fieldList.add($fieldItem.field); } )*
+    : item=field { $fieldList.add($item.field); } ( item=field { $fieldList.add($item.field); } )*
     ;
 
 field returns[AFieldField field]
@@ -762,32 +1336,26 @@ field returns[AFieldField field]
             LexNameToken name = new LexNameToken("", new LexIdentifierToken("",false,loc));
             $field = new AFieldField(null, name, null, $type.type, false);
         }
-    | IDENTIFIER ':' type
+    | IDENTIFIER ( ':' | eqAbs=':-' ) type
         {
             String idStr = $IDENTIFIER.getText();
             LexNameToken name = new LexNameToken("", idStr, extractLexLocation($IDENTIFIER));
-            $field = new AFieldField(access, name, idStr, $type.type, false);
-        }
-    | IDENTIFIER ':-' type
-        {
-            String idStr = $IDENTIFIER.getText();
-            LexNameToken name = new LexNameToken("", idStr, extractLexLocation($IDENTIFIER));
-            $field = new AFieldField(access, name, idStr, $type.type, true);
+            $field = new AFieldField(access, name, idStr, $type.type, (eqAbs!=null));
         }
     ;
 
-invariant returns[AInvariantDefinition inv]
-    : t='inv' pat=bindablePattern '==' expression
-        {
-            LexLocation loc = extractLexLocation(extractLexLocation($t),$expression.exp.getLocation());
-            AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(true, true, loc);
-            $inv = new AInvariantDefinition(loc, null, NameScope.LOCAL, false, null, access, null, null, $pat.pattern, $expression.exp);
-        }
+invariant returns[PPattern pattern, PExp exp]
+    : 'inv' bindablePattern '==' expression { $pattern = $bindablePattern.pattern; $exp = $expression.exp; }
     ;
 
 pattern returns[PPattern pattern]
     : bindablePattern { $pattern = $bindablePattern.pattern; }
     | matchValue      { $pattern = $matchValue.pattern; }
+    ;
+
+bindablePatternList returns[List<PPattern> patterns]
+@init { $patterns = new ArrayList<PPattern>(); }
+    : item=bindablePattern { $patterns.add($item.pattern); } ( ',' item=bindablePattern { $patterns.add($item.pattern); } )*
     ;
 
 bindablePattern returns[PPattern pattern]
@@ -918,70 +1486,70 @@ recordPattern returns[PPattern pattern]
         }
     ;
 
+expressionList returns[List<PExp> exps]
+@init { $exps = new ArrayList<PExp>(); }
+    : item=expression { $exps.add($item.exp); } ( ',' item=expression { $exps.add($item.exp); } )*
+    ;
+
 expression returns[PExp exp]
-@init {
-    List<AElseIfExp> elifList = new ArrayList<AElseIfExp>();
-    List<ACaseAlternative> alts = null;
-}
+@after { $exp.setLocation(extractLexLocation($expression.start,$expression.stop)); }
     : expr0
         {
             $exp = $expr0.exp;
         }
-    | 'let' localDefinition (',' localDefinition)* 'in' body=expression
+    | 'let' localDefinitionList 'in' body=expression
         {
-            // FIXME --- JWC HERE
-            $exp = $body.exp;
+            $exp = new ALetDefExp(null, $localDefinitionList.defs, $body.exp);
         }
-    | iftok='if' test=expression 'then' th=expression
-        ( ei='elseif' eitest=expression 'then' eith=expression
-            {
-                LexLocation eiloc = extractLexLocation($ei);
-                AElseIfExp eiexp = new AElseIfExp(extractLexLocation(eiloc, $eith.exp.getLocation()), $eitest.exp, $eith.exp);
-                elifList.add(eiexp);
-            }
-        )*
-        'else' el=expression
+    | 'if' test=expression 'then' th=expression elseIfExprOptList 'else' el=expression
         {
-            LexLocation loc = extractLexLocation($iftok);
-            loc = extractLexLocation(loc, $el.exp.getLocation());
-            $exp = new AIfExp(loc, $test.exp, $th.exp, elifList, $el.exp);
+            $exp = new AIfExp(null, $test.exp, $th.exp, $elseIfExprOptList.elseifs, $el.exp);
         }
-    | l='cases' cexp=expression ':'
-        ( first=caseExprAlternative { alts = $first.alts; } ( ',' altItem=caseExprAlternative { alts.addAll($altItem.alts); } )* )?
-        ( ',' 'others' '->' oexp=expression )?
-        r='end'
+    | 'cases' cexp=expression ':' caseExprAltOptList ( ',' 'others' '->' oexp=expression )? 'end'
         {
-            LexLocation loc = extractLexLocation($l, $r);
-            $exp = new ACasesExp(loc, $cexp.exp, alts, $oexp.exp);
+            $exp = new ACasesExp(null, $cexp.exp, $caseExprAltOptList.alts, $oexp.exp);
         }
-    | tok='forall' multipleBindList '@' body=expression
+    | 'forall' multipleBindList '@' body=expression
         {
-            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
-            $exp = new AForAllExp(loc, $multipleBindList.bindings, $body.exp);
+            $exp = new AForAllExp(null, $multipleBindList.bindings, $body.exp);
         }
-    | tok='exists' multipleBindList '@' body=expression
+    | 'exists' multipleBindList '@' body=expression
         {
-            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
-            $exp = new AExistsExp(loc, $multipleBindList.bindings, $body.exp);
+            $exp = new AExistsExp(null, $multipleBindList.bindings, $body.exp);
         }
-    | tok='exists1' singleBind '@' body=expression
+    | 'exists1' singleBind '@' body=expression
         {
-            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
-            $exp = new AExists1Exp(loc, $singleBind.binding, $body.exp, null);
+            $exp = new AExists1Exp(null, $singleBind.binding, $body.exp, null);
         }
-    | tok='iota' singleBind '@' body=expression
+    | 'iota' singleBind '@' body=expression
         {
-            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
-            $exp = new AIotaExp(loc, $singleBind.binding, $body.exp);
+            $exp = new AIotaExp(null, $singleBind.binding, $body.exp);
         }
-    | tok='lambda' typeBindList '@' body=expression
+    | 'lambda' typeBindList '@' body=expression
         {
-            LexLocation loc = extractLexLocation(extractLexLocation($tok),$body.exp.getLocation());
-            $exp = new ALambdaExp(loc, $typeBindList.bindings, $body.exp, null, null);
+            $exp = new ALambdaExp(null, $typeBindList.bindings, $body.exp, null, null);
         }
     ;
 
-caseExprAlternative returns[List<ACaseAlternative> alts]
+elseIfExprOptList returns[List<AElseIfExp> elseifs]
+@init { $elseifs = new ArrayList<AElseIfExp>(); }
+    : ( elseIfExpr { $elseifs.add($elseIfExpr.elseif); } )*
+    ;
+
+elseIfExpr returns[AElseIfExp elseif]
+@after { $elseif.setLocation(extractLexLocation($elseIfExpr.start,$elseIfExpr.stop)); }
+    : 'elseif' test=expression 'then' th=expression
+        {
+            $elseif = new AElseIfExp(null, $test.exp, $th.exp);
+        }
+    ;
+
+caseExprAltOptList returns[List<ACaseAlternative> alts]
+@init { $alts = new ArrayList<ACaseAlternative>(); }
+    : ( item=caseExprAlt { $alts.addAll($item.alts); } ( ',' item=caseExprAlt { alts.addAll($item.alts); } )* )?
+    ;
+
+caseExprAlt returns[List<ACaseAlternative> alts]
 @init { $alts = new ArrayList<ACaseAlternative>(); }
     : patternList '->' expression
         {
@@ -995,7 +1563,7 @@ caseExprAlternative returns[List<ACaseAlternative> alts]
 
 patternList returns[List<PPattern> patterns]
 @init { $patterns = new ArrayList<PPattern>(); }
-    : first=pattern { $patterns.add($first.pattern); } ( ',' patItem=pattern { $patterns.add($patItem.pattern); } )*
+    : item=pattern { $patterns.add($item.pattern); } ( ',' item=pattern { $patterns.add($item.pattern); } )*
     ;
 
 expr0 returns[PExp exp]
@@ -1109,15 +1677,14 @@ expr5 returns[PExp exp]
         }
     ;
 
-// FIXME --- doublecheck that / and div use the correct objects
 binOpEval2 returns[SBinaryExpBase op]
 @init { LexLocation loc = null; String opStr = null; }
 @after { op.setLocation(loc); op.setOp(extractLexToken(opStr, loc)); }
     : o='*'     { $op = new ATimesNumericBinaryExp();  loc = extractLexLocation($o); opStr = $o.getText(); }
-    | o='/'     { $op = new ADivNumericBinaryExp();    loc = extractLexLocation($o); opStr = $o.getText(); }
+    | o='/'     { $op = new ADivideNumericBinaryExp();    loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='rem'   { $op = new ARemNumericBinaryExp();    loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='mod'   { $op = new AModNumericBinaryExp();    loc = extractLexLocation($o); opStr = $o.getText(); }
-    | o='div'   { $op = new ADivideNumericBinaryExp(); loc = extractLexLocation($o); opStr = $o.getText(); }
+    | o='div'   { $op = new ADivNumericBinaryExp(); loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='inter' { $op = new ASetIntersectBinaryExp();  loc = extractLexLocation($o); opStr = $o.getText(); }
     ;
 
@@ -1210,42 +1777,43 @@ expr10 returns[PExp exp]
     ;
 
 unaryOp returns[SUnaryExp op]
-    : o='+'       { $op = new AUnaryPlusUnaryExp();     $op.setLocation(extractLexLocation($o)); }
-    | o='-'       { $op = new AUnaryMinusUnaryExp();    $op.setLocation(extractLexLocation($o)); }
-    | o='abs'     { $op = new AAbsoluteUnaryExp();      $op.setLocation(extractLexLocation($o)); }
-    | o='floor'   { $op = new AFloorUnaryExp();         $op.setLocation(extractLexLocation($o)); }
-    | o='not'     { $op = new ANotUnaryExp();           $op.setLocation(extractLexLocation($o)); }
-    | o='card'    { $op = new ACardinalityUnaryExp();   $op.setLocation(extractLexLocation($o)); }
-    | o='power'   { $op = new APowerSetUnaryExp();      $op.setLocation(extractLexLocation($o)); }
-    | o='dunion'  { $op = new ADistUnionUnaryExp();     $op.setLocation(extractLexLocation($o)); }
-    | o='dinter'  { $op = new ADistIntersectUnaryExp(); $op.setLocation(extractLexLocation($o)); }
-    | o='hd'      { $op = new AHeadUnaryExp();          $op.setLocation(extractLexLocation($o)); }
-    | o='tl'      { $op = new ATailUnaryExp();          $op.setLocation(extractLexLocation($o)); }
-    | o='len'     { $op = new ALenUnaryExp();           $op.setLocation(extractLexLocation($o)); }
-    | o='elems'   { $op = new AElementsUnaryExp();      $op.setLocation(extractLexLocation($o)); }
-    | o='inds'    { $op = new AIndicesUnaryExp();       $op.setLocation(extractLexLocation($o)); }
-    | o='reverse' { $op = new AReverseUnaryExp();       $op.setLocation(extractLexLocation($o)); }
-    | o='conc'    { $op = new ADistConcatUnaryExp();    $op.setLocation(extractLexLocation($o)); }
-    | o='dom'     { $op = new AMapDomainUnaryExp();     $op.setLocation(extractLexLocation($o)); }
-    | o='rng'     { $op = new AMapRangeUnaryExp();      $op.setLocation(extractLexLocation($o)); }
-    | o='merge'   { $op = new ADistMergeUnaryExp();     $op.setLocation(extractLexLocation($o)); }
-    | o='inverse' { $op = new AMapInverseUnaryExp();    $op.setLocation(extractLexLocation($o)); }
+@after { $op.setLocation(extractLexLocation($o)); }
+    : o='+'       { $op = new AUnaryPlusUnaryExp(); }
+    | o='-'       { $op = new AUnaryMinusUnaryExp(); }
+    | o='abs'     { $op = new AAbsoluteUnaryExp(); }
+    | o='floor'   { $op = new AFloorUnaryExp(); }
+    | o='not'     { $op = new ANotUnaryExp(); }
+    | o='card'    { $op = new ACardinalityUnaryExp(); }
+    | o='power'   { $op = new APowerSetUnaryExp(); }
+    | o='dunion'  { $op = new ADistUnionUnaryExp(); }
+    | o='dinter'  { $op = new ADistIntersectUnaryExp(); }
+    | o='hd'      { $op = new AHeadUnaryExp(); }
+    | o='tl'      { $op = new ATailUnaryExp(); }
+    | o='len'     { $op = new ALenUnaryExp(); }
+    | o='elems'   { $op = new AElementsUnaryExp(); }
+    | o='inds'    { $op = new AIndicesUnaryExp(); }
+    | o='reverse' { $op = new AReverseUnaryExp(); }
+    | o='conc'    { $op = new ADistConcatUnaryExp(); }
+    | o='dom'     { $op = new AMapDomainUnaryExp(); }
+    | o='rng'     { $op = new AMapRangeUnaryExp(); }
+    | o='merge'   { $op = new ADistMergeUnaryExp(); }
+    | o='inverse' { $op = new AMapInverseUnaryExp(); }
     ;
 
 expr11 returns[PExp exp]
 @init { List<PExp> selectors = new ArrayList<PExp>(); }
+@after { $exp.setLocation(extractLexLocation($expr11.start, $expr11.stop)); }
     : unaryOp operand=expr11
         {
             SUnaryExp unaryop = $unaryOp.op;
             PExp target = $operand.exp;
             unaryop.setExp(target);
-            unaryop.setLocation(extractLexLocation(unaryop.getLocation(), target.getLocation()));
             $exp = unaryop;
         }
-    | exprbase ( selector { selectors.add($selector.exp); } )*
+    | exprbase selectorOptList //( selector { selectors.add($selector.exp); } )*
         {
             $exp = $exprbase.exp; // Set the leftmost root
-            for (PExp sel : selectors) { // Iterate through the selectors, building a left->right tree
+            for (PExp sel : $selectorOptList.selectors) { // Iterate through the selectors, building a left->right tree
                 LexLocation loc = extractLexLocation($exp.getLocation(), sel.getLocation());
                 if (sel instanceof AFieldNumberExp) {
                     ((AFieldNumberExp)sel).setTuple($exp);
@@ -1280,6 +1848,11 @@ expr11 returns[PExp exp]
                 }
             }
         }
+    ;
+
+selectorOptList returns[List<PExp> selectors]
+@init { $selectors = new ArrayList<PExp>(); }
+    : ( selector { $selectors.add($selector.exp); } )*
     ;
 
 // Note that each selector expression is partial, returned with a null "root" expression
@@ -1330,10 +1903,10 @@ exprbase returns[PExp exp]
             LexLocation loc = extractLexLocation($l,$r);
             $exp = new ABracketedExp(loc, $expression.exp);
         }
-    | self='self'
+    | SELF
         {
-            LexLocation loc = extractLexLocation($self);
-            LexNameToken name = new LexNameToken("", $self.getText(), loc, true, false);
+            LexLocation loc = extractLexLocation($SELF);
+            LexNameToken name = new LexNameToken("", $SELF.getText(), loc, true, false);
             $exp = new ASelfExp(loc, name);
         }
     | IDENTIFIER old='~'?
@@ -1423,6 +1996,7 @@ exprbase returns[PExp exp]
 
 seqExpr returns[SSeqExp seqExpr]
 @init { List<PExp> exps = new ArrayList<PExp>(); }
+@after { $seqExpr.setLocation(extractLexLocation($seqExpr.start, $seqExpr.stop)); }
     : exp=expression
         ( '|' binding=setBind ('@' pred=expression)?
         | (',' enumItem=expression { exps.add($enumItem.exp); } )*
@@ -1430,50 +2004,45 @@ seqExpr returns[SSeqExp seqExpr]
             // | ',' '...' ','  end=expression
         )
         {
-            // This location doesn't matter --- it *will* be replaced
-            // by the caller of seqExpr.
-            LexLocation loc = new LexLocation();
             if ($setBind.binding != null) {
-                $seqExpr = new ASeqCompSeqExp(loc, $exp.exp, $setBind.binding, $pred.exp);
+                $seqExpr = new ASeqCompSeqExp(null, $exp.exp, $setBind.binding, $pred.exp);
             } else {
-                exps.add(0, exp);
-                $seqExpr = new ASeqEnumSeqExp(loc, exps);
+                exps.add(0, $exp.exp);
+                $seqExpr = new ASeqEnumSeqExp(null, exps);
             }
         }
     ;
 
 recordTupleExprs returns[PExp exp]
-@init { List<PExp> exps = new ArrayList<PExp>(); }
-    : l=MKUNDER '(' first=expression ( ',' expItem=expression { exps.add($expItem.exp); } )+ r=')'
+@after { $exp.setLocation(extractLexLocation($recordTupleExprs.start, $recordTupleExprs.stop)); }
+    : MKUNDER '(' expression ',' expressionList ')'
         {
-            LexLocation loc = extractLexLocation($l,$r);
-            exps.add(0,$first.exp);
-            $exp = new ATupleExp(loc,exps);
+            $expressionList.exps.add(0,$expression.exp);
+            $exp = new ATupleExp(null,$expressionList.exps);
         }
-    | MKUNDER 'token' '(' expression r=')'
+    | MKUNDER token='token' '(' expression ')'
         {
-            LexLocation loc = extractLexLocation($MKUNDER,$r);
-            $exp = new AMkBasicExp(new ATokenBasicType(loc, true), loc, $expression.exp);
+            $exp = new AMkBasicExp(new ATokenBasicType(extractLexLocation($token), true), null, $expression.exp);
         }
-    | MKUNDER name '(' ( first=expression ( ',' expItem=expression { exps.add($expItem.exp); } )* )? r=')'
+    | MKUNDER name '(' expressionList? ')'
         {
-            LexLocation loc = extractLexLocation($MKUNDER,$r);
-            exps.add(0,$first.exp);
-            $exp = new AMkTypeExp(loc, $name.name, exps);
+            List<PExp> exps = $expressionList.exps;
+            if (exps == null)
+                exps = new ArrayList<PExp>();
+            $exp = new AMkTypeExp(null, $name.name, exps);
         }
     ;
 
 setMapExpr returns[PExp exp]
+@after { $exp.setLocation(extractLexLocation($setMapExpr.start, $setMapExpr.stop)); }
     : l='{' ( empty='|->' | setMapExprGuts )? r='}'
         {
-            LexLocation loc = extractLexLocation($l,$r);
             if ($setMapExprGuts.exp != null) {
-                $setMapExprGuts.exp.setLocation(loc);
                 $exp = $setMapExprGuts.exp;
             } else if ($empty != null) {
-                $exp = new AMapEnumMapExp(loc, new ArrayList<AMapletExp>());
+                $exp = new AMapEnumMapExp(null, new ArrayList<AMapletExp>());
             } else {
-                $exp = new ASetEnumSetExp(loc, new ArrayList<PExp>());
+                $exp = new ASetEnumSetExp(null, new ArrayList<PExp>());
             }
         }
     ;
@@ -1482,14 +2051,12 @@ setMapExprGuts returns[PExp exp]
 @init {
     List<PExp> exps = new ArrayList<PExp>();
     List<AMapletExp> mexps = new ArrayList<AMapletExp>();
-    // This location doesn't matter --- it *will* be replaced
-    // by the caller of seqExpr.
-    LexLocation loc = new LexLocation();
 }
+@after { $exp.setLocation(extractLexLocation($setMapExprGuts.start, $setMapExprGuts.stop)); }
     : first=expression
         ( ',' '...' ',' last=expression
             {
-                $exp = new ASetRangeSetExp(loc, $first.exp, $last.exp);
+                $exp = new ASetRangeSetExp(null, $first.exp, $last.exp);
             }
         | ( ',' setItem=expression { exps.add($setItem.exp); } )+ // taken care of below
         | '|->' firstto=expression
@@ -1505,21 +2072,21 @@ setMapExprGuts returns[PExp exp]
                 LexLocation mloc = extractLexLocation($first.exp.getLocation(), $firstto.exp.getLocation());
                 AMapletExp firstMaplet = new AMapletExp(mloc, $first.exp, $firstto.exp);
                 if (mbinding != null) {
-                    $exp = new AMapCompMapExp(loc, firstMaplet, $mbinding.bindings, $mbinding.pred);
+                    $exp = new AMapCompMapExp(null, firstMaplet, $mbinding.bindings, $mbinding.pred);
                 } else {
                     mexps.add(0, firstMaplet);
-                    $exp = new AMapEnumMapExp(loc, mexps);
+                    $exp = new AMapEnumMapExp(null, mexps);
                 }
             }
         | binding=setMapExprBinding
             {
-                  $exp = new ASetCompSetExp(loc, $first.exp, $binding.bindings, $binding.pred);
+                  $exp = new ASetCompSetExp(null, $first.exp, $binding.bindings, $binding.pred);
             }
         )?
         {
             if ($exp == null) {
                 exps.add(0, $first.exp);
-                $exp = new ASetEnumSetExp(loc, exps);
+                $exp = new ASetEnumSetExp(null, exps);
             } else {
                 // FIXME Log a never-happens
             }
@@ -1535,12 +2102,8 @@ setMapExprBinding returns[List<PMultipleBind> bindings, PExp pred]
     ;
 
 multipleBindList returns[List<PMultipleBind> bindings]
-@init { List<PMultipleBind> bindingList = new ArrayList<PMultipleBind>(); }
-    : first=multipleBind ( ',' bindingListItem=multipleBind { bindingList.add($bindingListItem.bindings); } )*
-        {
-            bindingList.add(0, $first.bindings);
-            $bindings = bindingList;
-        }
+@init { bindings = new ArrayList<PMultipleBind>(); }
+    : item=multipleBind { $bindings.add($item.bindings); } ( ',' item=multipleBind { bindings.add($item.bindings); } )*
     ;
 
 multipleBind returns[PMultipleBind bindings]
@@ -1589,14 +2152,26 @@ setBind returns[ASetBind binding]
 // only used by lambda, and could be a multi type bind
 typeBindList returns[List<ATypeBind> bindings]
 @init { $bindings = new ArrayList<ATypeBind>(); }
-    : first=typeBind { $bindings.add($first.binding); }  ( ',' bindItem=typeBind { $bindings.add($bindItem.binding); } )*
+    : item=typeBind { $bindings.add($item.binding); }  ( ',' item=typeBind { $bindings.add($item.binding); } )*
     ;
+
 typeBind returns[ATypeBind binding]
     : bindablePattern ':' type
         {
             LexLocation loc = extractLexLocation($bindablePattern.pattern.getLocation(), $type.type.getLocation());
             $binding = new ATypeBind(loc, $bindablePattern.pattern, $type.type);
         }
+    ;
+
+identifierList returns[List<LexIdentifierToken> ids]
+@init { $ids = new ArrayList<LexIdentifierToken>(); }
+    : item=IDENTIFIER { $ids.add(new LexIdentifierToken($item.getText(), false, extractLexLocation($item))); }
+        ( ',' item=IDENTIFIER { $ids.add(new LexIdentifierToken($item.getText(), false, extractLexLocation($item))); } )*
+    ;
+
+nameList returns[List<LexNameToken> names]
+@init { $names = new ArrayList<LexNameToken>(); }
+    : item=name { $names.add($item.name); } ( ',' item=name { $names.add($item.name); } )*
     ;
 
 name returns[LexNameToken name]
@@ -1667,6 +2242,10 @@ ISUNDERBASIC
  */
 TEXTLITERAL
     : '"' .* '"'
+    ;
+
+SELF
+    : 'self'
     ;
 
 /* FIXME This only tracks the non-unicode chunk of the characters; this
