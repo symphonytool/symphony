@@ -205,12 +205,18 @@ programParagraph returns[PDefinition defs]
 
 classDefinition returns[AClassDefinition def]
 @after { $def.setLocation(extractLexLocation($classDefinition.start, $classDefinition.stop)); }
-    : 'class' IDENTIFIER ('extends' IDENTIFIER)? '=' 'begin' classDefinitionBlock* 'end'
+    : 'class' id=IDENTIFIER ('extends' parent=IDENTIFIER)? '=' 'begin' classDefinitionBlockOptList 'end'
         {
-            // FIXME --- Will need to check
-            // AInitialParagraphDefinition defs that their identifier
-            // matches the one here.
+            /* FIXME --- Will need to check AInitialDefinition defs
+             * that their id matches the class id here.
+             */
             $def = new AClassDefinition(); // FIXME
+            $def.setName(new LexNameToken("", $id.getText(), extractLexLocation($id)));
+            /* FIXME --- need to set the parent's name once we've
+             * settled on how that works
+             */
+            // $def.setParent(new LexNameToken("", $parent.getText(), extractLexLocation($parent)));
+            $def.setBody($classDefinitionBlockOptList.defs);
         }
     ;
 
@@ -349,8 +355,10 @@ actionDef returns[AActionDefinition def]
     ;
 
 action returns[PAction action]
-    : action0
-        { $action = $action0.action; } // FIXME
+    : action0  
+        {
+            $action = $action0.action;
+        }
     | '[' expression ']' '&' action
         { $action = new AGuardedAction(); } // FIXME
     | 'mu' IDENTIFIER (',' IDENTIFIER)* '@' '(' action (',' action)* ')'
@@ -889,6 +897,11 @@ namesetDef returns [ANamesetDefinition def]
             $def.setIdentifier(new LexIdentifierToken($IDENTIFIER.getText(), false, extractLexLocation($IDENTIFIER)));
             $def.setNamesetExpression($varsetExpr.vexp);
         }
+    ;
+
+classDefinitionBlockOptList returns[List<PDefinition> defs]
+@init { $defs = new ArrayList<PDefinition>(); }
+    : ( classDefinitionBlock { $defs.add($classDefinitionBlock.defs); } )*
     ;
 
 classDefinitionBlock returns[PDefinition defs]
