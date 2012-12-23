@@ -586,7 +586,7 @@ operationBody
     | 'is' 'subclass' 'responsibility'
     ;
 
-typeDefs returns[SParagraphDefinition para]
+typeDefs returns[PDefinition para]
 @init {
     List<ATypeDefinition> typeDefList = new ArrayList<ATypeDefinition>();
     ATypeDefinition last = null;
