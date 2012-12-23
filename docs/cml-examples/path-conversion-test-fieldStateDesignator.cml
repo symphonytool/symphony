@@ -3,6 +3,7 @@ class Writer =
     types
     Hej :: f : nat
     	   s : nat
+	   ;
     state
       wpair :  Hej
 

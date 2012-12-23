@@ -2,12 +2,16 @@ package eu.compassresearch.core.typechecker;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.definitions.AClassClassDefinition;
@@ -31,15 +35,15 @@ import org.overture.typechecker.TypeCheckInfo;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PAlternativeAction;
-import eu.compassresearch.ast.declarations.PDeclaration;
-import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
-import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
-import eu.compassresearch.ast.definitions.SParagraphDefinition;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.AErrorType;
+import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
@@ -50,7 +54,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
 @SuppressWarnings("serial")
 class VanillaCmlTypeChecker extends AbstractTypeChecker {
 
-	
+
 	@Override
 	public PType defaultPAlternativeAction(PAlternativeAction node,
 			TypeCheckInfo question) throws AnalysisException {
@@ -115,12 +119,12 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	@Override
 	public PType defaultPType(PType node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 		return addErrorForMissingType(node, node.apply(typ, question));
 	}
 
-	
-	
+
+
 	@Override
 	public PType defaultPPattern(PPattern node, TypeCheckInfo question)
 			throws AnalysisException {
@@ -133,23 +137,25 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		return addErrorForMissingType(node, node.apply(this.bnd, question));
 	}
 
-	
-	
+
+
 	@Override
 	public PType defaultINode(INode node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 		return addErrorForMissingType(node, super.defaultINode(node, question));
 	}
 
+
+
+
 	@Override
-	public PType defaultPDeclaration(PDeclaration node,
-			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+	public PType defaultPSingleDeclaration(PSingleDeclaration node,
+			TypeCheckInfo question) throws AnalysisException {
 		return addErrorForMissingType(node, node.apply(this.dad, question));
 	}
 
-	
+
 	@Override
 	public PType defaultPAlternative(PAlternative node, TypeCheckInfo question)
 			throws AnalysisException {
@@ -160,39 +166,39 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	public PType defaultPAlternativeStm(PAlternativeStm node,
 			TypeCheckInfo question) throws AnalysisException {
 		return addErrorForMissingType(node, node.apply(this.act, question));
-		}
+	}
 
 	@Override
 	public PType defaultPDefinition(PDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 		return addErrorForMissingType(node, node.apply(this.dad, question));
 	}
 
 	@Override
 	public PType defaultPExp(PExp node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 		return addErrorForMissingType(node, node.apply(exp, question));
 	}
 
 	@Override
 	public PType defaultPProcess(PProcess node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 		return node.apply(prc, question);
 	}
 
 	@Override
 	public PType defaultPAction(PAction node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 		return node.apply(act, question);
 	}
 
-	
-	
-	
+
+
+
 	@Override
 	public PType defaultPClause(PClause node, TypeCheckInfo question)
 			throws AnalysisException {
@@ -299,7 +305,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 			if (!TCDeclAndDefVisitor.successfulType(globalRootType)) {
 				issueHandler.addTypeError(globalRoot,
 						TypeErrorMessages.PARAGRAPH_HAS_TYPES_ERRORS
-								.customizeMessage("Global Definitions"));
+						.customizeMessage("Global Definitions"));
 				return false;
 			}
 
@@ -310,29 +316,29 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 
 		// for each source
 		for (PSource s : sourceForest) {
-			for (SParagraphDefinition paragraph : s.getParagraphs()) {
-				if (paragraph instanceof AClassParagraphDefinition
-						|| paragraph instanceof AProcessParagraphDefinition)
+			for (PDefinition paragraph : s.getParagraphs()) {
+				if (paragraph instanceof AClassDefinition
+						|| paragraph instanceof AProcessDefinition)
 
 					try {
 						PType topType = paragraph.apply(this, info);
 						if (topType == null || topType instanceof AErrorType) {
 							issueHandler
-									.addTypeError(
-											paragraph,
-											TypeErrorMessages.PARAGRAPH_HAS_TYPES_ERRORS
-													.customizeMessage(paragraph
-															.getName()
-															.toString()));
+							.addTypeError(
+									paragraph,
+									TypeErrorMessages.PARAGRAPH_HAS_TYPES_ERRORS
+									.customizeMessage(paragraph
+											.getName()
+											.toString()));
 						}
 					} catch (AnalysisException ae) {
 						ByteArrayOutputStream baos = new ByteArrayOutputStream();
 						ae.printStackTrace(new PrintStream(baos));
 						issueHandler
-								.addTypeError(
-										s,
-										"The COMPASS Type checker failed on this cml-source. Please submit it for investigation to rala@iha.dk.\n"
-												+ new String(baos.toByteArray()));
+						.addTypeError(
+								s,
+								"The COMPASS Type checker failed on this cml-source. Please submit it for investigation to rala@iha.dk.\n"
+										+ new String(baos.toByteArray()));
 						// This means we have a bug in the type checker
 						return false;
 					} catch (ClassCastException e) {
@@ -341,12 +347,12 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 						e.printStackTrace(out);
 						out.flush();
 						issueHandler
-								.addTypeError(
-										paragraph,
-										"Ill defined ast definition. Check that the implied AST-node is not defined in both cml.ast and in overtureII.astv2. Naturally, if this is the case the visitor has an ambigouos choice.\n"
-												+ e.getMessage()
-												+ "\n"
-												+ new String(baos.toByteArray()));
+						.addTypeError(
+								paragraph,
+								"Ill defined ast definition. Check that the implied AST-node is not defined in both cml.ast and in overtureII.astv2. Naturally, if this is the case the visitor has an ambigouos choice.\n"
+										+ e.getMessage()
+										+ "\n"
+										+ new String(baos.toByteArray()));
 					}
 			}
 		}
@@ -398,12 +404,16 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		// set file name
 		PSource source = prepareSource(f);
 
-		// Call factory method to build parser and lexer
-		CmlParser parser = CmlParser.newParserFromSource(source);
+		ANTLRInputStream in = new ANTLRInputStream(new FileInputStream(f));
+		CmlLexer lexer = new CmlLexer(in);
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+		CmlParser parser = new CmlParser(tokens);
+		
 
-		// Run the parser and lexer and report errors if any
-		if (!parser.parse()) {
-			System.out.println("Failed to parse: " + source.toString());
+		try {
+			source.setParagraphs(parser.source());
+		} catch (RecognitionException e) {
+			e.printStackTrace();
 			return;
 		}
 

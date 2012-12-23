@@ -26,7 +26,9 @@ import org.junit.runners.Parameterized.Parameters;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.typechecker.TestUtil.TypeCheckerResult;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 
 @RunWith(value = Parameterized.class)
@@ -53,7 +55,7 @@ public class RunCmlExamplesTestCase {
 		for (File f : theFiles) {
 			files.add(new Object[] { i++, f });
 		}
-		
+			
 		
 
 		return files;
@@ -110,7 +112,7 @@ public class RunCmlExamplesTestCase {
 		addFailingFile("functions.cml","Unable to resolve type name 'Byte'");
 		addFailingFile("globalinvrecord.cml","Argument to 'dom' is not a map.");
 		addFailingFile("Marcel_CML_spec.cml","Unable to resolve type name 'req'");
-		addFailingFile("path-conversion-test-fieldExp.cml","The Symbol \"a\" is undefined.");
+		addFailingFile("path-conversion-test-fieldExp.cml","The Symbol \"b\" is undefined.");
 		addFailingFile("path-conversion-test-fieldExp2.cml","The Symbol \"a\" is undefined.");
 		addFailingFile("path-conversion-test-nameExp.cml","The Symbol \"Context\" is undefined.");
 		addFailingFile("process-action-casesStm-others.cml","The Symbol \"REG\" is undefined.");
@@ -176,13 +178,13 @@ public class RunCmlExamplesTestCase {
 		addFailingFile("process-replication-synchronousParallelism.cml","The Symbol \"A\" is undefined.");
 		addFailingFile("process-timeout.cml","The Symbol \"A\" is undefined.");
 		addFailingFile("process-untimed_timeout.cml","The Symbol \"A\" is undefined.");
-		addFailingFile("simpson.cml","The Symbol \"Shared\" is undefined.");
+		addFailingFile("simpson.cml","Unable to resolve type name 'Data'");
+		addFailingFile("class-functions-measure.cml","Measure a(int) is not in scope.");
+		addFailingFile("isundername.cml","The Symbol \"a\" is undefined.");
 		// Failed tests caused by parser issues
 		
 		// // See cml.y production: | expression[rootExp] LRPAREN ... The argument list is 
 		// dropped on the floor :(
-		addFailingFile("path-conversion-test-applyExp.cml","The Symbol \"fn\" is undefined.");
-		addFailingFile("path-conversion-test-applyExp2.cml","The Symbol \"fn\" is undefined.");
 	}
 
 	private static void addFailingFile(String fileName, String... errors) {
@@ -204,22 +206,19 @@ public class RunCmlExamplesTestCase {
 		System.out.print("#" + number + " " + file.getName());
 		
 		// Tests that critically dies because of parser
-		Assume.assumeTrue( number != 35 && number != 1 && number != 50); // Hack we need to fix the parser
+		Assume.assumeTrue( number != 35 && number != 1 && number != 51); // Hack we need to fix the parser
 		// but that is probably going to be with the Antlr :)
-		AFileSource source = new AFileSource();
-		source.setFile(file);
-		source.setName(file.getName());
-		CmlParser parser = CmlParser.newParserFromSource(source);
-		boolean parseOk = parser.parse();
+
+		TestUtil.TypeCheckerResult res = TestUtil.runTypeChecker(file.getAbsolutePath());
+		
+		boolean parseOk = res.parsedOk;
 		if (!parseOk)
 			System.out.println();
 		Assert.assertTrue("Parser failed", parseOk);
 
-		List<PSource> cmlSources = new LinkedList<PSource>();
-		cmlSources.add(source);
-		VanillaCmlTypeChecker tc = ((VanillaCmlTypeChecker) VanillaFactory
-				.newTypeChecker(cmlSources, null));
-		boolean tcOK = tc.typeCheck();
+		TypeIssueHandler tc = res.issueHandler;
+		
+		boolean tcOK = res.tcOk;
 		if (!failingTC.containsKey(file.getName())) {
 			System.out.println("\t" + (tcOK ? "[OK]" : "[FAIL]"));
 			if (tc.getTypeErrors().size() > 0)
@@ -244,7 +243,7 @@ public class RunCmlExamplesTestCase {
 		}
 	}
 
-	private String buildErrorMessage(VanillaCmlTypeChecker tc) {
+	private String buildErrorMessage(TypeIssueHandler tc) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Expected type checking to be successful, the following errors were unexpected:\n");
 		for (CMLTypeError error : tc.getTypeErrors())

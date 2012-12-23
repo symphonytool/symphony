@@ -108,6 +108,7 @@ import eu.compassresearch.ast.types.*;
 // }
 
 private DecimalFormat decimalFormatParser = new DecimalFormat();
+public static final String CML_LANG_VERSION = "CML20121223";
 
 protected void mismatch(IntStream input, int ttype, BitSet follow) throws RecognitionException {
     throw new MismatchedTokenException(ttype, input);

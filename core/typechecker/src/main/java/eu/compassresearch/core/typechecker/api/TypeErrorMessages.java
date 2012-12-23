@@ -1,6 +1,7 @@
 package eu.compassresearch.core.typechecker.api;
 
 public enum TypeErrorMessages {
+	TYPE_CHECK_INTERNAL_FAILURE("Subtree failed type checking with an internal error."),
     SEQ_TYPE_EXPECTED(
 	    "The expresion %s has type %s which is not a sequence type as expected."), PARAGRAPH_HAS_TYPES_ERRORS(
 	    "Paragraph \"%s\" has type errors."),
@@ -64,5 +65,9 @@ PATTERN_TYPE_MISSING("The pattern \"%s\" should already have a type from its con
 
 	// Format String
 	return String.format(template, (Object[]) strs);
+    }
+    
+    public String toString() {
+    	return template;
     }
 }

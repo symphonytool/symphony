@@ -26,6 +26,7 @@ import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANatNumericBasicType;
+import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.AUnresolvedType;
 import org.overture.ast.types.PType;
@@ -91,10 +92,11 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
-import eu.compassresearch.ast.declarations.SSingleDeclaration;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
-import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
+import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.ast.types.AChannelType;
@@ -322,8 +324,8 @@ class TCActionVisitor extends
 			throws AnalysisException {
 
     	PAction repAction = node.getReplicatedAction();
-    	LinkedList<SSingleDeclaration> repDecl = node.getReplicationDeclaration();
-    	for(SSingleDeclaration d : repDecl)
+    	LinkedList<PSingleDeclaration> repDecl = node.getReplicationDeclaration();
+    	for(PSingleDeclaration d : repDecl)
     	{
     		PType type = d.apply(parentChecker,question);
     		if (!TCDeclAndDefVisitor.successfulType(type))
@@ -353,13 +355,13 @@ class TCActionVisitor extends
 			throws AnalysisException {
 
     	// TODO RWL: What is the semantics of this?
-    	PExp csexp = node.getChansetExpression();
+    	PVarsetExpression csexp = node.getChansetExpression();
     	
-    	PExp sexp = node.getNameSetExpression();
+    	PVarsetExpression sexp = node.getNamesetExpression();
     	
     	PAction repAction = node.getReplicatedAction();
     	
-    	LinkedList<SSingleDeclaration> repDecl = node.getReplicationDeclaration();
+    	LinkedList<PSingleDeclaration> repDecl = node.getReplicationDeclaration();
     	
     	issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customize(""+node));
     	
@@ -376,8 +378,8 @@ class TCActionVisitor extends
 
     	
     	PAction action = node.getReplicatedAction();
-    	LinkedList<SSingleDeclaration> decl = node.getReplicationDeclaration();
-    	for(SSingleDeclaration d : decl)
+    	LinkedList<PSingleDeclaration> decl = node.getReplicationDeclaration();
+    	for(PSingleDeclaration d : decl)
     	{
     		PType declType = d.apply(parentChecker,question);
     		if (!TCDeclAndDefVisitor.successfulType(declType))
@@ -454,7 +456,7 @@ class TCActionVisitor extends
 	    return node.getType();
 	}
 
-	if (!(classType instanceof AClassParagraphDefinition)) {
+	if (!(classType instanceof AClassDefinition)) {
 	    node.setType(issueHandler.addTypeError(
 		    node,
 		    TypeErrorMessages.EXPECTED_CLASS.customizeMessage(""
@@ -484,7 +486,7 @@ class TCActionVisitor extends
 	    argtypes.add(pt);
 	}
 
-	AClassParagraphDefinition cpd = (AClassParagraphDefinition) classType
+	AClassDefinition cpd = (AClassDefinition) classType
 		.getDefinitions().get(0);
 
 	PDefinition constructor = SClassDefinitionAssistantTC.findConstructor(
@@ -627,9 +629,9 @@ class TCActionVisitor extends
 	    throws AnalysisException {
 	// extract sub-stuff
 	PAction leftAction = node.getLeftAction();
-	PExp leftNamesetExp = node.getLeftNameSetExpression();
+	PVarsetExpression leftNamesetExp = node.getLeftNamesetExpression();
 	PAction rightAction = node.getRightAction();
-	PExp rightnamesetExp = node.getRightNameSetExpression();
+	PVarsetExpression rightnamesetExp = node.getRightNamesetExpression();
 
 	// type-check sub-actions
 	PType leftActionType = leftAction.apply(parentChecker, question);
@@ -705,11 +707,11 @@ class TCActionVisitor extends
 	    throws AnalysisException {
 
 	// Extract sub-stuff
-	PExp chansetExp = node.getChanSetExpression();
+	PVarsetExpression chansetExp = node.getChansetExpression();
 	PAction leftAction = node.getLeftAction();
-	PExp leftNamesetExp = node.getLeftNameSetExpression();
+	PVarsetExpression leftNamesetExp = node.getLeftNamesetExpression();
 	PAction rightAction = node.getRightAction();
-	PExp rightnamesetExp = node.getRightNameSetExpression();
+	PVarsetExpression rightnamesetExp = node.getLeftNamesetExpression();
 
 	// type-check sub-actions
 	PType leftActionType = leftAction.apply(parentChecker, question);
@@ -1161,9 +1163,9 @@ class TCActionVisitor extends
 	    throws AnalysisException {
 
 	PAction replicatedAction = node.getReplicatedAction();
-	LinkedList<SSingleDeclaration> decls = node.getReplicationDeclaration();
+	LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
 
-	for (SSingleDeclaration decl : decls) {
+	for (PSingleDeclaration decl : decls) {
 	    PType declType = decl.apply(parentChecker, question);
 	    if (!TCDeclAndDefVisitor.successfulType(declType))
 		return issueHandler.addTypeError(decl,
@@ -1235,12 +1237,12 @@ class TCActionVisitor extends
 	    throws AnalysisException {
 
 	PAction leftAction = node.getLeftAction();
-	PExp leftChanSet = node.getLeftChanSetExpression();
-	PExp leftNameSet = node.getLeftNameSetExpression();
+	PVarsetExpression leftChanSet = node.getLeftChansetExpression();
+	PVarsetExpression leftNameSet = node.getLeftNamesetExpression();
 
 	PAction rightAction = node.getRightAction();
-	PExp rightChanSet = node.getRightChanSetExpression();
-	PExp rightNameSet = node.getRightNameSetExpression();
+	PVarsetExpression rightChanSet = node.getRightChansetExpression();
+	PVarsetExpression rightNameSet = node.getLeftNamesetExpression();
 
 	PType leftActionType = leftAction.apply(parentChecker, question);
 	if (!TCDeclAndDefVisitor.successfulType(leftActionType))
@@ -1285,8 +1287,8 @@ class TCActionVisitor extends
     public PType caseAReturnStatementAction(AReturnStatementAction node,
 	    org.overture.typechecker.TypeCheckInfo question)
 	    throws AnalysisException {
-	AExplicitOperationDefinition operation = node
-		.getAncestor(AExplicitOperationDefinition.class);
+	AExplicitCmlOperationDefinition operation = node
+		.getAncestor(AExplicitCmlOperationDefinition.class);
 	if (operation == null)
 	    throw new AnalysisException(
 		    "Return Statement Action does not have explicit operation as parent.");
@@ -1297,8 +1299,16 @@ class TCActionVisitor extends
 	    throw new AnalysisException("Unable to type check expression \""
 		    + exp + "\" in return statement action of "
 		    + operation.getName());
+	
+	//check return type of parent function and the expression
+	AOperationType operType = operation.getType();
+	if (!typeComparator.isSubType(type, operType.getResult()))
+	{
+		node.setType(issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""+operType.getResult(),""+type)));
+		return node.getType();
+	}
 
-	node.setType(new AStatementType());
+	node.setType(new AStatementType(node.getLocation(),true));
 	return node.getType();
     }
 
@@ -1474,7 +1484,7 @@ class TCActionVisitor extends
 	    throws AnalysisException {
 
 	PAction action = node.getLeft();
-	PExp chanSet = node.getChansetExpression();
+	PVarsetExpression chanSet = node.getChansetExpression();
 
 	PType actionType = action.apply(parentChecker, question);
 	if (!TCDeclAndDefVisitor.successfulType(actionType))
@@ -1681,10 +1691,10 @@ class TCActionVisitor extends
 	    throws AnalysisException {
 
 	PAction leftAction = node.getLeftAction();
-	PExp leftNameSet = node.getLeftNameSetExpression();
+	PVarsetExpression leftNameSet = node.getLeftNamesetExpression();
 
 	PAction rightAction = node.getRightAction();
-	PExp rightNameSet = node.getRightNameSetExpression();
+	PVarsetExpression rightNameSet = node.getLeftNamesetExpression();
 
 	PType leftActionType = leftAction.apply(parentChecker, question);
 	if (!TCDeclAndDefVisitor.successfulType(leftActionType))

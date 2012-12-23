@@ -20,8 +20,8 @@ import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
 import org.overture.ast.node.NodeEnum;
 
-import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
-import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
+import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.core.common.AnalysisArtifact;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
@@ -154,10 +154,10 @@ public class CommonRegistryTestCase {
 
 	@Test
 	public void testOnARealPieceOfCML() {
-		AClassParagraphDefinition paragraph = new AClassParagraphDefinition();
-		AValueParagraphDefinition values = new AValueParagraphDefinition();
+		AClassDefinition paragraph = new AClassDefinition();
+		AValuesDefinition values = new AValuesDefinition();
 		AValueDefinition valDef = new AValueDefinition();
-		paragraph.setDefinitions(Arrays.asList(new PDefinition[] { values }));
+		paragraph.setBody(Arrays.asList(new PDefinition[] { values }));
 		values.setValueDefinitions(Arrays.asList(new PDefinition[] { valDef }));
 
 		RegistryFactory rf = RegistryFactory.getInstance();

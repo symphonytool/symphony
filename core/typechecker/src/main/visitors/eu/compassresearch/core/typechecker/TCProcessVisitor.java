@@ -13,16 +13,16 @@ import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
 
-import sun.reflect.generics.tree.ShortSignature;
 
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
-import eu.compassresearch.ast.declarations.SSingleDeclaration;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
+import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AChannelRenamingProcess;
@@ -41,7 +41,6 @@ import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
 import eu.compassresearch.ast.process.AStartDeadlineProcess;
-import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
@@ -130,9 +129,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			ASynchronousParallelismReplicatedProcess node,
 			TypeCheckInfo question) throws AnalysisException {
 		PProcess proc = node.getReplicatedProcess();
-		LinkedList<SSingleDeclaration> repdecl = node.getReplicationDeclaration();
+		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
 		
-		for(SSingleDeclaration decl : repdecl)
+		for(PSingleDeclaration decl : repdecl)
 		{
 			PType declType = decl.apply(parentChecker,question);
 			if (!TCDeclAndDefVisitor.successfulType(declType))
@@ -159,9 +158,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			throws AnalysisException {
 
 		PProcess proc = node.getReplicatedProcess();
-		LinkedList<SSingleDeclaration> repdecl = node.getReplicationDeclaration();
+		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
 		
-		for(SSingleDeclaration decl : repdecl)
+		for(PSingleDeclaration decl : repdecl)
 		{
 			PType declType = decl.apply(parentChecker,question);
 			if (!TCDeclAndDefVisitor.successfulType(declType))
@@ -189,9 +188,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		
 		PProcess proc = node.getReplicatedProcess();
-		LinkedList<SSingleDeclaration> repdecl = node.getReplicationDeclaration();
+		LinkedList<PSingleDeclaration> repdecl = node.getReplicationDeclaration();
 		
-		for(SSingleDeclaration decl : repdecl)
+		for(PSingleDeclaration decl : repdecl)
 		{
 			PType declType = decl.apply(parentChecker,question);
 			if (!TCDeclAndDefVisitor.successfulType(declType))
@@ -215,9 +214,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AGeneralisedParallelismReplicatedProcess node,
 			TypeCheckInfo question) throws AnalysisException {
 
-		PExp csExp = node.getChansetExpression();
+		PVarsetExpression csExp = node.getChansetExpression();
 		PProcess repProc = node.getReplicatedProcess();
-		LinkedList<SSingleDeclaration> repDecl = node.getReplicationDeclaration();
+		LinkedList<PSingleDeclaration> repDecl = node.getReplicationDeclaration();
 		
 		PType csExpType = csExp.apply(parentChecker,question);
 		if (!TCDeclAndDefVisitor.successfulType(csExpType))
@@ -227,7 +226,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (!TCDeclAndDefVisitor.successfulType(repProcType))
 			return issueHandler.addTypeError(repProc, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(repProc+""));
 		
-		for(SSingleDeclaration decl : repDecl)
+		for(PSingleDeclaration decl : repDecl)
 		{
 			PType declType = decl.apply(parentChecker,question);
 			if (!TCDeclAndDefVisitor.successfulType(declType))
@@ -246,10 +245,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AExternalChoiceReplicatedProcess node, TypeCheckInfo question)
 			throws AnalysisException {
 
-		LinkedList<SSingleDeclaration> repDecl = node.getReplicationDeclaration();
+		LinkedList<PSingleDeclaration> repDecl = node.getReplicationDeclaration();
 		PProcess repProc = node.getReplicatedProcess();
 		
-		for(SSingleDeclaration decl : repDecl)
+		for(PSingleDeclaration decl : repDecl)
 		{
 			PType declType = decl.apply(parentChecker,question);
 			if (!TCDeclAndDefVisitor.successfulType(declType))
@@ -274,15 +273,15 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AAlphabetisedParallelismReplicatedProcess node,
 			TypeCheckInfo question) throws AnalysisException {
 
-		PExp csExp = node.getChansetExpression();
+		PVarsetExpression csExp = node.getChansetExpression();
 		PProcess repProcess = node.getReplicatedProcess();
-		LinkedList<SSingleDeclaration> repDec = node.getReplicationDeclaration();
+		LinkedList<PSingleDeclaration> repDec = node.getReplicationDeclaration();
 		
 		PType csExpType = csExp.apply(parentChecker,question);
 		if (!TCDeclAndDefVisitor.successfulType(csExpType))
 			return issueHandler.addTypeError(csExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+csExp));
 		
-		for(SSingleDeclaration d : repDec)
+		for(PSingleDeclaration d : repDec)
 		{
 			PType dType = d.apply(parentChecker,question);
 			if (!TCDeclAndDefVisitor.successfulType(dType))
@@ -424,7 +423,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (!TCDeclAndDefVisitor.successfulType(leftType))
 			return issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(left+""));
 
-		PExp csexp = node.getChansetExpression();
+		PVarsetExpression csexp = node.getChansetExpression();
 		PType csexpType = csexp.apply(parentChecker,question);
 		if (!TCDeclAndDefVisitor.successfulType(csexpType))
 		{
@@ -446,7 +445,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		PProcess left = node.getLeft();
 		PProcess right = node.getRight();
-		PExp csExp = node.getChansetExpression();
+		PVarsetExpression csExp = node.getChansetExpression();
 
 		PType leftType = left.apply(parentChecker,question);
 		if (!TCDeclAndDefVisitor.successfulType(leftType)){
@@ -532,14 +531,14 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 					.customizeMessage("" + right));
 
-		PExp leftChanSet = node.getLeftChansetExpression();
+		PVarsetExpression leftChanSet = node.getLeftChansetExpression();
 		PType leftChanSetType = leftChanSet.apply(parentChecker, question);
 		if (!TCDeclAndDefVisitor.successfulType(leftChanSetType))
 			return issueHandler.addTypeError(leftChanSet,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 					.customizeMessage("" + leftChanSet));
 
-		PExp rightChanSet = node.getRightChansetExpression();
+		PVarsetExpression rightChanSet = node.getRightChansetExpression();
 		PType rightChanSetType = rightChanSet.apply(parentChecker, question);
 		if (!TCDeclAndDefVisitor.successfulType(rightChanSetType))
 			return issueHandler.addTypeError(rightChanSet,
@@ -593,10 +592,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AInterleavingReplicatedProcess node, TypeCheckInfo question)
 					throws AnalysisException {
 
-		LinkedList<SSingleDeclaration> declarations = node
+		LinkedList<PSingleDeclaration> declarations = node
 				.getReplicationDeclaration();
 
-		for (SSingleDeclaration singleDecl : declarations) {
+		for (PSingleDeclaration singleDecl : declarations) {
 			PType singleDeclType = singleDecl.apply(parentChecker, question);
 			if (!TCDeclAndDefVisitor.successfulType(singleDeclType))
 				return issueHandler.addTypeError(singleDecl,
@@ -665,12 +664,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 							.getProcessName() + ""));
 		}
 
-		if (!(processDef instanceof AProcessParagraphDefinition))
+		if (!(processDef instanceof AProcessDefinition))
 			return issueHandler.addTypeError(processDef,
 					TypeErrorMessages.EXPECTED_PROCESS_DEFINITION
 					.customizeMessage(node.getProcessName() + ""));
-		node.setProcessDefinition(((AProcessParagraphDefinition) processDef)
-				.getProcessDefinition());
+		node.setProcessDefinition((AProcessDefinition)processDef);
 
 		return new AProcessType();
 	}
@@ -678,13 +676,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 
 	@Override
-	public PType caseAStateProcess(AStateProcess node,
+	public PType caseAActionProcess(AActionProcess node,
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 
-
-		// Set the process def for this node
-		node.setProcessDefinition(node.getAncestor(AProcessDefinition.class));
 
 		// Type check all the paragraph definitions
 		for (PDefinition def : node.getDefinitionParagraphs()) {

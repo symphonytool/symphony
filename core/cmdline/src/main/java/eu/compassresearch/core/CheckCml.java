@@ -14,6 +14,7 @@ package eu.compassresearch.core;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
@@ -23,6 +24,11 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.accessibility.AccessibleStreamable;
+
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IAnalysis;
 import org.overture.ast.node.INode;
@@ -30,14 +36,15 @@ import org.overture.ast.node.INode;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.preview.DotGraphVisitor;
 import eu.compassresearch.ast.program.AFileSource;
+import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.CMLPOContextStack;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
-import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.lexer.ParserError;
+import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -55,7 +62,7 @@ public class CheckCml {
 			List<PSource> sourceForest = new LinkedList<PSource>();
 
 			// Say hello
-			System.out.println(HELLO + " - " + CmlParser.Info.CML_LANG_VERSION);
+			System.out.println(HELLO + " - " + CmlParser.CML_LANG_VERSION);
 
 			// inputs
 			if ((inp = checkInput(args)) == null)
@@ -63,33 +70,35 @@ public class CheckCml {
 
 			// Two modes of operation, Interactive or Batch mode on files.
 			if (inp.isSwitchOn(Switch.INTER)) {
-				AFileSource currentTree = new AFileSource();
-				Reader input = new BufferedReader(new InputStreamReader(
-						System.in));
-				currentTree.setName("standard input");
-				CmlLexer lexer = new CmlLexer(input);
-				CmlParser parser = new CmlParser(lexer);
-				parser.setDocument(currentTree);
-				if (!parser.parse()) {
-					handleError(lexer, new File("-"));
-					return;
-				} else
+				AInputStreamSource currentTree = new AInputStreamSource();
+				currentTree.setOrigin("standard input");
+				currentTree.setStream(System.in);
+				
+				ANTLRInputStream in = new ANTLRInputStream(currentTree.getStream());
+				
+				CmlLexer lexer = new CmlLexer(in);
+				CommonTokenStream tokens = new CommonTokenStream(lexer);
+				CmlParser parser = new CmlParser(tokens);
+			
+					try {
+						currentTree.setParagraphs(parser.source());
+					} catch (RecognitionException e) {
+						e.printStackTrace();
+					}
+					
 					sourceForest.add(currentTree);
+				
 			} else
 				// build the forest
 				for (File source : inp.sourceFiles) {
 					System.out.println("Parsing file: " + source);
 					AFileSource currentTree = new AFileSource();
 					currentTree.setName(source.getName());
-					FileReader input = new FileReader(source);
-					CmlLexer lexer = new CmlLexer(input);
-					CmlParser parser = new CmlParser(lexer);
-					parser.setDocument(currentTree);
-					if (!parser.parse()) {
-						handleError(lexer, source);
-						return;
-					} else
-						sourceForest.add(currentTree);
+					ANTLRInputStream in = new ANTLRInputStream(new FileInputStream(source));
+					CmlLexer lexer = new CmlLexer(in);
+					CmlParser parser = new CmlParser(new CommonTokenStream(lexer));
+					currentTree.setParagraphs(parser.source());
+					sourceForest.add(currentTree);
 				}
 
 			// Run the analysis phase
@@ -254,7 +263,6 @@ public class CheckCml {
 				if (f.canRead())
 					r.sourceFiles.add(f);
 				else {
-					handleError(null, f);
 					return null;
 				}
 			}
@@ -270,14 +278,7 @@ public class CheckCml {
 		return r;
 	}
 
-	private static void handleError(CmlLexer lexer, File input) {
-		System.out.println("Errors in " + input);
-		if (lexer != null) {
-			List<ParserError> errors = lexer.parseErrors;
-			for (ParserError pe : errors)
-				System.out.println("\t" + pe.toString());
-		}
-	}
+
 
 	/*************************************************************
 	 * 

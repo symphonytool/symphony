@@ -677,7 +677,9 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "class test = begin values a : int = 0	functions f:int -> int f(k) == k+a	end",
 				false,true,true,new String[0]);
 		
-		
+		addTestProgram(testData, "class test = begin operations o:int ==> int o(a) == (return (\"ras\")) end", false,true,false,new String[0]);
+		addTestProgram(testData, "class test = begin operations o:int ==> int o(a) == (return (let a : int = 2 in \"42\")) end",false,true,false,new String[0]);
+		addTestProgram(testData, "class Stuff = begin functions operations o : () ==> int o() == (return (let a:int = 2 in  \"abcd\")) end",false,true,false,new String[0]); 
 		return testData;
 	}
 
@@ -701,29 +703,26 @@ public class CmlTypeCheckerTestCase extends TestCase {
 
 		Assume.assumeTrue(!postM12);
 
-		CmlParser parser = CmlParser.newParserFromSource(source);
-		boolean parserOk = parser.parse();
-		Assert.assertTrue("Expected parser to "
-				+ (expectedParserOk ? "success" : "fail") + " but it did'nt.",
-				parserOk == expectedParserOk);
+		TestUtil.TypeCheckerResult res = TestUtil.runTypeChecker(source);
+		
+		boolean parserOk = res.parsedOk;
+		
+		TypeIssueHandler errors = res.issueHandler;
 
-		TypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();
-		VanillaCmlTypeChecker tc = new VanillaCmlTypeChecker(
-				parser.getDocument(), errors);
-
-		boolean typeCheckOk = tc.typeCheck();
+		boolean typeCheckOk = res.tcOk;
+		
 		assertEquals(TestUtil.buildErrorMessage(errors, expectedTypesOk), expectedTypesOk, typeCheckOk);
 
 		if (parserOk && errorMessages != null && errorMessages.length > 0) {
 			int expectedNumberOfErrors = errorMessages.length;
-			int actualNumberOfErrors = tc.getTypeErrors().size();
+			int actualNumberOfErrors = errors.getTypeErrors().size();
 			Assert.assertEquals("Wrong number of error. Expected "
 					+ expectedNumberOfErrors + " Actual "
 					+ actualNumberOfErrors, expectedNumberOfErrors,
 					actualNumberOfErrors);
 
 			Set<String> actualErrors = new HashSet<String>();
-			for (CMLTypeError e : tc.getTypeErrors())
+			for (CMLTypeError e : errors.getTypeErrors())
 				actualErrors.add(e.getDescription());
 
 			for (String s : errorMessages)

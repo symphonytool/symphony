@@ -71,7 +71,7 @@ process Reader =
       )
       
       -- unused; covered by CSP
-      read_output : void ==> Context`Data
+      read_output : () ==> Context`Data
       read_output() == (
         return (Shared`slot (mk_(rpair, rindex)))
       )

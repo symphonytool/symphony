@@ -90,11 +90,12 @@ public class CmlTypeCheckerTestCaseMultipleSources {
 	@Test
 	public void test() throws IOException {
 
-		CmlParser parser = CmlParser.newParserFromSource(source1);
-		Assert.assertTrue("Expected source 1 to parse, but it did not.", parser.parse());
+		boolean s1ok = TestUtil.parse(source1);
+		boolean s2ok = TestUtil.parse(source2);
 		
-		parser=CmlParser.newParserFromSource(source2);
-		Assert.assertTrue("Expected source 2 to parse, but it did not.",parser.parse());
+		Assert.assertTrue("Expected source 1 to parse, but it did not.", s1ok);
+		
+		Assert.assertTrue("Expected source 2 to parse, but it did not.",s2ok);
 		
 		TypeIssueHandler typeErrors = VanillaFactory.newCollectingIssueHandle();
 		CmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(Arrays.asList(new PSource[] {source1, source2}), typeErrors);
