@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,11 +13,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
+import junit.framework.Assert;
+
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.TestUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -25,14 +32,39 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 public class Utilities {
 
+	private static boolean parseWithANTLR(PSource sourceIn) throws IOException
+	{
+		// RWL: Change to do parsing the ANTLR way :)
+		ANTLRInputStream in = null;
+		
+		if (sourceIn instanceof AInputStreamSource)
+			in = new ANTLRInputStream(((AInputStreamSource)sourceIn).getStream());
+		
+		if (sourceIn instanceof AFileSource)
+			in = new ANTLRInputStream( new FileInputStream(((AFileSource)sourceIn).getFile()));
+		
+		CmlLexer lexer = new CmlLexer(in);
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+		CmlParser parser = new CmlParser(tokens);
+
+		try {
+			sourceIn.setParagraphs(parser.source());
+			return true;
+		} catch (RecognitionException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+	}
+	
     public static PSource makeSourceFromString(String cmlSource)
 	    throws IOException {
 	InputStream cmlSourceIn = new ByteArrayInputStream(cmlSource.getBytes());
 	AInputStreamSource source = new AInputStreamSource();
 	source.setOrigin("Test Parameter");
 	source.setStream(cmlSourceIn);
-	CmlParser parser = CmlParser.newParserFromSource(source);
-	assertTrue("Test failed on parser", parser.parse());
+
+	Assert.assertTrue("Filed to parse", parseWithANTLR(source));
 
 	// Type check
 	CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
@@ -50,8 +82,8 @@ public class Utilities {
 	ast.setFile(f);
 
 	// Call factory method to build parser and lexer
-	CmlParser parser = CmlParser.newParserFromSource(ast);
-	assertTrue("Test failed on parser", parser.parse());
+	
+	assertTrue("Test failed on parser", parseWithANTLR(ast));
 
 	// Type check
 	TypeIssueHandler errors = VanillaFactory.newCollectingIssueHandle();

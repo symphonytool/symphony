@@ -52,8 +52,7 @@ import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.obligation.SeqApplyObligation;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.PDeclaration;
-import eu.compassresearch.ast.definitions.SParagraphDefinition;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
@@ -105,7 +104,7 @@ public class ProofObligationGenerator extends
     }
 
     @Override
-    public ProofObligationList defaultPDeclaration(PDeclaration node,
+    public ProofObligationList defaultPSingleDeclaration(PSingleDeclaration node,
 	    POContextStack question) throws AnalysisException {
 	return node.apply(this.declAndDefVisitor, question);
     }
@@ -355,7 +354,7 @@ public class ProofObligationGenerator extends
 	// for each source
 	for (PSource s : sourceForest) {
 	    // for each CML paragraph
-	    for (SParagraphDefinition paragraph : s.getParagraphs()) {
+	    for (PDefinition paragraph : s.getParagraphs()) {
 		try {
 		    System.out
 			    .println("--------------------------------PROCESSING--------------------------------");

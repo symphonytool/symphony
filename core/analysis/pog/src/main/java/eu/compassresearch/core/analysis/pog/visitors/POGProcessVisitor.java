@@ -9,15 +9,15 @@ import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.ProofObligationList;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.definitions.SParagraphDefinition;
-import eu.compassresearch.ast.process.AStateProcess;
+import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 
 @SuppressWarnings("serial")
 public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList>
 {
-    private ProofObligationGenerator parentPOG;
+    @SuppressWarnings("unused")
+	private ProofObligationGenerator parentPOG;
     
     public POGProcessVisitor(ProofObligationGenerator parent)
     {
@@ -32,19 +32,19 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
     }
     
     @Override
-    public CMLProofObligationList caseAStateProcess(AStateProcess node,POContextStack question) throws AnalysisException{
+    public CMLProofObligationList caseAActionProcess(AActionProcess node,POContextStack question) throws AnalysisException{
     	System.out.println("A StateProcess: " + node.toString());
     	CMLProofObligationList pol = new CMLProofObligationList();
     	
-    	LinkedList<SParagraphDefinition> pdef = node.getDefinitionParagraphs();
-    	for (SParagraphDefinition def : pdef) {
+    	LinkedList<PDefinition> pdef = node.getDefinitionParagraphs();
+    	for (PDefinition def : pdef) {
     		System.out.println(def.toString());
     		def.apply(this, question);
     		pol.addAll(def.apply(this, question));
     	}
     	
-    	
-    	System.out.println(node.getProcessDefinition());
+    	// RWL Line below does not apply in the updated Ast.
+    	// System.out.println(node.getProcessDefinition());
     	System.out.println(pdef);
     	System.out.println(node.getAction());
 		return pol;
