@@ -420,17 +420,22 @@ actionbase returns[PAction action]
     | 'Chaos'           { $action = new AChaosAction(); }
     | 'Div'             { $action = new ADivAction(); }
     | 'Wait' expression { $action = new AWaitAction(null, $expression.exp); }
-    | IDENTIFIER (communication* '->' action)?
+    | statement         { $action = $statement.statement; }
+    | IDENTIFIER (communicationList '->' action)?
         {
-            $action = new ACallStatementAction(); // FIXME
+            if ($action.action == null) {
+                LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
+                $action = new ACallStatementAction(null, name, new ArrayList<PExp>());
+            } else {
+                LexIdentifierToken id = new LexIdentifierToken($IDENTIFIER.getText(), false, extractLexLocation($IDENTIFIER));
+                $action = new ACommunicationAction(null, id, $communicationList.comms, $action.action);
+            }
         }
-    /* The mess below includes parenthesized actions, block
-     * statements, parametrised actions, instantiated actions.
-     */
-    | statement
-        {
-            $action = $statement.statement;
-        }
+    ;
+
+communicationList returns[List<PCommunicationParameter> comms]
+@init { $comms = new ArrayList<PCommunicationParameter>(); }
+    : ( communication { $comms.add($communication.comm); } )*
     ;
 
 /* FIXME Ok, dots are still fragile

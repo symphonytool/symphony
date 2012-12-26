@@ -158,28 +158,27 @@ public class CmlParserHelper {
      */
 
     private LexNameToken dottedIdentifierToLexNameToken(
-	    List<LexIdentifierToken> ids) {
-	StringBuilder module = new StringBuilder();
-	// if we get in here there must at least be one identifier, id will be
-	// set to something other than null
-	LexIdentifierToken id = null;
+    	    List<LexIdentifierToken> ids) {
+    	StringBuilder module = new StringBuilder();
+    	// if we get in here there must at least be one identifier, id will be
+    	// set to something other than null
+    	LexIdentifierToken id = null;
 
-	for (ListIterator<LexIdentifierToken> it = ids.listIterator(); it
-		.hasNext();) {
-	    LexIdentifierToken prefixid = it.next();
+    	for (ListIterator<LexIdentifierToken> it = ids.listIterator(); it
+    		.hasNext();) {
+    	    LexIdentifierToken prefixid = it.next();
 
-	    if (it.hasNext()) {
-		module.append(prefixid.getName() + ".");
-	    } else {
-		if (module.length() > 0)
-		    module.deleteCharAt(module.length() - 1);
-		else
-		    module.append("");
-		id = prefixid;
-	    }
-	}
-
-	return new LexNameToken(module.toString(), id);
+    	    if (it.hasNext()) {
+    		module.append(prefixid.getName() + ".");
+    	    } else {
+    		if (module.length() > 0)
+    		    module.deleteCharAt(module.length() - 1);
+    		else
+    		    module.append("");
+    		id = prefixid;
+    	    }
+    	}
+    	return new LexNameToken(module.toString(), id);
     }
 
     /**
@@ -224,28 +223,28 @@ public class CmlParserHelper {
     /*
      * FIXME needs to throw an error if the name is multipart
      */
-    public List<LexIdentifierToken> convertNameListToIdentifierList(
-	    List<LexNameToken> nameList) {
-	List<LexIdentifierToken> out = new LinkedList<LexIdentifierToken>();
-	for (LexNameToken name : nameList) {
-	    out.add(extractLexIdentifierToken(name));
-	}
-	return out;
-    }
+    // public List<LexIdentifierToken> convertNameListToIdentifierList(
+    // 	    List<LexNameToken> nameList) {
+    // 	List<LexIdentifierToken> out = new LinkedList<LexIdentifierToken>();
+    // 	for (LexNameToken name : nameList) {
+    // 	    out.add(extractLexIdentifierToken(name));
+    // 	}
+    // 	return out;
+    // }
 
-    public LexNameToken extractNameFromUNDERNAMEToken(CmlLexeme mkUnder) {
-	String nameString = mkUnder.getValue().substring(3);
+    // public LexNameToken extractNameFromUNDERNAMEToken(CmlLexeme mkUnder) {
+    // 	String nameString = mkUnder.getValue().substring(3);
 
-	LexNameToken name = null;
-	if (nameString.matches(".+['`''.'].+")) {
-	    String[] tokens = nameString.split("['`''.']");
-	    name = new LexNameToken(tokens[0], tokens[1],
-		    extractLexLocation(mkUnder), false, true);
-	} else
-	    name = new LexNameToken("", nameString,
-		    extractLexLocation(mkUnder), false, true);
-	return name;
-    }
+    // 	LexNameToken name = null;
+    // 	if (nameString.matches(".+['`''.'].+")) {
+    // 	    String[] tokens = nameString.split("['`''.']");
+    // 	    name = new LexNameToken(tokens[0], tokens[1],
+    // 		    extractLexLocation(mkUnder), false, true);
+    // 	} else
+    // 	    name = new LexNameToken("", nameString,
+    // 		    extractLexLocation(mkUnder), false, true);
+    // 	return name;
+    // }
 
     public static AAccessSpecifierAccessSpecifier getAccessSpecifierFromToken(CommonToken qualifier) {
 	PAccessBase access = null;
@@ -440,7 +439,7 @@ public class CmlParserHelper {
 	    Object EQUALS, Object paragraphAction) {
     	/*
     	 * Commented out by RWL: cml.g does not use non-static methods 
-    	 * on the CmlParserHelper. Thus this methods is not in use anymore.
+    	 * on the CmlParserHelper. Thus this methods is not in use anymore
     	 * 
 	Object[] pa = (Object[]) paragraphAction;
 	List<ATypeSingleDeclaration> declarations = (List<ATypeSingleDeclaration>) pa[0];
@@ -597,60 +596,60 @@ public class CmlParserHelper {
      * Definitions
      */
 
-    public AExternalClause caseVarInformation(Object mode, Object dottedId,
-	    Object type) {
-	LexNameToken name = dottedIdentifierToLexNameToken((List<LexIdentifierToken>) dottedId);
-	List<LexNameToken> ids = new LinkedList<LexNameToken>();
-	ids.add(name);
-	// ids.add(convertDottedIdentifierToLexNameToken((List<? extends
-	// LexNameToken>)$id));
-	return new AExternalClause((LexToken) mode, ids, (PType) type);
-    }
+    // public AExternalClause caseVarInformation(Object mode, Object dottedId,
+    // 	    Object type) {
+    // 	LexNameToken name = dottedIdentifierToLexNameToken((List<LexIdentifierToken>) dottedId);
+    // 	List<LexNameToken> ids = new LinkedList<LexNameToken>();
+    // 	ids.add(name);
+    // 	// ids.add(convertDottedIdentifierToLexNameToken((List<? extends
+    // 	// LexNameToken>)$id));
+    // 	return new AExternalClause((LexToken) mode, ids, (PType) type);
+    // }
 
-    public AExternalClause caseMultiVarInformation(Object infoObj,
-	    Object dottedId, Object type) {
-	AExternalClause info = (AExternalClause) infoObj;
-	info.getIdentifiers()
-		.add(dottedIdentifierToLexNameToken((List<LexIdentifierToken>) dottedId));
-	if (info.getType() == null && type != null)
-	    info.setType((PType) type);
-	else if (info.getType() != null && type != null)
-	    throw new ParserException(info.getType().getLocation(),
-		    ParserErrorMessage.VARINFORMATION_MULTIPLETYPES_DEFINED
-			    .customizeMessage());
+    // public AExternalClause caseMultiVarInformation(Object infoObj,
+    // 	    Object dottedId, Object type) {
+    // 	AExternalClause info = (AExternalClause) infoObj;
+    // 	info.getIdentifiers()
+    // 		.add(dottedIdentifierToLexNameToken((List<LexIdentifierToken>) dottedId));
+    // 	if (info.getType() == null && type != null)
+    // 	    info.setType((PType) type);
+    // 	else if (info.getType() != null && type != null)
+    // 	    throw new ParserException(info.getType().getLocation(),
+    // 		    ParserErrorMessage.VARINFORMATION_MULTIPLETYPES_DEFINED
+    // 			    .customizeMessage());
 
-	return info;
-    }
+    // 	return info;
+    // }
 
-    public PDefinition caseExplicitFunctionDefinition(Object id,
-	    Object functionType, Object checkId, Object parameterList,
-	    Object functionBodyObj, Object preExpr_opt, Object postExpr_opt,
-	    Object measureExpr) {
-	LexNameToken name = extractLexNameToken((CmlLexeme) id);
-	LexNameToken checkName = extractLexNameToken((CmlLexeme) checkId);
-	if (!name.equals(checkName))
-	    throw new ParserException(name.getLocation(),
-		    ParserErrorMessage.FUNCTION_NAMES_ARE_NOT_CONSISTENT
-			    .customizeMessage(name.getIdentifier().getName(),
-				    checkName.getIdentifier().getName()));
+    // public PDefinition caseExplicitFunctionDefinition(Object id,
+    // 	    Object functionType, Object checkId, Object parameterList,
+    // 	    Object functionBodyObj, Object preExpr_opt, Object postExpr_opt,
+    // 	    Object measureExpr) {
+    // 	LexNameToken name = extractLexNameToken((CmlLexeme) id);
+    // 	LexNameToken checkName = extractLexNameToken((CmlLexeme) checkId);
+    // 	if (!name.equals(checkName))
+    // 	    throw new ParserException(name.getLocation(),
+    // 		    ParserErrorMessage.FUNCTION_NAMES_ARE_NOT_CONSISTENT
+    // 			    .customizeMessage(name.getIdentifier().getName(),
+    // 				    checkName.getIdentifier().getName()));
 
-	LexLocation loc = extractLexLocation((CmlLexeme) id);
-	AFunctionType ftype = (AFunctionType) functionType;
-	PExp functionBody = (PExp) functionBodyObj;
-	List<List<PPattern>> args = (List<List<PPattern>>) parameterList;
-	AExplicitFunctionDefinition res = new AExplicitFunctionDefinition();
-	res.setAccess(getPrivateAccessSpecifier(false, false, loc));
-	res.setPass(Pass.DEFS);
-	res.setName(name);
-	res.setLocation(loc);
-	res.setType(ftype);
-	res.setBody(functionBody);
-	res.setMeasure((LexNameToken) measureExpr);
-	res.setParamPatternList(args);
-	res.setIsUndefined(false);
-	res.setRecursive(false);
-	return res;
-    }
+    // 	LexLocation loc = extractLexLocation((CmlLexeme) id);
+    // 	AFunctionType ftype = (AFunctionType) functionType;
+    // 	PExp functionBody = (PExp) functionBodyObj;
+    // 	List<List<PPattern>> args = (List<List<PPattern>>) parameterList;
+    // 	AExplicitFunctionDefinition res = new AExplicitFunctionDefinition();
+    // 	res.setAccess(getPrivateAccessSpecifier(false, false, loc));
+    // 	res.setPass(Pass.DEFS);
+    // 	res.setName(name);
+    // 	res.setLocation(loc);
+    // 	res.setType(ftype);
+    // 	res.setBody(functionBody);
+    // 	res.setMeasure((LexNameToken) measureExpr);
+    // 	res.setParamPatternList(args);
+    // 	res.setIsUndefined(false);
+    // 	res.setRecursive(false);
+    // 	return res;
+    // }
 
 	/*
 	 * Checking that the two IDENTIFIERS are equivalent
@@ -659,69 +658,69 @@ public class CmlParserHelper {
  
  // =======
 
-    @SuppressWarnings("deprecation")
-    public PDefinition caseImplicitFunctionDefinition(Object qual, Object id,
-	    Object ptypes, Object retvalsObj, Object pre, Object post) {
-	AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier) qual;
-	LexNameToken name = extractLexNameToken((CmlLexeme) id);
-	List<APatternListTypePair> paramPatterns = (List<APatternListTypePair>) ptypes;
+ //    @SuppressWarnings("deprecation")
+ //    public PDefinition caseImplicitFunctionDefinition(Object qual, Object id,
+ // 	    Object ptypes, Object retvalsObj, Object pre, Object post) {
+ // 	AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier) qual;
+ // 	LexNameToken name = extractLexNameToken((CmlLexeme) id);
+ // 	List<APatternListTypePair> paramPatterns = (List<APatternListTypePair>) ptypes;
 
-	List<PType> paramTypes = new LinkedList<PType>();
-	for (APatternListTypePair pp : paramPatterns)
-	    paramTypes.add(pp.getType());
+ // 	List<PType> paramTypes = new LinkedList<PType>();
+ // 	for (APatternListTypePair pp : paramPatterns)
+ // 	    paramTypes.add(pp.getType());
 
-	if (pre == null)
-	{
-		ABooleanConstExp exp =AstFactory.newABooleanConstExp(new LexBooleanToken(true, name.getLocation()));
-		pre = exp;
-	}
+ // 	if (pre == null)
+ // 	{
+ // 		ABooleanConstExp exp =AstFactory.newABooleanConstExp(new LexBooleanToken(true, name.getLocation()));
+ // 		pre = exp;
+ // 	}
 	
-	// FIXME This conversion is caused by a flaw in the VDM tree and needs
-	// to be fixed at some point.
-	// The result is actually a list af patterns but somehow this is not the
-	// case in the vdm ast definition.
-	List<APatternTypePair> retvals = (List<APatternTypePair>) retvalsObj;
+ // 	// FIXME This conversion is caused by a flaw in the VDM tree and needs
+ // 	// to be fixed at some point.
+ // 	// The result is actually a list af patterns but somehow this is not the
+ // 	// case in the vdm ast definition.
+ // 	List<APatternTypePair> retvals = (List<APatternTypePair>) retvalsObj;
 
-	APatternTypePair retval = null;
-	// retval.setType(value)
-	if (retvals.size() == 1) {
-	    retval = retvals.get(0);
- // >>>>>>> origin/development
-	}
-	// if there is more create a tuple pattern to contain them all and only
-	// take the type from the first one
-	else {
-	    ATuplePattern tuple = new ATuplePattern();
-	    List<PPattern> plist = new LinkedList<PPattern>();
-	    for (APatternTypePair pair : (List<APatternTypePair>) retvals) {
-		plist.add(pair.getPattern());
-	    }
-	    tuple.setPlist(plist);
-	    retval = new APatternTypePair(false, tuple);
-	}
+ // 	APatternTypePair retval = null;
+ // 	// retval.setType(value)
+ // 	if (retvals.size() == 1) {
+ // 	    retval = retvals.get(0);
+ // // >>>>>>> origin/development
+ // 	}
+ // 	// if there is more create a tuple pattern to contain them all and only
+ // 	// take the type from the first one
+ // 	else {
+ // 	    ATuplePattern tuple = new ATuplePattern();
+ // 	    List<PPattern> plist = new LinkedList<PPattern>();
+ // 	    for (APatternTypePair pair : (List<APatternTypePair>) retvals) {
+ // 		plist.add(pair.getPattern());
+ // 	    }
+ // 	    tuple.setPlist(plist);
+ // 	    retval = new APatternTypePair(false, tuple);
+ // 	}
 
-	APatternTypePair result = retval;// (APatternTypePair)retvals;
+ // 	APatternTypePair result = retval;// (APatternTypePair)retvals;
 
-	PExp preExp = (PExp) pre;
-	PExp postExp = (PExp) post;
-	LexLocation location = combineLexLocation(name.getLocation(),
-		postExp.getLocation());
-	AImplicitFunctionDefinition impFunc = new AImplicitFunctionDefinition(
-		location, NameScope.LOCAL, false, access, null,// Pass
-		null, paramPatterns, result, preExp, postExp, null/*
-								   * LexNameToken
-								   * measure
-								   */);
-	AFunctionType type = AstFactory.newAFunctionType(name.getLocation(),
-		true, paramTypes, result.getType());
+ // 	PExp preExp = (PExp) pre;
+ // 	PExp postExp = (PExp) post;
+ // 	LexLocation location = combineLexLocation(name.getLocation(),
+ // 		postExp.getLocation());
+ // 	AImplicitFunctionDefinition impFunc = new AImplicitFunctionDefinition(
+ // 		location, NameScope.LOCAL, false, access, null,// Pass
+ // 		null, paramPatterns, result, preExp, postExp, null/*
+ // 								   * LexNameToken
+ // 								   * measure
+ // 								   */);
+ // 	AFunctionType type = AstFactory.newAFunctionType(name.getLocation(),
+ // 		true, paramTypes, result.getType());
 
-	type.setResult(result.getType());
-	impFunc.setName(name);
-	impFunc.setType(type);
-	// TODO RWL Set PreDef
+ // 	type.setResult(result.getType());
+ // 	impFunc.setName(name);
+ // 	impFunc.setType(type);
+ // 	// TODO RWL Set PreDef
 	
-	return impFunc;
-    }
+ // 	return impFunc;
+ //    }
 
     /**
      * 
@@ -878,22 +877,21 @@ public class CmlParserHelper {
     // }
 
     private List<LexIdentifierToken> convertExpressionListToLexIdentifierTokenList(
-	    List<PExp> exprs) {
-	List<LexIdentifierToken> ids = new LinkedList<LexIdentifierToken>();
-
-	for (PExp exp : exprs) {
-	    // If the expression is a single identifer it will be converted into
-	    // a AVariableExp
-	    if (exp instanceof AVariableExp) {
-		AVariableExp var = (AVariableExp) exp;
-		ids.add(var.getName().getIdentifier());
-	    } else
-		throw new ParserException(exp.getLocation(),
-			ParserErrorMessage.MALFORMED_CHANNEL_SET_EXPRESSION
-				.customizeMessage(exp.toString()));
-	}
-
-	return ids;
+    	    List<PExp> exprs) {
+    	List<LexIdentifierToken> ids = new LinkedList<LexIdentifierToken>();
+    	for (PExp exp : exprs) {
+    	    // If the expression is a single identifer it will be converted into
+    	    // a AVariableExp
+    	    if (exp instanceof AVariableExp) {
+    		AVariableExp var = (AVariableExp) exp;
+    		ids.add(var.getName().getIdentifier());
+    	    } 
+	    // else
+    	    // 	throw new ParserException(exp.getLocation(),
+    	    // 		ParserErrorMessage.MALFORMED_CHANNEL_SET_EXPRESSION
+    	    // 			.customizeMessage(exp.toString()));
+    	}
+    	return ids;
     }
 
     // public PExp caseACompChansetSetExp(Object LCURLYBAR, Object chanexp,
@@ -1089,36 +1087,36 @@ public class CmlParserHelper {
 		new AWriteCommunicationParameter());
     }
 
-    public Pair<AVariableExp, List<PCommunicationParameter>> caseExpDotMatchValue(
-	    Object exp, Object patternObj) {
-	if (exp instanceof AVariableExp || exp instanceof Pair<?, ?>) {
-	    PPattern pattern = (PPattern) patternObj;
-	    return communicationParamHelper(exp, pattern,
-		    new ASignalCommunicationParameter());
-	} else
-	    // TODO what can this be other than communication? aha it can a
-	    // channel expression
-	    throw new ParserException(
-		    "I don't really now what to do here right now");
+    // public Pair<AVariableExp, List<PCommunicationParameter>> caseExpDotMatchValue(
+    // 	    Object exp, Object patternObj) {
+    // 	if (exp instanceof AVariableExp || exp instanceof Pair<?, ?>) {
+    // 	    PPattern pattern = (PPattern) patternObj;
+    // 	    return communicationParamHelper(exp, pattern,
+    // 		    new ASignalCommunicationParameter());
+    // 	} else
+    // 	    // TODO what can this be other than communication? aha it can a
+    // 	    // channel expression
+    // 	    throw new ParserException(
+    // 		    "I don't really now what to do here right now");
 
-    }
+    // }
 
-    public Pair<AVariableExp, List<PCommunicationParameter>> caseExpQuestionPattern(
-	    Object exp, Object patternObj) {
-	PPattern pattern = (PPattern) patternObj;
+    // public Pair<AVariableExp, List<PCommunicationParameter>> caseExpQuestionPattern(
+    // 	    Object exp, Object patternObj) {
+    // 	PPattern pattern = (PPattern) patternObj;
 
-	// pattern must be indentifier pattern, tuple pattern or record pattern
-	// according to the parameter rule at page 35
+    // 	// pattern must be indentifier pattern, tuple pattern or record pattern
+    // 	// according to the parameter rule at page 35
 
-	if (pattern instanceof AIdentifierPattern
-		|| pattern instanceof ATuplePattern
-		|| pattern instanceof ARecordPattern)
-	    return communicationParamHelper(exp, pattern,
-		    new AReadCommunicationParameter());
-	else
-	    throw new ParserException(
-		    "communication paramters must be either identifier, tuple or record pattern");
-    }
+    // 	if (pattern instanceof AIdentifierPattern
+    // 		|| pattern instanceof ATuplePattern
+    // 		|| pattern instanceof ARecordPattern)
+    // 	    return communicationParamHelper(exp, pattern,
+    // 		    new AReadCommunicationParameter());
+    // 	else
+    // 	    throw new ParserException(
+    // 		    "communication paramters must be either identifier, tuple or record pattern");
+    // }
 
     public Pair<AVariableExp, List<PCommunicationParameter>> caseExpQuestionSetBind(
 	    Object exp, Object setBindObj) {
