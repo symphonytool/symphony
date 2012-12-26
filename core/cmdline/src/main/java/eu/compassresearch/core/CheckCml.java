@@ -97,7 +97,12 @@ public class CheckCml {
 					ANTLRInputStream in = new ANTLRInputStream(new FileInputStream(source));
 					CmlLexer lexer = new CmlLexer(in);
 					CmlParser parser = new CmlParser(new CommonTokenStream(lexer));
+					try {
 					currentTree.setParagraphs(parser.source());
+					} catch (RecognitionException e)
+					{
+						e.printStackTrace();
+					}
 					sourceForest.add(currentTree);
 				}
 
