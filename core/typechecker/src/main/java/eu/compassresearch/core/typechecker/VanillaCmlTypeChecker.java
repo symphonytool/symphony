@@ -276,10 +276,12 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		eu.compassresearch.core.typechecker.CmlTypeCheckInfo info = eu.compassresearch.core.typechecker.CmlTypeCheckInfo
 				.getNewTopLevelInstance(this.issueHandler, globalRoot);
 
+		
 		if (!cleared)
 			return lastResult;
 
 		try {
+			// Collect classes, processes, global values, global types and global functions
 			globalRoot = CollectGlobalStateClass.getGlobalRoot(
 					this.sourceForest, issueHandler, info);
 
@@ -314,7 +316,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		}
 
 
-		// for each source
+		// for each source type check classes and processes in depth
 		for (PSource s : sourceForest) {
 			for (PDefinition paragraph : s.getParagraphs()) {
 				if (paragraph instanceof AClassDefinition

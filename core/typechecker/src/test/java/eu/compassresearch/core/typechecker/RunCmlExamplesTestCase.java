@@ -217,13 +217,14 @@ public class RunCmlExamplesTestCase {
 		Assert.assertTrue("Parser failed", parseOk);
 
 		TypeIssueHandler tc = res.issueHandler;
-		
+		String errorString = buildErrorMessage(tc);
 		boolean tcOK = res.tcOk;
 		if (!failingTC.containsKey(file.getName())) {
 			System.out.println("\t" + (tcOK ? "[OK]" : "[FAIL]"));
 			if (tc.getTypeErrors().size() > 0)
 			System.out.println("addFailingFile(\""+file.getName()+"\",\""+tc.getTypeErrors().get(0).getDescription().replace("\"", "\\\"")+"\");");
-			Assert.assertTrue(buildErrorMessage(tc), tcOK);
+			
+			Assert.assertTrue(errorString, tcOK);
 		} else {
 			HashSet<String> actualErrors = new HashSet<String>();
 			for (CMLTypeError e : tc.getTypeErrors()) {
@@ -234,7 +235,10 @@ public class RunCmlExamplesTestCase {
 			for (String expectedError : expectedErrors) {
 				boolean found = actualErrors.contains(expectedError);
 				if (!found)
-					System.out.println(buildErrorMessage(tc));
+				{
+					System.out.println("\t [FAILED UNEXPECTED]");
+					System.out.println(TestUtil.buildErrorMessage(tc,false));
+				}
 				Assert.assertTrue("Expected Error:\n" + expectedError
 						+ "\nbut it was not found.", found);
 			}
