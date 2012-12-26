@@ -2401,10 +2401,11 @@ QUOTELITERAL
     ;
 
 CHARLITERAL
-    : '\\\\' | '\\R' | '\\n' | '\\t' | '\\f' | '\\e' | '\\a' | '\\"' | '\\\''
-    | '\\x' HEXDIGIT HEXDIGIT
-    | '\\u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
-    | '\\' OCTDIGIT OCTDIGIT OCTDIGIT
+    : '\'\\\\\'' | '\'\\r\'' | '\'\\n\'' | '\'\\t\'' | '\'\\f\'' | '\'\\e\'' | '\'\\a\'' | '\'\\"' | '\'\\\'\''
+    | '\'\\x' HEXDIGIT HEXDIGIT '\''
+    | '\'\\u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT '\''
+    | '\'\\' OCTDIGIT OCTDIGIT OCTDIGIT '\''
+    | '\'' . '\''
     // | '\\c' character
     ;
 
