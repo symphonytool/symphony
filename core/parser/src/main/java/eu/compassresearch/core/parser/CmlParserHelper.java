@@ -438,17 +438,30 @@ public class CmlParserHelper {
 
     public AActionDefinition caseActionDefinition(Object IDENTIFIER,
 	    Object EQUALS, Object paragraphAction) {
+    	/*
+    	 * Commented out by RWL: cml.g does not use non-static methods 
+    	 * on the CmlParserHelper. Thus this methods is not in use anymore.
+    	 * 
 	Object[] pa = (Object[]) paragraphAction;
 	List<ATypeSingleDeclaration> declarations = (List<ATypeSingleDeclaration>) pa[0];
 	PAction action = (PAction) pa[1];
 	LexLocation defLocation = combineLexLocation(
 		extractLexLocation((CmlLexeme) IDENTIFIER),
 		action.getLocation());
-	return new AActionDefinition(defLocation,
-		extractLexNameToken(IDENTIFIER), NameScope.LOCAL, false, null,
-		getPrivateAccessSpecifier(false, false, defLocation),// Access
-		null, null,// Pass
-		declarations, action);
+	
+	AActionDefinition actionDefinition = new AActionDefinition();
+	actionDefinition.setAccess(getDefaultAccessSpecifier(false, false, defLocation));
+	actionDefinition.setAction(action);
+	actionDefinition.setDeclarations(declarations);
+	
+//	return new AActionDefinition(defLocation,
+//		extractLexNameToken(IDENTIFIER), NameScope.LOCAL, false, null,
+//		getPrivateAccessSpecifier(false, false, defLocation),// Access
+//		null, null,// Pass
+//		declarations, action);
+ 
+ */
+	return null;
     }
 
     public List<ARenamePair> caseARenamePair(Object from, Object to) {
@@ -800,7 +813,10 @@ public class CmlParserHelper {
 
     private ANameChannelExp ConvertPExpToANameChannelExp(Object exp) {
 	ANameChannelExp cn = null;
-
+	/*
+	 * 
+	 * Commented out by RWL: This methods is not in use anymore.
+	 * 
 	// This is a single id channel name
 	if (exp instanceof AVariableExp) {
 	    AVariableExp varExp = (AVariableExp) exp;
@@ -846,7 +862,7 @@ public class CmlParserHelper {
 		    ParserErrorMessage.MALFORMED_CHANNEL_EXPRESSION
 			    .customizeMessage(exp.toString()));
 	}
-
+*/
 	return cn;
     }
 
@@ -948,6 +964,10 @@ public class CmlParserHelper {
 
     public ACommunicationAction caseCommunicationAction(Object exp,
 	    PAction action) {
+    	/*
+    	 * Commented out by RWL: Not used by cml.g
+    	 * 
+    	 
 	List<PCommunicationParameter> communicationParameters = new LinkedList<PCommunicationParameter>();
 	LexLocation location = null;
 	AVariableExp varExp = null;
@@ -982,12 +1002,18 @@ public class CmlParserHelper {
 
 	return new ACommunicationAction(location, varExp.getName()
 		.getIdentifier(), communicationParameters, action);
+		*/
+    	return null;
     }
 
     private <T extends PCommunicationParameter> Pair<AVariableExp, List<PCommunicationParameter>> communicationParamHelper(
 	    Object exp, PPattern pattern, T param) {
 	Pair<AVariableExp, List<PCommunicationParameter>> ret = null;
 
+	/*
+	 * 
+	 * Commented out by RWL: Not used by cml.g
+	 * 
 	// if this is true, then this is the first com. param.
 	if (exp instanceof AVariableExp) {
 	    AVariableExp varExp = (AVariableExp) exp;
@@ -1024,8 +1050,8 @@ public class CmlParserHelper {
 	else
 	    throw new ParserException(((PExp) exp).getLocation(),
 		    "A Communication construct must begin with an identifier");
-
-	return ret;
+	*/
+	return null;
     }
 
     /**

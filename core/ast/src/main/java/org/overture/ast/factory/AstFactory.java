@@ -222,10 +222,11 @@ public class AstFactory {
 			LexLocation location, LexNameToken name, NameScope scope) {
 		result.setPass(values);
 		result.setLocation(location);
-		result.setName(name);
+		result.setName(name == null ? new LexNameToken("", new LexIdentifierToken("",false,location)) : name);
 		result.setNameScope(scope);
 		result.setAccess(PAccessSpecifierAssistant.getDefault());
 		result.setUsed(false);
+		
 	}
 
 	private static void initExpressionUnary(SUnaryExp result,
