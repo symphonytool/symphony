@@ -59,6 +59,7 @@ package eu.compassresearch.core.parser;
 package eu.compassresearch.core.parser;
 
 import java.lang.NumberFormatException;
+import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 // import org.apache.commons.lang3.StringUtils;
@@ -379,39 +380,126 @@ actionSetReplOp
     ;
 
 action0 returns[PAction action]
-    // : action1 (action0Ops action)?
-    : (action1 action0Ops)=>action1 action0Ops action
-        { $action = $action1.action; } // FIXME
+@after { $action.setLocation(extractLexLocation($action0.start, $action0.stop)); }
+    : (action1 action0Ops)=> left=action1 action0Ops right=action
+        {
+            $action = $action0Ops.op;
+            Method setLeft = null;
+            Method setRight = null;
+            for (Method m : $action.getClass().getMethods()) {
+                String mname = m.getName();
+                if (mname.equals("setLeft"))
+                    setLeft = m;
+                else if (mname.equals("setRight")) 
+                    setRight = m;
+                else if (mname.equals("setLeftAction"))
+                    setLeft = m;
+                else if (mname.equals("setRightAction"))
+                    setRight = m;
+            }
+            if (setLeft == null || setRight == null) {
+                System.err.println("Missed a setLeft/Right method name");
+                // FIXME -- This should never happen
+            }
+            try {
+                setLeft.invoke($action, $left.action);
+                setRight.invoke($action, $right.action);
+            } catch (Exception e) {
+                System.err.println("Exception in action0");
+                // FIXME -- This should never happen, and needs a better error :)
+            }
+        }
     | (action1 '[[')=>action1 '[[' renamingExpr ']]'
         { $action = $action1.action; } // FIXME
     | action1
-        { $action = $action1.action; } // FIXME
-    ;
-
-action0Ops
-    : ';'
-    | '[]'
-    | '|~|'
-    | '/\\'
-    | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
-    | '||'
-    | '|||'
-    | '[>'
-    | '[[' expression '>>'
-    | '[' varsetExpr ( '|' varsetExpr )? '||' varsetExpr ( '|' varsetExpr )? ']'
-    | '[|' varsetExpr ( '|' varsetExpr ( '|' varsetExpr )? )? '|]'
-    | '[||' varsetExpr '|' varsetExpr '||]'
-    ;
-
-action1 returns[PAction action]
-    : actionbase
-        ( ('startsby' | 'endsby')=> ('startsby' | 'endsby') expression
-        | ('\\\\')=> '\\\\' varsetExpr
-        )?
-        { $action = $actionbase.action; } // FIXME
+        {
+            $action = $action1.action;
+        }
     ;
 
 // JWC --- DONE MARKER --- All parser rules below here done.
+
+action0Ops returns[PAction op]
+@after { $op.setLocation(extractLexLocation($action0Ops.start, $action0Ops.stop)); }
+    : ';'   { $op = new ASequentialCompositionAction(); }
+    | '[]'  { $op = new AExternalChoiceAction(); }
+    | '|~|' { $op = new AInternalChoiceAction(); }
+    | '||'  { $op = new ASynchronousParallelismParallelAction(); }
+    | '|||' { $op = new AInterleavingParallelAction(); }
+    | '/\\' { $op = new AInterruptAction(); }
+    | '[>'  { $op = new AUntimedTimeoutAction(); }
+    | '//' exp=expression '\\\\'
+        {
+            $op = new ATimedInterruptAction();
+            ((ATimedInterruptAction)$op).setTimeExpression($exp.exp);
+        }
+    | '[[' exp=expression '>>'
+        {
+            $op = new ATimeoutAction();
+            ((ATimeoutAction)$op).setTimeoutExpression($exp.exp);
+        }
+    | ('[' varsetExpr '||')=> '[' ln=varsetExpr '||' rn=varsetExpr ']'
+        {
+            AAlphabetisedParallelismParallelAction appa = new AAlphabetisedParallelismParallelAction();
+            appa.setLeftNamesetExpression($ln.vexp);
+            appa.setRightNamesetExpression($rn.vexp);
+            $op = appa;
+        }
+    | ('[' varsetExpr '|')=>  '[' ln=varsetExpr '|' lc=varsetExpr '||' rc=varsetExpr '|' rn=varsetExpr? ']'
+        {
+            AAlphabetisedParallelismParallelAction appa = new AAlphabetisedParallelismParallelAction();
+            appa.setLeftNamesetExpression($ln.vexp);
+            appa.setLeftChansetExpression($lc.vexp);
+            appa.setRightChansetExpression($rc.vexp);
+            appa.setRightNamesetExpression($rn.vexp);
+            $op = appa;
+        }
+    | '[|' first=varsetExpr ( '|' second=varsetExpr ( '|' third=varsetExpr )? )? '|]'
+        {
+            if ($second.vexp != null && $third.vexp == null) {
+                ASynchronousParallelismParallelAction sppa = new ASynchronousParallelismParallelAction();
+                sppa.setLeftNamesetExpression($first.vexp);
+                sppa.setRightNamesetExpression($second.vexp);
+                $op = sppa;
+            } else {
+                AGeneralisedParallelismParallelAction gppa = new AGeneralisedParallelismParallelAction();
+                gppa.setLeftNamesetExpression($first.vexp);
+                if ($third.vexp != null) {
+                    gppa.setChansetExpression($second.vexp);
+                    gppa.setRightNamesetExpression($third.vexp);
+                }
+                $op = gppa;
+            }
+        }
+    | '[||' left=varsetExpr '|' right=varsetExpr '||]'
+        {
+            AInterleavingParallelAction aipa = new AInterleavingParallelAction();
+            aipa.setLeftNamesetExpression($left.vexp);
+            aipa.setRightNamesetExpression($right.vexp);
+            $op = aipa;
+        }
+    ;
+
+action1 returns[PAction action]
+@after { $action.setLocation(extractLexLocation($action1.start, $action1.stop)); }
+    : actionbase 
+        {
+            $action = $actionbase.action;
+        }
+        ( ('startsby')=> 'startsby' exp=expression
+            {
+                $action = new AStartDeadlineAction(null, $action, $exp.exp);
+            }
+        | ('endsby')=>   'endsby' exp=expression
+            {
+                $action = new AEndDeadlineAction(null, $action, $exp.exp);
+            }
+        | ('\\\\')=>     '\\\\' varsetExpr
+            {
+                $action = new AHidingAction(null, $action, $varsetExpr.vexp);
+            }
+        )?
+    ;
 
 actionbase returns[PAction action]
 @after { $action.setLocation(extractLexLocation($actionbase.start, $actionbase.stop)); }
