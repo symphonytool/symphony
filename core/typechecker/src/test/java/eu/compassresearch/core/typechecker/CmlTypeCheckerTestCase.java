@@ -71,7 +71,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				true, new String[0]); // nat1 literal
 		// 5
 		addTestProgram(testData,
-				"class test = begin values public a:rat = 1/3 end", false,
+				"class test = begin values public a:real = 1/3 end", false,
 				true, true, new String[0]); // rat literal
 		addTestProgram(testData,
 				"class test = begin values public a:real = 22/7 end", false,
