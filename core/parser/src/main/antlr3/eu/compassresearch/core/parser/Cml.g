@@ -236,17 +236,33 @@ process returns[PProcess proc]
         {
             $proc = $proc0.proc;
         }
-    | replOp replicationDeclarationList '@' ( '[' varsetExpr ']' )? repld=process
-        { $proc = $repld.proc; } // FIXME
+    | replOp replicationDeclarationList '@' repld=process
+        {
+            SReplicatedProcess srp = $replOp.op;
+            srp.setReplicationDeclaration($replicationDeclarationList.rdecls);
+            srp.setReplicatedProcess($repld.proc);
+            $proc = srp;
+        }
+    | '||' replicationDeclarationList '@' ( '[' varsetExpr ']' )? repld=process
+        {
+            if ($varsetExpr.vexp != null)
+                $proc = new AAlphabetisedParallelismReplicatedProcess(null, $replicationDeclarationList.rdecls, $repld.proc, $varsetExpr.vexp);
+            else
+                $proc = new ASynchronousParallelismReplicatedProcess(null, $replicationDeclarationList.rdecls, $repld.proc);
+        }
     ;
 
-replOp returns[SReplicatedProcess proc]
-    : '[]'
-    | '|~|'
-    | '||'
-    | '|||'
+replOp returns[SReplicatedProcess op]
+    : ';'       { $op = new ASequentialCompositionReplicatedProcess(); }
+    | '[]'      { $op = new AExternalChoiceReplicatedProcess(); }
+    | '|~|'     { $op = new AInternalChoiceReplicatedProcess(); }
+    | '|||'     { $op = new AInterleavingReplicatedProcess(); }
     | '[|' varsetExpr '|]'
-    | ';'
+        {
+            AGeneralisedParallelismReplicatedProcess gprp = new AGeneralisedParallelismReplicatedProcess();
+            gprp.setChansetExpression($varsetExpr.vexp);
+            $op = gprp;
+        }
     ;
 
 // JWC --- DONE MARKER --- All parser rules below here done.
