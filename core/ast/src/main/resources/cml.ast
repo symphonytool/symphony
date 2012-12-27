@@ -242,7 +242,7 @@ process {-> package='eu.compassresearch.ast.process'}
                 [left]:process
                 [expression]:exp
         | {instantiation}
-                [declarations]:singleDeclaration.type*
+                [parametrisations]:parametrisation*
                 [process]: process
                 [args]:exp*
         | {reference}

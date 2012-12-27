@@ -278,11 +278,14 @@ replOp returns[SReplicatedProcess proc]
 proc2 returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($proc2.start, $proc2.stop)); }
     : proc3
-        ( ('startsby' | 'endsby') expression
+        ( 'startsby' exp=expression
+        | 'endsby' exp=expression
         | '\\\\' varsetExpr
         )?
         { $proc = $proc3.proc; } // FIXME
     ;
+
+// JWC --- DONE MARKER --- All parser rules below here done.
 
 proc3 returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($proc3.start, $proc3.stop)); }
@@ -290,12 +293,26 @@ proc3 returns[PProcess proc]
         {
             $proc = new AActionProcess(null, $actionParagraphOptList.defs, $action.action);
         }
-    // merge of (process) | identifier [({expression})] | (decl@proc)({expression})
-    | ( IDENTIFIER | '(' (parametrisationList '@')? process ')' ) ( '(' expressionList? ')'  )?
-        { $proc = new AActionProcess(); } // FIXME
+    | '(' parametrisationList '@' process ')' '(' expressionList? ')'
+        {
+            // JWC --- I have the feeling that this structure isn't
+            // right.  Why on earth does a *process* have state
+            // variables?  Still, they are properly parametrisations,
+            // but only 'val', I think.
+            $proc = new AInstantiationProcess(null, $parametrisationList.params, $process.proc, $expressionList.exps);
+        }
+    | IDENTIFIER ( '(' expressionList? ')' )?
+        {
+            // FIXME? ->(RWL,AKM) cml.y wraps the AReferenceProcess in
+            // an AInstantiatedProcess if there are arguments.  So,
+            // why does AReferenceProcess have a list of arguments?
+            $proc = new AReferenceProcess(null, new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)), $expressionList.exps);
+        }
+    | '(' process ')'
+        {
+            $proc = $process.proc;
+        }
     ;
-
-// JWC --- DONE MARKER --- All parser rules below here done.
 
 parametrisationList returns[List<PParametrisation> params]
 @init { $params = new ArrayList<PParametrisation>(); }
