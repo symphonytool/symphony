@@ -403,18 +403,63 @@ action returns[PAction action]
         { $action = new AGuardedAction(); } // FIXME
     | 'mu' IDENTIFIER (',' IDENTIFIER)* '@' '(' action (',' action)* ')'
         { $action = new AMuAction(); } // FIXME
-    | actionSimpleReplOp replicationDeclaration '@' action
-        { $action = new ASequentialCompositionReplicatedAction(); } // FIXME
-    | actionSetReplOp replicationDeclaration '@' '[' varsetExpr ( '|' varsetExpr )? ']' action
-        { $action = new ASequentialCompositionReplicatedAction(); } // FIXME
+    | actionSimpleReplOp replicationDeclaration '@' repld=action
+        {
+            SReplicatedAction sra = $actionSimpleReplOp.op;
+            // sra.setReplicationDeclaration();
+            sra.setReplicatedAction($repld.action);
+            $action = sra;
+        }
+    | actionSetReplOp replicationDeclaration '@' '[' varsetExpr ']' repld=action
+        {
+            SReplicatedAction sra = $actionSetReplOp.op;
+            // sra.setReplicationDeclaration();
+            sra.setReplicatedAction($repld.action);
+            if (sra instanceof AInterleavingReplicatedAction)
+                ((AInterleavingReplicatedAction)sra).setNamesetExpression($varsetExpr.vexp);
+            else if (sra instanceof AGeneralisedParallelismReplicatedAction)
+                ((AGeneralisedParallelismReplicatedAction)sra).setNamesetExpression($varsetExpr.vexp);
+            else
+                System.err.println("FIXME --- log a never-happens as we just got a class that shouldn't be possible");
+            $action = sra;
+        }
+    | '||' replicationDeclaration '@' '[' ns=varsetExpr ( '|' cs=varsetExpr )? ']' repld=action
+        {
+            if ($cs.vexp != null) {
+                AAlphabetisedParallelismReplicatedAction raction = new AAlphabetisedParallelismReplicatedAction();
+                //raction.setReplicationDeclaration();
+                raction.setNamesetExpression($ns.vexp);
+                raction.setChansetExpression($cs.vexp);
+                raction.setReplicatedAction($repld.action);
+                $action = raction;
+            } else {
+                ASynchronousParallelismReplicatedAction raction = new ASynchronousParallelismReplicatedAction();
+                //raction.setReplicationDeclaration();
+                raction.setNamesetExpression($ns.vexp);
+                raction.setReplicatedAction($repld.action);
+                $action = raction;
+            }
+        }
     ;
 
-actionSimpleReplOp
-    : ';' | '[]' | '|~|' | '[||' varsetExpr '||]'
+actionSimpleReplOp returns[SReplicatedAction op]
+    : ';'       { $op = new ASequentialCompositionReplicatedAction(); }
+    | '[]'      { $op = new AExternalChoiceReplicatedAction(); }
+    | '|~|'     { $op = new AInternalChoiceReplicatedAction(); }
+    | '[||' varsetExpr '||]'
+        {
+            $op = new ACommonInterleavingReplicatedAction();
+            ((ACommonInterleavingReplicatedAction)$op).setNamesetExpression($varsetExpr.vexp);
+        }        
     ;
 
-actionSetReplOp
-    : '||' | '|||' | '[|' varsetExpr '|]'
+actionSetReplOp returns[SReplicatedAction op]
+    : '|||'     { $op = new AInterleavingReplicatedAction(); }
+    | '[|' varsetExpr '|]'
+        {
+            $op = new AGeneralisedParallelismReplicatedAction();
+            ((AGeneralisedParallelismReplicatedAction)$op).setChansetExpression($varsetExpr.vexp);
+        }
     ;
 
 // JWC --- DONE MARKER --- All parser rules below here done.
