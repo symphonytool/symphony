@@ -230,16 +230,23 @@ processDefinition returns[AProcessDefinition def]
         }
     ;
 
-process
+process returns[PProcess proc]
+@after { $proc.setLocation(extractLexLocation($process.start, $process.stop)); }
     : proc0
-    | replOp replicationDeclarationList '@' ( '[' varsetExpr ']' )? process
+        {
+            $proc = $proc0.proc;
+        }
+    | replOp replicationDeclarationList '@' ( '[' varsetExpr ']' )? repld=process
+        { $proc = $repld.proc; } // FIXME
     ;
 
-proc0
+proc0 returns[PProcess proc]
+@after { $proc.setLocation(extractLexLocation($proc0.start, $proc0.stop)); }
     : proc1 (proc0Ops process)?
+        { $proc = $proc1.proc; } // FIXME
     ;
 
-proc0Ops
+proc0Ops returns[PProcess proc]
     : ';'
     | '[]'
     | '|~|'
@@ -253,11 +260,13 @@ proc0Ops
     | '[|' varsetExpr '|]'
     ;
 
-proc1
+proc1 returns[PProcess proc]
+@after { $proc.setLocation(extractLexLocation($proc1.start, $proc1.stop)); }
     : proc2 renamingExpr?
+        { $proc = $proc2.proc; } // FIXME
     ;
 
-replOp
+replOp returns[SReplicatedProcess proc]
     : '[]'
     | '|~|'
     | '||'
@@ -266,17 +275,24 @@ replOp
     | ';'
     ;
 
-proc2
+proc2 returns[PProcess proc]
+@after { $proc.setLocation(extractLexLocation($proc2.start, $proc2.stop)); }
     : proc3
         ( ('startsby' | 'endsby') expression
         | '\\\\' varsetExpr
         )?
+        { $proc = $proc3.proc; } // FIXME
     ;
 
-proc3
-    : 'begin' processParagraph* '@' action 'end'
+proc3 returns[PProcess proc]
+@after { $proc.setLocation(extractLexLocation($proc3.start, $proc3.stop)); }
+    : 'begin' actionParagraphOptList '@' action 'end'
+        {
+            $proc = new AActionProcess(null, $actionParagraphOptList.defs, $action.action);
+        }
     // merge of (process) | identifier [({expression})] | (decl@proc)({expression})
-    | ( IDENTIFIER | '(' (parametrisationList '@')? process ')' ) ( '(' ( expression ( ',' expression )* )? ')'  )?
+    | ( IDENTIFIER | '(' (parametrisationList '@')? process ')' ) ( '(' expressionList? ')'  )?
+        { $proc = new AActionProcess(); } // FIXME
     ;
 
 // JWC --- DONE MARKER --- All parser rules below here done.
@@ -366,7 +382,12 @@ renamePair returns[ARenamePair pair]
         }
     ;
 
-processParagraph returns[PDefinition defs]
+actionParagraphOptList returns[List<PDefinition> defs]
+@init { $defs = new ArrayList<PDefinition>(); }
+    : ( actionParagraph { $defs.add($actionParagraph.defs); } )*
+    ;
+
+actionParagraph returns[PDefinition defs]
     : typeDefs          { $defs = $typeDefs.defs; }
     | valueDefs         { $defs = $valueDefs.defs; }
     | stateDefs         { $defs = $stateDefs.defs; }
