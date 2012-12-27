@@ -254,7 +254,7 @@ proc0Ops
     ;
 
 proc1
-    : proc2 ('[[' renamingExpr ']]')?
+    : proc2 renamingExpr?
     ;
 
 replOp
