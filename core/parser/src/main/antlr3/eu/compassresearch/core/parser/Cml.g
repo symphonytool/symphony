@@ -249,24 +249,73 @@ replOp returns[SReplicatedProcess proc]
     | ';'
     ;
 
+// JWC --- DONE MARKER --- All parser rules below here done.
+
 proc0 returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($proc0.start, $proc0.stop)); }
     : proc1 (proc0Ops process)?
-        { $proc = $proc1.proc; } // FIXME
+        {
+            $proc = $proc1.proc;
+            if ($proc0Ops.op != null) {
+                PProcess op = $proc0Ops.op;
+                Method setLeft = null;
+                Method setRight = null;
+                for (Method m : op.getClass().getMethods()) {
+                    String mname = m.getName();
+                    if (mname.equals("setLeft"))
+                        setLeft = m;
+                    else if (mname.equals("setRight")) 
+                        setRight = m;
+                }
+                if (setLeft == null || setRight == null) {
+                    System.err.println("Missed a setLeft/Right method name in proc0");
+                    // FIXME -- This should never happen
+                }
+                try {
+                    setLeft.invoke(op, $proc);
+                    setRight.invoke(op, $process.proc);
+                } catch (Exception e) {
+                    System.err.println("Exception in proc0");
+                    // FIXME -- This should never happen, and needs a better error :)
+                }
+                $proc = op;
+            }
+        }
     ;
 
-proc0Ops returns[PProcess proc]
-    : ';'
-    | '[]'
-    | '|~|'
-    | '||'
-    | '|||'
-    | '/\\'
+proc0Ops returns[PProcess op]
+    : ';'       { $op = new ASequentialCompositionProcess(); }
+    | '[]'      { $op = new AExternalChoiceProcess(); }
+    | '|~|'     { $op = new AInternalChoiceProcess(); }
+    | '||'      { $op = new ASynchronousParallelismProcess(); }
+    | '|||'     { $op = new AInterleavingProcess(); }
+    | '/\\'     { $op = new AInterruptProcess(); }
+    | '[>'      { $op = new AUntimedTimeoutProcess(); }
     | '//' expression '\\\\'
-    | '[>'
+        {
+            ATimedInterruptProcess atip = new ATimedInterruptProcess();
+            atip.setTimeExpression($expression.exp);
+            $op = atip;
+        }
     | '[(' expression ')>'
-    | '[' varsetExpr '||' varsetExpr ']'
+        {
+            ATimeoutProcess atp = new ATimeoutProcess();
+            atp.setTimeoutExpression($expression.exp);
+            $op=atp;
+        }
+    | '[' lcs=varsetExpr '||' rcs=varsetExpr ']'
+        {
+            AAlphabetisedParallelismProcess app = new AAlphabetisedParallelismProcess();
+            app.setLeftChansetExpression($lcs.vexp);
+            app.setRightChansetExpression($rcs.vexp);
+            $op = app;
+        }
     | '[|' varsetExpr '|]'
+        {
+            AGeneralisedParallelismProcess gpp = new AGeneralisedParallelismProcess();
+            gpp.setChansetExpression($varsetExpr.vexp);
+            $op = gpp;
+        }
     ;
 
 proc1 returns[PProcess proc]
@@ -279,8 +328,6 @@ proc1 returns[PProcess proc]
                 $proc = $proc2.proc;
         }
     ;
-
-// JWC --- DONE MARKER --- All parser rules below here done.
 
 proc2 returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($proc2.start, $proc2.stop)); }
