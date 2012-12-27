@@ -130,7 +130,7 @@ exp {-> package='eu.compassresearch.ast.expressions'}
 #Channel  {-> package='eu.compassresearch.ast.expressions'}
         = #Rename
         | {name}        [identifier]:LexNameToken
-                                [dottedPatternList]:pattern* //This use to be expressions!
+                        [expression]:exp //This was expressions, then patterns, and is now an expression again
         ;
 
 #Rename   {-> package='eu.compassresearch.ast.expressions'}
@@ -503,3 +503,4 @@ Aspect Declaration
 
 %source = [paragraphs]: definition*
         ;
+

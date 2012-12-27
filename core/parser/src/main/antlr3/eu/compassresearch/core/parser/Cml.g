@@ -240,17 +240,17 @@ proc0
     ;
 
 proc0Ops
-    : '[]'
+    : ';'
+    | '[]'
     | '|~|'
     | '||'
     | '|||'
     | '/\\'
-    | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
+    | '//' expression '\\\\'
     | '[>'
-    | '[[' expression '>>'
+    | '[(' expression ')>'
     | '[' varsetExpr '||' varsetExpr ']'
     | '[|' varsetExpr '|]'
-    | ';'
     ;
 
 proc1
@@ -310,14 +310,52 @@ replicationDecl
     : IDENTIFIER ( ',' IDENTIFIER )* ( ':' type | 'in' 'set' expression )  // FIXME -- looks like multiTypeBind | multiSetBind
     ;
 
-renamingExpr
-    : renamePair ( ( ',' renamePair )+ | '|' multipleBindList ('@' expression)? )?
+renamingExpr returns[SRenameChannelExp rexp]
+@after { $rexp.setLocation(extractLexLocation($renamingExpr.start, $renamingExpr.stop)); }
+    : '[[' renamePair
+        ( ',' renamePairList
+            {
+                List<ARenamePair> pairs = $renamePairList.pairs;
+                pairs.add(0,$renamePair.pair);
+                $rexp = new AEnumerationRenameChannelExp(null, pairs);
+            }
+        | setMapExprBinding
+            {
+                $rexp = new AComprehensionRenameChannelExp(null, $renamePair.pair, $setMapExprBinding.bindings, $setMapExprBinding.pred);
+            }
+        )?
+        ']]'
+        {
+            if ($rexp == null) {
+                List<ARenamePair> pairs = new ArrayList<ARenamePair>();
+                pairs.add($renamePair.pair);
+                $rexp = new AEnumerationRenameChannelExp(null, pairs);
+            }
+        }
+    ;
+
+renamePairList returns[List<ARenamePair> pairs]
+@init { $pairs = new ArrayList<ARenamePair>(); }
+    : item=renamePair { $pairs.add($item.pair); } ( ',' item=renamePair { $pairs.add($item.pair); } )*
     ;
 
 // just expression is too broad; need to restrict it a bit
-renamePair
-    : IDENTIFIER ( '.' (IDENTIFIER | '(' expression ')' | symbolicLiteral ) )*
-        '<-' IDENTIFIER ( '.' (IDENTIFIER | '(' expression ')' | symbolicLiteral ) )*
+renamePair returns[ARenamePair pair]
+    : fid=IDENTIFIER ( '.' fexp=expression )? '<-' tid=IDENTIFIER ( '.' texp=expression )?
+        {
+            // FIXME --- We really ought take #Channel out of the exp tree in the AST
+            LexLocation floc = extractLexLocation($fid);
+            ANameChannelExp fromExp = new ANameChannelExp(floc, new LexNameToken("", $fid.getText(), floc), $fexp.exp);
+            if ($fexp.exp != null)
+                fromExp.setLocation(extractLexLocation($fid,$fexp.stop));
+
+            LexLocation tloc = extractLexLocation($tid);
+            ANameChannelExp toExp = new ANameChannelExp(tloc, new LexNameToken("", $tid.getText(), tloc), $texp.exp);
+            if ($texp.exp != null)
+                toExp.setLocation(extractLexLocation($tid,$texp.stop));
+
+            $pair = new ARenamePair(false, fromExp, toExp);
+        }
     ;
 
 processParagraph returns[PDefinition defs]
@@ -379,6 +417,8 @@ actionSetReplOp
     : '||' | '|||' | '[|' varsetExpr '|]'
     ;
 
+// JWC --- DONE MARKER --- All parser rules below here done.
+
 action0 returns[PAction action]
 @after { $action.setLocation(extractLexLocation($action0.start, $action0.stop)); }
     : (action1 action0Ops)=> left=action1 action0Ops right=action
@@ -409,15 +449,15 @@ action0 returns[PAction action]
                 // FIXME -- This should never happen, and needs a better error :)
             }
         }
-    | (action1 '[[')=>action1 '[[' renamingExpr ']]'
-        { $action = $action1.action; } // FIXME
+    | (action1 '[[')=> action1 renamingExpr
+        {
+            $action = new AChannelRenamingAction(null, $action1.action, $renamingExpr.rexp);
+        }
     | action1
         {
             $action = $action1.action;
         }
     ;
-
-// JWC --- DONE MARKER --- All parser rules below here done.
 
 action0Ops returns[PAction op]
 @after { $op.setLocation(extractLexLocation($action0Ops.start, $action0Ops.stop)); }
@@ -433,7 +473,7 @@ action0Ops returns[PAction op]
             $op = new ATimedInterruptAction();
             ((ATimedInterruptAction)$op).setTimeExpression($exp.exp);
         }
-    | '[[' exp=expression '>>'
+    | '[(' exp=expression ')>'
         {
             $op = new ATimeoutAction();
             ((ATimeoutAction)$op).setTimeoutExpression($exp.exp);
