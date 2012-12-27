@@ -232,7 +232,7 @@ processDefinition returns[AProcessDefinition def]
 
 process
     : proc0
-    | replOp replicationDeclaration '@' ( '[' varsetExpr ']' )? process
+    | replOp replicationDeclarationList '@' ( '[' varsetExpr ']' )? process
     ;
 
 proc0
@@ -279,6 +279,8 @@ proc3
     | ( IDENTIFIER | '(' (parametrisationList '@')? process ')' ) ( '(' ( expression ( ',' expression )* )? ')'  )?
     ;
 
+// JWC --- DONE MARKER --- All parser rules below here done.
+
 parametrisationList returns[List<PParametrisation> params]
 @init { $params = new ArrayList<PParametrisation>(); }
     : item=parametrisation { $params.add($item.param); } ( ';' item=parametrisation { $params.add($item.param); } )*
@@ -302,12 +304,19 @@ parametrisation returns[PParametrisation param]
         }
     ;
 
-replicationDeclaration
-    : replicationDecl (';' replicationDecl)*
+replicationDeclarationList returns[List<PSingleDeclaration> rdecls]
+@init { $rdecls = new ArrayList<PSingleDeclaration>(); }
+    : item=replicationDeclaration { $rdecls.add($item.rdecl); } ( ';' item=replicationDeclaration { $rdecls.add($item.rdecl); } )*
     ;
 
-replicationDecl
-    : IDENTIFIER ( ',' IDENTIFIER )* ( ':' type | 'in' 'set' expression )  // FIXME -- looks like multiTypeBind | multiSetBind
+replicationDeclaration returns[PSingleDeclaration rdecl]
+    : identifierList ( ':' type | 'in' 'set' expression )
+        {
+            if ($type.type != null)
+                $rdecl = new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $type.type);
+            else
+                $rdecl = new AExpressionSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $expression.exp);
+        }
     ;
 
 renamingExpr returns[SRenameChannelExp rexp]
@@ -339,7 +348,6 @@ renamePairList returns[List<ARenamePair> pairs]
     : item=renamePair { $pairs.add($item.pair); } ( ',' item=renamePair { $pairs.add($item.pair); } )*
     ;
 
-// just expression is too broad; need to restrict it a bit
 renamePair returns[ARenamePair pair]
     : fid=IDENTIFIER ( '.' fexp=expression )? '<-' tid=IDENTIFIER ( '.' texp=expression )?
         {
@@ -413,17 +421,17 @@ action returns[PAction action]
         {
             $action = new AMuAction(null, $identifierList.ids, $actionList.actions);
         }
-    | actionSimpleReplOp replicationDeclaration '@' repld=action
+    | actionSimpleReplOp replicationDeclarationList '@' repld=action
         {
             SReplicatedAction sra = $actionSimpleReplOp.op;
-            // sra.setReplicationDeclaration();
+            sra.setReplicationDeclaration($replicationDeclarationList.rdecls);
             sra.setReplicatedAction($repld.action);
             $action = sra;
         }
-    | actionSetReplOp replicationDeclaration '@' '[' varsetExpr ']' repld=action
+    | actionSetReplOp replicationDeclarationList '@' '[' varsetExpr ']' repld=action
         {
             SReplicatedAction sra = $actionSetReplOp.op;
-            // sra.setReplicationDeclaration();
+            sra.setReplicationDeclaration($replicationDeclarationList.rdecls);
             sra.setReplicatedAction($repld.action);
             if (sra instanceof AInterleavingReplicatedAction)
                 ((AInterleavingReplicatedAction)sra).setNamesetExpression($varsetExpr.vexp);
@@ -433,18 +441,18 @@ action returns[PAction action]
                 System.err.println("FIXME --- log a never-happens as we just got a class that shouldn't be possible");
             $action = sra;
         }
-    | '||' replicationDeclaration '@' '[' ns=varsetExpr ( '|' cs=varsetExpr )? ']' repld=action
+    | '||' replicationDeclarationList '@' '[' ns=varsetExpr ( '|' cs=varsetExpr )? ']' repld=action
         {
             if ($cs.vexp != null) {
                 AAlphabetisedParallelismReplicatedAction raction = new AAlphabetisedParallelismReplicatedAction();
-                //raction.setReplicationDeclaration();
+                raction.setReplicationDeclaration($replicationDeclarationList.rdecls);
                 raction.setNamesetExpression($ns.vexp);
                 raction.setChansetExpression($cs.vexp);
                 raction.setReplicatedAction($repld.action);
                 $action = raction;
             } else {
                 ASynchronousParallelismReplicatedAction raction = new ASynchronousParallelismReplicatedAction();
-                //raction.setReplicationDeclaration();
+                raction.setReplicationDeclaration($replicationDeclarationList.rdecls);
                 raction.setNamesetExpression($ns.vexp);
                 raction.setReplicatedAction($repld.action);
                 $action = raction;
@@ -471,8 +479,6 @@ actionSetReplOp returns[SReplicatedAction op]
             ((AGeneralisedParallelismReplicatedAction)$op).setChansetExpression($varsetExpr.vexp);
         }
     ;
-
-// JWC --- DONE MARKER --- All parser rules below here done.
 
 action0 returns[PAction action]
 @after { $action.setLocation(extractLexLocation($action0.start, $action0.stop)); }
@@ -923,10 +929,7 @@ channelDef returns[AChannelNameDefinition def]
             //$def.setName(??); // not sure if this needs set; one cml.y case has an empty LexNameToken, the other uses the first element of the identifierList
             $def.setNameScope(NameScope.GLOBAL);
             $def.setUsed(false);
-            if ($type.type == null)
-                $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, null));
-            else
-                $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $type.type));
+            $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, null));
         }
     ;
 
