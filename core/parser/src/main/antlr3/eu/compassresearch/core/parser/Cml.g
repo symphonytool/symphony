@@ -394,15 +394,25 @@ actionDef returns[AActionDefinition def]
         }
     ;
 
+actionList returns[List<PAction> actions]
+@init { $actions = new ArrayList<PAction>(); }
+    : item=action { $actions.add($item.action); } ( ',' item=action { $actions.add($item.action); } )*
+    ;
+
 action returns[PAction action]
+@after { $action.setLocation(extractLexLocation($action.start, $action.stop)); }
     : action0  
         {
             $action = $action0.action;
         }
-    | '[' expression ']' '&' action
-        { $action = new AGuardedAction(); } // FIXME
-    | 'mu' IDENTIFIER (',' IDENTIFIER)* '@' '(' action (',' action)* ')'
-        { $action = new AMuAction(); } // FIXME
+    | '[' expression ']' '&' guarded=action
+        {
+            $action = new AGuardedAction(null, $expression.exp, $guarded.action);
+        }
+    | 'mu' identifierList '@' '(' actionList ')'
+        {
+            $action = new AMuAction(null, $identifierList.ids, $actionList.actions);
+        }
     | actionSimpleReplOp replicationDeclaration '@' repld=action
         {
             SReplicatedAction sra = $actionSimpleReplOp.op;
