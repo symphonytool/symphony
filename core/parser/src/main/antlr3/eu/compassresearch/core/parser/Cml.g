@@ -240,6 +240,15 @@ process returns[PProcess proc]
         { $proc = $repld.proc; } // FIXME
     ;
 
+replOp returns[SReplicatedProcess proc]
+    : '[]'
+    | '|~|'
+    | '||'
+    | '|||'
+    | '[|' varsetExpr '|]'
+    | ';'
+    ;
+
 proc0 returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($proc0.start, $proc0.stop)); }
     : proc1 (proc0Ops process)?
@@ -263,29 +272,35 @@ proc0Ops returns[PProcess proc]
 proc1 returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($proc1.start, $proc1.stop)); }
     : proc2 renamingExpr?
-        { $proc = $proc2.proc; } // FIXME
+        {
+            if ($renamingExpr.rexp != null)
+                $proc = new AChannelRenamingProcess(null, $proc2.proc, $renamingExpr.rexp);
+            else
+                $proc = $proc2.proc;
+        }
     ;
 
-replOp returns[SReplicatedProcess proc]
-    : '[]'
-    | '|~|'
-    | '||'
-    | '|||'
-    | '[|' varsetExpr '|]'
-    | ';'
-    ;
+// JWC --- DONE MARKER --- All parser rules below here done.
 
 proc2 returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($proc2.start, $proc2.stop)); }
     : proc3
+        { $proc = $proc3.proc; }
         ( 'startsby' exp=expression
+            {
+                $proc = new AStartDeadlineProcess(null, $proc, $exp.exp);
+            }
         | 'endsby' exp=expression
+            {
+                $proc = new AEndDeadlineProcess(null, $proc, $exp.exp);
+            }
         | '\\\\' varsetExpr
+            {
+                $proc = new AHidingProcess(null, $proc, $varsetExpr.vexp);
+            }
         )?
-        { $proc = $proc3.proc; } // FIXME
+        
     ;
-
-// JWC --- DONE MARKER --- All parser rules below here done.
 
 proc3 returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($proc3.start, $proc3.stop)); }
