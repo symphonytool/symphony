@@ -130,7 +130,7 @@ exp {-> package='eu.compassresearch.ast.expressions'}
 #Channel  {-> package='eu.compassresearch.ast.expressions'}
         = #Rename
         | {name}        [identifier]:LexNameToken
-                                [dottedPatternList]:pattern* //This use to be expressions!
+                        [expression]:exp //This was expressions, then patterns, and is now an expression again
         ;
 
 #Rename   {-> package='eu.compassresearch.ast.expressions'}
@@ -242,7 +242,7 @@ process {-> package='eu.compassresearch.ast.process'}
                 [left]:process
                 [expression]:exp
         | {instantiation}
-                [declarations]:singleDeclaration.type*
+                [parametrisations]:parametrisation*
                 [process]: process
                 [args]:exp*
         | {reference}
@@ -351,6 +351,8 @@ action {-> package='eu.compassresearch.ast.actions'}
         = {sequentialComposition}
         | {externalChoice}
         | {internalChoice}
+        | {commonInterleaving}
+                [namesetExpression]:VarsetExpression
         | {interleaving}
                 [namesetExpression]:VarsetExpression
         | {generalisedParallelism}
@@ -503,3 +505,4 @@ Aspect Declaration
 
 %source = [paragraphs]: definition*
         ;
+

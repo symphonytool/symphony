@@ -12,7 +12,7 @@ public class CmlParserRig {
 
 	// parser.exprbase();
 	// try {
-	    parser.source();
+	    Object o = parser.source();
 	    // System.out.println(parser.exprbase());
 	// } catch(Exception e) {
 	//     System.out.println("Exception from parse attempt");

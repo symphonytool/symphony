@@ -59,6 +59,7 @@ package eu.compassresearch.core.parser;
 package eu.compassresearch.core.parser;
 
 import java.lang.NumberFormatException;
+import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 // import org.apache.commons.lang3.StringUtils;
@@ -229,53 +230,164 @@ processDefinition returns[AProcessDefinition def]
         }
     ;
 
-process
+process returns[PProcess proc]
+@after { $proc.setLocation(extractLexLocation($process.start, $process.stop)); }
     : proc0
-    | replOp replicationDeclaration '@' ( '[' varsetExpr ']' )? process
+        {
+            $proc = $proc0.proc;
+        }
+    | replOp replicationDeclarationList '@' repld=process
+        {
+            SReplicatedProcess srp = $replOp.op;
+            srp.setReplicationDeclaration($replicationDeclarationList.rdecls);
+            srp.setReplicatedProcess($repld.proc);
+            $proc = srp;
+        }
+    | '||' replicationDeclarationList '@' ( '[' varsetExpr ']' )? repld=process
+        {
+            if ($varsetExpr.vexp != null)
+                $proc = new AAlphabetisedParallelismReplicatedProcess(null, $replicationDeclarationList.rdecls, $repld.proc, $varsetExpr.vexp);
+            else
+                $proc = new ASynchronousParallelismReplicatedProcess(null, $replicationDeclarationList.rdecls, $repld.proc);
+        }
     ;
 
-proc0
+replOp returns[SReplicatedProcess op]
+    : ';'       { $op = new ASequentialCompositionReplicatedProcess(); }
+    | '[]'      { $op = new AExternalChoiceReplicatedProcess(); }
+    | '|~|'     { $op = new AInternalChoiceReplicatedProcess(); }
+    | '|||'     { $op = new AInterleavingReplicatedProcess(); }
+    | '[|' varsetExpr '|]'
+        {
+            AGeneralisedParallelismReplicatedProcess gprp = new AGeneralisedParallelismReplicatedProcess();
+            gprp.setChansetExpression($varsetExpr.vexp);
+            $op = gprp;
+        }
+    ;
+
+proc0 returns[PProcess proc]
+@after { $proc.setLocation(extractLexLocation($proc0.start, $proc0.stop)); }
     : proc1 (proc0Ops process)?
+        {
+            $proc = $proc1.proc;
+            if ($proc0Ops.op != null) {
+                PProcess op = $proc0Ops.op;
+                Method setLeft = null;
+                Method setRight = null;
+                for (Method m : op.getClass().getMethods()) {
+                    String mname = m.getName();
+                    if (mname.equals("setLeft"))
+                        setLeft = m;
+                    else if (mname.equals("setRight")) 
+                        setRight = m;
+                }
+                if (setLeft == null || setRight == null) {
+                    System.err.println("Missed a setLeft/Right method name in proc0");
+                    // FIXME -- This should never happen
+                }
+                try {
+                    setLeft.invoke(op, $proc);
+                    setRight.invoke(op, $process.proc);
+                } catch (Exception e) {
+                    System.err.println("Exception in proc0");
+                    // FIXME -- This should never happen, and needs a better error :)
+                }
+                $proc = op;
+            }
+        }
     ;
 
-proc0Ops
-    : '[]'
-    | '|~|'
-    | '||'
-    | '|||'
-    | '/\\'
-    | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
-    | '[>'
-    | '[[' expression '>>'
-    | '[' varsetExpr '||' varsetExpr ']'
+proc0Ops returns[PProcess op]
+    : ';'       { $op = new ASequentialCompositionProcess(); }
+    | '[]'      { $op = new AExternalChoiceProcess(); }
+    | '|~|'     { $op = new AInternalChoiceProcess(); }
+    | '||'      { $op = new ASynchronousParallelismProcess(); }
+    | '|||'     { $op = new AInterleavingProcess(); }
+    | '/\\'     { $op = new AInterruptProcess(); }
+    | '[>'      { $op = new AUntimedTimeoutProcess(); }
+    | '//' expression '\\\\'
+        {
+            ATimedInterruptProcess atip = new ATimedInterruptProcess();
+            atip.setTimeExpression($expression.exp);
+            $op = atip;
+        }
+    | '[(' expression ')>'
+        {
+            ATimeoutProcess atp = new ATimeoutProcess();
+            atp.setTimeoutExpression($expression.exp);
+            $op=atp;
+        }
+    | '[' lcs=varsetExpr '||' rcs=varsetExpr ']'
+        {
+            AAlphabetisedParallelismProcess app = new AAlphabetisedParallelismProcess();
+            app.setLeftChansetExpression($lcs.vexp);
+            app.setRightChansetExpression($rcs.vexp);
+            $op = app;
+        }
     | '[|' varsetExpr '|]'
-    | ';'
+        {
+            AGeneralisedParallelismProcess gpp = new AGeneralisedParallelismProcess();
+            gpp.setChansetExpression($varsetExpr.vexp);
+            $op = gpp;
+        }
     ;
 
-proc1
-    : proc2 ('[[' renamingExpr ']]')?
+proc1 returns[PProcess proc]
+@after { $proc.setLocation(extractLexLocation($proc1.start, $proc1.stop)); }
+    : proc2 renamingExpr?
+        {
+            if ($renamingExpr.rexp != null)
+                $proc = new AChannelRenamingProcess(null, $proc2.proc, $renamingExpr.rexp);
+            else
+                $proc = $proc2.proc;
+        }
     ;
 
-replOp
-    : '[]'
-    | '|~|'
-    | '||'
-    | '|||'
-    | '[|' varsetExpr '|]'
-    | ';'
-    ;
-
-proc2
+proc2 returns[PProcess proc]
+@after { $proc.setLocation(extractLexLocation($proc2.start, $proc2.stop)); }
     : proc3
-        ( ('startsby' | 'endsby') expression
+        { $proc = $proc3.proc; }
+        ( 'startsby' exp=expression
+            {
+                $proc = new AStartDeadlineProcess(null, $proc, $exp.exp);
+            }
+        | 'endsby' exp=expression
+            {
+                $proc = new AEndDeadlineProcess(null, $proc, $exp.exp);
+            }
         | '\\\\' varsetExpr
+            {
+                $proc = new AHidingProcess(null, $proc, $varsetExpr.vexp);
+            }
         )?
+        
     ;
 
-proc3
-    : 'begin' processParagraph* '@' action 'end'
-    // merge of (process) | identifier [({expression})] | (decl@proc)({expression})
-    | ( IDENTIFIER | '(' (parametrisationList '@')? process ')' ) ( '(' ( expression ( ',' expression )* )? ')'  )?
+proc3 returns[PProcess proc]
+@after { $proc.setLocation(extractLexLocation($proc3.start, $proc3.stop)); }
+    : 'begin' actionParagraphOptList '@' action 'end'
+        {
+            $proc = new AActionProcess(null, $actionParagraphOptList.defs, $action.action);
+        }
+    | '(' parametrisationList '@' process ')' '(' expressionList? ')'
+        {
+            // JWC --- I have the feeling that this structure isn't
+            // right.  Why on earth does a *process* have state
+            // variables?  Still, they are properly parametrisations,
+            // but only 'val', I think.
+            $proc = new AInstantiationProcess(null, $parametrisationList.params, $process.proc, $expressionList.exps);
+        }
+    | IDENTIFIER ( '(' expressionList? ')' )?
+        {
+            // FIXME? ->(RWL,AKM) cml.y wraps the AReferenceProcess in
+            // an AInstantiatedProcess if there are arguments.  So,
+            // why does AReferenceProcess have a list of arguments?
+            $proc = new AReferenceProcess(null, new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)), $expressionList.exps);
+        }
+    | '(' process ')'
+        {
+            $proc = $process.proc;
+        }
     ;
 
 parametrisationList returns[List<PParametrisation> params]
@@ -301,25 +413,74 @@ parametrisation returns[PParametrisation param]
         }
     ;
 
-replicationDeclaration
-    : replicationDecl (';' replicationDecl)*
+replicationDeclarationList returns[List<PSingleDeclaration> rdecls]
+@init { $rdecls = new ArrayList<PSingleDeclaration>(); }
+    : item=replicationDeclaration { $rdecls.add($item.rdecl); } ( ';' item=replicationDeclaration { $rdecls.add($item.rdecl); } )*
     ;
 
-replicationDecl
-    : IDENTIFIER ( ',' IDENTIFIER )* ( ':' type | 'in' 'set' expression )  // FIXME -- looks like multiTypeBind | multiSetBind
+replicationDeclaration returns[PSingleDeclaration rdecl]
+    : identifierList ( ':' type | 'in' 'set' expression )
+        {
+            if ($type.type != null)
+                $rdecl = new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $type.type);
+            else
+                $rdecl = new AExpressionSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $expression.exp);
+        }
     ;
 
-renamingExpr
-    : renamePair ( ( ',' renamePair )+ | '|' multipleBindList ('@' expression)? )?
+renamingExpr returns[SRenameChannelExp rexp]
+@after { $rexp.setLocation(extractLexLocation($renamingExpr.start, $renamingExpr.stop)); }
+    : '[[' renamePair
+        ( ',' renamePairList
+            {
+                List<ARenamePair> pairs = $renamePairList.pairs;
+                pairs.add(0,$renamePair.pair);
+                $rexp = new AEnumerationRenameChannelExp(null, pairs);
+            }
+        | setMapExprBinding
+            {
+                $rexp = new AComprehensionRenameChannelExp(null, $renamePair.pair, $setMapExprBinding.bindings, $setMapExprBinding.pred);
+            }
+        )?
+        ']]'
+        {
+            if ($rexp == null) {
+                List<ARenamePair> pairs = new ArrayList<ARenamePair>();
+                pairs.add($renamePair.pair);
+                $rexp = new AEnumerationRenameChannelExp(null, pairs);
+            }
+        }
     ;
 
-// just expression is too broad; need to restrict it a bit
-renamePair
-    : IDENTIFIER ( '.' (IDENTIFIER | '(' expression ')' | symbolicLiteral ) )*
-        '<-' IDENTIFIER ( '.' (IDENTIFIER | '(' expression ')' | symbolicLiteral ) )*
+renamePairList returns[List<ARenamePair> pairs]
+@init { $pairs = new ArrayList<ARenamePair>(); }
+    : item=renamePair { $pairs.add($item.pair); } ( ',' item=renamePair { $pairs.add($item.pair); } )*
     ;
 
-processParagraph returns[PDefinition defs]
+renamePair returns[ARenamePair pair]
+    : fid=IDENTIFIER ( '.' fexp=expression )? '<-' tid=IDENTIFIER ( '.' texp=expression )?
+        {
+            // FIXME --- We really ought take #Channel out of the exp tree in the AST
+            LexLocation floc = extractLexLocation($fid);
+            ANameChannelExp fromExp = new ANameChannelExp(floc, new LexNameToken("", $fid.getText(), floc), $fexp.exp);
+            if ($fexp.exp != null)
+                fromExp.setLocation(extractLexLocation($fid,$fexp.stop));
+
+            LexLocation tloc = extractLexLocation($tid);
+            ANameChannelExp toExp = new ANameChannelExp(tloc, new LexNameToken("", $tid.getText(), tloc), $texp.exp);
+            if ($texp.exp != null)
+                toExp.setLocation(extractLexLocation($tid,$texp.stop));
+
+            $pair = new ARenamePair(false, fromExp, toExp);
+        }
+    ;
+
+actionParagraphOptList returns[List<PDefinition> defs]
+@init { $defs = new ArrayList<PDefinition>(); }
+    : ( actionParagraph { $defs.add($actionParagraph.defs); } )*
+    ;
+
+actionParagraph returns[PDefinition defs]
     : typeDefs          { $defs = $typeDefs.defs; }
     | valueDefs         { $defs = $valueDefs.defs; }
     | stateDefs         { $defs = $stateDefs.defs; }
@@ -355,63 +516,205 @@ actionDef returns[AActionDefinition def]
         }
     ;
 
+actionList returns[List<PAction> actions]
+@init { $actions = new ArrayList<PAction>(); }
+    : item=action { $actions.add($item.action); } ( ',' item=action { $actions.add($item.action); } )*
+    ;
+
 action returns[PAction action]
+@after { $action.setLocation(extractLexLocation($action.start, $action.stop)); }
     : action0  
         {
             $action = $action0.action;
         }
-    | '[' expression ']' '&' action
-        { $action = new AGuardedAction(); } // FIXME
-    | 'mu' IDENTIFIER (',' IDENTIFIER)* '@' '(' action (',' action)* ')'
-        { $action = new AMuAction(); } // FIXME
-    | actionSimpleReplOp replicationDeclaration '@' action
-        { $action = new ASequentialCompositionReplicatedAction(); } // FIXME
-    | actionSetReplOp replicationDeclaration '@' '[' varsetExpr ( '|' varsetExpr )? ']' action
-        { $action = new ASequentialCompositionReplicatedAction(); } // FIXME
+    | '[' expression ']' '&' guarded=action
+        {
+            $action = new AGuardedAction(null, $expression.exp, $guarded.action);
+        }
+    | 'mu' identifierList '@' '(' actionList ')'
+        {
+            $action = new AMuAction(null, $identifierList.ids, $actionList.actions);
+        }
+    | actionSimpleReplOp replicationDeclarationList '@' repld=action
+        {
+            SReplicatedAction sra = $actionSimpleReplOp.op;
+            sra.setReplicationDeclaration($replicationDeclarationList.rdecls);
+            sra.setReplicatedAction($repld.action);
+            $action = sra;
+        }
+    | actionSetReplOp replicationDeclarationList '@' '[' varsetExpr ']' repld=action
+        {
+            SReplicatedAction sra = $actionSetReplOp.op;
+            sra.setReplicationDeclaration($replicationDeclarationList.rdecls);
+            sra.setReplicatedAction($repld.action);
+            if (sra instanceof AInterleavingReplicatedAction)
+                ((AInterleavingReplicatedAction)sra).setNamesetExpression($varsetExpr.vexp);
+            else if (sra instanceof AGeneralisedParallelismReplicatedAction)
+                ((AGeneralisedParallelismReplicatedAction)sra).setNamesetExpression($varsetExpr.vexp);
+            else
+                System.err.println("FIXME --- log a never-happens as we just got a class that shouldn't be possible");
+            $action = sra;
+        }
+    | '||' replicationDeclarationList '@' '[' ns=varsetExpr ( '|' cs=varsetExpr )? ']' repld=action
+        {
+            if ($cs.vexp != null) {
+                AAlphabetisedParallelismReplicatedAction raction = new AAlphabetisedParallelismReplicatedAction();
+                raction.setReplicationDeclaration($replicationDeclarationList.rdecls);
+                raction.setNamesetExpression($ns.vexp);
+                raction.setChansetExpression($cs.vexp);
+                raction.setReplicatedAction($repld.action);
+                $action = raction;
+            } else {
+                ASynchronousParallelismReplicatedAction raction = new ASynchronousParallelismReplicatedAction();
+                raction.setReplicationDeclaration($replicationDeclarationList.rdecls);
+                raction.setNamesetExpression($ns.vexp);
+                raction.setReplicatedAction($repld.action);
+                $action = raction;
+            }
+        }
     ;
 
-actionSimpleReplOp
-    : ';' | '[]' | '|~|' | '[||' varsetExpr '||]'
+actionSimpleReplOp returns[SReplicatedAction op]
+    : ';'       { $op = new ASequentialCompositionReplicatedAction(); }
+    | '[]'      { $op = new AExternalChoiceReplicatedAction(); }
+    | '|~|'     { $op = new AInternalChoiceReplicatedAction(); }
+    | '[||' varsetExpr '||]'
+        {
+            $op = new ACommonInterleavingReplicatedAction();
+            ((ACommonInterleavingReplicatedAction)$op).setNamesetExpression($varsetExpr.vexp);
+        }        
     ;
 
-actionSetReplOp
-    : '||' | '|||' | '[|' varsetExpr '|]'
+actionSetReplOp returns[SReplicatedAction op]
+    : '|||'     { $op = new AInterleavingReplicatedAction(); }
+    | '[|' varsetExpr '|]'
+        {
+            $op = new AGeneralisedParallelismReplicatedAction();
+            ((AGeneralisedParallelismReplicatedAction)$op).setChansetExpression($varsetExpr.vexp);
+        }
     ;
 
 action0 returns[PAction action]
-    // : action1 (action0Ops action)?
-    : (action1 action0Ops)=>action1 action0Ops action
-        { $action = $action1.action; } // FIXME
-    | (action1 '[[')=>action1 '[[' renamingExpr ']]'
-        { $action = $action1.action; } // FIXME
+@after { $action.setLocation(extractLexLocation($action0.start, $action0.stop)); }
+    : (action1 action0Ops)=> left=action1 action0Ops right=action
+        {
+            $action = $action0Ops.op;
+            Method setLeft = null;
+            Method setRight = null;
+            for (Method m : $action.getClass().getMethods()) {
+                String mname = m.getName();
+                if (mname.equals("setLeft"))
+                    setLeft = m;
+                else if (mname.equals("setRight")) 
+                    setRight = m;
+                else if (mname.equals("setLeftAction"))
+                    setLeft = m;
+                else if (mname.equals("setRightAction"))
+                    setRight = m;
+            }
+            if (setLeft == null || setRight == null) {
+                System.err.println("Missed a setLeft/Right method name");
+                // FIXME -- This should never happen
+            }
+            try {
+                setLeft.invoke($action, $left.action);
+                setRight.invoke($action, $right.action);
+            } catch (Exception e) {
+                System.err.println("Exception in action0");
+                // FIXME -- This should never happen, and needs a better error :)
+            }
+        }
+    | (action1 '[[')=> action1 renamingExpr
+        {
+            $action = new AChannelRenamingAction(null, $action1.action, $renamingExpr.rexp);
+        }
     | action1
-        { $action = $action1.action; } // FIXME
+        {
+            $action = $action1.action;
+        }
     ;
 
-action0Ops
-    : ';'
-    | '[]'
-    | '|~|'
-    | '/\\'
-    | '//' expression '\\\\' // not sure if the empty /\ and [> should be here
-    | '||'
-    | '|||'
-    | '[>'
-    | '[[' expression '>>'
-    | '[' varsetExpr ( '|' varsetExpr )? '||' varsetExpr ( '|' varsetExpr )? ']'
-    | '[|' varsetExpr ( '|' varsetExpr ( '|' varsetExpr )? )? '|]'
-    | '[||' varsetExpr '|' varsetExpr '||]'
+action0Ops returns[PAction op]
+@after { $op.setLocation(extractLexLocation($action0Ops.start, $action0Ops.stop)); }
+    : ';'   { $op = new ASequentialCompositionAction(); }
+    | '[]'  { $op = new AExternalChoiceAction(); }
+    | '|~|' { $op = new AInternalChoiceAction(); }
+    | '||'  { $op = new ASynchronousParallelismParallelAction(); }
+    | '|||' { $op = new AInterleavingParallelAction(); }
+    | '/\\' { $op = new AInterruptAction(); }
+    | '[>'  { $op = new AUntimedTimeoutAction(); }
+    | '//' exp=expression '\\\\'
+        {
+            $op = new ATimedInterruptAction();
+            ((ATimedInterruptAction)$op).setTimeExpression($exp.exp);
+        }
+    | '[(' exp=expression ')>'
+        {
+            $op = new ATimeoutAction();
+            ((ATimeoutAction)$op).setTimeoutExpression($exp.exp);
+        }
+    | ('[' varsetExpr '||')=> '[' ln=varsetExpr '||' rn=varsetExpr ']'
+        {
+            AAlphabetisedParallelismParallelAction appa = new AAlphabetisedParallelismParallelAction();
+            appa.setLeftNamesetExpression($ln.vexp);
+            appa.setRightNamesetExpression($rn.vexp);
+            $op = appa;
+        }
+    | ('[' varsetExpr '|')=>  '[' ln=varsetExpr '|' lc=varsetExpr '||' rc=varsetExpr '|' rn=varsetExpr? ']'
+        {
+            AAlphabetisedParallelismParallelAction appa = new AAlphabetisedParallelismParallelAction();
+            appa.setLeftNamesetExpression($ln.vexp);
+            appa.setLeftChansetExpression($lc.vexp);
+            appa.setRightChansetExpression($rc.vexp);
+            appa.setRightNamesetExpression($rn.vexp);
+            $op = appa;
+        }
+    | '[|' first=varsetExpr ( '|' second=varsetExpr ( '|' third=varsetExpr )? )? '|]'
+        {
+            if ($second.vexp != null && $third.vexp == null) {
+                ASynchronousParallelismParallelAction sppa = new ASynchronousParallelismParallelAction();
+                sppa.setLeftNamesetExpression($first.vexp);
+                sppa.setRightNamesetExpression($second.vexp);
+                $op = sppa;
+            } else {
+                AGeneralisedParallelismParallelAction gppa = new AGeneralisedParallelismParallelAction();
+                gppa.setLeftNamesetExpression($first.vexp);
+                if ($third.vexp != null) {
+                    gppa.setChansetExpression($second.vexp);
+                    gppa.setRightNamesetExpression($third.vexp);
+                }
+                $op = gppa;
+            }
+        }
+    | '[||' left=varsetExpr '|' right=varsetExpr '||]'
+        {
+            AInterleavingParallelAction aipa = new AInterleavingParallelAction();
+            aipa.setLeftNamesetExpression($left.vexp);
+            aipa.setRightNamesetExpression($right.vexp);
+            $op = aipa;
+        }
     ;
 
 action1 returns[PAction action]
-    : actionbase
-        ( ('startsby' | 'endsby')=> ('startsby' | 'endsby') expression
-        | ('\\\\')=> '\\\\' varsetExpr
+@after { $action.setLocation(extractLexLocation($action1.start, $action1.stop)); }
+    : actionbase 
+        {
+            $action = $actionbase.action;
+        }
+        ( ('startsby')=> 'startsby' exp=expression
+            {
+                $action = new AStartDeadlineAction(null, $action, $exp.exp);
+            }
+        | ('endsby')=>   'endsby' exp=expression
+            {
+                $action = new AEndDeadlineAction(null, $action, $exp.exp);
+            }
+        | ('\\\\')=>     '\\\\' varsetExpr
+            {
+                $action = new AHidingAction(null, $action, $varsetExpr.vexp);
+            }
         )?
-        { $action = $actionbase.action; } // FIXME
     ;
-
-// JWC --- DONE MARKER --- All parser rules below here done.
 
 actionbase returns[PAction action]
 @after { $action.setLocation(extractLexLocation($actionbase.start, $actionbase.stop)); }
@@ -420,17 +723,22 @@ actionbase returns[PAction action]
     | 'Chaos'           { $action = new AChaosAction(); }
     | 'Div'             { $action = new ADivAction(); }
     | 'Wait' expression { $action = new AWaitAction(null, $expression.exp); }
-    | IDENTIFIER (communication* '->' action)?
+    | statement         { $action = $statement.statement; }
+    | IDENTIFIER (communicationList '->' action)?
         {
-            $action = new ACallStatementAction(); // FIXME
+            if ($action.action == null) {
+                LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
+                $action = new ACallStatementAction(null, name, new ArrayList<PExp>());
+            } else {
+                LexIdentifierToken id = new LexIdentifierToken($IDENTIFIER.getText(), false, extractLexLocation($IDENTIFIER));
+                $action = new ACommunicationAction(null, id, $communicationList.comms, $action.action);
+            }
         }
-    /* The mess below includes parenthesized actions, block
-     * statements, parametrised actions, instantiated actions.
-     */
-    | statement
-        {
-            $action = $statement.statement;
-        }
+    ;
+
+communicationList returns[List<PCommunicationParameter> comms]
+@init { $comms = new ArrayList<PCommunicationParameter>(); }
+    : ( communication { $comms.add($communication.comm); } )*
     ;
 
 /* FIXME Ok, dots are still fragile
@@ -735,10 +1043,7 @@ channelDef returns[AChannelNameDefinition def]
             //$def.setName(??); // not sure if this needs set; one cml.y case has an empty LexNameToken, the other uses the first element of the identifierList
             $def.setNameScope(NameScope.GLOBAL);
             $def.setUsed(false);
-            if ($type.type == null)
-                $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, null));
-            else
-                $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, $type.type));
+            $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, null));
         }
     ;
 
