@@ -265,8 +265,6 @@ replOp returns[SReplicatedProcess op]
         }
     ;
 
-// JWC --- DONE MARKER --- All parser rules below here done.
-
 proc0 returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($proc0.start, $proc0.stop)); }
     : proc1 (proc0Ops process)?
