@@ -392,7 +392,7 @@ proc3 returns[PProcess proc]
 
 parametrisationList returns[List<PParametrisation> params]
 @init { $params = new ArrayList<PParametrisation>(); }
-    : item=parametrisation { $params.add($item.param); } ( ';' item=parametrisation { $params.add($item.param); } )*
+    : item=parametrisation { $params.add($item.param); } ( ',' item=parametrisation { $params.add($item.param); } )*
     ;
 
 parametrisation returns[PParametrisation param]
@@ -415,7 +415,7 @@ parametrisation returns[PParametrisation param]
 
 replicationDeclarationList returns[List<PSingleDeclaration> rdecls]
 @init { $rdecls = new ArrayList<PSingleDeclaration>(); }
-    : item=replicationDeclaration { $rdecls.add($item.rdecl); } ( ';' item=replicationDeclaration { $rdecls.add($item.rdecl); } )*
+    : item=replicationDeclaration { $rdecls.add($item.rdecl); } ( ',' item=replicationDeclaration { $rdecls.add($item.rdecl); } )*
     ;
 
 replicationDeclaration returns[PSingleDeclaration rdecl]
@@ -1227,7 +1227,7 @@ classDefinitionBlock returns[PDefinition defs]
 
 valueDefs returns[AValuesDefinition defs]
 @after { $defs.setLocation(extractLexLocation($valueDefs.start, $valueDefs.stop)); }
-    : 'values' qualValueDefinitionList? ';'?
+    : 'values' qualValueDefinitionList?
         {
             AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($valueDefs.start));
             $defs = new AValuesDefinition(null, NameScope.NAMES, false, access, null, $qualValueDefinitionList.defs);
@@ -1236,7 +1236,7 @@ valueDefs returns[AValuesDefinition defs]
 
 qualValueDefinitionList returns[List<AValueDefinition> defs]
 @init { defs = new ArrayList<AValueDefinition>(); }
-    : item=qualValueDefinition { $defs.add($item.def); } ( ';' item=qualValueDefinition { $defs.add($item.def); } )*
+    : ( item=qualValueDefinition { $defs.add($item.def); } )+
     ;
 
 qualValueDefinition returns[AValueDefinition def]
@@ -1267,7 +1267,7 @@ valueDefinition returns[AValueDefinition def]
 
 stateDefs returns[AStateDefinition defs]
 @after { $defs.setLocation(extractLexLocation($stateDefs.start, $stateDefs.stop)); }
-    : 'state' instanceVariableDefinitionList? ';'?
+    : 'state' instanceVariableDefinitionList?
         {
             $defs = new AStateDefinition();
             if ($instanceVariableDefinitionList.defs != null)
@@ -1277,7 +1277,7 @@ stateDefs returns[AStateDefinition defs]
 
 instanceVariableDefinitionList returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : item=instanceVariableDefinition { $defs.add($item.def); } ( ';' item=instanceVariableDefinition { $defs.add($item.def); } )*
+    : ( item=instanceVariableDefinition { $defs.add($item.def); } )+
     ;
 
 instanceVariableDefinition returns[PDefinition def]
@@ -1295,7 +1295,7 @@ instanceVariableDefinition returns[PDefinition def]
 
 assignmentDefinitionList returns[List<AAssignmentDefinition> defs]
 @init { $defs = new ArrayList<AAssignmentDefinition>(); }
-    : item=assignmentDefinition { $defs.add($item.def); } ( ';' item=assignmentDefinition { $defs.add($item.def); } )*
+    : item=assignmentDefinition { $defs.add($item.def); } ( ',' item=assignmentDefinition { $defs.add($item.def); } )*
     ;
 
 assignmentDefinition returns[AAssignmentDefinition def]

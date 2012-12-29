@@ -1,7 +1,7 @@
 process RegisterProc = 
  begin
   state 
-   reg : Byte;	
+   reg : Byte
    inv reg <= 127
    @
      Skip
