@@ -305,7 +305,7 @@ proc0Ops returns[PProcess op]
     | '|||'     { $op = new AInterleavingProcess(); }
     | '/\\'     { $op = new AInterruptProcess(); }
     | '[>'      { $op = new AUntimedTimeoutProcess(); }
-    | '//' expression '\\\\'
+    | '/(' expression ')\\'
         {
             ATimedInterruptProcess atip = new ATimedInterruptProcess();
             atip.setTimeExpression($expression.exp);
@@ -643,7 +643,7 @@ action0Ops returns[PAction op]
     | '|||' { $op = new AInterleavingParallelAction(); }
     | '/\\' { $op = new AInterruptAction(); }
     | '[>'  { $op = new AUntimedTimeoutAction(); }
-    | '//' exp=expression '\\\\'
+    | '/(' exp=expression ')\\'
         {
             $op = new ATimedInterruptAction();
             ((ATimedInterruptAction)$op).setTimeExpression($exp.exp);
