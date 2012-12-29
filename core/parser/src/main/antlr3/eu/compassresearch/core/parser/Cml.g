@@ -1696,7 +1696,7 @@ basicType returns[PType basicType]
 
 fieldList returns[List<AFieldField> fieldList]
 @init { $fieldList = new ArrayList<AFieldField>(); }
-    : item=field { $fieldList.add($item.field); } ( item=field { $fieldList.add($item.field); } )*
+    : ( item=field { $fieldList.add($item.field); } )+
     ;
 
 field returns[AFieldField field]
