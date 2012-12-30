@@ -33,7 +33,9 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
+import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AClassType;
+import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AProductType;
@@ -44,9 +46,12 @@ import org.overture.typechecker.FlatEnvironment;
 import org.overture.typechecker.PrivateClassEnvironment;
 import org.overture.typechecker.PublicClassEnvironment;
 import org.overture.typechecker.TypeCheckException;
+import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
+import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.assistant.definition.ATypeDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
+import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternListAssistantTC;
 
@@ -55,15 +60,20 @@ import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
+import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
+import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.types.AActionParagraphType;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AErrorType;
@@ -86,6 +96,61 @@ class TCDeclAndDefVisitor extends
 QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 
+
+
+	@Override
+	public PType caseAStateDefinition(AStateDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		CmlTypeCheckInfo cmlenv = CmlTCUtil.getCmlEnv(question);
+
+		LinkedList<PDefinition> defs = node.getStateDefs();
+		for(PDefinition def : defs)
+		{
+			PType defType = def.apply(parentChecker, question);
+			if (!TCDeclAndDefVisitor.successfulType(defType))
+			{
+				node.setType(issueHandler.addTypeError(def, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+def)));
+				return node.getType();
+			}
+			cmlenv.addVariable(def.getName(), def);
+		}
+
+		if (node.getInvdef() != null) {
+			node.getInvdef().apply(parentChecker, question);
+		}
+
+		if (node.getInitdef() != null) {
+			node.getInitdef().apply(parentChecker, question);
+		}
+
+		node.setType(new AStateParagraphType(node.getLocation(), true));
+		return node.getType();
+	}
+
+	@Override
+	public PType caseAOperationsDefinition(AOperationsDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		LinkedList<SCmlOperationDefinition> operations = node.getOperations();
+		for(SCmlOperationDefinition odef : operations)
+		{
+			PType operationType  = odef.apply(parentChecker, question);
+			if (!TCDeclAndDefVisitor.successfulType(operationType))
+			{
+				node.setType(issueHandler.addTypeError(odef, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(odef+"")));
+				return node.getType();
+			}
+
+			if (!(operationType instanceof AOperationType))
+			{
+				node.setType(issueHandler.addTypeError(odef, TypeErrorMessages.EXPECTED_OPERATION_DEFINITION.customizeMessage(odef.getName()+"")));
+				return node.getType();
+			}
+		}
+		node.setType(new AOperationParagraphType());
+		return node.getType();
+	}
 
 	@Override
 	public PType caseAInitialDefinition(
@@ -331,13 +396,20 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (declaredType == null)
 			declaredType=node.getExpType();
 
-		// Add this value definition to the environment
+		// Handle the pattern and add the resulting definition to the environment
 		CmlTypeCheckInfo tci = (CmlTypeCheckInfo) question;
-		ALocalDefinition localDef = new ALocalDefinition(node.getLocation(),
-				NameScope.GLOBAL, false, node.getAccess(), Pass.VALUES, true);
-		localDef.setName(node.getName());
-		localDef.setType(declaredType);
-		tci.addVariable(node.getName(), localDef);
+		PPattern pattern = node.getPattern();
+		PType patternType = pattern.apply(parentChecker,question);
+		if (patternType == null)
+		{
+			node.setType(issueHandler.addTypeError(pattern, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+pattern)));
+			return node.getType();
+		}
+		for(PDefinition def : patternType.getDefinitions())
+		{
+			def.setType(declaredType);
+			tci.addVariable(def.getName(), def);
+		}
 
 		// Check type consistency
 		if (!typeComparator.isSubType(expressionType, declaredType))
@@ -517,7 +589,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		 * @param pdef
 		 */
 		private void flattenProductParamterType(AFunctionType fnType) {
-			
+
 			if (fnType.getParameters().size() == 1)
 			{
 				PType firstType = fnType.getParameters().get(0);
@@ -548,6 +620,27 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		overtureClassBits.put(AImplicitFunctionDefinition.class, id);
 		overtureClassBits.put(AValueDefinition.class, id);
 		overtureClassBits.put(AUntypedDefinition.class, id);
+		overtureClassBits.put(AFunctionsDefinition.class, new AFunctionsDefinitionHandler());
+	}
+
+	private static class AFunctionsDefinitionHandler implements OvertureToCmlHandler
+	{
+
+		@Override
+		public List<PDefinition> handle(PDefinition def) {
+
+			List<PDefinition> res = new LinkedList<PDefinition>();
+			if (def instanceof AFunctionsDefinition)
+			{
+				for(PDefinition fdef : ((AFunctionsDefinition) def).getFunctionDefinitions())
+					res.add(fdef);
+			}
+			else
+				res.add(def);
+
+
+			return res;
+		}
 
 	}
 
@@ -710,12 +803,14 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		CmlTypeCheckInfo info = (CmlTypeCheckInfo)question;
 		CmlTypeCheckInfo cmlClassEnv = CmlTCUtil.createCmlClassEnvironment(info, node);
 		question.contextSet(CmlTypeCheckInfo.class, cmlClassEnv);
-
 		AClassType result = new AClassType(node.getLocation(), true, node.getBody(),
 				node.getName(), node.getClassDefinition());
-
 		node.setType(result);
 
+		// Add the self identifier 
+		LexNameToken selfName = new LexNameToken("", new LexIdentifierToken("self", false, node.getLocation()));
+		ALocalDefinition selfDef = AstFactory.newALocalDefinition(node.getLocation(), selfName, NameScope.LOCAL, result);
+		cmlClassEnv.addVariable(selfDef.getName(), node);
 
 		// Create Surrogate Overture Class
 		AClassClassDefinition surrogate = createSurrogateClass(node, cmlClassEnv);
@@ -861,23 +956,40 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// make a new scope for the process
 		CmlTypeCheckInfo newScope = (CmlTypeCheckInfo) ((TypeCheckQuestion) question)
 				.newScope(null);
+		
+		LinkedList<PSingleDeclaration> state = node.getLocalState();
+		for(PSingleDeclaration decl : state)
+		{
+			PType declType = decl.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(declType))
+			{
+				node.setType(issueHandler.addTypeError(decl, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(decl+"")));
+				return node.getType();
+			}
 
-		PType pType = node.apply(parentChecker, newScope);
+			for(PDefinition def : declType.getDefinitions())
+				newScope.addVariable(def.getName(), def);
+		}
+		
+		CmlTypeCheckInfo newQ = (CmlTypeCheckInfo) question;
+		newQ.addVariable(node.getName(), node);
+
+		PProcess process = node.getProcess();
+		PType pType = process.apply(parentChecker, newScope);
 		if (!successfulType(pType)) {
-			issueHandler.addTypeError(node,
+			node.setType(			issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(node.getName() + ""));
-			node.setType(new AErrorType());
+					.customizeMessage(node.getName() + ""))
+					);
 			return node.getType();
 		}
 
-		CmlTypeCheckInfo newQ = (CmlTypeCheckInfo) question;
-		newQ.addVariable(node.getName(), node);
+		
 		// Marker type indicating paragraph type check ok
 		node.setType(new AProcessParagraphType());
 		return node.getType();
 	}
-	
+
 
 	/*
 	@Override
@@ -887,7 +999,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		return node.getProcess().apply(this.parentChecker, question);
 	}
-	*/
+	 */
 
 	@Override
 	public PType caseATypeSingleDeclaration(ATypeSingleDeclaration node,

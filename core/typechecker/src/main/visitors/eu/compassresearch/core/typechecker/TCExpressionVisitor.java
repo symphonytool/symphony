@@ -8,9 +8,12 @@ import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.assistant.type.PTypeAssistant;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AIsExp;
 import org.overture.ast.expressions.ANilExp;
+import org.overture.ast.expressions.ASelfExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
@@ -23,10 +26,13 @@ import org.overture.parser.messages.VDMError;
 import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
+import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.type.PTypeAssistantTC;
+import org.overture.typechecker.visitor.TypeCheckerExpVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
@@ -40,6 +46,8 @@ import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 class TCExpressionVisitor extends
 QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
+	
+	
 	@Override
 	public PType caseANilExp(ANilExp node, TypeCheckInfo question)
 			throws AnalysisException {
@@ -350,6 +358,98 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		PType type = node.getExpression().apply(this, question);
 		node.setType(type);
 		return type;
+	}
+
+	
+	/*
+	 * Copied from Overture and modified to handle CML Classes.
+	 * 
+	 * (non-Javadoc)
+	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#caseAIsExp(org.overture.ast.expressions.AIsExp, java.lang.Object)
+	 */
+	@Override
+	public PType caseAIsExp(AIsExp node, TypeCheckInfo question)
+			throws AnalysisException {
+
+		question.qualifiers = null;
+		node.getTest().apply(parent, question);
+
+		PType basictype = node.getBasicType();
+
+		if (basictype != null) {
+			try
+			{
+			basictype = PTypeAssistantTC.typeResolve(basictype, null,
+					(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent, question);
+			} catch (TypeCheckException tce)
+			{
+				node.setType(issueHandler.addTypeError(node,tce.getMessage()));
+				return node.getType();
+			}
+		}
+
+		LexNameToken typename = node.getTypeName();
+
+		if (typename != null) {
+			PDefinition typeFound = question.env.findType(typename,
+					node.getLocation().module);
+			
+			// It maybe an CML Class typically it will be lets look it up in the nearest cml environment
+			if (typeFound == null) {
+				CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+				typeFound = cmlEnv.lookup(typename, AClassDefinition.class);
+			}
+			
+			if (typeFound == null) {
+				TypeCheckerErrors.report(3113, "Unknown type name '" + typename
+						+ "'", node.getLocation(), node);
+				node.setType(node.getTest().getType());
+				return node.getType();
+			}
+			node.setTypedef(typeFound.clone());
+
+		}
+
+		node.setType(AstFactory.newABooleanBasicType(node.getLocation()));
+		return node.getType();
+	}
+	
+	/*
+	 * Copied from Overture and modified to lookup in surrounding CML environment if necessary.
+	 * 
+	 * (non-Javadoc)
+	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#caseASelfExp(org.overture.ast.expressions.ASelfExp, java.lang.Object)
+	 */
+	@Override
+	public PType caseASelfExp(ASelfExp node, TypeCheckInfo question) {
+		
+		
+		PDefinition cdef = question.env
+				.findName(node.getName(), question.scope);
+
+		if (cdef == null)
+		{
+			// Get Cml Environment
+			CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+			if (cmlEnv == null)
+			{
+				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
+				return node.getType();
+			}
+			
+			// look up
+			cdef = cmlEnv.lookup(node.getName(), PDefinition.class);
+		}
+		
+		if (cdef == null) {
+			TypeCheckerErrors.report(3154, node.getName() + " not in scope",
+					node.getLocation(), node);
+			node.setType(AstFactory.newAUnknownType(node.getLocation()));
+			return node.getType();
+		}
+
+		node.setType(cdef.getType());
+		return cdef.getType();
 	}
 
 }

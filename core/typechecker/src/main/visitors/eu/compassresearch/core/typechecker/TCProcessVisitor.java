@@ -16,6 +16,7 @@ import org.overture.typechecker.TypeCheckInfo;
 
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
@@ -355,7 +356,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			TypeCheckInfo question) throws AnalysisException {
 
 		LinkedList<PExp> args = node.getArgs();
-		LinkedList<ATypeSingleDeclaration> decl = node.getDeclarations();
+		LinkedList<PParametrisation> decl = node.getParametrisations();
 		PProcess proc = node.getProcess();
 
 		CmlTypeCheckInfo cmlEnv = TCActionVisitor.getTypeCheckInfo(question);
@@ -375,7 +376,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		List<PDefinition> definitions = new LinkedList<PDefinition>();
 		List<LexIdentifierToken> ids = new LinkedList<LexIdentifierToken>();
-		for(ATypeSingleDeclaration d : decl)
+		for(PParametrisation d : decl)
 		{
 			PType dType = d.apply(parentChecker,question);
 			if (!TCDeclAndDefVisitor.successfulType(dType))

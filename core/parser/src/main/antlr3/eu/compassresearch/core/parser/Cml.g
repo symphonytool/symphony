@@ -64,6 +64,9 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 // import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
+import java.util.LinkedList;
+
 import static org.overture.ast.lex.Dialect.VDM_PP;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.definitions.*;
@@ -1329,11 +1332,15 @@ invariantDefinition returns[AClassInvariantDefinition def]
     ;
 
 functionDefs returns[AFunctionsDefinition defs]
-@after { $defs.setLocation(extractLexLocation($functionDefs.start, $functionDefs.stop)); }
+@after { $defs.setLocation(extractLexLocation($functionDefs.start, $functionDefs.stop));
+		 LexNameToken name = new LexNameToken("", new LexIdentifierToken("", false, $defs.getLocation()));
+		 $defs.setName(name	);
+		 }
     : 'functions' qualFunctionDefinitionOptList
         {
             AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start));
-            $defs = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null, $qualFunctionDefinitionOptList.defs);
+            AFunctionsDefinition functions = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null, $qualFunctionDefinitionOptList.defs);
+            $defs = functions;
         }
     ;
 
@@ -1370,9 +1377,10 @@ functionDefinition returns[PDefinition def]
 explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
     : ':' type IDENTIFIER parameterGroupList '==' functionBody ('pre' pre=expression )? ('post' post=expression)? ('measure' name)?
         {
+        	LexLocation location = extractLexLocation($IDENTIFIER);
             $tail = new AExplicitFunctionDefinition();
             $tail.setType($type.type);
-            $tail.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
+            $tail.setName(new LexNameToken("", $IDENTIFIER.getText(), location));
             $tail.setParamPatternList($parameterGroupList.pgroups);
             $tail.setBody($functionBody.exp);
             $tail.setIsUndefined(false);
@@ -1385,9 +1393,64 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
                 $tail.setPostcondition($post.exp);
             else
                 $tail.setPostcondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($functionBody.stop))));
+ 
+ 			LexNameToken preDefName = new LexNameToken("", new LexIdentifierToken("pre_"+$tail.getName().getName(), false, location));
+ 			AFunctionType preDefType = AstFactory.newAFunctionType(location, true /* partial */, ((AFunctionType)$type.type).getParameters(), AstFactory.newABooleanBasicType(location));
+ 			
+ 			List<List<PPattern>> predefParamPatterns = new LinkedList<List<PPattern>>();
+ 			for(List<PPattern> list : $parameterGroupList.pgroups)
+ 			{
+ 				List<PPattern> l = new LinkedList<PPattern>();
+ 				for(PPattern p : list)
+ 					l.add(p.clone());
+ 				predefParamPatterns.add(l);
+ 			}
+ 			
+            AExplicitFunctionDefinition predef = AstFactory.newAExplicitFunctionDefinition(
+            										preDefName, // name pre_fn 
+            										NameScope.LOCAL, // LOCAL ofcause
+            										null,  // typeParams 
+            										preDefType,  // the type of the precondition
+            										predefParamPatterns /* params */, 
+            										$tail.getPrecondition() /* body */, 
+            										null /* precond */, 
+            										null /* postcond */, 
+            										false /* type invariant */, 
+            										null /* measure */);
+            
+            $tail.setPredef(predef);
+
+ 			List<List<PPattern>> postdefParamPatterns = new LinkedList<List<PPattern>>();
+ 			for(List<PPattern> list : $parameterGroupList.pgroups)
+ 			{
+ 				List<PPattern> l = new LinkedList<PPattern>();
+ 				for(PPattern p : list)
+ 					l.add(p.clone());
+ 				postdefParamPatterns.add(l);
+ 			}
+
+            
+            LexNameToken postDefName = new LexNameToken("", new LexIdentifierToken("post_"+$tail.getName().getName(), false, location));
+            AFunctionType postDefType = AstFactory.newAFunctionType(location, true /* partial */, ((AFunctionType)$type.type).getParameters(), AstFactory.newABooleanBasicType(location));
+            AExplicitFunctionDefinition postdef = AstFactory.newAExplicitFunctionDefinition(
+            										postDefName, // name pre_fn 
+            										NameScope.LOCAL, // LOCAL ofcause
+            										null,  // typeParams 
+            										postDefType,  // the type of the precondition
+            										postdefParamPatterns /* params */, 
+            										$tail.getPostcondition() /* body */, 
+            										null /* precond */, 
+            										null /* postcond */, 
+            										false /* type invariant */, 
+            										null /* measure */);
+            
+            $tail.setPostdef(postdef);
+            
+            $tail.setIsCurried(false);
             $tail.setMeasure($name.name);
             $tail.setAccess(CmlParserHelper.getPrivateAccessSpecifier(false, false, extractLexLocation($IDENTIFIER)));
-            //$tail.setPass(Pass.DEFS); // what's this for?
+            $tail.setPass(Pass.DEFS); // what's this for? RWL: The Overture type checker runs in three PASSes (TYPES, VALUES, DEFS)
+            // in order to make defined types and values available for function definitions PASS for functinos must be DEFS. :)
         }
     ;
 
@@ -1483,7 +1546,10 @@ functionBody returns[PExp exp]
     ;
 
 operationDefs returns[AOperationsDefinition defs]
-@after { $defs.setLocation(extractLexLocation($operationDefs.start, $operationDefs.stop)); }
+@after { $defs.setLocation(extractLexLocation($operationDefs.start, $operationDefs.stop)); 
+		 $defs.setName(new LexNameToken("", new LexIdentifierToken("", false, $defs.getLocation())));
+		
+		}
     : 'operations' qualOperationDefOptList
         {
             $defs = new AOperationsDefinition(); // FIXME
@@ -1491,6 +1557,7 @@ operationDefs returns[AOperationsDefinition defs]
             $defs.setNameScope(NameScope.LOCAL);
             $defs.setUsed(false);
             $defs.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($operationDefs.start)));
+            
         }
     ;
 
@@ -1525,6 +1592,7 @@ operationDef returns[SCmlOperationDefinition def]
                 opdef.setPostcondition($post.exp);
                 opdef.setNameScope(NameScope.GLOBAL);
                 opdef.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
+                opdef.setIsConstructor(false);
                 $def = opdef;
             }
         | '(' parameterTypeList? ')' resultTypeList? ('frame' frameSpecList )? ('pre' pre=expression)? ('post' post=expression)

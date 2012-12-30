@@ -256,19 +256,23 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				testData,
 				"class test = begin values a:map int to map int to int = merge {  {0 |-> { 1 |-> 42}}, {1 |-> { 2 |-> 42 }}} end",
 				false, true, true, new String[0]);
+		// 53
 		addTestProgram(
 				testData,
 				"class test = begin values a:map int to int = inverse { 1|->2, 2|->1} end",
 				false, true, true, new String[0]);
 		// binary exp
+		// 54
 		addTestProgram(testData,
 				"class test = begin values a:int = 10 + 10 end", false, true,
 				true, new String[0]);
+		// 55
 		addTestProgram(testData,
 				"class test = begin values a:int = 10 - 10 end", false, true,
-				true, new String[0]);
+			 	true, new String[0]);
+		// 56
 		addTestProgram(testData,
-				"class test = begin values a:int = 10 / 10 end", false, true,
+				"class test = begin values a:int = 10 div 10 end", false, true,
 				true, new String[0]);
 		addTestProgram(testData,
 				"class test = begin values b : int = 42 * 42 end", false, true,
@@ -374,13 +378,13 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				false, true, true, new String[0]);
 		// 84
 		addTestProgram(testData,
-				"class test = begin values a:seq of int=  [1] :>  {5|->6} end",
+				"class test = begin values a:map int to int =  {5|->6} :> {1} end",
 				false, true, true, new String[0]);
 		// 85
 		addTestProgram(
 				testData,
 				"class test = begin values a:map int to int = {1|->2} :-> {5} end",
-				false, true, false, new String[0]);
+				false, true, true, new String[0]);
 		// 86
 		addTestProgram(
 				testData,
@@ -494,11 +498,11 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		// 111
 		addTestProgram(testData,
 				"class test = begin values one:test = self end", false, true,
-				false, new String[0]);
+				true, new String[0]);
 		// 112
 		addTestProgram(testData,
-				"class test = begin values one:bool = is_self ( test ) end",
-				false, true, false, new String[0]);
+				"class test = begin values one:bool = is_test ( self ) end",
+				false, true, true, new String[0]);
 		// 113
 		addTestProgram(testData,
 				"class test = begin values one:bool = is_(self, test) end",

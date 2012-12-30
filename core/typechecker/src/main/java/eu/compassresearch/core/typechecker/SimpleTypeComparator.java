@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.overture.ast.types.ABracketType;
 import org.overture.ast.types.AIntNumericBasicType;
+import org.overture.ast.types.AMapMapType;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.ANatOneNumericBasicType;
@@ -19,6 +20,7 @@ import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SBasicType;
 import org.overture.ast.types.SSeqType;
+import org.overture.typechecker.assistant.type.AMapMapTypeAssistantTC;
 
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 
@@ -156,6 +158,7 @@ class SimpleTypeComparator implements TypeComparator {
 
 	private static boolean checkClosureOnFixedTypeRelation(Class<?> top,
 			Class<?> bottom) {
+		
 		if (top == bottom)
 			return true;
 
@@ -180,6 +183,17 @@ class SimpleTypeComparator implements TypeComparator {
 		// un-pack types
 		TypePair pair = obtainFundamentalTypes(sup, sub);
 
+		if (sub instanceof AMapMapType)
+		{
+			if (sup instanceof AMapMapType)
+			{
+				AMapMapType subMap = (AMapMapType)sub;
+				AMapMapType supMap = (AMapMapType)sup;
+				return isSubType(subMap.getFrom(), supMap.getFrom()) && isSubType(subMap.getTo(), supMap.getTo());
+			}
+		}
+
+		
 		// Basic or built-in types can be handled by this
 		boolean fixedTypes = checkClosureOnFixedTypeRelation(
 				pair.from.getClass(), pair.to.getClass());
@@ -214,6 +228,8 @@ class SimpleTypeComparator implements TypeComparator {
 				return isSubType(innerToType, innerFromType);
 			}
 		}
+		
+		
 
 		return fixedTypes;
 	}
@@ -223,6 +239,7 @@ class SimpleTypeComparator implements TypeComparator {
 		boolean resolved = false;
 
 		while (!resolved) {
+			
 			if (to instanceof ABracketType) {
 				to = ((ABracketType) to).getType();
 				continue;
@@ -268,6 +285,8 @@ class SimpleTypeComparator implements TypeComparator {
 
 			resolved = true;
 		}
+		
+		
 
 		if (resolved)
 			return new TypePair(to, from);

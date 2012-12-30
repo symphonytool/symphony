@@ -6,6 +6,8 @@ public enum TypeErrorMessages {
 	    "The expresion %s has type %s which is not a sequence type as expected."), PARAGRAPH_HAS_TYPES_ERRORS(
 	    "Paragraph \"%s\" has type errors."),
 
+	    EXPECTED_OPERATION_DEFINITION("Operation definition expected. %s is not an operation definition. "),
+	    
     COULD_NOT_DETERMINE_TYPE("Could not determine type for %s."),
 
     INCOMPATIBLE_TYPE("Expected an entity of type %s but %s was found."),
