@@ -8,6 +8,7 @@ import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
@@ -19,6 +20,7 @@ import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SInvariantType;
 import org.overture.typechecker.LexNameTokenAssistent;
+import org.overture.typechecker.assistant.definition.AValueDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 import org.overture.typechecker.assistant.type.ARecordInvariantTypeAssistantTC;
 
@@ -201,8 +203,12 @@ class CmlAssistant {
 			AValuesDefinition vdef = (AValuesDefinition)def;
 			for(PDefinition d : vdef.getValueDefinitions())
 			{
-				if (LexNameTokenAssistent.isEqual(d.getName(), name))
-					return d;
+				if (d instanceof AValueDefinition)
+				{
+					AValueDefinition valueDef = (AValueDefinition)d;
+					for (PDefinition ldef : valueDef.getDefs())
+						if (LexNameTokenAssistent.isEqual(ldef.getName(), name)) return ldef;
+				}
 			}
 			return null;
 		}

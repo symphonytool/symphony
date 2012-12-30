@@ -276,7 +276,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		eu.compassresearch.core.typechecker.CmlTypeCheckInfo info = eu.compassresearch.core.typechecker.CmlTypeCheckInfo
 				.getNewTopLevelInstance(this.issueHandler, globalRoot);
 
-		
+
 		if (!cleared)
 			return lastResult;
 
@@ -285,20 +285,21 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 			globalRoot = CollectGlobalStateClass.getGlobalRoot(
 					this.sourceForest, issueHandler, info);
 
+
 			// Add all global definitions to the environment
-			for (PDefinition d : globalRoot.getDefinitions()) {
-				PDefinition defToAdd = null;
-				if (d instanceof AValueDefinition) {
-					AValueDefinition vdef = (AValueDefinition) d;
-					defToAdd = AstFactory.newALocalDefinition(vdef.getLocation(),
-							vdef.getName(), vdef.getNameScope(), vdef.getType());
-				}
+			for (PDefinition def : globalRoot.getDefinitions()) {
 
-				if (d instanceof ATypeDefinition)
-					defToAdd = d;
+				List<PDefinition> l = TCDeclAndDefVisitor.handleDefinitionsForOverture(def);
+				if (l != null)
+					for(PDefinition dd : l)
+					{
+						if (dd instanceof ATypeDefinition)
+							info.addType(dd.getName(), dd);
+						else
+							info.addVariable(dd.getName(),dd);
+					}		
 
-				if (defToAdd != null)
-					((FlatEnvironment) info.env).add(defToAdd);
+
 			}
 			info.env.setEnclosingDefinition(globalRoot);
 			info.scope = NameScope.GLOBAL;
@@ -410,7 +411,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		CmlLexer lexer = new CmlLexer(in);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		CmlParser parser = new CmlParser(tokens);
-		
+
 
 		try {
 			source.setParagraphs(parser.source());

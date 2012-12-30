@@ -498,11 +498,11 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		// 111
 		addTestProgram(testData,
 				"class test = begin values one:test = self end", false, true,
-				true, new String[0]);
+				false, new String[] { "self not in scope.", "Paragraph \"test\" has type errors." });
 		// 112
 		addTestProgram(testData,
 				"class test = begin values one:bool = is_test ( self ) end",
-				false, true, true, new String[0]);
+				false, true, false, new String[] {"self not in scope.","Paragraph \"test\" has type errors."});
 		// 113
 		addTestProgram(testData,
 				"class test = begin values one:bool = is_(self, test) end",
@@ -595,35 +595,35 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				"process A = begin @ Skip end process p1 = begin @ (A \\\\ {| B |}) end",
 				false, true, false,
 				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
-						.customizeMessage("A") });
+						.customizeMessage("Process A") });
 		// 130
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ (A \\\\ {| channel1 |}) end",
 				false, true, false,
 				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
-						.customizeMessage("A") });
+						.customizeMessage("Process A") });
 		// 131
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ A ; Skip end",
 				false, true, false,
 				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
-						.customizeMessage("A") });
+						.customizeMessage("Process A") });
 		// 132
 		addTestProgram(
 				testData,
-				"process A = begin @ Skip end process p1 = begin @ (A startby 42) end",
+				"process A = begin @ Skip end process p1 = begin @ (A startsby 42) end",
 				false, true, false,
 				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
-						.customizeMessage("A") });
+						.customizeMessage("Process A") });
 		// 133
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ (A endsby 42) end",
 				false, true, false,
 				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
-						.customizeMessage("A") });
+						.customizeMessage("Process A") });
 
 		// 134
 		addTestProgram(
@@ -631,7 +631,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				"process A = begin @ Skip end process p1 = begin @ A ; Skip end",
 				false, true, false,
 				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
-						.customizeMessage("A") });
+						.customizeMessage("Process A") });
 
 		// 135
 		addTestProgram(
@@ -670,11 +670,11 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				testData,
 				"channels init:int\ntest process test = begin @ [init?x] -> Skip end",
 				false, true, true, new String[0]);
-
+		// 143
 		addTestProgram(testData,
 				"process P = begin actions INIT = Skip @ INIT end", false,
 				true, true, new String[0]);
-		
+		// 144
 		addTestProgram(testData, "class Thing = begin values public Douglas : int = 42 end class test = begin values a: int = 0 functions g: int -> int g(i) == a + Thing`Douglas end",
 				false,true,true,new String[0]);
 		

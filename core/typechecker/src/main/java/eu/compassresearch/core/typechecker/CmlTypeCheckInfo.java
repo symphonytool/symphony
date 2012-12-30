@@ -68,10 +68,11 @@ TypeCheckQuestion {
 	private CmlTypeCheckInfo(Environment<PDefinition> channelSurounding,
 			org.overture.typechecker.Environment suroundingEnv,
 			TypeIssueHandler issueHandler, SClassDefinition globalDefs) {
-		super(suroundingEnv);
+		super(new FlatEnvironment(new LinkedList<PDefinition>(), suroundingEnv));
 		this.channels = channelSurounding;
 		this.issueHandler = issueHandler;
 		this.globalClassDefinition = globalDefs;
+		
 	}
 
 	@Override

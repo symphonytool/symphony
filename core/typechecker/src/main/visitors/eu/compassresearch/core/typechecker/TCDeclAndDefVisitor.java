@@ -2,11 +2,12 @@ package eu.compassresearch.core.typechecker;
 
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.ws.handler.MessageContext.Scope;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
@@ -33,9 +34,7 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
-import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AClassType;
-import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AProductType;
@@ -48,20 +47,20 @@ import org.overture.typechecker.PublicClassEnvironment;
 import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
-import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.assistant.definition.ATypeDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
-import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternListAssistantTC;
+import org.overture.typechecker.util.TypeCheckerUtil;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.actions.SStatementAction;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.AExpressionSingleDeclaration;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
@@ -75,9 +74,9 @@ import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.types.AActionParagraphType;
+import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.ast.types.AFunctionParagraphType;
 import eu.compassresearch.ast.types.AInitialParagraphType;
 import eu.compassresearch.ast.types.AOperationParagraphType;
 import eu.compassresearch.ast.types.AProcessParagraphType;
@@ -85,7 +84,6 @@ import eu.compassresearch.ast.types.AStateParagraphType;
 import eu.compassresearch.ast.types.AStatementType;
 import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
-import eu.compassresearch.core.lexer.CMLToken;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
@@ -99,6 +97,32 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 
 	@Override
+	public PType caseAActionsDefinition(AActionsDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		LinkedList<AActionDefinition> actions = node.getActions();
+		for(AActionDefinition action : actions)
+		{
+			PType actionType = action.apply(parentChecker,question);
+			if (!successfulType(actionType))
+			{
+				node.setType(issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(action+"")));
+				return node.getType();
+			}
+			
+			if (!(actionType instanceof AActionType))
+			{
+				node.setType(issueHandler.addTypeError(action, TypeErrorMessages.EXPECTED_AN_ACTION.customizeMessage(action+"")));
+				return node.getType();
+			}
+		}
+		
+		
+		node.setType(new AActionParagraphType());
+		return node.getType();
+	}
+
+	@Override
 	public PType caseAStateDefinition(AStateDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
 
@@ -107,6 +131,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		LinkedList<PDefinition> defs = node.getStateDefs();
 		for(PDefinition def : defs)
 		{
+			question.scope = NameScope.LOCAL;
 			PType defType = def.apply(parentChecker, question);
 			if (!TCDeclAndDefVisitor.successfulType(defType))
 			{
@@ -329,8 +354,35 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// Add this to the current scope
 		((TypeCheckQuestion) question).addVariable(node.getName()
 				.getIdentifier(), node);
+		
+		
+		// For every parametrisation add the decl to the action's environment.
+		LinkedList<PParametrisation> decls = node.getDeclarations();
+		PAction action = node.getAction();
+		
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		CmlTypeCheckInfo actionScope = cmlEnv.newScope();
+		for(PParametrisation decl : decls)
+		{
+			PType declType = decl.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(declType))
+			{
+				node.setType(issueHandler.addTypeError(decl, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(decl+"")));
+				return node.getType();
+			}
+			for(PDefinition def : declType.getDefinitions())
+				actionScope.addVariable(def.getName(), def);
+		}
 
-		node.setType(new AStatementType());
+		// type check the action
+		PType actionType = action.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(actionType))
+		{
+			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(action+"")));
+			return node.getType();
+		}
+		
+		node.setType(new AActionType(node.getLocation(), true));
 		return node.getType();
 	}
 
@@ -621,8 +673,48 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		overtureClassBits.put(AValueDefinition.class, id);
 		overtureClassBits.put(AUntypedDefinition.class, id);
 		overtureClassBits.put(AFunctionsDefinition.class, new AFunctionsDefinitionHandler());
+		overtureClassBits.put(AValuesDefinition.class, new AValuesDefinitionHandler());
+		overtureClassBits.put(ATypesDefinition.class, new ATypesDefinitionHandler());
 	}
 
+	private static class ATypesDefinitionHandler implements OvertureToCmlHandler {
+
+		@Override
+		public List<PDefinition> handle(PDefinition def) {
+			List<PDefinition> res =new LinkedList<PDefinition>();
+			if (def instanceof ATypesDefinition)
+			{
+				for(PDefinition tdef : ((ATypesDefinition) def).getTypes())
+					res.add(tdef);
+			}
+			
+			return res;
+		}
+		
+	}
+	
+	private static class AValuesDefinitionHandler implements OvertureToCmlHandler
+	{
+
+		@Override
+		public List<PDefinition> handle(PDefinition def) {
+
+			List<PDefinition> res= new LinkedList<PDefinition>();
+			if (def instanceof AValuesDefinition)
+			{
+				for(PDefinition d : ((AValuesDefinition) def).getValueDefinitions())
+					res.add(d);
+			}
+			else
+			{
+				res.add(def);
+			}
+			
+			return res;
+		}
+		
+	}
+	
 	private static class AFunctionsDefinitionHandler implements OvertureToCmlHandler
 	{
 
@@ -826,13 +918,25 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		for (PDefinition def : node.getBody())
 			if (!overtureClassBits.containsKey(def.getClass()))
 				thoseHandledByCOMPASS.add(def);
-			else	
-			{
-				if (def instanceof ATypeDefinition)
-					cmlClassEnv.addType(def.getName(), def);
-				else
-					cmlClassEnv.addVariable(def.getName(), def);
-			}
+// RWL This is handled by the CmlTCUtil.createCmlClassEnvironment
+		//			else	
+//			{
+//				if (def instanceof ATypesDefinition)
+//				{
+//					List<PDefinition> typeDefs = handleDefinitionsForOverture(def);
+//					for(PDefinition typeDef : typeDefs)
+//						cmlClassEnv.addType(typeDef.getName(), typeDef);
+//				}
+//				
+//				if (def instanceof AValuesDefinition || def instanceof AFunctionsDefinition)
+//				{
+//					List<PDefinition> valueDefs = handleDefinitionsForOverture(def);
+//					for(PDefinition valDef : valueDefs)
+//						cmlClassEnv.addVariable(valDef.getName(), valDef);
+//				}
+//				
+//
+//			}
 
 		// Handle the COMPASS definitions
 		{

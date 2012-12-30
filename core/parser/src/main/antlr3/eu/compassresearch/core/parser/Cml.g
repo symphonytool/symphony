@@ -230,6 +230,10 @@ processDefinition returns[AProcessDefinition def]
     : 'process' IDENTIFIER '=' (parametrisationList '@')? process
         {
             $def = new AProcessDefinition(); // FIXME
+            $def.setProcess( $process.proc );
+            LexLocation identifierLocation = extractLexLocation($IDENTIFIER);
+            LexNameToken processName = new LexNameToken("", new LexIdentifierToken($IDENTIFIER.getText(), false, identifierLocation));
+            $def.setName(processName);  
         }
     ;
 
@@ -1996,6 +2000,7 @@ caseExprAlt returns[List<ACaseAlternative> alts]
             for (PPattern p : $patternList.patterns) {
                 LexLocation loc = extractLexLocation(p.getLocation(), eloc);
                 ACaseAlternative alt = new ACaseAlternative(loc, null, p, $expression.exp, null);
+                $alts.add(alt);
             }
         }
     ;

@@ -13,8 +13,10 @@ import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
+import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
@@ -62,6 +64,15 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 
 	}
 
+	
+
+	@Override
+	public void caseATypesDefinition(ATypesDefinition node)
+			throws AnalysisException {
+
+		List<PDefinition> defs = TCDeclAndDefVisitor.handleDefinitionsForOverture(node);
+		members.addAll(defs);
+	}
 
 	@Override
 	public void caseAValuesDefinition(AValuesDefinition node)

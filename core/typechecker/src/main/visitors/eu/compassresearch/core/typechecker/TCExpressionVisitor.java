@@ -147,7 +147,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		// Okay given our best efforts the Overture Type Checking strategy could not find
-		// what we are looking for. Maybe it a CML class we are looking at.
+		// what we are looking for. Maybe its a CML class we are looking at.
 		CmlTypeCheckInfo nearestCmlEnvironment = question.contextGet(CmlTypeCheckInfo.class);
 		if (nearestCmlEnvironment == null)
 		{
@@ -267,13 +267,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// 
 
 
-		eu.compassresearch.core.typechecker.CmlTypeCheckInfo 
-		cmlQuestion;
-		if (question instanceof eu.compassresearch.core.typechecker.CmlTypeCheckInfo)
-			cmlQuestion = (eu.compassresearch.core.typechecker.CmlTypeCheckInfo)question;
-		else
-			cmlQuestion = question.contextGet(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class);
-
+		CmlTypeCheckInfo cmlQuestion = CmlTCUtil.getCmlEnv(question);
 		if (cmlQuestion == null)
 		{
 			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node+"")));
