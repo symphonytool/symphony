@@ -4,6 +4,6 @@ begin
       fn: int -> int fn(a) == 42
       
       values 
-      a:int = fn(42);
+      a:int = fn(42)
       b:int = a
 end

@@ -1,7 +1,7 @@
 class mapenum =
 begin
 	values
-	public none : map int to int = { |-> };
+	public none : map int to int = { |-> }
 	public some : map int to int = { 1 |-> 42, 2 |-> 42, 3 |-> 42 }
 	
 end

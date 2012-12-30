@@ -1,7 +1,7 @@
 class binexp =
 begin
 	values
-	public a : int = 42 div 42;
-	public b : int = a div 42;
+	public a : int = 42 div 42
+	public b : int = a div 42
 	public c : int = a div b
 end
