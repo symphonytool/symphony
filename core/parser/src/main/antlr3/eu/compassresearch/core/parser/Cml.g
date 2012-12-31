@@ -93,33 +93,40 @@ import eu.compassresearch.ast.types.*;
 }
 
 @members {
-// public String getErrorMessage(RecognitionException e, String[] tokenNames) {
-//     List stack = getRuleInvocationStack(e, this.getClass().getName());
-//     String msg = null;
-//     if (e instanceof NoViableAltException) {
-//         NoViableAltException nvae = (NoViableAltException)e;
-//         msg = " no viable alt; token="+e.token+
-//             " (decision="+nvae.decisionNumber+
-//             " state "+nvae.stateNumber+")"+
-//             " decision=<<"+nvae.grammarDecisionDescription+">>";
-//     } else {
-//         msg = super.getErrorMessage(e, tokenNames);
-//     }
-//     return stack+" "+msg;
+public String getErrorMessage(RecognitionException e, String[] tokenNames) {
+    List stack = getRuleInvocationStack(e, this.getClass().getName());
+    String msg = null;
+    if (e instanceof NoViableAltException) {
+        NoViableAltException nvae = (NoViableAltException)e;
+        msg = " no viable alt; token="+e.token+
+            " (decision="+nvae.decisionNumber+
+            " state "+nvae.stateNumber+")"+
+            " decision=<<"+nvae.grammarDecisionDescription+">>";
+    } else {
+        msg = super.getErrorMessage(e, tokenNames);
+    }
+    return stack+" "+msg;
+}
+public String getTokenErrorDisplay(CommonToken t) {
+    return t.toString();
+}
+
+// protected void mismatch(IntStream input, int ttype, BitSet follow) throws RecognitionException {
+//     throw new MismatchedTokenException(ttype, input);
 // }
-// public String getTokenErrorDisplay(Token t) {
-//     return t.toString();
+
+// @Override
+// protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow) throws RecognitionException {
+//     throw new MismatchedTokenException(ttype, input);
+// }
+
+// @Override
+// public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow) throws RecognitionException {
+//     throw e;
 // }
 
 private DecimalFormat decimalFormatParser = new DecimalFormat();
 public static final String CML_LANG_VERSION = "CML20121223";
-
-protected void mismatch(IntStream input, int ttype, BitSet follow) throws RecognitionException {
-    throw new MismatchedTokenException(ttype, input);
-}
-// public void recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow) throws RecognitionException {
-//     throw e;
-// }
 
 private LexToken extractLexToken(String str, LexLocation loc) {
     VDMToken tok = null;
@@ -187,15 +194,15 @@ public AAccessSpecifierAccessSpecifier extractQualifier(CommonToken token) {
 
 } // end @members
 
-@rulecatch {
-catch (RecognitionException e) {
-    throw e;
-}
-}
+// @rulecatch {
+// catch (RecognitionException e) {
+//     throw e;
+// }
+// }
 
 source returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
-    : ( programParagraph { $defs.add($programParagraph.defs); } )+
+    : ( programParagraph { $defs.add($programParagraph.defs); } )+ EOF
     ;
 
 programParagraph returns[PDefinition defs]
@@ -771,9 +778,15 @@ communication returns[PCommunicationParameter comm]
         | symbolicLiteralExpr { $comm.setExpression($symbolicLiteralExpr.exp); }
         | recordTupleExprs    { $comm.setExpression($recordTupleExprs.exp); }
         )
-    | '?' bindablePattern ( 'in' 'set' setMapExpr )?
+    | '?' bindablePattern ( 'in' 'set' ( setMapExpr | '(' expression ')' ) )?
         {
-            $comm = new AReadCommunicationParameter(null, $setMapExpr.exp, $bindablePattern.pattern);
+            // FIXME --- I also need to add simple identifiers to the set of things you can 'in set' from
+            if ($setMapExpr.exp != null)
+                $comm = new AReadCommunicationParameter(null, $setMapExpr.exp, $bindablePattern.pattern);
+            else if ($expression.exp != null)
+                $comm = new AReadCommunicationParameter(null, $expression.exp, $bindablePattern.pattern);
+            else
+                $comm = new AReadCommunicationParameter(null, null, $bindablePattern.pattern);
         }
     ;
 
@@ -1692,6 +1705,11 @@ type returns[PType type]
             params.add(new AVoidType(extractLexLocation($unit), true));
             $type = new AFunctionType(loc, false, null, totalFuncType, params, $rng.type);
         }
+    | 'set' 'of' sub=type                       { $type = new ASetType(null, false, null, $sub.type, false, false); }
+    | 'seq' 'of' sub=type                       { $type = new ASeqSeqType(null, false, null, $sub.type, false); }
+    | 'seq1' 'of' sub=type                      { $type = new ASeq1SeqType(null, false, null, $sub.type, false); }
+    | 'map' dom=type 'to' rng=type              { $type = new AMapMapType(null, false, null, $dom.type, $rng.type, false); }
+    | 'inmap' dom=type 'to' rng=type            { $type = new AInMapMapType(null, false, null, $dom.type, $rng.type, false); }
     ;
 
 type0 returns[PType type]
@@ -1743,11 +1761,6 @@ typebase returns[PType type]
             $type = new ANamedInvariantType(loc, false, null, false, null, tname,
                                             new AUnresolvedType(loc, false, new ArrayList<PDefinition>(), tname));
         }
-    | 'set' 'of' sub=typebase                { $type = new ASetType(null, false, null, $sub.type, false, false); }
-    | 'seq' 'of' sub=typebase                { $type = new ASeqSeqType(null, false, null, $sub.type, false); }
-    | 'seq1' 'of' sub=typebase               { $type = new ASeq1SeqType(null, false, null, $sub.type, false); }
-    | 'map' dom=typebase 'to' rng=typebase   { $type = new AMapMapType(null, false, null, $dom.type, $rng.type, false); }
-    | 'inmap' dom=typebase 'to' rng=typebase { $type = new AInMapMapType(null, false, null, $dom.type, $rng.type, false); }
     | 'compose' IDENTIFIER 'of' fieldList 'end'
         {
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
@@ -2342,10 +2355,10 @@ selector returns[PExp exp]
 
 exprbase returns[PExp exp]
 @init { List<PExp> exps = new ArrayList<PExp>(); }
-    : l='(' expression r=')'
+@after { $exp.setLocation(extractLexLocation($exprbase.start, $exprbase.stop)); }
+    : '(' expression ')'
         {
-            LexLocation loc = extractLexLocation($l,$r);
-            $exp = new ABracketedExp(loc, $expression.exp);
+            $exp = new ABracketedExp(null, $expression.exp);
         }
     | SELF
         {
@@ -2371,15 +2384,12 @@ exprbase returns[PExp exp]
             LexLocation loc = extractLexLocation($eseq);
             $exp = new ASeqEnumSeqExp(loc, new ArrayList<PExp>());
         }
-    | l='[' seqExpr? r=']'
+    | '[' seqExpr? ']'
         {
-            LexLocation loc = extractLexLocation($l,$r);
-            if ($seqExpr.seqExpr == null) {
-                $exp = new ASeqEnumSeqExp(loc, new ArrayList<PExp>());
-            } else {
-                $seqExpr.seqExpr.setLocation(loc);
+            if ($seqExpr.seqExpr == null)
+                $exp = new ASeqEnumSeqExp(null, new ArrayList<PExp>());
+            else
                 $exp = $seqExpr.seqExpr;
-            }
         }
     | recordTupleExprs
         {
@@ -2389,30 +2399,25 @@ exprbase returns[PExp exp]
         {
             $exp = $setMapExpr.exp;
         }
-    | ISOFCLASS '(' name ',' expression r=')'
+    | ISOFCLASS '(' name ',' expression ')'
         {
-            LexLocation loc = extractLexLocation($ISOFCLASS,$r);
-            $exp = new AIsOfClassExp(loc, $name.name, $expression.exp);
+            $exp = new AIsOfClassExp(null, $name.name, $expression.exp);
         }
-    | ISUNDER '(' expression ',' type r=')'
+    | ISUNDER '(' expression ',' type ')'
         {
-            LexLocation loc = extractLexLocation($ISUNDER,$r);
-            $exp = new AIsExp(null, loc, null, $type.type, $expression.exp, null);
+            $exp = new AIsExp(null, null, null, $type.type, $expression.exp, null);
         }
-    | ISUNDER basicType '(' expression r=')'
+    | ISUNDER basicType '(' expression ')'
         {
-            LexLocation loc = extractLexLocation($ISUNDER,$r);
-            $exp = new AIsExp(null, loc, null, $basicType.basicType, $expression.exp, null);
+            $exp = new AIsExp(null, null, null, $basicType.basicType, $expression.exp, null);
         }
-    | ISUNDER name '(' expression r=')'
+    | ISUNDER name '(' expression ')'
         {
-            LexLocation loc = extractLexLocation($ISUNDER,$r);
-            $exp = new AIsExp(null, loc, $name.name, null, $expression.exp, null);
+            $exp = new AIsExp(null, null, $name.name, null, $expression.exp, null);
         }
     | PREUNDER '(' func=expression ( ',' expr=expression { exps.add($expr.exp); } )* ')'
         {
-            LexLocation loc = extractLexLocation($PREUNDER,$r);
-            $exp = new APreExp(loc, $func.exp, exps);
+            $exp = new APreExp(null, $func.exp, exps);
         }
     ;
 
@@ -2487,7 +2492,8 @@ recordTupleExprs returns[PExp exp]
 
 setMapExpr returns[PExp exp]
 @after { $exp.setLocation(extractLexLocation($setMapExpr.start, $setMapExpr.stop)); }
-    : l='{' ( empty='|->' | setMapExprGuts )? r='}'
+    : '{|->}'   { $exp = new AMapEnumMapExp(null, new ArrayList<AMapletExp>()); }
+    | l='{' ( empty='|->' | setMapExprGuts )? r='}'
         {
             if ($setMapExprGuts.exp != null) {
                 $exp = $setMapExprGuts.exp;

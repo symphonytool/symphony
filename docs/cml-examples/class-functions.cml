@@ -2,7 +2,7 @@ class Exchange =
 begin 
       
 functions
-		callers: (map Node.SUBS to Node.STATUS) +>  set of Node.SUBS
+		callers: (map Node.SUBS to Node.STATUS) +> (set of Node.SUBS)
 		callers(status) == dom(status :> Node.Connected)
 		
 		connected: (map Node.SUBS to Node.STATUS) * (map Node.SUBS to Node.SUBS) +> (inmap Node.SUBS to Node.SUBS)

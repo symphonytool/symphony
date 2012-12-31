@@ -3,8 +3,8 @@
 --    exports all
 
 	types
-		PI = bool;
-		SI = bool;
+		PI = bool
+		SI = bool
 		Data = nat
 channels
 inc: nat
@@ -18,11 +18,11 @@ process Observer =
     
       -- produce a sequence of increasing numbers on the input
       OW = n:nat@
-        [inc!n] -> OW(n+1)
+        inc!n -> OW(n+1)
         
       -- read the numbers from the input and check whether it's an increasing sequence
       OR = n:nat@
-       [out?n] -> [n>=m] & OR(n) 
+       out?n -> [n>=m] & OR(n) 
         
       -- the system composed with its property specification
       OP =
@@ -52,7 +52,7 @@ process Reader =
   begin
     
     state
-      rpair : PI;
+      rpair : PI
       rindex : SI
     operations 
      choose_pair : PI ==> void
@@ -77,10 +77,10 @@ process Reader =
       )
     actions
       RP = 
-        [getLatest?k] -> choose_pair(k) ;
-        (dcl r : PI @ r := signal_pair(); [setReading!r] ->
-        [getIndex!rpair?i] -> choose_index(i);
-        [getSlot!rpair!rindex?s] -> [out!s] -> RP)
+        getLatest?k -> choose_pair(k) ;
+        (dcl r : PI @ r := signal_pair(); setReading!r ->
+        getIndex!rpair?i -> choose_index(i);
+        getSlot!rpair!rindex?s -> out!s -> RP)
   @ RP
   end
 
@@ -96,9 +96,9 @@ process SharedState =
   begin
   	
     state 
-      slot : map PI * Context`SI to Context`Data;
-      index : map PI to Context`SI;
-      latest : PI;
+      slot : map PI * Context`SI to Context`Data
+      index : map PI to Context`SI
+      latest : PI
       reading : PI
     actions
       IO = //FIXME:Parser cannot deal state designators others than id ['.' id]
@@ -118,7 +118,7 @@ process Writer =
   begin
     
     state
-      wpair : PI;
+      wpair : PI
       windex : Context`SI
     operations 
       

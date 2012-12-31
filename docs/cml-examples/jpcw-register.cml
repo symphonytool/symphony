@@ -1,7 +1,7 @@
 /*  CML_{0} example from CML Definition 0 document v. 1.0 */
   types
     public Byte = nat
-    inv n == (n <= 255);
+    inv n == (n <= 255)
 
   functions
     oflow (i,j : Byte) b : bool
@@ -51,17 +51,17 @@ process RegisterProc =
   actions
    
    REG = 
-     [load?i] -> LOAD(i) ; REG
+     load?i -> LOAD(i) ; REG
      []
-     (dcl j: Byte @ j := READ(); [read!j] -> REG)
+     (dcl j: Byte @ j := READ(); read!j -> REG)
      [] 
-     ([add?i] -> ( ([oflow(reg,i)] & [overflow] -> INIT(); REG)
+     (add?i -> ( ([oflow(reg,i)] & overflow -> INIT(); REG)
        	     	 [] 
 		 ([not oflow(reg,i)] & ADD(i);REG)))
      [] 
-     ([sub?i] -> ( ([uflow(reg,i)] & [underflow] -> INIT(); REG)
+     (sub?i -> ( ([uflow(reg,i)] & underflow -> INIT(); REG)
        	     	 [] 
 		 ([not uflow(reg,i)] & SUB(i); REG)))
    @
-     [init] -> INIT(); REG
+     init -> INIT(); REG
  end
