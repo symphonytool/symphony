@@ -297,9 +297,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 							info.addType(dd.getName(), dd);
 						else
 							info.addVariable(dd.getName(),dd);
-					}		
-
-
+					}
 			}
 			info.env.setEnclosingDefinition(globalRoot);
 			info.scope = NameScope.GLOBAL;

@@ -12,7 +12,13 @@ import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
 
+import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
+import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelsDefinition;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.program.PSource;
@@ -65,6 +71,26 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 	}
 
 	
+	
+	
+
+	@Override
+	public void caseAChannelsDefinition(AChannelsDefinition node)
+			throws AnalysisException {
+
+		LinkedList<AChannelNameDefinition> channels = node.getChannelNameDeclarations();
+		for(AChannelNameDefinition chanDef: channels)
+		{
+			if (chanDef.getSingleType() != null)
+			{
+				ATypeSingleDeclaration typeDecl = chanDef.getSingleType();
+				LinkedList<LexIdentifierToken> ids = typeDecl.getIdentifiers();
+				for (LexIdentifierToken id : ids)
+					question.addChannel(id, chanDef);
+			}
+		}
+
+	}
 
 	@Override
 	public void caseATypesDefinition(ATypesDefinition node)
@@ -81,4 +107,15 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 		members.addAll(defs);
 	}
 
+	@Override
+	public void caseAFunctionsDefinition(AFunctionsDefinition node)
+			throws AnalysisException {
+		
+		List<PDefinition> defs = TCDeclAndDefVisitor.handleDefinitionsForOverture(node);
+		members.addAll(defs);
+		
+	}
+
+	
+	
 }

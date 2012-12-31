@@ -12,7 +12,9 @@ import javax.xml.ws.handler.MessageContext.Scope;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassClassDefinition;
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AExternalDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.AStateDefinition;
@@ -29,8 +31,12 @@ import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.lex.LexToken;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.APatternListTypePair;
+import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
@@ -66,6 +72,7 @@ import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
@@ -96,6 +103,19 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 
 
+
+
+	@Override
+	public PType caseAClassInvariantDefinition(AClassInvariantDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		PType expTyp = node.getExpression().apply(parentChecker,question);
+
+
+		node.setType(expTyp);
+		return node.getType();
+	}
+
 	@Override
 	public PType caseAActionsDefinition(AActionsDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
@@ -109,15 +129,15 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				node.setType(issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(action+"")));
 				return node.getType();
 			}
-			
+
 			if (!(actionType instanceof AActionType))
 			{
 				node.setType(issueHandler.addTypeError(action, TypeErrorMessages.EXPECTED_AN_ACTION.customizeMessage(action+"")));
 				return node.getType();
 			}
 		}
-		
-		
+
+
 		node.setType(new AActionParagraphType());
 		return node.getType();
 	}
@@ -132,13 +152,14 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		for(PDefinition def : defs)
 		{
 			question.scope = NameScope.LOCAL;
-			PType defType = def.apply(parentChecker, question);
+			PType defType = def.apply(parentChecker, cmlenv);
 			if (!TCDeclAndDefVisitor.successfulType(defType))
 			{
 				node.setType(issueHandler.addTypeError(def, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+def)));
 				return node.getType();
 			}
-			cmlenv.addVariable(def.getName(), def);
+			if (def.getName() != null)
+				cmlenv.addVariable(def.getName(), def);
 		}
 
 		if (node.getInvdef() != null) {
@@ -150,6 +171,114 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		node.setType(new AStateParagraphType(node.getLocation(), true));
+		return node.getType();
+	}
+
+
+
+	@Override
+	public PType caseAImplicitCmlOperationDefinition(
+			AImplicitCmlOperationDefinition node, TypeCheckInfo question)
+					throws AnalysisException {
+
+		// get CML environment
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
+			return node.getType();
+		}
+
+		PType actualResult = node.getActualResult();
+		LinkedList<AExternalClause> externals = node.getExternals();
+		LinkedList<APatternListTypePair> parameters = node.getParameterPatterns();
+		AExplicitFunctionDefinition preDef = node.getPredef();
+		AExplicitFunctionDefinition postDef = node.getPostdef();
+		List<PType> parameterTypes = new LinkedList<PType>();
+
+
+		// LinkedList<APatternTypePair> result = node.getResult();
+
+		// Create new local environment for the pre/post conditions.
+		List<PDefinition> prePostDefinitions = new LinkedList<PDefinition>();
+		List<AExternalDefinition> externalDefinitions = new LinkedList<AExternalDefinition>();
+
+		// Check parameters
+		for(APatternListTypePair typePair : parameters)
+		{
+			LinkedList<PPattern> patterns = typePair.getPatterns();
+			for(PPattern ptrn : patterns)
+			{
+				PType ptrnType = ptrn.apply(parentChecker,question);
+				if (!TCDeclAndDefVisitor.successfulType(ptrnType))
+				{
+					node.setType(issueHandler.addTypeError(ptrn, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(ptrn+"")));
+					return node.getType();
+				}
+				prePostDefinitions.addAll(ptrnType.getDefinitions());
+			}
+		}
+
+		// Check externs
+		for(AExternalClause clause : externals)
+		{
+			LinkedList<LexNameToken> clauseIds = clause.getIdentifiers();
+
+			for(LexNameToken id : clauseIds)
+			{
+				PDefinition idDef = cmlEnv.lookup(id, AStateDefinition.class);
+				if (idDef == null)
+				{
+					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id+"")));
+					return node.getType();
+				}
+
+				AExternalDefinition externalDef = AstFactory.newAExternalDefinition(idDef, clause.getMode()); 
+				externalDefinitions.add(externalDef);
+			}
+		}
+
+
+		// pre cond env.
+		CmlTypeCheckInfo preEnv = cmlEnv.newScope();
+		for(PDefinition def : prePostDefinitions)
+			preEnv.addVariable(def.getName(), def);
+
+		// add before variables
+		for(AExternalDefinition extDef : externalDefinitions)
+		{
+			preEnv.addVariable(extDef.getName(), extDef);
+		}
+
+		PType preDefType = preDef.apply(parentChecker,preEnv);
+		if (!TCDeclAndDefVisitor.successfulType(preDefType))
+		{
+			node.setType(issueHandler.addTypeError(preDef, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(preDef+"")));
+			return node.getType();
+		}
+
+		// post cond env.
+		CmlTypeCheckInfo postEnv = cmlEnv.newScope();
+		for(PDefinition def : prePostDefinitions)
+			postEnv.addVariable(def.getName(), def);
+
+		// add after variables
+		for(AExternalDefinition extDef : externalDefinitions)
+		{
+			postEnv.addVariable(extDef.getName(), extDef);
+			postEnv.addVariable(extDef.getOldname(), extDef);
+		}
+
+		PType postDefType = postDef.apply(parentChecker,postEnv);
+		if (!TCDeclAndDefVisitor.successfulType(postDefType))
+		{
+			node.setType(issueHandler.addTypeError(postDef, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(postDef+"")));
+			return node.getType();
+		}
+
+		AOperationType operationType = AstFactory.newAOperationType(node.getLocation(), parameterTypes, actualResult);
+
+		node.setType(operationType);
 		return node.getType();
 	}
 
@@ -354,12 +483,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// Add this to the current scope
 		((TypeCheckQuestion) question).addVariable(node.getName()
 				.getIdentifier(), node);
-		
-		
+
+
 		// For every parametrisation add the decl to the action's environment.
 		LinkedList<PParametrisation> decls = node.getDeclarations();
 		PAction action = node.getAction();
-		
+
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		CmlTypeCheckInfo actionScope = cmlEnv.newScope();
 		for(PParametrisation decl : decls)
@@ -381,7 +510,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(action+"")));
 			return node.getType();
 		}
-		
+
 		node.setType(new AActionType(node.getLocation(), true));
 		return node.getType();
 	}
@@ -687,12 +816,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				for(PDefinition tdef : ((ATypesDefinition) def).getTypes())
 					res.add(tdef);
 			}
-			
+
 			return res;
 		}
-		
+
 	}
-	
+
 	private static class AValuesDefinitionHandler implements OvertureToCmlHandler
 	{
 
@@ -709,12 +838,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			{
 				res.add(def);
 			}
-			
+
 			return res;
 		}
-		
+
 	}
-	
+
 	private static class AFunctionsDefinitionHandler implements OvertureToCmlHandler
 	{
 
@@ -918,25 +1047,25 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		for (PDefinition def : node.getBody())
 			if (!overtureClassBits.containsKey(def.getClass()))
 				thoseHandledByCOMPASS.add(def);
-// RWL This is handled by the CmlTCUtil.createCmlClassEnvironment
+		// RWL This is handled by the CmlTCUtil.createCmlClassEnvironment
 		//			else	
-//			{
-//				if (def instanceof ATypesDefinition)
-//				{
-//					List<PDefinition> typeDefs = handleDefinitionsForOverture(def);
-//					for(PDefinition typeDef : typeDefs)
-//						cmlClassEnv.addType(typeDef.getName(), typeDef);
-//				}
-//				
-//				if (def instanceof AValuesDefinition || def instanceof AFunctionsDefinition)
-//				{
-//					List<PDefinition> valueDefs = handleDefinitionsForOverture(def);
-//					for(PDefinition valDef : valueDefs)
-//						cmlClassEnv.addVariable(valDef.getName(), valDef);
-//				}
-//				
-//
-//			}
+		//			{
+		//				if (def instanceof ATypesDefinition)
+		//				{
+		//					List<PDefinition> typeDefs = handleDefinitionsForOverture(def);
+		//					for(PDefinition typeDef : typeDefs)
+		//						cmlClassEnv.addType(typeDef.getName(), typeDef);
+		//				}
+		//				
+		//				if (def instanceof AValuesDefinition || def instanceof AFunctionsDefinition)
+		//				{
+		//					List<PDefinition> valueDefs = handleDefinitionsForOverture(def);
+		//					for(PDefinition valDef : valueDefs)
+		//						cmlClassEnv.addVariable(valDef.getName(), valDef);
+		//				}
+		//				
+		//
+		//			}
 
 		// Handle the COMPASS definitions
 		{
@@ -1060,7 +1189,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// make a new scope for the process
 		CmlTypeCheckInfo newScope = (CmlTypeCheckInfo) ((TypeCheckQuestion) question)
 				.newScope(null);
-		
+
 		LinkedList<PSingleDeclaration> state = node.getLocalState();
 		for(PSingleDeclaration decl : state)
 		{
@@ -1074,7 +1203,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			for(PDefinition def : declType.getDefinitions())
 				newScope.addVariable(def.getName(), def);
 		}
-		
+
 		CmlTypeCheckInfo newQ = (CmlTypeCheckInfo) question;
 		newQ.addVariable(node.getName(), node);
 
@@ -1088,7 +1217,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 
-		
+
 		// Marker type indicating paragraph type check ok
 		node.setType(new AProcessParagraphType());
 		return node.getType();

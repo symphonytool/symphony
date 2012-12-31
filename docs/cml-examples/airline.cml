@@ -76,7 +76,7 @@ process Airline =
   
     state 
       fDb : FlightDb;
-      bDb : BookingDb;
+      bDb : BookingDb
  		  inv forall bd in set rng bDb @ bd.f in set dom fDb and
 		     	 forall fId in set dom fDb @ total_booked(fId, bDb) <= fDb(fId).max_seats
 

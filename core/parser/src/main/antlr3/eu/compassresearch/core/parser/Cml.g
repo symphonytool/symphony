@@ -1641,14 +1641,14 @@ typeDefs returns[PDefinition defs]
     List<ATypeDefinition> typeDefList = new ArrayList<ATypeDefinition>();
     ATypeDefinition last = null;
 }
-    : t='types' ( def=typeDef { last = $def.def; typeDefList.add(last); } )*
+    : t='types' ( def=typeDef { last = $def.def; typeDefList.add(last); } ';'? )*
         {
             LexLocation loc = extractLexLocation($t);
             if (typeDefList.size()>0)
                 loc = extractLexLocation(loc,last.getLocation());
             $defs = new ATypesDefinition(loc, NameScope.LOCAL, false,
                                                   CmlParserHelper.getDefaultAccessSpecifier(true, false, loc),
-                                                  null, typeDefList);
+                                                  Pass.TYPES, typeDefList);
             $defs.setName(new LexNameToken("", $t.getText(), loc));
         }
     ;

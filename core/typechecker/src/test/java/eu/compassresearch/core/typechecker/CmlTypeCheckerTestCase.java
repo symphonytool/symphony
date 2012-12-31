@@ -24,7 +24,6 @@ import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
@@ -710,6 +709,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		TestUtil.TypeCheckerResult res = TestUtil.runTypeChecker(source);
 		
 		boolean parserOk = res.parsedOk;
+		Assert.assertSame(this.expectedParserOk, parserOk);
 		
 		TypeIssueHandler errors = res.issueHandler;
 

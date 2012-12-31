@@ -181,6 +181,7 @@ public class RunCmlExamplesTestCase {
 		addFailingFile("simpson.cml","Unable to resolve type name 'Data'");
 		addFailingFile("class-functions-measure.cml","Measure a(int) is not in scope.");
 		addFailingFile("isundername.cml","The Symbol \"a\" is undefined.");
+		addFailingFile("class-operations-varinformation.cml", TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage("a"));
 		// Failed tests caused by parser issues
 		
 		// // See cml.y production: | expression[rootExp] LRPAREN ... The argument list is 
