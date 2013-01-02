@@ -12,6 +12,8 @@ public enum TypeErrorMessages {
 
     INCOMPATIBLE_TYPE("Expected an entity of type %s but %s was found."),
 
+    EXPECTED_A_CHANNEL("Expected entity \"%s\" to be a channel. "),
+    
     EXPECTED_SUBTYPE_RELATION("%s is not a sub type of %s."),
 
     MISSING_CONSTRUCTOR("No constructor found for class %s and arguments %s"),
@@ -42,7 +44,7 @@ public enum TypeErrorMessages {
     ILLEGAL_CONTEXT(
 	    "The symbol \"%s\" requires a CML context to be resolved. No such context is present."),
 PATTERN_TYPE_MISSING("The pattern \"%s\" should already have a type from its context."),
-	WRONG_NUMBER_OF_ARGUMENTS("Expected %s args, %s were found.")
+	WRONG_NUMBER_OF_ARGUMENTS("Expected %s args, %s were found."),
 	
 
     ;

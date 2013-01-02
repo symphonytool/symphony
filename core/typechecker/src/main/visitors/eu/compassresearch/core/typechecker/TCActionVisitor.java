@@ -1,7 +1,9 @@
 package eu.compassresearch.core.typechecker;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
@@ -11,12 +13,14 @@ import org.overture.ast.definitions.APrivateAccess;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.ATupleExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AExpressionPattern;
+import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.statements.AIdentifierStateDesignator;
@@ -24,9 +28,11 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.ABooleanBasicType;
+import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.AUnresolvedType;
 import org.overture.ast.types.PType;
@@ -48,6 +54,7 @@ import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADeclarationInstantiatedAction;
+import eu.compassresearch.ast.actions.ADeclareStatementAction;
 import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
@@ -57,6 +64,7 @@ import eu.compassresearch.ast.actions.AForSequenceStatementAction;
 import eu.compassresearch.ast.actions.AForSetStatementAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismReplicatedAction;
+import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
@@ -72,6 +80,7 @@ import eu.compassresearch.ast.actions.AParametrisedAction;
 import eu.compassresearch.ast.actions.AParametrisedInstantiatedAction;
 import eu.compassresearch.ast.actions.AMultipleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ANewStatementAction;
+import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -88,12 +97,15 @@ import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
 import eu.compassresearch.ast.actions.AVresParametrisation;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
+import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
@@ -119,7 +131,79 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 
 
+	/**
+	 * Actions can reference and call each other and for that we have two choices. 
+	 * 
+	 * Lookup restricted to declared order or dynamic order.
+	 * 
+	 * The design choice to go with dynamic order for flexibility in CML
+	 * has been made. This solution suffers from possible cyclic references 
+	 * which are resolved using the map below.
+	 * 
+	 * TCDeclAndDefVisitor will setup this map in the caseAActionsDefinition
+	 * and tear it down again upon leaving. ACallStatementAction and AReferencedAction
+	 * uses this map to check for cyclic references before going recursively down and
+	 * type checking the referenced action if it has no type already.
+	 * 
+	 * The actionDefinntionsSeen is a map from referencee to referencer. Every referencee will
+	 * maintain a list of Actions from where it has been referenced.
+	 */
+	private Map<AActionDefinition, List<PAction>> actionDefinitionsSeen = null;
 
+	// use by caseAActionsDefinitions in TCDeclAndDefVisitor.
+	void setupActionCycleMap() { this.actionDefinitionsSeen = new HashMap<AActionDefinition, List<PAction>>(); }
+	// set it to null will give GC a go at it
+	void tearDownActionCycleMap() { this.actionDefinitionsSeen = null; }
+	// Add action to the map with empty referencer list
+	void registerActionForCycleDetection(AActionDefinition actionDef){
+		actionDefinitionsSeen.put(actionDef, new LinkedList<PAction>());
+	}
+	/**
+	 * 
+	 * Type check a referenced action that has not been type checked yet.
+	 * 
+	 * Check that there is no cycle.
+	 * 
+	 * @param referencer -- The node that dereferences 
+	 * @param referencee -- The lookup node that has been dereferenced
+	 * @param question -- The current environment
+	 * @return The type of the referenced action.
+	 * @throws AnalysisException - if something unpredicted happens.
+	 */
+	private PType resolveUntypedActionReference(PAction referencer, PDefinition referencee, TypeCheckInfo question) throws AnalysisException 
+	{
+		PType res = null;
+
+		// get the list of referencers for this current referencee
+		List<PAction> referencingActions = null;
+		if (actionDefinitionsSeen.containsKey(referencee))
+			referencingActions = actionDefinitionsSeen.get(referencee);
+		else
+			return issueHandler.addTypeError(referencee, "Action \""+referencee+"\" is not part of this group");	
+
+
+		// Invariant: 
+		if (referencingActions.size() > 1)
+		{
+			StringBuilder cycleStr = new StringBuilder();
+			List<PAction> cur = actionDefinitionsSeen.get(referencee);
+			cycleStr.append(""+referencer);
+			do
+			{
+				cycleStr.append(" -> ");
+				PAction ac = cur.remove(0);
+				cycleStr.append(ac+"");
+				cur = actionDefinitionsSeen.get(ac);
+			} while(cur != null && cur.size() > 0);
+			issueHandler.addTypeWarning(referencee, TypeWarningMessages.CYCLE_ACTION_REFERENCE.customizeMessage(cycleStr.toString()));
+			referencee.setType(new AActionType());
+			return referencee.getType();
+		} 
+
+		referencingActions.add(referencer);
+		res = referencee.apply(parentChecker,question);
+		return res;
+	}
 
 	@Override
 	public PType caseAIfStatementAction(AIfStatementAction node,
@@ -258,7 +342,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				return node.getType();
 			}
 
-			issueHandler.addTypeWarning(def, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customize(def+""));
+			issueHandler.addTypeWarning(def, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(def+""));
 		}
 
 
@@ -363,7 +447,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		LinkedList<PSingleDeclaration> repDecl = node.getReplicationDeclaration();
 
-		issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customize(""+node));
+		issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(""+node));
 
 		node.setType(new AActionType());
 		return node.getType();
@@ -1312,21 +1396,80 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		return node.getType();
 	}
 
+
+
+
+	@Override
+	public PType caseAGuardedAction(AGuardedAction node, TypeCheckInfo question)
+			throws AnalysisException {
+
+		PExp exp = node.getExpression();
+		PAction action = node.getAction();
+
+		PType expType = exp.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(expType))
+		{
+			node.setType(issueHandler.addTypeError(exp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(exp+"")));
+			return node.getType();
+		}
+
+		if (!typeComparator.isSubType(expType, AstFactory.newABooleanBasicType(node.getLocation())))
+		{
+			node.setType(issueHandler.addTypeError(exp, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("bool", ""+expType)));
+			return node.getType();
+		}
+
+		PType actionType = action.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(actionType))
+		{
+			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+action)));
+			return node.getType();
+		}
+
+		if (!(actionType instanceof AActionType))
+		{
+			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.EXPECTED_AN_ACTION.customizeMessage(""+action)));
+			return node.getType();
+		}
+
+		node.setType(new AActionType(node.getLocation(), true));
+		return node.getType();
+
+	}
 	@Override
 	public PType caseABlockStatementAction(ABlockStatementAction node,
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
-		// extend the environment
 
-		//
+		// get CML environment
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node+"")));
+			return node.getType();
+		}
+
+		// Create a new environment for this block
+		CmlTypeCheckInfo blockEnv = cmlEnv.newScope();
+
+		// extend the environment with optional declarations
+		ADeclareStatementAction declared = node.getDeclareStatement();
+		if (declared != null) {
+			LinkedList<PDefinition> freshDefinitions = declared.getAssignmentDefs();
+			for(PDefinition def : freshDefinitions)
+				blockEnv.addVariable(def.getName(), def);
+		}
+
+		// check the action.
 		PAction action = node.getAction();
-		PType actionType = action.apply(parentChecker, question);
-		if (actionType == null)
+		PType actionType = action.apply(parentChecker, blockEnv);
+		if (!TCDeclAndDefVisitor.successfulType(actionType))
 			issueHandler.addTypeError(action,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 					.customizeMessage(action.toString()));
-		node.setType(new AStatementType());
 
+		// alright this block is okay.
+		node.setType(new AActionType(node.getLocation(), true));
 		return node.getType();
 	}
 
@@ -1417,20 +1560,101 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 
-		if (question instanceof CmlTypeCheckInfo) {
-			CmlTypeCheckInfo cmlQuestion = (CmlTypeCheckInfo) question;
-
-			// There should be a channel defined with this name
-			if (null == cmlQuestion.lookupChannel(node.getIdentifier())) {
-				issueHandler.addTypeError(node,
-						TypeErrorMessages.NAMED_TYPE_UNDEFINED
-						.customizeMessage(node.getIdentifier().name));
-				return new AErrorType(node.getLocation(), true);
-			}
-			node.getAction().apply(this, question);
-
-			node.setType(new AStatementType());
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node+"")));
+			return node.getType();
 		}
+
+		PDefinition channel = cmlEnv.lookupChannel(node.getIdentifier());
+		AChannelNameDefinition channelNameDefinition = null;
+		
+		// There should be a channel defined with this name
+		if (null == channel) {
+			node.setType( issueHandler.addTypeError(node,
+					TypeErrorMessages.NAMED_TYPE_UNDEFINED
+					.customizeMessage(node.getIdentifier().name)));
+			return node.getType();
+		}
+
+		
+		if (!(channel instanceof AChannelNameDefinition))
+		{
+			node.setType(issueHandler.addTypeError(channel, TypeErrorMessages.EXPECTED_A_CHANNEL.customizeMessage(channel+"")));
+			return node.getType();
+		}
+
+		
+		channelNameDefinition = (AChannelNameDefinition)channel;
+		
+		CmlTypeCheckInfo commEnv = cmlEnv.newScope();
+
+		LinkedList<PCommunicationParameter> commParams = node.getCommunicationParameters();
+		for(PCommunicationParameter commParam : commParams)
+		{
+
+			PPattern commPattern = null;
+			// If a read communication is encountered
+			// //
+			// // Add all identifiers in pattern to environment with 
+			// // the types in the declared type for the channel
+			// // 
+			// //
+			if (commParam instanceof AReadCommunicationParameter)
+			{
+   			    ATypeSingleDeclaration typeDecl = channelNameDefinition.getSingleType();
+				AReadCommunicationParameter readParam = (AReadCommunicationParameter)commParam;
+				commPattern = readParam.getPattern();
+				
+				if (typeDecl.getType() == null)
+					typeDecl.setType(new AChannelType(commParam.getLocation(), true));
+				
+				if (commPattern instanceof ATuplePattern)
+				{
+					ATuplePattern commTuplePattern = (ATuplePattern)commPattern;
+					PType type = typeDecl.getType();
+					if (!(type instanceof ARecordInvariantType))
+					{
+						node.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Record", ""+type)));
+						return node.getType();
+					}
+				
+					ARecordInvariantType r = (ARecordInvariantType)typeDecl.getType();
+					List<PDefinition> defs = commTuplePattern.getDefinitions();
+					for(int i = 0; i < r.getFields().size(); i++)
+					{
+						PDefinition def = defs.get(i); 
+						AFieldField field = r.getFields().get(i);
+						PType fType = field.getType();
+						def.setType(fType);
+						commEnv.addVariable(def.getName(), def);
+					}
+				}
+				
+				
+			}
+
+			if (commParam instanceof AWriteCommunicationParameter)
+			{
+				AWriteCommunicationParameter writeParam = (AWriteCommunicationParameter)commParam;
+			}
+
+
+			// Else wierd stuff
+			issueHandler.addTypeWarning(node,TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(commParam+""));
+		}
+
+
+
+		PType commType = node.getAction().apply(this, commEnv);
+		if (!TCDeclAndDefVisitor.successfulType(commType))
+		{
+			node.setType(issueHandler.addTypeError(node.getAction(),TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node.getAction()+"")));
+			return node.getType();
+		}
+		
+		node.setType(new AActionType(node.getLocation(), true));
 		return node.getType();
 	}
 
@@ -1440,10 +1664,20 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 
-		node.getLeft().apply(parentChecker, question);
-		node.getRight().apply(parentChecker, question);
+		PType leftType = node.getLeft().apply(parentChecker, question);
+		if (!TCDeclAndDefVisitor.successfulType(leftType))
+		{
+			node.setType(issueHandler.addTypeError(node.getLeft(),TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node.getLeft() + "")));
+			return node.getType();
+		}
+		PType rightType = node.getRight().apply(parentChecker, question);
+		if (!TCDeclAndDefVisitor.successfulType(rightType))
+		{
+			node.setType(issueHandler.addTypeError(node.getRight(),TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node.getRight() + "")));
+			return node.getType();
+		}
 
-		node.setType(new AStatementType());
+		node.setType(new AActionType());
 		return node.getType();
 	}
 
@@ -1657,11 +1891,23 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		LexNameToken name = node.getName();
 		PDefinition callee = question.env.findName(name, NameScope.GLOBAL);
 
+
 		if (callee == null)
 			return issueHandler.addTypeError(
 					node,
 					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(name
 							+ ""));
+
+		if (callee.getType() == null)
+		{
+			PType calleeType = resolveUntypedActionReference(node, callee, question);
+			if (!TCDeclAndDefVisitor.successfulType(calleeType))
+			{
+				node.setType(calleeType);
+				return node.getType();
+			}
+
+		}
 
 		// Action can only call actions.
 		if (callee.getType() == null || !(callee.getType() instanceof AActionType))

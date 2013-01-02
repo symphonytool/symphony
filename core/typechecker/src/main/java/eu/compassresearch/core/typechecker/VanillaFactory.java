@@ -56,10 +56,12 @@ public final class VanillaFactory {
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlDefinitionAndDeclarationVisitor(
 			CmlTypeChecker parentChecker, TypeComparator compareTypes,
 			TypeIssueHandler issueHandler) {
-		TCDeclAndDefVisitor v = new TCDeclAndDefVisitor(
-				(VanillaCmlTypeChecker) parentChecker, compareTypes,
-				issueHandler);
-		return v;
+//		TCDeclAndDefVisitor v = new TCDeclAndDefVisitor(
+//				(VanillaCmlTypeChecker) parentChecker, compareTypes,
+//				issueHandler);
+		// TODO RWL: Fix this. The Cycle detection should be refactored into a strategy 
+		// which can be null and if that is the case we use Declared order for actions !.
+		throw new UnsupportedOperationException("At this time the TCDeclAndDefVisitor implementation is entangled with the TCActionVisitor disallowing craetion of stand alone TCDeclAndDef vistors.");
 	}
 
 	/**

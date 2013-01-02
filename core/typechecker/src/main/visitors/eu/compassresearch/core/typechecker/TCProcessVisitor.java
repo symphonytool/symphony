@@ -290,7 +290,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		// TODO: Maybe the declarations above needs to go into the environment ?
-		issueHandler.addTypeWarning(repProcess, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customize(""+repProcess));
+		issueHandler.addTypeWarning(repProcess, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(""+repProcess));
 		PType repProcessType = repProcess.apply(parentChecker,question);
 		if (!TCDeclAndDefVisitor.successfulType(repProcessType))
 			return issueHandler.addTypeError(repProcess, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(repProcess+""));

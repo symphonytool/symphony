@@ -105,7 +105,7 @@ implements ICMLQuestionAnswer<TypeCheckInfo, PType> {
 					issueHandler.addTypeWarning(innerPattern, "Expecting an identifer pattern, type checking may be incomplete here.");
 			}
 			else
-				issueHandler.addTypeWarning(bind, TypeWarningMessages.EXPECTED_AN_IDENTIFIER_PATTERN.customize(""+bind,""+bind.kindPBind()));
+				issueHandler.addTypeWarning(bind, TypeWarningMessages.EXPECTED_AN_IDENTIFIER_PATTERN.customizeMessage(""+bind,""+bind.kindPBind()));
 		}
 		
 		

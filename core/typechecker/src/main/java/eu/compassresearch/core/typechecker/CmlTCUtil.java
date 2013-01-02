@@ -1,13 +1,22 @@
 package eu.compassresearch.core.typechecker;
 
+import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.patterns.APatternListTypePair;
+import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.types.AFunctionType;
+import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.PType;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 
@@ -16,6 +25,78 @@ import eu.compassresearch.ast.definitions.AClassDefinition;
 
 public class CmlTCUtil {
 
+	/**
+	 * Create a pre- or post-condition.
+	 * 
+	 * The result of this function is appropriate to assign to the predef or postdef 
+	 * fields of A*CmlOperationDefinition or A*FunctionDefinition
+	 * 
+	 *  Post conditions allows access to old-name and hence these must be available in the
+	 *  environment when checking the post condition.
+	 * 
+	 * @param prefix - typically the prefix is "pre" for preconditions and "post" for post conditions however it is up to the client. The resulting function name is prefix_target.getName().
+	 * @param target - The function or operation for which we are creating a predef
+	 * @param type - The of the function or operation in target
+	 * @param parameters - The parameter list for the function
+	 * @param condition - The pre/post condition field of target.
+	 * @return An AExplicitFunctionDefinition taking same arguments as target (parameters) and returns boolean with condition as body.
+	 * 
+	 * NOTICE! The type of condition must be boolean for the result to be well typed. This is *NOT* checked 
+	 */
+	public static AExplicitFunctionDefinition buildCondition(String prefix, PDefinition target, PType type, List<APatternListTypePair> parameters, PExp condition)
+	{
+		// create new with pre_ before the name
+		LexNameToken name = new LexNameToken("", new LexIdentifierToken(prefix+"_"+target.getName().getName(), false, target.getLocation()));
+
+		// pre/post conditions are local scope
+		NameScope scope = NameScope.LOCAL;
+
+		// TODO: RWL Figure out what this is an why it is there
+		List<LexNameToken> typeParams = new LinkedList<LexNameToken>();
+
+		// Extract parameterTypes from the given type
+		LinkedList<PType> parameterTypes = null;
+
+		if (type instanceof AFunctionType)
+			parameterTypes = ((AFunctionType) type).getParameters();
+
+		if (type instanceof AOperationType)
+			parameterTypes = ((AOperationType) type).getParameters();
+
+		if (parameterTypes == null)
+			return null;
+
+		// Clone parameters as they are tree nodes and transform from cml operations params to Overture function params :S
+		List<List<PPattern>> newParameters = new LinkedList<List<PPattern>>();
+		for(APatternListTypePair p : parameters)
+		{
+			List<PPattern> pList = new LinkedList<PPattern>();
+			for(PPattern pptrn : p.getPatterns())
+				pList.add(pptrn.clone());
+			newParameters.add(pList);
+		}
+
+
+		// The body is the given condition, we assume ot has type boolean
+		PExp body = condition;
+
+		// pre/post-condition on a post or pre condition is not used.
+		PExp precondition = null;
+		PExp postcondition = null;
+
+		// TODO RWL: This is false as we are not generating this for a type invariant.
+		// Client code for type invariants could use this function but must explicitely 
+		// set the type Invariant flag afterwards on the resulting definition.
+		boolean typeInvariant = false;
+
+		// Recursive pre/post-condition, we don't do it !
+		LexNameToken measuref = null;
+
+		// Alright create the result
+		AFunctionType preDefType = AstFactory.newAFunctionType(target.getLocation(), false, parameterTypes, AstFactory.newABooleanBasicType(target.getLocation()));
+		AExplicitFunctionDefinition preDef = AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, preDefType, newParameters, body, precondition, postcondition, typeInvariant, measuref);
+		return preDef;
+	}
 
 	/**
 	 * 

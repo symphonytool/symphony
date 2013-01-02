@@ -1057,13 +1057,18 @@ channelDefOptList returns[List<AChannelNameDefinition> defs]
 
 channelDef returns[AChannelNameDefinition def]
 @after { $def.setLocation(extractLexLocation($channelDef.start, $channelDef.stop)); }
-    : identifierList (':' type)?
+    : identifierList theType=(':' type)?
         {
             $def = new AChannelNameDefinition();//, false, null, null, singleTypeDeclaration);
             //$def.setName(??); // not sure if this needs set; one cml.y case has an empty LexNameToken, the other uses the first element of the identifierList
             $def.setNameScope(NameScope.GLOBAL);
             $def.setUsed(false);
             $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, null));
+            if ($theType != null)
+            {
+            	PType t = (PType)$theType;
+            	$def.setType(t);
+            }
         }
     ;
 

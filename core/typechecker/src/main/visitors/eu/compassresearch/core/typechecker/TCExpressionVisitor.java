@@ -63,7 +63,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
 
 		// TODO RWL I am not really sure what to do here ?
-		issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customize(""+node));
+		issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(""+node));
 
 		return new AChannelType();
 	}
@@ -210,10 +210,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	}
 
 	/**
-	 * Translate a CML expression into an equivalent Overture VDM expression and
-	 * type check that. Afterwards use the CopyTypesFromOvtToCmlAst to copy over
-	 * the Overture VDM types.
-	 * 
+	 * Type check expression using Overture's type checker.
 	 * 
 	 * @param node
 	 *            - the expression to type check
@@ -240,7 +237,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		quest.scope = NameScope.NAMES;
 		quest.qualifiers = new LinkedList<PType>();
 		try {
+			OvertureRootCMLAdapter.pushQuestion(question);
 			ovtNode.apply(overtureExpVisitor, quest);
+			OvertureRootCMLAdapter.popQuestion(question);
 		} catch (org.overture.ast.analysis.AnalysisException e1) {
 			e1.printStackTrace();
 		}

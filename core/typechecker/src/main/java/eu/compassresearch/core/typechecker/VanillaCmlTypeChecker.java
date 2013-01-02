@@ -82,9 +82,10 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		else
 			this.issueHandler = new CollectingIssueHandler();
 
+		TCActionVisitor actionVisitor = new TCActionVisitor(this, this.issueHandler, typeComparator); 
 		exp = new TCExpressionVisitor(this, this.issueHandler);
-		act = new TCActionVisitor(this, this.issueHandler, typeComparator);
-		dad = new TCDeclAndDefVisitor(this, typeComparator, this.issueHandler);
+		act = actionVisitor;
+		dad = new TCDeclAndDefVisitor(this, typeComparator, this.issueHandler, actionVisitor);
 		typ = new TCTypeVisitor(this, this.issueHandler);
 		prc = new TCProcessVisitor(this, this.issueHandler, typeComparator);
 		bnd = new TCBindVisitor(this,this.issueHandler);

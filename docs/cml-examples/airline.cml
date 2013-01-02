@@ -50,7 +50,7 @@ functions
 	  cases bd :
 	    ({})  	-> 0,
         others	-> let b : set of BookingData = {b | b in set bd} in
-				     card b.ps + sum_bookings(bd\{b})
+				     card b.ps + sum_bookings(bd\b)
 	  end
 
 	available_seats : FlightId * FlightDb * BookingDb -> nat

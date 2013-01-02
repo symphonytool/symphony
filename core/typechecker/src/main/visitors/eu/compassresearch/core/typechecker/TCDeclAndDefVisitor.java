@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.xml.ws.handler.MessageContext.Scope;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AClassInvariantDefinition;
@@ -27,6 +28,7 @@ import org.overture.ast.expressions.ANotYetSpecifiedExp;
 import org.overture.ast.expressions.ASubclassResponsibilityExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
+import org.overture.ast.lex.LexBooleanToken;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameList;
@@ -91,6 +93,7 @@ import eu.compassresearch.ast.types.AStateParagraphType;
 import eu.compassresearch.ast.types.AStatementType;
 import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
@@ -100,7 +103,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 class TCDeclAndDefVisitor extends
 QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
-
+	private final TCActionVisitor actionVisitor;
 
 
 
@@ -120,7 +123,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	public PType caseAActionsDefinition(AActionsDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
 
+		actionVisitor.setupActionCycleMap();
+		
 		LinkedList<AActionDefinition> actions = node.getActions();
+		for(AActionDefinition action : actions)
+			actionVisitor.registerActionForCycleDetection(action);
+		
 		for(AActionDefinition action : actions)
 		{
 			PType actionType = action.apply(parentChecker,question);
@@ -137,7 +145,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 		}
 
-
+		actionVisitor.tearDownActionCycleMap();
 		node.setType(new AActionParagraphType());
 		return node.getType();
 	}
@@ -197,8 +205,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		List<PType> parameterTypes = new LinkedList<PType>();
 
 
-		// LinkedList<APatternTypePair> result = node.getResult();
-
 		// Create new local environment for the pre/post conditions.
 		List<PDefinition> prePostDefinitions = new LinkedList<PDefinition>();
 		List<AExternalDefinition> externalDefinitions = new LinkedList<AExternalDefinition>();
@@ -219,14 +225,14 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 		}
 
-		// Check externs
+		// Check externals
 		for(AExternalClause clause : externals)
 		{
 			LinkedList<LexNameToken> clauseIds = clause.getIdentifiers();
 
 			for(LexNameToken id : clauseIds)
 			{
-				PDefinition idDef = cmlEnv.lookup(id, AStateDefinition.class);
+				PDefinition idDef = cmlEnv.lookup(id, PDefinition.class);
 				if (idDef == null)
 				{
 					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id+"")));
@@ -236,6 +242,55 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				AExternalDefinition externalDef = AstFactory.newAExternalDefinition(idDef, clause.getMode()); 
 				externalDefinitions.add(externalDef);
 			}
+		}
+		
+		// Build type from parameters and return types
+		List<PType> paramTypes = new LinkedList<PType>();
+		for(APatternListTypePair pt : parameters)
+			paramTypes.add(pt.getType());
+		
+		PType resultType = null;
+		List<PType> resultTypes = new LinkedList<PType>();
+		for(APatternTypePair pt : node.getResult())
+		{
+			PType patternType = pt.getPattern().apply(parentChecker,question);
+			for(PDefinition pd : patternType.getDefinitions())
+				pd.setType(pt.getType());
+			prePostDefinitions.addAll(patternType.getDefinitions());
+			resultTypes.add(pt.getType());
+		}
+		
+		if (resultTypes.size() == 0)
+			resultType = AstFactory.newAVoidReturnType(node.getLocation());
+		
+		if (resultTypes.size() == 1) resultType = resultTypes.get(0);
+		
+		if (resultTypes.size() > 1) resultType = AstFactory.newAProductType(node.getLocation(), resultTypes);
+		
+		AOperationType operationType = AstFactory.newAOperationType(node.getLocation(), paramTypes , resultType);
+		
+		node.setType(operationType);
+		
+		// Create predef if it is not there
+		if (preDef == null)
+		{
+			PExp preBody = null;
+			if (node.getPrecondition() != null)
+				preBody = node.getPrecondition();
+			else
+				preBody = AstFactory.newABooleanConstExp(new LexBooleanToken(true, node.getLocation()));
+			preDef = CmlTCUtil.buildCondition("pre", node, node.getType(),parameters, preBody);
+		}
+
+		// Create post def if it is not there
+		if (postDef == null)
+		{
+			PExp postBody = null;
+			if (node.getPostcondition() != null)
+				postBody = node.getPostcondition();
+			else
+				postBody = AstFactory.newABooleanConstExp(new LexBooleanToken(true, node.getLocation()));
+			postDef = CmlTCUtil.buildCondition("post", node, node.getType(), parameters, postBody);
 		}
 
 
@@ -258,7 +313,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		// post cond env.
-		CmlTypeCheckInfo postEnv = cmlEnv.newScope();
+		CmlTypeCheckInfo postEnv = cmlEnv.newScope(); 
 		for(PDefinition def : prePostDefinitions)
 			postEnv.addVariable(def.getName(), def);
 
@@ -275,8 +330,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			node.setType(issueHandler.addTypeError(postDef, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(postDef+"")));
 			return node.getType();
 		}
-
-		AOperationType operationType = AstFactory.newAOperationType(node.getLocation(), parameterTypes, actualResult);
 
 		node.setType(operationType);
 		return node.getType();
@@ -459,15 +512,16 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	}
 
 	// Errors and other things are recorded on this guy
-	private VanillaCmlTypeChecker parentChecker;
+	private CmlTypeChecker parentChecker;
 	private TypeComparator typeComparator;
 	private final TypeIssueHandler issueHandler;
 
-	public TCDeclAndDefVisitor(VanillaCmlTypeChecker parent,
-			TypeComparator typeComparator, TypeIssueHandler issueHandler) {
+	public TCDeclAndDefVisitor(CmlTypeChecker parent,
+			TypeComparator typeComparator, TypeIssueHandler issueHandler, TCActionVisitor actionVisitor) {
 		this.parentChecker = parent;
 		this.issueHandler = issueHandler;
 		this.typeComparator = typeComparator;
+		this.actionVisitor = actionVisitor;
 	}
 
 	// -------------------------------------------------------
@@ -1432,17 +1486,17 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		if (node.getPrecondition() != null)
 		{
-			PDefinitionAssistantTC.typeResolve(node.getPredef(),parentChecker,question);
+			PDefinitionAssistantTC.typeResolve(node.getPredef(),(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parentChecker,question);
 		}
 
 		if (node.getPostcondition() != null)
 		{
-			PDefinitionAssistantTC.typeResolve(node.getPostdef(),parentChecker,question);
+			PDefinitionAssistantTC.typeResolve(node.getPostdef(),(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parentChecker,question);
 		}
 
 		for (List<PPattern> pp: node.getParamPatternList())
 		{
-			PPatternListAssistantTC.typeResolve(pp, parentChecker, question);
+			PPatternListAssistantTC.typeResolve(pp, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parentChecker, question);
 		}
 
 		node.setType(funcType);
@@ -1462,7 +1516,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		try
 		{
-			ATypeDefinitionAssistantTC.typeResolve(node, parentChecker, question);
+			ATypeDefinitionAssistantTC.typeResolve(node, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parentChecker, question);
 		}
 		catch (TypeCheckException e)
 		{

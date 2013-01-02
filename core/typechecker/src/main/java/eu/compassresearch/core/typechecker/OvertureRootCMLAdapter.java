@@ -43,7 +43,7 @@ public class OvertureRootCMLAdapter extends
 	private CmlTypeChecker parent;
 	private TypeIssueHandler issueHandler;
 
-	private static void pushQuestion(TypeCheckInfo question)
+	 static void pushQuestion(TypeCheckInfo question)
 	{
 		if (question instanceof CmlTypeCheckInfo)
 		{
@@ -52,7 +52,7 @@ public class OvertureRootCMLAdapter extends
 		}
 	}
 	
-	private static void popQuestion( TypeCheckInfo question )
+	 static void popQuestion( TypeCheckInfo question )
 	{
 		if (question instanceof CmlTypeCheckInfo)
 		{
