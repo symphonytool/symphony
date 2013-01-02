@@ -64,6 +64,7 @@ public class RunCmlExamplesTestCase {
 	private static Map<String, List<String>> failingTC;
 	static {
 		failingTC = new HashMap<String, List<String>>();
+		addFailingFile("airline2.cml","Unknown field date in record Flight.");
 		addFailingFile("isofclassexp.cml",
 				TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage("a"));
 		addFailingFile("process-intchoice.cml",

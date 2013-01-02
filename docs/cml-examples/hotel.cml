@@ -11,6 +11,8 @@ types
 
  private Day = nat
 
+private Rooms = int
+
 -- AvailDB is the hotel room availability 
 -- database
 -- Number of rooms available is represented 

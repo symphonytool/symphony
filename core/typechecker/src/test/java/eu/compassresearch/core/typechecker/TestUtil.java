@@ -16,6 +16,7 @@ import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.program.AFileSource;
@@ -81,8 +82,17 @@ public class TestUtil
 
 
 		try {
-			s.setParagraphs(parser.source());
-			res.parsedOk = true;
+			List<PDefinition> forest = parser.source();
+			s.setParagraphs(new LinkedList<PDefinition>());
+			if (forest != null)
+			{
+				for (PDefinition def : forest)
+					if (def != null)
+						s.getParagraphs().add(def);
+				res.parsedOk = true;
+			}
+			else
+				res.parsedOk = false;
 		} catch (RecognitionException e) {
 			e.printStackTrace();
 			res.parsedOk=false;

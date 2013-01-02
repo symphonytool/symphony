@@ -12,6 +12,7 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.ACharBasicType;
 import org.overture.ast.types.AClassType;
+import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.AMapMapType;
 import org.overture.ast.types.ANamedInvariantType;
@@ -42,6 +43,14 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	private CmlAssistant assist = new CmlAssistant();
 
 
+	
+	
+
+	@Override
+	public PType caseAFunctionType(AFunctionType node, TypeCheckInfo question)
+			throws AnalysisException {
+		return node;
+	}
 
 	@Override
 	public PType caseAClassType(AClassType node, TypeCheckInfo question)

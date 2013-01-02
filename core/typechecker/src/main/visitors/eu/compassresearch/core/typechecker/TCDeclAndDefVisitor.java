@@ -105,7 +105,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 	private final TCActionVisitor actionVisitor;
 
-
+	
 
 
 	@Override
@@ -113,8 +113,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			TypeCheckInfo question) throws AnalysisException {
 
 		PType expTyp = node.getExpression().apply(parentChecker,question);
-
-
+		
 		node.setType(expTyp);
 		return node.getType();
 	}
@@ -159,8 +158,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		LinkedList<PDefinition> defs = node.getStateDefs();
 		for(PDefinition def : defs)
 		{
+			NameScope oldScope = question.scope;
 			question.scope = NameScope.LOCAL;
 			PType defType = def.apply(parentChecker, cmlenv);
+			question.scope = oldScope;
 			if (!TCDeclAndDefVisitor.successfulType(defType))
 			{
 				node.setType(issueHandler.addTypeError(def, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+def)));
@@ -197,12 +198,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 
-		PType actualResult = node.getActualResult();
 		LinkedList<AExternalClause> externals = node.getExternals();
 		LinkedList<APatternListTypePair> parameters = node.getParameterPatterns();
 		AExplicitFunctionDefinition preDef = node.getPredef();
 		AExplicitFunctionDefinition postDef = node.getPostdef();
-		List<PType> parameterTypes = new LinkedList<PType>();
 
 
 		// Create new local environment for the pre/post conditions.
@@ -210,6 +209,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		List<AExternalDefinition> externalDefinitions = new LinkedList<AExternalDefinition>();
 
 		// Check parameters
+		List<PType> paramTypes = new LinkedList<PType>();
 		for(APatternListTypePair typePair : parameters)
 		{
 			LinkedList<PPattern> patterns = typePair.getPatterns();
@@ -220,6 +220,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				{
 					node.setType(issueHandler.addTypeError(ptrn, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(ptrn+"")));
 					return node.getType();
+				} 
+				for(PDefinition d : ptrnType.getDefinitions())
+				{
+					d.setType(typePair.getType());
+					paramTypes.add(typePair.getType());
 				}
 				prePostDefinitions.addAll(ptrnType.getDefinitions());
 			}
@@ -243,11 +248,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				externalDefinitions.add(externalDef);
 			}
 		}
-		
-		// Build type from parameters and return types
-		List<PType> paramTypes = new LinkedList<PType>();
-		for(APatternListTypePair pt : parameters)
-			paramTypes.add(pt.getType());
 		
 		PType resultType = null;
 		List<PType> resultTypes = new LinkedList<PType>();

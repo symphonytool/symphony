@@ -51,7 +51,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	@Override
 	public PType caseANilExp(ANilExp node, TypeCheckInfo question)
 			throws AnalysisException {
-		return new AUnknownType(node.getLocation(), true);
+		return node.getType();
 	}
 
 

@@ -1,6 +1,7 @@
 package eu.compassresearch.core.typechecker;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.ALocalDefinition;
@@ -8,10 +9,12 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.ATypeBind;
 import org.overture.ast.patterns.PBind;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.pattern.PBindAssistantTC;
@@ -40,6 +43,30 @@ implements ICMLQuestionAnswer<TypeCheckInfo, PType> {
 
 	
 	
+	
+	
+	@Override
+	public PType caseATuplePattern(ATuplePattern node, TypeCheckInfo question)
+			throws AnalysisException {
+		PType result = new AUnknownType(node.getLocation(), false);
+		
+		List<PDefinition> definitions = new LinkedList<PDefinition>();
+		LinkedList<PPattern> plist = node.getPlist();
+		for (PPattern p : plist)
+		{
+			PType ptype = p.apply(parent,question);
+			if (!TCDeclAndDefVisitor.successfulType(ptype))
+				return issueHandler.addTypeError(p, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(p+""));
+			definitions.addAll(ptype.getDefinitions());
+		}
+		result.setDefinitions(definitions);
+		return result;
+	}
+
+
+
+
+
 	@Override
 	public PType caseAIdentifierPattern(AIdentifierPattern node,
 			TypeCheckInfo question) throws AnalysisException {

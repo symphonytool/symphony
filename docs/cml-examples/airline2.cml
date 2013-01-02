@@ -79,9 +79,9 @@ process airline2 =
 begin
  state 
    connections : Connections
-   flights : FlightId -> Flight
+   flights : map FlightId to Flight
    authorisedAgents : set of Agent
-   bookings : ReservationNumber -> ReservationData
+   bookings : map ReservationNumber to ReservationData
  inv forall f in set rng flights @ f.departure in set dom connections
                                  and f.arrival in set connections(f.departure)
    and
@@ -93,13 +93,26 @@ begin
 -- Given travel reqts (from, to, date) suggest a flight
 FindFlight (dep: Airport, arr: Airport, date: Date, n: nat) f: [FlightId]
 frame rd flights 
-post if exists fid in set dom flights @ 
-       flights(fid).departure = dep and
-       flights(fid).arrival = arr and
-       flights(fid).date = date -- using simple idea of matching dates for now
-       and n + FreeSeats(flights(fid)) <= MaxSeats(flights(fid)) -- enough seats
-     then f = fid 
-     else f = nil
+post let
+	fids : set of FlightId = { id | id in set dom flights @ 
+	       	      	       	          flights(id).departure = dep  and 
+					  flights(id).arrival   = arr  and 
+					  flights(id).date      = date and
+			n + FreeSeats(flights(id)) <= MaxSeats(flights(id))
+			          }
+
+     in
+	if fids <> {} then f = nil
+	   	      else f = nil
+
+-- post if exists fid in set dom flights @ 
+--       flights(fid).departure = dep and
+--       flights(fid).arrival = arr and
+--       flights(fid).date = date -- using simple idea of matching dates for now
+--       and n + FreeSeats(flights(fid)) <= MaxSeats(flights(fid)) -- enough seats
+-- RWL TC: f=fid in the then-clause is outside scope of fid.
+--     then f = fid 
+--     else f = nil
 
 
   --check to see if the agent is an authorised agent. Not currently used.

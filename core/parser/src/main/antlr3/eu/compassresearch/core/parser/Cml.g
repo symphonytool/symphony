@@ -916,7 +916,7 @@ assignableExpression returns[PExp exp]
                         aupe.getIdentifiers().add(0, ave.getName().getIdentifier());
                         $exp = aupe;
                     } else if ($exp instanceof AUnresolvedPathExp) { // if it was an unresolved path, still coalesce...
-                        $exp.setLocation(loc);
+                        if ($exp != null) $exp.setLocation(loc);
                         ((AUnresolvedPathExp)$exp).getIdentifiers().addAll(aupe.getIdentifiers());
                         // no need to assign to $exp here
                     } else { // otherwise it must be a field access
@@ -1057,18 +1057,16 @@ channelDefOptList returns[List<AChannelNameDefinition> defs]
 
 channelDef returns[AChannelNameDefinition def]
 @after { $def.setLocation(extractLexLocation($channelDef.start, $channelDef.stop)); }
-    : identifierList theType=(':' type)?
+    : identifierList (':' type)?
         {
+          	AChannelType channelType = new AChannelType();
             $def = new AChannelNameDefinition();//, false, null, null, singleTypeDeclaration);
             //$def.setName(??); // not sure if this needs set; one cml.y case has an empty LexNameToken, the other uses the first element of the identifierList
             $def.setNameScope(NameScope.GLOBAL);
             $def.setUsed(false);
-            $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, null));
-            if ($theType != null)
-            {
-            	PType t = (PType)$theType;
-            	$def.setType(t);
-            }
+            $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, channelType));
+            if ($type.type	 != null)
+			  channelType.setType($type.type);
         }
     ;
 
@@ -1265,12 +1263,16 @@ qualValueDefinitionList returns[List<AValueDefinition> defs]
     ;
 
 qualValueDefinition returns[AValueDefinition def]
+@init { $def = new AValueDefinition(); }
     : QUALIFIER? valueDefinition
         {
+        	
             $def = $valueDefinition.def;
-            $def.setAccess(extractQualifier($QUALIFIER));
-            LexLocation loc = extractLexLocation(extractLexLocation($qualValueDefinition.start), $qualValueDefinition.def.getLocation()) ;
-            $def.setLocation(loc);
+            if ($def != null) {
+              $def.setAccess(extractQualifier($QUALIFIER));
+              LexLocation loc = extractLexLocation(extractLexLocation($qualValueDefinition.start), $qualValueDefinition.def.getLocation()) ;
+              $def.setLocation(loc);
+            }
         }
 
     ;
@@ -1561,7 +1563,7 @@ resultType returns[APatternTypePair rtype]
     ;
 
 functionBody returns[PExp exp]
-@after { $exp.setLocation(extractLexLocation($functionBody.start, $functionBody.stop)); }
+@after { if ($exp != null) $exp.setLocation(extractLexLocation($functionBody.start, $functionBody.stop)); }
     : expression                       { $exp = $expression.exp; }
     | 'is' 'not' 'yet' 'specified'     { $exp = new ANotYetSpecifiedExp(); }
     | 'is' 'subclass' 'responsibility' { $exp = new ASubclassResponsibilityExp(); }
@@ -1943,7 +1945,9 @@ recordPattern returns[PPattern pattern]
     : MKUNDER name '(' ( first=pattern { patList.add($first.pattern); } ( ',' patItem=pattern { patList.add($patItem.pattern); } )* )? end=')'
         {
             LexLocation loc = extractLexLocation($MKUNDER,$end);
-            $pattern = new ARecordPattern(loc, null, true, $name.name, patList);
+            ARecordPattern recPattern = new ARecordPattern(loc, null, true, $name.name, patList);
+            recPattern.setType(AstFactory.newAUnresolvedType($name.name));
+            $pattern = recPattern;
         }
     ;
 
@@ -1953,7 +1957,7 @@ expressionList returns[List<PExp> exps]
     ;
 
 expression returns[PExp exp]
-@after { $exp.setLocation(extractLexLocation($expression.start,$expression.stop)); }
+@after { if ($exp != null) $exp.setLocation(extractLexLocation($expression.start,$expression.stop)); }
     : expr0
         {
             $exp = $expr0.exp;
@@ -2264,7 +2268,7 @@ unaryOp returns[SUnaryExp op]
 
 expr11 returns[PExp exp]
 @init { List<PExp> selectors = new ArrayList<PExp>(); }
-@after { $exp.setLocation(extractLexLocation($expr11.start, $expr11.stop)); }
+@after { if ($exp != null) $exp.setLocation(extractLexLocation($expr11.start, $expr11.stop)); }
     : unaryOp operand=expr11
         {
             SUnaryExp unaryop = $unaryOp.op;
@@ -2298,7 +2302,7 @@ expr11 returns[PExp exp]
                         aupe.getIdentifiers().add(0, ave.getName().getIdentifier());
                         $exp = aupe;
                     } else if ($exp instanceof AUnresolvedPathExp) { // if it was an unresolved path...
-                        $exp.setLocation(loc);
+                        if ($exp != null) $exp.setLocation(loc);
                         ((AUnresolvedPathExp)$exp).getIdentifiers().addAll(aupe.getIdentifiers());
                         // no need to assign to $exp here
                     } else { // otherwise it must be a field access
@@ -2360,7 +2364,7 @@ selector returns[PExp exp]
 
 exprbase returns[PExp exp]
 @init { List<PExp> exps = new ArrayList<PExp>(); }
-@after { $exp.setLocation(extractLexLocation($exprbase.start, $exprbase.stop)); }
+@after { if ($exp != null) $exp.setLocation(extractLexLocation($exprbase.start, $exprbase.stop)); }
     : '(' expression ')'
         {
             $exp = new ABracketedExp(null, $expression.exp);
@@ -2438,7 +2442,9 @@ symbolicLiteralExpr returns[PExp exp]
             } else if ($lit.literal instanceof LexKeywordToken) {
                 // Note, this assumes that lit only ever
                 // gives a LexKeywordToken for 'nil'
-                $exp = new ANilExp($lit.literal.location);
+                LexLocation location = $lit.literal.location;
+                $exp = new ANilExp(location);
+                $exp.setType(AstFactory.newAUnknownType(location));
             } else if ($lit.literal instanceof LexCharacterToken) {
                 $exp = new ACharLiteralExp($lit.literal.location, (LexCharacterToken)$lit.literal);
             } else if ($lit.literal instanceof LexStringToken) {
@@ -2476,7 +2482,7 @@ seqExpr returns[SSeqExp seqExpr]
     ;
 
 recordTupleExprs returns[PExp exp]
-@after { $exp.setLocation(extractLexLocation($recordTupleExprs.start, $recordTupleExprs.stop)); }
+@after { if ($exp != null) $exp.setLocation(extractLexLocation($recordTupleExprs.start, $recordTupleExprs.stop)); }
     : MKUNDER '(' expression ',' expressionList ')'
         {
             $expressionList.exps.add(0,$expression.exp);
@@ -2496,7 +2502,7 @@ recordTupleExprs returns[PExp exp]
     ;
 
 setMapExpr returns[PExp exp]
-@after { $exp.setLocation(extractLexLocation($setMapExpr.start, $setMapExpr.stop)); }
+@after { if ($exp != null) $exp.setLocation(extractLexLocation($setMapExpr.start, $setMapExpr.stop)); }
     : '{|->}'   { $exp = new AMapEnumMapExp(null, new ArrayList<AMapletExp>()); }
     | l='{' ( empty='|->' | setMapExprGuts )? r='}'
         {
@@ -2515,7 +2521,7 @@ setMapExprGuts returns[PExp exp]
     List<PExp> exps = new ArrayList<PExp>();
     List<AMapletExp> mexps = new ArrayList<AMapletExp>();
 }
-@after { $exp.setLocation(extractLexLocation($setMapExprGuts.start, $setMapExprGuts.stop)); }
+@after { if ($exp != null) $exp.setLocation(extractLexLocation($setMapExprGuts.start, $setMapExprGuts.stop)); }
     : first=expression
         ( ',' '...' ',' last=expression
             {

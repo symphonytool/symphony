@@ -32,6 +32,7 @@ import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.AUnresolvedType;
@@ -1607,27 +1608,47 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				AReadCommunicationParameter readParam = (AReadCommunicationParameter)commParam;
 				commPattern = readParam.getPattern();
 				
+				PType commPatternType = commPattern.apply(parentChecker,question);
+				if (!TCDeclAndDefVisitor.successfulType(commPatternType))
+				{
+					node.setType(issueHandler.addTypeError(commPattern,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+commPattern)));
+					return node.getType();
+				}
+				
 				if (typeDecl.getType() == null)
 					typeDecl.setType(new AChannelType(commParam.getLocation(), true));
 				
 				if (commPattern instanceof ATuplePattern)
 				{
-					ATuplePattern commTuplePattern = (ATuplePattern)commPattern;
 					PType type = typeDecl.getType();
-					if (!(type instanceof ARecordInvariantType))
+					if (!(type instanceof AChannelType))
 					{
-						node.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Record", ""+type)));
+						node.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Channel type", ""+type)));
 						return node.getType();
 					}
-				
-					ARecordInvariantType r = (ARecordInvariantType)typeDecl.getType();
-					List<PDefinition> defs = commTuplePattern.getDefinitions();
-					for(int i = 0; i < r.getFields().size(); i++)
+					
+					AChannelType chanType = (AChannelType)type;
+					if (!(chanType.getType() instanceof AProductType))
+					{
+						node.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(typeDecl.getType()+"", chanType.getType()+"")));
+						return node.getType();
+					}
+						
+					
+					AProductType r = (AProductType)chanType.getType();
+					
+					if (commPatternType.getDefinitions().size() != r.getTypes().size())
+					{
+						node.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.PATTERN_MISMATCH.customizeMessage(r+"", commPattern+"")));
+						return node.getType();
+					}
+					
+					List<PDefinition> defs = commPatternType.getDefinitions();
+					for(int i = 0; i < r.getTypes().size(); i++)
 					{
 						PDefinition def = defs.get(i); 
-						AFieldField field = r.getFields().get(i);
-						PType fType = field.getType();
-						def.setType(fType);
+						PType componentType = r.getTypes().get(i);
+						def.setType(componentType);
 						commEnv.addVariable(def.getName(), def);
 					}
 				}
