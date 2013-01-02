@@ -10,12 +10,17 @@ import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.ProofObligationList;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
+import eu.compassresearch.ast.actions.AElseIfStatementAction;
+import eu.compassresearch.ast.actions.AIfStatementAction;
+import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
+import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.SParagraphDefinition;
 import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CMLWhileLoopObligation;
 
 @SuppressWarnings("serial")
 public class POGActionVisitor  extends 
@@ -65,7 +70,75 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 		return pol;
     }
     
+    /**
+     * Composition action. Process left part, then right.
+     */
+    @Override
+    public CMLProofObligationList caseASequentialCompositionAction(
+    		ASequentialCompositionAction node,POContextStack question) 
+    		throws AnalysisException{
+    	System.out.println("A ASequentialCompositionAction: " + node.toString());
+    	CMLProofObligationList pol = new CMLProofObligationList();
+    			
+    	pol.addAll(node.getLeft().apply(parentPOG, question));	
+    	pol.addAll(node.getRight().apply(parentPOG, question));
+		return pol;
+    }
     
+    /**
+     * If statement action. process expression, then 'then' part. Optionally
+     * process 'else' and 'elseif'
+     */
+    @Override
+	public CMLProofObligationList caseAIfStatementAction(
+			AIfStatementAction node, POContextStack question)
+    		throws AnalysisException{
+    	System.out.println("A caseAIfStatementAction: " + node.toString());
+    	CMLProofObligationList pol = new CMLProofObligationList();
+
+    	pol.addAll(node.getIfExp().apply(parentPOG, question));
+		pol.addAll(node.getThenStm().apply(parentPOG, question));
+
+		for (AElseIfStatementAction stmt : node.getElseIf())
+		{
+			pol.addAll(stmt.apply(this, question));
+		}
+
+		if (node.getElseStm() != null)
+		{
+			pol.addAll(node.getElseStm().apply(this, question));
+		}
+
+		return pol;
+	}
+    
+	@Override
+	public ProofObligationList caseAElseIfStatementAction(AElseIfStatementAction node,
+			POContextStack question) throws AnalysisException
+	{
+    	System.out.println("A caseAElseIfStatementAction: " + node.toString());
+		CMLProofObligationList pol = new CMLProofObligationList();
+
+    	pol.addAll(node.getElseIf().apply(parentPOG, question));
+    	pol.addAll(node.getThenStm().apply(parentPOG, question));
+
+		return pol;
+	}
+    
+	@Override
+	public ProofObligationList caseAWhileStatementAction(AWhileStatementAction node,
+			POContextStack question) throws AnalysisException
+	{
+    	System.out.println("A caseAWhileStatementAction: " + node.toString());
+		CMLProofObligationList pol = new CMLProofObligationList();
+		
+		pol.add(new CMLWhileLoopObligation(node, question));
+		pol.addAll(node.getCondition().apply(parentPOG, question));
+		pol.addAll(node.getAction().apply(this, question));
+
+		return pol;
+	}
+	
     // Default action
     @Override
     public ProofObligationList defaultPAction(PAction node, POContextStack question)
