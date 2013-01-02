@@ -29,6 +29,7 @@ import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
 import eu.compassresearch.ast.definitions.AImplicitOperationDefinition;
+import eu.compassresearch.ast.definitions.AInvariantDefinition;
 import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
@@ -279,6 +280,27 @@ public class POGDeclAndDefVisitor extends
 
     	return pol;
     }
+    
+    /**
+	  * Invariant definition
+	  * CURRENTLY PRINT TO SCREEN
+	  */
+   @Override
+   public ProofObligationList caseAInvariantDefinition(
+		   AInvariantDefinition node, POContextStack question)
+	    throws AnalysisException {
+   	
+   	CMLProofObligationList pol = new CMLProofObligationList();
+   	
+	System.out.println("----------***----------");
+	System.out.println("AInvariantDefinition");
+	System.out.println(node.toString());
+	System.out.println(node.getPattern());
+	System.out.println(node.getExpression());
+	System.out.println("----------***----------");
+	
+   	return pol;
+   }
     
     /**
 	  * Value paragraph - split into values
