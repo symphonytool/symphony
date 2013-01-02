@@ -13,17 +13,10 @@ import org.overture.ast.node.INode;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.PType;
-import org.overture.pog.obligation.OperationPostConditionObligation;
 import org.overture.pog.obligation.POContextStack;
-import org.overture.pog.obligation.POOperationDefinitionContext;
-import org.overture.pog.obligation.ParameterPatternObligation;
 import org.overture.pog.obligation.ProofObligationList;
-import org.overture.pog.obligation.SatisfiabilityObligation;
-import org.overture.pog.obligation.StateInvariantObligation;
 import org.overture.pog.visitor.PogParamDefinitionVisitor;
 
-
-import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -46,7 +39,6 @@ import eu.compassresearch.ast.definitions.SOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.analysis.pog.obligations.CMLOperationPostConditionObligation;
-import eu.compassresearch.core.analysis.pog.obligations.CMLPOOperationDefinitionContext;
 import eu.compassresearch.core.analysis.pog.obligations.CMLParameterPatternObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.CMLSatisfiabilityObligation;
@@ -55,24 +47,23 @@ import eu.compassresearch.core.analysis.pog.obligations.CMLSatisfiabilityObligat
 public class POGDeclAndDefVisitor extends
 	QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 
-    // Errors and other things are recorded on this guy
+
     final private QuestionAnswerAdaptor<POContextStack, ProofObligationList> parentPOG;
     final private PogParamDefinitionVisitor<POContextStack, ProofObligationList> overtureVisitor;
     
+    /**
+ 	  * Constructor to initialise visitors
+      */
     public POGDeclAndDefVisitor(QuestionAnswerAdaptor<POContextStack, 
     		ProofObligationList> parent) {
     	this.parentPOG = parent;
     	this.overtureVisitor = new PogParamDefinitionVisitor<POContextStack, ProofObligationList>
     		(this, this);
-	
     }
     
     
-    // handle CML Defns And Decls
     /**
-     * 
-     * CML ELEMENT - Channels
-     * 
+	  * CML channel paragraph - split into channel
      */
     @Override
     public CMLProofObligationList caseAChannelParagraphDefinition(
@@ -81,8 +72,7 @@ public class POGDeclAndDefVisitor extends
     	
     	CMLProofObligationList pol = new CMLProofObligationList();
     
-    	LinkedList<AChannelNameDefinition> cns = node.getChannelNameDeclarations();
-    	for (AChannelNameDefinition c : cns){
+    	for (AChannelNameDefinition c : node.getChannelNameDeclarations()){
     		pol.addAll(c.apply(this, question));
     	}
     
@@ -90,7 +80,10 @@ public class POGDeclAndDefVisitor extends
      }
      
       
-    
+    /**
+	  * CML channel definition
+	  * CURRENTLY JUST PRINT TO SCREEN
+     */    
     @Override
     public CMLProofObligationList caseAChannelNameDefinition(
     		AChannelNameDefinition node, POContextStack question)
@@ -113,25 +106,26 @@ public class POGDeclAndDefVisitor extends
     }
     
     /**
-     * 
-     * CML ELEMENT - Chansets
-     * 
+	  * CML chanset paragraph - split into chansets
      */
     @Override
     public ProofObligationList caseAChansetParagraphDefinition(
 	    AChansetParagraphDefinition node, POContextStack question)
 	    throws AnalysisException {
 	
-		LinkedList<AChansetDefinition> subNodes = node.getChansets();
 		CMLProofObligationList pol = new CMLProofObligationList();
 		
-		for (AChansetDefinition d : subNodes) {
+		for (AChansetDefinition d : node.getChansets()) {
 		    pol.addAll(d.apply(this, question));
 		}
 	
 		return pol;
     }
-
+    
+    /**
+	  * CML chanset definition
+	  * CURRENTLY JUST PRINT TO SCREEN
+     */
     @Override
     public ProofObligationList caseAChansetDefinition(
 	    AChansetDefinition node, POContextStack question)
@@ -155,9 +149,8 @@ public class POGDeclAndDefVisitor extends
     
     
     /**
-     * 
-     * CML ELEMENT - Classes
-     * 
+	  * CML class paragraph - split into definitions
+	  * CURRENTLY JUST PRINT TO SCREEN
      */
     @Override
     public CMLProofObligationList caseAClassParagraphDefinition(
@@ -179,9 +172,8 @@ public class POGDeclAndDefVisitor extends
 
 
     /**
-     * 
-     * CML ELEMENT - Processes
-     * 
+	  * CML process paragraph - handle process
+	  * KEEP SEPERATE TO caseAProcessDefinition INCASE NEED TO DO ANYHTING ELSE LATER
      */
     @Override
     public ProofObligationList caseAProcessParagraphDefinition(
@@ -191,7 +183,11 @@ public class POGDeclAndDefVisitor extends
 		AProcessDefinition pdef = node.getProcessDefinition();
 		return pdef.apply(parentPOG, question);
     }
-
+    
+    /**
+	  * CML process definition - handle process
+	  * CURRENTLY PRINT TO SCREEN and handle process defn
+     */
     @Override
     public ProofObligationList caseAProcessDefinition(
 	    AProcessDefinition node, POContextStack question)
@@ -199,31 +195,30 @@ public class POGDeclAndDefVisitor extends
     	
     	System.out.println("----------***----------");
 		System.out.println("AProcessDefinition");
-		System.out.println(node.toString());
 		
 		CMLProofObligationList pol = new CMLProofObligationList();
 		
 		LinkedList<PDeclaration> lstate = node.getLocalState();
-		
 		PProcess pdef = node.getProcess();
+		
 		System.out.println("State :" + lstate.toString() + ", process :" + pdef.toString()); 
-
 		System.out.println("----------***----------");
 	
-		// NEED TO WORK OUT CONTENTS OF PROCESS AND DISPATCH RELEVANT PARTS
-		// LinkedList<> lstate = node.getLocalState();
-		// for ( s : lstate)
+		// Dispatch local state?
+		// for (PDeclaration s : node.getLocalState())
 		// {
-		// System.out.println("----------***----------");
-		// CMLProofObligationList td = s.apply(this, question);
-		// System.out.println("----------***----------");
+		// 		pol.addAll(s.apply(parentPOG, question));
 		// }
 
 		pol.addAll(pdef.apply(parentPOG, question));
 		return pol;
     }
     
-    
+
+    /**
+	  * CML state paragraph - split into state defs
+	  * CURRENTLY JUST PRINT TO SCREEN
+     */
     @Override
     public ProofObligationList caseAStateParagraphDefinition(
     		AStateParagraphDefinition node, POContextStack question)
@@ -236,8 +231,7 @@ public class POGDeclAndDefVisitor extends
 	
 		CMLProofObligationList pol = new CMLProofObligationList();
 
-		LinkedList<PDefinition> defs = node.getStateDefs();
-		for (PDefinition def : defs) {
+		for (PDefinition def : node.getStateDefs()) {
 		    System.out
 			    .println("In State Paragraph Loop");
 		    System.out.println("Def: " + def.toString() + ", Type: " + def.getType());
@@ -248,9 +242,8 @@ public class POGDeclAndDefVisitor extends
     }
     
     /**
-     * 
-     * CML ELEMENT - Actions
-     * 
+	  * CML Action paragraph - split into actions
+	  * CURRENTLY JUST PRINT TO SCREEN
      */
     @Override
     public ProofObligationList caseAActionParagraphDefinition(
@@ -259,40 +252,25 @@ public class POGDeclAndDefVisitor extends
 		System.out.println("------");
 		System.out
 			.println("Reached POGDeclAndDefVisitor - caseAActionParagraphDefinition");
+		
+    	CMLProofObligationList pol = new CMLProofObligationList();
 	
-		LinkedList<AActionDefinition> actions = node.getActions();
-		for (AActionDefinition action : actions) {
-		    System.out
-			    .println("In Action Paragraph Loop: " + action.toString());
+		for (AActionDefinition action : node.getActions()) {
 		    System.out.println("Action: " + action.toString() + ", Type: " + action.getType());
 		}
 
-	return new CMLProofObligationList();
+		return pol;
     }
-    
-    
-    
-    // Typechecker will eventually solve resolve these. For now, we hack past it.
-    @Override
-    public ProofObligationList caseAUnresolvedPathExp(AUnresolvedPathExp node,
-	    POContextStack question) throws AnalysisException {
-	return new CMLProofObligationList();
-    }
-
-
-
-
 
    
     /**
-     * 
-     * VDM ELEMENT - Types
-     * 
-     */
+	  * Type paragraph - split into types
+	  */
     @Override
     public ProofObligationList caseATypesParagraphDefinition(
 	    ATypesParagraphDefinition node, POContextStack question)
 	    throws AnalysisException {
+    	
     	CMLProofObligationList pol = new CMLProofObligationList();
 	
     	for (PDefinition def : node.getTypes()) {
@@ -302,10 +280,8 @@ public class POGDeclAndDefVisitor extends
     	return pol;
     }
     
-	  /**
-	  * 
-	  * VDM ELEMENT - Values
-	  * 
+    /**
+	  * Value paragraph - split into values
 	  */
 	 @Override
 	 public ProofObligationList caseAValueParagraphDefinition(
@@ -313,24 +289,22 @@ public class POGDeclAndDefVisitor extends
 		    throws AnalysisException {
 	 	
 			CMLProofObligationList pol = new CMLProofObligationList();
-			LinkedList<PDefinition> list = node.getValueDefinitions();
 			
-			for (PDefinition def : list) {
+			for (PDefinition def : node.getValueDefinitions()) {
 			   pol.addAll(def.apply(parentPOG, question));
 			}
 		
 			return pol;
 	 }
 	 
-	  /**
-	  * 
-	  * VDM ELEMENT - Functions
-	  * 
+	 /**
+	  * Function paragraph - split into functions
 	  */
 	 @Override
 	 public ProofObligationList caseAFunctionParagraphDefinition(
 		    AFunctionParagraphDefinition node, POContextStack question)
 		    throws AnalysisException {
+		 
 			CMLProofObligationList obligations = new CMLProofObligationList();
 		
 			for (PDefinition def : node.getFunctionDefinitions()) {
@@ -340,10 +314,8 @@ public class POGDeclAndDefVisitor extends
 			return obligations;
 	 }
 	 
-	  /**
-	  * 
-	  * VDM ELEMENT - Operations
-	  * 
+	 /**
+	  * Operation paragraph - split into operations
 	  */
 	 @Override
 	 public ProofObligationList caseAOperationParagraphDefinition(
@@ -351,62 +323,71 @@ public class POGDeclAndDefVisitor extends
 		    throws AnalysisException {
 	 	
 		 CMLProofObligationList pol = new CMLProofObligationList();
+		 
 		 for (SOperationDefinition def : node.getOperations()) {
 			 pol.addAll(def.apply(parentPOG, question));
 		 }
 		 return pol;
 	 }
-
-	 @Override
-	 public ProofObligationList caseAImplicitOperationDefinition(
+	 
+	/**
+	 * Implicit operations - CML does not reuse Overture operations
+	 */
+	@Override
+	public ProofObligationList caseAImplicitOperationDefinition(
 			 AImplicitOperationDefinition node, POContextStack question) 
 			throws AnalysisException{
 
-		 System.out.println("----------***----------");
-		 System.out.println("AImplicitOperationDefinition");
-		 System.out.println(node.toString());
-		 System.out.println("----------***----------");
-		 
-		 CMLProofObligationList pol = new CMLProofObligationList();
-		 LexNameList pids = new LexNameList();
+		System.out.println("----------***----------");
+		System.out.println("AImplicitOperationDefinition");
+		System.out.println(node.toString());
+		System.out.println("----------***----------");
+		
+		CMLProofObligationList pol = new CMLProofObligationList();
 
-		 for (APatternListTypePair tp : node.getParameterPatterns())
+		//Taken from Overture - Needed?
+		LexNameList pids = new LexNameList();
+
+		for (APatternListTypePair tp : node.getParameterPatterns())
 			for (PPattern p : tp.getPatterns())
 				for (PDefinition def : p.getDefinitions())
 					pids.add(def.getName());
 
-			if (pids.hasDuplicates()){
-				pol.add(new CMLParameterPatternObligation(node, question));
-			}
-
-			// if implicit operation has a precondition, dispatch for PO checking
-			if (node.getPrecondition() != null){
-				pol.addAll(node.getPrecondition().apply(parentPOG, question));
-			}
-			
-			// if implicit operation has a precondition, dispatch for PO checking
-			// and generate OperationPostConditionObligation
-			if (node.getPostcondition() != null){
-				pol.addAll(node.getPostcondition().apply(parentPOG, question));
-				pol.add(new CMLOperationPostConditionObligation(node, question));
-
-		//		COMMENTED AS CONTEXT GENERATED VARIOUS NULL OBJECTS, DUE TO NEW AST...
-		//		AS SUCH SAT OBLIG DOESN'T DO MUCH
-		//		question.push(new CMLPOOperationDefinitionContext(node, false, node.getStateDefinition()));
-				pol.add(new CMLSatisfiabilityObligation(node, node.getStateDefinition(), question));
-		//		question.pop();			
-			}
-		 
-			return pol;
+		//Taken from Overture - Needed?
+		if (pids.hasDuplicates()){
+			pol.add(new CMLParameterPatternObligation(node, question));
 		}
+
+		// if implicit operation has a precondition, dispatch for PO checking
+		if (node.getPrecondition() != null){
+			pol.addAll(node.getPrecondition().apply(parentPOG, question));
+		}
+		
+		// if implicit operation has a precondition, dispatch for PO checking
+		// and generate OperationPostConditionObligation
+		if (node.getPostcondition() != null){
+			pol.addAll(node.getPostcondition().apply(parentPOG, question));
+			pol.add(new CMLOperationPostConditionObligation(node, question));
+
+		//	COMMENTED AS CONTEXT GENERATES VARIOUS NULL OBJECTS, DUE TO NEW AST...
+		//	AS SUCH SAT OBLIG DOESN'T DO MUCH
+		//	question.push(new CMLPOOperationDefinitionContext(node, false, node.getStateDefinition()));
+			pol.add(new CMLSatisfiabilityObligation(node, node.getStateDefinition(), question));
+		//	question.pop();			
+		}
+		 
+		return pol;
+	}
 	 
-	 
-	 @Override
-   public ProofObligationList caseAExplicitOperationDefinition(
+	/**
+	 * Explicit operations - CML does not reuse Overture operations
+	 */	 
+	@Override
+	public ProofObligationList caseAExplicitOperationDefinition(
 	    AExplicitOperationDefinition node, POContextStack question)
 	    throws AnalysisException {
 		
-		 CMLProofObligationList pol = new CMLProofObligationList();
+		CMLProofObligationList pol = new CMLProofObligationList();
 
 		LexNameList pids = new LexNameList();
 
@@ -419,302 +400,74 @@ public class POGDeclAndDefVisitor extends
 			pol.add(new CMLParameterPatternObligation(node, question));
 		}
 
+		// if operation has a precondition, dispatch for PO checking
 		if (node.getPrecondition() != null){
 			pol.addAll(node.getPrecondition().apply(parentPOG, question));
 		}
-
+		// if  operation has a precondition, dispatch for PO checking
+		// and generate OperationPostConditionObligation
 		if (node.getPostcondition() != null){
 			pol.addAll(node.getPostcondition().apply(parentPOG, question));
 			pol.add(new CMLOperationPostConditionObligation(node, question));
 		}
 		
+		// dispatch operation body for PO checking
 		pol.addAll(node.getBody().apply(parentPOG, question));
 
+//		/*
+//		 * Taken from Overture POG - not currently working
+//		 */
+//		
 //		if (node.getIsConstructor() && node.getClassDefinition() != null
 //				&& node.getClassDefinition().getInvariant() != null){
 //			pol.add(new CMLStateInvariantObligation(node, question));
-	//	}
-		
-		/*
-		 * Subtype Obligation not working well - mainly the if statement, I believe.
-		 */
+//		}
+//		
 //		if (!node.getIsConstructor()
 //				&& !TypeComparator.isSubType(node.getActualResult(), node.getType().getResult())){
 //			pol.add(new SubTypeObligation(node, node.getActualResult(), question));
 //		}
    	
 		return pol;
-   }
+	}
+	
+    // Typechecker will eventually solve resolve these. For now, we hack past it.
+    @Override
+    public ProofObligationList caseAUnresolvedPathExp(AUnresolvedPathExp node,
+	    POContextStack question) throws AnalysisException {
+	return new CMLProofObligationList();
+    }
+
  
-	    // Call Overture for the other declarations    
-	    @Override
-	    public CMLProofObligationList defaultPDeclaration(PDeclaration node,
-		    POContextStack question) throws AnalysisException {
-	    	CMLProofObligationList pol = new CMLProofObligationList();
-	    	pol.addAll(node.apply(overtureVisitor, question));
-	    	return pol;
-	    }
+	// Call Overture for the other declarations    
+	@Override
+	public CMLProofObligationList defaultPDeclaration(PDeclaration node,
+		POContextStack question) throws AnalysisException {
+		
+		CMLProofObligationList pol = new CMLProofObligationList();
+	    pol.addAll(node.apply(overtureVisitor, question));
+	    return pol;
+	}
 
-	    // Call Overture for the other definitions - essentially the VDM definitions    
-	    @Override
-	    public CMLProofObligationList defaultPDefinition(PDefinition node,
-		    POContextStack question) throws AnalysisException {
-	    	CMLProofObligationList pol = new CMLProofObligationList();
-	    	pol.addAll(node.apply(overtureVisitor, question));
-	    	return pol;
-	    }
+	// Call Overture for the other definitions - essentially the VDM definitions    
+	@Override
+	public CMLProofObligationList defaultPDefinition(PDefinition node,
+		POContextStack question) throws AnalysisException {
+	    	
+		CMLProofObligationList pol = new CMLProofObligationList();
+		pol.addAll(node.apply(overtureVisitor, question));
+	    return pol;
+	}
 	    
 
-	    // Call the main pog when it's not a definition/declaration
-	    @Override
-	    public ProofObligationList defaultINode(INode node, POContextStack question)
-		    throws AnalysisException {
-	    	CMLProofObligationList pol = new CMLProofObligationList();
-	    	pol.addAll(node.apply(parentPOG, question));
-	    	return pol;
-	    }
-	    
-	    
-//
-//    @Override
-//    public ProofObligationList caseATypeDefinition(ATypeDefinition node,
-//	    POContextStack question) throws AnalysisException {
-//
-//    	System.out.println("----------***----------");
-//		System.out.println("ATypeDefinition");
-//		System.out.println(node.toString());
-//	
-//		CMLProofObligationList pol = new CMLProofObligationList();
-//		AExplicitFunctionDefinition invDef = node.getInvdef();
-//		
-//		
-//		PPattern pat = node.getInvPattern();
-//		if (pat != null){
-//			System.out.println("Pattern: " + pat.toString());
-//		}
-//		
-//		PExp exp = node.getInvExpression();
-//			
-//		if (exp != null){
-//			System.out.println("Expression: " + node.getInvExpression().toString());
-//		}
-//		System.out.println("----------***----------");
-//		
-//		/*
-//		 * The AST currently will not produce an invDef value. Only
-//		 * produces a pattern and expression. 
-//		 */
-//		if (invDef != null){
-//			pol.addAll(invDef.apply(this, question));
-//		}
-//		return pol;
-//    }
-//
-//
-
-//
-//    @Override
-//    public ProofObligationList caseAValueDefinition(AValueDefinition node,
-//	    POContextStack question) throws AnalysisException {
-//
-//    	System.out.println("----------***----------");
-//		System.out.println("AValueDefinition");
-//		System.out.println(node.toString());
-//		System.out.println("----------***----------");
-//		
-//		CMLProofObligationList pol = new CMLProofObligationList();
-//
-//		PExp exp = node.getExpression();
-//		pol.addAll(exp.apply(parentPOG, question));
-//		
-//		/*
-//		 *Some aspects of Overture POG are not working nicely.
-//		 *Have commented out for moment - need to be readdressed, though
-//	 	 */
-//		
-////		PPattern pattern = node.getPattern();
-////		PType type = node.getType();
-//		
-////		if (!(pattern instanceof AIdentifierPattern)
-////				&& !(pattern instanceof AIgnorePattern)
-////				&& PTypeAssistant.isUnion(type))
-////		{
-////			PType patternType = PPatternAssistantTC.getPossibleType(pattern);
-////			AUnionType ut = PTypeAssistant.getUnion(type);
-////			PTypeSet set = new PTypeSet();
-////
-////			for (PType u : ut.getTypes())
-////			{
-////				if (TypeComparator.compatible(u, patternType))
-////					set.add(u);
-////			}
-////
-////			if (!set.isEmpty())
-////			{
-////				PType compatible = set.getType(node.getLocation());
-////				if (!TypeComparator.isSubType(type, compatible))
-////				{
-////					obligations.add(new ValueBindingObligation(node, question));
-////					obligations.add(new SubTypeObligation(exp, compatible, type, question));
-////				}
-////			}
-////		}
-////
-////		if (!TypeComparator.isSubType(question.checkType(exp, node.getExpType()), type))
-////		{
-////			obligations.add(new SubTypeObligation(exp, type, node.getExpType(), question));
-////		}
-//		
-//		return pol;
-//    }
-//
-//
-
-//
-//    @Override
-//    public ProofObligationList caseAExplicitFunctionDefinition(
-//	    AExplicitFunctionDefinition node, POContextStack question)
-//	    throws AnalysisException {
-//
-//		CMLProofObligationList obligations = new CMLProofObligationList();
-//	
-//		System.out.println("----------***----------");
-//		System.out.println("caseAExplicitFunctionDefinition");
-//		System.out.println(node.toString());
-//		System.out.println("----------***----------");
-//	
-//		LexNameList pids = new LexNameList();
-//	
-//		// add all defined names from the function parameter list
-//		for (List<PPattern> patterns : node.getParamPatternList())
-//			for (PPattern p : patterns)
-//				for (PDefinition def : p.getDefinitions())
-//					pids.add(def.getName());
-//	
-//		// check for duplicates
-//		if (pids.hasDuplicates()){
-//			obligations.add(new ParameterPatternObligation(node, question));
-//		}
-//	
-//		// do proof obligations for the pre-condition
-//		PExp precondition = node.getPrecondition();
-//		if (precondition != null) {
-//		    question.push(new POFunctionDefinitionContext(node, false));
-//		    obligations.addAll(precondition.apply(parentPOG, question));
-//		    question.pop();
-//		}
-//	
-//	
-//		// do proof obligations for the post-condition
-//		PExp postcondition = node.getPostcondition();
-//		if (postcondition != null){
-//			question.push(new POFunctionDefinitionContext(node, false));
-//			obligations.add(new FuncPostConditionObligation(node, question));
-//			question.push(new POFunctionResultContext(node));
-//			obligations.addAll(postcondition.apply(parentPOG, question));
-//			question.pop();
-//			question.pop();
-//		}
-//		
-//		// do proof obligations for the function body
-//		question.push(new POFunctionDefinitionContext(node, true));
-//		PExp body = node.getBody();
-//		int sizeBefore = question.size();
-//		ProofObligationList pol = body.apply(parentPOG,question);
-//		obligations.addAll(body.apply(parentPOG, question));
-//		assert sizeBefore <= question.size();
-//		
-//		/*
-//		 * Subtype Obligation not working well - mainly the if statement, I believe.
-//		 */
-////		// do proof obligation for the return type
-////		if (node.getIsUndefined()
-////				|| !TypeComparator.isSubType(node.getActualResult(), node.getExpectedResult()))
-////		{
-////			obligations.add(new SubTypeObligation(node, node.getExpectedResult(), node.getActualResult(), question));
-////		}
-//		question.pop();
-//	
-//		return obligations;
-//	}
-//
-//    
-//    @Override
-//    public ProofObligationList caseAImplicitFunctionDefinition(
-//	    AImplicitFunctionDefinition node, POContextStack question)
-//	    throws AnalysisException {
-//    	
-//    	System.out.println("----------***----------");
-//		System.out.println("AImplicitFunctionDefinition");
-//		System.out.println(node.toString());
-//		System.out.println("----------***----------");
-//    	
-//		CMLProofObligationList obligations = new CMLProofObligationList();
-//		
-//		LexNameList pids = new LexNameList();
-//	
-//		//check for duplicates? 
-//		for (APatternListTypePair pltp : node.getParamPatterns()){
-//			for (PPattern p : pltp.getPatterns()){
-//				for (PDefinition def : p.getDefinitions())
-//					pids.add(def.getName());
-//			}
-//		}
-//	
-//		if (pids.hasDuplicates()){
-//			obligations.add(new ParameterPatternObligation(node, question));
-//		}
-//	
-//		// if implicit function has a precondition, dispatch for PO checking
-//		if (node.getPrecondition() != null) {
-//		    obligations.addAll(node.getPrecondition()
-//			    .apply(parentPOG, question));
-//		}
-//		
-//		// if has a postcondition should generate SatisfiabilityObligation
-//		if (node.getPostcondition() != null) {
-//	    	question.push(new POFunctionDefinitionContext(node, false));
-//		    //if there is also a body, should generate a FuncPostConditionObligation
-//		    if (node.getBody() != null){
-//				obligations.add(new FuncPostConditionObligation(node, question));
-//			}
-//		    //if there is no body should generate SatisfiabilityObligation
-//		    else{
-//		    	/*
-//		    	 * SatisfiabilityObligation is not working
-//		    	 */
-////		    	obligations.add(new SatisfiabilityObligation(node, question));
-//		    }
-//		    question.pop();
-//		    //dispatch postconditon expression for PO checking
-//		    question.push(new POFunctionResultContext(node));
-//			obligations.addAll(node.getPostcondition().apply(parentPOG, question));
-//			question.pop();
-//		}
-//		   
-//		//if has a body, should check for POs in body
-//		if (node.getBody() != null)	{
-//			question.push(new POFunctionDefinitionContext(node, false));
-//			obligations.addAll(node.getBody().apply(parentPOG, question));
-//	
-//			/*
-//			 * Subtype Obligation not working well - mainly the if statement, I believe.
-//			 */
-////			if (node.getIsUndefined()
-////					|| !TypeComparator.isSubType(node.getActualResult(), node.getType().getResult())){
-////				obligations.add(new SubTypeObligation(node, node.getType().getResult(), node.getActualResult(), question));
-////			}
-//			question.pop();
-//		}	
-//		
-//		return obligations;
-//    }
-//
-//    
-//
-
-//
-//    
-//    
+	// Call the main pog when it's not a definition/declaration
+	@Override
+	public ProofObligationList defaultINode(INode node, POContextStack question)
+		throws AnalysisException {
+		
+		CMLProofObligationList pol = new CMLProofObligationList();
+		pol.addAll(node.apply(parentPOG, question));
+		return pol;
+	}
     
  }

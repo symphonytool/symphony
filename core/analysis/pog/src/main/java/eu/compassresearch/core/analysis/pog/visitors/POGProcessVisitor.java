@@ -18,12 +18,19 @@ import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList>
 {
     private ProofObligationGenerator parentPOG;
-    
+
+    /**
+     * Constructor - simply initialise parent POG
+     * @param parent
+     */
     public POGProcessVisitor(ProofObligationGenerator parent)
     {
         this.parentPOG = parent;
     }
     
+    /**
+	  * Default case - just print to screen
+	  */
     @Override
     public ProofObligationList defaultPProcess(PProcess node,
 	    POContextStack question) throws AnalysisException {
@@ -31,23 +38,26 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 		return new ProofObligationList();
     }
     
+    /**
+	  * State process - split process into definition paragraphs and process 
+	  */
     @Override
     public CMLProofObligationList caseAStateProcess(AStateProcess node,POContextStack question) throws AnalysisException{
-    	System.out.println("A StateProcess: " + node.toString());
+
     	CMLProofObligationList pol = new CMLProofObligationList();
+
+    	//Print the separate parts to screen
+    	System.out.println("A StateProcess: " + node.toString());
+    	System.out.println("A StateProcess process defintions: " + node.getProcessDefinition());
+    	System.out.println("A StateProcess defintion paragraphs: " + node.getDefinitionParagraphs());
+    	System.out.println("A StateProcess action: " + node.getAction());
     	
-    	LinkedList<SParagraphDefinition> pdef = node.getDefinitionParagraphs();
-    	for (SParagraphDefinition def : pdef) {
+    	for (SParagraphDefinition def : node.getDefinitionParagraphs()) {
     		System.out.println(def.toString());
     		
     		pol.addAll(def.apply(parentPOG, question));
     	}
     	
-    	
-    	System.out.println(node.getProcessDefinition());
-    	System.out.println(pdef);
-    	System.out.println(node.getAction());
 		return pol;
     }
-
 }

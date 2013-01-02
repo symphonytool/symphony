@@ -22,23 +22,38 @@ public class POGActionVisitor  extends
 QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 
     private ProofObligationGenerator parentPOG;
-    
+
+    /**
+     * Constructor - simply initialise parent POG
+     * @param parent
+     */
     public POGActionVisitor(ProofObligationGenerator parent)
 	{
         this.parentPOG = parent;
     }
       
+
+    /**
+     * Block Statement. Currently, get the action and handle
+     */
     @Override
-    public CMLProofObligationList caseABlockStatementAction(ABlockStatementAction node,POContextStack question) throws AnalysisException{
+    public CMLProofObligationList caseABlockStatementAction(ABlockStatementAction node,
+    		POContextStack question) throws AnalysisException{
     	System.out.println("A ABlockStatementAction: " + node.toString());
     	CMLProofObligationList pol = new CMLProofObligationList();
     	
     	pol.addAll(node.getAction().apply(parentPOG, question));
 		return pol;
     }
-    
+
+    /**
+     * Single assignment. Possibly naive - just handle the identifiers and expressions
+     * May need more detail on identifiers?
+     */
     @Override
-    public CMLProofObligationList caseASingleGeneralAssignmentStatementAction(ASingleGeneralAssignmentStatementAction node,POContextStack question) throws AnalysisException{
+    public CMLProofObligationList caseASingleGeneralAssignmentStatementAction(
+    		ASingleGeneralAssignmentStatementAction node,POContextStack question) 
+    		throws AnalysisException{
     	System.out.println("A ASingleGeneralAssignmentStatementAction: " + node.toString());
     	CMLProofObligationList pol = new CMLProofObligationList();
     	
@@ -66,8 +81,6 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 		return pol;
     }
     
-
-
     // Call the main pog when it's not a statement
     @Override
     public ProofObligationList defaultINode(INode node, POContextStack question)
