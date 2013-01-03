@@ -88,9 +88,14 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		env = envBuilder.getGlobalEnvironment();
 		globalContext = envBuilder.getGlobalContext();
-		if(defaultName != null)
+		topProcess = envBuilder.getLastDefinedProcess();
+	}
+	
+	private void InitializeTopProcess() throws InterpreterException 
+	{
+		if(defaultName != null && !defaultName.equals(""))
 		{
-			LexNameToken name = new LexNameToken("Default",getDefaultName(),null);
+			LexNameToken name = new LexNameToken("",getDefaultName(),null);
 			AProcessDefinition processDef = (AProcessDefinition)env.findName(name, NameScope.GLOBAL);
 
 			if (processDef == null)
@@ -99,9 +104,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 			topProcess = processDef;
 		}
-		else
-			topProcess = envBuilder.getLastDefinedProcess();
 	}
+	
 
 	@Override
 	public Environment getGlobalEnvironment()
@@ -116,7 +120,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	}
 
 	@Override
-	public void setDefaultName(String name) throws Exception
+	public void setDefaultName(String name) 
 	{
 		defaultName = name;
 	}
@@ -130,6 +134,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	@Override
 	public Value execute(CmlCommunicationSelectionStrategy selectionStrategy) throws InterpreterException
 	{
+		InitializeTopProcess();
 		Environment env = getGlobalEnvironment();
 		CmlRuntime.setGlobalEnvironment(env);
 
@@ -213,7 +218,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
 		try
 		{
-			// cmlInterp.setDefaultName("A");
+			//cmlInterp.setDefaultName("test");
 			cmlInterp.execute();
 		} catch (Exception ex)
 		{
@@ -231,7 +236,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-communication-output.cml");
+				//"src/test/resources/action/action-communication-output.cml");
+		"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 
 	}

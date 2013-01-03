@@ -80,6 +80,19 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
     	return globalState;
     }
     
+    public List<AProcessDefinition> getGlobalProcesses()
+    {
+    	List<AProcessDefinition> processes = new LinkedList<AProcessDefinition>();
+    	
+    	for(PDefinition def : globalDefs)
+    	{
+    		if(def instanceof AProcessDefinition)
+    			processes.add((AProcessDefinition)def);
+    	}
+    		
+    	return processes;
+    }
+    
     
     @Override
     public void caseAClassParagraphDefinition(AClassParagraphDefinition node)

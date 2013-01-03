@@ -104,6 +104,7 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
     	
     	ILaunchConfiguration result = null;
     	
+    	//Get the current project which this file lives in
     	IProject project = CmlUtil.getCurrentSelectedProject();
     	
     	for(ILaunchConfiguration lc : launchManager.getLaunchConfigurations(ctype))

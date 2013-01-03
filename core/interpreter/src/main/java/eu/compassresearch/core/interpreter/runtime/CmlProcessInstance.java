@@ -203,17 +203,19 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 		if(mainBehaviour == null)
 		{
 			// TODO Add state, value, etc to the corresponding processValue and
-
+			
 			//Create the context for this process and hand it over to the process behavior 
 			Context newContext = new Context(node.getLocation(), "Process Context :" + name(), question);
-			question.setThreadState(null, CPUValue.vCPU);
+			//this needs to be set when we evaluates the expressions
+			newContext.setThreadState(null, CPUValue.vCPU);
+			
 			for (PDefinition def : node.getDefinitionParagraphs())
 			{
-				def.apply(cmlEvaluator, question);
+				def.apply(cmlEvaluator, newContext);
 				// question.put(def.getName(), def.getType().g);
 			}
 
-			//Create the name for the behavior and start it 
+			//Create the name for the action behavior and start it 
 			LexNameToken mainActionName = new LexNameToken(name().getModule(),
 					name().getName() + "@",
 					node.getAction().getLocation());
@@ -222,7 +224,9 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 			mainBehaviour.onStateChanged().registerObserver(this);
 			mainBehaviour.onTraceChanged().registerObserver(this);
 			mainBehaviour.start(supervisor());
-			pushNext(node, question);
+			//push this node onto the execution stack again since this should execute
+			//the action behavoir until it terminates
+			pushNext(node, newContext);
 			ret = CmlBehaviourSignal.EXEC_SUCCESS; 
 		}
 		else

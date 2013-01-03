@@ -2,6 +2,7 @@ package eu.compassresearch.ide.cml.interpreter_plugin;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.ISelectionService;
@@ -32,5 +33,15 @@ public final class CmlUtil {
 //	        }
 	    }
 	    return project;
+	}
+	
+	public static String getProjectPath(IProject project)
+	{
+		String projectPath = project.getFullPath().toOSString();
+		//String pat = System.getProperty("user.dir");
+		
+		String workspacePath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
+		
+		return workspacePath + projectPath;
 	}
 }

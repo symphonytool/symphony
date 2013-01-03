@@ -61,6 +61,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 			
 			//Write out the launch configuration to the interpreter runner
 			JSONObject obj = serializeLaunchConfigurationToJSON(configuration);
+			//Along with the current mode "debug" or "run"
 			obj.put("mode", mode);
 			
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
@@ -129,6 +130,12 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		
 	}
 	
+	/**
+	 * Write a the inStream to the out file
+	 * @param inStream
+	 * @param outfile
+	 * @throws IOException
+	 */
 	private void WriteFile(InputStream inStream,File outfile) throws IOException
 	{
 		FileOutputStream fos = new FileOutputStream(outfile);

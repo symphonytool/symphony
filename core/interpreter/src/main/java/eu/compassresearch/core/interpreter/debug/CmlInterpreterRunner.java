@@ -94,9 +94,10 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 		
 	}
 	
-	public CmlInterpreterRunner(List<PSource> cmlSources) throws InterpreterException
+	public CmlInterpreterRunner(List<PSource> cmlSources, String topProcessName) throws InterpreterException
 	{
 		cmlInterpreter = VanillaInterpreterFactory.newInterpreter(cmlSources);
+		cmlInterpreter.setDefaultName(topProcessName);
 	}
 	
 	private boolean isConnected()
@@ -350,13 +351,19 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 		Object obj=JSONValue.parse(args[0]);
 		JSONObject config =(JSONObject)obj;
 		//retrieve the paths for the cml sources of the project
-		List<String> cmlfilePaths = getCmlfilePaths((String)config.get("eu.compassresearch.ide.cml.interpreter_plugin.cml_sources_path"));
-		System.out.println(cmlfilePaths);
+		String sourcesPath = (String)config.get(CmlInterpreterLaunchConfiguration.CML_SOURCES_PATH.toString());
+		String startProcessName = (String)config.get(CmlInterpreterLaunchConfiguration.PROCESS_NAME.toString());
+		System.out.println(startProcessName);
+		if(sourcesPath == null || sourcesPath.length() == 0)
+		{
+			System.out.println("The path to the cml sources are not defined");
+			return;
+		}
 	
 		List<PSource> sourceForest = new LinkedList<PSource>();
 		
 		// build the forest
-		for (String path : cmlfilePaths) {
+		for (String path : getCmlfilePaths(sourcesPath)) {
 			
 			File source = new File(path);
 			System.out.println("Parsing file: " + source);
@@ -380,7 +387,7 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 		if(tc.typeCheck())
 		{
 			String mode = (String)config.get("mode");
-			CmlInterpreterRunner runner = new CmlInterpreterRunner(sourceForest);
+			CmlInterpreterRunner runner = new CmlInterpreterRunner(sourceForest,startProcessName);
 			if(mode.equals("run"))
 				runner.run();
 			else if(mode.equals("debug"))

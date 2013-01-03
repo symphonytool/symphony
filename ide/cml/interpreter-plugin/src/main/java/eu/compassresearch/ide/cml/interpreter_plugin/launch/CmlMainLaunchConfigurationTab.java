@@ -1,22 +1,315 @@
 package eu.compassresearch.ide.cml.interpreter_plugin.launch;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Vector;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
+import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.jface.window.Window;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
+import org.eclipse.ui.model.BaseWorkbenchContentProvider;
+import org.eclipse.ui.model.WorkbenchLabelProvider;
+
+import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfiguration;
+import eu.compassresearch.core.interpreter.runtime.EnvironmentBuilder;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlUtil;
+import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlMainLaunchConfigurationTab extends
 		AbstractLaunchConfigurationTab {
 
+	class WidgetListener implements ModifyListener, SelectionListener
+	{
+		public void modifyText(ModifyEvent e)
+		{
+			updateLaunchConfigurationDialog();
+		}
+
+		public void widgetDefaultSelected(SelectionEvent e)
+		{
+			/* do nothing */
+		}
+
+		public void widgetSelected(SelectionEvent e)
+		{
+			updateLaunchConfigurationDialog();
+		}
+	}
+	
 	private Text fProjectText;
+	private Text fTopProcessText;
+	private WidgetListener fListener = new WidgetListener();
 	
 	@Override
 	public void createControl(Composite parent) {
-		// TODO Auto-generated method stub
+		
+		Composite comp = new Composite(parent, SWT.NONE);
+
+		setControl(comp);
+		// PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(),
+		// IDebugHelpContextIds.LAUNCH_CONFIGURATION_DIALOG_COMMON_TAB);
+		comp.setLayout(new GridLayout(1, true));
+		comp.setFont(parent.getFont());
+
+		createProjectSelection(comp);
+		createProcessSelection(comp);
 
 	}
+	
+	@Override
+	public boolean isValid(ILaunchConfiguration launchConfig) {
+		setErrorMessage(null);
+		try {
+			String projectName = launchConfig.getAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(), "");
+			IProject project = null;
 
+			if (projectName.length() == 0)
+			{
+				setErrorMessage("Project not set");
+				return false;
+			}
+
+			project = getProjectByName(projectName);
+			
+			if (!project.isOpen())
+			{
+				setErrorMessage("Project is not open");
+				return false;
+			}
+			
+			return super.isValid(launchConfig) && isProcessValid(project,launchConfig);
+		} catch (CoreException e) {
+			
+			setErrorMessage(e.getMessage());
+			return false;
+			//e.printStackTrace();
+		}
+	}
+	
+	private boolean isProcessValid(IProject project, ILaunchConfiguration launchConfig) throws CoreException
+	{
+		String processName = launchConfig.getAttribute(CmlInterpreterLaunchConfiguration.PROCESS_NAME.toString(), "");
+		
+		if(processName.length() == 0)
+		{
+			setErrorMessage("Process not set");
+			return false;
+		}
+		
+		List<PSource> projectSources = getCmlAstSourcesFromProject(project);
+		
+		if(projectSources.isEmpty())
+		{
+			setErrorMessage("No CML sources are loaded!");
+			return false;
+		}
+		
+		
+		EnvironmentBuilder builder = new EnvironmentBuilder(projectSources);
+		
+		for(AProcessDefinition processDef : builder.getGlobalProcesses())
+		{
+			if(processName.equals(processDef.getName().getName()))
+				return true;
+		}
+		
+		setErrorMessage("Process '" + processName + "' is not defined");
+		return false;
+	}
+	
+	private List<CmlSourceUnit> getCmlSourcesFromProject(IProject project) throws CoreException
+	{
+		List<CmlSourceUnit> sources = new LinkedList<CmlSourceUnit>();
+		
+		for(IResource res : project.members())
+		{
+			if(res instanceof IFile && ((IFile)res).getFileExtension().toLowerCase().equals(".cml"))
+				sources.add(CmlSourceUnit.getFromFileResource((IFile)res));
+		}
+		
+		return sources;
+	}
+
+	private List<PSource> getCmlAstSourcesFromProject(IProject project) throws CoreException
+	{
+		List<PSource> sources = new LinkedList<PSource>();
+		
+		for(IResource res : project.members())
+		{
+			if(res instanceof IFile && ((IFile)res).getFileExtension().toLowerCase().equals("cml"))
+			{
+				PSource source = CmlSourceUnit.getFromFileResource((IFile)res).getSourceAst();
+				if(source != null)
+					sources.add(source);
+			}
+		}
+		
+		return sources;
+	}
+	
+	protected IProject getProjectByName(String projectName)
+	{
+		return ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+	}
+	
+	private void createProcessSelection(Composite parent)
+	{
+		Group group = new Group(parent, parent.getStyle());
+		group.setText("Top Process");
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+	
+		group.setLayoutData(gd);
+		
+		GridLayout layout = new GridLayout();
+		layout.makeColumnsEqualWidth = false;
+		layout.numColumns = 3;
+		group.setLayout(layout);
+
+		// editParent = group;
+
+		Label label = new Label(group, SWT.MIN);
+		label.setText("Process:");
+		gd = new GridData(GridData.BEGINNING);
+		label.setLayoutData(gd);
+
+		fTopProcessText = new Text(group, SWT.SINGLE | SWT.BORDER);
+
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		fTopProcessText.setLayoutData(gd);
+		fTopProcessText.addModifyListener(fListener);
+	}
+	
+	private void createProjectSelection(Composite parent)
+	{
+		Group group = new Group(parent, parent.getStyle());
+		group.setText("Project");
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+
+		group.setLayoutData(gd);
+
+		GridLayout layout = new GridLayout();
+		layout.makeColumnsEqualWidth = false;
+		layout.numColumns = 3;
+		group.setLayout(layout);
+
+		// editParent = group;
+
+		Label label = new Label(group, SWT.MIN);
+		label.setText("Project:");
+		gd = new GridData(GridData.BEGINNING);
+		label.setLayoutData(gd);
+
+		fProjectText = new Text(group, SWT.SINGLE | SWT.BORDER);
+
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		fProjectText.setLayoutData(gd);
+		fProjectText.addModifyListener(fListener);
+
+		Button selectProjectButton = createPushButton(group, "Browse...", null);
+
+		selectProjectButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				// ListSelectionDialog dlg = new ListSelectionDialog(getShell(),
+				// ResourcesPlugin.getWorkspace().getRoot(), new
+				// BaseWorkbenchContentProvider(), new
+				// WorkbenchLabelProvider(), "Select the Project:");
+				// dlg.setTitle("Project Selection");
+				// dlg.open();
+				class ProjectContentProvider extends
+						BaseWorkbenchContentProvider
+				{
+					@Override
+					public boolean hasChildren(Object element)
+					{
+						if (element instanceof IProject)
+						{
+							return false;
+						} else
+						{
+							return super.hasChildren(element);
+						}
+					}
+
+					@Override
+					public Object[] getElements(Object element)
+					{
+						List<IProject> elements = new Vector<IProject>();
+						Object[] arr = super.getElements(element);
+						if (arr != null)
+						{
+							for (Object object : arr)
+							{
+//								try
+//								{
+									if (object instanceof IProject)
+											//&& (((IProject) object).getAdapter(IVdmProject.class) != null)
+											//&& isSupported((IProject) object))
+									{
+										elements.add((IProject) object);
+									}
+//								} 
+//								catch (CoreException e)
+//								{
+////									if (VdmDebugPlugin.DEBUG)
+////									{
+////										e.printStackTrace();
+////									}
+//								}
+							}
+							return elements.toArray();
+						}
+						return null;
+					}
+
+				}
+				;
+				ElementTreeSelectionDialog dialog = new ElementTreeSelectionDialog(getShell(), new WorkbenchLabelProvider(), new ProjectContentProvider());
+				dialog.setTitle("Project Selection");
+				dialog.setMessage("Select a project:");
+				dialog.setComparator(new ViewerComparator());
+
+				dialog.setInput(ResourcesPlugin.getWorkspace().getRoot());
+
+				if (dialog.open() == Window.OK)
+				{
+					if (dialog.getFirstResult() != null
+							&& dialog.getFirstResult() instanceof IProject)
+							//&& ((IProject) dialog.getFirstResult()).getAdapter(IVdmProject.class) != null)
+					{
+						fProjectText.setText(((IProject) dialog.getFirstResult()).getName());
+					}
+
+				}
+			}
+		});
+	}
+	
 	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
 		// TODO Auto-generated method stub
@@ -25,20 +318,40 @@ public class CmlMainLaunchConfigurationTab extends
 
 	@Override
 	public void initializeFrom(ILaunchConfiguration configuration) {
-		// TODO Auto-generated method stub
 
+		try {
+			String projectName = configuration.getAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(), "");
+			fProjectText.setText(projectName);
+			
+			String processName = configuration.getAttribute(CmlInterpreterLaunchConfiguration.PROCESS_NAME.toString(), "");
+			fTopProcessText.setText(processName);
+			
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-		// TODO Auto-generated method stub
-
+		
+		configuration.setAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(), 
+				fProjectText.getText());
+		
+		configuration.setAttribute(CmlInterpreterLaunchConfiguration.PROCESS_NAME.toString(),
+				fTopProcessText.getText());
+		
+		
+		if(fProjectText.getText().length() > 0)
+		{
+			//Set the project src path
+			configuration.setAttribute(CmlInterpreterLaunchConfiguration.CML_SOURCES_PATH.toString(),CmlUtil.getProjectPath(getProjectByName(fProjectText.getText())));
+		}
+		//updateLaunchConfigurationDialog();
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Main";
 	}
 
 }

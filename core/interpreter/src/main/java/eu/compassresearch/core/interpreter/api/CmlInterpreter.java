@@ -66,7 +66,7 @@ public interface CmlInterpreter
 	 * @throws Exception
 	 */
 
-	public void setDefaultName(String name) throws Exception;
+	public void setDefaultName(String name);
 
 	/**
 	 * Initialize the initial context. This means that all definition
