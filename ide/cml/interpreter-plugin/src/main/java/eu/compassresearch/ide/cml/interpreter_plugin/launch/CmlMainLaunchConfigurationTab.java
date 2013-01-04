@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -119,18 +120,15 @@ public class CmlMainLaunchConfigurationTab extends
 			return false;
 		}
 		
-		List<PSource> projectSources = getCmlAstSourcesFromProject(project);
+		List<AProcessDefinition> globalProcess = CmlUtil.GetGlobalProcessesFromProject(project);
 		
-		if(projectSources.isEmpty())
+		if(globalProcess.isEmpty())
 		{
-			setErrorMessage("No CML sources are loaded!");
+			setErrorMessage("No Processes defined or CML sources are loaded!");
 			return false;
 		}
 		
-		
-		EnvironmentBuilder builder = new EnvironmentBuilder(projectSources);
-		
-		for(AProcessDefinition processDef : builder.getGlobalProcesses())
+		for(AProcessDefinition processDef : globalProcess)
 		{
 			if(processName.equals(processDef.getName().getName()))
 				return true;
@@ -140,35 +138,21 @@ public class CmlMainLaunchConfigurationTab extends
 		return false;
 	}
 	
-	private List<CmlSourceUnit> getCmlSourcesFromProject(IProject project) throws CoreException
-	{
-		List<CmlSourceUnit> sources = new LinkedList<CmlSourceUnit>();
-		
-		for(IResource res : project.members())
-		{
-			if(res instanceof IFile && ((IFile)res).getFileExtension().toLowerCase().equals(".cml"))
-				sources.add(CmlSourceUnit.getFromFileResource((IFile)res));
-		}
-		
-		return sources;
-	}
+	
+//	private List<CmlSourceUnit> getCmlSourcesFromProject(IProject project) throws CoreException
+//	{
+//		List<CmlSourceUnit> sources = new LinkedList<CmlSourceUnit>();
+//		
+//		for(IResource res : project.members())
+//		{
+//			if(res instanceof IFile && ((IFile)res).getFileExtension().toLowerCase().equals(".cml"))
+//				sources.add(CmlSourceUnit.getFromFileResource((IFile)res));
+//		}
+//		
+//		return sources;
+//	}
 
-	private List<PSource> getCmlAstSourcesFromProject(IProject project) throws CoreException
-	{
-		List<PSource> sources = new LinkedList<PSource>();
-		
-		for(IResource res : project.members())
-		{
-			if(res instanceof IFile && ((IFile)res).getFileExtension().toLowerCase().equals("cml"))
-			{
-				PSource source = CmlSourceUnit.getFromFileResource((IFile)res).getSourceAst();
-				if(source != null)
-					sources.add(source);
-			}
-		}
-		
-		return sources;
-	}
+	
 	
 	protected IProject getProjectByName(String projectName)
 	{
@@ -200,6 +184,76 @@ public class CmlMainLaunchConfigurationTab extends
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		fTopProcessText.setLayoutData(gd);
 		fTopProcessText.addModifyListener(fListener);
+		
+		Button selectProjectButton = createPushButton(group, "Search...", null);
+
+		selectProjectButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				// ListSelectionDialog dlg = new ListSelectionDialog(getShell(),
+				// ResourcesPlugin.getWorkspace().getRoot(), new
+				// BaseWorkbenchContentProvider(), new
+				// WorkbenchLabelProvider(), "Select the Project:");
+				// dlg.setTitle("Project Selection");
+				// dlg.open();
+				class ProcessContentProvider extends
+						BaseWorkbenchContentProvider
+				{
+					@Override
+					public boolean hasChildren(Object element)
+					{
+						if (element instanceof AProcessDefinition)
+						{
+							return false;
+						} else
+						{
+							return super.hasChildren(element);
+						}
+					}
+
+					@Override
+					public Object[] getElements(Object element)
+					{
+						List<AProcessDefinition> pdefs = (List<AProcessDefinition>)element;
+						return pdefs.toArray();
+						
+						
+					}
+
+				};
+				
+				ElementTreeSelectionDialog dialog = new ElementTreeSelectionDialog(getShell(), new LabelProvider()
+				{
+					@Override
+					public String getText(Object element) {
+
+						if(element instanceof AProcessDefinition)
+							return ((AProcessDefinition)element).getName().getName();
+						else			
+							return null;
+					}
+				
+				}, new ProcessContentProvider());
+				dialog.setTitle("Process Selection");
+				dialog.setMessage("Select a process:");
+				dialog.setComparator(new ViewerComparator());
+
+				dialog.setInput( CmlUtil.GetGlobalProcessesFromProject(getProjectByName(fProjectText.getText())));
+
+				if (dialog.open() == Window.OK)
+				{
+					if (dialog.getFirstResult() != null
+							&& dialog.getFirstResult() instanceof AProcessDefinition)
+							//&& ((IProject) dialog.getFirstResult()).getAdapter(IVdmProject.class) != null)
+					{
+						fTopProcessText.setText(((AProcessDefinition) dialog.getFirstResult()).getName().getName());
+					}
+
+				}
+			}
+		});
 	}
 	
 	private void createProjectSelection(Composite parent)
@@ -339,13 +393,29 @@ public class CmlMainLaunchConfigurationTab extends
 		
 		configuration.setAttribute(CmlInterpreterLaunchConfiguration.PROCESS_NAME.toString(),
 				fTopProcessText.getText());
-		
-		
+						
 		if(fProjectText.getText().length() > 0)
 		{
+			
+			IProject project = getProjectByName(fProjectText.getText());
 			//Set the project src path
-			configuration.setAttribute(CmlInterpreterLaunchConfiguration.CML_SOURCES_PATH.toString(),CmlUtil.getProjectPath(getProjectByName(fProjectText.getText())));
+			configuration.setAttribute(CmlInterpreterLaunchConfiguration.CML_SOURCES_PATH.toString(),CmlUtil.getProjectPath(project));
+		
+		
+//			List<AProcessDefinition> globalProcess = CmlUtil.GetGlobalProcessesFromProject(project);
+//			
+//			for(AProcessDefinition processDef : globalProcess)
+//			{
+//				if(fTopProcessText.getText().equals(processDef.getName().getName()))
+//					configuration.setAttribute(CmlInterpreterLaunchConfiguration.PROCESS_FILE_PATH.toString(),
+//							processDef.getLocation().file.getAbsolutePath());
+//			}
+			
 		}
+		
+		
+		
+		
 		//updateLaunchConfigurationDialog();
 	}
 

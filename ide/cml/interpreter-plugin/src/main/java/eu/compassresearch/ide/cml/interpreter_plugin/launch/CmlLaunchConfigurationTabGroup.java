@@ -45,7 +45,7 @@ public class CmlLaunchConfigurationTabGroup extends AbstractLaunchConfigurationT
 			//Set the project name
 			configuration.setAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(),project.getName());
 			//Set the project path
-			configuration.setAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_PATH.toString(),CmlUtil.getProjectPath(project));
+			//configuration.setAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_PATH.toString(),CmlUtil.getProjectPath(project));
 			//Set the project src path
 			configuration.setAttribute(CmlInterpreterLaunchConfiguration.CML_SOURCES_PATH.toString(),CmlUtil.getProjectPath(project));
 		}
