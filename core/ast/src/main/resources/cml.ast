@@ -101,7 +101,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	(actualResult):type
 
     | {implicit}
-        [parameterPatterns]:pair.patternListType*
+    [parameterPatterns]:pair.patternListType*
 	[result]:pair.patternType*
 	[externals]:clause.external*
 	[precondition]:exp

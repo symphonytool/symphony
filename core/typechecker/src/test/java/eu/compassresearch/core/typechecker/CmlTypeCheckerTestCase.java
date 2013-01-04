@@ -595,35 +595,35 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ (A \\\\ {| B |}) end",
 				false, true, false,
-				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
+				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
 						.customizeMessage("Process A") });
 		// 130
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ (A \\\\ {| channel1 |}) end",
 				false, true, false,
-				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
+				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
 						.customizeMessage("Process A") });
 		// 131
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ A ; Skip end",
 				false, true, false,
-				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
+				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
 						.customizeMessage("Process A") });
 		// 132
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ (A startsby 42) end",
 				false, true, false,
-				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
+				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
 						.customizeMessage("Process A") });
 		// 133
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ (A endsby 42) end",
 				false, true, false,
-				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
+				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
 						.customizeMessage("Process A") });
 
 		// 134
@@ -631,7 +631,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ A ; Skip end",
 				false, true, false,
-				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
+				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
 						.customizeMessage("Process A") });
 
 		// 135
@@ -684,7 +684,9 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		
 		addTestProgram(testData, "class test = begin operations o:int ==> int o(a) == (return (\"ras\")) end", false,true,false,new String[0]);
 		addTestProgram(testData, "class test = begin operations o:int ==> int o(a) == (return (let a : int = 2 in \"42\")) end",false,true,false,new String[0]);
-		addTestProgram(testData, "class Stuff = begin functions operations o : () ==> int o() == (return (let a:int = 2 in  \"abcd\")) end",false,true,false,new String[0]); 
+		addTestProgram(testData, "class Stuff = begin functions operations o : () ==> int o() == (return (let a:int = 2 in  \"abcd\")) end",false,true,false,new String[0]);
+		addTestProgram(testData, "class test = begin functions f: int -> int f(a) == a+10 end", false, true,true,new String[0]);
+		addTestProgram(testData, "channels c: String", false, true,false,new String[0]);
 		return testData;
 	}
 

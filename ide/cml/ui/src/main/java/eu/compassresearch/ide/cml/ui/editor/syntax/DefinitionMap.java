@@ -9,12 +9,13 @@ import java.util.Map;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 
-import eu.compassresearch.ast.definitions.AActionParagraphDefinition;
-import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
-import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
-import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
-import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
-import eu.compassresearch.ast.definitions.SOperationDefinition;
+import eu.compassresearch.ast.definitions.AActionsDefinition;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.AOperationsDefinition;
+import eu.compassresearch.ast.definitions.ATypesDefinition;
+import eu.compassresearch.ast.definitions.AValuesDefinition;
+import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
+
 
 public class DefinitionMap {
 
@@ -35,15 +36,15 @@ public class DefinitionMap {
 
 	private static Map<Class<?>, ? extends DefinitionHandler> createMap() {
 		Map<Class<?>, DefinitionHandler> map = new HashMap<Class<?>, DefinitionHandler>();
-		map.put(AActionParagraphDefinition.class,
+		map.put(AActionsDefinition.class,
 				new AActionParagraphDefinitionHandler());
-		map.put(AValueParagraphDefinition.class,
+		map.put(AValuesDefinition.class,
 				new AValueParagraphDefinitionHandler());
-		map.put(AFunctionParagraphDefinition.class,
+		map.put(AFunctionsDefinition.class,
 				new AFunctionParagraphDefinitionHandler());
-		map.put(ATypesParagraphDefinition.class,
+		map.put(ATypesDefinition.class,
 				new ATypesParagraphDefinitionHandler());
-		map.put(AOperationParagraphDefinition.class,
+		map.put(AOperationsDefinition.class,
 				new AOperationParagraphDefinitionHandler());
 		return Collections.unmodifiableMap(map);
 	}
@@ -54,7 +55,7 @@ public class DefinitionMap {
 		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
 			List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 
-			for (PDefinition subdef : ((AValueParagraphDefinition) pdef)
+			for (PDefinition subdef : ((AValuesDefinition) pdef)
 					.getValueDefinitions()) {
 				String nameguard = "?";
 				String typeguard = "?";
@@ -73,7 +74,7 @@ public class DefinitionMap {
 
 		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
 		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
-			for (PDefinition subdef : ((AFunctionParagraphDefinition) pdef)
+			for (PDefinition subdef : ((AFunctionsDefinition) pdef)
 					.getFunctionDefinitions()) {
 				r.add(Wrapper.newInstance(subdef, subdef.getName().name + ": "
 						+ subdef.getType()));
@@ -87,7 +88,7 @@ public class DefinitionMap {
 
 		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
 		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
-			for (ATypeDefinition subdef : ((ATypesParagraphDefinition) pdef)
+			for (ATypeDefinition subdef : ((ATypesDefinition) pdef)
 					.getTypes())
 				r.add(Wrapper.newInstance(subdef, subdef.getName().name));
 			return r;
@@ -99,7 +100,7 @@ public class DefinitionMap {
 
 		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
 		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
-			for (SOperationDefinition subdef : ((AOperationParagraphDefinition) pdef)
+			for (SCmlOperationDefinition subdef : ((AOperationsDefinition) pdef)
 					.getOperations())
 				r.add(Wrapper.newInstance(subdef, subdef.getName().name + ": "
 						+ subdef.getType()));
@@ -112,7 +113,7 @@ public class DefinitionMap {
 		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
 		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			String nameguard;
-			if (pdef instanceof AActionParagraphDefinition) {
+			if (pdef instanceof AActionsDefinition) {
 				if (null == pdef.getName())
 					nameguard = "?";
 				else

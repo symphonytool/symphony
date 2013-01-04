@@ -47,7 +47,7 @@ public class CmlTypeCheckerTestCaseMultipleSources {
 				);
 		// 4
 		TestUtil.addTestProgram(testData,"class A = begin operations O: () ==> int O() == (return (42)) end",
-				"class B = begin state b : A; c : int := (b.O()) end", true, new String[0]);
+				"class B = begin state b : A c : int := (b.O()) end", true, new String[0]);
 		// 5
 		TestUtil.addTestProgram(testData, 
 				"class A = begin operations O: () ==> int O() == (return (42)) end",

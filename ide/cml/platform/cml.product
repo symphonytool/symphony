@@ -3,12 +3,20 @@
 
 <product name="CML Compass Project" uid="eu.compassresearch.ide.platform.product" id="eu.compassresearch.ide.cml.platform.product" application="org.eclipse.ui.ide.workbench" version="1.0.0" useFeatures="false" includeLaunchers="true">
 
+   <aboutInfo>
+      <text>
+         Learn more avout COMPASS Research at http://www.compass-research.eu
+      </text>
+   </aboutInfo>
+
    <configIni use="default">
    </configIni>
 
    <launcherArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
+
+   <windowImages i16="/eu.compassresearch.ide.cml.platform/icons/icon16.ico" i32="/eu.compassresearch.ide.cml.platform/icons/icon32.ico" i48="/eu.compassresearch.ide.cml.platform/icons/icon48.ico" i64="/eu.compassresearch.ide.cml.platform/icons/icon64.ico" i128="/eu.compassresearch.ide.cml.platform/icons/icon128.ico"/>
 
    <splash
       location="eu.compassresearch.ide.cml.platform"
@@ -24,6 +32,7 @@
       </win>
    </launcher>
 
+
    <vm>
       <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/OSGi%Minimum-1.2</linux>
    </vm>
@@ -32,10 +41,8 @@
       <plugin id="com.ibm.icu"/>
       <plugin id="eu.compassresearch.ide.cml.core"/>
       <plugin id="eu.compassresearch.ide.cml.platform"/>
-      <plugin id="eu.compassresearch.ide.cml.rtt-plugin"/>
       <plugin id="eu.compassresearch.ide.cml.tpplugin"/>
       <plugin id="eu.compassresearch.ide.cml.ui"/>
-      <plugin id="eu.compassresearch.ide.cml.interpreter_plugin"/>
       <plugin id="isabelle.eclipse.core"/>
       <plugin id="isabelle.eclipse.launch"/>
       <plugin id="isabelle.eclipse.ui"/>

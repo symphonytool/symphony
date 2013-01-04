@@ -8,10 +8,11 @@ types
 --------------------------
 
 -- Days are represented as natural numbers
+ private Capacity = nat
 
  private Day = nat
 
-private Rooms = int
+ private Rooms = int
 
 -- AvailDB is the hotel room availability 
 -- database
@@ -181,13 +182,13 @@ actions
         [not BookedRng(s,e,n,avail)] & error -> HOTEL
         )
     []
-    bookfnroom?mk_(d,c) ->
+    bookfunctionroom?mk_(d,c) ->
        ([checkFnRmAvail(d,c,avail,fnRmCapacity)] & 
           BOOKFUNCTIONROOM(d,c);fnrmbooked -> HOTEL
         []
         [not checkFnRmAvail(d,c,avail,fnRmCapacity)] & error -> HOTEL)
     []
-    booknamedfnroom?mk_(d,r) ->
+    booknamedfunctionroom?mk_(d,r) ->
         ([checkthisFnRmAvail(d,r,fnRmAvailOnDate)] & 
              BOOKNAMEDFUNCTIONROOM(d,r);fnrmbooked -> HOTEL
          []

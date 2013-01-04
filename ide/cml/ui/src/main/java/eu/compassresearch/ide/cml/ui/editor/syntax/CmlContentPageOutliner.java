@@ -35,7 +35,7 @@ IContentOutlinePage {
 	// public static final int ALL_LEVELS = -1;
 
 	public void setTreeSelection(INode element) {
-		Wrapper w;
+		Wrapper<PDefinition> w;
 		PDefinition pdef = (PDefinition) element;
 		String dscr = TopLevelDefinitionMap.getDescription(pdef.getClass());
 		if (dscr == null)
@@ -83,13 +83,14 @@ IContentOutlinePage {
 						&& loopAvoidanceFlag) {
 					IStructuredSelection selection = (IStructuredSelection) event
 							.getSelection();
-					for (Iterator iterator = selection.iterator(); iterator
+					for (@SuppressWarnings("unchecked")
+					Iterator<Object> iterator = selection.iterator(); iterator
 							.hasNext();) {
 
 						Object o = iterator.next();
 						System.out.println("Selected " + o.toString());
 						if (o instanceof Wrapper) {
-							Wrapper w = (Wrapper) o;
+							Wrapper<?> w = (Wrapper<?>) o;
 							// FIXME Find a better system to extract locations
 							for (Method m : w.value.getClass().getMethods()) {
 								if ("getLocation".equals(m.getName())) {

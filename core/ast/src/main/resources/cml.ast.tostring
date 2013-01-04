@@ -24,7 +24,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->chaos = "Chaos"
 %action->div = "Div Action"
 %action->wait = "Wait"
-%action->sequentialComposition = [left] ";" [right]
+%action->sequentialComposition = [left] " ; " [right]
 %action->reference = [name]
 %action->#Parallel->interleaving = [leftAction] "|||" [rightAction]
 %action->#Parallel->generalisedParallelism = [leftAction] "[|" [chansetExpression] "|]" [rightAction]
@@ -33,7 +33,8 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %parametrisation->val = "val" [declaration]
 %parametrisation->res = "res" [declaration]
 %parametrisation->vres = "vres" [declaration]
-
+%action->communication = [identifier] "->" [action]
+%action->guarded = [expression] " & " [action]
 %declaration->#Single->type = [identifiers] ":" [type]
 %declaration->#Single->expression = [identifiers] " := " [expression]
 
@@ -52,8 +53,11 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %definition->process = "Process " [name]$.getName()$
 %definition->class = "Class " [name]$.getName()$
 %definition->state = "State Paragraph"
-
+%definition->#cmlOperation->implicit = [name] + " " + [type]
+%definition->#cmlOperation->explicit = [name] + " " + [type]
 //  Statements
+
+
 
 //Access
                                     

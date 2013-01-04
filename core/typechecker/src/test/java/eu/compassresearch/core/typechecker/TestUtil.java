@@ -57,7 +57,12 @@ public class TestUtil
 		CmlParser parser = new CmlParser(tokens);
 
 		try {
-			s.setParagraphs(parser.source());
+			s.setParagraphs(new LinkedList<PDefinition>());
+			for(PDefinition d : parser.source())
+				if (d != null)
+					s.getParagraphs().add(d);
+				else	
+					return false;
 			return true;
 		} catch (RecognitionException e) {
 			e.printStackTrace();

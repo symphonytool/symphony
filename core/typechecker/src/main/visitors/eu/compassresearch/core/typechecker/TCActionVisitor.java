@@ -20,6 +20,7 @@ import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AExpressionPattern;
+import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.AExternalClause;
@@ -109,6 +110,7 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.types.AActionType;
@@ -130,7 +132,11 @@ import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 class TCActionVisitor extends
 QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
+	private static APatternListTypePair t;
+	static
+	{
 
+	}
 
 	/**
 	 * Actions can reference and call each other and for that we have two choices. 
@@ -1429,7 +1435,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		if (!(actionType instanceof AActionType))
 		{
-			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.EXPECTED_AN_ACTION.customizeMessage(""+action)));
+			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION.customizeMessage(""+action)));
 			return node.getType();
 		}
 
@@ -1543,7 +1549,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (!(actionDef instanceof AActionDefinition)) {
 			issueHandler.addTypeError(
 					node,
-					TypeErrorMessages.EXPECTED_AN_ACTION.customizeMessage(node
+					TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION.customizeMessage(node
 							.getName() + ""));
 			node.setType(new AErrorType());
 			return node.getType();
@@ -1570,7 +1576,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		PDefinition channel = cmlEnv.lookupChannel(node.getIdentifier());
 		AChannelNameDefinition channelNameDefinition = null;
-		
+
 		// There should be a channel defined with this name
 		if (null == channel) {
 			node.setType( issueHandler.addTypeError(node,
@@ -1579,16 +1585,16 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 
-		
+
 		if (!(channel instanceof AChannelNameDefinition))
 		{
 			node.setType(issueHandler.addTypeError(channel, TypeErrorMessages.EXPECTED_A_CHANNEL.customizeMessage(channel+"")));
 			return node.getType();
 		}
 
-		
+
 		channelNameDefinition = (AChannelNameDefinition)channel;
-		
+
 		CmlTypeCheckInfo commEnv = cmlEnv.newScope();
 
 		LinkedList<PCommunicationParameter> commParams = node.getCommunicationParameters();
@@ -1604,20 +1610,20 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			// //
 			if (commParam instanceof AReadCommunicationParameter)
 			{
-   			    ATypeSingleDeclaration typeDecl = channelNameDefinition.getSingleType();
+				ATypeSingleDeclaration typeDecl = channelNameDefinition.getSingleType();
 				AReadCommunicationParameter readParam = (AReadCommunicationParameter)commParam;
 				commPattern = readParam.getPattern();
-				
+
 				PType commPatternType = commPattern.apply(parentChecker,question);
 				if (!TCDeclAndDefVisitor.successfulType(commPatternType))
 				{
 					node.setType(issueHandler.addTypeError(commPattern,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+commPattern)));
 					return node.getType();
 				}
-				
+
 				if (typeDecl.getType() == null)
 					typeDecl.setType(new AChannelType(commParam.getLocation(), true));
-				
+
 				if (commPattern instanceof ATuplePattern)
 				{
 					PType type = typeDecl.getType();
@@ -1626,23 +1632,23 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 						node.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Channel type", ""+type)));
 						return node.getType();
 					}
-					
+
 					AChannelType chanType = (AChannelType)type;
 					if (!(chanType.getType() instanceof AProductType))
 					{
 						node.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(typeDecl.getType()+"", chanType.getType()+"")));
 						return node.getType();
 					}
-						
-					
+
+
 					AProductType r = (AProductType)chanType.getType();
-					
+
 					if (commPatternType.getDefinitions().size() != r.getTypes().size())
 					{
 						node.setType(issueHandler.addTypeError(commPattern, TypeErrorMessages.PATTERN_MISMATCH.customizeMessage(r+"", commPattern+"")));
 						return node.getType();
 					}
-					
+
 					List<PDefinition> defs = commPatternType.getDefinitions();
 					for(int i = 0; i < r.getTypes().size(); i++)
 					{
@@ -1652,8 +1658,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 						commEnv.addVariable(def.getName(), def);
 					}
 				}
-				
-				
+
+
 			}
 
 			if (commParam instanceof AWriteCommunicationParameter)
@@ -1674,7 +1680,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			node.setType(issueHandler.addTypeError(node.getAction(),TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node.getAction()+"")));
 			return node.getType();
 		}
-		
+
 		node.setType(new AActionType(node.getLocation(), true));
 		return node.getType();
 	}
@@ -1912,12 +1918,23 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		LexNameToken name = node.getName();
 		PDefinition callee = question.env.findName(name, NameScope.GLOBAL);
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv != null)
+		{
+			if (callee == null) callee = cmlEnv.lookup(name, PDefinition.class);
+			if (callee == null) { name.setTypeQualifier(question.qualifiers); callee=cmlEnv.lookup(name, PDefinition.class); }
+		}
 
 		if (callee == null)
 			return issueHandler.addTypeError(
 					node,
 					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(name
 							+ ""));
+
+		if (!(callee instanceof AActionDefinition || callee instanceof PAction || callee instanceof SCmlOperationDefinition))
+		{
+			return issueHandler.addTypeError(callee,TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION.customizeMessage(""+callee));
+		}
 
 		if (callee.getType() == null)
 		{
@@ -1931,9 +1948,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		// Action can only call actions.
-		if (callee.getType() == null || !(callee.getType() instanceof AActionType))
+		if (callee.getType() == null)
 		{
-			node.setType(issueHandler.addTypeError(callee, TypeErrorMessages.EXPECTED_AN_ACTION.customizeMessage(callee+"")));
+			node.setType(issueHandler.addTypeError(callee, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(callee+"")));
 			return node.getType();
 		}
 

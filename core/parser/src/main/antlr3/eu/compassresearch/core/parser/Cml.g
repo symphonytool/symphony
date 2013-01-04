@@ -1403,7 +1403,7 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
         {
         	LexLocation location = extractLexLocation($IDENTIFIER);
             $tail = new AExplicitFunctionDefinition();
-            $tail.setType($type.type);
+            
             $tail.setName(new LexNameToken("", $IDENTIFIER.getText(), location));
             $tail.setParamPatternList($parameterGroupList.pgroups);
             $tail.setBody($functionBody.exp);
@@ -1421,12 +1421,15 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
  			LexNameToken preDefName = new LexNameToken("", new LexIdentifierToken("pre_"+$tail.getName().getName(), false, location));
  			AFunctionType preDefType = AstFactory.newAFunctionType(location, true /* partial */, ((AFunctionType)$type.type).getParameters(), AstFactory.newABooleanBasicType(location));
  			
+ 			$tail.setType($type.type);
  			List<List<PPattern>> predefParamPatterns = new LinkedList<List<PPattern>>();
  			for(List<PPattern> list : $parameterGroupList.pgroups)
  			{
  				List<PPattern> l = new LinkedList<PPattern>();
  				for(PPattern p : list)
+ 				{
  					l.add(p.clone());
+ 				}
  				predefParamPatterns.add(l);
  			}
  			
@@ -1530,7 +1533,8 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             // figure out the overall function type
             List<PType> paramTypes = new ArrayList<PType>();
             for (APatternListTypePair pp : paramPatterns)
-                paramTypes.add(pp.getType());
+            	for(PPattern ptrn : pp.getPatterns())
+                	paramTypes.add(pp.getType());
             LexLocation typeloc = extractLexLocation($implicitFunctionDefinitionTail.start, $resultTypeList.stop);
             $tail.setType(AstFactory.newAFunctionType(typeloc, true, paramTypes, resultTypePair.getType()));
         }

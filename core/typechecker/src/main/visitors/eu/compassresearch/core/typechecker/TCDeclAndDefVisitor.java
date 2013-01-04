@@ -105,15 +105,40 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 	private final TCActionVisitor actionVisitor;
 
-	
 
+
+
+	@Override
+	public PType caseAChannelNameDefinition(AChannelNameDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		ATypeSingleDeclaration decl = node.getSingleType();
+
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
+			return node.getType();
+		}
+
+		PType declType = decl.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(declType)){
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(declType +" ")));
+			return node.getType();
+		}
+
+		for(PDefinition def : declType.getDefinitions())
+			def.setType(decl.getType());
+
+		return node.getType();
+	}
 
 	@Override
 	public PType caseAClassInvariantDefinition(AClassInvariantDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
 
 		PType expTyp = node.getExpression().apply(parentChecker,question);
-		
+
 		node.setType(expTyp);
 		return node.getType();
 	}
@@ -123,11 +148,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			TypeCheckInfo question) throws AnalysisException {
 
 		actionVisitor.setupActionCycleMap();
-		
+
 		LinkedList<AActionDefinition> actions = node.getActions();
 		for(AActionDefinition action : actions)
 			actionVisitor.registerActionForCycleDetection(action);
-		
+
 		for(AActionDefinition action : actions)
 		{
 			PType actionType = action.apply(parentChecker,question);
@@ -139,7 +164,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 			if (!(actionType instanceof AActionType))
 			{
-				node.setType(issueHandler.addTypeError(action, TypeErrorMessages.EXPECTED_AN_ACTION.customizeMessage(action+"")));
+				node.setType(issueHandler.addTypeError(action, TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION.customizeMessage(action+"")));
 				return node.getType();
 			}
 		}
@@ -248,7 +273,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				externalDefinitions.add(externalDef);
 			}
 		}
-		
+
 		PType resultType = null;
 		List<PType> resultTypes = new LinkedList<PType>();
 		for(APatternTypePair pt : node.getResult())
@@ -259,18 +284,18 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			prePostDefinitions.addAll(patternType.getDefinitions());
 			resultTypes.add(pt.getType());
 		}
-		
+
 		if (resultTypes.size() == 0)
 			resultType = AstFactory.newAVoidReturnType(node.getLocation());
-		
+
 		if (resultTypes.size() == 1) resultType = resultTypes.get(0);
-		
+
 		if (resultTypes.size() > 1) resultType = AstFactory.newAProductType(node.getLocation(), resultTypes);
-		
+
 		AOperationType operationType = AstFactory.newAOperationType(node.getLocation(), paramTypes , resultType);
-		
+
 		node.setType(operationType);
-		
+
 		// Create predef if it is not there
 		if (preDef == null)
 		{
@@ -339,6 +364,13 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	public PType caseAOperationsDefinition(AOperationsDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null)
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
+			return node.getType();
+		}
+
 		LinkedList<SCmlOperationDefinition> operations = node.getOperations();
 		for(SCmlOperationDefinition odef : operations)
 		{
@@ -354,6 +386,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				node.setType(issueHandler.addTypeError(odef, TypeErrorMessages.EXPECTED_OPERATION_DEFINITION.customizeMessage(odef.getName()+"")));
 				return node.getType();
 			}
+
+			cmlEnv.addVariable(odef.getName(), odef);
 		}
 		node.setType(new AOperationParagraphType());
 		return node.getType();
@@ -1240,9 +1274,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AProcessDefinition node,
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
-		// make a new scope for the process
-		CmlTypeCheckInfo newScope = (CmlTypeCheckInfo) ((TypeCheckQuestion) question)
-				.newScope(null);
+
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		CmlTypeCheckInfo newScope = cmlEnv.newScope();
+
+
 
 		LinkedList<PSingleDeclaration> state = node.getLocalState();
 		for(PSingleDeclaration decl : state)
@@ -1258,8 +1294,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				newScope.addVariable(def.getName(), def);
 		}
 
-		CmlTypeCheckInfo newQ = (CmlTypeCheckInfo) question;
-		newQ.addVariable(node.getName(), node);
+		cmlEnv.addVariable(node.getName(), node);
 
 		PProcess process = node.getProcess();
 		PType pType = process.apply(parentChecker, newScope);
@@ -1293,12 +1328,23 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 		PType type = node.getType();
+		
+		
 		if (type != null)
 		{
+			PType typetype = type.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(typetype))
+			{
+				node.setType(issueHandler.addTypeError(type, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+type)));
+				return node.getType();
+			}
+		
+			
 			LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
 			List<PDefinition> defs = new LinkedList<PDefinition>();
 			for(LexIdentifierToken id : ids)
 			{
+				
 				LexNameToken idName = new LexNameToken("",id);
 				ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), idName, NameScope.LOCAL, node.getType());
 				defs.add(localDef);
@@ -1319,20 +1365,21 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		LinkedList<AChannelNameDefinition> cns = node
 				.getChannelNameDeclarations();
 		for (AChannelNameDefinition decl : cns) {
-			PType typeBack = decl.getSingleType().apply(this, question); // decl.apply(parentChecker,
+			PType typeBack = decl.apply(parentChecker,question);
 			// question);
 			if (typeBack == null)
-				issueHandler.addTypeError(decl,
+			{
+				decl.setType(issueHandler.addTypeError(decl,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-						.customizeMessage(decl.toString()));
-			else
-				for (LexIdentifierToken id : decl.getSingleType()
-						.getIdentifiers())
-					newQ.addChannel(id, decl);
+						.customizeMessage(decl.toString())));
+				return decl.getType();
+			}
+			for (LexIdentifierToken id : decl.getSingleType()
+					.getIdentifiers())
+				newQ.addChannel(id, decl);
 		}
 
 		node.setType(new AChannelType());
-		newQ.addType(node.getName(), node);
 
 		return node.getType();
 	}

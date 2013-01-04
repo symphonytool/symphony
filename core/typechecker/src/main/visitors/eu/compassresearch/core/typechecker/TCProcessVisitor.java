@@ -681,11 +681,15 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null)
+			return issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node+""));
 
+		CmlTypeCheckInfo actionScope = cmlEnv.newScope();
+		
 		// Type check all the paragraph definitions
 		for (PDefinition def : node.getDefinitionParagraphs()) {
-			PType type = def.apply(this.parentChecker, question);
-
+			PType type = def.apply(this.parentChecker, actionScope);
 			if (!TCDeclAndDefVisitor.successfulType(type))
 				return issueHandler.addTypeError(def,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
@@ -693,7 +697,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		question.contextSet(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class, (eu.compassresearch.core.typechecker.CmlTypeCheckInfo)question);
-		PType actionType = node.getAction().apply(this.parentChecker, question);
+		PType actionType = node.getAction().apply(this.parentChecker, actionScope);
 		question.contextRem(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class);
 		if (!TCDeclAndDefVisitor.successfulType(actionType))
 			return issueHandler.addTypeError(node.getAction(),

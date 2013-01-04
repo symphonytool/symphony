@@ -113,9 +113,9 @@ public final class VanillaFactory {
 	 *            TypeIssueHandler.
 	 */
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlExpressionVisitor(
-			CmlTypeChecker parentChecker, TypeIssueHandler issueHandler) {
+			CmlTypeChecker parentChecker, TypeIssueHandler issueHandler, TypeComparator typeComparator) {
 		TCExpressionVisitor exprVisitor = new TCExpressionVisitor(
-				(VanillaCmlTypeChecker) parentChecker, issueHandler);
+				(VanillaCmlTypeChecker) parentChecker, issueHandler, typeComparator);
 		return exprVisitor;
 	}
 

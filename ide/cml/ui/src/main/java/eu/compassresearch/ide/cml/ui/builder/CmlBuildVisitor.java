@@ -1,12 +1,17 @@
 package eu.compassresearch.ide.cml.ui.builder;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -16,8 +21,8 @@ import org.overture.ast.lex.LexLocation;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.lexer.ParserError;
+import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -120,38 +125,31 @@ public class CmlBuildVisitor implements IResourceVisitor {
 		// Create parser and lexer to handle the given cml source
 		String localPathToFile = file.getLocation().toString();
 		source.setFile(new File(localPathToFile));
-		CmlLexer lexer = null;
 
 		// Clear markers for this file
 		file.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+		CmlLexer lexer = null;
 		try {
+			ANTLRInputStream in = null;
+			in = new ANTLRInputStream(new FileInputStream(source.getFile()));
+			lexer = new CmlLexer(in);
+			CommonTokenStream tokens = new CommonTokenStream(lexer);
+			CmlParser parser = new CmlParser(tokens);
 
-			lexer = new CmlLexer(new FileReader(localPathToFile));
-			CmlParser parser = new CmlParser(lexer);
-			parser.setDocument(source);
-
-			// parse
-			if (!parser.parse()) {
-
-				// report errors
-				for (ParserError e : lexer.parseErrors) {
-					IMarker marker = file.createMarker(IMarker.PROBLEM);
-					setProblem(marker, e.message, e.line);
-				}
+			try {
+				source.setParagraphs(parser.source());
+				return true;
+			} catch (RecognitionException e) {
+				String errorHeader = parser.getErrorHeader(e);
+				
+				setProblem(file.createMarker(IMarker.PROBLEM), errorHeader, lexer.getLine());
+				return false;
 			}
+
 		} catch (Exception e1) {
-			e1.printStackTrace();
-			IMarker m = file.createMarker(IMarker.PROBLEM);
-			setExceptionInfo(
-					m,
-					e1,
-					"An exception occurred while parsing file: \""
-							+ file.getName() + "\"");
+			setProblem(file.createMarker(IMarker.PROBLEM),e1.getMessage(),lexer.getLine());
 			return false;
 		}
-		// Error reporting
-
-		return lexer.parseErrors.size() == 0;
 	}
 
 	/*

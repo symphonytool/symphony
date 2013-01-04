@@ -14,8 +14,7 @@ import org.eclipse.swt.graphics.Point;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 
-import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
-import eu.compassresearch.ast.definitions.SParagraphDefinition;
+import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlContentAssistProcessor implements IContentAssistProcessor {
@@ -68,7 +67,7 @@ public class CmlContentAssistProcessor implements IContentAssistProcessor {
 	
 	int qlen = qualifier.length();
 	
-	for (SParagraphDefinition spd : csu.getSourceAst().getParagraphs()) {
+	for (PDefinition spd : csu.getSourceAst().getParagraphs()) {
 	    computeSingleProposal(spd, qualifier, documentOffset, qlen, proposalList);
 //	    if (spd.getName() != null)
 //	    if ((spd.getName().name).toLowerCase().startsWith(qualifier.toLowerCase())) {
@@ -83,7 +82,7 @@ public class CmlContentAssistProcessor implements IContentAssistProcessor {
 
     }
 
-    private void computeSingleProposal(ATypesParagraphDefinition definition, 
+    private void computeSingleProposal(ATypesDefinition definition, 
 	    String qualifier, int documentOffset, int qlen, List<ICompletionProposal> proposalList) {
 	for (ATypeDefinition atd :  definition.getTypes()){
 	 computeSingleProposal(atd, qualifier, documentOffset, qlen, proposalList);
@@ -103,16 +102,16 @@ public class CmlContentAssistProcessor implements IContentAssistProcessor {
 	
     }
 
-    private void computeSingleProposal(SParagraphDefinition definition,
-	    String qualifier, int documentOffset, int qlen, List<ICompletionProposal> proposalList) {
-	    if (definition.getName() != null)
-	    if ((definition.getName().name).toLowerCase().startsWith(qualifier.toLowerCase())) {
-		int cursor = definition.getName().name.length();
-		CompletionProposal proposal = new CompletionProposal(
-			definition.getName().name, documentOffset-qlen,qlen,cursor);
-		proposalList.add(proposal);
-	    }	
-    }
+//    private void computeSingleProposal(PDefinition definition,
+//	    String qualifier, int documentOffset, int qlen, List<ICompletionProposal> proposalList) {
+//	    if (definition.getName() != null)
+//	    if ((definition.getName().name).toLowerCase().startsWith(qualifier.toLowerCase())) {
+//		int cursor = definition.getName().name.length();
+//		CompletionProposal proposal = new CompletionProposal(
+//			definition.getName().name, documentOffset-qlen,qlen,cursor);
+//		proposalList.add(proposal);
+//	    }	
+//    }
 
     
     

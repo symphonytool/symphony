@@ -73,7 +73,8 @@ Export-Package: eu.compassresearch.ast.actions,
  org.overturetool.test.framework,
  org.overturetool.test.framework.results,
  org.overturetool.test.util,
- eu.compassresearch.core.common
+ eu.compassresearch.core.common,
+ org.antlr.runtime
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources
 Eclipse-BuddyPolicy: registered
@@ -88,4 +89,6 @@ Bundle-ClassPath: .,
  lib/pog-2.2.1.jar,
  lib/testframework-2.2.1.jar,
  lib/typechecker-0.0.1.jar,
- lib/typechecker-2.2.1.jar
+ lib/typechecker-2.2.1.jar,
+ lib/antlr-runtime-3.4.jar
+

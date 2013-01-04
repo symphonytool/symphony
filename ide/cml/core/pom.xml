@@ -119,6 +119,15 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
+		
+		<!-- Antlr runtime -->
+		<artifactItem>
+		  <groupId>org.antlr</groupId>
+		  <artifactId>antlr-runtime</artifactId>
+		  <version>3.4</version>
+		  <type>jar</type>
+		  <overWrite>true</overWrite>
+		</artifactItem>
 
               </artifactItems>
               <outputDirectory>lib</outputDirectory>

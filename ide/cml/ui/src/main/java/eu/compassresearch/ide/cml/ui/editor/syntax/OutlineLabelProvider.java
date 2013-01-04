@@ -1,22 +1,18 @@
 package eu.compassresearch.ide.cml.ui.editor.syntax;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 
-import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
-import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
 
 
 public class OutlineLabelProvider extends LabelProvider {
 
 	// TODO Initialize map w/ correct number of images
-	private static Map imageCache = new HashMap();
+	private static Map<String,Image> imageCache = new HashMap<String,Image>();
 
 	// static {imageCache.put(key, value)
 	//
@@ -38,7 +34,7 @@ public class OutlineLabelProvider extends LabelProvider {
 	}
 
 	public void dispose() {
-		for (Iterator i = imageCache.values().iterator(); i.hasNext();) {
+		for (Iterator<Image> i = imageCache.values().iterator(); i.hasNext();) {
 			((Image) i.next()).dispose();
 		}
 		imageCache.clear();

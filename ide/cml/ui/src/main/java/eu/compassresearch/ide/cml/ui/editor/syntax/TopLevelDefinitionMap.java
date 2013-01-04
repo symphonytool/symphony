@@ -7,11 +7,11 @@ import java.util.Map;
 
 import org.overture.ast.definitions.PDefinition;
 
-import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
-import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
-import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
-import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
-import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
+import eu.compassresearch.ast.definitions.AChannelsDefinition;
+import eu.compassresearch.ast.definitions.AChansetsDefinition;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.ATypesDefinition;
+import eu.compassresearch.ast.definitions.AValuesDefinition;
 
 public class TopLevelDefinitionMap {
 
@@ -31,11 +31,11 @@ public class TopLevelDefinitionMap {
 
 	private static Map<Class<?>, String> createMap() {
 		Map<Class<?>, String> map = new HashMap<Class<?>, String>();
-		map.put(AValueParagraphDefinition.class, "global value declarations");
-		map.put(AFunctionParagraphDefinition.class, "global function declarations");
-		map.put(ATypesParagraphDefinition.class, "global type declarations");
-		map.put(AChannelParagraphDefinition.class, "channel declarations");
-		map.put(AChansetParagraphDefinition.class, "chanset declarations");
+		map.put(AValuesDefinition.class, "global value declarations");
+		map.put(AFunctionsDefinition.class, "global function declarations");
+		map.put(ATypesDefinition.class, "global type declarations");
+		map.put(AChannelsDefinition.class, "channel declarations");
+		map.put(AChansetsDefinition.class, "chanset declarations");
 		return Collections.unmodifiableMap(map);
 	}
 

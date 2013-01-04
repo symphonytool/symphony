@@ -36,6 +36,8 @@ import org.overture.typechecker.TypeCheckInfo;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PAlternativeAction;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.definitions.AChannelsDefinition;
+import eu.compassresearch.ast.definitions.AChansetsDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.PProcess;
@@ -83,7 +85,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 			this.issueHandler = new CollectingIssueHandler();
 
 		TCActionVisitor actionVisitor = new TCActionVisitor(this, this.issueHandler, typeComparator); 
-		exp = new TCExpressionVisitor(this, this.issueHandler);
+		exp = new TCExpressionVisitor(this, this.issueHandler, typeComparator);
 		act = actionVisitor;
 		dad = new TCDeclAndDefVisitor(this, typeComparator, this.issueHandler, actionVisitor);
 		typ = new TCTypeVisitor(this, this.issueHandler);
@@ -315,6 +317,22 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 			e.printStackTrace();
 		}
 
+		for(PSource s : sourceForest)
+		{
+			for(PDefinition paragraph : s.getParagraphs())
+			{
+				if (paragraph instanceof AChannelsDefinition || paragraph instanceof AChansetsDefinition)
+				{
+					try {
+						PType type = paragraph.apply(this, info);
+						if (!TCDeclAndDefVisitor.successfulType(type))
+							paragraph.setType(issueHandler.addTypeError(paragraph, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(paragraph+"")));
+					} catch (AnalysisException e) {
+						issueHandler.addTypeError(paragraph, e.getMessage());
+					}
+				}
+			}
+		}
 
 		// for each source type check classes and processes in depth
 		for (PSource s : sourceForest) {

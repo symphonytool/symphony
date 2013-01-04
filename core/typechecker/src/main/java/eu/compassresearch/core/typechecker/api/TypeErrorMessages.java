@@ -27,8 +27,8 @@ public enum TypeErrorMessages {
 
     UNDEFINED_TYPE("The Type \"%s\" is undefined."),
 
-    EXPECTED_AN_ACTION(
-	    "Symbol \"%s\" is not an action. Only actions are allowed in this context."),
+    EXPECTED_AN_ACTION_OR_OPERATION(
+	    "Symbol \"%s\" is neither an action nor an operation which are allowed in this context."),
 
     EXPECTED_A_CHANNELSET("Symbol \"%s\" is not a Channel Set."),
 

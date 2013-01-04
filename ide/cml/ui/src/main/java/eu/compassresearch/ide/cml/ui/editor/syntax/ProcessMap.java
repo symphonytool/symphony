@@ -10,6 +10,7 @@ import java.util.Map;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismProcess;
 import eu.compassresearch.ast.process.AAlphabetisedParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.AChannelRenamingProcess;
@@ -29,7 +30,6 @@ import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionReplicatedProcess;
 import eu.compassresearch.ast.process.AStartDeadlineProcess;
-import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
 import eu.compassresearch.ast.process.ASynchronousParallelismReplicatedProcess;
 import eu.compassresearch.ast.process.ATimedInterruptProcess;
@@ -45,7 +45,7 @@ public class ProcessMap {
 
 	public List<Wrapper<? extends INode>> makeEntries(PProcess proc) {
 	    List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
-	    AStateProcess asp = (AStateProcess) proc;
+	    AActionProcess asp = (AActionProcess) proc;
 	    r.add(Wrapper.newInstance(asp.getAction(), "@ "
 		    + asp.getAction().toString()));
 	    for (PDefinition pdef : asp.getDefinitionParagraphs()) {
@@ -98,7 +98,7 @@ public class ProcessMap {
 	map.put(ASequentialCompositionReplicatedProcess.class,
 		new ASequentialCompositionReplicatedProcessHandler());
 	map.put(AStartDeadlineProcess.class, new AStartDeadlineProcessHandler());
-	map.put(AStateProcess.class, new AStateProcessHandler());
+	map.put(AActionProcess.class, new AStateProcessHandler());
 	map.put(ASynchronousParallelismProcess.class,
 		new ASynchronousParallelismProcessHandler());
 	map.put(ASynchronousParallelismReplicatedProcess.class,

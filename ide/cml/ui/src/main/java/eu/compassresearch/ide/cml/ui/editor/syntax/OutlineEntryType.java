@@ -10,19 +10,17 @@ import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.definitions.AActionParagraphDefinition;
+import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
-import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
+import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
-import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
-import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
-import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
-import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
-import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
-import eu.compassresearch.ast.definitions.SOperationDefinition;
-import eu.compassresearch.ast.process.AExternalChoiceProcess;
-import eu.compassresearch.ast.process.ASynchronousParallelismProcess;
+import eu.compassresearch.ast.definitions.AChansetsDefinition;
+import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.definitions.ATypesDefinition;
+import eu.compassresearch.ast.definitions.AValuesDefinition;
+import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.process.PProcess;
 
 public enum OutlineEntryType {
@@ -77,25 +75,25 @@ public enum OutlineEntryType {
     // return Collections.unmodifiableMap(map);
     // }
 
-    public static Image getImageForElement(Object obj) {
+	public static Image getImageForElement(Object obj) {
 
 	// TODO fix Unparameterized references
 	// TODO change to (class,map) format?
 	if (obj instanceof Wrapper) {
-	    Wrapper w = (Wrapper) obj;
+	    Wrapper<?> w = (Wrapper<?>) obj;
 
 	    // Fetch Top-level definitions
-	    if (w.isClass(AValueParagraphDefinition.class))
+	    if (w.isClass(AValuesDefinition.class))
 		return VALUE_TOP.getImage();
-	    if (w.isClass(ATypesParagraphDefinition.class))
+	    if (w.isClass(ATypesDefinition.class))
 		return TYPE_TOP.getImage();
-	    if (w.isClass(AFunctionParagraphDefinition.class))
+	    if (w.isClass(AFunctionsDefinition.class))
 		return FUNCTION_TOP.getImage();
 
 	    // Fetch channels and chansets
-	    if (w.isClass(AChannelParagraphDefinition.class))
+	    if (w.isClass(AChannelsDefinition.class))
 		return CHANNEL_TOP.getImage();
-	    if (w.isClass(AChansetParagraphDefinition.class))
+	    if (w.isClass(AChansetsDefinition.class))
 		return CHANSET_TOP.getImage();
 	    if (w.isClass(AChannelNameDefinition.class))
 		return CHANNEL_ENTRY.getImage();
@@ -103,11 +101,11 @@ public enum OutlineEntryType {
 		return CHANSET_ENTRY.getImage();
 
 	    // Fetch Top-Level Process and Class
-	    if (w.isClass(AProcessParagraphDefinition.class))
+	    if (w.isClass(AProcessDefinition.class))
 		return PROCESS.getImage();
 	    if (w.isClass(PProcess.class))
 		return PROCESS.getImage();
-	    if (w.isClass(AClassParagraphDefinition.class))
+	    if (w.isClass(AClassDefinition.class))
 		return CLASS.getImage();
 
 	    // Fetch interior of processes and classes
@@ -120,9 +118,9 @@ public enum OutlineEntryType {
 		return TYPE_ENTRY.getImage();
 	    if (w.isClass(PAction.class))
 		return ACTION.getImage();
-	    if (w.isClass(AActionParagraphDefinition.class))
+	    if (w.isClass(AActionsDefinition.class))
 		return ACTION.getImage();
-	    if (w.isClass(SOperationDefinition.class))
+	    if (w.isClass(SCmlOperationDefinition.class))
 		return OPERATION.getImage();
 	    // if (w.isClass(AExternalChoiceProcess.class))
 	    // return EXTERNAL_CHOICE_PROCESS.getImage();

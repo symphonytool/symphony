@@ -7,7 +7,13 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.assistant.type.PTypeAssistant;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.ALocalDefinition;
+import org.overture.ast.definitions.APerSyncDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AApplyExp;
+import org.overture.ast.expressions.AFuncInstatiationExp;
 import org.overture.ast.expressions.AIsExp;
 import org.overture.ast.expressions.ANilExp;
 import org.overture.ast.expressions.ASelfExp;
@@ -20,25 +26,37 @@ import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFunctionType;
+import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
+import org.overture.ast.types.SMapType;
+import org.overture.ast.types.SSeqType;
+import org.overture.ast.util.PTypeSet;
+import org.overture.config.Release;
+import org.overture.config.Settings;
 import org.overture.parser.messages.VDMError;
+import org.overture.typechecker.LexNameTokenAssistent;
 import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
 import org.overture.typechecker.TypeCheckerErrors;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
+import org.overture.typechecker.assistant.expression.AApplyExpAssistantTC;
+import org.overture.typechecker.assistant.type.AFunctionTypeAssistantTC;
+import org.overture.typechecker.assistant.type.AOperationTypeAssistantTC;
 import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 import org.overture.typechecker.visitor.TypeCheckerExpVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
@@ -46,6 +64,7 @@ import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 class TCExpressionVisitor extends
 QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
+	private TypeComparator typeComparator;
 	
 	
 	@Override
@@ -56,16 +75,180 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 
 
+	
+	
+	@Override
+	public PType caseAApplyExp(AApplyExp node, TypeCheckInfo question)
+			throws AnalysisException {
+
+		/*
+		 * The following is copied from Overture TypeCheckerExpVisitor
+		 * 
+		 */
+		for (PExp a : node.getArgs()) {
+			question.qualifiers = null;
+			node.getArgtypes().add(a.apply(parent, question));
+		}
+
+		node.setType(node.getRoot().apply(
+				parent,
+				new TypeCheckInfo(question.env, question.scope, node
+						.getArgtypes())));
+
+		if (PTypeAssistantTC.isUnknown(node.getType())) {
+			return node.getType();
+		}
+
+		PDefinition func = question.env.getEnclosingDefinition();
+
+		boolean inFunction = (func instanceof AExplicitFunctionDefinition
+				|| func instanceof AImplicitFunctionDefinition || func instanceof APerSyncDefinition);
+
+		if (inFunction) {
+			LexNameToken called = null;
+
+			if (node.getRoot() instanceof AVariableExp) {
+				AVariableExp var = (AVariableExp) node.getRoot();
+				called = var.getName();
+			} else if (node.getRoot() instanceof AFuncInstatiationExp) {
+				AFuncInstatiationExp fie = (AFuncInstatiationExp) node
+						.getRoot();
+
+				if (fie.getExpdef() != null) {
+					called = fie.getExpdef().getName();
+				} else if (fie.getImpdef() != null) {
+					called = fie.getImpdef().getName();
+				}
+			}
+
+			if (called != null) {
+				if (func instanceof AExplicitFunctionDefinition) {
+					AExplicitFunctionDefinition def = (AExplicitFunctionDefinition) func;
+
+					if (LexNameTokenAssistent.isEqual(called, def.getName())) {
+						node.setRecursive(def);
+						def.setRecursive(true);
+					}
+				} else if (func instanceof AImplicitFunctionDefinition) {
+					AImplicitFunctionDefinition def = (AImplicitFunctionDefinition) func;
+
+					if (LexNameTokenAssistent.isEqual(called, def.getName())) {
+						node.setRecursive(def);
+						def.setRecursive(true);
+					}
+				}
+			}
+		}
+
+		boolean isSimple = !PTypeAssistantTC.isUnion(node.getType());
+		PTypeSet results = new PTypeSet();
+
+		if (PTypeAssistantTC.isFunction(node.getType())) {
+			AFunctionType ft = PTypeAssistantTC.getFunction(node.getType());
+			AFunctionTypeAssistantTC.typeResolve(ft, null, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
+					question);
+			results.add(AApplyExpAssistantTC.functionApply(node, isSimple, ft));
+		}
+
+		if (PTypeAssistantTC.isOperation(node.getType())) {
+			AOperationType ot = PTypeAssistantTC.getOperation(node.getType());
+			AOperationTypeAssistantTC.typeResolve(ot, null, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
+					question);
+
+			if (inFunction && Settings.release == Release.VDM_10) {
+				TypeCheckerErrors.report(3300, "Operation '" + node.getRoot()
+						+ "' cannot be called from a function",
+						node.getLocation(), node);
+				results.add(AstFactory.newAUnknownType(node.getLocation()));
+			} else {
+				results.add(AApplyExpAssistantTC.operationApply(node, isSimple,
+						ot));
+			}
+		}
+
+		if (PTypeAssistantTC.isSeq(node.getType())) {
+			SSeqType seq = PTypeAssistantTC.getSeq(node.getType());
+			results.add(AApplyExpAssistantTC.sequenceApply(node, isSimple, seq));
+		}
+
+		if (PTypeAssistantTC.isMap(node.getType())) {
+			SMapType map = PTypeAssistantTC.getMap(node.getType());
+			results.add(AApplyExpAssistantTC.mapApply(node, isSimple, map));
+		}
+		/*
+		 * Overture copy STOP
+		 * 
+		 */
+		
+		// RWL: Type check an apply of a cml Operation (implicit and explicit)
+		if (node instanceof SCmlOperationDefinition)
+		{
+
+			// Check the node is type checked and is an operation type
+			if (node.getType() == null || !(node.getType() instanceof AOperationType))
+			{
+				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Operation", ""+node.getType())));
+				return node.getType();
+			}
+			
+			// get type and check arg types
+			AOperationType ot = (AOperationType)node.getType();
+			LinkedList<PType> argTypes = node.getArgtypes();
+			LinkedList<PType> typTypes = ot.getParameters();
+			List<PExp> args = node.getArgs();
+			
+			if (argTypes.size() != typTypes.size())
+			{
+				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(argTypes+"", typTypes+"")));
+				return node.getType();
+			}
+			
+			for(int i = 0; i < argTypes.size();++i)
+			{
+				if (!typeComparator.isSubType(argTypes.get(i), typTypes.get(i)))
+				{
+					node.setType(issueHandler.addTypeError(args.get(i), TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""+typTypes.get(i),""+argTypes.get(i))));
+					return node.getType();
+				}
+			}
+			
+			// set the result of this apply expression to the return type of the operation.
+			results.add(ot.getResult());
+		}
+		
+		if (results.isEmpty()) {
+			TypeCheckerErrors.report(3054, "Type " + node.getType()
+					+ " cannot be applied", node.getLocation(), node);
+			return AstFactory.newAUnknownType(node.getLocation());
+		}
+
+		
+		node.setType(results.getType(node.getLocation()));
+		return node.getType(); // Union of possible applications
+	}
+
+
+
+
+
 	@Override
 	public PType caseAEnumVarsetExpression(AEnumVarsetExpression node,
 			TypeCheckInfo question) throws AnalysisException {
 
 		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
-
+		List<PDefinition> defs = new LinkedList<PDefinition>();
+		for(LexIdentifierToken id : ids)
+		{
+			ALocalDefinition idDef = AstFactory.newALocalDefinition(node.getLocation(), (LexNameToken) id, NameScope.LOCAL, AstFactory.newAUnknownType(node.getLocation()));
+			defs.add(idDef);
+		}
+		
 		// TODO RWL I am not really sure what to do here ?
 		issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(""+node));
-
-		return new AChannelType();
+		
+		AChannelType result = new AChannelType();
+		result.setDefinitions(defs);
+		return result;
 	}
 
 
@@ -196,17 +379,18 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	private final TypeIssueHandler issueHandler;
 	private CmlAssistant assist;
 
-	TCExpressionVisitor(CmlTypeChecker parentChecker, TypeIssueHandler issueHandler, CmlAssistant assistant)
+	TCExpressionVisitor(CmlTypeChecker parentChecker, TypeIssueHandler issueHandler, CmlAssistant assistant, TypeComparator typeComparator)
 	{
 		this.parent=parentChecker;
 		this.issueHandler = issueHandler;
 		this.assist = assistant;
+		this.typeComparator = typeComparator;
 
 	}
 
 	TCExpressionVisitor(VanillaCmlTypeChecker parentChecker,
-			TypeIssueHandler issueHandler) {
-		this(parentChecker,issueHandler,new CmlAssistant());
+			TypeIssueHandler issueHandler, TypeComparator typeComparator) {
+		this(parentChecker,issueHandler,new CmlAssistant(), typeComparator );
 	}
 
 	/**
@@ -312,6 +496,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				root = assist.findMemberName(root, rootName, cmlQuestion);
 		}
 
+		// Use Cml environment to determine what rootName is
+		if (root == null)
+			root = cmlQuestion.lookup(rootName, PDefinition.class);
 
 		// did we find the top-level
 		if (root == null)
