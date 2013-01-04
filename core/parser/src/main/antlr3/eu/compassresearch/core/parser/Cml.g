@@ -813,9 +813,9 @@ statement returns[PAction statement]
         {
             $statement = new ANonDeterministicDoStatementAction(null, $nonDetStmtAltList.alts);
         }
-    | 'cases' expression ':' caseStmtAltOptList (',' 'others' '->' action)? 'end'
+    | 'cases' expression ':' caseStmtAltList (',' 'others' '->' action)? 'end'
         {
-            $statement = new ACasesStatementAction(null, $expression.exp, $caseStmtAltOptList.alts, $action.action);
+            $statement = new ACasesStatementAction(null, $expression.exp, $caseStmtAltList.alts, $action.action);
         }
     | forStatement
         {
@@ -984,7 +984,7 @@ elseIfStmt returns[AElseIfStatementAction elseif]
         }
     ;
 
-caseStmtAltOptList returns[List<ACaseAlternativeAction> alts]
+caseStmtAltList returns[List<ACaseAlternativeAction> alts]
 @init { $alts = new ArrayList<ACaseAlternativeAction>(); }
     : ( item=caseStmtAlt { $alts.add($item.alt); } ( ',' item=caseStmtAlt { alts.add($item.alt); } )* )?
     ;
