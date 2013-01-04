@@ -5,14 +5,15 @@
     <property name="target.platform.tar" value="targetplatform-${target.platform.ver}.tar.bz2"/>
     
     <echo message="Copying ui, core and platform"/>
+    <delete dir="${buildDirectory}"/>
     <copy todir="${buildDirectory}/plugins">
       <fileset dir="../">
 	<include name="ui/**" />
 	<include name="core/**" />
 	<include name="platform/**" />
-        <include name="rtt-plugin/**"/>
+        <!-- <include name="rtt-plugin/**"/> -->
 	<include name="tp-plugin/**"/>
-	<include name="interpreter-plugin/**"/>
+	<!-- <include name="interpreter-plugin/**"/> -->
 	<exclude name="**/target/"/>
       </fileset>
     </copy>
