@@ -813,9 +813,9 @@ statement returns[PAction statement]
         {
             $statement = new ANonDeterministicDoStatementAction(null, $nonDetStmtAltList.alts);
         }
-    | 'cases' expression ':' caseStmtAltOptList (',' 'others' '->' action)? 'end'
+    | 'cases' expression ':' caseStmtAltList (',' 'others' '->' action)? 'end'
         {
-            $statement = new ACasesStatementAction(null, $expression.exp, $caseStmtAltOptList.alts, $action.action);
+            $statement = new ACasesStatementAction(null, $expression.exp, $caseStmtAltList.alts, $action.action);
         }
     | forStatement
         {
@@ -984,7 +984,7 @@ elseIfStmt returns[AElseIfStatementAction elseif]
         }
     ;
 
-caseStmtAltOptList returns[List<ACaseAlternativeAction> alts]
+caseStmtAltList returns[List<ACaseAlternativeAction> alts]
 @init { $alts = new ArrayList<ACaseAlternativeAction>(); }
     : ( item=caseStmtAlt { $alts.add($item.alt); } ( ',' item=caseStmtAlt { alts.add($item.alt); } )* )?
     ;
@@ -1009,7 +1009,7 @@ localDefinition returns[PDefinition def]
 
 nonDetStmtAltList returns[List<ANonDeterministicAltStatementAction> alts]
 @init { $alts = new ArrayList<ANonDeterministicAltStatementAction>(); }
-    : item=nonDetStmtAlt { $alts.add($item.alt); } ( '[]' item=nonDetStmtAlt { $alts.add($item.alt); } )*
+    : item=nonDetStmtAlt { $alts.add($item.alt); } ( '|' item=nonDetStmtAlt { $alts.add($item.alt); } )*
     ;
 
 nonDetStmtAlt returns[ANonDeterministicAltStatementAction alt]
@@ -1974,9 +1974,9 @@ expression returns[PExp exp]
         {
             $exp = new AIfExp(null, $test.exp, $th.exp, $elseIfExprOptList.elseifs, $el.exp);
         }
-    | 'cases' cexp=expression ':' caseExprAltOptList ( ',' 'others' '->' oexp=expression )? 'end'
+    | 'cases' cexp=expression ':' caseExprAltList ( ',' 'others' '->' oexp=expression )? 'end'
         {
-            $exp = new ACasesExp(null, $cexp.exp, $caseExprAltOptList.alts, $oexp.exp);
+            $exp = new ACasesExp(null, $cexp.exp, $caseExprAltList.alts, $oexp.exp);
         }
     | 'forall' multipleBindList '@' body=expression
         {
@@ -2013,9 +2013,9 @@ elseIfExpr returns[AElseIfExp elseif]
         }
     ;
 
-caseExprAltOptList returns[List<ACaseAlternative> alts]
+caseExprAltList returns[List<ACaseAlternative> alts]
 @init { $alts = new ArrayList<ACaseAlternative>(); }
-    : ( item=caseExprAlt { $alts.addAll($item.alts); } ( ',' item=caseExprAlt { alts.addAll($item.alts); } )* )?
+    : item=caseExprAlt { $alts.addAll($item.alts); } ( ',' item=caseExprAlt { alts.addAll($item.alts); } )*
     ;
 
 caseExprAlt returns[List<ACaseAlternative> alts]
