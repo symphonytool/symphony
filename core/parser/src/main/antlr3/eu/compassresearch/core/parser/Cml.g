@@ -1970,9 +1970,9 @@ expression returns[PExp exp]
         {
             $exp = new AIfExp(null, $test.exp, $th.exp, $elseIfExprOptList.elseifs, $el.exp);
         }
-    | 'cases' cexp=expression ':' caseExprAltOptList ( ',' 'others' '->' oexp=expression )? 'end'
+    | 'cases' cexp=expression ':' caseExprAltList ( ',' 'others' '->' oexp=expression )? 'end'
         {
-            $exp = new ACasesExp(null, $cexp.exp, $caseExprAltOptList.alts, $oexp.exp);
+            $exp = new ACasesExp(null, $cexp.exp, $caseExprAltList.alts, $oexp.exp);
         }
     | 'forall' multipleBindList '@' body=expression
         {
@@ -2009,9 +2009,9 @@ elseIfExpr returns[AElseIfExp elseif]
         }
     ;
 
-caseExprAltOptList returns[List<ACaseAlternative> alts]
+caseExprAltList returns[List<ACaseAlternative> alts]
 @init { $alts = new ArrayList<ACaseAlternative>(); }
-    : ( item=caseExprAlt { $alts.addAll($item.alts); } ( ',' item=caseExprAlt { alts.addAll($item.alts); } )* )?
+    : item=caseExprAlt { $alts.addAll($item.alts); } ( ',' item=caseExprAlt { alts.addAll($item.alts); } )*
     ;
 
 caseExprAlt returns[List<ACaseAlternative> alts]
