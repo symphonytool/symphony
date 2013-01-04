@@ -7,7 +7,7 @@ import org.overture.ast.analysis.AnalysisException;
  * @author akm
  *
  */
-public interface CmlProcessBehaviour{
+public interface CmlBehaviour{
 	
 	/**
 	 * Executes the behavoiur of this process

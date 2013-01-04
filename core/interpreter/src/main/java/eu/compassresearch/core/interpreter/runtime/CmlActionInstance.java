@@ -424,8 +424,6 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	 */
 	private CmlProcess findTheChoosenChild(ObservableEvent event)
 	{
-		List<CmlProcess> waitingChildren = new LinkedList<CmlProcess>();
-		
 		for(CmlProcess child : children())
 		{
 			if(child.waiting() && child.inspect().containsCommunication(event))

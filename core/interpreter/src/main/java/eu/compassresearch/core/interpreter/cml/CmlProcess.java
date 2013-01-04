@@ -12,7 +12,7 @@ import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 
-public interface CmlProcess extends CmlProcessBehaviour{
+public interface CmlProcess extends CmlBehaviour{
 
 	/**
 	 * Initialises the process

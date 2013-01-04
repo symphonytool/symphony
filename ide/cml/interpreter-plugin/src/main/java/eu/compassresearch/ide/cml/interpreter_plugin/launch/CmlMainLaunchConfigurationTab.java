@@ -35,7 +35,7 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfiguration;
-import eu.compassresearch.core.interpreter.runtime.EnvironmentBuilder;
+import eu.compassresearch.core.interpreter.util.EnvironmentBuilder;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlUtil;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 

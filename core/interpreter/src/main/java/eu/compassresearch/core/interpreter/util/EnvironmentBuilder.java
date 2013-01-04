@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.runtime;
+package eu.compassresearch.core.interpreter.util;
 
 import java.util.LinkedList;
 import java.util.List;
