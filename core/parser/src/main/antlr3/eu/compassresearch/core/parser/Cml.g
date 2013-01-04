@@ -1009,7 +1009,7 @@ localDefinition returns[PDefinition def]
 
 nonDetStmtAltList returns[List<ANonDeterministicAltStatementAction> alts]
 @init { $alts = new ArrayList<ANonDeterministicAltStatementAction>(); }
-    : item=nonDetStmtAlt { $alts.add($item.alt); } ( '[]' item=nonDetStmtAlt { $alts.add($item.alt); } )*
+    : item=nonDetStmtAlt { $alts.add($item.alt); } ( '|' item=nonDetStmtAlt { $alts.add($item.alt); } )*
     ;
 
 nonDetStmtAlt returns[ANonDeterministicAltStatementAction alt]
