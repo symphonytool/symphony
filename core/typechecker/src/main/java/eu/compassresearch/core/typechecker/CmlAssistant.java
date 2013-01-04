@@ -25,6 +25,7 @@ import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC
 import org.overture.typechecker.assistant.type.ARecordInvariantTypeAssistantTC;
 
 import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 
@@ -100,6 +101,7 @@ class CmlAssistant {
 		injectFindMemberNameBaseCase(new ClassClassDefinitionFindMemberStrategy());
 		injectFindMemberNameBaseCase(new LocalDefinitionFindMemberStrategy());
 		injectFindMemberNameBaseCase(new TypeDefinitionFindNameMemberStrategy());
+		injectFindMemberNameBaseCase(new OperationsDefinitionNameMemberStrategy());
 	}
 
 
@@ -221,6 +223,31 @@ class CmlAssistant {
 
 
 
+	private class OperationsDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy
+	{
+
+		@Override
+		public Class<?> getType() {
+			return AOperationsDefinition.class;
+		}
+
+		@Override
+		public PDefinition findMemberName(PDefinition def,
+				LexIdentifierToken name, Object... more) {
+
+			AOperationsDefinition oddef = (AOperationsDefinition)def;
+			
+			for(PDefinition odef : oddef.getOperations())
+			{
+				LexNameToken name2 = odef.getName();
+				if (name2 != null)
+					if (name2.equals(name)) return odef;
+			}
+			return null;
+		}
+		
+	}
+	
 	/*
 	 * Find a named member inside a class class definition (Overture class definition).
 	 * 

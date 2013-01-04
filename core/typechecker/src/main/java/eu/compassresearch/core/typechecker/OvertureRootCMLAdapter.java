@@ -3,6 +3,7 @@ package eu.compassresearch.core.typechecker;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.ANilExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
@@ -119,6 +120,12 @@ public class OvertureRootCMLAdapter extends
 	}
 
 
+
+	@Override
+	public PType caseAApplyExp(AApplyExp node, TypeCheckInfo question)
+			throws AnalysisException {
+		return escapeFromOvertureContext(node, question);
+	}
 
 	@Override
 	public PType defaultPDefinition(PDefinition node, TypeCheckInfo question)

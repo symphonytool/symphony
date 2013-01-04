@@ -1007,13 +1007,17 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (question instanceof CmlTypeCheckInfo)
 		{
 			CmlTypeCheckInfo info = (CmlTypeCheckInfo)question;
-			for(PDefinition def : info.getDefinitions())
-			{
-				if (def instanceof AClassDefinition)
+			Environment env = info.env;
+			while(env != null){
+				for(PDefinition def : env.getDefinitions())
 				{
-					AClassDefinition cdef = (AClassDefinition)def;
-					surrogateDefinitions.add(createSurrogateClass(cdef, info));
+					if (def instanceof AClassDefinition)
+					{
+						AClassDefinition cdef = (AClassDefinition)def;
+						surrogateDefinitions.add(createSurrogateClass(cdef, info));
+					}
 				}
+				env = env.getOuter();
 			}
 		}
 		else
@@ -1328,8 +1332,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 		PType type = node.getType();
-		
-		
+
+
 		if (type != null)
 		{
 			PType typetype = type.apply(parentChecker,question);
@@ -1338,13 +1342,13 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				node.setType(issueHandler.addTypeError(type, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+type)));
 				return node.getType();
 			}
-		
-			
+
+
 			LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
 			List<PDefinition> defs = new LinkedList<PDefinition>();
 			for(LexIdentifierToken id : ids)
 			{
-				
+
 				LexNameToken idName = new LexNameToken("",id);
 				ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), idName, NameScope.LOCAL, node.getType());
 				defs.add(localDef);

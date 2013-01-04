@@ -29,6 +29,7 @@ import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
@@ -43,8 +44,19 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	private CmlAssistant assist = new CmlAssistant();
 
 
-	
-	
+	@Override
+	public PType caseAChannelType(AChannelType node, TypeCheckInfo question)
+			throws AnalysisException {
+		
+		if (node.getType() == null)
+			return node;
+		
+		PType typeType = node.getType().apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(typeType))
+			return issueHandler.addTypeError(node.getType(), TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node+""));
+
+		return node;
+	}
 
 	@Override
 	public PType caseAFunctionType(AFunctionType node, TypeCheckInfo question)
@@ -93,7 +105,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		if (tDef == null)
 			tDef = CmlTCUtil.findNearestFunctionOrOperationInEnvironment(node.getName(), question.env);
-		
+
 		if (!(tDef instanceof ATypeDefinition)) {
 			return issueHandler.addTypeError(node,
 					TypeErrorMessages.EXPECTED_TYPE_DEFINITION

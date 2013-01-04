@@ -28,6 +28,7 @@ import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AUnknownType;
+import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SMapType;
 import org.overture.ast.types.SSeqType;
@@ -161,6 +162,17 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 						node.getLocation(), node);
 				results.add(AstFactory.newAUnknownType(node.getLocation()));
 			} else {
+				// RWL TODO: HACK to satisfy the AApplyExpAssistant.operationApply
+				List<PType> ptypes = ot.getParameters();
+				if (ptypes.size() == 1)
+				{
+					PType p0 = ptypes.get(0);
+					if (p0 instanceof AVoidType)
+					{
+						ot.setParameters(new LinkedList<PType>());
+					}
+				}
+				
 				results.add(AApplyExpAssistantTC.operationApply(node, isSimple,
 						ot));
 			}
@@ -181,7 +193,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		 */
 		
 		// RWL: Type check an apply of a cml Operation (implicit and explicit)
-		if (node instanceof SCmlOperationDefinition)
+		if (node.getType() instanceof SCmlOperationDefinition)
 		{
 
 			// Check the node is type checked and is an operation type
