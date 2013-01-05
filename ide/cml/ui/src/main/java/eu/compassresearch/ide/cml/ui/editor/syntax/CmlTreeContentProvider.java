@@ -172,6 +172,11 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			}
 		} catch (Exception e)
 		{
+			
+			// be quiet !
+		}
+		catch (StackOverflowError sofe)
+		{
 			// be quiet !
 		}
 		return null;

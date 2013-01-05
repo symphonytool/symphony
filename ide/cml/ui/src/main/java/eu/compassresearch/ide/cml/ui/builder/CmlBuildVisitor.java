@@ -141,7 +141,7 @@ public class CmlBuildVisitor implements IResourceVisitor {
 				return true;
 			} catch (RecognitionException e) {
 				String errorHeader = parser.getErrorHeader(e);
-				
+				if (errorHeader == null) errorHeader = e.getMessage();
 				setProblem(file.createMarker(IMarker.PROBLEM), errorHeader, lexer.getLine());
 				return false;
 			}

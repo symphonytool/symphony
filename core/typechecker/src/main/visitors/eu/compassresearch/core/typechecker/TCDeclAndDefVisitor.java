@@ -1504,10 +1504,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		question.contextSet(CmlTypeCheckInfo.class, newQuestion);
 		PType bodyType = operationBody.apply(parentChecker, newQuestion);
 		question.contextRem(CmlTypeCheckInfo.class);
-		if (bodyType == null)
-			throw new AnalysisException("Unable to type check operation body "
-					+ node.getName());
-
+		if (!TCDeclAndDefVisitor.successfulType(bodyType))
+		{
+			node.setType(issueHandler.addTypeError(operationBody, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(operationBody+"")));
+			return node.getType();
+		}
 
 
 		// check constructor

@@ -1386,11 +1386,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		PExp exp = node.getExp();
 		PType type = exp.apply(parentChecker, question);
-		if (type == null)
-			throw new AnalysisException("Unable to type check expression \""
-					+ exp + "\" in return statement action of "
-					+ operation.getName());
-
+		if (!TCDeclAndDefVisitor.successfulType(type))
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+exp)));
+			return node.getType();
+		}
 		//check return type of parent function and the expression
 		AOperationType operType = operation.getType();
 		if (!typeComparator.isSubType(type, operType.getResult()))
