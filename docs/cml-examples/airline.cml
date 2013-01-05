@@ -60,13 +60,13 @@ functions
 
 channels
 	init
-	failReserve failPreConfirm
+	failReserve failPreConfirm failPreReserve
 	query : (Airport * Airport * Date * nat)
 	queryResult : FlightDb
 	reserve: (FlightId * nat)
 	reserveResult : BookingId
 	confirm : (FlightId * BookingId * token)
-	confirmResult : Boolean
+	confirmResult : bool
 chansets
 
 	I = {|  failPreReserve, failPreConfirm, query, queryResult, reserve, reserveResult, confirm, confirmResult|}

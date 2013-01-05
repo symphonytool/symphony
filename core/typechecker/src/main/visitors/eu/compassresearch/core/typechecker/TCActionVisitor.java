@@ -189,7 +189,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return issueHandler.addTypeError(referencee, "Action \""+referencee+"\" is not part of this group");	
 
 
-		// Invariant: 
+		// Invariant:
+		referencingActions.add(referencer);
 		if (referencingActions.size() > 1)
 		{
 			StringBuilder cycleStr = new StringBuilder();
@@ -207,9 +208,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return referencee.getType();
 		} 
 
-		referencingActions.add(referencer);
-		res = referencee.apply(parentChecker,question);
-		return res;
+		referencee.setType(new AActionType());
+		return referencee.getType();
 	}
 
 	@Override

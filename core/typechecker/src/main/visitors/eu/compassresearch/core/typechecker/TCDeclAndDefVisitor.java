@@ -71,22 +71,32 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.AChansetsDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AInitialDefinition;
+import eu.compassresearch.ast.definitions.ANamesetDefinition;
+import eu.compassresearch.ast.definitions.ANamesetsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.types.AActionParagraphType;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.ast.types.AChannelType;
+import eu.compassresearch.ast.types.AChansetParagraphType;
+import eu.compassresearch.ast.types.AChansetType;
 import eu.compassresearch.ast.types.AErrorType;
+import eu.compassresearch.ast.types.AFunctionParagraphType;
 import eu.compassresearch.ast.types.AInitialParagraphType;
+import eu.compassresearch.ast.types.ANamesetType;
+import eu.compassresearch.ast.types.ANamesetsType;
 import eu.compassresearch.ast.types.AOperationParagraphType;
 import eu.compassresearch.ast.types.AProcessParagraphType;
 import eu.compassresearch.ast.types.AStateParagraphType;
@@ -107,6 +117,96 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 
 
+
+	@Override
+	public PType caseAChansetDefinition(AChansetDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+		PVarsetExpression chansetExp = node.getChansetExpression();
+
+		PType chansetExpType = chansetExp.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(chansetExpType))
+		{
+			node.setType(issueHandler.addTypeError(chansetExp,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node+"")));
+			return node.getType();
+		}
+
+		AChansetType res = new AChansetType(node.getLocation(), true);
+		node.setType(res);
+		return node.getType();
+	}
+
+	@Override
+	public PType caseANamesetDefinition(ANamesetDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		PVarsetExpression namesetExp = node.getNamesetExpression();
+		
+		PType namesetExpType = namesetExp.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(namesetExpType))
+		{
+			node.setType(issueHandler.addTypeError(namesetExp,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(namesetExp+"")));
+			return node.getType();
+		}
+
+		node.setType(new ANamesetType(node.getLocation(), true));
+		return node.getType();
+	}
+
+	@Override
+	public PType caseAChansetsDefinition(AChansetsDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		LinkedList<AChansetDefinition> chansets = node.getChansets();
+		for(AChansetDefinition chansetDef : chansets)
+		{
+			PType type =chansetDef.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(type))
+			{
+				node.setType(issueHandler.addTypeError(chansetDef, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(chansetDef+"")));
+				return node.getType();
+			}
+		}
+		
+		node.setType(new AChansetParagraphType(node.getLocation(),true));
+		return node.getType();
+	}
+
+	@Override
+	public PType caseANamesetsDefinition(ANamesetsDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		LinkedList<ANamesetDefinition> namesets = node.getNamesets();
+		for(ANamesetDefinition namesetDef : namesets)
+		{
+			PType namesetDefType = namesetDef.apply(parentChecker, question);
+			if (!TCDeclAndDefVisitor.successfulType(namesetDefType))
+			{
+				node.setType(issueHandler.addTypeError(namesetDef,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(namesetDef+"")));
+				return node.getType();
+			}
+		}
+		node.setType(new ANamesetsType(node.getLocation(), true));
+		return node.getType();
+	}
+
+	@Override
+	public PType caseAFunctionsDefinition(AFunctionsDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		LinkedList<PDefinition> functions = node.getFunctionDefinitions();
+		for(PDefinition def : functions)
+		{
+			PType defType = def.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(defType))
+			{
+				node.setType(issueHandler.addTypeError(def,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+def)));
+				return node.getType();
+			}
+		}
+		
+		node.setType(new AFunctionParagraphType(node.getLocation(), true));
+		return node.getType();
+	}
 
 	@Override
 	public PType caseAChannelNameDefinition(AChannelNameDefinition node,

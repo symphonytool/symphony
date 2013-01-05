@@ -40,6 +40,7 @@ import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
@@ -111,6 +112,14 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	public PType defaultPMultipleBind(PMultipleBind node, TypeCheckInfo question)
 			throws AnalysisException {
 		return addErrorForMissingType(node, node.apply(bnd, question));
+	}
+
+	
+	
+	@Override
+	public PType defaultPVarsetExpression(PVarsetExpression node,
+			TypeCheckInfo question) throws AnalysisException {
+		return addErrorForMissingType(node, node.apply(exp, question));
 	}
 
 	@Override

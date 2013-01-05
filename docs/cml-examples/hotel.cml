@@ -91,7 +91,7 @@ channels
   fnrmavailable fnrmnotavailable fnrmbooked fnrmcancelled
   book,cancel: (Day*Day*Rooms)
   bookfunctionroom: (Day* Capacity)
-  booknamedfunctionroom, cancelnamedfunctionroom: (Day* fnRoom)
+  booknamedfunctionroom, cancelnamedfunctionroom: (Day* fnRoomId)
 
 chansets 
  I =    {|available,notavailable,init,

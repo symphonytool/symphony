@@ -44,7 +44,9 @@ public enum TypeErrorMessages {
     ILLEGAL_CONTEXT(
 	    "The symbol \"%s\" requires a CML context to be resolved. No such context is present."),
 PATTERN_TYPE_MISSING("The pattern \"%s\" should already have a type from its context."),
-	WRONG_NUMBER_OF_ARGUMENTS("Expected %s args, %s were found."), PATTERN_MISMATCH("Pattern mismatch. Required by type %s, given pattern %s."),
+	WRONG_NUMBER_OF_ARGUMENTS("Expected %s args, %s were found."), PATTERN_MISMATCH("Pattern mismatch. Required by type %s, given pattern %s."), 
+	MIXING_STATE_AND_CHANNEL_IN_SET("Mixing channel and state names not allowed. %s contains both channel and state names."), 
+	EXPECTED_CHANNEL_OR_STATE("Expected a channel or state definition. %s is neither."),
 	
 
     ;

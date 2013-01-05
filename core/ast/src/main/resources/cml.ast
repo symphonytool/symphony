@@ -171,8 +171,12 @@ type {-> package='eu.compassresearch.ast.types'}
     |   {stateParagraph} // marker stipulating that a state Paragraph is typed ok
     |   {source} // marker stipulating a source was typed ok
     |   {channel} (type):type // marker stipulating that a channel Paragraph is typed ok
+    |   {chanset} // marker stipulating that a chanset is typed ok
+    |   {nameset} // marker stipulating that a nameset is typed ok
+    |   {namesets} // marker stipulating that s nameset paragraph is typed ok
     |   {initialParagraph} // marker
     |   {action} // marker
+    |   {varsetExpression} // marker
     ;
 
 access  {-> package='eu.compassresearch.ast.definitions'}
@@ -465,7 +469,7 @@ Aspect Declaration
 %exp = (isVisited):java_Boolean
      ;
 
-%varsetExpression = [location]:location
+%varsetExpression = [location]:location (type):type
         ;
 
 %varsetExpression->#VOp = [left]:VarsetExpression [op]:LexToken [right]:VarsetExpression

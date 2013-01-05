@@ -1056,7 +1056,10 @@ channelDefOptList returns[List<AChannelNameDefinition> defs]
     ;
 
 channelDef returns[AChannelNameDefinition def]
-@after { $def.setLocation(extractLexLocation($channelDef.start, $channelDef.stop)); }
+@after { $def.setLocation(extractLexLocation($channelDef.start, $channelDef.stop));
+		  if ($def.getType() == null)
+		  	$def.setType(new AChannelType($def.getLocation(), true)); 
+		}
     : identifierList (':' type)?
         {
           	AChannelType channelType = new AChannelType();
@@ -1065,7 +1068,7 @@ channelDef returns[AChannelNameDefinition def]
             $def.setNameScope(NameScope.GLOBAL);
             $def.setUsed(false);
             $def.setSingleType(new ATypeSingleDeclaration(extractLexLocation($identifierList.stop), NameScope.GLOBAL, $identifierList.ids, channelType));
-            if ($type.type	 != null)
+            if ($type.type!= null)
 			  channelType.setType($type.type);
         }
     ;

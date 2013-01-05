@@ -41,6 +41,7 @@ public class OvertureRootCMLAdapter extends
 	private TypeCheckerExpVisitor overtureExpressionVisitor;
 	private TypeCheckerDefinitionVisitor overtureDefinitionVisitor;
 	private TypeCheckerPatternVisitor overturePatternVisitor;
+	
 	private CmlTypeChecker parent;
 	private TypeIssueHandler issueHandler;
 
