@@ -4,6 +4,12 @@
  */
 /* loose threads:
  *
+ * 2012-01-06 RWL: )\ used in the /( exp )\-csp construct conflicts with apply expressions 
+ * when doing e.g. dom(map)\{set-enum}
+ *
+ * 2012-01-06 RWL: when having a class ... end construct the parser stops after the end. 
+ * anything written after the end of the class will not be parser.
+ *
  * communication prefixes using '.' separators are still causing problems
  * -> restriction in place: '.','!' may only be followed by ids,
  *    (expr), symLit, and records/tuples; '?' is only followed by a
