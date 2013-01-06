@@ -1,12 +1,12 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
 public class PrefixEvent extends ObservableEvent {
 
-	public PrefixEvent(CmlProcess eventSource, CMLChannelValue channel) {
+	public PrefixEvent(CmlBehaviourThread eventSource, CMLChannelValue channel) {
 		super(eventSource, channel);
 	}
 

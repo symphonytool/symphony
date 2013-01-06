@@ -2,9 +2,9 @@ package eu.compassresearch.core.interpreter.scheduler;
 
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 
 public interface SchedulingPolicy {
 
-	CmlProcess scheduleNextProcess(List<CmlProcess> runningProcesses);
+	CmlBehaviourThread scheduleNextProcess(List<CmlBehaviourThread> runningProcesses);
 }

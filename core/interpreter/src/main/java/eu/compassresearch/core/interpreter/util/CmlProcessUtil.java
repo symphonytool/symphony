@@ -10,7 +10,7 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
@@ -18,19 +18,19 @@ import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
 public class CmlProcessUtil {
 
-	public static boolean isAllChildrenFinished(CmlProcess process)
+	public static boolean isAllChildrenFinished(CmlBehaviourThread process)
 	{
 		boolean isAllFinished = true;
-		for(CmlProcess child : process.children())
+		for(CmlBehaviourThread child : process.children())
 		{
 			isAllFinished &= child.finished();
 		}
 		return isAllFinished;
 	}
 	
-	public static boolean isAtLeastOneChildWaitingForEvent(CmlProcess process)
+	public static boolean isAtLeastOneChildWaitingForEvent(CmlBehaviourThread process)
 	{
-		for(CmlProcess child : process.children())
+		for(CmlBehaviourThread child : process.children())
 		{
 			if(child.waiting())
 				return true;
@@ -39,9 +39,9 @@ public class CmlProcessUtil {
 		return false;
 	}
 	
-	public static boolean existsAFinishedChild(CmlProcess process)
+	public static boolean existsAFinishedChild(CmlBehaviourThread process)
 	{
-		for(CmlProcess child : process.children())
+		for(CmlBehaviourThread child : process.children())
 		{
 			if(child.finished())
 				return true;
@@ -54,7 +54,7 @@ public class CmlProcessUtil {
 	 * FIXME:This is just a temp solution, chansets can be other than this
 	 * @return
 	 */
-	public static CmlAlphabet convertChansetExpToAlphabet(CmlProcess sourceProcess, PExp chansetExp, Context question)
+	public static CmlAlphabet convertChansetExpToAlphabet(CmlBehaviourThread sourceProcess, PExp chansetExp, Context question)
 	{
 		AEnumChansetSetExp chanset = (AEnumChansetSetExp)chansetExp;
 

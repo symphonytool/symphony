@@ -22,12 +22,12 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreterStatus;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.runtime.AbstractCmlInterpreter;
-import eu.compassresearch.core.interpreter.runtime.CmlProcessInstance;
+import eu.compassresearch.core.interpreter.runtime.CmlProcess;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.runtime.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
@@ -143,7 +143,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		currentSupervisor = VanillaInterpreterFactory.newCmlSupervisorEnvironment(selectionStrategy,cmlScheduler);
 		cmlScheduler.setCmlSupervisorEnvironment(currentSupervisor);
 		
-		CmlProcessInstance pi = new CmlProcessInstance(topProcess, null,getInitialContext(null));
+		CmlProcess pi = new CmlProcess(topProcess, null,getInitialContext(null));
 
 		pi.start(currentSupervisor);
 		try {
@@ -244,7 +244,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	public InterpreterStatus getStatus()
 	{
-		CmlProcess topCmlProcessInstance = currentSupervisor.findNamedProcess(topProcess.getName().toString());
+		CmlBehaviourThread topCmlProcessInstance = currentSupervisor.findNamedProcess(topProcess.getName().toString());
 		
 		//Collect the processInfos
 		

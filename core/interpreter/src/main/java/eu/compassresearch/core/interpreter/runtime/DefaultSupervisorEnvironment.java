@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
@@ -15,7 +15,7 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	private CmlCommunicationSelectionStrategy selectStrategy;
 	private ObservableEvent selectedCommunication;
 	
-	private List<CmlProcess> pupils = new LinkedList<CmlProcess>();
+	private List<CmlBehaviourThread> pupils = new LinkedList<CmlBehaviourThread>();
 	private Scheduler scheduler;
 	
 	public DefaultSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy, Scheduler scheduler)
@@ -57,13 +57,13 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	}
 
 	@Override
-	public void addPupil(CmlProcess process) {
+	public void addPupil(CmlBehaviourThread process) {
 		pupils.add(process);
 		scheduler.addProcess(process);
 	}
 
 	@Override
-	public void removePupil(CmlProcess process) {
+	public void removePupil(CmlBehaviourThread process) {
 		pupils.remove(process);
 //		scheduler.removeProcess(process);
 	}
@@ -75,17 +75,17 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	}
 	
 	@Override
-	public List<CmlProcess> getPupils() {
+	public List<CmlBehaviourThread> getPupils() {
 		return pupils;
 	}
 	
 	@Override
-	public CmlProcess findNamedProcess(String name)
+	public CmlBehaviourThread findNamedProcess(String name)
 	{
-		CmlProcess resultProcess = null;
-		List<CmlProcess> all = getPupils();
+		CmlBehaviourThread resultProcess = null;
+		List<CmlBehaviourThread> all = getPupils();
 		
-		for(CmlProcess p : all )
+		for(CmlBehaviourThread p : all )
 		{
 			if(p.name().toString().equals(name))
 			{

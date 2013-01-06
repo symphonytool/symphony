@@ -4,20 +4,20 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 
 public interface Scheduler {
 
-	public void addProcess(CmlProcess process);
+	public void addProcess(CmlBehaviourThread process);
 	
 //	public void removeProcess(CmlProcess process);
 	
 	public void clearProcesses();
 	
-	public List<CmlProcess> getRunningProcesses();
+	public List<CmlBehaviourThread> getRunningProcesses();
 	
-	public List<CmlProcess> getAllProcesses();
+	public List<CmlBehaviourThread> getAllProcesses();
 	
 	public boolean hasRunningProcesses();
 	

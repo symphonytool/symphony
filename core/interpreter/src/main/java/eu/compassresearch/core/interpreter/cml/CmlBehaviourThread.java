@@ -12,7 +12,7 @@ import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 
-public interface CmlProcess extends CmlBehaviour{
+public interface CmlBehaviourThread extends CmlBehaviour{
 
 	/**
 	 * Initialises the process
@@ -51,8 +51,8 @@ public interface CmlProcess extends CmlBehaviour{
 	
 	// Process Graph/Representation related methods
 	public long level();
-	public CmlProcess parent();
-	public List<CmlProcess> children();
+	public CmlBehaviourThread parent();
+	public List<CmlBehaviourThread> children();
 //	public CMLAlphabet childInspectedAlphabet(CMLProcessNew child);
 //	public void setChildInspectedAlphabet(CMLProcessNew child, CMLAlphabet alpha);
 	//public boolean hasChild(CMLProcess child, boolean recursive);

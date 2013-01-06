@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
@@ -13,14 +13,14 @@ public class SynchronisationEvent extends ObservableEvent {
 
 	private Set<ObservableEvent> synchronisingEvents; 
 	
-	public SynchronisationEvent(CmlProcess eventSource, ObservableEvent first, ObservableEvent second) {
+	public SynchronisationEvent(CmlBehaviourThread eventSource, ObservableEvent first, ObservableEvent second) {
 		super(eventSource, first.getChannel());
 		synchronisingEvents = new HashSet<ObservableEvent>();
 		synchronisingEvents.add(first);
 		synchronisingEvents.add(second);
 	}
 	
-	public SynchronisationEvent(CmlProcess eventSource, Set<ObservableEvent> synchronisingEvents) {
+	public SynchronisationEvent(CmlBehaviourThread eventSource, Set<ObservableEvent> synchronisingEvents) {
 		super(eventSource, extractChannelValue(synchronisingEvents));
 		this.synchronisingEvents = synchronisingEvents;
 	}

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
@@ -12,7 +12,7 @@ public class CmlCommunicationEvent extends ObservableEvent {
 
 	final protected List<CommunicationParameter> params;
 	
-	public CmlCommunicationEvent(CmlProcess source, CMLChannelValue channel, List<CommunicationParameter> params)
+	public CmlCommunicationEvent(CmlBehaviourThread source, CMLChannelValue channel, List<CommunicationParameter> params)
 	{
 		super(source,channel);
 		this.params = params;

@@ -10,7 +10,7 @@ import org.overture.interpreter.runtime.Context;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
@@ -30,16 +30,16 @@ import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.util.Pair;
 
-public abstract class AbstractInstance<T extends INode> extends AbstractEvaluator<T>
-		implements CmlProcess , ChannelObserver {
+public abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluator<T>
+		implements CmlBehaviourThread , ChannelObserver {
 	
 	/**
 	 * 
 	 */
 	private static final long 			serialVersionUID = -4920762081111266274L;
 	protected CmlProcessState 			state;
-	protected List<CmlProcess> 			children = new LinkedList<CmlProcess>();
-	protected CmlProcess 				parent;
+	protected List<CmlBehaviourThread> 	children = new LinkedList<CmlBehaviourThread>();
+	protected CmlBehaviourThread 		parent;
 	protected CmlSupervisorEnvironment 	env;
 	protected CmlTrace 					trace = new CmlTrace();
 	protected List<ObservableEvent>     registredEvents = new LinkedList<ObservableEvent>();
@@ -66,7 +66,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 						}
 					});
 	
-	public AbstractInstance(CmlProcess parent)
+	public AbstractBehaviourThread(CmlBehaviourThread parent)
 	{
 		state = CmlProcessState.INITIALIZED;
 		this.parent = parent;
@@ -175,7 +175,7 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	public void setAbort(Reason reason) {
 
 		//abort all the children
-		for(CmlProcess child : children())
+		for(CmlBehaviourThread child : children())
 			child.setAbort(reason);
 		
 		//unregister all the channels
@@ -199,12 +199,12 @@ public abstract class AbstractInstance<T extends INode> extends AbstractEvaluato
 	}
 
 	@Override
-	public CmlProcess parent() {
+	public CmlBehaviourThread parent() {
 		return parent;
 	}
 
 	@Override
-	public List<CmlProcess> children() {
+	public List<CmlBehaviourThread> children() {
 		return children;
 	}
 

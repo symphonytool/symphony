@@ -14,7 +14,7 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
@@ -37,18 +37,18 @@ import eu.compassresearch.core.interpreter.events.TraceEvent;
  * @author akm
  *
  */
-public class CmlProcessInstance extends AbstractInstance<PProcess>  implements CmlProcessStateObserver, CmlProcessTraceObserver
+public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements CmlProcessStateObserver, CmlProcessTraceObserver
 {
 
 	private AProcessDefinition processDef;
-	private CmlActionInstance mainBehaviour = null;
+	private CmlAction mainBehaviour = null;
 	private CmlEvaluator cmlEvaluator = new CmlEvaluator();
 	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this,cmlEvaluator);
 	private Context globalContext;
 	
 	
 	
-	public CmlProcessInstance(AProcessDefinition processDef, CmlProcess parent, Context globalContext)
+	public CmlProcess(AProcessDefinition processDef, CmlBehaviourThread parent, Context globalContext)
 	{
 		super(parent);
 		this.globalContext = globalContext; 
@@ -58,7 +58,7 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 		pushNext(processDef.getProcess(), context);
 	}
 	
-	public CmlProcessInstance(PProcess startProcess, CmlProcess parent, Context globalContext)
+	public CmlProcess(PProcess startProcess, CmlBehaviourThread parent, Context globalContext)
 	{
 		super(parent);
 		this.globalContext = globalContext; 
@@ -220,7 +220,7 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 					name().getName() + "@",
 					node.getAction().getLocation());
 
-			mainBehaviour = new CmlActionInstance(node.getAction(),newContext,mainActionName);
+			mainBehaviour = new CmlAction(node.getAction(),newContext,mainActionName);
 			mainBehaviour.onStateChanged().registerObserver(this);
 			mainBehaviour.onTraceChanged().registerObserver(this);
 			mainBehaviour.start(supervisor());
@@ -261,7 +261,7 @@ public class CmlProcessInstance extends AbstractInstance<PProcess>  implements C
 
 		AProcessDefinition processDef = node.getProcessDefinition();
 
-		CmlProcessInstance childProcess = new CmlProcessInstance(processDef, this, newContext);
+		CmlProcess childProcess = new CmlProcess(processDef, this, newContext);
 
 		this.children.add(childProcess);
 

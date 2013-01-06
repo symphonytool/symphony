@@ -25,7 +25,7 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
@@ -54,21 +54,21 @@ import eu.compassresearch.core.interpreter.util.Pair;
  * @author akm
  *
  */
-public class CmlActionInstance extends AbstractInstance<PAction> implements CmlProcessStateObserver , CmlProcessTraceObserver{
+public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlProcessStateObserver , CmlProcessTraceObserver{
 
 	private LexNameToken name;
 	private CmlEvaluator cmlEvaluator = new CmlEvaluator();
 	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this,cmlEvaluator);
 	
 	
-	public CmlActionInstance(PAction action,Context context, LexNameToken name)
+	public CmlAction(PAction action,Context context, LexNameToken name)
 	{
 		super(null);
 		this.name = name;
 		pushNext(action, context);
 	}
 	
-	public CmlActionInstance(PAction action,Context context, LexNameToken name, CmlProcess parent)
+	public CmlAction(PAction action,Context context, LexNameToken name, CmlBehaviourThread parent)
 	{
 		super(parent);
 		this.name = name;
@@ -121,8 +121,8 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		{
 			if(hasChildren())
 			{
-				CmlProcess leftChild = children().get(0);
-				CmlProcess rightChild = children().get(1);
+				CmlBehaviourThread leftChild = children().get(0);
+				CmlBehaviourThread rightChild = children().get(1);
 				
 				return "(" + leftChild.nextStepToString() + ")" + CmlOpsToString.toString(nextState().first) + "(" + rightChild.nextStepToString()+")";
 			}
@@ -312,12 +312,12 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		PAction right = node.getRight();
 		
 		//TODO: create a local copy of the question state for each of the actions
-		CmlActionInstance leftInstance = 
-				new CmlActionInstance(left, question, 
+		CmlAction leftInstance = 
+				new CmlAction(left, question, 
 						new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,left.getLocation()),this);
 		
-		CmlActionInstance rightInstance = 
-				new CmlActionInstance(right, question, 
+		CmlAction rightInstance = 
+				new CmlAction(right, question, 
 						new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),right.getLocation()),this);
 		
 		//add the children FIXME: this should not be done directly on the children() method
@@ -350,12 +350,12 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	private CmlBehaviourSignal caseExternalChoiceSkip()
 	{
 		//find the finished child
-		CmlProcess skipChild = findFinishedChild();
+		CmlBehaviourThread skipChild = findFinishedChild();
 		
 		//FIXME: maybe the we should differentiate between actions and process instead of just having CmlProcess
 		// 		Childerens. We clearly need it!
 		//we know its an action
-		CmlActionInstance childAction = (CmlActionInstance)skipChild; 
+		CmlAction childAction = (CmlAction)skipChild; 
 		
 		//Extract the current context of finished child action and use it as the context
 		//for the Skip action.
@@ -369,7 +369,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	
 	private CmlBehaviourSignal caseExternalChoiceEnd()
 	{
-		CmlProcess theChoosenOne = findTheChoosenChild(supervisor().selectedCommunication());
+		CmlBehaviourThread theChoosenOne = findTheChoosenChild(supervisor().selectedCommunication());
 		
 		//first we execute the child
 		CmlBehaviourSignal result = executeChild(theChoosenOne);
@@ -377,7 +377,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		//FIXME: maybe the we should differentiate between actions and process instead of just having CmlProcess
 		//Children. We clearly need it!
 		//we know its an action
-		CmlActionInstance theChoosenOneAction = (CmlActionInstance)theChoosenOne;
+		CmlAction theChoosenOneAction = (CmlAction)theChoosenOne;
 		
 		
 		if(theChoosenOneAction.hasNext())
@@ -406,9 +406,9 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	 * Finds the first finished child if any
 	 * @return The first finished child, if none then null is returned
 	 */
-	private CmlProcess findFinishedChild()
+	private CmlBehaviourThread findFinishedChild()
 	{
-		for(CmlProcess child : children())
+		for(CmlBehaviourThread child : children())
 		{
 			if(child.finished())
 				return child;
@@ -422,9 +422,9 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	 * @param event
 	 * @return
 	 */
-	private CmlProcess findTheChoosenChild(ObservableEvent event)
+	private CmlBehaviourThread findTheChoosenChild(ObservableEvent event)
 	{
-		for(CmlProcess child : children())
+		for(CmlBehaviourThread child : children())
 		{
 			if(child.waiting() && child.inspect().containsCommunication(event))
 				return child;
@@ -436,7 +436,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	private void killAndRemoveAllTheEvidenceOfTheChildren()
 	{
 		//Abort all the children of this action
-		for(CmlProcess child : children())
+		for(CmlBehaviourThread child : children())
 		{
 			child.setAbort(null);
 		}
@@ -516,9 +516,9 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 			CmlAlphabet cs = CmlProcessUtil.convertChansetExpToAlphabet(this,
 					node.getChanSetExpression(),question);		
 			
-			CmlProcess leftChild = children().get(0);
+			CmlBehaviourThread leftChild = children().get(0);
 			CmlAlphabet leftChildAlpha = leftChild.inspect(); 
-			CmlProcess rightChild = children().get(1);
+			CmlBehaviourThread rightChild = children().get(1);
 			CmlAlphabet rightChildAlpha = rightChild.inspect();
 									
 			ObservableEvent selectedEvent = supervisor().selectedCommunication(); 
@@ -604,9 +604,9 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
 		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
 		{
-			CmlProcess leftChild = children().get(0);
+			CmlBehaviourThread leftChild = children().get(0);
 			CmlAlphabet leftChildAlpha = leftChild.inspect(); 
-			CmlProcess rightChild = children().get(1);
+			CmlBehaviourThread rightChild = children().get(1);
 			CmlAlphabet rightChildAlpha = rightChild.inspect();
 			
 			if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
@@ -652,12 +652,12 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 		PAction right = node.getRightAction();
 		
 		//TODO: create a local copy of the question state for each of the actions
-		CmlActionInstance leftInstance = 
-				new CmlActionInstance(left, question, 
+		CmlAction leftInstance = 
+				new CmlAction(left, question, 
 						new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),this);
 		
-		CmlActionInstance rightInstance = 
-				new CmlActionInstance(right, question, 
+		CmlAction rightInstance = 
+				new CmlAction(right, question, 
 						new LexNameToken(name.module,"|||" + name.getIdentifier().getName(),right.getLocation()),this);
 		
 		//add the children FIXME: this should not be done directly on the children() method
@@ -682,9 +682,9 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	
 	private void removeTheChildren()
 	{
-		for(Iterator<CmlProcess> iterator = children().iterator(); iterator.hasNext(); )
+		for(Iterator<CmlBehaviourThread> iterator = children().iterator(); iterator.hasNext(); )
 		{
-			CmlProcess child = iterator.next();
+			CmlBehaviourThread child = iterator.next();
 			supervisor().removePupil(child);
 			iterator.remove();
 		}
@@ -769,7 +769,7 @@ public class CmlActionInstance extends AbstractInstance<PAction> implements CmlP
 	 * @param child
 	 * @return
 	 */
-	private CmlBehaviourSignal executeChild(CmlProcess child)
+	private CmlBehaviourSignal executeChild(CmlBehaviourThread child)
 	{
 		
 		child.onTraceChanged().unregisterObserver(this);

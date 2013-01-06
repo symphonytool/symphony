@@ -23,7 +23,7 @@ import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
@@ -47,14 +47,14 @@ public class AlphabetInspectionVisitor
 		QuestionAnswerCMLAdaptor<Context, eu.compassresearch.core.interpreter.cml.CmlAlphabet> {
 
 	// The process that contains this instance
-	private final CmlProcess 		ownerProcess;
+	private final CmlBehaviourThread 		ownerProcess;
 	private final CmlEvaluator		cmlEvaluator;
 
 	/**
 	 * 
 	 * @param ownerProcess
 	 */
-	public AlphabetInspectionVisitor(CmlProcess ownerProcess,CmlEvaluator cmlEvalutor)
+	public AlphabetInspectionVisitor(CmlBehaviourThread ownerProcess,CmlEvaluator cmlEvalutor)
 	{
 		this.ownerProcess = ownerProcess;
 		this.cmlEvaluator = cmlEvalutor;
@@ -166,7 +166,7 @@ public class AlphabetInspectionVisitor
 		//If there are children we just return the union of the child alphabets
 		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(ownerProcess))
 		{
-			for(CmlProcess child : ownerProcess.children())
+			for(CmlBehaviourThread child : ownerProcess.children())
 			{
 				if(alpha == null)
 					alpha = child.inspect();
@@ -263,7 +263,7 @@ public class AlphabetInspectionVisitor
 			@Override
 			public CmlAlphabet inspectChildren() {
 				CmlAlphabet alpha = null;
-				for(CmlProcess child : ownerProcess.children())
+				for(CmlBehaviourThread child : ownerProcess.children())
 				{
 					if(alpha == null)
 						alpha = child.inspect();
@@ -307,9 +307,9 @@ public class AlphabetInspectionVisitor
 						internalNode.getChanSetExpression(),internalQuestion);
 				
 				//Get all the child alphabets and add the events that are not in the channelset
-				CmlProcess leftChild = ownerProcess.children().get(0);
+				CmlBehaviourThread leftChild = ownerProcess.children().get(0);
 				CmlAlphabet leftChildAlphabet = leftChild.inspect();
-				CmlProcess rightChild = ownerProcess.children().get(1);
+				CmlBehaviourThread rightChild = ownerProcess.children().get(1);
 				CmlAlphabet rightChildAlphabet = rightChild.inspect();
 				
 				CmlAlphabet resultAlpha = leftChildAlphabet.intersectRefsAndJoin(rightChildAlphabet).intersectRefsAndJoin(cs);
