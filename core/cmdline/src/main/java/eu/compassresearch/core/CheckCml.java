@@ -36,6 +36,10 @@ import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
+import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
+import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.core.parser.CmlParser;
@@ -530,7 +534,12 @@ public class CheckCml {
 						public void apply(INode root) throws AnalysisException {
 							try {
 								interpreter.setDefaultName(Switch.EXEC.getValue());
-								interpreter.execute();
+								
+								Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+								CmlSupervisorEnvironment sve = 
+										VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
+								
+								interpreter.execute(sve,scheduler);
 							} catch (Exception e) {
 
 								e.printStackTrace();

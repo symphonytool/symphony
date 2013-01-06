@@ -1,11 +1,10 @@
-package eu.compassresearch.core.interpreter.runtime;
+package eu.compassresearch.core.interpreter.cml;
 
 import java.util.Set;
 
-import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 /**
  * This class implements a random selection CMLCommunicaiton of the alphabet 
  * @author akm

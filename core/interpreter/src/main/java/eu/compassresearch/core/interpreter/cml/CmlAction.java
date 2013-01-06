@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.runtime;
+package eu.compassresearch.core.interpreter.cml;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -23,11 +23,6 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.SynchronisationEvent;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
@@ -37,6 +32,7 @@ import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlProcessUtil;
 import eu.compassresearch.core.interpreter.util.Pair;
@@ -54,7 +50,7 @@ import eu.compassresearch.core.interpreter.util.Pair;
  * @author akm
  *
  */
-public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlProcessStateObserver , CmlProcessTraceObserver{
+public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlProcessStateObserver, CmlProcessTraceObserver{
 
 	private LexNameToken name;
 	private CmlEvaluator cmlEvaluator = new CmlEvaluator();
@@ -68,7 +64,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		pushNext(action, context);
 	}
 	
-	public CmlAction(PAction action,Context context, LexNameToken name, CmlBehaviourThread parent)
+	public CmlAction(PAction action,Context context, LexNameToken name, CmlAction parent)
 	{
 		super(parent);
 		this.name = name;
@@ -104,7 +100,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		}
 		catch(AnalysisException ex)
 		{
-			CmlRuntime.logger.throwing(this.toString(),"inspect()", ex);
+			CmlRuntime.logger().throwing(this.toString(),"inspect()", ex);
 			throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage(),ex);
 		}
 	}
@@ -369,21 +365,15 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 	
 	private CmlBehaviourSignal caseExternalChoiceEnd()
 	{
-		CmlBehaviourThread theChoosenOne = findTheChoosenChild(supervisor().selectedCommunication());
+		AbstractBehaviourThread<PAction> theChoosenOne = findTheChoosenChild(supervisor().selectedCommunication());
 		
 		//first we execute the child
 		CmlBehaviourSignal result = executeChild(theChoosenOne);
 		
-		//FIXME: maybe the we should differentiate between actions and process instead of just having CmlProcess
-		//Children. We clearly need it!
-		//we know its an action
-		CmlAction theChoosenOneAction = (CmlAction)theChoosenOne;
-		
-		
-		if(theChoosenOneAction.hasNext())
+		if(theChoosenOne.hasNext())
 		{	//get the state replace the current state
 			//FIXME: this is really really ugly
-			for(Pair<PAction,Context> state : theChoosenOneAction.getExecutionStack())
+			for(Pair<PAction,Context> state : ((CmlAction)theChoosenOne).getExecutionStack())
 			{
 				pushNext(state.first, 
 						state.second);
@@ -391,8 +381,8 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		}
 		else
 		{
-			pushNext(theChoosenOneAction.prevState().first, 
-					theChoosenOneAction.prevState().second);
+			pushNext(theChoosenOne.prevState().first, 
+					theChoosenOne.prevState().second);
 		}
 		setState(CmlProcessState.RUNNING);
 		
@@ -422,9 +412,9 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 	 * @param event
 	 * @return
 	 */
-	private CmlBehaviourThread findTheChoosenChild(ObservableEvent event)
+	private AbstractBehaviourThread<PAction> findTheChoosenChild(ObservableEvent event)
 	{
-		for(CmlBehaviourThread child : children())
+		for(AbstractBehaviourThread<PAction> child : children)
 		{
 			if(child.waiting() && child.inspect().containsCommunication(event))
 				return child;

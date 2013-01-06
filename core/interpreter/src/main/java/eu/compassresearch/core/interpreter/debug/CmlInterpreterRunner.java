@@ -27,6 +27,8 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
@@ -39,6 +41,8 @@ import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlResponseMessage;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
+import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
+import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -107,7 +111,11 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 	
 	public void run() throws InterpreterException
 	{
-		cmlInterpreter.execute();
+		Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+		CmlSupervisorEnvironment sve = 
+				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
+		
+		cmlInterpreter.execute(sve,scheduler);
 	}
 	
 	public void debug() throws InterpreterException
@@ -229,42 +237,45 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 			//sendStatusMessage(CmlDbgpStatus.RUNNING);
 			
 			try{
+				Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+				CmlSupervisorEnvironment sve = 
+						VanillaInterpreterFactory.newCmlSupervisorEnvironment(new CmlCommunicationSelectionStrategy() {
+
+							@Override
+							public ObservableEvent select(CmlAlphabet availableChannelEvents) {
+
+								sendStatusMessage(CmlDbgpStatus.CHOICE, CmlInterpreterRunner.this.cmlInterpreter.getStatus());
+								
+								//convert to list of strings for now
+								List<String> events = new LinkedList<String>();
+								for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
+								{
+									events.add(comEvent.getChannel().getName());
+								}
+
+								CmlResponseMessage response = sendRequestSynchronous(new CmlRequestMessage(CmlRequest.CHOICE,events));
+								System.out.println(response);
+
+								if(response.isRequestInterrupted())
+									throw new InterpreterRuntimeException("intepreter interrupted");
+
+								String responseStr = response.getContent(String.class);
+								System.out.println("response: " + responseStr);
+								
+								ObservableEvent selectedEvent = null;
+								//For now we just search naively to find the event
+								for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
+								{
+									System.out.println("found: " + comEvent.getChannel().getName());
+									if(comEvent.getChannel().getName().equals(responseStr))
+										selectedEvent = comEvent;
+								}
+
+								return selectedEvent;
+							}
+						}, scheduler);
 			
-				cmlInterpreter.execute(new CmlCommunicationSelectionStrategy() {
-
-					@Override
-					public ObservableEvent select(CmlAlphabet availableChannelEvents) {
-
-						sendStatusMessage(CmlDbgpStatus.CHOICE, CmlInterpreterRunner.this.cmlInterpreter.getStatus());
-						
-						//convert to list of strings for now
-						List<String> events = new LinkedList<String>();
-						for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
-						{
-							events.add(comEvent.getChannel().getName());
-						}
-
-						CmlResponseMessage response = sendRequestSynchronous(new CmlRequestMessage(CmlRequest.CHOICE,events));
-						System.out.println(response);
-
-						if(response.isRequestInterrupted())
-							throw new InterpreterRuntimeException("intepreter interrupted");
-
-						String responseStr = response.getContent(String.class);
-						System.out.println("response: " + responseStr);
-						
-						ObservableEvent selectedEvent = null;
-						//For now we just search naively to find the event
-						for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
-						{
-							System.out.println("found: " + comEvent.getChannel().getName());
-							if(comEvent.getChannel().getName().equals(responseStr))
-								selectedEvent = comEvent;
-						}
-
-						return selectedEvent;
-					}
-				});
+				cmlInterpreter.execute(sve,scheduler);
 			}
 			catch(InterpreterRuntimeException e)
 			{

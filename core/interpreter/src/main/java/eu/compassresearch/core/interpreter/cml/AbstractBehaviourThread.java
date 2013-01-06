@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.runtime;
+package eu.compassresearch.core.interpreter.cml;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -8,13 +8,6 @@ import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.CmlTrace;
-import eu.compassresearch.core.interpreter.cml.Reason;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
@@ -28,21 +21,22 @@ import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.util.Pair;
 
-public abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluator<T>
+abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluator<T>
 		implements CmlBehaviourThread , ChannelObserver {
 	
 	/**
 	 * 
 	 */
-	private static final long 			serialVersionUID = -4920762081111266274L;
-	protected CmlProcessState 			state;
-	protected List<CmlBehaviourThread> 	children = new LinkedList<CmlBehaviourThread>();
-	protected CmlBehaviourThread 		parent;
-	protected CmlSupervisorEnvironment 	env;
-	protected CmlTrace 					trace = new CmlTrace();
-	protected List<ObservableEvent>     registredEvents = new LinkedList<ObservableEvent>();
+	private static final long 					serialVersionUID = -4920762081111266274L;
+	protected CmlProcessState 					state;
+	protected List<AbstractBehaviourThread<T>> 	children = new LinkedList<AbstractBehaviourThread<T>>();
+	protected AbstractBehaviourThread<T> 		parent;
+	protected CmlSupervisorEnvironment 			env;
+	protected CmlTrace 							trace = new CmlTrace();
+	protected List<ObservableEvent>     		registredEvents = new LinkedList<ObservableEvent>();
 	
 	protected EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>  stateEventhandler = 
 			new EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>(this,
@@ -66,7 +60,7 @@ public abstract class AbstractBehaviourThread<T extends INode> extends AbstractE
 						}
 					});
 	
-	public AbstractBehaviourThread(CmlBehaviourThread parent)
+	public AbstractBehaviourThread(AbstractBehaviourThread<T> parent)
 	{
 		state = CmlProcessState.INITIALIZED;
 		this.parent = parent;
@@ -120,7 +114,7 @@ public abstract class AbstractBehaviourThread<T extends INode> extends AbstractE
 		}
 		catch(AnalysisException ex)
 		{
-			CmlRuntime.logger.throwing(this.toString(),"execute", ex);
+			CmlRuntime.logger().throwing(this.toString(),"execute", ex);
 			throw new InterpreterRuntimeException(ex);
 		}
 	}
@@ -205,7 +199,8 @@ public abstract class AbstractBehaviourThread<T extends INode> extends AbstractE
 
 	@Override
 	public List<CmlBehaviourThread> children() {
-		return children;
+		
+		return (List)children;
 	}
 
 	@Override

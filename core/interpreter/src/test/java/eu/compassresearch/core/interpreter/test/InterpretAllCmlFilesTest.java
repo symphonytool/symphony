@@ -28,8 +28,12 @@ import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
+import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -112,7 +116,11 @@ public class InterpretAllCmlFilesTest {
 
 		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(ast);
 
-		interpreter.execute();
+		Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+		CmlSupervisorEnvironment sve = 
+				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
+		
+		interpreter.execute(sve,scheduler);
 
 		checkResult(testResult, interpreter.getStatus());
 	}

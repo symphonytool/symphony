@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.runtime.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlProcess;
 
 public class InterpreterStatus {
 

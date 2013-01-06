@@ -9,7 +9,6 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.PType;
-import org.overture.interpreter.debug.DBGPReader;
 import org.overture.interpreter.runtime.Breakpoint;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.SourceFile;
@@ -19,9 +18,10 @@ import org.overture.parser.syntax.ParserException;
 import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.EventSource;
+import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 /**
  * The CML interpreter interface.
  */
@@ -50,15 +50,7 @@ public interface CmlInterpreter
 	 */
 
 	public String getDefaultName();
-
-	/**
-	 * Get the filename that contains the default process.
-	 *
-	 * @return The default file name.
-	 */
-
-	public File getDefaultFile();
-
+	
 	/**
 	 * Set the default process.
 	 *
@@ -69,44 +61,58 @@ public interface CmlInterpreter
 	public void setDefaultName(String name);
 
 	/**
-	 * Initialize the initial context. This means that all definition
-	 * initializers are re-run to put the global environment back into its
-	 * original state. This is run implicitly when the interpreter starts,
-	 * but it can also be invoked explicitly via the "init" command.
+	 * Get the filename that contains the default process.
 	 *
-	 * @throws Exception
+	 * @return The default file name.
 	 */
 
-	public void init(DBGPReader dbgp);
-
+	public File getDefaultFile();
+	
 	/**
-	 * Initialize the context between trace sequences. This is less
-	 * thorough than the full init, since it does not reset the scheduler
-	 * for example.
+	 * The top level supervisor for the interpreter
+	 * @return
 	 */
+	public CmlSupervisorEnvironment getCurrentSupervisor();
 
-	public void traceInit(DBGPReader dbgp);
+//	/**
+//	 * Initialize the initial context. This means that all definition
+//	 * initializers are re-run to put the global environment back into its
+//	 * original state. This is run implicitly when the interpreter starts,
+//	 * but it can also be invoked explicitly via the "init" command.
+//	 *
+//	 * @throws Exception
+//	 */
+//
+//	public void init(DBGPReader dbgp);
+//
+//	/**
+//	 * Initialize the context between trace sequences. This is less
+//	 * thorough than the full init, since it does not reset the scheduler
+//	 * for example.
+//	 */
+//
+//	public void traceInit(DBGPReader dbgp);
+//
+//	/**
+//	 * Parse the line passed, type check it and evaluate it as an expression
+//	 * in the initial context.
+//	 *
+//	 * @param line A CML expression.
+//	 * @param dbgp The DBGPReader, if any
+//	 * @return The value of the expression.
+//	 * @throws Exception Parser, type checking or runtime errors.
+//	 */
+//
+//	public Value execute(String line, DBGPReader dbgp) throws Exception;
 
-	/**
-	 * Parse the line passed, type check it and evaluate it as an expression
-	 * in the initial context.
-	 *
-	 * @param line A CML expression.
-	 * @param dbgp The DBGPReader, if any
-	 * @return The value of the expression.
-	 * @throws Exception Parser, type checking or runtime errors.
-	 */
-
-	public Value execute(String line, DBGPReader dbgp) throws Exception;
-
-	/**
-	 * Executes the defined default process from the given sourceForest  
-	 * 
-	 * @return The value of the expression.
-	 * @throws Exception Parser, type checking or runtime errors.
-	 */
-
-	public Value execute() throws InterpreterException;
+//	/**
+//	 * Executes the defined default process from the given sourceForest  
+//	 * 
+//	 * @return The value of the expression.
+//	 * @throws Exception Parser, type checking or runtime errors.
+//	 */
+//
+//	public Value execute() throws InterpreterException;
 	
 	
 	
@@ -116,7 +122,7 @@ public interface CmlInterpreter
 	 * @return
 	 * @throws InterpreterException
 	 */
-	public Value execute(CmlCommunicationSelectionStrategy selectionStrategy) throws InterpreterException;
+	public Value execute(CmlSupervisorEnvironment sve, Scheduler cmlScheduler) throws InterpreterException;
 
 	/**
 	 * Parse the line passed, and evaluate it as an expression in the context

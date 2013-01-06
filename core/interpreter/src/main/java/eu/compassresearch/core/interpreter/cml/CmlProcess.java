@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.runtime;
+package eu.compassresearch.core.interpreter.cml;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
@@ -12,17 +12,14 @@ import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+import eu.compassresearch.core.interpreter.runtime.ProcessContext;
 /**
  *  This class represents a running CML Process. It represents a specific node as specified in D23.2 section 7.4.2,
  *  where a node is specified as a tuple (w,s,a) where w is the set of variables, s is the state values and a is the 
@@ -48,7 +45,7 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 	
 	
 	
-	public CmlProcess(AProcessDefinition processDef, CmlBehaviourThread parent, Context globalContext)
+	public CmlProcess(AProcessDefinition processDef, CmlProcess parent, Context globalContext)
 	{
 		super(parent);
 		this.globalContext = globalContext; 
@@ -58,7 +55,7 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 		pushNext(processDef.getProcess(), context);
 	}
 	
-	public CmlProcess(PProcess startProcess, CmlBehaviourThread parent, Context globalContext)
+	public CmlProcess(PProcess startProcess, CmlProcess parent, Context globalContext)
 	{
 		super(parent);
 		this.globalContext = globalContext; 
@@ -98,7 +95,7 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 			
 		}catch(AnalysisException ex)
 		{
-			CmlRuntime.logger.throwing(this.toString(),"inspect()", ex);
+			CmlRuntime.logger().throwing(this.toString(),"inspect()", ex);
 			throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage(),ex);
 		}
 	}
