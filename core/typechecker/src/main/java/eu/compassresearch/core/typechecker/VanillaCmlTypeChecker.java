@@ -285,6 +285,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	 */
 	public boolean typeCheck() {
 
+		try {
 		eu.compassresearch.core.typechecker.CmlTypeCheckInfo info = eu.compassresearch.core.typechecker.CmlTypeCheckInfo
 				.getNewTopLevelInstance(this.issueHandler, globalRoot);
 
@@ -388,6 +389,11 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		super.cleared = false;
 
 		return !super.issueHandler.hasErrors();
+		} catch (RuntimeException e)
+		{
+			issueHandler.addTypeError(sourceForest.get(0), TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.customizeMessage());
+			return false;
+		}
 	}
 
 	/**

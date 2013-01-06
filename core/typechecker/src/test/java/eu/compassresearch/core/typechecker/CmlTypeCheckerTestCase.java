@@ -688,6 +688,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "class test = begin functions f: int -> int f(a) == a+10 end", false, true,true,new String[0]);
 		addTestProgram(testData, "channels c: String", false, true,false,new String[0]);
 		addTestProgram(testData, "class test = begin operations o1:int ==> int o1(a) == let b : int = a+1 in return (c) end", false, true, false, new String[0]);
+		addTestProgram(testData, "process A = B ; C process D = begin @ Skip end", false, true, false, new String[0]);
 		return testData;
 	}
 
