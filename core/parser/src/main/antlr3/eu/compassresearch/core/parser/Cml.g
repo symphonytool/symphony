@@ -939,7 +939,7 @@ options { k=3; } // k=3 is sufficient to disambiguate these (longest: for ID =)
         {
             $statement = new AForSetStatementAction(null, $bindablePattern.pattern, $expression.exp, $action.action);
         }
-    | 'for' bindablePattern (':' type)? 'in' expression 'do' action // was pattern bind here only
+    | 'for' bindablePattern (':' type)? 'in' expression 'do' action
         {
             ADefPatternBind patternBind = new ADefPatternBind();
             LexLocation pbloc = $bindablePattern.pattern.getLocation();
@@ -2739,7 +2739,7 @@ INITIAL_LETTER
     ;
 fragment
 FOLLOW_LETTER
-    : INITIAL_LETTER | DIGIT | '\u005f'
+    : INITIAL_LETTER | DIGIT | '\u0027' | '\u005f'
     // : { input.LT(1) <  0x0100 }? =>
     //     ( UNICODE_Lo | UNICODE_Ll | UNICODE_Lm |  UNICODE_Lt | UNICODE_Lu
     //     | '\u0024' )
