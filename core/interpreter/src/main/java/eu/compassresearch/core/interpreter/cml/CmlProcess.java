@@ -12,7 +12,7 @@ import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
+import eu.compassresearch.core.interpreter.eval.AlphabetInspector;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
@@ -39,11 +39,7 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 
 	private AProcessDefinition processDef;
 	private CmlAction mainBehaviour = null;
-	private CmlEvaluator cmlEvaluator = new CmlEvaluator();
-	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this,cmlEvaluator);
 	private Context globalContext;
-	
-	
 	
 	public CmlProcess(AProcessDefinition processDef, CmlProcess parent, Context globalContext)
 	{

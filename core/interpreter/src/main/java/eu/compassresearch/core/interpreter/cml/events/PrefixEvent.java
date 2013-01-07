@@ -1,12 +1,11 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.events.ChannelObserver;
-import eu.compassresearch.core.interpreter.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.cml.channels.CmlSignalChannel;
 
 public class PrefixEvent extends ObservableEvent {
 
-	public PrefixEvent(CmlBehaviourThread eventSource, CMLChannelValue channel) {
+	public PrefixEvent(CmlBehaviourThread eventSource, CmlSignalChannel channel) {
 		super(eventSource, channel);
 	}
 
@@ -36,18 +35,6 @@ public class PrefixEvent extends ObservableEvent {
 
 	@Override
 	public ObservableEvent getReferenceEvent() {
-		return new PrefixEvent(null, channel);
+		return new PrefixEvent(null, (CmlSignalChannel)channel);
 	}
-
-	@Override
-	public void handleChannelEventRegistration(ChannelObserver observer) {
-		
-		getChannel().onChannelSignal().registerObserver(observer);
-	}
-	
-	@Override
-	public void handleChannelEventUnregistration(ChannelObserver observer) {
-		getChannel().onChannelSignal().unregisterObserver(observer);
-	}
-
 }

@@ -15,13 +15,24 @@ import eu.compassresearch.core.interpreter.util.Pair;
 public abstract class AbstractEvaluator<T  extends INode> extends
 		QuestionAnswerCMLAdaptor<Context, CmlBehaviourSignal> {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 3882847083437565869L;
+	
+	/**
+	 * Instance variables
+	 */
 	private Stack<Pair<T,Context>> executionStack = new Stack<Pair<T,Context>>();
 	protected Pair<T,Context> prevExecution = null;
 	
+	/*
+	 * 
+	 * Public Methods
+	 * 
+	 */
+	
+	/**
+	 * Determines whether there is a next execution pair
+	 * @return true if the execution stack is non empty
+	 */
 	public boolean hasNext()
 	{
 		return !executionStack.isEmpty();

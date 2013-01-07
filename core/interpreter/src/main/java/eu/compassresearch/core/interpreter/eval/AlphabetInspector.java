@@ -42,7 +42,7 @@ import eu.compassresearch.core.interpreter.values.CMLChannelValue;
  *
  */
 @SuppressWarnings("serial")
-public class AlphabetInspectionVisitor
+public class AlphabetInspector
 		extends
 		QuestionAnswerCMLAdaptor<Context, eu.compassresearch.core.interpreter.cml.CmlAlphabet> {
 
@@ -54,7 +54,7 @@ public class AlphabetInspectionVisitor
 	 * 
 	 * @param ownerProcess
 	 */
-	public AlphabetInspectionVisitor(CmlBehaviourThread ownerProcess,CmlEvaluator cmlEvalutor)
+	public AlphabetInspector(CmlBehaviourThread ownerProcess,CmlEvaluator cmlEvalutor)
 	{
 		this.ownerProcess = ownerProcess;
 		this.cmlEvaluator = cmlEvalutor;

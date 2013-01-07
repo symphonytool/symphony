@@ -25,7 +25,7 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.SynchronisationEvent;
-import eu.compassresearch.core.interpreter.eval.AlphabetInspectionVisitor;
+import eu.compassresearch.core.interpreter.eval.AlphabetInspector;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
@@ -53,9 +53,6 @@ import eu.compassresearch.core.interpreter.util.Pair;
 public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlProcessStateObserver, CmlProcessTraceObserver{
 
 	private LexNameToken name;
-	private CmlEvaluator cmlEvaluator = new CmlEvaluator();
-	private AlphabetInspectionVisitor alphabetInspectionVisitor = new AlphabetInspectionVisitor(this,cmlEvaluator);
-	
 	
 	public CmlAction(PAction action,Context context, LexNameToken name)
 	{

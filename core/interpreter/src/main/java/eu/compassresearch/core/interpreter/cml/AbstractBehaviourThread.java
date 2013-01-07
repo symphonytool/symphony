@@ -12,6 +12,8 @@ import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluator;
+import eu.compassresearch.core.interpreter.eval.AlphabetInspector;
+import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
@@ -27,22 +29,37 @@ import eu.compassresearch.core.interpreter.util.Pair;
 abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluator<T>
 		implements CmlBehaviourThread , ChannelObserver {
 	
-	/**
-	 * 
-	 */
 	private static final long 					serialVersionUID = -4920762081111266274L;
-	protected CmlProcessState 					state;
-	protected List<AbstractBehaviourThread<T>> 	children = new LinkedList<AbstractBehaviourThread<T>>();
+	/**
+	 * Instance variables
+	 */
+	//Process/Action Graph variables
 	protected AbstractBehaviourThread<T> 		parent;
+	protected List<AbstractBehaviourThread<T>> 	children = new LinkedList<AbstractBehaviourThread<T>>();
+	
+	//Process/Action state variables
+	protected CmlProcessState 					state;
+	
+	//Current supervisor
 	protected CmlSupervisorEnvironment 			env;
+	
+	//Denotational semantics
 	protected CmlTrace 							trace = new CmlTrace();
+	
+	//Evaluation of CML expression and etc.
+	protected CmlEvaluator 						cmlEvaluator = new CmlEvaluator();
+	
+	//Helper to inspect the immediate Alphabet
+	protected AlphabetInspector 				alphabetInspectionVisitor = new AlphabetInspector(this,cmlEvaluator);
+	
+	//Event handling variables
 	protected List<ObservableEvent>     		registredEvents = new LinkedList<ObservableEvent>();
 	
 	protected EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>  stateEventhandler = 
 			new EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>(this,
 					new EventFireMediator<CmlProcessStateObserver,CmlProcessStateEvent>() {
 
-				@Override
+						@Override
 						public void fireEvent(CmlProcessStateObserver observer,
 								Object source, CmlProcessStateEvent event) {
 							observer.onStateChange(event);
@@ -53,13 +70,17 @@ abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluato
 			new EventSourceHandler<CmlProcessTraceObserver,TraceEvent>(this,
 					new EventFireMediator<CmlProcessTraceObserver,TraceEvent>() {
 
-				@Override
+						@Override
 						public void fireEvent(CmlProcessTraceObserver observer,
 								Object source, TraceEvent event) {
 							observer.onTraceChange(event);
 						}
 					});
 	
+	/**
+	 * Constructor
+	 * @param parent set the parent here if any else set to null
+	 */
 	public AbstractBehaviourThread(AbstractBehaviourThread<T> parent)
 	{
 		state = CmlProcessState.INITIALIZED;
@@ -135,7 +156,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluato
 	
 	private void unregisterChannel(ObservableEvent event)
 	{
-		event.handleChannelEventUnregistration(this);
+		event.getChannel().onSelect().unregisterObserver(this);
 		registredEvents.remove(event);
 	}
 	
@@ -144,7 +165,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluato
 		for(ObservableEvent com : alpha.getObservableEvents())
 		{
 			registredEvents.add(com);
-			com.handleChannelEventRegistration(this);
+			com.getChannel().onSelect().registerObserver(this);
 		}
 	}
 	
@@ -174,7 +195,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluato
 		
 		//unregister all the channels
 		for(ObservableEvent oe : registredEvents)
-			oe.handleChannelEventUnregistration(this);
+			oe.getChannel().onSelect().unregisterObserver(this);
 		
 		setState(CmlProcessState.FINISHED);
 	}
@@ -209,7 +230,9 @@ abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluato
 	}
 
 	/**
-	 * State methods
+	 * 
+	 * State related methods
+	 * 
 	 */
 	@Override
 	public boolean started() {
@@ -282,8 +305,10 @@ abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluato
 	 */
 	@Override
 	public void onChannelEvent(Object source, CmlChannelEvent event) {
-		//enable the processthread to run again and unregister from the channel
-		//if(level() == 0)
+
+		//if the channel sends a select event then it means that we have a go to execute the
+		//communicationAction transition. So we set the state to RUNNABLE so the scheduler will execute it
+		if(event.getEventType() == CmlCommunicationType.SELECT)
 			setState(CmlProcessState.RUNNABLE);
 	}
 	

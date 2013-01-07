@@ -5,14 +5,13 @@ import java.util.List;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.events.ChannelObserver;
-import eu.compassresearch.core.interpreter.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.cml.channels.CmlIOChannel;
 
 public class CmlCommunicationEvent extends ObservableEvent {
 
 	final protected List<CommunicationParameter> params;
 	
-	public CmlCommunicationEvent(CmlBehaviourThread source, CMLChannelValue channel, List<CommunicationParameter> params)
+	public CmlCommunicationEvent(CmlBehaviourThread source, CmlIOChannel<Value> channel, List<CommunicationParameter> params)
 	{
 		super(source,channel);
 		this.params = params;
@@ -62,26 +61,11 @@ public class CmlCommunicationEvent extends ObservableEvent {
 		return other.getChannel().equals(getChannel()) && 
 				other.getEventSource() == getEventSource();
 	}
-
-	@Override
-	public void handleChannelEventRegistration(ChannelObserver observer) {
-
-		for(CommunicationParameter param : params)
-			param.handleChannelEventRegistration(channel, observer);
-
-	}
-
+	
+	@SuppressWarnings("unchecked")
 	@Override
 	public ObservableEvent getReferenceEvent() {
-		return new CmlCommunicationEvent(null, channel, params);
+		return new CmlCommunicationEvent(null, (CmlIOChannel<Value>)channel, params);
 	}
 
-	@Override
-	public void handleChannelEventUnregistration(ChannelObserver observer) {
-
-		for(CommunicationParameter param : params)
-			param.handleChannelEventUnregistration(channel, observer);
-		
-	}
-	
 }

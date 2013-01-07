@@ -1,13 +1,11 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.events.ChannelObserver;
-import eu.compassresearch.core.interpreter.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
 
 public class SynchronisationEvent extends ObservableEvent {
 
@@ -25,9 +23,9 @@ public class SynchronisationEvent extends ObservableEvent {
 		this.synchronisingEvents = synchronisingEvents;
 	}
 	
-	private static CMLChannelValue extractChannelValue(Set<ObservableEvent> synchronisingEvents)
+	private static CmlChannel extractChannelValue(Set<ObservableEvent> synchronisingEvents)
 	{
-		CMLChannelValue channel = synchronisingEvents.iterator().next().getChannel();
+		CmlChannel channel = synchronisingEvents.iterator().next().getChannel();
 		//TODO Check that the all the channels are equal
 //		for(ObservableEvent oe : synchronisingEvents)
 //		{
@@ -71,17 +69,6 @@ public class SynchronisationEvent extends ObservableEvent {
 		}
 		else
 			return false;
-	}
-
-	@Override
-	public void handleChannelEventRegistration(ChannelObserver observer) {
-		
-		synchronisingEvents.iterator().next().getChannel().onChannelSignal().registerObserver(observer);
-	}
-	
-	@Override
-	public void handleChannelEventUnregistration(ChannelObserver observer) {
-		synchronisingEvents.iterator().next().getChannel().onChannelSignal().unregisterObserver(observer);
 	}
 
 	/**

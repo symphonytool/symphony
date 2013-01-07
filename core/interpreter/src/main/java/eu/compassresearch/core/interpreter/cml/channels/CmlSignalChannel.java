@@ -8,7 +8,7 @@ import eu.compassresearch.core.interpreter.events.EventSource;
  * @author akm
  *
  */
-public interface CmlChannelSignal extends CmlChannel {
+public interface CmlSignalChannel extends CmlChannel {
 
 	/**
 	 * Signals to the channel listeners that they can now proceed 

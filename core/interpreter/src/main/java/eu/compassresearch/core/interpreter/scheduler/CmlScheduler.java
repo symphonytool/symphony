@@ -127,8 +127,7 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 	public void start() throws AnalysisException {
 		
 		if(null == sve)
-			throw new RuntimeException("Change this!!!!, but now that you " +
-					"haven't changed this the supervisor is not set in the scheduler");
+			throw new NullPointerException("The supervisor is not set in the scheduler");
 		
 		//Active state
 		while(hasActiveProcesses())
@@ -160,14 +159,11 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 				CmlAlphabet alpha = p.inspect();
 
 				if(alpha.isEmpty())
-					throw new RuntimeException("Change this!!!!, but now that you " +
-							"haven't changed this yet a deadlock has occured");
+					throw new RuntimeException("A deadlock has occured. To developer: Change this be handled differently!!!!");
 				else
 				{
 					//Select and set the communication event
 					sve.setSelectedCommunication(sve.decisionFunction().select(p.inspect()));
-					//signal all the processes that are listening for events on this channel
-					sve.selectedCommunication().getChannel().signal();
 				}
 			}
 		}
