@@ -2,16 +2,17 @@ package eu.compassresearch.core.interpreter.cml;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.eval.AbstractEvaluator;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspector;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
@@ -26,13 +27,18 @@ import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.util.Pair;
 
-abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluator<T>
+abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCMLAdaptor<Context, CmlBehaviourSignal>
 		implements CmlBehaviourThread , ChannelObserver {
 	
 	private static final long 					serialVersionUID = -4920762081111266274L;
+	
 	/**
 	 * Instance variables
 	 */
+	//Stack machine variables
+	private Stack<Pair<T,Context>> 				executionStack = new Stack<Pair<T,Context>>();
+	private  Pair<T,Context> 					prevExecution = null;
+	
 	//Process/Action Graph variables
 	protected AbstractBehaviourThread<T> 		parent;
 	protected List<AbstractBehaviourThread<T>> 	children = new LinkedList<AbstractBehaviourThread<T>>();
@@ -52,7 +58,8 @@ abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluato
 	//Helper to inspect the immediate Alphabet
 	protected AlphabetInspector 				alphabetInspectionVisitor = new AlphabetInspector(this,cmlEvaluator);
 	
-	//Event handling variables
+	//Event handling variable, we need to keep track if the events because of external choice
+	//
 	protected List<ObservableEvent>     		registredEvents = new LinkedList<ObservableEvent>();
 	
 	protected EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>  stateEventhandler = 
@@ -86,6 +93,58 @@ abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluato
 		state = CmlProcessState.INITIALIZED;
 		this.parent = parent;
 	}
+	
+	/*
+	 * 
+	 * Public Methods
+	 * 
+	 */
+	
+	/*
+	 * 
+	 * Stack machine methods start
+	 * 
+	 */
+	
+	/**
+	 * Determines whether there is a next execution pair
+	 * @return true if the execution stack is non empty
+	 */
+	protected  boolean hasNext()
+	{
+		return !executionStack.isEmpty();
+	}
+	
+	protected  boolean hasPrev()
+	{
+		return prevExecution != null;
+	}
+	
+	protected  Pair<T,Context> prevState()
+	{
+		return prevExecution;
+	}
+	
+	protected  Pair<T,Context> nextState()
+	{
+		return executionStack.peek();
+	}
+	
+	protected List<Pair<T,Context>> getExecutionStack()
+	{
+		return executionStack;
+	}
+	
+	protected void pushNext(T node, Context context)
+	{
+		executionStack.push(new Pair<T, Context>(node, context));
+	}
+	
+	/*
+	 * 
+	 * Stack machine methods end
+	 * 
+	 */
 	
 	/**
 	 * Executes the current process behaviour
@@ -144,6 +203,20 @@ abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluato
 	 * Execute private helper methods
 	 */
 	
+	private CmlBehaviourSignal executeNext() throws AnalysisException
+	{
+		if(hasNext())
+		{
+			Pair<T,Context> next = executionStack.pop();
+			prevExecution = next;
+			return next.first.apply(this,next.second);
+		}
+		else{
+			throw new InterpreterRuntimeException("Trying to execute a finished Process...THIS SHOULD BE CHANGE INTO A DIFFERENT EXCEPTION");
+		}
+		
+	}
+	
 	/**
 	 * Update the trace and fires the trace event
 	 * @param The next event in the trace
@@ -169,7 +242,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends AbstractEvaluato
 		}
 	}
 	
-	/**
+	/*
 	 * Execute region end
 	 */
 	

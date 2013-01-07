@@ -370,7 +370,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		if(theChoosenOne.hasNext())
 		{	//get the state replace the current state
 			//FIXME: this is really really ugly
-			for(Pair<PAction,Context> state : ((CmlAction)theChoosenOne).getExecutionStack())
+			for(Pair<PAction,Context> state : theChoosenOne.getExecutionStack())
 			{
 				pushNext(state.first, 
 						state.second);
@@ -657,7 +657,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		rightInstance.onStateChanged().registerObserver(this);
 		rightInstance.onTraceChanged().registerObserver(this);
 		
-		//Add them to the superviser to get executed as a seperate process
+		//Add them to the supervisor to get executed as a seperate process
 		rightInstance.start(supervisor());
 		leftInstance.start(supervisor());
 		
