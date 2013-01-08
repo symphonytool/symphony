@@ -21,7 +21,7 @@ public class RandomSelectionStrategy implements
 		
 		if(!comms.isEmpty())
 			selectedComm = availableChannelEvents.getObservableEvents().iterator().next();
-		CmlRuntime.logger().fine("Available events " + availableChannelEvents.getObservableEvents());
+		//CmlRuntime.logger().fine("Available events " + availableChannelEvents.getObservableEvents());
 		CmlRuntime.logger().fine("The supervisor environment picks : " + selectedComm);
 		
 		return selectedComm;

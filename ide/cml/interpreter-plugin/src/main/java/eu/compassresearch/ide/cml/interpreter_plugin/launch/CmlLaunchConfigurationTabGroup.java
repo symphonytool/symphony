@@ -11,7 +11,7 @@ import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 
-import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfiguration;
+import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlUtil;
 
 public class CmlLaunchConfigurationTabGroup extends AbstractLaunchConfigurationTabGroup  {
@@ -47,7 +47,7 @@ public class CmlLaunchConfigurationTabGroup extends AbstractLaunchConfigurationT
 			//Set the project path
 			//configuration.setAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_PATH.toString(),CmlUtil.getProjectPath(project));
 			//Set the project src path
-			configuration.setAttribute(CmlInterpreterLaunchConfiguration.CML_SOURCES_PATH.toString(),CmlUtil.getProjectPath(project));
+			configuration.setAttribute(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(),CmlUtil.getProjectPath(project));
 		}
 		super.setDefaults(configuration);
 	}

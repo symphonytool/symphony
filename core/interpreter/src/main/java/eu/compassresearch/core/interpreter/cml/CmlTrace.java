@@ -23,6 +23,14 @@ public class CmlTrace {
 		trace.add(event);
 	}
 	
+	public CmlEvent getLastEvent()
+	{
+		if(trace.size() > 0)
+			return trace.get(trace.size()-1);
+		else 
+			return null;
+	}
+	
 	@Override
 	public String toString() {
 		
@@ -56,5 +64,10 @@ public class CmlTrace {
 		}
 		
 		return visibleEvents;
+	}
+	
+	public static boolean isObservableEvent(CmlEvent event)
+	{
+		return event instanceof ObservableEvent;
 	}
 }

@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter.debug;
 
-public enum CmlInterpreterLaunchConfiguration {
+public enum CmlInterpreterLaunchConfigurationConstants {
 
 	CML_SOURCES_PATH("eu.compassresearch.ide.cml.interpreter.cml_sources_path"),
 	CML_EXEC_MODE("eu.compassresearch.ide.cml.interpreter.exec_mode"),
@@ -9,7 +9,7 @@ public enum CmlInterpreterLaunchConfiguration {
 	
 	private final String str;      
 
-    private CmlInterpreterLaunchConfiguration(String s) {
+    private CmlInterpreterLaunchConfigurationConstants(String s) {
     	str = s;
     }
     

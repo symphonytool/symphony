@@ -1,12 +1,9 @@
 package eu.compassresearch.ide.cml.interpreter_plugin.launch;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -33,11 +30,8 @@ import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfiguration;
-import eu.compassresearch.core.interpreter.util.EnvironmentBuilder;
+import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlUtil;
-import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlMainLaunchConfigurationTab extends
 		AbstractLaunchConfigurationTab {
@@ -89,15 +83,20 @@ public class CmlMainLaunchConfigurationTab extends
 
 			if (projectName.length() == 0)
 			{
-				setErrorMessage("Project not set");
+				setErrorMessage(CmlLaunchConfigurationErrorMessages.PROJECT_NOT_SET.toString());
 				return false;
 			}
 
 			project = getProjectByName(projectName);
 			
-			if (!project.isOpen())
+			if(!project.exists())
 			{
-				setErrorMessage("Project is not open");
+				setErrorMessage(CmlLaunchConfigurationErrorMessages.NO_PROJECT_WITH_NAME_EXIST.customizeMessage(projectName));
+				return false;
+			}
+			else if (!project.isOpen())
+			{
+				setErrorMessage(CmlLaunchConfigurationErrorMessages.PROJECT_NOT_OPEN.customizeMessage(projectName));
 				return false;
 			}
 			
@@ -112,7 +111,7 @@ public class CmlMainLaunchConfigurationTab extends
 	
 	private boolean isProcessValid(IProject project, ILaunchConfiguration launchConfig) throws CoreException
 	{
-		String processName = launchConfig.getAttribute(CmlInterpreterLaunchConfiguration.PROCESS_NAME.toString(), "");
+		String processName = launchConfig.getAttribute(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(), "");
 		
 		if(processName.length() == 0)
 		{
@@ -319,6 +318,7 @@ public class CmlMainLaunchConfigurationTab extends
 						{
 							for (Object object : arr)
 							{
+								//TODO Should only return cml projects. At the point every project is returned!
 //								try
 //								{
 									if (object instanceof IProject)
@@ -377,7 +377,7 @@ public class CmlMainLaunchConfigurationTab extends
 			String projectName = configuration.getAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(), "");
 			fProjectText.setText(projectName);
 			
-			String processName = configuration.getAttribute(CmlInterpreterLaunchConfiguration.PROCESS_NAME.toString(), "");
+			String processName = configuration.getAttribute(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(), "");
 			fTopProcessText.setText(processName);
 			
 		} catch (CoreException e) {
@@ -391,7 +391,7 @@ public class CmlMainLaunchConfigurationTab extends
 		configuration.setAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(), 
 				fProjectText.getText());
 		
-		configuration.setAttribute(CmlInterpreterLaunchConfiguration.PROCESS_NAME.toString(),
+		configuration.setAttribute(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(),
 				fTopProcessText.getText());
 						
 		if(fProjectText.getText().length() > 0)
@@ -399,7 +399,7 @@ public class CmlMainLaunchConfigurationTab extends
 			
 			IProject project = getProjectByName(fProjectText.getText());
 			//Set the project src path
-			configuration.setAttribute(CmlInterpreterLaunchConfiguration.CML_SOURCES_PATH.toString(),CmlUtil.getProjectPath(project));
+			configuration.setAttribute(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(),CmlUtil.getProjectPath(project));
 		
 		
 //			List<AProcessDefinition> globalProcess = CmlUtil.GetGlobalProcessesFromProject(project);

@@ -41,6 +41,7 @@ import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlResponseMessage;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.lexer.CmlLexer;
@@ -85,7 +86,7 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 				do
 				{
 					messageContainer = recvMessage();
-					System.out.println(messageContainer);
+					CmlRuntime.logger().finest("Receiving message: " + messageContainer.toString());
 				}
 				while (!stopped && processMessage(messageContainer));
 			
@@ -197,7 +198,7 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 	private void sendStatusMessage(CmlDbgpStatus status, InterpreterStatus interpreterStatus)
 	{
 		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(status,interpreterStatus);
-		System.out.println(dm);
+		CmlRuntime.logger().finest("Sending status message : " + dm.toString());
 		CmlMessageCommunicator.sendMessage(requestOS, dm);
 	}
 	
@@ -254,19 +255,20 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 								}
 
 								CmlResponseMessage response = sendRequestSynchronous(new CmlRequestMessage(CmlRequest.CHOICE,events));
-								System.out.println(response);
 
 								if(response.isRequestInterrupted())
 									throw new InterpreterRuntimeException("intepreter interrupted");
 
+								//TODO At the moment if there are two identical events from different processes on the same channel
+								//	then the user cannot distuingiues between the two and for now it will only be the first event in the list
 								String responseStr = response.getContent(String.class);
-								System.out.println("response: " + responseStr);
+								//System.out.println("response: " + responseStr);
 								
 								ObservableEvent selectedEvent = null;
 								//For now we just search naively to find the event
 								for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
 								{
-									System.out.println("found: " + comEvent.getChannel().getName());
+									//System.out.println("found: " + comEvent.getChannel().getName());
 									if(comEvent.getChannel().getName().equals(responseStr))
 										selectedEvent = comEvent;
 								}
@@ -357,14 +359,15 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 	 * @throws AnalysisException 
 	 */
 	public static void main(String[] args) throws IOException, InterpreterException, AnalysisException {
-		System.out.println(args);
+
 		//Index 0 of args is the JSON config
 		Object obj=JSONValue.parse(args[0]);
 		JSONObject config =(JSONObject)obj;
 		//retrieve the paths for the cml sources of the project
-		String sourcesPath = (String)config.get(CmlInterpreterLaunchConfiguration.CML_SOURCES_PATH.toString());
-		String startProcessName = (String)config.get(CmlInterpreterLaunchConfiguration.PROCESS_NAME.toString());
-		System.out.println(startProcessName);
+		String sourcesPath = (String)config.get(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString());
+		//retrieve the top process name
+		String startProcessName = (String)config.get(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString());
+
 		if(sourcesPath == null || sourcesPath.length() == 0)
 		{
 			System.out.println("The path to the cml sources are not defined");
@@ -394,20 +397,23 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 		//create the typechecker and typecheck the source forest
 		TypeIssueHandler ih = VanillaFactory.newCollectingIssueHandle();
 		CmlTypeChecker tc = VanillaFactory.newTypeChecker(sourceForest, ih);
-		
+		System.out.println("Typechecking...");
 		if(tc.typeCheck())
 		{
+			System.out.println("Typechecking: OK");
 			String mode = (String)config.get("mode");
 			CmlInterpreterRunner runner = new CmlInterpreterRunner(sourceForest,startProcessName);
+			System.out.println("Starting the interpreter...");
 			if(mode.equals("run"))
 				runner.run();
 			else if(mode.equals("debug"))
 				runner.debug();
-			else if(mode.equals("animate"))
-				runner.debug();
+//			else if(mode.equals("animate"))
+//				runner.debug();
 		}
 		else
 		{
+			System.out.println("Typechecking: Error(s)");
 			System.out.println(ih.getTypeErrors());
 		}
 	}

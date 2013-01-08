@@ -25,7 +25,7 @@ import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfiguration;
+import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugConstants;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlUtil;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
@@ -213,7 +213,7 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
     	
     	for(ILaunchConfiguration lc : confs)
     	{
-    		String foundProcessName = lc.getAttribute(CmlInterpreterLaunchConfiguration.PROCESS_NAME.toString(), "");
+    		String foundProcessName = lc.getAttribute(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(), "");
     		if(foundProcessName.equals(processName))
     			result = lc;
     	}
@@ -228,10 +228,10 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
         	
         	ILaunchConfigurationWorkingCopy lcwc = ctype.newInstance(null, launchManager.generateLaunchConfigurationName(ctype.getName()));
         	
-        	lcwc.setAttribute(CmlInterpreterLaunchConfiguration.PROCESS_NAME.toString(), processName);
+        	lcwc.setAttribute(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(), processName);
         	lcwc.setAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(), 
         			sourceUnit.getProject().getName());
-        	lcwc.setAttribute(CmlInterpreterLaunchConfiguration.CML_SOURCES_PATH.toString(),
+        	lcwc.setAttribute(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(),
         			CmlUtil.getProjectPath(sourceUnit.getProject()));
         			
         	result = lcwc;

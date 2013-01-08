@@ -3,6 +3,7 @@ package eu.compassresearch.core.interpreter.scheduler;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.Level;
 
 import org.overture.ast.analysis.AnalysisException;
 
@@ -10,9 +11,9 @@ import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.CmlTrace;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
-import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 
 public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
@@ -132,7 +133,7 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 		//Active state
 		while(hasActiveProcesses())
 		{
-			CmlRuntime.logger().fine("----------------step----------------");
+			
 			
 			//execute each of the running pupils until they are either finished or in wait state
 			while(hasRunningProcesses())
@@ -145,9 +146,20 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 					throw new RuntimeException("Change this!!!!, but now that you haven't changed this yet, " +
 							"then let me tell you that the return CMLBehaviourSignal was unsuccesful");
 
-				CmlRuntime.logger().fine("Trace of '"+p+"': " + p.getTraceModel());
-				CmlRuntime.logger().fine("Observable trace of '"+p+"': " + p.getTraceModel().getVisibleTrace());
-				CmlRuntime.logger().fine("next: " + p.nextStepToString());
+				CmlTrace trace = p.getTraceModel();
+				
+				if(CmlTrace.isObservableEvent(trace.getLastEvent()) && p.running())
+				{
+					CmlRuntime.logger().fine("----------------observable step by '"+ p +"'----------------");
+					CmlRuntime.logger().fine("Observable trace of '"+p+"': " + trace.getVisibleTrace());
+				}
+				else
+				{
+					CmlRuntime.logger().fine("----------------Silent step by '"+ p +"'----------------");
+					CmlRuntime.logger().fine("Trace of '"+p+"': " + trace);
+				}
+				
+				CmlRuntime.logger().fine("Eval. Status={ " + p.nextStepToString() + " }");
 			}
 
 			/**
@@ -162,8 +174,11 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 					throw new RuntimeException("A deadlock has occured. To developer: Change this be handled differently!!!!");
 				else
 				{
+					CmlAlphabet availableEvents = p.inspect();
+					
+					CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getObservableEvents());
 					//Select and set the communication event
-					sve.setSelectedCommunication(sve.decisionFunction().select(p.inspect()));
+					sve.setSelectedCommunication(sve.decisionFunction().select(availableEvents));
 				}
 			}
 		}

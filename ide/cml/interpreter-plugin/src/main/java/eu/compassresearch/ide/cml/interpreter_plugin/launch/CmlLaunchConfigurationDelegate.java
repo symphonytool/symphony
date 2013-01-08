@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Map.Entry;
 
@@ -22,6 +21,10 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.WorkbenchException;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.osgi.framework.Bundle;
@@ -49,10 +52,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		}
 		try
 		{
-//			IWorkbench workbench = PlatformUI.getWorkbench();
-//			   workbench.showPerspective("org.eclipse.debug.ui.DebugPerspective", 
-//			      workbench.getActiveWorkbenchWindow());
-			
 			// set launch encoding to UTF-8. Mainly used to set console encoding.
 			launch.setAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING, "UTF-8");
 			
@@ -81,6 +80,8 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 				//				target.setVdmProject(vdmProject);
 				launch.addDebugTarget(target);
 				
+				//switch to the debugging perspective
+				SwitchToDebugPerspective();
 			}
 			// Run mode
 			else if (mode.equals(ILaunchManager.RUN_MODE))
@@ -128,6 +129,24 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 			monitor.done();
 		}
 		
+	}
+	
+	private void SwitchToDebugPerspective()
+	{
+
+		//this can potentially be executed in a different thread so we need to do this
+		Display.getDefault().asyncExec(new Runnable() {
+            public void run() {
+        		
+        		try {
+        			IWorkbench workbench = PlatformUI.getWorkbench();
+					workbench.showPerspective("org.eclipse.debug.ui.DebugPerspective", workbench.getActiveWorkbenchWindow());
+				} catch (WorkbenchException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            }
+         });
 	}
 	
 	/**

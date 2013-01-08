@@ -28,7 +28,7 @@
         delegate="eu.compassresearch.ide.cml.interpreter_plugin.launch.CmlLaunchConfigurationDelegate"
         id="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationType"
         modes="debug,run"
-        name="Cml Model"
+        name="CML Model"
         public="true">
 		</launchConfigurationType>
 	</extension>
@@ -43,11 +43,11 @@
 			<launchMode 
                   mode="debug"
                   perspective="org.eclipse.debug.ui.DebugPerspective"
-                  description="Debug Cml Model">
+                  description="Debug CML Model">
             </launchMode>
             <launchMode
                   mode="run"
-                  description="Run Cml Model">
+                  description="Run CML Model">
             </launchMode>
 		</launchConfigurationTabGroup>
 	</extension>
@@ -57,8 +57,8 @@
 	  	<shortcut
 	  		id="eu.compassresearch.ide.cml.interpreter_plugin.CmlShortcut"
 	        class="eu.compassresearch.ide.cml.interpreter_plugin.launch.CmlApplicationLaunchShortcut"
-	        label="Cml Application"
-	        modes="debug, run, profile"
+	        label="CML Application"
+	        modes="debug, run"
 	        category="compass_eu.compassresearch.ide.cml.ui.category"
 	        description="Launch a CML model">
 	    <description
