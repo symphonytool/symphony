@@ -6,6 +6,7 @@ import java.util.List;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.AErrorType;
 
 /**
@@ -31,8 +32,15 @@ public interface TypeIssueHandler {
 		protected final INode subtree;
 		private LexLocation location;
 
+		/**
+		 * Return the node that generated this error.
+		 * @return
+		 */
+		public INode getOffendingNode() { return subtree; }
+		
 		public CMLIssue(INode subtree) {
 			this.subtree = subtree;
+			setFromNode();
 		}
 
 		public CMLIssue(LexLocation location) {
@@ -43,9 +51,16 @@ public interface TypeIssueHandler {
 		// temporary method goes away when astCreator is updated. ( INode should
 		// have getLocation method )
 		public LexLocation getLocation() {
-			if (location != null)
-				return location;
+			return location;
+		}
 
+		public void setLocation(LexLocation location)
+		{
+			this.location = location;
+		}
+		
+		private void setFromNode()
+		{
 			if (subtree != null) {
 				try {
 					Method getLocation = subtree.getClass().getMethod(
@@ -56,7 +71,6 @@ public interface TypeIssueHandler {
 					// no location :(
 				}
 			}
-			return location;
 		}
 	}
 
@@ -83,11 +97,6 @@ public interface TypeIssueHandler {
 			this.description = description;
 		}
 
-		public CMLTypeWarning(LexLocation loc, String description) {
-			super(loc);
-			this.description = description;
-		}
-
 		@Override
 		public String toString() {
 			LexLocation location = super.getLocation();
@@ -106,6 +115,7 @@ public interface TypeIssueHandler {
 	 */
 	public static class CMLTypeError extends CMLTypeWarning {
 
+		
 		private StackTraceElement[] stackTrace;
 		private void buildStack()
 		{
@@ -114,11 +124,6 @@ public interface TypeIssueHandler {
 		
 		public CMLTypeError(INode subtree, String message) {
 			super(subtree, message);
-			buildStack();
-		}
-
-		public CMLTypeError(LexLocation loc, String message) {
-			super(loc, message);
 			buildStack();
 		}
 
@@ -175,7 +180,7 @@ public interface TypeIssueHandler {
 	 */
 	public AErrorType addTypeError(INode offendingSubtree, String message);
 
-	public AErrorType addTypeError(LexLocation pos, String message);
+	public AErrorType addTypeError(INode parent, LexLocation pos, String message);
 
 	/**
 	 * Return a type warning.

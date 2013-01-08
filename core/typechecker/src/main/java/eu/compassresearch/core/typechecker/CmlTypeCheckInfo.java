@@ -15,6 +15,7 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.FlatEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
+import org.overture.typechecker.util.HelpLexNameToken;
 
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -96,7 +97,8 @@ TypeCheckQuestion {
 		{
 			List<PDefinition> defs = cur.getDefinitions();
 			for(PDefinition d :defs)
-				if (astClass.isInstance(d) && name.equals(d.getName()))
+				
+				if (astClass.isInstance(d) && HelpLexNameToken.isEqual(name, d.getName()))
 					return d;
 			cur = cur.getOuter();
 		}

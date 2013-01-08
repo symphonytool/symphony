@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -238,7 +239,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	 * @param cmlSources
 	 *            - Source containing CML Paragraphs for type checking.
 	 */
-	public VanillaCmlTypeChecker(List<PSource> cmlSources,
+	public VanillaCmlTypeChecker(Collection<PSource> cmlSources,
 			TypeIssueHandler issueHandler) {
 
 		this.sourceForest = cmlSources;
@@ -252,7 +253,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 
 	}
 
-	public VanillaCmlTypeChecker(List<PSource> cmlSource,
+	public VanillaCmlTypeChecker(Collection<PSource> cmlSource,
 			TypeComparator typeComparator, TypeIssueHandler issueHandler) {
 		this.sourceForest = new LinkedList<PSource>();
 		sourceForest.addAll(cmlSource);
@@ -327,6 +328,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 			e.printStackTrace();
 		}
 
+		// Check the channels
 		for(PSource s : sourceForest)
 		{
 			for(PDefinition paragraph : s.getParagraphs())
@@ -343,9 +345,11 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 				}
 			}
 		}
+		if (issueHandler.hasErrors()) return false;
 
 		// for each source type check classes and processes in depth
 		for (PSource s : sourceForest) {
+			try {
 			for (PDefinition paragraph : s.getParagraphs()) {
 				if (paragraph instanceof AClassDefinition
 						|| paragraph instanceof AProcessDefinition)
@@ -385,13 +389,23 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 										+ new String(baos.toByteArray()));
 					}
 			}
+			} catch (RuntimeException e)
+			{
+				issueHandler.addTypeError(s, TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.customizeMessage(CmlTCUtil.getErrorMessages(e)));			
+			}
 		}
 		super.cleared = false;
 
 		return !super.issueHandler.hasErrors();
 		} catch (RuntimeException e)
+
 		{
-			issueHandler.addTypeError(sourceForest.get(0), TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.customizeMessage());
+			PSource first = null;
+			if(!sourceForest.isEmpty())
+			{
+				first = sourceForest.iterator().next();
+				issueHandler.addTypeError(first, TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.customizeMessage(CmlTCUtil.getErrorMessages(e)));
+			}
 			return false;
 		}
 	}

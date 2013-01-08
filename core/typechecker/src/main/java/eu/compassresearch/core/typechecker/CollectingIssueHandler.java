@@ -8,6 +8,7 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLIssue;
 
 /**
  * Very simple LinkedList based TypeIssueHandler that simply collects errors and
@@ -64,11 +65,13 @@ class CollectingIssueHandler implements TypeIssueHandler {
 		return hasErrors() || hasWarnings();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
-	public AErrorType addTypeError(LexLocation pos, String message) {
-		errors.add(new CMLTypeError(pos, message));
-		return new AErrorType(pos, true);
+	public AErrorType addTypeError(INode parent, LexLocation location, String message) {
+		CMLTypeError typeError = new CMLTypeError(parent, message);
+		typeError.setLocation(location);
+		this.errors.add(typeError);
+		return new AErrorType(location, true);
 	}
+
 
 }

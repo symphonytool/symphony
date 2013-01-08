@@ -1,5 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,9 +31,9 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 
 	private TypeCheckQuestion question;
-	private List<PDefinition> members;
+	private Collection<PDefinition> members;
 
-	public static AClassClassDefinition getGlobalRoot(List<PSource> sources,
+	public static AClassClassDefinition getGlobalRoot(Collection<PSource> sources,
 			TypeIssueHandler issueHandler, CmlTypeCheckInfo info)
 			throws AnalysisException {
 

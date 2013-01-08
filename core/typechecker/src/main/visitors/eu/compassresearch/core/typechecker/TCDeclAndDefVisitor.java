@@ -565,7 +565,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 							new org.overture.typechecker.TypeCheckInfo(
 									selfInner));
 				} catch (TypeCheckException te) {
-					issueHandler.addTypeError(te.location, te.getMessage());
+					issueHandler.addTypeError(c, te.location, te.getMessage());
 				} catch (AnalysisException te) {
 					issueHandler.addTypeError(c, te.getMessage());
 				}
@@ -591,7 +591,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// add overture errors to cml errors
 		List<VDMError> errs = TypeChecker.getErrors();
 		for (VDMError e : errs) {
-			issueHandler.addTypeError(e.location, e.toProblemString());
+			issueHandler.addTypeError(node, e.location, e.toProblemString());
 
 		}
 
@@ -1150,7 +1150,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// add overture errors to cml errors
 		List<VDMError> errs = TypeChecker.getErrors();
 		for (VDMError e : errs) {
-			issueHandler.addTypeError(e.location, e.toProblemString());
+			issueHandler.addTypeError(node,e.location, e.toProblemString());
 
 		}
 

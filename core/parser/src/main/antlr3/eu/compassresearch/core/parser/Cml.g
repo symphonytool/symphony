@@ -1546,6 +1546,46 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
                 	paramTypes.add(pp.getType());
             LexLocation typeloc = extractLexLocation($implicitFunctionDefinitionTail.start, $resultTypeList.stop);
             $tail.setType(AstFactory.newAFunctionType(typeloc, true, paramTypes, resultTypePair.getType()));
+            
+            // set predef
+            LexNameToken postname = $tail.getName();
+			NameScope postscope = NameScope.LOCAL;
+			List<LexNameToken> posttypeParams = null;
+			AFunctionType posttype = $tail.getType();
+			PExp postbody = $tail.getPrecondition();
+			PExp postprecondition = null;
+			PExp postpostcondition = null;
+			List<List<PPattern>> postparameterGroupList = new LinkedList<List<PPattern>>();
+			for(APatternListTypePair pt : paramPatterns)
+			{
+				List<PPattern> current = new LinkedList<PPattern>();
+				for(PPattern p : pt.getPatterns())
+						current.add(p.clone());
+				postparameterGroupList.add(current);
+			}
+			AExplicitFunctionDefinition predef =  AstFactory.newAExplicitFunctionDefinition(postname, postscope, posttypeParams, posttype,postparameterGroupList , postbody, postprecondition, postpostcondition, false, null);
+			$tail.setPredef(predef);
+			
+			// set postdef
+		    LexNameToken name = new LexNameToken("", new LexIdentifierToken($tail.getName().getName(), false, $pre.exp.getLocation()));
+			NameScope scope = NameScope.LOCAL;
+			List<LexNameToken> typeParams = null;
+			AFunctionType type = $tail.getType();
+			PExp body = $tail.getPostcondition();
+			PExp precondition = null;
+			PExp postcondition = null;
+			List<List<PPattern>> parameterGroupList = new LinkedList<List<PPattern>>();
+			for(APatternListTypePair pt : paramPatterns)
+			{
+				List<PPattern> current = new LinkedList<PPattern>();
+				for(PPattern p : pt.getPatterns())
+						current.add(p.clone());
+				parameterGroupList.add(current);
+			}
+			
+			AExplicitFunctionDefinition postdef =  AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, type, parameterGroupList(), body, precondition, postcondition, false, null);
+			
+            
         }
     ;
 

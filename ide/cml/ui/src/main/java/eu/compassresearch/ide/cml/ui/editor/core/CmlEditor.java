@@ -18,6 +18,12 @@
  *******************************************************************************/
 package eu.compassresearch.ide.cml.ui.editor.core;
 
+import org.eclipse.core.commands.Command;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
@@ -27,10 +33,13 @@ import org.eclipse.jface.text.source.ICharacterPairMatcher;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.ltk.internal.core.refactoring.Resources;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
@@ -52,7 +61,23 @@ public class CmlEditor extends TextEditor {
 
     private AbstractSelectionChangedListener selectionChangeListener;
 
-    private class CmlSelectionChangeListener extends
+    
+    
+    @Override
+	protected void doSetInput(IEditorInput input) throws CoreException {
+    	super.doSetInput(input);
+		ICommandService commandService = (ICommandService)PlatformUI.getWorkbench().getService(ICommandService.class);
+		try {
+			Command cmd  = commandService.getCommand("org.eclipse.ui.project.build");
+			cmd.executeWithChecks(new ExecutionEvent());
+		}
+		catch (Exception exception) {
+		}
+
+    	
+    }
+
+	private class CmlSelectionChangeListener extends
 	    AbstractSelectionChangedListener implements
 	    ISelectionChangedListener {
 	public void selectionChanged(SelectionChangedEvent arg0) {
@@ -240,6 +265,7 @@ public class CmlEditor extends TextEditor {
     public CmlEditor() {
 	super();
 	setDocumentProvider(new CmlDocumentProvider());
+
     }
 
     public VdmSourceViewerConfiguration getVdmSourceViewerConfiguration() {

@@ -14,6 +14,7 @@ import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
@@ -37,9 +38,13 @@ IContentOutlinePage {
 	public void setTreeSelection(INode element) {
 		Wrapper<PDefinition> w;
 		PDefinition pdef = (PDefinition) element;
+		if (pdef == null) return ;
 		String dscr = TopLevelDefinitionMap.getDescription(pdef.getClass());
 		if (dscr == null)
-			w = Wrapper.newInstance(pdef, pdef.getName().name);
+		{
+			LexNameToken name = pdef.getName();
+			w = Wrapper.newInstance(pdef, name == null ? "null" : name.name);
+		}
 		else
 			w = Wrapper.newInstance(pdef, dscr);
 		System.out.println("Setting outline selection to " + w.toString());

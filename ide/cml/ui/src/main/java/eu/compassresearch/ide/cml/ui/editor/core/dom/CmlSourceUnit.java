@@ -1,5 +1,6 @@
 package eu.compassresearch.ide.cml.ui.editor.core.dom;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -52,10 +53,17 @@ public class CmlSourceUnit {
 		map.put(file, res);
 		return res;
 	}
+	
+	public static Collection<CmlSourceUnit> getAllSourceUnits()
+	{
+		return map.values();
+	}
+	
 
 	private PSource sourceAst;
 	private IFile file;
 	private List<ParserError> errors;
+	private boolean parsedOk;
 
 	private CmlSourceUnit(IFile file) {
 		this.file = file;
@@ -69,9 +77,10 @@ public class CmlSourceUnit {
 		return sourceAst;
 	}
 
-	public void setSourceAst(PSource sourceAst, List<ParserError> errors) {
+	public void setSourceAst(PSource sourceAst, List<ParserError> errors, boolean parsedOk) {
 		this.sourceAst = sourceAst;
 		this.errors = errors;
+		this.parsedOk = parsedOk;
 		notifyChange();
 	}
 
@@ -90,7 +99,12 @@ public class CmlSourceUnit {
 		return res;
 	}
 
-	public Object getFile() {
+	public boolean isParsedOk()
+	{
+		return this.parsedOk;
+	}
+	
+	public IFile getFile() {
 		return file;
 	}
 }

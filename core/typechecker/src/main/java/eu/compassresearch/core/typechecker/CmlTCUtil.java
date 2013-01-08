@@ -1,5 +1,8 @@
 package eu.compassresearch.core.typechecker;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,6 +28,20 @@ import eu.compassresearch.ast.definitions.AClassDefinition;
 
 public class CmlTCUtil {
 
+	
+	public static String getErrorMessages(RuntimeException e)
+	{
+		ByteArrayOutputStream b = new ByteArrayOutputStream();
+		PrintWriter pw = new PrintWriter(b);
+		e.printStackTrace(pw);
+		pw.flush();
+		try {
+			b.flush();
+		} catch (IOException e1) {
+		}
+		return new String(b.toByteArray());
+	}
+	
 	/**
 	 * Create a pre- or post-condition.
 	 * 

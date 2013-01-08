@@ -1,11 +1,8 @@
 package eu.compassresearch.ide.cml.ui.builder;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,17 +14,13 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
-import org.overture.ast.lex.LexLocation;
+import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
-import eu.compassresearch.core.typechecker.VanillaFactory;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlBuildVisitor implements IResourceVisitor {
@@ -43,55 +36,24 @@ public class CmlBuildVisitor implements IResourceVisitor {
 
 		// Parse the source
 		AFileSource source = new AFileSource();
-		if (!parse(file, source))
-			return false;
+		boolean parseResult = parse(file, source);
 
-		// Lets run the type checker
-		if (!typeCheck(file, source))
-			return false;
 
 		// Set the AST on the source unit
 		CmlSourceUnit dom = CmlSourceUnit.getFromFileResource(file);
-		dom.setSourceAst(source, new LinkedList<ParserError>());
+		if (parseResult)
+			dom.setSourceAst(source, new LinkedList<ParserError>(), parseResult);
+		else
+			dom.setSourceAst(emptySource(source.getName()+""), new LinkedList<ParserError>(), parseResult);
 		return false;
 	}
 
-	/*
-	 * Run the type checker.
-	 */
-	private synchronized static boolean typeCheck(IFile file, AFileSource source)
-			throws CoreException {
-		try {
 
-			List<PSource> cmlSources = new LinkedList<PSource>();
-			cmlSources.add(source);
-			TypeIssueHandler issueHandler = VanillaFactory
-					.newCollectingIssueHandle();
-			CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(cmlSources,
-					issueHandler);
-			boolean tcSuccess = cmlTC.typeCheck();
-			if (!tcSuccess) {
-
-				List<CMLTypeError> tcerrors = issueHandler.getTypeErrors();
-				for (CMLTypeError tcError : tcerrors) {
-					LexLocation loc = tcError.getLocation();
-					IMarker marker = file.createMarker(IMarker.PROBLEM);
-					setProblem(marker, tcError.getDescription(), loc.startLine);
-				}
-			}
-			return true;
-		} catch (Exception tcException) {
-			tcException.printStackTrace();
-			IMarker tcMarker = file.createMarker(IMarker.PROBLEM);
-			setExceptionInfo(
-					tcMarker,
-					tcException,
-					"An exception occurred while type checking file \""
-							+ file.getName() + "\".");
-
-		}
-		return true;
+	private PSource emptySource(String name) {
+		AFileSource s = new AFileSource(new LinkedList<PDefinition>(), name);
+		return s;
 	}
+
 
 	private static void setProblem(IMarker marker, String text, int line)
 			throws CoreException {
@@ -100,22 +62,6 @@ public class CmlBuildVisitor implements IResourceVisitor {
 		marker.setAttribute(IMarker.LINE_NUMBER, line);
 	}
 
-	private static void setInfo(IMarker marker, String shortText, String text)
-			throws CoreException {
-		marker.setAttribute(IMarker.MESSAGE, shortText + "\n" + text);
-		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
-		marker.setAttribute(IMarker.TEXT, text);
-	}
-
-	private static void setExceptionInfo(IMarker marker, Exception e,
-			String shortText) throws CoreException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintWriter pw = new PrintWriter(baos);
-		e.printStackTrace(pw);
-		pw.flush();
-		pw.close();
-		setInfo(marker, shortText, new String(baos.toByteArray()));
-	}
 
 	/*
 	 * Run the parser and lexer on the file-resource
@@ -137,7 +83,15 @@ public class CmlBuildVisitor implements IResourceVisitor {
 			CmlParser parser = new CmlParser(tokens);
 
 			try {
-				source.setParagraphs(parser.source());
+				List<PDefinition> paragraphs = parser.source();
+				List<PDefinition> notNullParagraphs = new LinkedList<PDefinition>();
+				for( PDefinition par : paragraphs)
+					if (par != null)
+						notNullParagraphs.add(par);
+					else
+						setProblem(file.createMarker(IMarker.PROBLEM), "Parser gave back a null paragraph.", 1);
+				
+				source.setParagraphs(notNullParagraphs);
 				return true;
 			} catch (RecognitionException e) {
 				String errorHeader = parser.getErrorHeader(e);

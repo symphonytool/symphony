@@ -1,5 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.overture.ast.types.PType;
@@ -32,7 +33,7 @@ abstract class AbstractTypeChecker extends
 		implements CmlTypeChecker {
 	protected TypeIssueHandler issueHandler;
 	protected boolean cleared;
-	protected List<PSource> sourceForest;
+	protected Collection<PSource> sourceForest;
 
 	AbstractTypeChecker() {
 		clear();
