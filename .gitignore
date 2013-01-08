@@ -56,3 +56,4 @@ target/
 bin/
 /core/parser/*.report
 output/
+reset-output.sh

@@ -4,7 +4,7 @@
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
     <artifactId>eu.compassresearch.ide.cml</artifactId>
-    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <version>0.1.0-SNAPSHOT<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

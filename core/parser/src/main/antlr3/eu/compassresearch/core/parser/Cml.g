@@ -98,7 +98,10 @@ import eu.compassresearch.ast.program.*;
 import eu.compassresearch.ast.types.*;
 }
 
-@members {
+// @lexer::members {
+// }
+
+@parser::members {
 public String getErrorMessage(RecognitionException e, String[] tokenNames) {
     List stack = getRuleInvocationStack(e, this.getClass().getName());
     String msg = null;
@@ -117,19 +120,13 @@ public String getTokenErrorDisplay(CommonToken t) {
     return t.toString();
 }
 
-// protected void mismatch(IntStream input, int ttype, BitSet follow) throws RecognitionException {
-//     throw new MismatchedTokenException(ttype, input);
-// }
+protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow) throws RecognitionException {
+    throw new MismatchedTokenException(ttype, input);
+}
 
-// @Override
-// protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow) throws RecognitionException {
-//     throw new MismatchedTokenException(ttype, input);
-// }
-
-// @Override
-// public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow) throws RecognitionException {
-//     throw e;
-// }
+public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow) throws RecognitionException {
+    throw e;
+}
 
 private DecimalFormat decimalFormatParser = new DecimalFormat();
 public static final String CML_LANG_VERSION = "CML20121223";
@@ -198,13 +195,13 @@ public AAccessSpecifierAccessSpecifier extractQualifier(CommonToken token) {
     throw new RuntimeException("The given token, "+token+" is not a qualifier.");
 }
 
-} // end @members
+} // end @parser::members
 
-// @rulecatch {
-// catch (RecognitionException e) {
-//     throw e;
-// }
-// }
+@rulecatch {
+catch (RecognitionException e) {
+    throw e;
+}
+}
 
 source returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
@@ -948,7 +945,7 @@ options { k=3; } // k=3 is sufficient to disambiguate these (longest: for ID =)
         {
             $statement = new AForSetStatementAction(null, $bindablePattern.pattern, $expression.exp, $action.action);
         }
-    | 'for' bindablePattern (':' type)? 'in' expression 'do' action // was pattern bind here only
+    | 'for' bindablePattern (':' type)? 'in' expression 'do' action
         {
             ADefPatternBind patternBind = new ADefPatternBind();
             LexLocation pbloc = $bindablePattern.pattern.getLocation();
@@ -2788,7 +2785,7 @@ INITIAL_LETTER
     ;
 fragment
 FOLLOW_LETTER
-    : INITIAL_LETTER | DIGIT | '\u005f'
+    : INITIAL_LETTER | DIGIT | '\u0027' | '\u005f'
     // : { input.LT(1) <  0x0100 }? =>
     //     ( UNICODE_Lo | UNICODE_Ll | UNICODE_Lm |  UNICODE_Lt | UNICODE_Lu
     //     | '\u0024' )

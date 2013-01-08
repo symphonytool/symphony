@@ -6,7 +6,7 @@
   <groupId>eu.compassresearch</groupId>
   <artifactId>root</artifactId>
   <name>The COMPASS Tool Top-Level</name>
-  <version>0.0.1<!--Replaceable: Main Version--></version>
+  <version>0.1.0-SNAPSHOT<!--Replaceable: Main Version--></version>
   
   <organization>
     <name>The COMPASS Project</name>
@@ -182,7 +182,7 @@
 	<plugin>
           <groupId>org.antlr</groupId>
           <artifactId>antlr3-maven-plugin</artifactId>
-          <version>3.4</version>
+          <version>3.5</version>
 	</plugin>
       </plugins>
     </pluginManagement>
