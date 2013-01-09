@@ -52,6 +52,10 @@ import eu.compassresearch.core.interpreter.util.Pair;
  */
 public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlProcessStateObserver, CmlProcessTraceObserver{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 993071972119803788L;
 	private LexNameToken name;
 	
 	public CmlAction(PAction action,Context context, LexNameToken name)
@@ -758,7 +762,6 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 	 */
 	private CmlBehaviourSignal executeChild(CmlBehaviourThread child)
 	{
-		
 		child.onTraceChanged().unregisterObserver(this);
 		CmlBehaviourSignal result = child.execute(supervisor());
 		child.onTraceChanged().registerObserver(this);

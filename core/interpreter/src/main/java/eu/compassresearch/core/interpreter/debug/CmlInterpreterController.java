@@ -50,7 +50,7 @@ import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
-public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
+public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 
 	private CmlInterpreter cmlInterpreter;
 	private Socket requestSocket;
@@ -99,10 +99,9 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 		
 	}
 	
-	public CmlInterpreterRunner(List<PSource> cmlSources, String topProcessName) throws InterpreterException
+	public CmlInterpreterController(CmlInterpreter cmlInterpreter) throws InterpreterException
 	{
-		cmlInterpreter = VanillaInterpreterFactory.newInterpreter(cmlSources);
-		cmlInterpreter.setDefaultName(topProcessName);
+		this.cmlInterpreter = cmlInterpreter;
 	}
 	
 	private boolean isConnected()
@@ -245,7 +244,7 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 							@Override
 							public ObservableEvent select(CmlAlphabet availableChannelEvents) {
 
-								sendStatusMessage(CmlDbgpStatus.CHOICE, CmlInterpreterRunner.this.cmlInterpreter.getStatus());
+								sendStatusMessage(CmlDbgpStatus.CHOICE, CmlInterpreterController.this.cmlInterpreter.getStatus());
 								
 								//convert to list of strings for now
 								List<String> events = new LinkedList<String>();
@@ -402,7 +401,11 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 		{
 			System.out.println("Typechecking: OK");
 			String mode = (String)config.get("mode");
-			CmlInterpreterRunner runner = new CmlInterpreterRunner(sourceForest,startProcessName);
+			
+			CmlInterpreter cmlInterpreter = VanillaInterpreterFactory.newInterpreter(sourceForest);
+			cmlInterpreter.setDefaultName(startProcessName);
+			
+			CmlInterpreterController runner = new CmlInterpreterController(cmlInterpreter);
 			System.out.println("Starting the interpreter...");
 			if(mode.equals("run"))
 				runner.run();
