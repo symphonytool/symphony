@@ -129,7 +129,7 @@ public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, 
 }
 
 private DecimalFormat decimalFormatParser = new DecimalFormat();
-public static final String CML_LANG_VERSION = "CML20121223";
+public static final String CML_LANG_VERSION = "CML M16";
 
 private LexToken extractLexToken(String str, LexLocation loc) {
     VDMToken tok = null;
@@ -1529,10 +1529,12 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             }
             $tail.setResult(resultTypePair);
 
+            PExp preExp = $tail.getPrecondition();
             if ($pre.exp != null)
-                $tail.setPrecondition($pre.exp);
+                preExp = $pre.exp;
             else
-                $tail.setPrecondition(AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($resultTypeList.stop))));
+                preExp = AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($resultTypeList.stop)));
+            $tail.setPrecondition(preExp);
 
             $tail.setPostcondition($post.exp);
 
@@ -1545,44 +1547,41 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             $tail.setType(AstFactory.newAFunctionType(typeloc, true, paramTypes, resultTypePair.getType()));
             
             // set predef
-            LexNameToken postname = $tail.getName();
-			NameScope postscope = NameScope.LOCAL;
-			List<LexNameToken> posttypeParams = null;
-			AFunctionType posttype = $tail.getType();
-			PExp postbody = $tail.getPrecondition();
-			PExp postprecondition = null;
-			PExp postpostcondition = null;
-			List<List<PPattern>> postparameterGroupList = new LinkedList<List<PPattern>>();
+            LexNameToken prename = new LexNameToken("", new LexIdentifierToken("pre_", false, preExp.getLocation()));
+			NameScope prescope = NameScope.LOCAL;
+			List<LexNameToken> pretypeParams = new LinkedList<LexNameToken>();
+			AFunctionType pretype = $tail.getType();
+			PExp preprecondition = null;
+			PExp prepostcondition = null;
+			List<List<PPattern>> preparameterGroupList = new LinkedList<List<PPattern>>();
 			for(APatternListTypePair pt : paramPatterns)
 			{
 				List<PPattern> current = new LinkedList<PPattern>();
 				for(PPattern p : pt.getPatterns())
 						current.add(p.clone());
-				postparameterGroupList.add(current);
+				preparameterGroupList.add(current);
 			}
-			AExplicitFunctionDefinition predef =  AstFactory.newAExplicitFunctionDefinition(postname, postscope, posttypeParams, posttype,postparameterGroupList , postbody, postprecondition, postpostcondition, false, null);
+			AExplicitFunctionDefinition predef =  AstFactory.newAExplicitFunctionDefinition(prename, prescope, pretypeParams, pretype, preparameterGroupList, preExp, preprecondition, prepostcondition, false, null);
 			$tail.setPredef(predef);
 			
 			// set postdef
-		    LexNameToken name = new LexNameToken("", new LexIdentifierToken($tail.getName().getName(), false, $pre.exp.getLocation()));
+		    LexNameToken name = new LexNameToken("", new LexIdentifierToken("pre_", false, $post.exp.getLocation()));
 			NameScope scope = NameScope.LOCAL;
 			List<LexNameToken> typeParams = null;
 			AFunctionType type = $tail.getType();
 			PExp body = $tail.getPostcondition();
 			PExp precondition = null;
 			PExp postcondition = null;
-			List<List<PPattern>> parameterGroupList = new LinkedList<List<PPattern>>();
+			List<List<PPattern>> postParameterGroupList = new LinkedList<List<PPattern>>();
 			for(APatternListTypePair pt : paramPatterns)
 			{
 				List<PPattern> current = new LinkedList<PPattern>();
 				for(PPattern p : pt.getPatterns())
 						current.add(p.clone());
-				parameterGroupList.add(current);
+				postParameterGroupList.add(current);
 			}
-			
-			AExplicitFunctionDefinition postdef =  AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, type, parameterGroupList(), body, precondition, postcondition, false, null);
-			
-            
+			AExplicitFunctionDefinition postdef =  AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, type, postParameterGroupList, body, precondition, postcondition, false, null);
+			$tail.setPostdef(postdef);
         }
     ;
 
