@@ -79,10 +79,8 @@ public class CmlBuildVisitor implements IResourceVisitor {
 		}
 		else
 		{
-			
 			marker.setAttribute(IMarker.CHAR_START, more[0]);
 			marker.setAttribute(IMarker.CHAR_END, more[1]);
-
 		}
 	}
 
@@ -127,13 +125,14 @@ public class CmlBuildVisitor implements IResourceVisitor {
 					ct = (CommonToken)e.token;
 					MismatchedTokenException ee = (MismatchedTokenException)e;
 					expectedToken= CmlParser.tokenNames[ee.expecting];
-					setProblem(file.createMarker(IMarker.PROBLEM), "Syntax error, expecting '"+expectedToken+"' near '"+ct.getText()+"'.",ct.getStartIndex(), ct.getStopIndex());
+					setProblem(file.createMarker(IMarker.PROBLEM), "Syntax error, expecting '"+expectedToken+"' near '"+ct.getText()+"'.",e.line,ct.getStartIndex(), ct.getStopIndex());
+					return false;
 				}
 				
 				if (e.token != null)
 				{
 					ct = (CommonToken)e.token;
-					setProblem(file.createMarker(IMarker.PROBLEM), "Syntax error near '"+ct.getText()+"'.",ct.getStartIndex(), ct.getStopIndex());	
+					setProblem(file.createMarker(IMarker.PROBLEM), "Syntax error near '"+ct.getText()+"'.",e.line,ct.getStartIndex(), ct.getStopIndex());	
 				}
 				else
 					setProblem(file.createMarker(IMarker.PROBLEM), "Syntax error, expecting at line"+e.line+".", e.line);
@@ -141,7 +140,7 @@ public class CmlBuildVisitor implements IResourceVisitor {
 			}
 
 		} catch (Exception e1) {
-			setProblem(file.createMarker(IMarker.PROBLEM),e1.getMessage(),lexer.getLine());
+			setProblem(file.createMarker(IMarker.PROBLEM),e1.getMessage(),Math.max(lexer.getLine(),1));
 			return false;
 		}
 	}
