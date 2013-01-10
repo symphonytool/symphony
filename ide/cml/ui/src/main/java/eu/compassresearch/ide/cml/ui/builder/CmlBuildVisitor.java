@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.eclipse.core.resources.IFile;
@@ -15,6 +16,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.overture.ast.definitions.PDefinition;
+
+import org.antlr.runtime.MismatchedTokenException;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
@@ -55,11 +58,32 @@ public class CmlBuildVisitor implements IResourceVisitor {
 	}
 
 
-	private static void setProblem(IMarker marker, String text, int line)
+	/**
+	 * Set the error start, end takes 
+	 * 
+	 * 
+	 * @param marker
+	 * @param text
+	 * @param line
+	 * @param start
+	 * @param end
+	 * @throws CoreException
+	 */
+	private static void setProblem(IMarker marker, String text, int line,  int... more)
 			throws CoreException {
 		marker.setAttribute(IMarker.MESSAGE, text);
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-		marker.setAttribute(IMarker.LINE_NUMBER, line);
+		if (more.length < 2)
+		{
+			marker.setAttribute(IMarker.LINE_NUMBER, line);
+		}
+		else
+		{
+			
+			marker.setAttribute(IMarker.CHAR_START, more[0]);
+			marker.setAttribute(IMarker.CHAR_END, more[1]);
+
+		}
 	}
 
 
@@ -89,14 +113,30 @@ public class CmlBuildVisitor implements IResourceVisitor {
 					if (par != null)
 						notNullParagraphs.add(par);
 					else
-						setProblem(file.createMarker(IMarker.PROBLEM), "Parser gave back a null paragraph.", 1);
+						setProblem(file.createMarker(IMarker.PROBLEM), "Parser gave back a null paragraph.", 1,1);
 				
 				source.setParagraphs(notNullParagraphs);
 				return true;
-			} catch (RecognitionException e) {
-				String errorHeader = parser.getErrorHeader(e);
-				if (errorHeader == null) errorHeader = e.getMessage();
-				setProblem(file.createMarker(IMarker.PROBLEM), errorHeader, lexer.getLine());
+			} 
+			catch(RecognitionException e)
+			{
+				String expectedToken = "";
+				CommonToken ct = null; 
+				if (e instanceof MismatchedTokenException)
+				{
+					ct = (CommonToken)e.token;
+					MismatchedTokenException ee = (MismatchedTokenException)e;
+					expectedToken= CmlParser.tokenNames[ee.expecting];
+					setProblem(file.createMarker(IMarker.PROBLEM), "Syntax error, expecting '"+expectedToken+"' near '"+ct.getText()+"'.",ct.getStartIndex(), ct.getStopIndex());
+				}
+				
+				if (e.token != null)
+				{
+					ct = (CommonToken)e.token;
+					setProblem(file.createMarker(IMarker.PROBLEM), "Syntax error near '"+ct.getText()+"'.",ct.getStartIndex(), ct.getStopIndex());	
+				}
+				else
+					setProblem(file.createMarker(IMarker.PROBLEM), "Syntax error, expecting at line"+e.line+".", e.line);
 				return false;
 			}
 

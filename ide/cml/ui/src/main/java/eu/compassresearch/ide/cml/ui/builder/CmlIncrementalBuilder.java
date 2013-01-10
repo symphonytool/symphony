@@ -36,7 +36,6 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 	/*
 	 * Run the type checker.
 	 */
-
 	private static void setProblem(IMarker marker, String text, int... more)
 			throws CoreException {
 		marker.setAttribute(IMarker.MESSAGE, text);
@@ -59,6 +58,15 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
+	/*
+	 * For each error remove the parent errors so we only see the leafs.
+	 * 
+	 */
+	private static List<CMLTypeError> filterErrros(List<CMLTypeError> errs)
+	{
+		// TODO: RWL
+		return errs;
+	}
 
 	private synchronized static boolean typeCheck(IProject project, Map<PSource,IFile> sourceToFileMap)
 	{
@@ -70,7 +78,8 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		try {
 			boolean result =  typeChecker.typeCheck();
 			// set error markers
-			for(CMLTypeError error : issueHandler.getTypeErrors())
+			List<CMLTypeError> errorsThatMatter = filterErrros(issueHandler.getTypeErrors());
+			for(CMLTypeError error : errorsThatMatter)
 			{
 				INode offendingNode = error.getOffendingNode();
 				if (offendingNode != null)
