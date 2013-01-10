@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE CML UI
 Bundle-SymbolicName: eu.compassresearch.ide.cml.ui;singleton:=true
-Bundle-Version: 0.0.1
+Bundle-Version: 0.1.0
 Bundle-Activator: eu.compassresearch.ide.cml.ui.CmlUIPlugin
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin

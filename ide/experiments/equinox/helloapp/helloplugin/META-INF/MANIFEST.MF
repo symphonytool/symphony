@@ -2,7 +2,7 @@ manifest-version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: HelloWorldPlugin
 Bundle-SymbolicName: helloworldplugin
-Bundle-Version: 0.0.1
+Bundle-Version: 0.1.0
 Bundle-Activator: eu.compassresearch.equinox.example.helloworldplugin.HelloWorld
 Import-Package: org.osgi.framework 
 
