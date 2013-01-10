@@ -77,6 +77,8 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		
 		this.env = env; 
 		
+		//If it has no parent it is controlled by a CmlProcess object as the main process behaviour
+		//Therefore it should not be added as a pupil
 		if(parent() != null)
 			supervisor().addPupil(this);
 		
@@ -153,6 +155,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			CmlProcessStateEvent ev = new CmlProcessStateEvent(this, this.state, state);
 			this.state = state;
 			notifyOnStateChange(ev);
+			System.out.println(name() + ":" + state.toString());
 		}
 	}
 	
@@ -198,6 +201,41 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		
 		this.trace.addEvent(traceEvent.getEvent());
 		notifyOnTraceChange(TraceEvent.createRedirectedEvent(this, traceEvent));
+	}
+	
+	/**
+	 * Private helper methods
+	 */
+	
+	/*
+	 * Child support -- we must help the children
+	 */
+	
+	/**
+	 * Executes the next state of the child process silently, meaning that the trace event
+	 * is disabled since the patent processes (this process) already have the event in the trace
+	 * since its supervising the child processes
+	 * @param child
+	 * @return
+	 */
+	private CmlBehaviourSignal executeChild(CmlBehaviourThread child)
+	{
+		child.onTraceChanged().unregisterObserver(this);
+		CmlBehaviourSignal result = child.execute(supervisor());
+		child.onTraceChanged().registerObserver(this);
+		
+		return result;
+	}
+	
+	private void addChild(CmlAction child)
+	{
+		//Add the child to the process graph
+		children().add(child);
+		//Register for state change and trace change events
+		child.onStateChanged().registerObserver(this);
+		child.onTraceChanged().registerObserver(this);
+		
+		//child.start(supervisor());
 	}
 	
 	/**
@@ -317,17 +355,11 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 				new CmlAction(right, question, 
 						new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),right.getLocation()),this);
 		
-		//add the children FIXME: this should not be done directly on the children() method
-		children().add(leftInstance);
-		children().add(rightInstance);
+		//Add the children to the process graph
+		addChild(leftInstance);
+		addChild(rightInstance);
 		
-		//Register for state change and trace change events
-		leftInstance.onStateChanged().registerObserver(this);
-		leftInstance.onTraceChanged().registerObserver(this);
-		rightInstance.onStateChanged().registerObserver(this);
-		rightInstance.onTraceChanged().registerObserver(this);
-		
-		//Add them to the supervisor to get executed as a separate process
+		//start them to get them executed as a independent CmlBeahiourThread
 		rightInstance.start(supervisor());
 		leftInstance.start(supervisor());
 		
@@ -651,17 +683,11 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 				new CmlAction(right, question, 
 						new LexNameToken(name.module,"|||" + name.getIdentifier().getName(),right.getLocation()),this);
 		
-		//add the children FIXME: this should not be done directly on the children() method
-		children().add(leftInstance);
-		children().add(rightInstance);
-		
-		//Register for state change and trace change events
-		leftInstance.onStateChanged().registerObserver(this);
-		leftInstance.onTraceChanged().registerObserver(this);
-		rightInstance.onStateChanged().registerObserver(this);
-		rightInstance.onTraceChanged().registerObserver(this);
-		
-		//Add them to the supervisor to get executed as a seperate process
+		//add the children to the process graph
+		addChild(leftInstance);
+		addChild(rightInstance);
+
+		//Start them to get them executed as an independent CmlBehaiourThread
 		rightInstance.start(supervisor());
 		leftInstance.start(supervisor());
 		
@@ -748,25 +774,4 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
-	
-	/**
-	 * Private helper methods
-	 */
-	
-	/**
-	 * Executes the next state of the child process silently, meaning that the trace event
-	 * is disabled since the patent processes (this process) already have the event in the trace
-	 * since its supervising the child processes
-	 * @param child
-	 * @return
-	 */
-	private CmlBehaviourSignal executeChild(CmlBehaviourThread child)
-	{
-		child.onTraceChanged().unregisterObserver(this);
-		CmlBehaviourSignal result = child.execute(supervisor());
-		child.onTraceChanged().registerObserver(this);
-		
-		return result;
-	}
-
 }

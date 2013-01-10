@@ -10,7 +10,7 @@ import org.overture.ast.analysis.AnalysisException;
 public interface CmlBehaviour{
 	
 	/**
-	 * Executes the behavoiur of this process
+	 * Executes the behaviour of this process
 	 * @return
 	 */
 	public CmlBehaviourSignal execute(CmlSupervisorEnvironment supervisor);

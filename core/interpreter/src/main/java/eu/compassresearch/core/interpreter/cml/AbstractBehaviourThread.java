@@ -162,7 +162,6 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 		{
 			//execute silently if the next is a silent action
 			if(alpha.containsSpecialEvent(CmlTauEvent.referenceTauEvent())){
-				setState(CmlProcessState.RUNNING);
 				//FIXME: this might not be the best idea to get the special event
 				updateTrace(alpha.getSpecialEvents().iterator().next());
 				ret = executeNext();
@@ -172,7 +171,6 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 				//If the selected event is in the immediate alphabet then we can continue
 				if(env.communicationSelected() && alpha.containsCommunication(env.selectedCommunication()))
 				{
-					setState(CmlProcessState.RUNNING);
 					ret = executeNext();
 					unregisterChannel(env.selectedCommunication());
 					updateTrace(env.selectedCommunication());
@@ -207,6 +205,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	{
 		if(hasNext())
 		{
+			setState(CmlProcessState.RUNNING);
 			Pair<T,Context> next = executionStack.pop();
 			prevExecution = next;
 			return next.first.apply(this,next.second);

@@ -39,6 +39,17 @@ public class CmlProcessUtil {
 		return false;
 	}
 	
+	public static boolean isAllChildrenWaitingForEvent(CmlBehaviourThread process)
+	{
+		boolean result = true;
+		for(CmlBehaviourThread child : process.children())
+		{
+			result &= child.waiting();
+		}
+		
+		return result;
+	}
+	
 	public static boolean existsAFinishedChild(CmlBehaviourThread process)
 	{
 		for(CmlBehaviourThread child : process.children())
