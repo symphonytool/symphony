@@ -726,19 +726,25 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// type-check sub-actions
 		PType leftActionType = leftAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftActionType)) {
-			node.setType(issueHandler.addTypeError(leftAction,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage("" + leftAction)));
-			return node.getType();
+		if (leftActionType != null)
+		{
+			if (!TCDeclAndDefVisitor.successfulType(leftActionType)) {
+				node.setType(issueHandler.addTypeError(leftAction,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+						.customizeMessage("" + leftAction)));
+				return node.getType();
+			}
 		}
 
 		PType rightActionType = rightAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
-			node.setType(issueHandler.addTypeError(rightAction,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage("" + rightAction)));
-			return node.getType();
+		if (rightActionType != null)
+		{
+			if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
+				node.setType(issueHandler.addTypeError(rightAction,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+						.customizeMessage("" + rightAction)));
+				return node.getType();
+			}
 		}
 
 		// type-check the namesets
