@@ -61,23 +61,21 @@ public class CmlEditor extends TextEditor {
 
     private AbstractSelectionChangedListener selectionChangeListener;
 
-    
-    
     @Override
-	protected void doSetInput(IEditorInput input) throws CoreException {
-    	super.doSetInput(input);
-		ICommandService commandService = (ICommandService)PlatformUI.getWorkbench().getService(ICommandService.class);
-		try {
-			Command cmd  = commandService.getCommand("org.eclipse.ui.project.build");
-			cmd.executeWithChecks(new ExecutionEvent());
-		}
-		catch (Exception exception) {
-		}
+    protected void doSetInput(IEditorInput input) throws CoreException {
+	super.doSetInput(input);
+	ICommandService commandService = (ICommandService) PlatformUI
+		.getWorkbench().getService(ICommandService.class);
+	try {
+	    Command cmd = commandService
+		    .getCommand("org.eclipse.ui.project.build");
+	    cmd.executeWithChecks(new ExecutionEvent());
+	} catch (Exception exception) {
+	}
 
-    	
     }
 
-	private class CmlSelectionChangeListener extends
+    private class CmlSelectionChangeListener extends
 	    AbstractSelectionChangedListener implements
 	    ISelectionChangedListener {
 	public void selectionChanged(SelectionChangedEvent arg0) {
@@ -87,7 +85,8 @@ public class CmlEditor extends TextEditor {
     }
 
     protected INode computeHighlightRangeSourceReference() {
-	//FIXME if the AST is just the source node return null
+
+	// FIXME if the AST is just the source node return null
 	ISourceViewer sourceViewer = getSourceViewer();
 	if (sourceViewer == null)
 	    return null;
@@ -115,55 +114,40 @@ public class CmlEditor extends TextEditor {
 	INode r = null;
 	CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
 	PSource ast = csu.getSourceAst();
-	if (ast == null)
+
+	if (!astOkForOutline(ast))
 	    return null;
-	// Visitor Version on hold due to parser (ldc)
-	 INodeFromCaret visitor = new INodeFromCaret(caret, ast);
-	 try {
-	 ast.apply(visitor);
-	 return visitor.getBestCandidate();
-	 } catch (AnalysisException e) {
-	 // TODO Auto-generated catch block
-	 e.printStackTrace();
-	 }
-	 
-//	for (SParagraphDefinition sef : ast.getParagraphs()) {
-//	    if (sef.getLocation().endOffset > caret
-//		    && sef.getLocation().startOffset < caret)
-//		r = sef;
-//	}
+
+	INodeFromCaret visitor = new INodeFromCaret(caret, ast);
+	try {
+	    ast.apply(visitor);
+	    return visitor.getBestCandidate();
+	} catch (AnalysisException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+
 	return r;
+    }
+
+    private boolean astOkForOutline(PSource ast) {
+	if (null == ast)
+	    return false;
+
+	if (ast.getParagraphs().isEmpty())
+	    return false;
+
+	return true;
     }
 
     protected void selectionChanged() {
 	if (getSelectionProvider() == null)
 	    return;
 	INode element = computeHighlightRangeSourceReference();
-	// if
-	// (getPreferenceStore().getBoolean(PreferenceConstants.EDITOR_SYNC_OUTLINE_ON_CURSOR_MOVE))
-	synchronizeOutlinePage(element);
-	// if (fIsBreadcrumbVisible && fBreadcrumb != null &&
-	// !fBreadcrumb.isActive())
-	// setBreadcrumbInput(element);
-	setSelection(element, false);
-	// if (!fSelectionChangedViaGotoAnnotation)
-	// updateStatusLine();
-	// fSelectionChangedViaGotoAnnotation= false;
 
-    }
-
-    private void setSelection(INode element, boolean b) {
-	if (element != null) {
-	    //FIXME add check to ensure the ast exists
+	if (element != null)
 	    cmlOutLiner.setTreeSelection(element);
-	   
-	}
-    }
 
-    private void synchronizeOutlinePage(INode element) {
-	// TODO Auto-generated method stub
-	System.out
-		.println("TODO: Out line synchronization when writing is missing");
     }
 
     @Override
@@ -188,24 +172,26 @@ public class CmlEditor extends TextEditor {
 	setRulerContextMenuId(IVdmUiConstants.RULERBAR_ID);
 
     }
-     
+
     @Override
-    protected void configureSourceViewerDecorationSupport (SourceViewerDecorationSupport support) {
-    	super.configureSourceViewerDecorationSupport(support);	
-    	
-    	final String EDITOR_MATCHING_BRACKETS = "matchingBrackets";
-        final String EDITOR_MATCHING_BRACKETS_COLOR= "matchingBracketsColor";
-    	     
-    	char[] matchChars = {'(', ')', '[', ']'}; //which brackets to match		
-    	ICharacterPairMatcher matcher = new DefaultCharacterPairMatcher(matchChars ,
-    			IDocumentExtension3.DEFAULT_PARTITIONING);
-    	support.setCharacterPairMatcher(matcher);
-    	support.setMatchingCharacterPainterPreferenceKeys(EDITOR_MATCHING_BRACKETS,EDITOR_MATCHING_BRACKETS_COLOR);
-     
-    	//Enable bracket highlighting in the preference store
-    	IPreferenceStore store = getPreferenceStore();
-    	store.setDefault(EDITOR_MATCHING_BRACKETS, true);
-    	store.setDefault(EDITOR_MATCHING_BRACKETS_COLOR, "128,128,128");
+    protected void configureSourceViewerDecorationSupport(
+	    SourceViewerDecorationSupport support) {
+	super.configureSourceViewerDecorationSupport(support);
+
+	final String EDITOR_MATCHING_BRACKETS = "matchingBrackets";
+	final String EDITOR_MATCHING_BRACKETS_COLOR = "matchingBracketsColor";
+
+	char[] matchChars = { '(', ')', '[', ']' }; // which brackets to match
+	ICharacterPairMatcher matcher = new DefaultCharacterPairMatcher(
+		matchChars, IDocumentExtension3.DEFAULT_PARTITIONING);
+	support.setCharacterPairMatcher(matcher);
+	support.setMatchingCharacterPainterPreferenceKeys(
+		EDITOR_MATCHING_BRACKETS, EDITOR_MATCHING_BRACKETS_COLOR);
+
+	// Enable bracket highlighting in the preference store
+	IPreferenceStore store = getPreferenceStore();
+	store.setDefault(EDITOR_MATCHING_BRACKETS, true);
+	store.setDefault(EDITOR_MATCHING_BRACKETS_COLOR, "128,128,128");
     }
 
     private CmlContentPageOutliner cmlOutLiner;
@@ -273,4 +259,3 @@ public class CmlEditor extends TextEditor {
     }
 
 }
-
