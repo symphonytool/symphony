@@ -11,6 +11,7 @@ import org.overture.ast.patterns.AExpressionPattern;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
@@ -75,6 +76,17 @@ public class AlphabetInspector
 		HashSet<CmlEvent> specialEvents = new HashSet<CmlEvent>();
 		specialEvents.add(CmlTauEvent.newTauEvent(node));
 		return new CmlAlphabet(specialEvents);
+	}
+	
+	/**
+	 * The alphabet of a block action is just the internal action
+	 */
+	@Override
+	public CmlAlphabet caseABlockStatementAction(ABlockStatementAction node,
+			Context question) throws AnalysisException {
+
+		//return defaultPAction(node, question);
+		return node.getAction().apply(this,question);
 	}
 	
 	@Override

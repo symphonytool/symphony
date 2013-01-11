@@ -695,11 +695,22 @@ action0Ops returns[PAction op]
                 $op = sppa;
             } else {
                 AGeneralisedParallelismParallelAction gppa = new AGeneralisedParallelismParallelAction();
-                gppa.setLeftNamesetExpression($first.vexp);
-                if ($third.vexp != null) {
-                    gppa.setChansetExpression($second.vexp);
-                    gppa.setRightNamesetExpression($third.vexp);
+                if($first.vexp != null && $second.vexp != null && $third.vexp != null)
+                {
+                	gppa.setLeftNamesetExpression($first.vexp);
+                	gppa.setChansetExpression($second.vexp);			
+                	gppa.setRightNamesetExpression($third.vexp);
                 }
+                else if($first.vexp != null && $second.vexp != null && $third.vexp == null)
+                {
+                	gppa.setLeftNamesetExpression($first.vexp);
+                	gppa.setRightNamesetExpression($second.vexp);
+                }
+                else if($first.vexp != null && $second.vexp == null && $third.vexp == null)
+                {
+                	gppa.setChansetExpression($first.vexp);
+                }
+                
                 $op = gppa;
             }
         }

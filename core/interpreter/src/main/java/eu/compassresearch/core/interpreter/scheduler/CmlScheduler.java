@@ -10,6 +10,7 @@ import org.overture.ast.analysis.AnalysisException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
@@ -148,17 +149,17 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 
 				CmlTrace trace = p.getTraceModel();
 				
-				if(CmlTrace.isObservableEvent(trace.getLastEvent()) && p.running())
+				if(CmlTrace.isObservableEvent(trace.getLastEvent()) && p.getState() != CmlProcessState.WAIT_EVENT)
 				{
 					CmlRuntime.logger().fine("----------------observable step by '"+ p +"'----------------");
 					CmlRuntime.logger().fine("Observable trace of '"+p+"': " + trace.getVisibleTrace());
+					
 				}
-				else
+				else 
 				{
 					CmlRuntime.logger().fine("----------------Silent step by '"+ p +"'----------------");
 					CmlRuntime.logger().fine("Trace of '"+p+"': " + trace);
 				}
-				
 				CmlRuntime.logger().fine("Eval. Status={ " + p.nextStepToString() + " }");
 			}
 

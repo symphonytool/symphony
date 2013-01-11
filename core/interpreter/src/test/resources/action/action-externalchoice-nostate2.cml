@@ -2,10 +2,10 @@ channels a b c
 process A = 
 begin 
 	actions
-	INIT = 	[a] -> Skip 
+	INIT = 	(a -> Skip) 
 			[] 
-			[b] -> Skip 
+			(b -> Skip) 
 			[] 
-			[c] -> Skip 
+			(c -> Skip) 
 	@ INIT
 end

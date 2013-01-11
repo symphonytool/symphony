@@ -4,6 +4,6 @@ a, b
 process A = 
 begin 
 	actions
-	INIT = a -> Skip ||| b -> Skip 
+		INIT = (a -> Skip) ||| (b -> Skip) 
 	@ INIT
 end

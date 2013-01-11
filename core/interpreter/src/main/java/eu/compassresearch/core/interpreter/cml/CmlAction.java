@@ -10,6 +10,7 @@ import org.overture.ast.statements.AIdentifierStateDesignator;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
@@ -241,6 +242,19 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 	/**
 	 * Transition methods
 	 */
+	
+	/**
+	 * The action inside a block is executed directly, since it has no semantic meaning.
+	 */
+	@Override
+	public CmlBehaviourSignal caseABlockStatementAction(
+			ABlockStatementAction node, Context question)
+			throws AnalysisException {
+		
+		//pushNext(node.getAction(), question); 
+		//return CmlBehaviourSignal.EXEC_SUCCESS;
+		return node.getAction().apply(this,question);
+	}
 
 	/**
 	 * Synchronisation and Communication D23.2 7.5.2
@@ -283,7 +297,6 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			throws AnalysisException 
 	{
 		pushNext(node.getAction(), question); 
-		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
