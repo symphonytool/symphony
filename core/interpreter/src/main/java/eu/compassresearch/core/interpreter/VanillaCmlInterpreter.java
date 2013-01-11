@@ -22,17 +22,17 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreterStatus;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
-import eu.compassresearch.core.interpreter.runtime.AbstractCmlInterpreter;
-import eu.compassresearch.core.interpreter.runtime.CmlProcessInstance;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
-import eu.compassresearch.core.interpreter.runtime.EnvironmentBuilder;
-import eu.compassresearch.core.interpreter.runtime.RandomSelectionStrategy;
+import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
+import eu.compassresearch.core.interpreter.util.EnvironmentBuilder;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -51,7 +51,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	protected Context                  globalContext;
 	protected String 				   defaultName      = null;	
 	protected AProcessDefinition       topProcess;
-	protected CmlSupervisorEnvironment currentSupervisor= null;
 	protected Scheduler                cmlScheduler     = null;
 
 	/**
@@ -66,7 +65,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		this.sourceForest = cmlSources;
 		initialize();
-
 	}
 
 	/**
@@ -88,9 +86,14 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		env = envBuilder.getGlobalEnvironment();
 		globalContext = envBuilder.getGlobalContext();
-		if(defaultName != null)
+		topProcess = envBuilder.getLastDefinedProcess();
+	}
+	
+	private void InitializeTopProcess() throws InterpreterException 
+	{
+		if(defaultName != null && !defaultName.equals(""))
 		{
-			LexNameToken name = new LexNameToken("Default",getDefaultName(),null);
+			LexNameToken name = new LexNameToken("",getDefaultName(),null);
 			AProcessDefinition processDef = (AProcessDefinition)env.findName(name, NameScope.GLOBAL);
 
 			if (processDef == null)
@@ -99,9 +102,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 			topProcess = processDef;
 		}
-		else
-			topProcess = envBuilder.getLastDefinedProcess();
 	}
+	
 
 	@Override
 	public Environment getGlobalEnvironment()
@@ -116,29 +118,30 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	}
 
 	@Override
-	public void setDefaultName(String name) throws Exception
+	public void setDefaultName(String name) 
 	{
 		defaultName = name;
 	}
 
-	@Override
-	public Value execute() throws InterpreterException
-	{
-		return execute(new RandomSelectionStrategy());
-	}
+//	@Override
+//	public Value execute() throws InterpreterException
+//	{
+//		return execute(new RandomSelectionStrategy());
+//	}
 
 	@Override
-	public Value execute(CmlCommunicationSelectionStrategy selectionStrategy) throws InterpreterException
+	public Value execute(CmlSupervisorEnvironment sve, Scheduler scheduler) throws InterpreterException
 	{
+		InitializeTopProcess();
 		Environment env = getGlobalEnvironment();
 		CmlRuntime.setGlobalEnvironment(env);
 
-		cmlScheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+		cmlScheduler = scheduler;//VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
 		
-		currentSupervisor = VanillaInterpreterFactory.newCmlSupervisorEnvironment(selectionStrategy,cmlScheduler);
+		currentSupervisor = sve; //VanillaInterpreterFactory.newCmlSupervisorEnvironment(selectionStrategy,cmlScheduler);
 		cmlScheduler.setCmlSupervisorEnvironment(currentSupervisor);
 		
-		CmlProcessInstance pi = new CmlProcessInstance(topProcess, null,getInitialContext(null));
+		CmlProcess pi = new CmlProcess(topProcess, null,getInitialContext(null));
 
 		pi.start(currentSupervisor);
 		try {
@@ -213,8 +216,12 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
 		try
 		{
-			// cmlInterp.setDefaultName("A");
-			cmlInterp.execute();
+			Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+			CmlSupervisorEnvironment sve = 
+					VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
+			
+			//cmlInterp.setDefaultName("test");
+			cmlInterp.execute(sve,scheduler);
 		} catch (Exception ex)
 		{
 			System.out.println("Failed to interpret: " + source.toString());
@@ -231,14 +238,15 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-interleaving2.cml");
+				//"src/test/resources/action/action-communication-output.cml");
+		"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 
 	}
 
 	public InterpreterStatus getStatus()
 	{
-		CmlProcess topCmlProcessInstance = currentSupervisor.findNamedProcess(topProcess.getName().toString());
+		CmlBehaviourThread topCmlProcessInstance = currentSupervisor.findNamedProcess(topProcess.getName().toString());
 		
 		//Collect the processInfos
 		

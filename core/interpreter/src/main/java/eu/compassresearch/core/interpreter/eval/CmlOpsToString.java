@@ -6,6 +6,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
+import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.PAction;
@@ -41,6 +42,12 @@ public class CmlOpsToString  {
 		@Override
 		public String defaultPAction(PAction node) throws AnalysisException {
 			return "NA";
+		}
+		
+		@Override
+		public String caseAExternalChoiceAction(AExternalChoiceAction node)
+				throws AnalysisException {
+			return "[]";
 		}
 		
 		@Override

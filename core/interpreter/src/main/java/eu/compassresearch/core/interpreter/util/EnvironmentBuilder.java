@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.runtime;
+package eu.compassresearch.core.interpreter.util;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -80,6 +80,19 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
     	return globalState;
     }
     
+    public List<AProcessDefinition> getGlobalProcesses()
+    {
+    	List<AProcessDefinition> processes = new LinkedList<AProcessDefinition>();
+    	
+    	for(PDefinition def : globalDefs)
+    	{
+    		if(def instanceof AProcessDefinition)
+    			processes.add((AProcessDefinition)def);
+    	}
+    		
+    	return processes;
+    }
+    
     
     @Override
     public void caseAClassParagraphDefinition(AClassParagraphDefinition node)
@@ -148,7 +161,7 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
     	{
     		for (LexIdentifierToken channelName : cnd.getSingleType().getIdentifiers())
     		{
-    			LexNameToken name = new LexNameToken("Default", channelName);
+    			LexNameToken name = new LexNameToken("|CHANNELS|", channelName);
     			globalState.putNew(new NameValuePair(name, new CMLChannelValue(cnd.getSingleType().getType(),name)));
     			//globalDefs.add(e) addChannel(channelName, cnd.getSingleType().getType());
     		}

@@ -1,25 +1,37 @@
 package eu.compassresearch.core.interpreter.eval;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.patterns.AExpressionPattern;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
+import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
+import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
+import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
+import eu.compassresearch.core.interpreter.cml.events.CommunicationParameter;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
+import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
 import eu.compassresearch.core.interpreter.cml.events.SynchronisationEvent;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlProcessUtil;
@@ -29,15 +41,23 @@ import eu.compassresearch.core.interpreter.values.CMLChannelValue;
  * @author akm
  *
  */
-public class AlphabetInspectionVisitor
+@SuppressWarnings("serial")
+public class AlphabetInspector
 		extends
 		QuestionAnswerCMLAdaptor<Context, eu.compassresearch.core.interpreter.cml.CmlAlphabet> {
 
-	private final CmlProcess ownerProcess;
-	
-	public AlphabetInspectionVisitor(CmlProcess ownerProcess)
+	// The process that contains this instance
+	private final CmlBehaviourThread 		ownerProcess;
+	private final CmlEvaluator				cmlEvaluator;
+
+	/**
+	 * 
+	 * @param ownerProcess
+	 */
+	public AlphabetInspector(CmlBehaviourThread ownerProcess,CmlEvaluator cmlEvalutor)
 	{
 		this.ownerProcess = ownerProcess;
+		this.cmlEvaluator = cmlEvalutor;
 	}
 	
 	@Override
@@ -62,21 +82,122 @@ public class AlphabetInspectionVisitor
 			Context question) throws AnalysisException {
 
 		//FIXME: This should be a name so the conversion is avoided
-		LexNameToken channelName = new LexNameToken("Default",node.getIdentifier());
+		LexNameToken channelName = new LexNameToken("|CHANNELS|",node.getIdentifier());
 		
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 		
-//		node.getCommunicationParameters()
-		ObservableEvent observableEvent = null;
+		Set<CmlEvent> comset = new HashSet<CmlEvent>();
 		
 		if(CmlActionAssistant.isPrefixEvent(node))
-			observableEvent = new PrefixEvent(ownerProcess, chanValue);
-		//TODO: do the rest here
+		{
+			ObservableEvent observableEvent = new PrefixEvent(ownerProcess, chanValue);
+			comset.add(observableEvent);
+		}
+		else
+		{
+			List<CommunicationParameter> params = new LinkedList<CommunicationParameter>();
+			for(PCommunicationParameter p : node.getCommunicationParameters())
+			{
+				CommunicationParameter param = null;
+				if(p instanceof ASignalCommunicationParameter)
+				{
+					ASignalCommunicationParameter signal = (ASignalCommunicationParameter)p;
+					//TODO: this will change in the next AST version
+					AExpressionPattern patternExp  = (AExpressionPattern)signal.getPattern(); 
+					Value valueExp = patternExp.getExp().apply(cmlEvaluator,question);
+					param = new SignalParameter((ASignalCommunicationParameter)p, valueExp);
+					//FIXME: This should be done using the type of the channel
+					//long val = valueExp.intValue(question);
+				}
+				else if(p instanceof AWriteCommunicationParameter)
+				{
+					AWriteCommunicationParameter signal = (AWriteCommunicationParameter)p;
+					//TODO: this will change in the next AST version
+					AExpressionPattern patternExp  = (AExpressionPattern)signal.getPattern(); 
+					Value valueExp = patternExp.getExp().apply(cmlEvaluator,question);
+					param = new OutputParameter((AWriteCommunicationParameter)p, valueExp);
+				}
+				
+				params.add(param);
+			}
 			
-		Set<CmlEvent> comset = new HashSet<CmlEvent>();
-		comset.add(observableEvent);
+			ObservableEvent observableEvent = new CmlCommunicationEvent(ownerProcess, chanValue, params);
+			comset.add(observableEvent);
+		}
+		//TODO: do the rest here
+		
 		return new CmlAlphabet(comset);
 	}
+	
+	/**
+	 * External Choice section 7.5.4 D23.2
+	 * 
+	 * In terms of the alphabet, we have the following situations:
+	 * 
+	 *  External Choice Begin:
+	 *  When no children exists, the External Choice Begin transition rule must be executed.
+	 *  This is a silent transition and therefore the alphabet contains only tau event
+	 *  
+	 *  External Choice Silent:
+	 *  If any of the actions can take a silent transition they will do it before getting here again. 
+	 *  We therefore don't take this situation into account
+	 *  
+	 *  External Choice Skip:
+	 *  If one the children is Skip we make a silent transition of the whole choice into skip.
+	 *  We therefore just return the tau event
+	 *  
+	 *  External Choice End:
+	 *  The alphabet contains an observable event for every child that can engaged in one.
+	 *  
+	 */
+	@Override
+	public CmlAlphabet caseAExternalChoiceAction(AExternalChoiceAction node,
+			Context question) throws AnalysisException {
+
+		CmlAlphabet alpha = null;
+		
+		//if no children are present we make a silent transition to represent the
+		//external choice begin
+		if(!ownerProcess.hasChildren() ||
+				CmlProcessUtil.existsAFinishedChild(ownerProcess))
+		{
+			alpha = defaultPAction(node,question);
+		}
+		//If there are children we just return the union of the child alphabets
+		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(ownerProcess))
+		{
+			for(CmlBehaviourThread child : ownerProcess.children())
+			{
+				if(alpha == null)
+					alpha = child.inspect();
+				else
+					alpha = alpha.union(child.inspect());
+			}
+		}
+		
+		return alpha;
+	}
+	
+	/**
+	 * State-based Choice - section 7.5.5 D23.2
+	 * Guard
+	 * Guarded actions are stuck, unless the guard is true.
+	 * So here we return the silent event tau, if the expression evaluates 
+	 * to true in the current state else the empty alphabet
+	 */
+	@Override
+	public CmlAlphabet caseAGuardedAction(AGuardedAction node, Context question)
+			throws AnalysisException {
+
+		Value guardExp = node.getExpression().apply(cmlEvaluator,question);
+		
+		if(guardExp.boolValue(question))
+			return defaultPAction(node,question);
+		else
+			return new CmlAlphabet();
+		
+	}
+	
 	
 	/**
 	 * Parallel action
@@ -137,35 +258,12 @@ public class AlphabetInspectionVisitor
 			AInterleavingParallelAction node, Context question)
 			throws AnalysisException {
 		
-//		CmlAlphabet alpha = null;
-//		
-//		//If there are no children or the children has finished, then either the interleaving 
-//		//is beginning or ending and we make a silent transition.
-//		if(!ownerProcess.hasChildren() || CmlProcessUtil.isAllChildrenFinished(ownerProcess))
-//		{
-//			alpha = defaultPAction(node,question);
-//		}
-//		else
-//		//if we are here at least one of the children is alive and we must inspect them
-//		//and forward it.
-//		{
-//			for(CmlProcess child : ownerProcess.children())
-//			{
-//				if(alpha == null)
-//					alpha = child.inspect();
-//				else
-//					alpha = alpha.union(child.inspect());
-//			}
-//		}
-//		
-//		return alpha;
-		
 		return caseParallelAction(node,question,new ParallelAction()
 		{
 			@Override
 			public CmlAlphabet inspectChildren() {
 				CmlAlphabet alpha = null;
-				for(CmlProcess child : ownerProcess.children())
+				for(CmlBehaviourThread child : ownerProcess.children())
 				{
 					if(alpha == null)
 						alpha = child.inspect();
@@ -209,9 +307,9 @@ public class AlphabetInspectionVisitor
 						internalNode.getChanSetExpression(),internalQuestion);
 				
 				//Get all the child alphabets and add the events that are not in the channelset
-				CmlProcess leftChild = ownerProcess.children().get(0);
+				CmlBehaviourThread leftChild = ownerProcess.children().get(0);
 				CmlAlphabet leftChildAlphabet = leftChild.inspect();
-				CmlProcess rightChild = ownerProcess.children().get(1);
+				CmlBehaviourThread rightChild = ownerProcess.children().get(1);
 				CmlAlphabet rightChildAlphabet = rightChild.inspect();
 				
 				CmlAlphabet resultAlpha = leftChildAlphabet.intersectRefsAndJoin(rightChildAlphabet).intersectRefsAndJoin(cs);
@@ -226,65 +324,9 @@ public class AlphabetInspectionVisitor
 				resultAlpha = new CmlAlphabet(syncEvents).union(leftChildAlphabet.substract(cs));
 				resultAlpha = resultAlpha.union(rightChildAlphabet.substract(cs));
 				
-				
-//				
-//				resultAlpha.union(other)
-//				CmlAlphabet childIntersection = null;
-//				for(CmlProcess child : ownerProcess.children())
-//				{
-//					CmlAlphabet childAlphabet = child.inspect();
-//					CmlAlphabet eventInCS = new CmlAlphabet();
-//					
-//					//for each com event we need to check whether the com event is in the 
-//					//synchronising CS
-//					for(ObservableEvent e  : childAlphabet.getObservableEvents())
-//					{
-//						if( !cs.containsCommunication(e))
-//							resultAlpha = resultAlpha.union(e);
-//						else
-//							eventInCS = eventInCS.union(e);
-//					}
-//					
-//					if(null == childIntersection)
-//						childIntersection = eventInCS;
-//					else
-//						childIntersection = childIntersection.discardAndCombine(eventInCS,true);
-//				}
-					
-				//find the event intersection
-//				for(CmlAlphabet childAlpha : childEventsInCS)
-//				{
-//					if(null == childIntersection)
-//						childIntersection = childAlpha;
-//					else
-//						childIntersection = childIntersection.intersect(childAlpha);
-//				}
-				
-				//Now put all the events that are in cs and in all the children
-//				resultAlpha = resultAlpha.union(childIntersection);
-				
 				return resultAlpha;
 			}
 		});
-//		CmlAlphabet alpha = new CmlAlphabet();
-//
-//		//Children has
-//		if(ownerProcess.hasChildren())
-//		{
-//			CmlAlphabet cs = convertChansetExpToAlphabet(node.getChanSetExpression(),question);
-//			for(CmlProcess child : ownerProcess.children())
-//			{
-//				alpha = child.inspect();
-//				alpha = alpha.union(child.inspect());
-//			}
-//		}
-//		//If there are no children, then either the parallel composition is beginning or ending
-//		else
-//		{
-//			alpha = defaultPAction(node,question);
-//		}
-//
-//		return alpha;
 	}
 	
 	

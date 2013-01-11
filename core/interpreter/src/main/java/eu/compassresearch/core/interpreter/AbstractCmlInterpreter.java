@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.runtime;
+package eu.compassresearch.core.interpreter;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +19,7 @@ import org.overture.parser.lex.LexException;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
@@ -27,7 +28,7 @@ import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 
 
 @SuppressWarnings("serial")
-public abstract class AbstractCmlInterpreter extends
+abstract class AbstractCmlInterpreter extends
 		QuestionAnswerCMLAdaptor<Context, Value> implements CmlInterpreter {
 
 		
@@ -45,6 +46,8 @@ public abstract class AbstractCmlInterpreter extends
 				}
 			});
 
+	protected CmlSupervisorEnvironment currentSupervisor;
+
 	@Override
 	public File getDefaultFile() {
 		// TODO Auto-generated method stub
@@ -52,22 +55,28 @@ public abstract class AbstractCmlInterpreter extends
 	}
 	
 	@Override
-	public void init(DBGPReader dbgp) {
-		// TODO Auto-generated method stub
-
+	public CmlSupervisorEnvironment getCurrentSupervisor()
+	{
+		return currentSupervisor;
 	}
-
-	@Override
-	public void traceInit(DBGPReader dbgp) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public Value execute(String line, DBGPReader dbgp) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
+//	@Override
+//	public void init(DBGPReader dbgp) {
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	@Override
+//	public void traceInit(DBGPReader dbgp) {
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	@Override
+//	public Value execute(String line, DBGPReader dbgp) throws Exception {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 	
 	@Override
 	public Value evaluate(String line, Context ctxt) throws Exception {
