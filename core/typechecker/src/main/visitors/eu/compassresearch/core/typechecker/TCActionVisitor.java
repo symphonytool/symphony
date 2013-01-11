@@ -726,38 +726,38 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// type-check sub-actions
 		PType leftActionType = leftAction.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(leftActionType)) {
-				node.setType(issueHandler.addTypeError(leftAction,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-						.customizeMessage("" + leftAction)));
-				return node.getType();
-			}
+		if (!TCDeclAndDefVisitor.successfulType(leftActionType)) {
+			node.setType(issueHandler.addTypeError(leftAction,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+					.customizeMessage("" + leftAction)));
+			return node.getType();
+		}
 
 		PType rightActionType = rightAction.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
-				node.setType(issueHandler.addTypeError(rightAction,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-						.customizeMessage("" + rightAction)));
-				return node.getType();
-			}
+		if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
+			node.setType(issueHandler.addTypeError(rightAction,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+					.customizeMessage("" + rightAction)));
+			return node.getType();
+		}
 
 		// type-check the namesets
-		PType leftNameSetType = leftNamesetExp.apply(parentChecker, question);
-		if (leftNameSetType == null)
+		if (leftNamesetExp != null)
 		{
+			PType leftNameSetType = leftNamesetExp.apply(parentChecker, question);
+
 			if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
 				return issueHandler.addTypeError(leftNamesetExp,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 						.customizeMessage(leftNamesetExp + ""));
 		}
 
-		PType rightNameSetType = rightnamesetExp.apply(parentChecker, question);
-		if (rightNameSetType == null)
-		{
-		if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
-			return issueHandler.addTypeError(rightnamesetExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(rightnamesetExp + ""));
+		if (rightnamesetExp != null) {
+			PType rightNameSetType = rightnamesetExp.apply(parentChecker, question);
+			if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
+				return issueHandler.addTypeError(rightnamesetExp,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+						.customizeMessage(rightnamesetExp + ""));
 		}
 
 		// All done!
