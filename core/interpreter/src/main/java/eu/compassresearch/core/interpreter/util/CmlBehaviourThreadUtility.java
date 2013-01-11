@@ -16,7 +16,7 @@ import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
-public class CmlProcessUtil {
+public class CmlBehaviourThreadUtility {
 
 	public static boolean isAllChildrenFinished(CmlBehaviourThread process)
 	{

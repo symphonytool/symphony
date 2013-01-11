@@ -170,25 +170,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	// Static stuff for running the Interpreter from Eclipse
 	// ---------------------------------------
 
-	// setting the file on AFileSource allows the CmlParser factory method
-	// to create both parser and lexer.
-	private static PSource prepareSource(File f)
-	{
-		if (f == null)
-		{
-			AInputStreamSource iss = new AInputStreamSource();
-			iss.setStream(System.in);
-			iss.setOrigin("stdin");
-			return iss;
-		} else
-		{
-			AFileSource fs = new AFileSource();
-			fs.setName(f.getName());
-			fs.setFile(f);
-			return fs;
-		}
-	}
-
 	private static void runOnFile(File f) throws IOException, InterpreterException
 	{
 		AFileSource source = new AFileSource();
@@ -225,7 +206,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			CmlSupervisorEnvironment sve = 
 					VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
 			
-			//cmlInterp.setDefaultName("test");
 			cmlInterp.execute(sve,scheduler);
 		} catch (Exception ex)
 		{
@@ -243,7 +223,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-prefix.cml");
+				"src/test/resources/action/action-interleaving.cml");
 		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 
@@ -251,7 +231,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	public InterpreterStatus getStatus()
 	{
-		CmlBehaviourThread topCmlProcessInstance = currentSupervisor.findNamedProcess(topProcess.getName().toString());
+		//CmlBehaviourThread topCmlProcessInstance = currentSupervisor.findNamedProcess(topProcess.getName().toString());
 		
 		//Collect the processInfos
 		

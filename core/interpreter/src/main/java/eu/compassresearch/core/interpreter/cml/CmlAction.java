@@ -34,7 +34,7 @@ import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
-import eu.compassresearch.core.interpreter.util.CmlProcessUtil;
+import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 /**
@@ -173,14 +173,14 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			break;
 		case WAIT_EVENT:
 			//if at least one child are waiting for an event this process must invoke either Parallel Non-sync or sync
-			if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
+			if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(this))
 				setState(CmlProcessState.RUNNABLE);
 			break;
 		case FINISHED:
 			stateEvent.getSource().onStateChanged().unregisterObserver(this);
 			
 			//if all the children are finished this process can continue and evolve into skip
-			if(CmlProcessUtil.isAllChildrenFinished(this))
+			if(CmlBehaviourThreadUtility.isAllChildrenFinished(this))
 				setState(CmlProcessState.RUNNABLE);
 			
 			break;
@@ -315,13 +315,13 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		}
 		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 		//with the state from the skip. After this all the children processes are terminated
-		else if(CmlProcessUtil.existsAFinishedChild(this))
+		else if(CmlBehaviourThreadUtility.existsAFinishedChild(this))
 		{
 			result = caseExternalChoiceSkip();
 		}
 		//if this is true, then we can resolve the choice to the event
 		//of one of the children that are waiting for events
-		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
+		else if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(this))
 		{
 			result = caseExternalChoiceEnd();
 		}
@@ -533,10 +533,10 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			pushNext(node, question);
 		}
 		//At least one child is not finished and waiting for event, this will either invoke the Parallel Non-sync or Sync rule
-		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
+		else if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(this))
 		{
 			//convert the channelset of the current node to a alphabet
-			CmlAlphabet cs = CmlProcessUtil.convertChansetExpToAlphabet(this,
+			CmlAlphabet cs = CmlBehaviourThreadUtility.convertChansetExpToAlphabet(this,
 					node.getChansetExpression(),question);		
 			
 			CmlBehaviourThread leftChild = children().get(0);
@@ -579,7 +579,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			pushNext(node, question);
 		}
 		//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
-		else if (CmlProcessUtil.isAllChildrenFinished(this))
+		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(this))
 		{
 			result = caseParallelEnd(question); 
 		}
@@ -625,7 +625,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 
 		}
 		//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
-		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(this))
+		else if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(this))
 		{
 			CmlBehaviourThread leftChild = children().get(0);
 			CmlAlphabet leftChildAlpha = leftChild.inspect(); 
@@ -650,7 +650,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			
 		}
 		//the process has children and must now handle either termination or event sync
-		else if (CmlProcessUtil.isAllChildrenFinished(this))
+		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(this))
 		{
 			result = caseParallelEnd(question); 
 		}
@@ -739,13 +739,12 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		Value expValue = node.getExpression().apply(cmlEvaluator,question);
 		
 		//TODO Change this to deal with it in general
-		AIdentifierStateDesignator id = (AIdentifierStateDesignator)node.getStateDesignator();
+		LexNameToken stateDesignatorName = CmlActionAssistant.extractNameFromStateDesignator(node.getStateDesignator());
+		Context nameContext = question.locate(stateDesignatorName);
 		
-		Context nameContext = question.locate(id.getName());
+		nameContext.put(stateDesignatorName, expValue);
 		
-		nameContext.put(id.getName(), expValue);
-		
-		System.out.println(id.getName() + " = " + expValue);
+		System.out.println(stateDesignatorName + " = " + expValue);
 		
 //		if(nameContext == null)
 		//					nameContext = new CMLContext(node.getLocation(),"caseASi

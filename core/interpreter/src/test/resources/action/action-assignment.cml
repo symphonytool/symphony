@@ -1,4 +1,6 @@
-channels a b
+channels 
+a, b
+
 process A = 
 begin 
 	state

@@ -1,4 +1,6 @@
-channels a b
+channels 
+a, b
+
 process A = 
 begin 
 	state
@@ -8,7 +10,5 @@ begin
 	INIT = 	[a = 1] & a -> a := a + 1;Skip
 			[]
 			[a = 2] & b -> a := a + 2;Skip
-	
-	 
 	@ INIT
 end

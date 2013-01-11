@@ -34,7 +34,7 @@ import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
 import eu.compassresearch.core.interpreter.cml.events.SynchronisationEvent;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
-import eu.compassresearch.core.interpreter.util.CmlProcessUtil;
+import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 /**
  * This class inspects the immediate alphabet of the current state of a CmlProcess
@@ -155,12 +155,12 @@ public class AlphabetInspector
 		//if no children are present we make a silent transition to represent the
 		//external choice begin
 		if(!ownerProcess.hasChildren() ||
-				CmlProcessUtil.existsAFinishedChild(ownerProcess))
+				CmlBehaviourThreadUtility.existsAFinishedChild(ownerProcess))
 		{
 			alpha = defaultPAction(node,question);
 		}
 		//If there are children we just return the union of the child alphabets
-		else if(CmlProcessUtil.isAtLeastOneChildWaitingForEvent(ownerProcess))
+		else if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(ownerProcess))
 		{
 			for(CmlBehaviourThread child : ownerProcess.children())
 			{
@@ -221,7 +221,7 @@ public class AlphabetInspector
 		
 		//If there are no children or the children has finished, then either the interleaving 
 		//is beginning or ending and we make a silent transition.
-		if(!ownerProcess.hasChildren() || CmlProcessUtil.isAllChildrenFinished(ownerProcess))
+		if(!ownerProcess.hasChildren() || CmlBehaviourThreadUtility.isAllChildrenFinished(ownerProcess))
 		{
 			alpha = defaultPAction(node,question);
 		}
@@ -299,7 +299,7 @@ public class AlphabetInspector
 			public CmlAlphabet inspectChildren() {
 				
 				//convert the channelset of the current node to a alphabet
-				CmlAlphabet cs = CmlProcessUtil.convertChansetExpToAlphabet(null,
+				CmlAlphabet cs = CmlBehaviourThreadUtility.convertChansetExpToAlphabet(null,
 						internalNode.getChansetExpression(),internalQuestion);
 				
 				//Get all the child alphabets and add the events that are not in the channelset
