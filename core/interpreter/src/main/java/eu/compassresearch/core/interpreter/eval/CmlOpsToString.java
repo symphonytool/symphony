@@ -62,7 +62,7 @@ public class CmlOpsToString  {
 				AGeneralisedParallelismParallelAction node)
 						throws AnalysisException {
 
-			return "[|" + node.getChanSetExpression() + "|]";
+			return "[|" + node.getChansetExpression() + "|]";
 		}
 	}
 	

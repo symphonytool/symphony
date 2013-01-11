@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter.debug;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -14,11 +15,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.ast.program.AFileSource;
+import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
@@ -29,7 +35,6 @@ import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgStatusMessage;
@@ -44,7 +49,8 @@ import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
-import eu.compassresearch.core.lexer.CmlLexer;
+import eu.compassresearch.core.interpreter.util.CmlUtil;
+import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -380,17 +386,15 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 			
 			File source = new File(path);
 			System.out.println("Parsing file: " + source);
-			AFileSource currentTree = new AFileSource();
-			currentTree.setName(source.getName());
-			FileReader input = new FileReader(source);
-			CmlLexer lexer = new CmlLexer(input);
-			CmlParser parser = new CmlParser(lexer);
-			parser.setDocument(currentTree);
-			if (!parser.parse()) {
+			AFileSource currentFileSource = new AFileSource();
+			currentFileSource.setName(source.getName());
+			currentFileSource.setFile(source);
+						
+			if (!CmlUtil.parseSource(currentFileSource)) {
 				//handleError(lexer, source);
 				return;
 			} else
-				sourceForest.add(currentTree);
+				sourceForest.add(currentFileSource);
 		}
 
 		//create the typechecker and typecheck the source forest

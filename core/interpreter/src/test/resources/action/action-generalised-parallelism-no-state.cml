@@ -2,6 +2,6 @@ channels a b c init
 process A = 
 begin 
 	actions
-	INIT = [init] -> [a] -> [c] -> Skip [| {|init,c|} |] [init] -> [c] -> [b] -> Skip 
+	INIT = init -> a -> c -> Skip [| {|init,c|} |] init -> c -> b -> Skip 
 	@  INIT
 end

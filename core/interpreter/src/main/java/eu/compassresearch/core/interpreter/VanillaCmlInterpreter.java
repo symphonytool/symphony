@@ -1,12 +1,17 @@
 package eu.compassresearch.core.interpreter;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.typechecker.NameScope;
@@ -32,7 +37,9 @@ import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
+import eu.compassresearch.core.interpreter.util.CmlUtil;
 import eu.compassresearch.core.interpreter.util.EnvironmentBuilder;
+import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -184,14 +191,12 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	private static void runOnFile(File f) throws IOException, InterpreterException
 	{
-		// set file name
-		PSource source = prepareSource(f);
-
-		// Call factory method to build parser and lexer
-		CmlParser parser = CmlParser.newParserFromSource(source);
-
+		AFileSource source = new AFileSource();
+		source.setName(f.getName());
+		source.setFile(f);
+		
 		// Run the parser and lexer and report errors if any
-		if (!parser.parse())
+		if (!CmlUtil.parseSource(source))
 		{
 			System.out.println("Failed to parse: " + source.toString());
 			return;
@@ -238,8 +243,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				//"src/test/resources/action/action-communication-output.cml");
-		"/home/akm/runtime-COMPASS_configuration/test/test.cml");
+				"src/test/resources/action/action-prefix.cml");
+		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 
 	}

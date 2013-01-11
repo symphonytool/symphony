@@ -102,9 +102,7 @@ public class AlphabetInspector
 				if(p instanceof ASignalCommunicationParameter)
 				{
 					ASignalCommunicationParameter signal = (ASignalCommunicationParameter)p;
-					//TODO: this will change in the next AST version
-					AExpressionPattern patternExp  = (AExpressionPattern)signal.getPattern(); 
-					Value valueExp = patternExp.getExp().apply(cmlEvaluator,question);
+					Value valueExp = signal.getExpression().apply(cmlEvaluator,question);
 					param = new SignalParameter((ASignalCommunicationParameter)p, valueExp);
 					//FIXME: This should be done using the type of the channel
 					//long val = valueExp.intValue(question);
@@ -112,9 +110,7 @@ public class AlphabetInspector
 				else if(p instanceof AWriteCommunicationParameter)
 				{
 					AWriteCommunicationParameter signal = (AWriteCommunicationParameter)p;
-					//TODO: this will change in the next AST version
-					AExpressionPattern patternExp  = (AExpressionPattern)signal.getPattern(); 
-					Value valueExp = patternExp.getExp().apply(cmlEvaluator,question);
+					Value valueExp = signal.getExpression().apply(cmlEvaluator,question);
 					param = new OutputParameter((AWriteCommunicationParameter)p, valueExp);
 				}
 				
@@ -304,7 +300,7 @@ public class AlphabetInspector
 				
 				//convert the channelset of the current node to a alphabet
 				CmlAlphabet cs = CmlProcessUtil.convertChansetExpToAlphabet(null,
-						internalNode.getChanSetExpression(),internalQuestion);
+						internalNode.getChansetExpression(),internalQuestion);
 				
 				//Get all the child alphabets and add the events that are not in the channelset
 				CmlBehaviourThread leftChild = ownerProcess.children().get(0);

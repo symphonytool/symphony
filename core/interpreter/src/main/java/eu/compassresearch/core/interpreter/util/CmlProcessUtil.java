@@ -3,12 +3,12 @@ package eu.compassresearch.core.interpreter.util;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
 
-import eu.compassresearch.ast.expressions.AEnumChansetSetExp;
+import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
@@ -65,9 +65,9 @@ public class CmlProcessUtil {
 	 * FIXME:This is just a temp solution, chansets can be other than this
 	 * @return
 	 */
-	public static CmlAlphabet convertChansetExpToAlphabet(CmlBehaviourThread sourceProcess, PExp chansetExp, Context question)
+	public static CmlAlphabet convertChansetExpToAlphabet(CmlBehaviourThread sourceProcess, PVarsetExpression chansetExp, Context question)
 	{
-		AEnumChansetSetExp chanset = (AEnumChansetSetExp)chansetExp;
+		AFatEnumVarsetExpression chanset = (AFatEnumVarsetExpression)chansetExp;
 
 		Set<CmlEvent> coms = new HashSet<CmlEvent>();
 		

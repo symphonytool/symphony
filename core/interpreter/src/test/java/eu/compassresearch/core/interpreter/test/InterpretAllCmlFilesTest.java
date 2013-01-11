@@ -34,7 +34,7 @@ import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
-import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.interpreter.util.CmlUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 
@@ -101,10 +101,7 @@ public class InterpretAllCmlFilesTest {
 
 		TestResult testResult = TestResult.parseTestResultFile(resultPath);
 
-		// Call factory method to build parser and lexer
-		CmlParser parser = CmlParser.newParserFromSource(ast);
-
-		assertTrue(parser.parse());
+		assertTrue(CmlUtil.parseSource(ast));
 
 		// Type check
 		CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(

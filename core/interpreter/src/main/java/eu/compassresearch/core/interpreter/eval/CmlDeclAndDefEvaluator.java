@@ -2,13 +2,13 @@ package eu.compassresearch.core.interpreter.eval;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
 
 @SuppressWarnings("serial")
 public class CmlDeclAndDefEvaluator extends
@@ -22,7 +22,7 @@ public class CmlDeclAndDefEvaluator extends
 	}
 	
 	@Override
-	public Value caseAStateParagraphDefinition(AStateParagraphDefinition node,
+	public Value caseAStateDefinition(AStateDefinition node,
 			Context question) throws AnalysisException {
 		
 		for(PDefinition def : node.getStateDefs())

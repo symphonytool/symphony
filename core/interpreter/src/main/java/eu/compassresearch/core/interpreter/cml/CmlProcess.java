@@ -7,13 +7,11 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.CPUValue;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
-import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.eval.AlphabetInspector;
-import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
@@ -187,9 +185,8 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 	 */
 		
 	@Override
-	public CmlBehaviourSignal caseAStateProcess(AStateProcess node, Context question) throws AnalysisException
+	public CmlBehaviourSignal caseAActionProcess(AActionProcess node, Context question) throws AnalysisException
 	{
-		
 		CmlBehaviourSignal ret = null;
 		//The behavior of this process has not been started yet, so start it and execute the main
 		//Behavior in the next execution step

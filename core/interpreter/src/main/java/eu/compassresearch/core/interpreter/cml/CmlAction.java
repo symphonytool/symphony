@@ -537,7 +537,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		{
 			//convert the channelset of the current node to a alphabet
 			CmlAlphabet cs = CmlProcessUtil.convertChansetExpToAlphabet(this,
-					node.getChanSetExpression(),question);		
+					node.getChansetExpression(),question);		
 			
 			CmlBehaviourThread leftChild = children().get(0);
 			CmlAlphabet leftChildAlpha = leftChild.inspect(); 
