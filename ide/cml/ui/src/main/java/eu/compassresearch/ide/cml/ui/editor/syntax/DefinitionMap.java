@@ -9,6 +9,7 @@ import java.util.Map;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 
+import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
@@ -37,7 +38,7 @@ public class DefinitionMap {
 	private static Map<Class<?>, ? extends DefinitionHandler> createMap() {
 		Map<Class<?>, DefinitionHandler> map = new HashMap<Class<?>, DefinitionHandler>();
 		map.put(AActionsDefinition.class,
-				new AActionParagraphDefinitionHandler());
+				new AActionsDefinitionHandler());
 		map.put(AValuesDefinition.class,
 				new AValueParagraphDefinitionHandler());
 		map.put(AFunctionsDefinition.class,
@@ -108,18 +109,18 @@ public class DefinitionMap {
 		}
 	}
 
-	private static class AActionParagraphDefinitionHandler implements
+	private static class AActionsDefinitionHandler implements
 			DefinitionHandler {
 		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
 		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
-			String nameguard;
-			if (pdef instanceof AActionsDefinition) {
-				if (null == pdef.getName())
-					nameguard = "?";
-				else
-					nameguard = pdef.getName().name;
-				r.add(Wrapper.newInstance(pdef, nameguard));
-			}
+		    AActionsDefinition actionsDef = (AActionsDefinition) pdef;
+		    String nameguard;
+		    for (AActionDefinition aADef : actionsDef.getActions()){
+			if (null == aADef.getName())
+			    nameguard ="anonymous";
+			else nameguard=aADef.getName().toString();
+			r.add(Wrapper.newInstance(pdef, nameguard));
+		    }
 			return r;
 		}
 	}

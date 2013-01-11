@@ -87,6 +87,7 @@ public class CmlEditor extends TextEditor {
     }
 
     protected INode computeHighlightRangeSourceReference() {
+	//FIXME if the AST is just the source node return null
 	ISourceViewer sourceViewer = getSourceViewer();
 	if (sourceViewer == null)
 	    return null;
@@ -153,8 +154,7 @@ public class CmlEditor extends TextEditor {
 
     private void setSelection(INode element, boolean b) {
 	if (element != null) {
-	    
-	  //FIXME Remove the Editor->Outline->Editor selection loop. Code disabled until then.
+	    //FIXME add check to ensure the ast exists
 	    cmlOutLiner.setTreeSelection(element);
 	   
 	}

@@ -7,6 +7,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -36,6 +37,8 @@ IContentOutlinePage {
 	// public static final int ALL_LEVELS = -1;
 
 	public void setTreeSelection(INode element) {
+	    if (!(element instanceof PDefinition))
+		return;
 		Wrapper<PDefinition> w;
 		PDefinition pdef = (PDefinition) element;
 		if (pdef == null) return ;
@@ -57,8 +60,9 @@ IContentOutlinePage {
 		if (curDisp != null)
 			curDisp.syncExec(new Runnable() {
 				public void run() {
-					viewer.refresh();
-//					viewer.expandAll();
+				  TreePath[] oldExp = viewer.getExpandedTreePaths();
+				  viewer.refresh();
+				  viewer.setExpandedTreePaths(oldExp);
 				}
 			});
 
@@ -68,7 +72,6 @@ IContentOutlinePage {
 		provider = new CmlTreeContentProvider(this.getControl());
 		this.editor = editor;
 	}
-
 	@Override
 	public void createControl(Composite parent) {
 		super.createControl(parent);
@@ -119,8 +122,7 @@ IContentOutlinePage {
 		labelprovider = new OutlineLabelProvider();
 		viewer.setLabelProvider(labelprovider);
 		viewer.setInput(input);
-		// FIXME ldc -Need to add proper filters
-		viewer.expandAll();
+
 	}
 
 	public void setInput(CmlSourceUnit input) {

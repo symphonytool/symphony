@@ -171,12 +171,13 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 				}
 			}
 		} catch (Exception e)
-		{
-			
+		{		
+			e.printStackTrace();
 			// be quiet !
 		}
 		catch (StackOverflowError sofe)
 		{
+		    sofe.printStackTrace();
 			// be quiet !
 		}
 		return null;
