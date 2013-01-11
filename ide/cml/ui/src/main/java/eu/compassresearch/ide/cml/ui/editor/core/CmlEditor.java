@@ -115,7 +115,7 @@ public class CmlEditor extends TextEditor {
 	CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
 	PSource ast = csu.getSourceAst();
 
-	if (!astOkForOutline(ast))
+	if (!astOk(ast))
 	    return null;
 
 	INodeFromCaret visitor = new INodeFromCaret(caret, ast);
@@ -130,7 +130,7 @@ public class CmlEditor extends TextEditor {
 	return r;
     }
 
-    private boolean astOkForOutline(PSource ast) {
+    private boolean astOk(PSource ast) {
 	if (null == ast)
 	    return false;
 

@@ -34,7 +34,6 @@ IContentOutlinePage {
 	// TODO remove the flag hack once we get proper sync from the editor
 	private static boolean loopAvoidanceFlag = true;
 
-	// public static final int ALL_LEVELS = -1;
 
 	public void setTreeSelection(INode element) {
 	    if (!(element instanceof PDefinition))
@@ -60,12 +59,11 @@ IContentOutlinePage {
 		if (curDisp != null)
 			curDisp.syncExec(new Runnable() {
 				public void run() {
-				  TreePath[] oldExp = viewer.getExpandedTreePaths();
-				  viewer.refresh();
-				  viewer.setExpandedTreePaths(oldExp);
+				  TreePath[] oldPaths =  getTreeViewer().getExpandedTreePaths();
+				  getTreeViewer().refresh();
+				  getTreeViewer().setExpandedTreePaths(oldPaths);
 				}
 			});
-
 	}
 
 	public CmlContentPageOutliner(CmlEditor editor) {
@@ -122,6 +120,7 @@ IContentOutlinePage {
 		labelprovider = new OutlineLabelProvider();
 		viewer.setLabelProvider(labelprovider);
 		viewer.setInput(input);
+		
 
 	}
 

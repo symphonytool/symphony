@@ -119,7 +119,7 @@ public class DefinitionMap {
 			if (null == aADef.getName())
 			    nameguard ="anonymous";
 			else nameguard=aADef.getName().toString();
-			r.add(Wrapper.newInstance(pdef, nameguard));
+			r.add(Wrapper.newInstance(aADef, nameguard));
 		    }
 			return r;
 		}
