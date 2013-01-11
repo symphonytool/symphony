@@ -77,7 +77,6 @@ public enum OutlineEntryType {
 
 	public static Image getImageForElement(Object obj) {
 
-	// TODO fix Unparameterized references
 	// TODO change to (class,map) format?
 	if (obj instanceof Wrapper) {
 	    Wrapper<?> w = (Wrapper<?>) obj;
