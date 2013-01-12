@@ -10,7 +10,7 @@ import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.definitions.AActionsDefinition;
+import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
@@ -77,7 +77,6 @@ public enum OutlineEntryType {
 
 	public static Image getImageForElement(Object obj) {
 
-	// TODO fix Unparameterized references
 	// TODO change to (class,map) format?
 	if (obj instanceof Wrapper) {
 	    Wrapper<?> w = (Wrapper<?>) obj;
@@ -118,7 +117,7 @@ public enum OutlineEntryType {
 		return TYPE_ENTRY.getImage();
 	    if (w.isClass(PAction.class))
 		return ACTION.getImage();
-	    if (w.isClass(AActionsDefinition.class))
+	    if (w.isClass(AActionDefinition.class))
 		return ACTION.getImage();
 	    if (w.isClass(SCmlOperationDefinition.class))
 		return OPERATION.getImage();

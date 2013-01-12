@@ -1088,6 +1088,7 @@ channelDef returns[AChannelNameDefinition def]
     ;
 
 chansetDefs returns[AChansetsDefinition defs]
+@after { $defs.setLocation(extractLexLocation($chansetDefs.start, $chansetDefs.stop)); }
     : 'chansets' chansetDefOptList
         {
             $defs = new AChansetsDefinition();
