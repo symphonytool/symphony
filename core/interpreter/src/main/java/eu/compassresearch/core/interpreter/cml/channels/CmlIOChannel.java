@@ -5,8 +5,25 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.EventSource;
 
-public interface CmlOutputChannel<T extends Value> extends CmlChannel {
+public interface CmlIOChannel<T extends Value>  extends CmlChannel {
 
+	/**
+	 * Reads a value from the channel
+	 * @return
+	 */
+	public T read();
+	
+	/**
+	 * Register or unregister for the onChannelRead event
+	 * @return The appropriate EventSource for event registration
+	 */
+	public EventSource<ChannelObserver> onChannelRead();
+	
+	
+	/**
+	 * Writes a value to the channel
+	 * @param value
+	 */
 	public void write(T value);
 	
 	/**

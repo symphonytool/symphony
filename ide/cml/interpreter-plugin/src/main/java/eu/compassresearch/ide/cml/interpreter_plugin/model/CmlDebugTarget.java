@@ -47,7 +47,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 	private IProcess process;
 
 	// threads
-	private CmlThread cmlThread;
 	private List<IThread> threads;
 
 	// socket to communicate with VM

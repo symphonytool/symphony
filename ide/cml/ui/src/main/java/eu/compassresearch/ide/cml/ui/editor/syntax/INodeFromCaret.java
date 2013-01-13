@@ -59,6 +59,8 @@ public class INodeFromCaret extends DepthFirstAnalysisCMLAdaptor {
 	    super.defaultInINode(node);
 	    if (node instanceof PDefinition || node instanceof PCMLDefinition) {
 		LexLocation nodeLoc = getLocationFromObject(node);
+		if (null == nodeLoc)
+		    return;
 		if (bestCandidateLocation == null) {
 		    bestCandidate = node;
 		    bestCandidateLocation = nodeLoc;

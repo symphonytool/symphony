@@ -23,6 +23,14 @@ public class CmlTrace {
 		trace.add(event);
 	}
 	
+	public CmlEvent getLastEvent()
+	{
+		if(trace.size() > 0)
+			return trace.get(trace.size()-1);
+		else 
+			return null;
+	}
+	
 	@Override
 	public String toString() {
 		
@@ -40,7 +48,12 @@ public class CmlTrace {
 		return strbuilder.toString();
 	}
 	
-	public List<CmlEvent> getVisibleEvents()
+	public List<CmlEvent> getTrace()
+	{
+		return new LinkedList<CmlEvent>(trace);
+	}
+	
+	public List<CmlEvent> getVisibleTrace()
 	{
 		List<CmlEvent> visibleEvents = new LinkedList<CmlEvent>();
 			
@@ -51,5 +64,10 @@ public class CmlTrace {
 		}
 		
 		return visibleEvents;
+	}
+	
+	public static boolean isObservableEvent(CmlEvent event)
+	{
+		return event instanceof ObservableEvent;
 	}
 }

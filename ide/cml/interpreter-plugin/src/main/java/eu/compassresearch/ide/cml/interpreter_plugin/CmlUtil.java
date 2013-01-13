@@ -1,11 +1,22 @@
 package eu.compassresearch.ide.cml.interpreter_plugin;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.PlatformUI;
+
+import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.interpreter.util.EnvironmentBuilder;
+import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public final class CmlUtil {
 
@@ -32,5 +43,52 @@ public final class CmlUtil {
 //	        }
 	    }
 	    return project;
+	}
+	
+	public static List<AProcessDefinition> GetGlobalProcessesFromProject(IProject project)
+	{
+		return CmlUtil.GetGlobalProcessesFromSource(CmlUtil.getCmlAstSourcesFromProject(project));
+	}
+	
+	public static List<PSource> getCmlAstSourcesFromProject(IProject project) 
+	{
+		List<PSource> sources = new LinkedList<PSource>();
+		
+		try {
+			for(IResource res : project.members())
+			{
+				if(res instanceof IFile && ((IFile)res).getFileExtension().toLowerCase().equals("cml"))
+				{
+					PSource source = CmlSourceUnit.getFromFileResource((IFile)res).getSourceAst();
+					if(source != null)
+						sources.add(source);
+				}
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+		
+		return sources;
+	}
+	
+	public static String getProjectPath(IProject project)
+	{
+		String projectPath = project.getFullPath().toOSString();
+		//String pat = System.getProperty("user.dir");
+		
+		String workspacePath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
+		
+		return workspacePath + projectPath;
+	}
+	
+	public static List<AProcessDefinition> GetGlobalProcessesFromSource(List<PSource> projectSources)
+	{
+		if(projectSources.isEmpty())
+			return new LinkedList<AProcessDefinition>();
+		
+		EnvironmentBuilder builder = new EnvironmentBuilder(projectSources);
+		
+		return builder.getGlobalProcesses();
+
 	}
 }

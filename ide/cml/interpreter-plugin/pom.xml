@@ -113,7 +113,7 @@
 							<addClasspath>true</addClasspath>
 							<!-- The main class -->
 							<!-- eu.compassresearch.core.interpreter.debug.CmlInterpreterRunner -->
-							<mainClass>eu.compassresearch.core.interpreter.debug.CmlInterpreterRunner</mainClass>
+							<mainClass>eu.compassresearch.core.interpreter.debug.CmlInterpreterController</mainClass>
 							<!-- The package for the main class -->
 							<packageName>eu.compassresearch.core.interpreter.debug</packageName>
 						</manifest>

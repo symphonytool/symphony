@@ -9,6 +9,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWTException;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
@@ -25,112 +26,112 @@ public class CmlContentPageOutliner extends ContentOutlinePage implements
 
 IContentOutlinePage {
 
-	private CmlSourceUnit input;
-	private CmlEditor editor;
-	private CmlTreeContentProvider provider;
-	private OutlineLabelProvider labelprovider;
-	private TreeViewer viewer;
+    private CmlSourceUnit input;
+    private CmlEditor editor;
+    private CmlTreeContentProvider provider;
+    private OutlineLabelProvider labelprovider;
+    // private TreeViewer viewer;
 
-	// TODO remove the flag hack once we get proper sync from the editor
-	private static boolean loopAvoidanceFlag = true;
+    // TODO remove the flag hack once we get proper sync from the editor
+    private static boolean loopAvoidanceFlag = true;
 
-	// public static final int ALL_LEVELS = -1;
+    public void setTreeSelection(INode element) {
+	if (null == element)
+	    return;
+	if (!(element instanceof PDefinition))
+	    return;
 
-	public void setTreeSelection(INode element) {
-		Wrapper<PDefinition> w;
-		PDefinition pdef = (PDefinition) element;
-		if (pdef == null) return ;
-		String dscr = TopLevelDefinitionMap.getDescription(pdef.getClass());
-		if (dscr == null)
-		{
-			LexNameToken name = pdef.getName();
-			w = Wrapper.newInstance(pdef, name == null ? "null" : name.name);
+	Wrapper<PDefinition> w;
+	PDefinition pdef = (PDefinition) element;
+
+	String dscr = TopLevelDefinitionMap.getDescription(pdef.getClass());
+	if (dscr == null) {
+	    LexNameToken name = pdef.getName();
+	    w = Wrapper.newInstance(pdef, name == null ? "null" : name.name);
+	} else
+	    w = Wrapper.newInstance(pdef, dscr);
+	System.out.println("Setting outline selection to " + w.toString());
+	loopAvoidanceFlag = false;
+	getTreeViewer().setSelection(new StructuredSelection(w), true);
+    }
+
+    public void refresh() {
+	final Display curDisp = Display.getDefault();
+	if (curDisp != null)
+	    curDisp.syncExec(new Runnable() {
+		public void run() {
+		    TreePath[] oldPaths = getTreeViewer()
+			    .getExpandedTreePaths();
+		    getTreeViewer().refresh();
+		    getTreeViewer().setExpandedTreePaths(oldPaths);
 		}
-		else
-			w = Wrapper.newInstance(pdef, dscr);
-		System.out.println("Setting outline selection to " + w.toString());
-		loopAvoidanceFlag = false;
-		viewer.setSelection(new StructuredSelection(w), true);
-	}
+	    });
+    }
 
-	public void refresh() {
-		final Display curDisp = Display.getDefault();
-		if (curDisp != null)
-			curDisp.syncExec(new Runnable() {
-				public void run() {
-					try {
-					viewer.refresh();
-					} catch (SWTException e)
-					{
-						//TODO: RWL be quiet
-						// be quiet
-					}
-				}
-			});
+    public CmlContentPageOutliner(CmlEditor editor) {
+	provider = new CmlTreeContentProvider(this.getControl());
+	this.editor = editor;
+    }
 
-	}
+    @Override
+    public void createControl(Composite parent) {
+	super.createControl(parent);
+	getTreeViewer().setContentProvider(provider);
+	getTreeViewer().setUseHashlookup(true);
+	getTreeViewer().addSelectionChangedListener(
+		new ISelectionChangedListener() {
 
-	public CmlContentPageOutliner(CmlEditor editor) {
-		provider = new CmlTreeContentProvider(this.getControl());
-		this.editor = editor;
-	}
+		    public void selectionChanged(SelectionChangedEvent event) {
+			// if the selection is empty clear the label
 
-	@Override
-	public void createControl(Composite parent) {
-		super.createControl(parent);
-		viewer = getTreeViewer();
-		viewer.setContentProvider(provider);
-		viewer.setUseHashlookup(true);
-		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-
-			public void selectionChanged(SelectionChangedEvent event) {
-				// if the selection is empty clear the label
-
-				if (event.getSelection().isEmpty()) {
-					System.out.println("Empty Selection");
-					return;
-				}
-				if ((event.getSelection() instanceof IStructuredSelection)
-						&& loopAvoidanceFlag) {
-					IStructuredSelection selection = (IStructuredSelection) event
-							.getSelection();
-					for (@SuppressWarnings("unchecked")
-					Iterator<Object> iterator = selection.iterator(); iterator
-							.hasNext();) {
-
-						Object o = iterator.next();
-						System.out.println("Selected " + o.toString());
-						if (o instanceof Wrapper) {
-							Wrapper<?> w = (Wrapper<?>) o;
-							// FIXME Find a better system to extract locations
-							for (Method m : w.value.getClass().getMethods()) {
-								if ("getLocation".equals(m.getName())) {
-									try {
-										LexLocation loc = (LexLocation) m
-												.invoke(w.value, new Object[0]);
-										editor.setHighlightRange(
-												loc.startOffset, 0, true);
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
-								}
-							}
-						} 
-					}
-				}else
-					loopAvoidanceFlag = true;
+			if (event.getSelection().isEmpty()) {
+			    System.out.println("Empty Selection");
+			    return;
 			}
+			if ((event.getSelection() instanceof IStructuredSelection)
+				&& loopAvoidanceFlag) {
+			    IStructuredSelection selection = (IStructuredSelection) event
+				    .getSelection();
+			    for (@SuppressWarnings("unchecked")
+			    Iterator<Object> iterator = selection.iterator(); iterator
+				    .hasNext();) {
+
+				Object o = iterator.next();
+				System.out.println("Selected " + o.toString());
+				if (o instanceof Wrapper) {
+				    Wrapper<?> w = (Wrapper<?>) o;
+				    // FIXME Find a better system to extract
+				    // locations
+				    for (Method m : w.value.getClass()
+					    .getMethods()) {
+					if ("getLocation".equals(m.getName())) {
+					    try {
+						LexLocation loc = (LexLocation) m
+							.invoke(w.value,
+								new Object[0]);
+						editor.setHighlightRange(
+							loc.startOffset, 0,
+							true);
+					    } catch (Exception e) {
+						e.printStackTrace();
+					    }
+					}
+				    }
+				}
+			    }
+			} else
+			    loopAvoidanceFlag = true;
+		    }
 		});
 
-		labelprovider = new OutlineLabelProvider();
-		viewer.setLabelProvider(labelprovider);
-		viewer.setInput(input);
-		// FIXME ldc -Need to add proper filters
-		viewer.expandAll();
-	}
+	labelprovider = new OutlineLabelProvider();
+	getTreeViewer().setLabelProvider(labelprovider);
+	getTreeViewer().setInput(input);
 
-	public void setInput(CmlSourceUnit input) {
-		this.input = input;
-	}
+    }
+
+    public void setInput(CmlSourceUnit input) {
+	this.input = input;
+    }
 
 }

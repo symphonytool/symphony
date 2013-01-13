@@ -1,7 +1,7 @@
 package eu.compassresearch.core.interpreter.cml;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -9,8 +9,12 @@ import java.util.Set;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlSpecialEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.cml.events.SynchronisationEvent;
 
+/**
+ * This represents a CML alphabet containing both silent and observable events
+ * @author akm
+ *
+ */
 public class CmlAlphabet {
 
 	private final Map<ObservableEvent,Set<ObservableEvent>> referenceEvents;
@@ -18,7 +22,7 @@ public class CmlAlphabet {
 	
 	public CmlAlphabet()
 	{
-		this.specialEvents = new HashSet<CmlSpecialEvent>();
+		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
 		this.referenceEvents = new HashMap<ObservableEvent,Set<ObservableEvent>>();
 	}
 	
@@ -37,8 +41,8 @@ public class CmlAlphabet {
 	
 	public CmlAlphabet(Set<CmlEvent> events)
 	{
-		Set<ObservableEvent> observableEvents = new HashSet<ObservableEvent>();
-		this.specialEvents = new HashSet<CmlSpecialEvent>();
+		Set<ObservableEvent> observableEvents = new LinkedHashSet<ObservableEvent>();
+		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
 		this.referenceEvents = new HashMap<ObservableEvent,Set<ObservableEvent>>();
 		
 		for(CmlEvent e : events)
@@ -57,7 +61,7 @@ public class CmlAlphabet {
 		for(ObservableEvent oe : observableEvents)
 		{
 			if(oe.isReferenceEvent())
-				referenceEvents.put(oe, new HashSet<ObservableEvent>());
+				referenceEvents.put(oe, new LinkedHashSet<ObservableEvent>());
 			else
 			{
 				ObservableEvent ref = oe.getReferenceEvent();
@@ -66,7 +70,7 @@ public class CmlAlphabet {
 					referenceEvents.get(ref).add(oe);
 				else
 				{
-					Set<ObservableEvent> mapped = new HashSet<ObservableEvent>();
+					Set<ObservableEvent> mapped = new LinkedHashSet<ObservableEvent>();
 					mapped.add(oe);
 					referenceEvents.put(ref, mapped);
 				}
@@ -77,7 +81,7 @@ public class CmlAlphabet {
 	
 	public Set<ObservableEvent> getObservableEvents()
 	{
-		HashSet<ObservableEvent> obsEvents = new HashSet<ObservableEvent>();
+		Set<ObservableEvent> obsEvents = new LinkedHashSet<ObservableEvent>();
 		for(Set<ObservableEvent> obsEventSet : referenceEvents.values())
 			obsEvents.addAll(obsEventSet);
 		return obsEvents;
@@ -95,12 +99,12 @@ public class CmlAlphabet {
 	
 	public Set<CmlSpecialEvent> getSpecialEvents()
 	{
-		return new HashSet<CmlSpecialEvent>(specialEvents);
+		return new LinkedHashSet<CmlSpecialEvent>(specialEvents);
 	}
 	
 	public Set<CmlEvent> getAllEvents()
 	{
-		HashSet<CmlEvent> allEvents = new HashSet<CmlEvent>();
+		Set<CmlEvent> allEvents = new LinkedHashSet<CmlEvent>();
 		for(Set<ObservableEvent> obsEventSet : referenceEvents.values())
 			allEvents.addAll(obsEventSet);
 		allEvents.addAll(specialEvents);
@@ -133,10 +137,10 @@ public class CmlAlphabet {
 	{
 		
 		//first we find the common reference event set
-		Set<ObservableEvent> commonReferenceSet  = new HashSet<ObservableEvent>(referenceEvents.keySet());
+		Set<ObservableEvent> commonReferenceSet  = new LinkedHashSet<ObservableEvent>(referenceEvents.keySet());
 		commonReferenceSet.retainAll(other.referenceEvents.keySet());
 
-		Set<CmlEvent> resultSet = new HashSet<CmlEvent>();
+		Set<CmlEvent> resultSet = new LinkedHashSet<CmlEvent>();
 		for(ObservableEvent refEvent : commonReferenceSet)
 		{
 			resultSet.addAll( referenceEvents.get(refEvent) );
@@ -151,10 +155,10 @@ public class CmlAlphabet {
 	{
 		
 		//first we find the common reference event set
-		Set<ObservableEvent> commonReferenceSet  = new HashSet<ObservableEvent>(referenceEvents.keySet());
+		Set<ObservableEvent> commonReferenceSet  = new LinkedHashSet<ObservableEvent>(referenceEvents.keySet());
 		commonReferenceSet.retainAll(other.referenceEvents.keySet());
 
-		Set<CmlEvent> resultSet = new HashSet<CmlEvent>();
+		Set<CmlEvent> resultSet = new LinkedHashSet<CmlEvent>();
 		for(ObservableEvent refEvent : commonReferenceSet)
 		{
 			resultSet.addAll( referenceEvents.get(refEvent) );
@@ -183,49 +187,6 @@ public class CmlAlphabet {
 		return new CmlAlphabet(newReferenceEvents,specialEvents);
 	}
 	
-//	/**
-//	 * Discards event that are not in the intersection of this and other but combines the
-//	 * the same events with different sources. 
-//	 * E.g. if we have 
-//	 * 
-//	 * a -> Skip ||| a -> Skip
-//	 * 
-//	 * then we have 'a' from the first (refered to as a_1) and 'a' from the second (refered to as a_2) action so
-//	 * alpha(a -> Skip).discardAndCombine(alpha(a -> Skip)) == alpha(a_1,a_2)
-//	 * @return
-//	 */
-//	public CmlAlphabet discardAndCombine(CmlAlphabet other, boolean mergeEvents)
-//	{
-//		Set<CmlEvent> resultSet = new HashSet<CmlEvent>();
-//		for(CmlEvent e : this.getAllEvents())
-//		{
-//			if(e instanceof CmlSpecialEvent && other.containsSpecialEvent((CmlSpecialEvent)e))
-//				resultSet.add(e);
-//			else
-//			{
-//				for(Iterator<ObservableEvent> it = other.observableEvents.iterator() ; it.hasNext();)		
-//				{
-//					ObservableEvent listComEvent = it.next();
-//					ObservableEvent comEvent = (ObservableEvent)e;
-//					if(listComEvent.equals(comEvent))
-//					{
-//						if(mergeEvents)
-//						{
-//							//resultSet.add(comEvent.createSyncEventWith(null,listComEvent,null));
-//						}
-//						else
-//						{
-//							resultSet.add(e);
-//							resultSet.add(listComEvent);
-//						}
-//					}
-//				}
-//			}
-//		}
-//		
-//		return new CmlAlphabet(resultSet);
-//	}
-	
 	/**
 	 * This determines whether the alphabet contains a communication event where the
 	 * ChannelValue of this is equal to the ChannelValue of comevent. 
@@ -248,60 +209,6 @@ public class CmlAlphabet {
 		
 		//return (findCommunicationsByChannel(comevent.getChannel()).isEmpty() ? false : true);
 	}
-	
-//	public boolean containsCommunication(CmlCommunicationEvent comevent,boolean iqnoreSource)
-//	{
-//		Set<CmlCommunicationEvent> events = findCommunicationsByChannel(comevent.getChannel());
-//		if(iqnoreSource)
-//			return !events.isEmpty();
-//		else 
-//		{
-//			return events.contains(comevent);
-//		}
-//	}
-	
-	
-//	public boolean containsCommunication(CmlCommunicationEvent comevent)
-//	{
-//		Set<CmlCommunicationEvent> found = findCommunicationsByChannel(comevent.getChannel());
-//
-//	}
-	
-//	private Set<ObservableEvent> findCommunicationsByChannel(CMLChannelValue channelValue)
-//	{
-//		Set<ObservableEvent> resultSet = new HashSet<ObservableEvent>();
-//		for(ObservableEvent listComEvent : observableEvents)		
-//		{
-//			if(listComEvent.getChannel().equals(channelValue))
-//				resultSet.add(listComEvent);
-//		}
-//		
-//		return resultSet;
-//	}
-	
-//	/**
-//	 * This determines whether the alphabet contains a specific communication event originating 
-//	 * from a specific process source. So this Checks the channel value for equality and checks if 
-//	 * the source of comevent exists in this.
-//	 * Communication events are both read, write and signalling (or synchronisation) channel events 
-//	 * @return true if the communication event is contained else false
-//	 */
-//	public boolean containsCommunicationFromSpecificSource(CmlCommunicationEvent comevent)
-//	{
-//		return this.communicationEvents.contains(comevent);
-//	}
-	
-//	/**
-//	 * This determines whether the alphabet contains a specific communication event. Where Both the channel value
-//	 * and the CmlProcess sources are check for equality.Communication events are both read, write and 
-//	 * signalling (or synchronisation) channel events. 
-//	 * @return True if the communication event there exist a communication event with the same name and sources 
-//	 * 		   else false
-//	 */
-//	public boolean containsCommunication(CmlCommunicationEvent com)
-//	{
-//		return communicationEvents.contains(com);
-//	}
 	
 	/**
 	 * This determines whether the alphabet contains a specific special event like e.g. the tau event

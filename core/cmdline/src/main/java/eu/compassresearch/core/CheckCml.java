@@ -14,7 +14,6 @@ package eu.compassresearch.core;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
@@ -43,8 +42,12 @@ import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
+import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
+import eu.compassresearch.core.interpreter.scheduler.Scheduler;
+import eu.compassresearch.core.lexer.CmlLexer;
 import eu.compassresearch.core.lexer.ParserError;
-import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -62,7 +65,7 @@ public class CheckCml {
 			List<PSource> sourceForest = new LinkedList<PSource>();
 
 			// Say hello
-			System.out.println(HELLO + " - " + CmlParser.CML_LANG_VERSION);
+			System.out.println(HELLO + " - " + CmlParser.Info.CML_LANG_VERSION);
 
 			// inputs
 			if ((inp = checkInput(args)) == null)
@@ -268,6 +271,7 @@ public class CheckCml {
 				if (f.canRead())
 					r.sourceFiles.add(f);
 				else {
+					handleError(null, f);
 					return null;
 				}
 			}
@@ -536,7 +540,12 @@ public class CheckCml {
 						public void apply(INode root) throws AnalysisException {
 							try {
 								interpreter.setDefaultName(Switch.EXEC.getValue());
-								interpreter.execute();
+								
+								Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+								CmlSupervisorEnvironment sve = 
+										VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
+								
+								interpreter.execute(sve,scheduler);
 							} catch (Exception e) {
 
 								e.printStackTrace();

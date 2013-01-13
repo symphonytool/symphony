@@ -130,7 +130,7 @@ public class ProcessMap {
 
 	    StringBuilder sb = new StringBuilder();
 	    sb.append(startdeadproc.getLeft());
-	    sb.append(" startby e");
+	    sb.append(" startsby e");
 //	    sb.append(startdeadproc.getExpression());
 	    r.add(Wrapper.newInstance(proc, sb.toString()));
 
@@ -334,7 +334,7 @@ public class ProcessMap {
 
 	@Override
 	public String getConnectionSymbol(PProcess proc) {
-	    return " /n\\ ";
+	    return " /e\\ ";
 	}
 
 	@Override
@@ -374,7 +374,7 @@ public class ProcessMap {
 
 	@Override
 	public String getConnectionSymbol(PProcess proc) {
-	    return " [ e |>  ";
+	    return " [ e >  ";
 	}
 
 	@Override

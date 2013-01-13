@@ -45,11 +45,14 @@ public class TestResult {
 				Node n = nl.item(i);
 				LinkedList<String> trace = new LinkedList<String>();
 				
-				String value = n.getFirstChild().getNodeValue();
-				
-				for(String s : value.split(";"))
+				if(n.hasChildNodes())
 				{
-					trace.add(s);
+					String value = n.getFirstChild().getNodeValue();
+
+					for(String s : value.split(";"))
+					{
+						trace.add(s);
+					}
 				}
 				traces.add(trace);
 			}
