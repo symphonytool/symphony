@@ -1,10 +1,13 @@
 package eu.compassresearch.ide.cml.ui.builder;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.ProgressMonitor;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -58,21 +61,56 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
+	
+	private static boolean isChildOfMe(INode me, INode candidate)
+	{
+		if (me == candidate) return true;
+		Map<String, Object> children = me.getChildren(true);
+		for(Object o : children.values())
+		{
+			if (o != null && o instanceof INode)
+			{
+				INode n = (INode)o;
+				isChildOfMe(me,candidate);
+			}
+		}
+		return false;
+	}
+
 	/*
 	 * For each error remove the parent errors so we only see the leafs.
 	 * 
 	 */
 	private static List<CMLTypeError> filterErrros(List<CMLTypeError> errs)
 	{
-		// TODO: RWL
-		return errs;
+		Map<INode, CMLTypeError> nodeToErrorMap = new HashMap<INode,CMLTypeError>();
+
+		for(CMLTypeError error : errs)
+			if (error.getOffendingNode() != null)
+				nodeToErrorMap.put(error.getOffendingNode(), error);
+		
+		List<INode> errorsToKill = new LinkedList<INode>();
+		for(CMLTypeError error : nodeToErrorMap.values())
+		{
+			INode parent = error.getOffendingNode().parent();
+			while(parent != null)
+			{
+				if (nodeToErrorMap.containsKey(parent))
+					errorsToKill.add(parent);
+				parent = parent.parent();
+			}
+		}
+		
+		for(INode n : errorsToKill) nodeToErrorMap.remove(n);
+		
+		return new ArrayList<TypeIssueHandler.CMLTypeError>(nodeToErrorMap.values());
 	}
 
 	private synchronized static boolean typeCheck(IProject project, Map<PSource,IFile> sourceToFileMap)
 	{
 		if (project == null) return false;
 		if (sourceToFileMap == null) return false;
-
+		Thread.currentThread().setName("Type Checker");
 		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 		CmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sourceToFileMap.keySet(), issueHandler);
 		try {
@@ -92,8 +130,9 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 						{
 							IMarker errorMarker = file.createMarker(IMarker.PROBLEM);
 							LexLocation loc = error.getLocation();
+							String offStr = offendingNode == null ? "" : ""+offendingNode.getClass();
 							if (loc != null)
-								setProblem(errorMarker,error.getDescription(), loc.startOffset, loc.endOffset);
+								setProblem(errorMarker,error.getDescription()+offStr, loc.startOffset, loc.endOffset);
 							else
 							{
 								setProblem(errorMarker,error.getDescription(), 1,1);
@@ -141,7 +180,7 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 
 
 
-	private IProject[] buildit() throws CoreException {
+	private IProject[] buildit(IProgressMonitor monitor) throws CoreException {
 		// Remove all markers from project
 		getProject().deleteMarkers(IMarker.PROBLEM, true,
 				IResource.DEPTH_INFINITE);
@@ -168,8 +207,6 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		typeCheck(project,sourceToFileMap);
 
 		
-		
-		
 		// Return the projects that should be build also as result of rebuilding
 		// this
 		return null;
@@ -181,7 +218,7 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		super.startupOnInitialize();
 		try {
 			super.forgetLastBuiltState();
-			buildit();
+			buildit(null);
 		} catch (CoreException e) {
 
 		}
@@ -190,7 +227,7 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected IProject[] build(int kind, Map<String, String> args,
 			IProgressMonitor monitor) throws CoreException {
-		return buildit();
+		return buildit(monitor);
 	}
 
 }

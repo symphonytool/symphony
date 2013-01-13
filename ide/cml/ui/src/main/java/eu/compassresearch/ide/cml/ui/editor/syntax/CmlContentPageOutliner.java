@@ -8,6 +8,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
@@ -57,8 +58,13 @@ IContentOutlinePage {
 		if (curDisp != null)
 			curDisp.syncExec(new Runnable() {
 				public void run() {
+					try {
 					viewer.refresh();
-//					viewer.expandAll();
+					} catch (SWTException e)
+					{
+						//TODO: RWL be quiet
+						// be quiet
+					}
 				}
 			});
 

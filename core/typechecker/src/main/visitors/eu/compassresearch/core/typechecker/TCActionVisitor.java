@@ -8,6 +8,8 @@ import java.util.Map;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.APrivateAccess;
 import org.overture.ast.definitions.AStateDefinition;
@@ -20,6 +22,7 @@ import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AExpressionPattern;
+import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.PPattern;
@@ -1614,6 +1617,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			// // the types in the declared type for the channel
 			// // 
 			// //
+			int paramIndex = 0;
 			if (commParam instanceof AReadCommunicationParameter)
 			{
 				ATypeSingleDeclaration typeDecl = channelNameDefinition.getSingleType();
@@ -1630,6 +1634,22 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				if (typeDecl.getType() == null)
 					typeDecl.setType(new AChannelType(commParam.getLocation(), true));
 
+				if (commPattern instanceof AIdentifierPattern)
+				{
+					AIdentifierPattern id = (AIdentifierPattern)commPattern;
+					AChannelType type = (AChannelType)typeDecl.getType();
+					PType theType = null;
+					if (type.getType() instanceof AProductType)
+					{
+						AProductType pType = (AProductType)type.getType();
+						theType = pType.getTypes().get(paramIndex);
+						paramIndex++;
+					}
+					ALocalDefinition chanDef = AstFactory.newALocalDefinition(commPattern.getLocation(), id.getName(), NameScope.LOCAL, theType);
+					cmlEnv.addVariable(chanDef.getName(),chanDef);
+					
+				}
+				
 				if (commPattern instanceof ATuplePattern)
 				{
 					PType type = typeDecl.getType();
@@ -1923,21 +1943,38 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		LexNameToken name = node.getName();
 		PDefinition callee = question.env.findName(name, NameScope.GLOBAL);
+		
+		LinkedList<PExp> args = node.getArgs();
+		List<PType> argTypes = new LinkedList<PType>();
+		for(PExp e : args)
+		{
+			PType eType = e.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(eType))
+			{
+				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+node)));
+				return node.getType();
+			}
+			argTypes.add(eType);
+			
+		}
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		if (cmlEnv != null)
 		{
 			if (callee == null) callee = cmlEnv.lookup(name, PDefinition.class);
-			if (callee == null) { name.setTypeQualifier(question.qualifiers); callee=cmlEnv.lookup(name, PDefinition.class); }
+			if (callee == null) { name.setTypeQualifier(argTypes); callee=cmlEnv.lookup(name, PDefinition.class); }
 		}
-
+		
+		
+		
+		if(callee == null) callee = cmlEnv.lookup(name, PDefinition.class);
 		if (callee == null)
 			return issueHandler.addTypeError(
 					node,
 					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(name
 							+ ""));
 
-		if (!(callee instanceof AActionDefinition || callee instanceof PAction || callee instanceof SCmlOperationDefinition))
+		if (!(callee instanceof AActionDefinition || callee instanceof PAction || callee instanceof SCmlOperationDefinition || callee instanceof AExplicitFunctionDefinition || callee instanceof AImplicitFunctionDefinition))
 		{
 			return issueHandler.addTypeError(callee,TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION.customizeMessage(""+callee));
 		}
@@ -1960,24 +1997,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 
-		LinkedList<PExp> args = node.getArgs();
-		List<PType> argTypes = new LinkedList<PType>();
-		for (PExp arg : args) {
-			PType argType = arg.apply(parentChecker, question);
-			if (!(TCDeclAndDefVisitor.successfulType(argType)))
-				return issueHandler.addTypeError(arg,
-						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-						.customizeMessage(arg + ""));
-			argTypes.add(argType);
-		}
 
-		// TODO check actual arg types agains the function or operation
-		// parameter types in callee.getType
-		issueHandler.addTypeWarning(node,
-				"Incomplete type checking arguments may be wrong.");
-
-		// TODO Auto-generated method stub
-		return new AActionType(node.getLocation(), true);
+		node.setType(new AActionType(node.getLocation(), true));
+		return node.getType();
 	}
 
 	@SuppressWarnings("deprecation")

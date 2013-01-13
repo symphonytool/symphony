@@ -1565,7 +1565,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
 			$tail.setPredef(predef);
 			
 			// set postdef
-		    LexNameToken name = new LexNameToken("", new LexIdentifierToken("pre_", false, $post.exp.getLocation()));
+		    LexNameToken name = new LexNameToken("", new LexIdentifierToken("post_", false, $post.exp.getLocation()));
 			NameScope scope = NameScope.LOCAL;
 			List<LexNameToken> typeParams = null;
 			AFunctionType type = $tail.getType();
@@ -2084,7 +2084,7 @@ patternList returns[List<PPattern> patterns]
 expr0 returns[PExp exp]
     : e1=expr1 (o='<=>' e2=expr0)?
         {
-            if (e2 == null)
+            if ($e2.exp == null)
                 $exp = $e1.exp;
             else
                 $exp = new AEquivalentBooleanBinaryExp(extractLexLocation($e1.exp,$e2.exp),
@@ -2097,7 +2097,7 @@ expr0 returns[PExp exp]
 expr1 returns[PExp exp]
     : e1=expr2 (o='=>' e2=expr1)?
         {
-            if (e2 == null)
+            if ($e2.exp == null)
                 $exp = $e1.exp;
             else
                 $exp = new AImpliesBooleanBinaryExp(extractLexLocation($e1.exp,$e2.exp),
@@ -2110,7 +2110,7 @@ expr1 returns[PExp exp]
 expr2 returns[PExp exp]
     : e1=expr3 (o='or' e2=expr2)?
         {
-            if (e2 == null)
+            if ($e2.exp == null)
                 $exp = $e1.exp;
             else
                 $exp = new AOrBooleanBinaryExp(extractLexLocation($e1.exp,$e2.exp),
@@ -2123,7 +2123,7 @@ expr2 returns[PExp exp]
 expr3 returns[PExp exp]
     : e1=expr4 (o='and' e2=expr3)?
         {
-            if (e2 == null)
+            if ($e2.exp == null)
                 $exp = $e1.exp;
             else
                 $exp = new AAndBooleanBinaryExp(extractLexLocation($e1.exp,$e2.exp),
@@ -2151,7 +2151,7 @@ binOpRel returns[SBinaryExpBase op]
 expr4 returns[PExp exp]
     : e1=expr5 (binOpRel e2=expr4)?
         {
-            if (e2 == null) {
+            if ($e2.exp == null) {
                 $exp = $e1.exp;
             } else {
                 LexLocation loc = extractLexLocation($e1.exp,$e2.exp);
@@ -2179,7 +2179,7 @@ binOpEval1 returns[SBinaryExpBase op]
 expr5 returns[PExp exp]
     : e1=expr6 (binOpEval1 e2=expr5)?
         {
-            if (e2 == null) {
+            if ($e2.exp == null) {
                 $exp = $e1.exp;
             } else {
                 LexLocation loc = extractLexLocation($e1.exp,$e2.exp);
@@ -2206,7 +2206,7 @@ binOpEval2 returns[SBinaryExpBase op]
 expr6 returns[PExp exp]
     : e1=expr7 (binOpEval2 e2=expr6)?
         {
-            if (e2 == null) {
+            if ($e2.exp == null) {
                 $exp = $e1.exp;
             } else {
                 LexLocation loc = extractLexLocation($e1.exp,$e2.exp);
@@ -2229,7 +2229,7 @@ binOpEval3 returns[SBinaryExpBase op]
 expr7 returns[PExp exp]
     : e1=expr8 (binOpEval3 e2=expr7)?
         {
-            if (e2 == null) {
+            if ($e2.exp == null) {
                 $exp = $e1.exp;
             } else {
                 LexLocation loc = extractLexLocation($e1.exp,$e2.exp);
@@ -2252,7 +2252,7 @@ binOpEval4 returns[SBinaryExpBase op]
 expr8 returns[PExp exp]
     : e1=expr9 (binOpEval4 e2=expr8)?
         {
-            if (e2 == null) {
+            if ($e2.exp == null) {
                 $exp = $e1.exp;
             } else {
                 LexLocation loc = extractLexLocation($e1.exp,$e2.exp);
@@ -2268,7 +2268,7 @@ expr8 returns[PExp exp]
 expr9 returns[PExp exp]
     : e1=expr10 (o='comp' e2=expr9)?
         {
-            if (e2 == null)
+            if ($e2.exp == null)
                 $exp = $e1.exp;
             else
                 $exp = new ACompBinaryExp(extractLexLocation($e1.exp,$e2.exp),
@@ -2281,7 +2281,7 @@ expr9 returns[PExp exp]
 expr10 returns[PExp exp]
     : e1=expr11 (o='**' e2=expr10)?
         {
-            if (e2 == null)
+            if ($e2.exp == null)
                 $exp = $e1.exp;
             else
                 $exp = new AStarStarBinaryExp(extractLexLocation($e1.exp,$e2.exp),

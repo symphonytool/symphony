@@ -934,10 +934,13 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					fnType = ((AExplicitFunctionDefinition)def).getType();
 					break;
 				}
+				
 				if (def instanceof AImplicitFunctionDefinition) {
 					fnType = ((AImplicitFunctionDefinition)def).getType();
 					break;
 				}
+				
+				// just return the result
 				result.add(def);
 				return result;
 
@@ -986,7 +989,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		overtureClassBits = new HashMap<Class<?>, OvertureToCmlHandler>();
 		overtureClassBits.put(ATypeDefinition.class, id);
 		overtureClassBits.put(AExplicitFunctionDefinition.class, new OvertureToCmlFunctionHandler());
-		overtureClassBits.put(AImplicitFunctionDefinition.class, id);
+		overtureClassBits.put(AImplicitFunctionDefinition.class, new OvertureToCmlFunctionHandler());
 		overtureClassBits.put(AValueDefinition.class, id);
 		overtureClassBits.put(AUntypedDefinition.class, id);
 		overtureClassBits.put(AFunctionsDefinition.class, new AFunctionsDefinitionHandler());
@@ -1042,7 +1045,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			if (def instanceof AFunctionsDefinition)
 			{
 				for(PDefinition fdef : ((AFunctionsDefinition) def).getFunctionDefinitions())
-					res.add(fdef);
+					res.addAll(handleDefinitionsForOverture(fdef));
 			}
 			else
 				res.add(def);

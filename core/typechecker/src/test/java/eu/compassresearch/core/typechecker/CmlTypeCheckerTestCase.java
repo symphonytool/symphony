@@ -693,6 +693,11 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "class exlicitfunction   = begin types aunion = nat | <None> functions g:int -> aunion g(a) == if (a = 0) then  <None> else a end", false, true,true,new String[0]);
 		addTestProgram(testData, "class processafterclass = begin types aunion = nat          functions g:int -> aunion g(a) == if (a = 0) then  <None> else a end process A = A ; B", false, true, false, new String[0]);
 		
+		addTestProgram(testData, "class implicitFuncTest = begin types Message :: sender: Id destn : Id message : String;	Log :: eru : ERUId	oldRescue : RescueDetails newRescue : RescueDetails; Id :: type : (<ERU> | <CC>) identifier : token; ERUId = Id RescueDetails :: criticality : int ; String = seq of char functions compareCriticalityFunction: RescueDetails * RescueDetails -> bool compareCriticalityFunction(r, r2) == r.criticality > r2.criticality rescueDetailsToString(r : RescueDetails) s: String post s <> []  stringToRescueDetails (s: String) r : RescueDetails pre s <> [] post true end", false, true,true, new String[0]);
+		
+		addTestProgram(testData, "types Id :: 	type : (<ERU> | <CC>) identifier : token; ERUId = Id; Location = token; Criticality = nat inv c == c < 4; --(<Red> | <Yellow> | <Green> | <White>); red = 3, yellow = 2, green = 1, white = 0 String = seq of char;	RescueDetails :: 	target : Location criticality : Criticality;Message :: 	sender: Id	destn : Id message : String; Log :: 	eru : ERUId	oldRescue : RescueDetails newRescue : RescueDetails; values	functions  compareCriticalityFunction: RescueDetails * RescueDetails -> bool compareCriticalityFunction(r, r2) == r.criticality > r2.criticality rescueDetailsToString(r : RescueDetails) s: String post s <> [] stringToRescueDetails (s: String) r : RescueDetails pre s <> [] post true ", false, true, true, new String[0]);
+
+		addTestProgram(testData, "functions test: int * int -> bool test(a,b) == true channels InOut: int * int * int process A = begin state b:int actions A = InOut?a!b?c -> test(a,c) @ Skip end", false, true, true, new String[0]);
 		return testData;
 	}
 
