@@ -21,4 +21,9 @@ public abstract class CommunicationParameter {
 		return value;
 	}
 	
+	public void setValue(Value value)
+	{
+		this.value = value;
+	}
+	
 }

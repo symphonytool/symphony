@@ -1,7 +1,9 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
+import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
@@ -35,8 +37,13 @@ public class CmlCommunicationEvent extends ObservableEvent {
 	@Override 
 	public int hashCode() {
 		
-		return this.toString().hashCode() + (this.eventSource != null ? this.eventSource.hashCode() : "null".hashCode());
-	};
+		StringBuilder strBuilder = new StringBuilder(channel.getName());
+		for(CommunicationParameter param : params)
+			strBuilder.append(param.getClass().getSimpleName());
+		
+		
+		return strBuilder.toString().hashCode() + (this.eventSource != null ? this.eventSource.hashCode() : "null".hashCode());
+	}
 	
 	public boolean hasSource()
 	{
@@ -67,5 +74,30 @@ public class CmlCommunicationEvent extends ObservableEvent {
 	public ObservableEvent getReferenceEvent() {
 		return new CmlCommunicationEvent(null, (CmlIOChannel<Value>)channel, params);
 	}
+
+//	@Override
+//	public boolean isResolved() {
+//		
+//		boolean resolved = true;
+//		
+//		for(CommunicationParameter p : params)
+//		{
+//			if(p instanceof InputParameter)
+//				resolved &= !(((InputParameter)p).getValue() instanceof UndefinedValue);
+//		}
+//		
+//		return resolved;
+//	}
+//
+//	@Override
+//	public void resolve(EventResolver resolver) {
+//		
+//		for(CommunicationParameter param : params)
+//		{
+//			List<CommunicationParameter> tmpParams = new LinkedList<CommunicationParameter>();
+//			tmpParams.add(param);
+//			resolver.resolve(tmpParams);
+//		}
+//	}
 
 }

@@ -1,6 +1,9 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -78,5 +81,26 @@ public class SynchronisationEvent extends ObservableEvent {
 	public ObservableEvent getReferenceEvent() {
 		return synchronisingEvents.iterator().next().getReferenceEvent();
 	}
+
+//	@Override
+//	public boolean isResolved() {
+//
+//		boolean resolved = true;
+//		
+//		for(ObservableEvent obsEv : synchronisingEvents)
+//			resolved &= obsEv.isResolved();
+//		
+//		return resolved;
+//	}
+//
+//	@Override
+//	public void resolve(EventResolver resolver) {
+//
+////		resolver.
+//		
+//		
+//		for(ObservableEvent obsEv : synchronisingEvents)
+//			obsEv.resolve(resolver);
+//	}
 
 }

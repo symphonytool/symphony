@@ -122,18 +122,6 @@ public class InterpretAllCmlFilesTest {
 		checkResult(testResult, interpreter.getStatus());
 	}
 	
-	private List<String> convertCmlEventsToStringList(List<CmlEvent> events)
-	{
-		List<String> result = new LinkedList<String>();
-
-		for(CmlEvent e : events)
-		{
-			result.add(e.toString());
-		}
-
-		return result;
-	}
-
 	private void checkResult(TestResult testResult, InterpreterStatus status) {
 		if(!testResult.isInterleaved())
 		{

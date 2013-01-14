@@ -34,6 +34,7 @@ import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.CommunicationParameter;
+import eu.compassresearch.core.interpreter.cml.events.InputParameter;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
@@ -152,8 +153,6 @@ public class AlphabetInspector
 					ASignalCommunicationParameter signal = (ASignalCommunicationParameter)p;
 					Value valueExp = signal.getExpression().apply(cmlEvaluator,question);
 					param = new SignalParameter((ASignalCommunicationParameter)p, valueExp);
-					//FIXME: This should be done using the type of the channel
-					//long val = valueExp.intValue(question);
 				}
 				else if(p instanceof AWriteCommunicationParameter)
 				{
@@ -161,10 +160,12 @@ public class AlphabetInspector
 					Value valueExp = signal.getExpression().apply(cmlEvaluator,question);
 					param = new OutputParameter((AWriteCommunicationParameter)p, valueExp);
 				}
-//				else if(p instanceof AReadCommunicationParameter)
-//				{
-//					
-//				}
+				else if(p instanceof AReadCommunicationParameter)
+				{
+					//TODO: At this point the 'in set exp' is not supported
+					AReadCommunicationParameter readParam = (AReadCommunicationParameter)p;
+					param = new InputParameter(readParam);
+				}
 				
 				params.add(param);
 			}
@@ -358,6 +359,8 @@ public class AlphabetInspector
 			public CmlAlphabet inspectChildren() {
 				
 				//convert the channelset of the current node to a alphabet
+				//TODO: The convertChansetExpToAlphabet method is only a temp solution. 
+				//		This must be evaluated differently
 				CmlAlphabet cs = CmlBehaviourThreadUtility.convertChansetExpToAlphabet(null,
 						internalNode.getChansetExpression(),internalQuestion);
 				
@@ -367,16 +370,35 @@ public class AlphabetInspector
 				CmlBehaviourThread rightChild = ownerProcess.children().get(1);
 				CmlAlphabet rightChildAlphabet = rightChild.inspect();
 				
-				CmlAlphabet resultAlpha = leftChildAlphabet.intersectRefsAndJoin(rightChildAlphabet).intersectRefsAndJoin(cs);
+				//Find the intersection between the child alphabets and the channel set
+				CmlAlphabet syncAlpha = leftChildAlphabet.intersectRefsAndJoin(rightChildAlphabet).intersectRefsAndJoin(cs);
 				
-				//convert all the common events into sync events
+				//convert all the common events that are in the channel set into SynchronisationEvent instances
 				Set<CmlEvent> syncEvents = new HashSet<CmlEvent>();
-				for(ObservableEvent ref : resultAlpha.getReferenceEvents())
+				for(ObservableEvent ref : syncAlpha.getReferenceEvents())
 				{
-					syncEvents.add(new SynchronisationEvent(ownerProcess, resultAlpha.getObservableEventsByRef(ref)) );
+					SynchronisationEvent syncEvent = new SynchronisationEvent(ownerProcess, syncAlpha.getObservableEventsByRef(ref)); 
+					
+//					if(!syncEvent.isResolved())
+//						syncEvent.resolve(new EventResolver() {
+//							
+//							@Override
+//							public void resolve(List<CommunicationParameter> params) {
+//
+//								//find all the resolved params first
+////								List<CommunicationParameter> resolved
+//								
+//							}
+//						});
+					
+					syncEvents.add( syncEvent );
 				}
 				
-				resultAlpha = new CmlAlphabet(syncEvents).union(leftChildAlphabet.substract(cs));
+				/*
+				 *	Finally we create the returned alphabet by joining all the synchronised events together with
+				 *	all the event af the children that are not in the channel set
+				 */
+				CmlAlphabet resultAlpha = new CmlAlphabet(syncEvents).union(leftChildAlphabet.substract(cs));
 				resultAlpha = resultAlpha.union(rightChildAlphabet.substract(cs));
 				
 				return resultAlpha;
