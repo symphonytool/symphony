@@ -21,8 +21,4 @@ public abstract class CommunicationParameter {
 		return value;
 	}
 	
-	public abstract void handleChannelEventRegistration(CMLChannelValue channel, ChannelObserver observer);
-	
-	public abstract void handleChannelEventUnregistration(CMLChannelValue channel, ChannelObserver observer);
-	
 }

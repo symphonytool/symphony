@@ -35,6 +35,10 @@ import eu.compassresearch.core.interpreter.runtime.ProcessContext;
 public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements CmlProcessStateObserver, CmlProcessTraceObserver
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4707044690749902194L;
 	private AProcessDefinition processDef;
 	private CmlAction mainBehaviour = null;
 	private Context globalContext;
@@ -80,7 +84,9 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 			else
 			{
 				if(hasNext())
+				{
 					alpha = nextState().first.apply(alphabetInspectionVisitor,nextState().second);
+				}
 				else
 					alpha = new CmlAlphabet();
 			}

@@ -156,7 +156,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			CmlProcessStateEvent ev = new CmlProcessStateEvent(this, this.state, state);
 			this.state = state;
 			notifyOnStateChange(ev);
-			System.out.println(name() + ":" + state.toString());
+			CmlRuntime.logger().finest(name() + ":" + state.toString());
 		}
 	}
 	
@@ -270,22 +270,17 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 	public CmlBehaviourSignal caseACommunicationAction(
 			ACommunicationAction node, Context question)
 			throws AnalysisException {
-		
+		//At this point the supervisor has already given go to the event,
+		//TODO: input is still missing
 		pushNext(node.getAction(), question); 
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 		
-//		CmlBehaviourSignal result = null;
-//		
-//		//TODO: sync/output/input is still missing
-//		//At this point the supervisor has already given go to the event, 
+		 
 //		//so we can execute it immediately. We just have figure out which kind of event it is
 //		if(CmlActionAssistant.isPrefixEvent(node))
 //			result = casePrefixEvent(node, question);
-//	
 //		//supervisor().clearSelectedCommunication();
-//		
-//		return result;
 	}
 	
 	/**

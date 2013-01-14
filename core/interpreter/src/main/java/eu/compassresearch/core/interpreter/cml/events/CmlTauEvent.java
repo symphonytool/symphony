@@ -8,24 +8,32 @@ public class CmlTauEvent extends CmlSpecialEvent {
 
 	protected static CmlTauEvent instance = null;
 	final static String tauString = "\u03C4".toLowerCase();
-	private final INode transitionNode;
+	private final INode transitionSrcNode;
+	private final INode transitionDstNode;
+	private String transitionText = null;
 	
-	public static CmlTauEvent newTauEvent(INode transitionNode)
+	public static CmlTauEvent newTauEvent(INode transitionSrcNode, INode transitionDstNode)
 	{
-		return new CmlTauEvent(transitionNode);  
+		return new CmlTauEvent(transitionSrcNode,transitionDstNode);  
 	}
 		
 	public static CmlTauEvent referenceTauEvent()
 	{
 		if(instance == null)
-			instance = new CmlTauEvent(null);
+			instance = new CmlTauEvent(null,null);
 		
 		return instance;
 	}
-	
-	protected CmlTauEvent(INode transitionNode)
+		
+	protected CmlTauEvent(INode transitionSrcNode, INode transitionDstNode)
 	{
-		this.transitionNode = transitionNode;
+		this.transitionSrcNode = transitionSrcNode;
+		this.transitionDstNode = transitionDstNode;
+	}
+	
+	public void setTransitionText(String text)
+	{
+		transitionText = text;
 	}
 	
 	@Override
@@ -36,7 +44,11 @@ public class CmlTauEvent extends CmlSpecialEvent {
 	@Override
 	public String toString() {
 		if(CmlRuntime.isShowHiddenEvents())
-			return tauString + "(" + ( transitionNode != null ? transitionNode.toString() : "Ref" ) + ")";
+			return tauString + "(" + ( transitionSrcNode != null ? transitionSrcNode.getClass().getSimpleName(): "initial" ) 
+				
+					+ ( transitionText != null ? "--" + transitionText + "-->"  : "->" )
+			
+					+ ( transitionDstNode != null ? transitionDstNode.getClass().getSimpleName(): "" ) + ")";
 		else
 			return tauString;
 	}
