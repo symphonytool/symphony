@@ -1622,10 +1622,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			// // the types in the declared type for the channel
 			// // 
 			// //
+			ATypeSingleDeclaration typeDecl = channelNameDefinition.getSingleType();
 			int paramIndex = 0;
 			if (commParam instanceof AReadCommunicationParameter)
 			{
-				ATypeSingleDeclaration typeDecl = channelNameDefinition.getSingleType();
+				
 				AReadCommunicationParameter readParam = (AReadCommunicationParameter)commParam;
 				commPattern = readParam.getPattern();
 
@@ -1696,11 +1697,32 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			if (commParam instanceof AWriteCommunicationParameter)
 			{
 				AWriteCommunicationParameter writeParam = (AWriteCommunicationParameter)commParam;
+				PExp writeExp = writeParam.getExpression();
+				PType writeExpType = writeExp.apply(parentChecker, question);
+				if(!TCDeclAndDefVisitor.successfulType(writeExpType))
+				{
+					node.setType(issueHandler.addTypeError(writeExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(writeExp+"")));
+					return node.getType();
+				}
+				
+				PType thisType = null;
+				PType type = typeDecl.getType();
+				if (type instanceof AProductType)
+				{
+					AProductType pType = (AProductType)type;
+					thisType = pType.getTypes().get(paramIndex);
+					paramIndex++;
+				}
+				else
+					thisType = type;
+				
+				if (!typeComparator.isSubType(writeExpType, thisType))
+				{
+					node.setType(issueHandler.addTypeError(commParam, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""+thisType,""+writeExpType)));
+					return node.getType();
+				}
+				
 			}
-
-
-			// Else wierd stuff
-			issueHandler.addTypeWarning(node,TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(commParam+""));
 		}
 
 
