@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
+import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.channels.CmlSignalChannel;
 
@@ -36,5 +37,15 @@ public class PrefixEvent extends ObservableEvent {
 	@Override
 	public ObservableEvent getReferenceEvent() {
 		return new PrefixEvent(null, (CmlSignalChannel)channel);
+	}
+
+	@Override
+	public CmlAlphabet getAsAlphabet() {
+		return new CmlAlphabet(this);
+	}
+
+	@Override
+	public ObservableEvent synchronizeWith(CmlBehaviourThread source,ObservableEvent syncEvent) {
+		return new PrefixSyncEvent(source, this, syncEvent);
 	}
 }

@@ -1,28 +1,27 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
-import java.util.LinkedList;
 import java.util.List;
 
-import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.channels.CmlIOChannel;
+import eu.compassresearch.core.interpreter.util.AbstractValueInterpreter;
 
-public class CmlCommunicationEvent extends ObservableEvent {
+public class CmlCommunicationEvent extends ObservableValueEvent {
 
 	final protected List<CommunicationParameter> params;
+	private Value value;
 	
 	public CmlCommunicationEvent(CmlBehaviourThread source, CmlIOChannel<Value> channel, List<CommunicationParameter> params)
 	{
 		super(source,channel);
 		this.params = params;
+		
+		//TODO: this have to be expanded to all of them
+		value = this.params.get(0).getValue();
 	}
-	
-//	public Value getValue()
-//	{
-//		return value;
-//	}
 	
 	@Override 
 	public String toString() 
@@ -66,7 +65,9 @@ public class CmlCommunicationEvent extends ObservableEvent {
 		other = (CmlCommunicationEvent)obj;
 		
 		return other.getChannel().equals(getChannel()) && 
-				other.getEventSource() == getEventSource();
+				other.getEventSource() == getEventSource() &&
+				(other.getValue().equals(this.getValue()) ||
+						AbstractValueInterpreter.isMorePrecise(other.getValue(), this.getValue()));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -75,29 +76,23 @@ public class CmlCommunicationEvent extends ObservableEvent {
 		return new CmlCommunicationEvent(null, (CmlIOChannel<Value>)channel, params);
 	}
 
-//	@Override
-//	public boolean isResolved() {
-//		
-//		boolean resolved = true;
-//		
-//		for(CommunicationParameter p : params)
-//		{
-//			if(p instanceof InputParameter)
-//				resolved &= !(((InputParameter)p).getValue() instanceof UndefinedValue);
-//		}
-//		
-//		return resolved;
-//	}
-//
-//	@Override
-//	public void resolve(EventResolver resolver) {
-//		
-//		for(CommunicationParameter param : params)
-//		{
-//			List<CommunicationParameter> tmpParams = new LinkedList<CommunicationParameter>();
-//			tmpParams.add(param);
-//			resolver.resolve(tmpParams);
-//		}
-//	}
+	@Override
+	public Value getValue() {
 
+		return value;
+	}
+	
+	@Override
+	public CmlAlphabet getAsAlphabet() {
+
+		return new CmlAlphabet(this);
+	}
+
+	@Override
+	public ObservableEvent synchronizeWith(CmlBehaviourThread source,
+			ObservableEvent syncEvent) {
+		//TODO:change into another!
+		return null;
+		//return new PrefixSyncEvent(source, this, syncEvent);
+	}
 }

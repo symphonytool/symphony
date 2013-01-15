@@ -10,18 +10,18 @@ import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
 
-public class SynchronisationEvent extends ObservableEvent {
+public class PrefixSyncEvent extends ObservableEvent {
 
 	private Set<ObservableEvent> synchronisingEvents; 
 	
-	public SynchronisationEvent(CmlBehaviourThread eventSource, ObservableEvent first, ObservableEvent second) {
+	public PrefixSyncEvent(CmlBehaviourThread eventSource, ObservableEvent first, ObservableEvent second) {
 		super(eventSource, first.getChannel());
 		synchronisingEvents = new HashSet<ObservableEvent>();
 		synchronisingEvents.add(first);
 		synchronisingEvents.add(second);
 	}
 	
-	public SynchronisationEvent(CmlBehaviourThread eventSource, Set<ObservableEvent> synchronisingEvents) {
+	public PrefixSyncEvent(CmlBehaviourThread eventSource, Set<ObservableEvent> synchronisingEvents) {
 		super(eventSource, extractChannelValue(synchronisingEvents));
 		this.synchronisingEvents = synchronisingEvents;
 	}
@@ -29,14 +29,6 @@ public class SynchronisationEvent extends ObservableEvent {
 	private static CmlChannel extractChannelValue(Set<ObservableEvent> synchronisingEvents)
 	{
 		CmlChannel channel = synchronisingEvents.iterator().next().getChannel();
-		//TODO Check that the all the channels are equal
-//		for(ObservableEvent oe : synchronisingEvents)
-//		{
-//			if(channel == null || (channel != null && channel))
-//			{
-//				channel = oe.getChannel();
-//			}
-//		}
 		return channel;
 	}
 	
@@ -64,9 +56,9 @@ public class SynchronisationEvent extends ObservableEvent {
 	@Override
 	public boolean equals(Object obj) {
 		
-		if((obj instanceof SynchronisationEvent))
+		if((obj instanceof PrefixSyncEvent))
 		{
-			SynchronisationEvent other = (SynchronisationEvent)obj;
+			PrefixSyncEvent other = (PrefixSyncEvent)obj;
 			return other.getChannel().equals(getChannel()) && 
 					synchronisingEvents.equals(other.synchronisingEvents);
 		}
@@ -79,7 +71,24 @@ public class SynchronisationEvent extends ObservableEvent {
 	 */
 	@Override
 	public ObservableEvent getReferenceEvent() {
-		return synchronisingEvents.iterator().next().getReferenceEvent();
+		
+		return getAsAlphabet().getReferenceEvents().iterator().next();
+	}
+
+	@Override
+	public CmlAlphabet getAsAlphabet() {
+
+		CmlAlphabet alpha = new CmlAlphabet();
+		for(ObservableEvent ev : synchronisingEvents)
+			alpha = alpha.union(ev.getAsAlphabet());
+		
+		return alpha;
+	}
+
+	@Override
+	public ObservableEvent synchronizeWith(CmlBehaviourThread source,
+			ObservableEvent syncEvent) {
+		return new PrefixSyncEvent(source, this, syncEvent);
 	}
 
 //	@Override

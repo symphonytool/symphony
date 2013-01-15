@@ -10,7 +10,7 @@ public class InputParameter extends CommunicationParameter {
 	private AReadCommunicationParameter node;
 
 	public InputParameter(AReadCommunicationParameter node) {
-		super(new UndefinedValue());
+		super(new UndefinedValue(),node);
 		this.node = node;
 	}
 	

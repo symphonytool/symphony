@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.eval;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +40,7 @@ import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
-import eu.compassresearch.core.interpreter.cml.events.SynchronisationEvent;
+import eu.compassresearch.core.interpreter.cml.events.PrefixSyncEvent;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
@@ -377,21 +378,8 @@ public class AlphabetInspector
 				Set<CmlEvent> syncEvents = new HashSet<CmlEvent>();
 				for(ObservableEvent ref : syncAlpha.getReferenceEvents())
 				{
-					SynchronisationEvent syncEvent = new SynchronisationEvent(ownerProcess, syncAlpha.getObservableEventsByRef(ref)); 
-					
-//					if(!syncEvent.isResolved())
-//						syncEvent.resolve(new EventResolver() {
-//							
-//							@Override
-//							public void resolve(List<CommunicationParameter> params) {
-//
-//								//find all the resolved params first
-////								List<CommunicationParameter> resolved
-//								
-//							}
-//						});
-					
-					syncEvents.add( syncEvent );
+					Iterator<ObservableEvent> it = syncAlpha.getObservableEventsByRef(ref).iterator(); 
+					syncEvents.add( it.next().synchronizeWith(ownerProcess, it.next()));
 				}
 				
 				/*

@@ -12,7 +12,7 @@ public class SignalParameter extends CommunicationParameter {
 	
 	public SignalParameter(ASignalCommunicationParameter node, Value value)
 	{
-		super(value);
+		super(value,node);
 	}
 	
 	@Override

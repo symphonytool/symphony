@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter.cml.events;
 
 import java.util.List;
 
+import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
 
@@ -37,6 +38,10 @@ public abstract class ObservableEvent extends CmlEvent {
 	 * @return
 	 */
 	public abstract ObservableEvent getReferenceEvent();
+	
+	public abstract CmlAlphabet getAsAlphabet();
+	
+	public abstract ObservableEvent synchronizeWith(CmlBehaviourThread source,ObservableEvent syncEvent);
 	
 //	/**
 //	 * Determines whether the are any input parameters that does not have a specific value

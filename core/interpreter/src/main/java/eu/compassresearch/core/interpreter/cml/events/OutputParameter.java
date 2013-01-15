@@ -12,7 +12,7 @@ public class OutputParameter extends CommunicationParameter {
 	
 	public OutputParameter(AWriteCommunicationParameter node, Value value)
 	{
-		super(value);
+		super(value,node);
 		this.node = node;
 	}
 	

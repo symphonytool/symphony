@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -205,7 +206,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
 			CmlSupervisorEnvironment sve = 
 					VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
-			
+			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.execute(sve,scheduler);
 		} catch (Exception ex)
 		{

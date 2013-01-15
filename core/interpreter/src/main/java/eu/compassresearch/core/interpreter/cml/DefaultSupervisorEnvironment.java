@@ -34,17 +34,17 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 //	}
 
 	@Override
-	public boolean communicationSelected() {
+	public boolean isObservableEventSelected() {
 		return selectedCommunication != null;
 	}
 
 	@Override
-	public ObservableEvent selectedCommunication() {
+	public ObservableEvent selectedObservableEvent() {
 		return selectedCommunication;
 	}
 
 	@Override
-	public void setSelectedCommunication(ObservableEvent comm) {
+	public void setSelectedObservableEvent(ObservableEvent comm) {
 		selectedCommunication = comm;
 		//signal all the processes that are listening for events on this channel
 		selectedCommunication.getChannel().select();
