@@ -12,9 +12,6 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 public class CmlEvaluator extends QuestionAnswerCMLAdaptor<Context, Value> {
 
 	private QuestionAnswerCMLAdaptor<Context, Value> exp;
-	//private QuestionAnswerCMLAdaptor<CMLContext, CMLProcessOld> prc;
-	//private QuestionAnswerCMLAdaptor<CMLContext, AbstractCMLProcess> prc;
-	//private QuestionAnswerCMLAdaptor<CMLContext, AbstractCMLAction> act;
 	//private QuestionAnswerCMLAdaptor<CMLContext, Value> act;
 	private QuestionAnswerCMLAdaptor<Context, Value> def;
 			

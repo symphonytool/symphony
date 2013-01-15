@@ -1,89 +1,262 @@
 package eu.compassresearch.core.interpreter.cml;
 
-import java.util.List;
-
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.values.CPUValue;
 
+import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.ast.process.AReferenceProcess;
+import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
+import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
-import eu.compassresearch.core.interpreter.events.EventSource;
-import eu.compassresearch.core.interpreter.util.Pair;
+import eu.compassresearch.core.interpreter.events.TraceEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+import eu.compassresearch.core.interpreter.runtime.ProcessContext;
+/**
+ *  This class represents a running CML Process. It represents a specific node as specified in D23.2 section 7.4.2,
+ *  where a node is specified as a tuple (w,s,a) where w is the set of variables, s is the state values and a is the 
+ *  current action.
+ *  w and s are stored in the current Context object and a is represented by storing the next action AST node to be executed.
+ * 
+ * 	The possible transitions are handled in the visitor case methods.
+ * 
+ *  Therefore this Class should fully consistent with the operational semantics described in D23.2 chapter 7.
+ * 
+ * 
+ * @author akm
+ *
+ */
+public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements CmlProcessStateObserver, CmlProcessTraceObserver
+{
 
+	private AProcessDefinition processDef;
+	private CmlAction mainBehaviour = null;
+	private Context globalContext;
+	
+	public CmlProcess(AProcessDefinition processDef, CmlProcess parent, Context globalContext)
+	{
+		super(parent);
+		this.globalContext = globalContext; 
+		ProcessContext context = new ProcessContext(processDef.getLocation(), "", globalContext, null);
+		this.processDef = processDef;
+		//this.prcEval = new ProcessEvaluatorNew(processDef.getProcess(),context,this);
+		pushNext(processDef.getProcess(), context);
+	}
+	
+	public CmlProcess(PProcess startProcess, CmlProcess parent, Context globalContext)
+	{
+		super(parent);
+		this.globalContext = globalContext; 
+		ProcessContext context = new ProcessContext(processDef.getLocation(), "", globalContext, null);
+		this.processDef = null;
+		//this.prcEval = new ProcessEvaluatorNew(processDef.getProcess(),context,this);
+		pushNext(startProcess, context);
+	}
+	
+	@Override
+	public void start(CmlSupervisorEnvironment env) {
+		this.env = env;
+		state = CmlProcessState.RUNNABLE;
+		env.addPupil(this);
+	}
 
-public interface CmlProcess extends CmlProcessBehaviour{
+	@Override
+	public CmlAlphabet inspect() 
+	{
+		try{
 
-	/**
-	 * Initialises the process
-	 * @param env
-	 */
-	public void start(CmlSupervisorEnvironment env);
+			CmlAlphabet alpha = null;
+
+			//If this process is a state process it has its behaviour defined in the mainBehaviour action part
+			//Therefore when this process is inspected this is forwarded to the mainBehaviour
+			if(null != mainBehaviour)
+				alpha = mainBehaviour.inspect();
+			else
+			{
+				if(hasNext())
+					alpha = nextState().first.apply(alphabetInspectionVisitor,nextState().second);
+				else
+					alpha = new CmlAlphabet();
+			}
+
+			return alpha;
+			
+		}catch(AnalysisException ex)
+		{
+			CmlRuntime.logger().throwing(this.toString(),"inspect()", ex);
+			throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage(),ex);
+		}
+	}
 	
-	/**
-	 * 
-	 * @return The current supervisor of this process
-	 */
-	public CmlSupervisorEnvironment supervisor();
-	
-	/**
-	 * Returns the current context of the process
-	 * @return The current context
-	 */
-	public Pair<? extends INode,Context> getExecutionState();
-	
-	/**
-	 * Name of the process
-	 * @return The name of the process
-	 */
-	public LexNameToken name();
+	@Override
+	public LexNameToken name() {
+		return processDef.getName();
+	}
+
+	@Override
+	public CmlProcessState getState() {
+		//If the main behaviour is null then this process is either not started or it is a composition process without
+		//behavior defined through other defined processes
+		if(null == mainBehaviour)
+			return this.state;
+		else
+			return mainBehaviour.getState();
+	}
+
+	@Override
+	protected void setState(CmlProcessState state) {
 		
-	/**
-	 * This constructs a string representing the next execution step of this process
-	 * @return
-	 */
-	public String nextStepToString();
+		if(getState() != state)
+		{
+
+			if(null == mainBehaviour)
+			{
+				CmlProcessStateEvent ev = new CmlProcessStateEvent(this, this.state, state);
+				this.state = state;
+				notifyOnStateChange(ev);
+			}
+			else
+				mainBehaviour.setState(state);
+		}
+	}
 	
-	// Process Graph/Representation related methods
-	public long level();
-	public CmlProcess parent();
-	public List<CmlProcess> children();
-//	public CMLAlphabet childInspectedAlphabet(CMLProcessNew child);
-//	public void setChildInspectedAlphabet(CMLProcessNew child, CMLAlphabet alpha);
-	//public boolean hasChild(CMLProcess child, boolean recursive);
-	public boolean hasChildren();
+	@Override
+	public String nextStepToString() {
+		
+		String value = null;
+		
+		if(hasNext())
+		{
+			if(mainBehaviour == null)
+				value = nextState().first.toString();
+			else
+				value = nextState().first.toString() + mainBehaviour.nextStepToString();
+		}
+		else
+			value = "Finished";
+
+
+		return value;
+	}
 	
-	/**
-	 * Process state methods 
-	 */
-	public boolean started();
-	public boolean running();
-	public boolean finished();
-	public boolean waiting();
-	/**
-	 * Determines if this process is deadlocked
-	 * @return true if the process is deadlocked else false
-	 */
-	public boolean deadlocked();
-	/**
-	 * @return The current state of the process
-	 */
-	public CmlProcessState getState();
+	@Override
+	public String toString() {
+
+		return name().toString();
+	}
 
 	/**
-	 * Register or unregister for the State Changed event
-	 * @return The appropriate EventSource for event registration
+	 * CmlProcessObserver interface methods
 	 */
-	public EventSource<CmlProcessStateObserver> onStateChanged();
+	
+	@Override
+	public void onStateChange(CmlProcessStateEvent stateEvent) {
+		
+		//special case for the action behaviour of a process
+		if(stateEvent.getSource() == this.mainBehaviour)
+		{
+			notifyOnStateChange(new CmlProcessStateEvent(this, stateEvent.getFrom(), stateEvent.getTo()));
+		}
+	}
 	
 	/**
-	 * Denotational Semantics Information
+	 * This will provide the traces from all the child actions
 	 */
-	public CmlTrace getTraceModel();
+	@Override
+	public void onTraceChange(TraceEvent traceEvent) {
+
+		//To prevent the trace to get updated twice from the mainThread, we need to check that
+		//the event did not originate from the mainThread since this would already be registered
+		if(traceEvent.getSource() == this.mainBehaviour  && traceEvent.isRedirectedEvent())
+		{
+			this.trace.addEvent(traceEvent.getEvent());
+			notifyOnTraceChange(TraceEvent.createRedirectedEvent(this, traceEvent));
+		}
+	}
 	
 	/**
-	 * Register or unregister for the State Changed event
-	 * @return The appropriate EventSource for event registration
+	 * Transition functions
 	 */
-	public EventSource<CmlProcessTraceObserver> onTraceChanged();
+		
+	@Override
+	public CmlBehaviourSignal caseAActionProcess(AActionProcess node, Context question) throws AnalysisException
+	{
+		CmlBehaviourSignal ret = null;
+		//The behavior of this process has not been started yet, so start it and execute the main
+		//Behavior in the next execution step
+		if(mainBehaviour == null)
+		{
+			// TODO Add state, value, etc to the corresponding processValue and
+			
+			//Create the context for this process and hand it over to the process behavior 
+			Context newContext = new Context(node.getLocation(), "Process Context :" + name(), question);
+			//this needs to be set when we evaluates the expressions
+			newContext.setThreadState(null, CPUValue.vCPU);
+			
+			for (PDefinition def : node.getDefinitionParagraphs())
+			{
+				def.apply(cmlEvaluator, newContext);
+				// question.put(def.getName(), def.getType().g);
+			}
+
+			//Create the name for the action behavior and start it 
+			LexNameToken mainActionName = new LexNameToken(name().getModule(),
+					name().getName() + "@",
+					node.getAction().getLocation());
+
+			mainBehaviour = new CmlAction(node.getAction(),newContext,mainActionName);
+			mainBehaviour.onStateChanged().registerObserver(this);
+			mainBehaviour.onTraceChanged().registerObserver(this);
+			mainBehaviour.start(supervisor());
+			//push this node onto the execution stack again since this should execute
+			//the action behavoir until it terminates
+			pushNext(node, newContext);
+			ret = CmlBehaviourSignal.EXEC_SUCCESS; 
+		}
+		else
+		{
+			if(!mainBehaviour.finished())
+			{
+				ret = mainBehaviour.execute(supervisor());
+				pushNext(node, question);
+			}
+			else
+			{
+				ret = CmlBehaviourSignal.EXEC_SUCCESS; 
+			}
+		}
+				
+		return ret;
+	}
+	
+	/**
+	 * This implements the 7.5.10 Action Reference transition rule in D23.2. 
+	 * (Even though this is a process I assume something similar will happen)
+	 */
+	@Override
+	public CmlBehaviourSignal caseAReferenceProcess(AReferenceProcess node,
+			Context question) throws AnalysisException {
+
+		//TODO add decls to the context
+		//ProcessValue value = new ProcessValue();
+		//ProcessContext processContext = new ProcessContext(node.getLocation(), "", 
+		//		question.getGlobal(), value);
+		Context newContext = new Context(node.getLocation(), "Child Process Context", question.getGlobal());
+
+		AProcessDefinition processDef = node.getProcessDefinition();
+
+		CmlProcess childProcess = new CmlProcess(processDef, this, newContext);
+
+		this.children.add(childProcess);
+
+
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
 }

@@ -695,11 +695,22 @@ action0Ops returns[PAction op]
                 $op = sppa;
             } else {
                 AGeneralisedParallelismParallelAction gppa = new AGeneralisedParallelismParallelAction();
-                gppa.setLeftNamesetExpression($first.vexp);
-                if ($third.vexp != null) {
-                    gppa.setChansetExpression($second.vexp);
-                    gppa.setRightNamesetExpression($third.vexp);
+                if($first.vexp != null && $second.vexp != null && $third.vexp != null)
+                {
+                	gppa.setLeftNamesetExpression($first.vexp);
+                	gppa.setChansetExpression($second.vexp);			
+                	gppa.setRightNamesetExpression($third.vexp);
                 }
+                else if($first.vexp != null && $second.vexp != null && $third.vexp == null)
+                {
+                	gppa.setLeftNamesetExpression($first.vexp);
+                	gppa.setRightNamesetExpression($second.vexp);
+                }
+                else if($first.vexp != null && $second.vexp == null && $third.vexp == null)
+                {
+                	gppa.setChansetExpression($first.vexp);
+                }
+                
                 $op = gppa;
             }
         }
@@ -745,7 +756,7 @@ actionbase returns[PAction action]
         {
             if ($action.action == null) {
                 LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
-                $action = new ACallStatementAction(null, name, new ArrayList<PExp>());
+                $action = new AReferenceAction(null, name, new ArrayList<PExp>());
             } else {
                 LexIdentifierToken id = new LexIdentifierToken($IDENTIFIER.getText(), false, extractLexLocation($IDENTIFIER));
                 $action = new ACommunicationAction(null, id, $communicationList.comms, $action.action);
@@ -1531,7 +1542,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             $tail.setResult(resultTypePair);
 
             PExp preExp = $tail.getPrecondition();
-            if ($pre.exp != null)
+            if ($pre.exp != null) 
                 preExp = $pre.exp;
             else
                 preExp = AstFactory.newABooleanConstExp(new LexBooleanToken(true, extractLexLocation($resultTypeList.stop)));

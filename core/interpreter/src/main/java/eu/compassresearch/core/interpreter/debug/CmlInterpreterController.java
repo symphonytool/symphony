@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter.debug;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -14,11 +15,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.ast.program.AFileSource;
+import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
@@ -27,7 +33,8 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgStatusMessage;
@@ -39,13 +46,17 @@ import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlResponseMessage;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
-import eu.compassresearch.core.lexer.CmlLexer;
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
+import eu.compassresearch.core.interpreter.scheduler.Scheduler;
+import eu.compassresearch.core.interpreter.util.CmlUtil;
+import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
-public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
+public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 
 	private CmlInterpreter cmlInterpreter;
 	private Socket requestSocket;
@@ -81,7 +92,7 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 				do
 				{
 					messageContainer = recvMessage();
-					System.out.println(messageContainer);
+					CmlRuntime.logger().finest("Receiving message: " + messageContainer.toString());
 				}
 				while (!stopped && processMessage(messageContainer));
 			
@@ -94,9 +105,9 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 		
 	}
 	
-	public CmlInterpreterRunner(List<PSource> cmlSources) throws InterpreterException
+	public CmlInterpreterController(CmlInterpreter cmlInterpreter) throws InterpreterException
 	{
-		cmlInterpreter = VanillaInterpreterFactory.newInterpreter(cmlSources);
+		this.cmlInterpreter = cmlInterpreter;
 	}
 	
 	private boolean isConnected()
@@ -106,7 +117,11 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 	
 	public void run() throws InterpreterException
 	{
-		cmlInterpreter.execute();
+		Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+		CmlSupervisorEnvironment sve = 
+				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
+		
+		cmlInterpreter.execute(sve,scheduler);
 	}
 	
 	public void debug() throws InterpreterException
@@ -188,7 +203,7 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 	private void sendStatusMessage(CmlDbgpStatus status, InterpreterStatus interpreterStatus)
 	{
 		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(status,interpreterStatus);
-		System.out.println(dm);
+		CmlRuntime.logger().finest("Sending status message : " + dm.toString());
 		CmlMessageCommunicator.sendMessage(requestOS, dm);
 	}
 	
@@ -228,42 +243,46 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 			//sendStatusMessage(CmlDbgpStatus.RUNNING);
 			
 			try{
+				Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+				CmlSupervisorEnvironment sve = 
+						VanillaInterpreterFactory.newCmlSupervisorEnvironment(new CmlCommunicationSelectionStrategy() {
+
+							@Override
+							public ObservableEvent select(CmlAlphabet availableChannelEvents) {
+
+								sendStatusMessage(CmlDbgpStatus.CHOICE, CmlInterpreterController.this.cmlInterpreter.getStatus());
+								
+								//convert to list of strings for now
+								List<String> events = new LinkedList<String>();
+								for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
+								{
+									events.add(comEvent.getChannel().getName());
+								}
+
+								CmlResponseMessage response = sendRequestSynchronous(new CmlRequestMessage(CmlRequest.CHOICE,events));
+
+								if(response.isRequestInterrupted())
+									throw new InterpreterRuntimeException("intepreter interrupted");
+
+								//TODO At the moment if there are two identical events from different processes on the same channel
+								//	then the user cannot distuingiues between the two and for now it will only be the first event in the list
+								String responseStr = response.getContent(String.class);
+								//System.out.println("response: " + responseStr);
+								
+								ObservableEvent selectedEvent = null;
+								//For now we just search naively to find the event
+								for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
+								{
+									//System.out.println("found: " + comEvent.getChannel().getName());
+									if(comEvent.getChannel().getName().equals(responseStr))
+										selectedEvent = comEvent;
+								}
+
+								return selectedEvent;
+							}
+						}, scheduler);
 			
-				cmlInterpreter.execute(new CmlCommunicationSelectionStrategy() {
-
-					@Override
-					public ObservableEvent select(CmlAlphabet availableChannelEvents) {
-
-						sendStatusMessage(CmlDbgpStatus.CHOICE, CmlInterpreterRunner.this.cmlInterpreter.getStatus());
-						
-						//convert to list of strings for now
-						List<String> events = new LinkedList<String>();
-						for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
-						{
-							events.add(comEvent.getChannel().getName());
-						}
-
-						CmlResponseMessage response = sendRequestSynchronous(new CmlRequestMessage(CmlRequest.CHOICE,events));
-						System.out.println(response);
-
-						if(response.isRequestInterrupted())
-							throw new InterpreterRuntimeException("intepreter interrupted");
-
-						String responseStr = response.getContent(String.class);
-						System.out.println("response: " + responseStr);
-						
-						ObservableEvent selectedEvent = null;
-						//For now we just search naively to find the event
-						for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
-						{
-							System.out.println("found: " + comEvent.getChannel().getName());
-							if(comEvent.getChannel().getName().equals(responseStr))
-								selectedEvent = comEvent;
-						}
-
-						return selectedEvent;
-					}
-				});
+				cmlInterpreter.execute(sve,scheduler);
 			}
 			catch(InterpreterRuntimeException e)
 			{
@@ -345,51 +364,63 @@ public class CmlInterpreterRunner implements CmlInterpreterStatusObserver {
 	 * @throws AnalysisException 
 	 */
 	public static void main(String[] args) throws IOException, InterpreterException, AnalysisException {
-		System.out.println(args);
+
 		//Index 0 of args is the JSON config
 		Object obj=JSONValue.parse(args[0]);
 		JSONObject config =(JSONObject)obj;
 		//retrieve the paths for the cml sources of the project
-		List<String> cmlfilePaths = getCmlfilePaths((String)config.get("eu.compassresearch.ide.cml.interpreter_plugin.cml_sources_path"));
-		System.out.println(cmlfilePaths);
+		String sourcesPath = (String)config.get(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString());
+		//retrieve the top process name
+		String startProcessName = (String)config.get(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString());
+
+		if(sourcesPath == null || sourcesPath.length() == 0)
+		{
+			System.out.println("The path to the cml sources are not defined");
+			return;
+		}
 	
 		List<PSource> sourceForest = new LinkedList<PSource>();
 		
 		// build the forest
-		for (String path : cmlfilePaths) {
+		for (String path : getCmlfilePaths(sourcesPath)) {
 			
 			File source = new File(path);
 			System.out.println("Parsing file: " + source);
-			AFileSource currentTree = new AFileSource();
-			currentTree.setName(source.getName());
-			FileReader input = new FileReader(source);
-			CmlLexer lexer = new CmlLexer(input);
-			CmlParser parser = new CmlParser(lexer);
-			parser.setDocument(currentTree);
-			if (!parser.parse()) {
+			AFileSource currentFileSource = new AFileSource();
+			currentFileSource.setName(source.getName());
+			currentFileSource.setFile(source);
+						
+			if (!CmlUtil.parseSource(currentFileSource)) {
 				//handleError(lexer, source);
 				return;
 			} else
-				sourceForest.add(currentTree);
+				sourceForest.add(currentFileSource);
 		}
 
 		//create the typechecker and typecheck the source forest
 		TypeIssueHandler ih = VanillaFactory.newCollectingIssueHandle();
 		CmlTypeChecker tc = VanillaFactory.newTypeChecker(sourceForest, ih);
-		
+		System.out.println("Typechecking...");
 		if(tc.typeCheck())
 		{
+			System.out.println("Typechecking: OK");
 			String mode = (String)config.get("mode");
-			CmlInterpreterRunner runner = new CmlInterpreterRunner(sourceForest);
+			
+			CmlInterpreter cmlInterpreter = VanillaInterpreterFactory.newInterpreter(sourceForest);
+			cmlInterpreter.setDefaultName(startProcessName);
+			
+			CmlInterpreterController runner = new CmlInterpreterController(cmlInterpreter);
+			System.out.println("Starting the interpreter...");
 			if(mode.equals("run"))
 				runner.run();
 			else if(mode.equals("debug"))
 				runner.debug();
-			else if(mode.equals("animate"))
-				runner.debug();
+//			else if(mode.equals("animate"))
+//				runner.debug();
 		}
 		else
 		{
+			System.out.println("Typechecking: Error(s)");
 			System.out.println(ih.getTypeErrors());
 		}
 	}

@@ -1,21 +1,20 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
-import eu.compassresearch.core.interpreter.events.ChannelObserver;
-import eu.compassresearch.core.interpreter.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
 
 public abstract class ObservableEvent extends CmlEvent {
 
-	final protected CMLChannelValue channel;
-	final protected CmlProcess eventSource;
+	final protected CmlChannel channel;
+	final protected CmlBehaviourThread eventSource;
 	
-	public ObservableEvent(CmlProcess eventSource, CMLChannelValue channel)
+	public ObservableEvent(CmlBehaviourThread eventSource, CmlChannel channel)
 	{
 		this.eventSource = eventSource;
 		this.channel = channel;
 	}
 	
-	public CmlProcess getEventSource()
+	public CmlBehaviourThread getEventSource()
 	{
 		return eventSource;
 	}
@@ -25,16 +24,11 @@ public abstract class ObservableEvent extends CmlEvent {
 		return getEventSource() == null;
 	}
 	
-	public CMLChannelValue getChannel()
+	public CmlChannel getChannel()
 	{
 		return channel;
 	}
 	
 	public abstract ObservableEvent getReferenceEvent();
 	
-	public abstract boolean isReferencedFrom(ObservableEvent ref);
-	
-	public abstract void handleChannelEventRegistration(ChannelObserver observer);
-	
-	public abstract void handleChannelEventUnregistration(ChannelObserver observer);
 }

@@ -5,17 +5,15 @@ import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationType;
-import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
-import eu.compassresearch.core.interpreter.cml.channels.CmlChannelSignal;
-import eu.compassresearch.core.interpreter.cml.channels.CmlInputChannel;
-import eu.compassresearch.core.interpreter.cml.channels.CmlOutputChannel;
+import eu.compassresearch.core.interpreter.cml.channels.CmlSignalChannel;
+import eu.compassresearch.core.interpreter.cml.channels.CmlIOChannel;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
 import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 
-public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSignal,CmlOutputChannel<Value> ,CmlInputChannel<Value> 
+public class CMLChannelValue extends Value implements CmlSignalChannel, CmlIOChannel<Value>
 {
 
 	private LexNameToken 					name;
@@ -39,6 +37,9 @@ public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSign
 	private EventSourceHandler<ChannelObserver,CmlChannelEvent> readObservers =
 			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
 	private EventSourceHandler<ChannelObserver,CmlChannelEvent> writeObservers = 
+			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
+	
+	private EventSourceHandler<ChannelObserver,CmlChannelEvent> selectObservers = 
 			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
 
 	public CMLChannelValue(PType channelType, LexNameToken name)
@@ -137,6 +138,16 @@ public class CMLChannelValue extends Value implements CmlChannel, CmlChannelSign
 	public EventSource<ChannelObserver> onChannelSignal()
 	{
 		return signalObservers;
+	}
+
+	@Override
+	public void select() {
+		notifyObservers(selectObservers, CmlCommunicationType.SELECT);
+	}
+
+	@Override
+	public EventSource<ChannelObserver> onSelect() {
+		return selectObservers;
 	}
 
 }

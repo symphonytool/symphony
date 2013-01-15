@@ -1,2 +1,7 @@
-channels a b
-process A = begin @ [a] -> [b] -> Skip end
+channels 
+a, b
+
+process A = 
+begin 
+	@ a -> b -> Skip 
+end

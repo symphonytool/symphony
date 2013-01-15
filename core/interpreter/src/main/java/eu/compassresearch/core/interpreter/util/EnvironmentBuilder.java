@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.runtime;
+package eu.compassresearch.core.interpreter.util;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -15,15 +15,12 @@ import org.overture.typechecker.FlatEnvironment;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
-import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
+import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
-import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
-import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
+import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
-import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
-import eu.compassresearch.ast.definitions.SParagraphDefinition;
+import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
@@ -50,7 +47,7 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         
         for (PSource source : sources)
           {
-            for (SParagraphDefinition def : source.getParagraphs())
+            for (PDefinition def : source.getParagraphs())
               {
                 try
                   {
@@ -80,9 +77,22 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
     	return globalState;
     }
     
+    public List<AProcessDefinition> getGlobalProcesses()
+    {
+    	List<AProcessDefinition> processes = new LinkedList<AProcessDefinition>();
+    	
+    	for(PDefinition def : globalDefs)
+    	{
+    		if(def instanceof AProcessDefinition)
+    			processes.add((AProcessDefinition)def);
+    	}
+    		
+    	return processes;
+    }
+    
     
     @Override
-    public void caseAClassParagraphDefinition(AClassParagraphDefinition node)
+    public void caseAClassDefinition(AClassDefinition node)
         throws AnalysisException
       {
         
@@ -93,31 +103,23 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
       }
     
     @Override
-    public void caseAProcessParagraphDefinition(AProcessParagraphDefinition node)
+    public void caseAProcessDefinition(AProcessDefinition node)
         throws AnalysisException
       {
-        
-        // TODO: check access specifier
-        AProcessDefinition processDef = node.getProcessDefinition();
-        globalDefs.add(processDef);
+        globalDefs.add(node);
         //env.put(processDef.getName(), processDef);
-        lastDefinedProcess = processDef;
+        lastDefinedProcess = node;
       }
     
     @Override
-    public void caseAChansetParagraphDefinition(AChansetParagraphDefinition node)
+    public void caseAChansetDefinition(AChansetDefinition node)
         throws AnalysisException
       {
-        
-    	for (AChansetDefinition chansetDef : node.getChansets())
-    	{
-    		//env.put(chansetDef.getName(), chansetDef);
-    		globalDefs.add(chansetDef);
-    	}
+    	globalDefs.add(node);
       }
     
     @Override
-    public void caseATypesParagraphDefinition(ATypesParagraphDefinition node)
+    public void caseATypesDefinition(ATypesDefinition node)
         throws AnalysisException
       {
         
@@ -129,8 +131,8 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
       }
     
     @Override
-    public void caseAFunctionParagraphDefinition(
-        AFunctionParagraphDefinition node) throws AnalysisException
+    public void caseAFunctionsDefinition(
+        AFunctionsDefinition node) throws AnalysisException
       {
         
         for (PDefinition functionDef : node.getFunctionDefinitions())
@@ -141,14 +143,14 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
       }
 
     @Override
-    public void caseAChannelParagraphDefinition(AChannelParagraphDefinition node) throws AnalysisException
+    public void caseAChannelsDefinition(AChannelsDefinition node) throws AnalysisException
     {
 
     	for (AChannelNameDefinition cnd : node.getChannelNameDeclarations())
     	{
     		for (LexIdentifierToken channelName : cnd.getSingleType().getIdentifiers())
     		{
-    			LexNameToken name = new LexNameToken("Default", channelName);
+    			LexNameToken name = new LexNameToken("|CHANNELS|", channelName);
     			globalState.putNew(new NameValuePair(name, new CMLChannelValue(cnd.getSingleType().getType(),name)));
     			//globalDefs.add(e) addChannel(channelName, cnd.getSingleType().getType());
     		}

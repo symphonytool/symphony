@@ -742,20 +742,26 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		// type-check the namesets
-		PType leftNameSetType = leftNamesetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
-			return issueHandler.addTypeError(leftNamesetExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(leftNamesetExp + ""));
+		if (leftNamesetExp != null)
+		{
+			PType leftNameSetType = leftNamesetExp.apply(parentChecker, question);
 
-		PType rightNameSetType = rightnamesetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
-			return issueHandler.addTypeError(rightnamesetExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(rightnamesetExp + ""));
+			if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
+				return issueHandler.addTypeError(leftNamesetExp,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+						.customizeMessage(leftNamesetExp + ""));
+		}
+
+		if (rightnamesetExp != null) {
+			PType rightNameSetType = rightnamesetExp.apply(parentChecker, question);
+			if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
+				return issueHandler.addTypeError(rightnamesetExp,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+						.customizeMessage(rightnamesetExp + ""));
+		}
 
 		// All done!
-		node.setType(new AActionType());
+		node.setType(new AActionType(node.getLocation(), true));
 		return node.getType();
 	}
 
@@ -829,18 +835,23 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					.customizeMessage(chansetExp + ""));
 
 		// type-check the namesets
-		PType leftNameSetType = leftNamesetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
-			return issueHandler.addTypeError(leftNamesetExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(leftNamesetExp + ""));
-
-		PType rightNameSetType = rightnamesetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
-			return issueHandler.addTypeError(rightnamesetExp,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(rightnamesetExp + ""));
-
+		if (leftNamesetExp != null)
+		{
+			PType leftNameSetType = leftNamesetExp.apply(parentChecker, question);
+			if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
+				return issueHandler.addTypeError(leftNamesetExp,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+						.customizeMessage(leftNamesetExp + ""));
+		}
+		
+		if (rightnamesetExp != null)
+		{
+			PType rightNameSetType = rightnamesetExp.apply(parentChecker, question);
+			if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
+				return issueHandler.addTypeError(rightnamesetExp,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+						.customizeMessage(rightnamesetExp + ""));
+		}
 		// All done!
 		node.setType(new AActionType());
 		return node.getType();
