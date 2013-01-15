@@ -213,7 +213,6 @@ public class CmlEditor extends TextEditor {
 
 	final CmlContentPageOutliner cmlOutliner = new CmlContentPageOutliner(
 		this);
-
 	if (getEditorInput() instanceof FileEditorInput) {
 	    FileEditorInput fei = (FileEditorInput) getEditorInput();
 	    CmlSourceUnit csu = CmlSourceUnit

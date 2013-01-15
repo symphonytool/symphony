@@ -58,9 +58,11 @@ IContentOutlinePage {
 	if (curDisp != null)
 	    curDisp.syncExec(new Runnable() {
 		public void run() {
+		    Object[] oldElems = getTreeViewer().getExpandedElements();
 		    TreePath[] oldPaths = getTreeViewer()
 			    .getExpandedTreePaths();
 		    getTreeViewer().refresh();
+		    getTreeViewer().setExpandedElements(oldElems);
 		    getTreeViewer().setExpandedTreePaths(oldPaths);
 		}
 	    });
