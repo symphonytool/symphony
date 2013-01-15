@@ -110,6 +110,8 @@ IContentOutlinePage {
 						LexLocation loc = (LexLocation) m
 							.invoke(w.value,
 								new Object[0]);
+						if (loc == null)
+						    return;
 						editor.setHighlightRange(
 							loc.startOffset, 0,
 							true);

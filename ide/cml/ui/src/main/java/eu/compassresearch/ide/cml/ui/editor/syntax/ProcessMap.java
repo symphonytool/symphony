@@ -92,7 +92,7 @@ public class ProcessMap {
 	map.put(AInternalChoiceReplicatedProcess.class,
 		new AInternalChoiceReplicatedProcessHandler());
 	map.put(AInterruptProcess.class, new AInterruptProcessHandler());
-//	map.put(AReferenceProcess.class, new AReferenceProcessHandler()); // Should not show up at root level.
+	map.put(AReferenceProcess.class, new AReferenceProcessHandler()); // Should not show up at root level.
 	map.put(ASequentialCompositionProcess.class,
 		new ASequentialCompositionProcessHandler());
 	map.put(ASequentialCompositionReplicatedProcess.class,
@@ -116,7 +116,7 @@ public class ProcessMap {
     public static ProcessHandler getDelegate(Class<?> cls) {
 	ProcessHandler r = PROCESS_MAP.get(cls);
 	if (r == null)
-	    System.err.println("No delegate found for process class "
+	    System.err.println("No process delegate found for process class "
 		    + cls.getCanonicalName());
 	return r;
     }
@@ -129,12 +129,28 @@ public class ProcessMap {
 	    AStartDeadlineProcess startdeadproc= (AStartDeadlineProcess) proc;
 
 	    StringBuilder sb = new StringBuilder();
-	    sb.append(startdeadproc.getLeft());
+	    sb.append(ProcessMap.getDelegate(startdeadproc.getLeft().getClass()).makeEntries(startdeadproc.getLeft()));
 	    sb.append(" startsby e");
 //	    sb.append(startdeadproc.getExpression());
 	    r.add(Wrapper.newInstance(proc, sb.toString()));
 
 	    return r;
+	}
+    }
+    
+    private static class AReferenceProcessHandler implements ProcessHandler{
+
+	@Override
+	public List<Wrapper<? extends INode>> makeEntries(PProcess proc) {
+	    List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
+	    AReferenceProcess refproc = ( AReferenceProcess) proc;
+	    
+	    StringBuilder sb = new StringBuilder();
+	    sb.append(refproc.getProcessName().name);
+	    r.add(Wrapper.newInstance(proc, sb.toString()));
+
+	    return r;
+
 	}
 	
     }
@@ -147,7 +163,7 @@ public class ProcessMap {
 	    AInstantiationProcess instantproc = ( AInstantiationProcess) proc;
 
 	    StringBuilder sb = new StringBuilder();
-	    sb.append(instantproc.getProcess());
+	    sb.append(ProcessMap.getDelegate(instantproc.getProcess().getClass()).makeEntries(instantproc.getProcess()));
 	    sb.append(" (e)");
 	    r.add(Wrapper.newInstance(proc, sb.toString()));
 
@@ -165,7 +181,7 @@ public class ProcessMap {
 	    AEndDeadlineProcess enddeadproc = (AEndDeadlineProcess) proc;
 
 	    StringBuilder sb = new StringBuilder();
-	    sb.append(enddeadproc.getLeft());
+	    sb.append(ProcessMap.getDelegate(enddeadproc.getLeft().getClass()).makeEntries(enddeadproc.getLeft()));
 	    sb.append(" endsby e");
 //	    sb.append(chanproc.getRenameExpression());
 	    r.add(Wrapper.newInstance(proc, sb.toString()));
@@ -182,9 +198,10 @@ public class ProcessMap {
 	public List<Wrapper<? extends INode>> makeEntries(PProcess proc) {
 	    List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
 	    AChannelRenamingProcess chanproc = (AChannelRenamingProcess) proc;
-
 	    StringBuilder sb = new StringBuilder();
-	    sb.append(chanproc.getProcess());
+	    sb.append(ProcessMap.getDelegate(chanproc.getProcess().getClass()).makeEntries(chanproc.getProcess()));
+	    
+//	    sb.append(chanproc.getProcess());
 	    sb.append(" [[c <- nc]] ");
 //	    sb.append(chanproc.getRenameExpression());
 	    r.add(Wrapper.newInstance(proc, sb.toString()));
@@ -202,7 +219,7 @@ public class ProcessMap {
 	    AHidingProcess hideproc = (AHidingProcess) proc;
 
 	    StringBuilder sb = new StringBuilder();
-	    sb.append(hideproc.getLeft());
+	    sb.append(ProcessMap.getDelegate(hideproc.getLeft().getClass()).makeEntries(hideproc.getLeft()));;
 	    sb.append(" \\\\ cs ");
 //	    sb.append("[ " + hideproc.getChansetExpression() + " ]");
 	    r.add(Wrapper.newInstance(proc, sb.toString()));
@@ -214,7 +231,7 @@ public class ProcessMap {
 
     private static class GeneralReplicatedProcessHandler implements
 	    ProcessHandler {
-
+	
 	@Override
 	public List<Wrapper<? extends INode>> makeEntries(PProcess proc) {
 	    List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
@@ -222,7 +239,8 @@ public class ProcessMap {
 
 	    StringBuilder sb = new StringBuilder();
 	    sb.append(getReplicateSign());
-	    sb.append(repliproc.getReplicatedProcess().toString());
+	    PProcess replicatedProc = repliproc.getReplicatedProcess();
+	    sb.append(ProcessMap.getDelegate(replicatedProc.getClass()).makeEntries(replicatedProc));
 	    r.add(Wrapper.newInstance(proc, sb.toString()));
 	    return r;
 	}
@@ -304,17 +322,10 @@ public class ProcessMap {
 	    List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
 	    PProcess leftproc = getLeft(proc);
 	    PProcess rightproc = getRight(proc);
-//	    r.addAll(ProcessMap.getDelegate(leftproc.getClass()).makeEntries(leftproc));
-	    r.add(Wrapper.newInstance(leftproc, leftproc.toString()));
+
+	    r.addAll((ProcessMap.getDelegate(leftproc.getClass()).makeEntries(leftproc)));	    
 	    r.add(Wrapper.newInstance(new AReferenceProcess(), getConnectionSymbol(proc)));
-//	    r.addAll(ProcessMap.getDelegate(rightproc.getClass()).makeEntries(rightproc));	    
-	    r.add(Wrapper.newInstance(rightproc, rightproc.toString()));
-	    
-//	    StringBuilder sb = new StringBuilder();
-//	    sb.append(getLeft(proc).toString());
-//	    sb.append(this.getConnectionSymbol(proc));
-//	    sb.append(getRight(proc).toString());
-//	    r.add(Wrapper.newInstance(proc, sb.toString()));
+	    r.addAll((ProcessMap.getDelegate(rightproc.getClass()).makeEntries(rightproc)));
 	    return r;
 	}
     }
@@ -364,7 +375,7 @@ public class ProcessMap {
 
 	@Override
 	public PProcess getRight(PProcess proc) {
-	    return ((AInterruptProcess) proc).getLeft();
+	    return ((AInterruptProcess) proc).getRight();
 	}
 
     }
@@ -415,13 +426,6 @@ public class ProcessMap {
 	@Override
 	public String getConnectionSymbol(PProcess proc) {
 	    return " [ X || Y ]] ";
-	    // AAlphabetisedParallelismProcess app =
-	    // (AAlphabetisedParallelismProcess) proc;
-	    // StringBuilder sb = new StringBuilder();
-	    // sb.append("[ " + app.getLeftChansetExpression().toString());
-	    // sb.append(" || ");
-	    // sb.append(app.getRightChansetExpression().toString() + " ]");
-	    // return sb.toString();
 	}
 
 	@Override
@@ -537,18 +541,6 @@ public class ProcessMap {
 
     }
 
-    // private String prettyPrint(PExp chansetExpression) {
-    // StringBuilder sb = new StringBuilder();
-    // if (chansetExpression instanceof AEnumChansetSetExp) {
-    // AEnumChansetSetExp temp = (AEnumChansetSetExp) chansetExpression;
-    // sb.append("[|{| ");
-    // for (LexIdentifierToken lit : temp.getIdentifiers()) {
-    // sb.append(lit.toString() + ", ");
-    // }
-    // sb.delete(sb.length() - 2, sb.length());
-    // sb.append(" |}|]");
-    // }
-    // return sb.toString();
-    // }
+
 
 }
