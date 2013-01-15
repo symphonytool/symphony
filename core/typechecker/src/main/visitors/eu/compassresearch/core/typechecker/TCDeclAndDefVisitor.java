@@ -129,6 +129,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			node.setType(issueHandler.addTypeError(chansetExp,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node+"")));
 			return node.getType();
 		}
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		cmlEnv.addChannel(node.getIdentifier(), node);
 
 		AChansetType res = new AChansetType(node.getLocation(), true);
 		node.setType(res);
@@ -140,7 +142,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			TypeCheckInfo question) throws AnalysisException {
 
 		PVarsetExpression namesetExp = node.getNamesetExpression();
-		
+
 		PType namesetExpType = namesetExp.apply(parentChecker,question);
 		if (!TCDeclAndDefVisitor.successfulType(namesetExpType))
 		{
@@ -166,7 +168,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				return node.getType();
 			}
 		}
-		
+
 		node.setType(new AChansetParagraphType(node.getLocation(),true));
 		return node.getType();
 	}
@@ -203,7 +205,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				return node.getType();
 			}
 		}
-		
+
 		node.setType(new AFunctionParagraphType(node.getLocation(), true));
 		return node.getType();
 	}
@@ -247,11 +249,16 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	public PType caseAActionsDefinition(AActionsDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+
 		actionVisitor.setupActionCycleMap();
 
 		LinkedList<AActionDefinition> actions = node.getActions();
 		for(AActionDefinition action : actions)
+		{
 			actionVisitor.registerActionForCycleDetection(action);
+			cmlEnv.addVariable(action.getName(), action);
+		}
 
 		for(AActionDefinition action : actions)
 		{
@@ -356,6 +363,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		// Check externals
+		List<PDefinition> statesShadowedByExternalClauses = new LinkedList<PDefinition>();
 		for(AExternalClause clause : externals)
 		{
 			LinkedList<LexNameToken> clauseIds = clause.getIdentifiers();
@@ -368,7 +376,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id+"")));
 					return node.getType();
 				}
-
+				PDefinition d = cmlEnv.lookupVariable(id);
+				if (d instanceof AAssignmentDefinition)
+					statesShadowedByExternalClauses.add(d);
+				else
+					issueHandler.addTypeWarning(node, "External clause references "+id+" but it might not be a state.");
 				AExternalDefinition externalDef = AstFactory.newAExternalDefinition(idDef, clause.getMode()); 
 				externalDefinitions.add(externalDef);
 			}
@@ -422,7 +434,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// pre cond env.
 		CmlTypeCheckInfo preEnv = cmlEnv.newScope();
 		for(PDefinition def : prePostDefinitions)
-			preEnv.addVariable(def.getName(), def);
+		{
+			if (!statesShadowedByExternalClauses.contains(def))
+				preEnv.addVariable(def.getName(), def);
+		}
 
 		// add before variables
 		for(AExternalDefinition extDef : externalDefinitions)
@@ -440,7 +455,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// post cond env.
 		CmlTypeCheckInfo postEnv = cmlEnv.newScope(); 
 		for(PDefinition def : prePostDefinitions)
-			postEnv.addVariable(def.getName(), def);
+		{
+			if(!statesShadowedByExternalClauses.contains(def))
+				postEnv.addVariable(def.getName(), def);
+		}
+
 
 		// add after variables
 		for(AExternalDefinition extDef : externalDefinitions)
@@ -934,12 +953,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					fnType = ((AExplicitFunctionDefinition)def).getType();
 					break;
 				}
-				
+
 				if (def instanceof AImplicitFunctionDefinition) {
 					fnType = ((AImplicitFunctionDefinition)def).getType();
 					break;
 				}
-				
+
 				// just return the result
 				result.add(def);
 				return result;
@@ -1385,8 +1404,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		CmlTypeCheckInfo newScope = cmlEnv.newScope();
 
-
-
 		LinkedList<PSingleDeclaration> state = node.getLocalState();
 		for(PSingleDeclaration decl : state)
 		{
@@ -1401,7 +1418,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				newScope.addVariable(def.getName(), def);
 		}
 
-		cmlEnv.addVariable(node.getName(), node);
+	
+		
+		// cmlEnv.addVariable(node.getName(), node);
 
 		PProcess process = node.getProcess();
 		PType pType = process.apply(parentChecker, newScope);

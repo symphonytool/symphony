@@ -18,6 +18,7 @@ import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.util.HelpLexNameToken;
 
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
+import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
@@ -109,6 +110,14 @@ TypeCheckQuestion {
 	@Override
 	public void addType(LexIdentifierToken ident, PDefinition typeDef) {
 		if (ident == null) throw new NullPointerException("Cannot add a type with null name");
+		
+		PDefinition d = lookup(ident, PDefinition.class);
+		if (d != null)
+		{
+			typeDef.setType(issueHandler.addTypeError(typeDef, TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(""+typeDef.getName(), ""+d.getLocation())));
+			return;
+		}
+		
 		if (env instanceof FlatEnvironment) {
 			FlatEnvironment fenv = (FlatEnvironment) env;
 			fenv.add(typeDef);
@@ -122,6 +131,12 @@ TypeCheckQuestion {
 
 	@Override
 	public void addChannel(LexIdentifierToken ident, PDefinition channel) {
+		PDefinition chanDef = lookupChannel(ident);
+		if (chanDef != null)
+		{
+			channel.setType(issueHandler.addTypeError(channel, TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(""+ident, ""+chanDef.getLocation())));
+			return;
+		}
 		channels.put(ident, channel);
 	}
 
@@ -133,13 +148,31 @@ TypeCheckQuestion {
 		}
 		return null;
 	}
+	
+	
+	public PDefinition lookupCurrentScope(LexIdentifierToken ident)
+	{
+		for(PDefinition d : env.getDefinitions())
+		{
+			if (HelpLexNameToken.isEqual(ident, d.getName()))
+					return d;
+		}
+		return null;
+	}
 
 	@Override
 	public void addVariable(LexIdentifierToken ident, PDefinition variable) {
 		if (env instanceof FlatEnvironment) {
 			FlatEnvironment fenv = (FlatEnvironment) env;
+			PDefinition d = lookupCurrentScope(ident);
+			if (d != null)
+			{
+				variable.setType(issueHandler.addTypeError(variable,TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(""+ident,""+variable.getLocation())));
+				return;
+			}
 			fenv.add(variable);
 		}
+		
 	}
 
 

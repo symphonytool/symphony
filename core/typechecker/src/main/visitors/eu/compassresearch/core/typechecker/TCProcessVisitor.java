@@ -656,7 +656,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 		eu.compassresearch.core.typechecker.CmlTypeCheckInfo newQ = (eu.compassresearch.core.typechecker.CmlTypeCheckInfo) question;
-		PDefinition processDef = newQ.lookupVariable(node.getProcessName());
+		PDefinition processDef = newQ.lookup(node.getProcessName(),PDefinition.class);
 
 		if (processDef == null) {
 			return issueHandler.addTypeError(

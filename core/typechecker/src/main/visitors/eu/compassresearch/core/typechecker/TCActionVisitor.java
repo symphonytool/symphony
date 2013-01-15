@@ -19,6 +19,7 @@ import org.overture.ast.expressions.ATupleExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AExpressionPattern;
@@ -138,6 +139,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	private static APatternListTypePair t;
 	static
 	{
+		LexLocation l;
 
 	}
 
@@ -1610,7 +1612,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		channelNameDefinition = (AChannelNameDefinition)channel;
 
 		CmlTypeCheckInfo commEnv = cmlEnv.newScope();
-
+		int paramIndex = 0;
 		LinkedList<PCommunicationParameter> commParams = node.getCommunicationParameters();
 		for(PCommunicationParameter commParam : commParams)
 		{
@@ -1623,7 +1625,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			// // 
 			// //
 			ATypeSingleDeclaration typeDecl = channelNameDefinition.getSingleType();
-			int paramIndex = 0;
+
 			if (commParam instanceof AReadCommunicationParameter)
 			{
 				
@@ -1707,9 +1709,18 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				
 				PType thisType = null;
 				PType type = typeDecl.getType();
-				if (type instanceof AProductType)
+				
+				if (!(type instanceof AChannelType))
 				{
-					AProductType pType = (AProductType)type;
+					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNEL.customizeMessage(node+"")));
+					return node.getType();
+				}
+				
+				AChannelType cType = (AChannelType)type;
+				
+				if (cType.getType() instanceof AProductType)
+				{
+					AProductType pType = (AProductType)cType.getType();
 					thisType = pType.getTypes().get(paramIndex);
 					paramIndex++;
 				}

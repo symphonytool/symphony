@@ -1,0 +1,31 @@
+process InitRescue =
+begin
+    operations
+        opFindIdleERUs ()
+        post true;
+
+        opAllocateIdleERU ()
+        post true;
+
+        opSendRescueInfoToERU ()
+        post true;
+
+    actions
+        A = startStartRescue -> acceptStartRescue -> endStartRescue -> B
+        B = C
+        C = startFindIdleERUs -> opFindIdleERUs(); endFindIdleERUs -> D
+        D = if IdleERU then E
+            else $T(target(L))
+        E = startAllocateIdleERU -> opAllocateIdleERU(); 
+            endAllocateIdleERU -> F
+        F = G
+        G = startSendRescueInfoToERU -> opSendRescueInfoToERU(); 
+            endSendRescueInfoToERU -> $T(target(H))
+        N = C
+        T = G
+        ControlStartRescue = inStartRescue -> outStartRescue -> ControlStartRescue
+        
+    @ init -> (A
+              [| {} | {acceptStartRescue} | {} |]
+              (pns ||| ControlStartRescue[[outStartRescue <- acceptStartRescue]]))
+end

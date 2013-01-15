@@ -49,6 +49,7 @@ import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
@@ -150,16 +151,15 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		LexIdentifierToken id = node.getIdentifier();
-		PDefinition idDef = cmlEnv.lookup(id, PDefinition.class);
-
+		PDefinition idDef = cmlEnv.lookupChannel(id);
 
 		if (idDef == null)
 		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(idDef+"")));
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node+"")));
 			return node.getType();
 		}
 
-		if (!(idDef instanceof AChannelNameDefinition || idDef instanceof AStateDefinition))
+		if (!(idDef instanceof AChansetDefinition || idDef instanceof AChannelNameDefinition || idDef instanceof AStateDefinition))
 		{
 			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE.customizeMessage(idDef+"")));
 			return node.getType();
@@ -551,7 +551,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// Okay given our best efforts the Overture Type Checking strategy could not find
 		// what we are looking for. Maybe its a CML class we are looking at.
-		CmlTypeCheckInfo nearestCmlEnvironment = question.contextGet(CmlTypeCheckInfo.class);
+		
+		CmlTypeCheckInfo nearestCmlEnvironment = question instanceof CmlTypeCheckInfo ? (CmlTypeCheckInfo)question : question.contextGet(CmlTypeCheckInfo.class);
 		if (nearestCmlEnvironment == null)
 		{
 			node.setType(issueHandler.addTypeError(node,TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node+"")));

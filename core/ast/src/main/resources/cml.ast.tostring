@@ -19,6 +19,8 @@ import eu.compassresearch.ast.util.ToStringUtil;
 //             ($[postcondition]$ == null ? "" : "\n\tpost " + $[postcondition]$) +
 //             ($[errors]$.isEmpty() ? "" : "\n\terrs " + $[errors]$)$ + "]" 
 %action->communication = [identifier] "->" [action]
+%communicationParameter->write = [expression]
+%communicationParameter->read  = [expression]
 %action->skip = "Skip"
 %action->stop = "Stop"
 %action->chaos = "Chaos"

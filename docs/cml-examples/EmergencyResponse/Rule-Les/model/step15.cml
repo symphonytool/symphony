@@ -1,0 +1,54 @@
+process InitRescue =
+begin
+    operations
+        opFindIdleERUs ()
+        post true;
+
+        opAllocateIdleERU ()
+        post true;
+
+        opSendRescueInfoToERU ()
+        post true;
+
+        opProcessMessage ()
+        post true;
+
+        opReceiveMessage ()
+        post true;
+
+        opWait ()
+        post true;
+
+        opDivertERU ()
+        post true;
+
+    actions
+        A = startStartRescue -> acceptStartRescue -> endStartRescue -> B
+        B = C
+        C = startFindIdleERUs -> opFindIdleERUs(); endFindIdleERUs -> D
+        D = if IdleERU then E
+            else L
+        E = startAllocateIdleERU -> opAllocateIdleERU(); 
+            endAllocateIdleERU -> F
+        F = G
+        G = startSendRescueInfoToERU -> opSendRescueInfoToERU(); 
+            endSendRescueInfoToERU -> H
+        H = startProcessMessage -> opProcessMessage(); endProcessMessage -> I
+        I = startReceiveMessage -> opReceiveMessage(); endReceiveMessage -> J
+        J = startServiceRescue -> sendServiceRescue -> endServiceRescue -> K
+        K = Stop
+        L = if LowerCriticality then M
+            else O
+        M = startWait -> opWait(); endWait -> N
+        N = C
+        O = startDivertERU -> opDivertERU(); endDivertERU -> $T(target(P))
+        T = G
+        ControlStartRescue = inStartRescue -> outStartRescue -> ControlStartRescue
+        ControlServiceRescue = inServiceRescue -> outServiceRescue -> ControlStartRescue
+        
+    @ init -> (A
+              [| {} | {acceptStartRescue,sendServiceRescue} | {} |]
+              (pns
+               ||| ControlServiceRescue[[inServiceRescue<-sendServiceRescue]]
+               ||| ControlStartRescue[[outStartRescue<-acceptStartRescue]]))
+end

@@ -244,6 +244,17 @@ processDefinition returns[AProcessDefinition def]
             LexLocation identifierLocation = extractLexLocation($IDENTIFIER);
             LexNameToken processName = new LexNameToken("", new LexIdentifierToken($IDENTIFIER.getText(), false, identifierLocation));
             $def.setName(processName);  
+            List<PParametrisation> paramList = $parametrisationList.params;
+            if (paramList != null) {
+				List<PSingleDeclaration> localState = new LinkedList<PSingleDeclaration>();
+				for(PParametrisation p : paramList)
+				{
+					ATypeSingleDeclaration decl = p.getDeclaration();
+					localState.add(decl);
+				}
+            	$def.setLocalState(localState);
+            }
+            
         }
     ;
 
