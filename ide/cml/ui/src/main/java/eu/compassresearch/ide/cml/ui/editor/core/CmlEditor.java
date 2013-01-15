@@ -61,6 +61,14 @@ public class CmlEditor extends TextEditor {
 
     private AbstractSelectionChangedListener selectionChangeListener;
 
+    
+    
+    @Override
+    public void dispose() {
+	
+	super.dispose();
+    }
+
     @Override
     protected void doSetInput(IEditorInput input) throws CoreException {
 	super.doSetInput(input);
@@ -84,61 +92,7 @@ public class CmlEditor extends TextEditor {
 
     }
 
-    protected INode computeHighlightRangeSourceReference() {
 
-	// FIXME if the AST is just the source node return null
-	ISourceViewer sourceViewer = getSourceViewer();
-	if (sourceViewer == null)
-	    return null;
-
-	StyledText styledText = sourceViewer.getTextWidget();
-	if (styledText == null)
-	    return null;
-
-	int caret = 0;
-	if (sourceViewer instanceof ITextViewerExtension5) {
-	    ITextViewerExtension5 extension = (ITextViewerExtension5) sourceViewer;
-	    caret = extension.widgetOffset2ModelOffset(styledText
-		    .getCaretOffset());
-	} else {
-	    int offset = sourceViewer.getVisibleRegion().getOffset();
-	    caret = offset + styledText.getCaretOffset();
-	}
-	INode element = getElementAt(caret, false);
-
-	return element;
-    }
-
-    private INode getElementAt(int caret, boolean b) {
-	FileEditorInput fei = (FileEditorInput) getEditorInput();
-	INode r = null;
-	CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
-	PSource ast = csu.getSourceAst();
-
-	if (!astOk(ast))
-	    return null;
-
-	INodeFromCaret visitor = new INodeFromCaret(caret, ast);
-	try {
-	    ast.apply(visitor);
-	    return visitor.getBestCandidate();
-	} catch (AnalysisException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
-
-	return r;
-    }
-
-    private boolean astOk(PSource ast) {
-	if (null == ast)
-	    return false;
-
-	if (ast.getParagraphs().isEmpty())
-	    return false;
-
-	return true;
-    }
 
     protected void selectionChanged() {
 	if (getSelectionProvider() == null)
@@ -211,6 +165,8 @@ public class CmlEditor extends TextEditor {
 
     private CmlContentPageOutliner createCmlOutliner() {
 
+	
+	
 	final CmlContentPageOutliner cmlOutliner = new CmlContentPageOutliner(
 		this);
 	if (getEditorInput() instanceof FileEditorInput) {
@@ -256,6 +212,64 @@ public class CmlEditor extends TextEditor {
 
     public VdmSourceViewerConfiguration getVdmSourceViewerConfiguration() {
 	return new CmlSourceViewerConfiguration();
+    }
+    
+    
+    
+    protected INode computeHighlightRangeSourceReference() {
+
+	// FIXME if the AST is just the source node return null
+	ISourceViewer sourceViewer = getSourceViewer();
+	if (sourceViewer == null)
+	    return null;
+
+	StyledText styledText = sourceViewer.getTextWidget();
+	if (styledText == null)
+	    return null;
+
+	int caret = 0;
+	if (sourceViewer instanceof ITextViewerExtension5) {
+	    ITextViewerExtension5 extension = (ITextViewerExtension5) sourceViewer;
+	    caret = extension.widgetOffset2ModelOffset(styledText
+		    .getCaretOffset());
+	} else {
+	    int offset = sourceViewer.getVisibleRegion().getOffset();
+	    caret = offset + styledText.getCaretOffset();
+	}
+	INode element = getElementAt(caret, false);
+
+	return element;
+    }
+
+    private INode getElementAt(int caret, boolean b) {
+	FileEditorInput fei = (FileEditorInput) getEditorInput();
+	INode r = null;
+	CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
+	PSource ast = csu.getSourceAst();
+
+	if (!astOk(ast))
+	    return null;
+
+	INodeFromCaret visitor = new INodeFromCaret(caret, ast);
+	try {
+	    ast.apply(visitor);
+	    return visitor.getBestCandidate();
+	} catch (AnalysisException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+
+	return r;
+    }
+
+    private boolean astOk(PSource ast) {
+	if (null == ast)
+	    return false;
+
+	if (ast.getParagraphs().isEmpty())
+	    return false;
+
+	return true;
     }
 
 }

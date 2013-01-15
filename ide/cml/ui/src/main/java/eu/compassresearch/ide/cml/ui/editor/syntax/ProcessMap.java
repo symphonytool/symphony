@@ -47,7 +47,7 @@ public class ProcessMap {
 	    List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
 	    AActionProcess asp = (AActionProcess) proc;
 	    r.add(Wrapper.newInstance(asp.getAction(), "@ "
-		    + asp.getAction().toString()));
+		    + asp.getAction().toString())); //FIXME do not use toStrings()
 	    for (PDefinition pdef : asp.getDefinitionParagraphs()) {
 		DefinitionHandler dh = DefinitionMap.getDelegate(pdef
 			.getClass());

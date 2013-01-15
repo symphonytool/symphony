@@ -7,7 +7,6 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
@@ -32,6 +31,16 @@ IContentOutlinePage {
 
     // TODO remove the flag hack once we get proper sync from the editor
     private static boolean loopAvoidanceFlag = true;
+
+    @Override
+    public void dispose() {
+
+	if (labelprovider != null) {
+	    labelprovider.dispose();
+	}
+
+	super.dispose();
+    }
 
     public void setTreeSelection(INode element) {
 	if (null == element)
@@ -58,12 +67,17 @@ IContentOutlinePage {
 	if (curDisp != null)
 	    curDisp.syncExec(new Runnable() {
 		public void run() {
-		    Object[] oldElems = getTreeViewer().getExpandedElements();
-		    TreePath[] oldPaths = getTreeViewer()
-			    .getExpandedTreePaths();
-		    getTreeViewer().refresh();
-		    getTreeViewer().setExpandedElements(oldElems);
-		    getTreeViewer().setExpandedTreePaths(oldPaths);
+
+		    if (getTreeViewer() != null
+			    && !getTreeViewer().getControl().isDisposed()) {
+			// Object[] oldElems =
+			// getTreeViewer().getExpandedElements();
+			// TreePath[] oldPaths = getTreeViewer()
+			// .getExpandedTreePaths();
+			getTreeViewer().refresh();
+			// getTreeViewer().setExpandedElements(oldElems);
+			// getTreeViewer().setExpandedTreePaths(oldPaths);
+		    }
 		}
 	    });
     }

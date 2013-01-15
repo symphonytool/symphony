@@ -39,6 +39,10 @@ public class CmlSourceUnit {
 			changeListeners = new LinkedList<CmlSourceUnit.CmlSourceChangedListener>();
 		changeListeners.add(listener);
 	}
+	
+	public void clearListeners(){
+	    changeListeners.clear();
+	}
 
 	/**
 	 * Get a CmlSourceUnit from the a IFile resource.

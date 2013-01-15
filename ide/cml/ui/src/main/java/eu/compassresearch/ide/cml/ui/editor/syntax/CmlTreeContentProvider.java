@@ -169,6 +169,8 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		Wrapper<Object> w = (Wrapper<Object>) element;
 		if (w.value instanceof INode) {
 		    INode in = (INode) w.value;
+		    if (in.parent() == null)
+			return null;
 		    return Wrapper.newInstance(in.parent(), in.parent()
 			    .toString());
 		    // return ((INode) w.value).parent();}
@@ -203,7 +205,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		return false;
 	    if (w.value instanceof AChansetDefinition)
 		return false;
-	    
+
 	    return true;
 	}
 
