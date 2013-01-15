@@ -1,7 +1,9 @@
 package eu.compassresearch.ide.cml.ui.editor.syntax;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -32,7 +34,10 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
     private static final String SMILING_ERROR_STRING = "P = NP ? Well we are working on it.";
     @SuppressWarnings("unused")
     private final Control parentControl;
+    private Map<String, Object> _wrapperCache = new HashMap<String, Object>();
 
+    
+    
     public CmlTreeContentProvider(Control control) {
 	parentControl = control;
     }
@@ -58,16 +63,24 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		if (current == null)
 		    return new Object[0];
 		// If there are any declarations lets see them
-		List<Wrapper<PDefinition>> res = new LinkedList<Wrapper<PDefinition>>();
+		List<Object> res = new LinkedList<Object>();
 		for (PDefinition def : current.getParagraphs()) {
 
 		    // Get the entry names for the global declarations
 		    String dscr = TopLevelDefinitionMap.getDescription(def
 			    .getClass());
 		    if (dscr == null)
-			res.add(Wrapper.newInstance(def, def.getName().name));
-		    else
-			res.add(Wrapper.newInstance(def, dscr));
+			dscr = def.toString();
+	
+		    Object elem = _wrapperCache.get(dscr);
+		   
+		    if (elem == null) {
+			elem = Wrapper.newInstance(def, dscr);
+			_wrapperCache.put(dscr,elem);
+		    }
+		    if (elem  != null)
+			res.add(elem);
+//			res.add(Wrapper.newInstance(def, dscr));
 
 		}
 		return res.toArray();
@@ -171,8 +184,13 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 		    INode in = (INode) w.value;
 		    if (in.parent() == null)
 			return null;
-		    return Wrapper.newInstance(in.parent(), in.parent()
-			    .toString());
+
+		    String dscr = TopLevelDefinitionMap.getDescription(in
+			    .getClass());
+		    if (dscr == null)
+			dscr = in.parent().toString();
+
+		    return Wrapper.newInstance(in.parent(), dscr);
 		    // return ((INode) w.value).parent();}
 		}
 	    }

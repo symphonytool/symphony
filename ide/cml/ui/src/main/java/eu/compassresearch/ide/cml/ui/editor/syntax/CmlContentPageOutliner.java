@@ -7,8 +7,8 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.overture.ast.definitions.PDefinition;
@@ -34,13 +34,14 @@ IContentOutlinePage {
 
     @Override
     public void dispose() {
-
+	input.clearListeners();
 	if (labelprovider != null) {
 	    labelprovider.dispose();
 	}
 
 	super.dispose();
     }
+
 
     public void setTreeSelection(INode element) {
 	if (null == element)
@@ -63,23 +64,9 @@ IContentOutlinePage {
     }
 
     public void refresh() {
-	final Display curDisp = Display.getDefault();
-	if (curDisp != null)
-	    curDisp.syncExec(new Runnable() {
-		public void run() {
-
-		    if (getTreeViewer() != null
-			    && !getTreeViewer().getControl().isDisposed()) {
-			// Object[] oldElems =
-			// getTreeViewer().getExpandedElements();
-			// TreePath[] oldPaths = getTreeViewer()
-			// .getExpandedTreePaths();
-			getTreeViewer().refresh();
-			// getTreeViewer().setExpandedElements(oldElems);
-			// getTreeViewer().setExpandedTreePaths(oldPaths);
-		    }
-		}
-	    });
+	TreePath[] oldPaths = getTreeViewer().getExpandedTreePaths();
+	getTreeViewer().refresh();
+	getTreeViewer().setExpandedTreePaths(oldPaths);
     }
 
     public CmlContentPageOutliner(CmlEditor editor) {

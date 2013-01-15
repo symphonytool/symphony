@@ -20,10 +20,7 @@ package eu.compassresearch.ide.cml.ui.editor.core;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
@@ -33,7 +30,6 @@ import org.eclipse.jface.text.source.ICharacterPairMatcher;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.ltk.internal.core.refactoring.Resources;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -61,11 +57,8 @@ public class CmlEditor extends TextEditor {
 
     private AbstractSelectionChangedListener selectionChangeListener;
 
-    
-    
     @Override
     public void dispose() {
-	
 	super.dispose();
     }
 
@@ -91,8 +84,6 @@ public class CmlEditor extends TextEditor {
 	}
 
     }
-
-
 
     protected void selectionChanged() {
 	if (getSelectionProvider() == null)
@@ -165,8 +156,6 @@ public class CmlEditor extends TextEditor {
 
     private CmlContentPageOutliner createCmlOutliner() {
 
-	
-	
 	final CmlContentPageOutliner cmlOutliner = new CmlContentPageOutliner(
 		this);
 	if (getEditorInput() instanceof FileEditorInput) {
@@ -177,7 +166,17 @@ public class CmlEditor extends TextEditor {
 	    csu.addChangeListener(new CmlSourceChangedListener() {
 
 		public void sourceChanged(CmlSourceUnit csu) {
-		    cmlOutliner.refresh();
+
+		    final Display curDisp = Display.getDefault();
+		    if (curDisp != null)
+			curDisp.syncExec(new Runnable() {
+			    public void run() {
+
+				cmlOutliner.refresh();
+
+			    }
+			});
+
 		}
 
 	    });
@@ -213,9 +212,7 @@ public class CmlEditor extends TextEditor {
     public VdmSourceViewerConfiguration getVdmSourceViewerConfiguration() {
 	return new CmlSourceViewerConfiguration();
     }
-    
-    
-    
+
     protected INode computeHighlightRangeSourceReference() {
 
 	// FIXME if the AST is just the source node return null
