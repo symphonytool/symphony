@@ -286,6 +286,10 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	 */
 	public boolean typeCheck() {
 
+		org.overture.typechecker.TypeCheckInfo.clearContext();
+		
+		SetLocationVisitor.updateLocations(sourceForest);
+		
 		try {
 		eu.compassresearch.core.typechecker.CmlTypeCheckInfo info = eu.compassresearch.core.typechecker.CmlTypeCheckInfo
 				.getNewTopLevelInstance(this.issueHandler, globalRoot);
@@ -295,7 +299,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 			return lastResult;
 
 		try {
-			// Collect classes, processes, global values, global types and global functions
+			// Collect global values, global types and global functions
 			globalRoot = CollectGlobalStateClass.getGlobalRoot(
 					this.sourceForest, issueHandler, info);
 
@@ -347,6 +351,18 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		}
 		if (issueHandler.hasErrors()) return false;
 
+		// classes and processes beforehand
+		for(PSource s : sourceForest)
+		{
+			for(PDefinition def : s.getParagraphs())
+			{
+				if (def instanceof AClassDefinition)
+					info.addType(def.getName(), def);
+				if (def instanceof AProcessDefinition)
+					info.addVariable(def.getName(), def);
+			}
+		}
+		
 		// for each source type check classes and processes in depth
 		for (PSource s : sourceForest) {
 			try {

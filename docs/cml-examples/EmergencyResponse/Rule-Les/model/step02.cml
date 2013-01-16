@@ -1,0 +1,12 @@
+process InitRescue =
+begin
+    operations
+
+    actions
+        A = startStartRescue -> acceptStartRescue -> endStartRescue -> $T(target(B))
+        ControlStartRescue = inStartRescue -> outStartRescue -> ControlStartRescue
+        
+    @ init -> (A
+              [| {} | {acceptStartRescue} | {} |]
+              (pns ||| ControlStartRescue[[outStartRescue <- acceptStartRescue]]))
+end

@@ -146,6 +146,30 @@ public interface TypeIssueHandler {
 			}
 			return sb.toString();
 		}
+
+		@Override
+		public boolean equals(Object obj) {
+			
+			if (obj instanceof CMLTypeError)
+			{
+				CMLTypeError error = (CMLTypeError)obj;
+				boolean sameSubTree = (error.subtree == null && subtree==null) || (error.subtree != null && subtree != null && subtree == error.subtree);
+				boolean sameDescription = (description == null && error.description == null) || (description != null && description.equals(error.description));
+				
+				return sameSubTree && sameDescription;
+			}
+			
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			int subtreeHash = subtree == null ? 0 : subtree.hashCode();
+			int descriptionHash = description == null ? 0 : description.hashCode();
+			return subtreeHash + descriptionHash;
+		}
+		
+		
 	}
 
 	/**

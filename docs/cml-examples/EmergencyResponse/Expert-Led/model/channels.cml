@@ -1,0 +1,10 @@
+channels
+startRescue : RescueDetails
+serviceRescue : Id * RescueDetails
+radioIn, radioOut : Id * Id * String
+init
+
+chansets
+  
+SEND_CHANNELS = {| radioIn |} 
+RCV_CHANNELS = {| radioOut |}     

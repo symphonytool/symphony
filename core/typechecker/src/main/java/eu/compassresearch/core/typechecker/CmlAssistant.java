@@ -298,6 +298,23 @@ class CmlAssistant {
 	{
 		CmlTypeCheckInfo cmlEnv = (CmlTypeCheckInfo)more[0];
 		PDefinition defOfTheTypeOfThisLocalDef = cmlEnv.env.findType(namedInvType.getName(),"");
+		while(defOfTheTypeOfThisLocalDef != null && 
+			  defOfTheTypeOfThisLocalDef.getType() != null && 
+			  defOfTheTypeOfThisLocalDef.getType() instanceof ANamedInvariantType)
+		{
+			
+			ANamedInvariantType nameType = (ANamedInvariantType)defOfTheTypeOfThisLocalDef.getType();
+			PType typeType = nameType.getType();
+			if (typeType instanceof ANamedInvariantType)
+				defOfTheTypeOfThisLocalDef = cmlEnv.env.findType(((ANamedInvariantType) typeType).getName(), "");
+			else 
+			{
+				ALocalDefinition resolvedType = AstFactory.newALocalDefinition(defOfTheTypeOfThisLocalDef.getLocation(), defOfTheTypeOfThisLocalDef.getName(), NameScope.LOCAL, typeType);
+				return CmlAssistant.this.findMemberName(resolvedType, name, more);
+			}
+		}
+
+		
 		return CmlAssistant.this.findMemberName(defOfTheTypeOfThisLocalDef,name,more);
 	}
 

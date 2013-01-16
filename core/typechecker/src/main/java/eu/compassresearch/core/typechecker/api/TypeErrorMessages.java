@@ -1,6 +1,7 @@
 package eu.compassresearch.core.typechecker.api;
 
 public enum TypeErrorMessages {
+	DUPLICATE_DEFINITION("Definition \"%s\" is conflicting with definition \"%s\"."),
 	TYPE_CHECK_INTERNAL_FAILURE("Subtree failed type checking with an internal error: %s."),
     SEQ_TYPE_EXPECTED(
 	    "The expresion %s has type %s which is not a sequence type as expected."), PARAGRAPH_HAS_TYPES_ERRORS(
