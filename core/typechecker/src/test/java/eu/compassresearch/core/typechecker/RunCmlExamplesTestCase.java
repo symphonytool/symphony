@@ -25,7 +25,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.TestUtil.TypeCheckerResult;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;

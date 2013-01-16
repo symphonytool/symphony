@@ -546,7 +546,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		// 120
 		addTestProgram(
 				testData,
-				"class c = begin state a:int operations c: int ==> c c(v) == a := v end",
+				"class d = begin state a:int operations c: int ==> c c(v) == a := v end",
 				false, true, true, new String[0]);
 
 		// '--------------------------------------------------------------------------
@@ -596,35 +596,35 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				"process A = begin @ Skip end process p1 = begin @ (A \\\\ {| B |}) end",
 				false, true, false,
 				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
-						.customizeMessage("Process A") });
+						.customizeMessage("A") });
 		// 130
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ (A \\\\ {| channel1 |}) end",
 				false, true, false,
 				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
-						.customizeMessage("Process A") });
+						.customizeMessage("A") });
 		// 131
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ A ; Skip end",
 				false, true, false,
 				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
-						.customizeMessage("Process A") });
+						.customizeMessage("A") });
 		// 132
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ (A startsby 42) end",
 				false, true, false,
 				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
-						.customizeMessage("Process A") });
+						.customizeMessage("A") });
 		// 133
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ (A endsby 42) end",
 				false, true, false,
 				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
-						.customizeMessage("Process A") });
+						.customizeMessage("A") });
 
 		// 134
 		addTestProgram(
@@ -632,7 +632,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				"process A = begin @ Skip end process p1 = begin @ A ; Skip end",
 				false, true, false,
 				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
-						.customizeMessage("Process A") });
+						.customizeMessage("A") });
 
 		// 135
 		addTestProgram(
@@ -698,6 +698,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "types Id :: 	type : (<ERU> | <CC>) identifier : token; ERUId = Id; Location = token; Criticality = nat inv c == c < 4; --(<Red> | <Yellow> | <Green> | <White>); red = 3, yellow = 2, green = 1, white = 0 String = seq of char;	RescueDetails :: 	target : Location criticality : Criticality;Message :: 	sender: Id	destn : Id message : String; Log :: 	eru : ERUId	oldRescue : RescueDetails newRescue : RescueDetails; values	functions  compareCriticalityFunction: RescueDetails * RescueDetails -> bool compareCriticalityFunction(r, r2) == r.criticality > r2.criticality rescueDetailsToString(r : RescueDetails) s: String post s <> [] stringToRescueDetails (s: String) r : RescueDetails pre s <> [] post true ", false, true, true, new String[0]);
 
 		addTestProgram(testData, "functions test: int * int -> bool test(a,b) == true channels InOut: int * int * int process A = begin state b:int actions A = InOut?a!b?c -> test(a,c) @ Skip end", false, true, true, new String[0]);
+		addTestProgram(testData, "channels a : int process A =  begin state b : int := 2 actions INIT = a!(b+2) -> Skip @ INIT end", false, true, true, new String[0]);
 		return testData;
 	}
 
@@ -724,7 +725,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		TestUtil.TypeCheckerResult res = TestUtil.runTypeChecker(source);
 		
 		boolean parserOk = res.parsedOk;
-		Assert.assertSame(this.expectedParserOk, parserOk);
+		Assert.assertSame("Not Parsing",this.expectedParserOk, parserOk);
 		
 		TypeIssueHandler errors = res.issueHandler;
 

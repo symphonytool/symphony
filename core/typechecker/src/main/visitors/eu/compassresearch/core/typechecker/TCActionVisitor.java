@@ -1767,7 +1767,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					paramIndex++;
 				}
 				else
-					thisType = type;
+					thisType = cType.getType();
 				
 				if (!typeComparator.isSubType(writeExpType, thisType))
 				{
