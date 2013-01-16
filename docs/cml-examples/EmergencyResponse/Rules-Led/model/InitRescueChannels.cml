@@ -1,0 +1,13 @@
+ channels
+    init
+    startStartRescue endStartRescue
+    startFindIdleERUs endFindIdleERUs
+    startAllocateIdleERU endAllocateIdleERU
+    startSendRescueInfoToERU endSendRescueInfoToERU
+    startProcessMessage endProcessMessage
+    startReceiveMessage endReceiveMessage
+    startServiceRescue endServiceRescue
+    startWait endWait
+    startDivertERU endDivertERU
+    startLogDiversion endLogDiversion
+    startStartRescue endStartRescue

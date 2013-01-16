@@ -1,0 +1,11 @@
+process InitRescue =
+begin
+    operations
+    actions
+    @ init -> ($T(target(A))
+              [| {} | {} | {} |]
+              Skip
+end
+
+channels
+	init

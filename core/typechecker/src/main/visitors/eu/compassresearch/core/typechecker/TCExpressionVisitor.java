@@ -28,6 +28,7 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.AProductType;
 import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SMapType;
@@ -49,6 +50,7 @@ import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
@@ -77,8 +79,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	private TypeComparator typeComparator;
 
 
-
-
 	@Override
 	public PType caseATupleSelectExp(ATupleSelectExp node,
 			TypeCheckInfo question) throws AnalysisException {
@@ -94,7 +94,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 		
-		// TODO RWL Check that entry is within bounds 
+		if (!(tupleExpType instanceof AProductType))
+		{
+			node.setType(issueHandler.addTypeError(tupleExp, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Tuple type",""+tupleExpType)));
+			return node.getType();
+		}
 		
 		return node.getType();
 	}
@@ -150,16 +154,15 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		LexIdentifierToken id = node.getIdentifier();
-		PDefinition idDef = cmlEnv.lookup(id, PDefinition.class);
-
+		PDefinition idDef = cmlEnv.lookupChannel(id);
 
 		if (idDef == null)
 		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(idDef+"")));
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node+"")));
 			return node.getType();
 		}
 
-		if (!(idDef instanceof AChannelNameDefinition || idDef instanceof AStateDefinition))
+		if (!(idDef instanceof AChansetDefinition || idDef instanceof AChannelNameDefinition || idDef instanceof AStateDefinition))
 		{
 			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE.customizeMessage(idDef+"")));
 			return node.getType();
@@ -551,7 +554,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// Okay given our best efforts the Overture Type Checking strategy could not find
 		// what we are looking for. Maybe its a CML class we are looking at.
-		CmlTypeCheckInfo nearestCmlEnvironment = question.contextGet(CmlTypeCheckInfo.class);
+		
+		CmlTypeCheckInfo nearestCmlEnvironment = question instanceof CmlTypeCheckInfo ? (CmlTypeCheckInfo)question : question.contextGet(CmlTypeCheckInfo.class);
 		if (nearestCmlEnvironment == null)
 		{
 			node.setType(issueHandler.addTypeError(node,TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node+"")));

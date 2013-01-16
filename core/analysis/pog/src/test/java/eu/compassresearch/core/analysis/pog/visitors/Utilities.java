@@ -69,7 +69,8 @@ public class Utilities {
 	// Type check
 	CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
 		Arrays.asList(new PSource[] { source }), null);
-	assertTrue("Test failed on Typechecker", cmlTC.typeCheck());
+	boolean tcResult = cmlTC.typeCheck();
+	assertTrue("Test failed on Typechecker", tcResult);
 
 	return source;
     }

@@ -66,7 +66,7 @@ begin
 		public number: map Node`SUBS to Node`SUBS
 		public subs: set of Node.SUBS
 		inv
-			exists n: nat @ card(subs) = n and -- is card a partial or total function?
+			exists n1: nat @ card(subs) = n1 and -- is card a partial or total function?
 			dom(status) = dom(number) and
 			dom(number) subset subs --and
 			--is_(dom(dom(status :> Node`Connected) <: number)) 

@@ -24,6 +24,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.typechecker.CmlTCUtil;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlBuildVisitor implements IResourceVisitor {
@@ -94,8 +95,6 @@ public class CmlBuildVisitor implements IResourceVisitor {
 		String localPathToFile = file.getLocation().toString();
 		source.setFile(new File(localPathToFile));
 
-		// Clear markers for this file
-		file.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
 		CmlLexer lexer = null;
 		try {
 			ANTLRInputStream in = null;
@@ -124,7 +123,10 @@ public class CmlBuildVisitor implements IResourceVisitor {
 				{
 					ct = (CommonToken)e.token;
 					MismatchedTokenException ee = (MismatchedTokenException)e;
-					expectedToken= CmlParser.tokenNames[ee.expecting];
+					if (ee.expecting < CmlParser.tokenNames.length && ee.expecting >= 0)
+						expectedToken= CmlParser.tokenNames[ee.expecting];
+					else
+						expectedToken = "out of range";
 					setProblem(file.createMarker(IMarker.PROBLEM), "Syntax error, expecting '"+expectedToken+"' near '"+ct.getText()+"'.",e.line,ct.getStartIndex(), ct.getStopIndex());
 					return false;
 				}
@@ -140,7 +142,9 @@ public class CmlBuildVisitor implements IResourceVisitor {
 			}
 
 		} catch (Exception e1) {
-			setProblem(file.createMarker(IMarker.PROBLEM),e1.getMessage(),Math.max(lexer.getLine(),1));
+			
+			String msg = CmlTCUtil.getErrorMessages((RuntimeException)e1);
+			setProblem(file.createMarker(IMarker.PROBLEM),msg,Math.max(lexer.getLine(),1));
 			return false;
 		}
 	}

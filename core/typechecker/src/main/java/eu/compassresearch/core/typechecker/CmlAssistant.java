@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AExternalDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
@@ -13,6 +15,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.ANamedInvariantType;
@@ -23,6 +26,8 @@ import org.overture.typechecker.LexNameTokenAssistent;
 import org.overture.typechecker.assistant.definition.AValueDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 import org.overture.typechecker.assistant.type.ARecordInvariantTypeAssistantTC;
+import org.overture.typechecker.util.HelpLexNameToken;
+import org.xml.sax.ext.LexicalHandler;
 
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
@@ -102,6 +107,8 @@ class CmlAssistant {
 		injectFindMemberNameBaseCase(new LocalDefinitionFindMemberStrategy());
 		injectFindMemberNameBaseCase(new TypeDefinitionFindNameMemberStrategy());
 		injectFindMemberNameBaseCase(new OperationsDefinitionNameMemberStrategy());
+		injectFindMemberNameBaseCase(new ExternalDefinitionNameMemberStrategy());
+		injectFindMemberNameBaseCase(new AssignmentDefinitionNameMemberStrategy());
 	}
 
 
@@ -137,7 +144,52 @@ class CmlAssistant {
 		return strategy.findMemberName(t, name, more);
 
 	}
+	
+	class AssignmentDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
 
+		@Override
+		public Class<?> getType() {
+			return AAssignmentDefinition.class;
+		}
+
+		@Override
+		public PDefinition findMemberName(PDefinition def,
+				LexIdentifierToken name, Object... more) {
+
+			AAssignmentDefinition assignDef = (AAssignmentDefinition)def;
+			PType type = assignDef.getType();
+			
+			PDefinition def0 = type.getDefinitions().get(0);
+			if (def0 instanceof ATypeDefinition)
+			{
+				ATypeDefinition tDef = (ATypeDefinition)def0;
+				return CmlAssistant.this.findMemberName(tDef, name, more);
+				
+			}
+			
+			return def;
+		}
+		
+	}
+
+	class ExternalDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
+
+		@Override
+		public Class<?> getType() {
+			return AExternalDefinition.class;
+		}
+
+		@Override
+		public PDefinition findMemberName(PDefinition def,
+				LexIdentifierToken name, Object... more) {
+
+			AExternalDefinition extDef = (AExternalDefinition)def;
+			
+			
+			return CmlAssistant.this.findMemberName(extDef.getState(), name, more);
+		}
+		
+	}
 
 	/*
 	 * Find a named member of a class paragraph.
@@ -298,6 +350,23 @@ class CmlAssistant {
 	{
 		CmlTypeCheckInfo cmlEnv = (CmlTypeCheckInfo)more[0];
 		PDefinition defOfTheTypeOfThisLocalDef = cmlEnv.env.findType(namedInvType.getName(),"");
+		while(defOfTheTypeOfThisLocalDef != null && 
+			  defOfTheTypeOfThisLocalDef.getType() != null && 
+			  defOfTheTypeOfThisLocalDef.getType() instanceof ANamedInvariantType)
+		{
+			
+			ANamedInvariantType nameType = (ANamedInvariantType)defOfTheTypeOfThisLocalDef.getType();
+			PType typeType = nameType.getType();
+			if (typeType instanceof ANamedInvariantType)
+				defOfTheTypeOfThisLocalDef = cmlEnv.env.findType(((ANamedInvariantType) typeType).getName(), "");
+			else 
+			{
+				ALocalDefinition resolvedType = AstFactory.newALocalDefinition(defOfTheTypeOfThisLocalDef.getLocation(), defOfTheTypeOfThisLocalDef.getName(), NameScope.LOCAL, typeType);
+				return CmlAssistant.this.findMemberName(resolvedType, name, more);
+			}
+		}
+
+		
 		return CmlAssistant.this.findMemberName(defOfTheTypeOfThisLocalDef,name,more);
 	}
 

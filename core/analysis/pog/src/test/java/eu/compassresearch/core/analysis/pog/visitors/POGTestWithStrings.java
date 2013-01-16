@@ -32,8 +32,8 @@ public class POGTestWithStrings {
 
     }
 
-    
-    public static Object[] divZeroFunction ={  "class Alice = begin functions bob: int -> int bob(a) == 50/a end", "WExpectedPO"};
+    private static String divZeroPO = "";
+    public static Object[] divZeroFunction ={  "functions bob: int -> int bob(a) == 50/a", divZeroPO};
   //add test cases for further POs here...
 	
 
