@@ -123,7 +123,10 @@ public class CmlBuildVisitor implements IResourceVisitor {
 				{
 					ct = (CommonToken)e.token;
 					MismatchedTokenException ee = (MismatchedTokenException)e;
-					expectedToken= CmlParser.tokenNames[ee.expecting];
+					if (ee.expecting < CmlParser.tokenNames.length && ee.expecting >= 0)
+						expectedToken= CmlParser.tokenNames[ee.expecting];
+					else
+						expectedToken = "out of range";
 					setProblem(file.createMarker(IMarker.PROBLEM), "Syntax error, expecting '"+expectedToken+"' near '"+ct.getText()+"'.",e.line,ct.getStartIndex(), ct.getStopIndex());
 					return false;
 				}

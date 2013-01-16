@@ -1,0 +1,202 @@
+types
+
+Id :: 	type : (<ERU> | <CC>)
+	identifier : token;
+
+ERUId = Id;
+Location = token;
+Criticality = nat
+inv c == c < 4; --(<Red> | <Yellow> | <Green> | <White>); red = 3, yellow = 2, green = 1, white = 0 
+
+String = seq of char;
+
+RescueDetails :: 	target : Location  -- The target location of the rescue event
+			criticality : Criticality; 
+
+Message :: 	sender: Id
+		destn : Id
+		message : String;
+			
+Log :: 	eru : ERUId
+	oldRescue : RescueDetails
+	newRescue : RescueDetails;
+values
+
+functions
+  	--true = higher criticality
+  compareCriticalityFunction: RescueDetails * RescueDetails -> bool
+  compareCriticalityFunction(r, r2) == r.criticality > r2.criticality
+  
+--  rescueDetailsToString(r : RescueDetails) s: String
+--  post s <> [] -- and r.target substring s and r.criticality substring s;
+  
+  stringToRescueDetails(s: String) r : RescueDetails
+  pre s <> []
+  post true -- r.target substring s and r.criticality substring s;
+  
+  
+channels
+  init
+  startRescue : RescueDetails
+  serviceRescue : Id * RescueDetails
+  radioIn, radioOut : Id * Id * String
+
+chansets
+
+  SEND_CHANNELS = {| radioIn |}
+  RCV_CHANNELS = {| radioOut |}
+
+process CallCentreProc =
+begin 
+  state
+  
+  -- The set of all known ERUs (some are idle and some are busy)
+  erus: set of ERUId  
+  
+  -- Maps ERUs to the details of the rescues they are attending.
+  eruRescues: map ERUId to RescueDetails 
+  inv dom eruRescues subset erus and (forall i in set erus @ i.type = <ERU>)
+  
+  --Put in init?
+  ccId : Id
+  
+  -- Log
+  diversionLog :  set of Log
+  
+  operations 
+
+  -- assume ops to populate erus and eruRescues
+  INIT()
+  frame wr ccId: Id
+  	wr erus: set of ERUId 
+  	wr eruRescues: map ERUId to RescueDetails
+  post ccId.type = <CC> and erus = {} and eruRescues = {|->}-- parser doesn't like ccId = mk_Id(<CC>, -) and   
+  
+  findIdleERUs() idleERUs: set of ERUId
+  frame rd erus: set of ERUId
+        rd eruRescues: map ERUId to RescueDetails
+  post idleERUs = erus \ dom eruRescues
+  
+  allocateIdleERU(e:set of ERUId, r: RescueDetails) eru: ERUId
+  frame wr eruRescues : map ERUId to RescueDetails
+        rd erus: set of ERUId
+  pre e subset erus and (e inter dom eruRescues = {})
+  post eru in set e and eru in set dom eruRescues and eruRescues(eru) = r
+    
+  compareCriticality(r: RescueDetails) b : bool
+  frame rd eruRescues: map ERUId to RescueDetails
+  post b = (exists e in set dom eruRescues @ compareCriticalityFunction(r, eruRescues(e)))
+  
+  chooseERUToDivert(r : RescueDetails) eru : ERUId
+  frame rd eruRescues: map ERUId to RescueDetails
+  post eru in set dom eruRescues and compareCriticalityFunction(r, eruRescues(eru))
+    
+  getOldDetails(eru : ERUId) r : RescueDetails
+  frame rd eruRescues: map ERUId to RescueDetails
+  pre eru in set dom eruRescues
+  post r = eruRescues(eru)
+  
+  reAllocateERU(eru : ERUId, r : RescueDetails)
+  frame wr eruRescues : map ERUId to RescueDetails
+        rd erus: set of ERUId
+  pre eru in set erus and eru in set dom eruRescues and eruRescues(eru) <> r
+  post eru in set dom eruRescues and eruRescues(eru) = r
+  
+  logDiversion(eru : ERUId, r : RescueDetails, oldr : RescueDetails)
+  frame rd eruRescues : map ERUId to RescueDetails
+        wr diversionLog : set of Log
+  pre eru in set erus and eru in set dom eruRescues and eruRescues(eru) = r
+  post mk_Log(eru, oldr, r) in set diversionLog
+  
+  actions
+
+    CALLCENTRE = startRescue?r -> MERGE1(r)
+	
+	MERGE1 = r: RescueDetails @ (dcl e: set of ERUId @ e := findIdleERUs(); 
+		(do 
+			(e = {}) -> DECISION2(r)
+			|
+			 e <> {} -> (dcl e1: ERUId @ e1 := allocateIdleERU(e, r); MERGE2(e1, r))
+		end))
+
+	MERGE2 = (dcl eru : ERUId @ 
+					(r : RescueDetails @ 
+							(dcl s: String 
+									@ s := rescueDetailsToString(r); 
+								      radioIn!ccId!eru!s -> CALLCENTRE))) -- scope of s??
+	
+	DECISION2 = r : RescueDetails @ (dcl c: bool @ c := compareCriticality(r); 
+		(do
+			not c -> MERGE1(r) 
+	    		|
+	    		c -> (dcl e2: ERUId @ e2 := chooseERUToDivert(r); FORK1(e2, r))
+	    	end))
+	
+	FORK1 = (dcl eru : ERUId @ (r : RescueDetails @ (dcl oldr: RescueDetails @ oldr := getOldDetails(eru); reAllocateERU(eru,r); (MERGE2(eru, r) 
+				     																	 ||| 	    
+				      																     logDiversion(eru,r,oldr); MERGE1(oldr)))))
+  
+   @ init -> INIT();CALLCENTRE
+end	
+
+
+process RadioSystemProc =
+  begin
+  
+  state 
+  
+  history : seq of Message
+
+  operations
+  
+  INIT()
+  frame wr history
+  post history = []
+  
+  sendMessage(sender: Id, destn: Id, msg: String) -- equiv to processMessage from AD?
+  frame wr history
+  post history = history~ ^ [mk_Message(sender, destn, msg)]
+
+  actions
+
+  RADIOSYSTEM = 
+  	radioIn?s?d?m -> sendMessage(s, d, m); radioOut?s?d?m -> RADIOSYSTEM
+  
+   @ init -> INIT();RADIOSYSTEM
+end
+
+
+
+process ERUProc = id : Id @
+  begin
+  
+  state 
+
+  eruId : ERUId
+  currRescue : [RescueDetails]  -- optional type valid for state variables?
+  
+  operations 
+   
+  INIT(id : Id)
+  frame wr eruId: ERUId
+  	wr currRescue: [RescueDetails]
+  post eruId = id and eruId = id and currRescue = nil
+
+  receiveMessage(sender: Id, msg: String)
+  frame wr currRescue: [RescueDetails]
+  pre sender.type = <CC>
+  post currRescue = stringToRescueDetails(msg)
+  
+  actions
+  
+  ERU =  -- ERU only picks up messages to itself
+  	radioOut?s!eruId?m -> receiveMessage(s,m); serviceRescue!eruId!currRescue -> ERU 
+  @ init -> INIT(id);ERU
+end
+
+
+
+process ERUsProc= |||id:Id @ ERUProc(id) 
+
+process InitiateRescue =
+CallCentreProc [| SEND_CHANNELS |] RadioSystemProc [| RCV_CHANNELS |] ERUsProc

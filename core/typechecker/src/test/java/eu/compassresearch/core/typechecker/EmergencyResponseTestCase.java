@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.typechecker.TestUtil.TypeCheckerResult;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
@@ -30,7 +31,7 @@ public class EmergencyResponseTestCase {
 	public void setup()
 	{		
 		expertLedDir = new File("../../docs/cml-examples/EmergencyResponse/Expert-Led/model");
-		rulesLedDir = new File("../../docs/cml-examples/EmergencyResponse/Rules-Led/model");
+		rulesLedDir =  new File("../../docs/cml-examples/EmergencyResponse/Rules-Led/model");
 		expertLedFound = expertLedDir.exists() && expertLedDir.isDirectory();
 		rulesLedFound  = rulesLedDir.exists() && rulesLedDir.isDirectory();
 	}
@@ -52,8 +53,8 @@ public class EmergencyResponseTestCase {
 		
 		for(PSource source : sources)
 		{
-			boolean parseOk = TestUtil.parse(source);
-			Assert.assertTrue("Failed to parse file "+source, parseOk);
+			TypeCheckerResult res = TestUtil.parse(source);
+			Assert.assertTrue("Failed to parse file "+source, res.parsedOk);
 		}
 		
 		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
@@ -61,5 +62,34 @@ public class EmergencyResponseTestCase {
 		boolean tcOk = tc.typeCheck();
 		Assert.assertTrue(TestUtil.buildErrorMessage(issueHandler, true), tcOk);
 	}
-	
+
+	@Test
+	public void rulesLed() throws FileNotFoundException, IOException
+	{
+		Assume.assumeTrue(rulesLedFound);
+
+		List<PSource> sources = new LinkedList<PSource>();
+		for(File f : rulesLedDir.listFiles())
+		{
+			AFileSource current = new AFileSource();
+			current.setFile(f);
+			current.setName(f.getName());
+			sources.add(current);
+		}
+		
+		for(PSource source : sources)
+		{
+			TypeCheckerResult res = TestUtil.parse(source);
+			String errMsg = "";
+			for(String s : res.parseErrors)
+				errMsg += s + "\n";
+			Assert.assertTrue("Failed to parse file "+source+".\n"+errMsg, res.parsedOk);
+		}
+		
+		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+		CmlTypeChecker tc = VanillaFactory.newTypeChecker(sources, issueHandler );
+		boolean tcOk = tc.typeCheck();
+		Assert.assertTrue(TestUtil.buildErrorMessage(issueHandler, true), tcOk);
+	}
+
 }

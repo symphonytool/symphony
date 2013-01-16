@@ -36,6 +36,8 @@ import org.overture.typechecker.TypeCheckInfo;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PAlternativeAction;
+import eu.compassresearch.ast.actions.PCommunicationParameter;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
@@ -58,6 +60,19 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
 @SuppressWarnings("serial")
 class VanillaCmlTypeChecker extends AbstractTypeChecker {
 
+
+	@Override
+	public PType defaultPCommunicationParameter(PCommunicationParameter node,
+			TypeCheckInfo question) throws AnalysisException {
+		return super.defaultPCommunicationParameter(node, question);
+	}
+
+	@Override
+	public PType defaultPParametrisation(PParametrisation node,
+			TypeCheckInfo question) throws AnalysisException {
+		return addErrorForMissingType(node, node.apply(this.act, question));
+	
+	}
 
 	@Override
 	public PType defaultPAlternativeAction(PAlternativeAction node,
@@ -304,6 +319,16 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 					this.sourceForest, issueHandler, info);
 
 
+			info.env.setEnclosingDefinition(globalRoot);
+			info.scope = NameScope.GLOBAL;
+			PType globalRootType = ((TCDeclAndDefVisitor) dad)
+					.typeCheckOvertureClass(globalRoot, info);
+			if (!TCDeclAndDefVisitor.successfulType(globalRootType)) {
+				issueHandler.addTypeError(globalRoot,
+						TypeErrorMessages.PARAGRAPH_HAS_TYPES_ERRORS
+						.customizeMessage("Global Definitions"));
+				return false;
+			}
 			// Add all global definitions to the environment
 			for (PDefinition def : globalRoot.getDefinitions()) {
 
@@ -314,18 +339,10 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 						if (dd instanceof ATypeDefinition)
 							info.addType(dd.getName(), dd);
 						else
+						{
 							info.addVariable(dd.getName(),dd);
+						}
 					}
-			}
-			info.env.setEnclosingDefinition(globalRoot);
-			info.scope = NameScope.GLOBAL;
-			PType globalRootType = ((TCDeclAndDefVisitor) dad)
-					.typeCheckOvertureClass(globalRoot, info);
-			if (!TCDeclAndDefVisitor.successfulType(globalRootType)) {
-				issueHandler.addTypeError(globalRoot,
-						TypeErrorMessages.PARAGRAPH_HAS_TYPES_ERRORS
-						.customizeMessage("Global Definitions"));
-				return false;
 			}
 
 		} catch (AnalysisException e) {

@@ -15,6 +15,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.typechecker.TestUtil.TypeCheckerResult;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -90,12 +91,12 @@ public class CmlTypeCheckerTestCaseMultipleSources {
 	@Test
 	public void test() throws IOException {
 
-		boolean s1ok = TestUtil.parse(source1);
-		boolean s2ok = TestUtil.parse(source2);
+		TypeCheckerResult s1ok = TestUtil.parse(source1);
+		TypeCheckerResult s2ok = TestUtil.parse(source2);
 		
-		Assert.assertTrue("Expected source 1 to parse, but it did not.", s1ok);
+		Assert.assertTrue("Expected source 1 to parse, but it did not.", s1ok.parsedOk);
 		
-		Assert.assertTrue("Expected source 2 to parse, but it did not.",s2ok);
+		Assert.assertTrue("Expected source 2 to parse, but it did not.",s2ok.parsedOk);
 		
 		TypeIssueHandler typeErrors = VanillaFactory.newCollectingIssueHandle();
 		CmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(Arrays.asList(new PSource[] {source1, source2}), typeErrors);

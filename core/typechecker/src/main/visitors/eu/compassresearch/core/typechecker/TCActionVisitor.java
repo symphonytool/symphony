@@ -88,6 +88,7 @@ import eu.compassresearch.ast.actions.AMultipleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ANewStatementAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
+import eu.compassresearch.ast.actions.AResParametrisation;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
@@ -100,6 +101,7 @@ import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
+import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.AVresParametrisation;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
@@ -141,6 +143,46 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	{
 		LexLocation l;
 
+	}
+
+	
+	
+	@Override
+	public PType caseAValParametrisation(AValParametrisation node,
+			TypeCheckInfo question) throws AnalysisException {
+		
+		ATypeSingleDeclaration decl = node.getDeclaration();
+		List<PDefinition> defs = new LinkedList<PDefinition>();
+		
+		for(LexIdentifierToken id : decl.getIdentifiers())
+		{
+			LexNameToken name = new LexNameToken("",id);
+			ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), name, NameScope.LOCAL, decl.getType());
+			defs.add(localDef);
+		}
+		
+		PType res = new AActionType(node.getLocation(),true);
+		res.setDefinitions(defs);
+		return res;
+	}
+	
+	@Override
+	public PType caseAResParametrisation(AResParametrisation node,
+			TypeCheckInfo question) throws AnalysisException {
+		
+		ATypeSingleDeclaration decl = node.getDeclaration();
+		List<PDefinition> defs = new LinkedList<PDefinition>();
+		
+		for(LexIdentifierToken id : decl.getIdentifiers())
+		{
+			LexNameToken name = new LexNameToken("",id);
+			ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), name, NameScope.LOCAL, decl.getType());
+			defs.add(localDef);
+		}
+		
+		PType res = new AActionType(node.getLocation(),true);
+		res.setDefinitions(defs);
+		return res;
 	}
 
 	/**

@@ -28,6 +28,7 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
+import org.overture.ast.types.AProductType;
 import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SMapType;
@@ -78,8 +79,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	private TypeComparator typeComparator;
 
 
-
-
 	@Override
 	public PType caseATupleSelectExp(ATupleSelectExp node,
 			TypeCheckInfo question) throws AnalysisException {
@@ -95,7 +94,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 		
-		// TODO RWL Check that entry is within bounds 
+		if (!(tupleExpType instanceof AProductType))
+		{
+			node.setType(issueHandler.addTypeError(tupleExp, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Tuple type",""+tupleExpType)));
+			return node.getType();
+		}
 		
 		return node.getType();
 	}

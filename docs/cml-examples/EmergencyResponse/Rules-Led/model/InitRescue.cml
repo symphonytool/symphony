@@ -2,25 +2,25 @@ process InitRescue =
 begin
     operations
         opFindIdleERUs ()
-        post true;
+        post true
 
         opAllocateIdleERU ()
-        post true;
+        post true
 
         opSendRescueInfoToERU ()
-        post true;
+        post true
 
         opProcessMessage ()
-        post true;
+        post true
 
         opReceiveMessage ()
-        post true;
+        post true
 
         opWait ()
-        post true;
+        post true
 
         opDivertERU ()
-        post true;
+        post true
 
         opLogDiversion ()
         post true
@@ -29,6 +29,7 @@ begin
         A = startStartRescue -> acceptStartRescue -> endStartRescue -> B
         B = C
         C = startFindIdleERUs -> opFindIdleERUs(); endFindIdleERUs -> D
+	-- RWL: How is D supposed to be? 
         D = if IdleERU -> E
              | NoIdleERU -> L
              end

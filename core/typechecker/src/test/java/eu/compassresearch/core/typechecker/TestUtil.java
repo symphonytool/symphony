@@ -13,7 +13,9 @@ import java.util.List;
 import javax.accessibility.AccessibleStreamable;
 
 import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.MismatchedTokenException;
 import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
@@ -37,11 +39,15 @@ public class TestUtil
 		boolean parsedOk;
 		boolean tcOk;
 		PSource source;
+		List<String> parseErrors;
 	}
 
 
-	public static boolean parse(PSource s) throws FileNotFoundException, IOException
+	public static TypeCheckerResult parse(PSource s) throws FileNotFoundException, IOException
 	{
+		
+		TypeCheckerResult result = new TypeCheckerResult();
+		
 		ANTLRInputStream in = null;
 		if (s instanceof AFileSource)
 			in = new ANTLRInputStream(new FileInputStream(((AFileSource)s).getFile()));
@@ -50,7 +56,7 @@ public class TestUtil
 			in = new ANTLRInputStream(((AInputStreamSource)s).getStream());
 
 		if (in == null)
-			return false;
+			return result;
 
 		CmlLexer lexer = new CmlLexer(in);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -59,14 +65,37 @@ public class TestUtil
 		try {
 			s.setParagraphs(new LinkedList<PDefinition>());
 			for(PDefinition d : parser.source())
+			{
 				if (d != null)
 					s.getParagraphs().add(d);
 				else	
-					return false;
-			return true;
+				{
+				}
+			}
+			result.parsedOk = true;
+			return result;
 		} catch (RecognitionException e) {
-			e.printStackTrace();
-			return false;
+			String expectedToken = "";
+			CommonToken ct = null;
+			List<String> parseErrors = new LinkedList<String>();
+			result.parseErrors = parseErrors;
+			if (e instanceof MismatchedTokenException)
+			{
+				ct = (CommonToken)e.token;
+				MismatchedTokenException ee = (MismatchedTokenException)e;
+				expectedToken= CmlParser.tokenNames[ee.expecting];
+				parseErrors.add("Syntax error in "+s+" expecting '"+expectedToken+"' near '"+ct.getText()+"' at line "+e.line+" - "+ct.getStartIndex()+":"+ ct.getStopIndex());
+				return result;
+			}
+			
+			if (e.token != null)
+			{
+				ct = (CommonToken)e.token;
+				parseErrors.add("Syntax error in "+s+" snear '"+ct.getText()+"'. Error at line "+e.line + " - "+ct.getStartIndex()+":"+ ct.getStopIndex());	
+			}
+			else
+				parseErrors.add("Syntax error, expecting at line at line "+e.line+".");
+			return result;
 		}
 	}
 
