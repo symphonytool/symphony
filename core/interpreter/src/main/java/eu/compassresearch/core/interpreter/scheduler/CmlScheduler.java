@@ -13,6 +13,7 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
+import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
@@ -174,6 +175,8 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 
 				if(alpha.isEmpty())
 					throw new InterpreterRuntimeException("A deadlock has occured. To developer: Change this be handled differently!!!!");
+				else if(alpha.containsSpecialEvent(CmlTauEvent.referenceTauEvent()))
+					throw new InterpreterRuntimeException("A silent transition '"+ alpha.getSpecialEvents() +"' has slipped through to a place where only observable events should be.");
 				else
 				{
 					CmlAlphabet availableEvents = p.inspect();

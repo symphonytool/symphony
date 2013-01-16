@@ -208,11 +208,10 @@ public class AlphabetInspector
 		
 		//if no children are present we make a silent transition to represent the
 		//external choice begin
-		if(!ownerProcess.hasChildren() ||
-				CmlBehaviourThreadUtility.existsAFinishedChild(ownerProcess))
-		{
+		if(!ownerProcess.hasChildren())
 			alpha = createSilentTransition(node, node,"Begin");
-		}
+		else if(CmlBehaviourThreadUtility.existsAFinishedChild(ownerProcess))
+			alpha = createSilentTransition(node, node,"end");
 		//If there are children we just return the union of the child alphabets
 		else if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(ownerProcess))
 		{

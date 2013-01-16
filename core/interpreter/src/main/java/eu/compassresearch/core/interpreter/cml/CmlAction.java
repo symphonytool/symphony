@@ -182,7 +182,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			stateEvent.getSource().onStateChanged().unregisterObserver(this);
 			
 			//if all the children are finished this process can continue and evolve into skip
-			if(CmlBehaviourThreadUtility.isAllChildrenFinished(this))
+			if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(this))
 				setState(CmlProcessState.RUNNABLE);
 			
 			break;
@@ -237,7 +237,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		child.onStateChanged().registerObserver(this);
 		child.onTraceChanged().registerObserver(this);
 		
-		//child.start(supervisor());
+		child.start(supervisor());
 	}
 	
 	/**
@@ -367,10 +367,6 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		//Add the children to the process graph
 		addChild(leftInstance);
 		addChild(rightInstance);
-		
-		//start them to get them executed as a independent CmlBeahiourThread
-		rightInstance.start(supervisor());
-		leftInstance.start(supervisor());
 		
 		//Now let this process wait for the children to get into a waitForEvent state
 		setState(CmlProcessState.WAIT_CHILD);
@@ -696,10 +692,6 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		addChild(leftInstance);
 		addChild(rightInstance);
 
-		//Start them to get them executed as an independent CmlBehaiourThread
-		rightInstance.start(supervisor());
-		leftInstance.start(supervisor());
-		
 		//Now let this process wait for the children to get into a waitForEvent state
 		setState(CmlProcessState.WAIT_CHILD);
 		
