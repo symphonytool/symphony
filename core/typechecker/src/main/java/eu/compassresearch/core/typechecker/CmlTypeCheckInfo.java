@@ -5,12 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.runners.ParentRunner;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
@@ -19,7 +17,6 @@ import org.overture.typechecker.FlatEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.util.HelpLexNameToken;
 
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
