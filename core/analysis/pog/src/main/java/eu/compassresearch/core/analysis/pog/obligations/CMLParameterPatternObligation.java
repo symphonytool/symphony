@@ -36,11 +36,10 @@ import org.overture.ast.types.PType;
 import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.POType;
 import org.overture.pog.obligation.ProofObligation;
-import org.overture.typechecker.assistant.definition.AImplicitOperationDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
-import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
-import eu.compassresearch.ast.definitions.AImplicitOperationDefinition;
+import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
 public class CMLParameterPatternObligation extends ProofObligation
 {
@@ -49,7 +48,7 @@ public class CMLParameterPatternObligation extends ProofObligation
 
 
 		public CMLParameterPatternObligation(
-			AExplicitOperationDefinition def, POContextStack ctxt)
+			AExplicitCmlOperationDefinition def, POContextStack ctxt)
 		{
 			super(def.getLocation(), POType.OPERATION_PATTERNS, ctxt);
 			this.predef = def.getPredef();
@@ -58,7 +57,7 @@ public class CMLParameterPatternObligation extends ProofObligation
 		}
 
 		public CMLParameterPatternObligation(
-			AImplicitOperationDefinition def, POContextStack ctxt)
+			AImplicitCmlOperationDefinition def, POContextStack ctxt)
 		{
 			super(def.getLocation(), POType.OPERATION_PATTERNS, ctxt);
 			this.predef = def.getPredef();

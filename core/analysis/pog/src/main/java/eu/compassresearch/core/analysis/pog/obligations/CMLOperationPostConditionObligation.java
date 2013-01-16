@@ -31,18 +31,18 @@ import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.POType;
 import org.overture.pog.obligation.ProofObligation;
 
-import eu.compassresearch.ast.definitions.AExplicitOperationDefinition;
-import eu.compassresearch.ast.definitions.AImplicitOperationDefinition;
+import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 public class CMLOperationPostConditionObligation extends ProofObligation{
 	
-		public CMLOperationPostConditionObligation(AExplicitOperationDefinition op,
+		public CMLOperationPostConditionObligation(AExplicitCmlOperationDefinition op,
 				POContextStack ctxt)
 		{
 			super(op.getLocation(), POType.OP_POST_CONDITION, ctxt);
 			value = ctxt.getObligation(getExp(op.getPrecondition(), op.getPostcondition(), null));
 		}
 
-		public CMLOperationPostConditionObligation(AImplicitOperationDefinition op,
+		public CMLOperationPostConditionObligation(AImplicitCmlOperationDefinition op,
 				POContextStack ctxt)
 		{
 			super(op.getLocation(), POType.OP_POST_CONDITION, ctxt);

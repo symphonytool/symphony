@@ -24,21 +24,16 @@
 package eu.compassresearch.core.analysis.pog.obligations;
 
 import java.util.Iterator;
-import java.util.List;
 
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.patterns.AIgnorePattern;
-import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 import org.overture.pog.obligation.POContext;
-import org.overture.typechecker.assistant.definition.AImplicitOperationDefinitionAssistantTC;
-
-import eu.compassresearch.ast.definitions.AImplicitOperationDefinition;
 
 	public class CMLPOOperationDefinitionContext extends POContext
 	{

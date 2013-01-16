@@ -25,18 +25,17 @@ package eu.compassresearch.core.analysis.pog.obligations;
 
 import java.util.List;
 
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
-import org.overture.ast.expressions.PExp;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
 import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.POType;
 import org.overture.pog.obligation.ProofObligation;
-import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
-import eu.compassresearch.ast.definitions.AImplicitOperationDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
 	public class CMLSatisfiabilityObligation extends ProofObligation
 	{
@@ -44,7 +43,7 @@ import eu.compassresearch.ast.definitions.AImplicitOperationDefinition;
 
 		
 
-		public CMLSatisfiabilityObligation(AImplicitOperationDefinition op,
+		public CMLSatisfiabilityObligation(AImplicitCmlOperationDefinition op,
 				PDefinition stateDefinition, POContextStack ctxt)
 		{
 			super(op.getLocation(), POType.OP_SATISFIABILITY, ctxt);

@@ -5,35 +5,40 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.definitions.AExplicitOperationDefinition;
+import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.expressions.PExp;
-import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexNameList;
 import org.overture.ast.node.INode;
-import org.overture.ast.types.PType;
+import org.overture.ast.patterns.APatternListTypePair;
+import org.overture.ast.patterns.PPattern;
 import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.visitor.PogParamDefinitionVisitor;
 
-
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.declarations.PDeclaration;
+import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AActionParagraphDefinition;
+import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
-import eu.compassresearch.ast.definitions.AChannelParagraphDefinition;
+import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
-import eu.compassresearch.ast.definitions.AChansetParagraphDefinition;
-import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
-import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
-import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
+import eu.compassresearch.ast.definitions.AChansetsDefinition;
+import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
-import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
-import eu.compassresearch.ast.definitions.ATypesParagraphDefinition;
-import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
+import eu.compassresearch.ast.definitions.ATypesDefinition;
+import eu.compassresearch.ast.definitions.AValuesDefinition;
+import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.analysis.pog.obligations.CMLOperationPostConditionObligation;
+import eu.compassresearch.core.analysis.pog.obligations.CMLParameterPatternObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.CMLSatisfiabilityObligation;
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
@@ -269,7 +274,7 @@ public class POGDeclAndDefVisitor extends
     
     // Call Overture for the other expressions    
     @Override
-    public CMLProofObligationList defaultPDeclaration(PDeclaration node,
+    public CMLProofObligationList defaultPSingleDeclaration(PSingleDeclaration node,
 	    POContextStack question) throws AnalysisException {
     	CMLProofObligationList pol = new CMLProofObligationList();
     	pol.addAll(node.apply(overtureVisitor, question));
@@ -321,22 +326,22 @@ public class POGDeclAndDefVisitor extends
 	  */
 
 // DOES NOT EXIST ANYMORE
-   @Override
-   public ProofObligationList caseAInvariantDefinition(
-		   AInvariantDefinition node, POContextStack question)
-	    throws AnalysisException {
-   	
-   	CMLProofObligationList pol = new CMLProofObligationList();
-   	
-	System.out.println("----------***----------");
-	System.out.println("AInvariantDefinition");
-	System.out.println(node.toString());
-	System.out.println(node.getPattern());
-	System.out.println(node.getExpression());
-	System.out.println("----------***----------");
-	
-   	return pol;
-   }
+//   @Override
+//   public ProofObligationList caseAInvariantDefinition(
+//		   AInvariantDefinition node, POContextStack question)
+//	    throws AnalysisException {
+//   	
+//   	CMLProofObligationList pol = new CMLProofObligationList();
+//   	
+//	System.out.println("----------***----------");
+//	System.out.println("AInvariantDefinition");
+//	System.out.println(node.toString());
+//	System.out.println(node.getPattern());
+//	System.out.println(node.getExpression());
+//	System.out.println("----------***----------");
+//	
+//   	return pol;
+//   }
     
 	  /**
 	  * 
@@ -397,30 +402,59 @@ public class POGDeclAndDefVisitor extends
 	/**
 	 * Implicit operations - CML does not reuse Overture operations
 	 */
-	@Override
-	public ProofObligationList caseAImplicitCmlOperationDefinition(
-			 AImplicitOperationDefinition node, POContextStack question) 
-			throws AnalysisException{
+		@Override
+		public ProofObligationList caseAImplicitCmlOperationDefinition(
+			AImplicitCmlOperationDefinition node, POContextStack question) 
+				throws AnalysisException{
 
-		System.out.println("----------***----------");
-		System.out.println("AImplicitOperationDefinition");
-		System.out.println(node.toString());
-		System.out.println("----------***----------");
-		
-		CMLProofObligationList pol = new CMLProofObligationList();
+			System.out.println("----------***----------");
+			System.out.println("AImplicitOperationDefinition");
+			System.out.println(node.toString());
+			System.out.println("----------***----------");
+			
+			CMLProofObligationList pol = new CMLProofObligationList();
 
-		//Taken from Overture - Needed?
-		LexNameList pids = new LexNameList();
+			//Taken from Overture - Needed?
+			LexNameList pids = new LexNameList();
 
+			for (APatternListTypePair tp : node.getParameterPatterns())
+				for (PPattern p : tp.getPatterns())
+					for (PDefinition def : p.getDefinitions())
+						pids.add(def.getName());
 
+			//Taken from Overture - Needed?
+			if (pids.hasDuplicates()){
+				pol.add(new CMLParameterPatternObligation(node, question));
+			}
+
+			// if implicit operation has a precondition, dispatch for PO checking
+			if (node.getPrecondition() != null){
+				pol.addAll(node.getPrecondition().apply(parentPOG, question));
+			}
+			
+			// if implicit operation has a precondition, dispatch for PO checking
+			// and generate OperationPostConditionObligation
+			if (node.getPostcondition() != null){
+				pol.addAll(node.getPostcondition().apply(parentPOG, question));
+				pol.add(new CMLOperationPostConditionObligation(node, question));
+
+			//	COMMENTED AS CONTEXT GENERATES VARIOUS NULL OBJECTS, DUE TO NEW AST...
+			//	AS SUCH SAT OBLIG DOESN'T DO MUCH
+			//	question.push(new CMLPOOperationDefinitionContext(node, false, node.getStateDefinition()));
+				pol.add(new CMLSatisfiabilityObligation(node, node.getStateDefinition(), question));
+			//	question.pop();			
+			}
+			 
+			return pol;
+		}
 
 
 
 
 //
-//    @Override
-	public ProofObligationList caseAExplicitOperationDefinition(
-	    AExplicitOperationDefinition node, POContextStack question)
+    @Override
+	public ProofObligationList caseAExplicitCmlOperationDefinition(
+	    AExplicitCmlOperationDefinition node, POContextStack question)
 	    throws AnalysisException {
 		
 		CMLProofObligationList pol = new CMLProofObligationList();
@@ -466,6 +500,7 @@ public class POGDeclAndDefVisitor extends
    	
 		return pol;
 	}
+}
 //
 
 //

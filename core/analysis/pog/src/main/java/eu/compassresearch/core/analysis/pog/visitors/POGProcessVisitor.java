@@ -37,13 +37,12 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
     	
 //Print the separate parts to screen
     	System.out.println("A StateProcess: " + node.toString());
-    	System.out.println("A StateProcess process defintions: " + node.getProcessDefinition());
     	System.out.println("A StateProcess defintion paragraphs: " + node.getDefinitionParagraphs());
     	System.out.println("A StateProcess action: " + node.getAction());
     	
 
-    	LinkedList<SParagraphDefinition> pdef = node.getDefinitionParagraphs();
-    	for (SParagraphDefinition def : pdef) {
+    	LinkedList<PDefinition> pdef = node.getDefinitionParagraphs();
+    	for (PDefinition def : pdef) {
     		System.out.println(def.toString());
     		
     		pol.addAll(def.apply(parentPOG, question));

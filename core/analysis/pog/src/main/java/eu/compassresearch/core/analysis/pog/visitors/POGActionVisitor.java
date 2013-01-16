@@ -1,7 +1,5 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
-import java.util.LinkedList;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
@@ -17,8 +15,6 @@ import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.definitions.SParagraphDefinition;
-import eu.compassresearch.ast.process.AStateProcess;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.CMLWhileLoopObligation;
 
@@ -62,7 +58,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
     	System.out.println("A ASingleGeneralAssignmentStatementAction: " + node.toString());
     	CMLProofObligationList pol = new CMLProofObligationList();
     	
-    	PStateDesignator id = node.getStateDesignator();
+    	PExp id = node.getStateDesignator();
     	PExp expr = node.getExpression();
     			
     	pol.addAll(id.apply(parentPOG, question));	
