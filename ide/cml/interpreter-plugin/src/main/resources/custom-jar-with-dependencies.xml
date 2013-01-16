@@ -21,6 +21,7 @@
 				<include>com.google.code.gson:gson</include>
 				<include>eu.compassresearch.core*:*:jar</include>
 				<include>org.overturetool.*:*:jar</include>
+				<include>org.antlr:antlr-runtime:jar</include>
 			</includes>
 <!-- 			Since the overture stuff us dependent on the overture ast we need to -->
 <!-- 			specificly exclude this one, since we use the ast generated for COMPASS -->

@@ -10,18 +10,18 @@ import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
 
-public class PrefixSyncEvent extends ObservableEvent {
+public class SynchronizedPrefixEvent extends ObservableEvent {
 
 	private Set<ObservableEvent> synchronisingEvents; 
 	
-	public PrefixSyncEvent(CmlBehaviourThread eventSource, ObservableEvent first, ObservableEvent second) {
+	public SynchronizedPrefixEvent(CmlBehaviourThread eventSource, ObservableEvent first, ObservableEvent second) {
 		super(eventSource, first.getChannel());
 		synchronisingEvents = new HashSet<ObservableEvent>();
 		synchronisingEvents.add(first);
 		synchronisingEvents.add(second);
 	}
 	
-	public PrefixSyncEvent(CmlBehaviourThread eventSource, Set<ObservableEvent> synchronisingEvents) {
+	public SynchronizedPrefixEvent(CmlBehaviourThread eventSource, Set<ObservableEvent> synchronisingEvents) {
 		super(eventSource, extractChannelValue(synchronisingEvents));
 		this.synchronisingEvents = synchronisingEvents;
 	}
@@ -56,9 +56,9 @@ public class PrefixSyncEvent extends ObservableEvent {
 	@Override
 	public boolean equals(Object obj) {
 		
-		if((obj instanceof PrefixSyncEvent))
+		if((obj instanceof SynchronizedPrefixEvent))
 		{
-			PrefixSyncEvent other = (PrefixSyncEvent)obj;
+			SynchronizedPrefixEvent other = (SynchronizedPrefixEvent)obj;
 			return other.getChannel().equals(getChannel()) && 
 					synchronisingEvents.equals(other.synchronisingEvents);
 		}
@@ -88,7 +88,7 @@ public class PrefixSyncEvent extends ObservableEvent {
 	@Override
 	public ObservableEvent synchronizeWith(CmlBehaviourThread source,
 			ObservableEvent syncEvent) {
-		return new PrefixSyncEvent(source, this, syncEvent);
+		return new SynchronizedPrefixEvent(source, this, syncEvent);
 	}
 
 //	@Override

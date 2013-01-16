@@ -23,6 +23,9 @@ import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 public class RandomSelectionStrategy implements
 		CmlCommunicationSelectionStrategy {
 
+	private static final long randomSeed = 675674345;
+	private static final Random rnd = new Random(randomSeed);
+	
 	@Override
 	public ObservableEvent select(CmlAlphabet availableChannelEvents) {
 		
@@ -39,24 +42,6 @@ public class RandomSelectionStrategy implements
 				
 				((ObservableValueEvent)selectedComm).setMostPreciseValue(getRandomValueFromType(t.getType()));
 			}
-			
-//			//it has undefined values
-//			if(!selectedComm.isResolved())
-//			{
-//				AChannelType t = (AChannelType)selectedComm.getChannel().getType();
-//				
-//				final Value value = getRandomValueFromType(t.getType());
-//				
-//				selectedComm.resolve(new EventResolver() {
-//					
-//					@Override
-//					public void resolve(List<CommunicationParameter> params) {
-//						for(CommunicationParameter param : params)
-//							if(param instanceof InputParameter)
-//									param.setValue(value);
-//					}
-//				});
-//			}
 		}
 		//CmlRuntime.logger().fine("Available events " + availableChannelEvents.getObservableEvents());
 		CmlRuntime.logger().fine("The supervisor environment picks : " + selectedComm);
@@ -66,8 +51,6 @@ public class RandomSelectionStrategy implements
 	
 	private class ValueHelper extends AnswerCMLAdaptor<Value>
 	{
-		private static final long randomSeed = 675674345;
-		
 		@Override
 		public Value defaultPType(PType node) throws AnalysisException {
 			return new UndefinedValue();
@@ -78,7 +61,7 @@ public class RandomSelectionStrategy implements
 				throws AnalysisException {
 
 			
-			return new IntegerValue(new Random(randomSeed).nextInt());
+			return new IntegerValue(rnd.nextInt());
 		}
 		
 	}

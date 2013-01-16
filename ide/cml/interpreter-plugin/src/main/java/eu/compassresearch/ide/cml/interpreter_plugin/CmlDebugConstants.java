@@ -8,7 +8,6 @@ public enum CmlDebugConstants {
 	ID_CML_OPTION_VIEW("eu.compassresearch.ide.cml.interpreter_plugin.OptionsView"),
 	ID_CML_PLUGIN_NAME("eu.compassresearch.ide.cml.interpreter_plugin");
 	
-	
 	private final String str;      
 
     private CmlDebugConstants(String s) {

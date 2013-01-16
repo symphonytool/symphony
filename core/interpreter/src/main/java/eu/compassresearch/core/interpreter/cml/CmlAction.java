@@ -25,7 +25,7 @@ import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.cml.events.PrefixSyncEvent;
+import eu.compassresearch.core.interpreter.cml.events.SynchronizedPrefixEvent;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspector;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
