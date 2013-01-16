@@ -41,7 +41,7 @@ import eu.compassresearch.ide.cml.ui.editor.syntax.DefinitionMap.DefinitionHandl
 
 public class ProcessMap {
 
-    private static class AStateProcessHandler implements ProcessHandler {
+    private static class AActionProcessHandler implements ProcessHandler {
 
 	public List<Wrapper<? extends INode>> makeEntries(PProcess proc) {
 	    List<Wrapper<? extends INode>> r = new LinkedList<Wrapper<? extends INode>>();
@@ -98,7 +98,7 @@ public class ProcessMap {
 	map.put(ASequentialCompositionReplicatedProcess.class,
 		new ASequentialCompositionReplicatedProcessHandler());
 	map.put(AStartDeadlineProcess.class, new AStartDeadlineProcessHandler());
-	map.put(AActionProcess.class, new AStateProcessHandler());
+	map.put(AActionProcess.class, new AActionProcessHandler());
 	map.put(ASynchronousParallelismProcess.class,
 		new ASynchronousParallelismProcessHandler());
 	map.put(ASynchronousParallelismReplicatedProcess.class,
