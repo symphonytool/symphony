@@ -65,6 +65,10 @@ public interface CmlBehaviourThread extends CmlBehaviour{
 	public boolean running();
 	public boolean finished();
 	public boolean waiting();
+	public boolean waitingForChild();
+	public boolean waitingForEvent();
+	
+	
 	/**
 	 * Determines if this process is deadlocked
 	 * @return true if the process is deadlocked else false

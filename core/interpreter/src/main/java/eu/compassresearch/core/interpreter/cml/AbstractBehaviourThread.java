@@ -169,11 +169,12 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 			else 
 			{	
 				//If the selected event is in the immediate alphabet then we can continue
-				if(env.communicationSelected() && alpha.containsCommunication(env.selectedCommunication()))
+				if(env.isObservableEventSelected() &&  
+						!alpha.flattenSyncEvents().intersect(env.selectedObservableEvent().getAsAlphabet()).isEmpty())
 				{
 					ret = executeNext();
-					unregisterChannel(env.selectedCommunication());
-					updateTrace(env.selectedCommunication());
+					unregisterChannel(env.selectedObservableEvent());
+					updateTrace(env.selectedObservableEvent());
 				}
 				//if no communication is selected by the supervisor or we cannot sync the selected events
 				//then we go to wait state and wait for channelEvent
@@ -316,6 +317,16 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	@Override public boolean waiting() {
 		return getState() == CmlProcessState.WAIT_EVENT ||
 				getState() == CmlProcessState.WAIT_CHILD;
+	}
+	
+	public boolean waitingForChild()
+	{
+		return getState() == CmlProcessState.WAIT_CHILD;
+	}
+	
+	public boolean waitingForEvent()
+	{
+		return getState() == CmlProcessState.WAIT_EVENT; 
 	}
 	
 	@Override

@@ -20,7 +20,7 @@
     <module>parser</module>
     <module>analysis</module> 
     <module>typechecker</module>
-    <!-- module>interpreter</module -->
+    <module>interpreter</module>
     <module>common</module>
     <!-- module>cmdline</module -->
   </modules>

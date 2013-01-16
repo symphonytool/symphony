@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -205,7 +206,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
 			CmlSupervisorEnvironment sve = 
 					VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
-			
+			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.execute(sve,scheduler);
 		} catch (Exception ex)
 		{
@@ -223,7 +224,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-guard.cml");
+				"src/test/resources/action/action-externalchoice-state.cml");
 		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 

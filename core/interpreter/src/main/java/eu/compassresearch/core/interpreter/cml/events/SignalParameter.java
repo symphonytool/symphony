@@ -12,7 +12,7 @@ public class SignalParameter extends CommunicationParameter {
 	
 	public SignalParameter(ASignalCommunicationParameter node, Value value)
 	{
-		super(value);
+		super(value,node);
 	}
 	
 	@Override
@@ -20,20 +20,6 @@ public class SignalParameter extends CommunicationParameter {
 		return "." + getValue();
 	}
 
-	@Override
-	public void handleChannelEventRegistration(CMLChannelValue channel,
-			ChannelObserver observer) {
-		channel.onChannelSignal().registerObserver(observer);
-		
-	}
-
-	@Override
-	public void handleChannelEventUnregistration(CMLChannelValue channel,
-			ChannelObserver observer) {
-		channel.onChannelSignal().registerObserver(observer);
-		
-	}
-	
 //	private static Value extractValue(ASignalCommunicationParameter node)
 //	{
 //		ASignalCommunicationParameter signal = (ASignalCommunicationParameter)p;

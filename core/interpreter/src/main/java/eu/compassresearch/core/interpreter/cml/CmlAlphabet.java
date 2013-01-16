@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.cml;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,6 +25,15 @@ public class CmlAlphabet {
 	{
 		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
 		this.referenceEvents = new HashMap<ObservableEvent,Set<ObservableEvent>>();
+	}
+	
+	public CmlAlphabet(ObservableEvent obsEvent)
+	{
+		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
+		this.referenceEvents = new HashMap<ObservableEvent,Set<ObservableEvent>>();
+		Set<ObservableEvent> obsEvents = new HashSet<ObservableEvent>();
+		obsEvents.add(obsEvent);
+		referenceEvents.put(obsEvent.getReferenceEvent(), obsEvents);
 	}
 	
 	protected CmlAlphabet(Map<ObservableEvent,Set<ObservableEvent>> referenceEvents, Set<CmlSpecialEvent> specialEvents)
@@ -188,13 +198,11 @@ public class CmlAlphabet {
 	}
 	
 	/**
-	 * This determines whether the alphabet contains a communication event where the
+	 * This determines whether the alphabet contains an observable event where the
 	 * ChannelValue of this is equal to the ChannelValue of comevent. 
-	 * The source of the event has no influence here
-	 * Communication events are both read, write and signalling (or synchronisation) channel events 
 	 * @return true if the communication event is contained else false
 	 */
-	public boolean containsCommunication(ObservableEvent comevent)
+	public boolean containsObservableEvent(ObservableEvent comevent)
 	{
 //		if(comevent.isReferenceEvent())
 //			return referenceEvents.containsKey(comevent);
@@ -203,9 +211,9 @@ public class CmlAlphabet {
 //			
 //		}
 //		else
-			return referenceEvents.containsKey(comevent.getReferenceEvent()) && 
-					referenceEvents.get(comevent.getReferenceEvent()).contains(comevent);
-		
+		return referenceEvents.containsKey(comevent.getReferenceEvent()) && 
+				referenceEvents.get(comevent.getReferenceEvent()).contains(comevent);
+
 		
 		//return (findCommunicationsByChannel(comevent.getChannel()).isEmpty() ? false : true);
 	}
@@ -219,8 +227,21 @@ public class CmlAlphabet {
 		return specialEvents.contains(specialEvent);
 	}
 	
-	public boolean isEmpty()
-	{
+	public boolean isEmpty(){
 		return referenceEvents.isEmpty() && specialEvents.isEmpty();
+	}
+	
+	public CmlAlphabet flattenSyncEvents()
+	{
+		CmlAlphabet alpha = new CmlAlphabet();
+		for(Set<ObservableEvent> obsEvs : referenceEvents.values())
+			for(ObservableEvent obsEv : obsEvs)
+				alpha = alpha.union(obsEv.getAsAlphabet());
+		return alpha;
+	}
+	
+	@Override
+	public String toString() {
+		return getAllEvents().toString();
 	}
 }

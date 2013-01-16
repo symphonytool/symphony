@@ -1,13 +1,14 @@
 package eu.compassresearch.core.interpreter.eval;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.patterns.AExpressionPattern;
+import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
@@ -17,11 +18,16 @@ import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
+import eu.compassresearch.ast.actions.AReadCommunicationParameter;
+import eu.compassresearch.ast.actions.AReferenceAction;
+import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
+import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
@@ -29,11 +35,12 @@ import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.CommunicationParameter;
+import eu.compassresearch.core.interpreter.cml.events.InputParameter;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
-import eu.compassresearch.core.interpreter.cml.events.SynchronisationEvent;
+import eu.compassresearch.core.interpreter.cml.events.SynchronizedPrefixEvent;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
@@ -50,7 +57,7 @@ public class AlphabetInspector
 	// The process that contains this instance
 	private final CmlBehaviourThread 		ownerProcess;
 	private final CmlEvaluator				cmlEvaluator;
-
+	
 	/**
 	 * 
 	 * @param ownerProcess
@@ -64,18 +71,28 @@ public class AlphabetInspector
 	@Override
 	public CmlAlphabet defaultPProcess(PProcess node, Context question)
 			throws AnalysisException {
-		HashSet<CmlEvent> specialEvents = new HashSet<CmlEvent>();
-		specialEvents.add(CmlTauEvent.newTauEvent(node));
-		return new CmlAlphabet(specialEvents);
+		return createSilentTransition(node,null);
 	}
 	
 	@Override
 	public CmlAlphabet defaultPAction(PAction node, Context question)
 			throws AnalysisException {
 
+		return createSilentTransition(node,null);
+	}
+	
+	private CmlAlphabet createSilentTransition(INode srcNode, INode dstNode, String transitionText)
+	{
 		HashSet<CmlEvent> specialEvents = new HashSet<CmlEvent>();
-		specialEvents.add(CmlTauEvent.newTauEvent(node));
+		CmlTauEvent tau = CmlTauEvent.newTauEvent(srcNode,dstNode);
+		tau.setTransitionText(transitionText);
+		specialEvents.add(tau);
 		return new CmlAlphabet(specialEvents);
+	}
+	
+	private CmlAlphabet createSilentTransition(INode srcNode, INode dstNode)
+	{
+		return createSilentTransition(srcNode,dstNode,null);
 	}
 	
 	/**
@@ -90,21 +107,42 @@ public class AlphabetInspector
 	}
 	
 	@Override
+	public CmlAlphabet caseAActionProcess(AActionProcess node, Context question)
+			throws AnalysisException {
+		return createSilentTransition(node,node.getAction());
+	}
+	
+	@Override
+	public CmlAlphabet caseASequentialCompositionAction(
+			ASequentialCompositionAction node, Context question)
+			throws AnalysisException {
+		return createSilentTransition(node,node.getLeft());
+	}
+	
+	@Override
+	public CmlAlphabet caseAReferenceAction(AReferenceAction node,
+			Context question) throws AnalysisException {
+		return createSilentTransition(node,node.getActionDefinition().getAction());
+	}
+	
+	@Override
 	public CmlAlphabet caseACommunicationAction(ACommunicationAction node,
 			Context question) throws AnalysisException {
 
 		//FIXME: This should be a name so the conversion is avoided
 		LexNameToken channelName = new LexNameToken("|CHANNELS|",node.getIdentifier());
 		
+		//find the channel value
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 		
 		Set<CmlEvent> comset = new HashSet<CmlEvent>();
 		
+		//if there are no com params then we hav a prefix event
 		if(CmlActionAssistant.isPrefixEvent(node))
 		{
-			ObservableEvent observableEvent = new PrefixEvent(ownerProcess, chanValue);
-			comset.add(observableEvent);
+			comset.add(new PrefixEvent(ownerProcess, chanValue));
 		}
+		//otherwise we convert the com params
 		else
 		{
 			List<CommunicationParameter> params = new LinkedList<CommunicationParameter>();
@@ -116,14 +154,18 @@ public class AlphabetInspector
 					ASignalCommunicationParameter signal = (ASignalCommunicationParameter)p;
 					Value valueExp = signal.getExpression().apply(cmlEvaluator,question);
 					param = new SignalParameter((ASignalCommunicationParameter)p, valueExp);
-					//FIXME: This should be done using the type of the channel
-					//long val = valueExp.intValue(question);
 				}
 				else if(p instanceof AWriteCommunicationParameter)
 				{
 					AWriteCommunicationParameter signal = (AWriteCommunicationParameter)p;
 					Value valueExp = signal.getExpression().apply(cmlEvaluator,question);
 					param = new OutputParameter((AWriteCommunicationParameter)p, valueExp);
+				}
+				else if(p instanceof AReadCommunicationParameter)
+				{
+					//TODO: At this point the 'in set exp' is not supported
+					AReadCommunicationParameter readParam = (AReadCommunicationParameter)p;
+					param = new InputParameter(readParam);
 				}
 				
 				params.add(param);
@@ -169,7 +211,7 @@ public class AlphabetInspector
 		if(!ownerProcess.hasChildren() ||
 				CmlBehaviourThreadUtility.existsAFinishedChild(ownerProcess))
 		{
-			alpha = defaultPAction(node,question);
+			alpha = createSilentTransition(node, node,"Begin");
 		}
 		//If there are children we just return the union of the child alphabets
 		else if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(ownerProcess))
@@ -197,10 +239,13 @@ public class AlphabetInspector
 	public CmlAlphabet caseAGuardedAction(AGuardedAction node, Context question)
 			throws AnalysisException {
 
+		//First we evaluate the guard expression
 		Value guardExp = node.getExpression().apply(cmlEvaluator,question);
 		
+		//if the gaurd is true then we return the silent transition to the guarded action
 		if(guardExp.boolValue(question))
-			return defaultPAction(node,question);
+			return createSilentTransition(node, node.getAction());
+		//else we return the empty alphabet since no transition is possible
 		else
 			return new CmlAlphabet();
 		
@@ -233,9 +278,13 @@ public class AlphabetInspector
 		
 		//If there are no children or the children has finished, then either the interleaving 
 		//is beginning or ending and we make a silent transition.
-		if(!ownerProcess.hasChildren() || CmlBehaviourThreadUtility.isAllChildrenFinished(ownerProcess))
+		if(!ownerProcess.hasChildren())
 		{
-			alpha = defaultPAction(node,question);
+			alpha = createSilentTransition(node, node, "Begin");
+		}
+		else if(CmlBehaviourThreadUtility.isAllChildrenFinished(ownerProcess))
+		{
+			alpha = createSilentTransition(node, new ASkipAction(), "End");
 		}
 		else
 		//if we are here at least one of the children is alive and we must inspect them
@@ -311,6 +360,8 @@ public class AlphabetInspector
 			public CmlAlphabet inspectChildren() {
 				
 				//convert the channelset of the current node to a alphabet
+				//TODO: The convertChansetExpToAlphabet method is only a temp solution. 
+				//		This must be evaluated differently
 				CmlAlphabet cs = CmlBehaviourThreadUtility.convertChansetExpToAlphabet(null,
 						internalNode.getChansetExpression(),internalQuestion);
 				
@@ -320,16 +371,22 @@ public class AlphabetInspector
 				CmlBehaviourThread rightChild = ownerProcess.children().get(1);
 				CmlAlphabet rightChildAlphabet = rightChild.inspect();
 				
-				CmlAlphabet resultAlpha = leftChildAlphabet.intersectRefsAndJoin(rightChildAlphabet).intersectRefsAndJoin(cs);
+				//Find the intersection between the child alphabets and the channel set
+				CmlAlphabet syncAlpha = leftChildAlphabet.intersectRefsAndJoin(rightChildAlphabet).intersectRefsAndJoin(cs);
 				
-				//convert all the common events into sync events
+				//convert all the common events that are in the channel set into SynchronisationEvent instances
 				Set<CmlEvent> syncEvents = new HashSet<CmlEvent>();
-				for(ObservableEvent ref : resultAlpha.getReferenceEvents())
+				for(ObservableEvent ref : syncAlpha.getReferenceEvents())
 				{
-					syncEvents.add(new SynchronisationEvent(ownerProcess, resultAlpha.getObservableEventsByRef(ref)) );
+					Iterator<ObservableEvent> it = syncAlpha.getObservableEventsByRef(ref).iterator(); 
+					syncEvents.add( it.next().synchronizeWith(ownerProcess, it.next()));
 				}
 				
-				resultAlpha = new CmlAlphabet(syncEvents).union(leftChildAlphabet.substract(cs));
+				/*
+				 *	Finally we create the returned alphabet by joining all the synchronised events together with
+				 *	all the event af the children that are not in the channel set
+				 */
+				CmlAlphabet resultAlpha = new CmlAlphabet(syncEvents).union(leftChildAlphabet.substract(cs));
 				resultAlpha = resultAlpha.union(rightChildAlphabet.substract(cs));
 				
 				return resultAlpha;

@@ -28,11 +28,21 @@ public class CmlBehaviourThreadUtility {
 		return isAllFinished;
 	}
 	
+	public static boolean isAllChildrenFinishedOrWaitingForEvent(CmlBehaviourThread process)
+	{
+		boolean isAllFinishedOrWaitingForEvent = true;
+		for(CmlBehaviourThread child : process.children())
+		{
+			isAllFinishedOrWaitingForEvent &= child.finished() || child.waitingForEvent();
+		}
+		return isAllFinishedOrWaitingForEvent;
+	}
+	
 	public static boolean isAtLeastOneChildWaitingForEvent(CmlBehaviourThread process)
 	{
 		for(CmlBehaviourThread child : process.children())
 		{
-			if(child.waiting())
+			if(child.waitingForEvent())
 				return true;
 		}
 		
@@ -44,7 +54,7 @@ public class CmlBehaviourThreadUtility {
 		boolean result = true;
 		for(CmlBehaviourThread child : process.children())
 		{
-			result &= child.waiting();
+			result &= child.waitingForEvent();
 		}
 		
 		return result;

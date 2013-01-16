@@ -25,7 +25,7 @@ import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.cml.events.SynchronisationEvent;
+import eu.compassresearch.core.interpreter.cml.events.SynchronizedPrefixEvent;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspector;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
@@ -156,7 +156,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			CmlProcessStateEvent ev = new CmlProcessStateEvent(this, this.state, state);
 			this.state = state;
 			notifyOnStateChange(ev);
-			System.out.println(name() + ":" + state.toString());
+			CmlRuntime.logger().finest(name() + ":" + state.toString());
 		}
 	}
 	
@@ -169,12 +169,13 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 
 		switch(stateEvent.getTo())
 		{
+		case WAIT_CHILD:
 		case RUNNING:
 			setState(CmlProcessState.WAIT_CHILD);
 			break;
 		case WAIT_EVENT:
 			//if at least one child are waiting for an event this process must invoke either Parallel Non-sync or sync
-			if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(this))
+			if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(this))
 				setState(CmlProcessState.RUNNABLE);
 			break;
 		case FINISHED:
@@ -270,22 +271,17 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 	public CmlBehaviourSignal caseACommunicationAction(
 			ACommunicationAction node, Context question)
 			throws AnalysisException {
-		
+		//At this point the supervisor has already given go to the event,
+		//TODO: input is still missing
 		pushNext(node.getAction(), question); 
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 		
-//		CmlBehaviourSignal result = null;
-//		
-//		//TODO: sync/output/input is still missing
-//		//At this point the supervisor has already given go to the event, 
+		 
 //		//so we can execute it immediately. We just have figure out which kind of event it is
 //		if(CmlActionAssistant.isPrefixEvent(node))
 //			result = casePrefixEvent(node, question);
-//	
 //		//supervisor().clearSelectedCommunication();
-//		
-//		return result;
 	}
 	
 	/**
@@ -411,7 +407,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 	
 	private CmlBehaviourSignal caseExternalChoiceEnd()
 	{
-		AbstractBehaviourThread<PAction> theChoosenOne = findTheChoosenChild(supervisor().selectedCommunication());
+		AbstractBehaviourThread<PAction> theChoosenOne = findTheChoosenChild(supervisor().selectedObservableEvent());
 		
 		//first we execute the child
 		CmlBehaviourSignal result = executeChild(theChoosenOne);
@@ -462,7 +458,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 	{
 		for(AbstractBehaviourThread<PAction> child : children)
 		{
-			if(child.waiting() && child.inspect().containsCommunication(event))
+			if(child.waiting() && child.inspect().containsObservableEvent(event))
 				return child;
 		}
 		
@@ -545,41 +541,45 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			//We push the current state, since this process will control the child processes created by it
 			pushNext(node, question);
 		}
+		//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
+		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(this))
+		{
+			result = caseParallelEnd(question); 
+		}
 		//At least one child is not finished and waiting for event, this will either invoke the Parallel Non-sync or Sync rule
-		else if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(this))
+		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(this))
 		{
 			//convert the channelset of the current node to a alphabet
 			CmlAlphabet cs = CmlBehaviourThreadUtility.convertChansetExpToAlphabet(this,
 					node.getChansetExpression(),question);		
 			
+			//get the immediate alphabets of the left and right child
 			CmlBehaviourThread leftChild = children().get(0);
-			CmlAlphabet leftChildAlpha = leftChild.inspect(); 
+			CmlAlphabet leftChildAlpha = leftChild.inspect().flattenSyncEvents(); 
 			CmlBehaviourThread rightChild = children().get(1);
-			CmlAlphabet rightChildAlpha = rightChild.inspect();
-									
-			ObservableEvent selectedEvent = supervisor().selectedCommunication(); 
+			CmlAlphabet rightChildAlpha = rightChild.inspect().flattenSyncEvents();
+
+			//convert the selected event to a CmlAlphabet
+			CmlAlphabet selectedEventAlpha = supervisor().selectedObservableEvent().getAsAlphabet();
+			//now make the intersection between the selectedEventAlpha and the children's alpha
+			CmlAlphabet leftOption = selectedEventAlpha.intersect(leftChildAlpha);
+			CmlAlphabet rightOption = selectedEventAlpha.intersect(rightChildAlpha);
 			
-			if(selectedEvent instanceof SynchronisationEvent)
+			//if both intersections are non empty it must be a sync event
+			if(!leftOption.isEmpty() &&
+					!rightOption.isEmpty())
 			{
-				CmlAlphabet syncEventsAlpha = ((SynchronisationEvent)selectedEvent).getSynchronousEvents(); 
-				CmlAlphabet leftOption = syncEventsAlpha.intersect(leftChildAlpha);
-				CmlAlphabet rightOption = syncEventsAlpha.intersect(rightChildAlpha);
-				
-				if(!leftOption.isEmpty() &&
-						!rightOption.isEmpty() )
-				{
-					supervisor().setSelectedCommunication(leftOption.getObservableEvents().iterator().next());
-					executeChild(leftChild);
-					supervisor().setSelectedCommunication(rightOption.getObservableEvents().iterator().next());
-					executeChild(rightChild);
-				}
+				//supervisor().setSelectedObservableEvent(leftOption.getObservableEvents().iterator().next());
+				executeChild(leftChild);
+				//supervisor().setSelectedObservableEvent(rightOption.getObservableEvents().iterator().next());
+				executeChild(rightChild);
 				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
-			else if(leftChildAlpha.containsCommunication(selectedEvent) )
+			else if(!leftOption.isEmpty())
 			{
 				result = executeChild(leftChild);
 			}
-			else if(rightChildAlpha.containsCommunication(selectedEvent) )
+			else if(!rightOption.isEmpty())
 			{
 				result = executeChild(rightChild);
 			}
@@ -591,11 +591,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			//We push the current state, 
 			pushNext(node, question);
 		}
-		//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
-		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(this))
-		{
-			result = caseParallelEnd(question); 
-		}
+		
 		
 		return result;
 	}
@@ -645,11 +641,11 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			CmlBehaviourThread rightChild = children().get(1);
 			CmlAlphabet rightChildAlpha = rightChild.inspect();
 			
-			if(leftChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
+			if(leftChildAlpha.containsObservableEvent(supervisor().selectedObservableEvent()) )
 			{
 				result = executeChild(leftChild);
 			}
-			else if(rightChildAlpha.containsCommunication(supervisor().selectedCommunication()) )
+			else if(rightChildAlpha.containsObservableEvent(supervisor().selectedObservableEvent()) )
 			{
 				result = executeChild(rightChild);
 			}

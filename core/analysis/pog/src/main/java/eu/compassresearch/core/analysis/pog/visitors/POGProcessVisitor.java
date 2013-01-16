@@ -16,8 +16,7 @@ import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 @SuppressWarnings("serial")
 public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList>
 {
-    @SuppressWarnings("unused")
-	private ProofObligationGenerator parentPOG;
+    private ProofObligationGenerator parentPOG;
     
     public POGProcessVisitor(ProofObligationGenerator parent)
     {
@@ -36,11 +35,17 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
     	System.out.println("A StateProcess: " + node.toString());
     	CMLProofObligationList pol = new CMLProofObligationList();
     	
+//Print the separate parts to screen
+    	System.out.println("A StateProcess: " + node.toString());
+    	System.out.println("A StateProcess defintion paragraphs: " + node.getDefinitionParagraphs());
+    	System.out.println("A StateProcess action: " + node.getAction());
+    	
+
     	LinkedList<PDefinition> pdef = node.getDefinitionParagraphs();
     	for (PDefinition def : pdef) {
     		System.out.println(def.toString());
-    		def.apply(this, question);
-    		pol.addAll(def.apply(this, question));
+    		
+    		pol.addAll(def.apply(parentPOG, question));
     	}
     	
     	// RWL Line below does not apply in the updated Ast.

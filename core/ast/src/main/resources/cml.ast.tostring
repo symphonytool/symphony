@@ -31,23 +31,28 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->#Parallel->interleaving = [leftAction] "|||" [rightAction]
 %action->#Parallel->generalisedParallelism = [leftAction] "[|" [chansetExpression] "|]" [rightAction]
 %action->#Statement->block = "Block {" [action] "}"
+%action->#Statement->#GeneralAssignment->single = [stateDesignator] " := " [expression]
+
 %action->parametrised = "params: " [parametrisations] " action: " [action]
 %parametrisation->val = "val" [declaration]
 %parametrisation->res = "res" [declaration]
 %parametrisation->vres = "vres" [declaration]
-%action->communication = [identifier] "->" [action]
+%action->communication = [identifier] " -> " [action]
 %action->guarded = [expression] " & " [action]
+%action->#Statement->call = [name] "(" + $org.overture.ast.util.Utils.listToString($  [args]  $)$ + ")"
 %declaration->#Single->type = [identifiers] ":" [type]
 %declaration->#Single->expression = [identifiers] " := " [expression]
 
 // Processes
-// %process->state = "state: " [processDefinition] "@"
-%action->#Statement->call = [name] "(" + $org.overture.ast.util.Utils.listToString($  [args]  $)$ + ")"
+%process->action = "state: " [processDefinition] " @ "
+
 
 %type->error = "Type Error"
 
+// varSetExpressions
+%VarsetExpression->fatEnum = "{|" [identifiers] "|}"
+
 //  Expressions
-// %exp->#Set->#Chanset->enum = "{|" [identifiers] "|}"
  
 //  Patterns
 

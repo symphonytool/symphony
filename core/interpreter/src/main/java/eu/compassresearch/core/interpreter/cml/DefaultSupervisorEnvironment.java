@@ -3,7 +3,6 @@ package eu.compassresearch.core.interpreter.cml;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 
@@ -34,17 +33,17 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 //	}
 
 	@Override
-	public boolean communicationSelected() {
+	public boolean isObservableEventSelected() {
 		return selectedCommunication != null;
 	}
 
 	@Override
-	public ObservableEvent selectedCommunication() {
+	public ObservableEvent selectedObservableEvent() {
 		return selectedCommunication;
 	}
 
 	@Override
-	public void setSelectedCommunication(ObservableEvent comm) {
+	public void setSelectedObservableEvent(ObservableEvent comm) {
 		selectedCommunication = comm;
 		//signal all the processes that are listening for events on this channel
 		selectedCommunication.getChannel().select();
