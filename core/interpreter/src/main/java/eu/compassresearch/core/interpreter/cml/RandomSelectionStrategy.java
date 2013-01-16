@@ -66,6 +66,8 @@ public class RandomSelectionStrategy implements
 	
 	private class ValueHelper extends AnswerCMLAdaptor<Value>
 	{
+		private static final long randomSeed = 675674345;
+		
 		@Override
 		public Value defaultPType(PType node) throws AnalysisException {
 			return new UndefinedValue();
@@ -75,7 +77,8 @@ public class RandomSelectionStrategy implements
 		public Value caseAIntNumericBasicType(AIntNumericBasicType node)
 				throws AnalysisException {
 
-			return new IntegerValue(new Random().nextInt());
+			
+			return new IntegerValue(new Random(randomSeed).nextInt());
 		}
 		
 	}
