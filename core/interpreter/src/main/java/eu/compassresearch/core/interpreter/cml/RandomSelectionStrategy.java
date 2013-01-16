@@ -11,7 +11,9 @@ import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableValueEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 /**
  * This class implements a random selection CMLCommunicaiton of the alphabet 
@@ -30,6 +32,13 @@ public class RandomSelectionStrategy implements
 		if(!comms.isEmpty())
 		{
 			selectedComm = availableChannelEvents.getObservableEvents().iterator().next();
+			
+			if(selectedComm instanceof ObservableValueEvent && !((ObservableValueEvent)selectedComm).isValuePrecise())
+			{
+				AChannelType t = (AChannelType)selectedComm.getChannel().getType();
+				
+				((ObservableValueEvent)selectedComm).setMostPreciseValue(getRandomValueFromType(t.getType()));
+			}
 			
 //			//it has undefined values
 //			if(!selectedComm.isResolved())

@@ -3,16 +3,17 @@ package eu.compassresearch.core.interpreter.scheduler;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Level;
 
 import org.overture.ast.analysis.AnalysisException;
 
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
@@ -131,11 +132,11 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 		if(null == sve)
 			throw new NullPointerException("The supervisor is not set in the scheduler");
 		
+//		CmlTrace lastTrace = null;
+		
 		//Active state
 		while(hasActiveProcesses())
 		{
-			
-			
 			//execute each of the running pupils until they are either finished or in wait state
 			while(hasRunningProcesses())
 			{
@@ -144,7 +145,7 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 				CmlBehaviourSignal signal = p.execute(sve);
 				
 				if(signal != CmlBehaviourSignal.EXEC_SUCCESS)
-					throw new RuntimeException("Change this!!!!, but now that you haven't changed this yet, " +
+					throw new InterpreterRuntimeException("Change this!!!!, but now that you haven't changed this yet, " +
 							"then let me tell you that the return CMLBehaviourSignal was unsuccesful");
 
 				CmlTrace trace = p.getTraceModel();
@@ -172,14 +173,27 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 				CmlAlphabet alpha = p.inspect();
 
 				if(alpha.isEmpty())
-					throw new RuntimeException("A deadlock has occured. To developer: Change this be handled differently!!!!");
+					throw new InterpreterRuntimeException("A deadlock has occured. To developer: Change this be handled differently!!!!");
 				else
 				{
 					CmlAlphabet availableEvents = p.inspect();
 					
 					CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getObservableEvents());
 					//Select and set the communication event
-					sve.setSelectedObservableEvent(sve.decisionFunction().select(availableEvents));
+					
+					ObservableEvent selectedEvent = sve.decisionFunction().select(availableEvents); 
+					
+//					if(sve.isObservableEventSelected() && 
+//							sve.selectedObservableEvent().equals(selectedEvent) &&
+//							p.getTraceModel().getLastEvent().equals(selectedEvent))
+//						throw new InterpreterRuntimeException("");
+					
+//					if(p.getTraceModel().equals(lastTrace))
+//						throw new InterpreterRuntimeException("");
+//					
+//					lastTrace = p.getTraceModel();
+//						
+					sve.setSelectedObservableEvent(selectedEvent);
 				}
 			}
 		}
@@ -221,13 +235,4 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 			break;
 		}
 	}
-	
-	
-//	@Override
-//	public void onTraceChange(TraceEvent traceEvent) {
-//		//TODO: here the presenting logic should be for running process
-//		//CmlProcess p = traceEvent.getSource();
-//		//CmlRuntime.logger().fine("current trace: " + p.getTraceModel());
-//		//CmlRuntime.logger().fine("next: " + p.nextStepToString());
-//	}
 }

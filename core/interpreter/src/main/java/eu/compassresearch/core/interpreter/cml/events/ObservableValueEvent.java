@@ -13,5 +13,9 @@ public abstract class ObservableValueEvent extends ObservableEvent {
 	}
 
 	public abstract Value getValue();
+	
+	public abstract void setMostPreciseValue(Value value);
+	
+	public abstract boolean isValuePrecise();
 
 }

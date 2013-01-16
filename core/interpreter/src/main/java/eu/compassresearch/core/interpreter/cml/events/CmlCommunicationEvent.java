@@ -27,8 +27,8 @@ public class CmlCommunicationEvent extends ObservableValueEvent {
 	public String toString() 
 	{
 		StringBuilder strBuilder = new StringBuilder(channel.getName());
-		for(CommunicationParameter param : params)
-			strBuilder.append(param);
+		//for(CommunicationParameter param : params)
+			strBuilder.append("." + value);
 		
 		return strBuilder.toString();
 	};
@@ -83,6 +83,16 @@ public class CmlCommunicationEvent extends ObservableValueEvent {
 	}
 	
 	@Override
+	public void setMostPreciseValue(Value value) {
+		this.value = AbstractValueInterpreter.join(this.value, value);
+	}
+	
+	@Override
+	public boolean isValuePrecise() {
+		return AbstractValueInterpreter.isValuePrecise(value);
+	}
+	
+	@Override
 	public CmlAlphabet getAsAlphabet() {
 
 		return new CmlAlphabet(this);
@@ -95,4 +105,5 @@ public class CmlCommunicationEvent extends ObservableValueEvent {
 		return null;
 		//return new PrefixSyncEvent(source, this, syncEvent);
 	}
+
 }

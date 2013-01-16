@@ -70,4 +70,19 @@ public class CmlTrace {
 	{
 		return event instanceof ObservableEvent;
 	}
+	
+	public boolean equals(Object obj) { 
+	
+		if(!(obj instanceof CmlTrace))
+			return false;
+				
+		CmlTrace otherTraceObj = (CmlTrace)obj;
+		
+		return otherTraceObj.trace.equals(trace);
+	};
+	
+	@Override
+	public int hashCode() {
+		return trace.hashCode();
+	}
 }
