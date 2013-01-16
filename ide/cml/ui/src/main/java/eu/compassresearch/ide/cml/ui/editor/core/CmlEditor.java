@@ -20,10 +20,7 @@ package eu.compassresearch.ide.cml.ui.editor.core;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
@@ -33,7 +30,6 @@ import org.eclipse.jface.text.source.ICharacterPairMatcher;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.ltk.internal.core.refactoring.Resources;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -62,6 +58,11 @@ public class CmlEditor extends TextEditor {
     private AbstractSelectionChangedListener selectionChangeListener;
 
     @Override
+    public void dispose() {
+	super.dispose();
+    }
+
+    @Override
     protected void doSetInput(IEditorInput input) throws CoreException {
 	super.doSetInput(input);
 	ICommandService commandService = (ICommandService) PlatformUI
@@ -82,62 +83,6 @@ public class CmlEditor extends TextEditor {
 	    CmlEditor.this.selectionChanged();
 	}
 
-    }
-
-    protected INode computeHighlightRangeSourceReference() {
-
-	// FIXME if the AST is just the source node return null
-	ISourceViewer sourceViewer = getSourceViewer();
-	if (sourceViewer == null)
-	    return null;
-
-	StyledText styledText = sourceViewer.getTextWidget();
-	if (styledText == null)
-	    return null;
-
-	int caret = 0;
-	if (sourceViewer instanceof ITextViewerExtension5) {
-	    ITextViewerExtension5 extension = (ITextViewerExtension5) sourceViewer;
-	    caret = extension.widgetOffset2ModelOffset(styledText
-		    .getCaretOffset());
-	} else {
-	    int offset = sourceViewer.getVisibleRegion().getOffset();
-	    caret = offset + styledText.getCaretOffset();
-	}
-	INode element = getElementAt(caret, false);
-
-	return element;
-    }
-
-    private INode getElementAt(int caret, boolean b) {
-	FileEditorInput fei = (FileEditorInput) getEditorInput();
-	INode r = null;
-	CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
-	PSource ast = csu.getSourceAst();
-
-	if (!astOk(ast))
-	    return null;
-
-	INodeFromCaret visitor = new INodeFromCaret(caret, ast);
-	try {
-	    ast.apply(visitor);
-	    return visitor.getBestCandidate();
-	} catch (AnalysisException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
-
-	return r;
-    }
-
-    private boolean astOk(PSource ast) {
-	if (null == ast)
-	    return false;
-
-	if (ast.getParagraphs().isEmpty())
-	    return false;
-
-	return true;
     }
 
     protected void selectionChanged() {
@@ -213,7 +158,6 @@ public class CmlEditor extends TextEditor {
 
 	final CmlContentPageOutliner cmlOutliner = new CmlContentPageOutliner(
 		this);
-
 	if (getEditorInput() instanceof FileEditorInput) {
 	    FileEditorInput fei = (FileEditorInput) getEditorInput();
 	    CmlSourceUnit csu = CmlSourceUnit
@@ -222,7 +166,17 @@ public class CmlEditor extends TextEditor {
 	    csu.addChangeListener(new CmlSourceChangedListener() {
 
 		public void sourceChanged(CmlSourceUnit csu) {
-		    cmlOutliner.refresh();
+
+		    final Display curDisp = Display.getDefault();
+		    if (curDisp != null)
+			curDisp.syncExec(new Runnable() {
+			    public void run() {
+
+				cmlOutliner.refresh();
+
+			    }
+			});
+
 		}
 
 	    });
@@ -257,6 +211,62 @@ public class CmlEditor extends TextEditor {
 
     public VdmSourceViewerConfiguration getVdmSourceViewerConfiguration() {
 	return new CmlSourceViewerConfiguration();
+    }
+
+    protected INode computeHighlightRangeSourceReference() {
+
+	// FIXME if the AST is just the source node return null
+	ISourceViewer sourceViewer = getSourceViewer();
+	if (sourceViewer == null)
+	    return null;
+
+	StyledText styledText = sourceViewer.getTextWidget();
+	if (styledText == null)
+	    return null;
+
+	int caret = 0;
+	if (sourceViewer instanceof ITextViewerExtension5) {
+	    ITextViewerExtension5 extension = (ITextViewerExtension5) sourceViewer;
+	    caret = extension.widgetOffset2ModelOffset(styledText
+		    .getCaretOffset());
+	} else {
+	    int offset = sourceViewer.getVisibleRegion().getOffset();
+	    caret = offset + styledText.getCaretOffset();
+	}
+	INode element = getElementAt(caret, false);
+
+	return element;
+    }
+
+    private INode getElementAt(int caret, boolean b) {
+	FileEditorInput fei = (FileEditorInput) getEditorInput();
+	INode r = null;
+	CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
+	PSource ast = csu.getSourceAst();
+
+	if (!astOk(ast))
+	    return null;
+
+	INodeFromCaret visitor = new INodeFromCaret(caret, ast);
+	try {
+	    ast.apply(visitor);
+	    return visitor.getBestCandidate();
+	} catch (AnalysisException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+
+	return r;
+    }
+
+    private boolean astOk(PSource ast) {
+	if (null == ast)
+	    return false;
+
+	if (ast.getParagraphs().isEmpty())
+	    return false;
+
+	return true;
     }
 
 }

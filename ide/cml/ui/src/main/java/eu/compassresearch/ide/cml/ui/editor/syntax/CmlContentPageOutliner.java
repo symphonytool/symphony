@@ -11,7 +11,6 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWTException;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.overture.ast.definitions.PDefinition;
@@ -35,6 +34,17 @@ IContentOutlinePage {
     // TODO remove the flag hack once we get proper sync from the editor
     private static boolean loopAvoidanceFlag = true;
 
+    @Override
+    public void dispose() {
+	input.clearListeners();
+	if (labelprovider != null) {
+	    labelprovider.dispose();
+	}
+
+	super.dispose();
+    }
+
+
     public void setTreeSelection(INode element) {
 	if (null == element)
 	    return;
@@ -56,16 +66,9 @@ IContentOutlinePage {
     }
 
     public void refresh() {
-	final Display curDisp = Display.getDefault();
-	if (curDisp != null)
-	    curDisp.syncExec(new Runnable() {
-		public void run() {
-		    TreePath[] oldPaths = getTreeViewer()
-			    .getExpandedTreePaths();
-		    getTreeViewer().refresh();
-		    getTreeViewer().setExpandedTreePaths(oldPaths);
-		}
-	    });
+	TreePath[] oldPaths = getTreeViewer().getExpandedTreePaths();
+	getTreeViewer().refresh();
+	getTreeViewer().setExpandedTreePaths(oldPaths);
     }
 
     public CmlContentPageOutliner(CmlEditor editor) {
@@ -109,6 +112,8 @@ IContentOutlinePage {
 						LexLocation loc = (LexLocation) m
 							.invoke(w.value,
 								new Object[0]);
+						if (loc == null)
+						    return;
 						editor.setHighlightRange(
 							loc.startOffset, 0,
 							true);
