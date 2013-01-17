@@ -7,13 +7,14 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.interpreter.runtime.CmlContext;
 
 @SuppressWarnings("serial")
-public class CmlEvaluator extends QuestionAnswerCMLAdaptor<Context, Value> {
+public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CmlContext, Value> {
 
-	private QuestionAnswerCMLAdaptor<Context, Value> exp;
+	private QuestionAnswerCMLAdaptor<CmlContext, Value> exp;
 	//private QuestionAnswerCMLAdaptor<CMLContext, Value> act;
-	private QuestionAnswerCMLAdaptor<Context, Value> def;
+	private QuestionAnswerCMLAdaptor<CmlContext, Value> def;
 			
 	private void initialize()
 	{
@@ -38,7 +39,7 @@ public class CmlEvaluator extends QuestionAnswerCMLAdaptor<Context, Value> {
 //	}
 	
 	@Override
-	public Value defaultPExp(PExp node, Context question)
+	public Value defaultPExp(PExp node, CmlContext question)
 			throws AnalysisException {
 		
 		return node.apply(exp,question);
@@ -54,7 +55,7 @@ public class CmlEvaluator extends QuestionAnswerCMLAdaptor<Context, Value> {
 //	}
 	
 	@Override
-	public Value defaultPDefinition(PDefinition node, Context question)
+	public Value defaultPDefinition(PDefinition node, CmlContext question)
 			throws AnalysisException {
 		
 		return node.apply(this.def,question);

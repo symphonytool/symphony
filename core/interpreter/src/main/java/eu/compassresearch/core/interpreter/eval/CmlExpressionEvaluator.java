@@ -11,8 +11,9 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.PCMLExp;
+import eu.compassresearch.core.interpreter.runtime.CmlContext;
 
-public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<Context, Value>
+public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<CmlContext, Value>
 {
 	class VdmExpressionEvaluator extends ExpressionEvaluator {
 		
@@ -21,13 +22,16 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<Context, Va
 				throws AnalysisException {
 		
 			if(node instanceof PCMLExp)
-				return defaultPCMLExp((PCMLExp)node,question);
+				//FIXME if the burger is ever a real case then this context is wrong!
+				throw new RuntimeException("We are now in the  (CML | VDM | CML) burger, decide what to do!");
+				//return defaultPCMLExp((PCMLExp)node,cmlContext);
 			else
 				return node.apply(this,question);
 		}
 	}
 	
 	private VdmExpressionEvaluator vdmExpEvaluator =  new VdmExpressionEvaluator();
+	private CmlContext cmlContext = null;
 
 	public CmlExpressionEvaluator()
 	{
@@ -40,10 +44,10 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<Context, Va
 	}
 	
 	@Override
-	public Value defaultPExp(PExp node, Context question)
+	public Value defaultPExp(PExp node, CmlContext question)
 			throws AnalysisException {
-		question.setThreadState(null, CPUValue.vCPU);
-		return vdmExpEvaluator.defaultPExp(node,question);
+		cmlContext = question;
+		return vdmExpEvaluator.defaultPExp(node,question.getVdmContext());
 	}
 	
 //	@Override

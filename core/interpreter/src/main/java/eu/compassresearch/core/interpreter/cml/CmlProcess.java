@@ -16,6 +16,7 @@ import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.runtime.ProcessContext;
 /**
@@ -41,9 +42,9 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 	private static final long serialVersionUID = 4707044690749902194L;
 	private AProcessDefinition processDef;
 	private CmlAction mainBehaviour = null;
-	private Context globalContext;
+	private CmlContext globalContext;
 	
-	public CmlProcess(AProcessDefinition processDef, CmlProcess parent, Context globalContext)
+	public CmlProcess(AProcessDefinition processDef, CmlProcess parent, CmlContext globalContext)
 	{
 		super(parent);
 		this.globalContext = globalContext; 
@@ -53,7 +54,7 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 		pushNext(processDef.getProcess(), context);
 	}
 	
-	public CmlProcess(PProcess startProcess, CmlProcess parent, Context globalContext)
+	public CmlProcess(PProcess startProcess, CmlProcess parent, CmlContext globalContext)
 	{
 		super(parent);
 		this.globalContext = globalContext; 
@@ -191,7 +192,7 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 	 */
 		
 	@Override
-	public CmlBehaviourSignal caseAActionProcess(AActionProcess node, Context question) throws AnalysisException
+	public CmlBehaviourSignal caseAActionProcess(AActionProcess node, CmlContext question) throws AnalysisException
 	{
 		CmlBehaviourSignal ret = null;
 		//The behavior of this process has not been started yet, so start it and execute the main
@@ -201,9 +202,9 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 			// TODO Add state, value, etc to the corresponding processValue and
 			
 			//Create the context for this process and hand it over to the process behavior 
-			Context newContext = new Context(node.getLocation(), "Process Context :" + name(), question);
+			CmlContext newContext = new CmlContext(node.getLocation(), "Process Context :" + name(), question);
 			//this needs to be set when we evaluates the expressions
-			newContext.setThreadState(null, CPUValue.vCPU);
+			//newContext.setThreadState(null, CPUValue.vCPU);
 			
 			for (PDefinition def : node.getDefinitionParagraphs())
 			{
@@ -247,13 +248,13 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 	 */
 	@Override
 	public CmlBehaviourSignal caseAReferenceProcess(AReferenceProcess node,
-			Context question) throws AnalysisException {
+			CmlContext question) throws AnalysisException {
 
 		//TODO add decls to the context
 		//ProcessValue value = new ProcessValue();
 		//ProcessContext processContext = new ProcessContext(node.getLocation(), "", 
 		//		question.getGlobal(), value);
-		Context newContext = new Context(node.getLocation(), "Child Process Context", question.getGlobal());
+		CmlContext newContext = new CmlContext(node.getLocation(), "Child Process Context", question.getGlobal());
 
 		AProcessDefinition processDef = node.getProcessDefinition();
 

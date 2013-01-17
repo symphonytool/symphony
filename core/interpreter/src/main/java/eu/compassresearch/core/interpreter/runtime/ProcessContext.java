@@ -40,7 +40,7 @@ import eu.compassresearch.core.interpreter.values.ProcessValue;
  */
 
 @SuppressWarnings("serial")
-public class ProcessContext extends RootContext
+public class ProcessContext extends CmlRootContext
 {
 	//public final ObjectValue self;
 	public final ProcessValue self;
@@ -55,31 +55,31 @@ public class ProcessContext extends RootContext
 	 */
 
 	public ProcessContext(
-		LexLocation location, String title, Context freeVariables,
-		Context outer, ProcessValue self)
+		LexLocation location, String title, CmlContext freeVariables,
+		CmlContext outer, ProcessValue self)
 	{
 		super(location, title, freeVariables, outer);
 		this.self = self;
 	}
 
 	public ProcessContext(
-		LexLocation location, String title, Context outer, ProcessValue self)
+		LexLocation location, String title, CmlContext outer, ProcessValue self)
 	{
 		this(location, title, null, outer, self);
 	}
 
 	@Override
-	public Context deepCopy()
+	public CmlContext deepCopy()
 	{
-		Context below = null;
+		CmlContext below = null;
 
 		if (outer != null)
 		{
-			below = outer.deepCopy();
+			below = (CmlContext)outer.deepCopy();
 		}
 
 		//FIXME self should be deep copied
-		Context result = new ProcessContext(location, title, freeVariables, below, self);
+		CmlContext result = new ProcessContext(getVdmContext().location, getVdmContext().title, freeVariables, below, self);
 			//new ProcessContext(location, title, freeVariables, below, self.deepCopy());
 
 		for (LexNameToken var: keySet())
@@ -130,7 +130,7 @@ public class ProcessContext extends RootContext
 			return v;
 		}
 
-		Context g = getGlobal();
+		CmlContext g = getGlobal();
 
 		if (g != this)
 		{
@@ -151,7 +151,7 @@ public class ProcessContext extends RootContext
 	{
 		if (outer == null)		// Don't expand initial context
 		{
-			out.println("In object context of " + title);
+			out.println("In object context of " + getTitle());
 		}
 		else
 		{
@@ -160,7 +160,7 @@ public class ProcessContext extends RootContext
     			out.print(this.format("\t", this));
 			}
 
-			out.println("In object context of " + title + " " + location);
+			out.println("In object context of " + getTitle() + " " + getLocation());
 			outer.printStackTrace(out, false);
 		}
 	}
