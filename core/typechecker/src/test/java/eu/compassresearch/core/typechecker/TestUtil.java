@@ -20,6 +20,7 @@ import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 
+
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
@@ -90,7 +91,7 @@ public class TestUtil
 			
 			if (e.token != null)
 			{
-				ct = (CommonToken)e.token;
+				ct = (org.antlr.runtime.CommonToken)e.token;
 				parseErrors.add("Syntax error in "+s+" snear '"+ct.getText()+"'. Error at line "+e.line + " - "+ct.getStartIndex()+":"+ ct.getStopIndex());	
 			}
 			else

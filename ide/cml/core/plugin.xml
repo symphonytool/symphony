@@ -6,7 +6,7 @@
       <content-type
             base-type="org.eclipse.core.runtime.text"
             file-extensions="cml"
-            id="eu.compassresearch.ide.cml.core.content-type1"
+            id="content-type1"
             name="CML Content Type"
             priority="high">
       </content-type>
@@ -30,6 +30,7 @@
          <run
                class="eu.compassresearch.ide.cml.core.CmlProjectNature">
          </run>
+         <builder id="eu.compassresearch.ide.cml.ui.cmlbuilder"/>
       </runtime>
    </extension>
 

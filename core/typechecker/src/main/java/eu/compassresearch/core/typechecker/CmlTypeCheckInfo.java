@@ -167,7 +167,7 @@ TypeCheckQuestion {
 			PDefinition d = lookupCurrentScope(ident);
 			if (d != null)
 			{
-				variable.setType(issueHandler.addTypeError(variable,TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(" " + ident.getLocation()+""+ident,""+variable.getLocation())));
+				variable.setType(issueHandler.addTypeError(variable,TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(" " + variable.getLocation()+" "+ident,""+d.getLocation())));
 				return;
 			}
 			fenv.add(variable);

@@ -102,23 +102,12 @@
             callOnEmptyDelta="true"
             hasNature="false"
             isConfigurable="false"
-            supportsConfigurations="false">
+            supportsConfigurations="false"            
+            >
          <run
                class="eu.compassresearch.ide.cml.ui.builder.CmlIncrementalBuilder">
          </run>
+         
       </builder>
    </extension>
-   <extension
-         id="id1"
-         point="org.eclipse.core.resources.natures">
-      <runtime>
-         <run
-               class="eu.compassresearch.ide.cml.core.CmlProjectNature">
-         </run>
-      </runtime>
-   </extension>
-
-
- 
-
 </plugin>
