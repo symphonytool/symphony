@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
@@ -22,6 +23,7 @@ import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
+import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
 import eu.compassresearch.ast.definitions.AClassDefinition;
 
@@ -251,7 +253,6 @@ public class CmlTCUtil {
 			AClassDefinition node) {
 
 		CmlTypeCheckInfo cmlClassEnv = info.newScope();
-		info.addType(node.getName(), node);
 
 		for(PDefinition def : node.getBody())
 		{
@@ -262,7 +263,22 @@ public class CmlTCUtil {
 					if (dd instanceof ATypeDefinition)
 						info.addType(dd.getName(), dd);
 					else
-						info.addVariable(dd.getName(),dd);
+					{
+						LexNameToken name = dd.getName();
+						if ("".equals(name+""))
+						{
+							if (dd instanceof AValueDefinition)
+							{
+								AValueDefinition ddVd = (AValueDefinition)dd;
+								PPattern p = ddVd.getPattern();
+								List<LexNameToken> names = PPatternAssistantTC.getAllVariableNames(p);
+								for(LexNameToken n : names)
+									info.addVariable(n, dd);
+							}
+						}
+						else
+							info.addVariable(name,dd);
+					}
 				}		
 		}
 

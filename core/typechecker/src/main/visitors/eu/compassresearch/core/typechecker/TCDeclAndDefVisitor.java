@@ -1286,6 +1286,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			CmlTypeCheckInfo classQuestion = cmlClassEnv;//.newScope(surrogate);
 
 			// add state
+			/*
 			List<AStateDefinition> states = findParticularDefinitionType(
 					AStateDefinition.class, node);
 			for (AStateDefinition paragraph : states) {
@@ -1302,6 +1303,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				}
 
 			}
+			*/
 			for (PDefinition def : thoseHandledByCOMPASS) {
 				PType type = def.apply(parentChecker, classQuestion);
 				if (type == null || type instanceof AErrorType) {
@@ -1314,7 +1316,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 		}
 
-		info.addType(node.getName(), node);
 		question.contextRem(CmlTypeCheckInfo.class);
 		return result;
 	}
