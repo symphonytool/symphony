@@ -84,7 +84,7 @@ public class CmlCommunicationEvent extends ObservableValueEvent {
 	
 	@Override
 	public void setMostPreciseValue(Value value) {
-		this.value = AbstractValueInterpreter.join(this.value, value);
+		this.value = AbstractValueInterpreter.meet(this.value, value);
 	}
 	
 	@Override
@@ -101,9 +101,7 @@ public class CmlCommunicationEvent extends ObservableValueEvent {
 	@Override
 	public ObservableEvent synchronizeWith(CmlBehaviourThread source,
 			ObservableEvent syncEvent) {
-		//TODO:change into another!
-		return null;
-		//return new PrefixSyncEvent(source, this, syncEvent);
+		return new SynchronizedCommunicationEvent(source, channel, this, (ObservableValueEvent)syncEvent);
 	}
 
 }
