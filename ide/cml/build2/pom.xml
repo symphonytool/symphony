@@ -62,6 +62,7 @@
   <name>COMPASS IDE RCP Builder</name>
   <groupId>eu.compassresearch.ide.cml</groupId>
   <artifactId>eu.compassresearch.ide.cml.build</artifactId>
+  <packaging>pom</packaging>
 
   <build>
     <plugins>
