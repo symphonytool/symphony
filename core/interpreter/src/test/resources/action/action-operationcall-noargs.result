@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testResult type="eu.compassresearch.core.interpreter.tests.framework.ProcessTestCase">
 	<result>
-		<output>
+		<trace>
 			<visibleTrace>a</visibleTrace>
-		</output>
-		
+		</trace>
+		<state>
+			<process>
+				<name>A</name>
+			</process>
+		</state>
 	</result>
 </testResult>

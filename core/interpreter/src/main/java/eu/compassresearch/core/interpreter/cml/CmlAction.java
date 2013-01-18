@@ -5,15 +5,22 @@ import java.util.Iterator;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.statements.AElseIfStm;
+import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.runtime.VdmRuntime;
+import org.overture.interpreter.runtime.VdmRuntimeError;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
+import org.overture.interpreter.values.VoidValue;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
+import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
+import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -265,6 +272,52 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		return node.getAction().apply(this,question);
 	}
 	
+	@Override
+	public CmlBehaviourSignal caseAIfStatementAction(AIfStatementAction node,
+			CmlContext question) throws AnalysisException {
+
+		try
+		{
+    		if (node.getIfExp().apply(cmlEvaluator,question).boolValue(question.getVdmContext()))
+    		{
+    			pushNext(node.getThenStm(), question);
+    		}
+    		else
+    		{
+    			boolean foundElseIf = false;
+    			for (AElseIfStatementAction elseif: node.getElseIf())
+    			{
+    				if(elseif.getElseIf().apply(cmlEvaluator,question).boolValue(question.getVdmContext()))
+    				{
+    					pushNext(elseif.getThenStm(), question);
+    					foundElseIf = true;
+    					break;
+    				}
+    			}
+
+    			if (node.getElseStm() != null && !foundElseIf)
+    			{
+    				pushNext(node.getElseStm(), question);
+    			}
+
+    			return CmlBehaviourSignal.EXEC_SUCCESS;
+    		}
+        }
+        catch (ValueException e)
+        {
+        	//TODO find a better way to report errors
+        	e.printStackTrace();
+        	//return VdmRuntimeError.abort(node.getLocation(),e);
+        }
+		
+		return super.caseAIfStatementAction(node, question);
+	}
+	
+	/* 
+	 * FIXME This is a first attempt, arguments and returns are still not supported on void functions.
+	 * (non-Javadoc)
+	 * @see eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor#caseACallStatementAction(eu.compassresearch.ast.actions.ACallStatementAction, java.lang.Object)
+	 */
 	@Override
 	public CmlBehaviourSignal caseACallStatementAction(
 			ACallStatementAction node, CmlContext question)
