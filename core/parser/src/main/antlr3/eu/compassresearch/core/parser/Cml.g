@@ -4,6 +4,17 @@
  */
 /* loose threads:
  *
+ * 2013-01-18 jwc:
+ *  expression/type precedence needs to be fixed to move the prefixing
+ *  constructs (e.g. expression: ...| 'let' blah blah 'in' expression
+ *  --- those where the recursion is at the rightmost edge only) down
+ *  to the 'base' of the rulechain.
+ *
+ * 2013-01-18 jwc:
+ *  Note that the '[(' ')>' used by the CSP timeout cause the same
+ *  problems as below in expressions & types (i.e. the expression
+ *  len(list)>max is a syntax error, sadly).
+ *
  * 2012-01-06 RWL: )\ used in the /( exp )\-csp construct conflicts with apply expressions 
  * when doing e.g. dom(map)\{set-enum}
  *
@@ -1733,7 +1744,7 @@ typeDefs returns[PDefinition defs]
     List<ATypeDefinition> typeDefList = new ArrayList<ATypeDefinition>();
     ATypeDefinition last = null;
 }
-    : t='types' ( def=typeDef { last = $def.def; typeDefList.add(last); } ';'? )*
+    : t='types' ( def=typeDef { last = $def.def; typeDefList.add(last); } )*
         {
             LexLocation loc = extractLexLocation($t);
             if (typeDefList.size()>0)
