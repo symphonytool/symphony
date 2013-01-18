@@ -5,15 +5,15 @@ import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationType;
-import eu.compassresearch.core.interpreter.cml.channels.CmlSignalChannel;
 import eu.compassresearch.core.interpreter.cml.channels.CmlIOChannel;
+import eu.compassresearch.core.interpreter.cml.channels.CmlSignalChannel;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
 import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 
-public class CMLChannelValue extends Value implements CmlSignalChannel, CmlIOChannel<Value>
+public class CMLChannelValue extends CmlValue implements CmlSignalChannel, CmlIOChannel<Value>
 {
 
 	private LexNameToken 					name;

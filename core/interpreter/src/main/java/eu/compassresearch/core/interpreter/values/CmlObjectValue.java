@@ -25,7 +25,7 @@ import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 import org.overture.typechecker.util.HelpLexNameToken;
 
-public class CmlObjectValue extends Value {
+public abstract class CmlObjectValue extends CmlValue {
 
 	private static final long serialVersionUID = 1L;
 
@@ -34,7 +34,7 @@ public class CmlObjectValue extends Value {
 	public final int objectReference;
 	public final PType type;
 	public final NameValuePairMap members;
-	public final List<CmlObjectValue> superobjects;
+	
 
 	/**
 	 * The list holds all object values created by this object value
@@ -50,11 +50,11 @@ public class CmlObjectValue extends Value {
 	 */
 	public CmlObjectValue creator;
 
-	public CmlObjectValue(PType type, NameValuePairMap members, List<CmlObjectValue> superobjects, CmlObjectValue creator)
+	public CmlObjectValue(PType type, NameValuePairMap members, CmlObjectValue creator)
 	{
 		this.objectReference = getReference();
 		this.members = members;
-		this.superobjects = superobjects;
+		
 		this.children = new LinkedList<CmlObjectValue>();
 		this.type = type;
 
@@ -65,13 +65,27 @@ public class CmlObjectValue extends Value {
 
 		setSelf(this);
 	}
+	
+	public CmlObjectValue(PType type, CmlObjectValue creator)
+	{
+		this.objectReference = getReference();
+		this.members = new NameValuePairMap();
+		
+		this.children = new LinkedList<CmlObjectValue>();
+		this.type = type;
+
+		if(creator != null)
+		{
+			setCreator(creator);
+		}
+	}
 
 	private static int getReference()
 	{
 		return ++nextObjectReference;
 	}
 
-	private void setSelf(CmlObjectValue self)
+	protected void setSelf(CmlObjectValue self)
 	{
 		for (NameValuePair nvp: members.asList())
  		{
@@ -93,11 +107,6 @@ public class CmlObjectValue extends Value {
 				((CmlObjectValue)deref).setCreator(self);
 			}
  		}
-
-		for (CmlObjectValue obj: superobjects)
-		{
-			obj.setSelf(self);
-		}
 	}
 
 	@Override
@@ -107,26 +116,7 @@ public class CmlObjectValue extends Value {
 		return null;
 	}
 	
-	public PTypeList getBaseTypes()
-	{
-		PTypeList basetypes = new PTypeList();
-
-		if (superobjects.isEmpty())
-		{
-			basetypes.add(type);
-		}
-		else
-		{
-    		for (CmlObjectValue sup: superobjects)
-    		{
-    			basetypes.addAll(sup.getBaseTypes());
-    		}
-		}
-
-		return basetypes;
-	}
-	
-	public synchronized Value get(LexNameToken field, boolean explicit)
+	public Value get(LexNameToken field, boolean explicit)
 	{
 		//FIXME figure out what to do here
 		LexNameToken localname = null;
@@ -152,22 +142,7 @@ public class CmlObjectValue extends Value {
     		}
 		}
 
-		if (rv != null)
-		{
-			return rv;
-		}
-
-		for (CmlObjectValue svalue: superobjects)
-		{
-			rv = svalue.get(field, explicit);
-
-			if (rv != null)
-			{
-				return rv;
-			}
-		}
-
-		return null;
+		return rv;
 	}
 	
 	public ValueList getOverloads(LexNameToken field)
@@ -186,33 +161,12 @@ public class CmlObjectValue extends Value {
 			}
 		}
 
-		if (!list.isEmpty())
-		{
-			return list;	// Only names from one level
-		}
-
-		for (CmlObjectValue svalue: superobjects)
-		{
-			list = svalue.getOverloads(field);
-
-			if (!list.isEmpty())
-			{
-				return list;
-			}
-		}
-
 		return list;
 	}
 	
 	public NameValuePairMap getMemberValues()
 	{
 		NameValuePairMap nvpm = new NameValuePairMap();
-
-		for (CmlObjectValue svalue: superobjects)
-		{
-			nvpm.putAll(svalue.getMemberValues());
-		}
-
 		nvpm.putAll(members);
 		return nvpm;
 	}
@@ -233,7 +187,7 @@ public class CmlObjectValue extends Value {
 		return false;
 	}
 	
-	private boolean inToString = false;
+	protected boolean inToString = false;
 	
 	@Override
 	public String toString()
@@ -270,12 +224,6 @@ public class CmlObjectValue extends Value {
 
 				sb.append(v.toString());
 			}
-		}
-
-		if (!superobjects.isEmpty())
-		{
-			sb.append(", ");
-			sb.append(Utils.listToString(superobjects));
 		}
 
 		sb.append("}");
@@ -345,51 +293,6 @@ public class CmlObjectValue extends Value {
 	public Object clone()
 	{
 		return deepCopy();
-	}
-
-	private CmlObjectValue mycopy = null;
-
-	@Override
-	public CmlObjectValue shallowCopy()
-	{
-		if (mycopy != null)
-		{
-			return mycopy;
-		}
-
-		mycopy = new CmlObjectValue(type,
-					new NameValuePairMap(), new Vector<CmlObjectValue>(), creator);
-
-		List<CmlObjectValue> supers = mycopy.superobjects;
-		NameValuePairMap memcopy = mycopy.members;
-
-   		for (CmlObjectValue sobj: superobjects)
-   		{
-   			supers.add(	// Type skeleton only...
-   				new CmlObjectValue(sobj.type,
-   					new NameValuePairMap(), new Vector<CmlObjectValue>(), creator));
-   		}
-
-		for (LexNameToken name: members.keySet())
-		{
-			Value mv = members.get(name);
-
-			if (mv.deref() instanceof ObjectValue)
-			{
-				ObjectValue om = (ObjectValue)mv.deref();
-				memcopy.put(name, om.shallowCopy());
-			}
-			else
-			{
-				memcopy.put(name, (Value)mv.clone());
-			}
-		}
-
-		mycopy.setSelf(mycopy);
-
-		CmlObjectValue rv = mycopy;
-		mycopy = null;
-		return rv;
 	}
 
 	@Override

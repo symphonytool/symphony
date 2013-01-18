@@ -19,7 +19,7 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
-public class CmlOperationValue extends Value {
+public class CmlOperationValue extends CmlValue {
 
 	private static final long serialVersionUID = 1L;
 	public final AExplicitCmlOperationDefinition expldef;

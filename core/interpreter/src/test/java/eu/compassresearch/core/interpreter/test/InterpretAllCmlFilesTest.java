@@ -155,7 +155,8 @@ public class InterpretAllCmlFilesTest {
 	@Parameters
 	public static Collection getCmlfilePaths() {
 
-		File dir = new File("src/test/resources/action/");
+		//first add the actuin tests
+		File ActionDir = new File("src/test/resources/action/");
 		List<Object[]> paths = new Vector<Object[]>();
 
 		FilenameFilter filter = new FilenameFilter() {
@@ -163,14 +164,26 @@ public class InterpretAllCmlFilesTest {
 				return name.toLowerCase().endsWith(".cml");
 			}
 		};
-
-		String[] children = dir.list(filter);
+		
+		String[] children = ActionDir.list(filter);
 		if (children == null) {
 			// Either dir does not exist or is not a directory
 		} else {
 			for (int i = 0; i < children.length; i++) {
 				// Get filename of file or directory
-				paths.add(new Object[] { dir.getPath() + "/" + children[i] });
+				paths.add(new Object[] { ActionDir.getPath() + "/" + children[i] });
+			}
+		}
+		
+		//next the process tests
+		File processDir = new File("src/test/resources/process/");
+		children = processDir.list(filter);
+		if (children == null) {
+			// Either dir does not exist or is not a directory
+		} else {
+			for (int i = 0; i < children.length; i++) {
+				// Get filename of file or directory
+				paths.add(new Object[] { processDir.getPath() + "/" + children[i] });
 			}
 		}
 

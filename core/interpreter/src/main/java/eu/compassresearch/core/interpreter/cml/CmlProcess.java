@@ -3,12 +3,11 @@ package eu.compassresearch.core.interpreter.cml;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.values.CPUValue;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
+import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -19,6 +18,7 @@ import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.runtime.ProcessContext;
+import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 /**
  *  This class represents a running CML Process. It represents a specific node as specified in D23.2 section 7.4.2,
  *  where a node is specified as a tuple (w,s,a) where w is the set of variables, s is the state values and a is the 
@@ -42,23 +42,24 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 	private static final long serialVersionUID = 4707044690749902194L;
 	private AProcessDefinition processDef;
 	private CmlAction mainBehaviour = null;
-	private CmlContext globalContext;
 	
-	public CmlProcess(AProcessDefinition processDef, CmlProcess parent, CmlContext globalContext)
+	public CmlProcess(AProcessDefinition processDef, CmlProcess parent, CmlContext outer)
 	{
 		super(parent);
-		this.globalContext = globalContext; 
-		ProcessContext context = new ProcessContext(processDef.getLocation(), "", globalContext, null);
 		this.processDef = processDef;
-		//this.prcEval = new ProcessEvaluatorNew(processDef.getProcess(),context,this);
+		//find the self object, this should be no problem since the 
+		//typechecker should make sure this is a process.
+		ProcessObjectValue self = (ProcessObjectValue)outer.get(processDef.getName());
+		ProcessContext context = new ProcessContext(processDef.getLocation(), "Process "+ processDef.getName() +" top context", outer, self);
+	
+		//push the initial execution state on the stack
 		pushNext(processDef.getProcess(), context);
 	}
 	
-	public CmlProcess(PProcess startProcess, CmlProcess parent, CmlContext globalContext)
+	public CmlProcess(PProcess startProcess, CmlProcess parent, CmlContext outer)
 	{
 		super(parent);
-		this.globalContext = globalContext; 
-		ProcessContext context = new ProcessContext(processDef.getLocation(), "", globalContext, null);
+		ProcessContext context = new ProcessContext(processDef.getLocation(), "", outer, null);
 		this.processDef = null;
 		//this.prcEval = new ProcessEvaluatorNew(processDef.getProcess(),context,this);
 		pushNext(startProcess, context);
@@ -168,7 +169,17 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 		//special case for the action behaviour of a process
 		if(stateEvent.getSource() == this.mainBehaviour)
 		{
-			notifyOnStateChange(new CmlProcessStateEvent(this, stateEvent.getFrom(), stateEvent.getTo()));
+			//this can occur when the process is evaluating a Sequential composition process
+			if(hasNext() && this.mainBehaviour.finished())
+			{
+				//if we are in a sequential composition and the main behaviour is finished
+				//then it must be set to nothing since this is only set when it an ActionProcess
+				this.mainBehaviour = null;
+				setState(CmlProcessState.RUNNABLE);
+			}
+			else	
+				//this means the main behaviour has changed state, this must be redirected as the process state
+				notifyOnStateChange(new CmlProcessStateEvent(this, stateEvent.getFrom(), stateEvent.getTo()));
 		}
 	}
 	
@@ -188,42 +199,56 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 	}
 	
 	/**
+	 * Create the main behaviour from a given AActionProcess node and context
+	 * @param node
+	 * @param question
+	 */
+	private void createMainBehaviour(AActionProcess node, CmlContext question)
+	{
+		LexNameToken mainActionName = new LexNameToken(name().getModule(),
+				name().getName() + "@",
+				node.getAction().getLocation());
+
+		mainBehaviour = new CmlAction(node.getAction(),question,mainActionName);
+		//register for state and trace changes. This enables the process to reflect it 
+		//as its own behaviour.
+		mainBehaviour.onStateChanged().registerObserver(this);
+		mainBehaviour.onTraceChanged().registerObserver(this);
+		mainBehaviour.start(supervisor());
+	}
+	
+	/**
 	 * Transition functions
 	 */
 		
 	@Override
+	public CmlBehaviourSignal defaultPProcess(PProcess node, CmlContext question)
+			throws AnalysisException {
+		
+		throw new InterpreterRuntimeException(node.getClass().getSimpleName() + " case is not yet implemented.");
+		
+	}
+	
+	@Override
 	public CmlBehaviourSignal caseAActionProcess(AActionProcess node, CmlContext question) throws AnalysisException
 	{
 		CmlBehaviourSignal ret = null;
-		//The behavior of this process has not been started yet, so start it and execute the main
-		//Behavior in the next execution step
+		//If mainBehaviour is null then the behaviour of this process has not been started yet, 
+		//so start it and execute the main behaviour in the next execution step.
 		if(mainBehaviour == null)
 		{
-			// TODO Add state, value, etc to the corresponding processValue and
-			
-			//Create the context for this process and hand it over to the process behavior 
-			CmlContext newContext = new CmlContext(node.getLocation(), "Process Context :" + name(), question);
-			//this needs to be set when we evaluates the expressions
-			//newContext.setThreadState(null, CPUValue.vCPU);
-			
+			//Add and evaluate the definitions to the current process context
 			for (PDefinition def : node.getDefinitionParagraphs())
 			{
-				def.apply(cmlEvaluator, newContext);
-				// question.put(def.getName(), def.getType().g);
+				def.apply(cmlEvaluator, question);
 			}
 
-			//Create the name for the action behavior and start it 
-			LexNameToken mainActionName = new LexNameToken(name().getModule(),
-					name().getName() + "@",
-					node.getAction().getLocation());
-
-			mainBehaviour = new CmlAction(node.getAction(),newContext,mainActionName);
-			mainBehaviour.onStateChanged().registerObserver(this);
-			mainBehaviour.onTraceChanged().registerObserver(this);
-			mainBehaviour.start(supervisor());
+			//Create the name for the action behaviour and start it 
+			createMainBehaviour(node,question);
+			
 			//push this node onto the execution stack again since this should execute
-			//the action behavoir until it terminates
-			pushNext(node, newContext);
+			//the action behaviour until it terminates
+			pushNext(node, question);
 			ret = CmlBehaviourSignal.EXEC_SUCCESS; 
 		}
 		else
@@ -231,7 +256,8 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 			if(!mainBehaviour.finished())
 			{
 				ret = mainBehaviour.execute(supervisor());
-				pushNext(node, question);
+				if(mainBehaviour != null)
+					pushNext(node, question);
 			}
 			else
 			{
@@ -250,19 +276,28 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 	public CmlBehaviourSignal caseAReferenceProcess(AReferenceProcess node,
 			CmlContext question) throws AnalysisException {
 
-		//TODO add decls to the context
-		//ProcessValue value = new ProcessValue();
-		//ProcessContext processContext = new ProcessContext(node.getLocation(), "", 
-		//		question.getGlobal(), value);
-		CmlContext newContext = new CmlContext(node.getLocation(), "Child Process Context", question.getGlobal());
-
-		AProcessDefinition processDef = node.getProcessDefinition();
-
-		CmlProcess childProcess = new CmlProcess(processDef, this, newContext);
-
-		this.children.add(childProcess);
-
-
+		//initials this process with the global context since this should see any of creators members
+//		CmlProcess childProcess = new CmlProcess(node.getProcessDefinition(), this, question.getGlobal());
+//		this.children.add(childProcess);
+//		return CmlBehaviourSignal.EXEC_SUCCESS;
+		
+		ProcessObjectValue processValue = (ProcessObjectValue)question.lookup(node.getProcessName());
+		
+		pushNext( processValue.getProcessDefinition().getProcess(), question); 
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+		
+	}
+	
+	
+	@Override
+	public CmlBehaviourSignal caseASequentialCompositionProcess(
+			ASequentialCompositionProcess node, CmlContext question)
+			throws AnalysisException {
+		
+		//First push right and then left, so that left get executed first
+		pushNext(node.getRight(), question);
+		pushNext(node.getLeft(), question);
+		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	

@@ -45,7 +45,8 @@ public class CmlDeclAndDefEvaluator extends
 			expValue = new UndefinedValue();
 		
 		question.put(node.getName(), expValue);
-		return expValue;
+		
+		return null;
 	}
 
 }

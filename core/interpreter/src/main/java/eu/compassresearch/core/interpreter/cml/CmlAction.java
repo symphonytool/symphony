@@ -239,6 +239,13 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 	 * Transition methods
 	 */
 	
+	@Override
+	public CmlBehaviourSignal defaultPAction(PAction node, CmlContext question)
+			throws AnalysisException {
+
+		throw new InterpreterRuntimeException(node.getClass().getSimpleName() + " case is not yet implemented.");
+	}
+	
 	/**
 	 * The action inside a block is executed directly, since it has no semantic meaning.
 	 */
@@ -486,7 +493,6 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		//CMLActionInstance refchild = new CMLActionInstance(node.getActionDefinition().getAction(), question, node.getName()); 
 		
 		pushNext(node.getActionDefinition().getAction(), question); 
-		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
