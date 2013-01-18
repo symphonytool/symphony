@@ -19,7 +19,7 @@
     <module>core</module>
     <module>ui</module>
     <module>platform</module>
-    <!-- module>rtt-plugin</module -->
+    <module>rtt-plugin</module>
     <module>tp-plugin</module>
     <!-- module>interpreter-plugin</module -->
     <module>pog-plugin</module>
