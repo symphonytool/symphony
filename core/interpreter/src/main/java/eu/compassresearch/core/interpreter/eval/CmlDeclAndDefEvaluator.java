@@ -9,10 +9,11 @@ import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.interpreter.runtime.CmlContext;
 
 @SuppressWarnings("serial")
 public class CmlDeclAndDefEvaluator extends
-		QuestionAnswerCMLAdaptor<Context, Value> {
+		QuestionAnswerCMLAdaptor<CmlContext, Value> {
 
 	private CmlEvaluator parentInterpreter; 
 
@@ -23,7 +24,7 @@ public class CmlDeclAndDefEvaluator extends
 	
 	@Override
 	public Value caseAStateDefinition(AStateDefinition node,
-			Context question) throws AnalysisException {
+			CmlContext question) throws AnalysisException {
 		
 		for(PDefinition def : node.getStateDefs())
 		{
@@ -35,7 +36,7 @@ public class CmlDeclAndDefEvaluator extends
 
 	@Override
 	public Value caseAAssignmentDefinition(AAssignmentDefinition node,
-			Context question) throws AnalysisException {
+			CmlContext question) throws AnalysisException {
 		
 		Value expValue = null;
 		if(node.getExpression() != null)

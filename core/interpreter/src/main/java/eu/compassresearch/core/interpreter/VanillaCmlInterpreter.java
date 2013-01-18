@@ -1,47 +1,36 @@
 package eu.compassresearch.core.interpreter;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.antlr.runtime.ANTLRInputStream;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.typechecker.NameScope;
-import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterStatus;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
-import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.interpreter.util.CmlUtil;
 import eu.compassresearch.core.interpreter.util.EnvironmentBuilder;
-import eu.compassresearch.core.parser.CmlLexer;
-import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -56,7 +45,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	private CmlEvaluator               evalutor         = new CmlEvaluator();
 	protected List<PSource>            sourceForest;
 	protected Environment 			   env;
-	protected Context                  globalContext;
+	protected CmlContext               globalContext;
 	protected String 				   defaultName      = null;	
 	protected AProcessDefinition       topProcess;
 	protected Scheduler                cmlScheduler     = null;
@@ -224,7 +213,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-externalchoice-simple-skip.cml");
+				"src/test/resources/action/action-guard.cml");
 		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 
@@ -240,7 +229,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	}
 
 	@Override
-	public Context getInitialContext(LexLocation location) {
+	public CmlContext getInitialContext(LexLocation location) {
 		return globalContext;
 	}
 }

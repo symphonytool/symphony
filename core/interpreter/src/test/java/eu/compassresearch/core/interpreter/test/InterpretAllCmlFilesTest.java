@@ -37,6 +37,7 @@ import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.interpreter.util.CmlUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 @RunWith(Parameterized.class)
 public class InterpretAllCmlFilesTest {
@@ -104,12 +105,19 @@ public class InterpretAllCmlFilesTest {
 		assertTrue(CmlUtil.parseSource(ast));
 
 		// Type check
+		TypeIssueHandler tcIssue = VanillaFactory.newCollectingIssueHandle();
 		CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
-				Arrays.asList(new PSource[] { ast }), null);
+				Arrays.asList(new PSource[] { ast }), tcIssue);
 
-		// assertTrue(cmlTC.typeCheck());
+		boolean isTypechecked = cmlTC.typeCheck();
+		
+		if(!isTypechecked)
+			System.out.println(tcIssue.getTypeErrors());
+			
+		
+		assertTrue(isTypechecked);
 		// For now it does not have to typecheck
-		cmlTC.typeCheck();
+		//cmlTC.typeCheck();
 
 		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(ast);
 

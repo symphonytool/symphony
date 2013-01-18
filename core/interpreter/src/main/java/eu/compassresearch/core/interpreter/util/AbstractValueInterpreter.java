@@ -7,7 +7,7 @@ import eu.compassresearch.core.interpreter.values.AnyValue;
 
 public class AbstractValueInterpreter {
 
-	public static Value join(Value val1, Value val2)
+	public static Value meet(Value val1, Value val2)
 	{
 		//if both are undefined we cannot come any close
 		if(isAnyValue(val1) && isAnyValue(val2))

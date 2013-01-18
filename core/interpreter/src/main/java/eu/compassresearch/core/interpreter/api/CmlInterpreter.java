@@ -21,6 +21,7 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.EventSource;
+import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 /**
  * The CML interpreter interface.
@@ -33,7 +34,7 @@ public interface CmlInterpreter
 	 * Get a string version of the environment.
 	 */
 
-	public Context getInitialContext(LexLocation location);
+	public CmlContext getInitialContext(LexLocation location);
 
 	/**
 	 * Get the global environment.

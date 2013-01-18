@@ -9,7 +9,6 @@ import java.util.Set;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
-import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
@@ -40,7 +39,7 @@ import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
-import eu.compassresearch.core.interpreter.cml.events.SynchronizedPrefixEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
@@ -52,7 +51,7 @@ import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 @SuppressWarnings("serial")
 public class AlphabetInspector
 		extends
-		QuestionAnswerCMLAdaptor<Context, eu.compassresearch.core.interpreter.cml.CmlAlphabet> {
+		QuestionAnswerCMLAdaptor<CmlContext, eu.compassresearch.core.interpreter.cml.CmlAlphabet> {
 
 	// The process that contains this instance
 	private final CmlBehaviourThread 		ownerProcess;
@@ -69,13 +68,13 @@ public class AlphabetInspector
 	}
 	
 	@Override
-	public CmlAlphabet defaultPProcess(PProcess node, Context question)
+	public CmlAlphabet defaultPProcess(PProcess node, CmlContext question)
 			throws AnalysisException {
 		return createSilentTransition(node,null);
 	}
 	
 	@Override
-	public CmlAlphabet defaultPAction(PAction node, Context question)
+	public CmlAlphabet defaultPAction(PAction node, CmlContext question)
 			throws AnalysisException {
 
 		return createSilentTransition(node,null);
@@ -100,34 +99,34 @@ public class AlphabetInspector
 	 */
 	@Override
 	public CmlAlphabet caseABlockStatementAction(ABlockStatementAction node,
-			Context question) throws AnalysisException {
+			CmlContext question) throws AnalysisException {
 
 		//return defaultPAction(node, question);
 		return node.getAction().apply(this,question);
 	}
 	
 	@Override
-	public CmlAlphabet caseAActionProcess(AActionProcess node, Context question)
+	public CmlAlphabet caseAActionProcess(AActionProcess node, CmlContext question)
 			throws AnalysisException {
 		return createSilentTransition(node,node.getAction());
 	}
 	
 	@Override
 	public CmlAlphabet caseASequentialCompositionAction(
-			ASequentialCompositionAction node, Context question)
+			ASequentialCompositionAction node, CmlContext question)
 			throws AnalysisException {
 		return createSilentTransition(node,node.getLeft());
 	}
 	
 	@Override
 	public CmlAlphabet caseAReferenceAction(AReferenceAction node,
-			Context question) throws AnalysisException {
+			CmlContext question) throws AnalysisException {
 		return createSilentTransition(node,node.getActionDefinition().getAction());
 	}
 	
 	@Override
 	public CmlAlphabet caseACommunicationAction(ACommunicationAction node,
-			Context question) throws AnalysisException {
+			CmlContext question) throws AnalysisException {
 
 		//FIXME: This should be a name so the conversion is avoided
 		LexNameToken channelName = new LexNameToken("|CHANNELS|",node.getIdentifier());
@@ -202,7 +201,7 @@ public class AlphabetInspector
 	 */
 	@Override
 	public CmlAlphabet caseAExternalChoiceAction(AExternalChoiceAction node,
-			Context question) throws AnalysisException {
+			CmlContext question) throws AnalysisException {
 
 		CmlAlphabet alpha = null;
 		
@@ -235,14 +234,14 @@ public class AlphabetInspector
 	 * to true in the current state else the empty alphabet
 	 */
 	@Override
-	public CmlAlphabet caseAGuardedAction(AGuardedAction node, Context question)
+	public CmlAlphabet caseAGuardedAction(AGuardedAction node, CmlContext question)
 			throws AnalysisException {
 
 		//First we evaluate the guard expression
 		Value guardExp = node.getExpression().apply(cmlEvaluator,question);
 		
 		//if the gaurd is true then we return the silent transition to the guarded action
-		if(guardExp.boolValue(question))
+		if(guardExp.boolValue(question.getVdmContext()))
 			return createSilentTransition(node, node.getAction());
 		//else we return the empty alphabet since no transition is possible
 		else
@@ -270,7 +269,7 @@ public class AlphabetInspector
 		public CmlAlphabet inspectChildren();
 	}
 	
-	public CmlAlphabet caseParallelAction(PAction node, Context question,ParallelAction parallelAction)
+	public CmlAlphabet caseParallelAction(PAction node, CmlContext question,ParallelAction parallelAction)
 			throws AnalysisException {
 		
 		CmlAlphabet alpha = null;
@@ -311,7 +310,7 @@ public class AlphabetInspector
 	 */
 	@Override
 	public CmlAlphabet caseAInterleavingParallelAction(
-			AInterleavingParallelAction node, Context question)
+			AInterleavingParallelAction node, CmlContext question)
 			throws AnalysisException {
 		
 		return caseParallelAction(node,question,new ParallelAction()
@@ -347,11 +346,11 @@ public class AlphabetInspector
 	 */
 	@Override
 	public CmlAlphabet caseAGeneralisedParallelismParallelAction(
-			AGeneralisedParallelismParallelAction node, Context question)
+			AGeneralisedParallelismParallelAction node, CmlContext question)
 					throws AnalysisException {
 
 		final AGeneralisedParallelismParallelAction internalNode = node;
-		final Context internalQuestion = question;
+		final CmlContext internalQuestion = question;
 		
 		return caseParallelAction(node,question,new ParallelAction()
 		{
