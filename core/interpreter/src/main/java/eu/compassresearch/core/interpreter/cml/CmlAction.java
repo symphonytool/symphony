@@ -310,7 +310,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
         	//return VdmRuntimeError.abort(node.getLocation(),e);
         }
 		
-		return super.caseAIfStatementAction(node, question);
+		return CmlBehaviourSignal.FATAL_ERROR;
 	}
 	
 	/* 
