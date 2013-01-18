@@ -7,7 +7,7 @@ import eu.compassresearch.core.interpreter.runtime.CmlContext;
 
 public abstract class CmlValue extends Value {
 
-	public CmlObjectValue objectValue(CmlContext ctxt) throws ValueException
+	public CmlObjectValue CmlObjectValue(CmlContext ctxt) throws ValueException
 	{
 		abort(4105, "Can't get object value of " + kind(), ctxt.getVdmContext());
 		return null;

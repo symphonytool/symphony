@@ -27,20 +27,18 @@ public class CmlOperationValue extends CmlValue {
 	public final LexNameToken name;
 	public final AOperationType type;
 	public final List<PPattern> paramPatterns;
-	public PAction body;
+
 	public final FunctionValue precondition;
 	public final FunctionValue postcondition;
 	public final AStateDefinition state;
-	public final SClassDefinition classdef;
 
+	private PAction body;
 	private LexNameToken stateName = null;
 	private Context stateContext = null;
 	private CmlObjectValue self = null;
 
 	public boolean isConstructor = false;
 	public boolean isStatic = false;
-	public boolean isAsync = false;
-
 
 	public CmlOperationValue(AExplicitCmlOperationDefinition def,
 		FunctionValue precondition, FunctionValue postcondition,
@@ -51,13 +49,10 @@ public class CmlOperationValue extends CmlValue {
 		this.name = def.getName();
 		this.type = (AOperationType)def.getType();
 		this.paramPatterns = def.getParameterPatterns();
-		this.body = def.getBody();
+		this.setBody(def.getBody());
 		this.precondition = precondition;
 		this.postcondition = postcondition;
 		this.state = state;
-		this.classdef = def.getClassDefinition();
-		this.isAsync = PAccessSpecifierAssistantTC.isAsync(def.getAccess());
-
 	}
 
 	public CmlOperationValue(AImplicitCmlOperationDefinition def,
@@ -75,13 +70,17 @@ public class CmlOperationValue extends CmlValue {
 			paramPatterns.addAll(ptp.getPatterns());
 		}
 
-		//this.body = def.getBody();
 		this.precondition = precondition;
 		this.postcondition = postcondition;
 		this.state = state;
-		this.classdef = def.getClassDefinition();
-		this.isAsync = PAccessSpecifierAssistantTC.isAsync(def.getAccess());
+	}
+	
+	public PAction getBody() {
+		return body;
+	}
 
+	private void setBody(PAction body) {
+		this.body = body;
 	}
 
 	@Override

@@ -3,11 +3,13 @@ package eu.compassresearch.core.interpreter.cml;
 import java.util.Iterator;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
+import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
+import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
@@ -28,10 +30,14 @@ import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlContext;
+import eu.compassresearch.core.interpreter.runtime.CmlRootContext;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
+import eu.compassresearch.core.interpreter.values.ActionValue;
+import eu.compassresearch.core.interpreter.values.CmlOperationValue;
+import eu.compassresearch.core.interpreter.values.CmlValueFactory;
 
 /**
  *  This class represents a running CML Action. It represents a specific node as specified in D23.2 section 7.4.2,
@@ -257,6 +263,43 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		//pushNext(node.getAction(), question); 
 		//return CmlBehaviourSignal.EXEC_SUCCESS;
 		return node.getAction().apply(this,question);
+	}
+	
+	@Override
+	public CmlBehaviourSignal caseACallStatementAction(
+			ACallStatementAction node, CmlContext question)
+			throws AnalysisException {
+
+		//first find the operation value in the context
+		CmlOperationValue opVal = question.lookup(node.getName()); 
+		
+		
+		ValueList argValues = new ValueList();
+
+		//evaluate the arguments
+		for (PExp arg: node.getArgs())
+		{
+			argValues.add(arg.apply(cmlEvaluator,question));
+		}
+		
+		// Note args cannot be Updateable, so we convert them here. This means
+		// that TransactionValues pass the local "new" value to the far end.
+		ValueList constValues = argValues.getConstant();
+
+		if (opVal.getBody() == null)
+		{
+			opVal.abort(4066, "Cannot call implicit operation: " + name, question.getVdmContext());
+		}
+		
+		//TODO add the arg patterns with the results to the context here
+		
+		//TODO maybe this context should be a different one
+		CmlContext callContext = new CmlContext(node.getLocation(), "Op call", question);
+		
+		pushNext(opVal.getBody(), callContext);
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+		
 	}
 
 	/**
@@ -492,7 +535,9 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		//FIXME: Consider: Instead of this might create a child process, and behave as this child until it terminates
 		//CMLActionInstance refchild = new CMLActionInstance(node.getActionDefinition().getAction(), question, node.getName()); 
 		
-		pushNext(node.getActionDefinition().getAction(), question); 
+		ActionValue actionValue = (ActionValue)question.lookup(node.getName());
+		
+		pushNext(actionValue.getActionDefinition().getAction(), question); 
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
