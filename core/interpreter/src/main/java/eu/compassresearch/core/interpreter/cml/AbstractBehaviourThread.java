@@ -24,10 +24,11 @@ import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.util.Pair;
 
-abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCMLAdaptor<Context, CmlBehaviourSignal>
+abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCMLAdaptor<CmlContext, CmlBehaviourSignal>
 		implements CmlBehaviourThread , ChannelObserver {
 	
 	private static final long 					serialVersionUID = -4920762081111266274L;
@@ -36,8 +37,8 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	 * Instance variables
 	 */
 	//Stack machine variables
-	private Stack<Pair<T,Context>> 				executionStack = new Stack<Pair<T,Context>>();
-	private  Pair<T,Context> 					prevExecution = null;
+	private Stack<Pair<T,CmlContext>> 				executionStack = new Stack<Pair<T,CmlContext>>();
+	private  Pair<T,CmlContext> 					prevExecution = null;
 	
 	//Process/Action Graph variables
 	protected AbstractBehaviourThread<T> 		parent;
@@ -120,24 +121,24 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 		return prevExecution != null;
 	}
 	
-	protected  Pair<T,Context> prevState()
+	protected  Pair<T,CmlContext> prevState()
 	{
 		return prevExecution;
 	}
 	
-	protected  Pair<T,Context> nextState()
+	protected  Pair<T,CmlContext> nextState()
 	{
 		return executionStack.peek();
 	}
 	
-	protected List<Pair<T,Context>> getExecutionStack()
+	protected List<Pair<T,CmlContext>> getExecutionStack()
 	{
 		return executionStack;
 	}
 	
-	protected void pushNext(T node, Context context)
+	protected void pushNext(T node, CmlContext context)
 	{
-		executionStack.push(new Pair<T, Context>(node, context));
+		executionStack.push(new Pair<T, CmlContext>(node, context));
 	}
 	
 	/*
@@ -207,7 +208,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 		if(hasNext())
 		{
 			setState(CmlProcessState.RUNNING);
-			Pair<T,Context> next = executionStack.pop();
+			Pair<T,CmlContext> next = executionStack.pop();
 			prevExecution = next;
 			return next.first.apply(this,next.second);
 		}
@@ -252,7 +253,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	}
 	
 	@Override
-	public Pair<T, Context> getExecutionState() {
+	public Pair<T, CmlContext> getExecutionState() {
 		if(hasNext())
 			return nextState();
 		else

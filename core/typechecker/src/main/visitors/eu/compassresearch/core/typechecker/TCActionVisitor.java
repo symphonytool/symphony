@@ -297,12 +297,16 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		}
 
-		PType elseActionType = elseAction.apply(parentChecker,question);
-		if (!TCDeclAndDefVisitor.successfulType(elseActionType))
+		//AKM: The else case is optional
+		if(elseAction != null)
 		{
-			node.setType(issueHandler.addTypeError(elseAction, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(elseAction+"")));
-			return node.getType();
+			PType elseActionType = elseAction.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(elseActionType))
+			{
+				node.setType(issueHandler.addTypeError(elseAction, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(elseAction+"")));
+				return node.getType();
 
+			}
 		}
 
 		for(AElseIfStatementAction elseIf : elseIfs)

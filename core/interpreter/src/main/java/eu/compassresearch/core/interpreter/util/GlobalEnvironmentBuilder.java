@@ -9,6 +9,7 @@ import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.StateContext;
+import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.typechecker.Environment;
 import org.overture.typechecker.FlatEnvironment;
@@ -22,9 +23,11 @@ import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.interpreter.runtime.CmlStateContext;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.values.CmlValueFactory;
 
-public class EnvironmentBuilder extends AnalysisCMLAdaptor
+public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
   {
     /**
 	 * 
@@ -32,19 +35,17 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
     private static final long        serialVersionUID   = 493918199975006733L;
     private List<PDefinition>        globalDefs	        = new LinkedList<PDefinition>();
     private AProcessDefinition       lastDefinedProcess = null;
-    private StateContext             globalState        = null;
+    private CmlStateContext          globalState        = null;
     
-    public EnvironmentBuilder(List<PSource> sources)
+    public GlobalEnvironmentBuilder(List<PSource> sources)
     {
     	BuildGlobalEnvironment(sources);
     }
 
     private void BuildGlobalEnvironment(List<PSource> sources)
       {
-    	globalState = new StateContext(new LexLocation(), "GlobalContext");
+    	globalState = new CmlStateContext(new LexLocation(), "GlobalContext");
     	
-        // EnvironmentBuilder envBuilder = new EnvironmentBuilder();
-        
         for (PSource source : sources)
           {
             for (PDefinition def : source.getParagraphs())
@@ -72,7 +73,7 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
     	return new FlatEnvironment(globalDefs);
     }
 
-    public StateContext getGlobalContext()
+    public CmlStateContext getGlobalContext()
     {
     	return globalState;
     }
@@ -107,7 +108,8 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         throws AnalysisException
       {
         globalDefs.add(node);
-        //env.put(processDef.getName(), processDef);
+        globalState.putNew(new NameValuePair(node.getName(), 
+        		CmlValueFactory.createProcessObjectValue(node)));
         lastDefinedProcess = node;
       }
     
@@ -137,8 +139,8 @@ public class EnvironmentBuilder extends AnalysisCMLAdaptor
         
         for (PDefinition functionDef : node.getFunctionDefinitions())
           {
-        	globalDefs.add(functionDef);
-            //env.put(functionDef.getName(), functionDef);
+        	//TODO add functions here to the context
+        	//globalState.putNew(new NameValuePair(functionDef.getName(),new FunctionValue(def, precondition, postcondition, freeVariables)));
           }
       }
 

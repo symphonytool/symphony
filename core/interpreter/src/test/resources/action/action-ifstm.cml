@@ -1,0 +1,21 @@
+channels 
+a, b, c
+
+process A = 
+begin 
+	state
+	v : int := 2
+
+	operations
+	
+	Test : () ==> ()
+	Test() == 
+	if v = 1 then 
+		v := 0
+	else
+		v := 1	
+
+	actions
+	INIT = a -> v := v + 1;Test();( ([v = 1] & b -> Skip) [] ([v = 0] & c -> Skip)) 
+	@ INIT
+end

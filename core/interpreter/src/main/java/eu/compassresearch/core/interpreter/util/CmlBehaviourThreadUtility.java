@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
@@ -14,6 +13,7 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
 public class CmlBehaviourThreadUtility {
@@ -75,7 +75,7 @@ public class CmlBehaviourThreadUtility {
 	 * FIXME:This is just a temp solution, chansets can be other than this
 	 * @return
 	 */
-	public static CmlAlphabet convertChansetExpToAlphabet(CmlBehaviourThread sourceProcess, PVarsetExpression chansetExp, Context question)
+	public static CmlAlphabet convertChansetExpToAlphabet(CmlBehaviourThread sourceProcess, PVarsetExpression chansetExp, CmlContext question)
 	{
 		AFatEnumVarsetExpression chanset = (AFatEnumVarsetExpression)chansetExp;
 

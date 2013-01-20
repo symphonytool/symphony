@@ -27,12 +27,10 @@ import java.io.PrintWriter;
 
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.RootContext;
-import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.values.ProcessValue;
+import eu.compassresearch.core.interpreter.values.CmlObjectValue;
+import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 
 
 /**
@@ -40,10 +38,10 @@ import eu.compassresearch.core.interpreter.values.ProcessValue;
  */
 
 @SuppressWarnings("serial")
-public class ProcessContext extends RootContext
+public class ProcessContext extends CmlRootContext
 {
 	//public final ObjectValue self;
-	public final ProcessValue self;
+	public final ProcessObjectValue self;
 
 	/**
 	 * Create an ObjectContext from the values passed.
@@ -55,31 +53,24 @@ public class ProcessContext extends RootContext
 	 */
 
 	public ProcessContext(
-		LexLocation location, String title, Context freeVariables,
-		Context outer, ProcessValue self)
+		LexLocation location, String title, CmlContext outer, ProcessObjectValue self)
 	{
-		super(location, title, freeVariables, outer);
+		super(location, title, null, outer);
 		this.self = self;
 	}
 
-	public ProcessContext(
-		LexLocation location, String title, Context outer, ProcessValue self)
-	{
-		this(location, title, null, outer, self);
-	}
-
 	@Override
-	public Context deepCopy()
+	public CmlContext deepCopy()
 	{
-		Context below = null;
+		CmlContext below = null;
 
 		if (outer != null)
 		{
-			below = outer.deepCopy();
+			below = (CmlContext)outer.deepCopy();
 		}
 
 		//FIXME self should be deep copied
-		Context result = new ProcessContext(location, title, freeVariables, below, self);
+		CmlContext result = new ProcessContext(getLocation(), getTitle(), below, self);
 			//new ProcessContext(location, title, freeVariables, below, self.deepCopy());
 
 		for (LexNameToken var: keySet())
@@ -113,16 +104,6 @@ public class ProcessContext extends RootContext
 			return v;
 		}
 
-		if (freeVariables != null)
-		{
-			v = freeVariables.get(name);
-
-			if (v != null)
-			{
-				return v;
-			}
-		}
-
 		v = null;//self.get(name, name.explicit);
 
 		if (v != null)
@@ -130,7 +111,7 @@ public class ProcessContext extends RootContext
 			return v;
 		}
 
-		Context g = getGlobal();
+		CmlContext g = getGlobal();
 
 		if (g != this)
 		{
@@ -151,7 +132,7 @@ public class ProcessContext extends RootContext
 	{
 		if (outer == null)		// Don't expand initial context
 		{
-			out.println("In object context of " + title);
+			out.println("In process context of " + getTitle());
 		}
 		else
 		{
@@ -160,9 +141,13 @@ public class ProcessContext extends RootContext
     			out.print(this.format("\t", this));
 			}
 
-			out.println("In object context of " + title + " " + location);
+			out.println("In process context of " + getTitle() + " " + getLocation());
 			outer.printStackTrace(out, false);
 		}
+	}
+	
+	public CmlObjectValue getSelf() {
+		return self;
 	}
 
 	

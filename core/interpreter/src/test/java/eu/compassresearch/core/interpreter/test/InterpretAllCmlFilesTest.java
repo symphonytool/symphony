@@ -37,6 +37,7 @@ import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.interpreter.util.CmlUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 @RunWith(Parameterized.class)
 public class InterpretAllCmlFilesTest {
@@ -104,12 +105,19 @@ public class InterpretAllCmlFilesTest {
 		assertTrue(CmlUtil.parseSource(ast));
 
 		// Type check
+		TypeIssueHandler tcIssue = VanillaFactory.newCollectingIssueHandle();
 		CmlTypeChecker cmlTC = VanillaFactory.newTypeChecker(
-				Arrays.asList(new PSource[] { ast }), null);
+				Arrays.asList(new PSource[] { ast }), tcIssue);
 
-		// assertTrue(cmlTC.typeCheck());
+		boolean isTypechecked = cmlTC.typeCheck();
+		
+		if(!isTypechecked)
+			System.out.println(tcIssue.getTypeErrors());
+			
+		
+		assertTrue(isTypechecked);
 		// For now it does not have to typecheck
-		cmlTC.typeCheck();
+		//cmlTC.typeCheck();
 
 		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(ast);
 
@@ -147,7 +155,8 @@ public class InterpretAllCmlFilesTest {
 	@Parameters
 	public static Collection getCmlfilePaths() {
 
-		File dir = new File("src/test/resources/action/");
+		//first add the actuin tests
+		File ActionDir = new File("src/test/resources/action/");
 		List<Object[]> paths = new Vector<Object[]>();
 
 		FilenameFilter filter = new FilenameFilter() {
@@ -155,14 +164,26 @@ public class InterpretAllCmlFilesTest {
 				return name.toLowerCase().endsWith(".cml");
 			}
 		};
-
-		String[] children = dir.list(filter);
+		
+		String[] children = ActionDir.list(filter);
 		if (children == null) {
 			// Either dir does not exist or is not a directory
 		} else {
 			for (int i = 0; i < children.length; i++) {
 				// Get filename of file or directory
-				paths.add(new Object[] { dir.getPath() + "/" + children[i] });
+				paths.add(new Object[] { ActionDir.getPath() + "/" + children[i] });
+			}
+		}
+		
+		//next the process tests
+		File processDir = new File("src/test/resources/process/");
+		children = processDir.list(filter);
+		if (children == null) {
+			// Either dir does not exist or is not a directory
+		} else {
+			for (int i = 0; i < children.length; i++) {
+				// Get filename of file or directory
+				paths.add(new Object[] { processDir.getPath() + "/" + children[i] });
 			}
 		}
 
