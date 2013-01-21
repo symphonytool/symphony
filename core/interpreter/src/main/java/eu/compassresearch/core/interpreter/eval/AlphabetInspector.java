@@ -43,6 +43,7 @@ import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.values.CmlValue;
 /**
  * This class inspects the immediate alphabet of the current state of a CmlProcess
  * @author akm
@@ -266,7 +267,7 @@ public class AlphabetInspector
 	 */
 	private interface ParallelAction
 	{
-		public CmlAlphabet inspectChildren();
+		public CmlAlphabet inspectChildren() throws AnalysisException;
 	}
 	
 	public CmlAlphabet caseParallelAction(PAction node, CmlContext question,ParallelAction parallelAction)
@@ -355,13 +356,13 @@ public class AlphabetInspector
 		return caseParallelAction(node,question,new ParallelAction()
 		{
 			@Override
-			public CmlAlphabet inspectChildren() {
+			public CmlAlphabet inspectChildren() throws AnalysisException{
 				
 				//convert the channelset of the current node to a alphabet
 				//TODO: The convertChansetExpToAlphabet method is only a temp solution. 
 				//		This must be evaluated differently
-				CmlAlphabet cs = CmlBehaviourThreadUtility.convertChansetExpToAlphabet(null,
-						internalNode.getChansetExpression(),internalQuestion);
+				CmlAlphabet cs =  ((CmlValue)internalNode.getChansetExpression().
+						apply(cmlEvaluator,internalQuestion)).cmlAlphabetValue(internalQuestion);
 				
 				//Get all the child alphabets and add the events that are not in the channelset
 				CmlBehaviourThread leftChild = ownerProcess.children().get(0);
