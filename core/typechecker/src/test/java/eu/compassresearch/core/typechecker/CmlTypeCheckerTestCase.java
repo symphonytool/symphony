@@ -640,7 +640,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				"class test = begin functions public plus: int * int -> int plus(a,b) == (0 + a) + b end",
 				false, true, true, new String[0]);
 		// 136
-		addTestProgram(testData, "values a:int = 1; b : int = a ", false, true,
+		addTestProgram(testData, "values a:int = 1 \n b : int = a ", false, true,
 				true, new String[0]);
 
 		// 137
@@ -699,6 +699,10 @@ public class CmlTypeCheckerTestCase extends TestCase {
 
 		addTestProgram(testData, "functions test: int * int -> bool test(a,b) == true channels InOut: int * int * int process A = begin state b:int actions A = InOut?a!b?c -> test(a,c) @ Skip end", false, true, true, new String[0]);
 		addTestProgram(testData, "channels a : int process A =  begin state b : int := 2 actions INIT = a!(b+2) -> Skip @ INIT end", false, true, true, new String[0]);
+		addTestProgram(testData, "process A = begin actions B = val n:int @ Skip @ (||| i in set {1,2,3} @ [ { } ] B(i)) end", false, true, true, new String[0]);
+		addTestProgram(testData, "process A = begin @ A [[ init <- start ]] end ", false, true, true, new String[0]);
+		addTestProgram(testData, "channels startStartRescue acceptStartRescue endStartRescue process P = begin actions A = startStartRescue -> acceptStartRescue -> endStartRescue -> B B = C C = Skip  @ Skip end",false, true, true, new String[0]);
+		addTestProgram(testData, "channels startStartRescue acceptStartRescue endStartRescue process P = begin actions A = startStartRescue -> acceptStartRescue -> endStartRescue -> B B = $T(target(C))", false, true, true, new String[0]);
 		return testData;
 	}
 
@@ -725,7 +729,14 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		TestUtil.TypeCheckerResult res = TestUtil.runTypeChecker(source);
 		
 		boolean parserOk = res.parsedOk;
-		Assert.assertSame("Not Parsing",this.expectedParserOk, parserOk);
+		if (!parserOk)
+		{
+		StringBuilder parseMessages = new StringBuilder();
+		for(String s : res.parseErrors)
+			parseMessages.append(s);
+		Assert.assertSame(parseMessages.toString(),this.expectedParserOk, parserOk);
+		}
+		
 		
 		TypeIssueHandler errors = res.issueHandler;
 
@@ -739,7 +750,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 //			Assert.assertEquals("Wrong number of error. Expected "
 //					+ expectedNumberOfErrors + " Actual "
 //					+ actualNumberOfErrors, expectedNumberOfErrors,
-//					actualNumberOfErrors);
+//					actualNumberOfErrors);µ
 
 			Set<String> actualErrors = new HashSet<String>();
 			for (CMLTypeError e : errors.getTypeErrors())

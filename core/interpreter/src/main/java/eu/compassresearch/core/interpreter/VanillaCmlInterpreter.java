@@ -30,7 +30,7 @@ import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.interpreter.util.CmlUtil;
-import eu.compassresearch.core.interpreter.util.EnvironmentBuilder;
+import eu.compassresearch.core.interpreter.util.GlobalEnvironmentBuilder;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -79,7 +79,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	protected void initialize() throws InterpreterException
 	{
-		EnvironmentBuilder envBuilder = new EnvironmentBuilder(sourceForest);
+		GlobalEnvironmentBuilder envBuilder = new GlobalEnvironmentBuilder(sourceForest);
 
 		env = envBuilder.getGlobalEnvironment();
 		globalContext = envBuilder.getGlobalContext();
@@ -145,7 +145,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.RUNNING));
 			cmlScheduler.start();
 		} catch (AnalysisException e) {
-			throw new InterpreterException("Yes YES",e);
+			throw new InterpreterException("Redirected exception",e);
 		}
 
 		return null;
@@ -213,7 +213,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-guard.cml");
+				"src/test/resources/action/action-ifstm.cml");
 		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 

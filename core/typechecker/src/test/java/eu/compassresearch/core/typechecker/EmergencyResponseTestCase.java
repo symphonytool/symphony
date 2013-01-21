@@ -24,9 +24,9 @@ public class EmergencyResponseTestCase {
 	private File expertLedDir;
 	private File rulesLedDir;
 	private boolean rulesLedFound = false;
-	
-	
-	
+
+
+
 	@Before
 	public void setup()
 	{		
@@ -35,8 +35,8 @@ public class EmergencyResponseTestCase {
 		expertLedFound = expertLedDir.exists() && expertLedDir.isDirectory();
 		rulesLedFound  = rulesLedDir.exists() && rulesLedDir.isDirectory();
 	}
-	
-	
+
+
 	@Test
 	public void expertLed() throws FileNotFoundException, IOException
 	{
@@ -50,13 +50,13 @@ public class EmergencyResponseTestCase {
 			current.setName(f.getName());
 			sources.add(current);
 		}
-		
+
 		for(PSource source : sources)
 		{
 			TypeCheckerResult res = TestUtil.parse(source);
 			Assert.assertTrue("Failed to parse file "+source, res.parsedOk);
 		}
-		
+
 		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 		CmlTypeChecker tc = VanillaFactory.newTypeChecker(sources, issueHandler );
 		boolean tcOk = tc.typeCheck();
@@ -76,16 +76,19 @@ public class EmergencyResponseTestCase {
 			current.setName(f.getName());
 			sources.add(current);
 		}
-		
+
 		for(PSource source : sources)
 		{
 			TypeCheckerResult res = TestUtil.parse(source);
 			String errMsg = "";
-			for(String s : res.parseErrors)
-				errMsg += s + "\n";
-			Assert.assertTrue("Failed to parse file "+source+".\n"+errMsg, res.parsedOk);
+			if (res.parseErrors != null)
+			{
+				for(String s : res.parseErrors)
+					errMsg += s + "\n";
+				Assert.assertTrue("Failed to parse file "+source+".\n"+errMsg, res.parsedOk);
+			}
 		}
-		
+
 		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 		CmlTypeChecker tc = VanillaFactory.newTypeChecker(sources, issueHandler );
 		boolean tcOk = tc.typeCheck();

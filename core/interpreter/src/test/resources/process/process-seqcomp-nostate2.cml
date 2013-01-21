@@ -1,0 +1,6 @@
+channels init, a, b
+
+process A = begin @ init -> a -> Skip end
+process B = begin @ init -> b -> Skip end
+
+process C = A;B
