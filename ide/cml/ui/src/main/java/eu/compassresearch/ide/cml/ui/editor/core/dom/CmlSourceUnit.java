@@ -9,7 +9,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.lexer.ParserError;
+import eu.compassresearch.core.parser.ParserError;
 
 /**
  * A CML Source unit is our DOM representation holding an AST for a one source
@@ -79,6 +79,10 @@ public class CmlSourceUnit {
 
 	public PSource getSourceAst() {
 		return sourceAst;
+	}
+
+	public void setSourceAst(PSource sourceAst, boolean parsedOk) {
+	    setSourceAst(sourceAst, new LinkedList<ParserError>(), parsedOk);
 	}
 
 	public void setSourceAst(PSource sourceAst, List<ParserError> errors, boolean parsedOk) {

@@ -107,6 +107,10 @@ import eu.compassresearch.ast.patterns.*;
 import eu.compassresearch.ast.process.*;
 import eu.compassresearch.ast.program.*;
 import eu.compassresearch.ast.types.*;
+
+// for the main() method
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
 }
 
 // @lexer::members {
@@ -205,6 +209,24 @@ public AAccessSpecifierAccessSpecifier extractQualifier(CommonToken token) {
     }
     throw new RuntimeException("The given token, "+token+" is not a qualifier.");
 }
+
+/* A main method to trigger the parser directly on stdin
+ */
+public static void main(String[] args) throws Exception {
+	ANTLRInputStream stdin = new ANTLRInputStream(System.in);
+	CmlLexer lexer = new CmlLexer(stdin);
+	CommonTokenStream tokens = new CommonTokenStream(lexer);
+	CmlParser parser = new CmlParser(tokens);
+
+	// parser.exprbase();
+	// try {
+	    Object o = parser.source();
+	    // System.out.println(parser.exprbase());
+	// } catch(Exception e) {
+	//     System.out.println("Exception from parse attempt");
+	//     System.out.println(e);
+	// }
+    }
 
 } // end @parser::members
 
