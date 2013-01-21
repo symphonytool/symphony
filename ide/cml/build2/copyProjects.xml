@@ -14,7 +14,9 @@
         <!-- <include name="rtt-plugin/**"/> -->
 	<include name="tp-plugin/**"/>
 	<!-- <include name="interpreter-plugin/**"/> -->
-	<exclude name="**/target/"/>
+			
+	<include name="pog-plugin/**"/>
+<exclude name="**/target/"/>
       </fileset>
     </copy>
 
