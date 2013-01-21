@@ -21,7 +21,6 @@ import org.antlr.runtime.MismatchedTokenException;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.parser.ParserError;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.CmlTCUtil;
