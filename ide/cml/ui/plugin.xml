@@ -94,14 +94,24 @@
         	name="COMPASS"/>
   </extension>
    
+      <extension
+         id="cmlnature"
+         name="CML Project Nature"
+         point="org.eclipse.core.resources.natures">
+         <builder id ="eu.compassresearch.ide.cml.ui.builder.cmlbuilder"/>
+         <runtime>
+            <run class ="eu.compassresearch.ide.cml.ui.builder.CmlProjectNature">
+            </run>
+            </runtime>
+   </extension>
    
    <extension
          id="cmlbuilder"
+         name="CML Builder"
          point="org.eclipse.core.resources.builders">
       <builder
             callOnEmptyDelta="true"
-            hasNature="false"
-            isConfigurable="false"
+            hasNature="true"
             supportsConfigurations="false"            
             >
          <run
