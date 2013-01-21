@@ -77,6 +77,7 @@ package eu.compassresearch.core.parser;
 
 import java.lang.NumberFormatException;
 import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 // import org.apache.commons.lang3.StringUtils;
@@ -90,7 +91,8 @@ import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
 import org.overture.ast.lex.*;
 import org.overture.ast.node.*;
-// import org.overture.ast.node.tokens.*;
+import org.overture.ast.node.tokens.TAsync;
+import org.overture.ast.node.tokens.TStatic;
 import org.overture.ast.patterns.*;
 // import org.overture.ast.preview.*;
 import org.overture.ast.statements.*;
@@ -107,6 +109,10 @@ import eu.compassresearch.ast.patterns.*;
 import eu.compassresearch.ast.process.*;
 import eu.compassresearch.ast.program.*;
 import eu.compassresearch.ast.types.*;
+
+// for the main() method
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
 }
 
 // @lexer::members {
@@ -142,6 +148,28 @@ public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, 
 private DecimalFormat decimalFormatParser = new DecimalFormat();
 public static final String CML_LANG_VERSION = "CML M16";
 
+public static char convertEscapeToChar(String escape) {
+    if (escape.startsWith("\\")) {
+        switch (escape.charAt(1)) {
+        case 'n':  return '\n';
+        case '\\': return '\\';
+        case 'r':  return '\r';
+        case 't':  return '\t';
+        case 'f':  return '\f';
+        case 'e':  return (char) 0x001B;
+        case 'a':  return (char) 0x0007;
+        case 'x':  return (char) new BigInteger(escape.substring(2), 16).intValue();
+        case 'u':  return (char) new BigInteger(escape.substring(2), 16).intValue();
+        case 'c':  return (char) (escape.charAt(2) - 'A' + 1);
+        case '0':  return (char) new BigInteger(escape.substring(2), 8).intValue();
+        case '\"': return '\"';
+        case '\'': return '\'';
+        default:   throw new RuntimeException("Illegal escape sequence: " + escape);
+        }
+    }
+    return escape.charAt(0);
+}
+
 private LexToken extractLexToken(String str, LexLocation loc) {
     VDMToken tok = null;
     for (VDMToken t : VDMToken.values()) {
@@ -155,6 +183,7 @@ private LexToken extractLexToken(String str, LexLocation loc) {
         throw new RuntimeException("Cannot find VDM token for " + str);
     return new LexToken(loc, tok);
 }
+
 private LexLocation extractLexLocation(CommonToken token) {
     String text = token.getText();
     int len = text.length();
@@ -170,6 +199,7 @@ private LexLocation extractLexLocation(CommonToken token) {
                            offset, //absolute start offset
                            offset+len); //absolute end offset
 }
+
 private LexLocation extractLexLocation(CommonToken start, CommonToken end) {
     int sline = start.getLine();
     int eline = end.getLine();
@@ -183,15 +213,18 @@ private LexLocation extractLexLocation(CommonToken start, CommonToken end) {
                            eline, epos,
                            soffset, eoffset);
 }
+
 public LexLocation extractLexLocation(PExp start, PExp end) {
     return extractLexLocation(start.getLocation(),end.getLocation());
 }
+
 public LexLocation extractLexLocation(LexLocation start, LexLocation end) {
     return new LexLocation(start.file, "",
                            start.startLine, start.startPos,
                            end.endLine, end.endPos,
                            start.startOffset, end.endOffset);
 }
+
 public AAccessSpecifierAccessSpecifier extractQualifier(CommonToken token) {
     String tokenStr = (token == null ? null : token.getText());
     if (token == null || tokenStr.equals("private")) {
@@ -205,6 +238,42 @@ public AAccessSpecifierAccessSpecifier extractQualifier(CommonToken token) {
     }
     throw new RuntimeException("The given token, "+token+" is not a qualifier.");
 }
+
+public AAccessSpecifierAccessSpecifier getDefaultAccessSpecifier(boolean isStatic, boolean isAsync, LexLocation loc) {
+    /* return new AAccessSpecifierAccessSpecifier(new APublicAccess(), */
+    /* (isStatic ? new TStatic() : null), */
+    /* (isAsync ? new TAsync() : null),loc); */
+    return new AAccessSpecifierAccessSpecifier(new APublicAccess(),
+                                               (isStatic ? new TStatic() : null),
+                                               (isAsync ? new TAsync() : null));
+}
+
+public AAccessSpecifierAccessSpecifier getPrivateAccessSpecifier(boolean isStatic, boolean isAsync, LexLocation loc) {
+    /* return new AAccessSpecifierAccessSpecifier(new APrivateAccess(), */
+    /* (isStatic ? new TStatic() : null), */
+    /* (isAsync ? new TAsync() : null),loc); */
+    return new AAccessSpecifierAccessSpecifier(new APrivateAccess(),
+                                               (isStatic ? new TStatic() : null),
+                                               (isAsync ? new TAsync() : null));
+}
+
+/* A main method to trigger the parser directly on stdin
+ */
+public static void main(String[] args) throws Exception {
+	ANTLRInputStream stdin = new ANTLRInputStream(System.in);
+	CmlLexer lexer = new CmlLexer(stdin);
+	CommonTokenStream tokens = new CommonTokenStream(lexer);
+	CmlParser parser = new CmlParser(tokens);
+
+	// parser.exprbase();
+	// try {
+	    Object o = parser.source();
+	    // System.out.println(parser.exprbase());
+	// } catch(Exception e) {
+	//     System.out.println("Exception from parse attempt");
+	//     System.out.println(e);
+	// }
+    }
 
 } // end @parser::members
 
@@ -1081,7 +1150,7 @@ channelDefs returns[AChannelsDefinition defs]
             $defs = new AChannelsDefinition();//location, NameScope.GLOBAL, false, access, null/* Pass */, chanNameDecls);
             $defs.setNameScope(NameScope.GLOBAL);
             $defs.setUsed(false);
-            $defs.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($channelDefs.start)));
+            $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($channelDefs.start)));
             $defs.setChannelNameDeclarations($channelDefOptList.defs);
         }
     ;
@@ -1116,7 +1185,7 @@ chansetDefs returns[AChansetsDefinition defs]
             $defs = new AChansetsDefinition();
             $defs.setNameScope(NameScope.GLOBAL);
             $defs.setUsed(false);
-            $defs.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($chansetDefs.start)));
+            $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($chansetDefs.start)));
             $defs.setChansets($chansetDefOptList.defs);
         }
     ;
@@ -1248,7 +1317,7 @@ namesetDefs returns[ANamesetsDefinition defs]
             $defs = new ANamesetsDefinition();
             $defs.setNameScope(NameScope.GLOBAL);
             $defs.setUsed(false);
-            $defs.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($namesetDefs.start)));
+            $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($namesetDefs.start)));
             $defs.setNamesets($namesetDefOptList.defs);
         }
     ;
@@ -1292,7 +1361,7 @@ valueDefs returns[AValuesDefinition defs]
 @after { $defs.setLocation(extractLexLocation($valueDefs.start, $valueDefs.stop)); }
     : 'values' qualValueDefinitionList?
         {
-            AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($valueDefs.start));
+            AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, extractLexLocation($valueDefs.start));
             $defs = new AValuesDefinition(null, NameScope.NAMES, false, access, null, $qualValueDefinitionList.defs);
         }
     ;
@@ -1402,7 +1471,7 @@ functionDefs returns[AFunctionsDefinition defs]
 		 }
     : 'functions' qualFunctionDefinitionOptList
         {
-            AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start));
+            AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start));
             AFunctionsDefinition functions = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null, $qualFunctionDefinitionOptList.defs);
             $defs = functions;
         }
@@ -1515,7 +1584,7 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
             
             $tail.setIsCurried(false);
             $tail.setMeasure($name.name);
-            $tail.setAccess(CmlParserHelper.getPrivateAccessSpecifier(false, false, extractLexLocation($IDENTIFIER)));
+            $tail.setAccess(getPrivateAccessSpecifier(false, false, extractLexLocation($IDENTIFIER)));
             $tail.setPass(Pass.DEFS); // what's this for? RWL: The Overture type checker runs in three PASSes (TYPES, VALUES, DEFS)
             // in order to make defined types and values available for function definitions PASS for functinos must be DEFS. :)
         }
@@ -1541,7 +1610,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             $tail = new AImplicitFunctionDefinition();
             $tail.setNameScope(NameScope.LOCAL);
             $tail.setUsed(Boolean.FALSE);
-            $tail.setAccess(CmlParserHelper.getDefaultAccessSpecifier(false,false,null));
+            $tail.setAccess(getDefaultAccessSpecifier(false,false,null));
 
             List<APatternListTypePair> paramPatterns = $parameterTypeList.ptypes;
             if (paramPatterns == null)
@@ -1663,7 +1732,7 @@ operationDefs returns[AOperationsDefinition defs]
             $defs.setOperations($qualOperationDefOptList.defs);
             $defs.setNameScope(NameScope.LOCAL);
             $defs.setUsed(false);
-            $defs.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($operationDefs.start)));
+            $defs.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($operationDefs.start)));
             
         }
     ;
@@ -1698,7 +1767,7 @@ operationDef returns[SCmlOperationDefinition def]
                 opdef.setPrecondition($pre.exp);
                 opdef.setPostcondition($post.exp);
                 opdef.setNameScope(NameScope.GLOBAL);
-                opdef.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
+                opdef.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
                 opdef.setIsConstructor(false);
                 $def = opdef;
             }
@@ -1712,7 +1781,7 @@ operationDef returns[SCmlOperationDefinition def]
                 opdef.setPrecondition($pre.exp);
                 opdef.setPostcondition($post.exp);
                 opdef.setNameScope(NameScope.GLOBAL);
-                opdef.setAccess(CmlParserHelper.getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
+                opdef.setAccess(getDefaultAccessSpecifier(true, false, extractLexLocation($id)));
                 $def = opdef;
             }
         )
@@ -1750,8 +1819,8 @@ typeDefs returns[PDefinition defs]
             if (typeDefList.size()>0)
                 loc = extractLexLocation(loc,last.getLocation());
             $defs = new ATypesDefinition(loc, NameScope.LOCAL, false,
-                                                  CmlParserHelper.getDefaultAccessSpecifier(true, false, loc),
-                                                  Pass.TYPES, typeDefList);
+                                         getDefaultAccessSpecifier(true, false, loc),
+                                         Pass.TYPES, typeDefList);
             $defs.setName(new LexNameToken("", $t.getText(), loc));
         }
     ;
@@ -1875,7 +1944,7 @@ fieldList returns[List<AFieldField> fieldList]
     ;
 
 field returns[AFieldField field]
-@init { AAccessSpecifierAccessSpecifier access = CmlParserHelper.getDefaultAccessSpecifier(false,false,null); }
+@init { AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(false,false,null); }
     : type
         {
             LexLocation loc = $type.type.getLocation();
@@ -1995,7 +2064,7 @@ symbolicLiteral returns[LexToken literal]
             LexLocation loc = extractLexLocation($CHARLITERAL);
             String res = $CHARLITERAL.getText();
             res = res.replace("'", "");
-            $literal = new LexCharacterToken(CmlParserHelper.convertEscapeToChar(res), loc);
+            $literal = new LexCharacterToken(convertEscapeToChar(res), loc);
         }
     | TEXTLITERAL
         {
