@@ -34,7 +34,6 @@ import eu.compassresearch.ide.core.parser.AbstractParserParticipant;
 import eu.compassresearch.ide.core.resources.IVdmSourceUnit;
 //import eu.compassresearch.parser.messages.VDMError;
 
-import eu.compassresearch.core.parser.ParserError;
 import eu.compassresearch.core.parser.CmlParser;
 
 public class SourceParserVdmCml extends AbstractParserParticipant {
