@@ -46,6 +46,7 @@ import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AProductType;
+import org.overture.ast.types.ASetType;
 import org.overture.ast.types.PType;
 import org.overture.parser.messages.VDMError;
 import org.overture.typechecker.Environment;
@@ -229,9 +230,14 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 
+		List<PDefinition> typeDefs = new LinkedList<PDefinition>();
 		for(PDefinition def : declType.getDefinitions())
+		{
+			typeDefs.add(def);
 			def.setType(decl.getType());
+		}
 
+		node.getType().getDefinitions().addAll(typeDefs);
 		return node.getType();
 	}
 
@@ -540,22 +546,27 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return issueHandler.addTypeError(expressionType,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 					.customizeMessage(expression + ""));
+		
+		if (!(expressionType instanceof ASetType))
+			return issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""+new ASetType(),""+expressionType));
 
+		List<PDefinition>defs = new LinkedList<PDefinition>();
 		LinkedList<LexIdentifierToken> identifiers = node.getIdentifiers();
 		for (LexIdentifierToken id : identifiers) {
 			LexNameToken name = null;
 			if (id instanceof LexNameToken)
 				name = (LexNameToken) id;
 			else
-				name = new LexNameToken(question.env.getEnclosingDefinition()
-						.getName().module, id.getName(), id.getLocation());
+				name = new LexNameToken("", id.getName(), id.getLocation());
 
+			ASetType expressionSetType = (ASetType)expressionType;
 			ALocalDefinition localDef = AstFactory
 					.newALocalDefinition(id.getLocation(), name,
-							node.getNameScope(), expressionType);
-			((FlatEnvironment) question.env).add(localDef);
+							node.getNameScope(), expressionSetType.getSetof());
+			defs.add(localDef);
 		}
 
+		expressionType.setDefinitions(defs);
 		return expressionType;
 	}
 

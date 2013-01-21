@@ -58,9 +58,11 @@ import eu.compassresearch.ast.actions.ACaseAlternativeAction;
 import eu.compassresearch.ast.actions.ACasesStatementAction;
 import eu.compassresearch.ast.actions.AChannelRenamingAction;
 import eu.compassresearch.ast.actions.AChaosAction;
+import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADeclarationInstantiatedAction;
 import eu.compassresearch.ast.actions.ADeclareStatementAction;
+import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
@@ -74,6 +76,7 @@ import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
+import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AInternalChoiceReplicatedAction;
 import eu.compassresearch.ast.actions.AInterruptAction;
@@ -82,6 +85,7 @@ import eu.compassresearch.ast.actions.AMuAction;
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
+import eu.compassresearch.ast.actions.ANotYetSpecifiedStatementAction;
 import eu.compassresearch.ast.actions.AParametrisedAction;
 import eu.compassresearch.ast.actions.AParametrisedInstantiatedAction;
 import eu.compassresearch.ast.actions.AMultipleGeneralAssignmentStatementAction;
@@ -97,7 +101,9 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.ASpecificationStatementAction;
 import eu.compassresearch.ast.actions.AStartDeadlineAction;
 import eu.compassresearch.ast.actions.AStopAction;
+import eu.compassresearch.ast.actions.ASubclassResponsibilityAction;
 import eu.compassresearch.ast.actions.ASynchronousParallelismParallelAction;
+import eu.compassresearch.ast.actions.ASynchronousParallelismReplicatedAction;
 import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AUntimedTimeoutAction;
@@ -145,6 +151,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 	}
 
+	
+	
 	
 	
 	@Override
@@ -289,12 +297,16 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		}
 
-		PType elseActionType = elseAction.apply(parentChecker,question);
-		if (!TCDeclAndDefVisitor.successfulType(elseActionType))
+		//AKM: The else case is optional
+		if(elseAction != null)
 		{
-			node.setType(issueHandler.addTypeError(elseAction, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(elseAction+"")));
-			return node.getType();
+			PType elseActionType = elseAction.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(elseActionType))
+			{
+				node.setType(issueHandler.addTypeError(elseAction, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(elseAction+"")));
+				return node.getType();
 
+			}
 		}
 
 		for(AElseIfStatementAction elseIf : elseIfs)
@@ -1501,6 +1513,170 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		return node.getType();
 
 	}
+	
+	
+	
+	@Override
+	public PType caseADivAction(ADivAction node, TypeCheckInfo question)
+			throws AnalysisException {
+
+		node.setType(new AActionType(node.getLocation(), true));
+		return node.getType();
+	}
+
+	@Override
+	public PType caseASubclassResponsibilityAction(
+			ASubclassResponsibilityAction node, TypeCheckInfo question)
+			throws AnalysisException {
+		
+		PType type = AstFactory.newAUnknownType(node.getLocation());
+		node.setType(type);
+		return node.getType();
+	}
+
+	@Override
+	public PType caseACommonInterleavingReplicatedAction(
+			ACommonInterleavingReplicatedAction node, TypeCheckInfo question)
+			throws AnalysisException {
+		
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		
+		PVarsetExpression namesetExp = node.getNamesetExpression();
+		PAction repAction = node.getReplicatedAction();
+		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
+		
+		PType namesetExpType = namesetExp.apply(parentChecker, question);
+		if (!TCDeclAndDefVisitor.successfulType(namesetExpType))
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+node)));
+			return node.getType();
+		}
+		
+		CmlTypeCheckInfo repActionEnv = cmlEnv.newScope();
+		for(PSingleDeclaration decl : decls)
+		{
+			PType declType = decl.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(declType))
+			{
+				node.setType(issueHandler.addTypeError(decl, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+decl)));
+				return node.getType();
+			}
+			
+			for(PDefinition def : declType.getDefinitions())
+				repActionEnv.addVariable(def.getName(),def);
+		}
+
+		PType repActionType = repAction.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(repActionType))
+		{
+			node.setType(issueHandler.addTypeError(repAction, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+repAction)));
+			return node.getType();
+		}
+		
+		node.setType(new AActionType());
+		return node.getType();
+	}
+
+	@Override
+	public PType caseAInterleavingReplicatedAction(
+			AInterleavingReplicatedAction node, TypeCheckInfo question)
+			throws AnalysisException {
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		
+		PVarsetExpression namesetExp = node.getNamesetExpression();
+		PAction repAction = node.getReplicatedAction();
+		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
+		
+		PType namesetExpType = namesetExp.apply(parentChecker, question);
+		if (!TCDeclAndDefVisitor.successfulType(namesetExpType))
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+node)));
+			return node.getType();
+		}
+		
+		CmlTypeCheckInfo repActionEnv = cmlEnv.newScope();
+		for(PSingleDeclaration decl : decls)
+		{
+			PType declType = decl.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(declType))
+			{
+				node.setType(issueHandler.addTypeError(decl, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+decl)));
+				return node.getType();
+			}
+			
+			for(PDefinition def : declType.getDefinitions())
+				repActionEnv.addVariable(def.getName(),def);
+		}
+
+		PType repActionType = repAction.apply(parentChecker,repActionEnv);
+		if (!TCDeclAndDefVisitor.successfulType(repActionType))
+		{
+			node.setType(issueHandler.addTypeError(repAction, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+repAction)));
+			return node.getType();
+		}
+		
+		node.setType(new AActionType());
+		return node.getType();
+	}
+
+	@Override
+	public PType caseASynchronousParallelismReplicatedAction(
+			ASynchronousParallelismReplicatedAction node, TypeCheckInfo question)
+			throws AnalysisException {
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		
+		PVarsetExpression namesetExp = node.getNamesetExpression();
+		PAction repAction = node.getReplicatedAction();
+		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
+		
+		PType namesetExpType = namesetExp.apply(parentChecker, question);
+		if (!TCDeclAndDefVisitor.successfulType(namesetExpType))
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+node)));
+			return node.getType();
+		}
+		
+		CmlTypeCheckInfo repActionEnv = cmlEnv.newScope();
+		for(PSingleDeclaration decl : decls)
+		{
+			PType declType = decl.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(declType))
+			{
+				node.setType(issueHandler.addTypeError(decl, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+decl)));
+				return node.getType();
+			}
+			
+			for(PDefinition def : declType.getDefinitions())
+				repActionEnv.addVariable(def.getName(),def);
+		}
+
+		PType repActionType = repAction.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(repActionType))
+		{
+			node.setType(issueHandler.addTypeError(repAction, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+repAction)));
+			return node.getType();
+		}
+		
+		node.setType(new AActionType());
+		return node.getType();
+	}
+
+	@Override
+	public PType caseANotYetSpecifiedStatementAction(
+			ANotYetSpecifiedStatementAction node, TypeCheckInfo question)
+			throws AnalysisException {
+		node.setType(AstFactory.newAUnknownType(node.getLocation()));
+		return node.getType();
+		
+	}
+
+	@Override
+	public PType caseADeclareStatementAction(ADeclareStatementAction node,
+			TypeCheckInfo question) throws AnalysisException {
+		// TODO Auto-generated method stub
+		return super.caseADeclareStatementAction(node, question);
+	}
+
 	@Override
 	public PType caseABlockStatementAction(ABlockStatementAction node,
 			org.overture.typechecker.TypeCheckInfo question)

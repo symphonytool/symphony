@@ -461,7 +461,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		List<PDefinition> defs = new LinkedList<PDefinition>();
 		for(LexIdentifierToken id : ids)
 		{
-			ALocalDefinition idDef = AstFactory.newALocalDefinition(node.getLocation(), (LexNameToken) id, NameScope.LOCAL, AstFactory.newAUnknownType(node.getLocation()));
+			LexNameToken idName = new LexNameToken("", id);
+			ALocalDefinition idDef = AstFactory.newALocalDefinition(node.getLocation(), idName, NameScope.LOCAL, AstFactory.newAUnknownType(node.getLocation()));
 			defs.add(idDef);
 		}
 

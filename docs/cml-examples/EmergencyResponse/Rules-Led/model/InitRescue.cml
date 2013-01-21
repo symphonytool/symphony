@@ -1,3 +1,6 @@
+channels
+	IdleERU NoIdleERU
+
 process InitRescue =
 begin
     operations
@@ -29,22 +32,26 @@ begin
         A = startStartRescue -> acceptStartRescue -> endStartRescue -> B
         B = C
         C = startFindIdleERUs -> opFindIdleERUs(); endFindIdleERUs -> D
-	-- RWL: How is D supposed to be? 
-        D = if IdleERU -> E
-             | NoIdleERU -> L
-             end
-        E = startAllocateIdleERU -> opAllocateIdleERU()
+	-- RWL: Below is my interpretation of if IdleERU -> E else NoIdleERU -> L 
+	-- I've added IdleERU and NoIdleERU as channels
+        D = IdleERU -> E
+	    ||
+            NoIdleERU -> L
+        -- RWL: Inserted ';' between opAllocateIdleERU and endAllocateIdleERU
+        E = startAllocateIdleERU -> opAllocateIdleERU() ;
             endAllocateIdleERU -> F 
         F = G
         G = startSendRescueInfoToERU -> opSendRescueInfoToERU(); 
             endSendRescueInfoToERU -> H
         H = startProcessMessage -> opProcessMessage(); endProcessMessage -> I
         I = startReceiveMessage -> opReceiveMessage(); endReceiveMessage -> J
+	-- RWL added sendServiceRescue to channels, we need to figure out what happens with renamings
+	-- for now possible names need to be defined beforehand in channels section.
         J = startServiceRescue -> sendServiceRescue -> endServiceRescue -> K
         K = Stop
-        L = if LowerCriticality -> M
-             | HigherCriticality -> O
-             end
+        L =  LowerCriticality -> M
+             || 
+	     HigherCriticality -> O
         M = startWait -> opWait(); endWait -> N
         N = C
         O = startDivertERU -> opDivertERU(); endDivertERU -> P
@@ -55,10 +62,15 @@ begin
         T = G
         ControlStartRescue = inStartRescue -> outStartRescue -> ControlStartRescue
         ControlServiceRescue = inServiceRescue -> outServiceRescue -> ControlStartRescue
-        
+         
     @ init -> (A
-              [| {} | {acceptStartRescue,sendServiceRescue,sendStartRescue} | {} |]
-              (    ControlStartRescue[[inStartRescue<-sendStartRescue]]
-               ||| ControlServiceRescue[[inServiceRescue<-sendServiceRescue]]
-               ||| ControlStartRescue[[outStartRescue<-acceptStartRescue]]))
+    
+              [| {acceptStartRescue,sendServiceRescue,sendStartRescue} |]
+              
+                  ControlStartRescue[[inStartRescue<-sendStartRescue]] )
+  
+               || ControlServiceRescue [[ inServiceRescue <- sendServiceRescue ]] 
+               || ControlStartRescue[[outStartRescue<-acceptStartRescue]]
+               
 end
+   

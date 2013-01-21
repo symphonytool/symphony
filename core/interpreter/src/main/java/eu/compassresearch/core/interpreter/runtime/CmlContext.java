@@ -231,9 +231,9 @@ public class CmlContext {
 	 * @return The value of the name.
 	 */
 
-	public Value lookup(LexNameToken name)
+	public <T extends Value> T lookup(LexNameToken name)
 	{
-		Value v = check(name);
+		T v = (T)check(name);
 
 		if (v == null)
 		{

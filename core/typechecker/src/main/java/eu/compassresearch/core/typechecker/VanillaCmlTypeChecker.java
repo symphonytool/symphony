@@ -33,6 +33,7 @@ import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.FlatEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
+import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PAlternativeAction;
@@ -340,7 +341,16 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 							info.addType(dd.getName(), dd);
 						else
 						{
-							info.addVariable(dd.getName(),dd);
+							if (dd instanceof AValueDefinition)
+							{
+								AValueDefinition vdd = (AValueDefinition)dd;
+								List<PDefinition> list = PPatternAssistantTC.getDefinitions(vdd.getPattern(), dd.getType(), NameScope.LOCAL);
+								for(PDefinition d : list)
+									info.addVariable(d.getName(), d);
+								
+							}
+							else
+								info.addVariable(dd.getName(),dd);
 						}
 					}
 			}
