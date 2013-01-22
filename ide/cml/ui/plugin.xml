@@ -75,8 +75,8 @@
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
             icon="icons/ovr16/cml_ovr.gif"
-            id="eu.compassresearch.ide.cml.core.nature.image"
-            natureId="eu.compassresearch.ide.cml.core.nature">
+            id="eu.compassresearch.ide.cml.cml-ui.cmlnature.image"
+            natureId="eu.compassresearch.ide.cml.ui.cmlnature">
       </image>
    </extension>
    
@@ -101,7 +101,7 @@
          <runtime>
             <run class ="eu.compassresearch.ide.cml.ui.builder.CmlProjectNature" />
          </runtime>
-              <builder id ="eu.compassresearch.ide.cml.ui.builder.cmlbuilder"/>
+              <builder id ="eu.compassresearch.ide.cml.ui.cmlbuilder"/>
      </extension>
    
    <extension

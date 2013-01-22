@@ -78,6 +78,7 @@ public class CmlProjectNature implements IProjectNature
 //            project.build(IncrementalProjectBuilder.FULL_BUILD, null);
 //          }
         CmlIncrementalBuilder.addBuilderToProject(project);
+        
         new Job("CML Incremental Builder File Audit") {
             protected IStatus run(IProgressMonitor monitor) {
                try {

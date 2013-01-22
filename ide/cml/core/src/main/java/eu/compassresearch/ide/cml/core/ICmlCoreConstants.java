@@ -24,7 +24,7 @@ public interface ICmlCoreConstants
 	public static final String PLUGIN_ID = "eu.compassresearch.ide.cml.core";
 	public static final String CONTENT_TYPE = "eu.compassresearch.ide.cml.core.content-type";
 	public static final String LANGUAGE_NAME = "CML";
-	public static final String NATURE = ICmlCoreConstants.PLUGIN_ID + ".nature";
+	public static final String NATURE = "eu.compassresearch.ide.cml.ui.cmlnature";
 	//public static final String LAUNCH_CONFIGURATION_TYPE_VDMRT_VDMJ = "org.overture.ide.vdmrt.debug.core.launchConfigurationTypeVDMJ";
 	
 }

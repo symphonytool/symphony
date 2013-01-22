@@ -16,7 +16,7 @@
       <Language
             dialect="CML"
             name="CML"
-            nature="eu.compassresearch.ide.cml.core.nature">
+            nature="eu.compassresearch.ide.cml.ui.cmlnature">
          <ContentType
                id="eu.compassresearch.ide.cml.core.content-type1">
          </ContentType>
