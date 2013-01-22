@@ -156,6 +156,37 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	
 	
 	@Override
+	public PType caseAElseIfStatementAction(AElseIfStatementAction node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		PAction thenAction = node.getThenStm();
+		PExp elseIfExp = node.getElseIf();
+		
+		PType elseIfExpType = elseIfExp.apply(parentChecker, question);
+		if (!TCDeclAndDefVisitor.successfulType(elseIfExpType))
+		{
+			node.setType(issueHandler.addTypeError(elseIfExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(elseIfExp+"")));
+			return node.getType();
+		}
+		
+		if (!typeComparator.isSubType(elseIfExpType, new ABooleanBasicType(node.getLocation(),true)))
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("bool",""+elseIfExpType)));
+			return node.getType();
+		}
+		
+		PType thenActionType = thenAction.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(thenActionType))
+		{
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+thenAction)));
+			return node.getType();
+		}
+		
+		node.setType(new AActionType(node.getLocation(),true));
+		return node.getType();
+	}
+
+	@Override
 	public PType caseAValParametrisation(AValParametrisation node,
 			TypeCheckInfo question) throws AnalysisException {
 		
@@ -1352,6 +1383,25 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AAssignmentCallStatementAction node,
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
+		
+		PExp designator = node.getDesignator();
+		ACallStatementAction call = node.getCall();
+		
+		PType callType = call.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(callType))
+		{
+			node.setType(issueHandler.addTypeError(call, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+call)));
+			return node.getType();
+		}
+		
+		PType designatorType = designator.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(designatorType))
+		{
+			node.setType(issueHandler.addTypeError(designator, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(designator+"")));
+			return node.getType();
+		}
+		
+		
 		return super.caseAAssignmentCallStatementAction(node, question);
 	}
 
@@ -1720,21 +1770,30 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 
-		// FIXME Some scope stuff is not correct when typechecking let exp
-		// PType expType = node.getExpression().apply(parentChecker, question);
-		// if (expType == null)
-		// throw new AnalysisException(
-		// "Unable to type check expression in assignment action.");
+		PExp state = node.getStateDesignator();
+		PExp exp = node.getExpression();
 
-		// PType stateDesignatorType = node.getStateDesignator().apply(
-		// parentChecker, question);
-		// TODO This is not implemented yet
-		// if (stateDesignatorType == null)
-		// throw new AnalysisException(
-		// "Unable to type check state designator in assignment action.");
-
+		PType stateType = state.apply(parentChecker, question);
+		if (!TCDeclAndDefVisitor.successfulType(stateType))
+		{
+			node.setType(issueHandler.addTypeError(state, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(state+"")));
+			return node.getType();
+		}
+		
+		PType expType = exp.apply(parentChecker, question);
+		if (!TCDeclAndDefVisitor.successfulType(expType))
+		{
+			node.setType(issueHandler.addTypeError(exp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+exp)));
+			return node.getType();
+		}
+		
+		if (!typeComparator.isSubType(expType, stateType))
+		{
+			node.setType(issueHandler.addTypeError(exp, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""+expType, ""+stateType)));
+			return node.getType();
+		}
+		
 		node.setType(new AStatementType());
-
 		return node.getType();
 	}
 

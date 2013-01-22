@@ -13,7 +13,7 @@
 	<include name="platform/**" />
         <!-- <include name="rtt-plugin/**"/> -->
 	<include name="tp-plugin/**"/>
-	<!-- <include name="interpreter-plugin/**"/> -->
+	<include name="interpreter-plugin/**"/> 
 	<include name="pog-plugin/**"/>
 	<exclude name="**/target/"/>
       </fileset>

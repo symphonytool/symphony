@@ -82,24 +82,24 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	@Override
 	public PType caseATupleSelectExp(ATupleSelectExp node,
 			TypeCheckInfo question) throws AnalysisException {
-		
+
 		Integer entry = node.getEntry();
-		
+
 		PExp tupleExp = node.getTuple();
-		
+
 		PType tupleExpType = tupleExp.apply(parent,question);
 		if (!TCDeclAndDefVisitor.successfulType(tupleExpType))
 		{
 			node.setType(issueHandler.addTypeError(tupleExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(tupleExp+"")));
 			return node.getType();
 		}
-		
+
 		if (!(tupleExpType instanceof AProductType))
 		{
 			node.setType(issueHandler.addTypeError(tupleExp, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Tuple type",""+tupleExpType)));
 			return node.getType();
 		}
-		
+
 		return node.getType();
 	}
 
@@ -130,7 +130,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNEL.customizeMessage(channelId+"")));
 			return node.getType();
 		}
-		
+
 		if (!typeComparator.isSubType(chanDef.getType(), expressionType))
 		{
 			node.setType(issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""+chanDef.getType(),""+expressionType)));
@@ -198,7 +198,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 			if (idDef.getType() instanceof AChannelType)
 				seenChannel = true;
-			
+
 			if (idDef instanceof AStateDefinition)
 				seenState = true;
 
@@ -286,14 +286,18 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	public PType caseAApplyExp(AApplyExp node, TypeCheckInfo question)
 			throws AnalysisException {
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+
 		/*
 		 * The following is copied from Overture TypeCheckerExpVisitor
 		 * 
 		 */
+		TypeChecker.clearErrors();
 		for (PExp a : node.getArgs()) {
 			question.qualifiers = null;
 			node.getArgtypes().add(a.apply(parent, question));
 		}
+
 
 		node.setType(node.getRoot().apply(
 				parent,
@@ -358,8 +362,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (PTypeAssistantTC.isOperation(node.getType())) {
 			AOperationType ot = PTypeAssistantTC.getOperation(node.getType());
 			try {
-			AOperationTypeAssistantTC.typeResolve(ot, null, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
-					question);
+				AOperationTypeAssistantTC.typeResolve(ot, null, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
+						question);
 			} catch (TypeCheckException tce)
 			{
 				node.setType(issueHandler.addTypeError(node,tce.getMessage()));
@@ -399,8 +403,16 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 		/*
 		 * Overture copy STOP
-		 * 
+		 * Now collect any type errors created by Overture assistants 
 		 */
+		if (TypeChecker.getErrorCount() > 0)
+		{
+			List<VDMError> errors = TypeChecker.getErrors();
+			for(VDMError e : errors)
+				issueHandler.addTypeError(node, e.message);
+			node.setType(new AErrorType(node.getLocation(), true));
+			return node.getType();
+		}
 
 		// RWL: Type check an apply of a cml Operation (implicit and explicit)
 		if (node.getType() instanceof SCmlOperationDefinition)
@@ -466,9 +478,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			defs.add(idDef);
 		}
 
-		// TODO RWL I am not really sure what to do here ?
-		issueHandler.addTypeWarning(node, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(""+node));
-
+		
 		AChannelType result = new AChannelType();
 		result.setDefinitions(defs);
 		return result;
@@ -555,7 +565,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// Okay given our best efforts the Overture Type Checking strategy could not find
 		// what we are looking for. Maybe its a CML class we are looking at.
-		
+
 		CmlTypeCheckInfo nearestCmlEnvironment = question instanceof CmlTypeCheckInfo ? (CmlTypeCheckInfo)question : question.contextGet(CmlTypeCheckInfo.class);
 		if (nearestCmlEnvironment == null)
 		{
