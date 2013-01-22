@@ -9,6 +9,8 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ContextException;
 import org.overture.interpreter.runtime.VdmRuntimeError;
+import org.overture.interpreter.scheduler.BasicSchedulableThread;
+import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.CPUValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
@@ -39,6 +41,12 @@ public class CmlContext {
 	 * @param outer
 	 */
 
+	static
+	{
+		InitThread initThread = new InitThread(Thread.currentThread());
+        BasicSchedulableThread.setInitialThread(initThread);
+	}
+	
 	public CmlContext(LexLocation location, String title, CmlContext outer)
 	{
 		this.outer = outer; 

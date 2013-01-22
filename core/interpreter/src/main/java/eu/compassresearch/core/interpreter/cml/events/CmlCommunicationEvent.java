@@ -4,10 +4,12 @@ import java.util.List;
 
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.channels.CmlIOChannel;
 import eu.compassresearch.core.interpreter.util.AbstractValueInterpreter;
+import eu.compassresearch.core.interpreter.values.AnyValue;
 
 public class CmlCommunicationEvent extends ObservableValueEvent {
 
@@ -20,7 +22,10 @@ public class CmlCommunicationEvent extends ObservableValueEvent {
 		this.params = params;
 		
 		//TODO: this have to be expanded to all of them
-		value = this.params.get(0).getValue();
+		if(this.params != null)
+			value = this.params.get(0).getValue();
+		else
+			value = new AnyValue();
 	}
 	
 	@Override 
@@ -37,8 +42,9 @@ public class CmlCommunicationEvent extends ObservableValueEvent {
 	public int hashCode() {
 		
 		StringBuilder strBuilder = new StringBuilder(channel.getName());
-		for(CommunicationParameter param : params)
-			strBuilder.append(param.getClass().getSimpleName());
+		strBuilder.append(((AChannelType)channel.getType()).getType());
+//		for(CommunicationParameter param : params)
+//			strBuilder.append(param.getClass().getSimpleName());
 		
 		
 		return strBuilder.toString().hashCode() + (this.eventSource != null ? this.eventSource.hashCode() : "null".hashCode());

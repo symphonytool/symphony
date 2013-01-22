@@ -16,7 +16,9 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.PCMLExp;
+import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
+import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
@@ -71,8 +73,16 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<CmlContext,
 			//FIXME: This should be a name so the conversion is avoided
 			LexNameToken channelName = new LexNameToken("|CHANNELS|",id);
 			CMLChannelValue chanValue = question.<CMLChannelValue>lookup(channelName);
-			ObservableEvent com = new PrefixEvent(null,chanValue);
-			coms.add(com);
+			
+			AChannelType chanType = (AChannelType)chanValue.getType(); 
+			if(chanType.getType() == null)
+			{		
+				coms.add(new PrefixEvent(null,chanValue));
+			}
+			else
+			{
+				coms.add(new CmlCommunicationEvent(null, chanValue, null));
+			}
 		}
 		
 		CmlAlphabet alpha = new CmlAlphabet(coms);
