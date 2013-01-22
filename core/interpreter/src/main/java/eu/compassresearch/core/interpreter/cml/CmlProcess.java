@@ -12,6 +12,7 @@ import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
+import eu.compassresearch.ast.process.ASkipProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -232,6 +233,16 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 	}
 	
 	@Override
+	public CmlBehaviourSignal caseASkipProcess(ASkipProcess node, CmlContext question)
+			throws AnalysisException {
+
+		//if hasNext() is true then Skip is in sequential composition with next
+		if(!hasNext())
+			setState(CmlProcessState.FINISHED);
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	@Override
 	public CmlBehaviourSignal caseAActionProcess(AActionProcess node, CmlContext question) throws AnalysisException
 	{
 		CmlBehaviourSignal ret = null;
@@ -304,6 +315,10 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
+	/**
+	 * There are no actual transition rule for this. The rule for interleaving action is that they evolve 
+	 * into Skip. However, this will just terminate successfully when all its children terminates successfully.
+	 */
 	@Override
 	public CmlBehaviourSignal caseAInterleavingProcess(
 			AInterleavingProcess node, CmlContext question)
@@ -332,8 +347,9 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(this))
 		{
 			removeTheChildren();
-			if(!hasNext())
-				setState(CmlProcessState.FINISHED);
+			
+			pushNext(new ASkipProcess(), question);
+			
 			result = CmlBehaviourSignal.EXEC_SUCCESS;
 		}
 		//else if ()

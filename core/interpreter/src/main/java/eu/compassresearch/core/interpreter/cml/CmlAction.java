@@ -16,12 +16,14 @@ import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
+import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.SParallelAction;
+import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
@@ -699,29 +701,6 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 		
 		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}
-//	private CmlBehaviourSignal caseParallelBegin(SParallelAction node, CmlContext question)
-//	{
-//		PAction left = node.getLeftAction();
-//		PAction right = node.getRightAction();
-//		
-//		//TODO: create a local copy of the question state for each of the actions
-//		CmlAction leftInstance = 
-//				new CmlAction(left, question, 
-//						new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),this);
-//		
-//		CmlAction rightInstance = 
-//				new CmlAction(right, question, 
-//						new LexNameToken(name.module,"|||" + name.getIdentifier().getName(),right.getLocation()),this);
-//		
-//		//add the children to the process graph
-//		addChild(leftInstance);
-//		addChild(rightInstance);
-//
-//		//Now let this process wait for the children to get into a waitForEvent state
-//		setState(CmlProcessState.WAIT_CHILD);
-//		
-//		return CmlBehaviourSignal.EXEC_SUCCESS;
-//	}
 			
 	protected CmlBehaviourSignal caseParallelEnd(CmlContext question)
 	{
@@ -740,6 +719,24 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 		//if hasNext() is true then Skip is in sequential composition with next
 		if(!hasNext())
 			setState(CmlProcessState.FINISHED);
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+
+	/**
+	 * internal choice - section 7.5.3 D23.2
+	 * 
+	 * An internal choice between two actions can evolve via a tau event into either of them
+	 */
+	@Override
+	public CmlBehaviourSignal caseAInternalChoiceAction(
+			AInternalChoiceAction node, CmlContext question)
+			throws AnalysisException {
+			
+		//For now we always pick the left action
+		pushNext(node.getLeft(), question);
+		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
@@ -763,7 +760,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 		System.out.println(stateDesignatorName + " = " + expValue);
 		
 		//now this process evolves into Skip
-		pushNext(new ASkipAction(node.getLocation()), question);
+		pushNext(new ASkipAction(node.getLocation(),new AActionType()), question);
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}

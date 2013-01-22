@@ -17,6 +17,7 @@ import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
+import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -105,6 +106,13 @@ public class AlphabetInspector
 
 		//return defaultPAction(node, question);
 		return node.getAction().apply(this,question);
+	}
+	
+	@Override
+	public CmlAlphabet caseAInternalChoiceAction(AInternalChoiceAction node,
+			CmlContext question) throws AnalysisException {
+
+		return createSilentTransition(node,node.getLeft());
 	}
 			
 	@Override
