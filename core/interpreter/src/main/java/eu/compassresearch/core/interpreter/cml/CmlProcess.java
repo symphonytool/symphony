@@ -10,6 +10,7 @@ import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
+import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASkipProcess;
@@ -380,6 +381,17 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 				new CmlProcess(right,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,right.getLocation()),this, question);
 		
 		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
+	}
+	
+	@Override
+	public CmlBehaviourSignal caseAInternalChoiceProcess(
+			AInternalChoiceProcess node, CmlContext question)
+			throws AnalysisException {
+		
+		//For now we always pick the left action
+		pushNext(node.getLeft(), question);
+				
+		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
 }

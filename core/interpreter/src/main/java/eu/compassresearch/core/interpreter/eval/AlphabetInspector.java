@@ -29,6 +29,7 @@ import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
+import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
@@ -110,6 +111,13 @@ public class AlphabetInspector
 	
 	@Override
 	public CmlAlphabet caseAInternalChoiceAction(AInternalChoiceAction node,
+			CmlContext question) throws AnalysisException {
+
+		return createSilentTransition(node,node.getLeft());
+	}
+	
+	@Override
+	public CmlAlphabet caseAInternalChoiceProcess(AInternalChoiceProcess node,
 			CmlContext question) throws AnalysisException {
 
 		return createSilentTransition(node,node.getLeft());
