@@ -7,16 +7,20 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.overture.interpreter.runtime.ValueException;
+
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlSpecialEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.runtime.CmlContext;
+import eu.compassresearch.core.interpreter.values.CmlValue;
 
 /**
  * This represents a CML alphabet containing both silent and observable events
  * @author akm
  *
  */
-public class CmlAlphabet {
+public class CmlAlphabet extends CmlValue {
 
 	private final Map<ObservableEvent,Set<ObservableEvent>> referenceEvents;
 	private final Set<CmlSpecialEvent> specialEvents;
@@ -241,7 +245,38 @@ public class CmlAlphabet {
 	}
 	
 	@Override
+	public CmlAlphabet cmlAlphabetValue(CmlContext ctxt) throws ValueException
+	{
+		return this;
+	}
+	
+	@Override
 	public String toString() {
 		return getAllEvents().toString();
+	}
+
+	@Override
+	public boolean equals(Object other) {
+
+		if(!(other instanceof CmlAlphabet))
+			return false;
+			
+		return getAllEvents().equals(((CmlAlphabet)other).getAllEvents());
+	}
+
+	@Override
+	public int hashCode() {
+		return getAllEvents().hashCode();
+	}
+
+	@Override
+	public String kind() {
+		return "CmlAlphabetValue";
+	}
+
+	@Override
+	public Object clone() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -14,7 +14,7 @@ process ERUProc = id : Id @
   post eruId = id and eruId = id and currRescue = nil
 
   receiveMessage(sender: Id, msg: String) r:int 
-  frame wr currRescue: [RescueDetails]
+  frame wr currRescue: [RescueDetails] 
   pre sender.type = <CC>
   post currRescue = stringToRescueDetails(msg)
   
@@ -23,4 +23,4 @@ process ERUProc = id : Id @
   ERU =  -- ERU only picks up messages to itself
   	radioOut?s!eruId?m -> receiveMessage(s,m); serviceRescue!eruId!currRescue -> ERU 
   @ init -> INIT(id);ERU
-end
+end 

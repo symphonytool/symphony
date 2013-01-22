@@ -8,7 +8,7 @@
 types
 
 	public FlightId = token
-	public BookingId = token
+	public BookingId = token 
 
 	public FlightData :: origin : Airport
 						 dest : Airport
