@@ -4,6 +4,17 @@
  */
 /* loose threads:
  *
+ * 2013-01-18 jwc:
+ *  expression/type precedence needs to be fixed to move the prefixing
+ *  constructs (e.g. expression: ...| 'let' blah blah 'in' expression
+ *  --- those where the recursion is at the rightmost edge only) down
+ *  to the 'base' of the rulechain.
+ *
+ * 2013-01-18 jwc:
+ *  Note that the '[(' ')>' used by the CSP timeout cause the same
+ *  problems as below in expressions & types (i.e. the expression
+ *  len(list)>max is a syntax error, sadly).
+ *
  * 2012-01-06 RWL: )\ used in the /( exp )\-csp construct conflicts with apply expressions 
  * when doing e.g. dom(map)\{set-enum}
  *
@@ -96,6 +107,10 @@ import eu.compassresearch.ast.patterns.*;
 import eu.compassresearch.ast.process.*;
 import eu.compassresearch.ast.program.*;
 import eu.compassresearch.ast.types.*;
+
+// for the main() method
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
 }
 
 // @lexer::members {
@@ -194,6 +209,24 @@ public AAccessSpecifierAccessSpecifier extractQualifier(CommonToken token) {
     }
     throw new RuntimeException("The given token, "+token+" is not a qualifier.");
 }
+
+/* A main method to trigger the parser directly on stdin
+ */
+public static void main(String[] args) throws Exception {
+	ANTLRInputStream stdin = new ANTLRInputStream(System.in);
+	CmlLexer lexer = new CmlLexer(stdin);
+	CommonTokenStream tokens = new CommonTokenStream(lexer);
+	CmlParser parser = new CmlParser(tokens);
+
+	// parser.exprbase();
+	// try {
+	    Object o = parser.source();
+	    // System.out.println(parser.exprbase());
+	// } catch(Exception e) {
+	//     System.out.println("Exception from parse attempt");
+	//     System.out.println(e);
+	// }
+    }
 
 } // end @parser::members
 
@@ -1733,7 +1766,7 @@ typeDefs returns[PDefinition defs]
     List<ATypeDefinition> typeDefList = new ArrayList<ATypeDefinition>();
     ATypeDefinition last = null;
 }
-    : t='types' ( def=typeDef { last = $def.def; typeDefList.add(last); } ';'? )*
+    : t='types' ( def=typeDef { last = $def.def; typeDefList.add(last); } )*
         {
             LexLocation loc = extractLexLocation($t);
             if (typeDefList.size()>0)

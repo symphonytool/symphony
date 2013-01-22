@@ -1,25 +1,26 @@
 types
 
 Id :: 	type : (<ERU> | <CC>)
-	identifier : token;
+	identifier : token
 
-ERUId = Id;
-Location = token;
+ERUId = Id
+Location = token
 Criticality = nat
-inv c == c < 4; --(<Red> | <Yellow> | <Green> | <White>); red = 3, yellow = 2, green = 1, white = 0 
+inv c == c < 4 --(<Red> | <Yellow> | <Green> | <White>); red = 3, yellow = 2, green = 1, white = 0 
 
-String = seq of char;
+String = seq of char
 
 RescueDetails :: 	target : Location  -- The target location of the rescue event
-			criticality : Criticality; 
+			criticality : Criticality
 
 Message :: 	sender: Id
 		destn : Id
-		message : String;
+		message : String
 			
 Log :: 	eru : ERUId
 	oldRescue : RescueDetails
-	newRescue : RescueDetails;
+	newRescue : RescueDetails
+
 values
 
 functions
@@ -28,11 +29,11 @@ functions
   compareCriticalityFunction(r, r2) == r.criticality > r2.criticality
   
 --  rescueDetailsToString(r : RescueDetails) s: String
---  post s <> [] -- and r.target substring s and r.criticality substring s;
+--  post s <> [] -- and r.target substring s and r.criticality substring s
   
   stringToRescueDetails(s: String) r : RescueDetails
   pre s <> []
-  post true -- r.target substring s and r.criticality substring s;
+  post true -- r.target substring s and r.criticality substring s
   
   
 channels

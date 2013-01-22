@@ -3,12 +3,12 @@
 -- Added to cml-examples by RWL.
 --
     types
-        Value = nat;
-        CellId = set of nat inv CellId == {1, ..., maxring};
+        Value = nat
+        CellId = set of nat inv CellId == {1, ..., maxring}
         Direction =  <req> | <ack>
 
     values
-        maxbuff = 4;
+        maxbuff = 4
         maxring = maxbuff - 1
 
     channels
@@ -27,11 +27,11 @@
                 post v = x
 
         actions
-            Act = [wrt.req?y] -> setV(y)
+            Act = wrt.req?y -> setV(y)
                  ;
-                  [wrt.act?y] ->  
-                      [read.req?dump] ->
-                          [read.ack?f] -> Act
+                  wrt.act?y ->  
+                      read.req?dump ->
+                          read.ack?f -> Act
 
         @ Act
     end
@@ -40,10 +40,11 @@
 
     process Controller =
     begin
-        state cache:Value;
-              size:nat;
-              top:CellId;
-              bot:CellId
+        state
+	    cache:Value
+	    size:nat
+	    top:CellId
+	    bot:CellId
 
         operations
             Init(c:Value, s:nat, t:CellId, b:CellId)
@@ -68,20 +69,20 @@
         actions
             Input =
                 [size < maxbuff] &
-                    [input?x] ->
+                    input?x ->
                         ( [size = 0] & SetCache(x); SetSize(1)
                           []
                           [size > 0] &
-                                [write.top.req!x] -> [write.top.ack?dumb] ->
+                                write.top.req!x -> write.top.ack?dumb ->
                                 SetSize(size+1);
                                 SetTop((top mod maxring)+1) )
 
             Output =
                 [size > 0] &
-                    [output!cache] ->
+                    output!cache ->
                         ( [size > 1] &
                             (|~| dumb:Value @
-                                [read.bot.req.dumb] -> [read.bot.ack?x] -> Skip);
+                                read.bot.req.dumb -> read.bot.ack?x -> Skip);
                             SetSize(size-1);
                             SetBot((bot mod maxring)+1)
                           []

@@ -81,8 +81,8 @@ import eu.compassresearch.ast.expressions.ANameChannelExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.patterns.ARenamePair;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.lexer.CmlLexeme;
-import eu.compassresearch.core.parser.util.Pair;
+// import eu.compassresearch.core.lexer.CmlLexeme;
+// import eu.compassresearch.core.parser.util.Pair;
 
 /**
  * Implements Parser actions and helper methods. TODO: A consistent method
@@ -282,142 +282,142 @@ public class CmlParserHelper {
 			: null));
     }
 
-    public LexToken extractLexToken(CmlLexeme lexeme) {
-	LexLocation loc = extractLexLocation(lexeme);
-	VDMToken tok = null;
-	for (VDMToken t : VDMToken.values()) {
-	    String tokenDisplay = t.toString();
-	    if (tokenDisplay != null && tokenDisplay.equals(lexeme.getValue())) {
-		tok = t;
-		break;
-	    }
-	}
-	if (tok == null)
-	    throw new RuntimeException("Cannot find VDM token for "
-		    + lexeme.getValue());
-	return new LexToken(loc, tok);
-    }
+    // public LexToken extractLexToken(CmlLexeme lexeme) {
+    // 	LexLocation loc = extractLexLocation(lexeme);
+    // 	VDMToken tok = null;
+    // 	for (VDMToken t : VDMToken.values()) {
+    // 	    String tokenDisplay = t.toString();
+    // 	    if (tokenDisplay != null && tokenDisplay.equals(lexeme.getValue())) {
+    // 		tok = t;
+    // 		break;
+    // 	    }
+    // 	}
+    // 	if (tok == null)
+    // 	    throw new RuntimeException("Cannot find VDM token for "
+    // 		    + lexeme.getValue());
+    // 	return new LexToken(loc, tok);
+    // }
 
-    public LexLocation extractLexLocation(CmlLexeme lexeme) {
-	return new LexLocation(currentSource.toString(), "",
-		lexeme.getStartPos().line, lexeme.getStartPos().column,
-		lexeme.getEndPos().line, lexeme.getEndPos().column,
-		lexeme.getStartPos().offset, lexeme.getEndPos().offset);
-    }
+    // public LexLocation extractLexLocation(CmlLexeme lexeme) {
+    // 	return new LexLocation(currentSource.toString(), "",
+    // 		lexeme.getStartPos().line, lexeme.getStartPos().column,
+    // 		lexeme.getEndPos().line, lexeme.getEndPos().column,
+    // 		lexeme.getStartPos().offset, lexeme.getEndPos().offset);
+    // }
 
-    public LexLocation extractLexLocation(CmlLexeme start, CmlLexeme end) {
-	return new LexLocation(currentSource.toString(), "",
-		start.getStartPos().line, start.getStartPos().column,
-		end.getEndPos().line, end.getEndPos().column,
-		start.getStartPos().offset, end.getEndPos().offset);
-    }
+    // public LexLocation extractLexLocation(CmlLexeme start, CmlLexeme end) {
+    // 	return new LexLocation(currentSource.toString(), "",
+    // 		start.getStartPos().line, start.getStartPos().column,
+    // 		end.getEndPos().line, end.getEndPos().column,
+    // 		start.getStartPos().offset, end.getEndPos().offset);
+    // }
 
-    public LexLocation extractLexLocation(CmlLexeme start, LexLocation end) {
+    // public LexLocation extractLexLocation(CmlLexeme start, LexLocation end) {
 
-	return new LexLocation(currentSource.toString(), "",
-		start.getStartPos().line, start.getStartPos().column,
-		end.endLine, end.endPos, start.getStartPos().offset,
-		end.endOffset);
-    }
+    // 	return new LexLocation(currentSource.toString(), "",
+    // 		start.getStartPos().line, start.getStartPos().column,
+    // 		end.endLine, end.endPos, start.getStartPos().offset,
+    // 		end.endOffset);
+    // }
 
-    public LexLocation extractLexLocation(LexLocation start, CmlLexeme end) {
+    // public LexLocation extractLexLocation(LexLocation start, CmlLexeme end) {
 
-	return new LexLocation(currentSource.toString(), "", start.startLine,
-		start.startPos, end.getEndPos().line, end.getEndPos().column,
-		start.startOffset, end.getEndPos().offset);
-    }
+    // 	return new LexLocation(currentSource.toString(), "", start.startLine,
+    // 		start.startPos, end.getEndPos().line, end.getEndPos().column,
+    // 		start.startOffset, end.getEndPos().offset);
+    // }
 
-    public LexLocation extractLexLocation(LexLocation start, LexLocation end) {
-	return new LexLocation(currentSource.toString(), "", start.startLine,
-		start.startPos, end.endLine, end.endPos, start.startOffset,
-		end.endOffset);
-    }
+    // public LexLocation extractLexLocation(LexLocation start, LexLocation end) {
+    // 	return new LexLocation(currentSource.toString(), "", start.startLine,
+    // 		start.startPos, end.endLine, end.endPos, start.startOffset,
+    // 		end.endOffset);
+    // }
 
-    public LexLocation combineLexLocation(LexLocation start, LexLocation end) {
-	return extractLexLocation(start, end);
-    }
+    // public LexLocation combineLexLocation(LexLocation start, LexLocation end) {
+    // 	return extractLexLocation(start, end);
+    // }
 
-    public LexLocation extractLastLexLocation(List<?> fields) {
-	try {
-	    Object o = fields.get(0);
-	    Class<?> clz = o.getClass();
+    // public LexLocation extractLastLexLocation(List<?> fields) {
+    // 	try {
+    // 	    Object o = fields.get(0);
+    // 	    Class<?> clz = o.getClass();
 
-	    Method locMethod = clz.getMethod("getLocation", new Class<?>[] {});
+    // 	    Method locMethod = clz.getMethod("getLocation", new Class<?>[] {});
 
-	    LexLocation candidate = (LexLocation) locMethod.invoke(o, null);
-	    for (Object p : fields) {
-		LexLocation pLoc = (LexLocation) locMethod.invoke(o, null);
-		if (pLoc.endOffset > candidate.endOffset)
-		    candidate = pLoc;
-	    }
-	    return candidate;
-	} catch (Exception e) {
-	    throw new RuntimeException(e);
-	}
-    }
+    // 	    LexLocation candidate = (LexLocation) locMethod.invoke(o, null);
+    // 	    for (Object p : fields) {
+    // 		LexLocation pLoc = (LexLocation) locMethod.invoke(o, null);
+    // 		if (pLoc.endOffset > candidate.endOffset)
+    // 		    candidate = pLoc;
+    // 	    }
+    // 	    return candidate;
+    // 	} catch (Exception e) {
+    // 	    throw new RuntimeException(e);
+    // 	}
+    // }
 
-    public LexLocation extractFirstLexLocation(List<?> fields) {
-	try {
-	    Object o = fields.get(0);
-	    Class<?> clz = o.getClass();
+    // public LexLocation extractFirstLexLocation(List<?> fields) {
+    // 	try {
+    // 	    Object o = fields.get(0);
+    // 	    Class<?> clz = o.getClass();
 
-	    Method locMethod = clz.getMethod("getLocation", new Class<?>[] {});
-	    LexLocation candidate = (LexLocation) locMethod.invoke(o, null);
-	    for (Object p : fields) {
-		LexLocation pLoc = (LexLocation) locMethod.invoke(o, null);
-		if (pLoc.startOffset < candidate.startOffset)
-		    candidate = pLoc;
-	    }
-	    return candidate;
-	} catch (Exception e) {
-	    throw new RuntimeException(e);
-	}
-    }
+    // 	    Method locMethod = clz.getMethod("getLocation", new Class<?>[] {});
+    // 	    LexLocation candidate = (LexLocation) locMethod.invoke(o, null);
+    // 	    for (Object p : fields) {
+    // 		LexLocation pLoc = (LexLocation) locMethod.invoke(o, null);
+    // 		if (pLoc.startOffset < candidate.startOffset)
+    // 		    candidate = pLoc;
+    // 	    }
+    // 	    return candidate;
+    // 	} catch (Exception e) {
+    // 	    throw new RuntimeException(e);
+    // 	}
+    // }
 
-    public <T extends PPattern> LexLocation extractLexLeftMostFromPatterns(
-	    List<T> ptrns) {
-	LexLocation candidate = ptrns.get(0).getLocation();
-	for (PPattern p : ptrns) {
-	    if (p.getLocation().endOffset > candidate.endOffset)
-		candidate = p.getLocation();
-	}
-	return candidate;
-    }
+    // public <T extends PPattern> LexLocation extractLexLeftMostFromPatterns(
+    // 	    List<T> ptrns) {
+    // 	LexLocation candidate = ptrns.get(0).getLocation();
+    // 	for (PPattern p : ptrns) {
+    // 	    if (p.getLocation().endOffset > candidate.endOffset)
+    // 		candidate = p.getLocation();
+    // 	}
+    // 	return candidate;
+    // }
 
-    public LexNameToken extractLexNameToken(CmlLexeme lexeme) {
-	return new LexNameToken("", lexeme.getValue(),
-		extractLexLocation(lexeme), false, true);
-    }
+    // public LexNameToken extractLexNameToken(CmlLexeme lexeme) {
+    // 	return new LexNameToken("", lexeme.getValue(),
+    // 		extractLexLocation(lexeme), false, true);
+    // }
 
-    public LexNameToken extractLexNameToken(CmlLexeme lexeme, boolean old) {
-	return new LexNameToken("", lexeme.getValue(),
-		extractLexLocation(lexeme), old, true);
-    }
+    // public LexNameToken extractLexNameToken(CmlLexeme lexeme, boolean old) {
+    // 	return new LexNameToken("", lexeme.getValue(),
+    // 		extractLexLocation(lexeme), old, true);
+    // }
 
-    public LexNameToken extractLexNameToken(Object obj) {
-	CmlLexeme lexeme = (CmlLexeme) obj;
-	return new LexNameToken("", lexeme.getValue(),
-		extractLexLocation(lexeme), false, true);
-    }
+    // public LexNameToken extractLexNameToken(Object obj) {
+    // 	CmlLexeme lexeme = (CmlLexeme) obj;
+    // 	return new LexNameToken("", lexeme.getValue(),
+    // 		extractLexLocation(lexeme), false, true);
+    // }
 
-    public LexIdentifierToken extractLexIdentifierToken(Object obj) {
-	return extractLexIdentifierToken((CmlLexeme) obj);
-    }
+    // public LexIdentifierToken extractLexIdentifierToken(Object obj) {
+    // 	return extractLexIdentifierToken((CmlLexeme) obj);
+    // }
 
-    public LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme) {
-	return new LexIdentifierToken(lexeme.getValue(), false,
-		extractLexLocation(lexeme));
-    }
+    // public LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme) {
+    // 	return new LexIdentifierToken(lexeme.getValue(), false,
+    // 		extractLexLocation(lexeme));
+    // }
 
-    public LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme,
-	    boolean old) {
-	return new LexIdentifierToken(lexeme.getValue(), old,
-		extractLexLocation(lexeme));
-    }
+    // public LexIdentifierToken extractLexIdentifierToken(CmlLexeme lexeme,
+    // 	    boolean old) {
+    // 	return new LexIdentifierToken(lexeme.getValue(), old,
+    // 		extractLexLocation(lexeme));
+    // }
 
-    public LexIdentifierToken extractLexIdentifierToken(LexNameToken name) {
-	return new LexIdentifierToken(name.getName(), false, name.getLocation());
-    }
+    // public LexIdentifierToken extractLexIdentifierToken(LexNameToken name) {
+    // 	return new LexIdentifierToken(name.getName(), false, name.getLocation());
+    // }
 
     public <T> List<T> caseFirstListElement(T element) {
 	List<T> list = new LinkedList<T>();
@@ -554,31 +554,31 @@ public class CmlParserHelper {
     // 	return new ANewStatementAction(location, target, name, args);
     // }
 
-    public PAction caseMuAction(Object start, Object expressionList,
-	    Object actionList, Object end) {
-	List<LexIdentifierToken> ids = convertExpressionListToLexIdentifierTokenList((List<PExp>) expressionList);
-	return new AMuAction(extractLexLocation((CmlLexeme) start,
-		(CmlLexeme) end), ids, (List<PAction>) actionList);
-    }
+    // public PAction caseMuAction(Object start, Object expressionList,
+    // 	    Object actionList, Object end) {
+    // 	List<LexIdentifierToken> ids = convertExpressionListToLexIdentifierTokenList((List<PExp>) expressionList);
+    // 	return new AMuAction(extractLexLocation((CmlLexeme) start,
+    // 		(CmlLexeme) end), ids, (List<PAction>) actionList);
+    // }
 
-    public ASpecificationStatementAction caseImplicitOperationBody(
-	    Object extsObj, Object preObj, Object postObj) {
-	List<? extends AExternalClause> exts = (List<? extends AExternalClause>) extsObj;
-	PExp pre = (PExp) preObj;
-	PExp post = (PExp) postObj;
-	LexLocation loc = null;
-	if (exts != null) {
-	    // FIXME for some weird reason the exts do not have locations?
-	    // loc = extractLexLocation(extractFirstLexLocation(exts),
-	    // post.getLocation());
-	    loc = extractLexLocation(pre.getLocation(), post.getLocation());
-	} else if (pre != null) {
-	    loc = extractLexLocation(pre.getLocation(), post.getLocation());
-	} else {
-	    loc = post.getLocation();
-	}
-	return new ASpecificationStatementAction(loc, exts, pre, post);
-    }
+    // public ASpecificationStatementAction caseImplicitOperationBody(
+    // 	    Object extsObj, Object preObj, Object postObj) {
+    // 	List<? extends AExternalClause> exts = (List<? extends AExternalClause>) extsObj;
+    // 	PExp pre = (PExp) preObj;
+    // 	PExp post = (PExp) postObj;
+    // 	LexLocation loc = null;
+    // 	if (exts != null) {
+    // 	    // FIXME for some weird reason the exts do not have locations?
+    // 	    // loc = extractLexLocation(extractFirstLexLocation(exts),
+    // 	    // post.getLocation());
+    // 	    loc = extractLexLocation(pre.getLocation(), post.getLocation());
+    // 	} else if (pre != null) {
+    // 	    loc = extractLexLocation(pre.getLocation(), post.getLocation());
+    // 	} else {
+    // 	    loc = post.getLocation();
+    // 	}
+    // 	return new ASpecificationStatementAction(loc, exts, pre, post);
+    // }
 
     // public PAction caseDottedIdentifierToAssignmentStm(Object idsObj,
     // 	    Object COLONEQUALS, Object expression) {
@@ -779,32 +779,32 @@ public class CmlParserHelper {
      * Expressions
      */
 
-    public AApplyExp caseExpressionApply(Object rootExpObj,
-	    Object expressionList, Object RPAREN) {
-	PExp rootExp = (PExp) rootExpObj;
-	LexLocation location = extractLexLocation(rootExp.getLocation(),
-		(CmlLexeme) RPAREN);
-	List<PExp> exps = (List<PExp>) expressionList;
-	AApplyExp res = new AApplyExp(location, rootExp, exps);
-	return res;
-    }
+    // public AApplyExp caseExpressionApply(Object rootExpObj,
+    // 	    Object expressionList, Object RPAREN) {
+    // 	PExp rootExp = (PExp) rootExpObj;
+    // 	LexLocation location = extractLexLocation(rootExp.getLocation(),
+    // 		(CmlLexeme) RPAREN);
+    // 	List<PExp> exps = (List<PExp>) expressionList;
+    // 	AApplyExp res = new AApplyExp(location, rootExp, exps);
+    // 	return res;
+    // }
 
-    public APreExp caseExpressionPrecondition(Object PREUNDER, Object expList,
-	    Object RPAREN) {
-	List<PExp> exprs = (List<PExp>) expList;
-	PExp function = exprs.get(0);
-	LexLocation loc = extractLexLocation((CmlLexeme) PREUNDER,
-		(CmlLexeme) RPAREN);
-	return new APreExp(loc, function, exprs.subList(1, exprs.size()));
-    }
+    // public APreExp caseExpressionPrecondition(Object PREUNDER, Object expList,
+    // 	    Object RPAREN) {
+    // 	List<PExp> exprs = (List<PExp>) expList;
+    // 	PExp function = exprs.get(0);
+    // 	LexLocation loc = extractLexLocation((CmlLexeme) PREUNDER,
+    // 		(CmlLexeme) RPAREN);
+    // 	return new APreExp(loc, function, exprs.subList(1, exprs.size()));
+    // }
 
-    public AIsOfClassExp caseExpressionIsOfBaseClass(Object ISOFCLASS,
-	    Object dottedId, Object exp, Object RPAREN) {
-	LexLocation loc = extractLexLocation((CmlLexeme) ISOFCLASS,
-		(CmlLexeme) RPAREN);
-	LexNameToken name = dottedIdentifierToLexNameToken((List<LexIdentifierToken>) dottedId);
-	return new AIsOfClassExp(loc, name, (PExp) exp);
-    }
+    // public AIsOfClassExp caseExpressionIsOfBaseClass(Object ISOFCLASS,
+    // 	    Object dottedId, Object exp, Object RPAREN) {
+    // 	LexLocation loc = extractLexLocation((CmlLexeme) ISOFCLASS,
+    // 		(CmlLexeme) RPAREN);
+    // 	LexNameToken name = dottedIdentifierToLexNameToken((List<LexIdentifierToken>) dottedId);
+    // 	return new AIsOfClassExp(loc, name, (PExp) exp);
+    // }
 
     public LexNameToken caseMeasure(Object dottedIdentifier) {
 	return dottedIdentifierToLexNameToken((List<LexIdentifierToken>) dottedIdentifier);
@@ -912,51 +912,51 @@ public class CmlParserHelper {
     // 	return new AEnumChansetSetExp(loc, ids);
     // }
 
-    public LexIntegerToken CmlLexemeToLexIntegerToken(Object NUMERAL) {
-	CmlLexeme lexeme = (CmlLexeme) NUMERAL;
-	LexLocation loc = extractLexLocation(lexeme);
-	return new LexIntegerToken(Long.decode(lexeme.getValue()), loc);
-    }
+    // public LexIntegerToken CmlLexemeToLexIntegerToken(Object NUMERAL) {
+    // 	CmlLexeme lexeme = (CmlLexeme) NUMERAL;
+    // 	LexLocation loc = extractLexLocation(lexeme);
+    // 	return new LexIntegerToken(Long.decode(lexeme.getValue()), loc);
+    // }
 
-    public PExp expressionDotHashNumeralToFieldNumberExp(Object tupleObj,
-	    Object NUMERAL) {
-	PExp tuple = (PExp) tupleObj;
-	LexIntegerToken field = CmlLexemeToLexIntegerToken(NUMERAL);
-	return AstFactory.newAFieldNumberExp(tuple, field);
-    }
+    // public PExp expressionDotHashNumeralToFieldNumberExp(Object tupleObj,
+    // 	    Object NUMERAL) {
+    // 	PExp tuple = (PExp) tupleObj;
+    // 	LexIntegerToken field = CmlLexemeToLexIntegerToken(NUMERAL);
+    // 	return AstFactory.newAFieldNumberExp(tuple, field);
+    // }
 
-    public PExp caseExpDotIdentifier(PExp prefix, LexIdentifierToken id) {
-	/*
-	 * If prefix is a variableExp then this is converted into a
-	 * UnresolvedPathExp since we cannot know if its a field select
-	 * expression or a name exp and it could also be communication
-	 * parameters
-	 */
-	PExp retExp = null;
-	if (prefix instanceof AVariableExp) {
+    // public PExp caseExpDotIdentifier(PExp prefix, LexIdentifierToken id) {
+    // 	/*
+    // 	 * If prefix is a variableExp then this is converted into a
+    // 	 * UnresolvedPathExp since we cannot know if its a field select
+    // 	 * expression or a name exp and it could also be communication
+    // 	 * parameters
+    // 	 */
+    // 	PExp retExp = null;
+    // 	if (prefix instanceof AVariableExp) {
 
-	    AVariableExp varExp = (AVariableExp) prefix;
+    // 	    AVariableExp varExp = (AVariableExp) prefix;
 
-	    List<LexIdentifierToken> ids = new LinkedList<LexIdentifierToken>();
-	    ids.add(varExp.getName().getIdentifier());
-	    ids.add(id);
-	    AUnresolvedPathExp upe = new AUnresolvedPathExp(extractLexLocation(
-		    varExp.getLocation(), id.getLocation()), ids);
-	    retExp = upe;
-	} else if (prefix instanceof AUnresolvedPathExp) {
-	    // if the prefix is a list of ids
-	    AUnresolvedPathExp upe = (AUnresolvedPathExp) prefix;
-	    upe.getIdentifiers().add(id);
-	    upe.setLocation(extractLexLocation(upe.getLocation(),
-		    id.getLocation()));
-	    retExp = upe;
-	} else {
-	    // if the prefix is any other expression it must be a field exp
-	    retExp = AstFactory.newAFieldExp(prefix, id);
-	}
+    // 	    List<LexIdentifierToken> ids = new LinkedList<LexIdentifierToken>();
+    // 	    ids.add(varExp.getName().getIdentifier());
+    // 	    ids.add(id);
+    // 	    AUnresolvedPathExp upe = new AUnresolvedPathExp(extractLexLocation(
+    // 		    varExp.getLocation(), id.getLocation()), ids);
+    // 	    retExp = upe;
+    // 	} else if (prefix instanceof AUnresolvedPathExp) {
+    // 	    // if the prefix is a list of ids
+    // 	    AUnresolvedPathExp upe = (AUnresolvedPathExp) prefix;
+    // 	    upe.getIdentifiers().add(id);
+    // 	    upe.setLocation(extractLexLocation(upe.getLocation(),
+    // 		    id.getLocation()));
+    // 	    retExp = upe;
+    // 	} else {
+    // 	    // if the prefix is any other expression it must be a field exp
+    // 	    retExp = AstFactory.newAFieldExp(prefix, id);
+    // 	}
 
-	return retExp;
-    }
+    // 	return retExp;
+    // }
 
     // Communication expressions start
 
@@ -1004,88 +1004,88 @@ public class CmlParserHelper {
     	return null;
     }
 
-    private <T extends PCommunicationParameter> Pair<AVariableExp, List<PCommunicationParameter>> communicationParamHelper(
-	    Object exp, PPattern pattern, T param) {
-	Pair<AVariableExp, List<PCommunicationParameter>> ret = null;
+    // private <T extends PCommunicationParameter> Pair<AVariableExp, List<PCommunicationParameter>> communicationParamHelper(
+    // 	    Object exp, PPattern pattern, T param) {
+    // 	Pair<AVariableExp, List<PCommunicationParameter>> ret = null;
 
-	/*
-	 * 
-	 * Commented out by RWL: Not used by cml.g
-	 * 
-	// if this is true, then this is the first com. param.
-	if (exp instanceof AVariableExp) {
-	    AVariableExp varExp = (AVariableExp) exp;
-	    List<PCommunicationParameter> coms = new LinkedList<PCommunicationParameter>();
-	    param.setLocation(extractLexLocation(varExp.getLocation(),
-		    pattern.getLocation()));
-	    param.setPattern(pattern);
-	    coms.add(param);
-	    ret = new Pair<AVariableExp, List<PCommunicationParameter>>(varExp,
-		    coms);
-	} else if (exp instanceof Pair<?, ?>) {
-	    ret = (Pair<AVariableExp, List<PCommunicationParameter>>) exp;
-	    param.setLocation(extractLexLocation(ret.first.getLocation(),
-		    pattern.getLocation()));
-	    param.setPattern(pattern);
-	    ret.second.add(param);
-	} else if (exp instanceof AUnresolvedPathExp) {
-	    AUnresolvedPathExp aupe = (AUnresolvedPathExp) exp;
-	    LexIdentifierToken lit = aupe.getIdentifiers().getFirst();
-	    List<PCommunicationParameter> list = new LinkedList<PCommunicationParameter>();
-	    AVariableExp ave = new AVariableExp(lit.location, new LexNameToken(
-		    "", lit), lit.name);
-	    for (LexIdentifierToken lit2 : aupe.getIdentifiers().subList(1,
-		    aupe.getIdentifiers().size())) {
-		AIdentifierPattern aip = new AIdentifierPattern();
-		aip.setName(new LexNameToken("", lit2));
-		aip.setLocation(lit2.location);
-		list.add(new ASignalCommunicationParameter(lit2.location, aip));
-	    }
-	    ret = new Pair<AVariableExp, List<PCommunicationParameter>>(ave,
-		    list);
-	}
+    // 	/*
+    // 	 * 
+    // 	 * Commented out by RWL: Not used by cml.g
+    // 	 * 
+    // 	// if this is true, then this is the first com. param.
+    // 	if (exp instanceof AVariableExp) {
+    // 	    AVariableExp varExp = (AVariableExp) exp;
+    // 	    List<PCommunicationParameter> coms = new LinkedList<PCommunicationParameter>();
+    // 	    param.setLocation(extractLexLocation(varExp.getLocation(),
+    // 		    pattern.getLocation()));
+    // 	    param.setPattern(pattern);
+    // 	    coms.add(param);
+    // 	    ret = new Pair<AVariableExp, List<PCommunicationParameter>>(varExp,
+    // 		    coms);
+    // 	} else if (exp instanceof Pair<?, ?>) {
+    // 	    ret = (Pair<AVariableExp, List<PCommunicationParameter>>) exp;
+    // 	    param.setLocation(extractLexLocation(ret.first.getLocation(),
+    // 		    pattern.getLocation()));
+    // 	    param.setPattern(pattern);
+    // 	    ret.second.add(param);
+    // 	} else if (exp instanceof AUnresolvedPathExp) {
+    // 	    AUnresolvedPathExp aupe = (AUnresolvedPathExp) exp;
+    // 	    LexIdentifierToken lit = aupe.getIdentifiers().getFirst();
+    // 	    List<PCommunicationParameter> list = new LinkedList<PCommunicationParameter>();
+    // 	    AVariableExp ave = new AVariableExp(lit.location, new LexNameToken(
+    // 		    "", lit), lit.name);
+    // 	    for (LexIdentifierToken lit2 : aupe.getIdentifiers().subList(1,
+    // 		    aupe.getIdentifiers().size())) {
+    // 		AIdentifierPattern aip = new AIdentifierPattern();
+    // 		aip.setName(new LexNameToken("", lit2));
+    // 		aip.setLocation(lit2.location);
+    // 		list.add(new ASignalCommunicationParameter(lit2.location, aip));
+    // 	    }
+    // 	    ret = new Pair<AVariableExp, List<PCommunicationParameter>>(ave,
+    // 		    list);
+    // 	}
 
-	else
-	    throw new ParserException(((PExp) exp).getLocation(),
-		    "A Communication construct must begin with an identifier");
-	*/
-	return null;
-    }
+    // 	else
+    // 	    throw new ParserException(((PExp) exp).getLocation(),
+    // 		    "A Communication construct must begin with an identifier");
+    // 	*/
+    // 	return null;
+    // }
 
-    /**
-     * This returns the channel identifier and the list of communicationsparams.
-     * 
-     * @param exp
-     * @param patternObj
-     * @return
-     */
-    public Pair<AVariableExp, List<PCommunicationParameter>> caseExpBangMatchValue(
-	    Object exp, Object patternObj) {
-	PPattern pattern = (PPattern) patternObj;
-	return communicationParamHelper(exp, pattern,
-		new AWriteCommunicationParameter());
-    }
+    // /**
+    //  * This returns the channel identifier and the list of communicationsparams.
+    //  * 
+    //  * @param exp
+    //  * @param patternObj
+    //  * @return
+    //  */
+    // public Pair<AVariableExp, List<PCommunicationParameter>> caseExpBangMatchValue(
+    // 	    Object exp, Object patternObj) {
+    // 	PPattern pattern = (PPattern) patternObj;
+    // 	return communicationParamHelper(exp, pattern,
+    // 		new AWriteCommunicationParameter());
+    // }
 
-    /**
-     * This returns the channel identifier and the list of communicationsparams.
-     * 
-     * @param exp
-     * @param lexeme
-     * @return
-     */
-    public Pair<AVariableExp, List<PCommunicationParameter>> caseExpBangIdentifier(
-	    Object exp, Object lexeme) {
-	LexIdentifierToken id = extractLexIdentifierToken(lexeme);
-	Pair<AVariableExp, List<PCommunicationParameter>> ret = null;
+    // /**
+    //  * This returns the channel identifier and the list of communicationsparams.
+    //  * 
+    //  * @param exp
+    //  * @param lexeme
+    //  * @return
+    //  */
+    // public Pair<AVariableExp, List<PCommunicationParameter>> caseExpBangIdentifier(
+    // 	    Object exp, Object lexeme) {
+    // 	LexIdentifierToken id = extractLexIdentifierToken(lexeme);
+    // 	Pair<AVariableExp, List<PCommunicationParameter>> ret = null;
 
-	// create a identifier pattern
-	LexNameToken name = new LexNameToken("", id);
-	PPattern pattern = new AIdentifierPattern(id.getLocation(), null,
-		false, name, false);
+    // 	// create a identifier pattern
+    // 	LexNameToken name = new LexNameToken("", id);
+    // 	PPattern pattern = new AIdentifierPattern(id.getLocation(), null,
+    // 		false, name, false);
 
-	return communicationParamHelper(exp, pattern,
-		new AWriteCommunicationParameter());
-    }
+    // 	return communicationParamHelper(exp, pattern,
+    // 		new AWriteCommunicationParameter());
+    // }
 
     // public Pair<AVariableExp, List<PCommunicationParameter>> caseExpDotMatchValue(
     // 	    Object exp, Object patternObj) {
@@ -1118,14 +1118,14 @@ public class CmlParserHelper {
     // 		    "communication paramters must be either identifier, tuple or record pattern");
     // }
 
-    public Pair<AVariableExp, List<PCommunicationParameter>> caseExpQuestionSetBind(
-	    Object exp, Object setBindObj) {
-	ASetBind setBind = (ASetBind) setBindObj;
-	AReadCommunicationParameter rcp = new AReadCommunicationParameter();
-	rcp.setExpression(setBind.getSet());
+    // public Pair<AVariableExp, List<PCommunicationParameter>> caseExpQuestionSetBind(
+    // 	    Object exp, Object setBindObj) {
+    // 	ASetBind setBind = (ASetBind) setBindObj;
+    // 	AReadCommunicationParameter rcp = new AReadCommunicationParameter();
+    // 	rcp.setExpression(setBind.getSet());
 
-	return communicationParamHelper(exp, setBind.getPattern(), rcp);
-    }
+    // 	return communicationParamHelper(exp, setBind.getPattern(), rcp);
+    // }
 
     // Communication expressions end
 
@@ -1133,23 +1133,22 @@ public class CmlParserHelper {
      * Type definition helpers
      */
 
-    public ATypeDefinition caseRecordTypeDefinition(Object qualifier,
-	    Object id, Object fieldList) {
-	AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier) qualifier;
-	LexNameToken name = extractLexNameToken((CmlLexeme) id);
-	List<AFieldField> fields = (List<AFieldField>) fieldList;
-	// FIXME fields should have a location but they don't!!, so records will
-	// not have the correct location
-	// LexLocation loc = extractLexLocation(name.getLocation(),
-	// extractLastLexLocation(fields));
-	LexLocation loc = name.getLocation();
-	ARecordInvariantType recType = AstFactory.newARecordInvariantType(name, fields);
-	ATypeDefinition result = AstFactory.newATypeDefinition( name, recType, null, null);
-	result.setLocation(loc);
-	result.setAccess(access);
-	return result;
-	
-    }
+    // public ATypeDefinition caseRecordTypeDefinition(Object qualifier,
+    // 	    Object id, Object fieldList) {
+    // 	AAccessSpecifierAccessSpecifier access = (AAccessSpecifierAccessSpecifier) qualifier;
+    // 	LexNameToken name = extractLexNameToken((CmlLexeme) id);
+    // 	List<AFieldField> fields = (List<AFieldField>) fieldList;
+    // 	// FIXME fields should have a location but they don't!!, so records will
+    // 	// not have the correct location
+    // 	// LexLocation loc = extractLexLocation(name.getLocation(),
+    // 	// extractLastLexLocation(fields));
+    // 	LexLocation loc = name.getLocation();
+    // 	ARecordInvariantType recType = AstFactory.newARecordInvariantType(name, fields);
+    // 	ATypeDefinition result = AstFactory.newATypeDefinition( name, recType, null, null);
+    // 	result.setLocation(loc);
+    // 	result.setAccess(access);
+    // 	return result;	
+    // }
 
     /**
      * Types
