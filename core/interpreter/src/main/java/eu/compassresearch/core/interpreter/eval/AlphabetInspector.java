@@ -27,6 +27,7 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
@@ -105,13 +106,7 @@ public class AlphabetInspector
 		//return defaultPAction(node, question);
 		return node.getAction().apply(this,question);
 	}
-	
-	@Override
-	public CmlAlphabet caseAActionProcess(AActionProcess node, CmlContext question)
-			throws AnalysisException {
-		return createSilentTransition(node,node.getAction());
-	}
-	
+			
 	@Override
 	public CmlAlphabet caseASequentialCompositionAction(
 			ASequentialCompositionAction node, CmlContext question)
@@ -270,7 +265,7 @@ public class AlphabetInspector
 		public CmlAlphabet inspectChildren() throws AnalysisException;
 	}
 	
-	public CmlAlphabet caseParallelAction(PAction node, CmlContext question,ParallelAction parallelAction)
+	public CmlAlphabet caseParallelAction(INode node, CmlContext question,ParallelAction parallelAction)
 			throws AnalysisException {
 		
 		CmlAlphabet alpha = null;
@@ -393,6 +388,37 @@ public class AlphabetInspector
 		});
 	}
 	
+	/**
+	 * Process inspection
+	 */
 	
 	
+	@Override
+	public CmlAlphabet caseAActionProcess(AActionProcess node, CmlContext question)
+			throws AnalysisException {
+		return createSilentTransition(node,node.getAction());
+	}
+	
+	@Override
+	public CmlAlphabet caseAInterleavingProcess(AInterleavingProcess node,
+			CmlContext question) throws AnalysisException {
+		
+		return caseParallelAction(node,question,new ParallelAction()
+		{
+			@Override
+			public CmlAlphabet inspectChildren() {
+				CmlAlphabet alpha = null;
+				for(CmlBehaviourThread child : ownerProcess.children())
+				{
+					if(alpha == null)
+						alpha = child.inspect();
+					else
+						alpha = alpha.union(child.inspect());
+				}
+				return alpha;
+			}
+		});
+		
+		
+	}
 }

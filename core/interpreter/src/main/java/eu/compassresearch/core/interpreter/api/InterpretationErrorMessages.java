@@ -3,7 +3,8 @@ package eu.compassresearch.core.interpreter.api;
 public enum InterpretationErrorMessages {
 
 	NO_PROCESS_WITH_DEFINED_NAME_FOUND("No process identified by '%s' exists"),
-	FATAL_ERROR("A fatal unrecoverable error has occured, please report this error to akm@iha.dk")
+	FATAL_ERROR("A fatal unrecoverable error has occured, please report this error to akm@iha.dk"),
+	CASE_NOT_IMPLEMENTED("%s case is not yet implemented")
 	;
 	
 	private String template;
