@@ -98,12 +98,11 @@
          id="cmlnature"
          name="CML Project Nature"
          point="org.eclipse.core.resources.natures">
-         <builder id ="eu.compassresearch.ide.cml.ui.builder.cmlbuilder"/>
          <runtime>
-            <run class ="eu.compassresearch.ide.cml.ui.builder.CmlProjectNature">
-            </run>
-            </runtime>
-   </extension>
+            <run class ="eu.compassresearch.ide.cml.ui.builder.CmlProjectNature" />
+         </runtime>
+              <builder id ="eu.compassresearch.ide.cml.ui.builder.cmlbuilder"/>
+     </extension>
    
    <extension
          id="cmlbuilder"
@@ -113,11 +112,9 @@
             callOnEmptyDelta="true"
             hasNature="true"
             supportsConfigurations="false"            
-            >
-         <run
-               class="eu.compassresearch.ide.cml.ui.builder.CmlIncrementalBuilder">
-         </run>
-         
+       >
+        <run
+            class="eu.compassresearch.ide.cml.ui.builder.CmlIncrementalBuilder" />
       </builder>
    </extension>
 </plugin>
