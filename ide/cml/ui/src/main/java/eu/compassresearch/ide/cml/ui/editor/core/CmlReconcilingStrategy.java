@@ -8,7 +8,7 @@ import org.eclipse.jface.text.reconciler.DirtyRegion;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 //import org.overture.ide.core.parser.SourceParserManager;
 
-import eu.compassresearch.core.lexer.ParserError;
+import eu.compassresearch.core.parser.ParserError;
 
 
 public class CmlReconcilingStrategy implements IReconcilingStrategy {

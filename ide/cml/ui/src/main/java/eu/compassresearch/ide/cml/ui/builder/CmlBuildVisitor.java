@@ -21,7 +21,6 @@ import org.antlr.runtime.MismatchedTokenException;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.lexer.ParserError;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.CmlTCUtil;
@@ -46,9 +45,9 @@ public class CmlBuildVisitor implements IResourceVisitor {
 		// Set the AST on the source unit
 		CmlSourceUnit dom = CmlSourceUnit.getFromFileResource(file);
 		if (parseResult)
-			dom.setSourceAst(source, new LinkedList<ParserError>(), parseResult);
+			dom.setSourceAst(source, parseResult);
 		else
-			dom.setSourceAst(emptySource(source.getName()+""), new LinkedList<ParserError>(), parseResult);
+			dom.setSourceAst(emptySource(source.getName()+""), parseResult);
 		return false;
 	}
 
