@@ -4,6 +4,10 @@
  */
 /* loose threads:
  *
+ * 2013-01-22 jwc:
+ *  as noted by AKM, the fat enums only take identifiers at the
+ *  moment, and should take general channel notation.
+ *
  * 2013-01-18 jwc:
  *  expression/type precedence needs to be fixed to move the prefixing
  *  constructs (e.g. expression: ...| 'let' blah blah 'in' expression
