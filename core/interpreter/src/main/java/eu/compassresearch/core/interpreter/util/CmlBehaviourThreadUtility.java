@@ -70,28 +70,4 @@ public class CmlBehaviourThreadUtility {
 		
 		return false;
 	}
-	
-	/**
-	 * FIXME:This is just a temp solution, chansets can be other than this
-	 * @return
-	 */
-	public static CmlAlphabet convertChansetExpToAlphabet(CmlBehaviourThread sourceProcess, PVarsetExpression chansetExp, CmlContext question)
-	{
-		AFatEnumVarsetExpression chanset = (AFatEnumVarsetExpression)chansetExp;
-
-		Set<CmlEvent> coms = new HashSet<CmlEvent>();
-		
-		for(LexIdentifierToken id : chanset.getIdentifiers())
-		{
-			//FIXME: This should be a name so the conversion is avoided
-			LexNameToken channelName = new LexNameToken("|CHANNELS|",id);
-			CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
-			ObservableEvent com = new PrefixEvent(sourceProcess,chanValue);
-			coms.add(com);
-		}
-		
-		CmlAlphabet alpha = new CmlAlphabet(coms);
-		
-		return alpha;
-	}
 }

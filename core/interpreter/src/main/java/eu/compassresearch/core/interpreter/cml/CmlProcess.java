@@ -49,7 +49,7 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 		this.processDef = processDef;
 		//find the self object, this should be no problem since the 
 		//typechecker should make sure this is a process.
-		ProcessObjectValue self = (ProcessObjectValue)outer.get(processDef.getName());
+		ProcessObjectValue self = outer.<ProcessObjectValue>lookup(processDef.getName());
 		ProcessContext context = new ProcessContext(processDef.getLocation(), "Process "+ processDef.getName() +" top context", outer, self);
 	
 		//push the initial execution state on the stack

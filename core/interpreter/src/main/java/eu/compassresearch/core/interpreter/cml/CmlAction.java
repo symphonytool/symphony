@@ -5,13 +5,9 @@ import java.util.Iterator;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.statements.AElseIfStm;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.runtime.VdmRuntime;
-import org.overture.interpreter.runtime.VdmRuntimeError;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
-import org.overture.interpreter.values.VoidValue;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
@@ -37,14 +33,13 @@ import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlContext;
-import eu.compassresearch.core.interpreter.runtime.CmlRootContext;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
-import eu.compassresearch.core.interpreter.values.CmlValueFactory;
+import eu.compassresearch.core.interpreter.values.CmlValue;
 
 /**
  *  This class represents a running CML Action. It represents a specific node as specified in D23.2 section 7.4.2,
@@ -645,8 +640,8 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(this))
 		{
 			//convert the channelset of the current node to a alphabet
-			CmlAlphabet cs = CmlBehaviourThreadUtility.convertChansetExpToAlphabet(this,
-					node.getChansetExpression(),question);		
+			CmlAlphabet cs =  ((CmlValue)node.getChansetExpression().
+					apply(cmlEvaluator,question)).cmlAlphabetValue(question);
 			
 			//get the immediate alphabets of the left and right child
 			CmlBehaviourThread leftChild = children().get(0);
