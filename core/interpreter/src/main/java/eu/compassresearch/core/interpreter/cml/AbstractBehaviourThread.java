@@ -11,7 +11,9 @@ import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
@@ -41,7 +43,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	 * Instance variables
 	 */
 	//name of the instance
-	protected LexNameToken 				name;
+	protected LexNameToken 						name;
 	
 	//Stack machine variables
 	private Stack<Pair<T,CmlContext>> 			executionStack = new Stack<Pair<T,CmlContext>>();
@@ -56,6 +58,9 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	
 	//Current supervisor
 	protected CmlSupervisorEnvironment 			env;
+	
+	//hiding
+	protected CmlAlphabet 						hidingAlphabet = new CmlAlphabet();
 	
 	//Denotational semantics
 	protected CmlTrace 							trace = new CmlTrace();
@@ -150,9 +155,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	 */
 	
 	/*
-	 * 
-	 * Public Methods
-	 * 
+	 * Execute region start
 	 */
 	
 	/**
@@ -165,11 +168,12 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 
 		//inspect if there are any immediate events
 		CmlAlphabet alpha = inspect();
+				
 		CmlBehaviourSignal ret = null;
 
 		try
 		{
-			//execute silently if the next is a silent action
+			//execute silently if the current alphabet contains is a silent action
 			if(alpha.containsSpecialEvent(CmlTauEvent.referenceTauEvent())){
 				//FIXME: this might not be the best idea to get the special event
 				updateTrace(alpha.getSpecialEvents().iterator().next());
@@ -204,6 +208,41 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 		{
 			CmlRuntime.logger().throwing(this.toString(),"execute", ex);
 			throw new InterpreterRuntimeException(ex);
+		}
+	}
+	
+	@Override
+	public CmlAlphabet inspect()
+	{
+		try
+		{
+			if(hasNext())
+			{
+				Pair<T,CmlContext> next = nextState();
+				
+				CmlAlphabet alpha = next.first.apply(alphabetInspectionVisitor,next.second);
+			
+				//we have to check for hidden event and convert them into tau events
+				CmlAlphabet hiddenEvents = alpha.intersectRefsAndJoin(hidingAlphabet);
+				
+				CmlAlphabet returnAlpha = alpha.substract(hiddenEvents);
+				
+				for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
+					returnAlpha = returnAlpha.union(new CmlTauEvent(" hiding " + obsEvent.toString()));
+				
+			
+				return returnAlpha;
+			}
+			//if the process is done we return the empty alphabet
+			else
+			{
+				return new CmlAlphabet();
+			}
+		}
+		catch(AnalysisException ex)
+		{
+			CmlRuntime.logger().throwing(this.toString(),"inspect()", ex);
+			throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage(),ex);
 		}
 	}
 	
@@ -285,6 +324,20 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	@Override
 	public LexNameToken name() {
 		return this.name;
+	}
+	
+	/**
+	 * Hiding methods
+	 */
+	
+	protected void setHidingAlphabet(CmlAlphabet alphabet)
+	{
+		this.hidingAlphabet = alphabet;
+	}
+	
+	protected CmlAlphabet getHidingAlphabet()
+	{
+		return this.hidingAlphabet;
 	}
 	
 	/**
@@ -420,14 +473,18 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 		{
 		case WAIT_CHILD:
 		case RUNNING:
+			//If a child is either in RUNNING or WAIT_CHILD state then we wait for all the children
+			//to get into wait_event state
 			setState(CmlProcessState.WAIT_CHILD);
 			break;
 		case WAIT_EVENT:
-			//if at least one child are waiting for an event this process must invoke either Parallel Non-sync or sync
+			//if at least one child are waiting for an event this process must invoke 
+			//either Parallel Non-sync or sync
 			if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(this))
 				setState(CmlProcessState.RUNNABLE);
 			break;
 		case FINISHED:
+			//for any child that finishes, we unregister it since it has terminated successfully and no state change will happen again.
 			stateEvent.getSource().onStateChanged().unregisterObserver(this);
 			
 			//if all the children are finished this process can continue and evolve into skip
@@ -444,7 +501,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	 * common helper methods
 	 */
 	
-	protected <T extends CmlBehaviourThread> CmlBehaviourSignal  caseParallelBeginGeneral(T left, T right, CmlContext question)
+	protected <V extends CmlBehaviourThread> CmlBehaviourSignal  caseParallelBeginGeneral(V left, V right, CmlContext question)
 	{
 		//add the children to the process graph
 		addChild(left);

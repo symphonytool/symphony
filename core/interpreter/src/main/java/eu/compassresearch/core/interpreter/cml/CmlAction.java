@@ -14,6 +14,7 @@ import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
+import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
@@ -84,29 +85,6 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 		setState(CmlProcessState.RUNNABLE);
 	}
 
-	@Override
-	public CmlAlphabet inspect()
-	{
-		try
-		{
-			if(hasNext())
-			{
-				Pair<PAction,CmlContext> next = nextState();
-				return next.first.apply(alphabetInspectionVisitor,next.second);
-			}
-			//if the process is done we return the empty alphabet
-			else
-			{
-				return new CmlAlphabet();
-			}
-		}
-		catch(AnalysisException ex)
-		{
-			CmlRuntime.logger().throwing(this.toString(),"inspect()", ex);
-			throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage(),ex);
-		}
-	}
-		
 	@Override
 	public String nextStepToString() {
 		
@@ -295,7 +273,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 	public CmlBehaviourSignal caseACommunicationAction(
 			ACommunicationAction node, CmlContext question)
 			throws AnalysisException {
-		//At this point the supervisor has already given go to the event,
+		//At this point the supervisor has already given go to the event, or the event is hidden
 		//TODO: input is still missing
 		pushNext(node.getAction(), question); 
 		
@@ -777,6 +755,17 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 			CmlContext question) throws AnalysisException {
 
 		pushNext(node.getAction(), question); 
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	@Override
+	public CmlBehaviourSignal caseAHidingAction(AHidingAction node,
+			CmlContext question) throws AnalysisException {
+
+		setHidingAlphabet((CmlAlphabet)node.getChansetExpression().apply(cmlEvaluator,question));
+
+		pushNext(node.getLeft(), question); 
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}

@@ -82,31 +82,12 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 	@Override
 	public CmlAlphabet inspect() 
 	{
-		try{
-
-			CmlAlphabet alpha = null;
-
-			//If this process is a state process it has its behaviour defined in the mainBehaviour action part
-			//Therefore when this process is inspected this is forwarded to the mainBehaviour
-			if(null != mainBehaviour)
-				alpha = mainBehaviour.inspect();
-			else
-			{
-				if(hasNext())
-				{
-					alpha = nextState().first.apply(alphabetInspectionVisitor,nextState().second);
-				}
-				else
-					alpha = new CmlAlphabet();
-			}
-
-			return alpha;
-			
-		}catch(AnalysisException ex)
-		{
-			CmlRuntime.logger().throwing(this.toString(),"inspect()", ex);
-			throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage(),ex);
-		}
+		//If this process is a state process it has its behaviour defined in the mainBehaviour action part
+		//Therefore when this process is inspected this is forwarded to the mainBehaviour
+		if(null != mainBehaviour)
+			return mainBehaviour.inspect();
+		else
+			return super.inspect();
 	}
 	
 	@Override
