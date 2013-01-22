@@ -7,7 +7,7 @@ begin
 			name : seq of char
 			artist : seq of char
 			year : int
-			album : [(seq of char * CD)]
+			album : [ (seq of char * CD) ]
 			duration : int
 			;
 		
