@@ -20,6 +20,7 @@ package eu.compassresearch.ide.cml.ui.editor.core;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
@@ -47,6 +48,7 @@ import org.overture.ide.ui.IVdmUiConstants;
 import org.overture.ide.ui.editor.core.VdmSourceViewerConfiguration;
 
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.ide.cml.ui.builder.CmlIncrementalBuilder;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit.CmlSourceChangedListener;
 import eu.compassresearch.ide.cml.ui.editor.syntax.CmlContentPageOutliner;
@@ -161,6 +163,17 @@ public class CmlEditor extends TextEditor {
 	    FileEditorInput fei = (FileEditorInput) getEditorInput();
 	    CmlSourceUnit csu = CmlSourceUnit
 		    .getFromFileResource(fei.getFile());
+	    
+	    // if there is no AST, build it. This is a hack
+	    if (csu.getSourceAst() == null){
+	    	try {
+				ResourcesPlugin.getWorkspace().build(CmlIncrementalBuilder.FULL_BUILD, null);
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    }
+	    
 	    cmlOutliner.setInput(csu);
 	    csu.addChangeListener(new CmlSourceChangedListener() {
 
