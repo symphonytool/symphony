@@ -37,7 +37,7 @@ public class CmlAlphabet extends CmlValue {
 		this.referenceEvents = new HashMap<ObservableEvent,Set<ObservableEvent>>();
 		Set<ObservableEvent> obsEvents = new HashSet<ObservableEvent>();
 		obsEvents.add(obsEvent);
-		referenceEvents.put(obsEvent.getReferenceEvent(), obsEvents);
+		initializeRefMap(obsEvents);
 	}
 	
 	protected CmlAlphabet(Map<ObservableEvent,Set<ObservableEvent>> referenceEvents, Set<CmlSpecialEvent> specialEvents)
