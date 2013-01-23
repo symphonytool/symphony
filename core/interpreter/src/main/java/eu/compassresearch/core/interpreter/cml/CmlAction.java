@@ -29,6 +29,7 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.types.AActionType;
@@ -812,7 +813,11 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 		 
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
-	
+
+	/**
+	 * 
+	 * //TODO no semantics defined, resolve this!
+	 */
 	@Override
 	public CmlBehaviourSignal caseANonDeterministicDoStatementAction(
 			ANonDeterministicDoStatementAction node, CmlContext question)
@@ -834,6 +839,32 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 		else
 			pushNext(new ASkipAction(), question);
 			
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	/**
+	 * 
+	 * //TODO no semantics defined, resolve this!
+	 */
+	@Override
+	public CmlBehaviourSignal caseAWhileStatementAction(
+			AWhileStatementAction node, CmlContext question)
+			throws AnalysisException {
+
+		if(node.getCondition().apply(cmlEvaluator,question).boolValue(question.getVdmContext()))
+		{
+			//first we push the while node so that we get back to this point
+			pushNext(node, question);
+			//then we push the first action of the loop
+			pushNext(node.getAction(), question);
+		}
+		else
+		{
+			//if the condition is false then the While evolves into Skip
+			pushNext(new ASkipAction(), question);
+		}
+		
+		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 }

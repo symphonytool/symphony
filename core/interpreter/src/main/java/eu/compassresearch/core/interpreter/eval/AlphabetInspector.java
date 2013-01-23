@@ -27,6 +27,7 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
@@ -463,6 +464,21 @@ public class AlphabetInspector
 			return createSilentTransition(node, null);
 		else
 			return createSilentTransition(node, new ASkipAction());
+	}
+	
+	@Override
+	public CmlAlphabet caseAWhileStatementAction(AWhileStatementAction node,
+			CmlContext question) throws AnalysisException {
+		
+		if(node.getCondition().apply(cmlEvaluator,question).boolValue(question.getVdmContext()))
+		{
+			//FIXME this should point to the choosen action node
+			return createSilentTransition(node, null);
+		}
+		else
+		{
+			return createSilentTransition(node, new ASkipAction());
+		}
 	}
 	
 	/**
