@@ -1,5 +1,8 @@
 package eu.compassresearch.core.interpreter.cml;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
@@ -19,6 +22,8 @@ import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
@@ -704,10 +709,19 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 	public CmlBehaviourSignal caseASkipAction(ASkipAction node, CmlContext question)
 			throws AnalysisException {
 
-		//if hasNext() is true then Skip is in sequential composition with next
-		if(!hasNext())
-			setState(CmlProcessState.FINISHED);
-		
+		//if we are hiding we need an extra silents transition to skip without hiding
+		if(!hidingAlphabet.isEmpty())
+		{
+			//set to an empty alphabet
+			hidingAlphabet = new CmlAlphabet();
+			pushNext(new ASkipAction(), question);
+		}
+		else	
+		{
+			//if hasNext() is true then Skip is in sequential composition with next
+			if(!hasNext())
+				setState(CmlProcessState.FINISHED);
+		}
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
@@ -777,6 +791,27 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 
 		pushNext(node.getLeft(), question); 
 		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	/**
+	 * Non deterministic if randomly chooses between options whoose exp are evaluated to true
+	 */
+	@Override
+	public CmlBehaviourSignal caseANonDeterministicIfStatementAction(
+			ANonDeterministicIfStatementAction node, CmlContext question)
+			throws AnalysisException {
+
+		List<ANonDeterministicAltStatementAction> availableAlts = new LinkedList<ANonDeterministicAltStatementAction>();
+		
+		for(ANonDeterministicAltStatementAction alt :  node.getAlternatives())		
+			if(alt.getGuard().apply(cmlEvaluator,question).boolValue(question.getVdmContext()))
+				availableAlts.add(alt);
+		
+		//if we got here we already now that the must at least be one available action
+		//so this should pose no risk of exception
+		pushNext(availableAlts.get(rnd.nextInt(availableAlts.size())).getAction(),question);
+		 
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 }
