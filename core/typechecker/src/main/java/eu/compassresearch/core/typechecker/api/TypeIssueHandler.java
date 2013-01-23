@@ -1,13 +1,14 @@
 package eu.compassresearch.core.typechecker.api;
 
 import java.lang.reflect.Method;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.AErrorType;
+import eu.compassresearch.core.common.AnalysisArtifact;
 
 /**
  * All error reporting from the type checker is handled by the TypeIssueHandler.
@@ -28,7 +29,7 @@ public interface TypeIssueHandler {
 	 *         bound node in the AST spanning causing the issue.
 	 * 
 	 */
-	public static abstract class CMLIssue {
+	public static abstract class CMLIssue implements AnalysisArtifact {
 		protected final INode subtree;
 		private LexLocation location;
 
@@ -105,6 +106,9 @@ public interface TypeIssueHandler {
 
 	}
 
+	public static class CMLIssueList extends LinkedList<CMLIssue> implements AnalysisArtifact
+	{private static final long serialVersionUID = 7238951452951163635L;}
+	
 	/**
 	 * 
 	 * @author rwl
