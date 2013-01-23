@@ -25,10 +25,17 @@ public class CmlTauEvent extends CmlSpecialEvent {
 		return instance;
 	}
 		
-	protected CmlTauEvent(INode transitionSrcNode, INode transitionDstNode)
+	public CmlTauEvent(INode transitionSrcNode, INode transitionDstNode)
 	{
 		this.transitionSrcNode = transitionSrcNode;
 		this.transitionDstNode = transitionDstNode;
+	}
+	
+	public CmlTauEvent(String text)
+	{
+		this.transitionSrcNode = null;
+		this.transitionDstNode = null;
+		this.transitionText = text;
 	}
 	
 	public void setTransitionText(String text)
