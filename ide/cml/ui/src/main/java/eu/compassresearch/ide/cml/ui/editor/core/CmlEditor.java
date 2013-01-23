@@ -47,7 +47,6 @@ import org.overture.ide.ui.IVdmUiConstants;
 import org.overture.ide.ui.editor.core.VdmSourceViewerConfiguration;
 
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.parser.ParserError;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit.CmlSourceChangedListener;
 import eu.compassresearch.ide.cml.ui.editor.syntax.CmlContentPageOutliner;
@@ -180,25 +179,7 @@ public class CmlEditor extends TextEditor {
 		}
 
 	    });
-	    csu.addChangeListener(new CmlSourceChangedListener() {
-
-		public void sourceChanged(CmlSourceUnit csu) {
-		    for (final ParserError pe : csu.getErrors()) {
-			Display.getDefault().asyncExec(new Runnable() {
-			    public void run() {
-				CmlEditor.this.setHighlightRange(pe.offset,
-					pe.otext.length(), true);
-				CmlEditor.this.getSourceViewer()
-					.setSelectedRange(pe.offset,
-						pe.otext.length());
-				CmlEditor.this.getSourceViewer()
-					.showAnnotations(true);
-
-			    }
-			});
-		    }
-		}
-	    });
+	   
 	}
 	return cmlOutliner;
     }
