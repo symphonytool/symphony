@@ -23,6 +23,7 @@ import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -34,6 +35,7 @@ import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
@@ -795,23 +797,43 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 	}
 	
 	/**
-	 * Non deterministic if randomly chooses between options whoose exp are evaluated to true
+	 * Non deterministic if randomly chooses between options whose guard are evaluated to true
 	 */
 	@Override
 	public CmlBehaviourSignal caseANonDeterministicIfStatementAction(
 			ANonDeterministicIfStatementAction node, CmlContext question)
 			throws AnalysisException {
 
-		List<ANonDeterministicAltStatementAction> availableAlts = new LinkedList<ANonDeterministicAltStatementAction>();
-		
-		for(ANonDeterministicAltStatementAction alt :  node.getAlternatives())		
-			if(alt.getGuard().apply(cmlEvaluator,question).boolValue(question.getVdmContext()))
-				availableAlts.add(alt);
-		
+		List<ANonDeterministicAltStatementAction> availableAlts = CmlActionAssistant.findAllTrueAlts(
+				node.getAlternatives(),question,cmlEvaluator);
 		//if we got here we already now that the must at least be one available action
 		//so this should pose no risk of exception
 		pushNext(availableAlts.get(rnd.nextInt(availableAlts.size())).getAction(),question);
 		 
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	@Override
+	public CmlBehaviourSignal caseANonDeterministicDoStatementAction(
+			ANonDeterministicDoStatementAction node, CmlContext question)
+			throws AnalysisException {
+
+		List<ANonDeterministicAltStatementAction> availableAlts = CmlActionAssistant.findAllTrueAlts(
+				node.getAlternatives(),question,cmlEvaluator);
+		
+		
+		if(availableAlts.size() > 0)
+		{
+			//first we push the do node on the execution stack to get it sequentially composed with the
+			//picked alternative
+			pushNext(node, question);		
+			//if we got here we already now that the must at least be one available action
+			//so this should pose no risk of exception
+			pushNext(availableAlts.get(rnd.nextInt(availableAlts.size())).getAction(),question);
+		}
+		else
+			pushNext(new ASkipAction(), question);
+			
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 }

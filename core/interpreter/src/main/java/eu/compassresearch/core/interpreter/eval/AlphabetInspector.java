@@ -20,6 +20,7 @@ import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
@@ -438,11 +439,8 @@ public class AlphabetInspector
 			ANonDeterministicIfStatementAction node, CmlContext question)
 			throws AnalysisException {
 
-		int availCount = 0;	
-		
-		for(ANonDeterministicAltStatementAction alt :  node.getAlternatives())		
-			if(alt.getGuard().apply(cmlEvaluator,question).boolValue(question.getVdmContext()))
-				availCount++;
+		int availCount = CmlActionAssistant.findAllTrueAlts(
+				node.getAlternatives(),question,cmlEvaluator).size();
 		
 		if(availCount > 0)
 			//FIXME this should point to the choosen action node
@@ -450,6 +448,21 @@ public class AlphabetInspector
 		else
 			//were stuck so return empty alphabet
 			return new CmlAlphabet();
+	}
+	
+	@Override
+	public CmlAlphabet caseANonDeterministicDoStatementAction(
+			ANonDeterministicDoStatementAction node, CmlContext question)
+			throws AnalysisException {
+
+		int availCount = CmlActionAssistant.findAllTrueAlts(
+				node.getAlternatives(),question,cmlEvaluator).size();
+		
+		if(availCount > 0)
+			//FIXME this should point to the choosen action node
+			return createSilentTransition(node, null);
+		else
+			return createSilentTransition(node, new ASkipAction());
 	}
 	
 	/**
