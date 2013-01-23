@@ -16,7 +16,9 @@ import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
+import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
+import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -27,6 +29,8 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.ast.process.AInterleavingProcess;
+import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
@@ -42,6 +46,7 @@ import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
 import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.CmlValue;
 /**
@@ -58,6 +63,8 @@ public class AlphabetInspector
 	private final CmlBehaviourThread 		ownerProcess;
 	private final CmlEvaluator				cmlEvaluator;
 	
+	
+	
 	/**
 	 * 
 	 * @param ownerProcess
@@ -68,12 +75,10 @@ public class AlphabetInspector
 		this.cmlEvaluator = cmlEvalutor;
 	}
 	
-	@Override
-	public CmlAlphabet defaultPProcess(PProcess node, CmlContext question)
-			throws AnalysisException {
-		return createSilentTransition(node,null);
-	}
-	
+	/**
+	 * PAction inspection
+	 */
+
 	@Override
 	public CmlAlphabet defaultPAction(PAction node, CmlContext question)
 			throws AnalysisException {
@@ -107,11 +112,19 @@ public class AlphabetInspector
 	}
 	
 	@Override
-	public CmlAlphabet caseAActionProcess(AActionProcess node, CmlContext question)
-			throws AnalysisException {
-		return createSilentTransition(node,node.getAction());
+	public CmlAlphabet caseAInternalChoiceAction(AInternalChoiceAction node,
+			CmlContext question) throws AnalysisException {
+
+		return createSilentTransition(node,node.getLeft());
 	}
 	
+	@Override
+	public CmlAlphabet caseAInternalChoiceProcess(AInternalChoiceProcess node,
+			CmlContext question) throws AnalysisException {
+
+		return createSilentTransition(node,node.getLeft());
+	}
+			
 	@Override
 	public CmlAlphabet caseASequentialCompositionAction(
 			ASequentialCompositionAction node, CmlContext question)
@@ -122,7 +135,10 @@ public class AlphabetInspector
 	@Override
 	public CmlAlphabet caseAReferenceAction(AReferenceAction node,
 			CmlContext question) throws AnalysisException {
-		return createSilentTransition(node,node.getActionDefinition().getAction());
+		
+		ActionValue actionValue = question.lookup(node.getName());
+		
+		return createSilentTransition(node,actionValue.getActionDefinition().getAction());
 	}
 	
 	@Override
@@ -270,7 +286,7 @@ public class AlphabetInspector
 		public CmlAlphabet inspectChildren() throws AnalysisException;
 	}
 	
-	public CmlAlphabet caseParallelAction(PAction node, CmlContext question,ParallelAction parallelAction)
+	public CmlAlphabet caseParallelAction(INode node, CmlContext question,ParallelAction parallelAction)
 			throws AnalysisException {
 		
 		CmlAlphabet alpha = null;
@@ -393,6 +409,64 @@ public class AlphabetInspector
 		});
 	}
 	
+	/**
+	 * Hiding - Defined in section 7.5.8 D23.2
+	 * 
+	 * The alphabet for hiding determined by the given channel set. If an event
+	 * is in it then a hidden transition will be made, if not then it is observable.
+	 * 
+	 * This is handled by giving each behaviourThread a hiding alphabet that when 
+	 * inspected converts all the hidden observable event into silent. So this method 
+	 */
 	
+	@Override
+	public CmlAlphabet caseAHidingAction(AHidingAction node, CmlContext question)
+			throws AnalysisException {
+
+		//FIXME This is actually not a tau transition. This should produced an entirely 
+		//different event which has no denotational trace but only for debugging
+		return createSilentTransition(node, node.getLeft(), "Hiding (This should not be a tau)");
+	}
 	
+	/**
+	 * Process inspection
+	 */
+	
+	/**
+	 * This creates a silent transition for all the processes that are not defined
+	 */
+	@Override
+	public CmlAlphabet defaultPProcess(PProcess node, CmlContext question)
+			throws AnalysisException {
+		return createSilentTransition(node,null);
+	}
+	
+	@Override
+	public CmlAlphabet caseAActionProcess(AActionProcess node, CmlContext question)
+			throws AnalysisException {
+		return createSilentTransition(node,node.getAction());
+	}
+	
+	@Override
+	public CmlAlphabet caseAInterleavingProcess(AInterleavingProcess node,
+			CmlContext question) throws AnalysisException {
+		
+		return caseParallelAction(node,question,new ParallelAction()
+		{
+			@Override
+			public CmlAlphabet inspectChildren() {
+				CmlAlphabet alpha = null;
+				for(CmlBehaviourThread child : ownerProcess.children())
+				{
+					if(alpha == null)
+						alpha = child.inspect();
+					else
+						alpha = alpha.union(child.inspect());
+				}
+				return alpha;
+			}
+		});
+		
+		
+	}
 }

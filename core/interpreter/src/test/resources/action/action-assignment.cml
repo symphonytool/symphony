@@ -7,6 +7,6 @@ begin
 	a : int := 2
 
 	actions
-	INIT = a -> a := a + 1;Skip 
+	INIT = a -> a := a + 1 
 	@ INIT
 end
