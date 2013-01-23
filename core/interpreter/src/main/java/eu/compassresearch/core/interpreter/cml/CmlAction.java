@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.cml;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.ValueException;
@@ -171,9 +172,18 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 			ABlockStatementAction node, CmlContext question)
 			throws AnalysisException {
 		
-		//pushNext(node.getAction(), question); 
-		//return CmlBehaviourSignal.EXEC_SUCCESS;
-		return node.getAction().apply(this,question);
+		CmlContext blockContext = new CmlContext(node.getLocation(), "block context", question);
+		
+		//add the assignements defs to the context
+		if(node.getDeclareStatement() != null)
+		{
+			for(PDefinition def : node.getDeclareStatement().getAssignmentDefs())
+					def.apply(cmlEvaluator,blockContext);
+		}
+		
+		pushNext(node.getAction(), blockContext); 
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+		//return node.getAction().apply(this,blockContext);
 	}
 	
 	@Override

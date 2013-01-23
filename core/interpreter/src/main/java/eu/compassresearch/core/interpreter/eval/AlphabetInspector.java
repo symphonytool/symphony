@@ -107,8 +107,7 @@ public class AlphabetInspector
 	public CmlAlphabet caseABlockStatementAction(ABlockStatementAction node,
 			CmlContext question) throws AnalysisException {
 
-		//return defaultPAction(node, question);
-		return node.getAction().apply(this,question);
+		return createSilentTransition(node,node.getAction());
 	}
 	
 	@Override
