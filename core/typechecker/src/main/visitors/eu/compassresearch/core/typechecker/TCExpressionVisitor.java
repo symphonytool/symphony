@@ -65,7 +65,9 @@ import eu.compassresearch.ast.expressions.ATupleSelectExp;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.types.AChannelType;
+import eu.compassresearch.ast.types.AChansetType;
 import eu.compassresearch.ast.types.AErrorType;
+import eu.compassresearch.ast.types.ANamesetsType;
 import eu.compassresearch.ast.types.AVarsetExpressionType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
@@ -215,8 +217,18 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 
 		}
-		node.setType(new AVarsetExpressionType(node.getLocation(), true));
-		return node.getType();
+		
+		PType result = null;
+		if (seenState)
+			result = new ANamesetsType(node.getLocation(),true);
+		if (seenChannel)
+			result = new AChansetType(node.getLocation(), true);
+		if (result == null)
+			result = issueHandler.addTypeError(node,TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE.customizeMessage(""+node));
+		
+		node.setType(result);
+		return result;
+		
 	}
 
 	@Override

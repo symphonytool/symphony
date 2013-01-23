@@ -50,6 +50,7 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ast.types.AErrorType;
+import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
@@ -100,7 +101,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		if (issueHandler != null)
 			this.issueHandler = issueHandler;
 		else
-			this.issueHandler = new CollectingIssueHandler();
+			this.issueHandler = new CollectingIssueHandler(RegistryFactory.getInstance().getRegistry());
 
 		TCActionVisitor actionVisitor = new TCActionVisitor(this, this.issueHandler, typeComparator); 
 		exp = new TCExpressionVisitor(this, this.issueHandler, typeComparator);
@@ -511,7 +512,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 
 		// Type check
 		VanillaCmlTypeChecker cmlTC = new VanillaCmlTypeChecker(source,
-				VanillaFactory.newCollectingIssueHandle());
+				VanillaFactory.newCollectingIssueHandle(RegistryFactory.getInstance().getRegistry()));
 
 		// Print result and report errors if any
 		if (!cmlTC.typeCheck()) {

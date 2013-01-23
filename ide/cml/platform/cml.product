@@ -4,7 +4,7 @@
 <product name="CML Compass Project" uid="eu.compassresearch.ide.platform.product" id="eu.compassresearch.ide.cml.platform.product" application="org.eclipse.ui.ide.workbench" version="1.0.0" useFeatures="false" includeLaunchers="true">
 
    <aboutInfo>
-      <image path="/eu.compassresearch.ide.cml.platform/icons/aboutboximg.png"/>
+      <image path="icons/aboutboximg.png"/>
       <text>
          Learn more about COMPASS Research at http://www.compass-research.eu
       </text>
@@ -17,7 +17,7 @@
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
-   <windowImages i16="/eu.compassresearch.ide.cml.platform/icons/icon16.ico" i32="/eu.compassresearch.ide.cml.platform/icons/icon32.ico" i48="/eu.compassresearch.ide.cml.platform/icons/icon48.ico" i64="/eu.compassresearch.ide.cml.platform/icons/icon64.ico" i128="/eu.compassresearch.ide.cml.platform/icons/icon128.ico"/>
+   <windowImages i16="icons/icon16.png" i32="icons/icon32.png" i64="icons/icon64.png"/>
 
    <splash
       location="eu.compassresearch.ide.cml.platform"
@@ -210,5 +210,9 @@
       <plugin id="scalariform"/>
    </plugins>
 
+   <configurations>
+      <plugin id="eu.compassresearch.ide.cml.tpplugin" autoStart="true" startLevel="4" />
+      <plugin id="eu.compassresearch.ide.cml.ui" autoStart="true" startLevel="3" />
+   </configurations>
 
 </product>
