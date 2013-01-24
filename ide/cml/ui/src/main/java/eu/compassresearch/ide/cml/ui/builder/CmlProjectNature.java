@@ -27,6 +27,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
+import eu.compassresearch.ide.cml.core.ICmlCoreConstants;
+
 
 
 public class CmlProjectNature implements IProjectNature
@@ -84,7 +86,7 @@ public class CmlProjectNature implements IProjectNature
                try {
                    project.build(
                       CmlIncrementalBuilder.FULL_BUILD,
-                      CmlIncrementalBuilder.BUILDER_ID,
+                      ICmlCoreConstants.BUILDER_ID,
                       null,
                       monitor);
                }
