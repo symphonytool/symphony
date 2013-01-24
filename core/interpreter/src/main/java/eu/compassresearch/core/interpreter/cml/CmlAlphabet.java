@@ -255,30 +255,31 @@ public class CmlAlphabet extends CmlValue {
 		
 	}
 	
+
+//	public CmlAlphabet substract(CmlAlphabet other)
+//	{
+//		Map<ObservableEvent,Set<ObservableEvent>> newReferenceEvents = 
+//				new HashMap<ObservableEvent,Set<ObservableEvent>>(_observableEvents);
+//		
+//		for(Entry<ObservableEvent,Set<ObservableEvent>> entry : other._observableEvents.entrySet())
+//		{
+//			if(entry.getValue().isEmpty())
+//				newReferenceEvents.remove(entry.getKey());
+//			else if (newReferenceEvents.containsKey(entry.getKey())) 	
+//			{
+//				newReferenceEvents.get(entry.getKey()).removeAll(entry.getValue());
+//			}
+//		}
+//		
+//		return new CmlAlphabet(newReferenceEvents,specialEvents);
+//	}
+	
 	/**
 	 * substracts other from this
 	 * @param other
 	 * @return
 	 */
 	public CmlAlphabet substract(CmlAlphabet other)
-	{
-		Map<ObservableEvent,Set<ObservableEvent>> newReferenceEvents = 
-				new HashMap<ObservableEvent,Set<ObservableEvent>>(_observableEvents);
-		
-		for(Entry<ObservableEvent,Set<ObservableEvent>> entry : other._observableEvents.entrySet())
-		{
-			if(entry.getValue().isEmpty())
-				newReferenceEvents.remove(entry.getKey());
-			else if (newReferenceEvents.containsKey(entry.getKey())) 	
-			{
-				newReferenceEvents.get(entry.getKey()).removeAll(entry.getValue());
-			}
-		}
-		
-		return new CmlAlphabet(newReferenceEvents,specialEvents);
-	}
-	
-	public CmlAlphabet substractEqualsAndComparables(CmlAlphabet other)
 	{
 		Map<ObservableEvent,Set<ObservableEvent>> newReferenceEvents = 
 				new HashMap<ObservableEvent,Set<ObservableEvent>>(_observableEvents);

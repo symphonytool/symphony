@@ -405,8 +405,8 @@ public class AlphabetInspector
 				 *	Finally we create the returned alphabet by joining all the synchronised events together with
 				 *	all the event af the children that are not in the channel set
 				 */
-				CmlAlphabet resultAlpha = new CmlAlphabet(syncEvents).union(leftChildAlphabet.substractEqualsAndComparables(cs));
-				resultAlpha = resultAlpha.union(rightChildAlphabet.substractEqualsAndComparables(cs));
+				CmlAlphabet resultAlpha = new CmlAlphabet(syncEvents).union(leftChildAlphabet.substract(cs));
+				resultAlpha = resultAlpha.union(rightChildAlphabet.substract(cs));
 				
 				return resultAlpha;
 			}

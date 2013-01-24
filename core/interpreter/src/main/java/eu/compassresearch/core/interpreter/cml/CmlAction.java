@@ -1,13 +1,15 @@
 package eu.compassresearch.core.interpreter.cml;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.PPattern;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
@@ -25,18 +27,19 @@ import eu.compassresearch.ast.actions.AInternalChoiceAction;
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
+import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
@@ -292,6 +295,31 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 			ACommunicationAction node, CmlContext question)
 			throws AnalysisException {
 		//At this point the supervisor has already given go to the event, or the event is hidden
+		
+		Value value = supervisor().selectedObservableEvent().getValue();
+		
+		if(node.getCommunicationParameters() != null && 
+				node.getCommunicationParameters().size() > 1
+				)
+			throw new InterpreterRuntimeException("At the moment records and tuples are not supported");
+		
+		//FIXME this should be more general. It only support one com param at the moment
+		for(PCommunicationParameter param : node.getCommunicationParameters())
+		{
+			if(param instanceof AReadCommunicationParameter)
+			{
+				PPattern pattern = ((AReadCommunicationParameter) param).getPattern();
+				
+				if(pattern instanceof AIdentifierPattern)
+				{
+					LexNameToken name = ((AIdentifierPattern) pattern).getName();
+					
+					question.putNew(new NameValuePair(name, value));
+				}
+				
+			}
+		}
+		
 		//TODO: input is still missing
 		pushNext(node.getAction(), question); 
 		

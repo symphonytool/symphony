@@ -1,5 +1,7 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
+import org.overture.interpreter.values.Value;
+
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.channels.CmlSignalChannel;
@@ -52,5 +54,20 @@ public class PrefixEvent extends ObservableEvent {
 	@Override
 	public ObservableEvent meet(ObservableEvent other) {
 		return this;
+	}
+
+	@Override
+	public Value getValue() {
+		return null;
+	}
+
+	@Override
+	public void setValue(Value value) {
+		// do nothing
+	}
+
+	@Override
+	public boolean isValuePrecise() {
+		return true;
 	}
 }

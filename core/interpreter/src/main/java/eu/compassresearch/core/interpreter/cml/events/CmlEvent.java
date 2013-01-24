@@ -1,5 +1,7 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
+import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
+
 
 public abstract class CmlEvent {
 	
@@ -11,4 +13,6 @@ public abstract class CmlEvent {
 	
 	@Override
 	public abstract boolean equals(Object obj);
+	
+	public abstract CmlAlphabet getAsAlphabet();
 }

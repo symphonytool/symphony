@@ -1,9 +1,7 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
-import java.nio.channels.spi.AbstractInterruptibleChannel;
 import java.util.List;
 
-import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.types.AChannelType;
@@ -13,7 +11,7 @@ import eu.compassresearch.core.interpreter.cml.channels.CmlIOChannel;
 import eu.compassresearch.core.interpreter.util.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.values.AnyValue;
 
-public class CmlCommunicationEvent extends ObservableValueEvent {
+public class CmlCommunicationEvent extends ObservableEvent {
 
 	final protected List<CommunicationParameter> params;
 	private Value value;
@@ -97,8 +95,8 @@ public class CmlCommunicationEvent extends ObservableValueEvent {
 	}
 	
 	@Override
-	public void setMostPreciseValue(Value value) {
-		this.value = AbstractValueInterpreter.meet(this.value, value);
+	public void setValue(Value value) {
+		this.value = value;
 	}
 	
 	@Override
@@ -115,7 +113,7 @@ public class CmlCommunicationEvent extends ObservableValueEvent {
 	@Override
 	public ObservableEvent synchronizeWith(CmlBehaviourThread source,
 			ObservableEvent syncEvent) {
-		return new SynchronizedCommunicationEvent(source, channel, this, (ObservableValueEvent)syncEvent);
+		return new SynchronizedCommunicationEvent(source, channel, this, syncEvent);
 	}
 
 	@Override
