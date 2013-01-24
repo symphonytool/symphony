@@ -43,6 +43,18 @@ public abstract class ObservableEvent extends CmlEvent {
 	
 	public abstract ObservableEvent synchronizeWith(CmlBehaviourThread source,ObservableEvent syncEvent);
 	
+	public boolean isComparable(ObservableEvent other) {
+
+		return other.getChannel().equals(getChannel()) && 
+				other.getEventSource() == getEventSource();
+	}
+	
+	/**
+	 * return the most precise of this and other
+	 * @param other
+	 * @return
+	 */
+	public abstract ObservableEvent meet(ObservableEvent other); 
 //	/**
 //	 * Determines whether the are any input parameters that does not have a specific value
 //	 * @return

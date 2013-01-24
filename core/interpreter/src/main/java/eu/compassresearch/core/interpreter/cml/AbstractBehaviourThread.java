@@ -184,7 +184,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 			{	
 				//If the selected event is in the immediate alphabet then we can continue
 				if(env.isObservableEventSelected() &&  
-						!alpha.flattenSyncEvents().intersect(env.selectedObservableEvent().getAsAlphabet()).isEmpty())
+						!alpha.flattenSyncEvents().intersectEqualOrMorePrecise(env.selectedObservableEvent().getAsAlphabet()).isEmpty())
 				{
 					ret = executeNext();
 					unregisterChannel(env.selectedObservableEvent());

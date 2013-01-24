@@ -77,4 +77,10 @@ public class SynchronizedCommunicationEvent extends ObservableValueEvent {
 		
 	}
 
+	@Override
+	public ObservableEvent meet(ObservableEvent other) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

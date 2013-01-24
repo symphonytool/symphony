@@ -73,10 +73,8 @@ public class CMLChannelValue extends CmlValue implements CmlSignalChannel, CmlIO
 		
 		otherValue = (CMLChannelValue)other;
 		
-		return otherValue.getName().equals(getName());
-		//FIXME This fails after the typechecker has been updated		
-		//&&
-		//otherValue.getType().equals(getType());
+		return otherValue.getName().equals(getName()) &&
+				getType().equals(otherValue.getType());
 	}
 
 	@Override

@@ -91,6 +91,11 @@ public class SynchronizedPrefixEvent extends ObservableEvent {
 		return new SynchronizedPrefixEvent(source, this, syncEvent);
 	}
 
+	@Override
+	public ObservableEvent meet(ObservableEvent other) {
+		return this;
+	}
+
 //	@Override
 //	public boolean isResolved() {
 //

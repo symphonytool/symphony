@@ -48,4 +48,9 @@ public class PrefixEvent extends ObservableEvent {
 	public ObservableEvent synchronizeWith(CmlBehaviourThread source,ObservableEvent syncEvent) {
 		return new SynchronizedPrefixEvent(source, this, syncEvent);
 	}
+
+	@Override
+	public ObservableEvent meet(ObservableEvent other) {
+		return this;
+	}
 }
