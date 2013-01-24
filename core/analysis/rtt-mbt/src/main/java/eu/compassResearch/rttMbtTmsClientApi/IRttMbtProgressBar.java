@@ -2,7 +2,8 @@ package eu.compassResearch.rttMbtTmsClientApi;
 
 public interface IRttMbtProgressBar {
 	public enum Tasks {
-	    Global,
+		Global,
+		Goal,
 	    TC_COV,
 	    TR_COV,
 	    BCS_COV,

@@ -3,6 +3,8 @@ package eu.compassresearch.ide.cml.rttplugin;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
+import eu.compassResearch.rttMbtTmsClientApi.IRttMbtProgressBar;
+
 public class RttMbtGenerateTest extends RttMbtAbstractTestProcedureAction  {
 
 	@Override
@@ -26,7 +28,8 @@ public class RttMbtGenerateTest extends RttMbtAbstractTestProcedureAction  {
 			client.addErrorMessage("[FAIL]: generate test\n");
 			return null;
 		}
-
+		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+		
 		return null;
 	}
 }

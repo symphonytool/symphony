@@ -21,10 +21,12 @@ package eu.compassresearch.ide.cml.core;
 
 public interface ICmlCoreConstants
 {
-	public static final String PLUGIN_ID = "eu.compassresearch.ide.cml.core";
-	public static final String CONTENT_TYPE = "eu.compassresearch.ide.cml.core.content-type";
+	public static final String CORE_PLUGIN_ID = "eu.compassresearch.ide.cml.core";
+	public static final String CONTENT_TYPE = CORE_PLUGIN_ID+".content-type";
 	public static final String LANGUAGE_NAME = "CML";
-	public static final String NATURE = ICmlCoreConstants.PLUGIN_ID + ".nature";
+	public static final String UI_PLUGIN_ID = "eu.compassresearch.ide.cml.ui";
+	public static final String NATURE = UI_PLUGIN_ID + ".cmlnature";
+	public static final String BUILDER_ID = UI_PLUGIN_ID + ".cmlbuilder";
 	//public static final String LAUNCH_CONFIGURATION_TYPE_VDMRT_VDMJ = "org.overture.ide.vdmrt.debug.core.launchConfigurationTypeVDMJ";
 	
 }

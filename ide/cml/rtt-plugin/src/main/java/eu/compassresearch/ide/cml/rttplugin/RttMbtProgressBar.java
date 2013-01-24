@@ -50,6 +50,10 @@ public class RttMbtProgressBar implements IRttMbtProgressBar {
 		if (bar != null) {
 			bar.setSelection(0);
 		}		
+		bar = getProgressBar(IRttMbtProgressBar.Tasks.Goal);
+		if (bar != null) {
+			bar.setSelection(0);
+		}		
 		bar = getProgressBar(IRttMbtProgressBar.Tasks.TC_COV);
 		if (bar != null) {
 			bar.setSelection(0);
