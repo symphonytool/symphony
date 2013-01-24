@@ -18,6 +18,7 @@ import eu.compassresearch.core.interpreter.values.CmlValue;
 
 /**
  * This represents a CML alphabet containing both silent and observable events
+ * FIXME This is currently quite a mess, it needs comments and cleaning up!
  * @author akm
  *
  */
@@ -277,6 +278,26 @@ public class CmlAlphabet extends CmlValue {
 		return new CmlAlphabet(newReferenceEvents,specialEvents);
 	}
 	
+	public CmlAlphabet substractEqualsAndComparables(CmlAlphabet other)
+	{
+		Map<ObservableEvent,Set<ObservableEvent>> newReferenceEvents = 
+				new HashMap<ObservableEvent,Set<ObservableEvent>>(_observableEvents);
+		
+		
+		for(ObservableEvent refEvent : _observableEvents.keySet())
+		{
+			for(ObservableEvent otherRefEvent : other._observableEvents.keySet())
+			{
+				if(refEvent.isComparable(otherRefEvent))
+				{
+					newReferenceEvents.remove(refEvent);
+				}
+			}
+		}
+		
+		return new CmlAlphabet(newReferenceEvents,specialEvents);
+	}
+	
 	/**
 	 * This determines whether the alphabet contains an observable event where the
 	 * ChannelValue of this is equal to the ChannelValue of comevent. 
@@ -296,14 +317,6 @@ public class CmlAlphabet extends CmlValue {
 
 		
 		//return (findCommunicationsByChannel(comevent.getChannel()).isEmpty() ? false : true);
-	}
-	
-	
-	public CmlAlphabet meet(CmlAlphabet other)
-	{
-		//this.referenceEvents
-		
-		return null;
 	}
 	
 	/**

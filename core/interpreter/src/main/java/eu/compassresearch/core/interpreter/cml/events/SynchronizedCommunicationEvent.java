@@ -59,7 +59,7 @@ public class SynchronizedCommunicationEvent extends ObservableValueEvent {
 
 	@Override
 	public String toString() {
-		return "sync : "+ getChannel().getName() + "..";
+		return getChannel().getName() + "." + getValue();
 	}
 
 	@Override
