@@ -1,29 +1,43 @@
 package eu.compassresearch.ide.cml.ui.builder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.ProgressMonitor;
+
+import org.eclipse.core.commands.Command;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.internal.resources.Resource;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.resource.ResourceManager;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
+import org.eclipse.ui.internal.commands.CommandService;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.common.Registry;
+import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLIssue;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLIssueList;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
@@ -32,6 +46,10 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 
 	public static final String BUILDER_ID ="eu.compassresearch.ide.cml.ui.cmlbuilder";
 	
+	public CmlIncrementalBuilder()
+	{
+		
+	}
 	/*
 	 * Run the type checker.
 	 */
@@ -57,23 +75,6 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
-	//
-//	private static boolean isChildOfMe(INode me, INode candidate)
-//	{
-//		if (me == candidate) return true;
-//		Map<String, Object> children = me.getChildren(true);
-//		for(Object o : children.values())
-//		{
-//			if (o != null && o instanceof INode)
-//			{
-//				INode n = (INode)o;
-//				isChildOfMe(me,candidate);
-//			}
-//		}
-//		return false;
-//	}
-	
-	
 
 
 	/*
@@ -110,7 +111,8 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		if (project == null) return false;
 		if (sourceToFileMap == null) return false;
 		Thread.currentThread().setName("Type Checker");
-		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+		Registry reg = RegistryFactory.getInstance(project.getName()).getRegistry();
+		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle(reg);
 		CmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sourceToFileMap.keySet(), issueHandler);
 		try {
 			boolean result =  typeChecker.typeCheck();
@@ -184,6 +186,11 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		getProject().deleteMarkers(IMarker.PROBLEM, true,
 				IResource.DEPTH_INFINITE);
 
+		// Remove all errors in the registry for this project
+		String projectName = getProject().getName();
+		Registry tcReg = RegistryFactory.getInstance(projectName).getRegistry();
+		tcReg.prune(CMLIssueList.class);
+		
 		// Create a visitor
 		CmlBuildVisitor buildVisitor = new CmlBuildVisitor();
 
@@ -305,12 +312,6 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected void startupOnInitialize() {
 		super.startupOnInitialize();
-		try {
-			super.forgetLastBuiltState();
-			buildit(null);
-		} catch (CoreException e) {
-
-		}
 	}
 
 	@Override

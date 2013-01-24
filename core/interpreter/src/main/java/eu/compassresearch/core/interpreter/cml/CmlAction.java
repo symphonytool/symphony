@@ -1,6 +1,10 @@
 package eu.compassresearch.core.interpreter.cml;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.ValueException;
@@ -18,16 +22,21 @@ import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
@@ -171,9 +180,18 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 			ABlockStatementAction node, CmlContext question)
 			throws AnalysisException {
 		
-		//pushNext(node.getAction(), question); 
-		//return CmlBehaviourSignal.EXEC_SUCCESS;
-		return node.getAction().apply(this,question);
+		CmlContext blockContext = new CmlContext(node.getLocation(), "block context", question);
+		
+		//add the assignements defs to the context
+		if(node.getDeclareStatement() != null)
+		{
+			for(PDefinition def : node.getDeclareStatement().getAssignmentDefs())
+					def.apply(cmlEvaluator,blockContext);
+		}
+		
+		pushNext(node.getAction(), blockContext); 
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+		//return node.getAction().apply(this,blockContext);
 	}
 	
 	@Override
@@ -694,10 +712,19 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 	public CmlBehaviourSignal caseASkipAction(ASkipAction node, CmlContext question)
 			throws AnalysisException {
 
-		//if hasNext() is true then Skip is in sequential composition with next
-		if(!hasNext())
-			setState(CmlProcessState.FINISHED);
-		
+		//if we are hiding we need an extra silents transition to skip without hiding
+		if(!hidingAlphabet.isEmpty())
+		{
+			//set to an empty alphabet
+			hidingAlphabet = new CmlAlphabet();
+			pushNext(new ASkipAction(), question);
+		}
+		else	
+		{
+			//if hasNext() is true then Skip is in sequential composition with next
+			if(!hasNext())
+				setState(CmlProcessState.FINISHED);
+		}
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
@@ -766,6 +793,77 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 		setHidingAlphabet((CmlAlphabet)node.getChansetExpression().apply(cmlEvaluator,question));
 
 		pushNext(node.getLeft(), question); 
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	/**
+	 * Non deterministic if randomly chooses between options whose guard are evaluated to true
+	 */
+	@Override
+	public CmlBehaviourSignal caseANonDeterministicIfStatementAction(
+			ANonDeterministicIfStatementAction node, CmlContext question)
+			throws AnalysisException {
+
+		List<ANonDeterministicAltStatementAction> availableAlts = CmlActionAssistant.findAllTrueAlts(
+				node.getAlternatives(),question,cmlEvaluator);
+		//if we got here we already now that the must at least be one available action
+		//so this should pose no risk of exception
+		pushNext(availableAlts.get(rnd.nextInt(availableAlts.size())).getAction(),question);
+		 
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+
+	/**
+	 * 
+	 * //TODO no semantics defined, resolve this!
+	 */
+	@Override
+	public CmlBehaviourSignal caseANonDeterministicDoStatementAction(
+			ANonDeterministicDoStatementAction node, CmlContext question)
+			throws AnalysisException {
+
+		List<ANonDeterministicAltStatementAction> availableAlts = CmlActionAssistant.findAllTrueAlts(
+				node.getAlternatives(),question,cmlEvaluator);
+		
+		
+		if(availableAlts.size() > 0)
+		{
+			//first we push the do node on the execution stack to get it sequentially composed with the
+			//picked alternative
+			pushNext(node, question);		
+			//if we got here we already now that the must at least be one available action
+			//so this should pose no risk of exception
+			pushNext(availableAlts.get(rnd.nextInt(availableAlts.size())).getAction(),question);
+		}
+		else
+			pushNext(new ASkipAction(), question);
+			
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	/**
+	 * 
+	 * //TODO no semantics defined, resolve this!
+	 */
+	@Override
+	public CmlBehaviourSignal caseAWhileStatementAction(
+			AWhileStatementAction node, CmlContext question)
+			throws AnalysisException {
+
+		if(node.getCondition().apply(cmlEvaluator,question).boolValue(question.getVdmContext()))
+		{
+			//first we push the while node so that we get back to this point
+			pushNext(node, question);
+			//then we push the first action of the loop
+			pushNext(node.getAction(), question);
+		}
+		else
+		{
+			//if the condition is false then the While evolves into Skip
+			pushNext(new ASkipAction(), question);
+		}
+		
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}

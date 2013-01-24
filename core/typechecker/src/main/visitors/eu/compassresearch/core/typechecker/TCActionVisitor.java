@@ -127,9 +127,11 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.ast.types.AChannelType;
+import eu.compassresearch.ast.types.AChansetType;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.ast.types.AStatementType;
+import eu.compassresearch.ast.types.AVarsetExpressionType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
@@ -2096,11 +2098,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (!TCDeclAndDefVisitor.successfulType(chanSetType))
 			return new AErrorType();
 
-		if (!(chanSetType instanceof AChannelType)) {
-			issueHandler.addTypeError(chanSet,
+		if (!(chanSetType instanceof AChansetType)) {
+			PType errorType = issueHandler.addTypeError(chanSet,
 					TypeErrorMessages.EXPECTED_A_CHANNELSET
 					.customizeMessage(chanSet.toString()));
-			return new AErrorType();
+			return errorType;
 		}
 
 		node.setType(new AActionType(node.getLocation(), true));

@@ -192,6 +192,7 @@ public class CmlEditor extends TextEditor {
 		}
 
 	    });
+	   
 	}
 	return cmlOutliner;
     }

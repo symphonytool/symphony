@@ -19,11 +19,15 @@ import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
@@ -33,6 +37,7 @@ import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
@@ -107,8 +112,7 @@ public class AlphabetInspector
 	public CmlAlphabet caseABlockStatementAction(ABlockStatementAction node,
 			CmlContext question) throws AnalysisException {
 
-		//return defaultPAction(node, question);
-		return node.getAction().apply(this,question);
+		return createSilentTransition(node,node.getAction());
 	}
 	
 	@Override
@@ -426,6 +430,55 @@ public class AlphabetInspector
 		//FIXME This is actually not a tau transition. This should produced an entirely 
 		//different event which has no denotational trace but only for debugging
 		return createSilentTransition(node, node.getLeft(), "Hiding (This should not be a tau)");
+	}
+	
+	/**
+	 * Non deterministic if randomly chooses between options whoose exp are evaluated to true
+	 */
+	@Override
+	public CmlAlphabet caseANonDeterministicIfStatementAction(
+			ANonDeterministicIfStatementAction node, CmlContext question)
+			throws AnalysisException {
+
+		int availCount = CmlActionAssistant.findAllTrueAlts(
+				node.getAlternatives(),question,cmlEvaluator).size();
+		
+		if(availCount > 0)
+			//FIXME this should point to the choosen action node
+			return createSilentTransition(node, null);
+		else
+			//were stuck so return empty alphabet
+			return new CmlAlphabet();
+	}
+	
+	@Override
+	public CmlAlphabet caseANonDeterministicDoStatementAction(
+			ANonDeterministicDoStatementAction node, CmlContext question)
+			throws AnalysisException {
+
+		int availCount = CmlActionAssistant.findAllTrueAlts(
+				node.getAlternatives(),question,cmlEvaluator).size();
+		
+		if(availCount > 0)
+			//FIXME this should point to the choosen action node
+			return createSilentTransition(node, null);
+		else
+			return createSilentTransition(node, new ASkipAction());
+	}
+	
+	@Override
+	public CmlAlphabet caseAWhileStatementAction(AWhileStatementAction node,
+			CmlContext question) throws AnalysisException {
+		
+		if(node.getCondition().apply(cmlEvaluator,question).boolValue(question.getVdmContext()))
+		{
+			//FIXME this should point to the choosen action node
+			return createSilentTransition(node, null);
+		}
+		else
+		{
+			return createSilentTransition(node, new ASkipAction());
+		}
 	}
 	
 	/**

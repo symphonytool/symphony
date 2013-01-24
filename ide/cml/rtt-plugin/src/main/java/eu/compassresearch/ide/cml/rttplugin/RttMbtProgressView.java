@@ -3,6 +3,10 @@ package eu.compassresearch.ide.cml.rttplugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPropertyListener;
@@ -97,12 +101,48 @@ public class RttMbtProgressView extends ViewPart implements IViewPart {
     @Override
     public void createPartControl(final org.eclipse.swt.widgets.Composite parent)
       {
+    	GridLayout layout = new GridLayout();
+        layout.numColumns = 2;
+        parent.setLayout(layout);
+
+        //RowLayout layout = new RowLayout(SWT.VERTICAL);
+    	//parent.setLayout(layout);
+
+        // create grid data
+    	GridData gridData = new GridData();
+    	gridData.horizontalAlignment = GridData.FILL;
+    	gridData.grabExcessHorizontalSpace = true;
+        
     	// create progress bars
+    	Label captionGlobal = new Label(parent, SWT.NONE);
+    	captionGlobal.setText("Total: ");
     	ProgressBar progBar = new ProgressBar(parent, SWT.NONE);
+    	progBar.setLayoutData(gridData);
+
+    	Label captionGoal = new Label(parent, SWT.NONE);
+    	captionGoal.setText("Goals: ");
+    	ProgressBar goals = new ProgressBar(parent, SWT.NONE);
+    	goals.setLayoutData(gridData);
+
+    	Label captionTC = new Label(parent, SWT.NONE);
+    	captionTC.setText("TC Coverage: ");
     	ProgressBar tc_cov = new ProgressBar(parent, SWT.NONE);
+    	tc_cov.setLayoutData(gridData);
+
+    	Label captionBCS = new Label(parent, SWT.NONE);
+    	captionBCS.setText("BCS Coverage: ");
     	ProgressBar bcs_cov = new ProgressBar(parent, SWT.NONE);
+    	bcs_cov.setLayoutData(gridData);
+
+    	Label captionTR = new Label(parent, SWT.NONE);
+    	captionTR.setText("TR Coverage: ");
     	ProgressBar tr_cov = new ProgressBar(parent, SWT.NONE);
+    	tr_cov.setLayoutData(gridData);
+
+    	Label captionMCDC = new Label(parent, SWT.NONE);
+    	captionMCDC.setText("MCDC coverage: ");
     	ProgressBar mcdc_cov = new ProgressBar(parent, SWT.NONE);
+    	mcdc_cov.setLayoutData(gridData);
 
     	progBar.setToolTipText("Overall Progress");
     	tc_cov.setToolTipText("Test Case Coverage");
@@ -112,6 +152,7 @@ public class RttMbtProgressView extends ViewPart implements IViewPart {
     	
         // make console view accessable
         Activator.addProgressBar(IRttMbtProgressBar.Tasks.Global, progBar);
+        Activator.addProgressBar(IRttMbtProgressBar.Tasks.Goal, goals);
         Activator.addProgressBar(IRttMbtProgressBar.Tasks.TC_COV, tc_cov);
         Activator.addProgressBar(IRttMbtProgressBar.Tasks.BCS_COV, bcs_cov);
         Activator.addProgressBar(IRttMbtProgressBar.Tasks.TR_COV, tr_cov);
