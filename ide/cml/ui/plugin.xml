@@ -112,21 +112,7 @@
                minimized="false"
                ratio="0.25"
                relationship="left"
-               relative="org.eclipse.ui.editors">
-         </view>
-      </perspectiveExtension>
-   </extension>
-
-   <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="org.overture.ide.ui.perspective">
-         <view
-               id="org.overture.ide.ui.VdmExplorer"
-               minimized="false"
-               ratio="0.25"
-               relationship="left"
-               relative="org.eclipse.ui.editors">
+               relative="org.eclipse.ui.editorss">
          </view>
       </perspectiveExtension>
    </extension>
