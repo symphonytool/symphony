@@ -1850,6 +1850,7 @@ typeDef returns[ATypeDefinition def]
 
 type returns[PType type]
 @init { boolean totalFuncType=false; }
+@after { $type.setLocation(extractLexLocation($start, $stop)); }
     : dom=type0 (( '->' | '+>' { totalFuncType=true; } ) rng=type0)?
         {
             if ($rng.type == null) {
@@ -1877,6 +1878,7 @@ type returns[PType type]
 
 type0 returns[PType type]
 @init { List<PType> typeList = new ArrayList<PType>(); LexLocation last = null; }
+@after { $type.setLocation(extractLexLocation($start, $stop)); }
     : first=type1 ('|' typeItem=type1 { typeList.add($typeItem.type); last = $typeItem.type.getLocation(); } )*
         {
             if (typeList.size()==0) {
@@ -1893,6 +1895,7 @@ type0 returns[PType type]
 
 type1 returns[PType type]
 @init { List<PType> typeList = new ArrayList<PType>(); LexLocation last = null; }
+@after { $type.setLocation(extractLexLocation($start, $stop)); }
     : first=typebase ('*' typeItem=typebase  { typeList.add($typeItem.type); last = $typeItem.type.getLocation(); } )*
         {
             if (typeList.size()==0) {
@@ -1906,7 +1909,7 @@ type1 returns[PType type]
     ;
 
 typebase returns[PType type]
-@after { $type.setLocation(extractLexLocation($typebase.start, $typebase.stop)); }
+@after { $type.setLocation(extractLexLocation($start, $stop)); }
     : basicType           { $type = $basicType.basicType; }
     | '(' inside=type ')' { $type = $inside.type; }
     | '[' inside=type ']' { $type = new AOptionalType(null, false, null, $inside.type); }
