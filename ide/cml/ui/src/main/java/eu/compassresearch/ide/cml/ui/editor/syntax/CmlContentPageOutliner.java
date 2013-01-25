@@ -11,6 +11,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWTException;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.overture.ast.definitions.PDefinition;
@@ -131,7 +132,24 @@ IContentOutlinePage {
 
 	labelprovider = new OutlineLabelProvider();
 	getTreeViewer().setLabelProvider(labelprovider);
-	getTreeViewer().setInput(input);
+	getTreeViewer().setAutoExpandLevel(2);
+	
+	Thread astSnooze = new Thread(new Runnable() {
+	    public void run() {
+
+//		while (true)
+//		    if (input.getSourceAst() != null){
+//			if (!input.getSourceAst().getParagraphs().isEmpty())
+//			    break;
+//		    }
+//		    else Thread.yield();
+//		
+		getTreeViewer().setInput(input);
+
+	    }
+	});
+	astSnooze.run();
+
 
     }
 

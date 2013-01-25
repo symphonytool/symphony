@@ -3,15 +3,13 @@ package eu.compassresearch.core.interpreter.cml;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.Stack;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
-import org.overture.interpreter.runtime.Context;
 
-import eu.compassresearch.ast.actions.ASkipAction;
-import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -59,7 +57,10 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	//Current supervisor
 	protected CmlSupervisorEnvironment 			env;
 	
-	//hiding
+	//use for making random but deterministic decisions
+	protected Random 							rnd = new Random(9784345);
+	
+	//use for the hiding operator
 	protected CmlAlphabet 						hidingAlphabet = new CmlAlphabet();
 	
 	//Denotational semantics
@@ -183,7 +184,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 			{	
 				//If the selected event is in the immediate alphabet then we can continue
 				if(env.isObservableEventSelected() &&  
-						!alpha.flattenSyncEvents().intersect(env.selectedObservableEvent().getAsAlphabet()).isEmpty())
+						!alpha.flattenSyncEvents().intersectEqualOrMorePrecise(env.selectedObservableEvent().getAsAlphabet()).isEmpty())
 				{
 					ret = executeNext();
 					unregisterChannel(env.selectedObservableEvent());

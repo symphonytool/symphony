@@ -43,7 +43,8 @@ public enum OutlineEntryType {
 	    "/icons/cview16/outline_chanset_top.png"), CHANSET_ENTRY(
 	    "/icons/cview16/outline_chanset_entry.png"), ERROR(
 	    "/icons/cview16/outline_error.png"), ACTION(
-	    "/icons/cview16/outline_action.png");
+	    "/icons/cview16/outline_action.png"),
+	    ;
 
     private final Image img;
 

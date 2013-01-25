@@ -11,7 +11,7 @@ import eu.compassresearch.core.interpreter.cml.channels.CmlIOChannel;
 import eu.compassresearch.core.interpreter.util.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.values.AnyValue;
 
-public class CmlCommunicationEvent extends ObservableValueEvent {
+public class CmlCommunicationEvent extends ObservableEvent {
 
 	final protected List<CommunicationParameter> params;
 	private Value value;
@@ -26,6 +26,13 @@ public class CmlCommunicationEvent extends ObservableValueEvent {
 			value = this.params.get(0).getValue();
 		else
 			value = new AnyValue();
+	}
+	
+	private CmlCommunicationEvent(CmlBehaviourThread source, CmlIOChannel<Value> channel,List<CommunicationParameter> params, Value value)
+	{
+		super(source,channel);
+		this.params = params;
+		this.value = value;
 	}
 	
 	@Override 
@@ -72,14 +79,13 @@ public class CmlCommunicationEvent extends ObservableValueEvent {
 		
 		return other.getChannel().equals(getChannel()) && 
 				other.getEventSource() == getEventSource() &&
-				(other.getValue().equals(this.getValue()) ||
-						AbstractValueInterpreter.isMorePrecise(other.getValue(), this.getValue()));
+				(other.getValue().equals(this.getValue()) );
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public ObservableEvent getReferenceEvent() {
-		return new CmlCommunicationEvent(null, (CmlIOChannel<Value>)channel, params);
+		return new CmlCommunicationEvent(null, (CmlIOChannel<Value>)channel, params,value);
 	}
 
 	@Override
@@ -89,8 +95,8 @@ public class CmlCommunicationEvent extends ObservableValueEvent {
 	}
 	
 	@Override
-	public void setMostPreciseValue(Value value) {
-		this.value = AbstractValueInterpreter.meet(this.value, value);
+	public void setValue(Value value) {
+		this.value = value;
 	}
 	
 	@Override
@@ -107,7 +113,23 @@ public class CmlCommunicationEvent extends ObservableValueEvent {
 	@Override
 	public ObservableEvent synchronizeWith(CmlBehaviourThread source,
 			ObservableEvent syncEvent) {
-		return new SynchronizedCommunicationEvent(source, channel, this, (ObservableValueEvent)syncEvent);
+		return new SynchronizedCommunicationEvent(source, channel, this, syncEvent);
+	}
+
+	@Override
+	public ObservableEvent meet(ObservableEvent obj) {
+		
+		CmlCommunicationEvent other = null;
+		
+		if(!(obj instanceof CmlCommunicationEvent))
+			return this;
+		
+		other = (CmlCommunicationEvent)obj;
+		
+		if(AbstractValueInterpreter.isMorePrecise(getValue(), other.getValue()))
+			return this;
+		else
+			return other;
 	}
 
 }

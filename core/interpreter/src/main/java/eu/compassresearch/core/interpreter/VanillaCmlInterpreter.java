@@ -181,12 +181,12 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 		
 		// Print result and report errors if any
-//		if (!cmlTC.typeCheck())
-//		{
-//			System.out.println("Failed to type check: " + source.toString());
-//			System.out.println(issueHandler.getTypeErrors());
-//			return;
-//		}
+		if (!cmlTC.typeCheck())
+		{
+			System.out.println("Failed to type check: " + source.toString());
+			System.out.println(issueHandler.getTypeErrors());
+			return;
+		}
 
 		// interpret
 		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
@@ -213,7 +213,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-hiding.cml");
+				"src/test/resources/action/action-generalised-parallelism-input-output2.cml");
 		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 

@@ -28,6 +28,22 @@ public interface Registry {
 	 * 
 	 * Adds artifact to the registry for the given astNode.
 	 * 
+	 * 
+	 * 
+	 * @return true if the artifact is successfully inserted into the registry, 
+	 * false otherwise.
 	 */
-	public <K extends AnalysisArtifact> void put(INode astNode, K artifact);
+	public <K extends AnalysisArtifact> boolean store(INode astNode, K artifact);
+	
+	
+	/**
+	 * Clear the registry for a certain type of artifacts.
+	 * E.g. before type checker all type errors and warnings
+	 * are pruned from the registry.
+	 * 
+	 * @param artifact - the class of artifact to remove all instances of 
+	 *        referenced in this registry.
+	 */
+	public <K extends AnalysisArtifact> void prune(Class<K> artifactClz);
+	
 }

@@ -7,13 +7,13 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
 import eu.compassresearch.core.interpreter.util.AbstractValueInterpreter;
 
-public class SynchronizedCommunicationEvent extends ObservableValueEvent {
+public class SynchronizedCommunicationEvent extends ObservableEvent {
 
-	ObservableValueEvent first;
-	ObservableValueEvent second;
+	ObservableEvent first;
+	ObservableEvent second;
 	
 	public SynchronizedCommunicationEvent(CmlBehaviourThread eventSource,
-			CmlChannel channel, ObservableValueEvent first, ObservableValueEvent second) {
+			CmlChannel channel, ObservableEvent first, ObservableEvent second) {
 		super(eventSource, channel);
 
 		this.first = first;
@@ -26,9 +26,9 @@ public class SynchronizedCommunicationEvent extends ObservableValueEvent {
 	}
 
 	@Override
-	public void setMostPreciseValue(Value value) {
-		first.setMostPreciseValue(AbstractValueInterpreter.meet(getValue(), value));
-		second.setMostPreciseValue(AbstractValueInterpreter.meet(getValue(), value));
+	public void setValue(Value value) {
+		first.setValue(value);
+		second.setValue(value);
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class SynchronizedCommunicationEvent extends ObservableValueEvent {
 	@Override
 	public ObservableEvent synchronizeWith(CmlBehaviourThread source,
 			ObservableEvent syncEvent) {
-		return new SynchronizedCommunicationEvent(source, channel, this, (ObservableValueEvent)syncEvent);
+		return new SynchronizedCommunicationEvent(source, channel, this, syncEvent);
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class SynchronizedCommunicationEvent extends ObservableValueEvent {
 
 	@Override
 	public String toString() {
-		return "sync : "+ getChannel().getName() + "..";
+		return getChannel().getName() + "." + getValue();
 	}
 
 	@Override
@@ -75,6 +75,12 @@ public class SynchronizedCommunicationEvent extends ObservableValueEvent {
 		else
 			return false;
 		
+	}
+
+	@Override
+	public ObservableEvent meet(ObservableEvent other) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

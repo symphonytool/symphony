@@ -1,0 +1,10 @@
+channels 
+a, b
+
+process A = 
+begin 
+	state
+	v : int := 2
+
+	@ do v < 4 -> (a -> v := v + 1) end
+end
