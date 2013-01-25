@@ -1856,24 +1856,22 @@ type returns[PType type]
             if ($rng.type == null) {
                 $type = $dom.type;
             } else {
-                LexLocation loc = extractLexLocation($dom.type.getLocation(), $rng.type.getLocation());
                 List<PType> params = new ArrayList<PType>();
                 params.add($dom.type);
-                $type = new AFunctionType(loc, false, null, totalFuncType, params, $rng.type);
+                $type = new AFunctionType(null, false, null, totalFuncType, params, $rng.type);
             }
         }
     | unit='('')' ( '->' | '+>' { totalFuncType=true; } ) rng=type0
         {
-            LexLocation loc = extractLexLocation($dom.type.getLocation(), $rng.type.getLocation());
             List<PType> params = new ArrayList<PType>();
             params.add(new AVoidType(extractLexLocation($unit), true));
-            $type = new AFunctionType(loc, false, null, totalFuncType, params, $rng.type);
+            $type = new AFunctionType(null, false, null, totalFuncType, params, $rng.type);
         }
     | 'set' 'of' sub=type                       { $type = new ASetType(null, false, null, $sub.type, false, false); }
     | 'seq' 'of' sub=type                       { $type = new ASeqSeqType(null, false, null, $sub.type, false); }
     | 'seq1' 'of' sub=type                      { $type = new ASeq1SeqType(null, false, null, $sub.type, false); }
-    | 'map' dom=type 'to' rng=type              { $type = new AMapMapType(null, false, null, $dom.type, $rng.type, false); }
-    | 'inmap' dom=type 'to' rng=type            { $type = new AInMapMapType(null, false, null, $dom.type, $rng.type, false); }
+    | 'map' from=type 'to' rng=type              { $type = new AMapMapType(null, false, null, $from.type, $rng.type, false); }
+    | 'inmap' from=type 'to' rng=type            { $type = new AInMapMapType(null, false, null, $from.type, $rng.type, false); }
     ;
 
 type0 returns[PType type]
