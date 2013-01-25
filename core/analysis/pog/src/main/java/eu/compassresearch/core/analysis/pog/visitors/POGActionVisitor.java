@@ -12,9 +12,11 @@ import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
+import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.analysis.pog.obligations.CMLNonZeroTimeObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.CMLWhileLoopObligation;
 
@@ -134,6 +136,29 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 
 		return pol;
 	}
+	
+	@Override
+	public ProofObligationList caseATimedInterruptAction(ATimedInterruptAction node,
+			POContextStack question) throws AnalysisException
+	{
+    	System.out.println("A ATimedInterruptAction: " + node.toString());
+		CMLProofObligationList pol = new CMLProofObligationList();
+		
+		PAction left = node.getLeft();
+		PAction right = node.getRight();
+		PExp timeExp = node.getTimeExpression();
+
+		//Send left-hand side
+		pol.addAll(left.apply(this, question));
+		//check for Non-Zero time obligation and dispatch exp for POG checking
+		pol.add(new CMLNonZeroTimeObligation(timeExp, question));
+		pol.addAll(timeExp.apply(this, question));
+		//Send right-hand side
+		pol.addAll(right.apply(this, question));
+
+		return pol;
+	}
+	
 	
     // Default action
     @Override
