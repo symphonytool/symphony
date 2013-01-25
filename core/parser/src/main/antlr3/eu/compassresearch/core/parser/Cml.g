@@ -1870,8 +1870,8 @@ type returns[PType type]
     | 'set' 'of' sub=type                       { $type = new ASetType(null, false, null, $sub.type, false, false); }
     | 'seq' 'of' sub=type                       { $type = new ASeqSeqType(null, false, null, $sub.type, false); }
     | 'seq1' 'of' sub=type                      { $type = new ASeq1SeqType(null, false, null, $sub.type, false); }
-    | 'map' from=type 'to' rng=type              { $type = new AMapMapType(null, false, null, $from.type, $rng.type, false); }
-    | 'inmap' from=type 'to' rng=type            { $type = new AInMapMapType(null, false, null, $from.type, $rng.type, false); }
+    | 'map' from=type 'to' to=type              { $type = new AMapMapType(null, false, null, $from.type, $to.type, false); }
+    | 'inmap' from=type 'to' to=type            { $type = new AInMapMapType(null, false, null, $from.type, $to.type, false); }
     ;
 
 type0 returns[PType type]
