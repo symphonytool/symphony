@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.overture.ast.definitions.PDefinition;
 
 import org.antlr.runtime.MismatchedTokenException;
@@ -28,17 +29,28 @@ import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlBuildVisitor implements IResourceVisitor {
 
+	final IProgressMonitor monitor;
+	public CmlBuildVisitor(IProgressMonitor monitor)
+	{
+		this.monitor = monitor;
+	}
+	
 	public boolean visit(IResource resource) throws CoreException {
 
 		// Resource for this build
 		if (!shouldBuild(resource))
 			return true;
 
+		// Stop if user pressed cancel
+		if (monitor.isCanceled())
+			return true;
+		
 		// This visitor only builds files.
 		IFile file = (IFile) resource;
 
 		// Parse the source
 		AFileSource source = new AFileSource();
+		monitor.subTask("Parsing file: "+file.getName());
 		boolean parseResult = parse(file, source);
 
 
