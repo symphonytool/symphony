@@ -1,0 +1,9 @@
+channels a, b
+process A = 
+begin
+	
+	functions
+ 
+	@ a -> Skip 
+end
+
