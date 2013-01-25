@@ -7,7 +7,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import javax.swing.ProgressMonitor;
+
+import org.eclipse.core.commands.Command;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.internal.resources.Resource;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -15,17 +21,25 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.resource.ResourceManager;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
+import org.eclipse.ui.internal.commands.CommandService;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLIssue;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLIssueList;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
@@ -33,7 +47,6 @@ import eu.compassresearch.ide.cml.core.ICmlCoreConstants;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
-
 
 	
 	public CmlIncrementalBuilder()
@@ -65,7 +78,21 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
-
+	
+	private static boolean isChildOfMe(INode me, INode candidate)
+	{
+		if (me == candidate) return true;
+		Map<String, Object> children = me.getChildren(true);
+		for(Object o : children.values())
+		{
+			if (o != null && o instanceof INode)
+			{
+				INode n = (INode)o;
+				isChildOfMe(me,candidate);
+			}
+		}
+		return false;
+	}
 
 	/*
 	 * For each error remove the parent errors so we only see the leafs.
@@ -73,27 +100,40 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 	 */
 	private static List<CMLTypeError> filterErrros(List<CMLTypeError> errs)
 	{
-		Map<INode, CMLTypeError> nodeToErrorMap = new HashMap<INode,CMLTypeError>();
+		Map<INode, List<CMLTypeError>> nodeToErrorMap = new HashMap<INode,List<CMLTypeError>>();
 
 		for(CMLTypeError error : errs)
 			if (error.getOffendingNode() != null)
-				nodeToErrorMap.put(error.getOffendingNode(), error);
-		
-		List<INode> errorsToKill = new LinkedList<INode>();
-		for(CMLTypeError error : nodeToErrorMap.values())
-		{
-			INode parent = error.getOffendingNode().parent();
-			while(parent != null)
 			{
-				if (nodeToErrorMap.containsKey(parent))
-					errorsToKill.add(parent);
-				parent = parent.parent();
+				List<CMLTypeError> l = 	nodeToErrorMap.get(error.getOffendingNode());
+				if (l == null) { l = new LinkedList<CMLTypeError>(); nodeToErrorMap.put(error.getOffendingNode(),l); }
+				l.add(error);
+			}
+
+		List<INode>  nodesToClearErrorsFor = new LinkedList<INode>();
+		for(List<CMLTypeError> errors : nodeToErrorMap.values())
+		{
+			for(CMLTypeError error : errors)
+			{
+				INode parent = error.getOffendingNode().parent();
+				while(parent != null)
+				{
+					if (nodeToErrorMap.containsKey(parent))
+						nodesToClearErrorsFor.add(parent);
+					parent = parent.parent();
+				}
 			}
 		}
 		
-		for(INode n : errorsToKill) nodeToErrorMap.remove(n);
+		for(INode n : nodesToClearErrorsFor)
+			nodeToErrorMap.put(n,new LinkedList<CMLTypeError>());
 		
-		return new ArrayList<TypeIssueHandler.CMLTypeError>(nodeToErrorMap.values());
+		List<CMLTypeError> res = new ArrayList<TypeIssueHandler.CMLTypeError>();
+		for(Entry<INode,List<CMLTypeError>> e : nodeToErrorMap.entrySet())
+			res.addAll(e.getValue());
+
+
+		return res;
 	}
 
 	private synchronized static boolean typeCheck(IProject project, Map<PSource,IFile> sourceToFileMap)
