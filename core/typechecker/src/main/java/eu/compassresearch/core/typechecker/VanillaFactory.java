@@ -7,6 +7,8 @@ import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.common.Registry;
+import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
@@ -139,7 +141,12 @@ public final class VanillaFactory {
 	 * 
 	 * @return
 	 */
-	public static TypeIssueHandler newCollectingIssueHandle() {
-		return new CollectingIssueHandler();
+	public static TypeIssueHandler newCollectingIssueHandle(Registry reg) {
+		return new CollectingIssueHandler(reg);
 	}
+	
+	public static TypeIssueHandler newCollectingIssueHandle() {
+		return new CollectingIssueHandler(RegistryFactory.getInstance().getRegistry());
+	}
+
 }
