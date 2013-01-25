@@ -1,6 +1,8 @@
 package eu.compassresearch.core.interpreter.cml;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
@@ -8,8 +10,12 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.types.PType;
+import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
+import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.NameValuePair;
+import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
@@ -269,10 +275,53 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 			opVal.abort(4066, "Cannot call implicit operation: " + name, question.getVdmContext());
 		}
 		
-		//TODO add the arg patterns with the results to the context here
-		
 		//TODO maybe this context should be a different one
 		CmlContext callContext = new CmlContext(node.getLocation(), "Op call", question);
+		
+		if (argValues.size() != opVal.getParamPatterns().size())
+		{
+			opVal.abort(4068, "Wrong number of arguments passed to " + name.name, question.getVdmContext());
+		}
+		
+		ListIterator<Value> valIter = argValues.listIterator();
+		Iterator<PType> typeIter = opVal.getType().getParameters().iterator();
+		NameValuePairMap args = new NameValuePairMap();
+
+		for (PPattern p : opVal.getParamPatterns())
+		{
+			try
+			{
+				// Note values are assumed to be constant, as enforced by eval()
+				Value pv = valIter.next().convertTo(typeIter.next(), question.getVdmContext());
+
+				for (NameValuePair nvp : PPatternAssistantInterpreter.getNamedValues(p,pv, question.getVdmContext()))
+				{
+					Value v = args.get(nvp.name);
+
+					if (v == null)
+					{
+						args.put(nvp);
+					}
+					else	// Names match, so values must also
+					{
+						if (!v.equals(nvp.value))
+						{
+							opVal.abort(4069,	"Parameter patterns do not match arguments", question.getVdmContext());
+						}
+					}
+				}
+			}
+			catch (PatternMatchException e)
+			{
+				opVal.abort(e.number, e, question.getVdmContext());
+			}
+		}
+		
+		// Note: arg name/values hide member values
+		callContext.putAll(args);
+		
+		//TODO add the arg patterns with the results to the context here
+		
 		
 		pushNext(opVal.getBody(), callContext);
 		
