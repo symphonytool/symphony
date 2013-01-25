@@ -10,6 +10,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Control;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
+import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.actions.PActionBase;
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -190,6 +191,10 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 					if (in.parent() == null)
 						return null;
 
+					// test the parent type loop here
+					if (in.parent() instanceof PType)
+						return null;
+					
 					String dscr = TopLevelDefinitionMap.getDescription(in
 							.getClass());
 					if (dscr == null)
