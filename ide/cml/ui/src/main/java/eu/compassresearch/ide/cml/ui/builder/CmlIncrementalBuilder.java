@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.ProgressMonitor;
 
@@ -74,21 +75,6 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
-	
-	private static boolean isChildOfMe(INode me, INode candidate)
-	{
-		if (me == candidate) return true;
-		Map<String, Object> children = me.getChildren(true);
-		for(Object o : children.values())
-		{
-			if (o != null && o instanceof INode)
-			{
-				INode n = (INode)o;
-				isChildOfMe(me,candidate);
-			}
-		}
-		return false;
-	}
 
 	/*
 	 * For each error remove the parent errors so we only see the leafs.
@@ -96,27 +82,40 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 	 */
 	private static List<CMLTypeError> filterErrros(List<CMLTypeError> errs)
 	{
-		Map<INode, CMLTypeError> nodeToErrorMap = new HashMap<INode,CMLTypeError>();
+		Map<INode, List<CMLTypeError>> nodeToErrorMap = new HashMap<INode,List<CMLTypeError>>();
 
 		for(CMLTypeError error : errs)
 			if (error.getOffendingNode() != null)
-				nodeToErrorMap.put(error.getOffendingNode(), error);
-		
-		List<INode> errorsToKill = new LinkedList<INode>();
-		for(CMLTypeError error : nodeToErrorMap.values())
-		{
-			INode parent = error.getOffendingNode().parent();
-			while(parent != null)
 			{
-				if (nodeToErrorMap.containsKey(parent))
-					errorsToKill.add(parent);
-				parent = parent.parent();
+				List<CMLTypeError> l = 	nodeToErrorMap.get(error.getOffendingNode());
+				if (l == null) { l = new LinkedList<CMLTypeError>(); nodeToErrorMap.put(error.getOffendingNode(),l); }
+				l.add(error);
+			}
+
+		List<INode>  nodesToClearErrorsFor = new LinkedList<INode>();
+		for(List<CMLTypeError> errors : nodeToErrorMap.values())
+		{
+			for(CMLTypeError error : errors)
+			{
+				INode parent = error.getOffendingNode().parent();
+				while(parent != null)
+				{
+					if (nodeToErrorMap.containsKey(parent))
+						nodesToClearErrorsFor.add(parent);
+					parent = parent.parent();
+				}
 			}
 		}
 		
-		for(INode n : errorsToKill) nodeToErrorMap.remove(n);
+		for(INode n : nodesToClearErrorsFor)
+			nodeToErrorMap.put(n,new LinkedList<CMLTypeError>());
 		
-		return new ArrayList<TypeIssueHandler.CMLTypeError>(nodeToErrorMap.values());
+		List<CMLTypeError> res = new ArrayList<TypeIssueHandler.CMLTypeError>();
+		for(Entry<INode,List<CMLTypeError>> e : nodeToErrorMap.entrySet())
+			res.addAll(e.getValue());
+
+
+		return res;
 	}
 
 	private synchronized static boolean typeCheck(IProject project, Map<PSource,IFile> sourceToFileMap)
@@ -234,7 +233,7 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		monitor.subTask("Type checking");
 		typeCheck(project,sourceToFileMap);
 
-		
+
 		// Return the projects that should be build also as result of rebuilding
 		// this
 		return null;
