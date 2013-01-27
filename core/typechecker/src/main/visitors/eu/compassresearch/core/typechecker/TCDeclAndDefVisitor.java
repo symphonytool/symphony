@@ -196,6 +196,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	public PType caseAFunctionsDefinition(AFunctionsDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		
 		LinkedList<PDefinition> functions = node.getFunctionDefinitions();
 		for(PDefinition def : functions)
 		{
@@ -205,6 +207,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				node.setType(issueHandler.addTypeError(def,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+def)));
 				return node.getType();
 			}
+			cmlEnv.addVariable(def.getName(), def);
 		}
 
 		node.setType(new AFunctionParagraphType(node.getLocation(), true));
@@ -1650,7 +1653,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// Check funcType <: bodyType in question
 		AFunctionType funcType = node.getType();
-		if (!typeComparator.isSubType(funcType.getResult(), body.getType()))
+		if (!typeComparator.isSubType(body.getType(), funcType.getResult()))
 			issueHandler.addTypeError(body,
 					TypeErrorMessages.EXPECTED_SUBTYPE_RELATION
 					.customizeMessage(funcType.toString(), body

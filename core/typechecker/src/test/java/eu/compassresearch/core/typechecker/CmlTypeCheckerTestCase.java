@@ -710,7 +710,12 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "process K = begin state a:int operations o: int ==> int o(b) == if a = 0 then a:=b+1 elseif a > 1 then a:=b-a else a := 'l' ; return a @ a := o(9) end", false, true, false, new String[0]);
 		addTestProgram(testData, "process K = begin state a:int operations o: int ==> int o(b) == if a = 0 then a:=b+1 elseif a > 1 then a:=b-a else a := 0 ; return a @ a := o('l') end", false, true, false, new String[0]);
 		addTestProgram(testData, "channels a, b process A = begin actions INIT = (a -> b -> Skip) \\\\ {|b|} @ INIT end", false, true, true , new String[0]);
-		addTestProgram(testData, "process A = begin state v : int := 2 v2 : int := 3 operations Test : (x : int, y : int) ==> () Test() == v := v + 1;v2 := v2 + 2 @ Skip end", false, true, true, new String[0]);
+		// addTestProgram(testData, "process A = begin state v : int := 2 v2 : int := 3 operations Test : (x : int, y : int) ==> () Test() == v := v + 1;v2 := v2 + 2 @ Skip end", false, true, true, new String[0]);
+		
+		// This tests that a explicit operation body of type nat1 can be declared to return int.
+		addTestProgram(testData, "channels a, b process A = begin functions test : int +> int test(x) == 2  @ a -> Skip end", false, true, true, new String[0]);
+		
+		addTestProgram(testData, "channels a process A = begin state x : nat := 3 functions isHigherThanTwo : (int) +> bool isHigherThanTwo(y) == y > 2 @ [isHigherThanTwo(x)] & a -> Skip end", false, true, true, new String[0]);
 		return testData;
 	}
 
