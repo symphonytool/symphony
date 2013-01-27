@@ -212,34 +212,43 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 
 
 	private IProject[] buildit(IProgressMonitor monitor) throws CoreException {
-		// Remove all markers from project
-		getProject().deleteMarkers(IMarker.PROBLEM, true,
-				IResource.DEPTH_INFINITE);
-
-		// Remove all errors in the registry for this project
-		String projectName = getProject().getName();
-		Registry tcReg = RegistryFactory.getInstance(projectName).getRegistry();
-		tcReg.prune(CMLIssueList.class);
-		
-		// Create a visitor
-		CmlBuildVisitor buildVisitor = new CmlBuildVisitor();
 
 		// get project
 		IProject project = getProject();
 
+		
+		// Remove all markers from project
+		project.deleteMarkers(IMarker.PROBLEM, true,
+				IResource.DEPTH_INFINITE);
+
+		
+		// Remove all errors in the registry for this project
+		String projectName = project.getName();
+		Registry tcReg = RegistryFactory.getInstance(projectName).getRegistry();
+		tcReg.prune(CMLIssueList.class);
+		
+		monitor.beginTask("Building project: "+projectName, 5);
+		
+		// Create a visitor
+		CmlBuildVisitor buildVisitor = new CmlBuildVisitor(monitor);
+		
+		
 		// run the parser on every cml file in the project
 		project.accept(buildVisitor);
+		
 
 		// Type Check all sources in this project
 		Collection<CmlSourceUnit> allSourceUnits = CmlSourceUnit.getAllSourceUnits();
 		Map<PSource,IFile> sourceToFileMap = new HashMap<PSource,IFile>();
 		for(CmlSourceUnit sourceUnit : allSourceUnits)
 		{
+			monitor.subTask("Type checking, adding source "+sourceUnit);
 			if (sourceUnit.isParsedOk() && 
 					sourceUnit.getFile().getProject() == project 
 					&& sourceUnit.getSourceAst() != null)
 				sourceToFileMap.put(sourceUnit.getSourceAst(), sourceUnit.getFile());
 		}
+		monitor.subTask("Type checking");
 		typeCheck(project,sourceToFileMap);
 
 		
