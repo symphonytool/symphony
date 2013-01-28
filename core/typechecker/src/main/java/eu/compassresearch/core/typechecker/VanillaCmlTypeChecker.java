@@ -379,7 +379,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 		}
 		if (issueHandler.hasErrors()) return false;
 
-		// classes and processes beforehand
+		// add classes and processes beforehand to environment
 		for(PSource s : sourceForest)
 		{
 			for(PDefinition def : s.getParagraphs())

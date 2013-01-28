@@ -52,7 +52,6 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
-import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
@@ -73,7 +72,6 @@ import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
-import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 
 class TCExpressionVisitor extends
 QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
@@ -417,15 +415,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		 * Overture copy STOP
 		 * Now collect any type errors created by Overture assistants 
 		 */
-		if (TypeChecker.getErrorCount() > 0)
-		{
-			List<VDMError> errors = TypeChecker.getErrors();
-			for(VDMError e : errors)
-				issueHandler.addTypeError(node, e.message);
-			node.setType(new AErrorType(node.getLocation(), true));
-			return node.getType();
-		}
 
+		/*
 		// RWL: Type check an apply of a cml Operation (implicit and explicit)
 		if (node.getType() instanceof SCmlOperationDefinition)
 		{
@@ -461,6 +452,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			// set the result of this apply expression to the return type of the operation.
 			results.add(ot.getResult());
 		}
+	*/
 
 		if (results.isEmpty()) {
 			TypeCheckerErrors.report(3054, "Type " + node.getType()
@@ -468,6 +460,15 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return AstFactory.newAUnknownType(node.getLocation());
 		}
 
+		// Check for errors
+		if (TypeChecker.getErrorCount() > 0)
+		{
+			List<VDMError> errors = TypeChecker.getErrors();
+			for(VDMError e : errors)
+				issueHandler.addTypeError(node, e.message);
+			node.setType(new AErrorType(node.getLocation(), true));
+			return node.getType();
+		}
 
 		node.setType(results.getType(node.getLocation()));
 		return node.getType(); // Union of possible applications
