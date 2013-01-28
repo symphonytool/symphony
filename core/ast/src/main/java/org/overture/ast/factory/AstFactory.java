@@ -542,7 +542,11 @@ public class AstFactory {
 		AValueDefinition result = new AValueDefinition();
 
 		// Definition initialization
-		initDefinition(result, Pass.VALUES, p.getLocation(), null, scope);
+		LexNameToken name = null;
+		if (p instanceof AIdentifierPattern) {
+		    name = ((AIdentifierPattern)p).getName();
+		}
+		initDefinition(result, Pass.VALUES, p.getLocation(), name, scope);
 
 		result.setPattern(p);
 		result.setType(type);
@@ -551,8 +555,8 @@ public class AstFactory {
 		List<PDefinition> defs = new Vector<PDefinition>();
 
 		for (LexNameToken var : PPatternAssistant.getVariableNames(p)) {
-			defs.add(AstFactory.newAUntypedDefinition(result.getLocation(),
-					var, scope));
+		    defs.add(AstFactory.newAUntypedDefinition(result.getLocation(),
+							      var, scope));
 		}
 
 		result.setDefs(defs);
