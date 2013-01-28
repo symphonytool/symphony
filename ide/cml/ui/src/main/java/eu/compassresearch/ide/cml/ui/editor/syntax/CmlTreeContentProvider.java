@@ -53,7 +53,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		//TODO figure out ast deltas
+		//TODO figure out ast deltas for the outline preservation
 //		if (newInput instanceof CmlSourceUnit)
 //			current = ((CmlSourceUnit) newInput).getSourceAst();
 	}
@@ -86,6 +86,9 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 						res.add(Wrapper.newInstance(def, def.getName().name));
 				    else
 					res.add(Wrapper.newInstance(def, dscr));
+					
+					
+					// Cache mode disabled due to poor hashing on ast notes
 //						dscr = def.toString();
 //					//else res.add(Wrapper.newInstance(def, dscr));
 //					

@@ -6,7 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -16,7 +18,6 @@ import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
-
 
 public class DefinitionMap {
 
@@ -37,14 +38,11 @@ public class DefinitionMap {
 
 	private static Map<Class<?>, ? extends DefinitionHandler> createMap() {
 		Map<Class<?>, DefinitionHandler> map = new HashMap<Class<?>, DefinitionHandler>();
-		map.put(AActionsDefinition.class,
-				new AActionsDefinitionHandler());
-		map.put(AValuesDefinition.class,
-				new AValueParagraphDefinitionHandler());
+		map.put(AActionsDefinition.class, new AActionsDefinitionHandler());
+		map.put(AValuesDefinition.class, new AValueParagraphDefinitionHandler());
 		map.put(AFunctionsDefinition.class,
 				new AFunctionParagraphDefinitionHandler());
-		map.put(ATypesDefinition.class,
-				new ATypesParagraphDefinitionHandler());
+		map.put(ATypesDefinition.class, new ATypesParagraphDefinitionHandler());
 		map.put(AOperationsDefinition.class,
 				new AOperationParagraphDefinitionHandler());
 		return Collections.unmodifiableMap(map);
@@ -53,18 +51,33 @@ public class DefinitionMap {
 	private static class AValueParagraphDefinitionHandler implements
 			DefinitionHandler {
 
-		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(
+				PDefinition pdef) {
 			List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 
 			for (PDefinition subdef : ((AValuesDefinition) pdef)
 					.getValueDefinitions()) {
-				String nameguard = "?";
+
 				String typeguard = "?";
-				if (null != subdef.getName())
-					nameguard = subdef.getName().name;
 				if (null != subdef.getType())
+					
 					typeguard = subdef.getType().toString();
-				r.add(Wrapper.newInstance(subdef, nameguard + ": " + typeguard));
+				r.add(Wrapper.newInstance(subdef, extractValueName(subdef)
+						+ ": " + typeguard));
+			}
+			return r;
+		}
+
+		private String extractValueName(PDefinition pdef) {
+			String r = "?";
+			if (pdef instanceof AValueDefinition) {
+				AValueDefinition avd = (AValueDefinition) pdef;
+				if (avd.getDefs() != null) {
+					PDefinition firstdef = avd.getDefs().get(0);
+					if (firstdef != null) {
+						r = firstdef.getName().name;
+					}
+				}
 			}
 			return r;
 		}
@@ -73,8 +86,9 @@ public class DefinitionMap {
 	private static class AFunctionParagraphDefinitionHandler implements
 			DefinitionHandler {
 
-		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
-		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(
+				PDefinition pdef) {
+			List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			for (PDefinition subdef : ((AFunctionsDefinition) pdef)
 					.getFunctionDefinitions()) {
 				r.add(Wrapper.newInstance(subdef, subdef.getName().name + ": "
@@ -87,10 +101,10 @@ public class DefinitionMap {
 	private static class ATypesParagraphDefinitionHandler implements
 			DefinitionHandler {
 
-		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
-		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
-			for (ATypeDefinition subdef : ((ATypesDefinition) pdef)
-					.getTypes())
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(
+				PDefinition pdef) {
+			List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
+			for (ATypeDefinition subdef : ((ATypesDefinition) pdef).getTypes())
 				r.add(Wrapper.newInstance(subdef, subdef.getName().name));
 			return r;
 		}
@@ -99,8 +113,9 @@ public class DefinitionMap {
 	private static class AOperationParagraphDefinitionHandler implements
 			DefinitionHandler {
 
-		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
-		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(
+				PDefinition pdef) {
+			List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			for (SCmlOperationDefinition subdef : ((AOperationsDefinition) pdef)
 					.getOperations())
 				r.add(Wrapper.newInstance(subdef, subdef.getName().name + ": "
@@ -109,18 +124,19 @@ public class DefinitionMap {
 		}
 	}
 
-	private static class AActionsDefinitionHandler implements
-			DefinitionHandler {
-		public List<Wrapper<? extends PDefinition>> extractSubdefinition(PDefinition pdef) {
-		    List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
-		    AActionsDefinition actionsDef = (AActionsDefinition) pdef;
-		    String nameguard;
-		    for (AActionDefinition aADef : actionsDef.getActions()){
-			if (null == aADef.getName())
-			    nameguard ="anonymous";
-			else nameguard=aADef.getName().toString();
-			r.add(Wrapper.newInstance(aADef, nameguard));
-		    }
+	private static class AActionsDefinitionHandler implements DefinitionHandler {
+		public List<Wrapper<? extends PDefinition>> extractSubdefinition(
+				PDefinition pdef) {
+			List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
+			AActionsDefinition actionsDef = (AActionsDefinition) pdef;
+			String nameguard;
+			for (AActionDefinition aADef : actionsDef.getActions()) {
+				if (null == aADef.getName())
+					nameguard = "anonymous";
+				else
+					nameguard = aADef.getName().toString();
+				r.add(Wrapper.newInstance(aADef, nameguard));
+			}
 			return r;
 		}
 	}

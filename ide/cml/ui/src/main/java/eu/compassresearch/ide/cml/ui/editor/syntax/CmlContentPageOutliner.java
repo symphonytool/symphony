@@ -70,6 +70,7 @@ IContentOutlinePage {
 	TreePath[] oldPaths = getTreeViewer().getExpandedTreePaths();
 	getTreeViewer().refresh();
 	getTreeViewer().setExpandedTreePaths(oldPaths);
+	getTreeViewer().setAutoExpandLevel(2);
     }
 
     public CmlContentPageOutliner(CmlEditor editor) {
