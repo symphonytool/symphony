@@ -239,6 +239,7 @@ process {-> package='eu.compassresearch.ast.process'}
         | {hiding}
                 [left]:process
                 [chansetExpression]:VarsetExpression
+        | {skip}
         | {startDeadline}
                 [left]:process
                 [expression]:exp

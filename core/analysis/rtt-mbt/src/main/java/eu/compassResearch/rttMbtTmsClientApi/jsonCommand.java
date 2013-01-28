@@ -180,8 +180,12 @@ public class jsonCommand {
 	public IRttMbtProgressBar.Tasks String2Task(String taskName) {
 		IRttMbtProgressBar.Tasks task = IRttMbtProgressBar.Tasks.Global;
 		
-		if (taskName.equals("Goal Coverage       ")) {
+		if (taskName.equals("Generate Test")) {
 			return IRttMbtProgressBar.Tasks.Global;
+		}
+		
+		if (taskName.equals("Goal Coverage       ")) {
+			return IRttMbtProgressBar.Tasks.Goal;
 		}
 		
 		if (taskName.equals("Test case coverage ")) {

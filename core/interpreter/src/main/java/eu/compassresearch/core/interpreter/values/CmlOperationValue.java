@@ -25,8 +25,8 @@ public class CmlOperationValue extends CmlValue {
 	public final AExplicitCmlOperationDefinition expldef;
 	public final AImplicitCmlOperationDefinition impldef;
 	public final LexNameToken name;
-	public final AOperationType type;
-	public final List<PPattern> paramPatterns;
+	private final AOperationType type;
+	private final List<PPattern> paramPatterns;
 
 	public final FunctionValue precondition;
 	public final FunctionValue postcondition;
@@ -67,7 +67,7 @@ public class CmlOperationValue extends CmlValue {
 
 		for (APatternListTypePair ptp : def.getParameterPatterns())
 		{
-			paramPatterns.addAll(ptp.getPatterns());
+			getParamPatterns().addAll(ptp.getPatterns());
 		}
 
 		this.precondition = precondition;
@@ -86,7 +86,7 @@ public class CmlOperationValue extends CmlValue {
 	@Override
 	public String toString()
 	{
-		return type.toString();
+		return getType().toString();
 	}
 
 	public void setSelf(CmlObjectValue self)
@@ -124,6 +124,14 @@ public class CmlOperationValue extends CmlValue {
 	public Object clone() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public List<PPattern> getParamPatterns() {
+		return paramPatterns;
+	}
+
+	public AOperationType getType() {
+		return type;
 	}
 
 }

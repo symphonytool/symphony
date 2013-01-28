@@ -13,8 +13,8 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.cml.events.ObservableValueEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+import eu.compassresearch.core.interpreter.util.AbstractValueInterpreter;
 /**
  * This class implements a random selection CMLCommunicaiton of the alphabet 
  * @author akm
@@ -36,11 +36,14 @@ public class RandomSelectionStrategy implements
 		{
 			selectedComm = availableChannelEvents.getObservableEvents().iterator().next();
 			
-			if(selectedComm instanceof ObservableValueEvent && !((ObservableValueEvent)selectedComm).isValuePrecise())
+			if(!selectedComm.isValuePrecise())
 			{
 				AChannelType t = (AChannelType)selectedComm.getChannel().getType();
 				
-				((ObservableValueEvent)selectedComm).setMostPreciseValue(getRandomValueFromType(t.getType()));
+				selectedComm.setValue(
+						AbstractValueInterpreter.meet(
+						selectedComm.getValue(),
+						getRandomValueFromType(t.getType())));
 			}
 		}
 		//CmlRuntime.logger().fine("Available events " + availableChannelEvents.getObservableEvents());

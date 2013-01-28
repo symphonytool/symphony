@@ -1,7 +1,11 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 
 public class CmlTauEvent extends CmlSpecialEvent {
@@ -25,10 +29,17 @@ public class CmlTauEvent extends CmlSpecialEvent {
 		return instance;
 	}
 		
-	protected CmlTauEvent(INode transitionSrcNode, INode transitionDstNode)
+	public CmlTauEvent(INode transitionSrcNode, INode transitionDstNode)
 	{
 		this.transitionSrcNode = transitionSrcNode;
 		this.transitionDstNode = transitionDstNode;
+	}
+	
+	public CmlTauEvent(String text)
+	{
+		this.transitionSrcNode = null;
+		this.transitionDstNode = null;
+		this.transitionText = text;
 	}
 	
 	public void setTransitionText(String text)
@@ -60,6 +71,14 @@ public class CmlTauEvent extends CmlSpecialEvent {
 			return false;
 		else
 			return true;
+	}
+
+	@Override
+	public CmlAlphabet getAsAlphabet() {
+		
+		Set<CmlEvent> events = new HashSet<CmlEvent>();
+		events.add(this);
+		return new CmlAlphabet(events);
 	}
 
 }

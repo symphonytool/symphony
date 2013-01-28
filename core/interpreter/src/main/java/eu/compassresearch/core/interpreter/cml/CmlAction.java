@@ -1,17 +1,23 @@
 package eu.compassresearch.core.interpreter.cml;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.statements.AElseIfStm;
+import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.PPattern;
+import org.overture.ast.types.PType;
+import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
+import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.runtime.VdmRuntime;
-import org.overture.interpreter.runtime.VdmRuntimeError;
+import org.overture.interpreter.values.NameValuePair;
+import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
-import org.overture.interpreter.values.VoidValue;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
@@ -20,31 +26,37 @@ import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
+import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
+import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
+import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.SParallelAction;
+import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
-import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
-import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlContext;
-import eu.compassresearch.core.interpreter.runtime.CmlRootContext;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
-import eu.compassresearch.core.interpreter.values.CmlValueFactory;
+import eu.compassresearch.core.interpreter.values.CmlValue;
 
 /**
  *  This class represents a running CML Action. It represents a specific node as specified in D23.2 section 7.4.2,
@@ -59,25 +71,22 @@ import eu.compassresearch.core.interpreter.values.CmlValueFactory;
  * @author akm
  *
  */
-public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlProcessStateObserver, CmlProcessTraceObserver{
+public class CmlAction extends AbstractBehaviourThread<PAction> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 993071972119803788L;
-	private LexNameToken name;
 	
 	public CmlAction(PAction action,CmlContext context, LexNameToken name)
 	{
-		super(null);
-		this.name = name;
+		super(null,name);
 		pushNext(action, context);
 	}
 	
 	public CmlAction(PAction action,CmlContext context, LexNameToken name, CmlAction parent)
 	{
-		super(parent);
-		this.name = name;
+		super(parent,name);
 		pushNext(action, context);
 	}
 	
@@ -94,34 +103,6 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		setState(CmlProcessState.RUNNABLE);
 	}
 
-	@Override
-	public CmlAlphabet inspect()
-	{
-		try
-		{
-			if(hasNext())
-			{
-				Pair<PAction,CmlContext> next = nextState();
-				return next.first.apply(alphabetInspectionVisitor,next.second);
-			}
-			//if the process is done we return the empty alphabet
-			else
-			{
-				return new CmlAlphabet();
-			}
-		}
-		catch(AnalysisException ex)
-		{
-			CmlRuntime.logger().throwing(this.toString(),"inspect()", ex);
-			throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage(),ex);
-		}
-	}
-
-	@Override
-	public LexNameToken name() {
-		return this.name;
-	}
-	
 	@Override
 	public String nextStepToString() {
 		
@@ -168,36 +149,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		}
 	}
 	
-	/**
-	 * CmlProcessStateObserver interface 
-	 */
 	
-	@Override
-	public void onStateChange(CmlProcessStateEvent stateEvent) {
-
-		switch(stateEvent.getTo())
-		{
-		case WAIT_CHILD:
-		case RUNNING:
-			setState(CmlProcessState.WAIT_CHILD);
-			break;
-		case WAIT_EVENT:
-			//if at least one child are waiting for an event this process must invoke either Parallel Non-sync or sync
-			if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(this))
-				setState(CmlProcessState.RUNNABLE);
-			break;
-		case FINISHED:
-			stateEvent.getSource().onStateChanged().unregisterObserver(this);
-			
-			//if all the children are finished this process can continue and evolve into skip
-			if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(this))
-				setState(CmlProcessState.RUNNABLE);
-			
-			break;
-		default:
-			break;
-		}
-	}
 
 	/**
 	 * CmlProcessTraceObserver interface 
@@ -217,37 +169,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 	 * Private helper methods
 	 */
 	
-	/*
-	 * Child support -- we must help the children
-	 */
-	
-	/**
-	 * Executes the next state of the child process silently, meaning that the trace event
-	 * is disabled since the patent processes (this process) already have the event in the trace
-	 * since its supervising the child processes
-	 * @param child
-	 * @return
-	 */
-	private CmlBehaviourSignal executeChild(CmlBehaviourThread child)
-	{
-		child.onTraceChanged().unregisterObserver(this);
-		CmlBehaviourSignal result = child.execute(supervisor());
-		child.onTraceChanged().registerObserver(this);
 		
-		return result;
-	}
-	
-	private void addChild(CmlAction child)
-	{
-		//Add the child to the process graph
-		children().add(child);
-		//Register for state change and trace change events
-		child.onStateChanged().registerObserver(this);
-		child.onTraceChanged().registerObserver(this);
-		
-		child.start(supervisor());
-	}
-	
 	/**
 	 * Transition methods
 	 */
@@ -256,7 +178,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 	public CmlBehaviourSignal defaultPAction(PAction node, CmlContext question)
 			throws AnalysisException {
 
-		throw new InterpreterRuntimeException(node.getClass().getSimpleName() + " case is not yet implemented.");
+		throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
 	
 	/**
@@ -267,9 +189,18 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			ABlockStatementAction node, CmlContext question)
 			throws AnalysisException {
 		
-		//pushNext(node.getAction(), question); 
-		//return CmlBehaviourSignal.EXEC_SUCCESS;
-		return node.getAction().apply(this,question);
+		CmlContext blockContext = new CmlContext(node.getLocation(), "block context", question);
+		
+		//add the assignements defs to the context
+		if(node.getDeclareStatement() != null)
+		{
+			for(PDefinition def : node.getDeclareStatement().getAssignmentDefs())
+					def.apply(cmlEvaluator,blockContext);
+		}
+		
+		pushNext(node.getAction(), blockContext); 
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+		//return node.getAction().apply(this,blockContext);
 	}
 	
 	@Override
@@ -344,10 +275,53 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			opVal.abort(4066, "Cannot call implicit operation: " + name, question.getVdmContext());
 		}
 		
-		//TODO add the arg patterns with the results to the context here
-		
 		//TODO maybe this context should be a different one
 		CmlContext callContext = new CmlContext(node.getLocation(), "Op call", question);
+		
+		if (argValues.size() != opVal.getParamPatterns().size())
+		{
+			opVal.abort(4068, "Wrong number of arguments passed to " + name.name, question.getVdmContext());
+		}
+		
+		ListIterator<Value> valIter = argValues.listIterator();
+		Iterator<PType> typeIter = opVal.getType().getParameters().iterator();
+		NameValuePairMap args = new NameValuePairMap();
+
+		for (PPattern p : opVal.getParamPatterns())
+		{
+			try
+			{
+				// Note values are assumed to be constant, as enforced by eval()
+				Value pv = valIter.next().convertTo(typeIter.next(), question.getVdmContext());
+
+				for (NameValuePair nvp : PPatternAssistantInterpreter.getNamedValues(p,pv, question.getVdmContext()))
+				{
+					Value v = args.get(nvp.name);
+
+					if (v == null)
+					{
+						args.put(nvp);
+					}
+					else	// Names match, so values must also
+					{
+						if (!v.equals(nvp.value))
+						{
+							opVal.abort(4069,	"Parameter patterns do not match arguments", question.getVdmContext());
+						}
+					}
+				}
+			}
+			catch (PatternMatchException e)
+			{
+				opVal.abort(e.number, e, question.getVdmContext());
+			}
+		}
+		
+		// Note: arg name/values hide member values
+		callContext.putAll(args);
+		
+		//TODO add the arg patterns with the results to the context here
+		
 		
 		pushNext(opVal.getBody(), callContext);
 		
@@ -369,7 +343,32 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 	public CmlBehaviourSignal caseACommunicationAction(
 			ACommunicationAction node, CmlContext question)
 			throws AnalysisException {
-		//At this point the supervisor has already given go to the event,
+		//At this point the supervisor has already given go to the event, or the event is hidden
+		
+		Value value = supervisor().selectedObservableEvent().getValue();
+		
+		if(node.getCommunicationParameters() != null && 
+				node.getCommunicationParameters().size() > 1
+				)
+			throw new InterpreterRuntimeException("At the moment records and tuples are not supported");
+		
+		//FIXME this should be more general. It only support one com param at the moment
+		for(PCommunicationParameter param : node.getCommunicationParameters())
+		{
+			if(param instanceof AReadCommunicationParameter)
+			{
+				PPattern pattern = ((AReadCommunicationParameter) param).getPattern();
+				
+				if(pattern instanceof AIdentifierPattern)
+				{
+					LexNameToken name = ((AIdentifierPattern) pattern).getName();
+					
+					question.putNew(new NameValuePair(name, value));
+				}
+				
+			}
+		}
+		
 		//TODO: input is still missing
 		pushNext(node.getAction(), question); 
 		
@@ -504,7 +503,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		AbstractBehaviourThread<PAction> theChoosenOne = findTheChoosenChild(supervisor().selectedObservableEvent());
 		
 		//first we execute the child
-		CmlBehaviourSignal result = executeChild(theChoosenOne);
+		CmlBehaviourSignal result = executeChildAsSupervisor(theChoosenOne);
 		
 		if(theChoosenOne.hasNext())
 		{	//get the state replace the current state
@@ -645,8 +644,8 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(this))
 		{
 			//convert the channelset of the current node to a alphabet
-			CmlAlphabet cs = CmlBehaviourThreadUtility.convertChansetExpToAlphabet(this,
-					node.getChansetExpression(),question);		
+			CmlAlphabet cs =  ((CmlValue)node.getChansetExpression().
+					apply(cmlEvaluator,question)).cmlAlphabetValue(question);
 			
 			//get the immediate alphabets of the left and right child
 			CmlBehaviourThread leftChild = children().get(0);
@@ -665,18 +664,18 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 					!rightOption.isEmpty())
 			{
 				//supervisor().setSelectedObservableEvent(leftOption.getObservableEvents().iterator().next());
-				executeChild(leftChild);
+				executeChildAsSupervisor(leftChild);
 				//supervisor().setSelectedObservableEvent(rightOption.getObservableEvents().iterator().next());
-				executeChild(rightChild);
+				executeChildAsSupervisor(rightChild);
 				result = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
 			else if(!leftOption.isEmpty())
 			{
-				result = executeChild(leftChild);
+				result = executeChildAsSupervisor(leftChild);
 			}
 			else if(!rightOption.isEmpty())
 			{
-				result = executeChild(rightChild);
+				result = executeChildAsSupervisor(rightChild);
 			}
 			else
 			{
@@ -731,24 +730,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
 		else if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(this))
 		{
-			CmlBehaviourThread leftChild = children().get(0);
-			CmlAlphabet leftChildAlpha = leftChild.inspect(); 
-			CmlBehaviourThread rightChild = children().get(1);
-			CmlAlphabet rightChildAlpha = rightChild.inspect();
-			
-			if(leftChildAlpha.containsObservableEvent(supervisor().selectedObservableEvent()) )
-			{
-				result = executeChild(leftChild);
-			}
-			else if(rightChildAlpha.containsObservableEvent(supervisor().selectedObservableEvent()) )
-			{
-				result = executeChild(rightChild);
-			}
-			else
-			{
-				result = CmlBehaviourSignal.FATAL_ERROR;
-			}
-			
+			result = caseParallelSync();
 			//We push the current state, 
 			pushNext(node, question);
 			
@@ -773,6 +755,9 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 	 * @param question
 	 * @return
 	 */
+	
+	
+	
 	private CmlBehaviourSignal caseParallelBegin(SParallelAction node, CmlContext question)
 	{
 		PAction left = node.getLeftAction();
@@ -787,27 +772,10 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 				new CmlAction(right, question, 
 						new LexNameToken(name.module,"|||" + name.getIdentifier().getName(),right.getLocation()),this);
 		
-		//add the children to the process graph
-		addChild(leftInstance);
-		addChild(rightInstance);
-
-		//Now let this process wait for the children to get into a waitForEvent state
-		setState(CmlProcessState.WAIT_CHILD);
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}
-	
-	private void removeTheChildren()
-	{
-		for(Iterator<CmlBehaviourThread> iterator = children().iterator(); iterator.hasNext(); )
-		{
-			CmlBehaviourThread child = iterator.next();
-			supervisor().removePupil(child);
-			iterator.remove();
-		}
-	}
-	
-	private CmlBehaviourSignal caseParallelEnd(CmlContext question)
+			
+	protected CmlBehaviourSignal caseParallelEnd(CmlContext question)
 	{
 		removeTheChildren();
 		
@@ -821,9 +789,36 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 	public CmlBehaviourSignal caseASkipAction(ASkipAction node, CmlContext question)
 			throws AnalysisException {
 
-		//if hasNext() is true then Skip is in sequential composition with next
-		if(!hasNext())
-			setState(CmlProcessState.FINISHED);
+		//if we are hiding we need an extra silents transition to skip without hiding
+		if(!hidingAlphabet.isEmpty())
+		{
+			//set to an empty alphabet
+			hidingAlphabet = new CmlAlphabet();
+			pushNext(new ASkipAction(), question);
+		}
+		else	
+		{
+			//if hasNext() is true then Skip is in sequential composition with next
+			if(!hasNext())
+				setState(CmlProcessState.FINISHED);
+		}
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+
+	/**
+	 * internal choice - section 7.5.3 D23.2
+	 * 
+	 * An internal choice between two actions can evolve via a tau event into either of them
+	 */
+	@Override
+	public CmlBehaviourSignal caseAInternalChoiceAction(
+			AInternalChoiceAction node, CmlContext question)
+			throws AnalysisException {
+			
+		//For now we always pick the left action
+		pushNext(node.getLeft(), question);
+		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
@@ -846,14 +841,8 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 		
 		System.out.println(stateDesignatorName + " = " + expValue);
 		
-//		if(nameContext == null)
-		//					nameContext = new CMLContext(node.getLocation(),"caseASi
-		//
-//									nameContext.put(id.getName(), expValue);
-		//
-		//					System.out.println( id.getName() + " := " + expValue);
-		//
-		//					return new ProcessValueOld(null);
+		//now this process evolves into Skip
+		pushNext(new ASkipAction(node.getLocation(),new AActionType()), question);
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
@@ -870,6 +859,88 @@ public class CmlAction extends AbstractBehaviourThread<PAction> implements CmlPr
 			CmlContext question) throws AnalysisException {
 
 		pushNext(node.getAction(), question); 
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	@Override
+	public CmlBehaviourSignal caseAHidingAction(AHidingAction node,
+			CmlContext question) throws AnalysisException {
+
+		setHidingAlphabet((CmlAlphabet)node.getChansetExpression().apply(cmlEvaluator,question));
+
+		pushNext(node.getLeft(), question); 
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	/**
+	 * Non deterministic if randomly chooses between options whose guard are evaluated to true
+	 */
+	@Override
+	public CmlBehaviourSignal caseANonDeterministicIfStatementAction(
+			ANonDeterministicIfStatementAction node, CmlContext question)
+			throws AnalysisException {
+
+		List<ANonDeterministicAltStatementAction> availableAlts = CmlActionAssistant.findAllTrueAlts(
+				node.getAlternatives(),question,cmlEvaluator);
+		//if we got here we already now that the must at least be one available action
+		//so this should pose no risk of exception
+		pushNext(availableAlts.get(rnd.nextInt(availableAlts.size())).getAction(),question);
+		 
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+
+	/**
+	 * 
+	 * //TODO no semantics defined, resolve this!
+	 */
+	@Override
+	public CmlBehaviourSignal caseANonDeterministicDoStatementAction(
+			ANonDeterministicDoStatementAction node, CmlContext question)
+			throws AnalysisException {
+
+		List<ANonDeterministicAltStatementAction> availableAlts = CmlActionAssistant.findAllTrueAlts(
+				node.getAlternatives(),question,cmlEvaluator);
+		
+		
+		if(availableAlts.size() > 0)
+		{
+			//first we push the do node on the execution stack to get it sequentially composed with the
+			//picked alternative
+			pushNext(node, question);		
+			//if we got here we already now that the must at least be one available action
+			//so this should pose no risk of exception
+			pushNext(availableAlts.get(rnd.nextInt(availableAlts.size())).getAction(),question);
+		}
+		else
+			pushNext(new ASkipAction(), question);
+			
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	/**
+	 * 
+	 * //TODO no semantics defined, resolve this!
+	 */
+	@Override
+	public CmlBehaviourSignal caseAWhileStatementAction(
+			AWhileStatementAction node, CmlContext question)
+			throws AnalysisException {
+
+		if(node.getCondition().apply(cmlEvaluator,question).boolValue(question.getVdmContext()))
+		{
+			//first we push the while node so that we get back to this point
+			pushNext(node, question);
+			//then we push the first action of the loop
+			pushNext(node.getAction(), question);
+		}
+		else
+		{
+			//if the condition is false then the While evolves into Skip
+			pushNext(new ASkipAction(), question);
+		}
+		
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}

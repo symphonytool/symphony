@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.overture.interpreter.values.Value;
+
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
@@ -91,25 +93,23 @@ public class SynchronizedPrefixEvent extends ObservableEvent {
 		return new SynchronizedPrefixEvent(source, this, syncEvent);
 	}
 
-//	@Override
-//	public boolean isResolved() {
-//
-//		boolean resolved = true;
-//		
-//		for(ObservableEvent obsEv : synchronisingEvents)
-//			resolved &= obsEv.isResolved();
-//		
-//		return resolved;
-//	}
-//
-//	@Override
-//	public void resolve(EventResolver resolver) {
-//
-////		resolver.
-//		
-//		
-//		for(ObservableEvent obsEv : synchronisingEvents)
-//			obsEv.resolve(resolver);
-//	}
+	@Override
+	public ObservableEvent meet(ObservableEvent other) {
+		return this;
+	}
 
+	@Override
+	public Value getValue() {
+		return null;
+	}
+
+	@Override
+	public void setValue(Value value) {
+		// do nothing
+	}
+
+	@Override
+	public boolean isValuePrecise() {
+		return true;
+	}
 }

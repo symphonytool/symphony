@@ -33,7 +33,6 @@
       </win>
    </launcher>
 
-
    <vm>
       <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/OSGi%Minimum-1.2</linux>
    </vm>
@@ -49,6 +48,8 @@
       <plugin id="com.ibm.icu"/>
       <plugin id="eu.compassresearch.ide.cml.core"/>
       <plugin id="eu.compassresearch.ide.cml.platform"/>
+      <plugin id="eu.compassresearch.ide.cml.pog-plugin"/>
+      <plugin id="eu.compassresearch.ide.cml.interpreter_plugin"/>
       <plugin id="eu.compassresearch.ide.cml.tpplugin"/>
       <plugin id="eu.compassresearch.ide.cml.ui"/>
       <plugin id="isabelle.eclipse.core"/>
@@ -91,6 +92,10 @@
       <plugin id="org.eclipse.core.filesystem.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.net"/>
+      <plugin id="org.eclipse.core.net.linux.x86" fragment="true"/>
+      <plugin id="org.eclipse.core.net.linux.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.core.net.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.core.net.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.core.resources"/>
       <plugin id="org.eclipse.core.resources.win32.x86" fragment="true"/>
       <plugin id="org.eclipse.core.runtime"/>
@@ -204,6 +209,7 @@
       <plugin id="org.scala-ide.scala.library"/>
       <plugin id="org.scala-ide.sdt.aspects"/>
       <plugin id="org.scala-ide.sdt.core"/>
+      <plugin id="org.scala-ide.sdt.core.tests" fragment="true"/>
       <plugin id="org.scala-refactoring.library"/>
       <plugin id="scalariform"/>
    </plugins>

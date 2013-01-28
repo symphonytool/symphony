@@ -1,4 +1,5 @@
-channels a b c init
+channels 
+a, b, c, init
 process A = 
 begin 
 	actions
