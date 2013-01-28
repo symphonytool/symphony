@@ -48,6 +48,7 @@ import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 
+
 	
 	public CmlIncrementalBuilder()
 	{
@@ -251,7 +252,7 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		monitor.subTask("Type checking");
 		typeCheck(project,sourceToFileMap);
 
-		
+
 		// Return the projects that should be build also as result of rebuilding
 		// this
 		return null;
