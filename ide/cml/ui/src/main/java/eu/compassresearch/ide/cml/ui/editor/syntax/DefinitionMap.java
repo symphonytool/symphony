@@ -39,7 +39,7 @@ public class DefinitionMap {
 	private static Map<Class<?>, ? extends DefinitionHandler> createMap() {
 		Map<Class<?>, DefinitionHandler> map = new HashMap<Class<?>, DefinitionHandler>();
 		map.put(AActionsDefinition.class, new AActionsDefinitionHandler());
-		map.put(AValuesDefinition.class, new AValueParagraphDefinitionHandler());
+		map.put(AValuesDefinition.class, new AValuesDefinitionHandler());
 		map.put(AFunctionsDefinition.class,
 				new AFunctionParagraphDefinitionHandler());
 		map.put(ATypesDefinition.class, new ATypesParagraphDefinitionHandler());
@@ -48,7 +48,7 @@ public class DefinitionMap {
 		return Collections.unmodifiableMap(map);
 	}
 
-	private static class AValueParagraphDefinitionHandler implements
+	private static class AValuesDefinitionHandler implements
 			DefinitionHandler {
 
 		public List<Wrapper<? extends PDefinition>> extractSubdefinition(
@@ -57,27 +57,16 @@ public class DefinitionMap {
 
 			for (PDefinition subdef : ((AValuesDefinition) pdef)
 					.getValueDefinitions()) {
-
 				String typeguard = "?";
 				if (null != subdef.getType())
-					
 					typeguard = subdef.getType().toString();
-				r.add(Wrapper.newInstance(subdef, extractValueName(subdef)
+					
+				String nameguard = "?";
+				if (null != subdef.getName())
+					nameguard=subdef.getName().name;
+			
+				r.add(Wrapper.newInstance(subdef, nameguard
 						+ ": " + typeguard));
-			}
-			return r;
-		}
-
-		private String extractValueName(PDefinition pdef) {
-			String r = "?";
-			if (pdef instanceof AValueDefinition) {
-				AValueDefinition avd = (AValueDefinition) pdef;
-				if (avd.getDefs() != null) {
-					PDefinition firstdef = avd.getDefs().get(0);
-					if (firstdef != null) {
-						r = firstdef.getName().name;
-					}
-				}
 			}
 			return r;
 		}

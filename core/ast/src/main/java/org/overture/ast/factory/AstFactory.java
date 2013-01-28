@@ -546,6 +546,15 @@ public class AstFactory {
 		if (p instanceof AIdentifierPattern) {
 		    name = ((AIdentifierPattern)p).getName();
 		}
+		if (p instanceof ATuplePattern){
+			name = new LexNameToken(p.getLocation().module,p.toString(),p.getLocation());
+			
+		}
+		if (p instanceof ARecordPattern){
+			name = new LexNameToken(p.getLocation().module,p.toString(),p.getLocation());
+		}
+		
+		
 		initDefinition(result, Pass.VALUES, p.getLocation(), name, scope);
 
 		result.setPattern(p);
