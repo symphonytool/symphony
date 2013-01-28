@@ -42,6 +42,7 @@ import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.SParallelAction;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -601,11 +602,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 			ASequentialCompositionAction node, CmlContext question)
 			throws AnalysisException {
 
-		//First push right and then left, so that left get executed first
-		pushNext(node.getRight(), question);
-		pushNext(node.getLeft(), question);
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+		return caseASequentialComposition(node.getLeft(),node.getRight(),question);
 	}
 
 	/**
@@ -625,70 +622,25 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 	public CmlBehaviourSignal caseAGeneralisedParallelismParallelAction(
 			AGeneralisedParallelismParallelAction node, CmlContext question)
 			throws AnalysisException {
-	
-		//TODO: This only implements the "A [| cs |] B (no state)" and not "A [| ns1 | cs | ns2 |] B"
-		CmlBehaviourSignal result = null;
-		
-		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
-		if(!hasChildren()){
-			result = caseParallelBegin(node,question);
-			//We push the current state, since this process will control the child processes created by it
-			pushNext(node, question);
-		}
-		//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
-		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(this))
-		{
-			result = caseParallelEnd(question); 
-		}
-		//At least one child is not finished and waiting for event, this will either invoke the Parallel Non-sync or Sync rule
-		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(this))
-		{
-			//convert the channelset of the current node to a alphabet
-			CmlAlphabet cs =  ((CmlValue)node.getChansetExpression().
-					apply(cmlEvaluator,question)).cmlAlphabetValue(question);
-			
-			//get the immediate alphabets of the left and right child
-			CmlBehaviourThread leftChild = children().get(0);
-			CmlAlphabet leftChildAlpha = leftChild.inspect().flattenSyncEvents(); 
-			CmlBehaviourThread rightChild = children().get(1);
-			CmlAlphabet rightChildAlpha = rightChild.inspect().flattenSyncEvents();
 
-			//convert the selected event to a CmlAlphabet
-			CmlAlphabet selectedEventAlpha = supervisor().selectedObservableEvent().getAsAlphabet();
-			//now make the intersection between the selectedEventAlpha and the children's alpha
-			CmlAlphabet leftOption = selectedEventAlpha.intersect(leftChildAlpha);
-			CmlAlphabet rightOption = selectedEventAlpha.intersect(rightChildAlpha);
-			
-			//if both intersections are non empty it must be a sync event
-			if(!leftOption.isEmpty() &&
-					!rightOption.isEmpty())
-			{
-				//supervisor().setSelectedObservableEvent(leftOption.getObservableEvents().iterator().next());
-				executeChildAsSupervisor(leftChild);
-				//supervisor().setSelectedObservableEvent(rightOption.getObservableEvents().iterator().next());
-				executeChildAsSupervisor(rightChild);
-				result = CmlBehaviourSignal.EXEC_SUCCESS;
-			}
-			else if(!leftOption.isEmpty())
-			{
-				result = executeChildAsSupervisor(leftChild);
-			}
-			else if(!rightOption.isEmpty())
-			{
-				result = executeChildAsSupervisor(rightChild);
-			}
-			else
-			{
-				result = CmlBehaviourSignal.FATAL_ERROR;
-			}
-			
-			//We push the current state, 
-			pushNext(node, question);
-		}
+		final AGeneralisedParallelismParallelAction finalNode = node;
+		final CmlContext finalQuestion = question;
 		
-		
-		return result;
+		return caseGeneralisedParallelismParallel(node,new parallelCompositionHelper() {
+			
+			@Override
+			public CmlBehaviourSignal caseParallelBegin() {
+				return CmlAction.this.caseParallelBegin(finalNode, finalQuestion);
+			}
+		}, new ASkipAction(),node.getChansetExpression(),question);
 	}
+	
+	interface parallelCompositionHelper
+	{
+		CmlBehaviourSignal caseParallelBegin();
+		
+	}
+		
 	
 	/**
 	 * Interleaving
@@ -738,7 +690,7 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 		//the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(this))
 		{
-			result = caseParallelEnd(question); 
+			result = caseParallelEnd(new ASkipAction(), question); 
 		}
 		//else if ()
 		
@@ -775,16 +727,6 @@ public class CmlAction extends AbstractBehaviourThread<PAction> {
 		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}
 			
-	protected CmlBehaviourSignal caseParallelEnd(CmlContext question)
-	{
-		removeTheChildren();
-		
-		//now this process evolves into Skip
-		pushNext(new ASkipAction(), question);
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
-	}
-	
 	@Override
 	public CmlBehaviourSignal caseASkipAction(ASkipAction node, CmlContext question)
 			throws AnalysisException {

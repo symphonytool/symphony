@@ -10,9 +10,14 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.ast.actions.ASequentialCompositionAction;
+import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
+import eu.compassresearch.core.interpreter.cml.CmlAction.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
@@ -31,6 +36,7 @@ import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
+import eu.compassresearch.core.interpreter.values.CmlValue;
 
 abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCMLAdaptor<CmlContext, CmlBehaviourSignal>
 		implements CmlBehaviourThread , ChannelObserver, CmlProcessStateObserver, CmlProcessTraceObserver {
@@ -502,6 +508,16 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	 * common helper methods
 	 */
 	
+	protected CmlBehaviourSignal caseASequentialComposition(T leftNode, T rightNode, CmlContext question)
+			throws AnalysisException 
+	{
+		//First push right and then left, so that left get executed first
+		pushNext(rightNode, question);
+		pushNext(leftNode, question);
+			
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
 	protected <V extends CmlBehaviourThread> CmlBehaviourSignal  caseParallelBeginGeneral(V left, V right, CmlContext question)
 	{
 		//add the children to the process graph
@@ -512,6 +528,35 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 		setState(CmlProcessState.WAIT_CHILD);
 
 		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	protected CmlBehaviourSignal caseGeneralisedParallelismParallel(T node,parallelCompositionHelper helper, 
+			T skipNode, PVarsetExpression chansetExp, CmlContext question) throws AnalysisException
+	
+	{
+		//TODO: This only implements the "A [| cs |] B (no state)" and not "A [| ns1 | cs | ns2 |] B"
+		CmlBehaviourSignal result = CmlBehaviourSignal.FATAL_ERROR;
+
+		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
+		if(!hasChildren()){
+			result = helper.caseParallelBegin();
+			//We push the current state, since this process will control the child processes created by it
+			pushNext(node, question);
+		}
+		//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
+		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(this))
+		{
+			result = caseParallelEnd(skipNode, question); 
+		}
+		//At least one child is not finished and waiting for event, this will either invoke the Parallel Non-sync or Sync rule
+		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(this))
+		{
+			result = caseParallelSyncOrNonsync(chansetExp, question);
+			//We push the current state, 
+			pushNext(node, question);
+		}
+
+		return result;
 	}
 	
 	protected CmlBehaviourSignal caseParallelSync()
@@ -535,6 +580,57 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 			return CmlBehaviourSignal.FATAL_ERROR;
 		}
 	}
+	
+	protected CmlBehaviourSignal caseParallelEnd(T SkipNode,CmlContext question)
+	{
+		removeTheChildren();
+		
+		//now this process evolves into Skip
+		pushNext(SkipNode, question);
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	protected CmlBehaviourSignal caseParallelSyncOrNonsync(PVarsetExpression chansetExp, CmlContext question) throws AnalysisException
+	{
+		//convert the channelset of the current node to a alphabet
+		CmlAlphabet cs =  ((CmlValue)chansetExp.
+				apply(cmlEvaluator,question)).cmlAlphabetValue(question);
+		
+		//get the immediate alphabets of the left and right child
+		CmlBehaviourThread leftChild = children().get(0);
+		CmlAlphabet leftChildAlpha = leftChild.inspect().flattenSyncEvents(); 
+		CmlBehaviourThread rightChild = children().get(1);
+		CmlAlphabet rightChildAlpha = rightChild.inspect().flattenSyncEvents();
+
+		//convert the selected event to a CmlAlphabet
+		CmlAlphabet selectedEventAlpha = supervisor().selectedObservableEvent().getAsAlphabet();
+		//now make the intersection between the selectedEventAlpha and the children's alpha
+		CmlAlphabet leftOption = selectedEventAlpha.intersect(leftChildAlpha);
+		CmlAlphabet rightOption = selectedEventAlpha.intersect(rightChildAlpha);
+		
+		//if both intersections are non empty it must be a sync event
+		if(!leftOption.isEmpty() &&
+				!rightOption.isEmpty())
+		{
+			//supervisor().setSelectedObservableEvent(leftOption.getObservableEvents().iterator().next());
+			executeChildAsSupervisor(leftChild);
+			//supervisor().setSelectedObservableEvent(rightOption.getObservableEvents().iterator().next());
+			executeChildAsSupervisor(rightChild);
+			return CmlBehaviourSignal.EXEC_SUCCESS;
+		}
+		else if(!leftOption.isEmpty())
+		{
+			return executeChildAsSupervisor(leftChild);
+		}
+		else if(!rightOption.isEmpty())
+		{
+			return executeChildAsSupervisor(rightChild);
+		}
+		
+		return CmlBehaviourSignal.FATAL_ERROR;
+	}
+	
 	/*
 	 * Child support -- we must help the children
 	 */
