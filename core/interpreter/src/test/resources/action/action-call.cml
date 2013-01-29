@@ -13,7 +13,5 @@ begin
 	Test(x) == 
 	(v := v + x;v2 := v2 + x)	
 
-	actions
-	INIT = Test(v);[v = 4] & a -> [v2 = 5] & b -> Skip 
-	@ INIT
+	@ Test(v);[v = 4] & a -> [v2 = 5] & b -> Skip
 end

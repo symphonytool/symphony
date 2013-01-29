@@ -1,5 +1,8 @@
 package eu.compassresearch.core.interpreter.values;
 
+import org.overture.ast.expressions.PExp;
+import org.overture.ast.types.ABooleanBasicType;
+import org.overture.ast.types.AFunctionType;
 import org.overture.interpreter.values.FunctionValue;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -26,7 +29,21 @@ public class CmlValueFactory {
 		if(node instanceof AExplicitCmlOperationDefinition)
 		{
 			AExplicitCmlOperationDefinition def = (AExplicitCmlOperationDefinition)node;
+			PExp preExp = def.getPrecondition();
+			AFunctionType ftype = new AFunctionType(node.getLocation(), true, false);
+			ftype.setResult(new ABooleanBasicType());
+			
+			//ftype.setParameters(	)
+			
+			
 			FunctionValue preFunc = null;
+//					new FunctionValue(node.getLocation(), 
+//					def.getName().getPreName(preExp.getLocation()),  
+//					ftype, 
+//					paramPatterns, 
+//					def.getPrecondition(),  
+//					freeVariables); 
+	
 			FunctionValue postFunc = null;
 			ret = new CmlOperationValue(def, preFunc, postFunc, null);
 		}

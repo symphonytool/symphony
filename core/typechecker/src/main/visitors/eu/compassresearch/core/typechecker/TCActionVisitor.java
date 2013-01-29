@@ -1827,7 +1827,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			
 			// compute my replacement, that's right i'm going to replace my self
 			LexLocation replacementLocation = node.getLocation();
-			PExp replacementDesignator = node.getStateDesignator();
+			PExp replacementDesignator = node.getStateDesignator().clone();
 			ACallStatementAction replacementCall = newCall;
 			AAssignmentCallStatementAction replacement = new AAssignmentCallStatementAction(replacementLocation, replacementDesignator, replacementCall);
 			
@@ -1844,7 +1844,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.customizeMessage("Could replace ASGASA as it is not a child of it's parent. I know that is a faulty AST !")));
 				return node.getType();
 			}
-			parent.removeChild(node);
 			parent.replaceChild(node, replacement);
 			replacement.parent(parent);
 			
