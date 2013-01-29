@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -225,7 +226,9 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 	 */
 	private String locateInterpreterFromPlugin() throws IOException, URISyntaxException
 	{
-		URI bundleURI = getBundleURI().resolve("./");
+		File bundleFile = FileLocator.getBundleFile(Platform.getBundle(CmlDebugConstants.ID_CML_PLUGIN_NAME.toString()));
+		//URI bundleURI = getBundleURI().resolve("./");
+		URI bundleURI = URI.create(bundleFile.getParent());
 		
 		File jarFile = new File(bundleURI.getSchemeSpecificPart(),"interpreter-with-dependencies.jar");
 
@@ -242,6 +245,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 	private URI getBundleURI()
 	{
 		Bundle bundle = Platform.getBundle(CmlDebugConstants.ID_CML_PLUGIN_NAME.toString());
+		//File file = FileLocator.getBundleFile(bundle);
 		URI uri = URI.create(bundle.getLocation());
 		uri = URI.create(uri.getSchemeSpecificPart());
 		
@@ -250,16 +254,17 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 	
 	private String locateInterpreterJarPath() throws IOException, URISyntaxException
 	{
-		URI uri = getBundleURI();
-		File file = new File(uri.getSchemeSpecificPart());
-
+		//URI uri = getBundleURI();
+		//File file = new File(uri.getSchemeSpecificPart());
+		File file = FileLocator.getBundleFile(Platform.getBundle(CmlDebugConstants.ID_CML_PLUGIN_NAME.toString()));
 		if(!file.exists())
 			throw new FileNotFoundException("Can't determine the bundle path");
 		
 		//plugin is a folder and we can access it through the lib folder
 		if(file.isDirectory())
 		{
-			return uri.resolve("./lib").getPath() + "/interpreter-with-dependencies.jar";
+			//return uri.resolve("./lib").getPath() + "/interpreter-with-dependencies.jar";
+			return file.getCanonicalPath() + "/lib/interpreter-with-dependencies.jar";
 		}
 		//were in a plugin jar, so we need to extract the interpreter jar from the plugin har
 		else
