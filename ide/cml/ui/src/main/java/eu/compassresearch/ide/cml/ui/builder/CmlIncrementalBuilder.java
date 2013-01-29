@@ -66,6 +66,7 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
+
 	/*
 	 * For each error remove the parent errors so we only see the leafs.
 	 * 

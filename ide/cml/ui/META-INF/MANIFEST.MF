@@ -47,3 +47,4 @@ Bundle-ClassPath: .,
  parser-2.2.1.jar,
  testframework-2.2.1.jar,
  typechecker-2.2.1.jar
+Import-Package: org.eclipse.ui.internal.navigator.resources.workbench
