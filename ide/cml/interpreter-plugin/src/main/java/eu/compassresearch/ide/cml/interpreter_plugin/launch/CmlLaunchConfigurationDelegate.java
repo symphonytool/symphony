@@ -226,8 +226,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 	 */
 	private String locateInterpreterFromPlugin() throws IOException, URISyntaxException
 	{
-		File bundleFile = FileLocator.getBundleFile(Platform.getBundle(CmlDebugConstants.ID_CML_PLUGIN_NAME.toString()));
-		//URI bundleURI = getBundleURI().resolve("./");
+		File bundleFile = getBundleFile();
 		URI bundleURI = URI.create(bundleFile.getParent());
 		
 		File jarFile = new File(bundleURI.getSchemeSpecificPart(),"interpreter-with-dependencies.jar");
@@ -242,28 +241,20 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		return jarFile.getAbsolutePath();
 	}
 	
-	private URI getBundleURI()
+	private File getBundleFile() throws IOException
 	{
-		Bundle bundle = Platform.getBundle(CmlDebugConstants.ID_CML_PLUGIN_NAME.toString());
-		//File file = FileLocator.getBundleFile(bundle);
-		URI uri = URI.create(bundle.getLocation());
-		uri = URI.create(uri.getSchemeSpecificPart());
-		
-		return uri;
+		return FileLocator.getBundleFile(Platform.getBundle(CmlDebugConstants.ID_CML_PLUGIN_NAME.toString()));
 	}
 	
 	private String locateInterpreterJarPath() throws IOException, URISyntaxException
 	{
-		//URI uri = getBundleURI();
-		//File file = new File(uri.getSchemeSpecificPart());
-		File file = FileLocator.getBundleFile(Platform.getBundle(CmlDebugConstants.ID_CML_PLUGIN_NAME.toString()));
+		File file = getBundleFile();
 		if(!file.exists())
 			throw new FileNotFoundException("Can't determine the bundle path");
 		
 		//plugin is a folder and we can access it through the lib folder
 		if(file.isDirectory())
 		{
-			//return uri.resolve("./lib").getPath() + "/interpreter-with-dependencies.jar";
 			return file.getCanonicalPath() + "/lib/interpreter-with-dependencies.jar";
 		}
 		//were in a plugin jar, so we need to extract the interpreter jar from the plugin har
