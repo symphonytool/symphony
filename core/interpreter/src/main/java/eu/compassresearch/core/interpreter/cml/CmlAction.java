@@ -7,6 +7,7 @@ import java.util.ListIterator;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
@@ -17,9 +18,12 @@ import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairMap;
+import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
+import org.overture.interpreter.values.VoidValue;
 
+import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
 import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
@@ -36,6 +40,7 @@ import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
+import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -267,6 +272,8 @@ public class CmlAction extends AbstractBehaviourThread {
 		//first find the operation value in the context
 		CmlOperationValue opVal = question.lookup(node.getName()); 
 		
+		//put return value in upper context
+		question.putNew(new NameValuePair(new LexNameToken("|CALL|","|CALLRETURN|",new LexLocation()), new UndefinedValue()));
 		
 		ValueList argValues = new ValueList();
 
@@ -734,6 +741,50 @@ public class CmlAction extends AbstractBehaviourThread {
 			pushNext(new ASkipAction(), question);
 		}
 		
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	@Override
+	public CmlBehaviourSignal caseAAssignmentCallStatementAction(
+			AAssignmentCallStatementAction node, CmlContext question)
+			throws AnalysisException {
+	
+		//put return value in upper context
+		Value retValue = question.check(new LexNameToken("|CALL|","|CALLRETURN|",new LexLocation()));
+		
+		//the call must be made
+		if(retValue == null)
+		{
+			pushNext(node, question);
+			pushNext(node.getCall(), question);
+			
+		}
+		else
+		{
+			//TODO Change this to deal with it in general
+			LexNameToken stateDesignatorName = CmlActionAssistant.extractNameFromStateDesignator(node.getDesignator());
+			CmlContext nameContext = (CmlContext)question.locate(stateDesignatorName);
+			nameContext.put(stateDesignatorName, retValue);
+		}
+		
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	@Override
+	public CmlBehaviourSignal caseAReturnStatementAction(
+			AReturnStatementAction node, CmlContext question)
+			throws AnalysisException {
+
+		LexNameToken callReturnName = new LexNameToken("|CALL|","|CALLRETURN|",new LexLocation());
+		
+		CmlContext nameContext = (CmlContext)question.locate(callReturnName);
+		
+		if(node.getExp() != null)
+			nameContext.put(callReturnName, node.getExp().apply(cmlEvaluator,question));
+		else
+			nameContext.put(callReturnName,new VoidValue());
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
