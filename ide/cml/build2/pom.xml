@@ -46,7 +46,7 @@
      ${basedir}/target_platform
    </target.platform.dir>
 
-   <target.platform.ver>1.0.1</target.platform.ver>
+   <target.platform.ver>1.0.3</target.platform.ver>
 
  </properties>
 

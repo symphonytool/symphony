@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
@@ -65,35 +66,46 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
-
-
 	/*
 	 * For each error remove the parent errors so we only see the leafs.
 	 * 
 	 */
 	private static List<CMLTypeError> filterErrros(List<CMLTypeError> errs)
 	{
-		Map<INode, CMLTypeError> nodeToErrorMap = new HashMap<INode,CMLTypeError>();
+		Map<INode, List<CMLTypeError>> nodeToErrorMap = new HashMap<INode,List<CMLTypeError>>();
 
 		for(CMLTypeError error : errs)
 			if (error.getOffendingNode() != null)
-				nodeToErrorMap.put(error.getOffendingNode(), error);
-		
-		List<INode> errorsToKill = new LinkedList<INode>();
-		for(CMLTypeError error : nodeToErrorMap.values())
-		{
-			INode parent = error.getOffendingNode().parent();
-			while(parent != null)
 			{
-				if (nodeToErrorMap.containsKey(parent))
-					errorsToKill.add(parent);
-				parent = parent.parent();
+				List<CMLTypeError> l = 	nodeToErrorMap.get(error.getOffendingNode());
+				if (l == null) { l = new LinkedList<CMLTypeError>(); nodeToErrorMap.put(error.getOffendingNode(),l); }
+				l.add(error);
+			}
+
+		List<INode>  nodesToClearErrorsFor = new LinkedList<INode>();
+		for(List<CMLTypeError> errors : nodeToErrorMap.values())
+		{
+			for(CMLTypeError error : errors)
+			{
+				INode parent = error.getOffendingNode().parent();
+				while(parent != null)
+				{
+					if (nodeToErrorMap.containsKey(parent))
+						nodesToClearErrorsFor.add(parent);
+					parent = parent.parent();
+				}
 			}
 		}
 		
-		for(INode n : errorsToKill) nodeToErrorMap.remove(n);
+		for(INode n : nodesToClearErrorsFor)
+			nodeToErrorMap.put(n,new LinkedList<CMLTypeError>());
 		
-		return new ArrayList<TypeIssueHandler.CMLTypeError>(nodeToErrorMap.values());
+		List<CMLTypeError> res = new ArrayList<TypeIssueHandler.CMLTypeError>();
+		for(Entry<INode,List<CMLTypeError>> e : nodeToErrorMap.entrySet())
+			res.addAll(e.getValue());
+
+
+		return res;
 	}
 
 	private synchronized static boolean typeCheck(IProject project, Map<PSource,IFile> sourceToFileMap)
@@ -172,37 +184,46 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 
 
 	private IProject[] buildit(IProgressMonitor monitor) throws CoreException {
-		// Remove all markers from project
-		getProject().deleteMarkers(IMarker.PROBLEM, true,
-				IResource.DEPTH_INFINITE);
-
-		// Remove all errors in the registry for this project
-		String projectName = getProject().getName();
-		Registry tcReg = RegistryFactory.getInstance(projectName).getRegistry();
-		tcReg.prune(CMLIssueList.class);
-		
-		// Create a visitor
-		CmlBuildVisitor buildVisitor = new CmlBuildVisitor();
 
 		// get project
 		IProject project = getProject();
 
+		
+		// Remove all markers from project
+		project.deleteMarkers(IMarker.PROBLEM, true,
+				IResource.DEPTH_INFINITE);
+
+		
+		// Remove all errors in the registry for this project
+		String projectName = project.getName();
+		Registry tcReg = RegistryFactory.getInstance(projectName).getRegistry();
+		tcReg.prune(CMLIssueList.class);
+		
+		monitor.beginTask("Building project: "+projectName, 5);
+		
+		// Create a visitor
+		CmlBuildVisitor buildVisitor = new CmlBuildVisitor(monitor);
+		
+		
 		// run the parser on every cml file in the project
 		project.accept(buildVisitor);
+		
 
 		// Type Check all sources in this project
 		Collection<CmlSourceUnit> allSourceUnits = CmlSourceUnit.getAllSourceUnits();
 		Map<PSource,IFile> sourceToFileMap = new HashMap<PSource,IFile>();
 		for(CmlSourceUnit sourceUnit : allSourceUnits)
 		{
+			monitor.subTask("Type checking, adding source "+sourceUnit);
 			if (sourceUnit.isParsedOk() && 
 					sourceUnit.getFile().getProject() == project 
 					&& sourceUnit.getSourceAst() != null)
 				sourceToFileMap.put(sourceUnit.getSourceAst(), sourceUnit.getFile());
 		}
+		monitor.subTask("Type checking");
 		typeCheck(project,sourceToFileMap);
 
-		
+
 		// Return the projects that should be build also as result of rebuilding
 		// this
 		return null;

@@ -105,6 +105,12 @@ public class CommonRegistryTestCase {
 		public LinkedList<PDefinition> getParagraphs() {
 			return null;
 		}
+
+		@Override
+		public void replaceChild(INode oldChild, INode newChild) {
+			// TODO Auto-generated method stub
+			
+		}
 		
 	};
 	

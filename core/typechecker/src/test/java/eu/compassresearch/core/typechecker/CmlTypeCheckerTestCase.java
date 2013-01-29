@@ -679,6 +679,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "class Thing = begin values public Douglas : int = 42 end class test = begin values a: int = 0 functions g: int -> int g(i) == a + Thing`Douglas end",
 				false,true,true,new String[0]);
 		
+		// 145
 		addTestProgram(testData, "class test = begin values a : int = 0	functions f:int -> int f(k) == k+a	end",
 				false,true,true,new String[0]);
 		
@@ -686,6 +687,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "class test = begin operations o:int ==> int o(a) == (return (let a : int = 2 in \"42\")) end",false,true,false,new String[0]);
 		addTestProgram(testData, "class Stuff = begin functions operations o : () ==> int o() == (return (let a:int = 2 in  \"abcd\")) end",false,true,false,new String[0]);
 		addTestProgram(testData, "class test = begin functions f: int -> int f(a) == a+10 end", false, true,true,new String[0]);
+		// 150
 		addTestProgram(testData, "channels c: String", false, true,false,new String[0]);
 		addTestProgram(testData, "class test = begin operations o1:int ==> int o1(a) == let b : int = a+1 in return (c) end", false, true, false, new String[0]);
 		addTestProgram(testData, "process A = B ; C process D = begin @ Skip end", false, true, false, new String[0]);
@@ -700,6 +702,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "functions test: int * int -> bool test(a,b) == true channels InOut: int * int * int process A = begin state b:int actions A = InOut?a!b?c -> test(a,c) @ Skip end", false, true, true, new String[0]);
 		addTestProgram(testData, "channels a : int process A =  begin state b : int := 2 actions INIT = a!(b+2) -> Skip @ INIT end", false, true, true, new String[0]);
 		addTestProgram(testData, "process A = begin actions B = val n:int @ Skip @ (||| i in set {1,2,3} @ [ { } ] B(i)) end", false, true, true, new String[0]);
+		// 160
 		addTestProgram(testData, "process A = begin @ A [[ init <- start ]] end ", false, true, true, new String[0]);
 		addTestProgram(testData, "channels startStartRescue acceptStartRescue endStartRescue process P = begin actions A = startStartRescue -> acceptStartRescue -> endStartRescue -> B B = C C = Skip  @ Skip end",false, true, true, new String[0]);
 		addTestProgram(testData, "channels startStartRescue acceptStartRescue endStartRescue process P = begin actions A = startStartRescue -> acceptStartRescue -> endStartRescue -> B B = $T(target(C))", false, true, true, new String[0]);
@@ -710,6 +713,34 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "process K = begin state a:int operations o: int ==> int o(b) == if a = 0 then a:=b+1 elseif a > 1 then a:=b-a else a := 'l' ; return a @ a := o(9) end", false, true, false, new String[0]);
 		addTestProgram(testData, "process K = begin state a:int operations o: int ==> int o(b) == if a = 0 then a:=b+1 elseif a > 1 then a:=b-a else a := 0 ; return a @ a := o('l') end", false, true, false, new String[0]);
 		addTestProgram(testData, "channels a, b process A = begin actions INIT = (a -> b -> Skip) \\\\ {|b|} @ INIT end", false, true, true , new String[0]);
+		
+		// addTestProgram(testData, "process A = begin state v : int := 2 v2 : int := 3 operations Test : (x : int, y : int) ==> () Test() == v := v + 1;v2 := v2 + 2 @ Skip end", false, true, true, new String[0]);
+		
+		// This test checks that an explicit operation body of type nat1 can be declared to return int.
+		// 170
+		addTestProgram(testData, "channels a, b process A = begin functions test : int +> int test(x) == 2  @ a -> Skip end", false, true, true, new String[0]);
+		
+		// This test was reported by AKM and checks that functions can be invoked from Guards
+		// 171
+		addTestProgram(testData, "channels a process A = begin state x : nat := 3 functions isHigherThanTwo : (int) +> bool isHigherThanTwo(y) == y > 2 @ [isHigherThanTwo(x)] & a -> Skip end", false, true, true, new String[0]);
+		
+		// Test test checks that the declared section of an dcl is checked.
+		// 172
+		addTestProgram(testData, "process P = begin @ (dcl z:int := \"wrong type\" @ Skip) end", false, true, false, new String[0]);
+		
+		// This test was reported by AKM and checks that operations cannot be invoked from dcl's
+		// 173
+		addTestProgram(testData, "channels a : int process A = begin state v : int := 2 operations Test : int ==> int Test(x) == return x + v @ (dcl z : int := test(2) @ a!(z) -> Skip ) end", false, true,false,new String[0]);
+		
+		// This test checks the positive case for invoking a Cml Operation
+		// 174
+		addTestProgram(testData, "process K = begin state f : int := 0 operations op1: int ==> int op1(a) == return (a+1) @ f := op1(10) end", false, true, true, new String[0]);
+		
+		// This test checks that operations cannot be invoked from values
+		// 175
+		addTestProgram(testData, "class test = begin operations op1: int ==> int op1(a) == return (a+1) values k : int = op1(10) end", false, true, false, new String[0]);
+		
+		
 		return testData;
 	}
 
