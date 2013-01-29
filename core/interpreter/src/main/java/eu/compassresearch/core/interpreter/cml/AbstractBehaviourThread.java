@@ -10,9 +10,6 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.ast.actions.ASequentialCompositionAction;
-import eu.compassresearch.ast.actions.ASkipAction;
-import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
@@ -38,7 +35,7 @@ import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.CmlValue;
 
-abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCMLAdaptor<CmlContext, CmlBehaviourSignal>
+abstract class AbstractBehaviourThread extends QuestionAnswerCMLAdaptor<CmlContext, CmlBehaviourSignal>
 		implements CmlBehaviourThread , ChannelObserver, CmlProcessStateObserver, CmlProcessTraceObserver {
 	
 	private static final long 					serialVersionUID = -4920762081111266274L;
@@ -50,12 +47,12 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	protected LexNameToken 						name;
 	
 	//Stack machine variables
-	private Stack<Pair<T,CmlContext>> 			executionStack = new Stack<Pair<T,CmlContext>>();
-	private Pair<T,CmlContext> 					prevExecution = null;
+	private Stack<Pair<INode,CmlContext>> 			executionStack = new Stack<Pair<INode,CmlContext>>();
+	private Pair<INode,CmlContext> 					prevExecution = null;
 	
 	//Process/Action Graph variables
-	protected final AbstractBehaviourThread<T> 	parent;
-	protected List<AbstractBehaviourThread<T>> 	children = new LinkedList<AbstractBehaviourThread<T>>();
+	protected final AbstractBehaviourThread 	parent;
+	protected List<AbstractBehaviourThread> 	children = new LinkedList<AbstractBehaviourThread>();
 	
 	//Process/Action state variables
 	protected CmlProcessState 					state;
@@ -108,7 +105,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	 * Constructor
 	 * @param parent set the parent here if any else set to null
 	 */
-	public AbstractBehaviourThread(AbstractBehaviourThread<T> parent,LexNameToken name)
+	public AbstractBehaviourThread(AbstractBehaviourThread parent,LexNameToken name)
 	{
 		state = CmlProcessState.INITIALIZED;
 		this.parent = parent;
@@ -135,24 +132,43 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 		return prevExecution != null;
 	}
 	
-	protected  Pair<T,CmlContext> prevState()
+	protected  Pair<INode,CmlContext> prevState()
 	{
 		return prevExecution;
 	}
 	
-	protected  Pair<T,CmlContext> nextState()
+	protected  Pair<INode,CmlContext> nextState()
 	{
 		return executionStack.peek();
 	}
 	
-	protected List<Pair<T,CmlContext>> getExecutionStack()
+	protected List<Pair<INode,CmlContext>> getExecutionStack()
 	{
 		return executionStack;
 	}
 	
-	protected void pushNext(T node, CmlContext context)
+	protected void pushNext(INode node, CmlContext context)
 	{
-		executionStack.push(new Pair<T, CmlContext>(node, context));
+		executionStack.push(new Pair<INode, CmlContext>(node, context));
+	}
+	
+	protected void mergeState(AbstractBehaviourThread other)
+	{
+		
+		if(other.hasNext())
+		{	//get the state replace the current state
+			//FIXME: this is really really ugly
+			for(Pair<INode,CmlContext> state : other.getExecutionStack())
+			{
+				pushNext(state.first, 
+						state.second);
+			}
+		}
+		else
+		{
+			pushNext(other.prevState().first, 
+					other.prevState().second);
+		}
 	}
 	
 	/*
@@ -225,7 +241,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 		{
 			if(hasNext())
 			{
-				Pair<T,CmlContext> next = nextState();
+				Pair<INode,CmlContext> next = nextState();
 				
 				CmlAlphabet alpha = next.first.apply(alphabetInspectionVisitor,next.second);
 			
@@ -262,7 +278,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 		if(hasNext())
 		{
 			setState(CmlProcessState.RUNNING);
-			Pair<T,CmlContext> next = executionStack.pop();
+			Pair<INode,CmlContext> next = executionStack.pop();
 			prevExecution = next;
 			return next.first.apply(this,next.second);
 		}
@@ -307,12 +323,14 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	}
 	
 	@Override
-	public Pair<T, CmlContext> getExecutionState() {
+	public Pair<INode, CmlContext> getExecutionState() {
 		if(hasNext())
 			return nextState();
 		else
 			return prevState();
 	}
+	
+	protected boolean aborted = false;
 	
 	@Override
 	public void setAbort(Reason reason) {
@@ -324,6 +342,8 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 		//unregister all the channels
 		for(ObservableEvent oe : registredEvents)
 			oe.getChannel().onSelect().unregisterObserver(this);
+		
+		aborted = true;
 		
 		setState(CmlProcessState.FINISHED);
 	}
@@ -508,7 +528,12 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 	 * common helper methods
 	 */
 	
-	protected CmlBehaviourSignal caseASequentialComposition(T leftNode, T rightNode, CmlContext question)
+	protected abstract INode createSkip();
+	
+	protected abstract CmlBehaviourThread createChild(INode node, CmlContext question, LexNameToken name);
+			
+		
+	protected CmlBehaviourSignal caseASequentialComposition(INode leftNode, INode rightNode, CmlContext question)
 			throws AnalysisException 
 	{
 		//First push right and then left, so that left get executed first
@@ -530,8 +555,8 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
-	protected CmlBehaviourSignal caseGeneralisedParallelismParallel(T node,parallelCompositionHelper helper, 
-			T skipNode, PVarsetExpression chansetExp, CmlContext question) throws AnalysisException
+	protected CmlBehaviourSignal caseGeneralisedParallelismParallel(INode node,parallelCompositionHelper helper, 
+			PVarsetExpression chansetExp, CmlContext question) throws AnalysisException
 	
 	{
 		//TODO: This only implements the "A [| cs |] B (no state)" and not "A [| ns1 | cs | ns2 |] B"
@@ -546,7 +571,7 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 		//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
 		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(this))
 		{
-			result = caseParallelEnd(skipNode, question); 
+			result = caseParallelEnd(question); 
 		}
 		//At least one child is not finished and waiting for event, this will either invoke the Parallel Non-sync or Sync rule
 		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(this))
@@ -581,12 +606,12 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 		}
 	}
 	
-	protected CmlBehaviourSignal caseParallelEnd(T SkipNode,CmlContext question)
+	protected CmlBehaviourSignal caseParallelEnd(CmlContext question)
 	{
 		removeTheChildren();
 		
 		//now this process evolves into Skip
-		pushNext(SkipNode, question);
+		pushNext(createSkip(), question);
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
@@ -671,5 +696,159 @@ abstract class AbstractBehaviourThread<T extends INode> extends QuestionAnswerCM
 			iterator.remove();
 		}
 	}
+	
+	/**
+	 *  Common transitions
+	 */
+	protected CmlBehaviourSignal caseAExternalChoice(
+			INode node, INode leftNode, LexNameToken leftName, INode rightNode, LexNameToken rightName, CmlContext question)
+			throws AnalysisException {
+		
+		CmlBehaviourSignal result = null;
+		
+		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
+		if(!hasChildren()){
+			
+			//TODO: create a local copy of the question state for each of the actions
+			CmlBehaviourThread leftInstance = createChild(leftNode, question, leftName);
+					//new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,left.getLocation()));
+			
+			CmlBehaviourThread rightInstance = createChild(rightNode, question,rightName); 
+					//new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),right.getLocation()));
+			
+			result = caseExternalChoiceBegin(leftInstance,rightInstance,question);
+			
+			//We push the current state, since this process will control the child processes created by it
+			pushNext(node, question);
+		}
+		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
+		//with the state from the skip. After this all the children processes are terminated
+		else if(CmlBehaviourThreadUtility.existsAFinishedChild(this))
+		{
+			result = caseExternalChoiceSkip();
+		}
+		//if this is true, then we can resolve the choice to the event
+		//of one of the children that are waiting for events
+		else if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(this))
+		{
+			result = caseExternalChoiceEnd();
+		}
+		else
+			result = CmlBehaviourSignal.FATAL_ERROR;
+		
+		return result;
+		
+	}
+	
+	/**
+	 * External Choice helper methods
+	 */
+
+	/**
+	 * handles the External Choice Begin Rule
+	 * @param node
+	 * @param question
+	 * @return
+	 */
+	private CmlBehaviourSignal caseExternalChoiceBegin(CmlBehaviourThread leftInstance, CmlBehaviourThread rightInstance ,CmlContext question)
+	{
+		//Add the children to the process graph
+		addChild(leftInstance);
+		addChild(rightInstance);
+		
+		//Now let this process wait for the children to get into a waitForEvent state
+		setState(CmlProcessState.WAIT_CHILD);
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	/**
+	 * Handles the External Choice Skip rule
+	 * @return
+	 */
+	private CmlBehaviourSignal caseExternalChoiceSkip()
+	{
+		//find the finished child
+		AbstractBehaviourThread skipChild = (AbstractBehaviourThread)findFinishedChild();
+		
+		//FIXME: maybe the we should differentiate between actions and process instead of just having CmlProcess
+		// 		Childerens. We clearly need it!
+		//Extract the current CmlContext of finished child action and use it as the CmlContext
+		//for the Skip action.
+		pushNext(createSkip(), skipChild.prevState().second);
+		
+		//mmmmuhuhuhahaha kill all the children
+		killAndRemoveAllTheEvidenceOfTheChildren();
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	private CmlBehaviourSignal caseExternalChoiceEnd()
+	{
+		AbstractBehaviourThread theChoosenOne = findTheChoosenChild(supervisor().selectedObservableEvent());
+		
+		//first we execute the child
+		CmlBehaviourSignal result = executeChildAsSupervisor(theChoosenOne);
+		
+		mergeState(theChoosenOne);
+		
+		setState(CmlProcessState.RUNNING);
+		
+		//mmmmuhuhuhahaha kill all the children
+		killAndRemoveAllTheEvidenceOfTheChildren();
+		
+		return result;
+	}
+	
+	/**
+	 * Finds the first finished child if any
+	 * @return The first finished child, if none then null is returned
+	 */
+	private CmlBehaviourThread findFinishedChild()
+	{
+		for(CmlBehaviourThread child : children())
+		{
+			if(child.finished())
+				return child;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param event
+	 * @return
+	 */
+	private AbstractBehaviourThread findTheChoosenChild(ObservableEvent event)
+	{
+		for(AbstractBehaviourThread child : children)
+		{
+			if(child.waiting() && child.inspect().containsObservableEvent(event))
+				return child;
+		}
+		
+		return null;
+	}
+	
+	private void killAndRemoveAllTheEvidenceOfTheChildren()
+	{
+		//Abort all the children of this action
+		for(CmlBehaviourThread child : children())
+		{
+			child.setAbort(null);
+		}
+		
+		//Remove them from the supervisor
+		removeTheChildren();
+	}
+	
+	/**
+	 * External Choice  
+	 * End of region
+	 * 
+	*/
+	
+	
 	
 }
