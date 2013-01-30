@@ -70,7 +70,7 @@ public class AlphabetInspector
 
 	// The process that contains this instance
 	private final CmlBehaviourThread 		ownerProcess;
-	private final CmlEvaluator				cmlEvaluator;
+	private final CmlEvaluator				cmlEvaluator = new CmlEvaluator();
 	
 	
 	
@@ -78,10 +78,9 @@ public class AlphabetInspector
 	 * 
 	 * @param ownerProcess
 	 */
-	public AlphabetInspector(CmlBehaviourThread ownerProcess,CmlEvaluator cmlEvalutor)
+	public AlphabetInspector(CmlBehaviourThread ownerProcess)
 	{
 		this.ownerProcess = ownerProcess;
-		this.cmlEvaluator = cmlEvalutor;
 	}
 	
 	/**

@@ -20,17 +20,19 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterStatus;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
+import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+import eu.compassresearch.core.interpreter.runtime.ProcessContext;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.interpreter.util.CmlUtil;
 import eu.compassresearch.core.interpreter.util.GlobalEnvironmentBuilder;
+import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -138,8 +140,16 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		currentSupervisor = sve; //VanillaInterpreterFactory.newCmlSupervisorEnvironment(selectionStrategy,cmlScheduler);
 		cmlScheduler.setCmlSupervisorEnvironment(currentSupervisor);
 		
-		CmlProcess pi = new CmlProcess(topProcess, null,getInitialContext(null));
+		CmlContext topContext = getInitialContext(null);
+		
+		ProcessObjectValue self = topContext.lookup(topProcess.getName()); 
+		
+		ProcessContext processContext = new ProcessContext(topProcess.getLocation(), "Top Process context", topContext, self);
+		
+		//CmlProcess pi = new CmlProcess(topProcess, null,processContext);
 
+		//CmlAction pi = new CmlAction(topProcess.getProcess(), processContext, topProcess.getName());
+		ConcreteBehaviourThread pi = new ConcreteBehaviourThread(topProcess.getProcess(), processContext, topProcess.getName());
 		pi.start(currentSupervisor);
 		try {
 			statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.RUNNING));
@@ -213,7 +223,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/process/process-functionsdef.cmlInLimbo");
+				"src/test/resources/action/action-prefix.cml");
 		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 
