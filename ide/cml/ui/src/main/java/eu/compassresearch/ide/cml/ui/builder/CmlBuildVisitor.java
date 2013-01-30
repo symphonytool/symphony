@@ -1,8 +1,10 @@
 package eu.compassresearch.ide.cml.ui.builder;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +14,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 
 import eu.compassresearch.ast.lex.LexLocation;
 import eu.compassresearch.ast.program.AFileSource;
@@ -29,18 +32,32 @@ public class CmlBuildVisitor implements IResourceVisitor
     @Override
     public boolean visit(IResource resource) throws CoreException
       {
-        
+            	
         // Resource for this build
         if (!shouldBuild(resource))
           return true;
-        
+
         // This visitor only builds files.
         IFile file = (IFile) resource;
         
+        // Generate Isabelle theory file
+        if ("cml".equalsIgnoreCase(file.getFileExtension())) {
+        	String thyName = Path.fromPortableString(file.getName()).removeFileExtension().toString();
+        	
+        	IFile thyFile = file.getProject().getFile(thyName + ".thy");
+        	
+        	if (!thyFile.exists()) {
+        		String theory = "theory "+thyName+"\nimports Main\nbegin\n\nend";
+        		InputStream thysource = new ByteArrayInputStream(theory.getBytes());
+        		thyFile.create(thysource, false, null);
+        	}
+        }
+                
         // Parse the source
         AFileSource source = new AFileSource();
         if (!parse(file, source))
           return false;
+        
         
         // Lets run the type checker
         if (!typeCheck(file, source))

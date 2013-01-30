@@ -23,7 +23,7 @@ import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
-import org.overture.ast.analysis.AnalysisAdaptor;
+import org.overture.ast.analysis.QuestionAdaptor;
 
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.declarations.AChannelNameDeclaration;
@@ -49,13 +49,14 @@ import eu.compassresearch.ast.types.AValueParagraphType;
 
 @SuppressWarnings("serial")
 class TPVisitor extends
-    AnalysisAdaptor
+    QuestionAdaptor<String>
   {
 
 	@Override
-	public void caseAFunctionType(AFunctionType node) throws AnalysisException {
+	public void caseAFunctionType(AFunctionType node, String question)
+			throws AnalysisException {
 		// TODO Auto-generated method stub
-		super.caseAFunctionType(node);
+		super.caseAFunctionType(node, question);
 	}
-  
+	
   }

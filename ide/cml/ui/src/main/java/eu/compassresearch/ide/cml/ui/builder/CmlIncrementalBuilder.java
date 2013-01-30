@@ -19,7 +19,7 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder
         CmlBuildVisitor buildVisitor = new CmlBuildVisitor();
         
         // For now we build everything every time
-        getProject().accept(buildVisitor);
+        getProject().accept(buildVisitor);        
         
         // Return the projects that should be build also as result of rebuilding
         // this
