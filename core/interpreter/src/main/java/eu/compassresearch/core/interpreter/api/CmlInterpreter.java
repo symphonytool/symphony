@@ -37,12 +37,6 @@ public interface CmlInterpreter
 	public CmlContext getInitialContext(LexLocation location);
 
 	/**
-	 * Get the global environment.
-	 */
-
-	public Environment getGlobalEnvironment();
-	
-	/**
 	 * Get the name of the default process. Symbols in the default
 	 * process do not have to have their names qualified when being
 	 * referred to on the command line.

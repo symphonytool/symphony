@@ -39,6 +39,7 @@ import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
 
+@SuppressWarnings("serial")
 public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 
 	

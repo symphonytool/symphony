@@ -44,9 +44,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	 * 
 	 */
 	private static final long          serialVersionUID = 6664128061930795395L;
-	private CmlEvaluator               evalutor         = new CmlEvaluator();
 	protected List<PSource>            sourceForest;
-	protected Environment 			   env;
 	protected CmlContext               globalContext;
 	protected String 				   defaultName      = null;	
 	protected AProcessDefinition       topProcess;
@@ -83,7 +81,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	{
 		GlobalEnvironmentBuilder envBuilder = new GlobalEnvironmentBuilder(sourceForest);
 
-		env = envBuilder.getGlobalEnvironment();
 		globalContext = envBuilder.getGlobalContext();
 		topProcess = envBuilder.getLastDefinedProcess();
 	}
@@ -93,21 +90,14 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		if(defaultName != null && !defaultName.equals(""))
 		{
 			LexNameToken name = new LexNameToken("",getDefaultName(),null);
-			AProcessDefinition processDef = (AProcessDefinition)env.findName(name, NameScope.GLOBAL);
-
-			if (processDef == null)
+			ProcessObjectValue pov = (ProcessObjectValue)globalContext.check(name);
+			
+			if (pov == null)
 				throw new InterpreterException("No process identified by '"
 						+ getDefaultName() + "' exists");
 
-			topProcess = processDef;
+			topProcess = pov.getProcessDefinition();
 		}
-	}
-	
-
-	@Override
-	public Environment getGlobalEnvironment()
-	{
-		return env;
 	}
 
 	@Override
@@ -122,22 +112,14 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		defaultName = name;
 	}
 
-//	@Override
-//	public Value execute() throws InterpreterException
-//	{
-//		return execute(new RandomSelectionStrategy());
-//	}
-
 	@Override
 	public Value execute(CmlSupervisorEnvironment sve, Scheduler scheduler) throws InterpreterException
 	{
 		InitializeTopProcess();
-		Environment env = getGlobalEnvironment();
-		CmlRuntime.setGlobalEnvironment(env);
 
-		cmlScheduler = scheduler;//VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+		cmlScheduler = scheduler;
 		
-		currentSupervisor = sve; //VanillaInterpreterFactory.newCmlSupervisorEnvironment(selectionStrategy,cmlScheduler);
+		currentSupervisor = sve; 
 		cmlScheduler.setCmlSupervisorEnvironment(currentSupervisor);
 		
 		CmlContext topContext = getInitialContext(null);
@@ -146,9 +128,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		
 		ProcessContext processContext = new ProcessContext(topProcess.getLocation(), "Top Process context", topContext, self);
 		
-		//CmlProcess pi = new CmlProcess(topProcess, null,processContext);
-
-		//CmlAction pi = new CmlAction(topProcess.getProcess(), processContext, topProcess.getName());
 		ConcreteBehaviourThread pi = new ConcreteBehaviourThread(topProcess.getProcess(), processContext, topProcess.getName());
 		pi.start(currentSupervisor);
 		try {

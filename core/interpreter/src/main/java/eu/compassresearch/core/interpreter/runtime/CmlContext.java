@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.runtime;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -302,6 +303,11 @@ public class CmlContext {
 	{
 		return outer == null ? null : outer.getSelf();
 		
+	}
+	
+	public Collection<Value> values()
+	{
+		return vdmContext.values();
 	}
 	
 	public String getTitle()

@@ -15,15 +15,10 @@ import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 public class CmlRuntime {
 
 	//protected static CmlScheduler cmlScheduler = new CmlScheduler();
-	protected static Environment globalEnvironment = null;
 	protected static Logger logger = null;
 	protected static Handler logHandler = null;
 	private static boolean showHiddenEvents = true;
 	
-//	public static CmlScheduler getCmlScheduler()
-//	{
-//		return cmlScheduler;
-//	}
 	public static Logger logger()
 	{
 		if(null == logger)
@@ -63,14 +58,6 @@ public class CmlRuntime {
 		
 		return logger;
 
-	}
-
-	public static Environment getGlobalEnvironment() {
-		return globalEnvironment;
-	}
-
-	public static void setGlobalEnvironment(Environment globalEnvironment) {
-		CmlRuntime.globalEnvironment = globalEnvironment;
 	}
 
 	public static boolean isShowHiddenEvents() {
