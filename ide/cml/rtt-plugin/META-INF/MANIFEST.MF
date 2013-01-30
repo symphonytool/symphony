@@ -25,4 +25,5 @@ Bundle-ClassPath: .,
  lib/json-simple-1.1.jar,
  lib/ast-0.1.0.jar,
  lib/rtt-mbt-0.1.0.jar,
- lib/ast-2.2.1.jar
+ lib/ast-2.2.1.jar,
+ lib/commons-codec-1.5.jar
