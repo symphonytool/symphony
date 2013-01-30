@@ -1,8 +1,8 @@
 package eu.compassresearch.core.interpreter.test;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -36,18 +36,28 @@ public class TestResult {
 			//get a nodelist of elements
 			NodeList nl = docEle.getElementsByTagName("visibleTrace");
 			
-			Node n = nl.item(0);
+			List<List<String>> traces = new LinkedList<List<String>>();
+						
+			//Node n = nl.item(0);
 			
-			Vector<String> trace = new Vector<String>();
-			
-			String value = n.getFirstChild().getNodeValue();
-			
-			for(String s : value.split(";"))
+			for(int i = 0; i < nl.getLength();i++)
 			{
-				trace.add(s);
+				Node n = nl.item(i);
+				LinkedList<String> trace = new LinkedList<String>();
+				
+				if(n.hasChildNodes())
+				{
+					String value = n.getFirstChild().getNodeValue();
+
+					for(String s : value.split(";"))
+					{
+						trace.add(s);
+					}
+				}
+				traces.add(trace);
 			}
 			
-			testResult = new TestResult(trace);
+			testResult = new TestResult(traces);
 
 		}catch(ParserConfigurationException pce) {
 			pce.printStackTrace();
@@ -58,16 +68,26 @@ public class TestResult {
 		return testResult;
 	}
 	
-	private List<String> visibleTrace;
+	private List<List<String>> visibleTraces;
 	
-	public TestResult(List<String> visibleTrace)
+	public TestResult(List<List<String>> visibleTraces)
 	{
-		this.visibleTrace = visibleTrace;
+		this.visibleTraces = visibleTraces;
+	}
+	
+	public boolean isInterleaved()
+	{
+		return this.visibleTraces.size() > 1;
+	}
+	
+	public List<String> getFirstVisibleTrace()
+	{
+		return this.visibleTraces.get(0);
 	}
 		
-	public List<String> getVisibleTrace()
+	public List<List<String>> getVisibleTraces()
 	{
-		return this.visibleTrace;
+		return this.visibleTraces;
 	}
 	
 }

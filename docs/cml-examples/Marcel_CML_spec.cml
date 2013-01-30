@@ -1,0 +1,86 @@
+    types
+        Value = nat
+        CellId = set of nat inv CellId == {1, ..., maxring}
+        Direction =  req | ack
+
+    values
+        maxbuff = 4
+        maxring = maxbuff - 1
+
+channels
+    input, output : Value
+    write, read: CellId * Direction * Value
+    read, wrt: Direction * Value
+    rd_i, wrt_i: CellId * Direction * Value
+
+    process RingCell =
+    begin
+        state v:Value
+
+        operations
+            setV(x:Value)
+                frame wr v
+                post v = x
+
+        actions
+            Act = wrt?aux?x -> [aux=<req>] & setV(x) ;
+                  wrt?aux?v -> [aux=<ack>] &
+                  	read?a?dump -> [a=<req>] &
+                  		    read?b?c -> [b=<ack>] & Skip; Act    			        			
+        @ Act
+    end
+     
+    process Controller =
+    begin
+        state cache:Value
+              size:nat
+              top:CellId
+              bot:CellId
+
+        operations
+            Init(c:Value, s:nat, t:CellId, b:CellId)
+                post cache=v and size=s and top=t and bot=b
+
+            setCache(x:Value)
+                frame wr cache:Value
+                post cache = x
+
+            setSize(x:nat)
+                frame wr size:nat
+                post size = x
+
+            setTop(x:CellId)
+                frame wr top:CellId
+                post top = x
+
+            setBot(x:CellId)
+                frame wr bot:CellID
+                post bot = x
+
+        actions
+            Input =
+                [size < maxbuff] &
+                    input?x ->
+                        ( [size = 0] & SetCache(x); SetSize(1)
+                          []
+                          [size > 0] &
+                                write.top.req!x -> write.top.ack?dumb ->
+                                SetSize(size+1);
+                                SetTop((top mod maxring)+1) )
+                                   
+                                                  
+            Output =
+                [size > 0] &
+                    output!cache ->
+                        ( [size > 1] &
+                            (|~| dumb:Value @
+                                read.bot.req.dumb -> read.bot.ack?x -> Skip);
+                            SetSize(size-1);
+                            SetBot((bot mod maxring)+1) )
+                          []
+                          [size = 1] &
+                            SetSize(0) 
+
+        @ Init(0,0,1,1);
+         mu X @ ( (Input [] Output); X )
+    end

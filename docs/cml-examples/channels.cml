@@ -1,5 +1,5 @@
   channels
-   init, overflow, underflow;
+   init overflow underflow
    read, load, add, sub : Byte
 
 

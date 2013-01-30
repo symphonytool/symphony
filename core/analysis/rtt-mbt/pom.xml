@@ -5,12 +5,12 @@
   <parent>
     <groupId>eu.compassresearch.core.analysis</groupId>
     <artifactId>analysis</artifactId>
-    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <version>0.1.0<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>rtt-mbt</artifactId>
-  <name>COMPASS RTT-MBT Interface</name>
+  <name>COMPASS Core Analysis RTT-MBT Interface</name>
 
   <dependencies>
 
@@ -33,8 +33,8 @@
     </dependency>
    
     <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
+      <groupId>org.apache.directory.studio</groupId>
+      <artifactId>org.apache.commons.codec</artifactId>
       <version>1.6</version>
     </dependency>
 

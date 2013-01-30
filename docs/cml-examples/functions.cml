@@ -1,6 +1,6 @@
 functions
     oflow (i,j : Byte) b : bool
-    post b = ( i+j > 255);
+    post b = ( i+j > 255)
 
     uflow (i,j : Byte) b : bool
     post b = (i-j < 0)

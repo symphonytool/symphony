@@ -1,6 +1,6 @@
 values
-anders : bool = is_Hej(a);
-anders : bool = is_Hej`hello(b);
+anders : bool = is_Hej(a)
+anders : bool = is_Hej`hello(b)
 anders : bool = is_Hej.hello(b)
 
 		

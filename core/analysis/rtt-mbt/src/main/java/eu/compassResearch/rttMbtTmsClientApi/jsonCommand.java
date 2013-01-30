@@ -43,6 +43,8 @@ public class jsonCommand {
 	private Boolean debugMode;
 	private Boolean debugVerbose;
 	private Boolean debugIMR;
+	protected Boolean hasProgress;
+	protected Boolean hasConsole;
 	protected String userName;
 	protected String userId;
 	protected Boolean resultValue;
@@ -61,6 +63,8 @@ public class jsonCommand {
 			debugMode = false;
 			debugVerbose = false;
 			debugIMR = false;
+			hasProgress = false;
+			hasConsole = false;
 	}
 
 	public void setDebugMode(Boolean value) { debugMode = value; }
@@ -69,6 +73,11 @@ public class jsonCommand {
 	
 	public String executeCommand() {
 		String reply = "";
+
+		// reset progress to 0% for all tasks
+		if (hasProgress) {
+			client.setProgress(IRttMbtProgressBar.Tasks.ALL, 0);
+		}
 		
 		// connect to server
 		if (!connectToServer()) {
@@ -164,16 +173,168 @@ public class jsonCommand {
 		return;
 	}
 	
+	public Boolean hasProgressItems(String message) {
+		return (message.indexOf("\"progress-item\"") != -1);
+	}
+	
+	public IRttMbtProgressBar.Tasks String2Task(String taskName) {
+		IRttMbtProgressBar.Tasks task = IRttMbtProgressBar.Tasks.Global;
+		
+		if (taskName.equals("Generate Test")) {
+			return IRttMbtProgressBar.Tasks.Global;
+		}
+		
+		if (taskName.equals("Goal Coverage       ")) {
+			return IRttMbtProgressBar.Tasks.Goal;
+		}
+		
+		if (taskName.equals("Test case coverage ")) {
+			return IRttMbtProgressBar.Tasks.TC_COV;
+		}
+		
+		if (taskName.equals("BCS coverage       ")) {
+			return IRttMbtProgressBar.Tasks.BCS_COV;
+		}
+		
+		if (taskName.equals("TR coverage        ")) {
+			return IRttMbtProgressBar.Tasks.TR_COV;
+		}
+		
+		if (taskName.equals("MCDC coverage      ")) {
+			return IRttMbtProgressBar.Tasks.MCDC_COV;
+		}
+		
+		if (taskName.equals("Check Model")) {
+			return IRttMbtProgressBar.Tasks.Global;
+		}
+		
+		return task;
+	}
+	
+	public int scanForProgressItems(String msg) {
+		String message = new String(msg);
+		int percent = -1;
+		int start, end, first, last, firstDigit, lastDigit;
+		while ((hasProgressItems(message)) && (percent < 100)) {
+			start = message.indexOf("{ \"progress-item\"");
+			end = message.indexOf('}', start);
+			if (start == -1) {
+				return percent;
+			}
+			if (end == -1) {
+				return percent;
+			}
+
+			// extract item
+			String item = message.substring(start, end + 1);
+
+			// extract percent from item
+			if (item.compareTo("{ \"progress-item\" : \"clean\" }") != 0) {
+				first = item.indexOf(':') + 3;
+				last = item.lastIndexOf(':');
+				firstDigit = item.lastIndexOf(':') + 2;
+				lastDigit = item.lastIndexOf('\"') ;
+				if ((firstDigit >= 3) && (lastDigit >= firstDigit)) {
+					String taskName = item.substring(first, last);
+					String number = item.substring(firstDigit, lastDigit);
+					System.out.println("taskname: '" + taskName + "'");
+					percent = Integer.parseInt(number);
+					client.setProgress(String2Task(taskName), percent);
+				}
+			}
+
+			// scan again in the rest of the message
+			message = message.substring(end + 1);
+		}
+		return percent;
+	}
+
+	public Boolean hasConsoleItems(String message) {
+		return (message.indexOf("\"console-item\"") != -1);
+	}
+
+	public void scanForConsoleItems(String msg) {
+		String message = new String(msg);
+		int start, end, first, last;
+		while (hasConsoleItems(message)) {
+			start = message.indexOf("{ \"console-item\"");
+			end = message.indexOf('}', start);
+			if (start == -1) {
+				return;
+			}
+			if (end == -1) {
+				return;
+			}
+
+			// extract item
+			String item = message.substring(start, end + 1);
+
+			// extract console message from item
+			first = item.lastIndexOf(':') + 3;
+			last = item.lastIndexOf('\"') ;
+			// - extract base64 encoded string
+			String base64content = item.substring(first, last);
+			// base64 decode encoded into content
+			byte [] decoded = Base64.decodeBase64(base64content);
+			String content = new String(decoded);
+			client.addLogMessage(content + "\n");			
+
+			// scan again in the rest of the message
+			message = message.substring(end + 1);
+		}
+	}
+	
 	public String receiveReply() {
 		String message = "";
+		int progress = -1;
 		try{
-			int character;
+
+			// read file content into buffer
 			replyStream = clientSocket.getInputStream();
-			character = replyStream.read();
-			while (character != -1) {
-				message += (char)character;
-				character = replyStream.read();
+			int max_chunk_size = 1024*1024;
+			int buffer_size = max_chunk_size;
+			byte buffer[] = new byte[buffer_size];
+			int offset = 0;
+			int bytes_read = 0;
+			while ((offset < buffer_size) && (bytes_read >= 0)) {
+				bytes_read = replyStream.read(buffer, offset, buffer_size - offset);
+				// only scan for progress and console items
+				// if they are expected for this command
+				if (hasProgress || hasConsole) {
+					byte[] chunkBuffer = null;
+					String chunk = null;
+					if (bytes_read > 0) {
+						chunkBuffer = new byte[bytes_read];
+						System.arraycopy(buffer, offset, chunkBuffer, 0, bytes_read);
+						chunk = new String(chunkBuffer);
+						if ((progress < 100) && (hasProgress) && (hasProgressItems(chunk))) {
+							progress = scanForProgressItems(chunk);
+						}
+						if ((hasConsole) && (hasConsoleItems(chunk))) {
+							scanForConsoleItems(chunk);
+						}
+					}
+				}
+				offset += bytes_read;
+				if (offset == buffer_size) {
+					// use new chunk
+					byte[] old = buffer;
+					buffer_size += max_chunk_size;
+					buffer = new byte[buffer_size];
+					System.arraycopy(old, 0, buffer, 0, buffer_size - max_chunk_size);
+				}
 			}
+
+			// restrict buffer length to the number of bytes actually read
+			if (offset < buffer_size) {
+				byte[] binary = new byte[offset + 1];
+				System.arraycopy(buffer, 0, binary, 0, offset + 1);
+				buffer = binary;
+			}
+
+			// copy buffer to string for return type
+			message = new String(buffer);
+		
 		}
 		catch(IOException ioException){
 			System.err.println("*** error: unable to receive reply!");
@@ -214,7 +375,11 @@ public class jsonCommand {
 				jsonObjects.add(reply);
 			}
 			catch (ParseException e) {
-				System.err.println("*** error: unable to parse reply '" + replyString + "'!");
+				if (jsonWords.get(idx).length() <= 1024) {
+					System.err.println("*** error: unable to parse reply '" + jsonWords.get(idx) + "'!");					
+				} else {
+					System.err.println("*** error: unable to parse reply '" + jsonWords.get(idx).substring(0, 1024) + "...'" );
+				}
 				e.printStackTrace();
 			}
 			idx++;
@@ -233,7 +398,7 @@ public class jsonCommand {
 				String[] errorMsgs = getExceptions(reply);
 				int erridx = 0;
 				while (erridx < errorMsgs.length) {
-					System.err.println("*** error: " + errorMsgs[erridx]);
+					client.addErrorMessage(errorMsgs[erridx]);
 					erridx++;
 				}
 				// if errors did occur, do NOT extract result files
@@ -381,7 +546,7 @@ public class jsonCommand {
 		try{
 			File file = new File(filename);
 			if (!file.isFile()) {
-				System.err.println("*** error: " + filename + " is not a regualr file!");
+				System.err.println("*** error: " + filename + " is not a regular file!");
 				return content;
 			}
 			if (!file.canRead()) {
@@ -445,7 +610,7 @@ public class jsonCommand {
 		try{
 			File file = new File(filename);
 			if (!file.isFile()) {
-				System.err.println("*** error: " + filename + " is not a regualr file!");
+				System.err.println("*** error: " + filename + " is not a regular file!");
 				return size;
 			}
 			size = file.length();
@@ -464,7 +629,7 @@ public class jsonCommand {
 		try{
 			File file = new File(filename);
 			if (!file.isFile()) {
-				System.err.println("*** error: " + filename + " is not a regualr file!");
+				System.err.println("*** error: " + filename + " is not a regular file!");
 				return checksum;
 			}
 			if (!file.canRead()) {

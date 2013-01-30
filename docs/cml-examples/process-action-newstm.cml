@@ -1,3 +1,3 @@
 process test = begin @ a:=new fissan() end
 process test = begin @ a:=new fissan(1,2) end
-process test = begin @ a:=new Hej`fissan(1,2) end
+process test = begin @ a:=new Hej.fissan(1,2) end

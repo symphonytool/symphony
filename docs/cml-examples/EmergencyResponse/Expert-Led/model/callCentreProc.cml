@@ -1,0 +1,95 @@
+process CallCentreProc =
+begin
+  state
+  
+  eru : ERUId  
+
+  -- The set of all known ERUs (some are idle and some are busy)
+  erus: set of ERUId 
+  
+  -- Maps ERUs to the details of the rescues they are attending.
+  eruRescues: map ERUId to RescueDetails  
+  inv dom eruRescues subset erus and (forall i in set erus @ i.type = <ERU>)
+  
+  --Put in init?  
+  ccId : Id
+  
+  -- Log
+  diversionLog :  set of Log
+  
+  operations 
+
+  -- assume ops to populate erus and eruRescues
+  INIT()
+  frame wr ccId: Id
+  	wr erus: (set of ERUId)  
+  	wr eruRescues: (map ERUId to RescueDetails)
+  post ccId = mk_Id(<CC>, mk_token("-")) and erus = {} and eruRescues = {|->}
+  
+  findIdleERUs() idleERUs: set of ERUId
+  frame rd erus: set of ERUId
+        rd eruRescues: map ERUId to RescueDetails
+  post idleERUs = erus \ dom eruRescues
+  
+  allocateIdleERU(e:set of ERUId, r: RescueDetails) eru: ERUId
+  frame wr eruRescues : map ERUId to RescueDetails
+        rd erus: set of ERUId
+  pre e subset erus and (e inter dom eruRescues = {})
+  post eru in set e and eru in set dom eruRescues and eruRescues(eru) = r
+    
+  compareCriticality(r: RescueDetails) b : bool
+  frame rd eruRescues: map ERUId to RescueDetails
+  post b = (exists e in set dom eruRescues @ compareCriticalityFunction(r, eruRescues(e)))
+  
+  chooseERUToDivert(r : RescueDetails) eru : ERUId
+  frame rd eruRescues: map ERUId to RescueDetails
+  post eru in set dom eruRescues and compareCriticalityFunction(r, eruRescues(eru))
+    
+  getOldDetails(eru : ERUId) r : RescueDetails
+  frame rd eruRescues: map ERUId to RescueDetails
+  pre eru in set dom eruRescues
+  post r = eruRescues(eru)
+  
+  reAllocateERU(eru : ERUId, r : RescueDetails)
+  frame wr eruRescues : map ERUId to RescueDetails
+        rd erus: set of ERUId
+  pre eru in set erus and eru in set dom eruRescues and eruRescues(eru) <> r
+  post eru in set dom eruRescues and eruRescues(eru) = r
+  
+  logDiversion(eru : ERUId, r : RescueDetails, oldr : RescueDetails)
+  frame rd eruRescues : map ERUId to RescueDetails
+        wr diversionLog : set of Log
+  pre eru in set erus and eru in set dom eruRescues and eruRescues(eru) = r
+  post mk_Log(eru, oldr, r) in set diversionLog 
+  
+  actions
+ 
+
+
+	-- parser doesn't like MERGE1(r)?
+	MERGE1 = (dcl e: set of ERUId @ e := findIdleERUs() ; 
+		(do 
+			true -> Skip 			 
+--			e = {} -> DECISION2(r)
+--			| 
+--			e <> {} -> (dcl e1: ERUId @ e1 := allocateIdleERU(e, r); MERGE2(e1, r))
+		end))
+	-- parser doesn't like MERGE2(eru, r)?
+	MERGE2 = (dcl s: String @ s := rescueDetailsToString(r); radioIn!ccId!eru!s -> CALLCENTRE) -- scope of s??
+
+    CALLCENTRE = startRescue?r -> MERGE1	
+ 	-- parser doesn't like DECISION2(r)?
+	DECISION2 = (dcl c: bool @ c := compareCriticality(r); 
+		(do
+			not c -> MERGE1(r) 
+	    		|
+	    		c -> (dcl e2: ERUId @ e2 := chooseERUToDivert(r); FORK1(e2, r))
+	    	end))
+	
+	-- parser doesn't like FORK1(eru, r)?
+	FORK1 =  (dcl oldr: RescueDetails @ oldr := getOldDetails(eru); reAllocateERU(eru,r); (MERGE2(eru, r) 
+				     																	 ||| 	    
+				      																     logDiversion(eru,r,oldr); MERGE1(oldr)))
+  
+   @ init -> INIT();CALLCENTRE
+end	

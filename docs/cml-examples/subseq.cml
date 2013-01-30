@@ -1,7 +1,7 @@
 class subseq =
 begin
 	values 
-	public a : seq of int = [1,2,3,4,5,6,7,8,9,0];
+	public a : seq of int = [1,2,3,4,5,6,7,8,9,0]
 	public s : seq of int = a(1,...,5)
 
 end

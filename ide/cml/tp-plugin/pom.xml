@@ -4,13 +4,15 @@
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
     <artifactId>eu.compassresearch.ide.cml</artifactId>
-    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <version>0.1.0<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <groupId>eu.compassresearch.ide.cml</groupId>
   <artifactId>eu.compassresearch.ide.cml.tp-plugin</artifactId>
-  <name>COMPASS Isabelle Plugin</name>
+  <name>COMPASS IDE Isabelle Plugin</name>
+
+  <packaging>pom</packaging>
 
   <dependencies>
     <dependency>
@@ -19,5 +21,41 @@
       <version>3.7.0</version>
     </dependency>
   </dependencies>
+
+ <build>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <!-- Copy the rtt-mbt analysis from core to lib -->
+                <artifactItem>
+                  <groupId>eu.compassresearch.core.analysis</groupId>
+                  <artifactId>theoremprover</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>lib</outputDirectory>
+              <overWriteReleases>true</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
 
 </project>

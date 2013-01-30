@@ -1,8 +1,9 @@
 class Test =
 begin 
       functions
-      fn: int -> int fn() == 42
+      fn: int -> int fn(a) == 42
       
       values 
-      a = fn()
+      a:int = fn(42)
+      b:int = a
 end

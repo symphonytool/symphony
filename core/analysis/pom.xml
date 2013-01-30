@@ -6,18 +6,18 @@
   <parent>
     <groupId>eu.compassresearch.core</groupId>
     <artifactId>core</artifactId>
-    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <version>0.1.0<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <groupId>eu.compassresearch.core.analysis</groupId>
   <artifactId>analysis</artifactId>
-  <name>COMPASS Core Analysis Plug-ins</name>
+  <name>COMPASS Core Analysis Top-level</name>
 
   <modules>
     <module>pog</module>
     <module>theoremprover</module>
-    <module>refinementtool</module>
+    <!-- module>refinementtool</module -->
     <module>rtt-mbt</module>
   </modules>
 </project>

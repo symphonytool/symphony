@@ -3,16 +3,16 @@ process RegisterProc =
   operations  
    LOAD(i : Byte)
    frame wr reg : Byte
-   post reg = i;
+   post reg = i
 
    READ() j : Byte
    frame rd reg : Byte
-   post j = reg; 
+   post j = reg
 
    ADD(i:Byte)
    frame wr reg : Byte
    pre not oflow(reg, i)
-   post reg = reg~ + i;
+   post reg = reg~ + i
 
    SUB(i : Byte)
    frame wr reg : Byte

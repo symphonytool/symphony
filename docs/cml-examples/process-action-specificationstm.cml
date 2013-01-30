@@ -1,1 +1,1 @@
-process test = begin @ [ frame rd h pre not h post h] end
+process test = begin @ [ frame rd h pre not h post h ] end

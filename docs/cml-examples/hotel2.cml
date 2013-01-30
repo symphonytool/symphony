@@ -10,84 +10,84 @@ types
 	public Date :: 	day : nat1
 					month : nat1
 					year : nat
-	inv d == d.day <= 31 and d.month <= 12; 
+	inv d == d.day <= 31 and d.month <= 12
 	-- plus some more fiddly month/year number of day restrictions
 		
 	public Stay ::	hotId : HotelID	
 					noRooms : nat1
 					startDate : Date
-					noNights : nat1;
+					noNights : nat1
 			
 	public Price ::	pounds : nat
 					pence : nat
-	inv p == p.pence < 100;
+	inv p == p.pence < 100
 				
-	public Facility = (<Bar> | (<Restaurant> | (<Pool> | <Spa>))); 
+	public Facility = (<Bar> | (<Restaurant> | (<Pool> | <Spa>)))
 	-- etc.
 	
-	public Reference = token;
-	public Location  = token;
-	public HotelID = token;
+	public Reference = token
+	public Location  = token
+	public HotelID = token
 	
 	public BookingDetails :: 	stay: Stay
-					ppn : Price; -- room price per night (stores what this was at the time of booking)
+					ppn : Price -- room price per night (stores what this was at the time of booking)
 	
 	public HotelDetails ::	location : Location
 				facilities : set of Facility
 				avail : map Date to nat -- maps the Date to the number of rooms available on that Date
-				price : Price; -- room price per night (assume this is constant)
+				price : Price -- room price per night (assume this is constant)
 					
 	-- maps a hotel ID to its details
-	public Zotels = map HotelID to HotelDetails;
+	public Zotels = map HotelID to HotelDetails
 
 	-- maps a booking reference to booking details
-	public Bookings = map Reference to BookingDetails; 
+	public Bookings = map Reference to BookingDetails
 
 functions
 
 	-- returns the set of dates included in a given stay
-	public getDates : Stay ->  set of Date
-	getDates(s) == is not yet specified;
+	public getDates : Stay ->  (set of Date)
+	getDates(s) == is not yet specified
 
 	-- multiplies price whilst keeping a pounds and pence format
 	multiplyPrice : Price * nat -> Price
-	multiplyPrice(p, no) == mk_Price(no * p.pounds + (no * p.pence)/100, (no * p.pence) mod 100);
+	multiplyPrice(p, no) == mk_Price(no * p.pounds + (no * p.pence)/100, (no * p.pence) mod 100)
 
 
 channels
 	
-	init, invalidRef, unavailable, error;
-	avail : bool;
-	book, check, reqPriceAvail, reqPrice : Stay;
-	reference, cancel, chDate, chRooms : Reference;
-	outPrice, setPrice : Price;
-	reqFac : HotelID;
-	outFac : set of Facility;
+	init invalidRef unavailable error
+	avail : bool
+	book, check, reqPriceAvail, reqPrice : Stay
+	reference, cancel, chDate, chRooms : Reference
+	outPrice, setPrice : Price
+	reqFac : HotelID
+	outFac : set of Facility
 	setAvail : map Date to nat
 
 chansets
 
 	-- Define two chansets: one for a travel agents interface, the other for manager interface
-	TA = {| init, avail, book, check, reqPriceAvail, reqPrice, outPrice, reqFac, outFac, reference, cancel, chDate, chRooms, invalidRef, unavailable, error |};
+	TA = {| init, avail, book, check, reqPriceAvail, reqPrice, outPrice, reqFac, outFac, reference, cancel, chDate, chRooms, invalidRef, unavailable, error |}
 	Manager = {| init, setPrice, setAvail, error |}
 
 process Zotel_Booking =
 begin
   state
 	
-	zotels : Zotels; -- maps a hotel ID to its details
-	bookings : Bookings; -- maps a booking reference to stay details
+	zotels : Zotels -- maps a hotel ID to its details
+	bookings : Bookings -- maps a booking reference to stay details
 	
 	-- All booked stays have valid hotels and each booked stay has valid dates for that hotel
 	inv forall b in set rng bookings @ b.stay.hotId in set dom zotels 
-			and getDates(b.stay) subset dom zotels(b.stay.hotId).avail;
+			and getDates(b.stay) subset dom zotels(b.stay.hotId).avail
 
   operations
 
 	-- initialisation
 	public Init() 
 	frame wr zotels, bookings
-	post true;
+	post true
 	
 
 --	public checkAvailability : Stay ==> bool
@@ -103,7 +103,7 @@ begin
 	post forall d in set getDates(s) @ zotels(s.hotId).avail(d) = zotels~(s.hotId).avail(d) - s.noRooms 
 	and r not in set dom bookings~ and bookings(r) = mk_BookingDetails(s, zotels(s.hotId).price)
 	-- and nothing else changes (not formalised)!
-	;
+	
 	
 --	-- Assumes hotel exists, returns null if unavailable on these dates
 --	public getQuote : Stay ==> [Price]
@@ -144,25 +144,25 @@ begin
 
 	actions
 	ZOTEL = 
-	check?s -> 	([ pre-checkAvailability(s)] & (dcl a:bool @ a := checkAvailability(s); avail!a -> ZOTEL))
+	check?s -> 	([ preCheckAvailability(s)] & (dcl a:bool @ a := checkAvailability(s); avail!a -> ZOTEL))
 				[]
-				([ not pre-checkAvailability(s)] & (error -> ZOTEL))
+				([ not preCheckAvailability(s)] & (error -> ZOTEL))
 	[]
-	book?s -> 	([ pre-makeBooking(s)] & (dcl r:Reference @ r := makeBooking(s); reference!r -> ZOTEL))
+	book?s -> 	([ preMakeBooking(s)] & (dcl r:Reference @ r := makeBooking(s); reference!r -> ZOTEL))
 			[]
-			([ not pre-makeBooking(s)] & (unavailable -> ZOTEL))
+			([ not preMakeBooking(s)] & (unavailable -> ZOTEL))
 	[]
-	reqPriceAvail?s -> 	([ pre-getQuoteAvail(s)] & (dcl p:Price @ p := getQuoteAvail(s); outPrice!p -> ZOTEL))
+	reqPriceAvail?s -> 	([ preGetQuoteAvail(s)] & (dcl p:Price @ p := getQuoteAvail(s); outPrice!p -> ZOTEL))
 					[]
-					([ not pre-getQuoteAvail(s)] & (unavailable -> ZOTEL))
+					([ not preGetQuoteAvail(s)] & (unavailable -> ZOTEL))
 --	[]
---	reqPrice?s -> 	([ pre-getQuote(s)] &  (dcl p:Price @ p := getQuote(s); (:not p = nil & (outPrice!p -> ZOTEL))
+--	reqPrice?s -> 	([ preGetQuote(s)] &  (dcl p:Price @ p := getQuote(s); (:not p = nil & (outPrice!p -> ZOTEL))
 --																		   []
 --																		   (:p = nil & (unavailable -> ZOTEL)))    -- detect/do something if nil
 --				    []
---				    (: not pre-getQuote(s) & (error -> ZOTEL))		
+--				    (: not preGetQuote(s) & (error -> ZOTEL))		
 	
 	-- include other operations when specified...				
 	@				
-	  init -> init(); ZOTEL	
+	  init -> Init(); ZOTEL	
 end

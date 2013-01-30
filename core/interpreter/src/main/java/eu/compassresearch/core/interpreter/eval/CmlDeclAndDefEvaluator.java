@@ -1,18 +1,28 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AStateDefinition;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.interpreter.values.FunctionValue;
+import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.definitions.AAssignmentDefinition;
-import eu.compassresearch.ast.definitions.AStateParagraphDefinition;
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.api.CMLContext;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.definitions.AActionsDefinition;
+import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.AOperationsDefinition;
+import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
+import eu.compassresearch.core.interpreter.runtime.CmlContext;
+import eu.compassresearch.core.interpreter.values.CmlValueFactory;
 
+@SuppressWarnings("serial")
 public class CmlDeclAndDefEvaluator extends
-		QuestionAnswerAdaptor<CMLContext, Value> {
+		QuestionAnswerCMLAdaptor<CmlContext, Value> {
 
 	private CmlEvaluator parentInterpreter; 
 
@@ -22,8 +32,8 @@ public class CmlDeclAndDefEvaluator extends
 	}
 	
 	@Override
-	public Value caseAStateParagraphDefinition(AStateParagraphDefinition node,
-			CMLContext question) throws AnalysisException {
+	public Value caseAStateDefinition(AStateDefinition node,
+			CmlContext question) throws AnalysisException {
 		
 		for(PDefinition def : node.getStateDefs())
 		{
@@ -32,19 +42,93 @@ public class CmlDeclAndDefEvaluator extends
 		
 		return null;
 	}
+	
+	@Override
+	public Value caseAActionsDefinition(AActionsDefinition node,
+			CmlContext question) throws AnalysisException {
+
+		for(AActionDefinition actionDef : node.getActions())
+		{
+			actionDef.apply(this,question);
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public Value caseAActionDefinition(AActionDefinition node,
+			CmlContext question) throws AnalysisException {
+
+		question.putNew(new NameValuePair(node.getName(), 
+				CmlValueFactory.createActionValue(node)));
+		
+		return null;
+	}
+	
+	@Override
+	public Value caseAFunctionsDefinition(AFunctionsDefinition node,
+			CmlContext question) throws AnalysisException {
+
+		
+		for(PDefinition funcDefs : node.getFunctionDefinitions())
+		{
+			funcDefs.apply(this,question);
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public Value caseAExplicitFunctionDefinition(
+			AExplicitFunctionDefinition node, CmlContext question)
+			throws AnalysisException {
+
+		node.setIsTypeInvariant(false);
+		FunctionValue funcValue = new FunctionValue(node,null ,null,null);
+		
+		question.putNew(new NameValuePair(node.getName(),funcValue));
+		
+		
+		return null;
+	}
+	
+	
+	@Override
+	public Value caseAOperationsDefinition(AOperationsDefinition node,
+			CmlContext question) throws AnalysisException {
+
+		for(SCmlOperationDefinition operationDef : node.getOperations())
+		{
+			operationDef.apply(this,question);
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public Value caseAExplicitCmlOperationDefinition(
+			AExplicitCmlOperationDefinition node, CmlContext question)
+			throws AnalysisException {
+	
+		question.putNew(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node)));
+		
+		return null;
+	}
 
 	@Override
 	public Value caseAAssignmentDefinition(AAssignmentDefinition node,
-			CMLContext question) throws AnalysisException {
+			CmlContext question) throws AnalysisException {
 		
 		Value expValue = null;
 		if(node.getExpression() != null)
 			expValue = node.getExpression().apply(parentInterpreter,question);
 		else
 			expValue = new UndefinedValue();
-		LexNameToken nt = new LexNameToken("Default",node.getName());
-		question.put(nt, expValue);
-		return expValue;
+		
+		question.put(node.getName(), expValue);
+		
+		return null;
 	}
 
 }
+

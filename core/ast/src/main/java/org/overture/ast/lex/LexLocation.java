@@ -142,7 +142,12 @@ public class LexLocation implements Serializable , ExternalNode
 	@Override
 	public String toString()
 	{
-		if (file.getPath().equals("?"))
+		if (file == null)
+		{
+			return "line "+startLine+" position+"+startPos;
+		}
+		
+		if (file != null && file.getPath().equals("?"))
 		{
 			return "";		// Default LexLocation has no location string
 		}

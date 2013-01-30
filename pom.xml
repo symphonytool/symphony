@@ -6,7 +6,7 @@
   <groupId>eu.compassresearch</groupId>
   <artifactId>root</artifactId>
   <name>The COMPASS Tool Top-Level</name>
-  <version>0.0.1<!--Replaceable: Main Version--></version>
+  <version>0.1.0<!--Replaceable: Main Version--></version>
   
   <organization>
     <name>The COMPASS Project</name>
@@ -24,7 +24,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <overture.version>2.2.0</overture.version>
+    <overture.version>2.2.1</overture.version>
   </properties>
 
   <dependencies>
@@ -37,7 +37,6 @@
   </dependencies>
 
   <repositories>
-
     <repository>
       <id>overture.iha.dk</id>
       <name>Overture Project Build Repository at AU/IHA</name>
@@ -167,7 +166,37 @@
       <!-- 	</configuration> -->
       <!-- </plugin>       -->
     </plugins>
-    
+
+    <pluginManagement>
+      <plugins>
+	<plugin>
+	  <groupId>org.apache.maven.plugins</groupId>
+	  <artifactId>maven-javadoc-plugin</artifactId>
+	  <version>2.9</version>
+	</plugin>
+	<plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>2.2.1</version>
+	</plugin>
+	<plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+	  <version>2.12.4</version>
+	</plugin>
+	<plugin>
+	  <groupId>org.codehaus.mojo</groupId>
+	  <artifactId>build-helper-maven-plugin</artifactId>
+	  <version>1.7</version>
+	</plugin>
+	<plugin>
+          <groupId>org.antlr</groupId>
+          <artifactId>antlr3-maven-plugin</artifactId>
+          <version>3.5</version>
+	</plugin>
+      </plugins>
+    </pluginManagement>
+
     <extensions>
       <extension>
         <groupId>org.apache.maven.wagon</groupId>

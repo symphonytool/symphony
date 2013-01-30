@@ -6,7 +6,6 @@ package eu.compassResearch.rttMbtTmsClientApi;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.json.simple.JSONObject;
 
 /**
@@ -16,6 +15,7 @@ import org.json.simple.JSONObject;
 public class jsonGenerateTestCommand extends jsonCommand {
 
 	private String testProcName;
+	private Boolean guiPorts;
 
 	public jsonGenerateTestCommand(RttMbtClient client) {
 		super(client);
@@ -33,6 +33,11 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		Map params = new LinkedHashMap();
 		params.put("project-name", client.getProjectName());
 		params.put("test-procedure-path", testProcName);
+		// use gui ports
+		if (guiPorts) {
+			params.put("progress-port", "true");
+			params.put("console-port", "true");
+		}
 		// create command
 		JSONObject cmd = new JSONObject();
 		cmd.put("generate-test-command", params);
@@ -47,15 +52,17 @@ public class jsonGenerateTestCommand extends jsonCommand {
 	}
 
 	public void handleParameters(JSONObject parameters) {
+
+		// get the parameter list
 		if (parameters == null) {
 			return;
 		}
+
+		// get configuration.csv
 		String filename = "";
 		if (client.getProjectName() != null) {
-			filename = client.projectName + File.separator;
+			filename = client.getProjectName() + File.separator;
 		}
-		// if the test procedure name is not defined, generate
-		// the signalmap.csv in the model folder of the project 
 		if (testProcName != null) {
 			filename += "TestProcedures" + File.separator + testProcName + File.separator + "conf" + File.separator;
 		} else {
@@ -64,6 +71,14 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		filename += "configuration.csv";
 		writeBase64StringFileContent(filename,
 								     (String)parameters.get("configuration.csv"), false);
+
+		// get the result
+		String checkResult = (String)parameters.get("result");
+		if (!(checkResult.equals("PASS"))) {
+			resultValue = false;
+		} else {
+			resultValue = true;
+		}
 	}
 
 	public String getTestProcName() {
@@ -72,5 +87,15 @@ public class jsonGenerateTestCommand extends jsonCommand {
 
 	public void setTestProcName(String testProcName) {
 		this.testProcName = testProcName;
+	}
+
+	public Boolean getGuiPorts() {
+		return guiPorts;
+	}
+
+	public void setGuiPorts(Boolean guiPorts) {
+		this.guiPorts = guiPorts;
+		hasProgress = guiPorts;
+		hasConsole = guiPorts;
 	}
 }

@@ -5,12 +5,12 @@
   <parent>
     <groupId>eu.compassresearch.core.analysis</groupId>
     <artifactId>analysis</artifactId>
-    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <version>0.1.0<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>refinementtool</artifactId>
-  <name>COMPASS CML Refinement Tool</name>
+  <name>COMPASS Core Analysis CML Refinement Tool</name>
 
   <dependencies>
 
@@ -22,7 +22,7 @@
 
     <dependency>
       <groupId>org.overturetool.core</groupId>
-      <artifactId>ast-stripped</artifactId>
+      <artifactId>ast</artifactId>
       <version>${overture.version}</version>
     </dependency>
 

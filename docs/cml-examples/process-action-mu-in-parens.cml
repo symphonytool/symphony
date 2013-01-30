@@ -1,5 +1,5 @@
 process RegisterProc = 
  begin
    @
-     (mu a,b,c @(Skip,Stop,Div))
+     (mu a,b,c @ (Skip,Stop,Div))
  end

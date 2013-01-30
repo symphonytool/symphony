@@ -1,9 +1,11 @@
+//the grammar rules does not allow state designators to be other than dotted ids
+
 process RegisterProc = 
  begin
 
   state 
   reg : seq of nat	
  
-   @
-     reg(1) := 1
+   @ Skip
+     //reg(1) := 1
  end

@@ -5,110 +5,125 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.PType;
-import org.overture.interpreter.debug.DBGPReader;
 import org.overture.interpreter.runtime.Breakpoint;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.SourceFile;
 import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
 import org.overture.parser.syntax.ParserException;
+import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.core.typechecker.Environment;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
+import eu.compassresearch.core.interpreter.events.EventSource;
+import eu.compassresearch.core.interpreter.runtime.CmlContext;
+import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 /**
  * The CML interpreter interface.
  */
 
 public interface CmlInterpreter
 {
-	/**
-	 * Create an Interpreter.
-	 */
-
 	
 	/**
 	 * Get a string version of the environment.
 	 */
 
-	public CMLContext getInitialContext(LexLocation location);
+	public CmlContext getInitialContext(LexLocation location);
 
 	/**
 	 * Get the global environment.
 	 */
 
-	public Environment<PDefinition> getGlobalEnvironment();
+	public Environment getGlobalEnvironment();
 	
 	/**
-	 * Get the name of the default module or class. Symbols in the default
-	 * module or class do not have to have their names qualified when being
+	 * Get the name of the default process. Symbols in the default
+	 * process do not have to have their names qualified when being
 	 * referred to on the command line.
 	 *
 	 * @return The default name.
 	 */
 
 	public String getDefaultName();
-
+	
 	/**
-	 * Get the filename that contains the default module or class.
-	 *
-	 * @return The default file name.
-	 */
-
-	public File getDefaultFile();
-
-	/**
-	 * Set the default module or class name.
+	 * Set the default process.
 	 *
 	 * @param name The default name.
 	 * @throws Exception
 	 */
 
-	public void setDefaultName(String name) throws Exception;
+	public void setDefaultName(String name);
 
 	/**
-	 * Initialize the initial context. This means that all definition
-	 * initializers are re-run to put the global environment back into its
-	 * original state. This is run implicitly when the interpreter starts,
-	 * but it can also be invoked explicitly via the "init" command.
+	 * Get the filename that contains the default process.
 	 *
-	 * @throws Exception
+	 * @return The default file name.
 	 */
 
-	public void init(DBGPReader dbgp);
-
+	public File getDefaultFile();
+	
 	/**
-	 * Initialize the context between trace sequences. This is less
-	 * thorough than the full init, since it does not reset the scheduler
-	 * for example.
+	 * The top level supervisor for the interpreter
+	 * @return
 	 */
+	public CmlSupervisorEnvironment getCurrentSupervisor();
 
-	public void traceInit(DBGPReader dbgp);
+//	/**
+//	 * Initialize the initial context. This means that all definition
+//	 * initializers are re-run to put the global environment back into its
+//	 * original state. This is run implicitly when the interpreter starts,
+//	 * but it can also be invoked explicitly via the "init" command.
+//	 *
+//	 * @throws Exception
+//	 */
+//
+//	public void init(DBGPReader dbgp);
+//
+//	/**
+//	 * Initialize the context between trace sequences. This is less
+//	 * thorough than the full init, since it does not reset the scheduler
+//	 * for example.
+//	 */
+//
+//	public void traceInit(DBGPReader dbgp);
+//
+//	/**
+//	 * Parse the line passed, type check it and evaluate it as an expression
+//	 * in the initial context.
+//	 *
+//	 * @param line A CML expression.
+//	 * @param dbgp The DBGPReader, if any
+//	 * @return The value of the expression.
+//	 * @throws Exception Parser, type checking or runtime errors.
+//	 */
+//
+//	public Value execute(String line, DBGPReader dbgp) throws Exception;
 
+//	/**
+//	 * Executes the defined default process from the given sourceForest  
+//	 * 
+//	 * @return The value of the expression.
+//	 * @throws Exception Parser, type checking or runtime errors.
+//	 */
+//
+//	public Value execute() throws InterpreterException;
+	
+	
+	
 	/**
-	 * Parse the line passed, type check it and evaluate it as an expression
-	 * in the initial context.
-	 *
-	 * @param line A CML expression.
-	 * @param dbgp The DBGPReader, if any
-	 * @return The value of the expression.
-	 * @throws Exception Parser, type checking or runtime errors.
+	 * Executes the defined default process from the given sourceForest, with the given selection strategy
+	 * @param selectionStrategy
+	 * @return
+	 * @throws InterpreterException
 	 */
-
-	public Value execute(String line, DBGPReader dbgp) throws Exception;
-
-	/**
-	 * Executes the defined default process from the given sourceForest  
-	 * 
-	 * @return The value of the expression.
-	 * @throws Exception Parser, type checking or runtime errors.
-	 */
-
-	public Value execute() throws AnalysisException;
+	public Value execute(CmlSupervisorEnvironment sve, Scheduler cmlScheduler) throws InterpreterException;
 
 	/**
 	 * Parse the line passed, and evaluate it as an expression in the context
@@ -120,7 +135,7 @@ public interface CmlInterpreter
 	 * @throws Exception Parser or runtime errors.
 	 */
 
-	abstract public Value evaluate(String line, CMLContext ctxt) throws Exception;
+	abstract public Value evaluate(String line, Context ctxt) throws Exception;
 
 	/**
 	 * @return The list of breakpoints currently set.
@@ -259,5 +274,6 @@ public interface CmlInterpreter
 	public PType findType(String typename);
 	
 	public InterpreterStatus getStatus();
-	
+
+	public EventSource<CmlInterpreterStatusObserver> onStatusChanged();
 }

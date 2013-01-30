@@ -4,7 +4,7 @@
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
     <artifactId>eu.compassresearch.ide.cml</artifactId>
-    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <version>0.1.0<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -20,4 +20,123 @@
     </dependency>
 
   </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Copy the libraries from the core to the core plugin's lib folder -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <!-- Copy the AST -->
+                <artifactItem>
+                  <groupId>eu.compassresearch.core</groupId>
+                  <artifactId>ast</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <!-- <destFileName>optional-new-name.jar</destFileName> -->
+                </artifactItem>
+                
+    <!-- Common -->
+                <artifactItem>
+                  <groupId>eu.compassresearch.core</groupId>
+                  <artifactId>common</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <!-- <destFileName>optional-new-name.jar</destFileName> -->
+                </artifactItem>
+
+               <!-- Copy the POG -->
+                <artifactItem>
+                  <groupId>eu.compassresearch.core.analysis</groupId>
+                  <artifactId>pog</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <!-- <destFileName>optional-new-name.jar</destFileName> -->
+                </artifactItem>
+                
+                <!-- Copy the Parser -->
+                <artifactItem>
+                  <groupId>eu.compassresearch.core</groupId>
+                  <artifactId>parser</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+
+                <!-- CML Type Checker -->
+                <artifactItem>
+                  <groupId>eu.compassresearch.core</groupId>
+                  <artifactId>typechecker</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+
+                <!-- Overture Type Checker --> 
+                <artifactItem>
+                  <groupId>org.overturetool.core</groupId>
+                  <artifactId>typechecker</artifactId>
+                  <version>${overture.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+
+                <!-- Overture POG --> 
+                <artifactItem>
+                  <groupId>org.overturetool.core</groupId>
+                  <artifactId>pog</artifactId>
+                  <version>${overture.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+                
+                <!-- Overture Test Framework -->
+                <artifactItem>
+                  <groupId>org.overturetool.core</groupId>
+                  <artifactId>testframework</artifactId>
+                  <version>${overture.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+
+                <!-- Overture Parser -->
+                <artifactItem>
+                  <groupId>org.overturetool.core</groupId>
+                  <artifactId>parser</artifactId>
+                  <version>${overture.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+		
+		<!-- Antlr runtime -->
+		<artifactItem>
+		  <groupId>org.antlr</groupId>
+		  <artifactId>antlr-runtime</artifactId>
+		  <version>3.5</version>
+		  <type>jar</type>
+		  <overWrite>true</overWrite>
+		</artifactItem>
+
+              </artifactItems>
+              <outputDirectory>lib</outputDirectory>
+              <overWriteReleases>true</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

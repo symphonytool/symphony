@@ -1,0 +1,7 @@
+<project name="eu.compassresearch.ide" default="replaceexe">
+  <target name="replaceexe">
+      <zip destfile="target/CompassIDE/N.Release_0.1.0/Release_0.1.0-win32.win32.x86.zip" update="true"> 
+            <zipfileset dir="CompassIDE" prefix="CompassIDE"/> 
+        </zip>   
+  </target>
+</project>

@@ -1,31 +1,26 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.actions.PAction;
-import eu.compassresearch.ast.analysis.AnalysisException;
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.analysis.intf.IQuestionAnswer;
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.expressions.PExp;
-import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.interpreter.api.CMLContext;
-import eu.compassresearch.core.interpreter.scheduler.CMLProcess;
-import eu.compassresearch.core.interpreter.values.ProcessValue;
-
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
+import eu.compassresearch.core.interpreter.runtime.CmlContext;
 
 @SuppressWarnings("serial")
-public class CmlEvaluator extends QuestionAnswerAdaptor<CMLContext, Value> {
+public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CmlContext, Value> {
 
-	private IQuestionAnswer<CMLContext, Value> exp;
-	private IQuestionAnswer<CMLContext, CMLProcess> prc; 
-	private IQuestionAnswer<CMLContext, Value> act;
-	private IQuestionAnswer<CMLContext, Value> def;
+	private QuestionAnswerCMLAdaptor<CmlContext, Value> exp;
+	//private QuestionAnswerCMLAdaptor<CMLContext, Value> act;
+	private QuestionAnswerCMLAdaptor<CmlContext, Value> def;
 			
 	private void initialize()
 	{
-		prc = new ProcessEvaluator(this);
-		act = new ActionEvaluator(this);
+		//prc = new ProcessEvaluator(this);
+		//act = new ActionEvaluator(this);
 		exp = new CmlExpressionEvaluator();
 		def = new CmlDeclAndDefEvaluator(this);
 	}
@@ -35,30 +30,40 @@ public class CmlEvaluator extends QuestionAnswerAdaptor<CMLContext, Value> {
 		initialize();
 	}
 				
-	@Override
-	public Value defaultPAction(PAction node, CMLContext question)
-			throws AnalysisException {
-		return node.apply(act,question);
-	}
+//	@Override
+//	public Value defaultPAction(PAction node, CMLContext question)
+//			throws AnalysisException {
+//		
+//		
+//		
+//		return node.apply(act,question);
+//	}
 	
 	@Override
-	public Value defaultPExp(PExp node, CMLContext question)
+	public Value defaultPExp(PExp node, CmlContext question)
 			throws AnalysisException {
 		
 		return node.apply(exp,question);
 	}
-		
-	@Override
-	public Value defaultPProcess(PProcess node, CMLContext question)
-			throws AnalysisException {
-		
-		CMLProcess process = node.apply(prc,question);
-		
-		return new ProcessValue(process,question);
-	}
 	
 	@Override
-	public Value defaultPDefinition(PDefinition node, CMLContext question)
+	public Value defaultPVarsetExpression(PVarsetExpression node,
+			CmlContext question) throws AnalysisException {
+
+		return node.apply(exp,question);
+	}
+		
+//	@Override
+//	public Value defaultPProcess(PProcess node, CMLContext question)
+//			throws AnalysisException {
+//		
+//		CMLProcessOld process = node.apply(prc,question);
+//		
+//		return new ProcessValueOld(process,question);
+//	}
+	
+	@Override
+	public Value defaultPDefinition(PDefinition node, CmlContext question)
 			throws AnalysisException {
 		
 		return node.apply(this.def,question);

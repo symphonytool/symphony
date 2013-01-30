@@ -7,7 +7,7 @@
   <parent>
     <groupId>eu.compassresearch</groupId>
     <artifactId>root</artifactId>
-    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <version>0.1.0<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -21,6 +21,10 @@
     <module>analysis</module> 
     <module>typechecker</module>
     <module>interpreter</module>
+    <module>common</module>
+    <module>cmdline</module>
   </modules>
+
+
 </project>
 

@@ -5,12 +5,12 @@
   <parent>
     <groupId>eu.compassresearch.core</groupId>
     <artifactId>core</artifactId>
-    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <version>0.1.0<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>interpreter</artifactId>
-  <name>COMPASS CML Interpreter</name>
+  <name>COMPASS Core CML Interpreter</name>
 
   <dependencies>
     <dependency>
@@ -31,17 +31,29 @@
     <dependency>
       <groupId>org.overturetool.core</groupId>
       <artifactId>typechecker</artifactId>
-      <version>2.2.0</version>
+      <version>${overture.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.overturetool.core</groupId>
-      <artifactId>ast</artifactId>
-      <version>2.2.0</version>
-    </dependency>
+    <!-- <dependency> -->
+    <!--   <groupId>org.overturetool.core</groupId> -->
+    <!--   <artifactId>ast</artifactId> -->
+    <!--   <version>${overture.version}</version> -->
+    <!-- </dependency> -->
     <dependency>
       <groupId>org.overturetool.core</groupId>
       <artifactId>interpreter</artifactId>
-      <version>2.2.0</version>
+      <version>${overture.version}</version>
+    </dependency>
+  	 <dependency>
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+      <version>1.1</version>
+    </dependency>
+    <!--  Gson: Java to Json conversion -->
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.2.2</version>
+      <scope>compile</scope>
     </dependency>
     
   </dependencies>
@@ -65,6 +77,19 @@
   <!--     </plugin> -->
   <!--   </plugins> -->
   <!-- </build> -->
+
+<build>
+	<plugins>
+		<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <testFailureIgnore>true</testFailureIgnore>
+                </configuration>
+            </plugin>
+     </plugins>
+</build>
+
  
 </project>
 

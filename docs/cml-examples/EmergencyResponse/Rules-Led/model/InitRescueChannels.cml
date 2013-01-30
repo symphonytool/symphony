@@ -1,0 +1,19 @@
+ channels
+ -- RWL Added 
+    init
+    sendServiceRescue LowerCriticality 
+    HigherCriticality acceptStartRescue 
+    sendStartRescue inStartRescue 
+    outStartRescue inServiceRescue
+    outServiceRescue
+-- Original
+    startStartRescue endStartRescue
+    startFindIdleERUs endFindIdleERUs
+    startAllocateIdleERU endAllocateIdleERU
+    startSendRescueInfoToERU endSendRescueInfoToERU
+    startProcessMessage endProcessMessage
+    startReceiveMessage endReceiveMessage
+    startServiceRescue endServiceRescue
+    startWait endWait
+    startDivertERU endDivertERU
+    startLogDiversion endLogDiversion

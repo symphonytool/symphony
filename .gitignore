@@ -19,6 +19,8 @@
 *.rar
 *.tar
 *.zip
+*.bz2
+*.sha
 
 # Logs and databases #
 ######################
@@ -53,4 +55,5 @@ target/
 ######################
 bin/
 /core/parser/*.report
-
+output/
+reset-output.sh

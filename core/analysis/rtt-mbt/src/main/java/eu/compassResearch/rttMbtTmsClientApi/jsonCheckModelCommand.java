@@ -71,7 +71,7 @@ public class jsonCheckModelCommand extends jsonCommand {
 		}
 		String filename;
 		if (client.getProjectName() != null) {
-			File projectRoot = new File(client.projectName);
+			File projectRoot = new File(client.getRttProjectRoot());
 			File modelDir = new File(projectRoot, "model");
 			File report = new File(modelDir, "LivelockReport.log");
 			filename = report.getPath();
@@ -79,5 +79,15 @@ public class jsonCheckModelCommand extends jsonCommand {
 			filename = "LivelockReport.log";
 		}
 		writeBase64StringFileContent(filename, (String)reply.get("model-checking-results"), false);
+	}
+
+	public Boolean getGuiPorts() {
+		return guiPorts;
+	}
+
+	public void setGuiPorts(Boolean guiPorts) {
+		this.guiPorts = guiPorts;
+		hasProgress = guiPorts;
+		hasConsole = guiPorts;
 	}
 }

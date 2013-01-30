@@ -1,7 +1,7 @@
 class my_cases = 
 begin
 	values	
-	public sel : int = 42;
+	public sel : int = 42
 	public value : int = cases sel :
 	       	     	   42 -> 0
 			   end
