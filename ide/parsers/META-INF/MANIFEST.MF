@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE Parsers - CML
 Bundle-SymbolicName: eu.compassresearch.ide.parsers.cml;singleton:=true
-Bundle-Version: 0.1.0
+Bundle-Version: 0.1.1
 Bundle-Activator: eu.compassresearch.ide.parsers.cml.Activator
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin

@@ -8,7 +8,7 @@
   <name>COMPASS Eclipse RCP Hello World</name>
 
   <parent>
-    <version>0.0.1</version>
+    <version>0.1.1<!--Replaceable: Main Version--></version>
     <groupId>eu.compassresearch.equinox.example</groupId>
     <artifactId>helloworld</artifactId>
     <relativePath>../pom.xml</relativePath>
