@@ -708,42 +708,43 @@ actionSetReplOp returns[SReplicatedAction op]
 
 action0 returns[PAction action]
 @after { $action.setLocation(extractLexLocation($start, $stop)); }
-    : (action1 action0Ops)=> left=action1 action0Ops right=action
+    : left=action1
         {
-            $action = $action0Ops.op;
-            Method setLeft = null;
-            Method setRight = null;
-            for (Method m : $action.getClass().getMethods()) {
-                String mname = m.getName();
-                if (mname.equals("setLeft"))
-                    setLeft = m;
-                else if (mname.equals("setRight"))
-                    setRight = m;
-                else if (mname.equals("setLeftAction"))
-                    setLeft = m;
-                else if (mname.equals("setRightAction"))
-                    setRight = m;
-            }
-            if (setLeft == null || setRight == null) {
-                System.err.println("Missed a setLeft/Right method name");
-                // FIXME -- This should never happen
-            }
-            try {
-                setLeft.invoke($action, $left.action);
-                setRight.invoke($action, $right.action);
-            } catch (Exception e) {
-                System.err.println("Exception in action0");
-                // FIXME -- This should never happen, and needs a better error :)
-            }
+            $action = $left.action;
         }
-    | (action1 '[[')=> action1 renamingExpr
-        {
-            $action = new AChannelRenamingAction(null, $action1.action, $renamingExpr.rexp);
-        }
-    | action1
-        {
-            $action = $action1.action;
-        }
+        ( (action0Ops)=>action0Ops right=action
+            {
+                $action = $action0Ops.op;
+                Method setLeft = null;
+                Method setRight = null;
+                for (Method m : $action.getClass().getMethods()) {
+                    String mname = m.getName();
+                    if (mname.equals("setLeft"))
+                        setLeft = m;
+                    else if (mname.equals("setRight"))
+                        setRight = m;
+                    else if (mname.equals("setLeftAction"))
+                        setLeft = m;
+                    else if (mname.equals("setRightAction"))
+                        setRight = m;
+                }
+                if (setLeft == null || setRight == null) {
+                    System.err.println("Missed a setLeft/Right method name");
+                    // FIXME -- This should never happen
+                }
+                try {
+                    setLeft.invoke($action, $left.action);
+                    setRight.invoke($action, $right.action);
+                } catch (Exception e) {
+                    System.err.println("Exception in action0");
+                    // FIXME -- This should never happen, and needs a better error :)
+                }
+            }
+        | ('[[')=>renamingExpr
+            {
+                $action = new AChannelRenamingAction(null, $left.action, $renamingExpr.rexp);
+            }
+        )?
     ;
 
 action0Ops returns[PAction op]
@@ -765,22 +766,25 @@ action0Ops returns[PAction op]
             $op = new ATimeoutAction();
             ((ATimeoutAction)$op).setTimeoutExpression($exp.exp);
         }
-    | ('[' varsetExpr '||')=> '[' ln=varsetExpr '||' rn=varsetExpr ']'
-        {
-            AAlphabetisedParallelismParallelAction appa = new AAlphabetisedParallelismParallelAction();
-            appa.setLeftNamesetExpression($ln.vexp);
-            appa.setRightNamesetExpression($rn.vexp);
-            $op = appa;
-        }
-    | ('[' varsetExpr '|')=>  '[' ln=varsetExpr '|' lc=varsetExpr '||' rc=varsetExpr '|' rn=varsetExpr? ']'
-        {
-            AAlphabetisedParallelismParallelAction appa = new AAlphabetisedParallelismParallelAction();
-            appa.setLeftNamesetExpression($ln.vexp);
-            appa.setLeftChansetExpression($lc.vexp);
-            appa.setRightChansetExpression($rc.vexp);
-            appa.setRightNamesetExpression($rn.vexp);
-            $op = appa;
-        }
+    | '[' ln=varsetExpr
+        ( '||' rn=varsetExpr
+            {
+                AAlphabetisedParallelismParallelAction appa = new AAlphabetisedParallelismParallelAction();
+                appa.setLeftNamesetExpression($ln.vexp);
+                appa.setRightNamesetExpression($rn.vexp);
+                $op = appa;
+            }
+        | '|' lc=varsetExpr '||' rc=varsetExpr '|' rn=varsetExpr
+            {
+                AAlphabetisedParallelismParallelAction appa = new AAlphabetisedParallelismParallelAction();
+                appa.setLeftNamesetExpression($ln.vexp);
+                appa.setLeftChansetExpression($lc.vexp);
+                appa.setRightChansetExpression($rc.vexp);
+                appa.setRightNamesetExpression($rn.vexp);
+                $op = appa;
+            }
+        )
+        ']'
     | '[|' first=varsetExpr ( '|' second=varsetExpr ( '|' third=varsetExpr )? )? '|]'
         {
             if ($second.vexp != null && $third.vexp == null) {
