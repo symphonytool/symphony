@@ -1,0 +1,6 @@
+process RegisterProc = 
+begin 
+   
+   @
+   init?e in set {1,2}?f in set ({1} union {2}) -> Skip
+end
