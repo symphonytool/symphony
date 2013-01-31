@@ -37,6 +37,7 @@ import eu.compassresearch.ast.actions.AChaosAction;
 import eu.compassresearch.ast.actions.ACommonInterleavingReplicatedAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ADeclarationInstantiatedAction;
+import eu.compassresearch.ast.actions.ADeclareStatementAction;
 import eu.compassresearch.ast.actions.ADivAction;
 import eu.compassresearch.ast.actions.AEndDeadlineAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
@@ -140,6 +141,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
     	
 		//Get subparts	
     	PAction action = node.getAction();
+    	ADeclareStatementAction decl = node.getDeclareStatement();
     	
     	pol.addAll(action.apply(parentPOG, question));
 
@@ -329,7 +331,9 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			throws AnalysisException {
 
 		CMLProofObligationList pol = new CMLProofObligationList();
+		System.out.println("A ATimeoutAction: " + node.toString());
 
+		
 		//Get subparts
 		PAction left = node.getLeft();
 		PAction right = node.getRight();
@@ -337,6 +341,8 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 
 		pol.addAll(left.apply(parentPOG, question));
 		pol.addAll(timedExp.apply(parentPOG, question));
+		//check for Non-Zero time obligation and dispatch exp for POG checking
+		pol.add(new CMLNonZeroTimeObligation(timedExp, question));
 		pol.addAll(right.apply(parentPOG,question));
 
 		//TODO: Any ATimeoutAction POs?
@@ -994,6 +1000,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question)
 					throws AnalysisException {
 
+		System.out.println("A AExternalChoiceAction: " + node.toString());
 		CMLProofObligationList pol = new CMLProofObligationList();
 
 		//Get subparts

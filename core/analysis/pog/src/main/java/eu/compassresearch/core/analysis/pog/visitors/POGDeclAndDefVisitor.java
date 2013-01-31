@@ -16,6 +16,7 @@ import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.visitor.PogParamDefinitionVisitor;
 
+import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -254,11 +255,28 @@ public class POGDeclAndDefVisitor extends
 	
 		LinkedList<AActionDefinition> actions = node.getActions();
 		for (AActionDefinition action : actions) {
-		    System.out.println("Action: " + action.toString() + ", Type: " + action.getType());
+		  //  System.out.println("Action: " + action.toString() + ", Type: " + action.getType());
+	    	pol.addAll(action.apply(parentPOG, question));
 	}
 
 		return pol;
     }
+    @Override
+    public ProofObligationList caseAActionDefinition(
+    	    AActionDefinition node, POContextStack question)
+    	    throws AnalysisException {
+    		System.out.println("------");
+    		System.out
+    			.println("Reached POGDeclAndDefVisitor - caseAActionDefinition");
+    		
+        	CMLProofObligationList pol = new CMLProofObligationList();
+        	
+        	PAction action = node.getAction();
+    	    //  System.out.println("Action: " + action.toString() + ", Type: " + action.getType());
+    	    pol.addAll(action.apply(parentPOG, question));
+
+    		return pol;
+        }
     
     
     
