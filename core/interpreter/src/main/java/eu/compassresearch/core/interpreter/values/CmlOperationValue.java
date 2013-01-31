@@ -12,6 +12,7 @@ import org.overture.ast.types.AOperationType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.ObjectValue;
+import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
 import org.overture.typechecker.assistant.definition.PAccessSpecifierAssistantTC;
 
@@ -113,20 +114,26 @@ public class CmlOperationValue extends CmlValue {
 
 	@Override
 	public int hashCode() {
-		// TODO Auto-generated method stub
-		return 0;
+		return type.hashCode();
 	}
 
 	@Override
 	public String kind() {
-		// TODO Auto-generated method stub
-		return null;
+		return "cml operation";
 	}
 
 	@Override
 	public Object clone() {
-		// TODO Auto-generated method stub
-		return null;
+		if (expldef != null)
+		{
+			return new CmlOperationValue(expldef, precondition, postcondition,
+				state);
+		}
+		else
+		{
+			return new CmlOperationValue(impldef, precondition, postcondition,
+				state);
+		}
 	}
 
 	public List<PPattern> getParamPatterns() {

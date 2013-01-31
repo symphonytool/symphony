@@ -18,6 +18,11 @@ public class CmlTrace {
 		trace = new LinkedList<CmlEvent>();
 	}
 	
+	public CmlTrace(CmlTrace other)
+	{
+		trace = new LinkedList<CmlEvent>(other.trace);
+	}
+	
 	public void addEvent(CmlEvent event)
 	{
 		trace.add(event);

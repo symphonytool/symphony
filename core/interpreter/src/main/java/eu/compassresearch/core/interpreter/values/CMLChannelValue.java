@@ -48,6 +48,16 @@ public class CMLChannelValue extends CmlValue implements CmlSignalChannel, CmlIO
 		this.name = name;
 	}
 	
+	public CMLChannelValue(CMLChannelValue other)
+	{
+		this.channelType = other.channelType;
+		this.name = other.name;
+		signalObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.signalObservers);
+		readObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.readObservers);
+		writeObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.writeObservers);
+		selectObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.selectObservers);
+	}
+	
 	@Override
 	public String getName() {
 		return name.getName();
@@ -90,7 +100,9 @@ public class CMLChannelValue extends CmlValue implements CmlSignalChannel, CmlIO
 
 	@Override
 	public Object clone() {
-		return null;
+		
+		//return new CMLChannelValue(this);
+		return this;
 	}
 
 	@Override

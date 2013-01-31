@@ -70,7 +70,7 @@ public class ProcessContext extends CmlRootContext
 		}
 
 		//FIXME self should be deep copied
-		CmlContext result = new ProcessContext(getLocation(), getTitle(), below, self);
+		CmlContext result = new ProcessContext(getLocation(), getTitle(), below, (ProcessObjectValue)self.deepCopy());
 			//new ProcessContext(location, title, freeVariables, below, self.deepCopy());
 
 		for (LexNameToken var: keySet())
@@ -104,7 +104,7 @@ public class ProcessContext extends CmlRootContext
 			return v;
 		}
 
-		v = null;//self.get(name, name.explicit);
+		v = self.get(name, name.explicit);
 
 		if (v != null)
 		{

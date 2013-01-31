@@ -49,7 +49,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	private Pair<INode,CmlContext> 				prevExecution = null;
 	
 	//Process/Action Graph variables
-	protected final CmlBehaviourThread 	parent;
+	protected CmlBehaviourThread 	parent;
 	protected List<ConcreteBehaviourThread> 	children = new LinkedList<ConcreteBehaviourThread>();
 	
 	//Process/Action state variables
@@ -93,6 +93,8 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 						}
 					});
 	
+	//resstore point
+	protected RestorePoint lastRestorePoint = null;
 	
 	AbstractEvaluationVisitor cmlEvaluationVisitor = new CmlEvaluationVisitor();
 	
@@ -704,6 +706,72 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			supervisor().removePupil(child);
 			iterator.remove();
 		}
+	}
+
+	@Override
+	public void setRestorePoint() {
+
+		lastRestorePoint = new RestorePoint(executionStack, prevExecution, parent, children, state, env, hidingAlphabet, 
+											trace, registredEvents, stateEventhandler, traceEventHandler);
+		parent = null;
+		stateEventhandler = new EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>(this,
+				new EventFireMediator<CmlProcessStateObserver,CmlProcessStateEvent>() {
+
+			@Override
+			public void fireEvent(CmlProcessStateObserver observer,
+					Object source, CmlProcessStateEvent event) {
+				observer.onStateChange(event);
+			}
+		});
+		
+		traceEventHandler = new EventSourceHandler<CmlProcessTraceObserver,TraceEvent>(this,
+				new EventFireMediator<CmlProcessTraceObserver,TraceEvent>() {
+
+			@Override
+			public void fireEvent(CmlProcessTraceObserver observer,
+					Object source, TraceEvent event) {
+				observer.onTraceChange(event);
+			}
+		});
+		
+		//set restore point for all the children
+		for(CmlBehaviourThread child : children())
+			child.setRestorePoint();
+		
+		CmlRuntime.logger().fine("\nSetting Restore point for " + name + "\n");
+	}
+
+	@Override
+	public void revertToRestorePoint() {
+
+		if(lastRestorePoint != null)
+		{
+			executionStack = lastRestorePoint.executionStack; 
+			prevExecution = lastRestorePoint.prevExecution;
+			parent = lastRestorePoint.parent;
+			children = lastRestorePoint.children;
+			env = lastRestorePoint.env;
+			hidingAlphabet = lastRestorePoint.hidingAlphabet; 
+			trace = lastRestorePoint.trace;
+			registredEvents = lastRestorePoint.registredEvents;
+			stateEventhandler = lastRestorePoint.stateEventhandler; 
+			traceEventHandler = lastRestorePoint.traceEventHandler;
+			state = lastRestorePoint.state;
+			//setState(lastRestorePoint.state);
+			
+			//set restore point for all the children
+			for(CmlBehaviourThread child : children())
+				child.revertToRestorePoint();
+			
+			CmlRuntime.logger().fine("\n" + name + " restored\n");
+			lastRestorePoint = null;
+		}
+		
+	}
+
+	@Override
+	public boolean inBactrackMode() {
+		return lastRestorePoint != null;
 	}
 	
 }

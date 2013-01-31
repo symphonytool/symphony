@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
@@ -40,8 +41,13 @@ import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
@@ -52,6 +58,9 @@ import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
 import eu.compassresearch.core.interpreter.runtime.CmlContext;
+import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
+import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.ActionValue;
@@ -360,17 +369,72 @@ public class AlphabetInspector
 				alpha = createSilentTransition(node, node,"end");
 			else
 			{
-				//If all the children are waiting for events
+				//If all the children are waiting for events, we must try to let them
 				for(CmlBehaviourThread child : ownerProcess.children())
 				{
 					if(alpha == null)
-						alpha = child.inspect();
+						alpha = calculateDeadlockFreeChildAlphabet(child);
 					else
-						alpha = alpha.union(child.inspect());
+						alpha = alpha.union(calculateDeadlockFreeChildAlphabet(child));
 				}
 			}
 		}
 		
+		return alpha;
+	}
+	
+	/**
+	 * This calculate the alphabet of a child process by 
+	 * @param child
+	 * @return
+	 */
+	private CmlAlphabet calculateDeadlockFreeChildAlphabet(CmlBehaviourThread child)
+	{
+		//child.onStateChanged().unregisterObserver(ownerProcess);
+
+		CmlAlphabet alpha = child.inspect();
+
+		
+		if(!ownerProcess.inBactrackMode())
+		{
+			//Set the restore point
+			child.setRestorePoint();
+			
+			for(ObservableEvent ev : alpha.getObservableEvents())
+			{	
+				final Scheduler tmpScheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+				CmlSupervisorEnvironment tmpEnv = VanillaInterpreterFactory.newCmlSupervisorEnvironment(
+						new CmlCommunicationSelectionStrategy() {
+
+							@Override
+							public ObservableEvent select(CmlAlphabet availableChannelEvents) {
+
+								tmpScheduler.stop();
+
+								return null;
+							}
+						}, 
+						tmpScheduler);
+
+				try 
+				{
+					Level lvl = CmlRuntime.logger().getLevel();
+					CmlRuntime.logger().setLevel(Level.OFF);
+					tmpEnv.setSelectedObservableEvent(ev);
+					tmpScheduler.setCmlSupervisorEnvironment(tmpEnv);
+					child.start(tmpEnv);
+					tmpScheduler.start();
+					CmlRuntime.logger().setLevel(lvl);
+				} catch (InterpreterRuntimeException e) {
+					alpha = alpha.substract(ev.getAsAlphabet()); 
+				} 
+			}
+			
+			child.revertToRestorePoint();
+		}
+		
+		
+			
 		return alpha;
 	}
 

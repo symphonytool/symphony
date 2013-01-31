@@ -131,12 +131,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		
 		ConcreteBehaviourThread pi = new ConcreteBehaviourThread(topProcess.getProcess(), processContext, topProcess.getName());
 		pi.start(currentSupervisor);
-		try {
-			statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.RUNNING));
-			cmlScheduler.start();
-		} catch (AnalysisException e) {
-			throw new InterpreterException("Redirected exception",e);
-		}
+		statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.RUNNING));
+		cmlScheduler.start();
 
 		return null;
 	}

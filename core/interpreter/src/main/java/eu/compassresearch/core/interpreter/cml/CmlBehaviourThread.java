@@ -98,4 +98,11 @@ public interface CmlBehaviourThread extends CmlBehaviour{
 	 * @return The appropriate EventSource for event registration
 	 */
 	public EventSource<CmlProcessTraceObserver> onTraceChanged();
+	
+	
+	void setRestorePoint();
+	
+	void revertToRestorePoint();
+	
+	boolean inBactrackMode();
 }

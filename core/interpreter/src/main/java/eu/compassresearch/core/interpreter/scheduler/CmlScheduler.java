@@ -27,6 +27,7 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 	
 	private SchedulingPolicy policy;
 	private CmlSupervisorEnvironment sve = null;
+	private boolean stopped = false;
 	
 	public CmlScheduler(SchedulingPolicy policy)
 	{
@@ -128,18 +129,19 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 	}
 	
 	@Override
-	public void start() throws AnalysisException {
+	public void start() {
 		
+		stopped = false;
 		if(null == sve)
 			throw new NullPointerException("The supervisor is not set in the scheduler");
 		
 //		CmlTrace lastTrace = null;
 		
 		//Active state
-		while(hasActiveProcesses())
+		while(!stopped && hasActiveProcesses())
 		{
 			//execute each of the running pupils until they are either finished or in wait state
-			while(hasRunningProcesses())
+			while(!stopped && hasRunningProcesses())
 			{
 				CmlBehaviourThread p = policy.scheduleNextProcess(getRunningProcesses());
 				
@@ -171,20 +173,27 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 			 */
 			for(CmlBehaviourThread p : getWaitingTopLevelProcesses())
 			{
-				CmlAlphabet alpha = p.inspect();
+				CmlAlphabet availableEvents = p.inspect();
 
-				if(alpha.isEmpty())
+				if(availableEvents.isEmpty())
 					throw new InterpreterRuntimeException("A deadlock has occured. To developer: Change this be handled differently!!!!");
-				else if(alpha.containsSpecialEvent(CmlTauEvent.referenceTauEvent()))
-					throw new InterpreterRuntimeException("A silent transition '"+ alpha.getSpecialEvents() +"' has slipped through to a place where only observable events should be.");
+				else if(availableEvents.containsSpecialEvent(CmlTauEvent.referenceTauEvent()))
+					throw new InterpreterRuntimeException("A silent transition '"+ availableEvents.getSpecialEvents() +"' has slipped through to a place where only observable events should be.");
 				else
 				{
-					CmlAlphabet availableEvents = p.inspect();
 					
 					CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getObservableEvents());
 					//Select and set the communication event
 					
 					ObservableEvent selectedEvent = sve.decisionFunction().select(availableEvents); 
+					
+					if(stopped)
+					{
+						p.setAbort(null);
+						break;
+					}
+						
+						
 					
 //					if(sve.isObservableEventSelected() && 
 //							sve.selectedObservableEvent().equals(selectedEvent) &&
@@ -200,6 +209,12 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 				}
 			}
 		}
+	}
+	
+	@Override
+	public void stop() {
+
+		stopped = true;
 	}
 	
 	/**

@@ -4,8 +4,10 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
+import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
@@ -160,16 +162,30 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		if(!hasChildren()){
 			
 			//TODO: create a local copy of the question state for each of the actions
+
+			//new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,left.getLocation()));
+			if(rightNode instanceof AExternalChoiceAction || rightNode instanceof AExternalChoiceProcess)
+				rightNode.apply(this,question);
+			else
+			{
+				CmlBehaviourThread rightInstance = createChild(rightNode, question,rightName); 
+				//new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),right.getLocation()));
+				addChild(rightInstance);
+				
+				
+				//result = caseExternalChoiceBegin(leftInstance,rightInstance,question);
+				
+				//We push the current state, since this process will control the child processes created by it
+				pushNext(node, question);
+			}
+			
 			CmlBehaviourThread leftInstance = createChild(leftNode, question, leftName);
-					//new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,left.getLocation()));
+			addChild(leftInstance);
 			
-			CmlBehaviourThread rightInstance = createChild(rightNode, question,rightName); 
-					//new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),right.getLocation()));
+			//Now let this process wait for the children to get into a waitForEvent state
+			setState(CmlProcessState.WAIT_CHILD);
+			result = CmlBehaviourSignal.EXEC_SUCCESS;
 			
-			result = caseExternalChoiceBegin(leftInstance,rightInstance,question);
-			
-			//We push the current state, since this process will control the child processes created by it
-			pushNext(node, question);
 		}
 		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 		//with the state from the skip. After this all the children processes are terminated
