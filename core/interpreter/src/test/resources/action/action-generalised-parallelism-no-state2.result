@@ -3,6 +3,9 @@
 	<result>
 		<trace>
 			<visibleTrace>c;a;b;e;a</visibleTrace>
+			<visibleTrace>c;a;b;a;e</visibleTrace>
+			<visibleTrace>a;c;b;e;a</visibleTrace>
+			<visibleTrace>a;c;b;a;e</visibleTrace>
 		</trace>
 	</result>
 </testResult>

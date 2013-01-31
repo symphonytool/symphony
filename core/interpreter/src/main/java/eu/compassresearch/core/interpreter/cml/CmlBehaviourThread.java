@@ -33,7 +33,7 @@ public interface CmlBehaviourThread extends CmlBehaviour{
 	 * Returns the current execution state of the process
 	 * @return The current context
 	 */
-	public Pair<? extends INode,CmlContext> getExecutionState();
+	public Pair<INode,CmlContext> getExecutionState();
 	
 	/**
 	 * Name of the process

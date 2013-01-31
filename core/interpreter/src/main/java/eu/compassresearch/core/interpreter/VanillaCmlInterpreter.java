@@ -22,6 +22,7 @@ import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.ConsoleSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
@@ -182,8 +183,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		try
 		{
 			Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+			//CmlSupervisorEnvironment sve = 
+			//		VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
 			CmlSupervisorEnvironment sve = 
-					VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
+							VanillaInterpreterFactory.newCmlSupervisorEnvironment(new ConsoleSelectionStrategy(), scheduler);
+
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.execute(sve,scheduler);
 		} catch (Exception ex)
@@ -202,7 +206,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-prefix.cml");
+				"src/test/resources/examples/simpler-register.cml");
 		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 

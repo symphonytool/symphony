@@ -351,17 +351,23 @@ public class AlphabetInspector
 		//external choice begin
 		if(!ownerProcess.hasChildren())
 			alpha = createSilentTransition(node, node,"Begin");
-		else if(CmlBehaviourThreadUtility.existsAFinishedChild(ownerProcess))
-			alpha = createSilentTransition(node, node,"end");
-		//If there are children we just return the union of the child alphabets
-		else if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(ownerProcess))
+		//if all children are waiting for events or are finished then we how to investigate further
+		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(ownerProcess))
 		{
-			for(CmlBehaviourThread child : ownerProcess.children())
+			//if there exist a finished child then the external choice ends with a silent transition
+			//where the state of the finished is used
+			if(CmlBehaviourThreadUtility.existsAFinishedChild(ownerProcess))
+				alpha = createSilentTransition(node, node,"end");
+			else
 			{
-				if(alpha == null)
-					alpha = child.inspect();
-				else
-					alpha = alpha.union(child.inspect());
+				//If all the children are waiting for events
+				for(CmlBehaviourThread child : ownerProcess.children())
+				{
+					if(alpha == null)
+						alpha = child.inspect();
+					else
+						alpha = alpha.union(child.inspect());
+				}
 			}
 		}
 		

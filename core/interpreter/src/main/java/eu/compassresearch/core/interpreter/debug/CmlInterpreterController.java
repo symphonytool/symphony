@@ -256,7 +256,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 								List<String> events = new LinkedList<String>();
 								for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
 								{
-									events.add(comEvent.getChannel().getName());
+									events.add(comEvent.toString());
 								}
 
 								CmlResponseMessage response = sendRequestSynchronous(new CmlRequestMessage(CmlRequest.CHOICE,events));
@@ -274,7 +274,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 								for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
 								{
 									//System.out.println("found: " + comEvent.getChannel().getName());
-									if(comEvent.getChannel().getName().equals(responseStr))
+									if(comEvent.toString().equals(responseStr))
 										selectedEvent = comEvent;
 								}
 

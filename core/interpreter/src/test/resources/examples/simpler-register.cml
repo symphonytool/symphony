@@ -18,7 +18,7 @@ process RegisterProc =
 
   operations  
    INIT : () ==> ()
-   INIT() == reg := 0
+   INIT() == reg := 254
 
    ADD: int ==> ()
    ADD(i) == reg := reg + i
@@ -35,13 +35,9 @@ process RegisterProc =
   actions
    
    REG = 
-     (inc.1 -> ( ([oflow(reg,1)] & overflow -> INIT(); REG)
-       	     	 [] 
-		 ([not oflow(reg,1)] & ADD(1);REG)))
-     [] 
-     (dec.1 -> ( ([uflow(reg,1)] & underflow -> INIT(); REG)
-       	     	 [] 
-		 ([not uflow(reg,1)] & SUB(1); REG)))
+     (inc.1 -> [not oflow(reg,1)] & ADD(1);REG)
+     []
+     (dec.1 -> [not uflow(reg,1)] & SUB(1);REG)
    @
      init -> INIT(); REG
  end

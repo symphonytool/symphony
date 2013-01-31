@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.cml;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Set;
 
@@ -34,7 +35,11 @@ public class RandomSelectionStrategy implements
 		
 		if(!comms.isEmpty())
 		{
-			selectedComm = availableChannelEvents.getObservableEvents().iterator().next();
+			int nElems = availableChannelEvents.getObservableEvents().size();
+			
+			//pick a random but deterministic choice
+			selectedComm = new ArrayList<ObservableEvent>(
+					availableChannelEvents.getObservableEvents()).get(rnd.nextInt(nElems));
 			
 			if(!selectedComm.isValuePrecise())
 			{
