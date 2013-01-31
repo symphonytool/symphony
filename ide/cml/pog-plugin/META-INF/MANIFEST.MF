@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE POG Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.cml.pog-plugin;singleton:=true
-Bundle-Version: 0.1.0
+Bundle-Version: 0.1.1
 Bundle-Activator: eu.compassresearch.ide.cml.pogplugin.Activator
 Bundle-Vendor: The COMPASS Project
 Require-Bundle: eu.compassresearch.ide.cml.core,
@@ -23,4 +23,4 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
 Bundle-ClassPath: .,
- lib/pog-0.1.0.jar
+ lib/pog-0.1.1.jar
