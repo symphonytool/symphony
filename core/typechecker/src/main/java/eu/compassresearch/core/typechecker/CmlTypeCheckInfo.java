@@ -43,7 +43,7 @@ TypeCheckQuestion {
 	public final String DEFAULT_SCOPE = "Default";
 
 	private final TypeIssueHandler issueHandler;
-
+    
 
 	/**
 	 * Create a new Type Check Info at top level

@@ -3,6 +3,10 @@ package eu.compassresearch.core.typechecker.api;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.types.PType;
 
+import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.ast.types.AErrorType;
+
+
 import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
 
 /**
@@ -15,6 +19,29 @@ import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
 public interface CmlTypeChecker extends
 		IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType>,
 		ICMLQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> {
+
+    /**
+     * This is once and for all how we determine if a Cml Source is
+     * well typed.
+     *
+     * @param sourceNode - The Source to check
+     * @return boolean - true if the sourceNode 
+     * has a proper type.
+     */
+    public static class Utils {
+        public static boolean isWellType(PSource sourceNode) {
+
+            if (sourceNode == null) return false;
+
+            PType type = sourceNode.getType();
+            if (type == null) return false;
+
+            if (type instanceof AErrorType) return false;
+
+            return true;
+        }
+    }
+
 	/**
 	 * Run the type checker. This will update the source(s) this type checker
 	 * instance was constructed with.
