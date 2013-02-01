@@ -2,8 +2,10 @@ package eu.compassresearch.core.interpreter.eval;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
@@ -12,6 +14,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.interpreter.runtime.CmlContext;
@@ -61,6 +64,34 @@ public class CmlDeclAndDefEvaluator extends
 		
 		return null;
 	}
+	
+	@Override
+	public Value caseAFunctionsDefinition(AFunctionsDefinition node,
+			CmlContext question) throws AnalysisException {
+
+		
+		for(PDefinition funcDefs : node.getFunctionDefinitions())
+		{
+			funcDefs.apply(this,question);
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public Value caseAExplicitFunctionDefinition(
+			AExplicitFunctionDefinition node, CmlContext question)
+			throws AnalysisException {
+
+		node.setIsTypeInvariant(false);
+		FunctionValue funcValue = new FunctionValue(node,null ,null,null);
+		
+		question.putNew(new NameValuePair(node.getName(),funcValue));
+		
+		
+		return null;
+	}
+	
 	
 	@Override
 	public Value caseAOperationsDefinition(AOperationsDefinition node,

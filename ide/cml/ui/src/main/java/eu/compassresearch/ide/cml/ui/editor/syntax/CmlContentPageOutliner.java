@@ -70,6 +70,7 @@ IContentOutlinePage {
 	TreePath[] oldPaths = getTreeViewer().getExpandedTreePaths();
 	getTreeViewer().refresh();
 	getTreeViewer().setExpandedTreePaths(oldPaths);
+	getTreeViewer().setAutoExpandLevel(2);
     }
 
     public CmlContentPageOutliner(CmlEditor editor) {
@@ -133,22 +134,23 @@ IContentOutlinePage {
 	labelprovider = new OutlineLabelProvider();
 	getTreeViewer().setLabelProvider(labelprovider);
 	getTreeViewer().setAutoExpandLevel(2);
+	getTreeViewer().setInput(input);
 	
-	Thread astSnooze = new Thread(new Runnable() {
-	    public void run() {
-
-//		while (true)
-//		    if (input.getSourceAst() != null){
-//			if (!input.getSourceAst().getParagraphs().isEmpty())
-//			    break;
-//		    }
-//		    else Thread.yield();
-//		
-		getTreeViewer().setInput(input);
-
-	    }
-	});
-	astSnooze.run();
+//	Thread astSnooze = new Thread(new Runnable() {
+//	    public void run() {
+//
+////		while (true)
+////		    if (input.getSourceAst() != null){
+////			if (!input.getSourceAst().getParagraphs().isEmpty())
+////			    break;
+////		    }
+////		    else Thread.yield();
+////		
+//
+//
+//	    }
+//	});
+//	astSnooze.run();
 
 
     }

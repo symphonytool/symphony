@@ -8,6 +8,10 @@ import java.util.Map;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Control;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.PType;
@@ -20,6 +24,7 @@ import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
@@ -48,6 +53,9 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		//TODO figure out ast deltas for the outline preservation
+//		if (newInput instanceof CmlSourceUnit)
+//			current = ((CmlSourceUnit) newInput).getSourceAst();
 	}
 
 	private PSource current;
@@ -73,20 +81,27 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 				for (PDefinition def : current.getParagraphs()) {
 
 					// Get the entry names for the global declarations
-					String dscr = TopLevelDefinitionMap.getDescription(def
-							.getClass());
+					String dscr = def.toString();
 					if (dscr == null)
-						dscr = def.toString();
-
-					Object elem = _wrapperCache.get(dscr);
-
-					if (elem == null) {
-						elem = Wrapper.newInstance(def, dscr);
-						_wrapperCache.put(dscr, elem);
-					}
-					if (elem != null)
-						res.add(elem);
-					// res.add(Wrapper.newInstance(def, dscr));
+						res.add(Wrapper.newInstance(def, def.getName().name));
+				    else
+					res.add(Wrapper.newInstance(def, dscr));
+					
+					
+					// Cache mode disabled due to poor hashing on ast notes
+//						dscr = def.toString();
+//					//else res.add(Wrapper.newInstance(def, dscr));
+//					
+//					Object elem = _wrapperCache.get(dscr);
+//
+//					if (elem == null) {
+//						elem = Wrapper.newInstance(def, dscr);
+//						_wrapperCache.put(dscr, elem);
+////						res.add(elem);
+//					}
+//					if (elem != null)
+//						res.add(elem);
+//			
 
 				}
 				return res.toArray();
@@ -221,6 +236,14 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 	public boolean hasChildren(Object element) {
 		if (element instanceof Wrapper) {
 			Wrapper<Object> w = (Wrapper<Object>) element;
+			if (w.value instanceof AExplicitFunctionDefinition)
+				return false;
+			if (w.value instanceof AImplicitFunctionDefinition)
+				return false;
+			if (w.value instanceof AValueDefinition)
+				return false;
+			if (w.value instanceof ATypeDefinition)
+				return false;
 			if (w.value instanceof AReferenceProcess)
 				return false;
 			if (w.value instanceof PActionBase)

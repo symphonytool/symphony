@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE CML Core
 Bundle-SymbolicName: eu.compassresearch.ide.cml.core;singleton:=true
-Bundle-Version: 0.1.0
+Bundle-Version: 0.1.1
 Bundle-Activator: eu.compassresearch.ide.cml.core.CmlCorePlugin
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
@@ -80,14 +80,14 @@ Eclipse-BuddyPolicy: registered
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ClassPath: .,
- lib/ast-0.1.0.jar,
- lib/common-0.1.0.jar,
- lib/parser-0.1.0.jar,
+ lib/ast-0.1.1.jar,
+ lib/common-0.1.1.jar,
+ lib/parser-0.1.1.jar,
  lib/parser-2.2.1.jar,
- lib/pog-0.1.0.jar,
+ lib/pog-0.1.1.jar,
  lib/pog-2.2.1.jar,
  lib/testframework-2.2.1.jar,
- lib/typechecker-0.1.0.jar,
+ lib/typechecker-0.1.1.jar,
  lib/typechecker-2.2.1.jar,
  lib/antlr-runtime-3.5.jar
 

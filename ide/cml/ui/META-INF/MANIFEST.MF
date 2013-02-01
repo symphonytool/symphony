@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE CML UI
 Bundle-SymbolicName: eu.compassresearch.ide.cml.ui;singleton:=true
-Bundle-Version: 0.1.0
+Bundle-Version: 0.1.1
 Bundle-Activator: eu.compassresearch.ide.cml.ui.CmlUIPlugin
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
@@ -47,3 +47,4 @@ Bundle-ClassPath: .,
  parser-2.2.1.jar,
  testframework-2.2.1.jar,
  typechecker-2.2.1.jar
+Import-Package: org.eclipse.ui.internal.navigator.resources.workbench

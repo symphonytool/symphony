@@ -18,6 +18,7 @@ import org.overture.typechecker.assistant.definition.PAccessSpecifierAssistantTC
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 
 public class CmlOperationValue extends CmlValue {
 
@@ -39,6 +40,8 @@ public class CmlOperationValue extends CmlValue {
 
 	public boolean isConstructor = false;
 	public boolean isStatic = false;
+	
+	private CmlBehaviourThread currentlyExecutingThread = null;
 
 	public CmlOperationValue(AExplicitCmlOperationDefinition def,
 		FunctionValue precondition, FunctionValue postcondition,
@@ -132,6 +135,14 @@ public class CmlOperationValue extends CmlValue {
 
 	public AOperationType getType() {
 		return type;
+	}
+
+	public CmlBehaviourThread getCurrentlyExecutingThread() {
+		return currentlyExecutingThread;
+	}
+
+	public void setCurrentlyExecutingThread(CmlBehaviourThread currentlyExecutingThread) {
+		this.currentlyExecutingThread = currentlyExecutingThread;
 	}
 
 }

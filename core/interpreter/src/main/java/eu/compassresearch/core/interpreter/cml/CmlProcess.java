@@ -3,12 +3,17 @@ package eu.compassresearch.core.interpreter.cml;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.node.INode;
 
+import eu.compassresearch.ast.actions.AExternalChoiceAction;
+import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.ast.process.AExternalChoiceProcess;
+import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
@@ -17,6 +22,7 @@ import eu.compassresearch.ast.process.ASkipProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
+import eu.compassresearch.core.interpreter.cml.CmlAction.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
@@ -25,6 +31,7 @@ import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.runtime.ProcessContext;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 /**
  *  This class represents a running CML Process. It represents a specific node as specified in D23.2 section 7.4.2,
@@ -40,7 +47,7 @@ import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
  * @author akm
  *
  */
-public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements CmlProcessStateObserver, CmlProcessTraceObserver
+public class CmlProcess extends AbstractBehaviourThread  implements CmlProcessStateObserver, CmlProcessTraceObserver
 {
 
 	/**
@@ -153,7 +160,7 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 		if(stateEvent.getSource() == this.mainBehaviour)
 		{
 			//this can occur when the process is evaluating a Sequential composition process
-			if(hasNext() && this.mainBehaviour.finished())
+			if(!this.aborted && hasNext() && this.mainBehaviour.finished())
 			{
 				//if we are in a sequential composition and the main behaviour is finished
 				//then it must be set to nothing since this is only set when it an ActionProcess
@@ -200,6 +207,48 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 		mainBehaviour.onStateChanged().registerObserver(this);
 		mainBehaviour.onTraceChanged().registerObserver(this);
 		mainBehaviour.start(supervisor());
+	}
+	
+	
+	@Override
+	protected CmlBehaviourThread createChild(INode node, CmlContext question,
+			LexNameToken name) {
+		return new CmlProcess((PProcess)node,name,this, question);
+	}
+	
+	@Override
+	protected INode createSkip() {
+
+		return new ASkipProcess();
+	}
+	
+	@Override
+	protected void mergeState(AbstractBehaviourThread other)
+	{
+		CmlProcess otherProcess = (CmlProcess)other;
+		
+		if(otherProcess.mainBehaviour == null)
+			super.mergeState(other);
+		else
+		{
+			super.mergeState(other);
+			mainBehaviour = otherProcess.mainBehaviour;
+		}
+//
+//		f(other.hasNext())
+//		{	//get the state replace the current state
+//			//FIXME: this is really really ugly
+//			for(Pair<INode,CmlContext> state : other.getExecutionStack())
+//			{
+//				pushNext(state.first, 
+//						state.second);
+//			}
+//		}
+//		else
+//		{
+//			pushNext(other.prevState().first, 
+//					other.prevState().second);
+//		}
 	}
 	
 	/**
@@ -290,13 +339,36 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 			ASequentialCompositionProcess node, CmlContext question)
 			throws AnalysisException {
 		
-		//First push right and then left, so that left get executed first
-		pushNext(node.getRight(), question);
-		pushNext(node.getLeft(), question);
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+		return caseASequentialComposition(node.getLeft(),node.getRight(),question);
 	}
 	
+	
+	/**
+	 * External Choice D23.2 7.5.4
+	 * 
+	 *  There four transition rules for external choice:
+	 *  
+	 *  * External Choice Begin
+	 *  
+	 *  * External Choice Silent
+	 *  
+	 *  * External Choice SKIP
+	 *  
+	 *  * External Choice End
+	 *  
+	 */
+	
+	@Override
+	public CmlBehaviourSignal caseAExternalChoiceProcess(
+			AExternalChoiceProcess node, CmlContext question)
+			throws AnalysisException {
+		
+		//return caseAExternalChoice(node,node.getLeft(),new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,node.getLeft().getLocation()),
+		//		node.getRight(),new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),node.getRight().getLocation()),question);
+		
+		return null;
+	}
+			
 	/**
 	 * There are no actual transition rule for this. The rule for interleaving action is that they evolve 
 	 * into Skip. However, this will just terminate successfully when all its children terminates successfully.
@@ -311,7 +383,7 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!hasChildren()){
-			result = caseParallelBegin(node,question);
+			result = caseParallelBegin(node,node.getLeft(),node.getRight(),question);
 			//We push the current state, since this process will control the child processes created by it
 			pushNext(node, question);
 
@@ -339,16 +411,8 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 		return result;
 	}
 	
-	private CmlBehaviourSignal caseParallelBegin(PProcess node, CmlContext question)
+	private CmlBehaviourSignal caseParallelBegin(PProcess node, PProcess left, PProcess right, CmlContext question)
 	{
-		PProcess left = null;
-		PProcess right = null;
-		
-		if(node instanceof AInterleavingProcess)
-		{
-			left = ((AInterleavingProcess) node).getLeft();
-			right = ((AInterleavingProcess) node).getRight();
-		}
 		
 		if(left == null || right == null)
 			throw new InterpreterRuntimeException(
@@ -365,12 +429,31 @@ public class CmlProcess extends AbstractBehaviourThread<PProcess>  implements Cm
 	}
 	
 	@Override
+	public CmlBehaviourSignal caseAGeneralisedParallelismProcess(
+			AGeneralisedParallelismProcess node, CmlContext question)
+			throws AnalysisException {
+		
+		final AGeneralisedParallelismProcess finalNode = node;
+		final CmlContext finalQuestion = question;
+		
+		return caseGeneralisedParallelismParallel(node,new parallelCompositionHelper() {
+			
+			@Override
+			public CmlBehaviourSignal caseParallelBegin() {
+				return CmlProcess.this.caseParallelBegin(finalNode,finalNode.getLeft(),finalNode.getRight(), finalQuestion);
+			}
+		}, node.getChansetExpression(),question);
+	}
+	
+	@Override
 	public CmlBehaviourSignal caseAInternalChoiceProcess(
 			AInternalChoiceProcess node, CmlContext question)
 			throws AnalysisException {
 		
-		//For now we always pick the left action
-		pushNext(node.getLeft(), question);
+		if(rnd.nextInt(2) == 0)
+			pushNext(node.getLeft(), question);
+		else
+			pushNext(node.getRight(), question);
 				
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}

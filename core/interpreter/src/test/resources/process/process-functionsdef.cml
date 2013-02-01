@@ -3,7 +3,9 @@ process A =
 begin
 	
 	functions
+	testMe : (bool) +> bool
+	testMe(x) == x
  
-	@ a -> Skip 
+	@ (dcl x :bool := testMe(true) @ [x] & a -> Skip) 
 end
 
