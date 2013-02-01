@@ -28,7 +28,7 @@ public class POGExpressionVisitor extends
     }
 
     // handle CML expressions
-
+// they are the PCMLExps or wheatever
     // Typechecker will eventually solve resolve these. For now, we hack past it.
     @Override
     public ProofObligationList caseAUnresolvedPathExp(AUnresolvedPathExp node,
