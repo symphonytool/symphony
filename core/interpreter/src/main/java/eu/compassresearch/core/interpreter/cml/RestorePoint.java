@@ -1,6 +1,5 @@
 package eu.compassresearch.core.interpreter.cml;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -29,19 +28,15 @@ class RestorePoint {
 			EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>  stateEventhandler,
 			EventSourceHandler<CmlProcessTraceObserver,TraceEvent>  traceEventHandler)
 	{
-		this.executionStack = new Stack<Pair<INode,CmlContext>>();
-		
-		for(Pair<INode,CmlContext> pair : executionStack)
-			this.executionStack.add(0, new Pair<INode,CmlContext>(pair.first,pair.second.deepCopy()));
-		
+		this.executionStack = executionStack;
 		this.prevExecution = prevExecution;
 		this.parent = parent;
-		this.children = new LinkedList<ConcreteBehaviourThread>(children);
+		this.children = children;
 		this.state = state;
 		this.env = env;
-		this.hidingAlphabet = (CmlAlphabet) hidingAlphabet.clone();
-		this.trace = new CmlTrace(trace);
-		this.registredEvents = new LinkedList<ObservableEvent>(registredEvents);
+		this.hidingAlphabet = hidingAlphabet;
+		this.trace = trace;
+		this.registredEvents = registredEvents;
 		this.stateEventhandler = stateEventhandler;
 		this.traceEventHandler = traceEventHandler;
 	}

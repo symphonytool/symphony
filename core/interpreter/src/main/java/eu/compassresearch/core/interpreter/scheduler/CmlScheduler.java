@@ -189,7 +189,7 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 					
 					if(stopped)
 					{
-						p.setAbort(null);
+				//		p.setAbort(null);
 						break;
 					}
 						

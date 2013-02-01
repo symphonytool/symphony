@@ -713,6 +713,11 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 
 		lastRestorePoint = new RestorePoint(executionStack, prevExecution, parent, children, state, env, hidingAlphabet, 
 											trace, registredEvents, stateEventhandler, traceEventHandler);
+		
+//		//set restore point for all the children
+//		for(CmlBehaviourThread child : children())
+//			child.setRestorePoint();
+		
 		parent = null;
 		stateEventhandler = new EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>(this,
 				new EventFireMediator<CmlProcessStateObserver,CmlProcessStateEvent>() {
@@ -734,9 +739,18 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			}
 		});
 		
-		//set restore point for all the children
-		for(CmlBehaviourThread child : children())
-			child.setRestorePoint();
+		Stack<Pair<INode,CmlContext>> copyStack = new Stack<Pair<INode,CmlContext>>();
+		
+		for(Pair<INode,CmlContext> pair : this.executionStack)
+			copyStack.add(0, new Pair<INode,CmlContext>(pair.first,pair.second.deepCopy()));
+		
+		this.executionStack = copyStack;		
+		
+		this.children = new LinkedList<ConcreteBehaviourThread>(children);
+		this.hidingAlphabet = (CmlAlphabet) hidingAlphabet.clone();
+		this.trace = new CmlTrace(trace);
+		this.registredEvents = new LinkedList<ObservableEvent>(registredEvents);
+		
 		
 		CmlRuntime.logger().fine("\nSetting Restore point for " + name + "\n");
 	}
@@ -759,9 +773,9 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			state = lastRestorePoint.state;
 			//setState(lastRestorePoint.state);
 			
-			//set restore point for all the children
-			for(CmlBehaviourThread child : children())
-				child.revertToRestorePoint();
+//			//set restore point for all the children
+//			for(CmlBehaviourThread child : children())
+//				child.revertToRestorePoint();
 			
 			CmlRuntime.logger().fine("\n" + name + " restored\n");
 			lastRestorePoint = null;
