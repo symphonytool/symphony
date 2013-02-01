@@ -24,6 +24,7 @@
 package eu.compassresearch.core.analysis.pog.obligations;
 
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.node.INode;
 import org.overture.ast.statements.PStateDesignator;
 import org.overture.pog.obligation.POType;
 
@@ -31,16 +32,34 @@ import org.overture.pog.obligation.POType;
 // Not being used anywhere so far. Can we extend the overture one?
 public class CMLMapApplyObligation extends CMLProofObligation
 {
+	public final INode root;
+	public final PExp arg;
+				
 	public CMLMapApplyObligation(PExp root, PExp arg, CMLPOContextStack ctxt)
 	{
 		super(root.getLocation(), CMLPOType.MAP_APPLY, ctxt);
-		value = ctxt.getObligation(arg + " in set dom " + root);
+		this.arg = arg;
+		this.root = root;
+		this.guiString = toGUIString(ctxt);
+		this.isabelleString = toIsabelleString(ctxt);
 	}
 
 	public CMLMapApplyObligation(PStateDesignator root,
 		PExp arg, CMLPOContextStack ctxt)
 	{
 		super(root.getLocation(), CMLPOType.MAP_APPLY, ctxt);
-		value = ctxt.getObligation(arg + " in set dom " + root);
+		this.arg = arg;
+		this.root = root;
+	}
+	
+	public String toGUIString(CMLPOContextStack ctxt)
+	{
+		return ctxt.getGUIString(arg + " in set dom " + root);
+	}
+	
+	public String toIsabelleString(CMLPOContextStack ctxt)
+	{
+		//TODO: need to determine Isabelle format 
+		return ctxt.getIsabelleString("");
 	}
 }

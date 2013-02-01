@@ -359,7 +359,7 @@ public class ProofObligationGenerator extends
      */
     public CMLProofObligationList generatePOs() throws AnalysisException {
 	CMLProofObligationList obligations = new CMLProofObligationList();
-	CMLPOContextStack ctxt = new CMLPOContextStack();
+	POContextStack ctxt = new POContextStack();
 
 	// for each source
 	for (PSource s : sourceForest) {
