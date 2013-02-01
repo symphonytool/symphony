@@ -19,6 +19,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
 import org.overture.ast.node.NodeEnum;
+import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
@@ -110,6 +111,18 @@ public class CommonRegistryTestCase {
 		public void replaceChild(INode oldChild, INode newChild) {
 			// TODO Auto-generated method stub
 			
+		}
+
+		@Override
+		public void setType(PType value) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public PType getType() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 		
 	};

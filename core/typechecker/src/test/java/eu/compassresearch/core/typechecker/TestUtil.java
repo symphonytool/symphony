@@ -208,7 +208,7 @@ public class TestUtil
 		if (expectedTypesOk) {
 			sb.append("Expected type checking to be successful, the following errors were unexpected:\n");
 			for (CMLTypeError error : tc.getTypeErrors())
-				sb.append(error.toString() + "\n------\n");
+				sb.append(error.getLocation()+": "+error.toString() + "\n------\n");
 			if (tc.getTypeErrors().size() > 0)
 				System.out.println(tc.getTypeErrors().get(0).getStackTrace());
 		} else {
