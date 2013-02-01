@@ -177,6 +177,7 @@ type {-> package='eu.compassresearch.ast.types'}
     |   {initialParagraph} // marker
     |   {action} // marker
     |   {varsetExpression} // marker
+    |   {paragraph} // markar that a paragraph tree is typed ok
     ;
 
 access  {-> package='eu.compassresearch.ast.definitions'}
@@ -508,6 +509,6 @@ Aspect Declaration
         ;
 */
 
-%source = [paragraphs]: definition*
+%source = [paragraphs]: definition* (type):type 
         ;
 
