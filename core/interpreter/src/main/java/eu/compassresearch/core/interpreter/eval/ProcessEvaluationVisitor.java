@@ -1,8 +1,13 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import java.util.Map.Entry;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.interpreter.values.NameValuePair;
+import org.overture.interpreter.values.NameValuePairMap;
+import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
@@ -15,9 +20,9 @@ import eu.compassresearch.ast.process.ASkipProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
+import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.runtime.ProcessContext;
@@ -47,11 +52,22 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	@Override
 	public CmlBehaviourSignal caseAActionProcess(AActionProcess node, CmlContext question) throws AnalysisException
 	{
+		
+		ProcessObjectValue self = question.getSelf().processObjectValue(question);
+		
 		//Evaluate and add paragraph definitions and add the result to the state
 		for (PDefinition def : node.getDefinitionParagraphs())
 		{
 			def.apply(cmlEvaluator, question);
 		}
+		
+		NameValuePairMap valueMap = new NameValuePairMap(); 
+		for(Entry<LexNameToken,Value> entry : question.entrySet())
+		{
+			valueMap.put(new NameValuePair(entry.getKey(),entry.getValue()));
+		}
+		
+		self.setMembers(valueMap);
 
 		//push this node onto the execution stack again since this should execute
 		//the action behaviour until it terminates

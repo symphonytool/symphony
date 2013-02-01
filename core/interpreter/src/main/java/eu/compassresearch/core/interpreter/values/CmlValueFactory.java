@@ -12,9 +12,9 @@ import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 
 public class CmlValueFactory {
 
-	public static ProcessObjectValue createProcessObjectValue(AProcessDefinition processDefinition)
+	public static ProcessObjectValue createProcessObjectValue(AProcessDefinition processDefinition, CmlObjectValue creator)
 	{
-		return new ProcessObjectValue(processDefinition,null);
+		return new ProcessObjectValue(processDefinition,creator);
 	}
 	
 	public static ActionValue createActionValue(AActionDefinition actionDefinition)

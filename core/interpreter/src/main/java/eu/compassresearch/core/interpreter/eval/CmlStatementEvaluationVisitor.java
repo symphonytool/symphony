@@ -227,7 +227,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		
 		nameContext.put(stateDesignatorName, expValue);
 		
-		System.out.println(stateDesignatorName + " = " + expValue);
+		//System.out.println(stateDesignatorName + " = " + expValue);
 		
 		//now this process evolves into Skip
 		pushNext(new ASkipAction(node.getLocation(),new AActionType()), question);
@@ -326,6 +326,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			//TODO Change this to deal with it in general
 			LexNameToken stateDesignatorName = CmlActionAssistant.extractNameFromStateDesignator(node.getDesignator());
 			CmlContext nameContext = (CmlContext)question.locate(stateDesignatorName);
+			nameContext.remove(stateDesignatorName);
 			nameContext.put(stateDesignatorName, retValue);
 		}
 		

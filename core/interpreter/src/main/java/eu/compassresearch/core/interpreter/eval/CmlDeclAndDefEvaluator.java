@@ -42,7 +42,7 @@ public class CmlDeclAndDefEvaluator extends
         throws AnalysisException
       {
 		question.putNew(new NameValuePair(node.getName(), 
-        		CmlValueFactory.createProcessObjectValue(node)));
+        		CmlValueFactory.createProcessObjectValue(node,null)));
 		
 		return null;
       }

@@ -418,13 +418,13 @@ public class AlphabetInspector
 
 				try 
 				{
-					Level lvl = CmlRuntime.logger().getLevel();
-					CmlRuntime.logger().setLevel(Level.OFF);
+					//Level lvl = CmlRuntime.logger().getLevel();
+					//CmlRuntime.logger().setLevel(Level.OFF);
 					tmpEnv.setSelectedObservableEvent(ev);
 					tmpScheduler.setCmlSupervisorEnvironment(tmpEnv);
 					child.start(tmpEnv);
 					tmpScheduler.start();
-					CmlRuntime.logger().setLevel(lvl);
+					//CmlRuntime.logger().setLevel(lvl);
 				} catch (InterpreterRuntimeException e) {
 					alpha = alpha.substract(ev.getAsAlphabet()); 
 				} 

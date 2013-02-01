@@ -20,5 +20,10 @@ public abstract class CmlValue extends Value {
 		return null;
 	}
 	
+	public ProcessObjectValue processObjectValue(CmlContext ctxt) throws ValueException
+	{
+		abort(4105, "Can't get process value of " + kind(), ctxt.getVdmContext());
+		return null;
+	}
 
 }

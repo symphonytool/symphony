@@ -33,7 +33,7 @@ public abstract class CmlObjectValue extends CmlValue {
 
 	public final int objectReference;
 	public final PType type;
-	public final NameValuePairMap members;
+	protected NameValuePairMap members;
 	
 
 	/**

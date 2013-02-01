@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.runtime;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +21,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.values.CmlObjectValue;
 
-public class CmlContext {
+public class CmlContext implements Map<LexNameToken, Value>, Serializable{
 
 	private Context vdmContext;
 	
@@ -133,16 +134,19 @@ public class CmlContext {
 		vdmContext.putAllNew(list);
 	}
 	
+	@Override
 	public void putAll(Map<? extends LexNameToken, ? extends Value> m)
 	{
 		vdmContext.putAll(m);
 	}
 	
-	public void put(LexNameToken key, Value value)
+	@Override
+	public Value put(LexNameToken key, Value value)
 	{
-		vdmContext.put(key, value);
+		return vdmContext.put(key, value);
 	}
 	
+	@Override
 	public Set<LexNameToken> keySet()
 	{
 		return vdmContext.keySet();
@@ -158,7 +162,7 @@ public class CmlContext {
 	 *
 	 * TODO Slow though.
 	 */
-
+	@Override
 	public Value get(Object name)
 	{
 		return vdmContext.get(name);
@@ -305,6 +309,7 @@ public class CmlContext {
 		
 	}
 	
+	@Override
 	public Collection<Value> values()
 	{
 		return vdmContext.values();
@@ -318,6 +323,42 @@ public class CmlContext {
 	public LexLocation getLocation()
 	{
 		return vdmContext.location;
+	}
+
+	@Override
+	public int size() {
+		return vdmContext.size();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return vdmContext.isEmpty();
+	}
+
+	@Override
+	public boolean containsKey(Object key) {
+		return vdmContext.containsKey(key);
+	}
+
+	@Override
+	public boolean containsValue(Object value) {
+		return vdmContext.containsValue(value);
+	}
+
+	@Override
+	public Value remove(Object key) {
+		return vdmContext.remove(key);
+	}
+
+	@Override
+	public void clear() {
+
+		vdmContext.clear();
+	}
+
+	@Override
+	public Set<java.util.Map.Entry<LexNameToken, Value>> entrySet() {
+		return vdmContext.entrySet();
 	}
 
 //	public void setPrepost(int prepost, String prepostMsg)

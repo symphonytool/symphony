@@ -25,7 +25,8 @@ public class RandomSelectionStrategy implements
 		CmlCommunicationSelectionStrategy {
 
 	private static final long randomSeed = 675674345;
-	private static final Random rnd = new Random(randomSeed);
+	private static final Random rndChoice = new Random(randomSeed);
+	private static final Random rndValue = new Random(randomSeed);
 	
 	@Override
 	public ObservableEvent select(CmlAlphabet availableChannelEvents) {
@@ -39,7 +40,7 @@ public class RandomSelectionStrategy implements
 			
 			//pick a random but deterministic choice
 			selectedComm = new ArrayList<ObservableEvent>(
-					availableChannelEvents.getObservableEvents()).get(rnd.nextInt(nElems));
+					availableChannelEvents.getObservableEvents()).get(rndChoice.nextInt(nElems));
 			
 			if(!selectedComm.isValuePrecise())
 			{
@@ -69,7 +70,7 @@ public class RandomSelectionStrategy implements
 				throws AnalysisException {
 
 			
-			return new IntegerValue(rnd.nextInt());
+			return new IntegerValue(rndValue.nextInt());
 		}
 		
 	}

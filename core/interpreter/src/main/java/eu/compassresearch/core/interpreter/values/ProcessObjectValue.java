@@ -1,12 +1,14 @@
 package eu.compassresearch.core.interpreter.values;
 
 import org.overture.ast.lex.LexNameToken;
+import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.types.AProcessType;
+import eu.compassresearch.core.interpreter.runtime.CmlContext;
 
 public class ProcessObjectValue extends CmlObjectValue {
 
@@ -17,9 +19,9 @@ public class ProcessObjectValue extends CmlObjectValue {
 		this.processDefinition = processDefinition;
 	}
 
-	public void setMembers()
+	public void setMembers(NameValuePairMap members)
 	{
-		
+		this.members = members;
 	}
 	
 	public AProcessDefinition getProcessDefinition()
@@ -66,5 +68,11 @@ public class ProcessObjectValue extends CmlObjectValue {
 		CmlObjectValue rv = mycopy;
 		mycopy = null;
 		return rv;
+	}
+	
+	@Override
+	public ProcessObjectValue processObjectValue(CmlContext ctxt)
+			throws ValueException {
+		return this;
 	}
 }

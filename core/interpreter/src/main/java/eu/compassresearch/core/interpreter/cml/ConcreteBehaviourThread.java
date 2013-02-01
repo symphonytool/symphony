@@ -752,7 +752,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		this.registredEvents = new LinkedList<ObservableEvent>(registredEvents);
 		
 		
-		CmlRuntime.logger().fine("\nSetting Restore point for " + name + "\n");
+		CmlRuntime.logger().finest("\nSetting Restore point for " + name + "\n");
 	}
 
 	@Override
@@ -777,7 +777,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 //			for(CmlBehaviourThread child : children())
 //				child.revertToRestorePoint();
 			
-			CmlRuntime.logger().fine("\n" + name + " restored\n");
+			CmlRuntime.logger().finest("\n" + name + " restored\n");
 			lastRestorePoint = null;
 		}
 		
