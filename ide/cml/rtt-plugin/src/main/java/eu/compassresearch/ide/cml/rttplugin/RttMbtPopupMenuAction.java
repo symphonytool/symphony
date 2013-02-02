@@ -66,13 +66,22 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 		// calculate CML project name from selected folder
 		String current = selectionFullPath.substring(1, selectionFullPath.length());
 		int pos = current.indexOf(File.separator);
-		if (pos == -1) {
-			client.addErrorMessage("[FAIL]: no RTT-MBT component selected\n");
+		String cmlProject;
+		if (pos > -1) {
+			cmlProject = current.substring(0,pos);
+		} else {
+			pos = current.indexOf('/');
+			if (pos == -1) {
+				client.addErrorMessage("[FAIL]: no RTT-MBT component selected\n");
+				return false;
+			} else {
+				cmlProject = current.substring(0,pos);
+			}
 		}
-		String cmlProject = current.substring(0,current.indexOf(File.separator));
 		// calculate RTT-MBT project name from selected folder
 		current = current.substring(pos + 1, current.length());
 		pos = current.indexOf(File.separator);
+		if (pos == -1) pos = current.indexOf('/');
 		if (pos == -1) pos = current.length();
 		String rttProject = current.substring(0,pos);
 
