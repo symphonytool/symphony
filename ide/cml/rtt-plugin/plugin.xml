@@ -221,7 +221,7 @@
     <editor
         id="eu.compassresearch.ide.cml.rttplugin.reqtracing"
         extensions="requirementsCoverage"
-        name="Requirements Coverage"
+        name="Coverage"
         icon="icons/configure.png"
         contributorClass="eu.compassresearch.ide.cml.rttplugin.RttMbtRequirementsCoverageContributor"
         class="eu.compassresearch.ide.cml.rttplugin.RttMbtRequirementsCoverage"
