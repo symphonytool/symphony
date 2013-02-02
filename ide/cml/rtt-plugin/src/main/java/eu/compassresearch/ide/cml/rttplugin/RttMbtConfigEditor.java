@@ -16,7 +16,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.TreeEditor;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -166,6 +165,7 @@ public class RttMbtConfigEditor extends EditorPart {
 					editor.minimumWidth = 15;
 				    Button cellEditor = new Button(treeView, SWT.CHECK);
 				    cellEditor.setSelection(text.compareTo("X") == 0);
+				    cellEditor.setBackground(item.getBackground());
 				    cellEditor.addSelectionListener(new SelectionListener() {
 						@Override
 						public void widgetSelected(SelectionEvent e) { notifyChanged(e); }
