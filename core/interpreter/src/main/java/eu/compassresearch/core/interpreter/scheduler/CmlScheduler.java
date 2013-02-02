@@ -184,7 +184,7 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 					
 					CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getObservableEvents());
 
-					CmlRuntime.logger().fine("state: \n" +  p.getExecutionState().second.getSelf().toString());
+					CmlRuntime.logger().fine("state: \n" +  p.getExecutionState().second.getRoot().toString());
 					
 					//Select and set the communication event
 					ObservableEvent selectedEvent = sve.decisionFunction().select(availableEvents); 

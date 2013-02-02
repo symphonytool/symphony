@@ -6,13 +6,14 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexLocation;
+import org.overture.interpreter.runtime.StateContext;
+import org.overture.interpreter.values.CPUValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
-import eu.compassresearch.core.interpreter.runtime.CmlStateContext;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 
 public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
@@ -22,7 +23,7 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 	 */
     private static final long        serialVersionUID   = 493918199975006733L;
     private AProcessDefinition       lastDefinedProcess = null;
-    private CmlStateContext          globalState        = null;
+    private StateContext          globalState        = null;
     private List<AProcessDefinition> globalProcesses	= null;
     
     private CmlEvaluator cmlEvaluator 		=  new CmlEvaluator();
@@ -34,7 +35,8 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 
     private void BuildGlobalEnvironment(List<PSource> sources)
       {
-    	globalState = new CmlStateContext(new LexLocation(), "GlobalContext");
+    	globalState = new StateContext(new LexLocation(), "GlobalContext");
+    	globalState.setThreadState(null, CPUValue.vCPU);
     	globalProcesses = new LinkedList<AProcessDefinition>();
     	
         for (PSource source : sources)
@@ -75,7 +77,7 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
     	return lastDefinedProcess;
     }
 
-    public CmlStateContext getGlobalContext()
+    public StateContext getGlobalContext()
     {
     	return globalState;
     }

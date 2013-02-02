@@ -5,10 +5,17 @@ import java.util.Map.Entry;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ObjectContext;
+import org.overture.interpreter.values.CPUValue;
+import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
+import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
+import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
@@ -24,15 +31,16 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
-import eu.compassresearch.core.interpreter.runtime.ProcessContext;
+import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
+import eu.compassresearch.core.interpreter.runtime.CmlStateContext;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 
 public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 
 	@Override
-	public CmlBehaviourSignal defaultPProcess(PProcess node, CmlContext question)
+	public CmlBehaviourSignal defaultPProcess(PProcess node, Context question)
 			throws AnalysisException {
 		
 		throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
@@ -40,7 +48,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	}
 	
 	@Override
-	public CmlBehaviourSignal caseASkipProcess(ASkipProcess node, CmlContext question)
+	public CmlBehaviourSignal caseASkipProcess(ASkipProcess node, Context question)
 			throws AnalysisException {
 
 		//if hasNext() is true then Skip is in sequential composition with next
@@ -50,28 +58,52 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	}
 	
 	@Override
-	public CmlBehaviourSignal caseAActionProcess(AActionProcess node, CmlContext question) throws AnalysisException
+	public CmlBehaviourSignal caseAActionProcess(AActionProcess node, Context question) throws AnalysisException
 	{
+		AProcessDefinition processDef;
+		//We have a named process
+		if(node.parent() instanceof AProcessDefinition)
+		{
+			processDef = (AProcessDefinition)node.parent();
+		}
+		//Unnamed process
+		else
+		{
+			processDef = new AProcessDefinition();
+			processDef.setLocation(node.getLocation());
+			processDef.setName(new LexNameToken("", "Unnamed Process",node.getLocation()));
+		}
 		
-		ProcessObjectValue self = question.getSelf().processObjectValue(question);
+		
+		Context tmpContext = CmlContextFactory.newContext(node.getLocation(),"tmp",null);
 		
 		//Evaluate and add paragraph definitions and add the result to the state
 		for (PDefinition def : node.getDefinitionParagraphs())
 		{
-			def.apply(cmlEvaluator, question);
+			def.apply(cmlEvaluator, tmpContext);
 		}
 		
-		NameValuePairMap valueMap = new NameValuePairMap(); 
-		for(Entry<LexNameToken,Value> entry : question.entrySet())
+		NameValuePairMap valueMap = new NameValuePairMap();
+		for(Entry<LexNameToken,Value> entry : tmpContext.entrySet())
 		{
-			valueMap.put(new NameValuePair(entry.getKey(),entry.getValue()));
+			//VDM stuff expects the module to be the name of the process/class
+			LexNameToken name = entry.getKey().getModifiedName(processDef.getName().getSimpleName());
+			
+			if(entry.getValue() instanceof FunctionValue ||
+					entry.getValue() instanceof CmlOperationValue)
+				valueMap.put(new NameValuePair(name,entry.getValue()));
+			else
+				valueMap.put(new NameValuePair(name,entry.getValue().getUpdatable(null)));
+				
 		}
 		
-		self.setMembers(valueMap);
+		ProcessObjectValue self = new ProcessObjectValue(processDef,valueMap,question.getSelf());
 
+		ObjectContext processObjectContext = CmlContextFactory.newObjectContext(node.getLocation(), "Action Process Context", question, self);
+		
 		//push this node onto the execution stack again since this should execute
 		//the action behaviour until it terminates
-		pushNext(node.getAction(), question);
+		pushNext(node.getAction(), processObjectContext);
 		return CmlBehaviourSignal.EXEC_SUCCESS; 
 	}
 	
@@ -81,19 +113,19 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	@Override
 	public CmlBehaviourSignal caseAReferenceProcess(AReferenceProcess node,
-			CmlContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 
 		//initials this process with the global context since this should see any of creators members
 //		CmlProcess childProcess = new CmlProcess(node.getProcessDefinition(), this, question.getGlobal());
 //		this.children.add(childProcess);
 //		return CmlBehaviourSignal.EXEC_SUCCESS;
 		
-		ProcessObjectValue processValue = question.lookup(node.getProcessName());
-		name = new LexNameToken(name.module,name.getIdentifier().getName() + " = " + processValue.getProcessDefinition().getName().getSimpleName(),name.location);
+		//ProcessObjectValue processValue = (ProcessObjectValue)question.lookup(node.getProcessName());
+		//name = new LexNameToken(name.module,name.getIdentifier().getName() + " = " + processValue.getProcessDefinition().getName().getSimpleName(),name.location);
 		
-		ProcessContext processContext = new ProcessContext(node.getLocation(), "Referenced Process context", question, processValue);
+		//CmlStateContext processContext = new CmlStateContext(node.getLocation(), "Referenced Process context", question,null, processValue.getProcessDefinition());
 		
-		pushNext( processValue.getProcessDefinition().getProcess(), processContext); 
+		pushNext( node.getProcessDefinition().getProcess(), question); 
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 		
@@ -102,7 +134,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	
 	@Override
 	public CmlBehaviourSignal caseASequentialCompositionProcess(
-			ASequentialCompositionProcess node, CmlContext question)
+			ASequentialCompositionProcess node, Context question)
 			throws AnalysisException {
 		
 		return caseASequentialComposition(node.getLeft(),node.getRight(),question);
@@ -126,7 +158,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	
 	@Override
 	public CmlBehaviourSignal caseAExternalChoiceProcess(
-			AExternalChoiceProcess node, CmlContext question)
+			AExternalChoiceProcess node, Context question)
 			throws AnalysisException {
 		
 		return caseAExternalChoice(node,node.getLeft(),new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,node.getLeft().getLocation()),
@@ -141,7 +173,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	@Override
 	public CmlBehaviourSignal caseAInterleavingProcess(
-			AInterleavingProcess node, CmlContext question)
+			AInterleavingProcess node, Context question)
 			throws AnalysisException {
 		
 		//TODO: This only implements the "A ||| B (no state)" and not "A [|| ns1 | ns2 ||] B"
@@ -177,7 +209,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		return result;
 	}
 	
-	private CmlBehaviourSignal caseParallelBegin(PProcess node, PProcess left, PProcess right, CmlContext question)
+	private CmlBehaviourSignal caseParallelBegin(PProcess node, PProcess left, PProcess right, Context question)
 	{
 		if(left == null || right == null)
 			throw new InterpreterRuntimeException(
@@ -195,11 +227,11 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	
 	@Override
 	public CmlBehaviourSignal caseAGeneralisedParallelismProcess(
-			AGeneralisedParallelismProcess node, CmlContext question)
+			AGeneralisedParallelismProcess node, Context question)
 			throws AnalysisException {
 		
 		final AGeneralisedParallelismProcess finalNode = node;
-		final CmlContext finalQuestion = question;
+		final Context finalQuestion = question;
 		
 		return caseGeneralisedParallelismParallel(node,new parallelCompositionHelper() {
 			
@@ -212,7 +244,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	
 	@Override
 	public CmlBehaviourSignal caseAInternalChoiceProcess(
-			AInternalChoiceProcess node, CmlContext question)
+			AInternalChoiceProcess node, Context question)
 			throws AnalysisException {
 		
 		if(rnd.nextInt(2) == 0)

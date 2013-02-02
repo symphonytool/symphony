@@ -8,13 +8,12 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
 
 @SuppressWarnings("serial")
-public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CmlContext, Value> {
+public class CmlEvaluator extends QuestionAnswerCMLAdaptor<Context, Value> {
 
-	private QuestionAnswerCMLAdaptor<CmlContext, Value> exp;
-	private QuestionAnswerCMLAdaptor<CmlContext, Value> def;
+	private QuestionAnswerCMLAdaptor<Context, Value> exp;
+	private QuestionAnswerCMLAdaptor<Context, Value> def;
 			
 	private void initialize()
 	{
@@ -28,7 +27,7 @@ public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CmlContext, Value> {
 	}
 				
 	@Override
-	public Value defaultPExp(PExp node, CmlContext question)
+	public Value defaultPExp(PExp node, Context question)
 			throws AnalysisException {
 		
 		return node.apply(exp,question);
@@ -36,13 +35,13 @@ public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CmlContext, Value> {
 	
 	@Override
 	public Value defaultPVarsetExpression(PVarsetExpression node,
-			CmlContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 
 		return node.apply(exp,question);
 	}
 		
 	@Override
-	public Value defaultPDefinition(PDefinition node, CmlContext question)
+	public Value defaultPDefinition(PDefinition node, Context question)
 			throws AnalysisException {
 		
 		return node.apply(this.def,question);

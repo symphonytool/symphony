@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Stack;
 
 import org.overture.ast.node.INode;
+import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
@@ -11,13 +12,12 @@ import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 class RestorePoint {
 
-	public RestorePoint(Stack<Pair<INode,CmlContext>> executionStack,
-			Pair<INode,CmlContext> 			prevExecution,
+	public RestorePoint(Stack<Pair<INode,Context>> executionStack,
+			Pair<INode,Context> 			prevExecution,
 			CmlBehaviourThread 				parent,
 			List<ConcreteBehaviourThread> 		children,
 			CmlProcessState 					state,
@@ -41,8 +41,8 @@ class RestorePoint {
 		this.traceEventHandler = traceEventHandler;
 	}
 	
-	public final Stack<Pair<INode,CmlContext>> 		executionStack;
-	public final Pair<INode,CmlContext> 			prevExecution;
+	public final Stack<Pair<INode,Context>> 		executionStack;
+	public final Pair<INode,Context> 			prevExecution;
 	public final CmlBehaviourThread 				parent;
 	public final List<ConcreteBehaviourThread> 		children;
 	public final CmlProcessState 					state;

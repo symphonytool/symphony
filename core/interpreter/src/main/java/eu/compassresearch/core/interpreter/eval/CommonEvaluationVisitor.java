@@ -3,28 +3,27 @@ package eu.compassresearch.core.interpreter.eval;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
-import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
+import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
-import eu.compassresearch.core.interpreter.values.CmlValue;
 
 public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 
 	/**
 	 * protected helper methods
 	 */
-	protected CmlBehaviourSignal caseASequentialComposition(INode leftNode, INode rightNode, CmlContext question)
+	protected CmlBehaviourSignal caseASequentialComposition(INode leftNode, INode rightNode, Context question)
 			throws AnalysisException 
 	{
 		//First push right and then left, so that left get executed first
@@ -34,7 +33,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
-	protected <V extends CmlBehaviourThread> CmlBehaviourSignal  caseParallelBeginGeneral(V left, V right, CmlContext question)
+	protected <V extends CmlBehaviourThread> CmlBehaviourSignal  caseParallelBeginGeneral(V left, V right, Context question)
 	{
 		//add the children to the process graph
 		addChild(left);
@@ -47,7 +46,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	}
 	
 	protected CmlBehaviourSignal caseGeneralisedParallelismParallel(INode node,parallelCompositionHelper helper, 
-			PVarsetExpression chansetExp, CmlContext question) throws AnalysisException
+			PVarsetExpression chansetExp, Context question) throws AnalysisException
 	
 	{
 		//TODO: This only implements the "A [| cs |] B (no state)" and not "A [| ns1 | cs | ns2 |] B"
@@ -97,7 +96,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		}
 	}
 	
-	protected CmlBehaviourSignal caseParallelEnd(CmlContext question)
+	protected CmlBehaviourSignal caseParallelEnd(Context question)
 	{
 		removeTheChildren();
 		
@@ -107,11 +106,11 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
-	protected CmlBehaviourSignal caseParallelSyncOrNonsync(PVarsetExpression chansetExp, CmlContext question) throws AnalysisException
+	protected CmlBehaviourSignal caseParallelSyncOrNonsync(PVarsetExpression chansetExp, Context question) throws AnalysisException
 	{
 		//convert the channelset of the current node to a alphabet
-		CmlAlphabet cs =  ((CmlValue)chansetExp.
-				apply(cmlEvaluator,question)).cmlAlphabetValue(question);
+		CmlAlphabet cs =  ((CmlAlphabet)chansetExp.
+				apply(cmlEvaluator,question));
 		
 		//get the immediate alphabets of the left and right child
 		CmlBehaviourThread leftChild = children().get(0);
@@ -153,7 +152,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	 *  Common transitions
 	 */
 	protected CmlBehaviourSignal caseAExternalChoice(
-			INode node, INode leftNode, LexNameToken leftName, INode rightNode, LexNameToken rightName, CmlContext question)
+			INode node, INode leftNode, LexNameToken leftName, INode rightNode, LexNameToken rightName, Context question)
 			throws AnalysisException {
 		
 		CmlBehaviourSignal result = null;
@@ -216,7 +215,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	 * @param question
 	 * @return
 	 */
-	protected CmlBehaviourSignal caseExternalChoiceBegin(CmlBehaviourThread leftInstance, CmlBehaviourThread rightInstance ,CmlContext question)
+	protected CmlBehaviourSignal caseExternalChoiceBegin(CmlBehaviourThread leftInstance, CmlBehaviourThread rightInstance ,Context question)
 	{
 		//Add the children to the process graph
 		addChild(leftInstance);
@@ -239,7 +238,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		
 		//FIXME: maybe the we should differentiate between actions and process instead of just having CmlProcess
 		// 		Childerens. We clearly need it!
-		//Extract the current CmlContext of finished child action and use it as the CmlContext
+		//Extract the current Context of finished child action and use it as the Context
 		//for the Skip action.
 		mergeState(skipChild);
 		

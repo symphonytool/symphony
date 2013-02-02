@@ -15,13 +15,11 @@ import org.overture.interpreter.runtime.SourceFile;
 import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
 import org.overture.parser.syntax.ParserException;
-import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.EventSource;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 /**
  * The CML interpreter interface.
@@ -34,7 +32,7 @@ public interface CmlInterpreter
 	 * Get a string version of the environment.
 	 */
 
-	public CmlContext getInitialContext(LexLocation location);
+	public Context getInitialContext(LexLocation location);
 
 	/**
 	 * Get the name of the default process. Symbols in the default

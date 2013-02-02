@@ -7,12 +7,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.typechecker.NameScope;
+import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ObjectContext;
+import org.overture.interpreter.scheduler.BasicSchedulableThread;
+import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
-import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.AFileSource;
@@ -20,15 +21,11 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterStatus;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
-import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.ConsoleSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
-import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
-import eu.compassresearch.core.interpreter.runtime.ProcessContext;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.interpreter.util.CmlUtil;
@@ -40,13 +37,17 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 class VanillaCmlInterpreter extends AbstractCmlInterpreter
 {
+	static
+	{
+	    BasicSchedulableThread.setInitialThread(new InitThread(Thread.currentThread()));
+	}
 
 	/**
 	 * 
 	 */
 	private static final long          serialVersionUID = 6664128061930795395L;
 	protected List<PSource>            sourceForest;
-	protected CmlContext               globalContext;
+	protected Context                  globalContext;
 	protected String 				   defaultName      = null;	
 	protected AProcessDefinition       topProcess;
 	protected Scheduler                cmlScheduler     = null;
@@ -123,13 +124,13 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		currentSupervisor = sve; 
 		cmlScheduler.setCmlSupervisorEnvironment(currentSupervisor);
 		
-		CmlContext topContext = getInitialContext(null);
+		Context topContext = getInitialContext(null);
 		
-		ProcessObjectValue self = topContext.lookup(topProcess.getName()); 
+		//ProcessObjectValue self = (ProcessObjectValue)topContext.lookup(topProcess.getName()); 
 		
-		ProcessContext processContext = new ProcessContext(topProcess.getLocation(), "Top Process context", topContext, self);
+		//ObjectContext processContext = new ObjectContext(topProcess.getLocation(), "Top Process context", topContext, self);
 		
-		ConcreteBehaviourThread pi = new ConcreteBehaviourThread(topProcess.getProcess(), processContext, topProcess.getName());
+		ConcreteBehaviourThread pi = new ConcreteBehaviourThread(topProcess.getProcess(), topContext, topProcess.getName());
 		pi.start(currentSupervisor);
 		statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.RUNNING));
 		cmlScheduler.start();
@@ -202,7 +203,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/examples/simpler-register.cml");
+				"src/test/resources/action/action-assignment-call.cml");
 		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 
@@ -218,7 +219,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	}
 
 	@Override
-	public CmlContext getInitialContext(LexLocation location) {
+	public Context getInitialContext(LexLocation location) {
 		return globalContext;
 	}
 }

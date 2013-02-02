@@ -1,11 +1,10 @@
 package eu.compassresearch.core.interpreter.eval;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.Value;
 
@@ -24,30 +23,14 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.actions.SStatementAction;
-import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.ast.process.AActionProcess;
-import eu.compassresearch.ast.process.AExternalChoiceProcess;
-import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
-import eu.compassresearch.ast.process.AInterleavingProcess;
-import eu.compassresearch.ast.process.AInternalChoiceProcess;
-import eu.compassresearch.ast.process.AReferenceProcess;
-import eu.compassresearch.ast.process.ASequentialCompositionProcess;
-import eu.compassresearch.ast.process.ASkipProcess;
-import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
-import eu.compassresearch.core.interpreter.runtime.ProcessContext;
+import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.ActionValue;
-import eu.compassresearch.core.interpreter.values.CmlValue;
-import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 
 /**
  *  This class represents a running CML Action. It represents a specific node as specified in D23.2 section 7.4.2,
@@ -83,13 +66,13 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	
 	@Override
 	public CmlBehaviourSignal defaultSStatementAction(SStatementAction node,
-			CmlContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 
 		return node.apply(statementEvalVisitor,question);
 	}
 	
 	@Override
-	public CmlBehaviourSignal defaultPAction(PAction node, CmlContext question)
+	public CmlBehaviourSignal defaultPAction(PAction node, Context question)
 			throws AnalysisException {
 
 		throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
@@ -107,7 +90,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	@Override
 	public CmlBehaviourSignal caseACommunicationAction(
-			ACommunicationAction node, CmlContext question)
+			ACommunicationAction node, Context question)
 			throws AnalysisException {
 		//At this point the supervisor has already given go to the event, or the event is hidden
 		
@@ -152,7 +135,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	
 	
-	private CmlBehaviourSignal casePrefixEvent(ACommunicationAction node, CmlContext question) 
+	private CmlBehaviourSignal casePrefixEvent(ACommunicationAction node, Context question) 
 			throws AnalysisException 
 	{
 		pushNext(node.getAction(), question); 
@@ -176,7 +159,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	@Override
 	public CmlBehaviourSignal caseAExternalChoiceAction(
-			AExternalChoiceAction node, CmlContext question)
+			AExternalChoiceAction node, Context question)
 			throws AnalysisException {
 		
 		return caseAExternalChoice(node,node.getLeft(),new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,node.getLeft().getLocation()),
@@ -189,15 +172,13 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	@Override
 	public CmlBehaviourSignal caseAReferenceAction(AReferenceAction node,
-			CmlContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 		//FIXME: the scoping is not correct, this should be done as described in the transition rule
 		
 		//FIXME: Consider: Instead of this might create a child process, and behave as this child until it terminates
 		//CMLActionInstance refchild = new CMLActionInstance(node.getActionDefinition().getAction(), question, node.getName()); 
 		
-		ActionValue actionValue = (ActionValue)question.lookup(node.getName());
-		
-		pushNext(actionValue.getActionDefinition().getAction(), question); 
+		pushNext(node.getActionDefinition().getAction(), question); 
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
@@ -206,7 +187,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	@Override
 	public CmlBehaviourSignal caseASequentialCompositionAction(
-			ASequentialCompositionAction node, CmlContext question)
+			ASequentialCompositionAction node, Context question)
 			throws AnalysisException {
 
 		return caseASequentialComposition(node.getLeft(),node.getRight(),question);
@@ -227,11 +208,11 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	@Override
 	public CmlBehaviourSignal caseAGeneralisedParallelismParallelAction(
-			AGeneralisedParallelismParallelAction node, CmlContext question)
+			AGeneralisedParallelismParallelAction node, Context question)
 			throws AnalysisException {
 
 		final AGeneralisedParallelismParallelAction finalNode = node;
-		final CmlContext finalQuestion = question;
+		final Context finalQuestion = question;
 		
 		return caseGeneralisedParallelismParallel(node,new parallelCompositionHelper() {
 			
@@ -273,7 +254,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	@Override
 	public CmlBehaviourSignal caseAInterleavingParallelAction(
-			AInterleavingParallelAction node, CmlContext question)
+			AInterleavingParallelAction node, Context question)
 			throws AnalysisException {
 
 		//TODO: This only implements the "A ||| B (no state)" and not "A [|| ns1 | ns2 ||] B"
@@ -317,7 +298,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	
 	
 	
-	private CmlBehaviourSignal caseParallelBegin(SParallelAction node, CmlContext question)
+	private CmlBehaviourSignal caseParallelBegin(SParallelAction node, Context question)
 	{
 		PAction left = node.getLeftAction();
 		PAction right = node.getRightAction();
@@ -335,7 +316,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	}
 			
 	@Override
-	public CmlBehaviourSignal caseASkipAction(ASkipAction node, CmlContext question)
+	public CmlBehaviourSignal caseASkipAction(ASkipAction node, Context question)
 			throws AnalysisException {
 
 		//if we are hiding we need an extra silents transition to skip without hiding
@@ -362,7 +343,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	@Override
 	public CmlBehaviourSignal caseAInternalChoiceAction(
-			AInternalChoiceAction node, CmlContext question)
+			AInternalChoiceAction node, Context question)
 			throws AnalysisException {
 			
 		//For now we always pick the left action
@@ -380,7 +361,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	@Override
 	public CmlBehaviourSignal caseAGuardedAction(AGuardedAction node,
-			CmlContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 
 		pushNext(node.getAction(), question); 
 		
@@ -389,7 +370,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	
 	@Override
 	public CmlBehaviourSignal caseAHidingAction(AHidingAction node,
-			CmlContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 
 		setHidingAlphabet((CmlAlphabet)node.getChansetExpression().apply(cmlEvaluator,question));
 

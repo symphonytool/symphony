@@ -13,7 +13,7 @@ import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 
-public class CMLChannelValue extends CmlValue implements CmlSignalChannel, CmlIOChannel<Value>
+public class CMLChannelValue extends Value implements CmlSignalChannel, CmlIOChannel<Value>
 {
 
 	private LexNameToken 					name;

@@ -5,6 +5,7 @@ import java.util.Random;
 
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -12,20 +13,19 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
 
-public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor<CmlContext, CmlBehaviourSignal> {
+public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor<Context, CmlBehaviourSignal> {
 
 	public interface ControlAccess
 	{
 		CmlBehaviourThread ownerThread();
-		void pushNext(INode node,CmlContext context);
+		void pushNext(INode node,Context context);
 		boolean hasNext();
 		void setState(CmlProcessState state);
 		CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviourThread child);
 		void addChild(CmlBehaviourThread child);
 		void removeTheChildren();
-		CmlBehaviourThread createChild(INode node, CmlContext question, LexNameToken name);
+		CmlBehaviourThread createChild(INode node, Context question, LexNameToken name);
 		void mergeState(CmlBehaviourThread other);
 		CmlAlphabet getHidingAlphabet();
 		void setHidingAlphabet(CmlAlphabet alpha);
@@ -46,7 +46,7 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 		name = this.controlAccess.ownerThread().name();
 	}
 	
-	protected void pushNext(INode node,CmlContext context)
+	protected void pushNext(INode node,Context context)
 	{
 		controlAccess.pushNext(node, context);
 	}
@@ -66,7 +66,7 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 		controlAccess.mergeState(other);
 	}
 	
-	protected CmlBehaviourThread createChild(INode node, CmlContext question, LexNameToken name)
+	protected CmlBehaviourThread createChild(INode node, Context question, LexNameToken name)
 	{
 		return controlAccess.createChild(node, question, name);
 	}

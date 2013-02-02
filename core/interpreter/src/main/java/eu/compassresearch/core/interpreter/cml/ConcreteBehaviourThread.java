@@ -8,6 +8,7 @@ import java.util.Stack;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -27,7 +28,6 @@ import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
@@ -45,8 +45,8 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	protected LexNameToken 						name;
 	
 	//Stack machine variables
-	private Stack<Pair<INode,CmlContext>> 		executionStack = new Stack<Pair<INode,CmlContext>>();
-	private Pair<INode,CmlContext> 				prevExecution = null;
+	private Stack<Pair<INode,Context>> 		executionStack = new Stack<Pair<INode,Context>>();
+	private Pair<INode,Context> 				prevExecution = null;
 	
 	//Process/Action Graph variables
 	protected CmlBehaviourThread 	parent;
@@ -129,7 +129,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			}
 			
 			@Override
-			public void pushNext(INode node, CmlContext context) {
+			public void pushNext(INode node, Context context) {
 				ConcreteBehaviourThread.this.pushNext(node, context);
 			}
 			
@@ -160,7 +160,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			}
 			
 			@Override
-			public CmlBehaviourThread createChild(INode node, CmlContext question,
+			public CmlBehaviourThread createChild(INode node, Context question,
 					LexNameToken name) {
 				
 				return new ConcreteBehaviourThread(node, question, name, ConcreteBehaviourThread.this);
@@ -174,13 +174,13 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		});
 	}
 	
-	public ConcreteBehaviourThread(INode action,CmlContext context, LexNameToken name)
+	public ConcreteBehaviourThread(INode action,Context context, LexNameToken name)
 	{
 		this(null,name);
 		pushNext(action, context);
 	}
 	
-	public ConcreteBehaviourThread(INode action,CmlContext context, LexNameToken name, CmlBehaviourThread parent)
+	public ConcreteBehaviourThread(INode action,Context context, LexNameToken name, CmlBehaviourThread parent)
 	{
 		this(parent,name);
 		pushNext(action, context);
@@ -254,24 +254,24 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		return prevExecution != null;
 	}
 	
-	protected  Pair<INode,CmlContext> prevState()
+	protected  Pair<INode,Context> prevState()
 	{
 		return prevExecution;
 	}
 	
-	protected  Pair<INode,CmlContext> nextState()
+	protected  Pair<INode,Context> nextState()
 	{
 		return executionStack.peek();
 	}
 	
-	protected List<Pair<INode,CmlContext>> getExecutionStack()
+	protected List<Pair<INode,Context>> getExecutionStack()
 	{
 		return executionStack;
 	}
 	
-	protected void pushNext(INode node, CmlContext context)
+	protected void pushNext(INode node, Context context)
 	{
-		executionStack.push(new Pair<INode, CmlContext>(node, context));
+		executionStack.push(new Pair<INode, Context>(node, context));
 	}
 	
 	protected void mergeState(ConcreteBehaviourThread other)
@@ -280,7 +280,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		if(other.hasNext())
 		{	//get the state replace the current state
 			//FIXME: this is really really ugly
-			for(Pair<INode,CmlContext> state : other.getExecutionStack())
+			for(Pair<INode,Context> state : other.getExecutionStack())
 			{
 				pushNext(state.first, 
 						state.second);
@@ -363,7 +363,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		{
 			if(hasNext())
 			{
-				Pair<INode,CmlContext> next = nextState();
+				Pair<INode,Context> next = nextState();
 				
 				CmlAlphabet alpha = next.first.apply(alphabetInspectionVisitor,next.second);
 			
@@ -400,7 +400,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		if(hasNext())
 		{
 			setState(CmlProcessState.RUNNING);
-			Pair<INode,CmlContext> next = executionStack.pop();
+			Pair<INode,Context> next = executionStack.pop();
 			prevExecution = next;
 			return next.first.apply(cmlEvaluationVisitor,next.second);
 		}
@@ -445,7 +445,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	}
 	
 	@Override
-	public Pair<INode, CmlContext> getExecutionState() {
+	public Pair<INode, Context> getExecutionState() {
 		if(hasNext())
 			return nextState();
 		else
@@ -739,10 +739,10 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			}
 		});
 		
-		Stack<Pair<INode,CmlContext>> copyStack = new Stack<Pair<INode,CmlContext>>();
+		Stack<Pair<INode,Context>> copyStack = new Stack<Pair<INode,Context>>();
 		
-		for(Pair<INode,CmlContext> pair : this.executionStack)
-			copyStack.add(0, new Pair<INode,CmlContext>(pair.first,pair.second.deepCopy()));
+		for(Pair<INode,Context> pair : this.executionStack)
+			copyStack.add(0, new Pair<INode,Context>(pair.first,pair.second.deepCopy()));
 		
 		this.executionStack = copyStack;		
 		

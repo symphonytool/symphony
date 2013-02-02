@@ -4,17 +4,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
-import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlSpecialEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
-import eu.compassresearch.core.interpreter.util.AbstractValueInterpreter;
-import eu.compassresearch.core.interpreter.values.CmlValue;
 
 /**
  * This represents a CML alphabet containing both silent and observable events
@@ -22,7 +18,7 @@ import eu.compassresearch.core.interpreter.values.CmlValue;
  * @author akm
  *
  */
-public class CmlAlphabet extends CmlValue {
+public class CmlAlphabet extends Value {
 
 	//This contains a map of reference events (a reference event is an event with no source)
 	//to events with a source
@@ -340,12 +336,6 @@ public class CmlAlphabet extends CmlValue {
 			for(ObservableEvent obsEv : obsEvs)
 				alpha = alpha.union(obsEv.getAsAlphabet());
 		return alpha;
-	}
-	
-	@Override
-	public CmlAlphabet cmlAlphabetValue(CmlContext ctxt) throws ValueException
-	{
-		return this;
 	}
 	
 	@Override
