@@ -94,6 +94,7 @@ public class RttMbtConfigEditor extends EditorPart {
 			headerLine.add(line.next());
 			columns++;
 		}
+		line.close();
 
 		// initialise content.
 		List<TreeItem> parents = new ArrayList<TreeItem>();
@@ -111,6 +112,7 @@ public class RttMbtConfigEditor extends EditorPart {
 				cells[idx] = line.next();
 				idx++;
 			}
+			if (idx < columns) continue;
 			// store line for saving later
 			fileContent.add(cells);
 
@@ -179,6 +181,7 @@ public class RttMbtConfigEditor extends EditorPart {
 				treeView.getColumn(column).pack();
 			}
 			editors.add(itemEditors);
+			line.close();
 		}
 
 		// expand all items
@@ -304,7 +307,8 @@ public class RttMbtConfigEditor extends EditorPart {
 				// create output file for saving
 		    	IWorkspace workspace = ResourcesPlugin.getWorkspace();
 				File workspaceDirectory = workspace.getRoot().getLocation().toFile();
-				output = new File(workspaceDirectory.getAbsolutePath() + ifile.getFullPath().toString());
+				String filename = workspaceDirectory.getAbsolutePath() + ifile.getFullPath().toString();
+				output = new File(filename);
 			} catch (CoreException e) {
 				e.printStackTrace();
 			}
