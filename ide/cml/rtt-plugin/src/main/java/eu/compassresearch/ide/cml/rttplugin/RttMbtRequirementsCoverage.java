@@ -17,7 +17,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -25,11 +24,11 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.part.EditorPart;
+import org.eclipse.ui.part.MultiPageEditorPart;
 
 import eu.compassResearch.rttMbtTmsClientApi.RttMbtClient;
 
-public class RttMbtRequirementsCoverage extends EditorPart  {
+public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 
 	// widget to display the data
 	private Tree reqTreeView;
@@ -169,6 +168,10 @@ public class RttMbtRequirementsCoverage extends EditorPart  {
 					}
 					reqcov.put(requirement, covered);
 				}
+				covScanner.close();
+				req2tcScanner.close();
+				tc2reqScanner.close();
+				tcScanner.close();
 			} catch (CoreException e) {
 				e.printStackTrace();
 			} catch (FileNotFoundException e) {
@@ -181,13 +184,18 @@ public class RttMbtRequirementsCoverage extends EditorPart  {
 	}
 
 	@Override
-	public void createPartControl(Composite parent) {
-		tcTreeView = new Tree(parent, SWT.H_SCROLL | SWT.V_SCROLL);
-		tcTreeView.setHeaderVisible(true);
-		reqTreeView = new Tree(parent, SWT.H_SCROLL | SWT.V_SCROLL);
-		reqTreeView.setHeaderVisible(true);
+	protected void createPages() {
+		createTc2ReqPage();
+		createReq2TcPage();
+	}
 
-		// testcase coverage
+	// testcase coverage
+	private void createTc2ReqPage() {
+		// create tree view
+		tcTreeView = new Tree(getContainer(), SWT.H_SCROLL | SWT.V_SCROLL);
+		tcTreeView.setHeaderVisible(true);
+		int index = addPage(tcTreeView);
+		setPageText(index,"Testcase Coverage");
 
 		// header:
 		String[] tc2reqHeader = {"Name", "Status", "Test Procedure"};
@@ -221,11 +229,14 @@ public class RttMbtRequirementsCoverage extends EditorPart  {
 				client.addLogMessage("|->" + reqTag + "covered: " + reqcov.get(reqTag) + "\n");
 			}
 		}
-		tcTreeView.getColumn(0).pack();
-		tcTreeView.getColumn(1).pack();
-		tcTreeView.getColumn(2).pack();
+	}
 
-		// requirements coverage
+	// requirements coverage
+	private void createReq2TcPage() {
+		reqTreeView = new Tree(getContainer(), SWT.H_SCROLL | SWT.V_SCROLL);
+		reqTreeView.setHeaderVisible(true);
+		int index = addPage(reqTreeView);
+		setPageText(index,"Requirements Coverage");
 
 		// header:
 		String[] req2tcHeader = {"Name", "Status"};
@@ -236,6 +247,7 @@ public class RttMbtRequirementsCoverage extends EditorPart  {
 			reqTreeView.getColumn(idx).pack();
 		}
 
+		String tcTag, reqTag;
 		Set<String> reqSet = req2tc.keySet();
 		Iterator<String> reqIt = reqSet.iterator();
 		while (reqIt.hasNext()) {
@@ -256,9 +268,8 @@ public class RttMbtRequirementsCoverage extends EditorPart  {
 				client.addLogMessage("|->" + tcTag + "covered: " + tccov.get(tcTag) + "\n");
 			}
 		}
-
 	}
-
+	
 	@Override
 	public void setFocus() {
 		tcTreeView.setFocus();
@@ -283,5 +294,4 @@ public class RttMbtRequirementsCoverage extends EditorPart  {
 	public void doSaveAs() {
 		return;
 	}
-
 }
