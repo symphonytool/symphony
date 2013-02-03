@@ -68,6 +68,7 @@ public class RttMbtSignalmapEditor extends EditorPart {
 			tableView.getColumn(columns).pack();
 			columns++;
 		}
+		line.close();
 
 		// initialise content. 
 		rows = 0;
@@ -82,6 +83,7 @@ public class RttMbtSignalmapEditor extends EditorPart {
 				idx++;
 			}
 			rows++;
+			line.close();
 		}
 		
 		// add editors for table cells
