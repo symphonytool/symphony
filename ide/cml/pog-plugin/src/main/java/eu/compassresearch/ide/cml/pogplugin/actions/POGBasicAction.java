@@ -111,7 +111,7 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 
 	PSource psAux = csu.getSourceAst();
 	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
-	ProofObligationList pol = new CMLProofObligationList();
+	ProofObligationList pol = new ProofObligationList();
 	try {
 	    pol=pog.generatePOs();
 	} catch (Exception e) {
