@@ -8,27 +8,28 @@
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
-/**
- * Java libraries 
- */
-
-import org.overture.pog.obligation.ProofObligation;
-import org.overture.pog.obligation.ProofObligationList;
+import java.util.Vector;
 
 @SuppressWarnings("serial")
-// msg to compiler to ignore 'serial' warnings
-public class CMLProofObligationList extends ProofObligationList {
+public class CMLProofObligationList extends Vector<CMLProofObligation>{
 
     @Override
     // override superclass method
     public String toString() {
-	StringBuilder sb = new StringBuilder();
+    	StringBuilder sb = new StringBuilder();
 
-	for (ProofObligation po : this) {
-	    sb.append(po.toString());
-	}
+    	for (CMLProofObligation po : this) {
+    		sb.append(po.toString());
+    	}
 
 	return sb.toString();
     }
-
+   
+    //Method to output a collection of Proof Obligations for Isabelle
+//	public String toIsabelle() {
+//
+//		for (CMLProofObligation po : this) {
+//		    
+//		}
+//	}
 }
