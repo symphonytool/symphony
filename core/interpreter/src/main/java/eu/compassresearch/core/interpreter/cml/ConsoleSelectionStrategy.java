@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.overture.interpreter.values.IntegerValue;
+import org.overture.interpreter.values.Value;
+
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 
 public class ConsoleSelectionStrategy implements
@@ -20,19 +23,20 @@ CmlCommunicationSelectionStrategy {
 		for(int i = 0; i <  events.size();i++)
 		{
 			ObservableEvent obsEvent = events.get(i);
-			
-			System.out.println(obsEvent.getEventSource().getExecutionState().second.getSelf().toString());
-			
 			System.out.println( "[" + i + "]" + obsEvent.toString());
 		}
 		
-		int choiceIndex = -1;
-		//while(!scanIn.hasNextInt())
-		choiceIndex = scanIn.nextInt();
+		ObservableEvent chosenEvent = events.get(scanIn.nextInt());
+		
 
-		//scanIn.close();            
-
-		return events.get(choiceIndex);
+		if(!chosenEvent.isValuePrecise())
+		{
+			System.out.println("Enter value : "); 
+			Value val = new IntegerValue(scanIn.nextInt());
+			chosenEvent.setValue(val);
+		}
+		
+		return chosenEvent;
 	}
 
 }

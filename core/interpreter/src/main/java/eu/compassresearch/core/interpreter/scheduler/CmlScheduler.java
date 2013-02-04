@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
-import org.overture.ast.analysis.AnalysisException;
+import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -185,8 +185,21 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 				{
 					
 					CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getObservableEvents());
-
-					String state;
+					for(ObservableEvent obsEvent : availableEvents.getObservableEvents())
+					{
+						Context context = obsEvent.getEventSource().getExecutionState().second;
+						
+						String state;
+						
+						if(context.getSelf() != null)
+							state = context.getSelf().toString();
+						else
+							state = context.getRoot().toString();
+						
+						CmlRuntime.logger().fine("State for "+obsEvent+" : " +  state);
+					}
+					
+//					String state;
 					
 //					if(p.getExecutionState().second.getSelf() != null)
 //						state = p.getExecutionState().second.getSelf().toString();

@@ -289,7 +289,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	{
 		for(CmlBehaviourThread child : children())
 		{
-			if(child.waiting() && child.inspect().containsObservableEvent(event))
+			if(child.waiting() && !child.inspect().intersectEqualOrMorePrecise(event.getAsAlphabet()).isEmpty())
 				return child;
 		}
 		

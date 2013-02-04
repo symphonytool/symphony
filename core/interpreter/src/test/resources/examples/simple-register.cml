@@ -35,13 +35,13 @@ process RegisterProc =
   actions
    
    REG = 
-     (inc.1 -> ( ([oflow(reg,1)] & overflow -> INIT(); REG)
+     (inc ? x -> ( ([oflow(reg,x)] & overflow -> INIT(); REG)
        	     	 [] 
-		 ([not oflow(reg,1)] & ADD(1);REG)))
+		 ([not oflow(reg,x)] & ADD(x);REG)))
      [] 
-     (dec.1 -> ( ([uflow(reg,1)] & underflow -> INIT(); REG)
+     (dec ? x -> ( ([uflow(reg,x)] & underflow -> INIT(); REG)
        	     	 [] 
-		 ([not uflow(reg,1)] & SUB(1); REG)))
+		 ([not uflow(reg,x)] & SUB(x); REG)))
    @
      init -> INIT(); REG
  end

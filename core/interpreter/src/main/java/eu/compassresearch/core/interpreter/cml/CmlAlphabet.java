@@ -232,17 +232,24 @@ public class CmlAlphabet extends Value {
 			{
 				if(refEvent.isComparable(otherRefEvent) && !refEvent.equals(otherRefEvent))
 				{
-					ObservableEvent meetEvent = refEvent.meet(otherRefEvent);
+					//find the meet of the two values, meaning the most precise
+					//ObservableEvent meetEvent = refEvent.meet(otherRefEvent);
 					
-					if(_observableEvents.containsKey(meetEvent))
-						resultSet.addAll( _observableEvents.get(meetEvent));
-					else if(other._observableEvents.containsKey(meetEvent))
-						resultSet.addAll(other._observableEvents.get(meetEvent));
+					for(ObservableEvent event : _observableEvents.get(refEvent))
+						for(ObservableEvent otherEvent : other._observableEvents.get(otherRefEvent))
+						{
+							if(event.getEventSource() == otherEvent.getEventSource())
+							{
+								resultSet.add(event);
+								resultSet.add(otherEvent);
+							}
+						}
 				}
 				else if(refEvent.isComparable(otherRefEvent) && refEvent.equals(otherRefEvent))
 				{
-					resultSet.addAll( _observableEvents.get(refEvent) );
-					resultSet.retainAll(other._observableEvents.get(refEvent));
+					Set<ObservableEvent> tmpSet = _observableEvents.get(refEvent);
+					tmpSet.retainAll(other._observableEvents.get(refEvent));
+					resultSet.addAll(tmpSet);
 				}
 			}
 		}
