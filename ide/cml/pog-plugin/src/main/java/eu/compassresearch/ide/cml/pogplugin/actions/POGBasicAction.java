@@ -91,14 +91,14 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 	}
 	catch (Exception e){
 	    e.printStackTrace();
-	    popErrorMessage();
+	    popErrorMessage(e);
 	}
 
     }
 
-    private void popErrorMessage() {
+    private void popErrorMessage(Exception e) {
 	MessageDialog.openInformation(window.getShell(), "COMPASS",
-		"Could not generate POs.");	
+		"Could not generate POs.\n" + e.toString());	
     }
 
     private char[] getPOsfromSource(CmlSourceUnit csu) {

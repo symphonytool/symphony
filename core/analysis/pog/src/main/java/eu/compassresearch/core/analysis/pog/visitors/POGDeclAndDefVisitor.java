@@ -5,16 +5,21 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
+import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameList;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.types.PType;
 import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.ProofObligationList;
+import org.overture.pog.obligation.SubTypeObligation;
 import org.overture.pog.visitor.PogParamDefinitionVisitor;
+import org.overture.typechecker.TypeComparator;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -518,110 +523,36 @@ public class POGDeclAndDefVisitor extends
    	
 		return pol;
 	}
-}
-//
+    
+ // >----------------------------------------------------------
+ // >------------OVERTURE Overrides --------------------------
+ // >--------------------------------------------------------
+    
+    @Override
+    public ProofObligationList caseAAssignmentDefinition(
+	    AAssignmentDefinition node, POContextStack question)
+	    throws AnalysisException {
+	ProofObligationList obligations = new ProofObligationList();
 
-//
-//    @Override
-//    public ProofObligationList caseAExplicitOperationDefinition(
-//	    AExplicitOperationDefinition node, POContextStack question)
-//	    throws AnalysisException {
-//    	System.out.println("----------***----------");
-//		System.out.println("AExplicitOperationDefinition");
-//		System.out.println(node.toString());
-//		System.out.println("----------***----------");
-//		
-//    	CMLProofObligationList pol = new CMLProofObligationList();
-//
-//		LexNameList pids = new LexNameList();
-//
-//		// add all defined names from the function parameter list
-//		for (PPattern p : node.getParameterPatterns())
-//			for (PDefinition def : p.getDefinitions())
-//				pids.add(def.getName());
-//
-//		if (pids.hasDuplicates()){
-//			pol.add(new ParameterPatternObligation(node, question));
-//		}
-//
-//		if (node.getPrecondition() != null){
-//			pol.addAll(node.getPrecondition().apply(parentPOG, question));
-//		}
-//
-//		if (node.getPostcondition() != null){
-//			pol.addAll(node.getPostcondition().apply(parentPOG, question));
-//			pol.add(new OperationPostConditionObligation(node, question));
-//		}
-//
-//		pol.addAll(node.getBody().apply(parentPOG, question));
-//
-//		if (node.getIsConstructor() && node.getClassDefinition() != null
-//				&& node.getClassDefinition().getInvariant() != null){
-//			pol.add(new StateInvariantObligation(node, question));
-//		}
-//		
-//		/*
-//		 * Subtype Obligation not working well - mainly the if statement, I believe.
-//		 */
-////		if (!node.getIsConstructor()
-////				&& !TypeComparator.isSubType(node.getActualResult(), node.getType().getResult())){
-////			pol.add(new SubTypeObligation(node, node.getActualResult(), question));
-////		}
-//    	
-//		return pol;
-//    }
-//    
-//    @Override
-//	public CMLProofObligationList caseAImplicitOperationDefinition(
-//			AImplicitOperationDefinition node, POContextStack question) throws AnalysisException
-//	{
-//
-//		CMLProofObligationList pol = new CMLProofObligationList();
-//		LexNameList pids = new LexNameList();
-//
-//		for (APatternListTypePair tp : node.getParameterPatterns())
-//			for (PPattern p : tp.getPatterns())
-//				for (PDefinition def : p.getDefinitions())
-//					pids.add(def.getName());
-//
-//		if (pids.hasDuplicates()){
-//			pol.add(new ParameterPatternObligation(node, question));
-//		}
-//
-//		// if implicit operation has a precondition, dispatch for PO checking
-//		if (node.getPrecondition() != null){
-//			pol.addAll(node.getPrecondition().apply(parentPOG, question));
-//		}
-//		
-//		// if implicit operation has a precondition, dispatch for PO checking
-//		// and generate OperationPostConditionObligation
-//		if (node.getPostcondition() != null){
-//			pol.addAll(node.getPostcondition().apply(parentPOG, question));
-//			pol.add(new OperationPostConditionObligation(node, question));
-//		}
-//
-//		
-//		if (node.getBody() != null){
-//			pol.addAll(node.getBody().apply(parentPOG, question));
-//
-//			if (node.getIsConstructor() && node.getClassDefinition() != null
-//					&& node.getClassDefinition().getInvariant() != null){
-//				pol.add(new StateInvariantObligation(node, question));
-//			}
-//
-//			/*
-//			 * Subtype Obligation not working well - mainly the if statement, I believe.
-//			 */
-////			if (!node.getIsConstructor()
-////					&& !TypeComparator.isSubType(node.getActualResult(), node.getType().getResult())){
-////				pol.add(new SubTypeObligation(node, node.getActualResult(), question));
-////			}
-//		}else if (node.getPostcondition() != null){
-//				question.push(new POOperationDefinitionContext(node, false, node.getStateDefinition()));
-//				pol.add(new SatisfiabilityObligation(node, node.getStateDefinition(), question));
-//				question.pop();
-//			
-//		}
-//
-//		return pol;
-//	}
+	if (node.getExpression() == null)
+		return obligations;
+	PExp expression = node.getExpression();
+	PType type = node.getType();
+	PType expType = node.getExpType();
+
+
+	obligations.addAll(expression.apply(parentPOG, question));
+
+	if (!TypeComparator.isSubType(question.checkType(expression, expType),
+		type)) {
+	    obligations.add(new SubTypeObligation(expression, type, expType,
+		    question));
+	}
+
+	return obligations;
+    }
+    
+}
+
+
+

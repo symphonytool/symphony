@@ -74,10 +74,9 @@ import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 class TCExpressionVisitor extends
-QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
+		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 	private TypeComparator typeComparator;
-
 
 	@Override
 	public PType caseATupleSelectExp(ATupleSelectExp node,
@@ -87,16 +86,18 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		PExp tupleExp = node.getTuple();
 
-		PType tupleExpType = tupleExp.apply(parent,question);
-		if (!TCDeclAndDefVisitor.successfulType(tupleExpType))
-		{
-			node.setType(issueHandler.addTypeError(tupleExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(tupleExp+"")));
+		PType tupleExpType = tupleExp.apply(parent, question);
+		if (!TCDeclAndDefVisitor.successfulType(tupleExpType)) {
+			node.setType(issueHandler.addTypeError(tupleExp,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage(tupleExp + "")));
 			return node.getType();
 		}
 
-		if (!(tupleExpType instanceof AProductType))
-		{
-			node.setType(issueHandler.addTypeError(tupleExp, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Tuple type",""+tupleExpType)));
+		if (!(tupleExpType instanceof AProductType)) {
+			node.setType(issueHandler.addTypeError(tupleExp,
+					TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(
+							"Tuple type", "" + tupleExpType)));
 			return node.getType();
 		}
 
@@ -108,32 +109,38 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			TypeCheckInfo question) throws AnalysisException {
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null)
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node+"")));
+		if (cmlEnv == null) {
+			node.setType(issueHandler.addTypeError(
+					node,
+					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
+							+ "")));
 			return node.getType();
 		}
 
 		PExp expression = node.getExpression();
 		LexNameToken channelId = node.getIdentifier();
 
-		PType expressionType = expression.apply(parent,question);
-		if (!TCDeclAndDefVisitor.successfulType(expressionType))
-		{
-			node.setType(issueHandler.addTypeError(expression, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(expression+"")));
+		PType expressionType = expression.apply(parent, question);
+		if (!TCDeclAndDefVisitor.successfulType(expressionType)) {
+			node.setType(issueHandler.addTypeError(expression,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage(expression + "")));
 			return node.getType();
 		}
 
 		PDefinition chanDef = cmlEnv.lookupChannel(channelId);
-		if (!(chanDef instanceof AChannelNameDefinition))
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNEL.customizeMessage(channelId+"")));
+		if (!(chanDef instanceof AChannelNameDefinition)) {
+			node.setType(issueHandler.addTypeError(node,
+					TypeErrorMessages.EXPECTED_A_CHANNEL
+							.customizeMessage(channelId + "")));
 			return node.getType();
 		}
 
-		if (!typeComparator.isSubType(chanDef.getType(), expressionType))
-		{
-			node.setType(issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""+chanDef.getType(),""+expressionType)));
+		if (!typeComparator.isSubType(chanDef.getType(), expressionType)) {
+			node.setType(issueHandler.addTypeError(
+					expression,
+					TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""
+							+ chanDef.getType(), "" + expressionType)));
 			return node.getType();
 		}
 
@@ -144,30 +151,34 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	@Override
 	public PType caseAIdentifierVarsetExpression(
 			AIdentifierVarsetExpression node, TypeCheckInfo question)
-					throws AnalysisException {
+			throws AnalysisException {
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null)
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node+"")));
+		if (cmlEnv == null) {
+			node.setType(issueHandler.addTypeError(node,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage(node + "")));
 			return node.getType();
 		}
 
 		LexIdentifierToken id = node.getIdentifier();
 		PDefinition idDef = cmlEnv.lookupChannel(id);
 
-		if (idDef == null)
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node+"")));
+		if (idDef == null) {
+			node.setType(issueHandler.addTypeError(
+					node,
+					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(node
+							+ "")));
 			return node.getType();
 		}
 
-		if (!(idDef instanceof AChansetDefinition || idDef instanceof AChannelNameDefinition || idDef instanceof AStateDefinition))
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE.customizeMessage(idDef+"")));
+		if (!(idDef instanceof AChansetDefinition
+				|| idDef instanceof AChannelNameDefinition || idDef instanceof AStateDefinition)) {
+			node.setType(issueHandler.addTypeError(node,
+					TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE
+							.customizeMessage(idDef + "")));
 			return node.getType();
 		}
-
 
 		node.setType(new AVarsetExpressionType(node.getLocation(), true));
 		return node.getType();
@@ -178,21 +189,23 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			TypeCheckInfo question) throws AnalysisException {
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv==null)
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node+"")));
+		if (cmlEnv == null) {
+			node.setType(issueHandler.addTypeError(node,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage(node + "")));
 			return node.getType();
 		}
 
-
 		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
-		boolean seenState = false; boolean seenChannel=false;
-		for(LexIdentifierToken id : ids)
-		{
+		boolean seenState = false;
+		boolean seenChannel = false;
+		for (LexIdentifierToken id : ids) {
 			PDefinition idDef = cmlEnv.lookupChannel(id);
-			if (idDef == null)
-			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""+id)));
+			if (idDef == null) {
+				node.setType(issueHandler.addTypeError(
+						node,
+						TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+								+ id)));
 				return node.getType();
 			}
 
@@ -202,43 +215,49 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			if (idDef instanceof AStateDefinition)
 				seenState = true;
 
-			if ((seenState && seenChannel))
-			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.MIXING_STATE_AND_CHANNEL_IN_SET.customizeMessage(ids+"")));
+			if ((seenState && seenChannel)) {
+				node.setType(issueHandler.addTypeError(node,
+						TypeErrorMessages.MIXING_STATE_AND_CHANNEL_IN_SET
+								.customizeMessage(ids + "")));
 				return node.getType();
 			}
 
-			if (!seenState && !seenChannel)
-			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("state or channel", idDef.getType()+"")));
+			if (!seenState && !seenChannel) {
+				node.setType(issueHandler.addTypeError(node,
+						TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(
+								"state or channel", idDef.getType() + "")));
 				return node.getType();
 			}
 
 		}
-		
+
 		PType result = null;
 		if (seenState)
-			result = new ANamesetsType(node.getLocation(),true);
+			result = new ANamesetsType(node.getLocation(), true);
 		if (seenChannel)
 			result = new AChansetType(node.getLocation(), true);
 		if (result == null)
-			result = issueHandler.addTypeError(node,TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE.customizeMessage(""+node));
-		
+			result = issueHandler.addTypeError(node,
+					TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE
+							.customizeMessage("" + node));
+
 		node.setType(result);
 		return result;
-		
+
 	}
 
 	@Override
 	public PType caseAFatCompVarsetExpression(AFatCompVarsetExpression node,
 			TypeCheckInfo question) throws AnalysisException {
-		//  bnd    predicate
-		// { a.x | x : int  }
+		// bnd predicate
+		// { a.x | x : int }
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		if (cmlEnv == null)
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
+		if (cmlEnv == null) {
+			node.setType(issueHandler.addTypeError(
+					node,
+					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+							+ node)));
 			return node.getType();
 		}
 
@@ -247,20 +266,21 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		CmlTypeCheckInfo compScope = cmlEnv.newScope();
 
-		for(PMultipleBind mbnd : bindings)
-		{
-			PType mbndType = mbnd.apply(parent,question);
-			if (!TCDeclAndDefVisitor.successfulType(mbndType))
-			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node+"")));
+		for (PMultipleBind mbnd : bindings) {
+			PType mbndType = mbnd.apply(parent, question);
+			if (!TCDeclAndDefVisitor.successfulType(mbndType)) {
+				node.setType(issueHandler.addTypeError(node,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+								.customizeMessage(node + "")));
 				return node.getType();
 			}
 		}
 
-		PType predicateType = predicate.apply(parent,compScope);
-		if (!TCDeclAndDefVisitor.successfulType(predicateType))
-		{
-			node.setType(issueHandler.addTypeError(predicateType, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+predicate)));
+		PType predicateType = predicate.apply(parent, compScope);
+		if (!TCDeclAndDefVisitor.successfulType(predicateType)) {
+			node.setType(issueHandler.addTypeError(predicateType,
+					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+							.customizeMessage("" + predicate)));
 			return node.getType();
 		}
 
@@ -300,14 +320,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		/*
 		 * The following is copied from Overture TypeCheckerExpVisitor
-		 * 
 		 */
 		TypeChecker.clearErrors();
 		for (PExp a : node.getArgs()) {
 			question.qualifiers = null;
 			node.getArgtypes().add(a.apply(parent, question));
 		}
-
 
 		node.setType(node.getRoot().apply(
 				parent,
@@ -364,7 +382,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		if (PTypeAssistantTC.isFunction(node.getType())) {
 			AFunctionType ft = PTypeAssistantTC.getFunction(node.getType());
-			AFunctionTypeAssistantTC.typeResolve(ft, null, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
+			AFunctionTypeAssistantTC.typeResolve(ft, null,
+					(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
 					question);
 			results.add(AApplyExpAssistantTC.functionApply(node, isSimple, ft));
 		}
@@ -372,11 +391,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (PTypeAssistantTC.isOperation(node.getType())) {
 			AOperationType ot = PTypeAssistantTC.getOperation(node.getType());
 			try {
-				AOperationTypeAssistantTC.typeResolve(ot, null, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
+				AOperationTypeAssistantTC.typeResolve(ot, null,
+						(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
 						question);
-			} catch (TypeCheckException tce)
-			{
-				node.setType(issueHandler.addTypeError(node,tce.getMessage()));
+			} catch (TypeCheckException tce) {
+				node.setType(issueHandler.addTypeError(node, tce.getMessage()));
 				return node.getType();
 			}
 
@@ -386,13 +405,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 						node.getLocation(), node);
 				results.add(AstFactory.newAUnknownType(node.getLocation()));
 			} else {
-				// RWL TODO: HACK to satisfy the AApplyExpAssistant.operationApply
+				// RWL TODO: HACK to satisfy the
+				// AApplyExpAssistant.operationApply
 				List<PType> ptypes = ot.getParameters();
-				if (ptypes.size() == 1)
-				{
+				if (ptypes.size() == 1) {
 					PType p0 = ptypes.get(0);
-					if (p0 instanceof AVoidType)
-					{
+					if (p0 instanceof AVoidType) {
 						ot.setParameters(new LinkedList<PType>());
 					}
 				}
@@ -412,47 +430,41 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			results.add(AApplyExpAssistantTC.mapApply(node, isSimple, map));
 		}
 		/*
-		 * Overture copy STOP
-		 * Now collect any type errors created by Overture assistants 
+		 * Overture copy STOP Now collect any type errors created by Overture
+		 * assistants
 		 */
 
 		/*
-		// RWL: Type check an apply of a cml Operation (implicit and explicit)
-		if (node.getType() instanceof SCmlOperationDefinition)
-		{
-
-			// Check the node is type checked and is an operation type
-			if (node.getType() == null || !(node.getType() instanceof AOperationType))
-			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Operation", ""+node.getType())));
-				return node.getType();
-			}
-
-			// get type and check arg types
-			AOperationType ot = (AOperationType)node.getType();
-			LinkedList<PType> argTypes = node.getArgtypes();
-			LinkedList<PType> typTypes = ot.getParameters();
-			List<PExp> args = node.getArgs();
-
-			if (argTypes.size() != typTypes.size())
-			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(argTypes+"", typTypes+"")));
-				return node.getType();
-			}
-
-			for(int i = 0; i < argTypes.size();++i)
-			{
-				if (!typeComparator.isSubType(argTypes.get(i), typTypes.get(i)))
-				{
-					node.setType(issueHandler.addTypeError(args.get(i), TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""+typTypes.get(i),""+argTypes.get(i))));
-					return node.getType();
-				}
-			}
-
-			// set the result of this apply expression to the return type of the operation.
-			results.add(ot.getResult());
-		}
-	*/
+		 * // RWL: Type check an apply of a cml Operation (implicit and
+		 * explicit) if (node.getType() instanceof SCmlOperationDefinition) {
+		 * 
+		 * // Check the node is type checked and is an operation type if
+		 * (node.getType() == null || !(node.getType() instanceof
+		 * AOperationType)) { node.setType(issueHandler.addTypeError(node,
+		 * TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Operation",
+		 * ""+node.getType()))); return node.getType(); }
+		 * 
+		 * // get type and check arg types AOperationType ot =
+		 * (AOperationType)node.getType(); LinkedList<PType> argTypes =
+		 * node.getArgtypes(); LinkedList<PType> typTypes = ot.getParameters();
+		 * List<PExp> args = node.getArgs();
+		 * 
+		 * if (argTypes.size() != typTypes.size()) {
+		 * node.setType(issueHandler.addTypeError(node,
+		 * TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS
+		 * .customizeMessage(argTypes+"", typTypes+""))); return node.getType();
+		 * }
+		 * 
+		 * for(int i = 0; i < argTypes.size();++i) { if
+		 * (!typeComparator.isSubType(argTypes.get(i), typTypes.get(i))) {
+		 * node.setType(issueHandler.addTypeError(args.get(i),
+		 * TypeErrorMessages.
+		 * INCOMPATIBLE_TYPE.customizeMessage(""+typTypes.get(i
+		 * ),""+argTypes.get(i)))); return node.getType(); } }
+		 * 
+		 * // set the result of this apply expression to the return type of the
+		 * operation. results.add(ot.getResult()); }
+		 */
 
 		if (results.isEmpty()) {
 			TypeCheckerErrors.report(3054, "Type " + node.getType()
@@ -461,10 +473,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		// Check for errors
-		if (TypeChecker.getErrorCount() > 0)
-		{
+		if (TypeChecker.getErrorCount() > 0) {
 			List<VDMError> errors = TypeChecker.getErrors();
-			for(VDMError e : errors)
+			for (VDMError e : errors)
 				issueHandler.addTypeError(node, e.message);
 			node.setType(new AErrorType(node.getLocation(), true));
 			return node.getType();
@@ -474,30 +485,24 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		return node.getType(); // Union of possible applications
 	}
 
-
-
-
-
 	@Override
 	public PType caseAEnumVarsetExpression(AEnumVarsetExpression node,
 			TypeCheckInfo question) throws AnalysisException {
 
 		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
 		List<PDefinition> defs = new LinkedList<PDefinition>();
-		for(LexIdentifierToken id : ids)
-		{
+		for (LexIdentifierToken id : ids) {
 			LexNameToken idName = new LexNameToken("", id);
-			ALocalDefinition idDef = AstFactory.newALocalDefinition(node.getLocation(), idName, NameScope.LOCAL, AstFactory.newAUnknownType(node.getLocation()));
+			ALocalDefinition idDef = AstFactory.newALocalDefinition(
+					node.getLocation(), idName, NameScope.LOCAL,
+					AstFactory.newAUnknownType(node.getLocation()));
 			defs.add(idDef);
 		}
 
-		
 		AChannelType result = new AChannelType();
 		result.setDefinitions(defs);
 		return result;
 	}
-
-
 
 	@Override
 	public PType caseAVariableExp(AVariableExp node, TypeCheckInfo question)
@@ -507,115 +512,133 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		org.overture.typechecker.Environment env = question.env;
 		LexNameToken name = node.getName();
 
-		// the qualifiers are the argument names for potential function 
+		// the qualifiers are the argument names for potential function
 		// or operation... We wish to find an abstraction with the right args.
 		name.setTypeQualifier(question.qualifiers);
 
-		// The defintion is set on the VariableExp for convenience 
-		if (question.scope == null) question.scope=NameScope.LOCAL;
-		node.setVardef(env.findName(name,question.scope));
+		// The defintion is set on the VariableExp for convenience
+		if (question.scope == null)
+			question.scope = NameScope.LOCAL;
+		node.setVardef(env.findName(name, question.scope));
 
 		do {
 
 			// definition successfully found with qualifiers on
-			if (node.getVardef() != null) break;
+			if (node.getVardef() != null)
+				break;
 
 			// The name was not found immediately, it could be a sequence or map
-			// in which case the qualifiers are not supposed to be set. See 
+			// in which case the qualifiers are not supposed to be set. See
 			// TypeCheckExpVisitor.java:2510,
-			if (question.qualifiers != null)
-			{
+			if (question.qualifiers != null) {
 				name.setTypeQualifier(null);
 				node.setVardef(env.findName(name, question.scope));
-				if (node.getVardef() == null) name.setTypeQualifier(question.qualifiers);
-				else break;
+				if (node.getVardef() == null)
+					name.setTypeQualifier(question.qualifiers);
+				else
+					break;
 			}
 
-			// Definition still not found, we may be looking for a bare function/op "x",
-			// when in fact there is one with a qualified name "x(args)". So we check the 
-			// possible matches - if there is precisely one, we pick it else we raise an 
+			// Definition still not found, we may be looking for a bare
+			// function/op "x",
+			// when in fact there is one with a qualified name "x(args)". So we
+			// check the
+			// possible matches - if there is precisely one, we pick it else we
+			// raise an
 			// ambiguity error. See TypeCheckerExpVisitor.java: 2527
 			//
 			//
-			// RWL: Update we can't do this as CML Definitions makes the findMatches function
-			// fail in the PDefinitionAssistantTC.java:87 as a switch does not have CML cases and
-			// returns null which are added to the list ... (sick, there should be a check)
+			// RWL: Update we can't do this as CML Definitions makes the
+			// findMatches function
+			// fail in the PDefinitionAssistantTC.java:87 as a switch does not
+			// have CML cases and
+			// returns null which are added to the list ... (sick, there should
+			// be a check)
 			//
-			// 
-			//			for(PDefinition possible : env.findMatches(name))
-			//			{
-			//				if (PDefinitionAssistantTC.isFunctionOrOperation(possible))
-			//				{
-			//					if (node.getVardef() != null)
-			//						return issueHandler.addTypeError(node, "Ambiguous function/operation name: "+name);
-			//					node.setVardef(possible);
-			//				}
-			//			}
-			//			if (node.getVardef() != null)
-			//				break;
+			//
+			// for(PDefinition possible : env.findMatches(name))
+			// {
+			// if (PDefinitionAssistantTC.isFunctionOrOperation(possible))
+			// {
+			// if (node.getVardef() != null)
+			// return issueHandler.addTypeError(node,
+			// "Ambiguous function/operation name: "+name);
+			// node.setVardef(possible);
+			// }
+			// }
+			// if (node.getVardef() != null)
+			// break;
 			//
 			// Hopefully the CmlTypeCheckInfo will find what we are looking for.
 			// Manual search:
 
-			node.setVardef(CmlTCUtil.findNearestFunctionOrOperationInEnvironment(name, env));
-		} while(false);
+			node.setVardef(CmlTCUtil
+					.findNearestFunctionOrOperationInEnvironment(name, env));
+		} while (false);
 
 		// The name this variable expressions points to was found.
-		if (node.getVardef() != null)
-		{
+		if (node.getVardef() != null) {
 
 			PType type = PDefinitionAssistantTC.getType(node.getVardef());
 			if (type == null)
 				type = node.getVardef().getType();
 			try {
-				node.setType(PTypeAssistantTC.typeResolve(type, null, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent, question));
-			} catch (TypeCheckException tce)
-			{
+				node.setType(PTypeAssistantTC.typeResolve(type, null,
+						(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
+						question));
+			} catch (TypeCheckException tce) {
 				node.setType(issueHandler.addTypeError(node, tce.getMessage()));
 			}
 			return node.getType();
 		}
 
-		// Okay given our best efforts the Overture Type Checking strategy could not find
+		// Okay given our best efforts the Overture Type Checking strategy could
+		// not find
 		// what we are looking for. Maybe its a CML class we are looking at.
 
-		CmlTypeCheckInfo nearestCmlEnvironment = question instanceof CmlTypeCheckInfo ? (CmlTypeCheckInfo)question : question.contextGet(CmlTypeCheckInfo.class);
-		if (nearestCmlEnvironment == null)
-		{
-			node.setType(issueHandler.addTypeError(node,TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node+"")));
+		CmlTypeCheckInfo nearestCmlEnvironment = question instanceof CmlTypeCheckInfo ? (CmlTypeCheckInfo) question
+				: question.contextGet(CmlTypeCheckInfo.class);
+		if (nearestCmlEnvironment == null) {
+			node.setType(issueHandler.addTypeError(
+					node,
+					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
+							+ "")));
 			return node.getType();
 		}
 
-		// CML also uses LexNameToken.equals to compare names therefore the 
+		// CML also uses LexNameToken.equals to compare names therefore the
 		// qualifiers must be taking in to account.
-		PDefinition definition  = null;
+		PDefinition definition = null;
 		do {
-			// Lookup in the CML context without the type qualifiers (arg types/param names)
+			// Lookup in the CML context without the type qualifiers (arg
+			// types/param names)
 			name.setTypeQualifier(null);
 			definition = nearestCmlEnvironment.lookup(name, PDefinition.class);
-			if (definition != null ) break; else name.setTypeQualifier(question.qualifiers);
+			if (definition != null)
+				break;
+			else
+				name.setTypeQualifier(question.qualifiers);
 
 			// Lookup in the CML context with qualifiers (for operations)
 			definition = nearestCmlEnvironment.lookup(name, PDefinition.class);
 
-		} while(false);
+		} while (false);
 
 		// any luck?
-		if (definition != null)
-		{
+		if (definition != null) {
 			node.setVardef(definition);
 			node.setType(definition.getType());
-		}
-		else // guess not
+		} else // guess not
 		{
 			name.setTypeQualifier(null);
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(name+"")));
+			node.setType(issueHandler.addTypeError(
+					node,
+					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(name
+							+ "")));
 		}
 
 		return node.getType();
 	}
-
-
 
 	/**
 	 * 
@@ -627,9 +650,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	private final TypeIssueHandler issueHandler;
 	private CmlAssistant assist;
 
-	TCExpressionVisitor(CmlTypeChecker parentChecker, TypeIssueHandler issueHandler, CmlAssistant assistant, TypeComparator typeComparator)
-	{
-		this.parent=parentChecker;
+	TCExpressionVisitor(CmlTypeChecker parentChecker,
+			TypeIssueHandler issueHandler, CmlAssistant assistant,
+			TypeComparator typeComparator) {
+		this.parent = parentChecker;
 		this.issueHandler = issueHandler;
 		this.assist = assistant;
 		this.typeComparator = typeComparator;
@@ -638,7 +662,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 	TCExpressionVisitor(VanillaCmlTypeChecker parentChecker,
 			TypeIssueHandler issueHandler, TypeComparator typeComparator) {
-		this(parentChecker,issueHandler,new CmlAssistant(), typeComparator );
+		this(parentChecker, issueHandler, new CmlAssistant(), typeComparator);
 	}
 
 	/**
@@ -656,7 +680,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	@Override
 	public PType defaultPExp(PExp node,
 			org.overture.typechecker.TypeCheckInfo question)
-					throws AnalysisException {
+			throws AnalysisException {
 		org.overture.typechecker.TypeChecker.clearErrors();
 
 		INode ovtNode = node;
@@ -687,21 +711,22 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		return node.getType();
 	}
 
-
 	@Override
 	public PType caseAUnresolvedPathExp(AUnresolvedPathExp node,
 			TypeCheckInfo question) throws AnalysisException {
 
-		// So we are going to look up a path of the form <class>.<member> or <identifier>.<member>
-		// To find that class there must be a CML Environment as Classes are 
+		// So we are going to look up a path of the form <class>.<member> or
+		// <identifier>.<member>
+		// To find that class there must be a CML Environment as Classes are
 		// top-level and CML Specific.
-		// 
-
+		//
 
 		CmlTypeCheckInfo cmlQuestion = CmlTCUtil.getCmlEnv(question);
-		if (cmlQuestion == null)
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node+"")));
+		if (cmlQuestion == null) {
+			node.setType(issueHandler.addTypeError(
+					node,
+					TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(node
+							+ "")));
 			return node.getType();
 		}
 
@@ -709,36 +734,34 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		LinkedList<LexIdentifierToken> identifiers = node.getIdentifiers();
 
 		// Get parent identifier
-		LexNameToken rootName = new LexNameToken("",identifiers.get(0));
+		LexNameToken rootName = new LexNameToken("", identifiers.get(0));
 
 		// is it a type like a class or global type
-		PDefinition root = question.env.findType(rootName,"");
+		PDefinition root = question.env.findType(rootName, "");
 
-		// no then it may be a variable 
+		// no then it may be a variable
 		if (root == null)
 			root = question.env.findName(rootName, NameScope.LOCAL);
 
 		if (root == null)
-			root= question.env.findName(rootName, NameScope.NAMES);
+			root = question.env.findName(rootName, NameScope.NAMES);
 
-		if (root==null)
-			root= question.env.findName(rootName, NameScope.GLOBAL);
+		if (root == null)
+			root = question.env.findName(rootName, NameScope.GLOBAL);
 
 		// RWL: UGLY Re-factor some day
-		if (root instanceof AAssignmentDefinition)
-		{
-			AAssignmentDefinition adef = (AAssignmentDefinition)root;
+		if (root instanceof AAssignmentDefinition) {
+			AAssignmentDefinition adef = (AAssignmentDefinition) root;
 			PType type = adef.getType();
-			if (type instanceof AClassType)
-			{
-				AClassType clzType = (AClassType)type;
-				root = question.env.findName(clzType.getName(), NameScope.GLOBAL);
+			if (type instanceof AClassType) {
+				AClassType clzType = (AClassType) type;
+				root = question.env.findName(clzType.getName(),
+						NameScope.GLOBAL);
 			}
 		}
 
 		// last option it is not in something else then in must be in this class
-		if (root == null)
-		{
+		if (root == null) {
 			root = question.env.getEnclosingDefinition();
 			if (root != null)
 				root = assist.findMemberName(root, rootName, cmlQuestion);
@@ -749,25 +772,29 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			root = cmlQuestion.lookup(rootName, PDefinition.class);
 
 		// did we find the top-level
-		if (root == null)
-		{
-			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""+rootName)));
+		if (root == null) {
+			node.setType(issueHandler.addTypeError(
+					node,
+					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
+							+ rootName)));
 			return node.getType();
 		}
 
 		// Now the root identifier is resolved, lets look for the first member
-		// We assume the identifiers are given in order with the outer most 
+		// We assume the identifiers are given in order with the outer most
 		// definitions coming first
 		PType leafType = null;
 		PDefinition prevRoot = null;
-		for(int i = 1; i < identifiers.size();i++)
-		{
+		for (int i = 1; i < identifiers.size(); i++) {
 			LexIdentifierToken id = identifiers.get(i);
-			LexNameToken idName = new LexNameToken("",id);
-			PDefinition def = assist.findMemberName(root, idName,cmlQuestion, prevRoot);
-			if (def == null)
-			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id+" in "+ node)));
+			LexNameToken idName = new LexNameToken("", id);
+			PDefinition def = assist.findMemberName(root, idName, cmlQuestion,
+					prevRoot);
+			if (def == null) {
+				node.setType(issueHandler.addTypeError(
+						node,
+						TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id
+								+ " in " + node)));
 				return node.getType();
 			}
 			leafType = def.getType();
@@ -776,8 +803,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		node.setType(leafType);
 		return node.getType();
 	}
-
-
 
 	@Override
 	public PType caseABracketedExp(ABracketedExp node, TypeCheckInfo question)
@@ -788,12 +813,14 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		return type;
 	}
 
-
 	/*
 	 * Copied from Overture and modified to handle CML Classes.
 	 * 
 	 * (non-Javadoc)
-	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#caseAIsExp(org.overture.ast.expressions.AIsExp, java.lang.Object)
+	 * 
+	 * @see
+	 * org.overture.ast.analysis.QuestionAnswerAdaptor#caseAIsExp(org.overture
+	 * .ast.expressions.AIsExp, java.lang.Object)
 	 */
 	@Override
 	public PType caseAIsExp(AIsExp node, TypeCheckInfo question)
@@ -805,13 +832,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		PType basictype = node.getBasicType();
 
 		if (basictype != null) {
-			try
-			{
+			try {
 				basictype = PTypeAssistantTC.typeResolve(basictype, null,
-						(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent, question);
-			} catch (TypeCheckException tce)
-			{
-				node.setType(issueHandler.addTypeError(node,tce.getMessage()));
+						(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parent,
+						question);
+			} catch (TypeCheckException tce) {
+				node.setType(issueHandler.addTypeError(node, tce.getMessage()));
 				return node.getType();
 			}
 		}
@@ -822,7 +848,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			PDefinition typeFound = question.env.findType(typename,
 					node.getLocation().module);
 
-			// It maybe an CML Class typically it will be lets look it up in the nearest cml environment
+			// It maybe an CML Class typically it will be lets look it up in the
+			// nearest cml environment
 			if (typeFound == null) {
 				CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 				typeFound = cmlEnv.lookup(typename, AClassDefinition.class);
@@ -843,25 +870,29 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	}
 
 	/*
-	 * Copied from Overture and modified to lookup in surrounding CML environment if necessary.
+	 * Copied from Overture and modified to lookup in surrounding CML
+	 * environment if necessary.
 	 * 
 	 * (non-Javadoc)
-	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#caseASelfExp(org.overture.ast.expressions.ASelfExp, java.lang.Object)
+	 * 
+	 * @see
+	 * org.overture.ast.analysis.QuestionAnswerAdaptor#caseASelfExp(org.overture
+	 * .ast.expressions.ASelfExp, java.lang.Object)
 	 */
 	@Override
 	public PType caseASelfExp(ASelfExp node, TypeCheckInfo question) {
 
-
 		PDefinition cdef = question.env
 				.findName(node.getName(), question.scope);
 
-		if (cdef == null)
-		{
+		if (cdef == null) {
 			// Get Cml Environment
 			CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-			if (cmlEnv == null)
-			{
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
+			if (cmlEnv == null) {
+				node.setType(issueHandler.addTypeError(
+						node,
+						TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""
+								+ node)));
 				return node.getType();
 			}
 
