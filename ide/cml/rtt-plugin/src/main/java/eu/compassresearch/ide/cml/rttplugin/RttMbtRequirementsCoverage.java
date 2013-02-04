@@ -1,7 +1,11 @@
 package eu.compassresearch.ide.cml.rttplugin;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,7 +20,13 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.TreeEditor;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -24,6 +34,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
 import eu.compassResearch.rttMbtTmsClientApi.RttMbtClient;
@@ -41,13 +52,18 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 	private SortedMap<String,Boolean> tccov = new TreeMap<String,Boolean>();
 	private SortedMap<String,Boolean> reqcov = new TreeMap<String,Boolean>();
 	
+	// a reference to the RttMbtClient for log messages
 	protected RttMbtClient client = null;
+	
+	// The project root of this coverage editor
+	private String RttProjectRoot = null;
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
 		// get RTT-MBT TMS client
     	client = Activator.getClient();
+    	client.setConsoleName("Coverage");
 		// - is called shortly after editor construction
 		// - This marks the start of the editor lifecycle
 		if (! (input instanceof IFileEditorInput) ) {
@@ -63,6 +79,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		    	IWorkspace workspace = ResourcesPlugin.getWorkspace();
 				String workspacepath = workspace.getRoot().getLocation().toFile().getAbsolutePath();
 				String localpath = ifile.getFullPath().toString();
+				RttProjectRoot = workspacepath + localpath.substring(0, localpath.lastIndexOf("model"));
 				localpath = localpath.replaceAll("overall_coverage.csv", "");
 				String req2tcpath = workspacepath + localpath + "req2tc.csv";
 				String tc2reqpath = workspacepath + localpath + "tc2req.csv";
@@ -160,10 +177,10 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 				Iterator<String> i = requirements.iterator();
 				while (i.hasNext()) {
 					String requirement = i.next();
-					List<String> testcases = req2tc.get(requirement);
+					List<String> tcs = req2tc.get(requirement);
 					Boolean covered = true;
-					for (int idx = 0; (idx < testcases.size()) && (covered); idx++) {
-						String testcase = testcases.get(idx);
+					for (int idx = 0; (idx < tcs.size()) && (covered); idx++) {
+						String testcase = tcs.get(idx);
 						covered = covered && tccov.get(testcase);
 					}
 					reqcov.put(requirement, covered);
@@ -189,6 +206,59 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		createReq2TcPage();
 	}
 
+	private void addTestcase(SelectionEvent e) {
+		Button button = (Button) e.getSource();
+		String ltlformula = button.getData().toString();
+		ElementListSelectionDialog selection =
+				new ElementListSelectionDialog(getContainer().getShell(), new LabelProvider());
+		File tprocRoot = new File(RttProjectRoot + "TestProcedures");
+		File[] files = tprocRoot.listFiles();
+		List<File> subdirs = new ArrayList<File>();
+		List<File> testprocs = new ArrayList<File>();
+		int idx;
+		for (idx = 0; idx < files.length; idx++) {
+			if (files[idx].isDirectory()) {
+				subdirs.add(files[idx]);
+			}
+		}
+		for (idx = 0; idx < subdirs.size(); idx++) {
+			File conf = new File(subdirs.get(idx), "conf");
+			if (conf.isDirectory()) {
+				File configuration = new File(conf, "configuration.csv");
+				if (configuration.isFile()) {
+					testprocs.add(subdirs.get(idx));
+				}
+			}
+		}
+		String[] names = new String[testprocs.size()];
+		for (idx = 0; idx < testprocs.size(); idx++) {
+			names[idx] = testprocs.get(idx).getName();
+		}
+		selection.setElements(names);
+		if (selection.open() == Window.OK) {
+			String testproc = (String) selection.getFirstResult();
+			// get additional goal file of selected test procedure
+			File addgoals = null;
+			for (idx = 0; idx < testprocs.size(); idx++) {
+				if (testproc.compareTo(testprocs.get(idx).getName()) == 0) {
+					addgoals = new File(testprocs.get(idx), File.separator + "conf" + File.separator + "addgoals.conf");
+					// add test case to additional goals
+					try {
+						FileWriter addgoalStream = new FileWriter(addgoals.getAbsolutePath(), true);
+						BufferedWriter append = new BufferedWriter(addgoalStream);
+						append.write(ltlformula + "\n");
+						append.close();
+						addgoalStream.close();
+						client.addLogMessage("added '" + ltlformula + "'\nto '" + addgoals.getAbsolutePath() + "'\n");
+					} catch (IOException ex) {
+						client.addErrorMessage("Unable to open '" + addgoals.getAbsolutePath() + "' for writing!");
+					}
+					idx = testprocs.size();
+				}
+			}
+		}
+	}
+
 	// testcase coverage
 	private void createTc2ReqPage() {
 		// create tree view
@@ -198,7 +268,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		setPageText(index,"Testcase Coverage");
 
 		// header:
-		String[] tc2reqHeader = {"Name", "Status", "Test Procedure"};
+		String[] tc2reqHeader = {"Name", "Status", "Add"};
 		for (int idx = 0; idx < tc2reqHeader.length; idx++) {
 			TreeColumn column = new TreeColumn(tcTreeView, SWT.LEFT);
 			column.setText(tc2reqHeader[idx]);
@@ -219,13 +289,27 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 					reqParent = new TreeItem(tcTreeView, SWT.NONE);
 					reqParent.setText(0, tcTag);
 					reqParent.setText(1, tccov.get(tcTag).toString());
-					reqParent.setText(2, "-");
+					TreeEditor editor = new TreeEditor(tcTreeView);
+					editor.horizontalAlignment = SWT.CENTER;
+					editor.minimumWidth = 20;
+				    Button cellEditor = new Button(tcTreeView, SWT.PUSH);
+				    cellEditor.setText("...");
+				    cellEditor.setBackground(reqParent.getBackground());
+				    cellEditor.setData(tcTag + ";" + testcases.get(tcTag) + ";");
+				    cellEditor.addSelectionListener(new SelectionListener() {
+						@Override
+						public void widgetSelected(SelectionEvent e) { addTestcase(e); }
+
+						@Override
+						public void widgetDefaultSelected(SelectionEvent e) { addTestcase(e); }
+						});
+				    editor.setEditor(cellEditor, reqParent, 2);
 					client.addLogMessage(tcTag + "covered: " + tccov.get(tcTag) + "\n");
 				}
 				TreeItem req = new TreeItem(reqParent, SWT.NONE);
 				req.setText(0, reqTag);
 				req.setText(1, reqcov.get(reqTag).toString());
-				req.setText(2, "-");
+				req.setText(2, "");
 				client.addLogMessage("|->" + reqTag + "covered: " + reqcov.get(reqTag) + "\n");
 			}
 		}
@@ -239,7 +323,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		setPageText(index,"Requirements Coverage");
 
 		// header:
-		String[] req2tcHeader = {"Name", "Status"};
+		String[] req2tcHeader = {"Name", "Status", "Add"};
 		for (int idx = 0; idx < req2tcHeader.length; idx++) {
 			TreeColumn column = new TreeColumn(reqTreeView, SWT.LEFT);
 			column.setText(req2tcHeader[idx]);
@@ -252,19 +336,35 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		Iterator<String> reqIt = reqSet.iterator();
 		while (reqIt.hasNext()) {
 			reqTag = reqIt.next();
-			List<String> testcases = req2tc.get(reqTag);
+			List<String> tcs = req2tc.get(reqTag);
 			TreeItem tcParent = null;
-			for (int idx = 0; idx < testcases.size(); idx++) {
-				tcTag = testcases.get(idx);
+			for (int idx = 0; idx < tcs.size(); idx++) {
+				tcTag = tcs.get(idx);
 				if (idx == 0) {
 					tcParent = new TreeItem(reqTreeView, SWT.NONE);
 					tcParent.setText(0, reqTag);
 					tcParent.setText(1, reqcov.get(reqTag).toString());
+					tcParent.setText(2, "");
 					client.addLogMessage(tcTag + "covered: " + reqcov.get(reqTag) + "\n");
 				}
-				TreeItem req = new TreeItem(tcParent, SWT.NONE);
-				req.setText(0, tcTag);
-				req.setText(1, tccov.get(tcTag).toString());
+				TreeItem tc = new TreeItem(tcParent, SWT.NONE);
+				tc.setText(0, tcTag);
+				tc.setText(1, tccov.get(tcTag).toString());
+				TreeEditor editor = new TreeEditor(reqTreeView);
+				editor.horizontalAlignment = SWT.CENTER;
+				editor.minimumWidth = 20;
+			    Button cellEditor = new Button(reqTreeView, SWT.PUSH);
+			    cellEditor.setText("...");
+			    cellEditor.setBackground(tcParent.getBackground());
+			    cellEditor.setData(tcTag + ";" + testcases.get(tcTag) + ";");
+			    cellEditor.addSelectionListener(new SelectionListener() {
+					@Override
+					public void widgetSelected(SelectionEvent e) { addTestcase(e); }
+
+					@Override
+					public void widgetDefaultSelected(SelectionEvent e) { addTestcase(e); }
+					});
+			    editor.setEditor(cellEditor, tc, 2);
 				client.addLogMessage("|->" + tcTag + "covered: " + tccov.get(tcTag) + "\n");
 			}
 		}
