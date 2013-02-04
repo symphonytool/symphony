@@ -33,7 +33,7 @@ process RegisterProc =
    LOAD(i) == reg := i
    
    READ: () ==>  int
-   READ() == return (reg) 
+   READ() == return reg
 
    ADD: int ==> ()
    ADD(i) == reg := reg + i

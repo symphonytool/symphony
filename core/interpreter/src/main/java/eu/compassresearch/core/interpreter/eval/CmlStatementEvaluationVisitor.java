@@ -324,7 +324,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		Value retValue = question.check(new LexNameToken("|CALL|","|CALLRETURN|",new LexLocation()));
 		
 		//the call must be made
-		if(retValue == null)
+		if(retValue == null || retValue instanceof UndefinedValue)
 		{
 			pushNext(node, question);
 			pushNext(node.getCall(), question);
