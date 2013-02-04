@@ -15,8 +15,6 @@ import eu.compassresearch.ast.actions.ATimedInterruptAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.analysis.pog.obligations.CMLNonZeroTimeObligation;
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.CMLWhileLoopObligation;
 import eu.compassresearch.core.analysis.pog.obligations.NonZeroTimeObligation;
 
@@ -109,7 +107,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
     public ProofObligationList defaultPAction(PAction node, POContextStack question)
 	    throws AnalysisException 
 	{
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
     	System.out.println("----------***----------");
 		System.out.println("defaultPAction");
@@ -124,7 +122,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
     public ProofObligationList defaultINode(INode node, POContextStack question)
 	    throws AnalysisException {
     	
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
     	pol.addAll(node.apply(parentPOG, question));
     	return pol;
     }
@@ -134,11 +132,11 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
      * Block Statement. Currently, get the action and handle
      */
     @Override
-    public CMLProofObligationList caseABlockStatementAction(ABlockStatementAction node,
+    public ProofObligationList caseABlockStatementAction(ABlockStatementAction node,
     		POContextStack question) throws AnalysisException{
     	
     	System.out.println("A ABlockStatementAction: " + node.toString());
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
     	
 		//Get subparts	
     	PAction action = node.getAction();
@@ -155,11 +153,11 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
      * May need more detail on identifiers?
      */
     @Override
-    public CMLProofObligationList caseASingleGeneralAssignmentStatementAction(
+    public ProofObligationList caseASingleGeneralAssignmentStatementAction(
     		ASingleGeneralAssignmentStatementAction node,POContextStack question) 
     		throws AnalysisException{
     	System.out.println("A ASingleGeneralAssignmentStatementAction: " + node.toString());
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts	
     	PExp id = node.getStateDesignator();
@@ -176,11 +174,11 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
      * Composition action. Process left part, then right.
      */
     @Override
-    public CMLProofObligationList caseASequentialCompositionAction(
+    public ProofObligationList caseASequentialCompositionAction(
     		ASequentialCompositionAction node,POContextStack question) 
     		throws AnalysisException{
     	System.out.println("A ASequentialCompositionAction: " + node.toString());
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
     	PAction left = node.getLeft();	
@@ -198,11 +196,11 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
      * process 'else' and 'elseif'
      */
     @Override
-	public CMLProofObligationList caseAIfStatementAction(
+	public ProofObligationList caseAIfStatementAction(
 			AIfStatementAction node, POContextStack question)
     		throws AnalysisException{
     	System.out.println("A caseAIfStatementAction: " + node.toString());
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
     	PExp ifexp = node.getIfExp();
@@ -230,7 +228,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question) throws AnalysisException
 	{
     	System.out.println("A caseAElseIfStatementAction: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
     	pol.addAll(node.getElseIf().apply(parentPOG, question));
@@ -245,7 +243,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question) throws AnalysisException
 	{
     	System.out.println("A caseAWhileStatementAction: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		pol.add(new CMLWhileLoopObligation(node, question));
@@ -261,7 +259,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question) throws AnalysisException
 	{
     	System.out.println("A ATimedInterruptAction: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction left = node.getLeft();
@@ -286,7 +284,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseAValParametrisation(AValParametrisation node,
 			POContextStack question) throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		ATypeSingleDeclaration decl = node.getDeclaration();
@@ -299,7 +297,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseAResParametrisation(AResParametrisation node,
 			POContextStack question) throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		ATypeSingleDeclaration decl = node.getDeclaration();
@@ -313,7 +311,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseAUntimedTimeoutAction(AUntimedTimeoutAction node,
 			POContextStack question) throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction left = node.getLeft();
@@ -332,7 +330,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseATimeoutAction(ATimeoutAction node, POContextStack question)
 			throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		System.out.println("A ATimeoutAction: " + node.toString());
 
 		
@@ -357,7 +355,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseAExternalClause(AExternalClause node,
 			POContextStack question) throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		LinkedList<LexNameToken> ids = node.getIdentifiers();
@@ -376,7 +374,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			ASpecificationStatementAction node, POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PExp post = node.getPostcondition();
@@ -393,7 +391,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			AInternalChoiceReplicatedAction node, POContextStack question)
 					throws AnalysisException {
 		
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction repAction = node.getReplicatedAction();
@@ -413,7 +411,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseAGeneralisedParallelismReplicatedAction(
 			AGeneralisedParallelismReplicatedAction node, POContextStack question)
 					throws AnalysisException {
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PVarsetExpression csexp = node.getChansetExpression();
@@ -432,7 +430,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			AExternalChoiceReplicatedAction node, POContextStack question)
 					throws AnalysisException {
 
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction action = node.getReplicatedAction();
@@ -454,7 +452,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			ANonDeterministicIfStatementAction node, POContextStack question)
 					throws AnalysisException {
 
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		LinkedList<ANonDeterministicAltStatementAction> alternatives = node.getAlternatives();
@@ -472,7 +470,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseANewStatementAction(ANewStatementAction node,
 			POContextStack question) throws AnalysisException {
 
-	   	CMLProofObligationList pol = new CMLProofObligationList();
+	   	ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 	   	LinkedList<PExp> args = node.getArgs();
@@ -491,7 +489,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			AMultipleGeneralAssignmentStatementAction node,
 			POContextStack question) throws AnalysisException {
 
-	   	CMLProofObligationList pol = new CMLProofObligationList();
+	   	ProofObligationList pol = new ProofObligationList();
 	   	
 		//Get subparts
 		LinkedList<ASingleGeneralAssignmentStatementAction> assigns = node.getAssignments();
@@ -504,7 +502,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseALetStatementAction(ALetStatementAction node,
 			POContextStack question) throws AnalysisException {
 
-	   	CMLProofObligationList pol = new CMLProofObligationList();
+	   	ProofObligationList pol = new ProofObligationList();
 	   	
 		//Get subparts
 		PAction action = node.getAction();
@@ -518,7 +516,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseAInterruptAction(AInterruptAction node,
 			POContextStack question) throws AnalysisException {
 		
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts
 		PAction left = node.getLeft();
@@ -537,7 +535,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			AInterleavingParallelAction node, POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts
 		PAction leftAction = node.getLeftAction();
@@ -560,7 +558,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			ADeclarationInstantiatedAction node, POContextStack question)
 					throws AnalysisException {
 		
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction action = node.getAction();
@@ -582,7 +580,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			AGeneralisedParallelismParallelAction node, POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction leftAction = node.getLeftAction();
@@ -605,7 +603,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question) throws AnalysisException {
 		// TODO RWL Working on it !
 
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
     	
 		//Get subparts
 		PAction action = node.getAction();
@@ -623,7 +621,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			AForSequenceStatementAction node, POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts
 		PAction action = node.getAction();
@@ -639,7 +637,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts
 		PAction act = node.getAction();
@@ -657,7 +655,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts
 		PAction act = node.getAction();
@@ -671,7 +669,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseAWaitAction(AWaitAction node,
 			POContextStack question)
 					throws AnalysisException {
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PExp timedExp = node.getExpression();
@@ -688,7 +686,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts
 		LinkedList<PDefinition> defs = node.getDefs();
@@ -706,7 +704,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		LinkedList<ACaseAlternativeAction> cases = node.getCases();
@@ -723,7 +721,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseAMuAction(AMuAction node, POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
@@ -738,7 +736,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	@Override
 	public ProofObligationList caseAChaosAction(AChaosAction node, POContextStack question)
 					throws AnalysisException {
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//TODO: Any AChaosAction POs?
 		
@@ -751,7 +749,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			ASequentialCompositionReplicatedAction node, POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts
 		PAction replicatedAction = node.getReplicatedAction();
@@ -772,7 +770,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 		PExp designator = node.getDesignator();
 		ACallStatementAction call = node.getCall();
 	
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//TODO: Any AAssignmentCallStatementAction POs?
 		
@@ -786,7 +784,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseAAlphabetisedParallelismParallelAction(
 			AAlphabetisedParallelismParallelAction node, POContextStack question)
 					throws AnalysisException {
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction leftAction = node.getLeftAction();
@@ -814,7 +812,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question)
 					throws AnalysisException {
 		
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts
 		PExp exp = node.getExp();
@@ -834,7 +832,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 		PExp exp = node.getExpression();
 		PAction action = node.getAction();
 		
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		pol.addAll(exp.apply(parentPOG, question));
 		pol.addAll(action.apply(parentPOG,question));
@@ -849,7 +847,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseADivAction(ADivAction node, POContextStack question)
 			throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//TODO: Any ADivAction POs?
 		return pol;
@@ -860,7 +858,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			ASubclassResponsibilityAction node, POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//TODO: Any ASubclassResponsibilityAction POs?
 		return pol;
@@ -874,7 +872,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			ACommonInterleavingReplicatedAction node, POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts
 		PAction acts = node.getReplicatedAction();
@@ -890,7 +888,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			AInterleavingReplicatedAction node, POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts
 		PVarsetExpression namesetExp = node.getNamesetExpression();
@@ -906,7 +904,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			ASynchronousParallelismReplicatedAction node, POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts
 		PVarsetExpression namesetExp = node.getNamesetExpression();
@@ -922,7 +920,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			ANotYetSpecifiedStatementAction node, POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts
 		LinkedList<PExp> args = node.getArgs();
@@ -939,7 +937,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction left = node.getLeft();
@@ -958,7 +956,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts
 		LinkedList<PExp> args = node.getArgs();
@@ -973,7 +971,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction act = node.getAction();
@@ -990,7 +988,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseASkipAction(ASkipAction node,
 			POContextStack question)
 					throws AnalysisException {
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
 		//TODO Any ASkipAction POs?
     	return pol;
@@ -1003,7 +1001,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 					throws AnalysisException {
 
 		System.out.println("A AExternalChoiceAction: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction left = node.getLeft();
@@ -1022,7 +1020,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseAHidingAction(AHidingAction node,
 			POContextStack question) throws AnalysisException {
 		
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction action = node.getLeft();
@@ -1040,7 +1038,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseAVresParametrisation(AVresParametrisation node,
 			POContextStack question) throws AnalysisException {
 		
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		ATypeSingleDeclaration decl = node.getDeclaration();
@@ -1055,7 +1053,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseAParametrisedInstantiatedAction(
 			AParametrisedInstantiatedAction node, POContextStack question)
 					throws AnalysisException {
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		AParametrisedAction action = node.getAction();
@@ -1078,7 +1076,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question)
 					throws AnalysisException {
 		
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction event = node.getLeft();
@@ -1098,7 +1096,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction event = node.getLeft();
@@ -1117,7 +1115,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question)
 					throws AnalysisException {
 
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
 		//TODO: any AStopAction POs?
     	return pol;
@@ -1129,7 +1127,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			POContextStack question)
 					throws AnalysisException {
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		LinkedList<PExp> args = node.getArgs();
@@ -1144,7 +1142,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseASynchronousParallelismParallelAction(
 			ASynchronousParallelismParallelAction node,	POContextStack question)
 					throws AnalysisException {
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction leftAction = node.getLeftAction();
@@ -1167,7 +1165,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseANonDeterministicDoStatementAction(
 			ANonDeterministicDoStatementAction node, POContextStack question)
 					throws AnalysisException {
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
     	LinkedList<ANonDeterministicAltStatementAction> alternatives = node.getAlternatives();
@@ -1185,7 +1183,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 			ANonDeterministicAltStatementAction node, POContextStack question)
 					throws AnalysisException {
 
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PExp guard = node.getGuard();
@@ -1203,7 +1201,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 	public ProofObligationList caseAParametrisedAction(AParametrisedAction node,
 			POContextStack question) throws AnalysisException {
 
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts
 		PAction action = node.getAction();

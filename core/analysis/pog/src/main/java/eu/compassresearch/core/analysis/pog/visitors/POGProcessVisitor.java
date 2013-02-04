@@ -42,8 +42,6 @@ import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
 
-import eu.compassresearch.core.analysis.pog.obligations.CMLNonZeroTimeObligation;
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.NonZeroTimeObligation;
 
 @SuppressWarnings("serial")
@@ -67,9 +65,9 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
     
     
     @Override
-    public CMLProofObligationList caseAActionProcess(AActionProcess node,POContextStack question) throws AnalysisException{
+    public ProofObligationList caseAActionProcess(AActionProcess node,POContextStack question) throws AnalysisException{
     	System.out.println("A AActionProcess: " + node.toString());
-    	CMLProofObligationList pol = new CMLProofObligationList();
+    	ProofObligationList pol = new ProofObligationList();
     
 		//Get subparts		
     	LinkedList<PDefinition> pdef = node.getDefinitionParagraphs();
@@ -97,7 +95,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 
     	System.out.println("A AInternalChoiceProcess: " + node.toString());
 
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess left = node.getLeft();
@@ -116,7 +114,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			POContextStack question) throws AnalysisException {
 
     	System.out.println("A AUntimedTimeoutProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess left = node.getLeft();
@@ -135,7 +133,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			POContextStack question) throws AnalysisException {
 
     	System.out.println("A ATimeoutProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PExp timedExp = node.getTimeoutExpression();
@@ -159,7 +157,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			POContextStack question) throws AnalysisException {
 
     	System.out.println("A ASynchronousParallelismReplicatedProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess proc = node.getReplicatedProcess();
@@ -185,7 +183,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			throws AnalysisException {
 
     	System.out.println("A ASequentialCompositionReplicatedProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess proc = node.getReplicatedProcess();
@@ -210,7 +208,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			throws AnalysisException {
 
     	System.out.println("A AInternalChoiceReplicatedProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess proc = node.getReplicatedProcess();
@@ -235,7 +233,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			POContextStack question) throws AnalysisException {
 
     	System.out.println("A AGeneralisedParallelismReplicatedProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PVarsetExpression csExp = node.getChansetExpression();
@@ -262,7 +260,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			throws AnalysisException {
 
     	System.out.println("A AExternalChoiceReplicatedProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess proc = node.getReplicatedProcess();
@@ -287,7 +285,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			POContextStack question) throws AnalysisException {
 
     	System.out.println("A AAlphabetisedParallelismReplicatedProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PVarsetExpression csExp = node.getChansetExpression();
@@ -313,7 +311,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			POContextStack question) throws AnalysisException {
 
     	System.out.println("A AInterruptProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess left = node.getLeft();
@@ -333,7 +331,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			POContextStack question) throws AnalysisException {
 
     	System.out.println("A AInterleavingProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess left = node.getLeft();
@@ -353,7 +351,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			POContextStack question) throws AnalysisException {
 
     	System.out.println("A AInstantiationProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 				
 		//Get subparts		
 		LinkedList<PExp> args = node.getArgs();
@@ -371,7 +369,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			throws AnalysisException {
 
     	System.out.println("A AHidingProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess left = node.getLeft();
@@ -392,7 +390,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 					throws AnalysisException {
 
     	System.out.println("A AGeneralisedParallelismProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess left = node.getLeft();
@@ -413,7 +411,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			POContextStack question) throws AnalysisException {
 
     	System.out.println("A AExternalChoiceProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess left = node.getLeft();
@@ -433,7 +431,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			POContextStack question) throws AnalysisException {
 
     	System.out.println("A AChannelRenamingProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess process = node.getProcess();
@@ -453,7 +451,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 					throws AnalysisException {
 
     	System.out.println("A AAlphabetisedParallelismProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess left = node.getLeft();
@@ -478,7 +476,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 					throws AnalysisException {
 
     	System.out.println("A AStartDeadlineProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess left = node.getLeft();
@@ -498,7 +496,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			POContextStack question) throws AnalysisException {
 		
     	System.out.println("A AEndDeadlineProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts	
 		PExp exp = node.getExpression();
@@ -516,7 +514,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 					throws AnalysisException {
 
     	System.out.println("A AInterleavingReplicatedProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts		
 		LinkedList<PSingleDeclaration> declarations = node.getReplicationDeclaration();
@@ -540,7 +538,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 					throws AnalysisException {
 		
     	System.out.println("A ASynchronousParallelismProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		pol.addAll(node.getLeft().apply(parentPOG, question));
@@ -559,7 +557,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 					throws AnalysisException {
 
     	System.out.println("A ASequentialCompositionProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		pol.addAll(node.getLeft().apply(parentPOG, question));
@@ -577,7 +575,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 					throws AnalysisException {
 		
     	System.out.println("A AReferenceProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		
 		//Get subparts
 		LinkedList<PExp> args = node.getArgs();
@@ -595,7 +593,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 			POContextStack question) throws AnalysisException
 	{
     	System.out.println("A ATimedInterruptProcess: " + node.toString());
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 
 		//Get subparts		
 		PProcess left = node.getLeft();

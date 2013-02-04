@@ -19,6 +19,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.overture.pog.obligation.ProofObligation;
+import org.overture.pog.obligation.ProofObligationList;
 
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
@@ -110,7 +111,7 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 
 	PSource psAux = csu.getSourceAst();
 	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
-	CMLProofObligationList pol = new CMLProofObligationList();
+	ProofObligationList pol = new CMLProofObligationList();
 	try {
 	    pol=pog.generatePOs();
 	} catch (Exception e) {
