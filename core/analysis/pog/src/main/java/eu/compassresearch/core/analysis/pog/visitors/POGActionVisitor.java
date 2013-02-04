@@ -18,6 +18,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.analysis.pog.obligations.CMLNonZeroTimeObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.obligations.CMLWhileLoopObligation;
+import eu.compassresearch.core.analysis.pog.obligations.NonZeroTimeObligation;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -270,7 +271,8 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 		//Send left-hand side
 		pol.addAll(left.apply(this, question));
 		//check for Non-Zero time obligation and dispatch exp for POG checking
-		pol.add(new CMLNonZeroTimeObligation(timeExp, question));
+		//Changing format of CML POs... pol.add(new CMLNonZeroTimeObligation(timeExp, question));
+		pol.add(new NonZeroTimeObligation(timeExp, question));
 		pol.addAll(timeExp.apply(this, question));
 		//Send right-hand side
 		pol.addAll(right.apply(this, question));
@@ -342,7 +344,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 		pol.addAll(left.apply(parentPOG, question));
 		pol.addAll(timedExp.apply(parentPOG, question));
 		//check for Non-Zero time obligation and dispatch exp for POG checking
-		pol.add(new CMLNonZeroTimeObligation(timedExp, question));
+		pol.add(new NonZeroTimeObligation(timedExp, question));
 		pol.addAll(right.apply(parentPOG,question));
 
 		//TODO: Any ATimeoutAction POs?

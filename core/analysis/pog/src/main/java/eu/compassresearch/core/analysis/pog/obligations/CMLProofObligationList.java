@@ -11,7 +11,6 @@ package eu.compassresearch.core.analysis.pog.obligations;
 /**
  * Java libraries 
  */
-import java.util.Vector;
 
 import org.overture.pog.obligation.ProofObligation;
 import org.overture.pog.obligation.ProofObligationList;

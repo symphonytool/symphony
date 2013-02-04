@@ -1,9 +1,7 @@
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import java.util.ListIterator;
 import java.util.Stack;
 
-import org.overture.pog.obligation.POContext;
 
 @SuppressWarnings("serial")
 public class CMLPOContextStack extends Stack<CMLPOContext>

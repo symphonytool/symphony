@@ -29,7 +29,7 @@ import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.pog.obligation.POFunctionDefinitionContext;
 
-public class CMLPOFunctionDefinitionContext extends POFunctionDefinitionContext {
+public class CMLPOFunctionDefinitionContext extends POFunctionDefinitionContext implements CMLPOContext{
 
     public CMLPOFunctionDefinitionContext(
 	    AExplicitFunctionDefinition definition, boolean precond) {
@@ -41,4 +41,13 @@ public class CMLPOFunctionDefinitionContext extends POFunctionDefinitionContext 
 	super(definition, precond);
     }
 
+    public String getGUIContext()
+    {
+    	return getContext();
+    }
+    
+	public String getIsabelleContext()
+	{
+		return "";
+	}
 }

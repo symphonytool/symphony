@@ -23,7 +23,7 @@ abstract public class CMLProofObligation
     	this.location = location;
 		this.name = ctxt.getName();
 		this.status = POStatus.UNPROVED;
-		this.cmltype=kind;
+		this.cmltype = kind;
     }
 
 	abstract public String toGUIString(CMLPOContextStack ctxt);
@@ -35,6 +35,4 @@ abstract public class CMLProofObligation
 	{
 		return name + ": " + cmltype + " obligation " + location + "\n" + guiString;
 	}
-
 }
-

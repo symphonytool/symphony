@@ -41,10 +41,10 @@ import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.analysis.pog.obligations.CMLOperationPostConditionObligation;
-import eu.compassresearch.core.analysis.pog.obligations.CMLParameterPatternObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
-import eu.compassresearch.core.analysis.pog.obligations.CMLSatisfiabilityObligation;
+import eu.compassresearch.core.analysis.pog.obligations.SatisfiabilityObligation;
+import eu.compassresearch.core.analysis.pog.obligations.OperationPostConditionObligation;
+import eu.compassresearch.core.analysis.pog.obligations.ParameterPatternObligation;
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
@@ -447,7 +447,7 @@ public class POGDeclAndDefVisitor extends
 
 			//Taken from Overture - Needed?
 			if (pids.hasDuplicates()){
-				pol.add(new CMLParameterPatternObligation(node, question));
+				pol.add(new ParameterPatternObligation(node, question));
 			}
 
 			// if implicit operation has a precondition, dispatch for PO checking
@@ -459,12 +459,12 @@ public class POGDeclAndDefVisitor extends
 			// and generate OperationPostConditionObligation
 			if (node.getPostcondition() != null){
 				pol.addAll(node.getPostcondition().apply(parentPOG, question));
-				pol.add(new CMLOperationPostConditionObligation(node, question));
+				pol.add(new OperationPostConditionObligation(node, question));
 
 			//	COMMENTED AS CONTEXT GENERATES VARIOUS NULL OBJECTS, DUE TO NEW AST...
 			//	AS SUCH SAT OBLIG DOESN'T DO MUCH
 			//	question.push(new CMLPOOperationDefinitionContext(node, false, node.getStateDefinition()));
-				pol.add(new CMLSatisfiabilityObligation(node, node.getStateDefinition(), question));
+				pol.add(new SatisfiabilityObligation(node, node.getStateDefinition(), question));
 			//	question.pop();			
 			}
 			 
@@ -490,7 +490,7 @@ public class POGDeclAndDefVisitor extends
 				pids.add(def.getName());
 
 		if (pids.hasDuplicates()){
-			pol.add(new CMLParameterPatternObligation(node, question));
+			pol.add(new ParameterPatternObligation(node, question));
 		}
 
 		// if operation has a precondition, dispatch for PO checking
@@ -501,7 +501,7 @@ public class POGDeclAndDefVisitor extends
 		// and generate OperationPostConditionObligation
 		if (node.getPostcondition() != null){
 			pol.addAll(node.getPostcondition().apply(parentPOG, question));
-			pol.add(new CMLOperationPostConditionObligation(node, question));
+			pol.add(new OperationPostConditionObligation(node, question));
 		}
 		
 		// dispatch operation body for PO checking

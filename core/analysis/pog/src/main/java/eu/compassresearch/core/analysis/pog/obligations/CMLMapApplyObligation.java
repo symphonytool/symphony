@@ -26,7 +26,6 @@ package eu.compassresearch.core.analysis.pog.obligations;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.node.INode;
 import org.overture.ast.statements.PStateDesignator;
-import org.overture.pog.obligation.POType;
 
 
 // Not being used anywhere so far. Can we extend the overture one?
@@ -50,6 +49,8 @@ public class CMLMapApplyObligation extends CMLProofObligation
 		super(root.getLocation(), CMLPOType.MAP_APPLY, ctxt);
 		this.arg = arg;
 		this.root = root;
+		this.guiString = toGUIString(ctxt);
+		this.isabelleString = toIsabelleString(ctxt);
 	}
 	
 	public String toGUIString(CMLPOContextStack ctxt)

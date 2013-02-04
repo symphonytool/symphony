@@ -1,13 +1,10 @@
 package eu.compassresearch.core.analysis.pog.obligations;
 
-public abstract class CMLPOContext {
+public interface CMLPOContext {
 
-	abstract public String getGUIContext();
-	abstract public String getIsabelleContext();
+	public String getGUIContext();
+	public String getIsabelleContext();
 
 	//TODO Confirm need for this
-	public String getName()
-	{
-		return "";		// Overridden in PONameContext
-	}
+	public String getName();
 }

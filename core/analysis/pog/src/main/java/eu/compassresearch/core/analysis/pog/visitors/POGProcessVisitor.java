@@ -44,6 +44,7 @@ import eu.compassresearch.ast.process.PProcess;
 
 import eu.compassresearch.core.analysis.pog.obligations.CMLNonZeroTimeObligation;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.core.analysis.pog.obligations.NonZeroTimeObligation;
 
 @SuppressWarnings("serial")
 public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList>
@@ -144,7 +145,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 		pol.addAll(left.apply(parentPOG, question));
 		pol.addAll(timedExp.apply(parentPOG,question));
 		//check for Non-Zero time obligation and dispatch exp for POG checking
-		pol.add(new CMLNonZeroTimeObligation(timedExp, question));
+		pol.add(new NonZeroTimeObligation(timedExp, question));
 		pol.addAll(right.apply(parentPOG, question));
 
 		//TODO: Consider any ATimeoutProcess POs
@@ -604,7 +605,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 		//Send left-hand side
 		pol.addAll(left.apply(parentPOG, question));
 		//check for Non-Zero time obligation and dispatch exp for POG checking
-		pol.add(new CMLNonZeroTimeObligation(timeExp, question));
+		pol.add(new NonZeroTimeObligation(timeExp, question));
 		// TODO: any other ATimedInterruptProcess POs?
 		pol.addAll(timeExp.apply(parentPOG, question));
 		//Send right-hand side
