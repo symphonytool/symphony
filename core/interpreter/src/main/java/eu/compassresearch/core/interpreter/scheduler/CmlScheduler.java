@@ -24,6 +24,7 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 	List<CmlBehaviourThread> running = new LinkedList<CmlBehaviourThread>();
 	List<CmlBehaviourThread> waiting = new LinkedList<CmlBehaviourThread>();
 	List<CmlBehaviourThread> finished = new LinkedList<CmlBehaviourThread>();
+	List<CmlBehaviourThread> deadlocked = new LinkedList<CmlBehaviourThread>();
 	
 	private SchedulingPolicy policy;
 	private CmlSupervisorEnvironment sve = null;
@@ -63,6 +64,7 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 		running.clear();
 		waiting.clear();
 		finished.clear();
+		deadlocked.clear();
 	}
 	
 	/**
@@ -184,7 +186,14 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 					
 					CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getObservableEvents());
 
-					CmlRuntime.logger().fine("state: \n" +  p.getExecutionState().second.getRoot().toString());
+					String state;
+					
+//					if(p.getExecutionState().second.getSelf() != null)
+//						state = p.getExecutionState().second.getSelf().toString();
+//					else
+//						state = p.getExecutionState().second.getRoot().toString();
+//					
+//					CmlRuntime.logger().fine("state: \n" +  state);
 					
 					//Select and set the communication event
 					ObservableEvent selectedEvent = sve.decisionFunction().select(availableEvents); 
@@ -253,6 +262,8 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 		case FINISHED:
 			finished.add(stateEvent.getSource());
 			break;
+		case STOPPED:
+			deadlocked.add(stateEvent.getSource());
 		}
 	}
 }

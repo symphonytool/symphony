@@ -64,7 +64,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 			result = caseParallelEnd(question); 
 		}
 		//At least one child is not finished and waiting for event, this will either invoke the Parallel Non-sync or Sync rule
-		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(ownerThread()))
+		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrStoppedOrWaitingForEvent(ownerThread()))
 		{
 			result = caseParallelSyncOrNonsync(chansetExp, question);
 			//We push the current state, 
@@ -167,7 +167,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 				rightNode.apply(this,question);
 			else
 			{
-				CmlBehaviourThread rightInstance = createChild(rightNode, question,rightName); 
+				CmlBehaviourThread rightInstance = createChild(rightNode, question.deepCopy(),rightName); 
 				//new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),right.getLocation()));
 				addChild(rightInstance);
 				
@@ -178,7 +178,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 				pushNext(node, question);
 			}
 			
-			CmlBehaviourThread leftInstance = createChild(leftNode, question, leftName);
+			CmlBehaviourThread leftInstance = createChild(leftNode, question.deepCopy(), leftName);
 			addChild(leftInstance);
 			
 			//Now let this process wait for the children to get into a waitForEvent state

@@ -14,12 +14,12 @@ public class CmlBehaviourThreadUtility {
 		return isAllFinished;
 	}
 	
-	public static boolean isAllChildrenFinishedOrWaitingForEvent(CmlBehaviourThread process)
+	public static boolean isAllChildrenFinishedOrStoppedOrWaitingForEvent(CmlBehaviourThread process)
 	{
 		boolean isAllFinishedOrWaitingForEvent = true;
 		for(CmlBehaviourThread child : process.children())
 		{
-			isAllFinishedOrWaitingForEvent &= child.finished() || child.waitingForEvent();
+			isAllFinishedOrWaitingForEvent &= child.finished() || child.waitingForEvent() || child.deadlocked();
 		}
 		return isAllFinishedOrWaitingForEvent;
 	}

@@ -356,7 +356,7 @@ public class AlphabetInspector
 		if(!ownerProcess.hasChildren())
 			alpha = createSilentTransition(node, node,"Begin");
 		//if all children are waiting for events or are finished then we how to investigate further
-		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(ownerProcess))
+		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrStoppedOrWaitingForEvent(ownerProcess))
 		{
 			//if there exist a finished child then the external choice ends with a silent transition
 			//where the state of the finished is used
@@ -390,43 +390,43 @@ public class AlphabetInspector
 		CmlAlphabet alpha = child.inspect();
 
 		
-		if(!ownerProcess.inBactrackMode())
-		{
-			//Set the restore point
-			child.setRestorePoint();
-			
-			for(ObservableEvent ev : alpha.getObservableEvents())
-			{	
-				final Scheduler tmpScheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
-				CmlSupervisorEnvironment tmpEnv = VanillaInterpreterFactory.newCmlSupervisorEnvironment(
-						new CmlCommunicationSelectionStrategy() {
-
-							@Override
-							public ObservableEvent select(CmlAlphabet availableChannelEvents) {
-
-								tmpScheduler.stop();
-
-								return null;
-							}
-						}, 
-						tmpScheduler);
-
-				try 
-				{
-					//Level lvl = CmlRuntime.logger().getLevel();
-					//CmlRuntime.logger().setLevel(Level.OFF);
-					tmpEnv.setSelectedObservableEvent(ev);
-					tmpScheduler.setCmlSupervisorEnvironment(tmpEnv);
-					child.start(tmpEnv);
-					tmpScheduler.start();
-					//CmlRuntime.logger().setLevel(lvl);
-				} catch (InterpreterRuntimeException e) {
-					alpha = alpha.substract(ev.getAsAlphabet()); 
-				} 
-			}
-			
-			child.revertToRestorePoint();
-		}
+//		if(!ownerProcess.inBactrackMode())
+//		{
+//			//Set the restore point
+//			child.setRestorePoint();
+//			
+//			for(ObservableEvent ev : alpha.getObservableEvents())
+//			{	
+//				final Scheduler tmpScheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+//				CmlSupervisorEnvironment tmpEnv = VanillaInterpreterFactory.newCmlSupervisorEnvironment(
+//						new CmlCommunicationSelectionStrategy() {
+//
+//							@Override
+//							public ObservableEvent select(CmlAlphabet availableChannelEvents) {
+//
+//								tmpScheduler.stop();
+//
+//								return null;
+//							}
+//						}, 
+//						tmpScheduler);
+//
+//				try 
+//				{
+//					//Level lvl = CmlRuntime.logger().getLevel();
+//					//CmlRuntime.logger().setLevel(Level.OFF);
+//					tmpEnv.setSelectedObservableEvent(ev);
+//					tmpScheduler.setCmlSupervisorEnvironment(tmpEnv);
+//					child.start(tmpEnv);
+//					tmpScheduler.start();
+//					//CmlRuntime.logger().setLevel(lvl);
+//				} catch (InterpreterRuntimeException e) {
+//					alpha = alpha.substract(ev.getAsAlphabet()); 
+//				} 
+//			}
+//			
+//			child.revertToRestorePoint();
+//		}
 		
 		
 			

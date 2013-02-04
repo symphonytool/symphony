@@ -18,8 +18,13 @@ CmlCommunicationSelectionStrategy {
 		List<ObservableEvent> events = new ArrayList<ObservableEvent>(availableChannelEvents.getObservableEvents());
 
 		for(int i = 0; i <  events.size();i++)
-			System.out.println( "[" + i + "]" + events.get(i).toString());
-
+		{
+			ObservableEvent obsEvent = events.get(i);
+			
+			System.out.println(obsEvent.getEventSource().getExecutionState().second.getSelf().toString());
+			
+			System.out.println( "[" + i + "]" + obsEvent.toString());
+		}
 		
 		int choiceIndex = -1;
 		//while(!scanIn.hasNextInt())

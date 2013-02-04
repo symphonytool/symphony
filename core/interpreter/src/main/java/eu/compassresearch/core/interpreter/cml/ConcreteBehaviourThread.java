@@ -140,7 +140,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			
 			@Override
 			public void mergeState(CmlBehaviourThread other) {
-				ConcreteBehaviourThread.this.mergeState((ConcreteBehaviourThread)other);
+				ConcreteBehaviourThread.this.replaceState((ConcreteBehaviourThread)other);
 				
 			}
 			
@@ -274,11 +274,12 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		executionStack.push(new Pair<INode, Context>(node, context));
 	}
 	
-	protected void mergeState(ConcreteBehaviourThread other)
+	protected void replaceState(ConcreteBehaviourThread other)
 	{
-		
 		if(other.hasNext())
-		{	//get the state replace the current state
+		{	
+			replaceExistingContexts(other.nextState().second);
+			//get the state replace the current state
 			//FIXME: this is really really ugly
 			for(Pair<INode,Context> state : other.getExecutionStack())
 			{
@@ -293,6 +294,51 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		}
 	}
 	
+	//we need to replace the existing contexts from top down, 
+	//making sure we don't add any extra ones from the newContext to the 
+	private void replaceExistingContexts(Context newContext)
+	{
+		for(Pair<INode,Context> pair : executionStack)
+		{
+			int index = executionStack.indexOf(pair);
+			executionStack.setElementAt(new Pair<INode, Context>(pair.first,replaceFrame(pair.second,newContext)), index);
+		}
+	}
+	
+	private Context replaceFrame(Context oldContext, Context newContext)
+	{
+		//extract the contexts of the old
+		List<Context> oldContexts= new LinkedList<Context>();
+
+		Context tmp = oldContext;
+		while(tmp != null)
+		{
+			oldContexts.add(0,tmp);
+			tmp = tmp.outer;
+		}
+		
+		List<Context> newContexts = new LinkedList<Context>();
+		tmp = newContext;
+		while(tmp != null)
+		{
+			newContexts.add(0,tmp);
+			tmp = tmp.outer;
+		}
+		//FIXME This is not allways the case. The scoping rules are not
+		Context result = newContexts.get(oldContexts.size()-1);
+		
+//		if(newContexts.size() >= oldContexts.size())
+//			result = newContexts.get(oldContexts.size()-1);
+//		else
+//		{
+//			//take the old context at the 
+//			oldContexts.get(newContexts.size()).outer = newContexts.get(newContexts.size()-1);
+//			result.
+//			result = oldContexts.get(oldContexts.size());
+//		}
+			
+		return result;
+	}
 	/*
 	 * 
 	 * Stack machine methods end
@@ -318,8 +364,13 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 
 		try
 		{
+			if(alpha.isEmpty())
+			{
+				setState(CmlProcessState.STOPPED);
+				ret = CmlBehaviourSignal.EXEC_SUCCESS;
+			}
 			//execute silently if the current alphabet contains is a silent action
-			if(alpha.containsSpecialEvent(CmlTauEvent.referenceTauEvent())){
+			else if(alpha.containsSpecialEvent(CmlTauEvent.referenceTauEvent())){
 				//FIXME: this might not be the best idea to get the special event
 				updateTrace(alpha.getSpecialEvents().iterator().next());
 				ret = executeNext();
@@ -559,7 +610,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	public boolean deadlocked() {
 		
 		//A Process is deadlocked if its immediate alphabet is empty
-		return inspect().isEmpty();
+		return getState() == CmlProcessState.STOPPED;
 	}
 	
 	protected void notifyOnStateChange(CmlProcessStateEvent event)
@@ -646,15 +697,16 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		case WAIT_EVENT:
 			//if at least one child are waiting for an event this process must invoke 
 			//either Parallel Non-sync or sync
-			if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(this))
+			if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrStoppedOrWaitingForEvent(this))
 				setState(CmlProcessState.RUNNABLE);
 			break;
+		case STOPPED:	
 		case FINISHED:
 			//for any child that finishes, we unregister it since it has terminated successfully and no state change will happen again.
 			stateEvent.getSource().onStateChanged().unregisterObserver(this);
 			
 			//if all the children are finished this process can continue and evolve into skip
-			if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrWaitingForEvent(this))
+			if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrStoppedOrWaitingForEvent(this))
 				setState(CmlProcessState.RUNNABLE);
 			
 			break;

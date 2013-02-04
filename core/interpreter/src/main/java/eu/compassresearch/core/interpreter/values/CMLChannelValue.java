@@ -101,7 +101,8 @@ public class CMLChannelValue extends Value implements CmlSignalChannel, CmlIOCha
 	@Override
 	public Object clone() {
 		
-		return new CMLChannelValue(this);
+		//return new CMLChannelValue(this);
+		return this;
 	}
 
 	@Override
