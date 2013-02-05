@@ -1,17 +1,16 @@
 package eu.compassresearch.core.interpreter.runtime;
 
-import java.io.PrintWriter;
-
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.values.Value;
+import org.overture.interpreter.runtime.StateContext;
+import org.overture.interpreter.values.CPUValue;
 
-public class CmlStateContext extends CmlRootContext {
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 
-	/** The state context, if any. */
-	public final CmlContext stateCtxt;
+public class CmlStateContext extends StateContext {
 
+	private final AProcessDefinition processDefinition;
+	
 	/**
 	 * Create a RootContext from the values passed.
 	 *
@@ -22,16 +21,17 @@ public class CmlStateContext extends CmlRootContext {
 	 */
 
 	public CmlStateContext(LexLocation location, String title,
-			CmlContext freeVariables, CmlContext outer, CmlContext sctxt)
+		Context freeVariables, Context outer, Context sctxt,AProcessDefinition processDefinition)
 	{
-		super(location, title, freeVariables, outer);
-		this.stateCtxt = sctxt;
+		super(location,title,freeVariables,outer,sctxt);
+		this.processDefinition = processDefinition;
+		setThreadState(null, CPUValue.vCPU);
 	}
 
 	public CmlStateContext(LexLocation location, String title,
-			CmlContext outer, CmlContext sctxt)
+		Context outer, Context sctxt,AProcessDefinition processDefinition)
 	{
-		this(location, title, null, outer, sctxt);
+		this(location, title,null, outer, sctxt,processDefinition);
 	}
 
 	/**
@@ -40,102 +40,13 @@ public class CmlStateContext extends CmlRootContext {
 	 * @param title The name of the location.
 	 */
 
-	public CmlStateContext(LexLocation location, String title)
+	public CmlStateContext(LexLocation location, String title,AProcessDefinition processDefinition)
 	{
-		super(location, title, null, null);
-		this.stateCtxt = null;
+		this(location, title,null,null,processDefinition);
 	}
 
-	/**
-	 * Check for the name in the current context and state, and if
-	 * not present search the global context. Note that the context
-	 * chain is not followed.
-	 *
-	 * @see org.overturetool.vdmj.runtime.Context#check(org.overturetool.vdmj.lex.LexNameToken)
-	 */
-
-	@Override
-	public Value check(LexNameToken name)
-	{
-		Value v = get(name);
-
-		if (v != null)
-		{
-			return v;
-		}
-
-		if (freeVariables != null)
-		{
-			v = freeVariables.get(name);
-
-			if (v != null)
-			{
-				return v;
-			}
-		}
-
-		// A RootContext stops the name search from continuing down the
-		// context chain. It first checks any state context, then goes
-		// down to the global level.
-
-		if (v == null)
-		{
-			if (stateCtxt != null)
-			{
-				v = stateCtxt.check(name);
-
-				if (v != null)
-				{
-					return v;
-				}
-			}
-
-			CmlContext g = getGlobal();
-
-			if (g != this)
-			{
-				return g.check(name);
-			}
-		}
-
-		return v;
-	}
-
-	@Override
-	public String toString()
-	{
-		if (stateCtxt != null)
-		{
-			return super.toString() + "\tState visible\n";
-		}
-		else
-		{
-			return super.toString();
-		}
-	}
-
-	@Override
-	public void printStackTrace(PrintWriter out, boolean variables)
-	{
-		if (outer == null)		// Don't expand initial context
-		{
-			out.println("In root context of " + getVdmContext().title);
-		}
-		else
-		{
-			if (variables)
-			{
-    			out.print(this.format("\t", this));
-
-    			if (stateCtxt != null)
-    			{
-    				out.println("\tState visible");
-    			}
-			}
-
-			out.println("In root context of " + getVdmContext().title + " " + getVdmContext().location);
-			outer.printStackTrace(out, false);
-		}
+	public AProcessDefinition getProcessDefinition() {
+		return processDefinition;
 	}
 	
 }

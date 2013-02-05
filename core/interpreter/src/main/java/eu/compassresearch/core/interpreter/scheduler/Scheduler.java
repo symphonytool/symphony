@@ -25,7 +25,9 @@ public interface Scheduler {
 	
 	public boolean hasActiveProcesses();
 	
-	public void start() throws AnalysisException;
+	public void start();
+	
+	public void stop();
 	
 	public void setCmlSupervisorEnvironment(CmlSupervisorEnvironment sve);
 	

@@ -5,6 +5,9 @@ import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexNameToken;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.UndefinedValue;
@@ -13,16 +16,19 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelsDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
+import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.CmlValueFactory;
 
 @SuppressWarnings("serial")
 public class CmlDeclAndDefEvaluator extends
-		QuestionAnswerCMLAdaptor<CmlContext, Value> {
+		QuestionAnswerCMLAdaptor<Context, Value> {
 
 	private CmlEvaluator parentInterpreter; 
 
@@ -32,8 +38,18 @@ public class CmlDeclAndDefEvaluator extends
 	}
 	
 	@Override
+    public Value caseAProcessDefinition(AProcessDefinition node,Context question)
+        throws AnalysisException
+      {
+		question.putNew(new NameValuePair(node.getName(), 
+        		CmlValueFactory.createProcessObjectValue(node,null)));
+		
+		return null;
+      }
+	
+	@Override
 	public Value caseAStateDefinition(AStateDefinition node,
-			CmlContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 		
 		for(PDefinition def : node.getStateDefs())
 		{
@@ -45,7 +61,7 @@ public class CmlDeclAndDefEvaluator extends
 	
 	@Override
 	public Value caseAActionsDefinition(AActionsDefinition node,
-			CmlContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 
 		for(AActionDefinition actionDef : node.getActions())
 		{
@@ -57,7 +73,7 @@ public class CmlDeclAndDefEvaluator extends
 	
 	@Override
 	public Value caseAActionDefinition(AActionDefinition node,
-			CmlContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 
 		question.putNew(new NameValuePair(node.getName(), 
 				CmlValueFactory.createActionValue(node)));
@@ -67,7 +83,7 @@ public class CmlDeclAndDefEvaluator extends
 	
 	@Override
 	public Value caseAFunctionsDefinition(AFunctionsDefinition node,
-			CmlContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 
 		
 		for(PDefinition funcDefs : node.getFunctionDefinitions())
@@ -80,7 +96,7 @@ public class CmlDeclAndDefEvaluator extends
 	
 	@Override
 	public Value caseAExplicitFunctionDefinition(
-			AExplicitFunctionDefinition node, CmlContext question)
+			AExplicitFunctionDefinition node, Context question)
 			throws AnalysisException {
 
 		node.setIsTypeInvariant(false);
@@ -95,7 +111,7 @@ public class CmlDeclAndDefEvaluator extends
 	
 	@Override
 	public Value caseAOperationsDefinition(AOperationsDefinition node,
-			CmlContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 
 		for(SCmlOperationDefinition operationDef : node.getOperations())
 		{
@@ -107,7 +123,7 @@ public class CmlDeclAndDefEvaluator extends
 	
 	@Override
 	public Value caseAExplicitCmlOperationDefinition(
-			AExplicitCmlOperationDefinition node, CmlContext question)
+			AExplicitCmlOperationDefinition node, Context question)
 			throws AnalysisException {
 	
 		question.putNew(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node)));
@@ -117,7 +133,7 @@ public class CmlDeclAndDefEvaluator extends
 
 	@Override
 	public Value caseAAssignmentDefinition(AAssignmentDefinition node,
-			CmlContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 		
 		Value expValue = null;
 		if(node.getExpression() != null)
@@ -129,6 +145,22 @@ public class CmlDeclAndDefEvaluator extends
 		
 		return null;
 	}
+	
+	@Override
+    public Value caseAChannelsDefinition(AChannelsDefinition node,
+			Context question) throws AnalysisException
+    {
+    	for (AChannelNameDefinition cnd : node.getChannelNameDeclarations())
+    	{
+    		for (LexIdentifierToken channelName : cnd.getSingleType().getIdentifiers())
+    		{
+    			LexNameToken name = new LexNameToken("|CHANNELS|", channelName);
+    			question.putNew(new NameValuePair(name, new CMLChannelValue(cnd.getSingleType().getType(),name)));
+    		}
+    	}
+    	
+    	return null;
+    }
 
 }
 

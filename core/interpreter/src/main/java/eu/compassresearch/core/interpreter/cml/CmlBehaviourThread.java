@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.EventSource;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 
@@ -33,7 +33,7 @@ public interface CmlBehaviourThread extends CmlBehaviour{
 	 * Returns the current execution state of the process
 	 * @return The current context
 	 */
-	public Pair<? extends INode,CmlContext> getExecutionState();
+	public Pair<INode,Context> getExecutionState();
 	
 	/**
 	 * Name of the process
@@ -98,4 +98,11 @@ public interface CmlBehaviourThread extends CmlBehaviour{
 	 * @return The appropriate EventSource for event registration
 	 */
 	public EventSource<CmlProcessTraceObserver> onTraceChanged();
+	
+	
+	void setRestorePoint();
+	
+	void revertToRestorePoint();
+	
+	boolean inBactrackMode();
 }
