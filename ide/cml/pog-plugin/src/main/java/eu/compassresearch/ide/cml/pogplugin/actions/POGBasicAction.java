@@ -22,8 +22,8 @@ import org.overture.pog.obligation.ProofObligation;
 import org.overture.pog.obligation.ProofObligationList;
 
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
@@ -64,6 +64,11 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 	tempPo.deleteOnExit();
 
 	
+	if (!CmlTypeChecker.Utils.isWellType(csu.getSourceAst())){
+		popErrorMessage(csu.getFile().getName()+" is not properpy type checked");
+		return;
+	}
+	
 	
 	FileWriter fw;
 	try {
@@ -73,7 +78,7 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 	    fw.flush();
 	    fw.close();
 
-	    File fileToOpen = new File(workspaceLoc, "proofobligation.tmp");
+	    File fileToOpen = new File(workspaceLoc, "proofobligation");
 
 	    if (fileToOpen.exists() && fileToOpen.isFile()) {
 		IFileStore fileStore = EFS.getLocalFileSystem().getStore(
@@ -92,14 +97,14 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 	}
 	catch (Exception e){
 	    e.printStackTrace();
-	    popErrorMessage(e);
+	    popErrorMessage(e.toString());
 	}
 
     }
 
-    private void popErrorMessage(Exception e) {
+    private void popErrorMessage(String s) {
 	MessageDialog.openInformation(window.getShell(), "COMPASS",
-		"Could not generate POs.\n" + e.toString());	
+		"Could not generate POs.\n" + s);	
     }
 
     private char[] getPOsfromSource(CmlSourceUnit csu) {
