@@ -1,9 +1,7 @@
 package eu.compassresearch.ide.cml.ui.editor.syntax;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -24,7 +22,6 @@ import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AChansetsDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
-import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
@@ -40,7 +37,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 	private static final String SMILING_ERROR_STRING = "P = NP ? Well we are working on it.";
 	@SuppressWarnings("unused")
 	private final Control parentControl;
-	private Map<String, Object> _wrapperCache = new HashMap<String, Object>();
+//	private Map<String, Object> _wrapperCache = new HashMap<String, Object>();
 
 	public CmlTreeContentProvider(Control control) {
 		parentControl = control;
@@ -81,7 +78,8 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 				for (PDefinition def : current.getParagraphs()) {
 
 					// Get the entry names for the global declarations
-					String dscr = def.toString();
+					String dscr =   TopLevelDefinitionMap.getDescription(def
+							.getClass());
 					if (dscr == null)
 						res.add(Wrapper.newInstance(def, def.getName().name));
 				    else
