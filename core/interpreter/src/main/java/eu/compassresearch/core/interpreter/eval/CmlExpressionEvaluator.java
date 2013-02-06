@@ -18,6 +18,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
+import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -116,5 +117,16 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<Context, Va
 		return new CmlAlphabet(createEvent(node.getIdentifier(), question));
 	}
 	
+	
+	@Override
+	public Value caseAUnresolvedPathExp(AUnresolvedPathExp node,
+			Context question) throws AnalysisException {
+	
+		Value val = question.check(new LexNameToken("",node.getIdentifiers().get(0))); 
+		
+		
+		// TODO Auto-generated method stub
+		return super.caseAUnresolvedPathExp(node, question);
+	}
 	
 }

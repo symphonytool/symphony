@@ -378,7 +378,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	public CmlBehaviourSignal caseAHidingAction(AHidingAction node,
 			Context question) throws AnalysisException {
 
-		setHidingAlphabet((CmlAlphabet)node.getChansetExpression().apply(cmlEvaluator,question));
+		setHidingAlphabet((CmlAlphabet)node.getChansetExpression().apply(cmlValueEvaluator,question));
 
 		pushNext(node.getLeft(), question); 
 		
@@ -387,7 +387,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	
 	/**
 	 * Recursion - section 7.5.9
-	 * 
+	 * TODO Mutually recursive processes are not implemented yet
 	 */
 	@Override
 	public CmlBehaviourSignal caseAMuAction(AMuAction node, Context question)
@@ -395,13 +395,15 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 
 		AMuAction muActionClone = node.clone();
 		
-		for(int i = node.getIdentifiers().size()-1; i >= 0 ; i--)
+		for(int i = 0; i < node.getIdentifiers().size() ; i++)
 		{
 			PAction action = muActionClone.getActions().get(i); 
 			doMuReplace(action,muActionClone,
 					node.getIdentifiers().get(i));
-			pushNext(action, question);
+			if(i == 0)
+				pushNext(action, question);
 		}
+
 		
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
