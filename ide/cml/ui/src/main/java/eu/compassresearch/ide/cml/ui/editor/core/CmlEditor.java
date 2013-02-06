@@ -48,6 +48,7 @@ import org.overture.ide.ui.IVdmUiConstants;
 import org.overture.ide.ui.editor.core.VdmSourceViewerConfiguration;
 
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.ide.cml.ui.builder.CmlIncrementalBuilder;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit.CmlSourceChangedListener;
@@ -260,6 +261,10 @@ public class CmlEditor extends TextEditor {
 	if (ast.getParagraphs().isEmpty())
 	    return false;
 
+	if (!CmlTypeChecker.Utils.isWellType(ast)){
+		return false;
+	}
+	
 	return true;
     }
 
