@@ -277,41 +277,54 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		}
 
 		String tcTag, reqTag;
-		Set<String> tcSet = tc2req.keySet();
+		Set<String> tcSet = testcases.keySet();
 		Iterator<String> tcIt = tcSet.iterator();
 		while (tcIt.hasNext()) {
 			tcTag = tcIt.next();
-			List<String> requirements = tc2req.get(tcTag);
 			TreeItem reqParent = null;
-			for (int idx = 0; idx < requirements.size(); idx++) {
-				reqTag = requirements.get(idx);
-				if (idx == 0) {
-					reqParent = new TreeItem(tcTreeView, SWT.NONE);
-					reqParent.setText(0, tcTag);
-					reqParent.setText(1, tccov.get(tcTag).toString());
-					TreeEditor editor = new TreeEditor(tcTreeView);
-					editor.horizontalAlignment = SWT.CENTER;
-					editor.minimumWidth = 20;
-				    Button cellEditor = new Button(tcTreeView, SWT.PUSH);
-				    cellEditor.setText("...");
-				    cellEditor.setBackground(reqParent.getBackground());
-				    cellEditor.setData(tcTag + ";" + testcases.get(tcTag) + ";");
-				    cellEditor.addSelectionListener(new SelectionListener() {
-						@Override
-						public void widgetSelected(SelectionEvent e) { addTestcase(e); }
+			// add testcase
+			reqParent = new TreeItem(tcTreeView, SWT.NONE);
+			reqParent.setText(0, tcTag);
+			if (tccov.get(tcTag)) {
+				reqParent.setText(1, "COVERED");
+			} else {
+				reqParent.setText(1, "NOT COVERED");
+			}
+			TreeEditor editor = new TreeEditor(tcTreeView);
+			editor.horizontalAlignment = SWT.LEFT;
+			editor.minimumWidth = 20;
+		    Button cellEditor = new Button(tcTreeView, SWT.PUSH);
+		    cellEditor.setText("...");
+		    cellEditor.setBackground(reqParent.getBackground());
+		    cellEditor.setData(tcTag + ";" + testcases.get(tcTag) + ";");
+		    cellEditor.addSelectionListener(new SelectionListener() {
+				@Override
+				public void widgetSelected(SelectionEvent e) { addTestcase(e); }
 
-						@Override
-						public void widgetDefaultSelected(SelectionEvent e) { addTestcase(e); }
-						});
-				    editor.setEditor(cellEditor, reqParent, 2);
-					client.addLogMessage(tcTag + "covered: " + tccov.get(tcTag) + "\n");
-				}
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) { addTestcase(e); }
+				});
+		    editor.setEditor(cellEditor, reqParent, 2);
+			client.addLogMessage(tcTag + "covered: " + tccov.get(tcTag) + "\n");
+			// add requirements
+			List<String> requirements = tc2req.get(tcTag);
+			for (int idx = 0; ((requirements != null) && (idx < requirements.size())); idx++) {
+				reqTag = requirements.get(idx);
 				TreeItem req = new TreeItem(reqParent, SWT.NONE);
 				req.setText(0, reqTag);
-				req.setText(1, reqcov.get(reqTag).toString());
+				if (reqcov.get(reqTag)) {
+					req.setText(1, "COVERED");
+				} else {
+					req.setText(1, "NOT COVERED");
+				}
 				req.setText(2, "");
 				client.addLogMessage("|->" + reqTag + "covered: " + reqcov.get(reqTag) + "\n");
 			}
+		}
+
+		// pack columns
+		for (int idx = 0; idx < tc2reqHeader.length; idx++) {
+			tcTreeView.getColumn(idx).pack();
 		}
 	}
 
@@ -338,20 +351,26 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 			reqTag = reqIt.next();
 			List<String> tcs = req2tc.get(reqTag);
 			TreeItem tcParent = null;
+			tcParent = new TreeItem(reqTreeView, SWT.NONE);
+			tcParent.setText(0, reqTag);
+			if (reqcov.get(reqTag)) {
+				tcParent.setText(1, "COVERED");
+			} else {
+				tcParent.setText(1, "NOT COVERED");
+			}
+			tcParent.setText(2, "");
+			client.addLogMessage(reqTag + "covered: " + reqcov.get(reqTag) + "\n");
 			for (int idx = 0; idx < tcs.size(); idx++) {
 				tcTag = tcs.get(idx);
-				if (idx == 0) {
-					tcParent = new TreeItem(reqTreeView, SWT.NONE);
-					tcParent.setText(0, reqTag);
-					tcParent.setText(1, reqcov.get(reqTag).toString());
-					tcParent.setText(2, "");
-					client.addLogMessage(tcTag + "covered: " + reqcov.get(reqTag) + "\n");
-				}
 				TreeItem tc = new TreeItem(tcParent, SWT.NONE);
 				tc.setText(0, tcTag);
-				tc.setText(1, tccov.get(tcTag).toString());
+				if (tccov.get(tcTag)) {
+					tc.setText(1, "COVERED");
+				} else {
+					tc.setText(1, "NOT COVERED");
+				}
 				TreeEditor editor = new TreeEditor(reqTreeView);
-				editor.horizontalAlignment = SWT.CENTER;
+				editor.horizontalAlignment = SWT.LEFT;
 				editor.minimumWidth = 20;
 			    Button cellEditor = new Button(reqTreeView, SWT.PUSH);
 			    cellEditor.setText("...");
@@ -367,6 +386,10 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 			    editor.setEditor(cellEditor, tc, 2);
 				client.addLogMessage("|->" + tcTag + "covered: " + tccov.get(tcTag) + "\n");
 			}
+		}
+		// pack columns
+		for (int idx = 0; idx < req2tcHeader.length; idx++) {
+			reqTreeView.getColumn(idx).pack();
 		}
 	}
 	
