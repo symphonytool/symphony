@@ -1,0 +1,11 @@
+channels 
+a 
+process A = 
+begin 
+	state
+	v : int := 2
+
+	
+	 
+	@ mu X @ ( v := v + 1; if v = 4 then Skip else a -> X )
+end

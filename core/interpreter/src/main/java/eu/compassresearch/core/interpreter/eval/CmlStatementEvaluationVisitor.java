@@ -100,6 +100,8 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
     		if (node.getIfExp().apply(cmlEvaluator,question).boolValue(question))
     		{
     			pushNext(node.getThenStm(), question);
+    			
+    			return CmlBehaviourSignal.EXEC_SUCCESS;
     		}
     		else
     		{
