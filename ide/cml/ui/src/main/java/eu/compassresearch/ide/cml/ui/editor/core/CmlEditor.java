@@ -165,16 +165,17 @@ public class CmlEditor extends TextEditor {
 	    CmlSourceUnit csu = CmlSourceUnit
 		    .getFromFileResource(fei.getFile());
 	    
-	    // if there is no AST, build it. This is a hack
-	    if (csu.getSourceAst() == null){
-	    	try {
-				ResourcesPlugin.getWorkspace().build(CmlIncrementalBuilder.FULL_BUILD, null);
-			} catch (CoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	    }
-	    
+			// // if there is no AST, build it. This is a hack
+			// if (csu.getSourceAst() == null){
+			// try {
+			// ResourcesPlugin.getWorkspace().build(CmlIncrementalBuilder.FULL_BUILD,
+			// null);
+			// } catch (CoreException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
+			// }
+			//
 	    cmlOutliner.setInput(csu);
 	    csu.addChangeListener(new CmlSourceChangedListener() {
 

@@ -60,7 +60,7 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 
 	String workspaceLoc = ResourcesPlugin.getWorkspace().getRoot()
 		.getLocation().toString();
-	File tempPo = new File(workspaceLoc, "proofobligation.tmp");
+	File tempPo = new File(workspaceLoc, "proofobligations");
 	tempPo.deleteOnExit();
 
 	
@@ -78,7 +78,7 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 	    fw.flush();
 	    fw.close();
 
-	    File fileToOpen = new File(workspaceLoc, "proofobligation");
+	    File fileToOpen = new File(workspaceLoc, "proofobligations");
 
 	    if (fileToOpen.exists() && fileToOpen.isFile()) {
 		IFileStore fileStore = EFS.getLocalFileSystem().getStore(
