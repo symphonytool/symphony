@@ -74,7 +74,7 @@ import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 class TCExpressionVisitor extends
-		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
+QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 	private TypeComparator typeComparator;
 
@@ -90,7 +90,7 @@ class TCExpressionVisitor extends
 		if (!TCDeclAndDefVisitor.successfulType(tupleExpType)) {
 			node.setType(issueHandler.addTypeError(tupleExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(tupleExp + "")));
+					.customizeMessage(tupleExp + "")));
 			return node.getType();
 		}
 
@@ -124,7 +124,7 @@ class TCExpressionVisitor extends
 		if (!TCDeclAndDefVisitor.successfulType(expressionType)) {
 			node.setType(issueHandler.addTypeError(expression,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(expression + "")));
+					.customizeMessage(expression + "")));
 			return node.getType();
 		}
 
@@ -132,7 +132,7 @@ class TCExpressionVisitor extends
 		if (!(chanDef instanceof AChannelNameDefinition)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.EXPECTED_A_CHANNEL
-							.customizeMessage(channelId + "")));
+					.customizeMessage(channelId + "")));
 			return node.getType();
 		}
 
@@ -151,13 +151,13 @@ class TCExpressionVisitor extends
 	@Override
 	public PType caseAIdentifierVarsetExpression(
 			AIdentifierVarsetExpression node, TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		if (cmlEnv == null) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(node + "")));
+					.customizeMessage(node + "")));
 			return node.getType();
 		}
 
@@ -176,7 +176,7 @@ class TCExpressionVisitor extends
 				|| idDef instanceof AChannelNameDefinition || idDef instanceof AStateDefinition)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE
-							.customizeMessage(idDef + "")));
+					.customizeMessage(idDef + "")));
 			return node.getType();
 		}
 
@@ -192,7 +192,7 @@ class TCExpressionVisitor extends
 		if (cmlEnv == null) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage(node + "")));
+					.customizeMessage(node + "")));
 			return node.getType();
 		}
 
@@ -218,7 +218,7 @@ class TCExpressionVisitor extends
 			if ((seenState && seenChannel)) {
 				node.setType(issueHandler.addTypeError(node,
 						TypeErrorMessages.MIXING_STATE_AND_CHANNEL_IN_SET
-								.customizeMessage(ids + "")));
+						.customizeMessage(ids + "")));
 				return node.getType();
 			}
 
@@ -239,7 +239,7 @@ class TCExpressionVisitor extends
 		if (result == null)
 			result = issueHandler.addTypeError(node,
 					TypeErrorMessages.EXPECTED_CHANNEL_OR_STATE
-							.customizeMessage("" + node));
+					.customizeMessage("" + node));
 
 		node.setType(result);
 		return result;
@@ -271,7 +271,7 @@ class TCExpressionVisitor extends
 			if (!TCDeclAndDefVisitor.successfulType(mbndType)) {
 				node.setType(issueHandler.addTypeError(node,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-								.customizeMessage(node + "")));
+						.customizeMessage(node + "")));
 				return node.getType();
 			}
 		}
@@ -280,7 +280,7 @@ class TCExpressionVisitor extends
 		if (!TCDeclAndDefVisitor.successfulType(predicateType)) {
 			node.setType(issueHandler.addTypeError(predicateType,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-							.customizeMessage("" + predicate)));
+					.customizeMessage("" + predicate)));
 			return node.getType();
 		}
 
@@ -622,6 +622,11 @@ class TCExpressionVisitor extends
 			// Lookup in the CML context with qualifiers (for operations)
 			definition = nearestCmlEnvironment.lookup(name, PDefinition.class);
 
+			// Use cml Assistant to search enclosing definition for the name
+			if (question.env.getEnclosingDefinition() != null) {
+				CmlAssistant assistant = new CmlAssistant();
+				definition = assistant.findMemberName(question.env.getEnclosingDefinition(), name, nearestCmlEnvironment);
+			}
 		} while (false);
 
 		// any luck?
@@ -680,7 +685,7 @@ class TCExpressionVisitor extends
 	@Override
 	public PType defaultPExp(PExp node,
 			org.overture.typechecker.TypeCheckInfo question)
-			throws AnalysisException {
+					throws AnalysisException {
 		org.overture.typechecker.TypeChecker.clearErrors();
 
 		INode ovtNode = node;
