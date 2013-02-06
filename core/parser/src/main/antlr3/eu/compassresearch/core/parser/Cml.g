@@ -280,8 +280,16 @@ public static void main(String[] args) throws Exception {
             System.out.println("Expected: " + CmlParser.tokenNames[e.expecting]);
         System.out.println("---- ---- ----");
         throw e;
+    } catch(NoViableAltException e) {
+        System.out.println("No Viable Alternative at " + e.token);
+        System.out.println("---- ---- ----");
+        throw e;
+    } catch(RecognitionException e) {
+        System.out.println("Something generating RecognitionException (or subclass) at " + e.token);
+        System.out.println("---- ---- ----");
+        throw e;
     }
-    }
+}
 
 } // end @parser::members
 
