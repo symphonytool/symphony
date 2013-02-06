@@ -112,4 +112,8 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 		
 		return success;
 	}
+	
+	public static boolean isRttMbtProject() {
+		return false;
+	}
 }

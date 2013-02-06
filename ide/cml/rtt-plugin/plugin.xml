@@ -55,8 +55,8 @@
     <command
       defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
       id="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
-      name="Initialise RTT-MBT component"
-    />
+      name="Initialise RTT-MBT component">
+    </command>
   </extension>
   <extension point="org.eclipse.ui.menus">
     <menuContribution
@@ -65,8 +65,11 @@
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
         label="Import Model"
         tooltip="Initialise RTT-MBT component"
-        icon="icons/mbt_import_model.png"
-      />
+        icon="icons/mbt_import_model.png">
+		<activeWhen>
+        	<test property="eu.compassresearch.ide.cml.rttplugin.RttMbtPopupMenuAction.isRttMbtProject" value="true"/>
+		</activeWhen>
+      </command>
     </menuContribution>
   </extension>
 
