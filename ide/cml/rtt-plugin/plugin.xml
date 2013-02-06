@@ -50,14 +50,18 @@
         	name="COMPASS"/>
   </extension>
   
-  <!-- Import Model -->
-  <extension point="org.eclipse.ui.commands">
-    <command
-      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
-      id="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
-      name="Initialise RTT-MBT component">
-    </command>
+  <!-- pop up mennu property tester -->
+  <extension point="org.eclipse.core.expressions.propertyTesters">
+    <propertyTester
+	  id="eu.compassresearch.ide.cml.rttplugin.rttPropertyTester"
+      type="java.lang.Object"
+      namespace="eu.compassresearch.ide.cml.rttplugin"
+      properties="isRttMbtProject, isTestGenerationContext, isRttTestprocedure"
+      class="eu.compassresearch.ide.cml.rttplugin.RttMbtPropertyTester">
+    </propertyTester>
   </extension>
+
+  <!-- Import Model -->
   <extension point="org.eclipse.ui.menus">
     <menuContribution
       locationURI="popup:org.overture.ide.ui.VdmExplorer">
@@ -66,11 +70,20 @@
         label="Import Model"
         tooltip="Initialise RTT-MBT component"
         icon="icons/mbt_import_model.png">
-		<activeWhen>
-        	<test property="eu.compassresearch.ide.cml.rttplugin.RttMbtPopupMenuAction.isRttMbtProject" value="true"/>
-		</activeWhen>
+		<enabledWhen>
+			<with variable="selection">
+        		<test property="eu.compassresearch.ide.cml.rttplugin.isRttMbtProject"/>
+        	</with>
+		</enabledWhen>
       </command>
     </menuContribution>
+  </extension>
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
+      name="Initialise RTT-MBT component">
+    </command>
   </extension>
 
   <!-- Generate Test Procedure -->
