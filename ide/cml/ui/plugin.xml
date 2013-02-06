@@ -22,6 +22,22 @@
    
    <extension
          point="org.eclipse.ui.newWizards">
+
+
+    
+      
+     
+      
+      
+      <wizard
+            category="compass_eu.compassresearch.ide.cml.ui.category"
+            class="eu.compassresearch.ide.cml.ui.wizard.NewCmlFileWizard"
+            icon="icons/cview16/cml_file_tsk.png"
+            id="eu.compassresearch.ide.cml.ui.newcmlfilewizard"
+            name="CML File">
+      </wizard>
+       <primaryWizard id="eu.compassresearch.ide.cml.ui.newcmlfilewizard" />
+      
       <wizard
             category="compass_eu.compassresearch.ide.cml.ui.category"
             class="eu.compassresearch.ide.cml.ui.wizard.NewCmlProjectWizard"
@@ -33,23 +49,7 @@
             project="true">
 
       </wizard>
-
-      <primaryWizard
-
-            id="eu.compassresearch.ide.CmlProjectWizard">
-
-      </primaryWizard>
-      
-      <primaryWizard id="eu.compassresearch.ide.cml.ui.wizard.NewCmlFileWizard" />
-      
-      
-      <wizard
-            category="compass_eu.compassresearch.ide.cml.ui.category"
-            class="eu.compassresearch.ide.cml.ui.wizard.NewCmlFileWizard"
-            icon="icons/cview16/cml_file_tsk.png"
-            id="eu.compassresearch.ide.cml.ui.newcmlfilewizard"
-            name="CML File">
-      </wizard>
+        <primaryWizard id="eu.compassresearch.ide.CmlProjectWizard" />
       
        <wizard
             category="compass_eu.compassresearch.ide.cml.ui.category"
@@ -298,10 +298,16 @@
 	        </and>
          </filterExpression>
       </commonFilter>-->
+      
+      
+      
+      
+      
+      
       <commonWizard
             menuGroupId="org.overture.ide.ui.vdm"
             type="new"
-            wizardId="org.overture.ide.vdmpp.ui.addLibraryWizard">
+            wizardId="eu.compassresearch.ide.cml.ui.newcmlfilewizard">
          <enablement>
           <or>
                <adapt
