@@ -1,17 +1,20 @@
 package eu.compassresearch.ide.cml.rttplugin;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 import eu.compassResearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 import eu.compassResearch.rttMbtTmsClientApi.RttMbtClient;
-import eu.compassResearch.rttMbtTmsClientApi.IRttMbtLoggingFacility;
 
 public class Activator implements BundleActivator
   {
 
 	// RTT-MBT client attribute
-	static RttMbtClient client;
+	static private RttMbtClient client;
+
 
 	static public RttMbtClient getClient() {
 		return client;
@@ -39,16 +42,15 @@ public class Activator implements BundleActivator
 	}
 
     @Override
-    public void start(BundleContext arg0) throws Exception
+    public void start(BundleContext context) throws Exception
       {
-    	// load setting
-    	String server = "localhost";
-    	Integer port = 9116;
-    	String user = "uwe";
-    	String id = "uschulze@informatik.uni-bremen.de";
-
     	// create client
-    	client = new RttMbtClient(server, port, user, id);
+		@SuppressWarnings("deprecation")
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+    	client = new RttMbtClient(store.getString("RttMbtServer"),
+    							  store.getInt("RttMbtServerPort"),
+    							  store.getString("RttMbtUserName"),
+    							  store.getString("RttMbtUserId"));
       }
     
     @Override
@@ -62,5 +64,22 @@ public class Activator implements BundleActivator
     	// store settings
     	
       }
+
+	public static IWorkbench getDefault() {
+		return PlatformUI.getWorkbench();
+	}
+	
+	public static void updatePreferences() {
+		System.out.println("Activator.updatePreferences");
+		if (client != null) {
+			@SuppressWarnings("deprecation")
+			IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+			client.setRttMbtServer(store.getString("RttMbtServer"));
+			client.setRttMbtPort(store.getInt("RttMbtServerPort"));
+			client.setUserName(store.getString("RttMbtUserName"));
+			client.setUserId(store.getString("RttMbtUserId"));
+			System.out.println("updated client settings to ('" + client.getRttMbtServer() + "', '" + client.getRttMbtPort() + "', '" + client.getUserName() + "', '" + client.getUserId() + "')");
+		}
+	}
     
   }

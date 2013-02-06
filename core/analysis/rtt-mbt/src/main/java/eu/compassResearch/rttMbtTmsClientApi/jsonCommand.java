@@ -12,7 +12,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -92,7 +94,8 @@ public class jsonCommand {
 		sendDebugInformation();
 		
 		// send command
-		sendCommand(getJsonCommandString());
+		sendCommand(getJsonCommandString());			System.out.println("socket address '" + rttMbtServer + "', '" + rttMbtServerPort + "' created");
+
 
 		// receive reply
 		reply = receiveReply();
@@ -138,13 +141,18 @@ public class jsonCommand {
 	public Boolean connectToServer() {
 		try{
 			//1. creating a socket to connect to the server
-			clientSocket = new Socket(rttMbtServer, rttMbtServerPort);
+			SocketAddress sockaddr = new InetSocketAddress(rttMbtServer, rttMbtServerPort);
+			clientSocket = new Socket();
+			clientSocket.connect(sockaddr, 10000);
 		}
 		catch(UnknownHostException unknownHost){
 			System.err.println("*** error: unknown host " + rttMbtServer + "!");
+			isConnected = false;
 			return false;
 		}
 		catch(IOException ioException){
+			System.err.println("*** error: unable to connect to " + rttMbtServer + ", port " + rttMbtServerPort + "!");
+			isConnected = false;
 			return false;
 		}
 		finally{

@@ -229,4 +229,21 @@
         filenames="overall_coverage.csv"/>
   </extension>
 
+  <!-- RTT-MBT preferences page -->
+  <extension
+        point="org.eclipse.ui.preferencePages">
+     <page
+           class="eu.compassresearch.ide.cml.rttplugin.RttMbtPreferencesPage"
+           id="eu.compassresearch.ide.cml.rttplugin.RttMbtPreferencesPage"
+           name="RTT-MBT"
+           category="RTT-MBT">
+     </page>
+  </extension>
+  <extension
+        point="org.eclipse.core.runtime.preferences">
+     <initializer
+           class="eu.compassresearch.ide.cml.rttplugin.PreferenceInitializer">
+     </initializer>
+  </extension>
+
 </plugin>
