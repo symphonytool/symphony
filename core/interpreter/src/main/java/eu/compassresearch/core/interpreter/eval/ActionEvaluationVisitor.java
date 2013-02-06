@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.eval;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
@@ -15,6 +16,7 @@ import eu.compassresearch.ast.actions.AGuardedAction;
 import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
 import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.AMuAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
@@ -23,6 +25,7 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.actions.SStatementAction;
+import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -368,6 +371,9 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
+	/**
+	 * Hiding - section 7.5.8 D23.2
+	 */
 	@Override
 	public CmlBehaviourSignal caseAHidingAction(AHidingAction node,
 			Context question) throws AnalysisException {
@@ -377,5 +383,50 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		pushNext(node.getLeft(), question); 
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	/**
+	 * Recursion - section 7.5.9
+	 * 
+	 */
+	@Override
+	public CmlBehaviourSignal caseAMuAction(AMuAction node, Context question)
+			throws AnalysisException {
+
+		AMuAction muActionClone = node.clone();
+		
+		for(int i = node.getIdentifiers().size()-1; i >= 0 ; i--)
+		{
+			PAction action = muActionClone.getActions().get(i); 
+			doMuReplace(action,muActionClone,
+					node.getIdentifiers().get(i));
+			pushNext(action, question);
+		}
+		
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	private void doMuReplace(PAction action, final AMuAction muAction, final LexIdentifierToken id) throws AnalysisException
+	{
+		
+		class ReplaceHelper extends DepthFirstAnalysisCMLAdaptor
+		{
+			@Override
+			public void caseAReferenceAction(AReferenceAction node)
+					throws AnalysisException {
+
+				//If the identifier is equal we replace the node 
+				//with a clone of the mu action
+				if(node.getName().getIdentifier().equals(id))
+				{
+					AMuAction muClone = muAction.clone();
+					muClone.setLocation(node.getLocation());
+					node.parent().replaceChild(node, muClone);
+				}
+			}
+		}
+		
+		action.apply(new ReplaceHelper());
 	}
 }

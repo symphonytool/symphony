@@ -270,13 +270,17 @@ public static void main(String[] args) throws Exception {
     CmlParser parser = new CmlParser(tokens);
 
     // parser.exprbase();
-    // try {
+    try {
         Object o = parser.source();
         // System.out.println(parser.exprbase());
-    // } catch(Exception e) {
-    //     System.out.println("Exception from parse attempt");
-    //     System.out.println(e);
-    // }
+    } catch(MismatchedTokenException e) {
+        System.out.println("Mismatched Token");
+        System.out.println("Received: " + e.token);
+        if (e.expecting > 0 && e.expecting < CmlParser.tokenNames.length)
+            System.out.println("Expected: " + CmlParser.tokenNames[e.expecting]);
+        System.out.println("---- ---- ----");
+        throw e;
+    }
     }
 
 } // end @parser::members
