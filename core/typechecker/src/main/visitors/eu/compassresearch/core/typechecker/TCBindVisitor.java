@@ -5,15 +5,20 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.ALocalDefinition;
+import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.factory.AstFactory;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.ARecordPattern;
 import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.ATypeBind;
 import org.overture.ast.patterns.PBind;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.types.AFieldField;
+import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
@@ -140,6 +145,69 @@ implements ICMLQuestionAnswer<TypeCheckInfo, PType> {
 		return node.getType();	
 	}
 
+
+
+
+
+	@Override
+	public PType caseARecordPattern(ARecordPattern node, TypeCheckInfo question)
+			throws AnalysisException {
+	
+		LinkedList<PPattern> patterns = node.getPlist();
+		LexNameToken typeName = node.getTypename();
+		
+		NameScope scope = question.scope == null ? NameScope.LOCAL : question.scope;
+		PDefinition definition = question.env.findType(typeName, "");
+		if (definition == null) {
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(typeName+"")));
+			return node.getType();
+		}
+		
+		if (!(definition instanceof ATypeDefinition)) {
+			node.setType(issueHandler.addTypeError(node, "Expected a record type."));
+			return node.getType();
+		}
+		
+		if (!(definition.getType() instanceof ARecordInvariantType)) {
+			node.setType(issueHandler.addTypeError(definition, TypeErrorMessages.EXPECTED_TYPE_DEFINITION.customizeMessage(""+new ARecordInvariantType(definition.getLocation(), true, definition.getName()))));
+			return node.getType();
+			
+		}
+		
+		ARecordInvariantType recordType = (ARecordInvariantType)definition.getType();
+		LinkedList<AFieldField> fields = recordType.getFields();
+
+
+		if (fields.size() != patterns.size()) {
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(""+fields.size(), patterns.size()+"")));
+			return node.getType();
+		}
+
+		PType resultType = definition.getType().clone();
+		int fieldCount = 0;		
+		for(PPattern p : patterns) {
+			PType pType = p.apply(parent, question);
+			
+			if (!TCDeclAndDefVisitor.successfulType(pType)) {
+				node.setType(issueHandler.addTypeError(p, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(p+"")));
+				return node.getType();
+			}
+			
+			// Safe as we have ensured the same number of patterns and fields
+			AFieldField field = fields.get(fieldCount);
+			for(PDefinition d : pType.getDefinitions()) {
+				d.setType(field.getType());
+				resultType.getDefinitions().add(d);
+			}
+			fieldCount++;
+		}
+
+		node.setType(resultType);
+		return node.getType();
+	}
+
+	
+	
 
 
 }
