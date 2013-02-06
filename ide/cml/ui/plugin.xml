@@ -305,7 +305,7 @@
       
       
       <commonWizard
-            menuGroupId="org.overture.ide.ui.vdm"
+            menuGroupId="eu.compassresearch.ide.cml"
             type="new"
             wizardId="eu.compassresearch.ide.cml.ui.newcmlfilewizard">
          <enablement>
