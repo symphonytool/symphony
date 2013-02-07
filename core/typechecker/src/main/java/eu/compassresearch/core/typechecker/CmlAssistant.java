@@ -14,6 +14,7 @@ import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.typechecker.NameScope;
@@ -109,6 +110,7 @@ class CmlAssistant {
 		injectFindMemberNameBaseCase(new OperationsDefinitionNameMemberStrategy());
 		injectFindMemberNameBaseCase(new ExternalDefinitionNameMemberStrategy());
 		injectFindMemberNameBaseCase(new AssignmentDefinitionNameMemberStrategy());
+		injectFindMemberNameBaseCase(new ExplicitFunctionDefinitionNameMemberStrategy());
 	}
 
 
@@ -143,6 +145,29 @@ class CmlAssistant {
 
 		return strategy.findMemberName(t, name, more);
 
+	}
+	
+	class ExplicitFunctionDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
+
+		@Override
+		public Class<?> getType() {
+			return AExplicitFunctionDefinition.class;
+		}
+
+		@Override
+		public PDefinition findMemberName(PDefinition def,
+				LexIdentifierToken name, Object... more) {
+
+			AExplicitFunctionDefinition funDef = (AExplicitFunctionDefinition)def;
+			LinkedList<PDefinition> params = funDef.getParamDefinitionList();
+			for(PDefinition pdef : params) {
+				LexNameToken n = new LexNameToken("", name);	
+				if (LexNameTokenAssistent.isEqual(pdef.getName(), n))
+					return pdef;				
+			}
+			return null;
+		}
+		
 	}
 
 	class AssignmentDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
