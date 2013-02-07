@@ -238,7 +238,7 @@ public class RunCmlExamplesTestCase {
 				if (!found)
 				{
 					System.out.println("\t [FAILED UNEXPECTED]");
-					System.out.println( TestUtil.buildErrorMessage(tc,false));
+					System.out.println(TestUtil.buildErrorMessage(tc,false));
 				}
 				Assert.assertTrue("Expected Error:\n" + expectedError
 						+ "\nbut it was not found.", found);
