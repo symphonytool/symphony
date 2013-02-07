@@ -18,6 +18,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.pog.obligation.ProofObligation;
 import org.overture.pog.obligation.ProofObligationList;
 
@@ -36,124 +37,118 @@ import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
  * @see IWorkbenchWindowActionDelegate
  */
 public class POGBasicAction implements IWorkbenchWindowActionDelegate {
-    private IWorkbenchWindow window;
+	private IWorkbenchWindow window;
 
-    /**
-     * The constructor.
-     */
-    public POGBasicAction() {
-    }
-
-    /**
-     * The action has been activated. The argument of the method represents the
-     * 'real' action sitting in the workbench UI.
-     * 
-     * @see IWorkbenchWindowActionDelegate#run
-     */
-    public void run(IAction action) {
-	CmlEditor edi = (CmlEditor) window.getWorkbench()
-		.getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-	if (edi == null)
-	    return;
-	FileEditorInput fei = (FileEditorInput) edi.getEditorInput();
-	CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
-
-	String workspaceLoc = ResourcesPlugin.getWorkspace().getRoot()
-		.getLocation().toString();
-	File tempPo = new File(workspaceLoc, "proofobligations");
-	tempPo.deleteOnExit();
-
-	
-	if (!CmlTypeChecker.Utils.isWellType(csu.getSourceAst())){
-		popErrorMessage(csu.getFile().getName()+" is not properpy type checked");
-		return;
-	}
-	
-	
-	FileWriter fw;
-	try {
-	    fw = new FileWriter(tempPo);
-	    // fw.write(csu.toString());
-	    fw.write(getPOsfromSource(csu));
-	    fw.flush();
-	    fw.close();
-
-	    File fileToOpen = new File(workspaceLoc, "proofobligations");
-
-	    if (fileToOpen.exists() && fileToOpen.isFile()) {
-		IFileStore fileStore = EFS.getLocalFileSystem().getStore(
-			fileToOpen.toURI());
-		IWorkbenchPage page = PlatformUI.getWorkbench()
-			.getActiveWorkbenchWindow().getActivePage();
-		IDE.openEditorOnFileStore(page, fileStore);
-
-	    } else {
-	    }
-
-	} catch (IOException e) {
-	    e.printStackTrace();
-	} catch (PartInitException e) {
-	    e.printStackTrace();
-	}
-	catch (Exception e){
-	    e.printStackTrace();
-	    popErrorMessage(e.toString());
+	/**
+	 * The constructor.
+	 */
+	public POGBasicAction() {
 	}
 
-    }
+	/**
+	 * The action has been activated. The argument of the method represents the
+	 * 'real' action sitting in the workbench UI.
+	 * 
+	 * @see IWorkbenchWindowActionDelegate#run
+	 */
+	public void run(IAction action) {
+		CmlEditor edi = (CmlEditor) window.getWorkbench()
+				.getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+		if (edi == null)
+			return;
+		FileEditorInput fei = (FileEditorInput) edi.getEditorInput();
+		CmlSourceUnit csu = CmlSourceUnit.getFromFileResource(fei.getFile());
 
-    private void popErrorMessage(String s) {
-	MessageDialog.openInformation(window.getShell(), "COMPASS",
-		"Could not generate POs.\n" + s);	
-    }
+		String workspaceLoc = ResourcesPlugin.getWorkspace().getRoot()
+				.getLocation().toString();
+		File tempPo = new File(workspaceLoc, "proofobligations");
+		tempPo.deleteOnExit();
 
-    private char[] getPOsfromSource(CmlSourceUnit csu) {
-	StringBuilder sb = new StringBuilder();
-	sb.append("-- AUTO-GENERATED PROOF OBLIGATIONS FOR: ");
-	sb.append(((IFile) csu.getFile()).getName() + "\n");
-	sb.append("-- CAUTION: this file will be deleted upon exit.\n");
-	sb.append("------------------------------------------------------\n");
 
-	PSource psAux = csu.getSourceAst();
-	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
-	ProofObligationList pol = new ProofObligationList();
-	try {
-	    pol=pog.generatePOs();
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    return null;
+		FileWriter fw;
+		try {
+			fw = new FileWriter(tempPo);
+			// fw.write(csu.toString());
+			fw.write(getPOsfromSource(csu));
+			fw.flush();
+			fw.close();
+
+			File fileToOpen = new File(workspaceLoc, "proofobligations");
+
+			if (fileToOpen.exists() && fileToOpen.isFile()) {
+				IFileStore fileStore = EFS.getLocalFileSystem().getStore(
+						fileToOpen.toURI());
+				IWorkbenchPage page = PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow().getActivePage();
+				IDE.openEditorOnFileStore(page, fileStore);
+
+			} else {
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			popErrorMessage(e.getMessage());
+		}
+
 	}
-	    for (ProofObligation po : pol)
-		sb.append(po.toString() + "\n");
-	return sb.toString().toCharArray();
-    }
 
-    /**
-     * Selection in the workbench has been changed. We can change the state of
-     * the 'real' action here if we want, but this can only happen after the
-     * delegate has been created.
-     * 
-     * @see IWorkbenchWindowActionDelegate#selectionChanged
-     */
-    public void selectionChanged(IAction action, ISelection selection) {
-    }
+	private void popErrorMessage(String s) {
+		MessageDialog.openInformation(window.getShell(), "COMPASS",
+				"Could not generate POs.\n" + s);
+	}
 
-    /**
-     * We can use this method to dispose of any system resources we previously
-     * allocated.
-     * 
-     * @see IWorkbenchWindowActionDelegate#dispose
-     */
-    public void dispose() {
-    }
+	private char[] getPOsfromSource(CmlSourceUnit csu) throws Exception {
 
-    /**
-     * We will cache window object in order to be able to provide parent shell
-     * for the message dialog.
-     * 
-     * @see IWorkbenchWindowActionDelegate#init
-     */
-    public void init(IWorkbenchWindow window) {
-	this.window = window;
-    }
+		if (!CmlTypeChecker.Utils.isWellType(csu.getSourceAst())) {
+			throw new AnalysisException("Type errors in " + csu.getFile().getName());
+		}
+		
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("-- AUTO-GENERATED PROOF OBLIGATIONS FOR: ");
+		sb.append(((IFile) csu.getFile()).getName() + "\n");
+		sb.append("-- CAUTION: this file is temporary and will be auto-deleted.\n");
+		sb.append("------------------------------------------------------------\n");
+
+		PSource psAux = csu.getSourceAst();
+		ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
+		ProofObligationList pol = new ProofObligationList();
+		try {
+			pol = pog.generatePOs();
+			for (ProofObligation po : pol)
+				sb.append(po.toString() + "\n");
+		} catch (Exception e) {
+			throw e;
+		}
+		return sb.toString().toCharArray();
+	}
+
+	/**
+	 * Selection in the workbench has been changed. We can change the state of
+	 * the 'real' action here if we want, but this can only happen after the
+	 * delegate has been created.
+	 * 
+	 * @see IWorkbenchWindowActionDelegate#selectionChanged
+	 */
+	public void selectionChanged(IAction action, ISelection selection) {
+	}
+
+	/**
+	 * We can use this method to dispose of any system resources we previously
+	 * allocated.
+	 * 
+	 * @see IWorkbenchWindowActionDelegate#dispose
+	 */
+	public void dispose() {
+	}
+
+	/**
+	 * We will cache window object in order to be able to provide parent shell
+	 * for the message dialog.
+	 * 
+	 * @see IWorkbenchWindowActionDelegate#init
+	 */
+	public void init(IWorkbenchWindow window) {
+		this.window = window;
+	}
 }
