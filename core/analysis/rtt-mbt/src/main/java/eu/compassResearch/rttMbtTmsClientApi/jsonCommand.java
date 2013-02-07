@@ -94,8 +94,7 @@ public class jsonCommand {
 		sendDebugInformation();
 		
 		// send command
-		sendCommand(getJsonCommandString());			System.out.println("socket address '" + rttMbtServer + "', '" + rttMbtServerPort + "' created");
-
+		sendCommand(getJsonCommandString());
 
 		// receive reply
 		reply = receiveReply();
