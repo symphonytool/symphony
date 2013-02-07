@@ -1883,11 +1883,6 @@ type returns[PType type]
             params.add(new AVoidType(extractLexLocation($unit), true));
             $type = new AFunctionType(null, false, null, totalFuncType, params, $rng.type);
         }
-    | 'set' 'of' sub=type                       { $type = new ASetType(null, false, null, $sub.type, false, false); }
-    | 'seq' 'of' sub=type                       { $type = new ASeqSeqType(null, false, null, $sub.type, false); }
-    | 'seq1' 'of' sub=type                      { $type = new ASeq1SeqType(null, false, null, $sub.type, false); }
-    | 'map' from=type 'to' to=type              { $type = new AMapMapType(null, false, null, $from.type, $to.type, false); }
-    | 'inmap' from=type 'to' to=type            { $type = new AInMapMapType(null, false, null, $from.type, $to.type, false); }
     ;
 
 type0 returns[PType type]
@@ -1941,6 +1936,11 @@ typebase returns[PType type]
             $type = new ANamedInvariantType(loc, false, null, false, null, tname,
                                             new AUnresolvedType(loc, false, new ArrayList<PDefinition>(), tname));
         }
+    | 'set' 'of' sub=typebase                   { $type = new ASetType(null, false, null, $sub.type, false, false); }
+    | 'seq' 'of' sub=typebase                   { $type = new ASeqSeqType(null, false, null, $sub.type, false); }
+    | 'seq1' 'of' sub=typebase                  { $type = new ASeq1SeqType(null, false, null, $sub.type, false); }
+    | 'map' from=typebase 'to' to=typebase      { $type = new AMapMapType(null, false, null, $from.type, $to.type, false); }
+    | 'inmap' from=typebase 'to' to=typebase    { $type = new AInMapMapType(null, false, null, $from.type, $to.type, false); }
     | 'compose' IDENTIFIER 'of' fieldList 'end'
         {
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
