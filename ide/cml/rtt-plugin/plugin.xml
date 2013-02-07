@@ -206,6 +206,66 @@
     </menuContribution>
   </extension>
 
+  <!-- push directory/file -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtSendFile"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtSendFile"
+      name="Push to Server"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtSendFile"
+        label="Push to server"
+        tooltip="Add Directory/File to RTT-MBT Server Work Area"
+        icon="icons/back.png"
+      />
+    </menuContribution>
+  </extension>
+
+  <!-- retrieve directory -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtRetrieveDirectory"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtRetrieveDirectory"
+      name="Pull from Server"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtRetrieveDirectory"
+        label="Pull from Server"
+        tooltip="Retrieve Directory Content from RTT-MBT Server Work Area"
+        icon="icons/back.png"
+      />
+    </menuContribution>
+  </extension>
+
+  <!-- Add Project -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtAddProject"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtAddProject"
+      name="Add component to Server"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtAddProject"
+        label="Add Component to Server"
+        tooltip="Add an existing RTT-MBT Component to the RTT-MBT Server Work Area"
+        icon="icons/back.png"
+      />
+    </menuContribution>
+  </extension>
+
   <!-- test generation context configuration -->
   <extension point="org.eclipse.ui.editors">
     <editor
