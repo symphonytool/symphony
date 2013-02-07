@@ -32,6 +32,6 @@ public class NewCmlClassWizard extends VdmNewFileWizard
     @Override
     protected String getFileTemplate(String fileName)
       {
-        return "class " + fileName + "\n= begin\n\nend";
+        return "class " + fileName + " = \nbegin\n\nend";
       }
   }

@@ -2,11 +2,9 @@ package eu.compassresearch.ide.cml.pogplugin.actions;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -19,14 +17,15 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.pog.obligation.ProofObligation;
+import org.overture.pog.obligation.ProofObligationList;
 
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 /**
@@ -70,60 +69,47 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 
 		try {
 
-			
-			//IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-			
-			ISelection selection = window.getSelectionService().getSelection("org.overture.ide.ui.VdmExplorer");
+			// IWorkbenchWindow window =
+			// PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
+			ISelection selection = window.getSelectionService().getSelection(
+					"org.overture.ide.ui.VdmExplorer");
 
-			if (selection.isEmpty()){
+			if (selection.isEmpty()) {
 				popErrorMessage("No project selected selected.");
 				return;
 			}
 
-			
 			IResource res = extractSelection(selection);
 			IProject proj = (IProject) res;
-			
-
-
-
 
 			// FileEditorInput fei = (FileEditorInput) edi.getEditorInput();
 			CmlSourceUnit csu = null;// CmlSourceUnit.getFromFileResource(fei.getFile());
 
 			String workspaceLoc = ResourcesPlugin.getWorkspace().getRoot()
 					.getLocation().toString();
-			File tempPo = new File(workspaceLoc, "proofobligation.tmp");
+			File tempPo = new File(workspaceLoc, "proofobligations");
 			tempPo.deleteOnExit();
 
 			FileWriter fw;
-			try {
-				fw = new FileWriter(tempPo);
-				// fw.write(csu.toString());
-				fw.write(getPOsfromSource(csu));
-				fw.flush();
-				fw.close();
 
-				File fileToOpen = new File(workspaceLoc, "proofobligation.tmp");
+			fw = new FileWriter(tempPo);
+			// fw.write(csu.toString());
+			fw.write(getPOsfromSource(csu));
+			fw.flush();
+			fw.close();
 
-				if (fileToOpen.exists() && fileToOpen.isFile()) {
-					IFileStore fileStore = EFS.getLocalFileSystem().getStore(
-							fileToOpen.toURI());
-					IWorkbenchPage page = PlatformUI.getWorkbench()
-							.getActiveWorkbenchWindow().getActivePage();
-					// IDE.
-					// IDE.openEditorOnFileStore(page, fileStore)
-					IDE.openEditorOnFileStore(page, fileStore);
+			File fileToOpen = new File(workspaceLoc, "proofobligations");
 
-				} else {
-				}
+			if (fileToOpen.exists() && fileToOpen.isFile()) {
+				IFileStore fileStore = EFS.getLocalFileSystem().getStore(
+						fileToOpen.toURI());
+				IWorkbenchPage page = PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow().getActivePage();
+				IDE.openEditorOnFileStore(page, fileStore);
 
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (PartInitException e) {
-				e.printStackTrace();
 			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			popErrorMessage(e.getMessage());
@@ -136,24 +122,29 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 				"Could not generate POs.\n" + message);
 	}
 
-	private char[] getPOsfromSource(CmlSourceUnit csu) {
+	private char[] getPOsfromSource(CmlSourceUnit csu) throws Exception {
+
+		if (!CmlTypeChecker.Utils.isWellType(csu.getSourceAst())) {
+			throw new AnalysisException("Type errors in "
+					+ csu.getFile().getName());
+		}
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("-- AUTO-GENERATED PROOF OBLIGATIONS FOR: ");
 		sb.append(((IFile) csu.getFile()).getName() + "\n");
-		sb.append("-- CAUTION: this file will be deleted upon exit.\n");
-		sb.append("------------------------------------------------------\n");
+		sb.append("-- CAUTION: this file is temporary and will be auto-deleted.\n");
+		sb.append("------------------------------------------------------------\n");
 
 		PSource psAux = csu.getSourceAst();
 		ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
-		CMLProofObligationList pol = new CMLProofObligationList();
+		ProofObligationList pol = new ProofObligationList();
 		try {
 			pol = pog.generatePOs();
+			for (ProofObligation po : pol)
+				sb.append(po.toString() + "\n");
 		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			throw e;
 		}
-		for (ProofObligation po : pol)
-			sb.append(po.toString() + "\n");
 		return sb.toString().toCharArray();
 	}
 

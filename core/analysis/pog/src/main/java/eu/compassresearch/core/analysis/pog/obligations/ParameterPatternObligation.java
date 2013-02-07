@@ -41,13 +41,13 @@ import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
-public class CMLParameterPatternObligation extends ProofObligation
+public class ParameterPatternObligation extends ProofObligation
 {
 	private final PDefinition predef;
 
 
 
-		public CMLParameterPatternObligation(
+		public ParameterPatternObligation(
 			AExplicitCmlOperationDefinition def, POContextStack ctxt)
 		{
 			super(def.getLocation(), POType.OPERATION_PATTERNS, ctxt);
@@ -56,7 +56,7 @@ public class CMLParameterPatternObligation extends ProofObligation
 		//		generate( AExplicitOperationDefinitionAssistant.getParamPatternList(def), def.getType().getParameters(), def.getType().getResult()));
 		}
 
-		public CMLParameterPatternObligation(
+		public ParameterPatternObligation(
 			AImplicitCmlOperationDefinition def, POContextStack ctxt)
 		{
 			super(def.getLocation(), POType.OPERATION_PATTERNS, ctxt);

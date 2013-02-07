@@ -27,59 +27,79 @@ import java.util.List;
 
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.statements.AErrorCase;
-import org.overture.pog.obligation.POContextStack;
-import org.overture.pog.obligation.POType;
-import org.overture.pog.obligation.ProofObligation;
 
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
-public class CMLOperationPostConditionObligation extends ProofObligation{
+public class CMLOperationPostConditionObligation extends CMLProofObligation{
 	
-		public CMLOperationPostConditionObligation(AExplicitCmlOperationDefinition op,
-				POContextStack ctxt)
-		{
-			super(op.getLocation(), POType.OP_POST_CONDITION, ctxt);
-			value = ctxt.getObligation(getExp(op.getPrecondition(), op.getPostcondition(), null));
-		}
+	private final PExp preexp;
+	private final PExp postexp;
+	private final List<AErrorCase> errs;
+			
+	public CMLOperationPostConditionObligation(AExplicitCmlOperationDefinition op,
+				CMLPOContextStack ctxt)
+	{
+		super(op.getLocation(), CMLPOType.OP_POST_CONDITION, ctxt);
+		this.preexp = op.getPrecondition();
+		this.postexp = op.getPostcondition();
+		this.errs = null;
+		this.guiString = toGUIString(ctxt);
+		this.isabelleString = toIsabelleString(ctxt);
+	}
 
-		public CMLOperationPostConditionObligation(AImplicitCmlOperationDefinition op,
-				POContextStack ctxt)
-		{
-			super(op.getLocation(), POType.OP_POST_CONDITION, ctxt);
-			value = ctxt.getObligation(getExp(op.getPrecondition(), op.getPostcondition(), op.getErrors()));
-		}
+	public CMLOperationPostConditionObligation(AImplicitCmlOperationDefinition op,
+				CMLPOContextStack ctxt)
+	{
+		super(op.getLocation(), CMLPOType.OP_POST_CONDITION, ctxt);
+		this.preexp = op.getPrecondition();
+		this.postexp = op.getPostcondition();
+		this.errs = op.getErrors();
+		this.guiString = toGUIString(ctxt);
+		this.isabelleString = toIsabelleString(ctxt);
+	}
 
-		private String getExp(PExp preexp, PExp postexp, List<AErrorCase> errs)
+	public String toGUIString(CMLPOContextStack ctxt)
+	{
+		return ctxt.getGUIString(getGUIExp());
+	}
+	
+	public String toIsabelleString(CMLPOContextStack ctxt)
+	{
+		//TODO: need to determine Isabelle format 
+		return ctxt.getIsabelleString("");
+	}
+	
+	private String getGUIExp()
+	{
+		if (errs == null || errs.isEmpty())
 		{
-			if (errs == null || errs.isEmpty())
+			return postexp.toString();
+		} else
+		{
+			StringBuilder sb = new StringBuilder();
+
+			if (preexp != null)
 			{
-				return postexp.toString();
+				sb.append("(");
+				sb.append(preexp);
+				sb.append(" and ");
+				sb.append(postexp);
+				sb.append(")");
 			} else
 			{
-				StringBuilder sb = new StringBuilder();
-
-				if (preexp != null)
-				{
-					sb.append("(");
-					sb.append(preexp);
-					sb.append(" and ");
-					sb.append(postexp);
-					sb.append(")");
-				} else
-				{
-					sb.append(postexp);
-				}
-
-				for (AErrorCase err : errs)
-				{
-					sb.append(" or (");
-					sb.append(err.getLeft());
-					sb.append(" and ");
-					sb.append(err.getRight());
-					sb.append(")");
-				}
-
-				return sb.toString();
+				sb.append(postexp);
 			}
+
+			for (AErrorCase err : errs)
+			{
+				sb.append(" or (");
+				sb.append(err.getLeft());
+				sb.append(" and ");
+				sb.append(err.getRight());
+				sb.append(")");
+			}
+
+			return sb.toString();
 		}
+	}
 }

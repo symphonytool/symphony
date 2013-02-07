@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.SynchronousQueue;
 
 import org.antlr.runtime.ANTLRInputStream;
@@ -22,6 +23,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.interpreter.values.IntegerValue;
+import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
@@ -246,7 +249,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 				Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
 				CmlSupervisorEnvironment sve = 
 						VanillaInterpreterFactory.newCmlSupervisorEnvironment(new CmlCommunicationSelectionStrategy() {
-
+							Scanner scanIn = new Scanner(System.in);
 							@Override
 							public ObservableEvent select(CmlAlphabet availableChannelEvents) {
 
@@ -256,7 +259,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 								List<String> events = new LinkedList<String>();
 								for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
 								{
-									events.add(comEvent.getChannel().getName());
+									events.add(comEvent.toString());
 								}
 
 								CmlResponseMessage response = sendRequestSynchronous(new CmlRequestMessage(CmlRequest.CHOICE,events));
@@ -274,8 +277,16 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 								for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
 								{
 									//System.out.println("found: " + comEvent.getChannel().getName());
-									if(comEvent.getChannel().getName().equals(responseStr))
+									if(comEvent.toString().equals(responseStr))
 										selectedEvent = comEvent;
+								}
+								
+								if(!selectedEvent.isValuePrecise())
+								{
+									System.out.println("Enter value : "); 
+									
+									Value val = new IntegerValue(scanIn.nextInt());
+									selectedEvent.setValue(val);
 								}
 
 								return selectedEvent;

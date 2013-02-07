@@ -116,8 +116,6 @@ public class InterpretAllCmlFilesTest {
 			
 		
 		assertTrue(isTypechecked);
-		// For now it does not have to typecheck
-		//cmlTC.typeCheck();
 
 		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(ast);
 

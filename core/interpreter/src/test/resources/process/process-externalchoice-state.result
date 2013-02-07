@@ -2,7 +2,7 @@
 <testResult type="eu.compassresearch.core.interpreter.tests.framework.ProcessTestCase">
 	<result>
 		<trace>
-			<visibleTrace>c;d</visibleTrace>
+			<visibleTrace>b;c</visibleTrace>
 		</trace>
 	</result>
 </testResult>

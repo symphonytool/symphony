@@ -4,6 +4,8 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AFunctionType;
 import org.overture.interpreter.values.FunctionValue;
+import org.overture.interpreter.values.NameValuePairMap;
+import org.overture.interpreter.values.ObjectValue;
 
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
@@ -12,9 +14,9 @@ import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 
 public class CmlValueFactory {
 
-	public static ProcessObjectValue createProcessObjectValue(AProcessDefinition processDefinition)
+	public static ProcessObjectValue createProcessObjectValue(AProcessDefinition processDefinition, ObjectValue creator)
 	{
-		return new ProcessObjectValue(processDefinition,null);
+		return new ProcessObjectValue(processDefinition,new NameValuePairMap(),creator);
 	}
 	
 	public static ActionValue createActionValue(AActionDefinition actionDefinition)

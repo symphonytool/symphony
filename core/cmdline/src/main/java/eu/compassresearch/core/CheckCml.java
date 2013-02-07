@@ -32,6 +32,7 @@ import org.antlr.runtime.RecognitionException;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IAnalysis;
 import org.overture.ast.node.INode;
+import org.overture.pog.obligation.POContextStack;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.preview.DotGraphVisitor;
@@ -512,7 +513,7 @@ public class CheckCml {
 			// object.
 			AnalysisRunAdaptor r = new AnalysisRunAdaptor(pog) {
 				public void apply(INode root) throws AnalysisException {
-					CMLPOContextStack question = new CMLPOContextStack();
+					POContextStack question = new POContextStack();
 					root.apply(pog, question);
 				}
 			};
