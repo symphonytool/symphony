@@ -171,6 +171,9 @@ public class RttMbtClient {
 			} else if ((files[i].isDirectory()) && (recursive)) {
 				folders.add(directory + "/" + files[i].getName());
 			}
+			if (!recursive) {
+				setProgress(IRttMbtProgressBar.Tasks.Global, (i * 100)/files.length);
+			}
 		}
 		for (int i = 0; i < folders.size(); i++) {
 			String subdirname = removeLocalWorkspace(folders.get(i));
@@ -256,6 +259,7 @@ public class RttMbtClient {
 		for (int idx = 0; idx < filenames.size(); idx++) {
 			String filename = removeLocalWorkspace(directory) + "/" + filenames.get(idx);
 			downloadFile(filename);
+			setProgress(IRttMbtProgressBar.Tasks.Global, (idx * 100)/filenames.size());
 		}
 		
 		return success;
