@@ -34,7 +34,8 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	//Interface that gives access to methods that control the behaviour
 	private ControlAccess 						controlAccess;
 	//Evaluator for expressions and definitions
-	protected CmlEvaluator 						cmlEvaluator = new CmlEvaluator();
+	protected CmlValueEvaluator 				cmlValueEvaluator = new CmlValueEvaluator();
+	protected CmlDefinitionEvaluator			cmlDefEvaluator = new CmlDefinitionEvaluator();
 	//use for making random but deterministic decisions
 	protected Random 							rnd = new Random(9784345);
 	//name of the thread

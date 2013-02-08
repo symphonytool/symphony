@@ -1,0 +1,7 @@
+channels 
+a
+
+process A = 
+begin 
+	@ let b = 2 in [b = 2] & a -> Skip
+end

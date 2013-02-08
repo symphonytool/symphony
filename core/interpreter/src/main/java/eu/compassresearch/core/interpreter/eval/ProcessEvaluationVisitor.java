@@ -78,23 +78,24 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		Context tmpContext = CmlContextFactory.newContext(node.getLocation(),"tmp",null);
 		
 		//Evaluate and add paragraph definitions and add the result to the state
+		NameValuePairMap valueMap = new NameValuePairMap();
 		for (PDefinition def : node.getDefinitionParagraphs())
 		{
-			def.apply(cmlEvaluator, tmpContext);
-		}
-		
-		NameValuePairMap valueMap = new NameValuePairMap();
-		for(Entry<LexNameToken,Value> entry : tmpContext.entrySet())
-		{
-			//VDM stuff expects the module to be the name of the process/class
-			LexNameToken name = entry.getKey().getModifiedName(processDef.getName().getSimpleName());
+			NameValuePairList nvps = def.apply(cmlDefEvaluator, tmpContext);
 			
-			if(entry.getValue() instanceof FunctionValue ||
-					entry.getValue() instanceof CmlOperationValue)
-				valueMap.put(new NameValuePair(name,entry.getValue()));
-			else
-				valueMap.put(new NameValuePair(name,entry.getValue().getUpdatable(null)));
+			for(NameValuePair nvp : nvps)
+			{
+				LexNameToken name = nvp.name.getModifiedName(processDef.getName().getSimpleName());
 				
+				if(nvp.value instanceof FunctionValue ||
+						nvp.value instanceof CmlOperationValue)
+					valueMap.put(new NameValuePair(name,nvp.value));
+				else
+					valueMap.put(new NameValuePair(name,nvp.value.getUpdatable(null)));
+			}
+				
+			
+		
 		}
 		
 		ProcessObjectValue self = new ProcessObjectValue(processDef,valueMap,question.getSelf());
