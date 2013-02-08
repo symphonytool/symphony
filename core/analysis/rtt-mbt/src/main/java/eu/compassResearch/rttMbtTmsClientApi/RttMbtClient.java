@@ -613,6 +613,64 @@ public class RttMbtClient {
 		return success;
 	}
 	
+	public Boolean replayTestProcedure(String abstractTestProc) {
+		Boolean success = true;
+
+		// push necessary files to cache:
+		// - configuration.csv
+		// - signalmap.csv
+		// - <test-execution-log>
+		String confDirName = getProjectName() + File.separator
+				+ "TestProcedures" + File.separator
+				+ abstractTestProc + File.separator
+				+ "conf" +  File.separator;
+		uploadFile(confDirName + "configuration.csv");
+		uploadFile(confDirName + "signalmap.csv");
+		String testdataDirName = getProjectName() + File.separator
+				+ "RTT_TestProcedures" + File.separator
+				+ abstractTestProc + File.separator
+				+ "testdata" +  File.separator;
+		// @todo: add test execution log
+		uploadFile(testdataDirName + "@todo");
+		
+		// replay-command
+		System.out.println("replay test execution " + abstractTestProc + "...");
+		jsonReplayTestCommand cmd = new jsonReplayTestCommand(this);
+		cmd.setGuiPorts(true);
+		cmd.setTestProcName("TestProcedures/" + abstractTestProc);
+		cmd.executeCommand();
+		if (!cmd.executedSuccessfully()) {
+			System.err.println("[FAIL]: generatig RTT_TestProcedures/" + abstractTestProc + " failed!");
+			// download debugging data to local directory
+			// - error.log
+			// - rtt-mbt-tms.out
+			// - rtt-mbt-tms.err
+			String dirname = getProjectName() + File.separator;
+			downloadFile(dirname + "error.log");
+			downloadFile(dirname + "rtt-mbt-tms-execution.err");
+			downloadFile(dirname + "rtt-mbt-tms-execution.out");
+			// - generation.log
+			// - error.log
+			dirname = getProjectName() + File.separator
+					+ "TestProcedures" + File.separator
+					+ abstractTestProc + File.separator
+					+ "log" + File.separator;
+			downloadFile(dirname + "generation.log");
+			downloadFile(dirname + "errors.log");
+			return false;
+		}
+
+		// download generated files to local directory:
+		// configuration.csv
+		// covered_testcases.csv
+		// missed_goals.csv
+		// signals.dat
+		// signals.json
+		// @todo: implement file transfers
+		
+		return success;
+	}
+
 	public Boolean generateSimulation(String abstractTestProc) {
 		Boolean success = true;
 

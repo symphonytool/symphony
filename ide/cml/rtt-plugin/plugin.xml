@@ -206,6 +206,26 @@
     </menuContribution>
   </extension>
 
+  <!-- Replay -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtReplayTestprocedure"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtReplayTestprocedure"
+      name="Replay Test"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtReplayTestprocedure"
+        label="Replay Test"
+        tooltip="Generate test procedure documentation"
+        icon="icons/mbt_replay.png"
+      />
+    </menuContribution>
+  </extension>
+
   <!-- push directory/file -->
   <extension point="org.eclipse.ui.commands">
     <command
@@ -241,7 +261,7 @@
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtRetrieveDirectory"
         label="Pull from Server"
         tooltip="Retrieve Directory Content from RTT-MBT Server Work Area"
-        icon="icons/back.png"
+        icon="icons/forward.png"
       />
     </menuContribution>
   </extension>
@@ -261,7 +281,7 @@
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtAddProject"
         label="Add Component to Server"
         tooltip="Add an existing RTT-MBT Component to the RTT-MBT Server Work Area"
-        icon="icons/back.png"
+        icon="icons/add.png"
       />
     </menuContribution>
   </extension>
