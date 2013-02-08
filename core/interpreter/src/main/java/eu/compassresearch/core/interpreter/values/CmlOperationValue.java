@@ -5,13 +5,19 @@ import java.util.Vector;
 
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AOperationType;
+import org.overture.interpreter.runtime.ClassContext;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ObjectContext;
+import org.overture.interpreter.runtime.RootContext;
+import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.ObjectValue;
+import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
 import org.overture.typechecker.assistant.definition.PAccessSpecifierAssistantTC;
 
@@ -20,7 +26,7 @@ import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 
-public class CmlOperationValue extends CmlValue {
+public class CmlOperationValue extends Value {
 
 	private static final long serialVersionUID = 1L;
 	public final AExplicitCmlOperationDefinition expldef;
@@ -36,7 +42,7 @@ public class CmlOperationValue extends CmlValue {
 	private PAction body;
 	private LexNameToken stateName = null;
 	private Context stateContext = null;
-	private CmlObjectValue self = null;
+	private ObjectValue self = null;
 
 	public boolean isConstructor = false;
 	public boolean isStatic = false;
@@ -92,7 +98,7 @@ public class CmlOperationValue extends CmlValue {
 		return getType().toString();
 	}
 
-	public void setSelf(CmlObjectValue self)
+	public void setSelf(ObjectValue self)
 	{
 		if (!isStatic)
 		{
@@ -100,7 +106,7 @@ public class CmlOperationValue extends CmlValue {
 		}
 	}
 
-	public CmlObjectValue getSelf()
+	public ObjectValue getSelf()
 	{
 		return self;
 	}
@@ -113,20 +119,26 @@ public class CmlOperationValue extends CmlValue {
 
 	@Override
 	public int hashCode() {
-		// TODO Auto-generated method stub
-		return 0;
+		return type.hashCode();
 	}
 
 	@Override
 	public String kind() {
-		// TODO Auto-generated method stub
-		return null;
+		return "cml operation";
 	}
 
 	@Override
 	public Object clone() {
-		// TODO Auto-generated method stub
-		return null;
+		if (expldef != null)
+		{
+			return new CmlOperationValue(expldef, precondition, postcondition,
+				state);
+		}
+		else
+		{
+			return new CmlOperationValue(impldef, precondition, postcondition,
+				state);
+		}
 	}
 
 	public List<PPattern> getParamPatterns() {
@@ -145,4 +157,24 @@ public class CmlOperationValue extends CmlValue {
 		this.currentlyExecutingThread = currentlyExecutingThread;
 	}
 
+//	public RootContext newContext(LexLocation from, String title, Context ctxt)
+//	{
+//		RootContext argContext;
+//
+//		if (self != null)
+//		{
+//			argContext = new ObjectContext(from, title, ctxt, self);
+//		}
+//		else if (classdef != null)
+//		{
+//			argContext = new ProcessContext(from, title, ctxt, classdef);
+//		}
+//		else
+//		{
+//			argContext = new StateContext(from, title, ctxt, stateContext);
+//		}
+//
+//		return argContext;
+//	}
+	
 }

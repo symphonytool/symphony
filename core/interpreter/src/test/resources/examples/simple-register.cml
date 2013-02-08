@@ -1,0 +1,47 @@
+  functions
+   oflow : (int*int) -> bool
+   oflow(i,j) == i+j > 255
+
+   uflow : (int*int) -> bool
+   uflow(i,j) == i-j < 0
+
+
+  channels
+   init, overflow, underflow
+   inc, dec : int
+
+process RegisterProc = 
+ begin
+	
+  state 
+  reg : int	
+
+  operations  
+   INIT : () ==> ()
+   INIT() == reg := 0
+
+   ADD: int ==> ()
+   ADD(i) == reg := reg + i
+   //pre not oflow(reg, i)
+   //post reg = reg~ + i
+
+   SUB: int ==> ()
+   SUB(i) == reg := reg - i
+   
+   //frame wr reg : Byte
+   //pre not uflow(reg,i)
+   //post reg = reg~ - i
+  
+  actions
+   
+   REG = 
+     (inc ? x -> ( ([oflow(reg,x)] & overflow -> INIT(); REG)
+       	     	 [] 
+		 ([not oflow(reg,x)] & ADD(x);REG)))
+     [] 
+     (dec ? x -> ( ([uflow(reg,x)] & underflow -> INIT(); REG)
+       	     	 [] 
+		 ([not uflow(reg,x)] & SUB(x); REG)))
+   @
+     init -> INIT(); REG
+ end

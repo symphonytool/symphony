@@ -2,7 +2,6 @@ package eu.compassresearch.core.typechecker;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
-import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.ANilExp;
@@ -128,8 +127,6 @@ public class OvertureRootCMLAdapter extends
 			throws AnalysisException {
 		return escapeFromOvertureContext(node, question);
 	}
-	
-	
 
 	@Override
 	public PType defaultPDefinition(PDefinition node, TypeCheckInfo question)
@@ -152,13 +149,6 @@ public class OvertureRootCMLAdapter extends
 	}
 		
 	
-
-	@Override
-	public PType caseAExplicitFunctionDefinition(
-			AExplicitFunctionDefinition node, TypeCheckInfo question)
-			throws AnalysisException {
-		return escapeFromOvertureContext(node, question);
-	}
 
 	@Override
 	public PType caseANilExp(ANilExp node, TypeCheckInfo question)

@@ -13,7 +13,7 @@ import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 
-public class CMLChannelValue extends CmlValue implements CmlSignalChannel, CmlIOChannel<Value>
+public class CMLChannelValue extends Value implements CmlSignalChannel, CmlIOChannel<Value>
 {
 
 	private LexNameToken 					name;
@@ -46,6 +46,16 @@ public class CMLChannelValue extends CmlValue implements CmlSignalChannel, CmlIO
 	{
 		this.channelType = channelType;
 		this.name = name;
+	}
+	
+	public CMLChannelValue(CMLChannelValue other)
+	{
+		this.channelType = other.channelType;
+		this.name = other.name;
+		signalObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.signalObservers);
+		readObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.readObservers);
+		writeObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.writeObservers);
+		selectObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.selectObservers);
 	}
 	
 	@Override
@@ -90,7 +100,9 @@ public class CMLChannelValue extends CmlValue implements CmlSignalChannel, CmlIO
 
 	@Override
 	public Object clone() {
-		return null;
+		
+		//return new CMLChannelValue(this);
+		return this;
 	}
 
 	@Override

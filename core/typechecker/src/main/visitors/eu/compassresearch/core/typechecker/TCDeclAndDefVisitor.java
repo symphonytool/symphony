@@ -40,7 +40,6 @@ import org.overture.ast.node.NodeList;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
-import org.overture.ast.patterns.ARecordPattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.typechecker.NameScope;
@@ -1580,6 +1579,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		return node.getType();
 	}
 
+
+
 	private TypeCheckQuestion createEnvironmentWithFormals(
 			org.overture.typechecker.TypeCheckInfo current, PDefinition funDef)
 					throws AnalysisException {
@@ -1628,8 +1629,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			i++;
 		}
 
-		return functionBodyEnv;
+	return functionBodyEnv;
 	}
+
 
 	@Override
 	public PType caseAExplicitFunctionDefinition(
@@ -1871,66 +1873,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		node.setType(node.getType());
 		return node.getType();
+}
 
-		//		// Type check the function body in an augmented environment
-		//		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) createEnvironmentWithFormals(
-		//				question, node);
-		//
-		//		
-		//		
-		//		PExp body = node.getBody();
-		//		body.apply(parentChecker, newQuestion);
-		//		if (body.getType() == null)
-		//			issueHandler.addTypeError(body,
-		//					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-		//					.customizeMessage(node.getName().name));
-		//
-		//		// Check funcType <: bodyType in question
-		//		AFunctionType funcType = node.getType();
-		//		if (!typeComparator.isSubType(body.getType(), funcType.getResult()))
-		//			issueHandler.addTypeError(body,
-		//					TypeErrorMessages.EXPECTED_SUBTYPE_RELATION
-		//					.customizeMessage(funcType.toString(), body
-		//							.getType().toString()));
-		//
-		//		AFunctionType fType = (AFunctionType) PDefinitionAssistantTC.getType(node);
-		//		node.getName().setTypeQualifier(fType.getParameters());
-		//
-		//		if (node.getBody() instanceof ASubclassResponsibilityExp)
-		//		{
-		//			node.getClassDefinition().setIsAbstract(true);
-		//		}
-		//
-		//		if (node.getBody() instanceof ASubclassResponsibilityExp ||
-		//				node.getBody() instanceof ANotYetSpecifiedExp)
-		//		{
-		//			node.setIsUndefined(true);
-		//		}
-		//
-		//		if (node.getPrecondition() != null)
-		//		{
-		//			PDefinitionAssistantTC.typeResolve(node.getPredef(),(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parentChecker,question);
-		//		}
-		//
-		//		if (node.getPostcondition() != null)
-		//		{
-		//			PDefinitionAssistantTC.typeResolve(node.getPostdef(),(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parentChecker,question);
-		//		}
-		//
-		//		for (List<PPattern> pp: node.getParamPatternList())
-		//		{
-		//			PPatternListAssistantTC.typeResolve(pp, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parentChecker, question);
-		//		}
-		//
-		//		node.setType(funcType);
-		//		node.setExpectedResult(funcType.getResult());
-		//		node.setActualResult(body.getType());
-		//
-		//		// Nonetheless the function type will be the type its definition to
-		//		// facilitate further type checking even in the presents of errors.
-		//		node.setType(funcType);
-		//		return funcType;
-	}
 
 	@Override
 	public PType caseATypeDefinition(ATypeDefinition node,

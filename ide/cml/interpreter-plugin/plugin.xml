@@ -22,6 +22,19 @@
         	name="COMPASS"/>
   </extension>
   
+  <extension point="org.eclipse.ui.views">
+    <view 
+        id="eu.compassresearch.ide.cml.interpreter_plugin.historyView"
+        name="CML Event History"
+        category="compass_eu.compassresearch.ide.cml.ui.category"
+        
+        class="eu.compassresearch.ide.cml.interpreter_plugin.views.CmlEventHistoryView" />
+        
+        <category
+        	id="compass_eu.compassresearch.ide.cml.ui.category"
+        	name="COMPASS"/>
+  </extension>
+  
   <!-- Declare launch configuration type -->
 	<extension point="org.eclipse.debug.core.launchConfigurationTypes">
 		<launchConfigurationType

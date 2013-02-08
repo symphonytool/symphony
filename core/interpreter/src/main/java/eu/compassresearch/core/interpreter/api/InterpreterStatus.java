@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
 
 public class InterpreterStatus {
 
@@ -20,7 +19,7 @@ public class InterpreterStatus {
 			this.processInfos[i] = new CmlProcessInfo(processes.get(i).name().getName(),
 					processes.get(i).getTraceModel(),
 					processes.get(i).level(),
-					processes.get(i) instanceof CmlProcess,
+					processes.get(i) instanceof CmlBehaviourThread,
 					processes.get(i).getState());
 			
 			if(this.processInfos[i].level() == 0)

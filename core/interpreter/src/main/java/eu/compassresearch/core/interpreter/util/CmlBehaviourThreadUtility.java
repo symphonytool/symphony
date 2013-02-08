@@ -1,20 +1,6 @@
 package eu.compassresearch.core.interpreter.util;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexNameToken;
-
-import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
-import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
-import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
 public class CmlBehaviourThreadUtility {
 
@@ -28,12 +14,12 @@ public class CmlBehaviourThreadUtility {
 		return isAllFinished;
 	}
 	
-	public static boolean isAllChildrenFinishedOrWaitingForEvent(CmlBehaviourThread process)
+	public static boolean isAllChildrenFinishedOrStoppedOrWaitingForEvent(CmlBehaviourThread process)
 	{
 		boolean isAllFinishedOrWaitingForEvent = true;
 		for(CmlBehaviourThread child : process.children())
 		{
-			isAllFinishedOrWaitingForEvent &= child.finished() || child.waitingForEvent();
+			isAllFinishedOrWaitingForEvent &= child.finished() || child.waitingForEvent() || child.deadlocked();
 		}
 		return isAllFinishedOrWaitingForEvent;
 	}

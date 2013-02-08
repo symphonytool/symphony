@@ -1,8 +1,10 @@
 package eu.compassresearch.core.interpreter.values;
 
+import org.overture.interpreter.values.Value;
+
 import eu.compassresearch.ast.definitions.AActionDefinition;
 
-public class ActionValue extends CmlValue {
+public class ActionValue extends Value {
 
 	private final AActionDefinition actionDefinition;
 	

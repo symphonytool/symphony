@@ -8,19 +8,15 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
 
 @SuppressWarnings("serial")
-public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CmlContext, Value> {
+public class CmlEvaluator extends QuestionAnswerCMLAdaptor<Context, Value> {
 
-	private QuestionAnswerCMLAdaptor<CmlContext, Value> exp;
-	//private QuestionAnswerCMLAdaptor<CMLContext, Value> act;
-	private QuestionAnswerCMLAdaptor<CmlContext, Value> def;
+	private QuestionAnswerCMLAdaptor<Context, Value> exp;
+	private QuestionAnswerCMLAdaptor<Context, Value> def;
 			
 	private void initialize()
 	{
-		//prc = new ProcessEvaluator(this);
-		//act = new ActionEvaluator(this);
 		exp = new CmlExpressionEvaluator();
 		def = new CmlDeclAndDefEvaluator(this);
 	}
@@ -30,17 +26,8 @@ public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CmlContext, Value> {
 		initialize();
 	}
 				
-//	@Override
-//	public Value defaultPAction(PAction node, CMLContext question)
-//			throws AnalysisException {
-//		
-//		
-//		
-//		return node.apply(act,question);
-//	}
-	
 	@Override
-	public Value defaultPExp(PExp node, CmlContext question)
+	public Value defaultPExp(PExp node, Context question)
 			throws AnalysisException {
 		
 		return node.apply(exp,question);
@@ -48,22 +35,13 @@ public class CmlEvaluator extends QuestionAnswerCMLAdaptor<CmlContext, Value> {
 	
 	@Override
 	public Value defaultPVarsetExpression(PVarsetExpression node,
-			CmlContext question) throws AnalysisException {
+			Context question) throws AnalysisException {
 
 		return node.apply(exp,question);
 	}
 		
-//	@Override
-//	public Value defaultPProcess(PProcess node, CMLContext question)
-//			throws AnalysisException {
-//		
-//		CMLProcessOld process = node.apply(prc,question);
-//		
-//		return new ProcessValueOld(process,question);
-//	}
-	
 	@Override
-	public Value defaultPDefinition(PDefinition node, CmlContext question)
+	public Value defaultPDefinition(PDefinition node, Context question)
 			throws AnalysisException {
 		
 		return node.apply(this.def,question);

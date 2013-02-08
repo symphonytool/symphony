@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
-import org.overture.ast.analysis.AnalysisException;
+import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -24,9 +24,11 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 	List<CmlBehaviourThread> running = new LinkedList<CmlBehaviourThread>();
 	List<CmlBehaviourThread> waiting = new LinkedList<CmlBehaviourThread>();
 	List<CmlBehaviourThread> finished = new LinkedList<CmlBehaviourThread>();
+	List<CmlBehaviourThread> deadlocked = new LinkedList<CmlBehaviourThread>();
 	
 	private SchedulingPolicy policy;
 	private CmlSupervisorEnvironment sve = null;
+	private boolean stopped = false;
 	
 	public CmlScheduler(SchedulingPolicy policy)
 	{
@@ -62,6 +64,7 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 		running.clear();
 		waiting.clear();
 		finished.clear();
+		deadlocked.clear();
 	}
 	
 	/**
@@ -128,18 +131,19 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 	}
 	
 	@Override
-	public void start() throws AnalysisException {
+	public void start() {
 		
+		stopped = false;
 		if(null == sve)
 			throw new NullPointerException("The supervisor is not set in the scheduler");
 		
 //		CmlTrace lastTrace = null;
 		
 		//Active state
-		while(hasActiveProcesses())
+		while(!stopped && hasActiveProcesses())
 		{
 			//execute each of the running pupils until they are either finished or in wait state
-			while(hasRunningProcesses())
+			while(!stopped && hasRunningProcesses())
 			{
 				CmlBehaviourThread p = policy.scheduleNextProcess(getRunningProcesses());
 				
@@ -171,20 +175,49 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 			 */
 			for(CmlBehaviourThread p : getWaitingTopLevelProcesses())
 			{
-				CmlAlphabet alpha = p.inspect();
+				CmlAlphabet availableEvents = p.inspect();
 
-				if(alpha.isEmpty())
+				if(availableEvents.isEmpty())
 					throw new InterpreterRuntimeException("A deadlock has occured. To developer: Change this be handled differently!!!!");
-				else if(alpha.containsSpecialEvent(CmlTauEvent.referenceTauEvent()))
-					throw new InterpreterRuntimeException("A silent transition '"+ alpha.getSpecialEvents() +"' has slipped through to a place where only observable events should be.");
+				else if(availableEvents.containsSpecialEvent(CmlTauEvent.referenceTauEvent()))
+					throw new InterpreterRuntimeException("A silent transition '"+ availableEvents.getSpecialEvents() +"' has slipped through to a place where only observable events should be.");
 				else
 				{
-					CmlAlphabet availableEvents = p.inspect();
 					
 					CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getObservableEvents());
-					//Select and set the communication event
+					for(ObservableEvent obsEvent : availableEvents.getObservableEvents())
+					{
+						Context context = obsEvent.getEventSource().getExecutionState().second;
+						
+						String state;
+						
+						if(context.getSelf() != null)
+							state = context.getSelf().toString();
+						else
+							state = context.getRoot().toString();
+						
+						CmlRuntime.logger().fine("State for "+obsEvent+" : " +  state);
+					}
 					
+//					String state;
+					
+//					if(p.getExecutionState().second.getSelf() != null)
+//						state = p.getExecutionState().second.getSelf().toString();
+//					else
+//						state = p.getExecutionState().second.getRoot().toString();
+//					
+//					CmlRuntime.logger().fine("state: \n" +  state);
+					
+					//Select and set the communication event
 					ObservableEvent selectedEvent = sve.decisionFunction().select(availableEvents); 
+					
+					if(stopped)
+					{
+				//		p.setAbort(null);
+						break;
+					}
+						
+						
 					
 //					if(sve.isObservableEventSelected() && 
 //							sve.selectedObservableEvent().equals(selectedEvent) &&
@@ -200,6 +233,12 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 				}
 			}
 		}
+	}
+	
+	@Override
+	public void stop() {
+
+		stopped = true;
 	}
 	
 	/**
@@ -236,6 +275,8 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 		case FINISHED:
 			finished.add(stateEvent.getSource());
 			break;
+		case STOPPED:
+			deadlocked.add(stateEvent.getSource());
 		}
 	}
 }
