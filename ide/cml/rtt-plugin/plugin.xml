@@ -260,7 +260,7 @@
       <command
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtRetrieveDirectory"
         label="Pull from Server"
-        tooltip="Retrieve Directory Content from RTT-MBT Server Work Area"
+        tooltip="Retrieve Directory/File from RTT-MBT Server Work Area"
         icon="icons/forward.png"
       />
     </menuContribution>
