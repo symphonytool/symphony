@@ -74,6 +74,7 @@ import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternListAssistantTC;
 import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 import org.overture.typechecker.util.TypeCheckerUtil;
+import org.overture.typechecker.visitor.TypeCheckerDefinitionVisitor;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PParametrisation;
@@ -225,6 +226,24 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		node.setType(new AFunctionParagraphType(node.getLocation(), true));
+		return node.getType();
+	}
+
+	
+	
+	@Override
+	public PType caseAImplicitFunctionDefinition(
+			AImplicitFunctionDefinition node, TypeCheckInfo question)
+			throws AnalysisException {
+
+		OvertureRootCMLAdapter root = new OvertureRootCMLAdapter(parentChecker, issueHandler);
+		TypeCheckerDefinitionVisitor ovtDef = new TypeCheckerDefinitionVisitor(root);
+		try {
+			PType result = node.apply(ovtDef, question);
+			node.setType(result);
+		} catch (AnalysisException e) {
+			node.setType(issueHandler.addTypeError(node,e.getMessage()));
+		}
 		return node.getType();
 	}
 
@@ -960,7 +979,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	{
 		OvertureToCmlHandler handler = overtureClassBits.get(def.getClass());
 		if (handler!=null) return handler.handle(def);
-		return null;
+		return Arrays.asList(def);
 	}
 
 	private static class OvertureToCmlFunctionHandler implements OvertureToCmlHandler
@@ -1551,8 +1570,27 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) createEnvironmentWithFormals(
 				question, node);
 		
+		AOperationType opType = node.getType();
+		if (opType != null) {
+			LinkedList<PType> paramTypes = opType.getParameters();
+			for(PType pType : paramTypes) {
+				PType pTypeType = pType.apply(parentChecker,question);
+				if (!TCDeclAndDefVisitor.successfulType(pTypeType)) {
+					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+pType)));
+					return node.getType();
+				}
+			}
+			
+			PType retType = opType.getResult();
+			PType retTypeType = retType.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(retTypeType)) {
+				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+retType)));
+				return node.getType();
+			}
+		}
+			
+		
 		PAction operationBody = node.getBody();
-		// TODO Check that the operationBody is only allowed operations
 		question.contextSet(CmlTypeCheckInfo.class, newQuestion);
 		PType bodyType = operationBody.apply(parentChecker, newQuestion);
 		question.contextRem(CmlTypeCheckInfo.class);

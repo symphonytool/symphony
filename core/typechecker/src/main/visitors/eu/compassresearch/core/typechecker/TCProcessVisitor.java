@@ -709,13 +709,17 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		CmlTypeCheckInfo actionScope = cmlEnv.newScope();
 		
 		// Type check all the paragraph definitions
+		List<PDefinition> fixedDefinitions = new LinkedList<PDefinition>();
 		for (PDefinition def : node.getDefinitionParagraphs()) {
 			PType type = def.apply(this.parentChecker, actionScope);
 			if (!TCDeclAndDefVisitor.successfulType(type))
 				return issueHandler.addTypeError(def,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 						.customizeMessage(def.getName() + ""));
+			fixedDefinitions.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(def));
 		}
+		node.getDefinitionParagraphs().clear();
+		node.getDefinitionParagraphs().addAll(fixedDefinitions);
 
 		question.contextSet(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class, (eu.compassresearch.core.typechecker.CmlTypeCheckInfo)question);
 		PType actionType = node.getAction().apply(this.parentChecker, actionScope);
