@@ -1860,7 +1860,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 
 		} while(false);
-
+int a;
 
 		if (!typeComparator.isSubType(expType, stateType))
 		{
