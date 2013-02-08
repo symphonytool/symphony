@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.util.Scanner;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -42,6 +43,7 @@ public class RttMbtSignalmapEditor extends EditorPart {
 	
 	// signalmap.csv file with path
 	private File output;
+	private IFile iFile;
 	
 	private void notifyChanged() {
 		firePropertyChange(IWorkbenchPartConstants.PROP_DIRTY);
@@ -197,6 +199,13 @@ public class RttMbtSignalmapEditor extends EditorPart {
 
 		// notify that content has changed (saved)
     	notifyChanged();
+    	
+    	// refresh local resource
+    	try {
+			iFile.refreshLocal(IResource.DEPTH_ZERO, null);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -214,15 +223,15 @@ public class RttMbtSignalmapEditor extends EditorPart {
 			throw new PartInitException("Invalid input! Expected file input");
 		} else {
 			IFileEditorInput iFileInput = (IFileEditorInput) input;
-			IFile ifile = iFileInput.getFile();
+			iFile = iFileInput.getFile();
 			InputStream istream;
 			try {
-				istream = ifile.getContents();
+				istream = iFile.getContents();
 				fileScanner = new Scanner(istream);
 				// create output file for saving
 		    	IWorkspace workspace = ResourcesPlugin.getWorkspace();
 				File workspaceDirectory = workspace.getRoot().getLocation().toFile();
-				output = new File(workspaceDirectory.getAbsolutePath() + ifile.getFullPath().toString());
+				output = new File(workspaceDirectory.getAbsolutePath() + iFile.getFullPath().toString());
 			} catch (CoreException e) {
 				e.printStackTrace();
 			}
