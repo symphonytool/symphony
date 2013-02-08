@@ -405,7 +405,7 @@ public class jsonCommand {
 				String[] errorMsgs = getExceptions(reply);
 				int erridx = 0;
 				while (erridx < errorMsgs.length) {
-					client.addErrorMessage(errorMsgs[erridx]);
+					client.addErrorMessage(errorMsgs[erridx] + "\n");
 					erridx++;
 				}
 				// if errors did occur, do NOT extract result files
