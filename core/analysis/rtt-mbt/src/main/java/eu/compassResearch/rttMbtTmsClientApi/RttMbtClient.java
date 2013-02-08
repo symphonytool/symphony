@@ -654,21 +654,21 @@ public class RttMbtClient {
 		dirname = getProjectName() + File.separator
 				+ "TestProcedures" + File.separator
 				+ abstractTestProc + File.separator
-				+ "conf";
+				+ "conf" + File.separator;;
 		downloadFile(dirname + "configuration.csv");
 		// Testprocedures/<TP>/log/covered_testcases.csv
 		// Testprocedures/<TP>/log/missed_goals.csv
 		dirname = getProjectName() + File.separator
 				+ "TestProcedures" + File.separator
 				+ abstractTestProc + File.separator
-				+ "log";
+				+ "log" + File.separator;
 		downloadFile(dirname + "covered_testcases.csv");
 		downloadFile(dirname + "missed_goals.csv");
 		// RTT_Testprocedures/<TP>/testdata/replay.log
 		dirname = getProjectName() + File.separator
 				+ "RTT_TestProcedures" + File.separator
 				+ abstractTestProc + File.separator
-				+ "testdata";
+				+ "testdata" + File.separator;
 		downloadFile(dirname + "replay.log");
 		
 		return success;
