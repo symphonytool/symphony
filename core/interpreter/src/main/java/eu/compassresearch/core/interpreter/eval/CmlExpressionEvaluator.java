@@ -8,16 +8,20 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.interpreter.eval.DelegateExpressionEvaluator;
 import org.overture.interpreter.eval.ExpressionEvaluator;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
+import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -29,7 +33,11 @@ import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
 public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<Context, Value>
 {
-	class VdmExpressionEvaluator extends ExpressionEvaluator {
+	static{
+		VdmRuntime.initialize(new CmlExpressionEvaluator());
+	}
+	
+	class VdmExpressionEvaluator extends DelegateExpressionEvaluator{
 		
 		@Override
 		public Value defaultPExp(PExp node, Context question)
@@ -37,8 +45,8 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<Context, Va
 		
 			if(node instanceof PCMLExp)
 				//FIXME if the burger is ever a real case then this context is wrong!
-				throw new RuntimeException("We are now in the  (CML | VDM | CML) burger, decide what to do!");
-				//return defaultPCMLExp((PCMLExp)node,Context);
+				//throw new RuntimeException("We are now in the  (CML | VDM | CML) burger, decide what to do!");
+				return defaultPCMLExp((PCMLExp)node,question);
 			else
 				return node.apply(this,question);
 		}
@@ -116,5 +124,23 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<Context, Va
 		return new CmlAlphabet(createEvent(node.getIdentifier(), question));
 	}
 	
+	@Override
+	public Value caseABracketedExp(ABracketedExp node, Context question)
+			throws AnalysisException {
+	
+		return node.getExpression().apply(this,question);
+	}
+	
+	
+	@Override
+	public Value caseAUnresolvedPathExp(AUnresolvedPathExp node,
+			Context question) throws AnalysisException {
+	
+		Value val = question.check(new LexNameToken("",node.getIdentifiers().get(0))); 
+		
+		
+		// TODO Auto-generated method stub
+		return super.caseAUnresolvedPathExp(node, question);
+	}
 	
 }

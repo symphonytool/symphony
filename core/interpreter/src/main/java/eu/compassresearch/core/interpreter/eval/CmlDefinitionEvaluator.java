@@ -4,12 +4,14 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AStateDefinition;
+import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
+import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
@@ -22,118 +24,130 @@ import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.CmlValueFactory;
 
 @SuppressWarnings("serial")
-public class CmlDeclAndDefEvaluator extends
-		QuestionAnswerCMLAdaptor<Context, Value> {
+public class CmlDefinitionEvaluator extends
+		QuestionAnswerCMLAdaptor<Context, NameValuePairList> {
 
-	private CmlEvaluator parentInterpreter; 
+	private CmlValueEvaluator parentInterpreter = new CmlValueEvaluator(); 
 
-	public CmlDeclAndDefEvaluator(CmlEvaluator parentInterpreter)
-	{
-		this.parentInterpreter = parentInterpreter;
-	}
-	
 	@Override
-    public Value caseAProcessDefinition(AProcessDefinition node,Context question)
+    public NameValuePairList caseAProcessDefinition(AProcessDefinition node,Context question)
         throws AnalysisException
       {
-		question.putNew(new NameValuePair(node.getName(), 
+		NameValuePairList vpl = new NameValuePairList();
+		
+		vpl.add(new NameValuePair(node.getName(), 
         		CmlValueFactory.createProcessObjectValue(node,null)));
 		
-		return null;
+		return vpl;
       }
 	
 	@Override
-	public Value caseAStateDefinition(AStateDefinition node,
+	public NameValuePairList caseAStateDefinition(AStateDefinition node,
 			Context question) throws AnalysisException {
+		
+		NameValuePairList vpl = new NameValuePairList();
 		
 		for(PDefinition def : node.getStateDefs())
 		{
-			def.apply(this,question);
+			vpl.addAll(def.apply(this,question));
 		}
 		
-		return null;
+		return vpl;
 	}
 	
 	@Override
-	public Value caseAActionsDefinition(AActionsDefinition node,
+	public NameValuePairList caseAActionsDefinition(AActionsDefinition node,
 			Context question) throws AnalysisException {
 
+		NameValuePairList vpl = new NameValuePairList();
+		
 		for(AActionDefinition actionDef : node.getActions())
 		{
-			actionDef.apply(this,question);
+			vpl.addAll(actionDef.apply(this,question));
 		}
 		
-		return null;
+		return vpl;
 	}
 	
 	@Override
-	public Value caseAActionDefinition(AActionDefinition node,
+	public NameValuePairList caseAActionDefinition(AActionDefinition node,
 			Context question) throws AnalysisException {
 
-		question.putNew(new NameValuePair(node.getName(), 
+		NameValuePairList vpl = new NameValuePairList();
+		
+		vpl.add(new NameValuePair(node.getName(), 
 				CmlValueFactory.createActionValue(node)));
 		
-		return null;
+		return vpl;
 	}
 	
 	@Override
-	public Value caseAFunctionsDefinition(AFunctionsDefinition node,
+	public NameValuePairList caseAFunctionsDefinition(AFunctionsDefinition node,
 			Context question) throws AnalysisException {
 
+		NameValuePairList vpl = new NameValuePairList();
 		
 		for(PDefinition funcDefs : node.getFunctionDefinitions())
 		{
-			funcDefs.apply(this,question);
+			vpl.addAll(funcDefs.apply(this,question));
 		}
 		
-		return null;
+		return vpl;
 	}
 	
 	@Override
-	public Value caseAExplicitFunctionDefinition(
+	public NameValuePairList caseAExplicitFunctionDefinition(
 			AExplicitFunctionDefinition node, Context question)
 			throws AnalysisException {
 
+		NameValuePairList vpl = new NameValuePairList();
+		
 		node.setIsTypeInvariant(false);
 		FunctionValue funcValue = new FunctionValue(node,null ,null,null);
 		
-		question.putNew(new NameValuePair(node.getName(),funcValue));
+		vpl.add(new NameValuePair(node.getName(),funcValue));
 		
-		
-		return null;
+		return vpl;
 	}
 	
 	
 	@Override
-	public Value caseAOperationsDefinition(AOperationsDefinition node,
+	public NameValuePairList caseAOperationsDefinition(AOperationsDefinition node,
 			Context question) throws AnalysisException {
 
+		NameValuePairList vpl = new NameValuePairList();
+		
 		for(SCmlOperationDefinition operationDef : node.getOperations())
 		{
-			operationDef.apply(this,question);
+			vpl.addAll(operationDef.apply(this,question));
 		}
 		
-		return null;
+		return vpl;
 	}
 	
 	@Override
-	public Value caseAExplicitCmlOperationDefinition(
+	public NameValuePairList caseAExplicitCmlOperationDefinition(
 			AExplicitCmlOperationDefinition node, Context question)
 			throws AnalysisException {
 	
-		question.putNew(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node)));
+		NameValuePairList vpl = new NameValuePairList();
 		
-		return null;
+		vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node)));
+		
+		return vpl;
 	}
 
 	@Override
-	public Value caseAAssignmentDefinition(AAssignmentDefinition node,
+	public NameValuePairList caseAAssignmentDefinition(AAssignmentDefinition node,
 			Context question) throws AnalysisException {
+		
+		NameValuePairList vpl = new NameValuePairList();
 		
 		Value expValue = null;
 		if(node.getExpression() != null)
@@ -141,26 +155,51 @@ public class CmlDeclAndDefEvaluator extends
 		else
 			expValue = new UndefinedValue();
 		
-		question.put(node.getName(), expValue);
+		vpl.add(new NameValuePair(node.getName(), expValue));
 		
-		return null;
+		return vpl;
 	}
 	
 	@Override
-    public Value caseAChannelsDefinition(AChannelsDefinition node,
+    public NameValuePairList caseAChannelsDefinition(AChannelsDefinition node,
 			Context question) throws AnalysisException
     {
+		NameValuePairList vpl = new NameValuePairList();
+		
     	for (AChannelNameDefinition cnd : node.getChannelNameDeclarations())
     	{
     		for (LexIdentifierToken channelName : cnd.getSingleType().getIdentifiers())
     		{
     			LexNameToken name = new LexNameToken("|CHANNELS|", channelName);
-    			question.putNew(new NameValuePair(name, new CMLChannelValue(cnd.getSingleType().getType(),name)));
+    			vpl.add(new NameValuePair(name, new CMLChannelValue(cnd.getSingleType().getType(),name)));
     		}
     	}
     	
-    	return null;
+    	return vpl;
     }
+	
+	@Override
+	public NameValuePairList caseATypesDefinition(ATypesDefinition node,
+			Context question) throws AnalysisException {
+
+		NameValuePairList vpl = new NameValuePairList();
+		
+		for (ATypeDefinition typeDef : node.getTypes())
+			vpl.addAll(typeDef.apply(this,question));
+		
+		return vpl;
+	}
+	
+	@Override
+	public NameValuePairList caseATypeDefinition(ATypeDefinition node,
+			Context question) throws AnalysisException {
+	
+		NameValuePairList vpl = new NameValuePairList();
+		if(node.getInvdef() != null)
+			vpl.addAll(node.getInvdef().apply(this,question));
+
+		return vpl;
+	}
 
 }
 
