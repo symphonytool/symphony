@@ -144,7 +144,7 @@ class CmlAssistant {
 		return strategy.findMemberName(t, name, more);
 
 	}
-	
+
 	class AssignmentDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
 
 		@Override
@@ -158,18 +158,29 @@ class CmlAssistant {
 
 			AAssignmentDefinition assignDef = (AAssignmentDefinition)def;
 			PType type = assignDef.getType();
-			
-			PDefinition def0 = type.getDefinitions().get(0);
-			if (def0 instanceof ATypeDefinition)
+			if (type.getDefinitions().size() > 0)
 			{
-				ATypeDefinition tDef = (ATypeDefinition)def0;
-				return CmlAssistant.this.findMemberName(tDef, name, more);
-				
+				PDefinition def0 = type.getDefinitions().get(0);
+				if (def0 instanceof ATypeDefinition)
+				{
+					ATypeDefinition tDef = (ATypeDefinition)def0;
+					return CmlAssistant.this.findMemberName(tDef, name, more);
+
+				}
 			}
+
+			if (type instanceof ANamedInvariantType){
+				return handleNamedInvariantType((ANamedInvariantType)type, name, more);
+			}
+			
+			if (type instanceof ARecordInvariantType) {
+				return handleRecordInvariantType((ARecordInvariantType)type, name, more);
+			}
+			
 			
 			return def;
 		}
-		
+
 	}
 
 	class ExternalDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
@@ -184,11 +195,11 @@ class CmlAssistant {
 				LexIdentifierToken name, Object... more) {
 
 			AExternalDefinition extDef = (AExternalDefinition)def;
-			
-			
+
+
 			return CmlAssistant.this.findMemberName(extDef.getState(), name, more);
 		}
-		
+
 	}
 
 	/*
@@ -288,7 +299,7 @@ class CmlAssistant {
 				LexIdentifierToken name, Object... more) {
 
 			AOperationsDefinition oddef = (AOperationsDefinition)def;
-			
+
 			for(PDefinition odef : oddef.getOperations())
 			{
 				LexNameToken name2 = odef.getName();
@@ -297,9 +308,9 @@ class CmlAssistant {
 			}
 			return null;
 		}
-		
+
 	}
-	
+
 	/*
 	 * Find a named member inside a class class definition (Overture class definition).
 	 * 
@@ -332,7 +343,7 @@ class CmlAssistant {
 	}
 
 	// *********** Helper methods for LocalDefinitionFindMemberStrategy ************
-	
+
 	// Looking for a field in a record, alright look up the Type def of the record
 	// and find the field. Return a local definition for that field.
 	private PDefinition handleRecordInvariantType(ARecordInvariantType recordInvType, LexIdentifierToken name, Object... more)
@@ -351,10 +362,10 @@ class CmlAssistant {
 		CmlTypeCheckInfo cmlEnv = (CmlTypeCheckInfo)more[0];
 		PDefinition defOfTheTypeOfThisLocalDef = cmlEnv.env.findType(namedInvType.getName(),"");
 		while(defOfTheTypeOfThisLocalDef != null && 
-			  defOfTheTypeOfThisLocalDef.getType() != null && 
-			  defOfTheTypeOfThisLocalDef.getType() instanceof ANamedInvariantType)
+				defOfTheTypeOfThisLocalDef.getType() != null && 
+				defOfTheTypeOfThisLocalDef.getType() instanceof ANamedInvariantType)
 		{
-			
+
 			ANamedInvariantType nameType = (ANamedInvariantType)defOfTheTypeOfThisLocalDef.getType();
 			PType typeType = nameType.getType();
 			if (typeType instanceof ANamedInvariantType)
@@ -366,7 +377,7 @@ class CmlAssistant {
 			}
 		}
 
-		
+
 		return CmlAssistant.this.findMemberName(defOfTheTypeOfThisLocalDef,name,more);
 	}
 
@@ -400,7 +411,7 @@ class CmlAssistant {
 		}
 
 	}
-	
+
 	// *********** -- ************
 
 	/*
@@ -428,7 +439,7 @@ class CmlAssistant {
 
 			if (invType instanceof ANamedInvariantType)
 				return handleNamedInvariantType(ANamedInvariantType.class.cast(invType), name, more);
-			
+
 			return null;
 		}
 

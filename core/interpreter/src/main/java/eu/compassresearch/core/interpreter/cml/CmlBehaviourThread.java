@@ -33,7 +33,7 @@ public interface CmlBehaviourThread extends CmlBehaviour{
 	 * Returns the current execution state of the process
 	 * @return The current context
 	 */
-	public Pair<? extends INode,Context> getExecutionState();
+	public Pair<INode,Context> getExecutionState();
 	
 	/**
 	 * Name of the process
@@ -98,4 +98,11 @@ public interface CmlBehaviourThread extends CmlBehaviour{
 	 * @return The appropriate EventSource for event registration
 	 */
 	public EventSource<CmlProcessTraceObserver> onTraceChanged();
+	
+	
+	void setRestorePoint();
+	
+	void revertToRestorePoint();
+	
+	boolean inBactrackMode();
 }

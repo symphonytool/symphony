@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.cml;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Set;
 
@@ -13,8 +14,8 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.cml.events.ObservableValueEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+import eu.compassresearch.core.interpreter.util.AbstractValueInterpreter;
 /**
  * This class implements a random selection CMLCommunicaiton of the alphabet 
  * @author akm
@@ -24,7 +25,8 @@ public class RandomSelectionStrategy implements
 		CmlCommunicationSelectionStrategy {
 
 	private static final long randomSeed = 675674345;
-	private static final Random rnd = new Random(randomSeed);
+	private static final Random rndChoice = new Random(randomSeed);
+	private static final Random rndValue = new Random(randomSeed);
 	
 	@Override
 	public ObservableEvent select(CmlAlphabet availableChannelEvents) {
@@ -34,13 +36,20 @@ public class RandomSelectionStrategy implements
 		
 		if(!comms.isEmpty())
 		{
-			selectedComm = availableChannelEvents.getObservableEvents().iterator().next();
+			int nElems = availableChannelEvents.getObservableEvents().size();
 			
-			if(selectedComm instanceof ObservableValueEvent && !((ObservableValueEvent)selectedComm).isValuePrecise())
+			//pick a random but deterministic choice
+			selectedComm = new ArrayList<ObservableEvent>(
+					availableChannelEvents.getObservableEvents()).get(rndChoice.nextInt(nElems));
+			
+			if(!selectedComm.isValuePrecise())
 			{
 				AChannelType t = (AChannelType)selectedComm.getChannel().getType();
 				
-				((ObservableValueEvent)selectedComm).setMostPreciseValue(getRandomValueFromType(t.getType()));
+				selectedComm.setValue(
+						AbstractValueInterpreter.meet(
+						selectedComm.getValue(),
+						getRandomValueFromType(t.getType())));
 			}
 		}
 		//CmlRuntime.logger().fine("Available events " + availableChannelEvents.getObservableEvents());
@@ -61,7 +70,7 @@ public class RandomSelectionStrategy implements
 				throws AnalysisException {
 
 			
-			return new IntegerValue(rnd.nextInt());
+			return new IntegerValue(rndValue.nextInt());
 		}
 		
 	}

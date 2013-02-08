@@ -7,9 +7,8 @@ begin
 			name : seq of char
 			artist : seq of char
 			year : int
-			album : [(seq of char * CD)]
+			album : [ (seq of char * CD) ]
 			duration : int
-			;
 		
 		CD ::
 			title : seq of char
@@ -20,12 +19,12 @@ begin
 
 	
 	operations
-		addCD: (seq of char * seq of Track) ==> ()
+		addCD: (seq of char * (seq of Track)) ==> ()
 		addCD(title, tracks) == cds := cds ^ [mk_CD(title,tracks)]
 		
-		findByTitle: seq of char ==> [CD]
+		findByTitle: (seq of char) ==> [CD]
 		findByTitle(title) == ((dcl cur:CD := hd cds, tail:seq of CD := tl cds @
-		 while (len(tail)>0) do (if (cur.title = title) then (return (cur)) else tail := tl tail; cur := hd tail)); return (nil))
+		 while (len(tail) > 0) do (if (cur.title = title) then (return (cur)) else tail := tl tail; cur := hd tail)); return (nil))
 end
 
 class CDBuilder =
@@ -34,7 +33,7 @@ begin
 		cd : CDDatabase.CD := mk_CDDatabase.CD("  ", [])
 		
 	operations
-		setTitle: seq of char ==> CDBuilder
+		setTitle: (seq of char) ==> CDBuilder
 		setTitle(title) == ( cd.title := title; return (self) )
 		
 		addTrack: Track ==> CDBuilder
@@ -48,16 +47,16 @@ begin
 		track : CDDatabase.Track := mk_CDDatabase.Track("  ","  ",0,nil, 0)
 		
 	operations
-		setName: seq of char ==> TrackBuilder
+		setName: (seq of char) ==> TrackBuilder
 		setName(name) == ( track.name := name; return (self) )
 		
-		setArtist: seq of char ==> TrackBuilder
+		setArtist: (seq of char) ==> TrackBuilder
 		setArtist(artist) == ( track.artist := artist; return (self) )
 		
 		setYear: int ==>TrackBuilder
 		setYear(year) == ( track.year := year; return (self) )
 		
-		setAlbum: seq of char * CD ==> TrackBuilder 
+		setAlbum: (seq of char) * CD ==> TrackBuilder 
 		setAlbum(title, cd) == ( track.album := mk_(title, cd); return (self) )
 		
 		setDuration: int ==> TrackBuilder

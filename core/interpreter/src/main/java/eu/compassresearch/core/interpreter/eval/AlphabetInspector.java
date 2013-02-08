@@ -17,20 +17,36 @@ import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
 import eu.compassresearch.ast.actions.AGuardedAction;
+import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.AInterleavingParallelAction;
+import eu.compassresearch.ast.actions.AInternalChoiceAction;
+import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
+import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.ast.process.AExternalChoiceProcess;
+import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
+import eu.compassresearch.ast.process.AInterleavingProcess;
+import eu.compassresearch.ast.process.AInternalChoiceProcess;
+import eu.compassresearch.ast.process.AReferenceProcess;
+import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
@@ -40,10 +56,12 @@ import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
-import eu.compassresearch.core.interpreter.cml.events.SynchronizedPrefixEvent;
+import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
+import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 /**
  * This class inspects the immediate alphabet of the current state of a CmlProcess
  * @author akm
@@ -52,34 +70,30 @@ import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 @SuppressWarnings("serial")
 public class AlphabetInspector
 		extends
-		QuestionAnswerCMLAdaptor<Context, eu.compassresearch.core.interpreter.cml.CmlAlphabet> {
+		QuestionAnswerCMLAdaptor<Context, CmlAlphabet> {
 
 	// The process that contains this instance
 	private final CmlBehaviourThread 		ownerProcess;
-	private final CmlEvaluator				cmlEvaluator;
+	private final CmlEvaluator				cmlEvaluator = new CmlEvaluator();
+	
+	
 	
 	/**
 	 * 
 	 * @param ownerProcess
 	 */
-	public AlphabetInspector(CmlBehaviourThread ownerProcess,CmlEvaluator cmlEvalutor)
+	public AlphabetInspector(CmlBehaviourThread ownerProcess)
 	{
 		this.ownerProcess = ownerProcess;
-		this.cmlEvaluator = cmlEvalutor;
 	}
 	
-	@Override
-	public CmlAlphabet defaultPProcess(PProcess node, Context question)
-			throws AnalysisException {
-		return createSilentTransition(node,null);
-	}
-	
-	@Override
-	public CmlAlphabet defaultPAction(PAction node, Context question)
-			throws AnalysisException {
+	/**
+	 * Common Inspection
+	 */
 
-		return createSilentTransition(node,null);
-	}
+	/**
+	 * Common Helpers
+	 */
 	
 	private CmlAlphabet createSilentTransition(INode srcNode, INode dstNode, String transitionText)
 	{
@@ -96,22 +110,332 @@ public class AlphabetInspector
 	}
 	
 	/**
-	 * The alphabet of a block action is just the internal action
+	 * Internal choice
 	 */
+	
 	@Override
-	public CmlAlphabet caseABlockStatementAction(ABlockStatementAction node,
+	public CmlAlphabet caseAInternalChoiceAction(AInternalChoiceAction node,
 			Context question) throws AnalysisException {
 
-		//return defaultPAction(node, question);
-		return node.getAction().apply(this,question);
+		return createSilentTransition(node,node.getLeft());
 	}
 	
 	@Override
-	public CmlAlphabet caseAActionProcess(AActionProcess node, Context question)
-			throws AnalysisException {
-		return createSilentTransition(node,node.getAction());
+	public CmlAlphabet caseAInternalChoiceProcess(AInternalChoiceProcess node,
+			Context question) throws AnalysisException {
+
+		return createSilentTransition(node,node.getLeft());
+	}
+
+	/**
+	 * Parallel action
+	 * 
+	 * In general all the parallel action have three transition rules that can be invoked
+	 * Parallel Begin:
+	 * 	At this step the interleaving action are not yet created. So this will be a silent (tau) transition
+	 * 	where they will be created and started. So the alphabet returned here is {tau}
+	 * 
+	 * Parallel Sync/Non-sync:
+	 * 
+	 * Parallel End:
+	 *  At this step both child actions are in the FINISHED state and they will be removed from the running process network
+	 *  and this will make a silent transition into Skip. So the alphabet returned here is {tau}
+	 */
+	
+	/**
+	 * 
+	 * Private common helpers for Generalised Parallelism
+	 *
+	 */
+	private interface ParallelAction
+	{
+		public CmlAlphabet inspectChildren() throws AnalysisException;
 	}
 	
+	private CmlAlphabet caseAGeneralisedParallelismInspectChildren(PVarsetExpression channelsetExp, Context question) throws AnalysisException
+	{
+		//convert the channelset of the current node to a alphabet
+		//TODO: The convertChansetExpToAlphabet method is only a temp solution. 
+		//		This must be evaluated differently
+		CmlAlphabet cs =  ((CmlAlphabet)channelsetExp.
+				apply(cmlEvaluator,question));
+		
+		//Get all the child alphabets and add the events that are not in the channelset
+		CmlBehaviourThread leftChild = ownerProcess.children().get(0);
+		CmlAlphabet leftChildAlphabet = leftChild.inspect();
+		CmlBehaviourThread rightChild = ownerProcess.children().get(1);
+		CmlAlphabet rightChildAlphabet = rightChild.inspect();
+		
+		//Find the intersection between the child alphabets and the channel set
+		CmlAlphabet syncAlpha = leftChildAlphabet.intersectRefsAndJoin(rightChildAlphabet).intersectRefsAndJoin(cs);
+		
+		//convert all the common events that are in the channel set into SynchronisationEvent instances
+		Set<CmlEvent> syncEvents = new HashSet<CmlEvent>();
+		for(ObservableEvent ref : syncAlpha.getReferenceEvents())
+		{
+			Iterator<ObservableEvent> it = syncAlpha.getObservableEventsByRef(ref).iterator(); 
+			syncEvents.add( it.next().synchronizeWith(ownerProcess, it.next()));
+		}
+		
+		/*
+		 *	Finally we create the returned alphabet by joining all the synchronised events together with
+		 *	all the event af the children that are not in the channel set
+		 */
+		CmlAlphabet resultAlpha = new CmlAlphabet(syncEvents).union(leftChildAlphabet.substract(cs));
+		resultAlpha = resultAlpha.union(rightChildAlphabet.substract(cs));
+		
+		return resultAlpha;
+	}
+	
+	public CmlAlphabet caseParallelAction(INode node, Context question,ParallelAction parallelAction)
+			throws AnalysisException {
+		
+		CmlAlphabet alpha = null;
+		
+		//If there are no children or the children has finished, then either the interleaving 
+		//is beginning or ending and we make a silent transition.
+		if(!ownerProcess.hasChildren())
+		{
+			alpha = createSilentTransition(node, node, "Begin");
+		}
+		else if(CmlBehaviourThreadUtility.isAllChildrenFinished(ownerProcess))
+		{
+			alpha = createSilentTransition(node, new ASkipAction(), "End");
+		}
+		else
+		//if we are here at least one of the children is alive and we must inspect them
+		//and forward it.
+		{
+			alpha = parallelAction.inspectChildren();
+		}
+		
+		return alpha;
+	}
+	
+	/**
+	 *  Generalised parallelism 
+	 *  
+	 *  This has three parts:
+	 * 
+	 * Parallel Begin: As the general case
+	 * 
+	 * Parallel sync/Non-sync:
+	 * 	At this step, the actions are each executed separately. Here the channel set will determine whether a
+	 *  Sync or non-sync transition occurs. The alphabet returned here is {alpha(left) union alpha(right)}
+	 * 
+	 * Parallel End: As the general case
+	 *  
+	 */
+	@Override
+	public CmlAlphabet caseAGeneralisedParallelismParallelAction(
+			AGeneralisedParallelismParallelAction node, Context question)
+					throws AnalysisException {
+
+		final AGeneralisedParallelismParallelAction internalNode = node;
+		final Context internalQuestion = question;
+		
+		return caseParallelAction(node,question,new ParallelAction()
+		{
+			@Override
+			public CmlAlphabet inspectChildren() throws AnalysisException{
+				
+				return caseAGeneralisedParallelismInspectChildren(internalNode.getChansetExpression(),internalQuestion);
+			}
+		});
+	}
+	
+	@Override
+	public CmlAlphabet caseAGeneralisedParallelismProcess(
+			AGeneralisedParallelismProcess node, Context question)
+			throws AnalysisException {
+
+		final AGeneralisedParallelismProcess internalNode = node;
+		final Context internalQuestion = question;
+		
+		return caseParallelAction(node,question,new ParallelAction()
+		{
+			@Override
+			public CmlAlphabet inspectChildren() throws AnalysisException{
+				
+				return caseAGeneralisedParallelismInspectChildren(internalNode.getChansetExpression(),internalQuestion);
+			}
+		});
+	}
+	
+	/**
+	 * This returns the alphabet of a interleaving action/process. 
+	 * 
+	 * This has three parts:
+	 * 
+	 * Parallel Begin: As the general case
+	 * 
+	 * Parallel Non-sync:
+	 * 	At this step the actions are each executed separately. Since no sync shall takes place this Action just wait
+	 * 	for the child actions to be in the FINISHED state. So the alphabet returned here is {alpha(left) union alpha(right)}
+	 * 
+	 * Parallel End: As the general case
+	 * 
+	 */
+	
+	@Override
+	public CmlAlphabet caseAInterleavingParallelAction(
+			AInterleavingParallelAction node, Context question)
+			throws AnalysisException {
+		
+		return caseAInterleavingParallel(node,question);
+	}
+	
+	@Override
+	public CmlAlphabet caseAInterleavingProcess(AInterleavingProcess node,
+			Context question) throws AnalysisException {
+		
+		return caseAInterleavingParallel(node,question);
+	}
+	
+	private CmlAlphabet caseAInterleavingParallel(INode node, Context question) throws AnalysisException 
+	{
+		return caseParallelAction(node,question,new ParallelAction()
+		{
+			@Override
+			public CmlAlphabet inspectChildren() {
+				CmlAlphabet alpha = null;
+				for(CmlBehaviourThread child : ownerProcess.children())
+				{
+					if(alpha == null)
+						alpha = child.inspect();
+					else
+						alpha = alpha.union(child.inspect());
+				}
+				return alpha;
+			}
+		});
+	}
+	
+	/**
+	 * External Choice section 7.5.4 D23.2
+	 * 
+	 * In terms of the alphabet, we have the following situations:
+	 * 
+	 *  External Choice Begin:
+	 *  When no children exists, the External Choice Begin transition rule must be executed.
+	 *  This is a silent transition and therefore the alphabet contains only tau event
+	 *  
+	 *  External Choice Silent:
+	 *  If any of the actions can take a silent transition they will do it before getting here again. 
+	 *  We therefore don't take this situation into account
+	 *  
+	 *  External Choice Skip:
+	 *  If one the children is Skip we make a silent transition of the whole choice into skip.
+	 *  We therefore just return the tau event
+	 *  
+	 *  External Choice End:
+	 *  The alphabet contains an observable event for every child that can engaged in one.
+	 *  
+	 */
+	@Override
+	public CmlAlphabet caseAExternalChoiceAction(AExternalChoiceAction node,
+			Context question) throws AnalysisException {
+
+		return caseAExternalChoice(node,question);
+	}
+	
+	@Override
+	public CmlAlphabet caseAExternalChoiceProcess(AExternalChoiceProcess node,
+			Context question) throws AnalysisException {
+
+		return caseAExternalChoice(node,question);
+	}
+	
+	private CmlAlphabet caseAExternalChoice(INode node,
+			Context question) throws AnalysisException {
+		
+		CmlAlphabet alpha = null;
+		
+		//if no children are present we make a silent transition to represent the
+		//external choice begin
+		if(!ownerProcess.hasChildren())
+			alpha = createSilentTransition(node, node,"Begin");
+		//if all children are waiting for events or are finished then we how to investigate further
+		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrStoppedOrWaitingForEvent(ownerProcess))
+		{
+			//if there exist a finished child then the external choice ends with a silent transition
+			//where the state of the finished is used
+			if(CmlBehaviourThreadUtility.existsAFinishedChild(ownerProcess))
+				alpha = createSilentTransition(node, node,"end");
+			else
+			{
+				//If all the children are waiting for events, we must try to let them
+				for(CmlBehaviourThread child : ownerProcess.children())
+				{
+					if(alpha == null)
+						alpha = calculateDeadlockFreeChildAlphabet(child);
+					else
+						alpha = alpha.union(calculateDeadlockFreeChildAlphabet(child));
+				}
+			}
+		}
+		
+		return alpha;
+	}
+	
+	/**
+	 * This calculate the alphabet of a child process by 
+	 * @param child
+	 * @return
+	 */
+	private CmlAlphabet calculateDeadlockFreeChildAlphabet(CmlBehaviourThread child)
+	{
+		//child.onStateChanged().unregisterObserver(ownerProcess);
+
+		CmlAlphabet alpha = child.inspect();
+
+		
+//		if(!ownerProcess.inBactrackMode())
+//		{
+//			//Set the restore point
+//			child.setRestorePoint();
+//			
+//			for(ObservableEvent ev : alpha.getObservableEvents())
+//			{	
+//				final Scheduler tmpScheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+//				CmlSupervisorEnvironment tmpEnv = VanillaInterpreterFactory.newCmlSupervisorEnvironment(
+//						new CmlCommunicationSelectionStrategy() {
+//
+//							@Override
+//							public ObservableEvent select(CmlAlphabet availableChannelEvents) {
+//
+//								tmpScheduler.stop();
+//
+//								return null;
+//							}
+//						}, 
+//						tmpScheduler);
+//
+//				try 
+//				{
+//					//Level lvl = CmlRuntime.logger().getLevel();
+//					//CmlRuntime.logger().setLevel(Level.OFF);
+//					tmpEnv.setSelectedObservableEvent(ev);
+//					tmpScheduler.setCmlSupervisorEnvironment(tmpEnv);
+//					child.start(tmpEnv);
+//					tmpScheduler.start();
+//					//CmlRuntime.logger().setLevel(lvl);
+//				} catch (InterpreterRuntimeException e) {
+//					alpha = alpha.substract(ev.getAsAlphabet()); 
+//				} 
+//			}
+//			
+//			child.revertToRestorePoint();
+//		}
+		
+		
+			
+		return alpha;
+	}
+
+	/**
+	 * Sequential composition
+	 */
 	@Override
 	public CmlAlphabet caseASequentialCompositionAction(
 			ASequentialCompositionAction node, Context question)
@@ -120,18 +444,65 @@ public class AlphabetInspector
 	}
 	
 	@Override
+	public CmlAlphabet caseASequentialCompositionProcess(
+			ASequentialCompositionProcess node, Context question)
+			throws AnalysisException {
+		return createSilentTransition(node,node.getLeft());
+	}
+	
+	
+	/**
+	 * Reference action/process
+	 */
+	
+	@Override
 	public CmlAlphabet caseAReferenceAction(AReferenceAction node,
 			Context question) throws AnalysisException {
+		
 		return createSilentTransition(node,node.getActionDefinition().getAction());
 	}
 	
+	@Override
+	public CmlAlphabet caseAReferenceProcess(AReferenceProcess node,
+			Context question) throws AnalysisException {
+		
+		ProcessObjectValue processValue = (ProcessObjectValue)question.lookup(node.getProcessName());
+		
+		return createSilentTransition(node,processValue.getProcessDefinition().getProcess());
+	}
+	
+	
+	/**
+	 * PAction Inspection
+	 */
+
+	@Override
+	public CmlAlphabet defaultPAction(PAction node, Context question)
+			throws AnalysisException {
+
+		return createSilentTransition(node,null);
+	}
+
+	
+	/**
+	 * Block Statement Action
+	 */
+	@Override
+	public CmlAlphabet caseABlockStatementAction(ABlockStatementAction node,
+			Context question) throws AnalysisException {
+
+		return createSilentTransition(node,node.getAction());
+	}
+	
+	/**
+	 * Communication Action 
+	 */
 	@Override
 	public CmlAlphabet caseACommunicationAction(ACommunicationAction node,
 			Context question) throws AnalysisException {
 
 		//FIXME: This should be a name so the conversion is avoided
-		LexNameToken channelName = new LexNameToken("|CHANNELS|",node.getIdentifier());
-		
+		LexNameToken channelName = new LexNameToken("|CHANNELS|",node.getIdentifier().getName(),node.getIdentifier().getLocation(),false,true);
 		//find the channel value
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 		
@@ -180,54 +551,6 @@ public class AlphabetInspector
 	}
 	
 	/**
-	 * External Choice section 7.5.4 D23.2
-	 * 
-	 * In terms of the alphabet, we have the following situations:
-	 * 
-	 *  External Choice Begin:
-	 *  When no children exists, the External Choice Begin transition rule must be executed.
-	 *  This is a silent transition and therefore the alphabet contains only tau event
-	 *  
-	 *  External Choice Silent:
-	 *  If any of the actions can take a silent transition they will do it before getting here again. 
-	 *  We therefore don't take this situation into account
-	 *  
-	 *  External Choice Skip:
-	 *  If one the children is Skip we make a silent transition of the whole choice into skip.
-	 *  We therefore just return the tau event
-	 *  
-	 *  External Choice End:
-	 *  The alphabet contains an observable event for every child that can engaged in one.
-	 *  
-	 */
-	@Override
-	public CmlAlphabet caseAExternalChoiceAction(AExternalChoiceAction node,
-			Context question) throws AnalysisException {
-
-		CmlAlphabet alpha = null;
-		
-		//if no children are present we make a silent transition to represent the
-		//external choice begin
-		if(!ownerProcess.hasChildren())
-			alpha = createSilentTransition(node, node,"Begin");
-		else if(CmlBehaviourThreadUtility.existsAFinishedChild(ownerProcess))
-			alpha = createSilentTransition(node, node,"end");
-		//If there are children we just return the union of the child alphabets
-		else if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(ownerProcess))
-		{
-			for(CmlBehaviourThread child : ownerProcess.children())
-			{
-				if(alpha == null)
-					alpha = child.inspect();
-				else
-					alpha = alpha.union(child.inspect());
-			}
-		}
-		
-		return alpha;
-	}
-	
-	/**
 	 * State-based Choice - section 7.5.5 D23.2
 	 * Guard
 	 * Guarded actions are stuck, unless the guard is true.
@@ -250,149 +573,91 @@ public class AlphabetInspector
 		
 	}
 	
-	
 	/**
-	 * Parallel action
+	 * Hiding - Defined in section 7.5.8 D23.2
 	 * 
-	 * In general all the parallel action have three transition rules that can be invoked
-	 * Parallel Begin:
-	 * 	At this step the interleaving action are not yet created. So this will be a silent (tau) transition
-	 * 	where they will be created and started. So the alphabet returned here is {tau}
+	 * The alphabet for hiding determined by the given channel set. If an event
+	 * is in it then a hidden transition will be made, if not then it is observable.
 	 * 
-	 * Parallel Sync/Non-sync:
-	 * 
-	 * Parallel End:
-	 *  At this step both child actions are in the FINISHED state and they will be removed from the running process network
-	 *  and this will make a silent transition into Skip. So the alphabet returned here is {tau}
+	 * This is handled by giving each behaviourThread a hiding alphabet that when 
+	 * inspected converts all the hidden observable event into silent. So this method 
 	 */
-	private interface ParallelAction
-	{
-		public CmlAlphabet inspectChildren();
+	
+	@Override
+	public CmlAlphabet caseAHidingAction(AHidingAction node, Context question)
+			throws AnalysisException {
+
+		//FIXME This is actually not a tau transition. This should produced an entirely 
+		//different event which has no denotational trace but only for debugging
+		return createSilentTransition(node, node.getLeft(), "Hiding (This should not be a tau)");
 	}
 	
-	public CmlAlphabet caseParallelAction(PAction node, Context question,ParallelAction parallelAction)
+	/**
+	 * Non deterministic if randomly chooses between options whoose exp are evaluated to true
+	 */
+	@Override
+	public CmlAlphabet caseANonDeterministicIfStatementAction(
+			ANonDeterministicIfStatementAction node, Context question)
 			throws AnalysisException {
+
+		int availCount = CmlActionAssistant.findAllTrueAlts(
+				node.getAlternatives(),question,cmlEvaluator).size();
 		
-		CmlAlphabet alpha = null;
+		if(availCount > 0)
+			//FIXME this should point to the choosen action node
+			return createSilentTransition(node, null);
+		else
+			//were stuck so return empty alphabet
+			return new CmlAlphabet();
+	}
+	
+	@Override
+	public CmlAlphabet caseANonDeterministicDoStatementAction(
+			ANonDeterministicDoStatementAction node, Context question)
+			throws AnalysisException {
+
+		int availCount = CmlActionAssistant.findAllTrueAlts(
+				node.getAlternatives(),question,cmlEvaluator).size();
 		
-		//If there are no children or the children has finished, then either the interleaving 
-		//is beginning or ending and we make a silent transition.
-		if(!ownerProcess.hasChildren())
+		if(availCount > 0)
+			//FIXME this should point to the choosen action node
+			return createSilentTransition(node, null);
+		else
+			return createSilentTransition(node, new ASkipAction());
+	}
+	
+	@Override
+	public CmlAlphabet caseAWhileStatementAction(AWhileStatementAction node,
+			Context question) throws AnalysisException {
+		
+		if(node.getCondition().apply(cmlEvaluator,question).boolValue(question))
 		{
-			alpha = createSilentTransition(node, node, "Begin");
-		}
-		else if(CmlBehaviourThreadUtility.isAllChildrenFinished(ownerProcess))
-		{
-			alpha = createSilentTransition(node, new ASkipAction(), "End");
+			//FIXME this should point to the choosen action node
+			return createSilentTransition(node, null);
 		}
 		else
-		//if we are here at least one of the children is alive and we must inspect them
-		//and forward it.
 		{
-			alpha = parallelAction.inspectChildren();
+			return createSilentTransition(node, new ASkipAction());
 		}
-		
-		return alpha;
 	}
 	
 	/**
-	 * This returns the alphabet of a interleaved action. 
-	 * 
-	 * This has three parts:
-	 * 
-	 * Parallel Begin: As the general case
-	 * 
-	 * Parallel Non-sync:
-	 * 	At this step the actions are each executed separately. Since no sync shall takes place this Action just wait
-	 * 	for the child actions to be in the FINISHED state. So the alphabet returned here is {alpha(left) union alpha(right)}
-	 * 
-	 * Parallel End: As the general case
-	 * 
+	 * Process inspection
+	 */
+	
+	/**
+	 * This creates a silent transition for all the processes that are not defined
 	 */
 	@Override
-	public CmlAlphabet caseAInterleavingParallelAction(
-			AInterleavingParallelAction node, Context question)
+	public CmlAlphabet defaultPProcess(PProcess node, Context question)
 			throws AnalysisException {
-		
-		return caseParallelAction(node,question,new ParallelAction()
-		{
-			@Override
-			public CmlAlphabet inspectChildren() {
-				CmlAlphabet alpha = null;
-				for(CmlBehaviourThread child : ownerProcess.children())
-				{
-					if(alpha == null)
-						alpha = child.inspect();
-					else
-						alpha = alpha.union(child.inspect());
-				}
-				return alpha;
-			}
-		});
+		return createSilentTransition(node,null);
 	}
-			
-	/**
-	 *  This returns the alphabet of a generalised parallel action. 
-	 *  
-	 *  This has three parts:
-	 * 
-	 * Parallel Begin: As the general case
-	 * 
-	 * Parallel sync/Non-sync:
-	 * 	At this step, the actions are each executed separately. Here the channel set will determine whether a
-	 *  Sync or non-sync transition occurs. The alphabet returned here is {alpha(left) union alpha(right)}
-	 * 
-	 * Parallel End: As the general case
-	 *  
-	 */
+	
 	@Override
-	public CmlAlphabet caseAGeneralisedParallelismParallelAction(
-			AGeneralisedParallelismParallelAction node, Context question)
-					throws AnalysisException {
-
-		final AGeneralisedParallelismParallelAction internalNode = node;
-		final Context internalQuestion = question;
-		
-		return caseParallelAction(node,question,new ParallelAction()
-		{
-			@Override
-			public CmlAlphabet inspectChildren() {
-				
-				//convert the channelset of the current node to a alphabet
-				//TODO: The convertChansetExpToAlphabet method is only a temp solution. 
-				//		This must be evaluated differently
-				CmlAlphabet cs = CmlBehaviourThreadUtility.convertChansetExpToAlphabet(null,
-						internalNode.getChansetExpression(),internalQuestion);
-				
-				//Get all the child alphabets and add the events that are not in the channelset
-				CmlBehaviourThread leftChild = ownerProcess.children().get(0);
-				CmlAlphabet leftChildAlphabet = leftChild.inspect();
-				CmlBehaviourThread rightChild = ownerProcess.children().get(1);
-				CmlAlphabet rightChildAlphabet = rightChild.inspect();
-				
-				//Find the intersection between the child alphabets and the channel set
-				CmlAlphabet syncAlpha = leftChildAlphabet.intersectRefsAndJoin(rightChildAlphabet).intersectRefsAndJoin(cs);
-				
-				//convert all the common events that are in the channel set into SynchronisationEvent instances
-				Set<CmlEvent> syncEvents = new HashSet<CmlEvent>();
-				for(ObservableEvent ref : syncAlpha.getReferenceEvents())
-				{
-					Iterator<ObservableEvent> it = syncAlpha.getObservableEventsByRef(ref).iterator(); 
-					syncEvents.add( it.next().synchronizeWith(ownerProcess, it.next()));
-				}
-				
-				/*
-				 *	Finally we create the returned alphabet by joining all the synchronised events together with
-				 *	all the event af the children that are not in the channel set
-				 */
-				CmlAlphabet resultAlpha = new CmlAlphabet(syncEvents).union(leftChildAlphabet.substract(cs));
-				resultAlpha = resultAlpha.union(rightChildAlphabet.substract(cs));
-				
-				return resultAlpha;
-			}
-		});
+	public CmlAlphabet caseAActionProcess(AActionProcess node, Context question)
+			throws AnalysisException {
+		return createSilentTransition(node,node.getAction());
 	}
-	
-	
 	
 }

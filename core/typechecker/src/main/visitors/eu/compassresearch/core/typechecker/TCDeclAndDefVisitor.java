@@ -2,9 +2,11 @@ package eu.compassresearch.core.typechecker;
 
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import javax.xml.ws.handler.MessageContext.Scope;
@@ -34,6 +36,7 @@ import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.lex.LexToken;
+import org.overture.ast.node.NodeList;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
@@ -42,24 +45,36 @@ import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
+import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFunctionType;
+import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AProductType;
+import org.overture.ast.types.ASetType;
+import org.overture.ast.types.EType;
 import org.overture.ast.types.PType;
 import org.overture.parser.messages.VDMError;
 import org.overture.typechecker.Environment;
+import org.overture.typechecker.FlatCheckedEnvironment;
 import org.overture.typechecker.FlatEnvironment;
 import org.overture.typechecker.PrivateClassEnvironment;
 import org.overture.typechecker.PublicClassEnvironment;
 import org.overture.typechecker.TypeCheckException;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.TypeChecker;
+import org.overture.typechecker.TypeCheckerErrors;
+import org.overture.typechecker.assistant.definition.AExplicitFunctionDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.ATypeDefinitionAssistantTC;
+import org.overture.typechecker.assistant.definition.PAccessSpecifierAssistantTC;
 import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
+import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
+import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternListAssistantTC;
+import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 import org.overture.typechecker.util.TypeCheckerUtil;
+import org.overture.typechecker.visitor.TypeCheckerDefinitionVisitor;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PParametrisation;
@@ -85,6 +100,7 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
+import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.types.AActionParagraphType;
@@ -195,6 +211,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	public PType caseAFunctionsDefinition(AFunctionsDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+
 		LinkedList<PDefinition> functions = node.getFunctionDefinitions();
 		for(PDefinition def : functions)
 		{
@@ -204,9 +222,28 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				node.setType(issueHandler.addTypeError(def,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+def)));
 				return node.getType();
 			}
+			cmlEnv.addVariable(def.getName(), def);
 		}
 
 		node.setType(new AFunctionParagraphType(node.getLocation(), true));
+		return node.getType();
+	}
+
+	
+	
+	@Override
+	public PType caseAImplicitFunctionDefinition(
+			AImplicitFunctionDefinition node, TypeCheckInfo question)
+			throws AnalysisException {
+
+		OvertureRootCMLAdapter root = new OvertureRootCMLAdapter(parentChecker, issueHandler);
+		TypeCheckerDefinitionVisitor ovtDef = new TypeCheckerDefinitionVisitor(root);
+		try {
+			PType result = node.apply(ovtDef, question);
+			node.setType(result);
+		} catch (AnalysisException e) {
+			node.setType(issueHandler.addTypeError(node,e.getMessage()));
+		}
 		return node.getType();
 	}
 
@@ -229,9 +266,14 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 
+		List<PDefinition> typeDefs = new LinkedList<PDefinition>();
 		for(PDefinition def : declType.getDefinitions())
+		{
+			typeDefs.add(def);
 			def.setType(decl.getType());
+		}
 
+		node.getType().getDefinitions().addAll(typeDefs);
 		return node.getType();
 	}
 
@@ -541,21 +583,26 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 					.customizeMessage(expression + ""));
 
+		if (!(expressionType instanceof ASetType))
+			return issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""+new ASetType(),""+expressionType));
+
+		List<PDefinition>defs = new LinkedList<PDefinition>();
 		LinkedList<LexIdentifierToken> identifiers = node.getIdentifiers();
 		for (LexIdentifierToken id : identifiers) {
 			LexNameToken name = null;
 			if (id instanceof LexNameToken)
 				name = (LexNameToken) id;
 			else
-				name = new LexNameToken(question.env.getEnclosingDefinition()
-						.getName().module, id.getName(), id.getLocation());
+				name = new LexNameToken("", id.getName(), id.getLocation());
 
+			ASetType expressionSetType = (ASetType)expressionType;
 			ALocalDefinition localDef = AstFactory
 					.newALocalDefinition(id.getLocation(), name,
-							node.getNameScope(), expressionType);
-			((FlatEnvironment) question.env).add(localDef);
+							node.getNameScope(), expressionSetType.getSetof());
+			defs.add(localDef);
 		}
 
+		expressionType.setDefinitions(defs);
 		return expressionType;
 	}
 
@@ -932,7 +979,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	{
 		OvertureToCmlHandler handler = overtureClassBits.get(def.getClass());
 		if (handler!=null) return handler.handle(def);
-		return null;
+		return Arrays.asList(def);
 	}
 
 	private static class OvertureToCmlFunctionHandler implements OvertureToCmlHandler
@@ -1303,7 +1350,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				}
 
 			}
-			*/
+			 */
 			for (PDefinition def : thoseHandledByCOMPASS) {
 				PType type = def.apply(parentChecker, classQuestion);
 				if (type == null || type instanceof AErrorType) {
@@ -1419,8 +1466,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				newScope.addVariable(def.getName(), def);
 		}
 
-	
-		
+
+
 		// cmlEnv.addVariable(node.getName(), node);
 
 		PProcess process = node.getProcess();
@@ -1522,8 +1569,28 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// check the body
 		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) createEnvironmentWithFormals(
 				question, node);
+		
+		AOperationType opType = node.getType();
+		if (opType != null) {
+			LinkedList<PType> paramTypes = opType.getParameters();
+			for(PType pType : paramTypes) {
+				PType pTypeType = pType.apply(parentChecker,question);
+				if (!TCDeclAndDefVisitor.successfulType(pTypeType)) {
+					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+pType)));
+					return node.getType();
+				}
+			}
+			
+			PType retType = opType.getResult();
+			PType retTypeType = retType.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(retTypeType)) {
+				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+retType)));
+				return node.getType();
+			}
+		}
+			
+		
 		PAction operationBody = node.getBody();
-		// TODO Check that the operationBody is only allowed operations
 		question.contextSet(CmlTypeCheckInfo.class, newQuestion);
 		PType bodyType = operationBody.apply(parentChecker, newQuestion);
 		question.contextRem(CmlTypeCheckInfo.class);
@@ -1549,6 +1616,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		return node.getType();
 	}
+
+
 
 	private TypeCheckQuestion createEnvironmentWithFormals(
 			org.overture.typechecker.TypeCheckInfo current, PDefinition funDef)
@@ -1584,105 +1653,266 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// add formal arguments to the environment
 		int i = 0;
 		for (PPattern p : patterns) {
-			if (p instanceof AIdentifierPattern) {
-				PType paramType = (i < paramTypes.size() ? paramTypes.get(i)
-						: new AErrorType(p.getLocation(), true));
-				AIdentifierPattern idp = (AIdentifierPattern) p;
-				LexLocation location_ = p.getLocation();
-				org.overture.ast.typechecker.NameScope nameScope_ = NameScope.LOCAL;
-				Boolean used_ = false;
-				SClassDefinition classDefinition_ = null;
-				AAccessSpecifierAccessSpecifier access_ = null;
-				PType type_ = paramType;
-				if (paramType instanceof AProductType) {
-					AProductType pt = (AProductType) paramType;
-					type_ = pt.getTypes().get(i);
-				}
 
-				Pass pass_ = Pass.DEFS;
-				Boolean valueDefinition_ = false;
-				LexNameToken name_ = ((AIdentifierPattern) p).getName();
-				ALocalDefinition local = new ALocalDefinition(location_,
-						nameScope_, used_, classDefinition_, access_, type_,
-						pass_, valueDefinition_, name_);
-				functionBodyEnv.addVariable(idp.getName(), local);
-			} else
-				throw new AnalysisException(
-						"Can only handle identifier patterns at this time.");
+			PType patternType = p.apply(parentChecker,current);
+			if (!TCDeclAndDefVisitor.successfulType(patternType)) {
+				funDef.setType(issueHandler.addTypeError(p, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+p)));
+				return functionBodyEnv;
+			}
+			for(PDefinition def : patternType.getDefinitions()) {
+				functionBodyEnv.addVariable(def.getName(), def);
+				def.setType(paramTypes.get(i));
+			}
+
 			i++;
 		}
 
-		/*
-		 * TODO: Question, are identifier patterns the only one we care about
-		 * for function parameters? If they are the AnalysisException thrown
-		 * above must be turned into a type error.
-		 */
-		return functionBodyEnv;
+	return functionBodyEnv;
 	}
+
 
 	@Override
 	public PType caseAExplicitFunctionDefinition(
 			AExplicitFunctionDefinition node,
-			org.overture.typechecker.TypeCheckInfo question)
+			org.overture.typechecker.TypeCheckInfo questionIn)
 					throws AnalysisException {
 
-		// Type check the function body in an augmented environment
-		CmlTypeCheckInfo newQuestion = (CmlTypeCheckInfo) createEnvironmentWithFormals(
-				question, node);
 
-		PExp body = node.getBody();
-		body.apply(parentChecker, newQuestion);
-		if (body.getType() == null)
-			issueHandler.addTypeError(body,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage(node.getName().name));
+		OvertureToCmlFunctionHandler fnHandler = new OvertureToCmlFunctionHandler();
+		List<PDefinition> fixedDefinition = fnHandler.handle(node);
+		node = (AExplicitFunctionDefinition) fixedDefinition.get(0);
 
-		// Check funcType <: bodyType in question
-		AFunctionType funcType = node.getType();
-		if (!typeComparator.isSubType(funcType.getResult(), body.getType()))
-			issueHandler.addTypeError(body,
-					TypeErrorMessages.EXPECTED_SUBTYPE_RELATION
-					.customizeMessage(funcType.toString(), body
-							.getType().toString()));
+		NodeList<PDefinition> defs = new NodeList<PDefinition>(node);
 
-		AFunctionType fType = (AFunctionType) PDefinitionAssistantTC.getType(node);
-		node.getName().setTypeQualifier(fType.getParameters());
-
-		if (node.getBody() instanceof ASubclassResponsibilityExp)
-		{
-			node.getClassDefinition().setIsAbstract(true);
+		if (node.getTypeParams() != null) {
+			defs.addAll(AExplicitFunctionDefinitionAssistantTC
+					.getTypeParamDefinitions(node));
 		}
 
-		if (node.getBody() instanceof ASubclassResponsibilityExp ||
-				node.getBody() instanceof ANotYetSpecifiedExp)
+		// CML Variant, we need to check the patterns
+		TypeCheckInfo question = (TypeCheckInfo)createEnvironmentWithFormals(questionIn, node);
+
+
+
+		// CML Variant, we need to check for zero arguments
+		PType expectedResult = null;		
+		if (node.getParamDefinitionList().size() > 0) {
+			ListIterator<List<PPattern>> lIter = node.getParamPatternList().listIterator();
+			expectedResult = AExplicitFunctionDefinitionAssistantTC
+					.checkParams(node, lIter,
+							node.getType());
+		}
+		else
 		{
-			node.setIsUndefined(true);
+			PType fnType = node.getType();
+			if (!(fnType instanceof AFunctionType)) {
+				
+				node.setType(issueHandler.addTypeError(node,TypeErrorMessages.EXPECTED_TYPE_DEFINITION.customizeMessage(""+new AFunctionType())));
+				return node.getType();
+			}
+			AFunctionType funType = (AFunctionType)fnType;
+			expectedResult = funType.getResult();
+		}
+			
+
+
+
+
+		node.setExpectedResult(expectedResult);
+		List<List<PDefinition>> paramDefinitionList = AExplicitFunctionDefinitionAssistantTC
+				.getParamDefinitions(node, node.getType(),
+						node.getParamPatternList(), node.getLocation());
+		Collections.reverse(paramDefinitionList);
+
+		for (List<PDefinition> pdef : paramDefinitionList) {
+			defs.addAll(pdef); // All definitions of all parameter lists
 		}
 
-		if (node.getPrecondition() != null)
-		{
-			PDefinitionAssistantTC.typeResolve(node.getPredef(),(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parentChecker,question);
+		FlatCheckedEnvironment local = new FlatCheckedEnvironment(defs,
+				question.env, question.scope);
+
+		local.setStatic(PAccessSpecifierAssistantTC.isStatic(node.getAccess()));
+		local.setEnclosingDefinition(node);
+
+		// building the new scope for subtypechecks
+
+		PDefinitionListAssistantTC.typeCheck(defs, this, new TypeCheckInfo(
+				local, question.scope, question.qualifiers)); // can
+		// be
+		// this
+		// because
+		// its
+		// a
+		// definition
+		// list
+
+		if (question.env.isVDMPP()
+				&& !PAccessSpecifierAssistantTC.isStatic(node.getAccess())) {
+			local.add(PDefinitionAssistantTC.getSelfDefinition(node));
 		}
 
-		if (node.getPostcondition() != null)
-		{
-			PDefinitionAssistantTC.typeResolve(node.getPostdef(),(QuestionAnswerAdaptor<TypeCheckInfo, PType>) parentChecker,question);
+		if (node.getPredef() != null) {
+			// building the new scope for subtypechecks
+
+			PType b = node
+					.getPredef()
+					.getBody()
+					.apply(parentChecker,
+							new TypeCheckInfo(local, NameScope.NAMES));
+			ABooleanBasicType expected = AstFactory.newABooleanBasicType(node
+					.getLocation());
+
+			if (!PTypeAssistantTC.isType(b, ABooleanBasicType.class)) {
+				TypeChecker.report(3018,
+						"Precondition returns unexpected type",
+						node.getLocation());
+				TypeChecker.detail2("Actual", b, "Expected", expected);
+			}
 		}
 
-		for (List<PPattern> pp: node.getParamPatternList())
-		{
-			PPatternListAssistantTC.typeResolve(pp, (QuestionAnswerAdaptor<TypeCheckInfo, PType>) parentChecker, question);
+		if (node.getPostdef() != null) {
+			LexNameToken result = new LexNameToken(node.getName().getModule(),
+					"RESULT", node.getLocation());
+			PPattern rp = AstFactory.newAIdentifierPattern(result);
+			List<PDefinition> rdefs = PPatternAssistantTC.getDefinitions(rp,
+					expectedResult, NameScope.NAMES);
+			FlatCheckedEnvironment post = new FlatCheckedEnvironment(rdefs,
+					local, NameScope.NAMES);
+
+			// building the new scope for subtypechecks
+			PType b = node
+					.getPostdef()
+					.getBody()
+					.apply(parentChecker,
+							new TypeCheckInfo(post, NameScope.NAMES));
+			ABooleanBasicType expected = AstFactory.newABooleanBasicType(node
+					.getLocation());
+
+			if (!PTypeAssistantTC.isType(b, ABooleanBasicType.class)) {
+				TypeChecker.report(3018,
+						"Postcondition returns unexpected type",
+						node.getLocation());
+				TypeChecker.detail2("Actual", b, "Expected", expected);
+			}
 		}
 
-		node.setType(funcType);
-		node.setExpectedResult(funcType.getResult());
-		node.setActualResult(body.getType());
+		// This check returns the type of the function body in the case where
+		// all of the curried parameter sets are provided.
 
-		// Nonetheless the function type will be the type its definition to
-		// facilitate further type checking even in the presents of errors.
-		node.setType(funcType);
-		return funcType;
-	}
+
+		OvertureRootCMLAdapter.pushQuestion(question);
+		PType actualResult = node.getBody().apply(parentChecker,
+				new TypeCheckInfo(local, question.scope));
+		OvertureRootCMLAdapter.popQuestion(question);
+
+		node.setActualResult(actualResult);
+
+		if (!typeComparator.isSubType(expectedResult, node.getActualResult())) {
+			TypeChecker.report(3018, "Function returns unexpected type",
+					node.getLocation());
+			TypeChecker.detail2("Actual", node.getActualResult(), "Expected",
+					expectedResult);
+		}
+
+		if (PTypeAssistantTC.narrowerThan(node.getType(), node.getAccess())) {
+			TypeCheckerErrors
+			.report(3019,
+					"Function parameter visibility less than function definition",
+					node.getLocation(), node);
+		}
+
+		if (node.getMeasure() == null && node.getRecursive()) {
+			TypeCheckerErrors.warning(5012,
+					"Recursive function has no measure", node.getLocation(),
+					node);
+		} else if (node.getMeasure() != null) {
+			if (question.env.isVDMPP())
+				node.getMeasure().setTypeQualifier(
+						node.getType().getParameters());
+			node.setMeasureDef(question.env.findName(node.getMeasure(),
+					question.scope));
+
+			if (node.getMeasureDef() == null) {
+				TypeCheckerErrors.report(3270, "Measure " + node.getMeasure()
+						+ " is not in scope", node.getMeasure().getLocation(),
+						node.getMeasure());
+			} else if (!(node.getMeasureDef() instanceof AExplicitFunctionDefinition)) {
+				TypeCheckerErrors.report(3271, "Measure " + node.getMeasure()
+						+ " is not an explicit function", node.getMeasure()
+						.getLocation(), node.getMeasure());
+			} else if (node.getMeasureDef() == node) {
+				TypeCheckerErrors.report(3304,
+						"Recursive function cannot be its own measure", node
+						.getMeasure().getLocation(), node.getMeasure());
+			} else {
+				AExplicitFunctionDefinition efd = (AExplicitFunctionDefinition) node
+						.getMeasureDef();
+
+				if (node.getTypeParams() == null && efd.getTypeParams() != null) {
+					TypeCheckerErrors.report(3309,
+							"Measure must not be polymorphic", node
+							.getMeasure().getLocation(), node
+							.getMeasure());
+				} else if (node.getTypeParams() != null
+						&& efd.getTypeParams() == null) {
+					TypeCheckerErrors.report(3310,
+							"Measure must also be polymorphic", node
+							.getMeasure().getLocation(), node
+							.getMeasure());
+				}
+
+				AFunctionType mtype = (AFunctionType) efd.getType();
+
+				if (!org.overture.typechecker.TypeComparator.compatible(mtype.getParameters(), node
+						.getType().getParameters())) {
+					TypeCheckerErrors.report(3303,
+							"Measure parameters different to function", node
+							.getMeasure().getLocation(), node
+							.getMeasure());
+					TypeChecker.detail2(node.getMeasure().getName(),
+							mtype.getParameters(), node.getName().getName(),
+							node.getType().getParameters());
+				}
+
+				if (!(mtype.getResult() instanceof ANatNumericBasicType)) {
+					if (mtype.getResult().kindPType() == EType.PRODUCT) {
+						AProductType pt = PTypeAssistantTC.getProduct(mtype
+								.getResult());
+
+						for (PType t : pt.getTypes()) {
+							if (!(t instanceof ANatNumericBasicType)) {
+								TypeCheckerErrors
+								.report(3272,
+										"Measure range is not a nat, or a nat tuple",
+										node.getMeasure().getLocation(),
+										node.getMeasure());
+								TypeCheckerErrors.detail("Actual",
+										mtype.getResult());
+								break;
+							}
+						}
+
+						node.setMeasureLexical(pt.getTypes().size());
+					} else {
+						TypeCheckerErrors.report(3272,
+								"Measure range is not a nat, or a nat tuple",
+								node.getMeasure().getLocation(),
+								node.getMeasure());
+						TypeCheckerErrors.detail("Actual", mtype.getResult());
+					}
+				}
+			}
+		}
+
+		if (!(node.getBody() instanceof ANotYetSpecifiedExp)
+				&& !(node.getBody() instanceof ASubclassResponsibilityExp)) {
+			local.unusedCheck();
+		}
+
+		node.setType(node.getType());
+		return node.getType();
+}
+
 
 	@Override
 	public PType caseATypeDefinition(ATypeDefinition node,

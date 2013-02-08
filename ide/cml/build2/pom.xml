@@ -46,14 +46,14 @@
      ${basedir}/target_platform
    </target.platform.dir>
 
-   <target.platform.ver>1.0.1</target.platform.ver>
+   <target.platform.ver>1.0.3</target.platform.ver>
 
  </properties>
 
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
     <artifactId>eu.compassresearch.ide.cml</artifactId>
-    <version>0.1.0<!--Replaceable: Main Version--></version>
+    <version>0.1.1<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -62,6 +62,7 @@
   <name>COMPASS IDE RCP Builder</name>
   <groupId>eu.compassresearch.ide.cml</groupId>
   <artifactId>eu.compassresearch.ide.cml.build</artifactId>
+  <packaging>pom</packaging>
 
   <build>
     <plugins>

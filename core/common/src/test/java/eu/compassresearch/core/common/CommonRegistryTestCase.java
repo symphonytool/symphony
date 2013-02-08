@@ -19,26 +19,127 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
 import org.overture.ast.node.NodeEnum;
+import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
+import eu.compassresearch.ast.program.ESource;
+import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.common.AnalysisArtifact;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
 
 public class CommonRegistryTestCase {
 
+	PSource root = new PSource() {
+
+		@Override
+		public INode parent() {
+			return null;
+		}
+
+		@Override
+		public void parent(INode parent) {
+			
+		}
+
+		@Override
+		public <T extends INode> T getAncestor(Class<T> classType) {
+			return null;
+		}
+
+		@Override
+		public void apply(IAnalysis analysis) throws AnalysisException {
+			
+		}
+
+		@Override
+		public <A> A apply(IAnswer<A> caller) throws AnalysisException {
+			return null;
+		}
+
+		@Override
+		public <Q> void apply(IQuestion<Q> caller, Q question)
+				throws AnalysisException {
+			
+		}
+
+		@Override
+		public <Q, A> A apply(IQuestionAnswer<Q, A> caller, Q question)
+				throws AnalysisException {
+			return null;
+		}
+
+		@Override
+		public ESource kindPSource() {
+			return null;
+		}
+
+		@Override
+		public Map<String, Object> getChildren(Boolean includeInheritedFields) {
+			return null;
+		}
+
+		@Override
+		public NodeEnum kindNode() {
+			return null;
+		}
+
+		@Override
+		public void removeChild(INode child) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public PSource clone() {return null;};
+		
+		@Override
+		public PSource clone(Map<INode, INode> oldToNewMap) {
+			return null;
+		}
+
+		@Override
+		public void setParagraphs(List<? extends PDefinition> value) {
+		}
+
+		@Override
+		public LinkedList<PDefinition> getParagraphs() {
+			return null;
+		}
+
+		@Override
+		public void replaceChild(INode oldChild, INode newChild) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void setType(PType value) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public PType getType() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+	};
+	
 	@SuppressWarnings("serial")
 	class DummyAstNode extends Node {
 
 		private List<INode> children = new LinkedList<INode>();
 
 		DummyAstNode() {
-
+			super();
 		}
 
 		DummyAstNode(INode[] children) {
 			this.children.addAll(Arrays.asList(children));
+			for(INode n : children)
+				n.parent(this);
 		}
 
 		@Override
@@ -112,16 +213,16 @@ public class CommonRegistryTestCase {
 
 		RegistryFactory rf = RegistryFactory.getInstance();
 		Registry res = rf.getRegistry();
-		res.put(new DummyAstNode(), new DummyArtifact());
+		res.store(new DummyAstNode(), new DummyArtifact());
 	}
 
 	@Test
 	public void addAndGetElement() {
-		DummyAstNode node = new DummyAstNode();
+		DummyAstNode node = new DummyAstNode();node.parent(this.root);
 		DummyArtifact artifact = new DummyArtifact();
 		RegistryFactory rf = RegistryFactory.getInstance();
 		Registry res = rf.getRegistry();
-		res.put(node, artifact);
+		Assert.assertTrue("Artifact did not get inserted.",res.store(node, artifact));
 		AnalysisArtifact artifactCollected = res.lookup(node,
 				DummyArtifact.class);
 		Assert.assertNotNull(artifactCollected);
@@ -139,12 +240,13 @@ public class CommonRegistryTestCase {
 		DummyAstNode c = new DummyAstNode(); // leaf
 		DummyAstNode b = new DummyAstNode(new INode[] { a, d }); // intermediate
 		DummyAstNode root = new DummyAstNode(new INode[] { b, c }); // root
+		root.parent(this.root);
 
 		RegistryFactory rf = RegistryFactory
 				.getInstance("addAndGetRecursively");
 		Registry reg = rf.getRegistry();
 
-		reg.put(a, inLeaf);
+		Assert.assertTrue("Node did not get inserted.",reg.store(a, inLeaf));
 
 		Map<INode, DummyArtifact> collectedArtifacts = reg.lookupRecursively(
 				root, DummyArtifact.class);
@@ -160,12 +262,14 @@ public class CommonRegistryTestCase {
 		paragraph.setBody(Arrays.asList(new PDefinition[] { values }));
 		values.setValueDefinitions(Arrays.asList(new PDefinition[] { valDef }));
 
+		paragraph.parent(this.root);
+		
 		RegistryFactory rf = RegistryFactory.getInstance();
 		Registry reg = rf.getRegistry();
 
 		DummyArtifact artifact = new DummyArtifact();
 
-		reg.put(valDef, artifact);
+		Assert.assertTrue("Node did not get inserted.",reg.store(valDef, artifact));
 
 		Map<INode, DummyArtifact> collected = reg.lookupRecursively(paragraph,
 				DummyArtifact.class);

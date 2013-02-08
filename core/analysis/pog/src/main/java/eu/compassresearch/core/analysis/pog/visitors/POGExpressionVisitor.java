@@ -11,7 +11,7 @@ import org.overture.pog.visitor.PogParamExpVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
+import eu.compassresearch.ast.expressions.PCMLExp;
 
 public class POGExpressionVisitor extends
 	QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
@@ -28,22 +28,28 @@ public class POGExpressionVisitor extends
     }
 
     // handle CML expressions
-
+// they are the PCMLExps or wheatever
     // Typechecker will eventually solve resolve these. For now, we hack past it.
     @Override
     public ProofObligationList caseAUnresolvedPathExp(AUnresolvedPathExp node,
 	    POContextStack question) throws AnalysisException {
-	return new CMLProofObligationList();
+	return new ProofObligationList();
     }
 
     
     
-    
-    // Call Overture for the other expressions
+    //TODO handle PCML expressions
+    @Override
+	public ProofObligationList defaultPCMLExp(PCMLExp node,
+			POContextStack question) throws AnalysisException {
+		return new ProofObligationList();
+	}
+
+	// Call Overture for the other expressions
     @Override
     public ProofObligationList defaultPExp(PExp node, POContextStack question)
 	    throws AnalysisException {
-	CMLProofObligationList pol = new CMLProofObligationList();
+	ProofObligationList pol = new ProofObligationList();
 	pol.addAll(node.apply(overtureVisitor, question));
 	return pol;
     }
@@ -52,7 +58,7 @@ public class POGExpressionVisitor extends
     @Override
     public ProofObligationList defaultINode(INode node, POContextStack question)
 	    throws AnalysisException {
-	CMLProofObligationList pol = new CMLProofObligationList();
+	ProofObligationList pol = new ProofObligationList();
 	pol.addAll(node.apply(rootVisitor, question));
 	return pol;
     }

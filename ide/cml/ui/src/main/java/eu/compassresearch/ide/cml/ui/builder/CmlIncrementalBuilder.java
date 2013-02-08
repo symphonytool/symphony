@@ -1,41 +1,52 @@
 package eu.compassresearch.ide.cml.ui.builder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import javax.swing.ProgressMonitor;
-
-import org.eclipse.core.commands.Command;
-import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.internal.registry.osgi.OSGIUtils;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Plugin;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.ICommandService;
-import org.eclipse.ui.internal.commands.CommandService;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.common.Registry;
+import eu.compassresearch.core.common.RegistryFactory;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLIssueList;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
+import eu.compassresearch.ide.cml.core.ICmlCoreConstants;
+import eu.compassresearch.ide.cml.ui.CmlUIPlugin;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 
+
+	
+	public CmlIncrementalBuilder(){
+		
+	}
 	/*
 	 * Run the type checker.
 	 */
@@ -61,21 +72,6 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
-	
-	private static boolean isChildOfMe(INode me, INode candidate)
-	{
-		if (me == candidate) return true;
-		Map<String, Object> children = me.getChildren(true);
-		for(Object o : children.values())
-		{
-			if (o != null && o instanceof INode)
-			{
-				INode n = (INode)o;
-				isChildOfMe(me,candidate);
-			}
-		}
-		return false;
-	}
 
 	/*
 	 * For each error remove the parent errors so we only see the leafs.
@@ -83,41 +79,57 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 	 */
 	private static List<CMLTypeError> filterErrros(List<CMLTypeError> errs)
 	{
-		Map<INode, CMLTypeError> nodeToErrorMap = new HashMap<INode,CMLTypeError>();
+		Map<INode, List<CMLTypeError>> nodeToErrorMap = new HashMap<INode,List<CMLTypeError>>();
 
 		for(CMLTypeError error : errs)
 			if (error.getOffendingNode() != null)
-				nodeToErrorMap.put(error.getOffendingNode(), error);
-		
-		List<INode> errorsToKill = new LinkedList<INode>();
-		for(CMLTypeError error : nodeToErrorMap.values())
-		{
-			INode parent = error.getOffendingNode().parent();
-			while(parent != null)
 			{
-				if (nodeToErrorMap.containsKey(parent))
-					errorsToKill.add(parent);
-				parent = parent.parent();
+				List<CMLTypeError> l = 	nodeToErrorMap.get(error.getOffendingNode());
+				if (l == null) { l = new LinkedList<CMLTypeError>(); nodeToErrorMap.put(error.getOffendingNode(),l); }
+				l.add(error);
+			}
+
+		List<INode>  nodesToClearErrorsFor = new LinkedList<INode>();
+		for(List<CMLTypeError> errors : nodeToErrorMap.values())
+		{
+			for(CMLTypeError error : errors)
+			{
+				INode parent = error.getOffendingNode().parent();
+				while(parent != null)
+				{
+					if (nodeToErrorMap.containsKey(parent))
+						nodesToClearErrorsFor.add(parent);
+					parent = parent.parent();
+				}
 			}
 		}
 		
-		for(INode n : errorsToKill) nodeToErrorMap.remove(n);
+		for(INode n : nodesToClearErrorsFor)
+			nodeToErrorMap.put(n,new LinkedList<CMLTypeError>());
 		
-		return new ArrayList<TypeIssueHandler.CMLTypeError>(nodeToErrorMap.values());
+		List<CMLTypeError> res = new ArrayList<TypeIssueHandler.CMLTypeError>();
+		for(Entry<INode,List<CMLTypeError>> e : nodeToErrorMap.entrySet())
+			res.addAll(e.getValue());
+
+
+		return res;
 	}
 
 	private synchronized static boolean typeCheck(IProject project, Map<PSource,IFile> sourceToFileMap)
 	{
+		
+		
 		if (project == null) return false;
 		if (sourceToFileMap == null) return false;
 		Thread.currentThread().setName("Type Checker");
-		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
+		Registry reg = RegistryFactory.getInstance(project.getName()).getRegistry();
+		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle(reg);
 		CmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sourceToFileMap.keySet(), issueHandler);
 		try {
 			boolean result =  typeChecker.typeCheck();
 			// set error markers
 			List<CMLTypeError> errorsThatMatter = filterErrros(issueHandler.getTypeErrors());
-			for(CMLTypeError error : errorsThatMatter)
+			for(final CMLTypeError error : errorsThatMatter)
 			{
 				INode offendingNode = error.getOffendingNode();
 				if (offendingNode != null)
@@ -129,10 +141,61 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 						if (file != null)
 						{
 							IMarker errorMarker = file.createMarker(IMarker.PROBLEM);
-							LexLocation loc = error.getLocation();
-							String offStr = offendingNode == null ? "" : ""+offendingNode.getClass();
-							if (loc != null)
-								setProblem(errorMarker,error.getDescription()+offStr, loc.startOffset, loc.endOffset);
+							LexLocation loc = error.getLocation();						
+							if (loc != null) {
+								setProblem(errorMarker,error.getDescription(), loc.startOffset, loc.endOffset);
+								ILog logger = CmlUIPlugin.getLogger();
+								if (logger != null) logger.log(new IStatus() {
+									
+									@Override
+									public boolean matches(int arg0) {
+										return false;
+									}
+									
+									@Override
+									public boolean isOK() {
+										return false;
+									}
+									
+									@Override
+									public boolean isMultiStatus() {
+										return false;
+									}
+									
+									@Override
+									public int getSeverity() {
+										return 42;
+									}
+									
+									@Override
+									public String getPlugin() {
+										return null;
+									}
+									
+									@Override
+									public String getMessage() {
+										String str = "";
+										INode node = error.getOffendingNode();
+										if (node != null) str += node.getClass().getSimpleName(); 
+										return error.getDescription() + " reported from ast node of type \""+str+"\".";
+									}
+									
+									@Override
+									public Throwable getException() {
+										return null;
+									}
+									
+									@Override
+									public int getCode() {
+										return 0;
+									}
+									
+									@Override
+									public IStatus[] getChildren() {
+										return null;
+									}
+								});
+							}
 							else
 							{
 								setProblem(errorMarker,error.getDescription(), 1,1);
@@ -181,47 +244,145 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 
 
 	private IProject[] buildit(IProgressMonitor monitor) throws CoreException {
-		// Remove all markers from project
-		getProject().deleteMarkers(IMarker.PROBLEM, true,
-				IResource.DEPTH_INFINITE);
-
-		// Create a visitor
-		CmlBuildVisitor buildVisitor = new CmlBuildVisitor();
 
 		// get project
 		IProject project = getProject();
 
+		
+		// Remove all markers from project
+		project.deleteMarkers(IMarker.PROBLEM, true,
+				IResource.DEPTH_INFINITE);
+
+		
+		// Remove all errors in the registry for this project
+		String projectName = project.getName();
+		Registry tcReg = RegistryFactory.getInstance(projectName).getRegistry();
+		tcReg.prune(CMLIssueList.class);
+		
+		monitor.beginTask("Building project: "+projectName, 5);
+		
+		// Create a visitor
+		CmlBuildVisitor buildVisitor = new CmlBuildVisitor(monitor);
+		
+		
 		// run the parser on every cml file in the project
 		project.accept(buildVisitor);
+		
 
 		// Type Check all sources in this project
 		Collection<CmlSourceUnit> allSourceUnits = CmlSourceUnit.getAllSourceUnits();
 		Map<PSource,IFile> sourceToFileMap = new HashMap<PSource,IFile>();
 		for(CmlSourceUnit sourceUnit : allSourceUnits)
 		{
+			monitor.subTask("Type checking, adding source "+sourceUnit);
 			if (sourceUnit.isParsedOk() && 
 					sourceUnit.getFile().getProject() == project 
 					&& sourceUnit.getSourceAst() != null)
 				sourceToFileMap.put(sourceUnit.getSourceAst(), sourceUnit.getFile());
 		}
+		monitor.subTask("Type checking");
 		typeCheck(project,sourceToFileMap);
 
-		
+
 		// Return the projects that should be build also as result of rebuilding
 		// this
 		return null;
 
 	}
 
+	
+	public static void addBuilderToProject(IProject project) {
+
+		   // Cannot modify closed projects.
+		   if (!project.isOpen())
+		      return;
+
+		   // Get the description.
+		   IProjectDescription description;
+		   try {
+		      description = project.getDescription();
+		   }
+		   catch (CoreException e) {
+		      e.printStackTrace();
+		      return;
+		   }
+
+		   // Look for builder already associated.
+		   ICommand[] cmds = description.getBuildSpec();
+		   for (int j = 0; j < cmds.length; j++)
+		      if (cmds[j].getBuilderName().equals(ICmlCoreConstants.BUILDER_ID))
+		         return;
+
+		   // Associate builder with project.
+		   ICommand newCmd = description.newCommand();
+		   newCmd.setBuilderName(ICmlCoreConstants.BUILDER_ID);
+		   List<ICommand> newCmds = new ArrayList<ICommand>();
+		   newCmds.addAll(Arrays.asList(cmds));
+		   newCmds.add(newCmd);
+		   description.setBuildSpec(
+		      (ICommand[]) newCmds.toArray(
+		         new ICommand[newCmds.size()]));
+		   try {
+		      project.setDescription(description, null);
+		   }
+		   catch (CoreException e) {
+		      e.printStackTrace();
+		   }
+		}
+
+	public static void removeBuilderFromProject(IProject project) {
+
+		   // Cannot modify closed projects.
+		   if (!project.isOpen())
+		      return;
+
+		   // Get the description.
+		   IProjectDescription description;
+		   try {
+		      description = project.getDescription();
+		   }
+		   catch (CoreException e) {
+		      e.printStackTrace();
+		      return;
+		   }
+
+		   // Look for builder.
+		   int index = -1;
+		   ICommand[] cmds = description.getBuildSpec();
+		   for (int j = 0; j < cmds.length; j++) {
+		      if (cmds[j].getBuilderName().equals(ICmlCoreConstants.BUILDER_ID)) {
+		         index = j;
+		         break;
+		      }
+		   }
+		   if (index == -1)
+		      return;
+
+		   // Remove builder from project.
+		   List<ICommand> newCmds = new ArrayList<ICommand>();
+		   newCmds.addAll(Arrays.asList(cmds));
+		   newCmds.remove(index);
+		   description.setBuildSpec(
+		      (ICommand[]) newCmds.toArray(
+		         new ICommand[newCmds.size()]));
+		   try {
+		      project.setDescription(description, null);
+		   }
+		   catch (CoreException e) {
+		      e.printStackTrace();
+		   }
+		}
+
+	
+	@Override
+	protected void clean(IProgressMonitor monitor) throws CoreException {
+		// TODO Auto-generated method stub
+		super.clean(monitor);
+	}
+	
 	@Override
 	protected void startupOnInitialize() {
 		super.startupOnInitialize();
-		try {
-			super.forgetLastBuiltState();
-			buildit(null);
-		} catch (CoreException e) {
-
-		}
 	}
 
 	@Override

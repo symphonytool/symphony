@@ -28,8 +28,7 @@ import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 
 
 @SuppressWarnings("serial")
-abstract class AbstractCmlInterpreter extends
-		QuestionAnswerCMLAdaptor<Context, Value> implements CmlInterpreter {
+abstract class AbstractCmlInterpreter implements CmlInterpreter {
 
 		
 	protected EventSourceHandler<CmlInterpreterStatusObserver, InterpreterStatusEvent> statusEventHandler =

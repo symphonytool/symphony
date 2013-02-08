@@ -218,7 +218,7 @@ public class RunCmlExamplesTestCase {
 		Assert.assertTrue("Parser failed", parseOk);
 
 		TypeIssueHandler tc = res.issueHandler;
-		String errorString = buildErrorMessage(tc);
+		String errorString =   buildErrorMessage(tc);
 		boolean tcOK = res.tcOk;
 		if (!failingTC.containsKey(file.getName())) {
 			System.out.println("\t" + (tcOK ? "[OK]" : "[FAIL]"));
@@ -249,17 +249,22 @@ public class RunCmlExamplesTestCase {
 	}
 
 	private String buildErrorMessage(TypeIssueHandler tc) {
+		
 		StringBuilder sb = new StringBuilder();
+		
 		sb.append("Expected type checking to be successful, the following errors were unexpected:\n");
 		for (CMLTypeError error : tc.getTypeErrors())
-			sb.append(error.toString() + "\n------\n");
+			sb.append(error.getLocation()+": "+error.toString() + "\n------\n");
+		
 		if (tc.getTypeErrors().size() > 0)
 		{
-			
-			System.out.println(tc.getTypeErrors().get(0).getStackTrace());
+			CMLTypeError error = tc.getTypeErrors().get(0);
+			System.out.println();
+			System.out.println("Error "+error.getLocation());
+			System.out.println(error.getStackTrace());
 		}
 		sb.append(file.getAbsolutePath());
-		return sb.toString();
+		return "";
 	}
 
 }

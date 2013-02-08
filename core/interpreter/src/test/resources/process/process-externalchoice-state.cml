@@ -1,0 +1,7 @@
+channels a b c d
+
+process A = begin state v : int := 3 @ [v = 2] & a -> b -> Skip end
+
+process B = begin state v : int := 2 @ [v = 2] & b -> c -> Skip end
+
+process D = A [] B 

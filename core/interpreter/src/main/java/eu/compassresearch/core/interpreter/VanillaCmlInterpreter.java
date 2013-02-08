@@ -1,61 +1,52 @@
 package eu.compassresearch.core.interpreter;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.antlr.runtime.ANTLRInputStream;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.RecognitionException;
-import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.typechecker.NameScope;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ObjectContext;
+import org.overture.interpreter.scheduler.BasicSchedulableThread;
+import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
-import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterStatus;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
-import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
-import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
+import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.ConsoleSelectionStrategy;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.interpreter.util.CmlUtil;
-import eu.compassresearch.core.interpreter.util.EnvironmentBuilder;
-import eu.compassresearch.core.parser.CmlLexer;
-import eu.compassresearch.core.parser.CmlParser;
+import eu.compassresearch.core.interpreter.util.GlobalEnvironmentBuilder;
+import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 class VanillaCmlInterpreter extends AbstractCmlInterpreter
 {
+	static
+	{
+	    BasicSchedulableThread.setInitialThread(new InitThread(Thread.currentThread()));
+	}
 
 	/**
 	 * 
 	 */
 	private static final long          serialVersionUID = 6664128061930795395L;
-	private CmlEvaluator               evalutor         = new CmlEvaluator();
 	protected List<PSource>            sourceForest;
-	protected Environment 			   env;
 	protected Context                  globalContext;
 	protected String 				   defaultName      = null;	
 	protected AProcessDefinition       topProcess;
@@ -90,9 +81,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	protected void initialize() throws InterpreterException
 	{
-		EnvironmentBuilder envBuilder = new EnvironmentBuilder(sourceForest);
+		GlobalEnvironmentBuilder envBuilder = new GlobalEnvironmentBuilder(sourceForest);
 
-		env = envBuilder.getGlobalEnvironment();
 		globalContext = envBuilder.getGlobalContext();
 		topProcess = envBuilder.getLastDefinedProcess();
 	}
@@ -102,21 +92,14 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		if(defaultName != null && !defaultName.equals(""))
 		{
 			LexNameToken name = new LexNameToken("",getDefaultName(),null);
-			AProcessDefinition processDef = (AProcessDefinition)env.findName(name, NameScope.GLOBAL);
-
-			if (processDef == null)
+			ProcessObjectValue pov = (ProcessObjectValue)globalContext.check(name);
+			
+			if (pov == null)
 				throw new InterpreterException("No process identified by '"
 						+ getDefaultName() + "' exists");
 
-			topProcess = processDef;
+			topProcess = pov.getProcessDefinition();
 		}
-	}
-	
-
-	@Override
-	public Environment getGlobalEnvironment()
-	{
-		return env;
 	}
 
 	@Override
@@ -131,33 +114,26 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		defaultName = name;
 	}
 
-//	@Override
-//	public Value execute() throws InterpreterException
-//	{
-//		return execute(new RandomSelectionStrategy());
-//	}
-
 	@Override
 	public Value execute(CmlSupervisorEnvironment sve, Scheduler scheduler) throws InterpreterException
 	{
 		InitializeTopProcess();
-		Environment env = getGlobalEnvironment();
-		CmlRuntime.setGlobalEnvironment(env);
 
-		cmlScheduler = scheduler;//VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+		cmlScheduler = scheduler;
 		
-		currentSupervisor = sve; //VanillaInterpreterFactory.newCmlSupervisorEnvironment(selectionStrategy,cmlScheduler);
+		currentSupervisor = sve; 
 		cmlScheduler.setCmlSupervisorEnvironment(currentSupervisor);
 		
-		CmlProcess pi = new CmlProcess(topProcess, null,getInitialContext(null));
-
+		Context topContext = getInitialContext(null);
+		
+		//ProcessObjectValue self = (ProcessObjectValue)topContext.lookup(topProcess.getName()); 
+		
+		//ObjectContext processContext = new ObjectContext(topProcess.getLocation(), "Top Process context", topContext, self);
+		
+		ConcreteBehaviourThread pi = new ConcreteBehaviourThread(topProcess.getProcess(), topContext, topProcess.getName());
 		pi.start(currentSupervisor);
-		try {
-			statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.RUNNING));
-			cmlScheduler.start();
-		} catch (AnalysisException e) {
-			throw new InterpreterException("Yes YES",e);
-		}
+		statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.RUNNING));
+		cmlScheduler.start();
 
 		return null;
 	}
@@ -204,8 +180,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		try
 		{
 			Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+			//CmlSupervisorEnvironment sve = 
+			//		VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
 			CmlSupervisorEnvironment sve = 
-					VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
+							VanillaInterpreterFactory.newCmlSupervisorEnvironment(new ConsoleSelectionStrategy(), scheduler);
+
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.execute(sve,scheduler);
 		} catch (Exception ex)
@@ -224,7 +203,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-externalchoice-simple-skip.cml");
+				"src/test/resources/action/action-mu.cml");
 		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 

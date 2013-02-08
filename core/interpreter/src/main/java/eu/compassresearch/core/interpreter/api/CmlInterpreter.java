@@ -15,7 +15,6 @@ import org.overture.interpreter.runtime.SourceFile;
 import org.overture.interpreter.values.Value;
 import org.overture.parser.lex.LexException;
 import org.overture.parser.syntax.ParserException;
-import org.overture.typechecker.Environment;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
@@ -35,12 +34,6 @@ public interface CmlInterpreter
 
 	public Context getInitialContext(LexLocation location);
 
-	/**
-	 * Get the global environment.
-	 */
-
-	public Environment getGlobalEnvironment();
-	
 	/**
 	 * Get the name of the default process. Symbols in the default
 	 * process do not have to have their names qualified when being

@@ -23,48 +23,73 @@
 
 package eu.compassresearch.core.analysis.pog.obligations;
 
+import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
-import org.overture.pog.obligation.POContextStack;
-import org.overture.pog.obligation.POType;
-import org.overture.pog.obligation.ProofObligation;
 
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 
-	public class CMLSatisfiabilityObligation extends ProofObligation
-	{
-		private String separator = "";
-
-		
+public class CMLSatisfiabilityObligation extends CMLProofObligation
+{
+	private String separator = "";
+	private final AExplicitFunctionDefinition preexp;
+	private final LinkedList<APatternListTypePair> paramPatterns;
+	private final PDefinition stateDefinition;
+	private final LinkedList<APatternTypePair> res;
+	private final AExplicitFunctionDefinition postexp;
+	
 
 		public CMLSatisfiabilityObligation(AImplicitCmlOperationDefinition op,
-				PDefinition stateDefinition, POContextStack ctxt)
+				PDefinition stateDefinition, CMLPOContextStack ctxt)
 		{
-			super(op.getLocation(), POType.OP_SATISFIABILITY, ctxt);
-			StringBuilder sb = new StringBuilder();
+			super(op.getLocation(), CMLPOType.OP_SATISFIABILITY, ctxt);
 
-			if (op.getPredef() != null)
+			this.preexp = op.getPredef();
+			this.paramPatterns = op.getParameterPatterns();
+			this.stateDefinition = stateDefinition;
+			this.res = op.getResult();
+			this.postexp = op.getPostdef();
+			this.guiString = toGUIString(ctxt);
+		}
+
+		@Override
+		public String toGUIString(CMLPOContextStack ctxt) {
+			return ctxt.getGUIString(getExp());
+		}
+		
+		@Override
+		public String toIsabelleString(CMLPOContextStack ctxt) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+		private String getExp()
+		{
+			StringBuilder sb = new StringBuilder();
+			
+			if (preexp != null)
 			{
-				sb.append(op.getPredef().getName().name);
+				sb.append(preexp.getName().name);
 				sb.append("(");
 				separator = "";
-				appendParamPatterns(sb, op.getParameterPatterns());
+				appendParamPatterns(sb, paramPatterns);
 				appendStatePatterns(sb, stateDefinition, true, false);
 				sb.append(")");
 				sb.append(" =>\n");
 			}
 
-			if (op.getResult() != null)
+			if (res != null)
 			{
 				sb.append("exists ");
 				separator = "";
-				for(APatternTypePair r: op.getResult())
+				for(APatternTypePair r: res)
 				{
 					appendResult(sb, r);
 				}
@@ -75,8 +100,8 @@ import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 //			sb.append(op.getPostdef().getName().name);
 			sb.append("(");
 			separator = "";
-			appendParamPatterns(sb, op.getParameterPatterns());
-			for(APatternTypePair r: op.getResult())
+			appendParamPatterns(sb, paramPatterns);
+			for(APatternTypePair r: res)
 			{
 				appendResultPattern(sb, r);
 			}
@@ -84,9 +109,10 @@ import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 			appendStatePatterns(sb, stateDefinition, false, false);
 			sb.append(")");
 
-			value = ctxt.getObligation(sb.toString());
+			return sb.toString();
 		}
-
+		
+		
 		private void appendResult(StringBuilder sb, APatternTypePair ptp)
 		{
 			if (ptp != null)

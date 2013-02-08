@@ -44,7 +44,7 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %declaration->#Single->expression = [identifiers] " := " [expression]
 
 // Processes
-%process->action = "state: " [processDefinition] " @ "
+%process->action = "state: " [definitionParagraphs] " @ "
 
 
 %type->error = "Type Error"

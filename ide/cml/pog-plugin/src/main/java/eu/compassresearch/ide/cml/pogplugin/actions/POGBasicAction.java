@@ -19,10 +19,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.overture.pog.obligation.ProofObligation;
+import org.overture.pog.obligation.ProofObligationList;
 
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
@@ -59,9 +60,14 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 
 	String workspaceLoc = ResourcesPlugin.getWorkspace().getRoot()
 		.getLocation().toString();
-	File tempPo = new File(workspaceLoc, "proofobligation.tmp");
+	File tempPo = new File(workspaceLoc, "proofobligations");
 	tempPo.deleteOnExit();
 
+	
+	if (!CmlTypeChecker.Utils.isWellType(csu.getSourceAst())){
+		popErrorMessage(csu.getFile().getName()+" is not properpy type checked");
+		return;
+	}
 	
 	
 	FileWriter fw;
@@ -72,7 +78,7 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 	    fw.flush();
 	    fw.close();
 
-	    File fileToOpen = new File(workspaceLoc, "proofobligation.tmp");
+	    File fileToOpen = new File(workspaceLoc, "proofobligations");
 
 	    if (fileToOpen.exists() && fileToOpen.isFile()) {
 		IFileStore fileStore = EFS.getLocalFileSystem().getStore(
@@ -91,14 +97,14 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 	}
 	catch (Exception e){
 	    e.printStackTrace();
-	    popErrorMessage();
+	    popErrorMessage(e.toString());
 	}
 
     }
 
-    private void popErrorMessage() {
+    private void popErrorMessage(String s) {
 	MessageDialog.openInformation(window.getShell(), "COMPASS",
-		"Could not generate POs.");	
+		"Could not generate POs.\n" + s);	
     }
 
     private char[] getPOsfromSource(CmlSourceUnit csu) {
@@ -110,7 +116,7 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 
 	PSource psAux = csu.getSourceAst();
 	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
-	CMLProofObligationList pol = new CMLProofObligationList();
+	ProofObligationList pol = new ProofObligationList();
 	try {
 	    pol=pog.generatePOs();
 	} catch (Exception e) {

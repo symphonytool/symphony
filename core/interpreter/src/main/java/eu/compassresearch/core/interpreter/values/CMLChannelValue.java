@@ -5,8 +5,8 @@ import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationType;
-import eu.compassresearch.core.interpreter.cml.channels.CmlSignalChannel;
 import eu.compassresearch.core.interpreter.cml.channels.CmlIOChannel;
+import eu.compassresearch.core.interpreter.cml.channels.CmlSignalChannel;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
 import eu.compassresearch.core.interpreter.events.EventFireMediator;
@@ -48,6 +48,16 @@ public class CMLChannelValue extends Value implements CmlSignalChannel, CmlIOCha
 		this.name = name;
 	}
 	
+	public CMLChannelValue(CMLChannelValue other)
+	{
+		this.channelType = other.channelType;
+		this.name = other.name;
+		signalObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.signalObservers);
+		readObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.readObservers);
+		writeObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.writeObservers);
+		selectObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.selectObservers);
+	}
+	
 	@Override
 	public String getName() {
 		return name.getName();
@@ -73,10 +83,8 @@ public class CMLChannelValue extends Value implements CmlSignalChannel, CmlIOCha
 		
 		otherValue = (CMLChannelValue)other;
 		
-		return otherValue.getName().equals(getName());
-		//FIXME This fails after the typechecker has been updated		
-		//&&
-		//otherValue.getType().equals(getType());
+		return otherValue.getName().equals(getName()) &&
+				getType().equals(otherValue.getType());
 	}
 
 	@Override
@@ -92,7 +100,9 @@ public class CMLChannelValue extends Value implements CmlSignalChannel, CmlIOCha
 
 	@Override
 	public Object clone() {
-		return null;
+		
+		//return new CMLChannelValue(this);
+		return this;
 	}
 
 	@Override

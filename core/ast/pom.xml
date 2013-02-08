@@ -5,19 +5,23 @@
   <parent>
     <groupId>eu.compassresearch.core</groupId>
     <artifactId>core</artifactId>
-    <version>0.1.0<!--Replaceable: Main Version--></version>
+    <version>0.1.1<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>ast</artifactId>
   <name>COMPASS Core CML Abstract Syntax Tree</name>
 
+  <properties>
+    <astcreator.version>1.1.8</astcreator.version>
+  </properties>
+
   <build>
     <plugins>
       <plugin> 
 	<groupId>org.overturetool.tools</groupId>
 	<artifactId>astcreatorplugin</artifactId>
-	<version>1.1.6</version>
+	<version>${astcreator.version}</version>
 	<executions>
 	  <execution>
 	    <id>generate-ast</id>
@@ -31,16 +35,20 @@
 	  <ast>overtureII.astv2</ast>
 	  <extendedAst>cml.ast</extendedAst>
 	  <extendedName>CML</extendedName>
-          <!-- let's not delete these every time; I don't think we actually need to -jwc/22Oct2012 -->
-	  <deletePackageOnGenerate>
-	    <param>org.overture.ast</param>
-	    <param>eu.compassresearch.ast</param>
-	  </deletePackageOnGenerate>
-         <!--26 dec 2012: If you end up with a heap space exception
-              during compilation you need to comment these in. I've
-              left them in in this commit due to the masive ast changes
-              we are undergoing. When the Ast is stable I completely
-              agree with the above. -->
+          <!--
+	      * let's not delete these every time; I don't think we
+	      actually need to -jwc/22Oct2012
+	      * If you end up with a heap space exception during
+	      compilation you need to comment these in. I've left them
+	      in in this commit due to the masive ast changes we are
+	      undergoing. When the Ast is stable I completely agree
+	      with the above. -rwl/26Dec2012
+	      * commented; I think we're stable again -jwc/18Jan2013
+	  -->
+	  <!-- <deletePackageOnGenerate> -->
+	  <!--   <param>org.overture.ast</param> -->
+	  <!--   <param>eu.compassresearch.ast</param> -->
+	  <!-- </deletePackageOnGenerate> -->
 	  <useSrcOutput>false</useSrcOutput>
 	</configuration>
       </plugin>
@@ -80,7 +88,7 @@
 		  <pluginExecutionFilter>
 		    <groupId>org.overturetool.tools</groupId>
 		    <artifactId>astcreatorplugin</artifactId>
-		    <versionRange>1.1.4</versionRange>
+		    <versionRange>${astcreator.version}</versionRange>
 		    <goals>
 		      <goal>generate</goal>
 		    </goals>

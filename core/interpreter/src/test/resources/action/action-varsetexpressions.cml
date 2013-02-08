@@ -1,0 +1,19 @@
+channels 
+a
+
+process A = 
+begin 
+	@ (a -> Skip) [| {|a|} |] (a -> Skip) 
+end
+
+process B = 
+begin 
+	@ (a -> Skip) [| {a} |] (a -> Skip) 
+end
+
+process C = 
+begin 
+	@ (a -> Skip) [| a |] (a -> Skip) 
+end
+
+process D = A;B;C

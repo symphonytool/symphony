@@ -102,7 +102,7 @@ public class TestUtil
 
 	public static TypeCheckerResult runTypeChecker(PSource s) throws FileNotFoundException, IOException
 	{
-		TypeCheckerResult res = new TypeCheckerResult();
+		TypeCheckerResult result = new TypeCheckerResult();
 
 		ANTLRInputStream in = null;
 		if (s instanceof AFileSource)
@@ -124,25 +124,48 @@ public class TestUtil
 				for (PDefinition def : forest)
 					if (def != null)
 						s.getParagraphs().add(def);
-				res.parsedOk = true;
+				result.parsedOk = true;
 			}
 			else
-				res.parsedOk = false;
+				result.parsedOk = false;
 		} catch (RecognitionException e) {
-			e.printStackTrace();
-			res.parsedOk=false;
+			String expectedToken = "";
+			CommonToken ct = null;
+			List<String> parseErrors = new LinkedList<String>();
+			result.parseErrors = parseErrors;
+			if (e instanceof MismatchedTokenException)
+			{
+				ct = (CommonToken)e.token;
+				MismatchedTokenException ee = (MismatchedTokenException)e;
+				if (ee.expecting >= 0 && CmlParser.tokenNames.length > ee.expecting)
+					expectedToken= CmlParser.tokenNames[ee.expecting];
+				else
+					expectedToken = "unknown (-1)";
+				parseErrors.add("Syntax error in "+s+" expecting '"+expectedToken+"' near '"+ct.getText()+"' at line "+e.line+" - "+ct.getStartIndex()+":"+ ct.getStopIndex());
+				return result;
+			}
+			
+			if (e.token != null)
+			{
+				ct = (org.antlr.runtime.CommonToken)e.token;
+				parseErrors.add("Syntax error in "+s+" snear '"+ct.getText()+"'. Error at line "+e.line + " - "+ct.getStartIndex()+":"+ ct.getStopIndex());	
+			}
+			else
+				parseErrors.add("Syntax error, expecting at line at line "+e.line+".");
+			return result;
+
 		}
 
 		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
-		res.issueHandler=issueHandler;
+		result.issueHandler=issueHandler;
 		List<PSource> cmlSources = new LinkedList<PSource>();
 		cmlSources.add(s);
 		CmlTypeChecker checker = VanillaFactory.newTypeChecker(cmlSources , issueHandler);
 
-		res.tcOk = checker.typeCheck();
-		res.source = s;
+		result.tcOk = checker.typeCheck();
+		result.source = s;
 
-		return res;
+		return result;
 	}
 
 
@@ -185,7 +208,7 @@ public class TestUtil
 		if (expectedTypesOk) {
 			sb.append("Expected type checking to be successful, the following errors were unexpected:\n");
 			for (CMLTypeError error : tc.getTypeErrors())
-				sb.append(error.toString() + "\n------\n");
+				sb.append(error.getLocation()+": "+error.toString() + "\n------\n");
 			if (tc.getTypeErrors().size() > 0)
 				System.out.println(tc.getTypeErrors().get(0).getStackTrace());
 		} else {

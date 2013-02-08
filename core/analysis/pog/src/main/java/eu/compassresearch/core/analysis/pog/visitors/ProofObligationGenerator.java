@@ -357,9 +357,9 @@ public class ProofObligationGenerator extends
      * 
      * @return - Returns CMLProofObligation list. This may need to change.
      */
-    public CMLProofObligationList generatePOs() throws AnalysisException {
-	CMLProofObligationList obligations = new CMLProofObligationList();
-	CMLPOContextStack ctxt = new CMLPOContextStack();
+    public ProofObligationList generatePOs() throws AnalysisException {
+	ProofObligationList obligations = new ProofObligationList();
+	POContextStack ctxt = new POContextStack();
 
 	// for each source
 	for (PSource s : sourceForest) {

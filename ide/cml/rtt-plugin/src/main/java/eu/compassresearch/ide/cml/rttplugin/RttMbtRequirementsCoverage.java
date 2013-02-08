@@ -26,8 +26,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TreeEditor;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
@@ -294,7 +292,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 			}
 			TreeEditor editor = new TreeEditor(tcTreeView);
 			editor.horizontalAlignment = SWT.LEFT;
-			editor.minimumWidth = 32;
+			editor.minimumWidth = 40;
 			editor.minimumHeight = 12;
 		    Button cellEditor = new Button(tcTreeView, SWT.PUSH);
 		    //Image image = this.getDefaultImage();
@@ -375,7 +373,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 				}
 				TreeEditor editor = new TreeEditor(reqTreeView);
 				editor.horizontalAlignment = SWT.LEFT;
-				editor.minimumWidth = 32;
+				editor.minimumWidth = 40;
 				editor.minimumHeight = 12;
 			    Button cellEditor = new Button(reqTreeView, SWT.PUSH);
 			    //Image image = this.getDefaultImage();

@@ -19,6 +19,13 @@ public class EventSourceHandler<O,E> implements EventSource<O>{
 		this.eventMediator = eventMediator;
 	}
 	
+	public EventSourceHandler(EventSourceHandler<O,E> other)
+	{
+		observers = new LinkedList<O>(other.observers);
+		this.source= other.source; 
+		this.eventMediator = other.eventMediator;
+	}
+	
 	public void registerObserver(O observer)
 	{
 		observers.add(observer);

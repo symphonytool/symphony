@@ -69,9 +69,9 @@ public class NewCmlProjectWizard extends BasicNewProjectResourceWizard
     private void setVdmBuilder(IProject prj) throws CoreException
       {
         addNature(prj, ICmlCoreConstants.NATURE);
-        addBuilder(prj,
-            "eu.compassresearch.ide.builders.cml.IncrementalCmlProjectBuilder",
-            "", "");
+//        addBuilder(prj,
+//            "eu.compassresearch.ide.cml.CmlIncrementalBuilder",
+//            "", "");
       }
     
     @SuppressWarnings("unchecked")

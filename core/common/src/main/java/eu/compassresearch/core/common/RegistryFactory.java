@@ -1,15 +1,22 @@
 package eu.compassresearch.core.common;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
+import java.util.WeakHashMap;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.GraphNodeList;
 import org.overture.ast.node.GraphNodeListList;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.NodeList;
 import org.overture.ast.node.NodeListList;
+
+import eu.compassresearch.ast.program.PSource;
 
 /**
  * The Registry is singleton of the RegistryFactory instance. For testability
@@ -56,7 +63,7 @@ public class RegistryFactory {
 	 * 
 	 * @return
 	 */
-	public static RegistryFactory getInstance(String... id) {
+	public synchronized static RegistryFactory getInstance(String... id) {
 		String factoryInstanceName = null;
 
 		if (id.length < 1)
@@ -106,6 +113,7 @@ public class RegistryFactory {
 			return nodeHash + clzHash;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof NodeClassPair) {
@@ -113,11 +121,11 @@ public class RegistryFactory {
 
 				boolean nodeSame = (this.node == null && other.node == null)
 						|| (this.node != null && other.node != null && this.node
-								.equals(other.node));
+						.equals(other.node));
 
 				boolean clzSame = (this.clz == null && other.clz == null)
 						|| (this.clz != null && other.clz != null && this.clz
-								.equals(other.clz));
+						.equals(other.clz));
 
 				return nodeSame && clzSame;
 
@@ -132,20 +140,52 @@ public class RegistryFactory {
 			String clzStr = (clz == null ? "null" : clz.toString());
 
 			return "Node Class Pair [Node=\"" + nodeStr + "\"; Class=\""
-					+ clzStr + "\"";
+			+ clzStr + "\"";
 		}
 
 	}
 
 	private static class CMLRegistry implements Registry {
 
-		private HashMap<NodeClassPair<AnalysisArtifact>, AnalysisArtifact> map = new HashMap<NodeClassPair<AnalysisArtifact>, AnalysisArtifact>();
+		private static PSource getRoot(INode node)
+		{
+			Set<INode> seen = new HashSet<INode>();
+			INode current = node;
+			while (current != null)
+			{
+				// cycle detection
+				if (seen.contains(current))
+					return null;
+				
+				// is it a top level node?
+				if (current instanceof PSource)
+					return (PSource)current;
+				
+				//mark this node as seen
+				seen.add(current);
+				
+				// go up the tree
+				current=current.parent();
+			}
+			return null;
+		}
+
+		private WeakHashMap<PSource, Map<NodeClassPair<AnalysisArtifact>,AnalysisArtifact>> masterMap =new WeakHashMap<PSource, Map<NodeClassPair<AnalysisArtifact>,AnalysisArtifact>>();
+		// private HashMap<NodeClassPair<AnalysisArtifact>, AnalysisArtifact> map = new HashMap<NodeClassPair<AnalysisArtifact>, AnalysisArtifact>();
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public <K extends AnalysisArtifact> K lookup(INode astNode, Class<K> clz) {
 			NodeClassPair<AnalysisArtifact> key = new NodeClassPair<AnalysisArtifact>(
 					astNode, (Class<AnalysisArtifact>) clz);
+
+			PSource root = getRoot(astNode);
+			if (root == null)
+				return null;
+
+			Map<NodeClassPair<AnalysisArtifact>,AnalysisArtifact> map = masterMap.get(root);
+			if (map == null)
+				return null;
 
 			// Unchecked cast is all right as we cannot add something which is
 			// wrong. E.g. (Node,PogArtifact) -> ProffArtifact
@@ -209,11 +249,41 @@ public class RegistryFactory {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public <K extends AnalysisArtifact> void put(INode astNode, K artifact) {
+		public <K extends AnalysisArtifact> boolean store(INode astNode, K artifact) {
 			NodeClassPair<AnalysisArtifact> key = ((NodeClassPair<AnalysisArtifact>) new NodeClassPair<K>());
 			key.node = astNode;
 			key.clz = (Class<AnalysisArtifact>) artifact.getClass();
+
+			PSource root = getRoot(astNode);
+			if (root == null)
+				return false;
+
+			Map<NodeClassPair<AnalysisArtifact>,AnalysisArtifact>  map = masterMap.get(root);
+			if (map == null) { map = new HashMap<RegistryFactory.NodeClassPair<AnalysisArtifact>, AnalysisArtifact>(); masterMap.put(root, map);}
+
 			map.put(key, artifact);
+
+			return true;
+		}
+
+		@Override
+		public <K extends AnalysisArtifact> void prune(Class<K> artifact) {
+
+			Collection<Map<NodeClassPair<AnalysisArtifact>, AnalysisArtifact>> maps = masterMap.values();
+
+			for(Map<NodeClassPair<AnalysisArtifact>, AnalysisArtifact> map : maps)
+			{
+				Set<NodeClassPair<AnalysisArtifact>> toberemoved = new HashSet<RegistryFactory.NodeClassPair<AnalysisArtifact>>();
+				Set<NodeClassPair<AnalysisArtifact>> allKeys = map.keySet();
+				for(NodeClassPair<AnalysisArtifact> key : allKeys)
+				{
+					if (key.clz == artifact)
+						toberemoved.add(key);
+				}
+
+				for(NodeClassPair<AnalysisArtifact> key : toberemoved)
+					map.remove(key);
+			}
 		}
 
 	}

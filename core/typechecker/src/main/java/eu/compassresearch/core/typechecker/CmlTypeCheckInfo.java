@@ -43,7 +43,7 @@ TypeCheckQuestion {
 	public final String DEFAULT_SCOPE = "Default";
 
 	private final TypeIssueHandler issueHandler;
-
+    
 
 	/**
 	 * Create a new Type Check Info at top level
@@ -98,9 +98,12 @@ TypeCheckQuestion {
 		{
 			List<PDefinition> defs = cur.getDefinitions();
 			for(PDefinition d :defs)
-				
-				if (astClass.isInstance(d) && HelpLexNameToken.isEqual(name, d.getName()))
+			{
+				boolean isInstance = astClass.isInstance(d);
+				boolean sameName = HelpLexNameToken.isEqual(name, d.getName()); 
+				if ( isInstance && sameName )
 					return d;
+			}
 			cur = cur.getOuter();
 		}
 		

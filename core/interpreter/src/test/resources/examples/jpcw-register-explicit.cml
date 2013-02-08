@@ -1,0 +1,66 @@
+/*  CML_{0} example from CML Definition 0 document v. 1.0 */
+  types
+    public Byte = nat
+    inv n == (n <= 255)
+
+  functions
+   oflow : (int*int) -> bool
+   oflow(i,j) == i+j > 255
+
+   uflow : (int*int) -> bool
+   uflow(i,j) == i-j < 0
+
+
+  channels
+   init, overflow, underflow
+   read, load, add, sub : int
+
+  //chansets
+  //I = {| init, overflow, underflow, read, load, add, sub |}
+
+
+process RegisterProc = 
+ begin
+	
+  state 
+  reg : int	
+
+  operations  
+   INIT : () ==> ()
+   INIT() == reg := 0
+
+   LOAD : int ==> ()
+   LOAD(i) == reg := i
+   
+   READ: () ==>  int
+   READ() == return reg
+
+   ADD: int ==> ()
+   ADD(i) == reg := reg + i
+   //pre not oflow(reg, i)
+   //post reg = reg~ + i
+
+   SUB: int ==> ()
+   SUB(i) == reg := reg - i
+   
+   //frame wr reg : Byte
+   //pre not uflow(reg,i)
+   //post reg = reg~ - i
+  
+  actions
+   
+   REG = 
+     (load?i -> LOAD(i) ; REG)
+     []
+     (dcl j: int @ j := READ(); read!j -> REG)
+     [] 
+     (add?i -> ( ([oflow(reg,i)] & overflow -> INIT(); REG)
+       	     	 [] 
+		 ([not oflow(reg,i)] & ADD(i);REG)))
+     [] 
+     (sub?i -> ( ([uflow(reg,i)] & underflow -> INIT(); REG)
+       	     	 [] 
+		 ([not uflow(reg,i)] & SUB(i); REG)))
+   @
+     init -> INIT(); REG
+ end

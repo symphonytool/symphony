@@ -12,5 +12,6 @@ public enum CmlProcessState {
 	RUNNABLE, 		//Is ready to be executed
 	INITIALIZED, 	//Has been created but not yet started
 	FINISHED, 		//Successfully finished
+	//ABORTED,
 	STOPPED         //Deadlocked
 }

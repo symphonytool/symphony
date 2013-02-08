@@ -4,9 +4,9 @@ a, b
 process A = 
 begin 
 	state
-	a : int := 2
+	v : int := 2
 
 	actions
-	INIT = a -> a := a + 1;Skip 
+	INIT = a -> v := v + 1 
 	@ INIT
 end

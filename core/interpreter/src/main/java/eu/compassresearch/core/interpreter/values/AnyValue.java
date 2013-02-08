@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter.values;
 
 import org.overture.interpreter.values.Value;
 
+
 public class AnyValue extends Value {
 
 	private static final String topString = "\u22A4"; 

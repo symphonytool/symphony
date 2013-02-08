@@ -10,8 +10,6 @@ import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.visitor.PogParamStmVisitor;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
-
 
 @SuppressWarnings("serial")
 public class POGStatementVisitor extends 
@@ -32,7 +30,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
     @Override
     public ProofObligationList defaultPStm(PStm node, POContextStack question)
 	    throws AnalysisException {
-	CMLProofObligationList pol = new CMLProofObligationList();
+	ProofObligationList pol = new ProofObligationList();
 	pol.addAll(node.apply(overtureVisitor, question));
 	return pol;
     }
@@ -42,7 +40,7 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
     @Override
     public ProofObligationList defaultINode(INode node, POContextStack question)
 	    throws AnalysisException {
-	CMLProofObligationList pol = new CMLProofObligationList();
+	ProofObligationList pol = new ProofObligationList();
 	pol.addAll(node.apply(parentVisitor, question));
 	return pol;
     }

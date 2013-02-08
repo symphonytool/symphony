@@ -36,6 +36,7 @@ import eu.compassresearch.ast.process.AHidingProcess;
 import eu.compassresearch.ast.process.AInstantiationProcess;
 import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AInterleavingReplicatedProcess;
+import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AInternalChoiceReplicatedProcess;
 import eu.compassresearch.ast.process.AInterruptProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
@@ -58,6 +59,26 @@ import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 @SuppressWarnings("serial")
 public class TCProcessVisitor extends
 QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
+
+	@Override
+	public PType caseAInternalChoiceProcess(AInternalChoiceProcess node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		
+		PProcess left = node.getLeft();
+		PProcess right = node.getRight();
+		
+		PType leftType = left.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(leftType))
+
+			return issueHandler.addTypeError(left, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+left));
+		
+		PType rightType = right.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(rightType))
+			return issueHandler.addTypeError(right, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+right));
+		
+		return new AProcessType(node.getLocation(), true);
+	}
 
 	private VanillaCmlTypeChecker parentChecker;
 	private TypeIssueHandler issueHandler;
@@ -688,13 +709,17 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		CmlTypeCheckInfo actionScope = cmlEnv.newScope();
 		
 		// Type check all the paragraph definitions
+		List<PDefinition> fixedDefinitions = new LinkedList<PDefinition>();
 		for (PDefinition def : node.getDefinitionParagraphs()) {
 			PType type = def.apply(this.parentChecker, actionScope);
 			if (!TCDeclAndDefVisitor.successfulType(type))
 				return issueHandler.addTypeError(def,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 						.customizeMessage(def.getName() + ""));
+			fixedDefinitions.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(def));
 		}
+		node.getDefinitionParagraphs().clear();
+		node.getDefinitionParagraphs().addAll(fixedDefinitions);
 
 		question.contextSet(eu.compassresearch.core.typechecker.CmlTypeCheckInfo.class, (eu.compassresearch.core.typechecker.CmlTypeCheckInfo)question);
 		PType actionType = node.getAction().apply(this.parentChecker, actionScope);
