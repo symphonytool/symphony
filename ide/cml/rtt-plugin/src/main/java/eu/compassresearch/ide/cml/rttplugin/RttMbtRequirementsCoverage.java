@@ -26,7 +26,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TreeEditor;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -268,7 +271,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		setPageText(index,"Testcase Coverage");
 
 		// header:
-		String[] tc2reqHeader = {"Name", "Status", "Add"};
+		String[] tc2reqHeader = {"Name", "Status", "Additional Goals"};
 		for (int idx = 0; idx < tc2reqHeader.length; idx++) {
 			TreeColumn column = new TreeColumn(tcTreeView, SWT.LEFT);
 			column.setText(tc2reqHeader[idx]);
@@ -292,9 +295,13 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 			}
 			TreeEditor editor = new TreeEditor(tcTreeView);
 			editor.horizontalAlignment = SWT.LEFT;
-			editor.minimumWidth = 20;
+			editor.minimumWidth = 22;
+			editor.minimumHeight = 22;
 		    Button cellEditor = new Button(tcTreeView, SWT.PUSH);
-		    cellEditor.setText("...");
+		    Image image = this.getDefaultImage();
+		    Device device = image.getDevice();
+		    Image plus = new Image(device, RttMbtRequirementsCoverage.class.getResourceAsStream("plus.png"));
+		    cellEditor.setImage(plus);
 		    cellEditor.setBackground(reqParent.getBackground());
 		    cellEditor.setData(tcTag + ";" + testcases.get(tcTag) + ";");
 		    cellEditor.addSelectionListener(new SelectionListener() {
@@ -305,7 +312,6 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 				public void widgetDefaultSelected(SelectionEvent e) { addTestcase(e); }
 				});
 		    editor.setEditor(cellEditor, reqParent, 2);
-			client.addLogMessage(tcTag + "covered: " + tccov.get(tcTag) + "\n");
 			// add requirements
 			List<String> requirements = tc2req.get(tcTag);
 			for (int idx = 0; ((requirements != null) && (idx < requirements.size())); idx++) {
@@ -318,7 +324,6 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 					req.setText(1, "NOT COVERED");
 				}
 				req.setText(2, "");
-				client.addLogMessage("|->" + reqTag + "covered: " + reqcov.get(reqTag) + "\n");
 			}
 		}
 
@@ -336,7 +341,7 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 		setPageText(index,"Requirements Coverage");
 
 		// header:
-		String[] req2tcHeader = {"Name", "Status", "Add"};
+		String[] req2tcHeader = {"Name", "Status", "Additional Goals"};
 		for (int idx = 0; idx < req2tcHeader.length; idx++) {
 			TreeColumn column = new TreeColumn(reqTreeView, SWT.LEFT);
 			column.setText(req2tcHeader[idx]);
@@ -359,7 +364,6 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 				tcParent.setText(1, "NOT COVERED");
 			}
 			tcParent.setText(2, "");
-			client.addLogMessage(reqTag + "covered: " + reqcov.get(reqTag) + "\n");
 			for (int idx = 0; idx < tcs.size(); idx++) {
 				tcTag = tcs.get(idx);
 				TreeItem tc = new TreeItem(tcParent, SWT.NONE);
@@ -371,9 +375,13 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 				}
 				TreeEditor editor = new TreeEditor(reqTreeView);
 				editor.horizontalAlignment = SWT.LEFT;
-				editor.minimumWidth = 20;
+				editor.minimumWidth = 22;
+				editor.minimumHeight = 22;
 			    Button cellEditor = new Button(reqTreeView, SWT.PUSH);
-			    cellEditor.setText("...");
+			    Image image = this.getDefaultImage();
+			    Device device = image.getDevice();
+			    Image plus = new Image(device, RttMbtRequirementsCoverage.class.getResourceAsStream("plus.png"));
+			    cellEditor.setImage(plus);
 			    cellEditor.setBackground(tcParent.getBackground());
 			    cellEditor.setData(tcTag + ";" + testcases.get(tcTag) + ";");
 			    cellEditor.addSelectionListener(new SelectionListener() {
@@ -384,8 +392,8 @@ public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 					public void widgetDefaultSelected(SelectionEvent e) { addTestcase(e); }
 					});
 			    editor.setEditor(cellEditor, tc, 2);
-				client.addLogMessage("|->" + tcTag + "covered: " + tccov.get(tcTag) + "\n");
 			}
+			tcParent.setExpanded(true);
 		}
 		// pack columns
 		for (int idx = 0; idx < req2tcHeader.length; idx++) {
