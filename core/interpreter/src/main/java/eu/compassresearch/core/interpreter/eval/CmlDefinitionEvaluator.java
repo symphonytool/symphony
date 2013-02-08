@@ -4,6 +4,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AStateDefinition;
+import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
@@ -23,6 +24,7 @@ import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.CmlValueFactory;
@@ -175,6 +177,29 @@ public class CmlDefinitionEvaluator extends
     	
     	return vpl;
     }
+	
+	@Override
+	public NameValuePairList caseATypesDefinition(ATypesDefinition node,
+			Context question) throws AnalysisException {
+
+		NameValuePairList vpl = new NameValuePairList();
+		
+		for (ATypeDefinition typeDef : node.getTypes())
+			vpl.addAll(typeDef.apply(this,question));
+		
+		return vpl;
+	}
+	
+	@Override
+	public NameValuePairList caseATypeDefinition(ATypeDefinition node,
+			Context question) throws AnalysisException {
+	
+		NameValuePairList vpl = new NameValuePairList();
+		if(node.getInvdef() != null)
+			vpl.addAll(node.getInvdef().apply(this,question));
+
+		return vpl;
+	}
 
 }
 
