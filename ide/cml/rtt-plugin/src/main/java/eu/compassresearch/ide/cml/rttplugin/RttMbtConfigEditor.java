@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -47,6 +48,7 @@ public class RttMbtConfigEditor extends EditorPart {
 	
 	// signalmap.csv file with path
 	private File output;
+	private IFile iFile;
 	
 	private void notifyChanged(SelectionEvent e) {
 		/*
@@ -86,6 +88,10 @@ public class RttMbtConfigEditor extends EditorPart {
 		}
 		
 		// read first line (for saving later)
+		if (fileScanner == null) {
+			System.err.println("*** error: opening file failed!");
+			return;
+		}
 		headerLine = new ArrayList<String>();
 		line = new Scanner(fileScanner.nextLine());
 		line.useDelimiter(";");
@@ -163,7 +169,7 @@ public class RttMbtConfigEditor extends EditorPart {
 					item.setText(column, text);					
 				} else {
 					TreeEditor editor = new TreeEditor(treeView);
-					editor.horizontalAlignment = SWT.CENTER;
+					editor.horizontalAlignment = SWT.LEFT;
 					editor.minimumWidth = 15;
 				    Button cellEditor = new Button(treeView, SWT.CHECK);
 				    cellEditor.setSelection(text.compareTo("X") == 0);
@@ -282,6 +288,11 @@ public class RttMbtConfigEditor extends EditorPart {
 
 		// notify that content has changed (saved)
     	notifyChanged(null);
+    	try {
+			iFile.refreshLocal(IResource.DEPTH_ZERO, null);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -299,15 +310,15 @@ public class RttMbtConfigEditor extends EditorPart {
 			throw new PartInitException("Invalid input! Expected file input");
 		} else {
 			IFileEditorInput iFileInput = (IFileEditorInput) input;
-			IFile ifile = iFileInput.getFile();
+			iFile = iFileInput.getFile();
 			InputStream istream;
 			try {
-				istream = ifile.getContents();
+				istream = iFile.getContents();
 				fileScanner = new Scanner(istream);
 				// create output file for saving
 		    	IWorkspace workspace = ResourcesPlugin.getWorkspace();
 				File workspaceDirectory = workspace.getRoot().getLocation().toFile();
-				String filename = workspaceDirectory.getAbsolutePath() + ifile.getFullPath().toString();
+				String filename = workspaceDirectory.getAbsolutePath() + iFile.getFullPath().toString();
 				output = new File(filename);
 			} catch (CoreException e) {
 				e.printStackTrace();
@@ -323,6 +334,9 @@ public class RttMbtConfigEditor extends EditorPart {
 
 	@Override
 	public boolean isDirty() {
+		if (editors == null) {
+			return false;
+		}
 		if (editors.size() < fileContent.size()) {
 			System.err.println("*** error: number of editor rows (" + editors.size() +
 							   ") does not match number of csv file rows (" + fileContent.size() + ")");
@@ -361,11 +375,11 @@ public class RttMbtConfigEditor extends EditorPart {
 		case 10:
 			return 4;
 		case 11:
-			return 5;
-		case 12:
-			return 6;
-		case 13:
 			return 7;
+		case 13:
+			return 5;
+		case 14:
+			return 6;
 		}
 		
 		return -1;
@@ -384,11 +398,11 @@ public class RttMbtConfigEditor extends EditorPart {
 		case 4:
 			return 10;
 		case 5:
-			return 11;
-		case 6:
-			return 12;
-		case 7:
 			return 13;
+		case 6:
+			return 14;
+		case 7:
+			return 11;
 		}
 		
 		return -1;
