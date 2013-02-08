@@ -617,28 +617,16 @@ public class RttMbtClient {
 		Boolean success = true;
 
 		// push necessary files to cache:
-		// - configuration.csv
-		// - signalmap.csv
-		// - <test-execution-log>
-		String confDirName = getProjectName() + File.separator
-				+ "TestProcedures" + File.separator
-				+ abstractTestProc + File.separator
-				+ "conf" +  File.separator;
-		uploadFile(confDirName + "configuration.csv");
-		uploadFile(confDirName + "signalmap.csv");
-		String testdataDirName = getProjectName() + File.separator
-				+ "RTT_TestProcedures" + File.separator
-				+ abstractTestProc + File.separator
-				+ "testdata" +  File.separator;
-		// @todo: add test execution log
-		uploadFile(testdataDirName + "@todo");
-		
+		// all input files for replay should already exist on the server
+
 		// replay-command
 		System.out.println("replay test execution " + abstractTestProc + "...");
 		jsonReplayTestCommand cmd = new jsonReplayTestCommand(this);
 		cmd.setGuiPorts(true);
 		cmd.setTestProcName("TestProcedures/" + abstractTestProc);
 		cmd.executeCommand();
+
+		// retrieve results
 		if (!cmd.executedSuccessfully()) {
 			System.err.println("[FAIL]: generatig RTT_TestProcedures/" + abstractTestProc + " failed!");
 			// download debugging data to local directory
@@ -661,12 +649,27 @@ public class RttMbtClient {
 		}
 
 		// download generated files to local directory:
-		// configuration.csv
-		// covered_testcases.csv
-		// missed_goals.csv
-		// signals.dat
-		// signals.json
-		// @todo: implement file transfers
+		String dirname;
+		// Testprocedures/<TP>/log/configuration.csv
+		dirname = getProjectName() + File.separator
+				+ "TestProcedures" + File.separator
+				+ abstractTestProc + File.separator
+				+ "conf";
+		downloadFile(dirname + "configuration.csv");
+		// Testprocedures/<TP>/log/covered_testcases.csv
+		// Testprocedures/<TP>/log/missed_goals.csv
+		dirname = getProjectName() + File.separator
+				+ "TestProcedures" + File.separator
+				+ abstractTestProc + File.separator
+				+ "log";
+		downloadFile(dirname + "covered_testcases.csv");
+		downloadFile(dirname + "missed_goals.csv");
+		// RTT_Testprocedures/<TP>/testdata/replay.log
+		dirname = getProjectName() + File.separator
+				+ "RTT_TestProcedures" + File.separator
+				+ abstractTestProc + File.separator
+				+ "testdata";
+		downloadFile(dirname + "replay.log");
 		
 		return success;
 	}
@@ -894,6 +897,7 @@ public class RttMbtClient {
 			downloadFile(dirName + "RTT_TestProcedures_" + concreteTestProc + "_testreport.pdf");
 			downloadFile(dirName + "signals.dat");
 			downloadFile(dirName + "ALL-TC-COV.csv");
+			downloadFile(dirName + "map_tc2rts.csv");
 		}
 
 		// return result
