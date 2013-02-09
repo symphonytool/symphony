@@ -788,6 +788,8 @@ class TCExpressionVisitor extends
 		// definitions coming first
 		PType leafType = null;
 		PDefinition prevRoot = null;
+		List<PDefinition> defs = new LinkedList<PDefinition>();
+		defs.add(root);
 		for (int i = 1; i < identifiers.size(); i++) {
 			LexIdentifierToken id = identifiers.get(i);
 			LexNameToken idName = new LexNameToken("", id);
@@ -800,10 +802,12 @@ class TCExpressionVisitor extends
 								+ " in " + node)));
 				return node.getType();
 			}
+			defs.add(def);
 			leafType = def.getType();
 		}
 
 		node.setType(leafType);
+		node.getType().getDefinitions().addAll(defs);
 		return node.getType();
 	}
 
