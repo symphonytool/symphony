@@ -1631,6 +1631,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             $tail.setNameScope(NameScope.LOCAL);
             $tail.setUsed(Boolean.FALSE);
             $tail.setAccess(getDefaultAccessSpecifier(false,false,null));
+            $tail.setRecursive(false);
 
             List<APatternListTypePair> paramPatterns = $parameterTypeList.ptypes;
             if (paramPatterns == null)
