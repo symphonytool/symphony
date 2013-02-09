@@ -739,9 +739,11 @@ class TCExpressionVisitor extends
 		// Get parent identifier
 		LexNameToken rootName = new LexNameToken("", identifiers.get(0));
 
-		// is it a type like a class or global type
-		PDefinition root = question.env.findType(rootName, "");
-
+		// is it a type like a class or global type this is not a type
+		// as we would be in the UnresolvedType case
+//		PDefinition root = question.env.findType(rootName, "");
+		PDefinition root = null;
+		
 		// no then it may be a variable
 		if (root == null)
 			root = question.env.findName(rootName, NameScope.LOCAL);
@@ -763,16 +765,17 @@ class TCExpressionVisitor extends
 			}
 		}
 
+		// Use Cml environment to determine what rootName is
+		if (root == null)
+			root = cmlQuestion.lookup(rootName, PDefinition.class);
+
+		
 		// last option it is not in something else then in must be in this class
 		if (root == null) {
 			root = question.env.getEnclosingDefinition();
 			if (root != null)
 				root = assist.findMemberName(root, rootName, cmlQuestion);
 		}
-
-		// Use Cml environment to determine what rootName is
-		if (root == null)
-			root = cmlQuestion.lookup(rootName, PDefinition.class);
 
 		// did we find the top-level
 		if (root == null) {

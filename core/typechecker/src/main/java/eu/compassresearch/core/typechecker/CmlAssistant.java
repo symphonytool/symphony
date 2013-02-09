@@ -9,6 +9,7 @@ import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExternalDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
+import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -109,6 +110,7 @@ class CmlAssistant {
 		injectFindMemberNameBaseCase(new OperationsDefinitionNameMemberStrategy());
 		injectFindMemberNameBaseCase(new ExternalDefinitionNameMemberStrategy());
 		injectFindMemberNameBaseCase(new AssignmentDefinitionNameMemberStrategy());
+		injectFindMemberNameBaseCase(new AStateDefinitionNameMemberStrategy());
 	}
 
 
@@ -181,6 +183,28 @@ class CmlAssistant {
 			return def;
 		}
 
+	}
+	
+	class AStateDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
+
+		@Override
+		public Class<?> getType() {
+			return AStateDefinition.class;
+		}
+
+		@Override
+		public PDefinition findMemberName(PDefinition def,
+				LexIdentifierToken name, Object... more) {
+
+			AStateDefinition stateDef = (AStateDefinition)def;
+			
+			for(PDefinition d : stateDef.getStateDefs()) {
+				if (LexNameTokenAssistent.isEqual(d.getName(), name)) return d;
+			}
+			
+			return null;
+		}
+		
 	}
 
 	class ExternalDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
@@ -441,8 +465,8 @@ class CmlAssistant {
 				return handleNamedInvariantType(ANamedInvariantType.class.cast(invType), name, more);
 
 			return null;
-		}
 
+		}
 	}
 
 
