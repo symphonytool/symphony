@@ -110,7 +110,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	{
 		//convert the channelset of the current node to a alphabet
 		CmlAlphabet cs =  ((CmlAlphabet)chansetExp.
-				apply(cmlEvaluator,question));
+				apply(cmlValueEvaluator,question));
 		
 		//get the immediate alphabets of the left and right child
 		CmlBehaviourThread leftChild = children().get(0);

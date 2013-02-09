@@ -74,7 +74,7 @@ public class AlphabetInspector
 
 	// The process that contains this instance
 	private final CmlBehaviourThread 		ownerProcess;
-	private final CmlEvaluator				cmlEvaluator = new CmlEvaluator();
+	private final CmlValueEvaluator				cmlEvaluator = new CmlValueEvaluator();
 	
 	
 	
