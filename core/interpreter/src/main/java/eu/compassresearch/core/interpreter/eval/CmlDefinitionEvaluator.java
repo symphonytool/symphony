@@ -5,6 +5,7 @@ import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
@@ -25,6 +26,7 @@ import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
+import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.CmlValueFactory;
@@ -107,8 +109,11 @@ public class CmlDefinitionEvaluator extends
 			throws AnalysisException {
 
 		NameValuePairList vpl = new NameValuePairList();
+		if(node.parent() instanceof ATypeDefinition)
+			node.setIsTypeInvariant(true);
+		else
+			node.setIsTypeInvariant(false);
 		
-		node.setIsTypeInvariant(false);
 		FunctionValue funcValue = new FunctionValue(node,null ,null,null);
 		
 		vpl.add(new NameValuePair(node.getName(),funcValue));
@@ -200,6 +205,29 @@ public class CmlDefinitionEvaluator extends
 
 		return vpl;
 	}
+	
+	@Override
+	public NameValuePairList caseAValuesDefinition(AValuesDefinition node,
+			Context question) throws AnalysisException {
 
+		NameValuePairList vpl = new NameValuePairList();
+		for (PDefinition valueDef : node.getValueDefinitions())
+			vpl.addAll(valueDef.apply(this,question));
+		
+		return vpl;
+	}
+	
+	@Override
+	public NameValuePairList caseAValueDefinition(AValueDefinition node,
+			Context question) throws AnalysisException {
+
+		NameValuePairList vpl = new NameValuePairList();
+		
+		Value val = node.getExpression().apply(parentInterpreter,question);
+		
+		vpl.add(new NameValuePair(node.getName(),val));
+		
+		return vpl;
+	}
 }
 
