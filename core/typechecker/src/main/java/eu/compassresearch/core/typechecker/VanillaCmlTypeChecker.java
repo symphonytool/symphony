@@ -403,7 +403,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 
                             try {
                                 PType topType = paragraph.apply(this, info);
-                                if (topType == null || topType instanceof AErrorType) {
+                                if (!TCDeclAndDefVisitor.successfulType(topType)) {
                                     paragraph.setType(
                                                       issueHandler
                                                       .addTypeError(
@@ -412,6 +412,7 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
                                                                     .customizeMessage(paragraph
                                                                                       .getName()
                                                                                       .toString())));
+                                    allParagraphsOk = false;
                                 }
                                 else
                                     paragraph.setType(new AParagraphType());
@@ -438,8 +439,6 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
                                                                 + "\n"
                                                                 + new String(baos.toByteArray())));
                             }
-                        if (!TCDeclAndDefVisitor.successfulType(paragraph.getType()))
-                            allParagraphsOk = false;
                     }
                     if (allParagraphsOk)
                         s.setType(new ASourceType());
@@ -447,7 +446,6 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
                         s.setType(new AErrorType());
                 } catch (RuntimeException e)
                     {
-                            
                         issueHandler.addTypeError(s, TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.customizeMessage(CmlTCUtil.getErrorMessages(e)));			
                     }
             }

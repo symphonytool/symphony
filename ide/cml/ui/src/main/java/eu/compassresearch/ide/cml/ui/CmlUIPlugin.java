@@ -29,17 +29,14 @@ public class CmlUIPlugin extends AbstractUIPlugin {
 
 	private static final boolean DEBUG = true;
 	private static CmlUIPlugin plugin;
-	private static ILog log;
 
-	private static synchronized void setLogger(ILog iLog) { CmlUIPlugin.log = iLog; }
-	public static synchronized ILog getLogger() { return CmlUIPlugin.log; }
+	public static synchronized ILog getLogger() { return plugin.getLog(); }
 	
 	public BundleContext currentContext;
 
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		setLogger(this.getLog());
 		plugin = this;
 		this.currentContext = context;
 	}
