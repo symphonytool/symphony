@@ -2,7 +2,7 @@ package eu.compassresearch.ide.cml.pogplugin.actions;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
+import java.lang.reflect.Method;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -14,17 +14,17 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
-import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.node.INode;
 import org.overture.pog.obligation.ProofObligation;
 import org.overture.pog.obligation.ProofObligationList;
+import org.overture.pog.util.POException;
 
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
@@ -87,11 +87,35 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			if (e instanceof POException){
+				POException poe = (POException) e;
+				StringBuilder sb = new StringBuilder();
+				sb.append("Error "+ extractLine(poe.getErrorNode()));
+				String s = sb.toString();
+				popErrorMessage(s);
+			}
+			else
 			popErrorMessage(e.getMessage());
 		}
 
 	}
 
+	private String extractLine(INode i){
+		String r = "Unknonwn location.";
+		
+		for (Method m : i.getClass().getMethods()) {
+			if ("getLocation".equals(m.getName())) {
+				try {
+					LexLocation loc = (LexLocation) m.invoke(i, new Object[0]);
+					r =  loc.toShortString();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return r;
+	}
+	
 	private void popErrorMessage(String s) {
 		MessageDialog.openInformation(window.getShell(), "COMPASS",
 				"Could not generate POs.\n" + s);
@@ -99,10 +123,10 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 
 	private char[] getPOsfromSource(CmlSourceUnit csu) throws Exception {
 
-		if (!CmlTypeChecker.Utils.isWellType(csu.getSourceAst())) {
-			throw new AnalysisException("Type errors in " + csu.getFile().getName());
-		}
-		
+//		if (!CmlTypeChecker.Utils.isWellType(csu.getSourceAst())) {
+//			throw new AnalysisException("Type errors in " + csu.getFile().getName());
+//		}
+//		
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("-- AUTO-GENERATED PROOF OBLIGATIONS FOR: ");
