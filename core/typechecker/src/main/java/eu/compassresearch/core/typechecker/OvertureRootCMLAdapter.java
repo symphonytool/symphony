@@ -19,6 +19,7 @@ import org.overture.typechecker.visitor.TypeCheckerPatternVisitor;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
@@ -45,7 +46,16 @@ public class OvertureRootCMLAdapter extends
 	private CmlTypeChecker parent;
 	private TypeIssueHandler issueHandler;
 
-	 static void pushQuestion(TypeCheckInfo question)
+	
+	
+	@Override
+	public PType caseAEnumerationRenameChannelExp(
+			AEnumerationRenameChannelExp node, TypeCheckInfo question)
+			throws AnalysisException {
+		return escapeFromOvertureContext(node, question);
+	}
+
+	static void pushQuestion(TypeCheckInfo question)
 	{
 		if (question instanceof CmlTypeCheckInfo)
 		{

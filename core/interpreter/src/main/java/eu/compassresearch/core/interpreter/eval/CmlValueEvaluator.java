@@ -10,18 +10,18 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 
 @SuppressWarnings("serial")
-public class CmlEvaluator extends QuestionAnswerCMLAdaptor<Context, Value> {
+public class CmlValueEvaluator extends QuestionAnswerCMLAdaptor<Context, Value> {
 
 	private QuestionAnswerCMLAdaptor<Context, Value> exp;
-	private QuestionAnswerCMLAdaptor<Context, Value> def;
+	//private QuestionAnswerCMLAdaptor<Context, Value> def;
 			
 	private void initialize()
 	{
 		exp = new CmlExpressionEvaluator();
-		def = new CmlDeclAndDefEvaluator(this);
+		//def = new CmlDefinitionEvaluator(this);
 	}
 		
-	public CmlEvaluator()
+	public CmlValueEvaluator()
 	{
 		initialize();
 	}
@@ -40,11 +40,11 @@ public class CmlEvaluator extends QuestionAnswerCMLAdaptor<Context, Value> {
 		return node.apply(exp,question);
 	}
 		
-	@Override
-	public Value defaultPDefinition(PDefinition node, Context question)
-			throws AnalysisException {
-		
-		return node.apply(this.def,question);
-	}
+//	@Override
+//	public Value defaultPDefinition(PDefinition node, Context question)
+//			throws AnalysisException {
+//		
+//		return node.apply(this.def,question);
+//	}
 		
 }

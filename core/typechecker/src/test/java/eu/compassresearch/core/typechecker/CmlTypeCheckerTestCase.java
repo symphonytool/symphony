@@ -546,7 +546,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		// 120
 		addTestProgram(
 				testData,
-				"class d = begin state a:int operations c: int ==> c c(v) == a := v end",
+				"class d = begin state a:int operations c: int ==> () c(v) == a := v end",
 				false, true, true, new String[0]);
 
 		// '--------------------------------------------------------------------------
@@ -706,6 +706,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "process A = begin @ A [[ init <- start ]] end ", false, true, true, new String[0]);
 		addTestProgram(testData, "channels startStartRescue acceptStartRescue endStartRescue process P = begin actions A = startStartRescue -> acceptStartRescue -> endStartRescue -> B B = C C = Skip  @ Skip end",false, true, true, new String[0]);
 		addTestProgram(testData, "channels startStartRescue acceptStartRescue endStartRescue process P = begin actions A = startStartRescue -> acceptStartRescue -> endStartRescue -> B B = $T(target(C))", false, true, true, new String[0]);
+		// 163
 		addTestProgram(testData, "process K = begin state a:int operations o: int ==> int o(b) == if a = 0 then a:=b; return a @ a := o(10) end", false, true, true, new String[0]);
 		addTestProgram(testData, "process K = begin state a:int operations o: int ==> int o(b) == if a = 0 then a:=b+1 elseif a > 1 then a := b - a else a := 0 ; return a @ a := o(9) end", false, true, true, new String[0]);
 		addTestProgram(testData, "process K = begin state a:int operations o: int ==> int o(b) == if a = 0 then a:=b+1 elseif 1 then a := b - a else a := 0 ; return a @ a := o(9) end", false, true, false, new String[0]);
@@ -737,9 +738,25 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "process K = begin state f : int := 0 operations op1: int ==> int op1(a) == return (a+1) @ f := op1(10) end", false, true, true, new String[0]);
 		
 		// This test checks that operations cannot be invoked from values
-		// 175
+		// 175 //
 		addTestProgram(testData, "class test = begin operations op1: int ==> int op1(a) == return (a+1) values k : int = op1(10) end", false, true, false, new String[0]);
 		
+		// 176 //
+		addTestProgram(testData, "process T = begin functions f(a:int) r:int pre true post true @ f(2) end", false, true, true, new String[0]);
+		
+		// 177 //
+		addTestProgram(testData, "class test = begin operations o: int ==> int o(a) == return a pre a > 0 post a~ = a end ", false, true, true, new String[0]);
+		
+		// 178 //
+		addTestProgram(testData, "class t = begin types A :: a : int operations o:A==>int o(b) == return b.a pre b.a > 0 post b.a = b~.a end", false, true, true, new String[0]);
+		
+		// 179 //
+		addTestProgram(testData, "class t = begin types A :: a : int operations o:A==>int o(b) == return b.a pre b.a > 0 post b.a = b~.a and 'b.a' = b~.a end", false, true, false, new String[0]);
+		
+		// 180 //
+		addTestProgram(testData, "class t = begin types A :: a : int state aa : A operations o:int==>int o(i) == return (aa.a + i) pre i > 0 post 0 = i end", false, true, true, new String[0]);
+		// 181 //
+		addTestProgram(testData, "process p = begin types A :: a : int state aa:A operations o:int==>int o(i) == return (aa.a + i) post aa~.a = i @ o(2) end",false,true,true,new String[0]);
 		
 		return testData;
 	}
@@ -783,12 +800,6 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		assertEquals(TestUtil.buildErrorMessage(errors, expectedTypesOk), expectedTypesOk, typeCheckOk);
 
 		if (parserOk && errorMessages != null && errorMessages.length > 0) {
-//			int expectedNumberOfErrors = errorMessages.length;
-//			int actualNumberOfErrors = errors.getTypeErrors().size();
-//			Assert.assertEquals("Wrong number of error. Expected "
-//					+ expectedNumberOfErrors + " Actual "
-//					+ actualNumberOfErrors, expectedNumberOfErrors,
-//					actualNumberOfErrors);µ
 
 			Set<String> actualErrors = new HashSet<String>();
 			for (CMLTypeError e : errors.getTypeErrors())
