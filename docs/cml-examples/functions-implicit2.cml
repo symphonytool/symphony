@@ -1,3 +1,3 @@
 functions
 	checkFnRmAvail1(d:Day, c:nat, fndb:fnAvailDB, fncap:fnRmCapacityDB) s:set of fnRoomId
- 	post s subset fndb(d) inter {ss|ss:fnRoomId @ fncap(ss) >= c};
+ 	post s subset fndb(d) inter {ss|ss:fnRoomId @ fncap(ss) >= c}

@@ -1,0 +1,12 @@
+channels 
+a, b
+
+process A = 
+begin 
+	state
+	v : int := 2
+
+	actions
+	INIT = a -> v := v + 1 
+	@ INIT
+end

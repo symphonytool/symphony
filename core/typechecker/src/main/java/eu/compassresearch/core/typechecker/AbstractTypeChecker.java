@@ -1,12 +1,14 @@
 package eu.compassresearch.core.typechecker;
 
-import java.util.LinkedList;
+import java.util.Collection;
 import java.util.List;
 
-import eu.compassresearch.ast.analysis.QuestionAnswerAdaptor;
-import eu.compassresearch.ast.node.INode;
+import org.overture.ast.types.PType;
+
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.ast.types.PType;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
+import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 /**
  * 
@@ -26,60 +28,19 @@ import eu.compassresearch.ast.types.PType;
  *         the eu.compassresearch.core.typechecker package.
  */
 @SuppressWarnings("serial")
-public abstract class AbstractTypeChecker extends
-    QuestionAnswerAdaptor<TypeCheckInfo, PType> implements CmlTypeChecker
-  {
-    
-    protected List<CmlTypeChecker.CMLTypeError>   errors;
-    protected List<CmlTypeChecker.CMLTypeWarning> warnings;
-    protected boolean                             cleared;
-    protected List<PSource>                       sourceForest;
-    
-    AbstractTypeChecker()
-      {
-        clear();
-      }
-    
-    /**
-     * Report a type error has been found for the given location.
-     * 
-     * @param offendingSubtree
-     *          - The offending AST node
-     * 
-     * @param message
-     *          - A message detailing the nature of the the error and preferably
-     *          hinting how to fix it.
-     */
-    void addTypeError(INode offendingSubtree, String message)
-      {
-        CMLTypeError error = new CMLTypeError(offendingSubtree, message);
-        errors.add(error);
-      }
-    
-    /**
-     * Return a type warning.
-     * 
-     * @param hazardousSubtree
-     *          - The subtree found to be inhibiting an ill shape.
-     * @param message
-     *          - A message detailing the kind of check made to trigger this
-     *          warning.
-     * 
-     */
-    void addTypeWarning(INode hazardousSubtree, String message)
-      {
-        warnings.add(new CMLTypeWarning(hazardousSubtree, message));
-      }
-    
-    /**
-     * Clear out all warnings and errors and resets the type checker.
-     */
-    void clear()
-      {
-        errors = new LinkedList<CMLTypeError>();
-        warnings = new LinkedList<CMLTypeWarning>();
-        cleared = true;
-        sourceForest = null;
-      }
-    
-  }
+abstract class AbstractTypeChecker extends
+		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
+		implements CmlTypeChecker {
+	protected TypeIssueHandler issueHandler;
+	protected boolean cleared;
+	protected Collection<PSource> sourceForest;
+
+	AbstractTypeChecker() {
+		clear();
+	}
+
+	/**
+	 * Clear out all warnings and errors and resets the type checker.
+	 */
+	abstract void clear();
+}

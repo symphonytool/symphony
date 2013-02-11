@@ -1,4 +1,5 @@
 package eu.compassresearch.ide.cml.core;
+
 /*******************************************************************************
  * Copyright (c) 2009, 2011 Overture Team and others.
  *
@@ -18,34 +19,33 @@ package eu.compassresearch.ide.cml.core;
  * The Overture Tool web-site: http://overturetool.org/
  *******************************************************************************/
 
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 
-
-public class CmlCorePlugin extends Plugin
-{
+public class CmlCorePlugin extends Plugin {
 	// The plug-in ID
-	public static final String PLUGIN_ID = ICmlCoreConstants.PLUGIN_ID;//"org.overturetool.core";
+	public static final String PLUGIN_ID = ICmlCoreConstants.CORE_PLUGIN_ID;// "org.overturetool.core";
 
 	public static final boolean DEBUG = true;
-	
-	
+
 	// The shared instance
 	private static CmlCorePlugin plugin;
-	
+
 	/**
 	 * The constructor
 	 */
 	public CmlCorePlugin() {
+
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.core.runtime.Plugins#start(org.osgi.framework.BundleContext)
+	 * 
+	 * @see
+	 * org.eclipse.core.runtime.Plugins#start(org.osgi.framework.BundleContext)
 	 */
 	@Override
 	public void start(BundleContext context) throws Exception {
@@ -55,7 +55,9 @@ public class CmlCorePlugin extends Plugin
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
+	 * 
+	 * @see
+	 * org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
 	 */
 	@Override
 	public void stop(BundleContext context) throws Exception {
@@ -65,7 +67,7 @@ public class CmlCorePlugin extends Plugin
 
 	/**
 	 * Returns the shared instance
-	 *
+	 * 
 	 * @return the shared instance
 	 */
 	public static CmlCorePlugin getDefault() {
@@ -73,18 +75,18 @@ public class CmlCorePlugin extends Plugin
 	}
 
 	public static void log(Exception ex) {
-		if (DEBUG){
+		if (DEBUG) {
 			ex.printStackTrace();
 		}
 		String message = ex.getMessage();
-		if (message == null){		
+		if (message == null) {
 			message = "(no message)"; //$NON-NLS-1$
 		}
-		getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, 0, message, ex));
+		getDefault().getLog().log(
+				new Status(IStatus.ERROR, PLUGIN_ID, 0, message, ex));
 	}
-	
+
 	@SuppressWarnings("unused")
 	private final ListenerList shutdownListeners = new ListenerList();
 
-	
 }

@@ -6,6 +6,6 @@ process RegisterProc =
   state 
   reg : Ass	
  
-   @
-     reg.f(1) := 1
+   @ Skip
+     //reg.f(1) := 1
  end

@@ -1,0 +1,7 @@
+channels a b c d e
+process test = 
+begin
+actions
+INIT = (a -> b -> e -> Skip) [| {| b |} |] (c -> b -> a -> Skip) 
+@ INIT
+end

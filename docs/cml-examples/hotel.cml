@@ -8,15 +8,18 @@ types
 --------------------------
 
 -- Days are represented as natural numbers
+ private Capacity = nat
 
- private Day = nat;
+ private Day = nat
+
+ private Rooms = int
 
 -- AvailDB is the hotel room availability 
 -- database
 -- Number of rooms available is represented 
 -- as a natural number
 
- private AvailDB =  map Day to nat;
+ private AvailDB =  map Day to nat
 
 -----------------------------
 -- FOR BOOKING FUNCTION ROOMS
@@ -25,45 +28,45 @@ types
 -- we have unique token identifiers for each 
 -- function room
 
- fnRoomId = token;
+ fnRoomId = token
 
 -- The fnAvailDB database records which function
 -- rooms are available on a given day.
 
- private fnAvailDB = map Day to set of fnRoomId;
+ private fnAvailDB = map Day to set of fnRoomId
 
 -- map function rooms to individual capacities
-fnRmCapacityDB = map fnRoomId to nat;
+fnRmCapacityDB = map fnRoomId to nat
 
 	values
 
 -- The total number of rooms is four 
-   TotalRooms = 4;
-   f1 : fnRoomId = mk_token("Wedding Chapel");
-   f2 : fnRoomId = mk_token("Ball Room");
-   f3 : fnRoomId = mk_token("Meeting Room 1");
-   f4 : fnRoomId = mk_token("Meeting Room 2");
-   f5 : fnRoomId = mk_token("Disco");
+   TotalRooms = 4
+   f1 : fnRoomId = mk_token("Wedding Chapel")
+   f2 : fnRoomId = mk_token("Ball Room")
+   f3 : fnRoomId = mk_token("Meeting Room 1")
+   f4 : fnRoomId = mk_token("Meeting Room 2")
+   f5 : fnRoomId = mk_token("Disco")
 
 	functions
 -- check number of hotel rooms available on a day
  CkAvail (d:Day,av:AvailDB) n:nat
-  post n = av(d);
+  post n = av(d)
 
 -- check are n hotel rooms available on 
 -- a range {s,...,e} of days
 
  AvailRng(s,e:Day,n:nat,av:AvailDB) b : bool 
   post b = (s <= e and
-           forall d in set {s,...,e} @ CkAvail(d,av) >= n);
+           (forall d in set {s,...,e} @ CkAvail(d,av) >= n))
 
 -- check are at least n hotel rooms booked on 
 -- a range {s,...,e} of days
 
  BookedRng(s,e:Day,n:nat,av:AvailDB) b : bool
   post b =  (s <= e and 
-            forall d in set {s,...,e} @ 
-                    TotalRooms - CkAvail(d,av) >= n);
+            (forall d in set {s,...,e} @ 
+                    TotalRooms - CkAvail(d,av) >= n))
 
 -- Check which Function rooms with at least capacity c 
 -- are available on a day d
@@ -71,28 +74,28 @@ fnRmCapacityDB = map fnRoomId to nat;
 
 checkFnRmAvail(d:Day, c:nat, fndb:fnAvailDB, fncap:fnRmCapacityDB) s:set of fnRoomId
  post s subset fndb(d) and 
-   forall r in set s @ fncap(r) >= c;
+   (forall r in set s @ fncap(r) >= c)
 
 -- alternative definition for checkFnRmAvail which gives all rooms
 
 checkFnRmAvail1(d:Day, c:nat, fndb:fnAvailDB, fncap:fnRmCapacityDB) s:set of fnRoomId
- post s subset fndb(d) inter {ss|ss:fnRoomId @ fncap(ss) >= c};
+ post s subset fndb(d) inter {ss|ss:fnRoomId @ fncap(ss) >= c}
 
 -- check particular function room available
 
 checkThisFnRmAvail(d:Day, r:fnRoomId,fndb:fnAvailDB) b:bool
-post b = r in set fndb(d);
+post b = r in set fndb(d)
 
 channels 
-  available, notavailable, booked, cancelled, error, init,
-  fnrmavailable, fnrmnotavailable, fnrmbooked, fnrmcancelled;
-  book,cancel: (Day*Day*Rooms);
-  bookfunctionroom: (Day* Capacity);
-  booknamedfunctionroom, cancelnamedfunctionroom: (Day* fnRoom)
+  available notavailable booked cancelled error init
+  fnrmavailable fnrmnotavailable fnrmbooked fnrmcancelled
+  book,cancel: (Day*Day*Rooms)
+  bookfunctionroom: (Day* Capacity)
+  booknamedfunctionroom, cancelnamedfunctionroom: (Day* fnRoomId)
 
 chansets 
  I =    {|available,notavailable,init,
-          booked,cancelled,error,book,cancel|};
+          booked,cancelled,error,book,cancel|}
  I2 =   {|fnrmavailable, fnrmnotavailable, fnrmbooked, fnrmcancelled,
           bookfunctionroom, booknamedfunctionroom, 
           cancelnamedfunctionroom|}
@@ -104,12 +107,12 @@ process hotel2spec =
 -- The availability register holds the number of 
 -- available rooms per day (not which ones)
 
- avail: AvailDB;
+ avail: AvailDB
  
 --  map days to which function rooms are available
 
- fnRmAvailOnDate: fnAvailDB;
- fnRmCapacity: fnRmCapacityDB;
+ fnRmAvailOnDate: fnAvailDB
+ fnRmCapacity: fnRmCapacityDB
 
 --The initial section is not defined in the grammar
 --initial
@@ -120,8 +123,8 @@ operations
          wr fnRmCapacity: fnRmCapacityDB
    post (forall d in set dom avail @ avail(d) = TotalRooms)
           and
-         forall d in set dom fnRmAvailOnDate @ 
-            fnRmAvailOnDate(d) = {f1,f2,f3,f4,f5};
+        (forall d in set dom fnRmAvailOnDate @ 
+            fnRmAvailOnDate(d) = {f1,f2,f3,f4,f5})
 --      and
 --     forall fr in set dom fnRmCapacityDB @ 
 --       fnRoomCapacity(fr) = capacity
@@ -133,17 +136,17 @@ operations
 BOOKROOM(s,e:Day,n:nat)
  frame wr avail: AvailDB
  pre  s <= e and
-      forall d in set {s,...,e} @ CkAvail(d,avail) >= n
+      (forall d in set {s,...,e} @ CkAvail(d,avail) >= n)
  post forall d in set {s,...,e} @ 
-                 avail(d) = avail~(d) - n;
+                 avail(d) = avail~(d) - n
 
 CANCELROOM(s,e:Day,n:nat)
  frame wr avail: AvailDB
  pre s <= e and 
-     forall d in set {s,...,e} @ 
-                    TotalRooms - CkAvail(d,avail) >= n
+     (forall d in set {s,...,e} @ 
+                    TotalRooms - CkAvail(d,avail) >= n)
  post forall d in set {s,...,e} @ 
-                       avail(d) = avail~(d) + n;
+                       avail(d) = avail~(d) + n
 
 BOOKFUNCTIONROOM(d:Day, c:nat) r:fnRoomId
  frame wr fnRmAvailOnDate: fnAvailDB
@@ -151,14 +154,14 @@ BOOKFUNCTIONROOM(d:Day, c:nat) r:fnRoomId
  pre checkFnRmAvail(d,c,fnRmAvailOnDate,fnRmCapacity) <> {}
  post r in set fnRmAvailOnDate~(d) and 
        fnRmAvailOnDate(d) = 
-           fnRmAvailOnDate~(d) \ {r};
+           fnRmAvailOnDate~(d) \ {r}
 
 BOOKNAMEDFUNCTIONROOM(d:Day, c:nat, r:fnRoomId)
  frame wr fnRmAvailOnDate: fnAvailDB
        wr fnRmCapacity: fnRmCapacityDB
  pre r in set checkFnRmAvail(d,c,fnRmAvailOnDate,fnRmCapacity)
  post fnRmAvailOnDate(d) = 
-       fnRmAvailOnDate~(d) \ {r};
+       fnRmAvailOnDate~(d) \ {r}
 
 CANCELFUNCTIONROOM(d:Day, r:fnRoomId)
  frame wr fnRmAvailOnDate: fnAvailDB
@@ -170,20 +173,22 @@ actions
     book?mk_(s,e,n) -> 
        ([AvailRng(s,e,n,avail)] & BOOKROOM(s,e,n);booked -> HOTEL 
         [] 
-        [not AvailRng(s,e,n,avail)] & notavailable -> HOTEL)
+        [not AvailRng(s,e,n,avail)] & notavailable -> HOTEL
+        )
     []
     cancel?mk_(s,e,n) -> 
        ([BookedRng(s,e,n,avail)] & CANCELROOM(s,e,n);cancelled -> HOTEL
         []
-        [not BookedRng(s,e,n,avail)] & error -> HOTEL)
+        [not BookedRng(s,e,n,avail)] & error -> HOTEL
+        )
     []
-    bookfnroom?mk_(d,c) ->
+    bookfunctionroom?mk_(d,c) ->
        ([checkFnRmAvail(d,c,avail,fnRmCapacity)] & 
           BOOKFUNCTIONROOM(d,c);fnrmbooked -> HOTEL
         []
         [not checkFnRmAvail(d,c,avail,fnRmCapacity)] & error -> HOTEL)
     []
-    booknamedfnroom?mk_(d,r) ->
+    booknamedfunctionroom?mk_(d,r) ->
         ([checkthisFnRmAvail(d,r,fnRmAvailOnDate)] & 
              BOOKNAMEDFUNCTIONROOM(d,r);fnrmbooked -> HOTEL
          []

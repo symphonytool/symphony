@@ -3,8 +3,10 @@ begin
 
 types
   A :: selfirst :  A1
-       selsec   :- A2;
-  B = map S to compose A of selfirst :  A1
-       	     	       selsec   :- A2 
-             end
+       selsec   :- A2
+  B = map S to
+        compose A of
+          selfirst :  A1
+ 	  selsec   :- A2 
+ 	end
 end

@@ -1,0 +1,13 @@
+channels 
+a, b
+
+process A = 
+begin 
+	state
+	v : int := 2
+
+	actions
+	INIT = ( dcl x : int := v @ ([x = 2] & a -> Skip) [] ([x = 1] & b -> Skip)) 
+	
+	@ INIT
+end

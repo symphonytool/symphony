@@ -4,19 +4,26 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import org.eclipse.core.internal.resources.Project;
+import org.eclipse.core.internal.resources.Workspace;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 
+import eu.compassresearch.ide.cml.core.ICmlCoreConstants;
+
 public class NewCmlProjectWizard extends BasicNewProjectResourceWizard
     implements INewWizard
   {
-    
-    public NewCmlProjectWizard()
+	
+
+	public NewCmlProjectWizard()
       {
       }
     
@@ -49,13 +56,8 @@ public class NewCmlProjectWizard extends BasicNewProjectResourceWizard
             try
               {
                 setVdmBuilder(prj);
-                // IVdmProject p = (IVdmProject)
-                // prj.getAdapter(IVdmProject.class);
-                // LibraryUtil.createSelectedLibraries(p,_pageTwo.getLibrarySelection());
-                
               } catch (CoreException e)
               {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
                 return false;
               }
@@ -66,10 +68,10 @@ public class NewCmlProjectWizard extends BasicNewProjectResourceWizard
     
     private void setVdmBuilder(IProject prj) throws CoreException
       {
-        addNature(prj, null);
-        addBuilder(prj,
-            "eu.compassresearch.ide.builders.cml.IncrementalCmlProjectBuilder",
-            "", "");
+        addNature(prj, ICmlCoreConstants.NATURE);
+//        addBuilder(prj,
+//            "eu.compassresearch.ide.cml.CmlIncrementalBuilder",
+//            "", "");
       }
     
     @SuppressWarnings("unchecked")

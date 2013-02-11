@@ -1,0 +1,11 @@
+channels a, b
+process A = 
+begin
+	
+	functions
+	testMe : (bool) +> bool
+	testMe(x) == x
+ 
+	@ (dcl x :bool := testMe(true) @ [x] & a -> Skip) 
+end
+

@@ -2,6 +2,6 @@ class Test =
 begin
 	
 	values
-	b = isofclass (A,a);
+	b = isofclass (A,a)
 	
 end

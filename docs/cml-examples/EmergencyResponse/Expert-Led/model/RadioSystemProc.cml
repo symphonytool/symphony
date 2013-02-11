@@ -1,0 +1,24 @@
+process RadioSystemProc =
+  begin
+  
+  state 
+  
+  history : seq of Message
+
+  operations
+  
+  INIT()
+  frame wr history
+  post history = []
+   
+  sendMessage(sender: Id, destn: Id, msg: String) -- equiv to processMessage from AD?
+  frame wr history
+  post true -- history = history~ ^ [mk_Message(sender, destn, msg)]
+
+  actions
+
+  RADIOSYSTEM = Skip 
+  	-- radioIn?s?d?m -> sendMessage(s, d, m); radioOut?s?d?m -> RADIOSYSTEM
+  
+   @ Skip -- init -> INIT();RADIOSYSTEM
+end

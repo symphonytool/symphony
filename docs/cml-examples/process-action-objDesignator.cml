@@ -1,6 +1,7 @@
+//This is not
 process test = begin @ a(1) end
-process test = begin @ self.a(1) end
+//process test = begin @ self.a(1) end
 process test = begin @ b.a(1) end
-process test = begin @ A`b.a(1) end
-process test = begin @ A`b(1,2).a(1) end
-process test = begin @ A`b(1,2).f.a(1) end
+process test = begin @ A.b.a(1) end
+//process test = begin @ A.b(1,2).a(1) end
+//process test = begin @ A.b(1,2).f.a(1) end

@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: COMPASS IDE Interpreter Plugin
+Bundle-SymbolicName: eu.compassresearch.ide.cml.interpreter_plugin;singleton:=true
+Bundle-Version: 0.1.1
+Bundle-Activator: eu.compassresearch.ide.cml.interpreter_plugin.Activator
+Bundle-Vendor: The COMPASS Project
+Bundle-Localization: plugin
+Require-Bundle: eu.compassresearch.ide.cml.core,
+ org.eclipse.debug.ui,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.ui.views,
+ org.eclipse.swt,
+ eu.compassresearch.ide.cml.ui,
+ org.eclipse.ui,
+ org.eclipse.ui.ide,
+ org.overture.ide.ui,
+ org.eclipse.osgi,
+ org.eclipse.ui.console,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.jdt.launching
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
+Eclipse-BuddyPolicy: registered
+Import-Package: eu.compassresearch.ide.cml.core
+Bundle-ClassPath: .,
+ lib/gson-2.2.2.jar,
+ lib/interpreter-0.1.1.jar,
+ lib/interpreter-2.2.1.jar,
+ lib/json-simple-1.1.jar

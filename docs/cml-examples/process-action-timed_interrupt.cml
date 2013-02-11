@@ -1,5 +1,5 @@
 process RegisterProc = 
  begin
    @
-     Skip /: 5 :\ Chaos
+     Skip /( 5 )\ Chaos
  end

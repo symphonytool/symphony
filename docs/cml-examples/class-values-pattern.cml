@@ -2,6 +2,6 @@ class Test =
 begin
 	
 	values
-	TotalRooms = 4;
+	TotalRooms = 4
 	public r : rec = mk_rec(1,2)
 end

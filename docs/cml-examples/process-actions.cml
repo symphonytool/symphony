@@ -2,13 +2,13 @@ process RegisterProc =
  begin
  actions
    REG = 
-     (load?i -> LOAD(i) ; REG)
+     load?i -> LOAD(i) ; REG
      []
      (dcl j: Byte @ j := READ(); read!j -> REG)
      [] 
-     (add?i -> ( ([oflow(reg,i)] & overflow -> INIT(); REG)
-       	     	 [] 
-		 ([not oflow(reg,i)] & ADD(i);REG)))
+     add?i -> ( ( [ oflow(reg,i) ] & overflow -> INIT(); REG)
+       	     	[] 
+		( [ not oflow(reg,i) ] & ADD(i);REG))
      
    @
      init -> INIT(); REG

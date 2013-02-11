@@ -5,184 +5,284 @@ import java.util.List;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.widgets.Control;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.AValueDefinition;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.node.INode;
+import org.overture.ast.types.PType;
 
+import eu.compassresearch.ast.actions.PActionBase;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.definitions.AActionParagraphDefinition;
-import eu.compassresearch.ast.definitions.AClassParagraphDefinition;
-import eu.compassresearch.ast.definitions.AFunctionParagraphDefinition;
-import eu.compassresearch.ast.definitions.AOperationParagraphDefinition;
-import eu.compassresearch.ast.definitions.AProcessParagraphDefinition;
-import eu.compassresearch.ast.definitions.AValueDefinition;
-import eu.compassresearch.ast.definitions.AValueParagraphDefinition;
-import eu.compassresearch.ast.definitions.PDefinition;
-import eu.compassresearch.ast.definitions.SFunctionDefinition;
-import eu.compassresearch.ast.definitions.SOperationDefinition;
-import eu.compassresearch.ast.definitions.SParagraphDefinition;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelsDefinition;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.AChansetsDefinition;
+import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.definitions.ATypesDefinition;
+import eu.compassresearch.ast.definitions.AValuesDefinition;
+import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
+import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.ast.process.AReferenceProcess;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
-public class CmlTreeContentProvider implements ITreeContentProvider
-  {
-    
-    public CmlTreeContentProvider()
-      {
-        
-      }
-    
-    @Override
-    public void dispose()
-      {
-        
-      }
-    
-    @Override
-    public void inputChanged(Viewer viewer, Object oldInput, Object newInput)
-      {
-      }
-    
-    private PSource current;
-    
-    @Override
-    public Object[] getElements(Object inputElement)
-      {
-        if (inputElement instanceof CmlSourceUnit)
-          {
-            // Get current source tree
-            current = ((CmlSourceUnit) inputElement).getSourceAst();
-            if (current == null)
-              return new Object[0];
-            
-            // If there are any declarations lets see them
-            LinkedList<SParagraphDefinition> decls = current.getParagraphs();
-            return decls.toArray();
-          }
-        return new Object[0];
-      }
-    
-    private static class Wrapper<T>
-      {
-        private String str;
-        
-        public Wrapper(T value, String str)
-          {
-            this.value = value;
-            this.str = str;
-          }
-        
-        public T value;
-        
-        public boolean isClass(Class<?> clz)
-          {
-            return clz.isInstance(value);
-          }
-        
-        public String toString()
-          {
-            return str;
-          }
-      }
-    
-    @Override
-    public Object[] getChildren(Object parentElement)
-      {
-        Object n = parentElement;
-        if (n instanceof AClassParagraphDefinition)
-          {
-            List<Wrapper<PDefinition>> res = new LinkedList<CmlTreeContentProvider.Wrapper<PDefinition>>();
-            AClassParagraphDefinition clzdecl = (AClassParagraphDefinition) n;
-            for (eu.compassresearch.ast.definitions.PDefinition decl : clzdecl
-                .getDefinitions())
-              {
-                if (decl instanceof AValueDefinition)
-                  res.add(new Wrapper<PDefinition>(decl, "Values"));
-                else if (decl instanceof SFunctionDefinition)
-                  res.add(new Wrapper<PDefinition>(decl, "Functions"));
-                else if (decl instanceof SOperationDefinition)
-                  res.add(new Wrapper<PDefinition>(decl, "Operations"));
-              }
-            return res.toArray();
-          }
-        
-        if (n instanceof AProcessParagraphDefinition)
-          {
-            AProcessParagraphDefinition processDecl = (AProcessParagraphDefinition) n;
-            return new String[] { "Process[" + processDecl.getName() + "]" };
-          }
-        
-        if (n instanceof Wrapper)
-          {
-            Wrapper w = (Wrapper) n;
-            if (((Wrapper) n).isClass(AValueParagraphDefinition.class))
-              {
-                List<String> res = new LinkedList<String>();
-                AValueParagraphDefinition valDecl = (AValueParagraphDefinition) w.value;
-                if (valDecl != null)
-                  for (PDefinition def : valDecl.getValueDefinitions())
-                    {
-                      
-                      LexIdentifierToken name = def.getName();
-                      res.add(name != null ? name.name : "null" + " : "
-                          + def.getType());
-                    }
-                return res.toArray();
-              }
-            
-            if (((Wrapper) n).isClass(AFunctionParagraphDefinition.class))
-              {
-                List<String> res = new LinkedList<String>();
-                AFunctionParagraphDefinition fd = (AFunctionParagraphDefinition) w.value;
-                for (SFunctionDefinition fnd : fd.getFunctionDefinitions())
-                  {
-                    res.add("[F] " + notNullName(fnd.getName()));
-                  }
-                return res.toArray();
-              }
-            
-            if (((Wrapper) n).isClass(AOperationParagraphDefinition.class))
-              {
-                List<String> res = new LinkedList<String>();
-                AOperationParagraphDefinition od = (AOperationParagraphDefinition) w.value;
-                for (SOperationDefinition sod : od.getOperations())
-                  {
-                    res.add("[O] " + notNullName(sod.getName()));
-                  }
-                return res.toArray();
-              }
-            
-            if (((Wrapper) n).isClass(AActionParagraphDefinition.class))
-              {
-                List<String> res = new LinkedList<String>();
-                AActionParagraphDefinition ad = (AActionParagraphDefinition) n;
-                for (AActionDefinition a : ad.getActions())
-                  {
-                    res.add("[A] " + notNullName(a.getName()));
-                  }
-                return res.toArray();
-                
-              }
-          }
-        
-        return new String[0];
-      }
-    
-    private static String notNullName(LexIdentifierToken name)
-      {
-        if (name == null)
-          return "null";
-        return name.name;
-      }
-    
-    @Override
-    public Object getParent(Object element)
-      {
-        return null;
-      }
-    
-    @Override
-    public boolean hasChildren(Object element)
-      {
-        return true;
-      }
-    
-  }
+public class CmlTreeContentProvider implements ITreeContentProvider {
+
+	private static final String SMILING_ERROR_STRING = "P = NP ? Well we are working on it.";
+	@SuppressWarnings("unused")
+	private final Control parentControl;
+//	private Map<String, Object> _wrapperCache = new HashMap<String, Object>();
+
+	public CmlTreeContentProvider(Control control) {
+		parentControl = control;
+	}
+
+	@Override
+	public void dispose() {
+
+	}
+
+	@Override
+	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		//TODO figure out ast deltas for the outline preservation
+//		if (newInput instanceof CmlSourceUnit)
+//			current = ((CmlSourceUnit) newInput).getSourceAst();
+	}
+
+	private PSource current;
+
+	@Override
+	public Object[] getElements(Object inputElement) {
+
+		try {
+			if (inputElement instanceof CmlSourceUnit) {
+				// Get current source tree
+				current = ((CmlSourceUnit) inputElement).getSourceAst();
+				if (current == null) {
+					String[] r = { "Build project to generate outline." };
+					return r;
+				}
+				if (current.getParagraphs().isEmpty()){
+					String[] r = { "Fix project errors to generate outline." };
+					return r;
+				}
+
+				// If there are any declarations lets see them
+				List<Object> res = new LinkedList<Object>();
+				for (PDefinition def : current.getParagraphs()) {
+
+					// Get the entry names for the global declarations
+					String dscr =   TopLevelDefinitionMap.getDescription(def
+							.getClass());
+					if (dscr == null)
+						res.add(Wrapper.newInstance(def, def.getName().name));
+				    else
+					res.add(Wrapper.newInstance(def, dscr));
+					
+					
+					// Cache mode disabled due to poor hashing on ast notes
+//						dscr = def.toString();
+//					//else res.add(Wrapper.newInstance(def, dscr));
+//					
+//					Object elem = _wrapperCache.get(dscr);
+//
+//					if (elem == null) {
+//						elem = Wrapper.newInstance(def, dscr);
+//						_wrapperCache.put(dscr, elem);
+////						res.add(elem);
+//					}
+//					if (elem != null)
+//						res.add(elem);
+//			
+
+				}
+				return res.toArray();
+			}
+		} catch (Exception e) {
+			return new String[] { SMILING_ERROR_STRING };
+		}
+		return new String[0];
+	}
+
+	@Override
+	public Object[] getChildren(Object parentElement) {
+		try {
+			Object n = parentElement;
+
+			if (n instanceof Wrapper) {
+				Wrapper<?> w = (Wrapper<?>) n;
+
+				if (w.isClass(AClassDefinition.class)) {
+					return handleClassParagraphDefinition(
+							(AClassDefinition) w.value).toArray();
+				}
+
+				if (w.isClass(AChannelsDefinition.class))
+					return handleChannelParagraphDefinition(
+							(AChannelsDefinition) w.value).toArray();
+
+				if (w.isClass(AChansetsDefinition.class))
+					return handleChansetParagraphDefinition(
+							(AChansetsDefinition) w.value).toArray();
+
+				if (w.isClass(AValuesDefinition.class)) {
+					return handleValueParagraphDefinition(
+							(AValuesDefinition) w.value).toArray();
+				}
+
+				if (w.isClass(AProcessDefinition.class)) {
+					return handleProcessParagraphDefinition(
+							(AProcessDefinition) w.value).toArray();
+				}
+
+				if (w.isClass(AActionProcess.class)) {
+					return handleReferenceProcess((AActionProcess) w.value)
+							.toArray();
+				}
+
+				if (w.isClass(ATypesDefinition.class)) {
+					List<Wrapper<? extends PDefinition>> res = new LinkedList<Wrapper<? extends PDefinition>>();
+					ATypesDefinition td = (ATypesDefinition) w.value;
+					res = DefinitionMap.getDelegate(td.getClass())
+							.extractSubdefinition(td);
+					return res.toArray();
+				}
+
+				if (w.isClass(AFunctionsDefinition.class)) {
+					List<Wrapper<? extends PDefinition>> res = new LinkedList<Wrapper<? extends PDefinition>>();
+					AFunctionsDefinition fd = (AFunctionsDefinition) w.value;
+					res = DefinitionMap.getDelegate(fd.getClass())
+							.extractSubdefinition(fd);
+					return res.toArray();
+				}
+			}
+			return new String[0];
+		} catch (Exception e) {
+			return new String[] { SMILING_ERROR_STRING };
+		}
+	}
+
+	private List<Wrapper<? extends PDefinition>> handleChansetParagraphDefinition(
+			AChansetsDefinition cspdef) {
+		List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
+		for (AChansetDefinition cdef : cspdef.getChansets()) {
+			r.add(Wrapper.newInstance(cdef, cdef.getIdentifier().toString()));
+		}
+		return r;
+	}
+
+	private List<Wrapper<? extends PDefinition>> handleClassParagraphDefinition(
+			AClassDefinition cpdef) {
+		List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
+		for (PDefinition pdef : cpdef.getBody()) {
+			r.addAll(DefinitionMap.getDelegate(pdef.getClass())
+					.extractSubdefinition(pdef));
+		}
+		return r;
+	}
+
+	private List<Wrapper<? extends PDefinition>> handleValueParagraphDefinition(
+			AValuesDefinition cast) {
+		return DefinitionMap.getDelegate(cast.getClass()).extractSubdefinition(
+				cast);
+	}
+
+	@Override
+	public Object getParent(Object element) {
+		try {
+			if (element instanceof Wrapper) {
+				@SuppressWarnings("unchecked")
+				Wrapper<Object> w = (Wrapper<Object>) element;
+				if (w.value instanceof INode) {
+					INode in = (INode) w.value;
+					if (in.parent() == null)
+						return null;
+
+					// test the parent type loop here
+					if (in.parent() instanceof PType)
+						return null;
+					
+					String dscr = TopLevelDefinitionMap.getDescription(in
+							.getClass());
+					if (dscr == null)
+						dscr = in.parent().toString();
+
+					return Wrapper.newInstance(in.parent(), dscr);
+					// return ((INode) w.value).parent();}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			// be quiet !
+		} catch (StackOverflowError sofe) {
+			sofe.printStackTrace();
+			// be quiet !
+		}
+		return null;
+	}
+
+	// TODO - correct hasChildren method for reference processes at the highest
+	// level
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean hasChildren(Object element) {
+		if (element instanceof Wrapper) {
+			Wrapper<Object> w = (Wrapper<Object>) element;
+			if (w.value instanceof AExplicitFunctionDefinition)
+				return false;
+			if (w.value instanceof AImplicitFunctionDefinition)
+				return false;
+			if (w.value instanceof AValueDefinition)
+				return false;
+			if (w.value instanceof ATypeDefinition)
+				return false;
+			if (w.value instanceof AReferenceProcess)
+				return false;
+			if (w.value instanceof PActionBase)
+				return false;
+			if (w.value instanceof AActionDefinition)
+				return false;
+			if (w.value instanceof SCmlOperationDefinition)
+				return false;
+			if (w.value instanceof AChannelNameDefinition)
+				return false;
+			if (w.value instanceof AChansetDefinition)
+				return false;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private List<Wrapper<? extends INode>> handleReferenceProcess(PProcess pp) {
+		if (ProcessMap.getDelegate(pp.getClass()) != null)
+			return ProcessMap.getDelegate(pp.getClass()).makeEntries(pp);
+		return new LinkedList<Wrapper<? extends INode>>();
+	}
+
+	private List<Wrapper<? extends INode>> handleProcessParagraphDefinition(
+			AProcessDefinition ppdef) {
+		PProcess pp = ppdef.getProcess();
+		if (ProcessMap.getDelegate(pp.getClass()) != null)
+			return ProcessMap.getDelegate(pp.getClass()).makeEntries(pp);
+		return new LinkedList<Wrapper<? extends INode>>();
+	}
+
+	private List<Wrapper<AChannelNameDefinition>> handleChannelParagraphDefinition(
+			AChannelsDefinition cpdef) {
+		List<Wrapper<AChannelNameDefinition>> r = new LinkedList<Wrapper<AChannelNameDefinition>>();
+		for (AChannelNameDefinition dec : cpdef.getChannelNameDeclarations()) {
+			r.add(Wrapper.newInstance(dec, dec.getSingleType().getIdentifiers()
+					.toString()
+					+ ": " + dec.getSingleType().getType()));
+		}
+		return r;
+	}
+}

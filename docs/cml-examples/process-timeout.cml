@@ -1,1 +1,1 @@
-process RegisterProc = A [5|> B
+process RegisterProc = A [(5)> B

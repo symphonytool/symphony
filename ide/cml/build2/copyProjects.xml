@@ -1,0 +1,92 @@
+<project name="eu.compassresearch.ide" default="copyStuff">
+  <target name="copyStuff">
+    <property name="buildDirectory" value="target/CompassIDE"/>
+    <property name="target.platform.dir" value="target_platform"/>
+    <property name="target.platform.tar" value="targetplatform-${target.platform.ver}.tar.bz2"/>
+    
+    <echo message="Copying ui, core and platform"/>
+    <delete dir="${buildDirectory}"/>
+    <copy todir="${buildDirectory}/plugins">
+      <fileset dir="../">
+	<include name="ui/**" />
+	<include name="core/**" />
+	<include name="platform/**" />
+        <include name="rtt-plugin/**"/>
+	<include name="tp-plugin/**"/>
+	<include name="interpreter-plugin/**"/> 
+	<include name="pog-plugin/**"/>
+	<exclude name="**/target/"/>
+      </fileset>
+    </copy>
+
+
+    <condition property="target_platform_exists">
+      <available file="${target.platform.dir}" type="dir"/>
+    </condition>
+
+    <condition property="target_platform_tar_exists">
+      <or>
+      <available file="${target.platform.tar}" type="file"/>
+      <available file="${target.platform.dir}" type="dir"/>
+      </or>
+    </condition>
+
+<!--
+    <copy todir="${buildDirectory}/plugins">
+      <fileset dir="cml_local_deps">
+	<include name="**/*.jar"/>
+	<exclude name="**/ui"/>
+      </fileset>
+    </copy>
+-->
+
+   <echo message="Copying Parsers"/>
+    <copy todir="${buildDirectory}/plugins">
+      <fileset dir="../../">
+	<include name="parsers/**" />
+      </fileset>
+    </copy>
+
+
+    <copy file="../platform/plugin.properties" toFile="${buildDirectory}/plugins/platform/plugin.properties"
+	  overwrite="true" filtering="true">
+      <filterchain>
+	<replacetokens>
+	  <token key="version" value="${platformReleaseVersion}${RCVersion}" />
+	  <token key="builddate" value="${TODAY}" />
+	  <token key="svnrevision" value="${svn.info.rev}" />
+	  <token key="svnurl" value="${svn.info.url}" />
+	</replacetokens>
+      </filterchain>
+    </copy>
+    <copy file="../platform/META-INF/MANIFEST.MF"
+	  toFile="${buildDirectory}/plugins/platform/META-INF/MANIFEST.MF"
+	  overwrite="true" filtering="true">
+      <filterchain>
+	<tokenfilter>
+	  <replaceregex pattern="0.0.0" replace="${platformReleaseVersion}"
+			flags="gi" />
+	</tokenfilter>
+      </filterchain>
+    </copy>
+    <antcall target="download"/>
+    <antcall target="extract_target_platform"/>
+ 
+ </target>
+
+
+   <target name="download" unless="${target_platform_tar_exists}">
+     <echo message="Downloading Target Platform (approx 180Mb) this will take some time..."/>
+     <get src="http://build.overturetool.org/builds/compass-eclipse-372/${target.platform.tar}"
+          dest="${target.platform.tar}" />
+   </target>
+
+   <target name="extract_target_platform" unless="${target_platform_exists}">
+     <untar
+         src="${target.platform.tar}"
+         compression="bzip2"
+         dest="."/>
+   </target>
+
+ 
+</project>

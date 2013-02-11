@@ -4,28 +4,13 @@
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
     <artifactId>eu.compassresearch.ide.cml</artifactId>
-    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <version>0.1.1<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <groupId>eu.compassresearch.ide.cml</groupId>
   <artifactId>eu.compassresearch.ide.cml.ui</artifactId>
   <name>COMPASS IDE CML UI</name>
-
-  <!-- <reporting> -->
-  <!--   <plugins> -->
-  <!--     <plugin> -->
-  <!--       <groupId>org.apache.maven.plugins</groupId> -->
-  <!--       <artifactId>maven-javadoc-plugin</artifactId> -->
-  <!--       <version>2.5</version> -->
-  <!--       <configuration> -->
-  <!--       <skip>true</skip> -->
-  <!--        <failOnError>false</failOnError> -->
-  <!--         <excludePackageNames>*org.eclipse.*</excludePackageNames> -->
-  <!--       </configuration> -->
-  <!--     </plugin> -->
-  <!--   </plugins> -->
-  <!-- </reporting> -->
 
   <dependencies>
     <dependency>
@@ -42,13 +27,19 @@
 
     <dependency>
       <groupId>eu.compassresearch.core</groupId>
+      <artifactId>ast</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+ 
+    <dependency>
+      <groupId>eu.compassresearch.core</groupId>
       <artifactId>parser</artifactId>
       <version>${project.version}</version>
     </dependency>
-
-    <dependency>
+  
+     <dependency>
       <groupId>eu.compassresearch.core</groupId>
-      <artifactId>ast</artifactId>
+      <artifactId>typechecker</artifactId>
       <version>${project.version}</version>
     </dependency>
 

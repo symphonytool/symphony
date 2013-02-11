@@ -1,0 +1,85 @@
+package eu.compassresearch.ide.cml.rttplugin;
+
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+
+import eu.compassResearch.rttMbtTmsClientApi.IRttMbtProgressBar;
+import eu.compassResearch.rttMbtTmsClientApi.RttMbtClient;
+
+public class Activator implements BundleActivator
+  {
+
+	// RTT-MBT client attribute
+	static private RttMbtClient client;
+
+
+	static public RttMbtClient getClient() {
+		return client;
+	}
+
+	// progress bars
+	static RttMbtProgressBar progressBars;
+	
+	static public void setConsole(org.eclipse.swt.widgets.Text t) {
+		if (client != null) {
+			RttMbtConsoleLogger consoleLogger = new RttMbtConsoleLogger();
+	    	consoleLogger.setConsole(t);
+	    	client.setLoggingFacility(client.getProjectName(), consoleLogger);
+		}
+	}
+	
+	static public void addProgressBar(IRttMbtProgressBar.Tasks task, org.eclipse.swt.widgets.ProgressBar bar) {
+		if (client != null) {
+			if (progressBars == null) {
+				progressBars = new RttMbtProgressBar();
+			}
+			progressBars.addProgressBar(task, bar);
+	    	client.setProgressBar(progressBars);
+		}
+	}
+
+    @Override
+    public void start(BundleContext context) throws Exception
+      {
+    	// create client
+		@SuppressWarnings("deprecation")
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+    	client = new RttMbtClient(store.getString("RttMbtServer"),
+    							  store.getInt("RttMbtServerPort"),
+    							  store.getString("RttMbtUserName"),
+    							  store.getString("RttMbtUserId"));
+      }
+    
+    @Override
+    public void stop(BundleContext arg0) throws Exception
+      {
+        /*
+         * 
+         * Do what needs to be done for tearing down this plug-in
+         */
+
+    	// store settings
+    	
+      }
+
+	public static IWorkbench getDefault() {
+		return PlatformUI.getWorkbench();
+	}
+	
+	public static void updatePreferences() {
+		System.out.println("Activator.updatePreferences");
+		if (client != null) {
+			@SuppressWarnings("deprecation")
+			IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+			client.setRttMbtServer(store.getString("RttMbtServer"));
+			client.setRttMbtPort(store.getInt("RttMbtServerPort"));
+			client.setUserName(store.getString("RttMbtUserName"));
+			client.setUserId(store.getString("RttMbtUserId"));
+			System.out.println("updated client settings to ('" + client.getRttMbtServer() + "', '" + client.getRttMbtPort() + "', '" + client.getUserName() + "', '" + client.getUserId() + "')");
+		}
+	}
+    
+  }

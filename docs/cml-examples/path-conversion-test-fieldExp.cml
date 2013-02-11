@@ -5,6 +5,6 @@ begin
       	      	 users : nat
    
       values
-      l = mk_Library(a,b);
+      l = mk_Library(a,b)
       a = l.books
 end

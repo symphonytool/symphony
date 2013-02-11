@@ -1,6 +1,6 @@
 class Test = 
 begin
 state
- private a : int := 0;
+ private a : int := 0
  inv a >= 0
 end

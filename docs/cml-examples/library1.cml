@@ -1,0 +1,219 @@
+types
+
+Command = (Borrow | (Renew | (Return | Find)))
+
+String = seq of char
+
+BookId = token
+
+UserId = token        
+
+BorrowMap = map UserId to set of BookId
+
+-- the parser forces record declarations to have access modifiers
+-- not anymore -jwc/30Dec2012
+
+Borrow :: copy : BookId
+          user : UserId
+          
+public Renew :: copy : BookId
+         user : UserId
+         
+public Return :: copy : BookId
+
+public Find :: string : String
+
+public Library ::
+  books : map BookId to Book
+  users : map UserId to User
+  borrowed : BorrowMap
+inv mk_Library(bs,us,bor) ==
+  dom bor subset dom us and
+  dunion rng bor subset dom bs and
+  (forall u1, u2 in set dom bor @ u1 <> u2 => bor(u1) inter bor(u2) = {})
+
+
+public Book ::
+  title : String
+  author : String
+  
+public User ::
+  name : String
+  
+values
+
+jim = mk_User("Jim")
+peter = mk_User("Peter")
+
+vdmbook = mk_Book("Modelling Systems: Practical Tools and Techniques for Software Development","John Fitzgerald and Peter Gorm Larsen")
+cspbook = mk_Book("Communicating Sequential Processes", "C.A.R. Hoare")
+
+users = {mk_token(jim) |-> jim, mk_token(peter) |-> peter}
+books = {mk_token(vdmbook) |-> vdmbook, mk_token(cspbook) |-> cspbook}
+
+functions
+
+ExeBorrow: Borrow * Library -> Library
+ExeBorrow(b,l) ==
+	mk_Library(l.books,l.users,l.borrowed++{u |-> BorrowCopy(b.user,b.copy,b.borrowed)})
+pre b.copy in set dom b.books and
+	b.user in set dom b.users and
+	b.copy not in set dunion rng l.borrowed
+--ExeBorrow(mk_Borrow(c,u), mk_Library(bs,us,bor)) ==
+--  mk_Library(bs,us,bor ++ {u |-> BorrowCopy(u,c,bor)})
+--pre c in set dom bs and
+--    u in set dom us and
+--    c not in set dunion rng bor
+
+    
+BorrowCopy: UserId * BookId * BorrowMap -> (set of BookId)
+BorrowCopy(u,c,bor) ==
+  if u in set dom bor
+  then bor(u) union {c}
+  else {c}
+  
+  
+ExeReturn: Return * Library -> Library
+ExeReturn(r, l) ==
+  mk_Library(l.books,l.users,RemoveCopy(r.copy,l.borrowed))
+pre r.copy in set dom l.books
+--ExeReturn(mk_Return(c), mk_Library(bs,us,bor)) ==
+--  mk_Library(bs,us,RemoveCopy(c,bor))
+--pre c in set dom bs
+
+
+RemoveCopy: BookId * BorrowMap -> BorrowMap
+RemoveCopy(c,bor) ==
+  {u |-> bor(u) \{c} | u in set dom bor}
+  
+ExeFind: String * Library -> (set of BookId)
+ExeFind(s,l) ==
+   {bid | bid in set dom l.books @ s in set {l.books(bid).title, l.books(bid).author}} 
+  
+channels
+	init
+	borrow: Borrow
+	retBook: Return
+	find: Find
+	renew: Renew	
+	loans: UserId*nat
+	
+chansets
+	libraryEvents = {|init, borrow, retBoo, find, renew, loans|}
+	
+-- declaration of multiple parameters (e.g., a: nat; b: bool @) is not working.
+process LibraryProcess = begin
+	state library: Library
+		inv dom(library.borrowed) = dom(users) 
+		and rng(library.borrowed) subset dom(library.books)
+	
+	functions
+	
+		GetBorrowed: Library -> BorrowMap
+		GetBorrowed(l) == l.borrowed
+		
+		ApplyBorrowed: Library*UserId -> (set of BookId)
+		--ApplyBorrowed(l,u) == (GetBorrowed(l))(u) not possible with the current grammar
+		ApplyBorrowed(l,u) == (l.borrowed(u))		 
+	
+	operations
+		Init(bs: map BookId to Book, us: map UserId to User)
+		post library = mk_Library(bs,us,{ |-> })
+		
+		Assign(l: Library)
+		frame wr library
+		post library = l
+		
+	actions
+		Act = (
+			borrow?b in set (pre_(ExeBorrow,b,library)) -> Assign(ExeBorrow(b,library))
+			[]
+			renew?r in set (pre_(ExeReturn,r,library))  -> 
+				Assign(ExeReturn(r,library));
+				Assign(ExeBorrow(r,library))
+			[]
+			retBook?r in set (pre_(ExeReturn,r,library))  -> Assign(ExeReturn(r,library))
+			[]
+			find?f in set (pre_(ExeFind,f,library))  -> Assign(ExeFind(f,library))
+			/*[]
+			loans?u in set dom(GetBorrowed(library))!(card(ApplyBorrowed(library,u))) -> SKIP*/ 
+		); Act
+	
+	@ init -> Init(books,users); Act
+end
+
+channels
+	initUser: UserId
+	success error
+
+process Scenario1 = i: UserId @ begin
+	state
+		books: set of BookId
+		id: UserId
+		inv card(books) < 5
+	
+	functions
+		MkBorrow: BookId*UserId -> Borrow
+		MkBorrow(b,u) == mk_Borrow(b,u)
+		
+		MkReturn: BookId -> Return
+		MkReturn(b) == mk_Return(b)
+		
+		diff: (set of BookId) * BookId -> (set of BookId)
+		diff(bs,b) == bd\{b}
+
+	operations
+		Init()
+		frame wr id, books
+		post id = i and books = {}
+		
+		Assign(b: set of BookId)
+		frame wr books
+		post books = b
+	
+	@ initUser?u -> Init(u); borrow!(MkBorrow(book1,id)) -> SKIP;
+			Assign(books union {book1});
+			borrow!(MkBorrow(book2,id)) -> Assign(books union {book2});
+			retBook!(MkReturn(book1)) -> Assign(diff(books, {book1}));
+			loans!id?s -> if s = books then success -> Skip else error -> STOP
+end
+
+process Scenario2 = i: UserId @ begin
+	state
+		books: set of BookId
+		id: UserId
+		inv card(books) < 5
+		
+	functions
+		MkBorrow: BookId*UserId -> Borrow
+		MkBorrow(b,u) == mk_Borrow(b,u)
+		
+		MkReturn: BookId -> Return
+		MkReturn(b) == mk_Return(b)
+		
+		diff: (set of BookId) * BookId -> (set of BookId)
+		diff(bs,b) == bd\{b}
+
+	operations
+		Init()
+		frame wr id, books
+		post id = i and books = {}
+		
+		Assign(b: set of BookId)
+		frame wr books
+		post books = b
+			
+	@ initUser?u -> Init(u); borrow!(MkBorrow(book1,id)) -> Assign(books union {book1});
+			retBook!(MkReturn(book2)) -> Assign(diff(books,{book2})); STOP
+end
+
+-- empty chanset is not working ({||})
+process TestScenario1 = LibraryProcess [| LibraryEvents |] Scenario1
+process TestScenario2 = LibraryProcess [| LibraryEvents |] Scenario2
+
+-- I think we also need syntax for specifying assertions and refinement laws
+-- Do these assertions verifyi some consistency between the scenarios and the library process?
+-- assert TestScenario1 [= Scenario1
+-- assert TestScenario2 [= Scenario2
+-- The idea in these assertions is that if the scenarion is valid, than the model restricted by
+-- that scenario is refined by the scenario itself. Does this make sense?

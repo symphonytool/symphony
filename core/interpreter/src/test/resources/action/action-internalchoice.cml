@@ -1,0 +1,14 @@
+channels 
+a, b
+
+process A = 
+begin 
+	
+	actions
+	
+	TESTL = a -> Skip
+	
+	TESTR = b -> Skip
+	
+	@ TESTL |~| TESTR
+end

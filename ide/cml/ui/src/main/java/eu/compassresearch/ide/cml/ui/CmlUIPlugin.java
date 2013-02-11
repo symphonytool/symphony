@@ -18,6 +18,8 @@
  *******************************************************************************/
 package eu.compassresearch.ide.cml.ui;
 
+import org.eclipse.core.internal.runtime.Log;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -27,11 +29,16 @@ public class CmlUIPlugin extends AbstractUIPlugin {
 
 	private static final boolean DEBUG = true;
 	private static CmlUIPlugin plugin;
+
+	public static synchronized ILog getLogger() { return plugin.getLog(); }
 	
+	public BundleContext currentContext;
+
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		this.currentContext = context;
 	}
 
 	/*
@@ -55,23 +62,30 @@ public class CmlUIPlugin extends AbstractUIPlugin {
 	public static CmlUIPlugin getDefault() {
 		return plugin;
 	}
-		
-	public static void println(String s)
-	{
-		if(DEBUG)
+
+	public static void println(String s) {
+		if (DEBUG)
 			System.out.println(s);
 	}
-	
+
 	public static void log(Exception exception) {
-		getDefault().getLog().log(new Status(IStatus.ERROR,ICmlUiConstants.PLUGIN_ID,CmlUIPlugin.class.getSimpleName(),exception));
+		getDefault().getLog().log(
+				new Status(IStatus.ERROR, ICmlUiConstants.PLUGIN_ID,
+						CmlUIPlugin.class.getSimpleName(), exception));
 	}
-	public static void log(String message,Exception exception) {
-		getDefault().getLog().log(new Status(IStatus.ERROR,ICmlUiConstants.PLUGIN_ID,message,exception));
+
+	public static void log(String message, Exception exception) {
+		getDefault().getLog().log(
+				new Status(IStatus.ERROR, ICmlUiConstants.PLUGIN_ID, message,
+						exception));
 	}
 
 	public static void logErrorMessage(String message) {
-		getDefault().getLog().log(new Status(IStatus.ERROR,ICmlUiConstants.PLUGIN_ID,message));
+		getDefault().getLog().log(
+				new Status(IStatus.ERROR, ICmlUiConstants.PLUGIN_ID, message));
 
 	}
 
+	public static void test() {
+	}
 }

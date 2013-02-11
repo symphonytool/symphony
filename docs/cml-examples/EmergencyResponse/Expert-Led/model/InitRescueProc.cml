@@ -1,0 +1,4 @@
+process ERUsProc= |||id:Id @ ERUProc(id) 
+  
+process InitiateRescue =
+CallCentreProc [| SEND_CHANNELS |] RadioSystemProc [| RCV_CHANNELS |] ERUsProc

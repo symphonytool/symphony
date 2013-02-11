@@ -6,7 +6,7 @@
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
     <artifactId>ide</artifactId>
-    <version>0.0.1<!--Replaceable: Main Version--></version>
+    <version>0.1.1<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -18,9 +18,13 @@
     <!-- Put all child Eclipse Plugin projects(modules) here -->
     <module>core</module>
     <module>ui</module>
-    <!-- <module>debug</module> -->
     <module>platform</module>
-	<module>build</module>
+    <module>rtt-plugin</module>
+    <module>tp-plugin</module>
+    <module>interpreter-plugin</module>
+    <module>pog-plugin</module>
+    <!-- make sure build2 is last -->
+    <module>build2</module>
   </modules>
 
 </project>
