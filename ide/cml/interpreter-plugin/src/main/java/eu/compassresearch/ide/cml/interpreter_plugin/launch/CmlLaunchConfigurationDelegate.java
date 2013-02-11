@@ -6,10 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.Map.Entry;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -27,8 +26,6 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.osgi.framework.Bundle;
 
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugConstants;
@@ -60,9 +57,9 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 			//final IDebugTarget target = launch.getDebugTarget();
 			
 			//Write out the launch configuration to the interpreter runner
-			JSONObject obj = serializeLaunchConfigurationToJSON(configuration);
+			Map configurationMap = configuration.getAttributes();
+			configurationMap.put("mode", mode);
 			//Along with the current mode "debug" or "run"
-			obj.put("mode", mode);
 			
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
 			{
@@ -76,7 +73,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 				
 				//Execute in a new JVM process
 				CmlDebugTarget target = new CmlDebugTarget(launch,
-						launchExternalProcess(launch,JSONValue.toJSONString(obj),"CML Debugger"),
+						launchExternalProcess(launch,JSONObject.toJSONString(configurationMap),"CML Debugger"),
 						CmlDebugDefaultValues.PORT);
 				//				target.setVdmProject(vdmProject);
 				launch.addDebugTarget(target);
@@ -91,7 +88,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 				DebugPlugin.getDefault().getBreakpointManager().setEnabled(false);
 				
 				//Execute in a new JVM process
-				launchExternalProcess(launch,JSONValue.toJSONString(obj),"CML Runner");
+				launchExternalProcess(launch,JSONObject.toJSONString(configurationMap),"CML Runner");
 //				
 //				IVMInstall vm = JavaRuntime.getDefaultVMInstall(); 
 //				
@@ -269,6 +266,10 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 	{
 		String interpreterJarPath = locateInterpreterJarPath();
 		
+		if(isWindows())
+			config = config.replace("\"", "\\\"");
+			//escape quotes or else they disappear
+		
 		String[] commandArray = new String[]{
 				"java",
 				"-jar",
@@ -278,7 +279,8 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		
 		//Execute in a new JVM process
 		//Process process = Runtime.getRuntime().exec(commandArray, null, workingdir);
-		Process process = Runtime.getRuntime().exec(commandArray);
+		ProcessBuilder pb = new ProcessBuilder(commandArray);
+		Process process = pb.start();
 		IProcess iprocess = DebugPlugin.newProcess(launch, process, name);
 		
 		launch.addProcess(iprocess);
@@ -286,22 +288,9 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		return iprocess;
 	}
 	
-	/**
-	 * Converts the launch configuration into a JSON string
-	 * @param configuration
-	 * @return
-	 * @throws CoreException
-	 */
-	private JSONObject serializeLaunchConfigurationToJSON(ILaunchConfiguration configuration) throws CoreException
+	private boolean isWindows()
 	{
-		JSONObject obj = new JSONObject();
-		for(Object entryObj : configuration.getAttributes().entrySet())
-		{
-			Entry<String,String> entry = (Entry<String,String>)entryObj;
-			obj.put(entry.getKey(), entry.getValue());
-		}
-		
-		return obj;
+		return System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
 	}
 
 //	static public IVdmProject getVdmProject(ILaunchConfiguration configuration)
@@ -317,6 +306,5 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 //		}
 //		return null;
 //	}
-
 
 }
