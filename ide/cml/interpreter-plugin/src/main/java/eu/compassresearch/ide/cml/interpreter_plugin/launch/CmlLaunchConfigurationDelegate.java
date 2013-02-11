@@ -170,15 +170,15 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		
 	}
 	
-	private void unpackInterpreterFromPlugin(URI path) throws IOException, URISyntaxException
+	private void unpackInterpreterFromPlugin(String basePath) throws IOException, URISyntaxException
 	{
 		//File tempFile = File.createTempFile("interpreter-with-dependencies", ".jar");
 
 		InputStream jarStream = getClass().getResourceAsStream("/lib/interpreter-with-dependencies.jar");
 		InputStream jarHashStream = getClass().getResourceAsStream("/lib/interpreter-with-dependencies.jar.sha");
 
-		File jarFile = new File(path.getSchemeSpecificPart(),"interpreter-with-dependencies.jar");
-		File jarHashFile = new File(path.getSchemeSpecificPart(),"interpreter-with-dependencies.jar.sha");
+		File jarFile = new File(basePath,"interpreter-with-dependencies.jar");
+		File jarHashFile = new File(basePath,"interpreter-with-dependencies.jar.sha");
 				
 		WriteFile(jarStream,jarFile);
 		WriteFile(jarHashStream,jarHashFile);
@@ -191,9 +191,9 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 	 * @return true if it exist else false
 	 * @throws IOException
 	 */
-	private boolean isInterpreterAlreadyExtracted(URI uri) throws IOException
+	private boolean isInterpreterAlreadyExtracted(String basePath) throws IOException
 	{
-		File jarHashFile = new File(uri.getSchemeSpecificPart(),"interpreter-with-dependencies.jar.sha");
+		File jarHashFile = new File(basePath,"interpreter-with-dependencies.jar.sha");
 		
 		//First check if the jar hash file exists, if not then we re-extract
 		if(!jarHashFile.exists())
@@ -227,15 +227,13 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 	private String locateInterpreterFromPlugin() throws IOException, URISyntaxException
 	{
 		File bundleFile = getBundleFile();
-		URI bundleURI = URI.create(bundleFile.getParent());
-		
-		File jarFile = new File(bundleURI.getSchemeSpecificPart(),"interpreter-with-dependencies.jar");
+		File jarFile = new File(bundleFile.getParent(),"interpreter-with-dependencies.jar");
 
 		//check whether the interpreter jar from the plugin is extracted
 		//If not then we extract it else do nothing
-		if(!isInterpreterAlreadyExtracted(bundleURI))
+		if(!isInterpreterAlreadyExtracted(bundleFile.getParent()))
 		{
-			unpackInterpreterFromPlugin(bundleURI);
+			unpackInterpreterFromPlugin(bundleFile.getParent());
 		}
 		
 		return jarFile.getAbsolutePath();
