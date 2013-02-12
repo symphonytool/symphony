@@ -925,6 +925,14 @@ public class RttMbtClient {
 		}
 	}
 	
+	public String toUnixPath(String path) {
+		if (File.pathSeparatorChar != '/') {
+			return path.replace(File.separatorChar, '/');
+		} else {
+			return path;
+		}
+	}
+	
 	public String getRttMbtServer() {
 		return rttMbtServer;
 	}

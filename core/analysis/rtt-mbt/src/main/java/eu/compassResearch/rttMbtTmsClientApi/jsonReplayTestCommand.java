@@ -25,7 +25,7 @@ public class jsonReplayTestCommand extends jsonCommand {
 		// add parameters
 		Map params = new LinkedHashMap();
 		params.put("project-name", client.getProjectName());
-		params.put("test-procedure-path", testProcName);
+		params.put("test-procedure-path", client.toUnixPath(testProcName));
 		// use gui ports
 		if (guiPorts) {
 			params.put("progress-port", "true");

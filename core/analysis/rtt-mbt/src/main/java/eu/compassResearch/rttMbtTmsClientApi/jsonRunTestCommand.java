@@ -32,7 +32,7 @@ public class jsonRunTestCommand extends jsonCommand {
 		 params.put("user", client.getUserName());
 		 params.put("user-id", client.getUserId());
 		 params.put("project-name", client.getProjectName());
-		 params.put("test-procedure-path", testProcName);
+		 params.put("test-procedure-path", client.toUnixPath(testProcName));
 		 // create command
 		 JSONObject cmd = new JSONObject();
 		 cmd.put("run-test-command", params);

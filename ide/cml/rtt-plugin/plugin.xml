@@ -12,7 +12,7 @@
         point="org.eclipse.ui.newWizards">
         <wizard 
         	id="eu.compassresearch.ide.cml.rttplugin.RttMbtComponentWizard"
-        	name="RTT-MBT component"
+        	name="RTT-MBT Project"
         	category="compass_eu.compassresearch.ide.cml.ui.category"
 	        icon="icons/rtt-mbt.png"
         	class="eu.compassresearch.ide.cml.rttplugin.RttMbtComponentWizard"
