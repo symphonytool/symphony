@@ -65,7 +65,7 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 
 	
 	if (!CmlTypeChecker.Utils.isWellType(csu.getSourceAst())){
-		popErrorMessage(csu.getFile().getName()+" is not properpy type checked");
+		popErrorMessage(csu.getFile().getName()+" is not properly type checked.");
 		return;
 	}
 	

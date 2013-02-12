@@ -739,9 +739,11 @@ class TCExpressionVisitor extends
 		// Get parent identifier
 		LexNameToken rootName = new LexNameToken("", identifiers.get(0));
 
-		// is it a type like a class or global type
-		PDefinition root = question.env.findType(rootName, "");
-
+		// is it a type like a class or global type this is not a type
+		// as we would be in the UnresolvedType case
+//		PDefinition root = question.env.findType(rootName, "");
+		PDefinition root = null;
+		
 		// no then it may be a variable
 		if (root == null)
 			root = question.env.findName(rootName, NameScope.LOCAL);
@@ -763,16 +765,17 @@ class TCExpressionVisitor extends
 			}
 		}
 
+		// Use Cml environment to determine what rootName is
+		if (root == null)
+			root = cmlQuestion.lookup(rootName, PDefinition.class);
+
+		
 		// last option it is not in something else then in must be in this class
 		if (root == null) {
 			root = question.env.getEnclosingDefinition();
 			if (root != null)
 				root = assist.findMemberName(root, rootName, cmlQuestion);
 		}
-
-		// Use Cml environment to determine what rootName is
-		if (root == null)
-			root = cmlQuestion.lookup(rootName, PDefinition.class);
 
 		// did we find the top-level
 		if (root == null) {
@@ -788,6 +791,8 @@ class TCExpressionVisitor extends
 		// definitions coming first
 		PType leafType = null;
 		PDefinition prevRoot = null;
+		List<PDefinition> defs = new LinkedList<PDefinition>();
+		defs.add(root);
 		for (int i = 1; i < identifiers.size(); i++) {
 			LexIdentifierToken id = identifiers.get(i);
 			LexNameToken idName = new LexNameToken("", id);
@@ -800,10 +805,12 @@ class TCExpressionVisitor extends
 								+ " in " + node)));
 				return node.getType();
 			}
+			defs.add(def);
 			leafType = def.getType();
 		}
 
 		node.setType(leafType);
+		node.getType().getDefinitions().addAll(defs);
 		return node.getType();
 	}
 

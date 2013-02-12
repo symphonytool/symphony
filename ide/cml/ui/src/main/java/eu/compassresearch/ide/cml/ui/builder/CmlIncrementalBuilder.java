@@ -131,6 +131,7 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 			List<CMLTypeError> errorsThatMatter = filterErrros(issueHandler.getTypeErrors());
 			for(final CMLTypeError error : errorsThatMatter)
 			{
+				System.out.println(error.getStackTrace()+"\n\n");
 				INode offendingNode = error.getOffendingNode();
 				if (offendingNode != null)
 				{
@@ -140,61 +141,12 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 						IFile file = sourceToFileMap.get(source);
 						if (file != null)
 						{
+							
 							IMarker errorMarker = file.createMarker(IMarker.PROBLEM);
 							LexLocation loc = error.getLocation();						
 							if (loc != null) {
 								setProblem(errorMarker,error.getDescription(), loc.startOffset, loc.endOffset);
-								ILog logger = CmlUIPlugin.getLogger();
-								if (logger != null) logger.log(new IStatus() {
-									
-									@Override
-									public boolean matches(int arg0) {
-										return false;
-									}
-									
-									@Override
-									public boolean isOK() {
-										return false;
-									}
-									
-									@Override
-									public boolean isMultiStatus() {
-										return false;
-									}
-									
-									@Override
-									public int getSeverity() {
-										return 42;
-									}
-									
-									@Override
-									public String getPlugin() {
-										return null;
-									}
-									
-									@Override
-									public String getMessage() {
-										String str = "";
-										INode node = error.getOffendingNode();
-										if (node != null) str += node.getClass().getSimpleName(); 
-										return error.getDescription() + " reported from ast node of type \""+str+"\".";
-									}
-									
-									@Override
-									public Throwable getException() {
-										return null;
-									}
-									
-									@Override
-									public int getCode() {
-										return 0;
-									}
-									
-									@Override
-									public IStatus[] getChildren() {
-										return null;
-									}
-								});
+								
 							}
 							else
 							{
