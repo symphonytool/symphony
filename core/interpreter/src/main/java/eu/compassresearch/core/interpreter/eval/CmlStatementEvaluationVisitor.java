@@ -234,8 +234,6 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 
 		Value oldVal = node.getStateDesignator().apply(cmlValueEvaluator,question);
 		
-		
-		//Value oldVal = question.check(stateDesignatorName);
 		oldVal.set(node.getLocation(), expValue, question);
 		
 		//System.out.println(stateDesignatorName + " = " + expValue);

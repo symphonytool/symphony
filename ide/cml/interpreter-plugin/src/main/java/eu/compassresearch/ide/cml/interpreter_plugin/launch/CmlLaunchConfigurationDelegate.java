@@ -88,8 +88,14 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 				DebugPlugin.getDefault().getBreakpointManager().setEnabled(false);
 				
 				//Execute in a new JVM process
-				launchExternalProcess(launch,JSONObject.toJSONString(configurationMap),"CML Runner");
-//				
+				//launchExternalProcess(launch,JSONObject.toJSONString(configurationMap),"CML Runner");
+//				//Execute in a new JVM process
+				CmlDebugTarget target = new CmlDebugTarget(launch,
+						launchExternalProcess(launch,JSONObject.toJSONString(configurationMap),"CML Runner"),
+						CmlDebugDefaultValues.PORT);
+				//				target.setVdmProject(vdmProject);
+				launch.addDebugTarget(target);
+				
 //				IVMInstall vm = JavaRuntime.getDefaultVMInstall(); 
 //				
 //				IVMRunner runner = vm.getVMRunner(mode);
