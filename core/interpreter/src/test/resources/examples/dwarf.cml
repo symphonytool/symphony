@@ -46,6 +46,7 @@ channels
   init
   turnon: LampId
   turnoff: LampId
+  setPS : ProperState
 
 process Dwarf = begin
 
@@ -100,7 +101,6 @@ operations
          sg.currentstate = sg~.currentstate \ {l} and
          sg.desiredproperstate = sg~.desiredproperstate
 
-
   TurnOff : (LampId) ==> ()
   TurnOff(l) == sg.turnoff := sg.turnoff \ {l} ;
        			sg.turnon  := sg.turnon  \ {l} ; 
@@ -115,6 +115,11 @@ operations
          sg.currentstate = sg~.currentstate union {l} and
          sg.desiredproperstate = sg~.desiredproperstate
 
-@ init -> Init(); mu X @ ((turnon?l -> TurnOn(l); X) [] (turnoff?l -> TurnOff(l); X))
+@ init -> Init(); mu X @ ((turnon?l -> TurnOn(l); X) 
+							[] (turnoff?l -> TurnOff(l); X)
+							[] (setPS.dark -> SetNewProperState(dark); X)
+      						[] (setPS.stop -> SetNewProperState(stop); X)
+      						[] (setPS.warning -> SetNewProperState(warning); X)
+      						[] (setPS.drive   -> SetNewProperState(drive); X))
 
 end

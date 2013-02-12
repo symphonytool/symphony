@@ -161,6 +161,13 @@ public class CmlCommunicationEvent extends ObservableEvent {
 	class EventExpander extends AnswerCMLAdaptor<List<ObservableEvent> >
 	{
 		@Override
+		public List<ObservableEvent> defaultPType(PType node)
+				throws AnalysisException {
+			
+			return Arrays.asList((ObservableEvent)CmlCommunicationEvent.this);
+		}
+		
+		@Override
 		public List<ObservableEvent> caseAIntNumericBasicType(AIntNumericBasicType node)
 				throws AnalysisException {
 
