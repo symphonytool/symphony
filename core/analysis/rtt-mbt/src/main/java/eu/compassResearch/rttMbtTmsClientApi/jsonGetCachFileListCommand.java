@@ -32,7 +32,7 @@ public class jsonGetCachFileListCommand extends jsonCommand {
 		Map params = new LinkedHashMap();
 		params.put("user", userName);
 		params.put("user-id", userId);
-		params.put("directory", client.removeLocalWorkspace(dirname));
+		params.put("directory", client.toUnixPath(client.removeLocalWorkspace(dirname)));
 		// create command
 		JSONObject cmd = new JSONObject();
 		cmd.put("get-cache-file-list-command", params);
