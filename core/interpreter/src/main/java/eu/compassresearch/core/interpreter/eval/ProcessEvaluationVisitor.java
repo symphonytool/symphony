@@ -1,19 +1,14 @@
 package eu.compassresearch.core.interpreter.eval;
 
-import java.util.Map.Entry;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ObjectContext;
-import org.overture.interpreter.values.CPUValue;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
-import org.overture.interpreter.values.UpdatableValue;
-import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.process.AActionProcess;
@@ -32,7 +27,6 @@ import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
-import eu.compassresearch.core.interpreter.runtime.CmlStateContext;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;

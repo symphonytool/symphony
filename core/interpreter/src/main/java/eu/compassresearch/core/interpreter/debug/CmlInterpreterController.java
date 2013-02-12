@@ -377,8 +377,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 	public static void main(String[] args) throws IOException, InterpreterException, AnalysisException {
 
 		//Index 0 of args is the JSON config
-		Object obj=JSONValue.parse(args[0]);
-		JSONObject config =(JSONObject)obj;
+		JSONObject config =(JSONObject)JSONValue.parse(args[0]);
 		//retrieve the paths for the cml sources of the project
 		String sourcesPath = (String)config.get(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString());
 		//retrieve the top process name

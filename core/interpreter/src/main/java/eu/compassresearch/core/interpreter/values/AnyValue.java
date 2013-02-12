@@ -5,7 +5,10 @@ import org.overture.interpreter.values.Value;
 
 public class AnyValue extends Value {
 
-	private static final String topString = "\u22A4"; 
+	//unicode seems to ne causing problems on windows and mac
+	//private static final String topString = "\u22A4"; 
+	private static final String topString = "?"; 
+	
 	
 	@Override
 	public String toString() {
