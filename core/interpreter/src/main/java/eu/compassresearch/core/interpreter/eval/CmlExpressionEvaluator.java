@@ -143,7 +143,7 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<Context, Va
 		
 		Value val = question.check(new LexNameToken("",iter.next())); 
 		
-		if(val instanceof RecordValue)
+		if(val.deref() instanceof RecordValue)
 		{
 			RecordValue recordVal = val.recordValue(question);
 			Value fieldValue = recordVal.fieldmap.get(iter.next().getName());

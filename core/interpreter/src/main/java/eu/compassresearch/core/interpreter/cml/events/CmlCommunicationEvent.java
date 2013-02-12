@@ -1,9 +1,20 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.types.AIntNumericBasicType;
+import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.AQuoteType;
+import org.overture.ast.types.AUnionType;
+import org.overture.ast.types.PType;
+import org.overture.interpreter.values.IntegerValue;
+import org.overture.interpreter.values.QuoteValue;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
@@ -132,4 +143,65 @@ public class CmlCommunicationEvent extends ObservableEvent {
 			return other;
 	}
 
+	
+	@Override
+	public List<ObservableEvent> expand() {
+		
+		if(isValuePrecise())
+			return Arrays.asList((ObservableEvent)this);
+		else
+			try {
+				return ((AChannelType)channel.getType()).getType().apply(new EventExpander());
+			} catch (AnalysisException e) {
+				e.printStackTrace();
+				return new LinkedList<ObservableEvent>();
+			}
+	}
+	
+	class EventExpander extends AnswerCMLAdaptor<List<ObservableEvent> >
+	{
+		@Override
+		public List<ObservableEvent> caseAIntNumericBasicType(AIntNumericBasicType node)
+				throws AnalysisException {
+
+			return Arrays.asList((ObservableEvent)CmlCommunicationEvent.this);
+		}
+		
+		@Override
+		public List<ObservableEvent> caseANamedInvariantType(ANamedInvariantType node)
+				throws AnalysisException {
+			//TODO remove unwanted onces
+			return node.getType().apply(this);
+		}
+		
+		@Override
+		public List<ObservableEvent> caseAUnionType(AUnionType node) throws AnalysisException {
+			
+			List<ObservableEvent> events = new LinkedList<ObservableEvent>();
+			
+			if(!node.getInfinite())
+			{
+				for(PType type : node.getTypes())
+				{
+					events.addAll(type.apply(this));
+				}
+			}
+			else
+				events.add(CmlCommunicationEvent.this);
+			
+			return events;
+		}
+		
+		@Override
+		public List<ObservableEvent> caseAQuoteType(AQuoteType node)
+				throws AnalysisException {
+			
+			return Arrays.asList((ObservableEvent)new CmlCommunicationEvent(
+					CmlCommunicationEvent.this.getEventSource(), 
+					(CmlIOChannel<Value>) CmlCommunicationEvent.this.channel, CmlCommunicationEvent.this.params, 
+					new QuoteValue(node.getValue().value)));
+		}
+	}
+	
+	
 }
