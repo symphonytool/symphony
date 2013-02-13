@@ -17,6 +17,7 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.pog.obligation.ProofObligation;
@@ -25,6 +26,7 @@ import org.overture.pog.util.POException;
 
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.visitors.ProofObligationGenerator;
+import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.ide.cml.ui.editor.core.CmlEditor;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
@@ -123,10 +125,10 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 
 	private char[] getPOsfromSource(CmlSourceUnit csu) throws Exception {
 
-//		if (!CmlTypeChecker.Utils.isWellType(csu.getSourceAst())) {
-//			throw new AnalysisException("Type errors in " + csu.getFile().getName());
-//		}
-//		
+		if (!CmlTypeChecker.Utils.isWellType(csu.getSourceAst())) {
+			throw new AnalysisException("Type errors in " + csu.getFile().getName());
+		}
+		
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("-- AUTO-GENERATED PROOF OBLIGATIONS FOR: ");
