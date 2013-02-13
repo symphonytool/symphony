@@ -60,6 +60,7 @@ import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 /**
@@ -459,7 +460,9 @@ public class AlphabetInspector
 	public CmlAlphabet caseAReferenceAction(AReferenceAction node,
 			Context question) throws AnalysisException {
 		
-		return createSilentTransition(node,node.getActionDefinition().getAction());
+		ActionValue actionValue = (ActionValue)question.check(node.getName()).deref();
+		
+		return createSilentTransition(node,actionValue.getActionDefinition().getAction());
 	}
 	
 	@Override

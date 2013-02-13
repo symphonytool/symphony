@@ -183,7 +183,7 @@ public class CmlScheduler implements CmlProcessStateObserver , Scheduler{
 					throw new InterpreterRuntimeException("A silent transition '"+ availableEvents.getSpecialEvents() +"' has slipped through to a place where only observable events should be.");
 				else
 				{
-					
+					availableEvents = availableEvents.expandAlphabet();
 					CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getObservableEvents());
 					for(ObservableEvent obsEvent : availableEvents.getObservableEvents())
 					{
