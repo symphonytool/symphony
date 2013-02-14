@@ -26,7 +26,7 @@ public class jsonSendFileToCacheCommand extends jsonCommand {
 		Map params = new LinkedHashMap();
 		params.put("user", userName);
 		params.put("user-id", userId);
-		params.put("filename", client.removeLocalWorkspace(filename));
+		params.put("filename", client.toUnixPath(client.removeLocalWorkspace(filename)));
 		params.put("content", getBase64StringFileContent(filename, true));
 		params.put("size", getFileSizeString(filename));
 		params.put("checksum", getSHA256Checksum(filename));

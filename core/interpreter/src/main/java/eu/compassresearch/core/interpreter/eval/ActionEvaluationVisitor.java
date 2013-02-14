@@ -5,8 +5,11 @@ import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.typechecker.Pass;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.NameValuePair;
+import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
@@ -26,12 +29,14 @@ import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
+import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
+import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 
@@ -180,8 +185,9 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		
 		//FIXME: Consider: Instead of this might create a child process, and behave as this child until it terminates
 		//CMLActionInstance refchild = new CMLActionInstance(node.getActionDefinition().getAction(), question, node.getName()); 
+		ActionValue actionValue = (ActionValue)question.check(node.getName()).deref();
 		
-		pushNext(node.getActionDefinition().getAction(), question); 
+		pushNext(actionValue.getActionDefinition().getAction(), question); 
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
@@ -378,7 +384,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	public CmlBehaviourSignal caseAHidingAction(AHidingAction node,
 			Context question) throws AnalysisException {
 
-		setHidingAlphabet((CmlAlphabet)node.getChansetExpression().apply(cmlEvaluator,question));
+		setHidingAlphabet((CmlAlphabet)node.getChansetExpression().apply(cmlValueEvaluator,question));
 
 		pushNext(node.getLeft(), question); 
 		
@@ -387,46 +393,62 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	
 	/**
 	 * Recursion - section 7.5.9
-	 * 
+	 * TODO Mutually recursive processes are not implemented yet
 	 */
 	@Override
 	public CmlBehaviourSignal caseAMuAction(AMuAction node, Context question)
 			throws AnalysisException {
 
-		AMuAction muActionClone = node.clone();
 		
-		for(int i = node.getIdentifiers().size()-1; i >= 0 ; i--)
+		///THIS IS NOT CORRECT sEMANTICALLY, 
+		Context muContext = CmlContextFactory.newContext(node.getLocation(), "mu context", question);
+		
+		NameValuePairList nvpl = new NameValuePairList();
+		
+		for(int i = 0 ; i < node.getIdentifiers().size() ; i++)
 		{
-			PAction action = muActionClone.getActions().get(i); 
-			doMuReplace(action,muActionClone,
-					node.getIdentifiers().get(i));
-			pushNext(action, question);
+			LexIdentifierToken id = node.getIdentifiers().get(i);
+			
+			LexNameToken name = new LexNameToken("", id);
+			
+			PAction action = node.getActions().get(i);
+			
+			AActionDefinition actionDef = new AActionDefinition(node.getLocation(),
+					NameScope.LOCAL,true,null,Pass.DEFS,null,action);
+			
+			nvpl.add(new NameValuePair(name, 
+					new ActionValue(actionDef)));
+			if(i == 0)
+				pushNext(action, muContext);
 		}
+		
+		muContext.putAllNew(nvpl);
+
 		
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
-	private void doMuReplace(PAction action, final AMuAction muAction, final LexIdentifierToken id) throws AnalysisException
-	{
-		
-		class ReplaceHelper extends DepthFirstAnalysisCMLAdaptor
-		{
-			@Override
-			public void caseAReferenceAction(AReferenceAction node)
-					throws AnalysisException {
-
-				//If the identifier is equal we replace the node 
-				//with a clone of the mu action
-				if(node.getName().getIdentifier().equals(id))
-				{
-					AMuAction muClone = muAction.clone();
-					muClone.setLocation(node.getLocation());
-					node.parent().replaceChild(node, muClone);
-				}
-			}
-		}
-		
-		action.apply(new ReplaceHelper());
-	}
+//	private void doMuReplace(PAction action, final AMuAction muAction, final LexIdentifierToken id) throws AnalysisException
+//	{
+//		
+//		class ReplaceHelper extends DepthFirstAnalysisCMLAdaptor
+//		{
+//			@Override
+//			public void caseAReferenceAction(AReferenceAction node)
+//					throws AnalysisException {
+//
+//				//If the identifier is equal we replace the node 
+//				//with a clone of the mu action
+//				if(node.getName().getIdentifier().equals(id))
+//				{
+//					AMuAction muClone = muAction.clone();
+//					muClone.setLocation(node.getLocation());
+//					node.parent().replaceChild(node, muClone);
+//				}
+//			}
+//		}
+//		
+//		action.apply(new ReplaceHelper());
+//	}
 }

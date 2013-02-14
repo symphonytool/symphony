@@ -218,7 +218,7 @@ public class RunCmlExamplesTestCase {
 		Assert.assertTrue("Parser failed", parseOk);
 
 		TypeIssueHandler tc = res.issueHandler;
-		String errorString =  buildErrorMessage(tc);
+		String errorString =   buildErrorMessage(tc);
 		boolean tcOK = res.tcOk;
 		if (!failingTC.containsKey(file.getName())) {
 			System.out.println("\t" + (tcOK ? "[OK]" : "[FAIL]"));
@@ -238,7 +238,7 @@ public class RunCmlExamplesTestCase {
 				if (!found)
 				{
 					System.out.println("\t [FAILED UNEXPECTED]");
-					System.out.println( TestUtil.buildErrorMessage(tc,false));
+					System.out.println(TestUtil.buildErrorMessage(tc,false));
 				}
 				Assert.assertTrue("Expected Error:\n" + expectedError
 						+ "\nbut it was not found.", found);

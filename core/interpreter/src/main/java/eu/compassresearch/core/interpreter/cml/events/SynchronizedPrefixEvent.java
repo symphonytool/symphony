@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -111,5 +112,10 @@ public class SynchronizedPrefixEvent extends ObservableEvent {
 	@Override
 	public boolean isValuePrecise() {
 		return true;
+	}
+	
+	@Override
+	public List<ObservableEvent> expand() {
+		return Arrays.asList((ObservableEvent)this);
 	}
 }

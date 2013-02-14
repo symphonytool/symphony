@@ -28,8 +28,8 @@ functions
   compareCriticalityFunction: RescueDetails * RescueDetails -> bool
   compareCriticalityFunction(r, r2) == r.criticality > r2.criticality
   
---  rescueDetailsToString(r : RescueDetails) s: String
---  post s <> [] -- and r.target substring s and r.criticality substring s
+  rescueDetailsToString(r : RescueDetails) s: String
+  post s <> [] -- and r.target substring s and r.criticality substring s
   
   stringToRescueDetails(s: String) r : RescueDetails
   pre s <> []

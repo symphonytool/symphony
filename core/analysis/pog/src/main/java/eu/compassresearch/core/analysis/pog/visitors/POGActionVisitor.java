@@ -590,8 +590,10 @@ QuestionAnswerCMLAdaptor<POContextStack, ProofObligationList> {
 		
 		pol.addAll(leftAction.apply(parentPOG, question));
 		pol.addAll(rightAction.apply(parentPOG, question));
-		pol.addAll(leftNamesetExp.apply(parentPOG, question));
-		pol.addAll(rightnamesetExp.apply(parentPOG, question));
+		if (leftNamesetExp != null)
+			pol.addAll(leftNamesetExp.apply(parentPOG, question));
+		if (rightnamesetExp != null)
+			pol.addAll(rightnamesetExp.apply(parentPOG, question));
 
 		//TODO: Consider AGeneralisedParallelismParallelAction POs
 						

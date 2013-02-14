@@ -5,6 +5,7 @@ import java.io.File;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -19,6 +20,8 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 	protected RttMbtClient client = null;
 	protected String selectedObject;
 	protected String selectedObjectPath;
+	protected Boolean isFolderSelected = false;
+	protected Boolean isFileSelected = false;
 
 	public RttMbtPopupMenuAction() {
 		// get RTT-MBT TMS client
@@ -40,6 +43,13 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 				IFolder folder = (IFolder)treeSelection.getFirstElement();
 				selectedObject = folder.getName();
 				selectedObjectPath = folder.getFullPath().toString();
+				isFolderSelected = true;
+			} else if ((treeSelection.getFirstElement() != null) &&
+				(treeSelection.getFirstElement() instanceof IFile)) {
+				IFile file = (IFile)treeSelection.getFirstElement();
+				selectedObject = file.getName();
+				selectedObjectPath = file.getFullPath().toString();
+				isFileSelected = true;
 			}
 		}
 		if ((selectedObject == null) || (selectedObjectPath == null)) {
@@ -66,13 +76,22 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 		// calculate CML project name from selected folder
 		String current = selectionFullPath.substring(1, selectionFullPath.length());
 		int pos = current.indexOf(File.separator);
-		if (pos == -1) {
-			client.addErrorMessage("[FAIL]: no RTT-MBT component selected\n");
+		String cmlProject;
+		if (pos > -1) {
+			cmlProject = current.substring(0,pos);
+		} else {
+			pos = current.indexOf('/');
+			if (pos == -1) {
+				client.addErrorMessage("[FAIL]: no RTT-MBT component selected\n");
+				return false;
+			} else {
+				cmlProject = current.substring(0,pos);
+			}
 		}
-		String cmlProject = current.substring(0,current.indexOf(File.separator));
 		// calculate RTT-MBT project name from selected folder
 		current = current.substring(pos + 1, current.length());
 		pos = current.indexOf(File.separator);
+		if (pos == -1) pos = current.indexOf('/');
 		if (pos == -1) pos = current.length();
 		String rttProject = current.substring(0,pos);
 
@@ -102,5 +121,9 @@ public class RttMbtPopupMenuAction extends AbstractHandler  {
 		}
 		
 		return success;
+	}
+	
+	public static boolean isRttMbtProject() {
+		return false;
 	}
 }
