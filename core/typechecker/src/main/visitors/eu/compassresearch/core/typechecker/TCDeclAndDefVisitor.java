@@ -241,6 +241,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		OvertureRootCMLAdapter root = new OvertureRootCMLAdapter(parentChecker, issueHandler);
 		TypeCheckerDefinitionVisitor ovtDef = new TypeCheckerDefinitionVisitor(root);
 		try {
+			question.scope = NameScope.NAMES;
 			PType result = node.apply(ovtDef, question);
 			node.setType(result);
 		} catch (AnalysisException e) {

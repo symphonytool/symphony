@@ -56,6 +56,7 @@ import eu.compassresearch.ast.definitions.AChansetDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.AEnumerationRenameChannelExp;
 import eu.compassresearch.ast.expressions.AFatCompVarsetExpression;
 import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
@@ -65,6 +66,7 @@ import eu.compassresearch.ast.expressions.ASubVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.ATupleSelectExp;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
+import eu.compassresearch.ast.patterns.ARenamePair;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AChansetType;
 import eu.compassresearch.ast.types.AErrorType;
@@ -79,6 +81,40 @@ class TCExpressionVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 	private TypeComparator typeComparator;
+
+	
+	
+	@Override
+	public PType caseAEnumerationRenameChannelExp(
+			AEnumerationRenameChannelExp node, TypeCheckInfo question)
+			throws AnalysisException {
+	
+			CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+			if (cmlEnv == null) {
+				node.setType(issueHandler.addTypeError(node,TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
+				return node.getType();
+			}
+		
+	
+			LinkedList<ARenamePair> pairs = node.getRenamePairs();
+			for(ARenamePair p : pairs) {
+				ANameChannelExp from = p.getFrom();
+				ANameChannelExp to = p.getTo();
+				
+				PDefinition fromChanDef = cmlEnv.lookupChannel(from.getIdentifier());
+				if (fromChanDef == null) {
+					node.setType(issueHandler.addTypeError(from, TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""+from)));
+					return node.getType();
+				}
+
+				to.setType(fromChanDef.getType());
+				cmlEnv.addChannel(to.getIdentifier(), fromChanDef);
+			}
+		
+			node.setType(new AChannelType(node.getLocation(), true));
+			return node.getType();
+		
+	}
 
 	@Override
 	public PType caseATupleSelectExp(ATupleSelectExp node,
