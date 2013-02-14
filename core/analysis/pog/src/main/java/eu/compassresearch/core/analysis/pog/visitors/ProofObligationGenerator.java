@@ -54,6 +54,8 @@ import org.overture.pog.obligation.SeqApplyObligation;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
+import eu.compassresearch.ast.expressions.AEnumVarsetExpression;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.AInputStreamSource;
@@ -152,6 +154,15 @@ public class ProofObligationGenerator extends
 	public ProofObligationList caseASetMultipleBind(ASetMultipleBind node,
 			POContextStack question) throws AnalysisException {
 		return node.getSet().apply(this.expressionVisitor, question);
+	}
+
+	
+	
+	//FIXME --what are pvarsets?
+	@Override
+	public ProofObligationList defaultPVarsetExpression(PVarsetExpression node,
+			POContextStack question) throws AnalysisException {
+		return new ProofObligationList();
 	}
 
 	@Override
