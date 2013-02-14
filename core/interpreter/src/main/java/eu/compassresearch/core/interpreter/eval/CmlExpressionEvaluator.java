@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.eval;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -9,11 +10,11 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.eval.DelegateExpressionEvaluator;
-import org.overture.interpreter.eval.ExpressionEvaluator;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
+import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
@@ -136,11 +137,21 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<Context, Va
 	public Value caseAUnresolvedPathExp(AUnresolvedPathExp node,
 			Context question) throws AnalysisException {
 	
-		Value val = question.check(new LexNameToken("",node.getIdentifiers().get(0))); 
+		//FIXME This is just for testing, this should be done in a more generic way.
 		
+		Iterator<LexIdentifierToken> iter = node.getIdentifiers().iterator();
 		
-		// TODO Auto-generated method stub
-		return super.caseAUnresolvedPathExp(node, question);
+		Value val = question.check(new LexNameToken("",iter.next())); 
+		
+		if(val.deref() instanceof RecordValue)
+		{
+			RecordValue recordVal = val.recordValue(question);
+			Value fieldValue = recordVal.fieldmap.get(iter.next().getName());
+			
+			return fieldValue;
+		}
+		
+		return val;
 	}
 	
 }

@@ -9,21 +9,16 @@
  *  moment, and should take general channel notation.
  *
  * 2013-01-18 jwc:
- *  expression/type precedence needs to be fixed to move the prefixing
- *  constructs (e.g. expression: ...| 'let' blah blah 'in' expression
- *  --- those where the recursion is at the rightmost edge only) down
- *  to the 'base' of the rulechain.
- *
- * 2013-01-18 jwc:
  *  Note that the '[(' ')>' used by the CSP timeout cause the same
  *  problems as below in expressions & types (i.e. the expression
  *  len(list)>max is a syntax error, sadly).
  *
- * 2012-01-06 RWL: )\ used in the /( exp )\-csp construct conflicts with apply expressions
+ * 2013-01-06 RWL: )\ used in the /( exp )\-csp construct conflicts with apply expressions
  * when doing e.g. dom(map)\{set-enum}
  *
- * 2012-01-06 RWL: when having a class ... end construct the parser stops after the end.
+ * 2013-01-06 RWL: when having a class ... end construct the parser stops after the end.
  * anything written after the end of the class will not be parser.
+ *   2013-02-11 jwc: can you confirm if this is still true?
  *
  * communication prefixes using '.' separators are still causing problems
  * -> restriction in place: '.','!' may only be followed by ids,
@@ -40,19 +35,9 @@
  *
  * action/statement precedence has still to be resolved
  *
- * make type not allow '()' unless coming from a function?
- *
- * I'm not sure if multiple binds are implemented. -jwc/14Dec2012
- *
  * Note: don't use '()' as a token: it will probably end up
  * conflicting with '(' ')' in places where there is an optional
  * something inside the brackets.
- *
- * LexLocations really ought to be handled as is done in the @after
- * block of the opType rule.  The $ruleName.start and $ruleName.stop
- * attributes give the first and last tokens matched by that rule (or
- * subrules), assuming I understand it correctly (and looking at the
- * generated code appear to confirm my understanding).  -jwc/18Dec2012
  */
 grammar Cml;
 options {
@@ -298,6 +283,8 @@ catch (RecognitionException e) {
     throw e;
 }
 }
+
+// -------------------------------------------------------------
 
 source returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }

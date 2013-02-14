@@ -1,5 +1,8 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -69,5 +72,10 @@ public class PrefixEvent extends ObservableEvent {
 	@Override
 	public boolean isValuePrecise() {
 		return true;
+	}
+
+	@Override
+	public List<ObservableEvent> expand() {
+		return Arrays.asList((ObservableEvent)this);
 	}
 }
