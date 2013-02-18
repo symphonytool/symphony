@@ -28,6 +28,6 @@ public class NewCmlProcessWizard extends VdmNewFileWizard {
 	@Override
 	protected String getFileTemplate(String fileName)
 	{
-		return "process "+fileName+"\n\n\nend "+ fileName;
+		return "process " + fileName + " = \nbegin\n\n@Skip\n\nend";
 	}
 }

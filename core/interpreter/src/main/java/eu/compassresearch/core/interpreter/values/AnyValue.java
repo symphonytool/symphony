@@ -1,9 +1,14 @@
 package eu.compassresearch.core.interpreter.values;
 
+import org.overture.interpreter.values.Value;
 
-public class AnyValue extends CmlValue {
 
-	private static final String topString = "\u22A4"; 
+public class AnyValue extends Value {
+
+	//unicode seems to ne causing problems on windows and mac
+	//private static final String topString = "\u22A4"; 
+	private static final String topString = "?"; 
+	
 	
 	@Override
 	public String toString() {

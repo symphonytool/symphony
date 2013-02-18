@@ -1,5 +1,7 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
+import java.util.List;
+
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
@@ -51,6 +53,8 @@ public abstract class ObservableEvent extends CmlEvent {
 	public abstract void setValue(Value value);
 	
 	public abstract boolean isValuePrecise();
+	
+	public abstract List<ObservableEvent> expand();
 	
 	/**
 	 * return the most precise of this and other

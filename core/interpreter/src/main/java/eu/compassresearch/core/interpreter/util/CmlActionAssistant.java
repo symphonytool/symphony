@@ -7,11 +7,11 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
-import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
-import eu.compassresearch.core.interpreter.runtime.CmlContext;
+import eu.compassresearch.core.interpreter.eval.CmlValueEvaluator;
 
 public class CmlActionAssistant {
 
@@ -25,24 +25,26 @@ public class CmlActionAssistant {
 		return node.getCommunicationParameters().isEmpty();
 	}
 	
-	public static LexNameToken extractNameFromStateDesignator(PExp exp)
+	public static LexNameToken extractNameFromStateDesignator(PExp exp, Context context)
 	{
 		LexNameToken name = null;
 		
 		if(exp instanceof AVariableExp)
+		{
 			name = ((AVariableExp)exp).getName();
+		}
 		
 		return name;
 	}
 	
 	public static List<ANonDeterministicAltStatementAction> findAllTrueAlts(
 			List<ANonDeterministicAltStatementAction> alts,
-			CmlContext question,CmlEvaluator cmlEvaluator) throws AnalysisException
+			Context question,CmlValueEvaluator cmlEvaluator) throws AnalysisException
 	{
 		List<ANonDeterministicAltStatementAction> availableAlts = new LinkedList<ANonDeterministicAltStatementAction>();
 		
 		for(ANonDeterministicAltStatementAction alt :  alts)		
-			if(alt.getGuard().apply(cmlEvaluator,question).boolValue(question.getVdmContext()))
+			if(alt.getGuard().apply(cmlEvaluator,question).boolValue(question))
 				availableAlts.add(alt);
 		
 		return availableAlts;

@@ -26,7 +26,7 @@ public class jsonRemoveFileFromCacheCommand extends jsonCommand {
 		Map params = new LinkedHashMap();
 		params.put("user", userName);
 		params.put("user-id", userId);
-		params.put("filename", client.removeLocalWorkspace(filename));
+		params.put("filename", client.toUnixPath(client.removeLocalWorkspace(filename)));
 		// create command
 		JSONObject cmd = new JSONObject();
 		cmd.put("remove-file-from-cache-command", params);

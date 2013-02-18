@@ -62,7 +62,27 @@ public class CmlTCUtil {
 	 * 
 	 * NOTICE! The type of condition must be boolean for the result to be well typed. This is *NOT* checked 
 	 */
-	public static AExplicitFunctionDefinition buildCondition(String prefix, PDefinition target, PType type, List<APatternListTypePair> parameters, PExp condition)
+	public static AExplicitFunctionDefinition buildCondition(String prefix, PDefinition target, PType type, List<APatternListTypePair> parameters, PExp condition) {
+		// Clone parameters as they are tree nodes and transform from cml operations params to Overture function params :S
+		List<List<PPattern>> newParameters = new LinkedList<List<PPattern>>();
+		for(APatternListTypePair p : parameters)
+		{
+			List<PPattern> pList = new LinkedList<PPattern>();
+			for(PPattern pptrn : p.getPatterns())
+				pList.add(pptrn);
+			newParameters.add(pList);
+		}
+
+		return buildCondition1(prefix, target, type, newParameters, condition);
+	}
+	
+	public static AExplicitFunctionDefinition buildCondition0(String prefix, PDefinition target, PType type, List<PPattern> ptrnList, PExp condition) {
+		List<List<PPattern>> pList = new LinkedList<List<PPattern>>();
+		pList.add(ptrnList);
+		return buildCondition1(prefix, target, type, pList, condition);
+	}
+	
+	public static AExplicitFunctionDefinition buildCondition1(String prefix, PDefinition target, PType type, List<List<PPattern>> ptrnList, PExp condition)
 	{
 		// create new with pre_ before the name
 		LexNameToken name = new LexNameToken("", new LexIdentifierToken(prefix+"_"+target.getName().getName(), false, target.getLocation()));
@@ -85,17 +105,6 @@ public class CmlTCUtil {
 		if (parameterTypes == null)
 			return null;
 
-		// Clone parameters as they are tree nodes and transform from cml operations params to Overture function params :S
-		List<List<PPattern>> newParameters = new LinkedList<List<PPattern>>();
-		for(APatternListTypePair p : parameters)
-		{
-			List<PPattern> pList = new LinkedList<PPattern>();
-			for(PPattern pptrn : p.getPatterns())
-				pList.add(pptrn.clone());
-			newParameters.add(pList);
-		}
-
-
 		// The body is the given condition, we assume ot has type boolean
 		PExp body = condition;
 
@@ -111,6 +120,17 @@ public class CmlTCUtil {
 		// Recursive pre/post-condition, we don't do it !
 		LexNameToken measuref = null;
 
+		// Clone those parameters
+		List<List<PPattern>> newParameters = new LinkedList<List<PPattern>>();
+		for(List<PPattern> p : ptrnList)
+		{
+			List<PPattern> pList = new LinkedList<PPattern>();
+			for(PPattern pptrn : p)
+				pList.add(pptrn.clone());
+			newParameters.add(pList);
+		}
+
+		
 		// Alright create the result
 		AFunctionType preDefType = AstFactory.newAFunctionType(target.getLocation(), false, parameterTypes, AstFactory.newABooleanBasicType(target.getLocation()));
 		AExplicitFunctionDefinition preDef = AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, preDefType, newParameters, body, precondition, postcondition, typeInvariant, measuref);

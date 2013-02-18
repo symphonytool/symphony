@@ -1,15 +1,16 @@
 package eu.compassresearch.core.interpreter.api;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.CmlProcess;
 
 public class InterpreterStatus {
 
 	final private CmlProcessInfo[] processInfos;
 	final private int topLevelProcessIndex;
+	private InterpreterError[] errors = null;
 	
 	public InterpreterStatus(List<CmlBehaviourThread> processes)
 	{
@@ -20,7 +21,7 @@ public class InterpreterStatus {
 			this.processInfos[i] = new CmlProcessInfo(processes.get(i).name().getName(),
 					processes.get(i).getTraceModel(),
 					processes.get(i).level(),
-					processes.get(i) instanceof CmlProcess,
+					processes.get(i) instanceof CmlBehaviourThread,
 					processes.get(i).getState());
 			
 			if(this.processInfos[i].level() == 0)
@@ -38,6 +39,25 @@ public class InterpreterStatus {
 	public CmlProcessInfo getToplevelProcessInfo()
 	{
 		return processInfos[topLevelProcessIndex];
+	}
+	
+	public List<InterpreterError> getErrors() {
+		return Arrays.asList(errors);
+	}
+
+	public void AddError(InterpreterError error) {
+		
+		if(errors == null)
+			errors = new InterpreterError[]{error};
+		else
+		{
+			errors = Arrays.copyOf(errors, errors.length + 1);
+		}
+	}
+
+	public boolean hasErrors()
+	{
+		return errors != null;
 	}
 			
 }

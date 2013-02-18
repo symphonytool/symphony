@@ -218,7 +218,7 @@ public class RunCmlExamplesTestCase {
 		Assert.assertTrue("Parser failed", parseOk);
 
 		TypeIssueHandler tc = res.issueHandler;
-		String errorString =  buildErrorMessage(tc);
+		String errorString =   buildErrorMessage(tc);
 		boolean tcOK = res.tcOk;
 		if (!failingTC.containsKey(file.getName())) {
 			System.out.println("\t" + (tcOK ? "[OK]" : "[FAIL]"));

@@ -139,6 +139,7 @@ class SimpleTypeComparator implements TypeComparator {
 		return false;
 	}
 
+	
 	private static final Map<Class<?>, List<Class<?>>> fixedSubTypeRelations;
 	static {
 		fixedSubTypeRelations = new HashMap<Class<?>, List<Class<?>>>();

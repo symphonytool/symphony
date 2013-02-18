@@ -9,21 +9,16 @@
  *  moment, and should take general channel notation.
  *
  * 2013-01-18 jwc:
- *  expression/type precedence needs to be fixed to move the prefixing
- *  constructs (e.g. expression: ...| 'let' blah blah 'in' expression
- *  --- those where the recursion is at the rightmost edge only) down
- *  to the 'base' of the rulechain.
- *
- * 2013-01-18 jwc:
  *  Note that the '[(' ')>' used by the CSP timeout cause the same
  *  problems as below in expressions & types (i.e. the expression
  *  len(list)>max is a syntax error, sadly).
  *
- * 2012-01-06 RWL: )\ used in the /( exp )\-csp construct conflicts with apply expressions
+ * 2013-01-06 RWL: )\ used in the /( exp )\-csp construct conflicts with apply expressions
  * when doing e.g. dom(map)\{set-enum}
  *
- * 2012-01-06 RWL: when having a class ... end construct the parser stops after the end.
+ * 2013-01-06 RWL: when having a class ... end construct the parser stops after the end.
  * anything written after the end of the class will not be parser.
+ *   2013-02-11 jwc: can you confirm if this is still true?
  *
  * communication prefixes using '.' separators are still causing problems
  * -> restriction in place: '.','!' may only be followed by ids,
@@ -40,19 +35,9 @@
  *
  * action/statement precedence has still to be resolved
  *
- * make type not allow '()' unless coming from a function?
- *
- * I'm not sure if multiple binds are implemented. -jwc/14Dec2012
- *
  * Note: don't use '()' as a token: it will probably end up
  * conflicting with '(' ')' in places where there is an optional
  * something inside the brackets.
- *
- * LexLocations really ought to be handled as is done in the @after
- * block of the opType rule.  The $ruleName.start and $ruleName.stop
- * attributes give the first and last tokens matched by that rule (or
- * subrules), assuming I understand it correctly (and looking at the
- * generated code appear to confirm my understanding).  -jwc/18Dec2012
  */
 grammar Cml;
 options {
@@ -270,14 +255,26 @@ public static void main(String[] args) throws Exception {
     CmlParser parser = new CmlParser(tokens);
 
     // parser.exprbase();
-    // try {
+    try {
         Object o = parser.source();
         // System.out.println(parser.exprbase());
-    // } catch(Exception e) {
-    //     System.out.println("Exception from parse attempt");
-    //     System.out.println(e);
-    // }
+    } catch(MismatchedTokenException e) {
+        System.out.println("Mismatched Token");
+        System.out.println("Received: " + e.token);
+        if (e.expecting > 0 && e.expecting < CmlParser.tokenNames.length)
+            System.out.println("Expected: " + CmlParser.tokenNames[e.expecting]);
+        System.out.println("---- ---- ----");
+        throw e;
+    } catch(NoViableAltException e) {
+        System.out.println("No Viable Alternative at " + e.token);
+        System.out.println("---- ---- ----");
+        throw e;
+    } catch(RecognitionException e) {
+        System.out.println("Something generating RecognitionException (or subclass) at " + e.token);
+        System.out.println("---- ---- ----");
+        throw e;
     }
+}
 
 } // end @parser::members
 
@@ -286,6 +283,8 @@ catch (RecognitionException e) {
     throw e;
 }
 }
+
+// -------------------------------------------------------------
 
 source returns[List<PDefinition> defs]
 @init { $defs = new ArrayList<PDefinition>(); }
@@ -1619,6 +1618,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             $tail.setNameScope(NameScope.LOCAL);
             $tail.setUsed(Boolean.FALSE);
             $tail.setAccess(getDefaultAccessSpecifier(false,false,null));
+            $tail.setRecursive(false);
 
             List<APatternListTypePair> paramPatterns = $parameterTypeList.ptypes;
             if (paramPatterns == null)
@@ -1871,11 +1871,6 @@ type returns[PType type]
             params.add(new AVoidType(extractLexLocation($unit), true));
             $type = new AFunctionType(null, false, null, totalFuncType, params, $rng.type);
         }
-    | 'set' 'of' sub=type                       { $type = new ASetType(null, false, null, $sub.type, false, false); }
-    | 'seq' 'of' sub=type                       { $type = new ASeqSeqType(null, false, null, $sub.type, false); }
-    | 'seq1' 'of' sub=type                      { $type = new ASeq1SeqType(null, false, null, $sub.type, false); }
-    | 'map' from=type 'to' to=type              { $type = new AMapMapType(null, false, null, $from.type, $to.type, false); }
-    | 'inmap' from=type 'to' to=type            { $type = new AInMapMapType(null, false, null, $from.type, $to.type, false); }
     ;
 
 type0 returns[PType type]
@@ -1929,6 +1924,11 @@ typebase returns[PType type]
             $type = new ANamedInvariantType(loc, false, null, false, null, tname,
                                             new AUnresolvedType(loc, false, new ArrayList<PDefinition>(), tname));
         }
+    | 'set' 'of' sub=typebase                   { $type = new ASetType(null, false, null, $sub.type, false, false); }
+    | 'seq' 'of' sub=typebase                   { $type = new ASeqSeqType(null, false, null, $sub.type, false); }
+    | 'seq1' 'of' sub=typebase                  { $type = new ASeq1SeqType(null, false, null, $sub.type, false); }
+    | 'map' from=type 'to' to=typebase      { $type = new AMapMapType(null, false, null, $from.type, $to.type, false); }
+    | 'inmap' from=type 'to' to=typebase    { $type = new AInMapMapType(null, false, null, $from.type, $to.type, false); }
     | 'compose' IDENTIFIER 'of' fieldList 'end'
         {
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER));
@@ -2123,38 +2123,6 @@ expression returns[PExp exp]
         {
             $exp = $expr0.exp;
         }
-    | 'let' localDefinitionList 'in' body=expression
-        {
-            $exp = new ALetDefExp(null, $localDefinitionList.defs, $body.exp);
-        }
-    | 'if' test=expression 'then' th=expression elseIfExprOptList 'else' el=expression
-        {
-            $exp = new AIfExp(null, $test.exp, $th.exp, $elseIfExprOptList.elseifs, $el.exp);
-        }
-    | 'cases' cexp=expression ':' caseExprAltList ( ',' 'others' '->' oexp=expression )? 'end'
-        {
-            $exp = new ACasesExp(null, $cexp.exp, $caseExprAltList.alts, $oexp.exp);
-        }
-    | 'forall' multipleBindList '@' body=expression
-        {
-            $exp = new AForAllExp(null, $multipleBindList.bindings, $body.exp);
-        }
-    | 'exists' multipleBindList '@' body=expression
-        {
-            $exp = new AExistsExp(null, $multipleBindList.bindings, $body.exp);
-        }
-    | 'exists1' singleBind '@' body=expression
-        {
-            $exp = new AExists1Exp(null, $singleBind.binding, $body.exp, null);
-        }
-    | 'iota' singleBind '@' body=expression
-        {
-            $exp = new AIotaExp(null, $singleBind.binding, $body.exp);
-        }
-    | 'lambda' typeBindList '@' body=expression
-        {
-            $exp = new ALambdaExp(null, $typeBindList.bindings, $body.exp, null, null);
-        }
     ;
 
 elseIfExprOptList returns[List<AElseIfExp> elseifs]
@@ -2194,7 +2162,7 @@ patternList returns[List<PPattern> patterns]
     ;
 
 expr0 returns[PExp exp]
-    : e1=expr1 (o='<=>' e2=expr0)?
+    : e1=expr1 (('<=>')=>o='<=>' e2=expr0)?
         {
             if ($e2.exp == null)
                 $exp = $e1.exp;
@@ -2207,7 +2175,7 @@ expr0 returns[PExp exp]
     ;
 
 expr1 returns[PExp exp]
-    : e1=expr2 (o='=>' e2=expr1)?
+    : e1=expr2 (('=>')=>o='=>' e2=expr1)?
         {
             if ($e2.exp == null)
                 $exp = $e1.exp;
@@ -2220,7 +2188,7 @@ expr1 returns[PExp exp]
     ;
 
 expr2 returns[PExp exp]
-    : e1=expr3 (o='or' e2=expr2)?
+    : e1=expr3 (('or')=>o='or' e2=expr2)?
         {
             if ($e2.exp == null)
                 $exp = $e1.exp;
@@ -2233,7 +2201,7 @@ expr2 returns[PExp exp]
     ;
 
 expr3 returns[PExp exp]
-    : e1=expr4 (o='and' e2=expr3)?
+    : e1=expr4 (('and')=>o='and' e2=expr3)?
         {
             if ($e2.exp == null)
                 $exp = $e1.exp;
@@ -2261,7 +2229,7 @@ binOpRel returns[SBinaryExpBase op]
     ;
 
 expr4 returns[PExp exp]
-    : e1=expr5 (binOpRel e2=expr4)?
+    : e1=expr5 ((binOpRel)=>binOpRel e2=expr4)?
         {
             if ($e2.exp == null) {
                 $exp = $e1.exp;
@@ -2289,7 +2257,7 @@ binOpEval1 returns[SBinaryExpBase op]
     ;
 
 expr5 returns[PExp exp]
-    : e1=expr6 (binOpEval1 e2=expr5)?
+    : e1=expr6 ((binOpEval1)=>binOpEval1 e2=expr5)?
         {
             if ($e2.exp == null) {
                 $exp = $e1.exp;
@@ -2316,7 +2284,7 @@ binOpEval2 returns[SBinaryExpBase op]
     ;
 
 expr6 returns[PExp exp]
-    : e1=expr7 (binOpEval2 e2=expr6)?
+    : e1=expr7 ((binOpEval2)=>binOpEval2 e2=expr6)?
         {
             if ($e2.exp == null) {
                 $exp = $e1.exp;
@@ -2339,7 +2307,7 @@ binOpEval3 returns[SBinaryExpBase op]
     ;
 
 expr7 returns[PExp exp]
-    : e1=expr8 (binOpEval3 e2=expr7)?
+    : e1=expr8 ((binOpEval3)=>binOpEval3 e2=expr7)?
         {
             if ($e2.exp == null) {
                 $exp = $e1.exp;
@@ -2362,7 +2330,7 @@ binOpEval4 returns[SBinaryExpBase op]
     ;
 
 expr8 returns[PExp exp]
-    : e1=expr9 (binOpEval4 e2=expr8)?
+    : e1=expr9 ((binOpEval4)=>binOpEval4 e2=expr8)?
         {
             if ($e2.exp == null) {
                 $exp = $e1.exp;
@@ -2378,7 +2346,7 @@ expr8 returns[PExp exp]
     ;
 
 expr9 returns[PExp exp]
-    : e1=expr10 (o='comp' e2=expr9)?
+    : e1=expr10 (('comp')=>o='comp' e2=expr9)?
         {
             if ($e2.exp == null)
                 $exp = $e1.exp;
@@ -2391,7 +2359,7 @@ expr9 returns[PExp exp]
     ;
 
 expr10 returns[PExp exp]
-    : e1=expr11 (o='**' e2=expr10)?
+    : e1=expr11 (('**')=>o='**' e2=expr10)?
         {
             if ($e2.exp == null)
                 $exp = $e1.exp;
@@ -2436,6 +2404,34 @@ expr11 returns[PExp exp]
             PExp target = $operand.exp;
             unaryop.setExp(target);
             $exp = unaryop;
+        }
+    | 'if' test=expression 'then' th=expression elseIfExprOptList 'else' el=expression
+        {
+            $exp = new AIfExp(null, $test.exp, $th.exp, $elseIfExprOptList.elseifs, $el.exp);
+        }
+    | 'let' localDefinitionList 'in' body=expression
+        {
+            $exp = new ALetDefExp(null, $localDefinitionList.defs, $body.exp);
+        }
+    | 'forall' multipleBindList '@' body=expression
+        {
+            $exp = new AForAllExp(null, $multipleBindList.bindings, $body.exp);
+        }
+    | 'exists' multipleBindList '@' body=expression
+        {
+            $exp = new AExistsExp(null, $multipleBindList.bindings, $body.exp);
+        }
+    | 'exists1' singleBind '@' body=expression
+        {
+            $exp = new AExists1Exp(null, $singleBind.binding, $body.exp, null);
+        }
+    | 'iota' singleBind '@' body=expression
+        {
+            $exp = new AIotaExp(null, $singleBind.binding, $body.exp);
+        }
+    | 'lambda' typeBindList '@' body=expression
+        {
+            $exp = new ALambdaExp(null, $typeBindList.bindings, $body.exp, null, null);
         }
     | exprbase selectorOptList //( selector { selectors.add($selector.exp); } )*
         {
@@ -2588,6 +2584,10 @@ exprbase returns[PExp exp]
     | PREUNDER '(' func=expression ( ',' expr=expression { exps.add($expr.exp); } )* ')'
         {
             $exp = new APreExp(null, $func.exp, exps);
+        }
+    | 'cases' cexp=expression ':' caseExprAltList ( ',' 'others' '->' oexp=expression )? 'end'
+        {
+            $exp = new ACasesExp(null, $cexp.exp, $caseExprAltList.alts, $oexp.exp);
         }
     ;
 

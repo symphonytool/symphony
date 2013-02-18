@@ -26,6 +26,10 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -40,6 +44,9 @@ import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageCommunicato
 import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageContainer;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
+import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugConstants;
+import eu.compassresearch.ide.cml.interpreter_plugin.views.CmlEventHistoryView;
+import eu.compassresearch.ide.cml.interpreter_plugin.views.CmlEventOptionView;
 
 public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 
@@ -156,6 +163,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			handlers.put(CmlDbgpStatus.STOPPED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
 				@Override
 				public boolean handleMessage(CmlDbgStatusMessage message) {
+					updateDebuggerInfo(message.getInterpreterStatus());
 					return false;
 				}
 			} );
@@ -427,7 +435,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		CmlMessageCommunicator.sendMessage(requestOutputStream, message);
 	}
 
-	private void updateDebuggerInfo(InterpreterStatus status)
+	private void updateDebuggerInfo(final InterpreterStatus status)
 	{
 		//cmlThread = new CmlThread(this,status.getToplevelProcessInfo());
 		threads.clear();
@@ -436,6 +444,27 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			threads.add(new CmlThread(this,t));
 		}
 		//fireSuspendEvent(0);
+		
+		final List<String> trace = status.getToplevelProcessInfo().getVisibleTrace();
+		
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					CmlEventHistoryView view = (CmlEventHistoryView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(CmlDebugConstants.ID_CML_HISTORY_VIEW.toString());
+					view.getListViewer().setInput(trace);
+				} catch (PartInitException e) {
+					e.printStackTrace();
+				}
+				
+				if(status.hasErrors())
+					MessageDialog.openError(null, "Simulation Error", status.getErrors().get(0).getErrorMessage());
+			}
+		});
+		
+		
+		
+		
 		fireResumeEvent(0);
 	}
 
