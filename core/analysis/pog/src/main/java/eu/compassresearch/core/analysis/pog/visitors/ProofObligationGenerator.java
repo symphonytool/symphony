@@ -355,7 +355,7 @@ public class ProofObligationGenerator extends
      * Run the proof obligation generator. The POs are placed in the return
      * value but we may eventually want to switch them over to the registry
      * 
-     * @return - Returns CMLProofObligation list. This may need to change.
+     * @return - Returns ProofObligation list. This may need to change.
      */
     public ProofObligationList generatePOs() throws AnalysisException {
 	ProofObligationList obligations = new ProofObligationList();
