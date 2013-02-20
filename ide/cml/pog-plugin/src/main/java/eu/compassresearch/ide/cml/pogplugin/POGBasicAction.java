@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.pogplugin.actions;
+package eu.compassresearch.ide.cml.pogplugin;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -7,13 +7,11 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
@@ -45,19 +43,8 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 	public POGBasicAction() {
 	}
 
-	IResource extractSelection(ISelection sel) {
-		if (!(sel instanceof IStructuredSelection))
-			return null;
-		IStructuredSelection ss = (IStructuredSelection) sel;
-		Object element = ss.getFirstElement();
-		if (element instanceof IResource)
-			return (IResource) element;
-		if (!(element instanceof IAdaptable))
-			return null;
-		IAdaptable adaptable = (IAdaptable) element;
-		Object adapter = adaptable.getAdapter(IResource.class);
-		return (IResource) adapter;
-	}
+
+	
 
 	/**
 	 * The action has been activated. The argument of the method represents the
@@ -72,17 +59,28 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 			// IWorkbenchWindow window =
 			// PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
+			PogPluginUtility.getCurrentlySelectedProject();
+			
 			ISelection selection = window.getSelectionService().getSelection(
 					"org.overture.ide.ui.VdmExplorer");
 
 			if (selection.isEmpty()) {
-				popErrorMessage("No project selected selected.");
+				popErrorMessage("No project selected.");
 				return;
 			}
 
-			IResource res = extractSelection(selection);
-			IProject proj = (IProject) res;
 
+			IProject proj = PogPluginUtility.getCurrentlySelectedProject();
+			if (proj == null) {
+				popErrorMessage("No project selected.");
+				return;
+			}
+			
+			IWorkspace iw = proj.getWorkspace();
+			
+//			proj.	
+//			proj.getWorkspace().get
+			
 			// FileEditorInput fei = (FileEditorInput) edi.getEditorInput();
 			CmlSourceUnit csu = null;// CmlSourceUnit.getFromFileResource(fei.getFile());
 
