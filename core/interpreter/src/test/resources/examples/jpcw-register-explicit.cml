@@ -1,19 +1,19 @@
 /*  CML_{0} example from CML Definition 0 document v. 1.0 */
   types
-    public Byte = nat
-    inv n == (n <= 255)
+    public Byte = int
+    inv n == (n >= 0) and (n <= 255)
 
   functions
-   oflow : (int*int) -> bool
+   oflow : (Byte*Byte) -> bool
    oflow(i,j) == i+j > 255
 
-   uflow : (int*int) -> bool
+   uflow : (Byte*Byte) -> bool
    uflow(i,j) == i-j < 0
 
 
   channels
    init, overflow, underflow
-   read, load, add, sub : int
+   read, load, add, sub : Byte
 
   //chansets
   //I = {| init, overflow, underflow, read, load, add, sub |}
@@ -23,24 +23,24 @@ process RegisterProc =
  begin
 	
   state 
-  reg : int	
+  reg : Byte	
 
   operations  
    INIT : () ==> ()
    INIT() == reg := 0
 
-   LOAD : int ==> ()
+   LOAD : Byte ==> ()
    LOAD(i) == reg := i
    
-   READ: () ==>  int
+   READ: () ==>  Byte
    READ() == return reg
 
-   ADD: int ==> ()
+   ADD: Byte ==> ()
    ADD(i) == reg := reg + i
    //pre not oflow(reg, i)
    //post reg = reg~ + i
 
-   SUB: int ==> ()
+   SUB: Byte ==> ()
    SUB(i) == reg := reg - i
    
    //frame wr reg : Byte
@@ -52,7 +52,7 @@ process RegisterProc =
    REG = 
      (load?i -> LOAD(i) ; REG)
      []
-     (dcl j: int @ j := READ(); read!j -> REG)
+     (dcl j: Byte @ j := READ(); read!j -> REG)
      [] 
      (add?i -> ( ([oflow(reg,i)] & overflow -> INIT(); REG)
        	     	 [] 

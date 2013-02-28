@@ -9,12 +9,12 @@ import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExternalDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
+import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.typechecker.NameScope;
@@ -110,7 +110,7 @@ class CmlAssistant {
 		injectFindMemberNameBaseCase(new OperationsDefinitionNameMemberStrategy());
 		injectFindMemberNameBaseCase(new ExternalDefinitionNameMemberStrategy());
 		injectFindMemberNameBaseCase(new AssignmentDefinitionNameMemberStrategy());
-		injectFindMemberNameBaseCase(new ExplicitFunctionDefinitionNameMemberStrategy());
+		injectFindMemberNameBaseCase(new AStateDefinitionNameMemberStrategy());
 	}
 
 
@@ -145,29 +145,6 @@ class CmlAssistant {
 
 		return strategy.findMemberName(t, name, more);
 
-	}
-	
-	class ExplicitFunctionDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
-
-		@Override
-		public Class<?> getType() {
-			return AExplicitFunctionDefinition.class;
-		}
-
-		@Override
-		public PDefinition findMemberName(PDefinition def,
-				LexIdentifierToken name, Object... more) {
-
-			AExplicitFunctionDefinition funDef = (AExplicitFunctionDefinition)def;
-			LinkedList<PDefinition> params = funDef.getParamDefinitionList();
-			for(PDefinition pdef : params) {
-				LexNameToken n = new LexNameToken("", name);	
-				if (LexNameTokenAssistent.isEqual(pdef.getName(), n))
-					return pdef;				
-			}
-			return null;
-		}
-		
 	}
 
 	class AssignmentDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
@@ -206,6 +183,28 @@ class CmlAssistant {
 			return def;
 		}
 
+	}
+	
+	class AStateDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
+
+		@Override
+		public Class<?> getType() {
+			return AStateDefinition.class;
+		}
+
+		@Override
+		public PDefinition findMemberName(PDefinition def,
+				LexIdentifierToken name, Object... more) {
+
+			AStateDefinition stateDef = (AStateDefinition)def;
+			
+			for(PDefinition d : stateDef.getStateDefs()) {
+				if (LexNameTokenAssistent.isEqual(d.getName(), name)) return d;
+			}
+			
+			return null;
+		}
+		
 	}
 
 	class ExternalDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
@@ -466,8 +465,8 @@ class CmlAssistant {
 				return handleNamedInvariantType(ANamedInvariantType.class.cast(invType), name, more);
 
 			return null;
-		}
 
+		}
 	}
 
 

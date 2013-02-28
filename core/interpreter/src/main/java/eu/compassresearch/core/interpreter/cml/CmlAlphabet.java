@@ -369,6 +369,17 @@ public class CmlAlphabet extends Value {
 		return "CmlAlphabetValue";
 	}
 
+	public CmlAlphabet expandAlphabet()
+	{
+		Set<CmlEvent> eventSet = new HashSet<CmlEvent>();
+		
+		for(ObservableEvent ev : getObservableEvents())
+			eventSet.addAll(ev.expand());
+		
+		return new CmlAlphabet(eventSet);
+		
+	}
+	
 	@Override
 	public Object clone() {
 

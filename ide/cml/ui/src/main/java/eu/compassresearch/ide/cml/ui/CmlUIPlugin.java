@@ -18,6 +18,8 @@
  *******************************************************************************/
 package eu.compassresearch.ide.cml.ui;
 
+import org.eclipse.core.internal.runtime.Log;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -28,6 +30,8 @@ public class CmlUIPlugin extends AbstractUIPlugin {
 	private static final boolean DEBUG = true;
 	private static CmlUIPlugin plugin;
 
+	public static synchronized ILog getLogger() { return plugin.getLog(); }
+	
 	public BundleContext currentContext;
 
 	@Override
@@ -35,7 +39,6 @@ public class CmlUIPlugin extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 		this.currentContext = context;
-
 	}
 
 	/*

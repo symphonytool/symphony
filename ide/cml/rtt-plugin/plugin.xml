@@ -12,7 +12,7 @@
         point="org.eclipse.ui.newWizards">
         <wizard 
         	id="eu.compassresearch.ide.cml.rttplugin.RttMbtComponentWizard"
-        	name="RTT-MBT component"
+        	name="RTT-MBT Project"
         	category="compass_eu.compassresearch.ide.cml.ui.category"
 	        icon="icons/rtt-mbt.png"
         	class="eu.compassresearch.ide.cml.rttplugin.RttMbtComponentWizard"
@@ -50,14 +50,18 @@
         	name="COMPASS"/>
   </extension>
   
-  <!-- Import Model -->
-  <extension point="org.eclipse.ui.commands">
-    <command
-      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
-      id="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
-      name="Initialise RTT-MBT component"
-    />
+  <!-- pop up mennu property tester -->
+  <extension point="org.eclipse.core.expressions.propertyTesters">
+    <propertyTester
+	  id="eu.compassresearch.ide.cml.rttplugin.rttPropertyTester"
+      type="java.lang.Object"
+      namespace="eu.compassresearch.ide.cml.rttplugin"
+      properties="isRttMbtProject, isTestGenerationContext, isRttTestprocedure"
+      class="eu.compassresearch.ide.cml.rttplugin.RttMbtPropertyTester">
+    </propertyTester>
   </extension>
+
+  <!-- Import Model -->
   <extension point="org.eclipse.ui.menus">
     <menuContribution
       locationURI="popup:org.overture.ide.ui.VdmExplorer">
@@ -65,9 +69,21 @@
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
         label="Import Model"
         tooltip="Initialise RTT-MBT component"
-        icon="icons/mbt_import_model.png"
-      />
+        icon="icons/mbt_import_model.png">
+		<enabledWhen>
+			<with variable="selection">
+        		<test property="eu.compassresearch.ide.cml.rttplugin.isRttMbtProject"/>
+        	</with>
+		</enabledWhen>
+      </command>
     </menuContribution>
+  </extension>
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
+      name="Initialise RTT-MBT component">
+    </command>
   </extension>
 
   <!-- Generate Test Procedure -->
@@ -189,6 +205,88 @@
       />
     </menuContribution>
   </extension>
+
+  <!-- Replay -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtReplayTestprocedure"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtReplayTestprocedure"
+      name="Replay Test"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtReplayTestprocedure"
+        label="Replay Test"
+        tooltip="Generate test procedure documentation"
+        icon="icons/mbt_replay.png"
+      />
+    </menuContribution>
+  </extension>
+
+  <!-- push directory/file -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtSendFile"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtSendFile"
+      name="Push to Server"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtSendFile"
+        label="Push to server"
+        tooltip="Add Directory/File to RTT-MBT Server Work Area"
+        icon="icons/back.png"
+      />
+    </menuContribution>
+  </extension>
+
+  <!-- retrieve directory -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtRetrieveDirectory"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtRetrieveDirectory"
+      name="Pull from Server"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtRetrieveDirectory"
+        label="Pull from Server"
+        tooltip="Retrieve Directory/File from RTT-MBT Server Work Area"
+        icon="icons/forward.png"
+      />
+    </menuContribution>
+  </extension>
+
+  <!-- Add Project -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtAddProject"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtAddProject"
+      name="Add component to Server"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtAddProject"
+        label="Add Component to Server"
+        tooltip="Add an existing RTT-MBT Component to the RTT-MBT Server Work Area"
+        icon="icons/add.png"
+      />
+    </menuContribution>
+  </extension>
+
+  <!-- test generation context configuration -->
   <extension point="org.eclipse.ui.editors">
     <editor
         id="eu.compassresearch.ide.cml.rttplugin.configeditor"
@@ -200,16 +298,48 @@
         default="true"
         filenames="configuration.csv"/>
   </extension>
+
+  <!-- sigmal map configuration -->
   <extension point="org.eclipse.ui.editors">
     <editor
         id="eu.compassresearch.ide.cml.rttplugin.signalmapeditor"
-        extensions="configuration"
-        name="Advanced Configuration"
+        extensions="signalmapping"
+        name="Signal Configuration"
         icon="icons/configure.png"
         contributorClass="eu.compassresearch.ide.cml.rttplugin.RttMbtSignalmapEditorContributor"
         class="eu.compassresearch.ide.cml.rttplugin.RttMbtSignalmapEditor"
         default="true"
         filenames="signalmap.csv"/>
+  </extension>
+
+  <!-- Requirements tracing -->
+  <extension point="org.eclipse.ui.editors">
+    <editor
+        id="eu.compassresearch.ide.cml.rttplugin.reqtracing"
+        extensions="requirementsCoverage"
+        name="Coverage"
+        icon="icons/configure.png"
+        contributorClass="eu.compassresearch.ide.cml.rttplugin.RttMbtRequirementsCoverageContributor"
+        class="eu.compassresearch.ide.cml.rttplugin.RttMbtRequirementsCoverage"
+        default="true"
+        filenames="overall_coverage.csv"/>
+  </extension>
+
+  <!-- RTT-MBT preferences page -->
+  <extension
+        point="org.eclipse.ui.preferencePages">
+     <page
+           class="eu.compassresearch.ide.cml.rttplugin.RttMbtPreferencesPage"
+           id="eu.compassresearch.ide.cml.rttplugin.RttMbtPreferencesPage"
+           name="RTT-MBT"
+           category="RTT-MBT">
+     </page>
+  </extension>
+  <extension
+        point="org.eclipse.core.runtime.preferences">
+     <initializer
+           class="eu.compassresearch.ide.cml.rttplugin.PreferenceInitializer">
+     </initializer>
   </extension>
 
 </plugin>

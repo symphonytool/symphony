@@ -11,7 +11,7 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
-import eu.compassresearch.core.interpreter.eval.CmlEvaluator;
+import eu.compassresearch.core.interpreter.eval.CmlValueEvaluator;
 
 public class CmlActionAssistant {
 
@@ -39,7 +39,7 @@ public class CmlActionAssistant {
 	
 	public static List<ANonDeterministicAltStatementAction> findAllTrueAlts(
 			List<ANonDeterministicAltStatementAction> alts,
-			Context question,CmlEvaluator cmlEvaluator) throws AnalysisException
+			Context question,CmlValueEvaluator cmlEvaluator) throws AnalysisException
 	{
 		List<ANonDeterministicAltStatementAction> availableAlts = new LinkedList<ANonDeterministicAltStatementAction>();
 		

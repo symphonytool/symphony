@@ -1,5 +1,8 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -81,6 +84,11 @@ public class SynchronizedCommunicationEvent extends ObservableEvent {
 	public ObservableEvent meet(ObservableEvent other) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public List<ObservableEvent> expand() {
+		return Arrays.asList((ObservableEvent)this);
 	}
 
 }

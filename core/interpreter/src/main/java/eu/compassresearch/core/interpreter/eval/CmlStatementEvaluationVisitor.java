@@ -28,6 +28,7 @@ import eu.compassresearch.ast.actions.ABlockStatementAction;
 import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AIfStatementAction;
+import eu.compassresearch.ast.actions.ALetStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
@@ -55,7 +56,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		Context nameContext = (Context)question.locate(callReturnName);
 		
 		if(node.getExp() != null)
-			nameContext.put(callReturnName, node.getExp().apply(cmlEvaluator,question));
+			nameContext.put(callReturnName, node.getExp().apply(cmlValueEvaluator,question));
 		else
 			nameContext.put(callReturnName,new VoidValue());
 		
@@ -76,15 +77,11 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		if(node.getDeclareStatement() != null)
 		{
 			for(PDefinition def : node.getDeclareStatement().getAssignmentDefs())
-					def.apply(cmlEvaluator,blockContext);
+			{
+				NameValuePair nvp = def.apply(cmlDefEvaluator,question).get(0);
+				blockContext.put(nvp.name, nvp.value.getUpdatable(null));
+			}
 		}
-		
-		//FIXME this should be done differently. The whole CmlEvalutaor structure is bad
-		for(Entry<LexNameToken,Value> p : blockContext.entrySet())
-		{
-			blockContext.put(p.getKey(),p.getValue().getUpdatable(null));
-		}
-		
 		
 		pushNext(node.getAction(), blockContext); 
 		return CmlBehaviourSignal.EXEC_SUCCESS;
@@ -97,7 +94,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 
 		try
 		{
-    		if (node.getIfExp().apply(cmlEvaluator,question).boolValue(question))
+    		if (node.getIfExp().apply(cmlValueEvaluator,question).boolValue(question))
     		{
     			pushNext(node.getThenStm(), question);
     			
@@ -108,7 +105,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
     			boolean foundElseIf = false;
     			for (AElseIfStatementAction elseif: node.getElseIf())
     			{
-    				if(elseif.getElseIf().apply(cmlEvaluator,question).boolValue(question))
+    				if(elseif.getElseIf().apply(cmlValueEvaluator,question).boolValue(question))
     				{
     					pushNext(elseif.getThenStm(), question);
     					foundElseIf = true;
@@ -155,7 +152,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		//evaluate the arguments
 		for (PExp arg: node.getArgs())
 		{
-			argValues.add(arg.apply(cmlEvaluator,question));
+			argValues.add(arg.apply(cmlValueEvaluator,question));
 		}
 		
 		// Note args cannot be Updateable, so we convert them here. This means
@@ -230,12 +227,13 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			ASingleGeneralAssignmentStatementAction node, Context question)
 					throws AnalysisException {
 //		question.putNew(new NameValuePair(new LexNameToken("", new LexIdentifierToken("a", false, new LexLocation())), new IntegerValue(2)));
-		Value expValue = node.getExpression().apply(cmlEvaluator,question);
+		Value expValue = node.getExpression().apply(cmlValueEvaluator,question);
 		
 		//TODO Change this to deal with it in general
-		LexNameToken stateDesignatorName = CmlActionAssistant.extractNameFromStateDesignator(node.getStateDesignator(),question);
+		//LexNameToken stateDesignatorName = CmlActionAssistant.extractNameFromStateDesignator(node.getStateDesignator(),question);
 
-		Value oldVal = question.check(stateDesignatorName);
+		Value oldVal = node.getStateDesignator().apply(cmlValueEvaluator,question);
+		
 		oldVal.set(node.getLocation(), expValue, question);
 		
 		//System.out.println(stateDesignatorName + " = " + expValue);
@@ -255,7 +253,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			throws AnalysisException {
 
 		List<ANonDeterministicAltStatementAction> availableAlts = CmlActionAssistant.findAllTrueAlts(
-				node.getAlternatives(),question,cmlEvaluator);
+				node.getAlternatives(),question,cmlValueEvaluator);
 		//if we got here we already now that the must at least be one available action
 		//so this should pose no risk of exception
 		pushNext(availableAlts.get(rnd.nextInt(availableAlts.size())).getAction(),question);
@@ -273,7 +271,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			throws AnalysisException {
 
 		List<ANonDeterministicAltStatementAction> availableAlts = CmlActionAssistant.findAllTrueAlts(
-				node.getAlternatives(),question,cmlEvaluator);
+				node.getAlternatives(),question,cmlValueEvaluator);
 		
 		
 		if(availableAlts.size() > 0)
@@ -300,7 +298,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			AWhileStatementAction node, Context question)
 			throws AnalysisException {
 
-		if(node.getCondition().apply(cmlEvaluator,question).boolValue(question))
+		if(node.getCondition().apply(cmlValueEvaluator,question).boolValue(question))
 		{
 			//first we push the while node so that we get back to this point
 			pushNext(node, question);
@@ -345,4 +343,19 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
+	
+	@Override
+	public CmlBehaviourSignal caseALetStatementAction(ALetStatementAction node,
+			Context question) throws AnalysisException {
+	
+		Context letContext = CmlContextFactory.newContext(node.getLocation(), "let action context", question);
+		
+		for(PDefinition localDef :node.getLocalDefinitions())
+			localDef.apply(cmlDefEvaluator,letContext);
+		
+		
+		pushNext(node.getAction(), letContext);
+
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
 }

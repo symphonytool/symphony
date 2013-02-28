@@ -22,7 +22,8 @@ public class AbstractValueInterpreter {
 	
 	public static boolean isValuePrecise(Value value)
 	{
-		return value != null && !isAnyValue(value) && !(value instanceof SetValue);
+		//TODO there should be a range/interval value
+		return value != null && !isAnyValue(value);// && !(value instanceof SetValue);
 	}
 	
 	public static boolean isMorePrecise(Value val1, Value val2)

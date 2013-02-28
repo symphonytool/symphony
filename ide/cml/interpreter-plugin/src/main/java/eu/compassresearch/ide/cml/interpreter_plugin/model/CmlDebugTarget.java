@@ -26,6 +26,7 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -162,6 +163,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			handlers.put(CmlDbgpStatus.STOPPED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
 				@Override
 				public boolean handleMessage(CmlDbgStatusMessage message) {
+					updateDebuggerInfo(message.getInterpreterStatus());
 					return false;
 				}
 			} );
@@ -433,7 +435,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		CmlMessageCommunicator.sendMessage(requestOutputStream, message);
 	}
 
-	private void updateDebuggerInfo(InterpreterStatus status)
+	private void updateDebuggerInfo(final InterpreterStatus status)
 	{
 		//cmlThread = new CmlThread(this,status.getToplevelProcessInfo());
 		threads.clear();
@@ -454,8 +456,13 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 				} catch (PartInitException e) {
 					e.printStackTrace();
 				}
+				
+				if(status.hasErrors())
+					MessageDialog.openError(null, "Simulation Error", status.getErrors().get(0).getErrorMessage());
 			}
 		});
+		
+		
 		
 		
 		fireResumeEvent(0);

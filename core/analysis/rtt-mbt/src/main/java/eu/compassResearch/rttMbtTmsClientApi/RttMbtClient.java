@@ -171,6 +171,9 @@ public class RttMbtClient {
 			} else if ((files[i].isDirectory()) && (recursive)) {
 				folders.add(directory + "/" + files[i].getName());
 			}
+			if (!recursive) {
+				setProgress(IRttMbtProgressBar.Tasks.Global, (i * 100)/files.length);
+			}
 		}
 		for (int i = 0; i < folders.size(); i++) {
 			String subdirname = removeLocalWorkspace(folders.get(i));
@@ -256,6 +259,7 @@ public class RttMbtClient {
 		for (int idx = 0; idx < filenames.size(); idx++) {
 			String filename = removeLocalWorkspace(directory) + "/" + filenames.get(idx);
 			downloadFile(filename);
+			setProgress(IRttMbtProgressBar.Tasks.Global, (idx * 100)/filenames.size());
 		}
 		
 		return success;
@@ -609,6 +613,67 @@ public class RttMbtClient {
 		return success;
 	}
 	
+	public Boolean replayTestProcedure(String abstractTestProc) {
+		Boolean success = true;
+
+		// push necessary files to cache:
+		// all input files for replay should already exist on the server
+
+		// replay-command
+		System.out.println("replay test execution " + abstractTestProc + "...");
+		jsonReplayTestCommand cmd = new jsonReplayTestCommand(this);
+		cmd.setGuiPorts(true);
+		cmd.setTestProcName("TestProcedures/" + abstractTestProc);
+		cmd.executeCommand();
+
+		// retrieve results
+		if (!cmd.executedSuccessfully()) {
+			System.err.println("[FAIL]: generatig RTT_TestProcedures/" + abstractTestProc + " failed!");
+			// download debugging data to local directory
+			// - error.log
+			// - rtt-mbt-tms.out
+			// - rtt-mbt-tms.err
+			String dirname = getProjectName() + File.separator;
+			downloadFile(dirname + "error.log");
+			downloadFile(dirname + "rtt-mbt-tms-execution.err");
+			downloadFile(dirname + "rtt-mbt-tms-execution.out");
+			// - generation.log
+			// - error.log
+			dirname = getProjectName() + File.separator
+					+ "TestProcedures" + File.separator
+					+ abstractTestProc + File.separator
+					+ "log" + File.separator;
+			downloadFile(dirname + "generation.log");
+			downloadFile(dirname + "errors.log");
+			return false;
+		}
+
+		// download generated files to local directory:
+		String dirname;
+		// Testprocedures/<TP>/log/configuration.csv
+		dirname = getProjectName() + File.separator
+				+ "TestProcedures" + File.separator
+				+ abstractTestProc + File.separator
+				+ "conf" + File.separator;;
+		downloadFile(dirname + "configuration.csv");
+		// Testprocedures/<TP>/log/covered_testcases.csv
+		// Testprocedures/<TP>/log/missed_goals.csv
+		dirname = getProjectName() + File.separator
+				+ "TestProcedures" + File.separator
+				+ abstractTestProc + File.separator
+				+ "log" + File.separator;
+		downloadFile(dirname + "covered_testcases.csv");
+		downloadFile(dirname + "missed_goals.csv");
+		// RTT_Testprocedures/<TP>/testdata/replay.log
+		dirname = getProjectName() + File.separator
+				+ "RTT_TestProcedures" + File.separator
+				+ abstractTestProc + File.separator
+				+ "testdata" + File.separator;
+		downloadFile(dirname + "replay.log");
+		
+		return success;
+	}
+
 	public Boolean generateSimulation(String abstractTestProc) {
 		Boolean success = true;
 
@@ -832,6 +897,7 @@ public class RttMbtClient {
 			downloadFile(dirName + "RTT_TestProcedures_" + concreteTestProc + "_testreport.pdf");
 			downloadFile(dirName + "signals.dat");
 			downloadFile(dirName + "ALL-TC-COV.csv");
+			downloadFile(dirName + "map_tc2rts.csv");
 		}
 
 		// return result
@@ -856,6 +922,14 @@ public class RttMbtClient {
 		} else {
 			//System.out.println("workspace '" + workspace + "' is no prefix of '" + filename + "'");
 			return filename;
+		}
+	}
+	
+	public String toUnixPath(String path) {
+		if (File.pathSeparatorChar != '/') {
+			return path.replace(File.separatorChar, '/');
+		} else {
+			return path;
 		}
 	}
 	
