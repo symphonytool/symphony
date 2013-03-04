@@ -1746,6 +1746,14 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		CmlTypeCheckInfo functionBodyEnv = (CmlTypeCheckInfo)newQuestion.newScope(current, funDef);
 
+		// Take product types out of the product one level
+		List<PType> flattenParamTypes = new LinkedList<PType>();
+		for(PType t : paramTypes) {
+			if (t instanceof AProductType)
+				flattenParamTypes.addAll( ((AProductType)t).getTypes());
+			else
+				flattenParamTypes.add(t);
+		}
 
 		// add formal arguments to the environment
 		int i = 0;
@@ -1756,9 +1764,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				funDef.setType(issueHandler.addTypeError(p, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+p)));
 				return functionBodyEnv;
 			}
+
 			for(PDefinition def : patternType.getDefinitions()) {
 				functionBodyEnv.addVariable(def.getName(), def);
-				def.setType(paramTypes.get(i));
+				def.setType(flattenParamTypes.get(i));
 			}
 
 			i++;
