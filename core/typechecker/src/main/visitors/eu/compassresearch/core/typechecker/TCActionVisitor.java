@@ -1047,7 +1047,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				localEnv.addVariable(def.getName(),def);
 			}
 			
-			PType actionType = action.apply(parentChecker,question);
+			PType actionType = action.apply(parentChecker,localEnv);
 			if (!TCDeclAndDefVisitor.successfulType(actionType)) {
 				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+node)));
 				return node.getType();
@@ -1777,7 +1777,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				repActionEnv.addVariable(def.getName(),def);
 		}
 
-		PType repActionType = repAction.apply(parentChecker,question);
+		PType repActionType = repAction.apply(parentChecker,repActionEnv);
 		if (!TCDeclAndDefVisitor.successfulType(repActionType))
 		{
 			node.setType(issueHandler.addTypeError(repAction, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+repAction)));
@@ -2072,6 +2072,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 						theType = pType.getTypes().get(paramIndex);
 						paramIndex++;
 					}
+					else
+						theType = type.getType();
 					ALocalDefinition chanDef = AstFactory.newALocalDefinition(commPattern.getLocation(), id.getName(), NameScope.LOCAL, theType);
 					cmlEnv.addVariable(chanDef.getName(),chanDef);
 
@@ -2136,10 +2138,15 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				}
 
 				AChannelType cType = (AChannelType)type;
-
+				
 				if (cType.getType() instanceof AProductType)
 				{
+					
 					AProductType pType = (AProductType)cType.getType();
+					if (paramIndex > pType.getTypes().size()) {
+						node.setType(issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(pType.getTypes().size()+"",""+paramIndex)));
+						return node.getType();
+					}
 					thisType = pType.getTypes().get(paramIndex);
 					paramIndex++;
 				}

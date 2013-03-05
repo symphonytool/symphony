@@ -160,6 +160,7 @@ type {-> package='eu.compassresearch.ast.types'}
     =   {statement} // marker that a statement is typed ok
     |   {process} // marker that a process is typed ok
     |   {error} // marker that type of a subtree has failed
+    |   {bind}// market for a bind type subtree
     |   {processParagraph} // marker stipulating process paragraph is typed ok
     |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
     |   {channelsParagraph} // marker stipulating a chanset paragraph is typed ok

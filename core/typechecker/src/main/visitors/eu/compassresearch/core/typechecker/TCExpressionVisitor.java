@@ -67,6 +67,7 @@ import eu.compassresearch.ast.expressions.ASubVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.ATupleSelectExp;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
+import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.patterns.ARenamePair;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AChansetType;
@@ -308,47 +309,104 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		for (PMultipleBind mbnd : bindings) {
 			PType mbndType = mbnd.apply(parent, question);
 			if (!TCDeclAndDefVisitor.successfulType(mbndType)) {
-				node.setType(issueHandler.addTypeError(node,
+				node.setType(issueHandler.addTypeError(mbnd,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 						.customizeMessage(node + "")));
 				return node.getType();
 			}
 		}
 
-		PType predicateType = predicate.apply(parent, compScope);
-		if (!TCDeclAndDefVisitor.successfulType(predicateType)) {
-			node.setType(issueHandler.addTypeError(predicateType,
-					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-					.customizeMessage("" + predicate)));
-			return node.getType();
+		if (predicate != null) {
+			PType predicateType = predicate.apply(parent, compScope);
+			if (!TCDeclAndDefVisitor.successfulType(predicateType)) {
+				node.setType(issueHandler.addTypeError(predicateType,
+						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+						.customizeMessage("" + predicate)));
+				return node.getType();
+			}
 		}
-
 		node.setType(new AVarsetExpressionType(node.getLocation(), true));
-		return super.caseAFatCompVarsetExpression(node, question);
+		return node.getType();
 	}
 
 	@Override
 	public PType caseAUnionVOpVarsetExpression(AUnionVOpVarsetExpression node,
 			TypeCheckInfo question) throws AnalysisException {
-		return super.caseAUnionVOpVarsetExpression(node, question);
+
+		PVarsetExpression left = node.getLeft();
+		PVarsetExpression right = node.getRight();
+
+		PType leftType  = left.apply(parent,question);
+		if (!TCDeclAndDefVisitor.successfulType(leftType)) {
+			node.setType(issueHandler.addTypeError(left,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+left)));
+			return node.getType();
+		}
+
+
+		PType rightType = right.apply(parent,question);
+		if (!TCDeclAndDefVisitor.successfulType(rightType)) {
+			node.setType(issueHandler.addTypeError(right,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+right)));
+			return node.getType();
+		}
+
+
+		node.setType(new AChannelType());
+		return node.getType();
 	}
 
 	@Override
 	public PType caseAInterVOpVarsetExpression(AInterVOpVarsetExpression node,
 			TypeCheckInfo question) throws AnalysisException {
-		return super.caseAInterVOpVarsetExpression(node, question);
+		PVarsetExpression left = node.getLeft();
+		PVarsetExpression right = node.getRight();
+
+		PType leftType  = left.apply(parent,question);
+		if (!TCDeclAndDefVisitor.successfulType(leftType)) {
+			node.setType(issueHandler.addTypeError(left,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+left)));
+			return node.getType();
+		}
+
+
+		PType rightType = right.apply(parent,question);
+		if (!TCDeclAndDefVisitor.successfulType(rightType)) {
+			node.setType(issueHandler.addTypeError(right,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+right)));
+			return node.getType();
+		}
+
+
+		node.setType(new AChannelType());
+		return node.getType();
 	}
 
 	@Override
 	public PType caseASubVOpVarsetExpression(ASubVOpVarsetExpression node,
 			TypeCheckInfo question) throws AnalysisException {
-		return super.caseASubVOpVarsetExpression(node, question);
+		PVarsetExpression left = node.getLeft();
+		PVarsetExpression right = node.getRight();
+
+		PType leftType  = left.apply(parent,question);
+		if (!TCDeclAndDefVisitor.successfulType(leftType)) {
+			node.setType(issueHandler.addTypeError(left,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+left)));
+			return node.getType();
+		}
+
+
+		PType rightType = right.apply(parent,question);
+		if (!TCDeclAndDefVisitor.successfulType(rightType)) {
+			node.setType(issueHandler.addTypeError(right,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+right)));
+			return node.getType();
+		}
+
+
+		node.setType(new AChannelType());
+		return node.getType();
 	}
 
 	@Override
 	public PType caseANilExp(ANilExp node, TypeCheckInfo question)
 			throws AnalysisException {
-		return node.getType();
+		
+		return AstFactory.newAUnknownType(node.getLocation());
 	}
 
 	@Override

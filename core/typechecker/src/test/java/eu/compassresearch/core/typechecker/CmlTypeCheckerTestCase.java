@@ -786,7 +786,15 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "process L = begin operations A:int*int*int ==> bool A(a,b,c) == o(0);return (a+b=c) @ A(1,mk_(0,2)) end",false,true,false, new String[0]);
 		
 		addTestProgram(testData, "process L = begin state k : int operations K:int*int ==> int K(a,b) == for all i in set {1,2,3} do k := k + o @ Skip end", false, true, false, new String[0]);
+		
+		addTestProgram(testData, "process L = begin state l : int @ || i in set {1,2,3} @ [{ }] l:=i end",false, true, true, new String[0]);
+		
+		addTestProgram(testData, "process O = begin state o : int @ for all i in set {1,2,3} do o := o + i end", false, true, true, new String[0]);
 
+		addTestProgram(testData, "process M = begin @ Skip end process L = begin @ Stop end process K = || i in set {1,2,3} @ [{ }] (M [| {| inp.k | k in set {5,6,7} |} union {| out.k | k in set {5,6,7} |} |] L)",false, true,true,new String[0]);
+		
+		addTestProgram(testData, "channels out: nat1 process S1 = || k in set {1,2,3} @ [{ }] begin @ out!k -> Skip end", false, true, true,new String[0]);
+		
 		return testData;
 	}
 

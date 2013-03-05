@@ -1765,6 +1765,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				return functionBodyEnv;
 			}
 
+			if (i > flattenParamTypes.size()) {
+				funDef.setType(issueHandler.addTypeError(funDef, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(""+i,flattenParamTypes.size()+"")));
+				return functionBodyEnv;
+			}
+			
 			for(PDefinition def : patternType.getDefinitions()) {
 				functionBodyEnv.addVariable(def.getName(), def);
 				def.setType(flattenParamTypes.get(i));
