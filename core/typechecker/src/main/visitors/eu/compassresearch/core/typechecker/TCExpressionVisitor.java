@@ -588,19 +588,45 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	public PType caseAEnumVarsetExpression(AEnumVarsetExpression node,
 			TypeCheckInfo question) throws AnalysisException {
 
+		PType result = AstFactory.newAUnknownType(node.getLocation());
+		
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null) {
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
+			return node.getType();
+		}
+		
 		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
-		List<PDefinition> defs = new LinkedList<PDefinition>();
-		for (LexIdentifierToken id : ids) {
-			LexNameToken idName = new LexNameToken("", id);
-			ALocalDefinition idDef = AstFactory.newALocalDefinition(
-					node.getLocation(), idName, NameScope.LOCAL,
-					AstFactory.newAUnknownType(node.getLocation()));
-			defs.add(idDef);
+		LinkedList<PDefinition> defs = new LinkedList<PDefinition>();
+		boolean seenChannel = false;
+		boolean seenState = false;
+		for(LexIdentifierToken id : ids ) {
+			LexNameToken nameid = new LexNameToken("",id);
+			PDefinition def = cmlEnv.lookup(nameid, PDefinition.class);
+			if (def == null)  { def = cmlEnv.lookupChannel(id); seenChannel = true; } else { seenState = true; }
+			if (def == null) {
+				node.setType(issueHandler.addTypeError(id,TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(id+"")));
+				return node.getType();
+			}
+			defs.add(def);
 		}
 
-		AChannelType result = new AChannelType();
-		result.setDefinitions(defs);
-		return result;
+		if (seenChannel && seenState) {
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.MIXING_STATE_AND_CHANNEL_IN_SET.customizeMessage(""+node)));
+			return node.getType();
+		}
+		
+		if (seenChannel) {
+			result = new AChansetType(node.getLocation(),true);
+		}
+		
+		if (seenState) {
+			result = new ANamesetsType(node.getLocation(),true);
+		}
+		result.setDefinitions(new LinkedList<PDefinition>());
+		result.getDefinitions().addAll(defs);
+		node.setType(result);
+		return node.getType();
 	}
 
 	@Override

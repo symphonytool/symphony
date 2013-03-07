@@ -19,7 +19,9 @@ public enum TypeErrorMessages {
 			INCOMPATIBLE_TYPE("Expected an entity of type %s but %s was found."),
 
 			EXPECTED_A_CHANNEL("Expected entity \"%s\" to be a channel. "),
-
+			
+			EXPECTED_A_NAMESET("Expected a name set but %s was found."),
+			
 			EXPECTED_SUBTYPE_RELATION("%s is not a sub type of %s."),
 
 			MISSING_CONSTRUCTOR("No constructor found for class %s and arguments %s"),

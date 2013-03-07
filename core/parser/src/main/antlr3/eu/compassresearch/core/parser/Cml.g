@@ -1806,8 +1806,10 @@ opType returns[PType type]
 			if (domType instanceof AProductType) {
 				AProductType apt = (AProductType)domType;
 				for(PType t : apt.getTypes()) typeList.add(t);
-			}else
-                typeList.add(domType);
+			}else {
+				if (!(domType instanceof AVoidType))  
+                   typeList.add(domType);
+             }
             $type = new AOperationType(loc, false, null, typeList, rngType);
         }
     ;

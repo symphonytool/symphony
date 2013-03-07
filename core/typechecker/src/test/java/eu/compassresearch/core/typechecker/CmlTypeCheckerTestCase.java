@@ -792,8 +792,26 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "process O = begin state o : int @ for all i in set {1,2,3} do o := o + i end", false, true, true, new String[0]);
 
 		addTestProgram(testData, "process M = begin @ Skip end process L = begin @ Stop end process K = || i in set {1,2,3} @ [{ }] (M [| {| inp.k | k in set {5,6,7} |} union {| out.k | k in set {5,6,7} |} |] L)",false, true,true,new String[0]);
-		
+		// 194
 		addTestProgram(testData, "channels out: nat1 process S1 = || k in set {1,2,3} @ [{ }] begin @ out!k -> Skip end", false, true, true,new String[0]);
+		// 195
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {  } |] i in set {1,2,3} @ [{ c1 }] c1!i -> Skip end",false, true, false, new String[0]);
+		// 196
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {a } |] i in set {1,2,3} @ [{    }] c1!i -> Skip end",false, true, false, new String[0]);
+		// 197
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {c1} |] i in set {1,2,3} @ [{  a }] c1!i -> Skip end",false, true, true, new String[0]);
+		// 198
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { } |] i in set {1,2,3} @ [{   }] Skip end",false, true, true, new String[0]);
+		// 199
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {c1, a} |] i in set {1,2,3} @ [{   }] c1!i -> Skip end",false, true, false, new String[0]);
+		// 200
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { } |] i in set {1,2,3} @ [{  c1, a }] c1!i -> Skip end",false, true, false, new String[0]);
+		// 201
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { } |] i in set {1,2,3} @ [{  a  }] c1!a -> Skip end",false, true, false, new String[0]);
+		// 202
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { c1 } |] i in set {1,2,3} @ [{   }] c1!a -> Skip end",false, true, false, new String[0]);
+		
+		addTestProgram(testData, "process T = begin operations O: () ==> () O() == Skip @ O() end",false, true, true, new String[0]);
 		
 		return testData;
 	}

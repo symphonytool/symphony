@@ -44,7 +44,9 @@ import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ARecordInvariantType;
 import org.overture.ast.types.ASetType;
+import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.AUnresolvedType;
+import org.overture.ast.types.AVoidType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SSeqType;
 import org.overture.typechecker.Environment;
@@ -135,6 +137,8 @@ import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AChansetType;
 import eu.compassresearch.ast.types.AErrorType;
+import eu.compassresearch.ast.types.ANamesetType;
+import eu.compassresearch.ast.types.ANamesetsType;
 import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.ast.types.AStatementType;
 import eu.compassresearch.ast.types.AVarsetExpressionType;
@@ -549,12 +553,55 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 
-		CmlTypeCheckInfo actionEnv = cmlEnv.newScope();
+		CmlTypeCheckInfo actionEnv = cmlEnv.emptyScope();
 		
 		// TODO RWL: What is the semantics of this?
 		PVarsetExpression csexp = node.getChansetExpression();
+		PType csexpType = csexp.apply(parentChecker,question);
+		if(!TCDeclAndDefVisitor.successfulType(csexpType)){
+			node.setType(issueHandler.addTypeError(node,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+node)));
+			return node.getType();
+		}
+		
+		if (csexpType instanceof AUnknownType) {
+			csexpType = new AChansetType(node.getLocation(), true);
+		}
+		
+		if (!(csexpType instanceof AChansetType)) {
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.EXPECTED_A_CHANNELSET.customizeMessage(""+csexpType)));
+			return node.getType();
+		}
 
+		for(PDefinition chanDef : csexpType.getDefinitions()) {
+			if (!(chanDef instanceof AChannelNameDefinition)) {
+				node.setType(issueHandler.addTypeError(node,TypeErrorMessages.TYPE_CHECK_INTERNAL_FAILURE.customizeMessage("Expected a Channel and got something of type AChannelType, however it is not AChannelNameDefinition.")));
+				return node.getType();
+			}
+			AChannelNameDefinition chanNameDef = (AChannelNameDefinition)chanDef;
+			for(LexIdentifierToken id : chanNameDef.getSingleType().getIdentifiers()) {
+			 actionEnv.addChannel(id, chanDef);
+			}
+		}
+		
 		PVarsetExpression sexp = node.getNamesetExpression();
+		PType sexpType = sexp.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(sexpType)) {
+			node.setType(issueHandler.addTypeError(node,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+node)));
+			return node.getType();
+		}
+		
+		if (sexpType instanceof AUnknownType) {
+			sexpType = new ANamesetsType(node.getLocation(),true);
+		}
+		
+		if (!(sexpType instanceof ANamesetsType) ) {
+			node.setType(issueHandler.addTypeError(node,TypeErrorMessages.EXPECTED_A_NAMESET.customizeMessage(""+sexpType)));
+			return node.getType();
+		}
+		
+		for(PDefinition stateDef : sexpType.getDefinitions()) {
+			actionEnv.addVariable(stateDef.getName(), stateDef);
+		}
 
 		PAction repAction = node.getReplicatedAction();
 
@@ -570,9 +617,16 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					node.setType(issueHandler.addTypeError(exp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+exp)));
 					return node.getType();
 				}
+				
+				if (expType instanceof ASetType) {
+					ASetType st = (ASetType)expType;
+					expType=st.getSetof();
+				}
+				
 				LinkedList<LexIdentifierToken> ids = singleDecl.getIdentifiers();
 				for(LexIdentifierToken id : ids) {
 					LexNameToken name = new LexNameToken("", id);
+					
 					ALocalDefinition def = AstFactory.newALocalDefinition(id.getLocation(), name, NameScope.LOCAL, expType);
 					actionEnv.addVariable(name, def);
 				}
@@ -2461,6 +2515,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 
+		
 		if (callee.getType() instanceof AOperationType) {
 			AOperationType ot = (AOperationType)callee.getType();
 			List<PType> params = ot.getParameters();
