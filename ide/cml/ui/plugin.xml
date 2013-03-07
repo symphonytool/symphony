@@ -329,11 +329,11 @@
       <viewerContentBinding
             viewerId="org.overture.ide.ui.VdmExplorer">
          <includes>
-            <!--contentExtension
+            <contentExtension
                   isRoot="false"
                   pattern="org.eclipse.ui.navigator.resourceContent">
             </contentExtension>
-            <contentExtension
+            <!-- <contentExtension
                   isRoot="false"
                   pattern="org.eclipse.ui.navigator.resources.filters.*">
             </contentExtension-->
