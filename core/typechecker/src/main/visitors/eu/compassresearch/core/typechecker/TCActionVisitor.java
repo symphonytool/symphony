@@ -863,7 +863,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 						.customizeMessage("" + pd)));
 				return node.getType();
 			}
-			newCmlEnv.addVariable(pd.getName(), pd);
 		}
 
 		// type check sub-action

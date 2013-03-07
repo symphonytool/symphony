@@ -810,8 +810,10 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { } |] i in set {1,2,3} @ [{  a  }] c1!a -> Skip end",false, true, false, new String[0]);
 		// 202
 		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { c1 } |] i in set {1,2,3} @ [{   }] c1!a -> Skip end",false, true, false, new String[0]);
-		
+		// 203
 		addTestProgram(testData, "process T = begin operations O: () ==> () O() == Skip @ O() end",false, true, true, new String[0]);
+		// 204
+		addTestProgram(testData, "process A = begin @ let b = 2 in [b = 2] & Skip end",false,true,true,new String[0]);
 		
 		return testData;
 	}
