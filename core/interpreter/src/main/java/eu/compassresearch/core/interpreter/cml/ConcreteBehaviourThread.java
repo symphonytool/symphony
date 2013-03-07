@@ -12,6 +12,7 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
+import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
@@ -45,11 +46,11 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	protected LexNameToken 						name;
 	
 	//Stack machine variables
-	private Stack<Pair<INode,Context>> 		executionStack = new Stack<Pair<INode,Context>>();
+	private Stack<Pair<INode,Context>> 			executionStack = new Stack<Pair<INode,Context>>();
 	private Pair<INode,Context> 				prevExecution = null;
 	
 	//Process/Action Graph variables
-	protected CmlBehaviourThread 	parent;
+	protected CmlBehaviourThread 				parent;
 	protected List<ConcreteBehaviourThread> 	children = new LinkedList<ConcreteBehaviourThread>();
 	
 	//Process/Action state variables
@@ -220,6 +221,15 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		return name.toString();
 	}
 	
+	@Override
+	public boolean isRegistered(CmlChannel channel) {
+
+		if(level() == 0 ) 
+			return env.selectedObservableEvent().getChannel().onSelect().isRegistered(this);
+		else
+			return this.parent().isRegistered(channel);
+	}
+	
 	/**
 	 * CmlProcessTraceObserver interface 
 	 */
@@ -377,9 +387,20 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			}
 			else 
 			{	
-				//If the selected event is in the immediate alphabet then we can continue
-				if(env.isObservableEventSelected() &&  
-						!alpha.flattenSyncEvents().intersectEqualOrMorePrecise(env.selectedObservableEvent().getAsAlphabet()).isEmpty())
+				/**
+				 *	If the selected event is valid and is in the immediate alphabet of the process 
+				 *	then we can continue.
+				 *  
+				 *  An extra condition saying 
+				 *  
+				 *  	level == 0 => must be registered at the channel of the selected event 
+				 *  
+				 *  prevents the process to execute the same event twice in a row
+				 */
+				//
+				if(env.isSelectedEventValid() &&  
+						!alpha.flattenSyncEvents().intersectEqualOrMorePrecise(env.selectedObservableEvent().getAsAlphabet()).isEmpty() &&
+						isRegistered(env.selectedObservableEvent().getChannel()))
 				{
 					ret = executeNext();
 					unregisterChannel(env.selectedObservableEvent());

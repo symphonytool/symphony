@@ -27,7 +27,7 @@ import eu.compassresearch.core.interpreter.cml.ConsoleSelectionStrategy;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
-import eu.compassresearch.core.interpreter.scheduler.Scheduler;
+import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 import eu.compassresearch.core.interpreter.util.CmlUtil;
 import eu.compassresearch.core.interpreter.util.GlobalEnvironmentBuilder;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
@@ -50,7 +50,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	protected Context                  globalContext;
 	protected String 				   defaultName      = null;	
 	protected AProcessDefinition       topProcess;
-	protected Scheduler                cmlScheduler     = null;
+	protected CmlScheduler                cmlScheduler     = null;
 
 	/**
 	 * Construct a CmlInterpreter with a list of PSources. These source may
@@ -115,7 +115,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	}
 
 	@Override
-	public Value execute(CmlSupervisorEnvironment sve, Scheduler scheduler) throws InterpreterException
+	public Value execute(CmlSupervisorEnvironment sve, CmlScheduler scheduler) throws InterpreterException
 	{
 		InitializeTopProcess();
 
@@ -179,7 +179,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
 		try
 		{
-			Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+			CmlScheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
 			//CmlSupervisorEnvironment sve = 
 			//		VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
 			CmlSupervisorEnvironment sve = 
@@ -203,7 +203,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/examples/dwarf.cml");
+				"src/test/resources/action/action-letstm.cml");
 		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 
