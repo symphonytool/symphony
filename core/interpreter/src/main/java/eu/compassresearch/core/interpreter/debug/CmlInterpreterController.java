@@ -322,7 +322,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 						}, scheduler);
 			
 				cmlInterpreter.execute(sve,scheduler);
-				stopped();
+				stopped(this.cmlInterpreter.getStatus());
 			}
 			catch(ContextException e)
 			{

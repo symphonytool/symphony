@@ -27,6 +27,7 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
@@ -74,7 +75,7 @@ public class AlphabetInspector
 		QuestionAnswerCMLAdaptor<Context, CmlAlphabet> {
 
 	// The process that contains this instance
-	private final CmlBehaviourThread 		ownerProcess;
+	private final CmlBehaviourThread 			ownerProcess;
 	private final CmlValueEvaluator				cmlEvaluator = new CmlValueEvaluator();
 	
 	
@@ -498,6 +499,16 @@ public class AlphabetInspector
 	}
 	
 	/**
+	 * Stop Action
+	 */
+	@Override
+	public CmlAlphabet caseAStopAction(AStopAction node, Context question)
+			throws AnalysisException {
+		//return the empty alphabet
+		return new CmlAlphabet();
+	}
+	
+	/**
 	 * Communication Action 
 	 */
 	@Override
@@ -596,7 +607,7 @@ public class AlphabetInspector
 	}
 	
 	/**
-	 * Non deterministic if randomly chooses between options whoose exp are evaluated to true
+	 * Non deterministic if randomly chooses between options whose expression are evaluated to true
 	 */
 	@Override
 	public CmlAlphabet caseANonDeterministicIfStatementAction(
