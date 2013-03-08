@@ -68,7 +68,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 			processDef.setName(new LexNameToken("", "Unnamed Process",node.getLocation()));
 		}
 		
-		
+		//Create a temporary context to evaluate the definitions in
 		Context tmpContext = CmlContextFactory.newContext(node.getLocation(),"tmp",null);
 		
 		//Evaluate and add paragraph definitions and add the result to the state
@@ -76,20 +76,21 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		for (PDefinition def : node.getDefinitionParagraphs())
 		{
 			NameValuePairList nvps = def.apply(cmlDefEvaluator, tmpContext);
+			tmpContext.putList(nvps);
 			
 			for(NameValuePair nvp : nvps)
 			{
 				LexNameToken name = nvp.name.getModifiedName(processDef.getName().getSimpleName());
 				
+				//This makes sure that operations and functions cannot be updated, while
+				//everything else can.
+				//TODO This might be incomplete
 				if(nvp.value instanceof FunctionValue ||
 						nvp.value instanceof CmlOperationValue)
 					valueMap.put(new NameValuePair(name,nvp.value));
 				else
 					valueMap.put(new NameValuePair(name,nvp.value.getUpdatable(null)));
 			}
-				
-			
-		
 		}
 		
 		ProcessObjectValue self = new ProcessObjectValue(processDef,valueMap,question.getSelf());

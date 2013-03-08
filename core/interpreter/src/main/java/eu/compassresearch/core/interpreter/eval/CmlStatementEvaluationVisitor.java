@@ -17,6 +17,7 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.NameValuePair;
+import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
@@ -348,11 +349,11 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 	public CmlBehaviourSignal caseALetStatementAction(ALetStatementAction node,
 			Context question) throws AnalysisException {
 	
+		//Create a new context for the let statement
 		Context letContext = CmlContextFactory.newContext(node.getLocation(), "let action context", question);
-		
+
 		for(PDefinition localDef :node.getLocalDefinitions())
-			localDef.apply(cmlDefEvaluator,letContext);
-		
+			letContext.putList(localDef.apply(cmlDefEvaluator,letContext));
 		
 		pushNext(node.getAction(), letContext);
 
