@@ -8,11 +8,12 @@ types
 	ParID = <P1> | <P2> 
 	Secret = <Blank> | BigInteger
 	BigInteger = int
+	InputChannelType = Secret * VarID * ParID
 	
 channels    
 	init: ParID
 	user_input : ParID * BigInteger 
-	input: Secret * VarID * ParID
+	input: InputChannelType  
  	rand: VarID * ParID
  	add:  VarID * VarID * VarID * ParID
 	mul: VarID * VarID * VarID * ParID 
@@ -30,7 +31,7 @@ begin
  actions
  	INIT = ONLINE
  	ONLINE = (
- 		input?s ->  [ s.#2 <> myID ] & input!(mk_(<Blank>,myID)) -> Skip
+ 		input?s ->  [ s.#3 <> myID ] & input!(mk_(<Blank>,myID)) -> Skip
  		[]
  		rand?a  ->  [ a.#2 <> myID ] & rand!(mk_(a.#1,myID)) -> Skip
  		[]

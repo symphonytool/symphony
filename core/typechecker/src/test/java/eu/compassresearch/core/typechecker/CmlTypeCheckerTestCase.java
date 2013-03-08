@@ -181,7 +181,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		// 33
 		addTestProgram(
 				testData,
-				"class test = begin values b : int = 1; a : seq of char = if b = 2 then \"one\" elseif (b = 3) then \"two\" elseif b = 4 then \"three\" else \"above three\" end",
+				"class test = begin values b : int = 1 a : seq of char = if b = 2 then \"one\" elseif (b = 3) then \"two\" elseif b = 4 then \"three\" else \"above three\" end",
 				false, true, true, new String[0]);
 		// cases 34
 		addTestProgram(
@@ -757,6 +757,63 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData, "class t = begin types A :: a : int state aa : A operations o:int==>int o(i) == return (aa.a + i) pre i > 0 post 0 = i end", false, true, true, new String[0]);
 		// 181 //
 		addTestProgram(testData, "process p = begin types A :: a : int state aa:A operations o:int==>int o(i) == return (aa.a + i) post aa~.a = i @ o(2) end",false,true,true,new String[0]);
+		// 182
+		addTestProgram(testData, "types C = set of int inv c == c = {1,2,3}", false, true, true, new String[0]);
+		// 183
+		addTestProgram(testData, "class T = begin end class N = begin end types TorN = T | N", false, true, true, new String[0]);
+		// 184
+		addTestProgram(testData, "process T = begin operations o:int*int ==> int o(a,b) == return a+b @ o(10,10) end", false, true, true, new String[0]);
+		// 185
+		addTestProgram(testData, "types I = int process T = begin operations o:I*I ==> int o(a,b) == return a+b @ o(10,10) end", false, true, true, new String[0]);
+		
+		addTestProgram(testData, "types R :: a : int b : int " +
+				                  "process P = " +
+				                  "  " +
+				                  " " +
+				                  "begin " +
+				                  "  state " +
+				                  "    a : int " +
+				                  "    k : R   " +
+				                  "  actions " +
+				                  "    A = cases k : mk_R(a1,b1) -> a:=a1+b1 end" +
+				                  " @ A " +
+				                  "end", false, true,true, new String[0]);
+		
+		addTestProgram(testData, "types Value = int ID = nat process P = begin operations CheckMac: Value * Value * ID ==> bool CheckMac(a,b,c) == return (a*b=c) Me: () ==> bool Me() == (dcl a : Value := 2 @ return CheckMac(a,2,4)) @ Skip end ",false,true,true, new String[0]);
+		
+		addTestProgram(testData, "process K = begin operations A:int*int ==> bool A(a,b) == return (a=b) @ A(2) end", false, true, false, new String[0]);
+		
+		addTestProgram(testData, "process L = begin operations A:int*int*int ==> bool A(a,b,c) == o(0);return (a+b=c) @ A(1,mk_(0,2)) end",false,true,false, new String[0]);
+		
+		addTestProgram(testData, "process L = begin state k : int operations K:int*int ==> int K(a,b) == for all i in set {1,2,3} do k := k + o @ Skip end", false, true, false, new String[0]);
+		
+		addTestProgram(testData, "process L = begin state l : int @ || i in set {1,2,3} @ [{ }] l:=i end",false, true, true, new String[0]);
+		
+		addTestProgram(testData, "process O = begin state o : int @ for all i in set {1,2,3} do o := o + i end", false, true, true, new String[0]);
+
+		addTestProgram(testData, "process M = begin @ Skip end process L = begin @ Stop end process K = || i in set {1,2,3} @ [{ }] (M [| {| inp.k | k in set {5,6,7} |} union {| out.k | k in set {5,6,7} |} |] L)",false, true,true,new String[0]);
+		// 194
+		addTestProgram(testData, "channels out: nat1 process S1 = || k in set {1,2,3} @ [{ }] begin @ out!k -> Skip end", false, true, true,new String[0]);
+		// 195
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {  } |] i in set {1,2,3} @ [{ c1 }] c1!i -> Skip end",false, true, false, new String[0]);
+		// 196
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {a } |] i in set {1,2,3} @ [{    }] c1!i -> Skip end",false, true, false, new String[0]);
+		// 197
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {c1} |] i in set {1,2,3} @ [{  a }] c1!i -> Skip end",false, true, true, new String[0]);
+		// 198
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { } |] i in set {1,2,3} @ [{   }] Skip end",false, true, true, new String[0]);
+		// 199
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {c1, a} |] i in set {1,2,3} @ [{   }] c1!i -> Skip end",false, true, false, new String[0]);
+		// 200
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { } |] i in set {1,2,3} @ [{  c1, a }] c1!i -> Skip end",false, true, false, new String[0]);
+		// 201
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { } |] i in set {1,2,3} @ [{  a  }] c1!a -> Skip end",false, true, false, new String[0]);
+		// 202
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { c1 } |] i in set {1,2,3} @ [{   }] c1!a -> Skip end",false, true, false, new String[0]);
+		// 203
+		addTestProgram(testData, "process T = begin operations O: () ==> () O() == Skip @ O() end",false, true, true, new String[0]);
+		// 204
+		addTestProgram(testData, "process A = begin @ let b = 2 in [b = 2] & Skip end",false,true,true,new String[0]);
 		
 		return testData;
 	}

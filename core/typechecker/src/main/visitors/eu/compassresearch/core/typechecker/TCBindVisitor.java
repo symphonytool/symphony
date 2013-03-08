@@ -5,15 +5,23 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.ALocalDefinition;
+import org.overture.ast.definitions.AMultiBindListDefinition;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AIdentifierPattern;
+import org.overture.ast.patterns.ARecordPattern;
+import org.overture.ast.patterns.ASetMultipleBind;
 import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.ATypeBind;
 import org.overture.ast.patterns.PBind;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.types.AFieldField;
+import org.overture.ast.types.ARecordInvariantType;
+import org.overture.ast.types.ASetType;
 import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
 import org.overture.typechecker.TypeCheckInfo;
@@ -22,6 +30,7 @@ import org.overture.typechecker.assistant.pattern.PPatternBindAssistantTC;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
+import eu.compassresearch.ast.types.ABindType;
 import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
@@ -45,6 +54,108 @@ implements ICMLQuestionAnswer<TypeCheckInfo, PType> {
 	
 	
 	
+	@Override
+	public PType caseARecordPattern(ARecordPattern node, TypeCheckInfo question)
+			throws AnalysisException {
+		
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null) {
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
+			return node.getType();
+		}
+		
+		LexNameToken typeName = node.getTypename();
+		LinkedList<PPattern> ptrns = node.getPlist();
+		
+		PType type = cmlEnv.lookupType(typeName);
+		if (!TCDeclAndDefVisitor.successfulType(type)) {
+			node.setType(issueHandler.addTypeError(typeName, TypeErrorMessages.UNDEFINED_TYPE.customizeMessage(""+typeName)));
+			return node.getType();
+		}
+		
+		if (!(type instanceof ARecordInvariantType)) {
+			node.setType(issueHandler.addTypeError(type, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("RecordType", ""+type)));
+			return node.getType();
+		}
+		
+		ARecordInvariantType recordType = (ARecordInvariantType)type;
+		node.setType(recordType);
+		
+		if (recordType.getFields().size() != ptrns.size()) {
+			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(node+"")));
+			return node.getType();
+		}
+		
+		int i = 0;
+		for(PPattern ptrn : ptrns) {
+			PType ptrnType = ptrn.apply(parent,question);
+			if (!TCDeclAndDefVisitor.successfulType(ptrnType)) {
+				node.setType(issueHandler.addTypeError(ptrn, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(ptrn+"")));
+			}
+			PType curType = recordType.getFields().get(i).getType();
+			for(PDefinition def : ptrnType.getDefinitions()) {
+				def.setType(curType);
+				node.getType().getDefinitions().add(def);
+			}
+		}
+		
+		return node.getType();
+	}
+
+
+
+
+
+	@Override
+	public PType caseAMultiBindListDefinition(AMultiBindListDefinition node,
+			TypeCheckInfo question) throws AnalysisException {
+
+		return node.getType();
+	}
+
+
+
+
+
+	@Override
+	public PType caseASetMultipleBind(ASetMultipleBind node,
+			TypeCheckInfo question) throws AnalysisException {
+
+	
+		PExp set = node.getSet();
+		PType type = set.apply(parent,question);
+		if (!TCDeclAndDefVisitor.successfulType(type)) {
+			return issueHandler.addTypeError(set,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+set) );
+		}
+
+		if (!(type instanceof ASetType)) {
+			return issueHandler.addTypeError(set,TypeErrorMessages.SET_TYPE_EXPECTED.customizeMessage(set+"",type+""));
+		}
+	
+		ASetType setType = (ASetType)type;
+		
+		LinkedList<PPattern> patterns = node.getPlist();
+		ABindType bindType = new ABindType(node.getLocation(), true);
+		bindType.setDefinitions(new LinkedList<PDefinition>());
+		for(PPattern p : patterns) {
+			PType pType = p.apply(parent,question);
+			if (!TCDeclAndDefVisitor.successfulType(pType)) {
+				return issueHandler.addTypeError(p,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+p));
+			}
+			for(PDefinition def : pType.getDefinitions()) {
+				def.setType(setType.getSetof());
+				bindType.getDefinitions().add(def);
+			}
+		}
+		
+		
+		return bindType;
+	}
+
+
+
+
+
 	@Override
 	public PType caseATuplePattern(ATuplePattern node, TypeCheckInfo question)
 			throws AnalysisException {

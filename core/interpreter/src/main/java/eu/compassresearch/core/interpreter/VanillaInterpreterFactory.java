@@ -8,8 +8,8 @@ import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.DefaultSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.scheduler.VanillaScheduler;
 import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
-import eu.compassresearch.core.interpreter.scheduler.Scheduler;
 import eu.compassresearch.core.interpreter.scheduler.SchedulingPolicy;
 
 public final class VanillaInterpreterFactory {
@@ -42,7 +42,7 @@ public final class VanillaInterpreterFactory {
 	 * @param selectStrategy
 	 * @return
 	 */
-	public static CmlSupervisorEnvironment newCmlSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy, Scheduler cmlScheduler)
+	public static CmlSupervisorEnvironment newCmlSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy, CmlScheduler cmlScheduler)
 	{
 		return new DefaultSupervisorEnvironment(selectStrategy,cmlScheduler);
 	}
@@ -52,8 +52,8 @@ public final class VanillaInterpreterFactory {
 	 * @param policy
 	 * @return
 	 */
-	public static Scheduler newScheduler(SchedulingPolicy policy)
+	public static CmlScheduler newScheduler(SchedulingPolicy policy)
 	{
-		return new CmlScheduler(policy);
+		return new VanillaScheduler(policy);
 	}
 }

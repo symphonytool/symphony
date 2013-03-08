@@ -271,4 +271,11 @@ TypeCheckQuestion {
 		return res;
 	}
 
+	public CmlTypeCheckInfo emptyScope() {
+		org.overture.typechecker.Environment newenv = new FlatEnvironment(new LinkedList<PDefinition>());
+		Environment<PDefinition> newchannels = new Environment<PDefinition>(issueHandler);
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(newchannels,newenv,issueHandler, this.globalClassDefinition);
+		return res;
+	}
+
 }
