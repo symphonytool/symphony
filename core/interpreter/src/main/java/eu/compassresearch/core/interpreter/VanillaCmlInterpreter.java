@@ -134,7 +134,12 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		pi.start(currentSupervisor);
 		statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.RUNNING));
 		cmlScheduler.start();
-
+		if(cmlScheduler.isDeadlocked())
+			statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.DEADLOCKED));
+		else
+			statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.TERMINATED));
+		//statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.));
+		
 		return null;
 	}
 
@@ -203,7 +208,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/process/process-values.cml");
+				"src/test/resources/process/process-stop.cml");
 		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 
