@@ -10,7 +10,6 @@ import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.AQuoteType;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
-import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.QuoteValue;
 import org.overture.interpreter.values.Value;
 
@@ -18,7 +17,7 @@ import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.channels.CmlIOChannel;
+import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
 import eu.compassresearch.core.interpreter.util.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.values.AnyValue;
 
@@ -27,7 +26,7 @@ public class CmlCommunicationEvent extends ObservableEvent {
 	final protected List<CommunicationParameter> params;
 	private Value value;
 	
-	public CmlCommunicationEvent(CmlBehaviourThread source, CmlIOChannel<Value> channel, List<CommunicationParameter> params)
+	public CmlCommunicationEvent(CmlBehaviourThread source, CmlChannel channel, List<CommunicationParameter> params)
 	{
 		super(source,channel);
 		this.params = params;
@@ -39,7 +38,7 @@ public class CmlCommunicationEvent extends ObservableEvent {
 			value = new AnyValue();
 	}
 	
-	private CmlCommunicationEvent(CmlBehaviourThread source, CmlIOChannel<Value> channel,List<CommunicationParameter> params, Value value)
+	private CmlCommunicationEvent(CmlBehaviourThread source, CmlChannel channel,List<CommunicationParameter> params, Value value)
 	{
 		super(source,channel);
 		this.params = params;
@@ -96,7 +95,7 @@ public class CmlCommunicationEvent extends ObservableEvent {
 	@SuppressWarnings("unchecked")
 	@Override
 	public ObservableEvent getReferenceEvent() {
-		return new CmlCommunicationEvent(null, (CmlIOChannel<Value>)channel, params,value);
+		return new CmlCommunicationEvent(null, channel, params,value);
 	}
 
 	@Override
@@ -205,7 +204,7 @@ public class CmlCommunicationEvent extends ObservableEvent {
 			
 			return Arrays.asList((ObservableEvent)new CmlCommunicationEvent(
 					CmlCommunicationEvent.this.getEventSource(), 
-					(CmlIOChannel<Value>) CmlCommunicationEvent.this.channel, CmlCommunicationEvent.this.params, 
+					CmlCommunicationEvent.this.channel, CmlCommunicationEvent.this.params, 
 					new QuoteValue(node.getValue().value)));
 		}
 	}
