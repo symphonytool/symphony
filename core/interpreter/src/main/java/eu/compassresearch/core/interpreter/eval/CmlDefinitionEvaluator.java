@@ -122,12 +122,12 @@ public class CmlDefinitionEvaluator extends
 	 * Function  
 	 */
 	
-//	@Override
-//	public NameValuePairList caseAFunctionsDefinition(AFunctionsDefinition node,
-//			Context question) throws AnalysisException {
-//			
-//		return definitionListHelper(node.getFunctionDefinitions(),node.getLocation(),question);
-//	}
+	@Override
+	public NameValuePairList caseAFunctionsDefinition(AFunctionsDefinition node,
+			Context question) throws AnalysisException {
+			
+		return definitionListHelper(node.getFunctionDefinitions(),node.getLocation(),question);
+	}
 			
 	@Override
 	public NameValuePairList caseAExplicitFunctionDefinition(
@@ -165,7 +165,7 @@ public class CmlDefinitionEvaluator extends
 	
 		NameValuePairList vpl = new NameValuePairList();
 		
-		vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node)));
+		vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node,question)));
 		
 		return vpl;
 	}

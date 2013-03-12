@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
@@ -144,7 +145,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 
 		//first find the operation value in the context
 		CmlOperationValue opVal = (CmlOperationValue)question.check(node.getName()); 
-		
+				
 		//put return value in upper context
 		question.putNew(new NameValuePair(new LexNameToken("|CALL|","|CALLRETURN|",new LexLocation()), new UndefinedValue()));
 		
@@ -159,6 +160,11 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		// Note args cannot be Updateable, so we convert them here. This means
 		// that TransactionValues pass the local "new" value to the far end.
 		ValueList constValues = argValues.getConstant();
+		
+		//invoke the pre condition
+		if(opVal.precondition != null && !opVal.precondition.eval(node.getLocation(), constValues, question).boolValue(question))
+			opVal.abort(4060, "precondition violated for " + node.getName(), question);
+		
 
 		if (opVal.getBody() == null)
 		{
@@ -321,25 +327,26 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			AAssignmentCallStatementAction node, Context question)
 			throws AnalysisException {
 	
-		//put return value in upper context
-		Value retValue = question.check(new LexNameToken("|CALL|","|CALLRETURN|",new LexLocation()));
-		
-		//the call must be made
-		if(retValue == null || retValue instanceof UndefinedValue)
-		{
-			pushNext(node, question);
-			pushNext(node.getCall(), question);
-			
-		}
-		else
-		{
-			//TODO Change this to deal with it in general
-			LexNameToken stateDesignatorName = CmlActionAssistant.extractNameFromStateDesignator(node.getDesignator(),question);
-			
-			Value oldVal = question.check(stateDesignatorName);
-			oldVal.set(node.getLocation(), retValue, question);
-		}
-		
+		//put return value in a new context
+		Context resultContext = CmlContextFactory.newContext(node.getLocation(), "Call Result Context", question);
+
+		//To access the result we put it in a Value named "|CALL|.|CALLRETURN|" this can never be created
+		//in a cml model. This is a little ugly but it works and statys until something better comes up.
+		AVariableExp varExp = new AVariableExp(node.getType(), 
+				node.getCall().getLocation(), 
+				new LexNameToken("|CALL|","|CALLRETURN|",new LexLocation()), 
+				"", 
+				null);
+		//Next we create the assignment statement with the expressions that graps the result 
+		ASingleGeneralAssignmentStatementAction assignmentNode =
+				new ASingleGeneralAssignmentStatementAction(node.getLocation(),	
+						node.getType(),
+						node.getDesignator(),
+						varExp);
+
+		//We now compose the call statement and assignment statement into sequential composition
+		pushNext(assignmentNode, resultContext);
+		pushNext(node.getCall(), resultContext);
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
