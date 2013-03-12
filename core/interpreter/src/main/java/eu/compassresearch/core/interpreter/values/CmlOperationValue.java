@@ -28,6 +28,13 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 
 public class CmlOperationValue extends Value {
 
+	//The name of the special return value in a assignment call context
+	//This is used to retrieve the result of a operation
+	public static LexNameToken ReturnValueName()
+	{
+		return new LexNameToken("|CALL|","|RETURN_VALUE|",new LexLocation());
+	}
+	
 	private static final long serialVersionUID = 1L;
 	public final AExplicitCmlOperationDefinition expldef;
 	public final AImplicitCmlOperationDefinition impldef;

@@ -53,14 +53,14 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			AReturnStatementAction node, Context question)
 			throws AnalysisException {
 
-		LexNameToken callReturnName = new LexNameToken("|CALL|","|CALLRETURN|",new LexLocation());
-		
-		Context nameContext = (Context)question.locate(callReturnName);
-		
-		if(node.getExp() != null)
-			nameContext.put(callReturnName, node.getExp().apply(cmlValueEvaluator,question));
-		else
-			nameContext.put(callReturnName,new VoidValue());
+		Context nameContext = (Context)question.locate(CmlOperationValue.ReturnValueName());
+		if(nameContext != null)
+		{
+			if(node.getExp() != null)
+				nameContext.put(CmlOperationValue.ReturnValueName(), node.getExp().apply(cmlValueEvaluator,question));
+			else
+				nameContext.put(CmlOperationValue.ReturnValueName(),new VoidValue());
+		}
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
@@ -146,12 +146,8 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		//first find the operation value in the context
 		CmlOperationValue opVal = (CmlOperationValue)question.check(node.getName()); 
 				
-		//put return value in upper context
-		question.putNew(new NameValuePair(new LexNameToken("|CALL|","|CALLRETURN|",new LexLocation()), new UndefinedValue()));
-		
+		//evaluate all the arguments
 		ValueList argValues = new ValueList();
-
-		//evaluate the arguments
 		for (PExp arg: node.getArgs())
 		{
 			argValues.add(arg.apply(cmlValueEvaluator,question));
@@ -160,18 +156,9 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		// Note args cannot be Updateable, so we convert them here. This means
 		// that TransactionValues pass the local "new" value to the far end.
 		ValueList constValues = argValues.getConstant();
-		
-		//invoke the pre condition
-		if(opVal.precondition != null && !opVal.precondition.eval(node.getLocation(), constValues, question).boolValue(question))
-			opVal.abort(4060, "precondition violated for " + node.getName(), question);
-		
-
-		if (opVal.getBody() == null)
-		{
-			opVal.abort(4066, "Cannot call implicit operation: " + name, question);
-		}
-		
+						
 		//TODO maybe this context should be a different one
+		//Create a new context to perform the operation call 
 		Context callContext = CmlContextFactory.newObjectContext(node.getLocation(), "CML Operation Call", question, question.getSelf());
 		
 		if (argValues.size() != opVal.getParamPatterns().size())
@@ -216,8 +203,25 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		// Note: arg name/values hide member values
 		callContext.putAll(args);
 		
-		//TODO add the arg patterns with the results to the context here
 		
+		
+		
+		//invoke the pre condition
+		if(opVal.precondition != null)
+		{
+			ValueList preArgs = new ValueList(argValues);
+			
+			preArgs.add(question.getSelf());
+			
+			//Context preconditionContext = CmlContextFactory.newContext(node.getLocation(), "Precondition context", question);
+			
+			opVal.precondition.eval(node.getLocation(), preArgs, question).boolValue(question);
+			opVal.abort(4060, "precondition violated for " + node.getName(), question);
+		}
+		if (opVal.getBody() == null)
+		{
+			opVal.abort(4066, "Cannot call implicit operation: " + name, question);
+		}
 		
 		pushNext(opVal.getBody(), callContext);
 		
@@ -329,12 +333,14 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 	
 		//put return value in a new context
 		Context resultContext = CmlContextFactory.newContext(node.getLocation(), "Call Result Context", question);
-
+		//put return value in upper context if the parent is a AAssignmentCallStatementAction
+		resultContext.putNew(new NameValuePair(CmlOperationValue.ReturnValueName(), new UndefinedValue()));
+				
 		//To access the result we put it in a Value named "|CALL|.|CALLRETURN|" this can never be created
 		//in a cml model. This is a little ugly but it works and statys until something better comes up.
 		AVariableExp varExp = new AVariableExp(node.getType(), 
-				node.getCall().getLocation(), 
-				new LexNameToken("|CALL|","|CALLRETURN|",new LexLocation()), 
+				node.getCall().getLocation(),
+				CmlOperationValue.ReturnValueName(), 
 				"", 
 				null);
 		//Next we create the assignment statement with the expressions that graps the result 

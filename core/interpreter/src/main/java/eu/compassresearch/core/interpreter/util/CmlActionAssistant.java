@@ -24,19 +24,7 @@ public class CmlActionAssistant {
 	{
 		return node.getCommunicationParameters().isEmpty();
 	}
-	
-	public static LexNameToken extractNameFromStateDesignator(PExp exp, Context context)
-	{
-		LexNameToken name = null;
-		
-		if(exp instanceof AVariableExp)
-		{
-			name = ((AVariableExp)exp).getName();
-		}
-		
-		return name;
-	}
-	
+			
 	public static List<ANonDeterministicAltStatementAction> findAllTrueAlts(
 			List<ANonDeterministicAltStatementAction> alts,
 			Context question,CmlValueEvaluator cmlEvaluator) throws AnalysisException
