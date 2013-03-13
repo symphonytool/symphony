@@ -717,7 +717,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	}
 
 	@Override
-	public void cancelTransaction() {
+	public void rollback() {
 
 		if(lastRestorePoint != null)
 		{
