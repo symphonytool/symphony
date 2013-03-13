@@ -41,7 +41,7 @@ import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
-import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
+import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
 
 @SuppressWarnings("serial")
@@ -257,7 +257,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			ANonDeterministicIfStatementAction node, Context question)
 			throws AnalysisException {
 
-		List<ANonDeterministicAltStatementAction> availableAlts = CmlActionAssistant.findAllTrueAlts(
+		List<ANonDeterministicAltStatementAction> availableAlts = ActionVisitorHelper.findAllTrueAlternatives(
 				node.getAlternatives(),question,cmlValueEvaluator);
 		//if we got here we already now that the must at least be one available action
 		//so this should pose no risk of exception
@@ -275,7 +275,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			ANonDeterministicDoStatementAction node, Context question)
 			throws AnalysisException {
 
-		List<ANonDeterministicAltStatementAction> availableAlts = CmlActionAssistant.findAllTrueAlts(
+		List<ANonDeterministicAltStatementAction> availableAlts = ActionVisitorHelper.findAllTrueAlternatives(
 				node.getAlternatives(),question,cmlValueEvaluator);
 		
 		

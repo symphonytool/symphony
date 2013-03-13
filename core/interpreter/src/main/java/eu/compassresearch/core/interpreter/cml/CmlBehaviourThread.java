@@ -13,10 +13,10 @@ import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 
-public interface CmlBehaviourThread extends CmlBehaviour{
+public interface CmlBehaviourThread extends CmlBehaviour , Transactable{
 
 	/**
-	 * Initialises the process
+	 * Initializes the process
 	 * @param env
 	 */
 	public void start(CmlSupervisorEnvironment env);
@@ -112,10 +112,4 @@ public interface CmlBehaviourThread extends CmlBehaviour{
 	 */
 	public EventSource<CmlProcessTraceObserver> onTraceChanged();
 	
-	
-	void setRestorePoint();
-	
-	void revertToRestorePoint();
-	
-	boolean inBactrackMode();
 }

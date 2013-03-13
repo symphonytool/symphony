@@ -48,7 +48,7 @@ import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
-import eu.compassresearch.core.interpreter.util.CmlUtil;
+import eu.compassresearch.core.interpreter.util.CmlParserUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -454,7 +454,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 			currentFileSource.setName(source.getName());
 			currentFileSource.setFile(source);
 						
-			if (!CmlUtil.parseSource(currentFileSource)) {
+			if (!CmlParserUtil.parseSource(currentFileSource)) {
 				//handleError(lexer, source);
 				return;
 			} else

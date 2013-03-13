@@ -59,7 +59,7 @@ import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
-import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
+import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
@@ -362,7 +362,7 @@ public class AlphabetInspector
 		{
 			//if there exist a finished child then the external choice ends with a silent transition
 			//where the state of the finished is used
-			if(CmlBehaviourThreadUtility.existsAFinishedChild(ownerProcess))
+			if(CmlBehaviourThreadUtility.finishedChildExists(ownerProcess))
 				alpha = createSilentTransition(node, node,"end");
 			else
 			{
@@ -522,8 +522,8 @@ public class AlphabetInspector
 		
 		Set<CmlEvent> comset = new HashSet<CmlEvent>();
 		
-		//if there are no com params then we hav a prefix event
-		if(CmlActionAssistant.isPrefixEvent(node))
+		//if there are no com params then we have a prefix event
+		if(node.getCommunicationParameters().isEmpty())
 		{
 			comset.add(new PrefixEvent(ownerProcess, chanValue));
 		}
@@ -614,7 +614,7 @@ public class AlphabetInspector
 			ANonDeterministicIfStatementAction node, Context question)
 			throws AnalysisException {
 
-		int availCount = CmlActionAssistant.findAllTrueAlts(
+		int availCount = ActionVisitorHelper.findAllTrueAlternatives(
 				node.getAlternatives(),question,cmlEvaluator).size();
 		
 		if(availCount > 0)
@@ -630,7 +630,7 @@ public class AlphabetInspector
 			ANonDeterministicDoStatementAction node, Context question)
 			throws AnalysisException {
 
-		int availCount = CmlActionAssistant.findAllTrueAlts(
+		int availCount = ActionVisitorHelper.findAllTrueAlternatives(
 				node.getAlternatives(),question,cmlEvaluator).size();
 		
 		if(availCount > 0)

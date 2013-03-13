@@ -24,7 +24,7 @@ public class CmlBehaviourThreadUtility {
 		return isAllFinishedOrWaitingForEvent;
 	}
 	
-	public static boolean isAtLeastOneChildWaitingForEvent(CmlBehaviourThread process)
+	public static boolean childWaitingForEventExists(CmlBehaviourThread process)
 	{
 		for(CmlBehaviourThread child : process.children())
 		{
@@ -34,19 +34,8 @@ public class CmlBehaviourThreadUtility {
 		
 		return false;
 	}
-	
-	public static boolean isAllChildrenWaitingForEvent(CmlBehaviourThread process)
-	{
-		boolean result = true;
-		for(CmlBehaviourThread child : process.children())
-		{
-			result &= child.waitingForEvent();
-		}
 		
-		return result;
-	}
-	
-	public static boolean existsAFinishedChild(CmlBehaviourThread process)
+	public static boolean finishedChildExists(CmlBehaviourThread process)
 	{
 		for(CmlBehaviourThread child : process.children())
 		{

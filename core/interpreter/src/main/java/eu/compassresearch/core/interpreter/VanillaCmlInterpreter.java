@@ -10,7 +10,6 @@ import java.util.logging.Level;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
 import org.overture.interpreter.values.Value;
@@ -21,14 +20,14 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterStatus;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.ConsoleSelectionStrategy;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
-import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
-import eu.compassresearch.core.interpreter.util.CmlUtil;
+import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
+import eu.compassresearch.core.interpreter.util.CmlParserUtil;
 import eu.compassresearch.core.interpreter.util.GlobalEnvironmentBuilder;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -130,7 +129,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		
 		//ObjectContext processContext = new ObjectContext(topProcess.getLocation(), "Top Process context", topContext, self);
 		
-		ConcreteBehaviourThread pi = new ConcreteBehaviourThread(topProcess.getProcess(), topContext, topProcess.getName());
+		CmlBehaviourThread pi = VanillaInterpreterFactory.newCmlBehaviourThread(topProcess.getProcess(), topContext, topProcess.getName());
 		pi.start(currentSupervisor);
 		statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.RUNNING));
 		cmlScheduler.start();
@@ -159,7 +158,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		source.setFile(f);
 		
 		// Run the parser and lexer and report errors if any
-		if (!CmlUtil.parseSource(source))
+		if (!CmlParserUtil.parseSource(source))
 		{
 			System.out.println("Failed to parse: " + source.toString());
 			return;

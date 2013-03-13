@@ -7,14 +7,14 @@ import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.ObjectValue;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.core.interpreter.util.CmlUtil;
+import eu.compassresearch.core.interpreter.util.CmlToVdmConverter;
 
 public class ProcessObjectValue extends ObjectValue {
 
 	private AProcessDefinition processDefinition = null;
 	
 	public ProcessObjectValue(AProcessDefinition processDefinition, NameValuePairMap members, ObjectValue creator) {
-		super(CmlUtil.createClassType(processDefinition), members, new LinkedList<ObjectValue>(), CPUValue.vCPU, creator);
+		super(CmlToVdmConverter.createClassType(processDefinition), members, new LinkedList<ObjectValue>(), CPUValue.vCPU, creator);
 		this.processDefinition = processDefinition;
 	}
 	

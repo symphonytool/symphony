@@ -13,19 +13,9 @@ import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
 import eu.compassresearch.core.interpreter.eval.CmlValueEvaluator;
 
-public class CmlActionAssistant {
+public class ActionVisitorHelper {
 
-	/**
-	 * Determines if the communication AST node is a simple prefix
-	 * @param node
-	 * @return
-	 */
-	public static boolean isPrefixEvent(ACommunicationAction node)
-	{
-		return node.getCommunicationParameters().isEmpty();
-	}
-			
-	public static List<ANonDeterministicAltStatementAction> findAllTrueAlts(
+	public static List<ANonDeterministicAltStatementAction> findAllTrueAlternatives(
 			List<ANonDeterministicAltStatementAction> alts,
 			Context question,CmlValueEvaluator cmlEvaluator) throws AnalysisException
 	{
