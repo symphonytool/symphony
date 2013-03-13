@@ -231,12 +231,12 @@ public class CmlDefinitionEvaluator extends
 	 * Values
 	 */
 	
-//	@Override
-//	public NameValuePairList caseAValuesDefinition(AValuesDefinition node,
-//			Context question) throws AnalysisException {
-//
-//		return definitionListHelper(node.getValueDefinitions(),node.getLocation(),question);
-//	}
+	@Override
+	public NameValuePairList caseAValuesDefinition(AValuesDefinition node,
+			Context question) throws AnalysisException {
+
+		return definitionListHelper(node.getValueDefinitions(),node.getLocation(),question);
+	}
 	
 	@Override
 	public NameValuePairList caseAValueDefinition(AValueDefinition node,

@@ -202,21 +202,15 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		
 		// Note: arg name/values hide member values
 		callContext.putAll(args);
-		
-		
-		
-		
+				
 		//invoke the pre condition
-		if(opVal.precondition != null)
-		{
-			ValueList preArgs = new ValueList(argValues);
+		if(opVal.precondition != null){
+			//TODO add this when the typechecker do it properly		
+			//ValueList preArgs = new ValueList(argValues);
 			
-			preArgs.add(question.getSelf());
-			
-			//Context preconditionContext = CmlContextFactory.newContext(node.getLocation(), "Precondition context", question);
-			
-			opVal.precondition.eval(node.getLocation(), preArgs, question).boolValue(question);
-			opVal.abort(4060, "precondition violated for " + node.getName(), question);
+			//preArgs.add(question.getSelf());
+			//if(!opVal.precondition.eval(node.getLocation(), preArgs, question).boolValue(question))
+			//	opVal.abort(4060, "precondition violated for " + node.getName(), question);
 		}
 		if (opVal.getBody() == null)
 		{
