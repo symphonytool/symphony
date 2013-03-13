@@ -343,13 +343,30 @@ processDefinition returns[AProcessDefinition def]
 
 process returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($start, $stop)); }
-    : proc0
+    : proc0 { $proc = $proc0.proc; }
+        ( 'startsby' exp=expression
+            {
+                $proc = new AStartDeadlineProcess(extractLexLocation($start,$exp.stop), $proc, $exp.exp);
+            }
+        | 'endsby' exp=expression
+            {
+                $proc = new AEndDeadlineProcess(extractLexLocation($start,$exp.stop), $proc, $exp.exp);
+            }
+        | '\\\\' varsetExpr
+            {
+                $proc = new AHidingProcess(extractLexLocation($start,$varsetExpr.stop), $proc, $varsetExpr.vexp);
+            }
+        )?
+    | processReplicated 
         {
-            $proc = $proc0.proc;
+            $proc = $processReplicated.proc;
         }
-    | replOp replicationDeclarationList '@' repld=process
+    ;
+
+processReplicated returns[PProcess proc]
+    : processReplOp replicationDeclarationList '@' repld=process
         {
-            SReplicatedProcess srp = $replOp.op;
+            SReplicatedProcess srp = $processReplOp.op;
             srp.setReplicationDeclaration($replicationDeclarationList.rdecls);
             srp.setReplicatedProcess($repld.proc);
             $proc = srp;
@@ -363,7 +380,7 @@ process returns[PProcess proc]
         }
     ;
 
-replOp returns[SReplicatedProcess op]
+processReplOp returns[SReplicatedProcess op]
     : ';'       { $op = new ASequentialCompositionReplicatedProcess(); }
     | '[]'      { $op = new AExternalChoiceReplicatedProcess(); }
     | '|~|'     { $op = new AInternalChoiceReplicatedProcess(); }
@@ -377,104 +394,170 @@ replOp returns[SReplicatedProcess op]
     ;
 
 proc0 returns[PProcess proc]
-@after { $proc.setLocation(extractLexLocation($start, $stop)); }
-    : proc1 (proc0Ops process)?
+    : proc1 (';' right=proc0)?
         {
             $proc = $proc1.proc;
-            if ($proc0Ops.op != null) {
-                PProcess op = $proc0Ops.op;
-                Method setLeft = null;
-                Method setRight = null;
-                for (Method m : op.getClass().getMethods()) {
-                    String mname = m.getName();
-                    if (mname.equals("setLeft"))
-                        setLeft = m;
-                    else if (mname.equals("setRight"))
-                        setRight = m;
-                }
-                if (setLeft == null || setRight == null) {
-                    System.err.println("Missed a setLeft/Right method name in proc0");
-                    // FIXME -- This should never happen
-                }
-                try {
-                    setLeft.invoke(op, $proc);
-                    setRight.invoke(op, $process.proc);
-                } catch (Exception e) {
-                    System.err.println("Exception in proc0");
-                    // FIXME -- This should never happen, and needs a better error :)
-                }
+            if ($right.proc != null) {
+                ASequentialCompositionProcess op = new ASequentialCompositionProcess();
+                op.setLeft($proc);
+                op.setRight($right.proc);
+                op.setLocation(extractLexLocation($start,$right.stop));
                 $proc = op;
             }
         }
     ;
 
-proc0Ops returns[PProcess op]
-    : ';'       { $op = new ASequentialCompositionProcess(); }
-    | '[]'      { $op = new AExternalChoiceProcess(); }
-    | '|~|'     { $op = new AInternalChoiceProcess(); }
-    | '||'      { $op = new ASynchronousParallelismProcess(); }
-    | '|||'     { $op = new AInterleavingProcess(); }
-    | '/\\'     { $op = new AInterruptProcess(); }
-    | '[>'      { $op = new AUntimedTimeoutProcess(); }
-    | '/(' expression ')\\'
-        {
-            ATimedInterruptProcess atip = new ATimedInterruptProcess();
-            atip.setTimeExpression($expression.exp);
-            $op = atip;
-        }
-    | '[(' expression ')>'
-        {
-            ATimeoutProcess atp = new ATimeoutProcess();
-            atp.setTimeoutExpression($expression.exp);
-            $op=atp;
-        }
-    | '[' lcs=varsetExpr '||' rcs=varsetExpr ']'
-        {
-            AAlphabetisedParallelismProcess app = new AAlphabetisedParallelismProcess();
-            app.setLeftChansetExpression($lcs.vexp);
-            app.setRightChansetExpression($rcs.vexp);
-            $op = app;
-        }
-    | '[|' varsetExpr '|]'
-        {
-            AGeneralisedParallelismProcess gpp = new AGeneralisedParallelismProcess();
-            gpp.setChansetExpression($varsetExpr.vexp);
-            $op = gpp;
-        }
-    ;
-
 proc1 returns[PProcess proc]
-@after { $proc.setLocation(extractLexLocation($start, $stop)); }
-    : proc2 renamingExpr?
+    : proc2 ('||' right=proc1)?
         {
-            if ($renamingExpr.rexp != null)
-                $proc = new AChannelRenamingProcess(null, $proc2.proc, $renamingExpr.rexp);
-            else
-                $proc = $proc2.proc;
+            $proc = $proc2.proc;
+            if ($right.proc != null) {
+                ASynchronousParallelismProcess op = new ASynchronousParallelismProcess();
+                op.setLeft($proc);
+                op.setRight($right.proc);
+                op.setLocation(extractLexLocation($start,$right.stop));
+                $proc = op;
+            }
         }
     ;
 
 proc2 returns[PProcess proc]
-@after { $proc.setLocation(extractLexLocation($start, $stop)); }
-    : proc3
-        { $proc = $proc3.proc; }
-        ( 'startsby' exp=expression
-            {
-                $proc = new AStartDeadlineProcess(null, $proc, $exp.exp);
+    : proc3 ('[|' varsetExpr '|]' right=proc2)?
+        {
+            $proc = $proc3.proc;
+            if ($right.proc != null) {
+                AGeneralisedParallelismProcess op = new AGeneralisedParallelismProcess();
+                op.setLeft($proc);
+                op.setChansetExpression($varsetExpr.vexp);
+                op.setRight($right.proc);
+                op.setLocation(extractLexLocation($start,$right.stop));
+                $proc = op;
             }
-        | 'endsby' exp=expression
-            {
-                $proc = new AEndDeadlineProcess(null, $proc, $exp.exp);
-            }
-        | '\\\\' varsetExpr
-            {
-                $proc = new AHidingProcess(null, $proc, $varsetExpr.vexp);
-            }
-        )?
-
+        }
     ;
 
 proc3 returns[PProcess proc]
+    : proc4 ('[' lcs=varsetExpr '||' rcs=varsetExpr ']' right=proc3)?
+        {
+            $proc = $proc4.proc;
+            if ($right.proc != null) {
+                AAlphabetisedParallelismProcess op = new AAlphabetisedParallelismProcess();
+                op.setLeft($proc);
+                op.setLeftChansetExpression($lcs.vexp);
+                op.setRightChansetExpression($rcs.vexp);
+                op.setRight($right.proc);
+                op.setLocation(extractLexLocation($start,$right.stop));
+                $proc = op;
+            }
+        }
+    ;
+
+proc4 returns[PProcess proc]
+    : proc5 ('|||' right=proc4)?
+        {
+            $proc = $proc5.proc;
+            if ($right.proc != null) {
+                AInterleavingProcess op = new AInterleavingProcess();
+                op.setLeft($proc);
+                op.setRight($right.proc);
+                op.setLocation(extractLexLocation($start,$right.stop));
+                $proc = op;
+            }
+        }
+    ;
+
+proc5 returns[PProcess proc]
+    : proc6 ('|~|' right=proc5)?
+        {
+            $proc = $proc6.proc;
+            if ($right.proc != null) {
+                AInternalChoiceProcess op = new AInternalChoiceProcess();
+                op.setLeft($proc);
+                op.setRight($right.proc);
+                op.setLocation(extractLexLocation($start,$right.stop));
+                $proc = op;
+            }
+        }
+    ;
+
+proc6 returns[PProcess proc]
+    : proc7 ('[]' right=proc6)?
+        {
+            $proc = $proc7.proc;
+            if ($right.proc != null) {
+                AExternalChoiceProcess op = new AExternalChoiceProcess();
+                op.setLeft($proc);
+                op.setRight($right.proc);
+                op.setLocation(extractLexLocation($start,$right.stop));
+                $proc = op;
+            }
+        }
+    ;
+
+proc7 returns[PProcess proc]
+@after { $proc.setLocation(extractLexLocation($start, $stop)); }
+    : proc8 (proc7op right=proc7)?
+        {
+            $proc = $proc8.proc;
+            if ($right.proc != null) {
+                PProcess op = $proc7op.op;
+                if (op instanceof AInterruptProcess) {
+                    ((AInterruptProcess)op).setLeft($proc);
+                    ((AInterruptProcess)op).setRight($right.proc);
+                } else if (op instanceof ATimedInterruptProcess) {
+                    ((ATimedInterruptProcess)op).setLeft($proc);
+                    ((ATimedInterruptProcess)op).setRight($right.proc);
+                }
+                op.setLocation(extractLexLocation($start,$right.stop));
+                $proc = op;
+            }
+        }
+    ;
+
+proc7op returns[PProcess op]
+    : '/\\'
+        {
+            $op = new AInterruptProcess();
+        }
+    | '/(' expression ')\\'
+        {
+            $op = new ATimedInterruptProcess();
+            ((ATimedInterruptProcess)$op).setTimeExpression($expression.exp);
+        }
+    ;
+
+proc8 returns[PProcess proc]
+    : procbase (proc8op right=proc8)?
+        {
+            $proc = $procbase.proc;
+            if ($right.proc != null) {
+                PProcess op = $proc8op.op;
+                if (op instanceof AUntimedTimeoutProcess) {
+                    ((AUntimedTimeoutProcess)op).setLeft($proc);
+                    ((AUntimedTimeoutProcess)op).setRight($right.proc);
+                } else if (op instanceof ATimeoutProcess) {
+                    ((ATimeoutProcess)op).setLeft($proc);
+                    ((ATimeoutProcess)op).setRight($right.proc);
+                }
+                op.setLocation(extractLexLocation($start,$right.stop));
+                $proc = op;
+            }
+        }
+    ;
+
+proc8op returns[PProcess op]
+    : '[>'
+        {
+            $op = new AUntimedTimeoutProcess();
+        }
+    | '[(' expression ')>'
+        {
+            $op = new ATimeoutProcess();
+            ((ATimeoutProcess)$op).setTimeoutExpression($expression.exp);
+        }
+    ;
+
+procbase returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($start, $stop)); }
     : 'begin' actionParagraphOptList '@' action 'end'
         {
@@ -482,24 +565,186 @@ proc3 returns[PProcess proc]
         }
     | '(' parametrisationList '@' process ')' '(' expressionList? ')'
         {
-            // JWC --- I have the feeling that this structure isn't
-            // right.  Why on earth does a *process* have state
-            // variables?  Still, they are properly parametrisations,
-            // but only 'val', I think.
             $proc = new AInstantiationProcess(null, $parametrisationList.params, $process.proc, $expressionList.exps);
         }
-    | IDENTIFIER ( '(' expressionList? ')' )?
+    | IDENTIFIER
+        ( '(' expressionList? ')' 
+        | renamingExpr
+        )?
         {
-            // FIXME? ->(RWL,AKM) cml.y wraps the AReferenceProcess in
-            // an AInstantiatedProcess if there are arguments.  So,
-            // why does AReferenceProcess have a list of arguments?
             $proc = new AReferenceProcess(null, new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)), $expressionList.exps);
+            if ($renamingExpr.rexp != null) {
+                $proc.setLocation(extractLexLocation($IDENTIFIER));
+                $proc = new AChannelRenamingProcess(null, $proc, $renamingExpr.rexp);
+            }
         }
-    | '(' process ')'
+    | '(' process ')' renamingExpr?
         {
             $proc = $process.proc;
+            if ($renamingExpr.rexp != null) {
+                $proc = new AChannelRenamingProcess(null, $proc, $renamingExpr.rexp);
+            }
         }
     ;
+
+// process returns[PProcess proc]
+// @after { $proc.setLocation(extractLexLocation($start, $stop)); }
+//     : proc0
+//         {
+//             $proc = $proc0.proc;
+//         }
+//     | replOp replicationDeclarationList '@' repld=process
+//         {
+//             SReplicatedProcess srp = $replOp.op;
+//             srp.setReplicationDeclaration($replicationDeclarationList.rdecls);
+//             srp.setReplicatedProcess($repld.proc);
+//             $proc = srp;
+//         }
+//     | '||' replicationDeclarationList '@' ( '[' varsetExpr ']' )? repld=process
+//         {
+//             if ($varsetExpr.vexp != null)
+//                 $proc = new AAlphabetisedParallelismReplicatedProcess(null, $replicationDeclarationList.rdecls, $repld.proc, $varsetExpr.vexp);
+//             else
+//                 $proc = new ASynchronousParallelismReplicatedProcess(null, $replicationDeclarationList.rdecls, $repld.proc);
+//         }
+//     ;
+
+// replOp returns[SReplicatedProcess op]
+//     : ';'       { $op = new ASequentialCompositionReplicatedProcess(); }
+//     | '[]'      { $op = new AExternalChoiceReplicatedProcess(); }
+//     | '|~|'     { $op = new AInternalChoiceReplicatedProcess(); }
+//     | '|||'     { $op = new AInterleavingReplicatedProcess(); }
+//     | '[|' varsetExpr '|]'
+//         {
+//             AGeneralisedParallelismReplicatedProcess gprp = new AGeneralisedParallelismReplicatedProcess();
+//             gprp.setChansetExpression($varsetExpr.vexp);
+//             $op = gprp;
+//         }
+//     ;
+
+// proc0 returns[PProcess proc]
+// @after { $proc.setLocation(extractLexLocation($start, $stop)); }
+//     : proc1 (proc0Ops process)?
+//         {
+//             $proc = $proc1.proc;
+//             if ($proc0Ops.op != null) {
+//                 PProcess op = $proc0Ops.op;
+//                 Method setLeft = null;
+//                 Method setRight = null;
+//                 for (Method m : op.getClass().getMethods()) {
+//                     String mname = m.getName();
+//                     if (mname.equals("setLeft"))
+//                         setLeft = m;
+//                     else if (mname.equals("setRight"))
+//                         setRight = m;
+//                 }
+//                 if (setLeft == null || setRight == null) {
+//                     System.err.println("Missed a setLeft/Right method name in proc0");
+//                     // FIXME -- This should never happen
+//                 }
+//                 try {
+//                     setLeft.invoke(op, $proc);
+//                     setRight.invoke(op, $process.proc);
+//                 } catch (Exception e) {
+//                     System.err.println("Exception in proc0");
+//                     // FIXME -- This should never happen, and needs a better error :)
+//                 }
+//                 $proc = op;
+//             }
+//         }
+//     ;
+
+// proc0Ops returns[PProcess op]
+//     : ';'       { $op = new ASequentialCompositionProcess(); }
+//     | '[]'      { $op = new AExternalChoiceProcess(); }
+//     | '|~|'     { $op = new AInternalChoiceProcess(); }
+//     | '||'      { $op = new ASynchronousParallelismProcess(); }
+//     | '|||'     { $op = new AInterleavingProcess(); }
+//     | '/\\'     { $op = new AInterruptProcess(); }
+//     | '[>'      { $op = new AUntimedTimeoutProcess(); }
+//     | '/(' expression ')\\'
+//         {
+//             ATimedInterruptProcess atip = new ATimedInterruptProcess();
+//             atip.setTimeExpression($expression.exp);
+//             $op = atip;
+//         }
+//     | '[(' expression ')>'
+//         {
+//             ATimeoutProcess atp = new ATimeoutProcess();
+//             atp.setTimeoutExpression($expression.exp);
+//             $op=atp;
+//         }
+//     | '[' lcs=varsetExpr '||' rcs=varsetExpr ']'
+//         {
+//             AAlphabetisedParallelismProcess app = new AAlphabetisedParallelismProcess();
+//             app.setLeftChansetExpression($lcs.vexp);
+//             app.setRightChansetExpression($rcs.vexp);
+//             $op = app;
+//         }
+//     | '[|' varsetExpr '|]'
+//         {
+//             AGeneralisedParallelismProcess gpp = new AGeneralisedParallelismProcess();
+//             gpp.setChansetExpression($varsetExpr.vexp);
+//             $op = gpp;
+//         }
+//     ;
+
+// proc1 returns[PProcess proc]
+// @after { $proc.setLocation(extractLexLocation($start, $stop)); }
+//     : proc2 renamingExpr?
+//         {
+//             if ($renamingExpr.rexp != null)
+//                 $proc = new AChannelRenamingProcess(null, $proc2.proc, $renamingExpr.rexp);
+//             else
+//                 $proc = $proc2.proc;
+//         }
+//     ;
+
+// proc2 returns[PProcess proc]
+// @after { $proc.setLocation(extractLexLocation($start, $stop)); }
+//     : proc3
+//         { $proc = $proc3.proc; }
+//         ( 'startsby' exp=expression
+//             {
+//                 $proc = new AStartDeadlineProcess(null, $proc, $exp.exp);
+//             }
+//         | 'endsby' exp=expression
+//             {
+//                 $proc = new AEndDeadlineProcess(null, $proc, $exp.exp);
+//             }
+//         | '\\\\' varsetExpr
+//             {
+//                 $proc = new AHidingProcess(null, $proc, $varsetExpr.vexp);
+//             }
+//         )?
+//     ;
+
+// proc3 returns[PProcess proc]
+// @after { $proc.setLocation(extractLexLocation($start, $stop)); }
+//     : 'begin' actionParagraphOptList '@' action 'end'
+//         {
+//             $proc = new AActionProcess(null, $actionParagraphOptList.defs, $action.action);
+//         }
+//     | '(' parametrisationList '@' process ')' '(' expressionList? ')'
+//         {
+//             // JWC --- I have the feeling that this structure isn't
+//             // right.  Why on earth does a *process* have state
+//             // variables?  Still, they are properly parametrisations,
+//             // but only 'val', I think.
+//             $proc = new AInstantiationProcess(null, $parametrisationList.params, $process.proc, $expressionList.exps);
+//         }
+//     | IDENTIFIER ( '(' expressionList? ')' )?
+//         {
+//             // FIXME? ->(RWL,AKM) cml.y wraps the AReferenceProcess in
+//             // an AInstantiatedProcess if there are arguments.  So,
+//             // why does AReferenceProcess have a list of arguments?
+//             $proc = new AReferenceProcess(null, new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)), $expressionList.exps);
+//         }
+//     | '(' process ')'
+//         {
+//             $proc = $process.proc;
+//         }
+//     ;
 
 parametrisationList returns[List<PParametrisation> params]
 @init { $params = new ArrayList<PParametrisation>(); }
