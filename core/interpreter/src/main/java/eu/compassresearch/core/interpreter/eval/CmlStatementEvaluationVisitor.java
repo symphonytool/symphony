@@ -57,7 +57,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		if(nameContext != null)
 		{
 			if(node.getExp() != null)
-				nameContext.put(CmlOperationValue.ReturnValueName(), node.getExp().apply(cmlValueEvaluator,question));
+				nameContext.put(CmlOperationValue.ReturnValueName(), node.getExp().apply(cmlExpressionVisitor,question));
 			else
 				nameContext.put(CmlOperationValue.ReturnValueName(),new VoidValue());
 		}
@@ -96,7 +96,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 
 		try
 		{
-    		if (node.getIfExp().apply(cmlValueEvaluator,question).boolValue(question))
+    		if (node.getIfExp().apply(cmlExpressionVisitor,question).boolValue(question))
     		{
     			pushNext(node.getThenStm(), question);
     			
@@ -107,7 +107,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
     			boolean foundElseIf = false;
     			for (AElseIfStatementAction elseif: node.getElseIf())
     			{
-    				if(elseif.getElseIf().apply(cmlValueEvaluator,question).boolValue(question))
+    				if(elseif.getElseIf().apply(cmlExpressionVisitor,question).boolValue(question))
     				{
     					pushNext(elseif.getThenStm(), question);
     					foundElseIf = true;
@@ -150,7 +150,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		ValueList argValues = new ValueList();
 		for (PExp arg: node.getArgs())
 		{
-			argValues.add(arg.apply(cmlValueEvaluator,question));
+			argValues.add(arg.apply(cmlExpressionVisitor,question));
 		}
 		
 		// Note args cannot be Updateable, so we convert them here. This means
@@ -232,12 +232,12 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			ASingleGeneralAssignmentStatementAction node, Context question)
 					throws AnalysisException {
 //		question.putNew(new NameValuePair(new LexNameToken("", new LexIdentifierToken("a", false, new LexLocation())), new IntegerValue(2)));
-		Value expValue = node.getExpression().apply(cmlValueEvaluator,question);
+		Value expValue = node.getExpression().apply(cmlExpressionVisitor,question);
 		
 		//TODO Change this to deal with it in general
 		//LexNameToken stateDesignatorName = CmlActionAssistant.extractNameFromStateDesignator(node.getStateDesignator(),question);
 
-		Value oldVal = node.getStateDesignator().apply(cmlValueEvaluator,question);
+		Value oldVal = node.getStateDesignator().apply(cmlExpressionVisitor,question);
 		
 		oldVal.set(node.getLocation(), expValue, question);
 		
@@ -258,7 +258,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			throws AnalysisException {
 
 		List<ANonDeterministicAltStatementAction> availableAlts = ActionVisitorHelper.findAllTrueAlternatives(
-				node.getAlternatives(),question,cmlValueEvaluator);
+				node.getAlternatives(),question,cmlExpressionVisitor);
 		//if we got here we already now that the must at least be one available action
 		//so this should pose no risk of exception
 		pushNext(availableAlts.get(rnd.nextInt(availableAlts.size())).getAction(),question);
@@ -276,7 +276,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			throws AnalysisException {
 
 		List<ANonDeterministicAltStatementAction> availableAlts = ActionVisitorHelper.findAllTrueAlternatives(
-				node.getAlternatives(),question,cmlValueEvaluator);
+				node.getAlternatives(),question,cmlExpressionVisitor);
 		
 		
 		if(availableAlts.size() > 0)
@@ -303,7 +303,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			AWhileStatementAction node, Context question)
 			throws AnalysisException {
 
-		if(node.getCondition().apply(cmlValueEvaluator,question).boolValue(question))
+		if(node.getCondition().apply(cmlExpressionVisitor,question).boolValue(question))
 		{
 			//first we push the while node so that we get back to this point
 			pushNext(node, question);

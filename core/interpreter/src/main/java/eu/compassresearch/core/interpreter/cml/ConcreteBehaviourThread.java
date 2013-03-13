@@ -17,7 +17,7 @@ import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
-import eu.compassresearch.core.interpreter.eval.AlphabetInspector;
+import eu.compassresearch.core.interpreter.eval.AlphabetInspectVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluationVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
@@ -66,7 +66,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	protected CmlTrace 							trace = new CmlTrace();
 	
 	//Helper to inspect the immediate Alphabet
-	protected AlphabetInspector 				alphabetInspectionVisitor = new AlphabetInspector(this);
+	protected AlphabetInspectVisitor 				alphabetInspectionVisitor = new AlphabetInspectVisitor(this);
 	
 	//Event handling variable, we need to keep track if the events because of external choice
 	//

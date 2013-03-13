@@ -42,12 +42,8 @@ import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
-import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
@@ -57,8 +53,6 @@ import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
-import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.ActionValue;
@@ -70,13 +64,13 @@ import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
  *
  */
 @SuppressWarnings("serial")
-public class AlphabetInspector
+public class AlphabetInspectVisitor
 		extends
 		QuestionAnswerCMLAdaptor<Context, CmlAlphabet> {
 
 	// The process that contains this instance
 	private final CmlBehaviourThread 			ownerProcess;
-	private final CmlValueEvaluator				cmlEvaluator = new CmlValueEvaluator();
+	private final CmlExpressionVisitor			cmlEvaluator = new CmlExpressionVisitor();
 	
 	
 	
@@ -84,7 +78,7 @@ public class AlphabetInspector
 	 * 
 	 * @param ownerProcess
 	 */
-	public AlphabetInspector(CmlBehaviourThread ownerProcess)
+	public AlphabetInspectVisitor(CmlBehaviourThread ownerProcess)
 	{
 		this.ownerProcess = ownerProcess;
 	}

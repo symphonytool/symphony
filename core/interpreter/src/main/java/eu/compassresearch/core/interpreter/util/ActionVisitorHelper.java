@@ -4,25 +4,23 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.expressions.AVariableExp;
-import org.overture.ast.expressions.PExp;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
-import eu.compassresearch.core.interpreter.eval.CmlValueEvaluator;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.core.interpreter.eval.CmlExpressionVisitor;
 
 public class ActionVisitorHelper {
 
 	public static List<ANonDeterministicAltStatementAction> findAllTrueAlternatives(
 			List<ANonDeterministicAltStatementAction> alts,
-			Context question,CmlValueEvaluator cmlEvaluator) throws AnalysisException
+			Context question,QuestionAnswerCMLAdaptor<Context, Value> cmlExpressionVisitor) throws AnalysisException
 	{
 		List<ANonDeterministicAltStatementAction> availableAlts = new LinkedList<ANonDeterministicAltStatementAction>();
 		
 		for(ANonDeterministicAltStatementAction alt :  alts)		
-			if(alt.getGuard().apply(cmlEvaluator,question).boolValue(question))
+			if(alt.getGuard().apply(cmlExpressionVisitor,question).boolValue(question))
 				availableAlts.add(alt);
 		
 		return availableAlts;

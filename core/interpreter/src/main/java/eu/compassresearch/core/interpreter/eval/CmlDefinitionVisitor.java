@@ -36,10 +36,10 @@ import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.CmlValueFactory;
 
 @SuppressWarnings("serial")
-public class CmlDefinitionEvaluator extends
+public class CmlDefinitionVisitor extends
 		QuestionAnswerCMLAdaptor<Context, NameValuePairList> {
 
-	private CmlValueEvaluator parentInterpreter = new CmlValueEvaluator(); 
+	private CmlExpressionVisitor cmlExpressionVisitor = new CmlExpressionVisitor(); 
 
 	/*
 	 * Private helper methods
@@ -178,7 +178,7 @@ public class CmlDefinitionEvaluator extends
 		
 		Value expValue = null;
 		if(node.getExpression() != null)
-			expValue = node.getExpression().apply(parentInterpreter,question);
+			expValue = node.getExpression().apply(cmlExpressionVisitor,question);
 		else
 			expValue = new UndefinedValue();
 		
@@ -244,7 +244,7 @@ public class CmlDefinitionEvaluator extends
 
 		NameValuePairList vpl = new NameValuePairList();
 		
-		Value val = node.getExpression().apply(parentInterpreter,question);
+		Value val = node.getExpression().apply(cmlExpressionVisitor,question);
 		
 		vpl.add(new NameValuePair(node.getName(),val));
 		
