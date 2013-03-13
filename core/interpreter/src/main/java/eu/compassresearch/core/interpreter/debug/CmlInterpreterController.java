@@ -197,7 +197,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 	 */
 	
 	/**
-	 * Sends the initialisation message to the eclipse debug target
+	 * Sends the initialization message to the eclipse debug target
 	 */
 	private void init()
 	{
@@ -422,11 +422,22 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 		//Index 0 of args is the JSON config
 		JSONObject config =(JSONObject)JSONValue.parse(args[0]);
 		//retrieve the paths for the cml sources of the project
-		String sourcesPath = (String)config.get(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString());
+		System.out.println(config.get(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString()));
+		
+		List<String> sourcesPaths = new LinkedList<String>();
+		
+		Object sourcesPathsObject = config.get(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString());
+		//Since the used json encoding for some reason does not encode a list of size of 1 as a list but
+		//as a single normal string, we need to check this.
+		if(sourcesPathsObject instanceof List<?>)
+			sourcesPaths.addAll((List<String>)sourcesPathsObject);
+		else
+			sourcesPaths.add((String)sourcesPathsObject);
+
 		//retrieve the top process name
 		String startProcessName = (String)config.get(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString());
 
-		if(sourcesPath == null || sourcesPath.length() == 0)
+		if(sourcesPaths == null || sourcesPaths.size() == 0)
 		{
 			System.out.println("The path to the cml sources are not defined");
 			return;
@@ -435,7 +446,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 		List<PSource> sourceForest = new LinkedList<PSource>();
 		
 		// build the forest
-		for (String path : getCmlfilePaths(sourcesPath)) {
+		for (String path : sourcesPaths) {
 			
 			File source = new File(path);
 			System.out.println("Parsing file: " + source);
@@ -478,33 +489,33 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 		}
 	}
 	
-	/**
-	 * Find all the CML files in the specified path
-	 * @return
-	 */
-	public static List<String> getCmlfilePaths(String path) {
-
-		File dir = new File(path);
-		List<String> paths = new LinkedList<String>();
-
-		FilenameFilter filter = new FilenameFilter() {
-			public boolean accept(File dir, String name) {
-				return name.toLowerCase().endsWith(".cml");
-			}
-		};
-
-		String[] children = dir.list(filter);
-		if (children == null) {
-			// Either dir does not exist or is not a directory
-		} else {
-			for (int i = 0; i < children.length; i++) {
-				// Get filename of file or directory
-				paths.add(dir.getPath() + "/" + children[i]);
-			}
-		}
-
-		return paths;
-	}
+//	/**
+//	 * Find all the CML files in the specified path
+//	 * @return
+//	 */
+//	public static List<String> getCmlfilePaths(String path) {
+//
+//		File dir = new File(path);
+//		List<String> paths = new LinkedList<String>();
+//
+//		FilenameFilter filter = new FilenameFilter() {
+//			public boolean accept(File dir, String name) {
+//				return name.toLowerCase().endsWith(".cml");
+//			}
+//		};
+//
+//		String[] children = dir.list(filter);
+//		if (children == null) {
+//			// Either dir does not exist or is not a directory
+//		} else {
+//			for (int i = 0; i < children.length; i++) {
+//				// Get filename of file or directory
+//				paths.add(dir.getPath() + "/" + children[i]);
+//			}
+//		}
+//
+//		return paths;
+//	}
 
 	@Override
 	public void onStatusChanged(Object source, InterpreterStatusEvent event) {

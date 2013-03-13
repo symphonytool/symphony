@@ -232,7 +232,7 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
         	lcwc.setAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(), 
         			sourceUnit.getProject().getName());
         	lcwc.setAttribute(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(),
-        			CmlUtil.getProjectPath(sourceUnit.getProject()));
+        			CmlUtil.getCmlSourcesPathsFromProject(sourceUnit.getProject()));
         			
         	result = lcwc;
     	}
