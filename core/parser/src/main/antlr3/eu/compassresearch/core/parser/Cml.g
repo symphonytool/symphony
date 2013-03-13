@@ -1803,7 +1803,13 @@ opType returns[PType type]
             PType rngType = ($rng.type != null ? $rng.type : new AVoidType(extractLexLocation($vrng,$vrng2),true));
             LexLocation loc = extractLexLocation(domType.getLocation(),rngType.getLocation());
             List<PType> typeList = new ArrayList<PType>();
-            typeList.add(domType);
+			if (domType instanceof AProductType) {
+				AProductType apt = (AProductType)domType;
+				for(PType t : apt.getTypes()) typeList.add(t);
+			}else {
+				if (!(domType instanceof AVoidType))  
+                   typeList.add(domType);
+             }
             $type = new AOperationType(loc, false, null, typeList, rngType);
         }
     ;

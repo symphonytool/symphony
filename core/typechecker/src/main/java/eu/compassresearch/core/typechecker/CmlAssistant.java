@@ -31,6 +31,7 @@ import org.overture.typechecker.util.HelpLexNameToken;
 import org.xml.sax.ext.LexicalHandler;
 
 import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -111,6 +112,7 @@ class CmlAssistant {
 		injectFindMemberNameBaseCase(new ExternalDefinitionNameMemberStrategy());
 		injectFindMemberNameBaseCase(new AssignmentDefinitionNameMemberStrategy());
 		injectFindMemberNameBaseCase(new AStateDefinitionNameMemberStrategy());
+		injectFindMemberNameBaseCase(new AFunctionsDefinitionNameMemberStrategy());
 	}
 
 
@@ -147,6 +149,28 @@ class CmlAssistant {
 
 	}
 
+	class AFunctionsDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
+
+		@Override
+		public Class<?> getType() {
+			return AFunctionsDefinition.class;
+		}
+
+		@Override
+		public PDefinition findMemberName(PDefinition def,
+				LexIdentifierToken name, Object... more) {
+
+			AFunctionsDefinition fns = (AFunctionsDefinition)def;
+			LinkedList<PDefinition> fndefs = fns.getFunctionDefinitions();
+		
+			for(PDefinition fdef : fndefs) {
+				if (HelpLexNameToken.isEqual(fdef.getName(), name)) return fdef;
+			}
+			return null;
+		}
+		
+	}
+	
 	class AssignmentDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
 
 		@Override

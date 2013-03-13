@@ -26,16 +26,23 @@ public class EventSourceHandler<O,E> implements EventSource<O>{
 		this.eventMediator = other.eventMediator;
 	}
 	
+	@Override
 	public void registerObserver(O observer)
 	{
 		observers.add(observer);
 		CmlRuntime.logger().finest(observer.toString() + " registered on "+ source.toString() + " for "+observer.getClass().getSimpleName()+" events");
 	}
 	
+	@Override
 	public void unregisterObserver(O observer)
 	{
 		observers.remove(observer);
 		CmlRuntime.logger().finest(observer.toString() + " unregistered on "+ source.toString() + " for "+observer.getClass().getSimpleName()+" events");
+	}
+	
+	@Override
+	public boolean isRegistered(O observer) {
+		return observers.contains(observer);
 	}
 	
 	public void fireEvent(E event)

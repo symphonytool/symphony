@@ -47,7 +47,7 @@ import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
-import eu.compassresearch.core.interpreter.scheduler.Scheduler;
+import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 import eu.compassresearch.core.typechecker.VanillaFactory;
@@ -541,7 +541,7 @@ public class CheckCml {
 							try {
 								interpreter.setDefaultName(Switch.EXEC.getValue());
 								
-								Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+								CmlScheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
 								CmlSupervisorEnvironment sve = 
 										VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
 								
