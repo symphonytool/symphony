@@ -10,7 +10,6 @@ import java.util.ListIterator;
 import java.util.Map;
 
 
-import org.junit.experimental.runners.Enclosed;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
