@@ -31,13 +31,16 @@ import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
+import eu.compassresearch.ide.cml.ui.editor.syntax.DefinitionMap.DefinitionHandler;
 
 public class CmlTreeContentProvider implements ITreeContentProvider {
 
 	private static final String SMILING_ERROR_STRING = "P = NP ? Well we are working on it.";
 	@SuppressWarnings("unused")
 	private final Control parentControl;
-//	private Map<String, Object> _wrapperCache = new HashMap<String, Object>();
+
+	// private Map<String, Object> _wrapperCache = new HashMap<String,
+	// Object>();
 
 	public CmlTreeContentProvider(Control control) {
 		parentControl = control;
@@ -50,9 +53,9 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		//TODO figure out ast deltas for the outline preservation
-//		if (newInput instanceof CmlSourceUnit)
-//			current = ((CmlSourceUnit) newInput).getSourceAst();
+		// TODO figure out ast deltas for the outline preservation
+		// if (newInput instanceof CmlSourceUnit)
+		// current = ((CmlSourceUnit) newInput).getSourceAst();
 	}
 
 	private PSource current;
@@ -68,7 +71,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 					String[] r = { "Build project to generate outline." };
 					return r;
 				}
-				if (current.getParagraphs().isEmpty()){
+				if (current.getParagraphs().isEmpty()) {
 					String[] r = { "Fix project errors to generate outline." };
 					return r;
 				}
@@ -78,28 +81,27 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 				for (PDefinition def : current.getParagraphs()) {
 
 					// Get the entry names for the global declarations
-					String dscr =   TopLevelDefinitionMap.getDescription(def
+					String dscr = TopLevelDefinitionMap.getDescription(def
 							.getClass());
 					if (dscr == null)
 						res.add(Wrapper.newInstance(def, def.getName().name));
-				    else
-					res.add(Wrapper.newInstance(def, dscr));
-					
-					
+					else
+						res.add(Wrapper.newInstance(def, dscr));
+
 					// Cache mode disabled due to poor hashing on ast notes
-//						dscr = def.toString();
-//					//else res.add(Wrapper.newInstance(def, dscr));
-//					
-//					Object elem = _wrapperCache.get(dscr);
-//
-//					if (elem == null) {
-//						elem = Wrapper.newInstance(def, dscr);
-//						_wrapperCache.put(dscr, elem);
-////						res.add(elem);
-//					}
-//					if (elem != null)
-//						res.add(elem);
-//			
+					// dscr = def.toString();
+					// //else res.add(Wrapper.newInstance(def, dscr));
+					//
+					// Object elem = _wrapperCache.get(dscr);
+					//
+					// if (elem == null) {
+					// elem = Wrapper.newInstance(def, dscr);
+					// _wrapperCache.put(dscr, elem);
+					// // res.add(elem);
+					// }
+					// if (elem != null)
+					// res.add(elem);
+					//
 
 				}
 				return res.toArray();
@@ -181,8 +183,9 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 			AClassDefinition cpdef) {
 		List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 		for (PDefinition pdef : cpdef.getBody()) {
-			r.addAll(DefinitionMap.getDelegate(pdef.getClass())
-					.extractSubdefinition(pdef));
+			DefinitionHandler dh = DefinitionMap.getDelegate(pdef.getClass());
+			if (dh != null)
+				r.addAll(dh.extractSubdefinition(pdef));
 		}
 		return r;
 	}
@@ -207,7 +210,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 					// test the parent type loop here
 					if (in.parent() instanceof PType)
 						return null;
-					
+
 					String dscr = TopLevelDefinitionMap.getDescription(in
 							.getClass());
 					if (dscr == null)

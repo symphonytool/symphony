@@ -6,6 +6,11 @@ import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 
+/**
+ * Represents the status of the interpreter at a specific simulation point. 
+ * @author akm
+ *
+ */
 public class InterpreterStatus {
 
 	final private CmlProcessInfo[] processInfos;

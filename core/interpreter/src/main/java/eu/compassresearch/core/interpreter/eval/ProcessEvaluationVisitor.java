@@ -20,11 +20,12 @@ import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.ASkipProcess;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
@@ -68,7 +69,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 			processDef.setName(new LexNameToken("", "Unnamed Process",node.getLocation()));
 		}
 		
-		
+		//Create a temporary context to evaluate the definitions in
 		Context tmpContext = CmlContextFactory.newContext(node.getLocation(),"tmp",null);
 		
 		//Evaluate and add paragraph definitions and add the result to the state
@@ -76,20 +77,21 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		for (PDefinition def : node.getDefinitionParagraphs())
 		{
 			NameValuePairList nvps = def.apply(cmlDefEvaluator, tmpContext);
+			tmpContext.putList(nvps);
 			
 			for(NameValuePair nvp : nvps)
 			{
 				LexNameToken name = nvp.name.getModifiedName(processDef.getName().getSimpleName());
 				
+				//This makes sure that operations and functions cannot be updated, while
+				//everything else can.
+				//TODO This might be incomplete
 				if(nvp.value instanceof FunctionValue ||
 						nvp.value instanceof CmlOperationValue)
 					valueMap.put(new NameValuePair(name,nvp.value));
 				else
 					valueMap.put(new NameValuePair(name,nvp.value.getUpdatable(null)));
 			}
-				
-			
-		
 		}
 		
 		ProcessObjectValue self = new ProcessObjectValue(processDef,valueMap,question.getSelf());
@@ -182,7 +184,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 
 		}
 		//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
-		else if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(ownerThread()))
+		else if(CmlBehaviourThreadUtility.childWaitingForEventExists(ownerThread()))
 		{
 			result = caseParallelSync();
 
@@ -211,11 +213,11 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 					InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 		
 		//TODO: create a local copy of the question state for each of the actions
-		ConcreteBehaviourThread leftInstance = 
-				new ConcreteBehaviourThread(left,question,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
+		CmlBehaviourThread leftInstance = 
+				VanillaInterpreterFactory.newCmlBehaviourThread(left,question,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
 		
-		ConcreteBehaviourThread rightInstance = 
-				new ConcreteBehaviourThread(right,question,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,right.getLocation()),ownerThread());
+		CmlBehaviourThread rightInstance = 
+				VanillaInterpreterFactory.newCmlBehaviourThread(right,question,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,right.getLocation()),ownerThread());
 		
 		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}

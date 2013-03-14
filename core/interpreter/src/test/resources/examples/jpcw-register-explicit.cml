@@ -28,6 +28,7 @@ process RegisterProc =
   operations  
    INIT : () ==> ()
    INIT() == reg := 0
+   post reg = 0
 
    LOAD : Byte ==> ()
    LOAD(i) == reg := i
@@ -37,16 +38,14 @@ process RegisterProc =
 
    ADD: Byte ==> ()
    ADD(i) == reg := reg + i
-   //pre not oflow(reg, i)
+   pre not oflow(reg, i)
    //post reg = reg~ + i
 
    SUB: Byte ==> ()
    SUB(i) == reg := reg - i
-   
-   //frame wr reg : Byte
-   //pre not uflow(reg,i)
+   pre not uflow(reg,i)
    //post reg = reg~ - i
-  
+   
   actions
    
    REG = 

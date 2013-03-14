@@ -154,7 +154,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 	}
 	
 	/**
-	 * Write a the inStream to the out file
+	 * Write the inStream to the specified outfile
 	 * @param inStream
 	 * @param outfile
 	 * @throws IOException
@@ -173,10 +173,15 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		
 	}
 	
+	/**
+	 * Unpack the interpreter-with-dependencies.jar from the bundle and places it
+	 * at the basePath
+	 * @param basePath path to where the interpreter-with-dependencies.jar is placed
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	private void unpackInterpreterFromPlugin(String basePath) throws IOException, URISyntaxException
 	{
-		//File tempFile = File.createTempFile("interpreter-with-dependencies", ".jar");
-
 		InputStream jarStream = getClass().getResourceAsStream("/lib/interpreter-with-dependencies.jar");
 		InputStream jarHashStream = getClass().getResourceAsStream("/lib/interpreter-with-dependencies.jar.sha");
 
@@ -185,7 +190,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 				
 		WriteFile(jarStream,jarFile);
 		WriteFile(jarHashStream,jarHashFile);
-		
 	}
 	
 	/**
@@ -214,8 +218,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 			
 			return Arrays.equals(pluginJarHashBytes, existingJarHashBytes);
 		}
-		
-		
 	}
 	
 	/**
@@ -247,6 +249,13 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		return FileLocator.getBundleFile(Platform.getBundle(CmlDebugConstants.ID_CML_PLUGIN_NAME.toString()));
 	}
 	
+	/**
+	 * Determines the path String of where the interpreter jar is located.
+	 * This depends on the eclipse mode 
+	 * @return
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	private String locateInterpreterJarPath() throws IOException, URISyntaxException
 	{
 		File file = getBundleFile();
@@ -284,7 +293,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		};
 		
 		//Execute in a new JVM process
-		//Process process = Runtime.getRuntime().exec(commandArray, null, workingdir);
 		ProcessBuilder pb = new ProcessBuilder(commandArray);
 		Process process = pb.start();
 		IProcess iprocess = DebugPlugin.newProcess(launch, process, name);
@@ -298,19 +306,5 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 	{
 		return System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
 	}
-
-//	static public IVdmProject getVdmProject(ILaunchConfiguration configuration)
-//			throws CoreException
-//	{
-//
-//		IProject project = getProject(configuration);
-//
-//		if (project != null)
-//		{
-//			IVdmProject vdmProject = (IVdmProject) project.getAdapter(IVdmProject.class);
-//			return vdmProject;
-//		}
-//		return null;
-//	}
 
 }

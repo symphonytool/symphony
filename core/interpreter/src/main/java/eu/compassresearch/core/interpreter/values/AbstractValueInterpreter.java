@@ -1,9 +1,8 @@
-package eu.compassresearch.core.interpreter.util;
+package eu.compassresearch.core.interpreter.values;
 
 import org.overture.interpreter.values.SetValue;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.values.AnyValue;
 
 public class AbstractValueInterpreter {
 

@@ -399,7 +399,8 @@ public class CmlMainLaunchConfigurationTab extends
 			
 			IProject project = getProjectByName(fProjectText.getText());
 			//Set the project src path
-			configuration.setAttribute(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(),CmlUtil.getProjectPath(project));
+			configuration.setAttribute(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(),
+					CmlUtil.getCmlSourcesPathsFromProject(project));
 		
 		
 //			List<AProcessDefinition> globalProcess = CmlUtil.GetGlobalProcessesFromProject(project);

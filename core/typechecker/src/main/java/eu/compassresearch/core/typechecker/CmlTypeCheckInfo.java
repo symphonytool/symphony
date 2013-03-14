@@ -206,6 +206,7 @@ TypeCheckQuestion {
 	public CmlTypeCheckInfo newScope()
 	{
 		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels,env,issueHandler,globalClassDefinition);
+		res.scope = this.scope;
 		return res;
 	}
 
@@ -260,6 +261,7 @@ TypeCheckQuestion {
 			org.overture.typechecker.TypeCheckInfo current, PDefinition def) {
 		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels,env,issueHandler, this.globalClassDefinition);
 		res.env.setEnclosingDefinition(def);
+		res.scope = this.scope;
 		return res;
 	}
 

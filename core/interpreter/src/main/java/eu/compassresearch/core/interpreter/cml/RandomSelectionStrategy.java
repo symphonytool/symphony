@@ -21,9 +21,9 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.eval.CmlDefinitionEvaluator;
+import eu.compassresearch.core.interpreter.eval.CmlDefinitionVisitor;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
-import eu.compassresearch.core.interpreter.util.AbstractValueInterpreter;
+import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 /**
  * This class implements a random selection CMLCommunicaiton of the alphabet 
  * @author akm

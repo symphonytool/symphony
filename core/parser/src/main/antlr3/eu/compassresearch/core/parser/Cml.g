@@ -1533,8 +1533,9 @@ assignmentDefinition returns[AAssignmentDefinition def]
         {
             $def = new AAssignmentDefinition();//null, name, NameScope.GLOBAL, false, null, null, type, null, null, null);
             $def.setName(new LexNameToken("", $IDENTIFIER.getText(), extractLexLocation($IDENTIFIER)));
-            $def.setNameScope(NameScope.GLOBAL);
+            $def.setNameScope(NameScope.STATE);
             $def.setType($type.type);
+            $def.setPass(Pass.VALUES);
             // FIXME --- It can't be right that both the ':=' and 'in'
             // forms produce exactly the same result (that is what
             // cml.y did, but we need to clarify this). -jwc/20Dec2012

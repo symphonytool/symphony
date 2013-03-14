@@ -1,0 +1,22 @@
+channels 
+a : int
+
+process A = 
+begin 
+	state
+	v : int := 2
+
+	operations
+	
+	Test1 : int ==> int
+	Test1(x) == return x + v
+		
+	Test : int ==> int
+	Test(x) == 
+	v := Test1(x);
+	return x + v
+	
+	
+	 
+	@ Test(2);a!v -> Skip 
+end

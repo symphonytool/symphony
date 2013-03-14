@@ -34,7 +34,7 @@ import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
 import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
-import eu.compassresearch.core.interpreter.util.CmlUtil;
+import eu.compassresearch.core.interpreter.util.CmlParserUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -102,7 +102,7 @@ public class InterpretAllCmlFilesTest {
 
 		TestResult testResult = TestResult.parseTestResultFile(resultPath);
 
-		assertTrue(CmlUtil.parseSource(ast));
+		assertTrue(CmlParserUtil.parseSource(ast));
 
 		// Type check
 		TypeIssueHandler tcIssue = VanillaFactory.newCollectingIssueHandle();

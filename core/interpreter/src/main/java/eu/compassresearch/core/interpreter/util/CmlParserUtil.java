@@ -19,7 +19,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.parser.CmlLexer;
 import eu.compassresearch.core.parser.CmlParser;
 
-public class CmlUtil {
+public class CmlParserUtil {
 
 	public static boolean parseSource(PSource source) throws IOException
 	{
@@ -59,23 +59,4 @@ public class CmlUtil {
 		
 		return parseOK;
 	}
-	
-	public static AClassType createClassType(AProcessDefinition processDefinition)
-	{
-		AClassType classType = new AClassType();
-		classType.setResolved(true);
-		classType.setName(processDefinition.getName());
-		classType.setClassdef(createClassClassDefinition(processDefinition));
-		return classType;
-	}
-	
-	public static AClassClassDefinition createClassClassDefinition(AProcessDefinition processDefinition)
-	{
-		AClassClassDefinition surrogateProcessDef = new AClassClassDefinition();
-		surrogateProcessDef.setLocation(processDefinition.getLocation());
-		surrogateProcessDef.setName(processDefinition.getName());
-		
-		return surrogateProcessDef;
-	}
-	
 }

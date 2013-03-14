@@ -1,0 +1,121 @@
+types
+  LampId      = <L1> | <L2> | <L3>
+
+  Signal      = set of LampId
+   
+  ProperState = Signal
+  inv ps == ps in set {dark, stop, warning, drive}
+
+  DwarfType :: lastproperstate    : ProperState
+               turnoff            : set of LampId 
+               turnon             : set of LampId
+               laststate          : Signal
+               currentstate       : Signal
+               desiredproperstate : ProperState
+  inv d ==  
+    (((d.currentstate \ d.turnoff) union d.turnon) = d.desiredproperstate) and
+    (d.turnoff inter d.turnon = {})
+     
+  DwarfSignal = DwarfType
+  inv d == NeverShowAll(d) and MaxOneLampChange(d) and ForbidStopToDrive(d) and DarkOnlyToStop(d) and DarkOnlyFromStop(d)
+
+values
+  dark: Signal    = {}
+  stop: Signal    = {<L1>, <L2>}
+  warning: Signal = {<L1>, <L3>}
+  drive: Signal   = {<L2>, <L3>}
+
+functions
+
+  NeverShowAll: DwarfType -> bool
+  NeverShowAll(d) == d.currentstate <> {<L1>,<L2>,<L3>}
+  
+  MaxOneLampChange: DwarfType -> bool 
+  MaxOneLampChange(d) == exists l : LampId @ d.currentstate \ d.laststate = {l} or d.laststate \ d.currentstate = {l}
+  
+  ForbidStopToDrive : DwarfType -> bool
+  ForbidStopToDrive(d) == (stop in set d.lastproperstate) => d.desiredproperstate <> drive
+  
+  DarkOnlyToStop : DwarfType -> bool
+  DarkOnlyToStop(d) == (dark in set d.lastproperstate) => d.desiredproperstate = stop
+  
+  DarkOnlyFromStop: DwarfType -> bool
+  DarkOnlyFromStop(d) == (dark in set d.desiredproperstate) => stop in set d.lastproperstate
+ 
+channels
+  init
+  turnon: LampId
+  turnoff: LampId
+
+process Dwarf = begin
+
+state 
+  sg : DwarfSignal
+
+operations
+  Init : () ==> ()
+  Init() ==   sg.lastproperstate := stop ; 
+         	  sg.turnoff := {} ; 
+    	      sg.turnon := {} ; 
+    	      sg.laststate := stop ; 
+    	      sg.currentstate := stop ; 
+     		  sg.desiredproperstate := stop
+
+    post sg.lastproperstate = stop and 
+         sg.turnoff = {} and 
+         sg.turnon = {} and 
+         sg.laststate = stop and 
+         sg.currentstate = stop and 
+         sg.desiredproperstate = stop
+
+  SetNewProperState: (ProperState) ==> ()
+  SetNewProperState(st) ==  sg.lastproperstate := sg.currentstate ;	
+				  			sg.turnoff := sg.currentstate \ st ;
+				 	 	    sg.turnon := st \ sg.currentstate ;
+				  	 	    sg.laststate := sg.currentstate ;				  	
+				  	   		sg.desiredproperstate := st
+  
+  	pre sg.currentstate = sg.desiredproperstate and
+  	    st <> sg.currentstate
+  	     
+  	post sg.lastproperstate = sg~.currentstate and
+  	     sg.turnoff = sg~.currentstate \ st and
+  	     sg.turnon  = st \ sg~.currentstate and
+  	     sg.laststate = sg~.currentstate and
+  	     sg.currentstate = sg~.currentstate and
+  	     sg.desiredproperstate = st
+
+ 
+  TurnOn: (LampId) ==> ()
+  TurnOn(l) == sg.turnoff := sg.turnoff \ {l} ;
+		       sg.turnon  := sg.turnon  \ {l} ; 
+		       sg.laststate := sg.currentstate ;
+		       sg.currentstate := sg.currentstate \ {l}    
+         
+    pre l in set sg.turnoff
+    post sg.lastproperstate = sg~.lastproperstate and
+         sg.turnoff = sg~.turnoff \ {l} and
+         sg.turnon  = sg~.turnon  \ {l} and 
+         sg.laststate = sg~.currentstate and
+         sg.currentstate = sg~.currentstate \ {l} and
+         sg.desiredproperstate = sg~.desiredproperstate
+
+
+  TurnOff : (LampId) ==> ()
+  TurnOff(l) == sg.turnoff := sg.turnoff \ {l} ;
+       			sg.turnon  := sg.turnon  \ {l} ; 
+   		 	    sg.laststate := sg.currentstate ;
+                sg.currentstate := sg.currentstate union {l}
+
+    pre l in set sg.turnon
+    post sg.lastproperstate = sg~.lastproperstate and
+         sg.turnoff = sg~.turnoff \ {l} and
+         sg.turnon  = sg~.turnon  \ {l} and 
+         sg.laststate = sg~.currentstate and
+         sg.currentstate = sg~.currentstate union {l} and
+         sg.desiredproperstate = sg~.desiredproperstate
+
+@ init -> Init(); mu X @ ((turnon?l -> TurnOn(l); X) [] (turnoff?l -> TurnOff(l); X))
+
+end
+

@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
-import org.overture.ast.definitions.AExplicitOperationDefinition;
+import org.overture.ast.definitions.AClassInvariantDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
@@ -18,6 +18,7 @@ import org.overture.ast.types.PType;
 import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.ProofObligationList;
 import org.overture.pog.obligation.SubTypeObligation;
+import org.overture.pog.util.POException;
 import org.overture.pog.visitor.PogParamDefinitionVisitor;
 import org.overture.typechecker.TypeComparator;
 
@@ -41,9 +42,10 @@ import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.analysis.pog.obligations.SatisfiabilityObligation;
+import eu.compassresearch.core.analysis.pog.obligations.CMLStateInvariantObligation;
 import eu.compassresearch.core.analysis.pog.obligations.OperationPostConditionObligation;
 import eu.compassresearch.core.analysis.pog.obligations.ParameterPatternObligation;
+import eu.compassresearch.core.analysis.pog.obligations.SatisfiabilityObligation;
 
 @SuppressWarnings("serial")
 public class POGDeclAndDefVisitor extends
@@ -284,17 +286,47 @@ public class POGDeclAndDefVisitor extends
     
     
     
-    // Typechecker will eventually solve resolve these. For now, we hack past it.
+    // These will involve structural changes to the Overture AST in the 
+ //   future but for now we hack past it.
     @Override
     public ProofObligationList caseAUnresolvedPathExp(AUnresolvedPathExp node,
 	    POContextStack question) throws AnalysisException {
 	return new ProofObligationList();
     }
+      
+    
+    @Override
+	public ProofObligationList caseAClassInvariantDefinition(
+			AClassInvariantDefinition node, POContextStack question)
+			throws AnalysisException
+	{
+		try
+		{
+			ProofObligationList list = new ProofObligationList();
 
-   
+			
+			
+			if (node.getClassDefinition() != null)
+			{
+
+				if (!node.getClassDefinition().getHasContructors())
+				{
+					list.add(new CMLStateInvariantObligation(node, question));
+				}
+			}
+			
+			//TODO we need to process state invariants
+			
+			return list;
+		} catch (Exception e)
+		{
+			throw new POException(node, e.getMessage());
+		}
+	}
+
+
     
-    
-    // Call Overture for the other expressions    
+	// Call Overture for the other expressions    
     @Override
     public ProofObligationList defaultPSingleDeclaration(PSingleDeclaration node,
 	    POContextStack question) throws AnalysisException {

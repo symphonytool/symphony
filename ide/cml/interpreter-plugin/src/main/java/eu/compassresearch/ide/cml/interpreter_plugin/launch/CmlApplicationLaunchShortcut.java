@@ -226,14 +226,14 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
         			launchManager.getLaunchConfigurationType(CmlDebugConstants.ATTR_LAUNCH_CONFIGURATION_TYPE.toString());
         	
         	
-        	ILaunchConfigurationWorkingCopy lcwc = ctype.newInstance(null, launchManager.generateLaunchConfigurationName(ctype.getName()));
+        	ILaunchConfigurationWorkingCopy lcwc = ctype.newInstance(null, launchManager.generateLaunchConfigurationName("Quick Launch"));
         	
         	lcwc.setAttribute(CmlInterpreterLaunchConfigurationConstants.PROCESS_NAME.toString(), processName);
         	lcwc.setAttribute(CmlLaunchConfigurationConstants.ATTR_PROJECT_NAME.toString(), 
         			sourceUnit.getProject().getName());
         	lcwc.setAttribute(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString(),
-        			CmlUtil.getProjectPath(sourceUnit.getProject()));
-        			
+        			CmlUtil.getCmlSourcesPathsFromProject(sourceUnit.getProject()));
+        	lcwc.doSave();		
         	result = lcwc;
     	}
     	
