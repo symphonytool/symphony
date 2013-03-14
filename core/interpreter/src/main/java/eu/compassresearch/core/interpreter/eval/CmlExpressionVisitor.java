@@ -32,10 +32,10 @@ import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
-public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<Context, Value>
+public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
 {
 	static{
-		VdmRuntime.initialize(new CmlExpressionEvaluator());
+		VdmRuntime.initialize(new CmlExpressionVisitor());
 	}
 	
 	class VdmExpressionEvaluator extends DelegateExpressionEvaluator{
@@ -54,9 +54,8 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<Context, Va
 	}
 	
 	private VdmExpressionEvaluator vdmExpEvaluator =  new VdmExpressionEvaluator();
-	private Context context = null;
 
-	public CmlExpressionEvaluator()
+	public CmlExpressionVisitor()
 	{
 		InitThread initThread = new InitThread(Thread.currentThread());
         BasicSchedulableThread.setInitialThread(initThread);
@@ -69,7 +68,6 @@ public class CmlExpressionEvaluator extends QuestionAnswerCMLAdaptor<Context, Va
 	@Override
 	public Value defaultPExp(PExp node, Context question)
 			throws AnalysisException {
-		context = question;
 		return vdmExpEvaluator.defaultPExp(node,question);
 	}
 	

@@ -8,6 +8,7 @@ public enum CmlDbgpStatus
 	CHOICE,             //Fires when the interpreter is waiting for a choice
 	STOPPING, 			//Fires when the interpreter is about to stop
 	STOPPED, 			//Fires when the interpreter has stopped
+	//EXCEPTION,			//Fires when the interpreter has stopped caused by an exception
 	CONNECTION_CLOSED; 	//Fires when the interpreter connection has closed
 
 	@Override

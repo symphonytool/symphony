@@ -33,8 +33,8 @@ import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
-import eu.compassresearch.core.interpreter.scheduler.Scheduler;
-import eu.compassresearch.core.interpreter.util.CmlUtil;
+import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
+import eu.compassresearch.core.interpreter.util.CmlParserUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -102,7 +102,7 @@ public class InterpretAllCmlFilesTest {
 
 		TestResult testResult = TestResult.parseTestResultFile(resultPath);
 
-		assertTrue(CmlUtil.parseSource(ast));
+		assertTrue(CmlParserUtil.parseSource(ast));
 
 		// Type check
 		TypeIssueHandler tcIssue = VanillaFactory.newCollectingIssueHandle();
@@ -119,7 +119,7 @@ public class InterpretAllCmlFilesTest {
 
 		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(ast);
 
-		Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+		CmlScheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
 		CmlSupervisorEnvironment sve = 
 				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
 		

@@ -33,7 +33,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
-	protected <V extends CmlBehaviourThread> CmlBehaviourSignal  caseParallelBeginGeneral(V left, V right, Context question)
+	protected <V extends CmlBehaviourThread> CmlBehaviourSignal caseParallelBeginGeneral(V left, V right, Context question)
 	{
 		//add the children to the process graph
 		addChild(left);
@@ -108,10 +108,6 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	
 	protected CmlBehaviourSignal caseParallelSyncOrNonsync(PVarsetExpression chansetExp, Context question) throws AnalysisException
 	{
-		//convert the channelset of the current node to a alphabet
-		CmlAlphabet cs =  ((CmlAlphabet)chansetExp.
-				apply(cmlValueEvaluator,question));
-		
 		//get the immediate alphabets of the left and right child
 		CmlBehaviourThread leftChild = children().get(0);
 		CmlAlphabet leftChildAlpha = leftChild.inspect().flattenSyncEvents(); 
@@ -188,13 +184,13 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		}
 		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 		//with the state from the skip. After this all the children processes are terminated
-		else if(CmlBehaviourThreadUtility.existsAFinishedChild(ownerThread()))
+		else if(CmlBehaviourThreadUtility.finishedChildExists(ownerThread()))
 		{
 			result = caseExternalChoiceSkip();
 		}
 		//if this is true, then we can resolve the choice to the event
 		//of one of the children that are waiting for events
-		else if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(ownerThread()))
+		else if(CmlBehaviourThreadUtility.childWaitingForEventExists(ownerThread()))
 		{
 			result = caseExternalChoiceEnd();
 		}
@@ -248,9 +244,13 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
+	/**
+	 * Handles the external choice end rule
+	 * @return
+	 */
 	protected CmlBehaviourSignal caseExternalChoiceEnd()
 	{
-		ConcreteBehaviourThread theChoosenOne = (ConcreteBehaviourThread)findTheChoosenChild(supervisor().selectedObservableEvent());
+		CmlBehaviourThread theChoosenOne = findTheChoosenChild(supervisor().selectedObservableEvent());
 		
 		//first we execute the child
 		CmlBehaviourSignal result = executeChildAsSupervisor(theChoosenOne);

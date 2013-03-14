@@ -6,16 +6,17 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
+import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 
-public interface CmlBehaviourThread extends CmlBehaviour{
+public interface CmlBehaviourThread extends CmlBehaviour , Transactable{
 
 	/**
-	 * Initialises the process
+	 * Initializes the process
 	 * @param env
 	 */
 	public void start(CmlSupervisorEnvironment env);
@@ -28,6 +29,14 @@ public interface CmlBehaviourThread extends CmlBehaviour{
 	
 	//public Reason abortReason();
 	public void setAbort(Reason reason);
+	
+	/**
+	 * This determines whether this process or an ancestor is registered to the given channel.
+	 * 
+	 * @param channel
+	 * @return true if this or an ancestor is registered to 
+	 */
+	public boolean isRegistered(CmlChannel channel);
 	
 	/**
 	 * Returns the current execution state of the process
@@ -50,6 +59,10 @@ public interface CmlBehaviourThread extends CmlBehaviour{
 	public String nextStepToString();
 	
 	// Process Graph/Representation related methods
+	/**
+	 * The level of this object in the process network.
+	 * @return return 0 if this is the root, 1 if this is a child of the root etc.
+	 */
 	public long level();
 	public CmlBehaviourThread parent();
 	public List<CmlBehaviourThread> children();
@@ -99,10 +112,4 @@ public interface CmlBehaviourThread extends CmlBehaviour{
 	 */
 	public EventSource<CmlProcessTraceObserver> onTraceChanged();
 	
-	
-	void setRestorePoint();
-	
-	void revertToRestorePoint();
-	
-	boolean inBactrackMode();
 }

@@ -8,5 +8,5 @@ begin
 	Test(x) == v := v + x
 	pre	x = 1
 
-	@ Test(v)
+	@ Test(2)
 end

@@ -27,6 +27,7 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
@@ -41,12 +42,8 @@ import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
-import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
@@ -56,9 +53,7 @@ import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
-import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
-import eu.compassresearch.core.interpreter.scheduler.Scheduler;
-import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
+import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
@@ -69,13 +64,13 @@ import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
  *
  */
 @SuppressWarnings("serial")
-public class AlphabetInspector
+public class AlphabetInspectVisitor
 		extends
 		QuestionAnswerCMLAdaptor<Context, CmlAlphabet> {
 
 	// The process that contains this instance
-	private final CmlBehaviourThread 		ownerProcess;
-	private final CmlValueEvaluator				cmlEvaluator = new CmlValueEvaluator();
+	private final CmlBehaviourThread 			ownerProcess;
+	private final CmlExpressionVisitor			cmlEvaluator = new CmlExpressionVisitor();
 	
 	
 	
@@ -83,7 +78,7 @@ public class AlphabetInspector
 	 * 
 	 * @param ownerProcess
 	 */
-	public AlphabetInspector(CmlBehaviourThread ownerProcess)
+	public AlphabetInspectVisitor(CmlBehaviourThread ownerProcess)
 	{
 		this.ownerProcess = ownerProcess;
 	}
@@ -361,7 +356,7 @@ public class AlphabetInspector
 		{
 			//if there exist a finished child then the external choice ends with a silent transition
 			//where the state of the finished is used
-			if(CmlBehaviourThreadUtility.existsAFinishedChild(ownerProcess))
+			if(CmlBehaviourThreadUtility.finishedChildExists(ownerProcess))
 				alpha = createSilentTransition(node, node,"end");
 			else
 			{
@@ -498,6 +493,16 @@ public class AlphabetInspector
 	}
 	
 	/**
+	 * Stop Action
+	 */
+	@Override
+	public CmlAlphabet caseAStopAction(AStopAction node, Context question)
+			throws AnalysisException {
+		//return the empty alphabet
+		return new CmlAlphabet();
+	}
+	
+	/**
 	 * Communication Action 
 	 */
 	@Override
@@ -511,8 +516,8 @@ public class AlphabetInspector
 		
 		Set<CmlEvent> comset = new HashSet<CmlEvent>();
 		
-		//if there are no com params then we hav a prefix event
-		if(CmlActionAssistant.isPrefixEvent(node))
+		//if there are no com params then we have a prefix event
+		if(node.getCommunicationParameters().isEmpty())
 		{
 			comset.add(new PrefixEvent(ownerProcess, chanValue));
 		}
@@ -596,14 +601,14 @@ public class AlphabetInspector
 	}
 	
 	/**
-	 * Non deterministic if randomly chooses between options whoose exp are evaluated to true
+	 * Non deterministic if randomly chooses between options whose expression are evaluated to true
 	 */
 	@Override
 	public CmlAlphabet caseANonDeterministicIfStatementAction(
 			ANonDeterministicIfStatementAction node, Context question)
 			throws AnalysisException {
 
-		int availCount = CmlActionAssistant.findAllTrueAlts(
+		int availCount = ActionVisitorHelper.findAllTrueAlternatives(
 				node.getAlternatives(),question,cmlEvaluator).size();
 		
 		if(availCount > 0)
@@ -619,7 +624,7 @@ public class AlphabetInspector
 			ANonDeterministicDoStatementAction node, Context question)
 			throws AnalysisException {
 
-		int availCount = CmlActionAssistant.findAllTrueAlts(
+		int availCount = ActionVisitorHelper.findAllTrueAlternatives(
 				node.getAlternatives(),question,cmlEvaluator).size();
 		
 		if(availCount > 0)

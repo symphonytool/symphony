@@ -12,11 +12,12 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
+import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
-import eu.compassresearch.core.interpreter.eval.AlphabetInspector;
+import eu.compassresearch.core.interpreter.eval.AlphabetInspectVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluationVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
@@ -45,11 +46,11 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	protected LexNameToken 						name;
 	
 	//Stack machine variables
-	private Stack<Pair<INode,Context>> 		executionStack = new Stack<Pair<INode,Context>>();
+	private Stack<Pair<INode,Context>> 			executionStack = new Stack<Pair<INode,Context>>();
 	private Pair<INode,Context> 				prevExecution = null;
 	
 	//Process/Action Graph variables
-	protected CmlBehaviourThread 	parent;
+	protected CmlBehaviourThread 				parent;
 	protected List<ConcreteBehaviourThread> 	children = new LinkedList<ConcreteBehaviourThread>();
 	
 	//Process/Action state variables
@@ -65,7 +66,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	protected CmlTrace 							trace = new CmlTrace();
 	
 	//Helper to inspect the immediate Alphabet
-	protected AlphabetInspector 				alphabetInspectionVisitor = new AlphabetInspector(this);
+	protected AlphabetInspectVisitor 				alphabetInspectionVisitor = new AlphabetInspectVisitor(this);
 	
 	//Event handling variable, we need to keep track if the events because of external choice
 	//
@@ -102,7 +103,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	 * Constructor
 	 * @param parent set the parent here if any else set to null
 	 */
-	public ConcreteBehaviourThread(CmlBehaviourThread parent,LexNameToken name)
+	private ConcreteBehaviourThread(CmlBehaviourThread parent,LexNameToken name)
 	{
 		state = CmlProcessState.INITIALIZED;
 		this.parent = parent;
@@ -220,18 +221,13 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		return name.toString();
 	}
 	
-	/**
-	 * CmlProcessTraceObserver interface 
-	 */
-	
-	/**
-	 * This will provide the traces from all the child actions
-	 */
 	@Override
-	public void onTraceChange(TraceEvent traceEvent) {
-		
-		this.trace.addEvent(traceEvent.getEvent());
-		notifyOnTraceChange(TraceEvent.createRedirectedEvent(this, traceEvent));
+	public boolean isRegistered(CmlChannel channel) {
+
+		if(level() == 0 ) 
+			return env.selectedObservableEvent().getChannel().onSelect().isRegistered(this);
+		else
+			return this.parent().isRegistered(channel);
 	}
 	
 	/*
@@ -280,12 +276,8 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		{	
 			replaceExistingContexts(other.nextState().second);
 			//get the state replace the current state
-			//FIXME: this is really really ugly
 			for(Pair<INode,Context> state : other.getExecutionStack())
-			{
-				pushNext(state.first, 
-						state.second);
-			}
+				pushNext(state.first,state.second);
 		}
 		else
 		{
@@ -324,7 +316,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			newContexts.add(0,tmp);
 			tmp = tmp.outer;
 		}
-		//FIXME This is not allways the case. The scoping rules are not
+		//FIXME This is not always the case. The scoping rules are not
 		Context result = newContexts.get(oldContexts.size()-1);
 		
 //		if(newContexts.size() >= oldContexts.size())
@@ -377,9 +369,20 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			}
 			else 
 			{	
-				//If the selected event is in the immediate alphabet then we can continue
-				if(env.isObservableEventSelected() &&  
-						!alpha.flattenSyncEvents().intersectEqualOrMorePrecise(env.selectedObservableEvent().getAsAlphabet()).isEmpty())
+				/**
+				 *	If the selected event is valid and is in the immediate alphabet of the process 
+				 *	then we can continue.
+				 *  
+				 *  An extra condition saying 
+				 *  
+				 *  	level == 0 => must be registered at the channel of the selected event 
+				 *  
+				 *  prevents the process to execute the same event twice in a row
+				 */
+				//
+				if(env.isSelectedEventValid() &&  
+						!alpha.flattenSyncEvents().intersectEqualOrMorePrecise(env.selectedObservableEvent().getAsAlphabet()).isEmpty() &&
+						isRegistered(env.selectedObservableEvent().getChannel()))
 				{
 					ret = executeNext();
 					unregisterChannel(env.selectedObservableEvent());
@@ -666,6 +669,100 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		return traceEventHandler;
 	}
 	
+	@Override
+	public void beginTransaction() {
+
+		lastRestorePoint = new RestorePoint(executionStack, prevExecution, parent, children, state, env, hidingAlphabet, 
+											trace, registredEvents, stateEventhandler, traceEventHandler);
+		
+//		//set restore point for all the children
+//		for(CmlBehaviourThread child : children())
+//			child.setRestorePoint();
+		
+		parent = null;
+		stateEventhandler = new EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>(this,
+				new EventFireMediator<CmlProcessStateObserver,CmlProcessStateEvent>() {
+
+			@Override
+			public void fireEvent(CmlProcessStateObserver observer,
+					Object source, CmlProcessStateEvent event) {
+				observer.onStateChange(event);
+			}
+		});
+		
+		traceEventHandler = new EventSourceHandler<CmlProcessTraceObserver,TraceEvent>(this,
+				new EventFireMediator<CmlProcessTraceObserver,TraceEvent>() {
+
+			@Override
+			public void fireEvent(CmlProcessTraceObserver observer,
+					Object source, TraceEvent event) {
+				observer.onTraceChange(event);
+			}
+		});
+		
+		Stack<Pair<INode,Context>> copyStack = new Stack<Pair<INode,Context>>();
+		
+		for(Pair<INode,Context> pair : this.executionStack)
+			copyStack.add(0, new Pair<INode,Context>(pair.first,pair.second.deepCopy()));
+		
+		this.executionStack = copyStack;		
+		
+		this.children = new LinkedList<ConcreteBehaviourThread>(children);
+		this.hidingAlphabet = (CmlAlphabet) hidingAlphabet.clone();
+		this.trace = new CmlTrace(trace);
+		this.registredEvents = new LinkedList<ObservableEvent>(registredEvents);
+		
+		
+		CmlRuntime.logger().finest("\nSetting Restore point for " + name + "\n");
+	}
+
+	@Override
+	public void cancelTransaction() {
+
+		if(lastRestorePoint != null)
+		{
+			executionStack = lastRestorePoint.executionStack; 
+			prevExecution = lastRestorePoint.prevExecution;
+			parent = lastRestorePoint.parent;
+			children = lastRestorePoint.children;
+			env = lastRestorePoint.env;
+			hidingAlphabet = lastRestorePoint.hidingAlphabet; 
+			trace = lastRestorePoint.trace;
+			registredEvents = lastRestorePoint.registredEvents;
+			stateEventhandler = lastRestorePoint.stateEventhandler; 
+			traceEventHandler = lastRestorePoint.traceEventHandler;
+			state = lastRestorePoint.state;
+			//setState(lastRestorePoint.state);
+			
+//			//set restore point for all the children
+//			for(CmlBehaviourThread child : children())
+//				child.revertToRestorePoint();
+			
+			CmlRuntime.logger().finest("\n" + name + " restored\n");
+			lastRestorePoint = null;
+		}
+		
+	}
+
+	@Override
+	public boolean inTransaction() {
+		return lastRestorePoint != null;
+	}
+	
+	/**
+	 * CmlProcessTraceObserver interface methods
+	 */
+	
+	/**
+	 * This will provide the traces from all the child actions
+	 */
+	@Override
+	public void onTraceChange(TraceEvent traceEvent) {
+		
+		this.trace.addEvent(traceEvent.getEvent());
+		notifyOnTraceChange(TraceEvent.createRedirectedEvent(this, traceEvent));
+	}
+	
 	/**
 	 * ChannelListener interface method.
 	 * Here the process is notified when a registered channel is signalled 
@@ -725,7 +822,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	
 	/**
 	 * Executes the next state of the child process silently, meaning that the trace event
-	 * is disabled since the patent processes (this process) already have the event in the trace
+	 * is disabled since the parent process (this process) already have the event in the trace
 	 * since its supervising the child processes
 	 * @param child
 	 * @return
@@ -759,85 +856,4 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			iterator.remove();
 		}
 	}
-
-	@Override
-	public void setRestorePoint() {
-
-		lastRestorePoint = new RestorePoint(executionStack, prevExecution, parent, children, state, env, hidingAlphabet, 
-											trace, registredEvents, stateEventhandler, traceEventHandler);
-		
-//		//set restore point for all the children
-//		for(CmlBehaviourThread child : children())
-//			child.setRestorePoint();
-		
-		parent = null;
-		stateEventhandler = new EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>(this,
-				new EventFireMediator<CmlProcessStateObserver,CmlProcessStateEvent>() {
-
-			@Override
-			public void fireEvent(CmlProcessStateObserver observer,
-					Object source, CmlProcessStateEvent event) {
-				observer.onStateChange(event);
-			}
-		});
-		
-		traceEventHandler = new EventSourceHandler<CmlProcessTraceObserver,TraceEvent>(this,
-				new EventFireMediator<CmlProcessTraceObserver,TraceEvent>() {
-
-			@Override
-			public void fireEvent(CmlProcessTraceObserver observer,
-					Object source, TraceEvent event) {
-				observer.onTraceChange(event);
-			}
-		});
-		
-		Stack<Pair<INode,Context>> copyStack = new Stack<Pair<INode,Context>>();
-		
-		for(Pair<INode,Context> pair : this.executionStack)
-			copyStack.add(0, new Pair<INode,Context>(pair.first,pair.second.deepCopy()));
-		
-		this.executionStack = copyStack;		
-		
-		this.children = new LinkedList<ConcreteBehaviourThread>(children);
-		this.hidingAlphabet = (CmlAlphabet) hidingAlphabet.clone();
-		this.trace = new CmlTrace(trace);
-		this.registredEvents = new LinkedList<ObservableEvent>(registredEvents);
-		
-		
-		CmlRuntime.logger().finest("\nSetting Restore point for " + name + "\n");
-	}
-
-	@Override
-	public void revertToRestorePoint() {
-
-		if(lastRestorePoint != null)
-		{
-			executionStack = lastRestorePoint.executionStack; 
-			prevExecution = lastRestorePoint.prevExecution;
-			parent = lastRestorePoint.parent;
-			children = lastRestorePoint.children;
-			env = lastRestorePoint.env;
-			hidingAlphabet = lastRestorePoint.hidingAlphabet; 
-			trace = lastRestorePoint.trace;
-			registredEvents = lastRestorePoint.registredEvents;
-			stateEventhandler = lastRestorePoint.stateEventhandler; 
-			traceEventHandler = lastRestorePoint.traceEventHandler;
-			state = lastRestorePoint.state;
-			//setState(lastRestorePoint.state);
-			
-//			//set restore point for all the children
-//			for(CmlBehaviourThread child : children())
-//				child.revertToRestorePoint();
-			
-			CmlRuntime.logger().finest("\n" + name + " restored\n");
-			lastRestorePoint = null;
-		}
-		
-	}
-
-	@Override
-	public boolean inBactrackMode() {
-		return lastRestorePoint != null;
-	}
-	
 }

@@ -31,7 +31,7 @@ public interface CmlSupervisorEnvironment {
 	 * Determines whether there is a currently selected communication 
 	 * @return true of there is a communication selected else false
 	 */
-	public boolean isObservableEventSelected();
+	public boolean isSelectedEventValid();
 	/**
 	 * returns the selected communication
 	 * @return The selected CMLCommunication if communicationSelected() is true else null
