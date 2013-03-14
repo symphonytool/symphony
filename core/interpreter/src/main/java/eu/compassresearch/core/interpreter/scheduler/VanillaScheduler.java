@@ -68,14 +68,14 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 	}
 	
 	/**
-	 * Creates a list with all the currently waiting top-level processes
-	 * @return Currently Waiting top-level processes
+	 * Finds the top-level process
+	 * @return The top-level process
 	 */
-	private List<CmlBehaviourThread> getWaitingTopLevelProcesses()
+	private CmlBehaviourThread getTopLevelProcess()
 	{
 		List<CmlBehaviourThread> foundProcesses = new LinkedList<CmlBehaviourThread>();
 		
-		for(CmlBehaviourThread p : waiting)
+		for(CmlBehaviourThread p : getAllProcesses())
 		{
 			if(p.level() == 0)
 			{
@@ -83,7 +83,10 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 			}
 		}
 		
-		return foundProcesses;
+		if(foundProcesses.size() == 1)
+			return foundProcesses.get(0);
+		else
+			return null;
 	}
 	
 	@Override
@@ -98,6 +101,7 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 		List<CmlBehaviourThread> all = new LinkedList<CmlBehaviourThread>(running);
 		all.addAll(waiting);
 		all.addAll(finished);
+		all.addAll(deadlocked);
 		
 		return all;
 	}
@@ -172,13 +176,15 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 			 * Now, all the processes are sleeping tight, so the selected decision strategy needs to 
 			 * decide which event should occur and wake them up.
 			 */
-			for(CmlBehaviourThread p : getWaitingTopLevelProcesses())
+			CmlBehaviourThread p = getTopLevelProcess();
+			
+			if(p.deadlocked())
+				break;
+			else if(p.waiting())
 			{
 				CmlAlphabet availableEvents = p.inspect();
 
-				if(availableEvents.isEmpty())
-					throw new InterpreterRuntimeException("A deadlock has occured. To developer: Change this be handled differently!!!!");
-				else if(availableEvents.containsSpecialEvent(CmlTauEvent.referenceTauEvent()))
+				if(availableEvents.containsSpecialEvent(CmlTauEvent.referenceTauEvent()))
 					throw new InterpreterRuntimeException("A silent transition '"+ availableEvents.getSpecialEvents() +"' has slipped through to a place where only observable events should be.");
 				else
 				{
@@ -216,8 +222,12 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 	
 	@Override
 	public void stop() {
-
 		stopped = true;
+	}
+	
+	@Override
+	public boolean isDeadlocked() {
+		return getTopLevelProcess().deadlocked();
 	}
 	
 	/**

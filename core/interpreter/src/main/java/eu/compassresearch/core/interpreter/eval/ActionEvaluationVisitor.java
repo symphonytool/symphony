@@ -28,12 +28,13 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.actions.SStatementAction;
-import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
@@ -277,7 +278,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 
 		}
 		//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
-		else if(CmlBehaviourThreadUtility.isAtLeastOneChildWaitingForEvent(ownerThread()))
+		else if(CmlBehaviourThreadUtility.childWaitingForEventExists(ownerThread()))
 		{
 			result = caseParallelSync();
 			//We push the current state, 
@@ -313,12 +314,12 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		PAction right = node.getRightAction();
 		
 		//TODO: create a local copy of the question state for each of the actions
-		ConcreteBehaviourThread leftInstance = 
-				new ConcreteBehaviourThread(left, question, 
+		CmlBehaviourThread leftInstance = 
+				VanillaInterpreterFactory.newCmlBehaviourThread(left, question, 
 						new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
 		
-		ConcreteBehaviourThread rightInstance = 
-				new ConcreteBehaviourThread(right, question, 
+		CmlBehaviourThread rightInstance = 
+				VanillaInterpreterFactory.newCmlBehaviourThread(right, question, 
 						new LexNameToken(name.module,"|||" + name.getIdentifier().getName(),right.getLocation()),ownerThread());
 		
 		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
@@ -384,7 +385,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	public CmlBehaviourSignal caseAHidingAction(AHidingAction node,
 			Context question) throws AnalysisException {
 
-		setHidingAlphabet((CmlAlphabet)node.getChansetExpression().apply(cmlValueEvaluator,question));
+		setHidingAlphabet((CmlAlphabet)node.getChansetExpression().apply(cmlExpressionVisitor,question));
 
 		pushNext(node.getLeft(), question); 
 		

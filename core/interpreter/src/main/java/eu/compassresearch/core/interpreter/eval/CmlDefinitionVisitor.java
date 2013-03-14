@@ -1,5 +1,7 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import java.util.List;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
@@ -8,6 +10,7 @@ import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.FunctionValue;
@@ -28,15 +31,47 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
+import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.CmlValueFactory;
 
 @SuppressWarnings("serial")
-public class CmlDefinitionEvaluator extends
+public class CmlDefinitionVisitor extends
 		QuestionAnswerCMLAdaptor<Context, NameValuePairList> {
 
-	private CmlValueEvaluator parentInterpreter = new CmlValueEvaluator(); 
+	private CmlExpressionVisitor cmlExpressionVisitor = new CmlExpressionVisitor(); 
 
+	/*
+	 * Private helper methods
+	 */
+	
+	/**
+	 * Generic method for handling a list of definitions
+	 * @param defs
+	 * @param location
+	 * @param question
+	 * @return
+	 * @throws AnalysisException
+	 */
+	private NameValuePairList definitionListHelper(List<? extends PDefinition> defs, LexLocation location, Context question) throws AnalysisException
+	{
+		NameValuePairList vpl = new NameValuePairList();
+		Context defEvalContext = CmlContextFactory.newContext(location, "Definition Eval context", question);
+		
+		for(PDefinition def : defs)
+		{
+			NameValuePairList tmpNvl = def.apply(this,defEvalContext);  
+			defEvalContext.putList(tmpNvl);
+			vpl.addAll(tmpNvl);
+		}
+		
+		return vpl;
+	}
+	
+	/*
+	 * Visitor case methods
+	 */
+	
 	@Override
     public NameValuePairList caseAProcessDefinition(AProcessDefinition node,Context question)
         throws AnalysisException
@@ -67,14 +102,8 @@ public class CmlDefinitionEvaluator extends
 	public NameValuePairList caseAActionsDefinition(AActionsDefinition node,
 			Context question) throws AnalysisException {
 
-		NameValuePairList vpl = new NameValuePairList();
-		
-		for(AActionDefinition actionDef : node.getActions())
-		{
-			vpl.addAll(actionDef.apply(this,question));
-		}
-		
-		return vpl;
+		return definitionListHelper(node.getActions(),node.getLocation(),question);
+				
 	}
 	
 	@Override
@@ -89,20 +118,17 @@ public class CmlDefinitionEvaluator extends
 		return vpl;
 	}
 	
+	/*
+	 * Function  
+	 */
+	
 	@Override
 	public NameValuePairList caseAFunctionsDefinition(AFunctionsDefinition node,
 			Context question) throws AnalysisException {
-
-		NameValuePairList vpl = new NameValuePairList();
-		
-		for(PDefinition funcDefs : node.getFunctionDefinitions())
-		{
-			vpl.addAll(funcDefs.apply(this,question));
-		}
-		
-		return vpl;
+			
+		return definitionListHelper(node.getFunctionDefinitions(),node.getLocation(),question);
 	}
-	
+			
 	@Override
 	public NameValuePairList caseAExplicitFunctionDefinition(
 			AExplicitFunctionDefinition node, Context question)
@@ -121,19 +147,15 @@ public class CmlDefinitionEvaluator extends
 		return vpl;
 	}
 	
+	/*
+	 * Operations
+	 */
 	
 	@Override
 	public NameValuePairList caseAOperationsDefinition(AOperationsDefinition node,
 			Context question) throws AnalysisException {
 
-		NameValuePairList vpl = new NameValuePairList();
-		
-		for(SCmlOperationDefinition operationDef : node.getOperations())
-		{
-			vpl.addAll(operationDef.apply(this,question));
-		}
-		
-		return vpl;
+		return definitionListHelper(node.getOperations(),node.getLocation(),question);
 	}
 	
 	@Override
@@ -143,7 +165,7 @@ public class CmlDefinitionEvaluator extends
 	
 		NameValuePairList vpl = new NameValuePairList();
 		
-		vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node)));
+		vpl.add(new NameValuePair(node.getName(), CmlValueFactory.createOperationValue(node,question)));
 		
 		return vpl;
 	}
@@ -156,7 +178,7 @@ public class CmlDefinitionEvaluator extends
 		
 		Value expValue = null;
 		if(node.getExpression() != null)
-			expValue = node.getExpression().apply(parentInterpreter,question);
+			expValue = node.getExpression().apply(cmlExpressionVisitor,question);
 		else
 			expValue = new UndefinedValue();
 		
@@ -183,16 +205,15 @@ public class CmlDefinitionEvaluator extends
     	return vpl;
     }
 	
+	/*
+	 * Types
+	 */
+	
 	@Override
 	public NameValuePairList caseATypesDefinition(ATypesDefinition node,
 			Context question) throws AnalysisException {
 
-		NameValuePairList vpl = new NameValuePairList();
-		
-		for (ATypeDefinition typeDef : node.getTypes())
-			vpl.addAll(typeDef.apply(this,question));
-		
-		return vpl;
+		return definitionListHelper(node.getTypes(),node.getLocation(),question);
 	}
 	
 	@Override
@@ -206,15 +227,15 @@ public class CmlDefinitionEvaluator extends
 		return vpl;
 	}
 	
+	/*
+	 * Values
+	 */
+	
 	@Override
 	public NameValuePairList caseAValuesDefinition(AValuesDefinition node,
 			Context question) throws AnalysisException {
 
-		NameValuePairList vpl = new NameValuePairList();
-		for (PDefinition valueDef : node.getValueDefinitions())
-			vpl.addAll(valueDef.apply(this,question));
-		
-		return vpl;
+		return definitionListHelper(node.getValueDefinitions(),node.getLocation(),question);
 	}
 	
 	@Override
@@ -223,7 +244,7 @@ public class CmlDefinitionEvaluator extends
 
 		NameValuePairList vpl = new NameValuePairList();
 		
-		Value val = node.getExpression().apply(parentInterpreter,question);
+		Value val = node.getExpression().apply(cmlExpressionVisitor,question);
 		
 		vpl.add(new NameValuePair(node.getName(),val));
 		

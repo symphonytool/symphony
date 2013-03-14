@@ -1,0 +1,8 @@
+channels
+a
+
+process A = 
+begin
+	@ Stop; a -> Skip
+end
+

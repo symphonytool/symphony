@@ -1,0 +1,11 @@
+channels c
+process A = 
+begin
+	
+	values
+ 		a : int = 3
+ 		b : int = a + 1
+ 		
+	@ [b = 4] & c -> Skip 
+end
+

@@ -24,6 +24,8 @@ public interface CmlScheduler {
 	public boolean hasWaitingProcesses();
 	
 	public boolean hasActiveProcesses();
+
+	public boolean isDeadlocked();
 	
 	public void start();
 	

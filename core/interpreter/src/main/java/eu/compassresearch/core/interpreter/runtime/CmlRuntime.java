@@ -1,20 +1,13 @@
 package eu.compassresearch.core.interpreter.runtime;
 
-import java.util.logging.Filter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import org.overture.typechecker.Environment;
-
-import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-
 
 public class CmlRuntime {
 
-	//protected static CmlScheduler cmlScheduler = new CmlScheduler();
 	protected static Logger logger = null;
 	protected static Handler logHandler = null;
 	private static boolean showHiddenEvents = true;
