@@ -22,6 +22,7 @@ import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
@@ -165,17 +166,17 @@ public class CmlEditor extends TextEditor {
 	    CmlSourceUnit csu = CmlSourceUnit
 		    .getFromFileResource(fei.getFile());
 	    
-			// // if there is no AST, build it. This is a hack
-			// if (csu.getSourceAst() == null){
-			// try {
-			// ResourcesPlugin.getWorkspace().build(CmlIncrementalBuilder.FULL_BUILD,
-			// null);
-			// } catch (CoreException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-			// }
-			//
+			// // FIXME if there is no AST, build it. This is a hack
+//			 if (csu.getSourceAst() == null){
+//			 try {
+//			 ResourcesPlugin.getWorkspace().build(CmlIncrementalBuilder.FULL_BUILD,
+//			new NullProgressMonitor());
+//			 } catch (CoreException e) {
+//			 // TODO Auto-generated catch block
+//			 e.printStackTrace();
+//			 }
+//			 }
+			
 	    cmlOutliner.setInput(csu);
 	    csu.addChangeListener(new CmlSourceChangedListener() {
 
