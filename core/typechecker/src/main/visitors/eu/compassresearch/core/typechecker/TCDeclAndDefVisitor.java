@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import javax.xml.ws.handler.MessageContext.Scope;
 
+import org.junit.experimental.runners.Enclosed;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
@@ -32,10 +32,8 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexBooleanToken;
 import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.lex.LexToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.NodeList;
 import org.overture.ast.patterns.AIdentifierPattern;
@@ -45,7 +43,6 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
-import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFunctionType;
@@ -101,7 +98,6 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
-import eu.compassresearch.ast.expressions.ABracketedExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
@@ -335,17 +331,28 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		LinkedList<PDefinition> defs = node.getStateDefs();
 		for(PDefinition def : defs)
 		{
-			NameScope oldScope = question.scope;
-			question.scope = NameScope.LOCAL;
+			question.scope = NameScope.STATE;
 			PType defType = def.apply(parentChecker, cmlenv);
-			question.scope = oldScope;
 			if (!TCDeclAndDefVisitor.successfulType(defType))
 			{
 				node.setType(issueHandler.addTypeError(def, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+def)));
 				return node.getType();
 			}
+
+			if (!(def instanceof AAssignmentDefinition)) {
+//				def.setType(issueHandler.addTypeError(def,TypeErrorMessages.INPROPER_STATE_DEFINITION.toString()));
+//				return def.getType();
+			}
+			
+			if ((def instanceof AAssignmentDefinition)) {
+//				def.setType(issueHandler.addTypeError(def,TypeErrorMessages.INPROPER_STATE_DEFINITION.toString()));
+//				return def.getType();
+				AAssignmentDefinition stateDef = (AAssignmentDefinition)def;
+				stateDef.setNameScope(NameScope.STATE);
+			}
 			if (def.getName() != null)
 				cmlenv.addVariable(def.getName(), def);
+			
 		}
 
 		if (node.getInvdef() != null) {
@@ -441,7 +448,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			prePostDefinitions.addAll(patternType.getDefinitions());
 			resultTypes.add(pt.getType());
 		}
-
+		
 		if (resultTypes.size() == 0)
 			resultType = AstFactory.newAVoidReturnType(node.getLocation());
 
@@ -450,9 +457,18 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (resultTypes.size() > 1) resultType = AstFactory.newAProductType(node.getLocation(), resultTypes);
 
 		AOperationType operationType = AstFactory.newAOperationType(node.getLocation(), paramTypes , resultType);
-
 		node.setType(operationType);
 
+		AOperationType ot = node.getType();
+		for(PType p : ot.getParameters()) {
+			PType pType = p.apply(parentChecker,question);
+			if (!TCDeclAndDefVisitor.successfulType(pType)) {
+				node.setType(issueHandler.addTypeError(ot, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+p)));
+				return node.getType();
+			}
+		}
+
+		
 		// Create predef if it is not there
 		if (preDef == null)
 		{
@@ -761,7 +777,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		// type check the action
-		PType actionType = action.apply(parentChecker,question);
+		PType actionType = action.apply(parentChecker,actionScope);
 		if (!TCDeclAndDefVisitor.successfulType(actionType))
 		{
 			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(action+"")));
@@ -1158,7 +1174,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 						def.getClass()).handle(def));
 		}
 
-		// Nice :) we can use AstFactory now !
 		AClassClassDefinition surrogateOvertureClass = AstFactory
 				.newAClassClassDefinition(node.getName(),
 						new LexNameList(), // TODO: empty list here, if doing inheritance this needs to be fixed
@@ -1594,7 +1609,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 		}
 
-
+		newQuestion.scope = NameScope.NAMESANDANYSTATE;
 		PAction operationBody = node.getBody();
 		question.contextSet(CmlTypeCheckInfo.class, newQuestion);
 		PType bodyType = operationBody.apply(parentChecker, newQuestion);
@@ -1618,10 +1633,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 		}
 
-
+		List<PDefinition> enclosingStateDefinitions = findStateDefs(node,newQuestion);
 		PExp preExp = node.getPrecondition();
 		if (preExp != null) {
-			AExplicitFunctionDefinition preDef = CmlTCUtil.buildCondition0("pre", node, node.getType(), node.getParameterPatterns(), node.getPrecondition());
+			AExplicitFunctionDefinition preDef = CmlTCUtil.buildCondition0("pre", node, node.getType(), node.getParameterPatterns(), node.getPrecondition(), enclosingStateDefinitions, new LinkedList<PDefinition>());
 			PType preDefType = preDef.apply(parentChecker,newQuestion);
 			if (!TCDeclAndDefVisitor.successfulType(preDefType)) {
 				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+preDef)));
@@ -1665,16 +1680,17 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				}
 			}
 
-			List<PDefinition> enclosingStateDefinitions = findStateDefs(node,newQuestion);
+			List<PDefinition> oldStateDefs = new LinkedList<PDefinition>();
 			for(PDefinition stateDef : enclosingStateDefinitions) {
 				LexNameToken normName = stateDef.getName();
 				LexNameToken oldName = new LexNameToken("", new LexIdentifierToken(normName.getName(), true, normName.getLocation()));
 				PDefinition oldDefinition = stateDef.clone();
 				oldDefinition.setName(oldName);
-				postEnv.addVariable(oldName, oldDefinition);
+				oldStateDefs.add(oldDefinition);
+		//		postEnv.addVariable(oldName, oldDefinition);
 			}
-
-			AExplicitFunctionDefinition postDef = CmlTCUtil.buildCondition0("post", node, node.getType(), paramPatterns, node.getPostcondition());
+			postEnv.scope = NameScope.NAMES;
+			AExplicitFunctionDefinition postDef = CmlTCUtil.buildCondition0("post", node, node.getType().clone(), paramPatterns, node.getPostcondition(), enclosingStateDefinitions, oldStateDefs);
 			PType postDefType = postDef.apply(parentChecker,postEnv);
 			if (!TCDeclAndDefVisitor.successfulType(postDefType)) {
 				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+postDef)));
@@ -1803,8 +1819,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// CML Variant, we need to check the patterns
 		TypeCheckInfo question = (TypeCheckInfo)createEnvironmentWithFormals(questionIn, node);
 
-
-
 		// CML Variant, we need to check for zero arguments
 		PType expectedResult = null;		
 		if (node.getParamDefinitionList().size() > 0) {
@@ -1824,10 +1838,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AFunctionType funType = (AFunctionType)fnType;
 			expectedResult = funType.getResult();
 		}
-
-
-
-
 
 		node.setExpectedResult(expectedResult);
 		List<List<PDefinition>> paramDefinitionList = AExplicitFunctionDefinitionAssistantTC
@@ -1849,13 +1859,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		PDefinitionListAssistantTC.typeCheck(defs, this, new TypeCheckInfo(
 				local, question.scope, question.qualifiers)); // can
-		// be
-		// this
-		// because
-		// its
-		// a
-		// definition
-		// list
 
 		if (question.env.isVDMPP()
 				&& !PAccessSpecifierAssistantTC.isStatic(node.getAccess())) {

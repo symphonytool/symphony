@@ -629,21 +629,28 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AInterleavingReplicatedProcess node, TypeCheckInfo question)
 					throws AnalysisException {
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		
 		LinkedList<PSingleDeclaration> declarations = node
 				.getReplicationDeclaration();
 
+		CmlTypeCheckInfo processScope = cmlEnv.newScope();
+		
 		for (PSingleDeclaration singleDecl : declarations) {
 			PType singleDeclType = singleDecl.apply(parentChecker, question);
 			if (!TCDeclAndDefVisitor.successfulType(singleDeclType))
 				return issueHandler.addTypeError(singleDecl,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 						.customizeMessage(singleDecl + ""));
+			for(PDefinition def : singleDeclType.getDefinitions())
+				processScope.addVariable(def.getName(), def);
+			
 		}
 
 		PProcess replicatedProcess = node.getReplicatedProcess();
 
 		PType replicatedProcessType = replicatedProcess.apply(parentChecker,
-				question);
+				processScope);
 		if (!TCDeclAndDefVisitor.successfulType(replicatedProcessType))
 			return issueHandler.addTypeError(replicatedProcess,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE

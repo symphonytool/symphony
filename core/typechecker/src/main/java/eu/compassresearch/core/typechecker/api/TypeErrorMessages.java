@@ -5,7 +5,7 @@ public enum TypeErrorMessages {
 
 	TYPE_CHECK_INTERNAL_FAILURE("Subtree failed type checking with an internal error: %s."),
 
-	
+	INPROPER_STATE_DEFINITION("Expected an assignment definition on the form <name> ':' <type> {:= exp}."),
 	
 	SEQ_TYPE_EXPECTED(
 			"The expresion %s has type %s which is not a sequence type as expected."), 
