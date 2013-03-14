@@ -1918,14 +1918,15 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			node.setType(issueHandler.addTypeError(state, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(state+"")));
 			return node.getType();
 		}
-
+		NameScope oldScope = question.scope;
+		question.scope = NameScope.NAMESANDANYSTATE;
 		PType expType = exp.apply(parentChecker,question);
 		if (!TCDeclAndDefVisitor.successfulType(expType))
 		{
 			node.setType(issueHandler.addTypeError(exp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+exp)));
 			return node.getType();
 		}
-
+		question.scope = oldScope;
 		do {
 			// are we in this special Cml Operation invocation in an AGASA situation (don't ask)
 			if (!(exp instanceof AApplyExp && ((AApplyExp)exp).getRoot().getType() instanceof AOperationType)) break;
@@ -2206,6 +2207,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				else
 					thisType = cType.getType();
 
+				if (thisType == null) {
+					node.setType(issueHandler.addTypeError(node, TypeErrorMessages.PATTERN_MISMATCH.customizeMessage("untyped channel",writeExp+"")));
+					return node.getType();
+					
+				}
+				
 				if (!typeComparator.isSubType(writeExpType, thisType))
 				{
 					node.setType(issueHandler.addTypeError(commParam, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""+thisType,""+writeExpType)));

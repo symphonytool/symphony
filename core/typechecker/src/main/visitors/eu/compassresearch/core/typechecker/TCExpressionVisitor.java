@@ -419,11 +419,15 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			 * The following is copied from Overture TypeCheckerExpVisitor
 			 */
 			TypeChecker.clearErrors();
-			for (PExp a : node.getArgs()) {
-				question.qualifiers = null;
-				node.getArgtypes().add(a.apply(parent, question));
+			if (!(node.getArgtypes() != null && node.getArgtypes().size() == node.getArgs().size())) {
+				for (PExp a : node.getArgs()) {
+					question.qualifiers = null;
+					PType argType = a.apply(parent, question);
+					node.getArgtypes().add(
+							argType
+							);
+				}
 			}
-
 			node.setType(node.getRoot().apply(
 					parent,
 					new TypeCheckInfo(question.env, question.scope, node
@@ -814,7 +818,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		org.overture.typechecker.TypeCheckInfo quest = new org.overture.typechecker.TypeCheckInfo(
 				question.env);
-		quest.scope = NameScope.NAMES;
+		quest.scope = question.scope;
 		quest.qualifiers = new LinkedList<PType>();
 		try {
 			OvertureRootCMLAdapter.pushQuestion(question);
@@ -867,13 +871,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// no then it may be a variable
 		if (root == null)
-			root = question.env.findName(rootName, NameScope.LOCAL);
+			root = question.env.findName(rootName, question.scope);
 
-		if (root == null)
-			root = question.env.findName(rootName, NameScope.NAMES);
-
-		if (root == null)
-			root = question.env.findName(rootName, NameScope.GLOBAL);
 
 		// RWL: UGLY Re-factor some day
 		if (root instanceof AAssignmentDefinition) {
