@@ -12,7 +12,6 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
@@ -424,7 +423,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				//we have to check for hidden event and convert them into tau events
 				CmlAlphabet hiddenEvents = alpha.intersectRefsAndJoin(hidingAlphabet);
 				
-				CmlAlphabet returnAlpha = alpha.substract(hiddenEvents);
+				CmlAlphabet returnAlpha = alpha.subtract(hiddenEvents);
 				
 				for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
 					returnAlpha = returnAlpha.union(new CmlTauEvent(" hiding " + obsEvent.toString()));
