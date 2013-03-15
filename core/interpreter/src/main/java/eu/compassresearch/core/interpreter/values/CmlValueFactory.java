@@ -30,13 +30,13 @@ public class CmlValueFactory {
 		{
 			AExplicitCmlOperationDefinition def = (AExplicitCmlOperationDefinition)node;
 			
-			FunctionValue prefunc =
-					(((AExplicitCmlOperationDefinition) node).getPredef() == null) ? null : new FunctionValue(((AExplicitCmlOperationDefinition) node).getPredef(), null, null, null);
+			//FunctionValue prefunc =
+			//		(((AExplicitCmlOperationDefinition) node).getPredef() == null) ? null : new FunctionValue(((AExplicitCmlOperationDefinition) node).getPredef(), null, null, null);
 
-			FunctionValue postfunc =
-					(((AExplicitCmlOperationDefinition) node).getPostdef() == null) ? null : new FunctionValue(((AExplicitCmlOperationDefinition) node).getPostdef(), null, null, null);
+			//FunctionValue postfunc =
+			//		(((AExplicitCmlOperationDefinition) node).getPostdef() == null) ? null : new FunctionValue(((AExplicitCmlOperationDefinition) node).getPostdef(), null, null, null);
 			
-			ret = new CmlOperationValue(def, prefunc, postfunc, null);
+			ret = new CmlOperationValue(def, null);
 			
 		}
 		

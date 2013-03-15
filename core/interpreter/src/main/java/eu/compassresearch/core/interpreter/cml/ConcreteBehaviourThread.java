@@ -764,13 +764,14 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	
 	/**
 	 * ChannelListener interface method.
-	 * Here the process is notified when a registered channel is signalled 
+	 * Here the process is notified when a registered channel is signaled 
 	 */
 	@Override
 	public void onChannelEvent(Object source, CmlChannelEvent event) {
 
 		//if the channel sends a select event then it means that we have a go to execute the
-		//communicationAction transition. So we set the state to RUNNABLE so the scheduler will execute it
+		//communicationAction transition. 
+		//So we set the state to RUNNABLE so the scheduler will execute it
 		if(event.getEventType() == CmlCommunicationType.SELECT)
 			setState(CmlProcessState.RUNNABLE);
 	}

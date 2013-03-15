@@ -4,22 +4,16 @@ import java.util.List;
 import java.util.Vector;
 
 import org.overture.ast.definitions.AStateDefinition;
-import org.overture.ast.definitions.SClassDefinition;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AOperationType;
-import org.overture.interpreter.runtime.ClassContext;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.ObjectContext;
-import org.overture.interpreter.runtime.RootContext;
-import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.ObjectValue;
-import org.overture.interpreter.values.OperationValue;
 import org.overture.interpreter.values.Value;
-import org.overture.typechecker.assistant.definition.PAccessSpecifierAssistantTC;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
@@ -42,8 +36,8 @@ public class CmlOperationValue extends Value {
 	private final AOperationType type;
 	private final List<PPattern> paramPatterns;
 
-	public final FunctionValue precondition;
-	public final FunctionValue postcondition;
+	private final PExp precondition;
+	private final PExp postcondition;
 	public final AStateDefinition state;
 
 	private PAction body;
@@ -57,8 +51,7 @@ public class CmlOperationValue extends Value {
 	private CmlBehaviourThread currentlyExecutingThread = null;
 
 	public CmlOperationValue(AExplicitCmlOperationDefinition def,
-		FunctionValue precondition, FunctionValue postcondition,
-		AStateDefinition state)
+							AStateDefinition state)
 	{
 		this.expldef = def;
 		this.impldef = null;
@@ -66,14 +59,13 @@ public class CmlOperationValue extends Value {
 		this.type = (AOperationType)def.getType();
 		this.paramPatterns = def.getParameterPatterns();
 		this.setBody(def.getBody());
-		this.precondition = precondition;
-		this.postcondition = postcondition;
+		this.precondition = def.getPrecondition();
+		this.postcondition = def.getPostcondition();
 		this.state = state;
 	}
 
 	public CmlOperationValue(AImplicitCmlOperationDefinition def,
-		FunctionValue precondition, FunctionValue postcondition,
-		AStateDefinition state)
+			AStateDefinition state)
 	{
 		this.impldef = def;
 		this.expldef = null;
@@ -86,8 +78,8 @@ public class CmlOperationValue extends Value {
 			getParamPatterns().addAll(ptp.getPatterns());
 		}
 
-		this.precondition = precondition;
-		this.postcondition = postcondition;
+		this.precondition = impldef.getPrecondition();
+		this.postcondition = impldef.getPostcondition();
 		this.state = state;
 	}
 	
@@ -138,13 +130,11 @@ public class CmlOperationValue extends Value {
 	public Object clone() {
 		if (expldef != null)
 		{
-			return new CmlOperationValue(expldef, precondition, postcondition,
-				state);
+			return new CmlOperationValue(expldef,state);
 		}
 		else
 		{
-			return new CmlOperationValue(impldef, precondition, postcondition,
-				state);
+			return new CmlOperationValue(impldef, state);
 		}
 	}
 
@@ -162,6 +152,16 @@ public class CmlOperationValue extends Value {
 
 	public void setCurrentlyExecutingThread(CmlBehaviourThread currentlyExecutingThread) {
 		this.currentlyExecutingThread = currentlyExecutingThread;
+	}
+	
+	public PExp getPrecondition()
+	{
+		return this.precondition;
+	}
+	
+	public PExp getPostcondition()
+	{
+		return this.postcondition;
 	}
 
 //	public RootContext newContext(LexLocation from, String title, Context ctxt)
