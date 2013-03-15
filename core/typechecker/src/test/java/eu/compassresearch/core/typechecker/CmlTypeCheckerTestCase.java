@@ -845,7 +845,14 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		// 219
 		addTestProgram(testData, "class T = begin state a : int functions f:int * int -> int f(x,y) == a + x + y end", false, true, false, new String[0]);
 		// 220
-		
+		addTestProgram(testData, "types Quantity = int Price = int class C = begin state sellerBids : seq of Quantity buyerBids : seq of Quantity prices : seq of Price inv len(sellerBids) = len(buyerBids) and len(sellerBids) = len(prices) end", false, true, true, new String[0]);
+		// 221
+		addTestProgram(testData, "functions f: int -> int f(a) == a+1 pre a > 0 process P = begin @ f(2) end ", false, true, true, new String[0]);
+		// 222
+		addTestProgram(testData, "class C = begin operations public doit: int ==> () doit(a) == Skip end process P = begin state s : C @ s.doit(1) end",false,true,true,new String[0]);
+		// 223
+		addTestProgram(testData, "functions f: int -> int f(a) == a+1 pre a > 0 process P = begin @ pre_f(2) end ", false, true, true, new String[0]);
+   
 		return testData;
 	}
 

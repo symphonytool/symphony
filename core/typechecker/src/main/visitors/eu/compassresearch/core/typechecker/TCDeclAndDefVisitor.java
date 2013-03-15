@@ -348,9 +348,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 //				return def.getType();
 				AAssignmentDefinition stateDef = (AAssignmentDefinition)def;
 				stateDef.setNameScope(NameScope.STATE);
+				if (def.getName() != null)
+					cmlenv.addVariable(def.getName(), def);
 			}
-			if (def.getName() != null)
-				cmlenv.addVariable(def.getName(), def);
 			
 		}
 
@@ -1468,7 +1468,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		CmlTypeCheckInfo newScope = cmlEnv.newScope();
-
+		newScope.env.setEnclosingDefinition(node);
 		LinkedList<PSingleDeclaration> state = node.getLocalState();
 		for(PSingleDeclaration decl : state)
 		{
@@ -1803,7 +1803,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo questionIn)
 					throws AnalysisException {
 
-
+		
 		OvertureToCmlFunctionHandler fnHandler = new OvertureToCmlFunctionHandler();
 		List<PDefinition> fixedDefinition = fnHandler.handle(node);
 		node = (AExplicitFunctionDefinition) fixedDefinition.get(0);
@@ -1815,6 +1815,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					.getTypeParamDefinitions(node));
 		}
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(questionIn);
+		
 		// CML Variant, we need to check the patterns
 		TypeCheckInfo question = (TypeCheckInfo)createEnvironmentWithFormals(questionIn, node);
 
@@ -1881,6 +1883,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 						node.getLocation());
 				TypeChecker.detail2("Actual", b, "Expected", expected);
 			}
+			cmlEnv.addVariable(node.getPredef().getName(), node.getPredef());
 		}
 
 		if (node.getPostdef() != null) {

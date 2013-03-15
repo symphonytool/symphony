@@ -60,7 +60,7 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 			marker.setAttribute(IMarker.CHAR_START, more[0]);
 			marker.setAttribute(IMarker.CHAR_END, more[1]);
 			if (more.length > 2)
-				marker.setAttribute(IMarker.LINE_NUMBER,more[2]);
+				marker.setAttribute(IMarker.LINE_NUMBER,more[2]+1);
 		}
 	}
 
@@ -73,7 +73,7 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 			marker.setAttribute(IMarker.CHAR_START, more[0]);
 			marker.setAttribute(IMarker.CHAR_END, more[1]);
 			if (more.length > 2)
-				marker.setAttribute(IMarker.LINE_NUMBER,more[2]);
+				marker.setAttribute(IMarker.LINE_NUMBER,more[2]+1);
 
 		}
 	}

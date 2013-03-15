@@ -414,8 +414,6 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
                                                                                       .toString())));
                                     allParagraphsOk = false;
                                 }
-                                else
-                                    paragraph.setType(new AParagraphType());
                             } catch (AnalysisException ae) {
                                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                                 ae.printStackTrace(new PrintStream(baos));

@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -17,6 +19,7 @@ import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
+import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AFunctionType;
@@ -27,6 +30,7 @@ import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
 import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.core.parser.CmlParser.stateDefs_return;
 
 
@@ -155,6 +159,35 @@ public class CmlTCUtil {
 			newParameters.add(pList);
 		}
 
+		// The result parameter for implicit stuff
+		if (target instanceof AImplicitFunctionDefinition) {
+			APatternTypePair result = ((AImplicitFunctionDefinition) target).getResult();
+			List<PPattern> pList = new LinkedList<PPattern>();
+			pList.add(result.getPattern());
+			newParameters.add(pList);
+			// TODO RWL: This assumes only on identifier in the pattern
+			parameterTypes.add(result.getType());
+		}
+
+		if (target instanceof AImplicitOperationDefinition) {
+			APatternTypePair result = ((AImplicitOperationDefinition) target).getResult();
+			List<PPattern> pList = new LinkedList<PPattern>();
+			pList.add(result.getPattern());
+			newParameters.add(pList);
+			// TODO RWL: This assumes only on identifier in the pattern
+			parameterTypes.add(result.getType());
+		}
+
+		if (target instanceof AImplicitCmlOperationDefinition) {
+			LinkedList<APatternTypePair> result = ((AImplicitCmlOperationDefinition) target).getResult();
+			for (APatternTypePair pair : result) {
+				List<PPattern> pList = new LinkedList<PPattern>();
+				pList.add(pair.getPattern());
+				newParameters.add(pList);
+				parameterTypes.add(pair.getType());
+				// TODO This assumes exactly one identifier pattern in each pair !!!
+			}
+		}
 		// Alright create the result
 		AFunctionType preDefType = AstFactory.newAFunctionType(target.getLocation(), false, parameterTypes, AstFactory.newABooleanBasicType(target.getLocation()));
 		AExplicitFunctionDefinition preDef = AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, preDefType, newParameters, body, precondition, postcondition, typeInvariant, measuref);
