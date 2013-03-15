@@ -33,8 +33,6 @@
  *   are essentially ID '('expr*')'.  I've added "lhs '<-' call" as a
  *   rule alternative.
  *
- * action/statement precedence has still to be resolved
- *
  * Note: don't use '()' as a token: it will probably end up
  * conflicting with '(' ')' in places where there is an optional
  * something inside the brackets.
@@ -69,9 +67,9 @@ import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-// import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.ListIterator;
 import java.util.LinkedList;
 
 import static org.overture.ast.lex.Dialect.VDM_PP;
@@ -1031,7 +1029,7 @@ action_m1 returns[PAction action]
     ;
 
 specOrGuardedAction returns[PAction action]
-@after { $action.setLexLocation(extractLexLocation($start,$stop)); }
+@after { $action.setLocation(extractLexLocation($start,$stop)); }
     : '['
         ( ('frame' frameSpecList)? ('pre' pre=expression)? 'post' post=expression ']'
             {
@@ -1050,12 +1048,11 @@ specOrGuardedAction returns[PAction action]
  * renaming expressions to be parsed. -jwc/15Mar2013
  */
 leadingIdAction returns[PAction action]
-@after { $action.setLexLocation(extractLexLocation($start,$stop)); }
+@after { $action.setLocation(extractLexLocation($start,$stop)); }
     : id=IDENTIFIER
         // bare action call
         {
-            LexLocation startLoc = extractLexLocation($start);
-            LexNameToken name = new LexNameToken("", $id.getText(), startLoc);
+            LexNameToken name = new LexNameToken("", $id.getText(), extractLexLocation($start));
             $action = new AReferenceAction(null, name, new ArrayList<PExp>());
         }
         ( renamingExpr
@@ -1064,24 +1061,53 @@ leadingIdAction returns[PAction action]
                 $action = new AChannelRenamingAction(null, $action, $renamingExpr.rexp);
             }
         | ( ('.' IDENTIFIER)=>'.' ids+=IDENTIFIER )*
-            // pure dotted prefix, but I don't believe this is allowed as an action call
+            // pure dotted prefix, if ids+ is nonempty, but I don't believe this is allowed as an action call
             ( communicationOptList '->' after=action_m1
-                // communication
+                // communications
                 {
-                    // Sort out the communicationList first
-                    // LexIdentifierToken id = new LexIdentifierToken($ IDENTIFIER.getText(), false, extractLexLocation($ IDENTIFIER));
-                    // $action = new ACommunicationAction(null, id, $communicationOptList.comms, $after.action);
-                    $action = new ASkipAction(extractLexLocation($start));
+                    // Grab the initial channel name...
+                    LexIdentifierToken firstId = new LexIdentifierToken($id.getText(), false, extractLexLocation($id));
+
+                    // ...then sort out the communicationList with
+                    // respect to the dotted prefix.  Unfortunately,
+                    // we need to lift these IDENTIFIERS to
+                    // ASignalCommunicationParameters, then prefix
+                    // them to the list of communication parameters.
+                    // This means that we iterate over the list of
+                    // dotted identifiers *backwards*, prepending to
+                    // the list of comm params.  We assume that the
+                    // comm params list exists (though it may be
+                    // empty).  -jwc/15Mar2013
+                    List<PCommunicationParameter> comms = $communicationOptList.comms;
+                    if ($ids.size() > 0) {
+                        ListIterator<Object> rIter = $ids.listIterator($ids.size());
+                        while (rIter.hasPrevious()) {
+                            CommonToken dotId = (CommonToken)rIter.previous();
+                            LexLocation dotLoc = extractLexLocation(dotId);
+                            LexNameToken dotName = new LexNameToken("", dotId.getText(), dotLoc);
+                            comms.add(0, new ASignalCommunicationParameter(dotLoc, new AVariableExp(dotLoc, dotName, "")));
+                        }
+                    }
+                    $action = new ACommunicationAction(null, firstId, comms, $after.action);
                 }
             | selectorList? 
-                // this, if AApplyExp and no follow, is an opCall
-                ( // empty, covering raw operation calls
+                ( // If the selectorList is a single AApplyExp, then
+                  // this is a bare operation call; otherwise error
+                  // and some RecognitionException will be thrown
                     {
                         // create raw operation call
                         // $action = $callStatement.statement;
+                        List<PExp> selectors = $selectorList.selectors;
+                        if (selectors.size() != 1 || ! (selectors.get(0) instanceof AApplyExp)) {
+                            // through RecognitionException
+                        }
+                        // need to merge the first identifier and the dotted identifiers into a name
+                        // need to extract the expression list from the AApplyExp
+                        // $action = new ACallStatementAction(null, null, $ name.name, $ expressionList.exps);
                         $action = new ASkipAction(extractLexLocation($start));
                     }
                 | ':='
+                    // At this point we know that we have an assignableExpression to the left, so assemble that here
                     ( 'new' name '(' expressionList? ')'
                         // object instantiation
                         {
@@ -1173,7 +1199,7 @@ options { k=3; } // k=3 is sufficient to disambiguate these (longest: for ID =)
     ;
 
 actionbase returns[PAction action]
-@after { $action.setLexLocation(extractLexLocation($start,$stop)); }
+@after { $action.setLocation(extractLexLocation($start,$stop)); }
     : 'Skip'            { $action = new ASkipAction(); }
     | 'Stop'            { $action = new AStopAction(); }
     | 'Chaos'           { $action = new AChaosAction(); }
