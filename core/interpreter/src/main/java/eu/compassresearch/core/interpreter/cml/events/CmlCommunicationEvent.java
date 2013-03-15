@@ -1,8 +1,10 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.types.AIntNumericBasicType;
@@ -23,25 +25,33 @@ import eu.compassresearch.core.interpreter.values.AnyValue;
 
 public class CmlCommunicationEvent extends ObservableEvent {
 
-	final protected List<CommunicationParameter> params;
 	private Value value;
 	
 	public CmlCommunicationEvent(CmlBehaviourThread source, CmlChannel channel, List<CommunicationParameter> params)
 	{
 		super(source,channel);
-		this.params = params;
 		
 		//TODO: this have to be expanded to all of them
-		if(this.params != null)
-			value = this.params.get(0).getValue();
+		if(params != null)
+			value = params.get(0).getValue();
 		else
 			value = new AnyValue();
 	}
 	
-	private CmlCommunicationEvent(CmlBehaviourThread source, CmlChannel channel,List<CommunicationParameter> params, Value value)
+	public CmlCommunicationEvent(CmlChannel channel, List<CommunicationParameter> params)
 	{
-		super(source,channel);
-		this.params = params;
+		super(channel);
+		
+		//TODO: this have to be expanded to all of them
+		if(params != null)
+			value = params.get(0).getValue();
+		else
+			value = new AnyValue();
+	}
+	
+	private CmlCommunicationEvent(Set<CmlBehaviourThread> sources, CmlChannel channel, Value value)
+	{
+		super(sources,channel);
 		this.value = value;
 	}
 	
@@ -64,12 +74,7 @@ public class CmlCommunicationEvent extends ObservableEvent {
 //			strBuilder.append(param.getClass().getSimpleName());
 		
 		
-		return strBuilder.toString().hashCode() + (this.eventSource != null ? this.eventSource.hashCode() : "null".hashCode());
-	}
-	
-	public boolean hasSource()
-	{
-		return this.eventSource != null;
+		return strBuilder.toString().hashCode();
 	}
 	
 	public boolean equalsIqnoreSource(CmlCommunicationEvent other)
@@ -87,17 +92,10 @@ public class CmlCommunicationEvent extends ObservableEvent {
 		
 		other = (CmlCommunicationEvent)obj;
 		
-		return other.getChannel().equals(getChannel()) && 
-				other.getEventSource() == getEventSource() &&
+		return super.equals(other) &&
 				(other.getValue().equals(this.getValue()) );
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	public ObservableEvent getReferenceEvent() {
-		return new CmlCommunicationEvent(null, channel, params,value);
-	}
-
 	@Override
 	public Value getValue() {
 
@@ -121,9 +119,14 @@ public class CmlCommunicationEvent extends ObservableEvent {
 	}
 
 	@Override
-	public ObservableEvent synchronizeWith(CmlBehaviourThread source,
-			ObservableEvent syncEvent) {
-		return new SynchronizedCommunicationEvent(source, channel, this, syncEvent);
+	public ObservableEvent synchronizeWith(ObservableEvent syncEvent) {
+		
+		Set<CmlBehaviourThread> sources = new HashSet<CmlBehaviourThread>();
+		sources.addAll(this.getEventSources());
+		sources.addAll(syncEvent.getEventSources());
+		
+		return new CmlCommunicationEvent(sources, channel,
+				AbstractValueInterpreter.meet(this.getValue(), syncEvent.getValue()));
 	}
 
 	@Override
@@ -203,9 +206,8 @@ public class CmlCommunicationEvent extends ObservableEvent {
 				throws AnalysisException {
 			
 			return Arrays.asList((ObservableEvent)new CmlCommunicationEvent(
-					CmlCommunicationEvent.this.getEventSource(), 
-					CmlCommunicationEvent.this.channel, CmlCommunicationEvent.this.params, 
-					new QuoteValue(node.getValue().value)));
+					CmlCommunicationEvent.this.getEventSources(), 
+					CmlCommunicationEvent.this.channel, new QuoteValue(node.getValue().value)));
 		}
 	}
 	

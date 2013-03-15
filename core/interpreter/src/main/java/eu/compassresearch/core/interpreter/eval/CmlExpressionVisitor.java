@@ -107,11 +107,11 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		AChannelType chanType = (AChannelType)chanValue.getType(); 
 		if(chanType.getType() == null)
 		{		
-			return new PrefixEvent(null,chanValue);
+			return new PrefixEvent(chanValue);
 		}
 		else
 		{
-			return new CmlCommunicationEvent(null, chanValue, null);
+			return new CmlCommunicationEvent(chanValue, null);
 		}
 	}
 	

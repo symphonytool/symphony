@@ -110,9 +110,9 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	{
 		//get the immediate alphabets of the left and right child
 		CmlBehaviourThread leftChild = children().get(0);
-		CmlAlphabet leftChildAlpha = leftChild.inspect().flattenSyncEvents(); 
+		CmlAlphabet leftChildAlpha = leftChild.inspect(); 
 		CmlBehaviourThread rightChild = children().get(1);
-		CmlAlphabet rightChildAlpha = rightChild.inspect().flattenSyncEvents();
+		CmlAlphabet rightChildAlpha = rightChild.inspect();
 
 		//convert the selected event to a CmlAlphabet
 		CmlAlphabet selectedEventAlpha = supervisor().selectedObservableEvent().getAsAlphabet();

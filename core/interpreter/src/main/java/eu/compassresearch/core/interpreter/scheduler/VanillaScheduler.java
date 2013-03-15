@@ -195,7 +195,8 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 					CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getObservableEvents());
 					for(ObservableEvent obsEvent : availableEvents.getObservableEvents())
 					{
-						Context context = obsEvent.getEventSource().getExecutionState().second;
+						//TODO this should be handles differently
+						Context context = obsEvent.getEventSources().iterator().next().getExecutionState().second;
 						
 						String state;
 						

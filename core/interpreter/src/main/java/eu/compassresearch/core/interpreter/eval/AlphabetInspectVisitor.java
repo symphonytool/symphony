@@ -163,16 +163,19 @@ public class AlphabetInspectVisitor
 		CmlAlphabet rightChildAlphabet = rightChild.inspect();
 		
 		//Find the intersection between the child alphabets and the channel set
-		CmlAlphabet syncAlpha = leftChildAlphabet.intersectRefsAndJoin(rightChildAlphabet).intersectRefsAndJoin(cs);
+		CmlAlphabet syncAlpha = leftChildAlphabet.intersect(cs).union(rightChildAlphabet.intersect(cs));
 		
 		//convert all the common events that are in the channel set into SynchronisationEvent instances
 		Set<CmlEvent> syncEvents = new HashSet<CmlEvent>();
-		for(ObservableEvent ref : syncAlpha.getReferenceEvents())
+		for(ObservableEvent ref : cs.getObservableEvents())
 		{
-			Iterator<ObservableEvent> it = syncAlpha.getObservableEventsByRef(ref).iterator(); 
-			syncEvents.add( it.next().synchronizeWith(ownerProcess, it.next()));
+			CmlAlphabet commonEvents = syncAlpha.intersect(ref.getAsAlphabet());
+			if(commonEvents.getObservableEvents().size() == 2)
+			{
+				Iterator<ObservableEvent> it = commonEvents.getObservableEvents().iterator(); 
+				syncEvents.add( it.next().synchronizeWith(it.next()));
+			}
 		}
-		
 		/*
 		 *	Finally we create the returned alphabet by joining all the synchronised events together with
 		 *	all the event af the children that are not in the channel set

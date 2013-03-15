@@ -3,7 +3,7 @@ package eu.compassresearch.core.interpreter.cml.events;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 
 
-public abstract class CmlEvent {
+public interface CmlEvent {
 	
 	public abstract int hashCode();
 	
@@ -15,5 +15,5 @@ public abstract class CmlEvent {
 	 * Wraps the event in a CmlAlphabet
 	 * @return
 	 */
-	public abstract CmlAlphabet getAsAlphabet();
+	public CmlAlphabet getAsAlphabet();
 }

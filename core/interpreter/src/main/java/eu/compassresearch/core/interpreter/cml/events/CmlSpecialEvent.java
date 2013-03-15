@@ -6,6 +6,6 @@ package eu.compassresearch.core.interpreter.cml.events;
  * @author akm
  *
  */
-public abstract class CmlSpecialEvent extends CmlEvent {
+public abstract class CmlSpecialEvent implements CmlEvent {
 
 }

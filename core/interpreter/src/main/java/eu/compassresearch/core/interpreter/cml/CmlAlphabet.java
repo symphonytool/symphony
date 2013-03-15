@@ -23,104 +23,105 @@ public class CmlAlphabet extends Value {
 	//This is a map from reference events 
 	//(a reference event is an event with no source)
 	//to events with a source.
-	private final Map<ObservableEvent,Set<ObservableEvent>> _observableEvents;
+//	private final Map<ObservableEvent,Set<ObservableEvent>> _observableEvents;
+	private final Set<ObservableEvent> _observableEvents;
 	//This contains all the special events like tau
 	private final Set<CmlSpecialEvent> specialEvents;
 	
 	public CmlAlphabet()
 	{
 		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
-		this._observableEvents = new HashMap<ObservableEvent,Set<ObservableEvent>>();
+		this._observableEvents = new LinkedHashSet<ObservableEvent>();
 	}
 	
 	public CmlAlphabet(ObservableEvent obsEvent)
 	{
 		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
-		this._observableEvents = new HashMap<ObservableEvent,Set<ObservableEvent>>();
-		Set<ObservableEvent> obsEvents = new HashSet<ObservableEvent>();
-		obsEvents.add(obsEvent);
-		initializeRefMap(obsEvents);
+		this._observableEvents = new LinkedHashSet<ObservableEvent>();
+		this._observableEvents.add(obsEvent);
+		//Set<ObservableEvent> obsEvents = new HashSet<ObservableEvent>();
+		//obsEvents.add(obsEvent);
+//		initializeRefMap(obsEvents);
 	}
 	
-	/**
-	 * Copy constructor
-	 * @param referenceEvents
-	 * @param specialEvents
-	 */
-	protected CmlAlphabet(Map<ObservableEvent,Set<ObservableEvent>> referenceEvents, Set<CmlSpecialEvent> specialEvents)
-	{
-		this.specialEvents = specialEvents;
-		this._observableEvents = referenceEvents;
-	}
+//	/**
+//	 * Copy constructor
+//	 * @param referenceEvents
+//	 * @param specialEvents
+//	 */
+//	protected CmlAlphabet(Set<ObservableEvent> referenceEvents, Set<CmlSpecialEvent> specialEvents)
+//	{
+//		this.specialEvents = specialEvents;
+//		this._observableEvents = referenceEvents;
+//	}
 	
 	public CmlAlphabet(Set<ObservableEvent> comms, Set<CmlSpecialEvent> specialEvents)
 	{
 		this.specialEvents = specialEvents;
-		this._observableEvents = new HashMap<ObservableEvent,Set<ObservableEvent>>();
-		initializeRefMap(comms);
+		this._observableEvents = new LinkedHashSet<ObservableEvent>(comms);
+//		initializeRefMap(comms);
 	}
 	
 	public CmlAlphabet(Set<CmlEvent> events)
 	{
-		Set<ObservableEvent> observableEvents = new LinkedHashSet<ObservableEvent>();
+		//Set<ObservableEvent> observableEvents = new LinkedHashSet<ObservableEvent>();
 		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
-		this._observableEvents = new HashMap<ObservableEvent,Set<ObservableEvent>>();
+		this._observableEvents = new LinkedHashSet<ObservableEvent>();
 		
 		for(CmlEvent e : events)
 		{
 			if(e instanceof ObservableEvent){
-				observableEvents.add((ObservableEvent)e);
+				_observableEvents.add((ObservableEvent)e);
 			}
 			else if(e instanceof CmlSpecialEvent)
 				this.specialEvents.add((CmlSpecialEvent)e);
 		}
-		initializeRefMap(observableEvents);
+		//initializeRefMap(observableEvents);
 	}
 	
-	/**
-	 * Initialize the 
-	 * @param observableEvents
-	 */
-	private void initializeRefMap(Set<ObservableEvent> observableEvents)
-	{
-		for(ObservableEvent oe : observableEvents)
-		{
-			if(oe.isReferenceEvent())
-				_observableEvents.put(oe, new LinkedHashSet<ObservableEvent>());
-			else
-			{
-				ObservableEvent ref = oe.getReferenceEvent();
-				
-				if(_observableEvents.containsKey(ref))
-					_observableEvents.get(ref).add(oe);
-				else
-				{
-					Set<ObservableEvent> mapped = new LinkedHashSet<ObservableEvent>();
-					mapped.add(oe);
-					_observableEvents.put(ref, mapped);
-				}
-			}
-		}
-			
-	}
-	
+//	/**
+//	 * Initialize the 
+//	 * @param observableEvents
+//	 */
+//	private void initializeRefMap(Set<ObservableEvent> observableEvents)
+//	{
+//		for(ObservableEvent oe : observableEvents)
+//		{
+//			if(oe.isReferenceEvent())
+//				_observableEvents.put(oe, new LinkedHashSet<ObservableEvent>());
+//			else
+//			{
+//				ObservableEvent ref = oe.getReferenceEvent();
+//				
+//				if(_observableEvents.containsKey(ref))
+//					_observableEvents.get(ref).add(oe);
+//				else
+//				{
+//					Set<ObservableEvent> mapped = new LinkedHashSet<ObservableEvent>();
+//					mapped.add(oe);
+//					_observableEvents.put(ref, mapped);
+//				}
+//			}
+//		}
+//			
+//	}
+//	
 	public Set<ObservableEvent> getObservableEvents()
 	{
 		Set<ObservableEvent> obsEvents = new LinkedHashSet<ObservableEvent>();
-		for(Set<ObservableEvent> obsEventSet : _observableEvents.values())
-			obsEvents.addAll(obsEventSet);
+		obsEvents.addAll(_observableEvents);
 		return obsEvents;
 	}
 	
 	public Set<ObservableEvent> getReferenceEvents()
 	{
-		return _observableEvents.keySet();
+		return _observableEvents;
 	}
 	
-	public Set<ObservableEvent> getObservableEventsByRef(ObservableEvent obsEvent)
-	{
-		return _observableEvents.get(obsEvent.getReferenceEvent());
-	}
+//	public Set<ObservableEvent> getObservableEventsByRef(ObservableEvent obsEvent)
+//	{
+//		return _observableEvents.get(obsEvent.getReferenceEvent());
+//	}
 	
 	public Set<CmlSpecialEvent> getSpecialEvents()
 	{
@@ -130,8 +131,7 @@ public class CmlAlphabet extends Value {
 	public Set<CmlEvent> getAllEvents()
 	{
 		Set<CmlEvent> allEvents = new LinkedHashSet<CmlEvent>();
-		for(Set<ObservableEvent> obsEventSet : _observableEvents.values())
-			allEvents.addAll(obsEventSet);
+		allEvents.addAll(_observableEvents);
 		allEvents.addAll(specialEvents);
 		
 		return allEvents;
@@ -153,54 +153,54 @@ public class CmlAlphabet extends Value {
 		return new CmlAlphabet(resultSet);
 	}
 	
-	/**
-	 * Calculates the intersection between the reference event and join all the mapped events.
-	 * @param other The CmlAlphabet that this will be intersected with
-	 * @return the intersection of this and other
-	 */
-	public CmlAlphabet intersectRefsAndJoin(CmlAlphabet other)
-	{
-		Map<ObservableEvent,Set<ObservableEvent>> refMap = new HashMap<ObservableEvent, Set<ObservableEvent>>();
-		
-		for(ObservableEvent refEvent : _observableEvents.keySet())
-		{
-			for(ObservableEvent otherRefEvent : other._observableEvents.keySet())
-			{
-				Set<ObservableEvent> resultSet = new LinkedHashSet<ObservableEvent>();
-				
-				if(refEvent.isComparable(otherRefEvent) && refEvent.equals(otherRefEvent))
-				{
-					resultSet.addAll( _observableEvents.get(refEvent));
-					resultSet.addAll(other._observableEvents.get(otherRefEvent));
-					refMap.put(refEvent, resultSet);
-				}
-				else if(refEvent.isComparable(otherRefEvent))
-				{
-					resultSet.addAll( _observableEvents.get(refEvent));
-					resultSet.addAll(other._observableEvents.get(otherRefEvent));
-					
-					refMap.put(refEvent.meet(otherRefEvent), resultSet);
-				}
-				
-			}
-		}
-		
-		return new CmlAlphabet(refMap,new HashSet<CmlSpecialEvent>());
-		
-//		//first we find the common reference event set
-//		Set<ObservableEvent> commonReferenceSet  = new LinkedHashSet<ObservableEvent>(_observableEvents.keySet());
-//		commonReferenceSet.retainAll(other._observableEvents.keySet());
-//
-//		Set<CmlEvent> resultSet = new LinkedHashSet<CmlEvent>();
-//		for(ObservableEvent refEvent : commonReferenceSet)
+//	/**
+//	 * Calculates the intersection between the reference event and join all the mapped events.
+//	 * @param other The CmlAlphabet that this will be intersected with
+//	 * @return the intersection of this and other
+//	 */
+//	public CmlAlphabet intersectRefsAndJoin(CmlAlphabet other)
+//	{
+//		Map<ObservableEvent,Set<ObservableEvent>> refMap = new HashMap<ObservableEvent, Set<ObservableEvent>>();
+//		
+//		for(ObservableEvent refEvent : _observableEvents)
 //		{
-//			resultSet.addAll( _observableEvents.get(refEvent) );
-//			resultSet.addAll( other._observableEvents.get(refEvent) );
+//			for(ObservableEvent otherRefEvent : other._observableEvents.keySet())
+//			{
+//				Set<ObservableEvent> resultSet = new LinkedHashSet<ObservableEvent>();
+//				
+//				if(refEvent.isComparable(otherRefEvent) && refEvent.equals(otherRefEvent))
+//				{
+//					resultSet.addAll( _observableEvents.get(refEvent));
+//					resultSet.addAll(other._observableEvents.get(otherRefEvent));
+//					refMap.put(refEvent, resultSet);
+//				}
+//				else if(refEvent.isComparable(otherRefEvent))
+//				{
+//					resultSet.addAll( _observableEvents.get(refEvent));
+//					resultSet.addAll(other._observableEvents.get(otherRefEvent));
+//					
+//					refMap.put(refEvent.meet(otherRefEvent), resultSet);
+//				}
+//				
+//			}
 //		}
 //		
-//		return new CmlAlphabet(resultSet);
-		
-	}
+//		return new CmlAlphabet(refMap,new HashSet<CmlSpecialEvent>());
+//		
+////		//first we find the common reference event set
+////		Set<ObservableEvent> commonReferenceSet  = new LinkedHashSet<ObservableEvent>(_observableEvents.keySet());
+////		commonReferenceSet.retainAll(other._observableEvents.keySet());
+////
+////		Set<CmlEvent> resultSet = new LinkedHashSet<CmlEvent>();
+////		for(ObservableEvent refEvent : commonReferenceSet)
+////		{
+////			resultSet.addAll( _observableEvents.get(refEvent) );
+////			resultSet.addAll( other._observableEvents.get(refEvent) );
+////		}
+////		
+////		return new CmlAlphabet(resultSet);
+//		
+//	}
 	
 	/**
 	 * Calculates the intersection between this and other 
@@ -211,17 +211,17 @@ public class CmlAlphabet extends Value {
 	{
 		
 		//first we find the common reference event set
-		Set<ObservableEvent> commonReferenceSet  = new LinkedHashSet<ObservableEvent>(_observableEvents.keySet());
-		commonReferenceSet.retainAll(other._observableEvents.keySet());
+		Set<CmlEvent> commonReferenceSet  = new LinkedHashSet<CmlEvent>(_observableEvents);
+		commonReferenceSet.retainAll(other._observableEvents);
 
-		Set<CmlEvent> resultSet = new LinkedHashSet<CmlEvent>();
-		for(ObservableEvent refEvent : commonReferenceSet)
-		{
-			resultSet.addAll( _observableEvents.get(refEvent) );
-			resultSet.retainAll(other._observableEvents.get(refEvent));
-		}
+//		Set<CmlEvent> resultSet = new LinkedHashSet<CmlEvent>();
+//		for(ObservableEvent refEvent : commonReferenceSet)
+//		{
+//			resultSet.addAll( _observableEvents.get(refEvent) );
+//			resultSet.retainAll(other._observableEvents.get(refEvent));
+//		}
 		
-		return new CmlAlphabet(resultSet);
+		return new CmlAlphabet(commonReferenceSet);
 		
 	}
 	
@@ -234,30 +234,27 @@ public class CmlAlphabet extends Value {
 	{
 		Set<CmlEvent> resultSet = new LinkedHashSet<CmlEvent>();
 		
-		for(ObservableEvent refEvent : _observableEvents.keySet())
+		for(ObservableEvent refEvent : _observableEvents)
 		{
-			for(ObservableEvent otherRefEvent : other._observableEvents.keySet())
+			for(ObservableEvent otherRefEvent : other._observableEvents)
 			{
 				if(refEvent.isComparable(otherRefEvent) && !refEvent.equals(otherRefEvent))
 				{
 					//find the meet of the two values, meaning the most precise
 					//ObservableEvent meetEvent = refEvent.meet(otherRefEvent);
-					
-					for(ObservableEvent event : _observableEvents.get(refEvent))
-						for(ObservableEvent otherEvent : other._observableEvents.get(otherRefEvent))
-						{
-							if(event.getEventSource() == otherEvent.getEventSource())
-							{
-								resultSet.add(event);
-								resultSet.add(otherEvent);
-							}
-						}
+//					if(refEvent.getEventSources() == otherRefEvent.getEventSource())
+//					{
+						resultSet.add(refEvent);
+						resultSet.add(otherRefEvent);
+//					}
 				}
 				else if(refEvent.isComparable(otherRefEvent) && refEvent.equals(otherRefEvent))
 				{
-					Set<ObservableEvent> tmpSet = _observableEvents.get(refEvent);
-					tmpSet.retainAll(other._observableEvents.get(refEvent));
-					resultSet.addAll(tmpSet);
+					//Set<ObservableEvent> tmpSet = _observableEvents.get(refEvent);
+					//tmpSet.retainAll(other._observableEvents.get(refEvent));
+					//resultSet.add(tmpSet);
+					resultSet.add(refEvent);
+					resultSet.add(otherRefEvent);
 				}
 			}
 		}
@@ -291,22 +288,29 @@ public class CmlAlphabet extends Value {
 	 */
 	public CmlAlphabet subtract(CmlAlphabet other)
 	{
-		Map<ObservableEvent,Set<ObservableEvent>> newReferenceEvents = 
-				new HashMap<ObservableEvent,Set<ObservableEvent>>(_observableEvents);
+//		Map<ObservableEvent,Set<ObservableEvent>> newReferenceEvents = 
+//				new HashMap<ObservableEvent,Set<ObservableEvent>>(_observableEvents);
+//		
+//		
+//		for(ObservableEvent refEvent : _observableEvents.keySet())
+//		{
+//			for(ObservableEvent otherRefEvent : other._observableEvents.keySet())
+//			{
+//				if(refEvent.isComparable(otherRefEvent))
+//				{
+//					newReferenceEvents.remove(refEvent);
+//				}
+//			}
+//		}
+//		
+		Set<ObservableEvent> newReferenceEvents = new LinkedHashSet<ObservableEvent>();
+		newReferenceEvents.addAll(_observableEvents);
 		
-		
-		for(ObservableEvent refEvent : _observableEvents.keySet())
-		{
-			for(ObservableEvent otherRefEvent : other._observableEvents.keySet())
-			{
-				if(refEvent.isComparable(otherRefEvent))
-				{
-					newReferenceEvents.remove(refEvent);
-				}
-			}
-		}
+		newReferenceEvents.removeAll(other.getObservableEvents());
 		
 		return new CmlAlphabet(newReferenceEvents,specialEvents);
+		
+		
 	}
 	
 	/**
@@ -316,6 +320,7 @@ public class CmlAlphabet extends Value {
 	 */
 	public boolean containsObservableEvent(ObservableEvent comevent)
 	{
+		return _observableEvents.contains(comevent);
 //		if(comevent.isReferenceEvent())
 //			return referenceEvents.containsKey(comevent);
 //		else if(comevent instanceof SynchronisationEvent)
@@ -323,8 +328,8 @@ public class CmlAlphabet extends Value {
 //			
 //		}
 //		else
-		return _observableEvents.containsKey(comevent.getReferenceEvent()) && 
-				_observableEvents.get(comevent.getReferenceEvent()).contains(comevent);
+//		return _observableEvents.containsKey(comevent.getReferenceEvent()) && 
+//				_observableEvents.get(comevent.getReferenceEvent()).contains(comevent);
 
 		
 		//return (findCommunicationsByChannel(comevent.getChannel()).isEmpty() ? false : true);
@@ -343,14 +348,14 @@ public class CmlAlphabet extends Value {
 		return _observableEvents.isEmpty() && specialEvents.isEmpty();
 	}
 	
-	public CmlAlphabet flattenSyncEvents()
-	{
-		CmlAlphabet alpha = new CmlAlphabet();
-		for(Set<ObservableEvent> obsEvs : _observableEvents.values())
-			for(ObservableEvent obsEv : obsEvs)
-				alpha = alpha.union(obsEv.getAsAlphabet());
-		return alpha;
-	}
+//	public CmlAlphabet flattenSyncEvents()
+//	{
+//		CmlAlphabet alpha = new CmlAlphabet();
+//		for(Set<ObservableEvent> obsEvs : _observableEvents.values())
+//			for(ObservableEvent obsEv : obsEvs)
+//				alpha = alpha.union(obsEv.getAsAlphabet());
+//		return alpha;
+//	}
 	
 	@Override
 	public String toString() {
@@ -407,7 +412,7 @@ public class CmlAlphabet extends Value {
 	@Override
 	public Object clone() {
 
-		return new CmlAlphabet(new HashMap<ObservableEvent,Set<ObservableEvent>>(_observableEvents), 
+		return new CmlAlphabet(new LinkedHashSet<ObservableEvent>(_observableEvents), 
 				new HashSet<CmlSpecialEvent>(specialEvents));
 	}
 }

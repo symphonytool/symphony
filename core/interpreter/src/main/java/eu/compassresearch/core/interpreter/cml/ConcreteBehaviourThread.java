@@ -380,7 +380,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				 */
 				//
 				if(env.isSelectedEventValid() &&  
-						!alpha.flattenSyncEvents().intersectEqualOrMorePrecise(env.selectedObservableEvent().getAsAlphabet()).isEmpty() &&
+						!alpha.intersectEqualOrMorePrecise(env.selectedObservableEvent().getAsAlphabet()).isEmpty() &&
 						isRegistered(env.selectedObservableEvent().getChannel()))
 				{
 					ret = executeNext();
@@ -421,7 +421,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				CmlAlphabet alpha = next.first.apply(alphabetInspectionVisitor,next.second);
 			
 				//we have to check for hidden event and convert them into tau events
-				CmlAlphabet hiddenEvents = alpha.intersectRefsAndJoin(hidingAlphabet);
+				CmlAlphabet hiddenEvents = alpha.intersect(hidingAlphabet);
 				
 				CmlAlphabet returnAlpha = alpha.subtract(hiddenEvents);
 				
