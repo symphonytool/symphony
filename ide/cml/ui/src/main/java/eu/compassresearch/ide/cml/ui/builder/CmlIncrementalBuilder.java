@@ -94,7 +94,7 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 				if (l == null) { l = new LinkedList<CMLTypeError>(); nodeToErrorMap.put(error.getOffendingNode(),l); }
 				l.add(error);
 			}
-
+/*
 		List<INode>  nodesToClearErrorsFor = new LinkedList<INode>();
 		for(List<CMLTypeError> errors : nodeToErrorMap.values())
 		{
@@ -112,7 +112,7 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 
 		for(INode n : nodesToClearErrorsFor)
 			nodeToErrorMap.put(n,new LinkedList<CMLTypeError>());
-
+*/
 		List<CMLTypeError> res = new ArrayList<TypeIssueHandler.CMLTypeError>();
 		for(Entry<INode,List<CMLTypeError>> e : nodeToErrorMap.entrySet())
 			res.addAll(e.getValue());
@@ -137,7 +137,7 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 			List<CMLTypeError> errorsThatMatter = filterErrros(issueHandler.getTypeErrors());
 			for(final CMLTypeError error : errorsThatMatter)
 			{
-				System.out.println(error.getStackTrace()+"\n\n");
+				//System.out.println(error.getStackTrace()+"\n\n");
 				INode offendingNode = error.getOffendingNode();
 				if (offendingNode != null)
 				{
@@ -163,8 +163,8 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 						else
 							System.out.println("No IFile resource found for source: "+source);
 					}
-					else
-						System.out.println("Could not find source for: "+offendingNode);
+//					else
+//						System.out.println("Could not find source for: "+offendingNode);
 				}
 				else
 					System.out.println("Error messages with null node: "+error);

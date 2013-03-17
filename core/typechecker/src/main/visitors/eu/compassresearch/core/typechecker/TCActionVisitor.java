@@ -554,7 +554,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		CmlTypeCheckInfo actionEnv = cmlEnv.emptyScope();
-
+		actionEnv.scope = NameScope.NAMESANDANYSTATE;
 		// TODO RWL: What is the semantics of this?
 		PVarsetExpression csexp = node.getChansetExpression();
 		PType csexpType = csexp.apply(parentChecker,question);
@@ -1870,14 +1870,18 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 
+		NameScope oldScope = question.scope;
+		question.scope = NameScope.NAMESANDANYSTATE;
+
+		
 		// Create a new environment for this block
 		CmlTypeCheckInfo blockEnv = cmlEnv.newScope();
 
-		// extend the environment with optional declarations
+ 		// extend the environment with optional declarations
 		ADeclareStatementAction declared = node.getDeclareStatement();
 		if (declared != null) {
 			LinkedList<PDefinition> freshDefinitions = declared.getAssignmentDefs();
-			for(PDefinition def : freshDefinitions)
+			for(PDefinition def : freshDefinitions) 
 			{
 				PType freshDefType = def.apply(parentChecker,question);
 				if (!TCDeclAndDefVisitor.successfulType(freshDefType))
@@ -1889,9 +1893,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 		}
 
-		// check the action.
+		// check the action.	
 		PAction action = node.getAction();
 		PType actionType = action.apply(parentChecker, blockEnv);
+		question.scope = oldScope;
 		if (!TCDeclAndDefVisitor.successfulType(actionType))
 			issueHandler.addTypeError(action,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
@@ -2497,6 +2502,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			ids = name.module.split(".");
 			if (ids.length == 0) ids = new String[] { name.module };
 		}
+
 		String[] tmp = new String[ids.length+1];
 		System.arraycopy(ids, 0, tmp, 0, ids.length);
 		tmp[tmp.length-1]=name.name;
@@ -2569,7 +2575,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AActionDefinition ad = (AActionDefinition)callee;
 			LinkedList<PParametrisation> ps = ad.getDeclarations();
 			if (ps.size() != args.size()) {
-				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(callee+"")));
+				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(ps.size()+"",args.size()+"")));
 				return node.getType();
 			}
 		}

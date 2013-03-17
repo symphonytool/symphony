@@ -139,10 +139,17 @@ class SimpleTypeComparator implements TypeComparator {
 		return false;
 	}
 
-	
+	// map from super types to subtypes
 	private static final Map<Class<?>, List<Class<?>>> fixedSubTypeRelations;
 	static {
 		fixedSubTypeRelations = new HashMap<Class<?>, List<Class<?>>>();
+		List<Class<?>> basic = Arrays.asList(new Class<?>[] { ARationalNumericBasicType.class, AIntNumericBasicType.class, ANatNumericBasicType.class, ANatOneNumericBasicType.class});
+
+		for(Class<?> b : basic) 
+			fixedSubTypeRelations.put(b, basic);
+/*
+		
+		
 		fixedSubTypeRelations.put(AIntNumericBasicType.class,
 				Arrays.asList(new Class<?>[] { ANatNumericBasicType.class }));
 		fixedSubTypeRelations
@@ -154,7 +161,8 @@ class SimpleTypeComparator implements TypeComparator {
 				ARealNumericBasicType.class,
 				Arrays.asList(new Class<?>[] { AIntNumericBasicType.class,
 						ARationalNumericBasicType.class }));
-
+		// fixedSubTypeRelations.put(ANatNumericBasicType.class, Arrays.asList(new Class<?>[] {ARealNumericBasicType.class}));
+*/
 	}
 
 	private static boolean checkClosureOnFixedTypeRelation(Class<?> top,
@@ -164,13 +172,19 @@ class SimpleTypeComparator implements TypeComparator {
 			return true;
 
 		if (fixedSubTypeRelations.containsKey(top)) {
+			return fixedSubTypeRelations.get(top).contains(bottom);
+		}
+		
+		
+	/*	if (fixedSubTypeRelations.containsKey(top)) {
 			boolean f = false;
 			for (Class<?> candidate : fixedSubTypeRelations.get(top))
 				f |= checkClosureOnFixedTypeRelation(candidate, bottom);
 			return f;
-		}
+		}*/
 
 		return false;
+		
 	}
 
 	/*

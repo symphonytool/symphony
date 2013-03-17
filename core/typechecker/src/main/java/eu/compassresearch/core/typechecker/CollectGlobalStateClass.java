@@ -127,7 +127,7 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 			throws AnalysisException {
 		
 		List<PDefinition> defs = TCDeclAndDefVisitor.handleDefinitionsForOverture(node);
-		/*
+		
 		for(PDefinition fdef : defs) {
 			
 			PDefinition predef = null;
@@ -142,11 +142,11 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 				postdef = ((AImplicitFunctionDefinition) fdef).getPostdef();
 			}
 			
-			if (predef != null) members.add(predef);
-			if (postdef != null) members.add(postdef);
+			if (predef != null) members.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(predef));
+			//if (postdef != null) members.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(postdef));
 			
 		}
-		*/
+		
 		members.addAll(defs);
 	}
 	

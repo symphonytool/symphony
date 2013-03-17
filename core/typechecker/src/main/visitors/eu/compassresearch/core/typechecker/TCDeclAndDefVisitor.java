@@ -373,6 +373,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AImplicitCmlOperationDefinition node, TypeCheckInfo question)
 					throws AnalysisException {
 
+		question.scope = NameScope.NAMESANDANYSTATE;
 		// get CML environment
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		if (cmlEnv == null)
@@ -476,7 +477,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				preBody = node.getPrecondition();
 			else
 				preBody = AstFactory.newABooleanConstExp(new LexBooleanToken(true, node.getLocation()));
-			preDef = CmlTCUtil.buildCondition("pre", node, node.getType(),parameters, preBody);
+			preDef = CmlTCUtil.buildCondition("pre", node, node.getType().clone(),parameters, preBody);
 		}
 
 		// Create post def if it is not there
@@ -487,7 +488,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				postBody = node.getPostcondition();
 			else
 				postBody = AstFactory.newABooleanConstExp(new LexBooleanToken(true, node.getLocation()));
-			postDef = CmlTCUtil.buildCondition("post", node, node.getType(), parameters, postBody);
+			postDef = CmlTCUtil.buildCondition("post", node, node.getType().clone(), parameters, postBody);
 		}
 
 
@@ -882,7 +883,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			newDefs = getHandler(node.getPattern()).getDefinitions(
 					node.getPattern(), question.env.getEnclosingDefinition());
 
-		node.setDefs(newDefs);
+		//node.getDefs().addAll(newDefs);
 
 		// No matter the declared type is the type of the definition
 		node.setType(declaredType);
@@ -1635,7 +1636,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		List<PDefinition> enclosingStateDefinitions = findStateDefs(node,newQuestion);
 		PExp preExp = node.getPrecondition();
 		if (preExp != null) {
-			AExplicitFunctionDefinition preDef = CmlTCUtil.buildCondition0("pre", node, node.getType(), node.getParameterPatterns(), node.getPrecondition(), enclosingStateDefinitions, new LinkedList<PDefinition>());
+			AExplicitFunctionDefinition preDef = CmlTCUtil.buildCondition0("pre", node, node.getType().clone(), (List<PPattern>) node.getParameterPatterns().clone(), node.getPrecondition(), enclosingStateDefinitions, new LinkedList<PDefinition>());
 			PType preDefType = preDef.apply(parentChecker,newQuestion);
 			if (!TCDeclAndDefVisitor.successfulType(preDefType)) {
 				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+preDef)));

@@ -32,6 +32,7 @@ import org.overture.typechecker.assistant.type.ARecordInvariantTypeAssistantTC;
 import org.overture.typechecker.util.HelpLexNameToken;
 import org.xml.sax.ext.LexicalHandler;
 
+import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
@@ -119,6 +120,8 @@ class CmlAssistant {
 		injectFindMemberNameBaseCase(new AStateDefinitionNameMemberStrategy());
 		injectFindMemberNameBaseCase(new AFunctionsDefinitionNameMemberStrategy());
 		injectFindMemberNameBaseCase(new AProcessDefinitionNameMemberStrategy());
+		injectFindMemberNameBaseCase(new AActionsDefinitionNameMemberStrategy());
+		
 	}
 
 
@@ -155,6 +158,29 @@ class CmlAssistant {
 
 	}
 
+	class AActionsDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
+
+		@Override
+		public Class<?> getType() {
+			return AActionsDefinition.class;
+		}
+
+		@Override
+		public PDefinition findMemberName(PDefinition def,
+				LexIdentifierToken name, Object... more) {
+			
+			AActionsDefinition acts = (AActionsDefinition)def;
+			for(PDefinition actDef : acts.getActions()) {
+				if(HelpLexNameToken.isEqual(actDef.getName(), name)) {
+					return actDef;
+				}
+			}
+			
+			return null;
+		}
+		
+	}
+	
 	class AProcessDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
 
 		@Override

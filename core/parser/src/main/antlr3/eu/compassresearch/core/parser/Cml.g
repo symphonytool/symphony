@@ -1662,17 +1662,20 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             LexNameToken prename = new LexNameToken("", new LexIdentifierToken("pre_", false, preExp.getLocation()));
             NameScope prescope = NameScope.LOCAL;
             List<LexNameToken> pretypeParams = new LinkedList<LexNameToken>();
-            AFunctionType pretype = $tail.getType();
+            AFunctionType pretype = (AFunctionType)$tail.getType().clone();
+            
+		    pretype.setResult(new ABooleanBasicType(preExp.getLocation(), true));
+            
             PExp preprecondition = null;
             PExp prepostcondition = null;
             List<List<PPattern>> preparameterGroupList = new LinkedList<List<PPattern>>();
+            List<PPattern> currentp = new LinkedList<PPattern>();
             for(APatternListTypePair pt : paramPatterns)
             {
-                List<PPattern> current = new LinkedList<PPattern>();
                 for(PPattern p : pt.getPatterns())
-                        current.add(p.clone());
-                preparameterGroupList.add(current);
+                        currentp.add(p.clone());   
             }
+            preparameterGroupList.add(currentp);
             AExplicitFunctionDefinition predef =  AstFactory.newAExplicitFunctionDefinition(prename, prescope, pretypeParams, pretype, preparameterGroupList, preExp, preprecondition, prepostcondition, false, null);
             $tail.setPredef(predef);
 
@@ -2255,7 +2258,7 @@ binOpEval1 returns[SBinaryExpBase op]
 @init { LexLocation loc = null; String opStr = null; }
 @after { op.setLocation(loc); op.setOp(extractLexToken(opStr, loc)); }
     : o='+'      { $op = new APlusNumericBinaryExp();      loc = extractLexLocation($o); opStr = $o.getText(); }
-    | o='-'      { $op = new ASubstractNumericBinaryExp(); loc = extractLexLocation($o); opStr = $o.getText(); }
+    | o='-'      { $op = new ASubtractNumericBinaryExp(); loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='union'  { $op = new ASetUnionBinaryExp();         loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='\\'     { $op = new ASetDifferenceBinaryExp();    loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='munion' { $op = new AMapUnionBinaryExp();         loc = extractLexLocation($o); opStr = $o.getText(); }
