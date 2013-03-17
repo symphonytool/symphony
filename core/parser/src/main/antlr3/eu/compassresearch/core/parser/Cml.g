@@ -244,6 +244,50 @@ public AAccessSpecifierAccessSpecifier getPrivateAccessSpecifier(boolean isStati
                                                (isAsync ? new TAsync() : null));
 }
 
+private PExp selectorListTreeBuilder(PExp base, List<PExp> selectors) {
+    PExp tree = base;
+
+    for (PExp sel : selectors) { // Iterate through the selectors, building a left->right tree
+        LexLocation loc = extractLexLocation(base.getLocation(), sel.getLocation());
+        if (sel instanceof AFieldNumberExp) { // FIXME --- probably shouldn't allow this
+            System.out.println("Syntax error: AFieldNumberExp in a simpleSelector for calls");
+            ((AFieldNumberExp)sel).setTuple(base);
+            sel.setLocation(loc);
+            tree = sel;
+        } else if (sel instanceof AApplyExp) {
+            ((AApplyExp)sel).setRoot(base);
+            sel.setLocation(loc);
+            tree = sel;
+        } else if (sel instanceof ASubseqExp) { // FIXME --- probably shouldn't allow this either.
+            System.out.println("Syntax error: ASubseqExp in a simpleSelector for calls");
+            ((ASubseqExp)sel).setSeq(base);
+            sel.setLocation(loc);
+            tree = sel;
+        } else if (sel instanceof AUnresolvedPathExp) {
+            // selector was a ".IDENTIFIER"; now let's figure out what to do
+            AUnresolvedPathExp aupe = (AUnresolvedPathExp)sel; // avoid many casts
+            if (tree instanceof AVariableExp) { // if the left was an IDENTIFIER, then coalesce...
+                AVariableExp ave = (AVariableExp)tree;
+                aupe.setLocation(loc);
+                aupe.getIdentifiers().add(0, ave.getName().getIdentifier());
+                tree = aupe;
+            } else if (tree instanceof AUnresolvedPathExp) { // if it was an unresolved path, still coalesce...
+                if (tree != null)
+                    tree.setLocation(loc);
+                ((AUnresolvedPathExp)tree).getIdentifiers().addAll(aupe.getIdentifiers());
+                // no need to assign to tree here
+            } else { // otherwise it must be a field access
+                // the AUnresolvedPathExp we get from the list will
+                // only have a single Identifier in it.
+                LexIdentifierToken id = aupe.getIdentifiers().get(0);
+                tree = AstFactory.newAFieldExp(tree,id);
+            }
+        }
+    }
+
+    return tree;
+}
+
 /* A main method to trigger the parser directly on stdin
  */
 public static void main(String[] args) throws Exception {
@@ -1046,8 +1090,11 @@ specOrGuardedAction returns[PAction action]
  * to resolve the whole set of ambiguities between communications,
  * action calls, operation calls, and assignments, plus the allowing
  * renaming expressions to be parsed. -jwc/15Mar2013
+ *
+ * Touch this only at risk of your sanity.  -jwc/17Mar2013
  */
 leadingIdAction returns[PAction action]
+@init { PExp assignable = null; }
 @after { $action.setLocation(extractLexLocation($start,$stop)); }
     : id=IDENTIFIER
         // bare action call
@@ -1079,7 +1126,7 @@ leadingIdAction returns[PAction action]
                     // comm params list exists (though it may be
                     // empty).  -jwc/15Mar2013
                     List<PCommunicationParameter> comms = $communicationOptList.comms;
-                    if ($ids.size() > 0) {
+                    if ($ids != null && $ids.size() > 0) {
                         ListIterator<Object> rIter = $ids.listIterator($ids.size());
                         while (rIter.hasPrevious()) {
                             CommonToken dotId = (CommonToken)rIter.previous();
@@ -1090,37 +1137,80 @@ leadingIdAction returns[PAction action]
                     }
                     $action = new ACommunicationAction(null, firstId, comms, $after.action);
                 }
-            | selectorList? 
-                ( // If the selectorList is a single AApplyExp, then
-                  // this is a bare operation call; otherwise error
-                  // and some RecognitionException will be thrown
+            | selectorOptList
+                ( // If the selectorList is empty, we have the base
+                  // action call created above, and this action should
+                  // be a no-op; if the selectorList is a single
+                  // AApplyExp, then this is a bare operation call;
+                  // otherwise error -> RecognitionException
                     {
-                        // create raw operation call
-                        // $action = $callStatement.statement;
-                        List<PExp> selectors = $selectorList.selectors;
-                        if (selectors.size() != 1 || ! (selectors.get(0) instanceof AApplyExp)) {
-                            // through RecognitionException
+                        // create raw operation call, if there
+                        List<PExp> selectors = $selectorOptList.selectors;
+
+                        if (selectors.size() > 0) {
+                            if (selectors.size() != 1 || ! (selectors.get(0) instanceof AApplyExp)) {
+                                // If this is a raw operation call,
+                                // and there are extra selectors, or
+                                // the wrong selector, the best that
+                                // can be done right now is to throw
+                                // an Exception.  This should be
+                                // factored out, above, to look for an
+                                // explicit (exprList) directly.
+                                throw new RecognitionException(input);
+                            }
+
+                            // need to merge the first identifier and
+                            // any dotted identifiers into a name
+                            String module = "";
+                            CommonToken dotId = $id;
+                            if ($ids != null && $ids.size() > 0) {
+                                StringBuilder sb = new StringBuilder($id.getText());
+                                ListIterator<Object> iter = $ids.listIterator();
+                                while (iter.hasNext()) {
+                                    dotId = (CommonToken)iter.next();
+                                    if (iter.hasNext()) {
+                                        sb.append(".");
+                                        sb.append(dotId.getText());
+                                    }
+                                }
+                                module = sb.toString();
+                            }
+                            LexNameToken name = new LexNameToken(module, dotId.getText(), extractLexLocation($id,dotId));
+
+                            // grab the AApplyExp directly
+                            AApplyExp apply = (AApplyExp)selectors.get(0);
+                            $action = new ACallStatementAction(null, null, name, apply.getArgs());
                         }
-                        // need to merge the first identifier and the dotted identifiers into a name
-                        // need to extract the expression list from the AApplyExp
-                        // $action = new ACallStatementAction(null, null, $ name.name, $ expressionList.exps);
-                        $action = new ASkipAction(extractLexLocation($start));
                     }
                 | ':='
                     // At this point we know that we have an assignableExpression to the left, so assemble that here
+                    {
+                        AVariableExp firstIdExp = new AVariableExp(extractLexLocation($id), new LexNameToken("", $id.getText(), extractLexLocation($id)), "");
+                        List<PExp> selectors = $selectorOptList.selectors;
+
+                        if ($ids != null && $ids.size() > 0) {
+                            ListIterator<Object> rIter = $ids.listIterator($ids.size());
+                            while (rIter.hasPrevious()) {
+                                CommonToken dotId = (CommonToken)rIter.previous();
+                                LexLocation dotLoc = extractLexLocation(dotId);
+                                List<LexIdentifierToken> idList = new ArrayList<LexIdentifierToken>();
+                                idList.add(new LexIdentifierToken(dotId.getText(),false,dotLoc));
+                                selectors.add(0,new AUnresolvedPathExp(dotLoc, idList));
+                            }
+                        }
+
+                        assignable = selectorListTreeBuilder(firstIdExp, selectors);
+                    }
                     ( 'new' name '(' expressionList? ')'
                         // object instantiation
                         {
                             // sort out the assignableExpression equivalent
-                            // $action = new ANewStatementAction(null, $ assignableExpression.exp, $name.name, $expressionList.exps);
-                            $action = new ASkipAction(extractLexLocation($start));
+                            $action = new ANewStatementAction(null, assignable, $name.name, $expressionList.exps);
                         }
                     | expression
-                        // assignment or operation call
-                        // | (assignableExpression ':=')=> assignmentStatement
+                        // assignment or operation call (but that's sorted out in the TC)
                         {
-                            // $action = $ assignmentStatement.statement;
-                            $action = new ASkipAction(extractLexLocation($start));
+                            $action = new ASingleGeneralAssignmentStatementAction(null, assignable, $expression.exp);
                         }
                     )
                 )
@@ -1355,6 +1445,7 @@ assignableExpression returns[PExp exp]
             else
                 $exp = new ASelfExp(loc, new LexNameToken("", $t.getText(), loc));
 
+            //FIXME convert this to use selectorListTreeBuilder
             for (PExp sel : $selectorOptList.selectors) { // Iterate through the selectors, building a left->right tree
                 loc = extractLexLocation($exp.getLocation(), sel.getLocation());
                 if (sel instanceof AFieldNumberExp) { // FIXME --- probably shouldn't allow this
@@ -2800,11 +2891,6 @@ expr11 returns[PExp exp]
 selectorOptList returns[List<PExp> selectors]
 @init { $selectors = new ArrayList<PExp>(); }
     : ( selector { $selectors.add($selector.exp); } )*
-    ;
-
-selectorList returns[List<PExp> selectors]
-@init { $selectors = new ArrayList<PExp>(); }
-    : ( selector { $selectors.add($selector.exp); } )+
     ;
 
 // Note that each selector expression is partial, returned with a null "root" expression
