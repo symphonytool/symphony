@@ -1799,7 +1799,8 @@ functionDefs returns[AFunctionsDefinition defs]
     : 'functions' qualFunctionDefinitionOptList
         {
             AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start));
-            AFunctionsDefinition functions = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null, $qualFunctionDefinitionOptList.defs);
+            AFunctionsDefinition functions = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null);
+            functions.setFunctionDefinitions($qualFunctionDefinitionOptList.defs);
             $defs = functions;
         }
     ;
@@ -1818,7 +1819,28 @@ qualFunctionDefinitionOptList returns[List<PDefinition> defs]
     ;
 
 functionDefinition returns[PDefinition def]
-@after { $def.setLocation(extractLexLocation($start, $stop)); }
+@after { $def.setLocation(extractLexLocation($start, $stop)); 
+
+         if ($def instanceof AExplicitFunctionDefinition) {
+	       AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)$def;
+           if (f.getPredef() != null) { 
+              f.getPredef().setName(
+                 new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().name, false, f.getLocation())));
+             // f.parent($def);
+           }
+       	   if (f.getPostdef() != null) { 
+       	     f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().name, false, f.getLocation())));
+       	     //f.parent($def);
+       	   }
+         }
+
+        if ($def instanceof AImplicitFunctionDefinition) {
+		   AImplicitFunctionDefinition f = (AImplicitFunctionDefinition)$def;
+       	   if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().name, false, f.getLocation())));
+       	   if (f.getPostdef() != null) f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().name, false, f.getLocation())));
+        }
+
+      }
     : IDENTIFIER (expl=explicitFunctionDefinitionTail | impl=implicitFunctionDefinitionTail)
         {
             if ($expl.tail != null) {
@@ -1826,6 +1848,8 @@ functionDefinition returns[PDefinition def]
                 if ( !$IDENTIFIER.getText().equals($def.getName().name) ) {
                     System.out.println("Mismatch in function definition.  Signature has " + $IDENTIFIER.getText() + ", definition has " + $def.getName().name);
                     // FIXME --- here we need some sort of exception (probably RecognitionException) to note the mismatch
+                    
+
                 }
             } else {
                 $def = $impl.tail;
@@ -1868,7 +1892,7 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
                 }
                 predefParamPatterns.add(l);
             }
-
+			
             AExplicitFunctionDefinition predef = AstFactory.newAExplicitFunctionDefinition(
                                                     preDefName, // name pre_fn
                                                     NameScope.LOCAL, // LOCAL ofcause
@@ -1880,7 +1904,7 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
                                                     null /* postcond */,
                                                     false /* type invariant */,
                                                     null /* measure */);
-
+			predef.parent(null);
             $tail.setPredef(predef);
 
             List<List<PPattern>> postdefParamPatterns = new LinkedList<List<PPattern>>();
@@ -1906,7 +1930,7 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
                                                     null /* postcond */,
                                                     false /* type invariant */,
                                                     null /* measure */);
-
+			postdef.parent(null);
             $tail.setPostdef(postdef);
 
             $tail.setIsCurried(false);
@@ -1978,28 +2002,32 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             $tail.setType(AstFactory.newAFunctionType(typeloc, true, paramTypes, resultTypePair.getType()));
 
             // set predef
-            LexNameToken prename = new LexNameToken("", new LexIdentifierToken("pre_", false, preExp.getLocation()));
+            LexNameToken prename = new LexNameToken("", new LexIdentifierToken("pre_"+$tail.getName(), false, preExp.getLocation()));
             NameScope prescope = NameScope.LOCAL;
             List<LexNameToken> pretypeParams = new LinkedList<LexNameToken>();
-            AFunctionType pretype = $tail.getType();
+            AFunctionType pretype = (AFunctionType)$tail.getType().clone();
+            
+		    pretype.setResult(new ABooleanBasicType(preExp.getLocation(), true));
+            
             PExp preprecondition = null;
             PExp prepostcondition = null;
             List<List<PPattern>> preparameterGroupList = new LinkedList<List<PPattern>>();
+            List<PPattern> currentp = new LinkedList<PPattern>();
             for(APatternListTypePair pt : paramPatterns)
             {
-                List<PPattern> current = new LinkedList<PPattern>();
                 for(PPattern p : pt.getPatterns())
-                        current.add(p.clone());
-                preparameterGroupList.add(current);
+                        currentp.add(p.clone());   
             }
+            preparameterGroupList.add(currentp);
             AExplicitFunctionDefinition predef =  AstFactory.newAExplicitFunctionDefinition(prename, prescope, pretypeParams, pretype, preparameterGroupList, preExp, preprecondition, prepostcondition, false, null);
+            predef.parent(null);
             $tail.setPredef(predef);
 
             // set postdef
-            LexNameToken name = new LexNameToken("", new LexIdentifierToken("post_", false, $post.exp.getLocation()));
+            LexNameToken name = new LexNameToken("", new LexIdentifierToken("post_"+$tail.getName(), false, $post.exp.getLocation()));
             NameScope scope = NameScope.LOCAL;
             List<LexNameToken> typeParams = null;
-            AFunctionType type = $tail.getType();
+            PType type = $tail.getType();
             PExp body = $tail.getPostcondition();
             PExp precondition = null;
             PExp postcondition = null;
@@ -2011,7 +2039,8 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
                         current.add(p.clone());
                 postParameterGroupList.add(current);
             }
-            AExplicitFunctionDefinition postdef =  AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, type, postParameterGroupList, body, precondition, postcondition, false, null);
+            AExplicitFunctionDefinition postdef =  AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, (AFunctionType)type, postParameterGroupList, body, precondition, postcondition, false, null);
+            postdef.parent(null);
             $tail.setPostdef(postdef);
         }
     ;
@@ -2574,7 +2603,7 @@ binOpEval1 returns[SBinaryExpBase op]
 @init { LexLocation loc = null; String opStr = null; }
 @after { op.setLocation(loc); op.setOp(extractLexToken(opStr, loc)); }
     : o='+'      { $op = new APlusNumericBinaryExp();      loc = extractLexLocation($o); opStr = $o.getText(); }
-    | o='-'      { $op = new ASubstractNumericBinaryExp(); loc = extractLexLocation($o); opStr = $o.getText(); }
+    | o='-'      { $op = new ASubtractNumericBinaryExp(); loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='union'  { $op = new ASetUnionBinaryExp();         loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='\\'     { $op = new ASetDifferenceBinaryExp();    loc = extractLexLocation($o); opStr = $o.getText(); }
     | o='munion' { $op = new AMapUnionBinaryExp();         loc = extractLexLocation($o); opStr = $o.getText(); }

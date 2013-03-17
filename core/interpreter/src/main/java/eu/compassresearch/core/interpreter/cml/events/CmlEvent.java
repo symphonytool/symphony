@@ -5,14 +5,15 @@ import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 
 public abstract class CmlEvent {
 	
-	@Override 
 	public abstract int hashCode();
 	
-	@Override
 	public abstract String toString();
 	
-	@Override
 	public abstract boolean equals(Object obj);
 	
+	/**
+	 * Wraps the event in a CmlAlphabet
+	 * @return
+	 */
 	public abstract CmlAlphabet getAsAlphabet();
 }

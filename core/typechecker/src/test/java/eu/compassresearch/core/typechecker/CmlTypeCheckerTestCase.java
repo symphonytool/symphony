@@ -21,6 +21,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.types.ABooleanBasicType;
+import org.overture.ast.types.AFunctionType;
 
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
@@ -845,7 +851,25 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		// 219
 		addTestProgram(testData, "class T = begin state a : int functions f:int * int -> int f(x,y) == a + x + y end", false, true, false, new String[0]);
 		// 220
+		addTestProgram(testData, "types Quantity = int Price = int class C = begin state sellerBids : seq of Quantity buyerBids : seq of Quantity prices : seq of Price inv len(sellerBids) = len(buyerBids) and len(sellerBids) = len(prices) end", false, true, true, new String[0]);
+		// 221
+		addTestProgram(testData, "functions f: int -> int f(a) == a+1 pre a > 0 process P = begin @ f(2) end ", false, true, true, new String[0]);
+		// 222
+		addTestProgram(testData, "class C = begin operations public doit: int ==> () doit(a) == Skip end process P = begin state s : C @ s.doit(1) end",false,true,true,new String[0]);
+		// 223
+		addTestProgram(testData, "functions f: int -> int f(a) == a+1 pre a > 0 process P = begin @ pre_f(2) end ", false, true, true, new String[0]);
+		// 224
+		addTestProgram(testData, "types mac :: a:int b:int process P = begin functions f: mac * int -> int f(x,y) == x.a+y @ f(mk_mac(1,2),2) end",false, true, true, new String[0]);
+		// 225
+		addTestProgram(testData, "functions f: int * int -> int f(x,y) == x+y pre x > 0 process P = begin actions A = [ pre_f(0,0) ] & Skip @ A end", false, true, true, new String[0]);
+		// 226
+		addTestProgram(testData,"types ERUId = nat RescueDetails ::a:int b:int process P = begin state erus : set of ERUId eruRescues : map ERUId to RescueDetails operations findIdleERUs() idleERUs: set of ERUId frame rd erus: set of ERUId rd eruRescues: map ERUId to RescueDetails post idleERUs = erus \\ dom eruRescues @ findIdleERUs() end",false,true,true,new String[0]);
+		// 227
+		addTestProgram(testData,"channels c: nat values a : nat = 10 - 11 b:nat = 20 - 10 process A = begin actions B = c!(a-b)->Skip @ Skip end",false,true,true,new String[0]);
 		
+		addTestProgram(testData,"process P = begin actions B = A1(1,2) A1 = val a:int, b: nat @ Skip  @ A1(1,1) end",false, true, true, new String[0]);
+		
+		addTestProgram(testData,"types Day = nat AvailDB = map Day to nat functions CkAvail (d:Day,av:AvailDB) n:nat post n = av(d)",false,true,true,new String[0]);
 		return testData;
 	}
 
@@ -897,6 +921,16 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				Assert.assertTrue("Expected error message:\n" + s
 						+ "\nBut it was not found.", actualErrors.contains(s));
 		}
+
+	}
+	
+	
+	public static void test() {
+		PDefinition def=null;
+        if (def instanceof AExplicitFunctionDefinition) {
+            AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)def;
+            if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+def.getName().name, false, def.getLocation())));
+           }
 
 	}
 

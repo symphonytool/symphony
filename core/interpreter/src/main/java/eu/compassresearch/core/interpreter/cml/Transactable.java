@@ -1,17 +1,20 @@
 package eu.compassresearch.core.interpreter.cml;
 
 /**
- * Defines a object that is able to perform transactions
+ * Implementors of this are able to perform transactions
  * @author akm
  *
  */
 public interface Transactable {
 
+	/**
+	 * Begins a transaction
+	 */
 	void beginTransaction();
 	
-	void cancelTransaction();
+	void rollback();
 	
-	//void commitTransaction();
+	//void commit();
 	
 	boolean inTransaction();
 	

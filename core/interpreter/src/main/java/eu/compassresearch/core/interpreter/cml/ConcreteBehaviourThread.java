@@ -12,7 +12,6 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
@@ -424,7 +423,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				//we have to check for hidden event and convert them into tau events
 				CmlAlphabet hiddenEvents = alpha.intersectRefsAndJoin(hidingAlphabet);
 				
-				CmlAlphabet returnAlpha = alpha.substract(hiddenEvents);
+				CmlAlphabet returnAlpha = alpha.subtract(hiddenEvents);
 				
 				for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
 					returnAlpha = returnAlpha.union(new CmlTauEvent(" hiding " + obsEvent.toString()));
@@ -717,7 +716,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	}
 
 	@Override
-	public void cancelTransaction() {
+	public void rollback() {
 
 		if(lastRestorePoint != null)
 		{
@@ -765,13 +764,14 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	
 	/**
 	 * ChannelListener interface method.
-	 * Here the process is notified when a registered channel is signalled 
+	 * Here the process is notified when a registered channel is signaled 
 	 */
 	@Override
 	public void onChannelEvent(Object source, CmlChannelEvent event) {
 
 		//if the channel sends a select event then it means that we have a go to execute the
-		//communicationAction transition. So we set the state to RUNNABLE so the scheduler will execute it
+		//communicationAction transition. 
+		//So we set the state to RUNNABLE so the scheduler will execute it
 		if(event.getEventType() == CmlCommunicationType.SELECT)
 			setState(CmlProcessState.RUNNABLE);
 	}

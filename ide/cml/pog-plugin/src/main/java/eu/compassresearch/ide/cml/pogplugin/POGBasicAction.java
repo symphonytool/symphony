@@ -113,7 +113,7 @@ public class POGBasicAction implements IWorkbenchWindowActionDelegate {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("-- Auto-Generated Proof Obligations for " + projName + " project \n");
-		sb.append("-- CAUTION: this file is temporary and will be auto-deleted.\n");
+		sb.append("-- CAUTION: this file is temporary!\n");
 		sb.append("=================================================================\n\n");
 		for (IResource cmlfile : cmlfiles) {
 			CmlSourceUnit source = CmlSourceUnit

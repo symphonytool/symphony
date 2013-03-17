@@ -179,7 +179,10 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 			CmlBehaviourThread p = getTopLevelProcess();
 			
 			if(p.deadlocked())
+			{
+				CmlRuntime.logger().fine("Top process '" + p.name() + "' is deadlocked");
 				break;
+			}
 			else if(p.waiting())
 			{
 				CmlAlphabet availableEvents = p.inspect();

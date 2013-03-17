@@ -405,7 +405,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	@Override
 	public PType caseANilExp(ANilExp node, TypeCheckInfo question)
 			throws AnalysisException {
-		
+
 		return AstFactory.newAUnknownType(node.getLocation());
 	}
 
@@ -593,13 +593,13 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			TypeCheckInfo question) throws AnalysisException {
 
 		PType result = AstFactory.newAUnknownType(node.getLocation());
-		
+
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		if (cmlEnv == null) {
 			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node)));
 			return node.getType();
 		}
-		
+
 		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
 		LinkedList<PDefinition> defs = new LinkedList<PDefinition>();
 		boolean seenChannel = false;
@@ -619,11 +619,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.MIXING_STATE_AND_CHANNEL_IN_SET.customizeMessage(""+node)));
 			return node.getType();
 		}
-		
+
 		if (seenChannel) {
 			result = new AChansetType(node.getLocation(),true);
 		}
-		
+
 		if (seenState) {
 			result = new ANamesetsType(node.getLocation(),true);
 		}
@@ -752,6 +752,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		} while (false);
 
+		if (definition == null) {
+			CmlAssistant assistant = new CmlAssistant();
+			definition = assistant.findMemberName(question.env.getEnclosingDefinition(), name, question);
+		}
+		
 		// any luck?
 		if (definition != null) {
 			node.setVardef(definition);

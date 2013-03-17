@@ -68,11 +68,11 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 				// Get current source tree
 				current = ((CmlSourceUnit) inputElement).getSourceAst();
 				if (current == null) {
-					String[] r = { "Build project to generate outline." };
+					String[] r = { "Rebuild project to generate outline." };
 					return r;
 				}
 				if (current.getParagraphs().isEmpty()) {
-					String[] r = { "Fix project errors to generate outline." };
+					String[] r = { "Fix project errors and save to generate outline." };
 					return r;
 				}
 

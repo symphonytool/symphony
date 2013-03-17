@@ -204,13 +204,10 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		callContext.putAll(args);
 				
 		//invoke the pre condition
-		if(opVal.precondition != null){
-			//TODO add this when the typechecker do it properly		
-			//ValueList preArgs = new ValueList(argValues);
-			
-			//preArgs.add(question.getSelf());
-			//if(!opVal.precondition.eval(node.getLocation(), preArgs, question).boolValue(question))
-			//	opVal.abort(4060, "precondition violated for " + node.getName(), question);
+		if(opVal.getPrecondition()!= null){
+
+			if(!opVal.getPrecondition().apply(this.cmlExpressionVisitor,callContext).boolValue(question))
+				opVal.abort(4060, "precondition violated for " + node.getName(), question);
 		}
 		if (opVal.getBody() == null)
 		{

@@ -165,6 +165,8 @@ TypeCheckQuestion {
 
 	@Override
 	public void addVariable(LexIdentifierToken ident, PDefinition variable) {
+		if (ident == null) return;
+		//if (ident == null) throw new NullPointerException("Cannot add identifier with null name to the environment.");
 		if (env instanceof FlatEnvironment) {
 			FlatEnvironment fenv = (FlatEnvironment) env;
 			PDefinition d = lookupCurrentScope(ident);
@@ -207,6 +209,7 @@ TypeCheckQuestion {
 	{
 		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels,env,issueHandler,globalClassDefinition);
 		res.scope = this.scope;
+		res.env.setEnclosingDefinition(env.getEnclosingDefinition());
 		return res;
 	}
 
