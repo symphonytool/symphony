@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.cml.channels;
+package eu.compassresearch.core.interpreter.cml;
 
 import org.overture.ast.types.PType;
 

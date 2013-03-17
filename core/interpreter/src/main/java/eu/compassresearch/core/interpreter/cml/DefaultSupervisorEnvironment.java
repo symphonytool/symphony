@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.scheduler.Scheduler;
+import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 
 public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 
@@ -12,9 +12,9 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	private ObservableEvent selectedCommunication;
 	
 	private List<CmlBehaviourThread> pupils = new LinkedList<CmlBehaviourThread>();
-	private Scheduler scheduler;
+	private CmlScheduler scheduler;
 	
-	public DefaultSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy, Scheduler scheduler)
+	public DefaultSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy, CmlScheduler scheduler)
 	{
 		this.selectStrategy = selectStrategy;
 		this.scheduler = scheduler;
@@ -33,7 +33,9 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 //	}
 
 	@Override
-	public boolean isObservableEventSelected() {
+	public boolean isSelectedEventValid() {
+		
+		//selectedCommunication.getChannel().onSelect()
 		return selectedCommunication != null;
 	}
 

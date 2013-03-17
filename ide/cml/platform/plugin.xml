@@ -11,7 +11,14 @@
                name="appName"
                value="CML Compass Project">
          </property>
-         
+               <property
+             name="aboutText"
+             value="Please submit any bugs to http://sourceforge.net/p/compassresearch/tickets/">
+       </property>
+       <property
+             name="aboutImage"
+             value="/icons/aboutboximg.png">
+       </property> 
           <property
              name="startupProgressRect"
              value="20,235,415,10">
@@ -28,7 +35,11 @@
 	      name="preferenceCustomization"
 	      value="plugin_customization.ini">
 	  </property>
-	  <property
+
+
+
+      
+      <property
 	      name="startupForegroundColor"
 	      value="FFFFFF">
 	  </property>
@@ -38,7 +49,34 @@
 	  </property>
       </product>
    </extension>
-    
+
+       <extension
+         point="org.eclipse.ui.intro">
+      <intro
+            class="org.eclipse.ui.intro.config.CustomizableIntroPart"
+            id="eu.compassresearch.ide.cml.platform.intro">
+      </intro>
+      <introProductBinding
+            introId="eu.compassresearch.ide.cml.platform.intro"
+            productId="eu.compassresearch.ide.cml.platform.product">
+      </introProductBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.intro.config">
+      <config
+            content="introContent.xml"
+            id="eu.compassresearch.ide.cml.platform.introConfigId"
+            introId="eu.compassresearch.ide.cml.platform.intro">
+         <presentation
+               home-page-id="root">
+            <implementation
+                  kind="html"
+                  os="win32,linux,macosx"
+                  >
+            </implementation>
+         </presentation>
+      </config>
+   </extension>
   
  <extension
          point="org.eclipse.ui.splashHandlers">
@@ -76,6 +114,18 @@
        <property
              name="preferenceCustomization"
              value="plugin_customization.ini">
+       </property>
+       <property
+             name="aboutImage"
+             value="icons/aboutboximg.png">
+       </property>
+       <property
+             name="aboutText"
+             value="Learn more about COMPASS Research at http://www.compass-research.eu">
+       </property>
+       <property
+             name="windowImages"
+             value="icons/icon16.png,icons/icon32.png,icons/icon64.png">
        </property>
     </product>
  </extension>

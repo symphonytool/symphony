@@ -24,6 +24,13 @@ public class CmlMessageCommunicator {
 		writer.flush();
 	}
 	
+	/**
+	 * Constructs a message by deserializing the output from requestReader and 
+	 * returns it in a CmlMessageContainer.
+	 * @param requestReader
+	 * @return
+	 * @throws IOException
+	 */
 	public static CmlMessageContainer receiveMessage(BufferedReader requestReader) throws IOException
 	{
 		CmlMessageContainer message = null;

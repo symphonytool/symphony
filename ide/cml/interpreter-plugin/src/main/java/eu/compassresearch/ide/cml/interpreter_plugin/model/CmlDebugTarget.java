@@ -60,7 +60,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 	private Socket fRequestSocket;
 	private OutputStream requestOutputStream;
 	private BufferedReader fRequestReader;
-	private Socket fEventSocket;
 
 	// event dispatch job
 	private EventDispatchJob fEventDispatch;
@@ -200,6 +199,11 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			return result;
 		}
 
+		/**
+		 * Dispatches the message from messageContainer to the assigned handler of this message type
+		 * @param messageContainer
+		 * @return
+		 */
 		private boolean processMessage(CmlMessageContainer messageContainer)
 		{
 			boolean result = false;
@@ -229,7 +233,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 					message = receiveMessage(); 
 					System.out.println(message);
 				}
-				while (!isTerminated() && processMessage(message));
+				while (!isTerminated() && message != null && processMessage(message));
 			}
 			catch(IOException e)
 			{
@@ -496,7 +500,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 	{
 		try
 		{
-			this.fEventSocket.close();
+			this.fRequestSocket.close();
 		}
 		catch(IOException e)
 		{

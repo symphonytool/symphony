@@ -7,11 +7,11 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.channels.CmlSignalChannel;
+import eu.compassresearch.core.interpreter.cml.CmlChannel;
 
 public class PrefixEvent extends ObservableEvent {
 
-	public PrefixEvent(CmlBehaviourThread eventSource, CmlSignalChannel channel) {
+	public PrefixEvent(CmlBehaviourThread eventSource, CmlChannel channel) {
 		super(eventSource, channel);
 	}
 
@@ -41,7 +41,7 @@ public class PrefixEvent extends ObservableEvent {
 
 	@Override
 	public ObservableEvent getReferenceEvent() {
-		return new PrefixEvent(null, (CmlSignalChannel)channel);
+		return new PrefixEvent(null, channel);
 	}
 
 	@Override

@@ -5,8 +5,13 @@ import java.util.List;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
+import eu.compassresearch.core.interpreter.cml.CmlChannel;
 
+/**
+ * This represents an observable channel event from a specific CmlBehaviourThread 
+ * @author akm
+ *
+ */
 public abstract class ObservableEvent extends CmlEvent {
 
 	final protected CmlChannel channel;
