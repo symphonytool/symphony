@@ -1016,12 +1016,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			do {
 
 				if (def instanceof AExplicitFunctionDefinition) {
-					fnType = ((AExplicitFunctionDefinition)def).getType();
+					fnType = (AFunctionType)((AExplicitFunctionDefinition)def).getType();
 					break;
 				}
 
 				if (def instanceof AImplicitFunctionDefinition) {
-					fnType = ((AImplicitFunctionDefinition)def).getType();
+					fnType = (AFunctionType)((AImplicitFunctionDefinition)def).getType();
 					break;
 				}
 
@@ -1747,8 +1747,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				for (PPattern p : lp)
 					patterns.add(p);
 
-			paramTypes = AExplicitFunctionDefinition.class.cast(funDef)
-					.getType().getParameters();
+			paramTypes = ((AFunctionType)AExplicitFunctionDefinition.class.cast(funDef)
+					.getType()).getParameters();
 		} else if (funDef instanceof AExplicitCmlOperationDefinition) {
 			patterns = AExplicitCmlOperationDefinition.class.cast(funDef)
 					.getParameterPatterns();
@@ -1826,7 +1826,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			ListIterator<List<PPattern>> lIter = node.getParamPatternList().listIterator();
 			expectedResult = AExplicitFunctionDefinitionAssistantTC
 					.checkParams(node, lIter,
-							node.getType());
+							(AFunctionType)node.getType());
 		}
 		else
 		{
@@ -1840,7 +1840,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		node.setExpectedResult(expectedResult);
 		List<List<PDefinition>> paramDefinitionList = AExplicitFunctionDefinitionAssistantTC
-				.getParamDefinitions(node, node.getType(),
+				.getParamDefinitions(node, ((AFunctionType)node.getType()),
 						node.getParamPatternList(), node.getLocation());
 		Collections.reverse(paramDefinitionList);
 
@@ -1943,7 +1943,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		} else if (node.getMeasure() != null) {
 			if (question.env.isVDMPP())
 				node.getMeasure().setTypeQualifier(
-						node.getType().getParameters());
+						((AFunctionType)node.getType()).getParameters());
 			node.setMeasureDef(question.env.findName(node.getMeasure(),
 					question.scope));
 
@@ -1978,15 +1978,15 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 				AFunctionType mtype = (AFunctionType) efd.getType();
 
-				if (!org.overture.typechecker.TypeComparator.compatible(mtype.getParameters(), node
-						.getType().getParameters())) {
+				if (!org.overture.typechecker.TypeComparator.compatible(mtype.getParameters(), ((AFunctionType)node
+						.getType()).getParameters())) {
 					TypeCheckerErrors.report(3303,
 							"Measure parameters different to function", node
 							.getMeasure().getLocation(), node
 							.getMeasure());
 					TypeChecker.detail2(node.getMeasure().getName(),
 							mtype.getParameters(), node.getName().getName(),
-							node.getType().getParameters());
+							((AFunctionType)node.getType()).getParameters());
 				}
 
 				if (!(mtype.getResult() instanceof ANatNumericBasicType)) {

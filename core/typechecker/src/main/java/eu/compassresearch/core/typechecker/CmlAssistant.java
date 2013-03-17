@@ -99,7 +99,10 @@ class CmlAssistant {
 	}
 
 
-
+	private void t() {
+		AImplicitFunctionDefinition f;
+		
+	}
 	/*
 	 * Type erasure? Well then we gotta do it our self ... 
 	 * 
@@ -467,7 +470,8 @@ class CmlAssistant {
 			
 			AClassClassDefinition cdef = AClassClassDefinition.class.cast(def);
 			
-			AFunctionsDefinition temp = new AFunctionsDefinition(def.getLocation(), NameScope.LOCAL, false, null, Pass.DEFS, cdef.getDefinitions());
+			AFunctionsDefinition temp = new AFunctionsDefinition(def.getLocation(), NameScope.LOCAL, false, null, Pass.DEFS);
+			temp.setFunctionDefinitions(cdef.getDefinitions());
 			PDefinition res = CmlAssistant.this.findMemberName(temp, name, more);
 			if (res != null) return res;
 			return SClassDefinitionAssistantTC.findName(cdef, (LexNameToken)name, NameScope.NAMESANDANYSTATE);

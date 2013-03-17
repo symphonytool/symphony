@@ -87,16 +87,16 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 	{
 		// errors is the result
 		List<CMLTypeError> errors = new LinkedList<CMLTypeError>();	
-		
+
 		// errors that has a child node with an error
 		List<INode> redundant = new LinkedList<INode>();
-		
+
 		// For each error add nodes to redundant that are parent of 
 		// the node with the error.
 		for(CMLTypeError e : errs) {
 			INode errorNode = e.getOffendingNode();
 			errors.add(e);
-			
+
 			List<INode> cycleDetection = new LinkedList<INode>();
 			cycleDetection.add(errorNode);
 			while (errorNode.parent() != null) {
@@ -105,18 +105,19 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 				redundant.add(errorNode);
 			}
 		}
-		
+
 		// We have the redundant parent nodes, collect the coresponding errors
 		List<CMLTypeError> redundantErrors = new LinkedList<CMLTypeError>();
 		for(CMLTypeError e : errors) {
-			redundantErrors.add(e);
+			if (redundant.contains(e.getOffendingNode()))
+				redundantErrors.add(e);
 		}
-		
+
 		// finally remove the errors
 		errors.removeAll(redundantErrors);
-		
+
 		return errors;
-	
+
 	}
 
 	private synchronized static boolean typeCheck(IProject project, Map<PSource,IFile> sourceToFileMap)
@@ -138,7 +139,7 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 				if (offendingNode != null)
 				{
 
-					
+
 					PSource source = ( offendingNode instanceof PSource ? (PSource)offendingNode : offendingNode.getAncestor(PSource.class));
 					if (source == null) {
 						System.out.println("Unable to place error: "+project.getName()+" - "+error.getDescription());

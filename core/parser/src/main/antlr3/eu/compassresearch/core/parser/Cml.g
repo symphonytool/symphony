@@ -1480,7 +1480,8 @@ functionDefs returns[AFunctionsDefinition defs]
     : 'functions' qualFunctionDefinitionOptList
         {
             AAccessSpecifierAccessSpecifier access = getDefaultAccessSpecifier(true, false, extractLexLocation($functionDefs.start));
-            AFunctionsDefinition functions = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null, $qualFunctionDefinitionOptList.defs);
+            AFunctionsDefinition functions = new AFunctionsDefinition(null, NameScope.GLOBAL, false, access, null);
+            functions.setFunctionDefinitions($qualFunctionDefinitionOptList.defs);
             $defs = functions;
         }
     ;
@@ -1499,7 +1500,28 @@ qualFunctionDefinitionOptList returns[List<PDefinition> defs]
     ;
 
 functionDefinition returns[PDefinition def]
-@after { $def.setLocation(extractLexLocation($start, $stop)); }
+@after { $def.setLocation(extractLexLocation($start, $stop)); 
+
+         if ($def instanceof AExplicitFunctionDefinition) {
+	       AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)$def;
+           if (f.getPredef() != null) { 
+              f.getPredef().setName(
+                 new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().name, false, f.getLocation())));
+             // f.parent($def);
+           }
+       	   if (f.getPostdef() != null) { 
+       	     f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().name, false, f.getLocation())));
+       	     //f.parent($def);
+       	   }
+         }
+
+        if ($def instanceof AImplicitFunctionDefinition) {
+		   AImplicitFunctionDefinition f = (AImplicitFunctionDefinition)$def;
+       	   if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().name, false, f.getLocation())));
+       	   if (f.getPostdef() != null) f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().name, false, f.getLocation())));
+        }
+
+      }
     : IDENTIFIER (expl=explicitFunctionDefinitionTail | impl=implicitFunctionDefinitionTail)
         {
             if ($expl.tail != null) {
@@ -1508,17 +1530,6 @@ functionDefinition returns[PDefinition def]
                     System.out.println("Mismatch in function definition.  Signature has " + $IDENTIFIER.getText() + ", definition has " + $def.getName().name);
                     // FIXME --- here we need some sort of exception (probably RecognitionException) to note the mismatch
                     
-                 if ($def instanceof AExplicitFunctionDefinition) {
-		            AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)$def;
-       			    if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().name, false, f.getLocation())));
-       			    if (f.getPostdef() != null) f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().name, false, f.getLocation())));
-          		 }
-
-                 if ($def instanceof AImplicitFunctionDefinition) {
-		            AImplicitFunctionDefinition f = (AImplicitFunctionDefinition)$def;
-       			    if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().name, false, f.getLocation())));
-       			    if (f.getPostdef() != null) f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().name, false, f.getLocation())));
-          		 }
 
                 }
             } else {
@@ -1562,7 +1573,7 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
                 }
                 predefParamPatterns.add(l);
             }
-
+			
             AExplicitFunctionDefinition predef = AstFactory.newAExplicitFunctionDefinition(
                                                     preDefName, // name pre_fn
                                                     NameScope.LOCAL, // LOCAL ofcause
@@ -1574,7 +1585,7 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
                                                     null /* postcond */,
                                                     false /* type invariant */,
                                                     null /* measure */);
-
+			predef.parent(null);
             $tail.setPredef(predef);
 
             List<List<PPattern>> postdefParamPatterns = new LinkedList<List<PPattern>>();
@@ -1600,7 +1611,7 @@ explicitFunctionDefinitionTail returns[AExplicitFunctionDefinition tail]
                                                     null /* postcond */,
                                                     false /* type invariant */,
                                                     null /* measure */);
-
+			postdef.parent(null);
             $tail.setPostdef(postdef);
 
             $tail.setIsCurried(false);
@@ -1690,6 +1701,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             }
             preparameterGroupList.add(currentp);
             AExplicitFunctionDefinition predef =  AstFactory.newAExplicitFunctionDefinition(prename, prescope, pretypeParams, pretype, preparameterGroupList, preExp, preprecondition, prepostcondition, false, null);
+            predef.parent(null);
             $tail.setPredef(predef);
 
             // set postdef
@@ -1709,6 +1721,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
                 postParameterGroupList.add(current);
             }
             AExplicitFunctionDefinition postdef =  AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, (AFunctionType)type, postParameterGroupList, body, precondition, postcondition, false, null);
+            postdef.parent(null);
             $tail.setPostdef(postdef);
         }
     ;
