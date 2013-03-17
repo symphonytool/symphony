@@ -16,22 +16,20 @@
  * 2013-01-06 RWL: )\ used in the /( exp )\-csp construct conflicts with apply expressions
  * when doing e.g. dom(map)\{set-enum}
  *
- * 2013-01-06 RWL: when having a class ... end construct the parser stops after the end.
- * anything written after the end of the class will not be parser.
- *   2013-02-11 jwc: can you confirm if this is still true?
- *
  * communication prefixes using '.' separators are still causing problems
  * -> restriction in place: '.','!' may only be followed by ids,
  *    (expr), symLit, and records/tuples; '?' is only followed by a
  *    bindablePattern and optionally a set/map expr that delimited by
  *    curlies
  *
- * conflict on call/new/assign; really, really ought to re-think how
- * that is assembled.
- * ... We still have an inherent conflict between opcalls and fncalls,
- *   as syntactically there's no difference in the basic cases.  Both
- *   are essentially ID '('expr*')'.  I've added "lhs '<-' call" as a
- *   rule alternative.
+ * new/call/assign/communicate are all in leadingIdAction --- it's a
+ * mess, and gives a cryptic error on cases where there's a dotted
+ * prefix followed by any list of selectors that's not just a single
+ * AApplyExp.
+ * ... We also still have an inherent conflict between opcalls and
+ *   fncalls, as syntactically there's no difference in the basic
+ *   cases.  Both are essentially ID '('expr*')'.  I've added "lhs
+ *   '<-' call" as a rule alternative.
  *
  * Note: don't use '()' as a token: it will probably end up
  * conflicting with '(' ')' in places where there is an optional
@@ -244,7 +242,7 @@ public AAccessSpecifierAccessSpecifier getPrivateAccessSpecifier(boolean isStati
                                                (isAsync ? new TAsync() : null));
 }
 
-private PExp selectorListTreeBuilder(PExp base, List<PExp> selectors) {
+private PExp selectorListAssignableBuilder(PExp base, List<PExp> selectors) {
     PExp tree = base;
 
     for (PExp sel : selectors) { // Iterate through the selectors, building a left->right tree
@@ -1199,7 +1197,7 @@ leadingIdAction returns[PAction action]
                             }
                         }
 
-                        assignable = selectorListTreeBuilder(firstIdExp, selectors);
+                        assignable = selectorListAssignableBuilder(firstIdExp, selectors);
                     }
                     ( 'new' name '(' expressionList? ')'
                         // object instantiation
@@ -1372,57 +1370,6 @@ communication returns[PCommunicationParameter comm]
         }
     ;
 
-// statement returns[PAction statement]
-// @after { $statement.setLocation(extractLexLocation($start, $stop)); }
-//     : '[' ('frame' frameSpecList)? ('pre' pre=expression)? 'post' post=expression ']'
-//         {
-//             $statement = new ASpecificationStatementAction(null, $frameSpecList.frameSpecs, $pre.exp, $post.exp);
-//         }
-//     | ('return' expression)=>'return' expression
-//         {
-//             $statement = new AReturnStatementAction(null,$expression.exp);
-//         }
-//     | 'return'
-//         {
-//             $statement = new AReturnStatementAction();
-//         }
-//     | 'atomic' '(' assignmentStatementList ')'
-//         {
-//             $statement = new AMultipleGeneralAssignmentStatementAction(null, $assignmentStatementList.statements);
-//         }
-//     | ('(' 'dcl')=> '(' 'dcl' assignmentDefinitionList '@' action ')'
-//         {
-//             LexLocation dloc = extractLexLocation($assignmentDefinitionList.start, $assignmentDefinitionList.stop);
-//             ADeclareStatementAction dcls = new ADeclareStatementAction(dloc, $assignmentDefinitionList.defs);
-//             $statement = new ABlockStatementAction(null, dcls, $action.action);
-//         }
-//     | ('(' parametrisationList '@')=> pl='(' parametrisationList '@' action pr=')' ( '(' expressionList ')' )?
-//         {
-//             $statement = new AParametrisedAction(null, $parametrisationList.params, $action.action);
-//             if ($expressionList.exps!=null) {
-//                 $statement.setLocation(extractLexLocation($pl, $pr));
-//                 $statement = new AParametrisedInstantiatedAction(null, (AParametrisedAction)$statement, $expressionList.exps);
-//             }
-//         }
-//     | '(' action ')' renamingExpr?
-//         {
-//             // FIXME --- maybe add renaming expr here?
-//             $statement = new ABlockStatementAction(null, null, $action.action);
-//         }
-//     | (assignableExpression ':=' 'new')=> assignableExpression ':=' 'new' name '(' expressionList? ')'
-//         {
-//             $statement = new ANewStatementAction(null, $assignableExpression.exp, $name.name, $expressionList.exps);
-//         }
-//     | (assignableExpression ':=')=> assignmentStatement
-//         {
-//             $statement = $assignmentStatement.statement;
-//         }
-//     | callStatement
-//         {
-//             $statement = $callStatement.statement;
-//         }
-//     ;
-
 assignmentStatementList returns[List<ASingleGeneralAssignmentStatementAction> statements]
 @init { $statements = new ArrayList<ASingleGeneralAssignmentStatementAction>(); }
     : item=assignmentStatement { $statements.add($item.statement); } ( ';' item=assignmentStatement { $statements.add($item.statement); } )+
@@ -1445,43 +1392,7 @@ assignableExpression returns[PExp exp]
             else
                 $exp = new ASelfExp(loc, new LexNameToken("", $t.getText(), loc));
 
-            //FIXME convert this to use selectorListTreeBuilder
-            for (PExp sel : $selectorOptList.selectors) { // Iterate through the selectors, building a left->right tree
-                loc = extractLexLocation($exp.getLocation(), sel.getLocation());
-                if (sel instanceof AFieldNumberExp) { // FIXME --- probably shouldn't allow this
-                    System.out.println("Syntax error: AFieldNumberExp in a simpleSelector for calls");
-                    ((AFieldNumberExp)sel).setTuple($exp);
-                    sel.setLocation(loc);
-                    $exp = sel;
-                } else if (sel instanceof AApplyExp) {
-                    ((AApplyExp)sel).setRoot($exp);
-                    sel.setLocation(loc);
-                    $exp = sel;
-                } else if (sel instanceof ASubseqExp) { // FIXME --- probably shouldn't allow this either.
-                    System.out.println("Syntax error: ASubseqExp in a simpleSelector for calls");
-                    ((ASubseqExp)sel).setSeq($exp);
-                    sel.setLocation(loc);
-                    $exp = sel;
-                } else if (sel instanceof AUnresolvedPathExp) {
-                    // selector was a ".IDENTIFIER"; now let's figure out what to do
-                    AUnresolvedPathExp aupe = (AUnresolvedPathExp)sel; // avoid many casts
-                    if ($exp instanceof AVariableExp) { // if the left was an IDENTIFIER, then coalesce...
-                        AVariableExp ave = (AVariableExp)$exp;
-                        aupe.setLocation(loc);
-                        aupe.getIdentifiers().add(0, ave.getName().getIdentifier());
-                        $exp = aupe;
-                    } else if ($exp instanceof AUnresolvedPathExp) { // if it was an unresolved path, still coalesce...
-                        if ($exp != null) $exp.setLocation(loc);
-                        ((AUnresolvedPathExp)$exp).getIdentifiers().addAll(aupe.getIdentifiers());
-                        // no need to assign to $exp here
-                    } else { // otherwise it must be a field access
-                        // the AUnresolvedPathExp we get from the list
-                        // will only have a single Identifier in it.
-                        LexIdentifierToken id = aupe.getIdentifiers().get(0);
-                        $exp = AstFactory.newAFieldExp($exp,id);
-                    }
-                }
-            }
+            $exp = selectorListAssignableBuilder($exp,$selectorOptList.selectors);
         }
     ;
 
@@ -2851,6 +2762,7 @@ expr11 returns[PExp exp]
     | exprbase selectorOptList //( selector { selectors.add($selector.exp); } )*
         {
             $exp = $exprbase.exp; // Set the leftmost root
+            //FIXME find out how close this is to selectorListAssignableBuilder
             for (PExp sel : $selectorOptList.selectors) { // Iterate through the selectors, building a left->right tree
                 LexLocation loc = extractLexLocation($exp.getLocation(), sel.getLocation());
                 if (sel instanceof AFieldNumberExp) {
