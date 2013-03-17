@@ -303,7 +303,7 @@ class CmlAssistant {
 			AStateDefinition stateDef = (AStateDefinition)def;
 
 			for(PDefinition d : stateDef.getStateDefs()) {
-				if (LexNameTokenAssistent.isEqual(d.getName(), name)) return d;
+				if (d.getName() != null && LexNameTokenAssistent.isEqual(d.getName(), name)) return d;
 			}
 
 			return null;
@@ -348,7 +348,7 @@ class CmlAssistant {
 		@Override
 		public PDefinition findMemberName(PDefinition def, LexIdentifierToken name, Object... more)
 		{
-			if (LexNameTokenAssistent.isEqual(def.getName(), name))
+			if (def.getName() != null && LexNameTokenAssistent.isEqual(def.getName(), name))
 				return def;
 
 			AClassDefinition cpar = AClassDefinition.class.cast(def); 
@@ -400,7 +400,7 @@ class CmlAssistant {
 				{
 					AValueDefinition valueDef = (AValueDefinition)d;
 					for (PDefinition ldef : valueDef.getDefs())
-						if (LexNameTokenAssistent.isEqual(ldef.getName(), name)) return ldef;
+						if (ldef.getName() != null && LexNameTokenAssistent.isEqual(ldef.getName(), name)) return ldef;
 				}
 			}
 			return null;

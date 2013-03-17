@@ -21,6 +21,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.AFunctionType;
 
@@ -917,6 +921,16 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				Assert.assertTrue("Expected error message:\n" + s
 						+ "\nBut it was not found.", actualErrors.contains(s));
 		}
+
+	}
+	
+	
+	public static void test() {
+		PDefinition def=null;
+        if (def instanceof AExplicitFunctionDefinition) {
+            AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)def;
+            if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+def.getName().name, false, def.getLocation())));
+           }
 
 	}
 

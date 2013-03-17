@@ -37,7 +37,7 @@ import eu.compassresearch.core.parser.CmlParser.stateDefs_return;
 public class CmlTCUtil {
 
 	
-	public static String getErrorMessages(RuntimeException e)
+	public static String getErrorMessages(Exception e)
 	{
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 		PrintWriter pw = new PrintWriter(b);

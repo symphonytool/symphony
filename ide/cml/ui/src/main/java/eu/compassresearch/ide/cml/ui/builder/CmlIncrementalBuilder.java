@@ -85,46 +85,42 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 	 */
 	private static List<CMLTypeError> filterErrros(List<CMLTypeError> errs)
 	{
-		Map<INode, List<CMLTypeError>> nodeToErrorMap = new HashMap<INode,List<CMLTypeError>>();
-
-		for(CMLTypeError error : errs)
-			if (error.getOffendingNode() != null)
-			{
-				List<CMLTypeError> l = 	nodeToErrorMap.get(error.getOffendingNode());
-				if (l == null) { l = new LinkedList<CMLTypeError>(); nodeToErrorMap.put(error.getOffendingNode(),l); }
-				l.add(error);
-			}
-/*
-		List<INode>  nodesToClearErrorsFor = new LinkedList<INode>();
-		for(List<CMLTypeError> errors : nodeToErrorMap.values())
-		{
-			for(CMLTypeError error : errors)
-			{
-				INode parent = error.getOffendingNode().parent();
-				while(parent != null)
-				{
-					if (nodeToErrorMap.containsKey(parent))
-						nodesToClearErrorsFor.add(parent);
-					parent = parent.parent();
-				}
+		// errors is the result
+		List<CMLTypeError> errors = new LinkedList<CMLTypeError>();	
+		
+		// errors that has a child node with an error
+		List<INode> redundant = new LinkedList<INode>();
+		
+		// For each error add nodes to redundant that are parent of 
+		// the node with the error.
+		for(CMLTypeError e : errs) {
+			INode errorNode = e.getOffendingNode();
+			errors.add(e);
+			
+			List<INode> cycleDetection = new LinkedList<INode>();
+			cycleDetection.add(errorNode);
+			while (errorNode.parent() != null) {
+				errorNode = errorNode.parent();
+				if (cycleDetection.contains(errorNode)) break;
+				redundant.add(errorNode);
 			}
 		}
-
-		for(INode n : nodesToClearErrorsFor)
-			nodeToErrorMap.put(n,new LinkedList<CMLTypeError>());
-*/
-		List<CMLTypeError> res = new ArrayList<TypeIssueHandler.CMLTypeError>();
-		for(Entry<INode,List<CMLTypeError>> e : nodeToErrorMap.entrySet())
-			res.addAll(e.getValue());
-
-
-		return res;
+		
+		// We have the redundant parent nodes, collect the coresponding errors
+		List<CMLTypeError> redundantErrors = new LinkedList<CMLTypeError>();
+		for(CMLTypeError e : errors) {
+			redundantErrors.add(e);
+		}
+		
+		// finally remove the errors
+		errors.removeAll(redundantErrors);
+		
+		return errors;
+	
 	}
 
 	private synchronized static boolean typeCheck(IProject project, Map<PSource,IFile> sourceToFileMap)
 	{
-
-
 		if (project == null) return false;
 		if (sourceToFileMap == null) return false;
 		Thread.currentThread().setName("Type Checker");
@@ -137,11 +133,16 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 			List<CMLTypeError> errorsThatMatter = filterErrros(issueHandler.getTypeErrors());
 			for(final CMLTypeError error : errorsThatMatter)
 			{
-				//System.out.println(error.getStackTrace()+"\n\n");
+				System.out.println(project.getName() +" -- "+error.getDescription());
 				INode offendingNode = error.getOffendingNode();
 				if (offendingNode != null)
 				{
+
+					
 					PSource source = ( offendingNode instanceof PSource ? (PSource)offendingNode : offendingNode.getAncestor(PSource.class));
+					if (source == null) {
+						System.out.println("Unable to place error: "+project.getName()+" - "+error.getDescription());
+					}
 					if (source != null)
 					{
 						IFile file = sourceToFileMap.get(source);
@@ -163,8 +164,8 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 						else
 							System.out.println("No IFile resource found for source: "+source);
 					}
-//					else
-//						System.out.println("Could not find source for: "+offendingNode);
+					//					else
+					//						System.out.println("Could not find source for: "+offendingNode);
 				}
 				else
 					System.out.println("Error messages with null node: "+error);

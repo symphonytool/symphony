@@ -1507,6 +1507,19 @@ functionDefinition returns[PDefinition def]
                 if ( !$IDENTIFIER.getText().equals($def.getName().name) ) {
                     System.out.println("Mismatch in function definition.  Signature has " + $IDENTIFIER.getText() + ", definition has " + $def.getName().name);
                     // FIXME --- here we need some sort of exception (probably RecognitionException) to note the mismatch
+                    
+                 if ($def instanceof AExplicitFunctionDefinition) {
+		            AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)$def;
+       			    if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().name, false, f.getLocation())));
+       			    if (f.getPostdef() != null) f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().name, false, f.getLocation())));
+          		 }
+
+                 if ($def instanceof AImplicitFunctionDefinition) {
+		            AImplicitFunctionDefinition f = (AImplicitFunctionDefinition)$def;
+       			    if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().name, false, f.getLocation())));
+       			    if (f.getPostdef() != null) f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().name, false, f.getLocation())));
+          		 }
+
                 }
             } else {
                 $def = $impl.tail;
@@ -1659,7 +1672,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             $tail.setType(AstFactory.newAFunctionType(typeloc, true, paramTypes, resultTypePair.getType()));
 
             // set predef
-            LexNameToken prename = new LexNameToken("", new LexIdentifierToken("pre_", false, preExp.getLocation()));
+            LexNameToken prename = new LexNameToken("", new LexIdentifierToken("pre_"+$tail.getName(), false, preExp.getLocation()));
             NameScope prescope = NameScope.LOCAL;
             List<LexNameToken> pretypeParams = new LinkedList<LexNameToken>();
             AFunctionType pretype = (AFunctionType)$tail.getType().clone();
@@ -1680,10 +1693,10 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             $tail.setPredef(predef);
 
             // set postdef
-            LexNameToken name = new LexNameToken("", new LexIdentifierToken("post_", false, $post.exp.getLocation()));
+            LexNameToken name = new LexNameToken("", new LexIdentifierToken("post_"+$tail.getName(), false, $post.exp.getLocation()));
             NameScope scope = NameScope.LOCAL;
             List<LexNameToken> typeParams = null;
-            AFunctionType type = $tail.getType();
+            PType type = $tail.getType();
             PExp body = $tail.getPostcondition();
             PExp precondition = null;
             PExp postcondition = null;
@@ -1695,7 +1708,7 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
                         current.add(p.clone());
                 postParameterGroupList.add(current);
             }
-            AExplicitFunctionDefinition postdef =  AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, type, postParameterGroupList, body, precondition, postcondition, false, null);
+            AExplicitFunctionDefinition postdef =  AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, (AFunctionType)type, postParameterGroupList, body, precondition, postcondition, false, null);
             $tail.setPostdef(postdef);
         }
     ;

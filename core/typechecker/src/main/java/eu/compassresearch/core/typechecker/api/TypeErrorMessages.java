@@ -32,7 +32,7 @@ public enum TypeErrorMessages {
 					"The expression %s has type %s which is not a set type as expected."),
 
 					UNDEFINED_SYMBOL("The Symbol \"%s\" is undefined."),
-
+					
 					UNDEFINED_TYPE("The Type \"%s\" is undefined."),
 
 					EXPECTED_AN_ACTION_OR_OPERATION(

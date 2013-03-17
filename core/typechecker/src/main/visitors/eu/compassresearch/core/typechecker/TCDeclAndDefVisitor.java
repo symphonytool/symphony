@@ -1046,7 +1046,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		 * @param pdef
 		 */
 		private void flattenProductParamterType(AFunctionType fnType) {
-
 			if (fnType.getParameters().size() == 1)
 			{
 				PType firstType = fnType.getParameters().get(0);
@@ -1833,9 +1832,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		{
 			PType fnType = node.getType();
 			if (!(fnType instanceof AFunctionType)) {
-
-				node.setType(issueHandler.addTypeError(node,TypeErrorMessages.EXPECTED_TYPE_DEFINITION.customizeMessage(""+new AFunctionType())));
-				return node.getType();
+				return issueHandler.addTypeError(node,TypeErrorMessages.EXPECTED_TYPE_DEFINITION.customizeMessage(""+new AFunctionType()));
 			}
 			AFunctionType funType = (AFunctionType)fnType;
 			expectedResult = funType.getResult();
@@ -1883,6 +1880,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 						"Precondition returns unexpected type",
 						node.getLocation());
 				TypeChecker.detail2("Actual", b, "Expected", expected);
+				return new AErrorType();
 			}
 			cmlEnv.addVariable(node.getPredef().getName(), node.getPredef());
 		}
@@ -2026,7 +2024,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			local.unusedCheck();
 		}
 
-		node.setType(node.getType());
+		//node.setType(node.getType());
 		return node.getType();
 	}
 
