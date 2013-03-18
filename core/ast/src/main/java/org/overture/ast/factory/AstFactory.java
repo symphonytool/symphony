@@ -1126,9 +1126,9 @@ public class AstFactory {
 		return result;
 	}
 
-	public static ASubstractNumericBinaryExp newASubstractNumericBinaryExp(
+	public static ASubtractNumericBinaryExp newASubtractNumericBinaryExp(
 			PExp left, LexToken op, PExp right) {
-		ASubstractNumericBinaryExp result = new ASubstractNumericBinaryExp();
+		ASubtractNumericBinaryExp result = new ASubtractNumericBinaryExp();
 		initExpressionBinary(result, left, op, right);
 		return result;
 	}

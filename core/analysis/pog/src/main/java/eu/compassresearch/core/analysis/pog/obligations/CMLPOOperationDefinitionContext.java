@@ -48,7 +48,7 @@ import org.overture.pog.obligation.POContext;
 			boolean precond, PDefinition stateDefinition)
 		{
 			this.name = definition.getName();
-			this.deftype = definition.getType();
+			this.deftype = (AOperationType) definition.getType();
 			this.addPrecond = precond;
 //			this.paramPatternList = AImplicitOperationDefinitionAssistantTC.getParamPatternList(definition);
 			this.precondition = definition.getPrecondition();

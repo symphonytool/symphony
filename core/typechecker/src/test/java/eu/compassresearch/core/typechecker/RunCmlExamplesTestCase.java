@@ -259,9 +259,9 @@ public class RunCmlExamplesTestCase {
 		if (tc.getTypeErrors().size() > 0)
 		{
 			CMLTypeError error = tc.getTypeErrors().get(0);
-			System.out.println();
-			System.out.println("Error "+error.getLocation());
-			System.out.println(error.getStackTrace());
+		//	System.out.println();
+		//	System.out.println("Error "+error.getLocation());
+		//	System.out.println(error.getStackTrace());
 		}
 		sb.append(file.getAbsolutePath());
 		return "";

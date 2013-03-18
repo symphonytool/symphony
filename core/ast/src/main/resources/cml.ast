@@ -70,7 +70,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
    | {operations}
         [operations]:definition.#cmlOperation*
    | {functions}
-        [functionDefinitions]:definition*
+        (functionDefinitions):definition*
    | {values}
         [valueDefinitions]: definition*
    | {initial}

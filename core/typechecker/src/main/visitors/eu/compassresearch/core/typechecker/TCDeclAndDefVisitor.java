@@ -348,9 +348,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 //				return def.getType();
 				AAssignmentDefinition stateDef = (AAssignmentDefinition)def;
 				stateDef.setNameScope(NameScope.STATE);
+				if (def.getName() != null)
+					cmlenv.addVariable(def.getName(), def);
 			}
-			if (def.getName() != null)
-				cmlenv.addVariable(def.getName(), def);
 			
 		}
 
@@ -373,6 +373,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AImplicitCmlOperationDefinition node, TypeCheckInfo question)
 					throws AnalysisException {
 
+		question.scope = NameScope.NAMESANDANYSTATE;
 		// get CML environment
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		if (cmlEnv == null)
@@ -476,7 +477,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				preBody = node.getPrecondition();
 			else
 				preBody = AstFactory.newABooleanConstExp(new LexBooleanToken(true, node.getLocation()));
-			preDef = CmlTCUtil.buildCondition("pre", node, node.getType(),parameters, preBody);
+			preDef = CmlTCUtil.buildCondition("pre", node, node.getType().clone(),parameters, preBody);
 		}
 
 		// Create post def if it is not there
@@ -487,7 +488,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				postBody = node.getPostcondition();
 			else
 				postBody = AstFactory.newABooleanConstExp(new LexBooleanToken(true, node.getLocation()));
-			postDef = CmlTCUtil.buildCondition("post", node, node.getType(), parameters, postBody);
+			postDef = CmlTCUtil.buildCondition("post", node, node.getType().clone(), parameters, postBody);
 		}
 
 
@@ -882,7 +883,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			newDefs = getHandler(node.getPattern()).getDefinitions(
 					node.getPattern(), question.env.getEnclosingDefinition());
 
-		node.setDefs(newDefs);
+		//node.getDefs().addAll(newDefs);
 
 		// No matter the declared type is the type of the definition
 		node.setType(declaredType);
@@ -1015,12 +1016,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			do {
 
 				if (def instanceof AExplicitFunctionDefinition) {
-					fnType = ((AExplicitFunctionDefinition)def).getType();
+					fnType = (AFunctionType)((AExplicitFunctionDefinition)def).getType();
 					break;
 				}
 
 				if (def instanceof AImplicitFunctionDefinition) {
-					fnType = ((AImplicitFunctionDefinition)def).getType();
+					fnType = (AFunctionType)((AImplicitFunctionDefinition)def).getType();
 					break;
 				}
 
@@ -1045,7 +1046,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		 * @param pdef
 		 */
 		private void flattenProductParamterType(AFunctionType fnType) {
-
 			if (fnType.getParameters().size() == 1)
 			{
 				PType firstType = fnType.getParameters().get(0);
@@ -1468,7 +1468,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 		CmlTypeCheckInfo newScope = cmlEnv.newScope();
-
+		newScope.env.setEnclosingDefinition(node);
 		LinkedList<PSingleDeclaration> state = node.getLocalState();
 		for(PSingleDeclaration decl : state)
 		{
@@ -1635,7 +1635,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		List<PDefinition> enclosingStateDefinitions = findStateDefs(node,newQuestion);
 		PExp preExp = node.getPrecondition();
 		if (preExp != null) {
-			AExplicitFunctionDefinition preDef = CmlTCUtil.buildCondition0("pre", node, node.getType(), node.getParameterPatterns(), node.getPrecondition(), enclosingStateDefinitions, new LinkedList<PDefinition>());
+			AExplicitFunctionDefinition preDef = CmlTCUtil.buildCondition0("pre", node, node.getType().clone(), (List<PPattern>) node.getParameterPatterns().clone(), node.getPrecondition(), enclosingStateDefinitions, new LinkedList<PDefinition>());
 			PType preDefType = preDef.apply(parentChecker,newQuestion);
 			if (!TCDeclAndDefVisitor.successfulType(preDefType)) {
 				node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+preDef)));
@@ -1747,8 +1747,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				for (PPattern p : lp)
 					patterns.add(p);
 
-			paramTypes = AExplicitFunctionDefinition.class.cast(funDef)
-					.getType().getParameters();
+			paramTypes = ((AFunctionType)AExplicitFunctionDefinition.class.cast(funDef)
+					.getType()).getParameters();
 		} else if (funDef instanceof AExplicitCmlOperationDefinition) {
 			patterns = AExplicitCmlOperationDefinition.class.cast(funDef)
 					.getParameterPatterns();
@@ -1803,7 +1803,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo questionIn)
 					throws AnalysisException {
 
-
+		
 		OvertureToCmlFunctionHandler fnHandler = new OvertureToCmlFunctionHandler();
 		List<PDefinition> fixedDefinition = fnHandler.handle(node);
 		node = (AExplicitFunctionDefinition) fixedDefinition.get(0);
@@ -1815,6 +1815,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					.getTypeParamDefinitions(node));
 		}
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(questionIn);
+		
 		// CML Variant, we need to check the patterns
 		TypeCheckInfo question = (TypeCheckInfo)createEnvironmentWithFormals(questionIn, node);
 
@@ -1824,15 +1826,13 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			ListIterator<List<PPattern>> lIter = node.getParamPatternList().listIterator();
 			expectedResult = AExplicitFunctionDefinitionAssistantTC
 					.checkParams(node, lIter,
-							node.getType());
+							(AFunctionType)node.getType());
 		}
 		else
 		{
 			PType fnType = node.getType();
 			if (!(fnType instanceof AFunctionType)) {
-
-				node.setType(issueHandler.addTypeError(node,TypeErrorMessages.EXPECTED_TYPE_DEFINITION.customizeMessage(""+new AFunctionType())));
-				return node.getType();
+				return issueHandler.addTypeError(node,TypeErrorMessages.EXPECTED_TYPE_DEFINITION.customizeMessage(""+new AFunctionType()));
 			}
 			AFunctionType funType = (AFunctionType)fnType;
 			expectedResult = funType.getResult();
@@ -1840,7 +1840,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		node.setExpectedResult(expectedResult);
 		List<List<PDefinition>> paramDefinitionList = AExplicitFunctionDefinitionAssistantTC
-				.getParamDefinitions(node, node.getType(),
+				.getParamDefinitions(node, ((AFunctionType)node.getType()),
 						node.getParamPatternList(), node.getLocation());
 		Collections.reverse(paramDefinitionList);
 
@@ -1880,7 +1880,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 						"Precondition returns unexpected type",
 						node.getLocation());
 				TypeChecker.detail2("Actual", b, "Expected", expected);
+				return new AErrorType();
 			}
+			cmlEnv.addVariable(node.getPredef().getName(), node.getPredef());
 		}
 
 		if (node.getPostdef() != null) {
@@ -1941,7 +1943,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		} else if (node.getMeasure() != null) {
 			if (question.env.isVDMPP())
 				node.getMeasure().setTypeQualifier(
-						node.getType().getParameters());
+						((AFunctionType)node.getType()).getParameters());
 			node.setMeasureDef(question.env.findName(node.getMeasure(),
 					question.scope));
 
@@ -1976,15 +1978,15 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 				AFunctionType mtype = (AFunctionType) efd.getType();
 
-				if (!org.overture.typechecker.TypeComparator.compatible(mtype.getParameters(), node
-						.getType().getParameters())) {
+				if (!org.overture.typechecker.TypeComparator.compatible(mtype.getParameters(), ((AFunctionType)node
+						.getType()).getParameters())) {
 					TypeCheckerErrors.report(3303,
 							"Measure parameters different to function", node
 							.getMeasure().getLocation(), node
 							.getMeasure());
 					TypeChecker.detail2(node.getMeasure().getName(),
 							mtype.getParameters(), node.getName().getName(),
-							node.getType().getParameters());
+							((AFunctionType)node.getType()).getParameters());
 				}
 
 				if (!(mtype.getResult() instanceof ANatNumericBasicType)) {
@@ -2022,7 +2024,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			local.unusedCheck();
 		}
 
-		node.setType(node.getType());
+		//node.setType(node.getType());
 		return node.getType();
 	}
 

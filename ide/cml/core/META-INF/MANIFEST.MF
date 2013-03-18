@@ -88,6 +88,6 @@ Bundle-ClassPath: .,
  lib/pog-2.2.1.jar,
  lib/testframework-2.2.1.jar,
  lib/typechecker-0.1.1.jar,
- lib/typechecker-2.2.1.jar,
+ lib/typechecker-2.0.0.jar,
  lib/antlr-runtime-3.5.jar
 
