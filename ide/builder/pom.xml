@@ -22,7 +22,7 @@
     </dependency>
 
   <dependency>
-    <groupId>org.overturetool.core</groupId>
+    <groupId>org.overture.core</groupId>
     <artifactId>ast</artifactId>
     <version>${overture.version}</version>
   </dependency>

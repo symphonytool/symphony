@@ -336,7 +336,7 @@ end
 process NodeLinkProc = i: nat @ (NodeProc(i) [|{|mid|}|] LinkProc(i)) \\ {|mid|}
 
 process SlaveExchangeProc = i: LOC @
-	ExchangeProc(home(i))[[
+	(ExchangeProc(home(i)))[[
 		call <- mycall, clear <- myclear, suspend <- mysuspend,
 		connectfree <- myconnectfree, connectbusy <- myconnectbusy,
 		answer <- myanswer, unsuspend <- myunsuspend,
