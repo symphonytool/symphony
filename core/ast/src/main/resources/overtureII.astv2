@@ -170,7 +170,7 @@ exp {-> package='org.overture.ast.expressions'}
     |   {mod}
     |   {plus}
     |   {rem}
-    |   {substract}
+    |   {subtract}
     |   {times}
     ;
     
@@ -328,7 +328,7 @@ definition {-> package='org.overture.ast.definitions'}
                  (expType):type (defType):type [defs]:definition*
     |   {explicitFunction}  [typeParams]:LexNameToken* 
                             [paramPatternList]:pattern**
-                            (type):type.function 
+                            (type):type 
                             (body):exp 
                             [precondition]:exp 
                             [postcondition]:exp
@@ -370,7 +370,7 @@ definition {-> package='org.overture.ast.definitions'}
                             (measureLexical):java_Integer
                              
                             (actualResult):type
-                            (type):type.function
+                            (type):type
                             //[poluFuncs]:???Map<TypeList, FunctionValue>
                            
     |   {explicitOperation} [parameterPatterns]:pattern* 
@@ -378,7 +378,7 @@ definition {-> package='org.overture.ast.definitions'}
                             [precondition]:exp 
                             [postcondition]:exp 
                             
-                            (type):type.operation
+                            (type):type
                             
                             (predef):definition.explicitFunction
                             (postdef):definition.explicitFunction
@@ -396,7 +396,7 @@ definition {-> package='org.overture.ast.definitions'}
                             [postcondition]:exp
                             [errors]:case.error*
                             
-                            (type):type.operation
+                            (type):type
                             (predef):definition.explicitFunction
                             (postdef):definition.explicitFunction
                             (state):definition.state

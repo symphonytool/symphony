@@ -20,8 +20,9 @@ import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
  */
 public class CmlAlphabet extends Value {
 
-	//This contains a map of reference events (a reference event is an event with no source)
-	//to events with a source
+	//This is a map from reference events 
+	//(a reference event is an event with no source)
+	//to events with a source.
 	private final Map<ObservableEvent,Set<ObservableEvent>> _observableEvents;
 	//This contains all the special events like tau
 	private final Set<CmlSpecialEvent> specialEvents;
@@ -41,6 +42,11 @@ public class CmlAlphabet extends Value {
 		initializeRefMap(obsEvents);
 	}
 	
+	/**
+	 * Copy constructor
+	 * @param referenceEvents
+	 * @param specialEvents
+	 */
 	protected CmlAlphabet(Map<ObservableEvent,Set<ObservableEvent>> referenceEvents, Set<CmlSpecialEvent> specialEvents)
 	{
 		this.specialEvents = specialEvents;
@@ -71,6 +77,10 @@ public class CmlAlphabet extends Value {
 		initializeRefMap(observableEvents);
 	}
 	
+	/**
+	 * Initialize the 
+	 * @param observableEvents
+	 */
 	private void initializeRefMap(Set<ObservableEvent> observableEvents)
 	{
 		for(ObservableEvent oe : observableEvents)
@@ -151,8 +161,6 @@ public class CmlAlphabet extends Value {
 	public CmlAlphabet intersectRefsAndJoin(CmlAlphabet other)
 	{
 		Map<ObservableEvent,Set<ObservableEvent>> refMap = new HashMap<ObservableEvent, Set<ObservableEvent>>();
-		
-		
 		
 		for(ObservableEvent refEvent : _observableEvents.keySet())
 		{
@@ -255,7 +263,6 @@ public class CmlAlphabet extends Value {
 		}
 		
 		return new CmlAlphabet(resultSet);
-		
 	}
 	
 
@@ -278,11 +285,11 @@ public class CmlAlphabet extends Value {
 //	}
 	
 	/**
-	 * substracts other from this
+	 * Subtract other from this
 	 * @param other
-	 * @return
+	 * @return An alphabet containing all the events that are this
 	 */
-	public CmlAlphabet substract(CmlAlphabet other)
+	public CmlAlphabet subtract(CmlAlphabet other)
 	{
 		Map<ObservableEvent,Set<ObservableEvent>> newReferenceEvents = 
 				new HashMap<ObservableEvent,Set<ObservableEvent>>(_observableEvents);
@@ -369,6 +376,23 @@ public class CmlAlphabet extends Value {
 		return "CmlAlphabetValue";
 	}
 
+	/**
+	 * This expands all the expandable events in the alphabet.
+	 * E.g. if we have
+	 * 
+	 * types
+	 * 	switch = <ON> | <OFF> 
+	 * 
+	 * channels
+	 * 	a : switch
+	 * 
+	 * process Test = begin @ a?x -> Skip end
+	 * 
+	 * then the immediate alphabet would be {a.AnyValue}
+	 * when expanded this will be {a.<ON> , a.<OFF>}
+	 * 
+	 * @return The same alphabet but with all the expandable events expanded
+	 */
 	public CmlAlphabet expandAlphabet()
 	{
 		Set<CmlEvent> eventSet = new HashSet<CmlEvent>();
@@ -383,6 +407,7 @@ public class CmlAlphabet extends Value {
 	@Override
 	public Object clone() {
 
-		return new CmlAlphabet(new HashMap<ObservableEvent,Set<ObservableEvent>>(_observableEvents), new HashSet<CmlSpecialEvent>(specialEvents));
+		return new CmlAlphabet(new HashMap<ObservableEvent,Set<ObservableEvent>>(_observableEvents), 
+				new HashSet<CmlSpecialEvent>(specialEvents));
 	}
 }

@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AClassClassDefinition;
+import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.lex.LexIdentifierToken;
@@ -125,6 +127,26 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 			throws AnalysisException {
 		
 		List<PDefinition> defs = TCDeclAndDefVisitor.handleDefinitionsForOverture(node);
+		
+		for(PDefinition fdef : defs) {
+			
+			PDefinition predef = null;
+			PDefinition postdef = null;
+			if (fdef instanceof AExplicitFunctionDefinition) {
+				predef = ((AExplicitFunctionDefinition) fdef).getPredef();
+				postdef = ((AExplicitFunctionDefinition) fdef).getPostdef();
+			}
+			
+			if (fdef instanceof AImplicitFunctionDefinition) {
+				predef = ((AImplicitFunctionDefinition) fdef).getPredef();
+				postdef = ((AImplicitFunctionDefinition) fdef).getPostdef();
+			}
+			
+			if (predef != null) members.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(predef));
+			//if (postdef != null) members.addAll(TCDeclAndDefVisitor.handleDefinitionsForOverture(postdef));
+			
+		}
+		
 		members.addAll(defs);
 	}
 	

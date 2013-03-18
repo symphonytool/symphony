@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
+import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -17,6 +19,7 @@ import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
+import org.overture.ast.patterns.APatternTypePair;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AFunctionType;
@@ -27,13 +30,14 @@ import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
 import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.core.parser.CmlParser.stateDefs_return;
 
 
 public class CmlTCUtil {
 
 	
-	public static String getErrorMessages(RuntimeException e)
+	public static String getErrorMessages(Exception e)
 	{
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 		PrintWriter pw = new PrintWriter(b);
@@ -71,7 +75,7 @@ public class CmlTCUtil {
 		{
 			List<PPattern> pList = new LinkedList<PPattern>();
 			for(PPattern pptrn : p.getPatterns())
-				pList.add(pptrn);
+				pList.add(pptrn.clone());
 			newParameters.add(pList);
 		}
 
@@ -108,11 +112,11 @@ public class CmlTCUtil {
 			return null;
 
 		for(PDefinition d : enclosingStateDefinitions) {
-			parameterTypes.add(d.getType());
+			parameterTypes.add(d.getType().clone());
 		}
 		
 		for(PDefinition d : oldStateDefs) {
-			parameterTypes.add(d.getType());
+			parameterTypes.add(d.getType().clone());
 		}
 		
 		// The body is the given condition, we assume ot has type boolean
@@ -143,7 +147,7 @@ public class CmlTCUtil {
 		for(PDefinition stateDef : enclosingStateDefinitions) {
 			AIdentifierPattern idPattern = AstFactory.newAIdentifierPattern(stateDef.getName());
 			List<PPattern> pList = new LinkedList<PPattern>();
-			pList.add(idPattern);
+			pList.add(idPattern.clone());
 			newParameters.add(pList);
 		}
 
@@ -151,10 +155,39 @@ public class CmlTCUtil {
 		for(PDefinition stateDef : oldStateDefs) {
 			AIdentifierPattern idPattern = AstFactory.newAIdentifierPattern(stateDef.getName());
 			List<PPattern> pList = new LinkedList<PPattern>();
-			pList.add(idPattern);
+			pList.add(idPattern.clone());
 			newParameters.add(pList);
 		}
 
+		// The result parameter for implicit stuff
+		if (target instanceof AImplicitFunctionDefinition) {
+			APatternTypePair result = ((AImplicitFunctionDefinition) target).getResult();
+			List<PPattern> pList = new LinkedList<PPattern>();
+			pList.add(result.getPattern().clone());
+			newParameters.add(pList);
+			// TODO RWL: This assumes only on identifier in the pattern
+			parameterTypes.add(result.getType());
+		}
+
+		if (target instanceof AImplicitOperationDefinition) {
+			APatternTypePair result = ((AImplicitOperationDefinition) target).getResult();
+			List<PPattern> pList = new LinkedList<PPattern>();
+			pList.add(result.getPattern().clone());
+			newParameters.add(pList);
+			// TODO RWL: This assumes only on identifier in the pattern
+			parameterTypes.add(result.getType().clone());
+		}
+
+		if (target instanceof AImplicitCmlOperationDefinition) {
+			LinkedList<APatternTypePair> result = ((AImplicitCmlOperationDefinition) target).getResult();
+			for (APatternTypePair pair : result) {
+				List<PPattern> pList = new LinkedList<PPattern>();
+				pList.add(pair.getPattern().clone());
+				newParameters.add(pList);
+				parameterTypes.add(pair.getType());
+				// TODO This assumes exactly one identifier pattern in each pair !!!
+			}
+		}
 		// Alright create the result
 		AFunctionType preDefType = AstFactory.newAFunctionType(target.getLocation(), false, parameterTypes, AstFactory.newABooleanBasicType(target.getLocation()));
 		AExplicitFunctionDefinition preDef = AstFactory.newAExplicitFunctionDefinition(name, scope, typeParams, preDefType, newParameters, body, precondition, postcondition, typeInvariant, measuref);
