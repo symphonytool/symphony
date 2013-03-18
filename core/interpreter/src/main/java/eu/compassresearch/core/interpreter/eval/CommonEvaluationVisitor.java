@@ -82,11 +82,11 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		CmlBehaviourThread rightChild = children().get(1);
 		CmlAlphabet rightChildAlpha = rightChild.inspect();
 
-		if(leftChildAlpha.containsObservableEvent(supervisor().selectedObservableEvent()) )
+		if(leftChildAlpha.contains(supervisor().selectedObservableEvent()) )
 		{
 			return executeChildAsSupervisor(leftChild);
 		}
-		else if(rightChildAlpha.containsObservableEvent(supervisor().selectedObservableEvent()) )
+		else if(rightChildAlpha.contains(supervisor().selectedObservableEvent()) )
 		{
 			return executeChildAsSupervisor(rightChild);
 		}
@@ -117,8 +117,8 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		//convert the selected event to a CmlAlphabet
 		CmlAlphabet selectedEventAlpha = supervisor().selectedObservableEvent().getAsAlphabet();
 		//now make the intersection between the selectedEventAlpha and the children's alpha
-		CmlAlphabet leftOption = selectedEventAlpha.intersect(leftChildAlpha);
-		CmlAlphabet rightOption = selectedEventAlpha.intersect(rightChildAlpha);
+		CmlAlphabet leftOption = selectedEventAlpha.intersectImprecise(leftChildAlpha);
+		CmlAlphabet rightOption = selectedEventAlpha.intersectImprecise(rightChildAlpha);
 		
 		//if both intersections are non empty it must be a sync event
 		if(!leftOption.isEmpty() &&
@@ -289,7 +289,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	{
 		for(CmlBehaviourThread child : children())
 		{
-			if(child.waiting() && !child.inspect().intersectEqualOrMorePrecise(event.getAsAlphabet()).isEmpty())
+			if(child.waiting() && child.inspect().containsImprecise(event))
 				return child;
 		}
 		

@@ -187,7 +187,7 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 			{
 				CmlAlphabet availableEvents = p.inspect();
 
-				if(availableEvents.containsSpecialEvent(CmlTauEvent.referenceTauEvent()))
+				if(availableEvents.contains(CmlTauEvent.referenceTauEvent()))
 					throw new InterpreterRuntimeException("A silent transition '"+ availableEvents.getSpecialEvents() +"' has slipped through to a place where only observable events should be.");
 				else
 				{

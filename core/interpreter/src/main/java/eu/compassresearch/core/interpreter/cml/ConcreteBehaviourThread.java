@@ -361,7 +361,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				ret = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
 			//execute silently if the current alphabet contains is a silent action
-			else if(alpha.containsSpecialEvent(CmlTauEvent.referenceTauEvent())){
+			else if(alpha.contains(CmlTauEvent.referenceTauEvent())){
 				//FIXME: this might not be the best idea to get the special event
 				updateTrace(alpha.getSpecialEvents().iterator().next());
 				ret = executeNext();
@@ -380,7 +380,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				 */
 				//
 				if(env.isSelectedEventValid() &&  
-						!alpha.intersectEqualOrMorePrecise(env.selectedObservableEvent().getAsAlphabet()).isEmpty() &&
+						alpha.containsImprecise(env.selectedObservableEvent()) &&
 						isRegistered(env.selectedObservableEvent().getChannel()))
 				{
 					ret = executeNext();

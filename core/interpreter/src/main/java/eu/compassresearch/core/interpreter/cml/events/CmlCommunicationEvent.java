@@ -61,7 +61,7 @@ public class CmlCommunicationEvent extends ObservableEvent {
 		StringBuilder strBuilder = new StringBuilder(channel.getName());
 		//for(CommunicationParameter param : params)
 		strBuilder.append("." + value);
-		strBuilder.append(" : " + getEventSources());
+		//strBuilder.append(" : " + getEventSources());
 		
 		return strBuilder.toString();
 	};
@@ -77,12 +77,7 @@ public class CmlCommunicationEvent extends ObservableEvent {
 		
 		return strBuilder.toString().hashCode();
 	}
-	
-	public boolean equalsIqnoreSource(CmlCommunicationEvent other)
-	{
-		return other.getChannel().equals(getChannel());
-	}
-	
+			
 	@Override
 	public boolean equals(Object obj) {
 
@@ -95,6 +90,11 @@ public class CmlCommunicationEvent extends ObservableEvent {
 		
 		return super.equals(other) &&
 				(other.getValue().equals(this.getValue()) );
+	}
+	
+	@Override
+	public boolean isComparable(ObservableEvent other) {
+		return super.equals(other);
 	}
 	
 	@Override
