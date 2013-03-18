@@ -27,7 +27,7 @@ import org.osgi.framework.BundleContext;
 
 public class CmlCorePlugin extends Plugin {
 	// The plug-in ID
-	public static final String PLUGIN_ID = ICmlCoreConstants.CORE_PLUGIN_ID;// "org.overturetool.core";
+	public static final String PLUGIN_ID = ICmlCoreConstants.CORE_PLUGIN_ID;// "org.overture.core";
 
 	public static final boolean DEBUG = true;
 

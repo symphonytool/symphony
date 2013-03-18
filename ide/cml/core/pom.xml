@@ -95,7 +95,7 @@
 
                 <!-- Overture POG --> 
                 <artifactItem>
-                  <groupId>org.overturetool.core</groupId>
+                  <groupId>org.overture.core</groupId>
                   <artifactId>pog</artifactId>
                   <version>${overture.version}</version>
                   <type>jar</type>
@@ -104,7 +104,7 @@
                 
                 <!-- Overture Test Framework -->
                 <artifactItem>
-                  <groupId>org.overturetool.core</groupId>
+                  <groupId>org.overture.core</groupId>
                   <artifactId>testframework</artifactId>
                   <version>${overture.version}</version>
                   <type>jar</type>
@@ -113,7 +113,7 @@
 
                 <!-- Overture Parser -->
                 <artifactItem>
-                  <groupId>org.overturetool.core</groupId>
+                  <groupId>org.overture.core</groupId>
                   <artifactId>parser</artifactId>
                   <version>${overture.version}</version>
                   <type>jar</type>

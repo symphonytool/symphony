@@ -4,7 +4,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.overture.ide.core.IVdmModel;
 import org.overture.ide.core.builder.AbstractVdmBuilder;
-import org.overturetool.util.definitions.ClassList;
+import org.overture.util.definitions.ClassList;
 
 /***
  * VDM PP builder

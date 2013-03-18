@@ -13,13 +13,13 @@
   <name>COMPASS Core CML Abstract Syntax Tree</name>
 
   <properties>
-    <astcreator.version>1.1.8</astcreator.version>
+    <astcreator.version>1.1.10</astcreator.version>
   </properties>
 
   <build>
     <plugins>
       <plugin> 
-	<groupId>org.overturetool.tools</groupId>
+	<groupId>org.overture.tools</groupId>
 	<artifactId>astcreatorplugin</artifactId>
 	<version>${astcreator.version}</version>
 	<executions>
@@ -86,7 +86,7 @@
 	      <pluginExecutions>
 		<pluginExecution>
 		  <pluginExecutionFilter>
-		    <groupId>org.overturetool.tools</groupId>
+		    <groupId>org.overture.tools</groupId>
 		    <artifactId>astcreatorplugin</artifactId>
 		    <versionRange>${astcreator.version}</versionRange>
 		    <goals>
