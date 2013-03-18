@@ -60,7 +60,8 @@ public class CmlCommunicationEvent extends ObservableEvent {
 	{
 		StringBuilder strBuilder = new StringBuilder(channel.getName());
 		//for(CommunicationParameter param : params)
-			strBuilder.append("." + value);
+		strBuilder.append("." + value);
+		strBuilder.append(" : " + getEventSources());
 		
 		return strBuilder.toString();
 	};
