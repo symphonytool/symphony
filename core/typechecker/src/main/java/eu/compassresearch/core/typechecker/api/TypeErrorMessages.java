@@ -54,7 +54,7 @@ public enum TypeErrorMessages {
 															PATTERN_TYPE_MISSING("The pattern \"%s\" should already have a type from its context."),
 															WRONG_NUMBER_OF_ARGUMENTS("Expected %s args, %s were found."), PATTERN_MISMATCH("Pattern mismatch. Required by type %s, given pattern %s."), 
 															MIXING_STATE_AND_CHANNEL_IN_SET("Mixing channel and state names not allowed. %s contains both channel and state names."), 
-															EXPECTED_CHANNEL_OR_STATE("Expected a channel or state definition. %s is neither."),
+															EXPECTED_CHANNEL_OR_STATE("Expected a channel or state definition. %s is neither."), CONSTRUCTOR_HAS_WRONG_TYPE("Operation %s has identical name to encloding class, but has wrong type: %s."), EXPECTED_LVALUE("%s is not an assignable expression."), EXPECTED_AN_ACTION("Expected an entity of type Action. %s was found."),
 
 
 															;

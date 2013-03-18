@@ -70,6 +70,7 @@ import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternListAssistantTC;
 import org.overture.typechecker.assistant.type.PTypeAssistantTC;
+import org.overture.typechecker.util.HelpLexNameToken;
 import org.overture.typechecker.util.TypeCheckerUtil;
 import org.overture.typechecker.visitor.TypeCheckerDefinitionVisitor;
 
@@ -565,6 +566,28 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			{
 				node.setType(issueHandler.addTypeError(odef, TypeErrorMessages.EXPECTED_OPERATION_DEFINITION.customizeMessage(odef.getName()+"")));
 				return node.getType();
+			}
+			
+			// It could be the constructor
+			PDefinition clz = question.env.getEnclosingDefinition();
+			if (clz != null && clz instanceof AClassDefinition) {
+				if (HelpLexNameToken.isEqual(clz.getName(), odef.getName())) {
+					if (odef instanceof AExplicitCmlOperationDefinition) {
+						AExplicitCmlOperationDefinition cmlOdef = (AExplicitCmlOperationDefinition) odef;
+						cmlOdef.setIsConstructor(true);
+						
+						if (!(operationType instanceof AOperationType)) {
+							node.setType(issueHandler.addTypeError(cmlOdef, TypeErrorMessages.EXPECTED_OPERATION_DEFINITION.customizeMessage(""+cmlOdef)));
+							return node.getType();
+						}
+						
+						AOperationType operationTypeActual = (AOperationType)operationType;
+						if (!(typeComparator.isSubType(clz.getType(), operationTypeActual.getResult()))) {
+							node.setType(issueHandler.addTypeError(operationTypeActual, TypeErrorMessages.CONSTRUCTOR_HAS_WRONG_TYPE.customizeMessage(odef+"",operationType+"")));
+							return node.getType();
+						}
+					}
+				}
 			}
 
 			cmlEnv.addVariable(odef.getName(), odef);
@@ -1369,6 +1392,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 			 */
 			for (PDefinition def : thoseHandledByCOMPASS) {
+				classQuestion.env.setEnclosingDefinition(node);
 				PType type = def.apply(parentChecker, classQuestion);
 				if (type == null || type instanceof AErrorType) {
 					return issueHandler

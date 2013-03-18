@@ -641,6 +641,14 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		org.overture.typechecker.Environment env = question.env;
 		LexNameToken name = node.getName();
 
+		/*
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv != null) {
+			PDefinition def = cmlEnv.lookup(name,PDefinition.class);
+			if (def != null) return def.getType();
+		}
+		*/
+		
 		// the qualifiers are the argument names for potential function
 		// or operation... We wish to find an abstraction with the right args.
 		name.setTypeQualifier(question.qualifiers);

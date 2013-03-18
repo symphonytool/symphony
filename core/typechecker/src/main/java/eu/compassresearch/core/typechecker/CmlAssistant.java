@@ -20,6 +20,7 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
+import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ARecordInvariantType;
@@ -263,6 +264,11 @@ class CmlAssistant {
 
 			AAssignmentDefinition assignDef = (AAssignmentDefinition)def;
 			PType type = assignDef.getType();
+			
+			if (type instanceof AClassType) {
+					return CmlAssistant.this.findMemberName(((AClassType) type).getClassdef(), name, more);
+			}
+			
 			if (type.getDefinitions().size() > 0)
 			{
 				PDefinition def0 = type.getDefinitions().get(0);

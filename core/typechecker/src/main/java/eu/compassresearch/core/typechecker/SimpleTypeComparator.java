@@ -14,6 +14,8 @@ import org.overture.ast.types.ANatOneNumericBasicType;
 import org.overture.ast.types.AOptionalType;
 import org.overture.ast.types.ARationalNumericBasicType;
 import org.overture.ast.types.ARealNumericBasicType;
+import org.overture.ast.types.ASeq1SeqType;
+import org.overture.ast.types.ASeqSeqType;
 import org.overture.ast.types.ASetType;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.AUnknownType;
@@ -254,6 +256,23 @@ class SimpleTypeComparator implements TypeComparator {
 		boolean resolved = false;
 
 		while (!resolved) {
+			
+			if (to instanceof ASeqSeqType) {
+				PType ofToType = ((ASeqSeqType) to).getSeqof();
+				if (from instanceof ASeqSeqType) {
+					PType ofFromType = ((ASeqSeqType) from).getSeqof();
+					to = ofToType;from=ofFromType;
+				}
+			}
+
+			if (to instanceof ASeq1SeqType) {
+				PType ofToType = ((ASeq1SeqType) to).getSeqof();
+				if (from instanceof ASeqSeqType) {
+					PType ofFromType = ((ASeqSeqType) from).getSeqof();
+					to = ofToType;from=ofFromType;
+				}
+			}
+
 			
 			if (to instanceof ABracketType) {
 				to = ((ABracketType) to).getType();

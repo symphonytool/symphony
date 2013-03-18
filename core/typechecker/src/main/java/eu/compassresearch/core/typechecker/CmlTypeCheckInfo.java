@@ -17,6 +17,7 @@ import org.overture.typechecker.FlatEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.util.HelpLexNameToken;
 
+import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -40,7 +41,7 @@ TypeCheckQuestion {
 	private SClassDefinition globalClassDefinition;
 
 	public final String CML_SCOPE = "CML";
-	public final String DEFAULT_SCOPE = "Default";
+	public final String DEFAULT_SCOPE = "";
 
 	private final TypeIssueHandler issueHandler;
     
@@ -79,13 +80,14 @@ TypeCheckQuestion {
 
 	@Override
 	public PType lookupType(LexIdentifierToken ident) {
-		if (ident instanceof LexNameToken) {
-			PDefinition typeDef = env.findType((LexNameToken) ident,
-					DEFAULT_SCOPE);
-			if (typeDef != null)
-				return typeDef.getType();
-		}
-		return null;
+		LexNameToken name = null;
+		if (!(ident instanceof LexNameToken)) name = new LexNameToken("",ident);
+		else name = (LexNameToken)ident;
+		PType res = null;
+		PDefinition def = lookup(name,PDefinition.class);
+		if (def == null) return null; 
+		res = def.getType();
+		return res;
 	}
 
 
@@ -166,11 +168,17 @@ TypeCheckQuestion {
 	@Override
 	public void addVariable(LexIdentifierToken ident, PDefinition variable) {
 		if (ident == null) return;
+		boolean isConstructor = false;
 		//if (ident == null) throw new NullPointerException("Cannot add identifier with null name to the environment.");
 		if (env instanceof FlatEnvironment) {
 			FlatEnvironment fenv = (FlatEnvironment) env;
 			PDefinition d = lookupCurrentScope(ident);
-			if (d != null)
+			
+			if (variable instanceof AExplicitCmlOperationDefinition) {
+				isConstructor = ((AExplicitCmlOperationDefinition) variable).getIsConstructor();
+			}
+			
+			if (d != null && !isConstructor)
 			{
 				variable.setType(issueHandler.addTypeError(variable,TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(" " + variable.getLocation()+" "+ident,""+d.getLocation())));
 				return;
