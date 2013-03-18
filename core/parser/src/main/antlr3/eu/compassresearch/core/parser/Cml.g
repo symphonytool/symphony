@@ -448,23 +448,9 @@ processReplOp returns[SReplicatedProcess op]
     ;
 
 process0 returns[PProcess proc]
-    : process1 (';' right=process0)?
+    : process1 ('||' right=process0)?
         {
             $proc = $process1.proc;
-            if ($right.proc != null) {
-                ASequentialCompositionProcess op = new ASequentialCompositionProcess();
-                op.setLeft($proc);
-                op.setRight($right.proc);
-                op.setLocation(extractLexLocation($start,$right.stop));
-                $proc = op;
-            }
-        }
-    ;
-
-process1 returns[PProcess proc]
-    : process2 ('||' right=process1)?
-        {
-            $proc = $process2.proc;
             if ($right.proc != null) {
                 ASynchronousParallelismProcess op = new ASynchronousParallelismProcess();
                 op.setLeft($proc);
@@ -475,10 +461,10 @@ process1 returns[PProcess proc]
         }
     ;
 
-process2 returns[PProcess proc]
-    : process3 ('[|' varsetExpr '|]' right=process2)?
+process1 returns[PProcess proc]
+    : process2 ('[|' varsetExpr '|]' right=process1)?
         {
-            $proc = $process3.proc;
+            $proc = $process2.proc;
             if ($right.proc != null) {
                 AGeneralisedParallelismProcess op = new AGeneralisedParallelismProcess();
                 op.setLeft($proc);
@@ -490,10 +476,10 @@ process2 returns[PProcess proc]
         }
     ;
 
-process3 returns[PProcess proc]
-    : process4 ('[' lcs=varsetExpr '||' rcs=varsetExpr ']' right=process3)?
+process2 returns[PProcess proc]
+    : process3 ('[' lcs=varsetExpr '||' rcs=varsetExpr ']' right=process2)?
         {
-            $proc = $process4.proc;
+            $proc = $process3.proc;
             if ($right.proc != null) {
                 AAlphabetisedParallelismProcess op = new AAlphabetisedParallelismProcess();
                 op.setLeft($proc);
@@ -506,10 +492,10 @@ process3 returns[PProcess proc]
         }
     ;
 
-process4 returns[PProcess proc]
-    : process5 ('|||' right=process4)?
+process3 returns[PProcess proc]
+    : process4 ('|||' right=process3)?
         {
-            $proc = $process5.proc;
+            $proc = $process4.proc;
             if ($right.proc != null) {
                 AInterleavingProcess op = new AInterleavingProcess();
                 op.setLeft($proc);
@@ -520,10 +506,10 @@ process4 returns[PProcess proc]
         }
     ;
 
-process5 returns[PProcess proc]
-    : process6 ('|~|' right=process5)?
+process4 returns[PProcess proc]
+    : process5 ('|~|' right=process4)?
         {
-            $proc = $process6.proc;
+            $proc = $process5.proc;
             if ($right.proc != null) {
                 AInternalChoiceProcess op = new AInternalChoiceProcess();
                 op.setLeft($proc);
@@ -534,10 +520,10 @@ process5 returns[PProcess proc]
         }
     ;
 
-process6 returns[PProcess proc]
-    : process7 ('[]' right=process6)?
+process5 returns[PProcess proc]
+    : process6 ('[]' right=process5)?
         {
-            $proc = $process7.proc;
+            $proc = $process6.proc;
             if ($right.proc != null) {
                 AExternalChoiceProcess op = new AExternalChoiceProcess();
                 op.setLeft($proc);
@@ -548,13 +534,13 @@ process6 returns[PProcess proc]
         }
     ;
 
-process7 returns[PProcess proc]
+process6 returns[PProcess proc]
 @after { $proc.setLocation(extractLexLocation($start, $stop)); }
-    : process8 (process7op right=process7)?
+    : process7 (process6op right=process6)?
         {
-            $proc = $process8.proc;
+            $proc = $process7.proc;
             if ($right.proc != null) {
-                PProcess op = $process7op.op;
+                PProcess op = $process6op.op;
                 if (op instanceof AInterruptProcess) {
                     ((AInterruptProcess)op).setLeft($proc);
                     ((AInterruptProcess)op).setRight($right.proc);
@@ -568,7 +554,7 @@ process7 returns[PProcess proc]
         }
     ;
 
-process7op returns[PProcess op]
+process6op returns[PProcess op]
     : '/\\'
         {
             $op = new AInterruptProcess();
@@ -580,12 +566,12 @@ process7op returns[PProcess op]
         }
     ;
 
-process8 returns[PProcess proc]
-    : processbase (process8op right=process8)?
+process7 returns[PProcess proc]
+    : process8 (process7op right=process7)?
         {
-            $proc = $processbase.proc;
+            $proc = $process8.proc;
             if ($right.proc != null) {
-                PProcess op = $process8op.op;
+                PProcess op = $process7op.op;
                 if (op instanceof AUntimedTimeoutProcess) {
                     ((AUntimedTimeoutProcess)op).setLeft($proc);
                     ((AUntimedTimeoutProcess)op).setRight($right.proc);
@@ -599,7 +585,7 @@ process8 returns[PProcess proc]
         }
     ;
 
-process8op returns[PProcess op]
+process7op returns[PProcess op]
     : '[>'
         {
             $op = new AUntimedTimeoutProcess();
@@ -608,6 +594,20 @@ process8op returns[PProcess op]
         {
             $op = new ATimeoutProcess();
             ((ATimeoutProcess)$op).setTimeoutExpression($expression.exp);
+        }
+    ;
+
+process8 returns[PProcess proc]
+    : processbase (';' right=process8)?
+        {
+            $proc = $processbase.proc;
+            if ($right.proc != null) {
+                ASequentialCompositionProcess op = new ASequentialCompositionProcess();
+                op.setLeft($proc);
+                op.setRight($right.proc);
+                op.setLocation(extractLexLocation($start,$right.stop));
+                $proc = op;
+            }
         }
     ;
 
