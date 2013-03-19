@@ -8,18 +8,19 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <packaging>pom</packaging>
+
   <groupId>eu.compassresearch.ide.cml</groupId>
   <artifactId>eu.compassresearch.ide.cml.core</artifactId>
   <name>COMPASS IDE CML Core</name>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.overture.ide</groupId>
-      <artifactId>org.overture.ide.core</artifactId>
-      <version>${overture.version}</version>
-    </dependency>
-
-  </dependencies>
+  <!-- <dependencies> -->
+  <!--   <dependency> -->
+  <!--     <groupId>org.overture.ide</groupId> -->
+  <!--     <artifactId>org.overture.ide.core</artifactId> -->
+  <!--     <version>${overture.version}</version> -->
+  <!--   </dependency> -->
+  <!-- </dependencies> -->
 
   <build>
     <plugins>
@@ -46,7 +47,7 @@
                   <!-- <destFileName>optional-new-name.jar</destFileName> -->
                 </artifactItem>
                 
-    <!-- Common -->
+                <!-- Common -->
                 <artifactItem>
                   <groupId>eu.compassresearch.core</groupId>
                   <artifactId>common</artifactId>
@@ -56,7 +57,7 @@
                   <!-- <destFileName>optional-new-name.jar</destFileName> -->
                 </artifactItem>
 
-               <!-- Copy the POG -->
+                <!-- Copy the POG -->
                 <artifactItem>
                   <groupId>eu.compassresearch.core.analysis</groupId>
                   <artifactId>pog</artifactId>
@@ -95,7 +96,7 @@
 
                 <!-- Overture POG --> 
                 <artifactItem>
-                  <groupId>org.overturetool.core</groupId>
+                  <groupId>org.overture.core</groupId>
                   <artifactId>pog</artifactId>
                   <version>${overture.version}</version>
                   <type>jar</type>
@@ -104,7 +105,7 @@
                 
                 <!-- Overture Test Framework -->
                 <artifactItem>
-                  <groupId>org.overturetool.core</groupId>
+                  <groupId>org.overture.core</groupId>
                   <artifactId>testframework</artifactId>
                   <version>${overture.version}</version>
                   <type>jar</type>
@@ -113,7 +114,7 @@
 
                 <!-- Overture Parser -->
                 <artifactItem>
-                  <groupId>org.overturetool.core</groupId>
+                  <groupId>org.overture.core</groupId>
                   <artifactId>parser</artifactId>
                   <version>${overture.version}</version>
                   <type>jar</type>

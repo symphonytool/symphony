@@ -601,35 +601,35 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ (A \\\\ {| B |}) end",
 				false, true, false,
-				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
+				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
 						.customizeMessage("A") });
 		// 130
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ (A \\\\ {| channel1 |}) end",
 				false, true, false,
-				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
+				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
 						.customizeMessage("A") });
 		// 131
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ A ; Skip end",
 				false, true, false,
-				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
+				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
 						.customizeMessage("A") });
 		// 132
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ (A startsby 42) end",
 				false, true, false,
-				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
+				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
 						.customizeMessage("A") });
 		// 133
 		addTestProgram(
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ (A endsby 42) end",
 				false, true, false,
-				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
+				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
 						.customizeMessage("A") });
 
 		// 134
@@ -637,7 +637,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 				testData,
 				"process A = begin @ Skip end process p1 = begin @ A ; Skip end",
 				false, true, false,
-				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
+				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
 						.customizeMessage("A") });
 
 		// 135
@@ -870,6 +870,12 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData,"process P = begin actions B = A1(1,2) A1 = val a:int, b: nat @ Skip  @ A1(1,1) end",false, true, true, new String[0]);
 		
 		addTestProgram(testData,"types Day = nat AvailDB = map Day to nat functions CkAvail (d:Day,av:AvailDB) n:nat post n = av(d)",false,true,true,new String[0]);
+		
+		addTestProgram(testData, "class C = begin operations C:()==>C C() == Skip end",false,true,true,new String[0]);
+		
+		addTestProgram(testData, "class C = begin operations C:()==>C C() == Skip end process P = begin state c:C @ c := new C() end",false,true,true,new String[0]);
+		
+		
 		return testData;
 	}
 
