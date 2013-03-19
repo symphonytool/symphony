@@ -875,6 +875,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		
 		addTestProgram(testData, "class C = begin operations C:()==>C C() == Skip end process P = begin state c:C @ c := new C() end",false,true,true,new String[0]);
 		
+		addTestProgram(testData, "process A = begin state i:int := 0 m:map int to (map int to int) @ m(0)(0) := 1 end",false,true,true,new String[0]);
 		
 		return testData;
 	}
