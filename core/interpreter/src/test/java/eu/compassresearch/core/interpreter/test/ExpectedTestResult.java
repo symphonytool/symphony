@@ -14,14 +14,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class TestResult {
+public class ExpectedTestResult {
 
-	public static TestResult parseTestResultFile(String filePath) throws IOException 
+	public static ExpectedTestResult parseTestResultFile(String filePath) throws IOException 
 	{
 		//get the factory
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-		TestResult testResult = null;
+		ExpectedTestResult testResult = null;
 		
 		try {
 
@@ -32,7 +32,17 @@ public class TestResult {
 			Document dom = db.parse(filePath);
 
 			Element docEle = dom.getDocumentElement();
+			
+			//parse the type of the result
+			boolean shouldFail = false;
+			NodeList typeNl = docEle.getElementsByTagName("type");
 
+			if(typeNl != null && typeNl.getLength() > 0)
+			{
+				if(typeNl.item(0).getFirstChild().getNodeValue().equals("fail"))
+					shouldFail = true;
+			}
+			
 			//get a nodelist of elements
 			NodeList nl = docEle.getElementsByTagName("visibleTrace");
 			
@@ -57,7 +67,7 @@ public class TestResult {
 				traces.add(trace);
 			}
 			
-			testResult = new TestResult(traces);
+			testResult = new ExpectedTestResult(traces,shouldFail);
 
 		}catch(ParserConfigurationException pce) {
 			pce.printStackTrace();
@@ -68,11 +78,17 @@ public class TestResult {
 		return testResult;
 	}
 	
-	private List<List<String>> visibleTraces;
+	//The visible traces that the model should produce
+	private final List<List<String>> visibleTraces;
+	//This indicates whether the model should fail with an exception or not
+	private final boolean shouldFail;
 	
-	public TestResult(List<List<String>> visibleTraces)
+	//private String exceptionName;
+	
+	public ExpectedTestResult(List<List<String>> visibleTraces, boolean shouldFail)
 	{
 		this.visibleTraces = visibleTraces;
+		this.shouldFail = shouldFail;
 	}
 	
 	public boolean isInterleaved()
@@ -88,6 +104,11 @@ public class TestResult {
 	public List<List<String>> getVisibleTraces()
 	{
 		return this.visibleTraces;
+	}
+	
+	public boolean shouldFail()
+	{
+		return shouldFail;
 	}
 	
 }

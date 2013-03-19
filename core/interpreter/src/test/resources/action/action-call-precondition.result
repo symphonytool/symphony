@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testResult>
+	<type>fail</type>
 	<result>
-		<type>success</type>
+		<exception>InterpreterRuntimeException</exception>
 		<trace>
-			<visibleTrace>b;c</visibleTrace>
+			<visibleTrace></visibleTrace>
 		</trace>
 	</result>
 </testResult>

@@ -27,6 +27,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
@@ -100,7 +101,7 @@ public class InterpretAllCmlFilesTest {
 
 		String resultPath = filePath.split("[.]")[0] + ".result";
 
-		TestResult testResult = TestResult.parseTestResultFile(resultPath);
+		ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
 
 		assertTrue(CmlParserUtil.parseSource(ast));
 
@@ -123,12 +124,20 @@ public class InterpretAllCmlFilesTest {
 		CmlSupervisorEnvironment sve = 
 				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
 		
-		interpreter.execute(sve,scheduler);
+		Exception exception = null;
+		try{
+			interpreter.execute(sve,scheduler);
+		}
+		catch(Exception ex)
+		{
+			exception = ex;
+		}
 
-		checkResult(testResult, interpreter.getStatus());
+		checkResult(testResult, interpreter.getStatus(), exception);
 	}
 	
-	private void checkResult(TestResult testResult, InterpreterStatus status) {
+	private void checkResult(ExpectedTestResult testResult, InterpreterStatus status, Exception exception) {
+		
 		if(!testResult.isInterleaved())
 		{
 			assertTrue(testResult.getFirstVisibleTrace()
@@ -147,6 +156,9 @@ public class InterpretAllCmlFilesTest {
 			
 			assertTrue(foundMatch);
 		}
+		
+		//If the test is expected to fail the exception should be non null
+		assertTrue(!testResult.shouldFail() || exception != null);
 
 	}
 

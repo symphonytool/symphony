@@ -207,7 +207,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/process/process-functionsdef.cml");
+				"src/test/resources/action/action-call-precondition.cml");
 		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 
