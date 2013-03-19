@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
@@ -72,8 +73,6 @@ public class AlphabetInspectVisitor
 	private final CmlBehaviourThread 			ownerProcess;
 	private final CmlExpressionVisitor			cmlEvaluator = new CmlExpressionVisitor();
 	
-	
-	
 	/**
 	 * 
 	 * @param ownerProcess
@@ -103,6 +102,19 @@ public class AlphabetInspectVisitor
 	private CmlAlphabet createSilentTransition(INode srcNode, INode dstNode)
 	{
 		return createSilentTransition(srcNode,dstNode,null);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * Used for evaluating post conditions
+	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#defaultPExp(org.overture.ast.expressions.PExp, java.lang.Object)
+	 */
+	
+	@Override
+	public CmlAlphabet defaultPExp(PExp node, Context question)
+			throws AnalysisException {
+		
+		return createSilentTransition(node,null,"Post condition");
 	}
 	
 	/**

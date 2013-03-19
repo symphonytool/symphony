@@ -10,6 +10,7 @@ import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.PType;
@@ -17,13 +18,17 @@ import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.MapValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
+import org.overture.interpreter.values.ReferenceValue;
 import org.overture.interpreter.values.UndefinedValue;
+import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 import org.overture.interpreter.values.VoidValue;
+import org.overture.typechecker.assistant.expression.PExpAssistantTC;
 
 import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
 import eu.compassresearch.ast.actions.ABlockStatementAction;
@@ -204,15 +209,44 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		callContext.putAll(args);
 				
 		//invoke the pre condition
-		if(opVal.getPrecondition()!= null){
+		if(opVal.getPrecondition() != null){
 
-			if(!opVal.getPrecondition().apply(this.cmlExpressionVisitor,callContext).boolValue(question))
-				opVal.abort(4060, "precondition violated for " + node.getName(), question);
+			PExp preExpNode = opVal.getPrecondition();
+			Context preConditionContext = CmlContextFactory.newContext(preExpNode.getLocation(), 
+					"Operation " + node.getName() + " precondition context", callContext);
+			preConditionContext.setPrepost(1, "precondition violated for " + node.getName());
+			pushNext(preExpNode, preConditionContext);
+			
 		}
+		
 		if (opVal.getBody() == null)
 		{
 			opVal.abort(4066, "Cannot call implicit operation: " + name, question);
 		}
+		
+		if(opVal.getPostcondition() != null){
+			
+			PExp postExpNode = opVal.getPostcondition();
+			
+			Context postConditionContext = CmlContextFactory.newContext(postExpNode.getLocation(), 
+					"Operation " + node.getName() + " postcondition context", callContext);
+			
+				// originalSelf = self.shallowCopy();
+			//LexNameList oldnames = PExpAssistantTC.getOldNames(postExpNode);
+			//postConditionContext.putAllNew(question.getSelf().getOldValues(oldnames).NameValuePairList);
+
+			for(NameValuePair nvp : postConditionContext.getSelf().getMemberValues().asList())
+				if(UpdatableValue.class.isAssignableFrom(nvp.value.getClass()))
+				{
+					//FIXME it does not work when the module is there
+					LexNameToken oldName = new LexNameToken("", nvp.name.getOldName().getIdentifier());
+					postConditionContext.putNew(new NameValuePair(oldName, nvp.value.getConstant()));
+				}
+			
+			postConditionContext.setPrepost(1, "postcondition violated for " + node.getName());
+			pushNext(postExpNode, postConditionContext);
+		}
+			
 		
 		pushNext(opVal.getBody(), callContext);
 		

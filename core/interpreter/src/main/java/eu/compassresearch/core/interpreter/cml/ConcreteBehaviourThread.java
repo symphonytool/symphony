@@ -65,7 +65,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	protected CmlTrace 							trace = new CmlTrace();
 	
 	//Helper to inspect the immediate Alphabet
-	protected AlphabetInspectVisitor 				alphabetInspectionVisitor = new AlphabetInspectVisitor(this);
+	protected AlphabetInspectVisitor 			alphabetInspectionVisitor = new AlphabetInspectVisitor(this);
 	
 	//Event handling variable, we need to keep track if the events because of external choice
 	//

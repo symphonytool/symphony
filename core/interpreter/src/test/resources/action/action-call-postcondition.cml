@@ -9,7 +9,7 @@ begin
 	operations
 	Test : (int) ==> ()
 	Test(x) == v := v + x
-	pre	x = 1
-
-	@ Test(1); a -> Test(2); a-> Skip
+	post v = 4
+	
+	@ Test(2); a -> Test(1); a -> Skip
 end
