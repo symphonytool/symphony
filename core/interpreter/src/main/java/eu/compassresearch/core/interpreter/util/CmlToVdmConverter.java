@@ -11,7 +11,7 @@ public class CmlToVdmConverter {
 	{
 		AClassType classType = new AClassType();
 		classType.setResolved(true);
-		classType.setName(processDefinition.getName());
+		classType.setName(processDefinition.getName().clone());
 		classType.setClassdef(createClassClassDefinition(processDefinition));
 		return classType;
 	}

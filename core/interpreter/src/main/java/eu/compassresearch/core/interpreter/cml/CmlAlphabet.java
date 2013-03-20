@@ -145,7 +145,11 @@ public class CmlAlphabet extends Value {
 		{
 			for(ObservableEvent otherEvent : other._observableEvents)
 			{
-				if(thisEvent.isComparable(otherEvent) && !thisEvent.equals(otherEvent))
+				//if the events are comparable (the) and one of the values are imprecise
+				// and they are not equal
+				if(thisEvent.isComparable(otherEvent) && 
+						(!thisEvent.isValuePrecise() || !otherEvent.isValuePrecise() ) && 
+						!thisEvent.equals(otherEvent) )
 				{
 					//find the meet of the two values, meaning the most precise
 					resultSet.add(thisEvent.meet(otherEvent));

@@ -280,7 +280,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
 		else if(CmlBehaviourThreadUtility.childWaitingForEventExists(ownerThread()))
 		{
-			result = caseParallelSync();
+			result = caseParallelNonSync();
 			//We push the current state, 
 			pushNext(node, question);
 			

@@ -9,6 +9,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
@@ -208,17 +209,6 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		// Note: arg name/values hide member values
 		callContext.putAll(args);
 				
-		//invoke the pre condition
-		if(opVal.getPrecondition() != null){
-
-			PExp preExpNode = opVal.getPrecondition();
-			Context preConditionContext = CmlContextFactory.newContext(preExpNode.getLocation(), 
-					"Operation " + node.getName() + " precondition context", callContext);
-			preConditionContext.setPrepost(1, "precondition violated for " + node.getName());
-			pushNext(preExpNode, preConditionContext);
-			
-		}
-		
 		if (opVal.getBody() == null)
 		{
 			opVal.abort(4066, "Cannot call implicit operation: " + name, question);
@@ -239,17 +229,28 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 				if(UpdatableValue.class.isAssignableFrom(nvp.value.getClass()))
 				{
 					//FIXME it does not work when the module is there
-					LexNameToken oldName = new LexNameToken("", nvp.name.getOldName().getIdentifier());
+					LexNameToken oldName = new LexNameToken("",(LexIdentifierToken)nvp.name.getOldName().getIdentifier().clone());
 					postConditionContext.putNew(new NameValuePair(oldName, nvp.value.getConstant()));
 				}
 			
-			postConditionContext.setPrepost(1, "postcondition violated for " + node.getName());
+			postConditionContext.setPrepost(0, "postcondition violated for " + node.getName());
 			pushNext(postExpNode, postConditionContext);
 		}
 			
 		
 		pushNext(opVal.getBody(), callContext);
 		
+		//invoke the pre condition
+		if(opVal.getPrecondition() != null){
+
+			PExp preExpNode = opVal.getPrecondition();
+			Context preConditionContext = CmlContextFactory.newContext(preExpNode.getLocation(), 
+					"Operation " + node.getName() + " precondition context", callContext);
+			preConditionContext.setPrepost(0, "precondition violated for " + node.getName());
+			pushNext(preExpNode, preConditionContext);
+
+		}
+
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 		
 	}

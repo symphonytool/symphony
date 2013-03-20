@@ -33,7 +33,7 @@ public class CmlCommunicationEvent extends ObservableEvent {
 		
 		//TODO: this have to be expanded to all of them
 		if(params != null)
-			value = params.get(0).getValue();
+			value = (Value)params.get(0).getValue().clone();
 		else
 			value = new AnyValue();
 	}
@@ -44,7 +44,7 @@ public class CmlCommunicationEvent extends ObservableEvent {
 		
 		//TODO: this have to be expanded to all of them
 		if(params != null)
-			value = params.get(0).getValue();
+			value = (Value)params.get(0).getValue().clone();
 		else
 			value = new AnyValue();
 	}

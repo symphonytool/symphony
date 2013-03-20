@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResult type="eu.compassresearch.core.interpreter.tests.framework.ProcessTestCase">
+	<result>
+		<trace>
+			<visibleTrace>a.0;a.0;a.1;a.1</visibleTrace>
+			<visibleTrace>a.0;a.1;a.0;a.1</visibleTrace>
+		</trace>
+	</result>
+</testResult>

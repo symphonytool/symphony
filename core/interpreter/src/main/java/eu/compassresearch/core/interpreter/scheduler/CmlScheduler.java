@@ -23,17 +23,33 @@ public interface CmlScheduler {
 	
 	public boolean hasWaitingProcesses();
 	
+	/**
+	 * Determines whether any Active CmlBehaviourThread object exists
+	 * @return true if there exists a CmlBehaviourThread object with one of the following
+	 * 		   States : RUNNABLE,RUNNING,WAIT_EVENT, WAIT_CHILD
+	 * 		   else false
+	 */
 	public boolean hasActiveProcesses();
 
+	/**
+	 * Determines whether the top process is deadlocked
+	 * @return true if the top process is deadlocked otherwise false
+	 */
 	public boolean isDeadlocked();
 	
-	public void start();
+	/**
+	 * Start the scheduling
+	 */
+	public void start(CmlSupervisorEnvironment sve);
 	
+	/**
+	 * Stop the scheduling
+	 */
 	public void stop();
 	
-	public void setCmlSupervisorEnvironment(CmlSupervisorEnvironment sve);
-	
-	public CmlSupervisorEnvironment getCmlSupervisorEnvironment();
-	
-	
+	/**
+	 * Returns the number of steps taken so far
+	 * @return The number of steps taken so far
+	 */
+	public long steps();
 }

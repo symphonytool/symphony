@@ -27,7 +27,6 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 	List<CmlBehaviourThread> deadlocked = new LinkedList<CmlBehaviourThread>();
 	
 	private SchedulingPolicy policy;
-	private CmlSupervisorEnvironment sve = null;
 	private boolean stopped = false;
 	
 	public VanillaScheduler(SchedulingPolicy policy)
@@ -125,21 +124,11 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 	}
 	
 	@Override
-	public void setCmlSupervisorEnvironment(CmlSupervisorEnvironment sve) {
-		this.sve = sve;
-	}
-
-	@Override
-	public CmlSupervisorEnvironment getCmlSupervisorEnvironment() {
-		return this.sve;
-	}
-	
-	@Override
-	public void start() {
+	public void start(CmlSupervisorEnvironment sve) {
 		
 		stopped = false;
 		if(null == sve)
-			throw new NullPointerException("The supervisor is not set in the scheduler");
+			throw new NullPointerException("The supervisor cannot be set to null in the scheduler");
 		
 		//Active state
 		while(!stopped && hasActiveProcesses())
@@ -232,6 +221,12 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 	@Override
 	public boolean isDeadlocked() {
 		return getTopLevelProcess().deadlocked();
+	}
+	
+	@Override
+	public long steps() {
+
+		return getTopLevelProcess().getTraceModel().getTrace().size();
 	}
 	
 	/**

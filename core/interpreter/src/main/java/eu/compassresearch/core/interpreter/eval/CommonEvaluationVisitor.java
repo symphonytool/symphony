@@ -74,7 +74,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		return result;
 	}
 	
-	protected CmlBehaviourSignal caseParallelSync()
+	protected CmlBehaviourSignal caseParallelNonSync()
 	{
 
 		CmlBehaviourThread leftChild = children().get(0);

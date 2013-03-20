@@ -186,7 +186,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
 		else if(CmlBehaviourThreadUtility.childWaitingForEventExists(ownerThread()))
 		{
-			result = caseParallelSync();
+			result = caseParallelNonSync();
 
 			//We push the current state, 
 			pushNext(node, question);
@@ -217,7 +217,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 				VanillaInterpreterFactory.newCmlBehaviourThread(left,question,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
 		
 		CmlBehaviourThread rightInstance = 
-				VanillaInterpreterFactory.newCmlBehaviourThread(right,question,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,right.getLocation()),ownerThread());
+				VanillaInterpreterFactory.newCmlBehaviourThread(right,question,new LexNameToken(name.module,"|||" + name.getIdentifier().getName() ,right.getLocation()),ownerThread());
 		
 		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}

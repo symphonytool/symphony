@@ -131,7 +131,7 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	public CmlBehaviourSignal defaultPExp(PExp node, Context question)
 			throws AnalysisException {
 
-		if(question.prepost > 0 && !node.apply(cmlExpressionVisitor,question).boolValue(question))
+		if(!node.apply(cmlExpressionVisitor,question).boolValue(question))
 		{
 			throw new ValueException(4061, question.prepostMsg, question);
 		}

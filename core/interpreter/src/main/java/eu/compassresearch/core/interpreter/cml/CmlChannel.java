@@ -12,7 +12,7 @@ public interface CmlChannel {
 	public PType getType();
 	
 	/**
-	 * Signals that this channel is selected the channel listeners that thi
+	 * Signals that this channel is selected by the environment to all the channel listeners
 	 */
 	public void select();
 	

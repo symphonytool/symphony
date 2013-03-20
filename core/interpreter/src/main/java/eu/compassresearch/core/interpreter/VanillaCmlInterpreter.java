@@ -86,7 +86,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		topProcess = envBuilder.getLastDefinedProcess();
 	}
 	
-	private void InitializeTopProcess() throws InterpreterException 
+	private ProcessObjectValue InitializeTopProcess() throws InterpreterException 
 	{
 		if(defaultName != null && !defaultName.equals(""))
 		{
@@ -98,7 +98,11 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 						+ getDefaultName() + "' exists");
 
 			topProcess = pov.getProcessDefinition();
+			
+			return pov;
 		}
+		
+		return null;
 	}
 
 	@Override
@@ -116,30 +120,27 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	@Override
 	public Value execute(CmlSupervisorEnvironment sve, CmlScheduler scheduler) throws InterpreterException
 	{
-		InitializeTopProcess();
-
 		cmlScheduler = scheduler;
-		
 		currentSupervisor = sve; 
-		cmlScheduler.setCmlSupervisorEnvironment(currentSupervisor);
-		
+
+		//Find and initialize the top process value
+		ProcessObjectValue pov = InitializeTopProcess();
+		//Create the initial context with the global definitions
 		Context topContext = getInitialContext(null);
-		
-		//ProcessObjectValue self = (ProcessObjectValue)topContext.lookup(topProcess.getName()); 
-		
-		//ObjectContext processContext = new ObjectContext(topProcess.getLocation(), "Top Process context", topContext, self);
-		
+		//Create a CmlBehaviourThread for the top process
 		CmlBehaviourThread pi = VanillaInterpreterFactory.newCmlBehaviourThread(topProcess.getProcess(), topContext, topProcess.getName());
 		pi.start(currentSupervisor);
+		//Fire the interpreter running event before we start
 		statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.RUNNING));
-		cmlScheduler.start();
+		cmlScheduler.start(currentSupervisor);
+		
 		if(cmlScheduler.isDeadlocked())
 			statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.DEADLOCKED));
 		else
 			statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.TERMINATED));
-		//statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.));
 		
-		return null;
+		//Finally we return the top process value
+		return pov;
 	}
 
 	public String getAnalysisName()
@@ -207,7 +208,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-call-postcondition3.cml");
+				"src/test/resources/process/process-interleaving-state.cml");
 		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
 		runOnFile(cml_example);
 
@@ -215,10 +216,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	public InterpreterStatus getStatus()
 	{
-		//CmlBehaviourThread topCmlProcessInstance = currentSupervisor.findNamedProcess(topProcess.getName().toString());
-		
-		//Collect the processInfos
-		
 		return new InterpreterStatus(cmlScheduler.getAllProcesses());
 	}
 
