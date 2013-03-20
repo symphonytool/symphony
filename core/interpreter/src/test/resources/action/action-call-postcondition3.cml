@@ -1,0 +1,71 @@
+types
+  LampId      = <L1> | <L2> | <L3>
+
+  Signal      = set of LampId
+   
+  ProperState = Signal
+  inv ps == ps in set {dark, stop, warning, drive}
+
+  DwarfType :: lastproperstate    : ProperState
+               turnoff            : set of LampId 
+               turnon             : set of LampId
+               laststate          : Signal
+               currentstate       : Signal
+               desiredproperstate : ProperState
+  inv d ==  
+    (((d.currentstate \ d.turnoff) union d.turnon) = d.desiredproperstate) and
+    (d.turnoff inter d.turnon = {})
+     
+  DwarfSignal = DwarfType
+  inv d == NeverShowAll(d) and MaxOneLampChange(d) and ForbidStopToDrive(d) and DarkOnlyToStop(d) and DarkOnlyFromStop(d)
+
+values
+  dark: Signal    = {}
+  stop: Signal    = {<L1>, <L2>}
+  warning: Signal = {<L1>, <L3>}
+  drive: Signal   = {<L2>, <L3>}
+
+functions
+
+  NeverShowAll: DwarfType -> bool
+  NeverShowAll(d) == d.currentstate <> {<L1>,<L2>,<L3>}
+  
+  MaxOneLampChange: DwarfType -> bool 
+  MaxOneLampChange(d) == exists l : LampId @ d.currentstate \ d.laststate = {l} or d.laststate \ d.currentstate = {l}
+  
+  ForbidStopToDrive : DwarfType -> bool
+  ForbidStopToDrive(d) == (stop in set d.lastproperstate) => d.desiredproperstate <> drive
+  
+  DarkOnlyToStop : DwarfType -> bool
+  DarkOnlyToStop(d) == (dark in set d.lastproperstate) => d.desiredproperstate = stop
+  
+  DarkOnlyFromStop: DwarfType -> bool
+  DarkOnlyFromStop(d) == (dark in set d.desiredproperstate) => stop in set d.lastproperstate
+
+channels
+a
+
+
+process A = 
+begin 
+	state
+		sg : DwarfSignal
+	
+	operations
+		Init : () ==> ()
+  		Init() ==   sg := mk_DwarfSignal(stop, 
+				         	  {}, 
+				    	      {}, 
+				    	      stop, 
+				    	      stop, 
+				     		  stop)
+		 post sg.lastproperstate = stop and 
+         sg.turnoff = {} and 
+         sg.turnon = {} and 
+         sg.laststate = stop and 
+         sg.currentstate = stop and 
+         sg.desiredproperstate = stop
+		 
+		
+	@ Init(); a -> Skip
+end
