@@ -253,9 +253,10 @@ private PExp selectorListAssignableBuilder(PExp base, List<PExp> selectors) {
             sel.setLocation(loc);
             tree = sel;
         } else if (sel instanceof AApplyExp) {
-            ((AApplyExp)sel).setRoot(base);
+            ((AApplyExp)sel).setRoot(tree);
             sel.setLocation(loc);
             tree = sel;
+            
         } else if (sel instanceof ASubseqExp) { // FIXME --- probably shouldn't allow this either.
             System.out.println("Syntax error: ASubseqExp in a simpleSelector for calls");
             ((ASubseqExp)sel).setSeq(base);
