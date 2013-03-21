@@ -6,7 +6,7 @@ begin
 		a : int := 2
 	
 	@ 
-	(a -> [a = 2] & b -> Skip) 
+	(a -> [a = 1] & b -> Skip) 
 		[] 
 	(c -> [a = 1] & d -> Skip)
 end

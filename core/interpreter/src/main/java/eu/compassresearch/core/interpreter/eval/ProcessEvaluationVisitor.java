@@ -34,6 +34,30 @@ import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 
 public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 
+	/**
+	 * Private helper methods
+	 */
+	
+	private CmlBehaviourSignal caseParallelBegin(PProcess node, PProcess left, PProcess right, Context question)
+	{
+		if(left == null || right == null)
+			throw new InterpreterRuntimeException(
+					InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
+		
+		//TODO: create a local copy of the question state for each of the actions
+		CmlBehaviourThread leftInstance = 
+				VanillaInterpreterFactory.newCmlBehaviourThread(left,question,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
+		
+		CmlBehaviourThread rightInstance = 
+				VanillaInterpreterFactory.newCmlBehaviourThread(right,question,new LexNameToken(name.module,"|||" + name.getIdentifier().getName() ,right.getLocation()),ownerThread());
+		
+		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
+	}
+	
+	/**
+	 * Transition methods
+	 */
+	
 	@Override
 	public CmlBehaviourSignal defaultPProcess(PProcess node, Context question)
 			throws AnalysisException {
@@ -204,22 +228,6 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		//else if ()
 
 		return result;
-	}
-	
-	private CmlBehaviourSignal caseParallelBegin(PProcess node, PProcess left, PProcess right, Context question)
-	{
-		if(left == null || right == null)
-			throw new InterpreterRuntimeException(
-					InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
-		
-		//TODO: create a local copy of the question state for each of the actions
-		CmlBehaviourThread leftInstance = 
-				VanillaInterpreterFactory.newCmlBehaviourThread(left,question,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
-		
-		CmlBehaviourThread rightInstance = 
-				VanillaInterpreterFactory.newCmlBehaviourThread(right,question,new LexNameToken(name.module,"|||" + name.getIdentifier().getName() ,right.getLocation()),ownerThread());
-		
-		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}
 	
 	@Override

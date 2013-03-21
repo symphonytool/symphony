@@ -1,14 +1,15 @@
 channels 
-a, b, c, init
+a, b, init
+c : int
 
 process A = 
 begin 
-	@  init -> a -> c -> Skip
+	@  init -> a -> c?x -> Skip
 end
 
 process B = 
 begin 
-	@  init -> c -> b -> Skip
+	@  init -> c!3 -> b -> Skip
 end
 
 process C = A [| {init , c} |] B

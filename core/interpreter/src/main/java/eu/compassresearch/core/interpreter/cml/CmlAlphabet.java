@@ -181,6 +181,21 @@ public class CmlAlphabet extends Value {
 	}
 	
 	/**
+	 * Subtract other from this
+	 * @param other
+	 * @return An alphabet containing all the events that are this
+	 */
+	public CmlAlphabet subtractImprecise(CmlAlphabet other)
+	{
+		Set<ObservableEvent> newReferenceEvents = new LinkedHashSet<ObservableEvent>();
+		newReferenceEvents.addAll(_observableEvents);
+		newReferenceEvents.removeAll(other.intersectImprecise(this).getObservableEvents());
+		
+		return new CmlAlphabet(newReferenceEvents,specialEvents);
+	}
+	
+	
+	/**
 	 * This determines whether the alphabet contains an observable event.
 	 * @return true if the observable event is contained else false
 	 */
