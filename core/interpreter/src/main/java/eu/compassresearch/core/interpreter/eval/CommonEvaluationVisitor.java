@@ -82,11 +82,11 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		CmlBehaviourThread rightChild = children().get(1);
 		CmlAlphabet rightChildAlpha = rightChild.inspect();
 
-		if(leftChildAlpha.contains(supervisor().selectedObservableEvent()) )
+		if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
 		{
 			return executeChildAsSupervisor(leftChild);
 		}
-		else if(rightChildAlpha.contains(supervisor().selectedObservableEvent()) )
+		else if(rightChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
 		{
 			return executeChildAsSupervisor(rightChild);
 		}

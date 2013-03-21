@@ -142,8 +142,7 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 				CmlBehaviourSignal signal = p.execute(sve);
 				
 				if(signal != CmlBehaviourSignal.EXEC_SUCCESS)
-					throw new InterpreterRuntimeException("Change this!!!!, but now that you haven't changed this yet, " +
-							"then let me tell you that the return CMLBehaviourSignal was unsuccesful");
+					throw new InterpreterRuntimeException("Return CMLBehaviourSignal was unsuccesful at : " + p.nextStepToString());
 
 				CmlTrace trace = p.getTraceModel();
 				

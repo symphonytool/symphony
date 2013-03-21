@@ -26,7 +26,7 @@ public class CmlOperationValue extends Value {
 	//This is used to retrieve the result of a operation
 	public static LexNameToken ReturnValueName()
 	{
-		return new LexNameToken("|CALL|","|RETURN_VALUE|",new LexLocation());
+		return new LexNameToken("|CALL|","RETURN",new LexLocation());
 	}
 	
 	private static final long serialVersionUID = 1L;

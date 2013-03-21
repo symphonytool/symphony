@@ -92,7 +92,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 
 		for(LexIdentifierToken id : ids)
 		{
-			coms.add(createEvent(id, question));
+			coms.add(createEvent((LexIdentifierToken)id.clone(), question));
 		}
 
 		return new CmlAlphabet(coms);

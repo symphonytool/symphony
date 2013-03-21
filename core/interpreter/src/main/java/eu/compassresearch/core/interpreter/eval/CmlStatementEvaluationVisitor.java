@@ -352,6 +352,9 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
+	/**
+	 * This methods splits it into the call and assignment statements and
+	 */
 	@Override
 	public CmlBehaviourSignal caseAAssignmentCallStatementAction(
 			AAssignmentCallStatementAction node, Context question)
@@ -373,7 +376,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		ASingleGeneralAssignmentStatementAction assignmentNode =
 				new ASingleGeneralAssignmentStatementAction(node.getLocation(),	
 						node.getType(),
-						node.getDesignator(),
+						node.getDesignator().clone(),
 						varExp);
 
 		//We now compose the call statement and assignment statement into sequential composition
