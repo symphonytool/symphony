@@ -64,6 +64,6 @@ process RegisterProc =
      init -> INIT(); REG
  end
  
- process TEST_DRIVER = begin @ load.56 -> Skip end
+ process Test_Driver = begin @ load.56 -> add!44 -> read?x -> sub!101 -> read?x -> Skip end
  
- process Test = RegisterProc [| { load } |] TEST_DRIVER 
+ process Test = RegisterProc [| { load, add, sub, read } |] Test_Driver 

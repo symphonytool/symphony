@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResult>
+	<type>deadlock</type>
+	<result>
+		<trace>
+			<visibleTrace>init;setPS.{&lt;L1&gt;, &lt;L3&gt;};extinguish.&lt;L2&gt;;light.&lt;L3&gt;;setPS.{&lt;L2&gt;, &lt;L3&gt;};extinguish.&lt;L1&gt;;light.&lt;L2&gt;</visibleTrace>
+		</trace>
+	</result>
+</testResult>
