@@ -384,7 +384,8 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 						isRegistered(env.selectedObservableEvent().getChannel()))
 				{
 					ret = executeNext();
-					unregisterChannel(env.selectedObservableEvent());
+					if(level() == 0)
+						unregisterChannel(env.selectedObservableEvent());
 					updateTrace(env.selectedObservableEvent());
 				}
 				//if no communication is selected by the supervisor or we cannot sync the selected events

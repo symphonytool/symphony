@@ -101,56 +101,39 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	public CmlBehaviourSignal caseACommunicationAction(
 			ACommunicationAction node, Context question)
 			throws AnalysisException {
-		//At this point the supervisor has already given go to the event, or the event is hidden
 		
+		//At this point the supervisor has already given go to the event, or the event is hidden
 		Value value = supervisor().selectedObservableEvent().getValue();
 		
-		if(node.getCommunicationParameters() != null && 
-				node.getCommunicationParameters().size() > 1
-				)
-			throw new InterpreterRuntimeException("At the moment records and tuples are not supported");
+//		if(node.getCommunicationParameters() != null && 
+//				node.getCommunicationParameters().size() > 1
+//				)
+//			throw new InterpreterRuntimeException("At the moment records and tuples are not supported");
 		
-		//FIXME this should be more general. It only support one com param at the moment
-		for(PCommunicationParameter param : node.getCommunicationParameters())
+		if(node.getCommunicationParameters() != null)
 		{
-			if(param instanceof AReadCommunicationParameter)
+
+			//FIXME this should be more general. It only support one com param at the moment
+			for(PCommunicationParameter param : node.getCommunicationParameters())
 			{
-				PPattern pattern = ((AReadCommunicationParameter) param).getPattern();
-				
-				if(pattern instanceof AIdentifierPattern)
+				if(param instanceof AReadCommunicationParameter)
 				{
-					LexNameToken name = ((AIdentifierPattern) pattern).getName();
-					
-					question.putNew(new NameValuePair(name, value));
+					PPattern pattern = ((AReadCommunicationParameter) param).getPattern();
+
+					if(pattern instanceof AIdentifierPattern)
+					{
+						LexNameToken name = ((AIdentifierPattern) pattern).getName();
+
+						question.putNew(new NameValuePair(name, value));
+					}
+
 				}
-				
 			}
 		}
-		
-		//TODO: input is still missing
 		pushNext(node.getAction(), question); 
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
-		
-		 
-//		//so we can execute it immediately. We just have figure out which kind of event it is
-//		if(CmlActionAssistant.isPrefixEvent(node))
-//			result = casePrefixEvent(node, question);
-//		//supervisor().clearSelectedCommunication();
 	}
-	
-	/**
-	 * Helper methods for Synchronisation and Communication transition rules
-	 */
-	
-	
-	private CmlBehaviourSignal casePrefixEvent(ACommunicationAction node, Context question) 
-			throws AnalysisException 
-	{
-		pushNext(node.getAction(), question); 
-		return CmlBehaviourSignal.EXEC_SUCCESS;
-	}
-	
 	
 	/**
 	 * External Choice D23.2 7.5.4

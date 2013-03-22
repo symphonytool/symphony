@@ -174,10 +174,11 @@ public class AlphabetInspectVisitor
 		CmlBehaviourThread rightChild = ownerProcess.children().get(1);
 		CmlAlphabet rightChildAlphabet = rightChild.inspect();
 		
-		//Find the intersection between the child alphabets and the channel set
+		//Find the intersection between the child alphabets and the channel set and join them.
+		//Then if both left and right have them the next step will combine them.
 		CmlAlphabet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
 		
-		//convert all the common events that are in the channel set into SynchronisationEvent instances
+		//combine all the common events that are in the channel set 
 		Set<CmlEvent> syncEvents = new HashSet<CmlEvent>();
 		for(ObservableEvent ref : cs.getObservableEvents())
 		{

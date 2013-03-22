@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter.values;
 
-import org.overture.interpreter.values.SetValue;
+import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
 
 
@@ -22,7 +22,18 @@ public class AbstractValueInterpreter {
 	public static boolean isValuePrecise(Value value)
 	{
 		//TODO there should be a range/interval value
-		return value != null && !isAnyValue(value);// && !(value instanceof SetValue);
+		boolean ret = true;
+		if(value != null )
+		{
+			if(value instanceof TupleValue)
+				for(Value innerValue : ((TupleValue) value).values)
+					ret &= !isAnyValue(innerValue);
+			else
+				ret = !isAnyValue(value);
+				
+		}	
+		
+		return ret;
 	}
 	
 	public static boolean isMorePrecise(Value val1, Value val2)
