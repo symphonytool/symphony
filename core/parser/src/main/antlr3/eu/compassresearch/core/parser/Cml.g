@@ -249,7 +249,7 @@ private PExp selectorListAssignableBuilder(PExp base, List<PExp> selectors) {
         LexLocation loc = extractLexLocation(base.getLocation(), sel.getLocation());
         if (sel instanceof AFieldNumberExp) { // FIXME --- probably shouldn't allow this
             System.out.println("Syntax error: AFieldNumberExp in a simpleSelector for calls");
-            ((AFieldNumberExp)sel).setTuple(base);
+            ((AFieldNumberExp)sel).setTuple(tree);
             sel.setLocation(loc);
             tree = sel;
         } else if (sel instanceof AApplyExp) {
