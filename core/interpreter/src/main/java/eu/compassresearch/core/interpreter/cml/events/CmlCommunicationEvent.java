@@ -126,7 +126,7 @@ public class CmlCommunicationEvent extends ObservableEvent {
 	
 	@Override
 	public boolean isValuePrecise() {
-		return AbstractValueInterpreter.isValuePrecise(value);
+		return AbstractValueInterpreter.isValueMostPrecise(value);
 	}
 	
 	@Override

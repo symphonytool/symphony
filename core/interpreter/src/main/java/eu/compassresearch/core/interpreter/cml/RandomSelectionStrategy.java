@@ -7,21 +7,20 @@ import java.util.Set;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.ANamedInvariantType;
+import org.overture.ast.types.AProductType;
 import org.overture.ast.types.AQuoteType;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
-import org.overture.interpreter.runtime.StateContext;
-import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.IntegerValue;
-import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.QuoteValue;
+import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
+import org.overture.interpreter.values.ValueList;
 
-import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
+import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.eval.CmlDefinitionVisitor;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 /**
@@ -57,7 +56,7 @@ public class RandomSelectionStrategy implements
 				selectedComm.setValue(
 						AbstractValueInterpreter.meet(
 						selectedComm.getValue(),
-						getRandomValueFromType(t.getType())));
+						getRandomValueFromType(t.getType(),selectedComm)));
 			}
 		}
 		//CmlRuntime.logger().fine("Available events " + availableChannelEvents.getObservableEvents());
@@ -66,17 +65,28 @@ public class RandomSelectionStrategy implements
 		return selectedComm;
 	}
 	
-	class RandomValueGenerator extends AnswerCMLAdaptor<Value>
+	private Value getRandomValueFromType(PType type, ObservableEvent chosenEvent)
+	{
+		try {
+			return type.apply(new RandomValueGenerator(),chosenEvent);
+		} catch (AnalysisException e) {
+			e.printStackTrace();
+		}
+		
+		return new UndefinedValue();
+	}
+	
+	class RandomValueGenerator extends QuestionAnswerCMLAdaptor<ObservableEvent,Value>
 	{
 		@Override
-		public Value caseAIntNumericBasicType(AIntNumericBasicType node)
+		public Value caseAIntNumericBasicType(AIntNumericBasicType node, ObservableEvent chosenEvent)
 				throws AnalysisException {
 
 			return new IntegerValue(rndValue.nextInt());
 		}
 		
 		@Override
-		public Value caseANamedInvariantType(ANamedInvariantType node)
+		public Value caseANamedInvariantType(ANamedInvariantType node, ObservableEvent chosenEvent)
 				throws AnalysisException {
 
 //			if(node.getInvDef() != null)
@@ -88,33 +98,38 @@ public class RandomSelectionStrategy implements
 //				
 //			}
 			
-			return node.getType().apply(this);
+			return node.getType().apply(this,chosenEvent);
 		}
 		
 		@Override
-		public Value caseAUnionType(AUnionType node) throws AnalysisException {
+		public Value caseAUnionType(AUnionType node, ObservableEvent chosenEvent) throws AnalysisException {
 			
 			PType type = node.getTypes().get(rndValue.nextInt(node.getTypes().size()));
 
-			return type.apply(this);
+			return type.apply(this,chosenEvent);
 		}
 		
 		@Override
-		public Value caseAQuoteType(AQuoteType node) throws AnalysisException {
+		public Value caseAQuoteType(AQuoteType node, ObservableEvent chosenEvent) throws AnalysisException {
 			
 			return new QuoteValue(node.getValue().value);
 		}
-	}
-	
-	private Value getRandomValueFromType(PType type)
-	{
-		try {
-			return type.apply(new RandomValueGenerator());
-		} catch (AnalysisException e) {
-			e.printStackTrace();
-		}
 		
-		return new UndefinedValue();
-	}
+		@Override
+		public Value caseAProductType(AProductType node, ObservableEvent chosenEvent)
+				throws AnalysisException {
 
+			ValueList argvals = new ValueList();
+			
+			for(int i = 0 ; i < node.getTypes().size();i++)
+			{
+				Value val = ((TupleValue)chosenEvent.getValue()).values.get(i);
+				if(AbstractValueInterpreter.isValueMostPrecise(val))
+					argvals.add(val);
+				else
+					argvals.add(node.getTypes().get(i).apply(this,chosenEvent));
+			}
+			return new TupleValue(argvals);
+		}
+	}
 }
