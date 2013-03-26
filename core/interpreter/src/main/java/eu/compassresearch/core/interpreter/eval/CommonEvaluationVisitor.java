@@ -114,32 +114,25 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		CmlBehaviourThread rightChild = children().get(1);
 		CmlAlphabet rightChildAlpha = rightChild.inspect();
 
-		//convert the selected event to a CmlAlphabet
-		CmlAlphabet selectedEventAlpha = supervisor().selectedObservableEvent().getAsAlphabet();
-		//now make the intersection between the selectedEventAlpha and the children's alpha
-		CmlAlphabet leftOption = selectedEventAlpha.intersectImprecise(leftChildAlpha);
-		CmlAlphabet rightOption = selectedEventAlpha.intersectImprecise(rightChildAlpha);
-		
-		//if both intersections are non empty it must be a sync event
-		if(!leftOption.isEmpty() &&
-				!rightOption.isEmpty())
+		//if both contains the selected event it must be a sync event
+		if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()) &&
+				rightChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
 		{
-			//supervisor().setSelectedObservableEvent(leftOption.getObservableEvents().iterator().next());
 			executeChildAsSupervisor(leftChild);
-			//supervisor().setSelectedObservableEvent(rightOption.getObservableEvents().iterator().next());
 			executeChildAsSupervisor(rightChild);
 			return CmlBehaviourSignal.EXEC_SUCCESS;
 		}
-		else if(!leftOption.isEmpty())
+		else if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
 		{
 			return executeChildAsSupervisor(leftChild);
 		}
-		else if(!rightOption.isEmpty())
+		else if(rightChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
 		{
 			return executeChildAsSupervisor(rightChild);
 		}
-		
-		return CmlBehaviourSignal.FATAL_ERROR;
+		else
+			//Something went wrong here
+			return CmlBehaviourSignal.FATAL_ERROR;
 	}
 	
 	

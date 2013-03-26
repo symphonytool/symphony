@@ -162,9 +162,7 @@ public class AlphabetInspectVisitor
 	
 	private CmlAlphabet caseAGeneralisedParallelismInspectChildren(PVarsetExpression channelsetExp, Context question) throws AnalysisException
 	{
-		//convert the channelset of the current node to a alphabet
-		//TODO: The convertChansetExpToAlphabet method is only a temp solution. 
-		//		This must be evaluated differently
+		//convert the channel set of the current node to a alphabet
 		CmlAlphabet cs =  ((CmlAlphabet)channelsetExp.
 				apply(cmlEvaluator,question));
 		
@@ -189,6 +187,7 @@ public class AlphabetInspectVisitor
 				syncEvents.add( it.next().synchronizeWith(it.next()));
 			}
 		}
+		
 		/*
 		 *	Finally we create the returned alphabet by joining all the 
 		 *  Synchronized events together with all the event of the children 

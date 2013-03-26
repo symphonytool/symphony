@@ -318,16 +318,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		//FIXME This is not always the case. The scoping rules are not
 		Context result = newContexts.get(oldContexts.size()-1);
 		
-//		if(newContexts.size() >= oldContexts.size())
-//			result = newContexts.get(oldContexts.size()-1);
-//		else
-//		{
-//			//take the old context at the 
-//			oldContexts.get(newContexts.size()).outer = newContexts.get(newContexts.size()-1);
-//			result.
-//			result = oldContexts.get(oldContexts.size());
-//		}
-			
 		return result;
 	}
 	/*
