@@ -75,6 +75,7 @@ public class jsonCommand {
 	
 	public String executeCommand() {
 		String reply = "";
+		client.setCurrentJobId(null);
 
 		// reset progress to 0% for all tasks
 		if (hasProgress) {
@@ -98,6 +99,9 @@ public class jsonCommand {
 
 		// receive reply
 		reply = receiveReply();
+
+		// job is complete
+		client.setCurrentJobId(null);
 		
 		// handle reply
 		processReply(reply);
@@ -180,6 +184,39 @@ public class jsonCommand {
 		return;
 	}
 	
+	public Boolean hasJobAcknowledgeItem(String message) {
+		return (message.indexOf("\"job-acknowledge\"") != -1);
+	}
+	
+	public void scanForJobId(String msg) {
+		String message = new String(msg);
+		int start, end, first, last;
+		while (hasJobAcknowledgeItem(message)) {
+			start = message.indexOf("{ \"job-acknowledge\"");
+			end = message.indexOf('}', start);
+			if (start == -1) {
+				return;
+			}
+			if (end == -1) {
+				return;
+			}
+
+			// extract item
+			String item = message.substring(start, end + 1);
+
+			// extract job identification from item
+			first = item.lastIndexOf(':') + 2;
+			last = item.length() - 2;
+			if ((first < 0) || (last > item.length())) return;
+			String jobIdString = item.substring(first, last);
+			client.setCurrentJobId(jobIdString);
+			System.out.println("current job id: " + client.getCurrentJobId());
+
+			// scan again in the rest of the message
+			message = message.substring(end + 1);
+		}
+	}
+
 	public Boolean hasProgressItems(String message) {
 		return (message.indexOf("\"progress-item\"") != -1);
 	}
@@ -244,7 +281,6 @@ public class jsonCommand {
 				if ((firstDigit >= 3) && (lastDigit >= firstDigit)) {
 					String taskName = item.substring(first, last);
 					String number = item.substring(firstDigit, lastDigit);
-					System.out.println("taskname: '" + taskName + "'");
 					percent = Integer.parseInt(number);
 					client.setProgress(String2Task(taskName), percent);
 				}
@@ -314,6 +350,9 @@ public class jsonCommand {
 						chunkBuffer = new byte[bytes_read];
 						System.arraycopy(buffer, offset, chunkBuffer, 0, bytes_read);
 						chunk = new String(chunkBuffer);
+						if (hasJobAcknowledgeItem(chunk)) {
+							scanForJobId(chunk);
+						}
 						if ((progress < 100) && (hasProgress) && (hasProgressItems(chunk))) {
 							progress = scanForProgressItems(chunk);
 						}

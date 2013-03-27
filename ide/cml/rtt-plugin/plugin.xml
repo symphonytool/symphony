@@ -126,6 +126,26 @@
     </menuContribution>
   </extension>
 
+  <!-- Abort Task -->
+  <extension point="org.eclipse.ui.commands">
+    <command
+      defaultHandler="eu.compassresearch.ide.cml.rttplugin.RttMbtAbort"
+      id="eu.compassresearch.ide.cml.rttplugin.RttMbtAbort"
+      name="Abort Task"
+    />
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      <command
+        commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtAbort"
+        label="Abort Task"
+        tooltip="Abort the current task"
+        icon="icons/stop.png"
+      />
+    </menuContribution>
+  </extension>
+
   <!-- Clean -->
   <extension point="org.eclipse.ui.commands">
     <command

@@ -21,6 +21,7 @@ public class RttMbtClient {
 	private String userId;
 	private String CmlProject;   // starting and ending with file separator
 	private String CmlWorkspace; // no file separator at the end
+	private String currentJobId;
 
 	// Logging facility
 	private String consoleName;
@@ -40,6 +41,7 @@ public class RttMbtClient {
 		consoleName = null;
 		log = null;
 		progress = null;
+		currentJobId = null;
 	}
 
 	public void setLoggingFacility(String name, IRttMbtLoggingFacility logger) {
@@ -487,6 +489,18 @@ public class RttMbtClient {
 			return false;
 		}
 		return success;
+	}
+	
+	public Boolean abortCommand(String jobIdString) {
+
+		if (jobIdString == null) {
+			return false;
+		}
+		
+		jsonAbortCommand cmd = new jsonAbortCommand(this);
+		cmd.setJobId(jobIdString);
+		cmd.executeCommand();
+		return true;
 	}
 	
 	public Boolean generateTestProcedure(String abstractTestProc) {
@@ -1001,5 +1015,13 @@ public class RttMbtClient {
 
 	public void setConsoleName(String consoleName) {
 		this.consoleName = consoleName;
+	}
+	
+	public String getCurrentJobId() {
+		return currentJobId;
+	}
+
+	public void setCurrentJobId(String jobId) {
+		this.currentJobId = jobId;
 	}
 }

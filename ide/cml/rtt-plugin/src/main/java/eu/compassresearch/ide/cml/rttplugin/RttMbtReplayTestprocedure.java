@@ -2,6 +2,10 @@ package eu.compassresearch.ide.cml.rttplugin;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import eu.compassResearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
@@ -25,14 +29,20 @@ public class RttMbtReplayTestprocedure extends RttMbtConcreteTestProcedureAction
 			return null;
 		}
 
-		// replay test procedure
-		if (client.replayTestProcedure(selectedObject)) {
-			client.addLogMessage("[PASS]: reply test procedure");
-		} else {
-			client.addErrorMessage("[FAIL]: reply test procedure");
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
-		}
+		Job job = new Job("Replay Test") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				// replay test procedure
+				if (client.replayTestProcedure(selectedObject)) {
+					client.addLogMessage("[PASS]: reply test procedure");
+				} else {
+					client.addErrorMessage("[FAIL]: reply test procedure");
+					client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		job.schedule();
 
 		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 		return null;

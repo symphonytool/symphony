@@ -2,6 +2,10 @@ package eu.compassresearch.ide.cml.rttplugin;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import eu.compassResearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
@@ -25,15 +29,21 @@ public class RttMbtGenerateTest extends RttMbtAbstractTestProcedureAction  {
 			return null;
 		}
 		
-		// generate concrete test procedure
-		if (client.generateTestProcedure(selectedObject)) {
-			client.addLogMessage("[PASS]: generate test procedure\n");
-		} else {
-			client.addErrorMessage("[FAIL]: generate test procedure\n");
-			client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
-			return null;
-		}
-
+		Job job = new Job("Generate Test Procedure") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				// generate concrete test procedure
+				if (client.generateTestProcedure(selectedObject)) {
+					client.addLogMessage("[PASS]: generate test procedure\n");
+				} else {
+					client.addErrorMessage("[FAIL]: generate test procedure\n");
+				}
+				client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
+				return Status.OK_STATUS;
+			}
+		};
+		job.schedule();
+		
 		client.setProgress(IRttMbtProgressBar.Tasks.Global, 100);
 		return null;
 	}
