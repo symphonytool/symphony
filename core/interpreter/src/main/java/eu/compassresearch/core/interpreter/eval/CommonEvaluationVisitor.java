@@ -20,6 +20,11 @@ import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 
 public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 
+	public CommonEvaluationVisitor(AbstractEvaluationVisitor parentVisitor)
+	{
+		super(parentVisitor);
+	}
+	
 	/**
 	 * protected helper methods
 	 */

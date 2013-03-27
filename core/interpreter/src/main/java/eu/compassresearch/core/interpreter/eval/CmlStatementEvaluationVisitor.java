@@ -48,11 +48,16 @@ import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
 import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
+import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
 
 @SuppressWarnings("serial")
 public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 
+	public CmlStatementEvaluationVisitor(AbstractEvaluationVisitor parentVisitor)
+	{
+		super(parentVisitor);
+	}
 	
 	@Override
 	public CmlBehaviourSignal caseAReturnStatementAction(
@@ -139,39 +144,36 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		return CmlBehaviourSignal.FATAL_ERROR;
 	}
 	
-	/* 
-	 * FIXME This is a first attempt, arguments and returns are still not supported on void functions.
-	 * (non-Javadoc)
-	 * @see eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor#caseACallStatementAction(eu.compassresearch.ast.actions.ACallStatementAction, java.lang.Object)
+	/*
+	 * 
 	 */
 	@Override
 	public CmlBehaviourSignal caseACallStatementAction(
 			ACallStatementAction node, Context question)
-			throws AnalysisException {
-
+					throws AnalysisException {
 		//first find the operation value in the context
 		CmlOperationValue opVal = (CmlOperationValue)question.check(node.getName()); 
-				
+
 		//evaluate all the arguments
 		ValueList argValues = new ValueList();
 		for (PExp arg: node.getArgs())
 		{
 			argValues.add(arg.apply(cmlExpressionVisitor,question));
 		}
-		
+
 		// Note args cannot be Updateable, so we convert them here. This means
 		// that TransactionValues pass the local "new" value to the far end.
 		ValueList constValues = argValues.getConstant();
-						
+
 		//TODO maybe this context should be a different one
 		//Create a new context to perform the operation call 
 		Context callContext = CmlContextFactory.newObjectContext(node.getLocation(), "CML Operation Call", question, question.getSelf());
-		
+
 		if (argValues.size() != opVal.getParamPatterns().size())
 		{
 			opVal.abort(4068, "Wrong number of arguments passed to " + name.name, question);
 		}
-		
+
 		ListIterator<Value> valIter = argValues.listIterator();
 		Iterator<PType> typeIter = opVal.getType().getParameters().iterator();
 		NameValuePairMap args = new NameValuePairMap();
@@ -205,23 +207,23 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 				opVal.abort(e.number, e, question);
 			}
 		}
-		
+
 		// Note: arg name/values hide member values
 		callContext.putAll(args);
-				
+
 		if (opVal.getBody() == null)
 		{
 			opVal.abort(4066, "Cannot call implicit operation: " + name, question);
 		}
-		
+
 		if(opVal.getPostcondition() != null){
-			
+
 			PExp postExpNode = opVal.getPostcondition();
-			
+
 			Context postConditionContext = CmlContextFactory.newContext(postExpNode.getLocation(), 
 					"Operation " + node.getName() + " postcondition context", callContext);
-			
-				// originalSelf = self.shallowCopy();
+
+			// originalSelf = self.shallowCopy();
 			//LexNameList oldnames = PExpAssistantTC.getOldNames(postExpNode);
 			//postConditionContext.putAllNew(question.getSelf().getOldValues(oldnames).NameValuePairList);
 
@@ -232,14 +234,14 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 					LexNameToken oldName = new LexNameToken("",(LexIdentifierToken)nvp.name.getOldName().getIdentifier().clone());
 					postConditionContext.putNew(new NameValuePair(oldName, nvp.value.getConstant()));
 				}
-			
+
 			postConditionContext.setPrepost(0, "postcondition violated for " + node.getName());
 			pushNext(postExpNode, postConditionContext);
 		}
-			
-		
+
+
 		pushNext(opVal.getBody(), callContext);
-		
+
 		//invoke the pre condition
 		if(opVal.getPrecondition() != null){
 
@@ -252,7 +254,6 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		}
 
 		return CmlBehaviourSignal.EXEC_SUCCESS;
-		
 	}
 	
 	/**

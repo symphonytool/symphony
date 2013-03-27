@@ -1,7 +1,11 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import java.util.List;
+
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
@@ -10,8 +14,10 @@ import org.overture.ast.typechecker.Pass;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
+import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
@@ -24,8 +30,10 @@ import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
+import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.definitions.AActionDefinition;
@@ -36,10 +44,10 @@ import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.ActionValue;
+import eu.compassresearch.core.interpreter.values.CmlOperationValue;
 
 /**
  *  This class represents a running CML Action. It represents a specific node as specified in D23.2 section 7.4.2,
@@ -61,7 +69,13 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	private static final long serialVersionUID = 993071972119803788L;
 	
-	private AbstractEvaluationVisitor statementEvalVisitor = new CmlStatementEvaluationVisitor();
+	private AbstractEvaluationVisitor statementEvalVisitor = new CmlStatementEvaluationVisitor(this);
+	
+	public ActionEvaluationVisitor(AbstractEvaluationVisitor parentVisitor)
+	{
+		super(parentVisitor);
+	}
+	
 	
 	@Override
 	public void init(ControlAccess controlAccess) {
@@ -160,18 +174,86 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	}
 	
 	/**
+	 * This deals both with calls but also parametrised action reference, since the typechecker does not replace this node yet
+	 * FIXME This might be changed! if the typechecker replaces the call node with a action reference node 
+	 */
+	@Override
+	public CmlBehaviourSignal caseACallStatementAction(
+			ACallStatementAction node, Context question)
+			throws AnalysisException {
+
+		Value value = question.check(node.getName()); 
+		
+		if(value instanceof CmlOperationValue)
+			return node.apply(statementEvalVisitor,question);
+		else if (value instanceof ActionValue)
+		{
+			//first find the action value in the context
+			ActionValue actionVal = (ActionValue)question.check(node.getName());
+			
+			return caseReferenceAction(node.getLocation(),node.getArgs(), actionVal, question);
+		}
+		else
+			return CmlBehaviourSignal.FATAL_ERROR;
+	}
+	
+	
+	/**
 	 * This implements the 7.5.10 Action Reference transition rule in D23.2. 
 	 */
 	@Override
 	public CmlBehaviourSignal caseAReferenceAction(AReferenceAction node,
 			Context question) throws AnalysisException {
 		//FIXME: the scoping is not correct, this should be done as described in the transition rule
-		
+				
 		//FIXME: Consider: Instead of this might create a child process, and behave as this child until it terminates
 		//CMLActionInstance refchild = new CMLActionInstance(node.getActionDefinition().getAction(), question, node.getName()); 
 		ActionValue actionValue = (ActionValue)question.check(node.getName()).deref();
 		
-		pushNext(actionValue.getActionDefinition().getAction(), question); 
+		return caseReferenceAction(node.getLocation(),node.getArgs(), actionValue, question);
+		
+	}
+	
+	protected CmlBehaviourSignal caseReferenceAction(LexLocation location,
+		List<PExp> args,ActionValue actionValue,Context question) throws AnalysisException {
+
+		//evaluate all the arguments
+		NameValuePairMap evaluatedArgs = new NameValuePairMap();
+
+		int paramIndex = 0;
+		for(PParametrisation parameterization : actionValue.getActionDefinition().getDeclarations())
+		{
+			for(LexIdentifierToken id : parameterization.getDeclaration().getIdentifiers())
+			{
+				//get and evaluate the i'th expression
+				PExp arg = args.get(paramIndex);
+				Value value = arg.apply(cmlExpressionVisitor,question);
+
+				//check whether the type is correct
+				//if(arg.getType().equals(o))
+				//error(node,"Arguments does not match the action parameterization");
+
+				//Decide whether the argument is updateable or not
+				if(parameterization instanceof AValParametrisation)
+					value = value.getConstant();
+				else {
+					value = value.getUpdatable(null);
+				}
+
+				evaluatedArgs.put(new LexNameToken("",(LexIdentifierToken)id.clone()), value);
+
+				//update the index
+				paramIndex++;
+			}
+
+		}
+
+		Context refActionContext = CmlContextFactory.newContext(location, 
+				"Parametrised reference action context", question);
+
+		refActionContext.putAll(evaluatedArgs);
+
+		pushNext(actionValue.getActionDefinition().getAction(), refActionContext); 
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	

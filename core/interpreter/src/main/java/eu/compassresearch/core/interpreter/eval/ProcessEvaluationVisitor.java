@@ -29,11 +29,17 @@ import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 
 public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 
+	public ProcessEvaluationVisitor(AbstractEvaluationVisitor parentVisitor)
+	{
+		super(parentVisitor);
+	}
+	
 	/**
 	 * Private helper methods
 	 */
@@ -111,7 +117,8 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 				//everything else can.
 				//TODO This might be incomplete
 				if(nvp.value instanceof FunctionValue ||
-						nvp.value instanceof CmlOperationValue)
+						nvp.value instanceof CmlOperationValue ||
+						nvp.value instanceof ActionValue)
 					valueMap.put(new NameValuePair(name,nvp.value));
 				else
 					valueMap.put(new NameValuePair(name,nvp.value.getUpdatable(null)));

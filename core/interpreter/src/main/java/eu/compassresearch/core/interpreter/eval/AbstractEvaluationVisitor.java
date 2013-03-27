@@ -13,6 +13,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
@@ -45,6 +46,13 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	protected Random 									rnd = new Random(9784345);
 	//name of the thread
 	LexNameToken 										name;
+	
+	protected final AbstractEvaluationVisitor			parentVisitor;
+	
+	public AbstractEvaluationVisitor(AbstractEvaluationVisitor parentVisitor)
+	{
+		this.parentVisitor = parentVisitor;
+	}
 	
 	public void init(ControlAccess controlAccess)
 	{
@@ -121,6 +129,12 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	{
 		return controlAccess.ownerThread();
 	}
+	
+	protected void error(INode errorNode, String message)
+	{
+		throw new InterpreterRuntimeException(message);
+	}
+	
 	/*
 	 * This case is used to evaluate pre/post conditions and invariants
 	 * (non-Javadoc)
