@@ -3,11 +3,16 @@ package eu.compassresearch.core.interpreter.eval;
 import java.util.List;
 import java.util.Random;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
@@ -32,14 +37,14 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	};
 	
 	//Interface that gives access to methods that control the behaviour
-	private ControlAccess 						controlAccess;
+	private ControlAccess 								controlAccess;
 	//Evaluator for expressions and definitions
-	protected CmlValueEvaluator 				cmlValueEvaluator = new CmlValueEvaluator();
-	protected CmlDefinitionEvaluator			cmlDefEvaluator = new CmlDefinitionEvaluator();
+	protected QuestionAnswerCMLAdaptor<Context, Value>	cmlExpressionVisitor = new CmlExpressionVisitor();
+	protected CmlDefinitionVisitor						cmlDefEvaluator = new CmlDefinitionVisitor();
 	//use for making random but deterministic decisions
-	protected Random 							rnd = new Random(9784345);
+	protected Random 									rnd = new Random(9784345);
 	//name of the thread
-	LexNameToken 								name;
+	LexNameToken 										name;
 	
 	public void init(ControlAccess controlAccess)
 	{
@@ -115,5 +120,22 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	protected CmlBehaviourThread ownerThread()
 	{
 		return controlAccess.ownerThread();
+	}
+	/*
+	 * This case is used to evaluate pre/post conditions and invariants
+	 * (non-Javadoc)
+	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#defaultPExp(org.overture.ast.expressions.PExp, java.lang.Object)
+	 * 
+	 */
+	@Override
+	public CmlBehaviourSignal defaultPExp(PExp node, Context question)
+			throws AnalysisException {
+
+		if(!node.apply(cmlExpressionVisitor,question).boolValue(question))
+		{
+			throw new ValueException(4061, question.prepostMsg, question);
+		}
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 }

@@ -6,10 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.Map.Entry;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -27,8 +26,6 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.osgi.framework.Bundle;
 
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugConstants;
@@ -60,9 +57,9 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 			//final IDebugTarget target = launch.getDebugTarget();
 			
 			//Write out the launch configuration to the interpreter runner
-			JSONObject obj = serializeLaunchConfigurationToJSON(configuration);
+			Map configurationMap = configuration.getAttributes();
+			configurationMap.put("mode", mode);
 			//Along with the current mode "debug" or "run"
-			obj.put("mode", mode);
 			
 			if (mode.equals(ILaunchManager.DEBUG_MODE))
 			{
@@ -76,7 +73,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 				
 				//Execute in a new JVM process
 				CmlDebugTarget target = new CmlDebugTarget(launch,
-						launchExternalProcess(launch,JSONValue.toJSONString(obj),"CML Debugger"),
+						launchExternalProcess(launch,JSONObject.toJSONString(configurationMap),"CML Debugger"),
 						CmlDebugDefaultValues.PORT);
 				//				target.setVdmProject(vdmProject);
 				launch.addDebugTarget(target);
@@ -91,8 +88,14 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 				DebugPlugin.getDefault().getBreakpointManager().setEnabled(false);
 				
 				//Execute in a new JVM process
-				launchExternalProcess(launch,JSONValue.toJSONString(obj),"CML Runner");
-//				
+				//launchExternalProcess(launch,JSONObject.toJSONString(configurationMap),"CML Runner");
+//				//Execute in a new JVM process
+				CmlDebugTarget target = new CmlDebugTarget(launch,
+						launchExternalProcess(launch,JSONObject.toJSONString(configurationMap),"CML Runner"),
+						CmlDebugDefaultValues.PORT);
+				//				target.setVdmProject(vdmProject);
+				launch.addDebugTarget(target);
+				
 //				IVMInstall vm = JavaRuntime.getDefaultVMInstall(); 
 //				
 //				IVMRunner runner = vm.getVMRunner(mode);
@@ -151,7 +154,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 	}
 	
 	/**
-	 * Write a the inStream to the out file
+	 * Write the inStream to the specified outfile
 	 * @param inStream
 	 * @param outfile
 	 * @throws IOException
@@ -170,19 +173,23 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		
 	}
 	
-	private void unpackInterpreterFromPlugin(URI path) throws IOException, URISyntaxException
+	/**
+	 * Unpack the interpreter-with-dependencies.jar from the bundle and places it
+	 * at the basePath
+	 * @param basePath path to where the interpreter-with-dependencies.jar is placed
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	private void unpackInterpreterFromPlugin(String basePath) throws IOException, URISyntaxException
 	{
-		//File tempFile = File.createTempFile("interpreter-with-dependencies", ".jar");
-
 		InputStream jarStream = getClass().getResourceAsStream("/lib/interpreter-with-dependencies.jar");
 		InputStream jarHashStream = getClass().getResourceAsStream("/lib/interpreter-with-dependencies.jar.sha");
 
-		File jarFile = new File(path.getSchemeSpecificPart(),"interpreter-with-dependencies.jar");
-		File jarHashFile = new File(path.getSchemeSpecificPart(),"interpreter-with-dependencies.jar.sha");
+		File jarFile = new File(basePath,"interpreter-with-dependencies.jar");
+		File jarHashFile = new File(basePath,"interpreter-with-dependencies.jar.sha");
 				
 		WriteFile(jarStream,jarFile);
 		WriteFile(jarHashStream,jarHashFile);
-		
 	}
 	
 	/**
@@ -191,9 +198,9 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 	 * @return true if it exist else false
 	 * @throws IOException
 	 */
-	private boolean isInterpreterAlreadyExtracted(URI uri) throws IOException
+	private boolean isInterpreterAlreadyExtracted(String basePath) throws IOException
 	{
-		File jarHashFile = new File(uri.getSchemeSpecificPart(),"interpreter-with-dependencies.jar.sha");
+		File jarHashFile = new File(basePath,"interpreter-with-dependencies.jar.sha");
 		
 		//First check if the jar hash file exists, if not then we re-extract
 		if(!jarHashFile.exists())
@@ -211,8 +218,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 			
 			return Arrays.equals(pluginJarHashBytes, existingJarHashBytes);
 		}
-		
-		
 	}
 	
 	/**
@@ -227,15 +232,13 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 	private String locateInterpreterFromPlugin() throws IOException, URISyntaxException
 	{
 		File bundleFile = getBundleFile();
-		URI bundleURI = URI.create(bundleFile.getParent());
-		
-		File jarFile = new File(bundleURI.getSchemeSpecificPart(),"interpreter-with-dependencies.jar");
+		File jarFile = new File(bundleFile.getParent(),"interpreter-with-dependencies.jar");
 
 		//check whether the interpreter jar from the plugin is extracted
 		//If not then we extract it else do nothing
-		if(!isInterpreterAlreadyExtracted(bundleURI))
+		if(!isInterpreterAlreadyExtracted(bundleFile.getParent()))
 		{
-			unpackInterpreterFromPlugin(bundleURI);
+			unpackInterpreterFromPlugin(bundleFile.getParent());
 		}
 		
 		return jarFile.getAbsolutePath();
@@ -246,6 +249,13 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		return FileLocator.getBundleFile(Platform.getBundle(CmlDebugConstants.ID_CML_PLUGIN_NAME.toString()));
 	}
 	
+	/**
+	 * Determines the path String of where the interpreter jar is located.
+	 * This depends on the eclipse mode 
+	 * @return
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	private String locateInterpreterJarPath() throws IOException, URISyntaxException
 	{
 		File file = getBundleFile();
@@ -271,6 +281,10 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 	{
 		String interpreterJarPath = locateInterpreterJarPath();
 		
+		if(isWindows())
+			config = config.replace("\"", "\\\"");
+			//escape quotes or else they disappear
+		
 		String[] commandArray = new String[]{
 				"java",
 				"-jar",
@@ -279,8 +293,8 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		};
 		
 		//Execute in a new JVM process
-		//Process process = Runtime.getRuntime().exec(commandArray, null, workingdir);
-		Process process = Runtime.getRuntime().exec(commandArray);
+		ProcessBuilder pb = new ProcessBuilder(commandArray);
+		Process process = pb.start();
 		IProcess iprocess = DebugPlugin.newProcess(launch, process, name);
 		
 		launch.addProcess(iprocess);
@@ -288,37 +302,9 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		return iprocess;
 	}
 	
-	/**
-	 * Converts the launch configuration into a JSON string
-	 * @param configuration
-	 * @return
-	 * @throws CoreException
-	 */
-	private JSONObject serializeLaunchConfigurationToJSON(ILaunchConfiguration configuration) throws CoreException
+	private boolean isWindows()
 	{
-		JSONObject obj = new JSONObject();
-		for(Object entryObj : configuration.getAttributes().entrySet())
-		{
-			Entry<String,String> entry = (Entry<String,String>)entryObj;
-			obj.put(entry.getKey(), entry.getValue());
-		}
-		
-		return obj;
+		return System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
 	}
-
-//	static public IVdmProject getVdmProject(ILaunchConfiguration configuration)
-//			throws CoreException
-//	{
-//
-//		IProject project = getProject(configuration);
-//
-//		if (project != null)
-//		{
-//			IVdmProject vdmProject = (IVdmProject) project.getAdapter(IVdmProject.class);
-//			return vdmProject;
-//		}
-//		return null;
-//	}
-
 
 }

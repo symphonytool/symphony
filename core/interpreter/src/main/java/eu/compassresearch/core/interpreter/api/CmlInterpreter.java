@@ -20,7 +20,7 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.EventSource;
-import eu.compassresearch.core.interpreter.scheduler.Scheduler;
+import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 /**
  * The CML interpreter interface.
  */
@@ -115,7 +115,7 @@ public interface CmlInterpreter
 	 * @return
 	 * @throws InterpreterException
 	 */
-	public Value execute(CmlSupervisorEnvironment sve, Scheduler cmlScheduler) throws InterpreterException;
+	public Value execute(CmlSupervisorEnvironment sve, CmlScheduler cmlScheduler) throws InterpreterException;
 
 	/**
 	 * Parse the line passed, and evaluate it as an expression in the context

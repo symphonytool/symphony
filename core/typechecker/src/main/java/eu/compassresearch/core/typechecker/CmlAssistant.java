@@ -8,6 +8,7 @@ import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AExternalDefinition;
+import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
@@ -18,6 +19,8 @@ import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.statements.AExternalClause;
 import org.overture.ast.typechecker.NameScope;
+import org.overture.ast.typechecker.Pass;
+import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFieldField;
 import org.overture.ast.types.ANamedInvariantType;
 import org.overture.ast.types.ARecordInvariantType;
@@ -30,9 +33,14 @@ import org.overture.typechecker.assistant.type.ARecordInvariantTypeAssistantTC;
 import org.overture.typechecker.util.HelpLexNameToken;
 import org.xml.sax.ext.LexicalHandler;
 
+import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AClassDefinition;
+import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
+import eu.compassresearch.ast.process.AActionProcess;
+import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 
 
@@ -92,7 +100,10 @@ class CmlAssistant {
 	}
 
 
-
+	private void t() {
+		AImplicitFunctionDefinition f;
+		
+	}
 	/*
 	 * Type erasure? Well then we gotta do it our self ... 
 	 * 
@@ -111,6 +122,10 @@ class CmlAssistant {
 		injectFindMemberNameBaseCase(new ExternalDefinitionNameMemberStrategy());
 		injectFindMemberNameBaseCase(new AssignmentDefinitionNameMemberStrategy());
 		injectFindMemberNameBaseCase(new AStateDefinitionNameMemberStrategy());
+		injectFindMemberNameBaseCase(new AFunctionsDefinitionNameMemberStrategy());
+		injectFindMemberNameBaseCase(new AProcessDefinitionNameMemberStrategy());
+		injectFindMemberNameBaseCase(new AActionsDefinitionNameMemberStrategy());
+		
 	}
 
 
@@ -147,6 +162,95 @@ class CmlAssistant {
 
 	}
 
+	class AActionsDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
+
+		@Override
+		public Class<?> getType() {
+			return AActionsDefinition.class;
+		}
+
+		@Override
+		public PDefinition findMemberName(PDefinition def,
+				LexIdentifierToken name, Object... more) {
+			
+			AActionsDefinition acts = (AActionsDefinition)def;
+			for(PDefinition actDef : acts.getActions()) {
+				if(HelpLexNameToken.isEqual(actDef.getName(), name)) {
+					return actDef;
+				}
+			}
+			
+			return null;
+		}
+		
+	}
+	
+	class AProcessDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
+
+		@Override
+		public Class<?> getType() {
+			return AProcessDefinition.class;
+		}
+
+		@Override
+		public PDefinition findMemberName(PDefinition def,
+				LexIdentifierToken name, Object... more) {
+
+			AProcessDefinition pdef = AProcessDefinition.class.cast(def);
+			
+			PProcess process = pdef.getProcess();
+			if (process instanceof AActionProcess) {
+				AActionProcess aProcess = (AActionProcess)process;
+				for(PDefinition p : aProcess.getDefinitionParagraphs()) {
+					PDefinition res = CmlAssistant.this.findMemberName(p,name,more);
+					if (res != null) return res;
+				}
+			}
+			
+			
+			return null;
+		}
+
+	}
+
+	class AFunctionsDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
+
+		@Override
+		public Class<?> getType() {
+			return AFunctionsDefinition.class;
+		}
+
+		@Override
+		public PDefinition findMemberName(PDefinition def,
+				LexIdentifierToken name, Object... more) {
+
+			AFunctionsDefinition fns = (AFunctionsDefinition)def;
+			LinkedList<PDefinition> fndefs = fns.getFunctionDefinitions();
+
+			for(PDefinition fdef : fndefs) {
+				PDefinition predef = null;
+				PDefinition postdef = null;
+				if (fdef instanceof AExplicitFunctionDefinition) {
+					AExplicitFunctionDefinition efd = (AExplicitFunctionDefinition)fdef;
+					predef = efd.getPredef();
+					postdef = efd.getPostdef();
+				}
+
+				if (fdef instanceof AImplicitFunctionDefinition) {
+					AImplicitFunctionDefinition efd = (AImplicitFunctionDefinition)fdef;
+					predef = efd.getPredef();
+					postdef = efd.getPostdef();
+				}
+
+				if (HelpLexNameToken.isEqual(fdef.getName(), name)) return fdef;
+				if (predef != null && predef.getName().getName().equals(name.getName())) return predef;
+				if (postdef != null && HelpLexNameToken.isEqual(postdef.getName(), name)) return postdef;
+			}
+			return null;
+		}
+
+	}
+
 	class AssignmentDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
 
 		@Override
@@ -160,6 +264,11 @@ class CmlAssistant {
 
 			AAssignmentDefinition assignDef = (AAssignmentDefinition)def;
 			PType type = assignDef.getType();
+			
+			if (type instanceof AClassType) {
+					return CmlAssistant.this.findMemberName(((AClassType) type).getClassdef(), name, more);
+			}
+			
 			if (type.getDefinitions().size() > 0)
 			{
 				PDefinition def0 = type.getDefinitions().get(0);
@@ -169,22 +278,26 @@ class CmlAssistant {
 					return CmlAssistant.this.findMemberName(tDef, name, more);
 
 				}
+
+				if (def0 instanceof AOperationsDefinition) {
+					return CmlAssistant.this.findMemberName(def0, name, more);
+				}
 			}
 
 			if (type instanceof ANamedInvariantType){
 				return handleNamedInvariantType((ANamedInvariantType)type, name, more);
 			}
-			
+
 			if (type instanceof ARecordInvariantType) {
 				return handleRecordInvariantType((ARecordInvariantType)type, name, more);
 			}
-			
-			
+
+
 			return def;
 		}
 
 	}
-	
+
 	class AStateDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
 
 		@Override
@@ -197,14 +310,14 @@ class CmlAssistant {
 				LexIdentifierToken name, Object... more) {
 
 			AStateDefinition stateDef = (AStateDefinition)def;
-			
+
 			for(PDefinition d : stateDef.getStateDefs()) {
-				if (LexNameTokenAssistent.isEqual(d.getName(), name)) return d;
+				if (d.getName() != null && LexNameTokenAssistent.isEqual(d.getName(), name)) return d;
 			}
-			
+
 			return null;
 		}
-		
+
 	}
 
 	class ExternalDefinitionNameMemberStrategy implements FindMemberNameFinderStrategy {
@@ -244,7 +357,7 @@ class CmlAssistant {
 		@Override
 		public PDefinition findMemberName(PDefinition def, LexIdentifierToken name, Object... more)
 		{
-			if (LexNameTokenAssistent.isEqual(def.getName(), name))
+			if (def.getName() != null && LexNameTokenAssistent.isEqual(def.getName(), name))
 				return def;
 
 			AClassDefinition cpar = AClassDefinition.class.cast(def); 
@@ -296,7 +409,7 @@ class CmlAssistant {
 				{
 					AValueDefinition valueDef = (AValueDefinition)d;
 					for (PDefinition ldef : valueDef.getDefs())
-						if (LexNameTokenAssistent.isEqual(ldef.getName(), name)) return ldef;
+						if (ldef.getName() != null && LexNameTokenAssistent.isEqual(ldef.getName(), name)) return ldef;
 				}
 			}
 			return null;
@@ -360,7 +473,13 @@ class CmlAssistant {
 			if (classDef != null)
 				return CmlAssistant.this.findMemberName(classDef, name, more);
 
+			
 			AClassClassDefinition cdef = AClassClassDefinition.class.cast(def);
+			
+			AFunctionsDefinition temp = new AFunctionsDefinition(def.getLocation(), NameScope.LOCAL, false, null, Pass.DEFS);
+			temp.setFunctionDefinitions(cdef.getDefinitions());
+			PDefinition res = CmlAssistant.this.findMemberName(temp, name, more);
+			if (res != null) return res;
 			return SClassDefinitionAssistantTC.findName(cdef, (LexNameToken)name, NameScope.NAMESANDANYSTATE);
 
 		}

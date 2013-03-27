@@ -1,0 +1,15 @@
+channels
+a
+
+process A = 
+begin 
+	state
+	v : int := 2
+	
+	operations
+	Test : (int) ==> ()
+	Test(x) == v := v + x
+	post v = v~ + x 
+	
+	@ Test(2); a -> Skip
+end

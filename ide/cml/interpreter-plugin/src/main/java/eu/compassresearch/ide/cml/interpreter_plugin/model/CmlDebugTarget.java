@@ -26,6 +26,7 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -59,7 +60,6 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 	private Socket fRequestSocket;
 	private OutputStream requestOutputStream;
 	private BufferedReader fRequestReader;
-	private Socket fEventSocket;
 
 	// event dispatch job
 	private EventDispatchJob fEventDispatch;
@@ -162,6 +162,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			handlers.put(CmlDbgpStatus.STOPPED.toString(), new MessageEventHandler<CmlDbgStatusMessage>() {
 				@Override
 				public boolean handleMessage(CmlDbgStatusMessage message) {
+					updateDebuggerInfo(message.getInterpreterStatus());
 					return false;
 				}
 			} );
@@ -198,6 +199,11 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			return result;
 		}
 
+		/**
+		 * Dispatches the message from messageContainer to the assigned handler of this message type
+		 * @param messageContainer
+		 * @return
+		 */
 		private boolean processMessage(CmlMessageContainer messageContainer)
 		{
 			boolean result = false;
@@ -227,7 +233,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 					message = receiveMessage(); 
 					System.out.println(message);
 				}
-				while (!isTerminated() && processMessage(message));
+				while (!isTerminated() && message != null && processMessage(message));
 			}
 			catch(IOException e)
 			{
@@ -433,7 +439,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		CmlMessageCommunicator.sendMessage(requestOutputStream, message);
 	}
 
-	private void updateDebuggerInfo(InterpreterStatus status)
+	private void updateDebuggerInfo(final InterpreterStatus status)
 	{
 		//cmlThread = new CmlThread(this,status.getToplevelProcessInfo());
 		threads.clear();
@@ -454,8 +460,13 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 				} catch (PartInitException e) {
 					e.printStackTrace();
 				}
+				
+				if(status.hasErrors())
+					MessageDialog.openError(null, "Simulation Error", status.getErrors().get(0).getErrorMessage());
 			}
 		});
+		
+		
 		
 		
 		fireResumeEvent(0);
@@ -489,7 +500,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 	{
 		try
 		{
-			this.fEventSocket.close();
+			this.fRequestSocket.close();
 		}
 		catch(IOException e)
 		{

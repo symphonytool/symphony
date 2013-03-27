@@ -8,6 +8,8 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <packaging>pom</packaging>
+
   <groupId>eu.compassresearch.ide.cml</groupId>
   <artifactId>eu.compassresearch.ide.cml.platform</artifactId>
   <name>COMPASS IDE CML Product</name>

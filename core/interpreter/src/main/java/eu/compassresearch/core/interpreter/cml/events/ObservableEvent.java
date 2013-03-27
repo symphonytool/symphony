@@ -1,29 +1,46 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.channels.CmlChannel;
+import eu.compassresearch.core.interpreter.cml.CmlChannel;
 
-public abstract class ObservableEvent extends CmlEvent {
+/**
+ * This represents an observable channel event from a specific CmlBehaviourThread 
+ * @author akm
+ *
+ */
+public abstract class ObservableEvent implements CmlEvent {
 
 	final protected CmlChannel channel;
-	final protected CmlBehaviourThread eventSource;
+	final protected Set<CmlBehaviourThread> eventSources;
 	
 	public ObservableEvent(CmlBehaviourThread eventSource, CmlChannel channel)
 	{
-		this.eventSource = eventSource;
+		this.eventSources = new HashSet<CmlBehaviourThread>();
+		this.eventSources.add(eventSource);
 		this.channel = channel;
 	}
 	
-	public CmlBehaviourThread getEventSource()
+	public ObservableEvent(CmlChannel channel)
 	{
-		return eventSource;
+		this.eventSources = new HashSet<CmlBehaviourThread>();
+		this.channel = channel;
 	}
 	
-	public boolean isReferenceEvent()
+	protected ObservableEvent(Set<CmlBehaviourThread> sources, CmlChannel channel)
 	{
-		return getEventSource() == null;
+		this.eventSources = sources;
+		this.channel = channel;
+	}
+	
+	public Set<CmlBehaviourThread> getEventSources()
+	{
+		return eventSources;
 	}
 	
 	public CmlChannel getChannel()
@@ -36,14 +53,11 @@ public abstract class ObservableEvent extends CmlEvent {
 	 * equality of events from different sources.
 	 * @return
 	 */
-	public abstract ObservableEvent getReferenceEvent();
-	
-	public abstract ObservableEvent synchronizeWith(CmlBehaviourThread source,ObservableEvent syncEvent);
-	
+	public abstract ObservableEvent synchronizeWith(ObservableEvent syncEvent);
+		
 	public boolean isComparable(ObservableEvent other) {
 
-		return other.getChannel().equals(getChannel()) && 
-				other.getEventSource() == getEventSource();
+		return this.equals(other);
 	}
 	
 	public abstract Value getValue();
@@ -52,11 +66,29 @@ public abstract class ObservableEvent extends CmlEvent {
 	
 	public abstract boolean isValuePrecise();
 	
+	public abstract List<ObservableEvent> expand();
+	
 	/**
 	 * return the most precise of this and other
 	 * @param other
 	 * @return
 	 */
 	public abstract ObservableEvent meet(ObservableEvent other); 
+	
+	@Override
+	public boolean equals(Object obj) {
+
+		ObservableEvent other = null;
+		
+		if(!(obj instanceof ObservableEvent))
+			return false;
+		
+		other = (ObservableEvent)obj;
+		
+		return other.getChannel().equals(getChannel()) && 
+				// other is subset of this or this is a subset of other
+				(other.getEventSources().containsAll(getEventSources()) || 
+						getEventSources().containsAll(other.getEventSources()));
+	}
 	
 }

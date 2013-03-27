@@ -222,7 +222,7 @@ process ExchangeProc = lSUBS: (set of SUBS) @ begin -- there's not type "finite 
 					then unsuspendok -> (dcl s: SUBS @ s:=number(t); Unsuspend(s,t))
 					else unsuspenderror -> Skip); Exch
 		
-		@ init -> InitExchange; Exch
+		@ init -> InitExchange(); Exch
 end		
 
 channels
@@ -233,6 +233,7 @@ channels
 	mycallok,myclearok,mysuspendok,myanswerok,myunsuspendok
 	mycallerror,myclearerror,mysuspenderror,myanswererror,myunsuspenderror
 	link,mid: LOC*MSG*LOC*LOC*SUBS*SUBS
+	connectbusy
 	
 process NodeProc = i: nat @ begin
 	functions
@@ -335,7 +336,7 @@ end
 process NodeLinkProc = i: nat @ (NodeProc(i) [|{|mid|}|] LinkProc(i)) \\ {|mid|}
 
 process SlaveExchangeProc = i: LOC @
-	ExchangeProc(home(i))[[
+	(ExchangeProc(home(i)))[[
 		call <- mycall, clear <- myclear, suspend <- mysuspend,
 		connectfree <- myconnectfree, connectbusy <- myconnectbusy,
 		answer <- myanswer, unsuspend <- myunsuspend,

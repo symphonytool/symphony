@@ -4,21 +4,24 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.core.interpreter.cml.CmlChannel;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationType;
-import eu.compassresearch.core.interpreter.cml.channels.CmlIOChannel;
-import eu.compassresearch.core.interpreter.cml.channels.CmlSignalChannel;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
 import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
 import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 
-public class CMLChannelValue extends Value implements CmlSignalChannel, CmlIOChannel<Value>
+public class CMLChannelValue extends Value implements CmlChannel //CmlIOChannel<Value>
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6350630462785844551L;
 	private LexNameToken 					name;
 	private PType 							channelType;
-	private Value							value = null; 
+//	private Value							value = null; 
 
 	//
 	
@@ -31,13 +34,13 @@ public class CMLChannelValue extends Value implements CmlSignalChannel, CmlIOCha
 		}
 	}
 	
-	private EventSourceHandler<ChannelObserver,CmlChannelEvent> signalObservers = 
-			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
-					
-	private EventSourceHandler<ChannelObserver,CmlChannelEvent> readObservers =
-			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
-	private EventSourceHandler<ChannelObserver,CmlChannelEvent> writeObservers = 
-			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
+//	private EventSourceHandler<ChannelObserver,CmlChannelEvent> signalObservers = 
+//			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
+//					
+//	private EventSourceHandler<ChannelObserver,CmlChannelEvent> readObservers =
+//			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
+//	private EventSourceHandler<ChannelObserver,CmlChannelEvent> writeObservers = 
+//			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
 	
 	private EventSourceHandler<ChannelObserver,CmlChannelEvent> selectObservers = 
 			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
@@ -52,9 +55,9 @@ public class CMLChannelValue extends Value implements CmlSignalChannel, CmlIOCha
 	{
 		this.channelType = other.channelType;
 		this.name = other.name;
-		signalObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.signalObservers);
-		readObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.readObservers);
-		writeObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.writeObservers);
+//		signalObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.signalObservers);
+//		readObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.readObservers);
+//		writeObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.writeObservers);
 		selectObservers = new EventSourceHandler<ChannelObserver,CmlChannelEvent>(other.selectObservers);
 	}
 	
@@ -89,8 +92,7 @@ public class CMLChannelValue extends Value implements CmlSignalChannel, CmlIOCha
 
 	@Override
 	public int hashCode() {
-		// TODO Auto-generated method stub
-		return 0;
+		return toString().hashCode();
 	}
 
 	@Override
@@ -105,22 +107,22 @@ public class CMLChannelValue extends Value implements CmlSignalChannel, CmlIOCha
 		return this;
 	}
 
-	@Override
-	public Value read() {
-		notifyObservers(readObservers,CmlCommunicationType.READ);
-		return value;
-	}
-
-	@Override
-	public void write(Value value) {
-		this.value= value; 
-		notifyObservers(writeObservers,CmlCommunicationType.WRITE);
-	}
-
-	@Override
-	public void signal() {
-		notifyObservers(signalObservers, CmlCommunicationType.SIGNAL);
-	}
+//	@Override
+//	public Value read() {
+//		notifyObservers(readObservers,CmlCommunicationType.READ);
+//		return value;
+//	}
+//
+//	@Override
+//	public void write(Value value) {
+//		this.value= value; 
+//		notifyObservers(writeObservers,CmlCommunicationType.WRITE);
+//	}
+//
+//	@Override
+//	public void signal() {
+//		notifyObservers(signalObservers, CmlCommunicationType.SIGNAL);
+//	}
 	
 	/**
 	 * Helper method to fire away the channel events
@@ -132,23 +134,23 @@ public class CMLChannelValue extends Value implements CmlSignalChannel, CmlIOCha
 		source.fireEvent(new CmlChannelEvent(this, eventType));
 	}
 	
-	@Override
-	public EventSource<ChannelObserver> onChannelRead()
-	{
-		return readObservers;
-	}
-	
-	@Override
-	public EventSource<ChannelObserver> onChannelWrite()
-	{
-		return writeObservers;
-	}
-	
-	@Override
-	public EventSource<ChannelObserver> onChannelSignal()
-	{
-		return signalObservers;
-	}
+//	@Override
+//	public EventSource<ChannelObserver> onChannelRead()
+//	{
+//		return readObservers;
+//	}
+//	
+//	@Override
+//	public EventSource<ChannelObserver> onChannelWrite()
+//	{
+//		return writeObservers;
+//	}
+//	
+//	@Override
+//	public EventSource<ChannelObserver> onChannelSignal()
+//	{
+//		return signalObservers;
+//	}
 
 	@Override
 	public void select() {

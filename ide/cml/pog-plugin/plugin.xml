@@ -17,9 +17,9 @@
             visible="true">
 
          <action
-               class="eu.compassresearch.ide.cml.pogplugin.actions.POGBasicAction"
+               class="eu.compassresearch.ide.cml.pogplugin.POGBasicAction"
                icon="icons/pog_action.png"
-               id="eu.compassresearch.ide.cml.pogplugin.actions.POGBasicAction"
+               id="eu.compassresearch.ide.cml.pogplugin.POGBasicAction"
                label="&amp;Generate POs"
                toolbarPath="POGGroup"
                tooltip="Generate POs for open file">

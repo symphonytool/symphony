@@ -27,14 +27,15 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
-import eu.compassresearch.core.interpreter.scheduler.Scheduler;
-import eu.compassresearch.core.interpreter.util.CmlUtil;
+import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
+import eu.compassresearch.core.interpreter.util.CmlParserUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -100,9 +101,9 @@ public class InterpretAllCmlFilesTest {
 
 		String resultPath = filePath.split("[.]")[0] + ".result";
 
-		TestResult testResult = TestResult.parseTestResultFile(resultPath);
+		ExpectedTestResult testResult = ExpectedTestResult.parseTestResultFile(resultPath);
 
-		assertTrue(CmlUtil.parseSource(ast));
+		assertTrue(CmlParserUtil.parseSource(ast));
 
 		// Type check
 		TypeIssueHandler tcIssue = VanillaFactory.newCollectingIssueHandle();
@@ -119,19 +120,27 @@ public class InterpretAllCmlFilesTest {
 
 		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(ast);
 
-		Scheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
+		CmlScheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
 		CmlSupervisorEnvironment sve = 
 				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
 		
-		interpreter.execute(sve,scheduler);
+		Exception exception = null;
+		try{
+			interpreter.execute(sve,scheduler);
+		}
+		catch(Exception ex)
+		{
+			exception = ex;
+		}
 
-		checkResult(testResult, interpreter.getStatus());
+		checkResult(testResult, interpreter.getStatus(), exception);
 	}
 	
-	private void checkResult(TestResult testResult, InterpreterStatus status) {
+	private void checkResult(ExpectedTestResult testResult, InterpreterStatus status, Exception exception) {
+		
 		if(!testResult.isInterleaved())
 		{
-			assertTrue(testResult.getFirstVisibleTrace()
+			assertTrue(testResult.getFirstVisibleTrace() + " != " +status.getToplevelProcessInfo().getVisibleTrace() ,testResult.getFirstVisibleTrace()
 					.equals(status.getToplevelProcessInfo().getVisibleTrace()));
 		}
 		else
@@ -147,44 +156,47 @@ public class InterpretAllCmlFilesTest {
 			
 			assertTrue(foundMatch);
 		}
+		
+		//If the test is expected to fail the exception should be non null
+		assertTrue(!testResult.shouldFail() || exception != null);
 
 	}
 
 	@Parameters
 	public static Collection getCmlfilePaths() {
 
-		//first add the actuin tests
-		File ActionDir = new File("src/test/resources/action/");
-		List<Object[]> paths = new Vector<Object[]>();
-
+		List<Object[]> paths = addFilesInFolder("src/test/resources/action/");
+		paths.addAll(addFilesInFolder("src/test/resources/process/"));
+		paths.addAll(addFilesInFolder("src/test/resources/examples/"));
+		
+		return paths;
+	}
+	
+	private static List<Object[]> addFilesInFolder(String folderPath)
+	{
+		
+		//Make filter to only get the files that ends with '.cml'
 		FilenameFilter filter = new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return name.toLowerCase().endsWith(".cml");
 			}
 		};
 		
-		String[] children = ActionDir.list(filter);
+		//Add the folders to search in
+		File folder = new File(folderPath);
+		String[] children = folder.list(filter);
+		
+		List<Object[]> paths = new Vector<Object[]>();
+		
 		if (children == null) {
 			// Either dir does not exist or is not a directory
 		} else {
 			for (int i = 0; i < children.length; i++) {
 				// Get filename of file or directory
-				paths.add(new Object[] { ActionDir.getPath() + "/" + children[i] });
+				paths.add(new Object[] { folder.getPath() + "/" + children[i] });
 			}
 		}
 		
-		//next the process tests
-		File processDir = new File("src/test/resources/process/");
-		children = processDir.list(filter);
-		if (children == null) {
-			// Either dir does not exist or is not a directory
-		} else {
-			for (int i = 0; i < children.length; i++) {
-				// Get filename of file or directory
-				paths.add(new Object[] { processDir.getPath() + "/" + children[i] });
-			}
-		}
-
 		return paths;
 	}
 }

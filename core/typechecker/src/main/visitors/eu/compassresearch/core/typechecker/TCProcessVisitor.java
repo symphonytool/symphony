@@ -236,17 +236,17 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AGeneralisedParallelismReplicatedProcess node,
 			TypeCheckInfo question) throws AnalysisException {
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null)
+			return issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node));
 		PVarsetExpression csExp = node.getChansetExpression();
 		PProcess repProc = node.getReplicatedProcess();
 		LinkedList<PSingleDeclaration> repDecl = node.getReplicationDeclaration();
-		
+
 		PType csExpType = csExp.apply(parentChecker,question);
 		if (!TCDeclAndDefVisitor.successfulType(csExpType))
 			return issueHandler.addTypeError(csExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(csExp+""));
-		
-		PType repProcType = repProc.apply(parentChecker,question);
-		if (!TCDeclAndDefVisitor.successfulType(repProcType))
-			return issueHandler.addTypeError(repProc, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(repProc+""));
+
 		
 		for(PSingleDeclaration decl : repDecl)
 		{
@@ -254,6 +254,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			if (!TCDeclAndDefVisitor.successfulType(declType))
 				return issueHandler.addTypeError(decl, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+decl));
 		}
+		
+		
+		PType repProcType = repProc.apply(parentChecker,question);
+		if (!TCDeclAndDefVisitor.successfulType(repProcType))
+			return issueHandler.addTypeError(repProc, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(repProc+""));
+		
 		
 		return new AProcessType();
 	}
@@ -295,6 +301,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AAlphabetisedParallelismReplicatedProcess node,
 			TypeCheckInfo question) throws AnalysisException {
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		if (cmlEnv == null)
+			return issueHandler.addTypeError(node, TypeErrorMessages.ILLEGAL_CONTEXT.customizeMessage(""+node));
+		
 		PVarsetExpression csExp = node.getChansetExpression();
 		PProcess repProcess = node.getReplicatedProcess();
 		LinkedList<PSingleDeclaration> repDec = node.getReplicationDeclaration();
@@ -303,16 +313,21 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (!TCDeclAndDefVisitor.successfulType(csExpType))
 			return issueHandler.addTypeError(csExp, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+csExp));
 		
+		CmlTypeCheckInfo local = cmlEnv.newScope();
+		
 		for(PSingleDeclaration d : repDec)
 		{
 			PType dType = d.apply(parentChecker,question);
 			if (!TCDeclAndDefVisitor.successfulType(dType))
 				return issueHandler.addTypeError(d,TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(""+d));
+			for(PDefinition def : dType.getDefinitions()) {
+				local.addVariable(def.getName(), def);
+			}
 		}
 
 		// TODO: Maybe the declarations above needs to go into the environment ?
 		issueHandler.addTypeWarning(repProcess, TypeWarningMessages.INCOMPLETE_TYPE_CHECKING.customizeMessage(""+repProcess));
-		PType repProcessType = repProcess.apply(parentChecker,question);
+		PType repProcessType = repProcess.apply(parentChecker,local);
 		if (!TCDeclAndDefVisitor.successfulType(repProcessType))
 			return issueHandler.addTypeError(repProcess, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(repProcess+""));
 		
@@ -614,21 +629,28 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			AInterleavingReplicatedProcess node, TypeCheckInfo question)
 					throws AnalysisException {
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		
 		LinkedList<PSingleDeclaration> declarations = node
 				.getReplicationDeclaration();
 
+		CmlTypeCheckInfo processScope = cmlEnv.newScope();
+		
 		for (PSingleDeclaration singleDecl : declarations) {
 			PType singleDeclType = singleDecl.apply(parentChecker, question);
 			if (!TCDeclAndDefVisitor.successfulType(singleDeclType))
 				return issueHandler.addTypeError(singleDecl,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 						.customizeMessage(singleDecl + ""));
+			for(PDefinition def : singleDeclType.getDefinitions())
+				processScope.addVariable(def.getName(), def);
+			
 		}
 
 		PProcess replicatedProcess = node.getReplicatedProcess();
 
 		PType replicatedProcessType = replicatedProcess.apply(parentChecker,
-				question);
+				processScope);
 		if (!TCDeclAndDefVisitor.successfulType(replicatedProcessType))
 			return issueHandler.addTypeError(replicatedProcess,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE

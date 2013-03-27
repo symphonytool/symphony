@@ -1,8 +1,6 @@
 package eu.compassresearch.core.interpreter.values;
 
-import org.overture.ast.expressions.PExp;
-import org.overture.ast.types.ABooleanBasicType;
-import org.overture.ast.types.AFunctionType;
+import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.ObjectValue;
@@ -24,30 +22,22 @@ public class CmlValueFactory {
 		return new ActionValue(actionDefinition);
 	}
 	
-	public static CmlOperationValue createOperationValue(SCmlOperationDefinition node)
+	public static CmlOperationValue createOperationValue(SCmlOperationDefinition node, Context question)
 	{
 		CmlOperationValue ret = null;
 		
 		if(node instanceof AExplicitCmlOperationDefinition)
 		{
 			AExplicitCmlOperationDefinition def = (AExplicitCmlOperationDefinition)node;
-			PExp preExp = def.getPrecondition();
-			AFunctionType ftype = new AFunctionType(node.getLocation(), true, false);
-			ftype.setResult(new ABooleanBasicType());
 			
-			//ftype.setParameters(	)
+			//FunctionValue prefunc =
+			//		(((AExplicitCmlOperationDefinition) node).getPredef() == null) ? null : new FunctionValue(((AExplicitCmlOperationDefinition) node).getPredef(), null, null, null);
+
+			//FunctionValue postfunc =
+			//		(((AExplicitCmlOperationDefinition) node).getPostdef() == null) ? null : new FunctionValue(((AExplicitCmlOperationDefinition) node).getPostdef(), null, null, null);
 			
+			ret = new CmlOperationValue(def, null);
 			
-			FunctionValue preFunc = null;
-//					new FunctionValue(node.getLocation(), 
-//					def.getName().getPreName(preExp.getLocation()),  
-//					ftype, 
-//					paramPatterns, 
-//					def.getPrecondition(),  
-//					freeVariables); 
-	
-			FunctionValue postFunc = null;
-			ret = new CmlOperationValue(def, preFunc, postFunc, null);
 		}
 		
 		

@@ -1,14 +1,21 @@
 package eu.compassresearch.core.interpreter.api;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 
+/**
+ * Represents the status of the interpreter at a specific simulation point. 
+ * @author akm
+ *
+ */
 public class InterpreterStatus {
 
 	final private CmlProcessInfo[] processInfos;
 	final private int topLevelProcessIndex;
+	private InterpreterError[] errors = null;
 	
 	public InterpreterStatus(List<CmlBehaviourThread> processes)
 	{
@@ -37,6 +44,25 @@ public class InterpreterStatus {
 	public CmlProcessInfo getToplevelProcessInfo()
 	{
 		return processInfos[topLevelProcessIndex];
+	}
+	
+	public List<InterpreterError> getErrors() {
+		return Arrays.asList(errors);
+	}
+
+	public void AddError(InterpreterError error) {
+		
+		if(errors == null)
+			errors = new InterpreterError[]{error};
+		else
+		{
+			errors = Arrays.copyOf(errors, errors.length + 1);
+		}
+	}
+
+	public boolean hasErrors()
+	{
+		return errors != null;
 	}
 			
 }

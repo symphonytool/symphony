@@ -7,8 +7,11 @@ import java.util.Map.Entry;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.PType;
@@ -16,12 +19,17 @@ import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.MapValue;
 import org.overture.interpreter.values.NameValuePair;
+import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
+import org.overture.interpreter.values.ReferenceValue;
 import org.overture.interpreter.values.UndefinedValue;
+import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 import org.overture.interpreter.values.VoidValue;
+import org.overture.typechecker.assistant.expression.PExpAssistantTC;
 
 import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
 import eu.compassresearch.ast.actions.ABlockStatementAction;
@@ -39,7 +47,7 @@ import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
-import eu.compassresearch.core.interpreter.util.CmlActionAssistant;
+import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
 
 @SuppressWarnings("serial")
@@ -51,14 +59,14 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			AReturnStatementAction node, Context question)
 			throws AnalysisException {
 
-		LexNameToken callReturnName = new LexNameToken("|CALL|","|CALLRETURN|",new LexLocation());
-		
-		Context nameContext = (Context)question.locate(callReturnName);
-		
-		if(node.getExp() != null)
-			nameContext.put(callReturnName, node.getExp().apply(cmlValueEvaluator,question));
-		else
-			nameContext.put(callReturnName,new VoidValue());
+		Context nameContext = (Context)question.locate(CmlOperationValue.ReturnValueName());
+		if(nameContext != null)
+		{
+			if(node.getExp() != null)
+				nameContext.put(CmlOperationValue.ReturnValueName(), node.getExp().apply(cmlExpressionVisitor,question));
+			else
+				nameContext.put(CmlOperationValue.ReturnValueName(),new VoidValue());
+		}
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
@@ -94,7 +102,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 
 		try
 		{
-    		if (node.getIfExp().apply(cmlValueEvaluator,question).boolValue(question))
+    		if (node.getIfExp().apply(cmlExpressionVisitor,question).boolValue(question))
     		{
     			pushNext(node.getThenStm(), question);
     			
@@ -105,7 +113,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
     			boolean foundElseIf = false;
     			for (AElseIfStatementAction elseif: node.getElseIf())
     			{
-    				if(elseif.getElseIf().apply(cmlValueEvaluator,question).boolValue(question))
+    				if(elseif.getElseIf().apply(cmlExpressionVisitor,question).boolValue(question))
     				{
     					pushNext(elseif.getThenStm(), question);
     					foundElseIf = true;
@@ -143,28 +151,20 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 
 		//first find the operation value in the context
 		CmlOperationValue opVal = (CmlOperationValue)question.check(node.getName()); 
-		
-		//put return value in upper context
-		question.putNew(new NameValuePair(new LexNameToken("|CALL|","|CALLRETURN|",new LexLocation()), new UndefinedValue()));
-		
+				
+		//evaluate all the arguments
 		ValueList argValues = new ValueList();
-
-		//evaluate the arguments
 		for (PExp arg: node.getArgs())
 		{
-			argValues.add(arg.apply(cmlValueEvaluator,question));
+			argValues.add(arg.apply(cmlExpressionVisitor,question));
 		}
 		
 		// Note args cannot be Updateable, so we convert them here. This means
 		// that TransactionValues pass the local "new" value to the far end.
 		ValueList constValues = argValues.getConstant();
-
-		if (opVal.getBody() == null)
-		{
-			opVal.abort(4066, "Cannot call implicit operation: " + name, question);
-		}
-		
+						
 		//TODO maybe this context should be a different one
+		//Create a new context to perform the operation call 
 		Context callContext = CmlContextFactory.newObjectContext(node.getLocation(), "CML Operation Call", question, question.getSelf());
 		
 		if (argValues.size() != opVal.getParamPatterns().size())
@@ -208,12 +208,49 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		
 		// Note: arg name/values hide member values
 		callContext.putAll(args);
+				
+		if (opVal.getBody() == null)
+		{
+			opVal.abort(4066, "Cannot call implicit operation: " + name, question);
+		}
 		
-		//TODO add the arg patterns with the results to the context here
-		
+		if(opVal.getPostcondition() != null){
+			
+			PExp postExpNode = opVal.getPostcondition();
+			
+			Context postConditionContext = CmlContextFactory.newContext(postExpNode.getLocation(), 
+					"Operation " + node.getName() + " postcondition context", callContext);
+			
+				// originalSelf = self.shallowCopy();
+			//LexNameList oldnames = PExpAssistantTC.getOldNames(postExpNode);
+			//postConditionContext.putAllNew(question.getSelf().getOldValues(oldnames).NameValuePairList);
+
+			for(NameValuePair nvp : postConditionContext.getSelf().getMemberValues().asList())
+				if(UpdatableValue.class.isAssignableFrom(nvp.value.getClass()))
+				{
+					//FIXME it does not work when the module is there
+					LexNameToken oldName = new LexNameToken("",(LexIdentifierToken)nvp.name.getOldName().getIdentifier().clone());
+					postConditionContext.putNew(new NameValuePair(oldName, nvp.value.getConstant()));
+				}
+			
+			postConditionContext.setPrepost(0, "postcondition violated for " + node.getName());
+			pushNext(postExpNode, postConditionContext);
+		}
+			
 		
 		pushNext(opVal.getBody(), callContext);
 		
+		//invoke the pre condition
+		if(opVal.getPrecondition() != null){
+
+			PExp preExpNode = opVal.getPrecondition();
+			Context preConditionContext = CmlContextFactory.newContext(preExpNode.getLocation(), 
+					"Operation " + node.getName() + " precondition context", callContext);
+			preConditionContext.setPrepost(0, "precondition violated for " + node.getName());
+			pushNext(preExpNode, preConditionContext);
+
+		}
+
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 		
 	}
@@ -227,15 +264,13 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			ASingleGeneralAssignmentStatementAction node, Context question)
 					throws AnalysisException {
 //		question.putNew(new NameValuePair(new LexNameToken("", new LexIdentifierToken("a", false, new LexLocation())), new IntegerValue(2)));
-		Value expValue = node.getExpression().apply(cmlValueEvaluator,question);
+		Value expValue = node.getExpression().apply(cmlExpressionVisitor,question);
 		
 		//TODO Change this to deal with it in general
 		//LexNameToken stateDesignatorName = CmlActionAssistant.extractNameFromStateDesignator(node.getStateDesignator(),question);
 
-		Value oldVal = node.getStateDesignator().apply(cmlValueEvaluator,question);
+		Value oldVal = node.getStateDesignator().apply(cmlExpressionVisitor,question);
 		
-		
-		//Value oldVal = question.check(stateDesignatorName);
 		oldVal.set(node.getLocation(), expValue, question);
 		
 		//System.out.println(stateDesignatorName + " = " + expValue);
@@ -254,8 +289,8 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			ANonDeterministicIfStatementAction node, Context question)
 			throws AnalysisException {
 
-		List<ANonDeterministicAltStatementAction> availableAlts = CmlActionAssistant.findAllTrueAlts(
-				node.getAlternatives(),question,cmlValueEvaluator);
+		List<ANonDeterministicAltStatementAction> availableAlts = ActionVisitorHelper.findAllTrueAlternatives(
+				node.getAlternatives(),question,cmlExpressionVisitor);
 		//if we got here we already now that the must at least be one available action
 		//so this should pose no risk of exception
 		pushNext(availableAlts.get(rnd.nextInt(availableAlts.size())).getAction(),question);
@@ -272,8 +307,8 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			ANonDeterministicDoStatementAction node, Context question)
 			throws AnalysisException {
 
-		List<ANonDeterministicAltStatementAction> availableAlts = CmlActionAssistant.findAllTrueAlts(
-				node.getAlternatives(),question,cmlValueEvaluator);
+		List<ANonDeterministicAltStatementAction> availableAlts = ActionVisitorHelper.findAllTrueAlternatives(
+				node.getAlternatives(),question,cmlExpressionVisitor);
 		
 		
 		if(availableAlts.size() > 0)
@@ -300,7 +335,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			AWhileStatementAction node, Context question)
 			throws AnalysisException {
 
-		if(node.getCondition().apply(cmlValueEvaluator,question).boolValue(question))
+		if(node.getCondition().apply(cmlExpressionVisitor,question).boolValue(question))
 		{
 			//first we push the while node so that we get back to this point
 			pushNext(node, question);
@@ -317,30 +352,36 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
+	/**
+	 * This methods splits it into the call and assignment statements and
+	 */
 	@Override
 	public CmlBehaviourSignal caseAAssignmentCallStatementAction(
 			AAssignmentCallStatementAction node, Context question)
 			throws AnalysisException {
 	
-		//put return value in upper context
-		Value retValue = question.check(new LexNameToken("|CALL|","|CALLRETURN|",new LexLocation()));
-		
-		//the call must be made
-		if(retValue == null || retValue instanceof UndefinedValue)
-		{
-			pushNext(node, question);
-			pushNext(node.getCall(), question);
-			
-		}
-		else
-		{
-			//TODO Change this to deal with it in general
-			LexNameToken stateDesignatorName = CmlActionAssistant.extractNameFromStateDesignator(node.getDesignator(),question);
-			
-			Value oldVal = question.check(stateDesignatorName);
-			oldVal.set(node.getLocation(), retValue, question);
-		}
-		
+		//put return value in a new context
+		Context resultContext = CmlContextFactory.newContext(node.getLocation(), "Call Result Context", question);
+		//put return value in upper context if the parent is a AAssignmentCallStatementAction
+		resultContext.putNew(new NameValuePair(CmlOperationValue.ReturnValueName(), new UndefinedValue()));
+				
+		//To access the result we put it in a Value named "|CALL|.|CALLRETURN|" this can never be created
+		//in a cml model. This is a little ugly but it works and statys until something better comes up.
+		AVariableExp varExp = new AVariableExp(node.getType(), 
+				node.getCall().getLocation(),
+				CmlOperationValue.ReturnValueName(), 
+				"", 
+				null);
+		//Next we create the assignment statement with the expressions that graps the result 
+		ASingleGeneralAssignmentStatementAction assignmentNode =
+				new ASingleGeneralAssignmentStatementAction(node.getLocation(),	
+						node.getType(),
+						node.getDesignator().clone(),
+						varExp);
+
+		//We now compose the call statement and assignment statement into sequential composition
+		pushNext(assignmentNode, resultContext);
+		pushNext(node.getCall(), resultContext);
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
@@ -350,11 +391,11 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 	public CmlBehaviourSignal caseALetStatementAction(ALetStatementAction node,
 			Context question) throws AnalysisException {
 	
+		//Create a new context for the let statement
 		Context letContext = CmlContextFactory.newContext(node.getLocation(), "let action context", question);
-		
+
 		for(PDefinition localDef :node.getLocalDefinitions())
-			localDef.apply(cmlDefEvaluator,letContext);
-		
+			letContext.putList(localDef.apply(cmlDefEvaluator,letContext));
 		
 		pushNext(node.getAction(), letContext);
 

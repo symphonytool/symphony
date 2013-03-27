@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.core.internal.registry.osgi.OSGIUtils;
+import org.eclipse.core.internal.runtime.Log;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -43,9 +44,9 @@ import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 
 
-	
+
 	public CmlIncrementalBuilder(){
-		
+
 	}
 	/*
 	 * Run the type checker.
@@ -54,10 +55,12 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 			throws CoreException {
 		marker.setAttribute(IMarker.MESSAGE, text);
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-		if (more.length == 2)
+		if (more.length >= 2)
 		{
 			marker.setAttribute(IMarker.CHAR_START, more[0]);
 			marker.setAttribute(IMarker.CHAR_END, more[1]);
+			if (more.length > 2)
+				marker.setAttribute(IMarker.LINE_NUMBER,more[2]+1);
 		}
 	}
 
@@ -65,10 +68,13 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 	{
 		marker.setAttribute(IMarker.MESSAGE,text);
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-		if (more.length == 2)
+		if (more.length >= 2)
 		{
 			marker.setAttribute(IMarker.CHAR_START, more[0]);
 			marker.setAttribute(IMarker.CHAR_END, more[1]);
+			if (more.length > 2)
+				marker.setAttribute(IMarker.LINE_NUMBER,more[2]+1);
+
 		}
 	}
 
@@ -79,46 +85,43 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 	 */
 	private static List<CMLTypeError> filterErrros(List<CMLTypeError> errs)
 	{
-		Map<INode, List<CMLTypeError>> nodeToErrorMap = new HashMap<INode,List<CMLTypeError>>();
+		// errors is the result
+		List<CMLTypeError> errors = new LinkedList<CMLTypeError>();	
 
-		for(CMLTypeError error : errs)
-			if (error.getOffendingNode() != null)
-			{
-				List<CMLTypeError> l = 	nodeToErrorMap.get(error.getOffendingNode());
-				if (l == null) { l = new LinkedList<CMLTypeError>(); nodeToErrorMap.put(error.getOffendingNode(),l); }
-				l.add(error);
-			}
+		// errors that has a child node with an error
+		List<INode> redundant = new LinkedList<INode>();
 
-		List<INode>  nodesToClearErrorsFor = new LinkedList<INode>();
-		for(List<CMLTypeError> errors : nodeToErrorMap.values())
-		{
-			for(CMLTypeError error : errors)
-			{
-				INode parent = error.getOffendingNode().parent();
-				while(parent != null)
-				{
-					if (nodeToErrorMap.containsKey(parent))
-						nodesToClearErrorsFor.add(parent);
-					parent = parent.parent();
-				}
+		// For each error add nodes to redundant that are parent of 
+		// the node with the error.
+		for(CMLTypeError e : errs) {
+			INode errorNode = e.getOffendingNode();
+			errors.add(e);
+
+			List<INode> cycleDetection = new LinkedList<INode>();
+			cycleDetection.add(errorNode);
+			while (errorNode.parent() != null) {
+				errorNode = errorNode.parent();
+				if (cycleDetection.contains(errorNode)) break;
+				redundant.add(errorNode);
 			}
 		}
-		
-		for(INode n : nodesToClearErrorsFor)
-			nodeToErrorMap.put(n,new LinkedList<CMLTypeError>());
-		
-		List<CMLTypeError> res = new ArrayList<TypeIssueHandler.CMLTypeError>();
-		for(Entry<INode,List<CMLTypeError>> e : nodeToErrorMap.entrySet())
-			res.addAll(e.getValue());
 
+		// We have the redundant parent nodes, collect the coresponding errors
+		List<CMLTypeError> redundantErrors = new LinkedList<CMLTypeError>();
+		for(CMLTypeError e : errors) {
+			if (redundant.contains(e.getOffendingNode()))
+				redundantErrors.add(e);
+		}
 
-		return res;
+		// finally remove the errors
+		errors.removeAll(redundantErrors);
+
+		return errors;
+
 	}
 
 	private synchronized static boolean typeCheck(IProject project, Map<PSource,IFile> sourceToFileMap)
 	{
-		
-		
 		if (project == null) return false;
 		if (sourceToFileMap == null) return false;
 		Thread.currentThread().setName("Type Checker");
@@ -131,34 +134,39 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 			List<CMLTypeError> errorsThatMatter = filterErrros(issueHandler.getTypeErrors());
 			for(final CMLTypeError error : errorsThatMatter)
 			{
-				System.out.println(error.getStackTrace()+"\n\n");
+				System.out.println(project.getName() +" -- "+error.getDescription());
 				INode offendingNode = error.getOffendingNode();
 				if (offendingNode != null)
 				{
+
+
 					PSource source = ( offendingNode instanceof PSource ? (PSource)offendingNode : offendingNode.getAncestor(PSource.class));
+					if (source == null) {
+						System.out.println("Unable to place error: "+project.getName()+" - "+error.getDescription());
+					}
 					if (source != null)
 					{
 						IFile file = sourceToFileMap.get(source);
 						if (file != null)
 						{
-							
+
 							IMarker errorMarker = file.createMarker(IMarker.PROBLEM);
 							LexLocation loc = error.getLocation();						
 							if (loc != null) {
-								setProblem(errorMarker,error.getDescription(), loc.startOffset, loc.endOffset);
-								
+								setProblem(errorMarker,error.getDescription(), loc.startOffset, loc.endOffset,loc.startLine);
+
 							}
 							else
 							{
-								setProblem(errorMarker,error.getDescription(), 1,1);
+								setProblem(errorMarker,file+" :\n"+error.getDescription(), 1,1,1);
 								setWarning(project.createMarker(IMarker.PROBLEM), "AstNode: "+offendingNode+" has null location.");
 							}
 						}
 						else
 							System.out.println("No IFile resource found for source: "+source);
 					}
-					else
-						System.out.println("Could not find source for: "+offendingNode);
+					//					else
+					//						System.out.println("Could not find source for: "+offendingNode);
 				}
 				else
 					System.out.println("Error messages with null node: "+error);
@@ -200,26 +208,26 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 		// get project
 		IProject project = getProject();
 
-		
+
 		// Remove all markers from project
 		project.deleteMarkers(IMarker.PROBLEM, true,
 				IResource.DEPTH_INFINITE);
 
-		
+
 		// Remove all errors in the registry for this project
 		String projectName = project.getName();
 		Registry tcReg = RegistryFactory.getInstance(projectName).getRegistry();
 		tcReg.prune(CMLIssueList.class);
-		
+
 		monitor.beginTask("Building project: "+projectName, 5);
-		
+
 		// Create a visitor
 		CmlBuildVisitor buildVisitor = new CmlBuildVisitor(monitor);
-		
-		
+
+
 		// run the parser on every cml file in the project
 		project.accept(buildVisitor);
-		
+
 
 		// Type Check all sources in this project
 		Collection<CmlSourceUnit> allSourceUnits = CmlSourceUnit.getAllSourceUnits();
@@ -242,96 +250,96 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 
 	}
 
-	
+
 	public static void addBuilderToProject(IProject project) {
 
-		   // Cannot modify closed projects.
-		   if (!project.isOpen())
-		      return;
+		// Cannot modify closed projects.
+		if (!project.isOpen())
+			return;
 
-		   // Get the description.
-		   IProjectDescription description;
-		   try {
-		      description = project.getDescription();
-		   }
-		   catch (CoreException e) {
-		      e.printStackTrace();
-		      return;
-		   }
-
-		   // Look for builder already associated.
-		   ICommand[] cmds = description.getBuildSpec();
-		   for (int j = 0; j < cmds.length; j++)
-		      if (cmds[j].getBuilderName().equals(ICmlCoreConstants.BUILDER_ID))
-		         return;
-
-		   // Associate builder with project.
-		   ICommand newCmd = description.newCommand();
-		   newCmd.setBuilderName(ICmlCoreConstants.BUILDER_ID);
-		   List<ICommand> newCmds = new ArrayList<ICommand>();
-		   newCmds.addAll(Arrays.asList(cmds));
-		   newCmds.add(newCmd);
-		   description.setBuildSpec(
-		      (ICommand[]) newCmds.toArray(
-		         new ICommand[newCmds.size()]));
-		   try {
-		      project.setDescription(description, null);
-		   }
-		   catch (CoreException e) {
-		      e.printStackTrace();
-		   }
+		// Get the description.
+		IProjectDescription description;
+		try {
+			description = project.getDescription();
 		}
+		catch (CoreException e) {
+			e.printStackTrace();
+			return;
+		}
+
+		// Look for builder already associated.
+		ICommand[] cmds = description.getBuildSpec();
+		for (int j = 0; j < cmds.length; j++)
+			if (cmds[j].getBuilderName().equals(ICmlCoreConstants.BUILDER_ID))
+				return;
+
+		// Associate builder with project.
+		ICommand newCmd = description.newCommand();
+		newCmd.setBuilderName(ICmlCoreConstants.BUILDER_ID);
+		List<ICommand> newCmds = new ArrayList<ICommand>();
+		newCmds.addAll(Arrays.asList(cmds));
+		newCmds.add(newCmd);
+		description.setBuildSpec(
+				(ICommand[]) newCmds.toArray(
+						new ICommand[newCmds.size()]));
+		try {
+			project.setDescription(description, null);
+		}
+		catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public static void removeBuilderFromProject(IProject project) {
 
-		   // Cannot modify closed projects.
-		   if (!project.isOpen())
-		      return;
+		// Cannot modify closed projects.
+		if (!project.isOpen())
+			return;
 
-		   // Get the description.
-		   IProjectDescription description;
-		   try {
-		      description = project.getDescription();
-		   }
-		   catch (CoreException e) {
-		      e.printStackTrace();
-		      return;
-		   }
-
-		   // Look for builder.
-		   int index = -1;
-		   ICommand[] cmds = description.getBuildSpec();
-		   for (int j = 0; j < cmds.length; j++) {
-		      if (cmds[j].getBuilderName().equals(ICmlCoreConstants.BUILDER_ID)) {
-		         index = j;
-		         break;
-		      }
-		   }
-		   if (index == -1)
-		      return;
-
-		   // Remove builder from project.
-		   List<ICommand> newCmds = new ArrayList<ICommand>();
-		   newCmds.addAll(Arrays.asList(cmds));
-		   newCmds.remove(index);
-		   description.setBuildSpec(
-		      (ICommand[]) newCmds.toArray(
-		         new ICommand[newCmds.size()]));
-		   try {
-		      project.setDescription(description, null);
-		   }
-		   catch (CoreException e) {
-		      e.printStackTrace();
-		   }
+		// Get the description.
+		IProjectDescription description;
+		try {
+			description = project.getDescription();
+		}
+		catch (CoreException e) {
+			e.printStackTrace();
+			return;
 		}
 
-	
+		// Look for builder.
+		int index = -1;
+		ICommand[] cmds = description.getBuildSpec();
+		for (int j = 0; j < cmds.length; j++) {
+			if (cmds[j].getBuilderName().equals(ICmlCoreConstants.BUILDER_ID)) {
+				index = j;
+				break;
+			}
+		}
+		if (index == -1)
+			return;
+
+		// Remove builder from project.
+		List<ICommand> newCmds = new ArrayList<ICommand>();
+		newCmds.addAll(Arrays.asList(cmds));
+		newCmds.remove(index);
+		description.setBuildSpec(
+				(ICommand[]) newCmds.toArray(
+						new ICommand[newCmds.size()]));
+		try {
+			project.setDescription(description, null);
+		}
+		catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
+
+
 	@Override
 	protected void clean(IProgressMonitor monitor) throws CoreException {
 		// TODO Auto-generated method stub
 		super.clean(monitor);
 	}
-	
+
 	@Override
 	protected void startupOnInitialize() {
 		super.startupOnInitialize();
