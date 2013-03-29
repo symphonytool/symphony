@@ -13,8 +13,16 @@
   <name>COMPASS Core CML Abstract Syntax Tree</name>
 
   <properties>
-    <astcreator.version>1.1.10</astcreator.version>
+    <astcreator.version>1.1.11</astcreator.version>
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.overture.core</groupId>
+      <artifactId>ast</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>
@@ -35,6 +43,7 @@
 	  <ast>overtureII.astv2</ast>
 	  <extendedAst>cml.ast</extendedAst>
 	  <extendedName>CML</extendedName>
+    <extendedTreeOnly>true</extendedTreeOnly>
           <!--
 	      * let's not delete these every time; I don't think we
 	      actually need to -jwc/22Oct2012

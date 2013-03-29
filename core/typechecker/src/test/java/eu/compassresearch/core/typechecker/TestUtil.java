@@ -36,11 +36,11 @@ public class TestUtil
 
 	public static class TypeCheckerResult
 	{
-		TypeIssueHandler issueHandler;
-		boolean parsedOk;
-		boolean tcOk;
-		PSource source;
-		List<String> parseErrors;
+		public TypeIssueHandler issueHandler;
+		public boolean parsedOk;
+		public boolean tcOk;
+		public PSource source;
+		public List<String> parseErrors;
 	}
 
 

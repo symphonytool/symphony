@@ -165,6 +165,23 @@
       <!-- 	  <failOnError>false</failOnError> -->
       <!-- 	</configuration> -->
       <!-- </plugin>       -->
+  <plugin>
+   <groupId>org.codehaus.mojo</groupId>
+    <artifactId>buildnumber-maven-plugin</artifactId>
+    <version>1.1</version>
+    <executions>
+     <execution>
+      <phase>validate</phase>
+       <goals>
+        <goal>create</goal>
+       </goals>
+      </execution>
+    </executions>
+    <configuration>
+      <shortRevisionLength>5</shortRevisionLength>
+    </configuration>
+  </plugin>
+
     </plugins>
 
     <pluginManagement>
@@ -194,6 +211,10 @@
           <artifactId>antlr3-maven-plugin</artifactId>
           <version>3.5</version>
 	</plugin>
+
+
+
+
       </plugins>
     </pluginManagement>
 
@@ -206,8 +227,11 @@
     </extensions> 
   </build>
 
+ 
+
   <scm>
     <connection>scm:git:https://git.code.sf.net/p/compassresearch/code</connection>
+
     <developerConnection>scm:git:https://git.code.sf.net/p/compassresearch/code</developerConnection>
     <url>https://sourceforge.net/p/compassresearch/code/</url>
   </scm>
@@ -230,4 +254,6 @@
     <!--   <url>scp://shell.sourceforge.net/home/groups/o/ov/overture/htdocs/maven/doc</url> -->
     <!-- </site> -->
   </distributionManagement>
+
+
 </project>

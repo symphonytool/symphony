@@ -8,14 +8,15 @@
     <delete dir="${buildDirectory}"/>
     <copy todir="${buildDirectory}/plugins">
       <fileset dir="../">
-	<include name="ui/**" />
-	<include name="core/**" />
-	<include name="platform/**" />
+      	<include name="ui/**" />
+	      <include name="core/**" />
+	      <include name="platform/**" />
         <include name="rtt-plugin/**"/>
-	<include name="tp-plugin/**"/>
-	<include name="interpreter-plugin/**"/> 
-	<include name="pog-plugin/**"/>
-	<exclude name="**/target/"/>
+	      <include name="tp-plugin/**"/>
+	      <include name="interpreter-plugin/**"/> 
+	      <include name="pog-plugin/**"/>
+        <include name="security-plugin/**"/>
+	      <exclude name="**/target/"/>
       </fileset>
     </copy>
 

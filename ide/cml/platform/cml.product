@@ -47,9 +47,10 @@
    <plugins>
       <plugin id="com.ibm.icu"/>
       <plugin id="eu.compassresearch.ide.cml.core"/>
+      <plugin id="eu.compassresearch.ide.cml.securityplugin"/>
+      <plugin id="eu.compassresearch.ide.cml.interpreter_plugin"/>
       <plugin id="eu.compassresearch.ide.cml.platform"/>
       <plugin id="eu.compassresearch.ide.cml.pog-plugin"/>
-      <plugin id="eu.compassresearch.ide.cml.interpreter_plugin"/>
       <plugin id="eu.compassresearch.ide.cml.rtt-plugin"/>
       <plugin id="eu.compassresearch.ide.cml.tpplugin"/>
       <plugin id="eu.compassresearch.ide.cml.ui"/>

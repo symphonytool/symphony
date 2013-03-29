@@ -3,6 +3,16 @@ Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE CML UI
 Bundle-SymbolicName: eu.compassresearch.ide.cml.ui;singleton:=true
 Bundle-Version: 0.1.1
+Bundle-ClassPath: .,
+ antlr-2.7.7.jar,
+ antlr-runtime-3.5.jar,
+ stringtemplate-3.2.1.jar,
+ org.overture.ide.core-2.0.0.jar,
+ org.overture.ide.ui-2.0.0.jar,
+ ast-2.0.0.jar,
+ parser-2.0.0.jar,
+ testframework-2.0.0.jar,
+ typechecker-2.0.0.jar
 Bundle-Activator: eu.compassresearch.ide.cml.ui.CmlUIPlugin
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
@@ -37,14 +47,4 @@ Require-Bundle: eu.compassresearch.ide.cml.core,
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
-Bundle-ClassPath: .,
- antlr-2.7.7.jar,
- antlr-runtime-3.5.jar,
- stringtemplate-3.2.1.jar,
- org.overture.ide.core-2.0.0.jar,
- org.overture.ide.ui-2.0.0.jar,
- ast-2.0.0.jar,
- parser-2.0.0.jar,
- testframework-2.0.0.jar,
- typechecker-2.0.0.jar
 Import-Package: org.eclipse.ui.internal.navigator.resources.workbench

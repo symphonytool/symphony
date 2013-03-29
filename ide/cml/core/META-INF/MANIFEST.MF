@@ -81,6 +81,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ClassPath: .,
  lib/ast-0.1.1.jar,
+ lib/ast-2.0.0.jar,
  lib/common-0.1.1.jar,
  lib/parser-0.1.1.jar,
  lib/parser-2.0.0.jar,

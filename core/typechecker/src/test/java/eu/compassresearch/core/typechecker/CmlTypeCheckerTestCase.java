@@ -877,7 +877,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		// 232
 		addTestProgram(testData, "process A = begin state i:int := 0 m:map int to (map int to int) @ m(0)(0) := 1 end",false,true,true,new String[0]);
 		// 233
-		addTestProgram(testData, "process P = begin state a:nat * nat := 0 t: (nat * nat) * (nat * nat) @ t(1) := a end",false,true,true,new String[0]);
+		addTestProgram(testData, "process P = begin state a: nat * nat := mk_(0,0) t: (nat * nat) * (nat * nat) @ t.#1 := a end",false,true,true,new String[0]);
 		// 234
 		
 		return testData;
