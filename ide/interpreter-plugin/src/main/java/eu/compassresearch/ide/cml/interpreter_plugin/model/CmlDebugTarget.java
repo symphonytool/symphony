@@ -46,7 +46,6 @@ import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugConstants;
 import eu.compassresearch.ide.cml.interpreter_plugin.views.CmlEventHistoryView;
-import eu.compassresearch.ide.cml.interpreter_plugin.views.CmlEventOptionView;
 
 public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 

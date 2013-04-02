@@ -1,7 +1,5 @@
 package eu.compassresearch.ide.cml.interpreter_plugin.launch;
 
-import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
@@ -12,8 +10,6 @@ import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 
-import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
 import eu.compassresearch.ide.cml.interpreter_plugin.CmlUtil;
 

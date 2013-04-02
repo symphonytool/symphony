@@ -215,6 +215,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 			FileInputStream existingJarHashFS = new FileInputStream(jarHashFile);
 			byte[] existingJarHashBytes = new byte[2*40];
 			existingJarHashFS.read(existingJarHashBytes);
+			existingJarHashFS.close();
 			
 			return Arrays.equals(pluginJarHashBytes, existingJarHashBytes);
 		}
