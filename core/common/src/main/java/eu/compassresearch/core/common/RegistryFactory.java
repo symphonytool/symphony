@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.WeakHashMap;
 
-import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.GraphNodeList;
 import org.overture.ast.node.GraphNodeListList;
 import org.overture.ast.node.INode;

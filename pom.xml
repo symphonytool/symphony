@@ -8,18 +8,11 @@
   <name>The COMPASS Tool Top-Level</name>
   <version>0.1.1<!--Replaceable: Main Version--></version>
   
-  <organization>
-    <name>The COMPASS Project</name>
-    <url>http://www.compass-research.eu</url>
-  </organization>
-
   <modules>
-    <!--module>docs/core-examples</module-->
     <module>tools</module>
     <module>core</module>
-    <module>ide</module>
+    <!-- <module>ide</module> -->
     <module>docs/core-examples</module>
-    <!-- module>equinox</module -->
   </modules>
 
   <properties>
@@ -35,6 +28,15 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>dummy-for-eclipse-import-inclusion</id>
+      <modules>
+        <module>ide</module>
+      </modules>
+    </profile>
+  </profiles>
 
   <repositories>
     <repository>
@@ -53,22 +55,22 @@
       <url>http://build.overturetool.org/builds/overture-m2repo/</url>
       <layout>default</layout>
     </repository>
-    <repository>
-      <id>OvertureMT4Em2Repo</id>
-      <name>Overture Project's MT4E-generated Maven Repository of Eclipse 3.7.2 files</name>
-      <url>http://build.overturetool.org/builds/mt4e-m2repo-eclipse3.7.2/</url>
-      <layout>default</layout>
-      <releases>
-	<enabled>true</enabled>
-	<updatePolicy>daily</updatePolicy>
-	<checksumPolicy>ignore</checksumPolicy>
-      </releases>
-      <snapshots>
-	<enabled>true</enabled>
-	<updatePolicy>daily</updatePolicy>
-	<checksumPolicy>ignore</checksumPolicy>
-      </snapshots>
-    </repository>
+    <!-- <repository> -->
+    <!--   <id>OvertureMT4Em2Repo</id> -->
+    <!--   <name>Overture Project's MT4E-generated Maven Repository of Eclipse 3.7.2 files</name> -->
+    <!--   <url>http://build.overturetool.org/builds/mt4e-m2repo-eclipse3.7.2/</url> -->
+    <!--   <layout>default</layout> -->
+    <!--   <releases> -->
+    <!--     <enabled>true</enabled> -->
+    <!--     <updatePolicy>daily</updatePolicy> -->
+    <!--     <checksumPolicy>ignore</checksumPolicy> -->
+    <!--   </releases> -->
+    <!--   <snapshots> -->
+    <!--     <enabled>true</enabled> -->
+    <!--     <updatePolicy>daily</updatePolicy> -->
+    <!--     <checksumPolicy>ignore</checksumPolicy> -->
+    <!--   </snapshots> -->
+    <!-- </repository> -->
   </repositories>
 
   <pluginRepositories>
@@ -107,116 +109,171 @@
   </pluginRepositories>
 
   <build>
-    <plugins>
-      <!-- Configure the compiler for all sub-poms -->
-      <plugin>
-      	<groupId>org.apache.maven.plugins</groupId>
-      	<artifactId>maven-compiler-plugin</artifactId>
-      	<version>2.4</version>
-      	<configuration>
-      	  <source>1.6</source>
-      	  <target>1.6</target>
-      	</configuration>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <version>2.9</version>
-        <!-- <configuration> -->
-        <!--   <pde>true</pde> -->
-        <!-- </configuration> -->
-      </plugin>
-
-      <!-- commented out until needed -jwc -->
-      <!-- Attatch sources to all installed jars -->
-      <!-- <plugin> -->
-      <!-- 	<groupId>org.apache.maven.plugins</groupId> -->
-      <!-- 	<artifactId>maven-source-plugin</artifactId> -->
-      <!-- 	<version>2.1.2</version> -->
-      <!-- 	<executions> -->
-      <!-- 	  <execution> -->
-      <!-- 	    <id>attach-sources</id> -->
-      <!-- 	    <goals> -->
-      <!-- 	      <goal>jar</goal> -->
-      <!-- 	    </goals> -->
-      <!-- 	  </execution> -->
-      <!-- 	</executions> -->
-      <!-- 	<configuration> -->
-      <!-- 	  <attach>true</attach> -->
-      <!-- 	</configuration> -->
-      <!-- </plugin> -->
-      
-      <!-- commented out until needed -jwc -->
-      <!-- Enable JavaDoc but dont fail on error. This must be disabled for 
-	   the Eclipse project in the IDE -->
-      <!-- <plugin> -->
-      <!-- 	<groupId>org.apache.maven.plugins</groupId> -->
-      <!-- 	<artifactId>maven-javadoc-plugin</artifactId> -->
-      <!-- 	<version>2.8.1</version> -->
-      <!-- 	<executions> -->
-      <!-- 	  <execution> -->
-      <!-- 	    <id>attach-javadocs</id> -->
-      <!-- 	    <goals> -->
-      <!-- 	      <goal>jar</goal> -->
-      <!-- 	    </goals> -->
-      <!-- 	  </execution> -->
-      <!-- 	</executions> -->
-      <!-- 	<configuration> -->
-      <!-- 	  <failOnError>false</failOnError> -->
-      <!-- 	</configuration> -->
-      <!-- </plugin>       -->
-  <plugin>
-   <groupId>org.codehaus.mojo</groupId>
-    <artifactId>buildnumber-maven-plugin</artifactId>
-    <version>1.1</version>
-    <executions>
-     <execution>
-      <phase>validate</phase>
-       <goals>
-        <goal>create</goal>
-       </goals>
-      </execution>
-    </executions>
-    <configuration>
-      <shortRevisionLength>5</shortRevisionLength>
-    </configuration>
-  </plugin>
-
-    </plugins>
+    <defaultGoal>install</defaultGoal>
 
     <pluginManagement>
       <plugins>
-	<plugin>
-	  <groupId>org.apache.maven.plugins</groupId>
-	  <artifactId>maven-javadoc-plugin</artifactId>
-	  <version>2.9</version>
-	</plugin>
-	<plugin>
+        <!-- Configure the compiler for all Overture Projects -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.0</version>
+          <configuration>
+            <source>1.7</source>
+            <target>1.7</target>
+          </configuration>
+        </plugin>
+
+        <!-- Attatch sources to all installed jars -->
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
           <version>2.2.1</version>
-	</plugin>
-	<plugin>
+          <!-- <executions> -->
+          <!--   <execution> -->
+          <!--     <id>attach-sources</id> -->
+          <!--     <goals> -->
+          <!--       <goal>jar</goal> -->
+          <!--     </goals> -->
+          <!--   </execution> -->
+          <!-- </executions> -->
+          <configuration>
+            <attach>true</attach>
+          </configuration>
+        </plugin>
+        
+        <!-- Enable JavaDoc but dont fail on error. This must be disabled for 
+             the Eclipse project in the IDE -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.9</version>
+          <configuration>
+            <failOnError>false</failOnError>
+          </configuration>
+        </plugin>
+      
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>2.6</version>
+        </plugin>
+
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-	  <version>2.12.4</version>
-	</plugin>
-	<plugin>
-	  <groupId>org.codehaus.mojo</groupId>
-	  <artifactId>build-helper-maven-plugin</artifactId>
-	  <version>1.7</version>
-	</plugin>
+          <version>2.13</version>
+          <configuration>
+            <testFailureIgnore>true</testFailureIgnore>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>2.6</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>2.4</version>
+          <configuration>
+            <descriptorRefs>
+              <descriptorRef>jar-with-dependencies</descriptorRef>
+            </descriptorRefs>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>2.0</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>2.4</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>2.5</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId> 
+          <artifactId>maven-antrun-plugin</artifactId> 
+          <version>1.7</version> 
+        </plugin>
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>1.7</version>
+        </plugin>
+
+        <plugin>
+          <groupId>pl.project13.maven</groupId>
+          <artifactId>git-commit-id-plugin</artifactId>
+          <version>2.1.4</version>
+          <configuration>
+            <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+          </configuration>
+        </plugin>
+
 	<plugin>
           <groupId>org.antlr</groupId>
           <artifactId>antlr3-maven-plugin</artifactId>
           <version>3.5</version>
 	</plugin>
 
+        <!-- Apparently maven-site-plugin doesn't work with Maven 3 as
+             it did in Maven 2.  Do not re-enable this until the
+             necessary configuration has been updated per
+             http://maven.apache.org/plugins/maven-site-plugin/maven-3.html
+             -jwc/28Feb2013
+        -->
+        <!-- <plugin> -->
+        <!--    <groupId>org.apache.maven.plugins</groupId> -->
+        <!--    <artifactId>maven-site-plugin</artifactId> -->
+        <!--    <version>2.0.1</version> -->
+        <!-- </plugin> -->
 
-
-
+        <!-- I would love to be using this, but we're more sensitive to
+             version numbering than just the pom files. -jwc/28Feb2013
+        -->
+        <!-- <plugin> -->
+        <!--    <groupId>org.apache.maven.plugins</groupId> -->
+        <!--    <artifactId>maven-release-plugin</artifactId> -->
+        <!--    <version>2.4</version> -->
+        <!--    <configuration> -->
+        <!--      <tagBase>https://svn.apache.org/repos/asf/maven/components/releases</tagBase> -->
+        <!--    </configuration> -->
+        <!-- </plugin> -->
       </plugins>
     </pluginManagement>
+
+    <!-- <plugins> -->
+    <!--   <plugin> -->
+    <!--     <groupId>org.codehaus.mojo</groupId> -->
+    <!--     <artifactId>buildnumber-maven-plugin</artifactId> -->
+    <!--     <version>1.1</version> -->
+    <!--     <executions> -->
+    <!--       <execution> -->
+    <!--         <phase>validate</phase> -->
+    <!--         <goals> -->
+    <!--           <goal>create</goal> -->
+    <!--         </goals> -->
+    <!--       </execution> -->
+    <!--     </executions> -->
+    <!--     <configuration> -->
+    <!--       <shortRevisionLength>5</shortRevisionLength> -->
+    <!--     </configuration> -->
+    <!--   </plugin> -->
+    <!-- </plugins> -->
 
     <extensions>
       <extension>
@@ -227,12 +284,9 @@
     </extensions> 
   </build>
 
- 
-
-  <scm>
+   <scm>
     <connection>scm:git:https://git.code.sf.net/p/compassresearch/code</connection>
-
-    <developerConnection>scm:git:https://git.code.sf.net/p/compassresearch/code</developerConnection>
+    <!-- <developerConnection>scm:git:https://git.code.sf.net/p/compassresearch/code</developerConnection> -->
     <url>https://sourceforge.net/p/compassresearch/code/</url>
   </scm>
 
@@ -255,5 +309,8 @@
     <!-- </site> -->
   </distributionManagement>
 
-
+  <organization>
+    <name>The COMPASS Project</name>
+    <url>http://www.compass-research.eu</url>
+  </organization>
 </project>
