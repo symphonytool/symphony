@@ -24,13 +24,13 @@
   <modules>
     <module>core</module>
     <module>ui</module>
-    <module>platform</module>
     <module>rtt-plugin</module>
     <module>tp-plugin</module>
     <module>interpreter-plugin</module>
     <module>pog-plugin</module>
-    <!-- make sure build2 is last -->
-    <module>build2</module>
+    <!-- make sure platform then product are last -->
+    <module>platform</module>
+    <!-- <module>product</module> -->
   </modules>
 
   <build>

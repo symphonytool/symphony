@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -8,114 +9,87 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <packaging>eclipse-plugin</packaging>
+
   <groupId>eu.compassresearch.ide.cml</groupId>
-  <artifactId>security.analysis.plugin</artifactId>
+  <artifactId>eu.compassresearch.ide.cml.securityplugin</artifactId>
   <name>COMPASS IDE Security Plugin</name>
 
-  <packaging>jar</packaging>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.eclipse.ui</groupId>
-      <artifactId>org.eclipse.ui.ide</artifactId>
-      <version>3.7.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.core</groupId>
-      <artifactId>org.eclipse.core.runtime</artifactId>
-      <version>3.7.0</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.eclipse.jface</groupId>
-      <artifactId>org.eclipse.jface</artifactId>
-      <version>3.7.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.swt</groupId>
-      <artifactId>org.eclipse.swt</artifactId>
-      <version>3.7.2</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.swt</groupId>
-      <artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
-      <version>3.7.2</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.ui</groupId>
-      <artifactId>org.eclipse.ui.console</artifactId>
-      <version>3.5.100</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.core</groupId>
-      <artifactId>org.eclipse.core.resources</artifactId>
-      <version>3.7.101</version>
-    </dependency>
-
-    <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>common</artifactId>
-      <version>0.1.1</version>
-    </dependency>
-
-    <dependency>
-      <groupId>eu.compassresearch.core.analysis</groupId>
-      <artifactId>securityanalysis</artifactId>
-      <version>0.1.1</version>
-    </dependency>
-
-
-    <dependency>
-     <groupId>eu.compassresearch.ide.cml</groupId>
-     <artifactId>eu.compassresearch.ide.cml.ui</artifactId>
-     <version>0.1.1</version>
-    </dependency>
-
-
-
-  </dependencies>
-
- <build>
+  <build>
     <plugins>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
           <execution>
-            <id>copy</id>
-            <phase>package</phase>
+            <id>copy-dependencies</id>
+            <phase>process-sources</phase>
             <goals>
               <goal>copy</goal>
             </goals>
             <configuration>
-              <artifactItems>
+              <outputDirectory>${basedir}/jars</outputDirectory>
+              <overWriteReleases>true</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <stripVersion>true</stripVersion>
 
-                <!-- Security Analysis -->
+              <artifactItems>
                 <artifactItem>
                   <groupId>eu.compassresearch.core.analysis</groupId>
                   <artifactId>securityanalysis</artifactId>
                   <version>${project.version}</version>
-                  <type>jar</type>
-                  <overWrite>true</overWrite>
                 </artifactItem>
-
               </artifactItems>
-              <outputDirectory>lib</outputDirectory>
-              <overWriteReleases>true</overWriteReleases>
-              <overWriteSnapshots>true</overWriteSnapshots>
             </configuration>
           </execution>
         </executions>
       </plugin>
 
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-clean-plugin</artifactId>
+	<configuration>
+          <failOnError>false</failOnError>
+	  <filesets>
+	    <fileset>
+	      <directory>${basedir}/jars</directory>
+	      <followSymlinks>false</followSymlinks>
+	    </fileset>
+	  </filesets>
+	</configuration>
+      </plugin>
     </plugins>
+
+    <pluginManagement>
+      <plugins>
+    	<plugin>
+    	  <groupId>org.eclipse.m2e</groupId>
+    	  <artifactId>lifecycle-mapping</artifactId>
+    	  <version>1.0.0</version>
+    	  <configuration>
+    	    <lifecycleMappingMetadata>
+    	      <pluginExecutions>
+    		<pluginExecution>
+    		  <pluginExecutionFilter>
+    		    <groupId>org.apache.maven.plugins</groupId>
+    		    <artifactId>maven-dependency-plugin</artifactId>
+    		    <versionRange>[1.0.0,)</versionRange>
+    		    <goals>
+    		      <goal>copy</goal>
+    		    </goals>
+    		  </pluginExecutionFilter>
+    		  <action>
+    		    <execute>
+                      <runOnIncremental>false</runOnIncremental>
+                    </execute>
+    		  </action>
+    		</pluginExecution>
+    	      </pluginExecutions>
+    	    </lifecycleMappingMetadata>
+    	  </configuration>
+    	</plugin>
+      </plugins>
+    </pluginManagement>
   </build>
-
-
 </project>

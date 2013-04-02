@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE CML Product
 Bundle-SymbolicName: eu.compassresearch.ide.cml.platform;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 0.1.1
 Bundle-Activator: eu.compassresearch.ide.platform.Activator
 Bundle-Vendor: The COMPASS Project
 Export-Package: eu.compassresearch.ide.platform,
@@ -14,6 +14,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.views.log,
  eu.compassresearch.ide.cml.core,
  eu.compassresearch.ide.cml.ui
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
