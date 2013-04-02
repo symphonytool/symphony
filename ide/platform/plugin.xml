@@ -148,7 +148,8 @@
              value="75,200,300,15">
        </property>
        <property
-             name="preferenceCustomization">
+             name="preferenceCustomization"
+             value="plugin_customization.ini">
        </property>
     </product>
  </extension>

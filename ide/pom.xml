@@ -30,7 +30,7 @@
     <module>pog-plugin</module>
     <!-- make sure platform then product are last -->
     <module>platform</module>
-    <!-- <module>product</module> -->
+    <module>product</module>
   </modules>
 
   <build>

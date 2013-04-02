@@ -17,6 +17,7 @@ Require-Bundle: org.eclipse.debug.ui,
  org.eclipse.core.resources,
  org.eclipse.core.filesystem,
  org.overture.ide.ui,
+ org.overture.ide.builders.vdmj,
  org.overture.ide.plugins.poviewer,
  eu.compassresearch.ide.cml.core,
  eu.compassresearch.ide.cml.ui
