@@ -6,26 +6,29 @@ Bundle-Version: 0.1.1
 Bundle-Activator: eu.compassresearch.ide.cml.interpreter_plugin.Activator
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
-Require-Bundle: eu.compassresearch.ide.cml.core,
- org.eclipse.debug.ui,
+Require-Bundle: org.eclipse.debug.ui,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.views,
  org.eclipse.swt,
- eu.compassresearch.ide.cml.ui,
  org.eclipse.ui,
  org.eclipse.ui.ide,
- org.overture.ide.ui,
  org.eclipse.osgi,
  org.eclipse.ui.console,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
- org.eclipse.jdt.launching
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+ org.eclipse.jdt.launching,
+ org.overture.ide.core,
+ org.overture.ide.ui,
+ org.overture.ide.builders.vdmj,
+ org.overture.ide.debug,
+ eu.compassresearch.ide.cml.core,
+ eu.compassresearch.ide.cml.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
+Eclipse-BundleShape: dir
 Import-Package: eu.compassresearch.ide.cml.core
 Bundle-ClassPath: .,
- lib/gson-2.2.2.jar,
- lib/interpreter-0.1.1.jar,
- lib/interpreter-2.0.0.jar,
- lib/json-simple-1.1.jar
+ jars/gson.jar,
+ jars/interpreter.jar,
+ jars/json-simple.jar
