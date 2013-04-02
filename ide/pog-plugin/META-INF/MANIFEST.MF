@@ -3,25 +3,28 @@ Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE POG Plugin
 Bundle-SymbolicName: eu.compassresearch.ide.cml.pog-plugin;singleton:=true
 Bundle-Version: 0.1.1
-Bundle-ClassPath: .,
- lib/pog-0.1.1.jar
 Bundle-Activator: eu.compassresearch.ide.cml.pogplugin.Activator
 Bundle-Vendor: The COMPASS Project
-Require-Bundle: eu.compassresearch.ide.cml.core,
+Require-Bundle:
  org.eclipse.debug.ui,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.views,
  org.eclipse.swt,
- eu.compassresearch.ide.cml.ui,
  org.eclipse.ui,
  org.eclipse.ui.ide,
- org.overture.ide.ui,
  org.eclipse.osgi,
  org.eclipse.ui.console,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
- org.eclipse.core.filesystem;bundle-version="1.3.100"
+ org.eclipse.core.filesystem,
+ org.overture.ide.ui,
+ org.overture.ide.plugins.poviewer,
+ eu.compassresearch.ide.cml.core,
+ eu.compassresearch.ide.cml.ui
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Eclipse-BuddyPolicy: registered
+Eclipse-BundleShape: dir
 Bundle-ActivationPolicy: lazy
 Export-Package: eu.compassresearch.ide.cml.pogplugin
+Bundle-ClassPath: .,
+ jars/pog.jar
