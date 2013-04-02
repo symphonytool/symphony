@@ -3,15 +3,14 @@
 
   <parent>
     <groupId>eu.compassresearch.ide</groupId>
-    <artifactId>eu.compassresearch.ide.cml</artifactId>
+    <artifactId>ide</artifactId>
     <version>0.1.1<!--Replaceable: Main Version--></version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <groupId>eu.compassresearch.ide.cml</groupId>
-  <artifactId>security.analysis.plugin</artifactId>
-  <name>COMPASS IDE Security Plugin</name>
-
+  <artifactId>eu.compassresearch.ide.cml.rtt-plugin</artifactId>
+  <name>COMPASS IDE RT Tester Plugin</name>
   <packaging>jar</packaging>
 
   <dependencies>
@@ -58,31 +57,26 @@
     </dependency>
 
     <dependency>
-      <groupId>eu.compassresearch.core</groupId>
-      <artifactId>common</artifactId>
-      <version>0.1.1</version>
-    </dependency>
-
-    <dependency>
       <groupId>eu.compassresearch.core.analysis</groupId>
-      <artifactId>securityanalysis</artifactId>
-      <version>0.1.1</version>
+      <artifactId>rtt-mbt</artifactId>
+      <version>${project.version}</version>
     </dependency>
-
 
     <dependency>
-     <groupId>eu.compassresearch.ide.cml</groupId>
-     <artifactId>eu.compassresearch.ide.cml.ui</artifactId>
-     <version>0.1.1</version>
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+      <version>1.1</version>
     </dependency>
-
-
-
+ 
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.5</version>
+    </dependency>
   </dependencies>
 
- <build>
+  <build>
     <plugins>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -95,17 +89,32 @@
             </goals>
             <configuration>
               <artifactItems>
-
-                <!-- Security Analysis -->
+               <!-- Copy the rtt-mbt analysis from core to lib -->
                 <artifactItem>
                   <groupId>eu.compassresearch.core.analysis</groupId>
-                  <artifactId>securityanalysis</artifactId>
+                  <artifactId>rtt-mbt</artifactId>
                   <version>${project.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
 
+                <artifactItem>
+                  <groupId>com.googlecode.json-simple</groupId>
+                  <artifactId>json-simple</artifactId>
+                  <version>1.1</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+
+                <artifactItem>
+                  <groupId>commons-codec</groupId>
+	          <artifactId>commons-codec</artifactId>
+	          <version>1.5</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
               </artifactItems>
+
               <outputDirectory>lib</outputDirectory>
               <overWriteReleases>true</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
@@ -113,9 +122,10 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
+
+
 
 
 </project>

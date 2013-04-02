@@ -13,14 +13,23 @@
   <groupId>eu.compassresearch.ide</groupId>
   <artifactId>ide</artifactId>
   <name>Compass IDE Top-level</name>
-  <description>Super POM for all IDE (Eclipse) artifacts.</description>
+  <description>Super POM for all COMPASS IDE (Eclipse) artifacts.</description>
 
   <properties>
     <maven.test.skip>true</maven.test.skip>
   </properties>
 
   <modules>
-    <module>cml</module>
+    <!-- Put all child Eclipse Plugin projects(modules) here -->
+    <module>core</module>
+    <module>ui</module>
+    <module>platform</module>
+    <module>rtt-plugin</module>
+    <module>tp-plugin</module>
+    <module>interpreter-plugin</module>
+    <module>pog-plugin</module>
+    <!-- make sure build2 is last -->
+    <module>build2</module>
   </modules>
 
   <reporting>
