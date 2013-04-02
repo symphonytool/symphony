@@ -1,10 +1,9 @@
-package eu.compassResearch.rttMbtTmsClientApi;
+package eu.compassresearch.rttMbtTmsClientApi;
 
 import java.io.File;
 
-public class ClientGenerateTest {
+public class ClientCRDTest {
 	public static void main(String[] args) {
-
 		// create client instance
 		RttMbtClient client = new RttMbtClient("localhost", 9116, "uwe", "uschulze@informatik.uni-bremen.de");
 
@@ -28,7 +27,7 @@ public class ClientGenerateTest {
 
 		// set RTT-MBT project name
 		client.setProjectName("turnIndicationUML");
-		System.out.println("using CML project '" + pathname + "'");
+		System.out.println("using RTT-MBT project 'turnIndicationUML'");
 
 		// test connection to rtt-mbt-tms server
 		if (client.testConenction()) {
@@ -45,23 +44,42 @@ public class ClientGenerateTest {
 			System.err.println("[FAIL]: begin RTT-MBT session");
 			return;
 		}
-		
-		// generate concrete test procedure
-		// - generate-test-command
-		if (client.generateTestProcedure("_P1")) {
-			System.out.println("[PASS]: generate test");
+
+		// clean test procedure
+		// - clean-test-command
+		if (client.cleanTestProcedure("_P1")) {
+			System.out.println("[PASS]: clean test");
 		} else {
-			System.err.println("[FAIL]: generate test");
+			System.err.println("[FAIL]: clean test");
 			return;
 		}
 
-		// generate simulation
-		// - generate-simulation-command
-		if (client.generateSimulation("SIM")) {
-			System.out.println("[PASS]: generate simulation");
+		// compile test procedure
+		// - compile-test-command
+		if (client.compileTestProcedure("_P1")) {
+			System.out.println("[PASS]: compile test");
 		} else {
-			System.err.println("[FAIL]: generate simulation");
+			System.err.println("[FAIL]: compile test");
 			return;
 		}
+
+		// run test procedure
+		// - run-test-command
+		// - (@todo) stop-test-command
+		if (client.runTestProcedure("_P1")) {
+			System.out.println("[PASS]: run test");
+		} else {
+			System.err.println("[FAIL]: run test");
+			return;
+		}
+
+		// document test procedure
+		// - doc-test-command
+		if (client.docTestProcedure("_P1")) {
+			System.out.println("[PASS]: doc test");
+		} else {
+			System.err.println("[FAIL]: doc test");
+			return;
+		}		
 	}
 }

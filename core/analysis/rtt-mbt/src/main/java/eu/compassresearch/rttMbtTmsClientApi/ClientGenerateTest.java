@@ -1,9 +1,10 @@
-package eu.compassResearch.rttMbtTmsClientApi;
+package eu.compassresearch.rttMbtTmsClientApi;
 
 import java.io.File;
 
-public class ClientFileTransfer {
+public class ClientGenerateTest {
 	public static void main(String[] args) {
+
 		// create client instance
 		RttMbtClient client = new RttMbtClient("localhost", 9116, "uwe", "uschulze@informatik.uni-bremen.de");
 
@@ -27,7 +28,7 @@ public class ClientFileTransfer {
 
 		// set RTT-MBT project name
 		client.setProjectName("turnIndicationUML");
-		System.out.println("using RTT-MBT project 'turnIndicationUML'");
+		System.out.println("using CML project '" + pathname + "'");
 
 		// test connection to rtt-mbt-tms server
 		if (client.testConenction()) {
@@ -44,20 +45,23 @@ public class ClientFileTransfer {
 			System.err.println("[FAIL]: begin RTT-MBT session");
 			return;
 		}
+		
+		// generate concrete test procedure
+		// - generate-test-command
+		if (client.generateTestProcedure("_P1")) {
+			System.out.println("[PASS]: generate test");
+		} else {
+			System.err.println("[FAIL]: generate test");
+			return;
+		}
 
-		String filename;
-
-		// upload file
-		filename = client.getRttProjectRoot() + File.separator + "uploadfile.pdf";
-		System.out.println("start upload file: " + System.currentTimeMillis());
-		client.uploadFile(filename);
-		System.out.println("end upload file: " + System.currentTimeMillis());
-
-		// download file
-		filename = client.getRttProjectRoot() + File.separator + "downloadfile.pdf";
-		System.out.println("start download file: " + System.currentTimeMillis());
-		client.downloadFile(client.removeLocalWorkspace(filename));
-		System.out.println("end download file: " + System.currentTimeMillis());
-
+		// generate simulation
+		// - generate-simulation-command
+		if (client.generateSimulation("SIM")) {
+			System.out.println("[PASS]: generate simulation");
+		} else {
+			System.err.println("[FAIL]: generate simulation");
+			return;
+		}
 	}
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package eu.compassResearch.rttMbtTmsClientApi;
+package eu.compassresearch.rttMbtTmsClientApi;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,8 +12,9 @@ import org.json.simple.JSONObject;
  * @author uwe
  *
  */
-public class jsonCheckFileCacheExistsCommand extends jsonCommand {
-	public jsonCheckFileCacheExistsCommand(RttMbtClient client) {
+public class jsonStartFileCacheCommand extends jsonCommand {
+
+	public jsonStartFileCacheCommand(RttMbtClient client) {
 		super(client);
 	}
 
@@ -25,7 +26,7 @@ public class jsonCheckFileCacheExistsCommand extends jsonCommand {
 		params.put("user-id", userId);
 		// create command
 		JSONObject cmd = new JSONObject();
-		cmd.put("check-file-cache-exists-command", params);
+		cmd.put("start-file-cache-command", params);
 		return cmd.toJSONString();
 	}
 
@@ -34,7 +35,7 @@ public class jsonCheckFileCacheExistsCommand extends jsonCommand {
 			return null;
 		}
 		// extract parameters by resule name
-		return (JSONObject)reply.get("check-file-cache-exists-result");
+		return (JSONObject)reply.get("start-file-cache-reply");
 	}
 
 	public void handleParameters(JSONObject parameters) {

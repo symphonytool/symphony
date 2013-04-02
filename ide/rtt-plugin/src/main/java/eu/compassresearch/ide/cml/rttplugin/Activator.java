@@ -6,8 +6,8 @@ import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-import eu.compassResearch.rttMbtTmsClientApi.IRttMbtProgressBar;
-import eu.compassResearch.rttMbtTmsClientApi.RttMbtClient;
+import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
+import eu.compassresearch.rttMbtTmsClientApi.RttMbtClient;
 
 public class Activator implements BundleActivator
   {

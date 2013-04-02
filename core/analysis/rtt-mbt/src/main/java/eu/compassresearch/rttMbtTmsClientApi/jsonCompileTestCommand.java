@@ -1,7 +1,7 @@
 /**
  * 
  */
-package eu.compassResearch.rttMbtTmsClientApi;
+package eu.compassresearch.rttMbtTmsClientApi;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -11,11 +11,11 @@ import org.json.simple.JSONObject;
  * @author uwe
  *
  */
-public class jsonCleanTestCommand extends jsonCommand {
+public class jsonCompileTestCommand extends jsonCommand {
 
 	 private String testProcName;
 
-	 public jsonCleanTestCommand(RttMbtClient client) {
+	 public jsonCompileTestCommand(RttMbtClient client) {
 		 super(client);
 	 }
 		
@@ -35,7 +35,7 @@ public class jsonCleanTestCommand extends jsonCommand {
 		 params.put("test-procedure-path", client.toUnixPath(testProcName));
 		 // create command
 		 JSONObject cmd = new JSONObject();
-		 cmd.put("clean-test-command", params);
+		 cmd.put("compile-test-command", params);
 		 return cmd.toJSONString();
 	 }
 
@@ -43,7 +43,7 @@ public class jsonCleanTestCommand extends jsonCommand {
 		 if (reply == null) {
 			 return null;
 		 }
-		 return (JSONObject)reply.get("clean-test-result");
+		 return (JSONObject)reply.get("compile-test-result");
 	 }
 
 	 public void handleParameters(JSONObject parameters) {

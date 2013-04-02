@@ -15,7 +15,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
-import eu.compassResearch.rttMbtTmsClientApi.IRttMbtProgressBar;
+import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
 public class RttMbtProgressView extends ViewPart implements IViewPart {
 	

@@ -1,23 +1,16 @@
-/**
- * 
- */
-package eu.compassResearch.rttMbtTmsClientApi;
+package eu.compassresearch.rttMbtTmsClientApi;
 
-import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import org.json.simple.JSONObject;
 
-/**
- * @author uwe
- *
- */
-public class jsonGenerateTestCommand extends jsonCommand {
+public class jsonReplayTestCommand extends jsonCommand {
 
 	private String testProcName;
 	private Boolean guiPorts;
 
-	public jsonGenerateTestCommand(RttMbtClient client) {
+	public jsonReplayTestCommand(RttMbtClient client) {
 		super(client);
 	}
 	
@@ -40,7 +33,7 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		}
 		// create command
 		JSONObject cmd = new JSONObject();
-		cmd.put("generate-test-command", params);
+		cmd.put("replay-command", params);
 		return cmd.toJSONString();
 	}
 
@@ -48,7 +41,7 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		if (reply == null) {
 			return null;
 		}
-		return (JSONObject)reply.get("test-generation-result");
+		return (JSONObject)reply.get("replay-results");
 	}
 
 	public void handleParameters(JSONObject parameters) {
@@ -57,20 +50,6 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		if (parameters == null) {
 			return;
 		}
-
-		// get configuration.csv
-		String filename = "";
-		if (client.getProjectName() != null) {
-			filename = client.getProjectName() + File.separator;
-		}
-		if (testProcName != null) {
-			filename += "TestProcedures" + File.separator + testProcName + File.separator + "conf" + File.separator;
-		} else {
-			filename += "model" + File.separator;
-		}
-		filename += "configuration.csv";
-		writeBase64StringFileContent(filename,
-								     (String)parameters.get("configuration.csv"), false);
 
 		// get the result
 		String checkResult = (String)parameters.get("result");
@@ -81,21 +60,14 @@ public class jsonGenerateTestCommand extends jsonCommand {
 		}
 	}
 
-	public String getTestProcName() {
-		return testProcName;
+	public void setTestProcName(String testProcedureName) {
+		testProcName = testProcedureName;
 	}
 
-	public void setTestProcName(String testProcName) {
-		this.testProcName = testProcName;
+	public void setGuiPorts(Boolean gui) {
+		guiPorts = gui;
+		hasProgress = gui;
+		hasConsole = gui;
 	}
 
-	public Boolean getGuiPorts() {
-		return guiPorts;
-	}
-
-	public void setGuiPorts(Boolean guiPorts) {
-		this.guiPorts = guiPorts;
-		hasProgress = guiPorts;
-		hasConsole = guiPorts;
-	}
 }

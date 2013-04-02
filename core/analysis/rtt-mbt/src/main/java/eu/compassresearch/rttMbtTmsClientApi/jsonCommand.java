@@ -1,7 +1,7 @@
 /**
  * 
  */
-package eu.compassResearch.rttMbtTmsClientApi;
+package eu.compassresearch.rttMbtTmsClientApi;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

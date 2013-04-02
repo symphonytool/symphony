@@ -13,7 +13,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import eu.compassResearch.rttMbtTmsClientApi.RttMbtClient;
+import eu.compassresearch.rttMbtTmsClientApi.RttMbtClient;
 
 public class RttMbtPopupMenuAction extends AbstractHandler  {
 

@@ -8,72 +8,11 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <packaging>eclipse-plugin</packaging>
+
   <groupId>eu.compassresearch.ide.cml</groupId>
   <artifactId>eu.compassresearch.ide.cml.rtt-plugin</artifactId>
   <name>COMPASS IDE RT Tester Plugin</name>
-  <packaging>jar</packaging>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.eclipse.ui</groupId>
-      <artifactId>org.eclipse.ui.ide</artifactId>
-      <version>3.7.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.core</groupId>
-      <artifactId>org.eclipse.core.runtime</artifactId>
-      <version>3.7.0</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.eclipse.jface</groupId>
-      <artifactId>org.eclipse.jface</artifactId>
-      <version>3.7.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.swt</groupId>
-      <artifactId>org.eclipse.swt</artifactId>
-      <version>3.7.2</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.swt</groupId>
-      <artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
-      <version>3.7.2</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.ui</groupId>
-      <artifactId>org.eclipse.ui.console</artifactId>
-      <version>3.5.100</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.core</groupId>
-      <artifactId>org.eclipse.core.resources</artifactId>
-      <version>3.7.101</version>
-    </dependency>
-
-    <dependency>
-      <groupId>eu.compassresearch.core.analysis</groupId>
-      <artifactId>rtt-mbt</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-      <version>1.1</version>
-    </dependency>
- 
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>1.5</version>
-    </dependency>
-  </dependencies>
 
   <build>
     <plugins>
@@ -82,50 +21,84 @@
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
           <execution>
-            <id>copy</id>
-            <phase>package</phase>
+            <id>copy-dependencies</id>
+            <phase>process-sources</phase>
             <goals>
               <goal>copy</goal>
             </goals>
             <configuration>
+              <outputDirectory>${basedir}/jars</outputDirectory>
+              <overWriteReleases>true</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <stripVersion>true</stripVersion>
+
               <artifactItems>
-               <!-- Copy the rtt-mbt analysis from core to lib -->
                 <artifactItem>
                   <groupId>eu.compassresearch.core.analysis</groupId>
                   <artifactId>rtt-mbt</artifactId>
                   <version>${project.version}</version>
-                  <type>jar</type>
-                  <overWrite>true</overWrite>
                 </artifactItem>
-
                 <artifactItem>
                   <groupId>com.googlecode.json-simple</groupId>
                   <artifactId>json-simple</artifactId>
                   <version>1.1</version>
-                  <type>jar</type>
-                  <overWrite>true</overWrite>
                 </artifactItem>
-
                 <artifactItem>
                   <groupId>commons-codec</groupId>
-	          <artifactId>commons-codec</artifactId>
-	          <version>1.5</version>
-                  <type>jar</type>
-                  <overWrite>true</overWrite>
+                  <artifactId>commons-codec</artifactId>
+                  <version>1.5</version>
                 </artifactItem>
               </artifactItems>
-
-              <outputDirectory>lib</outputDirectory>
-              <overWriteReleases>true</overWriteReleases>
-              <overWriteSnapshots>true</overWriteSnapshots>
             </configuration>
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-clean-plugin</artifactId>
+	<configuration>
+          <failOnError>false</failOnError>
+	  <filesets>
+	    <fileset>
+	      <directory>${basedir}/jars</directory>
+	      <followSymlinks>false</followSymlinks>
+	    </fileset>
+	  </filesets>
+	</configuration>
+      </plugin>
     </plugins>
+
+    <pluginManagement>
+      <plugins>
+    	<plugin>
+    	  <groupId>org.eclipse.m2e</groupId>
+    	  <artifactId>lifecycle-mapping</artifactId>
+    	  <version>1.0.0</version>
+    	  <configuration>
+    	    <lifecycleMappingMetadata>
+    	      <pluginExecutions>
+    		<pluginExecution>
+    		  <pluginExecutionFilter>
+    		    <groupId>org.apache.maven.plugins</groupId>
+    		    <artifactId>maven-dependency-plugin</artifactId>
+    		    <versionRange>[1.0.0,)</versionRange>
+    		    <goals>
+    		      <goal>copy</goal>
+    		    </goals>
+    		  </pluginExecutionFilter>
+    		  <action>
+    		    <execute>
+                      <runOnIncremental>false</runOnIncremental>
+                    </execute>
+    		  </action>
+    		</pluginExecution>
+    	      </pluginExecutions>
+    	    </lifecycleMappingMetadata>
+    	  </configuration>
+    	</plugin>
+      </plugins>
+    </pluginManagement>
   </build>
-
-
-
-
 </project>

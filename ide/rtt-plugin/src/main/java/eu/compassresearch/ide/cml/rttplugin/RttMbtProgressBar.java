@@ -3,7 +3,7 @@ package eu.compassresearch.ide.cml.rttplugin;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.swt.widgets.ProgressBar;
-import eu.compassResearch.rttMbtTmsClientApi.IRttMbtProgressBar;
+import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
 public class RttMbtProgressBar implements IRttMbtProgressBar {
 	Map<IRttMbtProgressBar.Tasks, ProgressBar> progressBars;

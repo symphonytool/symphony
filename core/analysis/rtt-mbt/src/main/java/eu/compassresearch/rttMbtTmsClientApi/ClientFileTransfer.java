@@ -1,8 +1,8 @@
-package eu.compassResearch.rttMbtTmsClientApi;
+package eu.compassresearch.rttMbtTmsClientApi;
 
 import java.io.File;
 
-public class ClientCRDTest {
+public class ClientFileTransfer {
 	public static void main(String[] args) {
 		// create client instance
 		RttMbtClient client = new RttMbtClient("localhost", 9116, "uwe", "uschulze@informatik.uni-bremen.de");
@@ -45,41 +45,19 @@ public class ClientCRDTest {
 			return;
 		}
 
-		// clean test procedure
-		// - clean-test-command
-		if (client.cleanTestProcedure("_P1")) {
-			System.out.println("[PASS]: clean test");
-		} else {
-			System.err.println("[FAIL]: clean test");
-			return;
-		}
+		String filename;
 
-		// compile test procedure
-		// - compile-test-command
-		if (client.compileTestProcedure("_P1")) {
-			System.out.println("[PASS]: compile test");
-		} else {
-			System.err.println("[FAIL]: compile test");
-			return;
-		}
+		// upload file
+		filename = client.getRttProjectRoot() + File.separator + "uploadfile.pdf";
+		System.out.println("start upload file: " + System.currentTimeMillis());
+		client.uploadFile(filename);
+		System.out.println("end upload file: " + System.currentTimeMillis());
 
-		// run test procedure
-		// - run-test-command
-		// - (@todo) stop-test-command
-		if (client.runTestProcedure("_P1")) {
-			System.out.println("[PASS]: run test");
-		} else {
-			System.err.println("[FAIL]: run test");
-			return;
-		}
+		// download file
+		filename = client.getRttProjectRoot() + File.separator + "downloadfile.pdf";
+		System.out.println("start download file: " + System.currentTimeMillis());
+		client.downloadFile(client.removeLocalWorkspace(filename));
+		System.out.println("end download file: " + System.currentTimeMillis());
 
-		// document test procedure
-		// - doc-test-command
-		if (client.docTestProcedure("_P1")) {
-			System.out.println("[PASS]: doc test");
-		} else {
-			System.err.println("[FAIL]: doc test");
-			return;
-		}		
 	}
 }

@@ -1,4 +1,4 @@
-package eu.compassResearch.rttMbtTmsClientApi;
+package eu.compassresearch.rttMbtTmsClientApi;
 
 public interface IRttMbtLoggingFacility {
 	public void addLogMessage(String consoleName, String msg);

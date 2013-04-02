@@ -9,7 +9,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.ui.dialogs.WizardNewFolderMainPage;
 import org.eclipse.ui.wizards.newresource.BasicNewFolderResourceWizard;
 
-import eu.compassResearch.rttMbtTmsClientApi.RttMbtClient;
+import eu.compassresearch.rttMbtTmsClientApi.RttMbtClient;
 
 public class RttMbtComponentWizard extends BasicNewFolderResourceWizard {
 	@Override

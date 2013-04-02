@@ -1,7 +1,7 @@
 /**
  * 
  */
-package eu.compassResearch.rttMbtTmsClientApi;
+package eu.compassresearch.rttMbtTmsClientApi;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import org.json.simple.JSONObject;

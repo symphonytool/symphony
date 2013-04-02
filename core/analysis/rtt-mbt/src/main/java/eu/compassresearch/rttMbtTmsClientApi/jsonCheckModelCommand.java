@@ -1,4 +1,4 @@
-package eu.compassResearch.rttMbtTmsClientApi;
+package eu.compassresearch.rttMbtTmsClientApi;
 
 import java.io.File;
 import java.util.LinkedHashMap;

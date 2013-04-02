@@ -1,7 +1,4 @@
-/**
- * 
- */
-package eu.compassResearch.rttMbtTmsClientApi;
+package eu.compassresearch.rttMbtTmsClientApi;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -13,13 +10,13 @@ import org.json.simple.JSONObject;
  * @author uwe
  *
  */
-public class jsonConftoolCommand extends jsonCommand {
+public class jsonSigmaptoolCommand extends jsonCommand {
 
 	private String modelName;
 	private String modelId;
 	private String testProcName;
 
-	public jsonConftoolCommand(RttMbtClient client) {
+	public jsonSigmaptoolCommand(RttMbtClient client) {
 		super(client);
 	}
 	
@@ -39,7 +36,7 @@ public class jsonConftoolCommand extends jsonCommand {
 		params.put("model-version", modelId);
 		// create command
 		JSONObject cmd = new JSONObject();
-		cmd.put("conftool-command", params);
+		cmd.put("sigmaptool-command", params);
 		return cmd.toJSONString();
 	}
 
@@ -47,7 +44,7 @@ public class jsonConftoolCommand extends jsonCommand {
 		if (reply == null) {
 			return null;
 		}
-		return (JSONObject)reply.get("conftool-result");
+		return (JSONObject)reply.get("sigmaptool-result");
 	}
 
 	public void handleParameters(JSONObject parameters) {
@@ -65,9 +62,9 @@ public class jsonConftoolCommand extends jsonCommand {
 		} else {
 			filename += "model" + File.separator;
 		}
-		filename += "configuration.csv";
+		filename += "signalmap.csv";
 		writeBase64StringFileContent(filename,
-								     (String)parameters.get("configuration.csv"), false);
+								     (String)parameters.get("signalmap.csv"), false);
 	}
 
 	public String getTestProcName() {

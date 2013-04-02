@@ -3,7 +3,7 @@ package eu.compassresearch.ide.cml.rttplugin;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
-import eu.compassResearch.rttMbtTmsClientApi.IRttMbtProgressBar;
+import eu.compassresearch.rttMbtTmsClientApi.IRttMbtProgressBar;
 
 public class RttMbtGenerateSimulation extends RttMbtAbstractTestProcedureAction  {
 

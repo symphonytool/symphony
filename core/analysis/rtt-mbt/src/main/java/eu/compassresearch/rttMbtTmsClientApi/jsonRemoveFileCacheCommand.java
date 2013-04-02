@@ -1,7 +1,7 @@
 /**
  * 
  */
-package eu.compassResearch.rttMbtTmsClientApi;
+package eu.compassresearch.rttMbtTmsClientApi;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,9 +12,9 @@ import org.json.simple.JSONObject;
  * @author uwe
  *
  */
-public class jsonStartFileCacheCommand extends jsonCommand {
+public class jsonRemoveFileCacheCommand extends jsonCommand {
 
-	public jsonStartFileCacheCommand(RttMbtClient client) {
+	public jsonRemoveFileCacheCommand(RttMbtClient client) {
 		super(client);
 	}
 
@@ -26,7 +26,7 @@ public class jsonStartFileCacheCommand extends jsonCommand {
 		params.put("user-id", userId);
 		// create command
 		JSONObject cmd = new JSONObject();
-		cmd.put("start-file-cache-command", params);
+		cmd.put("remove-file-cache-command", params);
 		return cmd.toJSONString();
 	}
 
@@ -35,7 +35,7 @@ public class jsonStartFileCacheCommand extends jsonCommand {
 			return null;
 		}
 		// extract parameters by resule name
-		return (JSONObject)reply.get("start-file-cache-reply");
+		return (JSONObject)reply.get("remove-file-cache-reply");
 	}
 
 	public void handleParameters(JSONObject parameters) {
@@ -51,10 +51,10 @@ public class jsonStartFileCacheCommand extends jsonCommand {
 			return;
 		}
 		if (!(result.equals("PASS"))) {
-			System.err.println("*** error: setup cache directory for " 
+			System.err.println("*** error: removing cache directory for " 
 							   + user + " (ID: '" + userId + "') failed!");
 		} else {
-			System.out.println("created cache directory for " 
+			System.err.println("removed cache directory for " 
 					   + user + " (ID: '" + userId + "').");		
 		}
 	}

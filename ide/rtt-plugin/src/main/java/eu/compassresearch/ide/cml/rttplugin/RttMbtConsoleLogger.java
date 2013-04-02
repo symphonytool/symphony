@@ -1,6 +1,6 @@
 package eu.compassresearch.ide.cml.rttplugin;
 
-import eu.compassResearch.rttMbtTmsClientApi.IRttMbtLoggingFacility;
+import eu.compassresearch.rttMbtTmsClientApi.IRttMbtLoggingFacility;
 
 public class RttMbtConsoleLogger implements IRttMbtLoggingFacility {
 

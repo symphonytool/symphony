@@ -37,7 +37,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
-import eu.compassResearch.rttMbtTmsClientApi.RttMbtClient;
+import eu.compassresearch.rttMbtTmsClientApi.RttMbtClient;
 
 public class RttMbtRequirementsCoverage extends MultiPageEditorPart  {
 
