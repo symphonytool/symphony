@@ -1,22 +1,17 @@
 channels 
 a : int
 
-
-class A = begin
-
-
-
+class A =
+begin
+	state
+		hello : int := 4
+		
+	operations 
+		A : () ==> A 
+		A() == Skip
 end
 
-process B = 
+process Test = 
 begin 
-	state
-	v : int := 2
-
-	operations
-	
-	Test : int ==> int
-	Test(x) == return x + v
-	 
-	@ (dcl z : int @ z := Test(2);a!(z) -> Skip )
+	@ (dcl v : A @ v := new A();a.(v.hello) -> Skip) 
 end

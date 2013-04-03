@@ -165,8 +165,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		// that TransactionValues pass the local "new" value to the far end.
 		ValueList constValues = argValues.getConstant();
 
-		//TODO maybe this context should be a different one
-		//Create a new context to perform the operation call 
+		//Create a new object context to perform the operation call 
 		Context callContext = CmlContextFactory.newObjectContext(node.getLocation(), "CML Operation Call", question, question.getSelf());
 
 		if (argValues.size() != opVal.getParamPatterns().size())
@@ -239,10 +238,10 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			pushNext(postExpNode, postConditionContext);
 		}
 
-
+		//now we push the body in between the pre and post conditions
 		pushNext(opVal.getBody(), callContext);
 
-		//invoke the pre condition
+		//push the pre condition on the execution stack so it gets executed first
 		if(opVal.getPrecondition() != null){
 
 			PExp preExpNode = opVal.getPrecondition();

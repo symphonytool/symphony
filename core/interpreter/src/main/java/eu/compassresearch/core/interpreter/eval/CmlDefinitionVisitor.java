@@ -27,6 +27,7 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
 import eu.compassresearch.ast.definitions.AChannelsDefinition;
+import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
@@ -145,6 +146,14 @@ public class CmlDefinitionVisitor extends
 				CmlValueFactory.createActionValue(node)));
 		
 		return vpl;
+	}
+	
+	@Override
+	public NameValuePairList caseAClassDefinition(AClassDefinition node,
+			Context question) throws AnalysisException {
+
+		
+		return super.caseAClassDefinition(node, question);
 	}
 	
 	/*
