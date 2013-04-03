@@ -10,7 +10,7 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlChannel;
 
 /**
- * This represents an observable channel event from a specific CmlBehaviourThread 
+ * This represents an observable channel event from a set of CmlBehaviourThread objects
  * @author akm
  *
  */
@@ -38,23 +38,39 @@ public abstract class ObservableEvent implements CmlEvent {
 		this.channel = channel;
 	}
 	
+	/**
+	 * Returns the set of sources that are prepared to engage in this event
+	 * @return
+	 */
 	public Set<CmlBehaviourThread> getEventSources()
 	{
 		return eventSources;
 	}
 	
+	/**
+	 * The channel of this involved in this events
+	 * @return
+	 */
 	public CmlChannel getChannel()
 	{
 		return channel;
 	}
-	
+
 	/**
-	 * This creates a ObservableEvent instance that has source set to null. This is used to compare
-	 * equality of events from different sources.
+	 * This creates a synchronized event between this and other.
+	 * @param other
+	 * @return The synchronized event 
+	 */
+	public abstract ObservableEvent synchronizeWith(ObservableEvent other);
+		
+	/**
+	 * Two Observable events are comparable if the are occurring on the same channel and
+	 * the sources of one must either be a subset of the other or equal to.
+	 * 
+	 * Values do not have to be identical
+	 * @param other
 	 * @return
 	 */
-	public abstract ObservableEvent synchronizeWith(ObservableEvent syncEvent);
-		
 	public boolean isComparable(ObservableEvent other) {
 
 		return this.equals(other);

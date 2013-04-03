@@ -9,8 +9,13 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 
 public class CmlEvaluationVisitor extends AbstractEvaluationVisitor {
 
-	AbstractEvaluationVisitor actionEvalVisitor = new ActionEvaluationVisitor();
-	AbstractEvaluationVisitor processEvalVisitor = new ProcessEvaluationVisitor();
+	AbstractEvaluationVisitor actionEvalVisitor = new ActionEvaluationVisitor(this);
+	AbstractEvaluationVisitor processEvalVisitor = new ProcessEvaluationVisitor(this);
+	
+	public CmlEvaluationVisitor()
+	{
+		super(null);
+	}
 	
 	@Override
 	public void init(ControlAccess controlAccess) {

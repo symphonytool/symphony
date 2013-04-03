@@ -13,7 +13,9 @@ import org.overture.ast.types.AQuoteType;
 import org.overture.ast.types.AUnionType;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.QuoteValue;
+import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
+import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
@@ -30,37 +32,51 @@ public class CmlCommunicationEvent extends ObservableEvent {
 	public CmlCommunicationEvent(CmlBehaviourThread source, CmlChannel channel, List<CommunicationParameter> params)
 	{
 		super(source,channel);
-		
-		//TODO: this have to be expanded to all of them
-		if(params != null)
-			value = (Value)params.get(0).getValue().clone();
-		else
-			value = new AnyValue();
+		initValueFromComParams(params);		
 	}
 	
 	public CmlCommunicationEvent(CmlChannel channel, List<CommunicationParameter> params)
 	{
 		super(channel);
-		
-		//TODO: this have to be expanded to all of them
-		if(params != null)
-			value = (Value)params.get(0).getValue().clone();
-		else
-			value = new AnyValue();
+		initValueFromComParams(params);
 	}
-	
+			
 	private CmlCommunicationEvent(Set<CmlBehaviourThread> sources, CmlChannel channel, Value value)
 	{
 		super(sources,channel);
 		this.value = value;
 	}
 	
+	//Converts communication parameters int the corresponding value
+	private void initValueFromComParams(List<CommunicationParameter> params)
+	{
+		if(params != null)
+		{
+			//simple value
+			if(params.size() == 1)
+				value = (Value)params.get(0).getValue().clone(); 
+			//We have a product type value
+			else
+			{
+				ValueList argvals = new ValueList();
+				for(CommunicationParameter comParam : params)
+					argvals.add((Value)comParam.getValue().clone());
+				value = new TupleValue(argvals);
+			}
+		}
+		else
+			value = new AnyValue();
+	}
+	
 	@Override 
 	public String toString() 
 	{
 		StringBuilder strBuilder = new StringBuilder(channel.getName());
-		//for(CommunicationParameter param : params)
-		strBuilder.append("." + value);
+		if(value instanceof TupleValue)
+			for(Value val : ((TupleValue)value).values )
+				strBuilder.append("." + val);
+		else
+			strBuilder.append("." + value);
 		//strBuilder.append(" : " + getEventSources());
 		
 		return strBuilder.toString();
@@ -110,7 +126,7 @@ public class CmlCommunicationEvent extends ObservableEvent {
 	
 	@Override
 	public boolean isValuePrecise() {
-		return AbstractValueInterpreter.isValuePrecise(value);
+		return AbstractValueInterpreter.isValueMostPrecise(value);
 	}
 	
 	@Override

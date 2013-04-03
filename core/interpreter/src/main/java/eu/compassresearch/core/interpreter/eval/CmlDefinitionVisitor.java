@@ -19,6 +19,9 @@ import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.actions.AResParametrisation;
+import eu.compassresearch.ast.actions.AValParametrisation;
+import eu.compassresearch.ast.actions.AVresParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
@@ -68,8 +71,34 @@ public class CmlDefinitionVisitor extends
 		return vpl;
 	}
 	
+//	/*
+//	 * Visitor parametrisation case methods
+//	 */
+//	
+//	@Override
+//	public NameValuePairList caseAValParametrisation(AValParametrisation node,
+//			Context question) throws AnalysisException {
+//		// TODO Auto-generated method stub
+//		return super.caseAValParametrisation(node, question);
+//	}
+//	
+//	@Override
+//	public NameValuePairList caseAVresParametrisation(
+//			AVresParametrisation node, Context question)
+//			throws AnalysisException {
+//		// TODO Auto-generated method stub
+//		return super.caseAVresParametrisation(node, question);
+//	}
+//	
+//	@Override
+//	public NameValuePairList caseAResParametrisation(AResParametrisation node,
+//			Context question) throws AnalysisException {
+//		// TODO Auto-generated method stub
+//		return super.caseAResParametrisation(node, question);
+//	}
+	
 	/*
-	 * Visitor case methods
+	 * Visitor Definition case methods
 	 */
 	
 	@Override

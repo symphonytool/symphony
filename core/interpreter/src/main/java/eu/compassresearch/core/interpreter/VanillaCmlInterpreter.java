@@ -208,8 +208,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/examples/dwarf.cml");
-		//"/home/akm/runtime-COMPASS_configuration/test/test.cml");
+				"src/test/resources/action/action-reference-parametrised.cml");
 		runOnFile(cml_example);
 
 	}

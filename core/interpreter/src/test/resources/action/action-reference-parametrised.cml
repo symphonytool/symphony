@@ -1,0 +1,11 @@
+channels 
+a : int
+ 
+process A = 
+begin 
+	actions
+	 
+	 TEST = val x : int @ a.x -> Skip 
+	
+	@ TEST(1)
+end
