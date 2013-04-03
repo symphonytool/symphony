@@ -12,13 +12,13 @@ public class PDefinitionAssistant {
 	public static void setClassDefinition(PDefinition pDefinition,
 			SClassDefinition def) {
 		switch (pDefinition.kindPDefinition()) {
-		case CLASS:
+		case SClassDefinition.kindPDefinition:
 			for (PDefinition d : def.getDefinitions())
 			{
 				setClassDefinition(d,def);
 			}
 			break;		
-		case EXPLICITFUNCTION:
+		case AExplicitFunctionDefinition.kindPDefinition:
 			setClassDefinitionBaseCase(pDefinition, def);			
 			AExplicitFunctionDefinition efd = ((AExplicitFunctionDefinition)pDefinition);
 			if(efd.getPredef() != null)
@@ -30,7 +30,7 @@ public class PDefinitionAssistant {
 				setClassDefinition(efd.getPostdef(), def);
 			}
 			break;					
-		case VALUE:
+		case AValueDefinition.kindPDefinition:
 			setClassDefinitionBaseCase(pDefinition, def);	
 			AValueDefinition vd = (AValueDefinition) pDefinition;
 			for (PDefinition d : vd.getDefs())

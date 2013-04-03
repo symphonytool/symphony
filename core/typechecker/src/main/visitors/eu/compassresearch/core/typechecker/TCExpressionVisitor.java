@@ -949,7 +949,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			issueHandler.addTypeWarning(node, "This points to something that should have checked already, but isn't.");
 		}
 		else {
-			node.setType(leafType);
+			node.setType(leafType.clone());
 			if (node.getType().getDefinitions() == null) node.getType().setDefinitions(new LinkedList<PDefinition>());
 			node.getType().getDefinitions().addAll(defs);
 		}

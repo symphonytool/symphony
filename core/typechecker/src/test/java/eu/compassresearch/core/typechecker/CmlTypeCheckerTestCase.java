@@ -866,16 +866,19 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		addTestProgram(testData,"types ERUId = nat RescueDetails ::a:int b:int process P = begin state erus : set of ERUId eruRescues : map ERUId to RescueDetails operations findIdleERUs() idleERUs: set of ERUId frame rd erus: set of ERUId rd eruRescues: map ERUId to RescueDetails post idleERUs = erus \\ dom eruRescues @ findIdleERUs() end",false,true,true,new String[0]);
 		// 227
 		addTestProgram(testData,"channels c: nat values a : nat = 10 - 11 b:nat = 20 - 10 process A = begin actions B = c!(a-b)->Skip @ Skip end",false,true,true,new String[0]);
-		
+		// 228
 		addTestProgram(testData,"process P = begin actions B = A1(1,2) A1 = val a:int, b: nat @ Skip  @ A1(1,1) end",false, true, true, new String[0]);
-		
+		// 229
 		addTestProgram(testData,"types Day = nat AvailDB = map Day to nat functions CkAvail (d:Day,av:AvailDB) n:nat post n = av(d)",false,true,true,new String[0]);
-		
+		// 230
 		addTestProgram(testData, "class C = begin operations C:()==>C C() == Skip end",false,true,true,new String[0]);
-		
+		// 231
 		addTestProgram(testData, "class C = begin operations C:()==>C C() == Skip end process P = begin state c:C @ c := new C() end",false,true,true,new String[0]);
-		
+		// 232
 		addTestProgram(testData, "process A = begin state i:int := 0 m:map int to (map int to int) @ m(0)(0) := 1 end",false,true,true,new String[0]);
+		// 233
+		addTestProgram(testData, "process P = begin state a: nat * nat := mk_(0,0) t: (nat * nat) * (nat * nat) @ t.#1 := a end",false,true,true,new String[0]);
+		// 234
 		
 		return testData;
 	}

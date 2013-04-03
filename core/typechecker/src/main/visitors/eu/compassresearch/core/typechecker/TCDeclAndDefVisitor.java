@@ -2014,7 +2014,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				}
 
 				if (!(mtype.getResult() instanceof ANatNumericBasicType)) {
-					if (mtype.getResult().kindPType() == EType.PRODUCT) {
+					if (AProductType.kindPType.equals(mtype.getResult().kindPType())) {
 						AProductType pt = PTypeAssistantTC.getProduct(mtype
 								.getResult());
 

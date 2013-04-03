@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="The COMPASS CML Tool Platform" uid="eu.compassresearch.ide.product" id="eu.compassresearch.ide.cml.platform.product" application="org.eclipse.ui.ide.workbench" version="0.1.1" useFeatures="true" includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="icons/aboutboximg.png"/>
+      <text>
+         Learn more about COMPASS Research at http://www.compass-research.eu
+      </text>
+   </aboutInfo>
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="icons/icon16.png" i32="icons/icon32.png" i64="icons/icon64.png"/>
+
+   <splash
+      location="eu.compassresearch.ide.cml.platform"
+      startupProgressRect="0,0,300,20"
+      startupMessageRect="75,200,300,15"
+      startupForegroundColor="7F7F7F" />
+   <launcher name="COMPASS">
+      <linux icon="/icons/compassToolIcon.png"/>
+      <solaris/>
+      <win useIco="true">
+         <ico path="/icons/compassToolIcon.png"/>
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+      <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/OSGi%Minimum-1.2</linux>
+   </vm>
+
+   <license>
+        <url>http://www.compass-research.eu</url>
+        <text>
+   COMPASS CML Tool Platform
+
+This is an open source tool for the COMPASS Modelling Language (CML). 
+
+Copyright (C) 2013 COMPASS contributors and others
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+         </text>
+   </license>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="eu.compassresearch.ide.features.core"/>
+      <feature id="eu.compassresearch.ide.features.rcp"/>
+      <feature id="eu.compassresearch.ide.features.plugins.interpreter"/>
+      <feature id="eu.compassresearch.ide.features.plugins.pog"/>
+      <feature id="eu.compassresearch.ide.features.plugins.rtt"/>
+      <feature id="eu.compassresearch.ide.features.plugins.security"/>
+      <feature id="eu.compassresearch.ide.features.plugins.tp"/>
+      <feature id="org.eclipse.equinox.p2.core.feature"/>
+      <feature id="org.eclipse.platform"/>
+      <feature id="org.eclipse.rcp"/>
+      <feature id="org.eclipse.help"/>
+      <feature id="org.overture.ide.features.core"/>
+      <feature id="org.eclipse.emf.ecore"/>
+      <feature id="org.eclipse.e4.rcp"/>
+      <feature id="org.eclipse.emf.common"/>
+      <feature id="org.eclipse.equinox.p2.rcp.feature"/>
+      <feature id="org.eclipse.equinox.p2.user.ui"/>
+      <feature id="org.eclipse.equinox.p2.extras.feature"/>
+   </features>
+
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="org.eclipse.update.configurator" autoStart="true" startLevel="4" />
+      <property name="REMOVE.FOR.PRODUCTION.osgi.instance.area.default" value="@user.home/Documents/COMPASS/workspace" />
+      <property name="org.eclipse.update.reconcile" value="false" />
+      <!-- <plugin id="eu.compassresearch.ide.cml.tpplugin" autoStart="true" startLevel="4" /> -->
+      <!-- <plugin id="eu.compassresearch.ide.cml.ui" autoStart="true" startLevel="3" /> -->
+   </configurations>
+
+</product>

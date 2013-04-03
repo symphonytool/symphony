@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="eu.compassresearch.ide.features.rcp"
+      label="COMPASS RCP"
+      version="0.1.1">
+
+   <description>
+      %description
+   </description>
+
+   <copyright url="%copyURL">
+      %copyNotice
+   </copyright>
+
+   <license url="%licenseURL">
+      %agreement
+   </license>
+
+   <includes
+         id="org.eclipse.equinox.p2.user.ui"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.platform"
+         version="0.0.0"/>
+
+   <includes
+         id="eu.compassresearch.ide.features.core"
+         version="0.0.0"/>
+
+   <includes
+       id="eu.compassresearch.ide.features.plugins.interpreter"
+       version="0.0.0"/>
+
+   <includes
+       id="eu.compassresearch.ide.features.plugins.pog"
+       version="0.0.0"/>
+
+   <includes
+       id="eu.compassresearch.ide.features.plugins.rtt"
+       version="0.0.0"/>
+
+   <includes
+       id="eu.compassresearch.ide.features.plugins.security"
+       version="0.0.0"/>
+
+   <includes
+       id="eu.compassresearch.ide.features.plugins.tp"
+       version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.ui.views.log"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.ui.workbench.texteditor"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
