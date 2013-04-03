@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="eu.compassresearch.features.core"
+      id="eu.compassresearch.ide.features.core"
       label="COMPASS Core"
-      version="0.3.0.qualifier"
+      version="0.1.1"
       plugin="eu.compassresearch.ide.cml.core">
 
    <description>
@@ -59,13 +59,6 @@
 
    <plugin
          id="eu.compassresearch.ide.cml.platform"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="eu.compassresearch.ide.parsers.cml"
          download-size="0"
          install-size="0"
          version="0.0.0"

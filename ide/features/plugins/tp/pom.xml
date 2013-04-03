@@ -1,0 +1,18 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>eu.compassresearch.ide.features</groupId>
+    <artifactId>plugins</artifactId>
+    <version>0.1.1<!--Replaceable: Main Version--></version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  
+  <packaging>eclipse-feature</packaging>
+
+  <groupId>eu.compassresearch.ide.features.plugins</groupId>
+  <artifactId>eu.compassresearch.ide.features.plugins.tp</artifactId>
+  <name>COMPASS Tool Plugin Eclipse Theorem Prover feature</name>
+  
+</project>

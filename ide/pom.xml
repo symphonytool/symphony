@@ -28,8 +28,8 @@
     <module>tp-plugin</module>
     <module>interpreter-plugin</module>
     <module>pog-plugin</module>
-    <!-- make sure platform then product are last -->
     <module>platform</module>
+    <module>features</module>
     <module>product</module>
   </modules>
 
