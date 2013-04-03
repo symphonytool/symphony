@@ -94,7 +94,7 @@
        point="org.eclipse.core.runtime.products">
     <product
           application="org.eclipse.ui.ide.workbench"
-          name="CML Compass Project">
+          name="The COMPASS CML Tool Platform">
        <property
              name="startupForegroundColor"
              value="7F7F7F">
@@ -109,7 +109,7 @@
        </property>
        <property
              name="appName"
-             value="CML Compass Project">
+             value="The COMPASS CML Tool Platform">
        </property>
        <property
              name="preferenceCustomization"

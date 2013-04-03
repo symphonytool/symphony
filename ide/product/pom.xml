@@ -36,7 +36,7 @@
 	<configuration>
 	  <products>
 	    <product>
-	      <id>eu.compassreserach.ide.platform.product</id>
+	      <id>eu.compassresearch.ide.product</id>
 	      <archiveFileName>COMPASS-${project.version}</archiveFileName>
 	    </product>
 	  </products>
