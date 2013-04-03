@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin.model;
+package eu.compassresearch.ide.cml.interpreter.model;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IBreakpoint;

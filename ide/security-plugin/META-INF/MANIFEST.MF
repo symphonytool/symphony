@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS Isabelle Plugin
-Bundle-SymbolicName: eu.compassresearch.ide.cml.securityplugin;singleton:=true
+Bundle-SymbolicName: eu.compassresearch.ide.cml.security-plugin;singleton:=true
 Bundle-Version: 0.1.1
 Bundle-Activator: eu.compassresearch.ide.securityanalysis.Activator
 Bundle-Vendor: The COMPASS Project

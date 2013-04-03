@@ -12,7 +12,7 @@
   <packaging>eclipse-plugin</packaging>
 
   <groupId>eu.compassresearch.ide.cml</groupId>
-  <artifactId>eu.compassresearch.ide.cml.securityplugin</artifactId>
+  <artifactId>eu.compassresearch.ide.cml.security-plugin</artifactId>
   <name>COMPASS IDE Security Plugin</name>
 
   <build>

@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin.model;
+package eu.compassresearch.ide.cml.interpreter.model;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.PlatformObject;
@@ -10,7 +10,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugElement;
 import org.eclipse.debug.core.model.IDebugTarget;
 
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugConstants;
+import eu.compassresearch.ide.cml.interpreter.CmlDebugConstants;
 
 public class CmlDebugElement extends PlatformObject implements IDebugElement {
 

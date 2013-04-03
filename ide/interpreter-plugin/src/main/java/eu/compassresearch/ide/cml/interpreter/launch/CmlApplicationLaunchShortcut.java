@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin.launch;
+package eu.compassresearch.ide.cml.interpreter.launch;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -25,8 +25,8 @@ import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugConstants;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlUtil;
+import eu.compassresearch.ide.cml.interpreter.CmlDebugConstants;
+import eu.compassresearch.ide.cml.interpreter.CmlUtil;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlApplicationLaunchShortcut implements ILaunchShortcut2

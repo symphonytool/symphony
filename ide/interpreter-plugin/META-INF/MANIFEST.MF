@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COMPASS IDE Interpreter Plugin
-Bundle-SymbolicName: eu.compassresearch.ide.cml.interpreter_plugin;singleton:=true
+Bundle-SymbolicName: eu.compassresearch.ide.cml.interpreter-plugin;singleton:=true
 Bundle-Version: 0.1.1
-Bundle-Activator: eu.compassresearch.ide.cml.interpreter_plugin.Activator
+Bundle-Activator: eu.compassresearch.ide.cml.interpreter.Activator
 Bundle-Vendor: The COMPASS Project
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.debug.ui,

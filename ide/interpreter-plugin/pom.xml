@@ -12,7 +12,7 @@
   <packaging>eclipse-plugin</packaging>
 
   <groupId>eu.compassresearch.ide.cml</groupId>
-  <artifactId>eu.compassresearch.ide.cml.interpreter_plugin</artifactId>
+  <artifactId>eu.compassresearch.ide.cml.interpreter-plugin</artifactId>
   <name>COMPASS IDE Interpreter Plugin</name>
 
   <dependencies>

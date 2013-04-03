@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin.launch;
+package eu.compassresearch.ide.cml.interpreter.launch;
 
 import java.util.List;
 import java.util.Vector;
@@ -31,7 +31,7 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlUtil;
+import eu.compassresearch.ide.cml.interpreter.CmlUtil;
 
 public class CmlMainLaunchConfigurationTab extends
 		AbstractLaunchConfigurationTab {

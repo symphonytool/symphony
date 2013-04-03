@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin.launch;
+package eu.compassresearch.ide.cml.interpreter.launch;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,8 +28,8 @@ import org.eclipse.ui.WorkbenchException;
 import org.json.simple.JSONObject;
 
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugConstants;
-import eu.compassresearch.ide.cml.interpreter_plugin.model.CmlDebugTarget;
+import eu.compassresearch.ide.cml.interpreter.CmlDebugConstants;
+import eu.compassresearch.ide.cml.interpreter.model.CmlDebugTarget;
 
 
 public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate {

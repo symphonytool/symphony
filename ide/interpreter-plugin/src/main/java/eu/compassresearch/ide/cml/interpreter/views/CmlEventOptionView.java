@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin.views;
+package eu.compassresearch.ide.cml.interpreter.views;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -8,7 +8,7 @@ import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.part.ViewPart;
 
-public class CmlEventHistoryView extends ViewPart
+public class CmlEventOptionView extends ViewPart
   {
 	ListViewer viewer;
 	List<String> options = new LinkedList<String>();
@@ -16,7 +16,7 @@ public class CmlEventHistoryView extends ViewPart
     @Override
     public String getTitle()
       {
-        return "Event History";
+        return "Event Options";
       }
     
     @Override

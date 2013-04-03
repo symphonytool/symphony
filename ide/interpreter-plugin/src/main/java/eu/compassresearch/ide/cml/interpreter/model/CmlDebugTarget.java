@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin.model;
+package eu.compassresearch.ide.cml.interpreter.model;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,8 +44,8 @@ import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageCommunicato
 import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageContainer;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
-import eu.compassresearch.ide.cml.interpreter_plugin.CmlDebugConstants;
-import eu.compassresearch.ide.cml.interpreter_plugin.views.CmlEventHistoryView;
+import eu.compassresearch.ide.cml.interpreter.CmlDebugConstants;
+import eu.compassresearch.ide.cml.interpreter.views.CmlEventHistoryView;
 
 public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 

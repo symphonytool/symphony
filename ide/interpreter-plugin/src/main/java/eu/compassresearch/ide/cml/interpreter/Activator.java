@@ -1,4 +1,4 @@
-package eu.compassresearch.ide.cml.interpreter_plugin;
+package eu.compassresearch.ide.cml.interpreter;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
