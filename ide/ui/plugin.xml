@@ -80,7 +80,6 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-
             category="compass_eu.compassresearch.ide.cml.ui.category"
             class="org.overture.ide.ui.navigator.VdmNavigator"
             icon="icons/cview16/overture_nav.png"
@@ -93,7 +92,7 @@
   <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="org.overture.ide.ui.perspective.VdmPerspectiveFactory"
+            class="eu.compassresearch.ide.cml.ui.perspective.CmlPerspectiveFactory"
             icon="icons/cview16/overture_nav.png"
             id="org.overture.ide.ui.perspective"
             name="CML">
@@ -103,19 +102,7 @@
       </perspective>
    </extension>
 
-   <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="org.overture.ide.ui.perspective">
-         <view
-               id="org.overture.ide.ui.VdmExplorer"
-               minimized="false"
-               ratio="0.25"
-               relationship="left"
-               relative="org.eclipse.ui.editorss">
-         </view>
-      </perspectiveExtension>
-   </extension>
+
 
    <extension
          point="org.eclipse.ui.navigator.navigatorContent">
