@@ -1,9 +1,15 @@
 package eu.compassresearch.core.interpreter.cml;
 
-import org.overture.ast.analysis.AnalysisException;
 
 /**
- * This determines the behaviour of the process
+ * This interfaces specifies a specific process behavior.
+ * E.g: 
+ * 	prefix : a -> P
+ * 
+ * 	CmlBehaviour.inspect() = {a}
+ * 	CmlBehaviour.execute() :  trace: a
+ * 	CmlBehaviour.inspect() = alpha(P)
+ *   
  * @author akm
  *
  */

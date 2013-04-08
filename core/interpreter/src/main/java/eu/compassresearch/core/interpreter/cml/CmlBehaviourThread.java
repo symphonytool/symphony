@@ -73,19 +73,42 @@ public interface CmlBehaviourThread extends CmlBehaviour , Transactable{
 	/**
 	 * Process state methods 
 	 */
-	public boolean started();
-	public boolean running();
-	public boolean finished();
-	public boolean waiting();
-	public boolean waitingForChild();
-	public boolean waitingForEvent();
-	
 	
 	/**
-	 * Determines if this process is deadlocked
+	 * Determines whether the process is started
+	 * @return true if the process has been started, meaning the start method has been invoked
+	 * else false
+	 */
+	public boolean started();
+	
+	
+	public boolean running();
+	public boolean finished();
+	
+	/**
+	 * Determines whether the process is in a waiting state.
+	 * @return true if the process is either waiting for a child or an event to occur else false
+	 */
+	public boolean waiting();
+	
+	/**
+	 * Determines whether the process is waiting for a child process.
+	 * @return true if the process is either waiting for a child process else false
+	 */
+	public boolean waitingForChild();
+	
+	/**
+	 * Determines whether the process is waiting for an event to occur.
+	 * @return true if the process is either waiting for an event to occur else false
+	 */
+	public boolean waitingForEvent();
+	
+	/**
+	 * Determines whether this process is deadlocked
 	 * @return true if the process is deadlocked else false
 	 */
 	public boolean deadlocked();
+	
 	/**
 	 * @return The current state of the process
 	 */
