@@ -3,7 +3,10 @@ package eu.compassresearch.core.interpreter.util;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.types.AClassType;
 
+import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.core.interpreter.values.CmlClassDefinitionAdaptor;
+import eu.compassresearch.core.interpreter.values.ProcessDefinitionAdaptor;
 
 public class CmlToVdmConverter {
 	
@@ -12,7 +15,22 @@ public class CmlToVdmConverter {
 		AClassType classType = new AClassType();
 		classType.setResolved(true);
 		classType.setName(processDefinition.getName().clone());
-		classType.setClassdef(createClassClassDefinition(processDefinition));
+		//classType.setClassdef(createClassClassDefinition(processDefinition));
+		ProcessDefinitionAdaptor adaptor = createProcessDefinitionAdaptor(processDefinition);
+		adaptor.setClasstype(classType);
+		classType.setClassdef(adaptor);
+		return classType;
+	}
+	
+	public static AClassType createClassType(AClassDefinition classDefinition)
+	{
+		AClassType classType = new AClassType();
+		classType.setResolved(true);
+		classType.setName(classDefinition.getName().clone());
+		//classType.setClassdef(createClassClassDefinition(processDefinition));
+		CmlClassDefinitionAdaptor adaptor = new CmlClassDefinitionAdaptor(classDefinition);
+		adaptor.setClasstype(classType);
+		classType.setClassdef(adaptor);
 		return classType;
 	}
 	
@@ -23,6 +41,11 @@ public class CmlToVdmConverter {
 		surrogateProcessDef.setName(processDefinition.getName());
 		
 		return surrogateProcessDef;
+	}
+	
+	public static ProcessDefinitionAdaptor createProcessDefinitionAdaptor(AProcessDefinition processDefinition)
+	{
+		return new ProcessDefinitionAdaptor(processDefinition);
 	}
 	
 }

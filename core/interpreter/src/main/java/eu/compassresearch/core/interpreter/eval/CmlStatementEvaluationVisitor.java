@@ -37,6 +37,7 @@ import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.AElseIfStatementAction;
 import eu.compassresearch.ast.actions.AIfStatementAction;
 import eu.compassresearch.ast.actions.ALetStatementAction;
+import eu.compassresearch.ast.actions.ANewStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicDoStatementAction;
 import eu.compassresearch.ast.actions.ANonDeterministicIfStatementAction;
@@ -59,26 +60,41 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		super(parentVisitor);
 	}
 	
+	/**
+	 * This methods splits the assignment call statement into the call and 
+	 * the assignment statements and.
+	 */
 	@Override
-	public CmlBehaviourSignal caseAReturnStatementAction(
-			AReturnStatementAction node, Context question)
+	public CmlBehaviourSignal caseAAssignmentCallStatementAction(
+			AAssignmentCallStatementAction node, Context question)
 			throws AnalysisException {
+	
+		//put return value in a new context
+		Context resultContext = CmlContextFactory.newContext(node.getLocation(), "Call Result Context", question);
+		//put return value in upper context if the parent is a AAssignmentCallStatementAction
+		resultContext.putNew(new NameValuePair(CmlOperationValue.ReturnValueName(), new UndefinedValue()));
+				
+		//To access the result we put it in a Value named "|CALL|.|CALLRETURN|" this can never be created
+		//in a cml model. This is a little ugly but it works and statys until something better comes up.
+		AVariableExp varExp = new AVariableExp(node.getType(), 
+				node.getCall().getLocation(),
+				CmlOperationValue.ReturnValueName(), 
+				"", 
+				null);
+		//Next we create the assignment statement with the expressions that graps the result 
+		ASingleGeneralAssignmentStatementAction assignmentNode =
+				new ASingleGeneralAssignmentStatementAction(node.getLocation(),	
+						node.getType(),
+						node.getDesignator().clone(),
+						varExp);
 
-		Context nameContext = (Context)question.locate(CmlOperationValue.ReturnValueName());
-		if(nameContext != null)
-		{
-			if(node.getExp() != null)
-				nameContext.put(CmlOperationValue.ReturnValueName(), node.getExp().apply(cmlExpressionVisitor,question));
-			else
-				nameContext.put(CmlOperationValue.ReturnValueName(),new VoidValue());
-		}
+		//We now compose the call statement and assignment statement into sequential composition
+		pushNext(assignmentNode, resultContext);
+		pushNext(node.getCall(), resultContext);
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
-	/**
-	 * The action inside a block is executed directly, since it has no semantic meaning.
-	 */
 	@Override
 	public CmlBehaviourSignal caseABlockStatementAction(
 			ABlockStatementAction node, Context question)
@@ -86,7 +102,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		
 		Context blockContext = CmlContextFactory.newContext(node.getLocation(), "block context", question);
 		
-		//add the assignments defs to the context
+		//add the assignment definitions to the block context
 		if(node.getDeclareStatement() != null)
 		{
 			for(PDefinition def : node.getDeclareStatement().getAssignmentDefs())
@@ -98,50 +114,6 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		
 		pushNext(node.getAction(), blockContext); 
 		return CmlBehaviourSignal.EXEC_SUCCESS;
-		//return node.getAction().apply(this,blockContext);
-	}
-	
-	@Override
-	public CmlBehaviourSignal caseAIfStatementAction(AIfStatementAction node,
-			Context question) throws AnalysisException {
-
-		try
-		{
-    		if (node.getIfExp().apply(cmlExpressionVisitor,question).boolValue(question))
-    		{
-    			pushNext(node.getThenStm(), question);
-    			
-    			return CmlBehaviourSignal.EXEC_SUCCESS;
-    		}
-    		else
-    		{
-    			boolean foundElseIf = false;
-    			for (AElseIfStatementAction elseif: node.getElseIf())
-    			{
-    				if(elseif.getElseIf().apply(cmlExpressionVisitor,question).boolValue(question))
-    				{
-    					pushNext(elseif.getThenStm(), question);
-    					foundElseIf = true;
-    					break;
-    				}
-    			}
-
-    			if (node.getElseStm() != null && !foundElseIf)
-    			{
-    				pushNext(node.getElseStm(), question);
-    			}
-
-    			return CmlBehaviourSignal.EXEC_SUCCESS;
-    		}
-        }
-        catch (ValueException e)
-        {
-        	//TODO find a better way to report errors
-        	e.printStackTrace();
-        	//return VdmRuntimeError.abort(node.getLocation(),e);
-        }
-		
-		return CmlBehaviourSignal.FATAL_ERROR;
 	}
 	
 	/*
@@ -255,30 +227,71 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
-	/**
-	 * Assignment - section 7.5.1 D23.2
-	 * 
-	 */
 	@Override
-	public CmlBehaviourSignal caseASingleGeneralAssignmentStatementAction(
-			ASingleGeneralAssignmentStatementAction node, Context question)
-					throws AnalysisException {
-//		question.putNew(new NameValuePair(new LexNameToken("", new LexIdentifierToken("a", false, new LexLocation())), new IntegerValue(2)));
-		Value expValue = node.getExpression().apply(cmlExpressionVisitor,question);
-		
-		//TODO Change this to deal with it in general
-		//LexNameToken stateDesignatorName = CmlActionAssistant.extractNameFromStateDesignator(node.getStateDesignator(),question);
+	public CmlBehaviourSignal caseAIfStatementAction(AIfStatementAction node,
+			Context question) throws AnalysisException {
 
-		Value oldVal = node.getStateDesignator().apply(cmlExpressionVisitor,question);
+		try
+		{
+    		if (node.getIfExp().apply(cmlExpressionVisitor,question).boolValue(question))
+    		{
+    			pushNext(node.getThenStm(), question);
+    			
+    			return CmlBehaviourSignal.EXEC_SUCCESS;
+    		}
+    		else
+    		{
+    			boolean foundElseIf = false;
+    			for (AElseIfStatementAction elseif: node.getElseIf())
+    			{
+    				if(elseif.getElseIf().apply(cmlExpressionVisitor,question).boolValue(question))
+    				{
+    					pushNext(elseif.getThenStm(), question);
+    					foundElseIf = true;
+    					break;
+    				}
+    			}
+
+    			if (node.getElseStm() != null && !foundElseIf)
+    			{
+    				pushNext(node.getElseStm(), question);
+    			}
+
+    			return CmlBehaviourSignal.EXEC_SUCCESS;
+    		}
+        }
+        catch (ValueException e)
+        {
+        	//TODO find a better way to report errors
+        	e.printStackTrace();
+        	//return VdmRuntimeError.abort(node.getLocation(),e);
+        }
 		
-		oldVal.set(node.getLocation(), expValue, question);
+		return CmlBehaviourSignal.FATAL_ERROR;
+	}
+	
+	@Override
+	public CmlBehaviourSignal caseALetStatementAction(ALetStatementAction node,
+			Context question) throws AnalysisException {
+	
+		//Create a new context for the let statement
+		Context letContext = CmlContextFactory.newContext(node.getLocation(), "let action context", question);
+
+		for(PDefinition localDef :node.getLocalDefinitions())
+			letContext.putList(localDef.apply(cmlDefEvaluator,letContext));
 		
-		//System.out.println(stateDesignatorName + " = " + expValue);
-		
-		//now this process evolves into Skip
-		pushNext(new ASkipAction(node.getLocation(),new AActionType()), question);
-		
+		pushNext(node.getAction(), letContext);
+
 		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	@Override
+	public CmlBehaviourSignal caseANewStatementAction(ANewStatementAction node,
+			Context question) throws AnalysisException {
+
+		PDefinition ctorDef = node.getCtorDefinition();
+		
+		return super.caseANewStatementAction(node, question);
 	}
 	
 	/**
@@ -326,6 +339,49 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
+	@Override
+	public CmlBehaviourSignal caseAReturnStatementAction(
+			AReturnStatementAction node, Context question)
+			throws AnalysisException {
+
+		Context nameContext = (Context)question.locate(CmlOperationValue.ReturnValueName());
+		if(nameContext != null)
+		{
+			if(node.getExp() != null)
+				nameContext.put(CmlOperationValue.ReturnValueName(), node.getExp().apply(cmlExpressionVisitor,question));
+			else
+				nameContext.put(CmlOperationValue.ReturnValueName(),new VoidValue());
+		}
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
+	/**
+	 * Assignment - section 7.5.1 D23.2
+	 * 
+	 */
+	@Override
+	public CmlBehaviourSignal caseASingleGeneralAssignmentStatementAction(
+			ASingleGeneralAssignmentStatementAction node, Context question)
+					throws AnalysisException {
+//		question.putNew(new NameValuePair(new LexNameToken("", new LexIdentifierToken("a", false, new LexLocation())), new IntegerValue(2)));
+		Value expValue = node.getExpression().apply(cmlExpressionVisitor,question);
+		
+		//TODO Change this to deal with it in general
+		//LexNameToken stateDesignatorName = CmlActionAssistant.extractNameFromStateDesignator(node.getStateDesignator(),question);
+
+		Value oldVal = node.getStateDesignator().apply(cmlExpressionVisitor,question);
+		
+		oldVal.set(node.getLocation(), expValue, question);
+		
+		//System.out.println(stateDesignatorName + " = " + expValue);
+		
+		//now this process evolves into Skip
+		pushNext(new ASkipAction(node.getLocation(),new AActionType()), question);
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
+	}
+	
 	/**
 	 * 
 	 * //TODO no semantics defined, resolve this!
@@ -348,57 +404,6 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			pushNext(new ASkipAction(), question);
 		}
 		
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
-	}
-	
-	/**
-	 * This methods splits it into the call and assignment statements and
-	 */
-	@Override
-	public CmlBehaviourSignal caseAAssignmentCallStatementAction(
-			AAssignmentCallStatementAction node, Context question)
-			throws AnalysisException {
-	
-		//put return value in a new context
-		Context resultContext = CmlContextFactory.newContext(node.getLocation(), "Call Result Context", question);
-		//put return value in upper context if the parent is a AAssignmentCallStatementAction
-		resultContext.putNew(new NameValuePair(CmlOperationValue.ReturnValueName(), new UndefinedValue()));
-				
-		//To access the result we put it in a Value named "|CALL|.|CALLRETURN|" this can never be created
-		//in a cml model. This is a little ugly but it works and statys until something better comes up.
-		AVariableExp varExp = new AVariableExp(node.getType(), 
-				node.getCall().getLocation(),
-				CmlOperationValue.ReturnValueName(), 
-				"", 
-				null);
-		//Next we create the assignment statement with the expressions that graps the result 
-		ASingleGeneralAssignmentStatementAction assignmentNode =
-				new ASingleGeneralAssignmentStatementAction(node.getLocation(),	
-						node.getType(),
-						node.getDesignator().clone(),
-						varExp);
-
-		//We now compose the call statement and assignment statement into sequential composition
-		pushNext(assignmentNode, resultContext);
-		pushNext(node.getCall(), resultContext);
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
-	}
-	
-	
-	@Override
-	public CmlBehaviourSignal caseALetStatementAction(ALetStatementAction node,
-			Context question) throws AnalysisException {
-	
-		//Create a new context for the let statement
-		Context letContext = CmlContextFactory.newContext(node.getLocation(), "let action context", question);
-
-		for(PDefinition localDef :node.getLocalDefinitions())
-			letContext.putList(localDef.apply(cmlDefEvaluator,letContext));
-		
-		pushNext(node.getAction(), letContext);
-
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 }

@@ -114,6 +114,7 @@ import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
@@ -761,14 +762,15 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 		}
 
-		ACallStatementAction callStm = new ACallStatementAction(node.getClassName().location, node.getClassName(), node.getArgs());
+		ACallStatementAction callStm = new ACallStatementAction(node.getClassName().location, node.getClassName().clone(), node.getArgs());
 		PType applyCtorExpType = callStm.apply(parentChecker,ctorEnv);
 		if (!TCDeclAndDefVisitor.successfulType(applyCtorExpType)) {
 			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node+"")));
 			return node.getType();
 		}
 
-
+		//set the class definition
+		node.setClassdef((AClassDefinition)cmlEnv.lookup(node.getClassName(), AClassDefinition.class));
 		// All done!
 		node.setType(new AActionType());
 		return node.getType();

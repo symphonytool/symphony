@@ -9,6 +9,9 @@ begin
 	operations 
 		A : () ==> A 
 		A() == Skip
+		
+		A : (int) ==> A 
+		A(a) == Skip
 end
 
 process Test = 

@@ -153,7 +153,7 @@ public class CmlDefinitionVisitor extends
 			Context question) throws AnalysisException {
 
 		
-		return super.caseAClassDefinition(node, question);
+		return new NameValuePairList();
 	}
 	
 	/*
