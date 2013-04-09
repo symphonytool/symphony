@@ -13,8 +13,8 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.eval.CmlDefinitionVisitor;
-import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 
 public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor

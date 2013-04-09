@@ -5,8 +5,8 @@ import java.util.Set;
 
 import org.overture.ast.node.INode;
 
+import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 
 public class CmlTauEvent extends CmlSpecialEvent {
 

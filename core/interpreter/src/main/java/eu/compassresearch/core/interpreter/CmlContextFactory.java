@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.runtime;
+package eu.compassresearch.core.interpreter;
 
 import org.overture.ast.lex.LexLocation;
 import org.overture.interpreter.runtime.Context;

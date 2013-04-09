@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import org.overture.interpreter.runtime.Context;
 
+import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
@@ -17,7 +18,6 @@ import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
-import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 
 public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 

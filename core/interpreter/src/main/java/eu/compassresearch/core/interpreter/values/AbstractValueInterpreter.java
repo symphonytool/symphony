@@ -5,8 +5,8 @@ import org.overture.interpreter.values.TupleValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
+import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 
 
 public class AbstractValueInterpreter {

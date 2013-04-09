@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.runtime;
+package eu.compassresearch.core.interpreter;
 
 import java.util.logging.Handler;
 import java.util.logging.Level;

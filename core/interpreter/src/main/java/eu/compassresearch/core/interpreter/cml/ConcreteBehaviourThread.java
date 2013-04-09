@@ -10,6 +10,7 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
+import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
@@ -28,7 +29,6 @@ import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
-import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
 
@@ -411,16 +411,8 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				
 				CmlAlphabet alpha = next.first.apply(alphabetInspectionVisitor,next.second);
 			
-				//we have to check for hidden event and convert them into tau events
-				CmlAlphabet hiddenEvents = alpha.intersect(hidingAlphabet);
-				
-				CmlAlphabet returnAlpha = alpha.subtract(hiddenEvents);
-				
-				for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
-					returnAlpha = returnAlpha.union(new CmlTauEvent(" hiding " + obsEvent.toString()));
-				
-			
-				return returnAlpha;
+				//we have to check for hidden event and convert them into tau events before we return the next alpha
+				return HandleHiding(alpha);
 			}
 			//if the process is done we return the empty alphabet
 			else
@@ -438,6 +430,19 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	/**
 	 * Execute private helper methods
 	 */
+	
+	private CmlAlphabet HandleHiding(CmlAlphabet alpha)
+	{
+		CmlAlphabet hiddenEvents = alpha.intersect(hidingAlphabet);
+		
+		CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
+		
+		for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
+			resultAlpha = resultAlpha.union(new CmlTauEvent(" hiding " + obsEvent.toString()));
+		
+		return resultAlpha;
+	}
+	
 	
 	private CmlBehaviourSignal executeNext() throws AnalysisException
 	{
