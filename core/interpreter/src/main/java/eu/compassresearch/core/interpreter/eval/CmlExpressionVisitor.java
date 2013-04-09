@@ -14,6 +14,7 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
+import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.Value;
 
@@ -31,6 +32,7 @@ import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.values.CmlValueFactory;
 
 public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
 {
@@ -147,6 +149,11 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 			Value fieldValue = recordVal.fieldmap.get(iter.next().getName());
 			
 			return fieldValue;
+		}
+		else if(val.deref() instanceof ObjectValue)
+		{
+			ObjectValue objectVal = val.objectValue(question);
+			return objectVal.members.get(iter.next().getName());
 		}
 		
 		return val;

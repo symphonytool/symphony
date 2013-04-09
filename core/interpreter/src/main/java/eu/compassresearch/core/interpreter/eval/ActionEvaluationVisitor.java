@@ -182,7 +182,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 			ACallStatementAction node, Context question)
 			throws AnalysisException {
 
-		Value value = question.check(node.getName()); 
+		Value value = question.lookup(node.getName()); 
 		
 		if(value instanceof CmlOperationValue)
 			return node.apply(statementEvalVisitor,question);

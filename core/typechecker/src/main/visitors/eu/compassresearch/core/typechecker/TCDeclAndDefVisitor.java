@@ -1326,7 +1326,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		CmlTypeCheckInfo cmlClassEnv = CmlTCUtil.createCmlClassEnvironment(info, node);
 		question.contextSet(CmlTypeCheckInfo.class, cmlClassEnv);
 		AClassType result = new AClassType(node.getLocation(), true, node.getBody(),
-				node.getName(), node.getClassDefinition());
+				node.getName().clone(), node.getClassDefinition());
 		node.setType(result);
 
 		// Add the self identifier 

@@ -1,35 +1,32 @@
 package eu.compassresearch.core.interpreter.eval;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map.Entry;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameList;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.PPattern;
+import org.overture.ast.types.AClassType;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.PatternMatchException;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.MapValue;
+import org.overture.interpreter.values.CPUValue;
 import org.overture.interpreter.values.NameValuePair;
-import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
-import org.overture.interpreter.values.ReferenceValue;
+import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 import org.overture.interpreter.values.VoidValue;
-import org.overture.typechecker.assistant.expression.PExpAssistantTC;
 
 import eu.compassresearch.ast.actions.AAssignmentCallStatementAction;
 import eu.compassresearch.ast.actions.ABlockStatementAction;
@@ -49,8 +46,8 @@ import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
-import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
+import eu.compassresearch.core.interpreter.values.CmlValueFactory;
 
 @SuppressWarnings("serial")
 public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
@@ -289,9 +286,17 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 	public CmlBehaviourSignal caseANewStatementAction(ANewStatementAction node,
 			Context question) throws AnalysisException {
 
-		PDefinition ctorDef = node.getCtorDefinition();
+		ObjectValue classValue = CmlValueFactory.createClassValue(node, question);
+		Context ctorContext = CmlContextFactory.newObjectContext(node.getLocation(), "Class Constructor context", question, classValue);
+		LexNameToken name = node.getClassdef().getName().clone();//new LexNameToken(node.getClassdef().getName().getName(), node.getClassName().getIdentifier().getName(), node.getLocation());
+		ACallStatementAction callStm = new ACallStatementAction(name.location, name, node.getArgs());
+		Value oldVal = node.getDestination().apply(cmlExpressionVisitor,question);
 		
-		return super.caseANewStatementAction(node, question);
+		oldVal.set(node.getLocation(), classValue, question);
+
+		pushNext(callStm, ctorContext);
+		
+		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
 	/**
