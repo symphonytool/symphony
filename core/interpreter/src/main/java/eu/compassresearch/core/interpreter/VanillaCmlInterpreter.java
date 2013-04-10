@@ -207,7 +207,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/classes/class.cml");
+				"src/test/resources/classes/class-methodcall.cml");
 		runOnFile(cml_example);
 
 	}

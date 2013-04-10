@@ -153,7 +153,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		else if(val.deref() instanceof ObjectValue)
 		{
 			ObjectValue objectVal = val.objectValue(question);
-			return objectVal.members.get(iter.next().getName());
+			return objectVal.get(new LexNameToken("",(LexIdentifierToken)iter.next().clone()), false) ;
 		}
 		
 		return val;

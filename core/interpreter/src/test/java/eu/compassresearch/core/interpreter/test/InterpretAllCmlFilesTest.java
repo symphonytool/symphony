@@ -168,6 +168,7 @@ public class InterpretAllCmlFilesTest {
 		List<Object[]> paths = addFilesInFolder("src/test/resources/action/");
 		paths.addAll(addFilesInFolder("src/test/resources/process/"));
 		paths.addAll(addFilesInFolder("src/test/resources/examples/"));
+		paths.addAll(addFilesInFolder("src/test/resources/classes/"));
 		
 		return paths;
 	}
