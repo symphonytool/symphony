@@ -7,44 +7,22 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 
-public class CmlTauEvent extends CmlSpecialEvent {
+class CmlTauEvent extends AbstractCmlEvent implements CmlSpecialEvent {
 
 	protected static CmlTauEvent instance = null;
 	final static String tauString = "\u03C4".toLowerCase();
 	private final INode transitionSrcNode;
 	private final INode transitionDstNode;
 	private String transitionText = null;
-	
-	public static CmlTauEvent newTauEvent(INode transitionSrcNode, INode transitionDstNode)
+						
+	public CmlTauEvent(CmlBehaviourThread source, INode transitionSrcNode, INode transitionDstNode, String transitionText)
 	{
-		return new CmlTauEvent(transitionSrcNode,transitionDstNode);  
-	}
-		
-	public static CmlTauEvent referenceTauEvent()
-	{
-		if(instance == null)
-			instance = new CmlTauEvent(null,null);
-		
-		return instance;
-	}
-		
-	public CmlTauEvent(INode transitionSrcNode, INode transitionDstNode)
-	{
+		super(source);
 		this.transitionSrcNode = transitionSrcNode;
 		this.transitionDstNode = transitionDstNode;
-	}
-	
-	public CmlTauEvent(String text)
-	{
-		this.transitionSrcNode = null;
-		this.transitionDstNode = null;
-		this.transitionText = text;
-	}
-	
-	public void setTransitionText(String text)
-	{
-		transitionText = text;
+		this.transitionText = transitionText;
 	}
 	
 	@Override

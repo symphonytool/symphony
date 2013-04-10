@@ -14,37 +14,27 @@ import eu.compassresearch.core.interpreter.cml.CmlChannel;
  * @author akm
  *
  */
-public abstract class ObservableEvent implements CmlEvent {
+public abstract class ObservableEvent extends AbstractCmlEvent {
 
 	final protected CmlChannel channel;
-	final protected Set<CmlBehaviourThread> eventSources;
+	
 	
 	public ObservableEvent(CmlBehaviourThread eventSource, CmlChannel channel)
 	{
-		this.eventSources = new HashSet<CmlBehaviourThread>();
-		this.eventSources.add(eventSource);
+		super(eventSource);
 		this.channel = channel;
 	}
 	
 	public ObservableEvent(CmlChannel channel)
 	{
-		this.eventSources = new HashSet<CmlBehaviourThread>();
+		super(new HashSet<CmlBehaviourThread>());
 		this.channel = channel;
 	}
 	
 	protected ObservableEvent(Set<CmlBehaviourThread> sources, CmlChannel channel)
 	{
-		this.eventSources = sources;
+		super(sources);
 		this.channel = channel;
-	}
-	
-	/**
-	 * Returns the set of sources that are prepared to engage in this event
-	 * @return
-	 */
-	public Set<CmlBehaviourThread> getEventSources()
-	{
-		return eventSources;
 	}
 	
 	/**

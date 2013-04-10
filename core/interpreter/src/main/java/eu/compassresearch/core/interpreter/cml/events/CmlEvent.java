@@ -1,6 +1,9 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
+import java.util.Set;
+
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 
 
 public interface CmlEvent {
@@ -16,4 +19,10 @@ public interface CmlEvent {
 	 * @return
 	 */
 	public CmlAlphabet getAsAlphabet();
+	
+	/**
+	 * Returns the set of CmlBehaviourThreads that are prepared to engage in this event
+	 * @return
+	 */
+	public Set<CmlBehaviourThread> getEventSources();
 }

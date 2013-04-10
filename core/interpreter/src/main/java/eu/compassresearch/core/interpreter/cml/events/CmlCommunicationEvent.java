@@ -25,7 +25,7 @@ import eu.compassresearch.core.interpreter.cml.CmlChannel;
 import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.values.AnyValue;
 
-public class CmlCommunicationEvent extends ObservableEvent {
+class CmlCommunicationEvent extends ObservableEvent {
 
 	private Value value;
 	

@@ -1,11 +1,13 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+
 
 /**
  * Special abstract marker class that marks this event as a special event
  * @author akm
  *
  */
-public abstract class CmlSpecialEvent implements CmlEvent {
+public interface CmlSpecialEvent extends CmlEvent {
 
 }

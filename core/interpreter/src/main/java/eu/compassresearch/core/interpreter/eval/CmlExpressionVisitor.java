@@ -27,12 +27,10 @@ import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
-import eu.compassresearch.core.interpreter.values.CmlValueFactory;
 
 public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
 {
@@ -109,11 +107,11 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		AChannelType chanType = (AChannelType)chanValue.getType(); 
 		if(chanType.getType() == null)
 		{		
-			return new PrefixEvent(chanValue);
+			return CmlEventFactory.newPrefixEvent(chanValue);
 		}
 		else
 		{
-			return new CmlCommunicationEvent(chanValue, null);
+			return CmlEventFactory.newCmlCommunicationEvent(chanValue, null);
 		}
 	}
 	

@@ -14,7 +14,7 @@ import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectVisitor;
@@ -351,7 +351,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				ret = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
 			//execute silently if the current alphabet contains is a silent action
-			else if(alpha.contains(CmlTauEvent.referenceTauEvent())){
+			else if(alpha.contains(CmlEventFactory.referenceTauEvent())){
 				//FIXME: this might not be the best idea to get the special event
 				updateTrace(alpha.getSpecialEvents().iterator().next());
 				ret = executeNext();
@@ -438,8 +438,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
 		
 		for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
-			resultAlpha = resultAlpha.union(new CmlTauEvent(" hiding " + obsEvent.toString()));
-		
+			resultAlpha = resultAlpha.union(CmlEventFactory.newTauEvent(this,null,null," hiding " + obsEvent.toString()));	
 		return resultAlpha;
 	}
 	

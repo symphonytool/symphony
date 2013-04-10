@@ -14,7 +14,7 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
-import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
@@ -175,7 +175,7 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 			{
 				CmlAlphabet availableEvents = p.inspect();
 
-				if(availableEvents.contains(CmlTauEvent.referenceTauEvent()))
+				if(availableEvents.contains(CmlEventFactory.referenceTauEvent()))
 					throw new InterpreterRuntimeException("A silent transition '"+ availableEvents.getSpecialEvents() +"' has slipped through to a place where only observable events should be.");
 				else
 				{

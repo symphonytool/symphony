@@ -45,14 +45,12 @@ import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
 import eu.compassresearch.core.interpreter.cml.events.CommunicationParameter;
 import eu.compassresearch.core.interpreter.cml.events.InputParameter;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
-import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
 import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
@@ -93,9 +91,7 @@ public class AlphabetInspectVisitor
 	private CmlAlphabet createSilentTransition(INode srcNode, INode dstNode, String transitionText)
 	{
 		HashSet<CmlEvent> specialEvents = new HashSet<CmlEvent>();
-		CmlTauEvent tau = CmlTauEvent.newTauEvent(srcNode,dstNode);
-		tau.setTransitionText(transitionText);
-		specialEvents.add(tau);
+		specialEvents.add(CmlEventFactory.newTauEvent(ownerProcess,srcNode,dstNode,transitionText));
 		return new CmlAlphabet(specialEvents);
 	}
 	
@@ -535,7 +531,7 @@ public class AlphabetInspectVisitor
 		//if there are no com params then we have a prefix event
 		if(node.getCommunicationParameters().isEmpty())
 		{
-			comset.add(new PrefixEvent(ownerProcess, chanValue));
+			comset.add(CmlEventFactory.newPrefixEvent(ownerProcess, chanValue));
 		}
 		//otherwise we convert the com params
 		else
@@ -566,7 +562,7 @@ public class AlphabetInspectVisitor
 				params.add(param);
 			}
 			
-			ObservableEvent observableEvent = new CmlCommunicationEvent(ownerProcess, chanValue, params);
+			ObservableEvent observableEvent = CmlEventFactory.newCmlCommunicationEvent(ownerProcess, chanValue, params);
 			comset.add(observableEvent);
 		}
 		//TODO: do the rest here
