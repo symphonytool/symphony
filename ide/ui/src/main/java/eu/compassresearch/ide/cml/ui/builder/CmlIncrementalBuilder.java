@@ -7,10 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.eclipse.core.internal.registry.osgi.OSGIUtils;
-import org.eclipse.core.internal.runtime.Log;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -19,12 +16,9 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Plugin;
-import org.eclipse.ui.PlatformUI;
+import org.overture.ast.definitions.AAssignmentDefinition;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 
@@ -38,7 +32,6 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLIssueList;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
 import eu.compassresearch.ide.cml.core.ICmlCoreConstants;
-import eu.compassresearch.ide.cml.ui.CmlUIPlugin;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
@@ -122,11 +115,13 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 
 	private synchronized static boolean typeCheck(IProject project, Map<PSource,IFile> sourceToFileMap)
 	{
+		
 		if (project == null) return false;
 		if (sourceToFileMap == null) return false;
 		Thread.currentThread().setName("Type Checker");
 		Registry reg = RegistryFactory.getInstance(project.getName()).getRegistry();
 		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle(reg);
+		PDefinition p = new AAssignmentDefinition();
 		CmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sourceToFileMap.keySet(), issueHandler);
 		try {
 			boolean result =  typeChecker.typeCheck();
