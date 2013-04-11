@@ -10,6 +10,8 @@ import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
+import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.process.ASkipProcess;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -600,7 +602,10 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 
 	@Override
 	public boolean finished() {
-		return getState() == CmlProcessState.FINISHED;
+		//return getState() == CmlProcessState.FINISHED;
+		return getExecutionStack().size() == 1 && 
+				(nextState().first instanceof ASkipAction ||
+				nextState().first instanceof ASkipProcess);
 	}
 	
 	@Override

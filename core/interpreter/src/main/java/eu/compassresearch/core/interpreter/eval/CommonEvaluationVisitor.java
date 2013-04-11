@@ -300,23 +300,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		
 		return null;
 	}
-	
-	/**
-	 * 
-	 * @param event
-	 * @return
-	 */
-	protected CmlBehaviourThread findTheChoosenChild(ObservableEvent event)
-	{
-		for(CmlBehaviourThread child : children())
-		{
-			if(child.waiting() && child.inspect().containsImprecise(event))
-				return child;
-		}
 		
-		return null;
-	}
-	
 	protected void killAndRemoveAllTheEvidenceOfTheChildren()
 	{
 		//Abort all the children of this action

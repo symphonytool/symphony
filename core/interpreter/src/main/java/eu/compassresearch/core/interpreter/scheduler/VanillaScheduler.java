@@ -151,8 +151,10 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 
 				if(context.getSelf() != null)
 					state = context.getSelf().toString();
-				else
+				else if (context.outer != null)
 					state = context.getRoot().toString();
+				else
+					state = context.toString();
 
 				CmlRuntime.logger().fine("State for "+event+" : " +  state);
 			}

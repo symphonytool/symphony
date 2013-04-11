@@ -214,25 +214,18 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 			pushNext(node, question);
 
 		}
-		//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
-		else if(CmlBehaviourThreadUtility.childWaitingForEventExists(ownerThread()))
-		{
-			result = caseParallelNonSync();
-
-			//We push the current state, 
-			pushNext(node, question);
-
-		}
 		//the process has children and must now handle either termination or event sync
 		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(ownerThread()))
 		{
-			removeTheChildren();
-			
-			pushNext(new ASkipProcess(), question);
-			
-			result = CmlBehaviourSignal.EXEC_SUCCESS;
+			result = caseParallelEnd(question); 
 		}
-		//else if ()
+		else
+		{
+			//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
+			result = caseParallelNonSync();
+			//We push the current state, 
+			pushNext(node, question);
+		}
 
 		return result;
 	}
