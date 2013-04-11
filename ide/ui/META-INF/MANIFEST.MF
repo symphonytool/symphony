@@ -31,12 +31,8 @@ Require-Bundle: org.eclipse.debug.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui,
  org.eclipse.equinox.common,
- org.overture.ide.ui,
- org.overture.ide.core,
- org.overture.ide.builders.vdmj,
- eu.compassresearch.ide.cml.core
+ eu.compassresearch.ide.cml.core,
+ org.overture.ide.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Eclipse-BuddyPolicy: registered
-Import-Package: org.eclipse.ui.internal.navigator.resources.workbench
 Bundle-ClassPath: .

@@ -19,6 +19,5 @@ Require-Bundle: org.eclipse.debug.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
-Import-Package: eu.compassresearch.ide.cml.core
 Bundle-ClassPath: .,
  jars/securityanalysis.jar
