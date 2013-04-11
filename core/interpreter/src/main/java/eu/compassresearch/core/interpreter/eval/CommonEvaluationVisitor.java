@@ -68,13 +68,19 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		{
 			result = caseParallelEnd(question); 
 		}
-		//At least one child is not finished and waiting for event, this will either invoke the Parallel Non-sync or Sync rule
-		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrStoppedOrWaitingForEvent(ownerThread()))
+		else
 		{
 			result = caseParallelSyncOrNonsync(chansetExp, question);
-			//We push the current state, 
+			//We push the current state,
 			pushNext(node, question);
 		}
+//		//At least one child is not finished and waiting for event, this will either invoke the Parallel Non-sync or Sync rule
+//		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrStoppedOrWaitingForEvent(ownerThread()))
+//		{
+//			result = caseParallelSyncOrNonsync(chansetExp, question);
+//			//We push the current state, 
+//			pushNext(node, question);
+//		}
 
 		return result;
 	}
