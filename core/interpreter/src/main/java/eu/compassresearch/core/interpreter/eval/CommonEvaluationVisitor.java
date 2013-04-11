@@ -186,14 +186,31 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		{
 			result = caseExternalChoiceSkip();
 		}
-		//if this is true, then we can resolve the choice to the event
-		//of one of the children that are waiting for events
-		else if(CmlBehaviourThreadUtility.childWaitingForEventExists(ownerThread()))
-		{
-			result = caseExternalChoiceEnd();
-		}
 		else
-			result = CmlBehaviourSignal.FATAL_ERROR;
+		{
+			for(CmlBehaviourThread child : children())
+			{
+				if(child.inspect().contains(ownerThread().supervisor().selectedObservableEvent()))
+				{
+					if(ownerThread().supervisor().selectedObservableEvent() instanceof ObservableEvent)
+						result = caseExternalChoiceEnd(child);
+					else
+					{
+						result = executeChildAsSupervisor(child);
+						pushNext(node, question);
+					}
+				}
+			}
+		}
+//		//if this is true, then we can resolve the choice to the event
+//		//of one of the children that are waiting for events
+//		else if(CmlBehaviourThreadUtility.childWaitingForEventExists(ownerThread()))
+//		{
+//			result = caseExternalChoiceEnd();
+//		}
+//		else
+//			result = CmlBehaviourSignal.FATAL_ERROR;
+		
 		
 		return result;
 		
@@ -246,9 +263,9 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	 * Handles the external choice end rule
 	 * @return
 	 */
-	protected CmlBehaviourSignal caseExternalChoiceEnd()
+	protected CmlBehaviourSignal caseExternalChoiceEnd(CmlBehaviourThread theChoosenOne)
 	{
-		CmlBehaviourThread theChoosenOne = findTheChoosenChild(supervisor().selectedObservableEvent());
+		//CmlBehaviourThread theChoosenOne = findTheChoosenChild((ObservableEvent)supervisor().selectedObservableEvent());
 		
 		//first we execute the child
 		CmlBehaviourSignal result = executeChildAsSupervisor(theChoosenOne);

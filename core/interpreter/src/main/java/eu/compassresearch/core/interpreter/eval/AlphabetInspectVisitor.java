@@ -363,25 +363,40 @@ public class AlphabetInspectVisitor
 		//external choice begin
 		if(!ownerProcess.hasChildren())
 			alpha = createSilentTransition(node, node,"Begin");
-		//if all children are waiting for events or are finished then we how to investigate further
-		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrStoppedOrWaitingForEvent(ownerProcess))
+		//if one child is finished external choice must end
+		else if (CmlBehaviourThreadUtility.finishedChildExists(ownerProcess))
+			alpha = createSilentTransition(node, node,"end");
+		//else we join the childrens alphabets 
+		else
 		{
-			//if there exist a finished child then the external choice ends with a silent transition
-			//where the state of the finished is used
-			if(CmlBehaviourThreadUtility.finishedChildExists(ownerProcess))
-				alpha = createSilentTransition(node, node,"end");
-			else
+			for(CmlBehaviourThread child : ownerProcess.children())
 			{
-				//If all the children are waiting for events, we must try to let them
-				for(CmlBehaviourThread child : ownerProcess.children())
-				{
-					if(alpha == null)
-						alpha = calculateDeadlockFreeChildAlphabet(child);
-					else
-						alpha = alpha.union(calculateDeadlockFreeChildAlphabet(child));
-				}
+				if(alpha == null)
+					alpha = calculateDeadlockFreeChildAlphabet(child);
+				else
+					alpha = alpha.union(calculateDeadlockFreeChildAlphabet(child));
 			}
 		}
+		
+//		//if all children are waiting for events or are finished then we how to investigate further
+//		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrStoppedOrWaitingForEvent(ownerProcess))
+//		{
+//			//if there exist a finished child then the external choice ends with a silent transition
+//			//where the state of the finished is used
+//			if(CmlBehaviourThreadUtility.finishedChildExists(ownerProcess))
+//				alpha = createSilentTransition(node, node,"end");
+//			else
+//			{
+//				//If all the children are waiting for events, we must try to let them
+//				for(CmlBehaviourThread child : ownerProcess.children())
+//				{
+//					if(alpha == null)
+//						alpha = calculateDeadlockFreeChildAlphabet(child);
+//					else
+//						alpha = alpha.union(calculateDeadlockFreeChildAlphabet(child));
+//				}
+//			}
+//		}
 		
 		return alpha;
 	}

@@ -92,9 +92,7 @@ public abstract class ObservableEvent extends AbstractCmlEvent {
 		other = (ObservableEvent)obj;
 		
 		return other.getChannel().equals(getChannel()) && 
-				// other is subset of this or this is a subset of other
-				(other.getEventSources().containsAll(getEventSources()) || 
-						getEventSources().containsAll(other.getEventSources()));
+				super.equals(obj);
 	}
 	
 }

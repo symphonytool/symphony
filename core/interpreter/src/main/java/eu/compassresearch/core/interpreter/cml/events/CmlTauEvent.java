@@ -37,7 +37,7 @@ class CmlTauEvent extends AbstractCmlEvent implements CmlSpecialEvent {
 				
 					+ ( transitionText != null ? "--" + transitionText + "-->"  : "->" )
 			
-					+ ( transitionDstNode != null ? transitionDstNode.getClass().getSimpleName(): "" ) + ")";
+					+ ( transitionDstNode != null ? transitionDstNode.getClass().getSimpleName(): "" ) + ") : " + getEventSources();
 		else
 			return tauString;
 	}
@@ -48,7 +48,7 @@ class CmlTauEvent extends AbstractCmlEvent implements CmlSpecialEvent {
 		if(!(obj instanceof CmlTauEvent))
 			return false;
 		else
-			return true;
+			return super.equals(obj);
 	}
 
 	@Override

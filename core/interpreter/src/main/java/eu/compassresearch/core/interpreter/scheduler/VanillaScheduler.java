@@ -14,8 +14,7 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
-import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 
@@ -130,85 +129,138 @@ public class VanillaScheduler implements CmlProcessStateObserver , CmlScheduler{
 		if(null == sve)
 			throw new NullPointerException("The supervisor cannot be set to null in the scheduler");
 		
-		//Active state
-		while(!stopped && hasActiveProcesses())
+		CmlBehaviourThread topProcess = getTopLevelProcess();
+		
+		//continue until the top process is not finished and not deadlocked
+		while(!stopped && !topProcess.finished() && !topProcess.deadlocked())
+	//	while(!stopped && hasActiveProcesses())
 		{
-			//execute each of the RUNNABLE processes until they are either finished, stopped or in wait state
-			while(!stopped && hasRunningProcesses())
-			{
-				//schedule the next process to execute
-				CmlBehaviourThread p = policy.scheduleNextProcess(getRunningProcesses());
-				//execute the scheduled process
-				CmlBehaviourSignal signal = p.execute(sve);
-				
-				if(signal != CmlBehaviourSignal.EXEC_SUCCESS)
-					throw new InterpreterRuntimeException("Return CMLBehaviourSignal was unsuccesful at : " + p.nextStepToString());
-
-				CmlTrace trace = p.getTraceModel();
-				
-				if(CmlTrace.isObservableEvent(trace.getLastEvent()) && p.getState() != CmlProcessState.WAIT_EVENT)
-				{
-					CmlRuntime.logger().fine("----------------observable step by '"+ p +"'----------------");
-					CmlRuntime.logger().fine("Observable trace of '"+p+"': " + trace.getVisibleTrace());
-					
-				}
-				else 
-				{
-					CmlRuntime.logger().fine("----------------Silent step by '"+ p +"'----------------");
-					CmlRuntime.logger().fine("Trace of '"+p+"': " + trace);
-				}
-				CmlRuntime.logger().fine("Eval. Status={ " + p.nextStepToString() + " }");
-			}
-
-			/**
-			 * Now, all the processes are sleeping tight, so the selected decision strategy needs to 
-			 * decide which event should occur and wake them up.
-			 */
-			CmlBehaviourThread p = getTopLevelProcess();
+			//inspect the top process to get the next possible trace element
+			CmlAlphabet topAlphabet = topProcess.inspect();
+			//expand what's possible in the alphabet
+			CmlAlphabet availableEvents = topAlphabet.expandAlphabet();
 			
-			if(p.deadlocked())
+			CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getAllEvents());
+			
+			for(CmlEvent event : availableEvents.getAllEvents())
 			{
-				CmlRuntime.logger().fine("Top process '" + p.name() + "' is deadlocked");
-				break;
-			}
-			else if(p.waiting())
-			{
-				CmlAlphabet availableEvents = p.inspect();
+				//TODO this should be handled differently
+				Context context = event.getEventSources().iterator().next().getExecutionState().second;
 
-				if(availableEvents.contains(CmlEventFactory.referenceTauEvent()))
-					throw new InterpreterRuntimeException("A silent transition '"+ availableEvents.getSpecialEvents() +"' has slipped through to a place where only observable events should be.");
+				String state;
+
+				if(context.getSelf() != null)
+					state = context.getSelf().toString();
 				else
-				{
-					availableEvents = availableEvents.expandAlphabet();
-					CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getObservableEvents());
-					for(ObservableEvent obsEvent : availableEvents.getObservableEvents())
-					{
-						//TODO this should be handles differently
-						Context context = obsEvent.getEventSources().iterator().next().getExecutionState().second;
-						
-						String state;
-						
-						if(context.getSelf() != null)
-							state = context.getSelf().toString();
-						else
-							state = context.getRoot().toString();
-						
-						CmlRuntime.logger().fine("State for "+obsEvent+" : " +  state);
-					}
-					
-					//Let the given decision function select one of the observable events 
-					ObservableEvent selectedEvent = sve.decisionFunction().select(availableEvents); 
-					
-					if(stopped)
-					{
-				//		p.setAbort(null);
-						break;
-					}
-						
-					//Set the selected event on the supervisor
-					sve.setSelectedObservableEvent(selectedEvent);
-				}
+					state = context.getRoot().toString();
+
+				CmlRuntime.logger().fine("State for "+event+" : " +  state);
 			}
+
+			//Let the given decision function select one of the observable events 
+			CmlEvent selectedEvent = sve.decisionFunction().select(availableEvents); 
+
+			//Set the selected event on the supervisor
+			sve.setSelectedObservableEvent(selectedEvent);
+			
+			CmlBehaviourSignal signal = topProcess.execute(sve);
+			
+			if(signal != CmlBehaviourSignal.EXEC_SUCCESS)
+				throw new InterpreterRuntimeException("Return CMLBehaviourSignal was unsuccesful at : " + topProcess.nextStepToString());
+			
+			CmlTrace trace = topProcess.getTraceModel();
+			
+			if(CmlTrace.isObservableEvent(trace.getLastEvent()) && topProcess.getState() != CmlProcessState.WAIT_EVENT)
+			{
+				CmlRuntime.logger().fine("----------------observable step by '"+ topProcess +"'----------------");
+				CmlRuntime.logger().fine("Observable trace of '"+topProcess+"': " + trace.getVisibleTrace());
+				
+			}
+			else 
+			{
+				CmlRuntime.logger().fine("----------------Silent step by '"+ topProcess +"'----------------");
+				CmlRuntime.logger().fine("Trace of '"+topProcess+"': " + trace);
+			}
+			CmlRuntime.logger().fine("Eval. Status={ " + topProcess.nextStepToString() + " }");
+			
+			///old scheduler logic down from here
+			
+//			//execute each of the RUNNABLE processes until they are either finished, stopped or in wait state
+//			while(!stopped && hasRunningProcesses())
+//			{
+//				//schedule the next process to execute
+//				CmlBehaviourThread p = policy.scheduleNextProcess(getRunningProcesses());
+//				//execute the scheduled process
+//				CmlBehaviourSignal signal = p.execute(sve);
+//				
+//				if(signal != CmlBehaviourSignal.EXEC_SUCCESS)
+//					throw new InterpreterRuntimeException("Return CMLBehaviourSignal was unsuccesful at : " + p.nextStepToString());
+//
+//				CmlTrace trace = p.getTraceModel();
+//				
+//				if(CmlTrace.isObservableEvent(trace.getLastEvent()) && p.getState() != CmlProcessState.WAIT_EVENT)
+//				{
+//					CmlRuntime.logger().fine("----------------observable step by '"+ p +"'----------------");
+//					CmlRuntime.logger().fine("Observable trace of '"+p+"': " + trace.getVisibleTrace());
+//					
+//				}
+//				else 
+//				{
+//					CmlRuntime.logger().fine("----------------Silent step by '"+ p +"'----------------");
+//					CmlRuntime.logger().fine("Trace of '"+p+"': " + trace);
+//				}
+//				CmlRuntime.logger().fine("Eval. Status={ " + p.nextStepToString() + " }");
+//			}
+//
+//			/**
+//			 * Now, all the processes are sleeping tight, so the selected decision strategy needs to 
+//			 * decide which event should occur and wake them up.
+//			 */
+//			CmlBehaviourThread p = getTopLevelProcess();
+//			
+//			if(p.deadlocked())
+//			{
+//				CmlRuntime.logger().fine("Top process '" + p.name() + "' is deadlocked");
+//				break;
+//			}
+//			else if(p.waiting())
+//			{
+//				CmlAlphabet availableEvents = p.inspect();
+//
+//				if(availableEvents.contains(CmlEventFactory.referenceTauEvent()))
+//					throw new InterpreterRuntimeException("A silent transition '"+ availableEvents.getSpecialEvents() +"' has slipped through to a place where only observable events should be.");
+//				else
+//				{
+//					availableEvents = availableEvents.expandAlphabet();
+//					CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getObservableEvents());
+//					for(ObservableEvent obsEvent : availableEvents.getObservableEvents())
+//					{
+//						//TODO this should be handles differently
+//						Context context = obsEvent.getEventSources().iterator().next().getExecutionState().second;
+//						
+//						String state;
+//						
+//						if(context.getSelf() != null)
+//							state = context.getSelf().toString();
+//						else
+//							state = context.getRoot().toString();
+//						
+//						CmlRuntime.logger().fine("State for "+obsEvent+" : " +  state);
+//					}
+//					
+//					//Let the given decision function select one of the observable events 
+//					ObservableEvent selectedEvent = sve.decisionFunction().select(availableEvents); 
+//					
+//					if(stopped)
+//					{
+//				//		p.setAbort(null);
+//						break;
+//					}
+//						
+//					//Set the selected event on the supervisor
+//					sve.setSelectedObservableEvent(selectedEvent);
+//				}
+//			}
 		}
 	}
 	

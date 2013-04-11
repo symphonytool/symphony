@@ -79,7 +79,7 @@ public class CmlAlphabet extends Value {
 	 * Returns all the observable and special events in the alphabet as a set.
 	 * @return all the observable and special events. 
 	 */
-	protected Set<CmlEvent> getAllEvents()
+	public Set<CmlEvent> getAllEvents()
 	{
 		Set<CmlEvent> allEvents = new LinkedHashSet<CmlEvent>();
 		allEvents.addAll(_observableEvents);
@@ -210,7 +210,7 @@ public class CmlAlphabet extends Value {
 	 */
 	public boolean containsImprecise(CmlEvent event)
 	{
-		return !intersectImprecise(event.getAsAlphabet()).isEmpty();
+		return !intersectImprecise(event.getAsAlphabet()).isEmpty() || contains(event);
 	}
 	
 	public boolean isEmpty(){
@@ -260,12 +260,12 @@ public class CmlAlphabet extends Value {
 	 */
 	public CmlAlphabet expandAlphabet()
 	{
-		Set<CmlEvent> eventSet = new HashSet<CmlEvent>();
+		Set<ObservableEvent> eventSet = new HashSet<ObservableEvent>();
 		
 		for(ObservableEvent ev : getObservableEvents())
 			eventSet.addAll(ev.expand());
 		
-		return new CmlAlphabet(eventSet);
+		return new CmlAlphabet(eventSet,getSpecialEvents());
 		
 	}
 	

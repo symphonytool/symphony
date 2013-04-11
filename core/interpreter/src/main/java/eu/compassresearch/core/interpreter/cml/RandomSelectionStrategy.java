@@ -21,6 +21,7 @@ import org.overture.interpreter.values.ValueList;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.CmlRuntime;
+import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 /**
@@ -36,27 +37,26 @@ public class RandomSelectionStrategy implements
 	private static final Random rndValue = new Random(randomSeed);
 	
 	@Override
-	public ObservableEvent select(CmlAlphabet availableChannelEvents) {
+	public CmlEvent select(CmlAlphabet availableChannelEvents) {
 		
-		Set<ObservableEvent> comms = availableChannelEvents.getObservableEvents();
-		ObservableEvent selectedComm = null;
+		CmlEvent selectedComm = null;
 		
-		if(!comms.isEmpty())
+		if(!availableChannelEvents.isEmpty())
 		{
-			int nElems = availableChannelEvents.getObservableEvents().size();
+			int nElems = availableChannelEvents.getAllEvents().size();
 			
 			//pick a random but deterministic choice
-			selectedComm = new ArrayList<ObservableEvent>(
-					availableChannelEvents.getObservableEvents()).get(rndChoice.nextInt(nElems));
+			selectedComm = new ArrayList<CmlEvent>(
+					availableChannelEvents.getAllEvents()).get(rndChoice.nextInt(nElems));
 			
-			if(!selectedComm.isValuePrecise())
+			if(selectedComm instanceof ObservableEvent && !((ObservableEvent)selectedComm).isValuePrecise())
 			{
-				AChannelType t = (AChannelType)selectedComm.getChannel().getType();
+				AChannelType t = (AChannelType)((ObservableEvent)selectedComm).getChannel().getType();
 				
-				selectedComm.setValue(
+				((ObservableEvent)selectedComm).setValue(
 						AbstractValueInterpreter.meet(
-						selectedComm.getValue(),
-						getRandomValueFromType(t.getType(),selectedComm)));
+						((ObservableEvent)selectedComm).getValue(),
+						getRandomValueFromType(t.getType(),(ObservableEvent)selectedComm)));
 			}
 		}
 		//CmlRuntime.logger().fine("Available events " + availableChannelEvents.getObservableEvents());

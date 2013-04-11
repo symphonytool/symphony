@@ -20,6 +20,7 @@ import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
+import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 
@@ -29,27 +30,28 @@ CmlCommunicationSelectionStrategy {
 	Scanner scanIn = new Scanner(System.in);
 
 	@Override
-	public ObservableEvent select(CmlAlphabet availableChannelEvents) {
+	public CmlEvent select(CmlAlphabet availableChannelEvents) {
 
 		System.out.println("Available events : ");
-		List<ObservableEvent> events = new ArrayList<ObservableEvent>(availableChannelEvents.getObservableEvents());
+		List<CmlEvent> events = new ArrayList<CmlEvent>(availableChannelEvents.getAllEvents());
 
 		for(int i = 0; i <  events.size();i++)
 		{
-			ObservableEvent obsEvent = events.get(i);
+			CmlEvent obsEvent = events.get(i);
 			System.out.println( "[" + i + "]" + obsEvent.toString());
 		}
 		
-		ObservableEvent chosenEvent = events.get(scanIn.nextInt());
+		CmlEvent chosenEvent = events.get(scanIn.nextInt());
 		
 
-		if(!chosenEvent.isValuePrecise())
+		if(chosenEvent instanceof ObservableEvent && !((ObservableEvent)chosenEvent).isValuePrecise())
 		{
 			System.out.println("Enter value : "); 
 			Value val;
 			try {
-				val = ((AChannelType)chosenEvent.getChannel().getType()).getType().apply(new ValueParser(),chosenEvent);
-				chosenEvent.setValue(val);
+				val = ((AChannelType)((ObservableEvent)chosenEvent).getChannel().getType()).getType().
+						apply(new ValueParser(),(ObservableEvent)chosenEvent);
+				((ObservableEvent)chosenEvent).setValue(val);
 			} catch (AnalysisException e) {
 				e.printStackTrace();
 				System.exit(-1);

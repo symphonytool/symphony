@@ -34,7 +34,7 @@ public class CmlBehaviourThreadUtility {
 		
 		return false;
 	}
-		
+				
 	public static boolean finishedChildExists(CmlBehaviourThread process)
 	{
 		for(CmlBehaviourThread child : process.children())

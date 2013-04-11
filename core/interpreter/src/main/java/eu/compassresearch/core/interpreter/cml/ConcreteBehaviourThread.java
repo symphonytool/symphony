@@ -223,8 +223,8 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	@Override
 	public boolean isRegistered(CmlChannel channel) {
 
-		if(level() == 0 ) 
-			return env.selectedObservableEvent().getChannel().onSelect().isRegistered(this);
+		if(level() == 0 && env.selectedObservableEvent() instanceof ObservableEvent) 
+			return ((ObservableEvent)env.selectedObservableEvent()).getChannel().onSelect().isRegistered(this);
 		else
 			return this.parent().isRegistered(channel);
 	}
@@ -350,12 +350,12 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				setState(CmlProcessState.STOPPED);
 				ret = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
-			//execute silently if the current alphabet contains is a silent action
-			else if(alpha.contains(CmlEventFactory.referenceTauEvent())){
-				//FIXME: this might not be the best idea to get the special event
-				updateTrace(alpha.getSpecialEvents().iterator().next());
-				ret = executeNext();
-			}
+//			//execute silently if the current alphabet contains is a silent action
+//			else if(alpha.contains(CmlEventFactory.referenceTauEvent())){
+//				//FIXME: this might not be the best idea to get the special event
+//				updateTrace(alpha.getSpecialEvents().iterator().next());
+//				ret = executeNext();
+//			}
 			else 
 			{	
 				/**
@@ -370,12 +370,12 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				 */
 				//
 				if(env.isSelectedEventValid() &&  
-						alpha.containsImprecise(env.selectedObservableEvent()) &&
-						isRegistered(env.selectedObservableEvent().getChannel()))
+						alpha.containsImprecise(env.selectedObservableEvent()) 
+						)
 				{
 					ret = executeNext();
-					if(level() == 0)
-						unregisterChannel(env.selectedObservableEvent());
+					if(level() == 0 && env.selectedObservableEvent() instanceof ObservableEvent)
+						unregisterChannel((ObservableEvent)env.selectedObservableEvent());
 					updateTrace(env.selectedObservableEvent());
 				}
 				//if no communication is selected by the supervisor or we cannot sync the selected events

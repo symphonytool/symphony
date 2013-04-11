@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter.cml;
 
 import java.util.List;
 
+import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 
 public interface CmlSupervisorEnvironment {
@@ -36,8 +37,8 @@ public interface CmlSupervisorEnvironment {
 	 * returns the selected communication
 	 * @return The selected CMLCommunication if communicationSelected() is true else null
 	 */
-	public ObservableEvent selectedObservableEvent();
-	public void setSelectedObservableEvent(ObservableEvent comm);
+	public CmlEvent selectedObservableEvent();
+	public void setSelectedObservableEvent(CmlEvent comm);
 	/**
 	 * Clears the currently selected CMLCommunication
 	 */

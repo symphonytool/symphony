@@ -45,6 +45,7 @@ import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
@@ -102,11 +103,11 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	}
 
 	/**
-	 * Synchronisation and Communication D23.2 7.5.2
+	 * Synchronization and Communication D23.2 7.5.2
 	 * 
 	 * This transition can either be
 	 * Simple prefix   	: a -> A
-	 * Synchronisation 	: a.1 -> A
+	 * Synchronization 	: a.1 -> A
 	 * Output			: a!2 -> A
 	 * Input			: a?x -> A
 	 * As defined in 7.5.2 in D23.2
@@ -117,7 +118,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 			throws AnalysisException {
 		
 		//At this point the supervisor has already given go to the event, or the event is hidden
-		Value value = supervisor().selectedObservableEvent().getValue();
+		Value value = ((ObservableEvent)supervisor().selectedObservableEvent()).getValue();
 		
 //		if(node.getCommunicationParameters() != null && 
 //				node.getCommunicationParameters().size() > 1
