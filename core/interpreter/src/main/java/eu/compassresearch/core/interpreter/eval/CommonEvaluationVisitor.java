@@ -63,14 +63,14 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 			//We push the current state, since this process will control the child processes created by it
 			pushNext(node, question);
 		}
-		//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
-		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(ownerThread()))
-		{
-			result = caseParallelEnd(question); 
-		}
 		else
 		{
 			result = caseParallelSyncOrNonsync(chansetExp, question);
+			
+			//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
+			if (CmlBehaviourThreadUtility.isAllChildrenFinished(ownerThread()))
+				caseParallelEnd(question);
+			else
 			//We push the current state,
 			pushNext(node, question);
 		}
@@ -129,9 +129,10 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()) &&
 				rightChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
 		{
-			executeChildAsSupervisor(leftChild);
-			executeChildAsSupervisor(rightChild);
-			return CmlBehaviourSignal.EXEC_SUCCESS;
+			if(executeChildAsSupervisor(leftChild) != CmlBehaviourSignal.EXEC_SUCCESS)
+				return CmlBehaviourSignal.FATAL_ERROR;
+			
+			return executeChildAsSupervisor(rightChild);
 		}
 		else if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
 		{
@@ -196,7 +197,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		{
 			for(CmlBehaviourThread child : children())
 			{
-				if(child.inspect().contains(ownerThread().supervisor().selectedObservableEvent()))
+				if(child.inspect().containsImprecise(ownerThread().supervisor().selectedObservableEvent()))
 				{
 					if(ownerThread().supervisor().selectedObservableEvent() instanceof ObservableEvent)
 						result = caseExternalChoiceEnd(child);
@@ -261,6 +262,8 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		
 		//mmmmuhuhuhahaha kill all the children
 		killAndRemoveAllTheEvidenceOfTheChildren();
+		
+		//pushNext(new ASkipAction(), context)
 		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}

@@ -18,7 +18,6 @@ import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
-import eu.compassresearch.ast.process.ASkipProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
@@ -26,7 +25,6 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.ActionValue;
@@ -72,15 +70,15 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		
 	}
 	
-	@Override
-	public CmlBehaviourSignal caseASkipProcess(ASkipProcess node, Context question)
-			throws AnalysisException {
-
-		//if hasNext() is true then Skip is in sequential composition with next
-		if(!hasNext())
-			setState(CmlProcessState.FINISHED);
-		return CmlBehaviourSignal.EXEC_SUCCESS;
-	}
+//	@Override
+//	public CmlBehaviourSignal caseASkipProcess(ASkipProcess node, Context question)
+//			throws AnalysisException {
+//
+//		//if hasNext() is true then Skip is in sequential composition with next
+//		if(!hasNext())
+//			setState(CmlProcessState.FINISHED);
+//		return CmlBehaviourSignal.EXEC_SUCCESS;
+//	}
 	
 	@Override
 	public CmlBehaviourSignal caseAActionProcess(AActionProcess node, Context question) throws AnalysisException

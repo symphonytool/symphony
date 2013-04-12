@@ -519,6 +519,15 @@ public class AlphabetInspectVisitor
 		return createSilentTransition(node,node.getAction());
 	}
 	
+	@Override
+	public CmlAlphabet caseASkipAction(ASkipAction node, Context question)
+			throws AnalysisException {
+		if(ownerProcess.finished())
+			return new CmlAlphabet();
+		else
+			return defaultPAction(node,question);
+	}
+	
 	/**
 	 * Stop Action
 	 */
@@ -526,6 +535,7 @@ public class AlphabetInspectVisitor
 	public CmlAlphabet caseAStopAction(AStopAction node, Context question)
 			throws AnalysisException {
 		//return the empty alphabet
+		//FIXME stop can make time tick
 		return new CmlAlphabet();
 	}
 	

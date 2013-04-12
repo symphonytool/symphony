@@ -604,8 +604,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	public boolean finished() {
 		//return getState() == CmlProcessState.FINISHED;
 		return getExecutionStack().size() == 1 && 
-				(nextState().first instanceof ASkipAction ||
-				nextState().first instanceof ASkipProcess);
+				nextState().first instanceof ASkipAction;
 	}
 	
 	@Override
