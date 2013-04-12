@@ -2,7 +2,6 @@ package eu.compassresearch.core.interpreter.debug;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -18,7 +17,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.interpreter.runtime.ContextException;
-import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.Value;
 
@@ -46,8 +44,6 @@ import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlResponseMessage;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
-import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 import eu.compassresearch.core.interpreter.util.CmlParserUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -114,14 +110,13 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 	
 	public void run() 
 	{
-		CmlScheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
 		CmlSupervisorEnvironment sve = 
-				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
+				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy());
 		
 		try {
 			connect();
 			init();
-			cmlInterpreter.execute(sve,scheduler);
+			cmlInterpreter.execute(sve);
 			stopped(cmlInterpreter.getStatus());
 		} catch (InterpreterException e) {
 
@@ -274,7 +269,6 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 			//sendStatusMessage(CmlDbgpStatus.RUNNING);
 			
 			try{
-				CmlScheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
 				CmlSupervisorEnvironment sve = 
 						VanillaInterpreterFactory.newCmlSupervisorEnvironment(new CmlCommunicationSelectionStrategy() {
 							Scanner scanIn = new Scanner(System.in);
@@ -319,9 +313,9 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 
 								return selectedEvent;
 							}
-						}, scheduler);
+						});
 			
-				cmlInterpreter.execute(sve,scheduler);
+				cmlInterpreter.execute(sve);
 				stopped(this.cmlInterpreter.getStatus());
 			}
 			catch(ContextException e)

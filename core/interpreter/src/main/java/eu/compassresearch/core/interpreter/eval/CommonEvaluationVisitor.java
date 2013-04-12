@@ -44,9 +44,6 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		addChild(left);
 		addChild(right);
 
-		//Now let this process wait for the children to get into a waitForEvent state
-		setState(CmlProcessState.WAIT_CHILD);
-
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
@@ -58,7 +55,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		CmlBehaviourSignal result = CmlBehaviourSignal.FATAL_ERROR;
 
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
-		if(!hasChildren()){
+		if(!ownerThread().hasChildren()){
 			result = helper.caseParallelBegin();
 			//We push the current state, since this process will control the child processes created by it
 			pushNext(node, question);
@@ -159,7 +156,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		CmlBehaviourSignal result = null;
 		
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
-		if(!hasChildren()){
+		if(!ownerThread().hasChildren()){
 			
 			//TODO: create a local copy of the question state for each of the actions
 
@@ -183,7 +180,6 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 			addChild(leftInstance);
 			
 			//Now let this process wait for the children to get into a waitForEvent state
-			setState(CmlProcessState.WAIT_CHILD);
 			result = CmlBehaviourSignal.EXEC_SUCCESS;
 			
 		}
@@ -239,9 +235,6 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		addChild(leftInstance);
 		addChild(rightInstance);
 		
-		//Now let this process wait for the children to get into a waitForEvent state
-		setState(CmlProcessState.WAIT_CHILD);
-		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
@@ -280,8 +273,6 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		CmlBehaviourSignal result = executeChildAsSupervisor(theChoosenOne);
 		
 		mergeState(theChoosenOne);
-		
-		setState(CmlProcessState.RUNNING);
 		
 		//mmmmuhuhuhahaha kill all the children
 		killAndRemoveAllTheEvidenceOfTheChildren();

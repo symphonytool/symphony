@@ -92,18 +92,6 @@ public interface CmlBehaviourThread extends CmlBehaviour , Transactable{
 	public boolean waiting();
 	
 	/**
-	 * Determines whether the process is waiting for a child process.
-	 * @return true if the process is either waiting for a child process else false
-	 */
-	public boolean waitingForChild();
-	
-	/**
-	 * Determines whether the process is waiting for an event to occur.
-	 * @return true if the process is either waiting for an event to occur else false
-	 */
-	public boolean waitingForEvent();
-	
-	/**
 	 * Determines whether this process is deadlocked
 	 * @return true if the process is deadlocked else false
 	 */

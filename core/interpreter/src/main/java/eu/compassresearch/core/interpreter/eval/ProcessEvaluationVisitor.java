@@ -206,7 +206,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		CmlBehaviourSignal result = null;
 
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
-		if(!hasChildren()){
+		if(!ownerThread().hasChildren()){
 			result = caseParallelBegin(node,node.getLeft(),node.getRight(),question);
 			//We push the current state, since this process will control the child processes created by it
 			pushNext(node, question);

@@ -14,27 +14,6 @@ public class CmlBehaviourThreadUtility {
 		return isAllFinished;
 	}
 	
-	public static boolean isAllChildrenFinishedOrStoppedOrWaitingForEvent(CmlBehaviourThread process)
-	{
-		boolean isAllFinishedOrWaitingForEvent = true;
-		for(CmlBehaviourThread child : process.children())
-		{
-			isAllFinishedOrWaitingForEvent &= child.finished() || child.waitingForEvent() || child.deadlocked();
-		}
-		return isAllFinishedOrWaitingForEvent;
-	}
-	
-	public static boolean childWaitingForEventExists(CmlBehaviourThread process)
-	{
-		for(CmlBehaviourThread child : process.children())
-		{
-			if(child.waitingForEvent())
-				return true;
-		}
-		
-		return false;
-	}
-				
 	public static boolean finishedChildExists(CmlBehaviourThread process)
 	{
 		for(CmlBehaviourThread child : process.children())

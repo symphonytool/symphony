@@ -6,10 +6,8 @@ package eu.compassresearch.core.interpreter.cml;
  *
  */
 public enum CmlProcessState {
-	WAIT_EVENT, 	//Waiting for an event occur
-	WAIT_CHILD, 	//Waiting for its children to become a desired state 
+	WAIT, 	//Waiting for an event occur
 	RUNNING, 		//Is currently begin executed
-	RUNNABLE, 		//Is ready to be executed
 	INITIALIZED, 	//Has been created but not yet started
 	FINISHED, 		//Successfully finished
 	//ABORTED,

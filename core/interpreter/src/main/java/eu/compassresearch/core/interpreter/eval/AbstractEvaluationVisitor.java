@@ -12,12 +12,10 @@ import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 
 public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor<Context, CmlBehaviourSignal> {
@@ -26,8 +24,6 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	{
 		CmlBehaviourThread ownerThread();
 		void pushNext(INode node,Context context);
-		boolean hasNext();
-		void setState(CmlProcessState state);
 		CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviourThread child);
 		void addChild(CmlBehaviourThread child);
 		void removeTheChildren();
@@ -85,11 +81,6 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 		return controlAccess.createChild(node, question, name);
 	}
 	
-	protected void setState(CmlProcessState state)
-	{
-		controlAccess.setState(state);
-	}
-	
 	protected void addChild(CmlBehaviourThread child)
 	{
 		controlAccess.addChild(child);
@@ -99,12 +90,7 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	{
 		controlAccess.removeTheChildren();
 	}
-	
-	protected boolean hasChildren()
-	{
-		return controlAccess.ownerThread().hasChildren();
-	}
-	
+		
 	protected CmlSupervisorEnvironment supervisor()
 	{
 		return controlAccess.ownerThread().supervisor();
@@ -118,11 +104,6 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	protected CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviourThread child)
 	{
 		return controlAccess.executeChildAsSupervisor(child);
-	}
-	
-	protected boolean hasNext()
-	{
-		return controlAccess.hasNext();
 	}
 	
 	protected CmlBehaviourThread ownerThread()

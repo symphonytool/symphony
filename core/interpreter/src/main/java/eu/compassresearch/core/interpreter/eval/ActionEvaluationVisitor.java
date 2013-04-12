@@ -337,7 +337,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		CmlBehaviourSignal result = null;
 		
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
-		if(!hasChildren()){
+		if(!ownerThread().hasChildren()){
 			result = caseParallelBegin(node,question);
 			//We push the current state, since this process will control the child processes created by it
 			pushNext(node, question);
@@ -400,12 +400,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 			setHidingAlphabet(new CmlAlphabet());
 			pushNext(new ASkipAction(), question);
 		}
-		else	
-		{
-			//if hasNext() is true then Skip is in sequential composition with next
-			if(!hasNext())
-				setState(CmlProcessState.FINISHED);
-		}
+				
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	

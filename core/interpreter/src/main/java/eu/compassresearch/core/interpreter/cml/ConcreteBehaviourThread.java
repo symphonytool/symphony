@@ -35,7 +35,7 @@ import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 public class ConcreteBehaviourThread implements CmlBehaviourThread , 
-				ChannelObserver, CmlProcessStateObserver, CmlProcessTraceObserver 
+				ChannelObserver, CmlProcessTraceObserver 
 	{
 	
 	private static final long 					serialVersionUID = -4920762081111266274L;
@@ -114,12 +114,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		cmlEvaluationVisitor.init(new AbstractEvaluationVisitor.ControlAccess() {
 			
 			@Override
-			public void setState(CmlProcessState state) {
-				ConcreteBehaviourThread.this.setState(state);
-				
-			}
-			
-			@Override
 			public void setHidingAlphabet(CmlAlphabet alpha) {
 				ConcreteBehaviourThread.this.setHidingAlphabet(alpha);
 				
@@ -144,11 +138,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			public void mergeState(CmlBehaviourThread other) {
 				ConcreteBehaviourThread.this.replaceState((ConcreteBehaviourThread)other);
 				
-			}
-			
-			@Override
-			public boolean hasNext() {
-				return ConcreteBehaviourThread.this.hasNext();
 			}
 			
 			@Override
@@ -192,7 +181,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	public void start(CmlSupervisorEnvironment env) {
 		
 		this.env = env;
-		state = CmlProcessState.RUNNABLE;
 		env.addPupil(this);
 	}
 	
@@ -384,7 +372,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				//then we go to wait state and wait for channelEvent
 				else 
 				{
-					setState(CmlProcessState.WAIT_EVENT);
+					setState(CmlProcessState.WAIT);
 					
 					if(level() == 0)
 						registerChannelsInAlpha(alpha);
@@ -575,26 +563,14 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	 */
 	@Override
 	public boolean started() {
-		return getState() == CmlProcessState.RUNNABLE || 
-				running() ||
+		return 	running() ||
 				waiting();
 	}
 
 	@Override public boolean waiting() {
-		return getState() == CmlProcessState.WAIT_EVENT ||
-				getState() == CmlProcessState.WAIT_CHILD;
+		return getState() == CmlProcessState.WAIT;
 	}
-	
-	public boolean waitingForChild()
-	{
-		return getState() == CmlProcessState.WAIT_CHILD;
-	}
-	
-	public boolean waitingForEvent()
-	{
-		return getState() == CmlProcessState.WAIT_EVENT; 
-	}
-	
+		
 	@Override
 	public boolean running() {
 		return getState() == CmlProcessState.RUNNING;
@@ -611,7 +587,8 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	public boolean deadlocked() {
 		
 		//A Process is deadlocked if its immediate alphabet is empty
-		return getState() == CmlProcessState.STOPPED;
+		//return getState() == CmlProcessState.STOPPED;
+		return inspect().isEmpty();
 	}
 	
 	protected void notifyOnStateChange(CmlProcessStateEvent event)
@@ -771,45 +748,10 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		//if the channel sends a select event then it means that we have a go to execute the
 		//communicationAction transition. 
 		//So we set the state to RUNNABLE so the scheduler will execute it
-		if(event.getEventType() == CmlCommunicationType.SELECT)
-			setState(CmlProcessState.RUNNABLE);
+//		if(event.getEventType() == CmlCommunicationType.SELECT)
+//			setState(CmlProcessState.RUNNABLE);
 	}
 	
-	/**
-	 * CmlProcessStateObserver interface 
-	 */
-	
-	@Override
-	public void onStateChange(CmlProcessStateEvent stateEvent) {
-
-		switch(stateEvent.getTo())
-		{
-		case WAIT_CHILD:
-		case RUNNING:
-			//If a child is either in RUNNING or WAIT_CHILD state then we wait for all the children
-			//to get into wait_event state
-			setState(CmlProcessState.WAIT_CHILD);
-			break;
-		case WAIT_EVENT:
-			//if at least one child are waiting for an event this process must invoke 
-			//either Parallel Non-sync or sync
-			if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrStoppedOrWaitingForEvent(this))
-				setState(CmlProcessState.RUNNABLE);
-			break;
-		case STOPPED:	
-		case FINISHED:
-			//for any child that finishes, we unregister it since it has terminated successfully and no state change will happen again.
-			stateEvent.getSource().onStateChanged().unregisterObserver(this);
-			
-			//if all the children are finished this process can continue and evolve into skip
-			if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrStoppedOrWaitingForEvent(this))
-				setState(CmlProcessState.RUNNABLE);
-			
-			break;
-		default:
-			break;
-		}
-	}
 	
 	/**
 	 * common helper methods
@@ -840,7 +782,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		//Add the child to the process graph
 		children().add(child);
 		//Register for state change and trace change events
-		child.onStateChanged().registerObserver(this);
 		child.onTraceChanged().registerObserver(this);
 		
 		child.start(supervisor());

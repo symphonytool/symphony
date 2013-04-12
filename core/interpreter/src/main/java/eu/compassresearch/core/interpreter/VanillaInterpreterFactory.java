@@ -14,9 +14,6 @@ import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
 import eu.compassresearch.core.interpreter.cml.DefaultSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
-import eu.compassresearch.core.interpreter.scheduler.SchedulingPolicy;
-import eu.compassresearch.core.interpreter.scheduler.VanillaScheduler;
 
 public final class VanillaInterpreterFactory {
 
@@ -48,19 +45,9 @@ public final class VanillaInterpreterFactory {
 	 * @param selectStrategy
 	 * @return
 	 */
-	public static CmlSupervisorEnvironment newCmlSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy, CmlScheduler cmlScheduler)
+	public static CmlSupervisorEnvironment newCmlSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy)
 	{
-		return new DefaultSupervisorEnvironment(selectStrategy,cmlScheduler);
-	}
-	
-	/**
-	 * Create a scheduler with a specified Scheduling policy
-	 * @param policy
-	 * @return
-	 */
-	public static CmlScheduler newScheduler(SchedulingPolicy policy)
-	{
-		return new VanillaScheduler(policy);
+		return new DefaultSupervisorEnvironment(selectStrategy);
 	}
 	
 	public static CmlBehaviourThread newCmlBehaviourThread(INode processNode, Context context, LexNameToken processName)

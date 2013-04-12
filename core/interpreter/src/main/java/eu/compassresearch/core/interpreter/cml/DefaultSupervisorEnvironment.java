@@ -5,7 +5,6 @@ import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 
 public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 
@@ -13,12 +12,10 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	private CmlEvent selectedCommunication;
 	
 	private List<CmlBehaviourThread> pupils = new LinkedList<CmlBehaviourThread>();
-	private CmlScheduler scheduler;
 	
-	public DefaultSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy, CmlScheduler scheduler)
+	public DefaultSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy)
 	{
 		this.selectStrategy = selectStrategy;
-		this.scheduler = scheduler;
 	}
 	
 	@Override
@@ -61,7 +58,6 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	@Override
 	public void addPupil(CmlBehaviourThread process) {
 		pupils.add(process);
-		scheduler.addProcess(process);
 	}
 
 	@Override
