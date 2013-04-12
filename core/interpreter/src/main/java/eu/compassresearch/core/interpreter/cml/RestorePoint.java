@@ -17,7 +17,6 @@ import eu.compassresearch.core.interpreter.util.Pair;
 class RestorePoint {
 
 	public RestorePoint(Stack<Pair<INode,Context>> executionStack,
-			Pair<INode,Context> 			prevExecution,
 			CmlBehaviourThread 				parent,
 			List<ConcreteBehaviourThread> 		children,
 			CmlProcessState 					state,
@@ -29,7 +28,6 @@ class RestorePoint {
 			EventSourceHandler<CmlProcessTraceObserver,TraceEvent>  traceEventHandler)
 	{
 		this.executionStack = executionStack;
-		this.prevExecution = prevExecution;
 		this.parent = parent;
 		this.children = children;
 		this.state = state;
@@ -42,7 +40,6 @@ class RestorePoint {
 	}
 	
 	public final Stack<Pair<INode,Context>> 		executionStack;
-	public final Pair<INode,Context> 			prevExecution;
 	public final CmlBehaviourThread 				parent;
 	public final List<ConcreteBehaviourThread> 		children;
 	public final CmlProcessState 					state;

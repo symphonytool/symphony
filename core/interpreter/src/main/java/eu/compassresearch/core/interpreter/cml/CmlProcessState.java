@@ -7,7 +7,6 @@ package eu.compassresearch.core.interpreter.cml;
  */
 public enum CmlProcessState {
 	WAIT, 	//Waiting for an event occur
-	RUNNING, 		//Is currently begin executed
 	INITIALIZED, 	//Has been created but not yet started
 	FINISHED, 		//Successfully finished
 	//ABORTED,

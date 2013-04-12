@@ -12,8 +12,20 @@ import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 
-public interface CmlBehaviourThread extends CmlBehaviour , Transactable{
-
+public interface CmlBehaviourThread extends Transactable //, CmlBehaviour 
+{
+	/**
+	 * Executes the behaviour of this process
+	 * @return
+	 */
+	public CmlBehaviourSignal execute(CmlSupervisorEnvironment supervisor);
+	
+	/**
+	 * Returns the immediate alphabet of the process, meaning the next possible cml event including tau
+	 * @return The immediate alphabet of the process
+	 */
+	public CmlAlphabet inspect();
+	
 	/**
 	 * Initializes the process
 	 * @param env
@@ -80,9 +92,6 @@ public interface CmlBehaviourThread extends CmlBehaviour , Transactable{
 	 * else false
 	 */
 	public boolean started();
-	
-	
-	public boolean running();
 	public boolean finished();
 	
 	/**

@@ -48,7 +48,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	
 	//Stack machine variables
 	private Stack<Pair<INode,Context>> 			executionStack = new Stack<Pair<INode,Context>>();
-	private Pair<INode,Context> 				prevExecution = null;
 	
 	//Process/Action Graph variables
 	protected CmlBehaviourThread 				parent;
@@ -56,6 +55,9 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	
 	//Process/Action state variables
 	protected CmlProcessState 					state;
+	
+	protected boolean 							started = false;
+	protected boolean							wait = false;
 	
 	//Current supervisor
 	protected CmlSupervisorEnvironment 			env;
@@ -234,16 +236,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		return !executionStack.isEmpty();
 	}
 	
-	protected  boolean hasPrev()
-	{
-		return prevExecution != null;
-	}
-	
-	protected  Pair<INode,Context> prevState()
-	{
-		return prevExecution;
-	}
-	
 	protected  Pair<INode,Context> nextState()
 	{
 		return executionStack.peek();
@@ -269,10 +261,11 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				pushNext(state.first,state.second);
 		}
 		else
-		{
-			pushNext(other.prevState().first, 
-					other.prevState().second);
-		}
+			throw new RuntimeException("bye bye");
+//		{
+//			pushNext(other.prevState().first, 
+//					other.prevState().second);
+//		}
 	}
 	
 	//we need to replace the existing contexts from top down, 
@@ -326,6 +319,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	@Override
 	public CmlBehaviourSignal execute(CmlSupervisorEnvironment env) 
 	{
+		this.started = true;
 		this.env= env;
 
 		//inspect if there are any immediate events
@@ -338,6 +332,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			if(alpha.isEmpty())
 			{
 				setState(CmlProcessState.STOPPED);
+				wait = false;
 				ret = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
 //			//execute silently if the current alphabet contains is a silent action
@@ -360,9 +355,9 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				 */
 				//
 				if(env.isSelectedEventValid() &&  
-						alpha.containsImprecise(env.selectedObservableEvent()) 
-						)
+						alpha.containsImprecise(env.selectedObservableEvent()))
 				{
+					wait = false;
 					ret = executeNext();
 					if(level() == 0 && env.selectedObservableEvent() instanceof ObservableEvent)
 						unregisterChannel((ObservableEvent)env.selectedObservableEvent());
@@ -373,7 +368,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				else 
 				{
 					setState(CmlProcessState.WAIT);
-					
+					wait = true;
 					if(level() == 0)
 						registerChannelsInAlpha(alpha);
 					
@@ -437,9 +432,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	{
 		if(hasNext())
 		{
-			setState(CmlProcessState.RUNNING);
 			Pair<INode,Context> next = executionStack.pop();
-			prevExecution = next;
 			return next.first.apply(cmlEvaluationVisitor,next.second);
 		}
 		else{
@@ -487,7 +480,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		if(hasNext())
 			return nextState();
 		else
-			return prevState();
+			return null;
 	}
 	
 	protected boolean aborted = false;
@@ -563,19 +556,13 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	 */
 	@Override
 	public boolean started() {
-		return 	running() ||
-				waiting();
+		return 	started;
 	}
 
 	@Override public boolean waiting() {
 		return getState() == CmlProcessState.WAIT;
 	}
-		
-	@Override
-	public boolean running() {
-		return getState() == CmlProcessState.RUNNING;
-	}
-
+	
 	@Override
 	public boolean finished() {
 		//return getState() == CmlProcessState.FINISHED;
@@ -647,7 +634,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	@Override
 	public void beginTransaction() {
 
-		lastRestorePoint = new RestorePoint(executionStack, prevExecution, parent, children, state, env, hidingAlphabet, 
+		lastRestorePoint = new RestorePoint(executionStack, parent, children, state, env, hidingAlphabet, 
 											trace, registredEvents, stateEventhandler, traceEventHandler);
 		
 //		//set restore point for all the children
@@ -697,7 +684,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		if(lastRestorePoint != null)
 		{
 			executionStack = lastRestorePoint.executionStack; 
-			prevExecution = lastRestorePoint.prevExecution;
 			parent = lastRestorePoint.parent;
 			children = lastRestorePoint.children;
 			env = lastRestorePoint.env;
