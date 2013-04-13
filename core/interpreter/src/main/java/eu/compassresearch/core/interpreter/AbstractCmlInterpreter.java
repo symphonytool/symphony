@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.debug.DBGPReader;
 import org.overture.interpreter.runtime.Breakpoint;
@@ -18,6 +17,7 @@ import org.overture.parser.lex.LexException;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;

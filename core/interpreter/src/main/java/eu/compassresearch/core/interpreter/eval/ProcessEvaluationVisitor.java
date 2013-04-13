@@ -2,7 +2,7 @@ package eu.compassresearch.core.interpreter.eval;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.values.FunctionValue;
@@ -11,6 +11,7 @@ import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
 
 import eu.compassresearch.ast.definitions.AProcessDefinition;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.ast.process.AGeneralisedParallelismProcess;
@@ -52,10 +53,10 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		
 		//TODO: create a local copy of the question state for each of the actions
 		CmlBehaviourThread leftInstance = 
-				VanillaInterpreterFactory.newCmlBehaviourThread(left,question,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
+				VanillaInterpreterFactory.newCmlBehaviourThread(left,question,new LexNameToken(name.getModule(),name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
 		
 		CmlBehaviourThread rightInstance = 
-				VanillaInterpreterFactory.newCmlBehaviourThread(right,question,new LexNameToken(name.module,"|||" + name.getIdentifier().getName() ,right.getLocation()),ownerThread());
+				VanillaInterpreterFactory.newCmlBehaviourThread(right,question,new LexNameToken(name.getModule(),"|||" + name.getIdentifier().getName() ,right.getLocation()),ownerThread());
 		
 		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}
@@ -111,7 +112,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 			
 			for(NameValuePair nvp : nvps)
 			{
-				LexNameToken name = nvp.name.getModifiedName(processDef.getName().getSimpleName());
+				ILexNameToken name = nvp.name.getModifiedName(processDef.getName().getSimpleName());
 				
 				//This makes sure that operations and functions cannot be updated, while
 				//everything else can.
@@ -189,8 +190,8 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 			AExternalChoiceProcess node, Context question)
 			throws AnalysisException {
 		
-		return caseAExternalChoice(node,node.getLeft(),new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,node.getLeft().getLocation()),
-				node.getRight(),new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),node.getRight().getLocation()),question);
+		return caseAExternalChoice(node,node.getLeft(),new LexNameToken(name.getModule(),name.getIdentifier().getName() + "[]" ,node.getLeft().getLocation()),
+				node.getRight(),new LexNameToken(name.getModule(),"[]" + name.getIdentifier().getName(),node.getRight().getLocation()),question);
 		
 		//return null;
 	}

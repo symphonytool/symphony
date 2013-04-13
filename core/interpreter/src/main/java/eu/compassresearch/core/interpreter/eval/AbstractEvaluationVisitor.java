@@ -5,14 +5,14 @@ import java.util.Random;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
@@ -45,7 +45,7 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	//use for making random but deterministic decisions
 	protected Random 									rnd = new Random(9784345);
 	//name of the thread
-	LexNameToken 										name;
+	ILexNameToken 										name;
 	
 	protected final AbstractEvaluationVisitor			parentVisitor;
 	

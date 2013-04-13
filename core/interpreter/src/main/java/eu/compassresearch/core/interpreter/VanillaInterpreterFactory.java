@@ -2,10 +2,11 @@ package eu.compassresearch.core.interpreter;
 
 import java.util.List;
 
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
@@ -63,7 +64,7 @@ public final class VanillaInterpreterFactory {
 		return new VanillaScheduler(policy);
 	}
 	
-	public static CmlBehaviourThread newCmlBehaviourThread(INode processNode, Context context, LexNameToken processName)
+	public static CmlBehaviourThread newCmlBehaviourThread(INode processNode, Context context, ILexNameToken processName)
 	{
 		return new ConcreteBehaviourThread(processNode, context, processName);
 	}
