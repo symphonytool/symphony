@@ -6,14 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.ldap.UnsolicitedNotificationEvent;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.intf.IAnalysis;
 import org.overture.ast.analysis.intf.IAnswer;
 import org.overture.ast.analysis.intf.IQuestion;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.assistant.type.PTypeAssistant;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.VDMToken;
@@ -50,7 +49,7 @@ public class LexNameToken extends LexIdentifierToken implements ILexNameToken, S
         this(module, name, location, false, false);
       }
     
-    public LexNameToken(String module, LexIdentifierToken id)
+    public LexNameToken(String module, ILexIdentifierToken id)
       {
         super(id.getName(), id.isOld(), id.getLocation(), VDMToken.NAME);
         this.module = module;
