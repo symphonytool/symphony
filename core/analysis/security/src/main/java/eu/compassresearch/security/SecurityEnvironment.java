@@ -5,11 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.node.INode;
-
-import eu.compassresearch.security.SecurityEnvironment.SecurityJudgement;
 
 public class SecurityEnvironment {
 
@@ -54,7 +52,7 @@ public class SecurityEnvironment {
 	public enum SecurityJudgement {
 		Random, Public, Secret;
 
-		public static SecurityJudgement fromId(LexIdentifierToken id) {
+		public static SecurityJudgement fromId(ILexIdentifierToken id) {
 			if (id == null) return Public;
 			if (id.getName() == null) return Public;
 			if (id.getName().startsWith("R_")) return Random;
@@ -68,9 +66,9 @@ public class SecurityEnvironment {
 		private List<Judgement> randomizes;
 		private List<Judgement> hides;
 
-		private final LexIdentifierToken definition;
+		private final ILexIdentifierToken definition;
 		private SecurityJudgement judgement;
-		public Judgement(LexIdentifierToken def, SecurityJudgement judgement) {
+		public Judgement(ILexIdentifierToken def, SecurityJudgement judgement) {
 			this.definition = def;
 			this.judgement = judgement;
 			this.randomizes  = new LinkedList<Judgement>();
@@ -114,7 +112,7 @@ public class SecurityEnvironment {
 		this.env = new HashMap<String,Judgement>();
 	}
 
-	public Judgement getJudgement(LexIdentifierToken id) {
+	public Judgement getJudgement(ILexIdentifierToken id) {
 		if (id == null) return null;
 		return env.get(id.toString());
 	}
@@ -129,7 +127,7 @@ public class SecurityEnvironment {
 		return null;
 	}
 
-	public Judgement addJudgement(LexIdentifierToken def, SecurityJudgement judgement) {
+	public Judgement addJudgement(ILexIdentifierToken def, SecurityJudgement judgement) {
 		if (def == null) return null;
 		if (judgement == null) return null;
 
