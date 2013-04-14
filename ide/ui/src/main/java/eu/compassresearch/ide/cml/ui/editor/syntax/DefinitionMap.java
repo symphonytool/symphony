@@ -63,7 +63,7 @@ public class DefinitionMap {
 					
 				String nameguard = "?";
 				if (null != subdef.getName())
-					nameguard=subdef.getName().name;
+					nameguard=subdef.getName().getName();
 			
 				r.add(Wrapper.newInstance(subdef, nameguard
 						+ ": " + typeguard));
@@ -80,7 +80,7 @@ public class DefinitionMap {
 			List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			for (PDefinition subdef : ((AFunctionsDefinition) pdef)
 					.getFunctionDefinitions()) {
-				r.add(Wrapper.newInstance(subdef, subdef.getName().name + ": "
+				r.add(Wrapper.newInstance(subdef, subdef.getName().getName() + ": "
 						+ subdef.getType()));
 			}
 			return r;
@@ -94,7 +94,7 @@ public class DefinitionMap {
 				PDefinition pdef) {
 			List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			for (ATypeDefinition subdef : ((ATypesDefinition) pdef).getTypes())
-				r.add(Wrapper.newInstance(subdef, subdef.getName().name));
+				r.add(Wrapper.newInstance(subdef, subdef.getName().getName()));
 			return r;
 		}
 	}
@@ -107,7 +107,7 @@ public class DefinitionMap {
 			List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			for (SCmlOperationDefinition subdef : ((AOperationsDefinition) pdef)
 					.getOperations())
-				r.add(Wrapper.newInstance(subdef, subdef.getName().name + ": "
+				r.add(Wrapper.newInstance(subdef, subdef.getName().getName() + ": "
 						+ subdef.getType()));
 			return r;
 		}

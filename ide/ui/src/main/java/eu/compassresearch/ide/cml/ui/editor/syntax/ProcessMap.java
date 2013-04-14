@@ -146,7 +146,7 @@ public class ProcessMap {
 	    AReferenceProcess refproc = ( AReferenceProcess) proc;
 	    
 	    StringBuilder sb = new StringBuilder();
-	    sb.append(refproc.getProcessName().name);
+	    sb.append(refproc.getProcessName().getName());
 	    r.add(Wrapper.newInstance(proc, sb.toString()));
 
 	    return r;
