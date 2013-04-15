@@ -93,7 +93,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="eu.compassresearch.ide.cml.ui.perspective.CmlPerspectiveFactory"
-            icon="icons/cview16/overture_nav.png"
+            icon="icons/cview16/compass_nav.png"
             id="eu.compassresearch.ide.ui.perspective"
             name="CML">
          <description>
@@ -109,10 +109,10 @@
       <navigatorContent
             activeByDefault="true"
             contentProvider="org.overture.ide.ui.navigator.VdmNavigatorCustomContentProvider"
-            icon="icons/cview16/overture_nav.png"
-            id="org.overture.ide.ui.vdmNavigatorContent"
+            icon="icons/cview16/compass_nav.png"
+            id="eu.compassresearch..ide.ui.cmlNavigatorContent"
             labelProvider="org.overture.ide.ui.navigator.VdmNavigatorLabelProvider"
-            name="VDM Navigator Content"
+            name="CML Navigator Content"
             priority="highest">
          <triggerPoints>
             <or>
@@ -325,7 +325,7 @@
                   pattern="org.eclipse.ui.navigator.resources.filters.*">
             </contentExtension-->
             <contentExtension
-                  pattern="org.overture.ide.ui.vdmNavigatorContent">
+                  pattern="eu.compassresearch.ide.ui.cmlNavigatorContent">
             </contentExtension>
            <contentExtension pattern="org.overture.resources.filters.*"/>
 	       <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
