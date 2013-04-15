@@ -11,10 +11,8 @@ import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.ConcreteCmlBehaviour;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
@@ -72,13 +70,6 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 			//We push the current state,
 			pushNext(node, question);
 		}
-//		//At least one child is not finished and waiting for event, this will either invoke the Parallel Non-sync or Sync rule
-//		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrStoppedOrWaitingForEvent(ownerThread()))
-//		{
-//			result = caseParallelSyncOrNonsync(chansetExp, question);
-//			//We push the current state, 
-//			pushNext(node, question);
-//		}
 
 		return result;
 	}
@@ -93,11 +84,11 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 
 		if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
 		{
-			return executeChildAsSupervisor(leftChild);
+			return leftChild.execute(supervisor());
 		}
 		else if(rightChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
 		{
-			return executeChildAsSupervisor(rightChild);
+			return rightChild.execute(supervisor());
 		}
 		else
 		{
@@ -127,18 +118,18 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()) &&
 				rightChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
 		{
-			if(executeChildAsSupervisor(leftChild) != CmlBehaviourSignal.EXEC_SUCCESS)
+			if(leftChild.execute(supervisor()) != CmlBehaviourSignal.EXEC_SUCCESS)
 				return CmlBehaviourSignal.FATAL_ERROR;
 			
-			return executeChildAsSupervisor(rightChild);
+			return rightChild.execute(supervisor());
 		}
 		else if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
 		{
-			return executeChildAsSupervisor(leftChild);
+			return leftChild.execute(supervisor());
 		}
 		else if(rightChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
 		{
-			return executeChildAsSupervisor(rightChild);
+			return rightChild.execute(supervisor());
 		}
 		else
 			//Something went wrong here
@@ -167,11 +158,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 			else
 			{
 				CmlBehaviour rightInstance = VanillaInterpreterFactory.newCmlBehaviourThread(rightNode, question.deepCopy(), rightName,this.ownerThread()); 
-				//new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),right.getLocation()));
 				addChild(rightInstance);
-				
-				
-				//result = caseExternalChoiceBegin(leftInstance,rightInstance,question);
 				
 				//We push the current state, since this process will control the child processes created by it
 				pushNext(node, question);
@@ -200,21 +187,12 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 						result = caseExternalChoiceEnd(child);
 					else
 					{
-						result = executeChildAsSupervisor(child);
+						result = child.execute(ownerThread().supervisor());
 						pushNext(node, question);
 					}
 				}
 			}
 		}
-//		//if this is true, then we can resolve the choice to the event
-//		//of one of the children that are waiting for events
-//		else if(CmlBehaviourThreadUtility.childWaitingForEventExists(ownerThread()))
-//		{
-//			result = caseExternalChoiceEnd();
-//		}
-//		else
-//			result = CmlBehaviourSignal.FATAL_ERROR;
-		
 		
 		return result;
 		
@@ -257,8 +235,6 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		//mmmmuhuhuhahaha kill all the children
 		killAndRemoveAllTheEvidenceOfTheChildren();
 		
-		//pushNext(new ASkipAction(), context)
-		
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
@@ -271,7 +247,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		//CmlBehaviourThread theChoosenOne = findTheChoosenChild((ObservableEvent)supervisor().selectedObservableEvent());
 		
 		//first we execute the child
-		CmlBehaviourSignal result = executeChildAsSupervisor(theChoosenOne);
+		CmlBehaviourSignal result = theChoosenOne.execute(ownerThread().supervisor());
 		
 		mergeState(theChoosenOne);
 		

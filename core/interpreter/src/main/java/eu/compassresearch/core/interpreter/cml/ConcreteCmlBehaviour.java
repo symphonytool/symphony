@@ -29,7 +29,7 @@ import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.util.Pair;
 
-public class ConcreteCmlBehaviour implements CmlBehaviour, CmlProcessTraceObserver 
+public class ConcreteCmlBehaviour implements CmlBehaviour
 	{
 	
 	private static final long 					serialVersionUID = -4920762081111266274L;
@@ -130,11 +130,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour, CmlProcessTraceObserv
 			@Override
 			public CmlAlphabet getHidingAlphabet() {
 				return hidingAlphabet;
-			}
-			
-			@Override
-			public CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviour child) {
-				return ConcreteCmlBehaviour.this.executeChildAsSupervisor(child);
 			}
 			
 			@Override
@@ -297,23 +292,12 @@ public class ConcreteCmlBehaviour implements CmlBehaviour, CmlProcessTraceObserv
 				wait = false;
 				ret = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
-//			//execute silently if the current alphabet contains is a silent action
-//			else if(alpha.contains(CmlEventFactory.referenceTauEvent())){
-//				//FIXME: this might not be the best idea to get the special event
-//				updateTrace(alpha.getSpecialEvents().iterator().next());
-//				ret = executeNext();
-//			}
 			else 
 			{	
 				/**
 				 *	If the selected event is valid and is in the immediate alphabet of the process 
 				 *	then we can continue.
 				 *  
-				 *  An extra condition saying 
-				 *  
-				 *  	level == 0 => must be registered at the channel of the selected event 
-				 *  
-				 *  prevents the process to execute the same event twice in a row
 				 */
 				//
 				if(env.isSelectedEventValid() &&  
@@ -329,7 +313,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour, CmlProcessTraceObserv
 				{
 					setState(CmlProcessState.WAIT);
 					wait = true;
-					
 					ret = CmlBehaviourSignal.EXEC_SUCCESS;
 				}
 			}
@@ -435,10 +418,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour, CmlProcessTraceObserv
 		for(CmlBehaviour child : children())
 			child.setAbort(reason);
 		
-//		//unregister all the channels
-//		for(ObservableEvent oe : registredEvents)
-//			oe.getChannel().onSelect().unregisterObserver(this);
-		
 		aborted = true;
 		
 		setState(CmlProcessState.FINISHED);
@@ -484,7 +463,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour, CmlProcessTraceObserv
 	@Override
 	public List<CmlBehaviour> children() {
 		
-		return (List)children;
+		return children;
 	}
 
 	@Override
@@ -542,9 +521,8 @@ public class ConcreteCmlBehaviour implements CmlBehaviour, CmlProcessTraceObserv
 		
 		if(getState() != state)
 		{
-			CmlProcessStateEvent ev = new CmlProcessStateEvent(this, this.state, state);
 			this.state = state;
-			notifyOnStateChange(ev);
+			notifyOnStateChange(new CmlProcessStateEvent(this, this.state, state));
 			CmlRuntime.logger().finest(name() + ":" + state.toString());
 		}
 	}
@@ -649,20 +627,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour, CmlProcessTraceObserv
 	}
 	
 	/**
-	 * CmlProcessTraceObserver interface methods
-	 */
-	
-	/**
-	 * This will provide the traces from all the child actions
-	 */
-	@Override
-	public void onTraceChange(TraceEvent traceEvent) {
-		
-		this.trace.addEvent(traceEvent.getEvent());
-		notifyOnTraceChange(TraceEvent.createRedirectedEvent(this, traceEvent));
-	}
-	
-	/**
 	 * common helper methods
 	 */
 	
@@ -670,28 +634,10 @@ public class ConcreteCmlBehaviour implements CmlBehaviour, CmlProcessTraceObserv
 	 * Child support -- we must help the children
 	 */
 	
-	/**
-	 * Executes the next state of the child process silently, meaning that the trace event
-	 * is disabled since the parent process (this process) already have the event in the trace
-	 * since its supervising the child processes
-	 * @param child
-	 * @return
-	 */
-	protected CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviour child)
-	{
-		child.onTraceChanged().unregisterObserver(this);
-		CmlBehaviourSignal result = child.execute(supervisor());
-		child.onTraceChanged().registerObserver(this);
-		
-		return result;
-	}
-	
 	protected void addChild(CmlBehaviour child)
 	{
 		//Add the child to the process graph
 		children().add(child);
-		//Register for state change and trace change events
-		child.onTraceChanged().registerObserver(this);
 		supervisor().addPupil(child);
 	}
 	

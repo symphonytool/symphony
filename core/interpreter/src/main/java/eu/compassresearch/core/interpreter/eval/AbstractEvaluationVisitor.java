@@ -25,7 +25,6 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	{
 		CmlBehaviour ownerThread();
 		void pushNext(INode node,Context context);
-		CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviour child);
 		void addChild(CmlBehaviour child);
 		void mergeState(CmlBehaviour other);
 		CmlAlphabet getHidingAlphabet();
@@ -98,11 +97,6 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	protected List<CmlBehaviour> children()
 	{
 		return controlAccess.ownerThread().children();
-	}
-	
-	protected CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviour child)
-	{
-		return controlAccess.executeChildAsSupervisor(child);
 	}
 	
 	protected CmlBehaviour ownerThread()
