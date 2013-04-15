@@ -12,10 +12,10 @@ import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.ConcreteCmlBehaviour;
+import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 
@@ -39,7 +39,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
-	protected <V extends CmlBehaviourThread> CmlBehaviourSignal caseParallelBeginGeneral(V left, V right, Context question)
+	protected <V extends CmlBehaviour> CmlBehaviourSignal caseParallelBeginGeneral(V left, V right, Context question)
 	{
 		//add the children to the process graph
 		addChild(left);
@@ -86,9 +86,9 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	protected CmlBehaviourSignal caseParallelNonSync()
 	{
 
-		CmlBehaviourThread leftChild = children().get(0);
+		CmlBehaviour leftChild = children().get(0);
 		CmlAlphabet leftChildAlpha = leftChild.inspect(); 
-		CmlBehaviourThread rightChild = children().get(1);
+		CmlBehaviour rightChild = children().get(1);
 		CmlAlphabet rightChildAlpha = rightChild.inspect();
 
 		if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
@@ -118,9 +118,9 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	protected CmlBehaviourSignal caseParallelSyncOrNonsync(PVarsetExpression chansetExp, Context question) throws AnalysisException
 	{
 		//get the immediate alphabets of the left and right child
-		CmlBehaviourThread leftChild = children().get(0);
+		CmlBehaviour leftChild = children().get(0);
 		CmlAlphabet leftChildAlpha = leftChild.inspect(); 
-		CmlBehaviourThread rightChild = children().get(1);
+		CmlBehaviour rightChild = children().get(1);
 		CmlAlphabet rightChildAlpha = rightChild.inspect();
 
 		//if both contains the selected event it must be a sync event
@@ -166,7 +166,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 				rightNode.apply(this,question);
 			else
 			{
-				CmlBehaviourThread rightInstance = VanillaInterpreterFactory.newCmlBehaviourThread(rightNode, question.deepCopy(), rightName,this.ownerThread()); 
+				CmlBehaviour rightInstance = VanillaInterpreterFactory.newCmlBehaviourThread(rightNode, question.deepCopy(), rightName,this.ownerThread()); 
 				//new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),right.getLocation()));
 				addChild(rightInstance);
 				
@@ -177,7 +177,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 				pushNext(node, question);
 			}
 			
-			CmlBehaviourThread leftInstance = VanillaInterpreterFactory.newCmlBehaviourThread(leftNode, question.deepCopy(), leftName,this.ownerThread());
+			CmlBehaviour leftInstance = VanillaInterpreterFactory.newCmlBehaviourThread(leftNode, question.deepCopy(), leftName,this.ownerThread());
 			addChild(leftInstance);
 			
 			//Now let this process wait for the children to get into a waitForEvent state
@@ -192,11 +192,11 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		}
 		else
 		{
-			for(CmlBehaviourThread child : children())
+			for(CmlBehaviour child : children())
 			{
 				if(child.inspect().containsImprecise(ownerThread().supervisor().selectedObservableEvent()))
 				{
-					if(ownerThread().supervisor().selectedObservableEvent() instanceof ObservableEvent)
+					if(ownerThread().supervisor().selectedObservableEvent() instanceof AbstractObservableEvent)
 						result = caseExternalChoiceEnd(child);
 					else
 					{
@@ -230,7 +230,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	 * @param question
 	 * @return
 	 */
-	protected CmlBehaviourSignal caseExternalChoiceBegin(CmlBehaviourThread leftInstance, CmlBehaviourThread rightInstance ,Context question)
+	protected CmlBehaviourSignal caseExternalChoiceBegin(CmlBehaviour leftInstance, CmlBehaviour rightInstance ,Context question)
 	{
 		//Add the children to the process graph
 		addChild(leftInstance);
@@ -246,7 +246,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	protected CmlBehaviourSignal caseExternalChoiceSkip()
 	{
 		//find the finished child
-		CmlBehaviourThread skipChild = findFinishedChild();
+		CmlBehaviour skipChild = findFinishedChild();
 		
 		//FIXME: maybe the we should differentiate between actions and process instead of just having CmlProcess
 		// 		Childerens. We clearly need it!
@@ -266,7 +266,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	 * Handles the external choice end rule
 	 * @return
 	 */
-	protected CmlBehaviourSignal caseExternalChoiceEnd(CmlBehaviourThread theChoosenOne)
+	protected CmlBehaviourSignal caseExternalChoiceEnd(CmlBehaviour theChoosenOne)
 	{
 		//CmlBehaviourThread theChoosenOne = findTheChoosenChild((ObservableEvent)supervisor().selectedObservableEvent());
 		
@@ -285,9 +285,9 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	 * Finds the first finished child if any
 	 * @return The first finished child, if none then null is returned
 	 */
-	protected CmlBehaviourThread findFinishedChild()
+	protected CmlBehaviour findFinishedChild()
 	{
-		for(CmlBehaviourThread child : children())
+		for(CmlBehaviour child : children())
 		{
 			if(child.finished())
 				return child;
@@ -299,7 +299,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	protected void killAndRemoveAllTheEvidenceOfTheChildren()
 	{
 		//Abort all the children of this action
-		for(CmlBehaviourThread child : children())
+		for(CmlBehaviour child : children())
 		{
 			child.setAbort(null);
 		}

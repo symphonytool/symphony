@@ -43,9 +43,9 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
@@ -118,7 +118,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 			throws AnalysisException {
 		
 		//At this point the supervisor has already given go to the event, or the event is hidden
-		Value value = ((ObservableEvent)supervisor().selectedObservableEvent()).getValue();
+		Value value = ((AbstractObservableEvent)supervisor().selectedObservableEvent()).getValue();
 		
 //		if(node.getCommunicationParameters() != null && 
 //				node.getCommunicationParameters().size() > 1
@@ -378,11 +378,11 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		PAction right = node.getRightAction();
 		
 		//TODO: create a local copy of the question state for each of the actions
-		CmlBehaviourThread leftInstance = 
+		CmlBehaviour leftInstance = 
 				VanillaInterpreterFactory.newCmlBehaviourThread(left, question, 
 						new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
 		
-		CmlBehaviourThread rightInstance = 
+		CmlBehaviour rightInstance = 
 				VanillaInterpreterFactory.newCmlBehaviourThread(right, question, 
 						new LexNameToken(name.module,"|||" + name.getIdentifier().getName(),right.getLocation()),ownerThread());
 		

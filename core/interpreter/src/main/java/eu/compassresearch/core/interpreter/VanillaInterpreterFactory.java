@@ -9,10 +9,10 @@ import org.overture.interpreter.runtime.Context;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.ConcreteCmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.DefaultSupervisorEnvironment;
 
 public final class VanillaInterpreterFactory {
@@ -50,13 +50,13 @@ public final class VanillaInterpreterFactory {
 		return new DefaultSupervisorEnvironment(selectStrategy);
 	}
 	
-	public static CmlBehaviourThread newCmlBehaviourThread(INode processNode, Context context, LexNameToken processName)
+	public static CmlBehaviour newCmlBehaviourThread(INode processNode, Context context, LexNameToken processName)
 	{
-		return new ConcreteBehaviourThread(processNode, context, processName);
+		return new ConcreteCmlBehaviour(processNode, context, processName);
 	}
 	
-	public static CmlBehaviourThread newCmlBehaviourThread(INode processNode, Context context, LexNameToken processName, CmlBehaviourThread parent)
+	public static CmlBehaviour newCmlBehaviourThread(INode processNode, Context context, LexNameToken processName, CmlBehaviour parent)
 	{
-		return new ConcreteBehaviourThread(processNode, context, processName, parent);
+		return new ConcreteCmlBehaviour(processNode, context, processName, parent);
 	}
 }

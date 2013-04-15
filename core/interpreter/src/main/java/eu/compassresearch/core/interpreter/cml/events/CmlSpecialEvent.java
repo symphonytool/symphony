@@ -1,6 +1,6 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
 
 /**

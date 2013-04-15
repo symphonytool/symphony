@@ -4,19 +4,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
 public abstract class AbstractCmlEvent implements CmlEvent {
 
-	final protected Set<CmlBehaviourThread> eventSources;
+	final protected Set<CmlBehaviour> eventSources;
 	
-	public AbstractCmlEvent(CmlBehaviourThread eventSource)
+	public AbstractCmlEvent(CmlBehaviour eventSource)
 	{
-		this.eventSources = new HashSet<CmlBehaviourThread>();
+		this.eventSources = new HashSet<CmlBehaviour>();
 		this.eventSources.add(eventSource);
 	}
 	
-	public AbstractCmlEvent(Set<CmlBehaviourThread> eventSources)
+	public AbstractCmlEvent(Set<CmlBehaviour> eventSources)
 	{
 		this.eventSources = eventSources;
 	}
@@ -24,7 +24,7 @@ public abstract class AbstractCmlEvent implements CmlEvent {
 	@Override
 	public abstract CmlAlphabet getAsAlphabet();
 
-	public Set<CmlBehaviourThread> getEventSources()
+	public Set<CmlBehaviour> getEventSources()
 	{
 		return eventSources;
 	}

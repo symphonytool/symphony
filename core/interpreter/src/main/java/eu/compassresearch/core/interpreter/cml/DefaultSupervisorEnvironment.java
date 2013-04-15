@@ -4,14 +4,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 
 public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 
 	private CmlCommunicationSelectionStrategy selectStrategy;
 	private CmlEvent selectedCommunication;
 	
-	private List<CmlBehaviourThread> pupils = new LinkedList<CmlBehaviourThread>();
+	private List<CmlBehaviour> pupils = new LinkedList<CmlBehaviour>();
 	
 	public DefaultSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy)
 	{
@@ -46,8 +46,8 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	public void setSelectedObservableEvent(CmlEvent comm) {
 		selectedCommunication = comm;
 		//signal all the processes that are listening for events on this channel
-		if(selectedCommunication instanceof ObservableEvent)
-			((ObservableEvent) selectedCommunication).getChannel().select();
+		if(selectedCommunication instanceof AbstractObservableEvent)
+			((AbstractObservableEvent) selectedCommunication).getChannel().select();
 	}
 
 	@Override
@@ -56,12 +56,12 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	}
 
 	@Override
-	public void addPupil(CmlBehaviourThread process) {
+	public void addPupil(CmlBehaviour process) {
 		pupils.add(process);
 	}
 
 	@Override
-	public void removePupil(CmlBehaviourThread process) {
+	public void removePupil(CmlBehaviour process) {
 		pupils.remove(process);
 //		scheduler.removeProcess(process);
 	}
@@ -73,17 +73,17 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	}
 	
 	@Override
-	public List<CmlBehaviourThread> getPupils() {
+	public List<CmlBehaviour> getPupils() {
 		return pupils;
 	}
 	
 	@Override
-	public CmlBehaviourThread findNamedProcess(String name)
+	public CmlBehaviour findNamedProcess(String name)
 	{
-		CmlBehaviourThread resultProcess = null;
-		List<CmlBehaviourThread> all = getPupils();
+		CmlBehaviour resultProcess = null;
+		List<CmlBehaviour> all = getPupils();
 		
-		for(CmlBehaviourThread p : all )
+		for(CmlBehaviour p : all )
 		{
 			if(p.name().toString().equals(name))
 			{

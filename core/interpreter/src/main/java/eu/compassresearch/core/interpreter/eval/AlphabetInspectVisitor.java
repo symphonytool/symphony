@@ -44,12 +44,12 @@ import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
 import eu.compassresearch.core.interpreter.cml.events.CommunicationParameter;
 import eu.compassresearch.core.interpreter.cml.events.InputParameter;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
 import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
@@ -68,14 +68,14 @@ public class AlphabetInspectVisitor
 		QuestionAnswerCMLAdaptor<Context, CmlAlphabet> {
 
 	// The process that contains this instance
-	private final CmlBehaviourThread 			ownerProcess;
+	private final CmlBehaviour 			ownerProcess;
 	private final CmlExpressionVisitor			cmlEvaluator = new CmlExpressionVisitor();
 	
 	/**
 	 * 
 	 * @param ownerProcess
 	 */
-	public AlphabetInspectVisitor(CmlBehaviourThread ownerProcess)
+	public AlphabetInspectVisitor(CmlBehaviour ownerProcess)
 	{
 		this.ownerProcess = ownerProcess;
 	}
@@ -163,9 +163,9 @@ public class AlphabetInspectVisitor
 				apply(cmlEvaluator,question));
 		
 		//Get all the child alphabets and add the events that are not in the channelset
-		CmlBehaviourThread leftChild = ownerProcess.children().get(0);
+		CmlBehaviour leftChild = ownerProcess.children().get(0);
 		CmlAlphabet leftChildAlphabet = leftChild.inspect();
-		CmlBehaviourThread rightChild = ownerProcess.children().get(1);
+		CmlBehaviour rightChild = ownerProcess.children().get(1);
 		CmlAlphabet rightChildAlphabet = rightChild.inspect();
 		
 		//Find the intersection between the child alphabets and the channel set and join them.
@@ -174,12 +174,12 @@ public class AlphabetInspectVisitor
 		
 		//combine all the common events that are in the channel set 
 		Set<CmlEvent> syncEvents = new HashSet<CmlEvent>();
-		for(ObservableEvent ref : cs.getObservableEvents())
+		for(AbstractObservableEvent ref : cs.getObservableEvents())
 		{
 			CmlAlphabet commonEvents = syncAlpha.intersectImprecise(ref.getAsAlphabet());
 			if(commonEvents.getObservableEvents().size() == 2)
 			{
-				Iterator<ObservableEvent> it = commonEvents.getObservableEvents().iterator(); 
+				Iterator<AbstractObservableEvent> it = commonEvents.getObservableEvents().iterator(); 
 				syncEvents.add( it.next().synchronizeWith(it.next()));
 			}
 		}
@@ -307,7 +307,7 @@ public class AlphabetInspectVisitor
 			@Override
 			public CmlAlphabet inspectChildren() {
 				CmlAlphabet alpha = null;
-				for(CmlBehaviourThread child : ownerProcess.children())
+				for(CmlBehaviour child : ownerProcess.children())
 				{
 					if(alpha == null)
 						alpha = child.inspect();
@@ -369,7 +369,7 @@ public class AlphabetInspectVisitor
 		//else we join the childrens alphabets 
 		else
 		{
-			for(CmlBehaviourThread child : ownerProcess.children())
+			for(CmlBehaviour child : ownerProcess.children())
 			{
 				if(alpha == null)
 					alpha = calculateDeadlockFreeChildAlphabet(child);
@@ -406,7 +406,7 @@ public class AlphabetInspectVisitor
 	 * @param child
 	 * @return
 	 */
-	private CmlAlphabet calculateDeadlockFreeChildAlphabet(CmlBehaviourThread child)
+	private CmlAlphabet calculateDeadlockFreeChildAlphabet(CmlBehaviour child)
 	{
 		//child.onStateChanged().unregisterObserver(ownerProcess);
 
@@ -587,7 +587,7 @@ public class AlphabetInspectVisitor
 				params.add(param);
 			}
 			
-			ObservableEvent observableEvent = CmlEventFactory.newCmlCommunicationEvent(ownerProcess, chanValue, params);
+			AbstractObservableEvent observableEvent = CmlEventFactory.newCmlCommunicationEvent(ownerProcess, chanValue, params);
 			comset.add(observableEvent);
 		}
 		//TODO: do the rest here

@@ -8,7 +8,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlSpecialEvent;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 
 /**
  * This represents a CML alphabet containing both silent and observable events
@@ -19,38 +19,38 @@ import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 public class CmlAlphabet extends Value {
 
 	//This contains the observable events
-	private final Set<ObservableEvent> _observableEvents;
+	private final Set<AbstractObservableEvent> _observableEvents;
 	//This contains all the special events like tau
 	private final Set<CmlSpecialEvent> specialEvents;
 	
 	public CmlAlphabet()
 	{
 		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
-		this._observableEvents = new LinkedHashSet<ObservableEvent>();
+		this._observableEvents = new LinkedHashSet<AbstractObservableEvent>();
 	}
 	
-	public CmlAlphabet(ObservableEvent obsEvent)
+	public CmlAlphabet(AbstractObservableEvent obsEvent)
 	{
 		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
-		this._observableEvents = new LinkedHashSet<ObservableEvent>();
+		this._observableEvents = new LinkedHashSet<AbstractObservableEvent>();
 		this._observableEvents.add(obsEvent);
 	}
 	
-	public CmlAlphabet(Set<ObservableEvent> comms, Set<CmlSpecialEvent> specialEvents)
+	public CmlAlphabet(Set<AbstractObservableEvent> comms, Set<CmlSpecialEvent> specialEvents)
 	{
 		this.specialEvents = specialEvents;
-		this._observableEvents = new LinkedHashSet<ObservableEvent>(comms);
+		this._observableEvents = new LinkedHashSet<AbstractObservableEvent>(comms);
 	}
 	
 	public CmlAlphabet(Set<CmlEvent> events)
 	{
 		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
-		this._observableEvents = new LinkedHashSet<ObservableEvent>();
+		this._observableEvents = new LinkedHashSet<AbstractObservableEvent>();
 		
 		for(CmlEvent e : events)
 		{
-			if(e instanceof ObservableEvent){
-				_observableEvents.add((ObservableEvent)e);
+			if(e instanceof AbstractObservableEvent){
+				_observableEvents.add((AbstractObservableEvent)e);
 			}
 			else if(e instanceof CmlSpecialEvent)
 				this.specialEvents.add((CmlSpecialEvent)e);
@@ -61,9 +61,9 @@ public class CmlAlphabet extends Value {
 	 * Returns all the observable events in the alphabet
 	 * @return
 	 */
-	public Set<ObservableEvent> getObservableEvents()
+	public Set<AbstractObservableEvent> getObservableEvents()
 	{
-		return new LinkedHashSet<ObservableEvent>(_observableEvents);
+		return new LinkedHashSet<AbstractObservableEvent>(_observableEvents);
 	}
 	
 	/**
@@ -141,9 +141,9 @@ public class CmlAlphabet extends Value {
 	{
 		Set<CmlEvent> resultSet = new LinkedHashSet<CmlEvent>();
 		
-		for(ObservableEvent thisEvent : _observableEvents)
+		for(AbstractObservableEvent thisEvent : _observableEvents)
 		{
-			for(ObservableEvent otherEvent : other._observableEvents)
+			for(AbstractObservableEvent otherEvent : other._observableEvents)
 			{
 				//if the events are comparable (the) and one of the values are imprecise
 				// and they are not equal
@@ -153,13 +153,9 @@ public class CmlAlphabet extends Value {
 				{
 					//find the meet of the two values, meaning the most precise
 					resultSet.add(thisEvent.meet(otherEvent));
-					//resultSet.add(otherRefEvent);
 				}
 				else if(thisEvent.isComparable(otherEvent) && thisEvent.equals(otherEvent))
-				{
 					resultSet.add(thisEvent);
-					//resultSet.add(otherRefEvent);
-				}
 			}
 		}
 		
@@ -173,7 +169,7 @@ public class CmlAlphabet extends Value {
 	 */
 	public CmlAlphabet subtract(CmlAlphabet other)
 	{
-		Set<ObservableEvent> newReferenceEvents = new LinkedHashSet<ObservableEvent>();
+		Set<AbstractObservableEvent> newReferenceEvents = new LinkedHashSet<AbstractObservableEvent>();
 		newReferenceEvents.addAll(_observableEvents);
 		newReferenceEvents.removeAll(other.getObservableEvents());
 		
@@ -187,7 +183,7 @@ public class CmlAlphabet extends Value {
 	 */
 	public CmlAlphabet subtractImprecise(CmlAlphabet other)
 	{
-		Set<ObservableEvent> newReferenceEvents = new LinkedHashSet<ObservableEvent>();
+		Set<AbstractObservableEvent> newReferenceEvents = new LinkedHashSet<AbstractObservableEvent>();
 		newReferenceEvents.addAll(_observableEvents);
 		newReferenceEvents.removeAll(other.intersectImprecise(this).getObservableEvents());
 		
@@ -260,9 +256,9 @@ public class CmlAlphabet extends Value {
 	 */
 	public CmlAlphabet expandAlphabet()
 	{
-		Set<ObservableEvent> eventSet = new HashSet<ObservableEvent>();
+		Set<AbstractObservableEvent> eventSet = new HashSet<AbstractObservableEvent>();
 		
-		for(ObservableEvent ev : getObservableEvents())
+		for(AbstractObservableEvent ev : getObservableEvents())
 			eventSet.addAll(ev.expand());
 		
 		return new CmlAlphabet(eventSet,getSpecialEvents());
@@ -272,7 +268,7 @@ public class CmlAlphabet extends Value {
 	@Override
 	public Object clone() {
 
-		return new CmlAlphabet(new LinkedHashSet<ObservableEvent>(_observableEvents), 
+		return new CmlAlphabet(new LinkedHashSet<AbstractObservableEvent>(_observableEvents), 
 				new HashSet<CmlSpecialEvent>(specialEvents));
 	}
 }

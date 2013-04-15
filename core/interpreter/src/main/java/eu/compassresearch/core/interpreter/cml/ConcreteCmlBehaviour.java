@@ -15,7 +15,7 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluationVisitor;
@@ -29,7 +29,7 @@ import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.util.Pair;
 
-public class ConcreteBehaviourThread implements CmlBehaviourThread, CmlProcessTraceObserver 
+public class ConcreteCmlBehaviour implements CmlBehaviour, CmlProcessTraceObserver 
 	{
 	
 	private static final long 					serialVersionUID = -4920762081111266274L;
@@ -44,8 +44,8 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread, CmlProcessTr
 	private Stack<Pair<INode,Context>> 			executionStack = new Stack<Pair<INode,Context>>();
 	
 	//Process/Action Graph variables
-	protected CmlBehaviourThread 				parent;
-	protected List<CmlBehaviourThread> 			children = new LinkedList<CmlBehaviourThread>();
+	protected CmlBehaviour 				parent;
+	protected List<CmlBehaviour> 			children = new LinkedList<CmlBehaviour>();
 	
 	//Process/Action state variables
 	protected CmlProcessState 					state;
@@ -95,7 +95,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread, CmlProcessTr
 	 * Constructor
 	 * @param parent set the parent here if any else set to null
 	 */
-	private ConcreteBehaviourThread(CmlBehaviourThread parent,LexNameToken name)
+	private ConcreteCmlBehaviour(CmlBehaviour parent,LexNameToken name)
 	{
 		state = CmlProcessState.INITIALIZED;
 		this.parent = parent;
@@ -107,23 +107,23 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread, CmlProcessTr
 			
 			@Override
 			public void setHidingAlphabet(CmlAlphabet alpha) {
-				ConcreteBehaviourThread.this.setHidingAlphabet(alpha);
+				ConcreteCmlBehaviour.this.setHidingAlphabet(alpha);
 				
 			}
 			
 			@Override
 			public void pushNext(INode node, Context context) {
-				ConcreteBehaviourThread.this.pushNext(node, context);
+				ConcreteCmlBehaviour.this.pushNext(node, context);
 			}
 			
 			@Override
-			public CmlBehaviourThread ownerThread() {
-				return ConcreteBehaviourThread.this;
+			public CmlBehaviour ownerThread() {
+				return ConcreteCmlBehaviour.this;
 			}
 			
 			@Override
-			public void mergeState(CmlBehaviourThread other) {
-				ConcreteBehaviourThread.this.replaceState((ConcreteBehaviourThread)other);
+			public void mergeState(CmlBehaviour other) {
+				ConcreteCmlBehaviour.this.replaceState((ConcreteCmlBehaviour)other);
 				
 			}
 			
@@ -133,25 +133,25 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread, CmlProcessTr
 			}
 			
 			@Override
-			public CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviourThread child) {
-				return ConcreteBehaviourThread.this.executeChildAsSupervisor(child);
+			public CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviour child) {
+				return ConcreteCmlBehaviour.this.executeChildAsSupervisor(child);
 			}
 			
 			@Override
-			public void addChild(CmlBehaviourThread child) {
-				ConcreteBehaviourThread.this.addChild(child);
+			public void addChild(CmlBehaviour child) {
+				ConcreteCmlBehaviour.this.addChild(child);
 				
 			}
 		});
 	}
 	
-	public ConcreteBehaviourThread(INode action,Context context, LexNameToken name)
+	public ConcreteCmlBehaviour(INode action,Context context, LexNameToken name)
 	{
 		this(null,name);
 		pushNext(action, context);
 	}
 	
-	public ConcreteBehaviourThread(INode action,Context context, LexNameToken name, CmlBehaviourThread parent)
+	public ConcreteCmlBehaviour(INode action,Context context, LexNameToken name, CmlBehaviour parent)
 	{
 		this(parent,name);
 		pushNext(action, context);
@@ -164,8 +164,8 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread, CmlProcessTr
 		{
 			if(hasChildren())
 			{
-				CmlBehaviourThread leftChild = children().get(0);
-				CmlBehaviourThread rightChild = children().get(1);
+				CmlBehaviour leftChild = children().get(0);
+				CmlBehaviour rightChild = children().get(1);
 				
 				return "(" + leftChild.nextStepToString() + ")" + CmlOpsToString.toString(nextState().first) + "(" + rightChild.nextStepToString()+")";
 			}
@@ -213,7 +213,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread, CmlProcessTr
 		executionStack.push(new Pair<INode, Context>(node, context));
 	}
 	
-	protected void replaceState(ConcreteBehaviourThread other)
+	protected void replaceState(ConcreteCmlBehaviour other)
 	{
 		if(other.hasNext())
 		{	
@@ -380,7 +380,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread, CmlProcessTr
 		
 		CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
 		
-		for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
+		for(AbstractObservableEvent obsEvent : hiddenEvents.getObservableEvents())
 			resultAlpha = resultAlpha.union(CmlEventFactory.newTauEvent(this,null,null," hiding " + obsEvent.toString()));	
 		return resultAlpha;
 	}
@@ -432,7 +432,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread, CmlProcessTr
 	public void setAbort(Reason reason) {
 
 		//abort all the children
-		for(CmlBehaviourThread child : children())
+		for(CmlBehaviour child : children())
 			child.setAbort(reason);
 		
 //		//unregister all the channels
@@ -477,12 +477,12 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread, CmlProcessTr
 	}
 
 	@Override
-	public CmlBehaviourThread parent() {
+	public CmlBehaviour parent() {
 		return parent;
 	}
 
 	@Override
-	public List<CmlBehaviourThread> children() {
+	public List<CmlBehaviour> children() {
 		
 		return (List)children;
 	}
@@ -610,7 +610,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread, CmlProcessTr
 		
 		this.executionStack = copyStack;		
 		
-		this.children = new LinkedList<CmlBehaviourThread>(children);
+		this.children = new LinkedList<CmlBehaviour>(children);
 		this.hidingAlphabet = (CmlAlphabet) hidingAlphabet.clone();
 		this.trace = new CmlTrace(trace);
 		
@@ -677,7 +677,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread, CmlProcessTr
 	 * @param child
 	 * @return
 	 */
-	protected CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviourThread child)
+	protected CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviour child)
 	{
 		child.onTraceChanged().unregisterObserver(this);
 		CmlBehaviourSignal result = child.execute(supervisor());
@@ -686,7 +686,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread, CmlProcessTr
 		return result;
 	}
 	
-	protected void addChild(CmlBehaviourThread child)
+	protected void addChild(CmlBehaviour child)
 	{
 		//Add the child to the process graph
 		children().add(child);

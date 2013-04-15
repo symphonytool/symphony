@@ -3,7 +3,7 @@ package eu.compassresearch.core.interpreter.cml.events;
 import java.util.Set;
 
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
 
 public interface CmlEvent {
@@ -24,5 +24,5 @@ public interface CmlEvent {
 	 * Returns the set of CmlBehaviourThreads that are prepared to engage in this event
 	 * @return
 	 */
-	public Set<CmlBehaviourThread> getEventSources();
+	public Set<CmlBehaviour> getEventSources();
 }

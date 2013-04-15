@@ -3,7 +3,7 @@ package eu.compassresearch.core.interpreter.cml;
 import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 
 public interface CmlSupervisorEnvironment {
 
@@ -21,11 +21,11 @@ public interface CmlSupervisorEnvironment {
 	//public void setDecisionFunction(CMLCommunicationSelectionStrategy cdf)
 	//throws NullPointerException;
 	// Pupil Processes related methods
-	public void addPupil(CmlBehaviourThread process);
-	public void removePupil(CmlBehaviourThread process);
+	public void addPupil(CmlBehaviour process);
+	public void removePupil(CmlBehaviour process);
 	public void clearPupils();
-	public List<CmlBehaviourThread> getPupils();
-	public CmlBehaviourThread findNamedProcess(String name);
+	public List<CmlBehaviour> getPupils();
+	public CmlBehaviour findNamedProcess(String name);
 	
 	// Supervision related methods
 	/**

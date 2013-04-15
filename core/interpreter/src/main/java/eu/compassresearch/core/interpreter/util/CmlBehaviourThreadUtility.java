@@ -1,22 +1,22 @@
 package eu.compassresearch.core.interpreter.util;
 
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
 public class CmlBehaviourThreadUtility {
 
-	public static boolean isAllChildrenFinished(CmlBehaviourThread process)
+	public static boolean isAllChildrenFinished(CmlBehaviour process)
 	{
 		boolean isAllFinished = true;
-		for(CmlBehaviourThread child : process.children())
+		for(CmlBehaviour child : process.children())
 		{
 			isAllFinished &= child.finished();
 		}
 		return isAllFinished;
 	}
 	
-	public static boolean finishedChildExists(CmlBehaviourThread process)
+	public static boolean finishedChildExists(CmlBehaviour process)
 	{
-		for(CmlBehaviourThread child : process.children())
+		for(CmlBehaviour child : process.children())
 		{
 			if(child.finished())
 				return true;

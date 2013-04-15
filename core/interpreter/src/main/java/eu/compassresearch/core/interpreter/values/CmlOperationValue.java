@@ -18,7 +18,7 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
 public class CmlOperationValue extends Value {
 
@@ -48,7 +48,7 @@ public class CmlOperationValue extends Value {
 	public boolean isConstructor = false;
 	public boolean isStatic = false;
 	
-	private CmlBehaviourThread currentlyExecutingThread = null;
+	private CmlBehaviour currentlyExecutingThread = null;
 
 	public CmlOperationValue(AExplicitCmlOperationDefinition def,
 							AStateDefinition state)
@@ -146,11 +146,11 @@ public class CmlOperationValue extends Value {
 		return type;
 	}
 
-	public CmlBehaviourThread getCurrentlyExecutingThread() {
+	public CmlBehaviour getCurrentlyExecutingThread() {
 		return currentlyExecutingThread;
 	}
 
-	public void setCurrentlyExecutingThread(CmlBehaviourThread currentlyExecutingThread) {
+	public void setCurrentlyExecutingThread(CmlBehaviour currentlyExecutingThread) {
 		this.currentlyExecutingThread = currentlyExecutingThread;
 	}
 	

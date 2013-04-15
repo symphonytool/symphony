@@ -8,16 +8,16 @@ import java.util.Set;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlChannel;
 
-class PrefixEvent extends ObservableEvent {
+class PrefixEvent extends AbstractObservableEvent {
 
-	public PrefixEvent(CmlBehaviourThread eventSource, CmlChannel channel) {
+	public PrefixEvent(CmlBehaviour eventSource, CmlChannel channel) {
 		super(eventSource, channel);
 	}
 	
-	public PrefixEvent(Set<CmlBehaviourThread> eventSources, CmlChannel channel) {
+	public PrefixEvent(Set<CmlBehaviour> eventSources, CmlChannel channel) {
 		super(eventSources, channel);
 	}
 	
@@ -51,9 +51,9 @@ class PrefixEvent extends ObservableEvent {
 	}
 
 	@Override
-	public ObservableEvent synchronizeWith(ObservableEvent syncEvent) {
+	public AbstractObservableEvent synchronizeWith(AbstractObservableEvent syncEvent) {
 		
-		Set<CmlBehaviourThread> sources = new HashSet<CmlBehaviourThread>();
+		Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
 		sources.addAll(this.getEventSources());
 		sources.addAll(syncEvent.getEventSources());
 		
@@ -61,7 +61,7 @@ class PrefixEvent extends ObservableEvent {
 	}
 
 	@Override
-	public ObservableEvent meet(ObservableEvent other) {
+	public AbstractObservableEvent meet(AbstractObservableEvent other) {
 		return this;
 	}
 
@@ -81,7 +81,7 @@ class PrefixEvent extends ObservableEvent {
 	}
 
 	@Override
-	public List<ObservableEvent> expand() {
-		return Arrays.asList((ObservableEvent)this);
+	public List<AbstractObservableEvent> expand() {
+		return Arrays.asList((AbstractObservableEvent)this);
 	}
 }

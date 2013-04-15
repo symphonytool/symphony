@@ -21,7 +21,7 @@ import org.overture.interpreter.values.ValueList;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 
 public class ConsoleSelectionStrategy implements
@@ -44,14 +44,14 @@ CmlCommunicationSelectionStrategy {
 		CmlEvent chosenEvent = events.get(scanIn.nextInt());
 		
 
-		if(chosenEvent instanceof ObservableEvent && !((ObservableEvent)chosenEvent).isValuePrecise())
+		if(chosenEvent instanceof AbstractObservableEvent && !((AbstractObservableEvent)chosenEvent).isValuePrecise())
 		{
 			System.out.println("Enter value : "); 
 			Value val;
 			try {
-				val = ((AChannelType)((ObservableEvent)chosenEvent).getChannel().getType()).getType().
-						apply(new ValueParser(),(ObservableEvent)chosenEvent);
-				((ObservableEvent)chosenEvent).setValue(val);
+				val = ((AChannelType)((AbstractObservableEvent)chosenEvent).getChannel().getType()).getType().
+						apply(new ValueParser(),(AbstractObservableEvent)chosenEvent);
+				((AbstractObservableEvent)chosenEvent).setValue(val);
 			} catch (AnalysisException e) {
 				e.printStackTrace();
 				System.exit(-1);
@@ -62,30 +62,30 @@ CmlCommunicationSelectionStrategy {
 		return chosenEvent;
 	}
 
-	class ValueParser extends QuestionAnswerCMLAdaptor<ObservableEvent,Value>
+	class ValueParser extends QuestionAnswerCMLAdaptor<AbstractObservableEvent,Value>
 	{
 		@Override
-		public Value defaultINode(INode node, ObservableEvent chosenEvent) throws AnalysisException {
+		public Value defaultINode(INode node, AbstractObservableEvent chosenEvent) throws AnalysisException {
 
 			throw new AnalysisException(node + " is not supported by the console");
 		}
 		
 		@Override
-		public Value caseAIntNumericBasicType(AIntNumericBasicType node, ObservableEvent chosenEvent)
+		public Value caseAIntNumericBasicType(AIntNumericBasicType node, AbstractObservableEvent chosenEvent)
 				throws AnalysisException {
 
 			return new IntegerValue(scanIn.nextInt());
 		}
 		
 		@Override
-		public Value caseANamedInvariantType(ANamedInvariantType node, ObservableEvent chosenEvent)
+		public Value caseANamedInvariantType(ANamedInvariantType node, AbstractObservableEvent chosenEvent)
 				throws AnalysisException {
 
 			return node.getType().apply(this,chosenEvent);
 		}
 		
 		@Override
-		public Value caseAProductType(AProductType node, ObservableEvent chosenEvent)
+		public Value caseAProductType(AProductType node, AbstractObservableEvent chosenEvent)
 				throws AnalysisException {
 
 			ValueList argvals = new ValueList();
@@ -102,7 +102,7 @@ CmlCommunicationSelectionStrategy {
 		}
 		
 		@Override
-		public Value caseAUnionType(AUnionType node, ObservableEvent chosenEvent) throws AnalysisException {
+		public Value caseAUnionType(AUnionType node, AbstractObservableEvent chosenEvent) throws AnalysisException {
 			
 			PType type;
 
@@ -118,7 +118,7 @@ CmlCommunicationSelectionStrategy {
 		}
 		
 		@Override
-		public Value caseAQuoteType(AQuoteType node, ObservableEvent chosenEvent) throws AnalysisException {
+		public Value caseAQuoteType(AQuoteType node, AbstractObservableEvent chosenEvent) throws AnalysisException {
 			
 			return new QuoteValue(node.getValue().value);
 		}

@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.overture.ast.node.INode;
 
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlChannel;
 
 public class CmlEventFactory {
@@ -24,7 +24,7 @@ public class CmlEventFactory {
 		return instance;
 	}
 	
-	public static CmlSpecialEvent newTauEvent(CmlBehaviourThread source, INode transitionSrcNode, INode transitionDstNode, String transitionMessage)
+	public static CmlSpecialEvent newTauEvent(CmlBehaviour source, INode transitionSrcNode, INode transitionDstNode, String transitionMessage)
 	{
 		return new CmlTauEvent(source, transitionSrcNode,transitionDstNode,transitionMessage);
 	}
@@ -34,15 +34,15 @@ public class CmlEventFactory {
 	 * prefix event factory methods 
 	 */
 	
-	public static ObservableEvent newPrefixEvent(CmlBehaviourThread eventSource, CmlChannel channel) {
+	public static AbstractObservableEvent newPrefixEvent(CmlBehaviour eventSource, CmlChannel channel) {
 		return new PrefixEvent(eventSource,channel);
 	}
 	
-	public static ObservableEvent newPrefixEvent(Set<CmlBehaviourThread> eventSources, CmlChannel channel) {
+	public static AbstractObservableEvent newPrefixEvent(Set<CmlBehaviour> eventSources, CmlChannel channel) {
 		return new PrefixEvent(eventSources,channel);
 	}
 	
-	public static ObservableEvent newPrefixEvent(CmlChannel channel) {
+	public static AbstractObservableEvent newPrefixEvent(CmlChannel channel) {
 		return new PrefixEvent(channel);
 	}
 	
@@ -50,12 +50,12 @@ public class CmlEventFactory {
 	 * communication event factory methods 
 	 */
 	
-	public static ObservableEvent newCmlCommunicationEvent(CmlBehaviourThread source, CmlChannel channel, List<CommunicationParameter> params)
+	public static AbstractObservableEvent newCmlCommunicationEvent(CmlBehaviour source, CmlChannel channel, List<CommunicationParameter> params)
 	{
 		return new CmlCommunicationEvent(source, channel, params);
 	}
 	
-	public static ObservableEvent newCmlCommunicationEvent(CmlChannel channel, List<CommunicationParameter> params)
+	public static AbstractObservableEvent newCmlCommunicationEvent(CmlChannel channel, List<CommunicationParameter> params)
 	{
 		return new CmlCommunicationEvent(channel, params);
 	}

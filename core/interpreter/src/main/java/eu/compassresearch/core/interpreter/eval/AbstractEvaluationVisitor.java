@@ -16,18 +16,18 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 
 public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor<Context, CmlBehaviourSignal> {
 
 	public interface ControlAccess
 	{
-		CmlBehaviourThread ownerThread();
+		CmlBehaviour ownerThread();
 		void pushNext(INode node,Context context);
-		CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviourThread child);
-		void addChild(CmlBehaviourThread child);
-		void mergeState(CmlBehaviourThread other);
+		CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviour child);
+		void addChild(CmlBehaviour child);
+		void mergeState(CmlBehaviour other);
 		CmlAlphabet getHidingAlphabet();
 		void setHidingAlphabet(CmlAlphabet alpha);
 	};
@@ -70,21 +70,21 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 		return controlAccess.getHidingAlphabet();
 	}
 	
-	protected void mergeState(CmlBehaviourThread other)
+	protected void mergeState(CmlBehaviour other)
 	{
 		controlAccess.mergeState(other);
 	}
 	
-	protected void addChild(CmlBehaviourThread child)
+	protected void addChild(CmlBehaviour child)
 	{
 		controlAccess.addChild(child);
 	}
 	
 	protected void removeTheChildren()
 	{
-		for(Iterator<CmlBehaviourThread> iterator = children().iterator(); iterator.hasNext(); )
+		for(Iterator<CmlBehaviour> iterator = children().iterator(); iterator.hasNext(); )
 		{
-			CmlBehaviourThread child = iterator.next();
+			CmlBehaviour child = iterator.next();
 			supervisor().removePupil(child);
 			iterator.remove();
 		}
@@ -95,17 +95,17 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 		return controlAccess.ownerThread().supervisor();
 	}
 	
-	protected List<CmlBehaviourThread> children()
+	protected List<CmlBehaviour> children()
 	{
 		return controlAccess.ownerThread().children();
 	}
 	
-	protected CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviourThread child)
+	protected CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviour child)
 	{
 		return controlAccess.executeChildAsSupervisor(child);
 	}
 	
-	protected CmlBehaviourThread ownerThread()
+	protected CmlBehaviour ownerThread()
 	{
 		return controlAccess.ownerThread();
 	}

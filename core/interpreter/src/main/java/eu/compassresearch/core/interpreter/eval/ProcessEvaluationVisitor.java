@@ -24,7 +24,7 @@ import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.values.ActionValue;
@@ -49,10 +49,10 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 					InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 		
 		//TODO: create a local copy of the question state for each of the actions
-		CmlBehaviourThread leftInstance = 
+		CmlBehaviour leftInstance = 
 				VanillaInterpreterFactory.newCmlBehaviourThread(left,question,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
 		
-		CmlBehaviourThread rightInstance = 
+		CmlBehaviour rightInstance = 
 				VanillaInterpreterFactory.newCmlBehaviourThread(right,question,new LexNameToken(name.module,"|||" + name.getIdentifier().getName() ,right.getLocation()),ownerThread());
 		
 		return caseParallelBeginGeneral(leftInstance,rightInstance,question);

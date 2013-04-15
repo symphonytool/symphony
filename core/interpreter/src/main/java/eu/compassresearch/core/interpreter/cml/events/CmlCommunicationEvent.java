@@ -20,16 +20,16 @@ import org.overture.interpreter.values.ValueList;
 import eu.compassresearch.ast.analysis.AnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlChannel;
 import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.values.AnyValue;
 
-class CmlCommunicationEvent extends ObservableEvent {
+class CmlCommunicationEvent extends AbstractObservableEvent {
 
 	private Value value;
 	
-	public CmlCommunicationEvent(CmlBehaviourThread source, CmlChannel channel, List<CommunicationParameter> params)
+	public CmlCommunicationEvent(CmlBehaviour source, CmlChannel channel, List<CommunicationParameter> params)
 	{
 		super(source,channel);
 		initValueFromComParams(params);		
@@ -41,7 +41,7 @@ class CmlCommunicationEvent extends ObservableEvent {
 		initValueFromComParams(params);
 	}
 			
-	private CmlCommunicationEvent(Set<CmlBehaviourThread> sources, CmlChannel channel, Value value)
+	private CmlCommunicationEvent(Set<CmlBehaviour> sources, CmlChannel channel, Value value)
 	{
 		super(sources,channel);
 		this.value = value;
@@ -109,7 +109,7 @@ class CmlCommunicationEvent extends ObservableEvent {
 	}
 	
 	@Override
-	public boolean isComparable(ObservableEvent other) {
+	public boolean isComparable(AbstractObservableEvent other) {
 		return super.equals(other);
 	}
 	
@@ -136,9 +136,9 @@ class CmlCommunicationEvent extends ObservableEvent {
 	}
 
 	@Override
-	public ObservableEvent synchronizeWith(ObservableEvent syncEvent) {
+	public AbstractObservableEvent synchronizeWith(AbstractObservableEvent syncEvent) {
 		
-		Set<CmlBehaviourThread> sources = new HashSet<CmlBehaviourThread>();
+		Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
 		sources.addAll(this.getEventSources());
 		sources.addAll(syncEvent.getEventSources());
 		
@@ -147,7 +147,7 @@ class CmlCommunicationEvent extends ObservableEvent {
 	}
 
 	@Override
-	public ObservableEvent meet(ObservableEvent obj) {
+	public AbstractObservableEvent meet(AbstractObservableEvent obj) {
 		
 		CmlCommunicationEvent other = null;
 		
@@ -164,46 +164,46 @@ class CmlCommunicationEvent extends ObservableEvent {
 
 	
 	@Override
-	public List<ObservableEvent> expand() {
+	public List<AbstractObservableEvent> expand() {
 		
 		if(isValuePrecise())
-			return Arrays.asList((ObservableEvent)this);
+			return Arrays.asList((AbstractObservableEvent)this);
 		else
 			try {
 				return ((AChannelType)channel.getType()).getType().apply(new EventExpander());
 			} catch (AnalysisException e) {
 				e.printStackTrace();
-				return new LinkedList<ObservableEvent>();
+				return new LinkedList<AbstractObservableEvent>();
 			}
 	}
 	
-	class EventExpander extends AnswerCMLAdaptor<List<ObservableEvent> >
+	class EventExpander extends AnswerCMLAdaptor<List<AbstractObservableEvent> >
 	{
 		@Override
-		public List<ObservableEvent> defaultPType(PType node)
+		public List<AbstractObservableEvent> defaultPType(PType node)
 				throws AnalysisException {
 			
-			return Arrays.asList((ObservableEvent)CmlCommunicationEvent.this);
+			return Arrays.asList((AbstractObservableEvent)CmlCommunicationEvent.this);
 		}
 		
 		@Override
-		public List<ObservableEvent> caseAIntNumericBasicType(AIntNumericBasicType node)
+		public List<AbstractObservableEvent> caseAIntNumericBasicType(AIntNumericBasicType node)
 				throws AnalysisException {
 
-			return Arrays.asList((ObservableEvent)CmlCommunicationEvent.this);
+			return Arrays.asList((AbstractObservableEvent)CmlCommunicationEvent.this);
 		}
 		
 		@Override
-		public List<ObservableEvent> caseANamedInvariantType(ANamedInvariantType node)
+		public List<AbstractObservableEvent> caseANamedInvariantType(ANamedInvariantType node)
 				throws AnalysisException {
 			//TODO remove unwanted onces
 			return node.getType().apply(this);
 		}
 		
 		@Override
-		public List<ObservableEvent> caseAUnionType(AUnionType node) throws AnalysisException {
+		public List<AbstractObservableEvent> caseAUnionType(AUnionType node) throws AnalysisException {
 			
-			List<ObservableEvent> events = new LinkedList<ObservableEvent>();
+			List<AbstractObservableEvent> events = new LinkedList<AbstractObservableEvent>();
 			
 			if(!node.getInfinite())
 			{
@@ -219,10 +219,10 @@ class CmlCommunicationEvent extends ObservableEvent {
 		}
 		
 		@Override
-		public List<ObservableEvent> caseAQuoteType(AQuoteType node)
+		public List<AbstractObservableEvent> caseAQuoteType(AQuoteType node)
 				throws AnalysisException {
 			
-			return Arrays.asList((ObservableEvent)new CmlCommunicationEvent(
+			return Arrays.asList((AbstractObservableEvent)new CmlCommunicationEvent(
 					CmlCommunicationEvent.this.getEventSources(), 
 					CmlCommunicationEvent.this.channel, new QuoteValue(node.getValue().value)));
 		}

@@ -23,7 +23,7 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
@@ -51,7 +51,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	protected Context                  globalContext;
 	protected String 				   defaultName      = null;	
 	protected AProcessDefinition       topProcess;
-	protected CmlBehaviourThread	   runningTopProcess = null;	
+	protected CmlBehaviour	   runningTopProcess = null;	
 
 	/**
 	 * Construct a CmlInterpreter with a list of PSources. These source may
@@ -143,7 +143,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		return pov;
 	}
 	
-	private void executeTopProcess(CmlBehaviourThread topProcess) throws InterpreterException
+	private void executeTopProcess(CmlBehaviour topProcess) throws InterpreterException
 	{
 		//continue until the top process is not finished and not deadlocked
 		while(!topProcess.finished() && !topProcess.deadlocked())
@@ -277,7 +277,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 
 	public InterpreterStatus getStatus()
 	{
-		LinkedList<CmlBehaviourThread> t = new LinkedList<CmlBehaviourThread>();
+		LinkedList<CmlBehaviour> t = new LinkedList<CmlBehaviour>();
 		t.add(runningTopProcess);
 		return new InterpreterStatus(t);
 	}

@@ -7,7 +7,7 @@ import org.overture.ast.node.INode;
 
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
 class CmlTauEvent extends AbstractCmlEvent implements CmlSpecialEvent {
 
@@ -17,7 +17,7 @@ class CmlTauEvent extends AbstractCmlEvent implements CmlSpecialEvent {
 	private final INode transitionDstNode;
 	private String transitionText = null;
 						
-	public CmlTauEvent(CmlBehaviourThread source, INode transitionSrcNode, INode transitionDstNode, String transitionText)
+	public CmlTauEvent(CmlBehaviour source, INode transitionSrcNode, INode transitionDstNode, String transitionText)
 	{
 		super(source);
 		this.transitionSrcNode = transitionSrcNode;

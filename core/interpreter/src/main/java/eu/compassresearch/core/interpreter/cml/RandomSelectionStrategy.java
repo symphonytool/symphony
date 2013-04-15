@@ -22,7 +22,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 /**
  * This class implements a random selection CMLCommunicaiton of the alphabet 
@@ -49,14 +49,14 @@ public class RandomSelectionStrategy implements
 			selectedComm = new ArrayList<CmlEvent>(
 					availableChannelEvents.getAllEvents()).get(rndChoice.nextInt(nElems));
 			
-			if(selectedComm instanceof ObservableEvent && !((ObservableEvent)selectedComm).isValuePrecise())
+			if(selectedComm instanceof AbstractObservableEvent && !((AbstractObservableEvent)selectedComm).isValuePrecise())
 			{
-				AChannelType t = (AChannelType)((ObservableEvent)selectedComm).getChannel().getType();
+				AChannelType t = (AChannelType)((AbstractObservableEvent)selectedComm).getChannel().getType();
 				
-				((ObservableEvent)selectedComm).setValue(
+				((AbstractObservableEvent)selectedComm).setValue(
 						AbstractValueInterpreter.meet(
-						((ObservableEvent)selectedComm).getValue(),
-						getRandomValueFromType(t.getType(),(ObservableEvent)selectedComm)));
+						((AbstractObservableEvent)selectedComm).getValue(),
+						getRandomValueFromType(t.getType(),(AbstractObservableEvent)selectedComm)));
 			}
 		}
 		//CmlRuntime.logger().fine("Available events " + availableChannelEvents.getObservableEvents());
@@ -65,7 +65,7 @@ public class RandomSelectionStrategy implements
 		return selectedComm;
 	}
 	
-	private Value getRandomValueFromType(PType type, ObservableEvent chosenEvent)
+	private Value getRandomValueFromType(PType type, AbstractObservableEvent chosenEvent)
 	{
 		try {
 			return type.apply(new RandomValueGenerator(),chosenEvent);
@@ -76,17 +76,17 @@ public class RandomSelectionStrategy implements
 		return new UndefinedValue();
 	}
 	
-	class RandomValueGenerator extends QuestionAnswerCMLAdaptor<ObservableEvent,Value>
+	class RandomValueGenerator extends QuestionAnswerCMLAdaptor<AbstractObservableEvent,Value>
 	{
 		@Override
-		public Value caseAIntNumericBasicType(AIntNumericBasicType node, ObservableEvent chosenEvent)
+		public Value caseAIntNumericBasicType(AIntNumericBasicType node, AbstractObservableEvent chosenEvent)
 				throws AnalysisException {
 
 			return new IntegerValue(rndValue.nextInt());
 		}
 		
 		@Override
-		public Value caseANamedInvariantType(ANamedInvariantType node, ObservableEvent chosenEvent)
+		public Value caseANamedInvariantType(ANamedInvariantType node, AbstractObservableEvent chosenEvent)
 				throws AnalysisException {
 
 //			if(node.getInvDef() != null)
@@ -102,7 +102,7 @@ public class RandomSelectionStrategy implements
 		}
 		
 		@Override
-		public Value caseAUnionType(AUnionType node, ObservableEvent chosenEvent) throws AnalysisException {
+		public Value caseAUnionType(AUnionType node, AbstractObservableEvent chosenEvent) throws AnalysisException {
 			
 			PType type = node.getTypes().get(rndValue.nextInt(node.getTypes().size()));
 
@@ -110,13 +110,13 @@ public class RandomSelectionStrategy implements
 		}
 		
 		@Override
-		public Value caseAQuoteType(AQuoteType node, ObservableEvent chosenEvent) throws AnalysisException {
+		public Value caseAQuoteType(AQuoteType node, AbstractObservableEvent chosenEvent) throws AnalysisException {
 			
 			return new QuoteValue(node.getValue().value);
 		}
 		
 		@Override
-		public Value caseAProductType(AProductType node, ObservableEvent chosenEvent)
+		public Value caseAProductType(AProductType node, AbstractObservableEvent chosenEvent)
 				throws AnalysisException {
 
 			ValueList argvals = new ValueList();
