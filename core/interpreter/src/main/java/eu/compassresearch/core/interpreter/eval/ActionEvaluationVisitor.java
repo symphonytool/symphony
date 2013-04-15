@@ -444,11 +444,23 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	public CmlBehaviourSignal caseAHidingAction(AHidingAction node,
 			Context question) throws AnalysisException {
 
-		setHidingAlphabet((CmlAlphabet)node.getChansetExpression().apply(cmlExpressionVisitor,question));
-
-		pushNext(node.getLeft(), question); 
 		
+		setHidingAlphabet((CmlAlphabet)node.getChansetExpression().apply(cmlExpressionVisitor,question));
+		pushNext(node.getLeft(), question);
 		return CmlBehaviourSignal.EXEC_SUCCESS;
+		
+//		CmlBehaviour child = this.ownerThread().children().get(0);
+//		if(!child.finished())
+//		{
+//			pushNext(node, question);
+//			return this.ownerThread().children().get(0).execute(supervisor());
+//		}
+//		else
+//		{
+//			pushNext(new ASkipAction(),question);
+//			return CmlBehaviourSignal.EXEC_SUCCESS;
+//		}
+		
 	}
 	
 	/**

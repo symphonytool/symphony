@@ -16,6 +16,7 @@ class CmlTauEvent extends AbstractCmlEvent implements CmlSpecialEvent {
 	private final INode transitionSrcNode;
 	private final INode transitionDstNode;
 	private String transitionText = null;
+	private final AbstractObservableEvent hiddenEvent;
 						
 	public CmlTauEvent(CmlBehaviour source, INode transitionSrcNode, INode transitionDstNode, String transitionText)
 	{
@@ -23,7 +24,18 @@ class CmlTauEvent extends AbstractCmlEvent implements CmlSpecialEvent {
 		this.transitionSrcNode = transitionSrcNode;
 		this.transitionDstNode = transitionDstNode;
 		this.transitionText = transitionText;
+		hiddenEvent = null;
 	}
+	
+	public CmlTauEvent(CmlBehaviour source, AbstractObservableEvent hiddenEvent, String transitionText)
+	{
+		super(source);
+		this.transitionSrcNode = null;
+		this.transitionDstNode = null;
+		this.hiddenEvent = hiddenEvent;
+		this.transitionText = transitionText;
+	}
+	
 	
 	@Override
 	public int hashCode() {
@@ -58,5 +70,5 @@ class CmlTauEvent extends AbstractCmlEvent implements CmlSpecialEvent {
 		events.add(this);
 		return new CmlAlphabet(events);
 	}
-
+	
 }

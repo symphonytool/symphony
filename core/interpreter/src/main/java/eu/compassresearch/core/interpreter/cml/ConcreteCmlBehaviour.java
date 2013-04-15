@@ -160,9 +160,16 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 			if(hasChildren())
 			{
 				CmlBehaviour leftChild = children().get(0);
-				CmlBehaviour rightChild = children().get(1);
 				
-				return "(" + leftChild.nextStepToString() + ")" + CmlOpsToString.toString(nextState().first) + "(" + rightChild.nextStepToString()+")";
+				String stringRep = "(" + leftChild.nextStepToString() + ")" + CmlOpsToString.toString(nextState().first);
+				
+				if(children().size() > 1)
+				{
+					CmlBehaviour rightChild = children().get(1);
+					stringRep += "(" + rightChild.nextStepToString()+")";
+				}
+				
+				return stringRep;
 			}
 			else{
 				return nextState().first.toString();
@@ -338,6 +345,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 				CmlAlphabet alpha = next.first.apply(alphabetInspectionVisitor,next.second);
 			
 				//we have to check for hidden event and convert them into tau events before we return the next alpha
+				//return alpha;
 				return HandleHiding(alpha);
 			}
 			//if the process is done we return the empty alphabet

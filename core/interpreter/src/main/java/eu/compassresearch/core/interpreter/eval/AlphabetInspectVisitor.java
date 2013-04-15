@@ -43,13 +43,14 @@ import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
+import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
 import eu.compassresearch.core.interpreter.cml.events.CommunicationParameter;
 import eu.compassresearch.core.interpreter.cml.events.InputParameter;
-import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
 import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
@@ -635,6 +636,34 @@ public class AlphabetInspectVisitor
 		//FIXME This is actually not a tau transition. This should produced an entirely 
 		//different event which has no denotational trace but only for debugging
 		return createSilentTransition(node, node.getLeft(), "Hiding (This should not be a tau)");
+		
+//		CmlBehaviour child = null;
+//		
+//		if(!ownerProcess.hasChildren())
+//		{
+//			child = VanillaInterpreterFactory.newCmlBehaviourThread(node.getLeft(), question, 
+//					new LexNameToken("",ownerProcess.name().getName() + "\\" ,node.getLocation()));
+//			
+//			ownerProcess.children().add(child);
+//		}
+//		else
+//		{
+//			child = ownerProcess.children().get(0);
+//		}
+//		
+//		//first we get the child alphabet
+//		CmlAlphabet childAlpha = child.inspect();
+//		//Next we get the alphabet from, the hiding construct
+//		CmlAlphabet hidingAlphabet = (CmlAlphabet)node.getChansetExpression().apply(cmlEvaluator,question);
+//		//then these two are intersected to find the events that should be hidden
+//		CmlAlphabet hiddenEvents = childAlpha.intersect(hidingAlphabet);
+//		//
+//		CmlAlphabet resultAlpha = childAlpha.subtract(hiddenEvents);
+//		
+//		for(AbstractObservableEvent obsEvent : hiddenEvents.getObservableEvents())
+//			resultAlpha = resultAlpha.union(CmlEventFactory.newTauEvent(ownerProcess,null,null," hiding " + obsEvent.toString()));
+//		
+//		return resultAlpha;
 	}
 	
 	/**
