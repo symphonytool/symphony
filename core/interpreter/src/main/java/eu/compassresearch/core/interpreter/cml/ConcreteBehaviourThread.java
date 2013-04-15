@@ -1,6 +1,5 @@
 package eu.compassresearch.core.interpreter.cml;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -11,7 +10,6 @@ import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.actions.ASkipAction;
-import eu.compassresearch.ast.process.ASkipProcess;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -22,8 +20,6 @@ import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluationVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
-import eu.compassresearch.core.interpreter.events.ChannelObserver;
-import eu.compassresearch.core.interpreter.events.CmlChannelEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
@@ -31,11 +27,9 @@ import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
-import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
 
-public class ConcreteBehaviourThread implements CmlBehaviourThread , 
-				ChannelObserver, CmlProcessTraceObserver 
+public class ConcreteBehaviourThread implements CmlBehaviourThread, CmlProcessTraceObserver 
 	{
 	
 	private static final long 					serialVersionUID = -4920762081111266274L;
@@ -51,11 +45,10 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	
 	//Process/Action Graph variables
 	protected CmlBehaviourThread 				parent;
-	protected List<ConcreteBehaviourThread> 	children = new LinkedList<ConcreteBehaviourThread>();
+	protected List<CmlBehaviourThread> 			children = new LinkedList<CmlBehaviourThread>();
 	
 	//Process/Action state variables
 	protected CmlProcessState 					state;
-	
 	protected boolean 							started = false;
 	protected boolean							wait = false;
 	
@@ -70,10 +63,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	
 	//Helper to inspect the immediate Alphabet
 	protected AlphabetInspectVisitor 			alphabetInspectionVisitor = new AlphabetInspectVisitor(this);
-	
-	//Event handling variable, we need to keep track if the events because of external choice
-	//
-	protected List<ObservableEvent>     		registredEvents = new LinkedList<ObservableEvent>();
 	
 	protected EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>  stateEventhandler = 
 			new EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>(this,
@@ -97,7 +86,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 						}
 					});
 	
-	//resstore point
+	//restore point
 	protected RestorePoint lastRestorePoint = null;
 	
 	AbstractEvaluationVisitor cmlEvaluationVisitor = new CmlEvaluationVisitor();
@@ -111,7 +100,8 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		state = CmlProcessState.INITIALIZED;
 		this.parent = parent;
 		this.name = name;
-		
+		wait = false;
+		started = false;
 		
 		cmlEvaluationVisitor.init(new AbstractEvaluationVisitor.ControlAccess() {
 			
@@ -119,11 +109,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			public void setHidingAlphabet(CmlAlphabet alpha) {
 				ConcreteBehaviourThread.this.setHidingAlphabet(alpha);
 				
-			}
-			
-			@Override
-			public void removeTheChildren() {
-				ConcreteBehaviourThread.this.removeTheChildren();				
 			}
 			
 			@Override
@@ -153,13 +138,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			}
 			
 			@Override
-			public CmlBehaviourThread createChild(INode node, Context question,
-					LexNameToken name) {
-				
-				return new ConcreteBehaviourThread(node, question, name, ConcreteBehaviourThread.this);
-			}
-			
-			@Override
 			public void addChild(CmlBehaviourThread child) {
 				ConcreteBehaviourThread.this.addChild(child);
 				
@@ -177,13 +155,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	{
 		this(parent,name);
 		pushNext(action, context);
-	}
-	
-	@Override
-	public void start(CmlSupervisorEnvironment env) {
-		
-		this.env = env;
-		env.addPupil(this);
 	}
 	
 	@Override
@@ -210,15 +181,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	public String toString() {
 	
 		return name.toString();
-	}
-	
-	@Override
-	public boolean isRegistered(CmlChannel channel) {
-
-		if(level() == 0 && env.selectedObservableEvent() instanceof ObservableEvent) 
-			return ((ObservableEvent)env.selectedObservableEvent()).getChannel().onSelect().isRegistered(this);
-		else
-			return this.parent().isRegistered(channel);
 	}
 	
 	/*
@@ -359,8 +321,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				{
 					wait = false;
 					ret = executeNext();
-					if(level() == 0 && env.selectedObservableEvent() instanceof ObservableEvent)
-						unregisterChannel((ObservableEvent)env.selectedObservableEvent());
 					updateTrace(env.selectedObservableEvent());
 				}
 				//if no communication is selected by the supervisor or we cannot sync the selected events
@@ -369,8 +329,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 				{
 					setState(CmlProcessState.WAIT);
 					wait = true;
-					if(level() == 0)
-						registerChannelsInAlpha(alpha);
 					
 					ret = CmlBehaviourSignal.EXEC_SUCCESS;
 				}
@@ -451,21 +409,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		notifyOnTraceChange(new TraceEvent(this,event));
 	}
 	
-	private void unregisterChannel(ObservableEvent event)
-	{
-		event.getChannel().onSelect().unregisterObserver(this);
-		registredEvents.remove(event);
-	}
-	
-	private void registerChannelsInAlpha(CmlAlphabet alpha)
-	{
-		for(ObservableEvent com : alpha.getObservableEvents())
-		{
-			registredEvents.add(com);
-			com.getChannel().onSelect().registerObserver(this);
-		}
-	}
-	
 	/*
 	 * Execute region end
 	 */
@@ -492,9 +435,9 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		for(CmlBehaviourThread child : children())
 			child.setAbort(reason);
 		
-		//unregister all the channels
-		for(ObservableEvent oe : registredEvents)
-			oe.getChannel().onSelect().unregisterObserver(this);
+//		//unregister all the channels
+//		for(ObservableEvent oe : registredEvents)
+//			oe.getChannel().onSelect().unregisterObserver(this);
 		
 		aborted = true;
 		
@@ -556,16 +499,15 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	 */
 	@Override
 	public boolean started() {
-		return 	started;
+		return started;
 	}
 
 	@Override public boolean waiting() {
-		return getState() == CmlProcessState.WAIT;
+		return wait;
 	}
 	
 	@Override
 	public boolean finished() {
-		//return getState() == CmlProcessState.FINISHED;
 		return getExecutionStack().size() == 1 && 
 				nextState().first instanceof ASkipAction;
 	}
@@ -574,7 +516,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	public boolean deadlocked() {
 		
 		//A Process is deadlocked if its immediate alphabet is empty
-		//return getState() == CmlProcessState.STOPPED;
 		return inspect().isEmpty();
 	}
 	
@@ -635,7 +576,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	public void beginTransaction() {
 
 		lastRestorePoint = new RestorePoint(executionStack, parent, children, state, env, hidingAlphabet, 
-											trace, registredEvents, stateEventhandler, traceEventHandler);
+											trace, stateEventhandler, traceEventHandler);
 		
 //		//set restore point for all the children
 //		for(CmlBehaviourThread child : children())
@@ -669,11 +610,9 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		
 		this.executionStack = copyStack;		
 		
-		this.children = new LinkedList<ConcreteBehaviourThread>(children);
+		this.children = new LinkedList<CmlBehaviourThread>(children);
 		this.hidingAlphabet = (CmlAlphabet) hidingAlphabet.clone();
 		this.trace = new CmlTrace(trace);
-		this.registredEvents = new LinkedList<ObservableEvent>(registredEvents);
-		
 		
 		CmlRuntime.logger().finest("\nSetting Restore point for " + name + "\n");
 	}
@@ -689,7 +628,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 			env = lastRestorePoint.env;
 			hidingAlphabet = lastRestorePoint.hidingAlphabet; 
 			trace = lastRestorePoint.trace;
-			registredEvents = lastRestorePoint.registredEvents;
 			stateEventhandler = lastRestorePoint.stateEventhandler; 
 			traceEventHandler = lastRestorePoint.traceEventHandler;
 			state = lastRestorePoint.state;
@@ -725,21 +663,6 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	}
 	
 	/**
-	 * ChannelListener interface method.
-	 * Here the process is notified when a registered channel is signaled 
-	 */
-	@Override
-	public void onChannelEvent(Object source, CmlChannelEvent event) {
-
-		//if the channel sends a select event then it means that we have a go to execute the
-		//communicationAction transition. 
-		//So we set the state to RUNNABLE so the scheduler will execute it
-//		if(event.getEventType() == CmlCommunicationType.SELECT)
-//			setState(CmlProcessState.RUNNABLE);
-	}
-	
-	
-	/**
 	 * common helper methods
 	 */
 	
@@ -769,17 +692,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		children().add(child);
 		//Register for state change and trace change events
 		child.onTraceChanged().registerObserver(this);
-		
-		child.start(supervisor());
+		supervisor().addPupil(child);
 	}
 	
-	protected void removeTheChildren()
-	{
-		for(Iterator<CmlBehaviourThread> iterator = children().iterator(); iterator.hasNext(); )
-		{
-			CmlBehaviourThread child = iterator.next();
-			supervisor().removePupil(child);
-			iterator.remove();
-		}
-	}
 }

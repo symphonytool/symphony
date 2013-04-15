@@ -9,6 +9,7 @@ import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.process.AExternalChoiceProcess;
+import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
@@ -165,7 +166,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 				rightNode.apply(this,question);
 			else
 			{
-				CmlBehaviourThread rightInstance = createChild(rightNode, question.deepCopy(),rightName); 
+				CmlBehaviourThread rightInstance = VanillaInterpreterFactory.newCmlBehaviourThread(rightNode, question.deepCopy(), rightName,this.ownerThread()); 
 				//new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),right.getLocation()));
 				addChild(rightInstance);
 				
@@ -176,7 +177,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 				pushNext(node, question);
 			}
 			
-			CmlBehaviourThread leftInstance = createChild(leftNode, question.deepCopy(), leftName);
+			CmlBehaviourThread leftInstance = VanillaInterpreterFactory.newCmlBehaviourThread(leftNode, question.deepCopy(), leftName,this.ownerThread());
 			addChild(leftInstance);
 			
 			//Now let this process wait for the children to get into a waitForEvent state

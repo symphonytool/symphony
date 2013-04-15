@@ -18,12 +18,11 @@ class RestorePoint {
 
 	public RestorePoint(Stack<Pair<INode,Context>> executionStack,
 			CmlBehaviourThread 				parent,
-			List<ConcreteBehaviourThread> 		children,
+			List<CmlBehaviourThread> 		children,
 			CmlProcessState 					state,
 			CmlSupervisorEnvironment 			env,
 			CmlAlphabet 						hidingAlphabet,
 			CmlTrace 							trace,
-			List<ObservableEvent>     			registredEvents,
 			EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>  stateEventhandler,
 			EventSourceHandler<CmlProcessTraceObserver,TraceEvent>  traceEventHandler)
 	{
@@ -34,19 +33,17 @@ class RestorePoint {
 		this.env = env;
 		this.hidingAlphabet = hidingAlphabet;
 		this.trace = trace;
-		this.registredEvents = registredEvents;
 		this.stateEventhandler = stateEventhandler;
 		this.traceEventHandler = traceEventHandler;
 	}
 	
 	public final Stack<Pair<INode,Context>> 		executionStack;
 	public final CmlBehaviourThread 				parent;
-	public final List<ConcreteBehaviourThread> 		children;
+	public final List<CmlBehaviourThread> 		children;
 	public final CmlProcessState 					state;
 	public final CmlSupervisorEnvironment 			env;
 	public final CmlAlphabet 						hidingAlphabet;
 	public final CmlTrace 							trace;
-	public final List<ObservableEvent>     			registredEvents;
 	public final EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>  stateEventhandler;
 	public final EventSourceHandler<CmlProcessTraceObserver,TraceEvent>  traceEventHandler;
 }

@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -26,8 +27,6 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 		void pushNext(INode node,Context context);
 		CmlBehaviourSignal executeChildAsSupervisor(CmlBehaviourThread child);
 		void addChild(CmlBehaviourThread child);
-		void removeTheChildren();
-		CmlBehaviourThread createChild(INode node, Context question, LexNameToken name);
 		void mergeState(CmlBehaviourThread other);
 		CmlAlphabet getHidingAlphabet();
 		void setHidingAlphabet(CmlAlphabet alpha);
@@ -76,11 +75,6 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 		controlAccess.mergeState(other);
 	}
 	
-	protected CmlBehaviourThread createChild(INode node, Context question, LexNameToken name)
-	{
-		return controlAccess.createChild(node, question, name);
-	}
-	
 	protected void addChild(CmlBehaviourThread child)
 	{
 		controlAccess.addChild(child);
@@ -88,7 +82,12 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	
 	protected void removeTheChildren()
 	{
-		controlAccess.removeTheChildren();
+		for(Iterator<CmlBehaviourThread> iterator = children().iterator(); iterator.hasNext(); )
+		{
+			CmlBehaviourThread child = iterator.next();
+			supervisor().removePupil(child);
+			iterator.remove();
+		}
 	}
 		
 	protected CmlSupervisorEnvironment supervisor()

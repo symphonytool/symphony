@@ -133,10 +133,9 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		Context topContext = getInitialContext(null);
 		//Create a CmlBehaviourThread for the top process
 		runningTopProcess = VanillaInterpreterFactory.newCmlBehaviourThread(topProcess.getProcess(), topContext, topProcess.getName());
-		//pi.start(currentSupervisor);
+		currentSupervisor.addPupil(runningTopProcess);
 		//Fire the interpreter running event before we start
 		statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.RUNNING));
-		//cmlScheduler.start(currentSupervisor);
 		
 		executeTopProcess(runningTopProcess);
 		
@@ -146,8 +145,6 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	
 	private void executeTopProcess(CmlBehaviourThread topProcess) throws InterpreterException
 	{
-		topProcess.start(currentSupervisor);
-		
 		//continue until the top process is not finished and not deadlocked
 		while(!topProcess.finished() && !topProcess.deadlocked())
 	//	while(!stopped && hasActiveProcesses())

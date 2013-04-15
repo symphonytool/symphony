@@ -27,12 +27,6 @@ public interface CmlBehaviourThread extends Transactable //, CmlBehaviour
 	public CmlAlphabet inspect();
 	
 	/**
-	 * Initializes the process
-	 * @param env
-	 */
-	public void start(CmlSupervisorEnvironment env);
-	
-	/**
 	 * 
 	 * @return The current supervisor of this process
 	 */
@@ -40,14 +34,6 @@ public interface CmlBehaviourThread extends Transactable //, CmlBehaviour
 	
 	//public Reason abortReason();
 	public void setAbort(Reason reason);
-	
-	/**
-	 * This determines whether this process or an ancestor is registered to the given channel.
-	 * 
-	 * @param channel
-	 * @return true if this or an ancestor is registered to 
-	 */
-	public boolean isRegistered(CmlChannel channel);
 	
 	/**
 	 * Returns the current execution state of the process
