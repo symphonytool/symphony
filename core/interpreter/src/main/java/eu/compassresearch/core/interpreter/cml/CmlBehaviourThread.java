@@ -2,10 +2,11 @@ package eu.compassresearch.core.interpreter.cml;
 
 import java.util.List;
 
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
 import eu.compassresearch.core.interpreter.events.EventSource;
@@ -47,7 +48,7 @@ public interface CmlBehaviourThread extends CmlBehaviour , Transactable{
 	 * Name of the process
 	 * @return The name of the process
 	 */
-	public LexNameToken name();
+	public ILexNameToken name();
 	
 	//public void signalTermination();
 		

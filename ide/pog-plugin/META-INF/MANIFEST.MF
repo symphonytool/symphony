@@ -25,6 +25,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-BuddyPolicy: registered
 Eclipse-BundleShape: dir
 Bundle-ActivationPolicy: lazy
-Export-Package: eu.compassresearch.ide.cml.pogplugin
 Bundle-ClassPath: .,
  jars/pog.jar

@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.Stack;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
@@ -42,7 +43,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	 * Instance variables
 	 */
 	//name of the instance
-	protected LexNameToken 						name;
+	protected ILexNameToken 						name;
 	
 	//Stack machine variables
 	private Stack<Pair<INode,Context>> 			executionStack = new Stack<Pair<INode,Context>>();
@@ -102,7 +103,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	 * Constructor
 	 * @param parent set the parent here if any else set to null
 	 */
-	private ConcreteBehaviourThread(CmlBehaviourThread parent,LexNameToken name)
+	private ConcreteBehaviourThread(CmlBehaviourThread parent,ILexNameToken name)
 	{
 		state = CmlProcessState.INITIALIZED;
 		this.parent = parent;
@@ -174,7 +175,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 		});
 	}
 	
-	public ConcreteBehaviourThread(INode action,Context context, LexNameToken name)
+	public ConcreteBehaviourThread(INode action,Context context, ILexNameToken name)
 	{
 		this(null,name);
 		pushNext(action, context);
@@ -515,7 +516,7 @@ public class ConcreteBehaviourThread implements CmlBehaviourThread ,
 	}
 	
 	@Override
-	public LexNameToken name() {
+	public ILexNameToken name() {
 		return this.name;
 	}
 	

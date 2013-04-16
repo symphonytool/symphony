@@ -3,9 +3,11 @@ package eu.compassresearch.core.typechecker.api;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
-import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.PType;
+
+import eu.compassresearch.ast.lex.LexIdentifierToken;
 
 public interface TypeCheckQuestion {
 
@@ -15,7 +17,7 @@ public interface TypeCheckQuestion {
 	 * @param ident
 	 * @return
 	 */
-	public abstract PType lookupType(LexIdentifierToken ident);
+	public abstract PType lookupType(ILexIdentifierToken ident);
 
 	/**
 	 * Add a defined type to the type environment.
@@ -23,7 +25,7 @@ public interface TypeCheckQuestion {
 	 * @param ident
 	 * @param type
 	 */
-	public abstract void addType(LexIdentifierToken ident, PDefinition type);
+	public abstract void addType(ILexIdentifierToken ident, PDefinition type);
 
 	/**
 	 * Given a name lookup the corresponding type in the channel environment.
@@ -31,7 +33,7 @@ public interface TypeCheckQuestion {
 	 * @param ident
 	 * @return
 	 */
-	public abstract PDefinition lookupChannel(LexIdentifierToken ident);
+	public abstract PDefinition lookupChannel(ILexIdentifierToken ident);
 
 	/**
 	 * Add a mapping from the given name and channel declaration to the channel
@@ -40,7 +42,7 @@ public interface TypeCheckQuestion {
 	 * @param name
 	 * @param channel
 	 */
-	public abstract void addChannel(LexIdentifierToken name, PDefinition channel);
+	public abstract void addChannel(ILexIdentifierToken name, PDefinition channel);
 
 	/**
 	 * Given a name lookup the corresponding variable definition for that name.
@@ -48,7 +50,7 @@ public interface TypeCheckQuestion {
 	 * @param name
 	 * @return
 	 */
-	public abstract PDefinition lookupVariable(LexIdentifierToken name);
+	public abstract PDefinition lookupVariable(ILexIdentifierToken name);
 
 	/**
 	 * Add mapping from the given name to the given variable definition to the
@@ -57,7 +59,7 @@ public interface TypeCheckQuestion {
 	 * @param name
 	 * @param variable
 	 */
-	public abstract void addVariable(LexIdentifierToken name,
+	public abstract void addVariable(ILexIdentifierToken name,
 			PDefinition variable);
 
 	/**

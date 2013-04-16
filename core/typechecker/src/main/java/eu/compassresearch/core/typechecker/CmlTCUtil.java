@@ -14,9 +14,9 @@ import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
-import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.APatternTypePair;
@@ -31,7 +31,8 @@ import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
 
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
-import eu.compassresearch.core.parser.CmlParser.stateDefs_return;
+import eu.compassresearch.ast.lex.LexIdentifierToken;
+import eu.compassresearch.ast.lex.LexNameToken;
 
 
 public class CmlTCUtil {
@@ -91,13 +92,13 @@ public class CmlTCUtil {
 	public static AExplicitFunctionDefinition buildCondition1(String prefix, PDefinition target, PType type, List<List<PPattern>> ptrnList, PExp condition, List<PDefinition> enclosingStateDefinitions, List<PDefinition> oldStateDefs)
 	{
 		// create new with pre_ before the name
-		LexNameToken name = new LexNameToken("", new LexIdentifierToken(prefix+"_"+target.getName().getName(), false, target.getLocation()));
+		ILexNameToken name = new LexNameToken("", new LexIdentifierToken(prefix+"_"+target.getName().getName(), false, target.getLocation()));
 
 		// pre/post conditions are local scope
 		NameScope scope = NameScope.LOCAL;
 
 		// TODO: RWL Figure out what this is and why it is there
-		List<LexNameToken> typeParams = new LinkedList<LexNameToken>();
+		List<ILexNameToken> typeParams = new LinkedList<ILexNameToken>();
 
 		// Extract parameterTypes from the given type
 		LinkedList<PType> parameterTypes = null;
@@ -230,7 +231,7 @@ public class CmlTCUtil {
 	 * @param overtureEnv
 	 * @return
 	 */
-	public static PDefinition findNearestFunctionOrOperationInEnvironment(LexNameToken name, Environment overtureEnv)
+	public static PDefinition findNearestFunctionOrOperationInEnvironment(ILexNameToken name, Environment overtureEnv)
 	{
 		PDefinition result = null;
 		org.overture.typechecker.Environment cur = overtureEnv;
@@ -241,7 +242,7 @@ public class CmlTCUtil {
 			{
 				for(PDefinition def : defs)
 				{
-					LexNameToken defName = def.getName();
+					ILexNameToken defName = def.getName();
 					if (defName != null && defName.getName() != null && defName.getName().equals(name.getName()))
 					{
 						if (PDefinitionAssistantTC.isFunctionOrOperation(def))
@@ -267,7 +268,7 @@ public class CmlTCUtil {
 	 * @param question
 	 * @return
 	 */
-	public static PDefinition findDefByAllMeans(org.overture.typechecker.TypeCheckInfo question, LexIdentifierToken id)
+	public static PDefinition findDefByAllMeans(org.overture.typechecker.TypeCheckInfo question, ILexIdentifierToken id)
 	{
 		PDefinition res = null;
 		LexNameToken sought = null;
@@ -341,15 +342,15 @@ public class CmlTCUtil {
 						info.addType(dd.getName(), dd);
 					else
 					{
-						LexNameToken name = dd.getName();
+						ILexNameToken name = dd.getName();
 						if ("".equals(name+""))
 						{
 							if (dd instanceof AValueDefinition)
 							{
 								AValueDefinition ddVd = (AValueDefinition)dd;
 								PPattern p = ddVd.getPattern();
-								List<LexNameToken> names = PPatternAssistantTC.getAllVariableNames(p);
-								for(LexNameToken n : names)
+								List<ILexNameToken> names = PPatternAssistantTC.getAllVariableNames(p);
+								for(ILexNameToken n : names)
 									info.addVariable(n, dd);
 							}
 						}

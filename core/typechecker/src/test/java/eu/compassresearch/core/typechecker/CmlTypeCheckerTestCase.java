@@ -23,11 +23,9 @@ import org.junit.runners.Parameterized.Parameters;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexNameToken;
-import org.overture.ast.types.ABooleanBasicType;
-import org.overture.ast.types.AFunctionType;
 
+import eu.compassresearch.ast.lex.LexIdentifierToken;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.AInputStreamSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
@@ -939,7 +937,7 @@ public class CmlTypeCheckerTestCase extends TestCase {
 		PDefinition def=null;
         if (def instanceof AExplicitFunctionDefinition) {
             AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)def;
-            if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+def.getName().name, false, def.getLocation())));
+            if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+def.getName().getName(), false, def.getLocation())));
            }
 
 	}

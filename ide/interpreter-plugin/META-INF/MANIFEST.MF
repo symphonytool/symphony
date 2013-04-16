@@ -27,7 +27,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
 Eclipse-BundleShape: dir
-Import-Package: eu.compassresearch.ide.cml.core
 Bundle-ClassPath: .,
  jars/gson.jar,
  jars/interpreter.jar,

@@ -8,8 +8,7 @@ import java.util.Map;
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
-import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
@@ -18,6 +17,7 @@ import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.util.HelpLexNameToken;
 
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -79,7 +79,7 @@ TypeCheckQuestion {
 	}
 
 	@Override
-	public PType lookupType(LexIdentifierToken ident) {
+	public PType lookupType(ILexIdentifierToken ident) {
 		LexNameToken name = null;
 		if (!(ident instanceof LexNameToken)) name = new LexNameToken("",ident);
 		else name = (LexNameToken)ident;
@@ -92,7 +92,7 @@ TypeCheckQuestion {
 
 
 
-	public PDefinition lookup(LexIdentifierToken name, Class<?> astClass)
+	public PDefinition lookup(ILexIdentifierToken name, Class<?> astClass)
 	{
 		org.overture.typechecker.Environment cur = env;
 
@@ -113,7 +113,7 @@ TypeCheckQuestion {
 	}
 
 	@Override
-	public void addType(LexIdentifierToken ident, PDefinition typeDef) {
+	public void addType(ILexIdentifierToken ident, PDefinition typeDef) {
 		if (ident == null) throw new NullPointerException("Cannot add a type with null name");
 		
 		PDefinition d = lookup(ident, PDefinition.class);
@@ -130,12 +130,12 @@ TypeCheckQuestion {
 	}
 
 	@Override
-	public PDefinition lookupChannel(LexIdentifierToken ident) {
+	public PDefinition lookupChannel(ILexIdentifierToken ident) {
 		return channels.lookupName(ident);
 	}
 
 	@Override
-	public void addChannel(LexIdentifierToken ident, PDefinition channel) {
+	public void addChannel(ILexIdentifierToken ident, PDefinition channel) {
 		PDefinition chanDef = lookupChannel(ident);
 		if (chanDef != null)
 		{
@@ -146,7 +146,7 @@ TypeCheckQuestion {
 	}
 
 	@Override
-	public PDefinition lookupVariable(LexIdentifierToken ident) {
+	public PDefinition lookupVariable(ILexIdentifierToken ident) {
 		if (ident instanceof LexNameToken) {
 
 			return env.findName((LexNameToken) ident, NameScope.GLOBAL);
@@ -155,7 +155,7 @@ TypeCheckQuestion {
 	}
 	
 	
-	public PDefinition lookupCurrentScope(LexIdentifierToken ident)
+	public PDefinition lookupCurrentScope(ILexIdentifierToken ident)
 	{
 		for(PDefinition d : env.getDefinitions())
 		{
@@ -166,7 +166,7 @@ TypeCheckQuestion {
 	}
 
 	@Override
-	public void addVariable(LexIdentifierToken ident, PDefinition variable) {
+	public void addVariable(ILexIdentifierToken ident, PDefinition variable) {
 		if (ident == null) return;
 		boolean isConstructor = false;
 		//if (ident == null) throw new NullPointerException("Cannot add identifier with null name to the environment.");

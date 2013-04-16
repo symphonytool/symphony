@@ -27,7 +27,7 @@ import org.osgi.framework.BundleContext;
 
 public class CmlUIPlugin extends AbstractUIPlugin {
 
-	private static final boolean DEBUG = true;
+	public static final boolean DEBUG = true;
 	private static CmlUIPlugin plugin;
 
 	public static synchronized ILog getLogger() { return plugin.getLog(); }

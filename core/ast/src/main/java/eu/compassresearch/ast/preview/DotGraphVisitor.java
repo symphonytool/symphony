@@ -7,13 +7,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.ExternalNode;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.IToken;
 import org.overture.ast.node.NodeList;
 
 import eu.compassresearch.ast.analysis.QuestionCMLAdaptor;
+import eu.compassresearch.ast.lex.LexNameToken;
 
 
 

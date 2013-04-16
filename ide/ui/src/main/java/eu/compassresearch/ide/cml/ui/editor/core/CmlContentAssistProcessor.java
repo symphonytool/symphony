@@ -93,10 +93,10 @@ public class CmlContentAssistProcessor implements IContentAssistProcessor {
     private void computeSingleProposal(PDefinition pd, String qualifier,
 	    int documentOffset, int qlen, List<ICompletionProposal> proposalList) {
 	    if (pd.getName() != null)
-	    if ((pd.getName().name).toLowerCase().startsWith(qualifier.toLowerCase())) {
-		int cursor = pd.getName().name.length();
+	    if ((pd.getName().getName()).toLowerCase().startsWith(qualifier.toLowerCase())) {
+		int cursor = pd.getName().getName().length();
 		CompletionProposal proposal = new CompletionProposal(
-			pd.getName().name, documentOffset-qlen,qlen,cursor);
+			pd.getName().getName(), documentOffset-qlen,qlen,cursor);
 		proposalList.add(proposal);
 	    }	
 	
