@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter;
 
 import java.util.List;
 
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
@@ -50,13 +51,23 @@ public final class VanillaInterpreterFactory {
 		return new DefaultSupervisorEnvironment(selectStrategy);
 	}
 	
-	public static CmlBehaviour newCmlBehaviourThread(INode processNode, Context context, LexNameToken processName)
+	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, LexNameToken processName)
 	{
 		return new ConcreteCmlBehaviour(processNode, context, processName);
 	}
 	
-	public static CmlBehaviour newCmlBehaviourThread(INode processNode, Context context, LexNameToken processName, CmlBehaviour parent)
+//	public static CmlBehaviour newCmlBehaviour(INode node, CmlBehaviour parent, CmlBehaviour left, CmlBehaviour right)
+//	{
+//		return new ConcreteCmlBehaviour(node, context, processName);
+//	}
+	
+	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, LexNameToken processName, CmlBehaviour parent)
 	{
 		return new ConcreteCmlBehaviour(processNode, context, processName, parent);
+	}
+
+	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, CmlBehaviour parent)
+	{
+		return new ConcreteCmlBehaviour(processNode, context, new LexNameToken("", "TMP",new LexLocation()), parent);
 	}
 }

@@ -3,6 +3,7 @@ package eu.compassresearch.core.interpreter.eval;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.values.FunctionValue;
@@ -23,10 +24,10 @@ import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
@@ -207,7 +208,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!ownerThread().hasChildren()){
-			result = caseParallelBegin(node,node.getLeft(),node.getRight(),question);
+			caseParallelBegin(node,node.getLeft(),node.getRight(),question);
 			//We push the current state, since this process will control the child processes created by it
 			pushNext(node, question);
 
@@ -229,7 +230,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	}
 	
 	@Override
-	public CmlBehaviourSignal caseAGeneralisedParallelismProcess(
+	public Pair<INode,Context> caseAGeneralisedParallelismProcess(
 			AGeneralisedParallelismProcess node, Context question)
 			throws AnalysisException {
 		
@@ -239,23 +240,21 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		return caseGeneralisedParallelismParallel(node,new parallelCompositionHelper() {
 			
 			@Override
-			public CmlBehaviourSignal caseParallelBegin() {
+			public Pair<INode,Context> caseParallelBegin() {
 				return ProcessEvaluationVisitor.this.caseParallelBegin(finalNode,finalNode.getLeft(),finalNode.getRight(), finalQuestion);
 			}
 		}, node.getChansetExpression(),question);
 	}
 	
 	@Override
-	public CmlBehaviourSignal caseAInternalChoiceProcess(
+	public Pair<INode,Context> caseAInternalChoiceProcess(
 			AInternalChoiceProcess node, Context question)
 			throws AnalysisException {
 		
 		if(rnd.nextInt(2) == 0)
-			pushNext(node.getLeft(), question);
+			return new Pair<INode,Context>(node.getLeft(), question);
 		else
-			pushNext(node.getRight(), question);
-				
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+			return new Pair<INode,Context>(node.getRight(), question);
 	}
 	
 	

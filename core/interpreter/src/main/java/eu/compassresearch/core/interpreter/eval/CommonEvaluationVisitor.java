@@ -1,6 +1,7 @@
 package eu.compassresearch.core.interpreter.eval;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
@@ -12,10 +13,10 @@ import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.util.Pair;
 
 public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 
@@ -27,54 +28,51 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	/**
 	 * protected helper methods
 	 */
-	protected CmlBehaviourSignal caseASequentialComposition(INode leftNode, INode rightNode, Context question)
+	protected void caseASequentialComposition(INode leftNode, INode rightNode, Context question)
 			throws AnalysisException 
 	{
 		//First push right and then left, so that left get executed first
-		pushNext(rightNode, question);
-		pushNext(leftNode, question);
-			
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+		if(!ownerThread().hasChildren())
+		{
+			ownerThread().setLeftChild(VanillaInterpreterFactory.newCmlBehaviour(leftNode,question, new LexNameToken("", "",new LexLocation()),ownerThread()));
+			ownerThread().setRightChild(VanillaInterpreterFactory.newCmlBehaviour(rightNode,question, new LexNameToken("", "",new LexLocation()),ownerThread()));
+		}
 	}
 	
-	protected <V extends CmlBehaviour> CmlBehaviourSignal caseParallelBeginGeneral(V left, V right, Context question)
+	protected <V extends CmlBehaviour> void caseParallelBeginGeneral(V left, V right, Context question)
 	{
 		//add the children to the process graph
-		addChild(left);
-		addChild(right);
-
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+		ownerThread().setLeftChild(left);
+		ownerThread().setRightChild(right);
 	}
 	
-	protected CmlBehaviourSignal caseGeneralisedParallelismParallel(INode node,parallelCompositionHelper helper, 
+	protected Pair<INode,Context> caseGeneralisedParallelismParallel(INode node,parallelCompositionHelper helper, 
 			PVarsetExpression chansetExp, Context question) throws AnalysisException
 	
 	{
 		//TODO: This only implements the "A [| cs |] B (no state)" and not "A [| ns1 | cs | ns2 |] B"
-		CmlBehaviourSignal result = CmlBehaviourSignal.FATAL_ERROR;
 
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!ownerThread().hasChildren()){
-			result = helper.caseParallelBegin();
+			helper.caseParallelBegin();
 			//We push the current state, since this process will control the child processes created by it
-			pushNext(node, question);
+			return new Pair<INode,Context>(node, question);
 		}
 		else
 		{
-			result = caseParallelSyncOrNonsync(chansetExp, question);
+			caseParallelSyncOrNonsync(chansetExp, question);
 			
 			//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
 			if (CmlBehaviourThreadUtility.isAllChildrenFinished(ownerThread()))
 				caseParallelEnd(question);
 			else
 			//We push the current state,
-			pushNext(node, question);
+				return new Pair<INode,Context>(node, question);
 		}
 
-		return result;
 	}
 	
-	protected CmlBehaviourSignal caseParallelNonSync()
+	protected Pair<INode,Context> caseParallelNonSync()
 	{
 
 		CmlBehaviour leftChild = children().get(0);
@@ -92,21 +90,21 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		}
 		else
 		{
-			return CmlBehaviourSignal.FATAL_ERROR;
+			return Pair<INode,Context>.FATAL_ERROR;
 		}
 	}
 	
-	protected CmlBehaviourSignal caseParallelEnd(Context question)
+	protected Pair<INode,Context> caseParallelEnd(Context question)
 	{
 		removeTheChildren();
 		
 		//now this process evolves into Skip
 		pushNext(new ASkipAction(), question);
 		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+		return Pair<INode,Context>.EXEC_SUCCESS;
 	}
 	
-	protected CmlBehaviourSignal caseParallelSyncOrNonsync(PVarsetExpression chansetExp, Context question) throws AnalysisException
+	protected Pair<INode,Context> caseParallelSyncOrNonsync(PVarsetExpression chansetExp, Context question) throws AnalysisException
 	{
 		//get the immediate alphabets of the left and right child
 		CmlBehaviour leftChild = children().get(0);
@@ -118,8 +116,8 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()) &&
 				rightChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
 		{
-			if(leftChild.execute(supervisor()) != CmlBehaviourSignal.EXEC_SUCCESS)
-				return CmlBehaviourSignal.FATAL_ERROR;
+			if(leftChild.execute(supervisor()) != Pair<INode,Context>.EXEC_SUCCESS)
+				return Pair<INode,Context>.FATAL_ERROR;
 			
 			return rightChild.execute(supervisor());
 		}
@@ -133,7 +131,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		}
 		else
 			//Something went wrong here
-			return CmlBehaviourSignal.FATAL_ERROR;
+			return Pair<INode,Context>.FATAL_ERROR;
 	}
 	
 	
@@ -141,11 +139,11 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	/**
 	 *  Common transitions
 	 */
-	protected CmlBehaviourSignal caseAExternalChoice(
+	protected Pair<INode,Context> caseAExternalChoice(
 			INode node, INode leftNode, LexNameToken leftName, INode rightNode, LexNameToken rightName, Context question)
 			throws AnalysisException {
 		
-		CmlBehaviourSignal result = null;
+		Pair<INode,Context> result = null;
 		
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!ownerThread().hasChildren()){
@@ -168,7 +166,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 			addChild(leftInstance);
 			
 			//Now let this process wait for the children to get into a waitForEvent state
-			result = CmlBehaviourSignal.EXEC_SUCCESS;
+			result = Pair<INode,Context>.EXEC_SUCCESS;
 			
 		}
 		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
@@ -208,20 +206,19 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	 * @param question
 	 * @return
 	 */
-	protected CmlBehaviourSignal caseExternalChoiceBegin(CmlBehaviour leftInstance, CmlBehaviour rightInstance ,Context question)
+	protected void caseExternalChoiceBegin(CmlBehaviour leftInstance, CmlBehaviour rightInstance ,Context question)
 	{
 		//Add the children to the process graph
-		addChild(leftInstance);
-		addChild(rightInstance);
+		ownerThread().setLeftChild(leftInstance);
+		ownerThread().setRightChild(rightInstance);
 		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
 	/**
 	 * Handles the External Choice Skip rule
 	 * @return
 	 */
-	protected CmlBehaviourSignal caseExternalChoiceSkip()
+	protected void caseExternalChoiceSkip()
 	{
 		//find the finished child
 		CmlBehaviour skipChild = findFinishedChild();
@@ -234,20 +231,18 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		
 		//mmmmuhuhuhahaha kill all the children
 		killAndRemoveAllTheEvidenceOfTheChildren();
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
 	}
 	
 	/**
 	 * Handles the external choice end rule
 	 * @return
 	 */
-	protected CmlBehaviourSignal caseExternalChoiceEnd(CmlBehaviour theChoosenOne)
+	protected Pair<INode,Context> caseExternalChoiceEnd(CmlBehaviour theChoosenOne)
 	{
 		//CmlBehaviourThread theChoosenOne = findTheChoosenChild((ObservableEvent)supervisor().selectedObservableEvent());
 		
 		//first we execute the child
-		CmlBehaviourSignal result = theChoosenOne.execute(ownerThread().supervisor());
+		Pair<INode,Context> result = theChoosenOne.execute(ownerThread().supervisor());
 		
 		mergeState(theChoosenOne);
 		

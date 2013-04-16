@@ -19,10 +19,8 @@ import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterStatus;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
-import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
@@ -132,7 +130,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		//Create the initial context with the global definitions
 		Context topContext = getInitialContext(null);
 		//Create a CmlBehaviourThread for the top process
-		runningTopProcess = VanillaInterpreterFactory.newCmlBehaviourThread(topProcess.getProcess(), topContext, topProcess.getName());
+		runningTopProcess = VanillaInterpreterFactory.newCmlBehaviour(topProcess.getProcess(), topContext, topProcess.getName());
 		currentSupervisor.addPupil(runningTopProcess);
 		//Fire the interpreter running event before we start
 		statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.RUNNING));
@@ -179,10 +177,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			//Set the selected event on the supervisor
 			currentSupervisor.setSelectedObservableEvent(selectedEvent);
 			
-			CmlBehaviourSignal signal = topProcess.execute(currentSupervisor);
-			
-			if(signal != CmlBehaviourSignal.EXEC_SUCCESS)
-				throw new InterpreterRuntimeException("Return CMLBehaviourSignal was unsuccesful at : " + topProcess.nextStepToString());
+			topProcess.execute(currentSupervisor);
 			
 			CmlTrace trace = topProcess.getTraceModel();
 			

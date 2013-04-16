@@ -2,7 +2,6 @@ package eu.compassresearch.core.interpreter.cml;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
@@ -13,9 +12,9 @@ import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
+import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
-import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluationVisitor;
@@ -39,13 +38,12 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 	//name of the instance
 	protected LexNameToken 						name;
-	
-	//Stack machine variables
-	private Stack<Pair<INode,Context>> 			executionStack = new Stack<Pair<INode,Context>>();
+	Pair<INode,Context>                         next;
 	
 	//Process/Action Graph variables
-	protected CmlBehaviour 				parent;
-	protected List<CmlBehaviour> 			children = new LinkedList<CmlBehaviour>();
+	protected final CmlBehaviour 				parent;
+	protected CmlBehaviour						leftChild = null;
+	protected CmlBehaviour						rightChild = null;
 	
 	//Process/Action state variables
 	protected CmlProcessState 					state;
@@ -59,10 +57,10 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	protected CmlAlphabet 						hidingAlphabet = new CmlAlphabet();
 	
 	//Denotational semantics
-	protected CmlTrace 							trace = new CmlTrace();
+	protected final CmlTrace 					trace = new CmlTrace();
 	
 	//Helper to inspect the immediate Alphabet
-	protected AlphabetInspectVisitor 			alphabetInspectionVisitor = new AlphabetInspectVisitor(this);
+	protected final AlphabetInspectVisitor 		alphabetInspectionVisitor = new AlphabetInspectVisitor(this);
 	
 	protected EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>  stateEventhandler = 
 			new EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>(this,
@@ -85,9 +83,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 							observer.onTraceChange(event);
 						}
 					});
-	
-	//restore point
-	protected RestorePoint lastRestorePoint = null;
 	
 	AbstractEvaluationVisitor cmlEvaluationVisitor = new CmlEvaluationVisitor();
 	
@@ -112,11 +107,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 			}
 			
 			@Override
-			public void pushNext(INode node, Context context) {
-				ConcreteCmlBehaviour.this.pushNext(node, context);
-			}
-			
-			@Override
 			public CmlBehaviour ownerThread() {
 				return ConcreteCmlBehaviour.this;
 			}
@@ -131,52 +121,46 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 			public CmlAlphabet getHidingAlphabet() {
 				return hidingAlphabet;
 			}
-			
-			@Override
-			public void addChild(CmlBehaviour child) {
-				ConcreteCmlBehaviour.this.addChild(child);
-				
-			}
 		});
 	}
+	
+//	public ConcreteCmlBehaviour(INode action,Context context, CmlBehaviour parent, CmlBehaviour left, CmlBehaviour right)
+//	{
+//		this(null,name);
+//	}
 	
 	public ConcreteCmlBehaviour(INode action,Context context, LexNameToken name)
 	{
 		this(null,name);
-		pushNext(action, context);
+		next = new Pair<INode, Context>(action, context);
 	}
 	
 	public ConcreteCmlBehaviour(INode action,Context context, LexNameToken name, CmlBehaviour parent)
 	{
 		this(parent,name);
-		pushNext(action, context);
+		next = new Pair<INode, Context>(action, context);
 	}
 	
 	@Override
 	public String nextStepToString() {
-		
-		if(hasNext())
+
+		if(hasChildren())
 		{
-			if(hasChildren())
+			CmlBehaviour leftChild = children().get(0);
+
+			String stringRep = "(" + leftChild.nextStepToString() + ")" + CmlOpsToString.toString(next.first);
+
+			if(children().size() > 1)
 			{
-				CmlBehaviour leftChild = children().get(0);
-				
-				String stringRep = "(" + leftChild.nextStepToString() + ")" + CmlOpsToString.toString(nextState().first);
-				
-				if(children().size() > 1)
-				{
-					CmlBehaviour rightChild = children().get(1);
-					stringRep += "(" + rightChild.nextStepToString()+")";
-				}
-				
-				return stringRep;
+				CmlBehaviour rightChild = children().get(1);
+				stringRep += "(" + rightChild.nextStepToString()+")";
 			}
-			else{
-				return nextState().first.toString();
-			}
+
+			return stringRep;
 		}
-		else
-			return "Finished";
+		else{
+			return next.first.toString();
+		}
 	}
 	
 	@Override
@@ -185,62 +169,31 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		return name.toString();
 	}
 	
-	/*
-	 * 
-	 * Stack machine methods start
-	 * 
-	 */
-	
-	/**
-	 * Determines whether there is a next execution pair
-	 * @return true if the execution stack is non empty
-	 */
-	protected  boolean hasNext()
-	{
-		return !executionStack.isEmpty();
-	}
-	
-	protected  Pair<INode,Context> nextState()
-	{
-		return executionStack.peek();
-	}
-	
-	protected List<Pair<INode,Context>> getExecutionStack()
-	{
-		return executionStack;
-	}
-	
-	protected void pushNext(INode node, Context context)
-	{
-		executionStack.push(new Pair<INode, Context>(node, context));
-	}
-	
 	protected void replaceState(ConcreteCmlBehaviour other)
 	{
-		if(other.hasNext())
-		{	
-			replaceExistingContexts(other.nextState().second);
-			//get the state replace the current state
-			for(Pair<INode,Context> state : other.getExecutionStack())
-				pushNext(state.first,state.second);
-		}
-		else
-			throw new RuntimeException("bye bye");
-//		{
-//			pushNext(other.prevState().first, 
-//					other.prevState().second);
+//			replaceExistingContexts(other.next.second);
+//			//get the state replace the current state
+//			next = other.getExecutionStack();
+//			for(Pair<INode,Context> state : other.getExecutionStack())
+//				pushNext(state.first,state.second);
 //		}
+//		else
+//			throw new RuntimeException("bye bye");
+////		{
+////			pushNext(other.prevState().first, 
+////					other.prevState().second);
+////		}
 	}
 	
 	//we need to replace the existing contexts from top down, 
 	//making sure we don't add any extra ones from the newContext to the 
 	private void replaceExistingContexts(Context newContext)
 	{
-		for(Pair<INode,Context> pair : executionStack)
-		{
-			int index = executionStack.indexOf(pair);
-			executionStack.setElementAt(new Pair<INode, Context>(pair.first,replaceFrame(pair.second,newContext)), index);
-		}
+//		for(Pair<INode,Context> pair : executionStack)
+//		{
+//			int index = executionStack.indexOf(pair);
+//			executionStack.setElementAt(new Pair<INode, Context>(pair.first,replaceFrame(pair.second,newContext)), index);
+//		}
 	}
 	
 	private Context replaceFrame(Context oldContext, Context newContext)
@@ -281,7 +234,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	 * Executes the current process behaviour
 	 */
 	@Override
-	public CmlBehaviourSignal execute(CmlSupervisorEnvironment env) 
+	public void execute(CmlSupervisorEnvironment env) 
 	{
 		this.started = true;
 		this.env= env;
@@ -289,15 +242,12 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		//inspect if there are any immediate events
 		CmlAlphabet alpha = inspect();
 				
-		CmlBehaviourSignal ret = null;
-
 		try
 		{
 			if(alpha.isEmpty())
 			{
 				setState(CmlProcessState.STOPPED);
 				wait = false;
-				ret = CmlBehaviourSignal.EXEC_SUCCESS;
 			}
 			else 
 			{	
@@ -311,7 +261,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 						alpha.containsImprecise(env.selectedObservableEvent()))
 				{
 					wait = false;
-					ret = executeNext();
+					next = next.first.apply(cmlEvaluationVisitor,next.second);
 					updateTrace(env.selectedObservableEvent());
 				}
 				//if no communication is selected by the supervisor or we cannot sync the selected events
@@ -320,11 +270,8 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 				{
 					setState(CmlProcessState.WAIT);
 					wait = true;
-					ret = CmlBehaviourSignal.EXEC_SUCCESS;
 				}
 			}
-
-			return ret;
 		}
 		catch(AnalysisException ex)
 		{
@@ -338,21 +285,11 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	{
 		try
 		{
-			if(hasNext())
-			{
-				Pair<INode,Context> next = nextState();
-				
-				CmlAlphabet alpha = next.first.apply(alphabetInspectionVisitor,next.second);
-			
-				//we have to check for hidden event and convert them into tau events before we return the next alpha
-				//return alpha;
-				return HandleHiding(alpha);
-			}
-			//if the process is done we return the empty alphabet
-			else
-			{
-				return new CmlAlphabet();
-			}
+			CmlAlphabet alpha = next.first.apply(alphabetInspectionVisitor,next.second);
+
+			//we have to check for hidden event and convert them into tau events before we return the next alpha
+			//return alpha;
+			return HandleHiding(alpha);
 		}
 		catch(AnalysisException ex)
 		{
@@ -376,20 +313,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		return resultAlpha;
 	}
 	
-	
-	private CmlBehaviourSignal executeNext() throws AnalysisException
-	{
-		if(hasNext())
-		{
-			Pair<INode,Context> next = executionStack.pop();
-			return next.first.apply(cmlEvaluationVisitor,next.second);
-		}
-		else{
-			throw new InterpreterRuntimeException("Trying to execute a finished Process...THIS SHOULD BE CHANGE INTO A DIFFERENT EXCEPTION");
-		}
-		
-	}
-	
 	/**
 	 * Update the trace and fires the trace event
 	 * @param The next event in the trace
@@ -411,10 +334,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	
 	@Override
 	public Pair<INode, Context> getExecutionState() {
-		if(hasNext())
-			return nextState();
-		else
-			return null;
+		return next;
 	}
 	
 	protected boolean aborted = false;
@@ -470,13 +390,38 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 
 	@Override
 	public List<CmlBehaviour> children() {
+		List<CmlBehaviour> children = new LinkedList<CmlBehaviour>();
+		if(leftChild != null)
+			children.add(leftChild);
+		else if (rightChild != null)
+			children.add(rightChild);
 		
 		return children;
+	}
+	
+	@Override
+	public CmlBehaviour getLeftChild() {
+		return leftChild;
+	}
+
+	@Override
+	public CmlBehaviour getRightChild() {
+		return rightChild;
+	}
+
+	@Override
+	public void setLeftChild(CmlBehaviour child) {
+		leftChild = child;
+	}
+
+	@Override
+	public void setRightChild(CmlBehaviour child) {
+		rightChild = child;		
 	}
 
 	@Override
 	public boolean hasChildren() {
-		return children.size() > 0;
+		return children().size() > 0;
 	}
 
 	/**
@@ -495,8 +440,8 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	
 	@Override
 	public boolean finished() {
-		return getExecutionStack().size() == 1 && 
-				nextState().first instanceof ASkipAction;
+		return !hasChildren() && 
+				next.first instanceof ASkipAction;
 	}
 	
 	@Override
@@ -556,82 +501,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	public EventSource<CmlProcessTraceObserver> onTraceChanged()
 	{
 		return traceEventHandler;
-	}
-	
-	@Override
-	public void beginTransaction() {
-
-		lastRestorePoint = new RestorePoint(executionStack, parent, children, state, env, hidingAlphabet, 
-											trace, stateEventhandler, traceEventHandler);
-		
-//		//set restore point for all the children
-//		for(CmlBehaviourThread child : children())
-//			child.setRestorePoint();
-		
-		parent = null;
-		stateEventhandler = new EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>(this,
-				new EventFireMediator<CmlProcessStateObserver,CmlProcessStateEvent>() {
-
-			@Override
-			public void fireEvent(CmlProcessStateObserver observer,
-					Object source, CmlProcessStateEvent event) {
-				observer.onStateChange(event);
-			}
-		});
-		
-		traceEventHandler = new EventSourceHandler<CmlProcessTraceObserver,TraceEvent>(this,
-				new EventFireMediator<CmlProcessTraceObserver,TraceEvent>() {
-
-			@Override
-			public void fireEvent(CmlProcessTraceObserver observer,
-					Object source, TraceEvent event) {
-				observer.onTraceChange(event);
-			}
-		});
-		
-		Stack<Pair<INode,Context>> copyStack = new Stack<Pair<INode,Context>>();
-		
-		for(Pair<INode,Context> pair : this.executionStack)
-			copyStack.add(0, new Pair<INode,Context>(pair.first,pair.second.deepCopy()));
-		
-		this.executionStack = copyStack;		
-		
-		this.children = new LinkedList<CmlBehaviour>(children);
-		this.hidingAlphabet = (CmlAlphabet) hidingAlphabet.clone();
-		this.trace = new CmlTrace(trace);
-		
-		CmlRuntime.logger().finest("\nSetting Restore point for " + name + "\n");
-	}
-
-	@Override
-	public void rollback() {
-
-		if(lastRestorePoint != null)
-		{
-			executionStack = lastRestorePoint.executionStack; 
-			parent = lastRestorePoint.parent;
-			children = lastRestorePoint.children;
-			env = lastRestorePoint.env;
-			hidingAlphabet = lastRestorePoint.hidingAlphabet; 
-			trace = lastRestorePoint.trace;
-			stateEventhandler = lastRestorePoint.stateEventhandler; 
-			traceEventHandler = lastRestorePoint.traceEventHandler;
-			state = lastRestorePoint.state;
-			//setState(lastRestorePoint.state);
-			
-//			//set restore point for all the children
-//			for(CmlBehaviourThread child : children())
-//				child.revertToRestorePoint();
-			
-			CmlRuntime.logger().finest("\n" + name + " restored\n");
-			lastRestorePoint = null;
-		}
-		
-	}
-
-	@Override
-	public boolean inTransaction() {
-		return lastRestorePoint != null;
 	}
 	
 	/**

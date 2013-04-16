@@ -23,13 +23,13 @@ import eu.compassresearch.core.interpreter.util.Pair;
  * @author akm
  *
  */
-public interface CmlBehaviour extends Transactable //, CmlBehaviour 
+public interface CmlBehaviour //extends Transactable //, CmlBehaviour 
 {
 	/**
 	 * Executes the behaviour of this process
 	 * @return
 	 */
-	public CmlBehaviourSignal execute(CmlSupervisorEnvironment supervisor);
+	public void execute(CmlSupervisorEnvironment supervisor);
 	
 	/**
 	 * Returns the immediate alphabet of the process, meaning the next possible cml event including tau
@@ -72,6 +72,10 @@ public interface CmlBehaviour extends Transactable //, CmlBehaviour
 	public long level();
 	public CmlBehaviour parent();
 	public List<CmlBehaviour> children();
+	public CmlBehaviour getLeftChild();
+	public CmlBehaviour getRightChild();
+	public void setLeftChild(CmlBehaviour child);
+	public void setRightChild(CmlBehaviour child);
 //	public CMLAlphabet childInspectedAlphabet(CMLProcessNew child);
 //	public void setChildInspectedAlphabet(CMLProcessNew child, CMLAlphabet alpha);
 	//public boolean hasChild(CMLProcess child, boolean recursive);

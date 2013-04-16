@@ -9,7 +9,7 @@ import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 
 public class CmlTrace {
 
-	private List<CmlEvent> trace;
+	private final List<CmlEvent> trace;
 	
 	public CmlTrace()
 	{

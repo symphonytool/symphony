@@ -4,28 +4,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.util.Pair;
 
-public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor<Context, CmlBehaviourSignal> {
+public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> {
 
 	public interface ControlAccess
 	{
 		CmlBehaviour ownerThread();
-		void pushNext(INode node,Context context);
-		void addChild(CmlBehaviour child);
 		void mergeState(CmlBehaviour other);
 		CmlAlphabet getHidingAlphabet();
 		void setHidingAlphabet(CmlAlphabet alpha);
@@ -54,11 +49,6 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 		name = this.controlAccess.ownerThread().name();
 	}
 	
-	protected void pushNext(INode node,Context context)
-	{
-		controlAccess.pushNext(node, context);
-	}
-	
 	protected void setHidingAlphabet(CmlAlphabet alpha)
 	{
 		controlAccess.setHidingAlphabet(alpha);
@@ -72,11 +62,6 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	protected void mergeState(CmlBehaviour other)
 	{
 		controlAccess.mergeState(other);
-	}
-	
-	protected void addChild(CmlBehaviour child)
-	{
-		controlAccess.addChild(child);
 	}
 	
 	protected void removeTheChildren()
@@ -115,15 +100,15 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#defaultPExp(org.overture.ast.expressions.PExp, java.lang.Object)
 	 * 
 	 */
-	@Override
-	public CmlBehaviourSignal defaultPExp(PExp node, Context question)
-			throws AnalysisException {
-
-		if(!node.apply(cmlExpressionVisitor,question).boolValue(question))
-		{
-			throw new ValueException(4061, question.prepostMsg, question);
-		}
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
-	}
+//	@Override
+//	public CmlBehaviour defaultPExp(PExp node, Context question)
+//			throws AnalysisException {
+//
+//		if(!node.apply(cmlExpressionVisitor,question).boolValue(question))
+//		{
+//			throw new ValueException(4061, question.prepostMsg, question);
+//		}
+//		
+//		return CmlBehaviour.EXEC_SUCCESS;
+//	}
 }
