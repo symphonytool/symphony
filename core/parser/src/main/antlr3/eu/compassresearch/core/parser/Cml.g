@@ -74,6 +74,7 @@ import static org.overture.ast.lex.Dialect.VDM_PP;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
+import org.overture.ast.intf.lex.*;
 import org.overture.ast.lex.*;
 import org.overture.ast.node.*;
 import org.overture.ast.node.tokens.TAsync;
@@ -278,7 +279,7 @@ private PExp selectorListAssignableBuilder(PExp base, List<PExp> selectors) {
             } else { // otherwise it must be a field access
                 // the AUnresolvedPathExp we get from the list will
                 // only have a single Identifier in it.
-                LexIdentifierToken id = aupe.getIdentifiers().get(0);
+                ILexIdentifierToken id = aupe.getIdentifiers().get(0);
                 tree = AstFactory.newAFieldExp(tree,id);
             }
         }
@@ -1826,19 +1827,19 @@ functionDefinition returns[PDefinition def]
 	       AExplicitFunctionDefinition f = (AExplicitFunctionDefinition)$def;
            if (f.getPredef() != null) { 
               f.getPredef().setName(
-                 new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().name, false, f.getLocation())));
+                 new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().getName(), false, f.getLocation())));
              // f.parent($def);
            }
        	   if (f.getPostdef() != null) { 
-       	     f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().name, false, f.getLocation())));
+       	     f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().getName(), false, f.getLocation())));
        	     //f.parent($def);
        	   }
          }
 
         if ($def instanceof AImplicitFunctionDefinition) {
 		   AImplicitFunctionDefinition f = (AImplicitFunctionDefinition)$def;
-       	   if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().name, false, f.getLocation())));
-       	   if (f.getPostdef() != null) f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().name, false, f.getLocation())));
+       	   if (f.getPredef() != null) f.getPredef().setName(new LexNameToken("", new LexIdentifierToken("pre_"+f.getName().getName(), false, f.getLocation())));
+       	   if (f.getPostdef() != null) f.getPostdef().setName(new LexNameToken("", new LexIdentifierToken("post_"+f.getName().getName(), false, f.getLocation())));
         }
 
       }
@@ -1846,8 +1847,8 @@ functionDefinition returns[PDefinition def]
         {
             if ($expl.tail != null) {
                 $def = $expl.tail;
-                if ( !$IDENTIFIER.getText().equals($def.getName().name) ) {
-                    System.out.println("Mismatch in function definition.  Signature has " + $IDENTIFIER.getText() + ", definition has " + $def.getName().name);
+                if ( !$IDENTIFIER.getText().equals($def.getName().getName()) ) {
+                    System.out.println("Mismatch in function definition.  Signature has " + $IDENTIFIER.getText() + ", definition has " + $def.getName().getName());
                     // FIXME --- here we need some sort of exception (probably RecognitionException) to note the mismatch
                     
 
@@ -2003,9 +2004,9 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             $tail.setType(AstFactory.newAFunctionType(typeloc, true, paramTypes, resultTypePair.getType()));
 
             // set predef
-            LexNameToken prename = new LexNameToken("", new LexIdentifierToken("pre_"+$tail.getName(), false, preExp.getLocation()));
+            ILexNameToken prename = new LexNameToken("", new LexIdentifierToken("pre_"+$tail.getName(), false, preExp.getLocation()));
             NameScope prescope = NameScope.LOCAL;
-            List<LexNameToken> pretypeParams = new LinkedList<LexNameToken>();
+            List<ILexNameToken> pretypeParams = new LinkedList<ILexNameToken>();
             AFunctionType pretype = (AFunctionType)$tail.getType().clone();
             
 		    pretype.setResult(new ABooleanBasicType(preExp.getLocation(), true));
@@ -2025,9 +2026,9 @@ implicitFunctionDefinitionTail returns[AImplicitFunctionDefinition tail]
             $tail.setPredef(predef);
 
             // set postdef
-            LexNameToken name = new LexNameToken("", new LexIdentifierToken("post_"+$tail.getName(), false, $post.exp.getLocation()));
+            ILexNameToken name = new LexNameToken("", new LexIdentifierToken("post_"+$tail.getName(), false, $post.exp.getLocation()));
             NameScope scope = NameScope.LOCAL;
-            List<LexNameToken> typeParams = null;
+            List<ILexNameToken> typeParams = null;
             PType type = $tail.getType();
             PExp body = $tail.getPostcondition();
             PExp precondition = null;
@@ -2822,7 +2823,7 @@ expr11 returns[PExp exp]
                     } else { // otherwise it must be a field access
                         // the AUnresolvedPathExp we get from the list
                         // will only have a single Identifier in it.
-                        LexIdentifierToken id = aupe.getIdentifiers().get(0);
+                        ILexIdentifierToken id = aupe.getIdentifiers().get(0);
                         $exp = AstFactory.newAFieldExp($exp,id);
                     }
                 }

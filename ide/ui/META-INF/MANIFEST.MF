@@ -32,7 +32,8 @@ Require-Bundle: org.eclipse.debug.ui,
  org.eclipse.ui,
  org.eclipse.equinox.common,
  eu.compassresearch.ide.cml.core,
- org.overture.ide.ui
+ org.overture.ide.ui,
+ org.eclipse.ui.navigator.resources
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

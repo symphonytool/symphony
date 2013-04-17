@@ -48,7 +48,7 @@ public class SatisfiabilityObligation extends ProofObligation
 
 		if (op.getPredef() != null)
 		{
-			sb.append(op.getPredef().getName().name);
+			sb.append(op.getPredef().getName().getName());
 			sb.append("(");
 			separator = "";
 			appendParamPatterns(sb, op.getParameterPatterns());
@@ -126,7 +126,7 @@ public class SatisfiabilityObligation extends ProofObligation
 			{
 				AStateDefinition def = (AStateDefinition) state;
 				sb.append(":");
-				sb.append(def.getName().name);
+				sb.append(def.getName().getName());
 			}
 		} else
 		{
@@ -144,7 +144,7 @@ public class SatisfiabilityObligation extends ProofObligation
 			{
 				SClassDefinition def = (SClassDefinition) state;
 				sb.append(":");
-				sb.append(def.getName().name);
+				sb.append(def.getName().getName());
 			}
 		}
 

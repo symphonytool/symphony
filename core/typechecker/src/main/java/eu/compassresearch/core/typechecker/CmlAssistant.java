@@ -15,8 +15,8 @@ import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.factory.AstFactory;
-import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.ast.types.AClassType;
@@ -36,6 +36,7 @@ import eu.compassresearch.ast.definitions.AFunctionsDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
 
@@ -92,7 +93,7 @@ class CmlAssistant {
 		 * @param more
 		 * @return
 		 */
-		PDefinition findMemberName(PDefinition def, LexIdentifierToken name, Object... more);
+		PDefinition findMemberName(PDefinition def, ILexIdentifierToken name, Object... more);
 	}
 
 
@@ -144,7 +145,7 @@ class CmlAssistant {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public<T extends PDefinition> PDefinition findMemberName(T t, LexIdentifierToken name, Object... more)
+	public<T extends PDefinition> PDefinition findMemberName(T t, ILexIdentifierToken name, Object... more)
 	{
 		if (t == null) return null;
 		Class<T> c = (Class<T>)t.getClass();
@@ -167,7 +168,7 @@ class CmlAssistant {
 
 		@Override
 		public PDefinition findMemberName(PDefinition def,
-				LexIdentifierToken name, Object... more) {
+				ILexIdentifierToken name, Object... more) {
 			
 			AActionsDefinition acts = (AActionsDefinition)def;
 			for(PDefinition actDef : acts.getActions()) {
@@ -190,7 +191,7 @@ class CmlAssistant {
 
 		@Override
 		public PDefinition findMemberName(PDefinition def,
-				LexIdentifierToken name, Object... more) {
+				ILexIdentifierToken name, Object... more) {
 
 			AProcessDefinition pdef = AProcessDefinition.class.cast(def);
 			
@@ -218,7 +219,7 @@ class CmlAssistant {
 
 		@Override
 		public PDefinition findMemberName(PDefinition def,
-				LexIdentifierToken name, Object... more) {
+				ILexIdentifierToken name, Object... more) {
 
 			AFunctionsDefinition fns = (AFunctionsDefinition)def;
 			LinkedList<PDefinition> fndefs = fns.getFunctionDefinitions();
@@ -256,7 +257,7 @@ class CmlAssistant {
 
 		@Override
 		public PDefinition findMemberName(PDefinition def,
-				LexIdentifierToken name, Object... more) {
+				ILexIdentifierToken name, Object... more) {
 
 			AAssignmentDefinition assignDef = (AAssignmentDefinition)def;
 			PType type = assignDef.getType();
@@ -303,7 +304,7 @@ class CmlAssistant {
 
 		@Override
 		public PDefinition findMemberName(PDefinition def,
-				LexIdentifierToken name, Object... more) {
+				ILexIdentifierToken name, Object... more) {
 
 			AStateDefinition stateDef = (AStateDefinition)def;
 
@@ -325,7 +326,7 @@ class CmlAssistant {
 
 		@Override
 		public PDefinition findMemberName(PDefinition def,
-				LexIdentifierToken name, Object... more) {
+				ILexIdentifierToken name, Object... more) {
 
 			AExternalDefinition extDef = (AExternalDefinition)def;
 
@@ -351,7 +352,7 @@ class CmlAssistant {
 		 * @return
 		 */
 		@Override
-		public PDefinition findMemberName(PDefinition def, LexIdentifierToken name, Object... more)
+		public PDefinition findMemberName(PDefinition def, ILexIdentifierToken name, Object... more)
 		{
 			if (def.getName() != null && LexNameTokenAssistent.isEqual(def.getName(), name))
 				return def;
@@ -396,7 +397,7 @@ class CmlAssistant {
 		 * @return
 		 */
 		@Override
-		public PDefinition findMemberName(PDefinition def, LexIdentifierToken name, Object... more)
+		public PDefinition findMemberName(PDefinition def, ILexIdentifierToken name, Object... more)
 		{
 			AValuesDefinition vdef = (AValuesDefinition)def;
 			for(PDefinition d : vdef.getValueDefinitions())
@@ -429,13 +430,13 @@ class CmlAssistant {
 
 		@Override
 		public PDefinition findMemberName(PDefinition def,
-				LexIdentifierToken name, Object... more) {
+				ILexIdentifierToken name, Object... more) {
 
 			AOperationsDefinition oddef = (AOperationsDefinition)def;
 
 			for(PDefinition odef : oddef.getOperations())
 			{
-				LexNameToken name2 = odef.getName();
+				ILexNameToken name2 = odef.getName();
 				if (name2 != null)
 					if (name2.equals(name)) return odef;
 			}
@@ -459,7 +460,7 @@ class CmlAssistant {
 
 		@Override
 		public PDefinition findMemberName(PDefinition def,
-				LexIdentifierToken name, Object... more) {
+				ILexIdentifierToken name, Object... more) {
 
 			CmlTypeCheckInfo cmlQuestion = (CmlTypeCheckInfo)more[0];
 
@@ -485,7 +486,7 @@ class CmlAssistant {
 
 	// Looking for a field in a record, alright look up the Type def of the record
 	// and find the field. Return a local definition for that field.
-	private PDefinition handleRecordInvariantType(ARecordInvariantType recordInvType, LexIdentifierToken name, Object... more)
+	private PDefinition handleRecordInvariantType(ARecordInvariantType recordInvType, ILexIdentifierToken name, Object... more)
 	{
 		AFieldField field = ARecordInvariantTypeAssistantTC.findField(recordInvType, name.getName());
 		PDefinition defOfTheTypeOfThisLocalDef = null;
@@ -496,7 +497,7 @@ class CmlAssistant {
 	}
 
 	// Lookup the named type in the environment, if found we are happy
-	private PDefinition handleNamedInvariantType(ANamedInvariantType namedInvType, LexIdentifierToken name, Object... more)
+	private PDefinition handleNamedInvariantType(ANamedInvariantType namedInvType, ILexIdentifierToken name, Object... more)
 	{
 		CmlTypeCheckInfo cmlEnv = (CmlTypeCheckInfo)more[0];
 		PDefinition defOfTheTypeOfThisLocalDef = cmlEnv.env.findType(namedInvType.getName(),"");
@@ -530,7 +531,7 @@ class CmlAssistant {
 
 		@Override
 		public PDefinition findMemberName(PDefinition def,
-				LexIdentifierToken name, Object... more) {
+				ILexIdentifierToken name, Object... more) {
 
 			ALocalDefinition ldef = (ALocalDefinition)def;
 
@@ -568,7 +569,7 @@ class CmlAssistant {
 
 		@Override
 		public PDefinition findMemberName(PDefinition def,
-				LexIdentifierToken name, Object... more) {
+				ILexIdentifierToken name, Object... more) {
 
 			ATypeDefinition tdef = ATypeDefinition.class.cast(def);
 			SInvariantType invType = tdef.getInvType();

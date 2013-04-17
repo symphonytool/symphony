@@ -17,6 +17,7 @@ import org.overture.ast.expressions.ASubtractNumericBinaryExp;
 import org.overture.ast.expressions.ATailUnaryExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.NodeList;
@@ -116,8 +117,8 @@ class SecurityVisitor extends QuestionAnswerCMLAdaptor<SecurityEnvironment, Subt
 
 		SubtreeJudgement result = new SubtreeJudgement(node); 
 
-		LinkedList<LexIdentifierToken> ids = node.getDeclaration().getIdentifiers();
-		for(LexIdentifierToken id : ids) {
+		LinkedList<ILexIdentifierToken> ids = node.getDeclaration().getIdentifiers();
+		for(ILexIdentifierToken id : ids) {
 			question.addJudgement(id, SecurityJudgement.fromId(id));
 		}
 
@@ -581,8 +582,8 @@ class SecurityVisitor extends QuestionAnswerCMLAdaptor<SecurityEnvironment, Subt
 
 		SubtreeJudgement res = new SubtreeJudgement(node);
 
-		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
-		for(LexIdentifierToken id : ids) {
+		LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
+		for(ILexIdentifierToken id : ids) {
 			res.getInvolvedJudgements().add(question.addJudgement(id, SecurityJudgement.fromId(id)));
 		}
 

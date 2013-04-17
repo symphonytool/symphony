@@ -20,9 +20,9 @@
  *	along with VDMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
  ******************************************************************************/
+package eu.compassresearch.ast.lex;
 
-package org.overture.ast.lex;
-
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,49 +31,117 @@ import org.overture.ast.analysis.intf.IAnalysis;
 import org.overture.ast.analysis.intf.IAnswer;
 import org.overture.ast.analysis.intf.IQuestion;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
+import org.overture.ast.intf.lex.ILexToken;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.VDMToken;
+import org.overture.ast.node.INode;
+import org.overture.ast.node.Node;
 
-public class LexBooleanToken extends LexToken {
+/**
+ * The parent class for all lexical token types.
+ */
+
+ public  class LexToken extends Node implements ILexToken, Serializable
+{
 	private static final long serialVersionUID = 1L;
-	public final boolean value;
 
-	public LexBooleanToken(VDMToken value, LexLocation location) {
-		super(location, value);
-		this.value = (value == VDMToken.TRUE);
-	}
+	/** The textual location of the token. */
+	public final LexLocation location;
+	/** The basic type of the token. */
+	public final VDMToken type;
 
-	public LexBooleanToken(boolean value, LexLocation location) {
-		super(location, value ? VDMToken.TRUE : VDMToken.FALSE);
-		this.value = value;
-	}
-
-	@Override
-	public String toString() {
-		return Boolean.toString(value);
-	}
-
-	@Override
-	public Object clone() {
-		return new LexBooleanToken(value, location);
+	
+	public LexLocation getLocation(){
+	    return location;
 	}
 	
+	/**
+	 * Create a token of the given type at the given location.
+	 *
+	 * @param location	The location of the token.
+	 * @param type		The basic type of the token.
+	 */
+
+	public LexToken(LexLocation location, VDMToken type)
+	{
+		this.location = location;
+		this.type = type;
+	}
+
+	/**
+	 * Test whether this token is a given basic type.
+	 *
+	 * @param ttype	The type to test.
+	 * @return	True if this is of that type.
+	 */
+
+	public boolean is(VDMToken ttype)
+	{
+		return this.type == ttype;
+	}
+
+	/**
+	 * Test whether this token is not a given basic type.
+	 *
+	 * @param ttype	The type to test.
+	 * @return	True if this is not of that type.
+	 */
+
+	public boolean isNot(VDMToken ttype)
+	{
+		return this.type != ttype;
+	}
+
+	@Override
+	public String toString()
+	{
+		return type.toString();
+	}
+
+
+
+	@Override
+	public Object clone()
+	{
+		return new LexToken(location,type);
+	}
+
+	@Override
+	public INode clone(Map<INode, INode> oldToNewMap) {
+		Node newNode = (Node) clone();
+		oldToNewMap.put(this, newNode);
+		return newNode;
+	}
+
 	@Override
 	public void apply(IAnalysis analysis) throws AnalysisException {
-	 	analysis.caseLexBooleanToken(this);
+		analysis.caseILexToken(this);
 	}
 
 	@Override
 	public <A> A apply(IAnswer<A> caller) throws AnalysisException {
-		return caller.caseLexBooleanToken(this);
+		return caller.caseILexToken(this);
 	}
 
 	@Override
 	public <Q> void apply(IQuestion<Q> caller, Q question) throws AnalysisException {
-		caller.caseLexBooleanToken(this, question);
+		caller.caseILexToken(this, question);
 	}
 
 	@Override
 	public <Q, A> A apply(IQuestionAnswer<Q, A> caller, Q question) throws AnalysisException {
-		return caller.caseLexBooleanToken(this, question);
+		return caller.caseILexToken(this, question);
+	}
+
+	@Override
+	public String kindNode() {
+		return kindNode;
+	}
+	public static final String kindNode = "ExternalDefined";
+
+	@Override
+	public void removeChild(INode child) {
+				
 	}
 	
 	/**
@@ -89,7 +157,15 @@ public class LexBooleanToken extends LexToken {
 		{
 			fields.putAll(super.getChildren(includeInheritedFields));
 		}
-		fields.put("value",this.value);
+		fields.put("location",this.location);
+		fields.put("type",this.type);
 		return fields;
 	}
+
+	@Override
+	public VDMToken getType()
+	{
+		return type;
+	}
+
 }

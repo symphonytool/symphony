@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
@@ -37,6 +37,8 @@ import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.definitions.AActionDefinition;
+import eu.compassresearch.ast.lex.LexIdentifierToken;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -136,7 +138,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 
 					if(pattern instanceof AIdentifierPattern)
 					{
-						LexNameToken name = ((AIdentifierPattern) pattern).getName();
+						ILexNameToken name = ((AIdentifierPattern) pattern).getName();
 
 						question.putNew(new NameValuePair(name, value));
 					}
@@ -168,8 +170,8 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 			AExternalChoiceAction node, Context question)
 			throws AnalysisException {
 		
-		return caseAExternalChoice(node,node.getLeft(),new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,node.getLeft().getLocation()),
-				node.getRight(),new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),node.getRight().getLocation()),question);
+		return caseAExternalChoice(node,node.getLeft(),new LexNameToken(name.getModule(),name.getIdentifier().getName() + "[]" ,node.getLeft().getLocation()),
+				node.getRight(),new LexNameToken(name.getModule(),"[]" + name.getIdentifier().getName(),node.getRight().getLocation()),question);
 				
 	}
 	
@@ -223,7 +225,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		int paramIndex = 0;
 		for(PParametrisation parameterization : actionValue.getActionDefinition().getDeclarations())
 		{
-			for(LexIdentifierToken id : parameterization.getDeclaration().getIdentifiers())
+			for(ILexIdentifierToken id : parameterization.getDeclaration().getIdentifiers())
 			{
 				//get and evaluate the i'th expression
 				PExp arg = args.get(paramIndex);
@@ -381,11 +383,11 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		//TODO: create a local copy of the question state for each of the actions
 		CmlBehaviourThread leftInstance = 
 				VanillaInterpreterFactory.newCmlBehaviourThread(left, question, 
-						new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
+						new LexNameToken(name.getModule(),name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
 		
 		CmlBehaviourThread rightInstance = 
 				VanillaInterpreterFactory.newCmlBehaviourThread(right, question, 
-						new LexNameToken(name.module,"|||" + name.getIdentifier().getName(),right.getLocation()),ownerThread());
+						new LexNameToken(name.getModule(),"|||" + name.getIdentifier().getName(),right.getLocation()),ownerThread());
 		
 		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}
@@ -473,7 +475,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		
 		for(int i = 0 ; i < node.getIdentifiers().size() ; i++)
 		{
-			LexIdentifierToken id = node.getIdentifiers().get(i);
+			ILexIdentifierToken id = node.getIdentifiers().get(i);
 			
 			LexNameToken name = new LexNameToken("", id);
 			

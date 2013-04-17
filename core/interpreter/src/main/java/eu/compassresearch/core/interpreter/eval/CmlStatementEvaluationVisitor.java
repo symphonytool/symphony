@@ -9,10 +9,8 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameList;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.assistant.pattern.PPatternAssistantInterpreter;
@@ -44,6 +42,8 @@ import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
+import eu.compassresearch.ast.lex.LexIdentifierToken;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
 import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
@@ -170,7 +170,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 
 		if (argValues.size() != opVal.getParamPatterns().size())
 		{
-			opVal.abort(4068, "Wrong number of arguments passed to " + name.name, question);
+			opVal.abort(4068, "Wrong number of arguments passed to " + name.getName(), question);
 		}
 
 		ListIterator<Value> valIter = argValues.listIterator();

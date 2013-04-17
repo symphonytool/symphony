@@ -3,14 +3,12 @@ package eu.compassresearch.core.typechecker;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
-import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.APerSyncDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -22,11 +20,10 @@ import org.overture.ast.expressions.ASelfExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
-import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PMultipleBind;
-import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFunctionType;
@@ -68,6 +65,7 @@ import eu.compassresearch.ast.expressions.ATupleSelectExp;
 import eu.compassresearch.ast.expressions.AUnionVOpVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.patterns.ARenamePair;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AChansetType;
@@ -158,7 +156,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		PExp expression = node.getExpression();
-		LexNameToken channelId = node.getIdentifier();
+		ILexNameToken channelId = node.getIdentifier();
 
 		PType expressionType = expression.apply(parent, question);
 		if (!TCDeclAndDefVisitor.successfulType(expressionType)) {
@@ -201,7 +199,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 
-		LexIdentifierToken id = node.getIdentifier();
+		ILexIdentifierToken id = node.getIdentifier();
 		PDefinition idDef = cmlEnv.lookupChannel(id);
 
 		if (idDef == null) {
@@ -236,10 +234,10 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 
-		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
+		LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
 		boolean seenState = false;
 		boolean seenChannel = false;
-		for (LexIdentifierToken id : ids) {
+		for (ILexIdentifierToken id : ids) {
 			PDefinition idDef = cmlEnv.lookupChannel(id);
 			if (idDef == null) {
 				node.setType(issueHandler.addTypeError(
@@ -443,7 +441,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					|| func instanceof AImplicitFunctionDefinition || func instanceof APerSyncDefinition);
 
 			if (inFunction) {
-				LexNameToken called = null;
+				ILexNameToken called = null;
 
 				if (node.getRoot() instanceof AVariableExp) {
 					AVariableExp var = (AVariableExp) node.getRoot();
@@ -600,11 +598,11 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 
-		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
+		LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
 		LinkedList<PDefinition> defs = new LinkedList<PDefinition>();
 		boolean seenChannel = false;
 		boolean seenState = false;
-		for(LexIdentifierToken id : ids ) {
+		for(ILexIdentifierToken id : ids ) {
 			LexNameToken nameid = new LexNameToken("",id);
 			PDefinition def = cmlEnv.lookup(nameid, PDefinition.class);
 			if (def == null)  { def = cmlEnv.lookupChannel(id); seenChannel = true; } else { seenState = true; }
@@ -639,7 +637,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		// for convenience take out name and env
 		org.overture.typechecker.Environment env = question.env;
-		LexNameToken name = node.getName();
+		ILexNameToken name = node.getName();
 
 		/*
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
@@ -872,7 +870,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		// All right lets get all the identifiers used in this path
-		LinkedList<LexIdentifierToken> identifiers = node.getIdentifiers();
+		LinkedList<ILexIdentifierToken> identifiers = node.getIdentifiers();
 
 		// Get parent identifier
 		LexNameToken rootName = new LexNameToken("", identifiers.get(0));
@@ -927,7 +925,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		List<PDefinition> defs = new LinkedList<PDefinition>();
 		defs.add(root);
 		for (int i = 1; i < identifiers.size(); i++) {
-			LexIdentifierToken id = identifiers.get(i);
+			ILexIdentifierToken id = identifiers.get(i);
 			LexNameToken idName = new LexNameToken("", id);
 			PDefinition def = assist.findMemberName(root, idName, cmlQuestion,
 					prevRoot);
@@ -994,7 +992,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 		}
 
-		LexNameToken typename = node.getTypeName();
+		ILexNameToken typename = node.getTypeName();
 
 		if (typename != null) {
 			PDefinition typeFound = question.env.findType(typename,
