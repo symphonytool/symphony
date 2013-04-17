@@ -73,7 +73,7 @@ public class PogPluginUtility {
 		if (window != null) {
 			IStructuredSelection selection = (IStructuredSelection) window
 					.getSelectionService().getSelection(
-							"org.overture.ide.ui.VdmExplorer");
+							"eu.compassresearch.ide.ui.CmlExplorer");
 			IResource res = extractSelection(selection);
 			if (res != null ) {
 				IProject project = res.getProject();
