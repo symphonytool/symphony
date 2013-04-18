@@ -6,25 +6,21 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 public class CmlEvaluationVisitor extends AbstractEvaluationVisitor {
 
-	AbstractEvaluationVisitor actionEvalVisitor = new ActionEvaluationVisitor(this);
-	AbstractEvaluationVisitor processEvalVisitor = new ProcessEvaluationVisitor(this);
+	AbstractEvaluationVisitor actionEvalVisitor;
+	AbstractEvaluationVisitor processEvalVisitor;
 	
-	public CmlEvaluationVisitor()
+	public CmlEvaluationVisitor(AbstractEvaluationVisitor parentVisitor, CmlBehaviour owner, VisitorAccess visitorAccess)
 	{
-		super(null);
+		super(parentVisitor,owner,visitorAccess);
+		actionEvalVisitor = new ActionEvaluationVisitor(this,owner,visitorAccess);
+		processEvalVisitor = new ProcessEvaluationVisitor(this,owner,visitorAccess);
 	}
-	
-	@Override
-	public void init(ControlAccess controlAccess) {
-		super.init(controlAccess);
-		actionEvalVisitor.init(controlAccess);
-		processEvalVisitor.init(controlAccess);
-	}
-	
+			
 	@Override
 	public Pair<INode,Context> defaultPAction(PAction node, Context question)
 			throws AnalysisException {

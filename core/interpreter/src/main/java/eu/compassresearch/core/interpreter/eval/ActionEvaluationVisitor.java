@@ -70,18 +70,12 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	private static final long serialVersionUID = 993071972119803788L;
 	
-	private AbstractEvaluationVisitor statementEvalVisitor = new CmlStatementEvaluationVisitor(this);
+	private final AbstractEvaluationVisitor statementEvalVisitor;
 	
-	public ActionEvaluationVisitor(AbstractEvaluationVisitor parentVisitor)
+	public ActionEvaluationVisitor(AbstractEvaluationVisitor parentVisitor,CmlBehaviour owner,VisitorAccess visitorAccess)
 	{
-		super(parentVisitor);
-	}
-	
-	
-	@Override
-	public void init(ControlAccess controlAccess) {
-		super.init(controlAccess);
-		statementEvalVisitor.init(controlAccess);
+		super(parentVisitor,owner,visitorAccess);
+		statementEvalVisitor = new CmlStatementEvaluationVisitor(this,owner,visitorAccess);
 	}
 		
 	/**
@@ -263,7 +257,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 			ASequentialCompositionAction node, Context question)
 			throws AnalysisException {
 
-		return caseASequentialComposition(node.getLeft(),node.getRight(),question);
+		return caseASequentialComposition(node,node.getLeft(),node.getRight(),question);
 	}
 
 	/**
@@ -290,15 +284,15 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		return caseGeneralisedParallelismParallel(node,new parallelCompositionHelper() {
 			
 			@Override
-			public CmlBehaviourSignal caseParallelBegin() {
-				return ActionEvaluationVisitor.this.caseParallelBegin(finalNode, finalQuestion);
+			public void caseParallelBegin() {
+				ActionEvaluationVisitor.this.caseParallelBegin(finalNode, finalQuestion);
 			}
 		}, node.getChansetExpression(),question);
 	}
 	
 	interface parallelCompositionHelper
 	{
-		Pair<INode,Context> caseParallelBegin();
+		void caseParallelBegin();
 		
 	}
 		
@@ -333,14 +327,14 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		//TODO: This only implements the "A ||| B (no state)" and not "A [|| ns1 | ns2 ||] B"
 		
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
-		if(!ownerThread().hasChildren()){
+		if(!owner().hasChildren()){
 			caseParallelBegin(node,question);
 			//We push the current state, since this process will control the child processes created by it
 			return new Pair<INode,Context>(node, question);
 
 		}
 		//the process has children and must now handle either termination or event sync
-		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(ownerThread()))
+		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(owner()))
 		{
 			caseParallelEnd(question);
 			return new Pair<INode,Context>(new ASkipAction(),question);
@@ -367,21 +361,21 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	
 	
 	
-	private Pair<INode,Context> caseParallelBegin(SParallelAction node, Context question)
+	private void caseParallelBegin(SParallelAction node, Context question)
 	{
 		PAction left = node.getLeftAction();
 		PAction right = node.getRightAction();
 		
 		//TODO: create a local copy of the question state for each of the actions
 		CmlBehaviour leftInstance = 
-				VanillaInterpreterFactory.newCmlBehaviourThread(left, question, 
-						new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
+				VanillaInterpreterFactory.newCmlBehaviour(left, question, 
+						new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),owner());
 		
 		CmlBehaviour rightInstance = 
-				VanillaInterpreterFactory.newCmlBehaviourThread(right, question, 
-						new LexNameToken(name.module,"|||" + name.getIdentifier().getName(),right.getLocation()),ownerThread());
+				VanillaInterpreterFactory.newCmlBehaviour(right, question, 
+						new LexNameToken(name.module,"|||" + name.getIdentifier().getName(),right.getLocation()),owner());
 		
-		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
+		caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}
 			
 	@Override

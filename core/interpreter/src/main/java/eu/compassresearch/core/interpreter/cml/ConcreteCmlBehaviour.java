@@ -16,9 +16,12 @@ import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
+import eu.compassresearch.core.interpreter.eval.AbstractSetupVisitor;
+import eu.compassresearch.core.interpreter.eval.ActionSetupVisitor;
 import eu.compassresearch.core.interpreter.eval.AlphabetInspectVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlEvaluationVisitor;
 import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
+import eu.compassresearch.core.interpreter.eval.VisitorAccess;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
@@ -49,6 +52,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	protected CmlProcessState 					state;
 	protected boolean 							started = false;
 	protected boolean							wait = false;
+	protected boolean							waitPrime = false;
 	
 	//Current supervisor
 	protected CmlSupervisorEnvironment 			env;
@@ -84,7 +88,8 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 						}
 					});
 	
-	AbstractEvaluationVisitor cmlEvaluationVisitor = new CmlEvaluationVisitor();
+	final AbstractEvaluationVisitor cmlEvaluationVisitor;
+	final AbstractSetupVisitor cmlSetupVisitor;
 	
 	/**
 	 * Constructor
@@ -98,19 +103,14 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		wait = false;
 		started = false;
 		
-		cmlEvaluationVisitor.init(new AbstractEvaluationVisitor.ControlAccess() {
+		VisitorAccess visitorAccess = new VisitorAccess() {
 			
 			@Override
 			public void setHidingAlphabet(CmlAlphabet alpha) {
 				ConcreteCmlBehaviour.this.setHidingAlphabet(alpha);
 				
 			}
-			
-			@Override
-			public CmlBehaviour ownerThread() {
-				return ConcreteCmlBehaviour.this;
-			}
-			
+									
 			@Override
 			public void mergeState(CmlBehaviour other) {
 				ConcreteCmlBehaviour.this.replaceState((ConcreteCmlBehaviour)other);
@@ -121,24 +121,52 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 			public CmlAlphabet getHidingAlphabet() {
 				return hidingAlphabet;
 			}
-		});
+
+			@Override
+			public void setLeftChild(CmlBehaviour child) {
+				ConcreteCmlBehaviour.this.setLeftChild(child);
+			}
+
+			@Override
+			public void setRightChild(CmlBehaviour child) {
+				ConcreteCmlBehaviour.this.setRightChild(child);				
+			}
+		};
+		
+		cmlEvaluationVisitor = new CmlEvaluationVisitor(null,this,visitorAccess);
+		
+		cmlSetupVisitor = new ActionSetupVisitor(this, visitorAccess);
 	}
-	
-//	public ConcreteCmlBehaviour(INode action,Context context, CmlBehaviour parent, CmlBehaviour left, CmlBehaviour right)
-//	{
-//		this(null,name);
-//	}
 	
 	public ConcreteCmlBehaviour(INode action,Context context, LexNameToken name)
 	{
 		this(null,name);
-		next = new Pair<INode, Context>(action, context);
+		setNext(new Pair<INode, Context>(action, context));
 	}
 	
 	public ConcreteCmlBehaviour(INode action,Context context, LexNameToken name, CmlBehaviour parent)
 	{
 		this(parent,name);
-		next = new Pair<INode, Context>(action, context);
+		setNext(new Pair<INode, Context>(action, context));
+	}
+	
+	public ConcreteCmlBehaviour(INode action,Context context, LexNameToken name, CmlBehaviour parent, CmlBehaviour left, CmlBehaviour right)
+	{
+		this(parent,name);
+		this.leftChild = left;
+		this.rightChild = right;
+	}
+	
+	protected void setNext(Pair<INode, Context> newNext)
+	{
+		
+		try {
+			if(next == null || (newNext.first != next.first && !hasChildren()))
+				newNext.first.apply(cmlSetupVisitor,newNext.second);
+		} catch (AnalysisException e) {
+			e.printStackTrace();
+		}
+		next = newNext;
 	}
 	
 	@Override
@@ -261,7 +289,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 						alpha.containsImprecise(env.selectedObservableEvent()))
 				{
 					wait = false;
-					next = next.first.apply(cmlEvaluationVisitor,next.second);
+					setNext(next.first.apply(cmlEvaluationVisitor,next.second));
 					updateTrace(env.selectedObservableEvent());
 				}
 				//if no communication is selected by the supervisor or we cannot sync the selected events
@@ -391,9 +419,11 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	@Override
 	public List<CmlBehaviour> children() {
 		List<CmlBehaviour> children = new LinkedList<CmlBehaviour>();
+		
 		if(leftChild != null)
 			children.add(leftChild);
-		else if (rightChild != null)
+		
+		if (rightChild != null)
 			children.add(rightChild);
 		
 		return children;
@@ -409,13 +439,11 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		return rightChild;
 	}
 
-	@Override
-	public void setLeftChild(CmlBehaviour child) {
+	protected void setLeftChild(CmlBehaviour child) {
 		leftChild = child;
 	}
 
-	@Override
-	public void setRightChild(CmlBehaviour child) {
+	protected void setRightChild(CmlBehaviour child) {
 		rightChild = child;		
 	}
 
@@ -448,7 +476,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	public boolean deadlocked() {
 		
 		//A Process is deadlocked if its immediate alphabet is empty
-		return inspect().isEmpty();
+		return !finished() && inspect().isEmpty();
 	}
 	
 	protected void notifyOnStateChange(CmlProcessStateEvent event)

@@ -55,6 +55,7 @@ import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
 import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
@@ -464,7 +465,11 @@ public class AlphabetInspectVisitor
 	public CmlAlphabet caseASequentialCompositionAction(
 			ASequentialCompositionAction node, Context question)
 			throws AnalysisException {
-		return createSilentTransition(node,node.getLeft());
+										
+		if(!ownerProcess.getLeftChild().finished())
+			return ownerProcess.getLeftChild().inspect();
+		else 
+			return createSilentTransition(node,node.getLeft());
 	}
 	
 	@Override

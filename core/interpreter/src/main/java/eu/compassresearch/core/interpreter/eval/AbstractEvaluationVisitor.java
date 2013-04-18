@@ -18,35 +18,25 @@ import eu.compassresearch.core.interpreter.util.Pair;
 
 public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> {
 
-	public interface ControlAccess
-	{
-		CmlBehaviour ownerThread();
-		void mergeState(CmlBehaviour other);
-		CmlAlphabet getHidingAlphabet();
-		void setHidingAlphabet(CmlAlphabet alpha);
-	};
-	
 	//Interface that gives access to methods that control the behaviour
-	private ControlAccess 								controlAccess;
+	private VisitorAccess 										controlAccess;
+	protected final CmlBehaviour 								owner;								
 	//Evaluator for expressions and definitions
-	protected QuestionAnswerCMLAdaptor<Context, Value>	cmlExpressionVisitor = new CmlExpressionVisitor();
-	protected CmlDefinitionVisitor						cmlDefEvaluator = new CmlDefinitionVisitor();
+	protected final QuestionAnswerCMLAdaptor<Context, Value>	cmlExpressionVisitor = new CmlExpressionVisitor();
+	protected CmlDefinitionVisitor								cmlDefEvaluator = new CmlDefinitionVisitor();
 	//use for making random but deterministic decisions
-	protected Random 									rnd = new Random(9784345);
+	protected final Random										rnd = new Random(9784345);
 	//name of the thread
-	LexNameToken 										name;
+	LexNameToken 												name;
 	
-	protected final AbstractEvaluationVisitor			parentVisitor;
+	protected final AbstractEvaluationVisitor					parentVisitor;
 	
-	public AbstractEvaluationVisitor(AbstractEvaluationVisitor parentVisitor)
+	public AbstractEvaluationVisitor(AbstractEvaluationVisitor parentVisitor, CmlBehaviour owner, VisitorAccess controlAccess)
 	{
 		this.parentVisitor = parentVisitor;
-	}
-	
-	public void init(ControlAccess controlAccess)
-	{
+		this.owner = owner;
+		this.name =  owner.name();
 		this.controlAccess = controlAccess;
-		name = this.controlAccess.ownerThread().name();
 	}
 	
 	protected void setHidingAlphabet(CmlAlphabet alpha)
@@ -64,6 +54,16 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 		controlAccess.mergeState(other);
 	}
 	
+	protected void setLeftChild(CmlBehaviour child)
+	{
+		this.controlAccess.setLeftChild(child);
+	}
+	
+	protected void setRightChild(CmlBehaviour child)
+	{
+		this.controlAccess.setRightChild(child);
+	}
+	
 	protected void removeTheChildren()
 	{
 		for(Iterator<CmlBehaviour> iterator = children().iterator(); iterator.hasNext(); )
@@ -76,17 +76,17 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 		
 	protected CmlSupervisorEnvironment supervisor()
 	{
-		return controlAccess.ownerThread().supervisor();
+		return owner.supervisor();
 	}
 	
 	protected List<CmlBehaviour> children()
 	{
-		return controlAccess.ownerThread().children();
+		return owner.children();
 	}
 	
-	protected CmlBehaviour ownerThread()
+	protected CmlBehaviour owner()
 	{
-		return controlAccess.ownerThread();
+		return owner;
 	}
 	
 	protected void error(INode errorNode, String message)

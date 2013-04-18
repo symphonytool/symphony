@@ -34,16 +34,16 @@ import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 
 public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 
-	public ProcessEvaluationVisitor(AbstractEvaluationVisitor parentVisitor)
+	public ProcessEvaluationVisitor(AbstractEvaluationVisitor parentVisitor, CmlBehaviour owner, VisitorAccess visitorAccess)
 	{
-		super(parentVisitor);
+		super(parentVisitor,owner,visitorAccess);
 	}
 	
 	/**
 	 * Private helper methods
 	 */
 	
-	private CmlBehaviourSignal caseParallelBegin(PProcess node, PProcess left, PProcess right, Context question)
+	private void caseParallelBegin(PProcess node, PProcess left, PProcess right, Context question)
 	{
 		if(left == null || right == null)
 			throw new InterpreterRuntimeException(
@@ -51,12 +51,12 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		
 		//TODO: create a local copy of the question state for each of the actions
 		CmlBehaviour leftInstance = 
-				VanillaInterpreterFactory.newCmlBehaviourThread(left,question,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
+				VanillaInterpreterFactory.newCmlBehaviour(left,question,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),owner());
 		
 		CmlBehaviour rightInstance = 
-				VanillaInterpreterFactory.newCmlBehaviourThread(right,question,new LexNameToken(name.module,"|||" + name.getIdentifier().getName() ,right.getLocation()),ownerThread());
+				VanillaInterpreterFactory.newCmlBehaviour(right,question,new LexNameToken(name.module,"|||" + name.getIdentifier().getName() ,right.getLocation()),owner());
 		
-		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
+		caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}
 	
 	/**
@@ -64,7 +64,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	
 	@Override
-	public CmlBehaviourSignal defaultPProcess(PProcess node, Context question)
+	public Pair<INode,Context> defaultPProcess(PProcess node, Context question)
 			throws AnalysisException {
 		
 		throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
@@ -82,7 +82,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 //	}
 	
 	@Override
-	public CmlBehaviourSignal caseAActionProcess(AActionProcess node, Context question) throws AnalysisException
+	public Pair<INode,Context> caseAActionProcess(AActionProcess node, Context question) throws AnalysisException
 	{
 		AProcessDefinition processDef;
 		//We have a named process
@@ -130,8 +130,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		
 		//push this node onto the execution stack again since this should execute
 		//the action behaviour until it terminates
-		pushNext(node.getAction(), processObjectContext);
-		return CmlBehaviourSignal.EXEC_SUCCESS; 
+		return new Pair<INode,Context>(node.getAction(), processObjectContext);
 	}
 	
 	/**
@@ -139,7 +138,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	 * (Even though this is a process I assume something similar will happen)
 	 */
 	@Override
-	public CmlBehaviourSignal caseAReferenceProcess(AReferenceProcess node,
+	public Pair<INode,Context> caseAReferenceProcess(AReferenceProcess node,
 			Context question) throws AnalysisException {
 
 		//initials this process with the global context since this should see any of creators members
@@ -152,19 +151,16 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		
 		//CmlStateContext processContext = new CmlStateContext(node.getLocation(), "Referenced Process context", question,null, processValue.getProcessDefinition());
 		
-		pushNext( node.getProcessDefinition().getProcess(), question); 
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
-		
+		return new Pair<INode,Context>( node.getProcessDefinition().getProcess(), question); 
 	}
 	
 	
 	@Override
-	public CmlBehaviourSignal caseASequentialCompositionProcess(
+	public Pair<INode,Context> caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node, Context question)
 			throws AnalysisException {
 		
-		return caseASequentialComposition(node.getLeft(),node.getRight(),question);
+		return caseASequentialComposition(node,node.getLeft(),node.getRight(),question);
 	}
 	
 	
@@ -184,7 +180,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	
 	@Override
-	public CmlBehaviourSignal caseAExternalChoiceProcess(
+	public Pair<INode,Context> caseAExternalChoiceProcess(
 			AExternalChoiceProcess node, Context question)
 			throws AnalysisException {
 		
@@ -199,34 +195,31 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	 * into Skip. However, this will just terminate successfully when all its children terminates successfully.
 	 */
 	@Override
-	public CmlBehaviourSignal caseAInterleavingProcess(
+	public Pair<INode,Context> caseAInterleavingProcess(
 			AInterleavingProcess node, Context question)
 			throws AnalysisException {
 		
 		//TODO: This only implements the "A ||| B (no state)" and not "A [|| ns1 | ns2 ||] B"
-		CmlBehaviourSignal result = null;
 
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
-		if(!ownerThread().hasChildren()){
+		if(!owner().hasChildren()){
 			caseParallelBegin(node,node.getLeft(),node.getRight(),question);
 			//We push the current state, since this process will control the child processes created by it
-			pushNext(node, question);
+			return new Pair<INode,Context>(node, question);
 
 		}
 		//the process has children and must now handle either termination or event sync
-		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(ownerThread()))
+		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(owner()))
 		{
-			result = caseParallelEnd(question); 
+			return caseParallelEnd(question);
 		}
 		else
 		{
 			//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
-			result = caseParallelNonSync();
+			caseParallelNonSync();
 			//We push the current state, 
-			pushNext(node, question);
+			return new Pair<INode,Context>(node, question);
 		}
-
-		return result;
 	}
 	
 	@Override
@@ -240,8 +233,8 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		return caseGeneralisedParallelismParallel(node,new parallelCompositionHelper() {
 			
 			@Override
-			public Pair<INode,Context> caseParallelBegin() {
-				return ProcessEvaluationVisitor.this.caseParallelBegin(finalNode,finalNode.getLeft(),finalNode.getRight(), finalQuestion);
+			public void caseParallelBegin() {
+				ProcessEvaluationVisitor.this.caseParallelBegin(finalNode,finalNode.getLeft(),finalNode.getRight(), finalQuestion);
 			}
 		}, node.getChansetExpression(),question);
 	}

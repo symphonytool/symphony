@@ -26,6 +26,7 @@ import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.util.CmlParserUtil;
 import eu.compassresearch.core.interpreter.util.GlobalEnvironmentBuilder;
@@ -243,11 +244,20 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		try
 		{
 			//CmlSupervisorEnvironment sve = 
-			//		VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
+			//		VanillaInterpreterFactory.newCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
 			CmlSupervisorEnvironment sve = 
 							VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy());
 
 			CmlRuntime.logger().setLevel(Level.FINEST);
+			cmlInterp.onStatusChanged().registerObserver(new CmlInterpreterStatusObserver() {
+				
+				@Override
+				public void onStatusChanged(Object source, InterpreterStatusEvent event) {
+					System.out.println("Simulator status event : " + event.getStatus());
+					
+				}
+			});
+			
 			cmlInterp.execute(sve);
 		} catch (Exception ex)
 		{
@@ -265,7 +275,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-hiding.cml");
+				"src/test/resources/action/action-call.cml");
 		runOnFile(cml_example);
 
 	}

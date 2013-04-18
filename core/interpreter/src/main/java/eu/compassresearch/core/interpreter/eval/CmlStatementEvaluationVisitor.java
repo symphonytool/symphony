@@ -54,9 +54,9 @@ import eu.compassresearch.core.interpreter.values.CmlValueFactory;
 @SuppressWarnings("serial")
 public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 
-	public CmlStatementEvaluationVisitor(AbstractEvaluationVisitor parentVisitor)
+	public CmlStatementEvaluationVisitor(AbstractEvaluationVisitor parentVisitor, CmlBehaviour owner, VisitorAccess visitorAccess)
 	{
-		super(parentVisitor);
+		super(parentVisitor,owner,visitorAccess);
 	}
 	
 	/**
@@ -119,6 +119,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 	public Pair<INode,Context> caseACallStatementAction(
 			ACallStatementAction node, Context question)
 					throws AnalysisException {
+		
 		//first find the operation value in the context
 		CmlOperationValue opVal = (CmlOperationValue)question.check(node.getName()); 
 
@@ -182,7 +183,21 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		{
 			opVal.abort(4066, "Cannot call implicit operation: " + name, question);
 		}
+		
+		//push the pre condition on the execution stack so it gets executed first
+		if(opVal.getPrecondition() != null){
 
+			PExp preExpNode = opVal.getPrecondition();
+			Context preConditionContext = CmlContextFactory.newContext(preExpNode.getLocation(), 
+					"Operation " + node.getName() + " precondition context", callContext);
+
+			if(!preExpNode.apply(this.cmlExpressionVisitor, preConditionContext).boolValue(question))
+			{
+				throw new ValueException(4061, "precondition violated for call " + node.getName(), question);
+			}
+			
+		}
+		
 		if(opVal.getPostcondition() != null){
 
 			PExp postExpNode = opVal.getPostcondition();
@@ -190,10 +205,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			Context postConditionContext = CmlContextFactory.newContext(postExpNode.getLocation(), 
 					"Operation " + node.getName() + " postcondition context", callContext);
 
-			// originalSelf = self.shallowCopy();
-			//LexNameList oldnames = PExpAssistantTC.getOldNames(postExpNode);
-			//postConditionContext.putAllNew(question.getSelf().getOldValues(oldnames).NameValuePairList);
-
+			//set the old values
 			for(NameValuePair nvp : postConditionContext.getSelf().getMemberValues().asList())
 				if(UpdatableValue.class.isAssignableFrom(nvp.value.getClass()))
 				{
@@ -203,22 +215,21 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 				}
 
 			postConditionContext.setPrepost(0, "postcondition violated for " + node.getName());
-			pushNext(postExpNode, postConditionContext);
+		
+			
+			//ownerThread().setLeftChild(VanillaInterpreterFactory.newCmlBehaviour(opVal.getBody(), callContext, ownerThread()));
+			
+			//We now compose the call statement and post condition check into sequential composition
+			//INode seqComp = new ASequentialCompositionAction(node.getLocation(), opVal.getBody(), assignmentNode);
+			//return new Pair<INode, Context>(seqComp,resultContext);
+			
 		}
-
-		//now we push the body in between the pre and post conditions
-		pushNext(opVal.getBody(), callContext);
-
-		//push the pre condition on the execution stack so it gets executed first
-		if(opVal.getPrecondition() != null){
-
-			PExp preExpNode = opVal.getPrecondition();
-			Context preConditionContext = CmlContextFactory.newContext(preExpNode.getLocation(), 
-					"Operation " + node.getName() + " precondition context", callContext);
-			preConditionContext.setPrepost(0, "precondition violated for " + node.getName());
-			pushNext(preExpNode, preConditionContext);
-
-		}
+		//else
+			return new Pair<INode, Context>(opVal.getBody(), callContext);
+		
+		
+		
+		
 	}
 	
 	@Override

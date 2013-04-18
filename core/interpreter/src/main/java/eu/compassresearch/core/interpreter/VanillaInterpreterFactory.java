@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter;
 
 import java.util.List;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
@@ -70,4 +71,15 @@ public final class VanillaInterpreterFactory {
 	{
 		return new ConcreteCmlBehaviour(processNode, context, new LexNameToken("", "TMP",new LexLocation()), parent);
 	}
+	
+//	public static CmlBehaviour newCmlBehaviourTest(INode processNode, Context context, CmlBehaviour parent)
+//	{
+//		try {
+//			return processNode.apply(new ActionFactoryVisitor(parent),context);
+//		} catch (AnalysisException e) {
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
+		
 }

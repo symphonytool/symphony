@@ -3,6 +3,7 @@
 	<result>
 		<trace>
 			<visibleTrace>d;d</visibleTrace>
+			<visibleTrace>a;b</visibleTrace>
 		</trace>
 	</result>
 </testResult>

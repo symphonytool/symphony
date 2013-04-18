@@ -52,6 +52,9 @@ public interface CmlBehaviour //extends Transactable //, CmlBehaviour
 	 */
 	public Pair<INode,Context> getExecutionState();
 	
+	//public Pair<INode,Context> getPostCondition();
+	//public setPostCondition(Pair<INode,Context> postcondition);
+	
 	/**
 	 * Name of the process
 	 * @return The name of the process
@@ -74,8 +77,6 @@ public interface CmlBehaviour //extends Transactable //, CmlBehaviour
 	public List<CmlBehaviour> children();
 	public CmlBehaviour getLeftChild();
 	public CmlBehaviour getRightChild();
-	public void setLeftChild(CmlBehaviour child);
-	public void setRightChild(CmlBehaviour child);
 //	public CMLAlphabet childInspectedAlphabet(CMLProcessNew child);
 //	public void setChildInspectedAlphabet(CMLProcessNew child, CMLAlphabet alpha);
 	//public boolean hasChild(CMLProcess child, boolean recursive);
