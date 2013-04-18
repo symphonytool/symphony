@@ -1665,7 +1665,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return node.getType();
 		}
 
-		if (!(actionType instanceof AActionType))
+		if (!(actionType instanceof AActionType || actionType instanceof AStatementType))
 		{
 			node.setType(issueHandler.addTypeError(action, TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION.customizeMessage(""+action)));
 			return node.getType();

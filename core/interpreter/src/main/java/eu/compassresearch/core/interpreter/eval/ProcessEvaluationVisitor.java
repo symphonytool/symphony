@@ -51,10 +51,9 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		
 		//TODO: create a local copy of the question state for each of the actions
 		CmlBehaviour leftInstance = 
-				VanillaInterpreterFactory.newCmlBehaviour(left,question,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),owner());
-		
+				VanillaInterpreterFactory.newCmlBehaviour(left,question,new LexNameToken(name.module,name.getIdentifier().getName() + "|||" ,left.getLocation()),owner);		
 		CmlBehaviour rightInstance = 
-				VanillaInterpreterFactory.newCmlBehaviour(right,question,new LexNameToken(name.module,"|||" + name.getIdentifier().getName() ,right.getLocation()),owner());
+				VanillaInterpreterFactory.newCmlBehaviour(right,question,new LexNameToken(name.module,"|||" + name.getIdentifier().getName() ,right.getLocation()),owner);
 		
 		caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}
@@ -202,14 +201,14 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		//TODO: This only implements the "A ||| B (no state)" and not "A [|| ns1 | ns2 ||] B"
 
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
-		if(!owner().hasChildren()){
+		if(!owner.hasChildren()){
 			caseParallelBegin(node,node.getLeft(),node.getRight(),question);
 			//We push the current state, since this process will control the child processes created by it
 			return new Pair<INode,Context>(node, question);
 
 		}
 		//the process has children and must now handle either termination or event sync
-		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(owner()))
+		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(owner))
 		{
 			return caseParallelEnd(question);
 		}

@@ -476,7 +476,10 @@ public class AlphabetInspectVisitor
 	public CmlAlphabet caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node, Context question)
 			throws AnalysisException {
-		return createSilentTransition(node,node.getLeft());
+		if(!ownerProcess.getLeftChild().finished())
+			return ownerProcess.getLeftChild().inspect();
+		else 
+			return createSilentTransition(node,node.getLeft());
 	}
 	
 	

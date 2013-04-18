@@ -83,12 +83,7 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	{
 		return owner.children();
 	}
-	
-	protected CmlBehaviour owner()
-	{
-		return owner;
-	}
-	
+			
 	protected void error(INode errorNode, String message)
 	{
 		throw new InterpreterRuntimeException(message);

@@ -248,15 +248,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		
 		return result;
 	}
-	/*
-	 * 
-	 * Stack machine methods end
-	 * 
-	 */
-	
-	/*
-	 * Execute region start
-	 */
 	
 	/**
 	 * Executes the current process behaviour

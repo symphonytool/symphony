@@ -88,7 +88,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 						varExp);
 
 		//We now compose the call statement and assignment statement into sequential composition
-		INode seqComp = new ASequentialCompositionAction(node.getLocation(), node.getCall(), assignmentNode);
+		INode seqComp = new ASequentialCompositionAction(node.getLocation(), node.getCall().clone(), assignmentNode.clone());
 		return new Pair<INode, Context>(seqComp,resultContext);
 	}
 	
@@ -323,8 +323,8 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			//if we got here we already now that the must at least be one available action
 			//so this should pose no risk of exception
 			INode nextNode = new ASequentialCompositionAction(node.getLocation(), 
-					availableAlts.get(rnd.nextInt(availableAlts.size())).getAction(), 
-						node);
+					availableAlts.get(rnd.nextInt(availableAlts.size())).getAction().clone(), 
+						node.clone());
 			return new Pair<INode, Context>(nextNode,question);
 		}
 		else
@@ -386,7 +386,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 		{
 			//the next step is a sequential composition of the action and this node
 			return new Pair<INode,Context>(
-					new ASequentialCompositionAction(node.getAction().getLocation(), node.getAction(), node),question);
+					new ASequentialCompositionAction(node.getAction().getLocation(), node.getAction().clone(), node.clone()),question);
 		}
 		else
 		{

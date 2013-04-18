@@ -1,14 +1,19 @@
 package eu.compassresearch.core.interpreter.eval;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.UpdatableValue;
+import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.ast.process.AExternalChoiceProcess;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -31,9 +36,9 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	protected Pair<INode,Context> caseASequentialComposition(INode node, INode leftNode, INode rightNode, Context question)
 			throws AnalysisException 
 	{
-		if(!owner().getLeftChild().finished())
+		if(!owner.getLeftChild().finished())
 		{
-			owner().getLeftChild().execute(supervisor());
+			owner.getLeftChild().execute(supervisor());
 			return new Pair<INode, Context>(node, question);
 		}
 		else 
@@ -59,7 +64,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		//TODO: This only implements the "A [| cs |] B (no state)" and not "A [| ns1 | cs | ns2 |] B"
 
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
-		if(!owner().hasChildren()){
+		if(!owner.hasChildren()){
 			helper.caseParallelBegin();
 			//We push the current state, since this process will control the child processes created by it
 			return new Pair<INode,Context>(node, question);
@@ -69,7 +74,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 			caseParallelSyncOrNonsync(chansetExp, question);
 			
 			//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
-			if (CmlBehaviourThreadUtility.isAllChildrenFinished(owner()))
+			if (CmlBehaviourThreadUtility.isAllChildrenFinished(owner))
 				return caseParallelEnd(question);
 			else
 			//We push the current state,
@@ -81,9 +86,9 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	protected void caseParallelNonSync()
 	{
 
-		CmlBehaviour leftChild = children().get(0);
-		CmlAlphabet leftChildAlpha = leftChild.inspect(); 
-		CmlBehaviour rightChild = children().get(1);
+		CmlBehaviour leftChild =  owner.getLeftChild();
+		CmlAlphabet leftChildAlpha = owner.getLeftChild().inspect(); 
+		CmlBehaviour rightChild = owner.getRightChild();
 		CmlAlphabet rightChildAlpha = rightChild.inspect();
 
 		if(leftChildAlpha.containsImprecise(supervisor().selectedObservableEvent()))
@@ -103,6 +108,9 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	protected Pair<INode,Context> caseParallelEnd(Context question)
 	{
 		removeTheChildren();
+		
+		setLeftChild(null);
+		setRightChild(null);
 		
 		//now this process evolves into Skip
 		return new Pair<INode,Context>(new ASkipAction(), question);
@@ -149,7 +157,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		Pair<INode,Context> result = null;
 //		
 //		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
-		if(!owner().hasChildren()){
+		if(!owner.hasChildren()){
 //			
 //			//TODO: create a local copy of the question state for each of the actions
 //
@@ -159,10 +167,10 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 //			else
 //			{
 			
-			CmlBehaviour leftInstance = VanillaInterpreterFactory.newCmlBehaviour(leftNode, question.deepCopy(), leftName,this.owner());
+			CmlBehaviour leftInstance = VanillaInterpreterFactory.newCmlBehaviour(leftNode, question.deepCopy(), leftName,this.owner);
 			setLeftChild(leftInstance);
 			
-			CmlBehaviour rightInstance = VanillaInterpreterFactory.newCmlBehaviour(rightNode, question.deepCopy(), rightName,this.owner()); 
+			CmlBehaviour rightInstance = VanillaInterpreterFactory.newCmlBehaviour(rightNode, question.deepCopy(), rightName,this.owner); 
 			setRightChild(rightInstance);
 //			
 //			//Now let this process wait for the children to get into a waitForEvent state
@@ -171,21 +179,25 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		}
 //		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 //		//with the state from the skip. After this all the children processes are terminated
-		else if(CmlBehaviourThreadUtility.finishedChildExists(owner()))
+		else if(CmlBehaviourThreadUtility.finishedChildExists(owner))
 		{
-			result = caseExternalChoiceSkip();
+			result = caseExternalChoiceEnd(findFinishedChild(),question);
 		}
 		else
 		{
 			for(CmlBehaviour child : children())
 			{
-				if(child.inspect().containsImprecise(owner().supervisor().selectedObservableEvent()))
+				if(child.inspect().containsImprecise(supervisor().selectedObservableEvent()))
 				{
-					if(owner().supervisor().selectedObservableEvent() instanceof AbstractObservableEvent)
-						result = caseExternalChoiceEnd(child);
+					if(supervisor().selectedObservableEvent() instanceof AbstractObservableEvent)
+					{
+						//first we execute the child
+						child.execute(supervisor());
+						result = caseExternalChoiceEnd(child,question);
+					}
 					else
 					{
-						child.execute(owner().supervisor());
+						child.execute(supervisor());
 						result = new Pair<INode, Context>(node, question);
 					}
 				}
@@ -213,51 +225,84 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		
 	}
 	
-	/**
-	 * Handles the External Choice Skip rule
-	 * @return
-	 */
-	protected Pair<INode, Context> caseExternalChoiceSkip()
-	{
-		//find the finished child
-		CmlBehaviour skipChild = findFinishedChild();
-		
-		//FIXME: maybe the we should differentiate between actions and process instead of just having CmlProcess
-		// 		Childerens. We clearly need it!
-		//Extract the current Context of finished child action and use it as the Context
-		//for the Skip action.
-		//mergeState(skipChild);
-		
-		
-		
-		//mmmmuhuhuhahaha kill all the children
-		//killAndRemoveAllTheEvidenceOfTheChildren();
-		setLeftChild(null);
-		setRightChild(null);
-		
-		return skipChild.getExecutionState();
-	}
+//	/**
+//	 * Handles the External Choice Skip rule
+//	 * @return
+//	 */
+//	protected Pair<INode, Context> caseExternalChoiceSkip(Context context)
+//	{
+//		//find the finished child
+//		CmlBehaviour skipChild = findFinishedChild();
+//		
+//		//FIXME: maybe the we should differentiate between actions and process instead of just having CmlProcess
+//		// 		Childerens. We clearly need it!
+//		//Extract the current Context of finished child action and use it as the Context
+//		//for the Skip action.
+//		//mergeState(skipChild);
+//		
+//		
+//		
+//		//mmmmuhuhuhahaha kill all the children
+//		//killAndRemoveAllTheEvidenceOfTheChildren();
+//		setLeftChild(null);
+//		setRightChild(null);
+//		
+//		Context childContext = skipChild.getExecutionState().second;
+//
+//		//the child context values should replace the ones in the current context
+//		for(Entry<LexNameToken,Value> entry : childContext.getVisibleVariables().entrySet())
+//		{
+//			context.put(entry.getKey(), entry.getValue());
+//		}
+//		
+//		return new Pair<INode, Context>(skipChild.getExecutionState().first,context);
+//	}
 	
 	/**
 	 * Handles the external choice end rule
 	 * @return
 	 */
-	protected Pair<INode,Context> caseExternalChoiceEnd(CmlBehaviour theChoosenOne)
+	protected Pair<INode,Context> caseExternalChoiceEnd(CmlBehaviour theChoosenOne, Context context) throws ValueException
 	{
-		//CmlBehaviourThread theChoosenOne = findTheChoosenChild((ObservableEvent)supervisor().selectedObservableEvent());
-//		
-//		//first we execute the child
-		theChoosenOne.execute(owner().supervisor());
-//		
-//		mergeState(theChoosenOne);
-//		
-//		//mmmmuhuhuhahaha kill all the children
-//		killAndRemoveAllTheEvidenceOfTheChildren();
-//
+		//FIXME the children contexts also needs to be replaced!!!!!!
 		setLeftChild(theChoosenOne.getLeftChild());
 		setRightChild(theChoosenOne.getRightChild());
 		
-		return theChoosenOne.getExecutionState();
+		Context copyContext = theChoosenOne.getExecutionState().second;
+
+		//replace all the members values with the chosen choice node
+		for(Entry<LexNameToken,Value> entry : copyContext.getSelf().getMemberValues().entrySet())
+		{
+			Value val = context.check(entry.getKey());
+			if(val instanceof UpdatableValue)
+				context.check(entry.getKey()).set(context.location, entry.getValue(), context);
+		}
+				
+		List<Context> copyContexts = new LinkedList<Context>();
+		Context tmp = copyContext;
+		while(tmp != null)
+		{
+			copyContexts.add(tmp);
+			tmp = tmp.outer;
+		}
+		
+		List<Context> contexts = new LinkedList<Context>();
+		tmp = context;
+		while(tmp != null)
+		{
+			contexts.add(tmp);
+			tmp = tmp.outer;
+		}
+		
+		//replace all the free values with the chosen choice node
+		for(Entry<LexNameToken,Value> entry : copyContexts.get(contexts.size()-1).getVisibleVariables().entrySet())
+		{
+			Value val = context.check(entry.getKey());
+			if(val instanceof UpdatableValue)
+				context.check(entry.getKey()).set(context.location, entry.getValue(), context);
+		}
+		
+		return new Pair<INode, Context>(theChoosenOne.getExecutionState().first,context);
 	}
 	
 	/**
