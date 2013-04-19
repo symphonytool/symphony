@@ -25,6 +25,7 @@ import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
+import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
@@ -183,10 +184,56 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 			AExternalChoiceProcess node, Context question)
 			throws AnalysisException {
 		
-		return caseAExternalChoice(node,node.getLeft(),new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,node.getLeft().getLocation()),
-				node.getRight(),new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),node.getRight().getLocation()),question);
+		//return caseAExternalChoice(node,node.getLeft(),new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,node.getLeft().getLocation()),
+		//		node.getRight(),new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),node.getRight().getLocation()),question);
 		
-		//return null;
+		Pair<INode,Context> result = null;
+		
+		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
+		if(!owner.hasChildren()){
+			
+			CmlBehaviour leftInstance = VanillaInterpreterFactory.newCmlBehaviour(node.getLeft(), question, new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,node.getLeft().getLocation()) ,this.owner);
+			setLeftChild(leftInstance);
+			
+			CmlBehaviour rightInstance = VanillaInterpreterFactory.newCmlBehaviour(node.getRight(), question, new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),node.getRight().getLocation()),this.owner); 
+			setRightChild(rightInstance);
+			//Now let this process wait for the children to get into a waitForEvent state
+			result = new Pair<INode, Context>(node, question);
+			
+		}
+		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
+		//with the state from the skip. After this all the children processes are terminated
+		else if(CmlBehaviourThreadUtility.finishedChildExists(owner))
+		{
+			CmlBehaviour theChoosenOne = findFinishedChild();
+			setLeftChild(theChoosenOne.getLeftChild());
+			setRightChild(theChoosenOne.getRightChild());
+			result = theChoosenOne.getExecutionState();
+		}
+		else
+		{
+			for(CmlBehaviour child : children())
+			{
+				if(child.inspect().containsImprecise(supervisor().selectedObservableEvent()))
+				{
+					if(supervisor().selectedObservableEvent() instanceof AbstractObservableEvent)
+					{
+						//first we execute the child
+						child.execute(supervisor());
+						setLeftChild(child.getLeftChild());
+						setRightChild(child.getRightChild());
+						result = child.getExecutionState();
+					}
+					else
+					{
+						child.execute(supervisor());
+						result = new Pair<INode, Context>(node, question);
+					}
+				}
+			}
+		}
+		
+		return result;
 	}
 			
 	/**

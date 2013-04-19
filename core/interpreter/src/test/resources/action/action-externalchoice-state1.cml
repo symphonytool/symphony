@@ -3,11 +3,11 @@ process test =
 begin
 	
 	state 
-		a : int := 2
+		v : int := 2
 	
 	@   (dcl x : int := 2 @ 
-			(([a = 2] & x := a + x ; a -> Skip) 
+			(([v = 2] & x := v + x ; a -> Skip) 
 			[] 
-			([a = 1] & x := 3 + x ; b -> Skip ) ) ; [x = 4] & b -> Skip
+			([v = 1] & x := 3 + x ; b -> Skip ) ) ; [x = 4] & b -> Skip
 		)
 end
