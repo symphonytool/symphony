@@ -2,13 +2,19 @@ package eu.compassresearch.core.interpreter.cml;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.RootContext;
+import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.UpdatableValue;
+import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
@@ -29,6 +35,7 @@ import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
+import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 public class ConcreteCmlBehaviour implements CmlBehaviour
@@ -535,6 +542,13 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		//Add the child to the process graph
 		children().add(child);
 		supervisor().addPupil(child);
+	}
+
+	@Override
+	public void replaceState(Context context) throws ValueException {
+		
+			
+		next = new Pair<INode, Context>(next.first, context);
 	}
 	
 }

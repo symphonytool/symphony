@@ -5,6 +5,7 @@ import java.util.List;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ValueException;
 
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
@@ -51,7 +52,7 @@ public interface CmlBehaviour //extends Transactable //, CmlBehaviour
 	 * @return The current context
 	 */
 	public Pair<INode,Context> getExecutionState();
-	
+	public void replaceState(Context context) throws ValueException;
 	//public Pair<INode,Context> getPostCondition();
 	//public setPostCondition(Pair<INode,Context> postcondition);
 	

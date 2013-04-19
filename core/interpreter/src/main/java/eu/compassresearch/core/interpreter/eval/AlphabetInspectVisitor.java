@@ -70,7 +70,7 @@ public class AlphabetInspectVisitor
 		QuestionAnswerCMLAdaptor<Context, CmlAlphabet> {
 
 	// The process that contains this instance
-	private final CmlBehaviour 			ownerProcess;
+	private final CmlBehaviour 					ownerProcess;
 	private final CmlExpressionVisitor			cmlEvaluator = new CmlExpressionVisitor();
 	
 	/**
