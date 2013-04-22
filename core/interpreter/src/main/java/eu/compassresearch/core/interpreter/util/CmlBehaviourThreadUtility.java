@@ -5,13 +5,17 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.overture.ast.lex.LexNameToken;
+import org.overture.interpreter.runtime.ClassContext;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.RootContext;
+import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlContextFactory;
+import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
 public class CmlBehaviourThreadUtility {
@@ -89,7 +93,18 @@ public class CmlBehaviourThreadUtility {
 			//newly Added contexts
 			else
 			{
-				newCurrent = CmlContextFactory.newContext(iCopy.location, iCopy.title, newCurrent);
+				//FIXME this should not be created like that a more general solution to this must
+				//be made. Eg. a method call that can clone the context with a new outer pointer
+				if(iCopy instanceof ClassContext)
+					throw new InterpreterRuntimeException("Not yet implemented!");
+				else if(iCopy instanceof ObjectContext)
+					newCurrent = CmlContextFactory.newObjectContext(iCopy.location, iCopy.title, newCurrent, iCopy.getSelf());
+				else if(iCopy instanceof StateContext)
+					throw new InterpreterRuntimeException("Trying to merge a StateContext, this should never happen!");
+				else
+					newCurrent = CmlContextFactory.newContext(iCopy.location, iCopy.title, newCurrent);
+				
+				
 				for(Entry<LexNameToken,Value> entry : iCopy.entrySet())
 				{
 					newCurrent.put(entry.getKey(), entry.getValue());

@@ -225,11 +225,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			
 		}
 		//else
-			return new Pair<INode, Context>(opVal.getBody(), callContext);
-		
-		
-		
-		
+		return new Pair<INode, Context>(opVal.getBody(), callContext);
 	}
 	
 	@Override

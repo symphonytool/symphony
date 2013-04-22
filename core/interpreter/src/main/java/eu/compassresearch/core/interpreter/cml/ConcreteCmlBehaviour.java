@@ -547,8 +547,15 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	@Override
 	public void replaceState(Context context) throws ValueException {
 		
+		//FIXME if this process has a deeper level of contexts, then these needs to be
+		//stuck onto the given context
 			
 		next = new Pair<INode, Context>(next.first, context);
+		
+		if(leftChild != null)
+			leftChild.replaceState(context);
+		
+		if(rightChild != null)
+			rightChild.replaceState(context);
 	}
-	
 }
