@@ -1,14 +1,9 @@
 package eu.compassresearch.ide.cml.ui.navigator;
 
-import org.eclipse.ui.navigator.CommonNavigator;
+import org.overture.ide.ui.navigator.VdmNavigator;
 
-public class CmlExplorer extends CommonNavigator 
+public class CmlExplorer extends VdmNavigator 
 {
-
-	public CmlExplorer() {
-		super();
-		super.setLinkingEnabled(true);			
-	}
 	
 	
 }

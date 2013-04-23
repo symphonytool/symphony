@@ -92,7 +92,7 @@ public class CmlTCUtil {
 	public static AExplicitFunctionDefinition buildCondition1(String prefix, PDefinition target, PType type, List<List<PPattern>> ptrnList, PExp condition, List<PDefinition> enclosingStateDefinitions, List<PDefinition> oldStateDefs)
 	{
 		// create new with pre_ before the name
-		ILexNameToken name = new LexNameToken("", new LexIdentifierToken(prefix+"_"+target.getName().getName(), false, target.getLocation()));
+		ILexNameToken name = new LexNameToken("", new LexIdentifierToken(prefix+"_"+target.getName().getFullName(), false, target.getLocation()));
 
 		// pre/post conditions are local scope
 		NameScope scope = NameScope.LOCAL;
@@ -243,7 +243,7 @@ public class CmlTCUtil {
 				for(PDefinition def : defs)
 				{
 					ILexNameToken defName = def.getName();
-					if (defName != null && defName.getName() != null && defName.getName().equals(name.getName()))
+					if (defName != null && defName.getFullName() != null && defName.getFullName().equals(name.getFullName()))
 					{
 						if (PDefinitionAssistantTC.isFunctionOrOperation(def))
 						{

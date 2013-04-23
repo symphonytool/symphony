@@ -853,7 +853,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 
-		node.setName(new LexNameToken("", node.getName().getName(), node
+		node.setName(new LexNameToken("", node.getName().getFullName(), node
 				.getLocation()));
 
 		// Acquire declared type and expression type
@@ -1691,7 +1691,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					}
 					for(PDefinition normalDef : pType.getDefinitions()) {
 						ILexNameToken normName = normalDef.getName();
-						ILexNameToken oldName = new LexNameToken("", new LexIdentifierToken(normName.getName(), true, normName.getLocation()));
+						ILexNameToken oldName = new LexNameToken("", new LexIdentifierToken(normName.getFullName(), true, normName.getLocation()));
 						PDefinition oldDefinition = normalDef.clone();
 						oldDefinition.setName(oldName);
 						postEnv.addVariable(oldName, oldDefinition);
@@ -1703,7 +1703,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			List<PDefinition> oldStateDefs = new LinkedList<PDefinition>();
 			for(PDefinition stateDef : enclosingStateDefinitions) {
 				ILexNameToken normName = stateDef.getName();
-				ILexNameToken oldName = new LexNameToken("", new LexIdentifierToken(normName.getName(), true, normName.getLocation()));
+				ILexNameToken oldName = new LexNameToken("", new LexIdentifierToken(normName.getFullName(), true, normName.getLocation()));
 				PDefinition oldDefinition = stateDef.clone();
 				oldDefinition.setName(oldName);
 				oldStateDefs.add(oldDefinition);
@@ -2005,8 +2005,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 							"Measure parameters different to function", node
 							.getMeasure().getLocation(), node
 							.getMeasure());
-					TypeChecker.detail2(node.getMeasure().getName(),
-							mtype.getParameters(), node.getName().getName(),
+					TypeChecker.detail2(node.getMeasure().getFullName(),
+							mtype.getParameters(), node.getName().getFullName(),
 							((AFunctionType)node.getType()).getParameters());
 				}
 

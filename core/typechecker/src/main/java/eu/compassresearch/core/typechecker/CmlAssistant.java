@@ -240,7 +240,7 @@ class CmlAssistant {
 				}
 
 				if (HelpLexNameToken.isEqual(fdef.getName(), name)) return fdef;
-				if (predef != null && predef.getName().getName().equals(name.getName())) return predef;
+				if (predef != null && predef.getName().getFullName().equals(name.getName())) return predef;
 				if (postdef != null && HelpLexNameToken.isEqual(postdef.getName(), name)) return postdef;
 			}
 			return null;

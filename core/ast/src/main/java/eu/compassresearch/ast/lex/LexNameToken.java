@@ -74,12 +74,17 @@ public class LexNameToken extends LexIdentifierToken implements ILexNameToken, S
             location));
       }
     
-    public String getName()
+    public String getFullName()
       {
         // Flat specifications have blank module names
         return (explicit ? (module.length() > 0 ? module + "`" : "") : "")
             + name + (old ? "~" : ""); // NB. No qualifier
       }
+    
+    public String getName()
+    {
+    	return name;
+    }
     
     public LexNameToken getNewName()
       {
