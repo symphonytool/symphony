@@ -38,6 +38,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	protected Pair<INode,Context> caseASequentialComposition(INode node, INode leftNode, INode rightNode, Context question)
 			throws AnalysisException 
 	{
+		//execution
 		if(!owner.getLeftChild().finished())
 		{
 			owner.getLeftChild().execute(supervisor());

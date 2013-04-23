@@ -7,8 +7,11 @@ import java.util.Map.Entry;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
+import org.overture.interpreter.runtime.ClassContext;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.runtime.RootContext;
+import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
@@ -145,33 +148,24 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		cmlSetupVisitor = new ActionSetupVisitor(this, visitorAccess);
 	}
 	
-	public ConcreteCmlBehaviour(INode action,Context context, LexNameToken name)
+	public ConcreteCmlBehaviour(INode action,Context context, LexNameToken name) throws AnalysisException
 	{
 		this(null,name);
 		setNext(new Pair<INode, Context>(action, context));
 	}
 	
-	public ConcreteCmlBehaviour(INode action,Context context, LexNameToken name, CmlBehaviour parent)
+	public ConcreteCmlBehaviour(INode action,Context context, LexNameToken name, CmlBehaviour parent) throws AnalysisException
 	{
 		this(parent,name);
 		setNext(new Pair<INode, Context>(action, context));
 	}
 	
-	public ConcreteCmlBehaviour(INode action,Context context, LexNameToken name, CmlBehaviour parent, CmlBehaviour left, CmlBehaviour right)
+	protected void setNext(Pair<INode, Context> newNext) throws AnalysisException
 	{
-		this(parent,name);
-		this.leftChild = left;
-		this.rightChild = right;
-	}
-	
-	protected void setNext(Pair<INode, Context> newNext)
-	{
-		
-		try {
-			if(next == null || (newNext.first != next.first && !hasChildren()))
-				newNext.first.apply(cmlSetupVisitor,newNext.second);
-		} catch (AnalysisException e) {
-			e.printStackTrace();
+		if(next == null || (newNext.first != next.first && !hasChildren()))
+		{
+			newNext.first.apply(cmlSetupVisitor,newNext.second);
+			started = false;
 		}
 		next = newNext;
 	}
@@ -262,7 +256,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	@Override
 	public void execute(CmlSupervisorEnvironment env) 
 	{
-		this.started = true;
 		this.env= env;
 
 		//inspect if there are any immediate events
@@ -270,6 +263,8 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 				
 		try
 		{
+			started = true;
+			
 			if(alpha.isEmpty())
 			{
 				setState(CmlProcessState.STOPPED);
@@ -549,13 +544,60 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		
 		//FIXME if this process has a deeper level of contexts, then these needs to be
 		//stuck onto the given context
-			
-		next = new Pair<INode, Context>(next.first, context);
+		
+		next = new Pair<INode, Context>(next.first, attachAdditionalContexts(next.second,context));
 		
 		if(leftChild != null)
-			leftChild.replaceState(context);
+			leftChild.replaceState(next.second);
 		
 		if(rightChild != null)
-			rightChild.replaceState(context);
+			rightChild.replaceState(next.second);
+	}
+	
+	private Context attachAdditionalContexts(Context src, Context dst)
+	{
+		//now we collect all the context below the RootContext for both the copy and the current
+		//First we collect the copy contexts
+		List<Context> copyContexts = new LinkedList<Context>();
+		Context tmp = src;
+		while(tmp != null)
+		{
+			copyContexts.add(0,tmp);
+			tmp = tmp.outer;
+		}
+		//Next we collect the current contexts
+		List<Context> contexts = new LinkedList<Context>();
+		tmp = dst;
+		while(tmp != null)
+		{
+			contexts.add(0,tmp);
+			tmp = tmp.outer;
+		}
+		Context newCurrent = contexts.get(contexts.size()-1);
+		//We know that the copy context must be at least as big as the current one so we iterate through those
+		for(int i = contexts.size() ; i < copyContexts.size();i++)
+		{
+			Context iCopy = copyContexts.get(i);
+
+			//newly Added contexts
+			//FIXME this should not be created like that a more general solution to this must
+			//be made. Eg. a method call that can clone the context with a new outer pointer
+			if(iCopy instanceof ClassContext)
+				throw new InterpreterRuntimeException("Not yet implemented!");
+			else if(iCopy instanceof ObjectContext)
+				newCurrent = CmlContextFactory.newObjectContext(iCopy.location, iCopy.title, newCurrent, iCopy.getSelf());
+			else if(iCopy instanceof StateContext)
+				throw new InterpreterRuntimeException("Trying to merge a StateContext, this should never happen!");
+			else
+				newCurrent = CmlContextFactory.newContext(iCopy.location, iCopy.title, newCurrent);
+
+
+			for(Entry<LexNameToken,Value> entry : iCopy.entrySet())
+			{
+				newCurrent.put(entry.getKey(), entry.getValue());
+			}
+		}
+		
+		return newCurrent;
 	}
 }

@@ -14,6 +14,7 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
+import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
@@ -113,6 +114,19 @@ public class AlphabetInspectVisitor
 			throws AnalysisException {
 		
 		return createSilentTransition(node,null,"Post condition");
+	}
+	
+	@Override
+	public CmlAlphabet caseACallStatementAction(ACallStatementAction node,
+			Context question) throws AnalysisException {
+		if(!ownerProcess.hasChildren())
+			return createSilentTransition(node,node,"begin");
+		if(!ownerProcess.getLeftChild().finished())
+			return ownerProcess.getLeftChild().inspect();
+		else if(ownerProcess.getRightChild() != null)
+			return ownerProcess.getRightChild().inspect();
+		else
+			return createSilentTransition(node,new ASkipAction());
 	}
 	
 	/**
@@ -465,21 +479,27 @@ public class AlphabetInspectVisitor
 	public CmlAlphabet caseASequentialCompositionAction(
 			ASequentialCompositionAction node, Context question)
 			throws AnalysisException {
-										
-		if(!ownerProcess.getLeftChild().finished())
-			return ownerProcess.getLeftChild().inspect();
-		else 
-			return createSilentTransition(node,node.getLeft());
+		
+		return caseASequentialComposition(node.getLeft(),node.getRight(),question);
 	}
 	
 	@Override
 	public CmlAlphabet caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node, Context question)
 			throws AnalysisException {
+		
+		return caseASequentialComposition(node.getLeft(),node.getRight(),question);
+	}
+	
+	private CmlAlphabet caseASequentialComposition(
+			INode node, INode leftNode, Context question)
+			throws AnalysisException {
+		
 		if(!ownerProcess.getLeftChild().finished())
 			return ownerProcess.getLeftChild().inspect();
 		else 
-			return createSilentTransition(node,node.getLeft());
+			return createSilentTransition(node,leftNode);
+		
 	}
 	
 	

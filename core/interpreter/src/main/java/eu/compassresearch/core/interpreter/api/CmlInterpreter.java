@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
@@ -114,7 +115,7 @@ public interface CmlInterpreter
 	 * @return
 	 * @throws InterpreterException
 	 */
-	public Value execute(CmlSupervisorEnvironment sve) throws InterpreterException;
+	public Value execute(CmlSupervisorEnvironment sve) throws AnalysisException;
 
 	/**
 	 * Parse the line passed, and evaluate it as an expression in the context

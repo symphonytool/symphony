@@ -42,9 +42,10 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	
 	/**
 	 * Private helper methods
+	 * @throws AnalysisException 
 	 */
 	
-	private void caseParallelBegin(PProcess node, PProcess left, PProcess right, Context question)
+	private void caseParallelBegin(PProcess node, PProcess left, PProcess right, Context question) throws AnalysisException
 	{
 		if(left == null || right == null)
 			throw new InterpreterRuntimeException(
@@ -279,7 +280,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		return caseGeneralisedParallelismParallel(node,new parallelCompositionHelper() {
 			
 			@Override
-			public void caseParallelBegin() {
+			public void caseParallelBegin() throws AnalysisException {
 				ProcessEvaluationVisitor.this.caseParallelBegin(finalNode,finalNode.getLeft(),finalNode.getRight(), finalQuestion);
 			}
 		}, node.getChansetExpression(),question);

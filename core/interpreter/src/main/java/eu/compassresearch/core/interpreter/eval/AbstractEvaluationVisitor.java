@@ -4,11 +4,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -95,15 +99,14 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	 * @see org.overture.ast.analysis.QuestionAnswerAdaptor#defaultPExp(org.overture.ast.expressions.PExp, java.lang.Object)
 	 * 
 	 */
-//	@Override
-//	public CmlBehaviour defaultPExp(PExp node, Context question)
-//			throws AnalysisException {
-//
-//		if(!node.apply(cmlExpressionVisitor,question).boolValue(question))
-//		{
-//			throw new ValueException(4061, question.prepostMsg, question);
-//		}
-//		
-//		return CmlBehaviour.EXEC_SUCCESS;
-//	}
+	@Override
+	public Pair<INode, Context> defaultPExp(PExp node, Context question)
+			throws AnalysisException {
+
+		if(!node.apply(cmlExpressionVisitor,question).boolValue(question))
+		{
+			throw new ValueException(4061, question.prepostMsg, question);
+		}
+		return new Pair<INode, Context>(new ASkipAction(), question);
+	}
 }

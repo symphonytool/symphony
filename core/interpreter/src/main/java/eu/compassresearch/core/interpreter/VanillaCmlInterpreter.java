@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
@@ -87,7 +88,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		topProcess = envBuilder.getLastDefinedProcess();
 	}
 	
-	private ProcessObjectValue InitializeTopProcess() throws InterpreterException 
+	private ProcessObjectValue InitializeTopProcess() throws AnalysisException
 	{
 		if(defaultName != null && !defaultName.equals(""))
 		{
@@ -95,7 +96,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			ProcessObjectValue pov = (ProcessObjectValue)globalContext.check(name);
 			
 			if (pov == null)
-				throw new InterpreterException("No process identified by '"
+				throw new AnalysisException("No process identified by '"
 						+ getDefaultName() + "' exists");
 
 			topProcess = pov.getProcessDefinition();
@@ -119,7 +120,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	}
 
 	@Override
-	public Value execute(CmlSupervisorEnvironment sve) throws InterpreterException
+	public Value execute(CmlSupervisorEnvironment sve) throws AnalysisException
 	{
 		if(null == sve)
 			throw new NullPointerException("The supervisor cannot be set to null in the scheduler");
@@ -142,11 +143,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		return pov;
 	}
 	
-	private void executeTopProcess(CmlBehaviour topProcess) throws InterpreterException
+	private void executeTopProcess(CmlBehaviour topProcess) 
 	{
 		//continue until the top process is not finished and not deadlocked
 		while(!topProcess.finished() && !topProcess.deadlocked())
-	//	while(!stopped && hasActiveProcesses())
 		{
 			//inspect the top process to get the next possible trace element
 			CmlAlphabet topAlphabet = topProcess.inspect();
@@ -275,7 +275,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/examples/jpcw-register-explicit.cml");
+				"src/test/resources/action/action-call-precondition.cml");
 		runOnFile(cml_example);
 
 	}

@@ -10,7 +10,7 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 public abstract class AbstractSetupVisitor extends QuestionCMLAdaptor<Context> {
 
 	//Interface that gives access to methods that control the behaviour
-	private final VisitorAccess 										controlAccess;
+	private final VisitorAccess 								controlAccess;
 	protected final CmlBehaviour 								owner;								
 	//Evaluator for expressions and definitions
 	protected final QuestionAnswerCMLAdaptor<Context, Value>	cmlExpressionVisitor = new CmlExpressionVisitor();

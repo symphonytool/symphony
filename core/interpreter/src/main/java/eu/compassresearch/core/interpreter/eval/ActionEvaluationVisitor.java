@@ -284,7 +284,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		return caseGeneralisedParallelismParallel(node,new parallelCompositionHelper() {
 			
 			@Override
-			public void caseParallelBegin() {
+			public void caseParallelBegin() throws AnalysisException {
 				ActionEvaluationVisitor.this.caseParallelBegin(finalNode, finalQuestion);
 			}
 		}, node.getChansetExpression(),question);
@@ -292,7 +292,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	
 	interface parallelCompositionHelper
 	{
-		void caseParallelBegin();
+		void caseParallelBegin() throws AnalysisException;
 		
 	}
 		
@@ -357,11 +357,12 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 * restricted by the nameset expressions
 	 * @param question
 	 * @return
+	 * @throws AnalysisException 
 	 */
 	
 	
 	
-	private void caseParallelBegin(SParallelAction node, Context question)
+	private void caseParallelBegin(SParallelAction node, Context question) throws AnalysisException
 	{
 		PAction left = node.getLeftAction();
 		PAction right = node.getRightAction();

@@ -52,7 +52,7 @@ public final class VanillaInterpreterFactory {
 		return new DefaultSupervisorEnvironment(selectStrategy);
 	}
 	
-	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, LexNameToken processName)
+	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, LexNameToken processName) throws AnalysisException
 	{
 		return new ConcreteCmlBehaviour(processNode, context, processName);
 	}
@@ -62,12 +62,12 @@ public final class VanillaInterpreterFactory {
 //		return new ConcreteCmlBehaviour(node, context, processName);
 //	}
 	
-	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, LexNameToken processName, CmlBehaviour parent)
+	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, LexNameToken processName, CmlBehaviour parent) throws AnalysisException
 	{
 		return new ConcreteCmlBehaviour(processNode, context, processName, parent);
 	}
 
-	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, CmlBehaviour parent)
+	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, CmlBehaviour parent) throws AnalysisException
 	{
 		return new ConcreteCmlBehaviour(processNode, context, new LexNameToken("", "TMP",new LexLocation()), parent);
 	}

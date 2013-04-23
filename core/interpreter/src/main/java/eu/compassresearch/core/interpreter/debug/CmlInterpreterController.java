@@ -118,7 +118,14 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 			init();
 			cmlInterpreter.execute(sve);
 			stopped(cmlInterpreter.getStatus());
-		} catch (InterpreterException e) {
+		} 
+//		catch (InterpreterException e) {
+//
+//			InterpreterStatus status = cmlInterpreter.getStatus();
+//			status.AddError(new InterpreterError(e.getMessage()));
+//			stopped(cmlInterpreter.getStatus());
+//		}
+		catch (AnalysisException e) {
 
 			InterpreterStatus status = cmlInterpreter.getStatus();
 			status.AddError(new InterpreterError(e.getMessage()));
@@ -324,7 +331,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 				status.AddError(new InterpreterError(e.getMessage()));
 				stopped(status);
 			}
-			catch(InterpreterException e)
+			catch(AnalysisException e)
 			{
 				InterpreterStatus status = this.cmlInterpreter.getStatus();
 				status.AddError(new InterpreterError(e.getMessage()));

@@ -120,112 +120,240 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 			ACallStatementAction node, Context question)
 					throws AnalysisException {
 		
-		//first find the operation value in the context
-		CmlOperationValue opVal = (CmlOperationValue)question.check(node.getName()); 
+		if(!owner.hasChildren()){
+			
+			//first find the operation value in the context
+			CmlOperationValue opVal = (CmlOperationValue)question.check(node.getName()); 
 
-		//evaluate all the arguments
-		ValueList argValues = new ValueList();
-		for (PExp arg: node.getArgs())
-		{
-			argValues.add(arg.apply(cmlExpressionVisitor,question));
-		}
-
-		// Note args cannot be Updateable, so we convert them here. This means
-		// that TransactionValues pass the local "new" value to the far end.
-		ValueList constValues = argValues.getConstant();
-
-		//Create a new object context to perform the operation call 
-		Context callContext = CmlContextFactory.newObjectContext(node.getLocation(), "CML Operation Call", question, question.getSelf());
-
-		if (argValues.size() != opVal.getParamPatterns().size())
-		{
-			opVal.abort(4068, "Wrong number of arguments passed to " + name.name, question);
-		}
-
-		ListIterator<Value> valIter = argValues.listIterator();
-		Iterator<PType> typeIter = opVal.getType().getParameters().iterator();
-		NameValuePairMap args = new NameValuePairMap();
-
-		for (PPattern p : opVal.getParamPatterns())
-		{
-			try
+			//evaluate all the arguments
+			ValueList argValues = new ValueList();
+			for (PExp arg: node.getArgs())
 			{
-				// Note values are assumed to be constant, as enforced by eval()
-				Value pv = valIter.next().convertTo(typeIter.next(), question);
+				argValues.add(arg.apply(cmlExpressionVisitor,question));
+			}
 
-				for (NameValuePair nvp : PPatternAssistantInterpreter.getNamedValues(p,pv, question))
+			// Note args cannot be Updateable, so we convert them here. This means
+			// that TransactionValues pass the local "new" value to the far end.
+			ValueList constValues = argValues.getConstant();
+
+			//Create a new object context to perform the operation call 
+			Context callContext = CmlContextFactory.newObjectContext(node.getLocation(), "CML Operation Call", question, question.getSelf());
+
+			if (argValues.size() != opVal.getParamPatterns().size())
+			{
+				opVal.abort(4068, "Wrong number of arguments passed to " + node.getName(), question);
+			}
+
+			ListIterator<Value> valIter = argValues.listIterator();
+			Iterator<PType> typeIter = opVal.getType().getParameters().iterator();
+			NameValuePairMap args = new NameValuePairMap();
+
+			for (PPattern p : opVal.getParamPatterns())
+			{
+				try
 				{
-					Value v = args.get(nvp.name);
+					// Note values are assumed to be constant, as enforced by eval()
+					Value pv = valIter.next().convertTo(typeIter.next(), question);
 
-					if (v == null)
+					for (NameValuePair nvp : PPatternAssistantInterpreter.getNamedValues(p,pv, question))
 					{
-						args.put(nvp);
-					}
-					else	// Names match, so values must also
-					{
-						if (!v.equals(nvp.value))
+						Value v = args.get(nvp.name);
+
+						if (v == null)
 						{
-							opVal.abort(4069,	"Parameter patterns do not match arguments", question);
+							args.put(nvp);
+						}
+						else	// Names match, so values must also
+						{
+							if (!v.equals(nvp.value))
+							{
+								opVal.abort(4069,	"Parameter patterns do not match arguments", question);
+							}
 						}
 					}
 				}
-			}
-			catch (PatternMatchException e)
-			{
-				opVal.abort(e.number, e, question);
-			}
-		}
-
-		// Note: arg name/values hide member values
-		callContext.putAll(args);
-
-		if (opVal.getBody() == null)
-		{
-			opVal.abort(4066, "Cannot call implicit operation: " + name, question);
-		}
-		
-		//push the pre condition on the execution stack so it gets executed first
-		if(opVal.getPrecondition() != null){
-
-			PExp preExpNode = opVal.getPrecondition();
-			Context preConditionContext = CmlContextFactory.newContext(preExpNode.getLocation(), 
-					"Operation " + node.getName() + " precondition context", callContext);
-
-			if(!preExpNode.apply(this.cmlExpressionVisitor, preConditionContext).boolValue(question))
-			{
-				throw new ValueException(4061, "precondition violated for call " + node.getName(), question);
-			}
-			
-		}
-		
-		if(opVal.getPostcondition() != null){
-
-			PExp postExpNode = opVal.getPostcondition();
-
-			Context postConditionContext = CmlContextFactory.newContext(postExpNode.getLocation(), 
-					"Operation " + node.getName() + " postcondition context", callContext);
-
-			//set the old values
-			for(NameValuePair nvp : postConditionContext.getSelf().getMemberValues().asList())
-				if(UpdatableValue.class.isAssignableFrom(nvp.value.getClass()))
+				catch (PatternMatchException e)
 				{
-					//FIXME it does not work when the module is there
-					LexNameToken oldName = new LexNameToken("",(LexIdentifierToken)nvp.name.getOldName().getIdentifier().clone());
-					postConditionContext.putNew(new NameValuePair(oldName, nvp.value.getConstant()));
+					opVal.abort(e.number, e, question);
+				}
+			}
+
+			// Note: arg name/values hide member values
+			callContext.putAll(args);
+
+			if (opVal.getBody() == null)
+			{
+				opVal.abort(4066, "Cannot call implicit operation: " + node.getName(), question);
+			}
+
+			//push the pre condition on the execution stack so it gets executed first
+			if(opVal.getPrecondition() != null){
+
+				PExp preExpNode = opVal.getPrecondition();
+				Context preConditionContext = CmlContextFactory.newContext(preExpNode.getLocation(), 
+						"Operation " + node.getName() + " precondition context", callContext);
+				
+				callContext.setPrepost(0, "precondition violated for call " + node.getName());
+
+				if(!preExpNode.apply(this.cmlExpressionVisitor, preConditionContext).boolValue(question))
+				{
+					throw new ValueException(4061, "precondition violated for call " + node.getName(), question);
 				}
 
-			postConditionContext.setPrepost(0, "postcondition violated for " + node.getName());
-		
+			}
+
+			if(opVal.getPostcondition() != null){
+
+				PExp postExpNode = opVal.getPostcondition();
+
+				Context postConditionContext = CmlContextFactory.newContext(postExpNode.getLocation(), 
+						"Operation " + node.getName() + " postcondition context", callContext);
+
+				//set the old values
+				for(NameValuePair nvp : postConditionContext.getSelf().getMemberValues().asList())
+					if(UpdatableValue.class.isAssignableFrom(nvp.value.getClass()))
+					{
+						//FIXME it does not work when the module is there
+						LexNameToken oldName = new LexNameToken("",(LexIdentifierToken)nvp.name.getOldName().getIdentifier().clone());
+						postConditionContext.putNew(new NameValuePair(oldName, nvp.value.getConstant()));
+					}
+
+				postConditionContext.setPrepost(0, "postcondition violated for " + node.getName());
+
+				setRightChild(VanillaInterpreterFactory.newCmlBehaviour(postExpNode, postConditionContext, owner));
+
+				//We now compose the call statement and post condition check into sequential composition
+				//INode seqComp = new ASequentialCompositionAction(node.getLocation(), opVal.getBody(), assignmentNode);
+				//return new Pair<INode, Context>(seqComp,resultContext);
+			}
 			
-			//ownerThread().setLeftChild(VanillaInterpreterFactory.newCmlBehaviour(opVal.getBody(), callContext, ownerThread()));
-			
-			//We now compose the call statement and post condition check into sequential composition
-			//INode seqComp = new ASequentialCompositionAction(node.getLocation(), opVal.getBody(), assignmentNode);
-			//return new Pair<INode, Context>(seqComp,resultContext);
-			
+			setLeftChild(VanillaInterpreterFactory.newCmlBehaviour(opVal.getBody(), callContext, owner));
+			return new Pair<INode, Context>(node, question);
 		}
-		//else
-		return new Pair<INode, Context>(opVal.getBody(), callContext);
+		
+//		//first find the operation value in the context
+//		CmlOperationValue opVal = (CmlOperationValue)question.check(node.getName()); 
+//
+//		//evaluate all the arguments
+//		ValueList argValues = new ValueList();
+//		for (PExp arg: node.getArgs())
+//		{
+//			argValues.add(arg.apply(cmlExpressionVisitor,question));
+//		}
+//
+//		// Note args cannot be Updateable, so we convert them here. This means
+//		// that TransactionValues pass the local "new" value to the far end.
+//		ValueList constValues = argValues.getConstant();
+//
+//		//Create a new object context to perform the operation call 
+//		Context callContext = CmlContextFactory.newObjectContext(node.getLocation(), "CML Operation Call", question, question.getSelf());
+//
+//		if (argValues.size() != opVal.getParamPatterns().size())
+//		{
+//			opVal.abort(4068, "Wrong number of arguments passed to " + name.name, question);
+//		}
+//
+//		ListIterator<Value> valIter = argValues.listIterator();
+//		Iterator<PType> typeIter = opVal.getType().getParameters().iterator();
+//		NameValuePairMap args = new NameValuePairMap();
+//
+//		for (PPattern p : opVal.getParamPatterns())
+//		{
+//			try
+//			{
+//				// Note values are assumed to be constant, as enforced by eval()
+//				Value pv = valIter.next().convertTo(typeIter.next(), question);
+//
+//				for (NameValuePair nvp : PPatternAssistantInterpreter.getNamedValues(p,pv, question))
+//				{
+//					Value v = args.get(nvp.name);
+//
+//					if (v == null)
+//					{
+//						args.put(nvp);
+//					}
+//					else	// Names match, so values must also
+//					{
+//						if (!v.equals(nvp.value))
+//						{
+//							opVal.abort(4069,	"Parameter patterns do not match arguments", question);
+//						}
+//					}
+//				}
+//			}
+//			catch (PatternMatchException e)
+//			{
+//				opVal.abort(e.number, e, question);
+//			}
+//		}
+//
+//		// Note: arg name/values hide member values
+//		callContext.putAll(args);
+//
+//		if (opVal.getBody() == null)
+//		{
+//			opVal.abort(4066, "Cannot call implicit operation: " + name, question);
+//		}
+//		
+//		//push the pre condition on the execution stack so it gets executed first
+//		if(opVal.getPrecondition() != null){
+//
+//			PExp preExpNode = opVal.getPrecondition();
+//			Context preConditionContext = CmlContextFactory.newContext(preExpNode.getLocation(), 
+//					"Operation " + node.getName() + " precondition context", callContext);
+//
+//			if(!preExpNode.apply(this.cmlExpressionVisitor, preConditionContext).boolValue(question))
+//			{
+//				throw new ValueException(4061, "precondition violated for call " + node.getName(), question);
+//			}
+//			
+//		}
+//		
+//		if(opVal.getPostcondition() != null){
+//
+//			PExp postExpNode = opVal.getPostcondition();
+//
+//			Context postConditionContext = CmlContextFactory.newContext(postExpNode.getLocation(), 
+//					"Operation " + node.getName() + " postcondition context", callContext);
+//
+//			//set the old values
+//			for(NameValuePair nvp : postConditionContext.getSelf().getMemberValues().asList())
+//				if(UpdatableValue.class.isAssignableFrom(nvp.value.getClass()))
+//				{
+//					//FIXME it does not work when the module is there
+//					LexNameToken oldName = new LexNameToken("",(LexIdentifierToken)nvp.name.getOldName().getIdentifier().clone());
+//					postConditionContext.putNew(new NameValuePair(oldName, nvp.value.getConstant()));
+//				}
+//
+//			postConditionContext.setPrepost(0, "postcondition violated for " + node.getName());
+//
+//			//ownerThread().setLeftChild(VanillaInterpreterFactory.newCmlBehaviour(opVal.getBody(), callContext, ownerThread()));
+//			
+//			//We now compose the call statement and post condition check into sequential composition
+//			//INode seqComp = new ASequentialCompositionAction(node.getLocation(), opVal.getBody(), assignmentNode);
+//			//return new Pair<INode, Context>(seqComp,resultContext);
+//			
+//		}
+//		//else
+//		return new Pair<INode, Context>(opVal.getBody(), callContext);
+		
+		else if(!owner.getLeftChild().finished())
+		{
+			owner.getLeftChild().execute(supervisor());
+			return new Pair<INode, Context>(node, question);
+		}
+		else if(owner.getRightChild() != null)
+		{
+			owner.getRightChild().execute(supervisor());
+			setLeftChild(null);
+			setRightChild(null);
+			return new Pair<INode, Context>(new ASkipAction(), question);
+		}
+		else
+		{
+			setLeftChild(null);
+			return new Pair<INode, Context>(new ASkipAction(), question);
+		}
 	}
 	
 	@Override
