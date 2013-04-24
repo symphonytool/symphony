@@ -16,7 +16,7 @@ public class CmlEventFactory {
 	 * Tau event factory methods
 	 */
 	
-	public static CmlSpecialEvent referenceTauEvent()
+	public static CmlTau referenceTauEvent()
 	{
 		if(instance == null)
 			instance = new CmlTau(null,null,null,"referenceTau");
@@ -24,7 +24,7 @@ public class CmlEventFactory {
 		return instance;
 	}
 	
-	public static CmlSpecialEvent newTauEvent(CmlBehaviour source, INode transitionSrcNode, INode transitionDstNode, String transitionMessage)
+	public static CmlTau newTauEvent(CmlBehaviour source, INode transitionSrcNode, INode transitionDstNode, String transitionMessage)
 	{
 		return new CmlTau(source, transitionSrcNode,transitionDstNode,transitionMessage);
 	}

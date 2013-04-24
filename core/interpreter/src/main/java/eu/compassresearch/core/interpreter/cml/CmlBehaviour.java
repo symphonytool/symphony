@@ -25,7 +25,7 @@ import eu.compassresearch.core.interpreter.util.Pair;
  * @author akm
  *
  */
-public interface CmlBehaviour //extends Transactable //, CmlBehaviour 
+public interface CmlBehaviour //extends Transactable 
 {
 	/**
 	 * Executes the behaviour of this process

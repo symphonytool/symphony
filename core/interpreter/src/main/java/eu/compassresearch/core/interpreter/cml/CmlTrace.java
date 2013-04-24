@@ -4,8 +4,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.AbstractChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 
 public class CmlTrace {
 
@@ -62,7 +63,7 @@ public class CmlTrace {
 			
 		for(CmlEvent e : trace)
 		{
-			if(e instanceof AbstractChannelEvent)
+			if(e instanceof ChannelEvent)
 				visibleEvents.add(e);
 		}
 		
@@ -71,7 +72,7 @@ public class CmlTrace {
 	
 	public static boolean isObservableEvent(CmlEvent event)
 	{
-		return event instanceof AbstractChannelEvent;
+		return event instanceof ChannelEvent;
 	}
 	
 	public boolean equals(Object obj) { 

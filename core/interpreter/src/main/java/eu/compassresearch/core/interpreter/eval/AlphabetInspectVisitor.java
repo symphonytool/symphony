@@ -174,7 +174,7 @@ public class AlphabetInspectVisitor
 	private CmlAlphabet caseAGeneralisedParallelismInspectChildren(PVarsetExpression channelsetExp, Context question) throws AnalysisException
 	{
 		//convert the channel set of the current node to a alphabet
-		CmlAlphabet cs =  ((CmlAlphabet)channelsetExp.apply(cmlEvaluator,question));
+		CmlAlphabet cs =  ((CmlAlphabet)channelsetExp.apply(cmlEvaluator,question)).union(new CmlTock());
 		
 		//Get all the child alphabets and add the events that are not in the channelset
 		CmlBehaviour leftChild = ownerProcess.getLeftChild();
@@ -575,8 +575,7 @@ public class AlphabetInspectVisitor
 	public CmlAlphabet caseAStopAction(AStopAction node, Context question)
 			throws AnalysisException {
 		//return the empty alphabet
-		//FIXME stop can make time tick
-		return new CmlAlphabet();
+		return new CmlAlphabet(new CmlTock(ownerProcess));
 	}
 	
 	/**

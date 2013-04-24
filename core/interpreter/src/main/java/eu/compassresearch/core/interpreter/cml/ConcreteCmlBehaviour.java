@@ -212,42 +212,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 ////		}
 	}
 	
-	//we need to replace the existing contexts from top down, 
-	//making sure we don't add any extra ones from the newContext to the 
-	private void replaceExistingContexts(Context newContext)
-	{
-//		for(Pair<INode,Context> pair : executionStack)
-//		{
-//			int index = executionStack.indexOf(pair);
-//			executionStack.setElementAt(new Pair<INode, Context>(pair.first,replaceFrame(pair.second,newContext)), index);
-//		}
-	}
-	
-	private Context replaceFrame(Context oldContext, Context newContext)
-	{
-		//extract the contexts of the old
-		List<Context> oldContexts= new LinkedList<Context>();
-
-		Context tmp = oldContext;
-		while(tmp != null)
-		{
-			oldContexts.add(0,tmp);
-			tmp = tmp.outer;
-		}
-		
-		List<Context> newContexts = new LinkedList<Context>();
-		tmp = newContext;
-		while(tmp != null)
-		{
-			newContexts.add(0,tmp);
-			tmp = tmp.outer;
-		}
-		//FIXME This is not always the case. The scoping rules are not
-		Context result = newContexts.get(oldContexts.size()-1);
-		
-		return result;
-	}
-	
 	/**
 	 * Executes the current process behaviour
 	 */

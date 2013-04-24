@@ -8,7 +8,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlSpecialEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTau;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 
 /**
@@ -22,37 +22,37 @@ public class CmlAlphabet extends Value {
 	//This contains the observable events
 	private final Set<ObservableEvent> _observableEvents;
 	//This contains all the special events like tau
-	private final Set<CmlSpecialEvent> specialEvents;
+	private final Set<CmlTau> specialEvents;
 	
 	public CmlAlphabet()
 	{
-		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
+		this.specialEvents = new LinkedHashSet<CmlTau>();
 		this._observableEvents = new LinkedHashSet<ObservableEvent>();
 	}
 	
 	public CmlAlphabet(ObservableEvent obsEvent)
 	{
-		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
+		this.specialEvents = new LinkedHashSet<CmlTau>();
 		this._observableEvents = new LinkedHashSet<ObservableEvent>();
 		this._observableEvents.add(obsEvent);
 	}
 	
-	public CmlAlphabet(CmlSpecialEvent tauEvent)
+	public CmlAlphabet(CmlTau tauEvent)
 	{
-		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
+		this.specialEvents = new LinkedHashSet<CmlTau>();
 		this._observableEvents = new LinkedHashSet<ObservableEvent>();
 		this.specialEvents.add(tauEvent);
 	}
 	
-	public CmlAlphabet(ObservableEvent obs, CmlSpecialEvent tauEvent)
+	public CmlAlphabet(ObservableEvent obs, CmlTau tauEvent)
 	{
-		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
+		this.specialEvents = new LinkedHashSet<CmlTau>();
 		this.specialEvents.add(tauEvent);
 		this._observableEvents = new LinkedHashSet<ObservableEvent>();
 		this._observableEvents.add(obs);
 	}
 	
-	public CmlAlphabet(Set<ObservableEvent> comms, Set<CmlSpecialEvent> specialEvents)
+	public CmlAlphabet(Set<ObservableEvent> comms, Set<CmlTau> specialEvents)
 	{
 		this.specialEvents = specialEvents;
 		this._observableEvents = new LinkedHashSet<ObservableEvent>(comms);
@@ -60,7 +60,7 @@ public class CmlAlphabet extends Value {
 	
 	public CmlAlphabet(Set<CmlEvent> events)
 	{
-		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
+		this.specialEvents = new LinkedHashSet<CmlTau>();
 		this._observableEvents = new LinkedHashSet<ObservableEvent>();
 		
 		for(CmlEvent e : events)
@@ -68,8 +68,8 @@ public class CmlAlphabet extends Value {
 			if(e instanceof ObservableEvent){
 				_observableEvents.add((ObservableEvent)e);
 			}
-			else if(e instanceof CmlSpecialEvent)
-				this.specialEvents.add((CmlSpecialEvent)e);
+			else if(e instanceof CmlTau)
+				this.specialEvents.add((CmlTau)e);
 		}
 	}
 	
@@ -86,9 +86,9 @@ public class CmlAlphabet extends Value {
 	 * Returns all the special events in the alphabet
 	 * @return
 	 */
-	public Set<CmlSpecialEvent> getSpecialEvents()
+	public Set<CmlTau> getSpecialEvents()
 	{
-		return new LinkedHashSet<CmlSpecialEvent>(specialEvents);
+		return new LinkedHashSet<CmlTau>(specialEvents);
 	}
 	
 	/**
@@ -288,6 +288,6 @@ public class CmlAlphabet extends Value {
 	public Object clone() {
 
 		return new CmlAlphabet(new LinkedHashSet<ObservableEvent>(_observableEvents), 
-				new HashSet<CmlSpecialEvent>(specialEvents));
+				new HashSet<CmlTau>(specialEvents));
 	}
 }

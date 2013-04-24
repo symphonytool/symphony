@@ -9,7 +9,7 @@ import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
-class CmlTau extends AbstractCmlEvent implements CmlSpecialEvent {
+public class CmlTau extends AbstractCmlEvent {
 
 	protected static CmlTau instance = null;
 	final static String tauString = "\u03C4".toLowerCase();
