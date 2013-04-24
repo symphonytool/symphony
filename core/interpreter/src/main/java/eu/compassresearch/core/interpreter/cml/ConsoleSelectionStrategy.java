@@ -20,8 +20,9 @@ import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.AbstractChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 
 public class ConsoleSelectionStrategy implements
@@ -44,7 +45,7 @@ CmlCommunicationSelectionStrategy {
 		CmlEvent chosenEvent = events.get(scanIn.nextInt());
 		
 
-		if(chosenEvent instanceof AbstractChannelEvent && !((AbstractChannelEvent)chosenEvent).isPrecise())
+		if(chosenEvent instanceof ChannelEvent && !((ChannelEvent)chosenEvent).isPrecise())
 		{
 			System.out.println("Enter value : "); 
 			Value val;

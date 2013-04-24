@@ -2,6 +2,7 @@ package eu.compassresearch.core.interpreter.cml;
 
 import java.util.List;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
@@ -30,7 +31,7 @@ public interface CmlBehaviour //extends Transactable //, CmlBehaviour
 	 * Executes the behaviour of this process
 	 * @return
 	 */
-	public void execute(CmlSupervisorEnvironment supervisor);
+	public void execute(CmlSupervisorEnvironment supervisor) throws AnalysisException;
 	
 	/**
 	 * Returns the immediate alphabet of the process, meaning the next possible cml event including tau

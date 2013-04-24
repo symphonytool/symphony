@@ -21,6 +21,7 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
+import eu.compassresearch.core.interpreter.cml.events.CmlTock;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
 import eu.compassresearch.core.interpreter.eval.AbstractSetupVisitor;
@@ -251,50 +252,53 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	 * Executes the current process behaviour
 	 */
 	@Override
-	public void execute(CmlSupervisorEnvironment env) 
+	public void execute(CmlSupervisorEnvironment env) throws AnalysisException
 	{
 		this.env= env;
 
 		//inspect if there are any immediate events
 		CmlAlphabet alpha = inspect();
-				
-		try
+
+		started = true;
+
+		if(alpha.isEmpty())
 		{
-			started = true;
-			
-			if(alpha.isEmpty())
-			{
-				setState(CmlProcessState.STOPPED);
-				wait = false;
-			}
-			else 
-			{	
-				/**
-				 *	If the selected event is valid and is in the immediate alphabet of the process 
-				 *	then we can continue.
-				 *  
-				 */
-				//
-				if(env.isSelectedEventValid() &&  
-						alpha.containsImprecise(env.selectedObservableEvent()))
-				{
-					wait = false;
-					setNext(next.first.apply(cmlEvaluationVisitor,next.second));
-					updateTrace(env.selectedObservableEvent());
-				}
-				//if no communication is selected by the supervisor or we cannot sync the selected events
-				//then we go to wait state and wait for channelEvent
-				else 
-				{
-					setState(CmlProcessState.WAIT);
-					wait = true;
-				}
-			}
+			setState(CmlProcessState.STOPPED);
+			wait = false;
 		}
-		catch(AnalysisException ex)
-		{
-			CmlRuntime.logger().throwing(this.toString(),"execute", ex);
-			throw new InterpreterRuntimeException(ex);
+		else 
+		{	
+			/**
+			 *	If the selected event is valid and is in the immediate alphabet of the process 
+			 *	then we can continue.
+			 *  
+			 */
+			//
+			if(env.isSelectedEventValid() &&  
+					alpha.containsImprecise(env.selectedObservableEvent()))
+			{
+				wait = false;
+				//If the selected event is not a tock event then we can evaluate
+				if(!(env.selectedObservableEvent() instanceof CmlTock))
+					setNext(next.first.apply(cmlEvaluationVisitor,next.second));
+				else
+				{
+					if(leftChild != null)
+						leftChild.execute(supervisor());
+					
+					if(rightChild != null)
+						rightChild.execute(supervisor());
+				}
+				
+				updateTrace(env.selectedObservableEvent());
+			}
+			//if no communication is selected by the supervisor or we cannot sync the selected events
+			//then we go to wait state and wait for channelEvent
+			else 
+			{
+				setState(CmlProcessState.WAIT);
+				wait = true;
+			}
 		}
 	}
 	

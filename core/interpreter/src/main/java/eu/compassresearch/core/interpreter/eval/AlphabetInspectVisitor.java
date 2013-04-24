@@ -49,6 +49,7 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.events.AbstractChannelEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
+import eu.compassresearch.core.interpreter.cml.events.CmlTock;
 import eu.compassresearch.core.interpreter.cml.events.CommunicationParameter;
 import eu.compassresearch.core.interpreter.cml.events.InputParameter;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
@@ -92,9 +93,8 @@ public class AlphabetInspectVisitor
 	
 	private CmlAlphabet createSilentTransition(INode srcNode, INode dstNode, String transitionText)
 	{
-		HashSet<CmlEvent> specialEvents = new HashSet<CmlEvent>();
-		specialEvents.add(CmlEventFactory.newTauEvent(ownerProcess,srcNode,dstNode,transitionText));
-		return new CmlAlphabet(specialEvents);
+		return new CmlAlphabet(new CmlTock(ownerProcess),CmlEventFactory.newTauEvent(ownerProcess,srcNode,dstNode,transitionText));
+		//return new CmlAlphabet(CmlEventFactory.newTauEvent(ownerProcess,srcNode,dstNode,transitionText));
 	}
 	
 	private CmlAlphabet createSilentTransition(INode srcNode, INode dstNode)
@@ -174,13 +174,12 @@ public class AlphabetInspectVisitor
 	private CmlAlphabet caseAGeneralisedParallelismInspectChildren(PVarsetExpression channelsetExp, Context question) throws AnalysisException
 	{
 		//convert the channel set of the current node to a alphabet
-		CmlAlphabet cs =  ((CmlAlphabet)channelsetExp.
-				apply(cmlEvaluator,question));
+		CmlAlphabet cs =  ((CmlAlphabet)channelsetExp.apply(cmlEvaluator,question));
 		
 		//Get all the child alphabets and add the events that are not in the channelset
-		CmlBehaviour leftChild = ownerProcess.children().get(0);
+		CmlBehaviour leftChild = ownerProcess.getLeftChild();
 		CmlAlphabet leftChildAlphabet = leftChild.inspect();
-		CmlBehaviour rightChild = ownerProcess.children().get(1);
+		CmlBehaviour rightChild = ownerProcess.getRightChild();
 		CmlAlphabet rightChildAlphabet = rightChild.inspect();
 		
 		//Find the intersection between the child alphabets and the channel set and join them.
@@ -321,15 +320,28 @@ public class AlphabetInspectVisitor
 		{
 			@Override
 			public CmlAlphabet inspectChildren() {
-				CmlAlphabet alpha = null;
-				for(CmlBehaviour child : ownerProcess.children())
+
+				//even though they are interleaved they should always sync on tock
+				CmlAlphabet cs =  new CmlAlphabet(new CmlTock());
+				
+				//Get all the child alphabets 
+				CmlAlphabet leftChildAlphabet = ownerProcess.getLeftChild().inspect();
+				CmlAlphabet rightChildAlphabet = ownerProcess.getRightChild().inspect();
+				
+				//Find the intersection between the child alphabets and the channel set and join them.
+				//Then if both left and right have them the next step will combine them.
+				CmlAlphabet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
+				
+				//combine all the tock events 
+				if(syncAlpha.getObservableEvents().size() == 2)
 				{
-					if(alpha == null)
-						alpha = child.inspect();
-					else
-						alpha = alpha.union(child.inspect());
+					Iterator<ObservableEvent> it = syncAlpha.getObservableEvents().iterator(); 
+					return leftChildAlphabet.union(rightChildAlphabet).subtract(syncAlpha).union(it.next().synchronizeWith(it.next()));
 				}
-				return alpha;
+				else
+				{
+					return leftChildAlphabet.union(rightChildAlphabet);
+				}
 			}
 		});
 	}
@@ -620,7 +632,7 @@ public class AlphabetInspectVisitor
 		}
 		//TODO: do the rest here
 		
-		return new CmlAlphabet(comset);
+		return new CmlAlphabet(comset).union(new CmlTock(ownerProcess));
 	}
 	
 	/**

@@ -86,7 +86,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 
 	}
 	
-	protected void caseParallelNonSync()
+	protected void caseParallelNonSync() throws AnalysisException
 	{
 
 		CmlBehaviour leftChild =  owner.getLeftChild();

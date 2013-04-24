@@ -11,29 +11,46 @@ public class CmlTock extends AbstractCmlEvent implements ObservableEvent {
 	public CmlTock(CmlBehaviour eventSource) {
 		super(eventSource);
 	}
+	
+	public CmlTock() {
+		super(new HashSet<CmlBehaviour>());
+	}
+	
+	protected CmlTock(Set<CmlBehaviour> eventSources) {
+		super(eventSources);
+	}
 
 	@Override
-	public ObservableEvent synchronizeWith(ObservableEvent other) {
-		// TODO Auto-generated method stub
-		return null;
+	public ObservableEvent synchronizeWith(ObservableEvent syncEvent) {
+		
+//		if(!isComparable(other))
+//			throw new NotComparableException();
+		
+		Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
+		sources.addAll(this.getEventSources());
+		sources.addAll(syncEvent.getEventSources());
+		
+		return new CmlTock(sources);
 	}
 
 	@Override
 	public boolean isComparable(ObservableEvent other) {
-		// TODO Auto-generated method stub
-		return false;
+
+		return equals(other);
 	}
 
 	@Override
 	public boolean isPrecise() {
-		// TODO Auto-generated method stub
-		return false;
+		//TODO I suspect that this is not always true of the refusals are derived 
+		//from a imprecise event
+		return true;
 	}
 
 	@Override
 	public ObservableEvent meet(ObservableEvent other) {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO I suspect that this is not always true of the refusals are derived 
+		//from a imprecise event
+		return this;
 	}
 
 	@Override
@@ -42,6 +59,25 @@ public class CmlTock extends AbstractCmlEvent implements ObservableEvent {
 		Set<CmlEvent> events = new HashSet<CmlEvent>();
 		events.add(this);
 		return new CmlAlphabet(events);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		
+		if(!(obj instanceof CmlTock))
+			return false;
+		
+		return super.equals(obj);
+	}
+	
+	@Override
+	public String toString() {
+		return "tock";
+	}
+	
+	@Override
+	public int hashCode() {
+		return "tock".hashCode();
 	}
 	
 }

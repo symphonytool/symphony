@@ -37,6 +37,21 @@ public class CmlAlphabet extends Value {
 		this._observableEvents.add(obsEvent);
 	}
 	
+	public CmlAlphabet(CmlSpecialEvent tauEvent)
+	{
+		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
+		this._observableEvents = new LinkedHashSet<ObservableEvent>();
+		this.specialEvents.add(tauEvent);
+	}
+	
+	public CmlAlphabet(ObservableEvent obs, CmlSpecialEvent tauEvent)
+	{
+		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
+		this.specialEvents.add(tauEvent);
+		this._observableEvents = new LinkedHashSet<ObservableEvent>();
+		this._observableEvents.add(obs);
+	}
+	
 	public CmlAlphabet(Set<ObservableEvent> comms, Set<CmlSpecialEvent> specialEvents)
 	{
 		this.specialEvents = specialEvents;
@@ -261,7 +276,9 @@ public class CmlAlphabet extends Value {
 		
 		for(ObservableEvent ev : getObservableEvents())
 			if(ev instanceof ChannelEvent)
-			eventSet.addAll(((ChannelEvent)ev).expand());
+				eventSet.addAll(((ChannelEvent)ev).expand());
+			else
+				eventSet.add(ev);
 		
 		return new CmlAlphabet(eventSet,getSpecialEvents());
 		
