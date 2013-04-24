@@ -14,24 +14,24 @@ import eu.compassresearch.core.interpreter.cml.CmlChannel;
  * @author akm
  *
  */
-public abstract class AbstractObservableEvent extends AbstractCmlEvent {
+public abstract class AbstractChannelEvent extends AbstractCmlEvent implements ChannelEvent{
 
 	final protected CmlChannel channel;
 	
 	
-	public AbstractObservableEvent(CmlBehaviour eventSource, CmlChannel channel)
+	public AbstractChannelEvent(CmlBehaviour eventSource, CmlChannel channel)
 	{
 		super(eventSource);
 		this.channel = channel;
 	}
 	
-	public AbstractObservableEvent(CmlChannel channel)
+	public AbstractChannelEvent(CmlChannel channel)
 	{
 		super(new HashSet<CmlBehaviour>());
 		this.channel = channel;
 	}
 	
-	protected AbstractObservableEvent(Set<CmlBehaviour> sources, CmlChannel channel)
+	protected AbstractChannelEvent(Set<CmlBehaviour> sources, CmlChannel channel)
 	{
 		super(sources);
 		this.channel = channel;
@@ -51,7 +51,7 @@ public abstract class AbstractObservableEvent extends AbstractCmlEvent {
 	 * @param other
 	 * @return The synchronized event 
 	 */
-	public abstract AbstractObservableEvent synchronizeWith(AbstractObservableEvent other);
+	public abstract ObservableEvent synchronizeWith(ObservableEvent other);
 		
 	/**
 	 * Two Observable events are comparable if the are occurring on the same channel and
@@ -61,7 +61,7 @@ public abstract class AbstractObservableEvent extends AbstractCmlEvent {
 	 * @param other
 	 * @return
 	 */
-	public boolean isComparable(AbstractObservableEvent other) {
+	public boolean isComparable(ObservableEvent other) {
 
 		return this.equals(other);
 	}
@@ -70,26 +70,26 @@ public abstract class AbstractObservableEvent extends AbstractCmlEvent {
 	
 	public abstract void setValue(Value value);
 	
-	public abstract boolean isValuePrecise();
+	public abstract boolean isPrecise();
 	
-	public abstract List<AbstractObservableEvent> expand();
+	public abstract List<ChannelEvent> expand();
 	
 	/**
 	 * return the most precise of this and other
 	 * @param other
 	 * @return
 	 */
-	public abstract AbstractObservableEvent meet(AbstractObservableEvent other); 
+	public abstract ObservableEvent meet(ObservableEvent other); 
 	
 	@Override
 	public boolean equals(Object obj) {
 
-		AbstractObservableEvent other = null;
+		ChannelEvent other = null;
 		
-		if(!(obj instanceof AbstractObservableEvent))
+		if(!(obj instanceof ChannelEvent))
 			return false;
 		
-		other = (AbstractObservableEvent)obj;
+		other = (AbstractChannelEvent)obj;
 		
 		return other.getChannel().equals(getChannel()) && 
 				super.equals(obj);

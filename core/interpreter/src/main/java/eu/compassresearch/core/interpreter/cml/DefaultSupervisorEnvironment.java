@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.AbstractChannelEvent;
 
 public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 
@@ -46,8 +46,8 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	public void setSelectedObservableEvent(CmlEvent comm) {
 		selectedCommunication = comm;
 		//signal all the processes that are listening for events on this channel
-		if(selectedCommunication instanceof AbstractObservableEvent)
-			((AbstractObservableEvent) selectedCommunication).getChannel().select();
+		if(selectedCommunication instanceof AbstractChannelEvent)
+			((AbstractChannelEvent) selectedCommunication).getChannel().select();
 	}
 
 	@Override

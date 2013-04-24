@@ -11,7 +11,7 @@ import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlChannel;
 
-class PrefixEvent extends AbstractObservableEvent {
+class PrefixEvent extends AbstractChannelEvent {
 
 	public PrefixEvent(CmlBehaviour eventSource, CmlChannel channel) {
 		super(eventSource, channel);
@@ -51,7 +51,7 @@ class PrefixEvent extends AbstractObservableEvent {
 	}
 
 	@Override
-	public AbstractObservableEvent synchronizeWith(AbstractObservableEvent syncEvent) {
+	public ObservableEvent synchronizeWith(ObservableEvent syncEvent) {
 		
 		Set<CmlBehaviour> sources = new HashSet<CmlBehaviour>();
 		sources.addAll(this.getEventSources());
@@ -61,7 +61,7 @@ class PrefixEvent extends AbstractObservableEvent {
 	}
 
 	@Override
-	public AbstractObservableEvent meet(AbstractObservableEvent other) {
+	public ObservableEvent meet(ObservableEvent other) {
 		return this;
 	}
 
@@ -76,12 +76,12 @@ class PrefixEvent extends AbstractObservableEvent {
 	}
 
 	@Override
-	public boolean isValuePrecise() {
+	public boolean isPrecise() {
 		return true;
 	}
 
 	@Override
-	public List<AbstractObservableEvent> expand() {
-		return Arrays.asList((AbstractObservableEvent)this);
+	public List<ChannelEvent> expand() {
+		return Arrays.asList((ChannelEvent)this);
 	}
 }

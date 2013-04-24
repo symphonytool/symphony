@@ -10,10 +10,8 @@ import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.ClassContext;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ObjectContext;
-import org.overture.interpreter.runtime.RootContext;
 import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.UpdatableValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
@@ -21,9 +19,9 @@ import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
 import eu.compassresearch.core.interpreter.eval.AbstractSetupVisitor;
 import eu.compassresearch.core.interpreter.eval.ActionSetupVisitor;
@@ -38,7 +36,6 @@ import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
-import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 public class ConcreteCmlBehaviour implements CmlBehaviour
@@ -329,7 +326,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		
 		CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
 		
-		for(AbstractObservableEvent obsEvent : hiddenEvents.getObservableEvents())
+		for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
 			resultAlpha = resultAlpha.union(CmlEventFactory.newTauEvent(this,null,null," hiding " + obsEvent.toString()));	
 		return resultAlpha;
 	}

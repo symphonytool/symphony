@@ -44,7 +44,7 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.AbstractChannelEvent;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ActionValue;
@@ -112,7 +112,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 			throws AnalysisException {
 		
 		//At this point the supervisor has already given go to the event, or the event is hidden
-		Value value = ((AbstractObservableEvent)supervisor().selectedObservableEvent()).getValue();
+		Value value = ((AbstractChannelEvent)supervisor().selectedObservableEvent()).getValue();
 		
 //		if(node.getCommunicationParameters() != null && 
 //				node.getCommunicationParameters().size() > 1

@@ -20,7 +20,7 @@ import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.AbstractChannelEvent;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
@@ -192,7 +192,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 			{
 				if(child.inspect().containsImprecise(supervisor().selectedObservableEvent()))
 				{
-					if(supervisor().selectedObservableEvent() instanceof AbstractObservableEvent)
+					if(supervisor().selectedObservableEvent() instanceof AbstractChannelEvent)
 					{
 						//first we execute the child
 						child.execute(supervisor());

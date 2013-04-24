@@ -33,7 +33,9 @@ import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.AbstractChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgpStatus;
@@ -280,13 +282,13 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 						VanillaInterpreterFactory.newCmlSupervisorEnvironment(new CmlCommunicationSelectionStrategy() {
 							Scanner scanIn = new Scanner(System.in);
 							@Override
-							public AbstractObservableEvent select(CmlAlphabet availableChannelEvents) {
+							public ObservableEvent select(CmlAlphabet availableChannelEvents) {
 
 								sendStatusMessage(CmlDbgpStatus.CHOICE, CmlInterpreterController.this.cmlInterpreter.getStatus());
 								
 								//convert to list of strings for now
 								List<String> events = new LinkedList<String>();
-								for(AbstractObservableEvent comEvent : availableChannelEvents.getObservableEvents())
+								for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
 								{
 									events.add(comEvent.toString());
 								}
@@ -301,21 +303,21 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 								String responseStr = response.getContent(String.class);
 								//System.out.println("response: " + responseStr);
 								
-								AbstractObservableEvent selectedEvent = null;
+								ObservableEvent selectedEvent = null;
 								//For now we just search naively to find the event
-								for(AbstractObservableEvent comEvent : availableChannelEvents.getObservableEvents())
+								for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
 								{
 									//System.out.println("found: " + comEvent.getChannel().getName());
 									if(comEvent.toString().equals(responseStr))
 										selectedEvent = comEvent;
 								}
 								
-								if(!selectedEvent.isValuePrecise())
+								if(selectedEvent instanceof ChannelEvent && !selectedEvent.isPrecise())
 								{
 									System.out.println("Enter value : "); 
 									
 									Value val = new IntegerValue(scanIn.nextInt());
-									selectedEvent.setValue(val);
+									((ChannelEvent)selectedEvent).setValue(val);
 								}
 
 								return selectedEvent;

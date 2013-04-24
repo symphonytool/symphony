@@ -44,19 +44,18 @@ import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.events.AbstractObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.AbstractChannelEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
 import eu.compassresearch.core.interpreter.cml.events.CommunicationParameter;
 import eu.compassresearch.core.interpreter.cml.events.InputParameter;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
 import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
-import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
@@ -190,12 +189,12 @@ public class AlphabetInspectVisitor
 		
 		//combine all the common events that are in the channel set 
 		Set<CmlEvent> syncEvents = new HashSet<CmlEvent>();
-		for(AbstractObservableEvent ref : cs.getObservableEvents())
+		for(ObservableEvent ref : cs.getObservableEvents())
 		{
 			CmlAlphabet commonEvents = syncAlpha.intersectImprecise(ref.getAsAlphabet());
 			if(commonEvents.getObservableEvents().size() == 2)
 			{
-				Iterator<AbstractObservableEvent> it = commonEvents.getObservableEvents().iterator(); 
+				Iterator<ObservableEvent> it = commonEvents.getObservableEvents().iterator(); 
 				syncEvents.add( it.next().synchronizeWith(it.next()));
 			}
 		}
@@ -616,7 +615,7 @@ public class AlphabetInspectVisitor
 				params.add(param);
 			}
 			
-			AbstractObservableEvent observableEvent = CmlEventFactory.newCmlCommunicationEvent(ownerProcess, chanValue, params);
+			AbstractChannelEvent observableEvent = CmlEventFactory.newCmlCommunicationEvent(ownerProcess, chanValue, params);
 			comset.add(observableEvent);
 		}
 		//TODO: do the rest here

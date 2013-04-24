@@ -9,16 +9,16 @@ import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
-class CmlTauEvent extends AbstractCmlEvent implements CmlSpecialEvent {
+class CmlTau extends AbstractCmlEvent implements CmlSpecialEvent {
 
-	protected static CmlTauEvent instance = null;
+	protected static CmlTau instance = null;
 	final static String tauString = "\u03C4".toLowerCase();
 	private final INode transitionSrcNode;
 	private final INode transitionDstNode;
 	private String transitionText = null;
-	private final AbstractObservableEvent hiddenEvent;
+	private final AbstractChannelEvent hiddenEvent;
 						
-	public CmlTauEvent(CmlBehaviour source, INode transitionSrcNode, INode transitionDstNode, String transitionText)
+	public CmlTau(CmlBehaviour source, INode transitionSrcNode, INode transitionDstNode, String transitionText)
 	{
 		super(source);
 		this.transitionSrcNode = transitionSrcNode;
@@ -27,7 +27,7 @@ class CmlTauEvent extends AbstractCmlEvent implements CmlSpecialEvent {
 		hiddenEvent = null;
 	}
 	
-	public CmlTauEvent(CmlBehaviour source, AbstractObservableEvent hiddenEvent, String transitionText)
+	public CmlTau(CmlBehaviour source, AbstractChannelEvent hiddenEvent, String transitionText)
 	{
 		super(source);
 		this.transitionSrcNode = null;
@@ -57,7 +57,7 @@ class CmlTauEvent extends AbstractCmlEvent implements CmlSpecialEvent {
 	@Override
 	public boolean equals(Object obj) {
 		
-		if(!(obj instanceof CmlTauEvent))
+		if(!(obj instanceof CmlTau))
 			return false;
 		else
 			return super.equals(obj);
