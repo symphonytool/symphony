@@ -81,9 +81,9 @@
          point="org.eclipse.ui.views">
       <view
             category="eu.compassresearch.ide.ui.view.category"
-            class="eu.compassresearch.ide.cml.ui.navigator.CmlExplorer"
+            class="org.overture.ide.ui.navigator.VdmNavigator"
             icon="icons/cview16/compass_nav.png"
-            id="eu.compassresearch.ide.ui.CmlExplorer"
+            id="org.overture.ide.ui.VdmExplorer"
             name="%CmlExplorerName">
       </view>
     <category
@@ -110,7 +110,7 @@
 	      <perspectiveExtension
 	            targetID="eu.compassresearch.ide.ui.perspective">
 	         <view
-	               id="eu.compassresearch.ide.ui.CmlExplorer"
+	               id="org.overture.ide.ui.VdmExplorer"
 	               minimized="false"
 	               ratio="0.25"
 	               relationship="left"
@@ -330,7 +330,7 @@
    <extension
          point="org.eclipse.ui.navigator.viewer">
       <viewerContentBinding
-            viewerId="eu.compassresearch.ide.ui.CmlExplorer">
+            viewerId="org.overture.ide.ui.VdmExplorer">
          <includes>
             <contentExtension
                   isRoot="false"
