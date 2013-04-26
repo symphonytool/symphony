@@ -1,9 +1,9 @@
 #!/bin/bash
 
-BASE=`dirname $0`
+BASE=$( dirname "${BASH_SOURCE[0]}" )
 REPO=$BASE/../..
 
-VERSION=0.0.1
+VERSION=0.1.1
 
 JAR=$BASE/target/commandlinetool-$VERSION-jar-with-dependencies.jar
 #CLASSPATH=.:$REPO/core/parser/target/parser-$VERSION.jar:$REPO/core/ast/target/ast-$VERSION.jar:$REPO/core/analyis/proofobligationgenerator/target/proofobligationgenerator-$VERSION.jar:$JAR

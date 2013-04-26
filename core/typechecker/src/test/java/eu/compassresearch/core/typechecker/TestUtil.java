@@ -39,16 +39,16 @@ public class TestUtil
 		public TypeIssueHandler issueHandler;
 		public boolean parsedOk;
 		public boolean tcOk;
-		public PSource source;
 		public List<String> parseErrors;
+		public PSource[] sources;
 	}
 
 
 	public static TypeCheckerResult parse(PSource s) throws FileNotFoundException, IOException
 	{
-		
+
 		TypeCheckerResult result = new TypeCheckerResult();
-		
+
 		ANTLRInputStream in = null;
 		if (s instanceof AFileSource)
 			in = new ANTLRInputStream(new FileInputStream(((AFileSource)s).getFile()));
@@ -88,7 +88,7 @@ public class TestUtil
 				parseErrors.add("Syntax error in "+s+" expecting '"+expectedToken+"' near '"+ct.getText()+"' at line "+e.line+" - "+ct.getStartIndex()+":"+ ct.getStopIndex());
 				return result;
 			}
-			
+
 			if (e.token != null)
 			{
 				ct = (org.antlr.runtime.CommonToken)e.token;
@@ -100,70 +100,71 @@ public class TestUtil
 		}
 	}
 
-	public static TypeCheckerResult runTypeChecker(PSource s) throws FileNotFoundException, IOException
+	public static TypeCheckerResult runTypeChecker(List<PSource> ss) throws FileNotFoundException, IOException
 	{
 		TypeCheckerResult result = new TypeCheckerResult();
 
-		ANTLRInputStream in = null;
-		if (s instanceof AFileSource)
-			in = new ANTLRInputStream(new FileInputStream(((AFileSource)s).getFile()));
+		for(PSource s : ss) {
+			ANTLRInputStream in = null;
+			if (s instanceof AFileSource)
+				in = new ANTLRInputStream(new FileInputStream(((AFileSource)s).getFile()));
 
-		if (s instanceof AInputStreamSource)
-			in = new ANTLRInputStream(((AInputStreamSource)s).getStream());
+			if (s instanceof AInputStreamSource)
+				in = new ANTLRInputStream(((AInputStreamSource)s).getStream());
 
-		CmlLexer lexer = new CmlLexer(in);
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		CmlParser parser = new CmlParser(tokens);
+			CmlLexer lexer = new CmlLexer(in);
+			CommonTokenStream tokens = new CommonTokenStream(lexer);
+			CmlParser parser = new CmlParser(tokens);
 
 
-		try {
-			List<PDefinition> forest = parser.source();
-			s.setParagraphs(new LinkedList<PDefinition>());
-			if (forest != null)
-			{
-				for (PDefinition def : forest)
-					if (def != null)
-						s.getParagraphs().add(def);
-				result.parsedOk = true;
-			}
-			else
-				result.parsedOk = false;
-		} catch (RecognitionException e) {
-			String expectedToken = "";
-			CommonToken ct = null;
-			List<String> parseErrors = new LinkedList<String>();
-			result.parseErrors = parseErrors;
-			if (e instanceof MismatchedTokenException)
-			{
-				ct = (CommonToken)e.token;
-				MismatchedTokenException ee = (MismatchedTokenException)e;
-				if (ee.expecting >= 0 && CmlParser.tokenNames.length > ee.expecting)
-					expectedToken= CmlParser.tokenNames[ee.expecting];
+			try {
+				List<PDefinition> forest = parser.source();
+				s.setParagraphs(new LinkedList<PDefinition>());
+				if (forest != null)
+				{
+					for (PDefinition def : forest)
+						if (def != null)
+							s.getParagraphs().add(def);
+					result.parsedOk = true;
+				}
 				else
-					expectedToken = "unknown (-1)";
-				parseErrors.add("Syntax error in "+s+" expecting '"+expectedToken+"' near '"+ct.getText()+"' at line "+e.line+" - "+ct.getStartIndex()+":"+ ct.getStopIndex());
+					result.parsedOk = false;
+			} catch (RecognitionException e) {
+				String expectedToken = "";
+				CommonToken ct = null;
+				List<String> parseErrors = new LinkedList<String>();
+				result.parseErrors = parseErrors;
+				if (e instanceof MismatchedTokenException)
+				{
+					ct = (CommonToken)e.token;
+					MismatchedTokenException ee = (MismatchedTokenException)e;
+					if (ee.expecting >= 0 && CmlParser.tokenNames.length > ee.expecting)
+						expectedToken= CmlParser.tokenNames[ee.expecting];
+					else
+						expectedToken = "unknown (-1)";
+					parseErrors.add("Syntax error in "+s+" expecting '"+expectedToken+"' near '"+ct.getText()+"' at line "+e.line+" - "+ct.getStartIndex()+":"+ ct.getStopIndex());
+					return result;
+				}
+
+				if (e.token != null)
+				{
+					ct = (org.antlr.runtime.CommonToken)e.token;
+					parseErrors.add("Syntax error in "+s+" snear '"+ct.getText()+"'. Error at line "+e.line + " - "+ct.getStartIndex()+":"+ ct.getStopIndex());	
+				}
+				else
+					parseErrors.add("Syntax error, expecting at line at line "+e.line+".");
 				return result;
-			}
-			
-			if (e.token != null)
-			{
-				ct = (org.antlr.runtime.CommonToken)e.token;
-				parseErrors.add("Syntax error in "+s+" snear '"+ct.getText()+"'. Error at line "+e.line + " - "+ct.getStartIndex()+":"+ ct.getStopIndex());	
-			}
-			else
-				parseErrors.add("Syntax error, expecting at line at line "+e.line+".");
-			return result;
 
+			}
 		}
-
 		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle();
 		result.issueHandler=issueHandler;
 		List<PSource> cmlSources = new LinkedList<PSource>();
-		cmlSources.add(s);
+		cmlSources.addAll(ss);
 		CmlTypeChecker checker = VanillaFactory.newTypeChecker(cmlSources , issueHandler);
 
 		result.tcOk = checker.typeCheck();
-		result.source = s;
+		result.sources = ss.toArray(new PSource[0]);
 
 		return result;
 	}
@@ -198,11 +199,17 @@ public class TestUtil
 		CmlTypeChecker checker = VanillaFactory.newTypeChecker(cmlSources, issueHandler);
 
 		res.tcOk = checker.typeCheck();
-		res.source = fileSource;
+		res.sources = new PSource[] { fileSource };
 
 		return res;
 	}
 
+	/**
+	 * Returns a stack trace like string for the type errors.
+	 * @param tc
+	 * @param expectedTypesOk
+	 * @return
+	 */
 	public static String buildErrorMessage(TypeIssueHandler tc, boolean expectedTypesOk) {
 		StringBuilder sb = new StringBuilder();
 		if (expectedTypesOk) {
@@ -257,17 +264,21 @@ public class TestUtil
 		return h.pointer;
 			}
 
-	public static <T> void addFileProgram(List<Object[]> col, String filename,
-			Object... objs) throws IOException
-			{
-		String progDir = "../../docs/cml-examples/";
-		File fin = new File(progDir + filename);
+	public static String readFile(String file) throws IOException {
+		File fin = new File(file);
 		InputStream is = new FileInputStream(fin);
 		byte[] buffer = new byte[is.available()];
 		is.read(buffer);
 		is.close();
+		return new String(buffer);
+	}
+
+	public static <T> void addFileProgram(List<Object[]> col, String filename,
+			Object... objs) throws IOException
+			{
+		String progDir = "../../docs/cml-examples/";
 		Object[] args = new Object[objs.length + 1];
-		args[0] = new String(buffer);
+		args[0] = readFile(progDir+filename);
 		System.arraycopy(objs, 0, args, 1, objs.length);
 		col.add(args);
 			}

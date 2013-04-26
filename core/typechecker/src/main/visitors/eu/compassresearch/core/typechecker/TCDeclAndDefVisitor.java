@@ -337,19 +337,19 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 
 			if (!(def instanceof AAssignmentDefinition)) {
-//				def.setType(issueHandler.addTypeError(def,TypeErrorMessages.INPROPER_STATE_DEFINITION.toString()));
-//				return def.getType();
+				//				def.setType(issueHandler.addTypeError(def,TypeErrorMessages.INPROPER_STATE_DEFINITION.toString()));
+				//				return def.getType();
 			}
-			
+
 			if ((def instanceof AAssignmentDefinition)) {
-//				def.setType(issueHandler.addTypeError(def,TypeErrorMessages.INPROPER_STATE_DEFINITION.toString()));
-//				return def.getType();
+				//				def.setType(issueHandler.addTypeError(def,TypeErrorMessages.INPROPER_STATE_DEFINITION.toString()));
+				//				return def.getType();
 				AAssignmentDefinition stateDef = (AAssignmentDefinition)def;
 				stateDef.setNameScope(NameScope.STATE);
 				if (def.getName() != null)
 					cmlenv.addVariable(def.getName(), def);
 			}
-			
+
 		}
 
 		if (node.getInvdef() != null) {
@@ -446,7 +446,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			prePostDefinitions.addAll(patternType.getDefinitions());
 			resultTypes.add(pt.getType());
 		}
-		
+
 		if (resultTypes.size() == 0)
 			resultType = AstFactory.newAVoidReturnType(node.getLocation());
 
@@ -466,7 +466,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 		}
 
-		
+
 		// Create predef if it is not there
 		if (preDef == null)
 		{
@@ -564,7 +564,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				node.setType(issueHandler.addTypeError(odef, TypeErrorMessages.EXPECTED_OPERATION_DEFINITION.customizeMessage(odef.getName()+"")));
 				return node.getType();
 			}
-			
+
 			// It could be the constructor
 			PDefinition clz = question.env.getEnclosingDefinition();
 			if (clz != null && clz instanceof AClassDefinition) {
@@ -572,12 +572,12 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					if (odef instanceof AExplicitCmlOperationDefinition) {
 						AExplicitCmlOperationDefinition cmlOdef = (AExplicitCmlOperationDefinition) odef;
 						cmlOdef.setIsConstructor(true);
-						
+
 						if (!(operationType instanceof AOperationType)) {
 							node.setType(issueHandler.addTypeError(cmlOdef, TypeErrorMessages.EXPECTED_OPERATION_DEFINITION.customizeMessage(""+cmlOdef)));
 							return node.getType();
 						}
-						
+
 						AOperationType operationTypeActual = (AOperationType)operationType;
 						if (!(typeComparator.isSubType(clz.getType(), operationTypeActual.getResult()))) {
 							node.setType(issueHandler.addTypeError(operationTypeActual, TypeErrorMessages.CONSTRUCTOR_HAS_WRONG_TYPE.customizeMessage(odef+"",operationType+"")));
@@ -1702,12 +1702,14 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 			List<PDefinition> oldStateDefs = new LinkedList<PDefinition>();
 			for(PDefinition stateDef : enclosingStateDefinitions) {
-				ILexNameToken normName = stateDef.getName();
-				ILexNameToken oldName = new LexNameToken("", new LexIdentifierToken(normName.getFullName(), true, normName.getLocation()));
-				PDefinition oldDefinition = stateDef.clone();
-				oldDefinition.setName(oldName);
-				oldStateDefs.add(oldDefinition);
-		//		postEnv.addVariable(oldName, oldDefinition);
+				if (stateDef instanceof AAssignmentDefinition) {
+					ILexNameToken normName = stateDef.getName();
+					ILexNameToken oldName = new LexNameToken("", new LexIdentifierToken(normName.getFullName(), true, normName.getLocation()));
+					PDefinition oldDefinition = stateDef.clone();
+					oldDefinition.setName(oldName);
+					oldStateDefs.add(oldDefinition);
+					//		postEnv.addVariable(oldName, oldDefinition);
+				}
 			}
 			postEnv.scope = NameScope.NAMES;
 			AExplicitFunctionDefinition postDef = CmlTCUtil.buildCondition0("post", node, node.getType().clone(), paramPatterns, node.getPostcondition(), enclosingStateDefinitions, oldStateDefs);
@@ -1734,7 +1736,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (classOrProcess instanceof AClassDefinition)	{
 			AClassDefinition clzDef = (AClassDefinition)classOrProcess;
 			for(PDefinition defInClz : clzDef.getBody()) {
-				if (defInClz instanceof AStateDefinition) {
+				if (defInClz instanceof AAssignmentDefinition) {
 					return ((AStateDefinition) defInClz).getStateDefs();
 				}
 			}
@@ -1743,7 +1745,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (classOrProcess instanceof AActionProcess) {
 			AActionProcess ap = (AActionProcess)classOrProcess;
 			for( PDefinition defInAp : ap.getDefinitionParagraphs()) {
-				if (defInAp instanceof AStateDefinition){
+				if (defInAp instanceof AAssignmentDefinition){
 					return ((AStateDefinition)defInAp).getStateDefs();
 				}
 			}
@@ -1805,7 +1807,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				funDef.setType(issueHandler.addTypeError(funDef, TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS.customizeMessage(""+i,flattenParamTypes.size()+"")));
 				return functionBodyEnv;
 			}
-			
+
 			for(PDefinition def : patternType.getDefinitions()) {
 				functionBodyEnv.addVariable(def.getName(), def);
 				def.setType(flattenParamTypes.get(i));
@@ -1824,7 +1826,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo questionIn)
 					throws AnalysisException {
 
-		
+
 		OvertureToCmlFunctionHandler fnHandler = new OvertureToCmlFunctionHandler();
 		List<PDefinition> fixedDefinition = fnHandler.handle(node);
 		node = (AExplicitFunctionDefinition) fixedDefinition.get(0);
@@ -1837,7 +1839,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		}
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(questionIn);
-		
+
 		// CML Variant, we need to check the patterns
 		TypeCheckInfo question = (TypeCheckInfo)createEnvironmentWithFormals(questionIn, node);
 

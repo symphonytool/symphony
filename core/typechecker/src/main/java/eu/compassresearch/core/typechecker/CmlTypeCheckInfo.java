@@ -9,6 +9,7 @@ import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
@@ -80,9 +81,9 @@ TypeCheckQuestion {
 
 	@Override
 	public PType lookupType(ILexIdentifierToken ident) {
-		LexNameToken name = null;
-		if (!(ident instanceof LexNameToken)) name = new LexNameToken("",ident);
-		else name = (LexNameToken)ident;
+		ILexNameToken name = null;
+		if (!(ident instanceof ILexNameToken)) name = new LexNameToken("",ident);
+		else name = (ILexNameToken)ident;
 		PType res = null;
 		PDefinition def = lookup(name,PDefinition.class);
 		if (def == null) return null; 
@@ -147,9 +148,8 @@ TypeCheckQuestion {
 
 	@Override
 	public PDefinition lookupVariable(ILexIdentifierToken ident) {
-		if (ident instanceof LexNameToken) {
-
-			return env.findName((LexNameToken) ident, NameScope.GLOBAL);
+		if (ident instanceof ILexNameToken) {
+			return env.findName((ILexNameToken) ident, NameScope.GLOBAL);
 		}
 		return null;
 	}

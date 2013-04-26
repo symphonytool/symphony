@@ -151,7 +151,7 @@ class CmlAssistant {
 		Class<T> c = (Class<T>)t.getClass();
 		if (!findMemberNameBaseCases.containsKey(c))
 		{
-			return t;
+			return null;
 		}
 		FindMemberNameFinderStrategy strategy = findMemberNameBaseCases.get(c);
 

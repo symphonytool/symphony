@@ -760,7 +760,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		if (definition == null) {
 			CmlAssistant assistant = new CmlAssistant();
-			definition = assistant.findMemberName(question.env.getEnclosingDefinition(), name, question);
+			definition = assistant.findMemberName(question.env.getEnclosingDefinition(), name, nearestCmlEnvironment);
 		}
 		
 		// any luck?
@@ -883,7 +883,6 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		// no then it may be a variable
 		if (root == null)
 			root = question.env.findName(rootName, question.scope);
-
 
 		// RWL: UGLY Re-factor some day
 		if (root instanceof AAssignmentDefinition) {
