@@ -1,21 +1,13 @@
 package eu.compassresearch.core.interpreter.eval;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map.Entry;
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.runtime.RootContext;
 import org.overture.interpreter.runtime.ValueException;
-import org.overture.interpreter.values.UpdatableValue;
-import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
-import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -158,30 +150,21 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 			throws AnalysisException {
 		
 		Pair<INode,Context> result = null;
-//		
-//		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
+		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!owner.hasChildren()){
-//			
-//			//TODO: create a local copy of the question state for each of the actions
-//
-//			//new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,left.getLocation()));
-//			if(rightNode instanceof AExternalChoiceAction || rightNode instanceof AExternalChoiceProcess)
-//				rightNode.apply(this,question);
-//			else
-//			{
 			
 			CmlBehaviour leftInstance = VanillaInterpreterFactory.newCmlBehaviour(leftNode, question.deepCopy(), leftName,this.owner);
 			setLeftChild(leftInstance);
 			
 			CmlBehaviour rightInstance = VanillaInterpreterFactory.newCmlBehaviour(rightNode, question.deepCopy(), rightName,this.owner); 
 			setRightChild(rightInstance);
-//			
-//			//Now let this process wait for the children to get into a waitForEvent state
+
+			//Now let this process wait for the children to get into a waitForEvent state
 			result = new Pair<INode, Context>(node, question);
-//			
+			
 		}
-//		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
-//		//with the state from the skip. After this all the children processes are terminated
+		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
+		//with the state from the skip. After this all the children processes are terminated
 		else if(CmlBehaviourThreadUtility.finishedChildExists(owner))
 		{
 			result = caseExternalChoiceEnd(findFinishedChild(),question);

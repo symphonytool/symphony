@@ -57,11 +57,10 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	protected CmlBehaviour						rightChild = null;
 	
 	//Process/Action state variables
-	protected CmlProcessState 					state;
 	protected boolean 							started = false;
 	protected boolean							wait = false;
 	protected boolean							waitPrime = false;
-	
+	protected boolean 							aborted = false;
 	//Current supervisor
 	protected CmlSupervisorEnvironment 			env;
 	
@@ -69,6 +68,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	protected CmlAlphabet 						hidingAlphabet = new CmlAlphabet();
 	
 	//Denotational semantics
+	//This contains the current trace of this process
 	protected final CmlTrace 					trace = new CmlTrace();
 	
 	//Helper to inspect the immediate Alphabet
@@ -105,23 +105,19 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 	private ConcreteCmlBehaviour(CmlBehaviour parent,LexNameToken name)
 	{
-		state = CmlProcessState.INITIALIZED;
+		notifyOnStateChange(CmlProcessState.INITIALIZED);
 		this.parent = parent;
 		this.name = name;
 		wait = false;
+		waitPrime = false;
 		started = false;
-		
+				
 		VisitorAccess visitorAccess = new VisitorAccess() {
 			
 			@Override
 			public void setHidingAlphabet(CmlAlphabet alpha) {
 				ConcreteCmlBehaviour.this.setHidingAlphabet(alpha);
 				
-			}
-									
-			@Override
-			public CmlAlphabet getHidingAlphabet() {
-				return hidingAlphabet;
 			}
 
 			@Override
@@ -167,14 +163,11 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 
 		if(hasChildren())
 		{
-			CmlBehaviour leftChild = children().get(0);
-
-			String stringRep = "(" + leftChild.nextStepToString() + ")" + CmlOpsToString.toString(next.first);
+			String stringRep = "(" + getLeftChild().nextStepToString() + ")" + CmlOpsToString.toString(next.first);
 
 			if(children().size() > 1)
 			{
-				CmlBehaviour rightChild = children().get(1);
-				stringRep += "(" + rightChild.nextStepToString()+")";
+				stringRep += "(" + getRightChild().nextStepToString()+")";
 			}
 
 			return stringRep;
@@ -203,44 +196,36 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 
 		started = true;
 
-		if(alpha.isEmpty())
+		/**
+		 *	If the selected event is valid and is in the immediate alphabet of the process 
+		 *	then we can continue.
+		 *  
+		 */
+		//
+		if(env.isSelectedEventValid() &&  
+				alpha.containsImprecise(env.selectedObservableEvent()))
 		{
-			setState(CmlProcessState.STOPPED);
 			wait = false;
+			//If the selected event is not a tock event then we can evaluate
+			if(!(env.selectedObservableEvent() instanceof CmlTock))
+				setNext(next.first.apply(cmlEvaluationVisitor,next.second));
+			else
+			{
+				if(leftChild != null)
+					leftChild.execute(supervisor());
+
+				if(rightChild != null)
+					rightChild.execute(supervisor());
+			}
+
+			updateTrace(env.selectedObservableEvent());
 		}
+		//if no communication is selected by the supervisor or we cannot sync the selected events
+		//then we go to wait state and wait for channelEvent
 		else 
-		{	
-			/**
-			 *	If the selected event is valid and is in the immediate alphabet of the process 
-			 *	then we can continue.
-			 *  
-			 */
-			//
-			if(env.isSelectedEventValid() &&  
-					alpha.containsImprecise(env.selectedObservableEvent()))
-			{
-				wait = false;
-				//If the selected event is not a tock event then we can evaluate
-				if(!(env.selectedObservableEvent() instanceof CmlTock))
-					setNext(next.first.apply(cmlEvaluationVisitor,next.second));
-				else
-				{
-					if(leftChild != null)
-						leftChild.execute(supervisor());
-					
-					if(rightChild != null)
-						rightChild.execute(supervisor());
-				}
-				
-				updateTrace(env.selectedObservableEvent());
-			}
-			//if no communication is selected by the supervisor or we cannot sync the selected events
-			//then we go to wait state and wait for channelEvent
-			else 
-			{
-				setState(CmlProcessState.WAIT);
-				wait = true;
-			}
+		{
+			notifyOnStateChange(CmlProcessState.WAIT);
+			wait = true;
 		}
 	}
 	
@@ -301,8 +286,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		return next;
 	}
 	
-	protected boolean aborted = false;
-	
 	@Override
 	public void setAbort(Reason reason) {
 
@@ -312,7 +295,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		
 		aborted = true;
 		
-		setState(CmlProcessState.FINISHED);
+		notifyOnStateChange(CmlProcessState.FINISHED);
 	}
 	
 	@Override
@@ -423,9 +406,10 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 			return false;
 	}
 	
-	protected void notifyOnStateChange(CmlProcessStateEvent event)
+	protected void notifyOnStateChange(CmlProcessState state)
 	{
-		stateEventhandler.fireEvent(event);
+		stateEventhandler.fireEvent(new CmlProcessStateEvent(this, state));
+		CmlRuntime.logger().finest(name() + ":" + state.toString());
 	}
 	
 	@Override
@@ -439,19 +423,9 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 	@Override
 	public CmlProcessState getState() {
-		return state;
+		return null;
 	}
 
-	protected void setState(CmlProcessState state) {
-		
-		if(getState() != state)
-		{
-			this.state = state;
-			notifyOnStateChange(new CmlProcessStateEvent(this, this.state, state));
-			CmlRuntime.logger().finest(name() + ":" + state.toString());
-		}
-	}
-	
 	/**
 	 * Denotational Semantics Information
 	 */
@@ -473,21 +447,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	public EventSource<CmlProcessTraceObserver> onTraceChanged()
 	{
 		return traceEventHandler;
-	}
-	
-	/**
-	 * common helper methods
-	 */
-	
-	/*
-	 * Child support -- we must help the children
-	 */
-	
-	protected void addChild(CmlBehaviour child)
-	{
-		//Add the child to the process graph
-		children().add(child);
-		supervisor().addPupil(child);
 	}
 
 	@Override

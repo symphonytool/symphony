@@ -5,21 +5,15 @@ import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 
 public class CmlProcessStateEvent extends Event<CmlBehaviour> {
 
-	private final CmlProcessState from;
-	private final CmlProcessState to;
+	private final CmlProcessState state;
 	
-	public CmlProcessStateEvent(CmlBehaviour source,CmlProcessState from, CmlProcessState to)
+	public CmlProcessStateEvent(CmlBehaviour source, CmlProcessState newState)
 	{
 		super(source);
-		this.from = from;
-		this.to = to;
+		this.state = newState;
 	}
-
-	public CmlProcessState getTo() {
-		return to;
-	}
-
-	public CmlProcessState getFrom() {
-		return from;
+	
+	public CmlProcessState getState() {
+		return state;
 	}
 }
