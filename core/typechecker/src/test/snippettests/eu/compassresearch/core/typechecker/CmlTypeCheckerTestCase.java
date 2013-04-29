@@ -63,7 +63,7 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 159
 		addTestProgram(testData, "process A = begin @ A [[ init <- start ]] end ", true, true, new String[0]);
 		// 160
-		addTestProgram(testData, "channels startStartRescue acceptStartRescue endStartRescue process P = begin actions A = startStartRescue -> acceptStartRescue -> endStartRescue -> B B = C C = Skip  @ Skip end",false, true, true, new String[0]);
+		addTestProgram(testData, "channels startStartRescue acceptStartRescue endStartRescue process P = begin actions A = startStartRescue -> acceptStartRescue -> endStartRescue -> B B = C C = Skip  @ Skip end", true, true, new String[0]);
 		// 161
 		addTestProgram(testData, "channels startStartRescue acceptStartRescue endStartRescue process P = begin actions A = startStartRescue -> acceptStartRescue -> endStartRescue -> B B = $T(target(C))", true, true, new String[0]);
 		// 162
@@ -110,7 +110,7 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 179 //
 		addTestProgram(testData, "class t = begin types A :: a : int state aa : A operations o:int==>int o(i) == return (aa.a + i) pre i > 0 post 0 = i end", true, true, new String[0]);
 		// 180 //
-		addTestProgram(testData, "process p = begin types A :: a : int state aa:A operations o:int==>int o(i) == return (aa.a + i) post aa~.a = i @ o(2) end",false,true,true,new String[0]);
+		addTestProgram(testData, "process p = begin types A :: a : int state aa:A operations o:int==>int o(i) == return (aa.a + i) post aa~.a = i @ o(2) end",true,true,new String[0]);
 		// 181
 		addTestProgram(testData, "types C = set of int inv c == c = {1,2,3}", true, true, new String[0]);
 		// 182
@@ -137,11 +137,11 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 187
 		addTestProgram(testData, "process K = begin operations A:int*int ==> bool A(a,b) == return (a=b) @ A(2) end", true, false, new String[0]);
 		// 188
-		addTestProgram(testData, "process L = begin operations A:int*int*int ==> bool A(a,b,c) == o(0);return (a+b=c) @ A(1,mk_(0,2)) end",false,true,false, new String[0]);
+		addTestProgram(testData, "process L = begin operations A:int*int*int ==> bool A(a,b,c) == o(0);return (a+b=c) @ A(1,mk_(0,2)) end",true,false, new String[0]);
 		// 189
 		addTestProgram(testData, "process L = begin state k : int operations K:int*int ==> int K(a,b) == for all i in set {1,2,3} do k := k + o @ Skip end", true, false, new String[0]);
 		// 190
-		addTestProgram(testData, "process L = begin state l : int @ || i in set {1,2,3} @ [{ }] l:=i end",false, true, true, new String[0]);
+		addTestProgram(testData, "process L = begin state l : int @ || i in set {1,2,3} @ [{ }] l:=i end", true, true, new String[0]);
 		// 191
 		addTestProgram(testData, "process O = begin state o : int @ for all i in set {1,2,3} do o := o + i end", true, true, new String[0]);
 		// 192
@@ -149,39 +149,39 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 193
 		addTestProgram(testData, "channels out: nat1 process S1 = || k in set {1,2,3} @ [{ }] begin @ out!k -> Skip end", true, true,new String[0]);
 		// 194
-		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {  } |] i in set {1,2,3} @ [{ c1 }] c1!i -> Skip end",false, true, false, new String[0]);
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {  } |] i in set {1,2,3} @ [{ c1 }] c1!i -> Skip end", true, false, new String[0]);
 		// 195
-		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {a } |] i in set {1,2,3} @ [{    }] c1!i -> Skip end",false, true, false, new String[0]);
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {a } |] i in set {1,2,3} @ [{    }] c1!i -> Skip end", true, false, new String[0]);
 		// 196
-		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {c1} |] i in set {1,2,3} @ [{  a }] c1!i -> Skip end",false, true, true, new String[0]);
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {c1} |] i in set {1,2,3} @ [{  a }] c1!i -> Skip end", true, true, new String[0]);
 		// 197
-		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { } |] i in set {1,2,3} @ [{   }] Skip end",false, true, true, new String[0]);
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { } |] i in set {1,2,3} @ [{   }] Skip end", true, true, new String[0]);
 		// 198
-		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {c1, a} |] i in set {1,2,3} @ [{   }] c1!i -> Skip end",false, true, false, new String[0]);
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| {c1, a} |] i in set {1,2,3} @ [{   }] c1!i -> Skip end", true, false, new String[0]);
 		// 199
-		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { } |] i in set {1,2,3} @ [{  c1, a }] c1!i -> Skip end",false, true, false, new String[0]);
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { } |] i in set {1,2,3} @ [{  c1, a }] c1!i -> Skip end", true, false, new String[0]);
 		// 200
-		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { } |] i in set {1,2,3} @ [{  a  }] c1!a -> Skip end",false, true, false, new String[0]);
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { } |] i in set {1,2,3} @ [{  a  }] c1!a -> Skip end", true, false, new String[0]);
 		// 201
-		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { c1 } |] i in set {1,2,3} @ [{   }] c1!a -> Skip end",false, true, false, new String[0]);
+		addTestProgram(testData, "channels c1:int*int process A = begin state a:int @ [| { c1 } |] i in set {1,2,3} @ [{   }] c1!a -> Skip end", true, false, new String[0]);
 		// 202
-		addTestProgram(testData, "process T = begin operations O: () ==> () O() == Skip @ O() end",false, true, true, new String[0]);
+		addTestProgram(testData, "process T = begin operations O: () ==> () O() == Skip @ O() end", true, true, new String[0]);
 		// 203
-		addTestProgram(testData, "process A = begin @ let b = 2 in [b = 2] & Skip end",false,true,true,new String[0]);
+		addTestProgram(testData, "process A = begin @ let b = 2 in [b = 2] & Skip end",true,true,new String[0]);
 		// 204
 		addTestProgram(testData, "values a : int = 42 process A = begin values b : int = 43 @Skip end", true, true, new String[0]);
 		// 205
-		addTestProgram(testData, "channels c process A = begin @ ||| k in set {1,2,3} @ [{ }]c!k -> Skip end",false, true, false, new String[0]);
+		addTestProgram(testData, "channels c process A = begin @ ||| k in set {1,2,3} @ [{ }]c!k -> Skip end", true, false, new String[0]);
 		// 207
-		addTestProgram(testData, "channels c:nat1 process A = begin @ ||| k in set {1,2,3} @ [{ }]c!k -> Skip end",false, true, true, new String[0]);
+		addTestProgram(testData, "channels c:nat1 process A = begin @ ||| k in set {1,2,3} @ [{ }]c!k -> Skip end", true, true, new String[0]);
 		// 208
-		addTestProgram(testData,"process K = begin actions INIT = Skip @ INIT() end",false,true,true,new String[0]);
+		addTestProgram(testData,"process K = begin actions INIT = Skip @ INIT() end",true,true,new String[0]);
 		// 209
-		addTestProgram(testData,"process K = begin operations INIT: () ==> () INIT() == Skip @ INIT() end",false,true,true,new String[0]);
+		addTestProgram(testData,"process K = begin operations INIT: () ==> () INIT() == Skip @ INIT() end",true,true,new String[0]);
 		// 210
-		addTestProgram(testData,"values m: map int to int = {  1 |-> 2 } process K = begin state l:int functions f:map int to int -> int f(m) == m(42) @ l := f(m) end",false,true,true,new String[0]);
+		addTestProgram(testData,"values m: map int to int = {  1 |-> 2 } process K = begin state l:int functions f:map int to int -> int f(m) == m(42) @ l := f(m) end",true,true,new String[0]);
 		// 211
-		addTestProgram(testData,"values m = {  1 |-> 2 } process K = begin state l:int operations f:map int to int ==> int f(m) == return m(42) @ l := f(m) end",false,true,true,new String[0]);
+		addTestProgram(testData,"values m = {  1 |-> 2 } process K = begin state l:int operations f:map int to int ==> int f(m) == return m(42) @ l := f(m) end",true,true,new String[0]);
 		// 212
 		addTestProgram(testData, "channels a: int types book = token values mbook = { mk_token(\"Book\") |-> 1} process P = begin @  a!(mbook(book))->Skip end", true,true, new String[0]);
 		// 213
@@ -191,7 +191,7 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 215
 		addTestProgram(testData, "channels c1: int process P = begin actions A = val r : int @ c1!r -> Skip @ Skip end", true, true, new String[0]);
 		// 216
-		addTestProgram(testData, "types Id ::   type : (<ERU> | <CC>) identifier : token ERUId = Id Location = token Criticality = nat inv c == c < 4 String = seq of char RescueDetails :: target : Location criticality : Criticality process CallCentreProc = begin state erus: set of ERUId eruRescues: map ERUId to RescueDetails inv dom eruRescues subset erus and (forall i in set erus @ i.type = <ERU>) operations reAllocateERU(eru : ERUId, r : RescueDetails) frame wr eruRescues : map ERUId to RescueDetails rd erus: set of ERUId pre eru in set erus and eru in set dom eruRescues and eruRescues(eru) <> r post eru in set dom eruRescues and eruRescues(eru) = r actions FORK1 = (dcl eru : ERUId @ (dcl r : RescueDetails @ (dcl oldr: RescueDetails @  reAllocateERU(eru,r)))) @ Skip end",false,true,true,new String[0]);
+		addTestProgram(testData, "types Id ::   type : (<ERU> | <CC>) identifier : token ERUId = Id Location = token Criticality = nat inv c == c < 4 String = seq of char RescueDetails :: target : Location criticality : Criticality process CallCentreProc = begin state erus: set of ERUId eruRescues: map ERUId to RescueDetails inv dom eruRescues subset erus and (forall i in set erus @ i.type = <ERU>) operations reAllocateERU(eru : ERUId, r : RescueDetails) frame wr eruRescues : map ERUId to RescueDetails rd erus: set of ERUId pre eru in set erus and eru in set dom eruRescues and eruRescues(eru) <> r post eru in set dom eruRescues and eruRescues(eru) = r actions FORK1 = (dcl eru : ERUId @ (dcl r : RescueDetails @ (dcl oldr: RescueDetails @  reAllocateERU(eru,r)))) @ Skip end",true,true,new String[0]);
 		// 217
 		addTestProgram(testData, "types SUBS = token STATUS = ( <ringing> | <speech> | <suspended>) values Connected = {<ringing>,<speech>,<suspended>} functions connected: (map SUBS to STATUS) * (map SUBS to SUBS) +> (inmap SUBS to SUBS) connected(status,number) == {} free: (map SUBS to STATUS) * (map SUBS to SUBS) * (set of SUBS) +> (set of SUBS) free(status,number,subs) == subs \\ dom(status) \\ rng(connected(status,number)) class Exchange = begin end", true, true, new String[0]);
 		// 218
@@ -203,29 +203,29 @@ public class CmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 221
 		addTestProgram(testData, "functions f: int -> int f(a) == a+1 pre a > 0 process P = begin @ f(2) end ", true, true, new String[0]);
 		// 222
-		addTestProgram(testData, "class C = begin operations public doit: int ==> () doit(a) == Skip end process P = begin state s : C @ s.doit(1) end",false,true,true,new String[0]);
+		addTestProgram(testData, "class C = begin operations public doit: int ==> () doit(a) == Skip end process P = begin state s : C @ s.doit(1) end",true,true,new String[0]);
 		// 223
 		addTestProgram(testData, "functions f: int -> int f(a) == a+1 pre a > 0 process P = begin @ pre_f(2) end ", true, true, new String[0]);
 		// 224
-		addTestProgram(testData, "types mac :: a:int b:int process P = begin functions f: mac * int -> int f(x,y) == x.a+y @ f(mk_mac(1,2),2) end",false, true, true, new String[0]);
+		addTestProgram(testData, "types mac :: a:int b:int process P = begin functions f: mac * int -> int f(x,y) == x.a+y @ f(mk_mac(1,2),2) end", true, true, new String[0]);
 		// 225
 		addTestProgram(testData, "functions f: int * int -> int f(x,y) == x+y pre x > 0 process P = begin actions A = [ pre_f(0,0) ] & Skip @ A end", true, true, new String[0]);
 		// 226
-		addTestProgram(testData,"types ERUId = nat RescueDetails ::a:int b:int process P = begin state erus : set of ERUId eruRescues : map ERUId to RescueDetails operations findIdleERUs() idleERUs: set of ERUId frame rd erus: set of ERUId rd eruRescues: map ERUId to RescueDetails post idleERUs = erus \\ dom eruRescues @ findIdleERUs() end",false,true,true,new String[0]);
+		addTestProgram(testData,"types ERUId = nat RescueDetails ::a:int b:int process P = begin state erus : set of ERUId eruRescues : map ERUId to RescueDetails operations findIdleERUs() idleERUs: set of ERUId frame rd erus: set of ERUId rd eruRescues: map ERUId to RescueDetails post idleERUs = erus \\ dom eruRescues @ findIdleERUs() end",true,true,new String[0]);
 		// 227
-		addTestProgram(testData,"channels c: nat values a : nat = 10 - 11 b:nat = 20 - 10 process A = begin actions B = c!(a-b)->Skip @ Skip end",false,true,true,new String[0]);
+		addTestProgram(testData,"channels c: nat values a : nat = 10 - 11 b:nat = 20 - 10 process A = begin actions B = c!(a-b)->Skip @ Skip end",true,true,new String[0]);
 		// 228
-		addTestProgram(testData,"process P = begin actions B = A1(1,2) A1 = val a:int, b: nat @ Skip  @ A1(1,1) end",false, true, true, new String[0]);
+		addTestProgram(testData,"process P = begin actions B = A1(1,2) A1 = val a:int, b: nat @ Skip  @ A1(1,1) end", true, true, new String[0]);
 		// 229
-		addTestProgram(testData,"types Day = nat AvailDB = map Day to nat functions CkAvail (d:Day,av:AvailDB) n:nat post n = av(d)",false,true,true,new String[0]);
+		addTestProgram(testData,"types Day = nat AvailDB = map Day to nat functions CkAvail (d:Day,av:AvailDB) n:nat post n = av(d)",true,true,new String[0]);
 		// 230
-		addTestProgram(testData, "class C = begin operations C:()==>C C() == Skip end",false,true,true,new String[0]);
+		addTestProgram(testData, "class C = begin operations C:()==>C C() == Skip end",true,true,new String[0]);
 		// 231
-		addTestProgram(testData, "class C = begin operations C:()==>C C() == Skip end process P = begin state c:C @ c := new C() end",false,true,true,new String[0]);
+		addTestProgram(testData, "class C = begin operations C:()==>C C() == Skip end process P = begin state c:C @ c := new C() end",true,true,new String[0]);
 		// 232
-		addTestProgram(testData, "process A = begin state i:int := 0 m:map int to (map int to int) @ m(0)(0) := 1 end",false,true,true,new String[0]);
+		addTestProgram(testData, "process A = begin state i:int := 0 m:map int to (map int to int) @ m(0)(0) := 1 end",true,true,new String[0]);
 		// 233
-		addTestProgram(testData, "process P = begin state a: nat * nat := mk_(0,0) t: (nat * nat) * (nat * nat) @ t.#1 := a end",false,true,true,new String[0]);
+		addTestProgram(testData, "process P = begin state a: nat * nat := mk_(0,0) t: (nat * nat) * (nat * nat) @ t.#1 := a end",true,true,new String[0]);
 		// 234
 		
 		return testData;
