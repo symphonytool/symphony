@@ -46,9 +46,10 @@ import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.events.AbstractChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
+import eu.compassresearch.core.interpreter.cml.events.CmlTau;
 import eu.compassresearch.core.interpreter.cml.events.CmlTock;
 import eu.compassresearch.core.interpreter.cml.events.CommunicationParameter;
 import eu.compassresearch.core.interpreter.cml.events.InputParameter;
@@ -93,7 +94,7 @@ public class AlphabetInspectVisitor
 	
 	private CmlAlphabet createSilentTransition(INode srcNode, INode dstNode, String transitionText)
 	{
-		return new CmlAlphabet(new CmlTock(ownerProcess),CmlEventFactory.newTauEvent(ownerProcess,srcNode,dstNode,transitionText));
+		return new CmlAlphabet(new CmlTock(ownerProcess),new CmlTau(ownerProcess,srcNode,dstNode,transitionText));
 		//return new CmlAlphabet(CmlEventFactory.newTauEvent(ownerProcess,srcNode,dstNode,transitionText));
 	}
 	
@@ -321,27 +322,7 @@ public class AlphabetInspectVisitor
 			@Override
 			public CmlAlphabet inspectChildren() {
 
-				//even though they are interleaved they should always sync on tock
-				CmlAlphabet cs =  new CmlAlphabet(new CmlTock());
-				
-				//Get all the child alphabets 
-				CmlAlphabet leftChildAlphabet = ownerProcess.getLeftChild().inspect();
-				CmlAlphabet rightChildAlphabet = ownerProcess.getRightChild().inspect();
-				
-				//Find the intersection between the child alphabets and the channel set and join them.
-				//Then if both left and right have them the next step will combine them.
-				CmlAlphabet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
-				
-				//combine all the tock events 
-				if(syncAlpha.getObservableEvents().size() == 2)
-				{
-					Iterator<ObservableEvent> it = syncAlpha.getObservableEvents().iterator(); 
-					return leftChildAlphabet.union(rightChildAlphabet).subtract(syncAlpha).union(it.next().synchronizeWith(it.next()));
-				}
-				else
-				{
-					return leftChildAlphabet.union(rightChildAlphabet);
-				}
+				return syncOnTockAndJoinChildren();
 			}
 		});
 	}
@@ -381,6 +362,31 @@ public class AlphabetInspectVisitor
 		return caseAExternalChoice(node,question);
 	}
 	
+	private CmlAlphabet syncOnTockAndJoinChildren()
+	{
+		//even though they are external choice/interleaving they should always sync on tock
+		CmlAlphabet cs =  new CmlAlphabet(new CmlTock());
+		
+		//Get all the child alphabets 
+		CmlAlphabet leftChildAlphabet = ownerProcess.getLeftChild().inspect();
+		CmlAlphabet rightChildAlphabet = ownerProcess.getRightChild().inspect();
+		
+		//Find the intersection between the child alphabets and the channel set and join them.
+		//Then if both left and right have them the next step will combine them.
+		CmlAlphabet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
+		
+		//combine all the tock events 
+		if(syncAlpha.getObservableEvents().size() == 2)
+		{
+			Iterator<ObservableEvent> it = syncAlpha.getObservableEvents().iterator(); 
+			return leftChildAlphabet.union(rightChildAlphabet).subtract(syncAlpha).union(it.next().synchronizeWith(it.next()));
+		}
+		else
+		{
+			return leftChildAlphabet.union(rightChildAlphabet);
+		}
+	}
+	
 	private CmlAlphabet caseAExternalChoice(INode node,
 			Context question) throws AnalysisException {
 		
@@ -396,13 +402,7 @@ public class AlphabetInspectVisitor
 		//else we join the childrens alphabets 
 		else
 		{
-			for(CmlBehaviour child : ownerProcess.children())
-			{
-				if(alpha == null)
-					alpha = calculateDeadlockFreeChildAlphabet(child);
-				else
-					alpha = alpha.union(calculateDeadlockFreeChildAlphabet(child));
-			}
+			return syncOnTockAndJoinChildren();
 		}
 		
 //		//if all children are waiting for events or are finished then we how to investigate further
@@ -563,7 +563,7 @@ public class AlphabetInspectVisitor
 	public CmlAlphabet caseASkipAction(ASkipAction node, Context question)
 			throws AnalysisException {
 		if(ownerProcess.finished())
-			return new CmlAlphabet();
+			return new CmlAlphabet(new CmlTock(ownerProcess));
 		else
 			return defaultPAction(node,question);
 	}
@@ -626,7 +626,7 @@ public class AlphabetInspectVisitor
 				params.add(param);
 			}
 			
-			AbstractChannelEvent observableEvent = CmlEventFactory.newCmlCommunicationEvent(ownerProcess, chanValue, params);
+			ChannelEvent observableEvent = CmlEventFactory.newCmlCommunicationEvent(ownerProcess, chanValue, params);
 			comset.add(observableEvent);
 		}
 		//TODO: do the rest here
@@ -653,7 +653,7 @@ public class AlphabetInspectVisitor
 			return createSilentTransition(node, node.getAction());
 		//else we return the empty alphabet since no transition is possible
 		else
-			return new CmlAlphabet();
+			return new CmlAlphabet(new CmlTock(ownerProcess));
 		
 	}
 	
@@ -720,6 +720,7 @@ public class AlphabetInspectVisitor
 			return createSilentTransition(node, null);
 		else
 			//were stuck so return empty alphabet
+			//FIXME actuially this diverges
 			return new CmlAlphabet();
 	}
 	

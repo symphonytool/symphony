@@ -53,11 +53,6 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 		return controlAccess.getHidingAlphabet();
 	}
 	
-	protected void mergeState(CmlBehaviour other)
-	{
-		controlAccess.mergeState(other);
-	}
-	
 	protected void setLeftChild(CmlBehaviour child)
 	{
 		this.controlAccess.setLeftChild(child);

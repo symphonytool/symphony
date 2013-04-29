@@ -24,25 +24,19 @@ public class CmlEventFactory {
 		return instance;
 	}
 	
-	public static CmlTau newTauEvent(CmlBehaviour source, INode transitionSrcNode, INode transitionDstNode, String transitionMessage)
-	{
-		return new CmlTau(source, transitionSrcNode,transitionDstNode,transitionMessage);
-	}
-	
-	
 	/*
 	 * prefix event factory methods 
 	 */
 	
-	public static AbstractChannelEvent newPrefixEvent(CmlBehaviour eventSource, CmlChannel channel) {
+	public static ChannelEvent newPrefixEvent(CmlBehaviour eventSource, CmlChannel channel) {
 		return new PrefixEvent(eventSource,channel);
 	}
 	
-	public static AbstractChannelEvent newPrefixEvent(Set<CmlBehaviour> eventSources, CmlChannel channel) {
+	public static ChannelEvent newPrefixEvent(Set<CmlBehaviour> eventSources, CmlChannel channel) {
 		return new PrefixEvent(eventSources,channel);
 	}
 	
-	public static AbstractChannelEvent newPrefixEvent(CmlChannel channel) {
+	public static ChannelEvent newPrefixEvent(CmlChannel channel) {
 		return new PrefixEvent(channel);
 	}
 	
@@ -50,12 +44,12 @@ public class CmlEventFactory {
 	 * communication event factory methods 
 	 */
 	
-	public static AbstractChannelEvent newCmlCommunicationEvent(CmlBehaviour source, CmlChannel channel, List<CommunicationParameter> params)
+	public static ChannelEvent newCmlCommunicationEvent(CmlBehaviour source, CmlChannel channel, List<CommunicationParameter> params)
 	{
 		return new CmlCommunicationEvent(source, channel, params);
 	}
 	
-	public static AbstractChannelEvent newCmlCommunicationEvent(CmlChannel channel, List<CommunicationParameter> params)
+	public static ChannelEvent newCmlCommunicationEvent(CmlChannel channel, List<CommunicationParameter> params)
 	{
 		return new CmlCommunicationEvent(channel, params);
 	}

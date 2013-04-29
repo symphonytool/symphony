@@ -19,6 +19,11 @@ import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
  */
 public class CmlAlphabet extends Value {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5192258370825756900L;
+	
 	//This contains the observable events
 	private final Set<ObservableEvent> _observableEvents;
 	//This contains all the special events like tau
@@ -201,7 +206,7 @@ public class CmlAlphabet extends Value {
 	{
 		Set<ObservableEvent> newReferenceEvents = new LinkedHashSet<ObservableEvent>();
 		newReferenceEvents.addAll(_observableEvents);
-		newReferenceEvents.removeAll(other.intersectImprecise(this).getObservableEvents());
+		newReferenceEvents.removeAll(this.intersectImprecise(other).getObservableEvents());
 		
 		return new CmlAlphabet(newReferenceEvents,specialEvents);
 	}

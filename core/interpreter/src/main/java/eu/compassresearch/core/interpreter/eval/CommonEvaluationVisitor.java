@@ -80,7 +80,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 			if (CmlBehaviourThreadUtility.isAllChildrenFinished(owner))
 				return caseParallelEnd(question);
 			else
-			//We push the current state,
+				//We push the current state,
 				return new Pair<INode,Context>(node, question);
 		}
 
@@ -123,9 +123,9 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	protected void caseParallelSyncOrNonsync(PVarsetExpression chansetExp, Context question) throws AnalysisException
 	{
 		//get the immediate alphabets of the left and right child
-		CmlBehaviour leftChild = children().get(0);
+		CmlBehaviour leftChild = owner.getLeftChild();
 		CmlAlphabet leftChildAlpha = leftChild.inspect(); 
-		CmlBehaviour rightChild = children().get(1);
+		CmlBehaviour rightChild = owner.getRightChild();
 		CmlAlphabet rightChildAlpha = rightChild.inspect();
 
 		//if both contains the selected event it must be a sync event

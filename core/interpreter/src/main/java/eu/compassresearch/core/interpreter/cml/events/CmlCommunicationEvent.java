@@ -156,7 +156,7 @@ class CmlCommunicationEvent extends AbstractChannelEvent {
 		
 		other = (CmlCommunicationEvent)obj;
 		
-		if(AbstractValueInterpreter.isMorePrecise(getValue(), other.getValue()))
+		if(AbstractValueInterpreter.isEquallyOrMorePrecise(getValue(), other.getValue()))
 			return this;
 		else
 			return other;

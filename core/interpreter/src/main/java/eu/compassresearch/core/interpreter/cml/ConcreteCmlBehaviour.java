@@ -20,7 +20,7 @@ import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
+import eu.compassresearch.core.interpreter.cml.events.CmlTau;
 import eu.compassresearch.core.interpreter.cml.events.CmlTock;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
@@ -120,12 +120,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 			}
 									
 			@Override
-			public void mergeState(CmlBehaviour other) {
-				ConcreteCmlBehaviour.this.replaceState((ConcreteCmlBehaviour)other);
-				
-			}
-			
-			@Override
 			public CmlAlphabet getHidingAlphabet() {
 				return hidingAlphabet;
 			}
@@ -194,22 +188,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	public String toString() {
 	
 		return name.toString();
-	}
-	
-	protected void replaceState(ConcreteCmlBehaviour other)
-	{
-//			replaceExistingContexts(other.next.second);
-//			//get the state replace the current state
-//			next = other.getExecutionStack();
-//			for(Pair<INode,Context> state : other.getExecutionStack())
-//				pushNext(state.first,state.second);
-//		}
-//		else
-//			throw new RuntimeException("bye bye");
-////		{
-////			pushNext(other.prevState().first, 
-////					other.prevState().second);
-////		}
 	}
 	
 	/**
@@ -295,7 +273,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
 		
 		for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
-			resultAlpha = resultAlpha.union(CmlEventFactory.newTauEvent(this,null,null," hiding " + obsEvent.toString()));	
+			resultAlpha = resultAlpha.union(new CmlTau(this,null,null," hiding " + obsEvent.toString()));	
 		return resultAlpha;
 	}
 	
@@ -433,8 +411,16 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	@Override
 	public boolean deadlocked() {
 		
-		//A Process is deadlocked if its immediate alphabet is empty
-		return !finished() && inspect().isEmpty();
+		CmlAlphabet alpha = inspect();
+		
+		//A Process is deadlocked if its immediate alphabet is only tock with no limit
+		if(alpha.getAllEvents().size() == 1 && alpha.getObservableEvents().size() == 1)
+		{
+			ObservableEvent obsEvent = alpha.getObservableEvents().iterator().next();
+			return (obsEvent instanceof CmlTock) && !((CmlTock) obsEvent).hasLimit();
+		}
+		else
+			return false;
 	}
 	
 	protected void notifyOnStateChange(CmlProcessStateEvent event)

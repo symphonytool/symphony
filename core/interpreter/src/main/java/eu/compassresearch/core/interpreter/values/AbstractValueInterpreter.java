@@ -21,9 +21,9 @@ public class AbstractValueInterpreter {
 //		else
 //		{
 			//The meet operator is relexive so if both are AnyValue we can return either of them
-			if(isAnyValue(val1) && isAnyValue(val2))
+			if(isValueMostPrecise(val1) && isValueMostPrecise(val2))
 				return val1;
-			else if(!isAnyValue(val1) && !isAnyValue(val2))
+			else if(!isValueMostPrecise(val1) && !isValueMostPrecise(val2))
 			{
 				//If both are a value and they differ the meet would be the set of of them, for now we
 				//just return the AnyValue
@@ -38,10 +38,10 @@ public class AbstractValueInterpreter {
 				else
 					return val1;
 			}
-			else if(isAnyValue(val1))
-				return val2;
-			else //if(isAnyValue(val2))
+			else if(isValueMostPrecise(val1))
 				return val1;
+			else //if(isAnyValue(val2))
+				return val2;
 //		}
 	}
 	
@@ -69,22 +69,21 @@ public class AbstractValueInterpreter {
 	}
 	
 	/**
-	 * Determines whether val1 is more precise than val2. A value is imprecise if it can be
+	 * Determines whether val1 is equally or more precise than val2. A value is imprecise if it is 
 	 * AnyValue.
 	 * @param val1
 	 * @param val2
 	 * @return
 	 */
-	public static boolean isMorePrecise(Value val1, Value val2)
+	public static boolean isEquallyOrMorePrecise(Value val1, Value val2)
 	{
 		//if both are undefined we 
-		if(!isValueMostPrecise(val1) && !isValueMostPrecise(val2))
-			return false;
-		else if(!isValueMostPrecise(val1))
-			return false;
-		else if(!isValueMostPrecise(val2))
+		if(isValueMostPrecise(val1) && isValueMostPrecise(val2) || 
+				!isValueMostPrecise(val1) && !isValueMostPrecise(val2))
 			return true;
-		else
+		else if(isValueMostPrecise(val1))
+			return true;
+		else //if(!isValueMostPrecise(val2))
 			return false;
 	}
 	
