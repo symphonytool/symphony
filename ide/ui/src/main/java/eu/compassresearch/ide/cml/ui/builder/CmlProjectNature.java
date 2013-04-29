@@ -26,12 +26,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.overture.ide.core.resources.VdmProjectNature;
 
 import eu.compassresearch.ide.cml.core.ICmlCoreConstants;
 
 
 
-public class CmlProjectNature implements IProjectNature
+public class CmlProjectNature extends VdmProjectNature
   {
     
     protected IProject project = null;
@@ -48,7 +49,6 @@ public class CmlProjectNature implements IProjectNature
     
     
     
-    @Override
     public void configure() throws CoreException
       {
 //        final String BUILDER_ID = "eu.compassresearch.ide.cml.ui.cmlbuilder";
