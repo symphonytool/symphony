@@ -1,6 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
-import static eu.compassresearch.core.typechecker.TestUtil.addTestProgram;
+
 
 import java.util.Collection;
 
@@ -10,18 +10,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(value = Parameterized.class)
 public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase{
-
-
-	@Parameters
-	public static Collection<Object[]> parameter() {
-		return testData;
-	}
-	
-	public TypesCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages) {
-		super(cmlSource, parsesOk, typesOk, errorMessages);
-	}
-	
 	static {
 		//0//
 		add("types A = real");
@@ -128,8 +116,21 @@ public class TypesCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase{
 		add("types A = map int to int B = A inv b == card dom(b) > 0");
 		//50// Failing because of LexNameToken conflict
 		add("types R :: r : int inv r == r.r>0");
-		//51//
-		
+		//51// set type w. invariant 
+		add("types C = set of int inv c == c = {1,2,3}");
+
 	}
+
+
+	@Parameters
+	public static Collection<Object[]> parameter() {
+		return testData.get(TypesCmlTypeCheckerTestCase.class);
+	}
+	
+	public TypesCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
+			boolean typesOk, String[] errorMessages) {
+		super(cmlSource, parsesOk, typesOk, errorMessages);
+	}
+	
 	
 }

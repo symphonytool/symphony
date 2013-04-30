@@ -1,6 +1,7 @@
 package eu.compassresearch.core.typechecker;
 
-import static eu.compassresearch.core.typechecker.TestUtil.addTestProgram;
+
+
 
 import java.util.Collection;
 
@@ -12,17 +13,6 @@ import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 
 @RunWith(value = Parameterized.class)
 public class ProcessCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
-
-	public ProcessCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages) {
-		super(cmlSource, parsesOk, typesOk, errorMessages);
-	}
-
-	@Parameters
-	public static Collection<Object[]> parameter() {
-		return testData;
-	}
-
 	static {
 		//0//
 		add("process p1 = begin @ Skip end");
@@ -62,9 +52,53 @@ public class ProcessCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		add("process A = begin @ Skip end process p1 = begin @ A ; Skip end",true, false,
 				new String[] { TypeErrorMessages.EXPECTED_AN_ACTION
 						.customizeMessage("A") });
-
 		//11//
-		add("class processafterclass = begin types aunion = nat          functions g:int -> aunion g(a) == if (a = 0) then  <None> else a end process A = A ; B", true, false);
+		add("class processafterclass = begin types aunion = nat functions g:int -> aunion g(a) == if (a = 0) then  <None> else a end process A = A ; B", true, false);
+		//12//
+		add("process K = begin state a:int operations o: int ==> int o(b) == if a = 0 then a:=b; return a @ a := o(10) end");
+		//13//
+		add("process K = begin state a:int operations o: int ==> int o(b) == if a = 0 then a:=b+1 elseif a > 1 then a := b - a else a := 0 ; return a @ a := o(9) end");
+		//14//
+		add("process K = begin state a:int operations o: int ==> int o(b) == if a = 0 then a:=b+1 elseif 1 then a := b - a else a := 0 ; return a @ a := o(9) end");
+		//15//
+		add("process K = begin state a:int operations o: int ==> int o(b) == if a = 0 then a:=b+1 elseif a > 1 then a:='a' else a := 0 ; return a @ a := o(9) end");
+		//16//
+		add("process K = begin state a:int operations o: int ==> int o(b) == if a = 0 then a:=b+1 elseif a > 1 then a:=b-a else a := 'l' ; return a @ a := o(9) end");
+		//17//
+		add("process K = begin state a:int operations o: int ==> int o(b) == if a = 0 then a:=b+1 elseif a > 1 then a:=b-a else a := 0 ; return a @ a := o('l') end");
+		//18//
+		add("process A = begin actions B = val n:int @ Skip @ (||| i in set {1,2,3} @ [ { } ] B(i)) end");
+		//19//
+		add("process A = begin @ A [[ init <- start ]] end ");
+		//20//
+		add("process K = begin operations A:int*int ==> bool A(a,b) == return (a=b) @ A(2) end");
+		//21//
+		add("process L = begin operations A:int*int*int ==> bool A(a,b,c) == o(0);return (a+b=c) @ A(1,mk_(0,2)) end");
+		//22//
+		add("process L = begin state k : int operations K:int*int ==> int K(a,b) == for all i in set {1,2,3} do k := k + o @ Skip end");
+		//23//
+		add("process L = begin state l : int @ || i in set {1,2,3} @ [{ }] l:=i end");
+		//24//
+		add("process O = begin state o : int @ for all i in set {1,2,3} do o := o + i end");
+		//25//
+		add("process M = begin @ Skip end process L = begin @ Stop end process K = || i in set {1,2,3} @ [{ }] (M [| {| inp.k | k in set {5,6,7} |} union {| out.k | k in set {5,6,7} |} |] L)");
+		//26// old-record in operation
+		add("process p = begin types A :: a : int state aa:A operations o:int==>int o(i) == return (aa.a + i) post aa~.a = i @ o(2) end");
+
+
 	}
+
 	
+
+	public ProcessCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
+			boolean typesOk, String[] errorMessages) {
+		super(cmlSource, parsesOk, typesOk, errorMessages);
+	}
+
+	@Parameters
+	public static Collection<Object[]> parameter() {
+		return testData.get(ProcessCmlTypeCheckerTestCase.class);
+	}
+
+
 }

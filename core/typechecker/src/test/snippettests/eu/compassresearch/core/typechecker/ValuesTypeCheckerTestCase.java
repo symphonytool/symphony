@@ -1,6 +1,5 @@
 package eu.compassresearch.core.typechecker;
 
-import static eu.compassresearch.core.typechecker.TestUtil.addTestProgram;
 
 import java.util.Collection;
 
@@ -10,16 +9,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(value = Parameterized.class)
 public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase{
-	public ValuesTypeCheckerTestCase(String cmlSource, boolean parsesOk,
-			boolean typesOk, String[] errorMessages) {
-		super(cmlSource, parsesOk, typesOk, errorMessages);
-	}
-
-	@Parameters
-	public static Collection<Object[]> parameter() {
-		return testData;
-	}
-
 	static {
 		//0// int literal
 		add("class test = begin values public a:int=42 end");
@@ -254,10 +243,21 @@ public class ValuesTypeCheckerTestCase extends AbstractTypeCheckerTestCase{
 		// 115 TODO: So should we support unicode characters in identifiers?
 		add("class evil_letters_æøå = begin values even:int = fn_int_to_int( 10 ) end");
 		
-		addTestProgram(testData, "values a:int = 1 \n b : int = a ", true,
-				true, new String[0]);
+		add("values a:int = 1 \n b : int = a ");
 
 		add("values k : int = 2 class test = begin state a : int := k end");
+	}
+
+	
+	
+	public ValuesTypeCheckerTestCase(String cmlSource, boolean parsesOk,
+			boolean typesOk, String[] errorMessages) {
+		super(cmlSource, parsesOk, typesOk, errorMessages);
+	}
+
+	@Parameters
+	public static Collection<Object[]> parameter() {
+		return testData.get(ValuesTypeCheckerTestCase.class);
 	}
 
 }

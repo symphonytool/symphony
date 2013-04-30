@@ -13,7 +13,6 @@ import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.ANatOneNumericBasicType;
 import org.overture.ast.types.AOptionalType;
 import org.overture.ast.types.ARationalNumericBasicType;
-import org.overture.ast.types.ARealNumericBasicType;
 import org.overture.ast.types.ASeq1SeqType;
 import org.overture.ast.types.ASeqSeqType;
 import org.overture.ast.types.ASetType;
@@ -22,7 +21,6 @@ import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SBasicType;
 import org.overture.ast.types.SSeqType;
-import org.overture.typechecker.assistant.type.AMapMapTypeAssistantTC;
 
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 
@@ -34,8 +32,8 @@ class SimpleTypeComparator implements TypeComparator {
 	 */
 	private static class TypePair {
 		private static final int LARGEST_31_BITS_PRIME = 0x7FFFFFFF;
-		private PType from;
-		private PType to;
+		private final PType from;
+		private final PType to;
 
 		public TypePair(PType from, PType to) {
 			this.from = from;
@@ -75,7 +73,7 @@ class SimpleTypeComparator implements TypeComparator {
 	}
 
 	@SuppressWarnings("unused")
-	private Environment<PType> typeEnvironment;
+	private final Environment<PType> typeEnvironment;
 
 	// only created through factory method
 	private SimpleTypeComparator(Environment<PType> env) {
@@ -145,48 +143,47 @@ class SimpleTypeComparator implements TypeComparator {
 	private static final Map<Class<?>, List<Class<?>>> fixedSubTypeRelations;
 	static {
 		fixedSubTypeRelations = new HashMap<Class<?>, List<Class<?>>>();
-		List<Class<?>> basic = Arrays.asList(new Class<?>[] { ARationalNumericBasicType.class, AIntNumericBasicType.class, ANatNumericBasicType.class, ANatOneNumericBasicType.class});
+		List<Class<?>> basic = Arrays.asList(new Class<?>[] {
+				ARationalNumericBasicType.class, AIntNumericBasicType.class,
+				ANatNumericBasicType.class, ANatOneNumericBasicType.class });
 
-		for(Class<?> b : basic) 
+		for (Class<?> b : basic)
 			fixedSubTypeRelations.put(b, basic);
-/*
-		
-		
-		fixedSubTypeRelations.put(AIntNumericBasicType.class,
-				Arrays.asList(new Class<?>[] { ANatNumericBasicType.class }));
-		fixedSubTypeRelations
-				.put(ANatNumericBasicType.class,
-						Arrays.asList(new Class<?>[] { ANatOneNumericBasicType.class }));
-		fixedSubTypeRelations.put(ARationalNumericBasicType.class,
-				Arrays.asList(new Class<?>[] { AIntNumericBasicType.class }));
-		fixedSubTypeRelations.put(
-				ARealNumericBasicType.class,
-				Arrays.asList(new Class<?>[] { AIntNumericBasicType.class,
-						ARationalNumericBasicType.class }));
-		// fixedSubTypeRelations.put(ANatNumericBasicType.class, Arrays.asList(new Class<?>[] {ARealNumericBasicType.class}));
-*/
+		/*
+		 * 
+		 * 
+		 * fixedSubTypeRelations.put(AIntNumericBasicType.class,
+		 * Arrays.asList(new Class<?>[] { ANatNumericBasicType.class }));
+		 * fixedSubTypeRelations .put(ANatNumericBasicType.class,
+		 * Arrays.asList(new Class<?>[] { ANatOneNumericBasicType.class }));
+		 * fixedSubTypeRelations.put(ARationalNumericBasicType.class,
+		 * Arrays.asList(new Class<?>[] { AIntNumericBasicType.class }));
+		 * fixedSubTypeRelations.put( ARealNumericBasicType.class,
+		 * Arrays.asList(new Class<?>[] { AIntNumericBasicType.class,
+		 * ARationalNumericBasicType.class })); //
+		 * fixedSubTypeRelations.put(ANatNumericBasicType.class,
+		 * Arrays.asList(new Class<?>[] {ARealNumericBasicType.class}));
+		 */
 	}
 
 	private static boolean checkClosureOnFixedTypeRelation(Class<?> top,
 			Class<?> bottom) {
-		
+
 		if (top == bottom)
 			return true;
 
 		if (fixedSubTypeRelations.containsKey(top)) {
 			return fixedSubTypeRelations.get(top).contains(bottom);
 		}
-		
-		
-	/*	if (fixedSubTypeRelations.containsKey(top)) {
-			boolean f = false;
-			for (Class<?> candidate : fixedSubTypeRelations.get(top))
-				f |= checkClosureOnFixedTypeRelation(candidate, bottom);
-			return f;
-		}*/
+
+		/*
+		 * if (fixedSubTypeRelations.containsKey(top)) { boolean f = false; for
+		 * (Class<?> candidate : fixedSubTypeRelations.get(top)) f |=
+		 * checkClosureOnFixedTypeRelation(candidate, bottom); return f; }
+		 */
 
 		return false;
-		
+
 	}
 
 	/*
@@ -200,17 +197,15 @@ class SimpleTypeComparator implements TypeComparator {
 		// un-pack types
 		TypePair pair = obtainFundamentalTypes(sup, sub);
 
-		if (sub instanceof AMapMapType)
-		{
-			if (sup instanceof AMapMapType)
-			{
-				AMapMapType subMap = (AMapMapType)sub;
-				AMapMapType supMap = (AMapMapType)sup;
-				return isSubType(subMap.getFrom(), supMap.getFrom()) && isSubType(subMap.getTo(), supMap.getTo());
+		if (sub instanceof AMapMapType) {
+			if (sup instanceof AMapMapType) {
+				AMapMapType subMap = (AMapMapType) sub;
+				AMapMapType supMap = (AMapMapType) sup;
+				return isSubType(subMap.getFrom(), supMap.getFrom())
+						&& isSubType(subMap.getTo(), supMap.getTo());
 			}
 		}
 
-		
 		// Basic or built-in types can be handled by this
 		boolean fixedTypes = checkClosureOnFixedTypeRelation(
 				pair.from.getClass(), pair.to.getClass());
@@ -245,8 +240,6 @@ class SimpleTypeComparator implements TypeComparator {
 				return isSubType(innerToType, innerFromType);
 			}
 		}
-		
-		
 
 		return fixedTypes;
 	}
@@ -256,12 +249,13 @@ class SimpleTypeComparator implements TypeComparator {
 		boolean resolved = false;
 
 		while (!resolved) {
-			
+
 			if (to instanceof ASeqSeqType) {
 				PType ofToType = ((ASeqSeqType) to).getSeqof();
 				if (from instanceof ASeqSeqType) {
 					PType ofFromType = ((ASeqSeqType) from).getSeqof();
-					to = ofToType;from=ofFromType;
+					to = ofToType;
+					from = ofFromType;
 				}
 			}
 
@@ -269,11 +263,11 @@ class SimpleTypeComparator implements TypeComparator {
 				PType ofToType = ((ASeq1SeqType) to).getSeqof();
 				if (from instanceof ASeqSeqType) {
 					PType ofFromType = ((ASeqSeqType) from).getSeqof();
-					to = ofToType;from=ofFromType;
+					to = ofToType;
+					from = ofFromType;
 				}
 			}
 
-			
 			if (to instanceof ABracketType) {
 				to = ((ABracketType) to).getType();
 				continue;
@@ -319,8 +313,6 @@ class SimpleTypeComparator implements TypeComparator {
 
 			resolved = true;
 		}
-		
-		
 
 		if (resolved)
 			return new TypePair(to, from);

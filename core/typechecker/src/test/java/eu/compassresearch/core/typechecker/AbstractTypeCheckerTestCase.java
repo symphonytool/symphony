@@ -3,15 +3,16 @@ package eu.compassresearch.core.typechecker;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.junit.Assert;
+import junit.framework.Assert;
+
 import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
 import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.ast.program.AInputStreamSource;
@@ -37,7 +38,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
 public abstract class AbstractTypeCheckerTestCase {
 	
 	// Collected test from static initializer in subclasses
-	protected static List<Object[]> testData = new LinkedList<Object[]>();
+	protected static Map<Class<?>,List<Object[]>> testData = new HashMap<Class<?>,List<Object[]>>();
 
 	// The parameters of each test
 	protected List<PSource> sources;
@@ -48,12 +49,20 @@ public abstract class AbstractTypeCheckerTestCase {
 	// A number to uniquely identify each test-method
 	private static int no;
 
-	// Tell junit here are the tests
-	@Parameters
-	public static Collection<Object[]> parameter() {
-		return testData;
+	// Get class of caller, add test data entry if not already existing and return it
+	private static List<Object[]> getTestDataForCallerClass() {
+		try {
+			StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+			String callerClassFQCN = stack[4].getClassName();
+			Class<?> clz = AbstractTypeCheckerTestCase.class.getClassLoader().loadClass(callerClassFQCN);
+			if (testData.containsKey(clz))
+				return testData.get(clz);
+			else
+				testData.put(clz,new LinkedList<Object[]>());
+			return testData.get(clz);
+		} catch(Exception e) {return null;}
 	}
-
+	
 	/**
 	 * Add a test scenario based on a single cml-source-text
 	 * 
@@ -69,7 +78,7 @@ public abstract class AbstractTypeCheckerTestCase {
 	 * @param err - which errors in case of !tc
 	 */
 	protected static void add(String src,boolean parseok, boolean tcok,String[] err) {
-		TestUtil.addTestProgram(testData, src, new Object[] {parseok,tcok, err});
+		TestUtil.addTestProgram(getTestDataForCallerClass(), src, new Object[] {parseok,tcok, err});
 	}
 
 	/**
@@ -89,7 +98,7 @@ public abstract class AbstractTypeCheckerTestCase {
 	 * @param name
 	 */
 	protected static void add(String src,boolean parseok, boolean tcok,String[] err, String name) {
-		TestUtil.addTestProgram(testData, src, new Object[] {parseok,tcok, err, name});
+		TestUtil.addTestProgram(getTestDataForCallerClass(), src, new Object[] {parseok,tcok, err, name});
 	}
 
 	/**
@@ -104,7 +113,7 @@ public abstract class AbstractTypeCheckerTestCase {
 	 * @param tcok
 	 */
 	protected static void add(String src,boolean parseok, boolean tcok) {
-		TestUtil.addTestProgram(testData, src, new Object[] {parseok,tcok, new String[0]});
+		TestUtil.addTestProgram(getTestDataForCallerClass(), src, new Object[] {parseok,tcok, new String[0]});
 	}
 
 	/**
@@ -163,7 +172,7 @@ public abstract class AbstractTypeCheckerTestCase {
 		o[1] = parsesok;
 		o[2] = tcok;
 		o[3] = new String[0];
-		testData.add(o);
+		getTestDataForCallerClass().add(o);
 	}
 
 	/**
@@ -234,11 +243,11 @@ public abstract class AbstractTypeCheckerTestCase {
 	}
 
 	/**
-	 * The Test ! 
+	 * The Test ! It proceeds as follows:
 	 * 
 	 * [1] Parse and Type check all sources
 	 * [2] Check parser result and report errors if any
-	 * [3] Check type checker and report error if any unexpected ones
+	 * [3] Check type checker result and report error if any unexpected ones
 	 * [4] Check the expected errors are there (if any)
 	 * 
 	 * @throws IOException
@@ -280,5 +289,4 @@ public abstract class AbstractTypeCheckerTestCase {
 		}
 
 	}
-
 }

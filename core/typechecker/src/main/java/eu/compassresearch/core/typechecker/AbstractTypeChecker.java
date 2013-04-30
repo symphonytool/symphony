@@ -1,7 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.overture.ast.types.PType;
 

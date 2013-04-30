@@ -7,8 +7,13 @@ import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.types.PType;
 
-import eu.compassresearch.ast.lex.LexIdentifierToken;
-
+/**
+ * The CML environment.
+ * 
+ * 
+ * @author rwl
+ * 
+ */
 public interface TypeCheckQuestion {
 
 	/**
@@ -42,7 +47,8 @@ public interface TypeCheckQuestion {
 	 * @param name
 	 * @param channel
 	 */
-	public abstract void addChannel(ILexIdentifierToken name, PDefinition channel);
+	public abstract void addChannel(ILexIdentifierToken name,
+			PDefinition channel);
 
 	/**
 	 * Given a name lookup the corresponding variable definition for that name.
@@ -70,7 +76,8 @@ public interface TypeCheckQuestion {
 	 *            - The definition that defines and encapsulates this scope
 	 * @return
 	 */
-	public abstract TypeCheckQuestion newScope(SClassDefinition surroundingDefinition);
+	public abstract TypeCheckQuestion newScope(
+			SClassDefinition surroundingDefinition);
 
 	/**
 	 * Takes an INode and set the module parameter to the current scope. The
@@ -95,7 +102,22 @@ public interface TypeCheckQuestion {
 	public abstract org.overture.typechecker.Environment getOvertureEnvironment()
 			throws AnalysisException;
 
+	/**
+	 * Get the global definitions currently in the environment.
+	 * 
+	 * TODO: Why?
+	 * 
+	 * @return
+	 */
 	public abstract PDefinition getGlobalClassDefinitions();
 
+	/**
+	 * Set the current global top-level class.
+	 * 
+	 * TODO: Would you ever replace the entire root environment ? This looks
+	 * like an implementation specific thing shining through the interface !
+	 * 
+	 * @param globalRoot
+	 */
 	public abstract void setGlobalClassDefinitions(SClassDefinition globalRoot);
 }

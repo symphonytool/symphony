@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.accessibility.AccessibleStreamable;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonToken;

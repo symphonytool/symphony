@@ -1,7 +1,6 @@
 package eu.compassresearch.core.typechecker;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.types.PType;
@@ -17,6 +16,31 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 /**
  * Class to create instances of the Vanilla type checker package.
  * 
+ * To create a CmlTypeChecker instance use the (@code newTypeChecher) method
+ * providing an AST in the form of a list of Paragraphs and an issue handler.
+ * The issue handler is created with newColectingIssueHandler and will contain
+ * all errors and warnings produced by the type checker. Additionally the
+ * provided AST-paragraph's will have their type fields updated.
+ * 
+ * The type checker gives the following guarantees (some in theory):
+ * 
+ * [1] Any model that passes the type checker is referentially sound
+ * 
+ * [2] Any model that passes the type checker has an interpretable subset that
+ * the interpreter can interpret, unless a proof obligation is created and not
+ * satisfied.
+ * 
+ * Canonical Usage:
+ * 
+ * CmlTypeChecker checker = VanillaFactory.newTypeChecker( listOfPSources,
+ * errorsOut );
+ * 
+ * boolean modelIsWellTyped = checker.typeCheck();
+ * 
+ * if (!modelIsWellTyped) { [report errors using errorsOut] }
+ * 
+ * Is is possible to create instances of sub-components of the type checker for
+ * extensibility. This is still work in progress.
  * 
  * @author rwl
  * 
@@ -59,12 +83,15 @@ public final class VanillaFactory {
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlDefinitionAndDeclarationVisitor(
 			CmlTypeChecker parentChecker, TypeComparator compareTypes,
 			TypeIssueHandler issueHandler) {
-//		TCDeclAndDefVisitor v = new TCDeclAndDefVisitor(
-//				(VanillaCmlTypeChecker) parentChecker, compareTypes,
-//				issueHandler);
-		// TODO RWL: Fix this. The Cycle detection should be refactored into a strategy 
-		// which can be null and if that is the case we use Declared order for actions !.
-		throw new UnsupportedOperationException("At this time the TCDeclAndDefVisitor implementation is entangled with the TCActionVisitor disallowing craetion of stand alone TCDeclAndDef vistors.");
+		// TCDeclAndDefVisitor v = new TCDeclAndDefVisitor(
+		// (VanillaCmlTypeChecker) parentChecker, compareTypes,
+		// issueHandler);
+		// TODO RWL: Fix this. The Cycle detection should be refactored into a
+		// strategy
+		// which can be null and if that is the case we use Declared order for
+		// actions !.
+		throw new UnsupportedOperationException(
+				"At this time the TCDeclAndDefVisitor implementation is entangled with the TCActionVisitor disallowing craetion of stand alone TCDeclAndDef vistors.");
 	}
 
 	/**
@@ -116,9 +143,11 @@ public final class VanillaFactory {
 	 *            TypeIssueHandler.
 	 */
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlExpressionVisitor(
-			CmlTypeChecker parentChecker, TypeIssueHandler issueHandler, TypeComparator typeComparator) {
+			CmlTypeChecker parentChecker, TypeIssueHandler issueHandler,
+			TypeComparator typeComparator) {
 		TCExpressionVisitor exprVisitor = new TCExpressionVisitor(
-				(VanillaCmlTypeChecker) parentChecker, issueHandler, typeComparator);
+				(VanillaCmlTypeChecker) parentChecker, issueHandler,
+				typeComparator);
 		return exprVisitor;
 	}
 
@@ -139,14 +168,27 @@ public final class VanillaFactory {
 	/**
 	 * Returns an instance of the default issue handle in the package.
 	 * 
+	 * @param reg
+	 *            - provide a registry in which error are also placed.
 	 * @return
 	 */
 	public static TypeIssueHandler newCollectingIssueHandle(Registry reg) {
 		return new CollectingIssueHandler(reg);
 	}
-	
+
+	/**
+	 * Returns an instance of the default issue handler in the TC package.
+	 * 
+	 * Static access to the default common-Regsitry instance is used.
+	 * 
+	 * NOTE! IssueHandlers and Registry are entangled behind the screens, this
+	 * is unnecessary and should be re-factored at some point. RWL
+	 * 
+	 * @return
+	 */
 	public static TypeIssueHandler newCollectingIssueHandle() {
-		return new CollectingIssueHandler(RegistryFactory.getInstance().getRegistry());
+		return new CollectingIssueHandler(RegistryFactory.getInstance()
+				.getRegistry());
 	}
 
 }
