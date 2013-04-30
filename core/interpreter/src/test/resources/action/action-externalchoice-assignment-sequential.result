@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testResult type="eu.compassresearch.core.interpreter.tests.framework.ProcessTestCase">
-	<result>
-		<trace>
-			<visibleTrace>a;c</visibleTrace>
-			<visibleTrace>b;c</visibleTrace>
-		</trace>
-		
-	</result>
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <processState>Skip</processState>
+  <trace>
+    <events>a,c</events>
+    <events>b,c</events>
+    <timedTrace/>
+  </trace>
 </testResult>

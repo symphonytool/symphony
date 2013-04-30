@@ -35,16 +35,16 @@ public class ExpectedTestResult {
 			
 			//parse the type of the result
 			boolean shouldFail = false;
-			NodeList typeNl = docEle.getElementsByTagName("type");
+			NodeList typeNl = docEle.getElementsByTagName("exception");
 
 			if(typeNl != null && typeNl.getLength() > 0)
 			{
-				if(typeNl.item(0).getFirstChild().getNodeValue().equals("fail"))
+				if(typeNl.item(0).getNodeValue() != null)
 					shouldFail = true;
 			}
 			
 			//get a nodelist of elements
-			NodeList nl = docEle.getElementsByTagName("visibleTrace");
+			NodeList nl = docEle.getElementsByTagName("events");
 			
 			List<List<String>> traces = new LinkedList<List<String>>();
 						
@@ -59,7 +59,7 @@ public class ExpectedTestResult {
 				{
 					String value = n.getFirstChild().getNodeValue();
 
-					for(String s : value.split(";"))
+					for(String s : value.split(",(?! )"))
 					{
 						trace.add(s);
 					}

@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testResult type="eu.compassresearch.core.interpreter.tests.framework.ProcessTestCase">
-	<result>
-		<trace>
-			<visibleTrace>a;b</visibleTrace>
-			<visibleTrace>b;a</visibleTrace>
-		</trace>
-	</result>
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <processState>Skip</processState>
+  <trace>
+    <events>a,b</events>
+    <timedTrace/>
+  </trace>
 </testResult>
