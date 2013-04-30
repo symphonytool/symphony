@@ -8,11 +8,15 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
 public class CmlTock extends AbstractCmlEvent implements ObservableEvent {
 
-	private final int limit;
+	private final long limit;
+	
+	public CmlTock(CmlBehaviour eventSource, long limit) {
+		super(eventSource);
+		this.limit = limit;
+	}
 	
 	public CmlTock(CmlBehaviour eventSource) {
-		super(eventSource);
-		limit = 0;
+		this(eventSource,0);
 	}
 	
 	public CmlTock() {
@@ -44,7 +48,7 @@ public class CmlTock extends AbstractCmlEvent implements ObservableEvent {
 		return equals(other);
 	}
 	
-	public int getLimit()
+	public long getLimit()
 	{
 		return limit;
 	}

@@ -13,6 +13,7 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.interpreter.runtime.Context;
+import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
@@ -32,6 +33,7 @@ import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AValParametrisation;
+import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.PParametrisation;
@@ -45,6 +47,8 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.events.AbstractChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTock;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ActionValue;
@@ -486,6 +490,23 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		muContext.putAllNew(nvpl);
 		
 		return res;
+	}
+	
+	@Override
+	public Pair<INode, Context> caseAWaitAction(AWaitAction node,
+			Context question) throws AnalysisException {
+
+		int nTocks = 0;
+		//Evaluate the expression into a natural number
+		long val = node.getExpression().apply(cmlExpressionVisitor,question).natValue(question);
+		//Extract the number of tocks in the current trace
+		for(CmlEvent ev : owner.getTraceModel().getTrace())
+			if(ev instanceof CmlTock)
+				nTocks++;
+		if(nTocks >= val)
+			return new Pair<INode, Context>(new ASkipAction(), question);
+		else
+			return new Pair<INode, Context>(node, question);
 	}
 	
 //	private void doMuReplace(PAction action, final AMuAction muAction, final LexIdentifierToken id) throws AnalysisException

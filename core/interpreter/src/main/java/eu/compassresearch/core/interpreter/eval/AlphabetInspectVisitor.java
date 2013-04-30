@@ -30,6 +30,7 @@ import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
+import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
@@ -58,6 +59,7 @@ import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
 import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
@@ -773,4 +775,21 @@ public class AlphabetInspectVisitor
 		return createSilentTransition(node,node.getAction());
 	}
 	
+	@Override
+	public CmlAlphabet caseAWaitAction(AWaitAction node, Context question)
+			throws AnalysisException {
+		long nTocks = 0;
+		//Evaluate the expression into a natural number
+		long val = node.getExpression().apply(cmlEvaluator,question).natValue(question);
+		//Extract the number of tocks in the current trace
+		for(CmlEvent ev : ownerProcess.getTraceModel().getTrace())
+			if(ev instanceof CmlTock)
+				nTocks++;
+		
+		if(nTocks >= val)
+			return createSilentTransition(node, null,"Wait ended");
+		else
+			//Behave as Stop
+			return new CmlAlphabet(new CmlTock(ownerProcess,nTocks-val));
+	}
 }
