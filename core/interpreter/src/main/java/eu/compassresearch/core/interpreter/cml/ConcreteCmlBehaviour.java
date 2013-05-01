@@ -15,14 +15,14 @@ import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
-import eu.compassresearch.ast.actions.AStopAction;
 import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlTau;
 import eu.compassresearch.core.interpreter.cml.events.CmlTock;
+import eu.compassresearch.core.interpreter.cml.events.HiddenEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
 import eu.compassresearch.core.interpreter.eval.AbstractSetupVisitor;
@@ -260,7 +260,8 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
 
 		for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
-			resultAlpha = resultAlpha.union(new CmlTau(this,null,null," hiding " + obsEvent.toString()));	
+			if(obsEvent instanceof ChannelEvent)
+				resultAlpha = resultAlpha.union(new HiddenEvent(this,(ChannelEvent)obsEvent));	
 		return resultAlpha;
 	}
 

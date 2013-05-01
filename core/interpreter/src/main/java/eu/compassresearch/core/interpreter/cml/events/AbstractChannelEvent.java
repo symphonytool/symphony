@@ -47,13 +47,6 @@ abstract class AbstractChannelEvent extends AbstractCmlEvent implements ChannelE
 	}
 
 	/**
-	 * This creates a synchronized event between this and other.
-	 * @param other
-	 * @return The synchronized event 
-	 */
-	public abstract ObservableEvent synchronizeWith(ObservableEvent other);
-		
-	/**
 	 * Two Observable events are comparable if the are occurring on the same channel and
 	 * the sources of one must either be a subset of the other or equal to.
 	 * 

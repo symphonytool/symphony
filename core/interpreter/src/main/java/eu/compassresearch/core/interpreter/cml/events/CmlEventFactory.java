@@ -19,7 +19,7 @@ public class CmlEventFactory {
 	public static CmlTau referenceTauEvent()
 	{
 		if(instance == null)
-			instance = new CmlTau(null,null,null,"referenceTau");
+			instance = new SilentEvent(null,null,null,"referenceTau");
 		
 		return instance;
 	}

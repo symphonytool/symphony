@@ -4,6 +4,9 @@
   <interpreterState>TERMINATED</interpreterState>
   <trace>
     <events>c,a,b,e,a</events>
+    <events>c,a,b,a,e</events>
+    <events>a,c,b,e,a</events>
+    <events>a,c,b,a,e</events>
     <timedTrace/>
   </trace>
 </testResult>

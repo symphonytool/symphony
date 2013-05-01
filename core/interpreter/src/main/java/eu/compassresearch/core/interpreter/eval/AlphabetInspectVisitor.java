@@ -47,19 +47,17 @@ import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
-import eu.compassresearch.core.interpreter.cml.events.CmlTau;
 import eu.compassresearch.core.interpreter.cml.events.CmlTock;
 import eu.compassresearch.core.interpreter.cml.events.CommunicationParameter;
 import eu.compassresearch.core.interpreter.cml.events.InputParameter;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
+import eu.compassresearch.core.interpreter.cml.events.SilentEvent;
 import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
-import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
@@ -96,7 +94,7 @@ public class AlphabetInspectVisitor
 	
 	private CmlAlphabet createSilentTransition(INode srcNode, INode dstNode, String transitionText)
 	{
-		return new CmlAlphabet(new CmlTock(ownerProcess),new CmlTau(ownerProcess,srcNode,dstNode,transitionText));
+		return new CmlAlphabet(new CmlTock(ownerProcess),new SilentEvent(ownerProcess,srcNode,dstNode,transitionText));
 		//return new CmlAlphabet(CmlEventFactory.newTauEvent(ownerProcess,srcNode,dstNode,transitionText));
 	}
 	
