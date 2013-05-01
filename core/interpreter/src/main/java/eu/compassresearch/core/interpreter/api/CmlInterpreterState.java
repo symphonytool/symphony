@@ -22,5 +22,9 @@ public enum CmlInterpreterState {
 	/**
 	 * The interpreter is initialized
 	 */
-	INITIALIZED			
+	INITIALIZED,			
+	/**
+	 * The interpreter threw an exception
+	 */
+	FAILED
 }

@@ -14,6 +14,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+
 public class ExpectedTestResult {
 
 	public static ExpectedTestResult parseTestResultFile(String filePath) throws IOException 
@@ -30,27 +32,24 @@ public class ExpectedTestResult {
 
 			//parse using builder to get DOM representation of the XML file
 			Document dom = db.parse(filePath);
-
 			Element docEle = dom.getDocumentElement();
 			
 			//parse the type of the result
-			boolean throwsException = false;
+			//TODO this should pass on the expected exception string
+			String exceptionName = null;
 			NodeList exceptionNl = docEle.getElementsByTagName("exception");
-
 			if(exceptionNl != null && exceptionNl.getLength() > 0)
 			{
 				Node firstChildNode = exceptionNl.item(0).getFirstChild();
 				if(firstChildNode != null && firstChildNode.getNodeValue() != null)
-					throwsException = true;
+					exceptionName = firstChildNode.getNodeValue();
 			}
 			
+			//Parse the expected events
 			//get a nodelist of elements
 			NodeList nl = docEle.getElementsByTagName("events");
-			
 			List<List<String>> traces = new LinkedList<List<String>>();
 						
-			//Node n = nl.item(0);
-			
 			for(int i = 0; i < nl.getLength();i++)
 			{
 				Node n = nl.item(i);
@@ -68,13 +67,10 @@ public class ExpectedTestResult {
 				traces.add(trace);
 			}
 			
-			//get a nodelist of elements
+			//Parse the expected timed trace 
 			nl = docEle.getElementsByTagName("timedTrace");
-			
 			List<List<String>> timedTraces = new LinkedList<List<String>>();
 						
-			//Node n = nl.item(0);
-			
 			for(int i = 0; i < nl.getLength();i++)
 			{
 				Node n = nl.item(i);
@@ -92,7 +88,7 @@ public class ExpectedTestResult {
 				timedTraces.add(timedTrace);
 			}
 			
-			testResult = new ExpectedTestResult(traces,timedTraces,throwsException);
+			testResult = new ExpectedTestResult(traces,timedTraces,exceptionName,parseInterpreterState(docEle));
 
 		}catch(ParserConfigurationException pce) {
 			pce.printStackTrace();
@@ -103,20 +99,42 @@ public class ExpectedTestResult {
 		return testResult;
 	}
 	
+	private static CmlInterpreterState parseInterpreterState(Element docEle)
+	{
+		Node stateNode = docEle.getElementsByTagName("interpreterState").item(0).getFirstChild();
+		
+		if(stateNode != null)
+		{
+			return CmlInterpreterState.valueOf(stateNode.getNodeValue());
+		}
+		else
+			return null;
+		
+	}
+	
 	//The visible traces that the model should produce
 	private final List<List<String>> eventTraces;
 	//The timed traces that the model should produce including the tock events
 	private final List<List<String>> timedTraces;
-	//This indicates whether the model should fail with an exception or not
-	private final boolean shouldFail;
+	/**
+	 * The name of the exception that should be thrown
+	 */
+	private final String exceptionName;
+	/**
+	 * The state of the interpreter when the test are executed
+	 */
+	private final CmlInterpreterState state;
 	
-	//private String exceptionName;
-	
-	public ExpectedTestResult(List<List<String>> eventTraces,List<List<String>> timedTraces, boolean shouldFail)
+	public ExpectedTestResult(List<List<String>> eventTraces,List<List<String>> timedTraces, String exceptionName,CmlInterpreterState state)
 	{
 		this.eventTraces = eventTraces;
-		this.shouldFail = shouldFail;
 		this.timedTraces = timedTraces;
+		this.exceptionName = exceptionName;
+		this.state = state;
+	}
+	
+	public CmlInterpreterState getInterpreterState() {
+		return state;
 	}
 	
 	public boolean isInterleaved()
@@ -151,7 +169,7 @@ public class ExpectedTestResult {
 	
 	public boolean throwsException()
 	{
-		return shouldFail;
+		return exceptionName != null;
 	}
 	
 }

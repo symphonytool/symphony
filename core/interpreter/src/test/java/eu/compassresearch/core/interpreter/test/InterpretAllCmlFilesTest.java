@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 
+import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -132,6 +134,7 @@ public class InterpretAllCmlFilesTest {
 	
 	private void checkResult(ExpectedTestResult testResult, InterpreterStatus status, Exception exception) {
 		
+		//Events 
 		if(!testResult.isInterleaved())
 		{
 			assertTrue(testResult.getFirstEventTrace() + " != " +status.getToplevelProcessInfo().getVisibleTrace() ,testResult.getFirstEventTrace()
@@ -151,12 +154,16 @@ public class InterpretAllCmlFilesTest {
 			assertTrue(foundMatch);
 		}
 		
+		//TimedTrace
+		
 		//Exceptions check
 		//testResult.throwsException() => exception != null
 		assertTrue("The test was expected to throw an exception but did not!",!testResult.throwsException() || exception != null);
 		//!testResult.throwsException() => exception == null
 		assertTrue("The test threw an unexpected exception : " + exception,testResult.throwsException() || exception == null);
-
+		
+		//Interpreter state
+		Assert.assertEquals(testResult.getInterpreterState(), status.getInterpreterState());
 	}
 
 	@Parameters

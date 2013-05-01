@@ -127,7 +127,15 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		//Fire the interpreter running event before we start
 		setNewState(CmlInterpreterState.RUNNING);
 		//start the execution of the top process
-		executeTopProcess(runningTopProcess);
+		try{
+			executeTopProcess(runningTopProcess);
+		}
+		catch(Exception ex)
+		{
+			setNewState(CmlInterpreterState.FAILED);
+			throw ex;
+		}
+		
 		
 		//Finally we return the top process value
 		return pov;
