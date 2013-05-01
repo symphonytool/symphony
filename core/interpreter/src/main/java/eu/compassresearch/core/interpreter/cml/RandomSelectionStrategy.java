@@ -2,7 +2,6 @@ package eu.compassresearch.core.interpreter.cml;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.types.AIntNumericBasicType;
@@ -21,8 +20,8 @@ import org.overture.interpreter.values.ValueList;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.CmlRuntime;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.AbstractChannelEvent;
 import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 /**
  * This class implements a random selection CMLCommunicaiton of the alphabet 
@@ -49,14 +48,14 @@ public class RandomSelectionStrategy implements
 			selectedComm = new ArrayList<CmlEvent>(
 					availableChannelEvents.getAllEvents()).get(rndChoice.nextInt(nElems));
 			
-			if(selectedComm instanceof AbstractChannelEvent && !((AbstractChannelEvent)selectedComm).isPrecise())
+			if(selectedComm instanceof ChannelEvent && !((ChannelEvent)selectedComm).isPrecise())
 			{
-				AChannelType t = (AChannelType)((AbstractChannelEvent)selectedComm).getChannel().getType();
+				AChannelType t = (AChannelType)((ChannelEvent)selectedComm).getChannel().getType();
 				
-				((AbstractChannelEvent)selectedComm).setValue(
+				((ChannelEvent)selectedComm).setValue(
 						AbstractValueInterpreter.meet(
-						((AbstractChannelEvent)selectedComm).getValue(),
-						getRandomValueFromType(t.getType(),(AbstractChannelEvent)selectedComm)));
+						((ChannelEvent)selectedComm).getValue(),
+						getRandomValueFromType(t.getType(),(ChannelEvent)selectedComm)));
 			}
 		}
 		//CmlRuntime.logger().fine("Available events " + availableChannelEvents.getObservableEvents());
@@ -65,7 +64,7 @@ public class RandomSelectionStrategy implements
 		return selectedComm;
 	}
 	
-	private Value getRandomValueFromType(PType type, AbstractChannelEvent chosenEvent)
+	private Value getRandomValueFromType(PType type, ChannelEvent chosenEvent)
 	{
 		try {
 			return type.apply(new RandomValueGenerator(),chosenEvent);
@@ -76,17 +75,17 @@ public class RandomSelectionStrategy implements
 		return new UndefinedValue();
 	}
 	
-	class RandomValueGenerator extends QuestionAnswerCMLAdaptor<AbstractChannelEvent,Value>
+	class RandomValueGenerator extends QuestionAnswerCMLAdaptor<ChannelEvent,Value>
 	{
 		@Override
-		public Value caseAIntNumericBasicType(AIntNumericBasicType node, AbstractChannelEvent chosenEvent)
+		public Value caseAIntNumericBasicType(AIntNumericBasicType node, ChannelEvent chosenEvent)
 				throws AnalysisException {
 
 			return new IntegerValue(rndValue.nextInt());
 		}
 		
 		@Override
-		public Value caseANamedInvariantType(ANamedInvariantType node, AbstractChannelEvent chosenEvent)
+		public Value caseANamedInvariantType(ANamedInvariantType node, ChannelEvent chosenEvent)
 				throws AnalysisException {
 
 //			if(node.getInvDef() != null)
@@ -102,7 +101,7 @@ public class RandomSelectionStrategy implements
 		}
 		
 		@Override
-		public Value caseAUnionType(AUnionType node, AbstractChannelEvent chosenEvent) throws AnalysisException {
+		public Value caseAUnionType(AUnionType node, ChannelEvent chosenEvent) throws AnalysisException {
 			
 			PType type = node.getTypes().get(rndValue.nextInt(node.getTypes().size()));
 
@@ -110,13 +109,13 @@ public class RandomSelectionStrategy implements
 		}
 		
 		@Override
-		public Value caseAQuoteType(AQuoteType node, AbstractChannelEvent chosenEvent) throws AnalysisException {
+		public Value caseAQuoteType(AQuoteType node, ChannelEvent chosenEvent) throws AnalysisException {
 			
 			return new QuoteValue(node.getValue().value);
 		}
 		
 		@Override
-		public Value caseAProductType(AProductType node, AbstractChannelEvent chosenEvent)
+		public Value caseAProductType(AProductType node, ChannelEvent chosenEvent)
 				throws AnalysisException {
 
 			ValueList argvals = new ValueList();

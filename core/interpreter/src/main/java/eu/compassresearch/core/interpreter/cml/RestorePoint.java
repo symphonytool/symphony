@@ -6,7 +6,6 @@ import java.util.Stack;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
-import eu.compassresearch.core.interpreter.cml.events.AbstractChannelEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;

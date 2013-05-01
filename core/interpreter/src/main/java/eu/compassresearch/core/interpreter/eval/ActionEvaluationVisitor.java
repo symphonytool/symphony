@@ -13,7 +13,6 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.typechecker.Pass;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.NameValuePair;
 import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
@@ -46,7 +45,7 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.events.AbstractChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTock;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
@@ -116,16 +115,10 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 			throws AnalysisException {
 		
 		//At this point the supervisor has already given go to the event, or the event is hidden
-		Value value = ((AbstractChannelEvent)supervisor().selectedObservableEvent()).getValue();
-		
-//		if(node.getCommunicationParameters() != null && 
-//				node.getCommunicationParameters().size() > 1
-//				)
-//			throw new InterpreterRuntimeException("At the moment records and tuples are not supported");
+		Value value = ((ChannelEvent)supervisor().selectedObservableEvent()).getValue();
 		
 		if(node.getCommunicationParameters() != null)
 		{
-
 			//FIXME this should be more general. It only support one com param at the moment
 			for(PCommunicationParameter param : node.getCommunicationParameters())
 			{

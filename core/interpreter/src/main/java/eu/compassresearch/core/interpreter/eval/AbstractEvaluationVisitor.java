@@ -22,7 +22,9 @@ import eu.compassresearch.core.interpreter.util.Pair;
 
 public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> {
 
-	//Interface that gives access to methods that control the behaviour
+	/**
+	 * Interface that gives access to methods that access protected parts of a CmlBehaviour
+	 */
 	private VisitorAccess 										controlAccess;
 	protected final CmlBehaviour 								owner;								
 	//Evaluator for expressions and definitions

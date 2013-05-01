@@ -18,7 +18,7 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterStatus;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -51,8 +51,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	protected Context                  globalContext;
 	protected String 				   defaultName      = null;	
 	protected AProcessDefinition       topProcess;
-	protected CmlBehaviour	   runningTopProcess = null;	
-
+	protected CmlBehaviour	   		   runningTopProcess = null;	
+	
 	/**
 	 * Construct a CmlInterpreter with a list of PSources. These source may
 	 * refer to each other.
@@ -80,31 +80,20 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		initialize();
 	}
 
+	/**
+	 * Initializes the interpreter by making a global context and setting the 
+	 * last defined process as the top process
+	 * @throws InterpreterException
+	 */
 	protected void initialize() throws InterpreterException
 	{
 		GlobalEnvironmentBuilder envBuilder = new GlobalEnvironmentBuilder(sourceForest);
 
+		//Build the global context
 		globalContext = envBuilder.getGlobalContext();
+		//set the last defined process as the top process
+		//FIXME When there are multiple files there are no way to determine which one it will be!
 		topProcess = envBuilder.getLastDefinedProcess();
-	}
-	
-	private ProcessObjectValue InitializeTopProcess() throws AnalysisException
-	{
-		if(defaultName != null && !defaultName.equals(""))
-		{
-			LexNameToken name = new LexNameToken("",getDefaultName(),null);
-			ProcessObjectValue pov = (ProcessObjectValue)globalContext.check(name);
-			
-			if (pov == null)
-				throw new AnalysisException("No process identified by '"
-						+ getDefaultName() + "' exists");
-
-			topProcess = pov.getProcessDefinition();
-			
-			return pov;
-		}
-		
-		return null;
 	}
 
 	@Override
@@ -123,7 +112,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public Value execute(CmlSupervisorEnvironment sve) throws AnalysisException
 	{
 		if(null == sve)
-			throw new NullPointerException("The supervisor cannot be set to null in the scheduler");
+			throw new NullPointerException("The supervisor must not be set to null in the cml scheduler");
 		
 		currentSupervisor = sve; 
 
@@ -131,18 +120,48 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		ProcessObjectValue pov = InitializeTopProcess();
 		//Create the initial context with the global definitions
 		Context topContext = getInitialContext(null);
-		//Create a CmlBehaviourThread for the top process
+		//Create a CmlBehaviour for the top process
 		runningTopProcess = VanillaInterpreterFactory.newCmlBehaviour(topProcess.getProcess(), topContext, topProcess.getName());
 		currentSupervisor.addPupil(runningTopProcess);
-		//Fire the interpreter running event before we start
-		statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.RUNNING));
 		
+		//Fire the interpreter running event before we start
+		setNewState(CmlInterpreterState.RUNNING);
+		//start the execution of the top process
 		executeTopProcess(runningTopProcess);
 		
 		//Finally we return the top process value
 		return pov;
 	}
 	
+	/**
+	 * Finds and initializes the top process
+	 * @return 
+	 * @throws AnalysisException
+	 */
+	private ProcessObjectValue InitializeTopProcess() throws AnalysisException
+	{
+		if(defaultName != null && !defaultName.equals(""))
+		{
+			LexNameToken name = new LexNameToken("",getDefaultName(),null);
+			ProcessObjectValue pov = (ProcessObjectValue)globalContext.check(name);
+			
+			if (pov == null)
+				throw new AnalysisException("No process identified by '"
+						+ getDefaultName() + "' exists");
+
+			topProcess = pov.getProcessDefinition();
+			
+			return pov;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Main loop for executing the top process
+	 * @param topProcess
+	 * @throws AnalysisException
+	 */
 	private void executeTopProcess(CmlBehaviour topProcess) throws AnalysisException
 	{
 		//continue until the top process is not finished and not deadlocked
@@ -197,14 +216,20 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		}
 		
 		if(topProcess.deadlocked())
-			statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.DEADLOCKED));
+			setNewState(CmlInterpreterState.DEADLOCKED);
 		else
-			statusEventHandler.fireEvent(new InterpreterStatusEvent(this, CmlInterpreterStatus.TERMINATED));
+			setNewState(CmlInterpreterState.TERMINATED);
 	}
 
-	public String getAnalysisName()
+	@Override
+	public InterpreterStatus getStatus()
 	{
-		return "The CML Interpreter";
+		return new InterpreterStatus(runningTopProcess,getCurrentState());
+	}
+
+	@Override
+	public Context getInitialContext(LexLocation location) {
+		return globalContext;
 	}
 
 	// ---------------------------------------
@@ -275,20 +300,8 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-externalchoice-nostate3.cml");
+				"src/test/resources/action/action-hiding.cml");
 		runOnFile(cml_example);
 
-	}
-
-	public InterpreterStatus getStatus()
-	{
-		LinkedList<CmlBehaviour> t = new LinkedList<CmlBehaviour>();
-		t.add(runningTopProcess);
-		return new InterpreterStatus(t);
-	}
-
-	@Override
-	public Context getInitialContext(LexLocation location) {
-		return globalContext;
 	}
 }

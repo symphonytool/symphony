@@ -438,10 +438,15 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 	@Override
 	public CmlProcessState getState() {
-		return null;
+		if(finished())
+			return CmlProcessState.FINISHED;
+		else if(deadlocked())
+			return CmlProcessState.STOPPED;
+		else
+			return null;
 	}
 
-	/**
+	/*
 	 * Denotational Semantics Information
 	 */
 	@Override
@@ -449,7 +454,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		return trace;
 	}
 
-	/**
+	/*
 	 * Denotational Semantics Event handling methods
 	 */
 
@@ -463,9 +468,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	{
 		return traceEventHandler;
 	}
-	
-	//protected 
-	
 	
 	/*
 	 * Private methods

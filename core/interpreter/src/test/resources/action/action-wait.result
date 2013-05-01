@@ -4,6 +4,6 @@
   <processState>Skip</processState>
   <trace>
     <events>a</events>
-    <timedTrace/>
+    <timedTrace>tock,tock,tock,tock,a</timedTrace>
   </trace>
 </testResult>

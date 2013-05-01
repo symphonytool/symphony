@@ -34,13 +34,14 @@ public class ExpectedTestResult {
 			Element docEle = dom.getDocumentElement();
 			
 			//parse the type of the result
-			boolean shouldFail = false;
-			NodeList typeNl = docEle.getElementsByTagName("exception");
+			boolean throwsException = false;
+			NodeList exceptionNl = docEle.getElementsByTagName("exception");
 
-			if(typeNl != null && typeNl.getLength() > 0)
+			if(exceptionNl != null && exceptionNl.getLength() > 0)
 			{
-				if(typeNl.item(0).getNodeValue() != null)
-					shouldFail = true;
+				Node firstChildNode = exceptionNl.item(0).getFirstChild();
+				if(firstChildNode != null && firstChildNode.getNodeValue() != null)
+					throwsException = true;
 			}
 			
 			//get a nodelist of elements
@@ -67,7 +68,31 @@ public class ExpectedTestResult {
 				traces.add(trace);
 			}
 			
-			testResult = new ExpectedTestResult(traces,shouldFail);
+			//get a nodelist of elements
+			nl = docEle.getElementsByTagName("timedTrace");
+			
+			List<List<String>> timedTraces = new LinkedList<List<String>>();
+						
+			//Node n = nl.item(0);
+			
+			for(int i = 0; i < nl.getLength();i++)
+			{
+				Node n = nl.item(i);
+				LinkedList<String> timedTrace = new LinkedList<String>();
+				
+				if(n.hasChildNodes())
+				{
+					String value = n.getFirstChild().getNodeValue();
+
+					for(String s : value.split(",(?! )"))
+					{
+						timedTrace.add(s);
+					}
+				}
+				timedTraces.add(timedTrace);
+			}
+			
+			testResult = new ExpectedTestResult(traces,timedTraces,throwsException);
 
 		}catch(ParserConfigurationException pce) {
 			pce.printStackTrace();
@@ -79,34 +104,52 @@ public class ExpectedTestResult {
 	}
 	
 	//The visible traces that the model should produce
-	private final List<List<String>> visibleTraces;
+	private final List<List<String>> eventTraces;
+	//The timed traces that the model should produce including the tock events
+	private final List<List<String>> timedTraces;
 	//This indicates whether the model should fail with an exception or not
 	private final boolean shouldFail;
 	
 	//private String exceptionName;
 	
-	public ExpectedTestResult(List<List<String>> visibleTraces, boolean shouldFail)
+	public ExpectedTestResult(List<List<String>> eventTraces,List<List<String>> timedTraces, boolean shouldFail)
 	{
-		this.visibleTraces = visibleTraces;
+		this.eventTraces = eventTraces;
 		this.shouldFail = shouldFail;
+		this.timedTraces = timedTraces;
 	}
 	
 	public boolean isInterleaved()
 	{
-		return this.visibleTraces.size() > 1;
+		return this.eventTraces.size() > 1;
 	}
 	
-	public List<String> getFirstVisibleTrace()
+	public List<String> getFirstEventTrace()
 	{
-		return this.visibleTraces.get(0);
+		return this.eventTraces.get(0);
 	}
 		
-	public List<List<String>> getVisibleTraces()
+	public List<List<String>> getEventTraces()
 	{
-		return this.visibleTraces;
+		return this.eventTraces;
 	}
 	
-	public boolean shouldFail()
+	public List<String> getFirstTimedTrace()
+	{
+		return this.timedTraces.get(0);
+	}
+	
+	public boolean hasTimedTrace()
+	{
+		return timedTraces.size() > 0;
+	}
+	
+	public List<List<String>> getTimedTraces()
+	{
+		return this.timedTraces;
+	}
+	
+	public boolean throwsException()
 	{
 		return shouldFail;
 	}

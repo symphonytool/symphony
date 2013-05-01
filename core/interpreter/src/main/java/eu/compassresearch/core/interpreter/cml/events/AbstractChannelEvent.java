@@ -14,7 +14,7 @@ import eu.compassresearch.core.interpreter.cml.CmlChannel;
  * @author akm
  *
  */
-public abstract class AbstractChannelEvent extends AbstractCmlEvent implements ChannelEvent{
+abstract class AbstractChannelEvent extends AbstractCmlEvent implements ChannelEvent{
 
 	final protected CmlChannel channel;
 	

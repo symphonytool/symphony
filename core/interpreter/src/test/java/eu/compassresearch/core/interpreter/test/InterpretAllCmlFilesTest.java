@@ -134,7 +134,7 @@ public class InterpretAllCmlFilesTest {
 		
 		if(!testResult.isInterleaved())
 		{
-			assertTrue(testResult.getFirstVisibleTrace() + " != " +status.getToplevelProcessInfo().getVisibleTrace() ,testResult.getFirstVisibleTrace()
+			assertTrue(testResult.getFirstEventTrace() + " != " +status.getToplevelProcessInfo().getVisibleTrace() ,testResult.getFirstEventTrace()
 					.equals(status.getToplevelProcessInfo().getVisibleTrace()));
 		}
 		else
@@ -142,7 +142,7 @@ public class InterpretAllCmlFilesTest {
 			boolean foundMatch = false;
 			//If we have interleaving it must be one of the possible traces
 			List<String> resultTrace = status.getToplevelProcessInfo().getVisibleTrace();
-			for(List<String> trace : testResult.getVisibleTraces())
+			for(List<String> trace : testResult.getEventTraces())
 			{
 				foundMatch |= trace.equals(resultTrace);
 				
@@ -151,8 +151,11 @@ public class InterpretAllCmlFilesTest {
 			assertTrue(foundMatch);
 		}
 		
-		//If the test is expected to fail the exception should be non null
-		assertTrue(!testResult.shouldFail() || exception != null);
+		//Exceptions check
+		//testResult.throwsException() => exception != null
+		assertTrue("The test was expected to throw an exception but did not!",!testResult.throwsException() || exception != null);
+		//!testResult.throwsException() => exception == null
+		assertTrue("The test threw an unexpected exception : " + exception,testResult.throwsException() || exception == null);
 
 	}
 

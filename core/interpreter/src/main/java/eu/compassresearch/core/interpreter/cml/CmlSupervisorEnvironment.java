@@ -3,7 +3,6 @@ package eu.compassresearch.core.interpreter.cml;
 import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.AbstractChannelEvent;
 
 public interface CmlSupervisorEnvironment {
 

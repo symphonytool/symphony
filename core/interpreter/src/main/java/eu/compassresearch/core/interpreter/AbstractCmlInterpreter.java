@@ -19,6 +19,7 @@ import org.overture.parser.lex.LexException;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.EventFireMediator;
@@ -30,7 +31,9 @@ import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 @SuppressWarnings("serial")
 abstract class AbstractCmlInterpreter implements CmlInterpreter {
 
-		
+	/**
+	 * Event handler for notifying when the interpreter status changes 
+	 */
 	protected EventSourceHandler<CmlInterpreterStatusObserver, InterpreterStatusEvent> statusEventHandler =
 			new EventSourceHandler<CmlInterpreterStatusObserver, InterpreterStatusEvent>(this, 
 					new EventFireMediator<CmlInterpreterStatusObserver, InterpreterStatusEvent>() {
@@ -45,8 +48,33 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 				}
 			});
 
-	protected CmlSupervisorEnvironment currentSupervisor;
-
+	protected CmlSupervisorEnvironment 	currentSupervisor;
+	/**
+	 * The current state of the interpreter
+	 */
+	private CmlInterpreterState      	currentState = CmlInterpreterState.INITIALIZED;
+	
+	/**
+	 * Set the new state of the interpreter
+	 */
+	protected void setNewState(CmlInterpreterState newState)
+	{
+		if(currentState != newState)
+		{
+			currentState = newState;
+			statusEventHandler.fireEvent(new InterpreterStatusEvent(this, currentState));
+		}
+	}
+	
+	/**
+	 * Retrieves the current state of the interpreter
+	 * @return The current state of the interpreter
+	 */
+	protected CmlInterpreterState getCurrentState()
+	{
+		return currentState;
+	}
+	
 	@Override
 	public File getDefaultFile() {
 		// TODO Auto-generated method stub
@@ -58,24 +86,6 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 	{
 		return currentSupervisor;
 	}
-	
-//	@Override
-//	public void init(DBGPReader dbgp) {
-//		// TODO Auto-generated method stub
-//
-//	}
-//
-//	@Override
-//	public void traceInit(DBGPReader dbgp) {
-//		// TODO Auto-generated method stub
-//
-//	}
-//
-//	@Override
-//	public Value execute(String line, DBGPReader dbgp) throws Exception {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
 	
 	@Override
 	public Value evaluate(String line, Context ctxt) throws Exception {
@@ -174,12 +184,6 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 	public void clearBreakpointHits() {
 		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public PType findType(String typename) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 	
 	@Override
