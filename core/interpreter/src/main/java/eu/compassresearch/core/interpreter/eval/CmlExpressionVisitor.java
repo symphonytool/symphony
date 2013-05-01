@@ -27,9 +27,9 @@ import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
 public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
@@ -98,7 +98,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		return new CmlAlphabet(coms);
 	}
 	
-	private ChannelEvent createEvent(LexIdentifierToken id, Context question )
+	private ObservableEvent createEvent(LexIdentifierToken id, Context question )
 	{
 		//FIXME: This should be a name so the conversion is avoided
 		LexNameToken channelName = new LexNameToken("|CHANNELS|",id);

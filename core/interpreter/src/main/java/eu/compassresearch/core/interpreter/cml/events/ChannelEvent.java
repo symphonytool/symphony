@@ -6,7 +6,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CmlChannel;
 
-public interface ChannelEvent extends ObservableEvent{
+public interface ChannelEvent extends CmlEvent{
 
 	/**
 	 * The channel of this involved in this events
@@ -20,4 +20,12 @@ public interface ChannelEvent extends ObservableEvent{
 	
 	public List<ChannelEvent> expand();
 	
+	public boolean isPrecise();
+	
+	/**
+	 * return the most precise of this and other
+	 * @param other
+	 * @return
+	 */
+	public ObservableEvent meet(ObservableEvent other); 
 }

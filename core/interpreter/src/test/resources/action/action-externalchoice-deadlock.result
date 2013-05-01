@@ -4,6 +4,7 @@
   <interpreterState>DEADLOCKED</interpreterState>
   <trace>
     <events>a</events>
+    <events>c</events>
     <timedTrace/>
   </trace>
 </testResult>

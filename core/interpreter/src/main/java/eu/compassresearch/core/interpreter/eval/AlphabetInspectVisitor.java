@@ -628,7 +628,7 @@ public class AlphabetInspectVisitor
 				params.add(param);
 			}
 			
-			ChannelEvent observableEvent = CmlEventFactory.newCmlCommunicationEvent(ownerProcess, chanValue, params);
+			ObservableEvent observableEvent = CmlEventFactory.newCmlCommunicationEvent(ownerProcess, chanValue, params);
 			comset.add(observableEvent);
 		}
 		//TODO: do the rest here

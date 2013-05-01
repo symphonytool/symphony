@@ -11,7 +11,7 @@ import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlChannel;
 
-class PrefixEvent extends AbstractChannelEvent {
+class PrefixEvent extends AbstractChannelEvent implements ObservableEvent{
 
 	public PrefixEvent(CmlBehaviour eventSource, CmlChannel channel) {
 		super(eventSource, channel);

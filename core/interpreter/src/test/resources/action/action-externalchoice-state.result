@@ -4,6 +4,7 @@
   <interpreterState>TERMINATED</interpreterState>
   <trace>
     <events>d,d</events>
+    <events>a,b</events>
     <timedTrace/>
   </trace>
 </testResult>

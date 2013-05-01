@@ -311,7 +311,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 										selectedEvent = comEvent;
 								}
 								
-								if(selectedEvent instanceof ChannelEvent && !selectedEvent.isPrecise())
+								if(selectedEvent instanceof ChannelEvent && !((ChannelEvent)selectedEvent).isPrecise())
 								{
 									System.out.println("Enter value : "); 
 									

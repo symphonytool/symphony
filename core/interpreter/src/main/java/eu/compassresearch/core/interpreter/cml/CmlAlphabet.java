@@ -168,12 +168,14 @@ public class CmlAlphabet extends Value {
 			{
 				//if the events are comparable (the) and one of the values are imprecise
 				// and they are not equal
-				if(thisEvent.isComparable(otherEvent) && 
-						(!thisEvent.isPrecise() || !otherEvent.isPrecise() ) && 
+				if(thisEvent instanceof ChannelEvent &&
+						otherEvent instanceof ChannelEvent &&
+						thisEvent.isComparable(otherEvent) && 
+						(!((ChannelEvent)thisEvent).isPrecise() || !((ChannelEvent)otherEvent).isPrecise() ) && 
 						!thisEvent.equals(otherEvent) )
 				{
 					//find the meet of the two values, meaning the most precise
-					resultSet.add(thisEvent.meet(otherEvent));
+					resultSet.add(((ChannelEvent)thisEvent).meet(otherEvent));
 				}
 				else if(thisEvent.isComparable(otherEvent) && thisEvent.equals(otherEvent))
 					resultSet.add(thisEvent);
@@ -277,15 +279,15 @@ public class CmlAlphabet extends Value {
 	 */
 	public CmlAlphabet expandAlphabet()
 	{
-		Set<ObservableEvent> eventSet = new HashSet<ObservableEvent>();
+		Set<CmlEvent> eventSet = new HashSet<CmlEvent>();
 		
-		for(ObservableEvent ev : getObservableEvents())
+		for(CmlEvent ev : getAllEvents())
 			if(ev instanceof ChannelEvent)
 				eventSet.addAll(((ChannelEvent)ev).expand());
 			else
 				eventSet.add(ev);
 		
-		return new CmlAlphabet(eventSet,getSpecialEvents());
+		return new CmlAlphabet(eventSet);
 		
 	}
 	

@@ -28,15 +28,15 @@ public class CmlEventFactory {
 	 * prefix event factory methods 
 	 */
 	
-	public static ChannelEvent newPrefixEvent(CmlBehaviour eventSource, CmlChannel channel) {
+	public static ObservableEvent newPrefixEvent(CmlBehaviour eventSource, CmlChannel channel) {
 		return new PrefixEvent(eventSource,channel);
 	}
 	
-	public static ChannelEvent newPrefixEvent(Set<CmlBehaviour> eventSources, CmlChannel channel) {
+	public static ObservableEvent newPrefixEvent(Set<CmlBehaviour> eventSources, CmlChannel channel) {
 		return new PrefixEvent(eventSources,channel);
 	}
 	
-	public static ChannelEvent newPrefixEvent(CmlChannel channel) {
+	public static ObservableEvent newPrefixEvent(CmlChannel channel) {
 		return new PrefixEvent(channel);
 	}
 	
@@ -44,12 +44,12 @@ public class CmlEventFactory {
 	 * communication event factory methods 
 	 */
 	
-	public static ChannelEvent newCmlCommunicationEvent(CmlBehaviour source, CmlChannel channel, List<CommunicationParameter> params)
+	public static ObservableEvent newCmlCommunicationEvent(CmlBehaviour source, CmlChannel channel, List<CommunicationParameter> params)
 	{
 		return new CmlCommunicationEvent(source, channel, params);
 	}
 	
-	public static ChannelEvent newCmlCommunicationEvent(CmlChannel channel, List<CommunicationParameter> params)
+	public static ObservableEvent newCmlCommunicationEvent(CmlChannel channel, List<CommunicationParameter> params)
 	{
 		return new CmlCommunicationEvent(channel, params);
 	}
