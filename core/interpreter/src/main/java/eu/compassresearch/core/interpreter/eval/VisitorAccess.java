@@ -7,5 +7,4 @@ public interface VisitorAccess
 {
 	void setLeftChild(CmlBehaviour child);
 	void setRightChild(CmlBehaviour child);
-	void setHidingAlphabet(CmlAlphabet alpha);
 }

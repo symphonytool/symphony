@@ -45,11 +45,6 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 		this.controlAccess = controlAccess;
 	}
 	
-	protected void setHidingAlphabet(CmlAlphabet alpha)
-	{
-		controlAccess.setHidingAlphabet(alpha);
-	}
-	
 	protected void setLeftChild(CmlBehaviour child)
 	{
 		this.controlAccess.setLeftChild(child);

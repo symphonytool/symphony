@@ -47,10 +47,12 @@ import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
 import eu.compassresearch.core.interpreter.cml.events.CmlTock;
 import eu.compassresearch.core.interpreter.cml.events.CommunicationParameter;
+import eu.compassresearch.core.interpreter.cml.events.HiddenEvent;
 import eu.compassresearch.core.interpreter.cml.events.InputParameter;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
@@ -671,9 +673,28 @@ public class AlphabetInspectVisitor
 	public CmlAlphabet caseAHidingAction(AHidingAction node, Context question)
 			throws AnalysisException {
 
+		if(!ownerProcess.getLeftChild().finished())
+		{
+			CmlAlphabet hidingAlpha = (CmlAlphabet)node.getChansetExpression().apply(cmlEvaluator,question);
+
+			CmlAlphabet alpha = ownerProcess.getLeftChild().inspect();
+
+			CmlAlphabet hiddenEvents = alpha.intersect(hidingAlpha);
+
+			CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
+
+			for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
+				if(obsEvent instanceof ChannelEvent)
+					resultAlpha = resultAlpha.union(new HiddenEvent(ownerProcess,(ChannelEvent)obsEvent));	
+
+			return resultAlpha;
+		}
+		else
+			return createSilentTransition(node, new ASkipAction());
+		
 		//FIXME This is actually not a tau transition. This should produced an entirely 
 		//different event which has no denotational trace but only for debugging
-		return createSilentTransition(node, node.getLeft(), "Hiding (This should not be a tau)");
+		//return createSilentTransition(node, node.getLeft(), "Hiding (This should not be a tau)");
 		
 //		CmlBehaviour child = null;
 //		

@@ -1,7 +1,9 @@
 package eu.compassresearch.core.interpreter.cml;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -45,10 +47,13 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 
 	private static final long 					serialVersionUID = -4920762081111266274L;
 
-	/**
+	/*
 	 * Instance variables
 	 */
-	//name of the instance
+	
+	/**
+	 * Name of the instance
+	 */
 	protected LexNameToken 						name;
 	
 	//Process/Action Graph variables
@@ -56,7 +61,21 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	protected CmlBehaviour						leftChild = null;
 	protected CmlBehaviour						rightChild = null;
 
+	/*
+	 * Visitor instances
+	 */
+	
+	/**
+	 * The evaluation visitor
+	 */
+	final AbstractEvaluationVisitor cmlEvaluationVisitor;
+	/**
+	 * The setup visitor
+	 */
+	final AbstractSetupVisitor cmlSetupVisitor;
+	
 	//Process/Action state variables
+	
 	protected boolean 							started = false;
 	protected boolean							waitPrime = false;
 	protected boolean 							aborted = false;
@@ -66,9 +85,9 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	//Current supervisor
 	protected CmlSupervisorEnvironment 			env;
 
-	//use for the hiding operator
-	protected CmlAlphabet 						hidingAlphabet = new CmlAlphabet();
-
+	//This might get used to boost the performance
+	//protected Map<INode,Object>                	localStore = new HashMap<INode,Object>();
+	
 	//Denotational semantics
 	//This contains the current trace of this process
 	protected final CmlTrace 					trace = new CmlTrace();
@@ -87,7 +106,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 				}
 			});
 
-	protected EventSourceHandler<CmlProcessTraceObserver,TraceEvent>  traceEventHandler = 
+	protected EventSourceHandler<CmlProcessTraceObserver,TraceEvent>  			traceEventHandler = 
 			new EventSourceHandler<CmlProcessTraceObserver,TraceEvent>(this,
 					new EventFireMediator<CmlProcessTraceObserver,TraceEvent>() {
 
@@ -97,9 +116,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 					observer.onTraceChange(event);
 				}
 			});
-
-	final AbstractEvaluationVisitor cmlEvaluationVisitor;
-	final AbstractSetupVisitor cmlSetupVisitor;
 
 	/**
 	 * Constructor
@@ -114,12 +130,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		started = false;
 
 		VisitorAccess visitorAccess = new VisitorAccess() {
-
-			@Override
-			public void setHidingAlphabet(CmlAlphabet alpha) {
-				ConcreteCmlBehaviour.this.setHidingAlphabet(alpha);
-
-			}
 
 			@Override
 			public void setLeftChild(CmlBehaviour child) {
@@ -232,37 +242,17 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	}
 
 	@Override
-	public CmlAlphabet inspect()
+	public CmlAlphabet inspect() 
 	{
 		try
 		{
-			CmlAlphabet alpha = next.first.apply(alphabetInspectionVisitor,next.second);
-
-			//we have to check for hidden event and convert them into tau events before we return the next alpha
-			//return alpha;
-			return HandleHiding(alpha);
+			return next.first.apply(alphabetInspectionVisitor,next.second);
 		}
 		catch(AnalysisException ex)
 		{
 			CmlRuntime.logger().throwing(this.toString(),"inspect()", ex);
 			throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage(),ex);
 		}
-	}
-
-	/**
-	 * Execute private helper methods
-	 */
-
-	private CmlAlphabet HandleHiding(CmlAlphabet alpha)
-	{
-		CmlAlphabet hiddenEvents = alpha.intersect(hidingAlphabet);
-
-		CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
-
-		for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
-			if(obsEvent instanceof ChannelEvent)
-				resultAlpha = resultAlpha.union(new HiddenEvent(this,(ChannelEvent)obsEvent));	
-		return resultAlpha;
 	}
 
 	/**
@@ -304,20 +294,6 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	@Override
 	public LexNameToken name() {
 		return this.name;
-	}
-
-	/**
-	 * Hiding methods
-	 */
-
-	protected void setHidingAlphabet(CmlAlphabet alphabet)
-	{
-		this.hidingAlphabet = alphabet;
-	}
-
-	protected CmlAlphabet getHidingAlphabet()
-	{
-		return this.hidingAlphabet;
 	}
 
 	/**

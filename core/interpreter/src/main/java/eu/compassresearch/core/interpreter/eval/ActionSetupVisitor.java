@@ -22,6 +22,7 @@ import org.overture.interpreter.values.Value;
 import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.actions.ACallStatementAction;
+import eu.compassresearch.ast.actions.AHidingAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.core.interpreter.CmlContextFactory;
@@ -57,6 +58,14 @@ public class ActionSetupVisitor extends AbstractSetupVisitor {
 			throws AnalysisException {
 		
 		caseASequentialComposition(node, node.getLeft(), question);
+	}
+	
+	@Override
+	public void caseAHidingAction(AHidingAction node, Context question)
+			throws AnalysisException {
+
+		//We setup the child node for the hiding operator
+		setLeftChild(VanillaInterpreterFactory.newCmlBehaviour(node.getLeft(),question,owner));
 	}
 	
 	

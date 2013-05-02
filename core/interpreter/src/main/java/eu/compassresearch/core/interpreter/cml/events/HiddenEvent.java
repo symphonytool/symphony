@@ -69,10 +69,12 @@ public class HiddenEvent extends AbstractChannelEvent implements CmlTau,
 	@Override
 	public boolean equals(Object obj) {
 		
-		if(!(obj instanceof HiddenEvent))
-			return false;
-		else
+		//FIXME It might not be the best idea to make a hidden event equal to what it hides
+		if((obj instanceof HiddenEvent))
 			return this.hiddenEvent.equals(((HiddenEvent)obj).hiddenEvent);
+		else 
+			return this.hiddenEvent.equals(obj);
+			
 	}
 	
 	@Override

@@ -429,22 +429,16 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	public Pair<INode,Context> caseAHidingAction(AHidingAction node,
 			Context question) throws AnalysisException {
 
-		
-		setHidingAlphabet((CmlAlphabet)node.getChansetExpression().apply(cmlExpressionVisitor,question));
-		return new Pair<INode,Context>(node.getLeft(), question);
-		
-//		CmlBehaviour child = this.ownerThread().children().get(0);
-//		if(!child.finished())
-//		{
-//			pushNext(node, question);
-//			return this.ownerThread().children().get(0).execute(supervisor());
-//		}
-//		else
-//		{
-//			pushNext(new ASkipAction(),question);
-//			return CmlBehaviourSignal.EXEC_SUCCESS;
-//		}
-		
+		if(!owner.getLeftChild().finished())
+		{
+			owner.getLeftChild().execute(supervisor());
+			return new Pair<INode,Context>(node, question);
+		}
+		else
+		{
+			setLeftChild(null);
+			return new Pair<INode,Context>(new ASkipAction(), question);
+		}
 	}
 	
 	/**
