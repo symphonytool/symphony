@@ -12,7 +12,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.CmlEventSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.ConcreteCmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.DefaultSupervisorEnvironment;
@@ -47,7 +47,7 @@ public final class VanillaInterpreterFactory {
 	 * @param selectStrategy
 	 * @return
 	 */
-	public static CmlSupervisorEnvironment newCmlSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy)
+	public static CmlSupervisorEnvironment newCmlSupervisorEnvironment(CmlEventSelectionStrategy selectStrategy)
 	{
 		return new DefaultSupervisorEnvironment(selectStrategy);
 	}

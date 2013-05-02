@@ -8,27 +8,21 @@ import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 
 public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 
-	private CmlCommunicationSelectionStrategy selectStrategy;
+	private CmlEventSelectionStrategy selectStrategy;
 	private CmlEvent selectedCommunication;
 	
 	private List<CmlBehaviour> pupils = new LinkedList<CmlBehaviour>();
 	
-	public DefaultSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy)
+	public DefaultSupervisorEnvironment(CmlEventSelectionStrategy selectStrategy)
 	{
 		this.selectStrategy = selectStrategy;
 	}
 	
 	@Override
-	public CmlCommunicationSelectionStrategy decisionFunction() {
+	public CmlEventSelectionStrategy decisionFunction() {
 
 		return this.selectStrategy;
 	}
-
-//	@Override
-//	public void setDecisionFunction(CMLCommunicationSelectionStrategy cdf)
-//			throws NullPointerException {
-//
-//	}
 
 	@Override
 	public boolean isSelectedEventValid() {
@@ -63,7 +57,6 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	@Override
 	public void removePupil(CmlBehaviour process) {
 		pupils.remove(process);
-//		scheduler.removeProcess(process);
 	}
 	
 	@Override

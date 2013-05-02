@@ -16,7 +16,7 @@ public interface CmlSupervisorEnvironment {
 	 * Returns the selected CMLCommunicationSelectionStrategy object for the supervisor instance
 	 * @return
 	 */
-	public CmlCommunicationSelectionStrategy decisionFunction();
+	public CmlEventSelectionStrategy decisionFunction();
 	//public void setDecisionFunction(CMLCommunicationSelectionStrategy cdf)
 	//throws NullPointerException;
 	// Pupil Processes related methods

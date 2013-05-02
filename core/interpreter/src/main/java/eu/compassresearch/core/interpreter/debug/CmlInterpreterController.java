@@ -30,7 +30,7 @@ import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.CmlEventSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
@@ -278,7 +278,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 			
 			try{
 				CmlSupervisorEnvironment sve = 
-						VanillaInterpreterFactory.newCmlSupervisorEnvironment(new CmlCommunicationSelectionStrategy() {
+						VanillaInterpreterFactory.newCmlSupervisorEnvironment(new CmlEventSelectionStrategy() {
 							Scanner scanIn = new Scanner(System.in);
 							@Override
 							public ObservableEvent select(CmlAlphabet availableChannelEvents) {

@@ -21,7 +21,8 @@ import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.EventSource;
 /**
- * The CML interpreter interface.
+ * The CML interpreter interface. This has the responsibility of simulating/animating
+ * a given AST representing a CML model. 
  */
 public interface CmlInterpreter
 {
@@ -221,6 +222,10 @@ public interface CmlInterpreter
 	
 	//public PType findType(String typename);
 	
+	/**
+	 * The current status of the interpreter
+	 * @return
+	 */
 	public InterpreterStatus getStatus();
 
 	public EventSource<CmlInterpreterStatusObserver> onStatusChanged();
