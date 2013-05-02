@@ -63,7 +63,21 @@ public class HiddenEvent extends AbstractChannelEvent implements CmlTau,
 	
 	@Override
 	public String toString() {
-		return "\\(" + hiddenEvent.toString() + ")";
+		return SilentEvent.tauString + "(" + hiddenEvent.toString() + ")";
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		
+		if(!(obj instanceof HiddenEvent))
+			return false;
+		else
+			return this.hiddenEvent.equals(((HiddenEvent)obj).hiddenEvent);
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.hiddenEvent.hashCode();
 	}
 
 }

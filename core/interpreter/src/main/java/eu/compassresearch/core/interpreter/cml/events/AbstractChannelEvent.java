@@ -82,7 +82,7 @@ abstract class AbstractChannelEvent extends AbstractCmlEvent implements ChannelE
 		if(!(obj instanceof ChannelEvent))
 			return false;
 		
-		other = (AbstractChannelEvent)obj;
+		other = (ChannelEvent)obj;
 		
 		return other.getChannel().equals(getChannel()) && 
 				super.equals(obj);

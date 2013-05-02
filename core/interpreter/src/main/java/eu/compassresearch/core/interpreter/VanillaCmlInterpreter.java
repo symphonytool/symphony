@@ -212,7 +212,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			if(CmlTrace.isObservableEvent(trace.getLastEvent()))
 			{
 				CmlRuntime.logger().fine("----------------observable step by '"+ topProcess +"'----------------");
-				CmlRuntime.logger().fine("Observable trace of '"+topProcess+"': " + trace.getVisibleTrace());
+				CmlRuntime.logger().fine("Observable trace of '"+topProcess+"': " + trace.getEventTrace());
 				
 			}
 			else 

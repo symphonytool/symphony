@@ -32,12 +32,12 @@ public abstract class AbstractCmlEvent implements CmlEvent {
 	@Override
 	public boolean equals(Object obj) {
 		
-		AbstractCmlEvent other = null;
+		CmlEvent other = null;
 		
-		if(!(obj instanceof AbstractCmlEvent))
+		if(!(obj instanceof CmlEvent))
 			return false;
 		
-		other = (AbstractCmlEvent)obj;
+		other = (CmlEvent)obj;
 		
 		 // other is subset of this or this is a subset of other
 		return	(other.getEventSources().containsAll(getEventSources()) || 

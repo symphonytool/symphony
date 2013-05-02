@@ -12,7 +12,7 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 public class SilentEvent extends AbstractCmlEvent implements CmlTau {
 
 	protected static SilentEvent instance = null;
-	final static String tauString = "\u03C4".toLowerCase();
+	public final static String tauString = "\u03C4".toLowerCase();
 	private final INode transitionSrcNode;
 	private final INode transitionDstNode;
 	private String transitionText = null;

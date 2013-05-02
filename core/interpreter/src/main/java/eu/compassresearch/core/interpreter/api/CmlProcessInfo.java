@@ -20,7 +20,7 @@ public class CmlProcessInfo {
 			boolean isProcess, CmlProcessState state)
 	{
 		this.name = name;
-		List<String> evs = convertCmlEventsToStringList(trace.getVisibleTrace());
+		List<String> evs = convertCmlEventsToStringList(trace.getEventTrace());
 		this.trace = evs.toArray(new String[evs.size()]);
 		this.level = level;
 		this.isProcess = isProcess;
