@@ -30,6 +30,7 @@ import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
+import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
@@ -59,7 +60,7 @@ import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
 import eu.compassresearch.core.interpreter.cml.events.SilentEvent;
 import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
-import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.util.CmlBehaviourUtility;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
@@ -223,7 +224,7 @@ public class AlphabetInspectVisitor
 		{
 			alpha = createSilentTransition(node, node, "Begin");
 		}
-		else if(CmlBehaviourThreadUtility.isAllChildrenFinished(ownerProcess))
+		else if(CmlBehaviourUtility.isAllChildrenFinished(ownerProcess))
 		{
 			alpha = createSilentTransition(node, new ASkipAction(), "End");
 		}
@@ -399,7 +400,7 @@ public class AlphabetInspectVisitor
 		if(!ownerProcess.hasChildren())
 			alpha = createSilentTransition(node, node,"Begin");
 		//if one child is finished external choice must end
-		else if (CmlBehaviourThreadUtility.finishedChildExists(ownerProcess))
+		else if (CmlBehaviourUtility.finishedChildExists(ownerProcess))
 			alpha = createSilentTransition(node, node,"end");
 		//else we join the childrens alphabets 
 		else
@@ -695,34 +696,6 @@ public class AlphabetInspectVisitor
 		//FIXME This is actually not a tau transition. This should produced an entirely 
 		//different event which has no denotational trace but only for debugging
 		//return createSilentTransition(node, node.getLeft(), "Hiding (This should not be a tau)");
-		
-//		CmlBehaviour child = null;
-//		
-//		if(!ownerProcess.hasChildren())
-//		{
-//			child = VanillaInterpreterFactory.newCmlBehaviourThread(node.getLeft(), question, 
-//					new LexNameToken("",ownerProcess.name().getName() + "\\" ,node.getLocation()));
-//			
-//			ownerProcess.children().add(child);
-//		}
-//		else
-//		{
-//			child = ownerProcess.children().get(0);
-//		}
-//		
-//		//first we get the child alphabet
-//		CmlAlphabet childAlpha = child.inspect();
-//		//Next we get the alphabet from, the hiding construct
-//		CmlAlphabet hidingAlphabet = (CmlAlphabet)node.getChansetExpression().apply(cmlEvaluator,question);
-//		//then these two are intersected to find the events that should be hidden
-//		CmlAlphabet hiddenEvents = childAlpha.intersect(hidingAlphabet);
-//		//
-//		CmlAlphabet resultAlpha = childAlpha.subtract(hiddenEvents);
-//		
-//		for(AbstractObservableEvent obsEvent : hiddenEvents.getObservableEvents())
-//			resultAlpha = resultAlpha.union(CmlEventFactory.newTauEvent(ownerProcess,null,null," hiding " + obsEvent.toString()));
-//		
-//		return resultAlpha;
 	}
 	
 	/**
@@ -797,18 +770,34 @@ public class AlphabetInspectVisitor
 	@Override
 	public CmlAlphabet caseAWaitAction(AWaitAction node, Context question)
 			throws AnalysisException {
-		long nTocks = 0;
+		
 		//Evaluate the expression into a natural number
 		long val = node.getExpression().apply(cmlEvaluator,question).natValue(question);
-		//Extract the number of tocks in the current trace
-		for(CmlEvent ev : ownerProcess.getTraceModel().getTrace())
-			if(ev instanceof CmlTock)
-				nTocks++;
+		long nTocks = ownerProcess.getCurrentTime();
 		
-		if(nTocks >= val)
+		//If the number of tocks exceeded val then we make a silent transition that ends the delay process
+		if( nTocks >= val)
 			return createSilentTransition(node, null,"Wait ended");
 		else
-			//Behave as Stop
+		//If the number of tocks has not exceeded val then behave as Stop
 			return new CmlAlphabet(new CmlTock(ownerProcess,nTocks-val));
+	}
+	
+	@Override
+	public CmlAlphabet caseATimeoutAction(ATimeoutAction node, Context question)
+			throws AnalysisException {
+		
+		//Evaluate the expression into a natural number
+		long val = node.getTimeoutExpression().apply(cmlEvaluator,question).natValue(question);
+		
+		//If the time exceeded val then we make a silent transition that ends the delay process
+		if(ownerProcess.getCurrentTime() >= val)
+			return createSilentTransition(node, null,"Timeout: time exceeded");
+		else if(ownerProcess.getLeftChild().finished())
+			return createSilentTransition(node, null,"Timeout: left behavior is finished");
+		else
+		//If time has not exceeded val then we offer the left process
+			return ownerProcess.getLeftChild().inspect();
+		
 	}
 }

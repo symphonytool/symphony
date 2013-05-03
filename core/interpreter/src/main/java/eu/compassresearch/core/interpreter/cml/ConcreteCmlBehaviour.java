@@ -1,9 +1,7 @@
 package eu.compassresearch.core.interpreter.cml;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -21,10 +19,8 @@ import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTock;
-import eu.compassresearch.core.interpreter.cml.events.HiddenEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
 import eu.compassresearch.core.interpreter.eval.AbstractSetupVisitor;
@@ -430,6 +426,17 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	public CmlTrace getTraceModel() {
 		return trace;
 	}
+	
+	@Override
+	public long getCurrentTime() {
+		long nTocks = 0;
+
+		for(CmlEvent ev : getTraceModel().getTrace())
+			if(ev instanceof CmlTock)
+				nTocks++;
+
+		return nTocks;
+	}
 
 	/*
 	 * Denotational Semantics Event handling methods
@@ -453,9 +460,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	@Override
 	public void replaceState(Context context) throws ValueException {
 
-		//FIXME if this process has a deeper level of contexts, then these needs to be
 		//stuck onto the given context
-
 		next = new Pair<INode, Context>(next.first, attachAdditionalContexts(next.second,context));
 
 		if(leftChild != null)

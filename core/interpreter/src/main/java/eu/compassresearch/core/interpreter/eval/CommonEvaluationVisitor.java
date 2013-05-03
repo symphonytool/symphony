@@ -14,7 +14,7 @@ import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
-import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.util.CmlBehaviourUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
 
 public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
@@ -69,7 +69,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 			caseParallelSyncOrNonsync(chansetExp, question);
 			
 			//The process has children and they have all evolved into Skip so now the parallel end rule will be invoked 
-			if (CmlBehaviourThreadUtility.isAllChildrenFinished(owner))
+			if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 				return caseParallelEnd(question);
 			else
 				//We push the current state,
@@ -165,7 +165,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		}
 		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 		//with the state from the skip. After this all the children processes are terminated
-		else if(CmlBehaviourThreadUtility.finishedChildExists(owner))
+		else if(CmlBehaviourUtility.finishedChildExists(owner))
 		{
 			result = caseExternalChoiceEnd(findFinishedChild(),question);
 		}
@@ -219,7 +219,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	{
 		//FIXME the children contexts also needs to be replaced!!!!!!
 		Context copyContext = theChoosenOne.getExecutionState().second;
-		Context newCurrentContext = CmlBehaviourThreadUtility.mergeState(context,copyContext);
+		Context newCurrentContext = CmlBehaviourUtility.mergeState(context,copyContext);
 		
 		if(theChoosenOne.getLeftChild() != null)
 			theChoosenOne.getLeftChild().replaceState(newCurrentContext);

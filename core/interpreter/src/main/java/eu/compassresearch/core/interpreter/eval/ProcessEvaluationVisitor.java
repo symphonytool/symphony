@@ -27,7 +27,7 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
-import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.util.CmlBehaviourUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
@@ -204,7 +204,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		}
 		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
 		//with the state from the skip. After this all the children processes are terminated
-		else if(CmlBehaviourThreadUtility.finishedChildExists(owner))
+		else if(CmlBehaviourUtility.finishedChildExists(owner))
 		{
 			CmlBehaviour theChoosenOne = findFinishedChild();
 			setLeftChild(theChoosenOne.getLeftChild());
@@ -256,7 +256,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 
 		}
 		//the process has children and must now handle either termination or event sync
-		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(owner))
+		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
 			return caseParallelEnd(question);
 		}

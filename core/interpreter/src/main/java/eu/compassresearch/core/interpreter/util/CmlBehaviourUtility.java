@@ -18,7 +18,7 @@ import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
-public class CmlBehaviourThreadUtility {
+public class CmlBehaviourUtility {
 
 	public static boolean isAllChildrenFinished(CmlBehaviour process)
 	{

@@ -126,6 +126,7 @@ public interface CmlBehaviour //extends Transactable
 	//public CSPFailures failuresModel();
 	//public CSPDivergencies divergenciesModel();
 	//public CSPFailuresDivergencies failuresDivergenciesModel();
+	public long getCurrentTime();
 	
 	/**
 	 * Register or unregister for the State Changed event
