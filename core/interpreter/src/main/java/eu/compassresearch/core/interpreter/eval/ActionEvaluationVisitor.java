@@ -31,6 +31,7 @@ import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AValParametrisation;
 import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.PAction;
@@ -48,7 +49,8 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
 import eu.compassresearch.core.interpreter.cml.events.CmlTock;
-import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.util.CmlBehaviourUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
@@ -331,7 +333,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 
 		}
 		//the process has children and must now handle either termination or event sync
-		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(owner))
+		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
 			caseParallelEnd(question);
 			return new Pair<INode,Context>(new ASkipAction(),question);
@@ -483,19 +485,49 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	public Pair<INode, Context> caseAWaitAction(AWaitAction node,
 			Context question) throws AnalysisException {
 
-		int nTocks = 0;
 		//Evaluate the expression into a natural number
 		long val = node.getExpression().apply(cmlExpressionVisitor,question).natValue(question);
-		//Extract the number of tocks in the current trace
-		for(CmlEvent ev : owner.getTraceModel().getTrace())
-			if(ev instanceof CmlTock)
-				nTocks++;
-		if(nTocks >= val)
+
+		if(owner.getCurrentTime() >= val)
 			return new Pair<INode, Context>(new ASkipAction(), question);
 		else
 			return new Pair<INode, Context>(node, question);
 	}
 	
+	@Override
+	public Pair<INode, Context> caseATimeoutAction(ATimeoutAction node,
+			Context question) throws AnalysisException {
+		
+		//Evaluate the expression into a natural number
+		long val = node.getTimeoutExpression().apply(cmlExpressionVisitor,question).natValue(question);
+		
+		if(owner.getCurrentTime() >= val)
+		{
+			//We set the process to become the right behavior
+			setLeftChild(null);
+			return new Pair<INode, Context>(node.getRight(), question);
+		}
+		else if(owner.getLeftChild().finished())
+		{
+			CmlBehaviour leftChild = owner.getLeftChild();
+			setLeftChild(null);
+			return new Pair<INode, Context>(leftChild.getExecutionState().first, leftChild.getExecutionState().second);
+		}
+		else
+		{
+			CmlBehaviour leftBehavior = owner.getLeftChild();
+			owner.getLeftChild().execute(supervisor());
+			
+			if(supervisor().selectedObservableEvent() instanceof ObservableEvent)
+			{
+				setLeftChild(null);
+				return new Pair<INode, Context>(leftBehavior.getExecutionState().first, leftBehavior.getExecutionState().second);
+			}
+			else
+				return new Pair<INode, Context>(node, question);
+		}
+		
+	}
 //	private void doMuReplace(PAction action, final AMuAction muAction, final LexIdentifierToken id) throws AnalysisException
 //	{
 //		
