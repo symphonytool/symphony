@@ -5,50 +5,70 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.factory.AstFactory;
-import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameList;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChannelsDefinition;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.AChansetsDefinition;
+import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AFunctionsDefinition;
+import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
-import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
 @SuppressWarnings("serial")
 public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 
 	private final Collection<PDefinition> members;
+	private final Collection<PDefinition> channels;
 
-	public static AClassClassDefinition getGlobalRoot(
-			Collection<PSource> sources, TypeIssueHandler issueHandler,
-			CmlTypeCheckInfo info) throws AnalysisException {
+	public static class GlobalDefinitions {
+		public final Collection<PDefinition> definitions;
+		public final Collection<PDefinition> channels;
+
+		private GlobalDefinitions(Collection<PDefinition> defs,
+				Collection<PDefinition> chns) {
+			this.definitions = defs;
+			this.channels = chns;
+		}
+	}
+
+	public static GlobalDefinitions getGlobalRoot(Collection<PSource> sources,
+			TypeIssueHandler issueHandler) throws AnalysisException {
 
 		// Create visitor and visit each source collecting global definitions
 		List<PDefinition> members = new LinkedList<PDefinition>();
-		CollectGlobalStateClass me = new CollectGlobalStateClass(members, info);
+		List<PDefinition> channels = new LinkedList<PDefinition>();
+		CollectGlobalStateClass me = new CollectGlobalStateClass(members,
+				channels);
 		for (PSource source : sources) {
 			source.apply(me);
 		}
 
-		// Create surrogate global root class
-		LexNameToken className = new LexNameToken("CML",
-				new LexIdentifierToken("Global Definitions", false,
-						new LexLocation()));
-		AClassClassDefinition globalRoot = AstFactory.newAClassClassDefinition(
-				className, new LexNameList(), members);
-
-		info.setGlobalClassDefinitions(globalRoot);
 		// That's it
-		return globalRoot;
+		return new GlobalDefinitions(members, channels);
+	}
+
+	@Override
+	public void caseAChannelNameDefinition(AChannelNameDefinition node)
+			throws AnalysisException {
+		channels.add(node);
+	}
+
+	@Override
+	public void caseAChannelsDefinition(AChannelsDefinition node)
+			throws AnalysisException {
+
+		LinkedList<AChannelNameDefinition> channels = node
+				.getChannelNameDeclarations();
+		for (AChannelNameDefinition channel : channels)
+			channel.apply(this);
 	}
 
 	@Override
@@ -60,24 +80,16 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 	}
 
 	private CollectGlobalStateClass(List<PDefinition> members,
-			TypeCheckQuestion question) {
+			Collection<PDefinition> channels) {
 		this.members = members;
-
+		this.channels = channels;
 	}
 
-	/*
-	 * @Override public void caseAChannelsDefinition(AChannelsDefinition node)
-	 * throws AnalysisException {
-	 * 
-	 * LinkedList<AChannelNameDefinition> channels =
-	 * node.getChannelNameDeclarations(); for(AChannelNameDefinition chanDef:
-	 * channels) { if (chanDef.getSingleType() != null) { ATypeSingleDeclaration
-	 * typeDecl = chanDef.getSingleType(); LinkedList<LexIdentifierToken> ids =
-	 * typeDecl.getIdentifiers(); for (LexIdentifierToken id : ids)
-	 * question.addChannel(id, chanDef); } }
-	 * 
-	 * }
-	 */
+	@Override
+	public void caseAClassDefinition(AClassDefinition node)
+			throws AnalysisException {
+		members.add(node);
+	}
 
 	@Override
 	public void caseATypesDefinition(ATypesDefinition node)
@@ -127,6 +139,25 @@ public class CollectGlobalStateClass extends AnalysisCMLAdaptor {
 		}
 
 		members.addAll(defs);
+	}
+
+	@Override
+	public void caseAProcessDefinition(AProcessDefinition node)
+			throws AnalysisException {
+		members.add(node);
+	}
+
+	@Override
+	public void caseAChansetDefinition(AChansetDefinition node)
+			throws AnalysisException {
+		channels.add(node);
+	}
+
+	@Override
+	public void caseAChansetsDefinition(AChansetsDefinition node)
+			throws AnalysisException {
+		for (PDefinition d : node.getChansets())
+			d.apply(this);
 	}
 
 }

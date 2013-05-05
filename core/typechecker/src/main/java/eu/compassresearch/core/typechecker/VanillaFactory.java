@@ -1,13 +1,16 @@
 package eu.compassresearch.core.typechecker;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
 import org.overture.ast.analysis.intf.IQuestionAnswer;
+import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
+import eu.compassresearch.core.typechecker.api.CmlRootVisitor;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
@@ -61,7 +64,7 @@ public final class VanillaFactory {
 	public static CmlTypeChecker newTypeChecker(Collection<PSource> cmlSources,
 			TypeIssueHandler issueHandler) {
 		VanillaCmlTypeChecker result = new VanillaCmlTypeChecker(cmlSources,
-				issueHandler);
+				SimpleTypeComparator.newInstance(), issueHandler);
 		return result;
 	}
 
@@ -81,17 +84,11 @@ public final class VanillaFactory {
 	 *            TypeIssueHandler.
 	 */
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlDefinitionAndDeclarationVisitor(
-			CmlTypeChecker parentChecker, TypeComparator compareTypes,
+			CmlRootVisitor parentChecker, TypeComparator compareTypes,
 			TypeIssueHandler issueHandler) {
-		// TCDeclAndDefVisitor v = new TCDeclAndDefVisitor(
-		// (VanillaCmlTypeChecker) parentChecker, compareTypes,
-		// issueHandler);
-		// TODO RWL: Fix this. The Cycle detection should be refactored into a
-		// strategy
-		// which can be null and if that is the case we use Declared order for
-		// actions !.
-		throw new UnsupportedOperationException(
-				"At this time the TCDeclAndDefVisitor implementation is entangled with the TCActionVisitor disallowing craetion of stand alone TCDeclAndDef vistors.");
+		TCDeclAndDefVisitor v = new TCDeclAndDefVisitor(parentChecker,
+				compareTypes, issueHandler);
+		return v;
 	}
 
 	/**
@@ -106,7 +103,7 @@ public final class VanillaFactory {
 	 *            TypeIssueHandler.
 	 */
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmStatementVisitor(
-			CmlTypeChecker parentChecker, TypeIssueHandler issueHandler,
+			CmlRootVisitor parentChecker, TypeIssueHandler issueHandler,
 			TypeComparator typeComparator) {
 		TCActionVisitor v = new TCActionVisitor(parentChecker, issueHandler,
 				typeComparator);
@@ -125,9 +122,9 @@ public final class VanillaFactory {
 	 *            TypeIssueHandler.
 	 */
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlTypeVisitor(
-			CmlTypeChecker parentChecker, TypeIssueHandler issueHandler) {
-		TCTypeVisitor exprVisitor = new TCTypeVisitor(
-				(VanillaCmlTypeChecker) parentChecker, issueHandler);
+			CmlRootVisitor parentChecker, TypeIssueHandler issueHandler) {
+		TCTypeVisitor exprVisitor = new TCTypeVisitor(parentChecker,
+				issueHandler);
 		return exprVisitor;
 	}
 
@@ -143,11 +140,10 @@ public final class VanillaFactory {
 	 *            TypeIssueHandler.
 	 */
 	public static IQuestionAnswer<org.overture.typechecker.TypeCheckInfo, PType> newCmlExpressionVisitor(
-			CmlTypeChecker parentChecker, TypeIssueHandler issueHandler,
+			CmlRootVisitor parentChecker, TypeIssueHandler issueHandler,
 			TypeComparator typeComparator) {
 		TCExpressionVisitor exprVisitor = new TCExpressionVisitor(
-				(VanillaCmlTypeChecker) parentChecker, issueHandler,
-				typeComparator);
+				parentChecker, issueHandler, typeComparator);
 		return exprVisitor;
 	}
 
@@ -162,7 +158,8 @@ public final class VanillaFactory {
 	 */
 	public static TypeCheckQuestion newTopLevelTypeCheckQuestion(
 			TypeIssueHandler issueHandler) {
-		return CmlTypeCheckInfo.getNewTopLevelInstance(issueHandler, null);
+		return CmlTypeCheckInfo.getNewTopLevelInstance(issueHandler,
+				new LinkedList<PDefinition>(), new LinkedList<PDefinition>());
 	}
 
 	/**

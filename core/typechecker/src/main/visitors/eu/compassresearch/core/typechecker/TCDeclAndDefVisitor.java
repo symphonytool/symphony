@@ -1,5 +1,7 @@
 package eu.compassresearch.core.typechecker;
 
+import static eu.compassresearch.core.typechecker.CmlTCUtil.successfulType;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -113,7 +115,6 @@ import eu.compassresearch.ast.types.AProcessParagraphType;
 import eu.compassresearch.ast.types.AStateParagraphType;
 import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
@@ -123,7 +124,7 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 class TCDeclAndDefVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
-	private final TCActionVisitor actionVisitor;
+	// private final TCActionVisitor actionVisitor;
 
 	@Override
 	public PType caseAChansetDefinition(AChansetDefinition node,
@@ -131,14 +132,14 @@ class TCDeclAndDefVisitor extends
 		PVarsetExpression chansetExp = node.getChansetExpression();
 
 		PType chansetExpType = chansetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(chansetExpType)) {
+		if (!successfulType(chansetExpType)) {
 			node.setType(issueHandler.addTypeError(chansetExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(node + "")));
 			return node.getType();
 		}
-		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-		cmlEnv.addChannel(node.getIdentifier(), node);
+		// CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+		// cmlEnv.addChannel(node.getIdentifier(), node);
 
 		AChansetType res = new AChansetType(node.getLocation(), true);
 		node.setType(res);
@@ -152,7 +153,7 @@ class TCDeclAndDefVisitor extends
 		PVarsetExpression namesetExp = node.getNamesetExpression();
 
 		PType namesetExpType = namesetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(namesetExpType)) {
+		if (!successfulType(namesetExpType)) {
 			node.setType(issueHandler.addTypeError(namesetExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(namesetExp + "")));
@@ -170,7 +171,7 @@ class TCDeclAndDefVisitor extends
 		LinkedList<AChansetDefinition> chansets = node.getChansets();
 		for (AChansetDefinition chansetDef : chansets) {
 			PType type = chansetDef.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(type)) {
+			if (!successfulType(type)) {
 				node.setType(issueHandler.addTypeError(chansetDef,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(chansetDef + "")));
@@ -189,7 +190,7 @@ class TCDeclAndDefVisitor extends
 		LinkedList<ANamesetDefinition> namesets = node.getNamesets();
 		for (ANamesetDefinition namesetDef : namesets) {
 			PType namesetDefType = namesetDef.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(namesetDefType)) {
+			if (!successfulType(namesetDefType)) {
 				node.setType(issueHandler.addTypeError(namesetDef,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(namesetDef + "")));
@@ -209,13 +210,13 @@ class TCDeclAndDefVisitor extends
 		LinkedList<PDefinition> functions = node.getFunctionDefinitions();
 		for (PDefinition def : functions) {
 			PType defType = def.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(defType)) {
+			if (!successfulType(defType)) {
 				node.setType(issueHandler.addTypeError(def,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + def)));
 				return node.getType();
 			}
-			cmlEnv.addVariable(def.getName(), def);
+			// cmlEnv.addVariable(def.getName(), def);
 		}
 
 		node.setType(new AFunctionParagraphType(node.getLocation(), true));
@@ -257,7 +258,7 @@ class TCDeclAndDefVisitor extends
 		}
 
 		PType declType = decl.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(declType)) {
+		if (!successfulType(declType)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(declType + " ")));
@@ -289,17 +290,17 @@ class TCDeclAndDefVisitor extends
 			TypeCheckInfo question) throws AnalysisException {
 
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
-
-		actionVisitor.setupActionCycleMap();
+		// CmlTypeCheckInfo actionsScope = cmlEnv.newScope();
+		// actionVisitor.setupActionCycleMap();
 
 		LinkedList<AActionDefinition> actions = node.getActions();
 		for (AActionDefinition action : actions) {
-			actionVisitor.registerActionForCycleDetection(action);
+			// actionVisitor.registerActionForCycleDetection(action);
 			cmlEnv.addVariable(action.getName(), action);
 		}
 
 		for (AActionDefinition action : actions) {
-			PType actionType = action.apply(parentChecker, question);
+			PType actionType = action.apply(parentChecker, cmlEnv);
 			if (!successfulType(actionType)) {
 				node.setType(issueHandler.addTypeError(action,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
@@ -315,7 +316,7 @@ class TCDeclAndDefVisitor extends
 			}
 		}
 
-		actionVisitor.tearDownActionCycleMap();
+		// actionVisitor.tearDownActionCycleMap();
 		node.setType(new AActionParagraphType());
 		return node.getType();
 	}
@@ -330,7 +331,7 @@ class TCDeclAndDefVisitor extends
 		for (PDefinition def : defs) {
 			question.scope = NameScope.STATE;
 			PType defType = def.apply(parentChecker, cmlenv);
-			if (!TCDeclAndDefVisitor.successfulType(defType)) {
+			if (!successfulType(defType)) {
 				node.setType(issueHandler.addTypeError(def,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + def)));
@@ -397,7 +398,7 @@ class TCDeclAndDefVisitor extends
 			LinkedList<PPattern> patterns = typePair.getPatterns();
 			for (PPattern ptrn : patterns) {
 				PType ptrnType = ptrn.apply(parentChecker, question);
-				if (!TCDeclAndDefVisitor.successfulType(ptrnType)) {
+				if (!successfulType(ptrnType)) {
 					node.setType(issueHandler.addTypeError(ptrn,
 							TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 									.customizeMessage(ptrn + "")));
@@ -461,10 +462,10 @@ class TCDeclAndDefVisitor extends
 				node.getLocation(), paramTypes, resultType);
 		node.setType(operationType);
 
-		AOperationType ot = node.getType();
+		AOperationType ot = (AOperationType) node.getType();
 		for (PType p : ot.getParameters()) {
 			PType pType = p.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(pType)) {
+			if (!successfulType(pType)) {
 				node.setType(issueHandler.addTypeError(ot,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + p)));
@@ -509,7 +510,7 @@ class TCDeclAndDefVisitor extends
 		}
 
 		PType preDefType = preDef.apply(parentChecker, preEnv);
-		if (!TCDeclAndDefVisitor.successfulType(preDefType)) {
+		if (!successfulType(preDefType)) {
 			node.setType(issueHandler.addTypeError(preDef,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(preDef + "")));
@@ -530,7 +531,7 @@ class TCDeclAndDefVisitor extends
 		}
 
 		PType postDefType = postDef.apply(parentChecker, postEnv);
-		if (!TCDeclAndDefVisitor.successfulType(postDefType)) {
+		if (!successfulType(postDefType)) {
 			node.setType(issueHandler.addTypeError(postDef,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(postDef + "")));
@@ -557,7 +558,7 @@ class TCDeclAndDefVisitor extends
 		LinkedList<SCmlOperationDefinition> operations = node.getOperations();
 		for (SCmlOperationDefinition odef : operations) {
 			PType operationType = odef.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(operationType)) {
+			if (!successfulType(operationType)) {
 				node.setType(issueHandler.addTypeError(odef,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(odef + "")));
@@ -669,11 +670,13 @@ class TCDeclAndDefVisitor extends
 			CmlTypeCheckInfo question) throws AnalysisException {
 
 		// Create class environment
-		PrivateClassEnvironment self = new PrivateClassEnvironment(node, null);
+		PrivateClassEnvironment self = new PrivateClassEnvironment(node,
+				question.env);
 
 		List<SClassDefinition> classes = new LinkedList<SClassDefinition>();
 		classes.add(node);
-		Environment allClasses = new PublicClassEnvironment(classes);
+		Environment allClasses = new PublicClassEnvironment(classes,
+				question.env, null);
 
 		for (SClassDefinition c : classes) {
 			if (!c.getTypeChecked()) {
@@ -767,17 +770,16 @@ class TCDeclAndDefVisitor extends
 	}
 
 	// Errors and other things are recorded on this guy
-	private final CmlTypeChecker parentChecker;
+	private final eu.compassresearch.core.typechecker.api.CmlRootVisitor parentChecker;
 	private final TypeComparator typeComparator;
 	private final TypeIssueHandler issueHandler;
 
-	public TCDeclAndDefVisitor(CmlTypeChecker parent,
-			TypeComparator typeComparator, TypeIssueHandler issueHandler,
-			TCActionVisitor actionVisitor) {
+	public TCDeclAndDefVisitor(
+			eu.compassresearch.core.typechecker.api.CmlRootVisitor parent,
+			TypeComparator typeComparator, TypeIssueHandler issueHandler) {
 		this.parentChecker = parent;
 		this.issueHandler = issueHandler;
 		this.typeComparator = typeComparator;
-		this.actionVisitor = actionVisitor;
 	}
 
 	// -------------------------------------------------------
@@ -801,7 +803,7 @@ class TCDeclAndDefVisitor extends
 		CmlTypeCheckInfo actionScope = cmlEnv.newScope();
 		for (PParametrisation decl : decls) {
 			PType declType = decl.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(declType)) {
+			if (!successfulType(declType)) {
 				node.setType(issueHandler.addTypeError(decl,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(decl + "")));
@@ -813,7 +815,7 @@ class TCDeclAndDefVisitor extends
 
 		// type check the action
 		PType actionType = action.apply(parentChecker, actionScope);
-		if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+		if (!successfulType(actionType)) {
 			node.setType(issueHandler.addTypeError(action,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(action + "")));
@@ -832,7 +834,7 @@ class TCDeclAndDefVisitor extends
 		LinkedList<ATypeDefinition> defs = node.getTypes();
 		for (ATypeDefinition d : defs) {
 			PType type = d.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(type)) {
+			if (!successfulType(type)) {
 				issueHandler.addTypeError(d,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(d.getName() + ""));
@@ -1183,11 +1185,11 @@ class TCDeclAndDefVisitor extends
 	private static AClassClassDefinition createSurrogateClass(
 			AClassDefinition node, CmlTypeCheckInfo question) {
 
-		if (question.getGlobalClassDefinitions() == null)
-			throw new NullPointerException();
+		// if (question.getGlobalClassDefinitions() == null)
+		// throw new NullPointerException();
 
 		List<SClassDefinition> superDefs = new LinkedList<SClassDefinition>();
-		superDefs.add(question.getGlobalClassDefinitions());
+		// superDefs.add(question.getGlobalClassDefinitions());
 		// TODO RWL Go recursive and create surrogates for each ancestor to node
 		// from node.getSuperDefs().
 
@@ -1309,10 +1311,6 @@ class TCDeclAndDefVisitor extends
 				result.add(type.cast(d));
 
 		return result;
-	}
-
-	public static boolean successfulType(PType type) {
-		return !(type == null || type instanceof AErrorType);
 	}
 
 	// ------------------------------------------------
@@ -1518,7 +1516,7 @@ class TCDeclAndDefVisitor extends
 		LinkedList<PSingleDeclaration> state = node.getLocalState();
 		for (PSingleDeclaration decl : state) {
 			PType declType = decl.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(declType)) {
+			if (!successfulType(declType)) {
 				node.setType(issueHandler.addTypeError(decl,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(decl + "")));
@@ -1561,7 +1559,7 @@ class TCDeclAndDefVisitor extends
 
 		if (type != null) {
 			PType typetype = type.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(typetype)) {
+			if (!successfulType(typetype)) {
 				node.setType(issueHandler.addTypeError(type,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + type)));
@@ -1601,8 +1599,6 @@ class TCDeclAndDefVisitor extends
 								.customizeMessage(decl.toString())));
 				return decl.getType();
 			}
-			for (ILexIdentifierToken id : decl.getSingleType().getIdentifiers())
-				newQ.addChannel(id, decl);
 		}
 
 		node.setType(new AChannelType());
@@ -1624,12 +1620,12 @@ class TCDeclAndDefVisitor extends
 
 		newQuestion.env.setEnclosingDefinition(node);
 
-		AOperationType opType = node.getType();
+		AOperationType opType = (AOperationType) node.getType();
 		if (opType != null) {
 			LinkedList<PType> paramTypes = opType.getParameters();
 			for (PType pType : paramTypes) {
 				PType pTypeType = pType.apply(parentChecker, question);
-				if (!TCDeclAndDefVisitor.successfulType(pTypeType)) {
+				if (!successfulType(pTypeType)) {
 					node.setType(issueHandler.addTypeError(node,
 							TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 									.customizeMessage("" + pType)));
@@ -1639,7 +1635,7 @@ class TCDeclAndDefVisitor extends
 
 			PType retType = opType.getResult();
 			PType retTypeType = retType.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(retTypeType)) {
+			if (!successfulType(retTypeType)) {
 				node.setType(issueHandler.addTypeError(node,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + retType)));
@@ -1652,7 +1648,7 @@ class TCDeclAndDefVisitor extends
 		question.contextSet(CmlTypeCheckInfo.class, newQuestion);
 		PType bodyType = operationBody.apply(parentChecker, newQuestion);
 		question.contextRem(CmlTypeCheckInfo.class);
-		if (!TCDeclAndDefVisitor.successfulType(bodyType)) {
+		if (!successfulType(bodyType)) {
 			node.setType(issueHandler.addTypeError(operationBody,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(operationBody + "")));
@@ -1663,7 +1659,7 @@ class TCDeclAndDefVisitor extends
 		boolean isCtor = node.getIsConstructor();
 		if (isCtor) // check type is of class type
 		{
-			AOperationType operType = node.getType();
+			AOperationType operType = (AOperationType) node.getType();
 			if (!operType.getResult().equals(
 					node.getAncestor(AClassDefinition.class).getType())) {
 				node.setIsConstructor(false);
@@ -1680,7 +1676,7 @@ class TCDeclAndDefVisitor extends
 							.getPrecondition(), enclosingStateDefinitions,
 					new LinkedList<PDefinition>());
 			PType preDefType = preDef.apply(parentChecker, newQuestion);
-			if (!TCDeclAndDefVisitor.successfulType(preDefType)) {
+			if (!successfulType(preDefType)) {
 				node.setType(issueHandler.addTypeError(node,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + preDef)));
@@ -1695,7 +1691,8 @@ class TCDeclAndDefVisitor extends
 					"RESULT", node.getLocation());
 			PPattern rp = AstFactory.newAIdentifierPattern(result);
 			List<PDefinition> rdefs = PPatternAssistantTC.getDefinitions(rp,
-					node.getType().getResult(), NameScope.NAMESANDANYSTATE);
+					((AOperationType) node.getType()).getResult(),
+					NameScope.NAMESANDANYSTATE);
 
 			CmlTypeCheckInfo postEnv = newQuestion.newScope();
 			for (PDefinition postDef : rdefs) {
@@ -1703,13 +1700,14 @@ class TCDeclAndDefVisitor extends
 			}
 
 			LinkedList<PPattern> paramPatterns = node.getParameterPatterns();
-			List<PType> paramTypes = node.getType().getParameters();
+			List<PType> paramTypes = ((AOperationType) node.getType())
+					.getParameters();
 			// create old names
 			for (int i = 0; i < paramPatterns.size(); i++) {
 				PType t = paramTypes.get(i);
 				for (PPattern p : paramPatterns) {
 					PType pType = p.apply(parentChecker, question);
-					if (!TCDeclAndDefVisitor.successfulType(pType)) {
+					if (!successfulType(pType)) {
 						node.setType(issueHandler.addTypeError(node,
 								TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 										.customizeMessage("" + p)));
@@ -1747,7 +1745,7 @@ class TCDeclAndDefVisitor extends
 					node.getPostcondition(), enclosingStateDefinitions,
 					oldStateDefs);
 			PType postDefType = postDef.apply(parentChecker, postEnv);
-			if (!TCDeclAndDefVisitor.successfulType(postDefType)) {
+			if (!successfulType(postDefType)) {
 				node.setType(issueHandler.addTypeError(node,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + postDef)));
@@ -1817,8 +1815,8 @@ class TCDeclAndDefVisitor extends
 			patterns = AExplicitCmlOperationDefinition.class.cast(funDef)
 					.getParameterPatterns();
 
-			paramTypes = AExplicitCmlOperationDefinition.class.cast(funDef)
-					.getType().getParameters();
+			paramTypes = ((AOperationType) AExplicitCmlOperationDefinition.class
+					.cast(funDef).getType()).getParameters();
 		}
 
 		// setup local environment
@@ -1840,7 +1838,7 @@ class TCDeclAndDefVisitor extends
 		for (PPattern p : patterns) {
 
 			PType patternType = p.apply(parentChecker, current);
-			if (!TCDeclAndDefVisitor.successfulType(patternType)) {
+			if (!successfulType(patternType)) {
 				funDef.setType(issueHandler.addTypeError(p,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + p)));
@@ -1917,6 +1915,7 @@ class TCDeclAndDefVisitor extends
 			defs.addAll(pdef); // All definitions of all parameter lists
 		}
 
+		OvertureRootCMLAdapter.pushQuestion(question);
 		FlatCheckedEnvironment local = new FlatCheckedEnvironment(defs,
 				question.env, question.scope);
 
@@ -1951,7 +1950,7 @@ class TCDeclAndDefVisitor extends
 				TypeChecker.detail2("Actual", b, "Expected", expected);
 				return new AErrorType();
 			}
-			cmlEnv.addVariable(node.getPredef().getName(), node.getPredef());
+			// cmlEnv.addVariable(node.getPredef().getName(), node.getPredef());
 		}
 
 		if (node.getPostdef() != null) {
@@ -2095,6 +2094,7 @@ class TCDeclAndDefVisitor extends
 			local.unusedCheck();
 		}
 
+		OvertureRootCMLAdapter.popQuestion(question);
 		// node.setType(node.getType());
 		return node.getType();
 	}

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.overture.ast.types.ABracketType;
+import org.overture.ast.types.AInMapMapType;
 import org.overture.ast.types.AIntNumericBasicType;
 import org.overture.ast.types.AMapMapType;
 import org.overture.ast.types.ANamedInvariantType;
@@ -21,6 +22,7 @@ import org.overture.ast.types.AUnknownType;
 import org.overture.ast.types.PType;
 import org.overture.ast.types.SBasicType;
 import org.overture.ast.types.SSeqType;
+import org.overture.typechecker.Environment;
 
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 
@@ -73,10 +75,10 @@ class SimpleTypeComparator implements TypeComparator {
 	}
 
 	@SuppressWarnings("unused")
-	private final Environment<PType> typeEnvironment;
+	private final Environment typeEnvironment;
 
 	// only created through factory method
-	private SimpleTypeComparator(Environment<PType> env) {
+	private SimpleTypeComparator(Environment env) {
 		this.typeEnvironment = env;
 	}
 
@@ -197,10 +199,19 @@ class SimpleTypeComparator implements TypeComparator {
 		// un-pack types
 		TypePair pair = obtainFundamentalTypes(sup, sub);
 
-		if (sub instanceof AMapMapType) {
-			if (sup instanceof AMapMapType) {
-				AMapMapType subMap = (AMapMapType) sub;
-				AMapMapType supMap = (AMapMapType) sup;
+		if (pair.from instanceof AMapMapType) {
+			if (pair.to instanceof AMapMapType) {
+				AMapMapType subMap = (AMapMapType) pair.from;
+				AMapMapType supMap = (AMapMapType) pair.to;
+				return isSubType(subMap.getFrom(), supMap.getFrom())
+						&& isSubType(subMap.getTo(), supMap.getTo());
+			}
+		}
+
+		if (pair.from instanceof AInMapMapType) {
+			if (pair.to instanceof AMapMapType) {
+				AInMapMapType subMap = (AInMapMapType) pair.from;
+				AMapMapType supMap = (AMapMapType) pair.to;
 				return isSubType(subMap.getFrom(), supMap.getFrom())
 						&& isSubType(subMap.getTo(), supMap.getTo());
 			}

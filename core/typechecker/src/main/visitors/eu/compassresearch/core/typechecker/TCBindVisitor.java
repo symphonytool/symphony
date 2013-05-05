@@ -1,5 +1,7 @@
 package eu.compassresearch.core.typechecker;
 
+import static eu.compassresearch.core.typechecker.CmlTCUtil.successfulType;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,7 +30,6 @@ import org.overture.typechecker.TypeCheckInfo;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.analysis.intf.ICMLQuestionAnswer;
 import eu.compassresearch.ast.types.ABindType;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
@@ -37,10 +38,11 @@ import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 		implements ICMLQuestionAnswer<TypeCheckInfo, PType> {
 
-	private final CmlTypeChecker parent;
+	private final eu.compassresearch.core.typechecker.api.CmlRootVisitor parent;
 	private final TypeIssueHandler issueHandler;
 
-	public TCBindVisitor(CmlTypeChecker vanillaCmlTypeChecker,
+	public TCBindVisitor(
+			eu.compassresearch.core.typechecker.api.CmlRootVisitor vanillaCmlTypeChecker,
 			TypeIssueHandler issueHandler) {
 
 		this.parent = vanillaCmlTypeChecker;
@@ -64,7 +66,7 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 		LinkedList<PPattern> ptrns = node.getPlist();
 
 		PType type = cmlEnv.lookupType(typeName);
-		if (!TCDeclAndDefVisitor.successfulType(type)) {
+		if (!successfulType(type)) {
 			node.setType(issueHandler.addTypeError(
 					typeName,
 					TypeErrorMessages.UNDEFINED_TYPE.customizeMessage(""
@@ -92,7 +94,7 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 		int i = 0;
 		for (PPattern ptrn : ptrns) {
 			PType ptrnType = ptrn.apply(parent, question);
-			if (!TCDeclAndDefVisitor.successfulType(ptrnType)) {
+			if (!successfulType(ptrnType)) {
 				node.setType(issueHandler.addTypeError(ptrn,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(ptrn + "")));
@@ -110,7 +112,7 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 	@Override
 	public PType caseAMultiBindListDefinition(AMultiBindListDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
-
+		node.setNameScope(question.scope);
 		return node.getType();
 	}
 
@@ -120,7 +122,7 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 
 		PExp set = node.getSet();
 		PType type = set.apply(parent, question);
-		if (!TCDeclAndDefVisitor.successfulType(type)) {
+		if (!successfulType(type)) {
 			return issueHandler.addTypeError(set,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + set));
@@ -140,7 +142,7 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 		bindType.setDefinitions(new LinkedList<PDefinition>());
 		for (PPattern p : patterns) {
 			PType pType = p.apply(parent, question);
-			if (!TCDeclAndDefVisitor.successfulType(pType)) {
+			if (!successfulType(pType)) {
 				return issueHandler.addTypeError(p,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + p));
@@ -163,7 +165,7 @@ class TCBindVisitor extends QuestionAnswerCMLAdaptor<TypeCheckInfo, PType>
 		LinkedList<PPattern> plist = node.getPlist();
 		for (PPattern p : plist) {
 			PType ptype = p.apply(parent, question);
-			if (!TCDeclAndDefVisitor.successfulType(ptype))
+			if (!successfulType(ptype))
 				return issueHandler.addTypeError(p,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(p + ""));

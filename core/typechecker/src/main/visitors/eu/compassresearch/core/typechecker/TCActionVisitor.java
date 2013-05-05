@@ -1,6 +1,7 @@
 package eu.compassresearch.core.typechecker;
 
-import java.util.HashMap;
+import static eu.compassresearch.core.typechecker.CmlTCUtil.successfulType;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -128,7 +129,6 @@ import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.ast.types.ANamesetsType;
 import eu.compassresearch.ast.types.AProcessType;
 import eu.compassresearch.ast.types.AStatementType;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -156,7 +156,7 @@ class TCActionVisitor extends
 		PExp elseIfExp = node.getElseIf();
 
 		PType elseIfExpType = elseIfExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(elseIfExpType)) {
+		if (!successfulType(elseIfExpType)) {
 			node.setType(issueHandler.addTypeError(elseIfExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(elseIfExp + "")));
@@ -172,7 +172,7 @@ class TCActionVisitor extends
 		}
 
 		PType thenActionType = thenAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(thenActionType)) {
+		if (!successfulType(thenActionType)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + thenAction)));
@@ -215,99 +215,9 @@ class TCActionVisitor extends
 					node.getLocation(), name, NameScope.LOCAL, decl.getType());
 			defs.add(localDef);
 		}
-
 		PType res = new AActionType(node.getLocation(), true);
 		res.setDefinitions(defs);
 		return res;
-	}
-
-	/**
-	 * Actions can reference and call each other and for that we have two
-	 * choices.
-	 * 
-	 * Lookup restricted to declared order or dynamic order.
-	 * 
-	 * The design choice to go with dynamic order for flexibility in CML has
-	 * been made. This solution suffers from possible cyclic references which
-	 * are resolved using the map below.
-	 * 
-	 * TCDeclAndDefVisitor will setup this map in the caseAActionsDefinition and
-	 * tear it down again upon leaving. ACallStatementAction and
-	 * AReferencedAction uses this map to check for cyclic references before
-	 * going recursively down and type checking the referenced action if it has
-	 * no type already.
-	 * 
-	 * The actionDefinntionsSeen is a map from referencee to referencer. Every
-	 * referencee will maintain a list of Actions from where it has been
-	 * referenced.
-	 */
-	private Map<AActionDefinition, List<PAction>> actionDefinitionsSeen = null;
-
-	// use by caseAActionsDefinitions in TCDeclAndDefVisitor.
-	void setupActionCycleMap() {
-		this.actionDefinitionsSeen = new HashMap<AActionDefinition, List<PAction>>();
-	}
-
-	// set it to null will give GC a go at it
-	void tearDownActionCycleMap() {
-		this.actionDefinitionsSeen = null;
-	}
-
-	// Add action to the map with empty referencer list
-	void registerActionForCycleDetection(AActionDefinition actionDef) {
-		actionDefinitionsSeen.put(actionDef, new LinkedList<PAction>());
-	}
-
-	/**
-	 * 
-	 * Type check a referenced action that has not been type checked yet.
-	 * 
-	 * Check that there is no cycle.
-	 * 
-	 * @param referencer
-	 *            -- The node that dereferences
-	 * @param referencee
-	 *            -- The lookup node that has been dereferenced
-	 * @param question
-	 *            -- The current environment
-	 * @return The type of the referenced action.
-	 * @throws AnalysisException
-	 *             - if something unpredicted happens.
-	 */
-	private PType resolveUntypedActionReference(PAction referencer,
-			PDefinition referencee, TypeCheckInfo question)
-			throws AnalysisException {
-		PType res = null;
-
-		// get the list of referencers for this current referencee
-		List<PAction> referencingActions = null;
-		if (actionDefinitionsSeen.containsKey(referencee))
-			referencingActions = actionDefinitionsSeen.get(referencee);
-		else
-			return issueHandler.addTypeError(referencee, "Action \""
-					+ referencee + "\" is not part of this group");
-
-		// Invariant:
-		referencingActions.add(referencer);
-		if (referencingActions.size() > 1) {
-			StringBuilder cycleStr = new StringBuilder();
-			List<PAction> cur = actionDefinitionsSeen.get(referencee);
-			cycleStr.append("" + referencer);
-			do {
-				cycleStr.append(" -> ");
-				PAction ac = cur.remove(0);
-				cycleStr.append(ac + "");
-				cur = actionDefinitionsSeen.get(ac);
-			} while (cur != null && cur.size() > 0);
-			issueHandler.addTypeWarning(referencee,
-					TypeWarningMessages.CYCLE_ACTION_REFERENCE
-							.customizeMessage(cycleStr.toString()));
-			referencee.setType(new AActionType());
-			return referencee.getType();
-		}
-
-		referencee.setType(new AActionType());
-		return referencee.getType();
 	}
 
 	@Override
@@ -320,7 +230,7 @@ class TCActionVisitor extends
 		LinkedList<AElseIfStatementAction> elseIfs = node.getElseIf();
 
 		PType testExpType = testExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(testExpType)) {
+		if (!successfulType(testExpType)) {
 			node.setType(issueHandler.addTypeError(testExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(testExp + "")));
@@ -335,7 +245,7 @@ class TCActionVisitor extends
 		}
 
 		PType thenActionType = thenAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(thenActionType)) {
+		if (!successfulType(thenActionType)) {
 			node.setType(issueHandler.addTypeError(thenAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(thenAction + "")));
@@ -346,7 +256,7 @@ class TCActionVisitor extends
 		// AKM: The else case is optional
 		if (elseAction != null) {
 			PType elseActionType = elseAction.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(elseActionType)) {
+			if (!successfulType(elseActionType)) {
 				node.setType(issueHandler.addTypeError(elseAction,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(elseAction + "")));
@@ -357,7 +267,7 @@ class TCActionVisitor extends
 
 		for (AElseIfStatementAction elseIf : elseIfs) {
 			PType elseIfType = elseIf.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(elseIfType)) {
+			if (!successfulType(elseIfType)) {
 				node.setType(issueHandler.addTypeError(elseIf,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(elseIf + "")));
@@ -377,7 +287,7 @@ class TCActionVisitor extends
 		PAction right = node.getRight();
 
 		PType leftType = left.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftType)) {
+		if (!successfulType(leftType)) {
 			node.setType(issueHandler.addTypeError(left,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + left)));
@@ -385,7 +295,7 @@ class TCActionVisitor extends
 		}
 
 		PType rightType = right.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightType)) {
+		if (!successfulType(rightType)) {
 			node.setType(issueHandler.addTypeError(right,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(right + "")));
@@ -405,7 +315,7 @@ class TCActionVisitor extends
 		PExp timedExp = node.getTimeoutExpression();
 
 		PType leftType = left.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftType)) {
+		if (!successfulType(leftType)) {
 			node.setType(issueHandler.addTypeError(left,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(left + "")));
@@ -413,7 +323,7 @@ class TCActionVisitor extends
 		}
 
 		PType rightType = right.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightType)) {
+		if (!successfulType(rightType)) {
 			node.setType(issueHandler.addTypeError(right,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(right + "")));
@@ -421,7 +331,7 @@ class TCActionVisitor extends
 		}
 
 		PType timedExpType = timedExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(timedExpType)) {
+		if (!successfulType(timedExpType)) {
 			node.setType(issueHandler.addTypeError(timedExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(timedExp + "")));
@@ -481,7 +391,7 @@ class TCActionVisitor extends
 		LinkedList<AExternalClause> externals = node.getExternals();
 		for (AExternalClause extClause : externals) {
 			PType extClauseType = extClause.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(extClauseType)) {
+			if (!successfulType(extClauseType)) {
 				node.setType(issueHandler.addTypeError(extClause,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(extClause + "")));
@@ -499,7 +409,7 @@ class TCActionVisitor extends
 
 		PExp preCond = node.getPrecondition();
 		PType preCondType = preCond.apply(parentChecker, prePostEnv);
-		if (!TCDeclAndDefVisitor.successfulType(preCondType)) {
+		if (!successfulType(preCondType)) {
 			node.setType(issueHandler.addTypeError(preCond,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(preCond + "")));
@@ -508,7 +418,7 @@ class TCActionVisitor extends
 
 		PExp postCond = node.getPostcondition();
 		PType postCondType = postCond.apply(parentChecker, prePostEnv);
-		if (TCDeclAndDefVisitor.successfulType(postCondType))
+		if (successfulType(postCondType))
 
 			node.setType(new AActionType());
 		return node.getType();
@@ -524,7 +434,7 @@ class TCActionVisitor extends
 				.getReplicationDeclaration();
 		for (PSingleDeclaration d : repDecl) {
 			PType type = d.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(type)) {
+			if (!successfulType(type)) {
 				node.setType(issueHandler.addTypeError(d,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(d + "")));
@@ -533,7 +443,7 @@ class TCActionVisitor extends
 		}
 
 		PType actionType = repAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+		if (!successfulType(actionType)) {
 			node.setType(issueHandler.addTypeError(repAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + repAction)));
@@ -564,7 +474,7 @@ class TCActionVisitor extends
 		// TODO RWL: What is the semantics of this?
 		PVarsetExpression csexp = node.getChansetExpression();
 		PType csexpType = csexp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(csexpType)) {
+		if (!successfulType(csexpType)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + node)));
@@ -601,7 +511,7 @@ class TCActionVisitor extends
 
 		PVarsetExpression sexp = node.getNamesetExpression();
 		PType sexpType = sexp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(sexpType)) {
+		if (!successfulType(sexpType)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + node)));
@@ -635,7 +545,7 @@ class TCActionVisitor extends
 				AExpressionSingleDeclaration singleDecl = (AExpressionSingleDeclaration) decl;
 				PExp exp = singleDecl.getExpression();
 				PType expType = exp.apply(parentChecker, question);
-				if (!TCDeclAndDefVisitor.successfulType(expType)) {
+				if (!successfulType(expType)) {
 					node.setType(issueHandler.addTypeError(exp,
 							TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 									.customizeMessage("" + exp)));
@@ -673,7 +583,7 @@ class TCActionVisitor extends
 		}
 
 		PType repActionType = repAction.apply(parentChecker, actionEnv);
-		if (!TCDeclAndDefVisitor.successfulType(repActionType)) {
+		if (!successfulType(repActionType)) {
 			node.setType(issueHandler.addTypeError(repAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + repAction)));
@@ -702,7 +612,7 @@ class TCActionVisitor extends
 
 		for (PSingleDeclaration d : decl) {
 			PType declType = d.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(declType)) {
+			if (!successfulType(declType)) {
 				node.setType(issueHandler.addTypeError(d,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(d + "")));
@@ -714,7 +624,7 @@ class TCActionVisitor extends
 		}
 
 		PType actionType = action.apply(parentChecker, actionEnv);
-		if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+		if (!successfulType(actionType)) {
 			node.setType(issueHandler.addTypeError(action,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + action)));
@@ -734,7 +644,7 @@ class TCActionVisitor extends
 				.getAlternatives();
 		for (ANonDeterministicAltStatementAction alt : alternatives) {
 			PType altType = alt.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(altType)) {
+			if (!successfulType(altType)) {
 				node.setType(issueHandler.addTypeError(alt,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(alt + "")));
@@ -767,7 +677,7 @@ class TCActionVisitor extends
 
 		AVariableExp destVarExp = (AVariableExp) destVar;
 		PType destVarExpType = destVarExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(destVarExpType)) {
+		if (!successfulType(destVarExpType)) {
 			node.setType(issueHandler.addTypeError(destVarExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(destVarExp + "")));
@@ -795,7 +705,7 @@ class TCActionVisitor extends
 		// // typecheck arguments
 		for (PExp arg : node.getArgs()) {
 			PType pt = arg.apply(parentChecker, cmlEnv);
-			if (!TCDeclAndDefVisitor.successfulType(pt)) {
+			if (!successfulType(pt)) {
 				node.setType(issueHandler.addTypeError(
 						arg,
 						TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(""
@@ -825,7 +735,7 @@ class TCActionVisitor extends
 				.getClassName().getLocation(), node.getClassName(),
 				node.getArgs());
 		PType applyCtorExpType = callStm.apply(parentChecker, ctorEnv);
-		if (!TCDeclAndDefVisitor.successfulType(applyCtorExpType)) {
+		if (!successfulType(applyCtorExpType)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(node + "")));
@@ -862,7 +772,7 @@ class TCActionVisitor extends
 
 		for (ASingleGeneralAssignmentStatementAction assign : assigns) {
 			PType pt = assign.apply(parentChecker, newCmlEnv);
-			if (!TCDeclAndDefVisitor.successfulType(pt)) {
+			if (!successfulType(pt)) {
 				node.setType(issueHandler.addTypeError(assign,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + assign)));
@@ -896,7 +806,7 @@ class TCActionVisitor extends
 
 		for (PDefinition pd : localDefs) {
 			PType pt = pd.apply(parentChecker, newCmlEnv);
-			if (!TCDeclAndDefVisitor.successfulType(pt)) {
+			if (!successfulType(pt)) {
 				node.setType(issueHandler.addTypeError(pd,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + pd)));
@@ -910,7 +820,7 @@ class TCActionVisitor extends
 
 		// type check sub-action
 		PType actionType = action.apply(parentChecker, newCmlEnv);
-		if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+		if (!successfulType(actionType)) {
 			node.setType(issueHandler.addTypeError(action,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + action)));
@@ -931,7 +841,7 @@ class TCActionVisitor extends
 
 		// type-check sub-actions
 		PType leftActionType = leftAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftActionType)) {
+		if (!successfulType(leftActionType)) {
 			node.setType(issueHandler.addTypeError(leftAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + leftAction)));
@@ -939,7 +849,7 @@ class TCActionVisitor extends
 		}
 
 		PType rightActionType = rightAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
+		if (!successfulType(rightActionType)) {
 			node.setType(issueHandler.addTypeError(rightAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + rightAction)));
@@ -963,7 +873,7 @@ class TCActionVisitor extends
 
 		// type-check sub-actions
 		PType leftActionType = leftAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftActionType)) {
+		if (!successfulType(leftActionType)) {
 			node.setType(issueHandler.addTypeError(leftAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + leftAction)));
@@ -971,7 +881,7 @@ class TCActionVisitor extends
 		}
 
 		PType rightActionType = rightAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
+		if (!successfulType(rightActionType)) {
 			node.setType(issueHandler.addTypeError(rightAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + rightAction)));
@@ -983,7 +893,7 @@ class TCActionVisitor extends
 			PType leftNameSetType = leftNamesetExp.apply(parentChecker,
 					question);
 
-			if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
+			if (!successfulType(leftNameSetType))
 				return issueHandler.addTypeError(leftNamesetExp,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(leftNamesetExp + ""));
@@ -992,7 +902,7 @@ class TCActionVisitor extends
 		if (rightnamesetExp != null) {
 			PType rightNameSetType = rightnamesetExp.apply(parentChecker,
 					question);
-			if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
+			if (!successfulType(rightNameSetType))
 				return issueHandler.addTypeError(rightnamesetExp,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(rightnamesetExp + ""));
@@ -1014,7 +924,7 @@ class TCActionVisitor extends
 
 		// type check sub-action
 		PType actionType = action.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+		if (!successfulType(actionType)) {
 			node.setType(issueHandler.addTypeError(action,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + action)));
@@ -1023,7 +933,7 @@ class TCActionVisitor extends
 
 		for (ATypeSingleDeclaration declr : declarations) {
 			PType declType = declr.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(declType))
+			if (!successfulType(declType))
 				return issueHandler.addTypeError(declr,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(declr + ""));
@@ -1050,7 +960,7 @@ class TCActionVisitor extends
 
 		// type-check sub-actions
 		PType leftActionType = leftAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftActionType)) {
+		if (!successfulType(leftActionType)) {
 			node.setType(issueHandler.addTypeError(leftAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + leftAction)));
@@ -1058,7 +968,7 @@ class TCActionVisitor extends
 		}
 
 		PType rightActionType = rightAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightActionType)) {
+		if (!successfulType(rightActionType)) {
 			node.setType(issueHandler.addTypeError(rightAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + rightAction)));
@@ -1067,7 +977,7 @@ class TCActionVisitor extends
 
 		// type-check the chanset
 		PType chanSetType = chansetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(chanSetType))
+		if (!successfulType(chanSetType))
 			return issueHandler.addTypeError(chansetExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(chansetExp + ""));
@@ -1076,7 +986,7 @@ class TCActionVisitor extends
 		if (leftNamesetExp != null) {
 			PType leftNameSetType = leftNamesetExp.apply(parentChecker,
 					question);
-			if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
+			if (!successfulType(leftNameSetType))
 				return issueHandler.addTypeError(leftNamesetExp,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(leftNamesetExp + ""));
@@ -1085,7 +995,7 @@ class TCActionVisitor extends
 		if (rightnamesetExp != null) {
 			PType rightNameSetType = rightnamesetExp.apply(parentChecker,
 					question);
-			if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
+			if (!successfulType(rightNameSetType))
 				return issueHandler.addTypeError(rightnamesetExp,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(rightnamesetExp + ""));
@@ -1107,7 +1017,7 @@ class TCActionVisitor extends
 		PType patternType = null;
 
 		PType setType = set.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(setType)) {
+		if (!successfulType(setType)) {
 			node.setType(issueHandler.addTypeError(set,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + set)));
@@ -1127,7 +1037,7 @@ class TCActionVisitor extends
 		CmlTypeCheckInfo localEnv = cmlEnv.newScope();
 
 		PType patternUnknownType = pattern.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(patternUnknownType)) {
+		if (!successfulType(patternUnknownType)) {
 			node.setType(issueHandler.addTypeError(pattern,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(pattern + "")));
@@ -1147,7 +1057,7 @@ class TCActionVisitor extends
 			}
 
 			PType actionType = action.apply(parentChecker, localEnv);
-			if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+			if (!successfulType(actionType)) {
 				node.setType(issueHandler.addTypeError(node,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + node)));
@@ -1181,7 +1091,7 @@ class TCActionVisitor extends
 
 		// Type check the expression ...
 		PType expType = exp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(expType)) {
+		if (!successfulType(expType)) {
 			node.setType(issueHandler.addTypeError(exp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + exp)));
@@ -1214,7 +1124,7 @@ class TCActionVisitor extends
 
 		// In this new environment lets check the given action
 		PType actionType = action.apply(parentChecker, newEnv);
-		if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+		if (!successfulType(actionType)) {
 			node.setType(issueHandler.addTypeError(action,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + action)));
@@ -1250,7 +1160,7 @@ class TCActionVisitor extends
 		PType byExpType = null;
 		if (byExp != null) {
 			byExpType = byExp.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(byExpType)) {
+			if (!successfulType(byExpType)) {
 				node.setType(issueHandler.addTypeError(byExp,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(byExp + "")));
@@ -1260,7 +1170,7 @@ class TCActionVisitor extends
 
 		// Get the type of the to expression
 		PType toExpType = toExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(toExpType)) {
+		if (!successfulType(toExpType)) {
 			node.setType(issueHandler.addTypeError(toExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(toExp + "")));
@@ -1276,7 +1186,7 @@ class TCActionVisitor extends
 
 		// Type chec the action in this new environment
 		PType actionType = action.apply(parentChecker, newQuestion);
-		if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+		if (!successfulType(actionType)) {
 			node.setType(issueHandler.addTypeError(byExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(action + "")));
@@ -1307,7 +1217,7 @@ class TCActionVisitor extends
 		PExp timedExp = node.getExpression();
 		PType timedExpType = timedExp.apply(parentChecker, question);
 
-		if (!TCDeclAndDefVisitor.successfulType(timedExpType)) {
+		if (!successfulType(timedExpType)) {
 			node.setType(issueHandler.addTypeError(timedExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + timedExp)));
@@ -1345,7 +1255,7 @@ class TCActionVisitor extends
 
 		for (PPattern ptrn : ptrns) {
 			PType patternType = ptrn.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(patternType))
+			if (!successfulType(patternType))
 				return issueHandler.addTypeError(ptrn,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + ptrn));
@@ -1405,7 +1315,7 @@ class TCActionVisitor extends
 		LinkedList<ACaseAlternativeAction> cases = node.getCases();
 		for (ACaseAlternativeAction altAction : cases) {
 			PType caseType = altAction.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(caseType)) {
+			if (!successfulType(caseType)) {
 				node.setType(issueHandler.addTypeError(node,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(altAction + "")));
@@ -1415,7 +1325,7 @@ class TCActionVisitor extends
 		PExp exp = node.getExp();
 
 		PType expType = exp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(expType)) {
+		if (!successfulType(expType)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(exp + "")));
@@ -1471,7 +1381,7 @@ class TCActionVisitor extends
 		// check the actions
 		for (PAction act : acts) {
 			PType actType = act.apply(parentChecker, newQuestion);
-			if (!TCDeclAndDefVisitor.successfulType(actType)) {
+			if (!successfulType(actType)) {
 				// node.setType(issueHandler.addTypeError(act,
 				// TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(act+"")));
 				issueHandler.addTypeWarning(node,
@@ -1504,19 +1414,19 @@ class TCActionVisitor extends
 		PExp timeExp = node.getTimeExpression();
 
 		PType leftType = left.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftType))
+		if (!successfulType(leftType))
 			return issueHandler.addTypeError(left,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(left + ""));
 
 		PType rightType = right.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightType))
+		if (!successfulType(rightType))
 			return issueHandler.addTypeError(right,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(right + ""));
 
 		PType timeExpType = timeExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(timeExpType))
+		if (!successfulType(timeExpType))
 			return issueHandler.addTypeError(timeExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(timeExp + ""));
@@ -1540,7 +1450,7 @@ class TCActionVisitor extends
 
 		for (PSingleDeclaration decl : decls) {
 			PType declType = decl.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(declType))
+			if (!successfulType(declType))
 				return issueHandler.addTypeError(decl,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(decl + ""));
@@ -1551,7 +1461,7 @@ class TCActionVisitor extends
 
 		PType replicatedActionType = replicatedAction.apply(parentChecker,
 				question);
-		if (!TCDeclAndDefVisitor.successfulType(replicatedActionType))
+		if (!successfulType(replicatedActionType))
 			return issueHandler.addTypeError(replicatedAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(replicatedAction + ""));
@@ -1569,7 +1479,7 @@ class TCActionVisitor extends
 		ACallStatementAction call = node.getCall();
 
 		PType callType = call.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(callType)) {
+		if (!successfulType(callType)) {
 			node.setType(issueHandler.addTypeError(call,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + call)));
@@ -1577,7 +1487,7 @@ class TCActionVisitor extends
 		}
 
 		PType designatorType = designator.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(designatorType)) {
+		if (!successfulType(designatorType)) {
 			node.setType(issueHandler.addTypeError(designator,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(designator + "")));
@@ -1598,13 +1508,13 @@ class TCActionVisitor extends
 		PAction actionBody = node.getAction();
 
 		PType condExpType = condExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(condExpType))
+		if (!successfulType(condExpType))
 			return issueHandler.addTypeError(condExp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(condExp + ""));
 
 		PType actionBodyType = actionBody.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(actionBodyType))
+		if (!successfulType(actionBodyType))
 			return issueHandler.addTypeError(actionBodyType,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(actionBody + ""));
@@ -1612,11 +1522,12 @@ class TCActionVisitor extends
 		return new AActionType(node.getLocation(), true);
 	}
 
-	private final CmlTypeChecker parentChecker;
+	private final eu.compassresearch.core.typechecker.api.CmlRootVisitor parentChecker;
 	private final TypeIssueHandler issueHandler;
 	private final TypeComparator typeComparator;
 
-	public TCActionVisitor(CmlTypeChecker parentChecker,
+	public TCActionVisitor(
+			eu.compassresearch.core.typechecker.api.CmlRootVisitor parentChecker,
 			TypeIssueHandler issueHandler, TypeComparator typeComparator) {
 		this.parentChecker = parentChecker;
 		this.issueHandler = issueHandler;
@@ -1639,37 +1550,37 @@ class TCActionVisitor extends
 		PVarsetExpression rightNameSet = node.getLeftNamesetExpression();
 
 		PType leftActionType = leftAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftActionType))
+		if (!successfulType(leftActionType))
 			return issueHandler.addTypeError(leftAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(leftAction + ""));
 
 		PType leftChanSetType = leftChanSet.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftChanSetType))
+		if (!successfulType(leftChanSetType))
 			return issueHandler.addTypeError(leftChanSet,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(leftChanSet + ""));
 
 		PType leftNameSetType = leftNameSet.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
+		if (!successfulType(leftNameSetType))
 			return issueHandler.addTypeError(leftNameSet,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(leftNameSet + ""));
 
 		PType rightActionType = rightAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightActionType))
+		if (!successfulType(rightActionType))
 			return issueHandler.addTypeError(rightAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(rightAction + ""));
 
 		PType rightChanSetType = rightChanSet.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightChanSetType))
+		if (!successfulType(rightChanSetType))
 			return issueHandler.addTypeError(rightChanSet,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(rightChanSet + ""));
 
 		PType rightNameSetType = rightNameSet.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
+		if (!successfulType(rightNameSetType))
 			return issueHandler.addTypeError(rightNameSet,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(rightNameSet + ""));
@@ -1689,14 +1600,14 @@ class TCActionVisitor extends
 
 		PExp exp = node.getExp();
 		PType type = exp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(type)) {
+		if (!successfulType(type)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + exp)));
 			return node.getType();
 		}
 		// check return type of parent function and the expression
-		AOperationType operType = operation.getType();
+		AOperationType operType = (AOperationType) operation.getType();
 		if (!typeComparator.isSubType(type, operType.getResult())) {
 			node.setType(issueHandler.addTypeError(
 					node,
@@ -1717,7 +1628,7 @@ class TCActionVisitor extends
 		PAction action = node.getAction();
 
 		PType expType = exp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(expType)) {
+		if (!successfulType(expType)) {
 			node.setType(issueHandler.addTypeError(exp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(exp + "")));
@@ -1733,7 +1644,7 @@ class TCActionVisitor extends
 		}
 
 		PType actionType = action.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+		if (!successfulType(actionType)) {
 			node.setType(issueHandler.addTypeError(action,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + action)));
@@ -1782,7 +1693,7 @@ class TCActionVisitor extends
 		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
 
 		PType namesetExpType = namesetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(namesetExpType)) {
+		if (!successfulType(namesetExpType)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + node)));
@@ -1792,7 +1703,7 @@ class TCActionVisitor extends
 		CmlTypeCheckInfo repActionEnv = cmlEnv.newScope();
 		for (PSingleDeclaration decl : decls) {
 			PType declType = decl.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(declType)) {
+			if (!successfulType(declType)) {
 				node.setType(issueHandler.addTypeError(decl,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + decl)));
@@ -1804,7 +1715,7 @@ class TCActionVisitor extends
 		}
 
 		PType repActionType = repAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(repActionType)) {
+		if (!successfulType(repActionType)) {
 			node.setType(issueHandler.addTypeError(repAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + repAction)));
@@ -1826,7 +1737,7 @@ class TCActionVisitor extends
 		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
 
 		PType namesetExpType = namesetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(namesetExpType)) {
+		if (!successfulType(namesetExpType)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + node)));
@@ -1836,7 +1747,7 @@ class TCActionVisitor extends
 		CmlTypeCheckInfo repActionEnv = cmlEnv.newScope();
 		for (PSingleDeclaration decl : decls) {
 			PType declType = decl.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(declType)) {
+			if (!successfulType(declType)) {
 				node.setType(issueHandler.addTypeError(decl,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + decl)));
@@ -1848,7 +1759,7 @@ class TCActionVisitor extends
 		}
 
 		PType repActionType = repAction.apply(parentChecker, repActionEnv);
-		if (!TCDeclAndDefVisitor.successfulType(repActionType)) {
+		if (!successfulType(repActionType)) {
 			node.setType(issueHandler.addTypeError(repAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + repAction)));
@@ -1870,7 +1781,7 @@ class TCActionVisitor extends
 		LinkedList<PSingleDeclaration> decls = node.getReplicationDeclaration();
 
 		PType namesetExpType = namesetExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(namesetExpType)) {
+		if (!successfulType(namesetExpType)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + node)));
@@ -1880,7 +1791,7 @@ class TCActionVisitor extends
 		CmlTypeCheckInfo repActionEnv = cmlEnv.newScope();
 		for (PSingleDeclaration decl : decls) {
 			PType declType = decl.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(declType)) {
+			if (!successfulType(declType)) {
 				node.setType(issueHandler.addTypeError(decl,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + decl)));
@@ -1892,7 +1803,7 @@ class TCActionVisitor extends
 		}
 
 		PType repActionType = repAction.apply(parentChecker, repActionEnv);
-		if (!TCDeclAndDefVisitor.successfulType(repActionType)) {
+		if (!successfulType(repActionType)) {
 			node.setType(issueHandler.addTypeError(repAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + repAction)));
@@ -1947,7 +1858,7 @@ class TCActionVisitor extends
 					.getAssignmentDefs();
 			for (PDefinition def : freshDefinitions) {
 				PType freshDefType = def.apply(parentChecker, question);
-				if (!TCDeclAndDefVisitor.successfulType(freshDefType)) {
+				if (!successfulType(freshDefType)) {
 					node.setType(issueHandler.addTypeError(def,
 							TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 									.customizeMessage("" + def)));
@@ -1961,7 +1872,7 @@ class TCActionVisitor extends
 		PAction action = node.getAction();
 		PType actionType = action.apply(parentChecker, blockEnv);
 		question.scope = oldScope;
-		if (!TCDeclAndDefVisitor.successfulType(actionType))
+		if (!successfulType(actionType))
 			issueHandler.addTypeError(action,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(action.toString()));
@@ -1982,7 +1893,7 @@ class TCActionVisitor extends
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 
 		PType stateType = state.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(stateType)) {
+		if (!successfulType(stateType)) {
 			node.setType(issueHandler.addTypeError(state,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(state + "")));
@@ -1991,7 +1902,7 @@ class TCActionVisitor extends
 		NameScope oldScope = question.scope;
 		question.scope = NameScope.NAMESANDANYSTATE;
 		PType expType = exp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(expType)) {
+		if (!successfulType(expType)) {
 			node.setType(issueHandler.addTypeError(exp,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + exp)));
@@ -2052,7 +1963,7 @@ class TCActionVisitor extends
 
 			// type check the replacement node
 			PType replacementType = replacement.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(replacementType)) {
+			if (!successfulType(replacementType)) {
 				node.setType(issueHandler.addTypeError(replacement,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(replacement + "")));
@@ -2086,11 +1997,11 @@ class TCActionVisitor extends
 		PAction right = node.getRight();
 
 		PType leftType = left.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftType))
+		if (!successfulType(leftType))
 			return new AErrorType();
 
 		PType rightType = right.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightType))
+		if (!successfulType(rightType))
 			return new AErrorType();
 
 		node.setType(new AActionType());
@@ -2104,7 +2015,7 @@ class TCActionVisitor extends
 
 		CmlTypeCheckInfo newQ = getTypeCheckInfo(question);
 
-		PDefinition actionDef = newQ.lookupVariable(node.getName());
+		PDefinition actionDef = newQ.lookup(node.getName(), PDefinition.class);
 
 		PType type = newQ.lookupType(node.getName());
 		if (type != null) {
@@ -2138,7 +2049,7 @@ class TCActionVisitor extends
 			}
 		}
 		node.setActionDefinition(((AActionDefinition) actionDef));
-		node.setType(new AStatementType());
+		node.setType(new AActionType());
 		return node.getType();
 	}
 
@@ -2200,7 +2111,7 @@ class TCActionVisitor extends
 
 				PType commPatternType = commPattern.apply(parentChecker,
 						question);
-				if (!TCDeclAndDefVisitor.successfulType(commPatternType)) {
+				if (!successfulType(commPatternType)) {
 					node.setType(issueHandler.addTypeError(commPattern,
 							TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 									.customizeMessage("" + commPattern)));
@@ -2225,6 +2136,7 @@ class TCActionVisitor extends
 							.newALocalDefinition(commPattern.getLocation(),
 									id.getName(), NameScope.LOCAL, theType);
 					readVariable.parent(commParam);
+					readVariable.setLocation(commPattern.getLocation().clone());
 					cmlEnv.addVariable(readVariable.getName(), readVariable);
 
 				}
@@ -2274,7 +2186,7 @@ class TCActionVisitor extends
 				AWriteCommunicationParameter writeParam = (AWriteCommunicationParameter) commParam;
 				PExp writeExp = writeParam.getExpression();
 				PType writeExpType = writeExp.apply(parentChecker, question);
-				if (!TCDeclAndDefVisitor.successfulType(writeExpType)) {
+				if (!successfulType(writeExpType)) {
 					node.setType(issueHandler.addTypeError(writeExp,
 							TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 									.customizeMessage(writeExp + "")));
@@ -2329,7 +2241,7 @@ class TCActionVisitor extends
 		}
 
 		PType commType = node.getAction().apply(this, commEnv);
-		if (!TCDeclAndDefVisitor.successfulType(commType)) {
+		if (!successfulType(commType)) {
 			node.setType(issueHandler.addTypeError(node.getAction(),
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(node.getAction() + "")));
@@ -2347,14 +2259,14 @@ class TCActionVisitor extends
 			throws AnalysisException {
 
 		PType leftType = node.getLeft().apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftType)) {
+		if (!successfulType(leftType)) {
 			node.setType(issueHandler.addTypeError(node.getLeft(),
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(node.getLeft() + "")));
 			return node.getType();
 		}
 		PType rightType = node.getRight().apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightType)) {
+		if (!successfulType(rightType)) {
 			node.setType(issueHandler.addTypeError(node.getRight(),
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(node.getRight() + "")));
@@ -2384,11 +2296,11 @@ class TCActionVisitor extends
 		PAction right = node.getRight();
 
 		PType leftType = left.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftType))
+		if (!successfulType(leftType))
 			return new AErrorType();
 
 		PType rightType = right.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightType))
+		if (!successfulType(rightType))
 			return new AErrorType();
 
 		node.setType(new AActionType(node.getLocation(), true));
@@ -2405,11 +2317,11 @@ class TCActionVisitor extends
 		PVarsetExpression chanSet = node.getChansetExpression();
 
 		PType actionType = action.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(actionType))
+		if (!successfulType(actionType))
 			return new AErrorType();
 
 		PType chanSetType = chanSet.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(chanSetType))
+		if (!successfulType(chanSetType))
 			return new AErrorType();
 
 		if (!(chanSetType instanceof AChansetType)) {
@@ -2430,7 +2342,7 @@ class TCActionVisitor extends
 
 		ATypeSingleDeclaration decl = node.getDeclaration();
 		PType declType = decl.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(declType)) {
+		if (!successfulType(declType)) {
 			return new AErrorType(node.getLocation(), true);
 		}
 
@@ -2461,7 +2373,7 @@ class TCActionVisitor extends
 		int i = 0;
 		for (PExp exp : args) {
 			PType expType = exp.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(expType)) {
+			if (!successfulType(expType)) {
 				node.setType(issueHandler.addTypeError(exp,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(exp + "")));
@@ -2473,7 +2385,7 @@ class TCActionVisitor extends
 			PParametrisation pa = parameterNames.get(i++);
 			ATypeSingleDeclaration decl = pa.getDeclaration();
 			PType declType = decl.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(declType)) {
+			if (!successfulType(declType)) {
 				node.setType(issueHandler.addTypeError(decl,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + decl)));
@@ -2490,7 +2402,7 @@ class TCActionVisitor extends
 		}
 		int a;
 		PType actionType = action.apply(parentChecker, newCmlEnv);
-		if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+		if (!successfulType(actionType)) {
 			node.setType(issueHandler.addTypeError(action,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(action + "")));
@@ -2511,11 +2423,11 @@ class TCActionVisitor extends
 		PExp timeExp = node.getExpression();
 
 		PType eventType = event.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(eventType))
+		if (!successfulType(eventType))
 			return new AErrorType(node.getLocation(), true);
 
 		PType expType = timeExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(expType))
+		if (!successfulType(expType))
 			return new AErrorType(node.getLocation(), true);
 
 		if (!(typeComparator.isSubType(expType, new ANatNumericBasicType()))) {
@@ -2538,11 +2450,11 @@ class TCActionVisitor extends
 		PExp timeExp = node.getExpression();
 
 		PType eventType = event.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(eventType))
+		if (!successfulType(eventType))
 			return new AErrorType(node.getLocation(), true);
 
 		PType timeExpType = timeExp.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(timeExpType))
+		if (!successfulType(timeExpType))
 			return new AErrorType(node.getLocation(), true);
 
 		if (!(typeComparator.isSubType(timeExpType, new ANatNumericBasicType()))) {
@@ -2580,7 +2492,7 @@ class TCActionVisitor extends
 
 		for (PExp e : args) {
 			PType eType = e.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(eType)) {
+			if (!successfulType(eType)) {
 				node.setType(issueHandler.addTypeError(node,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage("" + node)));
@@ -2652,13 +2564,7 @@ class TCActionVisitor extends
 		}
 
 		if (callee.getType() == null) {
-			PType calleeType = resolveUntypedActionReference(node, callee,
-					question);
-			if (!TCDeclAndDefVisitor.successfulType(calleeType)) {
-				node.setType(calleeType);
-				return node.getType();
-			}
-
+			callee.setType(new AActionType());
 		}
 
 		// Action can only call actions.
@@ -2722,21 +2628,21 @@ class TCActionVisitor extends
 		PVarsetExpression rightNameSet = node.getLeftNamesetExpression();
 
 		PType leftActionType = leftAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(leftActionType))
+		if (!successfulType(leftActionType))
 			return issueHandler.addTypeError(leftActionType,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(leftAction + ""));
 
 		if (leftNameSet != null) {
 			PType leftNameSetType = leftNameSet.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(leftNameSetType))
+			if (!successfulType(leftNameSetType))
 				return issueHandler.addTypeError(leftNameSet,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(leftNameSet + ""));
 		}
 
 		PType rightActionType = rightAction.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(rightActionType))
+		if (!successfulType(rightActionType))
 			return issueHandler.addTypeError(leftActionType,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(rightAction + ""));
@@ -2744,7 +2650,7 @@ class TCActionVisitor extends
 		if (rightNameSet != null) {
 			PType rightNameSetType = rightNameSet
 					.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(rightNameSetType))
+			if (!successfulType(rightNameSetType))
 				return issueHandler.addTypeError(rightNameSet,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(rightNameSet + ""));
@@ -2761,7 +2667,7 @@ class TCActionVisitor extends
 				.getAlternatives();
 		for (ANonDeterministicAltStatementAction act : alternatives) {
 			PType actType = act.apply(parentChecker, question);
-			if (!TCDeclAndDefVisitor.successfulType(actType)) {
+			if (!successfulType(actType)) {
 				node.setType(issueHandler.addTypeError(act,
 						TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 								.customizeMessage(act + "")));
@@ -2780,7 +2686,7 @@ class TCActionVisitor extends
 
 		PExp guard = node.getGuard();
 		PType guardType = guard.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(guardType)) {
+		if (!successfulType(guardType)) {
 			node.setType(issueHandler.addTypeError(guard,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(guard + "")));
@@ -2789,7 +2695,7 @@ class TCActionVisitor extends
 
 		PAction action = node.getAction();
 		PType actionType = action.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+		if (!successfulType(actionType)) {
 			node.setType(issueHandler.addTypeError(action,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage("" + action)));
@@ -2814,7 +2720,7 @@ class TCActionVisitor extends
 		LinkedList<PParametrisation> params = node.getParametrisations();
 
 		PType actionType = action.apply(parentChecker, question);
-		if (!TCDeclAndDefVisitor.successfulType(actionType)) {
+		if (!successfulType(actionType)) {
 			node.setType(issueHandler.addTypeError(node,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
 							.customizeMessage(action + "")));

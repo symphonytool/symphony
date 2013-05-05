@@ -102,22 +102,23 @@ public interface TypeCheckQuestion {
 	public abstract org.overture.typechecker.Environment getOvertureEnvironment()
 			throws AnalysisException;
 
-	/**
-	 * Get the global definitions currently in the environment.
-	 * 
-	 * TODO: Why?
-	 * 
-	 * @return
-	 */
-	public abstract PDefinition getGlobalClassDefinitions();
-
-	/**
-	 * Set the current global top-level class.
-	 * 
-	 * TODO: Would you ever replace the entire root environment ? This looks
-	 * like an implementation specific thing shining through the interface !
-	 * 
-	 * @param globalRoot
-	 */
-	public abstract void setGlobalClassDefinitions(SClassDefinition globalRoot);
+	// /**
+	// * Get the global definitions currently in the environment.
+	// *
+	// * TODO: Why?
+	// *
+	// * @return
+	// */
+	// public abstract PDefinition getGlobalClassDefinitions();
+	//
+	// /**
+	// * Set the current global top-level class.
+	// *
+	// * TODO: Would you ever replace the entire root environment ? This looks
+	// * like an implementation specific thing shining through the interface !
+	// *
+	// * @param globalRoot
+	// */
+	// public abstract void setGlobalClassDefinitions(SClassDefinition
+	// globalRoot);
 }
