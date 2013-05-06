@@ -36,7 +36,7 @@ import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
 {
 	static{
-		VdmRuntime.initialize(new CmlExpressionVisitor());
+      VdmRuntime.initialize(/*new CmlExpressionVisitor()*/);
 	}
 	
 	class VdmExpressionEvaluator extends DelegateExpressionEvaluator{
