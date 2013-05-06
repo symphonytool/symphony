@@ -118,7 +118,7 @@ CmlCommunicationSelectionStrategy {
 		@Override
 		public Value caseAQuoteType(AQuoteType node, ObservableEvent chosenEvent) throws AnalysisException {
 			
-			return new QuoteValue(node.getValue().value);
+			return new QuoteValue(node.getValue().getValue());
 		}
 	}
 }
