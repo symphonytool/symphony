@@ -9,6 +9,7 @@ import org.overture.ast.analysis.intf.IAnswer;
 import org.overture.ast.analysis.intf.IQuestion;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.VDMToken;
@@ -19,7 +20,7 @@ public class LexIdentifierToken extends LexToken implements ILexIdentifierToken
     public final String       name;
     public final boolean      old;
     
-    public LexIdentifierToken(String name, boolean old, LexLocation location,
+    public LexIdentifierToken(String name, boolean old, ILexLocation location,
         VDMToken token)
       {
         super(location, token);
@@ -27,7 +28,7 @@ public class LexIdentifierToken extends LexToken implements ILexIdentifierToken
         this.old = old;
       }
     
-    public LexIdentifierToken(String name, boolean old, LexLocation location)
+    public LexIdentifierToken(String name, boolean old, ILexLocation location)
       {
         this(name, old, location, VDMToken.IDENTIFIER);
       }
@@ -37,9 +38,9 @@ public class LexIdentifierToken extends LexToken implements ILexIdentifierToken
         // We don't know the class name of the name of a class until we've
         // read the name. So create a new location with the right module.
         
-        LexLocation loc = new LexLocation(location.file, name,
-            location.startLine, location.startPos, location.endLine,
-            location.endPos, location.startOffset, location.endOffset);
+        LexLocation loc = new LexLocation(location.getFile(), name,
+            location.getStartLine(), location.getStartPos(), location.getEndLine(),
+            location.getEndPos(), location.getStartOffset(), location.getEndOffset());
         
         return new LexNameToken("CLASS", name, loc);
       }
@@ -79,7 +80,7 @@ public class LexIdentifierToken extends LexToken implements ILexIdentifierToken
         return name;
       }
     
-    public LexLocation getLocation()
+    public ILexLocation getLocation()
       {
         return location;
       }

@@ -7,13 +7,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.ExternalNode;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.IToken;
 import org.overture.ast.node.NodeList;
 
 import eu.compassresearch.ast.analysis.QuestionCMLAdaptor;
-import eu.compassresearch.ast.lex.LexNameToken;
 
 
 
@@ -167,12 +167,12 @@ public class DotGraphVisitor extends QuestionCMLAdaptor<DotGraphVisitor.DotPair>
 	@Override
 	public void defaultINode(INode node, DotPair question) throws AnalysisException
 	{
-		if(!(node instanceof LexNameToken )&&visitedNodes.contains(node)|| node == null)
+		if(!(node instanceof ILexNameToken )&&visitedNodes.contains(node)|| node == null)
 		{
 			return;
 		}
 
-		if(!(node instanceof LexNameToken))
+		if(!(node instanceof ILexNameToken))
 		{
 			visitedNodes.add(node);
 		}

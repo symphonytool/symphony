@@ -13,6 +13,7 @@ import org.overture.ast.analysis.intf.IQuestion;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.assistant.type.PTypeAssistant;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.VDMToken;
@@ -34,7 +35,7 @@ public class LexNameToken extends LexIdentifierToken implements ILexNameToken, S
     
     private int               hashcode         = 0;
     
-    public LexNameToken(String module, String name, LexLocation location,
+    public LexNameToken(String module, String name, ILexLocation location,
         boolean old, boolean explicit)
       {
         super(name, old, location);
@@ -44,7 +45,7 @@ public class LexNameToken extends LexIdentifierToken implements ILexNameToken, S
         this.explicit = explicit;
       }
     
-    public LexNameToken(String module, String name, LexLocation location)
+    public LexNameToken(String module, String name, ILexLocation location)
       {
         this(module, name, location, false, false);
       }
@@ -58,7 +59,32 @@ public class LexNameToken extends LexIdentifierToken implements ILexNameToken, S
         this.explicit = false;
       }
     
-    public LexIdentifierToken getIdentifier()
+	public LexNameToken getPerName(ILexLocation loc)
+	{
+		return new LexNameToken(module, "per_" + name, loc);
+	}
+
+	public LexNameToken getPreName(ILexLocation l)
+	{
+		return new LexNameToken(module, "pre_" + name, l);
+	}
+
+	public LexNameToken getPostName(ILexLocation l)
+	{
+		return new LexNameToken(module, "post_" + name, l);
+	}
+
+	public LexNameToken getInvName(ILexLocation l)
+	{
+		return new LexNameToken(module, "inv_" + name, l);
+	}
+
+	public LexNameToken getInitName(ILexLocation l)
+	{
+		return new LexNameToken(module, "init_" + name, l);
+	}
+
+	public LexIdentifierToken getIdentifier()
       {
         return new LexIdentifierToken(name, old, location);
       }
@@ -258,10 +284,7 @@ public class LexNameToken extends LexIdentifierToken implements ILexNameToken, S
         return toString().compareTo(o.toString());
       }
     
-    public LexLocation getLocation()
-      {
-        return location;
-      }
+
     
     public String getModule()
       {
@@ -344,7 +367,7 @@ public class LexNameToken extends LexIdentifierToken implements ILexNameToken, S
 	}
 
 	@Override
-	public ILexNameToken getThreadName(LexLocation loc) {
+	public ILexNameToken getThreadName(ILexLocation loc) {
 		// FIXME Don't think this is actually used
 		throw new UnsupportedOperationException("Not yet implemented.");		
 	}

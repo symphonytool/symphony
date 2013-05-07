@@ -996,7 +996,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		if (typename != null) {
 			PDefinition typeFound = question.env.findType(typename,
-					node.getLocation().module);
+					node.getLocation().getModule());
 
 			// It maybe an CML Class typically it will be lets look it up in the
 			// nearest cml environment
