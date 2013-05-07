@@ -934,11 +934,11 @@ class TCExpressionVisitor extends
 		PDefinition prevRoot = null;
 		List<PDefinition> defs = new LinkedList<PDefinition>();
 		defs.add(root);
+		PDefinition def = root;
 		for (int i = 1; i < identifiers.size(); i++) {
 			ILexIdentifierToken id = identifiers.get(i);
 			LexNameToken idName = new LexNameToken("", id);
-			PDefinition def = assist.findMemberName(root, idName, cmlQuestion,
-					prevRoot);
+			def = assist.findMemberName(def, idName, cmlQuestion, prevRoot);
 			if (def == null) {
 				node.setType(issueHandler.addTypeError(
 						node,
