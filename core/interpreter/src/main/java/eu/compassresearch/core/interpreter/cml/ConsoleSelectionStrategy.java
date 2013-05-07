@@ -21,7 +21,7 @@ import org.overture.interpreter.values.ValueList;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 
 public class ConsoleSelectionStrategy implements
@@ -30,18 +30,18 @@ CmlEventSelectionStrategy {
 	Scanner scanIn = new Scanner(System.in);
 
 	@Override
-	public CmlEvent select(CmlAlphabet availableChannelEvents) {
+	public CmlTransition select(CmlAlphabet availableChannelEvents) {
 
 		System.out.println("Available events : ");
-		List<CmlEvent> events = new ArrayList<CmlEvent>(availableChannelEvents.getAllEvents());
+		List<CmlTransition> events = new ArrayList<CmlTransition>(availableChannelEvents.getAllEvents());
 
 		for(int i = 0; i <  events.size();i++)
 		{
-			CmlEvent obsEvent = events.get(i);
+			CmlTransition obsEvent = events.get(i);
 			System.out.println( "[" + i + "]" + obsEvent.toString());
 		}
 		
-		CmlEvent chosenEvent = events.get(scanIn.nextInt());
+		CmlTransition chosenEvent = events.get(scanIn.nextInt());
 		
 
 		if(chosenEvent instanceof ChannelEvent && !((ChannelEvent)chosenEvent).isPrecise())

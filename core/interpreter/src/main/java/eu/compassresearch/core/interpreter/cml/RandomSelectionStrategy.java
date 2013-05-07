@@ -21,7 +21,7 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 /**
  * This class implements a random selection CMLCommunicaiton of the alphabet 
@@ -36,16 +36,16 @@ public class RandomSelectionStrategy implements
 	private static final Random rndValue = new Random(randomSeed);
 	
 	@Override
-	public CmlEvent select(CmlAlphabet availableChannelEvents) {
+	public CmlTransition select(CmlAlphabet availableChannelEvents) {
 		
-		CmlEvent selectedComm = null;
+		CmlTransition selectedComm = null;
 		
 		if(!availableChannelEvents.isEmpty())
 		{
 			int nElems = availableChannelEvents.getAllEvents().size();
 			
 			//pick a random but deterministic choice
-			selectedComm = new ArrayList<CmlEvent>(
+			selectedComm = new ArrayList<CmlTransition>(
 					availableChannelEvents.getAllEvents()).get(rndChoice.nextInt(nElems));
 			
 			if(selectedComm instanceof ChannelEvent && !((ChannelEvent)selectedComm).isPrecise())

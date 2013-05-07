@@ -27,7 +27,7 @@ import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
@@ -88,7 +88,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 	
 	private Value caseEnumVarSetExp(List<LexIdentifierToken> ids, Context question)
 	{
-		Set<CmlEvent> coms = new HashSet<CmlEvent>();
+		Set<CmlTransition> coms = new HashSet<CmlTransition>();
 
 		for(LexIdentifierToken id : ids)
 		{

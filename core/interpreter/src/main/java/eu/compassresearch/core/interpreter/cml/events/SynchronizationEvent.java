@@ -11,17 +11,17 @@ import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlChannel;
 
-class PrefixEvent extends AbstractChannelEvent implements ObservableEvent{
+class SynchronizationEvent extends AbstractChannelEvent implements ObservableEvent{
 
-	public PrefixEvent(CmlBehaviour eventSource, CmlChannel channel) {
+	public SynchronizationEvent(CmlBehaviour eventSource, CmlChannel channel) {
 		super(eventSource, channel);
 	}
 	
-	public PrefixEvent(Set<CmlBehaviour> eventSources, CmlChannel channel) {
+	public SynchronizationEvent(Set<CmlBehaviour> eventSources, CmlChannel channel) {
 		super(eventSources, channel);
 	}
 	
-	public PrefixEvent(CmlChannel channel) {
+	public SynchronizationEvent(CmlChannel channel) {
 		super(channel);
 	}
 
@@ -39,7 +39,7 @@ class PrefixEvent extends AbstractChannelEvent implements ObservableEvent{
 	@Override
 	public boolean equals(Object obj) {
 
-		if(!(obj instanceof PrefixEvent))
+		if(!(obj instanceof SynchronizationEvent))
 			return false;
 		
 		return super.equals(obj);
@@ -57,7 +57,7 @@ class PrefixEvent extends AbstractChannelEvent implements ObservableEvent{
 		sources.addAll(this.getEventSources());
 		sources.addAll(syncEvent.getEventSources());
 		
-		return new PrefixEvent(sources, channel);
+		return new SynchronizationEvent(sources, channel);
 	}
 
 	@Override

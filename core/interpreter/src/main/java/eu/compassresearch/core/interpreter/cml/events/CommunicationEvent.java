@@ -25,23 +25,23 @@ import eu.compassresearch.core.interpreter.cml.CmlChannel;
 import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 import eu.compassresearch.core.interpreter.values.AnyValue;
 
-class CmlCommunicationEvent extends AbstractChannelEvent implements ObservableEvent {
+class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent {
 
 	private Value value;
 	
-	public CmlCommunicationEvent(CmlBehaviour source, CmlChannel channel, List<CommunicationParameter> params)
+	public CommunicationEvent(CmlBehaviour source, CmlChannel channel, List<CommunicationParameter> params)
 	{
 		super(source,channel);
 		initValueFromComParams(params);		
 	}
 	
-	public CmlCommunicationEvent(CmlChannel channel, List<CommunicationParameter> params)
+	public CommunicationEvent(CmlChannel channel, List<CommunicationParameter> params)
 	{
 		super(channel);
 		initValueFromComParams(params);
 	}
 			
-	private CmlCommunicationEvent(Set<CmlBehaviour> sources, CmlChannel channel, Value value)
+	private CommunicationEvent(Set<CmlBehaviour> sources, CmlChannel channel, Value value)
 	{
 		super(sources,channel);
 		this.value = value;
@@ -97,12 +97,12 @@ class CmlCommunicationEvent extends AbstractChannelEvent implements ObservableEv
 	@Override
 	public boolean equals(Object obj) {
 
-		CmlCommunicationEvent other = null;
+		CommunicationEvent other = null;
 		
-		if(!(obj instanceof CmlCommunicationEvent))
+		if(!(obj instanceof CommunicationEvent))
 			return false;
 		
-		other = (CmlCommunicationEvent)obj;
+		other = (CommunicationEvent)obj;
 		
 		return super.equals(other) &&
 				(other.getValue().equals(this.getValue()) );
@@ -142,19 +142,19 @@ class CmlCommunicationEvent extends AbstractChannelEvent implements ObservableEv
 		sources.addAll(this.getEventSources());
 		sources.addAll(syncEvent.getEventSources());
 		
-		return new CmlCommunicationEvent(sources, channel,
+		return new CommunicationEvent(sources, channel,
 				AbstractValueInterpreter.meet(this.getValue(), ((ChannelEvent)syncEvent).getValue()));
 	}
 
 	@Override
 	public ObservableEvent meet(ObservableEvent obj) {
 		
-		CmlCommunicationEvent other = null;
+		CommunicationEvent other = null;
 		
-		if(!(obj instanceof CmlCommunicationEvent))
+		if(!(obj instanceof CommunicationEvent))
 			return this;
 		
-		other = (CmlCommunicationEvent)obj;
+		other = (CommunicationEvent)obj;
 		
 		if(AbstractValueInterpreter.isEquallyOrMorePrecise(getValue(), other.getValue()))
 			return this;
@@ -183,14 +183,14 @@ class CmlCommunicationEvent extends AbstractChannelEvent implements ObservableEv
 		public List<ChannelEvent> defaultPType(PType node)
 				throws AnalysisException {
 			
-			return Arrays.asList((ChannelEvent)CmlCommunicationEvent.this);
+			return Arrays.asList((ChannelEvent)CommunicationEvent.this);
 		}
 		
 		@Override
 		public List<ChannelEvent> caseAIntNumericBasicType(AIntNumericBasicType node)
 				throws AnalysisException {
 
-			return Arrays.asList((ChannelEvent)CmlCommunicationEvent.this);
+			return Arrays.asList((ChannelEvent)CommunicationEvent.this);
 		}
 		
 		@Override
@@ -213,7 +213,7 @@ class CmlCommunicationEvent extends AbstractChannelEvent implements ObservableEv
 				}
 			}
 			else
-				events.add(CmlCommunicationEvent.this);
+				events.add(CommunicationEvent.this);
 			
 			return events;
 		}
@@ -222,9 +222,9 @@ class CmlCommunicationEvent extends AbstractChannelEvent implements ObservableEv
 		public List<ChannelEvent> caseAQuoteType(AQuoteType node)
 				throws AnalysisException {
 			
-			return Arrays.asList((ChannelEvent)new CmlCommunicationEvent(
-					CmlCommunicationEvent.this.getEventSources(), 
-					CmlCommunicationEvent.this.channel, new QuoteValue(node.getValue().value)));
+			return Arrays.asList((ChannelEvent)new CommunicationEvent(
+					CommunicationEvent.this.getEventSources(), 
+					CommunicationEvent.this.channel, new QuoteValue(node.getValue().value)));
 		}
 	}
 	

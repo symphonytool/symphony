@@ -49,7 +49,7 @@ import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
 import eu.compassresearch.core.interpreter.cml.events.CmlTock;
 import eu.compassresearch.core.interpreter.cml.events.CommunicationParameter;
@@ -58,7 +58,7 @@ import eu.compassresearch.core.interpreter.cml.events.InputParameter;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
-import eu.compassresearch.core.interpreter.cml.events.SilentEvent;
+import eu.compassresearch.core.interpreter.cml.events.InternalTransition;
 import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourUtility;
 import eu.compassresearch.core.interpreter.values.ActionValue;
@@ -97,7 +97,7 @@ public class AlphabetInspectVisitor
 	
 	private CmlAlphabet createSilentTransition(INode srcNode, INode dstNode, String transitionText)
 	{
-		return new CmlAlphabet(new CmlTock(ownerProcess),new SilentEvent(ownerProcess,srcNode,dstNode,transitionText));
+		return new CmlAlphabet(new CmlTock(ownerProcess),new InternalTransition(ownerProcess,srcNode,dstNode,transitionText));
 		//return new CmlAlphabet(CmlEventFactory.newTauEvent(ownerProcess,srcNode,dstNode,transitionText));
 	}
 	
@@ -191,7 +191,7 @@ public class AlphabetInspectVisitor
 		CmlAlphabet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
 		
 		//combine all the common events that are in the channel set 
-		Set<CmlEvent> syncEvents = new HashSet<CmlEvent>();
+		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
 		for(ObservableEvent ref : cs.getObservableEvents())
 		{
 			CmlAlphabet commonEvents = syncAlpha.intersectImprecise(ref.getAsAlphabet());
@@ -593,7 +593,7 @@ public class AlphabetInspectVisitor
 		//find the channel value
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 		
-		Set<CmlEvent> comset = new HashSet<CmlEvent>();
+		Set<CmlTransition> comset = new HashSet<CmlTransition>();
 		
 		//if there are no com params then we have a prefix event
 		if(node.getCommunicationParameters().isEmpty())

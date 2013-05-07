@@ -4,12 +4,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 
 public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 
 	private CmlEventSelectionStrategy selectStrategy;
-	private CmlEvent selectedCommunication;
+	private CmlTransition selectedCommunication;
 	
 	private List<CmlBehaviour> pupils = new LinkedList<CmlBehaviour>();
 	
@@ -32,12 +32,12 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	}
 
 	@Override
-	public CmlEvent selectedObservableEvent() {
+	public CmlTransition selectedObservableEvent() {
 		return selectedCommunication;
 	}
 
 	@Override
-	public void setSelectedObservableEvent(CmlEvent comm) {
+	public void setSelectedObservableEvent(CmlTransition comm) {
 		selectedCommunication = comm;
 		//signal all the processes that are listening for events on this channel
 		if(selectedCommunication instanceof ChannelEvent)

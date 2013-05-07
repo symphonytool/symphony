@@ -75,7 +75,7 @@ public class CmlTock extends AbstractCmlEvent implements ObservableEvent {
 	@Override
 	public CmlAlphabet getAsAlphabet() {
 
-		Set<CmlEvent> events = new HashSet<CmlEvent>();
+		Set<CmlTransition> events = new HashSet<CmlTransition>();
 		events.add(this);
 		return new CmlAlphabet(events);
 	}

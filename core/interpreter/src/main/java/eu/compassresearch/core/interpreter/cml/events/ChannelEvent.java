@@ -6,7 +6,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.cml.CmlChannel;
 
-public interface ChannelEvent extends CmlEvent{
+public interface ChannelEvent extends CmlTransition{
 
 	/**
 	 * The channel of this involved in this events

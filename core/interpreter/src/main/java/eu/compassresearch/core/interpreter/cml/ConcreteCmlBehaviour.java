@@ -19,7 +19,7 @@ import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.cml.events.CmlTock;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
@@ -255,7 +255,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	 * Update the trace and fires the trace event
 	 * @param The next event in the trace
 	 */
-	private void updateTrace(CmlEvent event)
+	private void updateTrace(CmlTransition event)
 	{
 		trace.addEvent(event);
 		notifyOnTraceChange(new TraceEvent(this,event));
@@ -431,7 +431,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	public long getCurrentTime() {
 		long nTocks = 0;
 
-		for(CmlEvent ev : getTraceModel().getTrace())
+		for(CmlTransition ev : getTraceModel().getTrace())
 			if(ev instanceof CmlTock)
 				nTocks++;
 

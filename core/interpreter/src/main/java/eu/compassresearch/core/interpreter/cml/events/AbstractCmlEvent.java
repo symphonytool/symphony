@@ -6,7 +6,7 @@ import java.util.Set;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
-public abstract class AbstractCmlEvent implements CmlEvent {
+public abstract class AbstractCmlEvent implements CmlTransition {
 
 	final protected Set<CmlBehaviour> eventSources;
 	
@@ -32,12 +32,12 @@ public abstract class AbstractCmlEvent implements CmlEvent {
 	@Override
 	public boolean equals(Object obj) {
 		
-		CmlEvent other = null;
+		CmlTransition other = null;
 		
-		if(!(obj instanceof CmlEvent))
+		if(!(obj instanceof CmlTransition))
 			return false;
 		
-		other = (CmlEvent)obj;
+		other = (CmlTransition)obj;
 		
 		 // other is subset of this or this is a subset of other
 		return	(other.getEventSources().containsAll(getEventSources()) || 

@@ -26,7 +26,7 @@ import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
 import eu.compassresearch.core.interpreter.cml.ConsoleSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.util.CmlParserUtil;
@@ -182,7 +182,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			
 			CmlRuntime.logger().fine("Waiting for environment on : " + availableEvents.getAllEvents());
 			
-			for(CmlEvent event : availableEvents.getAllEvents())
+			for(CmlTransition event : availableEvents.getAllEvents())
 			{
 				//TODO this should be handled differently
 				Context context = event.getEventSources().iterator().next().getExecutionState().second;
@@ -200,7 +200,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			}
 
 			//Let the given decision function select one of the observable events 
-			CmlEvent selectedEvent = currentSupervisor.decisionFunction().select(availableEvents); 
+			CmlTransition selectedEvent = currentSupervisor.decisionFunction().select(availableEvents); 
 
 			//Set the selected event on the supervisor
 			currentSupervisor.setSelectedObservableEvent(selectedEvent);

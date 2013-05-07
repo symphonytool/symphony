@@ -6,7 +6,7 @@ import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
 
-public interface CmlEvent {
+public interface CmlTransition {
 	
 	public abstract int hashCode();
 	

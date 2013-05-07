@@ -1,7 +1,7 @@
 package eu.compassresearch.core.interpreter.cml.events;
 
 
-public interface ObservableEvent extends CmlEvent{
+public interface ObservableEvent extends CmlTransition{
 
 	/**
 	 * This creates a synchronized event between this and other.

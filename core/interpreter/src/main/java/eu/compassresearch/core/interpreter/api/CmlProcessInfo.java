@@ -6,7 +6,7 @@ import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.CmlProcessState;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 
 public class CmlProcessInfo {
 
@@ -45,11 +45,11 @@ public class CmlProcessInfo {
 		return Arrays.asList(this.trace); 
 	}
 	
-	private List<String> convertCmlEventsToStringList(List<CmlEvent> events)
+	private List<String> convertCmlEventsToStringList(List<CmlTransition> events)
 	{
 		List<String> result = new LinkedList<String>();
 
-		for(CmlEvent e : events)
+		for(CmlTransition e : events)
 		{
 			result.add(e.toString());
 		}

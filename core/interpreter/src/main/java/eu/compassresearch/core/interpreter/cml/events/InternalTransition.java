@@ -9,15 +9,15 @@ import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
-public class SilentEvent extends AbstractCmlEvent implements CmlTau {
+public class InternalTransition extends AbstractCmlEvent implements SilentTransition {
 
-	protected static SilentEvent instance = null;
+	protected static InternalTransition instance = null;
 	public final static String tauString = "\u03C4".toLowerCase();
 	private final INode transitionSrcNode;
 	private final INode transitionDstNode;
 	private String transitionText = null;
 						
-	public SilentEvent(CmlBehaviour source, INode transitionSrcNode, INode transitionDstNode, String transitionText)
+	public InternalTransition(CmlBehaviour source, INode transitionSrcNode, INode transitionDstNode, String transitionText)
 	{
 		super(source);
 		this.transitionSrcNode = transitionSrcNode;
@@ -25,7 +25,7 @@ public class SilentEvent extends AbstractCmlEvent implements CmlTau {
 		this.transitionText = transitionText;
 	}
 	
-	public SilentEvent(CmlBehaviour source, String transitionText)
+	public InternalTransition(CmlBehaviour source, String transitionText)
 	{
 		super(source);
 		this.transitionSrcNode = null;
@@ -54,7 +54,7 @@ public class SilentEvent extends AbstractCmlEvent implements CmlTau {
 	@Override
 	public boolean equals(Object obj) {
 		
-		if(!(obj instanceof CmlTau))
+		if(!(obj instanceof SilentTransition))
 			return false;
 		else
 			return super.equals(obj);
@@ -63,7 +63,7 @@ public class SilentEvent extends AbstractCmlEvent implements CmlTau {
 	@Override
 	public CmlAlphabet getAsAlphabet() {
 		
-		Set<CmlEvent> events = new HashSet<CmlEvent>();
+		Set<CmlTransition> events = new HashSet<CmlTransition>();
 		events.add(this);
 		return new CmlAlphabet(events);
 	}

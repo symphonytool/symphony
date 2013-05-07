@@ -3,25 +3,25 @@ package eu.compassresearch.core.interpreter.events;
 import java.util.List;
 
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 
 public class TraceEvent extends Event<CmlBehaviour> {
 	
-	public final CmlEvent event;
+	public final CmlTransition event;
 	
-	public TraceEvent(CmlBehaviour source, CmlEvent event)
+	public TraceEvent(CmlBehaviour source, CmlTransition event)
 	{
 		super(source);
 		this.event = event;
 	}
 	
-	public TraceEvent(List<CmlBehaviour> sources, CmlEvent event)
+	public TraceEvent(List<CmlBehaviour> sources, CmlTransition event)
 	{
 		super(sources);
 		this.event = event;
 	}
 	
-	public CmlEvent getEvent()
+	public CmlTransition getEvent()
 	{
 		return event;
 	}

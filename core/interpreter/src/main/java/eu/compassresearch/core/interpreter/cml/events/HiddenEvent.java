@@ -9,7 +9,7 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
-public class HiddenEvent extends AbstractChannelEvent implements CmlTau,
+public class HiddenEvent extends AbstractChannelEvent implements SilentTransition,
 		ChannelEvent {
 
 	private ChannelEvent hiddenEvent;
@@ -63,7 +63,7 @@ public class HiddenEvent extends AbstractChannelEvent implements CmlTau,
 	
 	@Override
 	public String toString() {
-		return SilentEvent.tauString + "(" + hiddenEvent.toString() + ")";
+		return InternalTransition.tauString + "(" + hiddenEvent.toString() + ")";
 	}
 	
 	@Override
