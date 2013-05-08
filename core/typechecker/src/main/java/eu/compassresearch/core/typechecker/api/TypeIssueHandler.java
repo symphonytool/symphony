@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 
@@ -31,7 +32,7 @@ public interface TypeIssueHandler {
 	 */
 	public static abstract class CMLIssue implements AnalysisArtifact {
 		protected final INode subtree;
-		private LexLocation location;
+		private ILexLocation location;
 
 		/**
 		 * Return the node that generated this error.
@@ -54,11 +55,12 @@ public interface TypeIssueHandler {
 
 		// temporary method goes away when astCreator is updated. ( INode should
 		// have getLocation method )
-		public LexLocation getLocation() {
+		public ILexLocation getLocation() {
 			return location;
 		}
 
-		public void setLocation(LexLocation location) {
+		public void setLocation(ILexLocation location)
+		{
 			this.location = location;
 		}
 
@@ -101,7 +103,7 @@ public interface TypeIssueHandler {
 
 		@Override
 		public String toString() {
-			LexLocation location = super.getLocation();
+			ILexLocation location = super.getLocation();
 			return "TypeWarning: " + location + " : " + description;
 		}
 
@@ -135,7 +137,7 @@ public interface TypeIssueHandler {
 
 		@Override
 		public String toString() {
-			LexLocation location = super.getLocation();
+			ILexLocation location = super.getLocation();
 			return "TypeError: " + location + " : " + description;
 		}
 
@@ -211,7 +213,7 @@ public interface TypeIssueHandler {
 	 */
 	public AErrorType addTypeError(INode offendingSubtree, String message);
 
-	public AErrorType addTypeError(INode parent, LexLocation pos, String message);
+	public AErrorType addTypeError(INode parent, ILexLocation pos, String message);
 
 	/**
 	 * Return a type warning.

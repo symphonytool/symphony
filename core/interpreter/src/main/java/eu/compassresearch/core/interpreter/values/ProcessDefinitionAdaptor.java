@@ -13,9 +13,8 @@ import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.definitions.SClassDefinitionBase;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.ClassDefinitionSettings;
 import org.overture.ast.typechecker.NameScope;
@@ -51,12 +50,12 @@ public class ProcessDefinitionAdaptor extends SClassDefinitionBase
 	}
 
 	@Override
-	public void setLocation(LexLocation value) {
+	public void setLocation(ILexLocation value) {
 		throw new RuntimeException("The Adaptors set methods should never be touched");
 	}
 
 	@Override
-	public LexLocation getLocation() {
+	public ILexLocation getLocation() {
 		return processDefinition.getLocation();
 	}
 

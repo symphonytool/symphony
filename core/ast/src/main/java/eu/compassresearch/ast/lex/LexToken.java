@@ -31,8 +31,8 @@ import org.overture.ast.analysis.intf.IAnalysis;
 import org.overture.ast.analysis.intf.IAnswer;
 import org.overture.ast.analysis.intf.IQuestion;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexToken;
-import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.VDMToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
@@ -46,12 +46,12 @@ import org.overture.ast.node.Node;
 	private static final long serialVersionUID = 1L;
 
 	/** The textual location of the token. */
-	public final LexLocation location;
+	public final ILexLocation location;
 	/** The basic type of the token. */
 	public final VDMToken type;
 
 	
-	public LexLocation getLocation(){
+	public ILexLocation getLocation(){
 	    return location;
 	}
 	
@@ -62,7 +62,7 @@ import org.overture.ast.node.Node;
 	 * @param type		The basic type of the token.
 	 */
 
-	public LexToken(LexLocation location, VDMToken type)
+	public LexToken(ILexLocation location, VDMToken type)
 	{
 		this.location = location;
 		this.type = type;

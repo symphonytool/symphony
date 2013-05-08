@@ -120,7 +120,7 @@ CmlEventSelectionStrategy {
 		@Override
 		public Value caseAQuoteType(AQuoteType node, ChannelEvent chosenEvent) throws AnalysisException {
 			
-			return new QuoteValue(node.getValue().value);
+			return new QuoteValue(node.getValue().getValue());
 		}
 	}
 }

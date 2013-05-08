@@ -3,7 +3,7 @@ package eu.compassresearch.core.typechecker;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.overture.ast.lex.LexLocation;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.types.AErrorType;
@@ -90,8 +90,7 @@ class CollectingIssueHandler implements TypeIssueHandler {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public AErrorType addTypeError(INode parent, LexLocation location,
-			String message) {
+	public AErrorType addTypeError(INode parent, ILexLocation location, String message) {
 		CMLTypeError typeError = new CMLTypeError(parent, message);
 		typeError.setLocation(location);
 		this.errors.add(typeError);

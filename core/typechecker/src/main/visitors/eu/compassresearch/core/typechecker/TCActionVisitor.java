@@ -19,6 +19,7 @@ import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
@@ -1931,15 +1932,15 @@ class TCActionVisitor extends
 				break;
 
 			// we have an CML operation, transform that into a call statement
-			SCmlOperationDefinition cmlOperation = (SCmlOperationDefinition) operationDefinition;
-			LexLocation newCallLocation = node.getExpression().getLocation();
+			SCmlOperationDefinition cmlOperation = (SCmlOperationDefinition)operationDefinition;
+			ILexLocation newCallLocation = node.getExpression().getLocation();
 			ILexNameToken newCallName = cmlOperation.getName();
 			List<? extends PExp> newCallargs = applyExp.getArgs();
 			ACallStatementAction newCall = new ACallStatementAction(
 					newCallLocation, newCallName, newCallargs);
 
 			// compute my replacement, that's right i'm going to replace my self
-			LexLocation replacementLocation = node.getLocation();
+			ILexLocation replacementLocation = node.getLocation();
 			PExp replacementDesignator = node.getStateDesignator().clone();
 			ACallStatementAction replacementCall = newCall;
 			AAssignmentCallStatementAction replacement = new AAssignmentCallStatementAction(

@@ -37,3 +37,4 @@ Require-Bundle: org.eclipse.debug.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
+Import-Package: org.eclipse.ui.console

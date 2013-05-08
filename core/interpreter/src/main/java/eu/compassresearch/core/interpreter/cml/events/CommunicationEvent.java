@@ -224,7 +224,7 @@ class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent
 			
 			return Arrays.asList((ChannelEvent)new CommunicationEvent(
 					CommunicationEvent.this.getEventSources(), 
-					CommunicationEvent.this.channel, new QuoteValue(node.getValue().value)));
+					CommunicationEvent.this.channel, new QuoteValue(node.getValue().getValue())));
 		}
 	}
 	
