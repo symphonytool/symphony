@@ -5,8 +5,8 @@ import java.util.List;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexLocation;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
@@ -216,7 +216,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		
 	}
 	
-	protected CmlBehaviourSignal caseReferenceAction(LexLocation location,
+	protected CmlBehaviourSignal caseReferenceAction(ILexLocation location,
 		List<PExp> args,ActionValue actionValue,Context question) throws AnalysisException {
 
 		//evaluate all the arguments

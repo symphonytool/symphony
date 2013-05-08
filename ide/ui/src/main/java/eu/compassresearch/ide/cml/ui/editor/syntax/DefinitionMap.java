@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
@@ -48,8 +47,7 @@ public class DefinitionMap {
 		return Collections.unmodifiableMap(map);
 	}
 
-	private static class AValuesDefinitionHandler implements
-			DefinitionHandler {
+	private static class AValuesDefinitionHandler implements DefinitionHandler {
 
 		public List<Wrapper<? extends PDefinition>> extractSubdefinition(
 				PDefinition pdef) {
@@ -60,13 +58,22 @@ public class DefinitionMap {
 				String typeguard = "?";
 				if (null != subdef.getType())
 					typeguard = subdef.getType().toString();
-					
-				String nameguard = "?";
+
+				String nameguard = extractValueName(subdef);
 				if (null != subdef.getName())
-					nameguard=subdef.getName().getName();
-			
-				r.add(Wrapper.newInstance(subdef, nameguard
-						+ ": " + typeguard));
+					nameguard = subdef.getName().getName();
+
+				r.add(Wrapper.newInstance(subdef, nameguard + ": " + typeguard));
+			}
+			return r;
+		}
+
+		private String extractValueName(PDefinition pdef) {
+			String r = "?";
+			if (pdef instanceof AValueDefinition) {
+				AValueDefinition avd = (AValueDefinition) pdef;
+				if (avd.getPattern() != null)
+					r = avd.getPattern().toString();
 			}
 			return r;
 		}
@@ -80,8 +87,8 @@ public class DefinitionMap {
 			List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			for (PDefinition subdef : ((AFunctionsDefinition) pdef)
 					.getFunctionDefinitions()) {
-				r.add(Wrapper.newInstance(subdef, subdef.getName().getName() + ": "
-						+ subdef.getType()));
+				r.add(Wrapper.newInstance(subdef, subdef.getName().getName()
+						+ ": " + subdef.getType()));
 			}
 			return r;
 		}
@@ -107,8 +114,8 @@ public class DefinitionMap {
 			List<Wrapper<? extends PDefinition>> r = new LinkedList<Wrapper<? extends PDefinition>>();
 			for (SCmlOperationDefinition subdef : ((AOperationsDefinition) pdef)
 					.getOperations())
-				r.add(Wrapper.newInstance(subdef, subdef.getName().getName() + ": "
-						+ subdef.getType()));
+				r.add(Wrapper.newInstance(subdef, subdef.getName().getName()
+						+ ": " + subdef.getType()));
 			return r;
 		}
 	}

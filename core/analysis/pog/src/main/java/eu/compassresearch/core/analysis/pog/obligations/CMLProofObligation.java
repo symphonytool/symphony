@@ -6,19 +6,19 @@
  ******************************************************************************/
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import org.overture.ast.lex.LexLocation;
+import org.overture.ast.intf.lex.ILexLocation;
 
 abstract public class CMLProofObligation
 {
 
-	public final LexLocation location;
+	public final ILexLocation location;
 	public final CMLPOType cmltype;
 	public final String name;
 	public POStatus status;
 	public String guiString;
 	public String isabelleString;
 	
-    public CMLProofObligation(LexLocation location, CMLPOType kind,
+    public CMLProofObligation(ILexLocation location, CMLPOType kind,
 	    CMLPOContextStack ctxt) {
     	this.location = location;
 		this.name = ctxt.getName();

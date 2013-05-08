@@ -10,7 +10,7 @@ import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
-import org.overture.ast.lex.LexLocation;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
@@ -53,7 +53,7 @@ public class CmlDefinitionVisitor extends
 	 * @return
 	 * @throws AnalysisException
 	 */
-	private NameValuePairList definitionListHelper(List<? extends PDefinition> defs, LexLocation location, Context question) throws AnalysisException
+	private NameValuePairList definitionListHelper(List<? extends PDefinition> defs, ILexLocation location, Context question) throws AnalysisException
 	{
 		NameValuePairList vpl = new NameValuePairList();
 		Context defEvalContext = CmlContextFactory.newContext(location, "Definition Eval context", question);

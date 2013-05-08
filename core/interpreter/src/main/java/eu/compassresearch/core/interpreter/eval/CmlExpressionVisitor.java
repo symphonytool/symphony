@@ -36,6 +36,7 @@ import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
 {
 	static{
+		// Was commented out on Overture/astv2 by PVJ
       VdmRuntime.initialize(/*new CmlExpressionVisitor()*/);
 	}
 	

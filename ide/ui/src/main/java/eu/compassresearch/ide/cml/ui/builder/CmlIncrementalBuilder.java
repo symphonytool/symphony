@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.lex.LexLocation;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.program.PSource;
@@ -146,9 +146,9 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 						{
 
 							IMarker errorMarker = file.createMarker(IMarker.PROBLEM);
-							LexLocation loc = error.getLocation();						
+							ILexLocation loc = error.getLocation();						
 							if (loc != null) {
-								setProblem(errorMarker,error.getDescription(), loc.startOffset, loc.endOffset,loc.startLine);
+								setProblem(errorMarker,error.getDescription(), loc.getStartOffset(), loc.getEndOffset(),loc.getStartLine());
 
 							}
 							else
@@ -174,9 +174,9 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 				PSource source = offendingNode.getAncestor(PSource.class);
 				IFile file = sourceToFileMap.get(source);
 				IMarker errorMarker = file.createMarker(IMarker.PROBLEM);
-				LexLocation loc = warning.getLocation();
+				ILexLocation loc = warning.getLocation();
 				if (loc != null )
-					setWarning(errorMarker,warning.getDescription(), loc.startOffset, loc.endOffset);
+					setWarning(errorMarker,warning.getDescription(), loc.getStartOffset(), loc.getEndOffset());
 
 			}
 

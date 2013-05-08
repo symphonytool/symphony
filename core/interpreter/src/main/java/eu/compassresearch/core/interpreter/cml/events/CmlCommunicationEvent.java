@@ -224,7 +224,7 @@ public class CmlCommunicationEvent extends ObservableEvent {
 			
 			return Arrays.asList((ObservableEvent)new CmlCommunicationEvent(
 					CmlCommunicationEvent.this.getEventSources(), 
-					CmlCommunicationEvent.this.channel, new QuoteValue(node.getValue().value)));
+					CmlCommunicationEvent.this.channel, new QuoteValue(node.getValue().getValue())));
 		}
 	}
 	
