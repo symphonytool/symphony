@@ -133,7 +133,13 @@ public class InterpretAllCmlFilesTest {
 	}
 	
 	private void checkResult(ExpectedTestResult testResult, InterpreterStatus status, Exception exception) {
-		
+
+		//Exceptions check
+		//testResult.throwsException() => exception != null
+		assertTrue("The test was expected to throw an exception but did not!",!testResult.throwsException() || exception != null);
+		//!testResult.throwsException() => exception == null
+		assertTrue("The test threw an unexpected exception : " + exception,testResult.throwsException() || exception == null);
+				
 		//Events 
 		if(!testResult.isInterleaved())
 		{
@@ -155,12 +161,6 @@ public class InterpretAllCmlFilesTest {
 		}
 		
 		//TimedTrace
-		
-		//Exceptions check
-		//testResult.throwsException() => exception != null
-		assertTrue("The test was expected to throw an exception but did not!",!testResult.throwsException() || exception != null);
-		//!testResult.throwsException() => exception == null
-		assertTrue("The test threw an unexpected exception : " + exception,testResult.throwsException() || exception == null);
 		
 		//Interpreter state
 		Assert.assertEquals(testResult.getInterpreterState(), status.getInterpreterState());

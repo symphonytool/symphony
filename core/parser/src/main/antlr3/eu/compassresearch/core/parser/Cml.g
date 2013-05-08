@@ -1132,7 +1132,7 @@ leadingIdAction returns[PAction action]
                             CommonToken dotId = (CommonToken)rIter.previous();
                             LexLocation dotLoc = extractLexLocation(dotId);
                             LexNameToken dotName = new LexNameToken("", dotId.getText(), dotLoc);
-                            comms.add(0, new ASignalCommunicationParameter(dotLoc, new AVariableExp(dotLoc, dotName, "")));
+                            comms.add(0, new ASignalCommunicationParameter(dotLoc, new AVariableExp(dotLoc, dotName, dotName.getName())));
                         }
                     }
                     $action = new ACommunicationAction(null, firstId, comms, $after.action);
@@ -1185,7 +1185,7 @@ leadingIdAction returns[PAction action]
                 | ':='
                     // At this point we know that we have an assignableExpression to the left, so assemble that here
                     {
-                        AVariableExp firstIdExp = new AVariableExp(extractLexLocation($id), new LexNameToken("", $id.getText(), extractLexLocation($id)), "");
+                        AVariableExp firstIdExp = new AVariableExp(extractLexLocation($id), new LexNameToken("", $id.getText(), extractLexLocation($id)), $id.getText());
                         List<PExp> selectors = $selectorOptList.selectors;
 
                         if ($ids != null && $ids.size() > 0) {
@@ -1355,7 +1355,7 @@ communication returns[PCommunicationParameter comm]
     : (   '.' { $comm = new ASignalCommunicationParameter(); }
         | '!' { $comm = new AWriteCommunicationParameter(); }
         )
-        ( id=IDENTIFIER       { $comm.setExpression(new AVariableExp(extractLexLocation($id), new LexNameToken("", $id.getText(), extractLexLocation($id)), "")); }
+        ( id=IDENTIFIER       { $comm.setExpression(new AVariableExp(extractLexLocation($id), new LexNameToken("", $id.getText(), extractLexLocation($id)), $id.getText())); }
         | '(' expression ')'  { $comm.setExpression($expression.exp); }
         | symbolicLiteralExpr { $comm.setExpression($symbolicLiteralExpr.exp); }
         | recordTupleExprs    { $comm.setExpression($recordTupleExprs.exp); }
@@ -1390,7 +1390,7 @@ assignableExpression returns[PExp exp]
         {
             LexLocation loc = extractLexLocation($t);
             if ($IDENTIFIER != null)
-                $exp = new AVariableExp(loc, new LexNameToken("", $t.getText(), loc), "");
+                $exp = new AVariableExp(loc, new LexNameToken("", $t.getText(), loc), $t.getText());
             else
                 $exp = new ASelfExp(loc, new LexNameToken("", $t.getText(), loc));
 
@@ -2897,7 +2897,7 @@ exprbase returns[PExp exp]
             if (isOld)
                 loc = extractLexLocation(loc, extractLexLocation($old));
             LexNameToken name = new LexNameToken("", $IDENTIFIER.getText(), loc, isOld, false);
-            $exp = new AVariableExp(loc, name, "");
+            $exp = new AVariableExp(loc, name, name.getName());
         }
     | symbolicLiteralExpr
         {

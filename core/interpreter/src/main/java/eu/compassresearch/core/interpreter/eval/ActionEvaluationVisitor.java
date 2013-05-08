@@ -40,17 +40,13 @@ import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.core.interpreter.CmlContextFactory;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
-import eu.compassresearch.core.interpreter.cml.events.CmlTock;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
@@ -234,7 +230,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 					value = value.getUpdatable(null);
 				}
 
-				evaluatedArgs.put(new LexNameToken("",(LexIdentifierToken)id.clone()), value);
+				evaluatedArgs.put(new LexNameToken("",(ILexIdentifierToken)id.clone()), value);
 
 				//update the index
 				paramIndex++;

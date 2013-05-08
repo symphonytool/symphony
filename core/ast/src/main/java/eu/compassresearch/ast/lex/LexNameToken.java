@@ -358,8 +358,7 @@ public class LexNameToken extends LexIdentifierToken implements ILexNameToken, S
 	@Override
 	public boolean matches(ILexNameToken other)
 	{
-		// FIXME Don't think this is actually used
-		throw new UnsupportedOperationException("Not yet implemented.");		
+		return this.name.equals(other.getName());		
 	}
 	
   }

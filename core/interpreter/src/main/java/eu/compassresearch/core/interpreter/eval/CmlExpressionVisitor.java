@@ -24,7 +24,6 @@ import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
@@ -36,7 +35,7 @@ import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
 {
 	static{
-		VdmRuntime.initialize(new CmlExpressionVisitor());
+      VdmRuntime.initialize(new CmlExpressionVisitor());
 	}
 	
 	class VdmExpressionEvaluator extends DelegateExpressionEvaluator{
@@ -93,7 +92,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 
 		for(ILexIdentifierToken id : ids)
 		{
-			coms.add(createEvent((LexIdentifierToken)id.clone(), question));
+			coms.add(createEvent((ILexIdentifierToken)id.clone(), question));
 		}
 
 		return new CmlAlphabet(coms);
@@ -152,7 +151,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		else if(val.deref() instanceof ObjectValue)
 		{
 			ObjectValue objectVal = val.objectValue(question);
-			return objectVal.get(new LexNameToken("",(LexIdentifierToken)iter.next().clone()), false) ;
+			return objectVal.get(new LexNameToken("",(ILexIdentifierToken)iter.next().clone()), false) ;
 		}
 		
 		return val;

@@ -8,8 +8,8 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PPattern;
@@ -215,7 +215,7 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 					if(UpdatableValue.class.isAssignableFrom(nvp.value.getClass()))
 					{
 						//FIXME it does not work when the module is there
-						LexNameToken oldName = new LexNameToken("",(LexIdentifierToken)nvp.name.getOldName().getIdentifier().clone());
+						LexNameToken oldName = new LexNameToken("",(ILexIdentifierToken)nvp.name.getOldName().getIdentifier().clone());
 						postConditionContext.putNew(new NameValuePair(oldName, nvp.value.getConstant()));
 					}
 

@@ -308,7 +308,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/action/action-timeout.cml");
+				"src/test/resources/process/process-functionsdef.cml");
 		runOnFile(cml_example);
 
 	}

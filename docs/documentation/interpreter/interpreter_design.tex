@@ -175,7 +175,7 @@ with the top level CmlBehaviour instance. This explains the one-to-one
 correspondence between the CmlInterpreter and the
 CMLBehaviour. However, the behavior of top level CmlBehaviour is
 determined by the binary tree of CmlBehaviour instances that itself
-and it's child behaviours defines. So in effect the CmlInterpreter
+and it's child behaviours defines. So in effect, the CmlInterpreter
 controls every transition that any CmlBehaviour makes through the top
 level behaviour.
 
@@ -235,14 +235,27 @@ this interface is shown in figure \ref{fig:cmlbehaviors}
 
 As shown the \textbf{ConcreteCmlBehavior} is the implementing class of
 the CmlBehavior interface. However, it delegates a large part of its
-responsibility to three different visitors. These visitors all
-inherits from a generated abstract visitor that are able to traverse
-any CML AST. 
+responsibility to other classes. The actual behavior of a
+ConcreteCmlBehavior instance is decided by its current instance of the
+INode interface, so when a ConcreteCmlBehavior instance is created a
+INode instance must be given. The INode interface is implemented by
+all the CML AST nodes and can therefore be any CML process or action.
+The actual implementation of the behavior of any process/action is
+delegated to three different visitors all extending a generated
+abstract visitor that have the infrastructure to visit any CML AST
+node.
 
+The following three visitors are used:  
 \begin{description}
-\item[AbstractEvaluationVisitor]
-\item[AbstractSetupVisitor]
-\item[AbstractAlphabetVisitor]
+\item[AbstractSetupVisitor] This has the responsibility of performing
+  any required setup for every behavior. This visitor is invoked
+  whenever a new INode instance is loaded.
+\item[AbstractEvaluationVisitor] This has the responsibility of
+  performing the actual behavior and is invoked inside the execute
+  method. This involves taking one of the possible transitions.
+\item[AbstractAlphabetVisitor] This has the responsibility of
+  calculating the alphabet of the current behavior and is invoked in the
+  inspect method.
 \end{description}
 
 

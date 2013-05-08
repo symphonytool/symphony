@@ -10,8 +10,9 @@ import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
-import eu.compassresearch.ast.lex.LexNameToken;
+import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
@@ -19,9 +20,6 @@ import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.UndefinedValue;
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.ast.actions.AResParametrisation;
-import eu.compassresearch.ast.actions.AValParametrisation;
-import eu.compassresearch.ast.actions.AVresParametrisation;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AActionsDefinition;
@@ -34,7 +32,7 @@ import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
-import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.CmlValueFactory;
@@ -235,7 +233,7 @@ public class CmlDefinitionVisitor extends
     	{
     		for (ILexIdentifierToken channelName : cnd.getSingleType().getIdentifiers())
     		{
-    			LexNameToken name = new LexNameToken("|CHANNELS|", channelName);
+    			ILexNameToken name = new LexNameToken("|CHANNELS|", channelName);
     			vpl.add(new NameValuePair(name, new CMLChannelValue(cnd.getSingleType().getType(),name)));
     		}
     	}
@@ -284,7 +282,8 @@ public class CmlDefinitionVisitor extends
 		
 		Value val = node.getExpression().apply(cmlExpressionVisitor,question);
 		
-		vpl.add(new NameValuePair(node.getName(),val));
+		if(node.getPattern() instanceof AIdentifierPattern)
+			vpl.add(new NameValuePair(((AIdentifierPattern)node.getPattern()).getName(), val));
 		
 		return vpl;
 	}

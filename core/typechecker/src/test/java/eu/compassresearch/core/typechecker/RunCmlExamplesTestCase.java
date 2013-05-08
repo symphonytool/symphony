@@ -2,13 +2,9 @@ package eu.compassresearch.core.typechecker;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -23,9 +19,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import eu.compassresearch.ast.program.AFileSource;
-import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.typechecker.TestUtil.TypeCheckerResult;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
@@ -258,7 +251,7 @@ public class RunCmlExamplesTestCase {
 		
 		if (tc.getTypeErrors().size() > 0)
 		{
-			CMLTypeError error = tc.getTypeErrors().get(0);
+		//	CMLTypeError error = tc.getTypeErrors().get(0);
 		//	System.out.println();
 		//	System.out.println("Error "+error.getLocation());
 		//	System.out.println(error.getStackTrace());
