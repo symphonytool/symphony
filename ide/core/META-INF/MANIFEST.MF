@@ -24,33 +24,12 @@ Export-Package: eu.compassresearch.ast.actions,
  eu.compassresearch.core.typechecker,
  eu.compassresearch.core.typechecker.api,
  eu.compassresearch.ide.cml.core,
- org.overture.ast.assistant.definition,
- org.overture.ast.assistant.pattern,
- org.overture.ast.assistant.type,
- org.overture.ast.definitions,
- org.overture.ast.definitions.traces,
- org.overture.ast.expressions,
- org.overture.ast.factory,
- org.overture.ast.lex,
- org.overture.ast.messages,
- org.overture.ast.modules,
- org.overture.ast.node,
- org.overture.ast.patterns,
- org.overture.ast.preview,
- org.overture.ast.statements,
- org.overture.ast.typechecker,
- org.overture.ast.types,
- org.overture.ast.util,
- org.overture.ast.util.definitions,
- org.overture.ast.util.modules,
- org.overture.config,
- org.overture.util,
  eu.compassresearch.core.common,
  org.antlr.runtime
-Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.core.resources,
- org.overture.ide.core;visibility:=reexport
-Eclipse-BuddyPolicy: registered
+Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,
+ org.eclipse.core.resources;visibility:=reexport,
+ org.overture.ide.core;visibility:=reexport,
+ org.overture.ide.builders.vdmj;visibility:=reexport
 Eclipse-BundleShape: dir
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

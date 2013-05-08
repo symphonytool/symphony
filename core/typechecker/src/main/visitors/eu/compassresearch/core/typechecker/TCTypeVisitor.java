@@ -8,7 +8,6 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
-import org.overture.ast.factory.AstFactory;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.ABooleanBasicType;
 import org.overture.ast.types.ABracketType;
@@ -45,7 +44,6 @@ import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
@@ -349,7 +347,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (!TCDeclAndDefVisitor.successfulType(type)) {
 			return issueHandler.addTypeError(node,
 					TypeErrorMessages.NAMED_TYPE_UNDEFINED
-					.customizeMessage(node.getName().name));
+					.customizeMessage(node.getName().getName()));
 		}
 
 		node.setType(type);

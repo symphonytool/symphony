@@ -8,7 +8,7 @@ import java.util.Set;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.types.PType;
 import org.overture.interpreter.runtime.Breakpoint;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.SourceFile;
@@ -17,6 +17,7 @@ import org.overture.parser.lex.LexException;
 import org.overture.parser.syntax.ParserException;
 
 import eu.compassresearch.ast.actions.PAction;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.EventSource;
@@ -24,6 +25,7 @@ import eu.compassresearch.core.interpreter.events.EventSource;
  * The CML interpreter interface. This has the responsibility of simulating/animating
  * a given AST representing a CML model. 
  */
+
 public interface CmlInterpreter
 {
 	
@@ -222,10 +224,6 @@ public interface CmlInterpreter
 	
 	//public PType findType(String typename);
 	
-	/**
-	 * The current status of the interpreter
-	 * @return
-	 */
 	public InterpreterStatus getStatus();
 
 	public EventSource<CmlInterpreterStatusObserver> onStatusChanged();

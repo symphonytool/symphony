@@ -223,15 +223,28 @@ transition.
 \subsubsection{Action/Process Structure}
 \label{sec:action_process_structure}
 Actions and processes are both represented by the CmlBehaviour
-interface. A class diagram of the important classes and interfaces are
-depicted in figure \ref{fig:cmlbehaviors}
+interface. A class diagram of the important classes that implements
+this interface is shown in figure \ref{fig:cmlbehaviors}
 \begin{figure}[ht!]
   \begin{center}
     \includegraphics[width=0.9\textwidth]{figures/CmlBehaviors}
-    \caption{The}
+    \caption{The implementing classes of the CmlBehavior interface}
     \label{fig:cmlbehaviors}
   \end{center}
 \end{figure}
+
+As shown the \textbf{ConcreteCmlBehavior} is the implementing class of
+the CmlBehavior interface. However, it delegates a large part of its
+responsibility to three different visitors. These visitors all
+inherits from a generated abstract visitor that are able to traverse
+any CML AST. 
+
+\begin{description}
+\item[AbstractEvaluationVisitor]
+\item[AbstractSetupVisitor]
+\item[AbstractAlphabetVisitor]
+\end{description}
+
 
 
 \begin{figure}[ht!]

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
 import org.overture.ast.definitions.AAssignmentDefinition;
@@ -29,10 +28,10 @@ import org.overture.ast.expressions.ANotYetSpecifiedExp;
 import org.overture.ast.expressions.ASubclassResponsibilityExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexBooleanToken;
-import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameList;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.NodeList;
 import org.overture.ast.patterns.AIdentifierPattern;
@@ -49,7 +48,6 @@ import org.overture.ast.types.ANatNumericBasicType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AProductType;
 import org.overture.ast.types.ASetType;
-import org.overture.ast.types.EType;
 import org.overture.ast.types.PType;
 import org.overture.parser.messages.VDMError;
 import org.overture.typechecker.Environment;
@@ -68,10 +66,8 @@ import org.overture.typechecker.assistant.definition.PDefinitionAssistantTC;
 import org.overture.typechecker.assistant.definition.PDefinitionListAssistantTC;
 import org.overture.typechecker.assistant.definition.SClassDefinitionAssistantTC;
 import org.overture.typechecker.assistant.pattern.PPatternAssistantTC;
-import org.overture.typechecker.assistant.pattern.PPatternListAssistantTC;
 import org.overture.typechecker.assistant.type.PTypeAssistantTC;
 import org.overture.typechecker.util.HelpLexNameToken;
-import org.overture.typechecker.util.TypeCheckerUtil;
 import org.overture.typechecker.visitor.TypeCheckerDefinitionVisitor;
 
 import eu.compassresearch.ast.actions.PAction;
@@ -99,6 +95,8 @@ import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
+import eu.compassresearch.ast.lex.LexIdentifierToken;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.process.AActionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.ast.types.AActionParagraphType;
@@ -114,7 +112,6 @@ import eu.compassresearch.ast.types.ANamesetsType;
 import eu.compassresearch.ast.types.AOperationParagraphType;
 import eu.compassresearch.ast.types.AProcessParagraphType;
 import eu.compassresearch.ast.types.AStateParagraphType;
-import eu.compassresearch.ast.types.AStatementType;
 import eu.compassresearch.ast.types.ATypeParagraphType;
 import eu.compassresearch.ast.types.AValueParagraphType;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -419,9 +416,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		List<PDefinition> statesShadowedByExternalClauses = new LinkedList<PDefinition>();
 		for(AExternalClause clause : externals)
 		{
-			LinkedList<LexNameToken> clauseIds = clause.getIdentifiers();
+			LinkedList<ILexNameToken> clauseIds = clause.getIdentifiers();
 
-			for(LexNameToken id : clauseIds)
+			for(ILexNameToken id : clauseIds)
 			{
 				PDefinition idDef = cmlEnv.lookup(id, PDefinition.class);
 				if (idDef == null)
@@ -629,9 +626,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			return issueHandler.addTypeError(expression, TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage(""+new ASetType(),""+expressionType));
 
 		List<PDefinition>defs = new LinkedList<PDefinition>();
-		LinkedList<LexIdentifierToken> identifiers = node.getIdentifiers();
-		for (LexIdentifierToken id : identifiers) {
-			LexNameToken name = null;
+		LinkedList<ILexIdentifierToken> identifiers = node.getIdentifiers();
+		for (ILexIdentifierToken id : identifiers) {
+			ILexNameToken name = null;
 			if (id instanceof LexNameToken)
 				name = (LexNameToken) id;
 			else
@@ -856,7 +853,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 
-		node.setName(new LexNameToken("", node.getName().getName(), node
+		node.setName(new LexNameToken("", node.getName().getFullName(), node
 				.getLocation()));
 
 		// Acquire declared type and expression type
@@ -1555,9 +1552,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 
 
-			LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
+			LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
 			List<PDefinition> defs = new LinkedList<PDefinition>();
-			for(LexIdentifierToken id : ids)
+			for(ILexIdentifierToken id : ids)
 			{
 
 				LexNameToken idName = new LexNameToken("",id);
@@ -1589,7 +1586,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 						.customizeMessage(decl.toString())));
 				return decl.getType();
 			}
-			for (LexIdentifierToken id : decl.getSingleType()
+			for (ILexIdentifierToken id : decl.getSingleType()
 					.getIdentifiers())
 				newQ.addChannel(id, decl);
 		}
@@ -1670,7 +1667,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		PExp postExp = node.getPostcondition();
 		if (postExp != null ) {
-			LexNameToken result = new LexNameToken(node.getName().module,
+			LexNameToken result = new LexNameToken(node.getName().getModule(),
 					"RESULT", node.getLocation());
 			PPattern rp = AstFactory.newAIdentifierPattern(result);			
 			List<PDefinition> rdefs = PPatternAssistantTC.getDefinitions(rp,
@@ -1693,8 +1690,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 						return node.getType();
 					}
 					for(PDefinition normalDef : pType.getDefinitions()) {
-						LexNameToken normName = normalDef.getName();
-						LexNameToken oldName = new LexNameToken("", new LexIdentifierToken(normName.getName(), true, normName.getLocation()));
+						ILexNameToken normName = normalDef.getName();
+						ILexNameToken oldName = new LexNameToken("", new LexIdentifierToken(normName.getFullName(), true, normName.getLocation()));
 						PDefinition oldDefinition = normalDef.clone();
 						oldDefinition.setName(oldName);
 						postEnv.addVariable(oldName, oldDefinition);
@@ -1705,8 +1702,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 			List<PDefinition> oldStateDefs = new LinkedList<PDefinition>();
 			for(PDefinition stateDef : enclosingStateDefinitions) {
-				LexNameToken normName = stateDef.getName();
-				LexNameToken oldName = new LexNameToken("", new LexIdentifierToken(normName.getName(), true, normName.getLocation()));
+				ILexNameToken normName = stateDef.getName();
+				ILexNameToken oldName = new LexNameToken("", new LexIdentifierToken(normName.getFullName(), true, normName.getLocation()));
 				PDefinition oldDefinition = stateDef.clone();
 				oldDefinition.setName(oldName);
 				oldStateDefs.add(oldDefinition);
@@ -2008,8 +2005,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 							"Measure parameters different to function", node
 							.getMeasure().getLocation(), node
 							.getMeasure());
-					TypeChecker.detail2(node.getMeasure().getName(),
-							mtype.getParameters(), node.getName().getName(),
+					TypeChecker.detail2(node.getMeasure().getFullName(),
+							mtype.getParameters(), node.getName().getFullName(),
 							((AFunctionType)node.getType()).getParameters());
 				}
 

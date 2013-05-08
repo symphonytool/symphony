@@ -1,4 +1,4 @@
-package org.overture.ast.lex;
+package eu.compassresearch.ast.lex;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -12,11 +12,15 @@ import org.overture.ast.analysis.intf.IAnswer;
 import org.overture.ast.analysis.intf.IQuestion;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
 import org.overture.ast.assistant.type.PTypeAssistant;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.VDMToken;
 import org.overture.ast.messages.InternalException;
 import org.overture.ast.types.PType;
 import org.overture.ast.util.Utils;
 
-public class LexNameToken extends LexIdentifierToken implements Serializable
+public class LexNameToken extends LexIdentifierToken implements ILexNameToken, Serializable
   {
     private static final long serialVersionUID = 1L;
     
@@ -45,7 +49,7 @@ public class LexNameToken extends LexIdentifierToken implements Serializable
         this(module, name, location, false, false);
       }
     
-    public LexNameToken(String module, LexIdentifierToken id)
+    public LexNameToken(String module, ILexIdentifierToken id)
       {
         super(id.getName(), id.isOld(), id.getLocation(), VDMToken.NAME);
         this.module = module;
@@ -70,12 +74,17 @@ public class LexNameToken extends LexIdentifierToken implements Serializable
             location));
       }
     
-    public String getName()
+    public String getFullName()
       {
         // Flat specifications have blank module names
         return (explicit ? (module.length() > 0 ? module + "`" : "") : "")
             + name + (old ? "~" : ""); // NB. No qualifier
       }
+    
+    public String getName()
+    {
+    	return name;
+    }
     
     public LexNameToken getNewName()
       {
@@ -137,20 +146,17 @@ public class LexNameToken extends LexIdentifierToken implements Serializable
           }
       }
     
-    public static LexNameToken getThreadName(LexLocation loc)
-      {
-        return new LexNameToken(loc.module, "thread", loc);
-      }
     
     public LexNameToken getPerName(LexLocation loc)
       {
         return new LexNameToken(module, "per_" + name, loc);
       }
     
-    public LexNameToken getClassName()
-      {
-        return new LexNameToken("CLASS", name, location);
-      }
+	public LexNameToken getClassName()
+	{
+		return new LexNameToken("CLASS", name, location);
+	}
+
     
     public void setTypeQualifier(List<PType> types)
       {
@@ -281,27 +287,27 @@ public class LexNameToken extends LexIdentifierToken implements Serializable
     @Override
     public void apply(IAnalysis analysis) throws AnalysisException
       {
-        analysis.caseLexNameToken(this);
+        analysis.caseILexNameToken(this);
       }
     
     @Override
     public <A> A apply(IAnswer<A> caller) throws AnalysisException
       {
-        return caller.caseLexNameToken(this);
+        return caller.caseILexNameToken(this);
       }
     
     @Override
     public <Q> void apply(IQuestion<Q> caller, Q question)
         throws AnalysisException
       {
-        caller.caseLexNameToken(this, question);
+        caller.caseILexNameToken(this, question);
       }
     
     @Override
     public <Q, A> A apply(IQuestionAnswer<Q, A> caller, Q question)
         throws AnalysisException
       {
-        return caller.caseLexNameToken(this, question);
+        return caller.caseILexNameToken(this, question);
       }
     
     /**
@@ -325,4 +331,35 @@ public class LexNameToken extends LexIdentifierToken implements Serializable
         fields.put("explicit", this.explicit);
         return fields;
       }
+
+	public int compareTo(ILexNameToken o)
+	{
+		return toString().compareTo(o.toString());
+	}
+
+	@Override
+	public boolean getExplicit()
+	{
+		return explicit;
+	}
+
+	@Override
+	public ILexNameToken getThreadName(LexLocation loc) {
+		// FIXME Don't think this is actually used
+		throw new UnsupportedOperationException("Not yet implemented.");		
+	}
+
+	@Override
+	public List<PType> typeQualifier()
+	{
+		return typeQualifier;
+	}
+
+	@Override
+	public boolean matches(ILexNameToken other)
+	{
+		// FIXME Don't think this is actually used
+		throw new UnsupportedOperationException("Not yet implemented.");		
+	}
+	
   }

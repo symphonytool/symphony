@@ -3,11 +3,12 @@ package eu.compassresearch.core.interpreter;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
@@ -52,7 +53,7 @@ public final class VanillaInterpreterFactory {
 		return new DefaultSupervisorEnvironment(selectStrategy);
 	}
 	
-	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, LexNameToken processName) throws AnalysisException
+	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, ILexNameToken processName) throws AnalysisException
 	{
 		return new ConcreteCmlBehaviour(processNode, context, processName);
 	}
@@ -62,7 +63,7 @@ public final class VanillaInterpreterFactory {
 //		return new ConcreteCmlBehaviour(node, context, processName);
 //	}
 	
-	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, LexNameToken processName, CmlBehaviour parent) throws AnalysisException
+	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, ILexNameToken processName, CmlBehaviour parent) throws AnalysisException
 	{
 		return new ConcreteCmlBehaviour(processNode, context, processName, parent);
 	}

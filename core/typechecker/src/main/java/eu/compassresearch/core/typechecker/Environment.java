@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
@@ -17,7 +17,7 @@ public class Environment<T> extends org.overture.typechecker.FlatEnvironment {
 	protected final Environment<T> outer;
 
 	// private state
-	private Map<LexIdentifierToken, T> map;
+	private Map<ILexIdentifierToken, T> map;
 	@SuppressWarnings("unused")
 	private final TypeIssueHandler issueHandler;
 
@@ -38,7 +38,7 @@ public class Environment<T> extends org.overture.typechecker.FlatEnvironment {
 	public Environment(Environment<T> outer, TypeIssueHandler issueHandler) {
 		super(new LinkedList<PDefinition>());
 		this.outer = outer;
-		this.map = new HashMap<LexIdentifierToken, T>();
+		this.map = new HashMap<ILexIdentifierToken, T>();
 		this.issueHandler = issueHandler;
 	}
 
@@ -50,7 +50,7 @@ public class Environment<T> extends org.overture.typechecker.FlatEnvironment {
 	 * 
 	 * @return null if the name is unresolved.
 	 */
-	public T lookupName(LexIdentifierToken name) {
+	public T lookupName(ILexIdentifierToken name) {
 		T def = map.get(name);
 		if (def == null)
 			if (outer != null)
@@ -67,7 +67,7 @@ public class Environment<T> extends org.overture.typechecker.FlatEnvironment {
 	 * @param type
 	 *            - The type for decl in this environment.
 	 */
-	public void put(LexIdentifierToken name, T type) {
+	public void put(ILexIdentifierToken name, T type) {
 		map.put(name, type);
 	}
 }

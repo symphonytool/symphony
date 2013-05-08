@@ -4,13 +4,13 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.AClassType;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.CPUValue;
 import org.overture.interpreter.values.NameValuePair;
-import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.NameValuePairMap;
 import org.overture.interpreter.values.ObjectValue;
 
@@ -36,7 +36,7 @@ public class CmlValueFactory {
 	public static ObjectValue createClassValue(ANewStatementAction node, Context question) throws AnalysisException
 	{
 		AClassType classType = (AClassType)node.getClassdef().getType();
-		LexNameToken classname = classType.getName();
+		ILexNameToken classname = classType.getName();
 		NameValuePairMap members = new NameValuePairMap();
 		for(PDefinition pdef : node.getClassdef().getBody())
 		{

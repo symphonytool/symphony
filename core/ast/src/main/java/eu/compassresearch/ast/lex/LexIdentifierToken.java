@@ -1,4 +1,4 @@
-package org.overture.ast.lex;
+package eu.compassresearch.ast.lex;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,8 +8,12 @@ import org.overture.ast.analysis.intf.IAnalysis;
 import org.overture.ast.analysis.intf.IAnswer;
 import org.overture.ast.analysis.intf.IQuestion;
 import org.overture.ast.analysis.intf.IQuestionAnswer;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.VDMToken;
 
-public class LexIdentifierToken extends LexToken
+public class LexIdentifierToken extends LexToken implements ILexIdentifierToken
   {
     private static final long serialVersionUID = 1L;
     public final String       name;
@@ -28,7 +32,7 @@ public class LexIdentifierToken extends LexToken
         this(name, old, location, VDMToken.IDENTIFIER);
       }
     
-    public LexNameToken getClassName()
+    public ILexNameToken getClassName()
       {
         // We don't know the class name of the name of a class until we've
         // read the name. So create a new location with the right module.
@@ -89,27 +93,27 @@ public class LexIdentifierToken extends LexToken
     @Override
     public void apply(IAnalysis analysis) throws AnalysisException
       {
-        analysis.caseLexIdentifierToken(this);
+        analysis.caseILexIdentifierToken(this);
       }
     
     @Override
     public <A> A apply(IAnswer<A> caller) throws AnalysisException
       {
-        return caller.caseLexIdentifierToken(this);
+        return caller.caseILexIdentifierToken(this);
       }
     
     @Override
     public <Q> void apply(IQuestion<Q> caller, Q question)
         throws AnalysisException
       {
-        caller.caseLexIdentifierToken(this, question);
+        caller.caseILexIdentifierToken(this, question);
       }
     
     @Override
     public <Q, A> A apply(IQuestionAnswer<Q, A> caller, Q question)
         throws AnalysisException
       {
-        return caller.caseLexIdentifierToken(this, question);
+        return caller.caseILexIdentifierToken(this, question);
       }
     
     /**
@@ -131,4 +135,10 @@ public class LexIdentifierToken extends LexToken
         fields.put("old", this.old);
         return fields;
       }
+
+	@Override
+	public boolean getOld()
+	{
+		return old;
+	}
   }

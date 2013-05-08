@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.ClassContext;
 import org.overture.interpreter.runtime.Context;
@@ -19,8 +19,8 @@ import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.cml.events.CmlTock;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
 import eu.compassresearch.core.interpreter.eval.AbstractSetupVisitor;
@@ -50,7 +50,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * Name of the instance
 	 */
-	protected LexNameToken 						name;
+	protected ILexNameToken 						name;
 	
 	//Process/Action Graph variables
 	protected final CmlBehaviour 				parent;
@@ -117,7 +117,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	 * Constructor
 	 * @param parent set the parent here if any else set to null
 	 */
-	private ConcreteCmlBehaviour(CmlBehaviour parent,LexNameToken name)
+	private ConcreteCmlBehaviour(CmlBehaviour parent,ILexNameToken name)
 	{
 		notifyOnStateChange(CmlProcessState.INITIALIZED);
 		this.parent = parent;
@@ -143,13 +143,13 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 		cmlSetupVisitor = new ActionSetupVisitor(this, visitorAccess);
 	}
 
-	public ConcreteCmlBehaviour(INode action,Context context, LexNameToken name) throws AnalysisException
+	public ConcreteCmlBehaviour(INode action,Context context, ILexNameToken name) throws AnalysisException
 	{
 		this(null,name);
 		setNext(new Pair<INode, Context>(action, context));
 	}
 
-	public ConcreteCmlBehaviour(INode action,Context context, LexNameToken name, CmlBehaviour parent) throws AnalysisException
+	public ConcreteCmlBehaviour(INode action,Context context, ILexNameToken name, CmlBehaviour parent) throws AnalysisException
 	{
 		this(parent,name);
 		setNext(new Pair<INode, Context>(action, context));
@@ -288,7 +288,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 	}
 
 	@Override
-	public LexNameToken name() {
+	public ILexNameToken name() {
 		return this.name;
 	}
 
@@ -515,7 +515,7 @@ public class ConcreteCmlBehaviour implements CmlBehaviour
 				newCurrent = CmlContextFactory.newContext(iCopy.location, iCopy.title, newCurrent);
 
 
-			for(Entry<LexNameToken,Value> entry : iCopy.entrySet())
+			for(Entry<ILexNameToken,Value> entry : iCopy.entrySet())
 			{
 				newCurrent.put(entry.getKey(), entry.getValue());
 			}

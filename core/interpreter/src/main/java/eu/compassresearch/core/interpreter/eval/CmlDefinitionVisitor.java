@@ -9,9 +9,9 @@ import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.LexNameToken;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
@@ -233,7 +233,7 @@ public class CmlDefinitionVisitor extends
 		
     	for (AChannelNameDefinition cnd : node.getChannelNameDeclarations())
     	{
-    		for (LexIdentifierToken channelName : cnd.getSingleType().getIdentifiers())
+    		for (ILexIdentifierToken channelName : cnd.getSingleType().getIdentifiers())
     		{
     			LexNameToken name = new LexNameToken("|CHANNELS|", channelName);
     			vpl.add(new NameValuePair(name, new CMLChannelValue(cnd.getSingleType().getType(),name)));

@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.interpreter.runtime.ClassContext;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ObjectContext;
@@ -49,7 +49,7 @@ public class CmlBehaviourUtility {
 		RootContext currentRoot = dst.getRoot(); 
 
 		//replace all the members values with the chosen choice node
-		for(Entry<LexNameToken,Value> entry : copyRoot.getSelf().getMemberValues().entrySet())
+		for(Entry<ILexNameToken,Value> entry : copyRoot.getSelf().getMemberValues().entrySet())
 		{
 			Value val = entry.getValue();
 			if(val instanceof UpdatableValue)
@@ -83,7 +83,7 @@ public class CmlBehaviourUtility {
 			if(contexts.size() > i)
 			{
 				Context iCurrent = contexts.get(i);
-				for(Entry<LexNameToken,Value> entry : iCopy.entrySet())
+				for(Entry<ILexNameToken,Value> entry : iCopy.entrySet())
 				{
 					Value val = entry.getValue();
 					if(val instanceof UpdatableValue)
@@ -105,7 +105,7 @@ public class CmlBehaviourUtility {
 					newCurrent = CmlContextFactory.newContext(iCopy.location, iCopy.title, newCurrent);
 				
 				
-				for(Entry<LexNameToken,Value> entry : iCopy.entrySet())
+				for(Entry<ILexNameToken,Value> entry : iCopy.entrySet())
 				{
 					newCurrent.put(entry.getKey(), entry.getValue());
 				}

@@ -13,6 +13,7 @@ import org.overture.ast.definitions.AExplicitOperationDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.definitions.SClassDefinitionBase;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
@@ -60,12 +61,12 @@ public class ProcessDefinitionAdaptor extends SClassDefinitionBase
 	}
 
 	@Override
-	public void setName(LexNameToken value) {
+	public void setName(ILexNameToken value) {
 		throw new RuntimeException("The Adaptors set methods should never be touched");
 	}
 
 	@Override
-	public LexNameToken getName() {
+	public ILexNameToken getName() {
 		return processDefinition.getName();
 	}
 
@@ -200,14 +201,14 @@ public class ProcessDefinitionAdaptor extends SClassDefinitionBase
 	}
 
 	@Override
-	public void setSupernames(List<? extends LexNameToken> value) {
+	public void setSupernames(List<? extends ILexNameToken> value) {
 		throw new RuntimeException("The Adaptors set methods should never be touched");
 		
 	}
 
 	@Override
-	public LinkedList<LexNameToken> getSupernames() {
-		return new LinkedList<LexNameToken>();
+	public LinkedList<ILexNameToken> getSupernames() {
+		return new LinkedList<ILexNameToken>();
 	}
 
 	@Override

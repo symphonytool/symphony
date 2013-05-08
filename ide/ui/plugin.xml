@@ -41,11 +41,11 @@
       <wizard
             category="compass_eu.compassresearch.ide.cml.ui.category"
             class="eu.compassresearch.ide.cml.ui.wizard.NewCmlProjectWizard"
-            finalPerspective="org.overture.ide.ui.perspective"
+            finalPerspective="eu.compassresearch.ide.ui.perspective"
             icon="icons/cview16/cml_file_tsk.png"
             id="eu.compassresearch.ide.CmlProjectWizard"
             name="%newProjectWizardName"
-            preferredPerspectives="org.overture.ide.ui.perspective"
+            preferredPerspectives="eu.compassresearch.ide.ui.perspective"
             project="true">
 
       </wizard>
@@ -80,28 +80,44 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            category="compass_eu.compassresearch.ide.cml.ui.category"
-            class="org.overture.ide.ui.navigator.VdmNavigator"
-            icon="icons/cview16/overture_nav.png"
-            id="org.overture.ide.ui.VdmExplorer"
-            name="%VdmExplorerName">
+            category="eu.compassresearch.ide.ui.view.category"
+            class="eu.compassresearch.ide.cml.ui.navigator.CmlExplorer"
+            icon="icons/cview16/compass_nav.png"
+            id="eu.compassresearch.ide.ui.CmlExplorer"
+            name="%CmlExplorerName">
       </view>
-    
+    <category
+    	id="eu.compassresearch.ide.ui.view.category"
+    	name="COMPASS">
+    	</category>
    </extension>
 
   <extension
          point="org.eclipse.ui.perspectives">
       <perspective
             class="eu.compassresearch.ide.cml.ui.perspective.CmlPerspectiveFactory"
-            icon="icons/cview16/overture_nav.png"
-            id="org.overture.ide.ui.perspective"
-            name="CML">
+            icon="icons/cview16/compass_nav.png"
+            id="eu.compassresearch.ide.ui.perspective"
+            name="%CmlPerspectiveName">
          <description>
-            %VdmPerspectiveDescription
+            %CmlPerspectiveDescription
          </description>
       </perspective>
    </extension>
 
+	<extension
+	         point="org.eclipse.ui.perspectiveExtensions">
+	      <perspectiveExtension
+	            targetID="eu.compassresearch.ide.ui.perspective">
+	         <view
+	               id="eu.compassresearch.ide.ui.CmlExplorer"
+	               minimized="false"
+	               ratio="0.25"
+	               relationship="left"
+	               relative="org.eclipse.ui.editorss">
+	         </view>
+	      </perspectiveExtension>
+	   </extension>
 
 
    <extension
@@ -109,10 +125,10 @@
       <navigatorContent
             activeByDefault="true"
             contentProvider="org.overture.ide.ui.navigator.VdmNavigatorCustomContentProvider"
-            icon="icons/cview16/overture_nav.png"
-            id="org.overture.ide.ui.vdmNavigatorContent"
+            icon="icons/cview16/compass_nav.png"
+            id="eu.compassresearch.ide.ui.cmlNavigatorContent"
             labelProvider="org.overture.ide.ui.navigator.VdmNavigatorLabelProvider"
-            name="VDM Navigator Content"
+            name="CML Navigator Content"
             priority="highest">
          <triggerPoints>
             <or>
@@ -314,7 +330,7 @@
    <extension
          point="org.eclipse.ui.navigator.viewer">
       <viewerContentBinding
-            viewerId="org.overture.ide.ui.VdmExplorer">
+            viewerId="eu.compassresearch.ide.ui.CmlExplorer">
          <includes>
             <contentExtension
                   isRoot="false"
@@ -325,7 +341,7 @@
                   pattern="org.eclipse.ui.navigator.resources.filters.*">
             </contentExtension-->
             <contentExtension
-                  pattern="org.overture.ide.ui.vdmNavigatorContent">
+                  pattern="eu.compassresearch.ide.ui.cmlNavigatorContent">
             </contentExtension>
            <contentExtension pattern="org.overture.resources.filters.*"/>
 	       <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
@@ -337,7 +353,7 @@
          </includes>
       </viewerContentBinding>
       <viewerActionBinding
-            viewerId="org.overture.ide.ui.VdmExplorer">
+            viewerId="eu.compassresearch.ide.ui.CmlExplorer">
          <includes>
             <actionExtension
                   pattern="org.eclipse.ui.navigator.resources.*">
@@ -399,13 +415,9 @@
     <view 
         id="eu.compassresearch.ide.cml.ui.Sanitizer"
         name="COMPASS UI Debug Sanitizer"
-        category="compass_eu.compassresearch.ide.cml.ui.category"
+        category="eu.compassresearch.ide.ui.view.category"
         icon="icons/cview16/cml_file_tsk.png"
         class="eu.compassresearch.ide.cml.ui.Sanitizer" />
-        
-        <category
-        	id="compass_eu.compassresearch.ide.cml.ui.category"
-        	name="COMPASS"/>
   </extension>
    
       <extension

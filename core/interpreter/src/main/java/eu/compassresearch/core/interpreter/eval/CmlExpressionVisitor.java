@@ -7,8 +7,7 @@ import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.interpreter.eval.DelegateExpressionEvaluator;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.VdmRuntime;
@@ -25,10 +24,12 @@ import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
+import eu.compassresearch.ast.lex.LexIdentifierToken;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
@@ -86,11 +87,11 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 
 	}
 	
-	private Value caseEnumVarSetExp(List<LexIdentifierToken> ids, Context question)
+	private Value caseEnumVarSetExp(List<ILexIdentifierToken> ids, Context question)
 	{
 		Set<CmlTransition> coms = new HashSet<CmlTransition>();
 
-		for(LexIdentifierToken id : ids)
+		for(ILexIdentifierToken id : ids)
 		{
 			coms.add(createEvent((LexIdentifierToken)id.clone(), question));
 		}
@@ -98,7 +99,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		return new CmlAlphabet(coms);
 	}
 	
-	private ObservableEvent createEvent(LexIdentifierToken id, Context question )
+	private ObservableEvent createEvent(ILexIdentifierToken id, Context question )
 	{
 		//FIXME: This should be a name so the conversion is avoided
 		LexNameToken channelName = new LexNameToken("|CHANNELS|",id);
@@ -137,7 +138,7 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 	
 		//FIXME This is just for testing, this should be done in a more generic way.
 		
-		Iterator<LexIdentifierToken> iter = node.getIdentifiers().iterator();
+		Iterator<ILexIdentifierToken> iter = node.getIdentifiers().iterator();
 		
 		Value val = question.check(new LexNameToken("",iter.next())); 
 		

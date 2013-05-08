@@ -1,9 +1,9 @@
 package eu.compassresearch.core.interpreter.values;
 
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.cml.CmlChannel;
 import eu.compassresearch.core.interpreter.cml.CmlCommunicationType;
 import eu.compassresearch.core.interpreter.events.ChannelObserver;
@@ -63,7 +63,7 @@ public class CMLChannelValue extends Value implements CmlChannel //CmlIOChannel<
 	
 	@Override
 	public String getName() {
-		return name.getName();
+		return name.getFullName();
 	}
 
 	@Override

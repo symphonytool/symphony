@@ -84,7 +84,7 @@ public class CmlTreeContentProvider implements ITreeContentProvider {
 					String dscr = TopLevelDefinitionMap.getDescription(def
 							.getClass());
 					if (dscr == null)
-						res.add(Wrapper.newInstance(def, def.getName().name));
+						res.add(Wrapper.newInstance(def, def.getName().getName()));
 					else
 						res.add(Wrapper.newInstance(def, dscr));
 

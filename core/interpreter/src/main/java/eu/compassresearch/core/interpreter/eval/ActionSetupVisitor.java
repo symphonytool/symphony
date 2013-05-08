@@ -27,7 +27,7 @@ public class ActionSetupVisitor extends AbstractSetupVisitor {
 	
 	private void caseASequentialComposition(INode node, INode leftNode, Context question) throws AnalysisException
 	{
-		setLeftChild(VanillaInterpreterFactory.newCmlBehaviour(leftNode, question,new LexNameToken("",owner.name().getSimpleName() + ";",owner.name().location), owner));
+		setLeftChild(VanillaInterpreterFactory.newCmlBehaviour(leftNode, question,new LexNameToken("",owner.name().getSimpleName() + ";",owner.name().getLocation()), owner));
 	}
 	
 	@Override

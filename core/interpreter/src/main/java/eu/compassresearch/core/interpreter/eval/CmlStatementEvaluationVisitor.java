@@ -8,6 +8,7 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
@@ -402,8 +403,8 @@ public class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 
 		ObjectValue classValue = CmlValueFactory.createClassValue(node, question);
 		Context ctorContext = CmlContextFactory.newObjectContext(node.getLocation(), "Class Constructor context", question, classValue);
-		LexNameToken name = node.getClassdef().getName().clone();//new LexNameToken(node.getClassdef().getName().getName(), node.getClassName().getIdentifier().getName(), node.getLocation());
-		ACallStatementAction callStm = new ACallStatementAction(name.location, name, node.getArgs());
+		ILexNameToken name = node.getClassdef().getName().clone();//new LexNameToken(node.getClassdef().getName().getName(), node.getClassName().getIdentifier().getName(), node.getLocation());
+		ACallStatementAction callStm = new ACallStatementAction(name.getLocation(), name, node.getArgs());
 		Value oldVal = node.getDestination().apply(cmlExpressionVisitor,question);
 		
 		oldVal.set(node.getLocation(), classValue, question);

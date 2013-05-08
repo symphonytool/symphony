@@ -17,9 +17,9 @@ import org.overture.ast.expressions.AApplyExp;
 import org.overture.ast.expressions.AVariableExp;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.factory.AstFactory;
-import org.overture.ast.lex.LexIdentifierToken;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AIdentifierPattern;
@@ -120,6 +120,8 @@ import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.ast.expressions.SRenameChannelExp;
+import eu.compassresearch.ast.lex.LexIdentifierToken;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.ast.types.AChansetType;
@@ -190,9 +192,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		ATypeSingleDeclaration decl = node.getDeclaration();
 		List<PDefinition> defs = new LinkedList<PDefinition>();
 
-		for(LexIdentifierToken id : decl.getIdentifiers())
+		for(ILexIdentifierToken id : decl.getIdentifiers())
 		{
-			LexNameToken name = new LexNameToken("",id);
+			ILexNameToken name = new LexNameToken("",id);
 			ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), name, NameScope.LOCAL, decl.getType());
 			defs.add(localDef);
 		}
@@ -209,9 +211,9 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		ATypeSingleDeclaration decl = node.getDeclaration();
 		List<PDefinition> defs = new LinkedList<PDefinition>();
 
-		for(LexIdentifierToken id : decl.getIdentifiers())
+		for(ILexIdentifierToken id : decl.getIdentifiers())
 		{
-			LexNameToken name = new LexNameToken("",id);
+			ILexNameToken name = new LexNameToken("",id);
 			ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), name, NameScope.LOCAL, decl.getType());
 			defs.add(localDef);
 		}
@@ -426,8 +428,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 	public PType caseAExternalClause(AExternalClause node,
 			TypeCheckInfo question) throws AnalysisException {
 
-		LinkedList<LexNameToken> ids = node.getIdentifiers();
-		for(LexNameToken id : ids)
+		LinkedList<ILexNameToken> ids = node.getIdentifiers();
+		for(ILexNameToken id : ids)
 		{
 			PDefinition def = CmlTCUtil.findDefByAllMeans(question, id);
 			if (def == null)
@@ -467,8 +469,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				node.setType(issueHandler.addTypeError(extClause, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(extClause+"")));
 				return node.getType();
 			}
-			LinkedList<LexNameToken> ids = extClause.getIdentifiers();
-			for(LexIdentifierToken id : ids)
+			LinkedList<ILexNameToken> ids = extClause.getIdentifiers();
+			for(ILexIdentifierToken id : ids)
 			{
 				LexNameToken localName = new LexNameToken("",id);
 				ALocalDefinition localDef = AstFactory.newALocalDefinition(node.getLocation(), localName, NameScope.LOCAL, extClauseType);
@@ -563,7 +565,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				return node.getType();
 			}
 			AChannelNameDefinition chanNameDef = (AChannelNameDefinition)chanDef;
-			for(LexIdentifierToken id : chanNameDef.getSingleType().getIdentifiers()) {
+			for(ILexIdentifierToken id : chanNameDef.getSingleType().getIdentifiers()) {
 				actionEnv.addChannel(id, chanDef);
 			}
 		}
@@ -608,8 +610,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					expType=st.getSetof();
 				}
 
-				LinkedList<LexIdentifierToken> ids = singleDecl.getIdentifiers();
-				for(LexIdentifierToken id : ids) {
+				LinkedList<ILexIdentifierToken> ids = singleDecl.getIdentifiers();
+				for(ILexIdentifierToken id : ids) {
 					LexNameToken name = new LexNameToken("", id);
 
 					ALocalDefinition def = AstFactory.newALocalDefinition(id.getLocation(), name, NameScope.LOCAL, expType);
@@ -619,8 +621,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 			if (decl instanceof ATypeSingleDeclaration) {
 				ATypeSingleDeclaration singleDecl = (ATypeSingleDeclaration)decl;
-				LinkedList<LexIdentifierToken> ids = singleDecl.getIdentifiers();
-				for(LexIdentifierToken id : ids) {
+				LinkedList<ILexIdentifierToken> ids = singleDecl.getIdentifiers();
+				for(ILexIdentifierToken id : ids) {
 					LexNameToken name = new LexNameToken("", id);
 					ALocalDefinition def = AstFactory.newALocalDefinition(id.getLocation(), name, singleDecl.getNameScope(), singleDecl.getType());
 					actionEnv.addVariable(name, def);
@@ -762,7 +764,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			}
 		}
 
-		ACallStatementAction callStm = new ACallStatementAction(node.getClassName().location, node.getClassName().clone(), node.getArgs());
+		ACallStatementAction callStm = new ACallStatementAction(node.getClassName().getLocation(), node.getClassName(), node.getArgs());
 		PType applyCtorExpType = callStm.apply(parentChecker,ctorEnv);
 		if (!TCDeclAndDefVisitor.successfulType(applyCtorExpType)) {
 			node.setType(issueHandler.addTypeError(node, TypeErrorMessages.COULD_NOT_DETERMINE_TYPE.customizeMessage(node+"")));
@@ -1178,7 +1180,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		PAction action = node.getAction();
 		PExp byExp = node.getBy();
 		PExp toExp = node.getTo();
-		LexNameToken var = node.getVar();
+		ILexNameToken var = node.getVar();
 
 		// Get the type of the by expression
 		PType byExpType = null;
@@ -1373,7 +1375,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 					throws AnalysisException {
 
 		// extract elements from the node
-		LinkedList<LexIdentifierToken> ids = node.getIdentifiers();
+		LinkedList<ILexIdentifierToken> ids = node.getIdentifiers();
 		LinkedList<PAction> acts = node.getActions();
 
 		// get the enclosing definition if any
@@ -1387,7 +1389,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				enclosingDef);
 
 		// add IDs to the environment
-		for (LexIdentifierToken id : ids) {
+		for (ILexIdentifierToken id : ids) {
 			newQuestion.addType(id, new ATypeDefinition(node.getLocation(),
 					NameScope.LOCAL, false, null,
 					new AAccessSpecifierAccessSpecifier(new APrivateAccess(),
@@ -1929,7 +1931,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			// we have an CML operation, transform that into a call statement
 			SCmlOperationDefinition cmlOperation = (SCmlOperationDefinition)operationDefinition;
 			LexLocation newCallLocation = node.getExpression().getLocation();
-			LexNameToken newCallName = cmlOperation.getName();
+			ILexNameToken newCallName = cmlOperation.getName();
 			List<? extends PExp> newCallargs = applyExp.getArgs();
 			ACallStatementAction newCall = new ACallStatementAction(newCallLocation,newCallName,newCallargs);
 
@@ -2066,7 +2068,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 		if (null == channel) {
 			node.setType( issueHandler.addTypeError(node,
 					TypeErrorMessages.NAMED_TYPE_UNDEFINED
-					.customizeMessage(node.getIdentifier().name)));
+					.customizeMessage(node.getIdentifier().getName())));
 			return node.getType();
 		}
 
@@ -2368,8 +2370,8 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 				return node.getType();
 			}
 
-			LinkedList<LexIdentifierToken> ids = decl.getIdentifiers();
-			for(LexIdentifierToken id : ids)
+			LinkedList<ILexIdentifierToken> ids = decl.getIdentifiers();
+			for(ILexIdentifierToken id : ids)
 			{
 				LexNameToken idName = new LexNameToken("", id);
 				ALocalDefinition localDef = AstFactory.newALocalDefinition( id.getLocation(), idName, NameScope.LOCAL, declType);
@@ -2461,7 +2463,7 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 			org.overture.typechecker.TypeCheckInfo question)
 					throws AnalysisException {
 
-		LexNameToken name = node.getName();
+		ILexNameToken name = node.getName();
 		
 		
 		
@@ -2492,14 +2494,14 @@ QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
 
 		CmlAssistant assistant = new CmlAssistant();
 		String[] ids = new String[0];
-		if (!"".equals(name.module)) {
-			ids = name.module.split(".");
-			if (ids.length == 0) ids = new String[] { name.module };
+		if (!"".equals(name.getModule())) {
+			ids = name.getModule().split(".");
+			if (ids.length == 0) ids = new String[] { name.getModule() };
 		}
 
 		String[] tmp = new String[ids.length+1];
 		System.arraycopy(ids, 0, tmp, 0, ids.length);
-		tmp[tmp.length-1]=name.name;
+		tmp[tmp.length-1]=name.getName();
 		ids=tmp;
 		LexNameToken nameid = new LexNameToken("",new LexIdentifierToken(ids[0], false, node.getLocation()));
 		callee = cmlEnv.lookup(nameid, PDefinition.class);

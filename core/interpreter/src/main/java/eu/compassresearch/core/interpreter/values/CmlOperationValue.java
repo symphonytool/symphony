@@ -5,26 +5,26 @@ import java.util.Vector;
 
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.expressions.PExp;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.lex.LexLocation;
-import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.types.AOperationType;
 import org.overture.interpreter.runtime.Context;
-import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
 public class CmlOperationValue extends Value {
 
 	//The name of the special return value in a assignment call context
 	//This is used to retrieve the result of a operation
-	public static LexNameToken ReturnValueName()
+	public static ILexNameToken ReturnValueName()
 	{
 		return new LexNameToken("|CALL|","RETURN",new LexLocation());
 	}
@@ -32,7 +32,7 @@ public class CmlOperationValue extends Value {
 	private static final long serialVersionUID = 1L;
 	public final AExplicitCmlOperationDefinition expldef;
 	public final AImplicitCmlOperationDefinition impldef;
-	public final LexNameToken name;
+	public final ILexNameToken name;
 	private final AOperationType type;
 	private final List<PPattern> paramPatterns;
 
@@ -41,7 +41,7 @@ public class CmlOperationValue extends Value {
 	public final AStateDefinition state;
 
 	private PAction body;
-	private LexNameToken stateName = null;
+	private ILexNameToken stateName = null;
 	private Context stateContext = null;
 	private ObjectValue self = null;
 

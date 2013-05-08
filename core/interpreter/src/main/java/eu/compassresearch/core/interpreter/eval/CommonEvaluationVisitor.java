@@ -1,7 +1,7 @@
 package eu.compassresearch.core.interpreter.eval;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
@@ -146,7 +146,7 @@ public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 	 *  Common transitions
 	 */
 	protected Pair<INode,Context> caseAExternalChoice(
-			INode node, INode leftNode, LexNameToken leftName, INode rightNode, LexNameToken rightName, Context question)
+			INode node, INode leftNode, ILexNameToken leftName, INode rightNode, ILexNameToken rightName, Context question)
 			throws AnalysisException {
 		
 		Pair<INode,Context> result = null;
