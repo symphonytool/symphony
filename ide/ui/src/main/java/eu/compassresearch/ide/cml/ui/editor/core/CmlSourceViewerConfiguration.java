@@ -61,7 +61,7 @@ public class CmlSourceViewerConfiguration extends VdmSourceViewerConfiguration
           }
         return assistant;
       }
-    
+    /*
     @Override
     public IReconciler getReconciler(ISourceViewer sv)
       {
@@ -71,6 +71,6 @@ public class CmlSourceViewerConfiguration extends VdmSourceViewerConfiguration
         mr.install(sv);
         return mr;
       }
-    
+    */
   }
 
