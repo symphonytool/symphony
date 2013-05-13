@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.eval;
+package eu.compassresearch.core.interpreter.visitors;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.lex.LexNameToken;

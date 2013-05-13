@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.eval;
+package eu.compassresearch.core.interpreter.visitors;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexNameToken;
@@ -13,9 +13,9 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
-import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.util.CmlBehaviourUtility;
 import eu.compassresearch.core.interpreter.util.Pair;
+import eu.compassresearch.core.interpreter.visitors.ActionEvaluationVisitor.parallelCompositionHelper;
 
 public class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 

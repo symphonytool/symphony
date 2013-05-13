@@ -25,7 +25,7 @@ import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 
 public class ConsoleSelectionStrategy implements
-CmlEventSelectionStrategy {
+SelectionStrategy {
 	
 	Scanner scanIn = new Scanner(System.in);
 

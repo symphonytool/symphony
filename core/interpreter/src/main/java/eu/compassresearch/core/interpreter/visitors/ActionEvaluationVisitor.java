@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.eval;
+package eu.compassresearch.core.interpreter.visitors;
 
 import java.util.List;
 
@@ -158,8 +158,8 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 			AExternalChoiceAction node, Context question)
 			throws AnalysisException {
 		
-		return caseAExternalChoice(node,node.getLeft(),new LexNameToken(name.getModule(),name.getIdentifier().getName() + "[]" ,node.getLeft().getLocation()),
-				node.getRight(),new LexNameToken(name.getModule(),"[]" + name.getIdentifier().getName(),node.getRight().getLocation()),question);
+		return caseAExternalChoice(node,node.getLeft(),new LexNameToken(name().getModule(),name().getIdentifier().getName() + "[]" ,node.getLeft().getLocation()),
+				node.getRight(),new LexNameToken(name().getModule(),"[]" + name().getIdentifier().getName(),node.getRight().getLocation()),question);
 				
 	}
 	
@@ -367,11 +367,11 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		//TODO: create a local copy of the question state for each of the actions
 		CmlBehaviour leftInstance = 
 				VanillaInterpreterFactory.newCmlBehaviour(left, question, 
-						new LexNameToken(name.getModule(),name.getIdentifier().getName() + "|||" ,left.getLocation()),owner);
+						new LexNameToken(name().getModule(),name().getIdentifier().getName() + "|||" ,left.getLocation()),owner);
 		
 		CmlBehaviour rightInstance = 
 				VanillaInterpreterFactory.newCmlBehaviour(right, question, 
-						new LexNameToken(name.getModule(),"|||" + name.getIdentifier().getName(),right.getLocation()),owner);
+						new LexNameToken(name().getModule(),"|||" + name().getIdentifier().getName(),right.getLocation()),owner);
 		
 		caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}

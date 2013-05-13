@@ -8,18 +8,18 @@ import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 
 public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 
-	private CmlEventSelectionStrategy selectStrategy;
+	private SelectionStrategy selectStrategy;
 	private CmlTransition selectedCommunication;
 	
 	private List<CmlBehaviour> pupils = new LinkedList<CmlBehaviour>();
 	
-	public DefaultSupervisorEnvironment(CmlEventSelectionStrategy selectStrategy)
+	public DefaultSupervisorEnvironment(SelectionStrategy selectStrategy)
 	{
 		this.selectStrategy = selectStrategy;
 	}
 	
 	@Override
-	public CmlEventSelectionStrategy decisionFunction() {
+	public SelectionStrategy decisionFunction() {
 
 		return this.selectStrategy;
 	}

@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.eval;
+package eu.compassresearch.core.interpreter.visitors;
 
 import java.util.Iterator;
 import java.util.List;
@@ -10,13 +10,12 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ValueException;
+import org.overture.interpreter.values.NameValuePairList;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.util.Pair;
@@ -26,34 +25,38 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 	/**
 	 * Interface that gives access to methods that access protected parts of a CmlBehaviour
 	 */
-	private VisitorAccess 										controlAccess;
-	protected final CmlBehaviour 								owner;								
-	//Evaluator for expressions and definitions
-	protected final QuestionAnswerCMLAdaptor<Context, Value>	cmlExpressionVisitor = new CmlExpressionVisitor();
-	protected CmlDefinitionVisitor								cmlDefEvaluator = new CmlDefinitionVisitor();
-	//use for making random but deterministic decisions
-	protected final Random										rnd = new Random(9784345);
-	//name of the thread
-	ILexNameToken 										name;
+	private VisitorAccess 													visitorAccess;
+	protected final CmlBehaviour 											owner;								
+	/**
+	 * Evaluator for expressions
+	 */
+	protected final QuestionAnswerCMLAdaptor<Context, Value>				cmlExpressionVisitor = new CmlExpressionVisitor();
+	/**
+	 * Evaluator for definitions
+	 */
+	protected QuestionAnswerCMLAdaptor<Context, NameValuePairList>			cmlDefEvaluator = new CmlDefinitionVisitor();
+	/**
+	 * Used for making random but deterministic decisions
+	 */
+	protected final Random													rnd = new Random(9784345);
 	
-	protected final AbstractEvaluationVisitor					parentVisitor;
+	protected final QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>>	parentVisitor;
 	
-	public AbstractEvaluationVisitor(AbstractEvaluationVisitor parentVisitor, CmlBehaviour owner, VisitorAccess controlAccess)
+	public AbstractEvaluationVisitor(QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> parentVisitor, CmlBehaviour owner, VisitorAccess controlAccess)
 	{
 		this.parentVisitor = parentVisitor;
 		this.owner = owner;
-		this.name =  owner.name();
-		this.controlAccess = controlAccess;
+		this.visitorAccess = controlAccess;
 	}
 	
 	protected void setLeftChild(CmlBehaviour child)
 	{
-		this.controlAccess.setLeftChild(child);
+		this.visitorAccess.setLeftChild(child);
 	}
 	
 	protected void setRightChild(CmlBehaviour child)
 	{
-		this.controlAccess.setRightChild(child);
+		this.visitorAccess.setRightChild(child);
 	}
 	
 	protected void removeTheChildren()
@@ -64,6 +67,11 @@ public abstract class AbstractEvaluationVisitor extends QuestionAnswerCMLAdaptor
 			supervisor().removePupil(child);
 			iterator.remove();
 		}
+	}
+	
+	protected ILexNameToken name()
+	{
+		return owner.name();
 	}
 		
 	protected CmlSupervisorEnvironment supervisor()

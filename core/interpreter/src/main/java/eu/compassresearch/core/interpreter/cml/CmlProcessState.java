@@ -1,7 +1,7 @@
 package eu.compassresearch.core.interpreter.cml;
 
 /**
- * This enum contains the state that a process can be in at any given time.
+ * This possible states that a process can be in at any given time.
  * @author akm
  *
  */

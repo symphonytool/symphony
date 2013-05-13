@@ -22,13 +22,6 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.events.CmlTock;
 import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.eval.AbstractEvaluationVisitor;
-import eu.compassresearch.core.interpreter.eval.AbstractSetupVisitor;
-import eu.compassresearch.core.interpreter.eval.ActionSetupVisitor;
-import eu.compassresearch.core.interpreter.eval.AlphabetInspectVisitor;
-import eu.compassresearch.core.interpreter.eval.CmlEvaluationVisitor;
-import eu.compassresearch.core.interpreter.eval.CmlOpsToString;
-import eu.compassresearch.core.interpreter.eval.VisitorAccess;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
 import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
 import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
@@ -37,6 +30,13 @@ import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
 import eu.compassresearch.core.interpreter.events.TraceEvent;
 import eu.compassresearch.core.interpreter.util.Pair;
+import eu.compassresearch.core.interpreter.visitors.AbstractEvaluationVisitor;
+import eu.compassresearch.core.interpreter.visitors.AbstractSetupVisitor;
+import eu.compassresearch.core.interpreter.visitors.ActionSetupVisitor;
+import eu.compassresearch.core.interpreter.visitors.AlphabetInspectVisitor;
+import eu.compassresearch.core.interpreter.visitors.CmlEvaluationVisitor;
+import eu.compassresearch.core.interpreter.visitors.CmlOpsToString;
+import eu.compassresearch.core.interpreter.visitors.VisitorAccess;
 
 public class ConcreteCmlBehaviour implements CmlBehaviour
 {

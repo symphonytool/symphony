@@ -9,7 +9,7 @@ import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
-public class InternalTransition extends AbstractCmlEvent implements SilentTransition {
+public class InternalTransition extends AbstractCmlTransition implements SilentTransition {
 
 	protected static InternalTransition instance = null;
 	public final static String tauString = "\u03C4".toLowerCase();

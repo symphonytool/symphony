@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.eval;
+package eu.compassresearch.core.interpreter.visitors;
 
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;

@@ -27,6 +27,7 @@ import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.CmlTrace;
 import eu.compassresearch.core.interpreter.cml.ConsoleSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.util.CmlParserUtil;
@@ -209,7 +210,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			
 			CmlTrace trace = topProcess.getTraceModel();
 			
-			if(CmlTrace.isObservableEvent(trace.getLastEvent()))
+			if(trace.getLastEvent() instanceof ObservableEvent)
 			{
 				CmlRuntime.logger().fine("----------------observable step by '"+ topProcess +"'----------------");
 				CmlRuntime.logger().fine("Observable trace of '"+topProcess+"': " + trace.getEventTrace());

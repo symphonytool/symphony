@@ -29,7 +29,7 @@ import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
  *
  */
 public class RandomSelectionStrategy implements
-		CmlEventSelectionStrategy {
+		SelectionStrategy {
 
 	private static final long randomSeed = 675674345;
 	private static final Random rndChoice = new Random(randomSeed);

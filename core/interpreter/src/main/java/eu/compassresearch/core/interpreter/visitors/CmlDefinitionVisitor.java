@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.eval;
+package eu.compassresearch.core.interpreter.visitors;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ import eu.compassresearch.core.interpreter.values.CmlValueFactory;
 public class CmlDefinitionVisitor extends
 		QuestionAnswerCMLAdaptor<Context, NameValuePairList> {
 
-	private CmlExpressionVisitor cmlExpressionVisitor = new CmlExpressionVisitor(); 
+	private QuestionAnswerCMLAdaptor<Context, Value> cmlExpressionVisitor = new CmlExpressionVisitor(); 
 
 	/*
 	 * Private helper methods

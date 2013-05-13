@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.eval;
+package eu.compassresearch.core.interpreter.visitors;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,8 +45,6 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 				throws AnalysisException {
 		
 			if(node instanceof PCMLExp)
-				//FIXME if the burger is ever a real case then this context is wrong!
-				//throw new RuntimeException("We are now in the  (CML | VDM | CML) burger, decide what to do!");
 				return defaultPCMLExp((PCMLExp)node,question);
 			else
 				return node.apply(this,question);
@@ -57,12 +55,10 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 
 	public CmlExpressionVisitor()
 	{
+		//To be able to work together with the VDM interpreter we need to set this
+		//to the current thread.
 		InitThread initThread = new InitThread(Thread.currentThread());
         BasicSchedulableThread.setInitialThread(initThread);
-        
-     // TODO For now we diable VDM typechecking, since something is not
-//      // working
-//      Settings.dynamictypechecks = false;
 	}
 	
 	@Override

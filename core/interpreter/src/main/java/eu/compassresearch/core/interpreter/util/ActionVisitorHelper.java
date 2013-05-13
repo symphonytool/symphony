@@ -9,7 +9,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ANonDeterministicAltStatementAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
-import eu.compassresearch.core.interpreter.eval.CmlExpressionVisitor;
+import eu.compassresearch.core.interpreter.visitors.CmlExpressionVisitor;
 
 public class ActionVisitorHelper {
 

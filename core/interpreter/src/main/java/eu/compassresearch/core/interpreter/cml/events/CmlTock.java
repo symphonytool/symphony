@@ -6,7 +6,7 @@ import java.util.Set;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
-public class CmlTock extends AbstractCmlEvent implements ObservableEvent {
+public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
 
 	private final long limit;
 	

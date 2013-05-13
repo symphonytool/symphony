@@ -19,7 +19,7 @@ import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
-import eu.compassresearch.core.interpreter.eval.CmlDefinitionVisitor;
+import eu.compassresearch.core.interpreter.visitors.CmlDefinitionVisitor;
 
 public class CmlValueFactory {
 

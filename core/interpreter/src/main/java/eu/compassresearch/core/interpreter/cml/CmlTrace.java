@@ -70,11 +70,6 @@ public class CmlTrace {
 		return visibleEvents;
 	}
 	
-	public static boolean isObservableEvent(CmlTransition event)
-	{
-		return event instanceof ObservableEvent;
-	}
-	
 	public boolean equals(Object obj) { 
 	
 		if(!(obj instanceof CmlTrace))

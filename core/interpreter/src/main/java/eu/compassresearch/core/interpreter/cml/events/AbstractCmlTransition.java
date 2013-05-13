@@ -6,17 +6,17 @@ import java.util.Set;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
-public abstract class AbstractCmlEvent implements CmlTransition {
+public abstract class AbstractCmlTransition implements CmlTransition {
 
 	final protected Set<CmlBehaviour> eventSources;
 	
-	public AbstractCmlEvent(CmlBehaviour eventSource)
+	public AbstractCmlTransition(CmlBehaviour eventSource)
 	{
 		this.eventSources = new HashSet<CmlBehaviour>();
 		this.eventSources.add(eventSource);
 	}
 	
-	public AbstractCmlEvent(Set<CmlBehaviour> eventSources)
+	public AbstractCmlTransition(Set<CmlBehaviour> eventSources)
 	{
 		this.eventSources = eventSources;
 	}
