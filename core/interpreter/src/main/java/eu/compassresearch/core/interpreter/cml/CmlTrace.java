@@ -4,31 +4,30 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.compassresearch.ast.actions.ACommunicationAction;
-import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 
 public class CmlTrace {
 
-	private List<CmlEvent> trace;
+	private final List<CmlTransition> trace;
 	
 	public CmlTrace()
 	{
-		trace = new LinkedList<CmlEvent>();
+		trace = new LinkedList<CmlTransition>();
 	}
 	
 	public CmlTrace(CmlTrace other)
 	{
-		trace = new LinkedList<CmlEvent>(other.trace);
+		trace = new LinkedList<CmlTransition>(other.trace);
 	}
 	
-	public void addEvent(CmlEvent event)
+	public void addEvent(CmlTransition event)
 	{
 		trace.add(event);
 	}
 	
-	public CmlEvent getLastEvent()
+	public CmlTransition getLastEvent()
 	{
 		if(trace.size() > 0)
 			return trace.get(trace.size()-1);
@@ -42,7 +41,7 @@ public class CmlTrace {
 		
 		StringBuilder strbuilder = new StringBuilder();
 		strbuilder.append("<");
-		for(Iterator<CmlEvent> iterator = trace.iterator(); iterator.hasNext();)
+		for(Iterator<CmlTransition> iterator = trace.iterator(); iterator.hasNext();)
 		{
 			strbuilder.append(iterator.next());
 			if(iterator.hasNext())
@@ -53,25 +52,25 @@ public class CmlTrace {
 		return strbuilder.toString();
 	}
 	
-	public List<CmlEvent> getTrace()
+	public List<CmlTransition> getTrace()
 	{
-		return new LinkedList<CmlEvent>(trace);
+		return new LinkedList<CmlTransition>(trace);
 	}
 	
-	public List<CmlEvent> getVisibleTrace()
+	public List<CmlTransition> getEventTrace()
 	{
-		List<CmlEvent> visibleEvents = new LinkedList<CmlEvent>();
+		List<CmlTransition> visibleEvents = new LinkedList<CmlTransition>();
 			
-		for(CmlEvent e : trace)
+		for(CmlTransition e : trace)
 		{
-			if(e instanceof ObservableEvent)
+			if(e instanceof ChannelEvent && e instanceof ObservableEvent)
 				visibleEvents.add(e);
 		}
 		
 		return visibleEvents;
 	}
 	
-	public static boolean isObservableEvent(CmlEvent event)
+	public static boolean isObservableEvent(CmlTransition event)
 	{
 		return event instanceof ObservableEvent;
 	}

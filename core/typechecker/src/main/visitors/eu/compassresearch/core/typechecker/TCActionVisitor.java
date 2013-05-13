@@ -116,6 +116,7 @@ import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 import eu.compassresearch.ast.declarations.PSingleDeclaration;
 import eu.compassresearch.ast.definitions.AActionDefinition;
 import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AOperationsDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
@@ -733,7 +734,7 @@ class TCActionVisitor extends
 		}
 
 		ACallStatementAction callStm = new ACallStatementAction(node
-				.getClassName().getLocation(), node.getClassName(),
+				.getClassName().getLocation(), node.getClassName().clone(),
 				node.getArgs());
 		PType applyCtorExpType = callStm.apply(parentChecker, ctorEnv);
 		if (!successfulType(applyCtorExpType)) {
@@ -742,6 +743,9 @@ class TCActionVisitor extends
 							.customizeMessage(node + "")));
 			return node.getType();
 		}
+		
+		//set the class definition
+		node.setClassdef((AClassDefinition)cmlEnv.lookup(node.getClassName(), AClassDefinition.class));
 
 		// All done!
 		node.setType(new AActionType());
@@ -1652,7 +1656,7 @@ class TCActionVisitor extends
 			return node.getType();
 		}
 
-		if (!(actionType instanceof AActionType)) {
+		if (!(actionType instanceof AActionType || actionType instanceof AStatementType)) {
 			node.setType(issueHandler.addTypeError(action,
 					TypeErrorMessages.EXPECTED_AN_ACTION_OR_OPERATION
 							.customizeMessage("" + action)));

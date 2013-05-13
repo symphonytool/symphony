@@ -18,13 +18,13 @@ import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.AImplicitCmlOperationDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
 
 public class CmlOperationValue extends Value {
 
 	//The name of the special return value in a assignment call context
 	//This is used to retrieve the result of a operation
-	public static LexNameToken ReturnValueName()
+	public static ILexNameToken ReturnValueName()
 	{
 		return new LexNameToken("|CALL|","RETURN",new LexLocation());
 	}
@@ -48,7 +48,7 @@ public class CmlOperationValue extends Value {
 	public boolean isConstructor = false;
 	public boolean isStatic = false;
 	
-	private CmlBehaviourThread currentlyExecutingThread = null;
+	private CmlBehaviour currentlyExecutingThread = null;
 
 	public CmlOperationValue(AExplicitCmlOperationDefinition def,
 							AStateDefinition state)
@@ -146,11 +146,11 @@ public class CmlOperationValue extends Value {
 		return type;
 	}
 
-	public CmlBehaviourThread getCurrentlyExecutingThread() {
+	public CmlBehaviour getCurrentlyExecutingThread() {
 		return currentlyExecutingThread;
 	}
 
-	public void setCurrentlyExecutingThread(CmlBehaviourThread currentlyExecutingThread) {
+	public void setCurrentlyExecutingThread(CmlBehaviour currentlyExecutingThread) {
 		this.currentlyExecutingThread = currentlyExecutingThread;
 	}
 	

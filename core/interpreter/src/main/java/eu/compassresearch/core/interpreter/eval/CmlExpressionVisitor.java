@@ -13,6 +13,7 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.VdmRuntime;
 import org.overture.interpreter.scheduler.BasicSchedulableThread;
 import org.overture.interpreter.scheduler.InitThread;
+import org.overture.interpreter.values.ObjectValue;
 import org.overture.interpreter.values.RecordValue;
 import org.overture.interpreter.values.Value;
 
@@ -23,21 +24,18 @@ import eu.compassresearch.ast.expressions.AFatEnumVarsetExpression;
 import eu.compassresearch.ast.expressions.AIdentifierVarsetExpression;
 import eu.compassresearch.ast.expressions.AUnresolvedPathExp;
 import eu.compassresearch.ast.expressions.PCMLExp;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
 public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
 {
 	static{
-		// Was commented out on Overture/astv2 by PVJ
-      VdmRuntime.initialize(/*new CmlExpressionVisitor()*/);
+      VdmRuntime.initialize(new CmlExpressionVisitor());
 	}
 	
 	class VdmExpressionEvaluator extends DelegateExpressionEvaluator{
@@ -90,11 +88,11 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 	
 	private Value caseEnumVarSetExp(List<ILexIdentifierToken> ids, Context question)
 	{
-		Set<CmlEvent> coms = new HashSet<CmlEvent>();
+		Set<CmlTransition> coms = new HashSet<CmlTransition>();
 
 		for(ILexIdentifierToken id : ids)
 		{
-			coms.add(createEvent((LexIdentifierToken)id.clone(), question));
+			coms.add(createEvent((ILexIdentifierToken)id.clone(), question));
 		}
 
 		return new CmlAlphabet(coms);
@@ -109,11 +107,11 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 		AChannelType chanType = (AChannelType)chanValue.getType(); 
 		if(chanType.getType() == null)
 		{		
-			return new PrefixEvent(chanValue);
+			return CmlEventFactory.newPrefixEvent(chanValue);
 		}
 		else
 		{
-			return new CmlCommunicationEvent(chanValue, null);
+			return CmlEventFactory.newCmlCommunicationEvent(chanValue, null);
 		}
 	}
 	
@@ -149,6 +147,11 @@ public class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Valu
 			Value fieldValue = recordVal.fieldmap.get(iter.next().getName());
 			
 			return fieldValue;
+		}
+		else if(val.deref() instanceof ObjectValue)
+		{
+			ObjectValue objectVal = val.objectValue(question);
+			return objectVal.get(new LexNameToken("",(ILexIdentifierToken)iter.next().clone()), false) ;
 		}
 		
 		return val;

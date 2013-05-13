@@ -14,6 +14,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+
 public class ExpectedTestResult {
 
 	public static ExpectedTestResult parseTestResultFile(String filePath) throws IOException 
@@ -30,26 +32,24 @@ public class ExpectedTestResult {
 
 			//parse using builder to get DOM representation of the XML file
 			Document dom = db.parse(filePath);
-
 			Element docEle = dom.getDocumentElement();
 			
 			//parse the type of the result
-			boolean shouldFail = false;
-			NodeList typeNl = docEle.getElementsByTagName("type");
-
-			if(typeNl != null && typeNl.getLength() > 0)
+			//TODO this should pass on the expected exception string
+			String exceptionName = null;
+			NodeList exceptionNl = docEle.getElementsByTagName("exception");
+			if(exceptionNl != null && exceptionNl.getLength() > 0)
 			{
-				if(typeNl.item(0).getFirstChild().getNodeValue().equals("fail"))
-					shouldFail = true;
+				Node firstChildNode = exceptionNl.item(0).getFirstChild();
+				if(firstChildNode != null && firstChildNode.getNodeValue() != null)
+					exceptionName = firstChildNode.getNodeValue();
 			}
 			
+			//Parse the expected events
 			//get a nodelist of elements
-			NodeList nl = docEle.getElementsByTagName("visibleTrace");
-			
+			NodeList nl = docEle.getElementsByTagName("events");
 			List<List<String>> traces = new LinkedList<List<String>>();
 						
-			//Node n = nl.item(0);
-			
 			for(int i = 0; i < nl.getLength();i++)
 			{
 				Node n = nl.item(i);
@@ -59,7 +59,7 @@ public class ExpectedTestResult {
 				{
 					String value = n.getFirstChild().getNodeValue();
 
-					for(String s : value.split(";"))
+					for(String s : value.split(",(?! )"))
 					{
 						trace.add(s);
 					}
@@ -67,7 +67,28 @@ public class ExpectedTestResult {
 				traces.add(trace);
 			}
 			
-			testResult = new ExpectedTestResult(traces,shouldFail);
+			//Parse the expected timed trace 
+			nl = docEle.getElementsByTagName("timedTrace");
+			List<List<String>> timedTraces = new LinkedList<List<String>>();
+						
+			for(int i = 0; i < nl.getLength();i++)
+			{
+				Node n = nl.item(i);
+				LinkedList<String> timedTrace = new LinkedList<String>();
+				
+				if(n.hasChildNodes())
+				{
+					String value = n.getFirstChild().getNodeValue();
+
+					for(String s : value.split(",(?! )"))
+					{
+						timedTrace.add(s);
+					}
+				}
+				timedTraces.add(timedTrace);
+			}
+			
+			testResult = new ExpectedTestResult(traces,timedTraces,exceptionName,parseInterpreterState(docEle));
 
 		}catch(ParserConfigurationException pce) {
 			pce.printStackTrace();
@@ -78,37 +99,77 @@ public class ExpectedTestResult {
 		return testResult;
 	}
 	
-	//The visible traces that the model should produce
-	private final List<List<String>> visibleTraces;
-	//This indicates whether the model should fail with an exception or not
-	private final boolean shouldFail;
-	
-	//private String exceptionName;
-	
-	public ExpectedTestResult(List<List<String>> visibleTraces, boolean shouldFail)
+	private static CmlInterpreterState parseInterpreterState(Element docEle)
 	{
-		this.visibleTraces = visibleTraces;
-		this.shouldFail = shouldFail;
+		Node stateNode = docEle.getElementsByTagName("interpreterState").item(0).getFirstChild();
+		
+		if(stateNode != null)
+		{
+			return CmlInterpreterState.valueOf(stateNode.getNodeValue());
+		}
+		else
+			return null;
+		
+	}
+	
+	//The visible traces that the model should produce
+	private final List<List<String>> eventTraces;
+	//The timed traces that the model should produce including the tock events
+	private final List<List<String>> timedTraces;
+	/**
+	 * The name of the exception that should be thrown
+	 */
+	private final String exceptionName;
+	/**
+	 * The state of the interpreter when the test are executed
+	 */
+	private final CmlInterpreterState state;
+	
+	public ExpectedTestResult(List<List<String>> eventTraces,List<List<String>> timedTraces, String exceptionName,CmlInterpreterState state)
+	{
+		this.eventTraces = eventTraces;
+		this.timedTraces = timedTraces;
+		this.exceptionName = exceptionName;
+		this.state = state;
+	}
+	
+	public CmlInterpreterState getInterpreterState() {
+		return state;
 	}
 	
 	public boolean isInterleaved()
 	{
-		return this.visibleTraces.size() > 1;
+		return this.eventTraces.size() > 1;
 	}
 	
-	public List<String> getFirstVisibleTrace()
+	public List<String> getFirstEventTrace()
 	{
-		return this.visibleTraces.get(0);
+		return this.eventTraces.get(0);
 	}
 		
-	public List<List<String>> getVisibleTraces()
+	public List<List<String>> getEventTraces()
 	{
-		return this.visibleTraces;
+		return this.eventTraces;
 	}
 	
-	public boolean shouldFail()
+	public List<String> getFirstTimedTrace()
 	{
-		return shouldFail;
+		return this.timedTraces.get(0);
+	}
+	
+	public boolean hasTimedTrace()
+	{
+		return timedTraces.size() > 0;
+	}
+	
+	public List<List<String>> getTimedTraces()
+	{
+		return this.timedTraces;
+	}
+	
+	public boolean throwsException()
+	{
+		return exceptionName != null;
 	}
 	
 }

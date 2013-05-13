@@ -1,0 +1,16 @@
+channels 
+a b
+
+process A = 
+begin 
+	actions
+	INIT = 
+			(a -> ((b -> Skip) [] ( a -> Skip) ) ; INIT) 
+			[] 
+			(b -> Skip; INIT) 
+	@ INIT
+end
+
+process TestDriver = begin @ a -> b -> Skip end
+
+process Test = TestDriver [| {a, b} |] A

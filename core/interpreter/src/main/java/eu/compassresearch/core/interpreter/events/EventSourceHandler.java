@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
-import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+import eu.compassresearch.core.interpreter.CmlRuntime;
 
 public class EventSourceHandler<O,E> implements EventSource<O>{
 

@@ -6,8 +6,9 @@ import java.util.Set;
 
 import org.overture.interpreter.values.Value;
 
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlSpecialEvent;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
+import eu.compassresearch.core.interpreter.cml.events.SilentTransition;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 
 /**
@@ -18,42 +19,62 @@ import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
  */
 public class CmlAlphabet extends Value {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5192258370825756900L;
+	
 	//This contains the observable events
 	private final Set<ObservableEvent> _observableEvents;
 	//This contains all the special events like tau
-	private final Set<CmlSpecialEvent> specialEvents;
+	private final Set<SilentTransition> specialEvents;
 	
 	public CmlAlphabet()
 	{
-		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
+		this.specialEvents = new LinkedHashSet<SilentTransition>();
 		this._observableEvents = new LinkedHashSet<ObservableEvent>();
 	}
 	
 	public CmlAlphabet(ObservableEvent obsEvent)
 	{
-		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
+		this.specialEvents = new LinkedHashSet<SilentTransition>();
 		this._observableEvents = new LinkedHashSet<ObservableEvent>();
 		this._observableEvents.add(obsEvent);
 	}
 	
-	public CmlAlphabet(Set<ObservableEvent> comms, Set<CmlSpecialEvent> specialEvents)
+	public CmlAlphabet(SilentTransition tauEvent)
+	{
+		this.specialEvents = new LinkedHashSet<SilentTransition>();
+		this._observableEvents = new LinkedHashSet<ObservableEvent>();
+		this.specialEvents.add(tauEvent);
+	}
+	
+	public CmlAlphabet(ObservableEvent obs, SilentTransition tauEvent)
+	{
+		this.specialEvents = new LinkedHashSet<SilentTransition>();
+		this.specialEvents.add(tauEvent);
+		this._observableEvents = new LinkedHashSet<ObservableEvent>();
+		this._observableEvents.add(obs);
+	}
+	
+	public CmlAlphabet(Set<ObservableEvent> comms, Set<SilentTransition> specialEvents)
 	{
 		this.specialEvents = specialEvents;
 		this._observableEvents = new LinkedHashSet<ObservableEvent>(comms);
 	}
 	
-	public CmlAlphabet(Set<CmlEvent> events)
+	public CmlAlphabet(Set<CmlTransition> events)
 	{
-		this.specialEvents = new LinkedHashSet<CmlSpecialEvent>();
+		this.specialEvents = new LinkedHashSet<SilentTransition>();
 		this._observableEvents = new LinkedHashSet<ObservableEvent>();
 		
-		for(CmlEvent e : events)
+		for(CmlTransition e : events)
 		{
 			if(e instanceof ObservableEvent){
 				_observableEvents.add((ObservableEvent)e);
 			}
-			else if(e instanceof CmlSpecialEvent)
-				this.specialEvents.add((CmlSpecialEvent)e);
+			else if(e instanceof SilentTransition)
+				this.specialEvents.add((SilentTransition)e);
 		}
 	}
 	
@@ -70,18 +91,18 @@ public class CmlAlphabet extends Value {
 	 * Returns all the special events in the alphabet
 	 * @return
 	 */
-	public Set<CmlSpecialEvent> getSpecialEvents()
+	public Set<SilentTransition> getSpecialEvents()
 	{
-		return new LinkedHashSet<CmlSpecialEvent>(specialEvents);
+		return new LinkedHashSet<SilentTransition>(specialEvents);
 	}
 	
 	/**
 	 * Returns all the observable and special events in the alphabet as a set.
 	 * @return all the observable and special events. 
 	 */
-	protected Set<CmlEvent> getAllEvents()
+	public Set<CmlTransition> getAllEvents()
 	{
-		Set<CmlEvent> allEvents = new LinkedHashSet<CmlEvent>();
+		Set<CmlTransition> allEvents = new LinkedHashSet<CmlTransition>();
 		allEvents.addAll(_observableEvents);
 		allEvents.addAll(specialEvents);
 		
@@ -95,7 +116,7 @@ public class CmlAlphabet extends Value {
 	 */
 	public CmlAlphabet union(CmlAlphabet other)
 	{
-		Set<CmlEvent> resultSet = this.getAllEvents();
+		Set<CmlTransition> resultSet = this.getAllEvents();
 		resultSet.addAll(other.getAllEvents());
 		
 		return new CmlAlphabet(resultSet);
@@ -106,9 +127,9 @@ public class CmlAlphabet extends Value {
 	 * @param event 
 	 * @return The union of this alphabet and the given CmlEvent
 	 */
-	public CmlAlphabet union(CmlEvent event)
+	public CmlAlphabet union(CmlTransition event)
 	{
-		Set<CmlEvent> resultSet = this.getAllEvents();
+		Set<CmlTransition> resultSet = this.getAllEvents();
 		resultSet.add(event);
 		
 		return new CmlAlphabet(resultSet);
@@ -121,7 +142,7 @@ public class CmlAlphabet extends Value {
 	 */
 	public CmlAlphabet intersect(CmlAlphabet other)
 	{
-		Set<CmlEvent> commonSet  = new LinkedHashSet<CmlEvent>(_observableEvents);
+		Set<CmlTransition> commonSet  = new LinkedHashSet<CmlTransition>(_observableEvents);
 		commonSet.retainAll(other._observableEvents);
 		return new CmlAlphabet(commonSet);
 	}
@@ -139,7 +160,7 @@ public class CmlAlphabet extends Value {
 	 */
 	public CmlAlphabet intersectImprecise(CmlAlphabet other)
 	{
-		Set<CmlEvent> resultSet = new LinkedHashSet<CmlEvent>();
+		Set<CmlTransition> resultSet = new LinkedHashSet<CmlTransition>();
 		
 		for(ObservableEvent thisEvent : _observableEvents)
 		{
@@ -147,19 +168,17 @@ public class CmlAlphabet extends Value {
 			{
 				//if the events are comparable (the) and one of the values are imprecise
 				// and they are not equal
-				if(thisEvent.isComparable(otherEvent) && 
-						(!thisEvent.isValuePrecise() || !otherEvent.isValuePrecise() ) && 
+				if(thisEvent instanceof ChannelEvent &&
+						otherEvent instanceof ChannelEvent &&
+						thisEvent.isComparable(otherEvent) && 
+						(!((ChannelEvent)thisEvent).isPrecise() || !((ChannelEvent)otherEvent).isPrecise() ) && 
 						!thisEvent.equals(otherEvent) )
 				{
 					//find the meet of the two values, meaning the most precise
-					resultSet.add(thisEvent.meet(otherEvent));
-					//resultSet.add(otherRefEvent);
+					resultSet.add(((ChannelEvent)thisEvent).meet(otherEvent));
 				}
 				else if(thisEvent.isComparable(otherEvent) && thisEvent.equals(otherEvent))
-				{
 					resultSet.add(thisEvent);
-					//resultSet.add(otherRefEvent);
-				}
 			}
 		}
 		
@@ -189,7 +208,7 @@ public class CmlAlphabet extends Value {
 	{
 		Set<ObservableEvent> newReferenceEvents = new LinkedHashSet<ObservableEvent>();
 		newReferenceEvents.addAll(_observableEvents);
-		newReferenceEvents.removeAll(other.intersectImprecise(this).getObservableEvents());
+		newReferenceEvents.removeAll(this.intersectImprecise(other).getObservableEvents());
 		
 		return new CmlAlphabet(newReferenceEvents,specialEvents);
 	}
@@ -199,7 +218,7 @@ public class CmlAlphabet extends Value {
 	 * This determines whether the alphabet contains an observable event.
 	 * @return true if the observable event is contained else false
 	 */
-	public boolean contains(CmlEvent comevent)
+	public boolean contains(CmlTransition comevent)
 	{
 		return _observableEvents.contains(comevent) || specialEvents.contains(comevent);
 	}
@@ -208,9 +227,9 @@ public class CmlAlphabet extends Value {
 	 * This determines whether the alphabet contains an observable event.
 	 * @return true if the observable event is contained else false
 	 */
-	public boolean containsImprecise(CmlEvent event)
+	public boolean containsImprecise(CmlTransition event)
 	{
-		return !intersectImprecise(event.getAsAlphabet()).isEmpty();
+		return !intersectImprecise(event.getAsAlphabet()).isEmpty() || contains(event);
 	}
 	
 	public boolean isEmpty(){
@@ -260,10 +279,13 @@ public class CmlAlphabet extends Value {
 	 */
 	public CmlAlphabet expandAlphabet()
 	{
-		Set<CmlEvent> eventSet = new HashSet<CmlEvent>();
+		Set<CmlTransition> eventSet = new HashSet<CmlTransition>();
 		
-		for(ObservableEvent ev : getObservableEvents())
-			eventSet.addAll(ev.expand());
+		for(CmlTransition ev : getAllEvents())
+			if(ev instanceof ChannelEvent)
+				eventSet.addAll(((ChannelEvent)ev).expand());
+			else
+				eventSet.add(ev);
 		
 		return new CmlAlphabet(eventSet);
 		
@@ -273,6 +295,6 @@ public class CmlAlphabet extends Value {
 	public Object clone() {
 
 		return new CmlAlphabet(new LinkedHashSet<ObservableEvent>(_observableEvents), 
-				new HashSet<CmlSpecialEvent>(specialEvents));
+				new HashSet<SilentTransition>(specialEvents));
 	}
 }

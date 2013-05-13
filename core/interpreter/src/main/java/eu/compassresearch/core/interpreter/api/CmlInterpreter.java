@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.expressions.PExp;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.types.PType;
@@ -20,9 +21,9 @@ import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.EventSource;
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 /**
- * The CML interpreter interface.
+ * The CML interpreter interface. This has the responsibility of simulating/animating
+ * a given AST representing a CML model. 
  */
 
 public interface CmlInterpreter
@@ -67,55 +68,13 @@ public interface CmlInterpreter
 	 */
 	public CmlSupervisorEnvironment getCurrentSupervisor();
 
-//	/**
-//	 * Initialize the initial context. This means that all definition
-//	 * initializers are re-run to put the global environment back into its
-//	 * original state. This is run implicitly when the interpreter starts,
-//	 * but it can also be invoked explicitly via the "init" command.
-//	 *
-//	 * @throws Exception
-//	 */
-//
-//	public void init(DBGPReader dbgp);
-//
-//	/**
-//	 * Initialize the context between trace sequences. This is less
-//	 * thorough than the full init, since it does not reset the scheduler
-//	 * for example.
-//	 */
-//
-//	public void traceInit(DBGPReader dbgp);
-//
-//	/**
-//	 * Parse the line passed, type check it and evaluate it as an expression
-//	 * in the initial context.
-//	 *
-//	 * @param line A CML expression.
-//	 * @param dbgp The DBGPReader, if any
-//	 * @return The value of the expression.
-//	 * @throws Exception Parser, type checking or runtime errors.
-//	 */
-//
-//	public Value execute(String line, DBGPReader dbgp) throws Exception;
-
-//	/**
-//	 * Executes the defined default process from the given sourceForest  
-//	 * 
-//	 * @return The value of the expression.
-//	 * @throws Exception Parser, type checking or runtime errors.
-//	 */
-//
-//	public Value execute() throws InterpreterException;
-	
-	
-	
 	/**
 	 * Executes the defined default process from the given sourceForest, with the given selection strategy
 	 * @param selectionStrategy
 	 * @return
 	 * @throws InterpreterException
 	 */
-	public Value execute(CmlSupervisorEnvironment sve, CmlScheduler cmlScheduler) throws InterpreterException;
+	public Value execute(CmlSupervisorEnvironment sve) throws AnalysisException;
 
 	/**
 	 * Parse the line passed, and evaluate it as an expression in the context
@@ -263,7 +222,7 @@ public interface CmlInterpreter
 
 	public void clearBreakpointHits();
 	
-	public PType findType(String typename);
+	//public PType findType(String typename);
 	
 	public InterpreterStatus getStatus();
 

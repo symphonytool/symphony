@@ -13,6 +13,7 @@ import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.actions.ABlockStatementAction;
+import eu.compassresearch.ast.actions.ACallStatementAction;
 import eu.compassresearch.ast.actions.ACommunicationAction;
 import eu.compassresearch.ast.actions.AExternalChoiceAction;
 import eu.compassresearch.ast.actions.AGeneralisedParallelismParallelAction;
@@ -28,6 +29,8 @@ import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AStopAction;
+import eu.compassresearch.ast.actions.ATimeoutAction;
+import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.actions.AWriteCommunicationParameter;
 import eu.compassresearch.ast.actions.PAction;
@@ -44,18 +47,20 @@ import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.events.CmlCommunicationEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.cml.events.CmlTauEvent;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
+import eu.compassresearch.core.interpreter.cml.events.CmlEventFactory;
+import eu.compassresearch.core.interpreter.cml.events.CmlTock;
 import eu.compassresearch.core.interpreter.cml.events.CommunicationParameter;
+import eu.compassresearch.core.interpreter.cml.events.HiddenEvent;
 import eu.compassresearch.core.interpreter.cml.events.InputParameter;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.events.OutputParameter;
-import eu.compassresearch.core.interpreter.cml.events.PrefixEvent;
 import eu.compassresearch.core.interpreter.cml.events.SignalParameter;
+import eu.compassresearch.core.interpreter.cml.events.InternalTransition;
 import eu.compassresearch.core.interpreter.util.ActionVisitorHelper;
-import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.util.CmlBehaviourUtility;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
@@ -70,14 +75,14 @@ public class AlphabetInspectVisitor
 		QuestionAnswerCMLAdaptor<Context, CmlAlphabet> {
 
 	// The process that contains this instance
-	private final CmlBehaviourThread 			ownerProcess;
+	private final CmlBehaviour 					ownerProcess;
 	private final CmlExpressionVisitor			cmlEvaluator = new CmlExpressionVisitor();
 	
 	/**
 	 * 
 	 * @param ownerProcess
 	 */
-	public AlphabetInspectVisitor(CmlBehaviourThread ownerProcess)
+	public AlphabetInspectVisitor(CmlBehaviour ownerProcess)
 	{
 		this.ownerProcess = ownerProcess;
 	}
@@ -92,11 +97,8 @@ public class AlphabetInspectVisitor
 	
 	private CmlAlphabet createSilentTransition(INode srcNode, INode dstNode, String transitionText)
 	{
-		HashSet<CmlEvent> specialEvents = new HashSet<CmlEvent>();
-		CmlTauEvent tau = CmlTauEvent.newTauEvent(srcNode,dstNode);
-		tau.setTransitionText(transitionText);
-		specialEvents.add(tau);
-		return new CmlAlphabet(specialEvents);
+		return new CmlAlphabet(new CmlTock(ownerProcess),new InternalTransition(ownerProcess,srcNode,dstNode,transitionText));
+		//return new CmlAlphabet(CmlEventFactory.newTauEvent(ownerProcess,srcNode,dstNode,transitionText));
 	}
 	
 	private CmlAlphabet createSilentTransition(INode srcNode, INode dstNode)
@@ -115,6 +117,19 @@ public class AlphabetInspectVisitor
 			throws AnalysisException {
 		
 		return createSilentTransition(node,null,"Post condition");
+	}
+	
+	@Override
+	public CmlAlphabet caseACallStatementAction(ACallStatementAction node,
+			Context question) throws AnalysisException {
+		if(!ownerProcess.hasChildren())
+			return createSilentTransition(node,node,"begin");
+		if(!ownerProcess.getLeftChild().finished())
+			return ownerProcess.getLeftChild().inspect();
+		else if(ownerProcess.getRightChild() != null)
+			return ownerProcess.getRightChild().inspect();
+		else
+			return createSilentTransition(node,new ASkipAction());
 	}
 	
 	/**
@@ -163,13 +178,12 @@ public class AlphabetInspectVisitor
 	private CmlAlphabet caseAGeneralisedParallelismInspectChildren(PVarsetExpression channelsetExp, Context question) throws AnalysisException
 	{
 		//convert the channel set of the current node to a alphabet
-		CmlAlphabet cs =  ((CmlAlphabet)channelsetExp.
-				apply(cmlEvaluator,question));
+		CmlAlphabet cs =  ((CmlAlphabet)channelsetExp.apply(cmlEvaluator,question)).union(new CmlTock());
 		
 		//Get all the child alphabets and add the events that are not in the channelset
-		CmlBehaviourThread leftChild = ownerProcess.children().get(0);
+		CmlBehaviour leftChild = ownerProcess.getLeftChild();
 		CmlAlphabet leftChildAlphabet = leftChild.inspect();
-		CmlBehaviourThread rightChild = ownerProcess.children().get(1);
+		CmlBehaviour rightChild = ownerProcess.getRightChild();
 		CmlAlphabet rightChildAlphabet = rightChild.inspect();
 		
 		//Find the intersection between the child alphabets and the channel set and join them.
@@ -177,7 +191,7 @@ public class AlphabetInspectVisitor
 		CmlAlphabet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
 		
 		//combine all the common events that are in the channel set 
-		Set<CmlEvent> syncEvents = new HashSet<CmlEvent>();
+		Set<CmlTransition> syncEvents = new HashSet<CmlTransition>();
 		for(ObservableEvent ref : cs.getObservableEvents())
 		{
 			CmlAlphabet commonEvents = syncAlpha.intersectImprecise(ref.getAsAlphabet());
@@ -210,7 +224,7 @@ public class AlphabetInspectVisitor
 		{
 			alpha = createSilentTransition(node, node, "Begin");
 		}
-		else if(CmlBehaviourThreadUtility.isAllChildrenFinished(ownerProcess))
+		else if(CmlBehaviourUtility.isAllChildrenFinished(ownerProcess))
 		{
 			alpha = createSilentTransition(node, new ASkipAction(), "End");
 		}
@@ -310,15 +324,8 @@ public class AlphabetInspectVisitor
 		{
 			@Override
 			public CmlAlphabet inspectChildren() {
-				CmlAlphabet alpha = null;
-				for(CmlBehaviourThread child : ownerProcess.children())
-				{
-					if(alpha == null)
-						alpha = child.inspect();
-					else
-						alpha = alpha.union(child.inspect());
-				}
-				return alpha;
+
+				return syncOnTockAndJoinChildren();
 			}
 		});
 	}
@@ -358,6 +365,31 @@ public class AlphabetInspectVisitor
 		return caseAExternalChoice(node,question);
 	}
 	
+	private CmlAlphabet syncOnTockAndJoinChildren()
+	{
+		//even though they are external choice/interleaving they should always sync on tock
+		CmlAlphabet cs =  new CmlAlphabet(new CmlTock());
+		
+		//Get all the child alphabets 
+		CmlAlphabet leftChildAlphabet = ownerProcess.getLeftChild().inspect();
+		CmlAlphabet rightChildAlphabet = ownerProcess.getRightChild().inspect();
+		
+		//Find the intersection between the child alphabets and the channel set and join them.
+		//Then if both left and right have them the next step will combine them.
+		CmlAlphabet syncAlpha = leftChildAlphabet.intersectImprecise(cs).union(rightChildAlphabet.intersectImprecise(cs));
+		
+		//combine all the tock events 
+		if(syncAlpha.getObservableEvents().size() == 2)
+		{
+			Iterator<ObservableEvent> it = syncAlpha.getObservableEvents().iterator(); 
+			return leftChildAlphabet.union(rightChildAlphabet).subtract(syncAlpha).union(it.next().synchronizeWith(it.next()));
+		}
+		else
+		{
+			return leftChildAlphabet.union(rightChildAlphabet);
+		}
+	}
+	
 	private CmlAlphabet caseAExternalChoice(INode node,
 			Context question) throws AnalysisException {
 		
@@ -367,25 +399,34 @@ public class AlphabetInspectVisitor
 		//external choice begin
 		if(!ownerProcess.hasChildren())
 			alpha = createSilentTransition(node, node,"Begin");
-		//if all children are waiting for events or are finished then we how to investigate further
-		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrStoppedOrWaitingForEvent(ownerProcess))
+		//if one child is finished external choice must end
+		else if (CmlBehaviourUtility.finishedChildExists(ownerProcess))
+			alpha = createSilentTransition(node, node,"end");
+		//else we join the childrens alphabets 
+		else
 		{
-			//if there exist a finished child then the external choice ends with a silent transition
-			//where the state of the finished is used
-			if(CmlBehaviourThreadUtility.finishedChildExists(ownerProcess))
-				alpha = createSilentTransition(node, node,"end");
-			else
-			{
-				//If all the children are waiting for events, we must try to let them
-				for(CmlBehaviourThread child : ownerProcess.children())
-				{
-					if(alpha == null)
-						alpha = calculateDeadlockFreeChildAlphabet(child);
-					else
-						alpha = alpha.union(calculateDeadlockFreeChildAlphabet(child));
-				}
-			}
+			return syncOnTockAndJoinChildren();
 		}
+		
+//		//if all children are waiting for events or are finished then we how to investigate further
+//		else if(CmlBehaviourThreadUtility.isAllChildrenFinishedOrStoppedOrWaitingForEvent(ownerProcess))
+//		{
+//			//if there exist a finished child then the external choice ends with a silent transition
+//			//where the state of the finished is used
+//			if(CmlBehaviourThreadUtility.finishedChildExists(ownerProcess))
+//				alpha = createSilentTransition(node, node,"end");
+//			else
+//			{
+//				//If all the children are waiting for events, we must try to let them
+//				for(CmlBehaviourThread child : ownerProcess.children())
+//				{
+//					if(alpha == null)
+//						alpha = calculateDeadlockFreeChildAlphabet(child);
+//					else
+//						alpha = alpha.union(calculateDeadlockFreeChildAlphabet(child));
+//				}
+//			}
+//		}
 		
 		return alpha;
 	}
@@ -395,7 +436,7 @@ public class AlphabetInspectVisitor
 	 * @param child
 	 * @return
 	 */
-	private CmlAlphabet calculateDeadlockFreeChildAlphabet(CmlBehaviourThread child)
+	private CmlAlphabet calculateDeadlockFreeChildAlphabet(CmlBehaviour child)
 	{
 		//child.onStateChanged().unregisterObserver(ownerProcess);
 
@@ -452,14 +493,27 @@ public class AlphabetInspectVisitor
 	public CmlAlphabet caseASequentialCompositionAction(
 			ASequentialCompositionAction node, Context question)
 			throws AnalysisException {
-		return createSilentTransition(node,node.getLeft());
+		
+		return caseASequentialComposition(node.getLeft(),node.getRight(),question);
 	}
 	
 	@Override
 	public CmlAlphabet caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node, Context question)
 			throws AnalysisException {
-		return createSilentTransition(node,node.getLeft());
+		
+		return caseASequentialComposition(node.getLeft(),node.getRight(),question);
+	}
+	
+	private CmlAlphabet caseASequentialComposition(
+			INode node, INode leftNode, Context question)
+			throws AnalysisException {
+		
+		if(!ownerProcess.getLeftChild().finished())
+			return ownerProcess.getLeftChild().inspect();
+		else 
+			return createSilentTransition(node,leftNode);
+		
 	}
 	
 	
@@ -508,6 +562,15 @@ public class AlphabetInspectVisitor
 		return createSilentTransition(node,node.getAction());
 	}
 	
+	@Override
+	public CmlAlphabet caseASkipAction(ASkipAction node, Context question)
+			throws AnalysisException {
+		if(ownerProcess.finished())
+			return new CmlAlphabet(new CmlTock(ownerProcess));
+		else
+			return defaultPAction(node,question);
+	}
+	
 	/**
 	 * Stop Action
 	 */
@@ -515,7 +578,7 @@ public class AlphabetInspectVisitor
 	public CmlAlphabet caseAStopAction(AStopAction node, Context question)
 			throws AnalysisException {
 		//return the empty alphabet
-		return new CmlAlphabet();
+		return new CmlAlphabet(new CmlTock(ownerProcess));
 	}
 	
 	/**
@@ -530,12 +593,12 @@ public class AlphabetInspectVisitor
 		//find the channel value
 		CMLChannelValue chanValue = (CMLChannelValue)question.lookup(channelName);
 		
-		Set<CmlEvent> comset = new HashSet<CmlEvent>();
+		Set<CmlTransition> comset = new HashSet<CmlTransition>();
 		
 		//if there are no com params then we have a prefix event
 		if(node.getCommunicationParameters().isEmpty())
 		{
-			comset.add(new PrefixEvent(ownerProcess, chanValue));
+			comset.add(CmlEventFactory.newPrefixEvent(ownerProcess, chanValue));
 		}
 		//otherwise we convert the com params
 		else
@@ -566,12 +629,12 @@ public class AlphabetInspectVisitor
 				params.add(param);
 			}
 			
-			ObservableEvent observableEvent = new CmlCommunicationEvent(ownerProcess, chanValue, params);
+			ObservableEvent observableEvent = CmlEventFactory.newCmlCommunicationEvent(ownerProcess, chanValue, params);
 			comset.add(observableEvent);
 		}
 		//TODO: do the rest here
 		
-		return new CmlAlphabet(comset);
+		return new CmlAlphabet(comset).union(new CmlTock(ownerProcess));
 	}
 	
 	/**
@@ -593,7 +656,7 @@ public class AlphabetInspectVisitor
 			return createSilentTransition(node, node.getAction());
 		//else we return the empty alphabet since no transition is possible
 		else
-			return new CmlAlphabet();
+			return new CmlAlphabet(new CmlTock(ownerProcess));
 		
 	}
 	
@@ -611,9 +674,28 @@ public class AlphabetInspectVisitor
 	public CmlAlphabet caseAHidingAction(AHidingAction node, Context question)
 			throws AnalysisException {
 
+		if(!ownerProcess.getLeftChild().finished())
+		{
+			CmlAlphabet hidingAlpha = (CmlAlphabet)node.getChansetExpression().apply(cmlEvaluator,question);
+
+			CmlAlphabet alpha = ownerProcess.getLeftChild().inspect();
+
+			CmlAlphabet hiddenEvents = alpha.intersect(hidingAlpha);
+
+			CmlAlphabet resultAlpha = alpha.subtract(hiddenEvents);
+
+			for(ObservableEvent obsEvent : hiddenEvents.getObservableEvents())
+				if(obsEvent instanceof ChannelEvent)
+					resultAlpha = resultAlpha.union(new HiddenEvent(ownerProcess,(ChannelEvent)obsEvent));	
+
+			return resultAlpha;
+		}
+		else
+			return createSilentTransition(node, new ASkipAction());
+		
 		//FIXME This is actually not a tau transition. This should produced an entirely 
 		//different event which has no denotational trace but only for debugging
-		return createSilentTransition(node, node.getLeft(), "Hiding (This should not be a tau)");
+		//return createSilentTransition(node, node.getLeft(), "Hiding (This should not be a tau)");
 	}
 	
 	/**
@@ -632,6 +714,7 @@ public class AlphabetInspectVisitor
 			return createSilentTransition(node, null);
 		else
 			//were stuck so return empty alphabet
+			//FIXME actuially this diverges
 			return new CmlAlphabet();
 	}
 	
@@ -684,4 +767,37 @@ public class AlphabetInspectVisitor
 		return createSilentTransition(node,node.getAction());
 	}
 	
+	@Override
+	public CmlAlphabet caseAWaitAction(AWaitAction node, Context question)
+			throws AnalysisException {
+		
+		//Evaluate the expression into a natural number
+		long val = node.getExpression().apply(cmlEvaluator,question).natValue(question);
+		long nTocks = ownerProcess.getCurrentTime();
+		
+		//If the number of tocks exceeded val then we make a silent transition that ends the delay process
+		if( nTocks >= val)
+			return createSilentTransition(node, null,"Wait ended");
+		else
+		//If the number of tocks has not exceeded val then behave as Stop
+			return new CmlAlphabet(new CmlTock(ownerProcess,nTocks-val));
+	}
+	
+	@Override
+	public CmlAlphabet caseATimeoutAction(ATimeoutAction node, Context question)
+			throws AnalysisException {
+		
+		//Evaluate the expression into a natural number
+		long val = node.getTimeoutExpression().apply(cmlEvaluator,question).natValue(question);
+		
+		//If the time exceeded val then we make a silent transition that ends the delay process
+		if(ownerProcess.getCurrentTime() >= val)
+			return createSilentTransition(node, null,"Timeout: time exceeded");
+		else if(ownerProcess.getLeftChild().finished())
+			return createSilentTransition(node, null,"Timeout: left behavior is finished");
+		else
+		//If time has not exceeded val then we offer the left process
+			return ownerProcess.getLeftChild().inspect();
+		
+	}
 }

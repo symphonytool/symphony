@@ -7,6 +7,7 @@ import org.overture.ast.expressions.PExp;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.node.INode;
 import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.typechecker.NameScope;
@@ -30,24 +31,25 @@ import eu.compassresearch.ast.actions.AReadCommunicationParameter;
 import eu.compassresearch.ast.actions.AReferenceAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASkipAction;
+import eu.compassresearch.ast.actions.ATimeoutAction;
 import eu.compassresearch.ast.actions.AValParametrisation;
+import eu.compassresearch.ast.actions.AWaitAction;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.actions.PCommunicationParameter;
 import eu.compassresearch.ast.actions.PParametrisation;
 import eu.compassresearch.ast.actions.SParallelAction;
 import eu.compassresearch.ast.actions.SStatementAction;
 import eu.compassresearch.ast.definitions.AActionDefinition;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
 import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
-import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.util.CmlBehaviourUtility;
+import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
 
@@ -71,18 +73,12 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	private static final long serialVersionUID = 993071972119803788L;
 	
-	private AbstractEvaluationVisitor statementEvalVisitor = new CmlStatementEvaluationVisitor(this);
+	private final AbstractEvaluationVisitor statementEvalVisitor;
 	
-	public ActionEvaluationVisitor(AbstractEvaluationVisitor parentVisitor)
+	public ActionEvaluationVisitor(AbstractEvaluationVisitor parentVisitor,CmlBehaviour owner,VisitorAccess visitorAccess)
 	{
-		super(parentVisitor);
-	}
-	
-	
-	@Override
-	public void init(ControlAccess controlAccess) {
-		super.init(controlAccess);
-		statementEvalVisitor.init(controlAccess);
+		super(parentVisitor,owner,visitorAccess);
+		statementEvalVisitor = new CmlStatementEvaluationVisitor(this,owner,visitorAccess);
 	}
 		
 	/**
@@ -90,45 +86,39 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	
 	@Override
-	public CmlBehaviourSignal defaultSStatementAction(SStatementAction node,
+	public Pair<INode,Context> defaultSStatementAction(SStatementAction node,
 			Context question) throws AnalysisException {
 
 		return node.apply(statementEvalVisitor,question);
 	}
 	
 	@Override
-	public CmlBehaviourSignal defaultPAction(PAction node, Context question)
+	public Pair<INode,Context> defaultPAction(PAction node, Context question)
 			throws AnalysisException {
 
 		throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 	}
 
 	/**
-	 * Synchronisation and Communication D23.2 7.5.2
+	 * Synchronization and Communication D23.2 7.5.2
 	 * 
 	 * This transition can either be
 	 * Simple prefix   	: a -> A
-	 * Synchronisation 	: a.1 -> A
+	 * Synchronization 	: a.1 -> A
 	 * Output			: a!2 -> A
 	 * Input			: a?x -> A
 	 * As defined in 7.5.2 in D23.2
 	 */
 	@Override
-	public CmlBehaviourSignal caseACommunicationAction(
+	public Pair<INode,Context> caseACommunicationAction(
 			ACommunicationAction node, Context question)
 			throws AnalysisException {
 		
 		//At this point the supervisor has already given go to the event, or the event is hidden
-		Value value = supervisor().selectedObservableEvent().getValue();
-		
-//		if(node.getCommunicationParameters() != null && 
-//				node.getCommunicationParameters().size() > 1
-//				)
-//			throw new InterpreterRuntimeException("At the moment records and tuples are not supported");
+		Value value = ((ChannelEvent)supervisor().selectedObservableEvent()).getValue();
 		
 		if(node.getCommunicationParameters() != null)
 		{
-
 			//FIXME this should be more general. It only support one com param at the moment
 			for(PCommunicationParameter param : node.getCommunicationParameters())
 			{
@@ -146,9 +136,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 				}
 			}
 		}
-		pushNext(node.getAction(), question); 
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+		return new Pair<INode,Context>(node.getAction(), question); 
 	}
 	
 	/**
@@ -166,7 +154,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 *  
 	 */
 	@Override
-	public CmlBehaviourSignal caseAExternalChoiceAction(
+	public Pair<INode,Context> caseAExternalChoiceAction(
 			AExternalChoiceAction node, Context question)
 			throws AnalysisException {
 		
@@ -180,11 +168,11 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 * FIXME This might be changed! if the typechecker replaces the call node with a action reference node 
 	 */
 	@Override
-	public CmlBehaviourSignal caseACallStatementAction(
+	public Pair<INode,Context> caseACallStatementAction(
 			ACallStatementAction node, Context question)
 			throws AnalysisException {
 
-		Value value = question.check(node.getName()); 
+		Value value = question.lookup(node.getName()); 
 		
 		if(value instanceof CmlOperationValue)
 			return node.apply(statementEvalVisitor,question);
@@ -196,7 +184,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 			return caseReferenceAction(node.getLocation(),node.getArgs(), actionVal, question);
 		}
 		else
-			return CmlBehaviourSignal.FATAL_ERROR;
+			throw new InterpreterRuntimeException(InterpretationErrorMessages.FATAL_ERROR.customizeMessage());
 	}
 	
 	
@@ -204,7 +192,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 * This implements the 7.5.10 Action Reference transition rule in D23.2. 
 	 */
 	@Override
-	public CmlBehaviourSignal caseAReferenceAction(AReferenceAction node,
+	public Pair<INode,Context> caseAReferenceAction(AReferenceAction node,
 			Context question) throws AnalysisException {
 		//FIXME: the scoping is not correct, this should be done as described in the transition rule
 				
@@ -216,7 +204,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		
 	}
 	
-	protected CmlBehaviourSignal caseReferenceAction(ILexLocation location,
+	protected Pair<INode,Context> caseReferenceAction(ILexLocation location,
 		List<PExp> args,ActionValue actionValue,Context question) throws AnalysisException {
 
 		//evaluate all the arguments
@@ -242,7 +230,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 					value = value.getUpdatable(null);
 				}
 
-				evaluatedArgs.put(new LexNameToken("",(LexIdentifierToken)id.clone()), value);
+				evaluatedArgs.put(new LexNameToken("",(ILexIdentifierToken)id.clone()), value);
 
 				//update the index
 				paramIndex++;
@@ -255,19 +243,18 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 
 		refActionContext.putAll(evaluatedArgs);
 
-		pushNext(actionValue.getActionDefinition().getAction(), refActionContext); 
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+		return new Pair<INode,Context>(actionValue.getActionDefinition().getAction(), refActionContext); 
 	}
 	
 	/**
 	 * This implements the 7.5.6 Sequential Composition transition rules in D23.2.
 	 */
 	@Override
-	public CmlBehaviourSignal caseASequentialCompositionAction(
+	public Pair<INode,Context> caseASequentialCompositionAction(
 			ASequentialCompositionAction node, Context question)
 			throws AnalysisException {
 
-		return caseASequentialComposition(node.getLeft(),node.getRight(),question);
+		return caseASequentialComposition(node,node.getLeft(),node.getRight(),question);
 	}
 
 	/**
@@ -284,7 +271,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 * A [| ns1 | cs | ns2 |] B 
 	 */
 	@Override
-	public CmlBehaviourSignal caseAGeneralisedParallelismParallelAction(
+	public Pair<INode,Context> caseAGeneralisedParallelismParallelAction(
 			AGeneralisedParallelismParallelAction node, Context question)
 			throws AnalysisException {
 
@@ -294,15 +281,15 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		return caseGeneralisedParallelismParallel(node,new parallelCompositionHelper() {
 			
 			@Override
-			public CmlBehaviourSignal caseParallelBegin() {
-				return ActionEvaluationVisitor.this.caseParallelBegin(finalNode, finalQuestion);
+			public void caseParallelBegin() throws AnalysisException {
+				ActionEvaluationVisitor.this.caseParallelBegin(finalNode, finalQuestion);
 			}
 		}, node.getChansetExpression(),question);
 	}
 	
 	interface parallelCompositionHelper
 	{
-		CmlBehaviourSignal caseParallelBegin();
+		void caseParallelBegin() throws AnalysisException;
 		
 	}
 		
@@ -330,36 +317,32 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 *  and this will make a silent transition into Skip. 
 	 */
 	@Override
-	public CmlBehaviourSignal caseAInterleavingParallelAction(
+	public Pair<INode,Context> caseAInterleavingParallelAction(
 			AInterleavingParallelAction node, Context question)
 			throws AnalysisException {
 
 		//TODO: This only implements the "A ||| B (no state)" and not "A [|| ns1 | ns2 ||] B"
-		CmlBehaviourSignal result = null;
 		
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
-		if(!hasChildren()){
-			result = caseParallelBegin(node,question);
+		if(!owner.hasChildren()){
+			caseParallelBegin(node,question);
 			//We push the current state, since this process will control the child processes created by it
-			pushNext(node, question);
+			return new Pair<INode,Context>(node, question);
 
 		}
-		//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
-		else if(CmlBehaviourThreadUtility.childWaitingForEventExists(ownerThread()))
-		{
-			result = caseParallelNonSync();
-			//We push the current state, 
-			pushNext(node, question);
-			
-		}
 		//the process has children and must now handle either termination or event sync
-		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(ownerThread()))
+		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			result = caseParallelEnd(question); 
+			caseParallelEnd(question);
+			return new Pair<INode,Context>(new ASkipAction(),question);
 		}
-		//else if ()
-		
-		return result;
+		else
+		{
+			//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
+			caseParallelNonSync();
+			//We push the current state, 
+			return new Pair<INode,Context>(node, question);
+		}
 	}
 	
 	/**
@@ -371,45 +354,43 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 * restricted by the nameset expressions
 	 * @param question
 	 * @return
+	 * @throws AnalysisException 
 	 */
 	
 	
 	
-	private CmlBehaviourSignal caseParallelBegin(SParallelAction node, Context question)
+	private void caseParallelBegin(SParallelAction node, Context question) throws AnalysisException
 	{
 		PAction left = node.getLeftAction();
 		PAction right = node.getRightAction();
 		
 		//TODO: create a local copy of the question state for each of the actions
-		CmlBehaviourThread leftInstance = 
-				VanillaInterpreterFactory.newCmlBehaviourThread(left, question, 
-						new LexNameToken(name.getModule(),name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
+		CmlBehaviour leftInstance = 
+				VanillaInterpreterFactory.newCmlBehaviour(left, question, 
+						new LexNameToken(name.getModule(),name.getIdentifier().getName() + "|||" ,left.getLocation()),owner);
 		
-		CmlBehaviourThread rightInstance = 
-				VanillaInterpreterFactory.newCmlBehaviourThread(right, question, 
-						new LexNameToken(name.getModule(),"|||" + name.getIdentifier().getName(),right.getLocation()),ownerThread());
+		CmlBehaviour rightInstance = 
+				VanillaInterpreterFactory.newCmlBehaviour(right, question, 
+						new LexNameToken(name.getModule(),"|||" + name.getIdentifier().getName(),right.getLocation()),owner);
 		
-		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
+		caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}
 			
 	@Override
-	public CmlBehaviourSignal caseASkipAction(ASkipAction node, Context question)
+	public Pair<INode,Context> caseASkipAction(ASkipAction node, Context question)
 			throws AnalysisException {
 
 		//if we are hiding we need an extra silents transition to skip without hiding
-		if(!getHidingAlphabet().isEmpty())
-		{
-			//set to an empty alphabet
-			setHidingAlphabet(new CmlAlphabet());
-			pushNext(new ASkipAction(), question);
-		}
-		else	
-		{
-			//if hasNext() is true then Skip is in sequential composition with next
-			if(!hasNext())
-				setState(CmlProcessState.FINISHED);
-		}
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+//		if(!getHidingAlphabet().isEmpty())
+//		{
+//			//set to an empty alphabet
+//			setHidingAlphabet(new CmlAlphabet());
+//			pushNext(new ASkipAction(), question);
+//		}
+//				
+//		return CmlBehaviourSignal.EXEC_SUCCESS;
+		
+		throw new InterpreterRuntimeException("The simluatorSkip must not be executed");
 	}
 	
 
@@ -419,14 +400,12 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 * An internal choice between two actions can evolve via a tau event into either of them
 	 */
 	@Override
-	public CmlBehaviourSignal caseAInternalChoiceAction(
+	public Pair<INode,Context> caseAInternalChoiceAction(
 			AInternalChoiceAction node, Context question)
 			throws AnalysisException {
 			
 		//For now we always pick the left action
-		pushNext(node.getLeft(), question);
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+		return new Pair<INode,Context>(node.getLeft(), question);
 	}
 	
 	/**
@@ -437,26 +416,29 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 * have been checked for being true.
 	 */
 	@Override
-	public CmlBehaviourSignal caseAGuardedAction(AGuardedAction node,
+	public Pair<INode,Context> caseAGuardedAction(AGuardedAction node,
 			Context question) throws AnalysisException {
 
-		pushNext(node.getAction(), question); 
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+		return new Pair<INode,Context>(node.getAction(), question); 
 	}
 	
 	/**
 	 * Hiding - section 7.5.8 D23.2
 	 */
 	@Override
-	public CmlBehaviourSignal caseAHidingAction(AHidingAction node,
+	public Pair<INode,Context> caseAHidingAction(AHidingAction node,
 			Context question) throws AnalysisException {
 
-		setHidingAlphabet((CmlAlphabet)node.getChansetExpression().apply(cmlExpressionVisitor,question));
-
-		pushNext(node.getLeft(), question); 
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+		if(!owner.getLeftChild().finished())
+		{
+			owner.getLeftChild().execute(supervisor());
+			return new Pair<INode,Context>(node, question);
+		}
+		else
+		{
+			setLeftChild(null);
+			return new Pair<INode,Context>(new ASkipAction(), question);
+		}
 	}
 	
 	/**
@@ -464,7 +446,7 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 	 * TODO Mutually recursive processes are not implemented yet
 	 */
 	@Override
-	public CmlBehaviourSignal caseAMuAction(AMuAction node, Context question)
+	public Pair<INode,Context> caseAMuAction(AMuAction node, Context question)
 			throws AnalysisException {
 
 		
@@ -473,11 +455,13 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		
 		NameValuePairList nvpl = new NameValuePairList();
 		
+		Pair<INode,Context> res = null;
+		
 		for(int i = 0 ; i < node.getIdentifiers().size() ; i++)
 		{
 			ILexIdentifierToken id = node.getIdentifiers().get(i);
 			
-			LexNameToken name = new LexNameToken("", id);
+			ILexNameToken name = new LexNameToken("", id);
 			
 			PAction action = node.getActions().get(i);
 			
@@ -487,16 +471,61 @@ public class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 			nvpl.add(new NameValuePair(name, 
 					new ActionValue(actionDef)));
 			if(i == 0)
-				pushNext(action, muContext);
+				res = new Pair<INode,Context>(action, muContext);
 		}
 		
 		muContext.putAllNew(nvpl);
-
 		
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+		return res;
 	}
 	
+	@Override
+	public Pair<INode, Context> caseAWaitAction(AWaitAction node,
+			Context question) throws AnalysisException {
+
+		//Evaluate the expression into a natural number
+		long val = node.getExpression().apply(cmlExpressionVisitor,question).natValue(question);
+
+		if(owner.getCurrentTime() >= val)
+			return new Pair<INode, Context>(new ASkipAction(), question);
+		else
+			return new Pair<INode, Context>(node, question);
+	}
+	
+	@Override
+	public Pair<INode, Context> caseATimeoutAction(ATimeoutAction node,
+			Context question) throws AnalysisException {
+		
+		//Evaluate the expression into a natural number
+		long val = node.getTimeoutExpression().apply(cmlExpressionVisitor,question).natValue(question);
+		
+		if(owner.getCurrentTime() >= val)
+		{
+			//We set the process to become the right behavior
+			setLeftChild(null);
+			return new Pair<INode, Context>(node.getRight(), question);
+		}
+		else if(owner.getLeftChild().finished())
+		{
+			CmlBehaviour leftChild = owner.getLeftChild();
+			setLeftChild(null);
+			return new Pair<INode, Context>(leftChild.getExecutionState().first, leftChild.getExecutionState().second);
+		}
+		else
+		{
+			CmlBehaviour leftBehavior = owner.getLeftChild();
+			owner.getLeftChild().execute(supervisor());
+			
+			if(supervisor().selectedObservableEvent() instanceof ObservableEvent)
+			{
+				setLeftChild(null);
+				return new Pair<INode, Context>(leftBehavior.getExecutionState().first, leftBehavior.getExecutionState().second);
+			}
+			else
+				return new Pair<INode, Context>(node, question);
+		}
+		
+	}
 //	private void doMuReplace(PAction action, final AMuAction muAction, final LexIdentifierToken id) throws AnalysisException
 //	{
 //		
