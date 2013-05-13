@@ -557,11 +557,11 @@ process6 returns[PProcess proc]
     ;
 
 process6op returns[PProcess op]
-    : '/\\'
+    : '/_\\'
         {
             $op = new AInterruptProcess();
         }
-    | '/(' expression ')\\'
+    | '/_' expression '_\\'
         {
             $op = new ATimedInterruptProcess();
             ((ATimedInterruptProcess)$op).setTimeExpression($expression.exp);
@@ -588,11 +588,11 @@ process7 returns[PProcess proc]
     ;
 
 process7op returns[PProcess op]
-    : '[>'
+    : '[_>'
         {
             $op = new AUntimedTimeoutProcess();
         }
-    | '[(' expression ')>'
+    | '[_' expression '_>'
         {
             $op = new ATimeoutProcess();
             ((ATimeoutProcess)$op).setTimeoutExpression($expression.exp);
@@ -1009,11 +1009,11 @@ action6 returns[PAction action]
     ;
 
 action6op returns[PAction op]
-    : '/\\'
+    : '/_\\'
         {
             $op = new AInterruptAction();
         }
-    | '/(' expression ')\\'
+    | '/_' expression '_\\'
         {
             $op = new ATimedInterruptAction();
             ((ATimedInterruptAction)$op).setTimeExpression($expression.exp);
@@ -1040,11 +1040,11 @@ action7 returns[PAction action]
     ;
 
 action7op returns[PAction op]
-    : '[>'
+    : '[_>'
         {
             $op = new AUntimedTimeoutAction();
         }
-    | '[(' expression ')>'
+    | '[_' expression '_>'
         {
             $op = new ATimeoutAction();
             ((ATimeoutAction)$op).setTimeoutExpression($expression.exp);
@@ -3173,7 +3173,7 @@ name returns[LexNameToken name]
             if ($ids != null) {
                 // fix the name location
                 ILexLocation firstLoc = extractLexLocation((CommonToken)$ids.get(0));
-                loc = new LexLocation(loc.file,
+                loc = new LexLocation(loc.getFile(),
                                       "", //FIXME: I assume this is the local module name?
                                       firstLoc.getStartLine(), firstLoc.getStartPos(),
                                       loc.getEndLine(), loc.getEndPos(),
@@ -3185,7 +3185,7 @@ name returns[LexNameToken name]
                 }
                 module.deleteCharAt(module.length() - 1);
             }
-            $name=new LexNameToken(module.toString(), $identifier.getText(), loc);
+            $name = new LexNameToken(module.toString(), $identifier.getText(), loc);
         }
     ;
 
