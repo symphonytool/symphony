@@ -1,7 +1,7 @@
 package eu.compassresearch.core.interpreter.events;
 
 import eu.compassresearch.core.interpreter.cml.core.CmlCommunicationType;
-import eu.compassresearch.core.interpreter.cml.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
 public class CmlChannelEvent extends Event<CMLChannelValue>{
 		

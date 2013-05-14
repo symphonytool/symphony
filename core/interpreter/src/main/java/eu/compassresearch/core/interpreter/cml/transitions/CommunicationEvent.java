@@ -22,8 +22,8 @@ import eu.compassresearch.ast.types.AChannelType;
 import eu.compassresearch.core.interpreter.cml.core.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.core.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.core.CmlChannel;
-import eu.compassresearch.core.interpreter.cml.values.AbstractValueInterpreter;
-import eu.compassresearch.core.interpreter.cml.values.AnyValue;
+import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
+import eu.compassresearch.core.interpreter.values.AnyValue;
 
 class CommunicationEvent extends AbstractChannelEvent implements ObservableEvent {
 

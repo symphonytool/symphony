@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter.cml.values;
+package eu.compassresearch.core.interpreter.values;
 
 import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.types.AClassType;

@@ -50,8 +50,8 @@ import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.core.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.cml.transitions.ObservableEvent;
-import eu.compassresearch.core.interpreter.cml.values.ActionValue;
-import eu.compassresearch.core.interpreter.cml.values.CmlOperationValue;
+import eu.compassresearch.core.interpreter.values.ActionValue;
+import eu.compassresearch.core.interpreter.values.CmlOperationValue;
 
 /**
  *  This class represents a running CML Action. It represents a specific node as specified in D23.2 section 7.4.2,

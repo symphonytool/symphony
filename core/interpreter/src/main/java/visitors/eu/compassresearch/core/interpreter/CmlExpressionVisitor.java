@@ -30,7 +30,7 @@ import eu.compassresearch.core.interpreter.cml.core.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.transitions.CmlTransitionFactory;
 import eu.compassresearch.core.interpreter.cml.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.cml.transitions.ObservableEvent;
-import eu.compassresearch.core.interpreter.cml.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 
 class CmlExpressionVisitor extends QuestionAnswerCMLAdaptor<Context, Value>
 {

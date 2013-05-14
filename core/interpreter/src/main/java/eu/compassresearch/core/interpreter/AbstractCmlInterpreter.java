@@ -20,8 +20,8 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.EventFireMediator;
 import eu.compassresearch.core.interpreter.events.EventSource;
 import eu.compassresearch.core.interpreter.events.EventSourceHandler;
@@ -70,7 +70,7 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 	 * Retrieves the current state of the interpreter
 	 * @return The current state of the interpreter
 	 */
-	protected CmlInterpreterState getCurrentState()
+	public CmlInterpreterState getCurrentState()
 	{
 		return currentState;
 	}
@@ -87,11 +87,11 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 		return currentSupervisor;
 	}
 	
-	@Override
-	public Value evaluate(String line, Context ctxt) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public Value evaluate(String line, Context ctxt) throws Exception {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 	@Override
 	public Map<Integer, Breakpoint> getBreakpoints() {
@@ -99,23 +99,23 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 		return null;
 	}
 
-	@Override
-	public String getSourceLine(LexLocation src) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getSourceLine(File file, int line) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getSourceLine(File file, int line, String sep) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public String getSourceLine(LexLocation src) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public String getSourceLine(File file, int line) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public String getSourceLine(File file, int line, String sep) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 	@Override
 	public SourceFile getSourceFile(File file) throws IOException {
@@ -129,23 +129,23 @@ abstract class AbstractCmlInterpreter implements CmlInterpreter {
 		return null;
 	}
 
-	@Override
-	public PAction findStatement(File file, int lineno) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PExp findExpression(File file, int lineno) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Value findGlobal(LexNameToken name) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public PAction findStatement(File file, int lineno) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public PExp findExpression(File file, int lineno) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public Value findGlobal(LexNameToken name) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 	@Override
 	public Breakpoint setTracepoint(PAction stmt, String trace)

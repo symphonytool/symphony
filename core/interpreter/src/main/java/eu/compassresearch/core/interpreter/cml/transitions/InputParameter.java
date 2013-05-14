@@ -4,7 +4,7 @@ import org.overture.ast.patterns.PPattern;
 import org.overture.interpreter.values.UndefinedValue;
 
 import eu.compassresearch.ast.actions.AReadCommunicationParameter;
-import eu.compassresearch.core.interpreter.cml.values.AnyValue;
+import eu.compassresearch.core.interpreter.values.AnyValue;
 
 public class InputParameter extends CommunicationParameter {
 

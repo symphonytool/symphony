@@ -24,7 +24,7 @@ import eu.compassresearch.core.interpreter.api.SelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.core.CmlAlphabet;
 import eu.compassresearch.core.interpreter.cml.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.cml.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.cml.values.AbstractValueInterpreter;
+import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 /**
  * This class implements a random selection CMLCommunicaiton of the alphabet 
  * @author akm

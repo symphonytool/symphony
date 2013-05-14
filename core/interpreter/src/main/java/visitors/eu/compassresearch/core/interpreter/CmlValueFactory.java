@@ -17,7 +17,7 @@ import org.overture.interpreter.values.ObjectValue;
 import eu.compassresearch.ast.actions.ANewStatementAction;
 import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
 import eu.compassresearch.ast.definitions.SCmlOperationDefinition;
-import eu.compassresearch.core.interpreter.cml.values.CmlOperationValue;
+import eu.compassresearch.core.interpreter.values.CmlOperationValue;
 
 class CmlValueFactory {
 

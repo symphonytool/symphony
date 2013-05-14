@@ -33,9 +33,9 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.cml.values.ActionValue;
-import eu.compassresearch.core.interpreter.cml.values.CMLChannelValue;
-import eu.compassresearch.core.interpreter.cml.values.ProcessObjectValue;
+import eu.compassresearch.core.interpreter.values.ActionValue;
+import eu.compassresearch.core.interpreter.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 
 @SuppressWarnings("serial")
 class CmlDefinitionVisitor extends

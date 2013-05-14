@@ -30,9 +30,9 @@ import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.core.CmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.transitions.ChannelEvent;
-import eu.compassresearch.core.interpreter.cml.values.ActionValue;
-import eu.compassresearch.core.interpreter.cml.values.CmlOperationValue;
-import eu.compassresearch.core.interpreter.cml.values.ProcessObjectValue;
+import eu.compassresearch.core.interpreter.values.ActionValue;
+import eu.compassresearch.core.interpreter.values.CmlOperationValue;
+import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 
 class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 

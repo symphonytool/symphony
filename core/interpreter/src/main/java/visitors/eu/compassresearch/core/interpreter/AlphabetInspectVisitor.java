@@ -61,9 +61,9 @@ import eu.compassresearch.core.interpreter.cml.transitions.InternalTransition;
 import eu.compassresearch.core.interpreter.cml.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.cml.transitions.OutputParameter;
 import eu.compassresearch.core.interpreter.cml.transitions.SignalParameter;
-import eu.compassresearch.core.interpreter.cml.values.ActionValue;
-import eu.compassresearch.core.interpreter.cml.values.CMLChannelValue;
-import eu.compassresearch.core.interpreter.cml.values.ProcessObjectValue;
+import eu.compassresearch.core.interpreter.values.ActionValue;
+import eu.compassresearch.core.interpreter.values.CMLChannelValue;
+import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 /**
  * This class inspects the immediate alphabet of the current state of a CmlProcess
  * @author akm

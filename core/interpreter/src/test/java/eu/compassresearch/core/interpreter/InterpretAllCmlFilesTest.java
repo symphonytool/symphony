@@ -7,6 +7,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -32,6 +33,8 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
+import eu.compassresearch.core.interpreter.cml.core.CmlBehaviour;
+import eu.compassresearch.core.interpreter.cml.transitions.CmlTransition;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -128,41 +131,54 @@ public class InterpretAllCmlFilesTest {
 			exception = ex;
 		}
 
-		checkResult(testResult, interpreter.getStatus(), exception);
+		checkResult(testResult, interpreter, exception);
 	}
 	
-	private void checkResult(ExpectedTestResult testResult, InterpreterStatus status, Exception exception) {
+	private void checkResult(ExpectedTestResult testResult, CmlInterpreter interpreter, Exception exception) {
 
+		CmlBehaviour topProcess = interpreter.getTopLevelCmlBehaviour();
+		
 		//Exceptions check
 		//testResult.throwsException() => exception != null
 		assertTrue("The test was expected to throw an exception but did not!",!testResult.throwsException() || exception != null);
 		//!testResult.throwsException() => exception == null
 		assertTrue("The test threw an unexpected exception : " + exception,testResult.throwsException() || exception == null);
-				
+			
+		//Convert the trace into a list of strings to compare it with the expected
+		List<String> resultTrace = traceToStringList(topProcess.getTraceModel().getEventTrace());
+		
 		//Events 
 		if(!testResult.isInterleaved())
 		{
-			assertTrue(testResult.getFirstEventTrace() + " != " +status.getToplevelProcessInfo().getVisibleTrace() ,testResult.getFirstEventTrace()
-					.equals(status.getToplevelProcessInfo().getVisibleTrace()));
+			assertTrue(testResult.getFirstEventTrace() + " != " + resultTrace ,testResult.getFirstEventTrace()
+					.equals(resultTrace));
 		}
 		else
 		{
 			boolean foundMatch = false;
 			//If we have interleaving it must be one of the possible traces
-			List<String> resultTrace = status.getToplevelProcessInfo().getVisibleTrace();
 			for(List<String> trace : testResult.getEventTraces())
-			{
 				foundMatch |= trace.equals(resultTrace);
-				
-			}
-			
+
 			assertTrue(foundMatch);
 		}
 		
 		//TimedTrace
 		
 		//Interpreter state
-		Assert.assertEquals(testResult.getInterpreterState(), status.getInterpreterState());
+		Assert.assertEquals(testResult.getInterpreterState(), interpreter.getCurrentState());
+	}
+	
+	private List<String> traceToStringList(List<CmlTransition> trace)
+	{
+		List<String> result = new LinkedList<String>();
+
+		for(CmlTransition e : trace)
+		{
+			result.add(e.toString());
+		}
+
+		return result;
 	}
 
 	@Parameters
