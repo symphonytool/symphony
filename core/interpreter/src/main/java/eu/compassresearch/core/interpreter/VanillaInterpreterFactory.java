@@ -11,12 +11,10 @@ import org.overture.interpreter.runtime.Context;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
+import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.SelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.ConcreteCmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.DefaultSupervisorEnvironment;
+import eu.compassresearch.core.interpreter.api.SelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.core.CmlBehaviour;
 
 public final class VanillaInterpreterFactory {
 
@@ -48,7 +46,7 @@ public final class VanillaInterpreterFactory {
 	 * @param selectStrategy
 	 * @return
 	 */
-	public static CmlSupervisorEnvironment newCmlSupervisorEnvironment(SelectionStrategy selectStrategy)
+	public static CmlSupervisorEnvironment newDefaultCmlSupervisorEnvironment(SelectionStrategy selectStrategy)
 	{
 		return new DefaultSupervisorEnvironment(selectStrategy);
 	}
@@ -57,11 +55,6 @@ public final class VanillaInterpreterFactory {
 	{
 		return new ConcreteCmlBehaviour(processNode, context, processName);
 	}
-	
-//	public static CmlBehaviour newCmlBehaviour(INode node, CmlBehaviour parent, CmlBehaviour left, CmlBehaviour right)
-//	{
-//		return new ConcreteCmlBehaviour(node, context, processName);
-//	}
 	
 	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, ILexNameToken processName, CmlBehaviour parent) throws AnalysisException
 	{
@@ -72,15 +65,4 @@ public final class VanillaInterpreterFactory {
 	{
 		return new ConcreteCmlBehaviour(processNode, context, new LexNameToken("", "TMP",new LexLocation()), parent);
 	}
-	
-//	public static CmlBehaviour newCmlBehaviourTest(INode processNode, Context context, CmlBehaviour parent)
-//	{
-//		try {
-//			return processNode.apply(new ActionFactoryVisitor(parent),context);
-//		} catch (AnalysisException e) {
-//			e.printStackTrace();
-//		}
-//		return null;
-//	}
-		
 }

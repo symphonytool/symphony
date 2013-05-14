@@ -22,19 +22,20 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.interpreter.CmlParserUtil;
 import eu.compassresearch.core.interpreter.CmlRuntime;
+import eu.compassresearch.core.interpreter.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
+import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterError;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
-import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.SelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.api.SelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.core.CmlAlphabet;
+import eu.compassresearch.core.interpreter.cml.transitions.ChannelEvent;
+import eu.compassresearch.core.interpreter.cml.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgStatusMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgpStatus;
@@ -45,7 +46,6 @@ import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlResponseMessage;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
-import eu.compassresearch.core.interpreter.util.CmlParserUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -112,7 +112,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 	public void run() 
 	{
 		CmlSupervisorEnvironment sve = 
-				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy());
+				VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 		
 		try {
 			connect();
@@ -278,7 +278,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 			
 			try{
 				CmlSupervisorEnvironment sve = 
-						VanillaInterpreterFactory.newCmlSupervisorEnvironment(new SelectionStrategy() {
+						VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new SelectionStrategy() {
 							Scanner scanIn = new Scanner(System.in);
 							@Override
 							public ObservableEvent select(CmlAlphabet availableChannelEvents) {

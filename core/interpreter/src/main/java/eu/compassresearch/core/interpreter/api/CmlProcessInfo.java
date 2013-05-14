@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.CmlTrace;
-import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
+import eu.compassresearch.core.interpreter.cml.core.CmlProcessState;
+import eu.compassresearch.core.interpreter.cml.core.CmlTrace;
+import eu.compassresearch.core.interpreter.cml.transitions.CmlTransition;
 
 public class CmlProcessInfo {
 

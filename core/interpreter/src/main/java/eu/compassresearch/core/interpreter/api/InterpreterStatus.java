@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
+import eu.compassresearch.core.interpreter.cml.core.CmlBehaviour;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 
 /**

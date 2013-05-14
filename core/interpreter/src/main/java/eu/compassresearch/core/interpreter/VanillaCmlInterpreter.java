@@ -18,21 +18,19 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.interpreter.CmlParserUtil;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
-import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.CmlTrace;
-import eu.compassresearch.core.interpreter.cml.ConsoleSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.core.CmlAlphabet;
+import eu.compassresearch.core.interpreter.cml.core.CmlBehaviour;
+import eu.compassresearch.core.interpreter.cml.core.CmlTrace;
+import eu.compassresearch.core.interpreter.cml.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.cml.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.values.ProcessObjectValue;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
-import eu.compassresearch.core.interpreter.util.CmlParserUtil;
-import eu.compassresearch.core.interpreter.util.GlobalEnvironmentBuilder;
-import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -278,7 +276,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		try
 		{
 			CmlSupervisorEnvironment sve = 
-					VanillaInterpreterFactory.newCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
+					VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
 			//CmlSupervisorEnvironment sve = 
 			//				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy());
 
