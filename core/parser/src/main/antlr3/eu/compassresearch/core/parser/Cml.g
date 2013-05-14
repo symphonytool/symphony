@@ -8,14 +8,6 @@
  *  as noted by AKM, the fat enums only take identifiers at the
  *  moment, and should take general channel notation.
  *
- * 2013-01-18 jwc:
- *  Note that the '[(' ')>' used by the CSP timeout cause the same
- *  problems as below in expressions & types (i.e. the expression
- *  len(list)>max is a syntax error, sadly).
- *
- * 2013-01-06 RWL: )\ used in the /( exp )\-csp construct conflicts with apply expressions
- * when doing e.g. dom(map)\{set-enum}
- *
  * communication prefixes using '.' separators are still causing problems
  * -> restriction in place: '.','!' may only be followed by ids,
  *    (expr), symLit, and records/tuples; '?' is only followed by a
