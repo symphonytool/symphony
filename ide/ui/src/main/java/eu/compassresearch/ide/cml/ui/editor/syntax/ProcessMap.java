@@ -335,7 +335,7 @@ public class ProcessMap {
 
 	@Override
 	public String getConnectionSymbol(PProcess proc) {
-	    return " [> ";
+	    return " [_> ";
 	}
 
     }
@@ -345,7 +345,7 @@ public class ProcessMap {
 
 	@Override
 	public String getConnectionSymbol(PProcess proc) {
-	    return " /e\\ ";
+	    return " /_ e _\\ ";
 	}
 
 	@Override
@@ -365,7 +365,7 @@ public class ProcessMap {
 
 	@Override
 	public String getConnectionSymbol(PProcess proc) {
-	    return " /\\ ";
+	    return " /_\\ ";
 	}
 
 	@Override
@@ -385,7 +385,7 @@ public class ProcessMap {
 
 	@Override
 	public String getConnectionSymbol(PProcess proc) {
-	    return " [ e >  ";
+	    return " [_ e _>  ";
 	}
 
 	@Override

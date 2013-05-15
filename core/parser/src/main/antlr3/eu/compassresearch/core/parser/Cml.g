@@ -8,14 +8,6 @@
  *  as noted by AKM, the fat enums only take identifiers at the
  *  moment, and should take general channel notation.
  *
- * 2013-01-18 jwc:
- *  Note that the '[(' ')>' used by the CSP timeout cause the same
- *  problems as below in expressions & types (i.e. the expression
- *  len(list)>max is a syntax error, sadly).
- *
- * 2013-01-06 RWL: )\ used in the /( exp )\-csp construct conflicts with apply expressions
- * when doing e.g. dom(map)\{set-enum}
- *
  * communication prefixes using '.' separators are still causing problems
  * -> restriction in place: '.','!' may only be followed by ids,
  *    (expr), symLit, and records/tuples; '?' is only followed by a
@@ -75,22 +67,31 @@ import org.overture.ast.factory.AstFactory;
 import org.overture.ast.definitions.*;
 import org.overture.ast.expressions.*;
 import org.overture.ast.intf.lex.*;
-import org.overture.ast.lex.*;
+import org.overture.ast.lex.LexBooleanToken;
+import org.overture.ast.lex.LexCharacterToken;
+import org.overture.ast.lex.LexIntegerToken;
+import org.overture.ast.lex.LexKeywordToken;
+import org.overture.ast.lex.LexLocation;
+import org.overture.ast.lex.LexQuoteToken;
+import org.overture.ast.lex.LexRealToken;
+import org.overture.ast.lex.LexStringToken;
+import org.overture.ast.lex.VDMToken;
 import org.overture.ast.node.*;
 import org.overture.ast.node.tokens.TAsync;
 import org.overture.ast.node.tokens.TStatic;
 import org.overture.ast.patterns.*;
-// import org.overture.ast.preview.*;
 import org.overture.ast.statements.*;
 import org.overture.ast.types.*;
 import org.overture.ast.typechecker.NameScope;
-// import org.overture.ast.util.*;
 import org.overture.ast.typechecker.Pass;
 
 import eu.compassresearch.ast.actions.*;
 import eu.compassresearch.ast.declarations.*;
 import eu.compassresearch.ast.definitions.*;
 import eu.compassresearch.ast.expressions.*;
+import eu.compassresearch.ast.lex.LexIdentifierToken;
+import eu.compassresearch.ast.lex.LexNameToken;
+import eu.compassresearch.ast.lex.LexToken;
 import eu.compassresearch.ast.patterns.*;
 import eu.compassresearch.ast.process.*;
 import eu.compassresearch.ast.program.*;
@@ -156,7 +157,7 @@ public static char convertEscapeToChar(String escape) {
     return escape.charAt(0);
 }
 
-private LexToken extractLexToken(String str, ILexLocation loc) {
+private ILexToken extractLexToken(String str, ILexLocation loc) {
     VDMToken tok = null;
     for (VDMToken t : VDMToken.values()) {
         String tokenDisplay = t.toString();
@@ -557,11 +558,11 @@ process6 returns[PProcess proc]
     ;
 
 process6op returns[PProcess op]
-    : '/\\'
+    : '/_\\'
         {
             $op = new AInterruptProcess();
         }
-    | '/(' expression ')\\'
+    | '/_' expression '_\\'
         {
             $op = new ATimedInterruptProcess();
             ((ATimedInterruptProcess)$op).setTimeExpression($expression.exp);
@@ -588,11 +589,11 @@ process7 returns[PProcess proc]
     ;
 
 process7op returns[PProcess op]
-    : '[>'
+    : '[_>'
         {
             $op = new AUntimedTimeoutProcess();
         }
-    | '[(' expression ')>'
+    | '[_' expression '_>'
         {
             $op = new ATimeoutProcess();
             ((ATimeoutProcess)$op).setTimeoutExpression($expression.exp);
@@ -1009,11 +1010,11 @@ action6 returns[PAction action]
     ;
 
 action6op returns[PAction op]
-    : '/\\'
+    : '/_\\'
         {
             $op = new AInterruptAction();
         }
-    | '/(' expression ')\\'
+    | '/_' expression '_\\'
         {
             $op = new ATimedInterruptAction();
             ((ATimedInterruptAction)$op).setTimeExpression($expression.exp);
@@ -1040,11 +1041,11 @@ action7 returns[PAction action]
     ;
 
 action7op returns[PAction op]
-    : '[>'
+    : '[_>'
         {
             $op = new AUntimedTimeoutAction();
         }
-    | '[(' expression ')>'
+    | '[_' expression '_>'
         {
             $op = new ATimeoutAction();
             ((ATimeoutAction)$op).setTimeoutExpression($expression.exp);
@@ -1355,20 +1356,19 @@ communication returns[PCommunicationParameter comm]
     : (   '.' { $comm = new ASignalCommunicationParameter(); }
         | '!' { $comm = new AWriteCommunicationParameter(); }
         )
-        ( id=IDENTIFIER       { $comm.setExpression(new AVariableExp(extractLexLocation($id), new LexNameToken("", $id.getText(), extractLexLocation($id)), $id.getText())); }
-        | '(' expression ')'  { $comm.setExpression($expression.exp); }
-        | symbolicLiteralExpr { $comm.setExpression($symbolicLiteralExpr.exp); }
-        | recordTupleExprs    { $comm.setExpression($recordTupleExprs.exp); }
+        ( id=IDENTIFIER                 
+            {
+                ILexLocation loc = extractLexLocation($id);
+                LexNameToken name = new LexNameToken("", $id.getText(), loc);
+                $comm.setExpression(new AVariableExp(loc, name, $id.getText()));
+            }
+        | '(' expression ')'            { $comm.setExpression($expression.exp); }
+        | symbolicLiteralExpr           { $comm.setExpression($symbolicLiteralExpr.exp); }
+        | recordTupleExprs              { $comm.setExpression($recordTupleExprs.exp); }
         )
-    | '?' bindablePattern ( 'in' 'set' ( setMapExpr | '(' expression ')' ) )?
+    | '?' bindablePattern ( ':' '(' expression ')' )?
         {
-            // FIXME --- I also need to add simple identifiers to the set of things you can 'in set' from
-            if ($setMapExpr.exp != null)
-                $comm = new AReadCommunicationParameter(null, $setMapExpr.exp, $bindablePattern.pattern);
-            else if ($expression.exp != null)
-                $comm = new AReadCommunicationParameter(null, $expression.exp, $bindablePattern.pattern);
-            else
-                $comm = new AReadCommunicationParameter(null, null, $bindablePattern.pattern);
+            $comm = new AReadCommunicationParameter(null, $expression.exp, $bindablePattern.pattern);
         }
     ;
 
@@ -2362,21 +2362,21 @@ matchValue returns[PPattern pattern]
     : lit=symbolicLiteral
         {
             if ($lit.literal instanceof LexIntegerToken) {
-                $pattern = new AIntegerPattern($lit.literal.location, null, true, (LexIntegerToken)$lit.literal);
+                $pattern = new AIntegerPattern($lit.literal.getLocation(), null, true, (LexIntegerToken)$lit.literal);
             } else if ($lit.literal instanceof LexRealToken) {
-                $pattern = new ARealPattern($lit.literal.location, null, true, (LexRealToken)$lit.literal);
+                $pattern = new ARealPattern($lit.literal.getLocation(), null, true, (LexRealToken)$lit.literal);
             } else if ($lit.literal instanceof LexBooleanToken) {
-                $pattern = new ABooleanPattern($lit.literal.location, null, true, (LexBooleanToken)$lit.literal);
+                $pattern = new ABooleanPattern($lit.literal.getLocation(), null, true, (LexBooleanToken)$lit.literal);
             } else if ($lit.literal instanceof LexKeywordToken) {
                 // Note, this assumes that lit only ever
                 // gives a LexKeywordToken for 'nil'
-                $pattern = new ANilPattern($lit.literal.location, null, true);
+                $pattern = new ANilPattern($lit.literal.getLocation(), null, true);
             } else if ($lit.literal instanceof LexCharacterToken) {
-                $pattern = new ACharacterPattern($lit.literal.location, null, true, (LexCharacterToken)$lit.literal);
+                $pattern = new ACharacterPattern($lit.literal.getLocation(), null, true, (LexCharacterToken)$lit.literal);
             } else if ($lit.literal instanceof LexStringToken) {
-                $pattern = new AStringPattern($lit.literal.location, null, true, (LexStringToken)$lit.literal);
+                $pattern = new AStringPattern($lit.literal.getLocation(), null, true, (LexStringToken)$lit.literal);
             } else if ($lit.literal instanceof LexQuoteToken) {
-                $pattern = new AQuotePattern($lit.literal.location, null, true, (LexQuoteToken)$lit.literal);
+                $pattern = new AQuotePattern($lit.literal.getLocation(), null, true, (LexQuoteToken)$lit.literal);
             } else {
                 // FIXME log a never-happens error
             }
@@ -2388,7 +2388,7 @@ matchValue returns[PPattern pattern]
         }
     ;
 
-symbolicLiteral returns[LexToken literal]
+symbolicLiteral returns[ILexToken literal]
     : NUMERIC
         {
             ILexLocation loc = extractLexLocation($NUMERIC);
@@ -2953,27 +2953,27 @@ symbolicLiteralExpr returns[PExp exp]
     : lit=symbolicLiteral
         {
             if ($lit.literal instanceof LexIntegerToken) {
-                $exp = new AIntLiteralExp($lit.literal.location, (LexIntegerToken)$lit.literal);
+                $exp = new AIntLiteralExp($lit.literal.getLocation(), (LexIntegerToken)$lit.literal);
             } else if ($lit.literal instanceof LexRealToken) {
-                $exp = new ARealLiteralExp($lit.literal.location, (LexRealToken)$lit.literal);
+                $exp = new ARealLiteralExp($lit.literal.getLocation(), (LexRealToken)$lit.literal);
             } else if ($lit.literal instanceof LexBooleanToken) {
-                $exp = new ABooleanConstExp($lit.literal.location, (LexBooleanToken)$lit.literal);
+                $exp = new ABooleanConstExp($lit.literal.getLocation(), (LexBooleanToken)$lit.literal);
             } else if ($lit.literal instanceof LexKeywordToken) {
                 // Note, this assumes that lit only ever
                 // gives a LexKeywordToken for 'nil'
-                ILexLocation location = $lit.literal.location;
+                ILexLocation location = $lit.literal.getLocation();
                 $exp = new ANilExp(location);
                 $exp.setType(AstFactory.newAUnknownType(location));
             } else if ($lit.literal instanceof LexCharacterToken) {
-                $exp = new ACharLiteralExp($lit.literal.location, (LexCharacterToken)$lit.literal);
+                $exp = new ACharLiteralExp($lit.literal.getLocation(), (LexCharacterToken)$lit.literal);
             } else if ($lit.literal instanceof LexStringToken) {
-                ASeqSeqType charSeqType = new ASeqSeqType($lit.literal.location,
+                ASeqSeqType charSeqType = new ASeqSeqType($lit.literal.getLocation(),
                                                           true, null,
                                                           new ACharBasicType(),
                                                           (((LexStringToken)$lit.literal).value.length() == 0));
-                $exp = new AStringLiteralExp(charSeqType, $lit.literal.location, (LexStringToken)$lit.literal);
+                $exp = new AStringLiteralExp(charSeqType, $lit.literal.getLocation(), (LexStringToken)$lit.literal);
             } else if ($lit.literal instanceof LexQuoteToken) {
-                $exp = new AQuoteLiteralExp($lit.literal.location, (LexQuoteToken)$lit.literal);
+                $exp = new AQuoteLiteralExp($lit.literal.getLocation(), (LexQuoteToken)$lit.literal);
             } else {
                 // FIXME log a never-happens error
             }
@@ -3173,7 +3173,7 @@ name returns[LexNameToken name]
             if ($ids != null) {
                 // fix the name location
                 ILexLocation firstLoc = extractLexLocation((CommonToken)$ids.get(0));
-                loc = new LexLocation(loc.file,
+                loc = new LexLocation(loc.getFile(),
                                       "", //FIXME: I assume this is the local module name?
                                       firstLoc.getStartLine(), firstLoc.getStartPos(),
                                       loc.getEndLine(), loc.getEndPos(),
@@ -3185,7 +3185,7 @@ name returns[LexNameToken name]
                 }
                 module.deleteCharAt(module.length() - 1);
             }
-            $name=new LexNameToken(module.toString(), $identifier.getText(), loc);
+            $name = new LexNameToken(module.toString(), $identifier.getText(), loc);
         }
     ;
 
