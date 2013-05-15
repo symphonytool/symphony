@@ -17,6 +17,7 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.analysis.QuestionCMLAdaptor;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.ActionSetupVisitor;
 import eu.compassresearch.core.interpreter.AlphabetInspectVisitor;
 import eu.compassresearch.core.interpreter.CmlEvaluationVisitor;
@@ -147,15 +148,21 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		cmlSetupVisitor = new ActionSetupVisitor(this, visitorAccess);
 	}
 
-	public ConcreteCmlBehaviour(INode action,Context context, ILexNameToken name) throws AnalysisException
+	public ConcreteCmlBehaviour(INode action, Context context, ILexNameToken name) throws AnalysisException
 	{
 		this(null,name);
 		setNext(new Pair<INode, Context>(action, context));
 	}
 
-	public ConcreteCmlBehaviour(INode action,Context context, ILexNameToken name, CmlBehaviour parent) throws AnalysisException
+	public ConcreteCmlBehaviour(INode action, Context context, ILexNameToken name, CmlBehaviour parent) throws AnalysisException
 	{
 		this(parent,name);
+		setNext(new Pair<INode, Context>(action, context));
+	}
+	
+	public ConcreteCmlBehaviour(INode action, Context context, CmlBehaviour parent) throws AnalysisException
+	{
+		this(parent,new LexNameToken("", "Child of " + parent.name(),parent.name().getLocation()));
 		setNext(new Pair<INode, Context>(action, context));
 	}
 

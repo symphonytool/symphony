@@ -54,9 +54,9 @@ class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		
 		//TODO: create a local copy of the question state for each of the actions
 		CmlBehaviour leftInstance = 
-				VanillaInterpreterFactory.newCmlBehaviour(left,question,new LexNameToken(name().getModule(),name().getIdentifier().getName() + "|||" ,left.getLocation()),owner);		
+				new ConcreteCmlBehaviour(left,question,new LexNameToken(name().getModule(),name().getIdentifier().getName() + "|||" ,left.getLocation()),owner);		
 		CmlBehaviour rightInstance = 
-				VanillaInterpreterFactory.newCmlBehaviour(right,question,new LexNameToken(name().getModule(),"|||" + name().getIdentifier().getName() ,right.getLocation()),owner);
+				new ConcreteCmlBehaviour(right,question,new LexNameToken(name().getModule(),"|||" + name().getIdentifier().getName() ,right.getLocation()),owner);
 		
 		caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}
@@ -194,10 +194,10 @@ class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!owner.hasChildren()){
 			
-			CmlBehaviour leftInstance = VanillaInterpreterFactory.newCmlBehaviour(node.getLeft(), question, new LexNameToken(name().getModule(),name().getIdentifier().getName() + "[]" ,node.getLeft().getLocation()) ,this.owner);
+			CmlBehaviour leftInstance = new ConcreteCmlBehaviour(node.getLeft(), question, new LexNameToken(name().getModule(),name().getIdentifier().getName() + "[]" ,node.getLeft().getLocation()) ,this.owner);
 			setLeftChild(leftInstance);
 			
-			CmlBehaviour rightInstance = VanillaInterpreterFactory.newCmlBehaviour(node.getRight(), question, new LexNameToken(name().getModule(),"[]" + name().getIdentifier().getName(),node.getRight().getLocation()),this.owner); 
+			CmlBehaviour rightInstance = new ConcreteCmlBehaviour(node.getRight(), question, new LexNameToken(name().getModule(),"[]" + name().getIdentifier().getName(),node.getRight().getLocation()),this.owner); 
 			setRightChild(rightInstance);
 			//Now let this process wait for the children to get into a waitForEvent state
 			result = new Pair<INode, Context>(node, question);

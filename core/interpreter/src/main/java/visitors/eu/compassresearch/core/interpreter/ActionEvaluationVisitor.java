@@ -366,11 +366,11 @@ class ActionEvaluationVisitor extends CommonEvaluationVisitor {
 		
 		//TODO: create a local copy of the question state for each of the actions
 		CmlBehaviour leftInstance = 
-				VanillaInterpreterFactory.newCmlBehaviour(left, question, 
+				new ConcreteCmlBehaviour(left, question, 
 						new LexNameToken(name().getModule(),name().getIdentifier().getName() + "|||" ,left.getLocation()),owner);
 		
 		CmlBehaviour rightInstance = 
-				VanillaInterpreterFactory.newCmlBehaviour(right, question, 
+				new ConcreteCmlBehaviour(right, question, 
 						new LexNameToken(name().getModule(),"|||" + name().getIdentifier().getName(),right.getLocation()),owner);
 		
 		caseParallelBeginGeneral(leftInstance,rightInstance,question);

@@ -43,10 +43,6 @@ import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.AWhileStatementAction;
 import eu.compassresearch.ast.types.AActionType;
-import eu.compassresearch.core.interpreter.ActionVisitorHelper;
-import eu.compassresearch.core.interpreter.CmlContextFactory;
-import eu.compassresearch.core.interpreter.Pair;
-import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.cml.core.CmlBehaviour;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
@@ -220,14 +216,14 @@ class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {
 
 				postConditionContext.setPrepost(0, "postcondition violated for " + node.getName());
 
-				setRightChild(VanillaInterpreterFactory.newCmlBehaviour(postExpNode, postConditionContext, owner));
+				setRightChild(new ConcreteCmlBehaviour(postExpNode, postConditionContext, owner));
 
 				//We now compose the call statement and post condition check into sequential composition
 				//INode seqComp = new ASequentialCompositionAction(node.getLocation(), opVal.getBody(), assignmentNode);
 				//return new Pair<INode, Context>(seqComp,resultContext);
 			}
 			
-			setLeftChild(VanillaInterpreterFactory.newCmlBehaviour(opVal.getBody(), callContext, owner));
+			setLeftChild(new ConcreteCmlBehaviour(opVal.getBody(), callContext, owner));
 			return new Pair<INode, Context>(node, question);
 		}
 		

@@ -4,8 +4,8 @@ import java.util.LinkedList;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexIdentifierToken;
 import org.overture.ast.lex.LexNameToken;
 import org.overture.ast.types.AClassType;
 import org.overture.interpreter.runtime.Context;
@@ -30,7 +30,7 @@ class CmlValueFactory {
 		{
 			for(NameValuePair nvp : pdef.apply(new CmlDefinitionVisitor() ,question))
 			{
-				NameValuePair newNvp = new NameValuePair(new LexNameToken(classname.getName(),(LexIdentifierToken)nvp.name.getIdentifier().clone()),nvp.value);
+				NameValuePair newNvp = new NameValuePair(new LexNameToken(classname.getName(),(ILexIdentifierToken)nvp.name.getIdentifier().clone()),nvp.value);
 				members.put(newNvp);
 			}
 		}

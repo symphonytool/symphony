@@ -27,7 +27,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 	
 	private void caseASequentialComposition(INode node, INode leftNode, Context question) throws AnalysisException
 	{
-		setLeftChild(VanillaInterpreterFactory.newCmlBehaviour(leftNode, question,new LexNameToken("",owner.name().getSimpleName() + ";",owner.name().getLocation()), owner));
+		setLeftChild(new ConcreteCmlBehaviour(leftNode, question,new LexNameToken("",owner.name().getSimpleName() + ";",owner.name().getLocation()), owner));
 	}
 	
 	@Override
@@ -51,7 +51,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			throws AnalysisException {
 
 		//We setup the child node for the hiding operator
-		setLeftChild(VanillaInterpreterFactory.newCmlBehaviour(node.getLeft(),question,owner));
+		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
 	}
 	
 	@Override
@@ -59,7 +59,7 @@ class ActionSetupVisitor extends AbstractSetupVisitor {
 			throws AnalysisException {
 
 		//We setup the child nodes 
-		setLeftChild(VanillaInterpreterFactory.newCmlBehaviour(node.getLeft(),question,owner));
+		setLeftChild(new ConcreteCmlBehaviour(node.getLeft(),question,owner));
 		//setRightChild(VanillaInterpreterFactory.newCmlBehaviour(node.getRight(),question,owner));
 	}
 	

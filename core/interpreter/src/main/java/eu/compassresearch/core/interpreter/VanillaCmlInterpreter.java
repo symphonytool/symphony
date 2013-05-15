@@ -18,7 +18,6 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.interpreter.CmlParserUtil;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
@@ -120,7 +119,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		//Create the initial context with the global definitions
 		Context topContext = getInitialContext(null);
 		//Create a CmlBehaviour for the top process
-		runningTopProcess = VanillaInterpreterFactory.newCmlBehaviour(topProcess.getProcess(), topContext, topProcess.getName());
+		runningTopProcess = new ConcreteCmlBehaviour(topProcess.getProcess(), topContext, topProcess.getName());
 		currentSupervisor.addPupil(runningTopProcess);
 		
 		//Fire the interpreter running event before we start
@@ -275,10 +274,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
 		try
 		{
-			CmlSupervisorEnvironment sve = 
-					VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
 			//CmlSupervisorEnvironment sve = 
-			//				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy());
+			//		VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
+			CmlSupervisorEnvironment sve = 
+							VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.onStatusChanged().registerObserver(new CmlInterpreterStatusObserver() {
@@ -307,7 +306,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/process/process-functionsdef.cml");
+				"src/test/resources/classes/class-fieldaccess.cml");
 		runOnFile(cml_example);
 
 	}

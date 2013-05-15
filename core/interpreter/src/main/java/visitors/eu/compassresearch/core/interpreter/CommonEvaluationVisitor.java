@@ -153,10 +153,10 @@ class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
 		if(!owner.hasChildren()){
 			
-			CmlBehaviour leftInstance = VanillaInterpreterFactory.newCmlBehaviour(leftNode, question.deepCopy(), leftName,this.owner);
+			CmlBehaviour leftInstance = new ConcreteCmlBehaviour(leftNode, question.deepCopy(), leftName,this.owner);
 			setLeftChild(leftInstance);
 			
-			CmlBehaviour rightInstance = VanillaInterpreterFactory.newCmlBehaviour(rightNode, question.deepCopy(), rightName,this.owner); 
+			CmlBehaviour rightInstance = new ConcreteCmlBehaviour(rightNode, question.deepCopy(), rightName,this.owner); 
 			setRightChild(rightInstance);
 
 			//Now let this process wait for the children to get into a waitForEvent state

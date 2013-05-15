@@ -42,7 +42,7 @@ public final class VanillaInterpreterFactory {
 	}
 	
 	/**
-	 * Creates new CmlSupervisorEnvironment
+	 * Creates a new default CmlSupervisorEnvironment
 	 * @param selectStrategy
 	 * @return
 	 */
@@ -51,18 +51,4 @@ public final class VanillaInterpreterFactory {
 		return new DefaultSupervisorEnvironment(selectStrategy);
 	}
 	
-	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, ILexNameToken processName) throws AnalysisException
-	{
-		return new ConcreteCmlBehaviour(processNode, context, processName);
-	}
-	
-	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, ILexNameToken processName, CmlBehaviour parent) throws AnalysisException
-	{
-		return new ConcreteCmlBehaviour(processNode, context, processName, parent);
-	}
-
-	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, CmlBehaviour parent) throws AnalysisException
-	{
-		return new ConcreteCmlBehaviour(processNode, context, new LexNameToken("", "TMP",new LexLocation()), parent);
-	}
 }
