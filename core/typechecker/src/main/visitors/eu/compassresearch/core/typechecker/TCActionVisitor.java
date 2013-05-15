@@ -2144,6 +2144,21 @@ class TCActionVisitor extends
 					readVariable.setLocation(commPattern.getLocation().clone());
 					cmlEnv.addVariable(readVariable.getName(), readVariable);
 
+					//Typecheck the constraint expression if it exists
+					//TODO AKM: I think RWL has to check that this is correct
+					if(commParam.getExpression() != null)
+					{
+						PExp constraintExp = commParam.getExpression();
+						PType constraintType = constraintExp.apply(parentChecker,
+						question);
+						
+						if (!(constraintType instanceof ABooleanBasicType)) {
+							constraintExp.setType(issueHandler.addTypeError(commPattern,
+									TypeErrorMessages.INCOMPATIBLE_TYPE
+											.customizeMessage("Boolean", ""
+													+ constraintType)));
+						}
+					}
 				}
 
 				if (commPattern instanceof ATuplePattern) {

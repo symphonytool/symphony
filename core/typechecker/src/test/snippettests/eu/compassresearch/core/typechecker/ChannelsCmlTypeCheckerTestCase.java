@@ -40,6 +40,12 @@ public class ChannelsCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase 
 		add("channels a process A = begin state x : nat := 3 functions isHigherThanTwo : (int) +> bool isHigherThanTwo(y) == y > 2 @ [isHigherThanTwo(x)] & a -> Skip end");
 		// 9// Test that the dot '.' prefix on channels works
 		add("channels a: int * int process A = begin state istate : int jstate : int @ a?i?j -> a.i.j -> (istate := i ; jstate := j) end");
+		// 10// test that constraints on input communications 
+		add("channels a: int process A = begin @ a? x : (x in set {2,3}) -> Skip end");
+		// 11// test that constraints on input communications 
+		add("channels a: int process A = begin @ a? x : (x > 3) -> Skip end");
+		// 11// test that constraints on input communications 
+		add("channels a: int process A = begin @ a? x : ({2,3}) -> Skip end",false); //negative test
 	}
 
 	public ChannelsCmlTypeCheckerTestCase(String cmlSource, boolean parsesOk,
