@@ -80,11 +80,9 @@ import org.overture.ast.node.*;
 import org.overture.ast.node.tokens.TAsync;
 import org.overture.ast.node.tokens.TStatic;
 import org.overture.ast.patterns.*;
-// import org.overture.ast.preview.*;
 import org.overture.ast.statements.*;
 import org.overture.ast.types.*;
 import org.overture.ast.typechecker.NameScope;
-// import org.overture.ast.util.*;
 import org.overture.ast.typechecker.Pass;
 
 import eu.compassresearch.ast.actions.*;
@@ -1358,20 +1356,19 @@ communication returns[PCommunicationParameter comm]
     : (   '.' { $comm = new ASignalCommunicationParameter(); }
         | '!' { $comm = new AWriteCommunicationParameter(); }
         )
-        ( id=IDENTIFIER       { $comm.setExpression(new AVariableExp(extractLexLocation($id), new LexNameToken("", $id.getText(), extractLexLocation($id)), $id.getText())); }
-        | '(' expression ')'  { $comm.setExpression($expression.exp); }
-        | symbolicLiteralExpr { $comm.setExpression($symbolicLiteralExpr.exp); }
-        | recordTupleExprs    { $comm.setExpression($recordTupleExprs.exp); }
+        ( id=IDENTIFIER                 
+            {
+                ILexLocation loc = extractLexLocation($id);
+                LexNameToken name = new LexNameToken("", $id.getText(), loc);
+                $comm.setExpression(new AVariableExp(loc, name, $id.getText()));
+            }
+        | '(' expression ')'            { $comm.setExpression($expression.exp); }
+        | symbolicLiteralExpr           { $comm.setExpression($symbolicLiteralExpr.exp); }
+        | recordTupleExprs              { $comm.setExpression($recordTupleExprs.exp); }
         )
-    | '?' bindablePattern ( 'in' 'set' ( setMapExpr | '(' expression ')' ) )?
+    | '?' bindablePattern ( ':' '(' expression ')' )?
         {
-            // FIXME --- I also need to add simple identifiers to the set of things you can 'in set' from
-            if ($setMapExpr.exp != null)
-                $comm = new AReadCommunicationParameter(null, $setMapExpr.exp, $bindablePattern.pattern);
-            else if ($expression.exp != null)
-                $comm = new AReadCommunicationParameter(null, $expression.exp, $bindablePattern.pattern);
-            else
-                $comm = new AReadCommunicationParameter(null, null, $bindablePattern.pattern);
+            $comm = new AReadCommunicationParameter(null, $expression.exp, $bindablePattern.pattern);
         }
     ;
 
