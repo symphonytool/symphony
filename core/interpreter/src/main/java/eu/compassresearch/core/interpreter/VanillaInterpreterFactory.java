@@ -14,7 +14,7 @@ import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.core.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 public final class VanillaInterpreterFactory {
 

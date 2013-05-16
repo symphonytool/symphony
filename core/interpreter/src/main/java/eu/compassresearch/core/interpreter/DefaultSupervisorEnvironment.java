@@ -5,9 +5,9 @@ import java.util.List;
 
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.core.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.transitions.ChannelEvent;
-import eu.compassresearch.core.interpreter.cml.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 
 public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 

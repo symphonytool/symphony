@@ -1,7 +1,7 @@
 package eu.compassresearch.core.interpreter.api;
 
-import eu.compassresearch.core.interpreter.cml.core.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 
 /**
  * Implements a specific strategy for selecting a CMLtransition from a CMLAlphabet

@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.cml.core.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.core.CmlTrace;
-import eu.compassresearch.core.interpreter.cml.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 
 public class CmlProcessInfo {
 
@@ -14,10 +14,10 @@ public class CmlProcessInfo {
 	private final String[] trace;
 	private final long level;
 	private final boolean isProcess;
-	private final CmlProcessState state;
+	private final CmlBehaviorState state;
 
 	public CmlProcessInfo(String name, CmlTrace trace,long level, 
-			boolean isProcess, CmlProcessState state)
+			boolean isProcess, CmlBehaviorState state)
 	{
 		this.name = name;
 		List<String> evs = convertCmlEventsToStringList(trace.getEventTrace());
@@ -36,7 +36,7 @@ public class CmlProcessInfo {
 		return level;
 	}
 	
-	public CmlProcessState getState() {
+	public CmlBehaviorState getState() {
 		return state;
 	}
 	

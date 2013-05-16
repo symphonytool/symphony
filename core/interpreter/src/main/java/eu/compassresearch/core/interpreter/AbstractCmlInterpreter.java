@@ -20,12 +20,12 @@ import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.events.EventFireMediator;
-import eu.compassresearch.core.interpreter.events.EventSource;
-import eu.compassresearch.core.interpreter.events.EventSourceHandler;
-import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
+import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
+import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
+import eu.compassresearch.core.interpreter.utility.events.EventFireMediator;
+import eu.compassresearch.core.interpreter.utility.events.EventSource;
+import eu.compassresearch.core.interpreter.utility.events.EventSourceHandler;
 
 
 @SuppressWarnings("serial")

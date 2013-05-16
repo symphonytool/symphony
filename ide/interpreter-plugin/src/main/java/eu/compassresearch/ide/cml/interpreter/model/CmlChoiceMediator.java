@@ -10,9 +10,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlResponseMessage;
+import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
+import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
+import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
 import eu.compassresearch.ide.cml.interpreter.CmlDebugConstants;
 import eu.compassresearch.ide.cml.interpreter.views.CmlEventOptionView;
 
@@ -20,7 +20,7 @@ public class CmlChoiceMediator implements IDoubleClickListener{
 
 //	SynchronousQueue<String> selectSync = new SynchronousQueue<String>();
 	final CmlDebugTarget cmlDebugTarget;
-	CmlRequestMessage requestMessage = null;
+	RequestMessage requestMessage = null;
 	
 	public CmlChoiceMediator(CmlDebugTarget cmlDebugTarget)
 	{
@@ -59,7 +59,7 @@ public class CmlChoiceMediator implements IDoubleClickListener{
 		});
 	}
 		
-	public void setChoiceOptions(final List<String> events, CmlRequestMessage requestMessage)
+	public void setChoiceOptions(final List<String> events, RequestMessage requestMessage)
 	{
 		this.requestMessage = requestMessage; 
 		Display.getDefault().asyncExec(new Runnable() {
@@ -77,7 +77,7 @@ public class CmlChoiceMediator implements IDoubleClickListener{
 		
 	public void selectChoice(String event)
 	{
-		this.cmlDebugTarget.sendMessage(new CmlResponseMessage( requestMessage.getRequestId(),CmlRequest.CHOICE,event));
+		this.cmlDebugTarget.sendMessage(new ResponseMessage( requestMessage.getRequestId(),CmlRequest.CHOICE,event));
 		setChoiceOptions(null,null);
 		finish();
 	}

@@ -35,15 +35,15 @@ import com.google.gson.reflect.TypeToken;
 
 import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgStatusMessage;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgpStatus;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlDebugCommand;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlMessage;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageCommunicator;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageContainer;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
+import eu.compassresearch.core.interpreter.debug.CmlDbgCommandMessage;
+import eu.compassresearch.core.interpreter.debug.CmlDbgStatusMessage;
+import eu.compassresearch.core.interpreter.debug.CmlDbgpStatus;
+import eu.compassresearch.core.interpreter.debug.CmlDebugCommand;
+import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
+import eu.compassresearch.core.interpreter.utility.messaging.Message;
+import eu.compassresearch.core.interpreter.utility.messaging.MessageCommunicator;
+import eu.compassresearch.core.interpreter.utility.messaging.MessageContainer;
+import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
 import eu.compassresearch.ide.cml.interpreter.CmlDebugConstants;
 import eu.compassresearch.ide.cml.interpreter.views.CmlEventHistoryView;
 
@@ -63,7 +63,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 	// event dispatch job
 	private EventDispatchJob fEventDispatch;
 
-	interface MessageEventHandler<T extends CmlMessage>
+	interface MessageEventHandler<T extends Message>
 	{
 		public boolean handleMessage(T message);
 	};
@@ -74,7 +74,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 	 */
 	class EventDispatchJob extends Job {
 
-		private Map<String,MessageEventHandler<CmlRequestMessage>> requestHandlers;
+		private Map<String,MessageEventHandler<RequestMessage>> requestHandlers;
 		private Map<String,MessageEventHandler<CmlDbgStatusMessage>> statusHandlers;
 		
 		public EventDispatchJob() {
@@ -97,16 +97,16 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		 * Initialises all the request message handlers
 		 * @return
 		 */
-		private Map<String, CmlDebugTarget.MessageEventHandler<CmlRequestMessage>> initializeRequestHandlers()
+		private Map<String, CmlDebugTarget.MessageEventHandler<RequestMessage>> initializeRequestHandlers()
 		{
-			Map<String, CmlDebugTarget.MessageEventHandler<CmlRequestMessage>> handlers = 
-					new HashMap<String, CmlDebugTarget.MessageEventHandler<CmlRequestMessage>>();
+			Map<String, CmlDebugTarget.MessageEventHandler<RequestMessage>> handlers = 
+					new HashMap<String, CmlDebugTarget.MessageEventHandler<RequestMessage>>();
 			
 			//Handler for the Choice request
-			handlers.put(CmlRequest.CHOICE.toString(), new MessageEventHandler<CmlRequestMessage>() {
+			handlers.put(CmlRequest.CHOICE.toString(), new MessageEventHandler<RequestMessage>() {
 
 				@Override
-				public boolean handleMessage(CmlRequestMessage message) {
+				public boolean handleMessage(RequestMessage message) {
 					Type listType = new TypeToken<List<String>>(){}.getType();
 					final List<String> events = message.<List<String>>getContent(listType);
 					new CmlChoiceMediator(cmlDebugTarget).setChoiceOptions(events,message);
@@ -177,9 +177,10 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			return handlers;
 		}
 
-		private CmlMessageContainer receiveMessage() throws IOException
+		private MessageContainer receiveMessage() throws IOException
 		{
-			return CmlMessageCommunicator.receiveMessage(fRequestReader);
+			return MessageCommunicator.receiveMessage(fRequestReader,
+					new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.CONNECTION_CLOSED)));
 		}
 
 		/**
@@ -188,7 +189,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		 * @param message The message to be processed
 		 * @return true if the event loop should continue otherwise false
 		 */
-		private <H extends CmlMessage> boolean dispatchMessageHandler(Map<String,CmlDebugTarget.MessageEventHandler<H>> handlers, H message)
+		private <H extends Message> boolean dispatchMessageHandler(Map<String,CmlDebugTarget.MessageEventHandler<H>> handlers, H message)
 		{
 			boolean result = false;
 
@@ -203,7 +204,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		 * @param messageContainer
 		 * @return
 		 */
-		private boolean processMessage(CmlMessageContainer messageContainer)
+		private boolean processMessage(MessageContainer messageContainer)
 		{
 			boolean result = false;
 			
@@ -212,7 +213,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			case STATUS:
 				return dispatchMessageHandler(statusHandlers,messageContainer.getMessage(CmlDbgStatusMessage.class));
 			case REQUEST:
-				return dispatchMessageHandler(requestHandlers,messageContainer.getMessage(CmlRequestMessage.class));
+				return dispatchMessageHandler(requestHandlers,messageContainer.getMessage(RequestMessage.class));
 			default:
 				break;
 			}
@@ -225,7 +226,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		 */
 		protected IStatus run(IProgressMonitor monitor) {
 			//CmlDebugStatusMessage event = new CmlDebugStatusMessage(CmlDbgpStatus.WAITING_FOR_CONNECTION);
-			CmlMessageContainer message = null;
+			MessageContainer message = null;
 			try
 			{
 				do{
@@ -430,12 +431,12 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 	private void sendCommandMessage(CmlDebugCommand cmd)
 	{
 		CmlDbgCommandMessage message = new CmlDbgCommandMessage(cmd);
-		CmlMessageCommunicator.sendMessage(requestOutputStream, message);
+		MessageCommunicator.sendMessage(requestOutputStream, message);
 	}
 
-	public void sendMessage(CmlMessage message)
+	public void sendMessage(Message message)
 	{
-		CmlMessageCommunicator.sendMessage(requestOutputStream, message);
+		MessageCommunicator.sendMessage(requestOutputStream, message);
 	}
 
 	private void updateDebuggerInfo(final InterpreterStatus status)

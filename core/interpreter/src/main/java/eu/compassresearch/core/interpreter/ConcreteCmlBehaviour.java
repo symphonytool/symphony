@@ -27,21 +27,21 @@ import eu.compassresearch.core.interpreter.VisitorAccess;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.core.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.core.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.core.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.core.CmlTrace;
-import eu.compassresearch.core.interpreter.cml.core.Reason;
-import eu.compassresearch.core.interpreter.cml.transitions.CmlTock;
-import eu.compassresearch.core.interpreter.cml.transitions.CmlTransition;
-import eu.compassresearch.core.interpreter.cml.transitions.ObservableEvent;
-import eu.compassresearch.core.interpreter.events.CmlProcessStateEvent;
-import eu.compassresearch.core.interpreter.events.CmlProcessStateObserver;
-import eu.compassresearch.core.interpreter.events.CmlProcessTraceObserver;
-import eu.compassresearch.core.interpreter.events.EventFireMediator;
-import eu.compassresearch.core.interpreter.events.EventSource;
-import eu.compassresearch.core.interpreter.events.EventSourceHandler;
-import eu.compassresearch.core.interpreter.events.TraceEvent;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
+import eu.compassresearch.core.interpreter.api.behaviour.Reason;
+import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateEvent;
+import eu.compassresearch.core.interpreter.api.events.CmlBehaviorStateObserver;
+import eu.compassresearch.core.interpreter.api.events.TraceEvent;
+import eu.compassresearch.core.interpreter.api.events.TraceObserver;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTock;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.utility.events.EventFireMediator;
+import eu.compassresearch.core.interpreter.utility.events.EventSource;
+import eu.compassresearch.core.interpreter.utility.events.EventSourceHandler;
 
 class ConcreteCmlBehaviour implements CmlBehaviour
 {
@@ -69,11 +69,16 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	/**
 	 * The evaluation visitor
 	 */
-	final QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> cmlEvaluationVisitor;
+	final QuestionAnswerCMLAdaptor<Context, Pair<INode, Context>> 	cmlEvaluationVisitor;
 	/**
 	 * The setup visitor
 	 */
-	final QuestionCMLAdaptor<Context> cmlSetupVisitor;
+	final QuestionCMLAdaptor<Context> 								cmlSetupVisitor;
+	
+	/**
+	 * The alphabet inspection visitor
+	 */
+	protected final QuestionAnswerCMLAdaptor<Context, CmlAlphabet>	alphabetInspectionVisitor;
 	
 	//Process/Action state variables
 	
@@ -93,26 +98,23 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	//This contains the current trace of this process
 	protected final CmlTrace 					trace = new CmlTrace();
 
-	//Helper to inspect the immediate Alphabet
-	protected final AlphabetInspectVisitor 		alphabetInspectionVisitor = new AlphabetInspectVisitor(this);
-
-	protected EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>  stateEventhandler = 
-			new EventSourceHandler<CmlProcessStateObserver,CmlProcessStateEvent>(this,
-					new EventFireMediator<CmlProcessStateObserver,CmlProcessStateEvent>() {
+	protected EventSourceHandler<CmlBehaviorStateObserver,CmlBehaviorStateEvent>  stateEventhandler = 
+			new EventSourceHandler<CmlBehaviorStateObserver,CmlBehaviorStateEvent>(this,
+					new EventFireMediator<CmlBehaviorStateObserver,CmlBehaviorStateEvent>() {
 
 				@Override
-				public void fireEvent(CmlProcessStateObserver observer,
-						Object source, CmlProcessStateEvent event) {
+				public void fireEvent(CmlBehaviorStateObserver observer,
+						Object source, CmlBehaviorStateEvent event) {
 					observer.onStateChange(event);
 				}
 			});
 
-	protected EventSourceHandler<CmlProcessTraceObserver,TraceEvent>  			traceEventHandler = 
-			new EventSourceHandler<CmlProcessTraceObserver,TraceEvent>(this,
-					new EventFireMediator<CmlProcessTraceObserver,TraceEvent>() {
+	protected EventSourceHandler<TraceObserver,TraceEvent>  			traceEventHandler = 
+			new EventSourceHandler<TraceObserver,TraceEvent>(this,
+					new EventFireMediator<TraceObserver,TraceEvent>() {
 
 				@Override
-				public void fireEvent(CmlProcessTraceObserver observer,
+				public void fireEvent(TraceObserver observer,
 						Object source, TraceEvent event) {
 					observer.onTraceChange(event);
 				}
@@ -124,7 +126,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 */
 	private ConcreteCmlBehaviour(CmlBehaviour parent,ILexNameToken name)
 	{
-		notifyOnStateChange(CmlProcessState.INITIALIZED);
+		notifyOnStateChange(CmlBehaviorState.INITIALIZED);
 		this.parent = parent;
 		this.name = name;
 		waitPrime = false;
@@ -144,8 +146,8 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		};
 
 		cmlEvaluationVisitor = new CmlEvaluationVisitor(null,this,visitorAccess);
-
 		cmlSetupVisitor = new ActionSetupVisitor(this, visitorAccess);
+		alphabetInspectionVisitor = new AlphabetInspectVisitor(this);
 	}
 
 	public ConcreteCmlBehaviour(INode action, Context context, ILexNameToken name) throws AnalysisException
@@ -154,15 +156,15 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 		setNext(new Pair<INode, Context>(action, context));
 	}
 
-	public ConcreteCmlBehaviour(INode action, Context context, ILexNameToken name, CmlBehaviour parent) throws AnalysisException
-	{
-		this(parent,name);
-		setNext(new Pair<INode, Context>(action, context));
-	}
-	
 	public ConcreteCmlBehaviour(INode action, Context context, CmlBehaviour parent) throws AnalysisException
 	{
 		this(parent,new LexNameToken("", "Child of " + parent.name(),parent.name().getLocation()));
+		setNext(new Pair<INode, Context>(action, context));
+	}
+	
+	public ConcreteCmlBehaviour(INode action, Context context, ILexNameToken name, CmlBehaviour parent) throws AnalysisException
+	{
+		this(parent,name);
 		setNext(new Pair<INode, Context>(action, context));
 	}
 
@@ -295,7 +297,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 
 		aborted = true;
 
-		notifyOnStateChange(CmlProcessState.FINISHED);
+		notifyOnStateChange(CmlBehaviorState.FINISHED);
 	}
 
 	@Override
@@ -405,14 +407,14 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 			return false;
 	}
 
-	protected void notifyOnStateChange(CmlProcessState state)
+	protected void notifyOnStateChange(CmlBehaviorState state)
 	{
-		stateEventhandler.fireEvent(new CmlProcessStateEvent(this, state));
+		stateEventhandler.fireEvent(new CmlBehaviorStateEvent(this, state));
 		CmlRuntime.logger().finest(name() + ":" + state.toString());
 	}
 
 	@Override
-	public EventSource<CmlProcessStateObserver> onStateChanged()
+	public EventSource<CmlBehaviorStateObserver> onStateChanged()
 	{
 		return stateEventhandler;
 	}
@@ -421,11 +423,11 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	 * Process state methods 
 	 */
 	@Override
-	public CmlProcessState getState() {
+	public CmlBehaviorState getState() {
 		if(finished())
-			return CmlProcessState.FINISHED;
+			return CmlBehaviorState.FINISHED;
 		else if(deadlocked())
-			return CmlProcessState.STOPPED;
+			return CmlBehaviorState.STOPPED;
 		else
 			return null;
 	}
@@ -459,7 +461,7 @@ class ConcreteCmlBehaviour implements CmlBehaviour
 	}
 
 	@Override
-	public EventSource<CmlProcessTraceObserver> onTraceChanged()
+	public EventSource<TraceObserver> onTraceChanged()
 	{
 		return traceEventHandler;
 	}

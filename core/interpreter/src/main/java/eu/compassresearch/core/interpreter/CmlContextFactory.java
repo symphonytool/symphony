@@ -8,7 +8,7 @@ import org.overture.interpreter.runtime.StateContext;
 import org.overture.interpreter.values.CPUValue;
 import org.overture.interpreter.values.ObjectValue;
 
-public class CmlContextFactory {
+class CmlContextFactory {
 
 	/**
 	 * This creates a normal context which

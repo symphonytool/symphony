@@ -18,8 +18,9 @@ import org.overture.parser.syntax.ParserException;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.cml.core.CmlBehaviour;
-import eu.compassresearch.core.interpreter.events.EventSource;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
+import eu.compassresearch.core.interpreter.utility.events.EventSource;
 /**
  * The CML interpreter interface. This has the responsibility of simulating/animating
  * a given AST representing a CML model. 

@@ -27,25 +27,22 @@ import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.RandomSelectionStrategy;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
-import eu.compassresearch.core.interpreter.api.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterError;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.api.SelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.core.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.transitions.ChannelEvent;
-import eu.compassresearch.core.interpreter.cml.transitions.ObservableEvent;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgStatusMessage;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgpStatus;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageCommunicator;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlMessageContainer;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlRequest;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
-import eu.compassresearch.core.interpreter.debug.messaging.CmlResponseMessage;
-import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
+import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
+import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
+import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
+import eu.compassresearch.core.interpreter.utility.messaging.MessageCommunicator;
+import eu.compassresearch.core.interpreter.utility.messaging.MessageContainer;
+import eu.compassresearch.core.interpreter.utility.messaging.RequestMessage;
+import eu.compassresearch.core.interpreter.utility.messaging.ResponseMessage;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -59,7 +56,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 	private BufferedReader requestReader;
 	private boolean connected = false;
 	
-	private SynchronousQueue<CmlResponseMessage> responseSync = new SynchronousQueue<CmlResponseMessage>();
+	private SynchronousQueue<ResponseMessage> responseSync = new SynchronousQueue<ResponseMessage>();
 	
 	private CommandDispatcher commandDispatcher;
 	
@@ -80,7 +77,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 		
 		@Override
 		public void run() {
-			CmlMessageContainer messageContainer = null;
+			MessageContainer messageContainer = null;
 			try{
 
 				do
@@ -120,12 +117,6 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 			cmlInterpreter.execute(sve);
 			stopped(cmlInterpreter.getStatus());
 		} 
-//		catch (InterpreterException e) {
-//
-//			InterpreterStatus status = cmlInterpreter.getStatus();
-//			status.AddError(new InterpreterError(e.getMessage()));
-//			stopped(cmlInterpreter.getStatus());
-//		}
 		catch (AnalysisException e) {
 
 			InterpreterStatus status = cmlInterpreter.getStatus();
@@ -238,13 +229,13 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 	{
 		CmlDbgStatusMessage dm = new CmlDbgStatusMessage(status,interpreterStatus);
 		CmlRuntime.logger().finest("Sending status message : " + dm.toString());
-		CmlMessageCommunicator.sendMessage(requestOS, dm);
+		MessageCommunicator.sendMessage(requestOS, dm);
 	}
 	
-	private CmlResponseMessage sendRequestSynchronous(CmlRequestMessage message)
+	private ResponseMessage sendRequestSynchronous(RequestMessage message)
 	{
-		CmlMessageCommunicator.sendMessage(requestOS, message);
-		CmlResponseMessage responseMessage = null;
+		MessageCommunicator.sendMessage(requestOS, message);
+		ResponseMessage responseMessage = null;
 		try {
 			responseMessage = responseSync.take();
 		} catch (InterruptedException e) {
@@ -259,9 +250,10 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 	 * @return The received message
 	 * @throws IOException
 	 */
-	private CmlMessageContainer recvMessage() throws IOException
+	private MessageContainer recvMessage() throws IOException
 	{
-		return CmlMessageCommunicator.receiveMessage(requestReader);
+		return MessageCommunicator.receiveMessage(requestReader,
+				new MessageContainer(new CmlDbgStatusMessage(CmlDbgpStatus.CONNECTION_CLOSED))); 
 	}
 	
 	/**
@@ -292,7 +284,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 									events.add(comEvent.toString());
 								}
 
-								CmlResponseMessage response = sendRequestSynchronous(new CmlRequestMessage(CmlRequest.CHOICE,events));
+								ResponseMessage response = sendRequestSynchronous(new RequestMessage(CmlRequest.CHOICE,events));
 
 								if(response.isRequestInterrupted())
 									throw new InterpreterRuntimeException("The simulation was interrupted");
@@ -368,7 +360,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 	private void stopping()
 	{
 		sendStatusMessage(CmlDbgpStatus.STOPPING);
-		responseSync.add(new CmlResponseMessage());
+		responseSync.add(new ResponseMessage());
 	}
 	
 	private boolean processCommand(CmlDbgCommandMessage message)
@@ -389,14 +381,14 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 	 * @param message
 	 * @return
 	 */
-	private boolean processResponse(CmlResponseMessage message)
+	private boolean processResponse(ResponseMessage message)
 	{
 		responseSync.offer(message);
 		return true;
 	}
 		
 	
-	private boolean processMessage(CmlMessageContainer messageContainer)
+	private boolean processMessage(MessageContainer messageContainer)
 	{
 		switch(messageContainer.getType())
 		{
@@ -405,7 +397,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 		case COMMAND:
 			return processCommand(messageContainer.<CmlDbgCommandMessage>getMessage(CmlDbgCommandMessage.class));
 		case RESPONSE:
-			return processResponse(messageContainer.<CmlResponseMessage>getMessage(CmlResponseMessage.class));
+			return processResponse(messageContainer.<ResponseMessage>getMessage(ResponseMessage.class));
 		default:
 		}
 		

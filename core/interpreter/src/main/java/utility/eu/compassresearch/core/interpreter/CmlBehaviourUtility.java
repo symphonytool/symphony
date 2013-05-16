@@ -16,7 +16,7 @@ import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.core.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 class CmlBehaviourUtility {
 
