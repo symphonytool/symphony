@@ -4,6 +4,33 @@
 <plugin>
 
 
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="eu.compassresearch.ide.cml.ui.perspective.CmlPerspectiveFactory"
+            icon="icons/cview16/compass_nav.png"
+            id="eu.compassresearch.ide.ui.perspective"
+            name="%CmlPerspectiveName">
+         <description>
+            %CmlPerspectiveDescription
+         </description>
+      </perspective>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="eu.compassresearch.ide.ui.perspective">
+         <view
+               id="eu.compassresearch.ide.ui.CmlNavigator"
+               minimized="false"
+               ratio="0.25"
+               relationship="left"
+               relative="org.eclipse.ui.editorss">
+         </view>
+      </perspectiveExtension>
+   </extension>
+
 
    <extension
          point="org.eclipse.ui.editors">
@@ -87,8 +114,64 @@
 			name="%CmlExplorerName"/>
 	</extension>
 
+	<extension 
+			point="org.eclipse.ui.navigator.viewer">
+      <viewer viewerId="eu.compassresearch.ide.ui.CmlNavigator">
+         
+      </viewer>
+		<viewerContentBinding
+			viewerId="eu.compassresearch.ide.ui.CmlNavigator">
+			<includes>
+			       <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
+		           <contentExtension pattern="org.eclipse.ui.navigator.resources.linkHelper"/>
+        		   <contentExtension pattern="org.eclipse.ui.navigator.resources.workingSets"/>
+        		   <contentExtension pattern="eu.compassresearch.ide.ui.cmlNavigatorContent"/>
+        	</includes>
+        </viewerContentBinding>
+    
+       <viewerActionBinding 
+       		viewerId="eu.compassresearch.ide.ui.CmlNavigator">
+       		<includes>
+       				<actionExtension pattern="org.eclipse.ui.navigator.resources.*"/>
+       		</includes>
+      </viewerActionBinding>
+        <dragAssistant
+        	class="org.eclipse.ui.navigator.resources.ResourceDragAdapterAssistant"
+            viewerId="eu.compassresearch.ide.ui.CmlNavigator"/>          
+	</extension>
 
 
+  <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+         
+      <navigatorContent 
+            id="eu.compassresearch.ide.ui.cmlNavigatorContent" 
+            name="CML Navigator Content"
+            contentProvider="eu.compassresearch.ide.cml.ui.navigator.CmlContentProvider"
+            labelProvider="eu.compassresearch.ide.cml.ui.navigator.CmlLabelProvider" 
+            activeByDefault="true"
+            icon="icons/cview16/compass_nav.png"
+            priority="normal" >
+  			<triggerPoints>
+            <or>
+               <instanceof
+                     value="org.eclipse.core.resources.IProject">
+               </instanceof>
+               <instanceof
+                     value="org.eclipse.core.resources.IResource">
+               </instanceof>
+            </or>
+            </triggerPoints>
+            <possibleChildren>
+                <or>
+                    <instanceof value="org.eclipse.core.resources.IResource" />
+                </or>
+            </possibleChildren> 
+         <override
+         		suppressedExtensionId="org.overture.ide.ui.vdmNavigatorContent"/>       
+      </navigatorContent>      
+      
+   </extension>
 
 
 
@@ -101,7 +184,7 @@
       </image>
    </extension>
    
-   
+ <!-- Not really using this anymore 
     <extension point="org.eclipse.ui.views">
     <view 
         id="eu.compassresearch.ide.cml.ui.Sanitizer"
@@ -110,6 +193,7 @@
         icon="icons/cview16/cml_file_tsk.png"
         class="eu.compassresearch.ide.cml.ui.Sanitizer" />
   </extension>
+   -->
    
       <extension
          id="cmlnature"
@@ -138,92 +222,8 @@
 
 
 
-   <extension
-         point="org.eclipse.ui.navigator.viewer">
-      <viewer
-            viewerId="eu.compassresearch.ide.ui.CmlNavigator">
-      </viewer>
-      <viewerContentBinding
-            viewerId="eu.compassresearch.ide.ui.CmlNavigator">
-         <includes>
-            <contentExtension
-                  pattern="org.eclipse.ui.navigator.resources.filters.*">
-            </contentExtension>
-            <contentExtension
-                  pattern="org.eclipse.ui.navigator.resources.linkHelper">
-            </contentExtension>
-            <contentExtension
-                  pattern="org.eclipse.ui.navigator.resources.workingSets">
-            </contentExtension>
-            <contentExtension
-                  pattern="eu.compassresearch.resources.filters.*">
-            </contentExtension>
-            <contentExtension
-                  pattern="eu.compassresearch.ide.ui.navigator.resources.filters.*">
-            </contentExtension>
-            <contentExtension
-                  pattern="eu.compassresearch.ide.ui.cmlNavigatorContent">
-            </contentExtension>
-         </includes>
-      </viewerContentBinding>
-      <viewerActionBinding
-            viewerId="eu.compassresearch.ide.ui.CmlNavigator">
-         <includes>
-         
-         <!-- this guys is the problermatic one!. use groups instead- =-->
-            <actionExtension
-                  pattern="org.eclipse.ui.navigator.resources.*">
-            </actionExtension>
-         </includes>
-      </viewerActionBinding>
-   </extension>
    
-   <extension
-         point="org.eclipse.ui.navigator.navigatorContent">
-      <navigatorContent
-            activeByDefault="true"
-            contentProvider="org.eclipse.ui.model.WorkbenchContentProvider"
-            icon="icons/cview16/compass_nav.png"
-            id="eu.compassresearch.ide.ui.cmlNavigatorContent"
-            labelProvider="org.eclipse.ui.model.WorkbenchLabelProvider"
-            name="CML Navigator Content"
-            priority="highest">
-         <triggerPoints>
-            <or>
-               <instanceof
-                     value="org.eclipse.core.resources.IProject">
-               </instanceof>
-               <instanceof
-                     value="org.eclipse.core.resources.IResource">
-               </instanceof>
-            </or>
-         </triggerPoints>
-         <possibleChildren>
-            <or>
-               <instanceof
-                     value="org.eclipse.core.resources.IResource">
-               </instanceof>
-            </or>
-         </possibleChildren>
-         <override
-               policy="InvokeAlwaysRegardlessOfSuppressedExt"
-               suppressedExtensionId="org.eclipse.team.ui.resourceContent">
-         </override>
-         <enablement>
-            <or>
-               <adapt
-                     type="org.eclipse.core.resources.IProject">
-               </adapt>
-               <instanceof
-                     value="org.eclipse.core.resources.IResource">
-               </instanceof>
-            </or>
-         </enablement>
-
-      </navigatorContent>
-      
-      
-   </extension>
+  
    
    
 </plugin>
