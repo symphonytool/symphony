@@ -37,6 +37,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
 import eu.compassresearch.core.interpreter.utility.messaging.CmlRequest;
 import eu.compassresearch.core.interpreter.utility.messaging.MessageCommunicator;
@@ -273,15 +274,15 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 						VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new SelectionStrategy() {
 							Scanner scanIn = new Scanner(System.in);
 							@Override
-							public ObservableEvent select(CmlAlphabet availableChannelEvents) {
+							public CmlTransition select(CmlAlphabet availableChannelEvents) {
 
 								sendStatusMessage(CmlDbgpStatus.CHOICE, CmlInterpreterController.this.cmlInterpreter.getStatus());
 								
 								//convert to list of strings for now
 								List<String> events = new LinkedList<String>();
-								for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
+								for(CmlTransition transition : availableChannelEvents.getAllEvents())
 								{
-									events.add(comEvent.toString());
+									events.add(transition.toString());
 								}
 
 								ResponseMessage response = sendRequestSynchronous(new RequestMessage(CmlRequest.CHOICE,events));
@@ -294,13 +295,13 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 								String responseStr = response.getContent(String.class);
 								//System.out.println("response: " + responseStr);
 								
-								ObservableEvent selectedEvent = null;
+								CmlTransition selectedEvent = null;
 								//For now we just search naively to find the event
-								for(ObservableEvent comEvent : availableChannelEvents.getObservableEvents())
+								for(CmlTransition transition : availableChannelEvents.getAllEvents())
 								{
 									//System.out.println("found: " + comEvent.getChannel().getName());
-									if(comEvent.toString().equals(responseStr))
-										selectedEvent = comEvent;
+									if(transition.toString().equals(responseStr))
+										selectedEvent = transition;
 								}
 								
 								if(selectedEvent instanceof ChannelEvent && !((ChannelEvent)selectedEvent).isPrecise())

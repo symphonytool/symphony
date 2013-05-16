@@ -6,6 +6,7 @@ import org.overture.interpreter.runtime.Context;
 
 import eu.compassresearch.ast.actions.AInterleavingReplicatedAction;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.utility.Pair;
 
 public class ReplicatedActionEvaluationVisitor extends CommonEvaluationVisitor {
 

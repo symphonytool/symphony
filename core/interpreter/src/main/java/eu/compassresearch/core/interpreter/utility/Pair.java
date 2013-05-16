@@ -1,4 +1,4 @@
-package eu.compassresearch.core.interpreter;
+package eu.compassresearch.core.interpreter.utility;
 
 public class Pair<F, S> {
 	public final F first; //first member of pair

@@ -7,8 +7,8 @@ import org.overture.interpreter.runtime.Context;
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.process.PProcess;
-import eu.compassresearch.core.interpreter.Pair;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.utility.Pair;
 
 /**
  * This class has the responsibility of performing transitions of a CmlBehaviour. It is structured as a tree of visitors each taken a specific part of the CML AST and this is the 

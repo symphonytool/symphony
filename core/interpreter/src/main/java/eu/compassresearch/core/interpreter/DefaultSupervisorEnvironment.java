@@ -9,7 +9,7 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 
-public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
+class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 
 	private SelectionStrategy selectStrategy;
 	private CmlTransition selectedCommunication;

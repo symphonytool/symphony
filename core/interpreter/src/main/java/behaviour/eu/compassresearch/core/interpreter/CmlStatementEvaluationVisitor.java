@@ -46,6 +46,7 @@ import eu.compassresearch.ast.types.AActionType;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
+import eu.compassresearch.core.interpreter.utility.Pair;
 
 @SuppressWarnings("serial")
 class CmlStatementEvaluationVisitor extends AbstractEvaluationVisitor {

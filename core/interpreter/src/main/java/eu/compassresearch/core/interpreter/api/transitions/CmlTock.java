@@ -58,20 +58,6 @@ public class CmlTock extends AbstractCmlTransition implements ObservableEvent {
 		return limit != 0;
 	}
 
-//	@Override
-//	public boolean isPrecise() {
-//		//TODO I suspect that this is not always true of the refusals are derived 
-//		//from a imprecise event
-//		return true;
-//	}
-
-//	@Override
-//	public ObservableEvent meet(ObservableEvent other) {
-//		//TODO I suspect that this is not always true of the refusals are derived 
-//		//from a imprecise event
-//		return this;
-//	}
-
 	@Override
 	public CmlAlphabet getAsAlphabet() {
 

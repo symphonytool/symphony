@@ -23,7 +23,6 @@ import eu.compassresearch.ast.process.ASequentialCompositionProcess;
 import eu.compassresearch.ast.process.PProcess;
 import eu.compassresearch.core.interpreter.CmlBehaviourUtility;
 import eu.compassresearch.core.interpreter.CmlContextFactory;
-import eu.compassresearch.core.interpreter.Pair;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
@@ -33,6 +32,7 @@ import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
 import eu.compassresearch.core.interpreter.api.values.ActionValue;
 import eu.compassresearch.core.interpreter.api.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
+import eu.compassresearch.core.interpreter.utility.Pair;
 
 class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 

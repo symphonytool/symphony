@@ -9,13 +9,13 @@ import org.overture.interpreter.runtime.ValueException;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.expressions.PVarsetExpression;
 import eu.compassresearch.core.interpreter.CmlBehaviourUtility;
-import eu.compassresearch.core.interpreter.Pair;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.ActionEvaluationVisitor.parallelCompositionHelper;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
 import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 import eu.compassresearch.core.interpreter.api.transitions.ChannelEvent;
+import eu.compassresearch.core.interpreter.utility.Pair;
 
 class CommonEvaluationVisitor extends AbstractEvaluationVisitor{
 

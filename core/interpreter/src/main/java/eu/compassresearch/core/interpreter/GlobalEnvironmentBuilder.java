@@ -16,7 +16,7 @@ import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 
-public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
+class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
   {
     /**
 	 * 
