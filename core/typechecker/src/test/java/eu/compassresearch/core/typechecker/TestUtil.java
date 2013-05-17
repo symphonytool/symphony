@@ -38,6 +38,14 @@ public class TestUtil {
 		public PSource[] sources;
 	}
 
+	/**
+	 * TODO RWL: Write me
+	 * 
+	 * @param s
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
 	public static TypeCheckerResult parse(PSource s)
 			throws FileNotFoundException, IOException {
 
@@ -96,6 +104,14 @@ public class TestUtil {
 		}
 	}
 
+	/**
+	 * TODO: RWL Write me
+	 * 
+	 * @param ss
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
 	public static TypeCheckerResult runTypeChecker(List<PSource> ss)
 			throws FileNotFoundException, IOException {
 		TypeCheckerResult result = new TypeCheckerResult();
@@ -170,6 +186,13 @@ public class TestUtil {
 		return result;
 	}
 
+	/**
+	 * TODO: Write me
+	 * 
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
 	public static TypeCheckerResult runTypeChecker(String file)
 			throws IOException {
 		TypeCheckerResult res = new TypeCheckerResult();
