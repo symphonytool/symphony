@@ -1053,7 +1053,7 @@ class TCDeclAndDefVisitor extends
 
 			AFunctionType fnType = null;
 			do {
-
+				// TODO RWL: Fix this the def can have error type !
 				if (def instanceof AExplicitFunctionDefinition) {
 					fnType = (AFunctionType) ((AExplicitFunctionDefinition) def)
 							.getType();
@@ -1418,11 +1418,9 @@ class TCDeclAndDefVisitor extends
 				classQuestion.env.setEnclosingDefinition(node);
 				PType type = def.apply(parentChecker, classQuestion);
 				if (type == null || type instanceof AErrorType) {
-					return issueHandler
-							.addTypeError(def,
-									TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
-											.customizeMessage(def.getName()
-													.toString()));
+					return issueHandler.addTypeError(def,
+							TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
+									.customizeMessage(def.toString()));
 				}
 			}
 		}

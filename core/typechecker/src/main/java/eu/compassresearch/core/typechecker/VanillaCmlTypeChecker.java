@@ -57,7 +57,6 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	@Override
 	void clear() {
 		sourceForest = null;
-
 	}
 
 	@Override
