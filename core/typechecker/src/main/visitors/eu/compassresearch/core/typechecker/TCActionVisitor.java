@@ -21,11 +21,9 @@ import org.overture.ast.factory.AstFactory;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
 import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.intf.lex.ILexNameToken;
-import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.ADefPatternBind;
 import org.overture.ast.patterns.AIdentifierPattern;
-import org.overture.ast.patterns.APatternListTypePair;
 import org.overture.ast.patterns.ATuplePattern;
 import org.overture.ast.patterns.PPattern;
 import org.overture.ast.statements.AExternalClause;
@@ -91,6 +89,7 @@ import eu.compassresearch.ast.actions.AResParametrisation;
 import eu.compassresearch.ast.actions.AReturnStatementAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionAction;
 import eu.compassresearch.ast.actions.ASequentialCompositionReplicatedAction;
+import eu.compassresearch.ast.actions.ASignalCommunicationParameter;
 import eu.compassresearch.ast.actions.ASingleGeneralAssignmentStatementAction;
 import eu.compassresearch.ast.actions.ASkipAction;
 import eu.compassresearch.ast.actions.ASpecificationStatementAction;
@@ -143,12 +142,6 @@ import eu.compassresearch.core.typechecker.api.TypeWarningMessages;
 @SuppressWarnings("serial")
 class TCActionVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType> {
-
-	private static APatternListTypePair t;
-	static {
-		LexLocation l;
-
-	}
 
 	@Override
 	public PType caseAElseIfStatementAction(AElseIfStatementAction node,
@@ -431,6 +424,10 @@ class TCActionVisitor extends
 			AInternalChoiceReplicatedAction node, TypeCheckInfo question)
 			throws AnalysisException {
 
+		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
+
+		CmlTypeCheckInfo actionEnv = cmlEnv.newScope();
+
 		PAction repAction = node.getReplicatedAction();
 		LinkedList<PSingleDeclaration> repDecl = node
 				.getReplicationDeclaration();
@@ -442,9 +439,14 @@ class TCActionVisitor extends
 								.customizeMessage(d + "")));
 				return node.getType();
 			}
+
+			for (PDefinition newDef : type.getDefinitions()) {
+				actionEnv.addVariable(newDef.getName(), newDef);
+			}
+
 		}
 
-		PType actionType = repAction.apply(parentChecker, question);
+		PType actionType = repAction.apply(parentChecker, actionEnv);
 		if (!successfulType(actionType)) {
 			node.setType(issueHandler.addTypeError(repAction,
 					TypeErrorMessages.COULD_NOT_DETERMINE_TYPE
@@ -743,9 +745,10 @@ class TCActionVisitor extends
 							.customizeMessage(node + "")));
 			return node.getType();
 		}
-		
-		//set the class definition
-		node.setClassdef((AClassDefinition)cmlEnv.lookup(node.getClassName(), AClassDefinition.class));
+
+		// set the class definition
+		node.setClassdef((AClassDefinition) cmlEnv.lookup(node.getClassName(),
+				AClassDefinition.class));
 
 		// All done!
 		node.setType(new AActionType());
@@ -1932,7 +1935,7 @@ class TCActionVisitor extends
 				break;
 
 			// we have an CML operation, transform that into a call statement
-			SCmlOperationDefinition cmlOperation = (SCmlOperationDefinition)operationDefinition;
+			SCmlOperationDefinition cmlOperation = (SCmlOperationDefinition) operationDefinition;
 			ILexLocation newCallLocation = node.getExpression().getLocation();
 			ILexNameToken newCallName = cmlOperation.getName();
 			List<? extends PExp> newCallargs = applyExp.getArgs();
@@ -2133,6 +2136,13 @@ class TCActionVisitor extends
 					PType theType = null;
 					if (type.getType() instanceof AProductType) {
 						AProductType pType = (AProductType) type.getType();
+						if (paramIndex >= pType.getTypes().size()) {
+							node.setType(issueHandler.addTypeError(commPattern,
+									TypeErrorMessages.PATTERN_MISMATCH
+											.customizeMessage(pType + "",
+													commParams + "")));
+							return node.getType();
+						}
 						theType = pType.getTypes().get(paramIndex);
 						paramIndex++;
 					} else
@@ -2142,7 +2152,7 @@ class TCActionVisitor extends
 									id.getName(), NameScope.LOCAL, theType);
 					readVariable.parent(commParam);
 					readVariable.setLocation(commPattern.getLocation().clone());
-					cmlEnv.addVariable(readVariable.getName(), readVariable);
+					commEnv.addVariable(readVariable.getName(), readVariable);
 
 				}
 
@@ -2187,10 +2197,23 @@ class TCActionVisitor extends
 
 			}
 
-			if (commParam instanceof AWriteCommunicationParameter) {
-				AWriteCommunicationParameter writeParam = (AWriteCommunicationParameter) commParam;
-				PExp writeExp = writeParam.getExpression();
-				PType writeExpType = writeExp.apply(parentChecker, question);
+			if (commParam instanceof AWriteCommunicationParameter
+					|| commParam instanceof ASignalCommunicationParameter) {
+				PExp writeExp = null;
+				PType writeExpType = null;
+
+				if (commParam instanceof AWriteCommunicationParameter) {
+					AWriteCommunicationParameter writeParam = (AWriteCommunicationParameter) commParam;
+					writeExp = writeParam.getExpression();
+				}
+
+				if (commParam instanceof ASignalCommunicationParameter) {
+					ASignalCommunicationParameter signalParam = (ASignalCommunicationParameter) commParam;
+					writeExp = signalParam.getExpression();
+				}
+
+				writeExpType = writeExp.apply(parentChecker, commEnv);
+
 				if (!successfulType(writeExpType)) {
 					node.setType(issueHandler.addTypeError(writeExp,
 							TypeErrorMessages.COULD_NOT_DETERMINE_TYPE

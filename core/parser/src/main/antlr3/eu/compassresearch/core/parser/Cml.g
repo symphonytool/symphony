@@ -3173,7 +3173,7 @@ name returns[LexNameToken name]
             if ($ids != null) {
                 // fix the name location
                 ILexLocation firstLoc = extractLexLocation((CommonToken)$ids.get(0));
-                loc = new LexLocation(loc.file,
+                loc = new LexLocation(loc.file == null ? "" : loc.file,
                                       "", //FIXME: I assume this is the local module name?
                                       firstLoc.getStartLine(), firstLoc.getStartPos(),
                                       loc.getEndLine(), loc.getEndPos(),
