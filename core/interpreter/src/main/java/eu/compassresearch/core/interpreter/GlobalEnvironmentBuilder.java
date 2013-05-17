@@ -7,16 +7,14 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.lex.LexLocation;
 import org.overture.interpreter.runtime.StateContext;
-import org.overture.interpreter.values.CPUValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 
-class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
+public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
   {
     /**
 	 * 
