@@ -62,7 +62,8 @@ public enum TypeErrorMessages {
 			"Expected a channel or state definition. %s is neither."), CONSTRUCTOR_HAS_WRONG_TYPE(
 			"Operation %s has identical name to encloding class, but has wrong type: %s."), EXPECTED_LVALUE(
 			"%s is not an assignable expression."), EXPECTED_AN_ACTION(
-			"Expected an entity of type Action. %s was found."),
+			"Expected an entity of type Action. %s was found."), ILLEGAL_ACCESS(
+			"Cannot access %s in this context."),
 
 	;
 
