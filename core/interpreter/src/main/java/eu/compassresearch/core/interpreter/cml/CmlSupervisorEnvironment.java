@@ -2,7 +2,7 @@ package eu.compassresearch.core.interpreter.cml;
 
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 
 public interface CmlSupervisorEnvironment {
 
@@ -16,15 +16,15 @@ public interface CmlSupervisorEnvironment {
 	 * Returns the selected CMLCommunicationSelectionStrategy object for the supervisor instance
 	 * @return
 	 */
-	public CmlCommunicationSelectionStrategy decisionFunction();
+	public CmlEventSelectionStrategy decisionFunction();
 	//public void setDecisionFunction(CMLCommunicationSelectionStrategy cdf)
 	//throws NullPointerException;
 	// Pupil Processes related methods
-	public void addPupil(CmlBehaviourThread process);
-	public void removePupil(CmlBehaviourThread process);
+	public void addPupil(CmlBehaviour process);
+	public void removePupil(CmlBehaviour process);
 	public void clearPupils();
-	public List<CmlBehaviourThread> getPupils();
-	public CmlBehaviourThread findNamedProcess(String name);
+	public List<CmlBehaviour> getPupils();
+	public CmlBehaviour findNamedProcess(String name);
 	
 	// Supervision related methods
 	/**
@@ -36,8 +36,8 @@ public interface CmlSupervisorEnvironment {
 	 * returns the selected communication
 	 * @return The selected CMLCommunication if communicationSelected() is true else null
 	 */
-	public ObservableEvent selectedObservableEvent();
-	public void setSelectedObservableEvent(ObservableEvent comm);
+	public CmlTransition selectedObservableEvent();
+	public void setSelectedObservableEvent(CmlTransition comm);
 	/**
 	 * Clears the currently selected CMLCommunication
 	 */

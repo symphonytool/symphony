@@ -2,7 +2,9 @@ package eu.compassresearch.core.interpreter;
 
 import java.util.List;
 
+import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 
@@ -10,14 +12,11 @@ import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
+import eu.compassresearch.core.interpreter.cml.CmlEventSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.ConcreteBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.ConcreteCmlBehaviour;
 import eu.compassresearch.core.interpreter.cml.DefaultSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
-import eu.compassresearch.core.interpreter.scheduler.SchedulingPolicy;
-import eu.compassresearch.core.interpreter.scheduler.VanillaScheduler;
 
 public final class VanillaInterpreterFactory {
 
@@ -49,28 +48,39 @@ public final class VanillaInterpreterFactory {
 	 * @param selectStrategy
 	 * @return
 	 */
-	public static CmlSupervisorEnvironment newCmlSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy, CmlScheduler cmlScheduler)
+	public static CmlSupervisorEnvironment newCmlSupervisorEnvironment(CmlEventSelectionStrategy selectStrategy)
 	{
-		return new DefaultSupervisorEnvironment(selectStrategy,cmlScheduler);
+		return new DefaultSupervisorEnvironment(selectStrategy);
 	}
 	
-	/**
-	 * Create a scheduler with a specified Scheduling policy
-	 * @param policy
-	 * @return
-	 */
-	public static CmlScheduler newScheduler(SchedulingPolicy policy)
+	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, ILexNameToken processName) throws AnalysisException
 	{
-		return new VanillaScheduler(policy);
+		return new ConcreteCmlBehaviour(processNode, context, processName);
 	}
 	
-	public static CmlBehaviourThread newCmlBehaviourThread(INode processNode, Context context, ILexNameToken processName)
+//	public static CmlBehaviour newCmlBehaviour(INode node, CmlBehaviour parent, CmlBehaviour left, CmlBehaviour right)
+//	{
+//		return new ConcreteCmlBehaviour(node, context, processName);
+//	}
+	
+	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, ILexNameToken processName, CmlBehaviour parent) throws AnalysisException
 	{
-		return new ConcreteBehaviourThread(processNode, context, processName);
+		return new ConcreteCmlBehaviour(processNode, context, processName, parent);
+	}
+
+	public static CmlBehaviour newCmlBehaviour(INode processNode, Context context, CmlBehaviour parent) throws AnalysisException
+	{
+		return new ConcreteCmlBehaviour(processNode, context, new LexNameToken("", "TMP",new LexLocation()), parent);
 	}
 	
-	public static CmlBehaviourThread newCmlBehaviourThread(INode processNode, Context context, LexNameToken processName, CmlBehaviourThread parent)
-	{
-		return new ConcreteBehaviourThread(processNode, context, processName, parent);
-	}
+//	public static CmlBehaviour newCmlBehaviourTest(INode processNode, Context context, CmlBehaviour parent)
+//	{
+//		try {
+//			return processNode.apply(new ActionFactoryVisitor(parent),context);
+//		} catch (AnalysisException e) {
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
+		
 }

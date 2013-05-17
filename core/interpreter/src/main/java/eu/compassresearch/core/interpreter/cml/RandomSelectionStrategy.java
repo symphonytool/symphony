@@ -2,7 +2,6 @@ package eu.compassresearch.core.interpreter.cml;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Set;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.types.AIntNumericBasicType;
@@ -20,8 +19,9 @@ import org.overture.interpreter.values.ValueList;
 
 import eu.compassresearch.ast.analysis.QuestionAnswerCMLAdaptor;
 import eu.compassresearch.ast.types.AChannelType;
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
+import eu.compassresearch.core.interpreter.CmlRuntime;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
 /**
  * This class implements a random selection CMLCommunicaiton of the alphabet 
@@ -29,34 +29,33 @@ import eu.compassresearch.core.interpreter.values.AbstractValueInterpreter;
  *
  */
 public class RandomSelectionStrategy implements
-		CmlCommunicationSelectionStrategy {
+		CmlEventSelectionStrategy {
 
 	private static final long randomSeed = 675674345;
 	private static final Random rndChoice = new Random(randomSeed);
 	private static final Random rndValue = new Random(randomSeed);
 	
 	@Override
-	public ObservableEvent select(CmlAlphabet availableChannelEvents) {
+	public CmlTransition select(CmlAlphabet availableChannelEvents) {
 		
-		Set<ObservableEvent> comms = availableChannelEvents.getObservableEvents();
-		ObservableEvent selectedComm = null;
+		CmlTransition selectedComm = null;
 		
-		if(!comms.isEmpty())
+		if(!availableChannelEvents.isEmpty())
 		{
-			int nElems = availableChannelEvents.getObservableEvents().size();
+			int nElems = availableChannelEvents.getAllEvents().size();
 			
 			//pick a random but deterministic choice
-			selectedComm = new ArrayList<ObservableEvent>(
-					availableChannelEvents.getObservableEvents()).get(rndChoice.nextInt(nElems));
+			selectedComm = new ArrayList<CmlTransition>(
+					availableChannelEvents.getAllEvents()).get(rndChoice.nextInt(nElems));
 			
-			if(!selectedComm.isValuePrecise())
+			if(selectedComm instanceof ChannelEvent && !((ChannelEvent)selectedComm).isPrecise())
 			{
-				AChannelType t = (AChannelType)selectedComm.getChannel().getType();
+				AChannelType t = (AChannelType)((ChannelEvent)selectedComm).getChannel().getType();
 				
-				selectedComm.setValue(
+				((ChannelEvent)selectedComm).setValue(
 						AbstractValueInterpreter.meet(
-						selectedComm.getValue(),
-						getRandomValueFromType(t.getType(),selectedComm)));
+						((ChannelEvent)selectedComm).getValue(),
+						getRandomValueFromType(t.getType(),(ChannelEvent)selectedComm)));
 			}
 		}
 		//CmlRuntime.logger().fine("Available events " + availableChannelEvents.getObservableEvents());
@@ -65,7 +64,7 @@ public class RandomSelectionStrategy implements
 		return selectedComm;
 	}
 	
-	private Value getRandomValueFromType(PType type, ObservableEvent chosenEvent)
+	private Value getRandomValueFromType(PType type, ChannelEvent chosenEvent)
 	{
 		try {
 			return type.apply(new RandomValueGenerator(),chosenEvent);
@@ -76,17 +75,17 @@ public class RandomSelectionStrategy implements
 		return new UndefinedValue();
 	}
 	
-	class RandomValueGenerator extends QuestionAnswerCMLAdaptor<ObservableEvent,Value>
+	class RandomValueGenerator extends QuestionAnswerCMLAdaptor<ChannelEvent,Value>
 	{
 		@Override
-		public Value caseAIntNumericBasicType(AIntNumericBasicType node, ObservableEvent chosenEvent)
+		public Value caseAIntNumericBasicType(AIntNumericBasicType node, ChannelEvent chosenEvent)
 				throws AnalysisException {
 
 			return new IntegerValue(rndValue.nextInt());
 		}
 		
 		@Override
-		public Value caseANamedInvariantType(ANamedInvariantType node, ObservableEvent chosenEvent)
+		public Value caseANamedInvariantType(ANamedInvariantType node, ChannelEvent chosenEvent)
 				throws AnalysisException {
 
 //			if(node.getInvDef() != null)
@@ -102,7 +101,7 @@ public class RandomSelectionStrategy implements
 		}
 		
 		@Override
-		public Value caseAUnionType(AUnionType node, ObservableEvent chosenEvent) throws AnalysisException {
+		public Value caseAUnionType(AUnionType node, ChannelEvent chosenEvent) throws AnalysisException {
 			
 			PType type = node.getTypes().get(rndValue.nextInt(node.getTypes().size()));
 
@@ -110,13 +109,13 @@ public class RandomSelectionStrategy implements
 		}
 		
 		@Override
-		public Value caseAQuoteType(AQuoteType node, ObservableEvent chosenEvent) throws AnalysisException {
+		public Value caseAQuoteType(AQuoteType node, ChannelEvent chosenEvent) throws AnalysisException {
 			
-			return new QuoteValue(node.getValue().value);
+			return new QuoteValue(node.getValue().getValue());
 		}
 		
 		@Override
-		public Value caseAProductType(AProductType node, ObservableEvent chosenEvent)
+		public Value caseAProductType(AProductType node, ChannelEvent chosenEvent)
 				throws AnalysisException {
 
 			ValueList argvals = new ValueList();

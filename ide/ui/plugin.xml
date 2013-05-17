@@ -80,14 +80,14 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            category="eu.compassresearch.ide.ui.view.category"
-            class="eu.compassresearch.ide.cml.ui.navigator.CmlExplorer"
+            category="compass_eu.compassresearch.ide.cml.ui.category"
+            class="org.overture.ide.ui.navigator.VdmNavigator"
             icon="icons/cview16/compass_nav.png"
-            id="eu.compassresearch.ide.ui.CmlExplorer"
+            id="eu.compassresearch.ide.cml.ui.CmlExplorer"
             name="%CmlExplorerName">
       </view>
     <category
-    	id="eu.compassresearch.ide.ui.view.category"
+    	id="compass_eu.compassresearch.ide.cml.ui.category"
     	name="COMPASS">
     	</category>
    </extension>
@@ -110,7 +110,7 @@
 	      <perspectiveExtension
 	            targetID="eu.compassresearch.ide.ui.perspective">
 	         <view
-	               id="eu.compassresearch.ide.ui.CmlExplorer"
+	               id="org.overture.ide.ui.VdmExplorer"
 	               minimized="false"
 	               ratio="0.25"
 	               relationship="left"
@@ -330,7 +330,7 @@
    <extension
          point="org.eclipse.ui.navigator.viewer">
       <viewerContentBinding
-            viewerId="eu.compassresearch.ide.ui.CmlExplorer">
+            viewerId="org.overture.ide.ui.VdmExplorer">
          <includes>
             <contentExtension
                   isRoot="false"
@@ -363,41 +363,7 @@
        <dragAssistant
              class="org.eclipse.ui.navigator.resources.ResourceDragAdapterAssistant"
              viewerId="org.eclipse.ui.navigator.ProjectExplorer"/>
-       
-     <!-- Menu 
-      <viewer
-            viewerId="org.overture.ide.ui.VdmExplorer">
-         <popupMenu
-               allowsPlatformContributions="true">
-            <insertionPoint
-                  name="group.new"
-                  separator="true">
-            </insertionPoint>
-            <insertionPoint
-                  name="group.edit"
-                  separator="true">
-            </insertionPoint>
-            <insertionPoint
-                  name="group.build"
-                  separator="true">
-            </insertionPoint>
-            <insertionPoint
-                  name="group.reorganize"
-                  separator="true">
-            </insertionPoint>
-            <insertionPoint
-                  name="group.port"
-                  separator="true">
-            </insertionPoint>
-            <insertionPoint
-                  name="group.properties"
-                  separator="true">
-            </insertionPoint>
-         </popupMenu>
-           
-      </viewer>
-      -->
-      
+
    </extension>
 
 
@@ -415,7 +381,7 @@
     <view 
         id="eu.compassresearch.ide.cml.ui.Sanitizer"
         name="COMPASS UI Debug Sanitizer"
-        category="eu.compassresearch.ide.ui.view.category"
+        category="compass_eu.compassresearch.ide.cml.ui.category"
         icon="icons/cview16/cml_file_tsk.png"
         class="eu.compassresearch.ide.cml.ui.Sanitizer" />
   </extension>
@@ -427,20 +393,21 @@
          <runtime>
             <run class ="eu.compassresearch.ide.cml.ui.builder.CmlProjectNature" />
          </runtime>
-              <builder id ="eu.compassresearch.ide.cml.ui.cmlbuilder"/>
      </extension>
    
+
    <extension
-         id="cmlbuilder"
-         name="CML Builder"
-         point="org.eclipse.core.resources.builders">
+         point="org.overture.ide.core.parsePaticipant">
+      <parser
+            class="eu.compassresearch.ide.cml.ui.editor.core.SourceParserCml"
+            nature="eu.compassresearch.ide.cml.ui.cmlnature">
+      </parser>
+   </extension>
+   <extension
+         point="org.overture.ide.core.buildParticipant">
       <builder
-            callOnEmptyDelta="true"
-            hasNature="true"
-            supportsConfigurations="false"            
-       >
-        <run
-            class="eu.compassresearch.ide.cml.ui.builder.CmlIncrementalBuilder" />
+            class="eu.compassresearch.ide.cml.ui.builder.BuilderCml"
+            nature="eu.compassresearch.ide.cml.ui.cmlnature">
       </builder>
    </extension>
 </plugin>

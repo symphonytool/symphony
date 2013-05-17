@@ -3,6 +3,7 @@ package eu.compassresearch.core.interpreter.eval;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.node.INode;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.runtime.ObjectContext;
 import org.overture.interpreter.values.FunctionValue;
@@ -19,46 +20,45 @@ import eu.compassresearch.ast.process.AInterleavingProcess;
 import eu.compassresearch.ast.process.AInternalChoiceProcess;
 import eu.compassresearch.ast.process.AReferenceProcess;
 import eu.compassresearch.ast.process.ASequentialCompositionProcess;
-import eu.compassresearch.ast.process.ASkipProcess;
 import eu.compassresearch.ast.process.PProcess;
+import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.InterpretationErrorMessages;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourSignal;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
-import eu.compassresearch.core.interpreter.cml.CmlProcessState;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.eval.ActionEvaluationVisitor.parallelCompositionHelper;
-import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
-import eu.compassresearch.core.interpreter.util.CmlBehaviourThreadUtility;
+import eu.compassresearch.core.interpreter.util.CmlBehaviourUtility;
+import eu.compassresearch.core.interpreter.util.Pair;
 import eu.compassresearch.core.interpreter.values.ActionValue;
 import eu.compassresearch.core.interpreter.values.CmlOperationValue;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 
 public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 
-	public ProcessEvaluationVisitor(AbstractEvaluationVisitor parentVisitor)
+	public ProcessEvaluationVisitor(AbstractEvaluationVisitor parentVisitor, CmlBehaviour owner, VisitorAccess visitorAccess)
 	{
-		super(parentVisitor);
+		super(parentVisitor,owner,visitorAccess);
 	}
 	
 	/**
 	 * Private helper methods
+	 * @throws AnalysisException 
 	 */
 	
-	private CmlBehaviourSignal caseParallelBegin(PProcess node, PProcess left, PProcess right, Context question)
+	private void caseParallelBegin(PProcess node, PProcess left, PProcess right, Context question) throws AnalysisException
 	{
 		if(left == null || right == null)
 			throw new InterpreterRuntimeException(
 					InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 		
 		//TODO: create a local copy of the question state for each of the actions
-		CmlBehaviourThread leftInstance = 
-				VanillaInterpreterFactory.newCmlBehaviourThread(left,question,new LexNameToken(name.getModule(),name.getIdentifier().getName() + "|||" ,left.getLocation()),ownerThread());
+		CmlBehaviour leftInstance = 
+				VanillaInterpreterFactory.newCmlBehaviour(left,question,new LexNameToken(name.getModule(),name.getIdentifier().getName() + "|||" ,left.getLocation()),owner);		
+		CmlBehaviour rightInstance = 
+				VanillaInterpreterFactory.newCmlBehaviour(right,question,new LexNameToken(name.getModule(),"|||" + name.getIdentifier().getName() ,right.getLocation()),owner);
 		
-		CmlBehaviourThread rightInstance = 
-				VanillaInterpreterFactory.newCmlBehaviourThread(right,question,new LexNameToken(name.getModule(),"|||" + name.getIdentifier().getName() ,right.getLocation()),ownerThread());
-		
-		return caseParallelBeginGeneral(leftInstance,rightInstance,question);
+		caseParallelBeginGeneral(leftInstance,rightInstance,question);
 	}
 	
 	/**
@@ -66,25 +66,25 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	
 	@Override
-	public CmlBehaviourSignal defaultPProcess(PProcess node, Context question)
+	public Pair<INode,Context> defaultPProcess(PProcess node, Context question)
 			throws AnalysisException {
 		
 		throw new InterpreterRuntimeException(InterpretationErrorMessages.CASE_NOT_IMPLEMENTED.customizeMessage(node.getClass().getSimpleName()));
 		
 	}
 	
-	@Override
-	public CmlBehaviourSignal caseASkipProcess(ASkipProcess node, Context question)
-			throws AnalysisException {
-
-		//if hasNext() is true then Skip is in sequential composition with next
-		if(!hasNext())
-			setState(CmlProcessState.FINISHED);
-		return CmlBehaviourSignal.EXEC_SUCCESS;
-	}
+//	@Override
+//	public CmlBehaviourSignal caseASkipProcess(ASkipProcess node, Context question)
+//			throws AnalysisException {
+//
+//		//if hasNext() is true then Skip is in sequential composition with next
+//		if(!hasNext())
+//			setState(CmlProcessState.FINISHED);
+//		return CmlBehaviourSignal.EXEC_SUCCESS;
+//	}
 	
 	@Override
-	public CmlBehaviourSignal caseAActionProcess(AActionProcess node, Context question) throws AnalysisException
+	public Pair<INode,Context> caseAActionProcess(AActionProcess node, Context question) throws AnalysisException
 	{
 		AProcessDefinition processDef;
 		//We have a named process
@@ -132,8 +132,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		
 		//push this node onto the execution stack again since this should execute
 		//the action behaviour until it terminates
-		pushNext(node.getAction(), processObjectContext);
-		return CmlBehaviourSignal.EXEC_SUCCESS; 
+		return new Pair<INode,Context>(node.getAction(), processObjectContext);
 	}
 	
 	/**
@@ -141,7 +140,7 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	 * (Even though this is a process I assume something similar will happen)
 	 */
 	@Override
-	public CmlBehaviourSignal caseAReferenceProcess(AReferenceProcess node,
+	public Pair<INode,Context> caseAReferenceProcess(AReferenceProcess node,
 			Context question) throws AnalysisException {
 
 		//initials this process with the global context since this should see any of creators members
@@ -154,19 +153,16 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		
 		//CmlStateContext processContext = new CmlStateContext(node.getLocation(), "Referenced Process context", question,null, processValue.getProcessDefinition());
 		
-		pushNext( node.getProcessDefinition().getProcess(), question); 
-		
-		return CmlBehaviourSignal.EXEC_SUCCESS;
-		
+		return new Pair<INode,Context>( node.getProcessDefinition().getProcess(), question); 
 	}
 	
 	
 	@Override
-	public CmlBehaviourSignal caseASequentialCompositionProcess(
+	public Pair<INode,Context> caseASequentialCompositionProcess(
 			ASequentialCompositionProcess node, Context question)
 			throws AnalysisException {
 		
-		return caseASequentialComposition(node.getLeft(),node.getRight(),question);
+		return caseASequentialComposition(node,node.getLeft(),node.getRight(),question);
 	}
 	
 	
@@ -186,14 +182,60 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	 */
 	
 	@Override
-	public CmlBehaviourSignal caseAExternalChoiceProcess(
+	public Pair<INode,Context> caseAExternalChoiceProcess(
 			AExternalChoiceProcess node, Context question)
 			throws AnalysisException {
 		
-		return caseAExternalChoice(node,node.getLeft(),new LexNameToken(name.getModule(),name.getIdentifier().getName() + "[]" ,node.getLeft().getLocation()),
-				node.getRight(),new LexNameToken(name.getModule(),"[]" + name.getIdentifier().getName(),node.getRight().getLocation()),question);
+		//return caseAExternalChoice(node,node.getLeft(),new LexNameToken(name.module,name.getIdentifier().getName() + "[]" ,node.getLeft().getLocation()),
+		//		node.getRight(),new LexNameToken(name.module,"[]" + name.getIdentifier().getName(),node.getRight().getLocation()),question);
 		
-		//return null;
+		Pair<INode,Context> result = null;
+		
+		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
+		if(!owner.hasChildren()){
+			
+			CmlBehaviour leftInstance = VanillaInterpreterFactory.newCmlBehaviour(node.getLeft(), question, new LexNameToken(name.getModule(),name.getIdentifier().getName() + "[]" ,node.getLeft().getLocation()) ,this.owner);
+			setLeftChild(leftInstance);
+			
+			CmlBehaviour rightInstance = VanillaInterpreterFactory.newCmlBehaviour(node.getRight(), question, new LexNameToken(name.getModule(),"[]" + name.getIdentifier().getName(),node.getRight().getLocation()),this.owner); 
+			setRightChild(rightInstance);
+			//Now let this process wait for the children to get into a waitForEvent state
+			result = new Pair<INode, Context>(node, question);
+			
+		}
+		//If this is true, the Skip rule is instantiated. This means that the entire choice evolves into Skip
+		//with the state from the skip. After this all the children processes are terminated
+		else if(CmlBehaviourUtility.finishedChildExists(owner))
+		{
+			CmlBehaviour theChoosenOne = findFinishedChild();
+			setLeftChild(theChoosenOne.getLeftChild());
+			setRightChild(theChoosenOne.getRightChild());
+			result = theChoosenOne.getExecutionState();
+		}
+		else
+		{
+			for(CmlBehaviour child : children())
+			{
+				if(child.inspect().containsImprecise(supervisor().selectedObservableEvent()))
+				{
+					if(supervisor().selectedObservableEvent() instanceof ChannelEvent)
+					{
+						//first we execute the child
+						child.execute(supervisor());
+						setLeftChild(child.getLeftChild());
+						setRightChild(child.getRightChild());
+						result = child.getExecutionState();
+					}
+					else
+					{
+						child.execute(supervisor());
+						result = new Pair<INode, Context>(node, question);
+					}
+				}
+			}
+		}
+		
+		return result;
 	}
 			
 	/**
@@ -201,45 +243,35 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 	 * into Skip. However, this will just terminate successfully when all its children terminates successfully.
 	 */
 	@Override
-	public CmlBehaviourSignal caseAInterleavingProcess(
+	public Pair<INode,Context> caseAInterleavingProcess(
 			AInterleavingProcess node, Context question)
 			throws AnalysisException {
 		
 		//TODO: This only implements the "A ||| B (no state)" and not "A [|| ns1 | ns2 ||] B"
-		CmlBehaviourSignal result = null;
 
 		//if true this means that this is the first time here, so the Parallel Begin rule is invoked.
-		if(!hasChildren()){
-			result = caseParallelBegin(node,node.getLeft(),node.getRight(),question);
+		if(!owner.hasChildren()){
+			caseParallelBegin(node,node.getLeft(),node.getRight(),question);
 			//We push the current state, since this process will control the child processes created by it
-			pushNext(node, question);
-
-		}
-		//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
-		else if(CmlBehaviourThreadUtility.childWaitingForEventExists(ownerThread()))
-		{
-			result = caseParallelNonSync();
-
-			//We push the current state, 
-			pushNext(node, question);
+			return new Pair<INode,Context>(node, question);
 
 		}
 		//the process has children and must now handle either termination or event sync
-		else if (CmlBehaviourThreadUtility.isAllChildrenFinished(ownerThread()))
+		else if (CmlBehaviourUtility.isAllChildrenFinished(owner))
 		{
-			removeTheChildren();
-			
-			pushNext(new ASkipProcess(), question);
-			
-			result = CmlBehaviourSignal.EXEC_SUCCESS;
+			return caseParallelEnd(question);
 		}
-		//else if ()
-
-		return result;
+		else
+		{
+			//At least one child is not finished and waiting for event, this will invoke the Parallel Non-sync 
+			caseParallelNonSync();
+			//We push the current state, 
+			return new Pair<INode,Context>(node, question);
+		}
 	}
 	
 	@Override
-	public CmlBehaviourSignal caseAGeneralisedParallelismProcess(
+	public Pair<INode,Context> caseAGeneralisedParallelismProcess(
 			AGeneralisedParallelismProcess node, Context question)
 			throws AnalysisException {
 		
@@ -249,23 +281,21 @@ public class ProcessEvaluationVisitor extends CommonEvaluationVisitor {
 		return caseGeneralisedParallelismParallel(node,new parallelCompositionHelper() {
 			
 			@Override
-			public CmlBehaviourSignal caseParallelBegin() {
-				return ProcessEvaluationVisitor.this.caseParallelBegin(finalNode,finalNode.getLeft(),finalNode.getRight(), finalQuestion);
+			public void caseParallelBegin() throws AnalysisException {
+				ProcessEvaluationVisitor.this.caseParallelBegin(finalNode,finalNode.getLeft(),finalNode.getRight(), finalQuestion);
 			}
 		}, node.getChansetExpression(),question);
 	}
 	
 	@Override
-	public CmlBehaviourSignal caseAInternalChoiceProcess(
+	public Pair<INode,Context> caseAInternalChoiceProcess(
 			AInternalChoiceProcess node, Context question)
 			throws AnalysisException {
 		
 		if(rnd.nextInt(2) == 0)
-			pushNext(node.getLeft(), question);
+			return new Pair<INode,Context>(node.getLeft(), question);
 		else
-			pushNext(node.getRight(), question);
-				
-		return CmlBehaviourSignal.EXEC_SUCCESS;
+			return new Pair<INode,Context>(node.getRight(), question);
 	}
 	
 	

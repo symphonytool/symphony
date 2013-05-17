@@ -7,10 +7,11 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
+
+import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,17 +25,13 @@ import org.overture.ast.analysis.AnalysisException;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
-import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
-import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
-import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 import eu.compassresearch.core.interpreter.util.CmlParserUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -120,13 +117,12 @@ public class InterpretAllCmlFilesTest {
 
 		CmlInterpreter interpreter = VanillaInterpreterFactory.newInterpreter(ast);
 
-		CmlScheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
 		CmlSupervisorEnvironment sve = 
-				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
+				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy());
 		
 		Exception exception = null;
 		try{
-			interpreter.execute(sve,scheduler);
+			interpreter.execute(sve);
 		}
 		catch(Exception ex)
 		{
@@ -137,10 +133,17 @@ public class InterpretAllCmlFilesTest {
 	}
 	
 	private void checkResult(ExpectedTestResult testResult, InterpreterStatus status, Exception exception) {
-		
+
+		//Exceptions check
+		//testResult.throwsException() => exception != null
+		assertTrue("The test was expected to throw an exception but did not!",!testResult.throwsException() || exception != null);
+		//!testResult.throwsException() => exception == null
+		assertTrue("The test threw an unexpected exception : " + exception,testResult.throwsException() || exception == null);
+				
+		//Events 
 		if(!testResult.isInterleaved())
 		{
-			assertTrue(testResult.getFirstVisibleTrace() + " != " +status.getToplevelProcessInfo().getVisibleTrace() ,testResult.getFirstVisibleTrace()
+			assertTrue(testResult.getFirstEventTrace() + " != " +status.getToplevelProcessInfo().getVisibleTrace() ,testResult.getFirstEventTrace()
 					.equals(status.getToplevelProcessInfo().getVisibleTrace()));
 		}
 		else
@@ -148,7 +151,7 @@ public class InterpretAllCmlFilesTest {
 			boolean foundMatch = false;
 			//If we have interleaving it must be one of the possible traces
 			List<String> resultTrace = status.getToplevelProcessInfo().getVisibleTrace();
-			for(List<String> trace : testResult.getVisibleTraces())
+			for(List<String> trace : testResult.getEventTraces())
 			{
 				foundMatch |= trace.equals(resultTrace);
 				
@@ -157,9 +160,10 @@ public class InterpretAllCmlFilesTest {
 			assertTrue(foundMatch);
 		}
 		
-		//If the test is expected to fail the exception should be non null
-		assertTrue(!testResult.shouldFail() || exception != null);
-
+		//TimedTrace
+		
+		//Interpreter state
+		Assert.assertEquals(testResult.getInterpreterState(), status.getInterpreterState());
 	}
 
 	@Parameters
@@ -168,6 +172,7 @@ public class InterpretAllCmlFilesTest {
 		List<Object[]> paths = addFilesInFolder("src/test/resources/action/");
 		paths.addAll(addFilesInFolder("src/test/resources/process/"));
 		paths.addAll(addFilesInFolder("src/test/resources/examples/"));
+		paths.addAll(addFilesInFolder("src/test/resources/classes/"));
 		
 		return paths;
 	}

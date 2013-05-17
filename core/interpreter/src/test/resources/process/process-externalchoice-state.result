@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <testResult>
-	<result>
-		<type>success</type>
-		<trace>
-			<visibleTrace>b;c</visibleTrace>
-		</trace>
-	</result>
+  <exception/>
+  <interpreterState>TERMINATED</interpreterState>
+  <trace>
+    <events>b,c</events>
+    <timedTrace/>
+  </trace>
 </testResult>

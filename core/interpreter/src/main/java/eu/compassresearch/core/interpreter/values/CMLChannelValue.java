@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.values;
 
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.types.PType;
 import org.overture.interpreter.values.Value;
 
@@ -19,7 +20,7 @@ public class CMLChannelValue extends Value implements CmlChannel //CmlIOChannel<
 	 * 
 	 */
 	private static final long serialVersionUID = 6350630462785844551L;
-	private LexNameToken 					name;
+	private ILexNameToken 					name;
 	private PType 							channelType;
 //	private Value							value = null; 
 
@@ -45,7 +46,7 @@ public class CMLChannelValue extends Value implements CmlChannel //CmlIOChannel<
 	private EventSourceHandler<ChannelObserver,CmlChannelEvent> selectObservers = 
 			new EventSourceHandler<ChannelObserver,CmlChannelEvent>(this, new ChannelEventMediator());
 
-	public CMLChannelValue(PType channelType, LexNameToken name)
+	public CMLChannelValue(PType channelType, ILexNameToken name)
 	{
 		this.channelType = channelType;
 		this.name = name;

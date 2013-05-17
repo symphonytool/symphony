@@ -13,6 +13,7 @@ import org.overture.interpreter.values.Value;
 import eu.compassresearch.ast.analysis.AnalysisCMLAdaptor;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.eval.CmlDefinitionVisitor;
 import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
 
@@ -35,10 +36,15 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
 
     private void BuildGlobalEnvironment(List<PSource> sources)
       {
-    	globalState = new StateContext(new LexLocation(), "GlobalContext");
-    	globalState.setThreadState(null, CPUValue.vCPU);
+    	//Make a state
+    	globalState = CmlContextFactory.newStateContext(new LexLocation(), "Global Context");
     	globalProcesses = new LinkedList<AProcessDefinition>();
     	
+    	/*
+    	 * Go through all the top level paragraphs in all the source files
+    	 * And add them to the global state
+    	 * FIXME: access modifier are not considered, should they?
+    	 */
         for (PSource source : sources)
           {
             for (PDefinition def : source.getParagraphs())
@@ -55,6 +61,7 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
               }
           }
         
+        //Search though all the found processes and add them to the process list
         for(Value val : globalState.values())
     	{
     		if( val instanceof ProcessObjectValue)
@@ -65,13 +72,18 @@ public class GlobalEnvironmentBuilder extends AnalysisCMLAdaptor
     			
     			if(lastDefinedProcess == null)
     				lastDefinedProcess = pdef;
-    			else if(pdef.getLocation().startLine > lastDefinedProcess.getLocation().startLine)
+    			else if(pdef.getLocation().getStartLine() > lastDefinedProcess.getLocation().getStartLine())
     				lastDefinedProcess = pdef;
     		}
     	}
     	
       }
     
+    /**
+     * Returns the last defined process definition in the sources
+     * FIXME: For more than one source file this is not well defined
+     * @return
+     */
     public AProcessDefinition getLastDefinedProcess()
     {
     	return lastDefinedProcess;

@@ -10,7 +10,9 @@ import org.overture.ast.definitions.ATypeDefinition;
 import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.intf.lex.ILexIdentifierToken;
-import org.overture.ast.lex.LexLocation;
+import org.overture.ast.intf.lex.ILexLocation;
+import org.overture.ast.intf.lex.ILexNameToken;
+import org.overture.ast.patterns.AIdentifierPattern;
 import org.overture.interpreter.runtime.Context;
 import org.overture.interpreter.values.FunctionValue;
 import org.overture.interpreter.values.NameValuePair;
@@ -31,7 +33,7 @@ import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.definitions.ATypesDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.runtime.CmlContextFactory;
+import eu.compassresearch.core.interpreter.CmlContextFactory;
 import eu.compassresearch.core.interpreter.values.CMLChannelValue;
 import eu.compassresearch.core.interpreter.values.CmlValueFactory;
 
@@ -53,7 +55,7 @@ public class CmlDefinitionVisitor extends
 	 * @return
 	 * @throws AnalysisException
 	 */
-	private NameValuePairList definitionListHelper(List<? extends PDefinition> defs, LexLocation location, Context question) throws AnalysisException
+	private NameValuePairList definitionListHelper(List<? extends PDefinition> defs, ILexLocation location, Context question) throws AnalysisException
 	{
 		NameValuePairList vpl = new NameValuePairList();
 		Context defEvalContext = CmlContextFactory.newContext(location, "Definition Eval context", question);
@@ -149,7 +151,7 @@ public class CmlDefinitionVisitor extends
 			Context question) throws AnalysisException {
 
 		
-		return super.caseAClassDefinition(node, question);
+		return new NameValuePairList();
 	}
 	
 	/*
@@ -231,7 +233,7 @@ public class CmlDefinitionVisitor extends
     	{
     		for (ILexIdentifierToken channelName : cnd.getSingleType().getIdentifiers())
     		{
-    			LexNameToken name = new LexNameToken("|CHANNELS|", channelName);
+    			ILexNameToken name = new LexNameToken("|CHANNELS|", channelName);
     			vpl.add(new NameValuePair(name, new CMLChannelValue(cnd.getSingleType().getType(),name)));
     		}
     	}
@@ -280,7 +282,8 @@ public class CmlDefinitionVisitor extends
 		
 		Value val = node.getExpression().apply(cmlExpressionVisitor,question);
 		
-		vpl.add(new NameValuePair(node.getName(),val));
+		if(node.getPattern() instanceof AIdentifierPattern)
+			vpl.add(new NameValuePair(((AIdentifierPattern)node.getPattern()).getName(), val));
 		
 		return vpl;
 	}

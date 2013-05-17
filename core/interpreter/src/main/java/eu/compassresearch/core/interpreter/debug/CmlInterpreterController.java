@@ -2,7 +2,6 @@ package eu.compassresearch.core.interpreter.debug;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -18,12 +17,12 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.interpreter.runtime.ContextException;
-import org.overture.interpreter.runtime.ValueException;
 import org.overture.interpreter.values.IntegerValue;
 import org.overture.interpreter.values.Value;
 
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
+import eu.compassresearch.core.interpreter.CmlRuntime;
 import eu.compassresearch.core.interpreter.VanillaInterpreterFactory;
 import eu.compassresearch.core.interpreter.api.CmlInterpreter;
 import eu.compassresearch.core.interpreter.api.InterpreterError;
@@ -31,9 +30,10 @@ import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterRuntimeException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
 import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlCommunicationSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.CmlEventSelectionStrategy;
 import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.cml.RandomSelectionStrategy;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
 import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgCommandMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlDbgStatusMessage;
@@ -45,9 +45,6 @@ import eu.compassresearch.core.interpreter.debug.messaging.CmlRequestMessage;
 import eu.compassresearch.core.interpreter.debug.messaging.CmlResponseMessage;
 import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
 import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
-import eu.compassresearch.core.interpreter.runtime.CmlRuntime;
-import eu.compassresearch.core.interpreter.scheduler.FCFSPolicy;
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
 import eu.compassresearch.core.interpreter.util.CmlParserUtil;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
@@ -114,16 +111,22 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 	
 	public void run() 
 	{
-		CmlScheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
 		CmlSupervisorEnvironment sve = 
-				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy(), scheduler);
+				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy());
 		
 		try {
 			connect();
 			init();
-			cmlInterpreter.execute(sve,scheduler);
+			cmlInterpreter.execute(sve);
 			stopped(cmlInterpreter.getStatus());
-		} catch (InterpreterException e) {
+		} 
+//		catch (InterpreterException e) {
+//
+//			InterpreterStatus status = cmlInterpreter.getStatus();
+//			status.AddError(new InterpreterError(e.getMessage()));
+//			stopped(cmlInterpreter.getStatus());
+//		}
+		catch (AnalysisException e) {
 
 			InterpreterStatus status = cmlInterpreter.getStatus();
 			status.AddError(new InterpreterError(e.getMessage()));
@@ -274,9 +277,8 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 			//sendStatusMessage(CmlDbgpStatus.RUNNING);
 			
 			try{
-				CmlScheduler scheduler = VanillaInterpreterFactory.newScheduler(new FCFSPolicy());
 				CmlSupervisorEnvironment sve = 
-						VanillaInterpreterFactory.newCmlSupervisorEnvironment(new CmlCommunicationSelectionStrategy() {
+						VanillaInterpreterFactory.newCmlSupervisorEnvironment(new CmlEventSelectionStrategy() {
 							Scanner scanIn = new Scanner(System.in);
 							@Override
 							public ObservableEvent select(CmlAlphabet availableChannelEvents) {
@@ -309,19 +311,19 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 										selectedEvent = comEvent;
 								}
 								
-								if(!selectedEvent.isValuePrecise())
+								if(selectedEvent instanceof ChannelEvent && !((ChannelEvent)selectedEvent).isPrecise())
 								{
 									System.out.println("Enter value : "); 
 									
 									Value val = new IntegerValue(scanIn.nextInt());
-									selectedEvent.setValue(val);
+									((ChannelEvent)selectedEvent).setValue(val);
 								}
 
 								return selectedEvent;
 							}
-						}, scheduler);
+						});
 			
-				cmlInterpreter.execute(sve,scheduler);
+				cmlInterpreter.execute(sve);
 				stopped(this.cmlInterpreter.getStatus());
 			}
 			catch(ContextException e)
@@ -330,7 +332,7 @@ public class CmlInterpreterController implements CmlInterpreterStatusObserver {
 				status.AddError(new InterpreterError(e.getMessage()));
 				stopped(status);
 			}
-			catch(InterpreterException e)
+			catch(AnalysisException e)
 			{
 				InterpreterStatus status = this.cmlInterpreter.getStatus();
 				status.AddError(new InterpreterError(e.getMessage()));

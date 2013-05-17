@@ -3,34 +3,26 @@ package eu.compassresearch.core.interpreter.cml;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.cml.events.ObservableEvent;
-import eu.compassresearch.core.interpreter.scheduler.CmlScheduler;
+import eu.compassresearch.core.interpreter.cml.events.ChannelEvent;
+import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
 
 public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 
-	private CmlCommunicationSelectionStrategy selectStrategy;
-	private ObservableEvent selectedCommunication;
+	private CmlEventSelectionStrategy selectStrategy;
+	private CmlTransition selectedCommunication;
 	
-	private List<CmlBehaviourThread> pupils = new LinkedList<CmlBehaviourThread>();
-	private CmlScheduler scheduler;
+	private List<CmlBehaviour> pupils = new LinkedList<CmlBehaviour>();
 	
-	public DefaultSupervisorEnvironment(CmlCommunicationSelectionStrategy selectStrategy, CmlScheduler scheduler)
+	public DefaultSupervisorEnvironment(CmlEventSelectionStrategy selectStrategy)
 	{
 		this.selectStrategy = selectStrategy;
-		this.scheduler = scheduler;
 	}
 	
 	@Override
-	public CmlCommunicationSelectionStrategy decisionFunction() {
+	public CmlEventSelectionStrategy decisionFunction() {
 
 		return this.selectStrategy;
 	}
-
-//	@Override
-//	public void setDecisionFunction(CMLCommunicationSelectionStrategy cdf)
-//			throws NullPointerException {
-//
-//	}
 
 	@Override
 	public boolean isSelectedEventValid() {
@@ -40,15 +32,16 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	}
 
 	@Override
-	public ObservableEvent selectedObservableEvent() {
+	public CmlTransition selectedObservableEvent() {
 		return selectedCommunication;
 	}
 
 	@Override
-	public void setSelectedObservableEvent(ObservableEvent comm) {
+	public void setSelectedObservableEvent(CmlTransition comm) {
 		selectedCommunication = comm;
 		//signal all the processes that are listening for events on this channel
-		selectedCommunication.getChannel().select();
+		if(selectedCommunication instanceof ChannelEvent)
+			((ChannelEvent) selectedCommunication).getChannel().select();
 	}
 
 	@Override
@@ -57,15 +50,13 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	}
 
 	@Override
-	public void addPupil(CmlBehaviourThread process) {
+	public void addPupil(CmlBehaviour process) {
 		pupils.add(process);
-		scheduler.addProcess(process);
 	}
 
 	@Override
-	public void removePupil(CmlBehaviourThread process) {
+	public void removePupil(CmlBehaviour process) {
 		pupils.remove(process);
-//		scheduler.removeProcess(process);
 	}
 	
 	@Override
@@ -75,17 +66,17 @@ public class DefaultSupervisorEnvironment implements CmlSupervisorEnvironment {
 	}
 	
 	@Override
-	public List<CmlBehaviourThread> getPupils() {
+	public List<CmlBehaviour> getPupils() {
 		return pupils;
 	}
 	
 	@Override
-	public CmlBehaviourThread findNamedProcess(String name)
+	public CmlBehaviour findNamedProcess(String name)
 	{
-		CmlBehaviourThread resultProcess = null;
-		List<CmlBehaviourThread> all = getPupils();
+		CmlBehaviour resultProcess = null;
+		List<CmlBehaviour> all = getPupils();
 		
-		for(CmlBehaviourThread p : all )
+		for(CmlBehaviour p : all )
 		{
 			if(p.name().toString().equals(name))
 			{

@@ -4,7 +4,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.cml.CmlBehaviourThread;
+import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
+import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
 
 /**
  * Represents the status of the interpreter at a specific simulation point. 
@@ -16,24 +17,19 @@ public class InterpreterStatus {
 	final private CmlProcessInfo[] processInfos;
 	final private int topLevelProcessIndex;
 	private InterpreterError[] errors = null;
+	private final CmlInterpreterState state;
 	
-	public InterpreterStatus(List<CmlBehaviourThread> processes)
+	public InterpreterStatus(CmlBehaviour topProcess, CmlInterpreterState state)
 	{
-		this.processInfos = new CmlProcessInfo[processes.size()];
-		int toplevelIndex = -1;
-		for(int i = 0; i < processes.size() ; i++ )
-		{
-			this.processInfos[i] = new CmlProcessInfo(processes.get(i).name().getName(),
-					processes.get(i).getTraceModel(),
-					processes.get(i).level(),
-					processes.get(i) instanceof CmlBehaviourThread,
-					processes.get(i).getState());
-			
-			if(this.processInfos[i].level() == 0)
-				toplevelIndex = i;
-		}
-		
-		topLevelProcessIndex = toplevelIndex;
+		this.processInfos = new CmlProcessInfo[1];
+		this.processInfos[0] = new CmlProcessInfo(topProcess.name().getName(),
+				topProcess.getTraceModel(),
+				topProcess.level(),
+				topProcess instanceof CmlBehaviour,
+				topProcess.getState());
+
+		topLevelProcessIndex = 0;
+		this.state = state;
 	}
 			
 	public List<CmlProcessInfo> getAllProcessInfos()
@@ -63,6 +59,11 @@ public class InterpreterStatus {
 	public boolean hasErrors()
 	{
 		return errors != null;
+	}
+	
+	public CmlInterpreterState getInterpreterState()
+	{
+		return state;
 	}
 			
 }

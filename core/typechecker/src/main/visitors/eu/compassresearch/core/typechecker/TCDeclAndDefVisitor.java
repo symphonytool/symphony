@@ -1348,7 +1348,7 @@ class TCDeclAndDefVisitor extends
 				info, node);
 		question.contextSet(CmlTypeCheckInfo.class, cmlClassEnv);
 		AClassType result = new AClassType(node.getLocation(), true,
-				node.getBody(), node.getName(), node.getClassDefinition());
+				node.getBody(), node.getName().clone(), node.getClassDefinition());
 		node.setType(result);
 
 		// Add the self identifier

@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.lex.LexLocation;
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.program.PSource;
@@ -115,83 +115,83 @@ public class CmlIncrementalBuilder extends IncrementalProjectBuilder {
 
 	private synchronized static boolean typeCheck(IProject project, Map<PSource,IFile> sourceToFileMap)
 	{
-		
-		if (project == null) return false;
-		if (sourceToFileMap == null) return false;
-		Thread.currentThread().setName("Type Checker");
-		Registry reg = RegistryFactory.getInstance(project.getName()).getRegistry();
-		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle(reg);
-		PDefinition p = new AAssignmentDefinition();
-		CmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sourceToFileMap.keySet(), issueHandler);
-		try {
-			boolean result =  typeChecker.typeCheck();
-			// set error markers
-			List<CMLTypeError> errorsThatMatter = filterErrros(issueHandler.getTypeErrors());
-			for(final CMLTypeError error : errorsThatMatter)
-			{
-				System.out.println(project.getName() +" -- "+error.getDescription());
-				INode offendingNode = error.getOffendingNode();
-				if (offendingNode != null)
-				{
-
-
-					PSource source = ( offendingNode instanceof PSource ? (PSource)offendingNode : offendingNode.getAncestor(PSource.class));
-					if (source == null) {
-						System.out.println("Unable to place error: "+project.getName()+" - "+error.getDescription());
-					}
-					if (source != null)
-					{
-						IFile file = sourceToFileMap.get(source);
-						if (file != null)
-						{
-
-							IMarker errorMarker = file.createMarker(IMarker.PROBLEM);
-							LexLocation loc = error.getLocation();						
-							if (loc != null) {
-								setProblem(errorMarker,error.getDescription(), loc.startOffset, loc.endOffset,loc.startLine);
-
-							}
-							else
-							{
-								setProblem(errorMarker,file+" :\n"+error.getDescription(), 1,1,1);
-								setWarning(project.createMarker(IMarker.PROBLEM), "AstNode: "+offendingNode+" has null location.");
-							}
-						}
-						else
-							System.out.println("No IFile resource found for source: "+source);
-					}
-					//					else
-					//						System.out.println("Could not find source for: "+offendingNode);
-				}
-				else
-					System.out.println("Error messages with null node: "+error);
-			}
-
-			// set warning markers
-			for(CMLTypeWarning warning : issueHandler.getTypeWarnings())
-			{
-				INode offendingNode = warning.getOffendingNode();
-				PSource source = offendingNode.getAncestor(PSource.class);
-				IFile file = sourceToFileMap.get(source);
-				IMarker errorMarker = file.createMarker(IMarker.PROBLEM);
-				LexLocation loc = warning.getLocation();
-				if (loc != null )
-					setWarning(errorMarker,warning.getDescription(), loc.startOffset, loc.endOffset);
-
-			}
-
-			return result;
-		} catch (Exception e)
-		{	
-			try {
-				IMarker projectMarker = project.createMarker(IMarker.PROBLEM);
-				setProblem(projectMarker, "Type checking on this project failed.");
-			} catch (CoreException e1) {
-				e1.printStackTrace();
-			}
-			e.printStackTrace();
-			return false;
-		}
+		return false;
+//		if (project == null) return false;
+//		if (sourceToFileMap == null) return false;
+//		Thread.currentThread().setName("Type Checker");
+//		Registry reg = RegistryFactory.getInstance(project.getName()).getRegistry();
+//		TypeIssueHandler issueHandler = VanillaFactory.newCollectingIssueHandle(reg);
+//		PDefinition p = new AAssignmentDefinition();
+//		CmlTypeChecker typeChecker = VanillaFactory.newTypeChecker(sourceToFileMap.keySet(), issueHandler);
+//		try {
+//			boolean result =  typeChecker.typeCheck();
+//			// set error markers
+//			List<CMLTypeError> errorsThatMatter = filterErrros(issueHandler.getTypeErrors());
+//			for(final CMLTypeError error : errorsThatMatter)
+//			{
+//				System.out.println(project.getName() +" -- "+error.getDescription());
+//				INode offendingNode = error.getOffendingNode();
+//				if (offendingNode != null)
+//				{
+//
+//
+//					PSource source = ( offendingNode instanceof PSource ? (PSource)offendingNode : offendingNode.getAncestor(PSource.class));
+//					if (source == null) {
+//						System.out.println("Unable to place error: "+project.getName()+" - "+error.getDescription());
+//					}
+//					if (source != null)
+//					{
+//						IFile file = sourceToFileMap.get(source);
+//						if (file != null)
+//						{
+//
+//							IMarker errorMarker = file.createMarker(IMarker.PROBLEM);
+//							LexLocation loc = error.getLocation();						
+//							if (loc != null) {
+//								setProblem(errorMarker,error.getDescription(), loc.startOffset, loc.endOffset,loc.startLine);
+//
+//							}
+//							else
+//							{
+//								setProblem(errorMarker,file+" :\n"+error.getDescription(), 1,1,1);
+//								setWarning(project.createMarker(IMarker.PROBLEM), "AstNode: "+offendingNode+" has null location.");
+//							}
+//						}
+//						else
+//							System.out.println("No IFile resource found for source: "+source);
+//					}
+//					//					else
+//					//						System.out.println("Could not find source for: "+offendingNode);
+//				}
+//				else
+//					System.out.println("Error messages with null node: "+error);
+//			}
+//
+//			// set warning markers
+//			for(CMLTypeWarning warning : issueHandler.getTypeWarnings())
+//			{
+//				INode offendingNode = warning.getOffendingNode();
+//				PSource source = offendingNode.getAncestor(PSource.class);
+//				IFile file = sourceToFileMap.get(source);
+//				IMarker errorMarker = file.createMarker(IMarker.PROBLEM);
+//				LexLocation loc = warning.getLocation();
+//				if (loc != null )
+//					setWarning(errorMarker,warning.getDescription(), loc.startOffset, loc.endOffset);
+//
+//			}
+//
+//			return result;
+//		} catch (Exception e)
+//		{	
+//			try {
+//				IMarker projectMarker = project.createMarker(IMarker.PROBLEM);
+//				setProblem(projectMarker, "Type checking on this project failed.");
+//			} catch (CoreException e1) {
+//				e1.printStackTrace();
+//			}
+//			e.printStackTrace();
+//			return false;
+//		}
 
 	}
 
