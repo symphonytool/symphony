@@ -29,7 +29,8 @@ public class ChannelsCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase 
 		// 4//
 		add("channels startStartRescue acceptStartRescue endStartRescue process P = begin actions A = startStartRescue -> acceptStartRescue -> endStartRescue -> B B = C C = Skip  @ Skip end");
 		// 5//
-		add("channels startStartRescue acceptStartRescue endStartRescue process P = begin actions A = startStartRescue -> acceptStartRescue -> endStartRescue -> B B = $T(target(C))");
+		add("channels startStartRescue acceptStartRescue endStartRescue process P = begin actions A = startStartRescue -> acceptStartRescue -> endStartRescue -> B B = $T(target(C)) @ Skip end",
+				true, false);
 		// 6//
 		add("channels a, b process A = begin actions INIT = (a -> b -> Skip) \\\\ {|b|} @ INIT end");
 		// 7// This test checks that an explicit operation body of type nat1 can

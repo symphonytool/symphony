@@ -205,6 +205,8 @@ class TCDeclAndDefVisitor extends
 	public PType caseAFunctionsDefinition(AFunctionsDefinition node,
 			TypeCheckInfo question) throws AnalysisException {
 
+		PType positiveResult = new AFunctionParagraphType(node.getLocation(),
+				true);
 		CmlTypeCheckInfo cmlEnv = CmlTCUtil.getCmlEnv(question);
 
 		LinkedList<PDefinition> functions = node.getFunctionDefinitions();
@@ -217,9 +219,10 @@ class TCDeclAndDefVisitor extends
 				return node.getType();
 			}
 			// cmlEnv.addVariable(def.getName(), def);
+			positiveResult.getDefinitions().add(def);
 		}
 
-		node.setType(new AFunctionParagraphType(node.getLocation(), true));
+		node.setType(positiveResult);
 		return node.getType();
 	}
 
@@ -1053,6 +1056,10 @@ class TCDeclAndDefVisitor extends
 
 			AFunctionType fnType = null;
 			do {
+				if (def.getType() == null
+						|| (!(def.getType() instanceof AFunctionType))) {
+					return result;
+				}
 				// TODO RWL: Fix this the def can have error type !
 				if (def instanceof AExplicitFunctionDefinition) {
 					fnType = (AFunctionType) ((AExplicitFunctionDefinition) def)
@@ -1348,7 +1355,8 @@ class TCDeclAndDefVisitor extends
 				info, node);
 		question.contextSet(CmlTypeCheckInfo.class, cmlClassEnv);
 		AClassType result = new AClassType(node.getLocation(), true,
-				node.getBody(), node.getName().clone(), node.getClassDefinition());
+				node.getBody(), node.getName().clone(),
+				node.getClassDefinition());
 		node.setType(result);
 
 		// Add the self identifier
@@ -1758,7 +1766,8 @@ class TCDeclAndDefVisitor extends
 	private List<PDefinition> findStateDefs(
 			AExplicitCmlOperationDefinition node, CmlTypeCheckInfo newQuestion) {
 		List<PDefinition> result = new LinkedList<PDefinition>();
-		AOperationsDefinition p = (AOperationsDefinition) node.parent();
+
+		PDefinition p = (PDefinition) node.parent();
 		INode classOrProcess = p.parent();
 
 		if (classOrProcess instanceof AClassDefinition) {

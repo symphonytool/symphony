@@ -384,4 +384,23 @@ public class CmlTCUtil {
 
 	}
 
+	/**
+	 * An initial strategy for determining access. There is code for this in
+	 * Overture we should use instead.
+	 * 
+	 * @param definition
+	 * @param scope
+	 * @return
+	 */
+	static boolean checkAccessInScope(PDefinition definition, NameScope scope) {
+
+		if (scope == null)
+			scope = NameScope.NAMESANDANYSTATE;
+
+		if (scope == NameScope.LOCAL)
+			return definition.getNameScope() == scope;
+
+		return true;
+	}
+
 }
