@@ -116,29 +116,34 @@
 
 	<extension 
 			point="org.eclipse.ui.navigator.viewer">
-      <viewer viewerId="eu.compassresearch.ide.ui.CmlNavigator">
-         
-      </viewer>
-		<viewerContentBinding
-			viewerId="eu.compassresearch.ide.ui.CmlNavigator">
-			<includes>
-			       <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
-		           <contentExtension pattern="org.eclipse.ui.navigator.resources.linkHelper"/>
-        		   <contentExtension pattern="org.eclipse.ui.navigator.resources.workingSets"/>
-        		   <contentExtension pattern="eu.compassresearch.ide.ui.cmlNavigatorContent"/>
-        	</includes>
-        </viewerContentBinding>
-    
-       <viewerActionBinding 
-       		viewerId="eu.compassresearch.ide.ui.CmlNavigator">
-       		<includes>
-       				<actionExtension pattern="org.eclipse.ui.navigator.resources.*"/>
-       		</includes>
-      </viewerActionBinding>
-        <dragAssistant
-        	class="org.eclipse.ui.navigator.resources.ResourceDragAdapterAssistant"
-            viewerId="eu.compassresearch.ide.ui.CmlNavigator"/>          
-	</extension>
+   
+        
+        
+
+       <viewerContentBinding
+             viewerId="eu.compassresearch.ide.ui.CmlNavigator">
+          <includes>
+            <contentExtension
+                   pattern="eu.compassresearch.ide.ui.cmlNavigatorContent">
+            </contentExtension>
+         	<contentExtension pattern="org.eclipse.ui.navigator.resourceContent" />		       	      
+	     	<contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
+          </includes>
+       </viewerContentBinding>
+               
+               
+      <viewerActionBinding
+             viewerId="eu.compassresearch.ide.ui.CmlNavigator">
+          <includes>
+             <actionExtension
+                   pattern="org.eclipse.ui.navigator.resources.*">
+             </actionExtension>
+          </includes>
+       </viewerActionBinding>
+               
+   </extension>
+   
+   
 
 
   <extension
@@ -146,12 +151,13 @@
          
       <navigatorContent 
             id="eu.compassresearch.ide.ui.cmlNavigatorContent" 
-            name="CML Navigator Content"
+            name="CMLNavigator"
             contentProvider="eu.compassresearch.ide.cml.ui.navigator.CmlContentProvider"
             labelProvider="eu.compassresearch.ide.cml.ui.navigator.CmlLabelProvider" 
             activeByDefault="true"
             icon="icons/cview16/compass_nav.png"
-            priority="normal" >
+            priority="highest" >
+                  
   			<triggerPoints>
             <or>
                <instanceof
@@ -167,8 +173,18 @@
                     <instanceof value="org.eclipse.core.resources.IResource" />
                 </or>
             </possibleChildren> 
-         <override
-         		suppressedExtensionId="org.overture.ide.ui.vdmNavigatorContent"/>       
+            
+            
+              
+              
+		
+      
+      
+            
+            
+            
+            
+            
       </navigatorContent>      
       
    </extension>
