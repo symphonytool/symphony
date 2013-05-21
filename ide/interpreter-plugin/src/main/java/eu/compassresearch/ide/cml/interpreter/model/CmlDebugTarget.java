@@ -119,7 +119,7 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 		
 		
 		/**
-		 * Initialises all the status message handlers
+		 * Initializes all the status message handlers
 		 * @return
 		 */
 		private Map<String, CmlDebugTarget.MessageEventHandler<CmlDbgStatusMessage>> initializeStatusHandlers()
@@ -177,6 +177,11 @@ public class CmlDebugTarget extends CmlDebugElement implements IDebugTarget {
 			return handlers;
 		}
 
+		/**
+		 * Receives a message from the debugger
+		 * @return The received message wrapped in a MessageContainer
+		 * @throws IOException
+		 */
 		private MessageContainer receiveMessage() throws IOException
 		{
 			return MessageCommunicator.receiveMessage(fRequestReader,

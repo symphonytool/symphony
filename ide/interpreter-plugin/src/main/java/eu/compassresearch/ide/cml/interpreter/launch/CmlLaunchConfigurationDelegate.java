@@ -53,9 +53,6 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 			// set launch encoding to UTF-8. Mainly used to set console encoding.
 			launch.setAttribute(DebugPlugin.ATTR_CONSOLE_ENCODING, "UTF-8");
 			
-//			IProject project = getProject(configuration);
-			//final IDebugTarget target = launch.getDebugTarget();
-			
 			//Write out the launch configuration to the interpreter runner
 			Map configurationMap = configuration.getAttributes();
 			configurationMap.put("mode", mode);
