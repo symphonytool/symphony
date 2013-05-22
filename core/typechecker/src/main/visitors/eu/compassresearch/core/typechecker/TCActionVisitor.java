@@ -2160,7 +2160,7 @@ class TCActionVisitor extends
 					{
 						PExp constraintExp = commParam.getExpression();
 						PType constraintType = constraintExp.apply(parentChecker,
-						question);
+							commEnv);
 						
 						if (!(constraintType instanceof ABooleanBasicType)) {
 							constraintExp.setType(issueHandler.addTypeError(commPattern,

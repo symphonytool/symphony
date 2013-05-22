@@ -257,11 +257,14 @@ public abstract class AbstractTypeCheckerTestCase {
 	 */
 	@Test
 	public void lexParseTypeCheck() throws IOException, AnalysisException {
-
+		// don't do anything if we have no sources to work on.
+		if (sources.size()==0 || sources == null)
+			return;
+		
 		// [1]
 		System.out.println(sources);
 		TestUtil.TypeCheckerResult res = TestUtil.runTypeChecker(sources);
-
+		
 		// [2]
 		boolean parserOk = res.parsedOk;
 		if (!parserOk) {
