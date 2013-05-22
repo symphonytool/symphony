@@ -7,20 +7,43 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.overture.ide.core.resources.IVdmSourceUnit;
 
 import eu.compassresearch.ast.program.PSource;
 // import eu.compassresearch.core.parser.ParserError;
 
 /**
- * A CML Source unit is our DOM representation holding an AST for a one source
+ * A CML Source unit is a DOM representation holding an AST for one source
  * file.
  * 
- * It associates a file in the workspace.
+ * It associates a file in the workspace with an AST. It also holds a mapping between Files and ASTs in the project,
  * 
- * @author rwl
+ * To obtain the AST associated with a file use {@link #getFromFileResource(IFile file)}.
+ * To create a new association use {@link #getFromFileResource(IFile file)} (this will and insert the new file in the mapping)
+ * and then use {@link #setSourceAst(PSource sourceAst, boolean parsedOk)}.
+ * <br><br>
+ * <b>WARNING:</b> This class is under heavy change.
+ * The existing DOM solution is not compatible with the new build methods. An must be changed
+ * 
+ * @author Initial version by rwl
+ * 
+ * @author Modifications by ldc
  * 
  */
 public class CmlSourceUnit {
+
+	private IVdmSourceUnit upSourceUnit;
+	
+	public IVdmSourceUnit getUpSourceUnit()
+	{
+		return upSourceUnit;
+	}
+
+	public void setUpSourceUnit(IVdmSourceUnit upSourceUnit)
+	{
+		this.upSourceUnit = upSourceUnit;
+	}
+
 
 	private static Map<IFile, CmlSourceUnit> map;
 	static {
@@ -58,6 +81,8 @@ public class CmlSourceUnit {
 		return res;
 	}
 	
+	//FIXME This method no longer does what it should
+	@Deprecated
 	public static Collection<CmlSourceUnit> getAllSourceUnits()
 	{
 		return map.values();
