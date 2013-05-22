@@ -73,7 +73,7 @@ public class PogPluginUtility {
 		if (window != null) {
 			IStructuredSelection selection = (IStructuredSelection) window
 					.getSelectionService().getSelection(
-							"eu.compassresearch.ide.ui.CmlExplorer");
+							"eu.compassresearch.ide.ui.CmlNavigator");
 			IResource res = extractSelection(selection);
 			if (res != null ) {
 				IProject project = res.getProject();

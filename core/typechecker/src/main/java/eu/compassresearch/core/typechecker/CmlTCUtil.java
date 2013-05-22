@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.assistant.InvocationAssistantException;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitOperationDefinition;
@@ -352,7 +353,7 @@ public class CmlTCUtil {
 	 * @return
 	 */
 	static CmlTypeCheckInfo createCmlClassEnvironment(CmlTypeCheckInfo info,
-			AClassDefinition node) {
+			AClassDefinition node) throws InvocationAssistantException {
 
 		CmlTypeCheckInfo cmlClassEnv = info.newScope();
 

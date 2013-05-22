@@ -128,6 +128,8 @@
             </contentExtension>
          	<contentExtension pattern="org.eclipse.ui.navigator.resourceContent" />		       	      
 	     	<contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
+	     	<contentExtension pattern="org.eclipse.ui.navigator.resources.linkHelper"/>
+           <contentExtension pattern="org.eclipse.ui.navigator.resources.workingSets"/>
           </includes>
        </viewerContentBinding>
                
@@ -173,16 +175,6 @@
                     <instanceof value="org.eclipse.core.resources.IResource" />
                 </or>
             </possibleChildren> 
-            
-            
-              
-              
-		
-      
-      
-            
-            
-            
             
             
       </navigatorContent>      
