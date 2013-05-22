@@ -13,6 +13,11 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 class SynchronizationEvent extends AbstractChannelEvent implements ObservableEvent{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7043128094830839293L;
+
 	public SynchronizationEvent(CmlBehaviour eventSource, CmlChannel channel) {
 		super(eventSource, channel);
 	}

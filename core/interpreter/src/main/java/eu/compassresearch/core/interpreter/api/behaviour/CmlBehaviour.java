@@ -1,5 +1,6 @@
 package eu.compassresearch.core.interpreter.api.behaviour;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
@@ -26,7 +27,7 @@ import eu.compassresearch.core.interpreter.utility.events.EventSource;
  * @author akm
  *
  */
-public interface CmlBehaviour //extends Transactable 
+public interface CmlBehaviour extends Serializable //extends Transactable 
 {
 	/**
 	 * Executes the behaviour of this process

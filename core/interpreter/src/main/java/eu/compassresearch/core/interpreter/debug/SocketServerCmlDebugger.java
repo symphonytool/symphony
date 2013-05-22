@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.rmi.RemoteException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -326,9 +327,10 @@ public class SocketServerCmlDebugger implements CmlDebugger , CmlInterpreterStat
 	@Override
 	public void start(DebugMode mode, CmlInterpreter cmlInterpreter) {
 		
-		cmlInterpreter.onStatusChanged().registerObserver(this);
+		
 		
 		try{
+			cmlInterpreter.onStatusChanged().registerObserver(this);
 			if(mode == DebugMode.ANIMATE)
 				animate(cmlInterpreter);
 			else if (mode == DebugMode.SIMULATE)

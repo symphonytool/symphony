@@ -1,5 +1,7 @@
 package eu.compassresearch.core.interpreter.api;
 
+import java.io.Serializable;
+
 /**
  * Enum of the four possible states an CML interpreter can be in. 
  * <p>
@@ -12,26 +14,31 @@ package eu.compassresearch.core.interpreter.api;
  * @author akm
  *
  */
-public enum CmlInterpreterState {
+public enum CmlInterpreterState{
 
-	/**
-	 * The interpreter is running
-	 */
-	RUNNING, 			
-	/**
-	 * The interpreter has successfully terminated
-	 */
-	TERMINATED,         
 	/**
 	 * The interpreter has deadlocked
 	 */
 	DEADLOCKED,         
 	/**
-	 * The interpreter is initialized but not started
-	 */
-	INITIALIZED,			
-	/**
 	 * The interpreter threw an exception
 	 */
-	FAILED
+	FAILED,
+	/**
+	 * The interpreter is initialized but not started
+	 */
+	INITIALIZED,
+	/**
+	 * The interpreter is running
+	 */
+	RUNNING,
+	/**
+	 * The interpreter is suspended	 
+	 */
+	SUSPENDED,
+	/**
+	 * The interpreter has successfully terminated
+	 */
+	TERMINATED,
+	 		
 }

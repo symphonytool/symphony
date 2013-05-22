@@ -12,6 +12,10 @@ import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 public class HiddenEvent extends AbstractChannelEvent implements SilentTransition,
 		ChannelEvent {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4227425913454070026L;
 	private ChannelEvent hiddenEvent;
 	
 	public HiddenEvent(CmlBehaviour eventSource, ChannelEvent hiddenEvent) {

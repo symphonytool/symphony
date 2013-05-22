@@ -19,7 +19,7 @@ import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
-public class Main {
+public class DebugMain {
 
 //	/**
 //	 * The CML interpreter
