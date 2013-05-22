@@ -13,12 +13,12 @@
     <view 
         id="eu.compassresearch.ide.cml.interpreter.OptionsView"
         name="CML Event Options"
-        category="compass_eu.compassresearch.ide.cml.ui.category"
+        category="eu.compassresearch.ide.ui.category"
         
         class="eu.compassresearch.ide.cml.interpreter.views.CmlEventOptionView" />
         
         <category
-        	id="compass_eu.compassresearch.ide.cml.ui.category"
+        	id="eu.compassresearch.ide.ui.category"
         	name="COMPASS"/>
   </extension>
   
@@ -26,12 +26,12 @@
     <view 
         id="eu.compassresearch.ide.cml.interpreter.historyView"
         name="CML Event History"
-        category="compass_eu.compassresearch.ide.cml.ui.category"
+        category="eu.compassresearch.ide.ui.category"
         
         class="eu.compassresearch.ide.cml.interpreter.views.CmlEventHistoryView" />
         
         <category
-        	id="compass_eu.compassresearch.ide.cml.ui.category"
+        	id="eu.compassresearch.ide.ui.category"
         	name="COMPASS"/>
   </extension>
   

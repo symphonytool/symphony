@@ -25,7 +25,7 @@ import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.debug.CmlInterpreterLaunchConfigurationConstants;
-import eu.compassresearch.ide.cml.interpreter.CmlDebugConstants;
+import eu.compassresearch.ide.cml.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.cml.interpreter.CmlUtil;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
@@ -183,7 +183,7 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
     {
     	ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
     	ILaunchConfigurationType ctype = 
-    			launchManager.getLaunchConfigurationType(CmlDebugConstants.ATTR_LAUNCH_CONFIGURATION_TYPE.toString());
+    			launchManager.getLaunchConfigurationType(ICmlDebugConstants.ATTR_LAUNCH_CONFIGURATION_TYPE.toString());
     	
     	
     	//Get the current project which this file lives in
@@ -222,7 +222,7 @@ public class CmlApplicationLaunchShortcut implements ILaunchShortcut2
     	{
     		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
         	ILaunchConfigurationType ctype = 
-        			launchManager.getLaunchConfigurationType(CmlDebugConstants.ATTR_LAUNCH_CONFIGURATION_TYPE.toString());
+        			launchManager.getLaunchConfigurationType(ICmlDebugConstants.ATTR_LAUNCH_CONFIGURATION_TYPE.toString());
         	
         	
         	ILaunchConfigurationWorkingCopy lcwc = ctype.newInstance(null, launchManager.generateLaunchConfigurationName("Quick Launch"));
