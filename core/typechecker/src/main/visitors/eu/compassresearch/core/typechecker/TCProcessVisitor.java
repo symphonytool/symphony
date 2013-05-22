@@ -736,6 +736,9 @@ public class TCProcessVisitor extends
 								.customizeMessage(def.getName() + ""));
 			fixedDefinitions.addAll(TCDeclAndDefVisitor
 					.handleDefinitionsForOverture(def));
+			for (PDefinition d : type.getDefinitions()) {
+				actionScope.addVariable(d.getName(), d);
+			}
 		}
 		node.getDefinitionParagraphs().clear();
 		node.getDefinitionParagraphs().addAll(fixedDefinitions);

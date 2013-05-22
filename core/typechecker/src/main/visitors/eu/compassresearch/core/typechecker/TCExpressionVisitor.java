@@ -772,6 +772,7 @@ class TCExpressionVisitor extends
 			}
 		}
 
+		// Check scope
 		// any luck?
 		if (definition != null) {
 			node.setVardef(definition);
@@ -784,6 +785,14 @@ class TCExpressionVisitor extends
 					node,
 					TypeErrorMessages.UNDEFINED_SYMBOL.customizeMessage(name
 							+ "")));
+		}
+
+		if (definition != null && question.scope != null
+				&& !CmlTCUtil.checkAccessInScope(definition, question.scope)) {
+			node.setType(issueHandler.addTypeError(node,
+					TypeErrorMessages.ILLEGAL_ACCESS
+							.customizeMessage(node + "")));
+			return node.getType();
 		}
 
 		return node.getType();
@@ -1008,8 +1017,8 @@ class TCExpressionVisitor extends
 		ILexNameToken typename = node.getTypeName();
 
 		if (typename != null) {
-			PDefinition typeFound = question.env.findType(typename,
-					node.getLocation().getModule());
+			PDefinition typeFound = question.env.findType(typename, node
+					.getLocation().getModule());
 
 			// It maybe an CML Class typically it will be lets look it up in the
 			// nearest cml environment
