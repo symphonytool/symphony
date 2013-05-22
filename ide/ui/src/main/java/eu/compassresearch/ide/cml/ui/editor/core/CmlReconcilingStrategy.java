@@ -1,7 +1,5 @@
 package eu.compassresearch.ide.cml.ui.editor.core;
 
-import java.util.List;
-
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.reconciler.DirtyRegion;

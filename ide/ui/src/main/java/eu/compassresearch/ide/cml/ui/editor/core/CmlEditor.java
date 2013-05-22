@@ -18,20 +18,13 @@
  *******************************************************************************/
 package eu.compassresearch.ide.cml.ui.editor.core;
 
-import java.util.List;
-
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.ui.part.FileEditorInput;
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.node.INode;
 import org.overture.ide.ui.editor.core.VdmEditor;
 import org.overture.ide.ui.editor.core.VdmSourceViewerConfiguration;
 import org.overture.ide.ui.outline.VdmContentOutlinePage;
-import org.overture.ide.ui.utility.ast.AstLocationSearcher;
 
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;

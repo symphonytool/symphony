@@ -17,20 +17,13 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.overture.ast.definitions.AAssignmentDefinition;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.node.INode;
 
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
-import eu.compassresearch.core.typechecker.VanillaFactory;
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLIssueList;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
 import eu.compassresearch.ide.cml.core.ICmlCoreConstants;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 

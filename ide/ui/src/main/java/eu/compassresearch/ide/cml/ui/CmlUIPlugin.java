@@ -18,7 +18,6 @@
  *******************************************************************************/
 package eu.compassresearch.ide.cml.ui;
 
-import org.eclipse.core.internal.runtime.Log;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
