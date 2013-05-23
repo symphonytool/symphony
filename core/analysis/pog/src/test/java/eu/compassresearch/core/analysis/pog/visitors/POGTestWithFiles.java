@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.overture.ast.analysis.AnalysisException;
+import org.overture.pog.obligation.ProofObligationList;
 
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.analysis.pog.obligations.CMLProofObligationList;
@@ -57,7 +58,7 @@ public class POGTestWithFiles {
 	
 	ProofObligationGenerator pog = new ProofObligationGenerator(psAux);
 	//TODO-ldc make asserts and PO comparisons
-	CMLProofObligationList actual = pog.generatePOs(); 
+	ProofObligationList actual = pog.generatePOs(); 
 	int posGenerated=0;
 	if (actual!=null)
 	    posGenerated=actual.size();

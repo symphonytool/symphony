@@ -1,5 +1,5 @@
 process RegisterProc = 
  begin
    @
-     Skip [> Stop
+     Skip [_> Stop
  end

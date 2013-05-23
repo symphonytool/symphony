@@ -18,15 +18,11 @@ import org.overture.ast.definitions.AValueDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.node.INode;
 import org.overture.ast.node.Node;
-import org.overture.ast.node.NodeEnum;
+import org.overture.ast.types.PType;
 
 import eu.compassresearch.ast.definitions.AClassDefinition;
 import eu.compassresearch.ast.definitions.AValuesDefinition;
-import eu.compassresearch.ast.program.ESource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.common.AnalysisArtifact;
-import eu.compassresearch.core.common.Registry;
-import eu.compassresearch.core.common.RegistryFactory;
 
 public class CommonRegistryTestCase {
 
@@ -70,7 +66,7 @@ public class CommonRegistryTestCase {
 		}
 
 		@Override
-		public ESource kindPSource() {
+		public String kindPSource() {
 			return null;
 		}
 
@@ -80,7 +76,7 @@ public class CommonRegistryTestCase {
 		}
 
 		@Override
-		public NodeEnum kindNode() {
+		public String kindNode() {
 			return null;
 		}
 
@@ -110,6 +106,18 @@ public class CommonRegistryTestCase {
 		public void replaceChild(INode oldChild, INode newChild) {
 			// TODO Auto-generated method stub
 			
+		}
+
+		@Override
+		public void setType(PType value) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public PType getType() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 		
 	};
@@ -148,7 +156,7 @@ public class CommonRegistryTestCase {
 		}
 
 		@Override
-		public NodeEnum kindNode() {
+		public String kindNode() {
 			return null;
 		}
 

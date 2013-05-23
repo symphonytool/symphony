@@ -1,22 +1,28 @@
 package eu.compassresearch.core.typechecker;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.overture.ast.definitions.AClassClassDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
-import org.overture.ast.lex.LexIdentifierToken;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexIdentifierToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.typechecker.NameScope;
 import org.overture.ast.types.PType;
+import org.overture.typechecker.Environment;
+import org.overture.typechecker.EnvironmentSearchStrategy;
 import org.overture.typechecker.FlatEnvironment;
 import org.overture.typechecker.TypeCheckInfo;
 import org.overture.typechecker.util.HelpLexNameToken;
 
+import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.definitions.AChansetDefinition;
+import eu.compassresearch.ast.definitions.AExplicitCmlOperationDefinition;
+import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.core.typechecker.api.TypeCheckQuestion;
 import eu.compassresearch.core.typechecker.api.TypeErrorMessages;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -32,18 +38,16 @@ import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
  * @author rwl
  * 
  */
-class CmlTypeCheckInfo extends TypeCheckInfo implements
-TypeCheckQuestion {
+class CmlTypeCheckInfo extends TypeCheckInfo implements TypeCheckQuestion {
 
-	private final Environment<PDefinition> channels;
+	private final FlatEnvironment channels;
 
-	private SClassDefinition globalClassDefinition;
+	private final List<PDefinition> globalDefinitions;
 
 	public final String CML_SCOPE = "CML";
-	public final String DEFAULT_SCOPE = "Default";
+	public final String DEFAULT_SCOPE = "";
 
 	private final TypeIssueHandler issueHandler;
-
 
 	/**
 	 * Create a new Type Check Info at top level
@@ -54,73 +58,158 @@ TypeCheckQuestion {
 	 * @return a fresh Type Check Info instance at top level
 	 */
 	public static CmlTypeCheckInfo getNewTopLevelInstance(
-			TypeIssueHandler issueHandler, AClassClassDefinition globalClassDef) {
-		return new CmlTypeCheckInfo(issueHandler, globalClassDef);
+			TypeIssueHandler issueHandler, List<PDefinition> globalDefs,
+			List<PDefinition> channels) {
+		return new CmlTypeCheckInfo(issueHandler, globalDefs, channels);
+
+	}
+
+	private static class CmlEnvironmentSearchStrategy implements
+			EnvironmentSearchStrategy {
+
+		@Override
+		public PDefinition findType(ILexNameToken name, String fromModule,
+				PDefinition enclosingDefinition, Environment outer,
+				Collection<PDefinition> currentDefinitions) {
+			for (PDefinition d : currentDefinitions) {
+				if (testEq(name, d, PDefinition.class))
+					return d;
+			}
+
+			while (outer != null) {
+				currentDefinitions = outer.getDefinitions();
+				for (PDefinition d : currentDefinitions) {
+					if (testEq(name, d, PDefinition.class))
+						return d;
+				}
+				outer = outer.getOuter();
+			}
+			return null;
+		}
+
+		@Override
+		public PDefinition findName(ILexNameToken name, NameScope scope,
+				PDefinition enclosingDefinition, Environment outer,
+				Collection<PDefinition> currentDefinitions) {
+
+			for (PDefinition d : currentDefinitions) {
+				if (testEq(name, d, PDefinition.class))
+					return d;
+			}
+
+			while (outer != null) {
+				currentDefinitions = outer.getDefinitions();
+				for (PDefinition d : currentDefinitions) {
+					if (testEq(name, d, PDefinition.class))
+						return d;
+				}
+				outer = outer.getOuter();
+			}
+			return null;
+		}
+
+		@Override
+		public PDefinition find(ILexIdentifierToken name,
+				PDefinition enclosingDefinition, Environment outer,
+				Collection<PDefinition> currentDefinitions) {
+
+			for (PDefinition d : currentDefinitions) {
+				if (testEq(name, d, PDefinition.class))
+					return d;
+			}
+
+			while (outer != null) {
+				currentDefinitions = outer.getDefinitions();
+				for (PDefinition d : currentDefinitions) {
+					if (testEq(name, d, PDefinition.class))
+						return d;
+				}
+				outer = outer.getOuter();
+			}
+			return null;
+		}
 
 	}
 
 	private CmlTypeCheckInfo(TypeIssueHandler issueHandler,
-			SClassDefinition globalDefs) {
-		super(new FlatEnvironment(new LinkedList<PDefinition>()));
+			List<PDefinition> globalDefs, List<PDefinition> channels) {
+		super(new FlatEnvironment(globalDefs,
+				new CmlEnvironmentSearchStrategy()));
 		this.issueHandler = issueHandler;
-		this.channels = new Environment<PDefinition>(issueHandler);
-		this.globalClassDefinition = globalDefs;
+		this.channels = new FlatEnvironment(channels,
+				new CmlEnvironmentSearchStrategy());
+		this.globalDefinitions = globalDefs;
 	}
 
-	private CmlTypeCheckInfo(Environment<PDefinition> channelSurounding,
+	private CmlTypeCheckInfo(FlatEnvironment channelSurounding,
 			org.overture.typechecker.Environment suroundingEnv,
-			TypeIssueHandler issueHandler, SClassDefinition globalDefs) {
+			TypeIssueHandler issueHandler, List<PDefinition> globalDefs) {
 		super(new FlatEnvironment(new LinkedList<PDefinition>(), suroundingEnv));
 		this.channels = channelSurounding;
 		this.issueHandler = issueHandler;
-		this.globalClassDefinition = globalDefs;
-		
+		this.globalDefinitions = globalDefs;
+
 	}
 
 	@Override
-	public PType lookupType(LexIdentifierToken ident) {
-		if (ident instanceof LexNameToken) {
-			PDefinition typeDef = env.findType((LexNameToken) ident,
-					DEFAULT_SCOPE);
-			if (typeDef != null)
-				return typeDef.getType();
-		}
-		return null;
+	public PType lookupType(ILexIdentifierToken ident) {
+		ILexNameToken name = null;
+		if (!(ident instanceof ILexNameToken))
+			name = new LexNameToken("", ident);
+		else
+			name = (ILexNameToken) ident;
+		PType res = null;
+		PDefinition def = lookup(name, PDefinition.class);
+		if (def == null)
+			return null;
+		res = def.getType();
+		return res;
 	}
 
+	private static boolean testEq(ILexIdentifierToken name, PDefinition d,
+			Class<?> astClass) {
+		boolean isInstance = astClass.isInstance(d);
+		boolean sameName = HelpLexNameToken.isEqual(name, d.getName());
+		return (isInstance && sameName);
+	}
 
-
-	public PDefinition lookup(LexIdentifierToken name, Class<?> astClass)
-	{
+	public PDefinition lookup(ILexIdentifierToken name, Class<?> astClass) {
 		org.overture.typechecker.Environment cur = env;
 
-		while(cur != null)
-		{
+		while (cur != null) {
 			List<PDefinition> defs = cur.getDefinitions();
-			for(PDefinition d :defs)
-			{
-				boolean isInstance = astClass.isInstance(d);
-				boolean sameName = HelpLexNameToken.isEqual(name, d.getName()); 
-				if ( isInstance && sameName )
+			for (PDefinition d : defs) {
+				if (testEq(name, d, astClass))
 					return d;
 			}
 			cur = cur.getOuter();
 		}
-		
+
+		return findGlobal(name, astClass);
+	}
+
+	private PDefinition findGlobal(ILexIdentifierToken name, Class<?> astClass) {
+		for (PDefinition d : globalDefinitions) {
+			if (testEq(name, d, astClass))
+				return d;
+		}
 		return null;
 	}
 
 	@Override
-	public void addType(LexIdentifierToken ident, PDefinition typeDef) {
-		if (ident == null) throw new NullPointerException("Cannot add a type with null name");
-		
+	public void addType(ILexIdentifierToken ident, PDefinition typeDef) {
+		if (ident == null)
+			throw new NullPointerException("Cannot add a type with null name");
+
 		PDefinition d = lookup(ident, PDefinition.class);
-		if (d != null)
-		{
-			typeDef.setType(issueHandler.addTypeError(typeDef, TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(""+typeDef.getName(), ""+d.getLocation())));
+		if (d != null && findGlobal(ident, PDefinition.class) == null) {
+			typeDef.setType(issueHandler.addTypeError(
+					typeDef,
+					TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(""
+							+ typeDef.getName(), "" + d.getLocation())));
 			return;
 		}
-		
+
 		if (env instanceof FlatEnvironment) {
 			FlatEnvironment fenv = (FlatEnvironment) env;
 			fenv.add(typeDef);
@@ -128,65 +217,102 @@ TypeCheckQuestion {
 	}
 
 	@Override
-	public PDefinition lookupChannel(LexIdentifierToken ident) {
-		return channels.lookupName(ident);
+	public PDefinition lookupChannel(ILexIdentifierToken ident) {
+		PDefinition res = null;
+		Environment chn = this.channels;
+		do {
+			for (PDefinition def : chn.getDefinitions()) {
+				if (def instanceof AChannelNameDefinition) {
+					AChannelNameDefinition chanDef = (AChannelNameDefinition) def;
+
+					for (ILexIdentifierToken id : chanDef.getSingleType()
+							.getIdentifiers()) {
+						LexNameToken idName = new LexNameToken("", id);
+						LexNameToken identName = new LexNameToken("", ident);
+						if (HelpLexNameToken.isEqual(idName, identName))
+							return def;
+					}
+				}
+
+				if (def instanceof AChansetDefinition) {
+					LexNameToken identName = new LexNameToken("", ident);
+					AChansetDefinition chanset = (AChansetDefinition) def;
+					LexNameToken chanName = new LexNameToken("",
+							chanset.getIdentifier());
+					if (HelpLexNameToken.isEqual(identName, chanName))
+						return def;
+
+				}
+
+			}
+			chn = chn.getOuter();
+		} while (chn != null);
+
+		return res;
 	}
 
 	@Override
-	public void addChannel(LexIdentifierToken ident, PDefinition channel) {
+	public void addChannel(ILexIdentifierToken ident, PDefinition channel) {
 		PDefinition chanDef = lookupChannel(ident);
-		if (chanDef != null)
-		{
-			channel.setType(issueHandler.addTypeError(channel, TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(""+ident, ""+chanDef.getLocation())));
+		if (chanDef != null) {
+			channel.setType(issueHandler.addTypeError(
+					channel,
+					TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(""
+							+ ident, "" + chanDef.getLocation())));
 			return;
 		}
-		channels.put(ident, channel);
+		channels.add(channel);
 	}
 
 	@Override
-	public PDefinition lookupVariable(LexIdentifierToken ident) {
-		if (ident instanceof LexNameToken) {
-
-			return env.findName((LexNameToken) ident, NameScope.GLOBAL);
+	public PDefinition lookupVariable(ILexIdentifierToken ident) {
+		if (ident instanceof ILexNameToken) {
+			return env.findName((ILexNameToken) ident, NameScope.GLOBAL);
 		}
 		return null;
 	}
-	
-	
-	public PDefinition lookupCurrentScope(LexIdentifierToken ident)
-	{
-		for(PDefinition d : env.getDefinitions())
-		{
+
+	public PDefinition lookupCurrentScope(ILexIdentifierToken ident) {
+		for (PDefinition d : env.getDefinitions()) {
 			if (HelpLexNameToken.isEqual(ident, d.getName()))
-					return d;
+				return d;
 		}
 		return null;
 	}
 
 	@Override
-	public void addVariable(LexIdentifierToken ident, PDefinition variable) {
+	public void addVariable(ILexIdentifierToken ident, PDefinition variable) {
+		if (ident == null)
+			return;
+		boolean isConstructor = false;
 		if (env instanceof FlatEnvironment) {
 			FlatEnvironment fenv = (FlatEnvironment) env;
 			PDefinition d = lookupCurrentScope(ident);
-			if (d != null)
-			{
-				variable.setType(issueHandler.addTypeError(variable,TypeErrorMessages.DUPLICATE_DEFINITION.customizeMessage(" " + variable.getLocation()+" "+ident,""+d.getLocation())));
+
+			if (variable instanceof AExplicitCmlOperationDefinition) {
+				isConstructor = ((AExplicitCmlOperationDefinition) variable)
+						.getIsConstructor();
+			}
+
+			if (d != null && !isConstructor
+					&& d.getName().getOld() == variable.getName().getOld()) {
+				variable.setType(issueHandler.addTypeError(variable,
+						TypeErrorMessages.DUPLICATE_DEFINITION
+								.customizeMessage(" " + variable.getLocation()
+										+ " " + ident, "" + d.getLocation())));
 				return;
 			}
 			fenv.add(variable);
 		}
-		
+
 	}
 
-
-	public List<PDefinition> getDefinitions()
-	{
+	public List<PDefinition> getDefinitions() {
 		return env.getDefinitions();
 	}
 
-
 	/**
-	 * Create an environment with this environment being the outer environment 
+	 * Create an environment with this environment being the outer environment
 	 * and the given definition being the surrounding definition.
 	 */
 	@Override
@@ -194,18 +320,21 @@ TypeCheckQuestion {
 		// Variables are scoped, types and channels are global (for now at
 		// least)
 		CmlTypeCheckInfo res = new CmlTypeCheckInfo(this.channels, super.env,
-				issueHandler, globalClassDefinition);
+				issueHandler, globalDefinitions);
 		res.env.setEnclosingDefinition(def);
 		return res;
 	}
 
 	/**
 	 * Create a new environment with this environment being its outer.
+	 * 
 	 * @return
 	 */
-	public CmlTypeCheckInfo newScope()
-	{
-		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels,env,issueHandler,globalClassDefinition);
+	public CmlTypeCheckInfo newScope() {
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels, env,
+				issueHandler, globalDefinitions);
+		res.scope = this.scope;
+		res.env.setEnclosingDefinition(env.getEnclosingDefinition());
 		return res;
 	}
 
@@ -246,28 +375,31 @@ TypeCheckQuestion {
 		// TODO: Set the current scope on the node n.
 	}
 
-	@Override
-	public SClassDefinition getGlobalClassDefinitions() {
-		return this.globalClassDefinition;
-	}
-
-	@Override
-	public void setGlobalClassDefinitions(SClassDefinition globalRoot) {
-		this.globalClassDefinition = globalRoot;
-	}
-
 	public TypeCheckQuestion newScope(
 			org.overture.typechecker.TypeCheckInfo current, PDefinition def) {
-		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels,env,issueHandler, this.globalClassDefinition);
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels, env,
+				issueHandler, this.globalDefinitions);
 		res.env.setEnclosingDefinition(def);
+		res.scope = this.scope;
 		return res;
 	}
 
-	public TypeCheckQuestion newScope(
-			org.overture.typechecker.Environment env, PDefinition def) {
-		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels,env,issueHandler, this.globalClassDefinition);
+	public TypeCheckQuestion newScope(org.overture.typechecker.Environment env,
+			PDefinition def) {
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(channels, env,
+				issueHandler, this.globalDefinitions);
 		res.env.setEnclosingDefinition(def);
 
+		return res;
+	}
+
+	public CmlTypeCheckInfo emptyScope() {
+		org.overture.typechecker.Environment newenv = new FlatEnvironment(
+				new LinkedList<PDefinition>());
+		FlatEnvironment newchannels = new FlatEnvironment(
+				new LinkedList<PDefinition>());
+		CmlTypeCheckInfo res = new CmlTypeCheckInfo(newchannels, newenv,
+				issueHandler, this.globalDefinitions);
 		return res;
 	}
 

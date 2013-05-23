@@ -6,33 +6,33 @@
  ******************************************************************************/
 package eu.compassresearch.core.analysis.pog.obligations;
 
-import org.overture.ast.lex.LexLocation;
-import org.overture.pog.obligation.POContextStack;
+import org.overture.ast.intf.lex.ILexLocation;
 
-/**
- * This class is used to extend and wrap the overture {@link org.overture.pog.obligation.ProofObligation ProofObligation} class.
- * It does so by converting the {@link eu.compassresearch.core.analysis.pog.obligation.CMLPOType CMLPOType} enums to the appropriate overture ones.
- */
-
-// Not being used much yet. Will probably only be needed when we get to the CML bits.
-abstract public class CMLProofObligation extends org.overture.pog.obligation.ProofObligation 
+abstract public class CMLProofObligation
 {
-    
-   CMLPOType cmltype;
-   
-   
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 3530006044901617326L;
-
-    public CMLProofObligation(LexLocation location, CMLPOType kind,
-	    POContextStack ctxt) {
-	super(location, kind.toOverturePOType(), ctxt);
-	this.cmltype=kind;
+	public final ILexLocation location;
+	public final CMLPOType cmltype;
+	public final String name;
+	public POStatus status;
+	public String guiString;
+	public String isabelleString;
+	
+    public CMLProofObligation(ILexLocation location, CMLPOType kind,
+	    CMLPOContextStack ctxt) {
+    	this.location = location;
+		this.name = ctxt.getName();
+		this.status = POStatus.UNPROVED;
+		this.cmltype = kind;
     }
 
+	abstract public String toGUIString(CMLPOContextStack ctxt);
+	
+	abstract public String toIsabelleString(CMLPOContextStack ctxt);
 
-
+	@Override
+	public String toString()
+	{
+		return name + ": " + cmltype + " obligation " + location + "\n" + guiString;
+	}
 }

@@ -19,7 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.expressions.ADivideNumericBinaryExp;
-import org.overture.ast.lex.LexLocation;
+import org.overture.ast.intf.lex.ILexLocation;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 
@@ -40,13 +40,13 @@ public class DivWarnAnalysis extends DepthFirstAnalysisCMLAdaptor
       }
     
     // Pretty warning for the result
-    private static String prettyPrintLocation(LexLocation loc)
+    private static String prettyPrintLocation(ILexLocation loc)
       {
         StringBuilder sb = new StringBuilder();
         sb.append(ANALYSIS_STRING);
         sb.append(" Div expression found starting at : ");
-        sb.append(loc.startLine + ":" + loc.startPos);
-        sb.append(" to " + loc.endLine + ":" + loc.endPos);
+        sb.append(loc.getStartLine() + ":" + loc.getStartPos());
+        sb.append(" to " + loc.getEndLine() + ":" + loc.getEndPos());
         return sb.toString();
       }
     

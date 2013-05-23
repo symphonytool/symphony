@@ -1,0 +1,15 @@
+channels 
+a 
+
+types
+
+SomeType :: first    : nat
+            second   : nat 
+
+process A = 
+begin 
+	state
+	v : SomeType := mk_SomeType(1,1) 
+
+	@ v.second := 2 ; [v.second = 2] & a -> Skip  
+end

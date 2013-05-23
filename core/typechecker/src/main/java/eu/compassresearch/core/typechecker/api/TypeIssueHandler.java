@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.overture.ast.intf.lex.ILexLocation;
 import org.overture.ast.lex.LexLocation;
 import org.overture.ast.node.INode;
 
@@ -11,7 +12,7 @@ import eu.compassresearch.ast.types.AErrorType;
 import eu.compassresearch.core.common.AnalysisArtifact;
 
 /**
- * All error reporting from the type checker is handled by the TypeIssueHandler.
+ * All error reporting from the type checker is handled by a TypeIssueHandler.
  * 
  * Consider to generalize this for all analysis.
  * 
@@ -31,14 +32,17 @@ public interface TypeIssueHandler {
 	 */
 	public static abstract class CMLIssue implements AnalysisArtifact {
 		protected final INode subtree;
-		private LexLocation location;
+		private ILexLocation location;
 
 		/**
 		 * Return the node that generated this error.
+		 * 
 		 * @return
 		 */
-		public INode getOffendingNode() { return subtree; }
-		
+		public INode getOffendingNode() {
+			return subtree;
+		}
+
 		public CMLIssue(INode subtree) {
 			this.subtree = subtree;
 			setFromNode();
@@ -51,17 +55,16 @@ public interface TypeIssueHandler {
 
 		// temporary method goes away when astCreator is updated. ( INode should
 		// have getLocation method )
-		public LexLocation getLocation() {
+		public ILexLocation getLocation() {
 			return location;
 		}
 
-		public void setLocation(LexLocation location)
+		public void setLocation(ILexLocation location)
 		{
 			this.location = location;
 		}
-		
-		private void setFromNode()
-		{
+
+		private void setFromNode() {
 			if (subtree != null) {
 				try {
 					Method getLocation = subtree.getClass().getMethod(
@@ -100,15 +103,17 @@ public interface TypeIssueHandler {
 
 		@Override
 		public String toString() {
-			LexLocation location = super.getLocation();
+			ILexLocation location = super.getLocation();
 			return "TypeWarning: " + location + " : " + description;
 		}
 
 	}
 
-	public static class CMLIssueList extends LinkedList<CMLIssue> implements AnalysisArtifact
-	{private static final long serialVersionUID = 7238951452951163635L;}
-	
+	public static class CMLIssueList extends LinkedList<CMLIssue> implements
+			AnalysisArtifact {
+		private static final long serialVersionUID = 7238951452951163635L;
+	}
+
 	/**
 	 * 
 	 * @author rwl
@@ -119,13 +124,12 @@ public interface TypeIssueHandler {
 	 */
 	public static class CMLTypeError extends CMLTypeWarning {
 
-		
 		private StackTraceElement[] stackTrace;
-		private void buildStack()
-		{
+
+		private void buildStack() {
 			this.stackTrace = Thread.currentThread().getStackTrace();
 		}
-		
+
 		public CMLTypeError(INode subtree, String message) {
 			super(subtree, message);
 			buildStack();
@@ -133,18 +137,17 @@ public interface TypeIssueHandler {
 
 		@Override
 		public String toString() {
-			LexLocation location = super.getLocation();
+			ILexLocation location = super.getLocation();
 			return "TypeError: " + location + " : " + description;
 		}
-		
-		public String getStackTrace()
-		{
+
+		public String getStackTrace() {
 			int i = 0;
 			StringBuilder sb = new StringBuilder();
-			sb.append("Type Error Details: " +
-					"\n\t"+description+"\nOffending node: "+(subtree == null ? "null" : subtree)+"\n");
-			for(i=4;i<stackTrace.length && i < 20;i++)
-			{
+			sb.append("Type Error Details: " + "\n\t" + description
+					+ "\nOffending node: "
+					+ (subtree == null ? "null" : subtree) + "\n");
+			for (i = 4; i < stackTrace.length && i < 20; i++) {
 				StackTraceElement e = stackTrace[i];
 				sb.append("\t" + e.toString() + "\n");
 			}
@@ -153,27 +156,29 @@ public interface TypeIssueHandler {
 
 		@Override
 		public boolean equals(Object obj) {
-			
-			if (obj instanceof CMLTypeError)
-			{
-				CMLTypeError error = (CMLTypeError)obj;
-				boolean sameSubTree = (error.subtree == null && subtree==null) || (error.subtree != null && subtree != null && subtree == error.subtree);
-				boolean sameDescription = (description == null && error.description == null) || (description != null && description.equals(error.description));
-				
+
+			if (obj instanceof CMLTypeError) {
+				CMLTypeError error = (CMLTypeError) obj;
+				boolean sameSubTree = (error.subtree == null && subtree == null)
+						|| (error.subtree != null && subtree != null && subtree == error.subtree);
+				boolean sameDescription = (description == null && error.description == null)
+						|| (description != null && description
+								.equals(error.description));
+
 				return sameSubTree && sameDescription;
 			}
-			
+
 			return false;
 		}
 
 		@Override
 		public int hashCode() {
 			int subtreeHash = subtree == null ? 0 : subtree.hashCode();
-			int descriptionHash = description == null ? 0 : description.hashCode();
+			int descriptionHash = description == null ? 0 : description
+					.hashCode();
 			return subtreeHash + descriptionHash;
 		}
-		
-		
+
 	}
 
 	/**
@@ -208,7 +213,7 @@ public interface TypeIssueHandler {
 	 */
 	public AErrorType addTypeError(INode offendingSubtree, String message);
 
-	public AErrorType addTypeError(INode parent, LexLocation pos, String message);
+	public AErrorType addTypeError(INode parent, ILexLocation pos, String message);
 
 	/**
 	 * Return a type warning.

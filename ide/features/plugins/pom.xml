@@ -1,0 +1,26 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>eu.compassresearch.ide</groupId>
+    <artifactId>features</artifactId>
+    <version>0.1.1<!--Replaceable: Main Version--></version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  
+  <packaging>pom</packaging>
+
+  <groupId>eu.compassresearch.ide.features</groupId>
+  <artifactId>plugins</artifactId>
+  <name>COMPASS Tool Plugin Eclipse features</name>
+  
+  <modules>
+    <module>pog</module>
+    <module>tp</module>
+    <module>interpreter</module>
+    <module>rtt</module>
+    <module>security</module>
+  </modules>
+
+</project>

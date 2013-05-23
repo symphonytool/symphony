@@ -11,4 +11,4 @@ begin
 	@  init -> c -> b -> Skip
 end
 
-process C = A [| {|init,c|} |] B
+process C = A [| {init , c} |] B

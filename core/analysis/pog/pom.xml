@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>eu.compassresearch.core.analysis</groupId>
 		<artifactId>analysis</artifactId>
-		<version>0.1.0<!--Replaceable: Main Version--></version>
+		<version>0.1.1<!--Replaceable: Main Version--></version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -35,19 +35,19 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.overturetool.core</groupId>
+			<groupId>org.overture.core</groupId>
 			<artifactId>ast</artifactId>
 			<version>${overture.version}</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.overturetool.core</groupId>
+			<groupId>org.overture.core</groupId>
 			<artifactId>typechecker</artifactId>
 			<version>${overture.version}</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.overturetool.core</groupId>
+			<groupId>org.overture.core</groupId>
 			<artifactId>pog</artifactId>
 			<version>${overture.version}</version>
 		</dependency>

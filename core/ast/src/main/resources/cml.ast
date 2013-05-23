@@ -70,7 +70,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
    | {operations}
         [operations]:definition.#cmlOperation*
    | {functions}
-        [functionDefinitions]:definition*
+        (functionDefinitions):definition*
    | {values}
         [valueDefinitions]: definition*
    | {initial}
@@ -93,7 +93,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	[isConstructor]:java_Boolean
 	[precondition]:exp
 	[postcondition]:exp
-	(type):type.operation
+	(type):type
 	(predef):definition.explicitFunction
 	(postdef):definition.explicitFunction
 	(paramDefinitions):definition*
@@ -108,7 +108,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	[postcondition]:exp
 	[isConstructor]:java_Boolean
 	[errors]:case.error*
-	(type):type.operation
+	(type):type
 	(predef):definition.explicitFunction
 	(postdef):definition.explicitFunction
 	(state):definition.state
@@ -160,6 +160,7 @@ type {-> package='eu.compassresearch.ast.types'}
     =   {statement} // marker that a statement is typed ok
     |   {process} // marker that a process is typed ok
     |   {error} // marker that type of a subtree has failed
+    |   {bind}// market for a bind type subtree
     |   {processParagraph} // marker stipulating process paragraph is typed ok
     |   {chansetParagraph} // marker stipulating a chanset paragraph is typed ok
     |   {channelsParagraph} // marker stipulating a chanset paragraph is typed ok
@@ -177,6 +178,7 @@ type {-> package='eu.compassresearch.ast.types'}
     |   {initialParagraph} // marker
     |   {action} // marker
     |   {varsetExpression} // marker
+    |   {paragraph} // markar that a paragraph tree is typed ok
     ;
 
 access  {-> package='eu.compassresearch.ast.definitions'}
@@ -508,6 +510,6 @@ Aspect Declaration
         ;
 */
 
-%source = [paragraphs]: definition*
+%source = [paragraphs]: definition* (type):type 
         ;
 

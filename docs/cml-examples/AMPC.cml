@@ -1,0 +1,175 @@
+-- Idael functionality for 
+-- Arithmetic Multiparty Computation
+--
+-- Author: Rasmus Lauritsen
+--  
+types
+	VarID = nat1
+	ParID = <P1> | <P2> 
+	Secret = <Blank> | BigInteger
+	BigInteger = int
+	InputChannelType = Secret * VarID * ParID
+	
+channels    
+	init: ParID
+	user_input : ParID * BigInteger 
+	input: InputChannelType  
+ 	rand: VarID * ParID
+ 	add:  VarID * VarID * VarID * ParID
+	mul: VarID * VarID * VarID * ParID 
+	min: VarID * VarID * VarID * ParID
+	
+
+--
+-- A MPC Party
+--
+process P = 
+begin
+ state
+ 	myID : ParID
+ 	known_values : seq of BigInteger
+ actions
+ 	INIT = ONLINE
+ 	ONLINE = (
+ 		input?s ->  [ s.#3 <> myID ] & input!(mk_(<Blank>,myID)) -> Skip
+ 		[]
+ 		rand?a  ->  [ a.#2 <> myID ] & rand!(mk_(a.#1,myID)) -> Skip
+ 		[]
+ 		add?a   ->  [ a.#4 <> myID ] & add!(mk_( a.#1 , a.#2 , a.#3 , myID )) -> Skip
+ 		[]
+ 		mul?a   ->  [ a.#4 <> myID ] & mul!(mk_( a.#1 , a.#2 , a.#3 , myID )) -> Skip
+ 		[]
+ 		min?a   ->  [ a.#3 <> myID ] & min!(mk_(a.#1 , a.#2 , a.#3 , myID )) -> Skip
+ 		[]
+ 		out?id  -> [a.#4 <> myID] & out!myID -> Skip
+ 		[]
+ 		user_input?x -> input!(mk_(x, myID)) -> Skip
+ 	); ONLINE
+ 	@ init?id -> (myID := id ; INIT)
+end
+
+--
+--
+-- Ideal functionality that does Arithmetic MPC securely 
+--
+process AMPC =
+begin
+ state
+ 	-- We initiaze the ideal functionality with a common modulus 
+ 	modulus: BigInteger
+ 	-- Maps Variables currently stored in the functionality
+ 	store : map VarID to BigInteger
+ 	-- Technicallity - maybe we can remove this with a clever trick?
+ 	last_id : VarID
+ 	-- Technicallity - maybe we can remove this with a clever trick?
+ 	art_state : VarID * VarID * VarID * ParID
+ actions
+ 	-- Accept the environment to initialize this process from a Modulus
+ 	INIT = init?p -> modulus := p ; ONLINE
+ 	-- Then the functionality is ONLINE accepting computation
+ 	ONLINE = (
+ 	
+ 		-- Let a party securely input a secret to the functionality
+ 		input?secret -> [ secret.#1 = <Black> ] & ERROR 
+ 						[] 
+ 						[ secret.#1 <> <Blank> ] & 
+ 						( ( store := store ++ { secret.#2 |-> secret.#1 } );  
+ 							if ( secret.#3 = <P1> ) then INPUT_P1  
+ 							else INPUT_P2 )
+ 		[]
+ 		-- Let a party with the concent for all other parties generate a random value
+ 		rand?a -> [ a.#2 = <P1> ] & ( last_id := a.#1 ; RAND_P1 ) 
+ 				  [] 
+ 				  [ a.#2 = <P2> ] & ( last_id := a.#1 ; RAND_P2 )
+ 		[]
+ 		-- Given three VarID's add the values stored behind the first two as a 
+ 		-- new value with the third VarID as id.  
+ 		add?a -> ( art_state := a ; ADD_SECOND )
+ 		[]
+ 		-- Given three VarID's multiply the values stored for the first two 
+ 		-- and store the result as a thrid value with the third VarID as id.
+ 		mul?a -> ( art_state := a ; MUL_SECOND )
+ 		[]
+ 		-- Given three VarID's compare the values stored for the first two
+ 		-- and store the VarID of the smaller one with the third VarID as id.
+ 		min?a -> (   if (store(a.#1 ) > store(a.#2 )) 
+ 		            then
+ 		            (
+ 		               store := store ++ { a.#3 |-> a.#2 }
+ 		            )
+ 		            else
+ 		            (
+ 		               store := store ++ { a.#3 |-> a.#1 }
+ 		            )
+ 		          ) 
+ 		                   
+ 	) ; ONLINE
+ 	-- After P1 Inputs a value, P2 must agree
+ 	INPUT_P1 = 
+ 		input?secret -> [ secret.#1 = <Black> and secret.#3 = <P2> ] & ONLINE
+ 	-- After P2 Inputs a value, P1 must agree
+ 	INPUT_P2 =
+ 		 input?secret -> [ secret.#1 = <Black> and secret.#3 = <P1> ] & ONLINE 
+ 	-- P1 initiates generation of a random value with a.#2 as id, P2 must agree
+ 	RAND_P1 = 
+ 			rand?a -> [ a.#2 = <P2> and last_id = a.#1 ] & ONLINE
+ 	-- P2 initiates generation of a random value with a.#2 as id, P1 must agree
+ 	RAND_P2 = 
+ 			rand?a -> [ a.#2 = <P1> and list_id = a.#1 ] & ONLINE
+ 	-- Add second, one party initiates an ADD, then the other player must
+ 	-- agree on the same ADD operation (same operands).
+ 	ADD_SECOND =
+ 			add?a -> [ a.#1 = art_state.#1 and 
+ 					   a.#2 = art_state.#2 and
+ 					   a.#3 = art_state.#3 and
+ 					   a.#4 <> art_state.#4 
+ 				     ] & ( store := store ++ { a.#3 |-> (store( a.#1 ).Add(store( a.#2 ))) } ; ONLINE )
+ 	-- Mul Second, on eparty initiates an MUL, then tge itger party must
+ 	-- agree on the same MUL operation (same operands).
+ 	MUL_SECOND =
+ 			mul?a -> [ a.#1 = art_state.#1 and 
+ 					   a.#2 = art_state.#2 and
+ 					   a.#3 = art_state.#3 and
+ 					   a.#4 <> art_state.#4 ]
+ 					  & ( store := store ++ { a.#3 |-> (store (  a.#1 ).Mul(store( a.#2 ))) } ; ONLINE )
+ 	-- We don't want to get here
+ 	ERROR = STOP
+    
+ 	@ 
+ 	INIT
+end
+
+process P1 = P
+
+process P2 = P
+
+process TwoPartyAMPC = begin @  (P1 [| {| input, rand, add, mul |} |] P2 [| {| input,rand,add,mul |} |] AMPC) ; Skip end 
+
+process Scenario1 =
+begin
+ values
+   -- P1 is a buyer
+   tab1 : set of int = { -4, -3, -1 }
+   -- P2 is a seller 
+   tab2 : seq of int = { 7 , 11, 20 } 
+   -- available prices
+   prices : seq of rat = { 1.0, 2.0, 3.0 }
+ @
+    ( init!1 -> P1 ; init!2 -> P2 ; 
+    -- input values to the players
+    user_input!(mk_(1,1,hd(tab1))) -> P1 ; 
+    user_input!(mk_(1,2,hd(tl(tab1)))) -> P1 ; 
+    user_input!(mk_(1,3,hd(tl(tl (tab1) )))) -> P1 ;
+    user_input!(mk_(2,4,hd(tab2))) -> P2 ; 
+    user_input!(mk_(2,5,hd(tl(tab2)))) -> P2 ; 
+    user_input!(mk_(2,6,hd(tl(tl (tab2))))) -> P2  ;
+    add!(mk_(1,4,7)) -> TwoPartyAMPC ;
+    add!(mk_(2,5,8)) -> TwoPartyAMPC ;
+    add!(mk_(3,6,9)) -> TwoPartyAMPC ;
+    min!(mk_(7,8,10)) -> TwoPartyAMPC ;
+    min!(mk_(10,9,11)) -> TwoPartyAMPC ;
+    -- Notice! We output information enough to compute the result classically here
+    -- as the id store in register 11 minus 6 will reval the wanted price. 
+    out!(11) -> Stop ) 
+end
+   

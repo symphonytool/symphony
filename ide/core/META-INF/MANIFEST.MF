@@ -1,0 +1,43 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: COMPASS IDE CML Core
+Bundle-SymbolicName: eu.compassresearch.ide.cml.core;singleton:=true
+Bundle-Version: 0.1.1
+Bundle-Activator: eu.compassresearch.ide.cml.core.CmlCorePlugin
+Bundle-Vendor: The COMPASS Project
+Bundle-Localization: plugin
+Export-Package: eu.compassresearch.ast.actions,
+ eu.compassresearch.ast.analysis,
+ eu.compassresearch.ast.analysis.intf,
+ eu.compassresearch.ast.declarations,
+ eu.compassresearch.ast.definitions,
+ eu.compassresearch.ast.expressions,
+ eu.compassresearch.ast.messages,
+ eu.compassresearch.ast.patterns,
+ eu.compassresearch.ast.preview,
+ eu.compassresearch.ast.process,
+ eu.compassresearch.ast.program,
+ eu.compassresearch.ast.typechecker,
+ eu.compassresearch.ast.types,
+ eu.compassresearch.core.common,
+ eu.compassresearch.core.parser,
+ eu.compassresearch.core.typechecker,
+ eu.compassresearch.core.typechecker.api,
+ eu.compassresearch.ide.cml.core,
+ eu.compassresearch.core.common,
+ org.antlr.runtime
+Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,
+ org.eclipse.core.resources;visibility:=reexport,
+ org.overture.ide.core;visibility:=reexport,
+ org.overture.ide.builders.vdmj;visibility:=reexport
+Eclipse-BundleShape: dir
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: .,
+ jars/antlr-runtime.jar,
+ jars/ast.jar,
+ jars/common.jar,
+ jars/parser.jar,
+ jars/typechecker.jar
+
+

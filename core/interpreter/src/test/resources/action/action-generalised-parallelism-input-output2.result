@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testResult type="eu.compassresearch.core.interpreter.tests.framework.ProcessTestCase">
-	<result>
-		<trace>
-			<visibleTrace>a.4;b.4</visibleTrace>
-		</trace>
-	</result>
+<?xml version='1.0' encoding='UTF-8'?>
+<testResult>
+  <exception/>
+  <interpreterState>TERMINATED</interpreterState>
+  <trace>
+    <events>a.4,b.4</events>
+    <timedTrace/>
+  </trace>
 </testResult>

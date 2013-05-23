@@ -30,14 +30,14 @@ import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.PType;
 import org.overture.pog.obligation.POContext;
 
 	public class CMLPOOperationDefinitionContext extends POContext
 	{
-		public final LexNameToken name;
+		public final ILexNameToken name;
 		public final AOperationType deftype;
 //		public final List<PPattern> paramPatternList;
 		public final boolean addPrecond;
@@ -48,7 +48,7 @@ import org.overture.pog.obligation.POContext;
 			boolean precond, PDefinition stateDefinition)
 		{
 			this.name = definition.getName();
-			this.deftype = definition.getType();
+			this.deftype = (AOperationType) definition.getType();
 			this.addPrecond = precond;
 //			this.paramPatternList = AImplicitOperationDefinitionAssistantTC.getParamPatternList(definition);
 			this.precondition = definition.getPrecondition();
@@ -106,13 +106,13 @@ import org.overture.pog.obligation.POContext;
 			{
 				AStateDefinition def = (AStateDefinition)stateDefinition;
 				sb.append(", oldstate:");
-				sb.append(def.getName().name);
+				sb.append(def.getName().getName());
 			}
 			else
 			{
 				SClassDefinition def = (SClassDefinition)stateDefinition;
 				sb.append(", oldself:");
-				sb.append(def.getName().name);
+				sb.append(def.getName().getName());
 			}
 		}
 	}

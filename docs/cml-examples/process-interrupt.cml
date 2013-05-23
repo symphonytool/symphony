@@ -1,1 +1,1 @@
-process RegisterProc = A /\ B
+process RegisterProc = A /_\ B
