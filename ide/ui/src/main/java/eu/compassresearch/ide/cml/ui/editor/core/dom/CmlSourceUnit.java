@@ -30,43 +30,25 @@ import eu.compassresearch.ast.program.PSource;
  * @author Modifications by ldc
  * 
  */
-public class CmlSourceUnit {
-
-	private IVdmSourceUnit upSourceUnit;
-	
-	public IVdmSourceUnit getUpSourceUnit()
-	{
-		return upSourceUnit;
-	}
-
-	public void setUpSourceUnit(IVdmSourceUnit upSourceUnit)
-	{
-		this.upSourceUnit = upSourceUnit;
-	}
-
-
-	private static Map<IFile, CmlSourceUnit> map;
-	static {
-		map = new HashMap<IFile, CmlSourceUnit>();
-	}
+public class CmlSourceUnit implements ICmlSourceUnit {
 
 	public static interface CmlSourceChangedListener {
 		public void sourceChanged(CmlSourceUnit csu);
 	}
-
-	List<CmlSourceChangedListener> changeListeners;
-
-	public void addChangeListener(CmlSourceChangedListener listener) {
-
-		if (changeListeners == null)
-			changeListeners = new LinkedList<CmlSourceUnit.CmlSourceChangedListener>();
-		changeListeners.add(listener);
-	}
 	
-	public void clearListeners(){
-	    changeListeners.clear();
+	private static Map<IFile, CmlSourceUnit> map;
+
+	static {
+		map = new HashMap<IFile, CmlSourceUnit>();
 	}
 
+
+	//FIXME This method no longer does what it should
+	@Deprecated
+	public static Collection<CmlSourceUnit> getAllSourceUnits()
+	{
+		return map.values();
+	}
 	/**
 	 * Get a CmlSourceUnit from the a IFile resource.
 	 * 
@@ -80,30 +62,69 @@ public class CmlSourceUnit {
 		map.put(file, res);
 		return res;
 	}
-	
-	//FIXME This method no longer does what it should
-	@Deprecated
-	public static Collection<CmlSourceUnit> getAllSourceUnits()
-	{
-		return map.values();
-	}
-	
 
-	private PSource sourceAst;
+	List<CmlSourceChangedListener> changeListeners;
+
 	private IFile file;
-	// private List<ParserError> errors;
-	private boolean parsedOk;
 
+	private boolean parsedOk;
+	
+	private PSource sourceAst;
+
+	private IVdmSourceUnit upSourceUnit;
+	
 	private CmlSourceUnit(IFile file) {
 		this.file = file;
 	}
+	
 
-	// public List<ParserError> getErrors() {
-	// 	return this.errors;
-	// }
+	public void addChangeListener(CmlSourceChangedListener listener) {
+
+		if (changeListeners == null)
+			changeListeners = new LinkedList<CmlSourceUnit.CmlSourceChangedListener>();
+		changeListeners.add(listener);
+	}
+	public void clearListeners(){
+	    changeListeners.clear();
+	}
+	public IFile getFile() {
+		return file;
+	}
 
 	public PSource getSourceAst() {
 		return sourceAst;
+	}
+
+	public IVdmSourceUnit getUpSourceUnit()
+	{
+		return upSourceUnit;
+	}
+
+	public boolean isParsedOk()
+	{
+		return this.parsedOk;
+	}
+
+	@Override
+	public boolean exists()
+	{
+		return file.exists();
+	}
+	@Override
+	public int getElementType()
+	{
+		return ICmlSourceUnit.CML_SPEC;
+	}
+	@Override
+	public Object getAdapter(Class adapter)
+	{
+		return null;
+	}
+	
+	private void notifyChange() {
+		if (changeListeners != null)
+			for (CmlSourceChangedListener l : changeListeners)
+				l.sourceChanged(this);
 	}
 
 	public void setSourceAst(PSource sourceAst, boolean parsedOk) {
@@ -112,19 +133,11 @@ public class CmlSourceUnit {
 	    notifyChange();
 	}
 
-	// public void setSourceAst(PSource sourceAst, List<ParserError> errors, boolean parsedOk) {
-	// 	this.sourceAst = sourceAst;
-	// 	this.errors = errors;
-	// 	this.parsedOk = parsedOk;
-	// 	notifyChange();
-	// }
-
-	private void notifyChange() {
-		if (changeListeners != null)
-			for (CmlSourceChangedListener l : changeListeners)
-				l.sourceChanged(this);
+	public void setUpSourceUnit(IVdmSourceUnit upSourceUnit)
+	{
+		this.upSourceUnit = upSourceUnit;
 	}
-
+	
 	@Override
 	public String toString() {
 		String res = "CmlSourceUnit: [file="
@@ -132,14 +145,5 @@ public class CmlSourceUnit {
 		res += " [sourceTreeAttached=" + (sourceAst == null ? "no" : "yes")
 				+ "]";
 		return res;
-	}
-
-	public boolean isParsedOk()
-	{
-		return this.parsedOk;
-	}
-	
-	public IFile getFile() {
-		return file;
 	}
 }
