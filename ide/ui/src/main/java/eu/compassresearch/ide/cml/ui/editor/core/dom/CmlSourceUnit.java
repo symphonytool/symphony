@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.Platform;
 import org.overture.ide.core.resources.IVdmSourceUnit;
 
 import eu.compassresearch.ast.program.PSource;
@@ -16,15 +17,12 @@ import eu.compassresearch.ast.program.PSource;
  * A CML Source unit is a DOM representation holding an AST for one source
  * file.
  * 
- * It associates a file in the workspace with an AST. It also holds a mapping between Files and ASTs in the project,
- * 
+ * It associates a file in the workspace with an AST. It does so ny using the Overture {@link IVdmSourceUnit} class.
+ *  
  * To obtain the AST associated with a file use {@link #getFromFileResource(IFile file)}.
- * To create a new association use {@link #getFromFileResource(IFile file)} (this will and insert the new file in the mapping)
- * and then use {@link #setSourceAst(PSource sourceAst, boolean parsedOk)}.
  * <br><br>
- * <b>WARNING:</b> This class is under heavy change.
- * The existing DOM solution is not compatible with the new build methods. An must be changed
- * 
+ * <b>WARNING:</b> This class is under heavy change because the existing DOM solution is not compatible with 
+ * the new build methods. 
  * @author Initial version by rwl
  * 
  * @author Modifications by ldc
@@ -42,19 +40,27 @@ public class CmlSourceUnit implements ICmlSourceUnit {
 		map = new HashMap<IFile, CmlSourceUnit>();
 	}
 
+	
+	
+	
 
-	//FIXME This method no longer does what it should
+	//FIXME This method no longer does what it should. Remove Soon
+	/**
+	 * This method has been deprecated. A new way of attaining all sources is being implemented.
+	 * 
+	 */	
+	
 	@Deprecated
 	public static Collection<CmlSourceUnit> getAllSourceUnits()
 	{
 		return map.values();
 	}
-	/**
-	 * Get a CmlSourceUnit from the a IFile resource.
-	 * 
-	 * @param file
-	 * @return
-	 */
+
+	//FIXME This method no longer does what it should. Remove Soon	
+		/**
+		 * This method has been deprecated Use {@link IFile#getAdapter(Class)} instead.
+		 */
+	@Deprecated
 	public static CmlSourceUnit getFromFileResource(IFile file) {
 		if (map.containsKey(file))
 			return map.get(file);
@@ -66,12 +72,8 @@ public class CmlSourceUnit implements ICmlSourceUnit {
 	List<CmlSourceChangedListener> changeListeners;
 
 	private IFile file;
-
-	private boolean parsedOk;
-	
-	private PSource sourceAst;
-
 	private IVdmSourceUnit upSourceUnit;
+
 	
 	private CmlSourceUnit(IFile file) {
 		this.file = file;
@@ -92,7 +94,9 @@ public class CmlSourceUnit implements ICmlSourceUnit {
 	}
 
 	public PSource getSourceAst() {
-		return sourceAst;
+		
+		
+		return  (PSource) upSourceUnit.getParseList().get(0);
 	}
 
 	public IVdmSourceUnit getUpSourceUnit()
@@ -102,7 +106,7 @@ public class CmlSourceUnit implements ICmlSourceUnit {
 
 	public boolean isParsedOk()
 	{
-		return this.parsedOk;
+		return !upSourceUnit.hasParseErrors();
 	}
 
 	@Override
@@ -118,21 +122,10 @@ public class CmlSourceUnit implements ICmlSourceUnit {
 	@Override
 	public Object getAdapter(Class adapter)
 	{
-		return null;
+		return Platform.getAdapterManager().getAdapter(this, adapter);
 	}
 	
-	private void notifyChange() {
-		if (changeListeners != null)
-			for (CmlSourceChangedListener l : changeListeners)
-				l.sourceChanged(this);
-	}
-
-	public void setSourceAst(PSource sourceAst, boolean parsedOk) {
-	    this.sourceAst = sourceAst;
-	    this.parsedOk = parsedOk;
-	    notifyChange();
-	}
-
+	
 	public void setUpSourceUnit(IVdmSourceUnit upSourceUnit)
 	{
 		this.upSourceUnit = upSourceUnit;
@@ -142,7 +135,7 @@ public class CmlSourceUnit implements ICmlSourceUnit {
 	public String toString() {
 		String res = "CmlSourceUnit: [file="
 				+ (file == null ? "null" : file.getName()) + "]";
-		res += " [sourceTreeAttached=" + (sourceAst == null ? "no" : "yes")
+		res += " [sourceTreeAttached=" + (getSourceAst() == null ? "no" : "yes")
 				+ "]";
 		return res;
 	}
