@@ -74,6 +74,10 @@ public class CmlSourceUnit implements ICmlSourceUnit {
 	private IFile file;
 	private IVdmSourceUnit upSourceUnit;
 
+	private boolean parsedOk;
+	
+	private PSource sourceAst;
+
 	
 	private CmlSourceUnit(IFile file) {
 		this.file = file;
@@ -93,10 +97,10 @@ public class CmlSourceUnit implements ICmlSourceUnit {
 		return file;
 	}
 
+	//FIXME need to get a better connection between the two source units
 	public PSource getSourceAst() {
-		
-		
-		return  (PSource) upSourceUnit.getParseList().get(0);
+		//return (PSource)upSourceUnit.getParseList().get(0);
+			return sourceAst;
 	}
 
 	public IVdmSourceUnit getUpSourceUnit()
@@ -106,7 +110,7 @@ public class CmlSourceUnit implements ICmlSourceUnit {
 
 	public boolean isParsedOk()
 	{
-		return !upSourceUnit.hasParseErrors();
+		return this.parsedOk;
 	}
 
 	@Override
@@ -125,7 +129,18 @@ public class CmlSourceUnit implements ICmlSourceUnit {
 		return Platform.getAdapterManager().getAdapter(this, adapter);
 	}
 	
-	
+	private void notifyChange() {
+		if (changeListeners != null)
+			for (CmlSourceChangedListener l : changeListeners)
+				l.sourceChanged(this);
+	}
+
+	public void setSourceAst(PSource sourceAst, boolean parsedOk) {
+	    this.sourceAst = sourceAst;
+	    this.parsedOk = parsedOk;
+	    notifyChange();
+	}
+
 	public void setUpSourceUnit(IVdmSourceUnit upSourceUnit)
 	{
 		this.upSourceUnit = upSourceUnit;
@@ -135,7 +150,7 @@ public class CmlSourceUnit implements ICmlSourceUnit {
 	public String toString() {
 		String res = "CmlSourceUnit: [file="
 				+ (file == null ? "null" : file.getName()) + "]";
-		res += " [sourceTreeAttached=" + (getSourceAst() == null ? "no" : "yes")
+		res += " [sourceTreeAttached=" + (sourceAst == null ? "no" : "yes")
 				+ "]";
 		return res;
 	}
