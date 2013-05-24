@@ -1,3 +1,4 @@
 types 
-  basic = nat
+  basic1 = nat
   basic2 = int
+  basic3 = char
