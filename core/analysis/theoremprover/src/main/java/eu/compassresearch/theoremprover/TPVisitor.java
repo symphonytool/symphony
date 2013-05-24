@@ -4,50 +4,55 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
-import org.overture.ast.definitions.AExplicitFunctionDefinition;
-import org.overture.ast.definitions.ALocalDefinition;
 import org.overture.ast.definitions.ATypeDefinition;
-import org.overture.ast.definitions.AValueDefinition;
-import org.overture.ast.definitions.PDefinition;
-import org.overture.ast.definitions.SClassDefinition;
-import org.overture.ast.expressions.PExp;
-import org.overture.ast.lex.LexLocation;
-import org.overture.ast.patterns.AIdentifierPattern;
-import org.overture.ast.patterns.PPattern;
-import org.overture.ast.typechecker.NameScope;
-import org.overture.ast.typechecker.Pass;
-import org.overture.ast.types.AAccessSpecifierAccessSpecifier;
-import org.overture.ast.types.AClassType;
-import org.overture.ast.types.AFunctionType;
-import org.overture.ast.types.AOperationType;
-import org.overture.ast.types.PType;
-import org.overture.ast.analysis.QuestionAdaptor;
 
-import eu.compassresearch.ast.actions.SStatementAction;
-import eu.compassresearch.ast.definitions.AChannelNameDefinition;
+import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
-import eu.compassresearch.ast.definitions.AProcessDefinition;
-import eu.compassresearch.ast.lex.LexIdentifierToken;
-import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.ast.types.AChannelType;
-import eu.compassresearch.ast.types.AErrorType;
-import eu.compassresearch.ast.types.AFunctionParagraphType;
-import eu.compassresearch.ast.types.AOperationParagraphType;
-import eu.compassresearch.ast.types.AProcessParagraphType;
-import eu.compassresearch.ast.types.AStateParagraphType;
-import eu.compassresearch.ast.types.ATypeParagraphType;
-import eu.compassresearch.ast.types.AValueParagraphType;
 
 @SuppressWarnings("serial")
-class TPVisitor extends
-    QuestionAdaptor<String>
+public class TPVisitor extends
+	DepthFirstAnalysisCMLAdaptor
   {
 
-	@Override
-	public void caseAFunctionType(AFunctionType node, String question)
-			throws AnalysisException {
-		// TODO Auto-generated method stub
-		super.caseAFunctionType(node, question);
+	List<String> typeList = new LinkedList<String>();
+
+	
+	
+	public List<String> getTypeList() {
+		return typeList;
 	}
+
+
+
+	public void setTypeList(List<String> typeList) {
+		this.typeList = typeList;
+	}
+
+
+
+	@Override
+	public void caseATypeDefinition(ATypeDefinition node)
+			throws AnalysisException {
+		
+		typeList.add(node.getType().toString());
+		
+		// TODO Auto-generated method stub
+		super.caseATypeDefinition(node);
+	}
+
+
+
+	@Override
+	public void caseATypeSingleDeclaration(ATypeSingleDeclaration node)
+			throws AnalysisException {
+		
+		
+		typeList.add(node.getType().toString());
+		
+		// TODO Auto-generated method stub
+		super.caseATypeSingleDeclaration(node);
+	}
+
+	
 	
   }

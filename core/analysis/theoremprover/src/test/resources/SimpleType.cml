@@ -1,0 +1,3 @@
+types 
+  basic = nat
+  basic2 = int
