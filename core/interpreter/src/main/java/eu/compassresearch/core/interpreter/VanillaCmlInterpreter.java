@@ -19,19 +19,17 @@ import eu.compassresearch.ast.lex.LexNameToken;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.interpreter.api.CmlInterpreterState;
+import eu.compassresearch.core.interpreter.api.CmlSupervisorEnvironment;
 import eu.compassresearch.core.interpreter.api.InterpreterException;
 import eu.compassresearch.core.interpreter.api.InterpreterStatus;
-import eu.compassresearch.core.interpreter.cml.CmlAlphabet;
-import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.cml.CmlTrace;
-import eu.compassresearch.core.interpreter.cml.ConsoleSelectionStrategy;
-import eu.compassresearch.core.interpreter.cml.events.CmlTransition;
-import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
-import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
-import eu.compassresearch.core.interpreter.util.CmlParserUtil;
-import eu.compassresearch.core.interpreter.util.GlobalEnvironmentBuilder;
-import eu.compassresearch.core.interpreter.values.ProcessObjectValue;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlAlphabet;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
+import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
+import eu.compassresearch.core.interpreter.api.events.InterpreterStatusEvent;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
+import eu.compassresearch.core.interpreter.api.transitions.ObservableEvent;
+import eu.compassresearch.core.interpreter.api.values.ProcessObjectValue;
 import eu.compassresearch.core.typechecker.VanillaFactory;
 import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
@@ -121,7 +119,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		//Create the initial context with the global definitions
 		Context topContext = getInitialContext(null);
 		//Create a CmlBehaviour for the top process
-		runningTopProcess = VanillaInterpreterFactory.newCmlBehaviour(topProcess.getProcess(), topContext, topProcess.getName());
+		runningTopProcess = new ConcreteCmlBehaviour(topProcess.getProcess(), topContext, topProcess.getName());
 		currentSupervisor.addPupil(runningTopProcess);
 		
 		//Fire the interpreter running event before we start
@@ -209,7 +207,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			
 			CmlTrace trace = topProcess.getTraceModel();
 			
-			if(CmlTrace.isObservableEvent(trace.getLastEvent()))
+			if(trace.getLastEvent() instanceof ObservableEvent)
 			{
 				CmlRuntime.logger().fine("----------------observable step by '"+ topProcess +"'----------------");
 				CmlRuntime.logger().fine("Observable trace of '"+topProcess+"': " + trace.getEventTrace());
@@ -276,10 +274,10 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 		VanillaCmlInterpreter cmlInterp = new VanillaCmlInterpreter(source);
 		try
 		{
-			CmlSupervisorEnvironment sve = 
-					VanillaInterpreterFactory.newCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
 			//CmlSupervisorEnvironment sve = 
-			//				VanillaInterpreterFactory.newCmlSupervisorEnvironment(new RandomSelectionStrategy());
+			//		VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new ConsoleSelectionStrategy());
+			CmlSupervisorEnvironment sve = 
+							VanillaInterpreterFactory.newDefaultCmlSupervisorEnvironment(new RandomSelectionStrategy());
 
 			CmlRuntime.logger().setLevel(Level.FINEST);
 			cmlInterp.onStatusChanged().registerObserver(new CmlInterpreterStatusObserver() {
@@ -308,8 +306,21 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 	public static void main(String[] args) throws IOException, InterpreterException
 	{
 		File cml_example = new File(
-				"src/test/resources/process/process-functionsdef.cml");
+				"src/test/resources/action/action-replicated-interleaving.cml");
 		runOnFile(cml_example);
 
+	}
+
+	@Override
+	public Value evaluate(String line, Context ctxt,
+			CmlSupervisorEnvironment sve) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CmlBehaviour getTopLevelCmlBehaviour() {
+		
+		return runningTopProcess;
 	}
 }

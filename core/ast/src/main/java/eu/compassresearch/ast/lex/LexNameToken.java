@@ -219,7 +219,7 @@ public class LexNameToken extends LexIdentifierToken implements ILexNameToken, S
                 Object helpLexNameTokenObject = helpLexNameTokenClass
                     .newInstance();
                 Method isEqualMethod = helpLexNameTokenClass.getMethod(
-                    "isEqual", LexNameToken.class, Object.class);
+                    "isEqual", ILexNameToken.class, Object.class);
                 Object result = isEqualMethod.invoke(helpLexNameTokenObject,
                     this, other);
                 return (Boolean) result;
@@ -242,12 +242,12 @@ public class LexNameToken extends LexIdentifierToken implements ILexNameToken, S
         
         return matches(lother);
       }
-    
-    public boolean matches(LexNameToken other)
-      {
-        return module.equals(other.module) && name.equals(other.name)
-            && old == other.old;
-      }
+// FIXME What is this method here for    
+//    public boolean matches(LexNameToken other)
+//      {
+//        return module.equals(other.module) && name.equals(other.name)
+//            && old == other.old;
+//      }
     
     @Override
     public int hashCode()
@@ -381,7 +381,9 @@ public class LexNameToken extends LexIdentifierToken implements ILexNameToken, S
 	@Override
 	public boolean matches(ILexNameToken other)
 	{
-		return this.name.equals(other.getName());		
+		//return this.name.equals(other.getName());
+		return module.equals(other.getModule()) && name.equals(other.getName())
+				&& old == other.getOld();
 	}
 	
   }

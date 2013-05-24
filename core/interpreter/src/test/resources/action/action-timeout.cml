@@ -4,5 +4,5 @@ a b
 process A = 
 begin 
 
-	@ a -> Skip [(4)> b -> Skip
+	@ a -> Skip [_4_> b -> Skip
 end

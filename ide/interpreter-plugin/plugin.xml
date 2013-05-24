@@ -11,11 +11,11 @@
   <!--icon="icons/cview16/cml_file_tsk.png"-->
   <extension point="org.eclipse.ui.views">
     <view 
-        id="eu.compassresearch.ide.cml.interpreter_plugin.OptionsView"
+        id="eu.compassresearch.ide.cml.interpreter.OptionsView"
         name="CML Event Options"
         category="compass_eu.compassresearch.ide.cml.ui.category"
         
-        class="eu.compassresearch.ide.cml.interpreter_plugin.views.CmlEventOptionView" />
+        class="eu.compassresearch.ide.cml.interpreter.views.CmlEventOptionView" />
         
         <category
         	id="compass_eu.compassresearch.ide.cml.ui.category"
@@ -24,11 +24,11 @@
   
   <extension point="org.eclipse.ui.views">
     <view 
-        id="eu.compassresearch.ide.cml.interpreter_plugin.historyView"
+        id="eu.compassresearch.ide.cml.interpreter.historyView"
         name="CML Event History"
         category="compass_eu.compassresearch.ide.cml.ui.category"
         
-        class="eu.compassresearch.ide.cml.interpreter_plugin.views.CmlEventHistoryView" />
+        class="eu.compassresearch.ide.cml.interpreter.views.CmlEventHistoryView" />
         
         <category
         	id="compass_eu.compassresearch.ide.cml.ui.category"
@@ -49,10 +49,10 @@
 	<!-- Add the launch config group to the launch dialog -->
 	<extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
 		<launchConfigurationTabGroup
-			class="eu.compassresearch.ide.cml.interpreter_plugin.launch.CmlLaunchConfigurationTabGroup"
+			class="eu.compassresearch.ide.cml.interpreter.launch.CmlLaunchConfigurationTabGroup"
 			description="COMPASS Launch Tab" 
-			id="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationTabGroup"
-			type="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationType">
+			id="eu.compassresearch.ide.cml.interpreter.launchConfigurationTabGroup"
+			type="eu.compassresearch.ide.cml.interpreter.launchConfigurationType">
 			<launchMode 
                   mode="debug"
                   perspective="org.eclipse.debug.ui.DebugPerspective"
@@ -68,8 +68,8 @@
 	<!-- Shoutcut for launching project. Extends the Debug and Run context menu in the CML Explorer -->
  	<extension point="org.eclipse.debug.ui.launchShortcuts">
 	  	<shortcut
-	  		id="eu.compassresearch.ide.cml.interpreter_plugin.CmlShortcut"
-	        class="eu.compassresearch.ide.cml.interpreter_plugin.launch.CmlApplicationLaunchShortcut"
+	  		id="eu.compassresearch.ide.cml.interpreter.CmlShortcut"
+	        class="eu.compassresearch.ide.cml.interpreter.launch.CmlApplicationLaunchShortcut"
 	        label="CML Application"
 	        modes="debug, run"
 	        category="compass_eu.compassresearch.ide.cml.ui.category"
@@ -99,7 +99,7 @@
        </enablement>
      </contextualLaunch>
 	    <configurationType
-	    	id="eu.compassresearch.ide.cml.interpreter_plugin.launchConfigurationType">
+	    	id="eu.compassresearch.ide.cml.interpreter.launchConfigurationType">
 	  	</configurationType>
 	  	</shortcut>
  	</extension>

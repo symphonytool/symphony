@@ -17,7 +17,7 @@ import org.eclipse.ui.PlatformUI;
 import eu.compassresearch.ast.definitions.AProcessDefinition;
 import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
-import eu.compassresearch.core.interpreter.util.GlobalEnvironmentBuilder;
+import eu.compassresearch.core.interpreter.GlobalEnvironmentBuilder;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
 
 public final class CmlUtil {

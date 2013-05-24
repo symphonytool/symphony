@@ -32,62 +32,13 @@ import eu.compassresearch.core.parser.CmlParser;
 @RunWith(Parameterized.class)
 public class ParseAllCmlExampleFilesTest {
 
-    private static int testCounter = 0;
-
     private String filePath;
 
-    public ParseAllCmlExampleFilesTest(String filePath)
-    {
+    public ParseAllCmlExampleFilesTest(String filePath) {
         this.filePath = filePath;
     }
 
-    // @Parameters
-    // public static Collection params() {
-    //  return new LinkedList<String>();
-    // }
-
-    //private static String watchedLog;
-
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-            @Override
-            protected void failed(Throwable e, Description d) {
-                //watchedLog+= d + "\n";
-
-                String name = d.toString();
-                int index = Integer.parseInt(name.substring(name.indexOf("[")+1, name.indexOf("]")));
-                System.out.println("in file: " +
-                                   ((Object[])ParseAllCmlExampleFilesTest.getCmlfilePaths().toArray()[index])[0]);
-                System.out.println();
-            }
-
-            // @Override
-            // protected void succeeded(Description d) {
-            //  watchedLog+= d + " " + "success!\n";
-            // }
-        };
-
-
-
-    @Before
-    public void setUp() {
-    }
-
-    @Test
-    public void testParseCmlFile() throws Exception {
-        System.out.println("Test "+testCounter+": "+filePath);
-        testCounter++;
-
-        FileInputStream source = new FileInputStream(filePath);
-        ANTLRInputStream stream = new ANTLRInputStream(source);
-        CmlLexer lexer = new CmlLexer(stream);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        CmlParser parser = new CmlParser(tokens);
-
-        List<PDefinition> ast = parser.source();
-    }
-
-    @Parameters
+    @Parameters(name="{index}: {0}")
     public static Collection getCmlfilePaths() {
         File dir = new File("../../docs/cml-examples");
         List<Object[]> paths = new Vector<Object[]>();
@@ -111,4 +62,32 @@ public class ParseAllCmlExampleFilesTest {
 
         return paths;
     }
+
+    /* TODO: it would be good to reinstate a testwatcher that prints
+     * out a bunch of information extracted from the exception
+     * thrown. -jwc/13May2013
+     */
+    // @Rule
+    // public TestWatcher watchman = new TestWatcher() {
+    //         @Override
+    //         protected void failed(Throwable e, Description d) {
+    //             String name = d.toString();
+    //             int index = Integer.parseInt(name.substring(name.indexOf("[")+1, name.indexOf(":")));
+    //             System.out.println("in file: " +
+    //                                ((Object[])ParseAllCmlExampleFilesTest.getCmlfilePaths().toArray()[index])[0]);
+    //             System.out.println();
+    //         }
+    //     };
+
+    @Test
+    public void testParseCmlFile() throws Exception {
+        FileInputStream source = new FileInputStream(filePath);
+        ANTLRInputStream stream = new ANTLRInputStream(source);
+        CmlLexer lexer = new CmlLexer(stream);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        CmlParser parser = new CmlParser(tokens);
+
+        parser.source(); // parser.source() returns the parse tree, but we never check it here
+    }
+
 }

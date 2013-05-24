@@ -138,8 +138,11 @@ public class CaseStudiesTestCase extends AbstractTypeCheckerTestCase {
 			// 23// Jeremy and Zoe working on master students
 			add("/Alarm");
 
-		} else
+		} else {
+			// ensure that the sources is initialised before the parameterized test runner gets to it
+			add(new LinkedList<PSource>(),true,true);
 			System.out.println("CASESTUDIES Not defined skipping tests.");
+		}
 	}
 
 }

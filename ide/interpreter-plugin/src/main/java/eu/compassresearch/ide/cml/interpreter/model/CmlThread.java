@@ -6,7 +6,7 @@ import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 
 import eu.compassresearch.core.interpreter.api.CmlProcessInfo;
-import eu.compassresearch.core.interpreter.cml.CmlProcessState;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
 
 public class CmlThread extends CmlDebugElement implements IThread {
 
@@ -96,7 +96,7 @@ public class CmlThread extends CmlDebugElement implements IThread {
 
 	@Override
 	public boolean isTerminated() {
-		return this.cmlProcessInfo.getState() == CmlProcessState.FINISHED || getDebugTarget().isTerminated();
+		return this.cmlProcessInfo.getState() == CmlBehaviorState.FINISHED || getDebugTarget().isTerminated();
 	}
 
 	@Override

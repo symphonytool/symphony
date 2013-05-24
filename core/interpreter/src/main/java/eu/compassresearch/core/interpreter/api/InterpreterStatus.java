@@ -4,8 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.cml.CmlBehaviour;
-import eu.compassresearch.core.interpreter.events.InterpreterStatusEvent;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
 
 /**
  * Represents the status of the interpreter at a specific simulation point. 

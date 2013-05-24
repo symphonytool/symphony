@@ -18,9 +18,9 @@ import org.overture.parser.syntax.ParserException;
 
 import eu.compassresearch.ast.actions.PAction;
 import eu.compassresearch.ast.lex.LexNameToken;
-import eu.compassresearch.core.interpreter.cml.CmlSupervisorEnvironment;
-import eu.compassresearch.core.interpreter.events.CmlInterpreterStatusObserver;
-import eu.compassresearch.core.interpreter.events.EventSource;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviour;
+import eu.compassresearch.core.interpreter.api.events.CmlInterpreterStatusObserver;
+import eu.compassresearch.core.interpreter.utility.events.EventSource;
 /**
  * The CML interpreter interface. This has the responsibility of simulating/animating
  * a given AST representing a CML model. 
@@ -86,7 +86,7 @@ public interface CmlInterpreter
 	 * @throws Exception Parser or runtime errors.
 	 */
 
-	abstract public Value evaluate(String line, Context ctxt) throws Exception;
+	abstract public Value evaluate(String line, Context ctxt, CmlSupervisorEnvironment sve) throws Exception;
 
 	/**
 	 * @return The list of breakpoints currently set.
@@ -94,23 +94,23 @@ public interface CmlInterpreter
 
 	public Map<Integer, Breakpoint> getBreakpoints();
 
-	/**
-	 * Get a line of a source file.
-	 */
-
-	public String getSourceLine(LexLocation src);
-
-	/**
-	 * Get a line of a source file by its location.
-	 */
-
-	public String getSourceLine(File file, int line);
-
-	/**
-	 * Get a line of a source file by its location.
-	 */
-
-	public String getSourceLine(File file, int line, String sep);
+//	/**
+//	 * Get a line of a source file.
+//	 */
+//
+//	public String getSourceLine(LexLocation src);
+//
+//	/**
+//	 * Get a line of a source file by its location.
+//	 */
+//
+//	public String getSourceLine(File file, int line);
+//
+//	/**
+//	 * Get a line of a source file by its location.
+//	 */
+//
+//	public String getSourceLine(File file, int line, String sep);
 
 	/**
 	 * Get an entire source file object.
@@ -124,34 +124,34 @@ public interface CmlInterpreter
 	 */
 	public Set<File> getSourceFiles();
 	
-	/**
-	 * Find a statement by file name and line number.
-	 *
-	 * @param file The name of the class/module
-	 * @param lineno The line number
-	 * @return A Statement object if found, else null.
-	 */
-
-	public PAction findStatement(File file, int lineno);
-
-	/**
-	 * Find an expression by file name and line number.
-	 *
-	 * @param file The name of the file
-	 * @param lineno The line number
-	 * @return An Expression object if found, else null.
-	 */
-
-	public PExp findExpression(File file, int lineno);
-
-	/**
-	 * Find a global environment value by name.
-	 *
-	 * @param name The name of the variable
-	 * @return A Value object if found, else null.
-	 */
-
-	public Value findGlobal(LexNameToken name);
+//	/**
+//	 * Find a statement by file name and line number.
+//	 *
+//	 * @param file The name of the class/module
+//	 * @param lineno The line number
+//	 * @return A Statement object if found, else null.
+//	 */
+//
+//	public PAction findStatement(File file, int lineno);
+//
+//	/**
+//	 * Find an expression by file name and line number.
+//	 *
+//	 * @param file The name of the file
+//	 * @param lineno The line number
+//	 * @return An Expression object if found, else null.
+//	 */
+//
+//	public PExp findExpression(File file, int lineno);
+//
+//	/**
+//	 * Find a global environment value by name.
+//	 *
+//	 * @param name The name of the variable
+//	 * @return A Value object if found, else null.
+//	 */
+//
+//	public Value findGlobal(LexNameToken name);
 
 	/**
 	 * Set a statement tracepoint. A tracepoint does not stop execution, but
@@ -225,6 +225,10 @@ public interface CmlInterpreter
 	//public PType findType(String typename);
 	
 	public InterpreterStatus getStatus();
+	
+	public CmlInterpreterState getCurrentState();
+	
+	public CmlBehaviour getTopLevelCmlBehaviour();
 
 	public EventSource<CmlInterpreterStatusObserver> onStatusChanged();
 }

@@ -25,16 +25,27 @@ Export-Package: eu.compassresearch.ide.cml.ui;uses:="org.eclipse.ui.plugin,org.o
    org.eclipse.swt.widgets",
  eu.compassresearch.ide.cml.ui.wizard
 Require-Bundle: org.eclipse.debug.ui,
- org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.views,
- org.eclipse.text,
- org.eclipse.core.runtime,
  org.eclipse.ui,
- org.eclipse.equinox.common,
  eu.compassresearch.ide.cml.core,
- org.overture.ide.ui,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.navigator,
  org.eclipse.ui.navigator.resources
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
-Import-Package: org.eclipse.ui.console
+Import-Package: org.eclipse.jface.text,
+ org.eclipse.jface.text.contentassist,
+ org.eclipse.jface.text.reconciler,
+ org.eclipse.jface.text.rules,
+ org.eclipse.jface.text.source,
+ org.eclipse.ui.console,
+ org.eclipse.ui.editors.text,
+ org.eclipse.ui.model,
+ org.eclipse.ui.part,
+ org.eclipse.ui.texteditor,
+ org.eclipse.ui.wizards.newresource,
+ org.overture.ide.ui.editor.core,
+ org.overture.ide.ui.editor.syntax,
+ org.overture.ide.ui.outline,
+ org.overture.ide.ui.wizard

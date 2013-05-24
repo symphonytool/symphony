@@ -86,16 +86,65 @@ following sections.
 
 \subsection{The Core Structure}
 
-The following two packages defines the top level
-structure of the core:
-
+The design philosophy of the top-level structure is to encapsulate all
+the classes and interfaces that makes up the implementation of the
+core functionality and only expose those that are needed to utilize
+the interpreter. This provides a clean separation between the
+implementation and interface and makes it clear for both the users,
+which not necessarily wants to know about the implementation details,
+and developers which parts they need to work with.
+ 
+The following packages defines the top level structure of the core:
 \begin{description}
+\item[eu.compassresearch.core.interpreter.api] This package and
+  sub-packages contains all the public classes and interfaces that
+  defines the API of the interpreter. This package includes the main
+  interpreter interface \textbf{CmlInterpreter} along with additional
+  interfaces.
+  The api sub-packages groups the rest of the API classes and
+  interfaces according to the responsibility they have.
+
+\item[eu.compassresearch.core.interpreter.api.behaviour] This package
+  contains all the components that define any CML behavior. A CML
+  behaviour is either an observable event like a channel synchronization
+  or a internal event like a change of state. The main interface is
+  \textbf{CmlBehaviour}.
+
+\item[eu.compassresearch.core.interpreter.api.events] This package
+  contains all the public components that enable users of the
+  interpreter to listen on event from both \textbf{CmlIntepreter} and
+  \textbf{CmlBehaviour} instances.
+
+\item[eu.compassresearch.core.interpreter.api.transitions] This
+  package contains all the possible types of transitions that a
+  \textbf{CmlBehaviour} instance can make. This will be explained in
+  more detail in section \ref{sec:transition_structure}.
+
+\item[eu.compassresearch.core.interpreter.api.values] This package
+  contains all the values used in the CML interpreter. Values are used
+  to represent the the result of an expression or the current state of a
+  variable.
+
+\item[eu.compassresearch.core.interpreter.debug] TBD
+
+\item[eu.compassresearch.core.interpreter.utility] The utility
+packages contains components that generally reusable classes and
+interfaces. 
+
+\item[eu.compassresearch.core.interpreter.utility.events] This package
+contains components helps to implement the Observer pattern. 
+
+\item[eu.compassresearch.core.interpreter.utility.messaging] This
+  package contains components to pass message along a stream.
+
+
+
 \item[eu.compassresearch.core.interpreter] This package contains all
   the classes and interfaces that defines the core functionality of the
-  interpreter.
-\item[eu.compassresearch.core.interpreter.api] This package contains
-  all the public classes and interfaces that defines the API of the
-  interpreter. 
+  interpreter. The important class for any user of the interpreter is
+  the \textbf{VanillaInterpreteFactory} that creates
+  \textbf{CmlInterpreter} instances.
+
 \end{description}
 
 The reason for this top level structure is to encapsulate all the
@@ -179,8 +228,8 @@ and it's child behaviours defines. So in effect, the CmlInterpreter
 controls every transition that any CmlBehaviour makes through the top
 level behaviour.
 
-\subsubsection{Transition/Event Structure}
-\label{sec:event_structure}
+\subsubsection{Transition Structure}
+\label{sec:transition_structure}
 
 As described in the previous section a CML model is represented by a
 binary tree of CmlBehaviour instances and each of these has a set of
