@@ -21,8 +21,6 @@ public class GenerateTheory {
 		String thyFile = cmlLoc.replaceAll("\\.cml", "\\.thy");
 		
 		File tempPo = new File(thyFile);
-
-		Isabelle_Process ip;
 		
 		FileWriter fw;
 		
