@@ -208,7 +208,7 @@ class VanillaCmlInterpreter extends AbstractCmlInterpreter
 			} 
 
 			//Set the selected event on the supervisor
-			currentSupervisor.setSelectedObservableEvent(selectedEvent);
+			currentSupervisor.setSelectedTransition(selectedEvent);
 			
 			topProcess.execute(currentSupervisor);
 			
