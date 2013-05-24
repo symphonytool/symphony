@@ -1,0 +1,4 @@
+types 
+  basic1 = seq of nat
+  basic2 = set of real
+  basic3 = seq1 of char

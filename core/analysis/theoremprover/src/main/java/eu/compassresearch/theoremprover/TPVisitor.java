@@ -32,11 +32,12 @@ public class TPVisitor extends
 
 	@Override
 	public void caseATypeDefinition(ATypeDefinition node)
-			throws AnalysisException {
+			throws AnalysisException {		
 		
-		typeList.add(node.getType().toString());
+		ThmPTypeVisitor tv = new ThmPTypeVisitor();
 		
-		// TODO Auto-generated method stub
+		typeList.add(node.getType().apply(tv));
+		
 		super.caseATypeDefinition(node);
 	}
 
@@ -45,11 +46,11 @@ public class TPVisitor extends
 	@Override
 	public void caseATypeSingleDeclaration(ATypeSingleDeclaration node)
 			throws AnalysisException {
+
+		ThmPTypeVisitor tv = new ThmPTypeVisitor();
 		
+		typeList.add(node.getType().apply(tv));
 		
-		typeList.add(node.getType().toString());
-		
-		// TODO Auto-generated method stub
 		super.caseATypeSingleDeclaration(node);
 	}
 
