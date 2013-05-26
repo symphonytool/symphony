@@ -21,13 +21,7 @@ package eu.compassresearch.ide.cml.ui.builder;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.overture.ide.core.resources.VdmProjectNature;
-
-import eu.compassresearch.ide.cml.core.ICmlCoreConstants;
 
 
 
@@ -45,65 +39,25 @@ public class CmlProjectNature extends VdmProjectNature
       {
         this.project = project;
       }
+
+	@Override
+	public void configure() throws CoreException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deconfigure() throws CoreException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
     
     
-    
-    public void configure() throws CoreException
-      {
-//        final String BUILDER_ID = "eu.compassresearch.ide.cml.ui.cmlbuilder";
-//        IProjectDescription desc = project.getDescription();
-//        ICommand[] commands = desc.getBuildSpec();
-//        boolean found = false;
-//        
-//        for (int i = 0; i < commands.length; ++i)
-//          {
-//            if (commands[i].getBuilderName().equals(BUILDER_ID))
-//              {
-//                found = true;
-//                break;
-//              }
-//          }
-//        
-//        if (!found)
-//          {
-//            // add builder to project
-//            ICommand command = desc.newCommand();
-//            command.setBuilderName(BUILDER_ID);
-//            ICommand[] newCommands = new ICommand[commands.length + 1];
-//            
-//            // Add it before other builders.
-//            System.arraycopy(commands, 0, newCommands, 1, commands.length);
-//            newCommands[0] = command;
-//            desc.setBuildSpec(newCommands);
-//            project.setDescription(desc, null);
-//            project.build(IncrementalProjectBuilder.FULL_BUILD, null);
-//          }
-        CmlIncrementalBuilder.addBuilderToProject(project);
-        
-        new Job("CML Incremental Builder File Audit") {
-            protected IStatus run(IProgressMonitor monitor) {
-               try {
-                   project.build(
-                      CmlIncrementalBuilder.FULL_BUILD,
-                      ICmlCoreConstants.BUILDER_ID,
-                      null,
-                      monitor);
-               }
-               catch (CoreException e) {
-                   e.printStackTrace();
-               }
-               return Status.OK_STATUS;
-            }
-         }.schedule();
-        
-      }
-    
-    
-    
-    @Override
-    public void deconfigure() throws CoreException
-      {
-    	CmlIncrementalBuilder.removeBuilderFromProject(project);
-      }
+
     
   }
