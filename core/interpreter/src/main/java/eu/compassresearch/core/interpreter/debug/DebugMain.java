@@ -373,7 +373,9 @@ public class DebugMain {
 	public static void main(String[] args) throws IOException, InterpreterException, AnalysisException {
 
 		//Index 0 of args is the JSON config
+		System.out.println(args[0]);
 		JSONObject config =(JSONObject)JSONValue.parse(args[0]);
+		System.out.println("config: " + config);
 		//retrieve the paths for the cml sources of the project
 		System.out.println(config.get(CmlInterpreterLaunchConfigurationConstants.CML_SOURCES_PATH.toString()));
 		
@@ -401,7 +403,7 @@ public class DebugMain {
 		// build the forest
 		for (String path : sourcesPaths) {
 			
-			File source = new File("");
+			File source = new File(path);
 			System.out.println("Parsing file: " + source);
 			AFileSource currentFileSource = new AFileSource();
 			currentFileSource.setName(source.getName());

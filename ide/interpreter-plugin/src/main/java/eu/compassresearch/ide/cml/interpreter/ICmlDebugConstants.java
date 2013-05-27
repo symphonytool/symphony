@@ -7,6 +7,6 @@ public interface ICmlDebugConstants {
 	public final String ID_CML_DEBUG_MODEL = "eu.compassresearch.ide.cml.interpreter.modelId";
 	public final String ID_CML_OPTION_VIEW = "eu.compassresearch.ide.cml.interpreter.OptionsView";
 	public final String ID_CML_HISTORY_VIEW = "eu.compassresearch.ide.cml.interpreter.historyView";
-	public final String ID_CML_PLUGIN_NAME = "eu.compassresearch.ide.cml.interpreter";
+	public final String ID_CML_PLUGIN_NAME = "eu.compassresearch.ide.cml.interpreter-plugin";
 	
 }

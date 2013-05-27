@@ -33,6 +33,7 @@ import org.json.simple.JSONObject;
 import org.overture.ide.core.utility.ClasspathUtils;
 
 import eu.compassresearch.core.interpreter.debug.CmlDebugDefaultValues;
+import eu.compassresearch.ide.cml.interpreter.CmlUtil;
 import eu.compassresearch.ide.cml.interpreter.ICmlDebugConstants;
 import eu.compassresearch.ide.cml.interpreter.model.CmlDebugTarget;
 
@@ -292,6 +293,7 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		
 		commandArray.add("java");
 		commandArray.addAll(getClassPath());
+		commandArray.add("eu.compassresearch.core.interpreter.debug.DebugMain");
 		commandArray.add(config);
 		
 		//Execute in a new JVM process
@@ -309,7 +311,8 @@ public class CmlLaunchConfigurationDelegate extends LaunchConfigurationDelegate 
 		List<String> commandList = new Vector<String>();
 
 		// get the bundled class path of the debugger
-		List<String> entries = ClasspathUtils.collectJars(ICmlDebugConstants.ID_CML_PLUGIN_NAME);
+		//List<String> entries = ClasspathUtils.collectJars(ICmlDebugConstants.ID_CML_PLUGIN_NAME);
+		List<String> entries = CmlUtil.collectJars(ICmlDebugConstants.ID_CML_PLUGIN_NAME);
 
 //		// get the class path for all jars in the project lib folder
 //		File lib = new File(project.getLocation().toFile(), "lib");
