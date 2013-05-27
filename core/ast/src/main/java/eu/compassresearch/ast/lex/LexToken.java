@@ -101,7 +101,7 @@ import org.overture.ast.node.Node;
 
 
 	@Override
-	public Object clone()
+	public ILexToken clone()
 	{
 		return new LexToken(location,type);
 	}

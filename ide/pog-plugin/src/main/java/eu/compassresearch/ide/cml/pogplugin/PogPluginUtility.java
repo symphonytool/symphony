@@ -53,20 +53,6 @@ public class PogPluginUtility {
 
 	public static IProject getCurrentlySelectedProject() {
 
-		// ISelection selection = window.getSelectionService().getSelection(
-		// "org.overture.ide.ui.VdmExplorer");
-		//
-		// if (selection.isEmpty()) {
-		// popErrorMessage("No project selected.");
-		// return;
-		// }
-		//
-		//
-		//
-		// IResource res = extractSelection(selection);
-		// IProject proj = res.getProject();
-		// IWorkspace iw = proj.getWorkspace();
-
 		IWorkbenchWindow window = PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow();
 
