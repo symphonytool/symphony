@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.ATypeDefinition;
+import org.overture.ast.definitions.AValueDefinition;
+import org.overture.ast.definitions.PDefinition;
+import org.overture.ast.expressions.AStringLiteralExp;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
 
@@ -13,9 +16,21 @@ public class TPVisitor extends
 	DepthFirstAnalysisCMLAdaptor
   {
 
-	List<ThmType> typeList = new LinkedList<ThmType>();
-
+	List<ThmType>  typeList = new LinkedList<ThmType>();
+    List<ThmValue> valueList = new LinkedList<ThmValue>();
 	
+	public List<ThmValue> getValueList() {
+		return valueList;
+	}
+
+
+
+	public void setValueList(List<ThmValue> valueList) {
+		this.valueList = valueList;
+	}
+
+
+
 	public List<ThmType> getTypeList() {
 		return typeList;
 	}
@@ -40,18 +55,18 @@ public class TPVisitor extends
 	}
 
 
-/*
 	@Override
-	public void caseATypeSingleDeclaration(ATypeSingleDeclaration node)
+	public void caseAValueDefinition(AValueDefinition node)
 			throws AnalysisException {
-
-		ThmPTypeVisitor tv = new ThmPTypeVisitor();
+		ThmPExpVisitor ev = new ThmPExpVisitor();
 		
-		typeList.add(node.getType().apply(tv));
+		for (PDefinition d : node.getDefs()) {
+			valueList.add(new ThmValue(d.getName().toString(), node.getExpression().apply(ev)));
+		}
 		
-		super.caseATypeSingleDeclaration(node);
+		super.caseAValueDefinition(node);
 	}
-*/
+
 	
 	
   }

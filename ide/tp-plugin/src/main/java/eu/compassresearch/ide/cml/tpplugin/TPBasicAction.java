@@ -20,6 +20,7 @@ import org.overture.ide.ui.utility.VdmTypeCheckerUi;
 import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
 import eu.compassresearch.theoremprover.TPVisitor;
 import eu.compassresearch.theoremprover.ThmType;
+import eu.compassresearch.theoremprover.ThmValue;
 
 public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 
@@ -108,10 +109,19 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 				  "begin \n" +
 				  "\n");
 				 		
+		sb.append("text {* VDM value declarations *}\n\n");
+		
+		for (ThmValue tv : tpv.getValueList()) {
+			sb.append(tv.toString());
+			sb.append("\n");
+		}
+		
+		sb.append("\n");
 		sb.append("text {* VDM type declarations *}\n\n");
 		
 		for (ThmType ty : tpv.getTypeList()) {
 			sb.append(ty.toString());
+			sb.append("\n");
 		}
 		
 		sb.append("\n");
