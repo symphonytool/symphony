@@ -130,6 +130,7 @@ class CmlRootVisitor extends
 			if (!CmlTCUtil.successfulType(defType))
 				return defType;
 		}
+		node.setType(new ASourceType());
 		return new ASourceType();
 	}
 

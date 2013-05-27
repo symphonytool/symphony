@@ -86,7 +86,7 @@ public class LexIdentifierToken extends LexToken implements ILexIdentifierToken
       }
     
     @Override
-    public Object clone()
+    public ILexIdentifierToken clone()
       {
         return new LexIdentifierToken(name, old, location);
       }

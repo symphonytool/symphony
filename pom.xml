@@ -52,25 +52,9 @@
 	<updatePolicy>daily</updatePolicy>
 	<checksumPolicy>warn</checksumPolicy>
       </snapshots>
-      <url>http://build.overturetool.org/builds/overture-m2repo/</url>
+      <url>http://build.overturetool.org/builds/overture-compass-m2repo/</url>
       <layout>default</layout>
     </repository>
-    <!-- <repository> -->
-    <!--   <id>OvertureMT4Em2Repo</id> -->
-    <!--   <name>Overture Project's MT4E-generated Maven Repository of Eclipse 3.7.2 files</name> -->
-    <!--   <url>http://build.overturetool.org/builds/mt4e-m2repo-eclipse3.7.2/</url> -->
-    <!--   <layout>default</layout> -->
-    <!--   <releases> -->
-    <!--     <enabled>true</enabled> -->
-    <!--     <updatePolicy>daily</updatePolicy> -->
-    <!--     <checksumPolicy>ignore</checksumPolicy> -->
-    <!--   </releases> -->
-    <!--   <snapshots> -->
-    <!--     <enabled>true</enabled> -->
-    <!--     <updatePolicy>daily</updatePolicy> -->
-    <!--     <checksumPolicy>ignore</checksumPolicy> -->
-    <!--   </snapshots> -->
-    <!-- </repository> -->
   </repositories>
 
   <pluginRepositories>
@@ -87,7 +71,7 @@
 	<updatePolicy>daily</updatePolicy>
 	<checksumPolicy>warn</checksumPolicy>
       </snapshots>
-      <url>http://build.overturetool.org/builds/overture-m2repo/</url>
+      <url>http://build.overturetool.org/builds/overture-compass-m2repo/</url>
       <layout>default</layout>
     </pluginRepository>
     <pluginRepository>
