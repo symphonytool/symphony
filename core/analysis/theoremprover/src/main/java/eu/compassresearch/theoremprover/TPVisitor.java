@@ -7,24 +7,22 @@ import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.ATypeDefinition;
 
 import eu.compassresearch.ast.analysis.DepthFirstAnalysisCMLAdaptor;
-import eu.compassresearch.ast.declarations.ATypeSingleDeclaration;
 
 @SuppressWarnings("serial")
 public class TPVisitor extends
 	DepthFirstAnalysisCMLAdaptor
   {
 
-	List<String> typeList = new LinkedList<String>();
+	List<ThmType> typeList = new LinkedList<ThmType>();
 
 	
-	
-	public List<String> getTypeList() {
+	public List<ThmType> getTypeList() {
 		return typeList;
 	}
 
 
 
-	public void setTypeList(List<String> typeList) {
+	public void setTypeList(List<ThmType> typeList) {
 		this.typeList = typeList;
 	}
 
@@ -36,13 +34,13 @@ public class TPVisitor extends
 		
 		ThmPTypeVisitor tv = new ThmPTypeVisitor();
 		
-		typeList.add(node.getType().apply(tv));
+		typeList.add(new ThmTypeAbbrev(node.getType().toString(), node.getType().apply(tv)));
 		
 		super.caseATypeDefinition(node);
 	}
 
 
-
+/*
 	@Override
 	public void caseATypeSingleDeclaration(ATypeSingleDeclaration node)
 			throws AnalysisException {
@@ -53,7 +51,7 @@ public class TPVisitor extends
 		
 		super.caseATypeSingleDeclaration(node);
 	}
-
+*/
 	
 	
   }

@@ -19,28 +19,32 @@ public class TPVisitorTest1 {
 	
 	@Test
 	public void testBasicTypes() throws AnalysisException, IOException{
-		List<String> expRes = new LinkedList<String>();
-		Collections.addAll(expRes, "@nat", "@int", "@char");
+		List<ThmType> expRes = new LinkedList<ThmType>();
+		Collections.addAll(expRes, new ThmTypeAbbrev("basic1", "@nat")
+		                         , new ThmTypeAbbrev("basic2", "@int")
+		                         , new ThmTypeAbbrev("basic3", "@char"));
 		test(basicTypesPath, expRes);	
 	}
 	
 	@Test
 	public void testCompoundsTypes() throws AnalysisException, IOException{
-		List<String> expRes = new LinkedList<String>();
-		Collections.addAll(expRes, "@seq of @nat", "@set of @real", "@seq1 of @char");
+		List<ThmType> expRes = new LinkedList<ThmType>();
+		Collections.addAll(expRes, new ThmTypeAbbrev("seqnat", "@seq of @nat")
+								 , new ThmTypeAbbrev("setreal", "@set of @real")
+		                         , new ThmTypeAbbrev("seq1char", "@seq1 of @char"));
 		test(compoundTypesPath, expRes);	
 	}
 	
 	
 
-	public void test(String filePath, List<String> expRes) throws AnalysisException, IOException {
+	public void test(String filePath, List<ThmType> expRes) throws AnalysisException, IOException {
 		TPVisitor tpVisitor = new TPVisitor();
 		PSource ast = TPUtil.makeSourceFromFile(filePath);
 		
 		ast.apply(tpVisitor);
-		List<String> actRes = tpVisitor.getTypeList();
+		List<ThmType> actRes = tpVisitor.getTypeList();
 		
-		assertEquals(expRes, actRes);
+		assertEquals(expRes.toString(), actRes.toString());
 		
 	}
 

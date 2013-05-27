@@ -53,20 +53,6 @@ public class TPPluginUtils {
 
 	public static IProject getCurrentlySelectedProject() {
 
-		// ISelection selection = window.getSelectionService().getSelection(
-		// "org.overture.ide.ui.VdmExplorer");
-		//
-		// if (selection.isEmpty()) {
-		// popErrorMessage("No project selected.");
-		// return;
-		// }
-		//
-		//
-		//
-		// IResource res = extractSelection(selection);
-		// IProject proj = res.getProject();
-		// IWorkspace iw = proj.getWorkspace();
-
 		IWorkbenchWindow window = PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow();
 
@@ -75,7 +61,7 @@ public class TPPluginUtils {
 					.getSelectionService().getSelection(
 							"eu.compassresearch.ide.ui.CmlNavigator");
 			IResource res = extractSelection(selection);
-			if (res != null) {
+			if (res != null ) {
 				IProject project = res.getProject();
 				return project;
 			}
@@ -96,5 +82,5 @@ public class TPPluginUtils {
 		Object adapter = adaptable.getAdapter(IResource.class);
 		return (IResource) adapter;
 	}
-
+	
 }

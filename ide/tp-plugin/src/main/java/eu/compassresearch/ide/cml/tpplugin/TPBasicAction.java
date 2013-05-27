@@ -2,9 +2,9 @@ package eu.compassresearch.ide.cml.tpplugin;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
@@ -12,10 +12,14 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.overture.ast.analysis.AnalysisException;
+import org.overture.ide.core.IVdmModel;
+import org.overture.ide.core.resources.IVdmProject;
+import org.overture.ide.ui.utility.VdmTypeCheckerUi;
 
-import eu.compassresearch.core.typechecker.api.CmlTypeChecker;
-import eu.compassresearch.ide.cml.ui.editor.core.dom.CmlSourceUnit;
+import eu.compassresearch.ide.cml.ui.editor.core.dom.ICmlSourceUnit;
 import eu.compassresearch.theoremprover.TPVisitor;
+import eu.compassresearch.theoremprover.ThmType;
 
 public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 
@@ -23,39 +27,51 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 	
 	@Override
 	public void run(IAction action) {
-		// TODO Auto-generated method stub
-
-		try {
+		try
+		{
 
 			IProject proj = TPPluginUtils.getCurrentlySelectedProject();
-			if (proj == null) {
+			if (proj == null)
+			{
 				popErrorMessage("No project selected.");
 				return;
 			}
 
-			ArrayList<IResource> cmlFiles = TPPluginUtils
-					.getAllCFilesInProject(proj);
+			// Check project is built
+			IVdmProject vdmProject = (IVdmProject) proj.getAdapter(IVdmProject.class);
 
-			for (IResource cmlFile : cmlFiles) {
-				CmlSourceUnit source = CmlSourceUnit
-						.getFromFileResource((IFile) cmlFile);
-				if (!CmlTypeChecker.Utils.isWellType(source.getSourceAst())) {
-					popErrorMessage("There were type errors in "
-							+ source.getFile().getName());
+			if (vdmProject == null)
+			{
+				return;
+			}
+
+			final IVdmModel model = vdmProject.getModel();
+			if (model.isParseCorrect())
+			{
+
+				if (!model.isParseCorrect())
+				{
 					return;
+					// return new Status(Status.ERROR, IPoviewerConstants.PLUGIN_ID,
+					// "Project contains parse errors");
 				}
 
-				String cmlLoc = cmlFile.getLocation().toString();
-				String thyFile = cmlLoc.replaceAll("\\.cml", "\\.thy");
+				if (model == null || !model.isTypeCorrect())
+				{
+					VdmTypeCheckerUi.typeCheck(this.window.getShell(), vdmProject);
+				}
 
-				TPVisitor tpv = new TPVisitor();
-				source.getSourceAst().apply(tpv);
+				if (model.isTypeCorrect())
+				{
 
-				File thy = new File(thyFile);
-				FileWriter fw = new FileWriter(thy);
-				fw.write(getThyFromCML(cmlFile));
-				fw.flush();
-				fw.close();
+					ArrayList<IResource> cmlFiles = TPPluginUtils.getAllCFilesInProject(proj);
+
+					for (IResource cmlFile : cmlFiles)
+					{						
+						getThyFromCML(cmlFile);
+					}
+		
+				}
 
 			}
 
@@ -66,16 +82,49 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 
 	}
 
-	private void popErrorMessage(String message) {
-		MessageDialog.openInformation(window.getShell(), "COMPASS",
-				"Could not generate POs.\n\n" + message);
+	private void popErrorMessage(String message)
+	{
+		MessageDialog.openInformation(window.getShell(), "COMPASS", "Could not generate THY.\n\n"
+				+ message);
 	}
+	
+	private void getThyFromCML(IResource cmlFile) throws IOException, AnalysisException {
 
-	private String getThyFromCML(IResource cmlFile) {
+		ICmlSourceUnit source = (ICmlSourceUnit) cmlFile.getAdapter(ICmlSourceUnit.class);
+		
+		String cmlLoc = cmlFile.getLocation().toString();
+		String thyFile = cmlLoc.replaceAll("\\.cml", "\\.thy");
 
+		TPVisitor tpv = new TPVisitor();
+		source.getSourceAst().apply(tpv);
+		
+		String name = cmlFile.getName();
+		
+		String thyName = name.substring(0, name.lastIndexOf("."));
 		StringBuilder sb = new StringBuilder();
 
-		return "";
+		sb.append("theory "+ thyName +" \n" +
+				  "  imports utp_vdm \n" +
+				  "begin \n" +
+				  "\n");
+				 		
+		sb.append("text {* VDM type declarations *}\n\n");
+		
+		for (ThmType ty : tpv.getTypeList()) {
+			sb.append(ty.toString());
+		}
+		
+		sb.append("\n");
+		
+		sb.append("\n" + "end");
+
+		File thy = new File(thyFile);
+		FileWriter fw = new FileWriter(thy);
+		fw.write(sb.toString());
+		fw.flush();
+		fw.close();
+
+		return;
 
 	}
 
@@ -93,8 +142,7 @@ public class TPBasicAction implements IWorkbenchWindowActionDelegate {
 
 	@Override
 	public void init(IWorkbenchWindow window) {
-		// TODO Auto-generated method stub
-
+		this.window = window;
 	}
 
 }
