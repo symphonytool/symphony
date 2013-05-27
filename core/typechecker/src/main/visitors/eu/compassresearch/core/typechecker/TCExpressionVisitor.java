@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.analysis.QuestionAnswerAdaptor;
-import org.overture.ast.definitions.AAssignmentDefinition;
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
 import org.overture.ast.definitions.AImplicitFunctionDefinition;
 import org.overture.ast.definitions.APerSyncDefinition;
@@ -26,7 +25,6 @@ import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.ast.node.INode;
 import org.overture.ast.patterns.PMultipleBind;
 import org.overture.ast.typechecker.NameScope;
-import org.overture.ast.types.AClassType;
 import org.overture.ast.types.AFunctionType;
 import org.overture.ast.types.AOperationType;
 import org.overture.ast.types.AProductType;
@@ -552,39 +550,6 @@ class TCExpressionVisitor extends
 			 * Overture assistants
 			 */
 
-			/*
-			 * // RWL: Type check an apply of a cml Operation (implicit and
-			 * explicit) if (node.getType() instanceof SCmlOperationDefinition)
-			 * {
-			 * 
-			 * // Check the node is type checked and is an operation type if
-			 * (node.getType() == null || !(node.getType() instanceof
-			 * AOperationType)) { node.setType(issueHandler.addTypeError(node,
-			 * TypeErrorMessages.INCOMPATIBLE_TYPE.customizeMessage("Operation",
-			 * ""+node.getType()))); return node.getType(); }
-			 * 
-			 * // get type and check arg types AOperationType ot =
-			 * (AOperationType)node.getType(); LinkedList<PType> argTypes =
-			 * node.getArgtypes(); LinkedList<PType> typTypes =
-			 * ot.getParameters(); List<PExp> args = node.getArgs();
-			 * 
-			 * if (argTypes.size() != typTypes.size()) {
-			 * node.setType(issueHandler.addTypeError(node,
-			 * TypeErrorMessages.WRONG_NUMBER_OF_ARGUMENTS
-			 * .customizeMessage(argTypes+"", typTypes+""))); return
-			 * node.getType(); }
-			 * 
-			 * for(int i = 0; i < argTypes.size();++i) { if
-			 * (!typeComparator.isSubType(argTypes.get(i), typTypes.get(i))) {
-			 * node.setType(issueHandler.addTypeError(args.get(i),
-			 * TypeErrorMessages.
-			 * INCOMPATIBLE_TYPE.customizeMessage(""+typTypes.get(i
-			 * ),""+argTypes.get(i)))); return node.getType(); } }
-			 * 
-			 * // set the result of this apply expression to the return type of
-			 * the operation. results.add(ot.getResult()); }
-			 */
-
 			if (results.isEmpty()) {
 				TypeCheckerErrors.report(3054, "Type " + node.getType()
 						+ " cannot be applied", node.getLocation(), node);
@@ -906,15 +871,15 @@ class TCExpressionVisitor extends
 			root = question.env.findName(rootName, question.scope);
 
 		// RWL: UGLY Re-factor some day
-		if (root instanceof AAssignmentDefinition) {
-			AAssignmentDefinition adef = (AAssignmentDefinition) root;
-			PType type = adef.getType();
-			if (type instanceof AClassType) {
-				AClassType clzType = (AClassType) type;
-				root = question.env.findName(clzType.getName(),
-						NameScope.GLOBAL);
-			}
-		}
+		// if (root instanceof AAssignmentDefinition) {
+		// AAssignmentDefinition adef = (AAssignmentDefinition) root;
+		// PType type = adef.getType();
+		// if (type instanceof AClassType) {
+		// AClassType clzType = (AClassType) type;
+		// root = question.env.findName(clzType.getName(),
+		// NameScope.GLOBAL);
+		// }
+		// }
 
 		// Use Cml environment to determine what rootName is
 		if (root == null)
@@ -963,6 +928,7 @@ class TCExpressionVisitor extends
 			}
 		}
 
+		// TODO: RWL Possible null if leafType is null ?
 		if (leafType == null) {
 			issueHandler
 					.addTypeWarning(node,
