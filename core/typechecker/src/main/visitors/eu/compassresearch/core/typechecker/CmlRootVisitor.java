@@ -29,7 +29,7 @@ import eu.compassresearch.ast.types.ASourceType;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
 
-public class CmlRootVisitor extends
+class CmlRootVisitor extends
 		QuestionAnswerCMLAdaptor<org.overture.typechecker.TypeCheckInfo, PType>
 		implements eu.compassresearch.core.typechecker.api.CmlRootVisitor {
 
