@@ -18,8 +18,6 @@ import eu.compassresearch.core.typechecker.CollectGlobalStateClass.GlobalDefinit
 import eu.compassresearch.core.typechecker.api.CmlRootVisitor;
 import eu.compassresearch.core.typechecker.api.TypeComparator;
 import eu.compassresearch.core.typechecker.api.TypeIssueHandler;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeError;
-import eu.compassresearch.core.typechecker.api.TypeIssueHandler.CMLTypeWarning;
 
 class VanillaCmlTypeChecker extends AbstractTypeChecker {
 
@@ -268,9 +266,6 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	 * 
 	 * @return list of CMLTypeErrors
 	 */
-	public List<CMLTypeError> getTypeErrors() {
-		return issueHandler.getTypeErrors();
-	}
 
 	/**
 	 * Get warnings that occurred while type checking. The type check method
@@ -278,9 +273,6 @@ class VanillaCmlTypeChecker extends AbstractTypeChecker {
 	 * 
 	 * @return list of CMLTypeWarnings
 	 */
-	public List<CMLTypeWarning> getTypeWarnings() {
-		return issueHandler.getTypeWarnings();
-	}
 
 	public boolean hasErrors() {
 		return issueHandler.hasErrors();
