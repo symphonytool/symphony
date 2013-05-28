@@ -23,7 +23,7 @@ public class ClassCmlTypeCheckerTestCase extends AbstractTypeCheckerTestCase {
 		// 0// Inheritance is not implement yet
 		add("class A = begin end class B = begin end class C is subclass of A = begin end",
 				false, false);
-		add("class C = begin values k : int = 42 end functions f: int -> C f(v) == C`k + v");
+		add("class C = begin values k : int = 42 end functions f: int -> C f(v) == C`k + v", false, false);
 	}
 
 	@Parameters
