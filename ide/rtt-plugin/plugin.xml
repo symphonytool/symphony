@@ -29,11 +29,11 @@
     <view 
         id="eu.compassresearch.ide.cml.rttplugin.RttMbtConsoleView"
         name="RTT-MBT Console"
-        category="compass_eu.compassresearch.ide.cml.ui.category"
+        category="eu.compassresearch.ide.ui.category"
         icon="icons/rtt-mbt-small.png"
         class="eu.compassresearch.ide.cml.rttplugin.RttMbtConsoleView" />
         <category
-        	id="compass_eu.compassresearch.ide.cml.ui.category"
+        	id="eu.compassresearch.ide.ui.category"
         	name="COMPASS"/>
   </extension>
 
@@ -42,11 +42,11 @@
     <view 
         id="eu.compassresearch.ide.cml.rttplugin.RttMbtProgressView"
         name="RTT-MBT Progress"
-        category="compass_eu.compassresearch.ide.cml.ui.category"
+        category="eu.compassresearch.ide.ui.category"
         icon="icons/rtt-mbt-small.png"
         class="eu.compassresearch.ide.cml.rttplugin.RttMbtProgressView" />
         <category
-        	id="compass_eu.compassresearch.ide.cml.ui.category"
+        	id="eu.compassresearch.ide.ui.category"
         	name="COMPASS"/>
   </extension>
   
@@ -64,7 +64,7 @@
   <!-- Import Model -->
   <extension point="org.eclipse.ui.menus">
     <menuContribution
-      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
       <command
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtImportModel"
         label="Import Model"
@@ -96,7 +96,7 @@
   </extension>
   <extension point="org.eclipse.ui.menus">
     <menuContribution
-      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
       <command
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateTest"
         label="Generate Test Procedure"
@@ -116,7 +116,7 @@
   </extension>
   <extension point="org.eclipse.ui.menus">
     <menuContribution
-      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
       <command
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtGenerateSimulation"
         label="Generate Simulation"
@@ -136,7 +136,7 @@
   </extension>
   <extension point="org.eclipse.ui.menus">
     <menuContribution
-      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
       <command
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtAbort"
         label="Abort Task"
@@ -156,7 +156,7 @@
   </extension>
   <extension point="org.eclipse.ui.menus">
     <menuContribution
-      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
       <command
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCleanRttTestProcedure"
         label="Clean Test"
@@ -176,7 +176,7 @@
   </extension>
   <extension point="org.eclipse.ui.menus">
     <menuContribution
-      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
       <command
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtCompileRttTestProcedure"
         label="Compile Test"
@@ -196,7 +196,7 @@
   </extension>
   <extension point="org.eclipse.ui.menus">
     <menuContribution
-      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
       <command
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtRunRttTestProcedure"
         label="Run Test"
@@ -216,7 +216,7 @@
   </extension>
   <extension point="org.eclipse.ui.menus">
     <menuContribution
-      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
       <command
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtDocRttTestProcedure"
         label="Doc Test"
@@ -236,7 +236,7 @@
   </extension>
   <extension point="org.eclipse.ui.menus">
     <menuContribution
-      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
       <command
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtReplayTestprocedure"
         label="Replay Test"
@@ -256,7 +256,7 @@
   </extension>
   <extension point="org.eclipse.ui.menus">
     <menuContribution
-      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
       <command
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtSendFile"
         label="Push to server"
@@ -276,7 +276,7 @@
   </extension>
   <extension point="org.eclipse.ui.menus">
     <menuContribution
-      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
       <command
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtRetrieveDirectory"
         label="Pull from Server"
@@ -296,7 +296,7 @@
   </extension>
   <extension point="org.eclipse.ui.menus">
     <menuContribution
-      locationURI="popup:org.overture.ide.ui.VdmExplorer">
+      locationURI="popup:eu.compassresearch.ide.ui.CmlNavigator">
       <command
         commandId="eu.compassresearch.ide.cml.rttplugin.RttMbtAddProject"
         label="Add Component to Server"

@@ -1,5 +1,7 @@
 package eu.compassresearch.ide.cml.rttplugin;
 
+import org.eclipse.swt.widgets.Display;
+
 import eu.compassresearch.rttMbtTmsClientApi.IRttMbtLoggingFacility;
 
 public class RttMbtConsoleLogger implements IRttMbtLoggingFacility {
