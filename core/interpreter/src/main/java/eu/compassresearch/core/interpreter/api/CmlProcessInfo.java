@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.compassresearch.core.interpreter.cml.CmlProcessState;
-import eu.compassresearch.core.interpreter.cml.CmlTrace;
-import eu.compassresearch.core.interpreter.cml.events.CmlEvent;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlBehaviorState;
+import eu.compassresearch.core.interpreter.api.behaviour.CmlTrace;
+import eu.compassresearch.core.interpreter.api.transitions.CmlTransition;
 
 public class CmlProcessInfo {
 
@@ -14,13 +14,13 @@ public class CmlProcessInfo {
 	private final String[] trace;
 	private final long level;
 	private final boolean isProcess;
-	private final CmlProcessState state;
+	private final CmlBehaviorState state;
 
 	public CmlProcessInfo(String name, CmlTrace trace,long level, 
-			boolean isProcess, CmlProcessState state)
+			boolean isProcess, CmlBehaviorState state)
 	{
 		this.name = name;
-		List<String> evs = convertCmlEventsToStringList(trace.getVisibleTrace());
+		List<String> evs = convertCmlEventsToStringList(trace.getEventTrace());
 		this.trace = evs.toArray(new String[evs.size()]);
 		this.level = level;
 		this.isProcess = isProcess;
@@ -36,7 +36,7 @@ public class CmlProcessInfo {
 		return level;
 	}
 	
-	public CmlProcessState getState() {
+	public CmlBehaviorState getState() {
 		return state;
 	}
 	
@@ -45,11 +45,11 @@ public class CmlProcessInfo {
 		return Arrays.asList(this.trace); 
 	}
 	
-	private List<String> convertCmlEventsToStringList(List<CmlEvent> events)
+	private List<String> convertCmlEventsToStringList(List<CmlTransition> events)
 	{
 		List<String> result = new LinkedList<String>();
 
-		for(CmlEvent e : events)
+		for(CmlTransition e : events)
 		{
 			result.add(e.toString());
 		}

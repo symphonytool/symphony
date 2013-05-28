@@ -93,7 +93,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	[isConstructor]:java_Boolean
 	[precondition]:exp
 	[postcondition]:exp
-	(type):type.operation
+	(type):type
 	(predef):definition.explicitFunction
 	(postdef):definition.explicitFunction
 	(paramDefinitions):definition*
@@ -108,7 +108,7 @@ definition {-> package='eu.compassresearch.ast.definitions'}
 	[postcondition]:exp
 	[isConstructor]:java_Boolean
 	[errors]:case.error*
-	(type):type.operation
+	(type):type
 	(predef):definition.explicitFunction
 	(postdef):definition.explicitFunction
 	(state):definition.state

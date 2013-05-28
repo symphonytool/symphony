@@ -27,7 +27,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.overture.ast.definitions.AExplicitFunctionDefinition;
-import org.overture.ast.definitions.AImplicitOperationDefinition;
 import org.overture.ast.definitions.AStateDefinition;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.definitions.SClassDefinition;
@@ -76,7 +75,7 @@ public class CMLSatisfiabilityObligation extends CMLProofObligation
 			
 			if (preexp != null)
 			{
-				sb.append(preexp.getName().name);
+				sb.append(preexp.getName().getName());
 				sb.append("(");
 				separator = "";
 				appendParamPatterns(sb, paramPatterns);
@@ -155,7 +154,7 @@ public class CMLSatisfiabilityObligation extends CMLProofObligation
 				{
 					AStateDefinition def = (AStateDefinition) state;
 					sb.append(":");
-					sb.append(def.getName().name);
+					sb.append(def.getName().getName());
 				}
 			} else
 			{
@@ -173,7 +172,7 @@ public class CMLSatisfiabilityObligation extends CMLProofObligation
 				{
 					SClassDefinition def = (SClassDefinition) state;
 					sb.append(":");
-					sb.append(def.getName().name);
+					sb.append(def.getName().getName());
 				}
 			}
 

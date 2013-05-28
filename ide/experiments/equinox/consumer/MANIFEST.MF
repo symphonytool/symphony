@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: COMPASS Equinox Test
-Bundle-SymbolicName: eu.compassresearch.test.consumer
-Bundle-Version: 1.0.0
-Bundle-Activator: eu.compassresearch.consumer.CompassActivator
-Import-Package: org.osgi.framework,eu.compassresearch.producer;version=1.0.0
-

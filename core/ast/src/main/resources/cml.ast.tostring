@@ -20,7 +20,8 @@ import eu.compassresearch.ast.util.ToStringUtil;
 //             ($[errors]$.isEmpty() ? "" : "\n\terrs " + $[errors]$)$ + "]" 
 %action->communication = [identifier] "->" [action]
 %communicationParameter->write = [expression]
-%communicationParameter->read  = [expression]
+%communicationParameter->signal = [expression]
+%communicationParameter->read  =  [expression] " " [pattern] 
 %action->skip = "Skip"
 %action->stop = "Stop"
 %action->chaos = "Chaos"
@@ -42,6 +43,8 @@ import eu.compassresearch.ast.util.ToStringUtil;
 %action->#Statement->call = [name] "(" + $org.overture.ast.util.Utils.listToString($  [args]  $)$ + ")"
 %declaration->#Single->type = [identifiers] ":" [type]
 %declaration->#Single->expression = [identifiers] " := " [expression]
+
+%exp->variable = [name]
 
 // Processes
 %process->action = "state: " [definitionParagraphs] " @ "

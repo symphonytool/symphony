@@ -1,10 +1,11 @@
 package eu.compassresearch.core.analysis.pog.visitors;
 
 import java.util.LinkedList;
+
 import org.overture.ast.analysis.AnalysisException;
 import org.overture.ast.definitions.PDefinition;
 import org.overture.ast.expressions.PExp;
-import org.overture.ast.lex.LexNameToken;
+import org.overture.ast.intf.lex.ILexNameToken;
 import org.overture.pog.obligation.POContextStack;
 import org.overture.pog.obligation.ProofObligationList;
 
@@ -41,7 +42,6 @@ import eu.compassresearch.ast.process.ATimedInterruptProcess;
 import eu.compassresearch.ast.process.ATimeoutProcess;
 import eu.compassresearch.ast.process.AUntimedTimeoutProcess;
 import eu.compassresearch.ast.process.PProcess;
-
 import eu.compassresearch.core.analysis.pog.obligations.NonZeroTimeObligation;
 
 @SuppressWarnings("serial")
@@ -580,7 +580,7 @@ public class POGProcessVisitor extends QuestionAnswerCMLAdaptor<POContextStack, 
 		//Get subparts
 		LinkedList<PExp> args = node.getArgs();
 		AProcessDefinition defn = node.getProcessDefinition();
-		LexNameToken name = node.getProcessName();
+		ILexNameToken name = node.getProcessName();
 		
 		//TODO: consider AReferenceProcess POs
 				
