@@ -870,17 +870,6 @@ class TCExpressionVisitor extends
 		if (root == null)
 			root = question.env.findName(rootName, question.scope);
 
-		// RWL: UGLY Re-factor some day
-		// if (root instanceof AAssignmentDefinition) {
-		// AAssignmentDefinition adef = (AAssignmentDefinition) root;
-		// PType type = adef.getType();
-		// if (type instanceof AClassType) {
-		// AClassType clzType = (AClassType) type;
-		// root = question.env.findName(clzType.getName(),
-		// NameScope.GLOBAL);
-		// }
-		// }
-
 		// Use Cml environment to determine what rootName is
 		if (root == null)
 			root = cmlQuestion.lookup(rootName, PDefinition.class);
