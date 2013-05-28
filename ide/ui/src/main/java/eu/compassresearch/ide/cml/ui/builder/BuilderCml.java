@@ -21,6 +21,7 @@ import org.overture.ide.core.builder.AbstractVdmBuilder;
 import org.overture.parser.messages.VDMError;
 import org.overture.parser.messages.VDMWarning;
 
+import eu.compassresearch.ast.program.AFileSource;
 import eu.compassresearch.ast.program.PSource;
 import eu.compassresearch.core.common.Registry;
 import eu.compassresearch.core.common.RegistryFactory;
@@ -65,7 +66,7 @@ public class BuilderCml extends AbstractVdmBuilder
 			List<CMLTypeError> errorsThatMatter = filterErrros(issueHandler.getTypeErrors());
 			for (final CMLTypeError error : errorsThatMatter)
 			{
-				errors.add(new VDMError(0, error.getDescription(), error.getLocation()));
+				addErrorMarker(error);
 			}
 
 			// set warning markers
@@ -93,13 +94,7 @@ public class BuilderCml extends AbstractVdmBuilder
 	private IStatus setMarkers(List<VDMError> errors, List<VDMWarning> warnings)
 	{
 		boolean typeCheckFailed = !errors.isEmpty();
-		if (typeCheckFailed)
-		{
-			for (VDMError error : errors)
-			{
-				addErrorMarker(error);
-			}
-		}
+	
 		if (!getProject().hasSuppressWarnings())
 		{
 			for (VDMWarning warning : warnings)
@@ -127,6 +122,16 @@ public class BuilderCml extends AbstractVdmBuilder
 		addErrorMarker(error.location.getFile(), error.toProblemString(), error.location, IBuilderVdmjConstants.PLUGIN_ID);
 	}
 
+	private void addErrorMarker(CMLTypeError error)
+	{
+		// TODO RWL: This needs to be fixed to loose hanging trees with errors
+		AFileSource source = (AFileSource) error.getOffendingNode().getAncestor(PSource.class);
+		if (source != null) {
+			addErrorMarker(source.getFile(), error.getDescription(), error.getLocation(), IBuilderVdmjConstants.PLUGIN_ID);
+		}
+	}
+
+	
 	private void addWarningMarker(VDMWarning error)
 	{
 		addWarningMarker(error.location.getFile(), error.toProblemString(), error.location, IBuilderVdmjConstants.PLUGIN_ID);

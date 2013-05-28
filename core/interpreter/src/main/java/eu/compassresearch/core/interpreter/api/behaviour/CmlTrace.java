@@ -70,6 +70,19 @@ public class CmlTrace {
 		return visibleEvents;
 	}
 	
+	public List<CmlTransition> getObservableTrace()
+	{
+		List<CmlTransition> visibleEvents = new LinkedList<CmlTransition>();
+			
+		for(CmlTransition e : trace)
+		{
+			if(e instanceof ObservableEvent)
+				visibleEvents.add(e);
+		}
+		
+		return visibleEvents;
+	}
+	
 	public boolean equals(Object obj) { 
 	
 		if(!(obj instanceof CmlTrace))

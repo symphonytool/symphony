@@ -45,7 +45,7 @@ public class EventSourceHandler<O,E> implements EventSource<O>{
 		return observers.contains(observer);
 	}
 	
-	public void fireEvent(E event)
+	public void fireEvent(E event) 
 	{
 		for(O observer : new Vector<O>(observers))
 		{
